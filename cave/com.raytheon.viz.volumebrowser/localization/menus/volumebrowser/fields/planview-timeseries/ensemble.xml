@@ -23,8 +23,13 @@
         <contribute xsi:type="subinclude"
             fileName="menus/volumebrowser/fields/planview-timeseries/ensemble/GFS.xml" />
     </contribute>
+    
+    <contribute xsi:type="toolbarSubMenu" menuText="SREF Ensembles">
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/fields/planview-timeseries/ensemble/SREF.xml" />
+    </contribute>
 
-    <contribute xsi:type="toolbarSubMenu" menuText="SREF means">
+   <!--  <contribute xsi:type="toolbarSubMenu" menuText="SREF means">
         <contribute xsi:type="subinclude"
             fileName="menus/volumebrowser/fields/planview-timeseries/ensemble/SREFMeans.xml" />
     </contribute>
@@ -37,5 +42,5 @@
     <contribute xsi:type="toolbarSubMenu" menuText="SREF Probabilities">
         <contribute xsi:type="subinclude"
             fileName="menus/volumebrowser/fields/planview-timeseries/ensemble/SREFProbabilities.xml" />
-    </contribute>
+    </contribute> -->
 </menuTemplate>

@@ -76,6 +76,11 @@ cp -v ${EDEX_BASE}/scripts/init.d/* \
 if [ $? -ne 0 ]; then
    exit 1
 fi
+# rename the script to prevent naming conflicts during installation
+pushd . > /dev/null 2>&1
+cd %{_build_root}/etc/init.d
+mv edexServiceList edexServiceList-edex
+popd > /dev/null 2>&1
 
 # copy versions.sh.
 UTILITY="${INSTALLER_RPM}/utility"
@@ -97,6 +102,19 @@ fi
 %pre
 
 %post
+# replace the service list script with the edex service list script
+if [ ! -f /etc/init.d/edexServiceList-datadelivery ]; then
+   if [ -f /etc/init.d/edexServiceList ]; then
+      mv /etc/init.d/edexServiceList /etc/init.d/edexServiceList.orig
+      if [ $? -ne 0 ]; then
+         exit 1
+      fi
+   fi
+   cp /etc/init.d/edexServiceList-edex /etc/init.d/edexServiceList
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+fi
 MACHINE_BIT=`uname -i`
 if [ "${MACHINE_BIT}" = "i386" ]
 then

@@ -25,9 +25,36 @@ FIELD: |2870.|
 FIELD: |1.e37| 
 FIELD: |Rain2| 
 
+Rain thickness criteria: 
+1000-850 mb thickness 1291m or more 
+850-700 mb thickness 1552m or more
+1000-700 mb thickness 2870m or more
+
 -->
 <DerivedParameter name="Thickness: Rain Likely" abbreviation="Rain3" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
-    <Method levels="Surface" name="Test">
+    <Method levels="900MB" name="Test">
+        <Field level="1000MB-850MB" abbreviation="dZ"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1.0E37"/>
+        <ConstantField value="1290.0"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="1291.0"/>
+        <ConstantField value="1.0E37"/>
+        <ConstantField value="1.0"/>
+    </Method>
+     <Method levels="850MB" name="Test">
+        <Field level="850MB-700MB" abbreviation="dZ"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1e37"/>
+        <ConstantField value="1551.0"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="1552.0"/>
+        <ConstantField value="1e37"/>
+        <Field level="900MB" abbreviation="Rain3"/>
+    </Method>
+    <Method levels="800MB" name="Test">
         <Field level="1000MB-700MB" abbreviation="dZ"/>
         <ConstantField value="1.0"/>
         <ConstantField value="-1e37"/>
@@ -36,6 +63,12 @@ FIELD: |Rain2|
         <ConstantField value="1.0"/>
         <ConstantField value="2870.0"/>
         <ConstantField value="1e37"/>
-        <Field abbreviation="Rain2"/>
+        <Field level="850MB" abbreviation="Rain3"/>
     </Method>
+     <Method name="Mapping" levels="Surface">
+		<Field level="800MB" abbreviation="Rain3" />
+        <ConstantField value="1" />
+		<ConstantField value="79" />
+	</Method>
+    
 </DerivedParameter>

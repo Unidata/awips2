@@ -25,17 +25,36 @@ FIELD: |1554.|
 FIELD: |1.e37| 
 FIELD: |Fzra1| 
 
+FZRA thickness criteria: 
+1000-850 mb thickness 1300m or less 
+850-700 mb thickness 1553m or greater 
 -->
 <DerivedParameter name="Thickness: FZRA/FZDZ" abbreviation="Fzra2" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
-    <Method levels="Surface" name="Test">
+    <Method levels="800MB" name="Test">
+	     <Field level="1000MB-850MB" abbreviation="dZ"/>
+		 <ConstantField value="1" />
+	     <ConstantField value="-1e37"/>
+	     <ConstantField value="1299.4"/>
+	     <ConstantField value="1"/>
+	     <ConstantField value="1"/>
+	     <ConstantField value="1299.5"/>
+	     <ConstantField value="1e37"/>
+	     <ConstantField value="0"/>
+    </Method>
+    <Method levels="850MB" name="Test">
         <Field level="850MB-700MB" abbreviation="dZ"/>
 		<ConstantField value="1" />
 	    <ConstantField value="-1e37" />
-	    <ConstantField value="1553" />
+	    <ConstantField value="1553.0" />
 	    <ConstantField value="0" />
 	    <ConstantField value="1" />
-	    <ConstantField value="1554" />
+	    <ConstantField value="1553.1" />
 	    <ConstantField value="1e37" />
-	    <Field abbreviation="Fzra1" />
+	    <Field level="800MB" abbreviation="Fzra2" />
     </Method>
+     <Method name="Mapping" levels="Surface">
+		<Field level="850MB" abbreviation="Fzra2" />
+        <ConstantField value="1" />
+		<ConstantField value="71" />
+	</Method>
 </DerivedParameter>

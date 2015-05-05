@@ -85,6 +85,7 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
  * May 14, 2014 2536        bclement    moved WMO Header to common, removed TimeTools usage
  * Jul 23, 2014  3410       bclement    location changed to floats
  * Oct 02, 2014 3693        mapeters    Added Pattern constants.
+ * Apr 22, 2015 DR 16923    MPorricelli Modified cleanMessage to eliminate extra spaces
  * 
  * </pre>
  * 
@@ -988,7 +989,8 @@ public class MetarDecoder extends AbstractDecoder {
     }
 
     /**
-     * Get rid of any control characters prior to parsing data.
+     * Get rid of any control characters and extraneous spaces
+     * prior to parsing data.
      * 
      * @param message
      * @return
@@ -998,14 +1000,17 @@ public class MetarDecoder extends AbstractDecoder {
         char lastChar = 0;
         for (int i = 0; i < message.length(); i++) {
             char c = message.charAt(i);
-            if (c < ' ') {
-                if (lastChar != c) {
-                    sb.append(' ');
+            // if current char is a control char or space and prev char is
+            // not a space, then add a space to string
+            if (c <= ' ') {
+                if (lastChar != ' ') {
+                   sb.append(' ');
+                   lastChar = ' ';
                 }
             } else {
                 sb.append(c);
+                lastChar = c;
             }
-            lastChar = c;
         }
         return sb.toString();
     }
