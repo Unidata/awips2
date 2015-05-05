@@ -16,6 +16,8 @@
 #####         Qinglu Lin    09-15-2014 ASM #15551. Overhauled inserttorwatches and insertsvrwatches, added until.
 #####         Qinglu Lin    10-06-2014 ASN #556.   Updated secondBullet.
 #####    Evan Bookbinder    10-24-2014 Fixed UGC > 500 check for Indep Cities in svrl macros to ignore zone codes
+#####    Evan Bookbinder    3-30-2015  Fixed wording for Independent Cities not in VA
+#####                                  Fixed dupCounties.vm not working due a variable switch in HeadlineLocList and ZoneHeadlineLocList
 ####################################################################################################
 #*
 Mile Marker Test Code                                     
@@ -574,7 +576,7 @@ ${closestPoint.roundedDistance} ${units} #direction(${closestPoint.oppositeRound
 ### CHECK FOR DUPLICATE COUNTY NAMES WITHIN A CWA
 #parse("dupCounties.vm")
 #foreach (${area} in ${areas})
-#if(${list.contains($dupcounties, "${area.state_zone}")})
+#if(${list.contains($dupcounties, "${area.fips}")})
 #set($useStates = true)
 #end
 #end
@@ -825,10 +827,20 @@ ${prevState}##
 #if(${indepCityCount} == 1)
 ### COUNTIES + 1 INDEPENDENT CITY
 #if(${numCounties} > ${numIndepCity})
+### CHANGE EB 3/30/15 FOR INDEPENDENT CITY PHRASING
+#if(${area.name.contains("City of")})
  AND THE ${area.name}##
+#else
+ AND ${area.name}##
+#end
+### END EB CHANGE 
 ### NO COUNTIES AND ONE INDEPENDENT CITY
 #else
+### CHANGE EB 3/30/15 FOR INDEPENDENT CITY PHRASING
+#if(${area.name.contains("City of")})
 THE ##
+#end
+### END EB CHANGE 
 #if(${area.partOfArea})
 #areaFormat(${area.partOfArea} ${useCentralCounty} ${useExtremeCounty} true)##
 #end
@@ -836,14 +848,26 @@ ${area.name}##
 #end
 #else
 ## MULTIPLE INDEPENDENT CITIES...LAST ITEM IN THE LIST
- AND THE ##
+### CHANGE EB 3/30/15 FOR INDEPENDENT CITY PHRASING
+#if(${area.name.contains("City of")})
+ AND THE ${area.name}##
+#else
+ AND ${area.name}##
+#end
+### END EB CHANGE 
 #if(${area.partOfArea})
 #areaFormat(${area.partOfArea} ${useCentralCounty} ${useExtremeCounty} true)##
 #end
 ${area.name}##
 #end
 #else
+### CHANGE EB 3/30/15 FOR INDEPENDENT CITY PHRASING
+#if(${area.name.contains("City of")})
 ...THE ##
+#else
+...##
+#end
+### END EB CHANGE 
 #if(${area.partOfArea})
 #areaFormat(${area.partOfArea} ${useCentralCounty} ${useExtremeCounty} true)##
 #end
@@ -870,7 +894,7 @@ ${area.name}##
 ### CHECK FOR DUPLICATE COUNTY NAMES WITHIN A CWA
 #parse("dupCounties.vm")
 #foreach (${area} in ${areas})
-#if(${list.contains($dupcounties, "${area.fips}")})
+#if(${list.contains($dupcounties, "${area.state_zone}")})
 #set($useStates = true)
 #end
 #end
@@ -1074,7 +1098,11 @@ THE ##
 ${area.name}...
 ##OUTPUT FOR INDEPENDENT CITIES
 #else 
+### CHANGE EB 3/30/15 FOR INDEPENDENT CITY PHRASING
+#if(${area.name.contains("City of")})
 THE ##
+#end
+### END EB CHANGE 
 #if(${area.partOfArea})
 #areaFormat(${area.partOfArea} true false true)## 
 #end
@@ -1166,14 +1194,21 @@ THE FOLLOWING COUNTIES AND PARISHES...
 ##OUTPUT FOR D.C.
 #elseif (${area.stateabbr} == "DC")
 
-  THE ##
+  THE ## 
 #if(${area.partOfArea})
 #set($partOfArea = "#areaFormat(${area.partOfArea} true false true)")
 #end
 ${partOfArea}${area.name}...
 ##OUTPUT FOR INDEPENDENT CITIES
 #else 
+
+### CHANGE EB 3/30/15 FOR INDEPENDENT CITY PHRASING
+#if(${area.name.contains("City of")})
   THE ##
+#else
+  ##
+#end
+### END EB CHANGE 
 #if(${area.partOfArea})
 #set($partOfArea = "#areaFormat(${area.partOfArea} true false true)") 
 #end

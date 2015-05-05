@@ -19,30 +19,59 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="menuItem" textLookup="LevelMapping"
-        key="ML" indentText="false" />
-    <contribute xsi:type="menuItem" textLookup="LevelMapping"
-        key="MaxT" indentText="false" />
-    <contribute xsi:type="menuItem" textLookup="LevelMapping"
-        key="MaxOmega" indentText="false" />
-    <contribute xsi:type="menuItem" textLookup="LevelMapping"
-        key="MaxTW" indentText="false" />
-    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+   
+     <contribute xsi:type="toolbarSubMenu" menuText="Max">
+      <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="MaxCape" indentText="false" />
+      <contribute xsi:type="menuItem" textLookup="LevelMapping"
         key="MaxR" indentText="false" />
+      <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="MaxOmega" indentText="false" />
+      <contribute xsi:type="menuItem" menuText="MaxShear" key="MaxShear"
+        indentText="false" />
+      <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="MaxT" indentText="false" />      
+      <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="MaxTW" indentText="false" />      
+      <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="Mept" indentText="false" />
+      <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="MaxWind" indentText="false" />
+     </contribute>
+     <contribute xsi:type="toolbarSubMenu" menuText="Clouds">  
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="LowLyr" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="MidLyr" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="HiLyr" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="CloudBase"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="LowCloudBase"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="MidCloudBase"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="HighCloudBase"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="CloudCeiling"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="CloudTop"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="ConvCloudTop"  indentText="false"/>
+     </contribute> 
+     <contribute xsi:type="toolbarSubMenu" menuText="PV"> 
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="PV5"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="PV10"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="PV15"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="PV20"  indentText="false"/>
+     </contribute>    	 
     <contribute xsi:type="menuItem" textLookup="LevelMapping"
         key="Surface" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping" 
+        key="Layer"  indentText="false"/>
     <contribute xsi:type="menuItem" textLookup="LevelMapping"
-        key="FrzLvl" indentText="false" />
-    <contribute xsi:type="menuItem" textLookup="LevelMapping"
-        key="Htfl" indentText="false" />
-    <contribute xsi:type="menuItem" textLookup="LevelMapping"
-        key="MaxWind" indentText="false" />
-    <contribute xsi:type="menuItem" menuText="MaxShear" key="MaxShear"
-        indentText="false" />
-    <contribute xsi:type="menuItem" textLookup="LevelMapping"
-        key="Trop" indentText="false" />
-    <contribute xsi:type="menuItem" textLookup="LevelMapping"
-        key="BLyr" indentText="false" />
+        key="ML" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping" 
+           key="ML500" indentText="false"/>	
+    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="FrzLvl"  indentText="false"/>
+	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="WetBulb0"  indentText="false"/>
+    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="LiftCondLvl"  indentText="false"/>
+    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="Htfl"  indentText="false"/>
+    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="Trop"  indentText="false"/>
+    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="BLyr"  indentText="false"/>
+    
+   
     <contribute xsi:type="menuItem" textLookup="LevelMapping"
         key="30agl" indentText="false" />
     <contribute xsi:type="menuItem" textLookup="LevelMapping"
@@ -56,43 +85,16 @@
     <contribute xsi:type="menuItem" textLookup="LevelMapping" 
         key="400agl" indentText="false"/>
     <contribute xsi:type="menuItem" textLookup="LevelMapping"
-        key="Mept" indentText="false" />
-    <contribute xsi:type="menuItem" textLookup="LevelMapping"
-        key="WetBulb0" indentText="false" />
-    <contribute xsi:type="menuItem" textLookup="LevelMapping"
-        key="CloudBase" indentText="false" />
-    <contribute xsi:type="menuItem" textLookup="LevelMapping"
-        key="LowCloudBase" indentText="false" />
-    <contribute xsi:type="menuItem" textLookup="LevelMapping"
-        key="MidCloudBase" indentText="false" />
-    <contribute xsi:type="menuItem" textLookup="LevelMapping"
-        key="HighCloudBase" indentText="false" />
-    <contribute xsi:type="menuItem" textLookup="LevelMapping"
-        key="CloudCeiling" indentText="false" />
-    <contribute xsi:type="menuItem" textLookup="LevelMapping"
-        key="CloudTop" indentText="false" />
-    <contribute xsi:type="menuItem" textLookup="LevelMapping"
-        key="ConvCloudTop" indentText="false" />
-    <contribute xsi:type="menuItem" textLookup="LevelMapping"
-        key="LiftCondLvl" indentText="false" />
-    <contribute xsi:type="menuItem" textLookup="LevelMapping"
         key="EchoTop" indentText="false" />
     <contribute xsi:type="menuItem" textLookup="LevelMapping"
         key="El" indentText="false" />
     <contribute xsi:type="menuItem" textLookup="LevelMapping"
-        key="PV5" indentText="false" />
-    <contribute xsi:type="menuItem" textLookup="LevelMapping"
-        key="PV10" indentText="false" />
-    <contribute xsi:type="menuItem" textLookup="LevelMapping"
-        key="PV15" indentText="false" />
-    <contribute xsi:type="menuItem" textLookup="LevelMapping"
-        key="PV20" indentText="false" />
+        key="SIG0.8-0.5" indentText="false" />
     <contribute xsi:type="menuItem" menuText="Primary" key="Primary"
         indentText="false" />
     <contribute xsi:type="menuItem" menuText="Secondary" key="Secondary"
         indentText="false" />
     <contribute xsi:type="menuItem" textLookup="LevelMapping"
         key="0BSS" indentText="false" />
-    <contribute xsi:type="menuItem" menuText="0 AGL" key="0FHAG"
-        indentText="false" />
+  
 </menuTemplate>

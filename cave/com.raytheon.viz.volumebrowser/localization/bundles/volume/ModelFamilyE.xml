@@ -20,15 +20,15 @@ ModFamE| |N|Winter: PV/Trop Family| |OTHER | | \
 				<!--|101.|P,PV15-->
 				<!-- not sure about mapping of 101 -->
 				<resource>
-					<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-						<capabilities>
-							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-						</capabilities>
-						<resourceType>PLAN_VIEW</resourceType>
-					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
-						<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-					</properties>
+					 <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+                        <capabilities>
+                            <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+                        </capabilities>
+                        <resourceType>PLAN_VIEW</resourceType>
+                    </loadProperties>
+                    <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
 							<mapping key="info.parameter.abbreviation">
@@ -44,7 +44,7 @@ ModFamE| |N|Winter: PV/Trop Family| |OTHER | | \
 								<constraint constraintValue="PV" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.level.levelonevalue">
-								<constraint constraintValue="0.0" constraintType="EQUALS"/>
+								<constraint constraintValue="1.5" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
 						<alertParser xsi:type="dataCubeAlertMessageParser"/>
@@ -77,7 +77,7 @@ ModFamE| |N|Winter: PV/Trop Family| |OTHER | | \
 								<constraint constraintValue="PV" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.level.levelonevalue">
-								<constraint constraintValue="0.0" constraintType="EQUALS"/>
+								<constraint constraintValue="1.5" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
 						<alertParser xsi:type="dataCubeAlertMessageParser"/>
@@ -89,6 +89,7 @@ ModFamE| |N|Winter: PV/Trop Family| |OTHER | | \
 				<resource>
 					<loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
 						<capabilities>
+						<capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.8" contrast="1.0"/>
 							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
 						</capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
@@ -111,7 +112,7 @@ ModFamE| |N|Winter: PV/Trop Family| |OTHER | | \
 								<constraint constraintValue="PV" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.level.levelonevalue">
-								<constraint constraintValue="0.0" constraintType="EQUALS"/>
+								<constraint constraintValue="1.5" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
 						<alertParser xsi:type="dataCubeAlertMessageParser"/>
@@ -152,7 +153,7 @@ ModFamE| |N|Winter: PV/Trop Family| |OTHER | | \
 								<constraint constraintValue="PV" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.level.levelonevalue">
-								<constraint constraintValue="0.0" constraintType="EQUALS"/>
+								<constraint constraintValue="1.5" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
 						<alertParser xsi:type="dataCubeAlertMessageParser"/>
@@ -185,7 +186,7 @@ ModFamE| |N|Winter: PV/Trop Family| |OTHER | | \
 								<constraint constraintValue="PV" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.level.levelonevalue">
-								<constraint constraintValue="0.0" constraintType="EQUALS"/>
+								<constraint constraintValue="1.5" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
 						<alertParser xsi:type="dataCubeAlertMessageParser"/>
@@ -196,7 +197,8 @@ ModFamE| |N|Winter: PV/Trop Family| |OTHER | | \
 				<resource>
 					<loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
 						<capabilities>
-							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+						<capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.8" contrast="1.0"/>
+						<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
 						</capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
 					</loadProperties>
@@ -218,7 +220,7 @@ ModFamE| |N|Winter: PV/Trop Family| |OTHER | | \
 								<constraint constraintValue="PV" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.level.levelonevalue">
-								<constraint constraintValue="0.0" constraintType="EQUALS"/>
+								<constraint constraintValue="1.5" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
 						<alertParser xsi:type="dataCubeAlertMessageParser"/>
@@ -237,6 +239,7 @@ ModFamE| |N|Winter: PV/Trop Family| |OTHER | | \
 				<resource>
 					<loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
 						<capabilities>
+						<capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.8" contrast="1.0"/>
 							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
 						</capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
@@ -259,7 +262,7 @@ ModFamE| |N|Winter: PV/Trop Family| |OTHER | | \
 								<constraint constraintValue="PV" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.level.levelonevalue">
-								<constraint constraintValue="0.0" constraintType="EQUALS"/>
+								<constraint constraintValue="1.5" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
 						<alertParser xsi:type="dataCubeAlertMessageParser"/>
@@ -377,6 +380,7 @@ ModFamE| |N|Winter: PV/Trop Family| |OTHER | | \
 				<resource>
 					<loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
 						<capabilities>
+						<capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.8" contrast="1.0"/>
 							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
 						</capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
@@ -387,7 +391,7 @@ ModFamE| |N|Winter: PV/Trop Family| |OTHER | | \
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
 							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="TP" constraintType="EQUALS"/>
+								<constraint constraintValue="${TP}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
@@ -420,7 +424,7 @@ ModFamE| |N|Winter: PV/Trop Family| |OTHER | | \
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
 							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="TP" constraintType="EQUALS"/>
+								<constraint constraintValue="${TP}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
@@ -444,11 +448,12 @@ ModFamE| |N|Winter: PV/Trop Family| |OTHER | | \
 				<resource>
 					<loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
 						<capabilities>
+						<capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.8" contrast="1.0"/>
 							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
 						</capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
 					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
+					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
 						<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">

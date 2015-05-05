@@ -44,7 +44,7 @@
     </contribute>
 
     <!-- Tilts menu item -->
-    <contribute xsi:type="toolBarItem" toolItemName="Tilts">
+    <contribute xsi:type="toolBarItem" toolItemName="Radar">
         <contribute xsi:type="subinclude"
             fileName="menus/volumebrowser/planes/planviewtime-timeseries/tilts.xml" />
     </contribute>
@@ -55,9 +55,5 @@
             fileName="menus/volumebrowser/planes/planviewtime-timeseries/misc.xml" />
     </contribute>
 
-    <!-- Lyrs menu item -->
-    <contribute xsi:type="toolBarItem" toolItemName="Lyrs">
-        <contribute xsi:type="subinclude"
-            fileName="menus/volumebrowser/planes/planviewtime-timeseries/lyrs.xml" />
-    </contribute>
+  
 </menuTemplate>
