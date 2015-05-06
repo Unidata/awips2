@@ -22,8 +22,8 @@ package com.raytheon.edex.plugin.gfe.isc;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,11 +31,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
 import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
+import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.uf.common.dataplugin.gfe.request.IscDataRecRequest;
 import com.raytheon.uf.common.python.concurrent.IPythonJobListener;
 import com.raytheon.uf.common.python.concurrent.PythonJobCoordinator;
@@ -44,7 +53,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.common.util.file.FilenameFilters;
-import com.raytheon.uf.edex.site.SiteAwareRegistry;
 
 /**
  * ISC data receive service. Takes incoming request and executes iscDataRec
@@ -60,6 +68,7 @@ import com.raytheon.uf.edex.site.SiteAwareRegistry;
  * Mar 12, 2013   #1759    dgilling    Re-implement using IscScript.
  * Mar 14, 2013   #1794    djohnson    Consolidate common FilenameFilter implementations.
  * Dec 10, 2014   #4953    randerso    Properly handle single file reception
+ * May 06, 2015   #4383    dgilling    Properly XML parse incoming XML file.
  * 
  * </pre>
  * 
@@ -68,8 +77,11 @@ import com.raytheon.uf.edex.site.SiteAwareRegistry;
  */
 
 public class IscReceiveSrv {
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(IscReceiveSrv.class);
+
+    private static final String ISC_REQUEST = "iscrequest";
 
     private static final String METHOD_NAME = "main";
 
@@ -113,6 +125,9 @@ public class IscReceiveSrv {
         } catch (GfeConfigurationException e) {
             statusHandler.error("Error getting GFE configuration", e);
             return;
+        } catch (SAXException | ParserConfigurationException e) {
+            statusHandler.error("Error parsing received XML file.", e);
+            return;
         }
 
         for (Entry<String, String[]> siteArgs : siteArgMap.entrySet()) {
@@ -132,7 +147,9 @@ public class IscReceiveSrv {
     }
 
     private Map<String, String[]> prepareIscDataRec(String[] args)
-            throws IOException, InterruptedException, GfeConfigurationException {
+            throws IOException, InterruptedException,
+            GfeConfigurationException, SAXException,
+            ParserConfigurationException {
         Map<String, String[]> siteMap = new HashMap<String, String[]>();
 
         String[] incomingFiles = args[2].split(",");
@@ -145,26 +162,21 @@ public class IscReceiveSrv {
             xmlFileName = incomingFiles[1];
         }
 
-        // TODO properly decode the xml
         final File incomingXMLFile = new File(xmlFileName);
-        String fileContents = FileUtil.file2String(incomingXMLFile);
-        Pattern siteTagRegEx = Pattern.compile("<site>(.*?)</site>");
-        Matcher matcher = siteTagRegEx.matcher(fileContents);
-        List<String> siteList = new ArrayList<String>();
-        while (matcher.find()) {
-            siteList.add(matcher.group(1));
-        }
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        Document doc = db.parse(incomingXMLFile);
+        doc.getDocumentElement().normalize();
 
-        List<String> activeSites = Arrays.asList(SiteAwareRegistry
-                .getInstance().getActiveSites());
-        if (fileContents.contains("<iscrequest>")) {
-            // Need to copy the request file if more than 1 site is active
-            // on this EDEX server. Otherwise, the file will be deleted
-            // after the first site has processed the request file
-            siteList.remove(siteList.size() - 1);
+        Collection<String> siteList = getXMLDestinations(doc);
+        Set<String> activeSites = IFPServer.getActiveSites();
 
-            for (int i = 0; i < siteList.size(); i++) {
-                final String siteId = siteList.get(i);
+        if (ISC_REQUEST.equals(doc.getDocumentElement().getNodeName())) {
+            /*
+             * This case is for processing an ISC Request/Reply message
+             * requesting our site's grids.
+             */
+            for (String siteId : siteList) {
                 if (activeSites.contains(siteId)) {
                     if (IFPServerConfigManager.getServerConfig(siteId)
                             .requestISC()) {
@@ -180,11 +192,8 @@ public class IscReceiveSrv {
             }
             incomingXMLFile.delete();
         } else {
-            // Remove the source site
-            siteList.remove(0);
-            Set<String> siteSet = new HashSet<String>(siteList);
             try {
-                for (String site : siteSet) {
+                for (String site : siteList) {
                     if (activeSites.contains(site)
                             && IFPServerConfigManager.getServerConfig(site)
                                     .requestISC()) {
@@ -271,5 +280,47 @@ public class IscReceiveSrv {
         }
 
         return siteMap;
+    }
+
+    private Collection<String> getXMLDestinations(final Document doc)
+            throws SAXException, IOException, ParserConfigurationException {
+        Collection<String> destinations = new HashSet<>();
+
+        // Expected XML format:
+        // <isc>
+        // <source></source>
+        // <destinations>
+        // <address>
+        // <site>SITE_ID</site>
+        // </address>
+        // </destinations>
+        // </isc>
+        NodeList destNodes = doc.getElementsByTagName("destinations");
+        if (destNodes.getLength() > 0) {
+            Node destNode = destNodes.item(0);
+
+            if (destNode.getNodeType() == Node.ELEMENT_NODE) {
+                Element destElement = (Element) destNode;
+
+                NodeList addrNodes = destElement
+                        .getElementsByTagName("address");
+                for (int i = 0; i < addrNodes.getLength(); i++) {
+                    Node addrNode = addrNodes.item(i);
+                    if (addrNode.getNodeType() == Node.ELEMENT_NODE) {
+                        Element addrElement = (Element) addrNode;
+
+                        NodeList siteIdNodes = addrElement
+                                .getElementsByTagName("site");
+                        if (siteIdNodes.getLength() > 0) {
+                            Node siteIDNode = siteIdNodes.item(0);
+                            String siteID = siteIDNode.getTextContent();
+                            destinations.add(siteID);
+                        }
+                    }
+                }
+            }
+        }
+
+        return destinations;
     }
 }
