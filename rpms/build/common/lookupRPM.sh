@@ -49,10 +49,6 @@ function lookupRPM()
       export RPM_SPECIFICATION="${installer_dir}/h5py-1.3.0/"
       return 0
    fi
-   if [ "${1}" = "awips2-python-jimporter" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.jimporter"
-      return 0
-   fi
    if [ "${1}" = "awips2-python-matplotlib" ]; then
       export RPM_SPECIFICATION="${installer_dir}/matplotlib-1.2.0/"
       return 0
@@ -63,6 +59,10 @@ function lookupRPM()
    fi
    if [ "${1}" = "awips2-python-numpy" ]; then
       export RPM_SPECIFICATION="${installer_dir}/numpy-1.7.2/"
+      return 0
+   fi
+   if [ "${1}" = "awips2-python-jep" ]; then
+      export RPM_SPECIFICATION="${installer_dir}/jep-3.3.0/"
       return 0
    fi
    if [ "${1}" = "awips2-python-pil" ]; then
