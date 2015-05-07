@@ -51,7 +51,9 @@ import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -85,6 +87,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *                                      /missing (part of state, state abbreviation) which resulted from 
  *                                      extension of a watch to counties which are of same/different fe_area.  
  * Sep 25, 2014 ASM #16783 D. Friedman  Do not use VTEC action to determine Watch uniqueness.
+ * May  7, 2015 ASM #17438 D. Friedman  Clean up debug and performance logging.
  * </pre>
  * 
  * @author jsanchez
@@ -94,6 +97,9 @@ import com.vividsolutions.jts.geom.Polygon;
 public class WatchUtil {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(WatchUtil.class);
+
+    private static final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("WG:");
 
     private static final UnitConverter milesToKilometer = NonSI.MILE
             .getConverterTo(SI.KILOMETER);
@@ -229,8 +235,8 @@ public class WatchUtil {
                     Polygon watchArea = (Polygon) warningPolygon
                             .buffer(milesToKilometer.convert(watchAreaBuffer)
                                     / KmToDegrees);
-                    System.out.println("create watch area buffer time: "
-                            + (System.currentTimeMillis() - t0));
+                    perfLog.logDuration("Create watch area buffer time",
+                            System.currentTimeMillis() - t0);
                     HashSet<String> validUgcZones = new HashSet<String>(
                             warngenLayer.getUgcsForWatches(watchArea,
                                     GeoFeatureType.COUNTY));

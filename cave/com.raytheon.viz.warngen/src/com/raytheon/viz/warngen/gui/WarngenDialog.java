@@ -67,7 +67,9 @@ import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.dataplugin.warning.config.BulletActionGroup;
 import com.raytheon.uf.common.dataplugin.warning.config.DamInfoBullet;
 import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
@@ -163,6 +165,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *                                       one marine product to another is to skip computing hatching area. The hatching area might
  *                                       not be as expected if percentage/area is different between the two products. But the
  *                                       chance for that to occur is trivial.
+ *  May  7, 2015 ASM #17438  D. Friedman Clean up debug and performance logging.
  * </pre>
  * 
  * @author chammack
@@ -172,6 +175,9 @@ public class WarngenDialog extends CaveSWTDialog implements
         IWarningsArrivedListener {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(WarngenDialog.class);
+
+    private static final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("WG:");
 
     /*
      * This flag allows a hidden button to appear to help recreating warning
@@ -1115,6 +1121,7 @@ public class WarngenDialog extends CaveSWTDialog implements
      * Action for OK button
      */
     private void okPressed() {
+        final long t0okPressed = System.currentTimeMillis();
         if (checkDamSelection() == false) {
             return;
         } else if (warngenLayer.getWarningArea() == null) {
@@ -1169,9 +1176,9 @@ public class WarngenDialog extends CaveSWTDialog implements
                 @Override
                 public void run(IProgressMonitor monitor)
                         throws InvocationTargetException, InterruptedException {
+                    long t0 = System.currentTimeMillis();
                     try {
                         monitor.beginTask("Generating product", 1);
-                        long t0 = System.currentTimeMillis();
                         String result = TemplateRunner.runTemplate(
                                 warngenLayer, startTime.getTime(),
                                 endTime.getTime(), selectedBullets,
@@ -1182,8 +1189,6 @@ public class WarngenDialog extends CaveSWTDialog implements
                         while (m.find()) {
                             totalSegments++;
                         }
-                        System.out.println("Time to run template = "
-                                + (System.currentTimeMillis() - t0));
                     } catch (Exception e) {
                         statusHandler.handle(
                                 Priority.PROBLEM,
@@ -1191,19 +1196,23 @@ public class WarngenDialog extends CaveSWTDialog implements
                                         + e.getLocalizedMessage(), e);
                     } finally {
                         monitor.done();
+                        perfLog.logDuration("Run template",
+                                System.currentTimeMillis() - t0);
+                        perfLog.logDuration("click to finish template",
+                                System.currentTimeMillis() - t0okPressed);
                     }
                 }
 
             });
 
-            System.out.println(WarningSender.getCurTimeString()
-                    + ": Creating Transmitting Warning Job");
+            statusHandler.handle(Priority.DEBUG,
+                    "Creating Transmitting Warning Job");
 
             new Job("Transmitting Warning") {
                 @Override
                 protected IStatus run(IProgressMonitor monitor) {
-                    System.out.println(WarningSender.getCurTimeString()
-                            + ": Transmitting Warning Job Running");
+                    statusHandler.debug(
+                            ": Transmitting Warning Job Running");
 
                     // Launch the text editor display as the warngen editor
                     // dialog using the result aka the warngen text product.
@@ -1222,6 +1231,8 @@ public class WarngenDialog extends CaveSWTDialog implements
                                 "Error sending warning: "
                                         + e.getLocalizedMessage(), e);
                     }
+                    perfLog.logDuration("click to finish sending",
+                            System.currentTimeMillis() - t0okPressed);
                     return Status.OK_STATUS;
                 }
             }.schedule();

@@ -41,7 +41,9 @@ import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.site.SiteMap;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.ISimulatedTimeChangeListener;
@@ -78,6 +80,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Aug 14, 2013 DR 16483   Qinglu Lin   Fixed no option issue in WarnGen dropdown menu after
  *                                      issuance of an CANCON and restart of CAVE.
  * Oct 16, 2013 2439       rferrel      Restrict retrieval of warnings to prevent getting future warnings.
+ * May  7, 2015 ASM #17438 D. Friedman  Clean up debug and performance logging.
  * </pre>
  * 
  * @author mschenke
@@ -87,6 +90,9 @@ import com.vividsolutions.jts.geom.Geometry;
 public class CurrentWarnings {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(CurrentWarnings.class);
+
+    private static final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("WG:");
 
     public static interface IWarningsArrivedListener {
         public void warningsArrived();
@@ -244,8 +250,8 @@ public class CurrentWarnings {
 
         long t0 = System.currentTimeMillis();
         List<AbstractWarningRecord> warnings = requestRecords(constraints);
-        System.out.println("Time to request CurrentWarnings records: "
-                + (System.currentTimeMillis() - t0) + "ms");
+        perfLog.logDuration("Request CurrentWarnings records",
+                System.currentTimeMillis() - t0);
         processRecords(warnings);
     }
 
@@ -542,8 +548,8 @@ public class CurrentWarnings {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
             }
-            System.out.println("Time to prepare " + records.size()
-                    + " records = " + (System.currentTimeMillis() - t0) + "ms");
+            perfLog.logDuration("Prepare " + records.size() + " records",
+                    System.currentTimeMillis() - t0);
         }
 
         return prepared;

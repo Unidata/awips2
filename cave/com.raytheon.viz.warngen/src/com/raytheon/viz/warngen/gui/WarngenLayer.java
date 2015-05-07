@@ -81,7 +81,9 @@ import com.raytheon.uf.common.jms.notification.INotificationObserver;
 import com.raytheon.uf.common.jms.notification.NotificationException;
 import com.raytheon.uf.common.jms.notification.NotificationMessage;
 import com.raytheon.uf.common.site.SiteMap;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
@@ -236,6 +238,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 02/09/2015  3954        dlovely     Only draw "W" if the county is displayed.
  * 02/25/2014  3353        rjpeter     Fix synchronized use case, updated to not create dialog before init is finished.
  * 04/24/2015  ASM #17394  D. Friedman Fix geometries that become invalid in local coordinate space.
+ * 05/07/2015  ASM #17438  D. Friedman Clean up debug and performance logging.
  * </pre>
  * 
  * @author mschenke
@@ -245,6 +248,9 @@ import com.vividsolutions.jts.io.WKTReader;
 public class WarngenLayer extends AbstractStormTrackResource {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(WarngenLayer.class);
+
+    private static final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("WG:");
 
     String uniqueFip = null;
 
@@ -490,9 +496,11 @@ public class WarngenLayer extends AbstractStormTrackResource {
             }
 
             if ((warningArea != null) && (warningPolygon != null)) {
+                long t0 = System.currentTimeMillis();
                 Polygon inputWarningPolygon = warningPolygon;
                 Polygon outputHatchedArea = null;
                 Geometry outputHatchedWarningArea = null;
+                String adjustmentMessage = null;
                 try {
                     warningPolygon = PolygonUtil
                             .removeDuplicateCoordinate(warningPolygon);
@@ -512,11 +520,12 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         GeometryFactory gf = new GeometryFactory();
                         LinearRing lr = gf.createLinearRing(coords);
                         outputHatchedArea = gf.createPolygon(lr, null);
+                        long tadj0 = System.currentTimeMillis();
                         int adjustPolygon_counter = 0;
                         while (!outputHatchedArea.isValid()
                                 && (adjustPolygon_counter < 1)) {
-                            System.out.println("Calling adjustPolygon #"
-                                    + adjustPolygon_counter);
+                            adjustmentMessage = "adjustPolygon #"
+                                    + adjustPolygon_counter;
                             PolygonUtil.adjustPolygon(coords);
                             PolygonUtil.round(coords, 2);
                             coords = PolygonUtil
@@ -529,16 +538,11 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         }
                         int counter = 0;
                         if (!outputHatchedArea.isValid() && (counter < 2)) {
-                            System.out
-                                    .println("calling adjustVertex & alterVertexes: loop #"
-                                            + counter);
                             int adjustVertex_counter = 0;
                             lr = gf.createLinearRing(coords);
                             outputHatchedArea = gf.createPolygon(lr, null);
                             while (!outputHatchedArea.isValid()
                                     && (adjustVertex_counter < 5)) {
-                                System.out.println("    Calling adjustVertex #"
-                                        + adjustVertex_counter);
                                 coords = PolygonUtil.adjustVertex(coords);
                                 coords = PolygonUtil
                                         .removeDuplicateCoordinate(coords);
@@ -549,12 +553,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                                 adjustVertex_counter += 1;
                             }
                             int inner_counter = 0;
-                            System.out.println("");
                             while (!outputHatchedArea.isValid()
                                     && (inner_counter < 5)) {
-                                System.out
-                                        .println("    Calling alterVertexes #"
-                                                + inner_counter);
                                 coords = PolygonUtil.alterVertexes(coords);
                                 coords = PolygonUtil
                                         .removeDuplicateCoordinate(coords);
@@ -564,7 +564,15 @@ public class WarngenLayer extends AbstractStormTrackResource {
                                 outputHatchedArea = gf.createPolygon(lr, null);
                                 inner_counter += 1;
                             }
+
                             counter += 1;
+                            adjustmentMessage = String.format(
+                                    "adjustVertex & alterVertexes: %d, %d",
+                                    adjustVertex_counter, inner_counter);
+                        }
+                        if (adjustmentMessage != null) {
+                            perfLog.logDuration("Vertex adjustments", System.currentTimeMillis() - tadj0);
+                            statusHandler.debug(adjustmentMessage);
                         }
                         for (Coordinate c : outputHatchedArea.getCoordinates()) {
                             if (Double.isNaN(c.x) || Double.isNaN(c.y)) {
@@ -587,9 +595,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
                      * priority in getHatchedAreas().
                      */
                     statusHandler.handle(Priority.DEBUG, String.format(
-                            "Error redrawing polygon: %s\n Input: %s\n",
-                            e.getLocalizedMessage(), inputWarningPolygon), e);
+                            "Error redrawing polygon: %s\n Input: %s\nAdjustments: %s\n",
+                            e.getLocalizedMessage(), inputWarningPolygon, adjustmentMessage), e);
                 }
+                perfLog.logDuration("AreaHatcher total", System.currentTimeMillis() - t0);
             }
 
             return Status.OK_STATUS;
@@ -610,12 +619,17 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
 
         public synchronized Geometry[] getHatchedAreas() {
+            long t0 = System.currentTimeMillis();
             while (getState() != Job.NONE) {
                 try {
                     join();
                 } catch (InterruptedException e) {
                     return new Geometry[] { null, null };
                 }
+            }
+            long t1 = System.currentTimeMillis();
+            if (t1 - t0 > 250) {
+                perfLog.logDuration("Wait for AreaHatcher", t1 - t0);
             }
             if (getResult() == null) {
                 return null;
@@ -1259,8 +1273,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
             this.configuration = config;
         }// end synchronize
 
-        System.out.println("Total time to init warngen config = "
-                + (System.currentTimeMillis() - t0) + "ms");
+        perfLog.logDuration("Init warngen config",
+                System.currentTimeMillis() - t0);
     }
 
     private void initializeGeomUpdateObserver() {
@@ -1459,8 +1473,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         gData.localGridGeometry = new GeneralGridGeometry(range, ge);
 
-        System.out.println("Time to lookup geospatial data "
-                + (System.currentTimeMillis() - tq0));
+        perfLog.logDuration("Lookup geospatial data",
+                System.currentTimeMillis() - tq0);
         siteMap.put(currKey, gData);
 
         GeospatialData[] timezones = GeospatialFactory.getTimezones();
@@ -1957,8 +1971,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         : null);
         updateWarnedAreaState(newWarningArea, snapHatchedAreaToPolygon);
 
-        System.out.println("determining hatchedArea took "
-                + (System.currentTimeMillis() - t0));
+        perfLog.logDuration("Determining hatchedArea",
+                System.currentTimeMillis() - t0);
     }
 
     /**
@@ -2664,8 +2678,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 return true;
             }
 
+            long t0 = System.currentTimeMillis();
             try {
-                long t0 = System.currentTimeMillis();
                 Polygon hatched = state.getWarningPolygon();
                 Geometry hatchedArea = state.getWarningArea();
                 if (areaHatcher != null) {
@@ -2713,13 +2727,13 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     issueRefresh();
                     result = false;
                 }
-                System.out.println("Time to createWarningPolygon: "
-                        + (System.currentTimeMillis() - t0) + "ms");
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Error hatching polygon", e);
                 result = false;
             }
+            perfLog.logDuration("redrawBoxFromHatched",
+                    System.currentTimeMillis() - t0);
             issueRefresh();
         }
         return result;
