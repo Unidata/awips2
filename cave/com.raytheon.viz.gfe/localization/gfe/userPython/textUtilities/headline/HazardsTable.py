@@ -38,6 +38,8 @@
 #    11/11/14        4953          randerso       Changed type of endTime from float to int
 #    01/22/2015      4027          randerso       Fix comparison of in __getCities
 #    02/05/15        4099          randerso       Fixed exception handling in __getActiveTable
+#    05/07/2015      4027          randerso       Fixed error handling, 
+#                                                 added NOTE about false postives for duplicate ETNs
 #
 
 
@@ -1135,7 +1137,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                                         d['etn'] = number
                                 except:
                                     self.log.error("Bad auxData for ",
-                                      "National Center:" + auxData + d)
+                                      "National Center:" + auxData + str(d))
 
                             #other aux data interpreted as segment number
                             else:
@@ -1144,7 +1146,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                                     d['seg'] = segment
                                 except:
                                     self.log.error("Bad auxData for seg:" +
-                                      auxData + d)
+                                      auxData + str(d))
                     rval.append(d)
         return rval
 
@@ -2225,6 +2227,9 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
 
     def __warnETNduplication(self, pTable):
         # Check should only operate on applicable VTEC products.
+        # NOTE: this falsely identifies duplicates across year-end 
+        #       since pTable does not have issueTimes we can't determine
+        #       which year the product was originally issued 
         if self.__pil not in \
                 ['CFW', 'FFA', 'MWW', 'NPW', 'RFW', 'WSW']:
             return

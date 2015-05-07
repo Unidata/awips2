@@ -31,10 +31,10 @@ class TextProduct(Hazard_RFW_<MultiPil>.TextProduct):
     Definition['displayName'] = None
     Definition['displayName'] = "Hazard_RFW_<MultiPil> (FireWx Watch/Warning)"  
 
-##    Definition["hazardSamplingThreshold"] = (10, None)  #(%cov, #points)
-##    Definition["includeOverviewHeadline"] = 1   #If 1, the overview header is templated
-##    Definition["includeOverview"] = 1   #If 1, the overview section is templated
-##    Definition["accurateCities"] = 0  # If 1, cities are determined from grids
+    #Definition["hazardSamplingThreshold"] = (10, None)  #(%cov, #points)
+    #Definition["includeOverviewHeadline"] = 1   #If 1, the overview header is templated
+    #Definition["includeOverview"] = 1   #If 1, the overview section is templated
+    #Definition["accurateCities"] = 0  # If 1, cities are determined from grids
     
        ###################################################################################################
     ###

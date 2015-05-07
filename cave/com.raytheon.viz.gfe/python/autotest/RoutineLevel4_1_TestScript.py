@@ -32,17 +32,17 @@
 
 
 windLE1 = """Definition["windLE_list"] = 1"""
-windLE2 = """TextProduct.Definition["windLE_list"] = 2"""
+windLE2 = """Definition["windLE_list"] = 2"""
 
 tempLE1 = """Definition["tempLE_list"] = 1"""
-tempLE2 = """TextProduct.Definition["tempLE_list"] = 2"""
+tempLE2 = """Definition["tempLE_list"] = 2"""
 
 periodLE1 = """Definition["Period_1_version"] = 1"""
-periodLE2 = """TextProduct.Definition["Period_1_version"] = 2"""
-periodLE3 = """TextProduct.Definition["Period_1_version"] = 3"""
+periodLE2 = """Definition["Period_1_version"] = 2"""
+periodLE3 = """Definition["Period_1_version"] = 3"""
 
 tempLE_method1 = """Definition["tempLE_method"] = 1"""
-tempLE_method2 = """TextProduct.Definition["tempLE_method"] = 2"""
+tempLE_method2 = """Definition["tempLE_method"] = 2"""
                    
 
 snowLE1 = """##                   (self.weather_phrase,self._wxLocalEffects_list()),             
@@ -50,91 +50,14 @@ snowLE1 = """##                   (self.weather_phrase,self._wxLocalEffects_list
 ##                   (self.total_snow_phrase,self._totalSnowAmtLocalEffects_list()),
 """
 
-snowLE2 = """def Period_1_version1(self):
-    return { 
-        "type": "component",
-        "methodList": [
-                         self.consolidateSubPhrases,
-                          self.assemblePhrases,   
-                          self.wordWrap,          
-                          ],
-        "analysisList": [
-                       #("MinT", self.avg),
-                       #("MaxT", self.avg),
-                       ("MaxT", self.stdDevMinMax),
-                       ("T", self.hourlyTemp),
-                       ("T", self.minMax),
-                       ("Sky", self.median, [3]),
-                       ("Sky", self.binnedPercent, [6]),
-                       ("PoP", self._PoP_analysisMethod("Period_1"), [3]),
-                       ("PoP", self.binnedPercent, [3]),
-                       ("SnowAmt", self.accumMinMax),
-                       ("IceAccum", self.accumMinMax),
-                       ("Wind", self.vectorMedianRange, [6]),
-                       ("Wind", self.vectorMinMax, [6]),
-                       ("WindGust", self.maximum, [6]),
-                       ("Wx", self.rankedWx, [3]),
-                       ],
-        "phraseList":[            
-                   (self.weather_phrase,self._wxLocalEffects_list()),             
-                   (self.snow_phrase,self._snowAmtLocalEffects_list()),
-                   (self.total_snow_phrase,self._totalSnowAmtLocalEffects_list()),
-                   (self.highs_phrase, self._tempLocalEffects_list()),                    
-                   (self.wind_withGusts_phrase, self._windLocalEffects_list()),                   
-                   ],
-        "intersectAreas": [ 
-                   ("MaxT", ["AboveElev", "BelowElev"]),
-                   ("Wind", ["AboveElev", "BelowElev"]),
-                   ("WindGust", ["AboveElev", "BelowElev"]),
-                   ("SnowAmt", ["AboveElev", "BelowElev"]),
-                   ("Wx", ["AboveElev", "BelowElev"]),
-                   ("PoP", ["AboveElev", "BelowElev"]),
-             ],
-        }
+snowLE2 = """                     (self.weather_phrase,self._wxLocalEffects_list()),             
+                     (self.snow_phrase,self._snowAmtLocalEffects_list()),
+                     (self.total_snow_phrase,self._totalSnowAmtLocalEffects_list()),
 """
 
 snow2LE1 = """##            ("Period_2_3", 12), """
 
-snow2LE2 = """def _10_503_issuance_list(self, argDict):
-        seriesDefAM = [
-            ("Period_1", "period1"),    
-            ("Period_2_3", 12), ("Period_2_3", 12), ("Period_4_5", 12), ("Period_4_5", 12),  
-            ]
-        seriesDefPM = [
-            ("Period_1", "period1"),
-            ("Period_2_3", 12), ("Period_2_3", 12), 
-            ("Period_4_5", 12), ("Period_4_5", 12), 
-            ("Period_6_14", 12), ("Period_6_14", 12), ("Period_6_14", 12), ("Period_6_14", 12), 
-            ("Period_6_14", 12), ("Period_6_14", 12), ("Period_6_14", 12), ("Period_6_14", 12), 
-            ("Period_6_14", 12),
-            ]
-        return [
-            ("Morning", self.DAY(), self.NIGHT(), self.NIGHT(),
-             ".TODAY...", "early in the morning", "late in the afternoon",
-             1, seriesDefAM), 
-            ("Morning with Pre-1st Period", self.DAY()-2, self.NIGHT(), self.NIGHT(),
-             ".TODAY...", "early in the morning", "late in the afternoon",
-             1, seriesDefAM), 
-            ("Morning Update", "issuanceHour", self.NIGHT(), self.NIGHT(),
-             ".REST OF TODAY...", "early in the morning", "late in the afternoon",
-             1, seriesDefAM), 
-            ("Afternoon Update", "issuanceHour", self.NIGHT(), self.NIGHT(),
-             ".REST OF TODAY...", "early in the morning","late in the afternoon",
-             1, seriesDefAM), 
-            ("Afternoon", self.NIGHT(), 24 + self.DAY(), 24 + self.DAY(),
-             ".TONIGHT...", "late in the night", "early in the evening",
-             1, seriesDefPM), 
-            ("Afternoon with Pre-1st Period", self.NIGHT()-2, 24 + self.DAY(), 24 + self.DAY(),
-             ".TONIGHT...", "late in the night", "early in the evening",
-             1, seriesDefPM), 
-            ("Evening Update", "issuanceHour", 24 + self.DAY(), 24 + self.DAY(),
-             ".REST OF TONIGHT...", "early in the morning","early in the evening",
-             1, seriesDefPM),
-            ("Early Morning Update", "issuanceHour", self.DAY(), self.DAY(),
-             ".REST OF TONIGHT...", "early in the morning","late in the afternoon",
-             0, seriesDefPM),  
-            ]
-"""
+snow2LE2 = """              ("Period_2_3", 12), """
 
 # Runs LE_Test_Local for each test
 
@@ -150,8 +73,8 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 0, 12, 0, "all"),
        ],
     "checkStrings": [
-       "HIGHS AROUND 40...EXCEPT IN THE LOWER 20S IN THE MOUNTAINS",
-       "NORTH WINDS AROUND 10 MPH...EXCEPT NORTH AROUND 35 MPH IN THE MOUNTAINS",
+       "Highs around 40...except in the lower 20s in the mountains",
+       "North winds around 10 mph...except north around 35 mph in the mountains",
        ],
     },
     {
@@ -165,8 +88,8 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 0, 12, 0, "all"),
        ],
     "checkStrings": [
-       "NORTH WINDS AROUND 10 MPH INCREASING TO AROUND 25 MPH IN THE AFTERNOON",
-       "IN THE MOUNTAINS...NORTH WINDS AROUND 25 MPH INCREASING TO AROUND 35 MPH IN THE AFTERNOON",
+       "North winds around 10 mph increasing to around 25 mph in the afternoon",
+       "In the mountains...north winds around 25 mph increasing to around 35 mph in the afternoon",
        ],
     },
     {
@@ -178,7 +101,7 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 0, 12, 0, "all"),
        ],
     "checkStrings": [
-       "LIGHT WINDS...EXCEPT NORTH AROUND 25 MPH IN THE MOUNTAINS",
+       "Light winds...except north around 25 mph in the mountains",
        ],
     },
     {
@@ -192,8 +115,8 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 0, 12, 0, "all"),
        ],
     "checkStrings": [
-       "LIGHT WINDS",
-       "IN THE MOUNTAINS...NORTH WINDS AROUND 25 MPH INCREASING TO AROUND 35 MPH IN THE AFTERNOON",
+       "Light winds",
+       "In the mountains...north winds around 25 mph increasing to around 35 mph in the afternoon",
        ],
     },
     {
@@ -207,10 +130,11 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 0, 12, 0, "all"),
        ],
     "checkStrings": [
-       "NORTH WINDS AROUND 25 MPH IN THE MOUNTAINS...OTHERWISE NORTH AROUND 10 MPH",
+       "North winds around 25 mph in the mountains...otherwise north around 10 mph",
        ],
-    "fileChanges": [("LE_Test_Local", "TextProduct", "replace", windLE2,
-                     "undo")],
+    "fileChanges": [
+       ("LE_Test_Local", "TextProduct", "replace", (windLE1, windLE2), "undo")
+       ],
                     
     },
 
@@ -225,11 +149,12 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 0, 12, 0, "all"),
        ],
     "checkStrings": [
-       "IN THE MOUNTAINS...NORTH WINDS AROUND 25 MPH INCREASING TO AROUND 35 MPH IN THE AFTERNOON",
-       "IN THE VALLEYS...NORTH WINDS AROUND 10 MPH INCREASING TO AROUND 25 MPH IN THE AFTERNOON",
+       "In the mountains...north winds around 25 mph increasing to around 35 mph in the afternoon",
+       "In the valleys...north winds around 10 mph increasing to around 25 mph in the afternoon",
        ],
-    "fileChanges": [("LE_Test_Local", "TextProduct", "replace", windLE2,
-              "undo")],
+    "fileChanges": [
+       ("LE_Test_Local", "TextProduct", "replace", (windLE1, windLE2), "undo")
+       ],
                     
     },
 
@@ -244,11 +169,12 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 0, 12, 0, "all"),
        ],
     "checkStrings": [
-       "HIGHS AROUND 40...EXCEPT IN THE LOWER 20S IN THE MOUNTAINS",
-       "NORTH WINDS AROUND 10 MPH...EXCEPT NORTH AROUND 25 MPH IN THE MOUNTAINS",
+       "Highs around 40...except in the lower 20s in the mountains",
+       "North winds around 10 mph...except north around 25 mph in the mountains",
        ],
-    "fileChanges": [("LE_Test_Local", "TextProduct", "replace", tempLE2,
-                     "undo")],
+    "fileChanges": [
+       ("LE_Test_Local", "TextProduct", "replace", (tempLE1, tempLE2), "undo")
+       ],
                     
     },
 
@@ -261,10 +187,11 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 20, ["area2"]),
        ],
     "checkStrings": [
-       "HIGHS AROUND 20",
+       "Highs around 20",
        ],
-    "fileChanges": [("LE_Test_Local", "TextProduct", "replace", periodLE2,
-                     "leave")],                    
+    "fileChanges": [
+       ("LE_Test_Local", "TextProduct", "replace", (periodLE1, periodLE2), "undo")
+       ],                    
     },
     {
     "name": "LE9",
@@ -275,10 +202,11 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 40, ["area2"]),
        ],
     "checkStrings": [
-       "HIGHS AROUND 20...EXCEPT AROUND 40 IN THE BENCHES",
+       "Highs around 20...except around 40 in the benches",
        ],
-    "fileChanges": [("LE_Test_Local", "TextProduct", "replace", periodLE2,
-                     "undo")],                    
+    "fileChanges": [
+       ("LE_Test_Local", "TextProduct", "replace", (periodLE1, periodLE2), "undo")
+       ],                    
     },
     {
     "name": "LE10",
@@ -289,10 +217,11 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 40, ["area2"]),
        ],
     "checkStrings": [
-       "HIGHS AROUND 20...EXCEPT AROUND 30 IN THE RUSH VALLEY",
+       "Highs around 20...except around 30 in the rush valley",
        ],
-    "fileChanges": [("LE_Test_Local", "TextProduct", "replace", periodLE2,
-                     "undo")],                    
+    "fileChanges": [
+       ("LE_Test_Local", "TextProduct", "replace", (periodLE1, periodLE2), "undo")
+       ],                    
     },
     
     {
@@ -304,12 +233,10 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 40, ["area2"]),
        ],
     "checkStrings": [
-       "HIGHS AROUND 20 IN THE CITY...AND AROUND 30 IN THE RUSH VALLEY...AND AROUND 40 IN THE BENCHES",
+       "Highs around 20 in the city...and around 30 in the rush valley...and around 40 in the benches",
        ],
     "fileChanges": [
-       ("LE_Test_Local", "TextProduct", "replace", periodLE2,"undo"),
-       ("LE_Test_Local", "TextProduct", "replace",
-        tempLE_method2,"undo"),
+       ("LE_Test_Local", "TextProduct", "replace", [(periodLE1, periodLE2), (tempLE_method1, tempLE_method2)],"undo"),
        ],                    
     },
     {
@@ -321,12 +248,10 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 20, ["area2"]),
        ],
     "checkStrings": [
-       "HIGHS AROUND 20 IN THE CITY AND IN THE BENCHES...AND AROUND 40 IN THE RUSH VALLEY",
+       "Highs around 20 in the city and in the benches...and around 40 in the rush valley",
        ],
     "fileChanges": [
-       ("LE_Test_Local", "TextProduct", "replace", periodLE2,"undo"),
-       ("LE_Test_Local", "TextProduct", "replace",
-        tempLE_method2,"undo"),
+       ("LE_Test_Local", "TextProduct", "replace", [(periodLE1, periodLE2), (tempLE_method1, tempLE_method2)],"undo")
        ],                    
     },
     {
@@ -338,12 +263,10 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 40, ["area2"]),
        ],
     "checkStrings": [
-       "HIGHS AROUND 20 IN THE CITY...AND AROUND 40 IN THE RUSH VALLEY AND IN THE BENCHES",
+       "Highs around 20 in the city...and around 40 in the rush valley and in the benches",
        ],
     "fileChanges": [
-       ("LE_Test_Local", "TextProduct", "replace", periodLE2,"undo"),
-       ("LE_Test_Local", "TextProduct", "replace",
-        tempLE_method2,"undo"),
+       ("LE_Test_Local", "TextProduct", "replace", [(periodLE1, periodLE2), (tempLE_method1, tempLE_method2)],"undo"),
        ],                    
     },
     {
@@ -355,12 +278,10 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 40, ["area2"]),
        ],
     "checkStrings": [
-       "HIGHS AROUND 20 IN THE CITY AND IN THE RUSH VALLEY...AND AROUND 40 IN THE BENCHES",
+       "Highs around 20 in the city and in the rush valley...and around 40 in the benches",
        ],
     "fileChanges": [
-       ("LE_Test_Local", "TextProduct", "replace", periodLE2,"undo"),
-       ("LE_Test_Local", "TextProduct", "replace",
-        tempLE_method2,"undo"),
+       ("LE_Test_Local", "TextProduct", "replace", [(periodLE1, periodLE2), (tempLE_method1, tempLE_method2)],"undo"),
        ],                    
     },
     {
@@ -383,14 +304,13 @@ scripts = [
        ("Fcst", "SnowAmt", "SCALAR", 36, 48, 0, ["BelowElev"]),
        ],
     "checkStrings": [
-       ".TODAY...", "SNOW ACCUMULATION AROUND 3 INCHES",
-       ".TONIGHT...", "SNOW ACCUMULATION AROUND 5 INCHES",
-       "...", "SNOW ACCUMULATION AROUND 1 INCH",
-       "...", "NO SNOW ACCUMULATION",
+       ".Today...", "Snow accumulation around 3 inches",
+       ".Tonight...", "Snow accumulation around 5 inches",
+       "...", "Snow accumulation around 1 inch",
+       "...", "No snow accumulation",
        ],
     "fileChanges": [
-       ("LE_Test_Local", "TextProduct", "replace", snowLE2, "undo"), 
-       ("LE_Test_Local", "TextProduct", "replace", snow2LE2, "undo"),
+       ("LE_Test_Local", "TextProduct", "replace", [(snowLE1, snowLE2), (snow2LE1, snow2LE2)], "undo"), 
        ],
     "stringOrder": "yes", 
     },
@@ -410,15 +330,14 @@ scripts = [
        ("Fcst", "SnowAmt", "SCALAR", 36, 48, 0, ["BelowElev"]),
        ],
     "checkStrings": [
-       ".TODAY...", "SNOW ACCUMULATION AROUND 2 INCHES...EXCEPT AROUND 5 INCHES ABOVE TIMBERLINE",
-       ".TONIGHT...", "SNOW ACCUMULATION AROUND 1 INCH...EXCEPT AROUND 4 INCHES ABOVE TIMBERLINE",
-       "...", "SNOW ACCUMULATION OF 1 TO 3 INCHES",
-       "TOTAL SNOW ACCUMULATION AROUND 4 INCHES...EXCEPT AROUND 12 INCHES ABOVE TIMBERLINE",
-       "...", "NO SNOW ACCUMULATION",
+       ".Today...", "Snow accumulation around 2 inches...except around 5 inches above timberline",
+       ".Tonight...", "Snow accumulation around 1 inch...except around 4 inches above timberline",
+       "...", "Snow accumulation of 1 to 3 inches",
+       "Total snow accumulation around 4 inches...except around 12 inches above timberline",
+       "...", "No snow accumulation",
        ],
     "fileChanges": [
-       ("LE_Test_Local", "TextProduct", "replace", snowLE2, "undo"), 
-       ("LE_Test_Local", "TextProduct", "replace", snow2LE2, "undo"),
+       ("LE_Test_Local", "TextProduct", "replace", [(snowLE1, snowLE2), (snow2LE1, snow2LE2)], "undo"), 
        ],
     "stringOrder": "yes", 
     },
@@ -434,7 +353,7 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 0, 12, 0, "all"),
        ],
     "checkStrings": [ 
-       "NORTH WINDS AROUND 10 MPH. IN THE MOUNTAINS...NORTH WINDS AROUND 25 MPH INCREASING TO AROUND 35 MPH IN THE AFTERNOON.",
+       "North winds around 10 mph. In the mountains...north winds around 25 mph increasing to around 35 mph in the afternoon.",
        ],
                     
     },
@@ -449,8 +368,8 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 0, 12, 0, "all"),
        ],
     "checkStrings": [ 
-       #"NORTH WINDS AROUND 25 MPH INCREASING TO AROUND 35 MPH IN THE AFTERNOON. NORTH WINDS AROUND 10 MPH IN THE MOUNTAINS.",
-       "NORTH WINDS AROUND 25 MPH INCREASING TO AROUND 35 MPH IN THE AFTERNOON. IN THE MOUNTAINS...NORTH WINDS AROUND 10 MPH.",
+       #"North winds around 25 mph increasing to around 35 mph in the afternoon. North winds around 10 mph in the mountains.",
+       "North winds around 25 mph increasing to around 35 mph in the afternoon. In the mountains...north winds around 10 mph.",
        ], 
     },
 
@@ -465,11 +384,11 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 0, 48, "Chc:SW:-:<NoVis>:^Patchy:F:<NoInten>:<NoVis>:", ["area2"]),
        ],
     "checkStrings": [
-       "MOSTLY SUNNY.",
-       "A 50 PERCENT CHANCE OF SHOWERS IN THE RUSH VALLEY...PATCHY FOG IN THE RUSH VALLEY...A 50 PERCENT CHANCE OF SNOW SHOWERS IN THE BENCHES...PATCHY FOG IN THE BENCHES.",
+       "Mostly sunny.",
+       "A 50 percent chance of showers in the rush valley...patchy fog in the rush valley...a 50 percent chance of snow showers in the benches...patchy fog in the benches.",
        ],
     "fileChanges": [
-       ("LE_Test_Local", "TextProduct", "replace", periodLE3,"undo"),
+       ("LE_Test_Local", "TextProduct", "replace", (periodLE1, periodLE3),"undo"),
        ],
     "stringOrder": "yes", 
     },
@@ -486,12 +405,12 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Chc:SW:-:<NoVis>:", ["area2"]),
        ],
     "checkStrings": [
-       "MOSTLY SUNNY.",
-       "IN THE RUSH VALLEY...CHANCE OF THUNDERSTORMS IN THE MORNING...THEN CHANCE OF SHOWERS IN THE AFTERNOON.",
-       "IN THE BENCHES...CHANCE OF THUNDERSTORMS IN THE MORNING...THEN CHANCE OF SNOW SHOWERS IN THE AFTERNOON.",
+       "Mostly sunny.",
+       "In the rush valley...chance of thunderstorms in the morning...then chance of showers in the afternoon.",
+       "In the benches...chance of thunderstorms in the morning...then chance of snow showers in the afternoon.",
        ],
     "fileChanges": [
-       ("LE_Test_Local", "TextProduct", "replace", periodLE3,"undo"),
+       ("LE_Test_Local", "TextProduct", "replace", (periodLE1, periodLE3),"undo"),
        ],
     "stringOrder": "yes", 
     },
@@ -509,13 +428,13 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Chc:SW:-:<NoVis>:", ["area2"]),
        ],
     "checkStrings": [
-       "MOSTLY SUNNY.",
-       "IN THE CITY...A 50 PERCENT CHANCE OF THUNDERSTORMS.",
-       "IN THE RUSH VALLEY...CHANCE OF THUNDERSTORMS IN THE MORNING...THEN CHANCE OF SHOWERS IN THE AFTERNOON.",
-       "IN THE BENCHES...CHANCE OF THUNDERSTORMS IN THE MORNING...THEN CHANCE OF SNOW SHOWERS IN THE AFTERNOON.",
+       "Mostly sunny.",
+       "In the city...a 50 percent chance of thunderstorms.",
+       "In the rush valley...chance of thunderstorms in the morning...then chance of showers in the afternoon.",
+       "In the benches...chance of thunderstorms in the morning...then chance of snow showers in the afternoon.",
        ],
     "fileChanges": [
-       ("LE_Test_Local", "TextProduct", "replace", periodLE3,"undo"),
+       ("LE_Test_Local", "TextProduct", "replace", (periodLE1, periodLE3),"undo"),
        ],
     "stringOrder": "yes", 
     },
@@ -531,12 +450,12 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 0, 48, "Chc:SW:-:<NoVis>:^Patchy:F:<NoInten>:<NoVis>:", ["area2"]),
        ],
     "checkStrings": [
-       "MOSTLY SUNNY.",
-       "A 50 PERCENT CHANCE OF SHOWERS IN THE RUSH VALLEY...A 50 PERCENT CHANCE OF SNOW SHOWERS IN THE BENCHES...CHANCE OF SHOWERS IN THE RUSH VALLEY...CHANCE OF SNOW SHOWERS IN THE BENCHES.",
-       "PATCHY FOG.",
+       "Mostly sunny.",
+       "A 50 percent chance of showers in the rush valley...a 50 percent chance of snow showers in the benches...chance of showers in the rush valley...chance of snow showers in the benches.",
+       "Patchy fog.",
        ],
     "fileChanges": [
-       ("LE_Test_Local", "TextProduct", "replace", periodLE3,"undo"),
+       ("LE_Test_Local", "TextProduct", "replace", (periodLE1, periodLE3),"undo"),
        ],
     "stringOrder": "yes", 
     },
@@ -551,11 +470,11 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 0, 48, "Chc:SW:-:<NoVis>:", ["area2"]),
        ],
     "checkStrings": [
-       "MOSTLY SUNNY.",
-       "A 50 PERCENT CHANCE OF SHOWERS IN THE RUSH VALLEY...A 50 PERCENT CHANCE OF SNOW SHOWERS IN THE BENCHES.",
+       "Mostly sunny.",
+       "A 50 percent chance of showers in the rush valley...a 50 percent chance of snow showers in the benches.",
        ],
     "fileChanges": [
-       ("LE_Test_Local", "TextProduct", "replace", periodLE3,"undo"),
+       ("LE_Test_Local", "TextProduct", "replace", (periodLE1, periodLE3),"undo"),
        ],
     "stringOrder": "yes", 
     },
@@ -570,22 +489,23 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 0, 48, "Chc:SW:-:<NoVis>:^Patchy:F:<NoInten>:<NoVis>:", ["area2"]),
        ],
     "checkStrings": [
-       "MOSTLY SUNNY.",
-       "A 50 PERCENT CHANCE OF SHOWERS IN THE CITY AND IN THE RUSH VALLEY...A 50 PERCENT CHANCE OF SNOW SHOWERS IN THE BENCHES",
+       "Mostly sunny.",
+       "A 50 percent chance of showers in the city and in the rush valley...a 50 percent chance of snow showers in the benches",
        ],
     "fileChanges": [
-       ("LE_Test_Local", "TextProduct", "replace", periodLE3,"undo"),
+       ("LE_Test_Local", "TextProduct", "replace", (periodLE1, periodLE3),"undo"),
        ],
     "stringOrder": "yes", 
     },
 
     ]
 
-
+import CreateGrids
 import TestScript
 def testScript(self, dataMgr):
     defaults = {
         "cmdLineVars" :"{('Product Issuance', 'productIssuance'): 'Morning', ('Issuance Type', 'issuanceType'): 'ROUTINE', ('Issued By', 'issuedBy'): None}",
+        "deleteGrids": CreateGrids.Delete_grids,
         "productType": "LE_Test_Local",
         }
     return TestScript.generalTestScript(self, dataMgr, scripts, defaults)

@@ -28,75 +28,17 @@
 # Temp phrase
 # Sky trends with new Sky categories
 
-addPeriods = """def _10_503_issuance_list(self, argDict):
-    seriesDefAM = [
+addPeriods = """
+
+    def _10_503_issuance_list(self, argDict):
+        seriesDefAM = [
             ("Period_1", "period1"), #("Phantom", 12),
             ("Period_2_3", 12), ("Period_2_3", 12),
             ("Period_4_5", 12), ("Period_4_5", 12),
             ("Period_6_14", 12), #("Period_6_14", 12), ("Period_6_14", 12), ("Period_6_14", 12),
 ##            ("Period_6_14", 12), ("Period_6_14", 12), ("Period_6_14", 12), ("Period_6_14", 12),
             ]
-    seriesDefPM = [
-            ("Period_1", "period1"),
-            ("Period_2_3", 12), ("Period_2_3", 12),
-            ("Period_4_5", 12), ("Period_4_5", 12),
-            ("Period_6_14", 12), ("Period_6_14", 12), ("Period_6_14", 12), ("Period_6_14", 12),
-            ("Period_6_14", 12), ("Period_6_14", 12), ("Period_6_14", 12), ("Period_6_14", 12),
-            ("Period_6_14", 12),
-            ]
-    return [
-            ("Morning", self.DAY(), self.NIGHT(), self.NIGHT(),
-             ".TODAY...", "early in the morning", "late in the afternoon",
-             1, seriesDefAM),
-            ("Morning with Pre-1st Period", self.DAY()-2, self.NIGHT(), self.NIGHT(),
-             ".TODAY...", "early in the morning", "late in the afternoon",
-             1, seriesDefAM),
-            ("Morning Update", "issuanceHour", self.NIGHT(), self.NIGHT(),
-             ".REST OF TODAY...", "early in the morning", "late in the afternoon",
-             1, seriesDefAM),
-            ("Afternoon Update", "issuanceHour", self.NIGHT(), self.NIGHT(),
-             ".REST OF TODAY...", "early in the morning","late in the afternoon",
-             1, seriesDefAM),
-            #  End times are tomorrow:
-            ("Afternoon", self.NIGHT(), 24 + self.DAY(), 24 + self.DAY(),
-             ".TONIGHT...", "late in the night", "early in the evening",
-             1, seriesDefPM),
-            ("Afternoon with Pre-1st Period", self.NIGHT()-2, 24 + self.DAY(), 24 + self.DAY(),
-             ".TONIGHT...", "late in the night", "early in the evening",
-             1, seriesDefPM),
-            ("Evening Update", "issuanceHour", 24 + self.DAY(), 24 + self.DAY(),
-             ".REST OF TONIGHT...", "early in the morning","early in the evening",
-             1, seriesDefPM),
-            # For the early morning update, this produces:
-            # REST OF TONIGHT:
-            # MONDAY
-            # MONDAY NIGHT
-            ("Early Morning Update", "issuanceHour", self.DAY(), self.DAY(),
-             ".REST OF TONIGHT...", "early in the morning","late in the afternoon",
-             0, seriesDefPM),
-            # Alternative
-            # For the early morning update, this produces:
-            # EARLY THIS MORNING:
-            # TODAY
-            # TONIGHT
-            #("Evening Update", "issuanceHour", 24 + self.DAY(), 24 + self.DAY(),
-            # ".REST OF TONIGHT...", "late in the night", "early in the evening",
-            # 1, seriesDefPM),
-            #("Early Morning Update", "issuanceHour", self.DAY(), self.DAY(),
-            # ".EARLY THIS MORNING...", "early in the morning", "late in the afternoon",
-            # 1, seriesDefPM),
-        ]
-"""
-
-addTonight = ["""def _10_503_issuance_list(self, argDict):
-    seriesDefAM = [
-            ("Period_1", "period1"), #("Phantom", 12),
-            ("Period_2_3", 12), #("Period_2_3", 12),
-##            ("Period_4_5", 12), ("Period_4_5", 12),
-##            ("Period_6_14", 12), #("Period_6_14", 12), ("Period_6_14", 12), ("Period_6_14", 12),
-##            ("Period_6_14", 12), ("Period_6_14", 12), ("Period_6_14", 12), ("Period_6_14", 12),
-            ]
-    seriesDefPM = [
+        seriesDefPM = [
             ("Period_1", "period1"),
             ("Period_2_3", 12), ("Period_2_3", 12),
             ("Period_4_5", 12), ("Period_4_5", 12),
@@ -105,52 +47,116 @@ addTonight = ["""def _10_503_issuance_list(self, argDict):
             ("Period_6_14", 12),
             ]
  
-    return [
+        return [
             ("Morning", self.DAY(), self.NIGHT(), self.NIGHT(),
-             ".TODAY...", "early in the morning", "late in the afternoon",
+             ".Today...", "early in the morning", "late in the afternoon",
              1, seriesDefAM),
             ("Morning with Pre-1st Period", self.DAY()-2, self.NIGHT(), self.NIGHT(),
-             ".TODAY...", "early in the morning", "late in the afternoon",
+             ".Today...", "early in the morning", "late in the afternoon",
              1, seriesDefAM),
             ("Morning Update", "issuanceHour", self.NIGHT(), self.NIGHT(),
-             ".REST OF TODAY...", "early in the morning", "late in the afternoon",
+             ".Rest of Today...", "early in the morning", "late in the afternoon",
              1, seriesDefAM),
             ("Afternoon Update", "issuanceHour", self.NIGHT(), self.NIGHT(),
-             ".REST OF TODAY...", "early in the morning","late in the afternoon",
+             ".Rest of Today...", "early in the morning","late in the afternoon",
              1, seriesDefAM),
             #  End times are tomorrow:
             ("Afternoon", self.NIGHT(), 24 + self.DAY(), 24 + self.DAY(),
-             ".TONIGHT...", "late in the night", "early in the evening",
+             ".Tonight...", "late in the night", "early in the evening",
              1, seriesDefPM),
             ("Afternoon with Pre-1st Period", self.NIGHT()-2, 24 + self.DAY(), 24 + self.DAY(),
-             ".TONIGHT...", "late in the night", "early in the evening",
+             ".Tonight...", "late in the night", "early in the evening",
              1, seriesDefPM),
             ("Evening Update", "issuanceHour", 24 + self.DAY(), 24 + self.DAY(),
-             ".REST OF TONIGHT...", "early in the morning","early in the evening",
+             ".Rest of Tonight...", "early in the morning","early in the evening",
              1, seriesDefPM),
             # For the early morning update, this produces:
-            # REST OF TONIGHT:
-            # MONDAY
-            # MONDAY NIGHT
+            # Rest of Tonight:
+            # Monday
+            # Monday Night
             ("Early Morning Update", "issuanceHour", self.DAY(), self.DAY(),
-             ".REST OF TONIGHT...", "early in the morning","late in the afternoon",
+             ".Rest of Tonight...", "early in the morning","late in the afternoon",
              0, seriesDefPM),
             # Alternative
             # For the early morning update, this produces:
-            # EARLY THIS MORNING:
-            # TODAY
-            # TONIGHT
+            # Early This Morning:
+            # Today
+            # Tonight
             #("Evening Update", "issuanceHour", 24 + self.DAY(), 24 + self.DAY(),
-            # ".REST OF TONIGHT...", "late in the night", "early in the evening",
+            # ".Rest of Tonight...", "late in the night", "early in the evening",
             # 1, seriesDefPM),
             #("Early Morning Update", "issuanceHour", self.DAY(), self.DAY(),
-            # ".EARLY THIS MORNING...", "early in the morning", "late in the afternoon",
+            # ".Early This Morning...", "early in the morning", "late in the afternoon",
             # 1, seriesDefPM),
-            ]""",
+            ]
 
-"""def Period_2_3(self):
-    # No Lake Wind phrase
-    component = {
+
+"""
+
+addTonight = """
+    def _10_503_issuance_list(self, argDict):
+        seriesDefAM = [
+            ("Period_1", "period1"), #("Phantom", 12),
+            ("Period_2_3", 12), #("Period_2_3", 12),
+##            ("Period_4_5", 12), ("Period_4_5", 12),
+##            ("Period_6_14", 12), #("Period_6_14", 12), ("Period_6_14", 12), ("Period_6_14", 12),
+##            ("Period_6_14", 12), ("Period_6_14", 12), ("Period_6_14", 12), ("Period_6_14", 12),
+            ]
+        seriesDefPM = [
+            ("Period_1", "period1"),
+            ("Period_2_3", 12), ("Period_2_3", 12),
+            ("Period_4_5", 12), ("Period_4_5", 12),
+            ("Period_6_14", 12), ("Period_6_14", 12), ("Period_6_14", 12), ("Period_6_14", 12),
+            ("Period_6_14", 12), ("Period_6_14", 12), ("Period_6_14", 12), ("Period_6_14", 12),
+            ("Period_6_14", 12),
+            ]
+ 
+        return [
+            ("Morning", self.DAY(), self.NIGHT(), self.NIGHT(),
+             ".Today...", "early in the morning", "late in the afternoon",
+             1, seriesDefAM),
+            ("Morning with Pre-1st Period", self.DAY()-2, self.NIGHT(), self.NIGHT(),
+             ".Today...", "early in the morning", "late in the afternoon",
+             1, seriesDefAM),
+            ("Morning Update", "issuanceHour", self.NIGHT(), self.NIGHT(),
+             ".Rest of Today...", "early in the morning", "late in the afternoon",
+             1, seriesDefAM),
+            ("Afternoon Update", "issuanceHour", self.NIGHT(), self.NIGHT(),
+             ".Rest of Today...", "early in the morning","late in the afternoon",
+             1, seriesDefAM),
+            #  End times are tomorrow:
+            ("Afternoon", self.NIGHT(), 24 + self.DAY(), 24 + self.DAY(),
+             ".Tonight...", "late in the night", "early in the evening",
+             1, seriesDefPM),
+            ("Afternoon with Pre-1st Period", self.NIGHT()-2, 24 + self.DAY(), 24 + self.DAY(),
+             ".Tonight...", "late in the night", "early in the evening",
+             1, seriesDefPM),
+            ("Evening Update", "issuanceHour", 24 + self.DAY(), 24 + self.DAY(),
+             ".Rest of Tonight...", "early in the morning","early in the evening",
+             1, seriesDefPM),
+            # For the early morning update, this produces:
+            # Rest of Tonight:
+            # Monday
+            # Monday Night
+            ("Early Morning Update", "issuanceHour", self.DAY(), self.DAY(),
+             ".Rest of Tonight...", "early in the morning","late in the afternoon",
+             0, seriesDefPM),
+            # Alternative
+            # For the early morning update, this produces:
+            # Early This Morning:
+            # Today
+            # Tonight
+            #("Evening Update", "issuanceHour", 24 + self.DAY(), 24 + self.DAY(),
+            # ".Rest of Tonight...", "late in the night", "early in the evening",
+            # 1, seriesDefPM),
+            #("Early Morning Update", "issuanceHour", self.DAY(), self.DAY(),
+            # ".Early This Morning...", "early in the morning", "late in the afternoon",
+            # 1, seriesDefPM),
+            ]
+
+    def Period_2_3(self):
+        # No Lake Wind phrase
+        component = {
             "type": "component",
             "methodList": [
                           self.orderPhrases,
@@ -205,74 +211,16 @@ addTonight = ["""def _10_503_issuance_list(self, argDict):
                    self.heatIndex_phrase,
                   ],
             }
-    if self._arealSkyAnalysis:
-        component["analysisList"].append(("Sky", self.binnedPercent, [6]))
-    if self._useStormTotalSnow:
-        phraseList = component["phraseList"]
-        index = phraseList.index(self.total_snow_phrase)
-        phraseList[index] = self.stormTotalSnow_phrase
-        component["phraseList"] = phraseList
-    return component
+        if self._arealSkyAnalysis:
+            component["analysisList"].append(("Sky", self.binnedPercent, [6]))
+        if self._useStormTotalSnow:
+            phraseList = component["phraseList"]
+            index = phraseList.index(self.total_snow_phrase)
+            phraseList[index] = self.stormTotalSnow_phrase
+            component["phraseList"] = phraseList
+        return component
+
 """
-]
-
-minMax = """def Period_1_version1(self):
-    component =  {
-            "type": "component",
-            "methodList": [
-                          self.orderPhrases,
-                          self.consolidateSubPhrases,
-                          self.assemblePhrases,
-                          self.wordWrap,
-                          ],
-        "analysisList": [
-                       ("MinT", self.stdDevMinMax),
-                       ("MaxT", self.minMax),
-                       ("T", self.hourlyTemp),
-                       ("T", self.minMax),
-                       ("Sky", self.median, [3]),
-                       ("PoP", self._PoP_analysisMethod("Period_1"), [3]),
-                       ("PoP", self.binnedPercent, [3]),
-                       ("Wind", self.vectorModeratedMinMax, [0]),
-                       ("Wind", self.vectorMinMax, [0]),
-                       ("WindGust", self.maximum, [0]),
-                       ("Wx", self.rankedWx, [3]),
-                       ("WindChill", self.minMax),
-                       ("HeatIndex", self.minMax),
-                       ("SnowAmt", self.accumMinMax),
-                       ],
-        "phraseList":[
-                   self.sky_phrase,
-                   self.skyPopWx_phrase,
-##                   (self.skyPopWx_phrase, self._wxLocalEffects_list()),
-                   self.wind_summary,
-                   self.reportTrends,
-                   self.weather_phrase,
-##                   (self.weather_phrase,self._wxLocalEffects_list()),
-                   self.heavyPrecip_phrase,
-                   self.severeWeather_phrase,
-                   self.visibility_phrase,
-                   self.snow_phrase,
-                   self.extremeTemps_phrase,
-                   self.steady_temp_trends,
-                   self.highs_phrase,
-                   self.lows_phrase,
-                   self.temp_trends,
-                   self.wind_withGusts_phrase,
-                   self.popMax_phrase,
-                   self.windChill_phrase,
-                   self.heatIndex_phrase,
-                   ],
-           }
-    if self._arealSkyAnalysis:
-        component["analysisList"].append(("Sky", self.binnedPercent, [3]))
-    if self._useStormTotalSnow:
-        phraseList = component["phraseList"]
-        index = phraseList.index(self.total_snow_phrase)
-        phraseList[index] = self.stormTotalSnow_phrase
-        component["phraseList"] = phraseList
-    return component"""
-
 
 import TestScript
 
@@ -294,7 +242,7 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 50, ["AboveElev"]),
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 50, ["BelowElev"]),
        ],
-    "checkStrings": ["NEAR STEADY TEMPERATURE AROUND 50"],
+    "checkStrings": ["Near steady temperature around 50"],
     },
 
     {
@@ -303,7 +251,7 @@ scripts = [
     MaxT -- 38-42    
     Implied range terminology. NEAR and AROUND are defined as plus or
     minus two degrees about a certain number.
-    For example, LOWS AROUND 40 means 38 to 42 inclusive.
+    For example, Lows AROUND 40 means 38 to 42 inclusive.
     """,
     "productType": "Phrase_Test_Local",
     "createGrids": [
@@ -314,7 +262,7 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 38, ["AboveElev"]),
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 42, ["BelowElev"]),
        ],
-    "checkStrings": ["HIGHS AROUND 40"],
+    "checkStrings": ["Highs around 40"],
     },
     
     {
@@ -332,7 +280,7 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 50, ["AboveElev"]),
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 53, ["BelowElev"]),
        ],
-    "checkStrings": ["HIGHS IN THE LOWER 50S"],
+    "checkStrings": ["Highs in the lower 50s"],
     },
     
 
@@ -351,7 +299,7 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 54, ["AboveElev"]),
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 56, ["BelowElev"]),
        ],
-    "checkStrings": ["HIGHS IN THE MID 50S"],
+    "checkStrings": ["Highs in the mid 50s"],
     },
     
 
@@ -370,7 +318,7 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 57, ["AboveElev"]),
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 59, ["BelowElev"]),
        ],
-    "checkStrings": ["HIGHS IN THE UPPER 50S"],
+    "checkStrings": ["Highs in the upper 50s"],
     },
     
 
@@ -379,8 +327,8 @@ scripts = [
     "commentary": """
     MaxT -- 47-52    
     A specific range of five degrees (5 to 10 degrees in mountainous areas)
-    LOWS 20 TO 25
-    HIGHS 47 TO 52
+    Lows 20 to 25
+    Highs 47 to 52
     """,
     "productType": "Phrase_Test_Local",
     "createGrids": [
@@ -391,7 +339,7 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 47, ["AboveElev"]),
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 52, ["BelowElev"]),
        ],
-    "checkStrings": ["HIGHS 47 TO 52"],
+    "checkStrings": ["Highs 47 to 52"],
     },
     
     {
@@ -399,8 +347,8 @@ scripts = [
     "commentary": """
     MaxT -- 25-30    
     A specific range of five degrees (5 to 10 degrees in mountainous areas)
-    LOWS 20 TO 25
-    HIGHS 47 TO 52
+    Lows 20 to 25
+    Highs 47 to 52
     """,
     "productType": "Phrase_Test_Local",
     "createGrids": [
@@ -411,7 +359,7 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 25, ["AboveElev"]),
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 30, ["BelowElev"]),
        ],
-    "checkStrings": ["HIGHS 25 TO 30"],
+    "checkStrings": ["Highs 25 to 30"],
     },
     
     {
@@ -419,8 +367,8 @@ scripts = [
     "commentary": """
     MaxT -- 103 - 108    
     A specific range of five degrees (5 to 10 degrees in mountainous areas)
-    LOWS 20 TO 25
-    HIGHS 47 TO 52
+    Lows 20 to 25
+    Highs 47 to 52
     """,
     "productType": "Phrase_Test_Local",
     "createGrids": [
@@ -431,7 +379,7 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 103, ["AboveElev"]),
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 108, ["BelowElev"]),
        ],
-    "checkStrings": ["HIGHS 103 TO 108"],
+    "checkStrings": ["Highs 103 to 108"],
     },
     
     {
@@ -448,7 +396,7 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 100, ["AboveElev"]),
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 105, ["BelowElev"]),
        ],
-    "checkStrings": ["HIGHS 100 TO 105"],
+    "checkStrings": ["Highs 100 to 105"],
     },
     
     {
@@ -465,7 +413,7 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 98, ["AboveElev"]),
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 102, ["BelowElev"]),
        ],
-    "checkStrings": ["HIGHS AROUND 100"],
+    "checkStrings": ["Highs around 100"],
     },
     
     {
@@ -482,7 +430,7 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 98, ["AboveElev"]),
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 103, ["BelowElev"]),
        ],
-    "checkStrings": ["HIGHS 98 TO 103"],
+    "checkStrings": ["Highs 98 to 103"],
     },
 
     # Crossing LOWER, MID, UPPER boundaries
@@ -500,7 +448,7 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 50, ["AboveElev"]),
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 54, ["BelowElev"]),
        ],
-    "checkStrings": ["HIGHS IN THE LOWER 50S"],
+    "checkStrings": ["Highs in the lower 50s"],
     },
     {
     "name": "Temp_53-54",
@@ -516,7 +464,7 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 53, ["AboveElev"]),
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 54, ["BelowElev"]),
        ],
-    "checkStrings": ["HIGHS IN THE MID 50S"],
+    "checkStrings": ["Highs in the mid 50s"],
     },
     {
     "name": "Temp_54-57",
@@ -532,7 +480,7 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 54, ["AboveElev"]),
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 57, ["BelowElev"]),
        ],
-    "checkStrings": ["HIGHS IN THE MID 50S"],
+    "checkStrings": ["Highs in the mid 50s"],
     },
     {
     "name": "Temp_56-58",
@@ -548,14 +496,14 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 56, ["AboveElev"]),
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 58, ["BelowElev"]),
        ],
-    "checkStrings": ["HIGHS IN THE UPPER 50S"],
+    "checkStrings": ["Highs in the upper 50s"],
     },
    
     {
     "name": "Temp_-2-2",
     "commentary": """
     MaxT -- -2 - 2    
-    Implied range terminology. NEAR ZERO is also permitted.
+    Implied range terminology. NEAR zero is also permitted.
     """,
     "productType": "Phrase_Test_Local",
     "createGrids": [
@@ -566,7 +514,7 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", -2, ["AboveElev"]),
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 2, ["BelowElev"]),
        ],
-    "checkStrings": ["HIGHS NEAR ZERO"],
+    "checkStrings": ["Highs near zero"],
     },
 
     {
@@ -583,7 +531,7 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 2, ["AboveElev"]),
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 3, ["BelowElev"]),
        ],
-    "checkStrings": ["HIGHS AROUND 3"],
+    "checkStrings": ["Highs around 3"],
     },
     {
     "name": "Temp_4-6",
@@ -599,7 +547,7 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 4, ["AboveElev"]),
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 6, ["BelowElev"]),
        ],
-    "checkStrings": ["HIGHS AROUND 5"],
+    "checkStrings": ["Highs around 5"],
     },
     {
     "name": "Temp_6-9",
@@ -615,7 +563,7 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 6, ["AboveElev"]),
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 9, ["BelowElev"]),
        ],
-    "checkStrings": ["HIGHS AROUND 8"],
+    "checkStrings": ["Highs around 8"],
     },
 
     {
@@ -632,7 +580,7 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 12, ["AboveElev"]),
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 14, ["BelowElev"]),
        ],
-    "checkStrings": ["HIGHS AROUND 13"],
+    "checkStrings": ["Highs around 13"],
     },
     
     {
@@ -649,7 +597,7 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 10, ["AboveElev"]),
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 14, ["BelowElev"]),
        ],
-    "checkStrings": ["HIGHS AROUND 12"],
+    "checkStrings": ["Highs around 12"],
     },
 
     {
@@ -666,7 +614,7 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 11, ["AboveElev"]),
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 14, ["BelowElev"]),
        ],
-    "checkStrings": ["HIGHS AROUND 13"],
+    "checkStrings": ["Highs around 13"],
     },
 
     {
@@ -683,7 +631,7 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 11, ["AboveElev"]),
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 16, ["BelowElev"]),
        ],
-    "checkStrings": ["HIGHS 11 TO 16"],
+    "checkStrings": ["Highs 11 to 16"],
     },
 
     {
@@ -700,7 +648,7 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", -5, ["AboveElev"]),
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 5, ["BelowElev"]),
        ],
-    "checkStrings": ["HIGHS 5 BELOW TO 5 ABOVE ZERO"],
+    "checkStrings": ["Highs 5 below to 5 above zero"],
     },
     
     {
@@ -717,7 +665,7 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", -5, ["AboveElev"]),
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", -10, ["BelowElev"]),
        ],
-    "checkStrings": ["HIGHS 5 BELOW TO 10 BELOW ZERO"],
+    "checkStrings": ["Highs 5 below to 10 below zero"],
     },
 
     {
@@ -735,7 +683,7 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 5, ["AboveElev"]),
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 0, ["BelowElev"]),
        ],
-    "checkStrings": ["HIGHS ZERO TO 5 ABOVE"],
+    "checkStrings": ["Highs zero to 5 above"],
     },
 
     {
@@ -753,7 +701,7 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", -5, ["AboveElev"]),
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 0, ["BelowElev"]),
        ],
-    "checkStrings": ["HIGHS 5 BELOW TO ZERO"],
+    "checkStrings": ["Highs 5 below to zero"],
     },
     
     {    
@@ -770,7 +718,7 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 70, ["AboveElev"]),
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 70, ["BelowElev"]),
        ],
-    "checkStrings": ["HIGHS AROUND 70", "TEMPERATURES FALLING INTO THE UPPER 40S IN THE AFTERNOON"],
+    "checkStrings": ["Highs around 70", "Temperatures falling into the upper 40s in the afternoon"],
     },
     {    
     "name": "Temp_Trends2",
@@ -786,8 +734,8 @@ scripts = [
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 70, ["AboveElev"]),
        ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 70, ["BelowElev"]),
        ],
-    "checkStrings": ["NEAR STEADY TEMPERATURE AROUND 70"],
-    "notCheckString": ["HIGHS"],
+    "checkStrings": ["Near steady temperature around 70"],
+    "notCheckString": ["Highs"],
     },
 
     # Sky trend tests
@@ -836,15 +784,15 @@ scripts = [
        ("Fcst", "PoP", "SCALAR", 0, 72, 0, "all"),
        ],
     "checkStrings": [
-        "TODAY", "SUNNY.",
-        "TONIGHT", "CLEAR.",
-        "...", "SUNNY.",
-        "...", "MOSTLY CLEAR.",
-        "...", "MOSTLY SUNNY.",
-        "...", "CLEAR IN THE EVENING THEN BECOMING PARTLY CLOUDY.",
+        "Today", "Sunny.",
+        "Tonight", "Clear.",
+        "...", "Sunny.",
+        "...", "Mostly clear.",
+        "...", "Mostly sunny.",
+        "...", "Clear in the evening then becoming partly cloudy.",
         ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", addPeriods, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", addPeriods, "undo"),
        ],
     },
     
@@ -895,15 +843,15 @@ scripts = [
 
        ],
     "checkStrings": [
-        "TODAY", "SUNNY IN THE MORNING THEN BECOMING PARTLY SUNNY",
-        "TONIGHT", "CLEAR IN THE EVENING THEN BECOMING MOSTLY CLOUDY",
-        "...", "SUNNY IN THE MORNING THEN BECOMING MOSTLY CLOUDY",
-        "...", "CLEAR IN THE EVENING THEN BECOMING MOSTLY CLOUDY",
-        "...", "SUNNY IN THE MORNING THEN BECOMING CLOUDY",
-        "...", "CLEAR IN THE EVENING THEN BECOMING CLOUDY",
+        "Today", "Sunny in the morning then becoming partly sunny",
+        "Tonight", "Clear in the evening then becoming mostly cloudy",
+        "...", "Sunny in the morning then becoming mostly cloudy",
+        "...", "Clear in the evening then becoming mostly cloudy",
+        "...", "Sunny in the morning then becoming cloudy",
+        "...", "Clear in the evening then becoming cloudy",
         ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", addPeriods, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", addPeriods, "undo"),
        ],
     },
 
@@ -968,15 +916,15 @@ scripts = [
        
        ],
     "checkStrings": [
-        "TODAY", "MOSTLY SUNNY",
-        "TONIGHT", "PARTLY CLOUDY",
-        "...", "SUNNY IN THE MORNING THEN BECOMING PARTLY SUNNY",
-        "...", "MOSTLY CLEAR IN THE EVENING THEN BECOMING MOSTLY CLOUDY",
-        "...", "SUNNY IN THE MORNING THEN BECOMING MOSTLY CLOUDY",
-        "...", "CLEAR IN THE EVENING THEN BECOMING MOSTLY CLOUDY",
+        "Today", "Mostly sunny",
+        "Tonight", "Partly cloudy",
+        "...", "Sunny in the morning then becoming partly sunny",
+        "...", "Mostly clear in the evening then becoming mostly cloudy",
+        "...", "Sunny in the morning then becoming mostly cloudy",
+        "...", "Clear in the evening then becoming mostly cloudy",
         ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", addPeriods, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", addPeriods, "undo"),
        ],
     },
     
@@ -1028,15 +976,15 @@ scripts = [
 
        ],
     "checkStrings": [
-        ".TODAY", "PARTLY SUNNY.",
-        "TONIGHT", "PARTLY CLOUDY IN THE EVENING THEN BECOMING MOSTLY CLOUDY",
-        "...", "MOSTLY SUNNY IN THE MORNING THEN BECOMING MOSTLY CLOUDY",
-        "...", "PARTLY CLOUDY IN THE EVENING THEN BECOMING MOSTLY CLOUDY",
-        "...", "MOSTLY SUNNY IN THE MORNING THEN BECOMING CLOUDY",
-        "...", "PARTLY CLOUDY IN THE EVENING THEN BECOMING CLOUDY",
+        ".Today", "Partly sunny.",
+        "Tonight", "Partly cloudy in the evening then becoming mostly cloudy",
+        "...", "Mostly sunny in the morning then becoming mostly cloudy",
+        "...", "Partly cloudy in the evening then becoming mostly cloudy",
+        "...", "Mostly sunny in the morning then becoming cloudy",
+        "...", "Partly cloudy in the evening then becoming cloudy",
         ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", addPeriods, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", addPeriods, "undo"),
        ],
     },
 
@@ -1090,15 +1038,15 @@ scripts = [
 
        ],
     "checkStrings": [
-        "TODAY", "MOSTLY CLOUDY",
-        "TONIGHT", "MOSTLY CLOUDY.",
-        "...", "PARTLY SUNNY IN THE MORNING THEN BECOMING CLOUDY",
-        "...", "MOSTLY CLOUDY",
-        "...", "CLOUDY.",
-        "...", "CLOUDY.",
+        "Today", "Mostly cloudy",
+        "Tonight", "Mostly cloudy.",
+        "...", "Partly sunny in the morning then becoming cloudy",
+        "...", "Mostly cloudy",
+        "...", "Cloudy.",
+        "...", "Cloudy.",
         ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", addPeriods, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", addPeriods, "undo"),
        ],
     },
     {    
@@ -1125,11 +1073,11 @@ scripts = [
 
        ],
     "checkStrings": [
-        "TODAY", "MOSTLY SUNNY UNTIL LATE AFTERNOON THEN BECOMING MOSTLY CLOUDY",
-        "TONIGHT", "PARTLY CLOUDY IN THE EVENING THEN BECOMING MOSTLY CLOUDY", 
+        "Today", "Mostly sunny until late afternoon then becoming mostly cloudy",
+        "Tonight", "Partly cloudy in the evening then becoming mostly cloudy", 
         ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", addTonight, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", addTonight, "undo"),
        ],
     },
 
@@ -1143,7 +1091,7 @@ def testScript(self, dataMgr, level="Site"):
         "database": "<site>_GRID__Fcst_00000000_0000",
         "combinations": "ZONE",
         "fileChanges": [
-           ("Phrase_Test_Local", "TextProduct", "replace", minMax, "undo"),
+           ("Phrase_Test_Local", "TextUtility", "replace", (maxT1, maxT2), "undo"),
         ],
         }
     # Necessary to do drt for scripts 
