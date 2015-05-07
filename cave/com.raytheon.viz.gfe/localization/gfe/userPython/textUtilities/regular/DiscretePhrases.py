@@ -32,7 +32,8 @@
 #
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    04/28/2016      4027          randerso       Changes for mixed case
+#    04/28/2015      4027          randerso       Changes for mixed case
+#                                                 Added sort for consistent ordering of multiple timezones
 #
 ##
 
@@ -982,7 +983,7 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
 
         # special case for expirations.
         if action == 'EXP':
-            return (None, "AT")
+            return (None, "at")
 
         return d.get(timingType, ("<startPrefix?>", "<endPrefix?>"))
          
@@ -1078,14 +1079,9 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
         # marine - CONUS
         elif hazRec['officeid'] not in oconusSites:
     
-            # njensen: i changed the < to <= below because the automated tests
-            # were failing with a race condition where issueTime would be the
-            # exact same time as startTime and therefore the tests would sometimes
-            # fall into the wrong if/else block
-    
             #advisories/warnings - explicit, but not some phensigs
             if hazRec['sig'] in ['Y','W'] and phensig not in marineHazList:
-                if deltaTstart <= 3*HR:    #no start time in first 3 hours
+                if deltaTstart < 3*HR:    #no start time in first 3 hours
                     start = 'NONE'
                 else:
                     start = 'EXPLICIT'    #explicit start time after 3 hours
@@ -1093,13 +1089,13 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
     
             #watches - mix of explicit/fuzzy, some phensig treated as watches
             elif hazRec['sig'] in ['A'] or phensig in marineHazList:
-                if deltaTstart <= 3*HR:    #no start time in first 3 hours
+                if deltaTstart < 3*HR:    #no start time in first 3 hours
                     start = 'NONE'
-                elif deltaTstart <= 12*HR:
+                elif deltaTstart < 12*HR:
                     start = 'EXPLICIT'    #explicit start time 3-12 hours
                 else:
                     start = 'FUZZY4'      #fuzzy times after 12 (4/day)
-                if deltaTend <= 12*HR:     #explicit end time 0-12 hours
+                if deltaTend < 12*HR:     #explicit end time 0-12 hours
                     end = 'EXPLICIT'
                 else:
                     end = 'FUZZY4'        #fuzzy times after 12 (4/day)
@@ -1191,6 +1187,9 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
         #and list of time zones for the ending time.  The areaList provides
         #a complete list of areas for this headline. startT, endT are the
         #hazard times.
+
+        # sort the areaList so time zones are in consistent order
+        areaList.sort()
 
         # get this time zone
         thisTimeZone = os.environ["TZ"]
