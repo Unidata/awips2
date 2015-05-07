@@ -32,8 +32,8 @@ scripts = [
     {
     "name": "A1",
     "commentary": """Phrase Test:
-      SUNNY UNTIL LATE AFTERNOON THEN BECOMING PARTLY SUNNY.
-      A 20 PERCENT CHANCE OF THUNDERSTORMS LATE IN THE AFTERNOON""",
+      Sunny until late afternoon then becoming partly sunny.
+      A 20 percent chance of thunderstorms late in the afternoon""",
     "createGrids": [
        ("Fcst", "PoP", "SCALAR", 0, 9, 10, "all"),
        ("Fcst", "Sky", "SCALAR", 0, 9, 20, "all"),
@@ -43,16 +43,16 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 9, 12, "SChc:T:<NoInten>:<NoVis>:", "all"),
        ],
     "checkStrings": [
-            "SUNNY UNTIL LATE AFTERNOON THEN BECOMING PARTLY SUNNY.",
-            "A 20 PERCENT CHANCE OF THUNDERSTORMS LATE IN THE AFTERNOON"
+            "Sunny until late afternoon then becoming partly sunny.",
+            "A 20 percent chance of thunderstorms late in the afternoon"
             ],
     },
     {
     "name": "A2",
     "commentary": """Phrase Test:
-      SHOWERS AND THUNDERSTORMS IN THE MORNING...THEN MOSTLY SUNNY EARLY IN THE AFTERNOON
-      MOSTLY SUNNY WITH SLIGHT CHANCE OF THUNDERSTORMS LATE IN THE AFTERNOON
-      LOCALLY HEAVY RAINFALL POSSIBLE IN THE MORNING""",
+      showers and thunderstorms in the morning...then mostly sunny early in the afternoon
+      Mostly sunny with slight chance of thunderstorms late in the afternoon
+      Locally heavy rainfall possible in the morning""",
     "createGrids": [
        ("Fcst", "PoP", "SCALAR", 0, 6,  90, "all"),
        ("Fcst", "PoP", "SCALAR", 6, 9,  10, "all"),
@@ -65,30 +65,30 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 9, 12, "SChc:T:<NoInten>:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "SHOWERS AND THUNDERSTORMS IN THE MORNING...THEN MOSTLY SUNNY EARLY IN THE AFTERNOON",
-       "MOSTLY SUNNY WITH SLIGHT CHANCE OF THUNDERSTORMS LATE IN THE AFTERNOON",
-       "LOCALLY HEAVY RAINFALL POSSIBLE IN THE MORNING",
+       "showers and thunderstorms in the morning...then mostly sunny early in the afternoon",
+       "Mostly sunny with slight chance of thunderstorms late in the afternoon",
+       "Locally heavy rainfall possible in the morning",
        ],
     },
     {
     "name": "A3",
     "commentary": """Phrase Test:
-      SUNNY""",
+      Sunny""",
     "createGrids": [
        ("Fcst", "PoP", "SCALAR", 0, 12, 0, "all"),
        ("Fcst", "Sky", "SCALAR", 0, 12,  20, "all"),
        ("Fcst", "Wx", "WEATHER", 0, 12,  "NoWx", "all"),
        ],
     "checkStrings": [
-       "SUNNY",
+       "Sunny",
        ],
     },
     {
     "name": "A4",
     "commentary": """Phrase Test:
-      MOSTLY SUNNY
-      SCATTERED THUNDERSTORMS IN THE LATE MORNING AND AFTERNOON
-      CHANCE OF THUNDERSTORMS 30 PERCENT""",
+      Mostly sunny
+      Scattered thunderstorms in the late morning and afternoon
+      Chance of thunderstorms 30 percent""",
     "createGrids": [
        ("Fcst", "PoP", "SCALAR", 0, 3, 10, "all"),
        ("Fcst", "Sky", "SCALAR", 0, 3,  40, "all"),
@@ -98,17 +98,17 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 3, 12, "Sct:T:<NoInten>:<NoVis>:^Sct:RW:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "MOSTLY SUNNY",
-       "SCATTERED THUNDERSTORMS IN THE LATE MORNING AND AFTERNOON",
-       "CHANCE OF THUNDERSTORMS 30 PERCENT",
+       "Mostly sunny",
+       "Scattered thunderstorms in the late morning and afternoon",
+       "Chance of thunderstorms 30 percent",
        ],
     },
     {
     "name": "A5",
     "commentary": """Phrase Test:
-      SUNNY IN THE MORNING...THEN PARTLY SUNNY WITH SCATTERED THUNDERSTORMS IN THE AFTERNOON
-      THUNDERSTORMS MAY PRODUCE HEAVY RAINFALL AND FREQUENT LIGHTNING IN THE AFTERNOON
-      CHANCE OF THUNDERSTORMS 50 PERCENT""",
+      Sunny in the morning...then partly sunny with scattered thunderstorms in the afternoon
+      thunderstorms may produce heavy rainfall and frequent lightning in the afternoon
+      Chance of thunderstorms 50 percent""",
     "createGrids": [
        ("Fcst", "PoP", "SCALAR", 0, 6, 10, "all"),
        ("Fcst", "Sky", "SCALAR", 0, 6,  25, "all"),
@@ -118,18 +118,18 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Sct:T:<NoInten>:<NoVis>:FL,HvyRn", "all"),
        ],
     "checkStrings": [
-       "SUNNY IN THE MORNING...THEN PARTLY SUNNY WITH SCATTERED THUNDERSTORMS IN THE AFTERNOON",
-       "THUNDERSTORMS MAY PRODUCE HEAVY RAINFALL AND FREQUENT LIGHTNING IN THE AFTERNOON",
-       "CHANCE OF THUNDERSTORMS 50 PERCENT"
+       "Sunny in the morning...then partly sunny with scattered thunderstorms in the afternoon",
+       "thunderstorms may produce heavy rainfall and frequent lightning in the afternoon",
+       "Chance of thunderstorms 50 percent"
        ],
     },
     {
     "name": "B1",
     "commentary": """Phrase Test:
-      MOSTLY CLOUDY WITH A 30 PERCENT CHANCE OF RAIN IN THE MORNING...THEN MOSTLY SUNNY IN THE AFTERNOON
-      WINDY
-      TEMPERATURES FALLING INTO THE MID 50S IN THE AFTERNOON
-      SOUTHWEST WINDS AROUND 10 MPH INCREASING TO NORTH AROUND 30 MPH IN THE AFTERNOON""",
+      Mostly cloudy with a 30 percent chance of rain in the morning...then mostly sunny in the afternoon
+      Windy
+      Temperatures falling into the mid 50s in the afternoon
+      Southwest winds around 10 mph increasing to north around 30 mph in the afternoon""",
     "createGrids": [
        ("Fcst", "PoP",  "SCALAR", 0, 6, 30, "all"),
        ("Fcst", "Sky",  "SCALAR", 0, 6,  70, "all"),
@@ -146,20 +146,20 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 6, 12,  0, "all"),
        ],
     "checkStrings": [
-       "MOSTLY CLOUDY WITH A 30 PERCENT CHANCE OF RAIN IN THE MORNING...THEN MOSTLY SUNNY IN THE AFTERNOON",
-       "WINDY",
-       "TEMPERATURES FALLING INTO THE MID 50S IN THE AFTERNOON",
-       "SOUTHWEST WINDS AROUND 10 MPH INCREASING TO NORTH AROUND 30 MPH IN THE AFTERNOON",
+       "Mostly cloudy with a 30 percent chance of rain in the morning...then mostly sunny in the afternoon",
+       "Windy",
+       "Temperatures falling into the mid 50s in the afternoon",
+       "Southwest winds around 10 mph increasing to north around 30 mph in the afternoon",
        ],
     },
     {
     "name": "B2",
     "commentary": """Phrase Test:
-      THUNDERSTORMS
-      LOCALLY HEAVY RAINFALL POSSIBLE
-      HURRICANE FORCE WINDS
-      HIGHS AROUND 80
-      SOUTHEAST WINDS AROUND 70 MPH WITH GUSTS TO AROUND 130 MPH BECOMING SOUTH AND INCREASING TO AROUND 90 MPH IN THE AFTERNOON""",
+      thunderstorms
+      Locally heavy rainfall possible
+      Hurricane force winds
+      Highs around 80
+      Southeast winds around 70 mph with gusts to around 130 mph becoming south and increasing to around 90 mph in the afternoon""",
     "createGrids": [
        ("Fcst", "PoP",  "SCALAR", 0, 6, 100, "all"),
        ("Fcst", "Sky",  "SCALAR", 0, 6,  90, "all"),
@@ -173,19 +173,19 @@ scripts = [
        ("Fcst", "Wind", "VECTOR", 6, 12,  (80,"S"), "all"),
        ],
     "checkStrings": [
-       "THUNDERSTORMS",
-       "LOCALLY HEAVY RAINFALL POSSIBLE",
-       "HURRICANE FORCE WINDS",
-       "HIGHS AROUND 80",
-       "SOUTHEAST WINDS AROUND 70 MPH WITH GUSTS TO AROUND 130 MPH BECOMING SOUTH AND INCREASING TO AROUND 90 MPH IN THE AFTERNOON",
+       "thunderstorms",
+       "Locally heavy rainfall possible",
+       "Hurricane force winds",
+       "Highs around 80",
+       "Southeast winds around 70 mph with gusts to around 130 mph becoming south and increasing to around 90 mph in the afternoon",
        ],
     },
     {
     "name": "B3",
     "commentary": """Phrase Test:
-      SUNNY
-      LIGHT WINDS
-      WIDESPREAD FROST""",
+      Sunny
+      Light winds
+      Widespread frost""",
     "createGrids": [
        ("Fcst", "PoP",  "SCALAR", 0, 12, 0, "all"),
        ("Fcst", "Sky",  "SCALAR", 0, 12,  10, "all"),
@@ -193,18 +193,18 @@ scripts = [
        ("Fcst", "Wind", "VECTOR", 0, 12,  (0,"SW"), "all"),
        ],
     "checkStrings": [
-       "SUNNY",
-       "LIGHT WINDS",
-       "WIDESPREAD FROST",
+       "Sunny",
+       "Light winds",
+       "Widespread frost",
        ],
     },
     {
     "name": "C1",
     "commentary": """Phrase Test:
-       MOSTLY CLOUDY
-       BREEZY
-       NORTH WINDS AROUND 25 MPH
-       WIND CHILL READINGS 26 BELOW TO 36 BELOW ZERO""",
+       Mostly cloudy
+       Breezy
+       North winds around 25 mph
+       Wind chill readings 26 below to 36 below zero""",
     "createGrids": [
        ("Fcst", "PoP",  "SCALAR", 0, 12, 10, "all"),
        ("Fcst", "Sky",  "SCALAR", 0, 12,  80, "all"),
@@ -213,17 +213,17 @@ scripts = [
        ("Fcst", "WindChill", "SCALAR", 0, 12, -36 , "all"),
        ],
     "checkStrings": [
-       "MOSTLY CLOUDY",
-       "BREEZY",
-       "NORTH WINDS AROUND 25 MPH",
-       "WIND CHILL READINGS 26 BELOW TO 36 BELOW ZERO",
+       "Mostly cloudy",
+       "Breezy",
+       "North winds around 25 mph",
+       "Wind chill readings 26 below to 36 below zero",
        ],
     },
     {
     "name": "C2",  # Heavy Snow
     "commentary": """Phrase Test: Heavy Snow
-       SNOW LIKELY IN THE MORNING...THEN SNOW IN THE AFTERNOON
-       SNOW MAY BE HEAVY AT TIMES IN THE AFTERNOON""",
+       Snow likely in the morning...then snow in the afternoon
+       Snow may be heavy at times in the afternoon""",
     "createGrids": [
        ("Fcst", "PoP",  "SCALAR", 0, 6, 80, "all"),
        ("Fcst", "Sky",  "SCALAR", 0, 6,  80, "all"),
@@ -233,8 +233,8 @@ scripts = [
        ("Fcst", "Wx",  "WEATHER", 6, 12, "Def:S:+:1/4SM:", "all"),
        ],
     "checkStrings": [
-       "SNOW LIKELY IN THE MORNING...THEN SNOW IN THE AFTERNOON",
-       "SNOW MAY BE HEAVY AT TIMES IN THE AFTERNOON",
+       "Snow likely in the morning...then snow in the afternoon",
+       "Snow may be heavy at times in the afternoon",
        #"VISIBILITY ONE QUARTER MILE OR LESS AT TIMES IN THE AFTERNOON",
        ],
     },

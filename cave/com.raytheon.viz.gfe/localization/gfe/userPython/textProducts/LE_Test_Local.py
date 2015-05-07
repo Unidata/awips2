@@ -567,33 +567,33 @@ class TextProduct(AreaFcst.TextProduct):
         
         return [
             ("Morning", self.DAY(), self.NIGHT(), self.NIGHT(),
-             ".TODAY...", "early in the morning", "late in the afternoon",
+             ".Today...", "early in the morning", "late in the afternoon",
              1, seriesDefAM), 
             ("Morning with Pre-1st Period", self.DAY()-2, self.NIGHT(), self.NIGHT(),
-             ".TODAY...", "early in the morning", "late in the afternoon",
+             ".Today...", "early in the morning", "late in the afternoon",
              1, seriesDefAM), 
             ("Morning Update", "issuanceHour", self.NIGHT(), self.NIGHT(),
-             ".REST OF TODAY...", "early in the morning", "late in the afternoon",
+             ".Rest of Today...", "early in the morning", "late in the afternoon",
              1, seriesDefAM), 
             ("Afternoon Update", "issuanceHour", self.NIGHT(), self.NIGHT(),
-             ".REST OF TODAY...", "early in the morning","late in the afternoon",
+             ".Rest of Today...", "early in the morning","late in the afternoon",
              1, seriesDefAM), 
             #  End times are tomorrow:
             ("Afternoon", self.NIGHT(), 24 + self.DAY(), 24 + self.DAY(),
-             ".TONIGHT...", "late in the night", "early in the evening",
+             ".Tonight...", "late in the night", "early in the evening",
              1, seriesDefPM), 
             ("Afternoon with Pre-1st Period", self.NIGHT()-2, 24 + self.DAY(), 24 + self.DAY(),
-             ".TONIGHT...", "late in the night", "early in the evening",
+             ".Tonight...", "late in the night", "early in the evening",
              1, seriesDefPM), 
             ("Evening Update", "issuanceHour", 24 + self.DAY(), 24 + self.DAY(),
-             ".REST OF TONIGHT...", "early in the morning","early in the evening",
+             ".Rest of Tonight...", "early in the morning","early in the evening",
              1, seriesDefPM),
             # For the early morning update, this produces:
             # REST OF TONIGHT:
             # MONDAY
             # MONDAY NIGHT
             ("Early Morning Update", "issuanceHour", self.DAY(), self.DAY(),
-             ".REST OF TONIGHT...", "early in the morning","late in the afternoon",
+             ".Rest of Tonight...", "early in the morning","late in the afternoon",
              0, seriesDefPM), 
             # Alternative
             # For the early morning update, this produces:
@@ -601,7 +601,7 @@ class TextProduct(AreaFcst.TextProduct):
             # TODAY
             # TONIGHT
             #("Evening Update", "issuanceHour", 24 + self.DAY(), 24 + self.DAY(),
-            # ".REST OF TONIGHT...", "late in the night", "early in the evening",
+            # ".Rest of Tonight...", "late in the night", "early in the evening",
             # 1, seriesDefPM), 
             #("Early Morning Update", "issuanceHour", self.DAY(), self.DAY(),
             # ".EARLY THIS MORNING...", "early in the morning", "late in the afternoon",

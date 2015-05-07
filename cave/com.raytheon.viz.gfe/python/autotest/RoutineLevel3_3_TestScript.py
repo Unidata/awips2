@@ -29,49 +29,54 @@
 
 # First run setupTextEA
 
-periodVer1 = """TextProduct.Definition["Period_1_version"] = 1"""
-periodVer2 = """TextProduct.Definition["Period_1_version"] = 2"""
+periodVer1 = """Definition["Period_1_version"] = 1"""
+periodVer2 = """Definition["Period_1_version"] = 2"""
 
-consolidateSkyPopWx = """def useSkyPopWx_consolidation(self, tree, node):
+consolidateSkyPopWx = """
+    def useSkyPopWx_consolidation(self, tree, node):
         # If set to 1, the skyPopWx phrase will consolidate weather keys that
         # span all time ranges to produce:
-        #   PARTLY CLOUDY WITH A CHANCE OF RAIN.
-        #   SNOW IN THE MORNING...THEN SLEET IN THE AFTERNOON.
+        #   Partly cloudy with a chance of rain.
+        #   Snow in the morning...then sleet in the afternoon.
         #
         # instead of:
-        #    PARTLY CLOUDY. CHANCE OF RAIN AND SNOW IN THE MORNING
-        #  ...THEN A CHANCE OF RAIN AND SLEET IN THE AFTERNOON. 
+        #    Partly cloudy. Chance of rain and snow in the morning
+        #  ...then a chance of rain and sleet in the afternoon. 
         return 1
 """
-repeatingEmbedded = """def repeatingEmbedded_localEffect_threshold(self, tree, component):
+repeatingEmbedded = """
+
+    def repeatingEmbedded_localEffect_threshold(self, tree, component):
         return 1
+    
 """
 
-localEffectSetup = [
-"""def _skyLocalEffects_list(self):
+localEffectSetup = """
+
+    def _skyLocalEffects_list(self):
         leArea1 = self.LocalEffectArea("AboveElev", "")
         leArea2 = self.LocalEffectArea("BelowElev", "leeward")
         return [self.LocalEffect([leArea1, leArea2], self.checkSkyDifference, "...")]
-""",
-"""def _wxLocalEffects_list(self):
+    
+    def _wxLocalEffects_list(self):
         leArea1 = self.LocalEffectArea("AboveElev", "")
         leArea2 = self.LocalEffectArea("BelowElev", "leeward")
         return [self.LocalEffect([leArea1, leArea2], 0, "...")]
-""",
-"""def _popLocalEffects_list(self):
+
+    def _popLocalEffects_list(self):
         leArea1 = self.LocalEffectArea("AboveElev", "")
         leArea2 = self.LocalEffectArea("BelowElev", "leeward")
         return [self.LocalEffect([leArea1, leArea2], 20, "...")]
-""",        
-"""def _skyPopWxLocalEffects_list(self):
+
+    def _skyPopWxLocalEffects_list(self):
         leArea1 = self.LocalEffectArea("AboveElev", "")
         leArea2 = self.LocalEffectArea("BelowElev", "leeward")
         # Set threshold to be used by checkSkyWxDifference
         self._skyLocalEffectThreshold = 38
         return [self.LocalEffect([leArea1, leArea2],
                                  self.checkSkyWxDifference, "...")]
+
 """
-]
 
 troubleShooting = """
 
@@ -89,7 +94,7 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 0, 12, "Sct:RW:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "MOSTLY SUNNY WITH SCATTERED SHOWERS"
+       "Mostly sunny with scattered showers"
        ],
     },
     {
@@ -103,7 +108,7 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 0, 12, "Sct:RW:-:<NoVis>:", ["AboveElev"]),
        ],
     "checkStrings": [
-       "MOSTLY CLOUDY WITH SCATTERED SHOWERS WINDWARD...SUNNY WITH SCATTERED SHOWERS LEEWARD",
+       "Mostly cloudy with scattered showers windward...sunny with scattered showers leeward",
        ],
     },
     {
@@ -117,8 +122,8 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 0, 12, "Wide:RW:-:<NoVis>:", ["AboveElev"]),
        ],
     "checkStrings": [
-       "MOSTLY SUNNY",
-       "WIDESPREAD SHOWERS WINDWARD...ISOLATED SHOWERS LEEWARD",
+       "Mostly sunny",
+       "Widespread showers windward...isolated showers leeward",
        ],
     },
 
@@ -140,7 +145,7 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 0, 12, "Sct:RW:-:<NoVis>:", ["AboveElev"]),
        ],
     "checkStrings": [
-       "SUNNY LEEWARD...MOSTLY CLOUDY WITH SCATTERED SHOWERS WINDWARD...CHANCE OF SHOWERS 50 PERCENT WINDWARD."
+       "Sunny leeward...mostly cloudy with scattered showers windward...chance of showers 50 percent windward."
        ],
     },
     {
@@ -154,7 +159,7 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 0, 12, "Wide:RW:-:<NoVis>:", ["AboveElev"]),
        ],
     "checkStrings": [
-       "MOSTLY CLOUDY WITH WIDESPREAD SHOWERS WINDWARD...SUNNY WITH ISOLATED SHOWERS LEEWARD",
+       "Mostly cloudy with widespread showers windward...sunny with isolated showers leeward",
        ],
     },
     {
@@ -170,8 +175,8 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 0, 12, "Sct:RW:-:<NoVis>:", ["AboveElev"]),
        ],
     "checkStrings": [
-       "LEEWARD...SUNNY IN THE MORNING THEN BECOMING PARTLY SUNNY...SCATTERED SHOWERS",
-       "WINDWARD...MOSTLY CLOUDY WITH SCATTERED SHOWERS",
+       "Leeward...sunny in the morning then becoming partly sunny...Scattered showers",
+       "Windward...mostly cloudy with scattered showers",
        ],
     },
 
@@ -188,10 +193,10 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 0, 12, "Sct:RW:-:<NoVis>:", ["AboveElev"]),
        ],
     "checkStrings": [
-       "WINDWARD...PARTLY SUNNY IN THE MORNING THEN BECOMING CLOUDY",
-       "LEEWARD...SUNNY IN THE MORNING THEN BECOMING PARTLY SUNNY",
-       "SCATTERED SHOWERS",
-       "CHANCE OF SHOWERS 50 PERCENT",
+       "Windward...partly sunny in the morning then becoming cloudy",
+       "Leeward...sunny in the morning then becoming partly sunny",
+       "Scattered showers",
+       "Chance of showers 50 percent",
        ],
     },    
     {
@@ -207,9 +212,9 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Wide:RW:-:<NoVis>:", ["AboveElev"]),
        ],
     "checkStrings": [
-       "MOSTLY SUNNY",
-       "LEEWARD...ISOLATED SHOWERS IN THE MORNING",
-       "WINDWARD...WIDESPREAD SHOWERS",
+       "Mostly sunny",
+       "Leeward...isolated showers in the morning",
+       "Windward...widespread showers",
        ],
     },
 
@@ -226,9 +231,9 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Wide:RW:-:<NoVis>:", ["AboveElev"]),
        ],
     "checkStrings": [
-       "MOSTLY SUNNY",
-       "WINDWARD...ISOLATED SHOWERS IN THE MORNING...THEN WIDESPREAD SHOWERS IN THE AFTERNOON",
-       "LEEWARD...ISOLATED SHOWERS IN THE AFTERNOON",
+       "Mostly sunny",
+       "Windward...isolated showers in the morning...then widespread showers in the afternoon",
+       "Leeward...isolated showers in the afternoon",
        ],
     },
     {
@@ -246,8 +251,8 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Wide:RW:-:<NoVis>:", ["AboveElev"]),
        ],
     "checkStrings": [
-       "WINDWARD...MOSTLY CLOUDY WITH WIDESPREAD SHOWERS",
-       "LEEWARD...SUNNY WITH ISOLATED SHOWERS IN THE MORNING...THEN PARTLY SUNNY WITH WIDESPREAD SHOWERS IN THE AFTERNOON",
+       "Windward...mostly cloudy with widespread showers",
+       "Leeward...sunny with isolated showers in the morning...then partly sunny with widespread showers in the afternoon",
        ],
     },
     {
@@ -265,8 +270,8 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Wide:SW:-:<NoVis>:", ["AboveElev"]),
        ],
     "checkStrings": [
-       "WINDWARD...MOSTLY SUNNY WITH ISOLATED SNOW SHOWERS IN THE MORNING...THEN CLOUDY WITH WIDESPREAD SNOW SHOWERS IN THE AFTERNOON",
-       "LEEWARD...SUNNY WITH ISOLATED SHOWERS IN THE MORNING...THEN PARTLY SUNNY WITH WIDESPREAD SHOWERS IN THE AFTERNOON",
+       "Windward...mostly sunny with isolated snow showers in the morning...then cloudy with widespread snow showers in the afternoon",
+       "Leeward...sunny with isolated showers in the morning...then partly sunny with widespread showers in the afternoon",
        ],
     },
     {
@@ -284,9 +289,9 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Wide:SW:-:<NoVis>:", ["AboveElev"]),
        ],
     "checkStrings": [
-       "LEEWARD...MOSTLY SUNNY...ISOLATED SHOWERS IN THE MORNING...THEN WIDESPREAD SHOWERS IN THE AFTERNOON",
-       "WINDWARD...MOSTLY CLOUDY WITH WIDESPREAD SNOW SHOWERS",
-       "CHANCE OF PRECIPITATION 50 PERCENT",
+       "Leeward...mostly sunny...Isolated showers in the morning...then widespread showers in the afternoon",
+       "Windward...mostly cloudy with widespread snow showers",
+       "Chance of precipitation 50 percent",
        ],
     },
     {
@@ -304,8 +309,8 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Wide:SW:-:<NoVis>:", ["AboveElev"]),
        ],
     "checkStrings": [
-       "LEEWARD...SUNNY IN THE MORNING THEN BECOMING PARTLY SUNNY...ISOLATED SHOWERS",
-       "WINDWARD...MOSTLY CLOUDY WITH WIDESPREAD SNOW SHOWERS",
+       "Leeward...sunny in the morning then becoming partly sunny...Isolated showers",
+       "Windward...mostly cloudy with widespread snow showers",
        ],
     },
     {
@@ -323,9 +328,9 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Wide:SW:-:<NoVis>:", ["AboveElev"]),
        ],
     "checkStrings": [
-       "WINDWARD...MOSTLY CLOUDY...ISOLATED SNOW SHOWERS IN THE MORNING...THEN WIDESPREAD SNOW SHOWERS IN THE AFTERNOON",
-       "LEEWARD...MOSTLY SUNNY...ISOLATED SHOWERS IN THE MORNING...THEN WIDESPREAD SHOWERS IN THE AFTERNOON",
-       "CHANCE OF PRECIPITATION 50 PERCENT",
+       "Windward...mostly cloudy...Isolated snow showers in the morning...then widespread snow showers in the afternoon",
+       "Leeward...mostly sunny...Isolated showers in the morning...then widespread showers in the afternoon",
+       "Chance of precipitation 50 percent",
        ],
     },
     {
@@ -343,10 +348,10 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Wide:SW:-:<NoVis>:", ["AboveElev"]),
        ],
     "checkStrings": [
-       "WINDWARD...PARTLY SUNNY IN THE MORNING THEN BECOMING CLOUDY",
-       "...WIDESPREAD SNOW SHOWERS",
-       "LEEWARD...SUNNY IN THE MORNING THEN BECOMING PARTLY SUNNY",
-       "...ISOLATED SHOWERS",
+       "Windward...partly sunny in the morning then becoming cloudy",
+       "...Widespread snow showers",
+       "Leeward...sunny in the morning then becoming partly sunny",
+       "...Isolated showers",
        ],
     },
 
@@ -366,9 +371,9 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Wide:SW:-:<NoVis>:", ["AboveElev"]),
        ],
     "checkStrings": [
-       "WINDWARD...MOSTLY CLOUDY",
-       "...ISOLATED SNOW SHOWERS IN THE MORNING...THEN WIDESPREAD SNOW SHOWERS IN THE AFTERNOON",
-       "LEEWARD...SUNNY WITH ISOLATED SHOWERS IN THE MORNING...THEN PARTLY SUNNY WITH WIDESPREAD SHOWERS IN THE AFTERNOON",
+       "Windward...mostly cloudy",
+       "...Isolated snow showers in the morning...then widespread snow showers in the afternoon",
+       "Leeward...sunny with isolated showers in the morning...then partly sunny with widespread showers in the afternoon",
        ],
     },
 
@@ -388,9 +393,9 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Wide:SW:-:<NoVis>:", ["AboveElev"]),
        ],
     "checkStrings": [
-       "WINDWARD...PARTLY SUNNY IN THE MORNING THEN BECOMING CLOUDY",
-       "...WIDESPREAD SNOW SHOWERS",
-       "LEEWARD...SUNNY WITH ISOLATED SHOWERS IN THE MORNING...THEN PARTLY SUNNY WITH WIDESPREAD SHOWERS IN THE AFTERNOON",
+       "Windward...partly sunny in the morning then becoming cloudy",
+       "...Widespread snow showers",
+       "Leeward...sunny with isolated showers in the morning...then partly sunny with widespread showers in the afternoon",
        ],
     },
 
@@ -415,13 +420,13 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Lkly:S:-:<NoVis>:^Lkly:R:-:<NoVis>:", ["AboveElev"]),
        ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", consolidateSkyPopWx, "undo"),    
-       ("Phrase_Test_Local", "TextProduct", "replace", periodVer2, "undo")
+       ("Phrase_Test_Local", "TextUtility", "add", consolidateSkyPopWx, "undo"),    
+       ("Phrase_Test_Local", "TextUtility", "replace", (periodVer1, periodVer2), "undo")
     ],
     "checkStrings": [
-       "ISOLATED THUNDERSTORMS IN THE MORNING.",
-       "RAIN AND SNOW LIKELY WINDWARD...A 40 PERCENT CHANCE OF RAIN LEEWARD.",
-       "CHANCE OF PRECIPITATION 70 PERCENT WINDWARD",
+       "Isolated thunderstorms in the morning.",
+       "Rain and snow likely windward...a 40 percent chance of rain leeward.",
+       "chance of precipitation 70 percent windward",
        ],
     },
 
@@ -437,13 +442,13 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Chc:RW:-:<NoVis>:", ["AboveElev"]),
        ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", consolidateSkyPopWx, "undo"),    
-       ("Phrase_Test_Local", "TextProduct", "replace", periodVer2, "undo")
+       ("Phrase_Test_Local", "TextUtility", "add", consolidateSkyPopWx, "undo"),    
+       ("Phrase_Test_Local", "TextUtility", "replace", (periodVer1, periodVer2), "undo")
     ],
     "checkStrings": [
-       "CLOUDY",
-       "CHANCE OF THUNDERSTORMS IN THE MORNING...THEN CHANCE OF SHOWERS IN THE AFTERNOON",
-       "CHANCE OF PRECIPITATION 50 PERCENT",
+       "Cloudy",
+       "Chance of thunderstorms in the morning...then chance of showers in the afternoon",
+       "Chance of precipitation 50 percent",
        ],
     },
 
@@ -460,14 +465,14 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Lkly:RW:-:<NoVis>:", ["AboveElev"]),
        ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", consolidateSkyPopWx, "undo"),    
-       ("Phrase_Test_Local", "TextProduct", "replace", periodVer2, "undo")
+       ("Phrase_Test_Local", "TextUtility", "add", consolidateSkyPopWx, "undo"),    
+       ("Phrase_Test_Local", "TextUtility", "replace", (periodVer1, periodVer2), "undo")
     ],
     "checkStrings": [
-        "CLOUDY.",
-        "CHANCE OF THUNDERSTORMS IN THE MORNING.",
-        "WINDWARD...SHOWERS LIKELY...CHANCE OF PRECIPITATION 70 PERCENT.",
-        "LEEWARD...CHANCE OF SHOWERS IN THE AFTERNOON...CHANCE OF PRECIPITATION 40 PERCENT.",
+        "Cloudy.",
+        "Chance of thunderstorms in the morning.",
+        "Windward...showers likely...Chance of precipitation 70 percent.",
+        "Leeward...chance of showers in the afternoon...Chance of precipitation 40 percent.",
        ],
     },
     
@@ -484,14 +489,14 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Lkly:RW:-:<NoVis>:", ["AboveElev"]),
        ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", consolidateSkyPopWx, "undo"),    
-       ("Phrase_Test_Local", "TextProduct", "replace", periodVer2, "undo")
+       ("Phrase_Test_Local", "TextUtility", "add", consolidateSkyPopWx, "undo"),    
+       ("Phrase_Test_Local", "TextUtility", "replace", (periodVer1, periodVer2), "undo")
     ],
     "checkStrings": [
-       "CLOUDY", 
-       "ISOLATED THUNDERSTORMS IN THE MORNING",
-       "SHOWERS LIKELY WINDWARD...A 40 PERCENT CHANCE OF SHOWERS LEEWARD",
-       "CHANCE OF PRECIPITATION 70 PERCENT WINDWARD",
+       "Cloudy", 
+       "Isolated thunderstorms in the morning",
+       "Showers likely windward...a 40 percent chance of showers leeward",
+       "chance of precipitation 70 percent windward",
        ],
     },
     
@@ -508,13 +513,13 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Chc:RW:-:<NoVis>:", ["AboveElev"]),
        ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", consolidateSkyPopWx, "undo"),    
-       ("Phrase_Test_Local", "TextProduct", "replace", periodVer2, "undo")
+       ("Phrase_Test_Local", "TextUtility", "add", consolidateSkyPopWx, "undo"),    
+       ("Phrase_Test_Local", "TextUtility", "replace", (periodVer1, periodVer2), "undo")
     ],
     "checkStrings": [
-       "ISOLATED THUNDERSTORMS IN THE MORNING",
-       "CLOUDY WITH CHANCE OF SHOWERS", 
-       "CHANCE OF PRECIPITATION 50 PERCENT WINDWARD...40 PERCENT LEEWARD",
+       "Isolated thunderstorms in the morning",
+       "Cloudy with chance of showers", 
+       "Chance of precipitation 50 percent windward...40 percent leeward",
        ],
     },
 
@@ -531,12 +536,12 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "NoWx", ["AboveElev"]),
        ],
     "fileChanges": [
-       #("Phrase_Test_Local", "TextProduct", "add", consolidateSkyPopWx, "undo"),    
-       #("Phrase_Test_Local", "TextProduct", "add", troubleShooting, "undo"),
-       ("Phrase_Test_Local", "TextProduct", "replace", periodVer2, "undo"),
+       #("Phrase_Test_Local", "TextUtility", "add", consolidateSkyPopWx, "undo"),    
+       #("Phrase_Test_Local", "TextUtility", "add", troubleShooting, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace", (periodVer1, periodVer2), "undo"),
        ],
     "checkStrings": [
-       "LEEWARD...WIDESPREAD FOG IN THE MORNING",
+       "Leeward...widespread fog in the morning",
        ],
     },
 
@@ -553,13 +558,13 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 9, 12, "SChc:RW:-:<NoVis>:", ["AboveElev"]),
        ],
     "fileChanges": [
-       #("Phrase_Test_Local", "TextProduct", "add", consolidateSkyPopWx, "undo"),    
-       #("Phrase_Test_Local", "TextProduct", "add", troubleShooting, "undo"),
-       ("Phrase_Test_Local", "TextProduct", "replace", periodVer2, "undo"),
+       #("Phrase_Test_Local", "TextUtility", "add", consolidateSkyPopWx, "undo"),    
+       #("Phrase_Test_Local", "TextUtility", "add", troubleShooting, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace", (periodVer1, periodVer2), "undo"),
        ],
     "checkStrings": [
-       "WINDWARD...A 20 PERCENT CHANCE OF SHOWERS LATE IN THE AFTERNOON",
-       "LEEWARD...WIDESPREAD FOG LATE IN THE AFTERNOON",
+       "Windward...a 20 percent chance of showers late in the afternoon",
+       "Leeward...widespread fog late in the afternoon",
        ],
     },
     {     
@@ -576,13 +581,13 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 9, 12, "SChc:T:<NoInten>:<NoVis>:^SChc:RW:-:<NoVis>:", ["AboveElev"]),
        ],
     "fileChanges": [
-       #("Phrase_Test_Local", "TextProduct", "add", consolidateSkyPopWx, "undo"),    
-       #("Phrase_Test_Local", "TextProduct", "add", troubleShooting, "undo"),
-       ("Phrase_Test_Local", "TextProduct", "replace", periodVer2, "undo"),
+       #("Phrase_Test_Local", "TextUtility", "add", consolidateSkyPopWx, "undo"),    
+       #("Phrase_Test_Local", "TextUtility", "add", troubleShooting, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace", (periodVer1, periodVer2), "undo"),
        ],
     "checkStrings": [
-       "A 20 PERCENT CHANCE OF THUNDERSTORMS LATE IN THE AFTERNOON",
-       "LEEWARD...AREAS OF FOG LATE IN THE AFTERNOON",
+       "A 20 percent chance of thunderstorms late in the afternoon",
+       "Leeward...areas of fog late in the afternoon",
        ],
     },
 
@@ -600,13 +605,13 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 9, 12, "SChc:T:<NoInten>:<NoVis>:^SChc:RW:-:<NoVis>:", ["AboveElev"]),
        ],
     "fileChanges": [
-       #("Phrase_Test_Local", "TextProduct", "add", consolidateSkyPopWx, "undo"),    
-       #("Phrase_Test_Local", "TextProduct", "add", troubleShooting, "undo"),
-       ("Phrase_Test_Local", "TextProduct", "replace", periodVer2, "undo"),
+       #("Phrase_Test_Local", "TextUtility", "add", consolidateSkyPopWx, "undo"),    
+       #("Phrase_Test_Local", "TextUtility", "add", troubleShooting, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace", (periodVer1, periodVer2), "undo"),
        ],
     "checkStrings": [
-       "A 20 PERCENT CHANCE OF THUNDERSTORMS LATE IN THE AFTERNOON",
-       "LEEWARD...WIDESPREAD FOG LATE IN THE AFTERNOON",
+       "A 20 percent chance of thunderstorms late in the afternoon",
+       "Leeward...widespread fog late in the afternoon",
        ],
     },
 
@@ -619,10 +624,10 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 0, 12, "Lkly:L:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "MOSTLY SUNNY", "DRIZZLE LIKELY",
+       "Mostly sunny", "Drizzle likely",
        ],
     "notCheckStrings": [
-       "MOSTLY SUNNY WITH DRIZZLE LIKELY",
+       "Mostly sunny with drizzle likely",
        ],
     },
 
@@ -639,13 +644,13 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 9, 12, "Patchy:F:<NoInten>:<NoVis>:", ["AboveElev"]),
        ],
     "fileChanges": [
-       #("Phrase_Test_Local", "TextProduct", "add", localEffectSetup, "undo"),    
-       #("Phrase_Test_Local", "TextProduct", "add", troubleShooting, "undo"),
-       ("Phrase_Test_Local", "TextProduct", "replace", periodVer2, "undo"),
+       #("Phrase_Test_Local", "TextUtility", "add", localEffectSetup, "undo"),    
+       #("Phrase_Test_Local", "TextUtility", "add", troubleShooting, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace", (periodVer1, periodVer2), "undo"),
        ],
     "checkStrings": [
-       "WINDWARD...PATCHY FOG LATE IN THE AFTERNOON",
-       "LEEWARD...WIDESPREAD FOG LATE IN THE AFTERNOON",
+       "Windward...patchy fog late in the afternoon",
+       "Leeward...widespread fog late in the afternoon",
        ],
     },
 
@@ -664,12 +669,12 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "NoWx", ["AboveElev"]),
        ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", localEffectSetup, "undo"),    
-       #("Phrase_Test_Local", "TextProduct", "add", troubleShooting, "undo"),
-       ("Phrase_Test_Local", "TextProduct", "replace", periodVer2, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", localEffectSetup, "undo"),    
+       #("Phrase_Test_Local", "TextUtility", "add", troubleShooting, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace", (periodVer1, periodVer2), "undo"),
        ],
     "checkStrings": [
-       "LEEWARD...WIDESPREAD FOG IN THE MORNING",
+       "Leeward...widespread fog in the morning",
        ],
     },
 
@@ -686,15 +691,15 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 9, 12, "SChc:RW:-:<NoVis>:", ["AboveElev"]),
        ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", localEffectSetup, "undo"),    
-       #("Phrase_Test_Local", "TextProduct", "add", consolidateSkyPopWx, "undo"),    
-       #("Phrase_Test_Local", "TextProduct", "add", troubleShooting, "undo"),
-       ("Phrase_Test_Local", "TextProduct", "replace", (periodVer1, periodVer2), "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", localEffectSetup, "undo"),    
+       #("Phrase_Test_Local", "TextUtility", "add", consolidateSkyPopWx, "undo"),    
+       #("Phrase_Test_Local", "TextUtility", "add", troubleShooting, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace", (periodVer1, periodVer2), "undo"),
        ],
     "checkStrings": [
-       "MOSTLY SUNNY",
-       "A 20 PERCENT CHANCE OF SHOWERS LATE IN THE AFTERNOON",
-       "LEEWARD...WIDESPREAD FOG LATE IN THE AFTERNOON",
+       "Mostly sunny",
+       "A 20 percent chance of showers late in the afternoon",
+       "Leeward...widespread fog late in the afternoon",
        ],
     },
     {     
@@ -711,15 +716,15 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 9, 12, "SChc:T:<NoInten>:<NoVis>:^SChc:RW:-:<NoVis>:", ["AboveElev"]),
        ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", localEffectSetup, "undo"),    
-       #("Phrase_Test_Local", "TextProduct", "add", consolidateSkyPopWx, "undo"),    
-       #("Phrase_Test_Local", "TextProduct", "add", troubleShooting, "undo"),
-       ("Phrase_Test_Local", "TextProduct", "replace", periodVer2, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", localEffectSetup, "undo"),    
+       #("Phrase_Test_Local", "TextUtility", "add", consolidateSkyPopWx, "undo"),    
+       #("Phrase_Test_Local", "TextUtility", "add", troubleShooting, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace", (periodVer1, periodVer2), "undo"),
        ],
     "checkStrings": [
-       "MOSTLY SUNNY.",
-       "A 20 PERCENT CHANCE OF THUNDERSTORMS LATE IN THE AFTERNOON",
-       "LEEWARD...AREAS OF FOG LATE IN THE AFTERNOON",
+       "Mostly sunny.",
+       "A 20 percent chance of thunderstorms late in the afternoon",
+       "Leeward...areas of fog late in the afternoon",
        ],
     },
 
@@ -737,14 +742,14 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 9, 12, "SChc:T:<NoInten>:<NoVis>:^SChc:RW:-:<NoVis>:", ["AboveElev"]),
        ],
     "fileChanges": [ 
-       ("Phrase_Test_Local", "TextProduct", "add", localEffectSetup, "undo"),    
-       #("Phrase_Test_Local", "TextProduct", "add", troubleShooting, "undo"),
-       ("Phrase_Test_Local", "TextProduct", "replace", periodVer2, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", localEffectSetup, "undo"),    
+       #("Phrase_Test_Local", "TextUtility", "add", troubleShooting, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace", (periodVer1, periodVer2), "undo"),
        ],
     "checkStrings": [
-       "MOSTLY SUNNY",
-       "A 20 PERCENT CHANCE OF THUNDERSTORMS LATE IN THE AFTERNOON",
-       "LEEWARD...WIDESPREAD FOG LATE IN THE AFTERNOON",
+       "Mostly sunny",
+       "A 20 percent chance of thunderstorms late in the afternoon",
+       "Leeward...widespread fog late in the afternoon",
        ],
     },
 
@@ -757,10 +762,10 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 0, 12, "Lkly:L:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "MOSTLY SUNNY", "DRIZZLE LIKELY",
+       "Mostly sunny", "Drizzle likely",
        ],
     "notCheckStrings": [
-       "MOSTLY SUNNY WITH DRIZZLE LIKELY",
+       "Mostly sunny with drizzle likely",
        ],
     },    
     {     
@@ -776,14 +781,14 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 9, 12, "Patchy:F:<NoInten>:<NoVis>:", ["AboveElev"]),
        ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", localEffectSetup, "undo"),    
-       #("Phrase_Test_Local", "TextProduct", "add", troubleShooting, "undo"),
-       ("Phrase_Test_Local", "TextProduct", "replace", periodVer2, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", localEffectSetup, "undo"),    
+       #("Phrase_Test_Local", "TextUtility", "add", troubleShooting, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace", (periodVer1, periodVer2), "undo"),
        ],
     "checkStrings": [
-       "MOSTLY SUNNY",
-       "PATCHY FOG LATE IN THE AFTERNOON",
-       "LEEWARD...WIDESPREAD FOG LATE IN THE AFTERNOON",
+       "Mostly sunny",
+       "Patchy fog late in the afternoon",
+       "Leeward...widespread fog late in the afternoon",
        ],
     },
 
@@ -803,8 +808,8 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Lkly:S:-:<NoVis>:^Lkly:R:-:<NoVis>:", ["AboveElev"]),
        ],
     "checkStrings": [
-       "WINDWARD...RAIN...SNOW LIKELY AND ISOLATED THUNDERSTORMS IN THE MORNING...THEN RAIN AND SNOW LIKELY IN THE AFTERNOON...CHANCE OF PRECIPITATION 70 PERCENT.",
-       "LEEWARD...CHANCE OF RAIN AND ISOLATED THUNDERSTORMS IN THE MORNING...THEN CHANCE OF RAIN IN THE AFTERNOON...CHANCE OF PRECIPITATION 40 PERCENT",
+       "windward...Rain...snow likely and isolated thunderstorms in the morning...then rain and snow likely in the afternoon...Chance of precipitation 70 percent.",
+       "Leeward...chance of rain and isolated thunderstorms in the morning...then chance of rain in the afternoon...Chance of precipitation 40 percent",
        ],
     },
     
@@ -821,9 +826,9 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Lkly:RW:-:<NoVis>:", ["AboveElev"]),
        ],
     "checkStrings": [
-       "CLOUDY.",
-       "WINDWARD...SHOWERS LIKELY AND CHANCE OF THUNDERSTORMS IN THE MORNING...THEN SHOWERS LIKELY IN THE AFTERNOON...CHANCE OF PRECIPITATION 70 PERCENT.",
-       "LEEWARD...CHANCE OF THUNDERSTORMS IN THE MORNING...THEN CHANCE OF SHOWERS IN THE AFTERNOON...CHANCE OF PRECIPITATION 40 PERCENT",
+       "Cloudy.",
+       "windward...showers likely and chance of thunderstorms in the morning...then showers likely in the afternoon...Chance of precipitation 70 percent.",
+       "Leeward...chance of thunderstorms in the morning...then chance of showers in the afternoon...Chance of precipitation 40 percent",
        ],
     },
 
@@ -839,10 +844,10 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Lkly:RW:-:<NoVis>:", ["AboveElev"]),
        ],
     "checkStrings": [
-       "CLOUDY", 
-       "WINDWARD...SHOWERS LIKELY AND ISOLATED THUNDERSTORMS IN THE MORNING...THEN SHOWERS LIKELY IN THE AFTERNOON",
-       "LEEWARD...CHANCE OF SHOWERS AND ISOLATED THUNDERSTORMS IN THE MORNING...THEN CHANCE OF SHOWERS IN THE AFTERNOON", 
-       "CHANCE OF PRECIPITATION 50 PERCENT",
+       "Cloudy", 
+       "windward...showers likely and isolated thunderstorms in the morning...then showers likely in the afternoon",
+       "Leeward...chance of showers and isolated thunderstorms in the morning...then chance of showers in the afternoon", 
+       "Chance of precipitation 50 percent",
        ],
     },
 
@@ -859,9 +864,9 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Chc:RW:-:<NoVis>:", ["AboveElev"]),
        ],  
     "checkStrings": [
-       "CLOUDY",
-       "CHANCE OF SHOWERS AND ISOLATED THUNDERSTORMS IN THE MORNING...THEN CHANCE OF SHOWERS IN THE AFTERNOON", 
-       "CHANCE OF PRECIPITATION 50 PERCENT WINDWARD...40 PERCENT LEEWARD",
+       "Cloudy",
+       "Chance of showers and isolated thunderstorms in the morning...then chance of showers in the afternoon", 
+       "Chance of precipitation 50 percent windward...40 percent leeward",
        ],
     },
 
@@ -879,15 +884,15 @@ scripts = [
        ["AboveElev"]),
        ],  
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", localEffectSetup, "undo"),    
-       #("Phrase_Test_Local", "TextProduct", "add", troubleShooting, "undo"),
-       ("Phrase_Test_Local", "TextProduct", "replace", periodVer2, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", localEffectSetup, "undo"),    
+       #("Phrase_Test_Local", "TextUtility", "add", troubleShooting, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace", (periodVer1, periodVer2), "undo"),
        ],
     "checkStrings": [
-       "MOSTLY CLOUDY",
-       "ISOLATED SHOWERS AND SNOW SHOWERS...ISOLATED SHOWERS LEEWARD.",
-       "AREAS OF FOG.",
-       "CHANCE OF PRECIPITATION 20 PERCENT",
+       "Mostly cloudy",
+       "Isolated showers and snow showers...isolated showers leeward.",
+       "Areas of fog.",
+       "Chance of precipitation 20 percent",
        ],
     },
 
@@ -902,8 +907,8 @@ scripts = [
     "fileChanges": [
        ],
     "checkStrings": [
-       "MOSTLY CLOUDY",
-       "AREAS OF FOG",
+       "Mostly cloudy",
+       "Areas of fog",
        ],
     },
     
@@ -918,12 +923,12 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 0, 12, "Lkly:S:-:<NoVis>:^Lkly:R:-:<NoVis>:", ["AboveElev"]),
        ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", consolidateSkyPopWx, "undo"),    
-       ("Phrase_Test_Local", "TextProduct", "replace", periodVer2, "undo")
+       ("Phrase_Test_Local", "TextUtility", "add", consolidateSkyPopWx, "undo"),    
+       ("Phrase_Test_Local", "TextUtility", "replace", (periodVer1, periodVer2), "undo")
     ],
     "checkStrings": [
-       "RAIN AND SNOW LIKELY WINDWARD...A 30 PERCENT CHANCE OF RAIN LEEWARD",
-       "CHANCE OF PRECIPITATION 70 PERCENT WINDWARD",
+       "Rain and snow likely windward...a 30 percent chance of rain leeward",
+       "chance of precipitation 70 percent windward",
        ],
     },
     {
@@ -938,12 +943,12 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 0, 12, "Lkly:S:-:<NoVis>:^Lkly:R:-:<NoVis>:", ["AboveElev"]),
        ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", consolidateSkyPopWx, "undo"),    
-       ("Phrase_Test_Local", "TextProduct", "replace", periodVer2, "undo")
+       ("Phrase_Test_Local", "TextUtility", "add", consolidateSkyPopWx, "undo"),    
+       ("Phrase_Test_Local", "TextUtility", "replace", (periodVer1, periodVer2), "undo")
     ],
     "checkStrings": [
-       "RAIN AND SNOW LIKELY WINDWARD...PARTLY SUNNY WITH A 30 PERCENT CHANCE OF RAIN LEEWARD.",
-       "CHANCE OF PRECIPITATION 70 PERCENT WINDWARD",
+       "Rain and snow likely windward...partly sunny with a 30 percent chance of rain leeward.",
+       "chance of precipitation 70 percent windward",
        ],
     },
     {
@@ -959,14 +964,14 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 0, 12, "SChc:S:-:<NoVis>:", ["AboveElev"]),
        ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", consolidateSkyPopWx, "undo"),    
-       ("Phrase_Test_Local", "TextProduct", "replace", periodVer2, "undo")
+       ("Phrase_Test_Local", "TextUtility", "add", consolidateSkyPopWx, "undo"),    
+       ("Phrase_Test_Local", "TextUtility", "replace", (periodVer1, periodVer2), "undo")
     ],
     "checkStrings": [
-       "CLOUDY WITH A 20 PERCENT CHANCE OF SNOW WINDWARD...PARTLY SUNNY WITH A 30 PERCENT CHANCE OF RAIN LEEWARD",
+       "Cloudy with a 20 percent chance of snow windward...partly sunny with a 30 percent chance of rain leeward",
        ],
     "notCheckStrings": [
-       "CHANCE OF PRECIPITATION 30 PERCENT",
+       "Chance of precipitation 30 percent",
        ],
     },
 
@@ -987,14 +992,14 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Lkly:S:-:<NoVis>:^Lkly:R:-:<NoVis>:", ["AboveElev"]),
        ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", consolidateSkyPopWx, "undo"),    
-       ("Phrase_Test_Local", "TextProduct", "add", repeatingEmbedded, "undo"),    
-       ("Phrase_Test_Local", "TextProduct", "replace", periodVer2, "undo")
+       ("Phrase_Test_Local", "TextUtility", "add", consolidateSkyPopWx, "undo"),    
+       ("Phrase_Test_Local", "TextUtility", "add", repeatingEmbedded, "undo"),    
+       ("Phrase_Test_Local", "TextUtility", "replace", (periodVer1, periodVer2), "undo")
     ],
     "checkStrings": [
-       "ISOLATED THUNDERSTORMS IN THE MORNING",
-       "WINDWARD...RAIN AND SNOW LIKELY...CHANCE OF PRECIPITATION 70 PERCENT",
-       "LEEWARD...A 40 PERCENT CHANCE OF RAIN",
+       "Isolated thunderstorms in the morning",
+       "Windward...rain and snow likely...Chance of precipitation 70 percent",
+       "Leeward...a 40 percent chance of rain",
        ],
     },
 
@@ -1010,15 +1015,15 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 0, 12, "SChc:S:-:<NoVis>:", ["AboveElev"]),
        ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", consolidateSkyPopWx, "undo"),    
-       ("Phrase_Test_Local", "TextProduct", "replace", periodVer2, "undo")
+       ("Phrase_Test_Local", "TextUtility", "add", consolidateSkyPopWx, "undo"),    
+       ("Phrase_Test_Local", "TextUtility", "replace", (periodVer1, periodVer2), "undo")
     ],
     "checkStrings": [
-       "PARTLY SUNNY",
-       "A 20 PERCENT CHANCE OF SNOW WINDWARD...A 30 PERCENT CHANCE OF RAIN LEEWARD",
+       "Partly sunny",
+       "A 20 percent chance of snow windward...a 30 percent chance of rain leeward",
        ],
     "notCheckStrings": [
-       "CHANCE OF PRECIPITATION 30 PERCENT",
+       "Chance of precipitation 30 percent",
        ],
     },
     {
@@ -1037,10 +1042,10 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 0, 12, "Sct:RW:-:<NoVis>:", ["AboveElev"]),
        ],
     "checkStrings": [
-       "MOSTLY CLOUDY WITH SCATTERED SHOWERS WINDWARD...MOSTLY SUNNY WITH SCATTERED SHOWERS LEEWARD",
-       "CHANCE OF SHOWERS 50 PERCENT",
+       "Mostly cloudy with scattered showers windward...mostly sunny with scattered showers leeward",
+       "Chance of showers 50 percent",
        ],
-    "notCheckStrings": ["SCATTERED SHOWERS."],
+    "notCheckStrings": ["Scattered showers."],
     },
 
     {     
@@ -1054,12 +1059,12 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 0, 12, "NoWx", ["AboveElev"]),
        ],
     "fileChanges": [
-       #("Phrase_Test_Local", "TextProduct", "add", consolidateSkyPopWx, "undo"),    
-       #("Phrase_Test_Local", "TextProduct", "add", troubleShooting, "undo"),
-       ("Phrase_Test_Local", "TextProduct", "replace", periodVer2, "undo"),
+       #("Phrase_Test_Local", "TextUtility", "add", consolidateSkyPopWx, "undo"),    
+       #("Phrase_Test_Local", "TextUtility", "add", troubleShooting, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace", (periodVer1, periodVer2), "undo"),
        ],
     "checkStrings": [
-       "WIDESPREAD FOG LEEWARD",
+       "Widespread fog leeward",
        ],
     },
 
@@ -1075,7 +1080,7 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 0, 12, "Num:SW:-:<NoVis>:", ["AboveElev"]),
        ],
     "checkStrings": [
-       "NUMEROUS SNOW SHOWERS WINDWARD...CHANCE OF SNOW 70 PERCENT WINDWARD"
+       "Numerous snow showers windward...chance of snow 70 percent windward"
        ],
     },
     {
@@ -1090,7 +1095,7 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 0, 12, "Num:SW:-:<NoVis>:^Num:RW:-:<NoVis>:^", ["AboveElev"]),
        ],
     "checkStrings": [
-       "NUMEROUS SHOWERS AND SNOW SHOWERS WINDWARD...SCATTERED SHOWERS LEEWARD...CHANCE OF PRECIPITATION 70 PERCENT WINDWARD...CHANCE OF SHOWERS 30 PERCENT LEEWARD"
+       "Numerous showers and snow showers windward...scattered showers leeward...chance of precipitation 70 percent windward...chance of showers 30 percent leeward"
        ],
     },
 
@@ -1108,16 +1113,16 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 0, 12, "NoWx", ["AboveElev"]),
        ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", localEffectSetup, "undo"),    
-       #("Phrase_Test_Local", "TextProduct", "add", troubleShooting, "undo"),
-       ("Phrase_Test_Local", "TextProduct", "replace", periodVer2, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", localEffectSetup, "undo"),    
+       #("Phrase_Test_Local", "TextUtility", "add", troubleShooting, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace", (periodVer1, periodVer2), "undo"),
        ],
     "checkStrings": [
-       "SUNNY...",
-       "MOSTLY CLOUDY WITH A 30 PERCENT CHANCE OF RAIN LEEWARD...WIDESPREAD FOG LEEWARD.",
+       "Sunny...",
+       "mostly cloudy with a 30 percent chance of rain leeward...widespread fog leeward.",
        ],
     "notCheckStrings":[
-       "WIDESPREAD FOG LEEWARD...CHANCE OF RAIN LEEWARD",
+       "Widespread fog leeward...chance of rain leeward",
        ],
     },
     {     
@@ -1136,8 +1141,8 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Pds:S:-:<NoVis>:", ["AboveElev"]),
        ],
     "checkStrings": [
-       "WINDWARD...PERIODS OF SNOW...CHANCE OF SNOW 80 PERCENT.",
-       "LEEWARD...CHANCE OF RAIN IN THE MORNING...THEN CHANCE OF RAIN AND SNOW IN THE AFTERNOON...CHANCE OF PRECIPITATION 40 PERCENT.",
+       "Windward...periods of snow...Chance of snow 80 percent.",
+       "Leeward...chance of rain in the morning...then chance of rain and snow in the afternoon...Chance of precipitation 40 percent.",
        ],
     },
 
@@ -1163,7 +1168,7 @@ def testScript(self, dataMgr):
         "cmdLineVars" :"{('Product Issuance', 'productIssuance'): 'Morning', ('Issuance Type', 'issuanceType'): 'ROUTINE', ('Issued By', 'issuedBy'): None}",
         "productType": "Phrase_Test_Local",
         "fileChanges" : [
-           ("Phrase_Test_Local", "TextProduct", "replace", periodVer2, "undo")
+           ("Phrase_Test_Local", "TextUtility", "replace", (periodVer1, periodVer2), "undo")
            ],
         }
     return TestScript.generalTestScript(self, dataMgr, scripts, defaults)

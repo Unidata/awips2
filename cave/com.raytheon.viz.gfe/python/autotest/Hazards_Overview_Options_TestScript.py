@@ -28,9 +28,9 @@
 # ----------------------------------------------------------------------------
 
 def1a = """#Definition["includeOverviewHeadline"] = 1"""
-def1b = """TextProduct.Definition["includeOverviewHeadline"] = 0"""
+def1b = """Definition["includeOverviewHeadline"] = 0"""
 def2a = """#Definition["includeOverview"] = 1"""
-def2b = """TextProduct.Definition["includeOverview"] = 0"""
+def2b = """Definition["includeOverview"] = 0"""
 
 
 scripts = [
@@ -48,15 +48,15 @@ scripts = [
     "productType": "Hazard_WSW_Local",
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
-       ("Fcst", "Hazards", "DISCRETE", 0, 39, "WS.A", ["FLZ039"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 39, "WS.A", ["FLZ139"]),
        ],
     "checkStrings": [
        "URGENT - WINTER WEATHER MESSAGE",
        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
        "700 PM EST THU DEC 31 2009",
-       "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
-       ".|*OVERVIEW (MUST EDIT)*|.",
-       "FLZ039-010800-",
+       "...|*Overview headline (must edit)*|...",
+       ".|*Overview (must edit)*|.",
+       "FLZ139-010800-",
                      ],
     "notCheckStrings": [],
     },
@@ -67,19 +67,19 @@ scripts = [
     "productType": "Hazard_WSW_Local",
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
-       ("Fcst", "Hazards", "DISCRETE", 0, 39, "WS.A", ["FLZ039"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 39, "WS.A", ["FLZ139"]),
        ],
-    "fileChanges": [("Hazard_WSW_Local", "TextProduct", "replace", def1b, "undo")],
+    "fileChanges": [("Hazard_WSW_Local", "TextProduct", "replace", (def1a, def1b), "undo")],
 
     "checkStrings": [
        "URGENT - WINTER WEATHER MESSAGE",
        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
        "700 PM EST THU DEC 31 2009",
-       ".|*OVERVIEW (MUST EDIT)*|.",
-       "FLZ039-010800-",
+       ".|*Overview (must edit)*|.",
+       "FLZ139-010800-",
                      ],
     "notCheckStrings": [
-       "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
+       "...|*Overview headline (must edit)*|...",
         ],
     },
     {
@@ -88,18 +88,18 @@ scripts = [
     "productType": "Hazard_WSW_Local",
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
-       ("Fcst", "Hazards", "DISCRETE", 0, 39, "WS.A", ["FLZ039"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 39, "WS.A", ["FLZ139"]),
        ],
-    "fileChanges": [("Hazard_WSW_Local", "TextProduct", "replace", def2b, "undo")],
+    "fileChanges": [("Hazard_WSW_Local", "TextProduct", "replace", (def2a, def2b), "undo")],
     "checkStrings": [
        "URGENT - WINTER WEATHER MESSAGE",
        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
        "700 PM EST THU DEC 31 2009",
-       "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
-       "FLZ039-010800-",
+       "...|*Overview headline (must edit)*|...",
+       "FLZ139-010800-",
                      ],
     "notCheckStrings": [
-       ".|*OVERVIEW (MUST EDIT)*|.",
+       ".|*Overview (must edit)*|.",
         ],
     },
     {
@@ -108,18 +108,19 @@ scripts = [
     "productType": "Hazard_WSW_Local",
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
-       ("Fcst", "Hazards", "DISCRETE", 0, 39, "WS.A", ["FLZ039"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 39, "WS.A", ["FLZ139"]),
        ],
-    "fileChanges": [("Hazard_WSW_Local", "TextProduct", "replace", def2b, "undo"), ("Hazard_WSW_Local", "TextProduct", "replace", def1b, "undo")],
+    "fileChanges": [("Hazard_WSW_Local", "TextProduct", "replace", [(def2a, def2b), (def1a, def1b)], "undo"), 
+                   ],
     "checkStrings": [
        "URGENT - WINTER WEATHER MESSAGE",
        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
        "700 PM EST THU DEC 31 2009",
-       "FLZ039-010800-",
+       "FLZ139-010800-",
                      ],
     "notCheckStrings": [
-       "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
-       ".|*OVERVIEW (MUST EDIT)*|.",
+       "...|*Overview headline (must edit)*|...",
+       ".|*Overview (must edit)*|.",
                      ],
     },
     {
@@ -145,15 +146,15 @@ scripts = [
     "productType": "Hazard_NPW_Local",
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
-       ("Fcst", "Hazards", "DISCRETE", 0, 39, "FR.Y", ["FLZ039"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 39, "FR.Y", ["FLZ139"]),
        ],
     "checkStrings": [
        "URGENT - WEATHER MESSAGE",
        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
        "700 PM EST THU DEC 31 2009",
-       "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
-       ".|*OVERVIEW (MUST EDIT)*|.",
-       "FLZ039-010800-",
+       "...|*Overview headline (must edit)*|...",
+       ".|*Overview (must edit)*|.",
+       "FLZ139-010800-",
                      ],
     "notCheckStrings": [],
     },
@@ -164,19 +165,19 @@ scripts = [
     "productType": "Hazard_NPW_Local",
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
-       ("Fcst", "Hazards", "DISCRETE", 0, 39, "FR.Y", ["FLZ039"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 39, "FR.Y", ["FLZ139"]),
        ],
-    "fileChanges": [("Hazard_NPW_Local", "TextProduct", "replace", def1b, "undo")],
+    "fileChanges": [("Hazard_NPW_Local", "TextProduct", "replace", (def1a, def1b), "undo")],
 
     "checkStrings": [
        "URGENT - WEATHER MESSAGE",
        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
        "700 PM EST THU DEC 31 2009",
-       ".|*OVERVIEW (MUST EDIT)*|.",
-       "FLZ039-010800-",
+       ".|*Overview (must edit)*|.",
+       "FLZ139-010800-",
                      ],
     "notCheckStrings": [
-       "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
+       "...|*Overview headline (must edit)*|...",
         ],
     },
     {
@@ -185,18 +186,18 @@ scripts = [
     "productType": "Hazard_NPW_Local",
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
-       ("Fcst", "Hazards", "DISCRETE", 0, 39, "FR.Y", ["FLZ039"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 39, "FR.Y", ["FLZ139"]),
        ],
-    "fileChanges": [("Hazard_NPW_Local", "TextProduct", "replace", def2b, "undo")],
+    "fileChanges": [("Hazard_NPW_Local", "TextProduct", "replace", (def2a, def2b), "undo")],
     "checkStrings": [
        "URGENT - WEATHER MESSAGE",
        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
        "700 PM EST THU DEC 31 2009",
-       "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
-       "FLZ039-010800-",
+       "...|*Overview headline (must edit)*|...",
+       "FLZ139-010800-",
                      ],
     "notCheckStrings": [
-       ".|*OVERVIEW (MUST EDIT)*|.",
+       ".|*Overview (must edit)*|.",
         ],
     },
     {
@@ -205,18 +206,19 @@ scripts = [
     "productType": "Hazard_NPW_Local",
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
-       ("Fcst", "Hazards", "DISCRETE", 0, 39, "FR.Y", ["FLZ039"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 39, "FR.Y", ["FLZ139"]),
        ],
-    "fileChanges": [("Hazard_NPW_Local", "TextProduct", "replace", def2b, "undo"), ("Hazard_NPW_Local", "TextProduct", "replace", def1b, "undo")],
+    "fileChanges": [("Hazard_NPW_Local", "TextProduct", "replace", [(def2a, def2b), (def1a, def1b)], "undo"), 
+                   ],
     "checkStrings": [
        "URGENT - WEATHER MESSAGE",
        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
        "700 PM EST THU DEC 31 2009",
-       "FLZ039-010800-",
+       "FLZ139-010800-",
                      ],
     "notCheckStrings": [
-       "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
-       ".|*OVERVIEW (MUST EDIT)*|.",
+       "...|*Overview headline (must edit)*|...",
+       ".|*Overview (must edit)*|.",
                      ],
     },
     {
@@ -242,15 +244,16 @@ scripts = [
     "productType": "Hazard_RFW_Local",
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
-       ("Fcst", "Hazards", "DISCRETE", 0, 39, "FW.A", ["FLZ039"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 39, "FW.A", ["FLZ139"]),
        ],
+    "cmdLineVars" : "{('Select RFW Type', 'rfwType'): [], ('Source for Headline and \\nAffected Area Bullet', 'elevationSource'): 'Grids'}",
     "checkStrings": [
        "URGENT - FIRE WEATHER MESSAGE",
        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
        "700 PM EST THU DEC 31 2009",
-       "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
-       ".|*OVERVIEW (MUST EDIT)*|.",
-       "FLZ039-010800-",
+       "...|*Overview headline (must edit)*|...",
+       ".|*Overview (must edit)*|.",
+       "FLZ139-010800-",
                      ],
     "notCheckStrings": [],
     },
@@ -261,19 +264,20 @@ scripts = [
     "productType": "Hazard_RFW_Local",
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
-       ("Fcst", "Hazards", "DISCRETE", 0, 39, "FW.A", ["FLZ039"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 39, "FW.A", ["FLZ139"]),
        ],
-    "fileChanges": [("Hazard_RFW_Local", "TextProduct", "replace", def1b, "undo")],
+    "fileChanges": [("Hazard_RFW_Local", "TextProduct", "replace", (def1a, def1b), "undo")],
 
+    "cmdLineVars" : "{('Select RFW Type', 'rfwType'): [], ('Source for Headline and \\nAffected Area Bullet', 'elevationSource'): 'Grids'}",
     "checkStrings": [
        "URGENT - FIRE WEATHER MESSAGE",
        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
        "700 PM EST THU DEC 31 2009",
-       ".|*OVERVIEW (MUST EDIT)*|.",
-       "FLZ039-010800-",
+       ".|*Overview (must edit)*|.",
+       "FLZ139-010800-",
                      ],
     "notCheckStrings": [
-       "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
+       "...|*Overview headline (must edit)*|...",
         ],
     },
     {
@@ -282,18 +286,19 @@ scripts = [
     "productType": "Hazard_RFW_Local",
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
-       ("Fcst", "Hazards", "DISCRETE", 0, 39, "FW.A", ["FLZ039"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 39, "FW.A", ["FLZ139"]),
        ],
-    "fileChanges": [("Hazard_RFW_Local", "TextProduct", "replace", def2b, "undo")],
+    "fileChanges": [("Hazard_RFW_Local", "TextProduct", "replace", (def2a, def2b), "undo")],
+    "cmdLineVars" : "{('Select RFW Type', 'rfwType'): [], ('Source for Headline and \\nAffected Area Bullet', 'elevationSource'): 'Grids'}",
     "checkStrings": [
        "URGENT - FIRE WEATHER MESSAGE",
        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
        "700 PM EST THU DEC 31 2009",
-       "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
-       "FLZ039-010800-",
+       "...|*Overview headline (must edit)*|...",
+       "FLZ139-010800-",
                      ],
     "notCheckStrings": [
-       ".|*OVERVIEW (MUST EDIT)*|.",
+       ".|*Overview (must edit)*|.",
         ],
     },
     {
@@ -302,18 +307,20 @@ scripts = [
     "productType": "Hazard_RFW_Local",
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
-       ("Fcst", "Hazards", "DISCRETE", 0, 39, "FW.A", ["FLZ039"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 39, "FW.A", ["FLZ139"]),
        ],
-    "fileChanges": [("Hazard_RFW_Local", "TextProduct", "replace", def2b, "undo"), ("Hazard_RFW_Local", "TextProduct", "replace", def1b, "undo")],
+    "fileChanges": [("Hazard_RFW_Local", "TextProduct", "replace", [(def2a, def2b), (def1a, def1b)], "undo"), 
+                   ],
+    "cmdLineVars" : "{('Select RFW Type', 'rfwType'): [], ('Source for Headline and \\nAffected Area Bullet', 'elevationSource'): 'Grids'}",
     "checkStrings": [
        "URGENT - FIRE WEATHER MESSAGE",
        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
        "700 PM EST THU DEC 31 2009",
-       "FLZ039-010800-",
+       "FLZ139-010800-",
                      ],
     "notCheckStrings": [
-       "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
-       ".|*OVERVIEW (MUST EDIT)*|.",
+       "...|*Overview headline (must edit)*|...",
+       ".|*Overview (must edit)*|.",
                      ],
     },
     {
@@ -340,16 +347,16 @@ scripts = [
     "productType": "Hazard_CFW_Local",
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
-       ("Fcst", "Hazards", "DISCRETE", 0, 39, "LS.A", ["FLZ039"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 39, "LS.A", ["FLZ139"]),
        ],
     "checkStrings": [
        "URGENT - IMMEDIATE BROADCAST REQUESTED",
        "LAKESHORE HAZARD MESSAGE",
        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
        "700 PM EST THU DEC 31 2009",
-       "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
-       ".|*OVERVIEW (MUST EDIT)*|.",
-       "FLZ039-010800-",
+       "...|*Overview headline (must edit)*|...",
+       ".|*Overview (must edit)*|.",
+       "FLZ139-010800-",
                      ],
     "notCheckStrings": [],
     },
@@ -360,20 +367,20 @@ scripts = [
     "productType": "Hazard_CFW_Local",
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
-       ("Fcst", "Hazards", "DISCRETE", 0, 39, "LS.A", ["FLZ039"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 39, "LS.A", ["FLZ139"]),
        ],
-    "fileChanges": [("Hazard_CFW_Local", "TextProduct", "replace", def1b, "undo")],
+    "fileChanges": [("Hazard_CFW_Local", "TextProduct", "replace", (def1a, def1b), "undo")],
 
     "checkStrings": [
        "URGENT - IMMEDIATE BROADCAST REQUESTED",
        "LAKESHORE HAZARD MESSAGE",
        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
        "700 PM EST THU DEC 31 2009",
-       ".|*OVERVIEW (MUST EDIT)*|.",
-       "FLZ039-010800-",
+       ".|*Overview (must edit)*|.",
+       "FLZ139-010800-",
                      ],
     "notCheckStrings": [
-       "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
+       "...|*Overview headline (must edit)*|...",
         ],
     },
     {
@@ -382,19 +389,19 @@ scripts = [
     "productType": "Hazard_CFW_Local",
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
-       ("Fcst", "Hazards", "DISCRETE", 0, 39, "LS.A", ["FLZ039"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 39, "LS.A", ["FLZ139"]),
        ],
-    "fileChanges": [("Hazard_CFW_Local", "TextProduct", "replace", def2b, "undo")],
+    "fileChanges": [("Hazard_CFW_Local", "TextProduct", "replace", (def2a, def2b), "undo")],
     "checkStrings": [
        "URGENT - IMMEDIATE BROADCAST REQUESTED",
        "LAKESHORE HAZARD MESSAGE",
        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
        "700 PM EST THU DEC 31 2009",
-       "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
-       "FLZ039-010800-",
+       "...|*Overview headline (must edit)*|...",
+       "FLZ139-010800-",
                      ],
     "notCheckStrings": [
-       ".|*OVERVIEW (MUST EDIT)*|.",
+       ".|*Overview (must edit)*|.",
         ],
     },
     {
@@ -403,19 +410,20 @@ scripts = [
     "productType": "Hazard_CFW_Local",
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
-       ("Fcst", "Hazards", "DISCRETE", 0, 39, "LS.A", ["FLZ039"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 39, "LS.A", ["FLZ139"]),
        ],
-    "fileChanges": [("Hazard_CFW_Local", "TextProduct", "replace", def2b, "undo"), ("Hazard_CFW_Local", "TextProduct", "replace", def1b, "undo")],
+    "fileChanges": [("Hazard_CFW_Local", "TextProduct", "replace", [(def2a, def2b), (def1a, def1b)], "undo"), 
+                   ],
     "checkStrings": [
        "URGENT - IMMEDIATE BROADCAST REQUESTED",
        "LAKESHORE HAZARD MESSAGE",
        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
        "700 PM EST THU DEC 31 2009",
-       "FLZ039-010800-",
+       "FLZ139-010800-",
                      ],
     "notCheckStrings": [
-       "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
-       ".|*OVERVIEW (MUST EDIT)*|.",
+       "...|*Overview headline (must edit)*|...",
+       ".|*Overview (must edit)*|.",
                      ],
     },
     {
@@ -442,16 +450,16 @@ scripts = [
     "cmdLineVars": "{('Flood Reason', 'floodReason'): 'ER '}",
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
-       ("Fcst", "Hazards", "DISCRETE", 0, 39, "FA.A", ["FLZ039"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 39, "FA.A", ["FLZ139"]),
        ],
     "checkStrings": [
        "URGENT - IMMEDIATE BROADCAST REQUESTED",
        "FLOOD WATCH",
        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
        "700 PM EST THU DEC 31 2009",
-       "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
-       ".|*OVERVIEW (MUST EDIT)*|.",
-       "FLZ039-010800-",
+       "...|*Overview headline (must edit)*|...",
+       ".|*Overview (must edit)*|.",
+       "FLZ139-010800-",
                      ],
     "notCheckStrings": [],
     },
@@ -463,20 +471,20 @@ scripts = [
     "cmdLineVars": "{('Flood Reason', 'floodReason'): 'ER '}",
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
-       ("Fcst", "Hazards", "DISCRETE", 0, 39, "FA.A", ["FLZ039"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 39, "FA.A", ["FLZ139"]),
        ],
-    "fileChanges": [("Hazard_FFA_Local", "TextProduct", "replace", def1b, "undo")],
+    "fileChanges": [("Hazard_FFA_Local", "TextProduct", "replace", (def1a, def1b), "undo")],
 
     "checkStrings": [
        "URGENT - IMMEDIATE BROADCAST REQUESTED",
        "FLOOD WATCH",
        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
        "700 PM EST THU DEC 31 2009",
-       ".|*OVERVIEW (MUST EDIT)*|.",
-       "FLZ039-010800-",
+       ".|*Overview (must edit)*|.",
+       "FLZ139-010800-",
                      ],
     "notCheckStrings": [
-       "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
+       "...|*Overview headline (must edit)*|...",
         ],
     },
     {
@@ -486,19 +494,19 @@ scripts = [
     "cmdLineVars": "{('Flood Reason', 'floodReason'): 'ER '}",
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
-       ("Fcst", "Hazards", "DISCRETE", 0, 39, "FA.A", ["FLZ039"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 39, "FA.A", ["FLZ139"]),
        ],
-    "fileChanges": [("Hazard_FFA_Local", "TextProduct", "replace", def2b, "undo")],
+    "fileChanges": [("Hazard_FFA_Local", "TextProduct", "replace", (def2a, def2b), "undo")],
     "checkStrings": [
        "URGENT - IMMEDIATE BROADCAST REQUESTED",
        "FLOOD WATCH",
        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
        "700 PM EST THU DEC 31 2009",
-       "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
-       "FLZ039-010800-",
+       "...|*Overview headline (must edit)*|...",
+       "FLZ139-010800-",
                      ],
     "notCheckStrings": [
-       ".|*OVERVIEW (MUST EDIT)*|.",
+       ".|*Overview (must edit)*|.",
         ],
     },
     {
@@ -508,19 +516,20 @@ scripts = [
     "cmdLineVars": "{('Flood Reason', 'floodReason'): 'ER '}",
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
-       ("Fcst", "Hazards", "DISCRETE", 0, 39, "FA.A", ["FLZ039"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 39, "FA.A", ["FLZ139"]),
        ],
-    "fileChanges": [("Hazard_FFA_Local", "TextProduct", "replace", def2b, "undo"), ("Hazard_FFA_Local", "TextProduct", "replace", def1b, "undo")],
+    "fileChanges": [("Hazard_FFA_Local", "TextProduct", "replace", [(def2a, def2b), (def1a, def1b)], "undo"), 
+                   ],
     "checkStrings": [
        "URGENT - IMMEDIATE BROADCAST REQUESTED",
        "FLOOD WATCH",
        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
        "700 PM EST THU DEC 31 2009",
-       "FLZ039-010800-",
+       "FLZ139-010800-",
                      ],
     "notCheckStrings": [
-       "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
-       ".|*OVERVIEW (MUST EDIT)*|.",
+       "...|*Overview headline (must edit)*|...",
+       ".|*Overview (must edit)*|.",
                      ],
     },
     {
@@ -555,8 +564,8 @@ scripts = [
        "GMZ853-010800-",
                      ],
     "notCheckStrings": [
-       "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
-       ".|*OVERVIEW (MUST EDIT)*|.",
+       "...|*Overview headline (must edit)*|...",
+       ".|*Overview (must edit)*|.",
                      ],
     },
 
@@ -592,8 +601,8 @@ scripts = [
        "FLC057-011500-",
                      ],
     "notCheckStrings": [
-       "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
-       ".|*OVERVIEW (MUST EDIT)*|.",
+       "...|*Overview headline (must edit)*|...",
+       ".|*Overview (must edit)*|.",
                      ],
     },
 
@@ -626,8 +635,8 @@ scripts = [
        "URGENT - MARINE WEATHER MESSAGE",
        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
        "700 PM EST THU DEC 31 2009",
-       "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
-       ".|*OVERVIEW (MUST EDIT)*|.",
+       "...|*Overview headline (must edit)*|...",
+       ".|*Overview (must edit)*|.",
        "GMZ830-010800-",
        ],
     "notCheckStrings": [],
@@ -641,17 +650,17 @@ scripts = [
        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
        ("Fcst", "Hazards", "DISCRETE", 0, 39, "SC.Y", ["GMZ830"]),
        ],
-    "fileChanges": [("Hazard_MWW_Local", "TextProduct", "replace", def1b, "undo")],
+    "fileChanges": [("Hazard_MWW_Local", "TextProduct", "replace", (def1a, def1b), "undo")],
 
     "checkStrings": [
        "URGENT - MARINE WEATHER MESSAGE",
        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
        "700 PM EST THU DEC 31 2009",
-       ".|*OVERVIEW (MUST EDIT)*|.",
+       ".|*Overview (must edit)*|.",
        "GMZ830-010800-",
                      ],
     "notCheckStrings": [
-       "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
+       "...|*Overview headline (must edit)*|...",
         ],
     },
     {
@@ -662,16 +671,16 @@ scripts = [
        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
        ("Fcst", "Hazards", "DISCRETE", 0, 39, "SC.Y", ["GMZ830"]),
        ],
-    "fileChanges": [("Hazard_MWW_Local", "TextProduct", "replace", def2b, "undo")],
+    "fileChanges": [("Hazard_MWW_Local", "TextProduct", "replace", (def2a, def2b), "undo")],
     "checkStrings": [
        "URGENT - MARINE WEATHER MESSAGE",
        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
        "700 PM EST THU DEC 31 2009",
-       "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
+       "...|*Overview headline (must edit)*|...",
        "GMZ830-010800-",
                      ],
     "notCheckStrings": [
-       ".|*OVERVIEW (MUST EDIT)*|.",
+       ".|*Overview (must edit)*|.",
         ],
     },
     {
@@ -682,7 +691,8 @@ scripts = [
        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
        ("Fcst", "Hazards", "DISCRETE", 0, 39, "SC.Y", ["GMZ830"]),
        ],
-    "fileChanges": [("Hazard_MWW_Local", "TextProduct", "replace", def2b, "undo"), ("Hazard_MWW_Local", "TextProduct", "replace", def1b, "undo")],
+    "fileChanges": [("Hazard_MWW_Local", "TextProduct", "replace", [(def2a, def2b), (def1a, def1b)], "undo"), 
+                   ],
     "checkStrings": [
        "URGENT - MARINE WEATHER MESSAGE",
        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
@@ -690,8 +700,8 @@ scripts = [
        "GMZ830-010800-",
                      ],
     "notCheckStrings": [
-       "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
-       ".|*OVERVIEW (MUST EDIT)*|.",
+       "...|*Overview headline (must edit)*|...",
+       ".|*Overview (must edit)*|.",
                      ],
     },
     {
@@ -707,8 +717,8 @@ scripts = [
 import TestScript
 def testScript(self, dataMgr):
     defaults = {
-        "database": "<site>_GRID__Official_00000000_0000",
-        "publishGrids": 1,
+        "database": "<site>_GRID__Fcst_00000000_0000",
+        "publishGrids": 0,
         "decodeVTEC": 0,
         "gridsStartTime": "20100101_0000",
         "orderStrings": 1,

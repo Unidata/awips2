@@ -35,11 +35,15 @@ def3 = """
 Combinations.append((["FLZ999"], "Region99"))
 a = EASourceMap['FireWxZones_TBW']
 a.append('FLZ999')
-EASourceMap['FireWxZones_TBW'].append("FLZ999")
+EASourceMap['FireWxZones_TBW'] = a
 
 """
 
-definitions = """Definition["abbreviateUGCs"] = 0"""
+definitions = """
+
+Definition["abbreviateUGCs"] = 0
+
+"""
 
 scripts = [
     {
@@ -56,7 +60,7 @@ scripts = [
     "commentary": "Creating ZR.Y hazard for three zones in WSW product.",
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", 0, 24, "<None>", "all"),
-       ("Fcst", "Hazards", "DISCRETE", 0, 24, "ZR.Y", ["FLZ050","FLZ051","FLZ065"]),],
+       ("Fcst", "Hazards", "DISCRETE", 0, 24, "ZR.Y", ["FLZ050","FLZ151","FLZ251","FLZ165","FLZ265"]),],
     "comboFlag": 0, 
     "decodeVTEC": 1,
     "vtecMode": "O",
@@ -70,20 +74,19 @@ scripts = [
     "commentary": "Testing AFD hazard block, with no fire weather hazard in fire weather area.",
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", 0, 24, "<None>", "all"),
-       ("Fcst", "Hazards", "DISCRETE", 0, 24, "ZR.Y", ["FLZ050","FLZ051","FLZ065"]),],
+       ("Fcst", "Hazards", "DISCRETE", 0, 24, "ZR.Y", ["FLZ050","FLZ151","FLZ251","FLZ165","FLZ265"]),],
     "comboFlag": 0, 
     "writableCopies": [
         ("FLZ050","REFERENCE","FLZ999"),
         #("EditAreas_PublicMarineFireWx_<site>","COMBINATIONS","EditAreas_PublicMarineFireWx_<site>"),
         ],
     "fileChanges": [
-      ("AFD_<site>_Definition", "TextProduct", "replace", def2, "undo"),
-      ("EditAreas_PublicMarineFireWx_<site>", "COMBINATIONS", "add", 'Combinations.append((["FLZ999"], "Region99"))', "delete"),
-      ("EditAreas_PublicMarineFireWx_<site>", "COMBINATIONS", "add", 'EASourceMap["FireWxZones_TBW"].append("FLZ999")', "delete"),      
+      ("AFD_<site>_Definition", "TextUtility", "replace", (def1, def2), "undo"),
+      ("EditAreas_PublicMarineFireWx_<site>", "COMBINATIONS", "add", def3, "delete"),
       ],
     "cmdLineVars": "{('Issued By', 'issuedBy'): None, ('IncludePrevious AFD?', 'includePreviousAFD'): 'NO', ('Long TermForecaster', 'longTermFcstrNumber'): '99', ('Product Issuance', 'productIssuance'): 'Morning', ('Short TermForecaster', 'shortTermFcstrNumber'): '99', ('OptionalTopics', 'optionalTopics'): [], ('AviationForecaster', 'aviationFcstrNumber'): '99'}",
     "notCheckStrings": [
-       "FREEZING RAIN ADVISORY UNTIL MIDNIGHT EST TONIGHT FOR .",
+       "Freezing Rain Advisory until midnight EST tonight for .",
        ],
     "checkStrings": [
        "FXUS62 KTBW 160500",
@@ -94,9 +97,9 @@ scripts = [
        ".SHORT TERM...",
        ".LONG TERM...",
        "&&",
-       ".TBW WATCHES/WARNINGS/ADVISORIES...",
-       "FREEZING RAIN ADVISORY UNTIL MIDNIGHT EST TONIGHT FOR FLZ050-051-",
-       "065.",
+       ".TBW Watches/Warnings/Advisories...",
+       "Freezing Rain Advisory until midnight EST tonight for FLZ050-151-",
+       "165-251-265.",
        "&&",
        "$$",
        ],
@@ -109,13 +112,13 @@ scripts = [
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", 0, 24, "<None>", "all"),
        ("Fcst", "Hazards", "DISCRETE", -10, 0, "ZR.Y:1", ["FLZ050"]),
-       ("Fcst", "Hazards", "DISCRETE", -10, 0, "ZR.Y:2", ["FLZ065"]),
+       ("Fcst", "Hazards", "DISCRETE", -10, 0, "ZR.Y:2", ["FLZ165", "FLZ265"]),
        ("Fcst", "Hazards", "DISCRETE", 0, 24, "ZR.Y:1", ["FLZ050"]),
-       ("Fcst", "Hazards", "DISCRETE", 0, 24, "ZR.Y:2", ["FLZ065"]),
-       ("Fcst", "Hazards", "DISCRETE", 0, 24, "ZR.Y:3", ["FLZ051"])],
+       ("Fcst", "Hazards", "DISCRETE", 0, 24, "ZR.Y:2", ["FLZ165", "FLZ265"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 24, "ZR.Y:3", ["FLZ151", "FLZ251"])],
     "comboFlag": 0, 
     "fileChanges": [
-      ("AFD_<site>_Definition", "TextProduct", "replace", def2, "undo"),
+      ("AFD_<site>_Definition", "TextUtility", "replace", (def1, def2), "undo"),
       ],
     "cmdLineVars": "{('Issued By', 'issuedBy'): None, ('IncludePrevious AFD?', 'includePreviousAFD'): 'NO', ('Long TermForecaster', 'longTermFcstrNumber'): '99', ('Product Issuance', 'productIssuance'): 'Morning', ('Short TermForecaster', 'shortTermFcstrNumber'): '99', ('OptionalTopics', 'optionalTopics'): [], ('AviationForecaster', 'aviationFcstrNumber'): '99'}",
     "checkStrings": [
@@ -126,9 +129,9 @@ scripts = [
        ".SHORT TERM...",
        ".LONG TERM...",
        "&&",
-       ".TBW WATCHES/WARNINGS/ADVISORIES...",
-       "FREEZING RAIN ADVISORY UNTIL MIDNIGHT EST TONIGHT FOR FLZ050-051-",
-       "065.",
+       ".TBW Watches/Warnings/Advisories...",
+       "Freezing Rain Advisory until midnight EST tonight for FLZ050-151-",
+       "165-251-265.",
        "&&",
        "$$",
        ],
@@ -141,11 +144,11 @@ scripts = [
     "clearHazardsTable": 1,
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", 0, 24, "<None>", "all"),
-       ("Fcst", "Hazards", "DISCRETE", 0, 24, "ZR.Y", ["FLZ050","FLZ051","FLZ052"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 24, "ZR.Y", ["FLZ050","FLZ151","FLZ251","FLZ052"]),
        ],
     "comboFlag": 0, 
     "fileChanges": [
-      ("AFD_<site>_Definition", "TextProduct", "replace", def2, "undo"),
+      ("AFD_<site>_Definition", "TextUtility", "replace", (def1, def2), "undo"),
       ],
     "cmdLineVars": "{('Issued By', 'issuedBy'): None, ('IncludePrevious AFD?', 'includePreviousAFD'): 'NO', ('Long TermForecaster', 'longTermFcstrNumber'): '99', ('Product Issuance', 'productIssuance'): 'Morning', ('Short TermForecaster', 'shortTermFcstrNumber'): '99', ('OptionalTopics', 'optionalTopics'): ['AVIATION', 'MARINE'], ('AviationForecaster', 'aviationFcstrNumber'): '99'}",
     "checkStrings": [
@@ -157,8 +160,9 @@ scripts = [
        ".SHORT TERM...",
        ".LONG TERM...",
        "&&",
-       ".TBW WATCHES/WARNINGS/ADVISORIES...",
-       "FREEZING RAIN ADVISORY UNTIL MIDNIGHT EST TONIGHT FOR FLZ050>052.",
+       ".TBW Watches/Warnings/Advisories...",
+       "Freezing Rain Advisory until midnight EST tonight for FLZ050-052-",
+       "151-251.",
        "&&",
        "$$",
        ],
@@ -171,12 +175,12 @@ scripts = [
     "clearHazardsTable": 1,
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", 0, 24, "<None>", "all"),
-       ("Fcst", "Hazards", "DISCRETE", 0, 24, "ZR.Y", ["FLZ050","FLZ051","FLZ052"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 24, "ZR.Y", ["FLZ050","FLZ151","FLZ251","FLZ052"]),
        ],
     "comboFlag": 0, 
     "fileChanges": [
-      ("AFD_<site>_Definition", "TextProduct", "replace", def2, "undo"),
-      ("AFD_<site>_Definition", "TextProduct", "add", definitions, "undo"),
+      ("AFD_<site>_Definition", "TextUtility", "replace", (def1, def2), "undo"),
+      ("AFD_<site>_Definition", "TextUtility", "add", definitions, "undo"),
       ],
     "cmdLineVars": "{('Issued By', 'issuedBy'): None, ('IncludePrevious AFD?', 'includePreviousAFD'): 'NO', ('Long TermForecaster', 'longTermFcstrNumber'): '99', ('Product Issuance', 'productIssuance'): 'Morning', ('Short TermForecaster', 'shortTermFcstrNumber'): '99', ('OptionalTopics', 'optionalTopics'): ['.UPDATE...', '.SYNOPSIS...'], ('AviationForecaster', 'aviationFcstrNumber'): '99'}",
     "checkStrings": [
@@ -192,14 +196,14 @@ scripts = [
        ".SHORT TERM...",
        ".LONG TERM...",
        "&&",
-       ".TBW WATCHES/WARNINGS/ADVISORIES...",
-       "FREEZING RAIN ADVISORY UNTIL MIDNIGHT EST TONIGHT FOR FLZ050-",
-       "FLZ051-FLZ052.",
+       ".TBW Watches/Warnings/Advisories...",
+       "Freezing Rain Advisory until midnight EST tonight for FLZ050-",
+       "FLZ052-FLZ151-FLZ251.",
        "&&",
        "$$",
        ],
     },
-    
+     
     {
     "name":"AFD_4",
     "commentary": "Testing AFD using forecaster names and numbers",
@@ -207,12 +211,12 @@ scripts = [
     "clearHazardsTable": 1,
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", 0, 24, "<None>", "all"),
-       ("Fcst", "Hazards", "DISCRETE", 0, 24, "ZR.Y", ["FLZ050","FLZ051","FLZ052"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 24, "ZR.Y", ["FLZ050","FLZ151","FLZ251","FLZ052"]),
        ],
     "comboFlag": 0, 
     "fileChanges": [
-      ("AFD_<site>_Definition", "TextProduct", "replace", def2, "undo"),
-      ("AFD_<site>_Definition", "TextProduct", "add", definitions, "undo"),
+      ("AFD_<site>_Definition", "TextUtility", "replace", (def1, def2), "undo"),
+      ("AFD_<site>_Definition", "TextUtility", "add", definitions, "undo"),
       ],
     "cmdLineVars": "{('Issued By', 'issuedBy'): None, ('IncludePrevious AFD?', 'includePreviousAFD'): 'NO', ('Long TermForecaster', 'longTermFcstrNumber'): 'Fred', ('Product Issuance', 'productIssuance'): 'Morning', ('Short TermForecaster', 'shortTermFcstrNumber'): '99', ('OptionalTopics', 'optionalTopics'): ['.UPDATE...', '.SYNOPSIS...'], ('AviationForecaster', 'aviationFcstrNumber'): '99'}",
     "checkStrings": [
@@ -228,15 +232,15 @@ scripts = [
        ".SHORT TERM...",
        ".LONG TERM...",
        "&&",
-       ".TBW WATCHES/WARNINGS/ADVISORIES...",
-       "FREEZING RAIN ADVISORY UNTIL MIDNIGHT EST TONIGHT FOR FLZ050-",
-       "FLZ051-FLZ052.",
+       ".TBW Watches/Warnings/Advisories...",
+       "Freezing Rain Advisory until midnight EST tonight for FLZ050-",
+       "FLZ052-FLZ151-FLZ251.",
        "&&",
        "$$",
-       "99/FRED",
+       "99/Fred",
        ],
     },
-
+ 
     {
     "commentary": "Deleting hazard grids.",
     "name": "Cleanup",
@@ -256,7 +260,7 @@ def testScript(self, dataMgr):
         "drtTime": "20100116_0500",
         "database": "<site>_GRID__Fcst_00000000_0000",
         "deleteGrids": [("Fcst", "Hazards", "SFC", "all", "all")],
-        "publishGrids": 1,
+        "publishGrids": 0,
         "decodeVTEC": 0,
         "orderStrings": 1,
         }
