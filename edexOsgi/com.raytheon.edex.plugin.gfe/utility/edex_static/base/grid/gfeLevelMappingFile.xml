@@ -420,6 +420,30 @@
     <Level key="OSEQD2">
         <DatabaseLevel levelName="OSEQD" levelOneValue="2.0"/>
     </Level>
+    <Level key="OSEQD3">
+        <DatabaseLevel levelName="OSEQD" levelOneValue="3.0"/>
+    </Level>
+    <Level key="OSEQD4">
+        <DatabaseLevel levelName="OSEQD" levelOneValue="4.0"/>
+    </Level>
+    <Level key="OSEQD5">
+        <DatabaseLevel levelName="OSEQD" levelOneValue="5.0"/>
+    </Level>
+    <Level key="OSEQD6">
+        <DatabaseLevel levelName="OSEQD" levelOneValue="6.0"/>
+    </Level>
+    <Level key="OSEQD7">
+        <DatabaseLevel levelName="OSEQD" levelOneValue="7.0"/>
+    </Level>
+    <Level key="OSEQD8">
+        <DatabaseLevel levelName="OSEQD" levelOneValue="8.0"/>
+    </Level>
+    <Level key="OSEQD9">
+        <DatabaseLevel levelName="OSEQD" levelOneValue="9.0"/>
+    </Level>
+    <Level key="OSEQD10">
+        <DatabaseLevel levelName="OSEQD" levelOneValue="10.0"/>
+    </Level>
     <Level key="PV5">
         <DatabaseLevel levelName="PV" levelOneValue="0.5" unit="K * m^2/kg*s * 1000000"/>
     </Level>
