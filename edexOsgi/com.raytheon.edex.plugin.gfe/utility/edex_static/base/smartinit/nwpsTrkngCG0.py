@@ -4,78 +4,56 @@ import os
 class nwpsTrkngCG0Forecaster(Forecaster):
     def __init__(self):
         Forecaster.__init__(self, "nwpsTrkngCG0", "nwpsTrkngCG0")
- 
-    def calcPeriod1(self, SWPER_OSEQD1):
-        period = SWPER_OSEQD1
-        return period
-    def calcPeriod2(self, SWPER_OSEQD2):
-        period = SWPER_OSEQD2
-        return period
-    def calcPeriod3(self, SWPER_OSEQD3):
-        period = SWPER_OSEQD3
-        return period
-    def calcPeriod4(self, SWPER_OSEQD4):
-        period = SWPER_OSEQD4
-        return period
-    def calcPeriod5(self, SWPER_OSEQD5):
-        period = SWPER_OSEQD5
-        return period
-    def calcPeriod6(self, SWPER_OSEQD6):
-        period = SWPER_OSEQD6
-        return period
-    def calcPeriod7(self, SWPER_OSEQD7):
-        period = SWPER_OSEQD7
-        return period
-    def calcPeriod8(self, SWPER_OSEQD8):
-        period = SWPER_OSEQD8
-        return period
-    def calcPeriod9(self, SWPER_OSEQD9):
-        period = SWPER_OSEQD9
-        return period
-    def calcPeriod10(self, SWPER_OSEQD10):
-        period = SWPER_OSEQD10
-        return period
-
-    def calcWave1(self, SWELL_OSEQD1, SWDIR_OSEQD1):
-       mag = SWELL_OSEQD1 * 3.28
-       dir = clip(SWDIR_OSEQD1, 0, 359.5)
+        
+    def _calcPeriodN(self, swper):
+        return swper
+    
+    def _calcWaveN(self, swell, swdir):
+       mag = swell / 0.3048
+       dir = clip(swdir, 0, 359.5)
        return (mag, dir)
-    def calcWave2(self, SWELL_OSEQD2, SWDIR_OSEQD2):
-        mag = SWELL_OSEQD2 * 3.28
-        dir = clip(SWDIR_OSEQD2, 0, 359.5)
-        return (mag, dir)
-    def calcWave3(self, SWELL_OSEQD3, SWDIR_OSEQD3):
-        mag = SWELL_OSEQD3 * 3.28
-        dir = clip(SWDIR_OSEQD3, 0, 359.5)
-        return (mag, dir)
-    def calcWave4(self, SWELL_OSEQD4, SWDIR_OSEQD4):
-        mag = SWELL_OSEQD4 * 3.28
-        dir = clip(SWDIR_OSEQD4, 0, 359.5)
-        return (mag, dir)
-    def calcWave5(self, SWELL_OSEQD5, SWDIR_OSEQD5):
-        mag = SWELL_OSEQD5 * 3.28
-        dir = clip(SWDIR_OSEQD5, 0, 359.5)
-        return (mag, dir)
-    def calcWave6(self, SWELL_OSEQD6, SWDIR_OSEQD6):
-        mag = SWELL_OSEQD6 * 3.28
-        dir = clip(SWDIR_OSEQD6, 0, 359.5)
-        return (mag, dir)
-    def calcWave7(self, SWELL_OSEQD7, SWDIR_OSEQD7):
-        mag = SWELL_OSEQD7 * 3.28
-        dir = clip(SWDIR_OSEQD7, 0, 359.5)
-        return (mag, dir)
-    def calcWave8(self, SWELL_OSEQD8, SWDIR_OSEQD8):
-        mag = SWELL_OSEQD8 * 3.28
-        dir = clip(SWDIR_OSEQD8, 0, 359.5)
-        return (mag, dir)
-    def calcWave9(self, SWELL_OSEQD9, SWDIR_OSEQD9):
-        mag = SWELL_OSEQD9 * 3.28
-        dir = clip(SWDIR_OSEQD9, 0, 359.5)
-        return (mag, dir)
-    def calcWave10(self, SWELL_OSEQD10, SWDIR_OSEQD10):
-        mag = SWELL_OSEQD10 * 3.28
-        dir = clip(SWDIR_OSEQD10, 0, 359.5)
-        return (mag, dir)
+ 
+    def calcPeriod1(self, swper_OSEQD1):
+        return self._calcPeriodN(swper_OSEQD1)
+    def calcPeriod2(self, swper_OSEQD2):
+        return self._calcPeriodN(swper_OSEQD2)
+    def calcPeriod3(self, swper_OSEQD3):
+        return self._calcPeriodN(swper_OSEQD3)
+    def calcPeriod4(self, swper_OSEQD4):
+        return self._calcPeriodN(swper_OSEQD4)
+    def calcPeriod5(self, swper_OSEQD5):
+        return self._calcPeriodN(swper_OSEQD5)
+    def calcPeriod6(self, swper_OSEQD6):
+        return self._calcPeriodN(swper_OSEQD6)
+    def calcPeriod7(self, swper_OSEQD7):
+        return self._calcPeriodN(swper_OSEQD7)
+    def calcPeriod8(self, swper_OSEQD8):
+        return self._calcPeriodN(swper_OSEQD8)
+    def calcPeriod9(self, swper_OSEQD9):
+        return self._calcPeriodN(swper_OSEQD9)
+    def calcPeriod10(self, swper_OSEQD10):
+        return self._calcPeriodN(swper_OSEQD10)
+
+    def calcWave1(self, swell_OSEQD1, swdir_OSEQD1):
+       return self._calcWaveN(swell_OSEQD1, swdir_OSEQD1)
+    def calcWave2(self, swell_OSEQD2, swdir_OSEQD2):
+        return self._calcWaveN(swell_OSEQD2, swdir_OSEQD2)
+    def calcWave3(self, swell_OSEQD3, swdir_OSEQD3):
+        return self._calcWaveN(swell_OSEQD3, swdir_OSEQD3)
+    def calcWave4(self, swell_OSEQD4, swdir_OSEQD4):
+        return self._calcWaveN(swell_OSEQD4, swdir_OSEQD4)
+    def calcWave5(self, swell_OSEQD5, swdir_OSEQD5):
+        return self._calcWaveN(swell_OSEQD5, swdir_OSEQD5)
+    def calcWave6(self, swell_OSEQD6, swdir_OSEQD6):
+        return self._calcWaveN(swell_OSEQD6, swdir_OSEQD6)
+    def calcWave7(self, swell_OSEQD7, swdir_OSEQD7):
+        return self._calcWaveN(swell_OSEQD7, swdir_OSEQD7)
+    def calcWave8(self, swell_OSEQD8, swdir_OSEQD8):
+        return self._calcWaveN(swell_OSEQD8, swdir_OSEQD8)
+    def calcWave9(self, swell_OSEQD9, swdir_OSEQD9):
+        return self._calcWaveN(swell_OSEQD9, swdir_OSEQD9)
+    def calcWave10(self, swell_OSEQD10, swdir_OSEQD10):
+        return self._calcWaveN(swell_OSEQD10, swdir_OSEQD10)
 
 def main():
     nwpsTrkngCG0Forecaster().run()
