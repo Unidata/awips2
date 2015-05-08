@@ -89,6 +89,7 @@ import com.vividsolutions.jts.precision.SimpleGeometryPrecisionReducer;
  * 06/27/2014  DR 17443   D. Friedman  Fix some odd cases in which parts of a polygon not covering a
  *                                     hatched area would be retained after redrawing.
  * 07/22/2014  DR 17475   Qinglu Lin   Updated createPolygonByPoints() and created second createPolygonByPoints().
+ * 05/08/2015  DR 17310   D. Friedman  Prevent reducePoints from generating invalid polygons.
  * </pre>
  * 
  * @author mschenke
@@ -543,7 +544,6 @@ public class PolygonUtil {
 
         GeometryFactory gf = new GeometryFactory();
         points.add(new Coordinate(points.get(0)));
-        truncate(points, 2);
         Polygon rval = gf.createPolygon(gf.createLinearRing(points
                 .toArray(new Coordinate[points.size()])), null);
 
@@ -799,6 +799,7 @@ public class PolygonUtil {
         int npts = pts.length;
         double xavg = 0, yavg = 0;
         int[] yesList = new int[npts];
+        boolean[] excludeList = new boolean[npts];
         int nyes = 0;
         int k, k1, k2, kn, y, simple;
         double bigDis, maxDis, dis, dx, dy, dx0, dy0, bas;
@@ -863,6 +864,8 @@ public class PolygonUtil {
                         k = 0;
                     if (k == k2)
                         break;
+                    if (excludeList[k])
+                        continue;
                     dx = pts[k].x - pts[k1].x;
                     dy = pts[k].y - pts[k1].y;
                     dis = dx * dx0 + dy * dy0;
@@ -870,6 +873,8 @@ public class PolygonUtil {
                         dis = -dis;
                     else
                         dis -= bas;
+                    double newMaxDis = maxDis;
+                    int newSimple = simple;
                     if (dis <= 0) {
                         if (simple == 0)
                             continue;
@@ -877,13 +882,28 @@ public class PolygonUtil {
                         if (dis < 0)
                             dis = -dis;
                     } else if (simple != 0)
-                        maxDis = simple = 0;
-                    if (dis < maxDis)
+                        newMaxDis = newSimple = 0;
+                    if (dis < newMaxDis) {
+                        maxDis = newMaxDis;
                         continue;
+                    }
+                    if (! checkReducePointsValid(pts, yesList, nyes, k)) {
+                        excludeList[k] = true;
+                        continue;
+                    }
+                    simple = newSimple;
                     maxDis = dis;
                     kn = k;
                 }
                 k1 = k2;
+            }
+
+            Arrays.fill(excludeList, false);
+            if (kn < 0) {
+                statusHandler.debug(
+                        String.format("reducePoints(..., %d): Unable to find a valid point\npoints: %s",
+                                maxNpts, points));
+                break;
             }
 
             if (simple != 0 && nyes > 2) {
@@ -907,6 +927,24 @@ public class PolygonUtil {
         npts = nyes;
         points.clear();
         points.addAll(Arrays.asList(Arrays.copyOf(pts, npts)));
+    }
+
+    private boolean checkReducePointsValid(Coordinate[] pts, int[] yesList, int nyes, int k) {
+        Coordinate[] verts = new Coordinate[nyes + 2];
+        int vi = 0;
+        for (int i = 0; i < nyes; ++i) {
+            if (k >= 0 && k < yesList[i]) {
+                verts[vi++] = pts[k];
+                k = -1;
+            }
+            verts[vi++] = pts[yesList[i]];
+        }
+        if (k >= 0) {
+            verts[vi++] = pts[k];
+        }
+        verts[verts.length - 1] = new Coordinate(verts[0]);
+        GeometryFactory gf = new GeometryFactory();
+        return gf.createPolygon(verts).isValid();
     }
 
     /**
