@@ -19,15 +19,9 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="menuItem" menuText="Cloud Cover" key="CCP" indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Cloud Cover Anl Uncertainty" key="CCPerranl" indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Visibility" key="Vis" indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Visibility Anl Uncertainty" key="Viserranl" indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Turbulence" key="TURB" indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Turbulence Index" key="TPFI" indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Icing Probability" key="ICPRB" indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Icing Potential" key="ICNG" indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Icing Severity" key="ICSEV" indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Supercooled Large Droplet Threat" key="SIPD" indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Supercooled Large Droplet (SLD) Probability" key="SLDP" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Prob Visibility &lt; 1 mile" key="Visc1" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Visibility &lt; 3 miles" key="Visc2" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Ceiling Hgt &lt; 500 ft" key="Cigc1" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Ceiling Hgt &lt; 1000 ft" key="Cigc2" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Ceiling Hgt &lt; 3000 ft" key="Cigc3" indentText="false" />
 </menuTemplate>
