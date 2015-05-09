@@ -39,6 +39,8 @@
     <vbSource key="NDFD" category="Volume" />
     <vbSource key="FNMOC-FAROP" category="Volume" />
     <vbSource key="FNMOC-NCODA" category="Volume" />
+    <vbSource key="FNMOC-WW3" category="Volume" />
+    <vbSource key="FNMOC-WW3-EU" category="Volume" />
     <vbSource key="COAMPS-EU" category="Volume" />
     <vbSource key="COAMPS-WA" category="Volume" />
     <vbSource key="URMA25" category="Volume" />    
@@ -49,4 +51,14 @@
     <vbSource key="RAP-40km" category="Volume" />
     <vbSource key="GFS254" category="Volume" />
     <vbSource key="SREF-40km" category="Volume" views="PLANVIEW TIMESERIES" />
+    <vbSource key="GWW233" category="Volume" />
+    <vbSource key="GLERL" category="Volume" />
+    <vbSource key="HurWave238" category="Volume" />
+    <vbSource key="HurWave253" category="Volume" />
+    <vbSource key="SeaIce" category="Volume" />
+    <vbSource key="SeaIce220" category="Volume" />
+    <vbSource key="SeaIce235" category="Volume" />
+    <vbSource key="WNAWAVE238" category="Volume" />
+    <vbSource key="ENPWAVE253" category="Volume" />
+    <vbSource key="AKWAVE239" category="Volume" />
 </vbSourceList>
