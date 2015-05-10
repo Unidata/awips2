@@ -20,5 +20,5 @@
     -->
 <requestPatterns >
     <regex>^SDUS[234578]. .*</regex>
-    <regex>^RadarServer.*</regex>
+    <regex>^Level2_.*</regex>
 </requestPatterns>
