@@ -234,6 +234,7 @@ import com.vividsolutions.jts.io.WKTReader;
  *                                     any of them is missing.
  * 11/03/2014  3353        rferrel     Ignore GeoSpatialData notification when this is the instance layer will do an update.
  * 02/25/2014  3353        rjpeter     Fix synchronized use case, updated to not create dialog before init is finished.
+ * 05/08/2015  ASM #17310  D. Friedman Log input polygon when output of AreaHatcher is invalid.
  * </pre>
  * 
  * @author mschenke
@@ -570,6 +571,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         outputHatchedWarningArea = createWarnedArea(
                                 latLonToLocal(outputHatchedArea),
                                 latLonToLocal(warningArea));
+                        if (! outputHatchedArea.isValid()) {
+                            statusHandler.debug(String.format("Input %s redrawn to invalid %s",
+                                    inputWarningPolygon, outputHatchedArea));
+                        }
                     }
                     this.hatchedArea = outputHatchedArea;
                     this.hatchedWarningArea = outputHatchedWarningArea;
