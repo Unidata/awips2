@@ -56,7 +56,8 @@
 # ------------ ---------- -----------  --------------------------
 # 12/02/2014   RM #625    ryu          Changed checkGroup() as suggested to display models
 #                                      in multi-columns when a single column is insufficient.
-#
+# 04/16/2015   17390      ryu          Replacing string.atoi with int for string/integer to integer conversion
+#                                      (ListBox.curselection() now returns ints instead of strings.)
 # ----------------------------------------------------------------------------
 #
 MenuItems = ["Verify"]
@@ -6629,7 +6630,7 @@ class Verif(BVDialog):
       outlist=[]
       itemnums=self.ForecasterListbox.curselection()
       try:
-         itemnums=map(string.atoi,itemnums)
+         itemnums=map(int,itemnums)
       except ValueError: pass
       for itemnum in itemnums:
          outlist.append(self.forecasterNumbers[itemnum])
@@ -6805,7 +6806,7 @@ class Verif(BVDialog):
    def getFromdayListbox(self):
       itemnums=self.FromdayListbox.curselection()
       try:
-         itemnums=map(string.atoi,itemnums)
+         itemnums=map(int,itemnums)
       except ValueError: pass
       itemnum=itemnums[0]
       outdate=self.gridDays[itemnum]
@@ -6818,7 +6819,7 @@ class Verif(BVDialog):
       outlist=[]
       itemnums=self.DaylistListbox.curselection()
       try:
-         itemnums=map(string.atoi,itemnums)
+         itemnums=map(int,itemnums)
       except ValueError: pass
       for itemnum in itemnums:
          outlist.append(self.gridDays[itemnum])
@@ -7792,7 +7793,7 @@ class Verif(BVDialog):
       outlist=[]
       itemnums=listbox.curselection()
       try:
-         itemnums=map(string.atoi,itemnums)
+         itemnums=map(int,itemnums)
       except ValueError: pass
       for itemnum in itemnums:
          outlist.append(listbox.get(itemnum))
