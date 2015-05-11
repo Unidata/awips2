@@ -62,6 +62,8 @@ public class SatSpatialFactory {
     public static final int PROJ_LAMBERT = 3;
 
     public static final int PROJ_POLAR = 5;
+    
+    public static final int PROJ_POLAR_SOUTH = 6;
 
     public static final int PROJ_CYLIN_EQUIDISTANT = 7;
 
@@ -336,12 +338,17 @@ public class SatSpatialFactory {
         switch (crsType) {
         case PROJ_MERCATOR:
             return createMercatorCrs(latin, cm);
+        case PROJ_POLAR:
+        	if (latin >= 0.)
+        		return createNorthPolarStereoCrs(latin, lov);
+        	else
+        		return createSouthPolarStereoCrs(latin, lov);
         case PROJ_LAMBERT:
             return createLambertCrs(latin, latin2, lov);
         case PROJ_CYLIN_EQUIDISTANT:
             return createEqCylCrs(latin, lov);
         default:
-            return createNorthPolarStereoCrs(lov);
+            return createNorthPolarStereoCrs(latin, lov);
         }
     }
 
@@ -361,9 +368,14 @@ public class SatSpatialFactory {
                 latin);
     }
 
-    private static ProjectedCRS createNorthPolarStereoCrs(double lov) {
+    private static ProjectedCRS createNorthPolarStereoCrs(double latin, double lov) {
         return MapUtil.constructNorthPolarStereo(MapUtil.AWIPS_EARTH_RADIUS,
-                MapUtil.AWIPS_EARTH_RADIUS, 60, lov);
+                MapUtil.AWIPS_EARTH_RADIUS, latin, lov);
+    }
+    
+    private static ProjectedCRS createSouthPolarStereoCrs(double latin, double lov) {
+        return MapUtil.constructSouthPolarStereo(MapUtil.AWIPS_EARTH_RADIUS,
+                MapUtil.AWIPS_EARTH_RADIUS, latin, lov);
     }
 
 }
