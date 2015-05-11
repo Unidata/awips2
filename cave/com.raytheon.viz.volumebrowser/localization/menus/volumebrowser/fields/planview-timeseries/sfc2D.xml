@@ -95,7 +95,7 @@
             fileName="menus/volumebrowser/fields/planview-timeseries/sfc2d/PHISHAboveGround.xml" />
     </contribute>
 
-    <contribute xsi:type="toolbarSubMenu" menuText="NAM DNG 5km">
+    <contribute xsi:type="toolbarSubMenu" menuText="NamDNG">
         <contribute xsi:type="subinclude"
             fileName="menus/volumebrowser/fields/planview-timeseries/sfc2d/NAMDNG5km.xml" />
     </contribute>
