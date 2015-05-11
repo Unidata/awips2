@@ -54,7 +54,17 @@
       <level value="WARN" />
    </logger>
    <logger name="org.apache.cxf">
-   	  <level value="ERROR"/>
+         <level value="ERROR"/>
+   </logger>
+   
+  <logger name="org.apache.cxf.interceptor.LoggingOutInterceptor" additivity="false">
+        <level value="WARN"/>
+        <appender-ref ref="DataDeliveryLog"/>
+   </logger>
+
+   <logger name="org.apache.cxf.interceptor.LoggingInInterceptor" additivity="false">
+        <level value="WARN"/>
+        <appender-ref ref="DataDeliveryLog"/>
    </logger>
 
    <logger name="com.raytheon.uf.common.datadelivery" additivity="false">
