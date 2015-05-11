@@ -1,0 +1,41 @@
+#!/bin/bash -f
+# all of this sed crap for templates
+#dirs=$(find $GEMDATA/images/sat/GOES-13/4km/VIS/ -type f)
+export GEMTBL=/awips2/tools/bin
+if [[ $# -eq 0 ]] ; then
+    echo ''
+    echo '  ** no directory given.  Usage: "areas $DIR" **'
+    echo ''
+    exit 0
+fi
+
+dirs=$(find ${1} -type f)
+
+
+# id  | imagetype | imagetypenumber | satelliteid 
+#-----+-----------+-----------------+-------------
+#   1 | VIS       | 1               | 84
+
+
+#dirs=$(cat areadirs.txt)
+for dir in $dirs
+do
+	#areafile=$(find $dir -type f| tail -1)
+	areafile=$dir
+	#echo $areafile
+	imgtype=$(arinfo -i $areafile | sed 's/Image Type =//g' | tr -d ' ')
+	band=$(arinfo -b $areafile | sed 's/Band Number =//g' | tr -d ' ')
+	satID=$(arinfo -a $areafile |grep --text "Sensor source number" | cut -d":" -f2 | tr -d ' ') 
+	areaNum=$(arinfo -a $areafile |grep --text "Area file number" | cut -d":" -f2 | tr -d ' ') 
+	#echo "insert into mcidas_image_type (imagetype, imagetypenumber, satelliteid) values ('$imgtype',$band,$satID);"
+	#echo $(arinfo -i $areafile)
+	#echo $(arinfo -n $areafile)
+	#echo $(arinfo -a $areafile | grep --text "Area file number"| cut -d":" -f2| tr -d " \t\n\r")
+	filename=`echo $areafile | cut -d "/" -f 9`
+	echo $filename $(arinfo -binrs $areafile) "Sensor source number="$satID "Area num="$areaNum
+	#echo "insert into awips.mcidas_area_names VALUES ($arenum,'');"
+
+
+	
+done
+
