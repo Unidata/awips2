@@ -1,0 +1,748 @@
+! IMGTYP.TBL
+!
+! This table contains the minimum and maximum image pixel values
+! for use in setting the colors when displaying satellite or radar images.
+! A default look up table (LUT) file is also assigned per image type.
+!
+! For satellite images, the comparisons are based on the satellite ID number,
+! the image type and whether the image is a "raw" image or not.
+!
+! The IMGTYP is a coded number representing the channel of the image.
+! The value is equal to 2**(channel-1).
+!
+! For RADAR images, the NIDS product code is used to identify different radar
+! types.
+!
+! (Do not use tabs when adding to the table.)
+!!
+! Log:
+! S. Jacobs/NCEP	12/97	Updated info for radar images
+! S. Jacobs/NCEP	 2/98	Updated per UNISYS product catalog
+! J. Partain/MPC	 3/98	Added GOES-10 images
+! S. Jacobs/NCEP	 4/98	Fixed spelling of abbreviations
+! S. Jacobs/NCEP	 7/98	Added METEOSAT7
+! J. Carr/HPC		 7/98	Updated a topography table
+! J. Carr/HPC		 7/98	Updated a topography table
+! S. Jacobs/NCEP	 8/98	Added SND data from GOES-8
+! J. Partain/MPC	12/98	Added SSMI data
+! G. Grosshans/SPC	 2/99	Added two precip products for Unisys radar
+! J. Carr/HPC		 3/99	Added EST-RAIN and PWAT ssmi data.
+! J. Partain/MPC	11/99	Added QuickSCAT data
+! S. Jacobs/NCEP	12/99	Fix for GMS images satellite ID
+! S. Jacobs/NCEP	 9/02	Changed all IR images to default to a GRAY LUT
+! D.W.Plummer/NCEP	 2/03	Additions/changes for 2-byte images
+! D.W.Plummer/NCEP	 4/03	chg GOES-12 VIS entry from 30-220 to 0-255
+! S. Jacobs/NCEP	 5/03	Replaced NIDS with LOCAL for local products
+! S. Jacobs/NCEP	 5/03	Added more entries for METEOSAT5
+! m.gamazaychikov/SAIC	06/03	changed ssmi_mpc to ssmi_opc
+! A. Hardy/NCEP		 4/04	Added GOES-10 10-bit imagery (max = 1023)
+! A. Hardy/NCEP		12/04	Added METEOSAT7 sensor source number 58
+! S. Jacobs/NCEP	 5/05	Added AMSU, TRMM, SSMI-WINDS; allow exponents
+! S. Jacobs/NCEP	 5/05	Added CAPE-CINH and LIX-PWX
+! S. Jacobs/NCEP	 5/05	Added new METEOSAT entries for satid=51
+! S. Jacobs/NCEP	11/05	Added new MTS entries for satid=84
+! S. Jacobs/NCEP	 3/06	Added new FYC entries for satid=35
+! D.W.Plummer/NCEP	 6/06	Added GOES-11, satid 76, 77
+! C. Sisko/NHC		06/06	Redefined MET-8 Channels
+! T. Piper/SAIC		07/06	Added Def. LUTs and changed 'IMG TYP' to
+!						 MW for AMSU/SSMI/TRMM
+! Steve Chiswell/UCAR	08/06	Added Meteosat-8 raw format
+! G. Grosshans/SPC	03/07	Added Level-II radar entries
+! T. Piper/SAIC		03/07	Added Meteosat-7, imgtyp 4, pixel depth 1
+! S. Gilbert/NCEP	03/07	Added two AMSRE MW entries
+! T. Piper/SAIC		04/07	Added Meteosat 9 and 10
+! A. Robson/HPC		07/07	Added hi-res satellite topography
+! J. Levit/SPC		10/07	Changed NSSL product ID numbers
+! S. Jacobs/NCEP	12/07	Removed CAPE-CINH and LIX-PWX
+! S. Jacobs/NCEP	12/07	Added CAPE, CINH, LI and TPW
+! T. Piper/SAIC		03/08	Updated with new Alaska and Hawaii mosaics
+! G. Grosshans/SPC	04/08	Added GOES SOUNDER 
+! S. Jacobs/NCEP	12/08	Added GOES13 entries - copied from GOES12
+! S. Jacobs/NCEP	03/09	Added BLENDED_TPW entries
+! X. Guo/CWS		04/10   Added 94 product
+! X. Guo/CWS		04/10   Updated 99,134 and 135 profucts
+! S. Jacobs/NCEP	 7/10	Added MTSAT2
+! S. Jacobs/NCEP	 4/11	Added entries for OMI images for sat id = 100
+! F. Achorn/OPC		10/11   Added RGB products per M. Folmer/OPC/HPC/SAB
+! K. Kempisty/NCEP	11/11   Added GOES15
+! F. Achorn/OPC		12/11	Added MODIS products per M. Folmer/OPC/HPC/SAB
+! S. Jacobs/NCEP	 6/12	Added more GOESR-related entries
+! S. Jacobs/NCEP	 9/12	Added GOES14
+! S. Jacobs/NCEP	 9/12	Added an entry for DPD-GHE images
+! S. Jacobs/NCEP	10/12	Changed GOES14 to use data from GOESR testing
+! M. James/Unidata	01/14	Reorganization for new UNIWISC products
+!------------------------------------------------------------------------------
+!
+!                   |IMG     |      |      |SAT ID|IMGTYP| PIXEL| DEFAULT      |
+!SAT ID             |TYP     |   MIN|   MAX|NUMBER|NUMBER| DEPTH| LUT FILE     |
+!(20)               |(8)     |   (6)|   (6)|   (6)|   (6)|   (6)|      (14)    |
+!                   |        |      |      |      |      |      |              |
+!------------------------------------------------------------------------------
+AIRS                 CO            3    253    240      2      1 rainbow.tbl
+AIRS                 O3            3    253    240      1      1 rainbow.tbl
+ALASKA  1 KM  BASE   REFLECT       0     15      6    139      1 osf_ref16.tbl
+ALASKA  1 KM  BREF Unfil WSR-88D   0    255      8    223      1 osf_ref16.tbl
+ALASKA  1 KM  BREF WSR-88D         0    255      8    220      1 osf_ref16.tbl
+ALASKA  1 KM  CREF WSR-88D         0     15      8    190      1 osf_ref16.tbl
+ALASKA  2 KM  1HR    PRECIP        0     15      6     89      1 nids_pre.tbl
+ALASKA  2 KM  24HR   PRECIP        0     15      6    106      1 nids_pre.tbl
+ALASKA  2 KM  BASE   REFLECT       0     15      6    137      1 osf_ref16.tbl
+ALASKA  2 KM  BASE   REFLECT       0     15      6    138      1 osf_ref16.tbl
+ALASKA  2 KM  BASE   REFLECT       0     15      6    140      1 osf_ref16.tbl
+ALASKA  2 KM  BREF WSR-88D         0    255      8    221      1 osf_ref16.tbl
+ALASKA  2 KM  CML    PRECIP        0     15      6    105      1 nids_pre.tbl
+ALASKA  4 KM  1HR    PRECIP        0     15      6     90      1 nids_pre.tbl
+ALASKA  4 KM  24HR   PRECIP        0     15      6    102      1 nids_pre.tbl
+ALASKA  4 KM  CML    PRECIP        0     15      6    101      1 nids_pre.tbl
+ALASKA  4 KM  COMP   REFLECT       0     15      6     30      1 osf_ref16.tbl
+ALASKA  4 KM  ECHO   TOPS          0     15      6     95      1 nids_tops.tbl
+ALASKA  4 KM  HAIL INDEX           0     15      8    120      1 nids_pre.tbl
+ALASKA  4 KM  MDA                  0     15      8    121      1 nids_pre.tbl
+ALASKA  4 KM  STI                  0     15      8    122      1 nids_pre.tbl
+ALASKA  4 KM  TVS                  0     15      8    123      1 nids_pre.tbl
+ALASKA  4 KM         VIL           0     15      6    148      1 nids_vil.tbl
+ALASKA  8 KM  Combined Storms      0     15      8    100      1 nids_tops.tbl
+ALASKA  8 KM  Combined Storms      0     15      8     99      1 nids_tops.tbl
+AMSRE                MW            0    255     10      0      1 micro89a.tbl
+AMSRE-SSW            MW            0    255     10  2**31      1 ssmiwind.tbl
+AMSU-89GHZ           MW            0    255     10  2**15      1 micro89a.tbl
+AMSU-PWAT            MW            0    255     10  2**23      1 micropw.tbl
+AMSU-RAIN            MW            0    255     10  2**21      1 microrain.tbl
+ANTARCTICA           IR            0    255     72      8      1 ir_sab.tbl
+ANTARCTICA           VIS           0    255     72      1      1 GRAY
+ANTARCTICA           WV            0    255     72      4      1 wv_tpc.tbl
+AQUA-MODIS           AIRMASS       0     94    111   8192      1 airmass.tbl
+AQUA-MODIS           DUST          0     94    111  32768      1 dust.tbl
+AQUA-MODIS           NTMICRO       0     94    111  16384      1 ntmicro.tbl
+ARCTIC 0.65          VIS           0    255    401      1      1 GRAY
+ARCTIC 11.0          IR            0    255    401      8      1 ir_rgbv.tbl
+ARCTIC 12.0          IR            0    255    401     16      1 ir_rgbv.tbl
+ARCTIC 3.8           IR            0    255    401      2      1 ir_rgbv.tbl
+ARCTIC 6.7           WV            0    255    401      1      1 wv_tpc.tbl
+ARCTIC 6.7           WV            0    255    401      4      1 wv_tpc.tbl
+BLENDED-TPW          BLEND         0    255     10     16      1 gdpipw.tbl
+CAPE                 IR            0    255     77      8      1 gdpicape.tbl
+CINH                 IR            0    255     77     16      1 gdpicinh.tbl
+CREF                 MOSAIC        0    255      7    253      1 upc_radimg.tbl
+CTMPK                IR_TMPK       0    255     11  2**15      1 ir_upc3.tbl
+DMSP-PWAT            PRXX          0    255     94  2**28      1 micropw.tbl
+DMSP-PWAT            PW            0    255     94  2**16      1 micropw.tbl
+DPD                  GHE           0    255     10      8      1 ssmi_opc.tbl
+ECHO TOP18           MOSAIC        0    255      7    252      1 upc_ramp.tbl
+FIRE_WEATHER_PROD    FIRE_WX       0    255     78 -2**31      1 wfabba.tbl
+FOG-PROD             FOG-PROD      0    255     11   2**5      1 gdpifog.tbl
+FYC                  IR4           0    255     35      2      1 GRAY
+FYC                  SW            0    255     35     16      1 GRAY
+FYC                  VIS          30    220     35      1      1 GRAY
+FYC                  WV            0    255     35      8      1 GRAY
+GMS                  IR            0    255     13    128      1 GRAY
+GMS                  IR            0    255     13      2      1 GRAY
+GMS                  IR            0    255     13      8      1 GRAY
+GMS                  IR            0    255     83    128      1 GRAY
+GMS                  IR            0    255     83      2      1 GRAY
+GMS                  IR            0    255     83      8      1 GRAY
+GMS                  VIS          30    220     12      1      1 GRAY
+GMS                  VIS          30    220     83      1      1 GRAY
+GOES10               IR2           0    255     74      2      1 GRAY
+GOES10               IR2           0    255     74      2      2 GRAY
+GOES10               IR3           0    255     74      4      1 wv_tpc.tbl
+GOES10               IR3           0    255     74      4      2 wv_tpc.tbl
+GOES10               IR4           0    255     74    128      1 GRAY
+GOES10               IR4           0    255     74    128      2 GRAY
+GOES10               IR4           0    255     74      8      1 GRAY
+GOES10               IR4           0    255     74      8      2 GRAY
+GOES10               IR5           0    255     74     16      1 GRAY
+GOES10               IR5           0    255     74     16      2 GRAY
+GOES10               VIS           0   1023     74      1      2 GRAY
+GOES10               VIS          30    220     74      1      1 GRAY
+GOES11               IR2           0    255     76      2      1 GRAY
+GOES11               IR2           0    255     76      2      2 GRAY
+GOES11               IR3           0    255     76      4      1 wv_tpc.tbl
+GOES11               IR3           0    255     76      4      2 wv_tpc.tbl
+GOES11               IR4           0    255     76    128      1 GRAY
+GOES11               IR4           0    255     76    128      2 GRAY
+GOES11               IR4           0    255     76      8      1 GRAY
+GOES11               IR4           0    255     76      8      2 GRAY
+GOES11               IR5           0    255     76     16      1 GRAY
+GOES11               IR5           0    255     76     16      2 GRAY
+GOES11               VIS           0   1023     76      1      2 GRAY
+GOES11               VIS           0    255     76      1      1 GRAY
+GOES12 11.03         SOUNDER       0    255     78     48      1 GRAY 
+GOES12 14.06         SOUNDER       0    255     78     43      1 GRAY 
+GOES12 3.98          SOUNDER       0    255     78     57      1 GRAY 
+GOES12 4.45          SOUNDER       0    255     78     55      1 GRAY 
+GOES12 6.51          SOUNDER       0    255     78     52      1 GRAY 
+GOES12 7.02          SOUNDER       0    255     78     51      1 GRAY 
+GOES12 7.43          SOUNDER       0    255     78     50      1 GRAY 
+GOES12 CLD AMT       SOUNDER       0    255     78     28      1 GRAY
+GOES12 CLD TOP H     SOUNDER       0    255     78     27      1 GRAY
+GOES12               IR2           0    255     78      2      1 GRAY
+GOES12               IR2           0    255     78      2      2 GRAY
+GOES12               IR3           0    255     78      4      1 wv_tpc.tbl
+GOES12               IR3           0    255     78      4      2 wv_tpc.tbl
+GOES12               IR4           0    255     78    128      1 GRAY
+GOES12               IR4           0    255     78    128      2 GRAY
+GOES12               IR4           0    255     78      8      1 GRAY
+GOES12               IR4           0    255     78      8      2 GRAY
+GOES12               IR5           0    255     78     16      1 GRAY
+GOES12               IR5           0    255     78     16      2 GRAY
+GOES12 LI            SOUNDER       0    255     78     16      1 GRAY
+GOES12 PW            SOUNDER       0    255     78     17      1 GRAY
+GOES12 SFCSKIN T     SOUNDER       0    255     78     18      1 GRAY
+GOES12 SVIS          SOUNDER       0    255     78     59      1 GRAY 
+GOES12               VIS           0   1023     78      1      2 GRAY
+GOES12               VIS           0    255     78      1      1 GRAY
+GOES13 11.03         SOUNDER       0    255    180     48      1 GRAY 
+GOES13 13.3          IR            0    255    180     32      1 ir_tpc.tbl
+GOES13 14.06         SOUNDER       0    255    180     43      1 GRAY 
+GOES13 3.98          SOUNDER       0    255    180     57      1 GRAY 
+GOES13 4.45          SOUNDER       0    255    180     55      1 GRAY 
+GOES13 6.51          SOUNDER       0    255    180     52      1 GRAY 
+GOES13 7.02          SOUNDER       0    255    180     51      1 GRAY 
+GOES13 7.43          SOUNDER       0    255    180     50      1 GRAY 
+GOES13 AIRMASS       SOUNDER       0     94     77   8192      1 airmass.tbl
+GOES13 CLD AMT       SOUNDER       0    255    180     28      1 GRAY
+GOES13 CLD TOP H     SOUNDER       0    255    180     27      1 GRAY
+GOES13               VIS           0    255    180      1      1 GRAY
+GOES13 3.9           IR2           0    255    180      2      1 GRAY
+GOES13               IR2           0    255    180      2      2 GRAY
+GOES13               IR2           0    255     80      2      1 GRAY
+GOES13               IR2           0    255     80      2      2 GRAY
+GOES13               IR3           0    255    180      2      1 GRAY
+GOES13               WV            0    255    180      4      1 wv_tpc.tbl
+GOES13               WV            0    255    180      4      2 wv_tpc.tbl
+GOES13               WV            0    255     80      4      1 wv_tpc.tbl
+GOES13               WV            0    255     80      4      2 wv_tpc.tbl
+GOES13               IR            0    255    180    128      1 ir_rgbv.tbl
+GOES13               IR            0    255    180    128      2 ir_rgbv.tbl
+GOES13               IR            0    255    180      4      1 ir_rgbv.tbl
+GOES13               IR            0    255    180      8      1 ir_rgbv.tbl
+GOES13               IR            0    255    180      8      2 ir_rgbv.tbl
+GOES13               IR            0    255     80    128      1 ir_rgbv.tbl
+GOES13               IR            0    255     80    128      2 ir_rgbv.tbl
+GOES13               IR            0    255     80      8      1 ir_rgbv.tbl
+GOES13               IR            0    255     80      8      2 ir_rgbv.tbl
+GOES13               IR            0    255    180     16      1 ir_rgbv.tbl
+GOES13               IR            0    255    180     16      2 ir_rgbv.tbl
+GOES13               IR            0    255    180      8      1 ir_rgbv.tbl
+GOES13               IR            0    255     80     16      1 ir_rgbv.tbl
+GOES13               IR            0    255     80     16      2 ir_rgbv.tbl
+GOES13 LI            SOUNDER       0    255    180     16      1 GRAY
+GOES13 PW            SOUNDER       0    255    180     17      1 GRAY
+GOES13 SFCSKIN T     SOUNDER       0    255    180     18      1 GRAY
+GOES13 SVIS          SOUNDER       0    255    180     59      1 GRAY 
+GOES13               VIS           0   1023    180      1      2 GRAY
+GOES13               VIS           0   1023     80      1      2 GRAY
+GOES13               VIS           0    255    180      1      1 GRAY
+GOES13               VIS           0    255     80      1      1 GRAY
+GOES14 11.03         SOUNDER       0    255    183     48      1 GRAY 
+GOES14 14.06         SOUNDER       0    255    183     43      1 GRAY 
+GOES14 3.98          SOUNDER       0    255    183     57      1 GRAY 
+GOES14 4.45          SOUNDER       0    255    183     55      1 GRAY 
+GOES14 6.51          SOUNDER       0    255    183     52      1 GRAY 
+GOES14 7.02          SOUNDER       0    255    183     51      1 GRAY 
+GOES14 7.43          SOUNDER       0    255    183     50      1 GRAY 
+GOES14 CLD AMT       SOUNDER       0    255    183     28      1 GRAY
+GOES14 CLD TOP H     SOUNDER       0    255    183     27      1 GRAY
+GOES14               IR2           0    255    182      2      1 GRAY
+GOES14               IR2           0    255    182      2      2 GRAY
+GOES14               IR3           0    255    182      4      1 wv_tpc.tbl
+GOES14               IR3           0    255    182      4      2 wv_tpc.tbl
+GOES14               IR4           0    255    182    128      1 GRAY
+GOES14               IR4           0    255    182    128      2 GRAY
+GOES14               IR4           0    255    182      8      1 GRAY
+GOES14               IR4           0    255    182      8      2 GRAY
+GOES14               IR5           0    255    182     16      2 GRAY
+GOES14               IR6           0    255    182     32      1 GRAY
+GOES14 LI            SOUNDER       0    255    183     16      1 GRAY
+GOES14 PW            SOUNDER       0    255    183     17      1 GRAY
+GOES14 SFCSKIN T     SOUNDER       0    255    183     18      1 GRAY
+GOES14 SVIS          SOUNDER       0    255    183     59      1 GRAY 
+GOES14               VIS           0   1023    182      1      2 GRAY
+GOES14               VIS           0    255    182      1      1 GRAY
+GOES15 11.03         SOUNDER       0    255    184     48      1 GRAY 
+GOES15 13.3          IR6           0    255    184     32      1 ir_rgbv.tbl
+GOES15 14.06         SOUNDER       0    255    184     43      1 GRAY 
+GOES15 3.98          SOUNDER       0    255    184     57      1 GRAY 
+GOES15 4.45          SOUNDER       0    255    184     55      1 GRAY 
+GOES15 6.51          SOUNDER       0    255    184     52      1 GRAY 
+GOES15 7.02          SOUNDER       0    255    184     51      1 GRAY 
+GOES15 7.43          SOUNDER       0    255    184     50      1 GRAY 
+GOES15 CLD AMT       SOUNDER       0    255    184     28      1 GRAY
+GOES15 CLD TOP H     SOUNDER       0    255    184     27      1 GRAY
+GOES15               VIS           0    255    184      1      1 GRAY
+GOES15               IR            0    255    184      2      1 ir_rgbv.tbl
+GOES15               IR            0    255    184      2      2 ir_rgbv.tbl
+GOES15               IR            0    255     84      2      1 ir_rgbv.tbl
+GOES15               IR            0    255     84      2      2 ir_rgbv.tbl
+GOES15               IR            0    255    184      2      1 ir_rgbv.tbl
+GOES15               IR            0    255    184    128      1 ir_rgbv.tbl
+GOES15               IR            0    255    184    128      2 ir_rgbv.tbl
+GOES15               IR            0    255    184     32      1 ir_rgbv.tbl
+GOES15               IR            0    255    184      8      1 ir_rgbv.tbl
+GOES15               IR            0    255    184      8      2 ir_rgbv.tbl
+GOES15               IR            0    255     84    128      1 ir_rgbv.tbl
+GOES15               IR            0    255     84    128      2 ir_rgbv.tbl
+GOES15               IR            0    255     84      8      1 ir_rgbv.tbl
+GOES15               IR            0    255     84      8      2 ir_rgbv.tbl
+GOES15               IR            0    255    184     16      2 ir_rgbv.tbl
+GOES15               IR            0    255     84     16      1 ir_rgbv.tbl
+GOES15               IR            0    255     84     16      2 ir_rgbv.tbl
+GOES15               IR6           0    255    184      8      1 GRAY
+GOES15 LI            SOUNDER       0    255    184     16      1 GRAY
+GOES15 PW            SOUNDER       0    255    184     17      1 GRAY
+GOES15 SFCSKIN T     SOUNDER       0    255    184     18      1 GRAY
+GOES15 SVIS          SOUNDER       0    255    184     59      1 GRAY 
+GOES15               VIS           0   1023    184      1      2 GRAY
+GOES15               VIS           0   1023     84      1      2 GRAY
+GOES15               VIS           0    255    184      1      1 GRAY
+GOES15               VIS           0    255     84      1      1 GRAY
+GOES15               WV            0    255    184      4      1 wv_tpc.tbl
+GOES15               WV            0    255    184      4      2 wv_tpc.tbl
+GOES15               WV            0    255     84      4      1 wv_tpc.tbl
+GOES15               WV            0    255     84      4      2 wv_tpc.tbl
+GOES6                IR            0    255     31    128      1 GRAY
+GOES6                VIS          30    220     30      1      1 GRAY
+GOES6                WV            0    255     31    512      1 wv_tpc.tbl
+GOES7                IR            0    255     33    128      1 GRAY
+GOES7-RAW            IR         1280  18000     33    128      2 GRAY
+GOES7-RAW            WV            0  18000     33    512      2 wv_tpc.tbl
+GOES7                VIS          30    220     32      1      1 GRAY
+GOES7                VISPC         0    255     32    128      1 GRAY
+GOES7                WV            0    255     33    512      1 wv_tpc.tbl
+GOES8                IR            0    255     70    128      1 GRAY
+GOES8                IR            0    255     70    128      2 GRAY
+GOES COMPOSITE       IR            0    255     70      8      1 ir_rgbv.tbl
+GOES8                IR            0    255     70      8      2 GRAY
+GOES8                IR2           0    255     70      2      1 GRAY
+GOES8                IR2           0    255     70      2      2 GRAY
+GOES8                IR5           0    255     70     16      1 GRAY
+GOES8                IR5           0    255     70     16      2 GRAY
+GOES8                SND           0    255     71      1      1 GRAY
+GOES8                VIS           0   1023     70      1      2 GRAY
+GOES COMPOSITE       VIS          30    220     70      1      1 GRAY
+GOES COMPOSITE       WV            0    255     70      4      1 wv_tpc.tbl
+GOES8                WV            0    255     70      4      2 wv_tpc.tbl
+GOES9                IR            0    255     72      8      2 ir_sab.tbl
+GOES9                IR            0    255     72    128      2 ir_sab.tbl
+GOES9                VIS           0   1023     72      1      2 GRAY
+GOES9                IR            0    255     72      2      1 ir_sab.tbl
+GOES9                IR            0    255     72      2      2 ir_sab.tbl
+GOES9                WV            0    255     72      4      2 wv_tpc.tbl
+GOES9                IR            0    255     72     16      1 ir_sab.tbl
+GOES9                IR            0    255     72     16      2 ir_sab.tbl
+GOES9                IR            0    255     72    128      1 ir_sab.tbl
+GOESR-ABI            13M6          0    255    186  2**16      1 fogcira.tbl
+GOESR-ABI            BAND08        0    255    186    128      1 WVCIMSS.tbl
+GOESR-ABI            BAND09        0    255    186    256      1 WVCIMSS.tbl
+GOESR-ABI            BAND10        0    255    186    512      1 WVCIMSS.tbl
+GOESR-ABI            BAND11        0    255    186   1024      1 ir_sab.tbl
+GOESR-ABI            BAND12        0    255    186  2**11      1 ir_sab.tbl
+GOESR-ABI            BAND13        0    255    186  2**12      1 ir_sab.tbl
+GOESR-ABI            BAND14        0    255    186  2**13      1 ir_sab.tbl
+GOESR-ABI            BAND15        0    255    186  2**14      1 ir_sab.tbl
+GOESR-ABI            BAND16        0    255    186  2**15      1 ir_sab.tbl
+GOESR-ABI            VIS2          0    255    186      2      1 GRAY
+HAWAII  1 KM  BASE   REFLECT       0     15      5    139      1 osf_ref16.tbl
+HAWAII  1 KM  BREF Unfil WSR-88D   0    255      8    223      1 osf_ref16.tbl
+HAWAII  1 KM  BREF WSR-88D         0    255      8    220      1 osf_ref16.tbl
+HAWAII  1 KM  CREF WSR-88D         0     15      8    190      1 osf_ref16.tbl
+HAWAII  2 KM  1HR    PRECIP        0     15      5     89      1 nids_pre.tbl
+HAWAII  2 KM  24HR   PRECIP        0     15      5    106      1 nids_pre.tbl
+HAWAII  2 KM  BASE   REFLECT       0     15      5    137      1 osf_ref16.tbl
+HAWAII  2 KM  BASE   REFLECT       0     15      5    138      1 osf_ref16.tbl
+HAWAII  2 KM  BASE   REFLECT       0     15      5    140      1 osf_ref16.tbl
+HAWAII  2 KM  BREF WSR-88D         0    255      8    221      1 osf_ref16.tbl
+HAWAII  2 KM  CML    PRECIP        0     15      5    105      1 nids_pre.tbl
+HAWAII  4 KM  1HR    PRECIP        0     15      5     90      1 nids_pre.tbl
+HAWAII  4 KM  24HR   PRECIP        0     15      5    102      1 nids_pre.tbl
+HAWAII  4 KM  CML    PRECIP        0     15      5    101      1 nids_pre.tbl
+HAWAII  4 KM  COMP   REFLECT       0     15      5     30      1 osf_ref16.tbl
+HAWAII  4 KM  ECHO   TOPS          0     15      5     95      1 nids_tops.tbl
+HAWAII  4 KM  HAIL INDEX           0     15      8    120      1 nids_pre.tbl
+HAWAII  4 KM  MDA                  0     15      8    121      1 nids_pre.tbl
+HAWAII  4 KM  STI                  0     15      8    122      1 nids_pre.tbl
+HAWAII  4 KM  TVS                  0     15      8    123      1 nids_pre.tbl
+HAWAII  4 KM         VIL           0     15      5    148      1 nids_vil.tbl
+HAWAII  8 KM  Combined Storms      0     15      8    100      1 nids_tops.tbl
+HAWAII  8 KM  Combined Storms      0     15      8     99      1 nids_tops.tbl
+HGHT CREF            MOSAIC        0    255      7    248      1 upc_ramp.tbl
+HGHT LOW LEVEL CREF  MOSAIC        0    255      7    242      1 upc_ramp.tbl
+HYBRID SCAN REFL     MOSAIC        0    255      7    244      1 upc_ramp.tbl
+HYBRID SCAN REFL     MOSAIC        0    255      7    246      1 upc_radimg.tbl
+IRSAT-BASE           COMPOS        0     94     11   2**9      1 upc_t_s.tbl
+LI                   IR            0    255     77     32      1 gdpili.tbl
+!
+! Local NEXRAD
+!
+! .15 km
+LOCAL .15 KM  BASE   TDWR_REFLECT  0     15      7    181      1 osf_ref16.tbl
+LOCAL .15 KM  BASE   TDWR_VELOCITY 0     15      7    183      1 osf_vel16.tbl
+LOCAL .15 KM  BASE   TDWR_VELOCITY 0    255      7    182      1 upc_vel.tbl
+! 
+LOCAL  1 KM  BASE    REFLECT       0      7      7     16      1 osf_ref8.tbl
+LOCAL  2 KM  BASE    REFLECT       0      7      7     17      1 osf_ref8.tbl
+LOCAL  4 KM  BASE    REFLECT       0      7      7     18      1 osf_ref8.tbl
+LOCAL  1 KM  BASE    REFLECT       0     15      7     19      1 osf_ref16.tbl
+LOCAL  2 KM  BASE    REFLECT       0     15      7     20      1 osf_ref16.tbl
+LOCAL  4 KM  BASE    REFLECT       0     15      7     21      1 osf_ref16.tbl
+LOCAL .25 KM  RADIAL VELOCITY      0      7      7     22      1 nids_vel8.tbl
+LOCAL .50 KM  RADIAL VELOCITY      0      7      7     23      1 nids_vel8.tbl
+LOCAL  1 KM  RADIAL  VELOCITY      0      7      7     24      1 nids_vel8.tbl
+LOCAL .25 KM  RADIAL VELOCITY      0     15      7     25      1 nids_vel16.tbl
+LOCAL .50 KM  RADIAL VELOCITY      0     15      7     26      1 nids_vel16.tbl
+LOCAL  1 KM  RADIAL  VELOCITY      0     15      7     27      1 nids_vel16.tbl
+LOCAL .25 KM SPCTRM  WIDTH         0      7      7     28      1 nids_swid.tbl
+LOCAL .50 KM SPCTRM  WIDTH         0      7      7     29      1 nids_swid.tbl
+LOCAL  1 KM  SPCTRM  WIDTH         0      7      7     30      1 nids_swid.tbl
+LOCAL  1 KM  DIGITAL HY_REF        0    255      7     32      1 upc_ref.tbl
+LOCAL  1 KM  COMP    REFLECT       0      7      7     35      1 osf_ref8.tbl
+LOCAL  4 KM  COMP    REFLECT       0      7      7     36      1 osf_ref8.tbl
+LOCAL  1 KM  COMP    REFLECT       0     15      7     37      1 osf_ref16.tbl
+LOCAL  4 KM  COMP    REFLECT       0     15      7     38      1 osf_ref16.tbl
+LOCAL  4 KM  ECHO    TOPS          0     15      7     41      1 nids_tops.tbl
+LOCAL  1 KM SVR WX   REFLECT       0     15      7     43      1 osf_ref16.tbl
+LOCAL .25KM SVR WX   VELOCITY      0     15      7     44      1 nids_vel16.tbl
+LOCAL .25KM SVR WX   SWIDTH        0      7      7     45      1 nids_swid.tbl
+LOCAL .50KM SVR WX   SHEAR         0     15      7     46      1 nids_rsher.tbl
+LOCAL  4 KM  VAD WIND PROFILE      0     15      7     48      1 nids_vel16.tbl
+LOCAL .50KM COMBINED MOMENT        0     15      7     49      1 nids_cmref.tbl
+LOCAL  1 KM X-SECT   REFLECT       0     15      7     50      1 osf_ref16.tbl
+LOCAL  1 KM X-SECT   VELOCITY      0     15      7     51      1 nids_vel16.tbl
+LOCAL  1 KM X-SECT   SWIDTH        0      7      7     52      1 nids_swid.tbl
+LOCAL  1 KM WK ECHO  REGION        0      7      7     53      1 nids_wecho.tbl
+LOCAL .50 KM STM REL VELOCITY      0     15      7     55      1 nids_vel16.tbl
+LOCAL  1 KM  STM REL VELOCITY      0     15      7     56      1 nids_vel16.tbl
+LOCAL  4 KM          VIL           0     15      7     57      1 nids_vil.tbl
+LOCAL  4 KM  L1 REFL AVE           0      7      7     63      1 osf_ref8.tbl
+LOCAL  4 KM  L2 REFL AVE           0      7      7     64      1 osf_ref8.tbl
+LOCAL  4 KM  L1 REFL MAX           0      7      7     65      1 osf_ref8.tbl
+LOCAL  4 KM  L2 REFL MAX           0      7      7     66      1 osf_ref8.tbl
+LOCAL  4 KM  L1 TURB AVE           0      7      7     67      1 osf_ref8.tbl
+LOCAL  4 KM  L2 TURB AVE           0      7      7     68      1 osf_ref8.tbl
+LOCAL  4 KM  L3 TURB AVE           0      7      7     69      1 osf_ref8.tbl
+LOCAL  4 KM  L1 TURB MAX           0      7      7     70      1 osf_ref8.tbl
+LOCAL  4 KM  L2 TURB MAX           0      7      7     71      1 osf_ref8.tbl
+LOCAL  4 KM  L3 TURB MAX           0      7      7     72      1 osf_ref8.tbl
+LOCAL  2 KM  1HR PCP ACCUM         0     15      7     78      1 nids_pre.tbl
+LOCAL  2 KM  3HR PCP ACCUM         0     15      7     79      1 nids_pre.tbl
+LOCAL  2 KM  TOT PCP ACCUM         0     15      7     80      1 nids_pre.tbl
+LOCAL  2 KM  DIGITAL PRCP ARRAY    0    255      7     81      1 upc_n1p.tbl
+LOCAL  COMBINED      SHEAR         0     15      7     87      1 nids_csher.tbl
+LOCAL  4 KM  L3 REFL AVE           0      7      7     89      1 osf_ref8.tbl
+LOCAL  4 KM  L3 REFL MAX           0      7      7     90      1 osf_ref8.tbl
+LOCAL  1 KM  BASE    REFLECT       0    255      7     94      1 upc_ref.tbl 
+LOCAL .25 KM  RADIAL VELOCITY      0    255      7     99      1 upc_vel.tbl
+LOCAL  1 KM  DIGITAL VIL           0    255      7    134      1 upc_dvl.tbl
+LOCAL  1 KM  ECHO    TOPS          0    199      7    135      1 upc_eet.tbl
+LOCAL  2 KM  HYBRID  PRECIP        0    255      7    138      1 upc_dst.tbl
+LOCAL .25 KM  ZDR     DUAL-POL     0    255      7    159      1 upc_zdr.tbl 
+LOCAL .25 KM  DCC     DUAL-POL     0    255      7    161      1 upc_dcc.tbl 
+LOCAL .25 KM  KDP     DUAL-POL     0    255      7    163      1 upc_kdp.tbl 
+LOCAL .25 KM  DHC     DUAL-POL     0    150      7    165      1 upc_dhc.tbl 
+LOCAL   2 KM  OHA     DUAL-POL     0     16      7    169      1 upc_st.tbl 
+LOCAL .25 KM  DAA     DUAL-POL     0    255      7    170      1 upc_dst.tbl 
+LOCAL   2 KM  PTA     DUAL-POL     0     16      7    171      1 upc_st.tbl 
+LOCAL .25 KM  DTA     DUAL-POL     0    255      7    172      1 upc_dst.tbl 
+LOCAL .25 KM  DUA     DUAL-POL     0    255      7    173      1 upc_dst.tbl 
+LOCAL .25 KM  DOD     DUAL-POL     0    255      7    174      1 upc_od.tbl 
+LOCAL .25 KM  DSD     DUAL-POL     0    255      7    175      1 upc_od.tbl 
+LOCAL .25 KM  INST    PRECIP_RT    0    255      7    176      1 upc_dpr.tbl 
+LOCAL .25 KM  HHC     DUAL-POL     0    150      7    177      1 upc_dhc.tbl 
+LOCAL .30 KM  BASE   TDWR_REFLECT  0    255      7    186      1 upc_ref.tbl
+LOCAL .30 KM  BASE   TDWR_REFLECT  0     15      7    187      1 osf_ref16.tbl
+! 
+LOW LEVEL CREF       MOSAIC        0    255      7    243      1 upc_radimg.tbl
+MAX EST HAIL SIZE    MOSAIC        0    255      7    247      1 upc_ramp.tbl
+MDR_PRODUCT          MDR           0    255      2      1      1 mdr.tbl
+METEOSAT10           HRVIS         0   1023     53   2048      2 GRAY
+METEOSAT10           HRVIS         0    255     53   2048      1 GRAY
+METEOSAT10           IR            0   1023     53     64      2 GRAY
+METEOSAT10           IR_10.8       0    255     53    256      1 GRAY
+METEOSAT10           IR_12.0       0    255     53    512      1 GRAY
+METEOSAT10           IR_8.7        0    255     53     64      1 GRAY
+METEOSAT10           NIR_1.6       0    255     53      4      1 visgray.tbl
+METEOSAT10           SWIR_3.9      0    255     53      8      1 ir_grb.tbl
+METEOSAT10           VIS_0.6       0    255     53      1      1 lingray.tbl
+METEOSAT10           VIS_0.8       0    255     53      2      1 lingray.tbl
+METEOSAT10           WV_6.2        0    255     53     16      1 wv_tpc.tbl
+METEOSAT10           WV_7.3        0    255     53     32      1 wv_tpc.tbl
+METEOSAT3            IR           20    250     54    128      1 GRAY
+METEOSAT3            VIS           0    255     54      1      1 GRAY
+METEOSAT3            WV            0    255     54    512      1 wv_tpc.tbl
+METEOSAT5            IR           20    250     56    128      1 GRAY
+METEOSAT5            IR           20    250     56      8      1 GRAY
+METEOSAT5            VIS           0    255     56      1      1 GRAY
+METEOSAT5            WV            0    255     56      4      1 wv_tpc.tbl
+METEOSAT5            WV            0    255     56    512      1 wv_tpc.tbl
+METEOSAT6            IR            0    255     57    128      1 GRAY
+METEOSAT6            VIS           0    255     57      1      1 GRAY
+METEOSAT6            WV            0    255     57    512      1 wv_tpc.tbl
+METEOSAT7            IR            0    255     58    128      1 GRAY
+METEOSAT7            IR            0    255     58      8      1 GRAY
+METEOSAT7            VIS           0    255     58      1      1 GRAY
+METEOSAT7            WV            0    255     58      4      1 wv_tpc.tbl
+METEOSAT7            WV            0    255     58    512      1 wv_tpc.tbl
+METEOSAT8            HRVIS         0   1023     51   2048      2 GRAY
+METEOSAT8            HRVIS         0    255     51   2048      1 GRAY
+METEOSAT8            IR            0   1023     51     64      2 GRAY
+METEOSAT8            IR_10.8       0    255     51    256      1 GRAY
+METEOSAT8            IR_12.0       0    255     51    512      1 GRAY
+METEOSAT8            IR_8.7        0    255     51     64      1 GRAY
+METEOSAT8            NIR_1.6       0    255     51      4      1 visgray.tbl
+METEOSAT8            SWIR_3.9      0    255     51      8      1 ir_grb.tbl
+METEOSAT8            VIS_0.6       0    255     51      1      1 lingray.tbl
+METEOSAT8            VIS_0.8       0    255     51      2      1 lingray.tbl
+METEOSAT8            WV_6.2        0    255     51     16      1 wv_tpc.tbl
+METEOSAT8            WV_7.3        0    255     51     32      1 wv_tpc.tbl
+METEOSAT9            AIRMASS       0     94     52   8192      1 airmass.tbl
+METEOSAT9            DAYSTRM       0     94     52  65536      1 daystrm.tbl
+METEOSAT9            DUST          0     94     52  32768      1 dust.tbl
+METEOSAT9            DYMICRO       0     94     52 131072      1 dymicro.tbl
+METEOSAT9            DYSNFOG       0     94     52 262144      1 snowfog.tbl
+METEOSAT9            HRVIS         0   1023     52   2048      2 GRAY
+METEOSAT9            HRVIS         0    255     52   2048      1 GRAY
+METEOSAT9            IR            0   1023     52     64      2 GRAY
+METEOSAT9            IR_10.8       0    255     52    256      1 GRAY
+METEOSAT9            IR_12.0       0    255     52    512      1 GRAY
+METEOSAT9            IR_8.7        0    255     52     64      1 GRAY
+METEOSAT9            NATURAL       0     94     52   4096      1 natural.tbl
+METEOSAT9            NIR_1.6       0    255     52      4      1 visgray.tbl
+METEOSAT9            NTMICRO       0     94     52  16384      1 ntmicro.tbl
+METEOSAT9            SWIR_3.9      0    255     52      8      1 ir_grb.tbl
+METEOSAT9            VIS_0.6       0    255     52      1      1 lingray.tbl
+METEOSAT9            VIS_0.8       0    255     52      2      1 lingray.tbl
+METEOSAT9            WV_6.2        0    255     52     16      1 wv_tpc.tbl
+METEOSAT9            WV_7.3        0    255     52     32      1 wv_tpc.tbl
+MODIS                IR            0    255    111  2**30      1 goes_dwp.tbl
+MREFL QPESUMS MOSAIC               0    255      7    254      1 upc_radimg.tbl
+MTSAT1               IR            0    255     84      2      1 GRAY
+MTSAT1               IR2           0    255     84     16      1 GRAY
+MTSAT1               VIS          30    220     84      1      1 GRAY
+MTSAT1               WV            0    255     84      8      1 wv_tpc.tbl
+MTSAT2               IR            0    255     85      2      1 GRAY
+MTSAT2               IR2           0    255     85     16      1 GRAY
+MTSAT2               VIS          30    220     85      1      1 GRAY
+MTSAT2               WV            0    255     85      8      1 wv_tpc.tbl
+! more Radar
+NATIONAL  1 KM  01HR PRECIP        0     15      8    200      1 w2_pre.tbl
+NATIONAL  1 KM  02HR PRECIP        0     15      8    201      1 w2_pre.tbl
+NATIONAL  1 KM  BASE REFLECT       0     15      8    139      1 osf_ref16.tbl
+NATIONAL  1 KM  BREF 1x1KM         0    255      8    216      1 osf_ref16.tbl
+NATIONAL  1 KM  BREF FILTERED WSR  0    255      8    225      1 osf_ref16.tbl
+NATIONAL  1 KM  BREF UNFIL WSR-88D 0    255      8    223      1 osf_ref16.tbl
+NATIONAL  1 KM  BREF WSR-88D       0    255      8    220      1 osf_ref16.tbl
+NATIONAL  1 KM  COMP REFLECT       0     15      8    202      1 osf_ref16.tbl
+NATIONAL  1 KM  COMP REFLECT       0     15      8    211      1 osf_ref16.tbl
+NATIONAL  1 KM  CREF 1X1KM         0     15      8    203      1 osf_ref16.tbl
+NATIONAL  1 KM  CREF 1X1KM         0     15      8    209      1 osf_ref16.tbl
+NATIONAL  1 KM  CREF TDWR          0     15      8    191      1 osf_ref16.tbl
+NATIONAL  1 KM  CREF WSR-88D       0     15      8    190      1 osf_ref16.tbl
+NATIONAL  1 KM  ECHO TOPS          0     15      8    210      1 osf_ref16.tbl
+NATIONAL  1 KM  ECHO TOPS          0     15      8    212      1 osf_ref16.tbl
+NATIONAL  1 KM  ECHO TOPS          0     15      8    213      1 osf_ref16.tbl
+NATIONAL  1 KM       MESH          0     15      8    208      1 osf_ref16.tbl
+NATIONAL  1 KM       POSH          0     15      8    207      1 osf_ref16.tbl
+NATIONAL  1 KM  RALA REFLECT       0     15      8    203      1 osf_ref16.tbl
+NATIONAL  1 KM  RT10 SHEAR         0     15      8    204      1 w2_rtr.tbl
+NATIONAL  1 KM  RT30 SHEAR         0     15      8    205      1 w2_rtr.tbl
+NATIONAL  1 KM  RT60 SHEAR         0     15      8    206      1 w2_rtr.tbl
+NATIONAL  1 KM       VIL           0     15      8    209      1 osf_ref16.tbl
+NATIONAL  2 KM  1HR  PRECIP        0     15      8     89      1 nids_pre.tbl
+NATIONAL  2 KM  24HR PRECIP        0     15      8    106      1 nids_pre.tbl
+NATIONAL  2 KM  BASE REFLECT       0     15      8    137      1 osf_ref16.tbl
+NATIONAL  2 KM  BASE REFLECT       0     15      8    138      1 osf_ref16.tbl
+NATIONAL  2 KM  BASE REFLECT       0     15      8    140      1 osf_ref16.tbl
+NATIONAL  2 KM  BASE REFLECT       0     15      8     70      1 osf_ref16.tbl
+NATIONAL  2 KM  BREF FILTERED WSR  0    255      8    226      1 osf_ref16.tbl
+NATIONAL  2 KM  BREF WSR-88D       0    255      8    221      1 osf_ref16.tbl
+NATIONAL  2 KM  CML  PRECIP        0     15      8    105      1 nids_pre.tbl
+NATIONAL  4 KM  1HR  PRECIP        0     15      8     90      1 nids_pre.tbl
+NATIONAL  4 KM  24HR PRECIP        0     15      8    102      1 nids_pre.tbl
+NATIONAL  4 KM  BASE REFLECT       0     15      8    141      1 osf_ref16.tbl
+NATIONAL  4 KM  BASE REFLECT       0     15      8    144      1 osf_ref16.tbl
+NATIONAL  4 KM  BASE REFLECT       0     15      8     75      1 osf_ref16.tbl
+NATIONAL  4 KM  CML  PRECIP        0     15      8    101      1 nids_pre.tbl
+NATIONAL  4 KM  CML  PRECIP        0     15      8    101      2 nids_pre.tbl
+NATIONAL  4 KM  COMP REFLECT       0     15      8    103      1 osf_ref16.tbl
+NATIONAL  4 KM  COMP REFLECT       0     15      8     26      1 osf_ref16.tbl
+NATIONAL  4 KM  COMP REFLECT       0     15      8     27      1 osf_ref16.tbl
+NATIONAL  4 KM  COMP REFLECT       0     15      8     30      1 osf_ref16.tbl
+NATIONAL  4 KM  COMP REFLECT       0     15      8      5      1 osf_ref16.tbl
+NATIONAL  4 KM  COMP REFLECT       0      7      8     13      1 osf_ref8.tbl
+NATIONAL  4 KM  COMP REFLECT       0      7      8     50      1 osf_ref8.tbl
+NATIONAL  4 KM  ECHO TOPS          0     15      8     95      1 nids_tops.tbl
+NATIONAL  4 KM  HAIL INDEX         0     15      8    120      1 nids_pre.tbl
+NATIONAL  4 KM  LYRH REFLECT       0      7      8    147      1 osf_ref8.tbl
+NATIONAL  4 KM  LYRL REFLECT       0      7      8    145      1 osf_ref8.tbl
+NATIONAL  4 KM  LYRM REFLECT       0      7      8    146      1 osf_ref8.tbl
+NATIONAL  4 KM  MDA                0     15      8    121      1 nids_pre.tbl
+NATIONAL  4 KM  STI                0     15      8    122      1 nids_pre.tbl
+NATIONAL  4 KM  TVS                0     15      8    123      1 nids_pre.tbl
+NATIONAL  4 KM       VIL           0     15      8    148      1 nids_vil.tbl
+NATIONAL  8 KM  1HR  PRECIP        0     15      8     91      1 nids_pre.tbl
+NATIONAL  8 KM  24HR PRECIP        0     15      8    108      1 nids_pre.tbl
+NATIONAL  8 KM  BASE REFLECT       0     15      8    142      1 osf_ref16.tbl
+NATIONAL  8 KM  BASE REFLECT       0     15      8     80      1 osf_ref16.tbl
+NATIONAL  8 KM  CML  PRECIP        0     15      8    107      1 nids_pre.tbl
+NATIONAL  8 KM  COMBINED STORMS    0     15      8    100      1 nids_tops.tbl
+NATIONAL  8 KM  COMBINED STORMS    0     15      8     99      1 nids_tops.tbl
+NATIONAL  8 KM  COMP REFLECT       0     15      8     10      1 osf_ref16.tbl
+NATIONAL  8 KM  COMP REFLECT       0     15      8    104      1 osf_ref16.tbl
+NATIONAL  8 KM  COMP REFLECT       0     15      8     28      1 osf_ref16.tbl
+NATIONAL  8 KM  COMP REFLECT       0     15      8     35      1 osf_ref16.tbl
+NATIONAL  8 KM  COMP REFLECT       0      7      8     25      1 osf_ref8.tbl
+NATIONAL  8 KM  COMP REFLECT       0      7      8     65      1 osf_ref8.tbl
+NATIONAL  8 KM  ECHO TOPS          0     15      8     96      1 nids_tops.tbl
+NATIONAL  8 KM       VIL           0     15      8    149      1 nids_vil.tbl
+NATL 1 KM CAPI(01KM) REFLECT       0     15      8    214      1 osf_ref16.tbl
+NATL 1 KM CAPI(02KM) REFLECT       0     15      8    215      1 osf_ref16.tbl
+NATL 1 KM CAPI(03KM) REFLECT       0     15      8    216      1 osf_ref16.tbl
+NATL 1 KM CAPI(04KM) REFLECT       0     15      8    217      1 osf_ref16.tbl
+NATL 1 KM CAPI(05KM) REFLECT       0     15      8    218      1 osf_ref16.tbl
+NATL 1 KM CAPI(06KM) REFLECT       0     15      8    219      1 osf_ref16.tbl
+NATL 1 KM CAPI(07KM) REFLECT       0     15      8    220      1 osf_ref16.tbl
+NATL 1 KM CAPI(08KM) REFLECT       0     15      8    221      1 osf_ref16.tbl
+NATL 1 KM CAPI(09KM) REFLECT       0     15      8    222      1 osf_ref16.tbl
+NATL 1 KM CAPI(10KM) REFLECT       0     15      8    223      1 osf_ref16.tbl
+NATL 1 KM CAPI(11KM) REFLECT       0     15      8    224      1 osf_ref16.tbl
+NATL 1 KM CAPI(12KM) REFLECT       0     15      8    225      1 osf_ref16.tbl
+NATL 1 KM CAPI(13KM) REFLECT       0     15      8    226      1 osf_ref16.tbl
+NATL 1 KM CAPI(14KM) REFLECT       0     15      8    227      1 osf_ref16.tbl
+NATL 1 KM CAPI(15KM) REFLECT       0     15      8    228      1 osf_ref16.tbl
+NATL 1 KM CAPI(16KM) REFLECT       0     15      8    229      1 osf_ref16.tbl
+NATL 1 KM CAPI(17KM) REFLECT       0     15      8    230      1 osf_ref16.tbl
+NATL 1 KM CAPI(18KM) REFLECT       0     15      8    231      1 osf_ref16.tbl
+NATL 1 KM CAPI(19KM) REFLECT       0     15      8    232      1 osf_ref16.tbl
+NEXRAD Level II BASE REFLECT       0    107      7    225      1 upc_radimg.tbl
+NEXRAD Level II      SPECTRUM      0    255      7    227      1 upc_vel.tbl
+NEXRAD Level II      VELOCITY      0    255      7    226      1 upc_vel.tbl
+NRL_37H              F15           0    255    272      4      1 rainbow.tbl
+NRL_37H              F16           0    255    273      4      1 rainbow.tbl
+NRL_37H              F17           0    255    274      4      1 rainbow.tbl
+NRL_37H              F18           0    255    275      4      1 rainbow.tbl
+NRL_37H              TRMM          0    255    271      4      1 rainbow.tbl
+NRL_37V              F15           0    255    272      8      1 rainbow.tbl
+NRL_37V              F16           0    255    273      8      1 rainbow.tbl
+NRL_37V              F17           0    255    274      8      1 rainbow.tbl
+NRL_37V              F18           0    255    275      8      1 rainbow.tbl
+NRL_37V              TRMM          0    255    271      8      1 rainbow.tbl
+NRL_87H              F15           0    255    272     16      1 rainbow.tbl
+NRL_87H              TRMM          0    255    271     16      1 rainbow.tbl
+NRL_87V              F15           0    255    272     32      1 rainbow.tbl
+NRL_87V              TRMM          0    255    271     32      1 rainbow.tbl
+NRL_91H              F16           0    255    273     16      1 rainbow.tbl
+NRL_91H              F17           0    255    274     16      1 rainbow.tbl
+NRL_91H              F18           0    255    275     16      1 rainbow.tbl
+NRL_91V              F16           0    255    273     32      1 rainbow.tbl
+NRL_91V              F17           0    255    274     32      1 rainbow.tbl
+NRL_91V              F18           0    255    275     32      1 rainbow.tbl
+NRL_HI_RGB           F15           0     94    272      2      1 89rgb.tbl
+NRL_HI_RGB           F16           0     94    273      2      1 89rgb.tbl
+NRL_HI_RGB           F17           0     94    274      2      1 89rgb.tbl
+NRL_HI_RGB           F18           0     94    275      2      1 89rgb.tbl
+NRL_HI_RGB           TRMM          0     94    271      2      1 89rgb.tbl
+NRL_LO_RGB           F15           0     94    272      1      1 37rgb.tbl
+NRL_LO_RGB           F16           0     94    273      1      1 37rgb.tbl
+NRL_LO_RGB           F17           0     94    274      1      1 37rgb.tbl
+NRL_LO_RGB           F18           0     94    275      1      1 37rgb.tbl
+NRL_LO_RGB           TRMM          0     94    271      1      1 37rgb.tbl
+NRL_RR               F15           0    255    272    128      1 rainbow.tbl
+NRL_RR               F16           0    255    273    128      1 rainbow.tbl
+NRL_RR               F17           0    255    274    128      1 rainbow.tbl
+NRL_RR               F18           0    255    275    128      1 rainbow.tbl
+NRL_RR               TRMM          0    255    271    128      1 rainbow.tbl
+NRL_TIME             F15           3    253    272     64      1 rainbow.tbl
+NRL_TIME             F16           3    253    273     64      1 rainbow.tbl
+NRL_TIME             F17           3    253    274     64      1 rainbow.tbl
+NRL_TIME             F18           3    253    275     64      1 rainbow.tbl
+NRL_TIME             TRMM          3    253    271     64      1 rainbow.tbl
+OMI                  OMI           0    255    100      1      1 omiso2.tbl
+OMI                  OMI           0    255    100      2      1 omiai.tbl
+OMI                  OMI           0    255     10      2      1 omiso2.tbl
+OMI                  OMI           0    255     10      4      1 omiai.tbl
+POES                 IR-11         0    255     41     64      1 GRAY
+POES                 IR-3.74       0    255     41     63      1 GRAY
+POES                 RESERVED      0    255     41     62      1 GRAY
+POES                 VIS           0    255     41     61      1 GRAY
+PRECIP FLAG          MOSAIC        0    255      7    241      1 upc_ramp.tbl
+PROB SEVERE HAIL     MOSAIC        0    255      7    249      1 upc_ramp.tbl
+!
+! Scatterometer
+!
+QSCAT                IR            0    255     10     64      1 ir_nmc.tbl
+!
+! Unidata NEXRAD Composites
+!
+RADAR                OHA           0    255     11  2**17      1 upc_n1p.tbl
+RADAR                DSP           0    255     11  2**18      1 upc_n1p.tbl
+RADAR                DTA           0    255     11  2**19      1 upc_n1p.tbl
+RADAR                DAA           0    255     11  2**20      1 upc_n1p.tbl
+RADAR                N0C           0    255     11  2**21      1 upc_dcc.tbl
+RADAR                N0X           0    255     11  2**22      1 upc_zdr.tbl
+RADAR                N0Q           0    255     11  2**23      1 upc_ref.tbl
+RADAR                HHC           0    150     11  2**24      1 upc_dhc.tbl
+RADAR                EET           0     72     11  2**25      1 upc_eet70.tbl
+RADAR                N0R           0    105     11  2**26      1 upc_rad24.tbl
+RADAR                DHR           0    255     11  2**27      1 upc_ref.tbl
+RADAR                DVL           0    255     11  2**28      1 upc_dvl.tbl
+RADAR                N1P           0    255     11  2**29      1 upc_n1p.tbl
+RADAR                NTP           0    255     11  2**30      1 upc_ntp.tbl
+!
+RADAR-IRSAT          COMPOS        0     95     11   2**8      1 upc_t_r_s.tbl
+RCOMP                RAD_TOPO      0     94     11   2**6      1 upc3_rcomp.tbl
+REGIONAL  2 KM  24HR PRECIP        0     15      9    106      1 nids_pre.tbl
+REGIONAL  2 KM  BASE REFLECT       0     15      9    137      1 osf_ref16.tbl
+REGIONAL  2 KM  BASE REFLECT       0     15      9    138      1 osf_ref16.tbl
+REGIONAL  2 KM  BASE REFLECT       0     15      9    140      1 osf_ref16.tbl
+REGIONAL  2 KM  CML  PRECIP        0     15      9    105      1 nids_pre.tbl
+REGIONAL  4 KM  BASE REFLECT       0     15      9    141      1 osf_ref16.tbl
+REGIONAL  4 KM  COMP REFLECT       0     15      9     30      1 osf_ref16.tbl
+SEVERE HAIL INDEX    MOSAIC        0    255      7    251      1 upc_ramp.tbl
+SOUNDER              CAPE          0    255    185  2**29      1 GRAY
+SOUNDER              CAPE          0    255     71  2**29      1 cape_upc.tbl
+SOUNDER              CAPE          0    255     75  2**29      1 cape_upc.tbl
+SOUNDER              CAPE          0    255     77  2**29      1 cape_upc.tbl
+SOUNDER              CTP           0    255    185  2**26      1 ctp_upc.tbl
+SOUNDER              CTP           0    255     70  2**26      1 ctp_upc.tbl
+SOUNDER              CTP           0    255     71  2**26      1 ctp_upc.tbl
+SOUNDER              CTP           0    255     75  2**26      1 ctp_upc.tbl
+SOUNDER              CTP           0    255     77  2**26      1 ctp_upc.tbl
+SOUNDER              LI            0    255    185  2**28      1 snd_li.tbl
+SOUNDER              LI            0    255     70  2**15      1 snd_li.tbl
+SOUNDER              LI            0    255     71  2**28      1 snd_li.tbl
+SOUNDER              LI            0    255     75  2**28      1 snd_li.tbl
+SOUNDER              LI            0    255     77  2**28      1 snd_li.tbl
+SOUNDER              OZONE         0    255    185  2**30      1 ozone_upc.tbl
+SOUNDER              OZONE         0    255     71  2**30      1 ozone_upc.tbl
+SOUNDER              OZONE         0    255     75  2**30      1 ozone_upc.tbl
+SOUNDER              OZONE         0    255     77  2**30      1 ozone_upc.tbl
+SOUNDER              PW            0    255    185  2**27      1 snd_pw.tbl
+SOUNDER              PW            0    255     70  2**16      1 snd_pw.tbl
+SOUNDER              PW            0    255     71  2**27      1 snd_pw.tbl
+SOUNDER              PW            0    255     75  2**27      1 snd_pw.tbl
+SOUNDER              PW            0    255     77  2**27      1 snd_pw.tbl
+SOUNDER              SFC_SKIN      0    255     70  2**17      1 GRAY
+SOUNDER              SST           0    255     10  2**30      1 sst_upc.tbl
+SOUNDER              SST           0    255     70  2**30      1 sst_upc.tbl
+SSMI                 MW            0    255      9     64      1 ssmi_opc.tbl
+SSMI-PWAT            MW            0    255      9     32      1 micropw.tbl
+SSMI-RAIN            MW            0    255      9      2      1 microrain.tbl
+SSMI-WINDS           MW            0    255      9      4      1 ssmiwind.tbl
+TERRA-MODIS          AIRMASS       0     94    101   8192      1 airmass.tbl
+TERRA-MODIS          DUST          0     94    101  32768      1 dust.tbl
+TERRA-MODIS          NTMICRO       0     94    101  16384      1 ntmicro.tbl
+TOPO                 TOPO          0    255     11      2      1 upc_dem30.tbl
+TOPO                 TOPO_DEM5     0     94     11      4      1 upc_dem5.tbl
+TOPO                 TOPO_DEM5     0     95     33     16      1 upc_dem5.tbl
+TOPO                 TOPO_DEM5     0     95     33     16      1 upc_hires.tbl
+TOPO                 TOPO_DEM5     0     95     33  32768      1 upc_dem5.tbl
+TOPO                 VIS           0    255      2      1      1 upc_topo.tbl
+TOPO                 VIS          52    226     11      1      1 upc_topo.tbl
+TPW                  IR            0    255     77     64      1 gdpipw.tbl
+TRMM-RAIN            MW            0    255     10      1      1 microrain.tbl
+UnidataX 6KM Comp     MOSAIC        0    255      7    201      1 upc_n0r.tbl
+VIL DENSITY          MOSAIC        0    255      7    245      1 upc_ramp.tbl
+VIL                  MOSAIC        0    255      7    250      1 upc_ramp.tbl
+WSI NOWRAD  2 KM US  MOSAIC        0     15      7      2      1 osf_ref16.tbl
+WSI NOWRAD  8 KM US  MOSAIC        0     15      7      1      1 osf_ref16.tbl
