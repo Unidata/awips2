@@ -43,6 +43,7 @@ import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.PointUtil;
 import com.raytheon.uf.common.monitor.xml.SCANModelParameterXML;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
@@ -106,6 +107,7 @@ public class FreezingLevel {
         // only for get data for hour 00z,06z,12z, or 18z
         int adjustedHour = (refTime.get(Calendar.HOUR_OF_DAY) / 6) * 6;
         refTime.set(Calendar.HOUR_OF_DAY, adjustedHour);
+        TimeUtil.minCalendarFields(refTime, Calendar.MINUTE, Calendar.SECOND, Calendar.MILLISECOND);
 
         // populates what ever is missing, sets prevalent forecast hour
         for (Entry<String, Integer> entry : getGHLevelMap().entrySet()) {
