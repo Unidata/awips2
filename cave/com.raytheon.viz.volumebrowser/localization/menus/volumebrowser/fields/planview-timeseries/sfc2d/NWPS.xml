@@ -19,44 +19,59 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="menuItem" menuText="Period1"
-        key="Period1" indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Period2"
-        key="Period2" indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Period3"
-        key="Period3" indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Period4"
-        key="Period4" indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Period5"
-        key="Period5" indentText="false" />    
-    <contribute xsi:type="menuItem" menuText="Period6"
-        key="Period6" indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Period7"
-        key="Period7" indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Period8"
-        key="Period8" indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Period9"
-        key="Period9" indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Period10"
-        key="Period10" indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Wave1"
-        key="Wave1" indentText="false" />
-	<contribute xsi:type="menuItem" menuText="Wave2"
-        key="Wave2" indentText="false" />
-	<contribute xsi:type="menuItem" menuText="Wave3"
-        key="Wave3" indentText="false" />
-	<contribute xsi:type="menuItem" menuText="Wave4"
-        key="Wave4" indentText="false" />
-	<contribute xsi:type="menuItem" menuText="Wave5"
-        key="Wave5" indentText="false" />
-	<contribute xsi:type="menuItem" menuText="Wave6"
-        key="Wave6" indentText="false" />
-	<contribute xsi:type="menuItem" menuText="Wave7"
-        key="Wave7" indentText="false" />
-	<contribute xsi:type="menuItem" menuText="Wave8"
-        key="Wave8" indentText="false" />
-	<contribute xsi:type="menuItem" menuText="Wave9"
-        key="Wave9" indentText="false" />
-	<contribute xsi:type="menuItem" menuText="Wave10"
-        key="Wave10" indentText="false" />
+	<contribute xsi:type="toolbarSubMenu" menuText="nwpsCG1">
+        <contribute xsi:type="menuItem" menuText="Sig Wave Hgt"
+        	key="HTSGW" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="Swell Hgt" key="SWELL"
+        	indentText="false" />
+        <contribute xsi:type="menuItem" menuText="Prim Wave Dir"
+        	key="dirPW" indentText="false" />
+    	<contribute xsi:type="menuItem" menuText="Prim Wave Pd"
+        	key="PERPW" indentText="false" />
+    </contribute>
+
+	<contribute xsi:type="toolbarSubMenu" menuText="nwpsTrkngCG0">
+        <contribute xsi:type="menuItem" menuText="Period1"
+        	key="Period1" indentText="false" />
+	    <contribute xsi:type="menuItem" menuText="Period2"
+	        key="Period2" indentText="false" />
+	    <contribute xsi:type="menuItem" menuText="Period3"
+	        key="Period3" indentText="false" />
+	    <contribute xsi:type="menuItem" menuText="Period4"
+	        key="Period4" indentText="false" />
+	    <contribute xsi:type="menuItem" menuText="Period5"
+	        key="Period5" indentText="false" />    
+	    <contribute xsi:type="menuItem" menuText="Period6"
+	        key="Period6" indentText="false" />
+	    <contribute xsi:type="menuItem" menuText="Period7"
+	        key="Period7" indentText="false" />
+	    <contribute xsi:type="menuItem" menuText="Period8"
+	        key="Period8" indentText="false" />
+	    <contribute xsi:type="menuItem" menuText="Period9"
+	        key="Period9" indentText="false" />
+	    <contribute xsi:type="menuItem" menuText="Period10"
+	        key="Period10" indentText="false" />
+	    <contribute xsi:type="menuItem" menuText="Wave1"
+	        key="Wave1" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Wave2"
+	        key="Wave2" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Wave3"
+	        key="Wave3" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Wave4"
+	        key="Wave4" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Wave5"
+	        key="Wave5" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Wave6"
+	        key="Wave6" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Wave7"
+	        key="Wave7" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Wave8"
+	        key="Wave8" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Wave9"
+	        key="Wave9" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Wave10"
+	        key="Wave10" indentText="false" />
+	    <contribute xsi:type="menuItem" menuText="Swell Hgt"
+	        key="SWELL" indentText="false" />
+	</contribute>
 </menuTemplate>
