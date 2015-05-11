@@ -35,6 +35,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 12, 2014 3521       bkowal      Initial creation
+ * Apr 20, 2015 4392       dlovely     Removed un-used JMX port configuration
  * 
  * </pre>
  * 
@@ -59,9 +60,6 @@ public class Wes2BridgeCase {
 
     @XmlElement
     private int qpidHttpPort;
-
-    @XmlElement
-    private int qpidJmxPort;
 
     @XmlElement
     private int jmsPort;
@@ -151,21 +149,6 @@ public class Wes2BridgeCase {
      */
     public void setQpidHttpPort(int qpidHttpPort) {
         this.qpidHttpPort = qpidHttpPort;
-    }
-
-    /**
-     * @return the qpidJmxPort
-     */
-    public int getQpidJmxPort() {
-        return qpidJmxPort;
-    }
-
-    /**
-     * @param qpidJmxPort
-     *            the qpidJmxPort to set
-     */
-    public void setQpidJmxPort(int qpidJmxPort) {
-        this.qpidJmxPort = qpidJmxPort;
     }
 
     /**
