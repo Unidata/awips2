@@ -17,6 +17,14 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+#
+# SOFTWARE HISTORY
+# Date            Ticket#        Engineer    Description
+# ------------    ----------     ----------- --------------------------
+# May 01, 2015    17421          ryu         Changed analysis methods for StormTotalSnow
+#
+##
+
 #-------------------------------------------------------------------------
 # Description: This product creates a ZFP-type series of text phrases 
 # for consecutive time periods for a list of edit areas. It can be 
@@ -475,7 +483,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             ("PoP", self._PoP_analysisMethod("Period_1"), [3]),
             ("PoP", self.binnedPercent, [3]),
             ("SnowAmt", self.accumMinMax),
-            ("StormTotalSnow", self.accumMinMax),
+            ("StormTotalSnow", self.minMax),
             ("IceAccum", self.accumMinMax),
             ("SnowLevel", self.avg),
             ("Wind", self.vectorMedianRange, [6]),
@@ -564,7 +572,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                        ("PoP", self._PoP_analysisMethod("Period_2_3"), [6]),
                        ("PoP", self.binnedPercent, [6]),
                        ("SnowAmt", self.accumMinMax),
-                       ("StormTotalSnow", self.accumMinMax),
+                       ("StormTotalSnow", self.minMax),
                        ("IceAccum", self.accumMinMax),
                        ("SnowLevel", self.avg),
                        ("Wind", self.vectorMedianRange, [6]),
@@ -791,7 +799,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                        ("PoP", self._PoP_analysisMethod("FirstFcstPeriod"), [6]),
                        ("PoP", self.binnedPercent, [6]),
                        ("SnowAmt", self.accumMinMax),
-                       ("StormTotalSnow", self.accumMinMax),
+                       ("StormTotalSnow", self.minMax),
                        ("IceAccum", self.accumMinMax),
                        ("SnowLevel", self.avg),
                        ("Wind", self.vectorMedianRange, [6]),
@@ -852,7 +860,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                        ("PoP", self._PoP_analysisMethod("AreaFcstPeriod"), [6]),
                        ("PoP", self.binnedPercent, [6]),
                        ("SnowAmt", self.accumMinMax),
-                       ("StormTotalSnow", self.accumMinMax),
+                       ("StormTotalSnow", self.minMax),
                        ("IceAccum", self.accumMinMax),
                        ("SnowLevel", self.avg),
                        ("Wind", self.vectorMedianRange, [6]),
