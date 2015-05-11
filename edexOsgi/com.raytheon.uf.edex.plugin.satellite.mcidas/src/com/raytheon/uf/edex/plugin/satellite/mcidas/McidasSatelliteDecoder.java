@@ -86,6 +86,8 @@ public class McidasSatelliteDecoder {
     private static final int EXPECTED_IMAGE_TYPE_LE = 4;
 
     private static final int EXPECTED_IMAGE_TYPE_BE = 0x04000000;
+    
+    private static final int RADIUS = 6371200;
 
     private static final double HALFPI = Math.PI / 2.;
 
@@ -189,7 +191,8 @@ public class McidasSatelliteDecoder {
         buf.getInt(); // comment cards
 
         long bandBits = ((long) bandMap33to64 << 32) | bandMap1to32;
-        if (nBands != Long.bitCount(bandBits)) {
+        long bandBitsCount =  Long.bitCount(bandBits);
+        if (nBands != bandBitsCount) {
             formatError("Specified number of bands does not match number of bits in band map");
         }
 
@@ -279,34 +282,40 @@ public class McidasSatelliteDecoder {
             int ulY, int nx, int ny, ByteBuffer buf) throws Exception {
         SatMapCoverage result = new SatMapCoverage();
         String navType = get4cc(buf);
+        int lineOfEquator = buf.getInt();
+        int elementOfEquator = buf.getInt();
+        int stdLatDDMMSS = buf.getInt();
+        int spacingAtStdLatInMeters = buf.getInt();
+        int nrmlLonDDMMSS = buf.getInt();
+
+        // NOTE: We do not check the following for compatibility with WGS84.
+        int radiusInMeters = buf.getInt();
+        /* int eccentricity = */buf.getInt();
+        /* boolean geodetic = */buf.getInt()/* >= 0 */;
+
+        boolean westPositive = buf.getInt() >= 0;
+        float la1, lo1, la2, lo2;
+        double dy;
+
+        /*
+         * The following is based on
+         * gov.noaa.nws.ncep.edex.plugin.mcidas/src
+         * /gov/noaa/nws/ncep/edex/plugin/mcidas/decoder/McidasDecoder.java
+         */
+
+        double clon = flipLon(unpackDdmmss(nrmlLonDDMMSS), westPositive);
+        double clat = unpackDdmmss(stdLatDDMMSS);
+        double dx = spacingAtStdLatInMeters * xImgRes;
+
+        double phi0r = clat * DTR;
+        double sign = 1.;
+        if (phi0r < 0.) {
+            sign = -1.;
+        }
+        double rxp = (((double) (elementOfEquator - ulX) / xImgRes) + 1.);
+        double ryp = (ny - ((double) (lineOfEquator - ulY) / yImgRes));
+        
         if (navType.equals("MERC")) {
-            int lineOfEquator = buf.getInt();
-            int elementOfEquator = buf.getInt();
-            int stdLatDDMMSS = buf.getInt();
-            int spacingAtStdLatInMeters = buf.getInt();
-            int nrmlLonDDMMSS = buf.getInt();
-
-            // NOTE: We do not check the following for compatibility with WGS84.
-            int radiusInMeters = buf.getInt();
-            /* int eccentricity = */buf.getInt();
-            /* boolean geodetic = */buf.getInt()/* >= 0 */;
-
-            boolean westPositive = buf.getInt() >= 0;
-            float la1, lo1, la2, lo2;
-
-            /*
-             * The following is based on
-             * gov.noaa.nws.ncep.edex.plugin.mcidas/src
-             * /gov/noaa/nws/ncep/edex/plugin/mcidas/decoder/McidasDecoder.java
-             */
-
-            double clon = flipLon(unpackDdmmss(nrmlLonDDMMSS), westPositive);
-            double clat = unpackDdmmss(stdLatDDMMSS);
-            double dx = spacingAtStdLatInMeters * xImgRes;
-
-            double phi0r = clat * DTR;
-            double rxp = (((double) (elementOfEquator - ulX) / xImgRes) + 1.);
-            double ryp = (ny - ((double) (lineOfEquator - ulY) / yImgRes));
 
             double dxp = 1. - rxp;
             double dyp = 1. - ryp;
@@ -326,6 +335,44 @@ public class McidasSatelliteDecoder {
             result = SatSpatialFactory.getInstance().getCoverageTwoCorners(
                     SatSpatialFactory.PROJ_MERCATOR, nx, ny, (float) clon,
                     (float) clat, la1, lo1, la2, lo2);
+            
+        } else if (navType.trim().equals("PS")) {
+        	
+        	dy = (float) spacingAtStdLatInMeters * yImgRes;
+        	double dxp = (1. - rxp) * dx;
+            double dyp = (1. - ryp) * dy;
+            double alpha = 1. + Math.sin(Math.abs(phi0r));
+            double rm = Math.sqrt(((dxp * dxp) + (dyp * dyp))) / alpha;
+            la1 = (float) (sign * ((HALFPI - (2. * Math.atan(rm / RADIUS)))) * RTD);
+            double thta;
+            if (dyp != 0) {
+                dyp = (-dyp) * sign;
+                thta = (Math.atan2(dxp, dyp)) * RTD;
+                lo1 = (float) prnlon((clon + thta));
+            } else {
+            	lo1 = (float) clon;
+            }
+
+            /*
+             * Compute lat/lon of the upper-right corner
+             */
+            dxp = (nx - rxp) * dx;
+            dyp = (ny - ryp) * dy;
+            rm = Math.sqrt(((dxp * dxp) + (dyp * dyp))) / alpha;
+            la2 = (float) (sign * ((HALFPI - (2. * Math.atan(rm / RADIUS)))) * RTD);
+
+            if (dyp != 0) {
+                dyp = (-dyp) * sign;
+                thta = (Math.atan2(dxp, dyp)) * RTD;
+                lo2 = (float) prnlon((clon + thta));
+            } else {
+            	lo2 = (float) clon;
+            }
+        	
+            result = SatSpatialFactory.getInstance().getCoverageTwoCorners(
+                    SatSpatialFactory.PROJ_POLAR, nx, ny, (float) clon,
+                    (float) clat, la1, lo1, la2, lo2);
+            	
         } else {
             unimplemented(String.format("navigation type \"%s\"", navType));
         }
