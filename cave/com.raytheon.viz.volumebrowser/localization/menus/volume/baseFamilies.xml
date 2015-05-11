@@ -27,14 +27,14 @@
 			<substitute key="frameCount" value="41"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-			menuText="GFS 40km" id="GFS-40km" useReferenceTime="true">
-			<substitute key="modelName" value="GFS212"/> 
+			menuText="GFS 40km" id="gfs40" useReferenceTime="true">
+			<substitute key="modelName" value="GFS-40km"/> 
 			<substitute key="TP" value="TP"/>
 			<substitute key="frameCount" value="41"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
 			menuText="DGEX" id="DGEX" useReferenceTime="true">
-			<substitute key="modelName" value="DGEX185"/>
+			<substitute key="modelName" value="DGEX"/>
 			<substitute key="TP" value="TP"/>
 			<substitute key="frameCount" value="41"/>
 		</contribute>
@@ -69,7 +69,7 @@
 			<substitute key="frameCount" value="16"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-			menuText="FNMOC - NAVGEM" id="NAVGEM" useReferenceTime="true">
+			menuText="NAVGEM" id="NAVGEM" useReferenceTime="true">
 			<substitute key="modelName" value="NAVGEM"/> 
 			<substitute key="TP" value="TP"/>
 			<substitute key="frameCount" value="41"/>
@@ -87,11 +87,11 @@
 			<substitute key="frameCount" value="16"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-			menuText="UKMET-MODEL1" id="UKMET-MODEL1" useReferenceTime="true">
-			<substitute key="modelName" value="UKMET-MODEL1"/> 
-			<substitute key="TP" value="TP"/>
-			<substitute key="frameCount" value="13"/>
-		</contribute>
+                        menuText="URMA" id="URMA" useReferenceTime="true">
+                        <substitute key="modelName" value="URMA25"/>
+                        <substitute key="TP" value="TP1hr"/>
+                        <substitute key="frameCount" value="16"/>
+                </contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
 			menuText="NDFD" id="NDFD" useReferenceTime="true">
 			<substitute key="modelName" value="NDFD"/> 
