@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -35,6 +35,7 @@ import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IFont;
@@ -59,17 +60,18 @@ import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * Resource for Center Weather Advisory
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 4, 2010             jsanchez     Initial creation
  * Jun 10,2011  9744       cjeanbap     Added Magnification, Outline, and Density
  *                                      compabilities.
+ * May 11, 2015 4379       nabowle      Display all current CWAs for each frame.
  * </pre>
- * 
+ *
  * @author jsanchez
  * @version 1.0
  */
@@ -95,6 +97,16 @@ public class CWAResource extends
 
     private static final String CWA_NAME = "Conus Center Weather Advisory";
 
+    private static final String ID = "id";
+
+    private static final String DATA_TIME = "dataTime";
+
+    private static final String REF_TIME = "refTime";
+
+    private static final String END = DATA_TIME + ".validPeriod.end";
+
+    private static final String START = DATA_TIME + ".validPeriod.start";
+
     private IFont font;
 
     private class CWAFrame implements IRenderable {
@@ -102,21 +114,20 @@ public class CWAResource extends
 
         private PointDataContainer pdc;
 
+        private List<PointDataView> framePdvs;
+
         private IWireframeShape wfs;
 
         private List<DrawableString> strings;
 
-        private List<CWARecord> recordsToParse;
-
         private CWAFrame(DataTime time) {
             this.time = time;
             strings = new ArrayList<DrawableString>();
-            recordsToParse = new ArrayList<CWARecord>();
         }
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see
          * com.raytheon.uf.viz.core.drawables.IRenderable#paint(com.raytheon
          * .uf.viz.core.IGraphicsTarget,
@@ -125,7 +136,7 @@ public class CWAResource extends
         @Override
         public void paint(IGraphicsTarget target, PaintProperties paintProps)
                 throws VizException {
-            synchronized (recordsToParse) {
+            synchronized (this) {
                 if (wfs == null) {
                     updateFrame(target, paintProps);
                 }
@@ -147,30 +158,31 @@ public class CWAResource extends
             target.drawStrings(strings);
         }
 
-        public void addRecord(CWARecord record) {
-            synchronized (recordsToParse) {
-                recordsToParse.add(record);
-            }
-        }
-
         /**
          * @param target
          * @param paintProps
          */
         private void updateFrame(IGraphicsTarget target,
                 PaintProperties paintProps) throws VizException {
-            RequestConstraint constraint = new RequestConstraint();
             Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>();
-            PointDataContainer pdc;
+            String startTime = TimeUtil.formatToSqlTimestamp(time.getRefTime());
 
-            for (CWARecord record : recordsToParse) {
-                constraint.setConstraintType(ConstraintType.IN);
-                constraint.addToConstraintValueList(record.getDataURI());
-            }
-            constraints.put("dataURI", constraint);
+            // Select CWAs whose valid period contains this frame's start time.
+            RequestConstraint constraint = new RequestConstraint();
+            constraint.setConstraintType(ConstraintType.LESS_THAN_EQUALS);
+            constraint.setConstraintValue(startTime);
+            constraints.put(START, constraint);
+
+            constraint = new RequestConstraint();
+            constraint.setConstraintType(ConstraintType.GREATER_THAN_EQUALS);
+            constraint.setConstraintValue(startTime);
+            constraints.put(END, constraint);
+
             // Request the point data
-            pdc = PointDataRequest.requestPointDataAllLevels(time, resourceData
-                    .getMetadataMap().get("pluginName").getConstraintValue(),
+            PointDataContainer pdc = PointDataRequest
+                    .requestPointDataAllLevels((DataTime) null,
+                    resourceData.getMetadataMap().get("pluginName")
+                            .getConstraintValue(),
                     getParameters(), null, constraints);
 
             if (this.pdc == null) {
@@ -178,6 +190,7 @@ public class CWAResource extends
             } else {
                 this.pdc.combine(pdc);
                 this.pdc.setCurrentSz(this.pdc.getAllocatedSz());
+                this.framePdvs = null;
             }
 
             if (wfs != null) {
@@ -186,9 +199,12 @@ public class CWAResource extends
             strings.clear();
 
             wfs = target.createWireframeShape(false, descriptor);
-            for (int uriCounter = 0; uriCounter < pdc.getAllocatedSz(); uriCounter++) {
-                PointDataView pdv = pdc.readRandom(uriCounter);
 
+            if (this.framePdvs == null) {
+                this.framePdvs = getPDVs();
+            }
+
+            for (PointDataView pdv : this.framePdvs) {
                 Coordinate rightMost = new Coordinate(-9999, 0);
                 int numOfPoints = pdv.getNumber(NUM_OF_POINTS).intValue();
                 Number[] latitudes = pdv.getNumberAllLevels(LATS);
@@ -228,6 +244,46 @@ public class CWAResource extends
             wfs.compile();
         }
 
+        /**
+         * Get the list of PointDataViews. PointDataViews that share an event id
+         * will be deduplicated to the most recent record for that event id.
+         *
+         * @return The list of PointDataViews.
+         * @throws VizException
+         */
+        private List<PointDataView> getPDVs() throws VizException {
+            Map<String, PointDataView> eventIdMap = new HashMap<>();
+            PointDataView pdv;
+            PointDataView pdv2;
+            String eventId;
+            for (int uriCounter = 0; uriCounter < pdc.getAllocatedSz(); uriCounter++) {
+                pdv = pdc.readRandom(uriCounter);
+                eventId = pdv.getString(EVENT_ID);
+
+                /*
+                 * CWAs may be updated and reissued with the same eventId. In
+                 * this case, display only the latest CWA for that eventId for
+                 * this frame so we don't end up with overlapping and/or
+                 * outdated CWAs. Outdated CWAs will still be the most recent
+                 * for their eventId the frame at their reftime.
+                 */
+                /*
+                 * FIXME - outdated CWAs may still be viewable on future frames
+                 * if the validTo date was shortened.
+                 */
+                pdv2 = eventIdMap.get(eventId);
+                if (pdv2 == null
+                        || pdv.getLong(REF_TIME) > pdv2.getLong(REF_TIME)) {
+                    eventIdMap.put(eventId, pdv);
+                }
+            }
+
+            List<PointDataView> pdvs = new ArrayList<>();
+            pdvs.addAll(eventIdMap.values());
+
+            return pdvs;
+        }
+
         public void dispose() {
             if (wfs != null) {
                 wfs.dispose();
@@ -249,7 +305,7 @@ public class CWAResource extends
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.raytheon.uf.viz.core.rsc.AbstractVizResource#paintInternal(com.raytheon
      * .uf.viz.core.IGraphicsTarget,
@@ -299,9 +355,7 @@ public class CWAResource extends
             return "NO DATA";
         }
 
-        for (int uriCounter = 0; uriCounter < frame.pdc.getAllocatedSz(); uriCounter++) {
-            PointDataView pdv = frame.pdc.readRandom(uriCounter);
-
+        for (PointDataView pdv : frame.framePdvs) {
             Coordinate rightMost = new Coordinate(-9999, 0);
             int numOfPoints = pdv.getNumber(NUM_OF_POINTS).intValue();
             Number[] latitudes = pdv.getNumberAllLevels(LATS);
@@ -323,6 +377,16 @@ public class CWAResource extends
                 }
                 temp[numOfPoints] = temp[0];
                 coordinates = temp;
+            }
+
+            /*
+             * FIXME - quick fix for 3-point lines since you can't create a
+             * linear ring from the line. Adding a fourth point doesn't add
+             * value since contains() will return false, or at least did while
+             * testing.
+             */
+            if (coordinates.length < 4) {
+                continue;
             }
 
             // GeometryFactory factory = new GeometryFactory();
@@ -369,7 +433,7 @@ public class CWAResource extends
 
     /**
      * Adds a new record to this resource
-     * 
+     *
      * @param obj
      */
     protected void addRecord(CWARecord obj) {
@@ -380,13 +444,12 @@ public class CWAResource extends
                 frame = new CWAFrame(dataTime);
                 frameMap.put(dataTime, frame);
             }
-            frame.addRecord(obj);
         }
     }
 
     private String[] getParameters() {
         return new String[] { LATS, LONS, EVENT_ID, DIMENSION, TEXT,
-                NUM_OF_POINTS };
+                NUM_OF_POINTS, REF_TIME };
     }
 
     public class CoordinateComparator implements Comparator<Coordinate> {
@@ -403,7 +466,7 @@ public class CWAResource extends
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.raytheon.uf.viz.core.rsc.IResourceDataChanged#resourceChanged(com
      * .raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType,
@@ -424,7 +487,7 @@ public class CWAResource extends
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.raytheon.uf.viz.core.rsc.AbstractVizResource#project(org.opengis.
      * referencing.crs.CoordinateReferenceSystem)
