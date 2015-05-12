@@ -11,7 +11,9 @@ function addNewTafColumns {
       echo "ALTER TABLE taf ADD COLUMN corindicator_temp boolean NOT NULL DEFAULT false;" >> $SQL_FILE
       echo "ALTER TABLE taf ADD COLUMN amdindicator_temp boolean NOT NULL DEFAULT false;" >> $SQL_FILE
       echo "UPDATE taf set corindicator_temp = true where corindicator = 'COR';" >> $SQL_FILE
+      echo "UPDATE taf set corindicator_temp = true where corindicator = 'true';" >> $SQL_FILE
       echo "UPDATE taf set amdindicator_temp = true where amdindicator = 'AMD';" >> $SQL_FILE
+      echo "UPDATE taf set amdindicator_temp = true where amdindicator = 'true';" >> $SQL_FILE
 
       ${PSQL} -U awips -d metadata -f $SQL_FILE
       if [ $? -ne 0 ]; then
@@ -33,7 +35,7 @@ function deleteTafData {
       temp="_temp"
    fi
 
-   query="SELECT distinct b.id FROM taf a, taf b WHERE (a.reftime = b.reftime AND a.stationid = b.stationid AND a.corindicator$temp = b.corindicator$temp AND a.amdindicator$temp = b.amdindicator$temp AND a.issue_timestring = b.issue_timestring AND a.inserttime < b.inserttime) or (b.reftime isnull) or (b.stationid isnull) or (b.issue_timestring isnull)"
+   query="SELECT distinct b.id FROM taf a, taf b WHERE (a.reftime = b.reftime AND a.stationid = b.stationid AND a.corindicator$temp = b.corindicator$temp AND a.amdindicator$temp = b.amdindicator$temp AND a.issue_timestring = b.issue_timestring AND ((a.inserttime < b.inserttime) or (a.inserttime = b.inserttime and a.id < b.id))) or (b.reftime isnull) or (b.stationid isnull) or (b.issue_timestring isnull)"
 
    echo "   INFO: Finding taf entries to delete"
    result=(`${PSQL} -U awips -d metadata -t -A -c "$query"`)
@@ -51,10 +53,10 @@ function deleteTafData {
       fi
 
       # handle cascade tables
-      query="SELECT distinct id from taf_change_groups where parentid in ($taf_ids)"
+      echo "SELECT distinct id from taf_change_groups where parentid in ($taf_ids)" > $SQL_FILE
 
       echo "   INFO: Finding cascaded taf_change_group entries"
-      result=(`${PSQL} -U awips -d metadata -t -A -c "$query"`)
+      result=(`${PSQL} -U awips -d metadata -t -A -f $SQL_FILE`)
 
       numEntries="${#result[@]}"
 
