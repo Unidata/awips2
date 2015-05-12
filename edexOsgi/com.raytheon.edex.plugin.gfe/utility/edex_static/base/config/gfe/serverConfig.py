@@ -51,8 +51,8 @@
 #    04/03/2015          #4367     dgilling       Change WindGust's time constraints back to TC1 
 #                                                 for Fcst/Official.
 #    04/15/2015          #17383    yteng          Change localTC to fix error that time constraints
-# 						  being off
-# 						                          being off
+#                         being off
+#                                                 being off
 #    04/20/2015          #4414     dgilling       Add missing NWPSTrkngCG0 weather elements.
 #
 ########################################################################
@@ -1947,8 +1947,8 @@ OFFICIALDBS = [([Temp, Td, Wind, NWPSwind, Weather, Sky, FzLevel, SnowLevel], TC
           ([PoP, Ttrend, RHtrend, Wind20ft, WindGust], TC1),
           ([MinT], MinTTC), ([MaxT], MaxTTC),
           ([MinRH], MinRHTC), ([MaxRH], MaxRHTC),
-          ([WaveHeight, SurfHeight, Swell, Swell2, Period], TC3NG),
-          ([WindWaveHeight, SwanSwell, Wave1, Wave2, Wave3, Wave4, Wave5, Wave6, Wave7, Wave8, Wave9, Wave10, Period1, Period2, Period3, Period4, Period5, Period6, Period7, Period8, Period9, Period10], TC3NG),
+#          ([WaveHeight, SurfHeight, Swell, Swell2, Period], TC3NG), DR 17496 - this is appended below
+          ([SwanSwell, Wave1, Wave2, Wave3, Wave4, Wave5, Wave6, Wave7, Wave8, Wave9, Period1, Period2, Period3, Period4, Period5, Period6, Period7, Period8, Period9], TC3NG),
           ([VentRate, LAL, Haines, MixHgt, FreeWind, TransWind], TC1),
           ([DSI, Stability, MarineLayer], TC1),
           ([HrsOfSun, InvBurnOffTemp], LT24),
@@ -1969,6 +1969,13 @@ OFFICIALDBS = [([Temp, Td, Wind, NWPSwind, Weather, Sky, FzLevel, SnowLevel], TC
           ([cape], LT6NG),
           ([ApparentT, HeatIndex, WindChill, UWaveDir, VWaveDir, LkSfcT, SnowMap, WaveDir, SnowRatio, StormTotalQPF], TC1),
           ]
+
+# Add wind/wave paramters based of site ID - DR 17496
+if SID in GreatLake_SITES:
+    OFFICIALDBS.append(([WaveHeight, WindWaveHeight, SurfHeight, Swell, Swell2, Period], TC1))
+else:
+    OFFICIALDBS.append(([WaveHeight, WindWaveHeight, SurfHeight, Swell, Swell2, Period], TC3NG))
+# End addition for DR 17496
 
 # NWPS
 nwpsCG1_MODEL = [([SwanSwell, Period, WaveHeight, WindWaveHeight, Wind], TC3NG)]
