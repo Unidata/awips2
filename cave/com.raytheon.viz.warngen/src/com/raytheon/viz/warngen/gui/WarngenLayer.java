@@ -236,6 +236,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 02/09/2015  3954        dlovely     Only draw "W" if the county is displayed.
  * 02/25/2014  3353        rjpeter     Fix synchronized use case, updated to not create dialog before init is finished.
  * 04/24/2015  ASM #17394  D. Friedman Fix geometries that become invalid in local coordinate space.
+ * 05/08/2015  ASM #17310  D. Friedman Log input polygon when output of AreaHatcher is invalid.
  * </pre>
  * 
  * @author mschenke
@@ -575,6 +576,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         outputHatchedWarningArea = createWarnedArea(
                                 latLonToLocal(outputHatchedArea),
                                 latLonToLocal(warningArea));
+                        if (! outputHatchedArea.isValid()) {
+                            statusHandler.debug(String.format("Input %s redrawn to invalid %s",
+                                    inputWarningPolygon, outputHatchedArea));
+                        }
                     }
                     this.hatchedArea = outputHatchedArea;
                     this.hatchedWarningArea = outputHatchedWarningArea;
