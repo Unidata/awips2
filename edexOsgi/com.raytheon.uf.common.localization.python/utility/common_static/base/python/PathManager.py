@@ -45,7 +45,7 @@ from LockingFile import File
 from com.raytheon.uf.common.localization import PathManagerFactory
 from com.raytheon.uf.common.localization import LocalizationContext as JavaLocalizationContext
 LocalizationType = JavaLocalizationContext.LocalizationType
-LocalizationLevel = JavaLocalizationLevel.LocalizationLevel
+LocalizationLevel = JavaLocalizationContext.LocalizationLevel
 from java.io import File as JavaFile
 from java.lang import String
 
