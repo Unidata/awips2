@@ -166,6 +166,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 01/28/2015  #4018       randerso    Code cleanup.
  * 02/04/2014  17039       ryu         Removed menu item related to the HighlighFramingCodes feature.
  * 04/20/2015   4027       randerso    Renamed ProductStateEnum with an initial capital
+ *                                     Expunged Calendar from ActiveTableRecord
  * </pre>
  * 
  * @author lvenable
@@ -1388,7 +1389,7 @@ public class ProductEditorComp extends Composite implements
                         // check if the segment is still valid
                         int started = 0;
                         for (ActiveTableRecord atr : activeRecs) {
-                            if (atr.getStartTime().getTimeInMillis() <= transmissionTime
+                            if (atr.getStartTime().getTime() <= transmissionTime
                                     .getTime()) {
                                 started++;
                             }
@@ -1420,7 +1421,7 @@ public class ProductEditorComp extends Composite implements
                             for (ActiveTableRecord r : activeRecs) {
                                 // need to change the action to CON if
                                 // the end time did not change
-                                if (r.getEndTime().getTimeInMillis() == vtecEnd
+                                if (r.getEndTime().getTime() == vtecEnd
                                         .getTime()) {
                                     if (!newActions.contains("CON")) {
                                         newActions.add("CON");

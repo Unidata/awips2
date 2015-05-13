@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.common.activetable.request;
 
-import java.util.Calendar;
+import java.util.Date;
 
 import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -37,6 +37,7 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
  * ------------ ---------- ----------- --------------------------
  * Aug 19, 2013  #1843     dgilling     Initial creation
  * Oct 21, 2013  #1843     dgilling     Add ETN override field.
+ * Apr 28, 2015  #4027     randerso     Expunged Calendar from ActiveTableRecord
  * 
  * </pre>
  * 
@@ -60,7 +61,7 @@ public class LockAndGetNextEtnRequest implements IServerRequest {
     private String phensig;
 
     @DynamicSerializeElement
-    private Calendar currentTime;
+    private Date currentTime;
 
     @DynamicSerializeElement
     private Integer etnOverride;
@@ -70,12 +71,12 @@ public class LockAndGetNextEtnRequest implements IServerRequest {
     }
 
     public LockAndGetNextEtnRequest(String siteID, String requestorSiteID,
-            ActiveTableMode mode, String phensig, Calendar currentTime) {
+            ActiveTableMode mode, String phensig, Date currentTime) {
         this(siteID, requestorSiteID, mode, phensig, currentTime, null);
     }
 
     public LockAndGetNextEtnRequest(String siteID, String requestorSiteID,
-            ActiveTableMode mode, String phensig, Calendar currentTime,
+            ActiveTableMode mode, String phensig, Date currentTime,
             Integer etnOverride) {
         this.siteID = siteID;
         this.requestorSiteID = requestorSiteID;
@@ -117,11 +118,11 @@ public class LockAndGetNextEtnRequest implements IServerRequest {
         this.phensig = phensig;
     }
 
-    public Calendar getCurrentTime() {
+    public Date getCurrentTime() {
         return currentTime;
     }
 
-    public void setCurrentTime(Calendar currentTime) {
+    public void setCurrentTime(Date currentTime) {
         this.currentTime = currentTime;
     }
 

@@ -30,6 +30,7 @@
 #    01/24/14        2504          randerso       change to use iscUtil.getLogger for consistency
 #    05/15/14        #3157         dgilling       Support multiple TPC and SPC sites.
 #    03/10/2015      #4129         randerso       Refactored server selection code into a reusable method
+#    04/28/2015      #4027         randerso       Expunged Calendar from ActiveTableRecord
 # 
 #
 
@@ -100,7 +101,7 @@ def execute_request_at(serverHost, serverPort, serverProtocol, mhsid, siteID, an
           rec.getOfficeid() not in otherSites:
             continue
 
-        recIssueTime = float(rec.getIssueTime().getTimeInMillis() / TimeUtil.MILLIS_PER_SECOND)
+        recIssueTime = float(rec.getIssueTime().getTime() / TimeUtil.MILLIS_PER_SECOND)
         #track latest
         issueTime = max(recIssueTime, issueTime)
 

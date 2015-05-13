@@ -26,11 +26,12 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.rmi.RemoteException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.SortedMap;
+import java.util.TimeZone;
 import java.util.TreeMap;
 
 import com.raytheon.edex.site.SiteUtil;
@@ -75,6 +77,7 @@ import com.raytheon.uf.edex.requestsrv.router.RemoteServerRequestRouter;
  * ------------ ---------- ----------- --------------------------
  * Aug 29, 2013  #1843     dgilling     Initial creation
  * Dec 18, 2013  #2641     dgilling     Fix ClusterTask locking.
+ * Apr 28, 2015  #4027     randerso     Expunged Calendar from ActiveTableRecord
  * 
  * </pre>
  * 
@@ -118,7 +121,7 @@ public final class GetNextEtnUtil {
      *            The phenomenon and significance combination (e.g., TO.W or
      *            DU.Y).
      * @param currentTime
-     *            <code>Calendar</code> representing time (needed for DRT mode).
+     *            <code>Date</code> representing time (needed for DRT mode).
      * @param isLock
      *            Whether or not to return a unique ETN--one that has not and
      *            cannot be used by any other requestor.
@@ -142,7 +145,7 @@ public final class GetNextEtnUtil {
      *         and any hosts that couldn't be contacted during this process.
      */
     public static GetNextEtnResponse getNextEtn(String siteId,
-            ActiveTableMode mode, String phensig, Calendar currentTime,
+            ActiveTableMode mode, String phensig, Date currentTime,
             boolean isLock, boolean performISC, boolean reportConflictOnly,
             Integer etnOverride) {
         SortedMap<String, IRequestRouter> hostsToQuery = new TreeMap<String, IRequestRouter>();
@@ -271,7 +274,7 @@ public final class GetNextEtnUtil {
      *            The phenomenon and significance combination (e.g., TO.W or
      *            DU.Y).
      * @param currentTime
-     *            <code>Calendar</code> representing time (needed for DRT mode).
+     *            <code>Date</code> representing time (needed for DRT mode).
      * @param isLock
      *            Whether or not to actually obtain the cluster task lock. Not
      *            needed if only determining a preliminary ETN. Required to be
@@ -284,7 +287,7 @@ public final class GetNextEtnUtil {
      * @return The next ETN to be used in sequence.
      */
     public static int lockAndGetNextEtn(String siteId, ActiveTableMode mode,
-            String phensig, Calendar currentTime, boolean isLock,
+            String phensig, Date currentTime, boolean isLock,
             Integer etnOverride) {
         String lockName = getEtnClusterLockName(siteId, mode);
         ClusterTask ct = null;
@@ -306,7 +309,9 @@ public final class GetNextEtnUtil {
 
         int sysNextEtn = -1;
         if (etnOverride == null) {
-            String year = Integer.toString(currentTime.get(Calendar.YEAR));
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
+            sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+            String year = sdf.format(currentTime);
             String eInfo = ct.getExtraInfo();
 
             statusHandler.info("ClusterTask Lock info: " + eInfo);
@@ -342,16 +347,20 @@ public final class GetNextEtnUtil {
      * @param phensig
      *            The phenomenon and significance combination (e.g., TO.W or
      *            DU.Y).
-     * @param year
-     *            Year the next ETN is effective for.
+     * @param currentTime
+     *            <code>Date</code> used to determine year for ETN.
      * @param nextEtn
      *            The ETN to persist.
      */
     public static void setNextEtnAndUnlock(String siteId, ActiveTableMode mode,
-            String phensig, int year, int nextEtn) {
+            String phensig, Date currentTime, int nextEtn) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+        String year = sdf.format(currentTime);
+
         String lockName = getEtnClusterLockName(siteId, mode);
-        ClusterLockUtils.updateExtraInfo(lockName, phensig,
-                Integer.toString(year) + ":" + nextEtn);
+        ClusterLockUtils.updateExtraInfo(lockName, phensig, year + ":"
+                + nextEtn);
         ClusterLockUtils.unlock(lockName, phensig);
         statusHandler.info("Unlocking::[nextEtn = " + nextEtn + "]");
     }
@@ -369,20 +378,19 @@ public final class GetNextEtnUtil {
      *            The phenomenon and significance combination (e.g., TO.W or
      *            DU.Y).
      * @param currentTime
-     *            <code>Calendar</code> representing time (needed for DRT mode).
+     *            <code>Date</code> representing time (needed for DRT mode).
      * @param isLock
      *            Whether or not to return a unique ETN--one that has not and
      *            cannot be used by any other requestor.
      * @return The next ETN to be used in sequence.
      */
     public static Integer getNextEtnFromLocal(String siteId,
-            ActiveTableMode mode, String phensig, Calendar currentTime,
+            ActiveTableMode mode, String phensig, Date currentTime,
             boolean isLock) {
         int nextEtn = lockAndGetNextEtn(siteId, mode, phensig, currentTime,
                 isLock, null);
         if (isLock) {
-            setNextEtnAndUnlock(siteId, mode, phensig,
-                    currentTime.get(Calendar.YEAR), nextEtn);
+            setNextEtnAndUnlock(siteId, mode, phensig, currentTime, nextEtn);
         }
         return nextEtn;
     }
@@ -405,7 +413,7 @@ public final class GetNextEtnUtil {
      *            The phenomenon and significance combination (e.g., TO.W or
      *            DU.Y).
      * @param currentTime
-     *            <code>Calendar</code> representing time (needed for DRT mode).
+     *            <code>Date</code> representing time (needed for DRT mode).
      * @param hostsToQuery
      *            The remote hosts to query. This should also include the local
      *            EDEX instance initiating this operation.
@@ -424,7 +432,7 @@ public final class GetNextEtnUtil {
      * @throws UnknownHostException
      */
     public static GetNextEtnResponse getNextEtnFromPartners(String siteId,
-            ActiveTableMode mode, String phensig, Calendar currentTime,
+            ActiveTableMode mode, String phensig, Date currentTime,
             SortedMap<String, IRequestRouter> hostsToQuery,
             boolean reportConflictOnly, Integer etnOverride) {
         Queue<Entry<String, IRequestRouter>> unlockQueue = Collections
@@ -474,8 +482,7 @@ public final class GetNextEtnUtil {
         }
 
         IServerRequest unlockReq = new UnlockAndSetNextEtnRequest(siteId,
-                mySiteId, mode, currentTime.get(Calendar.YEAR), phensig,
-                nextEtn);
+                mySiteId, mode, currentTime, phensig, nextEtn);
         for (Entry<String, IRequestRouter> host : unlockQueue) {
             IRequestRouter router = host.getValue();
             try {

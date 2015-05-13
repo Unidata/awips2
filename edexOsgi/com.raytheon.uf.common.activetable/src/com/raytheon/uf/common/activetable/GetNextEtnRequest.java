@@ -19,14 +19,14 @@
  **/
 package com.raytheon.uf.common.activetable;
 
-import java.util.Calendar;
+import java.util.Date;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.serialization.comm.IServerRequest;
 
 /**
- * TODO Add Description
+ * Request for next ETN in the sequence
  * 
  * <pre>
  * 
@@ -36,6 +36,7 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
  * Feb 14, 2011            rjpeter     Initial creation
  * Oct 21, 2013  #1843     dgilling    Add performISC and reportConflictOnly
  *                                     fields, proper constructors.
+ * Apr 28, 2015  #4027     randerso    Expunged Calendar from ActiveTableRecord
  * 
  * </pre>
  * 
@@ -55,7 +56,7 @@ public class GetNextEtnRequest implements IServerRequest {
     private String phensig;
 
     @DynamicSerializeElement
-    private Calendar currentTime;
+    private Date currentTime;
 
     @DynamicSerializeElement
     private boolean lockEtn;
@@ -84,7 +85,7 @@ public class GetNextEtnRequest implements IServerRequest {
      *            The phenomenon and significance of the hazard concatenated
      *            with a '.' (e.g., TO.W or DU.Y)
      * @param currentTime
-     *            <code>Calendar</code> representing time (needed for DRT mode).
+     *            <code>Date</code> representing time (needed for DRT mode).
      * @param lockEtn
      *            Whether or not to request an exclusive ETN--if true, this will
      *            cause the server to increment its running ETN sequence to the
@@ -95,7 +96,7 @@ public class GetNextEtnRequest implements IServerRequest {
      *            GetNextEtnRequest.
      */
     public GetNextEtnRequest(String siteID, ActiveTableMode mode,
-            String phensig, Calendar currentTime, boolean lockEtn) {
+            String phensig, Date currentTime, boolean lockEtn) {
         this(siteID, mode, phensig, currentTime, lockEtn, false, false, null);
     }
 
@@ -110,7 +111,7 @@ public class GetNextEtnRequest implements IServerRequest {
      *            The phenomenon and significance of the hazard concatenated
      *            with a '.' (e.g., TO.W or DU.Y)
      * @param currentTime
-     *            <code>Calendar</code> representing time (needed for DRT mode).
+     *            <code>Date</code> representing time (needed for DRT mode).
      * @param lockEtn
      *            Whether or not to request an exclusive ETN--if true, this will
      *            cause the server to increment its running ETN sequence to the
@@ -123,7 +124,7 @@ public class GetNextEtnRequest implements IServerRequest {
      *            Whether or not to collaborate with neighboring sites to
      *            determine the next ETN. See {@link
      *            GetNextEtnUtil#getNextEtnFromPartners(String, ActiveTableMode,
-     *            String, Calendar, List<IRequestRouter>)} for more information.
+     *            String, Date, List<IRequestRouter>)} for more information.
      * @param reportConflictOnly
      *            Affects which kinds of errors get reported back to the
      *            requestor. If true, only cases where the value of
@@ -136,7 +137,7 @@ public class GetNextEtnRequest implements IServerRequest {
      *            used by this site or one of its partners.
      */
     public GetNextEtnRequest(String siteID, ActiveTableMode mode,
-            String phensig, Calendar currentTime, boolean lockEtn,
+            String phensig, Date currentTime, boolean lockEtn,
             boolean performISC, boolean reportConflictOnly, Integer etnOverride) {
         this.siteID = siteID;
         this.mode = mode;
@@ -180,11 +181,11 @@ public class GetNextEtnRequest implements IServerRequest {
         this.lockEtn = lockEtn;
     }
 
-    public Calendar getCurrentTime() {
+    public Date getCurrentTime() {
         return currentTime;
     }
 
-    public void setCurrentTime(Calendar currentTime) {
+    public void setCurrentTime(Date currentTime) {
         this.currentTime = currentTime;
     }
 
