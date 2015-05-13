@@ -85,6 +85,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *                                      /missing (part of state, state abbreviation) which resulted from 
  *                                      extension of a watch to counties which are of same/different fe_area.  
  * Sep 25, 2014 ASM #16783 D. Friedman  Do not use VTEC action to determine Watch uniqueness.
+ * Apr 28, 2015 RODO #4027 randerso     Expunged Calendar from ActiveTableRecord
  * </pre>
  * 
  * @author jsanchez
@@ -324,12 +325,12 @@ public class WatchUtil {
              * fixed the underlying system. request.addConstraint("act", new
              * RequestConstraint("CAN", ConstraintType.NOT_EQUALS));
              */
-            if (action != WarningAction.CAN && action != WarningAction.EXP) {
+            if ((action != WarningAction.CAN) && (action != WarningAction.EXP)) {
                 ActiveTableRecord record = entityClass.newInstance();
-                record.setIssueTime((Calendar) result.get(ISSUE_TIME_FIELD));
-                record.setStartTime((Calendar) result.get(START_TIME_FIELD));
-                record.setEndTime((Calendar) result.get(END_TIME_FIELD));
-                record.setEndTime((Calendar) result.get(END_TIME_FIELD));
+                record.setIssueTime((Date) result.get(ISSUE_TIME_FIELD));
+                record.setStartTime((Date) result.get(START_TIME_FIELD));
+                record.setEndTime((Date) result.get(END_TIME_FIELD));
+                record.setEndTime((Date) result.get(END_TIME_FIELD));
                 record.setUgcZone(String.valueOf(result.get(UGC_ZONE_FIELD)));
                 record.setPhensig(String.valueOf(result.get(PHEN_SIG_FIELD)));
                 record.setEtn(String.valueOf(result.get(ETN)));
@@ -348,10 +349,12 @@ public class WatchUtil {
             }
         }
 
-        // remove ActiveTableRecord from records whose etn, ugcZone, and phensig is same as 
-        // canceled or expired.
+        /*
+         * remove ActiveTableRecord from records whose etn, ugcZone, and phensig
+         * is same as canceled or expired.
+         */
         String etn, ugczone, phensig;
-        for (Pair<String, String> etnPhensig: removedUgczones.keySet()) {
+        for (Pair<String, String> etnPhensig : removedUgczones.keySet()) {
             ugczones = removedUgczones.get(etnPhensig);
             etn = etnPhensig.getFirst();
             phensig = etnPhensig.getSecond();
@@ -361,8 +364,9 @@ public class WatchUtil {
                 Iterator<ActiveTableRecord> iterator = records.iterator();
                 while (iterator.hasNext()) {
                     ActiveTableRecord atr = iterator.next();
-                    if (atr.getEtn().equals(etn) && atr.getUgcZone().equals(ugczone) &&
-                            atr.getPhensig().equals(phensig)) {
+                    if (atr.getEtn().equals(etn)
+                            && atr.getUgcZone().equals(ugczone)
+                            && atr.getPhensig().equals(phensig)) {
                         iterator.remove();
                     }
                 }
@@ -371,9 +375,12 @@ public class WatchUtil {
 
         Collections.sort(records, PEUI);
 
-        // Filters out extra ActiveTableRecords that have same phenSig, etn, and ugcZone. 
+        /*
+         * Filters out extra ActiveTableRecords that have same phenSig, etn, and
+         * ugcZone.
+         */
         Map<String, ActiveTableRecord> atrMap = new LinkedHashMap<String, ActiveTableRecord>();
-        for (ActiveTableRecord atr: records) {
+        for (ActiveTableRecord atr : records) {
             String key = atr.getPhensig() + atr.getEtn() + atr.getUgcZone();
             atrMap.put(key, atr);
         }
@@ -419,7 +426,7 @@ public class WatchUtil {
             String ugcZone = ar.getUgcZone();
             String state = null;
 
-            if (marineUgcs != null && marineUgcs.contains(ugcZone)) {
+            if ((marineUgcs != null) && marineUgcs.contains(ugcZone)) {
                 // Just leave state == null
             } else {
                 state = getStateName(ugcZone.substring(0, 2));
@@ -430,12 +437,11 @@ public class WatchUtil {
 
             String phenSig = ar.getPhensig();
             String etn = ar.getEtn();
-            Date startTime = ar.getStartTime().getTime();
-            Date endTime = ar.getEndTime().getTime();
+            Date startTime = ar.getStartTime();
+            Date endTime = ar.getEndTime();
 
             if (validUgcZones.contains(ugcZone)) {
-                Watch watch = new Watch(state, phenSig, etn, startTime,
-                        endTime);
+                Watch watch = new Watch(state, phenSig, etn, startTime, endTime);
                 List<String> areas = map.get(watch);
                 if (areas == null) {
                     areas = new ArrayList<String>();
@@ -460,9 +466,9 @@ public class WatchUtil {
             }
         }
 
-        /* Sorts the watches based on ETN, then state. Marine areas
-         * have a null state value so they appear at the end of each
-         * watch.
+        /*
+         * Sorts the watches based on ETN, then state. Marine areas have a null
+         * state value so they appear at the end of each watch.
          */
         Collections.sort(watches, new Comparator<Watch>() {
 
@@ -471,37 +477,44 @@ public class WatchUtil {
                 String etn1 = watch1.getEtn();
                 String etn2 = watch2.getEtn();
                 int c;
-                if (etn1 == etn2)
+                if (etn1 == etn2) {
                     c = 0;
-                else if (etn1 == null)
+                } else if (etn1 == null) {
                     return 1;
-                else if (etn2 == null)
+                } else if (etn2 == null) {
                     return -1;
-                else
+                } else {
                     c = etn1.compareTo(etn2);
-                if (c != 0)
+                }
+                if (c != 0) {
                     return c;
+                }
 
                 String state1 = watch1.getState();
                 String state2 = watch2.getState();
-                if (state1 == state2)
+                if (state1 == state2) {
                     return 0;
-                else if (state1 == null)
+                } else if (state1 == null) {
                     return 1; // null state is greater; put at end
-                else if (state2 == null)
+                } else if (state2 == null) {
                     return -1;
-                else
+                } else {
                     return state1.compareTo(state2);
+                }
             }
         });
 
-        // Filters out extra Watches that have different startTime but same phenSig, etn, state, partOfState, endTime, and marineArea.
+        /*
+         * Filters out extra Watches that have different startTime but same
+         * phenSig, etn, state, partOfState, endTime, and marineArea.
+         */
         Map<String, Watch> watchMap = new LinkedHashMap<String, Watch>();
-        for (Watch w: watches) {
-            List<String> pos = w.getPartOfState() != null ?
-                    new ArrayList<String>(w.getPartOfState()) : null;
-            if (pos != null)
+        for (Watch w : watches) {
+            List<String> pos = w.getPartOfState() != null ? new ArrayList<String>(
+                    w.getPartOfState()) : null;
+            if (pos != null) {
                 Collections.sort(pos);
+            }
             String key = String.valueOf(w.getPhenSig())
                     + String.valueOf(w.getEtn()) + String.valueOf(w.getState())
                     + String.valueOf(pos) + String.valueOf(w.getEndTime());
@@ -540,9 +553,10 @@ public class WatchUtil {
         return affectedPortions;
     }
 
-    private List<Watch> generateMarineWatchItems(Watch template, List<String> areas) {
+    private List<Watch> generateMarineWatchItems(Watch template,
+            List<String> areas) {
         ArrayList<Watch> result = new ArrayList<Watch>();
-        for (String area: areas) {
+        for (String area : areas) {
             Watch watch = new Watch(template.getState(), template.getPhenSig(),
                     template.getEtn(), template.getStartTime(),
                     template.getEndTime());
@@ -553,7 +567,7 @@ public class WatchUtil {
     }
 
     private List<String> determineMarineAreas(List<String> areas) {
-        HashSet<Pair<Integer, String>> groupedAreas = new HashSet<Pair<Integer,String>>();
+        HashSet<Pair<Integer, String>> groupedAreas = new HashSet<Pair<Integer, String>>();
         for (String area : areas) {
             int entryIndex = 0;
             for (MarineWordingEntry entry : marineWordingConfig.getEntries()) {
@@ -573,9 +587,12 @@ public class WatchUtil {
                 entryIndex++;
             }
         }
-        ArrayList<Pair<Integer, String>> sorted = new ArrayList<Pair<Integer,String>>(groupedAreas);
+        ArrayList<Pair<Integer, String>> sorted = new ArrayList<Pair<Integer, String>>(
+                groupedAreas);
         Collections.sort(sorted, new Comparator<Pair<Integer, String>>() {
-            public int compare(Pair<Integer, String> o1, Pair<Integer, String> o2) {
+            @Override
+            public int compare(Pair<Integer, String> o1,
+                    Pair<Integer, String> o2) {
                 int r = o1.getFirst().compareTo(o2.getFirst());
                 return r != 0 ? r : o1.getSecond().compareTo(o2.getSecond());
             };
@@ -702,7 +719,7 @@ public class WatchUtil {
             if (((nn > 0) && (ss > 0)) || ((ee > 0) && (ww > 0))) {
                 return abrev;
             }
-            if (nnn + sss + eee + www == 3) {
+            if ((nnn + sss + eee + www) == 3) {
                 if (www == 0) {
                     abrev = "e";
                 } else if (eee == 0) {
@@ -724,7 +741,7 @@ public class WatchUtil {
                     return abrev;
                 }
             }
-            if (m == 1 + cc) {
+            if (m == (1 + cc)) {
                 abrev += partAbrev + " ";
                 return abrev;
             }

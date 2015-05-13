@@ -35,10 +35,14 @@ import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.colormap.image.ColorMapData;
+import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.geospatial.data.GeographicDataSource;
 import com.raytheon.uf.common.numeric.buffer.BufferWrapper;
+import com.raytheon.uf.common.numeric.buffer.ByteBufferWrapper;
+import com.raytheon.uf.common.numeric.buffer.ShortBufferWrapper;
+import com.raytheon.uf.common.numeric.filter.UnsignedFilter;
 import com.raytheon.uf.common.numeric.source.DataSource;
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -60,12 +64,13 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 19, 2013            mschenke     Initial creation
- * Jun 19, 2014 3238       bsteffen     Add method to create a DataSource for
- *                                      a tile level.
- * Oct 15, 2014 3681       bsteffen    Allow asynchronous interrogation.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 19, 2013           mschenke    Initial creation
+ * Jun 19, 2014  3238     bsteffen    Add method to create a DataSource for
+ *                                    a tile level.
+ * Oct 15, 2014  3681     bsteffen    Allow asynchronous interrogation.
+ * May 04, 2015  4426     bsteffen    Fix unsigned interrogation.
  * 
  * </pre>
  * 
@@ -248,6 +253,11 @@ public class SatTileSetRenderable extends RecordTileSetRenderable {
             Rectangle rect = tile.getRectangle();
             DataSource source = BufferWrapper.wrap(data.getBuffer(),
                     rect.width, rect.height);
+            if (data.getDataType() == ColorMapDataType.BYTE) {
+                source = UnsignedFilter.apply((ByteBufferWrapper) source);
+            } else if (data.getDataType() == ColorMapDataType.UNSIGNED_SHORT) {
+                source = UnsignedFilter.apply((ShortBufferWrapper) source);
+            }
             dataValue = source.getDataValue(tilex, tiley);
             dataUnit = data.getDataUnit();
         }

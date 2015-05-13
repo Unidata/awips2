@@ -21,8 +21,7 @@ package com.raytheon.uf.edex.activetable.handler;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -60,6 +59,7 @@ import com.vividsolutions.jts.io.WKTReader;
  *                                       and use MergeVTEC.py to perform merge.
  * Jul 23, 2013  #2212     dgilling      Fix ClassCastExceptions on flood
  *                                       fields.
+ * Apr 28, 2015  #4027     randerso      Expunged Calendar from ActiveTableRecord
  * 
  * </pre>
  * 
@@ -160,21 +160,17 @@ public class MergeActiveTableHandler implements
                     atr.setPhensig(template.get("phensig").toString());
                     atr.setAct(template.get("act").toString());
                     atr.setSeg((Integer) template.get("seg"));
-                    Calendar start = GregorianCalendar.getInstance();
-                    start.setTimeInMillis(((Number) template.get("startTime"))
-                            .longValue() * 1000L);
+                    Date start = new Date(
+                            ((Number) template.get("startTime")).longValue() * 1000L);
                     atr.setStartTime(start);
-                    Calendar end = GregorianCalendar.getInstance();
-                    end.setTimeInMillis(((Number) template.get("endTime"))
-                            .longValue() * 1000L);
+                    Date end = new Date(
+                            ((Number) template.get("endTime")).longValue() * 1000L);
                     atr.setEndTime(end);
-                    Calendar purge = GregorianCalendar.getInstance();
-                    purge.setTimeInMillis(((Number) template.get("purgeTime"))
-                            .longValue() * 1000L);
+                    Date purge = new Date(
+                            ((Number) template.get("purgeTime")).longValue() * 1000L);
                     atr.setPurgeTime(purge);
-                    Calendar issue = GregorianCalendar.getInstance();
-                    issue.setTimeInMillis(((Number) template.get("issueTime"))
-                            .longValue() * 1000L);
+                    Date issue = new Date(
+                            ((Number) template.get("issueTime")).longValue() * 1000L);
                     atr.setIssueTime(issue);
                     atr.setUfn((Boolean) template.get("ufn"));
                     atr.setOfficeid(template.get("officeid").toString());
@@ -187,22 +183,20 @@ public class MergeActiveTableHandler implements
 
                     Number floodBeginTime = (Number) template.get("floodBegin");
                     if (floodBeginTime != null) {
-                        Calendar floodBegin = GregorianCalendar.getInstance();
-                        floodBegin
-                                .setTimeInMillis(floodBeginTime.longValue() * 1000L);
+                        Date floodBegin = new Date(
+                                floodBeginTime.longValue() * 1000L);
                         atr.setFloodBegin(floodBegin);
                     }
                     Number floodCrestTime = (Number) template.get("floodCrest");
                     if (floodCrestTime != null) {
-                        Calendar floodCrest = GregorianCalendar.getInstance();
-                        floodCrest
-                                .setTimeInMillis(floodCrestTime.longValue() * 1000L);
+                        Date floodCrest = new Date(
+                                floodCrestTime.longValue() * 1000L);
                         atr.setFloodCrest(floodCrest);
                     }
                     Number floodEndTime = (Number) template.get("floodEnd");
                     if (floodEndTime != null) {
-                        Calendar floodEnd = GregorianCalendar.getInstance();
-                        floodEnd.setTimeInMillis(floodEndTime.longValue() * 1000L);
+                        Date floodEnd = new Date(
+                                floodEndTime.longValue() * 1000L);
                         atr.setFloodEnd(floodEnd);
                     }
                     atr.setFloodRecordStatus((String) template

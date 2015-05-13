@@ -47,6 +47,7 @@ import VTECTableUtil, VTECTable
 import TimeRange, AbsTime, ActiveTableVtec
 import JUtil
 from java.util import ArrayList
+from com.raytheon.uf.common.activetable import ActiveTableMode
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import DatabaseID as JavaDatabaseID
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceID
 from com.raytheon.uf.common.dataplugin.gfe.discrete import DiscreteKey
@@ -82,9 +83,14 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         self.filterMethod = filterMethod
         self.__activeTable = None
         self.__allGEOActiveTable = None #not filtered by edit areas
-        self.__activeTableName = activeTableName
         self.__vtecMode = vtecMode
         self.__etnCache = {}
+        
+        if activeTableName == "PRACTICE":
+            self.__activeTableMode = ActiveTableMode.PRACTICE
+        else:
+            self.__activeTableMode = ActiveTableMode.OPERATIONAL
+
         if hazardEndTime is None:
             self.__hazardEndTime = None
         else:
@@ -721,7 +727,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         # Local WFOs do not assign these numbers, so they should have
         # numbers < 1000
         if phensig not in self.__tpcKeys or self.__siteID4 in self.__sitesIgnoreNatlEtn:
-            etn_base = GFEVtecUtil.getNextEtn(self.__siteID4, '.'.join(phensig), False).getNextEtn() - 1
+            etn_base = GFEVtecUtil.getNextEtn(self.__siteID4, '.'.join(phensig), False, self.__activeTableMode).getNextEtn() - 1
         else:
             presentyear = time.gmtime(self.__time)[0]
             for active in activeTable:
@@ -922,13 +928,9 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
     def __getActiveTable(self):
         #Uses the IFPClient interface to get the VTEC active table from
         #the server.   Returns None on failure.
-        from com.raytheon.uf.common.activetable import ActiveTableMode
 
         try:
-            if self.__activeTableName != "PRACTICE":
-                table = self.__ifpClient.getVTECActiveTable(self.__dataMgr.getSiteID())
-            else:
-                table = self.__ifpClient.getVTECActiveTable(self.__dataMgr.getSiteID(), ActiveTableMode.PRACTICE)
+            table = self.__ifpClient.getVTECActiveTable(self.__dataMgr.getSiteID(), self.__activeTableMode)
             table = ActiveTableVtec.transformActiveTableToPython(table)
             return table
 

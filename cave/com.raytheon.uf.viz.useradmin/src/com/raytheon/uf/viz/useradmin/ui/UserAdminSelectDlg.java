@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.useradmin.ui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
@@ -54,11 +55,11 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
  * Main User Administration Dialog.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 23, 2012            mpduff      Initial creation.
@@ -70,9 +71,10 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     is selected. Better enable/disable edit
  *                                     and delete buttons. Give delete dialogs
  *                                     a title.
- *
+ * May 04, 2015   4419     rferrel     Sort {@link #userPermList}.
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
@@ -109,7 +111,7 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
 
     /**
      * Constructor.
-     *
+     * 
      * @param parent
      *            The parent shell
      */
@@ -232,7 +234,7 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
      */
     @Override
@@ -544,7 +546,10 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
                 rp.add(perm);
             }
 
-            userPermList.setItems(rp.toArray(new String[rp.size()]));
+            String[] rpArray = rp.toArray(new String[rp.size()]);
+            Arrays.sort(rpArray);
+
+            userPermList.setItems(rpArray);
         }
     }
 
