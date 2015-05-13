@@ -5,7 +5,6 @@ import java.util.Map;
 
 import javax.persistence.Transient;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.sounding.VerticalSounding;
@@ -42,6 +41,7 @@ import com.raytheon.uf.common.time.DataTime;
  * ------------ ---------- ----------- --------------------------
  * 05/11/2009   2307      dhladky    Initial Creation.
  * 02/01/13     1569      D. Hladky   removed XML where not needed
+ * 05/13/15     4487      D. Hladky   ISerializable is deprecated.
  * 
  * </pre>
  * 
@@ -50,7 +50,7 @@ import com.raytheon.uf.common.time.DataTime;
  */
 
 @DynamicSerialize
-public class SoundingData implements ISerializableObject {
+public class SoundingData {
 
     @DynamicSerializeElement
     public DataTime time = null;
