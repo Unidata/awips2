@@ -30,144 +30,129 @@
 # First run setupTextEA
 
 
-popWx1 = """def matchToWxInfo_dict(self, tree, node):
-    return {
-        "PoP": (5, "Max", None),     # 50
-        #"PoP": (5, "Mode", None),    # 30
-        #"PoP": (5, "MaxMode", None), # 40
-        #"PoP": (5, "AnalysisMethod", None),  # 40
-        "LAL": (0, "Max", "Max"),
-        }
-"""
-popWx2 = """def matchToWxInfo_dict(self, tree, node):
-    return {
-        #"PoP": (5, "Max", None),     # 50
-        "PoP": (5, "Mode", None),    # 30
-        #"PoP": (5, "MaxMode", None), # 40
-        #"PoP": (5, "AnalysisMethod", None),  # 40
-        "LAL": (0, "Max", "Max"),
-        }
-"""
-popWx3 = """def matchToWxInfo_dict(self, tree, node):
-    return {
-        #"PoP": (5, "Max", None),     # 50
-        #"PoP": (5, "Mode", None),    # 30
-        "PoP": (5, "MaxMode", None), # 40
-        #"PoP": (5, "AnalysisMethod", None),  # 40
-        "LAL": (0, "Max", "Max"),
-        }
-"""
-popWx4 = """def matchToWxInfo_dict(self, tree, node):
-    return {
-        #"PoP": (5, "Max", None),     # 50
-        #"PoP": (5, "Mode", None),    # 30
-        #"PoP": (5, "MaxMode", None), # 40
-        "PoP": (5, "AnalysisMethod", None),  # 40
-        "LAL": (0, "Max", "Max"),
-        }
-"""
-
-popWx5 = """def matchToWxInfo_dict(self, tree, node):
-    return {
-            "PoP": (5, "MaxMode", None),     # 50
+popWx1 = """
+    def matchToWxInfo_dict(self, tree, node):
+        return {
+            "PoP": (5, "Max", None),     # 50
             #"PoP": (5, "Mode", None),    # 30
             #"PoP": (5, "MaxMode", None), # 40
             #"PoP": (5, "AnalysisMethod", None),  # 40
             "LAL": (0, "Max", "Max"),
             }
+
+"""
+popWx2 = """
+    def matchToWxInfo_dict(self, tree, node):
+        return {
+            #"PoP": (5, "Max", None),     # 50
+            "PoP": (5, "Mode", None),    # 30
+            #"PoP": (5, "MaxMode", None), # 40
+            #"PoP": (5, "AnalysisMethod", None),  # 40
+            "LAL": (0, "Max", "Max"),
+            }
+
+"""
+popWx3 = """
+    def matchToWxInfo_dict(self, tree, node):
+        return {
+            #"PoP": (5, "Max", None),     # 50
+            #"PoP": (5, "Mode", None),    # 30
+            "PoP": (5, "MaxMode", None), # 40
+            #"PoP": (5, "AnalysisMethod", None),  # 40
+            "LAL": (0, "Max", "Max"),
+            }
+"""
+popWx4 = """
+    def matchToWxInfo_dict(self, tree, node):
+        return {
+            #"PoP": (5, "Max", None),     # 50
+            #"PoP": (5, "Mode", None),    # 30
+            #"PoP": (5, "MaxMode", None), # 40
+            "PoP": (5, "AnalysisMethod", None),  # 40
+            "LAL": (0, "Max", "Max"),
+            }
+
 """
 
 aggCov1 = """("Wx", self.rankedWx, [3]),"""
-aggCov2 = """def Period_1_version2(self):
-    return {
-            "type": "component",
-            "methodList": [
-                          self.orderPhrases,
-                          self.consolidateSubPhrases,
-                          self.assemblePhrases,
-                          self.wordWrap,
-                          ],
-            "analysisList": [
-                       ("Sky", self.median, [3]),
-                       ("PoP", self._PoP_analysisMethod("Period_1"), [3]),
-                       ("PoP", self.binnedPercent, [3]),
-                       ("Wx", self.rankedWx, [6]),
-                       ],
-            "phraseList":[
-                   (self.sky_phrase, self._skyLocalEffects_list()),
-                   (self.skyPopWx_phrase, self._skyPopWxLocalEffects_list()),
-                   (self.weather_phrase,self._wxLocalEffects_list()),
-                   (self.popMax_phrase, self._popLocalEffects_list()),
-                   ],
-            "intersectAreas": [
-                   # Areas listed by weather element that will be
-                   # intersected with the current area then
-                   # sampled and analysed.
-                   # E.g. used in local effects methods.
-                   ("Sky", ["AboveElev", "BelowElev"]),
-                   ("Wx",  ["AboveElev", "BelowElev"]),
-                   ("PoP", ["AboveElev", "BelowElev"]),
-             ],
-        }
+aggCov2 = """("Wx", self.rankedWx, [6]),"""
+
+wtAggCov = """
+
+    def aggregateCov_algorithm(self, parmHisto, timeRange, componentName):
+        return self.getWeightedAggregateCov
+
+"""
+existWtAggCov = """
+
+    def aggregateCov_algorithm(self, parmHisto, timeRange, componentName):
+        return self.getExistingWeightedAggregateCov
+
+"""
+highestAggCov = """
+
+    def aggregateCov_algorithm(self, parmHisto, timeRange, componentName):
+        return self.getHighestWeightedAggregateCov
+
 """
 
-wtAggCov = """def aggregateCov_algorithm(self, parmHisto, timeRange, componentName):
-    return self.getWeightedAggregateCov
+checkPercentages = """
+
+    def checkPercentages(self, parmHisto, timeRange, componentName, wxKey, keyRankDict):
+        # If a wxKey does not pass the wxkey_coverage_percentage, this method will be called
+        # to give another chance.
+        # You can use the keyRankDict:
+        #   subkey : (rank, percent coverage)
+        # to allow the wxKey to pass based on other values in the grid.
+        # For example:  If I have 10% RW 10% SW, neither RW or SW will be reported
+        # Using the keyRankDict, I can allow them to pass when I learn 
+        #  that 20% of my area is covered with precip.
+        # Here's how this might be done:
+        #
+        precip = ["SW", "RW", "R", "S"]
+        totalPrecip = 0
+        if wxKey.wxType() in precip:
+            for subkey in keyRankDict.keys():
+                if subkey.wxType() in precip:
+                    rank, percent = keyRankDict[subkey]
+                    print "subkey, percent", subkey, percent
+                    totalPrecip += percent
+        print "total", totalPrecip
+        if totalPrecip > 15:
+            return 1
+        else:
+            return 0        
+        return 0
+
 """
-existWtAggCov = """def aggregateCov_algorithm(self, parmHisto, timeRange, componentName):
-    return self.getExistingWeightedAggregateCov
-"""
-highestAggCov = """def aggregateCov_algorithm(self, parmHisto, timeRange, componentName):
-    return self.getHighestWeightedAggregateCov
+noWxThreshold = """
+
+    def noWx_percentage(self, parmHisto, timeRange, componentName):
+        # If the raw rank (areal and temporal coverage) of NoWx exceeds this value,
+        # NoWx will be reported (all other weather keys will be ignored).
+        return 30    
+
 """
 
-checkPercentages = """def checkPercentages(self, parmHisto, timeRange, componentName, wxKey, keyRankDict):
-    # If a wxKey does not pass the wxkey_coverage_percentage, this method will be called
-    # to give another chance.
-    # You can use the keyRankDict:
-    #   subkey : (rank, percent coverage)
-    # to allow the wxKey to pass based on other values in the grid.
-    # For example:  If I have 10% RW 10% SW, neither RW or SW will be reported
-    # Using the keyRankDict, I can allow them to pass when I learn 
-    #  that 20% of my area is covered with precip.
-    # Here's how this might be done:
-    #
-    precip = ["SW", "RW", "R", "S"]
-    totalPrecip = 0
-    if wxKey.wxType() in precip:
-        for subkey in keyRankDict.keys():
-            if subkey.wxType() in precip:
-                rank, percent = keyRankDict[subkey]
-                print "subkey, percent", subkey, percent
-                totalPrecip += percent
-    print "total", totalPrecip
-    if totalPrecip > 15:
-        return 1
-    else:
-        return 0        
-    return 0
-"""
-noWxThreshold = """def noWx_percentage(self, parmHisto, timeRange, componentName):
-    # If the raw rank (areal and temporal coverage) of NoWx exceeds this value,
-    # NoWx will be reported (all other weather keys will be ignored).
-    return 30    
-"""
+skyMod = """
 
-skyMod = """def sky_timeDescriptorModeration(self, tree, node):
-    # If only two subphrases, turn off second time descriptor
-    childList = node.get("childList")
-    length = len(childList)
-    # Check for words
-    if length > 0:
-        words = childList[0].get("words")
-        if words is None:
-            return
-    else:
+    def sky_timeDescriptorModeration(self, tree, node):
+        # If only two subphrases, turn off second time descriptor
+        childList = node.get("childList")
+        length = len(childList)
+        # Check for words
+        if length > 0:
+            words = childList[0].get("words")
+            if words is None:
+                return
+        else:
+            return self.DONE()
+        if length == 2:
+            childList[0].set("timeDescFlag", 1)
+            childList[1].set("timeDescFlag", 0)
         return self.DONE()
-    if length == 2:
-        childList[0].set("timeDescFlag", 1)
-        childList[1].set("timeDescFlag", 0)
-    return self.DONE()
+    
+
 """
 
 # Runs Phrase_Test_Local for each test
@@ -181,8 +166,8 @@ scripts = [
        ("Fcst", "SnowAmt", "SCALAR", 0, 12, 0, "all"),
        ],
     "checkStrings": [
-       "SNOW LIKELY",
-       "NO SNOW ACCUMULATION"
+       "Snow likely",
+       "No snow accumulation"
        ],
     },
     {
@@ -194,8 +179,8 @@ scripts = [
        ("Fcst", "SnowAmt", "SCALAR", 0, 12, 2, "all"),
        ],
     "checkStrings": [
-       "SNOW LIKELY",
-       "SNOW ACCUMULATION AROUND 2 INCHES"
+       "Snow likely",
+       "Snow accumulation around 2 inches"
        ],
     },
     {
@@ -207,8 +192,8 @@ scripts = [
        ("Fcst", "SnowAmt", "SCALAR", 0, 12, 0, "all"),
        ],
     "checkStrings": [
-       "SLEET LIKELY",
-       "NO SLEET ACCUMULATION"
+       "sleet likely",
+       "No sleet accumulation"
        ],
     },
     {
@@ -220,8 +205,8 @@ scripts = [
        ("Fcst", "SnowAmt", "SCALAR", 0, 12, 2, "all"),
        ],
     "checkStrings": [
-       "SLEET LIKELY",
-       "SLEET ACCUMULATION AROUND 2 INCHES"
+       "sleet likely",
+       "Sleet accumulation around 2 inches"
        ],
     },
     {
@@ -233,8 +218,8 @@ scripts = [
        ("Fcst", "SnowAmt", "SCALAR", 0, 12, 0, "all"),
        ],
     "checkStrings": [
-       "SNOW AND LIGHT SLEET LIKELY",
-       "NO SNOW AND SLEET ACCUMULATION"
+       "Snow and light sleet likely",
+       "No snow and sleet accumulation"
        ],
     },
     {
@@ -246,8 +231,8 @@ scripts = [
        ("Fcst", "SnowAmt", "SCALAR", 0, 12, 2, "all"),
        ],
     "checkStrings": [
-       "SNOW AND LIGHT SLEET LIKELY",
-       "SNOW AND SLEET ACCUMULATION AROUND 2 INCHES"
+       "Snow and light sleet likely",
+       "Snow and sleet accumulation around 2 inches"
        ],
     },
     {
@@ -260,9 +245,9 @@ scripts = [
        ("Fcst", "SnowAmt", "SCALAR", 0, 12, .05, "all"),
        ],
     "checkStrings": [
-       "SNOW AND LIGHT SLEET LIKELY",
-       "AREAS OF ICE CRYSTALS",
-       "LITTLE OR NO SNOW AND SLEET ACCUMULATION"
+       "Snow and light sleet likely",
+       "Areas of ice crystals",
+       "Little or no snow and sleet accumulation"
        ],
     },
     {
@@ -273,8 +258,8 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 0, 12, "Areas:BS:<NoInten>:<NoVis>:", "all"),
        ("Fcst", "SnowAmt", "SCALAR", 0, 12, .05, "all"),
        ],
-    "checkStrings": ["AREAS OF BLOWING SNOW"],
-    "notCheckStrings": ["NO SNOW ACCUMULATION"],
+    "checkStrings": ["Areas of blowing snow"],
+    "notCheckStrings": ["No snow accumulation"],
     },
 
 
@@ -292,13 +277,13 @@ scripts = [
     "checkStrings": [
     # Algorithm set different ways for PoP in the matchToWxInfo_dict
     # Set inside Phrase_Test_Local file.
-       "50 PERCENT",   # Max  
-       #"30 PERCENT",   # Mode
-       #"40 PERCENT",   # MaxMode
-       #"40 PERCENT",   # AnalysisMethod
+       "50 percent",   # Max  
+       #"30 percent",   # Mode
+       #"40 percent",   # MaxMode
+       #"40 percent",   # AnalysisMethod
        ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", popWx1, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", popWx1, "undo"),
        ],
     },
 
@@ -314,13 +299,13 @@ scripts = [
     "checkStrings": [
     # Algorithm set different ways for PoP in the matchToWxInfo_dict
     # Set inside Phrase_Test_Local file.
-       #"50 PERCENT",   # Max  
-       "30 PERCENT",   # Mode
-       #"40 PERCENT",   # MaxMode
-       #"40 PERCENT",   # AnalysisMethod
+       #"50 percent",   # Max  
+       "30 percent",   # Mode
+       #"40 percent",   # MaxMode
+       #"40 percent",   # AnalysisMethod
        ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", popWx2, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", popWx2, "undo"),
        ],
     },
 
@@ -336,13 +321,13 @@ scripts = [
     "checkStrings": [
     # Algorithm set different ways for PoP in the matchToWxInfo_dict
     # Set inside Phrase_Test_Local file.
-       #"50 PERCENT",   # Max  
-       #"30 PERCENT",   # Mode
-       "40 PERCENT",    # MaxMode
-       #"40 PERCENT",   # AnalysisMethod
+       #"50 percent",   # Max  
+       #"30 percent",   # Mode
+       "40 percent",    # MaxMode
+       #"40 percent",   # AnalysisMethod
        ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", popWx3, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", popWx3, "undo"),
        ],
     },
 
@@ -358,13 +343,13 @@ scripts = [
     "checkStrings": [
     # Algorithm set different ways for PoP in the matchToWxInfo_dict
     # Set inside Phrase_Test_Local file.
-       #"50 PERCENT",   # Max  
-       #"30 PERCENT",   # Mode
-       #"40 PERCENT",   # MaxMode
-       "40 PERCENT",   # AnalysisMethod
+       #"50 percent",   # Max  
+       #"30 percent",   # Mode
+       #"40 percent",   # MaxMode
+       "40 percent",   # AnalysisMethod
        ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", popWx4, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", popWx4, "undo"),
        ],
     },
 
@@ -397,7 +382,7 @@ scripts = [
         "",
        ],
     "fileChanges": [
-       #("Phrase_Test_Local", "TextProduct", "replace", (hoursSChc1, hoursSChc2), "undo"),
+       #("Phrase_Test_Local", "TextUtility", "replace", (hoursSChc1, hoursSChc2), "undo"),
        ],
     },
     {
@@ -421,9 +406,9 @@ scripts = [
         "",
        ],
     "fileChanges": [
-       #("Phrase_Test_Local", "TextProduct", "replace", (hoursSChc1, hoursSChc2), "undo"),
-       ("Phrase_Test_Local", "TextProduct", "replace",
-       popWx5, "undo"),
+       #("Phrase_Test_Local", "TextUtility", "replace", (hoursSChc1, hoursSChc2), "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace",
+       ('"PoP": (5, "Max", None),', '"PoP": (5, "MaxMode", None),'), "undo"),
        ],
     },
     {
@@ -431,11 +416,11 @@ scripts = [
     "commentary": """
            Pop Wx consistency -- Run in Period 2_3 (6-hour resolution)
            With baseline:
-             MOSTLY CLOUDY WITH A 50 PERCENT CHANCE OF SHOWERS.
+             Mostly cloudy with a 50 percent chance of showers.
     
            With getWeightedAggregateCov, get:
-             SHOWERS LIKELY IN THE MORNING...THEN CHANCE OF SHOWERS IN THE AFTERNOON.
-             CHANCE OF PRECIPITATION 70 PERCENT.
+             Showers likely in the morning...then chance of showers in the afternoon.
+             Chance of precipitation 70 percent.
           """,
     "productType": "Phrase_Test_Local",
     "createGrids": [
@@ -451,7 +436,7 @@ scripts = [
         "",
        ],
     "fileChanges": [
-       #("Phrase_Test_Local", "TextProduct", "replace", (hoursSChc1, hoursSChc2), "undo"),
+       #("Phrase_Test_Local", "TextUtility", "replace", (hoursSChc1, hoursSChc2), "undo"),
        ],
     },
 
@@ -468,11 +453,11 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 0, 12, "Lkly:RW:-:<NoVis>:^Iso:T:<NoInten>:<NoVis>:", "all"),
        ],
     "checkStrings": [
-        "SHOWERS LIKELY AND ISOLATED THUNDERSTORMS",
-        "CHANCE OF PRECIPITATION 60 PERCENT",
+        "Showers likely and isolated thunderstorms",
+        "Chance of precipitation 60 percent",
        ],
     "fileChanges": [
-       #("Phrase_Test_Local", "TextProduct", "replace", (hoursSChc1, hoursSChc2), "undo"),
+       #("Phrase_Test_Local", "TextUtility", "replace", (hoursSChc1, hoursSChc2), "undo"),
        ],
     },
 
@@ -490,11 +475,11 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "SChc:RW:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-        "RAIN LIKELY IN THE MORNING...THEN SLIGHT CHANCE OF SHOWERS IN THE AFTERNOON",
-        "CHANCE OF PRECIPITATION 60 PERCENT",
+        "Rain likely in the morning...then slight chance of showers in the afternoon",
+        "Chance of precipitation 60 percent",
        ],
     "fileChanges": [
-       #("Phrase_Test_Local", "TextProduct", "replace", (hoursSChc1, hoursSChc2), "undo"),
+       #("Phrase_Test_Local", "TextUtility", "replace", (hoursSChc1, hoursSChc2), "undo"),
        ],
     },
 
@@ -512,11 +497,11 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "SChc:R:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-        "RAIN LIKELY IN THE MORNING...THEN SLIGHT CHANCE OF RAIN IN THE AFTERNOON",
-        "CHANCE OF RAIN 60 PERCENT",
+        "Rain likely in the morning...then slight chance of rain in the afternoon",
+        "Chance of rain 60 percent",
        ],
     "fileChanges": [
-       #("Phrase_Test_Local", "TextProduct", "replace", (hoursSChc1, hoursSChc2), "undo"),
+       #("Phrase_Test_Local", "TextUtility", "replace", (hoursSChc1, hoursSChc2), "undo"),
        ],
     },
     
@@ -556,11 +541,11 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 11, 12, "Chc:RW:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-        "SHOWERS IN THE MORNING...THEN SHOWERS LIKELY IN THE AFTERNOON",
-        "CHANCE OF SHOWERS NEAR 100 PERCENT",
+        "Showers in the morning...then showers likely in the afternoon",
+        "Chance of showers near 100 percent",
        ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", wtAggCov, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", wtAggCov, "undo"),
        ],
     },
 
@@ -582,11 +567,11 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12,"Chc:RW:-:<NoVis>:", ["BelowElev"]),
        ],
     "checkStrings": [
-        "MOSTLY CLOUDY",
-        "A 30 PERCENT CHANCE OF SHOWERS IN THE AFTERNOON",
+        "Mostly cloudy",
+        "A 30 percent chance of showers in the afternoon",
        ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", noWxThreshold, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", noWxThreshold, "undo"),
        ],
     },    
 
@@ -612,10 +597,10 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "NoWx", "all"),
        ],
     "checkStrings": [
-       "A 30 PERCENT CHANCE OF SHOWERS IN THE MORNING",
+       "A 30 percent chance of showers in the morning",
        ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "replace", aggCov2, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace", (aggCov1, aggCov2), "undo"),
        ],
     },
 
@@ -639,11 +624,11 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "NoWx", "all"),
        ],
     "checkStrings": [
-       "A 30 PERCENT CHANCE OF SHOWERS IN THE MORNING",
+       "A 30 percent chance of showers in the morning",
        ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "replace", aggCov2, "undo"),
-       ("Phrase_Test_Local", "TextProduct", "add", wtAggCov, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace", (aggCov1, aggCov2), "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", wtAggCov, "undo"),
        ],
     },
 
@@ -667,12 +652,12 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "NoWx", "all"),
        ],
     "checkStrings": [
-       "SLIGHT CHANCE OF SHOWERS EARLY IN THE MORNING...THEN CHANCE OF SHOWERS LATE IN THE MORNING",
-       "CHANCE OF SHOWERS 30 PERCENT",
+       "Slight chance of showers early in the morning...then chance of showers late in the morning",
+       "Chance of showers 30 percent",
        ],
     "fileChanges": [
-       #("Phrase_Test_Local", "TextProduct", "replace", (aggCov1, aggCov2), "undo"),
-       #("Phrase_Test_Local", "TextProduct", "add", wtAggCov, "undo"),
+       #("Phrase_Test_Local", "TextUtility", "replace", (aggCov1, aggCov2), "undo"),
+       #("Phrase_Test_Local", "TextUtility", "add", wtAggCov, "undo"),
        ],
     },
     {
@@ -695,12 +680,12 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "NoWx", "all"),
        ],
     "checkStrings": [
-       "SLIGHT CHANCE OF SHOWERS EARLY IN THE MORNING...THEN CHANCE OF SHOWERS LATE IN THE MORNING",
-       "CHANCE OF SHOWERS 30 PERCENT",
+       "Slight chance of showers early in the morning...then chance of showers late in the morning",
+       "Chance of showers 30 percent",
        ],
     "fileChanges": [
-       #("Phrase_Test_Local", "TextProduct", "replace", (aggCov1, aggCov2), "undo"),
-       ("Phrase_Test_Local", "TextProduct", "add", wtAggCov, "undo"),
+       #("Phrase_Test_Local", "TextUtility", "replace", (aggCov1, aggCov2), "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", wtAggCov, "undo"),
        ],
     },
     {
@@ -723,12 +708,12 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "NoWx", "all"),
        ],
     "checkStrings": [
-       "SLIGHT CHANCE OF SHOWERS EARLY IN THE MORNING...THEN CHANCE OF SHOWERS LATE IN THE MORNING",
-       "CHANCE OF SHOWERS 30 PERCENT",
+       "Slight chance of showers early in the morning...then chance of showers late in the morning",
+       "Chance of showers 30 percent",
        ],
     "fileChanges": [
-       #("Phrase_Test_Local", "TextProduct", "replace", (aggCov1, aggCov2), "undo"),
-       ("Phrase_Test_Local", "TextProduct", "add", existWtAggCov, "undo"),
+       #("Phrase_Test_Local", "TextUtility", "replace", (aggCov1, aggCov2), "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", existWtAggCov, "undo"),
        ],
     },
 
@@ -755,7 +740,7 @@ scripts = [
           ["GMZ873", "GMZ876", "GMZ856"]),
        ],
     "checkStrings": [
-       "ISOLATED SHOWERS",
+       "isolated showers",
        ],
     "fileChanges": [
        ],
@@ -784,10 +769,10 @@ scripts = [
           ["GMZ873", "GMZ876", "GMZ856"]),
        ],
     "checkStrings": [
-       "SCATTERED SHOWERS",
+       "scattered showers",
        ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", wtAggCov, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", wtAggCov, "undo"),
        ],
     },
 
@@ -815,10 +800,10 @@ scripts = [
           ["GMZ873", "GMZ876", "GMZ856"]),
        ],
     "checkStrings": [
-       "NUMEROUS SHOWERS",
+       "numerous showers",
        ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", existWtAggCov, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", existWtAggCov, "undo"),
        ],
     },
     
@@ -838,7 +823,7 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 0, 12, "Num:RW:-:<NoVis>:", ["AboveElev"]),
        ],
     "checkStrings": [
-       "ISOLATED SHOWERS",
+       "isolated showers",
        ],
     },
 
@@ -858,10 +843,10 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 0, 12, "Num:RW:-:<NoVis>:", ["AboveElev"]),
        ],
     "checkStrings": [
-       "SCATTERED SHOWERS",
+       "scattered showers",
        ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", wtAggCov, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", wtAggCov, "undo"),
        ],
     },
 
@@ -881,10 +866,10 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 0, 12, "Num:RW:-:<NoVis>:", ["AboveElev"]),
        ],
     "checkStrings": [
-       "NUMEROUS SHOWERS",
+       "numerous showers",
        ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", existWtAggCov, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", existWtAggCov, "undo"),
        ],
     },    
 
@@ -900,18 +885,18 @@ scripts = [
        ("Fcst", "Sky", "SCALAR", 0, 6,  70, "all", 1),
        ("Fcst", "Sky", "SCALAR", 6, 12, 70, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12,  15,
-           ["FLZ042","FLZ043","FLZ048","FLZ049","FLZ051", "FLZ052"]),
-       ("Fcst", "PoP", "SCALAR", 0, 12,  80, ["FLZ039"]),
+           ["FLZ142", "FLZ242","FLZ043","FLZ148", "FLZ248","FLZ149", "FLZ249","FLZ151", "FLZ251", "FLZ052"]),
+       ("Fcst", "PoP", "SCALAR", 0, 12,  80, ["FLZ139", "FLZ239"]),
        ("Fcst", "Wx", "WEATHER", 0, 12, "NoWx", "all"),
        ("Fcst", "Wx", "WEATHER", 0, 12, "Sct:RW:-:<NoVis>:",
-           ["FLZ042","FLZ043","FLZ048","FLZ049","FLZ051", "FLZ052"]),
-       ("Fcst", "Wx", "WEATHER", 0, 12, "Num:RW:-:<NoVis>:", ["FLZ039"]),
+           ["FLZ142", "FLZ242","FLZ043","FLZ148", "FLZ248","FLZ149", "FLZ249","FLZ151", "FLZ251", "FLZ052"]),
+       ("Fcst", "Wx", "WEATHER", 0, 12, "Num:RW:-:<NoVis>:", ["FLZ139", "FLZ239"]),
        ],
     "checkStrings": [
-       "SCATTERED SHOWERS",
+       "scattered showers",
        ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", highestAggCov, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", highestAggCov, "undo"),
        ],
     },    
     {
@@ -926,18 +911,18 @@ scripts = [
        ("Fcst", "Sky", "SCALAR", 0, 6,  70, "all", 1),
        ("Fcst", "Sky", "SCALAR", 6, 12, 70, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12,  15,
-           ["FLZ042","FLZ043","FLZ048","FLZ049","FLZ051"]),
-       ("Fcst", "PoP", "SCALAR", 0, 12,  80, ["FLZ039", "FLZ052"]),
+           ["FLZ142", "FLZ242","FLZ043","FLZ148", "FLZ248","FLZ149", "FLZ249","FLZ151", "FLZ251"]),
+       ("Fcst", "PoP", "SCALAR", 0, 12,  80, ["FLZ139", "FLZ239", "FLZ052"]),
        ("Fcst", "Wx", "WEATHER", 0, 12, "NoWx", "all"),
        ("Fcst", "Wx", "WEATHER", 0, 12, "Sct:RW:-:<NoVis>:",
-           ["FLZ042","FLZ043","FLZ048","FLZ049","FLZ051"]),
-       ("Fcst", "Wx", "WEATHER", 0, 12, "Num:RW:-:<NoVis>:", ["FLZ039", "FLZ052"]), 
+           ["FLZ142", "FLZ242","FLZ043","FLZ148", "FLZ248","FLZ149", "FLZ249","FLZ151", "FLZ251"]),
+       ("Fcst", "Wx", "WEATHER", 0, 12, "Num:RW:-:<NoVis>:", ["FLZ139", "FLZ239", "FLZ052"]), 
        ],
     "checkStrings": [
-       "SCATTERED SHOWERS",
+       "scattered showers",
        ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", highestAggCov, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", highestAggCov, "undo"),
        ],
     },    
     {  # Ken Drozd wants strongest coverage for each wxType Tk 4555
@@ -952,10 +937,10 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 0, 12, "Sct:RW:-:<NoVis>:^Num:SW:-:<NoVis>:", ["BelowElev"]),
        ],
     "checkStrings": [
-        ("NUMEROUS SHOWERS AND SNOW SHOWERS.", "NUMEROUS RAIN SHOWERS AND SNOW SHOWERS."),
+        ("Numerous showers and snow showers.", "Numerous rain showers and snow showers."),
        ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", highestAggCov, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", highestAggCov, "undo"),
        ],
     },
 
@@ -969,20 +954,20 @@ scripts = [
     "createGrids": [
        ("Fcst", "Sky", "SCALAR", 0, 6,  70, "all", 1),
        ("Fcst", "Sky", "SCALAR", 6, 12, 70, "all", 1),
-       ("Fcst", "PoP", "SCALAR", 0, 12,  20, ["FLZ039", "FLZ042", "FLZ051"]),
-       ("Fcst", "PoP", "SCALAR", 0, 12,  50, ["FLZ049", "FLZ052"]),
+       ("Fcst", "PoP", "SCALAR", 0, 12,  20, ["FLZ139", "FLZ239", "FLZ142", "FLZ242", "FLZ151", "FLZ251"]),
+       ("Fcst", "PoP", "SCALAR", 0, 12,  50, ["FLZ149", "FLZ249", "FLZ052"]),
        ("Fcst", "Wx", "WEATHER", 0, 12, "NoWx", "all"),
-       ("Fcst", "Wx", "WEATHER", 0, 12, "Sct:SW:-:<NoVis>:", ["FLZ039", "FLZ042", "FLZ051"]),
-       ("Fcst", "Wx", "WEATHER", 0, 12, "Sct:RW:-:<NoVis>:", ["FLZ049", "FLZ052"]),
+       ("Fcst", "Wx", "WEATHER", 0, 12, "Sct:SW:-:<NoVis>:", ["FLZ139", "FLZ239", "FLZ142", "FLZ242", "FLZ151", "FLZ251"]),
+       ("Fcst", "Wx", "WEATHER", 0, 12, "Sct:RW:-:<NoVis>:", ["FLZ149", "FLZ249", "FLZ052"]),
        ],
     "checkStrings": [
-       ("MOSTLY CLOUDY WITH SCATTERED SHOWERS AND SNOW SHOWERS",
-       "MOSTLY CLOUDY WITH SCATTERED RAIN SHOWERS AND SNOW SHOWERS",
+       ("Mostly cloudy with scattered showers and snow showers",
+       "Mostly cloudy with scattered rain showers and snow showers",
        ),
        ],
     "fileChanges": [
-       #("Phrase_Test_Local", "TextProduct", "add", highestAggCov, "undo"),
-       ("Phrase_Test_Local", "TextProduct", "add", checkPercentages, "undo"),
+       #("Phrase_Test_Local", "TextUtility", "add", highestAggCov, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", checkPercentages, "undo"),
        ],
     },    
 
@@ -999,21 +984,21 @@ scripts = [
     "createGrids": [
        ("Fcst", "Sky", "SCALAR", 0, 6,  70, "all", 1),
        ("Fcst", "Sky", "SCALAR", 6, 12, 70, "all", 1),
-       ("Fcst", "PoP", "SCALAR", 0, 12,  20, ["FLZ039", "FLZ042", "FLZ051"]),
-       ("Fcst", "PoP", "SCALAR", 0, 12,  50, ["FLZ049", "FLZ052"]),
+       ("Fcst", "PoP", "SCALAR", 0, 12,  20, ["FLZ139", "FLZ239", "FLZ142", "FLZ242", "FLZ151", "FLZ251"]),
+       ("Fcst", "PoP", "SCALAR", 0, 12,  50, ["FLZ149", "FLZ249", "FLZ052"]),
        ("Fcst", "Wx", "WEATHER", 0, 12, "NoWx", "all"),
        ("Fcst", "Wx", "WEATHER", 0, 12, "Sct:SW:-:<NoVis>:^Sct:RW:-:<NoVis>:",
-       ["FLZ039", "FLZ042", "FLZ051"]),
-       #("Fcst", "Wx", "WEATHER", 0, 12, "Sct:RW:-:<NoVis>:", ["FLZ049", "FLZ052"]),
+       ["FLZ139", "FLZ239", "FLZ142", "FLZ242", "FLZ151", "FLZ251"]),
+       #("Fcst", "Wx", "WEATHER", 0, 12, "Sct:RW:-:<NoVis>:", ["FLZ149", "FLZ249", "FLZ052"]),
        ],
     "checkStrings": [
-       ("MOSTLY CLOUDY WITH SCATTERED SHOWERS AND SNOW SHOWERS",
-       "MOSTLY CLOUDY WITH SCATTERED RAIN SHOWERS AND SNOW SHOWERS",
+       ("Mostly cloudy with scattered showers and snow showers",
+       "Mostly cloudy with scattered rain showers and snow showers",
        ),
        ],
     "fileChanges": [
-       #("Phrase_Test_Local", "TextProduct", "add", highestAggCov, "undo"),
-       ("Phrase_Test_Local", "TextProduct", "add", checkPercentages, "undo"),
+       #("Phrase_Test_Local", "TextUtility", "add", highestAggCov, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", checkPercentages, "undo"),
        ],
     },
 
@@ -1036,7 +1021,7 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 9, 12, "Lkly:RW:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "MOSTLY CLOUDY",
+       "Mostly cloudy",
        ],
     },    
     {
@@ -1057,7 +1042,7 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 3, 12, "Lkly:RW:-:<NoVis>:", "all"),
        ],
     "notCheckStrings": [
-       "MOSTLY CLOUDY",
+       "Mostly cloudy",
        ],
     },    
     {
@@ -1076,7 +1061,7 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Lkly:RW:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "MOSTLY SUNNY WITH CHANCE OF SHOWERS IN THE MORNING...THEN MOSTLY CLOUDY WITH SHOWERS LIKELY IN THE AFTERNOON",
+       "Mostly sunny with chance of showers in the morning...then mostly cloudy with showers likely in the afternoon",
        ],
     },    
     {
@@ -1094,7 +1079,7 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 3, 12, "Lkly:RW:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "SUNNY WITH CHANCE OF SHOWERS EARLY IN THE MORNING...THEN SHOWERS LIKELY IN THE LATE MORNING AND AFTERNOON",
+       "Sunny with chance of showers early in the morning...then showers likely in the late morning and afternoon",
        ],
     },
 
@@ -1117,11 +1102,11 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "SChc:RW:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "MOSTLY SUNNY.",
-       "WIDESPREAD SHOWERS IN THE MORNING...THEN SLIGHT CHANCE OF SHOWERS IN THE AFTERNOON", 
+       "Mostly sunny.",
+       "Widespread showers in the morning...then slight chance of showers in the afternoon", 
        ],
     "fileChanges": [
-       ("Phrase_Test_Local", "TextProduct", "add", skyMod, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "add", skyMod, "undo"),
        ],
     },
     {
@@ -1142,8 +1127,8 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "SChc:RW:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-        "BECOMING MOSTLY SUNNY LATE IN THE AFTERNOON.",
-        "WIDESPREAD SHOWERS IN THE MORNING...THEN SLIGHT CHANCE OF SHOWERS IN THE AFTERNOON.",
+        "Becoming mostly sunny late in the afternoon.",
+        "Widespread showers in the morning...then slight chance of showers in the afternoon.",
        ],
     },
     ]

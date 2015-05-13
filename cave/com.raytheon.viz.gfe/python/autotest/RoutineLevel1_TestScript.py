@@ -39,7 +39,7 @@ scripts = [
     "comboFlag": 0,
     "checkStrings": ["AREA FORECAST DISCUSSION", ".SHORT TERM"],
     "createGrids": [("Fcst", "Hazards", "DISCRETE", 0, 12, "WS.W", "all")],
-    "fileChanges": [("AFD_<site>_Definition", "TextProduct", "replace", def2, "undo")],
+    "fileChanges": [("AFD_<site>_Definition", "TextUtility", "replace", (def1, def2), "undo")],
     },
     {    
     "name":"AFM1", 
@@ -66,7 +66,7 @@ scripts = [
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None}",
     "comboFlag":  1,
     "combinations": "ZONE",
-    "checkStrings": ["COASTAL WATERS FORECAST", ".TODAY", ".TONIGHT"],
+    "checkStrings": ["COASTAL WATERS FORECAST", ".Today", ".Tonight"],
     },
     {
     "name":"CWF_Pacific1", 
@@ -75,7 +75,7 @@ scripts = [
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None}",
     "comboFlag":  1, 
     "combinations": "ZONE",
-    "checkStrings": ["COASTAL WATERS FORECAST", ".TODAY", ".TONIGHT"], 
+    "checkStrings": ["COASTAL WATERS FORECAST", ".Today", ".Tonight"], 
     },
     {
     "name":"FWF1", 
@@ -84,7 +84,7 @@ scripts = [
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None}",
     "comboFlag":  1, 
     "combinations": "ZONE",
-    "checkStrings": ["FIRE WEATHER PLANNING FORECAST", ".TODAY", "SKY/WEATHER"], 
+    "checkStrings": ["FIRE WEATHER PLANNING FORECAST", ".Today", "SKY/WEATHER"], 
     },
     {
     "name":"FWFTable1", 
@@ -107,9 +107,9 @@ scripts = [
     "name":"FWS1", 
     "productType":"FWS",
     "commentary": "Basic FWS formatter run.",
-    "cmdLineVars": "{('Product Issuance:', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None, ('Agency:', 'requestingAgency'): 'AGENCY 1', ('Tomorrow Elements', 'tomorrowElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Longitude (Deg)...................', 'fireLongitude'): 82.19, ('WebSiteTag:', 'webSiteTag'): '', ('Check Items to Include:', 'extendedQuestions'): [], ('Forecaster:', 'forecaster'): ['FORECASTER C'], ('Type of Fire:', 'fireType'): 'PRESCRIBED', ('Name of Agency Contact..........', 'agencyContact'): 'yyyy', ('Today Elements', 'todayElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Latitude (Deg).......................', 'fireLatitude'): 28.27, ('WFOid:', 'wfoID'): '', ('Fire Size (Acres) .........................', 'fireSize'): .005, ('Name of Fire ...................................', 'fireName'): 'xxxx', ('Tonight Elements', 'tonightElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Creation Date', 'creationDate'): '', ('Creation Time', 'creationTime'): '', ('What Type of Forecast?', 'forecastType'): 'Narrative Only', ('Include Ignition Times?', 'withIgnitionTimes'): 'yes', ('Name of Agency if not listed....', 'otherAgencyName'): 'xxxx', ('Date of Fire .....................................', 'fireDate'): '1/1/10', ('Time of Fire .....................................', 'fireTime'): '1300', ('Tab Hrs', 'todayTableRes'): 1, ('Tab Hrs', 'tonightTableRes'): 2, ('Tab Hrs', 'tomorrowTableRes'): 3, ('TimeZone:', 'fireTZ'): 'EST7EDT'}",
+    "cmdLineVars": "{('Product Issuance:', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None, ('Agency:', 'requestingAgency'): 'AGENCY 1', ('Tomorrow Elements', 'tomorrowElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Longitude (Deg)...................', 'fireLongitude'): 82.19, ('WebSiteTag:', 'webSiteTag'): '', ('Check Items to Include:', 'extendedQuestions'): [], ('Forecaster:', 'forecaster'): ['FORECASTER C'], ('Type of Fire:', 'fireType'): 'PRESCRIBED', ('Name of Agency Contact..........', 'agencyContact'): 'yyyy', ('Today Elements', 'todayElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Latitude (Deg).......................', 'fireLatitude'): 28.27, ('WFOid:', 'wfoID'): '', ('Fire Size (Acres) .........................', 'fireSize'): .005, ('Name of Fire ...................................', 'fireName'): 'xxxx', ('Tonight Elements', 'tonightElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Creation Date', 'creationDate'): '', ('Creation Time', 'creationTime'): '', ('What Type of Forecast?', 'forecastType'): 'Narrative Only', ('Include Ignition Times?', 'withIgnitionTimes'): 'yes', ('Name of Agency if not listed....', 'otherAgencyName'): 'xxxx', ('Date of Fire .....................................', 'fireDate'): '01/01/10', ('Time of Fire .....................................', 'fireTime'): '1300', ('Tab Hrs', 'todayTableRes'): 1, ('Tab Hrs', 'tonightTableRes'): 2, ('Tab Hrs', 'tomorrowTableRes'): 3, ('TimeZone:', 'fireTZ'): 'EST5EDT'}",
     "comboFlag":  0, 
-    "checkStrings": ["SPOT FORECAST", ".TODAY", "TEMPERATURE"], 
+    "checkStrings": ["SPOT FORECAST", ".Today", "TEMPERATURE"], 
     },
     
     {
@@ -118,7 +118,7 @@ scripts = [
     "commentary": "Basic GLF formatter run.",
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): '400 AM', ('Issued By', 'issuedBy'): None}",
     "comboFlag":  0, 
-    "checkStrings": ["LAKE SUPERIOR FORECAST BEYOND FIVE NAUTICAL", ".TODAY", ".TONIGHT"], 
+    "checkStrings": ["Lake Superior forecast beyond five nautical", ".Today", ".Tonight"], 
     },
     {
     "name":"MVF1", 
@@ -144,7 +144,7 @@ scripts = [
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): '430 AM', ('Issued By', 'issuedBy'): None}",
     "comboFlag":  1, 
     "combinations": "ZONE",
-    "checkStrings": ["NEARSHORE MARINE FORECAST", ".TODAY", ".TONIGHT"], 
+    "checkStrings": ["NEARSHORE MARINE FORECAST", ".Today", ".Tonight"], 
     },
     {
     "name":"OFF1", 
@@ -153,7 +153,7 @@ scripts = [
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): '400 AM', ('Issued By', 'issuedBy'): None}",
     "comboFlag":  1, 
     "combinations": "ZONE",
-    "checkStrings": ["OFFSHORE FORECAST", ".TODAY", ".TONIGHT"], 
+    "checkStrings": ["OFFSHORE FORECAST", ".Today", ".Tonight"], 
     },
     {
     "name":"PFM1", 
@@ -169,7 +169,7 @@ scripts = [
     "commentary": "Basic SAF formatter run.",
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None, ('Number of Periods', 'numPeriods'): 'All'}",
     "comboFlag":  0, 
-    "checkStrings": ["NOW FOR THE OFFICIAL NATIONAL WEATHER SERVICE FORECAST", "TODAY,", "TONIGHT,"], 
+    "checkStrings": ["Now for the official National Weather Service forecast", "Today,", "Tonight,"], 
     },
     {
     "name":"SRF1", 
@@ -184,7 +184,7 @@ scripts = [
     "productType":"SFT",
     "commentary": "Basic SFT formatter run.",
     "comboFlag": 0, 
-    "checkStrings": ["TABULAR STATE FORECAST", "TODAY"], 
+    "checkStrings": ["TABULAR STATE FORECAST", "Today"], 
     },
     {
     "name":"SPS", 
@@ -201,7 +201,7 @@ scripts = [
     "commentary": "Basic ZFP formatter run.",
     "comboFlag": 1, 
     "combinations": "ZONE",
-    "checkStrings": ["ZONE FORECAST PRODUCT", ".TODAY", ".TONIGHT"], 
+    "checkStrings": ["ZONE FORECAST PRODUCT", ".Today", ".Tonight"], 
     },   
     ]
 
