@@ -19,13 +19,11 @@
  **/
 package com.raytheon.uf.common.dataplugin.scan.data;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarDataInterrogator;
-import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -38,6 +36,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Jun 9, 2010  5098       grichard    Initial creation.
  * 02/01/13     1569        D. Hladky  removed XML where not needed
+ * 05/13/15     4487       D. Hladky   ISerializable is deprecated. Possible thread safety issue.
  * 
  * </pre>
  * 
@@ -45,17 +44,15 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 
+public class RadarData {
 
-@DynamicSerialize
-public class RadarData implements ISerializableObject {
-
-    private final Map<String, RadarRecord> radarMap;
+    private final ConcurrentMap<String, RadarRecord> radarMap;
 
     /**
      * Public constructor
      */
     public RadarData() {
-        radarMap = new HashMap<String, RadarRecord>();
+        radarMap = new ConcurrentHashMap<String, RadarRecord>();
     }
 
     /**
