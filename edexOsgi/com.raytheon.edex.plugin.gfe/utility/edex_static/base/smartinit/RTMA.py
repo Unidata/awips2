@@ -52,6 +52,12 @@ class RTMAForecaster(Forecaster):
         grid = tcc_EA
         return clip(grid, 0, 100)
 ##--------------------------------------------------------------------------
+##  Sky Analysis Uncertainty
+##--------------------------------------------------------------------------
+    def calcSkyUnc(self, tccerranl_EA):
+        grid = tccerranl_EA
+        return clip(grid, 0, 100)
+##--------------------------------------------------------------------------
 ##  T - change K to F
 ##--------------------------------------------------------------------------
     def calcT(self, t_FHAG2):
