@@ -252,7 +252,7 @@ def testScript(self, dataMgr):
         "cmdLineVars" :"{('Product Issuance', 'productIssuance'): 'Morning', ('Issuance Type', 'issuanceType'): 'ROUTINE', ('Issued By', 'issuedBy'): None}",
         "productType": "Phrase_Test_Local",
         "fileChanges" : [
-           ("Phrase_Test_Local", "TextProduct", "replace", (periodVer1, periodVer2), "undo")
+           ("Phrase_Test_Local", "TextUtility", "replace", (periodVer1, periodVer2), "undo")
            ],
         }
     return TestScript.generalTestScript(self, dataMgr, scripts, defaults)

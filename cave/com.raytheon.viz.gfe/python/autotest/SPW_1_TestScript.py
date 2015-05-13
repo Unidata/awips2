@@ -18,7 +18,7 @@
 # further licensing information.
 ##
 periodVer1= """Definition["Period_1_version"] = 1"""
-periodVer2= """TextProduct.Definition["Period_1_version"] = 2"""
+periodVer2= """Definition["Period_1_version"] = 2"""
 
 
 scripts = [
@@ -42,8 +42,8 @@ scripts = [
      ],
      'name':'SPW_1_1756',
      'checkStrings':[
-           "WINDWARD...MOSTLY SUNNY...SHOWERS LIKELY AND SLIGHT CHANCE OF SNOW SHOWERS IN THE MORNING...PATCHY FOG THROUGH THE DAY...CHANCE OF PRECIPITATION 40 PERCENT.",
-           "LEEWARD...MOSTLY CLOUDY WITH SLIGHT CHANCE OF SNOW SHOWERS IN THE MORNING...THEN SHOWERS LIKELY IN THE AFTERNOON...PATCHY FOG IN THE MORNING...THEN AREAS OF FOG IN THE AFTERNOON...CHANCE OF PRECIPITATION 70 PERCENT.", 
+           "Windward...mostly sunny...Showers likely and slight chance of snow showers in the morning...Patchy fog through the day...Chance of precipitation 40 percent.",
+           "Leeward...mostly cloudy with slight chance of snow showers in the morning...then showers likely in the afternoon...Patchy fog in the morning...then areas of fog in the afternoon...Chance of precipitation 70 percent.", 
      ],
    },
    {
@@ -66,9 +66,9 @@ scripts = [
      ],
      'name':'SPW_1_166',
      'checkStrings':[
-          "WINDWARD...MOSTLY SUNNY...CHANCE OF SHOWERS AND SLIGHT CHANCE OF SNOW SHOWERS IN THE MORNING...THEN CHANCE OF SHOWERS IN THE AFTERNOON.",
-          "LEEWARD...MOSTLY CLOUDY WITH CHANCE OF SHOWERS AND SLIGHT CHANCE OF SNOW SHOWERS IN THE MORNING...THEN MOSTLY SUNNY WITH CHANCE OF SHOWERS IN THE AFTERNOON.",
-          "CHANCE OF PRECIPITATION 40 PERCENT.",
+          "Windward...mostly sunny...Chance of showers and slight chance of snow showers in the morning...then chance of showers in the afternoon.",
+          "Leeward...mostly cloudy with chance of showers and slight chance of snow showers in the morning...then mostly sunny with chance of showers in the afternoon.",
+          "Chance of precipitation 40 percent.",
      ],
    },
    {
@@ -91,9 +91,9 @@ scripts = [
      ],
      'name':'SPW_1_175',
      'checkStrings':[
-            "WINDWARD...MOSTLY SUNNY...CHANCE OF SHOWERS AND SLIGHT CHANCE OF SNOW SHOWERS IN THE MORNING...THEN CHANCE OF SHOWERS IN THE AFTERNOON.",
-            "LEEWARD...MOSTLY CLOUDY WITH SNOW SHOWERS LIKELY AND CHANCE OF SHOWERS IN THE MORNING...THEN MOSTLY SUNNY WITH CHANCE OF SHOWERS IN THE AFTERNOON.",
-            "CHANCE OF PRECIPITATION 70 PERCENT.",
+            "Windward...mostly sunny...Chance of showers and slight chance of snow showers in the morning...then chance of showers in the afternoon.",
+            "Leeward...mostly cloudy with snow showers likely and chance of showers in the morning...then mostly sunny with chance of showers in the afternoon.",
+            "Chance of precipitation 70 percent.",
             ],
    },
    {
@@ -116,9 +116,9 @@ scripts = [
      ],
      'name':'SPW_1_193',
      'checkStrings':[
-         "WINDWARD...MOSTLY SUNNY...CHANCE OF SHOWERS IN THE MORNING...THEN CHANCE OF SHOWERS AND SLIGHT CHANCE OF SNOW SHOWERS IN THE AFTERNOON...PATCHY FOG THROUGH THE DAY.",
-         "LEEWARD...MOSTLY CLOUDY WITH CHANCE OF SHOWERS IN THE MORNING...THEN MOSTLY SUNNY WITH SNOW SHOWERS LIKELY AND CHANCE OF SHOWERS IN THE AFTERNOON...AREAS OF FOG THROUGH THE DAY.", 
-         "CHANCE OF PRECIPITATION 70 PERCENT.",
+         "Windward...mostly sunny...Chance of showers in the morning...then chance of showers and slight chance of snow showers in the afternoon...Patchy fog through the day.",
+         "Leeward...mostly cloudy with chance of showers in the morning...then mostly sunny with snow showers likely and chance of showers in the afternoon...Areas of fog through the day.", 
+         "Chance of precipitation 70 percent.",
      ],
    },
    {
@@ -141,8 +141,8 @@ scripts = [
      ],
      'name':'SPW_1_196',
      'checkStrings':[
-          "WINDWARD...MOSTLY SUNNY...CHANCE OF SHOWERS AND SLIGHT CHANCE OF SNOW SHOWERS IN THE MORNING...THEN CHANCE OF SHOWERS IN THE AFTERNOON...PATCHY FOG THROUGH THE DAY...CHANCE OF PRECIPITATION 40 PERCENT.",
-          "LEEWARD...MOSTLY CLOUDY WITH CHANCE OF SHOWERS AND SLIGHT CHANCE OF SNOW SHOWERS IN THE MORNING...THEN MOSTLY SUNNY WITH CHANCE OF SHOWERS IN THE AFTERNOON...AREAS OF FOG THROUGH THE DAY...CHANCE OF PRECIPITATION 50 PERCENT.",
+          "Windward...mostly sunny...Chance of showers and slight chance of snow showers in the morning...then chance of showers in the afternoon...Patchy fog through the day...Chance of precipitation 40 percent.",
+          "Leeward...mostly cloudy with chance of showers and slight chance of snow showers in the morning...then mostly sunny with chance of showers in the afternoon...Areas of fog through the day...Chance of precipitation 50 percent.",
      ],
    },
    {
@@ -165,8 +165,8 @@ scripts = [
      ],
      'name':'SPW_1_269',
      'checkStrings':[
-          "LEEWARD...MOSTLY SUNNY IN THE MORNING THEN BECOMING MOSTLY CLOUDY...A 40 PERCENT CHANCE OF SHOWERS.",
-          "WINDWARD...MOSTLY SUNNY WITH A 40 PERCENT CHANCE OF SHOWERS.",
+          "Leeward...mostly sunny in the morning then becoming mostly cloudy...A 40 percent chance of showers.",
+          "Windward...mostly sunny with a 40 percent chance of showers.",
      ],
    },
    {
@@ -189,9 +189,9 @@ scripts = [
      ],
      'name':'SPW_1_272',
      'checkStrings':[
-          "WINDWARD...MOSTLY SUNNY...CHANCE OF SHOWERS AND SLIGHT CHANCE OF SNOW SHOWERS IN THE MORNING...THEN CHANCE OF SHOWERS IN THE AFTERNOON.",
-          "LEEWARD...MOSTLY SUNNY WITH SNOW SHOWERS LIKELY AND CHANCE OF SHOWERS IN THE MORNING...THEN MOSTLY CLOUDY WITH CHANCE OF SHOWERS IN THE AFTERNOON.",
-          "CHANCE OF PRECIPITATION 70 PERCENT.",
+          "Windward...mostly sunny...Chance of showers and slight chance of snow showers in the morning...then chance of showers in the afternoon.",
+          "Leeward...mostly sunny with snow showers likely and chance of showers in the morning...then mostly cloudy with chance of showers in the afternoon.",
+          "Chance of precipitation 70 percent.",
      ],
    },
    {
@@ -214,9 +214,9 @@ scripts = [
      ],
      'name':'SPW_1_293',
      'checkStrings':[
-          "WINDWARD...MOSTLY SUNNY...CHANCE OF SHOWERS IN THE MORNING...THEN CHANCE OF SHOWERS AND SLIGHT CHANCE OF SNOW SHOWERS IN THE AFTERNOON...PATCHY FOG THROUGH THE DAY.", 
-          "LEEWARD...MOSTLY SUNNY WITH CHANCE OF SHOWERS IN THE MORNING...THEN MOSTLY CLOUDY WITH SNOW SHOWERS LIKELY AND CHANCE OF SHOWERS IN THE AFTERNOON...AREAS OF FOG THROUGH THE DAY.",
-          "CHANCE OF PRECIPITATION 70 PERCENT.",
+          "Windward...mostly sunny...Chance of showers in the morning...then chance of showers and slight chance of snow showers in the afternoon...Patchy fog through the day.", 
+          "Leeward...mostly sunny with chance of showers in the morning...then mostly cloudy with snow showers likely and chance of showers in the afternoon...Areas of fog through the day.",
+          "Chance of precipitation 70 percent.",
      ],
    },
    {
@@ -239,10 +239,10 @@ scripts = [
      ],
      'name':'SPW_1_370',
      'checkStrings':[
-         "WINDWARD...MOSTLY SUNNY...CHANCE OF SHOWERS AND SLIGHT CHANCE OF SNOW SHOWERS IN THE MORNING.",
-         "LEEWARD...MOSTLY CLOUDY...SNOW SHOWERS LIKELY AND CHANCE OF SHOWERS IN THE MORNING.",
-         "CHANCE OF SHOWERS IN THE AFTERNOON.",
-         "CHANCE OF PRECIPITATION 70 PERCENT.",
+         "Windward...mostly sunny...Chance of showers and slight chance of snow showers in the morning.",
+         "Leeward...mostly cloudy...Snow showers likely and chance of showers in the morning.",
+         "Chance of showers in the afternoon.",
+         "Chance of precipitation 70 percent.",
      ],
    },
    {
@@ -265,10 +265,10 @@ scripts = [
      ],
      'name':'SPW_1_404',
      'checkStrings':[
-         "MOSTLY SUNNY.",
-         "WINDWARD...A 40 PERCENT CHANCE OF SHOWERS.",
-         "LEEWARD...SHOWERS LIKELY IN THE MORNING...THEN CHANCE OF SHOWERS IN THE AFTERNOON.",
-         "PATCHY FOG THROUGH THE DAY.",
+         "Mostly sunny.",
+         "Windward...a 40 percent chance of showers.",
+         "Leeward...showers likely in the morning...then chance of showers in the afternoon.",
+         "Patchy fog through the day.",
          ],
    },
    {
@@ -291,9 +291,9 @@ scripts = [
      ],
      'name':'SPW_1_488',
      'checkStrings':[
-          "WINDWARD...CHANCE OF SHOWERS IN THE MORNING...THEN CHANCE OF SHOWERS AND SLIGHT CHANCE OF SNOW SHOWERS IN THE AFTERNOON...PATCHY FOG THROUGH THE DAY.",
-          "LEEWARD...SHOWERS LIKELY IN THE MORNING...THEN SNOW SHOWERS LIKELY AND CHANCE OF SHOWERS IN THE AFTERNOON...AREAS OF FOG THROUGH THE DAY.",
-          "CHANCE OF PRECIPITATION 70 PERCENT.",
+          "Windward...chance of showers in the morning...then chance of showers and slight chance of snow showers in the afternoon...Patchy fog through the day.",
+          "Leeward...showers likely in the morning...then snow showers likely and chance of showers in the afternoon...Areas of fog through the day.",
+          "Chance of precipitation 70 percent.",
           ],
    },
    {
@@ -316,9 +316,9 @@ scripts = [
      ],
      'name':'SPW_1_522',
      'checkStrings':[
-         "WINDWARD...MOSTLY SUNNY...CHANCE OF SHOWERS AND SLIGHT CHANCE OF SNOW SHOWERS IN THE MORNING...THEN CHANCE OF SHOWERS IN THE AFTERNOON...PATCHY FOG THROUGH THE DAY.", 
-         "LEEWARD...MOSTLY CLOUDY WITH SHOWERS AND SNOW SHOWERS LIKELY IN THE MORNING...THEN MOSTLY SUNNY WITH CHANCE OF SHOWERS IN THE AFTERNOON...AREAS OF FOG IN THE MORNING...THEN PATCHY FOG IN THE AFTERNOON.",
-         "CHANCE OF PRECIPITATION 40 PERCENT.",
+         "Windward...mostly sunny...Chance of showers and slight chance of snow showers in the morning...then chance of showers in the afternoon...Patchy fog through the day.", 
+         "Leeward...mostly cloudy with showers and snow showers likely in the morning...then mostly sunny with chance of showers in the afternoon...Areas of fog in the morning...then patchy fog in the afternoon.",
+         "Chance of precipitation 40 percent.",
      ],
    },
    {
@@ -341,9 +341,9 @@ scripts = [
      ],
      'name':'SPW_1_532',
      'checkStrings':[
-         "WINDWARD...MOSTLY SUNNY...CHANCE OF SHOWERS AND SLIGHT CHANCE OF SNOW SHOWERS IN THE MORNING...THEN CHANCE OF SHOWERS IN THE AFTERNOON...PATCHY FOG THROUGH THE DAY.", 
-         "LEEWARD...MOSTLY CLOUDY WITH SHOWERS AND SNOW SHOWERS LIKELY IN THE MORNING...THEN MOSTLY SUNNY WITH CHANCE OF SHOWERS IN THE AFTERNOON...AREAS OF FOG IN THE MORNING...THEN PATCHY FOG IN THE AFTERNOON.",
-         "CHANCE OF PRECIPITATION 70 PERCENT.",
+         "Windward...mostly sunny...Chance of showers and slight chance of snow showers in the morning...then chance of showers in the afternoon...Patchy fog through the day.", 
+         "Leeward...mostly cloudy with showers and snow showers likely in the morning...then mostly sunny with chance of showers in the afternoon...Areas of fog in the morning...then patchy fog in the afternoon.",
+         "Chance of precipitation 70 percent.",
      ],
    },
    {
@@ -366,8 +366,8 @@ scripts = [
      ],
      'name':'SPW_1_544',
      'checkStrings':[
-         "WINDWARD...MOSTLY SUNNY WITH A 40 PERCENT CHANCE OF SHOWERS...PATCHY FOG.",
-         "LEEWARD...MOSTLY CLOUDY WITH SHOWERS LIKELY IN THE MORNING...THEN MOSTLY SUNNY WITH CHANCE OF SHOWERS IN THE AFTERNOON...PATCHY FOG IN THE MORNING...THEN AREAS OF FOG IN THE AFTERNOON.",
+         "Windward...mostly sunny with a 40 percent chance of showers...Patchy fog.",
+         "Leeward...mostly cloudy with showers likely in the morning...then mostly sunny with chance of showers in the afternoon...Patchy fog in the morning...then areas of fog in the afternoon.",
          ],
    },
    {
@@ -390,9 +390,9 @@ scripts = [
      ],
      'name':'SPW_1_633',
      'checkStrings':[
-           "WINDWARD...MOSTLY SUNNY...CHANCE OF SHOWERS IN THE MORNING...THEN CHANCE OF SHOWERS AND SLIGHT CHANCE OF SNOW SHOWERS IN THE AFTERNOON...PATCHY FOG THROUGH THE DAY.", 
-           "LEEWARD...MOSTLY SUNNY WITH SHOWERS LIKELY IN THE MORNING...THEN MOSTLY CLOUDY WITH SNOW SHOWERS LIKELY AND CHANCE OF SHOWERS IN THE AFTERNOON...AREAS OF FOG IN THE MORNING...THEN PATCHY FOG IN THE AFTERNOON.",
-           "CHANCE OF PRECIPITATION 70 PERCENT.",
+           "Windward...mostly sunny...Chance of showers in the morning...then chance of showers and slight chance of snow showers in the afternoon...Patchy fog through the day.", 
+           "Leeward...mostly sunny with showers likely in the morning...then mostly cloudy with snow showers likely and chance of showers in the afternoon...Areas of fog in the morning...then patchy fog in the afternoon.",
+           "Chance of precipitation 70 percent.",
      ],
    },
    {
@@ -415,10 +415,10 @@ scripts = [
      ],
      'name':'SPW_1_833',
      'checkStrings':[
-         "CHANCE OF SHOWERS IN THE MORNING.",
-         "WINDWARD...PATCHY FOG THROUGH THE DAY...CHANCE OF SHOWERS AND SLIGHT CHANCE OF SNOW SHOWERS IN THE AFTERNOON.",
-         "LEEWARD...AREAS OF FOG IN THE MORNING...THEN PATCHY FOG IN THE AFTERNOON...SHOWERS AND SNOW SHOWERS LIKELY IN THE AFTERNOON.",
-         "CHANCE OF PRECIPITATION 70 PERCENT",
+         "Chance of showers in the morning.",
+         "Windward...patchy fog through the day...Chance of showers and slight chance of snow showers in the afternoon.",
+         "Leeward...areas of fog in the morning...then patchy fog in the afternoon...Showers and snow showers likely in the afternoon.",
+         "Chance of precipitation 70 percent",
      ],
    },
    {
@@ -441,8 +441,8 @@ scripts = [
      ],
      'name':'SPW_1_877',
      'checkStrings':[
-          "WINDWARD...CHANCE OF SHOWERS AND SLIGHT CHANCE OF SNOW SHOWERS IN THE MORNING...THEN CHANCE OF SHOWERS IN THE AFTERNOON...CHANCE OF PRECIPITATION 40 PERCENT.", 
-          "LEEWARD...SNOW SHOWERS LIKELY AND CHANCE OF SHOWERS IN THE MORNING...THEN SHOWERS LIKELY IN THE AFTERNOON...CHANCE OF PRECIPITATION 70 PERCENT.",
+          "Windward...chance of showers and slight chance of snow showers in the morning...then chance of showers in the afternoon...Chance of precipitation 40 percent.", 
+          "Leeward...snow showers likely and chance of showers in the morning...then showers likely in the afternoon...Chance of precipitation 70 percent.",
           ],
    },
    {
@@ -465,9 +465,9 @@ scripts = [
      ],
      'name':'SPW_1_885',
      'checkStrings':[
-          "MOSTLY SUNNY. WINDWARD...CHANCE OF SHOWERS AND SLIGHT CHANCE OF SNOW SHOWERS IN THE MORNING...THEN CHANCE OF SHOWERS IN THE AFTERNOON...PATCHY FOG THROUGH THE DAY.", 
-          "LEEWARD...SNOW SHOWERS LIKELY AND CHANCE OF SHOWERS IN THE MORNING...THEN SHOWERS LIKELY IN THE AFTERNOON...AREAS OF FOG THROUGH THE DAY.",
-          "CHANCE OF PRECIPITATION 40 PERCENT.",
+          "Mostly sunny. Windward...chance of showers and slight chance of snow showers in the morning...then chance of showers in the afternoon...Patchy fog through the day.", 
+          "Leeward...snow showers likely and chance of showers in the morning...then showers likely in the afternoon...Areas of fog through the day.",
+          "Chance of precipitation 40 percent.",
      ],
    },
    {
@@ -490,10 +490,10 @@ scripts = [
      ],
      'name':'SPW_1_1012',
      'checkStrings':[
-          "WINDWARD...MOSTLY SUNNY...CHANCE OF SHOWERS AND SLIGHT CHANCE OF SNOW SHOWERS IN THE MORNING...THEN CHANCE OF SHOWERS IN THE AFTERNOON.",
-          "LEEWARD...MOSTLY SUNNY WITH SNOW SHOWERS LIKELY AND CHANCE OF SHOWERS IN THE MORNING...THEN MOSTLY CLOUDY WITH SHOWERS LIKELY IN THE AFTERNOON.",
-          "PATCHY FOG.",
-          "CHANCE OF PRECIPITATION 70 PERCENT.",
+          "Windward...mostly sunny...Chance of showers and slight chance of snow showers in the morning...then chance of showers in the afternoon.",
+          "Leeward...mostly sunny with snow showers likely and chance of showers in the morning...then mostly cloudy with showers likely in the afternoon.",
+          "Patchy fog.",
+          "Chance of precipitation 70 percent.",
      ],
    },
    {
@@ -516,9 +516,9 @@ scripts = [
      ],
      'name':'SPW_1_1026',
      'checkStrings':[
-         "WINDWARD...MOSTLY SUNNY...CHANCE OF SHOWERS AND SLIGHT CHANCE OF SNOW SHOWERS IN THE MORNING...THEN CHANCE OF SHOWERS IN THE AFTERNOON...PATCHY FOG THROUGH THE DAY.",
-         "LEEWARD...MOSTLY SUNNY WITH CHANCE OF SHOWERS AND SLIGHT CHANCE OF SNOW SHOWERS IN THE MORNING...THEN MOSTLY CLOUDY WITH SHOWERS LIKELY IN THE AFTERNOON...AREAS OF FOG IN THE MORNING...THEN PATCHY FOG IN THE AFTERNOON.", 
-         "CHANCE OF PRECIPITATION 70 PERCENT.",
+         "Windward...mostly sunny...Chance of showers and slight chance of snow showers in the morning...then chance of showers in the afternoon...Patchy fog through the day.",
+         "Leeward...mostly sunny with chance of showers and slight chance of snow showers in the morning...then mostly cloudy with showers likely in the afternoon...Areas of fog in the morning...then patchy fog in the afternoon.", 
+         "Chance of precipitation 70 percent.",
      ],
    },
    {
@@ -541,10 +541,10 @@ scripts = [
      ],
      'name':'SPW_1_1153',
      'checkStrings':[
-          "WINDWARD...MOSTLY SUNNY...PATCHY FOG THROUGH THE DAY...CHANCE OF SHOWERS AND SLIGHT CHANCE OF SNOW SHOWERS IN THE AFTERNOON.",
-          "CHANCE OF SHOWERS IN THE MORNING.",
-          "LEEWARD...MOSTLY CLOUDY...PATCHY FOG IN THE MORNING...THEN AREAS OF FOG IN THE AFTERNOON...SHOWERS AND SNOW SHOWERS LIKELY IN THE AFTERNOON.",
-          "CHANCE OF PRECIPITATION 70 PERCENT.",
+          "Windward...mostly sunny...Patchy fog through the day...Chance of showers and slight chance of snow showers in the afternoon.",
+          "Chance of showers in the morning.",
+          "Leeward...mostly cloudy...Patchy fog in the morning...then areas of fog in the afternoon...Showers and snow showers likely in the afternoon.",
+          "Chance of precipitation 70 percent.",
           ],
    },
    {
@@ -565,8 +565,8 @@ scripts = [
      ],
      'name':'SPW_1_1377',
      'checkStrings':[
-         "WINDWARD...MOSTLY SUNNY...A 20 PERCENT CHANCE OF SNOW SHOWERS IN THE MORNING.",
-         "LEEWARD...SNOW SHOWERS LIKELY IN THE MORNING...THEN MOSTLY SUNNY IN THE AFTERNOON...CHANCE OF SNOW 70 PERCENT.", 
+         "Windward...mostly sunny...A 20 percent chance of snow showers in the morning.",
+         "Leeward...snow showers likely in the morning...then mostly sunny in the afternoon...Chance of snow 70 percent.", 
      ],
    },
    {
@@ -589,8 +589,8 @@ scripts = [
      ],
      'name':'SPW_1_1399',
      'checkStrings':[
-          "WINDWARD...MOSTLY SUNNY...PATCHY FOG.",
-          "LEEWARD...MOSTLY CLOUDY IN THE MORNING THEN BECOMING MOSTLY SUNNY...AREAS OF FOG.",
+          "Windward...mostly sunny...Patchy fog.",
+          "Leeward...mostly cloudy in the morning then becoming mostly sunny...Areas of fog.",
           ],
    },
    {
@@ -612,9 +612,9 @@ scripts = [
      ],
      'name':'SPW_1_1668',
      'checkStrings':[
-         "WINDWARD...SHOWERS LIKELY IN THE MORNING...THEN SLIGHT CHANCE OF SNOW SHOWERS IN THE AFTERNOON.",
-         "LEEWARD...SHOWERS AND SNOW SHOWERS LIKELY IN THE AFTERNOON.",
-         "CHANCE OF PRECIPITATION 70 PERCENT.",
+         "Windward...showers likely in the morning...then slight chance of snow showers in the afternoon.",
+         "Leeward...showers and snow showers likely in the afternoon.",
+         "Chance of precipitation 70 percent.",
      ],
    },
    {
@@ -637,9 +637,9 @@ scripts = [
      ],
      'name':'SPW_1_1735',
      'checkStrings':[
-         "WINDWARD...MOSTLY SUNNY...SHOWERS LIKELY AND SLIGHT CHANCE OF SNOW SHOWERS IN THE MORNING...PATCHY FOG THROUGH THE DAY.",
-         "LEEWARD...MOSTLY CLOUDY WITH SNOW SHOWERS LIKELY IN THE MORNING...THEN MOSTLY SUNNY WITH SHOWERS LIKELY IN THE AFTERNOON...AREAS OF FOG IN THE MORNING...THEN PATCHY FOG IN THE AFTERNOON.",
-         "CHANCE OF PRECIPITATION 70 PERCENT.",
+         "Windward...mostly sunny...Showers likely and slight chance of snow showers in the morning...Patchy fog through the day.",
+         "Leeward...mostly cloudy with snow showers likely in the morning...then mostly sunny with showers likely in the afternoon...Areas of fog in the morning...then patchy fog in the afternoon.",
+         "Chance of precipitation 70 percent.",
          ],
    },
    {
@@ -661,9 +661,9 @@ scripts = [
      ],
      'name':'SPW_1_1961',
      'checkStrings':[
-         "WINDWARD...MOSTLY SUNNY...SHOWERS LIKELY AND SLIGHT CHANCE OF SNOW SHOWERS IN THE MORNING.", 
-         "LEEWARD...MOSTLY CLOUDY...SLIGHT CHANCE OF SNOW SHOWERS IN THE MORNING...THEN SHOWERS LIKELY IN THE AFTERNOON.",
-         "CHANCE OF PRECIPITATION 40 PERCENT.",
+         "Windward...mostly sunny...Showers likely and slight chance of snow showers in the morning.", 
+         "Leeward...mostly cloudy...Slight chance of snow showers in the morning...then showers likely in the afternoon.",
+         "Chance of precipitation 40 percent.",
      ],
    },
 ]
@@ -676,7 +676,7 @@ def testScript(self, dataMgr):
         "cmdLineVars" :"{('Product Issuance', 'productIssuance'): 'Morning', ('Issuance Type', 'issuanceType'): 'ROUTINE', ('Issued By', 'issuedBy'): None}",
         "productType": "Phrase_Test_Local",
         "fileChanges" : [
-           ("Phrase_Test_Local", "TextProduct", "replace", periodVer2, "undo")
+           ("Phrase_Test_Local", "TextUtility", "replace", (periodVer1, periodVer2), "undo")
            ],
         }
     return TestScript.generalTestScript(self, dataMgr, scripts, defaults)
