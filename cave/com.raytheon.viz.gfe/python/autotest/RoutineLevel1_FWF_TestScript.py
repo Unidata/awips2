@@ -30,18 +30,21 @@
 
 #### File Changes
 
-testDefinitions  = [
-'Definition["tempLocalEffects"] = 1',
-'Definition["windLocalEffects"] = 1',
-'Definition["summaryExtended"] = 0',
-#'Definition["summaryArea"] = "FireArea"',
-'Definition["individualExtended"] = 0',
-'Definition["extendedLabel"] = 1',
-'Definition["includeTrends"] = 0',
-]
+testDefinitions  = """
 
+Definition["tempLocalEffects"] = 1
+Definition["windLocalEffects"] = 1
+Definition["summaryExtended"] = 0
+#Definition["summaryArea"] = "FireArea"
+Definition["individualExtended"] = 0
+Definition["extendedLabel"] = 1
+Definition["includeTrends"] = 0
 
-windAreas = """def ridgeValleyAreas(self, tree, node):
+"""
+
+windAreas = """
+
+    def ridgeValleyAreas(self, tree, node):
         # List of edit area names for which we want
         # ridge/valley winds reported:
         #
@@ -52,27 +55,32 @@ windAreas = """def ridgeValleyAreas(self, tree, node):
         # e.g.
         # return ["Area1"]
         #
-        return ["FLZ042"]
+        return ["FLZ142", "FLZ242"]
 """
 
-testDefinitions1  = [
-'Definition["tempLocalEffects"] = 1',
-'Definition["windLocalEffects"] = 0',
-'Definition["summaryExtended"] = 0',
-#'Definition["summaryArea"] = "FireArea"',
-'Definition["individualExtended"] = 0',
-'Definition["extendedLabel"] = 1',
-'Definition["includeTrends"] = 1'
-]
+testDefinitions1  = """
+
+Definition["tempLocalEffects"] = 1
+Definition["windLocalEffects"] = 0
+Definition["summaryExtended"] = 0
+#Definition["summaryArea"] = "FireArea"
+Definition["individualExtended"] = 0
+Definition["extendedLabel"] = 1
+Definition["includeTrends"] = 1
+
+"""
 
 
-testDefinitions2 =[
-'Definition["tempLocalEffects"] = 1',
-'Definition["useRH"] = 1'
-]
+testDefinitions2 = """
 
-skyWeather1 = [
-"""def skyWeather_byTimeRange_compoundPhrase(self):
+Definition["tempLocalEffects"] = 1
+Definition["useRH"] = 1
+
+"""
+
+skyWeather1 = """
+
+    def skyWeather_byTimeRange_compoundPhrase(self):
         return {
             "phraseList": [
                 self.fireSky_phrase,
@@ -83,8 +91,9 @@ skyWeather1 = [
                 self.assembleSentences,
                 self.skyWeather_finishUp, 
             ],
-            }""",
-"""def getFirePeriod_intersectAreas(self):
+            }
+
+    def getFirePeriod_intersectAreas(self):
         tempList = []
         windList = []
         if self._tempLocalEffects:
@@ -108,11 +117,12 @@ skyWeather1 = [
             ("PoP", ["AboveElev", "BelowElev"]),
             ]
         return tempList + windList + wxList
+    
 """
-]
 
-skyWeather2 = [
-"""def skyWeather_byTimeRange_compoundPhrase(self):
+skyWeather2 = """
+
+    def skyWeather_byTimeRange_compoundPhrase(self):
         return {
             "phraseList": [
                 (self.fireSky_phrase, self._skyLocalEffects_list()),
@@ -125,8 +135,9 @@ skyWeather2 = [
                 self.assembleSentences,
                 self.skyWeather_finishUp, 
             ],
-            }""",
-"""def getFirePeriod_intersectAreas(self):
+            }
+
+    def getFirePeriod_intersectAreas(self):
         tempList = []
         windList = []
         if self._tempLocalEffects:
@@ -151,34 +162,37 @@ skyWeather2 = [
             ("Wx", ["AboveElev", "BelowElev"]),
             ]
         return tempList + windList + wxList
-"""
-]
 
-localEffectSetup = [
-"""def _skyLocalEffects_list(self):
+"""
+
+localEffectSetup = """
+
+    def _skyLocalEffects_list(self):
         leArea1 = self.LocalEffectArea("AboveElev", "windward")
         leArea2 = self.LocalEffectArea("BelowElev", "leeward")
         return [self.LocalEffect([leArea1, leArea2], self.checkSkyDifference, "...")]
-""", 
-"""def _wxLocalEffects_list(self):
+ 
+    def _wxLocalEffects_list(self):
         leArea1 = self.LocalEffectArea("AboveElev", "windward")
         leArea2 = self.LocalEffectArea("BelowElev", "leeward")
         return [self.LocalEffect([leArea1, leArea2], 0, "...")]
-""",
-"""def _popLocalEffects_list(self):
+
+    def _popLocalEffects_list(self):
         leArea1 = self.LocalEffectArea("AboveElev", "windward")
         leArea2 = self.LocalEffectArea("BelowElev", "leeward")
         return [self.LocalEffect([leArea1, leArea2], 20, "...")]
-""",
-"""def _skyPopWxLocalEffects_list(self):
+
+    def _skyPopWxLocalEffects_list(self):
         leArea1 = self.LocalEffectArea("AboveElev", "windward")
         leArea2 = self.LocalEffectArea("BelowElev", "leeward")
         # Set threshold to be used by checkSkyWxDifference
         self._skyLocalEffectThreshold = 38
         return [self.LocalEffect([leArea1, leArea2],
                                  self.checkSkyWxDifference, "...")]
+ 
+ 
+
 """
-]
     
 
 import TestScript
@@ -204,18 +218,18 @@ scripts = [
                  individualExtended turned off, includeTrends turned off
     """,
     "name":"FWF_1", 
-    "productType":"FWF",
+    "productType":"FWF",    
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None }",
     "checkStrings": [
-          "TODAY",
-          "MAX TEMPERATURE.....AROUND 70...EXCEPT AROUND 30 ABOVE TIMBERLINE.",
-          "MIN HUMIDITY........50 PERCENT...EXCEPT 20 PERCENT ABOVE TIMBERLINE.",
+          "Today",
+          "MAX TEMPERATURE.....Around 70...except around 30 above timberline.",
+          "MIN HUMIDITY........50 percent...except 20 percent above timberline.",
           "20-FOOT WINDS......."
-          "VALLEYS/LWR SLOPES...SOUTHWEST AROUND 10 MPH.",
-          "RIDGES/UPR SLOPES....VERY WINDY. NORTH AROUND 45 MPH",
-          "TONIGHT",
-          "MIN TEMPERATURE.....AROUND 50...EXCEPT AROUND 20 ABOVE TIMBERLINE.",
-          "MAX HUMIDITY........70 PERCENT...EXCEPT 30 PERCENT ABOVE TIMBERLINE.",
+          "VALLEYS/LWR SLOPES...Southwest around 10 mph.",
+          "RIDGES/UPR SLOPES....Very windy. North around 45 mph",
+          "Tonight",
+          "MIN TEMPERATURE.....Around 50...except around 20 above timberline.",
+          "MAX HUMIDITY........70 percent...except 30 percent above timberline.",
         ],
 
     "notCheckStrings": [
@@ -250,10 +264,10 @@ scripts = [
     "productType":"FWF",
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None }",
     "checkStrings": [
-          "TODAY",
-          "MIN HUMIDITY........70 PERCENT...EXCEPT 30 PERCENT ABOVE TIMBERLINE.",
-          "TONIGHT",
-          "MAX HUMIDITY........50 PERCENT...EXCEPT 20 PERCENT ABOVE TIMBERLINE.",
+          "Today",
+          "MIN HUMIDITY........70 percent...except 30 percent above timberline.",
+          "Tonight",
+          "MAX HUMIDITY........50 percent...except 20 percent above timberline.",
           ],
     "createGrids": [
         ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 30, ["AboveElev"]),
@@ -284,7 +298,7 @@ scripts = [
     "productType":"FWF",
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None }",
     "checkStrings": [
-            "SKY/WEATHER.........MOSTLY SUNNY (40-50 PERCENT). WIDESPREAD SHOWERS WINDWARD...ISOLATED SHOWERS LEEWARD.",
+            "SKY/WEATHER.........Mostly sunny (40-50 percent). Widespread showers windward...isolated showers leeward.",
                     ],
     "createGrids": [
        ("Fcst", "PoP", "SCALAR", 0, 12, 20, ["BelowElev"]),
@@ -305,7 +319,7 @@ scripts = [
     This shows the capability to do combined phrase local effects in compound phrases.
     There are 2 problems:
     1. Redundant sky wording:
-       (SUNNY (15-25PERCENT)...SUNNY WITH ISOLATED SHOWERS.
+       (SUNNY (15-25percent)...Sunny with isolated showers.
     This is because the skyPopWx_phrase assumes we are using the sky_phrase
     rather than the fireSky_phrase.
     If someone wanted to do this type of thing, they would have to either decide
@@ -323,7 +337,7 @@ scripts = [
     "productType":"FWF",
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None }",
     "checkStrings": [
-            "SKY/WEATHER.........WINDWARD...MOSTLY CLOUDY (65-75 PERCENT)...WIDESPREAD SHOWERS...CHANCE OF SHOWERS 80 PERCENT. LEEWARD...SUNNY (15-25 PERCENT)...SUNNY WITH ISOLATED SHOWERS...CHANCE OF 20 PERCENT."
+            "SKY/WEATHER.........Windward...mostly cloudy (65-75 percent)...Widespread showers...Chance of showers 80 percent. Leeward...sunny (15-25 percent)...Sunny with isolated showers...Chance of 20 percent."
             ],    
     "createGrids": [
        ("Fcst", "PoP", "SCALAR", 0, 12, 20, ["BelowElev"]),
@@ -348,16 +362,16 @@ scripts = [
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): 'Afternoon Update', ('Issued By', 'issuedBy'): None }",
     "checkStrings": [
             "200 PM EST FRI JAN 1 2010",
-            ".REST OF TODAY...",
-            "MAX TEMPERATURE.....AROUND 78.",
-            "24 HR TREND......18 DEGREES WARMER.",
-            "MIN HUMIDITY........65 PERCENT.",
-            "24 HR TREND......25 PERCENT WETTER.",
-            ".TONIGHT...",
-            "MIN TEMPERATURE.....AROUND 60.",
-            "24 HR TREND......20 DEGREES WARMER.",
-            "MAX HUMIDITY........78 PERCENT.",
-            "24 HR TREND......18 PERCENT WETTER.",
+            ".Rest of Today...",
+            "MAX TEMPERATURE.....Around 78.",
+            "24 HR TREND......18 degrees warmer.",
+            "MIN HUMIDITY........65 percent.",
+            "24 HR TREND......25 percent wetter.",
+            ".Tonight...",
+            "MIN TEMPERATURE.....Around 60.",
+            "24 HR TREND......20 degrees warmer.",
+            "MAX HUMIDITY........78 percent.",
+            "24 HR TREND......18 percent wetter.",
             ],
     "createGrids": CreateGrids.Public_createGrids + CreateGrids.Fire_createGrids,
     "drtHour": 14,
@@ -374,11 +388,11 @@ scripts = [
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): 'Evening Update', ('Issued By', 'issuedBy'): None }",
     "checkStrings": [
             "1000 PM EST FRI JAN 1 2010",
-            ".REST OF TONIGHT...",
-            "MIN TEMPERATURE.....AROUND 60.",
-            "24 HR TREND......20 DEGREES WARMER.",
-            "MAX HUMIDITY........78 PERCENT.",
-            "24 HR TREND......18 PERCENT WETTER.",
+            ".Rest of Tonight...",
+            "MIN TEMPERATURE.....Around 60.",
+            "24 HR TREND......20 degrees warmer.",
+            "MAX HUMIDITY........78 percent.",
+            "24 HR TREND......18 percent wetter.",
             ],
     "createGrids": CreateGrids.Public_createGrids + CreateGrids.Fire_createGrids,
     "drtHour": 22,
@@ -395,16 +409,16 @@ scripts = [
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): 'Afternoon Update', ('Issued By', 'issuedBy'): None }",
     "checkStrings": [
           "200 PM EST FRI JAN 1 2010",
-          ".REST OF TODAY...",
-          "MAX TEMPERATURE.....AROUND 70...EXCEPT AROUND 30 ABOVE TIMBERLINE.",
-          "24 HR TREND......10 DEGREES WARMER...EXCEPT 30 DEGREES COOLER ABOVE TIMBERLINE.",
-          "MIN HUMIDITY........50 PERCENT...EXCEPT 20 PERCENT ABOVE TIMBERLINE.",
-          "24 HR TREND......10 PERCENT WETTER...EXCEPT 20 PERCENT DRIER ABOVE TIMBERLINE.",
-          ".TONIGHT...",
-          "MIN TEMPERATURE.....AROUND 50...EXCEPT AROUND 20 ABOVE TIMBERLINE.",
-          "24 HR TREND......10 DEGREES WARMER...EXCEPT 20 DEGREES COOLER ABOVE TIMBERLINE.",
-          "MAX HUMIDITY........70 PERCENT...EXCEPT 30 PERCENT ABOVE TIMBERLINE.",
-          "24 HR TREND......10 PERCENT WETTER...EXCEPT 30 PERCENT DRIER ABOVE TIMBERLINE.",
+          ".Rest of Today...",
+          "MAX TEMPERATURE.....Around 70...except around 30 above timberline.",
+          "24 HR TREND......10 degrees warmer...except 30 degrees cooler above timberline.",
+          "MIN HUMIDITY........50 percent...except 20 percent above timberline.",
+          "24 HR TREND......10 percent wetter...except 20 percent drier above timberline.",
+          ".Tonight...",
+          "MIN TEMPERATURE.....Around 50...except around 20 above timberline.",
+          "24 HR TREND......10 degrees warmer...except 20 degrees cooler above timberline.",
+          "MAX HUMIDITY........70 percent...except 30 percent above timberline.",
+          "24 HR TREND......10 percent wetter...except 30 percent drier above timberline.",
         ],
     "createGrids": [
         ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 30, ["AboveElev"]),
@@ -433,11 +447,11 @@ scripts = [
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): 'Evening Update', ('Issued By', 'issuedBy'): None }",
     "checkStrings": [
           "1000 PM EST FRI JAN 1 2010",
-          ".REST OF TONIGHT...",
-          "MIN TEMPERATURE.....AROUND 50...EXCEPT AROUND 20 ABOVE TIMBERLINE.",
-          "24 HR TREND......10 DEGREES WARMER...EXCEPT 20 DEGREES COOLER ABOVE TIMBERLINE.",
-          "MAX HUMIDITY........70 PERCENT...EXCEPT 30 PERCENT ABOVE TIMBERLINE.",
-          "24 HR TREND......10 PERCENT WETTER...EXCEPT 30 PERCENT DRIER ABOVE TIMBERLINE.",
+          ".Rest of Tonight...",
+          "MIN TEMPERATURE.....Around 50...except around 20 above timberline.",
+          "24 HR TREND......10 degrees warmer...except 20 degrees cooler above timberline.",
+          "MAX HUMIDITY........70 percent...except 30 percent above timberline.",
+          "24 HR TREND......10 percent wetter...except 30 percent drier above timberline.",
         ],
     "createGrids": [
         ("Fcst", "MaxT", "SCALAR", "MaxTBegin", "MaxTEnd", 30, ["AboveElev"]),
@@ -473,7 +487,8 @@ def testScript(self, dataMgr, level="Site"):
         "drtTime": drtTime,
         "internalStrip": 1, 
         "orderStrings": 1,
-        "combinations": "Combinations_FWF_<site>"
+        "comboFlag" : 1,
+        "combinations": [(["FLZ142","FLZ242"],"")]
         }
     for script in scripts:
         drtHour = script.get("drtHour", None)

@@ -29,20 +29,6 @@
 
 # First run setupTextEA
 
-def1 = ["""def first_null_phrase_dict(self, tree, node):   
-    import TextRules     
-    dict = TextRules.TextRules.first_null_phrase_dict(self, tree, node)    
-    dict["Wind"] =  ""
-    return dict""",
-
-"""def null_phrase_dict(self, tree, node):
-    import TextRules    
-    dict = TextRules.TextRules.null_phrase_dict(self, tree, node)
-    dict["Wind"] =  ""
-    dict["Wx"] =  ""
-    return dict"""
-]
-
 # Runs Phrase_Test_Local for each test
 scripts = [
     {
@@ -54,7 +40,7 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 0, 12, "NoWx", "all"),
        ],
     "checkStrings": [
-       "SUNNY"
+       "Sunny"
        ],
     },
     {
@@ -66,9 +52,9 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 0, 12, "Sct:RW:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       ("MOSTLY CLOUDY WITH SCATTERED RAIN SHOWERS",
-       "MOSTLY CLOUDY WITH SCATTERED SHOWERS"),
-       "CHANCE OF SHOWERS 50 PERCENT",
+       ("Mostly cloudy with scattered rain showers",
+       "Mostly cloudy with scattered showers"),
+       "Chance of showers 50 percent",
        ],
     },
     {
@@ -80,8 +66,8 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 0, 12,  "SChc:RW:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       ("MOSTLY CLOUDY WITH A 20 PERCENT CHANCE OF RAIN SHOWERS",
-       "MOSTLY CLOUDY WITH A 20 PERCENT CHANCE OF SHOWERS"),
+       ("Mostly cloudy with a 20 percent chance of rain showers",
+       "Mostly cloudy with a 20 percent chance of showers"),
        ],
     },
     {
@@ -94,9 +80,9 @@ scripts = [
         "SChc:RW:-:<NoVis>:^Patchy:F:<NoInten>:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       ("MOSTLY CLOUDY WITH A 20 PERCENT CHANCE OF RAIN SHOWERS",
-       "MOSTLY CLOUDY WITH A 20 PERCENT CHANCE OF SHOWERS"),
-       "PATCHY FOG",
+       ("Mostly cloudy with a 20 percent chance of rain showers",
+       "Mostly cloudy with a 20 percent chance of showers"),
+       "Patchy fog",
        ],
     },
     {
@@ -111,8 +97,8 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "SChc:T:<NoInten>:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "CLOUDY",
-       "A 20 PERCENT CHANCE OF THUNDERSTORMS IN THE AFTERNOON",
+       "Cloudy",
+       "A 20 percent chance of thunderstorms in the afternoon",
        ],
     },
     {
@@ -128,9 +114,9 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "SChc:RW:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "PATCHY FOG IN THE MORNING",
-       ("MOSTLY CLOUDY WITH A 20 PERCENT CHANCE OF RAIN SHOWERS",
-       "MOSTLY CLOUDY WITH A 20 PERCENT CHANCE OF SHOWERS"),
+       "Patchy fog in the morning",
+       ("Mostly cloudy with a 20 percent chance of rain showers",
+       "Mostly cloudy with a 20 percent chance of showers"),
        ],
     },
     {
@@ -146,9 +132,9 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Sct:RW:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "PATCHY FOG IN THE MORNING",
-       ("MOSTLY CLOUDY WITH SCATTERED RAIN SHOWERS","MOSTLY CLOUDY WITH SCATTERED SHOWERS"),
-       "CHANCE OF SHOWERS 50 PERCENT",
+       "Patchy fog in the morning",
+       ("Mostly cloudy with scattered rain showers","Mostly cloudy with scattered showers"),
+       "Chance of showers 50 percent",
        ],
     },
     {
@@ -161,9 +147,9 @@ scripts = [
         "Sct:RW:-:<NoVis>:^Patchy:F:<NoInten>:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       ("MOSTLY CLOUDY WITH SCATTERED RAIN SHOWERS", "MOSTLY CLOUDY WITH SCATTERED SHOWERS"),
-       "PATCHY FOG",
-       "CHANCE OF SHOWERS 50 PERCENT",
+       ("Mostly cloudy with scattered rain showers", "Mostly cloudy with scattered showers"),
+       "Patchy fog",
+       "Chance of showers 50 percent",
        ],
     },
     {
@@ -179,11 +165,11 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Wide:S:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "MOSTLY CLOUDY",
-       "PATCHY FOG IN THE MORNING",
-       ("SLIGHT CHANCE OF SHOWERS IN THE MORNING...THEN WIDESPREAD SNOW IN THE AFTERNOON",
-        "SLIGHT CHANCE OF RAIN SHOWERS IN THE MORNING...THEN WIDESPREAD SNOW IN THE AFTERNOON"),
-       "CHANCE OF PRECIPITATION 50 PERCENT",
+       "Mostly cloudy",
+       "Patchy fog in the morning",
+       ("Slight chance of showers in the morning...then widespread show in the afternoon",
+        "Slight chance of rain showers in the morning...then widespread snow in the afternoon"),
+       "Chance of precipitation 50 percent",
        ],
     },
     {
@@ -199,11 +185,11 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Chc:S:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "MOSTLY CLOUDY",
-       "PATCHY FOG IN THE MORNING",
-       ("SLIGHT CHANCE OF SHOWERS IN THE MORNING...THEN CHANCE OF SNOW IN THE AFTERNOON",
-        "SLIGHT CHANCE OF RAIN SHOWERS IN THE MORNING...THEN CHANCE OF SNOW IN THE AFTERNOON"), 
-       "CHANCE OF PRECIPITATION 50 PERCENT",
+       "Mostly cloudy",
+       "Patchy fog in the morning",
+       ("Slight chance of showers in the morning...then chance of snow in the afternoon",
+        "Slight chance of rain showers in the morning...then chance of snow in the afternoon"), 
+       "Chance of precipitation 50 percent",
        ],
     },
     {
@@ -221,11 +207,11 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Chc:T:<NoInten>:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "SUNNY EARLY IN THE MORNING THEN BECOMING MOSTLY CLOUDY",
-       ("SLIGHT CHANCE OF SHOWERS EARLY IN THE MORNING...THEN SLIGHT CHANCE OF SNOW LATE IN THE MORNING",
-        "SLIGHT CHANCE OF RAIN SHOWERS EARLY IN THE MORNING...THEN SLIGHT CHANCE OF SNOW LATE IN THE MORNING"),
-       "CHANCE OF THUNDERSTORMS IN THE AFTERNOON",
-       "CHANCE OF PRECIPITATION 50 PERCENT",
+       "Sunny early in the morning then becoming mostly cloudy",
+       ("Slight chance of showers early in the morning...then slight chance of snow late in the morning",
+        "Slight chance of rain showers early in the morning...then slight chance of snow late in the morning"),
+       "Chance of thunderstorms in the afternoon",
+       "Chance of precipitation 50 percent",
        ],
     },
     {
@@ -244,12 +230,12 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Chc:T:<NoInten>:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "MOSTLY CLOUDY",
-       "PATCHY FOG EARLY IN THE MORNING",
-       ("SLIGHT CHANCE OF SHOWERS EARLY IN THE MORNING...THEN SLIGHT CHANCE OF SNOW LATE IN THE MORNING",
-        "SLIGHT CHANCE OF RAIN SHOWERS EARLY IN THE MORNING...THEN SLIGHT CHANCE OF SNOW LATE IN THE MORNING"),
-       "CHANCE OF THUNDERSTORMS IN THE AFTERNOON",
-       "CHANCE OF PRECIPITATION 50 PERCENT",
+       "Mostly cloudy",
+       "Patchy fog early in the morning",
+       ("Slight chance of showers early in the morning...then slight chance of snow late in the morning",
+        "Slight chance of rain showers early in the morning...then slight chance of snow late in the morning"),
+       "Chance of thunderstorms in the afternoon",
+       "Chance of precipitation 50 percent",
        ],
     },
     {
@@ -276,10 +262,10 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Chc:T:+:<NoVis>:^Wide:R:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "CLOUDY",
-       "WIDESPREAD RAIN IN THE MORNING...THEN WIDESPREAD RAIN AND CHANCE OF THUNDERSTORMS IN THE AFTERNOON",
-       "SOME THUNDERSTORMS MAY BE SEVERE",
-       "CHANCE OF PRECIPITATION 50 PERCENT",
+       "Cloudy",
+       "Widespread rain in the morning...then widespread rain and chance of thunderstorms in the afternoon",
+       "Some thunderstorms may be severe",
+       "Chance of precipitation 50 percent",
        ],
     },
     {
@@ -297,9 +283,9 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Chc:T:+:<NoVis>:^Wide:R:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "CLOUDY WITH WIDESPREAD RAIN AND CHANCE OF THUNDERSTORMS",
-       "SOME THUNDERSTORMS MAY BE SEVERE IN THE AFTERNOON",
-       "CHANCE OF PRECIPITATION 50 PERCENT",
+       "Cloudy with widespread rain and chance of thunderstorms",
+       "Some thunderstorms may be severe in the afternoon",
+       "Chance of precipitation 50 percent",
        ],
     },
     {
@@ -317,9 +303,9 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Chc:T:+:<NoVis>:^Wide:R:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "CLOUDY WITH WIDESPREAD RAIN AND CHANCE OF THUNDERSTORMS",
-       "SOME THUNDERSTORMS MAY BE SEVERE",
-       "CHANCE OF PRECIPITATION 50 PERCENT",
+       "Cloudy with widespread rain and chance of thunderstorms",
+       "Some thunderstorms may be severe",
+       "Chance of precipitation 50 percent",
        ],
     },
     {
@@ -338,8 +324,8 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 9, 12, "Sct:T:+:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "SCATTERED THUNDERSTORMS IN THE AFTERNOON",
-       "SOME THUNDERSTORMS MAY BE SEVERE LATE IN THE AFTERNOON",
+       "Scattered thunderstorms in the afternoon",
+       "Some thunderstorms may be severe late in the afternoon",
        ],
     },
 
@@ -357,8 +343,8 @@ scripts = [
         "Chc:T:+:<NoVis>:^Chc:RW:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "CLOUDY WITH A 50 PERCENT CHANCE OF THUNDERSTORMS", 
-       "SOME THUNDERSTORMS MAY BE SEVERE IN THE AFTERNOON",
+       "Cloudy with a 50 percent chance of thunderstorms", 
+       "Some thunderstorms may be severe in the afternoon",
        ],
     },
     # E15 skipped
@@ -372,7 +358,7 @@ scripts = [
         "Wide:S:-:<NoVis>:^Chc:ZR:-:<NoVis>:^Chc:IP:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "CLOUDY WITH WIDESPREAD SNOW...CHANCE OF LIGHT FREEZING RAIN AND LIGHT SLEET",
+       "Cloudy with widespread snow...chance of light freezing rain and light sleet",
        ],
     },
     {
@@ -393,8 +379,8 @@ scripts = [
         "Chc:R:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "WIDESPREAD SNOW WITH POSSIBLE FREEZING RAIN AND SLEET EARLY IN THE MORNING...THEN SNOW LIKELY AND CHANCE OF LIGHT SLEET LATE IN THE MORNING",
-       "CHANCE OF RAIN IN THE AFTERNOON",
+       "Widespread snow with possible freezing rain and sleet early in the morning...then snow likely and chance of light sleet late in the morning",
+       "Chance of rain in the afternoon",
        ],
     },
     {
@@ -415,8 +401,8 @@ scripts = [
         "Chc:R:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "WIDESPREAD SNOW...LIGHT SLEET AND OCCASIONAL LIGHT FREEZING RAIN EARLY IN THE MORNING...THEN SNOW LIKELY AND CHANCE OF LIGHT SLEET LATE IN THE MORNING",
-       "CHANCE OF RAIN IN THE AFTERNOON",
+       "Widespread snow...light sleet and occasional light freezing rain early in the morning...then snow likely and chance of light sleet late in the morning",
+       "Chance of rain in the afternoon",
        ],
     },
     {
@@ -431,7 +417,7 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 3, 12, "Lkly:R:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "SNOW LIKELY AND CHANCE OF LIGHT SLEET EARLY IN THE MORNING...THEN RAIN LIKELY IN THE LATE MORNING AND AFTERNOON",
+       "Snow likely and chance of light sleet early in the morning...then rain likely in the late morning and afternoon",
        ],
     },
     {
@@ -456,7 +442,7 @@ scripts = [
         "SChc:T:<NoInten>:<NoVis>:^SChc:RW:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "WIDESPREAD SNOW WITH POSSIBLE FREEZING RAIN AND SLEET IN THE MORNING...THEN CHANCE OF RAIN AND SLIGHT CHANCE OF THUNDERSTORMS IN THE AFTERNOON",
+       "Widespread snow with possible freezing rain and sleet in the morning...then chance of rain and slight chance of thunderstorms in the afternoon",
        ],
     },
     {
@@ -477,9 +463,9 @@ scripts = [
         "Ocnl:RW:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "RAIN LIKELY EARLY IN THE MORNING",
-       ("OCCASIONAL RAIN SHOWERS IN THE AFTERNOON",
-        "OCCASIONAL SHOWERS IN THE AFTERNOON"),
+       "Rain likely early in the morning",
+       ("Occasional rain showers in the afternoon",
+        "Occasional showers in the afternoon"),
        ],
     },
     {
@@ -492,7 +478,7 @@ scripts = [
         "Ocnl:R:-:<NoVis>:^Ocnl:S:-:<NoVis>:^SChc:IP:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "CLOUDY WITH OCCASIONAL RAIN...SNOW AND SLIGHT CHANCE OF LIGHT SLEET"
+       "Cloudy with occasional rain...snow and slight chance of light sleet"
        ],
     },
     {
@@ -508,7 +494,7 @@ scripts = [
         "Def:S:-:<NoVis>:^SChc:IP:-:<NoVis>:^SChc:ZR:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "SNOW IN THE MORNING...THEN SNOW...SLIGHT CHANCE OF LIGHT FREEZING RAIN AND LIGHT SLEET IN THE AFTERNOON",
+       "Snow in the morning...then snow...slight chance of light freezing rain and light sleet in the afternoon",
        ],
     },
     {
@@ -533,7 +519,7 @@ scripts = [
         "Def:S:m:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "RAIN AND SLEET LIKELY IN THE MORNING...THEN SNOW AND SLEET IN THE AFTERNOON",
+       "Rain and sleet likely in the morning...then snow and sleet in the afternoon",
        ],
     },
     {
@@ -549,9 +535,9 @@ scripts = [
         "Lkly:R:-:<NoVis>:^Lkly:S:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "CLOUDY",
-       "RAIN LIKELY IN THE MORNING...THEN RAIN AND SNOW LIKELY IN THE AFTERNOON",
-       "CHANCE OF PRECIPITATION 50 PERCENT",
+       "Cloudy",
+       "Rain likely in the morning...then rain and snow likely in the afternoon",
+       "Chance of precipitation 50 percent",
        ],
     },
     {
@@ -564,8 +550,8 @@ scripts = [
         "Lkly:R:-:<NoVis>:^SChc:T:<NoInten>:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "CLOUDY WITH RAIN LIKELY AND SLIGHT CHANCE OF THUNDERSTORMS",
-       "CHANCE OF PRECIPITATION 50 PERCENT",
+       "Cloudy with rain likely and slight chance of thunderstorms",
+       "Chance of precipitation 50 percent",
        ],
     },
     {
@@ -578,7 +564,7 @@ scripts = [
         "Lkly:R:-:<NoVis>:^Lkly:S:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "CLOUDY WITH A 50 PERCENT CHANCE OF RAIN AND SNOW",
+       "Cloudy with a 50 percent chance of rain and snow",
        ],
     },
     {
@@ -595,11 +581,11 @@ scripts = [
         "Iso:RW:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "CLOUDY",
-       ("NUMEROUS SHOWERS AND THUNDERSTORMS IN THE MORNING...THEN ISOLATED RAIN SHOWERS IN THE AFTERNOON",
-        "NUMEROUS SHOWERS AND THUNDERSTORMS IN THE MORNING...THEN ISOLATED SHOWERS IN THE AFTERNOON"),
-       "LOCALLY HEAVY RAINFALL POSSIBLE IN THE MORNING", 
-       "CHANCE OF PRECIPITATION 50 PERCENT",
+       "Cloudy",
+       ("Numerous showers and thunderstorms in the morning...then isolated rain showers in the afternoon",
+        "Numerous showers and thunderstorms in the morning...then isolated showers in the afternoon"),
+       "Locally heavy rainfall possible in the morning", 
+       "Chance of precipitation 50 percent",
        ],
     },
     {
@@ -616,11 +602,11 @@ scripts = [
         "Iso:RW:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "CLOUDY",
-       ("NUMEROUS THUNDERSTORMS IN THE MORNING...THEN ISOLATED RAIN SHOWERS IN THE AFTERNOON",
-        "NUMEROUS THUNDERSTORMS IN THE MORNING...THEN ISOLATED SHOWERS IN THE AFTERNOON"),
-       "THUNDERSTORMS MAY BE SEVERE WITH LARGE HAIL", 
-       "CHANCE OF PRECIPITATION 50 PERCENT",
+       "Cloudy",
+       ("Numerous thunderstorms in the morning...then isolated rain showers in the afternoon",
+        "Numerous thunderstorms in the morning...then isolated showers in the afternoon"),
+        "thunderstorms may be severe with large hail", 
+       "Chance of precipitation 50 percent",
        ],
     },
     {
@@ -637,10 +623,10 @@ scripts = [
         "Iso:RW:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "CLOUDY",
-       ("NUMEROUS SNOW SHOWERS WITH POSSIBLE SLEET AND THUNDERSTORMS EARLY IN THE MORNING...THEN ISOLATED RAIN SHOWERS IN THE LATE MORNING AND AFTERNOON",
-        "NUMEROUS SNOW SHOWERS WITH POSSIBLE SLEET AND THUNDERSTORMS EARLY IN THE MORNING...THEN ISOLATED SHOWERS IN THE LATE MORNING AND AFTERNOON"),
-       "CHANCE OF PRECIPITATION 50 PERCENT",
+       "Cloudy",
+       ("Numerous snow showers with possible sleet and thunderstorms early in the morning...then isolated rain showers in the late morning and afternoon",
+        "Numerous snow showers with possible sleet and thunderstorms early in the morning...then isolated showers in the late morning and afternoon"),
+       "Chance of precipitation 50 percent",
        ],
     },
     {
@@ -657,9 +643,9 @@ scripts = [
         "Iso:RW:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "SNOW LIKELY...SLIGHT CHANCE OF LIGHT FREEZING DRIZZLE AND LIGHT SLEET EARLY IN THE MORNING...THEN ISOLATED SHOWERS IN THE LATE MORNING AND AFTERNOON",
-       "SNOW MAY BE HEAVY AT TIMES EARLY IN THE MORNING",
-       "CHANCE OF PRECIPITATION 50 PERCENT",
+       "Snow likely...slight chance of light freezing drizzle and light sleet early in the morning...then isolated showers in the late morning and afternoon",
+       "Snow may be heavy at times early in the morning",
+       "Chance of precipitation 50 percent",
        ],
     },
     {
@@ -684,11 +670,11 @@ scripts = [
         "Chc:R:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "OCCASIONAL SNOW IN THE MORNING.",
-       "CHANCE OF LIGHT SLEET AND SLIGHT CHANCE OF LIGHT FREEZING DRIZZLE THROUGH THE DAY",
-       "CHANCE OF RAIN AND SNOW IN THE AFTERNOON.",
-       "SNOW MAY BE HEAVY AT TIMES IN THE MORNING",
-       "CHANCE OF PRECIPITATION 50 PERCENT",
+       "Occasional snow in the morning.",
+       "Chance of light sleet and slight chance of light freezing drizzle through the day",
+       "Chance of rain and snow in the afternoon.",
+       "Snow may be heavy at times in the morning",
+       "Chance of precipitation 50 percent",
        ],
     },
     # Skipped E33-E36
@@ -704,8 +690,8 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Chc:T:<NoInten>:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "SLIGHT CHANCE OF THUNDERSTORMS IN THE MORNING...THEN CHANCE OF THUNDERSTORMS IN THE AFTERNOON",
-       "CHANCE OF THUNDERSTORMS 50 PERCENT",
+       "Slight chance of thunderstorms in the morning...then chance of thunderstorms in the afternoon",
+       "Chance of thunderstorms 50 percent",
        ],
     },
     {
@@ -720,9 +706,9 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Chc:T:<NoInten>:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "SLIGHT CHANCE OF THUNDERSTORMS IN THE MORNING...THEN CHANCE OF THUNDERSTORMS IN THE AFTERNOON",
-       "SOME THUNDERSTORMS MAY PRODUCE HEAVY RAINFALL IN THE MORNING",
-       "CHANCE OF THUNDERSTORMS 50 PERCENT",
+       "Slight chance of thunderstorms in the morning...then chance of thunderstorms in the afternoon",
+       "Some thunderstorms may produce heavy rainfall in the morning",
+       "Chance of thunderstorms 50 percent",
        ],
     },
     {
@@ -737,10 +723,10 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Chc:T:<NoInten>:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "CLOUDY",
-       "SLIGHT CHANCE OF THUNDERSTORMS IN THE MORNING...THEN CHANCE OF THUNDERSTORMS IN THE AFTERNOON",
-       "SOME THUNDERSTORMS MAY BE SEVERE IN THE MORNING",
-       "CHANCE OF THUNDERSTORMS 50 PERCENT",
+       "Cloudy",
+       "Slight chance of thunderstorms in the morning...then chance of thunderstorms in the afternoon",
+       "Some thunderstorms may be severe in the morning",
+       "Chance of thunderstorms 50 percent",
        ],
     },
     # Skipped E40-41    
@@ -756,9 +742,9 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "NoWx", "all"),
        ],
     "checkStrings": [
-       "CLOUDY",
-       "A 50 PERCENT CHANCE OF THUNDERSTORMS IN THE MORNING",
-       "SOME THUNDERSTORMS MAY BE SEVERE",
+       "Cloudy",
+       "A 50 percent chance of thunderstorms in the morning",
+       "Some thunderstorms may be severe",
        ],
     },
     
@@ -774,7 +760,7 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "NoWx", "all"),
        ],
     "checkStrings": [
-       "CHANCE OF RAIN...THUNDERSTORMS AND SNOW IN THE MORNING",
+       "chance of rain...thunderstorms and snow in the morning",
        ],
     },
     {
@@ -791,7 +777,7 @@ scripts = [
         "Wide:T:<NoInten>:<NoVis>:^Wide:R:-:<NoVis>:^Wide:S:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-        "CHANCE OF RAIN...THUNDERSTORMS AND SNOW IN THE MORNING...THEN WIDESPREAD RAIN...THUNDERSTORMS AND SNOW IN THE AFTERNOON",
+        "Chance of rain...thunderstorms and snow in the morning...then widespread rain...thunderstorms and snow in the afternoon",
         ],
        
     },
@@ -810,7 +796,7 @@ scripts = [
         "Num:SW:+:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "CLOUDY", "PRECIPITATION MAY BE HEAVY AT TIMES", 
+       "Cloudy", "Precipitation may be heavy at times", 
        ],
     },
 
@@ -828,7 +814,7 @@ scripts = [
         "Chc:T:<NoInten>:<NoVis>:^Chc:RW:m:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "CLOUDY", "LOCALLY HEAVY RAINFALL POSSIBLE IN THE MORNING.",
+       "Cloudy", "Locally heavy rainfall possible in the morning.",
        ],
     },
 
@@ -841,7 +827,7 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 0, 12,  0, "all"),
        ],
     "checkStrings": [
-       "LIGHT WINDS",
+       "Light winds",
        ],
     "fileChanges": [],
     },
@@ -853,7 +839,7 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 0, 12,  30, "all"),
        ],
     "checkStrings": [
-       "LIGHT WINDS",
+       "Light winds",
        ],
     "fileChanges": [],
     },
@@ -865,7 +851,7 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 0, 12,  30, "all"),
        ],
     "checkStrings": [
-       "NORTH WINDS AROUND 10 MPH WITH GUSTS TO AROUND 35 MPH",
+       "North winds around 10 mph with gusts to around 35 mph",
        ],
     "fileChanges": [],
     },
@@ -879,7 +865,7 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 6, 12, 0, "all"),
        ],
     "checkStrings": [
-       "LIGHT WINDS BECOMING NORTH AROUND 15 MPH IN THE AFTERNOON",
+       "Light winds becoming north around 15 mph in the afternoon",
        ],
     "fileChanges": [],
     },
@@ -893,7 +879,7 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 6, 12, 0, "all"),
        ],
     "checkStrings": [
-       "LIGHT WINDS BECOMING NORTH AROUND 15 MPH IN THE AFTERNOON",
+       "Light winds becoming north around 15 mph in the afternoon",
        ],
     "fileChanges": [],
     },
@@ -907,7 +893,7 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 6, 12, 30, "all"),
        ],
     "checkStrings": [
-       "LIGHT WINDS BECOMING NORTH AROUND 15 MPH WITH GUSTS TO AROUND 35 MPH IN THE AFTERNOON",
+       "Light winds becoming north around 15 mph with gusts to around 35 mph in the afternoon",
        ],
     "fileChanges": [],
     },
@@ -921,8 +907,8 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 6, 12, 30, "all"),
        ],
     "checkStrings": [
-    "LIGHT WINDS BECOMING NORTH AROUND 15 MPH IN THE AFTERNOON",
-    "GUSTS UP TO 35 MPH",
+    "Light winds becoming north around 15 mph in the afternoon",
+    "Gusts up to 35 mph",
        ],
     "fileChanges": [],
     },
@@ -936,7 +922,7 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 6, 12, 0, "all"),
        ],
     "checkStrings": [
-       "NORTH WINDS AROUND 15 MPH IN THE MORNING BECOMING LIGHT",
+       "North winds around 15 mph in the morning becoming light",
        ],
     "fileChanges": [],
     },
@@ -951,7 +937,7 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 6, 12, 0, "all"),
        ],
     "checkStrings": [
-       "NORTH WINDS AROUND 15 MPH WITH GUSTS TO AROUND 35 MPH IN THE MORNING BECOMING LIGHT",
+       "North winds around 15 mph with gusts to around 35 mph in the morning becoming light",
        ],
     "fileChanges": [],
     },
@@ -965,7 +951,7 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 6, 12, 30, "all"),
        ],
     "checkStrings": [
-       "NORTH WINDS AROUND 15 MPH IN THE MORNING BECOMING LIGHT",
+       "North winds around 15 mph in the morning becoming light",
        ],
     "fileChanges": [],
     },
@@ -979,8 +965,8 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 6, 12, 30, "all"),
        ],
     "checkStrings": [
-       "NORTH WINDS AROUND 15 MPH IN THE MORNING BECOMING LIGHT",
-       "GUSTS UP TO 35 MPH",
+       "North winds around 15 mph in the morning becoming light",
+       "Gusts up to 35 mph",
        ],
     "fileChanges": [],
     },
@@ -998,7 +984,7 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 9, 12, 30, "all"),
        ],
     "checkStrings": [
-       "LIGHT WINDS",
+       "Light winds",
        ],
     "fileChanges": [],
     },
@@ -1016,8 +1002,8 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 9, 12, 30, "all"),
        ],
     "checkStrings": [
-       "NORTH WINDS AROUND 10 MPH EARLY IN THE MORNING BECOMING LIGHT",
-       "GUSTS UP TO 35 MPH",
+       "North winds around 10 mph early in the morning becoming light",
+       "Gusts up to 35 mph",
        ],
     "fileChanges": [],
     },
@@ -1035,7 +1021,7 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 9, 12, 30, "all"),
        ],
     "checkStrings": [
-       "LIGHT WINDS BECOMING NORTH AROUND 10 MPH LATE IN THE MORNING...THEN BECOMING LIGHT IN THE AFTERNOON",
+       "Light winds becoming north around 10 mph late in the morning...then becoming light in the afternoon",
        ],
     "fileChanges": [],
     },
@@ -1053,9 +1039,9 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 9, 12, 40, "all"),
        ],
     "checkStrings": [
-       "BREEZY",
-       "NORTH WINDS AROUND 10 MPH EARLY IN THE MORNING BECOMING LIGHT...THEN BECOMING NORTH AROUND 25 MPH EARLY IN THE AFTERNOON BECOMING LIGHT",
-       "GUSTS UP TO 45 MPH",
+       "breezy",
+       "North winds around 10 mph early in the morning becoming light...then becoming north around 25 mph early in the afternoon becoming light",
+       "Gusts up to 45 mph",
        ],
     "fileChanges": [],
     },
@@ -1073,9 +1059,9 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 9, 12, 40, "all"),
        ],
     "checkStrings": [
-       "BREEZY",
-       "NORTH WINDS AROUND 10 MPH EARLY IN THE MORNING BECOMING LIGHT...THEN BECOMING NORTH AROUND 25 MPH LATE IN THE AFTERNOON",
-       "GUSTS UP TO 45 MPH",
+       "breezy",
+       "North winds around 10 mph early in the morning becoming light...then becoming north around 25 mph late in the afternoon",
+       "Gusts up to 45 mph",
        ],
     "fileChanges": [],
     },
@@ -1091,8 +1077,8 @@ scripts = [
        "",
        ],
     "fileChanges":[
-       ("Phrase_Test_Local", "TextProduct", "replace",
-       def1, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace",
+       ('#dict["Wind"] =  ""', 'dict["Wind"] =  ""'), "undo"),
        ],    
     },
     {
@@ -1106,8 +1092,8 @@ scripts = [
        "",
        ],
     "fileChanges":[
-       ("Phrase_Test_Local", "TextProduct", "replace",
-       def1, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace",
+       ('#dict["Wind"] =  ""', 'dict["Wind"] =  ""'), "undo"),
        ],    
     },
     {
@@ -1118,11 +1104,11 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 0, 12,  30, "all"),
        ],
     "checkStrings": [
-       "NORTH WINDS AROUND 10 MPH WITH GUSTS TO AROUND 35 MPH",
+       "North winds around 10 mph with gusts to around 35 mph",
        ],
     "fileChanges":[
-       ("Phrase_Test_Local", "TextProduct", "replace",
-       def1, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace",
+       ('#dict["Wind"] =  ""', 'dict["Wind"] =  ""'), "undo"),
        ],    
     },
     {
@@ -1135,11 +1121,11 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 6, 12, 0, "all"),
        ],
     "checkStrings": [
-       "NORTH WINDS AROUND 15 MPH IN THE AFTERNOON",
+       "North winds around 15 mph in the afternoon",
        ],
     "fileChanges":[
-       ("Phrase_Test_Local", "TextProduct", "replace",
-       def1, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace",
+       ('#dict["Wind"] =  ""', 'dict["Wind"] =  ""'), "undo"),
        ],    
     },
     {
@@ -1152,11 +1138,11 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 6, 12, 0, "all"),
        ],
     "checkStrings": [
-       "NORTH WINDS AROUND 15 MPH IN THE AFTERNOON",
+       "North winds around 15 mph in the afternoon",
        ],
     "fileChanges":[
-       ("Phrase_Test_Local", "TextProduct", "replace",
-       def1, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace",
+       ('#dict["Wind"] =  ""', 'dict["Wind"] =  ""'), "undo"),
        ],    
     },
     {
@@ -1169,11 +1155,11 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 6, 12, 30, "all"),
        ],
     "checkStrings": [
-       "NORTH WINDS AROUND 15 MPH WITH GUSTS TO AROUND 35 MPH IN THE AFTERNOO",
+       "North winds around 15 mph with gusts to around 35 mph in the afternoon",
        ],
     "fileChanges":[
-       ("Phrase_Test_Local", "TextProduct", "replace",
-       def1, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace",
+       ('#dict["Wind"] =  ""', 'dict["Wind"] =  ""'), "undo"),
        ],    
     },
     {
@@ -1186,12 +1172,12 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 6, 12, 30, "all"),
        ],
     "checkStrings": [
-    "NORTH WINDS AROUND 15 MPH IN THE AFTERNOON",
-    "GUSTS UP TO 35 MPH",
+    "North winds around 15 mph in the afternoon",
+    "Gusts up to 35 mph",
        ],
     "fileChanges":[
-       ("Phrase_Test_Local", "TextProduct", "replace",
-       def1, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace",
+       ('#dict["Wind"] =  ""', 'dict["Wind"] =  ""'), "undo"),
        ],    
     },
     {
@@ -1204,11 +1190,11 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 6, 12, 0, "all"),
        ],
     "checkStrings": [
-       "NORTH WINDS AROUND 15 MPH IN THE MORNING",
+       "North winds around 15 mph in the morning",
        ],
     "fileChanges":[
-       ("Phrase_Test_Local", "TextProduct", "replace",
-       def1, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace",
+       ('#dict["Wind"] =  ""', 'dict["Wind"] =  ""'), "undo"),
        ],    
     },
 
@@ -1222,11 +1208,11 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 6, 12, 0, "all"),
        ],
     "checkStrings": [
-       "NORTH WINDS AROUND 15 MPH WITH GUSTS TO AROUND 35 MPH IN THE MORNING",
+       "North winds around 15 mph with gusts to around 35 mph in the morning",
        ],
     "fileChanges":[
-       ("Phrase_Test_Local", "TextProduct", "replace",
-       def1, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace",
+       ('#dict["Wind"] =  ""', 'dict["Wind"] =  ""'), "undo"),
        ],    
     },
     {
@@ -1239,11 +1225,11 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 6, 12, 30, "all"),
        ],
     "checkStrings": [
-       "NORTH WINDS AROUND 15 MPH IN THE MORNING",
+       "North winds around 15 mph in the morning",
        ],
     "fileChanges":[
-       ("Phrase_Test_Local", "TextProduct", "replace",
-       def1, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace",
+       ('#dict["Wind"] =  ""', 'dict["Wind"] =  ""'), "undo"),
        ],    
     },
     {
@@ -1256,12 +1242,12 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 6, 12, 30, "all"),
        ],
     "checkStrings": [
-       "NORTH WINDS AROUND 15 MPH IN THE MORNING. GUSTS UP TO 35 MPH",
-       "GUSTS UP TO 35 MPH",
+       "North winds around 15 mph in the morning. Gusts up to 35 mph",
+       "Gusts up to 35 mph",
        ],
     "fileChanges":[
-       ("Phrase_Test_Local", "TextProduct", "replace",
-       def1, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace",
+       ('#dict["Wind"] =  ""', 'dict["Wind"] =  ""'), "undo"),
        ],    
     },
     {
@@ -1281,8 +1267,8 @@ scripts = [
        "",
        ],
     "fileChanges":[
-       ("Phrase_Test_Local", "TextProduct", "replace",
-       def1, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace",
+       ('#dict["Wind"] =  ""', 'dict["Wind"] =  ""'), "undo"),
        ],    
     },
     {
@@ -1299,12 +1285,12 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 9, 12, 30, "all"),
        ],
     "checkStrings": [
-       "NORTH WINDS AROUND 10 MPH EARLY IN THE MORNING",
-       "GUSTS UP TO 35 MPH",
+       "North winds around 10 mph early in the morning",
+       "Gusts up to 35 mph",
        ],
     "fileChanges":[
-       ("Phrase_Test_Local", "TextProduct", "replace",
-       def1, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace",
+       ('#dict["Wind"] =  ""', 'dict["Wind"] =  ""'), "undo"),
        ],    
     },
     {
@@ -1321,11 +1307,11 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 9, 12, 30, "all"),
        ],
     "checkStrings": [
-       "NORTH WINDS AROUND 10 MPH LATE IN THE MORNING",
+       "North winds around 10 mph late in the morning",
        ],
     "fileChanges":[
-       ("Phrase_Test_Local", "TextProduct", "replace",
-       def1, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace",
+       ('#dict["Wind"] =  ""', 'dict["Wind"] =  ""'), "undo"),
        ],    
     },
     {
@@ -1342,13 +1328,13 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 9, 12, 40, "all"),
        ],
     "checkStrings": [
-       "BREEZY",
-       "NORTH WINDS AROUND 10 MPH EARLY IN THE MORNING BECOMING NORTH AROUND 25 MPH EARLY IN THE AFTERNOON",
-       "GUSTS UP TO 45 MPH",
+       "breezy",
+       "North winds around 10 mph early in the morning becoming north around 25 mph early in the afternoon",
+       "Gusts up to 45 mph",
        ],
     "fileChanges":[
-       ("Phrase_Test_Local", "TextProduct", "replace",
-       def1, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace",
+       ('#dict["Wind"] =  ""', 'dict["Wind"] =  ""'), "undo"),
        ],    
     },
     {
@@ -1365,13 +1351,13 @@ scripts = [
        ("Fcst", "WindGust", "SCALAR", 9, 12, 40, "all"),
        ],
     "checkStrings": [
-       "BREEZY",
-       "NORTH WINDS AROUND 10 MPH EARLY IN THE MORNING BECOMING NORTH AROUND 25 MPH LATE IN THE AFTERNOON",
-       "GUSTS UP TO 45 MPH",
+       "breezy",
+       "North winds around 10 mph early in the morning becoming north around 25 mph late in the afternoon",
+       "Gusts up to 45 mph",
        ],
     "fileChanges":[
-       ("Phrase_Test_Local", "TextProduct", "replace",
-       def1, "undo"),
+       ("Phrase_Test_Local", "TextUtility", "replace",
+       ('#dict["Wind"] =  ""', 'dict["Wind"] =  ""'), "undo"),
        ],    
     },
 

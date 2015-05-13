@@ -52,8 +52,8 @@ scripts = [
                      "/O.NEW.KTBW.WS.W.0001.100101T1300Z-100102T1300Z/",
                      "PINELLAS-",
                      "1210 AM EST FRI JAN 1 2010",
-                     "...WINTER STORM WARNING IN EFFECT FROM 8 AM THIS MORNING TO 8 AM EST SATURDAY...",
-#                     "THE NATIONAL WEATHER SERVICE IN TAMPA BAY RUSKIN HAS ISSUED A WINTER STORM WARNING...WHICH IS IN EFFECT FROM 8 AM THIS MORNING TO 8 AM EST SATURDAY.",
+                     "...Winter Storm Warning in effect from 8 AM this morning to 8 AM EST Saturday...",
+#                     "The National Weather Service in Tampa Bay Ruskin has issued a Winter Storm Warning...which is in effect from 8 AM this morning to 8 AM EST Saturday.",
                      ],
     },
 
@@ -74,8 +74,8 @@ scripts = [
                      "FLZ050-",
                      "/O.EXT.KTBW.WS.W.0001.000000T0000Z-100102T2100Z/",
                      "PINELLAS-",
-                     "...WINTER STORM WARNING NOW IN EFFECT UNTIL 4 PM EST THIS AFTERNOON...",
-                     "THE WINTER STORM WARNING IS NOW IN EFFECT UNTIL 4 PM EST THIS AFTERNOON.",
+                     "...Winter Storm Warning now in effect until 4 PM EST this afternoon...",
+#                      "The Winter Storm Warning is now in effect until 4 PM EST this afternoon.",
                      ],
     },
 
@@ -96,9 +96,9 @@ scripts = [
                      "/O.EXP.KTBW.WS.W.0001.000000T0000Z-100102T1300Z/",
                      "/O.NEW.KTBW.WS.W.0002.100102T1301Z-100102T2100Z/",
                      "PINELLAS-",
-                     "...WINTER STORM WARNING IN EFFECT UNTIL 4 PM EST THIS AFTERNOON...",
-                     "...WINTER STORM WARNING HAS EXPIRED...",
-#                     "THE NATIONAL WEATHER SERVICE IN TAMPA BAY RUSKIN HAS ISSUED A WINTER STORM WARNING...WHICH IS IN EFFECT UNTIL 4 PM EST THIS AFTERNOON. THE WINTER STORM WARNING IS NO LONGER IN EFFECT.",
+                     "...Winter Storm Warning in effect until 4 PM EST this afternoon...",
+                     "...Winter Storm Warning has expired...",
+#                     "The National Weather Service in Tampa Bay Ruskin has issued a Winter Storm Warning...WHICH IS in effect until 4 PM EST this afternoon. The Winter Storm Warning is no longer in effect.",
                      ],
     },
 
@@ -116,8 +116,8 @@ scripts = [
 import TestScript
 def testScript(self, dataMgr):
     defaults = {
-        "database": "<site>_GRID__Official_00000000_0000",
-        "publishGrids": 1,
+        "database": "<site>_GRID__Fcst_00000000_0000",
+        "publishGrids": 0,
         "decodeVTEC": 1,
         "gridsStartTime": "20100101_0500",
         "orderStrings": 1,

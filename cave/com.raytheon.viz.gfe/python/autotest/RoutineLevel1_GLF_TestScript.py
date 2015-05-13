@@ -37,7 +37,7 @@ scripts = [
     "productType":"GLF",
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): '400 AM', ('Groupings', 'groupings'): 'West 1/2:East 1/2'}",
     "comboFlag": 0, 
-    "checkStrings": ["...STORM WATCH IN EFFECT THROUGH THIS EVENING..."],
+    "checkStrings": ["...Storm Watch in effect through this evening..."],
     "createGrids": [
         ("Fcst", "Hazards", "DISCRETE", 0, 24, "SR.A", "all"),
         ],
@@ -51,8 +51,8 @@ scripts = [
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): '400 AM', ('Groupings', 'groupings'): 'West 1/2:East 1/2'}",
     "comboFlag": 0, 
     "checkStrings": [
-        "WEST HALF", "...STORM WATCH IN EFFECT THROUGH THIS EVENING...",
-        "EAST HALF", "...HAZARDOUS SEAS WATCH IN EFFECT THROUGH THIS EVENING...",
+        "WEST HALF", "...Storm Watch in effect through this evening...",
+        "EAST HALF", "...Hazardous Seas Watch in effect through this evening...",
         ],
     "createGrids": [
         ("Fcst", "Hazards", "DISCRETE", 0, 24, "SR.A", ["west_half"]),
@@ -68,7 +68,7 @@ scripts = [
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): '400 AM', ('Groupings', 'groupings'): 'Entire Lake'}",
     "comboFlag": 0, 
     "checkStrings": [
-       "...STORM WATCH IN EFFECT THROUGH THIS EVENING..."
+       "...Storm Watch in effect through this evening..."
         ],
     "notCheckStrings": [
        "WEST HALF", "EAST HALF",
