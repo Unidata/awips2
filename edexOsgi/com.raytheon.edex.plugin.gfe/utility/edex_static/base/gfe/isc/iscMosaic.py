@@ -1691,9 +1691,7 @@ class IscMosaic:
 
 def convertList(unknownList):
     retVal = unknownList
-    try:
-        len(unknownList)
-    except TypeError:
+    if hasattr(unknownList, 'java_name'):
         retVal = JUtil.javaObjToPyVal(unknownList)
     return retVal
 
