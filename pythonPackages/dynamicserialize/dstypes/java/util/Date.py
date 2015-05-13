@@ -17,12 +17,20 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+# ----------------------------------------------------------------------------
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    04/28/2016      4027          randerso       Added optional construction parameter to set the time
+#
+##
 
-# File auto-generated against equivalent DynamicSerialize Java class
 
 class Date(object):
 
-    def __init__(self):
+    def __init__(self, timeInMillis=None):
         self.time = None
         
     def getTime(self):

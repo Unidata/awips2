@@ -99,7 +99,7 @@ def executeFromJava(databaseID, site, username, dataMgr, forecastList, logFile, 
     
     forecasts = runFormatter(databaseID=databaseID, site=site, forecastList=forecastList, testMode=testMode,
                         cmdLineVarDict=cmdLineVarDict, vtecMode=vtecMode, username=username,
-                        dataMgr=dataMgr, drtTime=drtTime)
+                        dataMgr=dataMgr, drtTime=drtTime, vtecActiveTable=vtecActiveTable)
     
     elapsedTime = (time.time() - startTime)*1000
     logger.info("Text Formatter Finished, took: %d ms",elapsedTime)

@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 
 import com.google.common.collect.ImmutableSet;
+import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.activetable.response.GetNextEtnResponse;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.util.StringUtil;
@@ -63,6 +64,7 @@ import com.raytheon.viz.texteditor.util.VtecUtil;
  * Dec 18, 2013  #2641     dgilling     Force ordering of items returned by
  *                                      getVtecLinesThatNeedEtn().
  * Feb 05, 2014  #2774     dgilling     Additional correction to previous fix.
+ * Apr 28, 2015  #4027     randerso     Added getNextEtn parameter to specify ActiveTableMode
  * 
  * </pre>
  * 
@@ -150,6 +152,33 @@ public class GFEVtecUtil {
      *            increment the server's running sequence, so the ETN return
      *            could be used by another client that makes a
      *            GetNextEtnRequest.
+     * @param mode
+     *            Indicates which active table to query
+     * @return The next ETN in sequence, given the office and phensig.
+     * @throws VizException
+     *             If an error occurred sending the request to the server.
+     */
+    public static GetNextEtnResponse getNextEtn(String office, String phensig,
+            boolean lockEtn, ActiveTableMode mode) throws VizException {
+        return getNextEtn(office, phensig, lockEtn, false, false, null, mode);
+    }
+
+    /**
+     * Gets the next available ETN for a specific product and office.
+     * 
+     * @param office
+     *            The 4-character site ID of the office.
+     * @param phensig
+     *            The phenomenon and significance of the hazard concatenated
+     *            with a '.' (e.g., TO.W or DU.Y)
+     * @param lockEtn
+     *            Whether or not to request an exclusive ETN--if true, this will
+     *            cause the server to increment its running ETN sequence to the
+     *            next number after determining the next ETN for this request.
+     *            If false, the next ETN will be returned, but it will not
+     *            increment the server's running sequence, so the ETN return
+     *            could be used by another client that makes a
+     *            GetNextEtnRequest.
      * @param performISC
      *            Whether or not to collaborate with neighboring sites to
      *            determine the next ETN. See {@link
@@ -204,6 +233,50 @@ public class GFEVtecUtil {
             Integer etnOverride) throws VizException {
         return VtecUtil.getNextEtn(office, phensig, lockEtn, performISC,
                 reportOnlyConflict, etnOverride);
+    }
+
+    /**
+     * Gets the next available ETN for a specific product and office.
+     * 
+     * @param office
+     *            The 4-character site ID of the office.
+     * @param phensig
+     *            The phenomenon and significance of the hazard concatenated
+     *            with a '.' (e.g., TO.W or DU.Y)
+     * @param lockEtn
+     *            Whether or not to request an exclusive ETN--if true, this will
+     *            cause the server to increment its running ETN sequence to the
+     *            next number after determining the next ETN for this request.
+     *            If false, the next ETN will be returned, but it will not
+     *            increment the server's running sequence, so the ETN return
+     *            could be used by another client that makes a
+     *            GetNextEtnRequest.
+     * @param performISC
+     *            Whether or not to collaborate with neighboring sites to
+     *            determine the next ETN. See {@link
+     *            GetNextEtnUtil#getNextEtnFromPartners(String, ActiveTableMode,
+     *            String, Calendar, List<IRequestRouter>)} for more information.
+     * @param reportOnlyConflict
+     *            Affects which kinds of errors get reported back to the
+     *            requestor. If true, only cases where the value of
+     *            <code>etnOverride</code> is less than or equal to the last ETN
+     *            used by this site or any of its partners will be reported.
+     *            Else, all significant errors will be reported back.
+     * @param etnOverride
+     *            Allows the user to influence the next ETN assigned by using
+     *            this value unless it is less than or equal to the last ETN
+     *            used by this site or one of its partners.
+     * @param mode
+     *            Indicates which active table to query
+     * @return The next ETN in sequence, given the office and phensig.
+     * @throws VizException
+     *             If an error occurred sending the request to the server.
+     */
+    public static GetNextEtnResponse getNextEtn(String office, String phensig,
+            boolean lockEtn, boolean performISC, boolean reportOnlyConflict,
+            Integer etnOverride, ActiveTableMode mode) throws VizException {
+        return VtecUtil.getNextEtn(office, phensig, lockEtn, performISC,
+                reportOnlyConflict, etnOverride, mode);
     }
 
     /**

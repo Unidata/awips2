@@ -3444,7 +3444,7 @@ class TextProduct(GenericHazards.TextProduct):
 #            t+="but will continue to be monitored until it no longer threatens the area. "
 #
 #        else:
-        t+="AT "+ self._stormTime + "...the center of "
+        t+="At "+ self._stormTime + "...the center of "
 
         #  Fix the grammar if dealing with "remnants"
         if re.search("(?i)remnants", self._stormTypeName) is not None:

@@ -71,30 +71,30 @@ class WeatherSubKey:
         return self.__key.getVisibility()
         
     def attributes(self):
-        return JUtil.javaStringListToPylist(self.__key.getAttributes())
+        return JUtil.javaObjToPyVal(self.__key.getAttributes())
     
     def wxDef(self):
         return WxDefinition.WxDefinition(self.__key.wxDef())
     
 def availableCoverages(dataMgr, wxType):
     siteId = dataMgr.getSiteID()         
-    return JUtil.javaStringListToPylist(JavaWeatherSubKey.availableCoverages(siteId, wxType))
+    return JUtil.javaObjToPyVal(JavaWeatherSubKey.availableCoverages(siteId, wxType))
 
 def availableAttributes(dataMgr, wxType):
     siteId = dataMgr.getSiteID()         
-    return JUtil.javaStringListToPylist(JavaWeatherSubKey.availableAttributes(siteId, wxType))
+    return JUtil.javaObjToPyVal(JavaWeatherSubKey.availableAttributes(siteId, wxType))
 
 def availableIntensities(dataMgr, wxType):
     siteId = dataMgr.getSiteID()         
-    return JUtil.javaStringListToPylist(JavaWeatherSubKey.availableIntensities(siteId, wxType))
+    return JUtil.javaObjToPyVal(JavaWeatherSubKey.availableIntensities(siteId, wxType))
 
 def availableVisibilities(dataMgr):
     siteId = dataMgr.getSiteID()         
-    return JUtil.javaStringListToPylist(JavaWeatherSubKey.availableVisibilities(siteId))
+    return JUtil.javaObjToPyVal(JavaWeatherSubKey.availableVisibilities(siteId))
 
 def availableWxTypes(dataMgr):
     siteId = dataMgr.getSiteID()         
-    return JUtil.javaStringListToPylist(JavaWeatherSubKey.availableWxTypes(siteId))
+    return JUtil.javaObjToPyVal(JavaWeatherSubKey.availableWxTypes(siteId))
 
 def weatherSubKey(dataMgr, coverage, wxType, intensity, vis, attrList):
     siteId = dataMgr.getSiteID()         

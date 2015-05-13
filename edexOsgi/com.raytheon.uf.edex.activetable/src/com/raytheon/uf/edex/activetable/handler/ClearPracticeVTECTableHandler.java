@@ -25,6 +25,8 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.activetable.ActiveTable;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
+import com.raytheon.uf.edex.database.plugin.PluginDao;
+import com.raytheon.uf.edex.database.plugin.PluginFactory;
 
 /**
  * Request handler for clearing the practice VTEC active table.
@@ -38,6 +40,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * Apr 23, 2010            wkwock      Initial creation
  * Apr 09, 2014  #3004     dgilling    Move to activetable plugin, remove GFE
  *                                     dependencies.
+ * Apr 28, 2015  #4027     randerso    Added clearing of practice warning table
  * 
  * </pre>
  * 
@@ -55,6 +58,10 @@ public class ClearPracticeVTECTableHandler implements
             throws Exception {
         try {
             ActiveTable.clearPracticeTable(request.getSiteID());
+            PluginDao dao = PluginFactory.getInstance().getPluginDao(
+                    "practicewarning");
+            dao.purgeAllData();
+
         } catch (DataAccessLayerException e) {
             statusHandler.error("Error failed to clear practice VTEC table", e);
             throw new Exception("Unable to clear practice VTEC table.", e);

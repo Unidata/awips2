@@ -21,6 +21,7 @@ package com.raytheon.uf.common.activetable;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -56,6 +57,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Jul 16, 2013 2181       bsteffen    Convert geometry types to use hibernate-
  *                                     spatial
  * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
+ * 04/28/2015   4027       randerso    Expunged Calendar from ActiveTableRecord
  * </pre>
  * 
  * @author njensen
@@ -126,19 +128,19 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
 
     /** vtec start time */
     @DynamicSerializeElement
-    protected Calendar startTime;
+    protected Date startTime;
 
     @Column
     @DynamicSerializeElement
-    protected Calendar endTime;
+    protected Date endTime;
 
     @Column
     @DynamicSerializeElement
-    protected Calendar issueTime;
+    protected Date issueTime;
 
     @Column
     @DynamicSerializeElement
-    protected Calendar purgeTime;
+    protected Date purgeTime;
 
     @Column(length = 8)
     @DynamicSerializeElement
@@ -209,15 +211,15 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
 
     @Column
     @DynamicSerializeElement
-    protected Calendar floodBegin;
+    protected Date floodBegin;
 
     @Column
     @DynamicSerializeElement
-    protected Calendar floodCrest;
+    protected Date floodCrest;
 
     @Column
     @DynamicSerializeElement
-    protected Calendar floodEnd;
+    protected Date floodEnd;
 
     @Override
     public abstract Object clone();
@@ -657,7 +659,7 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
     /**
      * @return the startTime
      */
-    public Calendar getStartTime() {
+    public Date getStartTime() {
         return startTime;
     }
 
@@ -665,14 +667,14 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
      * @param startTime
      *            the startTime to set
      */
-    public void setStartTime(Calendar startTime) {
+    public void setStartTime(Date startTime) {
         this.startTime = startTime;
     }
 
     /**
      * @return the endTime
      */
-    public Calendar getEndTime() {
+    public Date getEndTime() {
         return endTime;
     }
 
@@ -680,14 +682,14 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
      * @param endTime
      *            the endTime to set
      */
-    public void setEndTime(Calendar endTime) {
+    public void setEndTime(Date endTime) {
         this.endTime = endTime;
     }
 
     /**
      * @return the issueTime
      */
-    public Calendar getIssueTime() {
+    public Date getIssueTime() {
         return issueTime;
     }
 
@@ -695,14 +697,14 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
      * @param issueTime
      *            the issueTime to set
      */
-    public void setIssueTime(Calendar issueTime) {
+    public void setIssueTime(Date issueTime) {
         this.issueTime = issueTime;
     }
 
     /**
      * @return the purgeTime
      */
-    public Calendar getPurgeTime() {
+    public Date getPurgeTime() {
         return purgeTime;
     }
 
@@ -710,7 +712,7 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
      * @param purgeTime
      *            the purgeTime to set
      */
-    public void setPurgeTime(Calendar purgeTime) {
+    public void setPurgeTime(Date purgeTime) {
         this.purgeTime = purgeTime;
     }
 
@@ -957,7 +959,7 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
     /**
      * @return the floodBegin
      */
-    public Calendar getFloodBegin() {
+    public Date getFloodBegin() {
         return floodBegin;
     }
 
@@ -965,14 +967,14 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
      * @param floodBegin
      *            the floodBegin to set
      */
-    public void setFloodBegin(Calendar floodBegin) {
+    public void setFloodBegin(Date floodBegin) {
         this.floodBegin = floodBegin;
     }
 
     /**
      * @return the floodCrest
      */
-    public Calendar getFloodCrest() {
+    public Date getFloodCrest() {
         return floodCrest;
     }
 
@@ -980,14 +982,14 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
      * @param floodCrest
      *            the floodCrest to set
      */
-    public void setFloodCrest(Calendar floodCrest) {
+    public void setFloodCrest(Date floodCrest) {
         this.floodCrest = floodCrest;
     }
 
     /**
      * @return the floodEnd
      */
-    public Calendar getFloodEnd() {
+    public Date getFloodEnd() {
         return floodEnd;
     }
 
@@ -995,7 +997,7 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
      * @param floodEnd
      *            the floodEnd to set
      */
-    public void setFloodEnd(Calendar floodEnd) {
+    public void setFloodEnd(Date floodEnd) {
         this.floodEnd = floodEnd;
     }
 
@@ -1050,17 +1052,17 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
             }
             atr.setAct(wr.getAct());
             atr.setCountyheader(wr.getCountyheader());
-            atr.setEndTime(wr.getEndTime());
+            atr.setEndTime(calendarToDate(wr.getEndTime()));
             atr.setEtn(wr.getEtn());
-            atr.setFloodBegin(wr.getFloodBegin());
-            atr.setFloodCrest(wr.getFloodCrest());
-            atr.setFloodEnd(wr.getFloodEnd());
+            atr.setFloodBegin(calendarToDate(wr.getFloodBegin()));
+            atr.setFloodCrest(calendarToDate(wr.getFloodCrest()));
+            atr.setFloodEnd(calendarToDate(wr.getFloodEnd()));
             atr.setFloodRecordStatus(wr.getFloodRecordStatus());
             atr.setFloodSeverity(wr.getFloodSeverity());
             atr.setForecaster(wr.getForecaster());
             atr.setGeometry(wr.getGeometry());
             atr.setImmediateCause(wr.getImmediateCause());
-            atr.setIssueTime(wr.getIssueTime());
+            atr.setIssueTime(calendarToDate(wr.getIssueTime()));
             atr.setLoc(wr.getLoc());
             atr.setLocationID(wr.getLocationID());
             atr.setMotdir(wr.getMotdir());
@@ -1071,13 +1073,13 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
             atr.setPhensig(wr.getPhensig());
             atr.setPil(wr.getPil());
             atr.setProductClass(wr.getProductClass());
-            atr.setPurgeTime(wr.getPurgeTime());
+            atr.setPurgeTime(calendarToDate(wr.getPurgeTime()));
             atr.setRawmessage(wr.getRawmessage());
             atr.setRegion(wr.getRegion());
             atr.setSeg(wr.getSeg());
             atr.setSegText(wr.getSegText());
             atr.setSig(wr.getSig());
-            atr.setStartTime(wr.getStartTime());
+            atr.setStartTime(calendarToDate(wr.getStartTime()));
             atr.setUfn(wr.isUfn());
             atr.setVtecstr(wr.getVtecstr());
             atr.setWmoid(wr.getWmoid());
@@ -1093,4 +1095,11 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
         return list;
     }
 
+    private static Date calendarToDate(Calendar calendar) {
+        Date date = null;
+        if (calendar != null) {
+            date = calendar.getTime();
+        }
+        return date;
+    }
 }
