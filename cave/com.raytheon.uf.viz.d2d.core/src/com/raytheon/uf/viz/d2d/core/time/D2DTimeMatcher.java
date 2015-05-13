@@ -49,7 +49,6 @@ import com.raytheon.uf.viz.core.VizConstants;
 import com.raytheon.uf.viz.core.comm.PerspectiveSpecificLoadProperties;
 import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
-import com.raytheon.uf.viz.core.drawables.FrameCoordinator;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
@@ -82,7 +81,8 @@ import com.raytheon.uf.viz.d2d.core.D2DLoadProperties;
  *                                    like A1.
  * May  5, 2014  3265     bsteffen    Better handling of resources returning
  *                                    null dataTimes.
- * 
+ * May 13, 2015  4461     bsteffen    Move the logic to change frames into the
+ *                                    FrameCoordinator.
  * 
  * </pre>
  * 
@@ -254,8 +254,6 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
                     }
                 }
             }
-            FramesInfo currInfo = descriptor.getFramesInfo();
-
             // Find the times for the time match basis.
             DataTime[] timeSteps = findBasisTimes(descriptor.getResourceList(),
                     descriptor.getNumberOfFrames());
@@ -278,9 +276,21 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
             }
 
             // Update the descriptor to the new times.
-            int dateIndex = determineNewIndex(descriptor, currInfo, timeSteps);
-            descriptor.setFramesInfo(new FramesInfo(timeSteps, dateIndex,
-                    resourceTimeMap));
+            if ((timeMatchBasis.getDescriptor() != null)
+                    && (timeMatchBasis.getDescriptor() != descriptor)) {
+                int idx = timeMatchBasis.getDescriptor().getFramesInfo()
+                        .getFrameIndex();
+                if ((idx >= 0) && (idx < timeSteps.length)) {
+                    descriptor.setFramesInfo(new FramesInfo(timeSteps, idx,
+                            resourceTimeMap));
+                } else {
+                    descriptor.setFramesInfo(new FramesInfo(timeSteps,
+                            resourceTimeMap));
+                }
+            } else {
+                descriptor.setFramesInfo(new FramesInfo(timeSteps,
+                        resourceTimeMap));
+            }
 
             // Add Remove data for all the resources.
             for (Entry<AbstractVizResource<?, ?>, DataTime[]> entry : resourceTimeMap
@@ -290,95 +300,6 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
                 }
             }
         }
-    }
-
-    private int indexToUpdateTo(IDescriptor descriptor, DataTime[] oldTimes,
-            int oldIndex, DataTime[] frames, int startFrame) {
-        int frameToUse = startFrame;
-        IRenderableDisplay display = descriptor.getRenderableDisplay();
-        if ((display != null) && (display.getContainer() != null)) {
-            IDisplayPaneContainer container = display.getContainer();
-            if (container.getLoopProperties().isLooping()) {
-                return frameToUse;
-            }
-        }
-        switch (descriptor.getFrameCoordinator().getAnimationMode()) {
-        case Latest: {
-            if (oldIndex == (oldTimes.length - 1)) {
-                frameToUse = frames.length - 1;
-            }
-            break;
-        }
-        case Temporal: {
-            // was our old time the last frame for that time?
-            boolean wasLastForTime = (oldIndex == FrameCoordinator
-                    .getLastTimeIndex(oldTimes, oldIndex));
-            if (wasLastForTime) {
-                // check if a new time came in for our frame
-                int latestForTime = FrameCoordinator.getLastTimeIndex(frames,
-                        startFrame);
-                if (latestForTime > startFrame) {
-                    frameToUse = latestForTime;
-                }
-            }
-            break;
-        }
-        case Vertical: {
-            boolean wasLastForTime = (oldIndex == FrameCoordinator
-                    .getLastVerticalIndex(oldTimes, oldIndex));
-            if (wasLastForTime) {
-                frameToUse = FrameCoordinator.getLastVerticalIndex(frames,
-                        startFrame);
-            }
-        }
-        }
-        return frameToUse;
-    }
-
-    /**
-     * Determines the new time index for a descriptor
-     * 
-     * @param descriptor
-     *            the descriptor
-     * @param timeSteps
-     *            the list of times for the time match basis.
-     * @return
-     */
-    private int determineNewIndex(IDescriptor descriptor, FramesInfo currInfo,
-            DataTime[] timeSteps) {
-        if ((timeSteps == null) || (timeSteps.length == 0)) {
-            return -1;
-        }
-        // If possible just copy from the time match basis
-        if ((timeMatchBasis.getDescriptor() != null)
-                && (timeMatchBasis.getDescriptor() != descriptor)) {
-            int idx = timeMatchBasis.getDescriptor().getFramesInfo()
-                    .getFrameIndex();
-            if ((idx >= 0) && (idx < timeSteps.length)) {
-                return idx;
-            }
-        }
-        // Next try to get the closest time to
-        DataTime[] origSteps = currInfo.getFrameTimes();
-        int curIndex = currInfo.getFrameIndex();
-        if ((origSteps != null) && (curIndex >= 0)
-                && (curIndex < origSteps.length)) {
-            DataTime startTime = origSteps[curIndex];
-            int dateIndex = Arrays.binarySearch(timeSteps, startTime);
-            if (dateIndex < 0) {
-                if (timeSteps[0].getMatchValid() > startTime.getMatchValid()) {
-                    return 0;
-                }
-            } else {
-                dateIndex = indexToUpdateTo(descriptor, origSteps, curIndex,
-                        timeSteps, dateIndex);
-                if ((dateIndex >= 0) && (dateIndex < (timeSteps.length - 1))) {
-                    return dateIndex;
-                }
-            }
-        }
-        // if that didn't work just return the last frame
-        return timeSteps.length - 1;
     }
 
     /**
