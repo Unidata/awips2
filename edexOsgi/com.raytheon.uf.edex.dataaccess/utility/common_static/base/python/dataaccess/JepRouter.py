@@ -36,6 +36,7 @@
 #    07/22/14        3185          njensen        Added optional/default args to newDataRequest
 #                                                  and added new methods
 #    07/30/14        3185          njensen        Renamed valid identifiers to optional
+#    05/13/15        4259          njensen        Updated for new JEP API
 #    
 # 
 #
@@ -46,7 +47,6 @@ from com.raytheon.uf.common.dataaccess import DataAccessLayer as JavaDataAccessL
 from com.raytheon.uf.common.dataaccess.impl import DefaultDataRequest
 from com.raytheon.uf.common.time import DataTime as JavaDataTime
 from com.raytheon.uf.common.geospatial import LatLonReprojection
-from com.raytheon.uf.common.python import PythonNumpyFloatArray
 
 import jep
 import DataTime
