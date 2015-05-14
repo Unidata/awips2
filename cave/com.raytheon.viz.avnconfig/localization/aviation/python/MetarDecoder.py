@@ -194,7 +194,7 @@ _TokList = [
     ('pcp1h', r'P\d{4}'),
     ('tempdec', r'T[01]\d{3}[01]\d{3}'),
     ('mslp', r'SLP\d{3}'),
-    ('sfcvis', r'SFC\s+VIS\s+'+_vsbytok % ('visint','visfrac')),
+    ('sfcvis', r'SFC\s+VIS\s+M?'+_vsbytok % ('visint','visfrac')),
     ('vvis', r'VIS\s+'+_vsbytok % ('vintlo','vfraclo') +'V'+_vsbytok % ('vinthi','vfrachi')),
     ('vcig', r'CIG\s+(\d{3})V(\d{3})'),
     ('vsky', r'(%s)(\d{3})?\s+V\s+(%s)' % ( _SkyCov, _SkyCov )),
