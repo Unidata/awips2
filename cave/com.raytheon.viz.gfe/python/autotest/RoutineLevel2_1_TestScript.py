@@ -96,7 +96,7 @@ scripts = [
     "commentary": "Basic LE_Test_Local - morning issuance",
     "cmdLineVars":  "{('Product Issuance', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None, ('Issuance Type', 'issuanceType'): 'ROUTINE'}",
     "comboFlag":  0, 
-    "checkStrings":["ZONE FORECAST PRODUCT", ".Today"]
+    "checkStrings":["Zone Forecast Product", ".TODAY..."]
     },
 
     {

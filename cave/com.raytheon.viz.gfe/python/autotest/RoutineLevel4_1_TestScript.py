@@ -304,8 +304,8 @@ scripts = [
        ("Fcst", "SnowAmt", "SCALAR", 36, 48, 0, ["BelowElev"]),
        ],
     "checkStrings": [
-       ".Today...", "Snow accumulation around 3 inches",
-       ".Tonight...", "Snow accumulation around 5 inches",
+       ".TODAY...", "Snow accumulation around 3 inches",
+       ".TONIGHT...", "Snow accumulation around 5 inches",
        "...", "Snow accumulation around 1 inch",
        "...", "No snow accumulation",
        ],
@@ -330,8 +330,8 @@ scripts = [
        ("Fcst", "SnowAmt", "SCALAR", 36, 48, 0, ["BelowElev"]),
        ],
     "checkStrings": [
-       ".Today...", "Snow accumulation around 2 inches...except around 5 inches above timberline",
-       ".Tonight...", "Snow accumulation around 1 inch...except around 4 inches above timberline",
+       ".TODAY...", "Snow accumulation around 2 inches...except around 5 inches above timberline",
+       ".TONIGHT...", "Snow accumulation around 1 inch...except around 4 inches above timberline",
        "...", "Snow accumulation of 1 to 3 inches",
        "Total snow accumulation around 4 inches...except around 12 inches above timberline",
        "...", "No snow accumulation",

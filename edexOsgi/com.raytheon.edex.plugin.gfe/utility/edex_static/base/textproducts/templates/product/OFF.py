@@ -928,11 +928,13 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         issuedByString = self.getIssuedByString()
    
         s = self._wmoID + " " + self._fullStationID + " " + \
-               self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
-               productName + "\n" +\
+               self._ddhhmmTime + "\n" + self._pil + "\n\n"
+        fcst =  fcst + s.upper()
+        
+        s = productName + "\n" +\
                "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n" 
-        fcst =  fcst + s.upper()
+        fcst =  fcst + s
         
         fcst = fcst + self._Text1()
         try:
@@ -1019,17 +1021,17 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
         return [
             ("400 AM", self.DAY(), self.NIGHT(), 16,
-             ".Today...", "early in the morning", "late in the afternoon",
+             ".TODAY...", "early in the morning", "late in the afternoon",
              1, narrativeDefAM),
             #("1030 AM", "issuanceHour", self.NIGHT(), 16,
-            # ".Today...", "early in the morning", "late in the afternoon",
+            # ".TODAY...", "early in the morning", "late in the afternoon",
             # 1, narrativeDefAM),
             #  End times are tomorrow:
             ("400 PM", self.NIGHT(), 24 + self.DAY(), 24 + 4,
-             ".Tonight...", "late in the night", "early in the evening",
+             ".TONIGHT...", "late in the night", "early in the evening",
              1, narrativeDefPM),
             #("1030 PM", "issuanceHour", 24 + self.DAY(), 24 + 4,
-            # ".Tonight...", "late in the night", "early in the evening",
+            # ".TONIGHT...", "late in the night", "early in the evening",
             # 1, narrativeDefPM),
             ]
 

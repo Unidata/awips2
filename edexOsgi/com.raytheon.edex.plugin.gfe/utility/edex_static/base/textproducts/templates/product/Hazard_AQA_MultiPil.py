@@ -159,14 +159,17 @@ class TextProduct(GenericHazards.TextProduct):
         productName = self.checkTestMode(argDict, productName)
 
         s = self._wmoID + " " + self._fullStationID + " " +\
-               self._ddhhmmTime + "\n" + self._pil + "\n\n" + productName + "\n"
+               self._ddhhmmTime + "\n" + self._pil + "\n\n"
+        fcst = fcst + s.upper()
+               
+        s = productName + "\n"
 
         # Placeholder for Agency Names to be filled in in _postProcessProduct
         #s = s + "@AGENCYNAMES" + "\n"
         s = s + "Relayed by National Weather Service " + self._wfoCityState + "\n" +\
                issuedByString + self._timeLabel + "\n\n"
+        fcst = fcst + s
 
-        fcst = fcst + s.upper()
         return fcst
 
     def headlinesTiming(self, tree, node, key, timeRange, areaLabel, issuanceTime):
@@ -275,7 +278,7 @@ class TextProduct(GenericHazards.TextProduct):
             
             # Make the headline using the first agency only
             if agencies == []:
-                print "\n\nCHECK SET UP OF agencyDict!! -- no agencyDict entry for "+`segmentAreas`+"\n\n"
+                print "\n\nCheck set up of agencyDict!! -- no agencyDict entry for "+`segmentAreas`+"\n\n"
             agency = agencies[0]
             HeadIssue1 = self._agencyDict[agency]['declaration']
             HeadIssue2 = headlines

@@ -52,8 +52,8 @@ scripts = [
        ],
     "checkStrings": [
        "URGENT - WINTER WEATHER MESSAGE",
-       "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-       "700 PM EST THU DEC 31 2009",
+       "National Weather Service Tampa Bay Ruskin FL",
+       "700 PM EST Thu Dec 31 2009",
        "...|*Overview headline (must edit)*|...",
        ".|*Overview (must edit)*|.",
        "FLZ139-010800-",
@@ -73,8 +73,8 @@ scripts = [
 
     "checkStrings": [
        "URGENT - WINTER WEATHER MESSAGE",
-       "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-       "700 PM EST THU DEC 31 2009",
+       "National Weather Service Tampa Bay Ruskin FL",
+       "700 PM EST Thu Dec 31 2009",
        ".|*Overview (must edit)*|.",
        "FLZ139-010800-",
                      ],
@@ -93,8 +93,8 @@ scripts = [
     "fileChanges": [("Hazard_WSW_Local", "TextProduct", "replace", (def2a, def2b), "undo")],
     "checkStrings": [
        "URGENT - WINTER WEATHER MESSAGE",
-       "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-       "700 PM EST THU DEC 31 2009",
+       "National Weather Service Tampa Bay Ruskin FL",
+       "700 PM EST Thu Dec 31 2009",
        "...|*Overview headline (must edit)*|...",
        "FLZ139-010800-",
                      ],
@@ -114,8 +114,8 @@ scripts = [
                    ],
     "checkStrings": [
        "URGENT - WINTER WEATHER MESSAGE",
-       "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-       "700 PM EST THU DEC 31 2009",
+       "National Weather Service Tampa Bay Ruskin FL",
+       "700 PM EST Thu Dec 31 2009",
        "FLZ139-010800-",
                      ],
     "notCheckStrings": [
@@ -150,8 +150,8 @@ scripts = [
        ],
     "checkStrings": [
        "URGENT - WEATHER MESSAGE",
-       "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-       "700 PM EST THU DEC 31 2009",
+       "National Weather Service Tampa Bay Ruskin FL",
+       "700 PM EST Thu Dec 31 2009",
        "...|*Overview headline (must edit)*|...",
        ".|*Overview (must edit)*|.",
        "FLZ139-010800-",
@@ -171,8 +171,8 @@ scripts = [
 
     "checkStrings": [
        "URGENT - WEATHER MESSAGE",
-       "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-       "700 PM EST THU DEC 31 2009",
+       "National Weather Service Tampa Bay Ruskin FL",
+       "700 PM EST Thu Dec 31 2009",
        ".|*Overview (must edit)*|.",
        "FLZ139-010800-",
                      ],
@@ -191,8 +191,8 @@ scripts = [
     "fileChanges": [("Hazard_NPW_Local", "TextProduct", "replace", (def2a, def2b), "undo")],
     "checkStrings": [
        "URGENT - WEATHER MESSAGE",
-       "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-       "700 PM EST THU DEC 31 2009",
+       "National Weather Service Tampa Bay Ruskin FL",
+       "700 PM EST Thu Dec 31 2009",
        "...|*Overview headline (must edit)*|...",
        "FLZ139-010800-",
                      ],
@@ -212,8 +212,8 @@ scripts = [
                    ],
     "checkStrings": [
        "URGENT - WEATHER MESSAGE",
-       "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-       "700 PM EST THU DEC 31 2009",
+       "National Weather Service Tampa Bay Ruskin FL",
+       "700 PM EST Thu Dec 31 2009",
        "FLZ139-010800-",
                      ],
     "notCheckStrings": [
@@ -249,8 +249,8 @@ scripts = [
     "cmdLineVars" : "{('Select RFW Type', 'rfwType'): [], ('Source for Headline and \\nAffected Area Bullet', 'elevationSource'): 'Grids'}",
     "checkStrings": [
        "URGENT - FIRE WEATHER MESSAGE",
-       "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-       "700 PM EST THU DEC 31 2009",
+       "National Weather Service Tampa Bay Ruskin FL",
+       "700 PM EST Thu Dec 31 2009",
        "...|*Overview headline (must edit)*|...",
        ".|*Overview (must edit)*|.",
        "FLZ139-010800-",
@@ -271,8 +271,8 @@ scripts = [
     "cmdLineVars" : "{('Select RFW Type', 'rfwType'): [], ('Source for Headline and \\nAffected Area Bullet', 'elevationSource'): 'Grids'}",
     "checkStrings": [
        "URGENT - FIRE WEATHER MESSAGE",
-       "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-       "700 PM EST THU DEC 31 2009",
+       "National Weather Service Tampa Bay Ruskin FL",
+       "700 PM EST Thu Dec 31 2009",
        ".|*Overview (must edit)*|.",
        "FLZ139-010800-",
                      ],
@@ -292,8 +292,8 @@ scripts = [
     "cmdLineVars" : "{('Select RFW Type', 'rfwType'): [], ('Source for Headline and \\nAffected Area Bullet', 'elevationSource'): 'Grids'}",
     "checkStrings": [
        "URGENT - FIRE WEATHER MESSAGE",
-       "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-       "700 PM EST THU DEC 31 2009",
+       "National Weather Service Tampa Bay Ruskin FL",
+       "700 PM EST Thu Dec 31 2009",
        "...|*Overview headline (must edit)*|...",
        "FLZ139-010800-",
                      ],
@@ -314,8 +314,8 @@ scripts = [
     "cmdLineVars" : "{('Select RFW Type', 'rfwType'): [], ('Source for Headline and \\nAffected Area Bullet', 'elevationSource'): 'Grids'}",
     "checkStrings": [
        "URGENT - FIRE WEATHER MESSAGE",
-       "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-       "700 PM EST THU DEC 31 2009",
+       "National Weather Service Tampa Bay Ruskin FL",
+       "700 PM EST Thu Dec 31 2009",
        "FLZ139-010800-",
                      ],
     "notCheckStrings": [
@@ -351,9 +351,9 @@ scripts = [
        ],
     "checkStrings": [
        "URGENT - IMMEDIATE BROADCAST REQUESTED",
-       "LAKESHORE HAZARD MESSAGE",
-       "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-       "700 PM EST THU DEC 31 2009",
+       "Lakeshore Hazard Message",
+       "National Weather Service Tampa Bay Ruskin FL",
+       "700 PM EST Thu Dec 31 2009",
        "...|*Overview headline (must edit)*|...",
        ".|*Overview (must edit)*|.",
        "FLZ139-010800-",
@@ -373,9 +373,9 @@ scripts = [
 
     "checkStrings": [
        "URGENT - IMMEDIATE BROADCAST REQUESTED",
-       "LAKESHORE HAZARD MESSAGE",
-       "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-       "700 PM EST THU DEC 31 2009",
+       "Lakeshore Hazard Message",
+       "National Weather Service Tampa Bay Ruskin FL",
+       "700 PM EST Thu Dec 31 2009",
        ".|*Overview (must edit)*|.",
        "FLZ139-010800-",
                      ],
@@ -394,9 +394,9 @@ scripts = [
     "fileChanges": [("Hazard_CFW_Local", "TextProduct", "replace", (def2a, def2b), "undo")],
     "checkStrings": [
        "URGENT - IMMEDIATE BROADCAST REQUESTED",
-       "LAKESHORE HAZARD MESSAGE",
-       "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-       "700 PM EST THU DEC 31 2009",
+       "Lakeshore Hazard Message",
+       "National Weather Service Tampa Bay Ruskin FL",
+       "700 PM EST Thu Dec 31 2009",
        "...|*Overview headline (must edit)*|...",
        "FLZ139-010800-",
                      ],
@@ -416,9 +416,9 @@ scripts = [
                    ],
     "checkStrings": [
        "URGENT - IMMEDIATE BROADCAST REQUESTED",
-       "LAKESHORE HAZARD MESSAGE",
-       "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-       "700 PM EST THU DEC 31 2009",
+       "Lakeshore Hazard Message",
+       "National Weather Service Tampa Bay Ruskin FL",
+       "700 PM EST Thu Dec 31 2009",
        "FLZ139-010800-",
                      ],
     "notCheckStrings": [
@@ -454,9 +454,9 @@ scripts = [
        ],
     "checkStrings": [
        "URGENT - IMMEDIATE BROADCAST REQUESTED",
-       "FLOOD WATCH",
-       "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-       "700 PM EST THU DEC 31 2009",
+       "Flood Watch",
+       "National Weather Service Tampa Bay Ruskin FL",
+       "700 PM EST Thu Dec 31 2009",
        "...|*Overview headline (must edit)*|...",
        ".|*Overview (must edit)*|.",
        "FLZ139-010800-",
@@ -477,9 +477,9 @@ scripts = [
 
     "checkStrings": [
        "URGENT - IMMEDIATE BROADCAST REQUESTED",
-       "FLOOD WATCH",
-       "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-       "700 PM EST THU DEC 31 2009",
+       "Flood Watch",
+       "National Weather Service Tampa Bay Ruskin FL",
+       "700 PM EST Thu Dec 31 2009",
        ".|*Overview (must edit)*|.",
        "FLZ139-010800-",
                      ],
@@ -499,9 +499,9 @@ scripts = [
     "fileChanges": [("Hazard_FFA_Local", "TextProduct", "replace", (def2a, def2b), "undo")],
     "checkStrings": [
        "URGENT - IMMEDIATE BROADCAST REQUESTED",
-       "FLOOD WATCH",
-       "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-       "700 PM EST THU DEC 31 2009",
+       "Flood Watch",
+       "National Weather Service Tampa Bay Ruskin FL",
+       "700 PM EST Thu Dec 31 2009",
        "...|*Overview headline (must edit)*|...",
        "FLZ139-010800-",
                      ],
@@ -522,9 +522,9 @@ scripts = [
                    ],
     "checkStrings": [
        "URGENT - IMMEDIATE BROADCAST REQUESTED",
-       "FLOOD WATCH",
-       "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-       "700 PM EST THU DEC 31 2009",
+       "Flood Watch",
+       "National Weather Service Tampa Bay Ruskin FL",
+       "700 PM EST Thu Dec 31 2009",
        "FLZ139-010800-",
                      ],
     "notCheckStrings": [
@@ -558,9 +558,9 @@ scripts = [
        ("Fcst", "Hazards", "DISCRETE", 0, 39, "MA.S", ["GMZ853"]),
        ],
     "checkStrings": [
-       "MARINE WEATHER STATEMENT",
-       "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-       "700 PM EST THU DEC 31 2009",
+       "Marine Weather Statement",
+       "National Weather Service Tampa Bay Ruskin FL",
+       "700 PM EST Thu Dec 31 2009",
        "GMZ853-010800-",
                      ],
     "notCheckStrings": [
@@ -596,8 +596,8 @@ scripts = [
        ],
     "checkStrings": [
        "WCNTBW",
-       "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-       "700 PM EST THU DEC 31 2009",
+       "National Weather Service Tampa Bay Ruskin FL",
+       "700 PM EST Thu Dec 31 2009",
        "FLC057-011500-",
                      ],
     "notCheckStrings": [
@@ -633,8 +633,8 @@ scripts = [
        ],
     "checkStrings": [
        "URGENT - MARINE WEATHER MESSAGE",
-       "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-       "700 PM EST THU DEC 31 2009",
+       "National Weather Service Tampa Bay Ruskin FL",
+       "700 PM EST Thu Dec 31 2009",
        "...|*Overview headline (must edit)*|...",
        ".|*Overview (must edit)*|.",
        "GMZ830-010800-",
@@ -654,8 +654,8 @@ scripts = [
 
     "checkStrings": [
        "URGENT - MARINE WEATHER MESSAGE",
-       "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-       "700 PM EST THU DEC 31 2009",
+       "National Weather Service Tampa Bay Ruskin FL",
+       "700 PM EST Thu Dec 31 2009",
        ".|*Overview (must edit)*|.",
        "GMZ830-010800-",
                      ],
@@ -674,8 +674,8 @@ scripts = [
     "fileChanges": [("Hazard_MWW_Local", "TextProduct", "replace", (def2a, def2b), "undo")],
     "checkStrings": [
        "URGENT - MARINE WEATHER MESSAGE",
-       "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-       "700 PM EST THU DEC 31 2009",
+       "National Weather Service Tampa Bay Ruskin FL",
+       "700 PM EST Thu Dec 31 2009",
        "...|*Overview headline (must edit)*|...",
        "GMZ830-010800-",
                      ],
@@ -695,8 +695,8 @@ scripts = [
                    ],
     "checkStrings": [
        "URGENT - MARINE WEATHER MESSAGE",
-       "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-       "700 PM EST THU DEC 31 2009",
+       "National Weather Service Tampa Bay Ruskin FL",
+       "700 PM EST Thu Dec 31 2009",
        "GMZ830-010800-",
                      ],
     "notCheckStrings": [

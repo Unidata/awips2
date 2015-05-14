@@ -636,18 +636,20 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         productName = self.checkTestMode(argDict, productName)
 
         s = self._wmoID + " " + self._fullStationID + " " + \
-               self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
-               productName + "\n" +\
+               self._ddhhmmTime + "\n" + self._pil + "\n\n"
+        fcst =  fcst + s.upper()
+
+        s = productName + "\n" +\
                "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
-        fcst =  fcst + s.upper()
+        fcst =  fcst + s
 
         # Put in a place holder for the headlines to be substituted in
         # "postProcessProduct"
         fcst = fcst + "<HEADLINES>"
         self._prodHeadlines = []
 
-        fcst = fcst + ".Discussion..." + "\n\n\n\n\n"
+        fcst = fcst + ".DISCUSSION..." + "\n\n\n\n\n"
         return fcst
 
     def _preProcessArea(self, fcst, editArea, areaLabel, argDict):
@@ -707,7 +709,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         # Produce Individual Extended Forecast
         if self._individualExtended == 1:
             if self._extendedLabel == 1:
-                fcst = fcst + ".Forecast for days 3 through 7...\n\n"
+                fcst = fcst + ".FORECAST FOR DAYS 3 THROUGH 7...\n\n"
             extended = self.generateProduct("ExtendedNarrative", argDict,
                 area = editArea, timeRange=self._extendedRange)
             fcst = fcst + extended
@@ -974,7 +976,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
     def _postProcessProduct(self, fcst, argDict):
         if self._summaryExtended == 1:
-            fcst = fcst + "\n.Forecast for days 3 through 7...\n\n"
+            fcst = fcst + "\n.FORECAST FOR DAYS 3 THROUGH 7...\n\n"
             extended = self.generateProduct("ExtendedNarrative",
                 argDict, area=self._summaryArea,
                 timeRange=self._extendedRange)

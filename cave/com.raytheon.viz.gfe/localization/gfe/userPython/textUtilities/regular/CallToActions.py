@@ -377,7 +377,7 @@ Listen to NOAA Weather Radio or local media for further information.""",
 
     def ctaFWW(self):
         return [
- """A Red Flag Warning means that critical fire weather conditions are either occurring now...or will shortly. A combination of strong winds...low relative humidity...and warm temperatures will create explosive fire growth potential.""",
+ """A Red Flag Warning means that critical fire weather conditions are either occurring now....or will shortly.""",
         ]
 
     def ctaFZA(self):

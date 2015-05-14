@@ -118,11 +118,15 @@ class TextProduct(GenericHazards.TextProduct):
           self._productName + watchPhrase) 
         
         s = self._wmoID + " " + self._fullStationID + " " + \
-               self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
-               productName + "\n" +\
+               self._ddhhmmTime + "\n" + self._pil + "\n\n"
+        fcst = fcst + s.upper()
+
+               
+        s = productName + "\n" +\
                "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n" + self._easPhrase + "\n"
-        fcst = fcst + s.upper()
+        fcst = fcst + s
+
         return fcst
 
 

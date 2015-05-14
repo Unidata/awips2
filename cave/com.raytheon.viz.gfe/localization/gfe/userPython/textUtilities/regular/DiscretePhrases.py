@@ -1786,7 +1786,7 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
             # always remove the main hazard from the list
             hList.remove(hazard)
 
-        return returnStr
+        return returnStr.upper()
                     
     # Returns a formatted string announcing the hazards that are valid with
     # timing phrases
