@@ -561,31 +561,31 @@ CWFPeriod = """
         
         return [
             ("Morning", self.DAY(), self.NIGHT(), "issuanceHour + 13",
-             ".Today...", "early", "late", 1, narrativeDefAM), 
+             ".TODAY...", "early", "late", 1, narrativeDefAM), 
             ("Morning with Pre-1st Period", "issuanceHour", self.NIGHT(),
-             "issuanceHour + 13", ".Today...", "early", "late", 1,
+             "issuanceHour + 13", ".TODAY...", "early", "late", 1,
              narrativeDefAM),
             ("Morning Update", "issuanceHour", self.NIGHT(),
-             "issuanceHour + 13", ".Rest of Today...", "early in the morning",
+             "issuanceHour + 13", ".REST OF TODAY...", "early in the morning",
              "late in the afternoon", 1, narrativeDefAM), 
             ("Afternoon Update", "issuanceHour", self.NIGHT(), "issuanceHour + 13",
-             ".Rest of Today...", "early in the morning", "late in the afternoon",
+             ".REST OF TODAY...", "early in the morning", "late in the afternoon",
              1, narrativeDefAM), 
             #  End times are tomorrow:
             ("Afternoon", self.NIGHT(), 24 + self.DAY(), "issuanceHour + 13",
-             ".Tonight...", "late in the night", "early in the evening", 1, narrativeDefPM), 
+             ".TONIGHT...", "late in the night", "early in the evening", 1, narrativeDefPM), 
             ("Afternoon with Pre-1st Period", "issuanceHour", 24 + self.DAY(),
-             "issuanceHour + 13", ".Tonight...", "late in the night", "early in the evening", 1,
+             "issuanceHour + 13", ".TONIGHT...", "late in the night", "early in the evening", 1,
              narrativeDefPM),
             ("Evening Update", "issuanceHour", 24 + self.DAY(), "issuanceHour + 13",
-             ".Rest of Tonight...", "early in the morning", "early in the evening", 1,
+             ".REST OF TONIGHT...", "early in the morning", "early in the evening", 1,
              narrativeDefPM),
             # For the early morning update, this produces:
             # Rest of Tonight:
             # Monday
             # Monday Night
             ("Early Morning Update", "issuanceHour", self.DAY(), "issuanceHour + 13",
-             ".Rest of Tonight...", "early in the morning", "late in the afternoon",
+             ".REST OF TONIGHT...", "early in the morning", "late in the afternoon",
              0, narrativeDefPM),
             # Alternative
             # For the early morning update, this produces:
@@ -593,10 +593,10 @@ CWFPeriod = """
             # Today
             # Tonight
             #("Evening Update", "issuanceHour", 24 + self.DAY(), "issuanceHour + 13",
-            # ".Rest of Tonight...", "late in the night", "early in the evening",
+            # ".REST OF TONIGHT...", "late in the night", "early in the evening",
             # 1, narrativeDefPM), 
             #("Early Morning Update", "issuanceHour", self.DAY(), "issuanceHour + 13",
-            # ".Early this morning...", "early in the morning", "late in the afternoon",
+            # ".EARLY THIS MORNING...", "early in the morning", "late in the afternoon",
             # 1, narrativeDefPM), 
             ]
 
@@ -885,10 +885,10 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12,"Chc:RW:-:<NoVis>:^Chc:SW:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "Today",
+       ".TODAY...",
        ("Chance of showers...thunderstorms and snow showers",
         "Chance of rain showers...thunderstorms and snow showers"),
-        "Tonight",
+        ".TONIGHT...",
        ],
     "fileChanges": [
        ("FWF_<site>_Overrides", "TextUtility", "add", subPhrase_limit, "undo"),
@@ -930,9 +930,9 @@ scripts = [
        ("Fcst", "Wx", "WEATHER", 6, 12, "Sct:RW:-:<NoVis>:", "all"),
        ],
     "checkStrings": [
-       "Today", "Areas of blowing snow until 0800",
+       ".TODAY...", "Areas of blowing snow until 0800",
        "Scattered snow showers and isolated thunderstorms until 1200",
-       "Scattered showers","Tonight",
+       "Scattered showers",".TONIGHT...",
        ],
     "fileChanges": [],
     "comboFlag": 1,                    
@@ -998,9 +998,9 @@ scripts = [
        ("Fcst", "Sky", "SCALAR", 6, 12, 0, "all"),
        ],
     "checkStrings": [
-       "Today",
+       ".TODAY...",
        "Low clouds and fog in the morning then clearing",
-       "Tonight",
+       ".TONIGHT...",
        ],
     "fileChanges": [
        ("ZFP_<site>_Definition", "TextUtility", "replace", (arealSkyDef1, arealSkyDef2), "undo"),
@@ -1025,10 +1025,10 @@ scripts = [
        ("Fcst", "Sky", "SCALAR", 6, 12, 0, "all"),
        ],
     "checkStrings": [
-       "Today",
+       ".TODAY...",
        #"Partly cloudy in the morning then clearing",
        #"Patchy fog in the morning",
-       "Tonight",
+       ".TONIGHT...",
        ],
     "fileChanges": [
        ("ZFP_<site>_Definition", "TextUtility", "replace", (arealSkyDef1, arealSkyDef2), "undo"),
@@ -1073,7 +1073,7 @@ scripts = [
 ##       ("Fcst", "Wind", "VECTOR", 36, 72, (10, "SW"), "all"),
            ],
     "checkStrings": [
-       ".Monday through Tuesday Night...",
+       ".MONDAY THROUGH TUESDAY NIGHT...",
        "Low clouds and fog in the morning and night...otherwise clear",
        ],
     "fileChanges": [
@@ -1121,7 +1121,7 @@ scripts = [
 ##       ("Fcst", "Wind", "VECTOR", 36, 72, (10, "SW"), "all"),
            ],
     "checkStrings": [
-       ".Monday Night through Tuesday Night...",
+       ".MONDAY NIGHT THROUGH TUESDAY NIGHT...",
        "Low clouds and fog in the night and morning...otherwise clear",
        ],
     "fileChanges": [
@@ -1148,8 +1148,8 @@ scripts = [
        ("Fcst", "Sky", "SCALAR", 66, 72, 55, "all"),
        ],
     "checkStrings": [
-       ".Sunday...", "Increasing clouds",
-       ".Sunday Night...", "Increasing clouds",
+       ".SUNDAY...", "Increasing clouds",
+       ".SUNDAY NIGHT...", "Increasing clouds",
        ],
     "fileChanges": [
            ("ZFP_<site>_Overrides", "TextUtility", "add", increaseSky1, "undo"),
@@ -1170,8 +1170,8 @@ scripts = [
        ("Fcst", "Sky", "SCALAR", 66, 72, 55, "all"),
        ],
     "checkStrings": [
-       ".Sunday...", "Increasing clouds",
-       ".Sunday Night...","Clear in the evening then becoming mostly cloudy",
+       ".SUNDAY...", "Increasing clouds",
+       ".SUNDAY NIGHT...","Clear in the evening then becoming mostly cloudy",
        ],
     "fileChanges": [
            ("ZFP_<site>_Overrides", "TextUtility", "add", increaseSky2, "undo"),
@@ -1313,8 +1313,8 @@ scripts = [
       ],
     "orderStrings": 1,
     "checkStrings": [
-       "Local Hazard in effect until 5 PM EST this afternoon",
-       "Winter Storm Warning in effect from 1 PM to 3 PM EST this afternoon",
+       "...LOCAL HAZARD IN EFFECT UNTIL 5 PM EST THIS AFTERNOON...",
+       "...WINTER STORM WARNING IN EFFECT FROM 1 PM TO 3 PM EST THIS AFTERNOON...",
        ],
     "fileChanges": [
        ("ZFP_<site>_Overrides", "TextUtility", "add", localHeadlines1, "undo"),
@@ -2044,7 +2044,7 @@ scripts = [
 ##       ("Fcst", "Wind", "VECTOR", 36, 72, (10, "SW"), "all"),
            ],
     "checkStrings": [
-       ".Sunday Night through Wednesday Night...",
+       ".SUNDAY NIGHT THROUGH WEDNESDAY NIGHT...",
        ],
     "fileChanges": [
        ("ZFP_<site>_Definition", "TextUtility", "replace",
@@ -2105,8 +2105,8 @@ scripts = [
        ("Fcst", "PoP", "SCALAR", 128, 142, 30, "all"),
            ],
     "checkStrings": [
-       ".Sunday and Sunday Night...", "Chance of showers.",
-       ".Monday through Tuesday...",
+       ".SUNDAY AND SUNDAY NIGHT...", "Chance of showers.",
+       ".MONDAY THROUGH TUESDAY...",
        ],
     "fileChanges":[
        ("CWF_<site>_Definition", "TextUtility", "add", periodCombine2, "undo"),
@@ -2133,8 +2133,8 @@ scripts = [
        ("Fcst", "PoP", "SCALAR", 12, 24, 50, "all"),
        ],
     "checkStrings": [
-       ".Tonight...", "Scattered showers", "Visibility 1 NM or less",
-       ".Saturday...",
+       ".TONIGHT...", "Scattered showers", "Visibility 1 NM or less",
+       ".SATURDAY...",
        ],
     "notCheckStrings":[
        "Scattered snow showers", "Visibility 2 NM",
@@ -2158,8 +2158,8 @@ scripts = [
        ("Fcst", "PoP", "SCALAR", 12, 24, 50, "all"),
        ],
     "checkStrings": [
-       ".Tonight...", "Scattered showers", "VSBY one quarter mile or less at times",
-       ".Sat...",
+       ".TONIGHT...", "Scattered showers", "VSBY one quarter mile or less at times",
+       ".SAT...",
        ],
     "notCheckStrings":[
        "Scattered snow showers",
@@ -2183,9 +2183,9 @@ scripts = [
        ("Fcst", "PoP", "SCALAR", 12, 24, 50, "all"),
        ],
     "checkStrings": [
-       ".Tonight...", "Scattered showers",
+       ".TONIGHT...", "Scattered showers",
        "Visibility one quarter mile or less at times",
-       ".Saturday...",
+       ".SATURDAY...",
        ],
     "notCheckStrings":[
        "Scattered snow showers", "Visibility 2 NM",
@@ -2209,8 +2209,8 @@ scripts = [
        ("Fcst", "PoP", "SCALAR", 12, 24, 50, "all"),
        ],
     "checkStrings": [
-       ".Tonight...", "Scattered showers", "Visibility 1 NM or less",
-       ".Saturday...",
+       ".TONIGHT...", "Scattered showers", "Visibility 1 NM or less",
+       ".SATURDAY...",
        ],
     "notCheckStrings":[
        "Scattered snow showers", "Visibility 2 NM",
@@ -2232,10 +2232,10 @@ scripts = [
        ("Fcst", "PoP", "SCALAR", 12, 24, 10, "all"),
        ],
     "checkStrings": [
-       ".Today...", "Scattered showers",
-       ".Tonight...", "Areas of blowing snow.", 
+       ".TODAY...", "Scattered showers",
+       ".TONIGHT...", "Areas of blowing snow.", 
        "Visibility one quarter mile or less at times.",
-       ".Saturday...",
+       ".SATURDAY...",
        ],
     "gridsStartTime": "6am Local",
     "drtTime": "4am Local",
@@ -2264,7 +2264,7 @@ scripts = [
        ("ZFP_<site>_Overrides", "TextUtility", "add", alternateTempTrends, "undo"),
        ],
     "checkStrings": [
-       ".Rest of Tonight...", "Temperature steady or slowly rising through sunrise", 
+       ".REST OF TONIGHT...", "Temperature steady or slowly rising through sunrise", 
        ],
     "gridsStartTime": "6am Local",
     "drtTime": "12am Local",
@@ -2285,7 +2285,7 @@ scripts = [
        ("ZFP_<site>_Overrides", "TextUtility", "add", visibilitySettings, "undo"),
        ],
     "checkStrings": [
-       "Today...", 
+       ".TODAY...", 
        ],
     "gridsStartTime": "6am Local",
     "drtTime": "6am Local",

@@ -318,9 +318,6 @@ class ITool (ISmartScript.ISmartScript):
         if setupTextEA == "yes":
             if self._reportingMode not in ["Pretty"]:
                 self.output("Calling setupTextEA", self._outFile)
-            #shost = self._dataMgr.serverHost()
-            #sport = self._dataMgr.serverPort()
-            #os.system("run/setupTextEA -h " + shost + " -p " + `sport`)
             import SetupTextEA
             SetupTextEA.main()
         scriptNames = varDict["Test Script Name"]
@@ -426,33 +423,12 @@ class ITool (ISmartScript.ISmartScript):
         self._makeWritableCopy(entry)
         self._fileChanges(entry)
         
-#         runtimeModuleChanges = self._runTimeModuleChanges(entry)
-#         
-#         if runtimeModuleChanges:
-#             exec "changes = " + runtimeModuleChanges
-#             for moduleName, chg in changes:
-#                 self._magicCodeChange(moduleName, chg)                         
-        
         cmdLineVars = self._getCmdLineVars(entry)
         vtecMode = entry.get("vtecMode", None)
 
         if productType is None:
             return
 
-        #script = "runIFPText" +\
-        #     " -t " + productType +\
-        #     " -a PRACTICE" +\
-        #    " -h " + host +\
-        #     " -p " + port +\
-        #     " -d " + database +\
-        #     " -u " + user +\
-        #     " -S " + \
-        #     cmdLineVars   +\
-        #     drtStr +\
-        #     vtecModeStr 
-      
-        #script = script.replace("<site>", self.getSiteID())
-        
         database = database.replace("<site>", self.getSiteID())
 
         # Run the product
@@ -465,7 +441,6 @@ class ITool (ISmartScript.ISmartScript):
         # thread has its own interpreter....     
         # however, running the other way has issue with sampler caches not getting dumped between runs
         waiter = TextProductFinishWaiter()
-#        FormatterUtil.runFormatterScript(productType, vtecMode, database, cmdLineVars, "PRACTICE", drtTime, changes, waiter)
         FormatterUtil.runFormatterScript(productType, vtecMode, database, cmdLineVars, "PRACTICE", drtTime, 0, waiter)
         fcst = waiter.waitAndGetProduct()
         state = waiter.getState()
@@ -481,38 +456,6 @@ class ITool (ISmartScript.ISmartScript):
 #             LogStream.logProblem("Error generating product: " + LogStream.exc())
 
         self._doExecuteMsg(name, fcst, entry, drtTime, state)        
-       
-        #Launch the formatter
-        #onServer = (self._processor == AFPS.ProcessStatus.SERVER)
-        #pid = External.system(script, name, onServer,
-        #  logCategory="Fmtr_Launcher")
-
-        # Save process info handled by "executeMsg" when product is finished running.
-        #self._process = ProcessInfo(entry, name, pid, script)
-
-#     def _magicCodeChange(self, moduleName, change):
-#         "Replaces methods and fields of a module at runtime.  Intended only for the automated test."
-#         
-#         if type(moduleName) is str:
-#             mod = __import__(moduleName)
-#         else: # received a module
-#             mod = moduleName
-#         if type(change) is str:
-#             if change.find('def ') > -1 and change.find('\n') > -1: # found method
-#                 exec change
-#                 methodName = change[change.find('def ') + 4:change.find('(')]
-#                 # making an assumption of exactly one class existing in the module
-#                 clzList = inspect.getmembers(mod, inspect.isclass)
-#                 if clzList:
-#                     clz = clzList[0][1]                                
-#                     exec "clz." + methodName + ' = ' + methodName
-#                 else:
-#                     exec "mod." + methodName + ' = ' + methodName
-#             else: # found field
-#                 exec "mod." + change
-#         else: # received a list of changes
-#             for chg in change:
-#                 self._magicCodeChange(mod, chg)            
                     
     def _getCmdLineVars(self, entry):
         cmdLineVars = entry.get("cmdLineVars", None)
@@ -733,18 +676,6 @@ class ITool (ISmartScript.ISmartScript):
                 self.output("All File Changes successful", self._outFile)
         return True
 
-#     def _runTimeModuleChanges(self, entry):
-#         fileChanges = entry.get("fileChanges", None)
-#         if fileChanges is None:
-#             return None
-#         failed = 0
-#         changes = []        
-#         for fileName, fileType, changeType, strings, cleanUp in fileChanges:
-#             fileName = fileName.replace("<site>", self.getSiteID())
-#             changes.append((fileName, strings))
-#         return str(changes)
-        
-            
     def _determineMaxMinBeginEnd(self, entry):
         # Determine MaxT MinT MaxRH MinRH begin and end times
         # relative to gridsStartTime
@@ -958,21 +889,6 @@ class ITool (ISmartScript.ISmartScript):
                     # We just remove these files to restore the previous file
                     destLf = TextFileUtil.getUserTextFile(textFileID)                  
                     TextFileUtil.deleteTextFile(destLf)
-#                 elif cleanUp == "undo":
-#                     # Get the file
-#                     textFile = open(textFileID.getFile().getPath())
-#                     text = textFile.read()
-#                     textFile.close()
-#                     # Modify it
-#                     if changeType == "add":
-#                         text = text.replace(strings, "")
-#                     elif changeType == "replace":
-#                         text = text.replace(strings[1], strings[0])
-#                     # Write it
-#                     textFile = open(textFileID.getFile().getPath(), 'w')
-#                     textFile.write(text)
-#                     textFile.close()
-#                     textFileID.save()
 
     def _checkStrs(self, name, fcst, checkStrings, orderStrings, fcstStr,
       fcstStrRaw, internalStrip, checkMode=1):
@@ -1106,7 +1022,6 @@ class ITool (ISmartScript.ISmartScript):
             file.write(fcst)
         
         url = urlparse.urlparse(VizApp.getHttpServer())
-#         commandString = "VTECDecoder -f " + file.name + " -a practice -d -h " + url.hostname
         commandString = "VTECDecoder -f " + file.name + " -a practice -h " + url.hostname
         if drtString is not None:
             commandString += " -z " + drtString

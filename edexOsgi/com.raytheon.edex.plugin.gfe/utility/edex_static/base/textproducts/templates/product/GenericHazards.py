@@ -292,11 +292,13 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
             eas = ''
 
         s = self._wmoID + " " + self._fullStationID + " " + \
-               self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
-               eas + productName + "\n" +\
+               self._ddhhmmTime + "\n" + self._pil + "\n\n"
+        fcst =  fcst + s.upper()
+
+        s = eas + productName + "\n" +\
                "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
-        fcst =  fcst + s.upper()
+        fcst =  fcst + s
 
         fcst = fcst + "Default overview section\n"
         return fcst

@@ -428,8 +428,8 @@ Definition["pil"] = "WBCSAFNW1"
 
 """
 
-dir1 = """#Definition["directiveType"] = """
-dir2 = """Definition["directiveType"] = """
+dir1 = """#Definition["directiveType"] = \"_five12hr_24hrExtended_issuance_list\""""
+dir2 = """Definition["directiveType"] = \"_five12hr_24hrExtended_issuance_list\""""
 
 
 options = """
@@ -729,7 +729,7 @@ scripts = [
        ("SAF_<site>_Overrides", "TextUtility", "add", hazards, "undo"),
        ],
     "checkStrings": [
-        "Winter Storm Watch in effect through Saturday afternoon"
+        "WINTER STORM WATCH IN EFFECT THROUGH SATURDAY AFTERNOON"
         ],
     },
     

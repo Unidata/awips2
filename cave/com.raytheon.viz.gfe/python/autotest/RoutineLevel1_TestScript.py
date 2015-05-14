@@ -37,7 +37,7 @@ scripts = [
     "productType":"AFD",
     "cmdLineVars": "{('Issued By', 'issuedBy'): None, ('IncludePrevious AFD?', 'includePreviousAFD'): 'NO', ('Long TermForecaster', 'longTermFcstrNumber'): '99', ('Product Issuance', 'productIssuance'): 'Morning', ('Short TermForecaster', 'shortTermFcstrNumber'): '99', ('OptionalTopics', 'optionalTopics'): [], ('AviationForecaster', 'aviationFcstrNumber'): '99'}",
     "comboFlag": 0,
-    "checkStrings": ["AREA FORECAST DISCUSSION", ".SHORT TERM"],
+    "checkStrings": ["Area Forecast Discussion", ".SHORT TERM"],
     "createGrids": [("Fcst", "Hazards", "DISCRETE", 0, 12, "WS.W", "all")],
     "fileChanges": [("AFD_<site>_Definition", "TextUtility", "replace", (def1, def2), "undo")],
     },
@@ -48,7 +48,7 @@ scripts = [
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None }",
     "comboFlag": 1,
     "combinations" : "ZONE",
-    "checkStrings": ["AREA FORECAST MATRICES", "DATE", "MAX/MIN"],
+    "checkStrings": ["Area Forecast Matrices", "DATE", "MAX/MIN"],
     },
     {
 
@@ -66,7 +66,7 @@ scripts = [
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None}",
     "comboFlag":  1,
     "combinations": "ZONE",
-    "checkStrings": ["COASTAL WATERS FORECAST", ".Today", ".Tonight"],
+    "checkStrings": ["Coastal Waters Forecast", ".TODAY...", ".TONIGHT..."],
     },
     {
     "name":"CWF_Pacific1", 
@@ -75,7 +75,7 @@ scripts = [
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None}",
     "comboFlag":  1, 
     "combinations": "ZONE",
-    "checkStrings": ["COASTAL WATERS FORECAST", ".Today", ".Tonight"], 
+    "checkStrings": ["Coastal Waters Forecast", ".TODAY...", ".TONIGHT..."], 
     },
     {
     "name":"FWF1", 
@@ -84,7 +84,7 @@ scripts = [
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None}",
     "comboFlag":  1, 
     "combinations": "ZONE",
-    "checkStrings": ["FIRE WEATHER PLANNING FORECAST", ".Today", "SKY/WEATHER"], 
+    "checkStrings": ["Fire Weather Planning Forecast", ".TODAY...", "SKY/WEATHER"], 
     },
     {
     "name":"FWFTable1", 
@@ -93,7 +93,7 @@ scripts = [
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None}",
     "comboFlag":  1, 
     "combinations": "ZONE",
-    "checkStrings": ["FIRE WEATHER PLANNING FORECAST", ""], 
+    "checkStrings": ["Fire Weather Planning Forecast", ""], 
     },
     {
     "name":"FWM1", 
@@ -109,7 +109,7 @@ scripts = [
     "commentary": "Basic FWS formatter run.",
     "cmdLineVars": "{('Product Issuance:', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None, ('Agency:', 'requestingAgency'): 'AGENCY 1', ('Tomorrow Elements', 'tomorrowElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Longitude (Deg)...................', 'fireLongitude'): 82.19, ('WebSiteTag:', 'webSiteTag'): '', ('Check Items to Include:', 'extendedQuestions'): [], ('Forecaster:', 'forecaster'): ['FORECASTER C'], ('Type of Fire:', 'fireType'): 'PRESCRIBED', ('Name of Agency Contact..........', 'agencyContact'): 'yyyy', ('Today Elements', 'todayElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Latitude (Deg).......................', 'fireLatitude'): 28.27, ('WFOid:', 'wfoID'): '', ('Fire Size (Acres) .........................', 'fireSize'): .005, ('Name of Fire ...................................', 'fireName'): 'xxxx', ('Tonight Elements', 'tonightElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Creation Date', 'creationDate'): '', ('Creation Time', 'creationTime'): '', ('What Type of Forecast?', 'forecastType'): 'Narrative Only', ('Include Ignition Times?', 'withIgnitionTimes'): 'yes', ('Name of Agency if not listed....', 'otherAgencyName'): 'xxxx', ('Date of Fire .....................................', 'fireDate'): '01/01/10', ('Time of Fire .....................................', 'fireTime'): '1300', ('Tab Hrs', 'todayTableRes'): 1, ('Tab Hrs', 'tonightTableRes'): 2, ('Tab Hrs', 'tomorrowTableRes'): 3, ('TimeZone:', 'fireTZ'): 'EST5EDT'}",
     "comboFlag":  0, 
-    "checkStrings": ["SPOT FORECAST", ".Today", "TEMPERATURE"], 
+    "checkStrings": ["Spot Forecast", ".TODAY...", "TEMPERATURE"], 
     },
     
     {
@@ -118,7 +118,7 @@ scripts = [
     "commentary": "Basic GLF formatter run.",
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): '400 AM', ('Issued By', 'issuedBy'): None}",
     "comboFlag":  0, 
-    "checkStrings": ["Lake Superior forecast beyond five nautical", ".Today", ".Tonight"], 
+    "checkStrings": ["Lake Superior forecast beyond five nautical", ".TODAY...", ".TONIGHT..."], 
     },
     {
     "name":"MVF1", 
@@ -135,7 +135,7 @@ scripts = [
     "cmdLineVars": "{('Issued By', 'issuedBy'): None}",
     "comboFlag":  1, 
     "combinations": "ZONE",
-    "checkStrings": ["SHORT TERM FORECAST", ".NOW"], 
+    "checkStrings": ["Short Term Forecast", ".NOW"], 
     },
     {
     "name":"NSH1", 
@@ -144,7 +144,7 @@ scripts = [
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): '430 AM', ('Issued By', 'issuedBy'): None}",
     "comboFlag":  1, 
     "combinations": "ZONE",
-    "checkStrings": ["NEARSHORE MARINE FORECAST", ".Today", ".Tonight"], 
+    "checkStrings": ["Nearshore Marine Forecast", ".TODAY...", ".TONIGHT..."], 
     },
     {
     "name":"OFF1", 
@@ -153,7 +153,7 @@ scripts = [
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): '400 AM', ('Issued By', 'issuedBy'): None}",
     "comboFlag":  1, 
     "combinations": "ZONE",
-    "checkStrings": ["OFFSHORE FORECAST", ".Today", ".Tonight"], 
+    "checkStrings": ["Offshore Forecast", ".TODAY...", ".TONIGHT..."], 
     },
     {
     "name":"PFM1", 
@@ -161,7 +161,7 @@ scripts = [
     "commentary": "Basic PFM formatter run.",
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None}",
     "comboFlag":  0, 
-    "checkStrings": ["POINT FORECAST MATRICES", "DATE", "MAX/MIN"], 
+    "checkStrings": ["Point Forecast Matrices", "DATE", "MAX/MIN"], 
     },
     {
     "name":"SAF1", 
@@ -177,21 +177,20 @@ scripts = [
     "commentary": "Basic SRF formatter run.",
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None, ('Number of Periods', 'numPeriods'): 'All'}",
     "comboFlag":  0, 
-    "checkStrings": ["SRFABC", "SURFZONE FORECAST FOR FLORIDA"] 
+    "checkStrings": ["SRFABC", "Surfzone Forecast for Florida"] 
     },
     {
     "name":"SFT1", 
     "productType":"SFT",
     "commentary": "Basic SFT formatter run.",
     "comboFlag": 0, 
-    "checkStrings": ["TABULAR STATE FORECAST", "Today"], 
+    "checkStrings": ["Tabular State Forecast", "Today"], 
     },
     {
     "name":"SPS", 
     "productType":"SPS_Local",
     "commentary": "Basic SPS formatter run.",
     "cmdLineVars": "{('Issued By', 'issuedBy'): None}",
-    "comboFlag":  1, 
     "combinations": "ZONE",
     "checkStrings": ["", ""], 
     },
@@ -201,7 +200,7 @@ scripts = [
     "commentary": "Basic ZFP formatter run.",
     "comboFlag": 1, 
     "combinations": "ZONE",
-    "checkStrings": ["ZONE FORECAST PRODUCT", ".Today", ".Tonight"], 
+    "checkStrings": ["Zone Forecast Product", ".TODAY...", ".TONIGHT..."], 
     },   
     ]
 

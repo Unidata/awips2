@@ -384,12 +384,12 @@ class TextProduct(GenericHazards.TextProduct):
           {
               "name": "Overview_NewInformation",
               "label": "New Information",
-              "title": ".New Information...\n",
+              "title": ".NEW INFORMATION...\n",
           },
           {
               "name": "AreasAffected",
               "label": "Areas Affected",
-              "title": ".Areas Affected...\n",
+              "title": ".AREAS AFFECTED...\n",
           },
           {
               "name":"WatchesWarnings",
@@ -399,12 +399,12 @@ class TextProduct(GenericHazards.TextProduct):
           {
               "name":"StormInformation",
               "label":"Storm Information",
-              "title": ".Storm Information...\n",
+              "title": ".STORM INFORMATION...\n",
           },
           {
               "name":"SituationOverview",
               "label":"Situation Overview",
-              "title": ".Situation Overview...\n"
+              "title": ".SITUATION OVERVIEW...\n"
           },
           {
               "name": "Overview_PrecautionaryPreparednessActions",
@@ -415,7 +415,7 @@ class TextProduct(GenericHazards.TextProduct):
           {
               "name": "NextUpdate",
               "label": "Next Update",
-              "title": ".Next Update...\n",
+              "title": ".NEXT UPDATE...\n",
           },
           ]
 
@@ -1045,16 +1045,18 @@ class TextProduct(GenericHazards.TextProduct):
         productName = self.checkTestMode(argDict, actualProductName + self._areaName)
 
         if len(self._easPhrase) != 0:
-            eas = self._easPhrase + '\n'
+            eas = self._easPhrase.upper() + '\n'
         else:
             eas = ''
 
         s = self._wmoID + " " + self._fullStationID + " " + \
-               self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
-               eas + productName + "\n" +\
+               self._ddhhmmTime + "\n" + self._pil + "\n\n"
+        fcst =  fcst + s.upper()
+               
+        s = eas + productName + "\n" +\
                "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
-        fcst =  fcst + s.upper()
+        fcst =  fcst + s
 
         # Main Headline
         mh = self._MainHeadline
@@ -1299,11 +1301,11 @@ class TextProduct(GenericHazards.TextProduct):
     #  section titles must match those as defined in the _overviewSections
     #  method (although any final "\n" can be ignored.
     def _noPrevTextOverviewSections(self):
-        return [".New Information...", ".Areas Affected...",
-                ".Watches/Warnings...", ".Storm Information...",
-                ".Next Update...",
-                ".Precautionary/Preparedness Actions...\n" +
-                "Precautionary/Preparedness Actions..."
+        return [".NEW INFORMATION...", ".AREAS AFFECTED...",
+                ".WATCHES/WARNINGS...", ".STORM INFORMATION...",
+                ".NEXT UPDATE...",
+                ".PRECAUTIONARY/PREPAREDNESS ACTIONS...\n" +
+                "PRECAUTIONARY/PREPAREDNESS ACTIONS..."
                ]
 
     #  Added 12/24/10 (MHB) - Define a method to specify which segment
