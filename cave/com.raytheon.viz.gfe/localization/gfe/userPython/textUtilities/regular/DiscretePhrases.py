@@ -1786,7 +1786,7 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
             # always remove the main hazard from the list
             hList.remove(hazard)
 
-        return returnStr.upper()
+        return returnStr
                     
     # Returns a formatted string announcing the hazards that are valid with
     # timing phrases
@@ -1803,7 +1803,7 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
         returnStr = self.headlinePhraseTESTcheck(tree.get("argDict"),
           returnStr)
 
-        return returnStr
+        return returnStr.upper()
 
 
     # The organizeHazard method brings in the raw analyzed table, 

@@ -214,6 +214,23 @@ class TextProduct(GenericHazards.TextProduct):
 
         return startPhraseType, endPhraseType
         
+    # Returns a formatted string announcing the hazards that are valid with
+    # timing phrases
+    def getHazardString(self, tree, node, fcstArea):
+        if len(fcstArea) <= 0:
+            return ""
+        hazardTable = self._hazards.getHazardList(fcstArea)
+        returnStr = ""
+        issuanceTime = self._issueTime.unixTime()
+
+        returnStr = self.makeHeadlinePhrases(tree, node, hazardTable,
+                                             issuanceTime)
+        #Test mode?
+        returnStr = self.headlinePhraseTESTcheck(tree.get("argDict"),
+          returnStr)
+
+        return returnStr
+
     def _makeProduct(self, fcst, segmentAreas, argDict):
         """
         Modified to allow headlines.  Segments will be automatically
@@ -282,7 +299,7 @@ class TextProduct(GenericHazards.TextProduct):
             agency = agencies[0]
             HeadIssue1 = self._agencyDict[agency]['declaration']
             HeadIssue2 = headlines
-            if "REMAINS" in headlines:  # This is an update
+            if "remains" in headlines:  # This is an update
                 HeadIssue2 = Headissue2[29:len(HeadIssue2)-4]
             else:  # This is the first issuance
                 HeadIssue2 = HeadIssue2[21:len(HeadIssue2)-4]
