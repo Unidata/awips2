@@ -197,7 +197,7 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["Today", "LAL.................1","Tonight"],
+    "checkStrings": [".TODAY...", "LAL.................1",".TONIGHT..."],
     "createGrids": [
        ("Fcst", "LAL", "SCALAR", 0, 12,  1, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12, 0, "all", 1),
@@ -211,7 +211,7 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["Today", "LAL.................1","Tonight"],
+    "checkStrings": [".TODAY...", "LAL.................1",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  1, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12, 10, "all", 1),
@@ -225,9 +225,9 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["Today",
+    "checkStrings": [".TODAY...",
          "Isolated showers",
-         "LAL.................1","Tonight"],
+         "LAL.................1",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  1, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12, 20, "all", 1),
@@ -241,9 +241,9 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["Today",
+    "checkStrings": [".TODAY...",
          ("Chance of rain showers", "Chance of showers"),
-         "LAL.................1","Tonight"],
+         "LAL.................1",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  1, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12, 30, "all", 1),
@@ -263,8 +263,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["Today", "Slight chance of showers and thunderstorms",
-         "LAL.................2","Tonight"],
+    "checkStrings": [".TODAY...", "Slight chance of showers and thunderstorms",
+         "LAL.................2",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  2, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12, 20, "all", 1),
@@ -280,7 +280,7 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["Today", "LAL.................2","Tonight"],
+    "checkStrings": [".TODAY...", "LAL.................2",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  2, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12, 20, "all", 1),
@@ -299,8 +299,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["Today", "Slight chance of showers and thunderstorms",
-         "LAL.................3","Tonight"],
+    "checkStrings": [".TODAY...", "Slight chance of showers and thunderstorms",
+         "LAL.................3",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  3, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12, 20, "all", 1),
@@ -316,8 +316,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["Today", "Isolated showers and thunderstorms",
-         "LAL.................3", "Tonight"],
+    "checkStrings": [".TODAY...", "Isolated showers and thunderstorms",
+         "LAL.................3", ".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  3, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12, 20, "all", 1),
@@ -336,8 +336,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["Today", "Chance of showers and thunderstorms",
-         "LAL.................4","Tonight"],
+    "checkStrings": [".TODAY...", "Chance of showers and thunderstorms",
+         "LAL.................4",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  4, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12, 40, "all", 1),
@@ -351,8 +351,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["Today", "Scattered showers and thunderstorms",
-         "LAL.................4","Tonight"],
+    "checkStrings": [".TODAY...", "Scattered showers and thunderstorms",
+         "LAL.................4",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  4, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12, 40, "all", 1),
@@ -371,8 +371,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["Today", "Showers and thunderstorms likely",
-         "LAL.................5","Tonight"],
+    "checkStrings": [".TODAY...", "Showers and thunderstorms likely",
+         "LAL.................5",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  5, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12, 60, "all", 1),
@@ -387,8 +387,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["Today", "Numerous showers and thunderstorms",
-         "LAL.................5","Tonight"],
+    "checkStrings": [".TODAY...", "Numerous showers and thunderstorms",
+         "LAL.................5",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  5, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12, 60, "all", 1),
@@ -407,8 +407,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["Today", "Slight chance of dry thunderstorms",
-         "LAL.................6","Tonight"],
+    "checkStrings": [".TODAY...", "Slight chance of dry thunderstorms",
+         "LAL.................6",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  6, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12, 20, "all", 1),
@@ -422,8 +422,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["Today", "Isolated dry thunderstorms",
-         "LAL.................6","Tonight"],
+    "checkStrings": [".TODAY...", "Isolated dry thunderstorms",
+         "LAL.................6",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  6, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12, 20, "all", 1),
@@ -447,8 +447,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["Today", "Isolated showers and thunderstorms after 0900",
-         "LAL.................1 until 0900...then 2","Tonight"],
+    "checkStrings": [".TODAY...", "Isolated showers and thunderstorms after 0900",
+         "LAL.................1 until 0900...then 2",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 3,  1, "all", 1),
        ("Fcst", "LAL", "SCALAR", 3, 12,  2, "all", 1),
@@ -465,8 +465,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["Today", "Slight chance of showers and thunderstorms after 0900",
-         "LAL.................1 until 0900...then 2","Tonight"],
+    "checkStrings": [".TODAY...", "Slight chance of showers and thunderstorms after 0900",
+         "LAL.................1 until 0900...then 2",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 3,  1, "all", 1),
        ("Fcst", "LAL", "SCALAR", 3, 12,  2, "all", 1),
@@ -484,8 +484,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["Today", "Isolated showers and thunderstorms until 1100...then scattered showers and thunderstorms",
-         "LAL.................3 until 1100...then 4","Tonight"],
+    "checkStrings": [".TODAY...", "Isolated showers and thunderstorms until 1100...then scattered showers and thunderstorms",
+         "LAL.................3 until 1100...then 4",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 5,  3, "all", 1),
        ("Fcst", "LAL", "SCALAR", 5, 12,  4, "all", 1),
@@ -505,10 +505,10 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["Today",
+    "checkStrings": [".TODAY...",
          "Showers and thunderstorms likely until 1500...then slight chance of showers and thunderstorms",
          "LAL.................5 until 1500...then 3",
-         "Tonight"],
+         ".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 9,  5, "all", 1),
        ("Fcst", "LAL", "SCALAR", 9, 12,  3, "all", 1),
@@ -526,10 +526,10 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["Today",
+    "checkStrings": [".TODAY...",
          "Isolated showers and thunderstorms after 0900 until 1300...then scattered showers and thunderstorms",
          "LAL.................1 until 0900...then 2 until 1300...then 4",
-         "Tonight"],
+         ".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 3,  1, "all", 1),
        ("Fcst", "LAL", "SCALAR", 3, 7,  2, "all", 1),
@@ -555,8 +555,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["Today", "Numerous showers and scattered thunderstorms",
-         "LAL.................4","Tonight"],
+    "checkStrings": [".TODAY...", "Numerous showers and scattered thunderstorms",
+         "LAL.................4",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  4, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12, 60, "all", 1),
@@ -570,8 +570,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1, 
     "orderStrings": 1,
-    "checkStrings": ["Today", "Scattered showers and isolated thunderstorms",
-         "LAL.................3", "Tonight"],
+    "checkStrings": [".TODAY...", "Scattered showers and isolated thunderstorms",
+         "LAL.................3", ".TONIGHT..."],
     "createGrids" : [
       ("Fcst", "LAL", "SCALAR", 0, 12,  3, "all", 1),
       ("Fcst", "PoP", "SCALAR", 0, 12, 30, "all", 1),
@@ -586,8 +586,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["Today", "Chance of showers and thunderstorms",
-         "LAL.................4", "Tonight"],
+    "checkStrings": [".TODAY...", "Chance of showers and thunderstorms",
+         "LAL.................4", ".TONIGHT..."],
     "createGrids" : [ 
        ("Fcst", "LAL", "SCALAR", 0, 12,  2, ["BelowElev"], 1),
        ("Fcst", "LAL", "SCALAR", 0, 12,  4, ["AboveElev"], 1),
@@ -601,8 +601,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["Today", "Chance of showers and thunderstorms",
-         "LAL.................2", "Tonight"],
+    "checkStrings": [".TODAY...", "Chance of showers and thunderstorms",
+         "LAL.................2", ".TONIGHT..."],
     "createGrids": [ 
        ("Fcst", "LAL", "SCALAR", 0, 12,  2, ["BelowElev"], 1),
        ("Fcst", "LAL", "SCALAR", 0, 12,  2, ["AboveElev"], 1),
@@ -616,7 +616,7 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["Today", "LAL.................1", "Tonight"],
+    "checkStrings": [".TODAY...", "LAL.................1", ".TONIGHT..."],
     "createGrids" : [ 
        ("Fcst", "LAL", "SCALAR", 0, 12,  2, ["BelowElev"], 1),
        ("Fcst", "LAL", "SCALAR", 0, 12,  2, ["AboveElev"], 1),
@@ -630,8 +630,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["Today","Chance of thunderstorms after 0900",
-         "LAL.................1 until 0900...then 4", "Tonight"],
+    "checkStrings": [".TODAY...","Chance of thunderstorms after 0900",
+         "LAL.................1 until 0900...then 4", ".TONIGHT..."],
     "createGrids" : [ 
        ("Fcst", "LAL", "SCALAR", 0, 3,  1, "all", 1),
        ("Fcst", "LAL", "SCALAR", 3, 12,  4, "all", 1),
@@ -646,8 +646,8 @@ scripts = [
     "commentary": "Iso T does not get into wording",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["Today", "Scattered showers",
-         "LAL.................1", "Tonight"],
+    "checkStrings": [".TODAY...", "Scattered showers",
+         "LAL.................1", ".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  1, ["area3"], 1),
        ("Fcst", "LAL", "SCALAR", 0, 12,  2, ["area3_pt"], 1),
@@ -664,8 +664,8 @@ scripts = [
     "commentary": "Matching Iso T, Takes Max LAL = 2 even tho for small area",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["Today", "Scattered showers and isolated thunderstorms",
-         "LAL.................2", "Tonight"],
+    "checkStrings": [".TODAY...", "Scattered showers and isolated thunderstorms",
+         "LAL.................2", ".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  1, ["area3"], 1),
        ("Fcst", "LAL", "SCALAR", 0, 12,  2, ["area3_pt"], 1),
@@ -683,8 +683,8 @@ scripts = [
     "commentary": "Matching Iso T, can't find 3. If the resultValue value (4) is greater than the binHighVal (3), use binHighVal", 
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["Today", "Scattered showers and isolated thunderstorms",
-         "LAL.................3", "Tonight"],
+    "checkStrings": [".TODAY...", "Scattered showers and isolated thunderstorms",
+         "LAL.................3", ".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  1, ["area3"], 1),
        ("Fcst", "LAL", "SCALAR", 0, 12,  4, ["area3_pt"], 1),
@@ -700,8 +700,8 @@ scripts = [
     "commentary": "Matching Iso T, LAL = 2",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["Today", "Scattered showers and isolated thunderstorms",
-         "LAL.................3", "Tonight"],
+    "checkStrings": [".TODAY...", "Scattered showers and isolated thunderstorms",
+         "LAL.................3", ".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  3, ["area3"], 1),
        ("Fcst", "LAL", "SCALAR", 0, 12,  4, ["area3_pt"], 1),
@@ -718,8 +718,8 @@ scripts = [
     "commentary": "LAL (4,5), PoP (50,30), (Sct TRW-,Num TRW-)",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["Today", "Scattered showers and thunderstorms",
-         "LAL.................4", "Tonight"],
+    "checkStrings": [".TODAY...", "Scattered showers and thunderstorms",
+         "LAL.................4", ".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  4, ["area3"], 1),
        ("Fcst", "LAL", "SCALAR", 0, 12,  5, ["area3_pt"], 1),
@@ -738,8 +738,8 @@ scripts = [
     "commentary": "LAL (4,6), PoP (50,20), (Chc TRW-,Chc TRW- Dry)",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["Today", "Chance of thunderstorms",
-         "LAL.................4", "Tonight"],
+    "checkStrings": [".TODAY...", "Chance of thunderstorms",
+         "LAL.................4", ".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  4, ["area3"], 1),
        ("Fcst", "LAL", "SCALAR", 0, 12,  6, ["area3_pt"], 1),
@@ -758,9 +758,9 @@ scripts = [
     "comboFlag": 1,
      # checkStrings
     "checkStrings": [
-       "Winter Storm Warning",
-       ".Today...", "Mostly cloudy",
-       ".Tonight...",
+       "WINTER STORM WARNING",
+       ".TODAY...", "Mostly cloudy",
+       ".TONIGHT...",
       ],  
     "orderStrings": 1,
      # createGrids
@@ -785,9 +785,9 @@ scripts = [
     "comboFlag": 1,
      # checkStrings
     "checkStrings": [
-       "Winter Storm Warning",
-       ".Today...", "Mostly cloudy",
-       ".Tonight...",
+       "WINTER STORM WARNING",
+       ".TODAY...", "Mostly cloudy",
+       ".TONIGHT...",
       ],  
     "orderStrings": 1,
      # createGrids
@@ -809,9 +809,9 @@ scripts = [
     "comboFlag": 1,
      # checkStrings
     "checkStrings": [
-       "Winter Storm Warning",
-       ".Today...", "Mostly cloudy",
-       ".Tonight...",
+       "WINTER STORM WARNING",
+       ".TODAY...", "Mostly cloudy",
+       ".TONIGHT...",
       ],  
     "orderStrings": 1,
      # createGrids
@@ -835,9 +835,9 @@ scripts = [
          """,
     "comboFlag": 1,
     "checkStrings": [
-       "...Local Hazard in effect through this afternoon in the mountains...",
-       ".Today...", "Mostly cloudy",
-       ".Tonight...",
+       "...LOCAL HAZARD IN EFFECT THROUGH THIS AFTERNOON IN THE MOUNTAINS...",
+       ".TODAY...", "Mostly cloudy",
+       ".TONIGHT...",
       ],  
     "orderStrings": 1,
     "createGrids" : [      
@@ -866,9 +866,9 @@ scripts = [
          """,
     "comboFlag": 1,
     "checkStrings": [
-       "...Local Hazard in effect through this afternoon...",
-       ".Today...", "Mostly cloudy",
-       ".Tonight...",
+       "...LOCAL HAZARD IN EFFECT THROUGH THIS AFTERNOON...",
+       ".TODAY...", "Mostly cloudy",
+       ".TONIGHT...",
       ],  
     "orderStrings": 1,
     "createGrids" : [      
@@ -895,9 +895,9 @@ scripts = [
          """,
     "comboFlag": 1,
     "checkStrings": [
-       "...Local Hazard in effect through this afternoon...",
-       ".Today...", "Mostly cloudy",
-       ".Tonight...",
+       "...LOCAL HAZARD IN EFFECT THROUGH THIS AFTERNOON...",
+       ".TODAY...", "Mostly cloudy",
+       ".TONIGHT...",
       ],  
     "orderStrings": 1,
     "createGrids" : [      
@@ -929,12 +929,12 @@ scripts = [
     "comboFlag": 1,
      # checkStrings
     "checkStrings": [
-       "...Local Hazard in effect through this afternoon...",
-       ".Today...", "Mostly cloudy. Patchy dense fog.",
+       "...LOCAL HAZARD IN EFFECT THROUGH THIS AFTERNOON...",
+       ".TODAY...", "Mostly cloudy. Patchy dense fog.",
        "Ice accumulation around 2 inches.",
        # DR_18363 "Highs in the upper 70s.",
        "Near steady temperature in the mid 50s.",
-       ".Tonight...", "Very windy.", "Widespread thunderstorms.",
+       ".TONIGHT...", "Very windy.", "Widespread thunderstorms.",
        # DR_18363 "Lows around 60.",
        "Near steady temperature in the mid 40s.",
        ],  
@@ -966,12 +966,12 @@ scripts = [
     "comboFlag": 1,
      # checkStrings
     "checkStrings": [
-       "...Winter Storm Warning in effect until 6 PM EST this evening...",
-       ".Today...", "Mostly cloudy. Patchy dense fog.",
+       "...WINTER STORM WARNING IN EFFECT UNTIL 6 PM EST THIS EVENING...",
+       ".TODAY...", "Mostly cloudy. Patchy dense fog.",
        "Ice accumulation around 2 inches.",
        # "Highs in the upper 70s.",
        "Near steady temperature in the mid 50s.",
-       ".Tonight...", "Very windy.", "Widespread thunderstorms.",
+       ".TONIGHT...", "Very windy.", "Widespread thunderstorms.",
        #"Lows around 60.",
        "Near steady temperature in the mid 40s.",
       ],  

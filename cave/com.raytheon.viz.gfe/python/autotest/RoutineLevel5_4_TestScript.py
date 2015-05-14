@@ -49,33 +49,33 @@ addPeriods = """
  
         return [
             ("Morning", self.DAY(), self.NIGHT(), self.NIGHT(),
-             ".Today...", "early in the morning", "late in the afternoon",
+             ".TODAY...", "early in the morning", "late in the afternoon",
              1, seriesDefAM),
             ("Morning with Pre-1st Period", self.DAY()-2, self.NIGHT(), self.NIGHT(),
-             ".Today...", "early in the morning", "late in the afternoon",
+             ".TODAY...", "early in the morning", "late in the afternoon",
              1, seriesDefAM),
             ("Morning Update", "issuanceHour", self.NIGHT(), self.NIGHT(),
-             ".Rest of Today...", "early in the morning", "late in the afternoon",
+             ".REST OF TODAY...", "early in the morning", "late in the afternoon",
              1, seriesDefAM),
             ("Afternoon Update", "issuanceHour", self.NIGHT(), self.NIGHT(),
-             ".Rest of Today...", "early in the morning","late in the afternoon",
+             ".REST OF TODAY...", "early in the morning","late in the afternoon",
              1, seriesDefAM),
             #  End times are tomorrow:
             ("Afternoon", self.NIGHT(), 24 + self.DAY(), 24 + self.DAY(),
-             ".Tonight...", "late in the night", "early in the evening",
+             ".TONIGHT...", "late in the night", "early in the evening",
              1, seriesDefPM),
             ("Afternoon with Pre-1st Period", self.NIGHT()-2, 24 + self.DAY(), 24 + self.DAY(),
-             ".Tonight...", "late in the night", "early in the evening",
+             ".TONIGHT...", "late in the night", "early in the evening",
              1, seriesDefPM),
             ("Evening Update", "issuanceHour", 24 + self.DAY(), 24 + self.DAY(),
-             ".Rest of Tonight...", "early in the morning","early in the evening",
+             ".REST OF TONIGHT...", "early in the morning","early in the evening",
              1, seriesDefPM),
             # For the early morning update, this produces:
             # Rest of Tonight:
             # Monday
             # Monday Night
             ("Early Morning Update", "issuanceHour", self.DAY(), self.DAY(),
-             ".Rest of Tonight...", "early in the morning","late in the afternoon",
+             ".REST OF TONIGHT...", "early in the morning","late in the afternoon",
              0, seriesDefPM),
             # Alternative
             # For the early morning update, this produces:
@@ -83,10 +83,10 @@ addPeriods = """
             # Today
             # Tonight
             #("Evening Update", "issuanceHour", 24 + self.DAY(), 24 + self.DAY(),
-            # ".Rest of Tonight...", "late in the night", "early in the evening",
+            # ".REST OF TONIGHT...", "late in the night", "early in the evening",
             # 1, seriesDefPM),
             #("Early Morning Update", "issuanceHour", self.DAY(), self.DAY(),
-            # ".Early This Morning...", "early in the morning", "late in the afternoon",
+            # ".EARLY THIS MORNING...", "early in the morning", "late in the afternoon",
             # 1, seriesDefPM),
             ]
 
@@ -113,33 +113,33 @@ addTonight = """
  
         return [
             ("Morning", self.DAY(), self.NIGHT(), self.NIGHT(),
-             ".Today...", "early in the morning", "late in the afternoon",
+             ".TODAY...", "early in the morning", "late in the afternoon",
              1, seriesDefAM),
             ("Morning with Pre-1st Period", self.DAY()-2, self.NIGHT(), self.NIGHT(),
-             ".Today...", "early in the morning", "late in the afternoon",
+             ".TODAY...", "early in the morning", "late in the afternoon",
              1, seriesDefAM),
             ("Morning Update", "issuanceHour", self.NIGHT(), self.NIGHT(),
-             ".Rest of Today...", "early in the morning", "late in the afternoon",
+             ".REST OF TODAY...", "early in the morning", "late in the afternoon",
              1, seriesDefAM),
             ("Afternoon Update", "issuanceHour", self.NIGHT(), self.NIGHT(),
-             ".Rest of Today...", "early in the morning","late in the afternoon",
+             ".REST OF TODAY...", "early in the morning","late in the afternoon",
              1, seriesDefAM),
             #  End times are tomorrow:
             ("Afternoon", self.NIGHT(), 24 + self.DAY(), 24 + self.DAY(),
-             ".Tonight...", "late in the night", "early in the evening",
+             ".TONIGHT...", "late in the night", "early in the evening",
              1, seriesDefPM),
             ("Afternoon with Pre-1st Period", self.NIGHT()-2, 24 + self.DAY(), 24 + self.DAY(),
-             ".Tonight...", "late in the night", "early in the evening",
+             ".TONIGHT...", "late in the night", "early in the evening",
              1, seriesDefPM),
             ("Evening Update", "issuanceHour", 24 + self.DAY(), 24 + self.DAY(),
-             ".Rest of Tonight...", "early in the morning","early in the evening",
+             ".REST OF TONIGHT...", "early in the morning","early in the evening",
              1, seriesDefPM),
             # For the early morning update, this produces:
             # Rest of Tonight:
             # Monday
             # Monday Night
             ("Early Morning Update", "issuanceHour", self.DAY(), self.DAY(),
-             ".Rest of Tonight...", "early in the morning","late in the afternoon",
+             ".REST OF TONIGHT...", "early in the morning","late in the afternoon",
              0, seriesDefPM),
             # Alternative
             # For the early morning update, this produces:
@@ -147,10 +147,10 @@ addTonight = """
             # Today
             # Tonight
             #("Evening Update", "issuanceHour", 24 + self.DAY(), 24 + self.DAY(),
-            # ".Rest of Tonight...", "late in the night", "early in the evening",
+            # ".REST OF TONIGHT...", "late in the night", "early in the evening",
             # 1, seriesDefPM),
             #("Early Morning Update", "issuanceHour", self.DAY(), self.DAY(),
-            # ".Early This Morning...", "early in the morning", "late in the afternoon",
+            # ".EARLY THIS MORNING...", "early in the morning", "late in the afternoon",
             # 1, seriesDefPM),
             ]
 
@@ -784,8 +784,8 @@ scripts = [
        ("Fcst", "PoP", "SCALAR", 0, 72, 0, "all"),
        ],
     "checkStrings": [
-        "Today", "Sunny.",
-        "Tonight", "Clear.",
+        ".TODAY...", "Sunny.",
+        ".TONIGHT...", "Clear.",
         "...", "Sunny.",
         "...", "Mostly clear.",
         "...", "Mostly sunny.",
@@ -843,8 +843,8 @@ scripts = [
 
        ],
     "checkStrings": [
-        "Today", "Sunny in the morning then becoming partly sunny",
-        "Tonight", "Clear in the evening then becoming mostly cloudy",
+        ".TODAY...", "Sunny in the morning then becoming partly sunny",
+        ".TONIGHT...", "Clear in the evening then becoming mostly cloudy",
         "...", "Sunny in the morning then becoming mostly cloudy",
         "...", "Clear in the evening then becoming mostly cloudy",
         "...", "Sunny in the morning then becoming cloudy",
@@ -916,8 +916,8 @@ scripts = [
        
        ],
     "checkStrings": [
-        "Today", "Mostly sunny",
-        "Tonight", "Partly cloudy",
+        ".TODAY...", "Mostly sunny",
+        ".TONIGHT...", "Partly cloudy",
         "...", "Sunny in the morning then becoming partly sunny",
         "...", "Mostly clear in the evening then becoming mostly cloudy",
         "...", "Sunny in the morning then becoming mostly cloudy",
@@ -976,8 +976,8 @@ scripts = [
 
        ],
     "checkStrings": [
-        ".Today", "Partly sunny.",
-        "Tonight", "Partly cloudy in the evening then becoming mostly cloudy",
+        ".TODAY...", "Partly sunny.",
+        ".TONIGHT...", "Partly cloudy in the evening then becoming mostly cloudy",
         "...", "Mostly sunny in the morning then becoming mostly cloudy",
         "...", "Partly cloudy in the evening then becoming mostly cloudy",
         "...", "Mostly sunny in the morning then becoming cloudy",
@@ -1038,8 +1038,8 @@ scripts = [
 
        ],
     "checkStrings": [
-        "Today", "Mostly cloudy",
-        "Tonight", "Mostly cloudy.",
+        ".TODAY...", "Mostly cloudy",
+        ".TONIGHT...", "Mostly cloudy.",
         "...", "Partly sunny in the morning then becoming cloudy",
         "...", "Mostly cloudy",
         "...", "Cloudy.",
@@ -1073,8 +1073,8 @@ scripts = [
 
        ],
     "checkStrings": [
-        "Today", "Mostly sunny until late afternoon then becoming mostly cloudy",
-        "Tonight", "Partly cloudy in the evening then becoming mostly cloudy", 
+        ".TODAY...", "Mostly sunny until late afternoon then becoming mostly cloudy",
+        ".TONIGHT...", "Partly cloudy in the evening then becoming mostly cloudy", 
         ],
     "fileChanges": [
        ("Phrase_Test_Local", "TextUtility", "add", addTonight, "undo"),

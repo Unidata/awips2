@@ -174,7 +174,7 @@ def makeTestCases():
             sit, scen = segCase
             segs.append((segNum+1, sit, scen))
         #checkStrs = checkStrings[i+1]  # Need to fix this later
-        checkStrs = ["NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL"]
+        checkStrs = ["National Weather Service Tampa Bay Ruskin FL"]
         testCase = (EventContext, Uncertainty, segs, checkStrs)
         testCases.append(testCase)
     #printTestCases(testCases)
@@ -537,7 +537,7 @@ NonEvent N/A
      "fileChanges": [("Hazard_HLS_<site>_Overrides", "TextUtility", "add", useTest, "undo")],
      "checkStrings" : [
         #"HURRICANE LOCAL STATEMENT",
-        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
+        "National Weather Service Tampa Bay Ruskin FL",
        ],
      },
 
@@ -556,7 +556,7 @@ NonEvent N/A
      "fileChanges": [("Hazard_HLS_<site>_Overrides", "TextUtility", "add", useTest, "undo")],
      "checkStrings" : [
         #"HURRICANE LOCAL STATEMENT",
-        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
+        "National Weather Service Tampa Bay Ruskin FL",
        ],
      },
 
@@ -602,7 +602,7 @@ NonEvent N/A
      "fileChanges": [("Hazard_HLS_<site>_Overrides", "TextUtility", "add", useTest, "undo")],
      "checkStrings" : [
         #"HURRICANE LOCAL STATEMENT",
-        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
+        "National Weather Service Tampa Bay Ruskin FL",
        ],
      },
 
@@ -647,7 +647,7 @@ NonEvent N/A
      "fileChanges": [("Hazard_HLS_<site>_Overrides", "TextUtility", "add", useTest, "undo")],
      "checkStrings" : [
         #"HURRICANE LOCAL STATEMENT",
-        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
+        "National Weather Service Tampa Bay Ruskin FL",
        ],
      },  
     ]

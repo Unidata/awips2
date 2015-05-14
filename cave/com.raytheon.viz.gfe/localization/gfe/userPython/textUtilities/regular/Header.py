@@ -55,7 +55,7 @@ class Header(EditAreaUtils.EditAreaUtils, StringUtils.StringUtils):
                        cityDescriptor ="Including the cities of",
                        areaList=None, includeCities=1, includeZoneNames=1,
                        includeIssueTime=1, includeCodes=1, includeVTECString=1,
-                       hVTECString=None, accurateCities=False, upperCase=True):
+                       hVTECString=None, accurateCities=False):
         # Make a UGC area header for the given areaLabel
         # Determine list of areas (there could be more than one if we are using a combination)
 
@@ -265,8 +265,6 @@ class Header(EditAreaUtils.EditAreaUtils, StringUtils.StringUtils):
         if includeVTECString == 0:
             VTECString = ""
         header = codeString + VTECString + nameString + cityString  + issueTimeStr
-        if upperCase:
-            header = header.upper()
         return header
 
     # Make accurate city list based on the grids
@@ -723,6 +721,7 @@ class Header(EditAreaUtils.EditAreaUtils, StringUtils.StringUtils):
         #reset time zone to GMT for this function
         prevTZ = os.environ.get('TZ', None)
         os.environ['TZ'] = "GMT0"
+        time.tzset()
 
         #assemble time tuple
         gmtuple = time.gmtime(time.time())
@@ -752,6 +751,7 @@ class Header(EditAreaUtils.EditAreaUtils, StringUtils.StringUtils):
             os.environ['TZ'] = prevTZ
         else:
             del os.environ['TZ']
+        time.tzset()
         return wmoTime
 
     # Given the issuance time, offset in hours from local time midnight,
@@ -847,6 +847,7 @@ class Header(EditAreaUtils.EditAreaUtils, StringUtils.StringUtils):
             #reset time zone to GMT for this function
             prevTZ = os.environ.get('TZ', None)
             os.environ['TZ'] = "GMT0"
+            time.tzset()
 
             timeString = yyyymmdd + hhmm
             timeTuple = time.strptime(timeString, "%y%m%d%H%M")
@@ -857,7 +858,7 @@ class Header(EditAreaUtils.EditAreaUtils, StringUtils.StringUtils):
                 os.environ['TZ'] = prevTZ
             else:
                 del os.environ['TZ']
-
+            time.tzset()
             return seconds
 
 #############################

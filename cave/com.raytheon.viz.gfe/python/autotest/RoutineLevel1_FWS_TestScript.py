@@ -1303,7 +1303,7 @@ Definition["elementFormatDict"]["Sky"] = "alpha"
 """
 definition4 = """
 Definition["agencyList"] = [
-    (1,"AGENCY 1"),
+    (1,"Agency 1"),
     (2,"WFO Billings"),
     ]
 """
@@ -1355,21 +1355,21 @@ scripts = [
        ("FWS_<site>_Overrides", "TextUtility", "add", testOverrides, "undo"),
        ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
      ],
-     "cmdLineVars": "{('Product Issuance:', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None, ('Agency:', 'requestingAgency'): 'AGENCY 1', ('Tomorrow Elements', 'tomorrowElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Longitude (Deg)...................', 'fireLongitude'): 82.19, ('WebSiteTag:', 'webSiteTag'): '', ('Check Items to Include:', 'extendedQuestions'): [], ('Forecaster:', 'forecaster'): ['FORECASTER C'], ('Type of Fire:', 'fireType'): 'PRESCRIBED', ('Name of Agency Contact..........', 'agencyContact'): 'yyyy', ('Today Elements', 'todayElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Latitude (Deg).......................', 'fireLatitude'): 28.27, ('WFOid:', 'wfoID'): '', ('Fire Size (Acres) .........................', 'fireSize'): .005, ('Name of Fire ...................................', 'fireName'): 'xxxx', ('Tonight Elements', 'tonightElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Creation Date', 'creationDate'): '', ('Creation Time', 'creationTime'): '', ('What Type of Forecast?', 'forecastType'): 'Tabular/Narrative', ('Include Ignition Times?', 'withIgnitionTimes'): 'yes', ('Name of Agency if not listed....', 'otherAgencyName'): 'xxxx', ('Date of Fire .....................................', 'fireDate'): '1/1/10', ('Time of Fire .....................................', 'fireTime'): '1300', ('Tab Hrs', 'todayTableRes'): 1, ('Tab Hrs', 'tonightTableRes'): 2, ('Tab Hrs', 'tomorrowTableRes'): 3, ('TimeZone:', 'fireTZ'): 'EST5EDT'}",
+     "cmdLineVars": "{('Product Issuance:', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None, ('Agency:', 'requestingAgency'): 'Agency 1', ('Tomorrow Elements', 'tomorrowElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Longitude (Deg)...................', 'fireLongitude'): 82.19, ('WebSiteTag:', 'webSiteTag'): '', ('Check Items to Include:', 'extendedQuestions'): [], ('Forecaster:', 'forecaster'): ['FORECASTER C'], ('Type of Fire:', 'fireType'): 'PRESCRIBED', ('Name of Agency Contact..........', 'agencyContact'): 'yyyy', ('Today Elements', 'todayElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Latitude (Deg).......................', 'fireLatitude'): 28.27, ('WFOid:', 'wfoID'): '', ('Fire Size (Acres) .........................', 'fireSize'): .005, ('Name of Fire ...................................', 'fireName'): 'xxxx', ('Tonight Elements', 'tonightElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Creation Date', 'creationDate'): '', ('Creation Time', 'creationTime'): '', ('What Type of Forecast?', 'forecastType'): 'Tabular/Narrative', ('Include Ignition Times?', 'withIgnitionTimes'): 'yes', ('Name of Agency if not listed....', 'otherAgencyName'): 'xxxx', ('Date of Fire .....................................', 'fireDate'): '1/1/10', ('Time of Fire .....................................', 'fireTime'): '1300', ('Tab Hrs', 'todayTableRes'): 1, ('Tab Hrs', 'tonightTableRes'): 2, ('Tab Hrs', 'tomorrowTableRes'): 3, ('TimeZone:', 'fireTZ'): 'EST5EDT'}",
 
     "checkStrings": [
         "FNUS72 KTBW 010900",
         "FWSTBW",
 
-        "SPOT FORECAST FOR XXXX...AGENCY 1",
-        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-        "400 AM EST FRI JAN 1 2010",
+        "Spot Forecast for xxxx...Agency 1",
+        "National Weather Service Tampa Bay Ruskin FL",
+        "400 AM EST Fri Jan 1 2010",
         "Forecast is based on ignition time of 1300 EST on January 01.",
         "If conditions become unrepresentative...contact the National Weather Service.",
 
-        ".Discussion...",
+        ".DISCUSSION...",
 
-        ".Today...",
+        ".TODAY...",
         "SKY/WEATHER.........Cloudy (95-100 percent). Patchy dense fog.",
         "BEGIN/END OF PCPN...",
         "TEMPERATURE.........100 at ignition...Max 78.",
@@ -1423,7 +1423,7 @@ scripts = [
         "LAL.............1   1   1   1   1",
         "HAINES INDEX....2   2   2   2   2",
 
-        ".Tonight...",
+        ".TONIGHT...",
 
         "SKY/WEATHER.........Cloudy (90-100 percent). Widespread thunderstorms.",
         "BEGIN/END OF PCPN...",
@@ -1473,7 +1473,7 @@ scripts = [
         "LAL.............2      2      2      2      2      2",
         "HAINES INDEX....3      3      3      3      3      3",
 
-        ".Saturday...",
+        ".SATURDAY...",
 
         "SKY/WEATHER.........Sunny (0-5 percent). Chance of rain showers.",
         "BEGIN/END OF PCPN...",
@@ -1537,12 +1537,12 @@ scripts = [
        ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
      ],
      "createGrids": FWS_createGrids,
-    "cmdLineVars": "{('Product Issuance:', 'productIssuance'): 'Morning Update', ('Issued By', 'issuedBy'): None, ('Agency:', 'requestingAgency'): 'AGENCY 1', ('Tomorrow Elements', 'tomorrowElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Longitude (Deg)...................', 'fireLongitude'): 82.19, ('WebSiteTag:', 'webSiteTag'): '', ('Check Items to Include:', 'extendedQuestions'): [], ('Forecaster:', 'forecaster'): ['FORECASTER C'], ('Type of Fire:', 'fireType'): 'PRESCRIBED', ('Name of Agency Contact..........', 'agencyContact'): 'yyyy', ('Today Elements', 'todayElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Latitude (Deg).......................', 'fireLatitude'): 28.27, ('WFOid:', 'wfoID'): '', ('Fire Size (Acres) .........................', 'fireSize'): .005, ('Name of Fire ...................................', 'fireName'): 'xxxx', ('Tonight Elements', 'tonightElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Creation Date', 'creationDate'): '', ('Creation Time', 'creationTime'): '', ('What Type of Forecast?', 'forecastType'): 'Tabular/Narrative', ('Include Ignition Times?', 'withIgnitionTimes'): 'yes', ('Name of Agency if not listed....', 'otherAgencyName'): 'xxxx', ('Date of Fire .....................................', 'fireDate'): '1/1/10', ('Time of Fire .....................................', 'fireTime'): '1300', ('Tab Hrs', 'todayTableRes'): 2, ('Tab Hrs', 'tonightTableRes'): 3, ('Tab Hrs', 'tomorrowTableRes'): 4, ('TimeZone:', 'fireTZ'): 'EST5EDT'}",
+    "cmdLineVars": "{('Product Issuance:', 'productIssuance'): 'Morning Update', ('Issued By', 'issuedBy'): None, ('Agency:', 'requestingAgency'): 'Agency 1', ('Tomorrow Elements', 'tomorrowElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Longitude (Deg)...................', 'fireLongitude'): 82.19, ('WebSiteTag:', 'webSiteTag'): '', ('Check Items to Include:', 'extendedQuestions'): [], ('Forecaster:', 'forecaster'): ['FORECASTER C'], ('Type of Fire:', 'fireType'): 'PRESCRIBED', ('Name of Agency Contact..........', 'agencyContact'): 'yyyy', ('Today Elements', 'todayElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Latitude (Deg).......................', 'fireLatitude'): 28.27, ('WFOid:', 'wfoID'): '', ('Fire Size (Acres) .........................', 'fireSize'): .005, ('Name of Fire ...................................', 'fireName'): 'xxxx', ('Tonight Elements', 'tonightElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Creation Date', 'creationDate'): '', ('Creation Time', 'creationTime'): '', ('What Type of Forecast?', 'forecastType'): 'Tabular/Narrative', ('Include Ignition Times?', 'withIgnitionTimes'): 'yes', ('Name of Agency if not listed....', 'otherAgencyName'): 'xxxx', ('Date of Fire .....................................', 'fireDate'): '1/1/10', ('Time of Fire .....................................', 'fireTime'): '1300', ('Tab Hrs', 'todayTableRes'): 2, ('Tab Hrs', 'tonightTableRes'): 3, ('Tab Hrs', 'tomorrowTableRes'): 4, ('TimeZone:', 'fireTZ'): 'EST5EDT'}",
     "drtHour": 10,
     "checkStrings": [
         "Forecast is based on ignition time of 1300 EST on January 01.",
         "If conditions become unrepresentative...contact the National Weather Service.",
-        ".Rest of Today...",
+        ".REST OF TODAY...",
 
         "SKY/WEATHER.........Cloudy (95-100 percent). Patchy dense fog.",
         "BEGIN/END OF PCPN...",
@@ -1592,7 +1592,7 @@ scripts = [
         "LAL.............1      1      1",
         "HAINES INDEX....2      2      2",
 
-        ".Tonight...",
+        ".TONIGHT...",
 
         "SKY/WEATHER.........Cloudy (90-100 percent). Widespread thunderstorms.",
         "BEGIN/END OF PCPN...",
@@ -1640,7 +1640,7 @@ scripts = [
         "LAL.............2         2         2         2",
         "HAINES INDEX....3         3         3         3",
 
-        ".Saturday...",
+        ".SATURDAY...",
 
         "SKY/WEATHER.........Sunny (0-5 percent). Chance of rain showers.",
         "BEGIN/END OF PCPN...",
@@ -1705,15 +1705,15 @@ scripts = [
        ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
      ],
     "createGrids": FWS_createGrids,
-    "cmdLineVars": "{('Product Issuance:', 'productIssuance'): 'Afternoon', ('Issued By', 'issuedBy'): None, ('Agency:', 'requestingAgency'): 'AGENCY 1', ('Tomorrow Elements', 'tomorrowElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Longitude (Deg)...................', 'fireLongitude'): 82.19, ('WebSiteTag:', 'webSiteTag'): '', ('Check Items to Include:', 'extendedQuestions'): [], ('Forecaster:', 'forecaster'): ['FORECASTER C'], ('Type of Fire:', 'fireType'): 'PRESCRIBED', ('Name of Agency Contact..........', 'agencyContact'): 'yyyy', ('Today Elements', 'todayElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Latitude (Deg).......................', 'fireLatitude'): 28.27, ('WFOid:', 'wfoID'): '', ('Fire Size (Acres) .........................', 'fireSize'): .005, ('Name of Fire ...................................', 'fireName'): 'xxxx', ('Tonight Elements', 'tonightElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Creation Date', 'creationDate'): '', ('Creation Time', 'creationTime'): '', ('What Type of Forecast?', 'forecastType'): 'Tabular/Narrative', ('Include Ignition Times?', 'withIgnitionTimes'): 'yes', ('Name of Agency if not listed....', 'otherAgencyName'): 'xxxx', ('Date of Fire .....................................', 'fireDate'): '1/1/10', ('Time of Fire .....................................', 'fireTime'): '1300', ('Tab Hrs', 'todayTableRes'): 1, ('Tab Hrs', 'tonightTableRes'): 2, ('Tab Hrs', 'tomorrowTableRes'): 3, ('TimeZone:', 'fireTZ'): 'EST5EDT'}",
+    "cmdLineVars": "{('Product Issuance:', 'productIssuance'): 'Afternoon', ('Issued By', 'issuedBy'): None, ('Agency:', 'requestingAgency'): 'Agency 1', ('Tomorrow Elements', 'tomorrowElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Longitude (Deg)...................', 'fireLongitude'): 82.19, ('WebSiteTag:', 'webSiteTag'): '', ('Check Items to Include:', 'extendedQuestions'): [], ('Forecaster:', 'forecaster'): ['FORECASTER C'], ('Type of Fire:', 'fireType'): 'PRESCRIBED', ('Name of Agency Contact..........', 'agencyContact'): 'yyyy', ('Today Elements', 'todayElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Latitude (Deg).......................', 'fireLatitude'): 28.27, ('WFOid:', 'wfoID'): '', ('Fire Size (Acres) .........................', 'fireSize'): .005, ('Name of Fire ...................................', 'fireName'): 'xxxx', ('Tonight Elements', 'tonightElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Creation Date', 'creationDate'): '', ('Creation Time', 'creationTime'): '', ('What Type of Forecast?', 'forecastType'): 'Tabular/Narrative', ('Include Ignition Times?', 'withIgnitionTimes'): 'yes', ('Name of Agency if not listed....', 'otherAgencyName'): 'xxxx', ('Date of Fire .....................................', 'fireDate'): '1/1/10', ('Time of Fire .....................................', 'fireTime'): '1300', ('Tab Hrs', 'todayTableRes'): 1, ('Tab Hrs', 'tonightTableRes'): 2, ('Tab Hrs', 'tomorrowTableRes'): 3, ('TimeZone:', 'fireTZ'): 'EST5EDT'}",
 
     "checkStrings": [
         "Forecast is based on ignition time of 1300 EST on January 01.",
         "If conditions become unrepresentative...contact the National Weather Service.",
 
-        ".Discussion...",
+        ".DISCUSSION...",
 
-        ".Tonight...",
+        ".TONIGHT...",
 
         "SKY/WEATHER.........Cloudy (90-100 percent). Widespread thunderstorms.",
         "BEGIN/END OF PCPN...",
@@ -1763,7 +1763,7 @@ scripts = [
         "LAL.............2      2      2      2      2      2",
         "HAINES INDEX....3      3      3      3      3      3",
 
-        ".Saturday...",
+        ".SATURDAY...",
 
         "SKY/WEATHER.........Sunny (0-5 percent). Chance of rain showers.",
         "BEGIN/END OF PCPN...",
@@ -1827,22 +1827,22 @@ scripts = [
        ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
      ],
     "createGrids": FWS_createGrids,
-    "cmdLineVars": "{('Product Issuance:', 'productIssuance'): 'Early Morning Update', ('Issued By', 'issuedBy'): None, ('Agency:', 'requestingAgency'): 'AGENCY 1', ('Tomorrow Elements', 'tomorrowElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Longitude (Deg)...................', 'fireLongitude'): 82.19, ('WebSiteTag:', 'webSiteTag'): '', ('Check Items to Include:', 'extendedQuestions'): [], ('Forecaster:', 'forecaster'): ['FORECASTER C'], ('Type of Fire:', 'fireType'): 'PRESCRIBED', ('Name of Agency Contact..........', 'agencyContact'): 'yyyy', ('Today Elements', 'todayElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Latitude (Deg).......................', 'fireLatitude'): 28.27, ('WFOid:', 'wfoID'): '', ('Fire Size (Acres) .........................', 'fireSize'): .005, ('Name of Fire ...................................', 'fireName'): 'xxxx', ('Tonight Elements', 'tonightElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Creation Date', 'creationDate'): '', ('Creation Time', 'creationTime'): '', ('What Type of Forecast?', 'forecastType'): 'Tabular/Narrative', ('Include Ignition Times?', 'withIgnitionTimes'): 'yes', ('Name of Agency if not listed....', 'otherAgencyName'): 'xxxx', ('Date of Fire .....................................', 'fireDate'): '1/1/10', ('Time of Fire .....................................', 'fireTime'): '1300', ('Tab Hrs', 'todayTableRes'): 1, ('Tab Hrs', 'tonightTableRes'): 2, ('Tab Hrs', 'tomorrowTableRes'): 3, ('TimeZone:', 'fireTZ'): 'EST5EDT'}",
+    "cmdLineVars": "{('Product Issuance:', 'productIssuance'): 'Early Morning Update', ('Issued By', 'issuedBy'): None, ('Agency:', 'requestingAgency'): 'Agency 1', ('Tomorrow Elements', 'tomorrowElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Longitude (Deg)...................', 'fireLongitude'): 82.19, ('WebSiteTag:', 'webSiteTag'): '', ('Check Items to Include:', 'extendedQuestions'): [], ('Forecaster:', 'forecaster'): ['FORECASTER C'], ('Type of Fire:', 'fireType'): 'PRESCRIBED', ('Name of Agency Contact..........', 'agencyContact'): 'yyyy', ('Today Elements', 'todayElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Latitude (Deg).......................', 'fireLatitude'): 28.27, ('WFOid:', 'wfoID'): '', ('Fire Size (Acres) .........................', 'fireSize'): .005, ('Name of Fire ...................................', 'fireName'): 'xxxx', ('Tonight Elements', 'tonightElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Creation Date', 'creationDate'): '', ('Creation Time', 'creationTime'): '', ('What Type of Forecast?', 'forecastType'): 'Tabular/Narrative', ('Include Ignition Times?', 'withIgnitionTimes'): 'yes', ('Name of Agency if not listed....', 'otherAgencyName'): 'xxxx', ('Date of Fire .....................................', 'fireDate'): '1/1/10', ('Time of Fire .....................................', 'fireTime'): '1300', ('Tab Hrs', 'todayTableRes'): 1, ('Tab Hrs', 'tonightTableRes'): 2, ('Tab Hrs', 'tomorrowTableRes'): 3, ('TimeZone:', 'fireTZ'): 'EST5EDT'}",
     "drtHour": 2,
     "checkStrings": [
         "FNUS72 KTBW 010700",
         "FWSTBW",
 
-        "SPOT FORECAST FOR XXXX...AGENCY 1",
-        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-        "200 AM EST FRI JAN 1 2010",
+        "Spot Forecast for xxxx...Agency 1",
+        "National Weather Service Tampa Bay Ruskin FL",
+        "200 AM EST Fri Jan 1 2010",
 
         "Forecast is based on ignition time of 1300 EST on January 01.",
         "If conditions become unrepresentative...contact the National Weather Service.",
 
-        ".Discussion...",
+        ".DISCUSSION...",
 
-        ".Rest of Tonight...",
+        ".REST OF TONIGHT...",
 
         "SKY/WEATHER.........Patchy dense fog.",
         "BEGIN/END OF PCPN...",
@@ -1892,7 +1892,7 @@ scripts = [
         "LAL.............1      1",
         "HAINES INDEX....2      2",
 
-        ".Friday...",
+        ".FRIDAY...",
 
         "SKY/WEATHER.........Cloudy (95-100 percent). Patchy dense fog.",
         "BEGIN/END OF PCPN...",
@@ -1956,22 +1956,22 @@ scripts = [
        ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
      ],
     "createGrids": FWS_createGrids,
-    "cmdLineVars": "{('Product Issuance:', 'productIssuance'): 'Next Day', ('Issued By', 'issuedBy'): None, ('Agency:', 'requestingAgency'): 'AGENCY 1', ('Tomorrow Elements', 'tomorrowElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Longitude (Deg)...................', 'fireLongitude'): 82.19, ('WebSiteTag:', 'webSiteTag'): '', ('Check Items to Include:', 'extendedQuestions'): [], ('Forecaster:', 'forecaster'): ['FORECASTER C'], ('Type of Fire:', 'fireType'): 'PRESCRIBED', ('Name of Agency Contact..........', 'agencyContact'): 'yyyy', ('Today Elements', 'todayElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Latitude (Deg).......................', 'fireLatitude'): 28.27, ('WFOid:', 'wfoID'): '', ('Fire Size (Acres) .........................', 'fireSize'): .005, ('Name of Fire ...................................', 'fireName'): 'xxxx', ('Tonight Elements', 'tonightElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Creation Date', 'creationDate'): '', ('Creation Time', 'creationTime'): '', ('What Type of Forecast?', 'forecastType'): 'Tabular/Narrative', ('Include Ignition Times?', 'withIgnitionTimes'): 'yes', ('Name of Agency if not listed....', 'otherAgencyName'): 'xxxx', ('Date of Fire .....................................', 'fireDate'): '1/1/10', ('Time of Fire .....................................', 'fireTime'): '1300', ('Tab Hrs', 'todayTableRes'): 1, ('Tab Hrs', 'tonightTableRes'): 2, ('Tab Hrs', 'tomorrowTableRes'): 3, ('TimeZone:', 'fireTZ'): 'EST5EDT'}",
+    "cmdLineVars": "{('Product Issuance:', 'productIssuance'): 'Next Day', ('Issued By', 'issuedBy'): None, ('Agency:', 'requestingAgency'): 'Agency 1', ('Tomorrow Elements', 'tomorrowElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Longitude (Deg)...................', 'fireLongitude'): 82.19, ('WebSiteTag:', 'webSiteTag'): '', ('Check Items to Include:', 'extendedQuestions'): [], ('Forecaster:', 'forecaster'): ['FORECASTER C'], ('Type of Fire:', 'fireType'): 'PRESCRIBED', ('Name of Agency Contact..........', 'agencyContact'): 'yyyy', ('Today Elements', 'todayElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Latitude (Deg).......................', 'fireLatitude'): 28.27, ('WFOid:', 'wfoID'): '', ('Fire Size (Acres) .........................', 'fireSize'): .005, ('Name of Fire ...................................', 'fireName'): 'xxxx', ('Tonight Elements', 'tonightElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Creation Date', 'creationDate'): '', ('Creation Time', 'creationTime'): '', ('What Type of Forecast?', 'forecastType'): 'Tabular/Narrative', ('Include Ignition Times?', 'withIgnitionTimes'): 'yes', ('Name of Agency if not listed....', 'otherAgencyName'): 'xxxx', ('Date of Fire .....................................', 'fireDate'): '1/1/10', ('Time of Fire .....................................', 'fireTime'): '1300', ('Tab Hrs', 'todayTableRes'): 1, ('Tab Hrs', 'tonightTableRes'): 2, ('Tab Hrs', 'tomorrowTableRes'): 3, ('TimeZone:', 'fireTZ'): 'EST5EDT'}",
 
     "checkStrings": [
         "FNUS72 KTBW 010900",
         "FWSTBW",
 
-        "SPOT FORECAST FOR XXXX...AGENCY 1",
-        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-        "400 AM EST FRI JAN 1 2010",
+        "Spot Forecast for xxxx...Agency 1",
+        "National Weather Service Tampa Bay Ruskin FL",
+        "400 AM EST Fri Jan 1 2010",
 
         "Forecast is based on ignition time of 1300 EST on January 01.",
         "If conditions become unrepresentative...contact the National Weather Service.",
 
-        ".Discussion...",
+        ".DISCUSSION...",
 
-        ".Today...",
+        ".TODAY...",
 
         "SKY/WEATHER.........Sunny (0-5 percent). Chance of rain showers.",
         "BEGIN/END OF PCPN...",
@@ -2026,7 +2026,7 @@ scripts = [
         "LAL.............3   3   3   3   3   3   3   3   3   3   3   3",
         "HAINES INDEX....4   4   4   4   4   4   4   4   4   4   4   4",
 
-        ".Tonight...",
+        ".TONIGHT...",
 
         "SKY/WEATHER.........MOSTLY CLEAR (10-20 percent). FREQUENT LIGHT RAIN.",
         "BEGIN/END OF PCPN...",
@@ -2076,7 +2076,7 @@ scripts = [
         "LAL.............4      4      4      4      4      4",
         "HAINES INDEX....6      6      6      6      6      6",
 
-        ".Sunday...",
+        ".SUNDAY...",
 
         "SKY/WEATHER.........Mostly sunny (25-35 percent). Widespread light freezing rain.",
         "BEGIN/END OF PCPN...",
@@ -2141,20 +2141,20 @@ scripts = [
      ],
     "createGrids": FWS_createGrids,
     "drtHour": 14,
-    "cmdLineVars": "{('Product Issuance:', 'productIssuance'): 'Afternoon Update', ('Issued By', 'issuedBy'): None, ('Agency:', 'requestingAgency'): 'AGENCY 1', ('Tomorrow Elements', 'tomorrowElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Longitude (Deg)...................', 'fireLongitude'): 82.19, ('WebSiteTag:', 'webSiteTag'): '', ('Check Items to Include:', 'extendedQuestions'): [], ('Forecaster:', 'forecaster'): ['FORECASTER C'], ('Type of Fire:', 'fireType'): 'PRESCRIBED', ('Name of Agency Contact..........', 'agencyContact'): 'yyyy', ('Today Elements', 'todayElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Latitude (Deg).......................', 'fireLatitude'): 28.27, ('WFOid:', 'wfoID'): '', ('Fire Size (Acres) .........................', 'fireSize'): .005, ('Name of Fire ...................................', 'fireName'): 'xxxx', ('Tonight Elements', 'tonightElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Creation Date', 'creationDate'): '', ('Creation Time', 'creationTime'): '', ('What Type of Forecast?', 'forecastType'): 'Tabular/Narrative', ('Include Ignition Times?', 'withIgnitionTimes'): 'yes', ('Name of Agency if not listed....', 'otherAgencyName'): 'xxxx', ('Date of Fire .....................................', 'fireDate'): '1/1/10', ('Time of Fire .....................................', 'fireTime'): '1300', ('Tab Hrs', 'todayTableRes'): 1, ('Tab Hrs', 'tonightTableRes'): 2, ('Tab Hrs', 'tomorrowTableRes'): 4, ('TimeZone:', 'fireTZ'): 'EST5EDT'}",
+    "cmdLineVars": "{('Product Issuance:', 'productIssuance'): 'Afternoon Update', ('Issued By', 'issuedBy'): None, ('Agency:', 'requestingAgency'): 'Agency 1', ('Tomorrow Elements', 'tomorrowElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Longitude (Deg)...................', 'fireLongitude'): 82.19, ('WebSiteTag:', 'webSiteTag'): '', ('Check Items to Include:', 'extendedQuestions'): [], ('Forecaster:', 'forecaster'): ['FORECASTER C'], ('Type of Fire:', 'fireType'): 'PRESCRIBED', ('Name of Agency Contact..........', 'agencyContact'): 'yyyy', ('Today Elements', 'todayElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Latitude (Deg).......................', 'fireLatitude'): 28.27, ('WFOid:', 'wfoID'): '', ('Fire Size (Acres) .........................', 'fireSize'): .005, ('Name of Fire ...................................', 'fireName'): 'xxxx', ('Tonight Elements', 'tonightElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Creation Date', 'creationDate'): '', ('Creation Time', 'creationTime'): '', ('What Type of Forecast?', 'forecastType'): 'Tabular/Narrative', ('Include Ignition Times?', 'withIgnitionTimes'): 'yes', ('Name of Agency if not listed....', 'otherAgencyName'): 'xxxx', ('Date of Fire .....................................', 'fireDate'): '1/1/10', ('Time of Fire .....................................', 'fireTime'): '1300', ('Tab Hrs', 'todayTableRes'): 1, ('Tab Hrs', 'tonightTableRes'): 2, ('Tab Hrs', 'tomorrowTableRes'): 4, ('TimeZone:', 'fireTZ'): 'EST5EDT'}",
 
     "checkStrings": [
 
-        "SPOT FORECAST FOR XXXX...AGENCY 1",
-        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-        "200 PM EST FRI JAN 1 2010",
+        "Spot Forecast for xxxx...Agency 1",
+        "National Weather Service Tampa Bay Ruskin FL",
+        "200 PM EST Fri Jan 1 2010",
 
         "Forecast is based on ignition time of 1300 EST on January 01.",
         "If conditions become unrepresentative...contact the National Weather Service.",
 
-        ".Discussion...",
+        ".DISCUSSION...",
 
-        ".Rest of Today...",
+        ".REST OF TODAY...",
 
         "SKY/WEATHER.........Cloudy (95-100 percent). Patchy dense fog.",
         "BEGIN/END OF PCPN...",
@@ -2209,7 +2209,7 @@ scripts = [
         "LAL.............1   1   1   1",
         "HAINES INDEX....2   2   2   2",
 
-        ".Tonight...",
+        ".TONIGHT...",
 
         "SKY/WEATHER.........Cloudy (90-100 percent). Widespread thunderstorms.",
         "BEGIN/END OF PCPN...",
@@ -2259,7 +2259,7 @@ scripts = [
         "LAL.............2      2      2      2      2      2",
         "HAINES INDEX....3      3      3      3      3      3",
 
-        ".Saturday...",
+        ".SATURDAY...",
 
         "SKY/WEATHER.........Sunny (0-5 percent). Chance of rain showers.",
         "BEGIN/END OF PCPN...",
@@ -2324,22 +2324,22 @@ scripts = [
      ],
     "createGrids": FWS_createGrids,
     "drtHour": 22,
-    "cmdLineVars": "{('Product Issuance:', 'productIssuance'): 'Evening Update', ('Issued By', 'issuedBy'): None, ('Agency:', 'requestingAgency'): 'AGENCY 1', ('Tomorrow Elements', 'tomorrowElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Longitude (Deg)...................', 'fireLongitude'): 82.19, ('WebSiteTag:', 'webSiteTag'): '', ('Check Items to Include:', 'extendedQuestions'): [], ('Forecaster:', 'forecaster'): ['FORECASTER C'], ('Type of Fire:', 'fireType'): 'PRESCRIBED', ('Name of Agency Contact..........', 'agencyContact'): 'yyyy', ('Today Elements', 'todayElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Latitude (Deg).......................', 'fireLatitude'): 28.27, ('WFOid:', 'wfoID'): '', ('Fire Size (Acres) .........................', 'fireSize'): .005, ('Name of Fire ...................................', 'fireName'): 'xxxx', ('Tonight Elements', 'tonightElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Creation Date', 'creationDate'): '', ('Creation Time', 'creationTime'): '', ('What Type of Forecast?', 'forecastType'): 'Tabular/Narrative', ('Include Ignition Times?', 'withIgnitionTimes'): 'yes', ('Name of Agency if not listed....', 'otherAgencyName'): 'xxxx', ('Date of Fire .....................................', 'fireDate'): '1/1/10', ('Time of Fire .....................................', 'fireTime'): '1300', ('Tab Hrs', 'todayTableRes'): 1, ('Tab Hrs', 'tonightTableRes'): 2, ('Tab Hrs', 'tomorrowTableRes'): 4, ('TimeZone:', 'fireTZ'): 'EST5EDT'}",
+    "cmdLineVars": "{('Product Issuance:', 'productIssuance'): 'Evening Update', ('Issued By', 'issuedBy'): None, ('Agency:', 'requestingAgency'): 'Agency 1', ('Tomorrow Elements', 'tomorrowElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Longitude (Deg)...................', 'fireLongitude'): 82.19, ('WebSiteTag:', 'webSiteTag'): '', ('Check Items to Include:', 'extendedQuestions'): [], ('Forecaster:', 'forecaster'): ['FORECASTER C'], ('Type of Fire:', 'fireType'): 'PRESCRIBED', ('Name of Agency Contact..........', 'agencyContact'): 'yyyy', ('Today Elements', 'todayElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Latitude (Deg).......................', 'fireLatitude'): 28.27, ('WFOid:', 'wfoID'): '', ('Fire Size (Acres) .........................', 'fireSize'): .005, ('Name of Fire ...................................', 'fireName'): 'xxxx', ('Tonight Elements', 'tonightElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Creation Date', 'creationDate'): '', ('Creation Time', 'creationTime'): '', ('What Type of Forecast?', 'forecastType'): 'Tabular/Narrative', ('Include Ignition Times?', 'withIgnitionTimes'): 'yes', ('Name of Agency if not listed....', 'otherAgencyName'): 'xxxx', ('Date of Fire .....................................', 'fireDate'): '1/1/10', ('Time of Fire .....................................', 'fireTime'): '1300', ('Tab Hrs', 'todayTableRes'): 1, ('Tab Hrs', 'tonightTableRes'): 2, ('Tab Hrs', 'tomorrowTableRes'): 4, ('TimeZone:', 'fireTZ'): 'EST5EDT'}",
 
     "checkStrings": [
         "FNUS72 KTBW 020300",
         "FWSTBW",
 
-        "SPOT FORECAST FOR XXXX...AGENCY 1",
-        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-        "1000 PM EST FRI JAN 1 2010",
+        "Spot Forecast for xxxx...Agency 1",
+        "National Weather Service Tampa Bay Ruskin FL",
+        "1000 PM EST Fri Jan 1 2010",
 
         "Forecast is based on ignition time of 1300 EST on January 01.",
         "If conditions become unrepresentative...contact the National Weather Service.",
         
-        ".Discussion...",
+        ".DISCUSSION...",
 
-        ".Rest of Tonight...",
+        ".REST OF TONIGHT...",
 
         "SKY/WEATHER.........Cloudy (90-100 percent). Widespread thunderstorms.",
         "BEGIN/END OF PCPN...",
@@ -2389,7 +2389,7 @@ scripts = [
         "LAL.............2      2      2      2",
         "HAINES INDEX....3      3      3      3",
 
-        ".Saturday...",
+        ".SATURDAY...",
 
         "SKY/WEATHER.........Sunny (0-5 percent). Chance of rain showers.",
         "BEGIN/END OF PCPN...",
@@ -2454,22 +2454,22 @@ scripts = [
      ],
     "createGrids": FWS_createGrids,
     "drtHour": 22,
-    "cmdLineVars": "{('Product Issuance:', 'productIssuance'): 'Evening Update', ('Issued By', 'issuedBy'): None, ('Agency:', 'requestingAgency'): 'AGENCY 1', ('Tomorrow Elements', 'tomorrowElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Longitude (Deg)...................', 'fireLongitude'): 82.19, ('WebSiteTag:', 'webSiteTag'): '', ('Check Items to Include:', 'extendedQuestions'): [], ('Forecaster:', 'forecaster'): ['FORECASTER C'], ('Type of Fire:', 'fireType'): 'PRESCRIBED', ('Name of Agency Contact..........', 'agencyContact'): 'yyyy', ('Today Elements', 'todayElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Latitude (Deg).......................', 'fireLatitude'): 28.27, ('WFOid:', 'wfoID'): '', ('Fire Size (Acres) .........................', 'fireSize'): .005, ('Name of Fire ...................................', 'fireName'): 'xxxx', ('Tonight Elements', 'tonightElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Creation Date', 'creationDate'): '1/3/10', ('Creation Time', 'creationTime'): '0600', ('What Type of Forecast?', 'forecastType'): 'Tabular/Narrative', ('Include Ignition Times?', 'withIgnitionTimes'): 'yes', ('Name of Agency if not listed....', 'otherAgencyName'): 'xxxx', ('Date of Fire .....................................', 'fireDate'): '1/1/10', ('Time of Fire .....................................', 'fireTime'): '1300', ('Tab Hrs', 'todayTableRes'): 4, ('Tab Hrs', 'tonightTableRes'): 2, ('Tab Hrs', 'tomorrowTableRes'): 'None', ('TimeZone:', 'fireTZ'): 'EST5EDT'}",
+    "cmdLineVars": "{('Product Issuance:', 'productIssuance'): 'Evening Update', ('Issued By', 'issuedBy'): None, ('Agency:', 'requestingAgency'): 'Agency 1', ('Tomorrow Elements', 'tomorrowElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Longitude (Deg)...................', 'fireLongitude'): 82.19, ('WebSiteTag:', 'webSiteTag'): '', ('Check Items to Include:', 'extendedQuestions'): [], ('Forecaster:', 'forecaster'): ['FORECASTER C'], ('Type of Fire:', 'fireType'): 'PRESCRIBED', ('Name of Agency Contact..........', 'agencyContact'): 'yyyy', ('Today Elements', 'todayElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Latitude (Deg).......................', 'fireLatitude'): 28.27, ('WFOid:', 'wfoID'): '', ('Fire Size (Acres) .........................', 'fireSize'): .005, ('Name of Fire ...................................', 'fireName'): 'xxxx', ('Tonight Elements', 'tonightElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Creation Date', 'creationDate'): '1/3/10', ('Creation Time', 'creationTime'): '0600', ('What Type of Forecast?', 'forecastType'): 'Tabular/Narrative', ('Include Ignition Times?', 'withIgnitionTimes'): 'yes', ('Name of Agency if not listed....', 'otherAgencyName'): 'xxxx', ('Date of Fire .....................................', 'fireDate'): '1/1/10', ('Time of Fire .....................................', 'fireTime'): '1300', ('Tab Hrs', 'todayTableRes'): 4, ('Tab Hrs', 'tonightTableRes'): 2, ('Tab Hrs', 'tomorrowTableRes'): 'None', ('TimeZone:', 'fireTZ'): 'EST5EDT'}",
 
     "checkStrings": [
         "FNUS72 KTBW 031100",
         "FWSTBW",
 
-        "SPOT FORECAST FOR XXXX...AGENCY 1",
-        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-        "600 AM EST SUN JAN 3 2010",
+        "Spot Forecast for xxxx...Agency 1",
+        "National Weather Service Tampa Bay Ruskin FL",
+        "600 AM EST Sun Jan 3 2010",
 
         "Forecast is based on ignition time of 1300 EST on January 01.",
         "If conditions become unrepresentative...contact the National Weather Service.",
 
-        ".Discussion...",
+        ".DISCUSSION...",
 
-        ".Sunday...",
+        ".SUNDAY...",
 
         "SKY/WEATHER.........Partly cloudy (40-50 percent). Widespread light freezing rain...then very light snow likely.",
         "BEGIN/END OF PCPN...",
@@ -2519,7 +2519,7 @@ scripts = [
         "LAL.............5      5      5      5      5      5      6      6      6      6      6      6",
         "HAINES INDEX....2      2      2      2      2      2      3      3      3      3      3      3",
 
-        ".Monday...",
+        ".MONDAY...",
 
         "SKY/WEATHER.........Partly sunny (60-70 percent). Widespread very light sleet.",
         "BEGIN/END OF PCPN...",
@@ -2559,7 +2559,7 @@ scripts = [
     "productType":"FWS",
     "commentary": "Morning Issuance with Definition settings",
     "createGrids": FWS_createGrids,
-    "cmdLineVars": "{('Product Issuance:', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None, ('Agency:', 'requestingAgency'): 'AGENCY 1', ('Tomorrow Elements', 'tomorrowElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Longitude (Deg)...................', 'fireLongitude'): 82.19, ('WebSiteTag:', 'webSiteTag'): '', ('Check Items to Include:', 'extendedQuestions'): [], ('Forecaster:', 'forecaster'): ['FORECASTER C'], ('Type of Fire:', 'fireType'): 'PRESCRIBED', ('Name of Agency Contact..........', 'agencyContact'): 'yyyy', ('Today Elements', 'todayElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Latitude (Deg).......................', 'fireLatitude'): 28.27, ('WFOid:', 'wfoID'): '', ('Fire Size (Acres) .........................', 'fireSize'): .005, ('Name of Fire ...................................', 'fireName'): 'xxxx', ('Tonight Elements', 'tonightElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Creation Date', 'creationDate'): '', ('Creation Time', 'creationTime'): '', ('What Type of Forecast?', 'forecastType'): 'Tabular/Narrative', ('Include Ignition Times?', 'withIgnitionTimes'): 'no', ('Name of Agency if not listed....', 'otherAgencyName'): 'xxxx', ('Date of Fire .....................................', 'fireDate'): '1/1/10', ('Time of Fire .....................................', 'fireTime'): '1300', ('Tab Hrs', 'todayTableRes'): 1, ('Tab Hrs', 'tonightTableRes'): 'None', ('Tab Hrs', 'tomorrowTableRes'): 'None', ('TimeZone:', 'fireTZ'): 'EST5EDT', ('Check Items to Include:', 'extendedQuestions'): ['Include Day 3-5 Extended?', 'Include Day 6-7 Extended?', 'Include Day 8-14 Outlook?']}",
+    "cmdLineVars": "{('Product Issuance:', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None, ('Agency:', 'requestingAgency'): 'Agency 1', ('Tomorrow Elements', 'tomorrowElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Longitude (Deg)...................', 'fireLongitude'): 82.19, ('WebSiteTag:', 'webSiteTag'): '', ('Check Items to Include:', 'extendedQuestions'): [], ('Forecaster:', 'forecaster'): ['FORECASTER C'], ('Type of Fire:', 'fireType'): 'PRESCRIBED', ('Name of Agency Contact..........', 'agencyContact'): 'yyyy', ('Today Elements', 'todayElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Latitude (Deg).......................', 'fireLatitude'): 28.27, ('WFOid:', 'wfoID'): '', ('Fire Size (Acres) .........................', 'fireSize'): .005, ('Name of Fire ...................................', 'fireName'): 'xxxx', ('Tonight Elements', 'tonightElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Creation Date', 'creationDate'): '', ('Creation Time', 'creationTime'): '', ('What Type of Forecast?', 'forecastType'): 'Tabular/Narrative', ('Include Ignition Times?', 'withIgnitionTimes'): 'no', ('Name of Agency if not listed....', 'otherAgencyName'): 'xxxx', ('Date of Fire .....................................', 'fireDate'): '1/1/10', ('Time of Fire .....................................', 'fireTime'): '1300', ('Tab Hrs', 'todayTableRes'): 1, ('Tab Hrs', 'tonightTableRes'): 'None', ('Tab Hrs', 'tomorrowTableRes'): 'None', ('TimeZone:', 'fireTZ'): 'EST5EDT', ('Check Items to Include:', 'extendedQuestions'): ['Include Day 3-5 Extended?', 'Include Day 6-7 Extended?', 'Include Day 8-14 Outlook?']}",
     "fileChanges":[
        ("FWS_<site>_Overrides", "TextUtility", "add", testOverrides, "undo"),
        ("FWS_<site>_Definition", "TextUtility", "add", definitions, "undo"),
@@ -2570,15 +2570,15 @@ scripts = [
         "FNUS72 KTBW 010900",
         "FWSTBW",
 
-        "SPOT FORECAST FOR XXXX...AGENCY 1",
-        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-        "400 AM EST FRI JAN 1 2010",
+        "Spot Forecast for xxxx...Agency 1",
+        "National Weather Service Tampa Bay Ruskin FL",
+        "400 AM EST Fri Jan 1 2010",
 
         "If conditions become unrepresentative...contact the National Weather Service.",
 
-        ".Discussion...",
+        ".DISCUSSION...",
 
-        ".Today...",
+        ".TODAY...",
 
         "SKY/WEATHER.........Cloudy (95-100 percent). Patchy dense fog.",
         "BEGIN/END OF PCPN...",
@@ -2638,7 +2638,7 @@ scripts = [
         "LAL.............1   1   1   1   1   1   1   1   1   1   1   1",
         "HAINES INDEX....2   2   2   2   2   2   2   2   2   2   2   2",
 
-        ".Tonight...",
+        ".TONIGHT...",
 
         "SKY/WEATHER.........Cloudy (90-100 percent). Widespread thunderstorms.",
         "BEGIN/END OF PCPN...",
@@ -2667,7 +2667,7 @@ scripts = [
         "HAINES INDEX........3 or very low potential for large plume dominated fire growth.",
 
 
-        ".Saturday...",
+        ".SATURDAY...",
 
         "SKY/WEATHER.........Sunny (0-5 percent). Chance of rain showers.",
         "BEGIN/END OF PCPN...",
@@ -2695,19 +2695,19 @@ scripts = [
         "MARINE LAYER........2000.",
         "HAINES INDEX........4 or low potential for large plume dominated fire growth.",
 
-        ".Forecast days 3 through 7...",
-        ".Sunday...",
+        ".FORECAST DAYS 3 THROUGH 7...",
+        ".SUNDAY...",
         "Strong winds. Widespread light freeaing rain and frequent light rain. Lows in the upper 60s. Highs in the upper 70s. Northeast winds around 72 mph.",
-        ".Monday...",
+        ".MONDAY...",
         "Hurricane force winds. Widespread very light sleet and very light snow likely. Lows in the mid 60s. Highs around 80. South winds around 81 mph.",
-        ".Tuesday...",
+        ".TUESDAY...",
         "Strong winds. Partly cloudy. Areas of blowing snow...then patchy fog. Lows in the mid 60s. Highs in the lower 80s. South winds around 58 mph.",
-        ".Wednesday...",
+        ".WEDNESDAY...",
         "Mostly cloudy. Drizzle likely...then slight chance of very light freezing drizzle. Lows in the lower 60s. Highs in the lower 80s.",
-        ".Thursday...",
+        ".THURSDAY...",
         "Partly cloudy. Numerous thunderstorms. Isolated light freezing spray. Lows in the mid 60s. Highs in the mid 80s.",
 
-        ".Outlook for Friday January 08 through Thursday January 14...",
+        ".OUTLOOK FOR FRIDAY JANUARY 08 THROUGH THURSDAY JANUARY 14...",
         "...Put 8 to 14 day outlook text here...",
 
         "$$",
@@ -2723,7 +2723,7 @@ scripts = [
     "productType":"FWS",
     "commentary": "Morning Issuance with Definition settings",
     "createGrids": FWS_createGrids,
-    "cmdLineVars": "{('Product Issuance:', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None, ('Agency:', 'requestingAgency'): 'AGENCY 1', ('Tomorrow Elements', 'tomorrowElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Longitude (Deg)...................', 'fireLongitude'): 82.19, ('WebSiteTag:', 'webSiteTag'): '', ('Check Items to Include:', 'extendedQuestions'): [], ('Forecaster:', 'forecaster'): ['FORECASTER C'], ('Type of Fire:', 'fireType'): 'PRESCRIBED', ('Name of Agency Contact..........', 'agencyContact'): 'yyyy', ('Today Elements', 'todayElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Latitude (Deg).......................', 'fireLatitude'): 28.27, ('WFOid:', 'wfoID'): '', ('Fire Size (Acres) .........................', 'fireSize'): .005, ('Name of Fire ...................................', 'fireName'): 'xxxx', ('Tonight Elements', 'tonightElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Creation Date', 'creationDate'): '', ('Creation Time', 'creationTime'): '', ('What Type of Forecast?', 'forecastType'): 'Tabular/Narrative', ('Include Ignition Times?', 'withIgnitionTimes'): 'no', ('Name of Agency if not listed....', 'otherAgencyName'): 'xxxx', ('Date of Fire .....................................', 'fireDate'): '1/1/10', ('Time of Fire .....................................', 'fireTime'): '1300', ('Tab Hrs', 'todayTableRes'): 1, ('Tab Hrs', 'tonightTableRes'): 'None', ('Tab Hrs', 'tomorrowTableRes'): 'None', ('TimeZone:', 'fireTZ'): 'EST5EDT'}",
+    "cmdLineVars": "{('Product Issuance:', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None, ('Agency:', 'requestingAgency'): 'Agency 1', ('Tomorrow Elements', 'tomorrowElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Longitude (Deg)...................', 'fireLongitude'): 82.19, ('WebSiteTag:', 'webSiteTag'): '', ('Check Items to Include:', 'extendedQuestions'): [], ('Forecaster:', 'forecaster'): ['FORECASTER C'], ('Type of Fire:', 'fireType'): 'PRESCRIBED', ('Name of Agency Contact..........', 'agencyContact'): 'yyyy', ('Today Elements', 'todayElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Fire Latitude (Deg).......................', 'fireLatitude'): 28.27, ('WFOid:', 'wfoID'): '', ('Fire Size (Acres) .........................', 'fireSize'): .005, ('Name of Fire ...................................', 'fireName'): 'xxxx', ('Tonight Elements', 'tonightElements'): ['SKY/WEATHER', 'BEGIN/END OF PCPN', 'TEMPERATURE', 'HUMIDITY', 'DEWPOINT', '20 FOOT WINDS', 'EYE LEVEL WINDS', 'WIND SHIFT', 'RIDGE TOP WIND', 'SURROUNDING RIDGE', 'CWR', 'POP', 'LIGHTNING ACTIVITY LEVEL', 'SMOKE DISPERSION', 'MIXING HEIGHT', 'TRANSPORT WINDS', 'LDSI', 'LVORI', 'DISPERSION INDEX', 'CLEARING INDEX', 'STABILITY CLASS', 'MARINE LAYER', 'HAINES INDEX'], ('Creation Date', 'creationDate'): '', ('Creation Time', 'creationTime'): '', ('What Type of Forecast?', 'forecastType'): 'Tabular/Narrative', ('Include Ignition Times?', 'withIgnitionTimes'): 'no', ('Name of Agency if not listed....', 'otherAgencyName'): 'xxxx', ('Date of Fire .....................................', 'fireDate'): '1/1/10', ('Time of Fire .....................................', 'fireTime'): '1300', ('Tab Hrs', 'todayTableRes'): 1, ('Tab Hrs', 'tonightTableRes'): 'None', ('Tab Hrs', 'tomorrowTableRes'): 'None', ('TimeZone:', 'fireTZ'): 'EST5EDT'}",
     "fileChanges":[
        ("FWS_<site>_Overrides", "TextUtility", "add", testOverrides, "undo"),
        ("FWS_<site>_Definition", "TextUtility", "add", definitions, "undo"),
@@ -2735,15 +2735,15 @@ scripts = [
         "FNUS72 KTBW 010900",
         "FWSTBW",
 
-        "SPOT FORECAST FOR XXXX...AGENCY 1",
-        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-        "400 AM EST FRI JAN 1 2010",
+        "Spot Forecast for xxxx...Agency 1",
+        "National Weather Service Tampa Bay Ruskin FL",
+        "400 AM EST Fri Jan 1 2010",
 
         "If conditions become unrepresentative...contact the National Weather Service.",
 
-        ".Discussion...",
+        ".DISCUSSION...",
 
-        ".Today...",
+        ".TODAY...",
 
         "SKY/WEATHER.........Cloudy (95-100 percent). Patchy dense fog.",
         "BEGIN/END OF PCPN...",
@@ -2803,7 +2803,7 @@ scripts = [
         "LAL.............1   1   1   1   1   1   1   1   1   1   1   1",
         "HAINES INDEX....2   2   2   2   2   2   2   2   2   2   2   2",
 
-        ".Tonight...",
+        ".TONIGHT...",
 
         "SKY/WEATHER.........Cloudy (90-100 percent). Widespread thunderstorms.",
         "BEGIN/END OF PCPN...",
@@ -2832,7 +2832,7 @@ scripts = [
         "HAINES INDEX........3 or very low potential for large plume dominated fire growth.",
 
 
-        ".Saturday...",
+        ".SATURDAY...",
 
         "SKY/WEATHER.........Sunny (0-5 percent). Chance of rain showers.",
         "BEGIN/END OF PCPN...",
@@ -2873,507 +2873,509 @@ scripts = [
     "productType":"FWS",
     "commentary": "Test Hourly Sky Table",
     "createGrids": Sky_createGrids,
-    "cmdLineVars": "{('Product Issuance:', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None, ('Agency:', 'requestingAgency'): 'AGENCY 1', ('Tomorrow Elements', 'tomorrowElements'): ['SKY/WEATHER'], ('Fire Longitude (Deg)...................', 'fireLongitude'): 82.19, ('WebSiteTag:', 'webSiteTag'): '', ('Check Items to Include:', 'extendedQuestions'): [], ('Forecaster:', 'forecaster'): ['FORECASTER C'], ('Type of Fire:', 'fireType'): 'PRESCRIBED', ('Name of Agency Contact..........', 'agencyContact'): 'yyyy', ('Today Elements', 'todayElements'): ['SKY/WEATHER'], ('Fire Latitude (Deg).......................', 'fireLatitude'): 28.27, ('WFOid:', 'wfoID'): '', ('Fire Size (Acres) .........................', 'fireSize'): .005, ('Name of Fire ...................................', 'fireName'): 'xxxx', ('Tonight Elements', 'tonightElements'): ['SKY/WEATHER'], ('Creation Date', 'creationDate'): '', ('Creation Time', 'creationTime'): '', ('What Type of Forecast?', 'forecastType'): 'Tabular Only', ('Include Ignition Times?', 'withIgnitionTimes'): 'no', ('Name of Agency if not listed....', 'otherAgencyName'): 'xxxx', ('Date of Fire .....................................', 'fireDate'): '1/1/10', ('Time of Fire .....................................', 'fireTime'): '0600', ('Tab Hrs', 'todayTableRes'): 1, ('Tab Hrs', 'tonightTableRes'): 1, ('Tab Hrs', 'tomorrowTableRes'): 1, ('TimeZone:', 'fireTZ'): 'EST5EDT'}",
+    "cmdLineVars": "{('Product Issuance:', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None, ('Agency:', 'requestingAgency'): 'Agency 1', ('Tomorrow Elements', 'tomorrowElements'): ['SKY/WEATHER'], ('Fire Longitude (Deg)...................', 'fireLongitude'): 82.19, ('WebSiteTag:', 'webSiteTag'): '', ('Check Items to Include:', 'extendedQuestions'): [], ('Forecaster:', 'forecaster'): ['FORECASTER C'], ('Type of Fire:', 'fireType'): 'PRESCRIBED', ('Name of Agency Contact..........', 'agencyContact'): 'yyyy', ('Today Elements', 'todayElements'): ['SKY/WEATHER'], ('Fire Latitude (Deg).......................', 'fireLatitude'): 28.27, ('WFOid:', 'wfoID'): '', ('Fire Size (Acres) .........................', 'fireSize'): .005, ('Name of Fire ...................................', 'fireName'): 'xxxx', ('Tonight Elements', 'tonightElements'): ['SKY/WEATHER'], ('Creation Date', 'creationDate'): '', ('Creation Time', 'creationTime'): '', ('What Type of Forecast?', 'forecastType'): 'Tabular Only', ('Include Ignition Times?', 'withIgnitionTimes'): 'no', ('Name of Agency if not listed....', 'otherAgencyName'): 'xxxx', ('Date of Fire .....................................', 'fireDate'): '1/1/10', ('Time of Fire .....................................', 'fireTime'): '0600', ('Tab Hrs', 'todayTableRes'): 1, ('Tab Hrs', 'tonightTableRes'): 1, ('Tab Hrs', 'tomorrowTableRes'): 1, ('TimeZone:', 'fireTZ'): 'EST5EDT'}",
     "fileChanges":[
        ("FWS_<site>_Definition", "TextUtility", "add", definition3, "undo"),
        ],
 
     "checkStrings": [
-        ".Today...",
+        ".TODAY...",
         "TIME (EST)      6AM 7AM 8AM 9AM 10A 11A 12P 1PM 2PM 3PM 4PM 5PM",
         "SKY (%).........MCR MCR MCR MCR MCR MCR MCR MCR MCR MCR MCR MCR",
-        ".Tonight...",
+        ".TONIGHT...",
         "TIME (EST)      6PM 7PM 8PM 9PM 10P 11P MID 1AM 2AM 3AM 4AM 5AM",
         "SKY (%).........PC  PC  PC  PC  PC  PC  PC  PC  PC  PC  PC  PC",
-        ".Saturday...",
+        ".SATURDAY...",
         "TIME (EST)      6AM 7AM 8AM 9AM 10A 11A 12P 1PM 2PM 3PM 4PM 5PM",
         "SKY (%).........MC  MC  MC  MC  MC  MC  MC  MC  MC  MC  MC  MC",
        ],
 
     },
 
-    {
-    "name":"FWS_StqInput_0",
-    "productType":"FWS",
-    "commentary": "Testing an StqProduct as input",
-    "createGrids": FWS_createGrids,
-    "cmdLineVars":"_processVariableList",
-    "callVariables": {"testIndex":0},
-    "fileChanges": [
-       ("FWS_<site>_Overrides", "TextUtility", "add", testProcVarList1, "undo"),
-       ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
-       ],
-    "checkStrings": [
-            "IFPS TEST 0",
-            ".Today...",
-            "SKY/WEATHER.........Cloudy (95-100 percent). Patchy dense fog.",
-            "CWR.................0 percent.",
-            "MAX TEMPERATURE.....Around 78.",
-            "EYE LEVEL WINDS.....North winds around 6 mph.",
-            "MIXING HEIGHT.......100 ft AGL.",
-            "TRANSPORT WINDS.....Southwest around 12 mph.",
-            "MIN HUMIDITY........65 percent.",
-            "WIND (20 FT)........North winds around 6 mph with gusts to around 30 mph",
-
-            ".Saturday...",
-            "SKY/WEATHER.........Sunny (0-5 percent). Chance of showers.",
-            "CWR.................30 percent.",
-            "MAX TEMPERATURE.....Around 79. ",
-            "MIN HUMIDITY........68 percent. ",
-            "WIND (20 FT)........Northwest winds around 12 mph.",
-            "EYE LEVEL WINDS.....Northwest winds around 12 mph.",
-            ],
-    },
-
-    {
-    "name":"FWS_StqInput_1",
-    "productType":"FWS",
-    "commentary": "Testing an StqProduct as input",
-    "cmdLineVars":"_processVariableList",
-    "callVariables": {"testIndex":1},
-    "fileChanges": [
-       ("FWS_<site>_Overrides", "TextUtility", "add", testProcVarList1, "undo"),
-       ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
-       ],
-    "checkStrings": [
-        "IFPS TEST 1",
-        ".Today...",
-        "SKY/WEATHER.........Cloudy (95-100 percent). Patchy dense fog.",
-        "CWR.................0 percent",
-        "MAX TEMPERATURE.....Around 78.",
-        "MIN HUMIDITY........65 percent.",
-        "EYE LEVEL WINDS.....North winds around 6 mph.",
-        "MIXING HEIGHT.......100 ft AGL.",
-        "TRANSPORT WINDS.....Southwest around 12 mph.",
-
-        ".Saturday...",
-        "SKY/WEATHER.........Sunny (0-5 percent). Chance of showers.",
-        "CWR.................30 percent.",
-         
-        ],
-    },
-
-    {
-    "name":"FWS_StqInput_2",
-    "productType":"FWS",
-    "commentary": "Testing an StqProduct as input",
-    "cmdLineVars":"_processVariableList",
-    "callVariables": {"testIndex":2},
-    "fileChanges": [
-       ("FWS_<site>_Overrides", "TextUtility", "add", testProcVarList1, "undo"),
-       ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
-       ],
-    "checkStrings": [
-        "IFPS TEST 2",
-        ".Today...",
-        "SKY/WEATHER.........Cloudy (95-100 percent). Patchy dense fog.",
-        "CWR.................0 percent",
-        "MAX TEMPERATURE.....Around 78.",
-        "MIN HUMIDITY........65 percent.",
-        "EYE LEVEL WINDS.....North winds around 6 mph.",
-        "MIXING HEIGHT.......100 ft AGL.",
-        "TRANSPORT WINDS.....Southwest around 12 mph.",
-
-        ".Tonight...",
-        "SKY/WEATHER.........Cloudy (90-100 percent). Widespread thunderstorms.",
-        "CWR.................20 percent.",
-        "MIN TEMPERATURE.....Around 60.",
-        "MAX HUMIDITY........78 percent.",
-
-        ".Saturday...",
-        "SKY/WEATHER.........Sunny (0-5 percent). Chance of showers.",
-        "CWR.................30 percent.",
-        ],
-    },
-    {
-    "name":"FWS_StqInput_3",
-    "productType":"FWS",
-    "commentary": "Testing an StqProduct as input",
-    "cmdLineVars":"_processVariableList",
-    "callVariables": {"testIndex":3},
-    "fileChanges": [
-       ("FWS_<site>_Overrides", "TextUtility", "add", testProcVarList1, "undo"),
-       ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
-       ],
-    "checkStrings": [
-        "IFPS TEST 3",
-        ".Today...",
-        "SKY/WEATHER.........Cloudy (95-100 percent). Patchy dense fog.",
-        "CWR.................0 percent",
-        "MAX TEMPERATURE.....Around 78.",
-        "MIN HUMIDITY........65 percent.",
-
-        ".Tonight...",
-        "SKY/WEATHER.........Cloudy (90-100 percent). Widespread thunderstorms.",
-        "CWR.................20 percent.",
-        "MIN TEMPERATURE.....Around 60.",
-        "MAX HUMIDITY........78 percent.",
-
-        ".Saturday...",
-        "SKY/WEATHER.........Sunny (0-5 percent). Chance of showers.",
-        "CWR.................30 percent.",
-        ],
-    },
-    {
-    "name":"FWS_StqInput_4",
-    "productType":"FWS",
-    "commentary": "Testing an StqProduct as input",
-    "cmdLineVars":"_processVariableList",
-    "callVariables": {"testIndex":4},
-    "fileChanges": [
-       ("FWS_<site>_Overrides", "TextUtility", "add", testProcVarList1, "undo"),
-       ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
-       ],
-    "checkStrings": [
-        "IFPS TEST 4",
-        ".Today...",
-        "SKY/WEATHER.........Cloudy (95-100 percent). Patchy dense fog.",
-        "CWR.................0 percent",
-        "MAX TEMPERATURE.....Around 78.",
-        "MIN HUMIDITY........65 percent.",
-        "EYE LEVEL WINDS.....North winds around 6 mph.",
-        "MIXING HEIGHT.......100 ft AGL.",
-        "TRANSPORT WINDS.....Southwest around 12 mph.",
-        "SMOKE DISPERSAL.....Excellent (160000 knot-ft).",
-        "STABILITY CLASS.....1.",
-        "MARINE LAYER........1000.",
-        "HAINES INDEX........2 or very low potential for large plume dominated fire growth.",
-
-        ".Tonight...",
-        "SKY/WEATHER.........Cloudy (90-100 percent). Widespread thunderstorms.",
-        "CWR.................20 percent.",
-        "MIN TEMPERATURE.....Around 60.",
-        "MAX HUMIDITY........78 percent.",
-        "SMOKE DISPERSAL.....Excellent (100000 knot-ft).",
-        "STABILITY CLASS.....2.",
-        "MARINE LAYER........1000.",
-        "HAINES INDEX........3 or very low potential for large plume dominated fire growth.",
-
-        ".Saturday...",
-        "SKY/WEATHER.........Sunny (0-5 percent). Chance of showers.",
-        "CWR.................30 percent.",
-        "SMOKE DISPERSAL.....Good (50000 knot-ft).",
-        "STABILITY CLASS.....1.",
-        "MARINE LAYER........2000.",
-        "HAINES INDEX........4 or low potential for large plume dominated fire growth",
-        ],
-    },
-    {
-    "name":"FWS_StqInput_5",
-    "productType":"FWS",
-    "commentary": "Testing an StqProduct as input",
-    "cmdLineVars":"_processVariableList",
-    "callVariables": {"testIndex":5},
-    "fileChanges": [
-       ("FWS_<site>_Overrides", "TextUtility", "add", testProcVarList1, "undo"),
-       ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
-       ],
-    "checkStrings": [
-        "IFPS TEST 5",
-        ".Today...",
-        "SKY/WEATHER.........Cloudy (95-100 percent). Patchy dense fog.",
-        "CWR.................0 percent",
-        "MAX TEMPERATURE.....Around 78.",
-        "MIN HUMIDITY........65 percent.",
-        "EYE LEVEL WINDS.....North winds around 6 mph.",
-        "MIXING HEIGHT.......100 ft AGL.",
-        "TRANSPORT WINDS.....Southwest around 12 mph.",
-        "SMOKE DISPERSAL.....Excellent (160000 knot-ft).",
-        "STABILITY CLASS.....1.",
-        "MARINE LAYER........1000.",
-        "HAINES INDEX........2 or very low potential for large plume dominated fire growth.",
-
-        ".Tonight...",
-        "SKY/WEATHER.........Cloudy (90-100 percent). Widespread thunderstorms.",
-        "CWR.................20 percent.",
-        "MIN TEMPERATURE.....Around 60.",
-        "MAX HUMIDITY........78 percent.",
-        "SMOKE DISPERSAL.....Excellent (100000 knot-ft).",
-        "STABILITY CLASS.....2.",
-        "MARINE LAYER........1000.",
-        "HAINES INDEX........3 or very low potential for large plume dominated fire growth.",
-
-        ".Saturday...",
-        "SKY/WEATHER.........Sunny (0-5 percent). Chance of showers.",
-        "CWR.................30 percent.",
-        ],
-    },
-    {
-    "name":"FWS_StqInput_6",
-    "productType":"FWS",
-    "commentary": "Testing an StqProduct as input",
-    "cmdLineVars":"_processVariableList",
-    "callVariables": {"testIndex":6},
-    "fileChanges": [
-       ("FWS_<site>_Overrides", "TextUtility", "add", testProcVarList1, "undo"),
-       ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
-       ],
-    "checkStrings": [
-        "IFPS TEST 6",
-        ".Today...",
-        "SKY/WEATHER.........Cloudy (95-100 percent). Patchy dense fog.",
-        "CWR.................0 percent",
-        "MAX TEMPERATURE.....Around 78.",
-        "MIN HUMIDITY........65 percent.",
-        "EYE LEVEL WINDS.....North winds around 6 mph.",
-        "MIXING HEIGHT.......100 ft AGL.",
-        "TRANSPORT WINDS.....Southwest around 12 mph.",
-        "SMOKE DISPERSAL.....Excellent (160000 knot-ft).",
-        "STABILITY CLASS.....1.",
-        "MARINE LAYER........1000.",
-        "HAINES INDEX........2 or very low potential for large plume dominated fire growth.",
-
-        ".Tonight...",
-        "SKY/WEATHER.........Cloudy (90-100 percent). Widespread thunderstorms.",
-        "CWR.................20 percent.",
-        "MIN TEMPERATURE.....Around 60.",
-        "MAX HUMIDITY........78 percent.",
-
-        ".Saturday...",
-        "SKY/WEATHER.........Sunny (0-5 percent). Chance of showers.",
-        "CWR.................30 percent.",
-        ],
-    },
-    {
-    "name":"FWS_StqInput_7",
-    "productType":"FWS",
-    "commentary": "Testing an StqProduct as input",
-    "cmdLineVars":"_processVariableList",
-    "callVariables": {"testIndex":7},
-    "fileChanges": [
-       ("FWS_<site>_Overrides", "TextUtility", "add", testProcVarList1, "undo"),
-       ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
-       ],
-    "checkStrings": [
-        "IFPS TEST 7",
-        ".Today...",
-        "SKY/WEATHER.........Cloudy (95-100 percent). Patchy dense fog.",
-        "CWR.................0 percent",
-        "MAX TEMPERATURE.....Around 78.",
-        "MIN HUMIDITY........65 percent.",
-        "EYE LEVEL WINDS.....North winds around 6 mph.",
-        "MIXING HEIGHT.......100 ft AGL.",
-        "TRANSPORT WINDS.....Southwest around 12 mph.",
-        "SMOKE DISPERSAL.....Excellent (160000 knot-ft).",
-        "STABILITY CLASS.....1.",
-        "MARINE LAYER........1000.",
-        "HAINES INDEX........2 or very low potential for large plume dominated fire growth.",
-
-        ".Tonight...",
-        "SKY/WEATHER.........Cloudy (90-100 percent). Widespread thunderstorms.",
-        "CWR.................20 percent.",
-        "MIN TEMPERATURE.....Around 60.",
-        "MAX HUMIDITY........78 percent.",
-
-        ".Saturday...",
-        "SKY/WEATHER.........Sunny (0-5 percent). Chance of showers.",
-        "CWR.................30 percent.",
-        "SMOKE DISPERSAL.....Good (50000 knot-ft).",
-        "STABILITY CLASS.....1.",
-        "MARINE LAYER........2000.",
-        "HAINES INDEX........4 or low potential for large plume dominated fire growth.",
-        "REQUESTED BY...Virgil Middendorf",
-        "TYPE OF REQUEST...Prescribed",
-        ".TAG 20041013.IFPST.01/BYZ",
-        ],
-    },
-    {
-    "name":"FWS_StqInput_8",
-    "productType":"FWS",
-    "commentary": "Testing an StqProduct as input",
-    "cmdLineVars":"_processVariableList",
-    "callVariables": {"testIndex":8},
-    "fileChanges": [
-       ("FWS_<site>_Overrides", "TextUtility", "add", testProcVarList1, "undo"),
-       ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
-       ],
-    "checkStrings": [
-        "IFPS TEST 8",
-        ".Today...",
-        "SKY/WEATHER.........Cloudy (95-100 percent). Patchy dense fog.",
-        "CWR.................0 percent",
-        "MAX TEMPERATURE.....Around 78.",
-        "MIN HUMIDITY........65 percent.",
-        "EYE LEVEL WINDS.....North winds around 6 mph.",
-        "MIXING HEIGHT.......100 ft AGL.",
-        "TRANSPORT WINDS.....Southwest around 12 mph.",
-
-        ".Tonight...",
-        "SKY/WEATHER.........Cloudy (90-100 percent). Widespread thunderstorms.",
-        "CWR.................20 percent.",
-        "MIN TEMPERATURE.....Around 60.",
-        "MAX HUMIDITY........78 percent.",
-        ],
-    "notCheckStrings": [
-        ".Saturday...",
-        ],
-    },
-    {
-    "name":"FWS_StqInput_9",
-    "productType":"FWS",
-    "commentary": "Testing an StqProduct as input",
-    "cmdLineVars":"_processVariableList",
-    "callVariables": {"testIndex":9},
-    "fileChanges": [
-       ("FWS_<site>_Overrides", "TextUtility", "add", testProcVarList1, "undo"),
-       ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
-       ],
-    "checkStrings": [
-        "IFPS TEST 9",
-        ".Tonight...",
-        "SKY/WEATHER.........Cloudy (90-100 percent). Widespread thunderstorms.",
-        "CWR.................20 percent.",
-        "MIN TEMPERATURE.....Around 60.",
-        "MAX HUMIDITY........78 percent.",
-
-        ".Saturday...",
-        "SKY/WEATHER.........Sunny (0-5 percent). Chance of showers.",
-        "CWR.................30 percent.",
-        
-        ],
-    "notCheckStrings": [
-        ".Today...",
-        ],
-    },
-
-
-    {
-    "name":"FWS_StqInput_10",
-    "productType":"FWS",
-    "commentary": "Testing an StqProduct as input",
-    "cmdLineVars":"_processVariableList",
-    "callVariables": {"testIndex":0, "setIssuance": "Morning Update"},
-    "fileChanges": [
-       ("FWS_<site>_Overrides", "TextUtility", "add", testProcVarList1, "undo"),
-       ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
-       ],
-    "drtHour": 10,
-    "checkStrings": [
-        "IFPS TEST 0",
-        ".Rest of Today...",
-        "SKY/WEATHER.........Cloudy (95-100 percent). Patchy dense fog.",
-        "CWR.................0 percent",
-        "MAX TEMPERATURE.....Around 78.",
-        "EYE LEVEL WINDS.....North winds around 6 mph.",
-        "MIXING HEIGHT.......100 ft AGL.",
-        "TRANSPORT WINDS.....Southwest around 12 mph.",
-        "MIN HUMIDITY........65 percent.",
-        "WIND (20 FT)........North winds around 6 mph with gusts to around 30 mph.",
-
-        ".Saturday...",
-        "SKY/WEATHER.........Sunny (0-5 percent). Chance of showers.",
-        "CWR.................30 percent.",
-        "MAX TEMPERATURE.....Around 79.",
-        "MIN HUMIDITY........68 percent.",
-        "WIND (20 FT)........Northwest winds around 12 mph.",
-        "EYE LEVEL WINDS.....Northwest winds around 12 mph." ,
-            
-        ],
-    },
-
-    {
-    "name":"FWS_StqInput_11",
-    "productType":"FWS",
-    "commentary": "Testing an StqProduct as input",
-    "cmdLineVars":"_processVariableList",
-    "callVariables": {"testIndex":1, "setIssuance": "Afternoon"},
-    "fileChanges": [
-       ("FWS_<site>_Overrides", "TextUtility", "add", testProcVarList1, "undo"),
-       ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
-       ],
-    "checkStrings": [
-        "IFPS TEST 1",
-        ".Saturday...",
-        "SKY/WEATHER.........Sunny (0-5 percent). Chance of showers.",
-        "CWR.................30 percent.",
-        ],
-    "notCheckStrings": [
-        ".Today...", ".Tonight...",
-        ],
-    },
-
-    {
-    "name":"FWS_StqInput_12",
-    "productType":"FWS",
-    "commentary": "Testing an StqProduct as input",
-    "cmdLineVars":"_processVariableList",
-    "callVariables": {"testIndex":2, "setIssuance": "Evening Update"},
-    "fileChanges": [
-       ("FWS_<site>_Overrides", "TextUtility", "add", testProcVarList1, "undo"),
-       ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
-       ],
-    "drtHour": 20,
-    "checkStrings": [
-        "IFPS TEST 2",
-        ".Rest of Tonight...",
-        "SKY/WEATHER.........Cloudy (90-100 percent). Widespread thunderstorms.",
-        "CWR.................20 percent.",
-        "MIN TEMPERATURE.....Around 60.",
-        "MAX HUMIDITY........78 percent.",
-
-        ".Saturday...",
-        "SKY/WEATHER.........Sunny (0-5 percent). Chance of showers.",
-        "CWR.................30 percent.",
-        ],
-    "notCheckStrings": [
-        ".Today...",
-        ],
-    },
-    {
-    "name":"FWS_StqInput_13",
-    "productType":"FWS",
-    "commentary": "Testing an StqProduct as input",
-    "cmdLineVars":"_processVariableList",
-    "callVariables": {"testIndex":3, "setIssuance": "Early Morning Update"},
-    "fileChanges": [
-       ("FWS_<site>_Overrides", "TextUtility", "add", testProcVarList1, "undo"),
-       ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
-       ],
-    "drtHour": 2,
-    "checkStrings": [
-        "IFPS TEST 3",
-        ".Rest of Tonight...",
-        "CWR.................0 percent",
-        "MIN TEMPERATURE.....Around 40.",
-        "MAX HUMIDITY........60 percent.",
-
-        ".Friday...",
-        "SKY/WEATHER.........Cloudy (95-100 percent). Patchy dense fog.",
-        "CWR.................0 percent",
-        ],
-    },
-
-    {
-    "name":"FWS_StqInput_Known_Requestor",
-    "productType":"FWS",
-    "commentary": "Testing an StqProduct with known requesting agency",
-    "cmdLineVars":"_processVariableList",
-    "callVariables": {"testIndex":0},
-    "fileChanges": [
-       ("FWS_<site>_Overrides", "TextUtility", "add", testProcVarList1, "undo"),
-       ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
-       ("FWS_<site>_Definition", "TextUtility", "add", definition4, "undo"),
-       ],
-    "checkStrings": [
-            "IFPS TEST 0",
-            ".Today...",
-            "SKY/WEATHER.........",
-            "CWR.................",
-            "MAX TEMPERATURE.....",
-            "EYE LEVEL WINDS.....",
-            "MIXING HEIGHT.......",
-            "TRANSPORT WINDS.....",
-            "MIN HUMIDITY........",
-            "WIND (20 FT)........",
-            ".Saturday...",
-            "SKY/WEATHER.........",
-            "CWR.................",
-            "MAX TEMPERATURE.....",
-            "MIN HUMIDITY........",
-            "WIND (20 FT)........",
-            "EYE LEVEL WINDS.....",
-        ],
-    },
+# FIXME: these tests cause the auto test process to crash.
+#
+#     {
+#     "name":"FWS_StqInput_0",
+#     "productType":"FWS",
+#     "commentary": "Testing an StqProduct as input",
+#     "createGrids": FWS_createGrids,
+#     "cmdLineVars":"_processVariableList",
+#     "callVariables": {"testIndex":0},
+#     "fileChanges": [
+#        ("FWS_<site>_Overrides", "TextUtility", "add", testProcVarList1, "undo"),
+#        ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
+#        ],
+#     "checkStrings": [
+#             "IFPS TEST 0",
+#             ".TODAY...",
+#             "SKY/WEATHER.........Cloudy (95-100 percent). Patchy dense fog.",
+#             "CWR.................0 percent.",
+#             "MAX TEMPERATURE.....Around 78.",
+#             "EYE LEVEL WINDS.....North winds around 6 mph.",
+#             "MIXING HEIGHT.......100 ft AGL.",
+#             "TRANSPORT WINDS.....Southwest around 12 mph.",
+#             "MIN HUMIDITY........65 percent.",
+#             "WIND (20 FT)........North winds around 6 mph with gusts to around 30 mph",
+# 
+#             ".SATURDAY...",
+#             "SKY/WEATHER.........Sunny (0-5 percent). Chance of showers.",
+#             "CWR.................30 percent.",
+#             "MAX TEMPERATURE.....Around 79. ",
+#             "MIN HUMIDITY........68 percent. ",
+#             "WIND (20 FT)........Northwest winds around 12 mph.",
+#             "EYE LEVEL WINDS.....Northwest winds around 12 mph.",
+#             ],
+#     },
+# 
+#     {
+#     "name":"FWS_StqInput_1",
+#     "productType":"FWS",
+#     "commentary": "Testing an StqProduct as input",
+#     "cmdLineVars":"_processVariableList",
+#     "callVariables": {"testIndex":1},
+#     "fileChanges": [
+#        ("FWS_<site>_Overrides", "TextUtility", "add", testProcVarList1, "undo"),
+#        ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
+#        ],
+#     "checkStrings": [
+#         "IFPS TEST 1",
+#         ".TODAY...",
+#         "SKY/WEATHER.........Cloudy (95-100 percent). Patchy dense fog.",
+#         "CWR.................0 percent",
+#         "MAX TEMPERATURE.....Around 78.",
+#         "MIN HUMIDITY........65 percent.",
+#         "EYE LEVEL WINDS.....North winds around 6 mph.",
+#         "MIXING HEIGHT.......100 ft AGL.",
+#         "TRANSPORT WINDS.....Southwest around 12 mph.",
+# 
+#         ".SATURDAY...",
+#         "SKY/WEATHER.........Sunny (0-5 percent). Chance of showers.",
+#         "CWR.................30 percent.",
+#          
+#         ],
+#     },
+# 
+#     {
+#     "name":"FWS_StqInput_2",
+#     "productType":"FWS",
+#     "commentary": "Testing an StqProduct as input",
+#     "cmdLineVars":"_processVariableList",
+#     "callVariables": {"testIndex":2},
+#     "fileChanges": [
+#        ("FWS_<site>_Overrides", "TextUtility", "add", testProcVarList1, "undo"),
+#        ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
+#        ],
+#     "checkStrings": [
+#         "IFPS TEST 2",
+#         ".TODAY...",
+#         "SKY/WEATHER.........Cloudy (95-100 percent). Patchy dense fog.",
+#         "CWR.................0 percent",
+#         "MAX TEMPERATURE.....Around 78.",
+#         "MIN HUMIDITY........65 percent.",
+#         "EYE LEVEL WINDS.....North winds around 6 mph.",
+#         "MIXING HEIGHT.......100 ft AGL.",
+#         "TRANSPORT WINDS.....Southwest around 12 mph.",
+# 
+#         ".TONIGHT...",
+#         "SKY/WEATHER.........Cloudy (90-100 percent). Widespread thunderstorms.",
+#         "CWR.................20 percent.",
+#         "MIN TEMPERATURE.....Around 60.",
+#         "MAX HUMIDITY........78 percent.",
+# 
+#         ".SATURDAY...",
+#         "SKY/WEATHER.........Sunny (0-5 percent). Chance of showers.",
+#         "CWR.................30 percent.",
+#         ],
+#     },
+#     {
+#     "name":"FWS_StqInput_3",
+#     "productType":"FWS",
+#     "commentary": "Testing an StqProduct as input",
+#     "cmdLineVars":"_processVariableList",
+#     "callVariables": {"testIndex":3},
+#     "fileChanges": [
+#        ("FWS_<site>_Overrides", "TextUtility", "add", testProcVarList1, "undo"),
+#        ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
+#        ],
+#     "checkStrings": [
+#         "IFPS TEST 3",
+#         ".TODAY...",
+#         "SKY/WEATHER.........Cloudy (95-100 percent). Patchy dense fog.",
+#         "CWR.................0 percent",
+#         "MAX TEMPERATURE.....Around 78.",
+#         "MIN HUMIDITY........65 percent.",
+# 
+#         ".TONIGHT...",
+#         "SKY/WEATHER.........Cloudy (90-100 percent). Widespread thunderstorms.",
+#         "CWR.................20 percent.",
+#         "MIN TEMPERATURE.....Around 60.",
+#         "MAX HUMIDITY........78 percent.",
+# 
+#         ".SATURDAY...",
+#         "SKY/WEATHER.........Sunny (0-5 percent). Chance of showers.",
+#         "CWR.................30 percent.",
+#         ],
+#     },
+#     {
+#     "name":"FWS_StqInput_4",
+#     "productType":"FWS",
+#     "commentary": "Testing an StqProduct as input",
+#     "cmdLineVars":"_processVariableList",
+#     "callVariables": {"testIndex":4},
+#     "fileChanges": [
+#        ("FWS_<site>_Overrides", "TextUtility", "add", testProcVarList1, "undo"),
+#        ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
+#        ],
+#     "checkStrings": [
+#         "IFPS TEST 4",
+#         ".TODAY...",
+#         "SKY/WEATHER.........Cloudy (95-100 percent). Patchy dense fog.",
+#         "CWR.................0 percent",
+#         "MAX TEMPERATURE.....Around 78.",
+#         "MIN HUMIDITY........65 percent.",
+#         "EYE LEVEL WINDS.....North winds around 6 mph.",
+#         "MIXING HEIGHT.......100 ft AGL.",
+#         "TRANSPORT WINDS.....Southwest around 12 mph.",
+#         "SMOKE DISPERSAL.....Excellent (160000 knot-ft).",
+#         "STABILITY CLASS.....1.",
+#         "MARINE LAYER........1000.",
+#         "HAINES INDEX........2 or very low potential for large plume dominated fire growth.",
+# 
+#         ".TONIGHT...",
+#         "SKY/WEATHER.........Cloudy (90-100 percent). Widespread thunderstorms.",
+#         "CWR.................20 percent.",
+#         "MIN TEMPERATURE.....Around 60.",
+#         "MAX HUMIDITY........78 percent.",
+#         "SMOKE DISPERSAL.....Excellent (100000 knot-ft).",
+#         "STABILITY CLASS.....2.",
+#         "MARINE LAYER........1000.",
+#         "HAINES INDEX........3 or very low potential for large plume dominated fire growth.",
+# 
+#         ".SATURDAY...",
+#         "SKY/WEATHER.........Sunny (0-5 percent). Chance of showers.",
+#         "CWR.................30 percent.",
+#         "SMOKE DISPERSAL.....Good (50000 knot-ft).",
+#         "STABILITY CLASS.....1.",
+#         "MARINE LAYER........2000.",
+#         "HAINES INDEX........4 or low potential for large plume dominated fire growth",
+#         ],
+#     },
+#     {
+#     "name":"FWS_StqInput_5",
+#     "productType":"FWS",
+#     "commentary": "Testing an StqProduct as input",
+#     "cmdLineVars":"_processVariableList",
+#     "callVariables": {"testIndex":5},
+#     "fileChanges": [
+#        ("FWS_<site>_Overrides", "TextUtility", "add", testProcVarList1, "undo"),
+#        ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
+#        ],
+#     "checkStrings": [
+#         "IFPS TEST 5",
+#         ".TODAY...",
+#         "SKY/WEATHER.........Cloudy (95-100 percent). Patchy dense fog.",
+#         "CWR.................0 percent",
+#         "MAX TEMPERATURE.....Around 78.",
+#         "MIN HUMIDITY........65 percent.",
+#         "EYE LEVEL WINDS.....North winds around 6 mph.",
+#         "MIXING HEIGHT.......100 ft AGL.",
+#         "TRANSPORT WINDS.....Southwest around 12 mph.",
+#         "SMOKE DISPERSAL.....Excellent (160000 knot-ft).",
+#         "STABILITY CLASS.....1.",
+#         "MARINE LAYER........1000.",
+#         "HAINES INDEX........2 or very low potential for large plume dominated fire growth.",
+# 
+#         ".TONIGHT...",
+#         "SKY/WEATHER.........Cloudy (90-100 percent). Widespread thunderstorms.",
+#         "CWR.................20 percent.",
+#         "MIN TEMPERATURE.....Around 60.",
+#         "MAX HUMIDITY........78 percent.",
+#         "SMOKE DISPERSAL.....Excellent (100000 knot-ft).",
+#         "STABILITY CLASS.....2.",
+#         "MARINE LAYER........1000.",
+#         "HAINES INDEX........3 or very low potential for large plume dominated fire growth.",
+# 
+#         ".SATURDAY...",
+#         "SKY/WEATHER.........Sunny (0-5 percent). Chance of showers.",
+#         "CWR.................30 percent.",
+#         ],
+#     },
+#     {
+#     "name":"FWS_StqInput_6",
+#     "productType":"FWS",
+#     "commentary": "Testing an StqProduct as input",
+#     "cmdLineVars":"_processVariableList",
+#     "callVariables": {"testIndex":6},
+#     "fileChanges": [
+#        ("FWS_<site>_Overrides", "TextUtility", "add", testProcVarList1, "undo"),
+#        ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
+#        ],
+#     "checkStrings": [
+#         "IFPS TEST 6",
+#         ".TODAY...",
+#         "SKY/WEATHER.........Cloudy (95-100 percent). Patchy dense fog.",
+#         "CWR.................0 percent",
+#         "MAX TEMPERATURE.....Around 78.",
+#         "MIN HUMIDITY........65 percent.",
+#         "EYE LEVEL WINDS.....North winds around 6 mph.",
+#         "MIXING HEIGHT.......100 ft AGL.",
+#         "TRANSPORT WINDS.....Southwest around 12 mph.",
+#         "SMOKE DISPERSAL.....Excellent (160000 knot-ft).",
+#         "STABILITY CLASS.....1.",
+#         "MARINE LAYER........1000.",
+#         "HAINES INDEX........2 or very low potential for large plume dominated fire growth.",
+# 
+#         ".TONIGHT...",
+#         "SKY/WEATHER.........Cloudy (90-100 percent). Widespread thunderstorms.",
+#         "CWR.................20 percent.",
+#         "MIN TEMPERATURE.....Around 60.",
+#         "MAX HUMIDITY........78 percent.",
+# 
+#         ".SATURDAY...",
+#         "SKY/WEATHER.........Sunny (0-5 percent). Chance of showers.",
+#         "CWR.................30 percent.",
+#         ],
+#     },
+#     {
+#     "name":"FWS_StqInput_7",
+#     "productType":"FWS",
+#     "commentary": "Testing an StqProduct as input",
+#     "cmdLineVars":"_processVariableList",
+#     "callVariables": {"testIndex":7},
+#     "fileChanges": [
+#        ("FWS_<site>_Overrides", "TextUtility", "add", testProcVarList1, "undo"),
+#        ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
+#        ],
+#     "checkStrings": [
+#         "IFPS TEST 7",
+#         ".TODAY...",
+#         "SKY/WEATHER.........Cloudy (95-100 percent). Patchy dense fog.",
+#         "CWR.................0 percent",
+#         "MAX TEMPERATURE.....Around 78.",
+#         "MIN HUMIDITY........65 percent.",
+#         "EYE LEVEL WINDS.....North winds around 6 mph.",
+#         "MIXING HEIGHT.......100 ft AGL.",
+#         "TRANSPORT WINDS.....Southwest around 12 mph.",
+#         "SMOKE DISPERSAL.....Excellent (160000 knot-ft).",
+#         "STABILITY CLASS.....1.",
+#         "MARINE LAYER........1000.",
+#         "HAINES INDEX........2 or very low potential for large plume dominated fire growth.",
+# 
+#         ".TONIGHT...",
+#         "SKY/WEATHER.........Cloudy (90-100 percent). Widespread thunderstorms.",
+#         "CWR.................20 percent.",
+#         "MIN TEMPERATURE.....Around 60.",
+#         "MAX HUMIDITY........78 percent.",
+# 
+#         ".SATURDAY...",
+#         "SKY/WEATHER.........Sunny (0-5 percent). Chance of showers.",
+#         "CWR.................30 percent.",
+#         "SMOKE DISPERSAL.....Good (50000 knot-ft).",
+#         "STABILITY CLASS.....1.",
+#         "MARINE LAYER........2000.",
+#         "HAINES INDEX........4 or low potential for large plume dominated fire growth.",
+#         "REQUESTED BY...Virgil Middendorf",
+#         "TYPE OF REQUEST...Prescribed",
+#         ".TAG 20041013.IFPST.01/BYZ",
+#         ],
+#     },
+#     {
+#     "name":"FWS_StqInput_8",
+#     "productType":"FWS",
+#     "commentary": "Testing an StqProduct as input",
+#     "cmdLineVars":"_processVariableList",
+#     "callVariables": {"testIndex":8},
+#     "fileChanges": [
+#        ("FWS_<site>_Overrides", "TextUtility", "add", testProcVarList1, "undo"),
+#        ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
+#        ],
+#     "checkStrings": [
+#         "IFPS TEST 8",
+#         ".TODAY...",
+#         "SKY/WEATHER.........Cloudy (95-100 percent). Patchy dense fog.",
+#         "CWR.................0 percent",
+#         "MAX TEMPERATURE.....Around 78.",
+#         "MIN HUMIDITY........65 percent.",
+#         "EYE LEVEL WINDS.....North winds around 6 mph.",
+#         "MIXING HEIGHT.......100 ft AGL.",
+#         "TRANSPORT WINDS.....Southwest around 12 mph.",
+# 
+#         ".TONIGHT...",
+#         "SKY/WEATHER.........Cloudy (90-100 percent). Widespread thunderstorms.",
+#         "CWR.................20 percent.",
+#         "MIN TEMPERATURE.....Around 60.",
+#         "MAX HUMIDITY........78 percent.",
+#         ],
+#     "notCheckStrings": [
+#         ".SATURDAY...",
+#         ],
+#     },
+#     {
+#     "name":"FWS_StqInput_9",
+#     "productType":"FWS",
+#     "commentary": "Testing an StqProduct as input",
+#     "cmdLineVars":"_processVariableList",
+#     "callVariables": {"testIndex":9},
+#     "fileChanges": [
+#        ("FWS_<site>_Overrides", "TextUtility", "add", testProcVarList1, "undo"),
+#        ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
+#        ],
+#     "checkStrings": [
+#         "IFPS TEST 9",
+#         ".TONIGHT...",
+#         "SKY/WEATHER.........Cloudy (90-100 percent). Widespread thunderstorms.",
+#         "CWR.................20 percent.",
+#         "MIN TEMPERATURE.....Around 60.",
+#         "MAX HUMIDITY........78 percent.",
+# 
+#         ".SATURDAY...",
+#         "SKY/WEATHER.........Sunny (0-5 percent). Chance of showers.",
+#         "CWR.................30 percent.",
+#         
+#         ],
+#     "notCheckStrings": [
+#         ".TODAY...",
+#         ],
+#     },
+# 
+# 
+#     {
+#     "name":"FWS_StqInput_10",
+#     "productType":"FWS",
+#     "commentary": "Testing an StqProduct as input",
+#     "cmdLineVars":"_processVariableList",
+#     "callVariables": {"testIndex":0, "setIssuance": "Morning Update"},
+#     "fileChanges": [
+#        ("FWS_<site>_Overrides", "TextUtility", "add", testProcVarList1, "undo"),
+#        ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
+#        ],
+#     "drtHour": 10,
+#     "checkStrings": [
+#         "IFPS TEST 0",
+#         ".REST OF TODAY...",
+#         "SKY/WEATHER.........Cloudy (95-100 percent). Patchy dense fog.",
+#         "CWR.................0 percent",
+#         "MAX TEMPERATURE.....Around 78.",
+#         "EYE LEVEL WINDS.....North winds around 6 mph.",
+#         "MIXING HEIGHT.......100 ft AGL.",
+#         "TRANSPORT WINDS.....Southwest around 12 mph.",
+#         "MIN HUMIDITY........65 percent.",
+#         "WIND (20 FT)........North winds around 6 mph with gusts to around 30 mph.",
+# 
+#         ".SATURDAY...",
+#         "SKY/WEATHER.........Sunny (0-5 percent). Chance of showers.",
+#         "CWR.................30 percent.",
+#         "MAX TEMPERATURE.....Around 79.",
+#         "MIN HUMIDITY........68 percent.",
+#         "WIND (20 FT)........Northwest winds around 12 mph.",
+#         "EYE LEVEL WINDS.....Northwest winds around 12 mph." ,
+#             
+#         ],
+#     },
+# 
+#     {
+#     "name":"FWS_StqInput_11",
+#     "productType":"FWS",
+#     "commentary": "Testing an StqProduct as input",
+#     "cmdLineVars":"_processVariableList",
+#     "callVariables": {"testIndex":1, "setIssuance": "Afternoon"},
+#     "fileChanges": [
+#        ("FWS_<site>_Overrides", "TextUtility", "add", testProcVarList1, "undo"),
+#        ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
+#        ],
+#     "checkStrings": [
+#         "IFPS TEST 1",
+#         ".SATURDAY...",
+#         "SKY/WEATHER.........Sunny (0-5 percent). Chance of showers.",
+#         "CWR.................30 percent.",
+#         ],
+#     "notCheckStrings": [
+#         ".TODAY...", ".TONIGHT...",
+#         ],
+#     },
+# 
+#     {
+#     "name":"FWS_StqInput_12",
+#     "productType":"FWS",
+#     "commentary": "Testing an StqProduct as input",
+#     "cmdLineVars":"_processVariableList",
+#     "callVariables": {"testIndex":2, "setIssuance": "Evening Update"},
+#     "fileChanges": [
+#        ("FWS_<site>_Overrides", "TextUtility", "add", testProcVarList1, "undo"),
+#        ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
+#        ],
+#     "drtHour": 20,
+#     "checkStrings": [
+#         "IFPS TEST 2",
+#         ".REST OF TONIGHT...",
+#         "SKY/WEATHER.........Cloudy (90-100 percent). Widespread thunderstorms.",
+#         "CWR.................20 percent.",
+#         "MIN TEMPERATURE.....Around 60.",
+#         "MAX HUMIDITY........78 percent.",
+# 
+#         ".SATURDAY...",
+#         "SKY/WEATHER.........Sunny (0-5 percent). Chance of showers.",
+#         "CWR.................30 percent.",
+#         ],
+#     "notCheckStrings": [
+#         ".TODAY...",
+#         ],
+#     },
+#     {
+#     "name":"FWS_StqInput_13",
+#     "productType":"FWS",
+#     "commentary": "Testing an StqProduct as input",
+#     "cmdLineVars":"_processVariableList",
+#     "callVariables": {"testIndex":3, "setIssuance": "Early Morning Update"},
+#     "fileChanges": [
+#        ("FWS_<site>_Overrides", "TextUtility", "add", testProcVarList1, "undo"),
+#        ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
+#        ],
+#     "drtHour": 2,
+#     "checkStrings": [
+#         "IFPS TEST 3",
+#         ".REST OF TONIGHT...",
+#         "CWR.................0 percent",
+#         "MIN TEMPERATURE.....Around 40.",
+#         "MAX HUMIDITY........60 percent.",
+# 
+#         ".FRIDAY...",
+#         "SKY/WEATHER.........Cloudy (95-100 percent). Patchy dense fog.",
+#         "CWR.................0 percent",
+#         ],
+#     },
+# 
+#     {
+#     "name":"FWS_StqInput_Known_Requestor",
+#     "productType":"FWS",
+#     "commentary": "Testing an StqProduct with known requesting agency",
+#     "cmdLineVars":"_processVariableList",
+#     "callVariables": {"testIndex":0},
+#     "fileChanges": [
+#        ("FWS_<site>_Overrides", "TextUtility", "add", testProcVarList1, "undo"),
+#        ("FWS_<site>_Definition", "TextUtility", "add", definition0, "undo"),
+#        ("FWS_<site>_Definition", "TextUtility", "add", definition4, "undo"),
+#        ],
+#     "checkStrings": [
+#             "IFPS TEST 0",
+#             ".TODAY...",
+#             "SKY/WEATHER.........",
+#             "CWR.................",
+#             "MAX TEMPERATURE.....",
+#             "EYE LEVEL WINDS.....",
+#             "MIXING HEIGHT.......",
+#             "TRANSPORT WINDS.....",
+#             "MIN HUMIDITY........",
+#             "WIND (20 FT)........",
+#             ".SATURDAY...",
+#             "SKY/WEATHER.........",
+#             "CWR.................",
+#             "MAX TEMPERATURE.....",
+#             "MIN HUMIDITY........",
+#             "WIND (20 FT)........",
+#             "EYE LEVEL WINDS.....",
+#         ],
+#     },
 
     {    
     "name":"FWS_CleanUp",
