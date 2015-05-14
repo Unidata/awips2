@@ -186,7 +186,7 @@ _TokList = [
     ('funnel', r'[+]?FC'),
     ('pcp', r'%s|TS(\s+%s)?' % (_pcptok, _pcptok)),
     ('obv', r'%s(\s+%s)*' % (_obvtok, _obvtok)),
-    ('vcnty', r'VC\w+'),
+    ('vcnty', r'[+-]?VC\w+'),
     ('sky', r'SKC|CLR|VV\d{3}|(%s(\s+%s)*)' % (_Cld, _Cld)),
     ('temp', r'M?\d{2}/(M?\d{2})?'),
     ('alt', r'[AQ]\d{3,4}'),
