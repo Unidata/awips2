@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.pointdata;
+package com.raytheon.uf.viz.core.point.display;
 
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -48,6 +48,7 @@ import org.w3c.dom.svg.SVGSVGElement;
  * ------------ ---------- ----------- --------------------------
  * 10/16/2007              brockwoo    Initial creation	
  * 06/04/2008              chammack    Added option for barb/arrow creation
+ * May 14, 2015  4079      bsteffen    Move to core.point
  * 
  * </pre>
  * 

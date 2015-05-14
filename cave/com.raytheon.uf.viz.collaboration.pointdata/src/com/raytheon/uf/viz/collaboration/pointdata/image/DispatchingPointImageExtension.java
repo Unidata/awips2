@@ -27,10 +27,10 @@ import java.util.List;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.point.drawables.ext.IPointImageExtension;
 import com.raytheon.uf.viz.remote.graphics.DispatchGraphicsTarget;
 import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
 import com.raytheon.uf.viz.remote.graphics.objects.DispatchingImage;
-import com.raytheon.viz.pointdata.drawables.IPointImageExtension;
 
 /**
  * Dispatching extension for point images

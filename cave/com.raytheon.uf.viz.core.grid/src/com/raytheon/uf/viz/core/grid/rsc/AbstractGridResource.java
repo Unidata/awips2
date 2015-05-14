@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.grid.rsc.general;
+package com.raytheon.uf.viz.core.grid.rsc;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -75,7 +75,14 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.PaintStatus;
 import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension.ImageProvider;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.grid.display.AbstractGriddedDisplay;
+import com.raytheon.uf.viz.core.grid.display.GriddedIconDisplay;
+import com.raytheon.uf.viz.core.grid.display.GriddedVectorDisplay;
+import com.raytheon.uf.viz.core.grid.rsc.data.GeneralGridData;
+import com.raytheon.uf.viz.core.grid.rsc.data.GridDataRequestRunner;
+import com.raytheon.uf.viz.core.grid.rsc.data.LogArrowScaler;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
+import com.raytheon.uf.viz.core.point.display.VectorGraphicsConfig;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -96,12 +103,8 @@ import com.raytheon.uf.viz.core.tile.DataSourceTileImageCreator;
 import com.raytheon.uf.viz.core.tile.TileSetRenderable;
 import com.raytheon.uf.viz.core.tile.TileSetRenderable.TileImageCreator;
 import com.raytheon.viz.core.contours.ContourRenderable;
-import com.raytheon.viz.core.contours.rsc.displays.AbstractGriddedDisplay;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedContourDisplay;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedStreamlineDisplay;
-import com.raytheon.viz.core.contours.rsc.displays.GriddedVectorDisplay;
-import com.raytheon.viz.core.contours.util.VectorGraphicsConfig;
-import com.raytheon.viz.grid.rsc.GriddedIconDisplay;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -132,6 +135,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Aug 21, 2014  DR 17313 jgerth      Implements ImageProvider
  * Oct 07, 2014  3668     bclement    Renamed requestJob to requestRunner
  * Dec 09, 2014  5056     jing        Added data access interfaces
+ * May 14, 2015  4079     bsteffen    Move to core.grid, add getDisplayUnit
  * 
  * </pre>
  * 
@@ -1030,6 +1034,14 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
             PaintProperties paintProps) throws VizException {
         for (IRenderable renderable : getOrCreateRenderables(target, paintProps)) {
             renderable.paint(target, paintProps);
+        }
+    }
+
+    public Unit<?> getDisplayUnit() {
+        if (stylePreferences != null) {
+            return stylePreferences.getDisplayUnits();
+        } else {
+            return null;
         }
     }
 }

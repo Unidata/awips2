@@ -26,7 +26,7 @@ import javax.measure.converter.UnitConverter;
 
 import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.pointdata.PointWindDisplay;
+import com.raytheon.uf.viz.core.point.display.PointWindDisplay;
 
 /**
  * XYImageData for wind barbs

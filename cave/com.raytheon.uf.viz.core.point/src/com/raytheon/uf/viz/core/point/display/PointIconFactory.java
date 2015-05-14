@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.pointdata;
+package com.raytheon.uf.viz.core.point.display;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -45,9 +45,10 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 26, 2010            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 26, 2010           bsteffen    Initial creation
+ * May 14, 2015  4079     bsteffen    Move to core.point
  * 
  * </pre>
  * 

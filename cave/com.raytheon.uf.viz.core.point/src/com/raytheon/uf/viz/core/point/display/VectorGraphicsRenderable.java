@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.core.contours.util;
+package com.raytheon.uf.viz.core.point.display;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -64,7 +64,7 @@ import com.vividsolutions.jts.geom.impl.PackedCoordinateSequence;
  * Aug 27, 2013  2287     randerso    Refactored to allow subclassing
  * Sep 23, 2013  2363     bsteffen    Add more configuration options.
  * Jan 13, 2015  3966     bsteffen    Limit the number of flags on barbs.
- * 
+ * May 14, 2015  4079     bsteffen    Move to core.point
  * 
  * </pre>
  * 

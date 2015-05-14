@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.pointdata.util;
+package com.raytheon.uf.viz.core.point.display;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -58,6 +58,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Aug 09, 2013  2033      mschenke    Switched File.separator to IPathManager.SEPARATOR
  * Aug 11, 2014  3504      mapeters    Replaced deprecated IODataPreparer
  *                                     instances with IRenderedImageCallback.
+ * May 14, 2015  4079      bsteffen    Move to core.point
  * 
  * </pre>
  * 

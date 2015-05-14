@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.core.contours.rsc.displays;
+package com.raytheon.uf.viz.core.grid.display;
 
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
@@ -34,7 +34,7 @@ import org.opengis.referencing.operation.NoninvertibleTransformException;
 import org.opengis.referencing.operation.TransformException;
 
 /**
- * Caches reprojected plot location for quick display.
+ * Caches reprojected location for all grid cells in a grid for quick display.
  * 
  * <pre>
  * 
@@ -47,13 +47,14 @@ import org.opengis.referencing.operation.TransformException;
  *                                    tranformed,e.g. when too close to pole
  *                                    for mercator projections
  * Feb 27, 2014  2791     bsteffen    Remove Unnecessary catch
+ * May 14, 2015  4079     bsteffen    Move to core.grid
  * 
  * </pre>
  * 
  * @author bsteffen
  * @version 1.0
  */
-public class PlotLocationCache {
+public class GridCellLocationCache {
 
     private static class CacheKey {
 
@@ -105,18 +106,18 @@ public class PlotLocationCache {
 
     }
 
-    private static PlotLocationCache instance;
+    private static GridCellLocationCache instance;
 
-    public static PlotLocationCache getInstance() {
+    public static GridCellLocationCache getInstance() {
         if (instance == null) {
-            instance = new PlotLocationCache();
+            instance = new GridCellLocationCache();
         }
         return instance;
     }
 
     private Map<CacheKey, Reference<float[]>> cache = new HashMap<CacheKey, Reference<float[]>>();
 
-    private PlotLocationCache() {
+    private GridCellLocationCache() {
 
     }
 

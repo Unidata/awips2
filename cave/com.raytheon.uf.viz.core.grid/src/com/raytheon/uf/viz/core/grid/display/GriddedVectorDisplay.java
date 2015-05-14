@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.core.contours.rsc.displays;
+package com.raytheon.uf.viz.core.grid.display;
 
 import java.nio.FloatBuffer;
 
@@ -35,9 +35,9 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
+import com.raytheon.uf.viz.core.point.display.VectorGraphicsConfig;
+import com.raytheon.uf.viz.core.point.display.VectorGraphicsRenderable;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
-import com.raytheon.viz.core.contours.util.VectorGraphicsConfig;
-import com.raytheon.viz.core.contours.util.VectorGraphicsRenderable;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -72,6 +72,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
  * Jan 14, 2014  2661     bsteffen    Switch magnitude and direction from
  *                                    buffers to DataSource
+ * May 14, 2015  4079     bsteffen    Move to core.grid
  * 
  * </pre>
  * 
