@@ -91,6 +91,7 @@ import com.vividsolutions.jts.precision.SimpleGeometryPrecisionReducer;
  *                                     hatched area would be retained after redrawing.
  * 07/22/2014  DR 17475   Qinglu Lin   Updated createPolygonByPoints() and created second createPolygonByPoints().
  * 07/29/2015  DR 17310   D. Friedman  Use Geometry.buffer() to fix self-intersections.  Fix bug in alterVertexes.
+ * 05/07/2015  DR 17438   D. Friedman  Clean up debug and performance logging.
  * </pre>
  * 
  * @author mschenke
@@ -550,20 +551,23 @@ public class PolygonUtil {
                 .toArray(new Coordinate[points.size()])), null);
 
         if (!rval.isValid()) {
-            System.out.format("Polygon %s is invalid.  Attempting to fix...\n", rval);
+            statusHandler.handle(Priority.DEBUG, String.format(
+                    "Polygon %s is invalid.  Attempting to fix...", rval));
+            String resultMessage = null;
             try {
                 Polygon p2 = (Polygon) rval.buffer(0.0);
                 rval = gf.createPolygon((LinearRing) p2.getExteriorRing());
+                resultMessage = String.format("  ...fixed.  Result: %s", rval);
             } catch (TopologyException e) {
-                System.out.format("...fix failed\n");
+                resultMessage = "  ...fix failed";
             } catch (ClassCastException e) {
-                System.out.format("...resulted in something other than a polygon\n");
+                resultMessage = "  ...resulted in something other than a polygon";
             }
-            System.out.format("...fixed.  Result: %s\n", rval);
+            statusHandler.handle(Priority.DEBUG, resultMessage);
         }
 
         if (rval.isValid() == false) {
-            System.out.println("Fixing intersected segments");
+            statusHandler.handle(Priority.DEBUG, "Fixing intersected segments");
             Coordinate[] coords = rval.getCoordinates();
             adjustVertex(coords);
             PolygonUtil.round(coords, 2);
