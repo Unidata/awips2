@@ -672,11 +672,15 @@ public class Disagg6Hr {
                     /* j = num of rows */
                     QPEgrids = new double[6][disagg_maxy][disagg_maxx];
 
-                    for (j = 0; j < disagg_maxx; j++) {
-                        QPEgrids[k][i][j] = -9.0;
+                    for (k = 0; k < 6; k++){
+                        for (i = 0; i < disagg_maxy; i++){
+                            for (j = 0; j < disagg_maxx; j++) {
+                                QPEgrids[k][i][j] = -9.0;
 
+                            }
+                        }
                     }
-
+                    
                 }
 
                 else {
