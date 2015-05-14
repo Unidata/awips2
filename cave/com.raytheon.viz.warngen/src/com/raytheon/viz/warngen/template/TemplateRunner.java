@@ -62,7 +62,9 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.site.SiteMap;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
@@ -145,6 +147,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * Aug 28, 2014 ASM #15551 Qinglu Lin  Replaced 1200 PM/1200 AM by NOON/MIDNIGHT, removed days in
  *                                     included tornado/severe thunderstorm watch message.
  * Sep 18, 2014 ASM #15465 Qinglu Lin  For backup, get officeShort and officeLoc from backup WFO's config.xml.
+ * May  7, 2015 ASM #17438 D. Friedman Clean up debug and performance logging.
  * </pre>
  * 
  * @author njensen
@@ -154,6 +157,9 @@ import com.vividsolutions.jts.io.WKTReader;
 public class TemplateRunner {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(TemplateRunner.class);
+
+    private static final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("WG:");
 
     private static final String LOGIN_NAME_KEY = "LOGNAME";
 
@@ -295,15 +301,15 @@ public class TemplateRunner {
             t0 = System.currentTimeMillis();
             areas = area.findAffectedAreas(config, warnPolygon, warningArea,
                     threeLetterSiteId);
-            System.out.println("Time to get areas = "
-                    + (System.currentTimeMillis() - t0));
+            perfLog.logDuration("runTemplate get areas",
+                    System.currentTimeMillis() - t0);
             context.put(config.getHatchedAreaSource().getVariable(), areas);
 
             t0 = System.currentTimeMillis();
             intersectAreas = area.findInsectingAreas(config, warnPolygon,
                     warningArea, threeLetterSiteId, warngenLayer);
-            System.out.println("Time to get intersecting areas = "
-                    + (System.currentTimeMillis() - t0));
+            perfLog.logDuration("runTemplate get intersecting areas",
+                    System.currentTimeMillis() - t0);
             for (String ia : intersectAreas.keySet()) {
                 context.put(ia, intersectAreas.get(ia));
             }
@@ -380,9 +386,8 @@ public class TemplateRunner {
                                             "Either timezoneGeom or/and warningArea is null. "
                                                     + "Timezone cannot be determined.");
                                 }
-                                System.out
-                                        .println("Time to do size computation = "
-                                                + (System.currentTimeMillis() - t0));
+                                perfLog.logDuration("runTemplate size computation",
+                                                System.currentTimeMillis() - t0);
                                 if (totalSize > minSize) {
                                     timeZones.add(oneLetterTZ[i]);
                                 }
@@ -544,8 +549,8 @@ public class TemplateRunner {
                 context.put("eventLocation", coords);
                 t0 = System.currentTimeMillis();
                 ToolsDataManager.getInstance().setStormTrackData(std);
-                System.out.println("save storm track data: "
-                        + (System.currentTimeMillis() - t0));
+                perfLog.logDuration("Save storm track data",
+                        System.currentTimeMillis() - t0);
             } else {
                 // Retrieve the old Warning
                 // Example: s[0-5] = T.CON-KLWX.SV.W.0123
@@ -601,8 +606,8 @@ public class TemplateRunner {
                     std.setMotionSpeed(oldWarn.getMotspd());
                     t0 = System.currentTimeMillis();
                     ToolsDataManager.getInstance().setStormTrackData(std);
-                    System.out.println("save storm track data: "
-                            + (System.currentTimeMillis() - t0));
+                    perfLog.logDuration("Save storm track data",
+                            System.currentTimeMillis() - t0);
                 }
             }
 
@@ -859,8 +864,7 @@ public class TemplateRunner {
             WatchUtil watchUtil = new WatchUtil(warngenLayer);
             List<Watch> watches = watchUtil.getWatches(config, warnPolygon,
                     simulatedTime);
-            System.out.println("getWatches time: "
-                    + (System.currentTimeMillis() - t0));
+            perfLog.logDuration("getWatches", System.currentTimeMillis() - t0);
             if (watches != null && watches.isEmpty() == false) {
                 context.put("watches", watches);
             }
@@ -875,8 +879,7 @@ public class TemplateRunner {
         long tz0 = System.currentTimeMillis();
         String script = createScript(warngenLayer.getTemplateName() + ".vm",
                 context);
-        System.out.println("velocity time: "
-                + (System.currentTimeMillis() - tz0));
+        perfLog.logDuration("velocity", System.currentTimeMillis() - tz0);
 
         String text = script.toString();
         WarningTextHandler handler = WarningTextHandlerFactory.getHandler(
