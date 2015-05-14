@@ -48,6 +48,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ---------- ----------- --------------------------
  * Mar 21, 2013 15375      zhao        Initial creation
  * May 07, 2014 3091       rferrel     fcstid now a string.
+ * May 14, 2015 4274       skorolev    Added period validation.
  * 
  * </pre>
  * 
@@ -123,6 +124,7 @@ public class TafQueueVftConfigMgr {
     }
 
     private void readConfiguration() {
+        String periodStr = "";
         try {
             String wmo = xmitConfig.getString("verification.wmo");
             String[] wmosplits = wmo.split(" ");
@@ -133,8 +135,13 @@ public class TafQueueVftConfigMgr {
             if (fcstidStr != null) {
                 setFcstid(fcstidStr);
             }
-            String periodStr = xmitConfig.getString("verification.period");
+            periodStr = xmitConfig.getString("verification.period");
             period = Integer.parseInt(periodStr);
+            if (period <= 0) {
+                setDefaultPeriod(periodStr);
+            }
+        } catch (NumberFormatException e) {
+            setDefaultPeriod(periodStr);
         } catch (Exception e) {
             statusHandler
                     .handle(Priority.PROBLEM,
@@ -201,6 +208,13 @@ public class TafQueueVftConfigMgr {
 
     public void setBbb(String bbb) {
         this.bbb = bbb;
+    }
+
+    private void setDefaultPeriod(String badPeriodStr) {
+        period = 6;
+        statusHandler.handle(Priority.PROBLEM,
+                "Tafqueue VFT Configuration Manager: xmit.cfg file has invalid period value = "
+                        + badPeriodStr + ". Default value = 6 will be used.");
     }
 
 }
