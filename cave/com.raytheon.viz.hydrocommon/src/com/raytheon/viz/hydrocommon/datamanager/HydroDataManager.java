@@ -149,6 +149,19 @@ public abstract class HydroDataManager {
     	 /* Check if text fields include single apostrophe, if it does, replace to 
         two single apostrophe since it is treated as special char in Postgres */                                       	            
        String newDataQuery = "";
+       String PDCDataStr = "";
+       int PDC_presetStr_begindex = 0;
+       
+       /* special handling for PDC*/
+       if (dataQuery.toLowerCase().contains("preset_string"))
+       {
+    	   PDC_presetStr_begindex = dataQuery.toLowerCase().indexOf("'at=");       
+           if (PDC_presetStr_begindex  > 0)
+           {
+    	      PDCDataStr = dataQuery.substring(PDC_presetStr_begindex);
+    	      dataQuery = dataQuery.substring(0, PDC_presetStr_begindex);
+           }
+       }
        
         String[] dataElement = dataQuery.split(", ");
         for (int j = 0; j < dataElement.length; j++)        
@@ -216,6 +229,15 @@ public abstract class HydroDataManager {
         	    newDataQuery = newDataQuery + newSubData;
         	else
         		newDataQuery = newDataQuery + newSubData + ", ";        		        	    	
+        }
+        
+        if (PDC_presetStr_begindex  > 0)
+        {
+        	if (newDataQuery.toLowerCase().startsWith("insert"))
+        		newDataQuery = newDataQuery + ", " + PDCDataStr;
+        	else if (newDataQuery.toLowerCase().startsWith("update"))
+        		newDataQuery = newDataQuery + PDCDataStr;
+        	
         }
     
     	return newDataQuery;
