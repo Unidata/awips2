@@ -30,3 +30,4 @@ Import-Package: com.raytheon.viz.core.imagery,
 Export-Package: com.raytheon.uf.viz.xy.timeheight.display,
  com.raytheon.uf.viz.xy.timeheight.graph,
  com.raytheon.uf.viz.xy.timeheight.rsc
+Bundle-ClassPath: com.raytheon.uf.viz.xy.timeheight.jar

@@ -15,3 +15,4 @@ Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.15.0",
  com.raytheon.uf.common.dataplugin.vaa;bundle-version="1.14.0",
  com.raytheon.uf.common.dataplugin;bundle-version="1.14.0",
  org.eclipse.swt;bundle-version="3.8.1"
+Bundle-ClassPath: com.raytheon.uf.viz.vaa.jar

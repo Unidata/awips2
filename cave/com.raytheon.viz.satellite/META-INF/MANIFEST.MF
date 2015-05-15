@@ -32,3 +32,4 @@ Import-Package: com.raytheon.viz.awipstools,
  com.raytheon.viz.core.rsc.hdf5
 Export-Package: com.raytheon.viz.satellite,
  com.raytheon.viz.satellite.rsc
+Bundle-ClassPath: com.raytheon.viz.satellite.jar

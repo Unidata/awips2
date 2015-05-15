@@ -19,3 +19,4 @@ Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.15.0",
  com.raytheon.uf.viz.core.point;bundle-version="1.15.0",
  org.eclipse.swt;bundle-version="3.8.1",
  javax.measure
+Bundle-ClassPath: com.raytheon.uf.viz.bufrsigwx.jar

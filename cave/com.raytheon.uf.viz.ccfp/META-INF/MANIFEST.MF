@@ -5,7 +5,7 @@ Bundle-SymbolicName: com.raytheon.uf.viz.ccfp;singleton:=true
 Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.uf.viz.core
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Import-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.dataplugin.ccfp,
@@ -24,3 +24,4 @@ Import-Package: com.raytheon.uf.common.dataplugin,
  org.opengis.referencing.crs,
  org.osgi.framework
 Export-Package: com.raytheon.uf.viz.ccfp.rsc
+Bundle-ClassPath: com.raytheon.uf.viz.ccfp.jar

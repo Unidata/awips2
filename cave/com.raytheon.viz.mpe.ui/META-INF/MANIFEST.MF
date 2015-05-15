@@ -33,3 +33,4 @@ Import-Package: com.raytheon.uf.common.colormap,
  com.raytheon.uf.common.colormap.prefs,
  com.raytheon.uf.common.ohd
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ClassPath: com.raytheon.viz.mpe.ui.jar

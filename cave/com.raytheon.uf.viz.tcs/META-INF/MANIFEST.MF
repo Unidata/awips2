@@ -28,3 +28,4 @@ Import-Package: com.raytheon.uf.common.dataplugin,
  javax.measure.unit,
  org.eclipse.swt.graphics
 Export-Package: com.raytheon.uf.viz.tcs.rsc
+Bundle-ClassPath: com.raytheon.uf.viz.tcs.jar

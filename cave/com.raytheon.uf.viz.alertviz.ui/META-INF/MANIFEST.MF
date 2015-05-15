@@ -18,3 +18,4 @@ Export-Package: com.raytheon.uf.viz.alertviz.ui,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.alertmonitor,
  javax.jms
+Bundle-ClassPath: com.raytheon.uf.viz.alertviz.ui.jar

@@ -26,3 +26,4 @@ Export-Package: com.raytheon.uf.viz.xy.varheight,
  com.raytheon.uf.viz.xy.varheight.graph,
  com.raytheon.uf.viz.xy.varheight.hodo,
  com.raytheon.uf.viz.xy.varheight.rsc
+Bundle-ClassPath: com.raytheon.uf.viz.xy.varheight.jar

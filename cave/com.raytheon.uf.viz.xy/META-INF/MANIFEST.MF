@@ -19,3 +19,4 @@ Export-Package: com.raytheon.uf.viz.xy,
  com.raytheon.uf.viz.xy.map,
  com.raytheon.uf.viz.xy.map.rsc
 Import-Package: com.raytheon.viz.core.graphing.xy
+Bundle-ClassPath: com.raytheon.uf.viz.xy.jar

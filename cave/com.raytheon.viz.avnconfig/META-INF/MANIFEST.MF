@@ -12,7 +12,7 @@ Require-Bundle: org.eclipse.ui,
  org.geotools,
  org.apache.commons.lang;bundle-version="2.3.0"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.dataplugin.persist,
  com.raytheon.uf.common.dataplugin.text,
  com.raytheon.uf.common.dataplugin.text.db,
@@ -25,3 +25,4 @@ Import-Package: com.raytheon.uf.common.dataplugin.persist,
  org.apache.commons.configuration
 Export-Package: com.raytheon.viz.avncommon,
  com.raytheon.viz.avnconfig
+Bundle-ClassPath: com.raytheon.viz.avnconfig.jar

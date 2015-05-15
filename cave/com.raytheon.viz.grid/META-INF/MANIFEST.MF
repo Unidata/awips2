@@ -47,3 +47,4 @@ Import-Package: com.raytheon.uf.common.inventory.data,
  com.raytheon.viz.alerts.observers,
  com.raytheon.viz.core.rsc,
  com.raytheon.viz.core.units
+Bundle-ClassPath: com.raytheon.viz.grid.jar

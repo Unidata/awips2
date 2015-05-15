@@ -30,3 +30,4 @@ Import-Package: com.raytheon.uf.common.inventory.exception,
  com.raytheon.viz.pointdata.rsc.retrieve,
  com.vividsolutions.jts.geom
 Export-Package: com.raytheon.uf.viz.coopprecip
+Bundle-ClassPath: com.raytheon.uf.viz.coopprecip.jar

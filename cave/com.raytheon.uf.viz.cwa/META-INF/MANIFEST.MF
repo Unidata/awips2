@@ -34,3 +34,4 @@ Require-Bundle: com.raytheon.uf.viz.core,
  org.apache.batik,
  com.raytheon.uf.viz.core,
  org.eclipse.core.runtime
+Bundle-ClassPath: com.raytheon.uf.viz.cwa.jar

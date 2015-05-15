@@ -4,7 +4,7 @@ Bundle-Name: D2D Graph Adapters
 Bundle-SymbolicName: com.raytheon.uf.viz.d2d.xy.adapters;singleton:=true
 Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.14.0",
  com.raytheon.uf.viz.xy,

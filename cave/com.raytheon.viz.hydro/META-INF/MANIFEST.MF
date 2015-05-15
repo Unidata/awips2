@@ -29,3 +29,4 @@ Export-Package: com.raytheon.viz.hydro,
  com.raytheon.viz.hydro.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.ohd
+Bundle-ClassPath: com.raytheon.viz.hydro.jar

@@ -25,3 +25,4 @@ Import-Package: com.raytheon.uf.common.time,
  org.apache.log4j
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: ch.qos.logback
+Bundle-ClassPath: com.raytheon.uf.viz.alertviz.jar,.

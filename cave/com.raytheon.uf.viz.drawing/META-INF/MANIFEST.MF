@@ -16,4 +16,5 @@ Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.14.0",
 Import-Package: com.raytheon.viz.core
 Export-Package: com.raytheon.uf.viz.drawing,
  com.raytheon.uf.viz.drawing.polygon
+Bundle-ClassPath: com.raytheon.uf.viz.drawing.jar
 

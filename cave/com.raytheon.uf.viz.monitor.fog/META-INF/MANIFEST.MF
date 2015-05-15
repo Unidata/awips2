@@ -24,3 +24,4 @@ Export-Package: com.raytheon.uf.viz.monitor.fog,
  com.raytheon.uf.viz.monitor.fog.threshold,
  com.raytheon.uf.viz.monitor.fog.ui.resource,
  com.raytheon.uf.viz.monitor.fog.xml
+Bundle-ClassPath: com.raytheon.uf.viz.monitor.fog.jar

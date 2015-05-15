@@ -19,3 +19,4 @@ Import-Package: com.raytheon.uf.common.numeric.buffer,
  com.raytheon.uf.common.numeric.source,
  com.raytheon.uf.common.numeric.sparse,
  com.raytheon.uf.viz.productbrowser
+Bundle-ClassPath: com.raytheon.viz.lightning.jar

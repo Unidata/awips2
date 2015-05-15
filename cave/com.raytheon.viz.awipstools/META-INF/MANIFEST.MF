@@ -37,3 +37,4 @@ Import-Package: com.raytheon.uf.common.inventory.exception,
  com.raytheon.viz.core.interval,
  com.raytheon.viz.core.rsc,
  com.raytheon.viz.core.rsc.jts
+Bundle-ClassPath: com.raytheon.viz.awipstools.jar

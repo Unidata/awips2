@@ -31,3 +31,4 @@ Export-Package: com.raytheon.uf.viz.xy.crosssection,
  com.raytheon.uf.viz.xy.crosssection.display,
  com.raytheon.uf.viz.xy.crosssection.graph,
  com.raytheon.uf.viz.xy.crosssection.rsc
+Bundle-ClassPath: com.raytheon.uf.viz.xy.crosssection.jar

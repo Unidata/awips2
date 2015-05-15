@@ -41,3 +41,4 @@ Export-Package: com.raytheon.viz.hydrocommon,
 Import-Package: com.raytheon.uf.common.inventory.exception,
  com.raytheon.uf.common.ohd,
  com.raytheon.viz.grid.rsc
+Bundle-ClassPath: com.raytheon.viz.hydrocommon.jar

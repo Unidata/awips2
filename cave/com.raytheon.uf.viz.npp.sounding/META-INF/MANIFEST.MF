@@ -25,3 +25,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Import-Package: gov.noaa.nws.ncep.edex.common.sounding
 Export-Package: com.raytheon.uf.viz.npp.sounding.rsc
+Bundle-ClassPath: com.raytheon.uf.viz.npp.sounding.jar

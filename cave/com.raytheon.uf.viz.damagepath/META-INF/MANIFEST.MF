@@ -17,3 +17,4 @@ Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.14.6",
  javax.measure;bundle-version="1.0.0",
  com.raytheon.uf.common.util;bundle-version="1.14.1"
 Export-Package: com.raytheon.uf.viz.damagepath
+Bundle-ClassPath: com.raytheon.uf.viz.damagepath.jar

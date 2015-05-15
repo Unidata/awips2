@@ -41,3 +41,4 @@ Import-Package: com.raytheon.uf.common.inventory.exception,
  com.raytheon.viz.pointdata,
  com.raytheon.viz.pointdata.rsc.retrieve
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ClassPath: com.raytheon.uf.viz.monitor.jar
