@@ -34,6 +34,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 3, 2014  3226      bclement     Initial creation
+ * May 8, 2015  DR17252   MPorricelli  Use HOUR_OF_DAY for setHour
  * 
  * </pre>
  * 
@@ -118,7 +119,7 @@ public class BaseLightningPoint {
      *            Hour of the day [0..23].
      */
     public void setHour(int hour) {
-        this.time.set(Calendar.HOUR, hour);
+        this.time.set(Calendar.HOUR_OF_DAY, hour);
     }
 
     /**
