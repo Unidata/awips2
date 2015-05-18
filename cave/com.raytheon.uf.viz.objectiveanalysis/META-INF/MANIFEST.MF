@@ -26,7 +26,7 @@ Require-Bundle: org.eclipse.swt;bundle-version="3.8.1",
  com.raytheon.uf.common.numeric;bundle-version="1.14.0",
  com.raytheon.uf.common.derivparam;bundle-version="1.14.0",
  com.raytheon.uf.viz.datacube;bundle-version="1.14.0",
- com.raytheon.uf.viz.core.point;bundle-version="1.15.0"
+ com.raytheon.uf.viz.core.point;bundle-version="1.15.0",
+ com.raytheon.uf.viz.core.grid;bundle-version="1.15.0"
 Export-Package: com.raytheon.uf.viz.objectiveanalysis.rsc
-Import-Package: com.raytheon.viz.core.rsc.displays
 
