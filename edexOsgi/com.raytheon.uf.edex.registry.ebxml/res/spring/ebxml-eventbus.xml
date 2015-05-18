@@ -23,32 +23,4 @@
 		<constructor-arg ref="credentialCache" />
 	</bean>
 	
-	<!-- TODO: This is a sample external endpoint for registry events. 
-	     It is dormant as long as the ${registry.event.external.publish} prop
-	     is set to false.  Which by default until Hazard Services uses this, will be.
-	     When Hazard Services comes on line, the  sampleExternalMessageHandler and the
-	     route can go away. -->
-	     
-	<bean id="sampleExternalMessageHandler"
-		class="com.raytheon.uf.edex.registry.ebxml.publish.SampleExternalMessageHandler">
-	</bean>     
-
-	<camelContext id="externalRegistryEventDelivery-camel"
-		xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
-		<endpoint id="externalRegistryEventDelivery"
-			uri="jms-generic:topic:registryExternalPublishTopic" />
-		<route id="registryExternalPublishTopic">
-			<from ref="externalRegistryEventDelivery" />
-			<doTry>
-				<pipeline>
-					<bean ref="serializationUtil" method="transformFromThrift"/>
-					<bean ref="sampleExternalMessageHandler" method="notify" />
-				</pipeline>
-				<doCatch>
-					<exception>java.lang.Throwable</exception>
-					<to uri="log:externalRegistryEventDelivery?level=ERROR" />
-				</doCatch>
-			</doTry>
-		</route>
-	</camelContext>
 </beans>
