@@ -63,13 +63,13 @@
 		<entry><key ss="185" band="6"/><value name="Imager 3.5-4.0 micro IR (Fog)" /></entry>
 		
 		<!-- UNIWISC GOES Sounder -->
-		<entry><key ss="71" band="26"/><value name="Gridded Cloud Top Pressure or Height" /></entry>
-		<entry><key ss="185" band="26"/><value name="Gridded Cloud Top Pressure or Height" /></entry>
-		<entry><key ss="185" band="27"/><value name="Sounder Based Derived Precipitable Water (PW)" /></entry>
-		<entry><key ss="185" band="28"/><value name="Sounder Based Derived Lifted Index (LI)" /></entry>
-		<entry><key ss="185" band="29"/><value name="CAPE" /></entry>
-		<entry><key ss="185" band="30"/><value name="Sounder Based Total Column Ozone" /></entry>
-		<entry><key ss="10" band="30"/><value name="Sounder Based Derived Surface Skin Temp (SFC Skin)" /></entry>
+		<entry><key ss="71" band="27"/><value name="Gridded Cloud Top Pressure or Height" /></entry>
+		<entry><key ss="185" band="27"/><value name="Gridded Cloud Top Pressure or Height" /></entry>
+		<entry><key ss="185" band="28"/><value name="Sounder Based Derived Precipitable Water (PW)" /></entry>
+		<entry><key ss="185" band="29"/><value name="Sounder Based Derived Lifted Index (LI)" /></entry>
+		<entry><key ss="185" band="30"/><value name="CAPE" /></entry>
+		<entry><key ss="185" band="31"/><value name="Sounder Based Total Column Ozone" /></entry>
+		<entry><key ss="10" band="31"/><value name="Sounder Based Derived Surface Skin Temp (SFC Skin)" /></entry>
 
 		<!-- Arctic -->
 		<entry><key ss="401" band="1"/><value name="Imager Visible" /></entry>
