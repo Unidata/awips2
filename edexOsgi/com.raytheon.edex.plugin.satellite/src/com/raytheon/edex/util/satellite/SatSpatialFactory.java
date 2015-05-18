@@ -47,6 +47,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * Sep 15, 2014  17303    jgerth      Support for second standard latitude
  * Nov 05, 2014  2714     bclement    replaced DecoderException with SatelliteDecoderException
  * Nov 05, 2014  3788     bsteffen    use getOrCreateCoverage in place of queryByMapId
+ * May 11, 2015           mjames	  South polar stereogrpahic support added.
  * 
  * 
  * </pre>
@@ -63,8 +64,6 @@ public class SatSpatialFactory {
 
     public static final int PROJ_POLAR = 5;
     
-    public static final int PROJ_POLAR_SOUTH = 6;
-
     public static final int PROJ_CYLIN_EQUIDISTANT = 7;
 
     public static final int UNDEFINED = -1;
