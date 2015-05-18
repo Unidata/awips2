@@ -71,6 +71,7 @@ import com.raytheon.uf.edex.plugin.satellite.mcidas.util.McidasSatelliteLookups.
  *                                      IDataRecord required by the SatelliteDao
  * 12/03/2013   DR 16841    D. Friedman Allow record overwrites
  * 09/18/2014   3627        mapeters    Updated deprecated method calls.
+ * 05/11/2015           	mjames	  	PS (south and north) stereogrpahic support added.
  * </pre>
  * 
  * @author

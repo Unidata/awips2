@@ -84,6 +84,10 @@ import com.raytheon.viz.satellite.tileset.SatDataRetriever;
 import com.raytheon.viz.satellite.tileset.SatTileSetRenderable;
 import com.vividsolutions.jts.geom.Coordinate;
 
+import gov.noaa.nws.ncep.viz.common.area.AreaName.AreaSource;
+import gov.noaa.nws.ncep.viz.common.area.IAreaProviderCapable;
+
+
 /**
  * Provides satellite raster rendering support
  * 
@@ -131,8 +135,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 public class SatResource extends
         AbstractPluginDataObjectResource<SatResourceData, IMapDescriptor>
-        implements ImageProvider, Interrogatable {
+        implements ImageProvider, Interrogatable, IAreaProviderCapable {
 
+	protected SatResourceData satRscData;
     /**
      * String id to look for satellite-provided data values
      * 
@@ -290,6 +295,7 @@ public class SatResource extends
      */
     public SatResource(SatResourceData data, LoadProperties props) {
         super(data, props);
+        satRscData = data;
         addDataObject(data.getRecords());
     }
 
@@ -646,6 +652,16 @@ public class SatResource extends
         }
 
         return result;
+    }
+    
+    @Override
+    public AreaSource getSourceProvider() {
+        return satRscData.getSourceProvider();
+    }
+
+    @Override
+    public String getAreaName() {
+        return satRscData.getAreaName();
     }
 
 }

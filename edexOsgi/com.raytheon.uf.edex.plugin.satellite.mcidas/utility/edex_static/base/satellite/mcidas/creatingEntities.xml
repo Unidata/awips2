@@ -21,7 +21,7 @@
 <!-- Source: http://www.ssec.wisc.edu/mcidas/doc/users_guide/current/app_c-1.html -->
 <creatingEntities>
 	<map>
-	  <entry><key>9</key><value>Global</value></entry>
+	  <entry><key>9</key><value>COMP</value></entry>
 	  <entry><key>10</key><value>SOUNDER</value></entry>
 	  <entry><key>12</key><value>GMS</value></entry>
 	  <entry><key>13</key><value>GMS</value></entry>
@@ -50,7 +50,7 @@
 	  <entry><key>180</key><value>GOES13</value></entry>
 	  <entry><key>184</key><value>GOES15</value></entry>
 	  <entry><key>185</key><value>SOUNDER</value></entry>
-	  <entry><key>401</key><value>ARCTIC</value></entry>
-	  <entry><key>72</key><value>ANTARCTICA</value></entry>
+	  <entry><key>401</key><value>COMP</value></entry>
+	  <entry><key>72</key><value>COMP</value></entry>
 	</map>
 </creatingEntities>
