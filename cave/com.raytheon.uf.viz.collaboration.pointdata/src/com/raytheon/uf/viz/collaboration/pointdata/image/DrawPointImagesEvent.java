@@ -25,9 +25,9 @@ import java.util.Set;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.viz.core.point.drawables.ext.IPointImageExtension.PointImage;
 import com.raytheon.uf.viz.remote.graphics.events.rendering.AbstractRemoteGraphicsRenderEvent;
 import com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent;
-import com.raytheon.viz.pointdata.drawables.IPointImageExtension.PointImage;
 
 /**
  * Event for drawing a set of point images

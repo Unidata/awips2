@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.grid.rsc;
+package com.raytheon.uf.viz.core.grid.rsc;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -36,6 +36,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
  * Date           Ticket#    Engineer    Description
  * ------------   ---------- ----------- --------------------------
  * July 18, 2008   #1280     S. Manoj     Initial creation
+ * May 14, 2015    4079      bsteffen     Move to core.grid
  * 
  * </pre>
  * 

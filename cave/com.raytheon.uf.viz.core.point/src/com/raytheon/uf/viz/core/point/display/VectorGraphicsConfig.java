@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.core.contours.util;
+package com.raytheon.uf.viz.core.point.display;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -59,6 +59,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Sep 23, 2013  2363     bsteffen    Initial creation
+ * May 14, 2015  4079     bsteffen    Move to core.point
  * 
  * </pre>
  * 

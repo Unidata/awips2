@@ -29,9 +29,9 @@ import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.numeric.source.DataSource;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.grid.rsc.data.GeneralGridData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.viz.grid.rsc.general.D2DGridResource;
-import com.raytheon.viz.grid.rsc.general.GeneralGridData;
 
 /**
  * TODO This whole class should be handled from style rules

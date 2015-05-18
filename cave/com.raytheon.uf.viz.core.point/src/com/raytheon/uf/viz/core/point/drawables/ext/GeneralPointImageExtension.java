@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.pointdata.drawables;
+package com.raytheon.uf.viz.core.point.drawables.ext;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,9 +41,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Dec 7, 2011            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Dec 07, 2011           bsteffen    Initial creation
+ * May 14, 2015  4079     bsteffen    Move to core.point
  * 
  * </pre>
  * 

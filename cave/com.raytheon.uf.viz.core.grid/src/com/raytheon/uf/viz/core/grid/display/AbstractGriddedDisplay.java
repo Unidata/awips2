@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.core.contours.rsc.displays;
+package com.raytheon.uf.viz.core.grid.display;
 
 import java.awt.Rectangle;
 import java.util.ArrayList;
@@ -65,6 +65,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                    mercator maps.
  * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
  * Feb 27, 2014  2791     bsteffen    Remove Unnecessary throws
+ * May 14, 2015  4079     bsteffen    Move to core.grid
  * 
  * </pre>
  * 
@@ -150,7 +151,7 @@ public abstract class AbstractGriddedDisplay<T> implements IRenderable {
     }
 
     private void initPlotLocations() {
-        plotLocations = PlotLocationCache.getInstance().getPlotLocations(
+        plotLocations = GridCellLocationCache.getInstance().getPlotLocations(
                 GridGeometry2D.wrap(gridGeometryOfGrid),
                 GridGeometry2D.wrap(descriptor.getGridGeometry()));
 

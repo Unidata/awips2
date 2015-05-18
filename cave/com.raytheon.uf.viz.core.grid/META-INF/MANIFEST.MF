@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Geolocated Grid Data Displays
+Bundle-SymbolicName: com.raytheon.uf.viz.core.grid
+Bundle-Version: 1.15.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.15.0",
+ org.eclipse.core.runtime;bundle-version="3.8.0",
+ org.eclipse.ui;bundle-version="3.8.2",
+ com.raytheon.uf.common.geospatial;bundle-version="1.14.2",
+ com.raytheon.uf.common.dataplugin;bundle-version="1.14.0",
+ com.raytheon.uf.common.numeric;bundle-version="1.14.0",
+ com.raytheon.uf.common.style;bundle-version="1.15.0",
+ com.raytheon.viz.core.contours;bundle-version="1.15.1",
+ com.raytheon.uf.common.colormap;bundle-version="1.15.0",
+ javax.measure;bundle-version="1.0.0",
+ com.raytheon.uf.viz.core.point;bundle-version="1.0.0"
+Export-Package: com.raytheon.uf.viz.core.grid.display,
+ com.raytheon.uf.viz.core.grid.rsc,
+ com.raytheon.uf.viz.core.grid.rsc.data

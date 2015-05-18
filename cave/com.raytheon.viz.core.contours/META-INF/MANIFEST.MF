@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Contour Generation and Display
 Bundle-SymbolicName: com.raytheon.viz.core.contours
-Bundle-Version: 1.15.1.qualifier
+Bundle-Version: 1.15.2.qualifier
 Bundle-Vendor: Raytheon
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy

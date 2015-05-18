@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.grid.rsc.general;
+package com.raytheon.uf.viz.core.grid.rsc.data;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -46,6 +46,7 @@ import org.eclipse.core.runtime.jobs.Job;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Oct 29, 2014  3668     bsteffen    Initial creation
+ * May 14, 2015  4079     bsteffen    Move to core.grid
  * 
  * </pre>
  * 

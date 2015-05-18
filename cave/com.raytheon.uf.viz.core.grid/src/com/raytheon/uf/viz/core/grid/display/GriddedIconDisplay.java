@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.grid.rsc;
+package com.raytheon.uf.viz.core.grid.display;
 
 import java.awt.image.RenderedImage;
 import java.util.ArrayList;
@@ -35,10 +35,9 @@ import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
-import com.raytheon.viz.core.contours.rsc.displays.AbstractGriddedDisplay;
-import com.raytheon.viz.pointdata.PointIconFactory;
-import com.raytheon.viz.pointdata.drawables.IPointImageExtension;
-import com.raytheon.viz.pointdata.drawables.IPointImageExtension.PointImage;
+import com.raytheon.uf.viz.core.point.display.PointIconFactory;
+import com.raytheon.uf.viz.core.point.drawables.ext.IPointImageExtension;
+import com.raytheon.uf.viz.core.point.drawables.ext.IPointImageExtension.PointImage;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -56,7 +55,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
  * Feb 28, 2013  2791     bsteffen    Use DataSource for data, custom callback
  *                                    for image.
- * 
+ * May 14, 2015  4079     bsteffen    Move to core.grid
  * 
  * </pre>
  * 

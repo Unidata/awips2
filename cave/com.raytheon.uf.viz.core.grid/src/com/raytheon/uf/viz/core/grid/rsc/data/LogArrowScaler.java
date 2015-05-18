@@ -17,10 +17,10 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.grid.rsc.general;
+package com.raytheon.uf.viz.core.grid.rsc.data;
 
-import com.raytheon.viz.core.contours.util.VectorGraphicsConfig;
-import com.raytheon.viz.core.contours.util.VectorGraphicsConfig.IArrowScaler;
+import com.raytheon.uf.viz.core.point.display.VectorGraphicsConfig;
+import com.raytheon.uf.viz.core.point.display.VectorGraphicsConfig.IArrowScaler;
 
 /**
  * 
@@ -33,6 +33,7 @@ import com.raytheon.viz.core.contours.util.VectorGraphicsConfig.IArrowScaler;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Sep 23, 2013  2363     bsteffen    Initial creation
+ * May 14, 2015  4079     bsteffen    Move to core.grid
  * 
  * </pre>
  * 

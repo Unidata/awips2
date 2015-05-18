@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.grid.rsc.general;
+package com.raytheon.uf.viz.core.grid.rsc.data;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -29,6 +29,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.grid.rsc.AbstractGridResource;
 
 /**
  * 
@@ -47,6 +48,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Oct 07, 2014 3668       bclement    uses executor instead of eclipse job
  *                                      renamed to GridDataRequestRunner
  * Oct 29, 2014 3668       bsteffen    replace executor with custom job pool.
+ * May 14, 2015 4079       bsteffen    Move to core.grid
  * 
  * </pre>
  * 
@@ -54,7 +56,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * @version 1.0
  * @see GridDataRequestJobPool
  */
-class GridDataRequestRunner {
+public class GridDataRequestRunner {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GridDataRequestRunner.class);

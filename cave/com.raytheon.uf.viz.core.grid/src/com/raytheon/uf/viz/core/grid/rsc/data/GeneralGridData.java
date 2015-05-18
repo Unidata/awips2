@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.grid.rsc.general;
+package com.raytheon.uf.viz.core.grid.rsc.data;
 
 import java.awt.geom.Rectangle2D;
 import java.nio.FloatBuffer;
@@ -75,6 +75,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                    backed heap buffers.
  * Feb 28, 2013  2791     bsteffen    Use DataSource instead of FloatBuffers
  *                                    for data access
+ * May 14, 2015  4079     bsteffen    Move to core.grid
  * 
  * </pre>
  * 

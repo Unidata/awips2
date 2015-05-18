@@ -24,12 +24,12 @@ import javax.xml.bind.annotation.XmlAccessorType;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.grid.rsc.GridLoadProperties;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.xy.varheight.adapter.AbstractVarHeightAdapter;
 import com.raytheon.uf.viz.xy.varheight.rsc.VarHeightResourceData;
-import com.raytheon.viz.grid.rsc.GridLoadProperties;
 
 /**
  * Resource data for time height resources
