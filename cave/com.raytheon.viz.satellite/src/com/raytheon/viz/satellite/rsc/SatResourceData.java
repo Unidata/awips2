@@ -215,7 +215,8 @@ public class SatResourceData extends AbstractRequestableResourceData
 	}
 
 	public String getAreaName() {
-		return metadataMap.get("creatingEntity").getConstraintValue()+"/"+metadataMap.get("sectorID").getConstraintValue();
+		//return metadataMap.get("creatingEntity").getConstraintValue()+"/"+metadataMap.get("sectorID").getConstraintValue();
+		return "SAT/"+metadataMap.get("sectorID").getConstraintValue();
 	}
 
 }
