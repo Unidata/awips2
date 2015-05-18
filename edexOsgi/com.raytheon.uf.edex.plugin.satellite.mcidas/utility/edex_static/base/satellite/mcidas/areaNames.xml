@@ -2,9 +2,9 @@
 <areaNames>
 <map>
 	<entry><key>7101</key><value>Arctic</value></entry>
-	<entry><key>1000</key><value>Antarctica</value></entry>
-	<entry><key>2000</key><value>Antarctica</value></entry>
-	<entry><key>3000</key><value>Antarctica</value></entry>
+	<entry><key>1000</key><value>Antarctic</value></entry>
+	<entry><key>2000</key><value>Antarctic</value></entry>
+	<entry><key>3000</key><value>Antarctic</value></entry>
 	<entry><key>10</key><value>GOES-Sounder</value></entry>
 	<entry><key>11</key><value>GOES-Sounder</value></entry>
 	<entry><key>12</key><value>GOES-Sounder</value></entry>
