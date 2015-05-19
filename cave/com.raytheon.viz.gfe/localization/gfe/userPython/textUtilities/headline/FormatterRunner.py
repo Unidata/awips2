@@ -26,7 +26,6 @@ import JUtil, VarDictGroker
 import RedirectLogging
 import UFStatusHandler
 
-from java.io import File
 #
 # Runs the text formatter to generate text products
 #   
@@ -38,7 +37,12 @@ from java.io import File
 #    ------------    ----------    -----------    --------------------------
 #    05/29/08                      njensen       Initial Creation.
 #    12/10/14        #14946        ryu           Add getTimeZones() function.
+#    04/16/15        #14946        ryu           Fix getTimeZones to return the office TZ if timezone
+#                                                is not set for any zone in a segment.
 #    04/20/2015      #4027         randerso      Fixes for formatter autotests
+#    05/06/2015      #4467         randerso      Convert to upper case before writing to files if
+#                                                mixed case is not enabled for the product.
+#                                                Cleaned up file writing code
 # 
 #
 
@@ -103,6 +107,33 @@ def executeFromJava(databaseID, site, username, dataMgr, forecastList, logFile, 
     RedirectLogging.restore()
     return forecasts
     
+def getPid(forecast):
+    # taken from ProductParser.py
+    import re
+    
+    sl = r'^'                            # start of line
+    el = r'\s*?\n'                       # end of line
+    id3 = r'[A-Za-z]{3}'                 # 3 charater word
+    empty = r'^\s*' + el                 # empty line
+    
+    wmoid = r'(?P<wmoid>[A-Z]{4}\d{2})' # wmoid
+    fsid  = r'(?P<fsid>[A-Z]{4})'       # full station id
+    pit   = r'(?P<pit>\d{6})'           # product issuance time UTC
+    ff    = r'(?P<funnyfield> ' + id3 + ')?'          # "funny" field
+    
+    # CI block
+    ci_start = sl + wmoid + ' ' + fsid + ' ' + pit + ff + el
+    awipsid = r'(?P<pil>(?P<cat>[A-Z0-9]{3})(?P<lid>[A-Z0-9]{1,3}))' + el
+    ci_block = r'(?P<ciblock>' + ci_start + awipsid + '\n?)' 
+    
+    ci_re = re.compile(ci_block)
+
+    pid = None
+    m = ci_re.search(forecast)
+    if m is not None:
+        pid = m.group('cat')
+
+    return pid
 
 def runFormatter(databaseID, site, forecastList, cmdLineVarDict, vtecMode,
                     username, dataMgr, serverFile=None,
@@ -232,16 +263,31 @@ def runFormatter(databaseID, site, forecastList, cmdLineVarDict, vtecMode,
 
     # For each Forecast Type,
     #   Create generate forecast
-    forecasts = ""
+    forecasts = ""      # returned value
+    outForecasts = ""   # written to output files
     for forecastType in forecastList:           
         forecast = formatter.getForecast(forecastType, argDict)        
         forecasts = forecasts + forecast
+        
+        # Convert data written to files to upper case if required
+        mixedCase = False
+        pid = getPid(forecast)
+        if pid is None:
+            logger.warning("Unable to determine PID: defaulting to upper case")
+        else:
+            from com.raytheon.uf.common.dataplugin.text.db import MixedCaseProductSupport
+            mixedCase = MixedCaseProductSupport.isMixedCase(pid)
+        
+        if mixedCase:
+            outForecasts = outForecasts + forecast
+        else:
+            outForecasts = outForecasts + forecast.upper()
 
     logger.info("Text:\n" + str(forecasts))
     
     try:
         outputFile = argDict["outputFile"]
-        success = writeToFile(forecasts, outputFile, "w")
+        success = writeToFile(outForecasts, outputFile, "w")
         if success == 0:
             print "Couldn't open output file", outputFile
             logger.error("Couldn't open output file: ", outputFile)
@@ -251,7 +297,7 @@ def runFormatter(databaseID, site, forecastList, cmdLineVarDict, vtecMode,
 
     try:
         outputFile = argDict["serverOutputFile"]
-        success = writeToFile(forecasts, outputFile, "w")
+        success = writeToFile(outForecasts, outputFile, "w")
         if success == 0:
             print "Couldn't open output file", outputFile
             logger.error("Couldn't open output file: ", outputFile)
@@ -262,7 +308,7 @@ def runFormatter(databaseID, site, forecastList, cmdLineVarDict, vtecMode,
 
     try:
         appendFile = argDict["appendFile"]
-        success = writeToFile(forecasts, appendFile, "a")
+        success = writeToFile(outForecasts, appendFile, "a")
         if success == 0:
             print "Couldn't open append file", appendFile
             logger.error("Couldn't write to append file: ", appendFile)
@@ -273,7 +319,7 @@ def runFormatter(databaseID, site, forecastList, cmdLineVarDict, vtecMode,
     try:
         serverFile = argDict["serverFile"]
         writeToSite = (username == "SITE")
-        success = writeToServerFile(forecasts, serverFile, writeToSite)
+        success = writeToServerFile(outForecasts, serverFile, writeToSite)
         if success == 0:
             print "Couldn't open server output file", serverFile
             logger.error("Couldn't open server output file: ", serverFile)
@@ -281,6 +327,8 @@ def runFormatter(databaseID, site, forecastList, cmdLineVarDict, vtecMode,
     except:
         pass
 
+    del outForecasts
+    
     # Remove any lat/lon areas created temporarily
     #global LatLonIds
     #argDict["ifpClient"].deleteReferenceData(LatLonIds)
@@ -307,29 +355,37 @@ def getAbsTime(timeStr):
     return AbsTime.absTimeYMD(year, month, day, hour, minute)
     
 def writeToFile(forecasts, outputFile, mode):
-    if not outputFile is None and outputFile != "":
-        outfile = open(outputFile, mode)
-        os.chmod(outputFile, 0644)
-        if outfile is None:
+    if outputFile:
+        logger.info("Writing forecast to " + outputFile)
+        try:
+            with open(outputFile, mode) as outfile:
+                outfile.write(forecasts)
+                
+            os.chmod(outputFile, 0644)
+        except:
+            logger.exception("Error writing forecast to "+outputFile)
             return 0
-        else:
-            outfile.write(forecasts)
-            outfile.close()
     return 1
 
 def writeToServerFile(forecasts, outputFile, writeToSite):
-    if not outputFile is None and outputFile != "":
-        if writeToSite:
-            ctx = PATH_MGR.getContext(LocalizationType.COMMON_STATIC, LocalizationLevel.SITE)
-        else:
-            ctx = PATH_MGR.getContext(LocalizationType.COMMON_STATIC, LocalizationLevel.USER)
-        filePath = File.separatorChar.join(["gfe", "text", "PRODGEN", outputFile + ".PRODGEN"])
-        lFile = PATH_MGR.getLocalizationFile(ctx, filePath)
-        javaFile = lFile.getFile()        
-        outfile = open(javaFile.getAbsolutePath(), 'w')
-        outfile.write(forecasts)
-        outfile.close()
-        return lFile.save()
+    if outputFile:
+        try:
+            if writeToSite:
+                ctx = PATH_MGR.getContext(LocalizationType.COMMON_STATIC, LocalizationLevel.SITE)
+            else:
+                ctx = PATH_MGR.getContext(LocalizationType.COMMON_STATIC, LocalizationLevel.USER)
+            filePath = PATH_MGR.SEPARATOR.join(["gfe", "text", "PRODGEN", outputFile + ".PRODGEN"])
+            lFile = PATH_MGR.getLocalizationFile(ctx, filePath)
+            logger.info("Writing forecast to " + str(lFile))
+    
+            from LockingFile import File
+            with File(lFile.getFile(), "", 'w') as outfile:
+                outfile.write(forecasts)
+    
+            return lFile.save()
+        except:
+            logger.exception("Error writing forecast to " + str(lFile))
+            return 0
     return 1
 
 def getScripts(paths, nameMap, definitionMap):
@@ -441,19 +497,18 @@ def getTimeZones(zones, officeTZ):
     timezones = []
     if zones is not None:
         for zone in JUtil.javaStringListToPylist(zones):
-            area_dict = AreaDictionary.AreaDictionary.get(zone)
-            if area_dict is None:
-                continue
-            tzs = area_dict.get("ugcTimeZone")
-            if tzs is not None:
-                if type(tzs) is str:
-                    tzs = [tzs]
-                for tz in tzs:
-                    if tz not in timezones:
-                        timezones.append(tz)
+            zdict = AreaDictionary.AreaDictionary.get(zone, {})
+            tzs = zdict.get("ugcTimeZone", [])
+            if type(tzs) is str:
+                tzs = [tzs]
+            for tz in tzs:
+                if tz not in timezones:
+                    timezones.append(tz)
     if officeTZ in timezones and officeTZ != timezones[0]:
         timezones.remove(officeTZ)
         timezones.insert(0, officeTZ)
+    if len(timezones) == 0:
+        timezones.append(officeTZ)
     return JUtil.pylistToJavaStringList(timezones)
 
 def reloadModule(moduleName):

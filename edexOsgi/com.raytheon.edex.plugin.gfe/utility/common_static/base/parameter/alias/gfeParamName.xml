@@ -333,6 +333,7 @@
     <alias base="tp6c6">tp6c6</alias>
     <alias base="tp6c7">tp6c7</alias>
     <alias base="tp6c8">tp6c8</alias>
+    <alias base="TCCerranl">tccerranl</alias>
     <alias base="TP6mean">tpmean6</alias>
     <alias base="TP6sprd">tpsprd6</alias>
     <alias base="TP-ECMWF">tpecmwf</alias>

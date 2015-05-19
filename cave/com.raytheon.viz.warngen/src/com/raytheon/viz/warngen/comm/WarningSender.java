@@ -35,7 +35,9 @@ import javax.jms.Session;
 
 import com.raytheon.uf.common.dataplugin.text.request.InsertStdTextProductRequest;
 import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.comm.JMSConnection;
@@ -60,6 +62,7 @@ import com.raytheon.viz.texteditor.util.SiteAbbreviationUtil;
  * 02Aug2010    2187       cjeanbap    Update variable/method signature to be consistent.
  * 04Oct2010    7193       cjeanbap    Add time-to-live value to MessageProducer.
  * Sep 13, 2013 2368       rjpeter     Set delivery mode to PERSISTENT.
+ * May  7, 2015 ASM #17438 D. Friedman Clean up debug and performance logging.
  * </pre>
  * 
  * @author mschenke
@@ -69,6 +72,9 @@ import com.raytheon.viz.texteditor.util.SiteAbbreviationUtil;
 public class WarningSender implements IWarngenObserver {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(WarningSender.class);
+
+    private static final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("WG:");
 
     private final String hostName = null;
 
@@ -105,8 +111,8 @@ public class WarningSender implements IWarngenObserver {
         long t0 = System.currentTimeMillis();
         String siteNode = SiteAbbreviationUtil.getSiteNode(LocalizationManager
                 .getInstance().getCurrentSite());
-        statusHandler.debug("Get site node time: "
-                + (System.currentTimeMillis() - t0));
+        perfLog.logDuration("Get site node time",
+                System.currentTimeMillis() - t0);
         if (host == null) {
             statusHandler.handle(Priority.ERROR,
                     "Text Workstation host not set in preferences.");
@@ -144,7 +150,7 @@ public class WarningSender implements IWarngenObserver {
                     m.setJMSDeliveryMode(DeliveryMode.PERSISTENT);
                     mp.send(m);
                     long t1 = System.currentTimeMillis();
-                    statusHandler.debug(id + " sent to text workstation in "
+                    perfLog.log(id + " sent to text workstation in "
                             + (t1 - t0) + "ms in " + (connectCount + 1)
                             + (connectCount > 0 ? " tries" : " try"));
                     messageNotSent = false;
@@ -260,8 +266,8 @@ public class WarningSender implements IWarngenObserver {
         ThriftClient.sendRequest(new InsertStdTextProductRequest(id, warning,
                 operationalMode));
 
-        statusHandler.debug(id + " saved to textdb in "
-                + (System.currentTimeMillis() - t0) + "ms");
+        perfLog.logDuration(id + " save to textdb",
+                System.currentTimeMillis() - t0);
     }
 
     public static String getCurTimeString() {
