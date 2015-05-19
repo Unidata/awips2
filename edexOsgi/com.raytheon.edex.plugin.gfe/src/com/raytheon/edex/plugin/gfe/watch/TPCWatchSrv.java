@@ -197,9 +197,9 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
         // if we are not in practice mode
         if (!practiceMode) {
 
-            // if xxxId ends with a digit (i.e. its a national TCV)
+            // if xxxId does NOT end with a digit (i.e. its NOT a national TCV)
             String xxxId = record.getXxxid();
-            if (Character.isDigit(xxxId.charAt(xxxId.length() - 1))) {
+            if (!Character.isDigit(xxxId.charAt(xxxId.length() - 1))) {
 
                 // build the full 9-letter PIL
                 String fullPil = SiteMap.getInstance().mapICAOToCCC(
