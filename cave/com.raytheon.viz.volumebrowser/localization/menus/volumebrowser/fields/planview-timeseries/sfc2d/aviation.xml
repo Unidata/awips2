@@ -19,7 +19,10 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <contribute xsi:type="menuItem" menuText="Cloud Cover" key="CCP" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="Cloud Cover Anl Uncertainty" key="CCPerranl" indentText="false" />
         <contribute xsi:type="menuItem" menuText="Visibility" key="Vis" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="Visibility Anl Uncertainty" key="Viserranl" indentText="false" />
 		<contribute xsi:type="menuItem" menuText="Turbulence" key="TURB" indentText="false" />
 		<contribute xsi:type="menuItem" menuText="Turbulence Index" key="TPFI" indentText="false" />
 		<contribute xsi:type="menuItem" menuText="Icing Probability" key="ICPRB" indentText="false" />

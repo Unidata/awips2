@@ -77,12 +77,12 @@
     </info>
     <info>
         <title>GFS20-PAC</title>
-        <dataset>GFS-PAC-20KM</dataset>
+        <datasetId>GFS-PAC-20KM</datasetId>
         <dt>3</dt>
     </info>
     <info>
         <title>GFS20-PRICO</title>
-        <dataset>GFS-PRICO-20KM</dataset>
+        <datasetId>GFS-PRICO-20KM</datasetId>
         <dt>3</dt>
     </info>
     <info>
