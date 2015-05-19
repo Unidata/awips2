@@ -23,3 +23,6 @@ Require-Bundle: com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
  com.raytheon.uf.edex.database;bundle-version="1.0.0",
  com.raytheon.uf.edex.menus;bundle-version="1.0.0",
  com.raytheon.uf.common.numeric;bundle-version="1.14.0"
+Import-Package: gov.noaa.nws.ncep.common.tools,
+ gov.noaa.nws.ncep.edex.util,
+ org.apache.commons.codec.binary
