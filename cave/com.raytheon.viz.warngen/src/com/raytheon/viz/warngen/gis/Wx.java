@@ -64,7 +64,9 @@ import com.raytheon.uf.common.geospatial.ISpatialQuery.SearchMode;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
 import com.raytheon.uf.common.geospatial.SpatialQueryResult;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -118,6 +120,7 @@ import com.vividsolutions.jts.geom.Point;
  *    Dec  4, 2013 2604       jsanchez    Refactored GisUtil.
  *    Apr 29, 2014 3033       jsanchez    Updated method to retrieve files in localization.
  *    Jun 17, 2014 DR 17390   Qinglu Lin  Updated getClosestPoints().
+ *    May  7, 2015 ASM #17438 D. Friedman Clean up debug and performance logging.
  * </pre>
  * 
  * @author chammack
@@ -126,6 +129,9 @@ import com.vividsolutions.jts.geom.Point;
 public class Wx {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(Wx.class);
+
+    private static final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("WG:");
 
     private long wwaStopTime;
 
@@ -531,8 +537,8 @@ public class Wx {
                 pathcasts.remove(pathcasts.size() - 1);
             }
 
-            System.out.println("Time to get pathcast = "
-                    + (System.currentTimeMillis() - t0) + "ms");
+            perfLog.logDuration("Get pathcast",
+                    System.currentTimeMillis() - t0);
             return pathcasts.toArray(new PathCast[pathcasts.size()]);
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
@@ -608,8 +614,8 @@ public class Wx {
                                 + variable + "'", t);
             }
         }
-        System.out.println("Time to get closestPoints = "
-                + (System.currentTimeMillis() - t0) + "ms");
+        perfLog.logDuration("Get closestPoints",
+                System.currentTimeMillis() - t0);
         return pointsMap;
     }
 
@@ -729,8 +735,8 @@ public class Wx {
                         localizedSite));
             }
             long t1 = System.currentTimeMillis();
-            System.out.println("getClosestPoint.dbQuery took " + (t1 - t0)
-                    + " for point source " + pointConfig.getPointSource());
+            perfLog.logDuration("getClosestPoints.dbQuery for point source "
+                    + pointConfig.getPointSource(), t1 - t0);
         }
 
         // Convert searchArea to a local projection
