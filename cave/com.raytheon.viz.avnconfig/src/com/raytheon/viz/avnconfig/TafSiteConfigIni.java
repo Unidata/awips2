@@ -66,7 +66,7 @@ import com.raytheon.viz.avnconfig.AvnConfigConstants.triggerType;
  * Apr 08, 2011 8856       rferrel     Can now make a new station's templates
  * May 24, 2011 9060       rferrel     Limit downloading of localization files.
  * Aug 09, 2013 2033       mschenke    Switched File.separator to IPathManager.SEPARATOR
- * May 04, 2015 17417      yteng       Get all sites from product 
+ * May 19, 2015 17417      yteng       Get all sites from product 
  * 
  * </pre>
  * 
@@ -303,7 +303,7 @@ public class TafSiteConfigIni implements ITafSiteConfig {
             String[] sites = config.getStringArray("sites.idents");
             if (sites != null && sites.length > 0) {
                 for (String site : sites) {
-                    siteList.add(site);
+                    siteList.add(site.trim());
                 }
             }
         }
