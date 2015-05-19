@@ -80,7 +80,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * Apr 11, 2014  2947     bsteffen    Fix equals
  * Oct 16, 2014  3454     bphillip    Upgrading to Hibernate 4
  * Nov 05, 2014  3788     bsteffen    Make gid a sequence instead of a hash.
- * 
+ * May 19, 2015			  mjames@ucar Added decoding of GVAR native projection products,
+ * 								      increased crsWKT to 5120 for GVAR the_geom
  * </pre>
  */
 @Entity
@@ -92,6 +93,8 @@ import com.vividsolutions.jts.geom.Polygon;
 public class SatMapCoverage extends PersistableDataObject<Object> implements
         IGridGeometryProvider {
 
+    public static final int PROJ_GVAR = 7585;
+
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -102,7 +105,8 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
 
     /**
      * The projection of the map coverage 1=Mercator, 3=Lambert Conformal
-     * 5=Polar Stereographic
+     * 5=Polar Stereographic, 7585 = native satellite navigation e.g.
+     * GVAR, ...
      * 
      * @deprecated This field is only useful for GINI satellite format decoding
      *             and should not be in the coverage object
@@ -110,7 +114,6 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
     @Column
     @XmlAttribute
     @DynamicSerializeElement
-    @Deprecated
     private Integer projection;
 
     /** Minimum x coordinate in crs space */
@@ -149,11 +152,11 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
     @DynamicSerializeElement
     private double dy;
 
-    @Column(length = 2047)
+    @Column(length = 5120)
     @XmlAttribute
     @DynamicSerializeElement
     private String crsWKT;
-
+  
     @Transient
     private CoordinateReferenceSystem crsObject;
 
@@ -316,7 +319,7 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
     public void setDy(double dy) {
         this.dy = dy;
     }
-
+    
     public String getCrsWKT() {
         if (crsWKT == null && crsObject != null) {
             crsWKT = crsObject.toWKT();
@@ -379,12 +382,19 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
 
     @Override
     public GridGeometry2D getGridGeometry() {
-        GridEnvelope gridRange = new GridEnvelope2D(0, 0, getNx(), getNy());
-        Envelope crsRange = new Envelope2D(getCrs(), new Rectangle2D.Double(
-                minX, minY, getNx() * getDx(), getNy() * getDy()));
+    	GridEnvelope gridRange;
+        Envelope crsRange;
+
+            int nx = getNx();
+            int ny = getNy();
+            gridRange = new GridEnvelope2D(0, 0, getNx(), getNy());
+            crsRange = new Envelope2D(getCrs(), new Rectangle2D.Double(
+                    minX, minY, getNx() * getDx(), getNy() * getDy()));
+
+
         return new GridGeometry2D(gridRange, crsRange);
     }
-
+    
     @Override
     public int hashCode() {
         HashCodeBuilder builder = new HashCodeBuilder();
