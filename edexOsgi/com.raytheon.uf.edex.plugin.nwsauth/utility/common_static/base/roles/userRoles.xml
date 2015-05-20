@@ -53,6 +53,9 @@
    <permission id="com.raytheon.localization.site/cave_static/gfe/comboData">
    </permission>
 
+   <permission id="com.raytheon.localization.site/cave_static/gfe/tcvAdvisories">
+   </permission>
+
    <permission id="com.raytheon.localization.site/cave_static/gfe">
    </permission>
 
@@ -113,6 +116,7 @@
       <userPermission>com.raytheon.localization.site/common_static/hydro</userPermission>
       <userPermission>com.raytheon.localization.site/common_static/gfe</userPermission>
       <userPermission>com.raytheon.localization.site/cave_static/gfe/comboData</userPermission>
+      <userPermission>com.raytheon.localization.site/cave_static/gfe/tcvAdvisories</userPermission>
       <userPermission>com.raytheon.localization.site/cave_static/gfe</userPermission>
       <userPermission>com.raytheon.localization.site/common_static/isc</userPermission>
       <userPermission>com.raytheon.localization.user/common_static/gfe</userPermission>
