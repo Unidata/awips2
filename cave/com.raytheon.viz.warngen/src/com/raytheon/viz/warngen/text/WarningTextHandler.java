@@ -23,6 +23,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.viz.warngen.gis.AffectedAreas;
 
 /**
@@ -36,6 +38,7 @@ import com.raytheon.viz.warngen.gis.AffectedAreas;
  * ------------ ---------- ----------- --------------------------
  * Sep 24, 2012    15322   jsanchez     Initial creation
  * Jan  8, 2013    15664   Qinglu Lin   Appended WarningAction to handle()'s parameter list, etc. 
+ * May  7, 2015 ASM #17438 D. Friedman  Clean up debug and performance logging.
  * 
  * </pre>
  * 
@@ -43,6 +46,8 @@ import com.raytheon.viz.warngen.gis.AffectedAreas;
  * @version 1.0
  */
 public class WarningTextHandler {
+    private static final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("WG:");
 
     private AbstractLockingBehavior lockingBehavior;
 
@@ -69,8 +74,8 @@ public class WarningTextHandler {
 
         text = clean(text);
 
-        System.out.println("Time to handle the text: "
-                + (System.currentTimeMillis() - t0));
+        perfLog.logDuration("Handle the text",
+                System.currentTimeMillis() - t0);
         return text;
     }
 

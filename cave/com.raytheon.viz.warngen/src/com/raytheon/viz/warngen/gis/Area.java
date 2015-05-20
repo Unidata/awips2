@@ -44,7 +44,9 @@ import com.raytheon.uf.common.geospatial.ISpatialQuery.SearchMode;
 import com.raytheon.uf.common.geospatial.SpatialException;
 import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
 import com.raytheon.uf.common.geospatial.SpatialQueryResult;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -87,6 +89,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometry;
  *    Sep 14, 2014 ASM #641    dhuffman    Filtered out cases where Areas do not match Zones by using
  *                                         refactored WarngenLayer::filterArea.
  *    Mar  9, 2014 ASM #17190  D. Friedman Use fipsField and areaField for unique area ID.
+ *    May  7, 2015 ASM #17438  D. Friedman Clean up debug and performance logging.
  * </pre>
  * 
  * @author chammack
@@ -95,6 +98,9 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 public class Area {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(Area.class);
+
+    private static final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("WG:");
 
     /**
      * If an area greater than this percentage of the area is covered, no
@@ -167,6 +173,7 @@ public class Area {
 
         // Query for points within polygon
         SpatialQueryResult[] ptFeatures = null;
+        long t0 = System.currentTimeMillis();
         if (pointField != null) {
             try {
                 ptFeatures = SpatialQueryFactory.create().query(pointSource,
@@ -177,6 +184,8 @@ public class Area {
                         e);
             }
         }
+        perfLog.logDuration("affected areas '" + areaConfig.getVariable()
+                + "' spatial query", System.currentTimeMillis() - t0);
 
         Abbreviation abbreviation = null;
 
@@ -194,6 +203,7 @@ public class Area {
 
         List<String> uniqueAreaIDs = new ArrayList<String>();
         List<AffectedAreas> areas = new ArrayList<AffectedAreas>();
+        long t0f = System.currentTimeMillis();
         for (GeospatialData regionFeature : countyMap.values()) {
             Geometry regionGeom = regionFeature.geometry;
             PreparedGeometry preparedRegionGeom = regionFeature.prepGeom;
@@ -284,6 +294,8 @@ public class Area {
                 areas.add(area);
             }
         }
+        perfLog.logDuration("affected areas '" + areaConfig.getVariable()
+                + "' features", System.currentTimeMillis() - t0f);
 
         // Perform Sort
         if (fields.size() > 0) {

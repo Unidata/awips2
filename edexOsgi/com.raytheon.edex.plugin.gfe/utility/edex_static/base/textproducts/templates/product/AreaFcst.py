@@ -17,6 +17,14 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+#
+# SOFTWARE HISTORY
+# Date            Ticket#        Engineer    Description
+# ------------    ----------     ----------- --------------------------
+# May 01, 2015    17421          ryu         Changed analysis methods for StormTotalSnow
+#
+##
+
 #-------------------------------------------------------------------------
 # Description: This product creates a ZFP-type series of text phrases 
 # for consecutive time periods for a list of edit areas. It can be 
@@ -475,7 +483,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             ("PoP", self._PoP_analysisMethod("Period_1"), [3]),
             ("PoP", self.binnedPercent, [3]),
             ("SnowAmt", self.accumMinMax),
-            ("StormTotalSnow", self.accumMinMax),
+            ("StormTotalSnow", self.minMax),
             ("IceAccum", self.accumMinMax),
             ("SnowLevel", self.avg),
             ("Wind", self.vectorMedianRange, [6]),
@@ -564,7 +572,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                        ("PoP", self._PoP_analysisMethod("Period_2_3"), [6]),
                        ("PoP", self.binnedPercent, [6]),
                        ("SnowAmt", self.accumMinMax),
-                       ("StormTotalSnow", self.accumMinMax),
+                       ("StormTotalSnow", self.minMax),
                        ("IceAccum", self.accumMinMax),
                        ("SnowLevel", self.avg),
                        ("Wind", self.vectorMedianRange, [6]),
@@ -791,7 +799,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                        ("PoP", self._PoP_analysisMethod("FirstFcstPeriod"), [6]),
                        ("PoP", self.binnedPercent, [6]),
                        ("SnowAmt", self.accumMinMax),
-                       ("StormTotalSnow", self.accumMinMax),
+                       ("StormTotalSnow", self.minMax),
                        ("IceAccum", self.accumMinMax),
                        ("SnowLevel", self.avg),
                        ("Wind", self.vectorMedianRange, [6]),
@@ -852,7 +860,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                        ("PoP", self._PoP_analysisMethod("AreaFcstPeriod"), [6]),
                        ("PoP", self.binnedPercent, [6]),
                        ("SnowAmt", self.accumMinMax),
-                       ("StormTotalSnow", self.accumMinMax),
+                       ("StormTotalSnow", self.minMax),
                        ("IceAccum", self.accumMinMax),
                        ("SnowLevel", self.avg),
                        ("Wind", self.vectorMedianRange, [6]),
@@ -1172,11 +1180,13 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         issuedByString = self.getIssuedByString()
 
         s = self._wmoID + " " + self._fullStationID + " " + \
-               self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
-               productName + "\n" +\
+               self._ddhhmmTime + "\n" + self._pil + "\n\n"
+        fcst = fcst + s.upper()               
+                
+        s = productName + "\n" +\
                "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
-        fcst =  fcst + s.upper()
+        fcst =  fcst + s
 
         # The following lines insert a statement
         # at the top of the forecast that describes the time periods
@@ -1283,29 +1293,29 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         # period1 label, period1 lateNight lateDay phrase, todayFlag, narrative definition)
         return [
             ("Morning", self.DAY(), self.NIGHT(), 16,
-             ".Today...", "early in the morning", "late in the afternoon",
+             ".TODAY...", "early in the morning", "late in the afternoon",
              1, narrativeDefAM), 
             ("Morning with Pre-1st Period", self.DAY()-2, self.NIGHT(), 16,
-             ".Today...", "early in the morning", "late in the afternoon",
+             ".TODAY...", "early in the morning", "late in the afternoon",
              1, narrativeDefAM), 
             ("Morning Update", "issuanceHour", self.NIGHT(), 16,
-             ".Rest of Today...", "early in the morning", "late in the afternoon",
+             ".REST OF TODAY...", "early in the morning", "late in the afternoon",
              1, narrativeDefAM), 
             ("Afternoon Update", "issuanceHour", self.NIGHT(), 16,
-             ".Rest of Today...", "early in the morning","late in the afternoon",
+             ".REST OF TODAY...", "early in the morning","late in the afternoon",
              1, narrativeDefAM), 
             #  End times are tomorrow:
             ("Afternoon", self.NIGHT(), 24 + self.DAY(), 24 + 4,
-             ".Tonight...", "late in the night", "early in the evening",
+             ".TONIGHT...", "late in the night", "early in the evening",
              1, narrativeDefPM), 
             ("Afternoon with Pre-1st Period", self.NIGHT()-2, 24 + self.DAY(), 24 + 4,
-             ".Tonight...", "late in the night", "early in the evening",
+             ".TONIGHT...", "late in the night", "early in the evening",
              1, narrativeDefPM), 
             ("Evening Update", "issuanceHour", 24 + self.DAY(), 24 + 4,
-             ".Rest of Tonight...", "late in the night","early in the evening",
+             ".REST OF TONIGHT...", "late in the night","early in the evening",
              1, narrativeDefPM),
             ("Early Morning Update", "issuanceHour", self.DAY(), 4,
-             ".Rest of Tonight...", "early in the morning","late in the afternoon",
+             ".REST OF TONIGHT...", "early in the morning","late in the afternoon",
              0, narrativeDefPM), 
             ]
 
@@ -1330,33 +1340,33 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         
         return [
             ("Morning", self.DAY(), self.NIGHT(), 16,
-             ".Today...", "early in the morning", "late in the afternoon",
+             ".TODAY...", "early in the morning", "late in the afternoon",
              1, narrativeDefAM), 
             ("Morning with Pre-1st Period", self.DAY()-2, self.NIGHT(), 16,
-             ".Today...", "early in the morning", "late in the afternoon",
+             ".TODAY...", "early in the morning", "late in the afternoon",
              1, narrativeDefAM), 
             ("Morning Update", "issuanceHour", self.NIGHT(), 16,
-             ".Rest of Today...", "early in the morning", "late in the afternoon",
+             ".REST OF TODAY...", "early in the morning", "late in the afternoon",
              1, narrativeDefAM), 
             ("Afternoon Update", "issuanceHour", self.NIGHT(), 16,
-             ".Rest of Today...", "early in the morning","late in the afternoon",
+             ".REST OF TODAY...", "early in the morning","late in the afternoon",
              1, narrativeDefAM), 
             #  End times are tomorrow:
             ("Afternoon", self.NIGHT(), 24 + self.DAY(), 24 + 4,
-             ".Tonight...", "late in the night", "early in the evening",
+             ".TONIGHT...", "late in the night", "early in the evening",
              1, narrativeDefPM), 
             ("Afternoon with Pre-1st Period", self.NIGHT()-2, 24 + self.DAY(), 24 + 4,
-             ".Tonight...", "late in the night", "early in the evening",
+             ".TONIGHT...", "late in the night", "early in the evening",
              1, narrativeDefPM), 
             ("Evening Update", "issuanceHour", 24 + self.DAY(), 24 + 4,
-             ".Rest of Tonight...", "early in the morning","early in the evening",
+             ".REST OF TONIGHT...", "early in the morning","early in the evening",
              1, narrativeDefPM),
             # For the early morning update, this produces:
             # Rest of Tonight:
             # Monday
             # Monday night
             ("Early Morning Update", "issuanceHour", self.DAY(), 4,
-             ".Rest of Tonight...", "early in the morning","late in the afternoon",
+             ".REST OF TONIGHT...", "early in the morning","late in the afternoon",
              0, narrativeDefPM), 
             # Alternative
             # For the early morning update, this produces:
@@ -1364,10 +1374,10 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             # Today
             # Tonight
             #("Evening Update", "issuanceHour", 24 + self.DAY(), 4,
-            # ".Rest of Tonight...", "late in the night", "early in the evening",
+            # ".REST OF TONIGHT...", "late in the night", "early in the evening",
             # 1, narrativeDefPM), 
             #("Early Morning Update", "issuanceHour", self.DAY(), 4,
-            # ".Early this morning...", "early in the morning", "late in the afternoon",
+            # ".EARLY THIS MORNING...", "early in the morning", "late in the afternoon",
             # 1, narrativeDefPM), 
             ]
 

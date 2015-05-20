@@ -34,14 +34,16 @@
 import TestScript, CreateGrids
 
 # Overrides to FWF for Humidity Recovery Local Effects
-humRec = ["""def getFirePeriod_phraseList(self):
-    if self._useRH:
-        dayRH = "RH"
-        nightRH = "RH"
-    else:
-        dayRH = "MinRH"
-        nightRH = "MaxRH"
-    phraseList =  [
+humRec = """
+
+    def getFirePeriod_phraseList(self):
+        if self._useRH:
+            dayRH = "RH"
+            nightRH = "RH"
+        else:
+            dayRH = "MinRH"
+            nightRH = "MaxRH"
+        phraseList =  [
             self.skyWeather_byTimeRange_compoundPhrase,
             self.lal_phrase,
             (self.dayOrNight_phrase, ["MaxT", "MinT", 1, 1],
@@ -66,58 +68,58 @@ humRec = ["""def getFirePeriod_phraseList(self):
             #self.marineLayer_phrase,
             ]
         # Remove trend methods
-    if self._includeTrends != 1:
-        newList = []
-        for phrase in phraseList:
-            if type(phrase) is types.TupleType:
-                phraseMethod = phrase[0]
-                if phraseMethod == self.trend_DayOrNight_phrase:
-                    continue
-            newList.append(phrase)
-        phraseList = newList
-    # Add multipleElementTable
-    if self._includeMultipleElementTable_perPeriod:
-        phraseList.append(self.multipleElementTable_perPeriod_phrase)
-    return phraseList""",
+        if self._includeTrends != 1:
+            newList = []
+            for phrase in phraseList:
+                if type(phrase) is types.TupleType:
+                    phraseMethod = phrase[0]
+                    if phraseMethod == self.trend_DayOrNight_phrase:
+                       continue
+                newList.append(phrase)
+            phraseList = newList
+        # Add multipleElementTable
+        if self._includeMultipleElementTable_perPeriod:
+            phraseList.append(self.multipleElementTable_perPeriod_phrase)
+        return phraseList
             
-"""def _humRecLocalEffects_list(self):
-    leArea1 = self.LocalEffectArea("Valleys", "")
-    leArea2 = self.LocalEffectArea("Ridges", " on the ridges")
-    return [self.LocalEffect([leArea1, leArea2], self._humRecTrigger, "...except ")]""",
+    def _humRecLocalEffects_list(self):
+        leArea1 = self.LocalEffectArea("Valleys", "")
+        leArea2 = self.LocalEffectArea("Ridges", " on the ridges")
+        return [self.LocalEffect([leArea1, leArea2], self._humRecTrigger, "...except ")]
 
-"""def _humRecTrigger(self, tree, node, localEffect, leArea1Label, leArea2Label):
-    leNode = self._makeLEnode(tree, node, leArea1Label)
-    self.humidityRecovery_words(tree, leNode)
-    words1 = leNode.get("words")
-    leNode = self._makeLEnode(tree, node, leArea2Label)
-    self.humidityRecovery_words(tree, leNode)
-    words2 = leNode.get("words")
-    if words1 == words2:
-        return 0
-    else:
-        return 1""",
+    def _humRecTrigger(self, tree, node, localEffect, leArea1Label, leArea2Label):
+        leNode = self._makeLEnode(tree, node, leArea1Label)
+        self.humidityRecovery_words(tree, leNode)
+        words1 = leNode.get("words")
+        leNode = self._makeLEnode(tree, node, leArea2Label)
+        self.humidityRecovery_words(tree, leNode)
+        words2 = leNode.get("words")
+        if words1 == words2:
+            return 0
+        else:
+            return 1
 
-"""def _makeLEnode(self, tree, node, leArea):
-    leNode = tree.makeNode([],[],node.parent)
-    timeRange = node.getTimeRange()
-    if self._useRH:
-        elementName = "RH"
-    else:
-        elementName = "MaxRH"
-    stats = tree.stats.get(
-        elementName, timeRange, leArea, mergeMethod="Average")
-    statDict = {}
-    statDict[elementName] = stats
-    leNode.set("statDict", statDict)
-    leNode.set("timeRange", timeRange)
-    return leNode""",
+    def _makeLEnode(self, tree, node, leArea):
+        leNode = tree.makeNode([],[],node.parent)
+        timeRange = node.getTimeRange()
+        if self._useRH:
+            elementName = "RH"
+        else:
+            elementName = "MaxRH"
+        stats = tree.stats.get(
+            elementName, timeRange, leArea, mergeMethod="Average")
+        statDict = {}
+        statDict[elementName] = stats
+        leNode.set("statDict", statDict)
+        leNode.set("timeRange", timeRange)
+        return leNode
 
     # Need to add humidity recovery local effect areas
-"""def getFirePeriod_intersectAreas(self):
-    tempList = []
-    windList = []
-    if self._tempLocalEffects:
-        tempList = [
+    def getFirePeriod_intersectAreas(self):
+        tempList = []
+        windList = []
+        if self._tempLocalEffects:
+            tempList = [
                 ("MinT", ["BelowElev", "AboveElev"]),
                 ("MaxT", ["BelowElev", "AboveElev"]),
                 ("MinRH", ["BelowElev", "AboveElev"]),
@@ -125,53 +127,61 @@ humRec = ["""def getFirePeriod_phraseList(self):
                 ("RH", ["BelowElev", "AboveElev"]),
                 ("Ttrend", ["BelowElev", "AboveElev"]),
                 ("RHtrend", ["BelowElev", "AboveElev"]),
-            ]
-    if self._windLocalEffects:
-        windList = [
+                ]
+        if self._windLocalEffects:
+            windList = [
                 ("Wind", ["Valleys", "Ridges"]),
                 ("Wind20ft", ["Valleys", "Ridges"]),
                 ("WindGust", ["Valleys", "Ridges"]),
-            ]
-    humRecList = [
-            ("RH", ["Valleys", "Ridges"]),
-            ("MaxRH", ["Valleys", "Ridges"]),
-            ]
-    return tempList + windList + humRecList
-"""
-]
+                ]
+        humRecList = [
+               ("RH", ["Valleys", "Ridges"]),
+               ("MaxRH", ["Valleys", "Ridges"]),
+               ]
+        return tempList + windList + humRecList
 
-localHazard = """def allowedHazards(self):
-    allActions = ["NEW", "EXA", "EXB", "EXT", "CAN", "CON", "EXP"]
-    tropicalActions = ["NEW", "EXA", "EXB", "EXT", "UPG", "CAN", "CON", 
+"""
+
+
+localHazard = """
+
+    def allowedHazards(self):
+        allActions = ["NEW", "EXA", "EXB", "EXT", "CAN", "CON", "EXP"]
+        tropicalActions = ["NEW", "EXA", "EXB", "EXT", "UPG", "CAN", "CON", 
           "EXP"]
-    return [
+        return [
             ('LocalHazard1', allActions, 'Convective'),   # SEVERE THUNDERSTORM WATCH
              ]
 """
 
-hazardHook = """def hazard_hook(self, tree, node, hazardPhen, hazardSig, hazardAct,
-                hazardStart, hazardEnd):
-    hazTR = self.makeTimeRange(hazardStart, hazardEnd)
-    phenSig = hazardPhen + "." + hazardSig
-    print "hazTr, phenSig", hazTR, phenSig
-    return "in the mountains"
+hazardHook = """
+    def hazard_hook(self, tree, node, hazardPhen, hazardSig, hazardAct,
+                    hazardStart, hazardEnd):
+        hazTR = self.makeTimeRange(hazardStart, hazardEnd)
+        phenSig = hazardPhen + "." + hazardSig
+        print "hazTr, phenSig", hazTR, phenSig
+        return "in the mountains"
+
 """
 
-localHeadlinesTiming1 = """def headlinesTiming(self, tree, node, key, timeRange, areaLabel, issuanceTime):
-    return "NONE", "FUZZY4"
+localHeadlinesTiming1 = """  
+
+    def headlinesTiming(self, tree, node, key, timeRange, areaLabel, issuanceTime):
+        return "NONE", "FUZZY4"
+
 """
-localHeadlinesTiming2 = ["""def startPhraseMethod(self, issueTime, eventTime, timeZone, timeType):
-    return "NONE", None""",
+localHeadlinesTiming2 = """
+
+    def startPhraseMethod(self, issueTime, eventTime, timeZone, timeType):
+        return "NONE", None
     
-"""def endPhraseMethod(self, issueTime, eventTime, timeZone, timeType):
-    return "FUZZY4", self.timingWordTableFUZZY4(issueTime, eventTime, timeZone, timeType)""",
+    def endPhraseMethod(self, issueTime, eventTime, timeZone, timeType):
+        return "FUZZY4", self.timingWordTableFUZZY4(issueTime, eventTime, timeZone, timeType)
 
-"""def headlinesTiming(self, tree, node, key, timeRange, areaLabel, issuanceTime):
-    return (self.startPhraseMethod, self.endPhraseMethod)"""
-]
+    def headlinesTiming(self, tree, node, key, timeRange, areaLabel, issuanceTime):
+        return (self.startPhraseMethod, self.endPhraseMethod)
 
-suffix = "Definition['editAreaSuffix'] = '_pt'"
-lowerCase = "Definition['lowerCase'] = 1"
+"""
 
 scripts = [
     
@@ -187,7 +197,7 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["TODAY", "LAL.................1","TONIGHT"],
+    "checkStrings": [".TODAY...", "LAL.................1",".TONIGHT..."],
     "createGrids": [
        ("Fcst", "LAL", "SCALAR", 0, 12,  1, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12, 0, "all", 1),
@@ -201,7 +211,7 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["TODAY", "LAL.................1","TONIGHT"],
+    "checkStrings": [".TODAY...", "LAL.................1",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  1, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12, 10, "all", 1),
@@ -215,9 +225,9 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["TODAY",
-         "ISOLATED SHOWERS",
-         "LAL.................1","TONIGHT"],
+    "checkStrings": [".TODAY...",
+         "Isolated showers",
+         "LAL.................1",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  1, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12, 20, "all", 1),
@@ -231,9 +241,9 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["TODAY",
-         ("CHANCE OF RAIN SHOWERS", "CHANCE OF SHOWERS"),
-         "LAL.................1","TONIGHT"],
+    "checkStrings": [".TODAY...",
+         ("Chance of rain showers", "Chance of showers"),
+         "LAL.................1",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  1, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12, 30, "all", 1),
@@ -253,8 +263,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["TODAY", "SLIGHT CHANCE OF SHOWERS AND THUNDERSTORMS",
-         "LAL.................2","TONIGHT"],
+    "checkStrings": [".TODAY...", "Slight chance of showers and thunderstorms",
+         "LAL.................2",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  2, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12, 20, "all", 1),
@@ -270,7 +280,7 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["TODAY", "LAL.................2","TONIGHT"],
+    "checkStrings": [".TODAY...", "LAL.................2",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  2, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12, 20, "all", 1),
@@ -289,8 +299,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["TODAY", "SLIGHT CHANCE OF SHOWERS AND THUNDERSTORMS",
-         "LAL.................3","TONIGHT"],
+    "checkStrings": [".TODAY...", "Slight chance of showers and thunderstorms",
+         "LAL.................3",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  3, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12, 20, "all", 1),
@@ -306,8 +316,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["TODAY", "ISOLATED SHOWERS AND THUNDERSTORMS",
-         "LAL.................3", "TONIGHT"],
+    "checkStrings": [".TODAY...", "Isolated showers and thunderstorms",
+         "LAL.................3", ".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  3, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12, 20, "all", 1),
@@ -326,8 +336,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["TODAY", "CHANCE OF SHOWERS AND THUNDERSTORMS",
-         "LAL.................4","TONIGHT"],
+    "checkStrings": [".TODAY...", "Chance of showers and thunderstorms",
+         "LAL.................4",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  4, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12, 40, "all", 1),
@@ -341,8 +351,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["TODAY", "SCATTERED SHOWERS AND THUNDERSTORMS",
-         "LAL.................4","TONIGHT"],
+    "checkStrings": [".TODAY...", "Scattered showers and thunderstorms",
+         "LAL.................4",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  4, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12, 40, "all", 1),
@@ -361,8 +371,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["TODAY", "SHOWERS AND THUNDERSTORMS LIKELY",
-         "LAL.................5","TONIGHT"],
+    "checkStrings": [".TODAY...", "Showers and thunderstorms likely",
+         "LAL.................5",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  5, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12, 60, "all", 1),
@@ -377,8 +387,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["TODAY", "NUMEROUS SHOWERS AND THUNDERSTORMS",
-         "LAL.................5","TONIGHT"],
+    "checkStrings": [".TODAY...", "Numerous showers and thunderstorms",
+         "LAL.................5",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  5, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12, 60, "all", 1),
@@ -397,8 +407,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["TODAY", "SLIGHT CHANCE OF DRY THUNDERSTORMS",
-         "LAL.................6","TONIGHT"],
+    "checkStrings": [".TODAY...", "Slight chance of dry thunderstorms",
+         "LAL.................6",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  6, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12, 20, "all", 1),
@@ -412,8 +422,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["TODAY", "ISOLATED DRY THUNDERSTORMS",
-         "LAL.................6","TONIGHT"],
+    "checkStrings": [".TODAY...", "Isolated dry thunderstorms",
+         "LAL.................6",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  6, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12, 20, "all", 1),
@@ -437,8 +447,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["TODAY", "ISOLATED SHOWERS AND THUNDERSTORMS AFTER 0900",
-         "LAL.................1 UNTIL 0900...THEN 2","TONIGHT"],
+    "checkStrings": [".TODAY...", "Isolated showers and thunderstorms after 0900",
+         "LAL.................1 until 0900...then 2",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 3,  1, "all", 1),
        ("Fcst", "LAL", "SCALAR", 3, 12,  2, "all", 1),
@@ -455,8 +465,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["TODAY", "SLIGHT CHANCE OF SHOWERS AND THUNDERSTORMS AFTER 0900",
-         "LAL.................1 UNTIL 0900...THEN 2","TONIGHT"],
+    "checkStrings": [".TODAY...", "Slight chance of showers and thunderstorms after 0900",
+         "LAL.................1 until 0900...then 2",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 3,  1, "all", 1),
        ("Fcst", "LAL", "SCALAR", 3, 12,  2, "all", 1),
@@ -474,8 +484,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["TODAY", "ISOLATED SHOWERS AND THUNDERSTORMS UNTIL 1100...THEN SCATTERED SHOWERS AND THUNDERSTORMS",
-         "LAL.................3 UNTIL 1100...THEN 4","TONIGHT"],
+    "checkStrings": [".TODAY...", "Isolated showers and thunderstorms until 1100...then scattered showers and thunderstorms",
+         "LAL.................3 until 1100...then 4",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 5,  3, "all", 1),
        ("Fcst", "LAL", "SCALAR", 5, 12,  4, "all", 1),
@@ -495,10 +505,10 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["TODAY",
-         "SHOWERS AND THUNDERSTORMS LIKELY UNTIL 1500...THEN SLIGHT CHANCE OF SHOWERS AND THUNDERSTORMS",
-         "LAL.................5 UNTIL 1500...THEN 3",
-         "TONIGHT"],
+    "checkStrings": [".TODAY...",
+         "Showers and thunderstorms likely until 1500...then slight chance of showers and thunderstorms",
+         "LAL.................5 until 1500...then 3",
+         ".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 9,  5, "all", 1),
        ("Fcst", "LAL", "SCALAR", 9, 12,  3, "all", 1),
@@ -516,10 +526,10 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["TODAY",
-         "ISOLATED SHOWERS AND THUNDERSTORMS AFTER 0900 UNTIL 1300...THEN SCATTERED SHOWERS AND THUNDERSTORMS",
-         "LAL.................1 UNTIL 0900...THEN 2 UNTIL 1300...THEN 4",
-         "TONIGHT"],
+    "checkStrings": [".TODAY...",
+         "Isolated showers and thunderstorms after 0900 until 1300...then scattered showers and thunderstorms",
+         "LAL.................1 until 0900...then 2 until 1300...then 4",
+         ".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 3,  1, "all", 1),
        ("Fcst", "LAL", "SCALAR", 3, 7,  2, "all", 1),
@@ -545,8 +555,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["TODAY", "NUMEROUS SHOWERS AND SCATTERED THUNDERSTORMS",
-         "LAL.................4","TONIGHT"],
+    "checkStrings": [".TODAY...", "Numerous showers and scattered thunderstorms",
+         "LAL.................4",".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  4, "all", 1),
        ("Fcst", "PoP", "SCALAR", 0, 12, 60, "all", 1),
@@ -560,8 +570,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1, 
     "orderStrings": 1,
-    "checkStrings": ["TODAY", "SCATTERED SHOWERS AND ISOLATED THUNDERSTORMS",
-         "LAL.................3", "TONIGHT"],
+    "checkStrings": [".TODAY...", "Scattered showers and isolated thunderstorms",
+         "LAL.................3", ".TONIGHT..."],
     "createGrids" : [
       ("Fcst", "LAL", "SCALAR", 0, 12,  3, "all", 1),
       ("Fcst", "PoP", "SCALAR", 0, 12, 30, "all", 1),
@@ -576,8 +586,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["TODAY", "CHANCE OF SHOWERS AND THUNDERSTORMS",
-         "LAL.................4", "TONIGHT"],
+    "checkStrings": [".TODAY...", "Chance of showers and thunderstorms",
+         "LAL.................4", ".TONIGHT..."],
     "createGrids" : [ 
        ("Fcst", "LAL", "SCALAR", 0, 12,  2, ["BelowElev"], 1),
        ("Fcst", "LAL", "SCALAR", 0, 12,  4, ["AboveElev"], 1),
@@ -591,8 +601,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["TODAY", "CHANCE OF SHOWERS AND THUNDERSTORMS",
-         "LAL.................2", "TONIGHT"],
+    "checkStrings": [".TODAY...", "Chance of showers and thunderstorms",
+         "LAL.................2", ".TONIGHT..."],
     "createGrids": [ 
        ("Fcst", "LAL", "SCALAR", 0, 12,  2, ["BelowElev"], 1),
        ("Fcst", "LAL", "SCALAR", 0, 12,  2, ["AboveElev"], 1),
@@ -606,7 +616,7 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["TODAY", "LAL.................1", "TONIGHT"],
+    "checkStrings": [".TODAY...", "LAL.................1", ".TONIGHT..."],
     "createGrids" : [ 
        ("Fcst", "LAL", "SCALAR", 0, 12,  2, ["BelowElev"], 1),
        ("Fcst", "LAL", "SCALAR", 0, 12,  2, ["AboveElev"], 1),
@@ -620,8 +630,8 @@ scripts = [
     "productType":"FWF",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["TODAY","CHANCE OF THUNDERSTORMS AFTER 0900",
-         "LAL.................1 UNTIL 0900...THEN 4", "TONIGHT"],
+    "checkStrings": [".TODAY...","Chance of thunderstorms after 0900",
+         "LAL.................1 until 0900...then 4", ".TONIGHT..."],
     "createGrids" : [ 
        ("Fcst", "LAL", "SCALAR", 0, 3,  1, "all", 1),
        ("Fcst", "LAL", "SCALAR", 3, 12,  4, "all", 1),
@@ -636,8 +646,8 @@ scripts = [
     "commentary": "Iso T does not get into wording",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["TODAY", "SCATTERED SHOWERS",
-         "LAL.................1", "TONIGHT"],
+    "checkStrings": [".TODAY...", "Scattered showers",
+         "LAL.................1", ".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  1, ["area3"], 1),
        ("Fcst", "LAL", "SCALAR", 0, 12,  2, ["area3_pt"], 1),
@@ -654,8 +664,8 @@ scripts = [
     "commentary": "Matching Iso T, Takes Max LAL = 2 even tho for small area",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["TODAY", "SCATTERED SHOWERS AND ISOLATED THUNDERSTORMS",
-         "LAL.................2", "TONIGHT"],
+    "checkStrings": [".TODAY...", "Scattered showers and isolated thunderstorms",
+         "LAL.................2", ".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  1, ["area3"], 1),
        ("Fcst", "LAL", "SCALAR", 0, 12,  2, ["area3_pt"], 1),
@@ -673,8 +683,8 @@ scripts = [
     "commentary": "Matching Iso T, can't find 3. If the resultValue value (4) is greater than the binHighVal (3), use binHighVal", 
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["TODAY", "SCATTERED SHOWERS AND ISOLATED THUNDERSTORMS",
-         "LAL.................3", "TONIGHT"],
+    "checkStrings": [".TODAY...", "Scattered showers and isolated thunderstorms",
+         "LAL.................3", ".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  1, ["area3"], 1),
        ("Fcst", "LAL", "SCALAR", 0, 12,  4, ["area3_pt"], 1),
@@ -690,8 +700,8 @@ scripts = [
     "commentary": "Matching Iso T, LAL = 2",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["TODAY", "SCATTERED SHOWERS AND ISOLATED THUNDERSTORMS",
-         "LAL.................3", "TONIGHT"],
+    "checkStrings": [".TODAY...", "Scattered showers and isolated thunderstorms",
+         "LAL.................3", ".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  3, ["area3"], 1),
        ("Fcst", "LAL", "SCALAR", 0, 12,  4, ["area3_pt"], 1),
@@ -708,8 +718,8 @@ scripts = [
     "commentary": "LAL (4,5), PoP (50,30), (Sct TRW-,Num TRW-)",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["TODAY", "SCATTERED SHOWERS AND THUNDERSTORMS",
-         "LAL.................4", "TONIGHT"],
+    "checkStrings": [".TODAY...", "Scattered showers and thunderstorms",
+         "LAL.................4", ".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  4, ["area3"], 1),
        ("Fcst", "LAL", "SCALAR", 0, 12,  5, ["area3_pt"], 1),
@@ -728,8 +738,8 @@ scripts = [
     "commentary": "LAL (4,6), PoP (50,20), (Chc TRW-,Chc TRW- Dry)",
     "comboFlag": 1,
     "orderStrings": 1,
-    "checkStrings": ["TODAY", "CHANCE OF THUNDERSTORMS",
-         "LAL.................4", "TONIGHT"],
+    "checkStrings": [".TODAY...", "Chance of thunderstorms",
+         "LAL.................4", ".TONIGHT..."],
     "createGrids" : [
        ("Fcst", "LAL", "SCALAR", 0, 12,  4, ["area3"], 1),
        ("Fcst", "LAL", "SCALAR", 0, 12,  6, ["area3_pt"], 1),
@@ -749,7 +759,7 @@ scripts = [
      # checkStrings
     "checkStrings": [
        "WINTER STORM WARNING",
-       ".TODAY...", "MOSTLY CLOUDY",
+       ".TODAY...", "Mostly cloudy",
        ".TONIGHT...",
       ],  
     "orderStrings": 1,
@@ -762,7 +772,7 @@ scripts = [
        ("Fcst", "Hazards", "DISCRETE", 0, 12,  "<None>", ["area3_pt"]),
      ],     
     "fileChanges": [("ZFP_<site>_Definition", "TextUtility", "add",
-           suffix, "delete")],
+           "\nDefinition['editAreaSuffix'] = '_pt'\n", "delete")],
     "gridsStartTime": "6am Local",
     "drtTime": "4am Local",
      },
@@ -776,7 +786,7 @@ scripts = [
      # checkStrings
     "checkStrings": [
        "WINTER STORM WARNING",
-       ".TODAY...", "MOSTLY CLOUDY",
+       ".TODAY...", "Mostly cloudy",
        ".TONIGHT...",
       ],  
     "orderStrings": 1,
@@ -800,7 +810,7 @@ scripts = [
      # checkStrings
     "checkStrings": [
        "WINTER STORM WARNING",
-       ".TODAY...", "MOSTLY CLOUDY",
+       ".TODAY...", "Mostly cloudy",
        ".TONIGHT...",
       ],  
     "orderStrings": 1,
@@ -826,7 +836,7 @@ scripts = [
     "comboFlag": 1,
     "checkStrings": [
        "...LOCAL HAZARD IN EFFECT THROUGH THIS AFTERNOON IN THE MOUNTAINS...",
-       ".TODAY...", "MOSTLY CLOUDY",
+       ".TODAY...", "Mostly cloudy",
        ".TONIGHT...",
       ],  
     "orderStrings": 1,
@@ -839,7 +849,7 @@ scripts = [
      ],     
     "fileChanges": [
         ("ZFP_<site>_Definition", "TextUtility", "add",
-        suffix, "delete"),
+        "\nDefinition['editAreaSuffix'] = '_pt'\n", "delete"),
         ("ZFP_<site>_Overrides", "TextUtility", "add", localHazard, "undo"),
         ("ZFP_<site>_Overrides", "TextUtility", "add", hazardHook, "undo"),
         ],
@@ -857,7 +867,7 @@ scripts = [
     "comboFlag": 1,
     "checkStrings": [
        "...LOCAL HAZARD IN EFFECT THROUGH THIS AFTERNOON...",
-       ".TODAY...", "MOSTLY CLOUDY",
+       ".TODAY...", "Mostly cloudy",
        ".TONIGHT...",
       ],  
     "orderStrings": 1,
@@ -870,7 +880,7 @@ scripts = [
      ],     
     "fileChanges": [
         ("ZFP_<site>_Definition", "TextUtility", "add",
-        suffix, "undo"),
+        "\nDefinition['editAreaSuffix'] = '_pt'\n", "delete"),
         ("ZFP_<site>_Overrides", "TextUtility", "add", localHazard, "undo"),
         ("ZFP_<site>_Overrides", "TextUtility", "add", localHeadlinesTiming1, "undo"),
         ],
@@ -886,7 +896,7 @@ scripts = [
     "comboFlag": 1,
     "checkStrings": [
        "...LOCAL HAZARD IN EFFECT THROUGH THIS AFTERNOON...",
-       ".TODAY...", "MOSTLY CLOUDY",
+       ".TODAY...", "Mostly cloudy",
        ".TONIGHT...",
       ],  
     "orderStrings": 1,
@@ -894,12 +904,12 @@ scripts = [
        ("Fcst", "PoP", "SCALAR", 0, 12,  0, "all"),
        ("Fcst", "Sky", "SCALAR", 0, 12,  0, ["area3"]),
        ("Fcst", "Sky", "SCALAR", 0, 12,  75, ["area3_pt"]),
-       ("Fcst", "Hazards", "DISCRETE", 0, 12,  "LocalHazard1", ["area3"]),
        ("Fcst", "Hazards", "DISCRETE", 0, 12,  "<None>", ["area3_pt"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 12,  "LocalHazard1", ["area3"]),
      ],     
     "fileChanges": [
         ("ZFP_<site>_Definition", "TextUtility", "add",
-        suffix, "undo"),
+        "\nDefinition['editAreaSuffix'] = '_pt'\n", "delete"),
         ("ZFP_<site>_Overrides", "TextUtility", "add", localHazard, "undo"),
         ("ZFP_<site>_Overrides", "TextUtility", "add", localHeadlinesTiming2, "undo"),
         ],
@@ -919,12 +929,12 @@ scripts = [
     "comboFlag": 1,
      # checkStrings
     "checkStrings": [
-       "...Local Hazard in effect through this afternoon...",
-       ".Today...", "Mostly cloudy. Patchy dense fog.",
+       "...LOCAL HAZARD IN EFFECT THROUGH THIS AFTERNOON...",
+       ".TODAY...", "Mostly cloudy. Patchy dense fog.",
        "Ice accumulation around 2 inches.",
        # DR_18363 "Highs in the upper 70s.",
        "Near steady temperature in the mid 50s.",
-       ".Tonight...", "Very windy.", "Widespread thunderstorms.",
+       ".TONIGHT...", "Very windy.", "Widespread thunderstorms.",
        # DR_18363 "Lows around 60.",
        "Near steady temperature in the mid 40s.",
        ],  
@@ -938,9 +948,9 @@ scripts = [
      ],     
     "fileChanges": [
         ("ZFP_<site>_Definition", "TextUtility", "add",
-        suffix, "delete"),
+        "\nDefinition['editAreaSuffix'] = '_pt'\n", "delete"),
         ("ZFP_<site>_Definition", "TextUtility", "add",
-        lowerCase, "undo"),
+        "\nDefinition['lowerCase'] = 1\n", "undo"),
         ("ZFP_<site>_Overrides", "TextUtility", "add", localHazard, "undo"),
         ("ZFP_<site>_Overrides", "TextUtility", "add", localHeadlinesTiming1, "undo"),
         ],
@@ -956,12 +966,12 @@ scripts = [
     "comboFlag": 1,
      # checkStrings
     "checkStrings": [
-       "...Winter Storm Warning in effect until 6 PM EST this evening...",
-       ".Today...", "Mostly cloudy. Patchy dense fog.",
+       "...WINTER STORM WARNING IN EFFECT UNTIL 6 PM EST THIS EVENING...",
+       ".TODAY...", "Mostly cloudy. Patchy dense fog.",
        "Ice accumulation around 2 inches.",
        # "Highs in the upper 70s.",
        "Near steady temperature in the mid 50s.",
-       ".Tonight...", "Very windy.", "Widespread thunderstorms.",
+       ".TONIGHT...", "Very windy.", "Widespread thunderstorms.",
        #"Lows around 60.",
        "Near steady temperature in the mid 40s.",
       ],  
@@ -975,7 +985,7 @@ scripts = [
      ],     
     "fileChanges": [
         ("ZFP_<site>_Definition", "TextUtility", "add",
-        lowerCase, "delete"),
+        "\nDefinition['lowerCase'] = 1\n", "delete"),
         ],
     "gridsStartTime": "6am Local",
     "drtTime": "4am Local",
@@ -988,7 +998,7 @@ scripts = [
      "productType":"FWF",
      "comboFlag": 1,
      "orderStrings": 1,
-     "checkStrings": ["HUMIDITY RECOVERY...POOR"],
+     "checkStrings": ["HUMIDITY RECOVERY...Poor"],
      "createGrids": [
        ("Fcst", "MaxRH", "SCALAR", "MaxRHBegin-24", "MaxRHEnd-24", 10, ["Valleys"], 1),
        ("Fcst", "MaxRH", "SCALAR", "MaxRHBegin-24", "MaxRHEnd-24", 10, ["Ridges"], 1),
@@ -1005,7 +1015,7 @@ scripts = [
      "productType":"FWF",
      "comboFlag": 1,
      "orderStrings": 1,
-     "checkStrings": ["HUMIDITY RECOVERY...POOR...EXCEPT EXCELLENT ON THE RIDGES."],
+     "checkStrings": ["HUMIDITY RECOVERY...Poor...except Excellent on the ridges."],
      "createGrids": [
        ("Fcst", "MaxRH", "SCALAR", "MaxRHBegin-24", "MaxRHEnd-24", 10, ["Valleys"], 1),
        ("Fcst", "MaxRH", "SCALAR", "MaxRHBegin-24", "MaxRHEnd-24", 10, ["Ridges"], 1),
@@ -1040,6 +1050,6 @@ def testScript(self, dataMgr):
         if script.get("gridsStartTime", None) == "6am Local":
             script["gridsStartTime"] = time_6am
         if script.get("drtTime", None) == "4am Local":
-            script["drtTime"] = time_6am
+            script["drtTime"] = time_6am  # Should this be time_4am?
     return TestScript.generalTestScript(self, dataMgr, scripts, defaults)
 

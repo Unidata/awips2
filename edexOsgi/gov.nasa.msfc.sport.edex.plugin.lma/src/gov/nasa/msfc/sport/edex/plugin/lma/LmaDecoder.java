@@ -64,7 +64,7 @@ public class LmaDecoder {
      */
     public PluginDataObject[] decode(File fileInput) throws Exception {
         //Create an empty records to hold the data once decoded.
-        GridRecord[] records  = null;
+        List<GridRecord> recordsList = new ArrayList<GridRecord>();
         
         /** The variable dictionary used to check which variables are supported by the ingest **/
         LMAVarsDict lmaVarsDict = LMAVarsDict.getInstance();
@@ -105,7 +105,6 @@ public class LmaDecoder {
             float dy= yresAtt.getNumericValue().floatValue();
             int nx = file.findDimension("x").getLength();
             int ny = file.findDimension("y").getLength();
-            int nz = file.findDimension("levels_17").getLength();
 		    //Construct the grid coverage with attributes 
             GridCoverage cov =createMapCoverage(centerLon, centerLat, nx, ny, dx, dy);
 		    //Lookup Coverage to make sure it does not already exist in the db.
@@ -129,17 +128,15 @@ public class LmaDecoder {
 
             String[] listOfVariablesToProcess = new String[sizeOfVariablesToProcess];
             varsToProcessList.toArray(listOfVariablesToProcess);
-            //		
-            //Create initial Grid Record array
-            int count =0;
-            records = new GridRecord[sizeOfVariablesToProcess*nz];
+            
             //Iterate over variables and create GridRecords for each variable and level
             for (int i = 0; i<sizeOfVariablesToProcess; ++i ) {
                 Variable v = file.findVariable(listOfVariablesToProcess[i]);
+                int nz = v.getDimension(1).getLength();
                 for (int j=0; j< nz; ++j) {
-                    records[count] = new GridRecord();
-                    records[count].setPersistenceTime(TimeUtil.newDate());
-                    records[count].setDataTime(dataTime);
+                    GridRecord record = new GridRecord();
+                    record.setPersistenceTime(TimeUtil.newDate());
+                    record.setDataTime(dataTime);
                     ///If the level is the first then it is the SUM level.
                     if (j==0) {
                         MasterLevel masterLevel = levelDao.lookupMasterLevel(new MasterLevel("SFC"), true);
@@ -147,7 +144,7 @@ public class LmaDecoder {
                         level.setLevelonevalue(0);
                         level.setMasterLevel(masterLevel);
                         level = levelDao.lookupLevel(level);
-                        records[count].setLevel(level);
+                        record.setLevel(level);
                     } else {
                         MasterLevel masterLevel = levelDao.lookupMasterLevel(new MasterLevel("FHAG"), true);
                         masterLevel.setUnitString("m");
@@ -155,10 +152,10 @@ public class LmaDecoder {
                         level.setLevelonevalue((j+1)*1000.);
                         level.setMasterLevel(masterLevel);
                         level = levelDao.lookupLevel(level);
-                        records[count].setLevel(level);
+                        record.setLevel(level);
                     }
-                    records[count].setDatasetId(networkNameAtt.getStringValue());
-                    records[count].setLocation(cov);
+                    record.setDatasetId(networkNameAtt.getStringValue());
+                    record.setLocation(cov);
                     String id = lmaVarsDict.getVarForStorage(v.getFullName());
                     Parameter param = null;
                     try {
@@ -167,13 +164,13 @@ public class LmaDecoder {
                         
                     }
                     if (param == null) {
-                        statusHandler.info("Need to create new parameter"+id+","+lmaVarsDict.getVarNameForStorage(v.getFullName()));
+                        statusHandler.info("Need to create new parameter "+id+","+lmaVarsDict.getVarNameForStorage(v.getFullName()));
                         param = new Parameter(id);
                         param.setName(lmaVarsDict.getVarNameForStorage(v.getFullName()));
                         
                     }
-                    records[count].setParameter(param);
-                    records[count].setLocation(cov);
+                    record.setParameter(param);
+                    record.setLocation(cov);
                     
                     //Need to transform the array to a float array, then flip the array.
                     Array array = v.read(); 
@@ -187,8 +184,8 @@ public class LmaDecoder {
                      }
                     ///Need to flip the array to match how it is stored in AWIPS II versus netcdf.
                     ArraysUtil.flipHoriz(endArray, ny, nx);
-                   	records[count].setMessageData(endArray);
-                    ++count;
+                   	record.setMessageData(endArray);
+                   	recordsList.add(record);
                 }
             }
            
@@ -201,7 +198,13 @@ public class LmaDecoder {
         } catch (Exception e){
             statusHandler.warn("Problem closing the lma netcdf file: "+e);
         }
-        return records;
+        if (recordsList.size() >0) {
+            GridRecord[] records = new GridRecord[recordsList.size()];
+            recordsList.toArray(records);
+            return records;
+        } else {
+            return null;
+        }
 
     }
 
