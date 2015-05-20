@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.useradmin.ui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
@@ -71,6 +72,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     and delete buttons. Give delete dialogs
  *                                     a title.
  * Apr 02, 2015   4345     skorolev    Fixed dialog to expand vertically properly.
+ * May 04, 2015   4419     rferrel     Sort {@link #userPermList}.
  * 
  * </pre>
  * 
@@ -563,7 +565,10 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
                 rp.add(perm);
             }
 
-            userPermList.setItems(rp.toArray(new String[rp.size()]));
+            String[] rpArray = rp.toArray(new String[rp.size()]);
+            Arrays.sort(rpArray);
+
+            userPermList.setItems(rpArray);
         }
     }
 

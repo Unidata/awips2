@@ -1062,21 +1062,17 @@ class Forecaster(GridUtilities):
             LogStream.logEvent(msg)            
         
         try:
-            rval = apply(mthd, tuple(gargs))            
+            rval = apply(mthd, tuple(gargs))
         
-            if rval is not None:
-                if type(rval) is not ndarray:
-                    if type(rval) is not tuple:
-                       jrval = rval
-                       rval = rval.getNDArray()
-                       if type(rval) is ndarray and rval.dtype == int8:
-                             # discrete or weather
-                            keys = JUtil.javaObjToPyVal(jrval.getKeyList())
-                            rval = [rval, keys]
-                cache[we] = (rval, time)
-                  
-            else:
-                cache[we] = (None, time)
+            if type(rval) is not ndarray:
+                if type(rval) is not tuple:
+                    jrval = rval
+                    rval = rval.getNDArray()
+                    if type(rval) is ndarray and rval.dtype == int8:
+                        # discrete or weather
+                        keys = JUtil.javaObjToPyVal(jrval.getKeyList())
+                        rval = [rval, keys]
+            cache[we] = (rval, time)
                   
             if rval is not None and cache['mtime'][0] is not None and doStore:
                 parm = self.__getNewWE(we)          

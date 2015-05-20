@@ -61,8 +61,11 @@
 #    04/08/2015          #4383     dgilling       Define FireWX ISC configuration parameters.
 #
 #                                                 for Fcst/Official.
+#    04/15/2015          #17383    yteng          Change localTC to fix error that time constraints
+# 						  being off
 #    Apr 25, 2015         4952     njensen        Updated for new JEP API
-#
+#    04/20/2015          #4414     dgilling       Add missing NWPSTrkngCG0 weather elements.
+#    05/12/2015          #17144    bhunder        Added RTMA model
 ########################################################################
 
 #----------------------------------------------------------------------------
@@ -219,6 +222,7 @@ Wave_6 = ("Wave_6", VECTOR, "ft", "Wave_6", 50.0, 0.0, 2, NO)
 Wave_7 = ("Wave_7", VECTOR, "ft", "Wave_7", 50.0, 0.0, 2, NO)
 Wave_8 = ("Wave_8", VECTOR, "ft", "Wave_8", 50.0, 0.0, 2, NO)
 Wave_9 = ("Wave_9", VECTOR, "ft", "Wave_9", 50.0, 0.0, 2, NO)
+Wave_10 = ("Wave_10", VECTOR, "ft", "Wave_10", 50.0, 0.0, 2, NO)
 
 #Fcst Grids - for partitioned wave groups
 Wave1 = ("Wave1", VECTOR, "ft", "WAVE1", 50.0, 0.0, 1, NO)
@@ -230,6 +234,7 @@ Wave6 = ("Wave6", VECTOR, "ft", "WAVE6", 50.0, 0.0, 1, NO)
 Wave7 = ("Wave7", VECTOR, "ft", "Wave7", 50.0, 0.0, 0, NO)
 Wave8 = ("Wave8", VECTOR, "ft", "Wave8", 35.0, 0.0, 0, NO)
 Wave9 = ("Wave9", VECTOR, "ft", "Wave9", 35.0, 0.0, 0, NO)
+Wave10 = ("Wave10", VECTOR, "ft", "Wave10", 35.0, 0.0, 0, NO)
 
 #Smart Init Grids - for partitioned wave groups
 Period_1 = ("Period_1", SCALAR, "sec", "Period_1", 30.0, 1.0, 0, NO)
@@ -241,6 +246,7 @@ Period_6 = ("Period_6", SCALAR, "sec", "Period_6", 30.0, 0.0, 0, NO)
 Period_7 = ("Period_7", SCALAR, "sec", "Period_7", 30.0, 0.0, 0, NO)
 Period_8 = ("Period_8", SCALAR, "sec", "Period_8", 30.0, 0.0, 0, NO)
 Period_9 = ("Period_9", SCALAR, "sec", "Period_9", 30.0, 0.0, 0, NO)
+Period_10 = ("Period_10", SCALAR, "sec", "Period_10", 30.0, 0.0, 0, NO)
 
 #Fcst Grids - for partitioned wave groups
 Period1 = ("Period1", SCALAR, "sec", "Period1", 25.0, 0.0, 1, NO)
@@ -252,6 +258,7 @@ Period6 = ("Period6", SCALAR, "sec", "Period6", 25.0, 0.0, 1, NO)
 Period7 = ("Period7", SCALAR, "sec", "Period7", 25.0, 0.0, 0, NO)
 Period8 = ("Period8", SCALAR, "sec", "Period8", 25.0, 0.0, 0, NO)
 Period9 = ("Period9", SCALAR, "sec", "Period9", 25.0, 0.0, 0, NO)
+Period10 = ("Period10", SCALAR, "sec", "Period10", 25.0, 0.0, 0, NO)
 
 # Fire Weather Weather Elements
 LAL = ("LAL", SCALAR, "cat", "Lightning Activity Level", 6.0, 1.0, 0, NO)
@@ -309,6 +316,8 @@ VisUnc  =  ("VisUnc", SCALAR, "SM", "Vsby Anl Uncertainty", 10.0, 0.0, 2, NO)
 PressUnc = ("PressUnc", SCALAR, "Pa", "Press Anl Uncertainty", 110000.0, 0.0, 2, NO)
 Pressure = ("Pressure", SCALAR, "Pa", "Pressure", 110000.0, 0.0, 2, NO)
 WGustUnc =  ("WGustUnc", SCALAR, "kts", "WGust Anl Uncertainty", 12.0, 0.0, 0, NO)
+# DR 17144
+SkyUnc =    ("SkyUnc", SCALAR, "%", "Sky Uncertainty", 100.0, 0.0, 0, NO)
 
 # NamDNG5 parms
 QPF3 =     ("QPF3", SCALAR, "in", "3HR QPF", 3.0, 0.0, 2, YES)
@@ -1301,7 +1310,8 @@ elif SID in CONUS_EAST_SITES:
                  ('nwpsCG1', 'nwpsCG1'),
                  ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
                  'MOSGuide',
-                 'RTMA',
+            ##############DR17144  
+                 ('RTMA25', 'RTMA'),
                  'NamDNG5',
                  ('TPCWindProb','TPCProb'),
                  ('SREF212', 'SREF'),
@@ -1378,7 +1388,8 @@ else:   #######DCS3501 WEST_CONUS
                  ('nwpsCG1', 'nwpsCG1'),
                  ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
                  'MOSGuide',
-                 'RTMA',
+              #######DR17144
+                 ('RTMA25', 'RTMA'),
                  'NamDNG5',
                  ('TPCWindProb','TPCProb'),
                  ('SREF212', 'SREF'),
@@ -1975,7 +1986,7 @@ OFFICIALDBS = [([Temp, Td, Wind, NWPSwind, Weather, Sky, FzLevel, SnowLevel], TC
           ([MinT], MinTTC), ([MaxT], MaxTTC),
           ([MinRH], MinRHTC), ([MaxRH], MaxRHTC),
           ([WaveHeight, SurfHeight, Swell, Swell2, Period], TC3NG),
-          ([WindWaveHeight, SwanSwell, Wave1, Wave2, Wave3, Wave4, Wave5, Wave6, Wave7, Wave8, Wave9, Period1, Period2, Period3, Period4, Period5, Period6, Period7, Period8, Period9], TC3NG),
+          ([WindWaveHeight, SwanSwell, Wave1, Wave2, Wave3, Wave4, Wave5, Wave6, Wave7, Wave8, Wave9, Wave10, Period1, Period2, Period3, Period4, Period5, Period6, Period7, Period8, Period9, Period10], TC3NG),
           ([VentRate, LAL, Haines, MixHgt, FreeWind, TransWind], TC1),
           ([DSI, Stability, MarineLayer], TC1),
           ([HrsOfSun, InvBurnOffTemp], LT24),
@@ -2000,7 +2011,7 @@ OFFICIALDBS = [([Temp, Td, Wind, NWPSwind, Weather, Sky, FzLevel, SnowLevel], TC
 # NWPS
 nwpsCG1_MODEL = [([SwanSwell, Period, WaveHeight, WindWaveHeight, Wind], TC3NG)]
 
-nwpsTrkngCG0_MODEL = [([Wave1, Wave2, Wave3, Wave4, Wave5, Wave6, Wave7, Wave8, Wave9, Period1, Period2, Period3, Period4, Period5, Period6,Period7, Period8, Period9 ], TC3NG)]
+nwpsTrkngCG0_MODEL = [([Wave1, Wave2, Wave3, Wave4, Wave5, Wave6, Wave7, Wave8, Wave9, Wave10, Period1, Period2, Period3, Period4, Period5, Period6,Period7, Period8, Period9, Period10 ], TC3NG)]
 
 # Global Wave Watch III, WNAWAVE, AKWAVE Model database parameter groupings
 WAVEPARMS = [([WindWaveHeight, WaveHeight, SurfHeight, Wind], TC6),
@@ -2059,17 +2070,17 @@ TPCTCM_MODEL = [([HiWind], TC3)]
 
 # RTMA database parameter groupings
 #if SID in ALASKA_SITES: - not sure if this is right
-# DCS17288
+# DCS17288/DR17144
 if SID in ALASKA_SITES or SID in ["HFO", "SJU"]:
     RTMAPARMS = [([Temp,Td,RH,Wind,Vis,Pressure,WindGust],TC1),
              ([MinT],MinTTC), ([MaxT],MaxTTC),
              ([MinRH],MinRHTC), ([MaxRH],MaxRHTC),
-             ([TUnc,TdUnc,WSpdUnc,WDirUnc,VisUnc,PressUnc,WGustUnc],TC1)]
+             ([TUnc,TdUnc,WSpdUnc,WDirUnc,VisUnc,PressUnc,WGustUnc,SkyUnc],TC1)]
 else:
     RTMAPARMS = [([Temp,Td,RH,Wind,QPE,Sky,Vis,Pressure,WindGust],TC1),
              ([MinT],MinTTC), ([MaxT],MaxTTC),
              ([MinRH],MinRHTC), ([MaxRH],MaxRHTC),
-             ([TUnc,TdUnc,WSpdUnc,WDirUnc,VisUnc,PressUnc,WGustUnc],TC1)]
+             ([TUnc,TdUnc,WSpdUnc,WDirUnc,VisUnc,PressUnc,WGustUnc,SkyUnc],TC1)]
 
 # NamDNG5 database parameter groupings
 NamDNG5PARMS = [([Temp, Td, RH, Wind, Sky, WindGust, Vis], TC3),
