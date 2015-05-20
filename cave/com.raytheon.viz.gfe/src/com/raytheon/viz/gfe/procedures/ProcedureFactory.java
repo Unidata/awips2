@@ -27,6 +27,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PyUtil;
+import com.raytheon.uf.common.python.PythonIncludePathUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.viz.gfe.core.DataManager;
 
@@ -39,6 +40,7 @@ import com.raytheon.viz.gfe.core.DataManager;
  * ------------ ---------- ----------- --------------------------
  * Nov 5, 2008            njensen     Initial creation
  * Feb 25, 2010  4108     ryu         Add user/site directories to include path
+ * May 20, 2015  4509     njensen     Added time and dataaccess to include path
  * 
  * </pre>
  * 
@@ -58,12 +60,12 @@ public class ProcedureFactory {
                 .getPath();
         String scriptPath = FileUtil.join(baseUtil, "ProcedureInterface.py");
 
-        String includePath = PyUtil.buildJepIncludePath(
-                GfePyIncludeUtil.getCommonPythonIncludePath(),
-                GfePyIncludeUtil.getVtecIncludePath(),
-                GfePyIncludeUtil.getCommonGfeIncludePath(),
-                GfePyIncludeUtil.getProceduresIncludePath(),
-                GfePyIncludeUtil.getUtilitiesIncludePath());
+        String includePath = PyUtil.buildJepIncludePath(PythonIncludePathUtil
+                .getCommonPythonIncludePath("time", "dataaccess"),
+                GfePyIncludeUtil.getVtecIncludePath(), GfePyIncludeUtil
+                        .getCommonGfeIncludePath(), GfePyIncludeUtil
+                        .getProceduresIncludePath(), GfePyIncludeUtil
+                        .getUtilitiesIncludePath());
 
         ProcedureController procCont = null;
         if (ui) {
