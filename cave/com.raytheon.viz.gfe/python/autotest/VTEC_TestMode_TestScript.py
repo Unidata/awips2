@@ -587,7 +587,7 @@ scripts = [
       "Pinellas-Coastal Pasco-",
       "400 AM EST Fri Jan 1 2010",
       "...THIS MESSAGE IS FOR TEST PURPOSES ONLY...",
-      "...TEST RED FLAG WARNING IN EFFECT UNTIL MIDNIGHT EST TONIGHT FOR |* event type *| FOR FIRE WEATHER ZONES 050 AND 149 TEST...",
+      "...TEST RED FLAG WARNING IN EFFECT UNTIL MIDNIGHT EST TONIGHT FOR |* EVENT TYPE *| FOR FIRE WEATHER ZONES 050 AND 149 TEST...",
       "The National Weather Service in Tampa Bay Ruskin has issued a Test Red Flag Warning...which is in effect until midnight EST tonight.",
 #       "|* SEGMENT TEXT GOES HERE *|.",
       "A Red Flag Warning means that critical fire weather conditions are either occurring now....or will shortly.",
