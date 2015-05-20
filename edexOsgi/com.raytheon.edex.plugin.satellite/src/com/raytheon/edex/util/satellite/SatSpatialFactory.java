@@ -387,7 +387,7 @@ public class SatSpatialFactory {
         minY = -minY;
         
         return new SatMapCoverage(crsType, minX, minY, nx, ny, 
-        		dx, dy, crs, geometry);
+        		dx, dy, upperLeftElement, upperLeftLine, xres, yres, crs, geometry);
 
     }
 
