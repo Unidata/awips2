@@ -19,11 +19,14 @@
  **/
 package com.raytheon.viz.aviation.observer;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.xml.bind.JAXB;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -38,6 +41,7 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 
+import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -51,6 +55,9 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.aviation.AviationDialog;
 import com.raytheon.viz.aviation.editor.EditorTafTabComp;
 import com.raytheon.viz.aviation.resource.ResourceConfigMgr;
+import com.raytheon.viz.aviation.xml.AviationForecasterConfig;
+import com.raytheon.viz.aviation.xml.ForecasterConfig;
+import com.raytheon.viz.avnconfig.AvnConfigFileUtil;
 import com.raytheon.viz.avnconfig.IStatusSettable;
 import com.raytheon.viz.avnconfig.ITafSiteConfig;
 import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
@@ -71,6 +78,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 09OCT2012    1229       rferrel     Make dialog non-blocking.
  * 0yJUN2013    1981       mpduff      Set user on the request.
  * 06May2014    3091       rferrel     Use OUP authorization to bring up send dialog.
+ * 20May2015    4510       rferrel     Added {@link #getForecasterId()}.
  * 
  * </pre>
  * 
@@ -82,6 +90,14 @@ public class SendDialog extends CaveSWTDialog {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SendDialog.class);
+
+    /** Site file to use to find user's forecater id. */
+    private final String FORECAST_CONFIG_FILE = "aviation"
+            + IPathManager.SEPARATOR + "avnwatch" + IPathManager.SEPARATOR
+            + "aviationForecasterConfig.xml";
+
+    /** Default forecaster id. */
+    private final String DEFAULT_ID = "000";
 
     /**
      * Expression to find time stamp in a TAF.
@@ -352,7 +368,7 @@ public class SendDialog extends CaveSWTDialog {
         request.setUser(UserController.getUserObject());
 
         // Forecaster ID
-        String forecasterId = forecasterLabel.getText();
+        String forecasterId = getForecasterId();
         Calendar xmitTime = Calendar.getInstance();
         xmitTime.setTimeZone(TimeZone.getTimeZone("GMT"));
         xmitTime.set(Calendar.HOUR_OF_DAY, hourSpnr.getSelection());
@@ -506,5 +522,48 @@ public class SendDialog extends CaveSWTDialog {
         }
 
         return type + "A";
+    }
+
+    /**
+     * Determine forcaster's id for the user. When none found return the
+     * {@link #DEFAULT_ID}. This string will be in the VFT product.
+     * 
+     * @return forecasterId - padded to 3 character so an id of 1 will return
+     *         001
+     */
+    private String getForecasterId() {
+        File f = AvnConfigFileUtil.getStaticFile(FORECAST_CONFIG_FILE);
+        ArrayList<ForecasterConfig> fcList = null;
+        String forecasterName = AviationDialog.getForecaster();
+
+        if (f == null) {
+            statusHandler
+                    .handle(Priority.PROBLEM, "Unable to load, "
+                            + FORECAST_CONFIG_FILE + ", using default ID "
+                            + DEFAULT_ID);
+            return DEFAULT_ID;
+        }
+
+        try {
+            fcList = JAXB.unmarshal(f, AviationForecasterConfig.class)
+                    .getForecasterConfig();
+        } catch (RuntimeException ex) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to parse, " + FORECAST_CONFIG_FILE
+                            + ", using default ID " + DEFAULT_ID, ex);
+            return DEFAULT_ID;
+        }
+
+        if ((fcList != null) && !fcList.isEmpty()) {
+            for (ForecasterConfig fc : fcList) {
+                if (forecasterName.equals(fc.getName())) {
+                    return fc.getFormattedId();
+                }
+            }
+        }
+
+        statusHandler.handle(Priority.PROBLEM, "No forecaster Id for "
+                + forecasterName + "using default " + DEFAULT_ID);
+        return DEFAULT_ID;
     }
 }
