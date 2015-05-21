@@ -48,6 +48,7 @@ import com.raytheon.viz.ghg.monitor.data.GhgConfigData.SelectionEnum;
  * ------------ ---------- ----------- --------------------------
  * 25 MAR 2008  N/A        lvenable    Initial creation
  * 30 JUL 2010  6721       mpduff      WFO now from officeid column.
+ * 28 APR 2015  4027       randerso    Expunged Calendar from ActiveTableRecord
  * 
  * </pre>
  * 
@@ -234,13 +235,13 @@ public class GhgData implements Comparable<GhgData> {
             sig = warning.getSig();
             hazard = getHazardDescription(getPhenSig());
             try {
-                startDate = warning.getStartTime().getTime();
+                startDate = warning.getStartTime();
             } catch (Exception e) {
                 startDate = now;
             }
-            endDate = warning.getEndTime().getTime();
-            purgeDate = warning.getPurgeTime().getTime();
-            issueTime = warning.getIssueTime().getTime();
+            endDate = warning.getEndTime();
+            purgeDate = warning.getPurgeTime();
+            issueTime = warning.getIssueTime();
             pil = warning.getPil();
             segNum = String.valueOf(warning.getSeg());
             wfo = warning.getOfficeid();
@@ -933,7 +934,7 @@ public class GhgData implements Comparable<GhgData> {
     @Override
     public int hashCode() {
         int hash = 1;
-        hash = hash * 31 + hazard.hashCode();
+        hash = (hash * 31) + hazard.hashCode();
         return hash;
     }
 

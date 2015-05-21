@@ -39,6 +39,7 @@
 #20140612            3230 rferrel     Add pattern for URMA.
 #20150121            4014 dgilling    Add pattern for ETSS.
 #20150202            4066 rferrel     Add pattern form Earth Networks Total Lightning: SFPA42
+#20150507            4434 skorolev    Add pattern for GFS20
 #***************************************************************
 # AWIPS 1 PATTERN GRAPHIC	^[PQ].*				/redbook/Raw
 # PGNA00 KWNS 010001 !redbook 1_1/NMCGPHMCD/MCDSUM/PXSF001CN/20110201 0001
@@ -170,6 +171,13 @@ HDS	^(O.[LN].{1,3}) (KWBM|KWBI) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([
 # FNMOC Seasonal Great Lakes Ice edge gridded data. 
 HDS	^(OEBA88) KNWC (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
 	FILE	-overwrite -log -close -edex	/data_store/\5/(\2:yyyy)(\2:mm)\2/\3/ICE/GRID\7/\9Z_\(10)_\(11)-\1_KNWC_\2\3\4_(seq).\5.%Y%m%d%H
+
+# DR 17480 Add HFR (High Frequency Radar) Pattern
+# Note:  There isn't much metadata here to work with, if more is needed Unidata should be contacted.
+# OUTA98 KWNB 111100 !grib2/
+
+ANY	^(OUTA98) KWNB (..)(..)(..)[^!]*!(grib|grib2)
+	FILE	-overwrite -log -close -edex	/data_store/\5/(\2:yyyy)(\2:mm)\2/\3/HFR/\1_KWNB_\2\3\4_(seq).\5.%Y%m%d%H
 
 # AWIPS1:	GRID    ^[YZ][UV]M.98.*KNHC             /Grid/SBN/Raw
 # *** NOT FOUND IN INGEST STREAM ***
@@ -802,4 +810,12 @@ NGRID	^(MHR...) (KNHC) (..)(..)(..)
 
 #NGRID	^(YAU[CDLMPQS][0-2][0-9]) (KWNR) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
 #	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+
+# GFS20 - Alaska, Puerto Rico, Pacific and CONUS
+# YUFC97 KWBC 051200 !grib2/ncep/GFS/#255/201505051200F012/UREL/2 K*m**2*kg-1*s-1
+# ZONK67 KWBC 051200 !grib2/ncep/GFS/#215/201505051200F021/OMEG/675 hPa PRES
+# ZVBK86 KWBC 051200 !grib2/ncep/GFS/#217/201505051200F021/VREL/180-150 hPa PDLY
+
+NGRID	^([YZ][BCE-HMO-Y][BEFN][A-Z][0-9][0-9]) KWBC (..)(..)(..) [^!]*!(grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/grib2/(\2:yyyy)(\2:mm)\2/\3/\6/GRID\7/\9Z_\(10)_\(11)_\1_KWBC_\2\3\4_(seq).\5.%Y%m%d%H
 

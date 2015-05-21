@@ -35,17 +35,16 @@ class TextProduct(MultipleElementTable.TextProduct):
     Definition = copy.deepcopy(MultipleElementTable.TextProduct.Definition)
 
     Definition["displayName"] = "MultipleElementTable"
-    Definition["database"] = "Official"
     #Definition["outputFile"] = "/awips/GFESuite/products/TEXT/MultipleElementTable.txt"
-    #Definition["defaultEditAreas"] = [
+    #Definition["regionList"] = [
     #        ("area1","AREA 1"),
     #        ("area2","AREA 2"),
     #        ("area3","AREA 3"),
-    #        ]
+    #        ],
     #Definition["regionList"] = [
     #        ("/33",["AREA 1","AREA 2"]),
     #        ("/19",["AREA 3"])
-    #        ]
+    #        ],
 
     #Definition["elementList"] = ["Temp", "PoP"] # Default 
     #Definition["elementList"] = ["Temp", "Humidity"] 

@@ -295,9 +295,9 @@ class TextProduct(GenericHazards.TextProduct):
         #period.
         areaGroupLen = len(areaGroups)
         if areaGroupLen == 1:
-            areaPhrase = "A portion of "
+            areaPhrase = "a portion of "
         else:
-            areaPhrase = "Portions of "
+            areaPhrase = "portions of "
 
         #parts of the states
         areaGroupCount = 0
@@ -326,39 +326,39 @@ class TextProduct(GenericHazards.TextProduct):
         countyCnt = 0
         for state, partOfState, names in areaGroups:
             for name,nameType in names:
-                if nameType == "Zone":
+                if nameType == "zone":
                     zoneCnt = zoneCnt + 1
-                elif nameType == "County":
+                elif nameType == "county":
                     countyCnt = countyCnt + 1
-                elif nameType == "Independent city":
+                elif nameType == "independent city":
                     icCnt = icCnt + 1
-                elif nameType == "Parish":
+                elif nameType == "parish":
                     parishCnt = parishCnt + 1
 
         incPhrases = []
         if zoneCnt == 1:
-            incPhrases.append("Area")
+            incPhrases.append("area")
         elif zoneCnt > 1:
-            incPhrases.append("Areas")
+            incPhrases.append("areas")
         if countyCnt == 1:
-            incPhrases.append("County")
+            incPhrases.append("county")
         elif countyCnt > 1:
-            incPhrases.append("Counties")
+            incPhrases.append("counties")
         if icCnt == 1:
-            incPhrases.append("Independent city")
+            incPhrases.append("independent city")
         elif icCnt > 1:
-            incPhrases.append("Independent cities")
+            incPhrases.append("independent cities")
         if parishCnt == 1:
-            incPhrases.append("Parish")
+            incPhrases.append("parish")
         elif parishCnt > 1:
-            incPhrases.append("Parishes")
+            incPhrases.append("parishes")
         incPhrase = " and ".join(incPhrases)
 
         if generalOnly:
             return areaPhrase
 
              
-        areaPhrase = areaPhrase + "...Including the following " + \
+        areaPhrase = areaPhrase + "...including the following " + \
           incPhrase + "..."
 
         #list of the specific areas
@@ -377,7 +377,10 @@ class TextProduct(GenericHazards.TextProduct):
                     phrase = "...".join(snames[0:-1])
                 # complex phrasing (state, partOfState, and names)
                 else:
-                    phrase = "In "
+                    if i == 0:
+                        phrase = "in "
+                    else:
+                        phrase = "In "
                     if partOfState != '' and partOfState != ' ':
                         phrase = phrase + partOfState + ' '
                     phrase = phrase + state + "..." + "...".join(snames[0:-1])

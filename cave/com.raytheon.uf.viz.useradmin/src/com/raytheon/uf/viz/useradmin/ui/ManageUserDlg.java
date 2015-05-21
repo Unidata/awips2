@@ -54,6 +54,7 @@ import com.raytheon.viz.ui.widgets.duallist.IUpdate;
  * May 23, 2012            mpduff     Initial creation
  * Aug 08, 2012    863     jpiatt     Added new interface method.
  * Jul 28, 2013   2236     mpduff     Made resizable.
+ * May 04, 2015   4419     rferrel    Sort {@link #roleDualList}.
  * 
  * </pre>
  * 
@@ -208,6 +209,7 @@ public class ManageUserDlg extends CaveSWTDialog implements IUpdate {
         roleConfig.setSelectedList(selectedList);
         roleConfig.setFullList(fullList);
         roleConfig.setMenuData(menuData);
+        roleConfig.setSortList(true);
 
         roleDualList = new DualList(stackComp, SWT.NONE, roleConfig, this);
 
@@ -240,6 +242,7 @@ public class ManageUserDlg extends CaveSWTDialog implements IUpdate {
         permConfig.setSelectedList(selectedPermList);
         permConfig.setFullList(fullPermList);
         permConfig.setMenuData(menuData2);
+        permConfig.setSortList(true);
 
         permDualList = new DualList(stackComp, SWT.NONE, permConfig, this);
 
