@@ -27,6 +27,8 @@ import com.raytheon.uf.common.geospatial.ISpatialQuery.SearchMode;
 import com.raytheon.uf.common.geospatial.SpatialException;
 import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
 import com.raytheon.uf.common.geospatial.SpatialQueryResult;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.maps.rsc.DbMapQueryFactory;
 import com.raytheon.viz.core.map.GeoUtil;
@@ -53,6 +55,7 @@ import com.vividsolutions.jts.geom.Point;
  * Feb 12, 2013  1600      jsanchez     Used adjustAngle method from AbstractStormTrackResource.
  * Mar  5, 2013  1600      jsanchez     Used AdjustAngle instead of AbstractStormTrackResource to handle angle adjusting.
  * Mar 26, 2013  1819      jsanchez     Allowed points to be not be based on point source inclusion constraints.
+ * May  7, 2015 ASM #17438 D. Friedman  Clean up debug and performance logging.
  * 
  * </pre>
  * 
@@ -60,6 +63,9 @@ import com.vividsolutions.jts.geom.Point;
  * @version 1.0
  */
 abstract public class AbstractDbSourceDataAdaptor {
+
+    private static final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("WG:");
 
     private static final String transformedKey = "com.raytheon.transformed";
 
@@ -176,8 +182,8 @@ abstract public class AbstractDbSourceDataAdaptor {
                         ptFields.toArray(new String[ptFields.size()]),
                         searchArea, filter, SearchMode.INTERSECTS);
             }
-            System.out.println("Retrieve location data for '" + pointSource
-                    + "' = " + (System.currentTimeMillis() - t0));
+            perfLog.logDuration("Retrieve location data for '" + pointSource + "'",
+                    System.currentTimeMillis() - t0);
         } catch (SpatialException e) {
             throw new VizException("Error querying " + pointSource + " table: "
                     + e.getLocalizedMessage(), e);

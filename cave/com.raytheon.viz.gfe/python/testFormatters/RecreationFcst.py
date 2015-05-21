@@ -297,7 +297,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         if digit > 3 or digit <= 9:
            RH1 = ten + 5
         RH2 = RH1 + 10
-        words = `RH1` + " TO " + `RH2` + " PERCENT"
+        words = `RH1` + " to " + `RH2` + " percent"
         return self.setWords(node, words)
 
     def _windChill_heatIndex_compoundPhrase(self):
@@ -316,7 +316,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         if words is None:
             return
         if words == "":
-            words = "NOT A FACTOR"
+            words = "not a factor"
         node.set("descriptor", "")
         statsWC = tree.stats.get("WindChill", node.getTimeRange(),
                                  node.getAreaLabel(), mergeMethod="Min")
@@ -364,11 +364,11 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         maxWind, dir = self.getValue(stats, "Max", self.VECTOR())
         chopphrase = ""
         if maxWind >= 26.1:
-           chopphrase = "HEAVY CHOP EXPECTED ON AREA RIVERS AND LAKES"
+           chopphrase = "Heavy chop expected on area rivers and lakes"
         elif maxWind >= 21.7:
-           chopphrase = "MODERATE CHOP EXPECTED ON AREA RIVERS AND LAKES"
+           chopphrase = "Moderate chop expected on area rivers and lakes"
         elif maxWind >= 17.4:
-           chopphrase = "LIGHT CHOP EXPECTED ON AREA RIVERS AND LAKES"
+           chopphrase = "Light chop expected on area rivers and lakes"
         if chopphrase != "":
            words = words + ".  " + chopphrase 
         return self.setWords(node, words)
@@ -408,10 +408,10 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
               QPFwords = "\n"
               words =  WXwords
            elif (QPFrange0 == "0.0"):
-              QPFwords = "AMOUNTS UP TO " + QPFrange1 + " OF AN INCH"
+              QPFwords = "Amounts up to " + QPFrange1 + " of an inch"
               words = WXwords + ".  " + QPFwords
            else:
-              QPFwords = "AMOUNTS BETWEEN " + QPFrange0 + " AND " + QPFrange1 + " OF AN INCH"
+              QPFwords = "Amounts between " + QPFrange0 + " and " + QPFrange1 + " of an inch"
               words = WXwords + ".  " + QPFwords
         return self.setWords(node, words)
 
@@ -441,15 +441,15 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
            if wxType == "T":
               cov = subkey.coverage()
               if cov in ["Num", "Wide", "Ocnl", "Brf", "Frq", "Pds", "Inter", "Lkly", "Def"]:
-                 words = "LIKELY"
-              elif cov in ["Sct", "Chc"] and words not in ["LIKELY"]:
-                 words = "SCATTERED"
-              elif cov in ["Iso", "SChc"] and words not in ["LIKELY", "SCATTERED"]:
-                 words = "ISOLATED"
-              elif words not in ["LIKELY", "SCATTERED", "ISOLATED"]:
-                 words = "POSSIBLE"
-           elif words not in ["LIKELY", "SCATTERED", "ISOLATED", "POSSIBLE"]:
-              words = "NONE"
+                 words = "likely"
+              elif cov in ["Sct", "Chc"] and words not in ["likely"]:
+                 words = "scattered"
+              elif cov in ["Iso", "SChc"] and words not in ["likely", "scattered"]:
+                 words = "isolated"
+              elif words not in ["likely", "scattered", "isolated"]:
+                 words = "possible"
+           elif words not in ["likely", "scattered", "isolated", "possible"]:
+              words = "none"
         #print words
         return self.setWords(node, words)
 

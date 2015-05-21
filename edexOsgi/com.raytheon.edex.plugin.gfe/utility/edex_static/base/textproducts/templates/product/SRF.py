@@ -355,7 +355,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         # If a method, it will be called with arguments:
         #   tree, node, key, element
         return {
-            "WaveHeight" : "surf................",
+            "WaveHeight" : "SURF................",
             "Swell":  "swell",
             "Swell2": "swell",
             "LabelSwell":  "SWELL...............",
@@ -377,8 +377,8 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             "MaxT":"highs",
             "Wind": "winds",           
             #  Used for Headlines
-            "Expected" : "expected",
-            "In effect" : "in effect",
+            "EXPECTED" : "expected",
+            "IN EFFECT" : "in effect",
             # Used for single values
             "around": "around ",
             "    VALLEYS/LWR SLOPES...": "    INLAND...............",
@@ -1229,7 +1229,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             return self.setWords(node, "")
         self.setWords(node, "")
         node.set("descriptor", "")
-        node.set("indentLabel", "20-foot winds.......")
+        node.set("indentLabel", "20-FOOT WINDS.......")
         return self.DONE()      
     
     def fireRidgeValleyWind_setUp(self, tree, node):
@@ -1539,7 +1539,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             tokens = line.split()
             # Look for the city
             for token in tokens:
-                if token == uviCity:
+                if token.upper() == uviCity.upper():
                     index = tokens.index(token)
                     state = tokens[index + 1]
                     if state == uviState:
@@ -1598,7 +1598,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                 # Add error message to fcst
                 fcst = fcst + tideTable
                 continue
-            fcst = fcst + "\nAT " + label + "...\n\n"
+            fcst = fcst + "\nAt " + label + "...\n\n"
             for line in tideTable:
                 if line.find(currentDate) == 0:
                     # Get the tide info 

@@ -27,6 +27,14 @@
 #
 # Author: hansen
 # ----------------------------------------------------------------------------
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    04/28/2016      4027          randerso       Changes for mixed case
+#
+##
 
 import PhraseBuilder
 import ModuleAccessor
@@ -2059,7 +2067,7 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
 
         # test mode
         if argDict.get('testMode', 0):
-            phrase = 'TEST ' + name   #test mode, prepend "TEST"
+            phrase = 'Test ' + name   #test mode, prepend "TEST"
         else:
             phrase = name
 

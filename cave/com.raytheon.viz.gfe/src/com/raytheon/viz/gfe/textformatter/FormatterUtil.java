@@ -22,6 +22,7 @@ package com.raytheon.viz.gfe.textformatter;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
+import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.SimulatedTime;
@@ -44,6 +45,7 @@ import com.raytheon.viz.gfe.tasks.TaskManager;
  * Feb 12, 2014  2591      randerso    Passed dataMgr instance to FormatterUtil.runFormatterScript
  *                                     Removed call to TextProductManager.reloadModule
  * Apr 20, 2015  4027      randerso    Renamed ProductStateEnum with an initial capital
+ *                                     Fixed hard coded active table mode in runFormatterScript
  * 
  * </pre>
  * 
@@ -80,8 +82,12 @@ public class FormatterUtil {
             String vtecMode, TextProductFinishListener finish) {
 
         int testMode = 0;
-        if (dataMgr.getOpMode().equals(CAVEMode.TEST)) {
+        ActiveTableMode atMode = ActiveTableMode.OPERATIONAL;
+        CAVEMode caveMode = dataMgr.getOpMode();
+        if (caveMode.equals(CAVEMode.TEST)) {
             testMode = 1;
+        } else if (caveMode.equals(CAVEMode.PRACTICE)) {
+            atMode = ActiveTableMode.PRACTICE;
         }
 
         String shortVtec = null;
@@ -104,7 +110,6 @@ public class FormatterUtil {
         String varDict = productMgr.getVarDict(productName, dataMgr, dbId);
 
         if (varDict != null) {
-            // run the formatter with the normal active table
             String time = null;
             if (!SimulatedTime.getSystemTime().isRealTime()) {
                 SimpleDateFormat gmtFormatter = new SimpleDateFormat(
@@ -114,7 +119,7 @@ public class FormatterUtil {
                 time = gmtFormatter.format(SimulatedTime.getSystemTime()
                         .getTime());
             }
-            runFormatterScript(name, shortVtec, dbId, varDict, "Operational",
+            runFormatterScript(name, shortVtec, dbId, varDict, atMode.name(),
                     time, testMode, finish);
         } else {
             finish.textProductFinished("Formatter canceled",
