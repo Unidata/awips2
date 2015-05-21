@@ -22,7 +22,8 @@
 			<list>
 				<value>com.raytheon.uf.common.dataplugin.text</value>
 				<value>com.raytheon.uf.common.dataplugin.shef</value>
-				<value>com.raytheon.edex.plugin.shef</value>				
+				<value>com.raytheon.edex.plugin.shef</value>
+				<value>com.raytheon.uf.common.bmh</value>
 			</list>
 		</property>
 	</bean>

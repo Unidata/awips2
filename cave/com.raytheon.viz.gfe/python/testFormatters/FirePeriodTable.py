@@ -24,7 +24,7 @@
 #   Edit Areas: solicited from user
 #   Weather Elements:  You must have these Weather elements defined in
 #       your server: Sky, LAL,  RelHum, MaxT,  MinT,  FreeWind,
-#                    Haines, TransWind, MixHgt(ft agl)
+#                    Haines, TransWind, MixHgt(ft AGL)
 #   To Run:
 #      Set GFE Time Range
 #      Products-->Generate Products
@@ -36,7 +36,7 @@
 
 ##    Fire Period Table for Feb 29 00 17:00:00 GMT - Mar 01 00 11:00:00 GMT.
 
-##    Edit Area      Sky (%)  LAL  RelHum (%)  MaxT  MinT  FreeWind(mph)  Haines  TransWind(mph)  MixHgt(ft agl)
+##    Edit Area      Sky (%)  LAL  RelHum (%)  MaxT  MinT  FreeWind(mph)  Haines  TransWind(mph)  MixHgt(ft AGL)
 
 ##    COAdams          36-23                    46    26
 ##    COArapahoe       34-24                    46    26
@@ -102,7 +102,7 @@ Definition =  {
                  "vectorRange",
                  "range2Value",
                  "Vector", 1, "ktToMph"),
-                ("MixHgt", "MixHgt(ft agl)",
+                ("MixHgt", "MixHgt(ft AGL)",
                  "minMax",
                  "range2Value",
                  "Scalar",10,None),

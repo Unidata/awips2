@@ -25,13 +25,13 @@
 #     SRF_850, SRF_853, SRF_856
 #
 #  surfAreas:
-#     NorthCoast1 (listed with FLZ039), SouthCoast  (along GMZ850)
-#     NorthCoast2 (listed with FLZ042), SouthCoast  (along GMZ850)
+#     NorthCoast1 (listed with FLZ139), SouthCoast  (along GMZ850)
+#     NorthCoast2 (listed with FLZ142), SouthCoast  (along GMZ850)
 #
 # TBW always runs with the same combinations:
-#   FLZ039-FLZ042-FLZ048-FLZ049
-#   FLZ050-FLZ051-FLZ055-FLZ060
-#   FLZ062-FLZ065
+#   FLZ139-FLZ142-FLZ148-FLZ149
+#   FLZ050-FLZ151-FLZ155-FLZ160
+#   FLZ162-FLZ165
 # Thus, additional entries need only be listed for at least one zone
 # in each combination.
 #
@@ -39,6 +39,15 @@
 # for each zone and the system will take care to combine them appropriately.
 # For example, note that the "surfAreas" are listed for both FLZ039 and FLZ042.
 # When they are combined, the surfAreas are reported just once, as desired.
+# ----------------------------------------------------------------------------
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    04/28/2016      4027          randerso       Changes for mixed case
+#
+##
 
 
 AreaDictionary = {
@@ -91,7 +100,7 @@ AreaDictionary = {
  'FLZ050': {'fullStateName': 'Florida',
             'partOfState': 'west central',
             'stateAbbr': 'FL',
-            'ugcCityString': '...Bradenton Beach...Clearwater Beach...Siesta Key...Saint pete Beach...Venice Beach',
+            'ugcCityString': '...Bradenton Beach...Clearwater Beach...Siesta Key...Saint Pete Beach...Venice Beach',
             'ugcCode': 'FLZ050',
             'ugcName': 'Pinellas',
             'ugcTimeZone': 'EST5EDT',

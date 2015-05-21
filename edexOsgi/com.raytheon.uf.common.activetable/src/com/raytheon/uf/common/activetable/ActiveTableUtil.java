@@ -20,7 +20,7 @@
 package com.raytheon.uf.common.activetable;
 
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +37,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 4, 2013            dgilling     Initial creation
+ * Mar 4, 2013             dgilling    Initial creation
+ * Apr 28, 2015  #4027     randerso    Expunged Calendar from ActiveTableRecord
  * 
  * </pre>
  * 
@@ -84,15 +85,12 @@ public class ActiveTableUtil {
             template.put("phensig", atr.getPhensig());
             template.put("act", atr.getAct());
             template.put("seg", atr.getSeg());
-            template.put("startTime",
-                    atr.getStartTime().getTimeInMillis() / 1000);
-            template.put("endTime", atr.getEndTime().getTimeInMillis() / 1000);
+            template.put("startTime", atr.getStartTime().getTime() / 1000);
+            template.put("endTime", atr.getEndTime().getTime() / 1000);
             template.put("ufn", atr.isUfn());
             template.put("officeid", atr.getOfficeid());
-            template.put("purgeTime",
-                    atr.getPurgeTime().getTimeInMillis() / 1000);
-            template.put("issueTime",
-                    atr.getIssueTime().getTimeInMillis() / 1000);
+            template.put("purgeTime", atr.getPurgeTime().getTime() / 1000);
+            template.put("issueTime", atr.getIssueTime().getTime() / 1000);
             template.put("state", "Decoded");
             template.put("xxxid", atr.getXxxid());
 
@@ -104,9 +102,9 @@ public class ActiveTableUtil {
 
             template.put("rawMessage", atr.getRawmessage());
             template.put("countyheader", atr.getCountyheader());
-            Calendar floodBegin = atr.getFloodBegin();
+            Date floodBegin = atr.getFloodBegin();
             if (floodBegin != null) {
-                long floodBeginMillis = floodBegin.getTimeInMillis();
+                long floodBeginMillis = floodBegin.getTime();
                 if (floodBeginMillis != 0) {
                     template.put("floodBegin", floodBeginMillis / 1000);
                 }
@@ -114,31 +112,31 @@ public class ActiveTableUtil {
             template.put("wmoid", atr.getWmoid());
 
             // Warngen fields
-            Calendar floodCrest = atr.getFloodCrest();
+            Date floodCrest = atr.getFloodCrest();
             if (floodCrest != null) {
-                long floodCrestMillis = floodCrest.getTimeInMillis();
+                long floodCrestMillis = floodCrest.getTime();
                 if (floodCrestMillis != 0) {
                     template.put("floodCrest", floodCrestMillis / 1000);
                 }
             }
-            Calendar floodEnd = atr.getFloodEnd();
+            Date floodEnd = atr.getFloodEnd();
             if (floodEnd != null) {
-                long floodEndMillis = floodEnd.getTimeInMillis();
+                long floodEndMillis = floodEnd.getTime();
                 if (floodEndMillis != 0) {
                     template.put("floodBegin", floodEndMillis / 1000);
                 }
             }
             String floodStatus = atr.getFloodRecordStatus();
-            if (floodStatus != null && !"".equals(floodStatus.trim())) {
+            if ((floodStatus != null) && !"".equals(floodStatus.trim())) {
                 template.put("floodrecordstatus", floodStatus);
             }
             String floodSeverity = atr.getFloodSeverity();
-            if (floodSeverity != null && !"".equals(floodSeverity.trim())) {
+            if ((floodSeverity != null) && !"".equals(floodSeverity.trim())) {
                 template.put("floodseverity", floodSeverity);
             }
 
             Geometry geometry = atr.getGeometry();
-            if (geometry != null && !geometry.isEmpty()) {
+            if ((geometry != null) && !geometry.isEmpty()) {
                 StringBuilder sb = new StringBuilder();
                 String sep = "";
                 long lat;
@@ -154,17 +152,17 @@ public class ActiveTableUtil {
             }
 
             String immediateCause = atr.getImmediateCause();
-            if (immediateCause != null && !"".equals(immediateCause.trim())) {
+            if ((immediateCause != null) && !"".equals(immediateCause.trim())) {
                 template.put("immediateCause", immediateCause);
             }
 
             String loc = atr.getLoc();
-            if (loc != null && !"".equals(loc.trim())) {
+            if ((loc != null) && !"".equals(loc.trim())) {
                 template.put("loc", loc);
             }
 
             String locationId = atr.getLocationID();
-            if (locationId != null && !"".equals(locationId.trim())) {
+            if ((locationId != null) && !"".equals(locationId.trim())) {
                 template.put("locationId", locationId);
             }
 
