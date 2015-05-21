@@ -47,6 +47,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * May 14, 2015  4409     mapeters    Initial creation.
+ * May 21, 2015  4409     mapeters    Extract query results correctly in getTimeColumnNames()
  * 
  * </pre>
  * 
@@ -142,8 +143,8 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
                 request, tableName);
         if (!results.isEmpty()) {
             List<String> timeColumnNames = new ArrayList<>();
-            for (Object timeColumn : results.get(0)) {
-                timeColumnNames.add((String) timeColumn);
+            for (Object[] timeColumn : results) {
+                timeColumnNames.add((String) timeColumn[0]);
             }
             return timeColumnNames;
         }
