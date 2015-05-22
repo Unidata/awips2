@@ -25,14 +25,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.Vector;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -47,6 +45,10 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
@@ -59,6 +61,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * 27 Oct 2008             lvenable    Initial creation.
  * 10 Feb 2009             wkwock      Added functions.
+ * 31 May 2015  4501       skorolev    Got rid of Vector.
  * 
  * </pre>
  * 
@@ -67,6 +70,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  */
 public class PrecipDataDlg extends CaveSWTDialog {
+
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(PrecipDataDlg.class);
 
     /**
      * Hour spinner.
@@ -227,7 +233,7 @@ public class PrecipDataDlg extends CaveSWTDialog {
             }
         });
     }
-    
+
     private void displayCoopPrecip() {
         String startDate = displayCB.getEndDate();
         String header1 = "\t\t\t 24 Hour Precipitation Ending at "
@@ -235,7 +241,7 @@ public class PrecipDataDlg extends CaveSWTDialog {
         String header2 = "  ID     PE  DUR  TS E       OBSTIME        PRODUCT       VALUE";
         String dashLine = "-------------------------------------------------------------------";
         String dataFmt = "%-8s %2s  %4s %2s %1s %19s %13s %6.2f";
-        Vector<String[]> coopPrecipData = databaseMgr
+        List<String[]> coopPrecipData = databaseMgr
                 .getCoopPrecipData(startDate);
 
         if (coopPrecipData == null) {
@@ -258,10 +264,12 @@ public class PrecipDataDlg extends CaveSWTDialog {
                     value = Double.parseDouble(dataText[6]);
                 } catch (NumberFormatException nfe) {
                     value = HydroConstants.MISSING_VALUE;
+                    statusHandler.handle(Priority.ERROR, "Fail to parse "
+                            + dataText[6] + ".");
                 }
-                displayText[i] = String.format(dataFmt, dataText[0],
-                        "PP", dataText[1], dataText[2], dataText[3],
-                        dataText[4], productID, value);
+                displayText[i] = String.format(dataFmt, dataText[0], "PP",
+                        dataText[1], dataText[2], dataText[3], dataText[4],
+                        productID, value);
                 i++;
             }
             displayCB.setDisplayText(displayText);
@@ -277,11 +285,11 @@ public class PrecipDataDlg extends CaveSWTDialog {
         Calendar date = null;
         try {
             Date sDate = obsDate.parse(displayCB.getEndDate());
-            date = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-            date.setTime(sDate);
-            date.set(GregorianCalendar.HOUR_OF_DAY, hour);
+            date = TimeUtil.newGmtCalendar(sDate);
         } catch (ParseException e) {
-            date = Calendar.getInstance(TimeZone.getTimeZone("GMT"));;
+            date = TimeUtil.newGmtCalendar();
+            statusHandler.handle(Priority.ERROR,
+                    "Fail to parse " + displayCB.getEndDate() + ".");
         }
 
         obsDate = new SimpleDateFormat("yyyy-MM-dd HH:00:00", Locale.US);
@@ -292,16 +300,21 @@ public class PrecipDataDlg extends CaveSWTDialog {
         HashMap<String, Double> precipLidAndValue = databaseMgr
                 .getPrecipLidAndValue(obsTimeStr);
 
+        if (precipLidAndValue == null) {
+            precipLidAndValue = new HashMap<String, Double>();
+        }
+
         date.add(Calendar.HOUR_OF_DAY, 0 - duration);
         obsTimeStr = obsDate.format(date.getTime());
-        
+
         Map<String, Double> precipLidAndValue2 = databaseMgr
                 .getPrecipLidAndValue(obsTimeStr);
         if (precipLidAndValue2 == null) {
             precipLidAndValue2 = new HashMap<String, Double>();
         }
-        ArrayList<String> precipLidAndDiffBuf = new ArrayList<String>(precipLidAndValue.size());
-        
+        List<String> precipLidAndDiffBuf = new ArrayList<String>(
+                precipLidAndValue.size());
+
         if (precipLidAndValue.size() == 0) {
             precipLidAndDiffBuf.add("No " + duration
                     + " Hour Precipitation data found.");
@@ -316,7 +329,7 @@ public class PrecipDataDlg extends CaveSWTDialog {
             List<XdatPcData> dataList = new ArrayList<XdatPcData>();
             while (iter.hasNext()) {
                 lid = iter.next();
-                
+
                 double value = precipLidAndValue.get(lid);
                 double value2 = -999;
                 if (precipLidAndValue2.containsKey(lid)) {
@@ -332,20 +345,20 @@ public class PrecipDataDlg extends CaveSWTDialog {
                 }
 
                 XdatPcData data = new XdatPcData(lid, valDiff);
-                dataList.add(data);                
+                dataList.add(data);
             }
-            
+
             Collections.sort(dataList);
             for (int i = 0; i < dataList.size(); i++) {
                 XdatPcData data = dataList.get(i);
 
-                precipLidAndDiffBuf.add(String.format("%-8s %4.2f", data.getLid(),
-                        data.getValue()));
+                precipLidAndDiffBuf.add(String.format("%-8s %4.2f",
+                        data.getLid(), data.getValue()));
             }
-            
 
         }
-        displayCB.setDisplayText(precipLidAndDiffBuf.toArray(new String[precipLidAndDiffBuf.size()]));
+        displayCB.setDisplayText(precipLidAndDiffBuf
+                .toArray(new String[precipLidAndDiffBuf.size()]));
 
     }
 }
