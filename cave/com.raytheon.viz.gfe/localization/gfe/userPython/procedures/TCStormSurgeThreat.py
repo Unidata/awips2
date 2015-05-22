@@ -20,10 +20,8 @@
 # Available on time. Left inactive (commented out) for the moment until that can be fully tested later
 # in 2014 or in 2015.
 #
-# Last Modified: May 18, 2015 (LEFebvre/Santos): Added option to create null grids and manual grids when
+# Last Modified: May 22, 2015 (LEFebvre/Santos): Added option to create null grids and manual grids when
 # PSURGE not available. Added checks for current guidance for PHISH and ISC options.
-#
-# Last Modified May 21, 2015 (LeFebvre): Changes made based on code review suggestions.
 # 
 # ----------------------------------------------------------------------------
 # The MenuItems list defines the GFE menu item(s) under which the
@@ -55,20 +53,14 @@ VariableList = [("DEFAULT: Typical. Should only be changed in coordination with 
                 ("End Hour for Inundation Timing", 6, "scale", [0.0, 78.0], 6.0),
                 ]
 
-MetersToFeet = 3.281
-MinValue = -80.0
-
 class Procedure (SmartScript.SmartScript):
     def __init__(self, dbss):
         SmartScript.SmartScript.__init__(self, dbss)
        
     def getWEInventory(self, modelName, WEName, level):
         allTimes = TimeRange.allTimes().toJavaObj()
+        gridInfo = self.getGridInfo(modelName, WEName, level, allTimes)
         trList = []
-        try:
-            gridInfo = self.getGridInfo(modelName, WEName, level, allTimes)
-        except:
-            return trList
         for g in gridInfo:
             start = g.gridTime().startTime().unixTime()
             end = g.gridTime().endTime().unixTime()
@@ -80,6 +72,7 @@ class Procedure (SmartScript.SmartScript):
     
     def baseGuidanceTime(self):
         startTime = int((self._gmtime().unixTime() - (2 * 3600)) / (6 * 3600)) * (6 * 3600)
+        print "BASETIME IS: ", startTime
         
         return startTime
 
@@ -105,7 +98,7 @@ class Procedure (SmartScript.SmartScript):
            
 
         # convert to feet
-        topoGrid = topoGrid * MetersToFeet
+        topoGrid = topoGrid * 3.281
         #topoVal = topoGrid.copy()
         min = -16000
         max = 16000.0
@@ -116,7 +109,7 @@ class Procedure (SmartScript.SmartScript):
 
 #        mask1 = topoVal< min
 #        mask2 = topoVal> max
-#        topoGrid = np.where(mask1,MinValue,topoVal)
+#        topoGrid = np.where(mask1,-80.0,topoVal)
 #        topoGrid = np.where(mask2,self.getTopo(),topoVal)
        
         return topoGrid
@@ -171,12 +164,14 @@ class Procedure (SmartScript.SmartScript):
             self.statusBarMsg("TPCSurgeProb database is not current. Aborting", "A")
             return None
 
-        grid = self.getGrids(dbName, weName, level, trList[0], mode="Max")
+        #print "Retreiving ", weName, " at ", level
+        for tr in trList:
+            grid = self.getGrids(dbName, weName, level, tr, mode="Max")
 
         
         surgeVal = grid.copy()
         mask = surgeVal > -100
-        grid = np.where(mask,surgeVal*MetersToFeet, MinValue)
+        grid = np.where(mask,surgeVal*3.28, -80.0)
 
         return grid  # convert meters to feet 
     
@@ -195,8 +190,6 @@ class Procedure (SmartScript.SmartScript):
 
         n = 1
         for tr in trList:
-            # Make a timeRange that starts a few days in the past and ends a few days in the future
-            # so we can be sure all the old grids are deleted.
             start = tr.startTime().unixTime() - 6*3600
             if n == 1:
                 starttimeghls = tr.startTime().unixTime() - 3*3600
@@ -216,9 +209,9 @@ class Procedure (SmartScript.SmartScript):
                 continue       
             
             if smoothThreatGrid is "Yes":
-                phishGrid[phishGrid>0.0] = self.smoothGrid(phishGrid,3)        
+                phishGrid = np.where(np.greater(phishGrid, 0.0), self.smoothGrid(phishGrid,3), phishGrid)        
             
-            grid = np.where(phishGrid>-100,phishGrid*MetersToFeet, MinValue)
+            grid = np.where(phishGrid>-100,phishGrid*3.28, -80.0)
             self.createGrid("Fcst", "InundationTiming", "SCALAR", grid, tr6, precision=1)
   
         return
@@ -245,10 +238,10 @@ class Procedure (SmartScript.SmartScript):
             grid = self.getGrids(dbName, weName, "SFC", tr, mode="First")
             #maxGrid = maximum(grid, -100.0)   # calculate the max as we go
 
-        #maxGrid = where(greater(maxGrid,-100.0), maxGrid*MetersToFeet, maxGrid)
+        #maxGrid = where(greater(maxGrid,-100.0), maxGrid*3.28, maxGrid)
         conversionGrid = grid.copy()
         mask = conversionGrid>-0.40
-        grid = np.where(mask, conversionGrid*MetersToFeet, MinValue)        
+        grid = np.where(mask, conversionGrid*3.28, -80.0)        
 
         #return maxGrid  # convert meters to feet
         return grid
@@ -275,10 +268,10 @@ class Procedure (SmartScript.SmartScript):
             grid = self.getGrids(dbName, weName, "SFC", tr, mode="First")
             #maxGrid = maximum(grid, -100.0)   # calculate the max as we go
 
-        #maxGrid = where(greater(maxGrid,-100.0),maxGrid*MetersToFeet, maxGrid)
+        #maxGrid = where(greater(maxGrid,-100.0),maxGrid*3.28, maxGrid)
         conversionGrid = grid.copy()
         mask = conversionGrid>0.0
-        grid = np.where(mask,conversionGrid *MetersToFeet, MinValue) 
+        grid = np.where(mask,conversionGrid *3.28, -80.0) 
 
         #return maxGrid  # convert meters to feet
         return grid
@@ -305,10 +298,10 @@ class Procedure (SmartScript.SmartScript):
             grid = self.getGrids(dbName, weName, "SFC", tr, mode="First")
             #maxGrid = maximum(grid, -100.0)   # calculate the max as we go
 
-        #maxGrid = where(greater(maxGrid,-100.0),maxGrid*MetersToFeet, maxGrid)
+        #maxGrid = where(greater(maxGrid,-100.0),maxGrid*3.28, maxGrid)
         conversionGrid = grid.copy()
         mask = conversionGrid>-3.09
-        grid = np.where(mask, conversionGrid*MetersToFeet, MinValue) 
+        grid = np.where(mask, conversionGrid*3.28, -80.0) 
 
         #return maxGrid  # convert meters to feet
         return grid
@@ -334,10 +327,10 @@ class Procedure (SmartScript.SmartScript):
             grid = self.getGrids(dbName, weName, "SFC", tr, mode="First")
             #maxGrid = maximum(grid, -100.0)   # calculate the max as we go
 
-        #maxGrid = where(greater(maxGrid,-100.0),maxGrid*MetersToFeet, maxGrid)
+        #maxGrid = where(greater(maxGrid,-100.0),maxGrid*3.28, maxGrid)
         conversionGrid=grid.copy()
         mask = conversionGrid>-2.20
-        grid = np.where(mask, conversionGrid*MetersToFeet, MinValue) 
+        grid = np.where(mask, conversionGrid*3.28, -80.0) 
 
         #return maxGrid  # convert meters to feet
         return grid
@@ -364,10 +357,10 @@ class Procedure (SmartScript.SmartScript):
             grid = self.getGrids(dbName, weName, "SFC", tr, mode="First")
             #maxGrid = maximum(grid, -100.0)   # calculate the max as we go
 
-        #maxGrid = where(greater(maxGrid,-100.0),maxGrid*MetersToFeet, maxGrid)
+        #maxGrid = where(greater(maxGrid,-100.0),maxGrid*3.28, maxGrid)
         conversionGrid = grid.copy()
         mask = conversionGrid>-3.40
-        grid = np.where(mask, conversionGrid*MetersToFeet, MinValue) 
+        grid = np.where(mask, conversionGrid*3.28, -80.0) 
 
         #return maxGrid  # convert meters to feet
         return grid
@@ -378,9 +371,9 @@ class Procedure (SmartScript.SmartScript):
             return grid
 
         half = int(factor)/ 2
-        sg = np.zeros(grid.shape,"f4")
-        count = np.zeros(grid.shape,"f4")
-        gridOfOnes = np.ones(grid.shape,"f4")
+        sg = np.zeros(grid.shape,"f8")
+        count = np.zeros(grid.shape,"f8")
+        gridOfOnes = np.ones(grid.shape,"f8")
         for y in range(-half, half + 1):
             for x in range(-half, half + 1):
                 if y < 0:
@@ -404,10 +397,10 @@ class Procedure (SmartScript.SmartScript):
 
                 target = [yTargetSlice, xTargetSlice]
                 src = [ySrcSlice, xSrcSlice]
-                sg[target] = np.where(np.greater(grid[src],MinValue),sg[target] + grid[src],sg[target])
-                count[target] = np.where(np.greater(grid[src],MinValue),count[target] + gridOfOnes[src],count[target])
+                sg[target] = np.where(np.greater(grid[src],-80.0),sg[target] + grid[src],sg[target])
+                count[target] = np.where(np.greater(grid[src],-80.0),count[target] + gridOfOnes[src],count[target])
 
-        return np.where(np.greater(count,0.0), sg / count, MinValue)
+        return np.where(np.greater(count,0.0), sg / count, -80.0)
     
     
     # Copies the specified weather elements in elementList into the Fcst database.
@@ -484,7 +477,7 @@ class Procedure (SmartScript.SmartScript):
         trList = self.makeTimingTRs(baseTime)
         
         for tr in trList:
-            timingGrid = np.zeros(self.getGridShape(), np.float32)
+            timingGrid = np.zeros(self.getGridShape())
             gridList.append(timingGrid)
             
         return trList, gridList
@@ -543,14 +536,14 @@ class Procedure (SmartScript.SmartScript):
                 surgePctGrid = np.where(np.greater(surgePctGrid, 0.0), self.smoothGrid(surgePctGrid,3), surgePctGrid)
                 surgePctGridNAVD = np.where(np.greater(surgePctGridNAVD, -10.0), self.smoothGrid(surgePctGridNAVD,3), surgePctGridNAVD)
         
-            mask1 = np.logical_and(np.greater(msltonavd, MinValue),np.greater(surgePctGridNAVD,MinValue))
-            surgePctGridMSL= np.where(mask1, surgePctGridNAVD - msltonavd, MinValue) # MSL Grid     
-            surgePctGridMLLW = np.where(np.greater(navdtomllw,MinValue) & np.greater(surgePctGridNAVD,MinValue), \
-                                        surgePctGridNAVD + navdtomllw, MinValue)# MLLW Grid
-            surgePctGridMHHW = np.where(np.greater(navdtomhhw,MinValue) & np.greater(surgePctGridNAVD,MinValue), \
-                                        surgePctGridNAVD + navdtomhhw, MinValue)# MHHW Grid
-            surgeDiffMLLWMHHW = np.where(np.greater(surgePctGridMLLW,MinValue) & np.greater(surgePctGridMHHW, MinValue), \
-                                         surgePctGridMLLW-surgePctGridMHHW, MinValue)# Diff Grid Between MLLW and MHHW   
+            mask1 = np.logical_and(np.greater(msltonavd, -80.0),np.greater(surgePctGridNAVD,-80.0))
+            surgePctGridMSL= np.where(mask1, surgePctGridNAVD - msltonavd, -80.0) # MSL Grid     
+            surgePctGridMLLW = np.where(np.greater(navdtomllw,-80.0) & np.greater(surgePctGridNAVD,-80.0), \
+                                        surgePctGridNAVD + navdtomllw, -80.0)# MLLW Grid
+            surgePctGridMHHW = np.where(np.greater(navdtomhhw,-80.0) & np.greater(surgePctGridNAVD,-80.0), \
+                                        surgePctGridNAVD + navdtomhhw, -80.0)# MHHW Grid
+            surgeDiffMLLWMHHW = np.where(np.greater(surgePctGridMLLW,-80.0) & np.greater(surgePctGridMHHW, -80.0), \
+                                         surgePctGridMLLW-surgePctGridMHHW, -80.0)# Diff Grid Between MLLW and MHHW   
            
             self.makePhishGrid(pctStr, "FHAG0", smoothThreatGrid) 
         
@@ -568,11 +561,15 @@ class Procedure (SmartScript.SmartScript):
             inunStartHour = float(varDict["Start Hour for Inundation Timing"])
             inunEndHour = float(varDict["End Hour for Inundation Timing"]) 
 
-            # Calculate the intersection of the SSEditArea and selected editArea
             selectedMask = self.encodeEditArea(editArea)
             if not selectedMask.any():
-                self.statusBarMsg("Please define an area over which to assign the inundation value.", "S")
+                self.statusBarMsg("Please define an area over which to assign the inundation values.", "S")
                 return
+
+            modifyMask = selectedMask & ssea
+            if not modifyMask.any():
+                self.statusBarMsg("Please define an area that intersects the StormSurgeEditArea to assign the inundation values.", "S")
+                return              # Calculate the intersection of the SSEditArea and selected editAre
             
             if inunStartHour >= inunEndHour:
                 self.statusBarMsg("Please define the end hour after the start hour.", "S")
@@ -580,16 +577,14 @@ class Procedure (SmartScript.SmartScript):
                  
             timeRange = TimeRange.allTimes()
             self.deleteCmd(["InundationTiming"], timeRange)  
-            modifyMask = selectedMask & ssea
-            
             # make the InundationMax grid
-            surgePctGrid = np.zeros(self.getGridShape(), np.float32)
+            surgePctGrid = np.zeros(self.getGridShape())
             surgePctGrid[modifyMask] = inundationHeight           
             # Make the timing grids
             baseTime = self.baseGuidanceTime()
 #            trList = self.makeTimingTRs(baseTime)
             trList, timingGrids = self.getTimingGrids()
-
+            print "TRLIST IS: ", trList
             for i in range(len(trList)):
                 # only modify grid in the specified time range
                 start = trList[i].startTime().unixTime()
@@ -628,8 +623,7 @@ class Procedure (SmartScript.SmartScript):
             #print "threshDict[keyMap[key]]: ", keyMap[key], threshDict[keyMap[key]]
  
         # make a timeRange - 6 hours long
-        elementList = ["StormSurgeThreat","InundationMax","SurgeHtPlusTideMSL","SurgeHtPlusTideMLLW",
-                       "SurgeHtPlusTideNAVD","SurgeHtPlusTideMHHW"]
+        elementList = ["StormSurgeThreat","InundationMax","SurgeHtPlusTideMSL","SurgeHtPlusTideMLLW","SurgeHtPlusTideNAVD","SurgeHtPlusTideMHHW"]
 
         # make a new timeRange that will be used to create new grids
         timeRange = self.makeNewTimeRange(6)
@@ -659,7 +653,7 @@ class Procedure (SmartScript.SmartScript):
                             timeRange, precision=2)
 
         # make a grid of zeros.  This will be the CoastalThreat grid
-        coastalThreat = np.zeros(self.getGridShape(), np.float32)
+        coastalThreat = np.zeros(self.getTopo().shape)
  
         # Yet another list to define the order in which we set grid values
         # This order must be ranked lowest to highest
@@ -683,4 +677,3 @@ class Procedure (SmartScript.SmartScript):
                         defaultColorTable="Hazards")
 
         return
-
