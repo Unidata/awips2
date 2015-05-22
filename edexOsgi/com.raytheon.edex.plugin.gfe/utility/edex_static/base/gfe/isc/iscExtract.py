@@ -54,6 +54,7 @@ from com.vividsolutions.jts.geom import Coordinate
 #    07/06/09        1995          bphillip       Initial Creation.
 #    03/12/13        1759          dgilling       Change how ifpnetCDF is called.
 #    Apr 25, 2015     4952         njensen        Updated for new JEP API
+#    05/21/15        4427          dgilling       Add new ifpnetCDF argument.
 #    
 # 
 #
@@ -441,7 +442,8 @@ def executeIscExtract(parmNames, databaseName, startTime, endTime,
                     "trim": True, 
                     "krunch": True, 
                     "userID": "iscExtract",
-                    "logFileName": None}
+                    "logFileName": None,
+                    "siteIdOverride": None}
             ifpnetCDF.main(**argv)
             
             fname = fname + '.gz'
