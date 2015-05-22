@@ -79,6 +79,7 @@ import com.raytheon.uf.viz.core.sounds.SoundUtil;
  * Jan 09, 2015 3709       bclement    color config manager API changes
  * Jan 13, 2015 3709       bclement    ChangeTextColorAction API changes
  * Mar 24, 2015 4265       mapeters    abstracted out common styleAndAppendText()
+ * May 22, 2015 4328       mapeters    Add NOTIFICATION_IMAGE_NAME, getter
  * 
  * </pre>
  * 
@@ -91,6 +92,8 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
             .getHandler(PeerToPeerView.class);
 
     private static final String PEER_TO_PEER_IMAGE_NAME = "chats.gif";
+
+    private static final String NOTIFICATION_IMAGE_NAME = "chats_notification.gif";
 
     public static final String ID = "com.raytheon.uf.viz.collaboration.PeerToPeerView";
 
@@ -237,6 +240,11 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
     @Override
     protected String getSessionImageName() {
         return PEER_TO_PEER_IMAGE_NAME;
+    }
+
+    @Override
+    protected String getNotificationImageName() {
+        return NOTIFICATION_IMAGE_NAME;
     }
 
     /*

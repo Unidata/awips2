@@ -51,6 +51,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
 
 import com.google.common.eventbus.Subscribe;
@@ -71,6 +72,7 @@ import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 import com.raytheon.uf.viz.core.sounds.SoundUtil;
 import com.raytheon.uf.viz.spellchecker.text.SpellCheckTextViewer;
+import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.views.CaveFloatingView;
 
 /**
@@ -106,6 +108,7 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * Mar 24, 2015 4316       mapeters    Display date of message if new day or user-preferred
  * Mar 27, 2015 4327       mapeters    Added task bar notification for received messages
  * Apr 14, 2015 4362       mapeters    Added spell checking to chat input box.
+ * May 22, 2015 4328       mapeters    Change icon of non-visible tabs that receive message
  * </pre>
  * 
  * @author rferrel
@@ -114,7 +117,6 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
 
 public abstract class AbstractSessionView<T extends IUser> extends
         CaveFloatingView {
-    private static final String SESSION_IMAGE_KEY = "sessionId.key";
 
     private static ThreadLocal<SimpleDateFormat> timeFormatter = TimeUtil
             .buildThreadLocalSimpleDateFormat("HH:mm:ss",
@@ -156,6 +158,8 @@ public abstract class AbstractSessionView<T extends IUser> extends
     private Date lastMessageDay;
 
     protected abstract String getSessionImageName();
+
+    protected abstract String getNotificationImageName();
 
     protected abstract String getSessionName();
 
@@ -298,14 +302,14 @@ public abstract class AbstractSessionView<T extends IUser> extends
         composeTextViewer.addMenuItems(menuItems.toArray(new IAction[0]));
     }
 
-    private Image getImage() {
-        Image image = imageMap.get(SESSION_IMAGE_KEY);
+    private Image getImage(String imageName) {
+        Image image = imageMap.get(imageName);
         if (image == null) {
             image = IconUtil.getImageDescriptor(
-                    Activator.getDefault().getBundle(), getSessionImageName())
+                    Activator.getDefault().getBundle(), imageName)
                     .createImage();
             if (image != null) {
-                imageMap.put(SESSION_IMAGE_KEY, image);
+                imageMap.put(imageName, image);
             }
         }
         return image;
@@ -377,6 +381,15 @@ public abstract class AbstractSessionView<T extends IUser> extends
                     // peer-to-peer chat or user-preferred for group chats
                     if (shouldNotifyTaskbar()) {
                         getSite().getShell().forceActive();
+                    }
+
+                    // Change tab icon if the tab isn't visible
+                    IWorkbenchPage activePage = VizWorkbenchManager
+                            .getInstance().getCurrentWindow().getActivePage();
+                    if (!activePage.isPartVisible(AbstractSessionView.this)) {
+                        Image notificationImage = getImage(getNotificationImageName());
+                        AbstractSessionView.this
+                                .setTitleImage(notificationImage);
                     }
                 }
 
@@ -575,7 +588,7 @@ public abstract class AbstractSessionView<T extends IUser> extends
     public void createPartControl(Composite parent) {
         parent.setLayout(new GridLayout());
         super.createPartControl(parent);
-        setTitleImage(getImage());
+        setTitleImage(getImage(getSessionImageName()));
         setPartName(getSessionName());
         initComponents(parent);
         createActions();
@@ -631,6 +644,11 @@ public abstract class AbstractSessionView<T extends IUser> extends
     @Override
     public void setFocus() {
         composeTextViewer.getTextWidget().setFocus();
+        /*
+         * Revert image to normal (in case it was changed to notify of a message
+         * being received)
+         */
+        setTitleImage(getImage(getSessionImageName()));
     }
 
     private void createNotifier(String id, String time, String body) {
