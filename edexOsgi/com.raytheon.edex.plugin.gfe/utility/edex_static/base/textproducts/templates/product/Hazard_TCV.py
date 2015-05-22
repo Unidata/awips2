@@ -1,4 +1,4 @@
-# Version 2015.2.13-0
+# Version 2015.5.22-0
 
 import GenericHazards
 import JsonSupport
@@ -19,7 +19,6 @@ class TextProduct(HLSTCV_Common.TextProduct):
     Definition["displayName"]   = "None"
     Definition["outputFile"]    = "{prddir}/TEXT/TCV.txt"
     Definition["database"]      =  "Official"  # Source database
-    Definition["debug"]         =  1
     Definition["mapNameForCombinations"] = "Zones_<site>"
     Definition["defaultEditAreas"] = "Combinations_TCV_<site>"
     Definition["showZoneCombiner"] = 1 # 1 to cause zone combiner to display
@@ -1490,13 +1489,10 @@ class SectionCommon():
         if self._tr is not None:
             specialStatements = self._specialImpactsStatements()
             if self._tr in specialStatements.keys():
-                if self._tr == "default":
-                    return specialStatements[self._tr][maxThreat]
+                if self._tr == "recovery" and not self.isThreatInAllAdvisories:
+                    return []
                 else:
-                    if self._tr == "recovery" and not self.isThreatInAllAdvisories:
-                        return []
-                    else:
-                        return specialStatements[self._tr]
+                    return specialStatements[self._tr]
         
         import TCVDictionary
         potentialImpactStatements = TCVDictionary.PotentialImpactStatements
@@ -1507,19 +1503,27 @@ class SectionCommon():
 
         segment, vtecRecords = productSegment
         
-        self._textProduct.debug_print("zone number = %s, elementName = %s, maxThreat = %s" % 
-                         (segment, elementName, maxThreat), 1)
+        self._textProduct.debug_print("zone number = %s, elementName = %s, maxThreat = %s, tr = %s" % 
+                         (segment, elementName, maxThreat, self._tr), 1)
                 
         if segment in tcv_AreaDictionary:
             potentialImpactStatements = tcv_AreaDictionary[segment]["potentialImpactsStatements"]
-                
+
         # Check for any overrides
         try:
             statements = potentialImpactStatements[elementName][maxThreat]
         except KeyError:
             pass
-        
-        return statements
+
+        #  If this is the "default" case
+        if self._tr == "default" and len(statements) > 0:
+
+            if elementName in ["Wind", "Storm Surge"]:
+                if statements[0].find("If realized, ") == -1:
+                   statements[0] = "If realized, " + statements[0] + \
+                                   statements[0][1:]
+
+        return statements 
     
     # Specific hazard sections can override this to provide special impacts statements
     def _specialImpactsStatements(self):
@@ -1687,29 +1691,6 @@ class WindSection(SectionCommon):
                                 ],
                 "recovery": ["Little to no additional wind impacts expected. Community officials are now assessing the extent of actual wind impacts accordingly.",
                              ],
-                "default": {"Extreme": ["If realized, major hurricane force wind can cause structural damage to sturdy buildings, some with complete roof and wall failures. Complete destruction of mobile homes. Damage greatly accentuated by large airborne projectiles. Locations may be uninhabitable for weeks or months.",
-                                        "Numerous large trees snapped or uprooted along with fences and roadway signs blown over.",
-                                        "Many roads impassable from large debris, and more within urban or heavily wooded places. Many bridges, causeways, and access routes impassable.",
-                                        "Widespread power and communication outages.",
-                                        ],
-                            "High": ["If realized, hurricane force wind can cause considerable roof damage to sturdy buildings, with some having window, door, and garage door failures leading to structural damage. Mobile homes severely damaged, with some destroyed.  Damage accentuated by airborne projectiles.  Locations may be uninhabitable for weeks.",
-                                     "Many large trees snapped or uprooted along with fences and roadway signs blown over.",
-                                     "Some roads impassable from large debris, and more within urban or heavily wooded places. Several bridges, causeways, and access routes impassable.",
-                                     "Large areas with power and communications outages.",
-                                     ],
-                            "Mod": ["If realized, strong tropical storm force wind can cause some damage to roofing and siding materials, along with damage to porches, awnings, carports, and sheds. A few buildings experiencing window, door, and garage door failures. Mobile homes damaged, especially if unanchored. Unsecured lightweight objects become dangerous projectiles.",
-                                         "Several large trees snapped or uprooted, but with greater numbers in places where trees are shallow rooted. Several fences and roadway signs blown over.",
-                                         "Some roads impassable from large debris, and more within urban or heavily wooded places. A few bridges, causeways, and access routes connecting barrier islands impassable.",
-                                         "Scattered power and communications outages, but more prevalent in areas with above ground lines.",
-                                         ],
-                            "Elevated": ["If realized, tropical storm force wind can cause damage to porches, awnings, carports, sheds, and unanchored mobile homes. Unsecured lightweight objects blown about.",
-                                         "Many large tree limbs broken off. A few trees snapped or uprooted, but with greater numbers in places where trees are shallow rooted. Some fences and roadway signs blown over.",
-                                         "A few roads impassable from debris, particularly within urban or heavily wooded places. Hazardous driving conditions on bridges and other elevated roadways.",
-                                         "Scattered power and communications outages.",
-                                         ],
-                            "None": ["Little to no potential impacts from wind.",
-                                     ]
-                            }
                 }
 
     ### Supporting functions
@@ -1878,29 +1859,6 @@ class StormSurgeSection(SectionCommon):
                                 ],
                 "recovery": ["Little to no additional surge impacts expected. Community officials are now assessing the extent of actual surge impacts accordingly.",
                              ],
-                "default": {"Extreme": ["If realized, extreme storm surge flooding can cause widespread deep inundation accentuated by powerful battering waves. Structural damage to buildings, with many washing away. Damage greatly compounded from considerable floating debris. Locations may be uninhabitable for an extended period.",
-                                        "Near-shore escape routes and secondary roads washed out or severely flooded. Flood control systems and barriers may become stressed.",
-                                        "Extreme beach erosion. New shoreline cuts possible.",
-                                        "Massive damage to marinas, docks, boardwalks, and piers. Numerous small craft broken away from moorings with many lifted onshore and stranded.",
-                                        ],
-                            "High": ["If realized, major storm surge flooding can cause large areas of deep inundation accentuated by battering waves. Structural damage to buildings, with several washing away. Damage compounded by floating debris. Locations may be uninhabitable for an extended period.",
-                                     "Large sections of near-shore escape routes and secondary roads washed out or severely flooded. Flood control systems and barriers may become stressed.",
-                                     "Severe beach erosion with significant dune loss.",
-                                     "Major damage to marinas, docks, boardwalks, and piers. Many small craft broken away from moorings, especially in unprotected anchorages with some lifted onshore and stranded.",
-                                     ],
-                            "Mod": ["If realized, moderate storm surge flooding can cause areas of inundation accentuated by large waves. Damage to several buildings, mainly near the coast.",
-                                    "Sections of near-shore escape routes and secondary roads become weakened or washed out, especially in usually vulnerable low spots.",
-                                    "Major beach erosion with heavy surf breaching dunes. Strong and numerous rip currents.",
-                                    "Moderate damage to marinas, docks, boardwalks, and piers. Several small craft broken away from moorings, especially in unprotected anchorages.",
-                                    ],
-                            "Elevated": ["If realized, minor to moderate storm surge flooding can cause localized inundation mainly along immediate shorelines and in low-lying spots, or in areas farther inland near where higher surge waters move ashore.",
-                                         "Sections of near-shore roads and parking lots become overspread with surge water. Driving conditions dangerous in places where surge water covers the road.",
-                                         "Moderate beach erosion. Heavy surf also breaching dunes, mainly in usually vulnerable locations. Strong rip currents.",
-                                         "Minor to locally moderate damage to marinas, docks, boardwalks, and piers. A few small craft broken away from moorings.",
-                                         ],
-                            "None": ["Little to no potential impacts from storm surge.",
-                                     ]
-                            }
                 }
     
     def _potentialImpactsSummary(self, segmentDict, productSegmentGroup, productSegment):
@@ -2039,25 +1997,6 @@ class FloodingRainSection(SectionCommon):
                                 ],
                 "recovery": ["For additional information on impacts being caused by flooding rain, refer to the local hazardous weather outlook or hurricane local statement.",
                              ],
-                "default": {"Extreme": ["If realized, extreme rainfall flooding may prompt numerous evacuations and rescues.",
-                                        "Rivers and tributaries may overwhelmingly overflow their banks in many places with deep moving water. Small streams, creeks, canals, arroyos, and ditches may become raging rivers. In mountain areas, deadly runoff may rage down valleys while increasing susceptibility to rockslides and mudslides. Flood control systems and barriers may become stressed.",
-                                        "Flood waters can enter numerous structures within multiple communities, some structures becoming uninhabitable or washed away. Numerous places where flood waters may cover escape routes. Streets and parking lots become rivers of raging water with underpasses submerged. Driving conditions become very dangerous. Numerous road and bridge closures with some weakened or washed out.",
-                                        ],
-                            "High": ["If realized, major rainfall flooding may prompt many evacuations and rescues.",
-                                     "Rivers and tributaries may rapidly overflow their banks in multiple places. Small streams, creeks, canals, arroyos, and ditches may become dangerous rivers. In mountain areas, destructive runoff may run quickly down valleys while increasing susceptibility to rockslides and mudslides. Flood control systems and barriers may become stressed.",
-                                     "Flood waters can enter many structures within multiple communities, some structures becoming uninhabitable or washed away. Many places where flood waters may cover escape routes. Streets and parking lots become rivers of moving water with underpasses submerged. Driving conditions become dangerous. Many road and bridge closures with some weakened or washed out.",
-                                     ],
-                            "Mod": ["If realized, moderate rainfall flooding may prompt several evacuations and rescues.",
-                                    "Rivers and tributaries may quickly become swollen with swifter currents and overspill their banks in a few places, especially in usually vulnerable spots. Small streams, creeks, canals, arroyos, and ditches overflow.",
-                                    "Flood waters can enter some structures or weaken foundations. Several places may experience expanded areas of rapid inundation at underpasses, low-lying spots, and poor drainage areas. Some streets and parking lots take on moving water as storm drains and retention ponds overflow. Driving conditions become hazardous. Some road and bridge closures.",
-                                    ],
-                            "Elevated": ["If realized, localized rainfall flooding may prompt a few evacuations.",
-                                         "Rivers and tributaries may quickly rise with swifter currents. Small streams, creeks, canals, arroyos, and ditches may become swollen and overflow in spots.",
-                                         "Flood waters can enter a few structures, especially in usually vulnerable spots.  A few places where rapid ponding of water occurs at underpasses, low-lying spots, and poor drainage areas. Several storm drains and retention ponds become near-full and begin to overflow. Some brief road and bridge closures.",
-                                         ],
-                            "None": ["Little to no potential impacts from flooding rain.",
-                                     ]
-                            }
                 }
 
 class TornadoSection(SectionCommon):
@@ -2159,25 +2098,6 @@ class TornadoSection(SectionCommon):
                                 ],
                 "recovery": ["For additional information on impacts being caused by tropical tornadoes, refer to the local hazardous weather outlook or hurricane local statement.",
                              ],
-                "default": {"Extreme": ["The occurrence of an outbreak of tornadoes can greatly hinder the execution of other emergency activities during tropical events.",
-                                        "If realized, many places may experience tornado damage, with several spots of immense destruction, power loss, and communications failures.",
-                                        "Locations could realize sturdy buildings demolished, structures upon weak foundations swept away, mobile homes obliterated, large trees twisted and snapped with some debarked, vehicles lifted off the ground and thrown with distance, and small boats destroyed. Large and deadly projectiles can add considerably to the toll.",
-                                        ],
-                            "High": ["The occurrence of numerous tornadoes can greatly hinder the execution of other emergency activities during tropical events.",
-                                     "If realized, many places may experience tornado damage with a few spots of immense destruction, power loss, and communications failures.",
-                                     "Locations could realize roof and wall failures of sturdy buildings with some being leveled, structures upon weak foundations blown away, mobile homes obliterated, large trees twisted and snapped with forested trees uprooted, vehicles lifted off the ground and thrown, and small boats destroyed. Large and deadly projectiles can add to the toll.",
-                                     ],
-                            "Mod": ["The occurrence of scattered tornadoes can hinder the execution of other emergency activities during tropical events.",
-                                    "If realized, several places may experience tornado damage with a few spots of considerable damage, power loss, and communications failures.",
-                                    "Locations could realize roofs torn off frame houses, mobile homes demolished, boxcars overturned, large trees snapped or uprooted, vehicles tumbled, and small boats tossed about. Dangerous projectiles can add to the toll.",
-                                    ],
-                            "Elevated": ["The occurrence of isolated tornadoes can hinder the execution of other emergency activities during tropical events.",
-                                         "If realized, a few places may experience tornado damage, along with power and communications disruptions.",
-                                         "Locations could realize roofs peeled off buildings, chimneys toppled, mobile homes pushed off foundations or overturned, large tree tops and branches snapped off, shallow-rooted trees knocked over, moving vehicles blown off roads, and small boats pulled from moorings.",
-                                         ],
-                            "None": ["Little to no potential impacts from tropical tornadoes.",
-                                     ]
-                            }
                 }
 
 
@@ -2751,7 +2671,7 @@ class StormSurgeSectionStats(SectionCommonStats):
                                           (str(phishStartTime), str(phishEndTime)), 1)
             
             if curPhish is not None and possibleStop != 2:
-                if curPhish >= 1:
+                if curPhish >= 0.5:
                     if phishStartTime is None:
                         phishStartTime = tr.startTime()
                         possibleStop = 0
