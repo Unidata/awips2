@@ -243,6 +243,7 @@ public class SatResource extends
                 }
                 if (tileSet == null) {
                     tileSet = new SatTileSetRenderable(SatResource.this, record);
+                    // this is where getGridGeometry is called from D2D SAT
                     tileSet.project(descriptor.getGridGeometry());
                     tileMap.put(record.getCoverage(), tileSet);
                 }
