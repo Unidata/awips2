@@ -21,6 +21,7 @@
 package com.raytheon.uf.common.dataplugin.satellite;
 
 import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasMapCoverage;
+import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasRecord;
 import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasSpatialFactory;
 import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
@@ -41,9 +42,11 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.Envelope2D;
+import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.hibernate.annotations.Type;
 import org.opengis.coverage.grid.GridEnvelope;
@@ -86,6 +89,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Nov 05, 2014  3788     bsteffen    Make gid a sequence instead of a hash.
  * May 19, 2015			  mjames@ucar Added decoding of GVAR native projection products,
  * 								      increased crsWKT to 5120 for GVAR the_geom
+ * May 21, 2015			  mjames@ucar Added display capability for GVAR projection products
  * </pre>
  */
 @Entity
@@ -495,37 +499,30 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
 
     @Override
     public GridGeometry2D getGridGeometry() {
-    	/*
-    	GridEnvelope gridRange;
-        Envelope crsRange;
-
-        gridRange = new GridEnvelope2D(0, 0, getNx(), getNy());
-        crsRange = new Envelope2D(getCrs(), new Rectangle2D.Double(
-                minX, minY, getNx() * getDx(), getNy() * getDy()));
-        */
-        GridEnvelope gridRange;
-        Envelope crsRange;
-        if (projection == PROJ_GVAR) { // for native projection
-            minX = getUpperLeftElement();
-            int maxX = getUpperLeftElement() + (getNx() * getElementRes());
-            minY = getUpperLeftLine() + (getNy() * getLineRes());
-            minY = -minY;
-            int maxY = -1 * getUpperLeftLine();
-
-            gridRange = new GridEnvelope2D(0, 0, nx, ny);
-            Rectangle2D rect = new Rectangle2D.Double(minX,
-                    minY, maxX, maxY);
-            crsRange = new Envelope2D(getCrs(), rect );
-        }else {
-            int nx = getNx();
-            int ny = getNy();
-
-            gridRange = new GridEnvelope2D(0, 0, nx, ny);
-            crsRange = new Envelope2D(getCrs(), new Rectangle2D.Double(minX,
-                    minY, nx * getDx(), ny * getDy()));
+    	/* 
+    	 * Native projections
+    	 */
+        if (projection == PROJ_GVAR) { 
+        	GridEnvelope gridRange = new GeneralGridEnvelope(new int[] {
+                    0, 0 }, new int[] { getNx(),getNy() }, false);
+        	GeneralEnvelope crsRange = new GeneralEnvelope(2);
+        	crsRange.setCoordinateReferenceSystem( getCrs() );
+    	    
+    	    int minX = getUpperLeftElement();
+    	    int maxX = getUpperLeftElement() + ( getNx() * getElementRes() );
+    	    int minY = getUpperLeftLine() + ( getNy() * getLineRes() );
+    	    minY = -minY;
+    	    int maxY = -1 * getUpperLeftLine();
+    	    crsRange.setRange(0, minX, maxX);
+    	    crsRange.setRange(1, minY, maxY);
+    	    return new GridGeometry2D(gridRange, crsRange);
+        } else {
+        	GridEnvelope gridRange = new GridEnvelope2D(0, 0, getNx(), getNy());
+            Envelope crsRange = new Envelope2D(getCrs(), new Rectangle2D.Double(
+                    minX, minY, getNx() * getDx(), getNy() * getDy()));
+            return new GridGeometry2D(gridRange, crsRange);
         }
-        GridGeometry2D tmpGrid = new GridGeometry2D(gridRange, crsRange);
-        return new GridGeometry2D(gridRange, crsRange);
+        
     }
     
     @Override
