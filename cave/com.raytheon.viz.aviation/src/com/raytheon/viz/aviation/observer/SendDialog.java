@@ -96,9 +96,6 @@ public class SendDialog extends CaveSWTDialog {
             + IPathManager.SEPARATOR + "avnwatch" + IPathManager.SEPARATOR
             + "aviationForecasterConfig.xml";
 
-    /** Default forecaster id. */
-    private final String DEFAULT_ID = "000";
-
     /**
      * Expression to find time stamp in a TAF.
      */
@@ -363,12 +360,16 @@ public class SendDialog extends CaveSWTDialog {
 
     @SuppressWarnings("unchecked")
     private void sendAction() {
+        // Forecaster ID
+        String forecasterId = getForecasterId();
+        if (forecasterId == null) {
+            return;
+        }
+
         TafQueueRequest request = new TafQueueRequest();
         request.setType(Type.CREATE);
         request.setUser(UserController.getUserObject());
 
-        // Forecaster ID
-        String forecasterId = getForecasterId();
         Calendar xmitTime = Calendar.getInstance();
         xmitTime.setTimeZone(TimeZone.getTimeZone("GMT"));
         xmitTime.set(Calendar.HOUR_OF_DAY, hourSpnr.getSelection());
@@ -537,11 +538,11 @@ public class SendDialog extends CaveSWTDialog {
         String forecasterName = AviationDialog.getForecaster();
 
         if (f == null) {
-            statusHandler
-                    .handle(Priority.PROBLEM, "Unable to load, "
-                            + FORECAST_CONFIG_FILE + ", using default ID "
-                            + DEFAULT_ID);
-            return DEFAULT_ID;
+            statusHandler.handle(Priority.PROBLEM,
+                    "Cannot send the TAF. Unable to load, "
+                            + FORECAST_CONFIG_FILE
+                            + ", unable to obtain forecaster's ID. ");
+            return null;
         }
 
         try {
@@ -549,9 +550,10 @@ public class SendDialog extends CaveSWTDialog {
                     .getForecasterConfig();
         } catch (RuntimeException ex) {
             statusHandler.handle(Priority.PROBLEM,
-                    "Unable to parse, " + FORECAST_CONFIG_FILE
-                            + ", using default ID " + DEFAULT_ID, ex);
-            return DEFAULT_ID;
+                    "Cannot send the TAF. Unable to parse, "
+                            + FORECAST_CONFIG_FILE
+                            + ", unable to obtain forecaster's ID. ", ex);
+            return null;
         }
 
         if ((fcList != null) && !fcList.isEmpty()) {
@@ -562,8 +564,9 @@ public class SendDialog extends CaveSWTDialog {
             }
         }
 
-        statusHandler.handle(Priority.PROBLEM, "No forecaster Id for "
-                + forecasterName + "using default " + DEFAULT_ID);
-        return DEFAULT_ID;
+        statusHandler.handle(Priority.PROBLEM,
+                "Cannot send the TAF. No forecaster ID for " + forecasterName
+                        + " in " + FORECAST_CONFIG_FILE + ".");
+        return null;
     }
 }
