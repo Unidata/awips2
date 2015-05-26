@@ -1,4 +1,4 @@
-#  Version 2015.2.12-1
+#  Version 2015.5.21-0
 
 import GenericHazards
 import string, time, os, re, types, copy, LogStream, collections
@@ -23,7 +23,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
     Definition["database"]      =  "Official"  # Source database
     Definition["debug"]         =  1
     Definition["mapNameForCombinations"] = "Zones_<site>"
-    Definition["defaultEditAreas"] = "Combinations_HLS_<site>"
+    Definition["defaultEditAreas"] = ""
     Definition["showZoneCombiner"] = 0 # 1 to cause zone combiner to display
 
     Definition["productName"]       = "LOCAL STATEMENT"
@@ -1560,7 +1560,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         self._stormTypeName = self._stormType + " " + self._stormName
         self._decodeStormInfo(stormDict)
         # Storm movement in mph and the stated movement trend
-        self._stormMovementTrend = self._expandBearings("Moving " + stormDict.get("StormMotion",""))
+        self._stormMovementTrend = self._expandBearings("Movement " + stormDict.get("StormMotion",""))
         # Storm intensity in mph and the stated intensity trend.
         self._stormIntensityTrend = "Storm Intensity " + stormDict.get("StormIntensity","")
         
