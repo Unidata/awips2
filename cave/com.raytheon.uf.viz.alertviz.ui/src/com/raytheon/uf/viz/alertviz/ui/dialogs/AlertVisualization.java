@@ -94,6 +94,7 @@ import com.raytheon.uf.viz.core.VizApp;
  *                                     changing the icon on the timer action.  If it isn't running
  *                                     then set the icon to the default image.
  * 18 Mar 2015  4234       njensen     Remove reference to non-working python
+ * 03 Jun 2015  4473       njensen     Updated for new AlertvizJob API
  * 
  * </pre>
  * 
@@ -254,7 +255,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
 
         initializeComponents();
 
-        AlertvizJob.addAlertArrivedCallback(this);
+        AlertvizJob.getInstance().addAlertArrivedCallback(this);
     }
 
     /**

@@ -20,4 +20,6 @@
     -->
 <configuration>
 <config>Default</config>
+<port>61998</port>
+<enabled>true</enabled>
 </configuration>
