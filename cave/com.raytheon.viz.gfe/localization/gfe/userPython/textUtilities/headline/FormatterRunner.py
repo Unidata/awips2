@@ -276,7 +276,7 @@ def runFormatter(databaseID, site, forecastList, cmdLineVarDict, vtecMode,
             logger.warning("Unable to determine PID: defaulting to upper case")
         else:
             from com.raytheon.uf.common.dataplugin.text.db import MixedCaseProductSupport
-            mixedCase = MixedCaseProductSupport.isMixedCase(pid)
+            mixedCase = MixedCaseProductSupport.isMixedCase(str(pid))
         
         if mixedCase:
             outForecasts = outForecasts + forecast
