@@ -54,6 +54,7 @@
 #                         being off
 #                                                 being off
 #    04/20/2015          #4414     dgilling       Add missing NWPSTrkngCG0 weather elements.
+#    05/29/2015          17496     ryu            Changed parm definitions for Wave1-10 and Period1-10.
 #
 ########################################################################
 
@@ -221,9 +222,9 @@ Wave4 = ("Wave4", VECTOR, "ft", "WAVE4", 50.0, 0.0, 0, NO)
 Wave5 = ("Wave5", VECTOR, "ft", "WAVE5", 50.0, 0.0, 0, NO)
 Wave6 = ("Wave6", VECTOR, "ft", "WAVE6", 50.0, 0.0, 0, NO)
 Wave7 = ("Wave7", VECTOR, "ft", "Wave7", 50.0, 0.0, 0, NO)
-Wave8 = ("Wave8", VECTOR, "ft", "Wave8", 35.0, 0.0, 0, NO)
-Wave9 = ("Wave9", VECTOR, "ft", "Wave9", 35.0, 0.0, 0, NO)
-Wave10 = ("Wave10", VECTOR, "ft", "Wave10", 35.0, 0.0, 0, NO)
+Wave8 = ("Wave8", VECTOR, "ft", "Wave8", 50.0, 0.0, 0, NO)
+Wave9 = ("Wave9", VECTOR, "ft", "Wave9", 50.0, 0.0, 0, NO)
+Wave10 = ("Wave10", VECTOR, "ft", "Wave10", 50.0, 0.0, 0, NO)
 
 #Smart Init Grids - for partitioned wave groups
 Period_1 = ("Period_1", SCALAR, "sec", "Period_1", 30.0, 1.0, 0, NO)
