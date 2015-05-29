@@ -176,8 +176,8 @@ public class PDCDataManager extends HydroDataManager {
         SqlBuilder sql = new SqlBuilder("pointdatapresets");
         sql.setSqlType(SqlBuilder.UPDATE);
         sql.addString("descr", node.getDescription());
-        sql.addInt("preset_rank", node.getPresetRank());
-        sql.addString("preset_string", node.getPresetString());
+        sql.addInt(" preset_rank", node.getPresetRank());
+        sql.addString(" preset_string", node.getPresetString());
         sql.setWhereClause(" where preset_id = '" + node.getPresetId() + "'");
 
         runStatement(sql.toString());
