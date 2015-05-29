@@ -54,6 +54,7 @@
 #                         being off
 #                                                 being off
 #    04/20/2015          #4414     dgilling       Add missing NWPSTrkngCG0 weather elements.
+#    05/29/2015          17496     ryu            Changed parm definitions for Wave1-10 and Period1-10.
 #
 ########################################################################
 
@@ -214,16 +215,16 @@ Wave_9 = ("Wave_9", VECTOR, "ft", "Wave_9", 50.0, 0.0, 2, NO)
 Wave_10 = ("Wave_10", VECTOR, "ft", "Wave_10", 50.0, 0.0, 2, NO)
 
 #Fcst Grids - for partitioned wave groups
-Wave1 = ("Wave1", VECTOR, "ft", "WAVE1", 50.0, 0.0, 1, NO)
-Wave2 = ("Wave2", VECTOR, "ft", "WAVE2", 50.0, 0.0, 1, NO)
-Wave3 = ("Wave3", VECTOR, "ft", "WAVE3", 50.0, 0.0, 1, NO)
-Wave4 = ("Wave4", VECTOR, "ft", "WAVE4", 50.0, 0.0, 1, NO)
-Wave5 = ("Wave5", VECTOR, "ft", "WAVE5", 50.0, 0.0, 1, NO)
-Wave6 = ("Wave6", VECTOR, "ft", "WAVE6", 50.0, 0.0, 1, NO)
+Wave1 = ("Wave1", VECTOR, "ft", "WAVE1", 50.0, 0.0, 0, NO)
+Wave2 = ("Wave2", VECTOR, "ft", "WAVE2", 50.0, 0.0, 0, NO)
+Wave3 = ("Wave3", VECTOR, "ft", "WAVE3", 50.0, 0.0, 0, NO)
+Wave4 = ("Wave4", VECTOR, "ft", "WAVE4", 50.0, 0.0, 0, NO)
+Wave5 = ("Wave5", VECTOR, "ft", "WAVE5", 50.0, 0.0, 0, NO)
+Wave6 = ("Wave6", VECTOR, "ft", "WAVE6", 50.0, 0.0, 0, NO)
 Wave7 = ("Wave7", VECTOR, "ft", "Wave7", 50.0, 0.0, 0, NO)
-Wave8 = ("Wave8", VECTOR, "ft", "Wave8", 35.0, 0.0, 0, NO)
-Wave9 = ("Wave9", VECTOR, "ft", "Wave9", 35.0, 0.0, 0, NO)
-Wave10 = ("Wave10", VECTOR, "ft", "Wave10", 35.0, 0.0, 0, NO)
+Wave8 = ("Wave8", VECTOR, "ft", "Wave8", 50.0, 0.0, 0, NO)
+Wave9 = ("Wave9", VECTOR, "ft", "Wave9", 50.0, 0.0, 0, NO)
+Wave10 = ("Wave10", VECTOR, "ft", "Wave10", 50.0, 0.0, 0, NO)
 
 #Smart Init Grids - for partitioned wave groups
 Period_1 = ("Period_1", SCALAR, "sec", "Period_1", 30.0, 1.0, 0, NO)
@@ -238,16 +239,16 @@ Period_9 = ("Period_9", SCALAR, "sec", "Period_9", 30.0, 0.0, 0, NO)
 Period_10 = ("Period_10", SCALAR, "sec", "Period_10", 30.0, 0.0, 0, NO)
 
 #Fcst Grids - for partitioned wave groups
-Period1 = ("Period1", SCALAR, "sec", "Period1", 25.0, 0.0, 1, NO)
-Period2 = ("Period2", SCALAR, "sec", "Period2", 25.0, 0.0, 1, NO)
-Period3 = ("Period3", SCALAR, "sec", "Period3", 25.0, 0.0, 1, NO)
-Period4 = ("Period4", SCALAR, "sec", "Period4", 25.0, 0.0, 1, NO)
-Period5 = ("Period5", SCALAR, "sec", "Period5", 25.0, 0.0, 1, NO)
-Period6 = ("Period6", SCALAR, "sec", "Period6", 25.0, 0.0, 1, NO)
-Period7 = ("Period7", SCALAR, "sec", "Period7", 25.0, 0.0, 0, NO)
-Period8 = ("Period8", SCALAR, "sec", "Period8", 25.0, 0.0, 0, NO)
-Period9 = ("Period9", SCALAR, "sec", "Period9", 25.0, 0.0, 0, NO)
-Period10 = ("Period10", SCALAR, "sec", "Period10", 25.0, 0.0, 0, NO)
+Period1 = ("Period1", SCALAR, "sec", "Period1", 30.0, 0.0, 0, NO)
+Period2 = ("Period2", SCALAR, "sec", "Period2", 30.0, 0.0, 0, NO)
+Period3 = ("Period3", SCALAR, "sec", "Period3", 30.0, 0.0, 0, NO)
+Period4 = ("Period4", SCALAR, "sec", "Period4", 30.0, 0.0, 0, NO)
+Period5 = ("Period5", SCALAR, "sec", "Period5", 30.0, 0.0, 0, NO)
+Period6 = ("Period6", SCALAR, "sec", "Period6", 30.0, 0.0, 0, NO)
+Period7 = ("Period7", SCALAR, "sec", "Period7", 30.0, 0.0, 0, NO)
+Period8 = ("Period8", SCALAR, "sec", "Period8", 30.0, 0.0, 0, NO)
+Period9 = ("Period9", SCALAR, "sec", "Period9", 30.0, 0.0, 0, NO)
+Period10 = ("Period10", SCALAR, "sec", "Period10", 30.0, 0.0, 0, NO)
 
 # Fire Weather Weather Elements
 LAL = ("LAL", SCALAR, "cat", "Lightning Activity Level", 6.0, 1.0, 0, NO)
