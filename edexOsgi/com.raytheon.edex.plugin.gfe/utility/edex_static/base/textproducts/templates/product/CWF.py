@@ -812,11 +812,13 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         productName = self.checkTestMode(argDict, productName)
         
         s = self._wmoID + " " + self._fullStationID + " " + \
-               self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
-               productName + "\n" +\
+               self._ddhhmmTime + "\n" + self._pil + "\n\n"
+        fcst =  fcst + s.upper()
+         
+        s =productName + "\n" +\
                "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
-        fcst =  fcst + s.upper()
+        fcst =  fcst + s
          
         fcst = fcst + self._Text1()
         try:
@@ -833,7 +835,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         print "Generating Forecast for", areaLabel
         areaHeader = self.makeAreaHeader(
             argDict, areaLabel, self._issueTime, self._expireTime,
-            self._areaDictionary, self._defaultEditAreas, upperCase=True)
+            self._areaDictionary, self._defaultEditAreas)
         fcst = fcst + areaHeader
 
         # get the hazards text
@@ -953,31 +955,31 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
         return [
             ("Morning", self.DAY(), self.NIGHT(), "issuanceHour + 13",
-             ".Today...", "early", "late", 1, narrativeDefAM), 
+             ".TODAY...", "early", "late", 1, narrativeDefAM), 
             ("Morning with Pre-1st Period", "issuanceHour", self.NIGHT(),
-             "issuanceHour + 13", ".Today...", "early", "late", 1,
+             "issuanceHour + 13", ".TODAY...", "early", "late", 1,
              narrativeDefAM),
             ("Morning Update", "issuanceHour", self.NIGHT(),
-             "issuanceHour + 13", ".Rest of Today...", "early in the morning",
+             "issuanceHour + 13", ".REST OF TODAY...", "early in the morning",
              "late in the afternoon", 1, narrativeDefAM), 
             ("Afternoon Update", "issuanceHour", self.NIGHT(), "issuanceHour + 13",
-             ".Rest of Today...", "early in the morning", "late in the afternoon",
+             ".REST OF TODAY...", "early in the morning", "late in the afternoon",
              1, narrativeDefAM), 
             #  End times are tomorrow:
             ("Afternoon", self.NIGHT(), 24 + self.DAY(), "issuanceHour + 13",
-             ".Tonight...", "late in the night", "early in the evening", 1, narrativeDefPM), 
+             ".TONIGHT...", "late in the night", "early in the evening", 1, narrativeDefPM), 
             ("Afternoon with Pre-1st Period", "issuanceHour", 24 + self.DAY(),
-             "issuanceHour + 13", ".Tonight...", "late in the night", "early in the evening", 1,
+             "issuanceHour + 13", ".TONIGHT...", "late in the night", "early in the evening", 1,
              narrativeDefPM),
             ("Evening Update", "issuanceHour", 24 + self.DAY(), "issuanceHour + 13",
-             ".Rest of Tonight...", "early in the morning", "early in the evening", 1,
+             ".REST OF TONIGHT...", "early in the morning", "early in the evening", 1,
              narrativeDefPM),
             # For the early morning update, this produces:
             # REST OF TONIGHT:
             # MONDAY
             # MONDAY NIGHT
             ("Early Morning Update", "issuanceHour", self.DAY(), "issuanceHour + 13",
-             ".Rest of Tonight...", "early in the morning", "late in the afternoon",
+             ".REST OF TONIGHT...", "early in the morning", "late in the afternoon",
              0, narrativeDefPM),
             # Alternative
             # For the early morning update, this produces:
@@ -985,10 +987,10 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             # TODAY
             # TONIGHT
             #("Evening Update", "issuanceHour", 24 + self.DAY(), "issuanceHour + 13",
-            # ".Rest of tonight...", "late in the night", "early in the evening",
+            # ".REST OF TONIGHT...", "late in the night", "early in the evening",
             # 1, narrativeDefPM), 
             #("Early Morning Update", "issuanceHour", self.DAY(), "issuanceHour + 13",
-            # ".Early this morning...", "early in the morning", "late in the afternoon",
+            # ".EARLY THIS MORNING...", "early in the morning", "late in the afternoon",
             # 1, narrativeDefPM), 
             ]
 
@@ -1023,17 +1025,17 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         
 ##         return [
 ##             ("430 AM", self.DAY(), self.NIGHT(), 17,
-##              ".Today...", "early in the morning", "late in the afternoon",
+##              ".TODAY...", "early in the morning", "late in the afternoon",
 ##              1, narrativeDefAM),
 ##             ("1030 AM", "issuanceHour", self.NIGHT(), 17,
-##              ".Today...", "early in the morning", "late in the afternoon",
+##              ".TODAY...", "early in the morning", "late in the afternoon",
 ##              1, narrativeDefAM),
 ##             #  End times are tomorrow:
 ##             ("430 PM", self.NIGHT(), 24 + self.DAY(), 24 + 5,
-##              ".Tonight...", "late in the night", "early in the evening",
+##              ".TONIGHT...", "late in the night", "early in the evening",
 ##              1, narrativeDefPM),
 ##             ("1030 PM", "issuanceHour", 24 + self.DAY(), 24 + 5,
-##              ".Tonight...", "late in the night", "early in the evening",
+##              ".TONIGHT...", "late in the night", "early in the evening",
 ##              1, narrativeDefPM),
 ##             ]
 
@@ -1083,7 +1085,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 ##            # expirationHour -- hour when the product expires (in local time)
 ##            #                   This is relative to midnight local time of the
 ##            #                   current day.
-##            # period1 Label  -- the label for the first period. e.g. ".Today...", ".REST OF Today..." 
+##            # period1 Label  -- the label for the first period. e.g. ".TODAY...", ".REST OF Today..." 
 ##            # period1 lateNight phrase -- phrase to use if the hours of 3am to 6am must be qualified
 ##            #                e.g. "Partly cloudy in the early morning." 
 ##            # period1 lateDay phrase -- phrase to use if the hours of 3pm to 6pm must be qualified
@@ -1095,17 +1097,17 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 ##            # 330 AM Early morning issuance starts at 1200Z or when product is actually
 ##            # is actually issued. Ends   
 ##            ("230 AM", self.DAY()-4, self.NIGHT(), 17,
-##             ".Today...", "before sunrise", "late afternoon",
+##             ".TODAY...", "before sunrise", "late afternoon",
 ##             1, narrativeDefAM),
 ##            ("830 AM", self.DAY()+2, self.NIGHT(), 17,
-##             ".Today...", "early this morning", "late afternoon",
+##             ".TODAY...", "early this morning", "late afternoon",
 ##             1, narrativeDefAM),
 ##            #  End times are tomorrow:
 ##            ("230 PM", self.DAY()+8, self.NIGHT()+12, 24+5,
-##             ".Tonight...", "late tonight", "before dark",
+##             ".TONIGHT...", "late tonight", "before dark",
 ##             1, narrativeDefPM), 
 ##            ("830 PM", self.NIGHT()+2, 24 + self.DAY(), 24+5,
-##             ".Tonight...", "late tonight", "before dark",
+##             ".TONIGHT...", "late tonight", "before dark",
 ##             1, narrativeDefPM),
 ##            ]
 

@@ -27,6 +27,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PyUtil;
+import com.raytheon.uf.common.python.PythonIncludePathUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.viz.gfe.core.DataManager;
 
@@ -35,10 +36,11 @@ import com.raytheon.viz.gfe.core.DataManager;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Mar 21, 2008				njensen	Initial creation
- * Jul 9, 2009    2454      ryu     Put user and site's python scripts on path for import
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Mar 21, 2008             njensen	    Initial creation
+ * Jul 9, 2009    2454      ryu         Put user and site's python scripts on path for import
+ * May 20, 2015   4509      njensen     Added time and dataaccess to include path
  * 
  * </pre>
  * 
@@ -59,12 +61,12 @@ public class SmartToolFactory {
 
     private static SmartToolController buildInstance(DataManager dataMgr,
             boolean ui) throws JepException {
-        String includePath = PyUtil.buildJepIncludePath(
-                GfePyIncludeUtil.getCommonPythonIncludePath(),
-                GfePyIncludeUtil.getVtecIncludePath(),
-                GfePyIncludeUtil.getCommonGfeIncludePath(),
-                GfePyIncludeUtil.getSmartToolsIncludePath(),
-                GfePyIncludeUtil.getUtilitiesIncludePath());
+        String includePath = PyUtil.buildJepIncludePath(PythonIncludePathUtil
+                .getCommonPythonIncludePath("time", "dataaccess"),
+                GfePyIncludeUtil.getVtecIncludePath(), GfePyIncludeUtil
+                        .getCommonGfeIncludePath(), GfePyIncludeUtil
+                        .getSmartToolsIncludePath(), GfePyIncludeUtil
+                        .getUtilitiesIncludePath());
 
         SmartToolController smartCont = null;
         if (ui) {

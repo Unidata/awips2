@@ -27,20 +27,22 @@
 # ----------------------------------------------------------------------------
 
 def1 = "Definition =  {"
-def2 = [
-"""def begText(self, fcstDef, argDict):
+def2 = """
+
+def begText(self, fcstDef, argDict):
     return "Beginning text from method\\n"
-""",
-"""def endText(self, fcstDef, argDict):
+def endText(self, fcstDef, argDict):
     return "Ending text from method\\n"
-"""]
+Definition =  {
+"""
 
 begEndText1 ="    }"
 
-begEndText2=[
-      "Definition['beginningText'] = mod.begText",
-     " Definition['endingText'] = mod.endText"
-]
+begEndText2="""
+      'beginningText': begText,
+      'endingText': endText,
+    }
+    """
 
 scripts = [
     {
@@ -94,7 +96,7 @@ scripts = [
     "commentary": "Basic LE_Test_Local - morning issuance",
     "cmdLineVars":  "{('Product Issuance', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None, ('Issuance Type', 'issuanceType'): 'ROUTINE'}",
     "comboFlag":  0, 
-    "checkStrings":["ZONE FORECAST PRODUCT", ".TODAY"]
+    "checkStrings":["Zone Forecast Product", ".TODAY..."]
     },
 
     {
@@ -130,8 +132,8 @@ scripts = [
           "Ending text from method",
           ],
     "fileChanges" : [
-           ("PeriodByArea", "TextProduct", "replace", def2, "undo"),
-           ("PeriodByArea", "TextProduct", "replace", begEndText2, "undo"),
+           ("PeriodByArea", "TextUtility", "replace", (def1, def2), "undo"),
+           ("PeriodByArea", "TextUtility", "replace", (begEndText1, begEndText2), "undo"),
            ],
     },
 

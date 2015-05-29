@@ -109,7 +109,8 @@ class TimeDescriptor(TimeRangeUtils.TimeRangeUtils, Interfaces.Interfaces):
                     "Combo", today, tomorrow, holidayModule, nextDay24HourLabel)
             endDay = self.getWeekday_descriptor(endTR, holidays, shiftToLocal,
                     "Capital", today, tomorrow, holidayModule, nextDay24HourLabel)
-            return startDay + " through " + endDay
+            s = startDay + " through " + endDay
+            return s.upper() 
         else:  # do the normal thing
             return self.getWeekday_descriptor(timeRange, holidays, shiftToLocal,
                                               labelType, today, tomorrow, holidayModule,
@@ -132,7 +133,7 @@ class TimeDescriptor(TimeRangeUtils.TimeRangeUtils, Interfaces.Interfaces):
         #  holidayModule: file containing holiday dates
         #  nextDay24HourLabel: if 1, a 24-hour time period starting
         #    after 1600, will be labeled as the next day.
-        #    This is to accommdate 24 extended periods that go from
+        #    This is to accommodate 24 extended periods that go from
         #    6pm-6pm.
         #  splitDay24HourLabel: if 0, a 24-hour period will be labeled with
         #    simply the weekday name (e.g. Saturday)
@@ -240,20 +241,25 @@ class TimeDescriptor(TimeRangeUtils.TimeRangeUtils, Interfaces.Interfaces):
         elif splitDay24Hour:
             # See if we are starting with a night or day period
             weekNight = weekdayName + " " + labels["Night"]
+            if weekdayName[-1].isupper():
+                connector = " AND "
+            else:
+                connector = " and "
+                
             if startHour < self.NIGHT():
                 # Monday and Monday Night OR
                 # Labor Day and Monday Night
                 weekDayHoliday = self.getHolidayLabel(timeRange.startTime(), holidays)
                 if weekDayHoliday != "":
                     weekdayName = weekDayHoliday
-                label = weekdayName + " and " + weekNight
+                label = weekdayName + connector + weekNight
             else:
                 # Sunday Night and Monday OR
                 # Sunday Night and Labor Day
                 nextWeekdayName = self.getHolidayLabel(timeRange.endTime(), holidays)
                 if nextWeekdayName == "":
                     nextWeekdayName = labels["Weekday"][timeRange.endTime().weekday()]
-                label = weekNight + " and " + nextWeekdayName                  
+                label = weekNight + connector + nextWeekdayName                  
         else:
             label = weekdayName
         # Check for Evening
@@ -351,22 +357,22 @@ class TimeDescriptor(TimeRangeUtils.TimeRangeUtils, Interfaces.Interfaces):
                 "PrePunctuation": ".",
                 "PostPunctuation": "...",
                 "Weekday" : {
-                    6 : "Sunday",
-                    0 : "Monday",
-                    1 : "Tuesday",
-                    2 : "Wednesday",
-                    3 : "Thursday",
-                    4 : "Friday",
-                    5 : "Saturday"
+                    6 : "SUNDAY",
+                    0 : "MONDAY",
+                    1 : "TUESDAY",
+                    2 : "WEDNESDAY",
+                    3 : "THURSDAY",
+                    4 : "FRIDAY",
+                    5 : "SATURDAY"
                 },
-                "Now": "Now",
-                "Today":"Today",
-                "Tonight": "Tonight",
-                "Rest of Today":"Rest of Today",
-                "Rest of Tonight": "Rest of Tonight",
-                "Night": "Night",
-                "Evening": "Evening",
-                "Afternoon": "This Afternoon",
+                "Now": "NOW",
+                "Today":"TODAY",
+                "Tonight": "TONIGHT",
+                "Rest of Today":"REST OF TODAY",
+                "Rest of Tonight": "REST OF TONIGHT",
+                "Night": "NIGHT",
+                "Evening": "EVENING",
+                "Afternoon": "THIS AFTERNOON",
             },
             "Abbreviated": {
                 "PrePunctuation": "",

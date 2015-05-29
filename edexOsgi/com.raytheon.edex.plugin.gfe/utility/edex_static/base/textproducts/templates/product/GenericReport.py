@@ -237,7 +237,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         self._ddhhmmTime = time.strftime("%d%H%M",time.gmtime(
             self._currentTime))
         self._timeLabel = self.getCurrentTime(
-           argDict, "%l%M %p %Z %a %b %e %Y", stripLeading=1).upper()
+           argDict, "%l%M %p %Z %a %b %e %Y", stripLeading=1)
         self._issueTime = AbsTime.current()
 
         self._expireTime = self._issueTime + self._purgeTime*3600
@@ -259,12 +259,14 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         productName = self.checkTestMode(argDict, productName)
 
         s = self._wmoID + " " + self._fullStationID + " " + \
-               self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
-               productName + "\n" +\
+               self._ddhhmmTime + "\n" + self._pil + "\n\n"
+        fcst =  fcst + s.upper()
+
+        s = productName + "\n" +\
                "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
+        fcst =  fcst + s
 
-        fcst =  fcst + s.upper()
         return fcst
 
     def _preProcessArea(self, fcst, editArea, areaLabel, argDict):

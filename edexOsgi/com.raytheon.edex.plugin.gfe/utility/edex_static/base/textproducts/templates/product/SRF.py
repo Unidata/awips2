@@ -281,7 +281,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         "ripGrid": "",               # Use grid for rip_phrase
         "waterSpoutGrid": "",        # Use grid for waterSpout_phrase
         "includeOutlook": 0,         # If 1, OUTLOOK section included
-        "outLookText": "\n.Outlook...",# Text for OUTLOOK section
+        "outLookText": "\n.OUTLOOK...",# Text for OUTLOOK section
         "tideFiles": {               # For each tide table, list the file where it can
                                      # be found
              "Venice Inlet": "/data/local/localapps/tides/VeniceInlet.txt",
@@ -313,7 +313,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         "areaDictionary": "SurfAreaDictionary",
         "language": "english",
         "synopsisUGC": "",                # UGC code for synopsis
-        "synopsisHeading": ".Synopsis...",# Heading for synopsis
+        "synopsisHeading": ".SYNOPSIS...",# Heading for synopsis
         # If individualExtended == 1, an extended forecast will be
         # generated for each individual area
         # If extendedLabel == 1, a label will be included for each
@@ -866,11 +866,13 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         productName = self.checkTestMode(argDict, productName)
 
         s = self._wmoID + " " + self._fullStationID + " " + \
-               self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
-               productName + "\n" +\
+               self._ddhhmmTime + "\n" + self._pil + "\n\n"
+        fcst =  fcst + s.upper()
+       
+        s = productName + "\n" +\
                "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
-        fcst =  fcst + s.upper()
+        fcst =  fcst + s
        
         #  Try to get Synopsis from previous SRF
         srfPil = self._statePil + self._srfPil
@@ -1073,16 +1075,16 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
        
         return [
             ("Morning", self.DAY(), self.NIGHT(), 16,
-             ".Today...", "early in the morning", "late in the afternoon",
+             ".TODAY...", "early in the morning", "late in the afternoon",
              1, narrativeDefAM),
             ("Morning Update", "issuanceHour", self.NIGHT(), 16,
-             ".Rest of Today...", "early in the morning", "late in the afternoon",
+             ".REST OF TODAY...", "early in the morning", "late in the afternoon",
              1, narrativeDefAM),
             ("Afternoon Update", "issuanceHour", self.NIGHT(), 16,
-             ".Rest of Today...", "early in the morning","late in the afternoon",
+             ".REST OF TODAY...", "early in the morning","late in the afternoon",
              1, narrativeDefAM),
             ("Evening (for tomorrow)", self.DAY()+24, self.NIGHT()+24, 16+24,
-             ".Tomorrow...", "early in the morning","late in the afternoon",
+             ".TOMORROW...", "early in the morning","late in the afternoon",
              0, narrativeDefPM),           
             ]
 

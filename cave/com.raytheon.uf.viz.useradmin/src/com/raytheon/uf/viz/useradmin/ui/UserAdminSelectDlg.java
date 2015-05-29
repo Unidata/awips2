@@ -71,7 +71,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     is selected. Better enable/disable edit
  *                                     and delete buttons. Give delete dialogs
  *                                     a title.
- * May 04, 2015   4419     rferrel     Sort {@link #userPermList}.
+ * May 04, 2015   4419     rferrel     Sort {@link #userPermList} and {@link #rolePermList}.
  * 
  * </pre>
  * 
@@ -560,6 +560,7 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
         if (roleList.getSelectionIndex() != -1) {
             String roleId = roleList.getItem(roleList.getSelectionIndex());
             String[] perms = man.getRolePermissions(roleId, app);
+            Arrays.sort(perms);
 
             rolePermList.setItems(perms);
         }
