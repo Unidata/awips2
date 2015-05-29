@@ -358,12 +358,14 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         productName = self.checkTestMode(argDict, productName)
         
         s = self._wmoID + " " + self._fullStationID + " " + \
-               self._ddhhmmTime + "\n" + self._pil + "\n" +\
-               self._zoneCode + "-" + self._ddhhmmTimeExpire + "-\n\n" +\
-               productName + "\n" +\
+               self._ddhhmmTime + "\n" + self._pil + "\n" + \
+               self._zoneCode + "-" + self._ddhhmmTimeExpire + "-\n\n"
+        fcst = fcst + s.upper()
+        
+        s = productName + "\n" +\
                "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
-        fcst = fcst + s.upper()
+        fcst = fcst + s
         
         return fcst + self._rowDescription() + "\n\n" + self._tableHeader() + "\n\n"
 

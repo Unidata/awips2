@@ -23,7 +23,7 @@
 #
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    04/28/2016      4027          randerso       Added optional construction parameter to set the time
+#    04/28/2015      4027          randerso       Added optional construction parameter to set the time
 #
 ##
 

@@ -174,13 +174,13 @@ class TextProduct(GenericReport.TextProduct):
 
 
         if currentHour >= 16 or currentHour < 3:
-            dayOnePhrase = ".Day One...Tonight"
+            dayOnePhrase = ".DAY ONE...Tonight"
         elif currentHour >= 3 and currentHour < 11:
-            dayOnePhrase = ".Day One...Today and Tonight"
+            dayOnePhrase = ".DAY ONE...Today and Tonight"
         elif currentHour >= 11 and currentHour < 16:
-            dayOnePhrase = ".Day One...This Afternoon and Tonight"
+            dayOnePhrase = ".DAY ONE...This Afternoon and Tonight"
 
-        dayTwoSevenPhrase = ".Days Two through Seven..." + tommorow +\
+        dayTwoSevenPhrase = ".DAYS TWO THROUGH SEVEN..." + tommorow +\
                             " through " + daySeven
 
         #
@@ -247,7 +247,7 @@ class TextProduct(GenericReport.TextProduct):
         return "Spotter activation will not be needed."
 
     def getSpotterInfoStmt(self):
-        return ".Spotter information statement..."
+        return ".SPOTTER INFORMATION STATEMENT..."
    
    # PATCHES:  To be removed with each new release
 
