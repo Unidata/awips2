@@ -412,10 +412,10 @@ Listen to NOAA Weather Radio or local media for further information.""",
 
     def ctaHTY(self):
         return [
- """Take extra precautions...if you work or spend time outside. When possible...reschedule strenuous activities to early morning or evening. Know the signs and symptoms of heat exhaustion and heat stroke. Wear light weight and loose fitting clothing when possible and drink plenty of water.\n\n
-    To reduce risk during outdoor work...the occupational safety and health administration recommends scheduling frequent rest breaks in shaded or air conditioned environments. Anyone overcome by heat should be moved to a cool and shaded location.   Heat stroke is an emergency...call 9 1 1.\n\n
-    A Heat Advisory means that a period of hot temperatures is expected. The combination of hot temperatures and high humidity will combine to create a situation in which heat illnesses are possible. Drink plenty of fluids...stay in an air-conditioned room...stay out of the sun...and check up on relatives and neighbors.""",
-        ]
+ """A Heat Advisory means that a period of hot temperatures is expected. The combination of hot temperatures and high humidity will combine to create a situation in which heat illnesses are possible. Drink plenty of fluids...stay in an air-conditioned room...stay out of the sun...and check up on relatives and neighbors.\n\n
+    Take extra precautions...if you work or spend time outside. When possible...reschedule strenuous activities to early morning or evening. Know the signs and symptoms of heat exhaustion and heat stroke. Wear light weight and loose fitting clothing when possible and drink plenty of water.\n\n
+    To reduce risk during outdoor work...the occupational safety and health administration recommends scheduling frequent rest breaks in shaded or air conditioned environments. Anyone overcome by heat should be moved to a cool and shaded location.   Heat stroke is an emergency...call 9 1 1.""",
+        ]   
 
     def ctaHUA(self):
         return [
