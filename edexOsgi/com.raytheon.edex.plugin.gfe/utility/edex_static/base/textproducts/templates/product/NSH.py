@@ -582,11 +582,13 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         productName = self.checkTestMode(argDict, productName)
         
         s = self._wmoID + " " + self._fullStationID + " " + \
-               self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
-               productName + "\n" +\
+               self._ddhhmmTime + "\n" + self._pil + "\n\n"
+        fcst = fcst + s.upper()
+               
+        s = productName + "\n" +\
                "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
-        fcst = fcst + s.upper()
+        fcst = fcst + s
                
         fcst =  fcst + self._lakeStmt(argDict) + "\n\n"
         fcst = fcst + self._Text1()
@@ -595,7 +597,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     def _preProcessArea(self, fcst, editArea, areaLabel, argDict):
         areaHeader = self.makeAreaHeader(
             argDict, areaLabel, self._issueTime, self._expireTime,
-            self._areaDictionary, self._defaultEditAreas, upperCase=True)
+            self._areaDictionary, self._defaultEditAreas)
         fcst = fcst + areaHeader 
 
         # get the hazards text
@@ -662,17 +664,17 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             ]        
         return [
             ("430 AM", self.DAY(), self.NIGHT(), 11,
-             ".Today...", "early in the morning", "late in the afternoon",
+             ".TODAY...", "early in the morning", "late in the afternoon",
              1, narrativeDefAM),
             ("Morning Update", "issuanceHour", self.NIGHT(), 17,
-             ".This Afternoon...", "early", "late",
+             ".THIS AFTERNOON...", "early", "late",
              1, narrativeDefAM),
             #  End times are tomorrow:
             ("430 PM", self.NIGHT(), 24 + self.DAY(), 23,
-             ".Tonight...", "late in the night", "early in the evening",
+             ".TONIGHT...", "late in the night", "early in the evening",
              1, narrativeDefPM),
             ("Evening Update", "issuanceHour", 24 + self.DAY(), 24+5,
-             ".Overnight...", "toward daybreak", "early in the evening",
+             ".OVERNIGHT...", "toward daybreak", "early in the evening",
              1, narrativeDefPM),
             ]
     

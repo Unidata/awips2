@@ -143,12 +143,15 @@ class TextProduct(GenericHazards.TextProduct):
         productName = self.checkTestMode(argDict, self._productName)
 
         s = self._wmoID + " " + self._fullStationID + " " + \
-               self._ddhhmmTime + "\n" + self._pil + "\n\n" + easPhrase +\
+               self._ddhhmmTime + "\n" + self._pil + "\n\n" 
+        fcst =  fcst + s.upper()
+               
+        s = easPhrase +\
                productName + "\n" +\
                "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n" + \
                self._easPhrase + "\n\n"
-        fcst =  fcst + s.upper()
+        fcst =  fcst + s
         
         fcst = fcst + "Default overview section\n"
         return fcst

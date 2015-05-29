@@ -32,14 +32,14 @@ import SiteInfo
 from com.raytheon.uf.common.dataplugin.gfe.python import GfePyIncludeUtil
 
     
-def getStandardProductType(self, productType, level):
+def getStandardProductType(self, dataMgr, productType, level):
     siteID = self._dataMgr.getSiteID()
     baseline = "_Baseline"
     region = "_"+SiteInfo.SiteInfoDict[siteID]["region"]
     #print "site, region", siteID, region    
     tName = productType + "_"+ siteID
     #print "tName", tName, level
-    ceProducts = self._textProductMgr.getModuleNames()
+    ceProducts = dataMgr.getTextProductMgr().getModuleNames()
     for ceProduct in ceProducts:
         if ceProduct.find(tName) >= 0:
             #print "   found in ceProduct"
@@ -98,7 +98,7 @@ def generalTestScript(self, dataMgr, scripts, defaults={}, level="Site"):
         productType = getValue(script, "productType", defaults, "Phrase_Test_Local")
         if productType is not None:
             if productType != "Phrase_Test_Local":
-                productType = getStandardProductType(self, productType, level)
+                productType = getStandardProductType(self, dataMgr, productType, level)
         comboFlag = getValue(script, "comboFlag", defaults, 0)
         if comboFlag and productType is not None:
             productName = script["productType"]
@@ -147,6 +147,7 @@ def generalTestScript(self, dataMgr, scripts, defaults={}, level="Site"):
         #print "appending", newScript
         tScript.append(newScript)
         #break
+        
     return tScript
 
 def getValue(script, key, defaults, default):
