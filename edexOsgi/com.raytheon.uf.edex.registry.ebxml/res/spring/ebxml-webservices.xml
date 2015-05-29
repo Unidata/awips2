@@ -111,6 +111,7 @@
         <property name="federatedRegistryMonitor" ref="FederatedRegistryMonitor" />
         <property name="federationDbInit" ref="FederationDbInit" />
         <property name="registryUsers" ref="registryUsers" />
+        <property name="securityConfig" ref="securityConfiguration"/>
     </bean>
 
     <bean id="defineRegistryQuery"
