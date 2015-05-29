@@ -60,6 +60,7 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  *                                     unused duration field, made patterns constant.
  * Sep 26, 2014 #3629      mapeters    Replaced static imports.
  * Sep 30, 2014 #3629      mapeters    Conformed to changes in ISynoptic constants.
+ * May 26, 2015 #4525      mapeters    Fix pressure unit conversion.
  * 
  * </pre>
  * 
@@ -97,7 +98,7 @@ public class SynopticSec3Decoder extends AbstractSectionDecoder {
 
     private Double windGust912 = null;
 
-    private static final UnitConverter hPaToPa = SI.HECTO(SI.PASCAL)
+    private static final UnitConverter daPaToPa = SI.DEKA(SI.PASCAL)
             .getConverterTo(SI.PASCAL);
 
     /**
@@ -116,6 +117,7 @@ public class SynopticSec3Decoder extends AbstractSectionDecoder {
      * @throws DecoderException
      *             Thrown when an relevant error has occurred.
      */
+    @Override
     public void decode(ReportParser reportParser) throws DecoderException {
 
         int iSubW = decoderParent.getISubw();
@@ -162,8 +164,7 @@ public class SynopticSec3Decoder extends AbstractSectionDecoder {
                     closeGroup(3);
                 } else if ("4".equals(element.substring(0, 1)) && doGroup(4)) {
                     closeGroup(4);
-                } else if (P589.matcher(element).find()
-                        && doGroup(5)) {
+                } else if (P589.matcher(element).find() && doGroup(5)) {
                     int sign = 0;
                     if (element.charAt(1) == '8') {
                         sign = 1;
@@ -173,8 +174,7 @@ public class SynopticSec3Decoder extends AbstractSectionDecoder {
                     Integer val = AbstractSfcObsDecoder.getInt(element, 2, 5);
                     if ((val != null) && (val >= 0)) {
                         pressure24 = new DataItem("24HRChange");
-                        pressure24.setDataValue(hPaToPa.convert(val
-                                * sign));
+                        pressure24.setDataValue(daPaToPa.convert(val * sign));
                         pressure24.setDataPeriod(TimeUtil.SECONDS_PER_DAY);
                     }
                     closeGroup(5);
@@ -221,6 +221,7 @@ public class SynopticSec3Decoder extends AbstractSectionDecoder {
      *            An ObsCommon to receive the decoded data.
      * @return The populated receiver object.
      */
+    @Override
     public ObsCommon getDecodedData(ObsCommon receiver) {
 
         if (maxTemperature != null) {
