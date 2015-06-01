@@ -68,6 +68,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Mar 04, 2014 2832       njensen     Moved disposeInternal() to abstract class
  * Apr 07, 2014 2959       njensen     Correct handling of color change
  * Apr 14, 2014 DR 17257  D. Friedman  Redo time matching on per-minute refresh.
+ * Apr 28, 2015 ASM #15008 D. Friedman Create polygon for EXTs even if original product is not found.
  * 
  * </pre>
  * 
@@ -268,9 +269,11 @@ public class WarningsResource extends AbstractWWAResource {
                             }
                         }
                     }
-                    // create the new polygon for the CON outside of the above
-                    // for loop
-                    if (createShape != null) {
+                    /* Create a new polygon for the follow-up to the original
+                     * product found in the above loop.  Also create a polygon
+                     * for EXT actions even if the original was not found.
+                     */
+                    if (createShape != null || act == WarningAction.EXT) {
                         initShape(target, warnrec);
                     }
                 } else {

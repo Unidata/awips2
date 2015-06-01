@@ -200,11 +200,11 @@ def execIscDataRec(MSGID,SUBJECT,FILES):
                 elif SUBJECT == 'GET_ACTIVE_TABLE2':
                     IrtServer.getVTECActiveTable(dataFile, xmlFileBuf) 
                 elif SUBJECT in ['ISCGRIDS', 'ISCGRIDS2']:
-                    import localConfig
+                    import serverConfig
                     
                     additionalISCRouting = []
-                    if localConfig.AdditionalISCRouting:
-                        additionalISCRouting = localConfig.AdditionalISCRouting                    
+                    if serverConfig.AdditionalISCRouting:
+                        additionalISCRouting = serverConfig.AdditionalISCRouting
                     putISCGrids(dataFile, siteConfig.GFESUITE_SITEID, srcServer.get('site'), additionalISCRouting)
                 elif SUBJECT == 'ISCREQUEST':
                     IrtServer.serviceISCRequest(dataFile)

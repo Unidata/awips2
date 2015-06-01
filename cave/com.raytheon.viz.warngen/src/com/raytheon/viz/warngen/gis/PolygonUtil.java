@@ -54,6 +54,7 @@ import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.PrecisionModel;
+import com.vividsolutions.jts.geom.TopologyException;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 import com.vividsolutions.jts.precision.SimpleGeometryPrecisionReducer;
@@ -90,7 +91,9 @@ import com.vividsolutions.jts.precision.SimpleGeometryPrecisionReducer;
  *                                     hatched area would be retained after redrawing.
  * 07/22/2014  DR 17475   Qinglu Lin   Updated createPolygonByPoints() and created second createPolygonByPoints().
  * 04/02/2015  DR 4353    dgilling     Fix bad exception handler in hatchWarningArea.
- * 
+ * 04/29/2015  DR 17310   D. Friedman  Use Geometry.buffer() to fix self-intersections.  Fix bug in alterVertexes.
+ * 05/07/2015  DR 17438   D. Friedman  Clean up debug and performance logging.
+ * 05/08/2015  DR 17310   D. Friedman  Prevent reducePoints from generating invalid polygons.
  * </pre>
  * 
  * @author mschenke
@@ -570,12 +573,27 @@ public class PolygonUtil {
 
         GeometryFactory gf = new GeometryFactory();
         points.add(new Coordinate(points.get(0)));
-        truncate(points, 2);
         Polygon rval = gf.createPolygon(gf.createLinearRing(points
                 .toArray(new Coordinate[points.size()])), null);
 
+        if (!rval.isValid()) {
+            statusHandler.handle(Priority.DEBUG, String.format(
+                    "Polygon %s is invalid.  Attempting to fix...", rval));
+            String resultMessage = null;
+            try {
+                Polygon p2 = (Polygon) rval.buffer(0.0);
+                rval = gf.createPolygon((LinearRing) p2.getExteriorRing());
+                resultMessage = String.format("  ...fixed.  Result: %s", rval);
+            } catch (TopologyException e) {
+                resultMessage = "  ...fix failed";
+            } catch (ClassCastException e) {
+                resultMessage = "  ...resulted in something other than a polygon";
+            }
+            statusHandler.handle(Priority.DEBUG, resultMessage);
+        }
+
         if (rval.isValid() == false) {
-            System.out.println("Fixing intersected segments");
+            statusHandler.handle(Priority.DEBUG, "Fixing intersected segments");
             Coordinate[] coords = rval.getCoordinates();
             adjustVertex(coords);
             PolygonUtil.round(coords, 2);
@@ -841,6 +859,7 @@ public class PolygonUtil {
         int npts = pts.length;
         double xavg = 0, yavg = 0;
         int[] yesList = new int[npts];
+        boolean[] excludeList = new boolean[npts];
         int nyes = 0;
         int k, k1, k2, kn, y, simple;
         double bigDis, maxDis, dis, dx, dy, dx0, dy0, bas;
@@ -908,7 +927,9 @@ public class PolygonUtil {
                     }
                     if (k == k2) {
                         break;
-                    }
+
+                    if (excludeList[k])
+                        continue;
                     dx = pts[k].x - pts[k1].x;
                     dy = pts[k].y - pts[k1].y;
                     dis = dx * dx0 + dy * dy0;
@@ -916,7 +937,8 @@ public class PolygonUtil {
                         dis = -dis;
                     } else {
                         dis -= bas;
-                    }
+                    double newMaxDis = maxDis;
+                    int newSimple = simple;
                     if (dis <= 0) {
                         if (simple == 0) {
                             continue;
@@ -924,17 +946,29 @@ public class PolygonUtil {
                         dis = dx * dy0 - dy * dx0;
                         if (dis < 0) {
                             dis = -dis;
-                        }
-                    } else if (simple != 0) {
-                        maxDis = simple = 0;
-                    }
-                    if (dis < maxDis) {
+                    } else if (simple != 0)
+                        newMaxDis = newSimple = 0;
+                    if (dis < newMaxDis) {
+                        maxDis = newMaxDis;
                         continue;
                     }
+                    if (! checkReducePointsValid(pts, yesList, nyes, k)) {
+                        excludeList[k] = true;
+                        continue;
+                    }
+                    simple = newSimple;
                     maxDis = dis;
                     kn = k;
                 }
                 k1 = k2;
+            }
+
+            Arrays.fill(excludeList, false);
+            if (kn < 0) {
+                statusHandler.debug(
+                        String.format("reducePoints(..., %d): Unable to find a valid point\npoints: %s",
+                                maxNpts, points));
+                break;
             }
 
             if (simple != 0 && nyes > 2) {
@@ -961,6 +995,24 @@ public class PolygonUtil {
         npts = nyes;
         points.clear();
         points.addAll(Arrays.asList(Arrays.copyOf(pts, npts)));
+    }
+
+    private boolean checkReducePointsValid(Coordinate[] pts, int[] yesList, int nyes, int k) {
+        Coordinate[] verts = new Coordinate[nyes + 2];
+        int vi = 0;
+        for (int i = 0; i < nyes; ++i) {
+            if (k >= 0 && k < yesList[i]) {
+                verts[vi++] = pts[k];
+                k = -1;
+            }
+            verts[vi++] = pts[yesList[i]];
+        }
+        if (k >= 0) {
+            verts[vi++] = pts[k];
+        }
+        verts[verts.length - 1] = new Coordinate(verts[0]);
+        GeometryFactory gf = new GeometryFactory();
+        return gf.createPolygon(verts).isValid();
     }
 
     /**
@@ -1786,9 +1838,8 @@ public class PolygonUtil {
                 if (intersectCoord != null) {
                     index1 = calcShortestDistance(intersectCoord, ls1);
                     index2 = calcShortestDistance(intersectCoord, ls2);
-                    Coordinate c = new Coordinate(
-                            0.5 * (coord[index1].x + coord[2 + index2].x),
-                            0.5 * (coord[index1].y + coord[2 + index2].y));
+                    Coordinate c = new Coordinate(0.5*(coord[index[index1]].x + coord[index[2+index2]].x),
+                            0.5*(coord[index[index1]].y + coord[index[2+index2]].y));
                     PolygonUtil.round(c, 2);
                     coord[index[index1]] = new Coordinate(c);
                     coord[index[2 + index2]] = new Coordinate(c);
