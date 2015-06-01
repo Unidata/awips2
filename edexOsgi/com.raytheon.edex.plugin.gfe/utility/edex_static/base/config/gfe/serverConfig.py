@@ -58,11 +58,9 @@
 #    03/30/2015          #17206    yteng          Changed some parameters that are not rate parameters
 #    03/31/2015          #17288    bhunder        Added Weather Params for RTMA
 #    04/03/2015          #4367     dgilling       Change WindGust's time constraints back to TC1 
-#    04/08/2015          #4383     dgilling       Define FireWX ISC configuration parameters.
-#
 #                                                 for Fcst/Official.
+#    04/08/2015          #4383     dgilling       Define FireWX ISC configuration parameters.
 #    04/15/2015          #17383    yteng          Change localTC to fix error that time constraints
-#                         being off
 #                                                 being off
 #    04/20/2015          #4414     dgilling       Add missing NWPSTrkngCG0 weather elements.
 #    05/12/2015          #17144    bhunder        Added RTMA model
