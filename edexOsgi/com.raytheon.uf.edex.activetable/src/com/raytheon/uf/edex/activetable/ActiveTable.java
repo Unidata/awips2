@@ -493,7 +493,7 @@ public class ActiveTable {
                     0, 0);
             yearStart.set(Calendar.MILLISECOND, 0);
             query.addQueryParam("issueTime", yearStart.getTime(), ">=");
-            query.addOrder("etn", false);
+            query.addOrder("key.etn", false);
             query.setMaxResults(1);
         }
 
