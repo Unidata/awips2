@@ -37,6 +37,7 @@
 #    05/15/14        #3157         dgilling       Support multiple TPC and SPC sites.
 #    03/04/2015      #4129         randerso       Log the active table changes at info level 
 #                                                 in the active table change log
+#    May 22, 2015     4522         randerso       Create proper primary key for ActiveTableRecord
 #
 ##
 
@@ -370,8 +371,6 @@ class MergeVTEC(VTECTableUtil.VTECTableUtil):
                   self.printActiveTable(ignoredOldReplaceAct, 1))
             atChangeLog.info("Table Changes: " + str(changes))
         
-        purges.extend(oldReplaceEntriesAct)
-        purges.extend(oldReplaceEntriesPast)
         return activeTable, purges, changes
     
     def getMergeResults(self):
