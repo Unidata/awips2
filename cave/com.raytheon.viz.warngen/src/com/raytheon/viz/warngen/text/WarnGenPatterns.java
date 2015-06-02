@@ -41,18 +41,22 @@ import java.util.regex.Pattern;
  * Apr 29, 2014   3033     jsanchez     Added more patterns.
  * May  1, 2014  DR 16627  Qinglu Lin   Roll back the changes to listOfAreaName on January 6, 2014.
  * May 13, 2014  DR 17177  Qinglu Lin   Updated secondBullet().
+ * May 29, 2015 4441       randerso     Made patterns case insensitive where necessary
+ *                                      Renamed and changed from interface to class
  * </pre>
  * 
  * @author jsanchez
  * @version 1.0
  */
-public interface ICommonPatterns {
+public class WarnGenPatterns {
 
     /** Start tag for locking */
     public static final String LOCK_START = "<L>";
 
     /** End tag for locking */
     public static final String LOCK_END = "</L>";
+
+    public static final String REPLACEMENT = LOCK_START + "$0" + LOCK_END;
 
     public static final String NEWLINE = "\\n";
 
@@ -68,8 +72,9 @@ public interface ICommonPatterns {
 
     // LOCK_END should not be found at the beginning of a first bullet since the
     // previous line should be blank.
-    public static final String firstBullet = "^(\\* (.*) (WARNING|ADVISORY)( FOR(.*)|\\.\\.\\.)"
-            + NEWLINE + ")";
+    public static final Pattern firstBulletPtrn = Pattern
+            .compile("^(\\* (.*) (WARNING|ADVISORY)( FOR(.*)|\\.\\.\\.)"
+                    + NEWLINE + ")", Pattern.CASE_INSENSITIVE);
 
     // LOCK_END can be added at the start of the line if a previous line has
     // been locked.
@@ -82,7 +87,8 @@ public interface ICommonPatterns {
 
     public static final Pattern header = Pattern.compile(
             "^((THE NATIONAL WEATHER SERVICE IN .{1,} HAS (ISSUED A|EXTENDED THE))"
-                    + NEWLINE + ")$", Pattern.MULTILINE);
+                    + NEWLINE + ")$", Pattern.MULTILINE
+                    | Pattern.CASE_INSENSITIVE);
 
     /*
      * LOCK_END should not be found at the beginning since the previous line
@@ -90,7 +96,8 @@ public interface ICommonPatterns {
     public static final Pattern secondBulletPtrn = Pattern
             .compile(
                     "\\* UNTIL (\\d{3,4} (AM|PM)|NOON|MIDNIGHT) \\w{3,4}( \\w{6,9}){0,1}(\\/(\\d{3,4} (AM|PM)|NOON|MIDNIGHT) \\w{3,4}( \\w{6,9}){0,1}\\/){0,1}"
-                            + NEWLINE, Pattern.MULTILINE);
+                            + NEWLINE, Pattern.MULTILINE
+                            | Pattern.CASE_INSENSITIVE);
 
     public static final Pattern htecPtrn = Pattern
             .compile(

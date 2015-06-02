@@ -51,6 +51,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  *    Date         Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
  *    Nov 15, 2007             chammack    Initial Creation.
+ *    Jun 02, 2016   4442      randerso    Remove upper case conversion
  * 
  * </pre>
  * 
@@ -84,13 +85,13 @@ public class Abbreviation {
                 String line = bufferedReader.readLine();
                 String[] tokens = line.split("\\\\");
                 if (tokens[0].trim().equalsIgnoreCase(DEFAULT)) {
-                    this.defaultAbbrev = tokens[1].trim().toUpperCase();
+                    this.defaultAbbrev = tokens[1].trim();
                 } else if (tokens[0].trim().equalsIgnoreCase(DEFAULT_PLURAL)) {
-                    this.defaultPluralAbbrev = tokens[1].trim().toUpperCase();
+                    this.defaultPluralAbbrev = tokens[1].trim();
                 } else {
-                    this.abbreviationMap.put(tokens[0].trim().toUpperCase(),
-                            tokens.length < 2 || tokens[1] == null ? ""
-                                    : tokens[1].trim().toUpperCase());
+                    this.abbreviationMap.put(tokens[0].trim(),
+                            (tokens.length < 2) || (tokens[1] == null) ? ""
+                                    : tokens[1].trim());
                 }
             }
         } catch (Exception e) {
@@ -98,14 +99,16 @@ public class Abbreviation {
 
         } finally {
             try {
-                if (bufferedReader != null)
+                if (bufferedReader != null) {
                     bufferedReader.close();
+                }
             } catch (IOException e1) {
                 // ignore
             }
             try {
-                if (fileReader != null)
+                if (fileReader != null) {
                     fileReader.close();
+                }
             } catch (IOException e) {
                 // ignore
             }
@@ -114,7 +117,7 @@ public class Abbreviation {
 
     public String translate(String abbreviation) {
         String str = this.abbreviationMap.get(abbreviation.toUpperCase());
-        if (str == null && this.defaultAbbrev != null) {
+        if ((str == null) && (this.defaultAbbrev != null)) {
             return abbreviation.endsWith(PLURAL_SUFFIX) ? this.defaultPluralAbbrev
                     : this.defaultAbbrev;
         }

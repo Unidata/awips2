@@ -16,7 +16,7 @@ import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.viz.warngen.gis.AffectedAreas;
-import com.raytheon.viz.warngen.text.ICommonPatterns;
+import com.raytheon.viz.warngen.text.WarnGenPatterns;
 
 /**
  * This utility will provide methods for determining what followup products are
@@ -176,7 +176,7 @@ public class FollowUpUtil {
         String namesLine = "";
         String headline = "";
         Pattern listOfAreaNamePtrn = Pattern
-                .compile(ICommonPatterns.listOfAreaName);
+                .compile(WarnGenPatterns.listOfAreaName);
         String[] splitLines = originalText.trim().split("\n");
         for (String line : splitLines) {
             if (line.contains("TEST") || line.trim().length() == 0) {
@@ -282,7 +282,7 @@ public class FollowUpUtil {
 
     public static String getUgcLineCanFromText(String originalText) {
         String ugcLine = "";
-        Pattern ugcPtrn = Pattern.compile(ICommonPatterns.ugc);
+        Pattern ugcPtrn = Pattern.compile(WarnGenPatterns.ugc);
         for (String line : originalText.replaceAll("\r", "").trim().split("\n")) {
             Matcher m = ugcPtrn.matcher(line);
             if (m.find()) {

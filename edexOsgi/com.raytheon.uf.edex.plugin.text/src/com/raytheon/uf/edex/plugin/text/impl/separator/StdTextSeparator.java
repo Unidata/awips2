@@ -91,7 +91,7 @@ public class StdTextSeparator extends WMOMessageSeparator {
         String product_id = TextDBStaticData.getProductId(ispanId);
 
         // check whether to exclude from decoding for storage
-        if (product_id != null
+        if ((product_id != null)
                 && TextDBStaticData.isExcluded(product_id.toString())) {
             logger.debug("NCF_ENTRY " + product_id.toString() + " is skipped");
             return;
@@ -172,8 +172,8 @@ public class StdTextSeparator extends WMOMessageSeparator {
             // if no product_id is found, use ispanId to store and assign
             // a dummy to product_id so that such products can still be stored
             // during the AFOS to AWIPS transition.
-            if (parsedMsg.length() > 6 && parsedMsg.charAt(6) != '\r'
-                    && parsedMsg.charAt(6) != '\n') {
+            if ((parsedMsg.length() > 6) && (parsedMsg.charAt(6) != '\r')
+                    && (parsedMsg.charAt(6) != '\n')) {
                 nnnxxx = "NONAWIPS";
             } else {
                 nnnxxx = parsedMsg.substring(0, (parsedMsg.length() > 6 ? 6
