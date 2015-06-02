@@ -140,7 +140,8 @@ class ActiveTableRecord(object):
             self.atr.setProductClass(value)
         elif key == 'id':                                
             self.id = value
-            self.atr.setUgcZone(value)
+            if type(value) == str:
+                self.atr.setUgcZone(value)
         elif key == 'rawMessage':
             self.atr.setRawmessage(value)
         else:
