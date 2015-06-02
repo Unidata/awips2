@@ -30,7 +30,6 @@
         <include>ebxml.*\.xml</include>
         <include>eventbus-common.xml</include>
         <include>edex-security.xml</include>
-        <include>request-service-common.xml</include>
         <include>geo-common.xml</include>
     </mode>
 </edexModes>

@@ -119,6 +119,7 @@ import com.raytheon.uf.edex.registry.federation.FederationProperties;
 import com.raytheon.uf.edex.registry.federation.NotificationServers;
 import com.raytheon.uf.edex.registry.federation.RegistryNotFoundException;
 import com.raytheon.uf.edex.registry.federation.ReplicationEvent;
+import com.raytheon.uf.edex.security.SecurityConfiguration;
 
 /**
  * 
@@ -171,6 +172,7 @@ import com.raytheon.uf.edex.registry.federation.ReplicationEvent;
  * 7/28/2014    2752        dhladky     Fixed bad registry user name.
  * 8/27/2014    3560        bphillip    Added updateRegistryEvents method
  * 5/11/2015    4448        bphillip    Separated EBXML Registry from Data Delivery
+ * 5/29/2015    4448        bphillip    Added default user to registry on startup
  * </pre>
  * 
  * @author bphillip
@@ -296,6 +298,8 @@ public class RegistryFederationManager implements IRegistryFederationManager,
 
     private RegistryUsers registryUsers;
 
+    private SecurityConfiguration securityConfig;
+
     public RegistryFederationManager() throws JAXBException {
         jaxbManager = new JAXBManager(SubmitObjectsRequest.class,
                 FederationProperties.class, NotificationServers.class,
@@ -390,20 +394,32 @@ public class RegistryFederationManager implements IRegistryFederationManager,
          * If this is the central registry then we ensure that the superuser is
          * in the registry
          */
-        if (centralRegistry
-                && !registryUsers.userExists(RegistryUtil.registryUser)) {
-            /*
-             * The registry super user initially gets the default password which
-             * *must* be changed immediately
-             */
-            try {
+        try {
+            if (centralRegistry
+                    && !registryUsers.userExists(RegistryUtil.registryUser)) {
+                /*
+                 * The registry super user initially gets the default password
+                 * which *must* be changed immediately
+                 */
                 registryUsers.addUser(RegistryUtil.registryUser, "password",
                         "RegistryAdministrator");
-            } catch (MsgRegistryException e) {
-                throw new EbxmlRegistryException(
-                        "Error adding default registry user!", e);
+
+            } else if (!centralRegistry
+                    && !registryUsers.userExists(securityConfig
+                            .getSecurityProperties().getProperty(
+                                    "edex.security.auth.user"))) {
+                registryUsers.addUser(
+                        securityConfig.getSecurityProperties().getProperty(
+                                "edex.security.auth.user"),
+                        securityConfig.getSecurityProperties().getProperty(
+                                "edex.security.auth.password"),
+                        "RegistryLocalAdministrator");
             }
+        } catch (MsgRegistryException e) {
+            throw new EbxmlRegistryException(
+                    "Error adding default registry user!", e);
         }
+
         initialized.set(true);
     }
 
@@ -1343,4 +1359,11 @@ public class RegistryFederationManager implements IRegistryFederationManager,
         this.restClient = restClient;
     }
 
+    /**
+     * @param securityConfig
+     *            the securityConfig to set
+     */
+    public void setSecurityConfig(SecurityConfiguration securityConfig) {
+        this.securityConfig = securityConfig;
+    }
 }
