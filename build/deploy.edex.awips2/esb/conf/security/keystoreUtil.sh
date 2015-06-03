@@ -1,4 +1,5 @@
 #!/bin/bash
+# Temporary, only be used until we get DOD certs.
 # rewrite from 16.1.1
 
 SETUP_ENV=/awips2/edex/bin/setup.env
@@ -272,7 +273,6 @@ do
 	done
 
 done
-
 
 cn=$(hostname)
 
