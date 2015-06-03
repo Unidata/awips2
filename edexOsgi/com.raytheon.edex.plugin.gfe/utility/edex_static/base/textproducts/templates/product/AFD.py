@@ -622,20 +622,22 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 ####################################################################
     def _preProcessProduct(self, fcst, argDict):
         # Add product heading to fcst string
-        fcst = fcst + self._wmoID + " " + self._fullStationID + " " + \
-               self._ddhhmmTime + "\n"
+        s = self._wmoID + " " + self._fullStationID + " " + \
+               self._ddhhmmTime + "\n" + \
+               self._pil + "\n\n"
+            
+        fcst = fcst + s.upper();
 
         issuedByString = self.getIssuedByString()
 
         productName = self.checkTestMode(argDict, self._productName) 
 
-        s = self._pil + "\n\n" + \
-            productName + "\n" + \
+        s = productName + "\n" + \
             "National Weather Service " + \
             self._wfoCityState +"\n" + \
             issuedByString + \
             self._timeLabel + "\n\n"
-        fcst = fcst + s.upper()
+        fcst = fcst + s
         return fcst
 
 ####################################################################

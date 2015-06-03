@@ -71,7 +71,7 @@ class setupTextEA:
         requiredEA = ["west_half","east_half","east_one_third",
           "west_one_third", "east_two_thirds","west_two_thirds",
           "east_one_quarter", "west_one_quarter", "east_three_quarters",
-          "west_three_quarters","SUPERIOR"]
+          "west_three_quarters","Superior"]
         for x in xrange(len(requiredEA)):
             refData = refMgr.loadRefSet(ReferenceID(zoneList[x]))
             ea = ReferenceData(refData)
@@ -263,8 +263,7 @@ class setupTextEA:
         gloc = self.__dataMgr.getClient().getDBGridLocation()
         id = ReferenceID(name)
         # convert grid to polygons
-        grid2d = Grid2DBit(gloc.getNx().intValue(), gloc.getNy().intValue())
-        grid2d.set(grid)
+        grid2d = Grid2DBit.createBitGrid(gloc.getNx().intValue(), gloc.getNy().intValue(), grid)
         refdata = ReferenceData(gloc, id, grid2d)
         #refdata.convertToLatLon()
         #polygons = refdata.polygons()

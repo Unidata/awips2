@@ -43,10 +43,10 @@
 # May 15, 2014  3157     dgilling       Update location of WclInfo class.
 # Jun 10, 2014  3268     dgilling       Update location of WclInfo class.
 # Dec 17, 2014  4953     randerso       Fixed decoding of non-VTEC from command line
+# May 14, 2015  4027     randerso       Changed regex used to decode date line to accept mixed case
 # Mar 24, 2015  4320     dgilling       Fix NullPointerException in StdWarningDecoder.__init__()
 #                                       when decoding product not from a file.
 # Mar 26, 2015  4324     dgilling       Improve handling of all 0s time values in HVTEC strings.
-#
 #
 # @author rferrel
 # @version 1.0
@@ -169,7 +169,7 @@ class StdWarningDecoder():
           r'([0-9]{6})T([0-9]{4})Z\.([0-9]{6})T([0-9]{4})Z\.([A-Z][A-Z])/'
         self._badVtecRE = r'^\s?/.*/\s?$'
         self._endSegmentRE = r'^\$\$'
-        self._dlineRE = r"^1?[0-9]{3} [AP]M [A-Z][A-Z]?[DS]T.*[A-Z]{3} " + \
+        self._dlineRE = r"^1?[0-9]{3} [AP]M [A-Z][A-Z]?[DS]T.*[A-Z][A-Z,a-z]{2} " + \
           r"[0123]?[0-9] 2[0-9]{3}.*$"
 
         #maximum future time (used for until further notice)

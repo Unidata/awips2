@@ -480,7 +480,7 @@ class TextProduct(GenericHazards.TextProduct):
         if self._elevationSource == "Grids":
 
             ### initialize the phrase
-            le = " for "
+            le = " FOR "
             ### Set the phrase from the forecaster selections
             if len(self._rfwType) > 0:
                 ### add the event type
@@ -489,13 +489,13 @@ class TextProduct(GenericHazards.TextProduct):
                     le = le + phraseDict.get(t)[0]
                 ### add zone numbers or generic location description to headline
                 if self._numInHeadline == 0:
-                    le = le + "for |* location description *|"
+                    le = le + "FOR |* location description *|"
                 else:
                     le = le + self._headlineNumbers(hazard['id'])
             else:
                 ### if no event type selected make a generic phrase
                 if self._numInHeadline == 0:
-                    le = le + "|* event type *| for |* location description *|"
+                    le = le + "|* event type *| FOR |* location description *|"
                 else:
                     le = le + "|* event type *| " + self._headlineNumbers(hazard['id'])
         else:
@@ -552,7 +552,7 @@ class TextProduct(GenericHazards.TextProduct):
                 # hazard['start'], hazard['end']), "leading")
                   hazard['startTime'], hazard['endTime'], hazard['seg'])
                 ########################################################################
-                returnStr = returnStr + "..." + hazStr + localStr + "...\n"
+                returnStr = returnStr + "..." + hazStr.upper() + localStr + "...\n"
 
             # always remove the main hazard from the list
             hList.remove(hazard)
@@ -577,9 +577,9 @@ class TextProduct(GenericHazards.TextProduct):
         numList.sort()
         ### initialize the zone number list
         if len(numList) > 1:
-            numStr = "for fire weather zones "
+            numStr = "FOR FIRE WEATHER ZONES "
         else:
-            numStr = "for fire weather zone "
+            numStr = "FOR FIRE WEATHER ZONE "
 
         i = 0
         for i in range (len(numList)):
@@ -588,7 +588,7 @@ class TextProduct(GenericHazards.TextProduct):
             elif (len(numList) - i) > 2: ### more than three zones, and/or last zone in list
                 numStr = numStr + numList[i] + "..."
             elif (len(numList) - i) > 1: ### next to last zone in list
-                numStr = numStr + numList[i] + " and "
+                numStr = numStr + numList[i] + " AND "
 
         return numStr
 
