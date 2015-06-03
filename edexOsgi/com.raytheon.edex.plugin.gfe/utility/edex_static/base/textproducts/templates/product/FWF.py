@@ -860,18 +860,20 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         productName = self.checkTestMode(argDict, productName)
 
         s = self._wmoID + " " + self._fullStationID + " " + \
-               self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
-               productName + "\n" +\
+               self._ddhhmmTime + "\n" + self._pil + "\n\n" 
+        fcst =  fcst + s.upper()
+        
+        s = productName + "\n" +\
                "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
-        fcst =  fcst + s.upper()
+        fcst =  fcst + s
         
         # Put in a place holder for the headlines to be substituted in
         # "postProcessProduct"
         fcst = fcst + "<HEADLINES>"
         self._prodHeadlines = []
         
-        fcst = fcst + ".Discussion..." + "\n\n\n\n\n"
+        fcst = fcst + ".DISCUSSION..." + "\n\n\n\n\n"
         return fcst
 
     def _preProcessArea(self, fcst, editArea, areaLabel, argDict):
@@ -910,7 +912,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     def _postProcessProduct(self, fcst, argDict):
         # Add one extended
         if self._summaryExtended == 1:
-            fcst = fcst + "\n.Forecast days 3 through 7...\n\n"
+            fcst = fcst + "\n.FORECAST DAYS 3 THROUGH 7...\n\n"
             extended = self.generateProduct("ExtendedNarrative",
                 argDict, area=self._summaryArea,
                 timeRange=self._extendedRange)
@@ -969,27 +971,27 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         
         return [
             ("Morning", self.DAY(), self.NIGHT(), 16,
-             ".Today...", "early in the morning", "late in the afternoon",
+             ".TODAY...", "early in the morning", "late in the afternoon",
              1, narrativeDefAM), 
             ("Morning Update", "issuanceHour", self.NIGHT(), 16,
-             ".Rest of Today...", "early in the morning", "late in the afternoon",
+             ".REST OF TODAY...", "early in the morning", "late in the afternoon",
              1, narrativeDefAM), 
             ("Afternoon Update", "issuanceHour", self.NIGHT(), 16,
-             ".Rest of Today...", "early in the morning","late in the afternoon",
+             ".REST OF TODAY...", "early in the morning","late in the afternoon",
              1, narrativeDefAM), 
             #  End times are tomorrow:
             ("Afternoon", self.NIGHT(), 24 + self.DAY(), 24 + 4,
-             ".Tonight...", "late in the night", "early in the evening",
+             ".TONIGHT...", "late in the night", "early in the evening",
              1, narrativeDefPM), 
             ("Evening Update", "issuanceHour", 24 + self.DAY(), 24 + 4,
-             ".Rest of Tonight...", "late in the night","early in the evening",
+             ".REST OF TONIGHT...", "late in the night","early in the evening",
              1, narrativeDefPM),
             # For the early morning update, this produces:
             # Rest of Tonight:
             # MONDAY
             # MONDAY NIGHT
             ("Early Morning Update", "issuanceHour", self.DAY(), 4,
-             ".Rest of Tonight...", "early in the morning","late in the afternoon",
+             ".REST OF TONIGHT...", "early in the morning","late in the afternoon",
              0, narrativeDefPM), 
             # Alternative
             # For the early morning update, this produces:
@@ -997,10 +999,10 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             # Today
             # Tonight
             #("Evening Update", "issuanceHour", 24 + self.DAY(), 24 + 4,
-            # ".Rest of Tonight...", "late in the night", "early in the evening",
+            # ".REST OF TONIGHT...", "late in the night", "early in the evening",
             # 1, narrativeDefPM), 
             #("Early Morning Update", "issuanceHour", self.DAY(), 4,
-            # ".Early this morning...", "early in the morning", "late in the afternoon",
+            # ".EARLY THIS MORNING...", "early in the morning", "late in the afternoon",
             # 1, narrativeDefPM), 
             ]
 

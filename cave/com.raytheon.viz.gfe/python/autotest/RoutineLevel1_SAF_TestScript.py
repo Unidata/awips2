@@ -419,217 +419,234 @@ general_deleteGrids = [
 
 
 # Backward compatible test  -- add this in for iTool test
-backward_compatible = [
-'Definition["lac"] = "VAC910c"',
-'Definition["pil"] = "WBCSAFNW1"'
-]
+backward_compatible = """
 
-dir1 = """#Definition["directiveType"] = """
-dir2 = """Definition["directiveType"] = '_five12hr_24hrExtended_issuance_list'"""
+# Backward compatible test  -- add this in for iTool test
+Definition["lac"] = "VAC910c"
+Definition["pil"] = "WBCSAFNW1"
 
 
-options = [
+"""
+
+dir1 = """#Definition["directiveType"] = \"_five12hr_24hrExtended_issuance_list\""""
+dir2 = """Definition["directiveType"] = \"_five12hr_24hrExtended_issuance_list\""""
+
+
+options = """
+
 # Flag to repeat first period at the end. 1 or 0
-'Definition["repeat1stPeriod"] = 1',
+Definition["repeat1stPeriod"] = 1
+
 # summaryExtended - flag 0 or 1 to generate a summary extended
 # forecast. If 1, you must define summaryAreaDict.
 # Also turn off extendedLabel and includeExtended
-'Definition["summaryExtended"] = 1',
-"""Definition["summaryAreaDict"] = {
-        "VAC910c":("area1", "The Roanoke Area."),
-        "NCC940c":("area3",
-                   "The northern foothills and mountains of North Carolina."),
-        }""",
+Definition["summaryExtended"] = 1
+
 # summaryAreaDict - dictionary with keys of the LAC ID
 # and values of a tuple of (editAreaName, areaLabel) where
 # areaLabel is a label string such as "Western Virginia"
-# editAreaName must be the name of a GFE defined edit area                
-'Definition["summaryExtendedIntro"] = "Now for the Extended Forecast for"'
-]
+# editAreaName must be the name of a GFE defined edit area
+Definition["summaryAreaDict"] = {
+        "VAC910c":("area1", "the Roanoke area."),
+        "NCC940c":("area3",
+                   "the northern foothills and mountains of North Carolina."),
+        }
 
-hazards = """def allowedHazards(self):
+# summaryExtendedIntro is a string to introduce the extended
+# such as "The extended forecast for"
+Definition["summaryExtendedIntro"] = "Now for the Extended Forecast for"
+
+"""
+
+hazards = """
+
+    def allowedHazards(self):
         allActions = ["NEW", "EXA", "EXB", "EXT", "UPG", "CAN", "CON", "EXP"]
         return [
-            ('HU.W', allActions, 'Tropical'),     # HURRICANE WARNING
-            ('TY.W', allActions, 'Tropical1'),     # TYPHOON WARNING
-            ('TR.W', allActions, 'Tropical1'),     # TROPICAL STORM WARNING
-            ('HU.A', allActions, 'Tropical'),     # HURRICANE WATCH
-            ('TY.A', allActions, 'Tropical1'),     # TYPHOON WATCH
-            ('TR.A', allActions, 'Tropical1'),     # TROPICAL STORM WATCH
-            ('HF.W', allActions, 'Marine'),       # HURRICANE FORCE WIND WARNING
-            ('BZ.W', allActions, 'WinterWx'),     # BLIZZARD WARNING
-            ('IS.W', allActions, 'WinterWx'),     # ICE STORM WARNING
-            ('HP.W', allActions, 'WinterWx'),     # HEAVY SLEET WARNING
-            ('IP.W', allActions, 'WinterWx'),     # SLEET WARNING
-            ('LE.W', allActions, 'WinterWx'),     # LAKE EFFECT SNOW WARNING
-            ('HS.W', allActions, 'WinterWx'),     # HEAVY SNOW WARNING
-            ('WS.W', allActions, 'WinterWx'),     # WINTER STORM WARNING
-            ('ZR.Y', allActions, 'WinterWx'),     # FREEZING RAIN ADVISORY
-            ('HP.Y', allActions, 'WinterWx'),     # HEAVY SLEET ADVISORY
-            ('IP.Y', allActions, 'WinterWx'),     # SLEET ADVISORY
-            ('LE.Y', allActions, 'WinterWx'),     # LAKE EFFECT SNOW ADVISORY
-            ('SB.Y', allActions, 'WinterWx'),     # SNOW AND BLOWING SNOW ADVISORY
-            ('SN.Y', allActions, 'WinterWx'),     # SNOW ADVISORY
-            ('BS.Y', allActions, 'WinterWx'),     # BLOWING SNOW ADVISORY
-            ('WW.Y', allActions, 'WinterWx'),     # WINTER WEATHER ADVISORY
-            ('BZ.A', allActions, 'WinterWx'),     # BLIZZARD WATCH
-            ('HP.A', allActions, 'WinterWx'),     # HEAVY SLEET WATCH
-            ('LE.A', allActions, 'WinterWx'),     # LAKE EFFECT SNOW WATCH
-            ('WS.A', allActions, 'WinterWx'),     # WINTER STORM WATCH
-            ('WC.W', allActions, 'WindChill'),    # WIND CHILL WARNING
-            ('WC.Y', allActions, 'WindChill'),    # WIND CHILL ADVISORY
-            ('WC.A', allActions, 'WindChill'),    # WIND CHILL WATCH
-            ('DS.W', allActions, 'Dust'),         # DUST STORM WARNING
-            ('DU.Y', allActions, 'Dust'),         # BLOWING DUST ADVISORY
-            ('EC.W', allActions, 'Cold'),         # EXTREME COLD WARNING
-            ('EC.A', allActions, 'Cold'),         # EXTREME COLD WATCH
-            ('EH.W', allActions, 'Heat'),         # EXCESSIVE HEAT WARNING
-            ('EH.A', allActions, 'Heat'),         # EXCESSIVE HEAT WATCH
-            ('HT.Y', allActions, 'Heat'),         # HEAT ADVISORY
-            ('FG.Y', allActions, 'Fog'),          # DENSE FOG ADVISORY
-            ('FZ.W', allActions, 'FrostFreeze'),  # FREEZE WARNING
-            ('FR.W', allActions, 'FrostFreeze'),  # FROST WARNING
-            ('FR.Y', allActions, 'FrostFreeze'),  # FROST ADVISORY
-            ('FZ.A', allActions, 'FrostFreeze'),  # FREEZE WATCH
-            ('HW.W', allActions, 'Wind'),         # HIGH WIND WARNING
-            ('WI.Y', allActions, 'Wind'),         # WIND ADVISORY
-            ('LW.Y', allActions, 'Wind'),         # LAKE WIND ADVISORY
-            ('HW.A', allActions, 'Wind'),         # HIGH WIND WATCH
-            ('SM.Y', allActions, 'Smoke'),        # DENSE SMOKE ADVISORY
-            ('ZF.Y', allActions, 'FreezeFog'),    # FREEZING FOG ADVISORY
-            ('FF.A', allActions, 'Flood'),        # FLASH FLOOD WATCH
-            ('FA.A', allActions, 'Flood'),        # FLOOD WATCH
-            ('FA.W', allActions, 'Flood'),        # FLOOD WARNING
-            ('FA.Y', allActions, 'Flood'),        # FLOOD ADVISORY    
-            ('CF.Y', allActions, 'CoastalFlood'), # COASTAL FLOOD ADVISORY
-            ('LS.Y', allActions, 'CoastalFlood'), # LAKESHORE FLOOD ADVISORY
-            ('CF.A', allActions, 'CoastalFlood'), # COASTAL FLOOD WATCH
-            ('LS.A', allActions, 'CoastalFlood'), # LAKESHORE FLOOD WATCH
-            ('UP.W', allActions, 'IceAccr'),      # ICE ACCRETION WARNING
-            ('UP.Y', allActions, 'IceAccr'),      # ICE ACCRETION ADVISORY
-            ('AS.Y', allActions, 'AirStag'),      # AIR STAGNATION ADVISORY
-            ('SU.W', allActions, 'HighSurf'),     # HIGH SURF WARNING
-            ('SU.Y', allActions, 'HighSurf'),     # HIGH SURF ADVISORY
-            ('AF.Y', allActions, 'Ashfall'),      # VOLCANIC ASHFALL ADVISORY
-            ('LO.Y', allActions, 'Drought'),      # LOW WATER ADVISORY
-            ('TO.A', allActions, 'Convective'),   # TORNADO WATCH
-            ('SV.A', allActions, 'Convective'),   # SEVERE THUNDERSTORM WATCH
+            ('HU.W', allActions, 'Tropical'),     # Hurricane Warning
+            ('TY.W', allActions, 'Tropical1'),     # Typhoon Warning
+            ('TR.W', allActions, 'Tropical1'),     # Tropical Storm Warning
+            ('HU.A', allActions, 'Tropical'),     # Hurricane Watch
+            ('TY.A', allActions, 'Tropical1'),     # Typhoon Watch
+            ('TR.A', allActions, 'Tropical1'),     # Tropical Storm Watch
+            ('HI.W', allActions, 'TropicalNPW'),  # Inland Hurricane Warning
+            ('TI.W', allActions, 'TropicalNPW'),  # Inland Tropical Storm Warning
+            ('HF.W', allActions, 'Marine'),       # Hurricane Force Wind Warning
+            ('HI.A', allActions, 'TropicalNPW'),  # Inland Hurricane Watch
+            ('TI.A', allActions, 'TropicalNPW'),  # Inland Tropical Storm Watch
+            ('BZ.W', allActions, 'WinterWx'),     # Blizzard Warning
+            ('IS.W', allActions, 'WinterWx'),     # Ice Storm Warning
+            ('HP.W', allActions, 'WinterWx'),     # Heavy Sleet Warning
+            ('IP.W', allActions, 'WinterWx'),     # Sleet Warning
+            ('LE.W', allActions, 'WinterWx'),     # Lake Effect Snow Warning
+            ('HS.W', allActions, 'WinterWx'),     # Heavy Snow Warning
+            ('WS.W', allActions, 'WinterWx'),     # Winter Storm Warning
+            ('ZR.Y', allActions, 'WinterWx'),     # Freezing Rain Advisory
+            ('HP.Y', allActions, 'WinterWx'),     # Heavy Sleet Advisory
+            ('IP.Y', allActions, 'WinterWx'),     # Sleet Advisory
+            ('LE.Y', allActions, 'WinterWx'),     # Lake Effect Snow Advisory
+            ('SB.Y', allActions, 'WinterWx'),     # Snow and Blowing Snow Advisory
+            ('SN.Y', allActions, 'WinterWx'),     # Snow Advisory
+            ('BS.Y', allActions, 'WinterWx'),     # Blowing Snow Advisory
+            ('WW.Y', allActions, 'WinterWx'),     # Winter Weather Advisory
+            ('BZ.A', allActions, 'WinterWx'),     # Blizzard Watch
+            ('HP.A', allActions, 'WinterWx'),     # Heavy Sleet Watch
+            ('LE.A', allActions, 'WinterWx'),     # Lake Effect Snow Watch
+            ('WS.A', allActions, 'WinterWx'),     # Winter Storm Watch
+            ('WC.W', allActions, 'WindChill'),    # Wind Chill Warning
+            ('WC.Y', allActions, 'WindChill'),    # Wind Chill Advisory
+            ('WC.A', allActions, 'WindChill'),    # Wind Chill Watch
+            ('DS.W', allActions, 'Dust'),         # Dust Storm Warning
+            ('DU.Y', allActions, 'Dust'),         # Blowing Dust Advisory
+            ('EC.W', allActions, 'Cold'),         # Extreme Cold Warning
+            ('EC.A', allActions, 'Cold'),         # Extreme Cold Watch
+            ('EH.W', allActions, 'Heat'),         # Excessive Heat Warning
+            ('EH.A', allActions, 'Heat'),         # Excessive Heat Watch
+            ('HT.Y', allActions, 'Heat'),         # Heat Advisory
+            ('FG.Y', allActions, 'Fog'),          # Dense Fog Advisory
+            ('FZ.W', allActions, 'FrostFreeze'),  # Freeze Warning
+            ('FR.W', allActions, 'FrostFreeze'),  # Frost Warning
+            ('FR.Y', allActions, 'FrostFreeze'),  # Frost Advisory
+            ('FZ.A', allActions, 'FrostFreeze'),  # Freeze Watch
+            ('HW.W', allActions, 'Wind'),         # High Wind Warning
+            ('WI.Y', allActions, 'Wind'),         # Wind Advisory
+            ('LW.Y', allActions, 'Wind'),         # Lake Wind Advisory
+            ('HW.A', allActions, 'Wind'),         # High Wind Watch
+            ('SM.Y', allActions, 'Smoke'),        # Dense Smoke Advisory
+            ('ZF.Y', allActions, 'FreezeFog'),    # Freezing Fog Advisory
+            ('FF.A', allActions, 'Flood'),        # Flash Flood Watch
+            ('FA.A', allActions, 'Flood'),        # Flood Watch
+            ('FA.W', allActions, 'Flood'),        # Flood Warning
+            ('FA.Y', allActions, 'Flood'),        # Flood Advisory    
+            ('CF.Y', allActions, 'CoastalFlood'), # Coastal Flood Advisory
+            ('LS.Y', allActions, 'CoastalFlood'), # Lakeshore Flood Advisory
+            ('CF.A', allActions, 'CoastalFlood'), # Coastal Flood Watch
+            ('LS.A', allActions, 'CoastalFlood'), # Lakeshore Flood Watch
+            ('UP.W', allActions, 'IceAccr'),      # Ice Accretion Warning
+            ('UP.Y', allActions, 'IceAccr'),      # Ice Accretion Advisory
+            ('AS.Y', allActions, 'AirStag'),      # Air Stagnation Advisory
+            ('SU.W', allActions, 'HighSurf'),     # High Surf Warning
+            ('SU.Y', allActions, 'HighSurf'),     # High Surf Advisory
+            ('AF.Y', allActions, 'Ashfall'),      # Volcanic Ashfall Advisory
+            ('LO.Y', allActions, 'Drought'),      # Low Water Advisory
+            ('TO.A', allActions, 'Convective'),   # Tornado Watch
+            ('SV.A', allActions, 'Convective'),   # Severe Thunderstorm Watch
              ]
 
 """
 
 sun_thru_thurs = [
-       "SUNDAY AND SUNDAY NIGHT,",
-       "MOSTLY CLEAR.",
-       "SPRINKLES AND OCCASIONAL DRIZZLE DURING THE DAY, THEN DRIZZLE OVERNIGHT.",
-       "HIGHS AROUND 70.",
+       "Sunday and Sunday Night,",
+       "Mostly clear.",
+       "Sprinkles and occasional drizzle during the day, then drizzle overnight.",
+       "Highs around 70.",
 
-       "MONDAY AND MONDAY NIGHT,",
-       "BREEZY.","PARTLY CLOUDY.",
-       "PERIODS OF DRIZZLE DURING THE DAY.","OCCASIONAL LIGHT FREEZING DRIZZLE.",
-       "INTERMITTENT DRIZZLE OVERNIGHT.","HIGHS IN THE LOWER 70S.",
-       "LOWS IN THE MID 60S.",
+       "Monday and Monday Night,",
+       "Breezy.","Partly cloudy.",
+       "Periods of drizzle during the day.","Occasional light freezing drizzle.",
+       "Intermittent drizzle overnight.","Highs in the lower 70s.",
+       "Lows in the mid 60s.",
 
-       "TUESDAY AND TUESDAY NIGHT,",
-       "WINDY.", "MOSTLY CLEAR.", "VERY LIGHT FREEZING DRIZZLE.", "HIGHS IN THE MID 70S.",
-       "LOWS IN THE UPPER 60S.",
+       "Tuesday and Tuesday Night,",
+       "Windy.", "Mostly clear.", "Very light freezing drizzle.", "Highs in the mid 70s.",
+       "Lows in the upper 60s.",
 
-       "WEDNESDAY AND WEDNESDAY NIGHT,",
-       "WINDY.", "MOSTLY CLEAR.","INTERMITTENT VERY LIGHT FREEZING DRIZZLE.",
-       "HIGHS IN THE LOWER 80S.","LOWS IN THE UPPER 70S.",
+       "Wednesday and Wednesday Night,",
+       "Windy.", "Mostly clear.","Intermittent very light freezing drizzle.",
+       "Highs in the lower 80s.","Lows in the upper 70s.",
 
-       "THURSDAY AND THURSDAY NIGHT,",
-       "WINDY.", "MOSTLY CLEAR.","HIGHS AROUND 90.","LOWS IN THE LOWER 80S.",
+       "Thursday and Thursday Night,",
+       "Windy.", "Mostly clear.","Highs around 90.","Lows in the lower 80s.",
        ]
 
 scripts = [
-    {    
+    {
     "name":"SAF_1", 
     "productType":"SAF",
     "commentary": "Morning Issuance -- no options",
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None, ('Number of Periods', 'numPeriods'): 'All', ('Issuance Type', 'issuanceType'): 'ROUTINE'}",
     "createGrids": general_createGrids,
     "checkStrings": [
-       """AT_ENGWBCSAFNW110010109001001010900 CD VAC910C1001012300""",
-       """NOW FOR THE OFFICIAL NATIONAL WEATHER SERVICE FORECAST FOR SOUTHWEST MOUNTAINS INCLUDING YOURTOWN""",
-       "TODAY,",
-       "SUNNY.",
-       "OCCASIONAL THUNDERSTORMS EARLY IN THE AFTERNOON. ",
-       "CHANCE OF THUNDERSTORMS LATE IN THE AFTERNOON.","HIGHS AROUND 70.",
-       "SOUTHWEST WINDS AROUND 10 MPH SHIFTING TO THE SOUTHEAST IN THE AFTERNOON.",
-       "CHANCE OF THUNDERSTORMS 20 PERCENT.",
+       """aT_ENGWBCSAFNW110010109001001010900 CD VAC910c1001012300""",
+       """Now for the official National Weather Service forecast for Southwest Mountains including YourTown""",
+       "Today,",
+       "Sunny.",
+       "Occasional thunderstorms early in the afternoon. ",
+       "Chance of thunderstorms late in the afternoon.","Highs around 70.",
+       "Southwest winds around 10 mph shifting to the southeast in the afternoon.",
+       "Chance of thunderstorms 20 percent.",
        
-       "TONIGHT,",
-       "WINDY.", "MOSTLY CLEAR.",
-       "THUNDERSTORMS UNTIL MIDNIGHT, THEN OCCASIONAL RAIN AND INTERMITTENT THUNDERSTORMS AFTER MIDNIGHT.",
-       "LOWS IN THE LOWER 40S.",
-       "NORTHEAST WINDS 30 TO 35 MPH BECOMING WEST AROUND 15 MPH AFTER MIDNIGHT.","CHANCE OF PRECIPITATION 50 PERCENT.",
+       "Tonight,",
+       "Windy.", "Mostly clear.",
+       "Thunderstorms until midnight, then occasional rain and intermittent thunderstorms after midnight.",
+       "Lows in the lower 40s.",
+       "Northeast winds 30 to 35 mph becoming west around 15 mph after midnight.","Chance of precipitation 50 percent.",
        
-       "SATURDAY,",
-       "COOLER.","RAIN IN THE MORNING, THEN PERIODS OF RAIN IN THE AFTERNOON.",
-       "RAIN MAY BE HEAVY AT TIMES IN THE AFTERNOON.",
-       #"VISIBILITY ONE QUARTER MILE OR LESS AT TIMES IN THE MORNING.",
-       "HIGHS AROUND 50.",
-       "SOUTHWEST WINDS AROUND 10 MPH SHIFTING TO THE SOUTHEAST IN THE AFTERNOON.",
-       "CHANCE OF RAIN NEAR 100 PERCENT.",
+       "Saturday,",
+       "Cooler.","Rain in the morning, then periods of rain in the afternoon.",
+       "Rain may be heavy at times in the afternoon.",
+       #"Visibility one quarter mile or less at times in the morning.",
+       "Highs around 50.",
+       "Southwest winds around 10 mph shifting to the southeast in the afternoon.",
+       "Chance of rain near 100 percent.",
        
-       "SATURDAY NIGHT,",
-       "COLDER.",
-       "WIDESPREAD RAIN SHOWERS UNTIL MIDNIGHT, THEN PARTLY CLOUDY WITH SPRINKLES LIKELY AFTER MIDNIGHT.","LOCALLY HEAVY RAINFALL POSSIBLE UNTIL MIDNIGHT.",
-       "LOWS IN THE LOWER 30S.",
-       "EAST WINDS UP TO 5 MPH SHIFTING TO THE NORTHWEST AFTER MIDNIGHT.",
+       "Saturday Night,",
+       "Colder.",
+       "Widespread rain showers until midnight, then partly cloudy with sprinkles likely after midnight.","Locally heavy rainfall possible until midnight.",
+       "Lows in the lower 30s.",
+       "East winds up to 5 mph shifting to the northwest after midnight.",
        
-       "SUNDAY,",
-       "WARMER",
-       "RAIN SHOWERS IN THE MORNING, THEN OCCASIONAL DRIZZLE AND INTERMITTENT SPRINKLES IN THE AFTERNOON.",
-       "HIGHS AROUND 70.","EAST WINDS 10 TO 15 MPH.",
-       "CHANCE OF SHOWERS 60 PERCENT.",
+       "Sunday,",
+       "Warmer, sunny.",
+       "Rain showers in the morning, then occasional drizzle and intermittent sprinkles in the afternoon.",
+       "Highs around 70.","East winds 10 to 15 mph.",
+       "Chance of showers 60 percent.",
        
-       "SUNDAY NIGHT,",
-       "WARMER", "MOSTLY CLEAR", "DRIZZLE", "NEAR STEADY TEMPERATURE IN THE UPPER 60S.",
-       # DR_18363 "LOWS AROUND 50.",
+       "Sunday Night,",
+       "Warmer", "Mostly clear", "Drizzle", "Near steady temperature in the upper 60s.",
+       # DR_18363 "Lows around 50.",
        
-       "MONDAY,",
-       "BREEZY","SUNNY.","PERIODS OF DRIZZLE THROUGH THE DAY.",
-       "WIDESPREAD LIGHT FREEZING DRIZZLE IN THE AFTERNOON.",
-       "NEAR STEADY TEMPERATURE AROUND 70.", # DR_18363  "HIGHS IN THE LOWER 70S.",
+       "Monday,",
+       "Breezy, sunny.","Periods of drizzle through the day.",
+       "Widespread light freezing drizzle in the afternoon.",
+       "Near steady temperature around 70.", # DR_18363  "Highs in the lower 70s.",
        
-       "MONDAY NIGHT,",
-       "BREEZY", "WARMER",
-       "PARTLY CLOUDY.","INTERMITTENT DRIZZLE UNTIL MIDNIGHT.",
-       "OCCASIONAL LIGHT FREEZING DRIZZLE THROUGH THE NIGHT.",
-       "LOWS IN THE MID 60S.",
+       "Monday Night,",
+       "Breezy, warmer.",
+       "Partly cloudy.","Intermittent drizzle until midnight.",
+       "Occasional light freezing drizzle through the night.",
+       "Lows in the mid 60s.",
        
-       "TUESDAY,",
-       "WINDY", "SUNNY.","VERY LIGHT FREEZING DRIZZLE.","HIGHS IN THE MID 70S.",
+       "Tuesday,",
+       "Windy, sunny.","Very light freezing drizzle.","Highs in the mid 70s.",
        
-       "TUESDAY NIGHT,",
-       "MOSTLY CLEAR.","PERIODS OF VERY LIGHT FREEZING DRIZZLE.","LOWS IN THE UPPER 60S.",
+       "Tuesday Night,",
+       "Mostly clear.","Periods of very light freezing drizzle.","Lows in the upper 60s.",
        
-       "WEDNESDAY,",
-       "SUNNY.","INTERMITTENT VERY LIGHT FREEZING DRIZZLE IN THE MORNING.",
-       "NEAR STEADY TEMPERATURE AROUND 80.", # DR_18363 "HIGHS IN THE LOWER 80S."
+       "Wednesday,",
+       "Sunny.","Intermittent very light freezing drizzle in the morning.",
+       "Near steady temperature around 80.", # DR_18363 "Highs in the lower 80s."
 
-       "WEDNESDAY NIGHT,",
-       "WINDY.", "MOSTLY CLEAR.", "NEAR STEADY TEMPERATURE IN THE LOWER 80S.",
-       # DR_18363 "LOWS IN THE UPPER 70S.",
+       "Wednesday Night,",
+       "Windy.", "Mostly clear.", "Near steady temperature in the lower 80s.",
+       # DR_18363 "Lows in the upper 70s.",
        
-       "THURSDAY,",
-       "WINDY","SUNNY", "NEAR STEADY TEMPERATURE IN THE MID 80S.",
-       # DR_18363 "HIGHS AROUND 90.",
+       "Thursday,",
+       "Windy, sunny.", "Near steady temperature in the mid 80s.",
+       # DR_18363 "Highs around 90.",
        
-       "NOW FOR THE OFFICIAL NATIONAL WEATHER SERVICE FORECAST FOR EASTERN VIRGINIA",
-       "TODAY,", "SUNNY.","OCCASIONAL THUNDERSTORMS EARLY IN THE AFTERNOON.",
+       "Now for the official National Weather Service forecast for Eastern Virginia",
+       "Today,", "Sunny.","Occasional thunderstorms early in the afternoon.",
        
        "B",
-       "AT_ENGWBCSAFNW410010109001001010900 CD NCC940C1001012300",
-       "NOW FOR THE OFFICIAL NATIONAL WEATHER SERVICE FORECAST FOR NORTHERN NORTH CAROLINA",
-       "TODAY,", "SUNNY.","OCCASIONAL THUNDERSTORMS EARLY IN THE AFTERNOON.",
+       "aT_ENGWBCSAFNW410010109001001010900 CD NCC940c1001012300",
+       "Now for the official National Weather Service forecast for Northern North Carolina",
+       "Today,", "Sunny.","Occasional thunderstorms early in the afternoon.",
        "B",
        ],
     },
 
-    {    
+    {
     "name":"SAF_2", 
     "commentary": "Backward Compatibility -- using 'lac' entry",
     "productType":"SAF",
@@ -639,21 +656,21 @@ scripts = [
        ("SAF_<site>_Definition", "TextUtility", "add", backward_compatible, "undo"),
        ],
     "checkStrings": [
-        "AT_ENGWBCSAFNW110010109001001010900 CD VAC910C1001012300",
-        "NOW FOR THE OFFICIAL NATIONAL WEATHER SERVICE FORECAST FOR SOUTHWEST MOUNTAINS INCLUDING YOURTOWN",
-        "TODAY,", "SUNNY.","OCCASIONAL THUNDERSTORMS EARLY IN THE AFTERNOON.",
-        "NOW FOR THE OFFICIAL NATIONAL WEATHER SERVICE FORECAST FOR EASTERN VIRGINIA",
-        "TODAY,", "SUNNY.","OCCASIONAL THUNDERSTORMS EARLY IN THE AFTERNOON.",
-        "NOW FOR THE OFFICIAL NATIONAL WEATHER SERVICE FORECAST FOR NORTHERN NORTH CAROLINA",
+        "aT_ENGWBCSAFNW110010109001001010900 CD VAC910c1001012300",
+        "Now for the official National Weather Service forecast for Southwest Mountains including YourTown",
+        "Today,", "Sunny.","Occasional thunderstorms early in the afternoon.",
+        "Now for the official National Weather Service forecast for Eastern Virginia",
+        "Today,", "Sunny.","Occasional thunderstorms early in the afternoon.",
+        "Now for the official National Weather Service forecast for Northern North Carolina",
         ],
      "notCheckStrings":[
-       "AGAIN, THE FORECAST FOR SOUTHWEST MOUNTAINS INCLUDING YOURTOWN FOR TODAY,",
-       "AT_ENGWBCSAFNW410010109001001010900 CD NCC940C1001012300",
-       "NOW FOR THE EXTENDED FORECAST FOR THE ROANOKE AREA.",
+       "Again, the forecast for Southwest Mountains including YourTown for Today,",
+       "aT_ENGWBCSAFNW410010109001001010900 CD NCC940c1001012300",
+       "Now for the Extended Forecast for the Roanoke area.",
        ],
     },
     
-    {    
+    {
     "name":"SAF_3", 
     "commentary": "Options: repeat1stPeriod and summary Extended",
     "productType":"SAF",
@@ -663,41 +680,41 @@ scripts = [
        ("SAF_<site>_Definition", "TextUtility", "add", options, "undo"),
        ],
     "checkStrings": [
-       "AT_ENGWBCSAFNW110010109001001010900 CD VAC910C1001012300",
-       "NOW FOR THE OFFICIAL NATIONAL WEATHER SERVICE FORECAST FOR SOUTHWEST MOUNTAINS INCLUDING YOURTOWN",
-       "TODAY,",
-       "SUNNY.","OCCASIONAL THUNDERSTORMS EARLY IN THE AFTERNOON.",
-       "AGAIN, THE FORECAST FOR SOUTHWEST MOUNTAINS INCLUDING YOURTOWN FOR TODAY,",
-       "SUNNY.","OCCASIONAL THUNDERSTORMS EARLY IN THE AFTERNOON.",
-       "CHANCE OF THUNDERSTORMS LATE IN THE AFTERNOON.","HIGHS AROUND 70.",
-       "SOUTHWEST WINDS AROUND 10 MPH SHIFTING TO THE SOUTHEAST IN THE AFTERNOON.",
-       "CHANCE OF THUNDERSTORMS 20 PERCENT.",
+       "aT_ENGWBCSAFNW110010109001001010900 CD VAC910c1001012300",
+       "Now for the official National Weather Service forecast for Southwest Mountains including YourTown",
+       "Today,",
+       "Sunny.","Occasional thunderstorms early in the afternoon.",
+       "Again, the forecast for Southwest Mountains including YourTown for Today,",
+       "Sunny.","Occasional thunderstorms early in the afternoon.",
+       "Chance of thunderstorms late in the afternoon.","Highs around 70.",
+       "Southwest winds around 10 mph shifting to the southeast in the afternoon.",
+       "Chance of thunderstorms 20 percent.",
        
-       "NOW FOR THE OFFICIAL NATIONAL WEATHER SERVICE FORECAST FOR EASTERN VIRGINIA",
-       "TODAY,",
-       "SUNNY.","OCCASIONAL THUNDERSTORMS EARLY IN THE AFTERNOON.",
-       "AGAIN, THE FORECAST FOR EASTERN VIRGINIA FOR TODAY,",
-       "SUNNY.","OCCASIONAL THUNDERSTORMS EARLY IN THE AFTERNOON.",
-       "CHANCE OF THUNDERSTORMS LATE IN THE AFTERNOON.","HIGHS AROUND 70.",
-       "SOUTHWEST WINDS AROUND 10 MPH SHIFTING TO THE SOUTHEAST IN THE AFTERNOON.",
-       "CHANCE OF THUNDERSTORMS 20 PERCENT.",
+       "Now for the official National Weather Service forecast for Eastern Virginia",
+       "Today,",
+       "Sunny.","Occasional thunderstorms early in the afternoon.",
+       "Again, the forecast for Eastern Virginia for Today,",
+       "Sunny.","Occasional thunderstorms early in the afternoon.",
+       "Chance of thunderstorms late in the afternoon.","Highs around 70.",
+       "Southwest winds around 10 mph shifting to the southeast in the afternoon.",
+       "Chance of thunderstorms 20 percent.",
        
-       "NOW FOR THE EXTENDED FORECAST FOR THE ROANOKE AREA.",
+       "Now for the Extended Forecast for the Roanoke area.",
        ] + sun_thru_thurs +
        
        [
        "B",
-       "AT_ENGWBCSAFNW410010109001001010900 CD NCC940C1001012300",
-       "NOW FOR THE OFFICIAL NATIONAL WEATHER SERVICE FORECAST FOR NORTHERN NORTH CAROLINA",
-       "TODAY,",
-       "SUNNY.","OCCASIONAL THUNDERSTORMS EARLY IN THE AFTERNOON.",
-       "AGAIN, THE FORECAST FOR NORTHERN NORTH CAROLINA FOR TODAY,",
-       "SUNNY.","OCCASIONAL THUNDERSTORMS EARLY IN THE AFTERNOON.",
-       "CHANCE OF THUNDERSTORMS LATE IN THE AFTERNOON.","HIGHS AROUND 70.",
-       "SOUTHWEST WINDS AROUND 10 MPH SHIFTING TO THE SOUTHEAST IN THE AFTERNOON.",
-       "CHANCE OF THUNDERSTORMS 20 PERCENT.",
+       "aT_ENGWBCSAFNW410010109001001010900 CD NCC940c1001012300",
+       "Now for the official National Weather Service forecast for Northern North Carolina",
+       "Today,",
+       "Sunny.","Occasional thunderstorms early in the afternoon.",
+       "Again, the forecast for Northern North Carolina for Today,",
+       "Sunny.","Occasional thunderstorms early in the afternoon.",
+       "Chance of thunderstorms late in the afternoon.","Highs around 70.",
+       "Southwest winds around 10 mph shifting to the southeast in the afternoon.",
+       "Chance of thunderstorms 20 percent.",
        
-       "NOW FOR THE EXTENDED FORECAST FOR THE NORTHERN FOOTHILLS AND MOUNTAINS OF NORTH CAROLINA.",
+       "Now for the Extended Forecast for the northern foothills and mountains of north carolina.",
        ] + sun_thru_thurs,
     },
      
@@ -724,15 +741,15 @@ scripts = [
     "createGrids": general_createGrids +
        [("Fcst", "Hazards", "DISCRETE", 0, 39, "WS.A", "all"), ],
     "fileChanges": [
-       ("SAF_<site>_Definition", "TextUtility", "replace", dir2, "undo"),
+       ("SAF_<site>_Definition", "TextUtility", "replace", (dir1, dir2), "undo"),
        ],
     "checkStrings": [
-        "NOW FOR THE OFFICIAL NATIONAL WEATHER SERVICE FORECAST FOR NORTHERN NORTH CAROLINA",
-        "TODAY,",
-        "SUNNY.","OCCASIONAL THUNDERSTORMS EARLY IN THE AFTERNOON.",
-        "CHANCE OF THUNDERSTORMS LATE IN THE AFTERNOON.","HIGHS AROUND 70.",
-        "SOUTHWEST WINDS AROUND 10 MPH SHIFTING TO THE SOUTHEAST IN THE AFTERNOON.",
-        "CHANCE OF THUNDERSTORMS 20 PERCENT",
+        "Now for the official National Weather Service forecast for Northern North Carolina",
+        "Today,",
+        "Sunny.","Occasional thunderstorms early in the afternoon.",
+        "Chance of thunderstorms late in the afternoon.","Highs around 70.",
+        "Southwest winds around 10 mph shifting to the southeast in the afternoon.",
+        "Chance of thunderstorms 20 percent",
         ],
     },
     
