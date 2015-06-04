@@ -1,4 +1,4 @@
-#  Version 2015.2.12-1
+#  Version 2015.5.21-0
 
 import GenericHazards
 import string, time, os, re, types, copy, LogStream, collections
@@ -23,7 +23,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
     Definition["database"]      =  "Official"  # Source database
     Definition["debug"]         =  1
     Definition["mapNameForCombinations"] = "Zones_<site>"
-    Definition["defaultEditAreas"] = "Combinations_HLS_<site>"
+    Definition["defaultEditAreas"] = ""
     Definition["showZoneCombiner"] = 0 # 1 to cause zone combiner to display
 
     Definition["productName"]       = "LOCAL STATEMENT"
@@ -1560,7 +1560,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         self._stormTypeName = self._stormType + " " + self._stormName
         self._decodeStormInfo(stormDict)
         # Storm movement in mph and the stated movement trend
-        self._stormMovementTrend = self._expandBearings("Moving " + stormDict.get("StormMotion",""))
+        self._stormMovementTrend = self._expandBearings("Movement " + stormDict.get("StormMotion",""))
         # Storm intensity in mph and the stated intensity trend.
         self._stormIntensityTrend = "Storm Intensity " + stormDict.get("StormIntensity","")
         
@@ -1654,8 +1654,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
             summarySearch = re.search("(?is)SUMMARY OF (.+?)\.{3}.+?" +
                                       "LOCATION\.{3}(.+?[NS]) +(.+?[WE]).+?" +
                                       "(ABOUT .+?)MAXIMUM SUSTAINED WIND.+?" +
-                                      "(\d+ MPH).+?PRESENT MOVEMENT\.{3}" +
-                                      "(.+?)\.{3}", tcp)
+                                      "(\d+ MPH).+?", tcp)
 
             #--------------------------------------------------------------------
             #  If we found the NHC summary section
@@ -1668,7 +1667,17 @@ class TextProduct(HLSTCV_Common.TextProduct):
                 dict["StormLon"] = summarySearch.group(3).strip()
                 dict["StormReference"] = summarySearch.group(4).strip()
                 dict["StormIntensity"] = summarySearch.group(5).strip()
-                dict["StormMotion"] = summarySearch.group(6).strip()
+                
+                haveStormMotion = True
+                if tcp.find("PRESENT MOVEMENT...STATIONARY") != -1:
+                    dict["StormMotion"] = "STATIONARY"
+                else:
+                    summarySearch = re.search("PRESENT MOVEMENT\.{3}(.+?)\.{3}", tcp)
+                    
+                    if summarySearch is not None:
+                        dict["StormMotion"] = summarySearch.group(1).strip()
+                    else:
+                        haveStormMotion = False
 
                 #================================================================
                 #  Use the remaining summary groups to contruct a paragraph
@@ -1731,9 +1740,10 @@ class TextProduct(HLSTCV_Common.TextProduct):
                 #----------------------------------------------------------------
                 #  Now add the storm motion
 
-                dict["StormCenter"] = "%s THE STORM MOTION WAS %s." % \
-                                       (dict["StormCenter"],
-                                        self._removeKM(dict["StormMotion"]))
+                if haveStormMotion:
+                    dict["StormCenter"] = "%s THE STORM MOTION WAS %s." % \
+                                           (dict["StormCenter"],
+                                            self._removeKM(dict["StormMotion"]))
 
             ####################################################################
             ####################################################################

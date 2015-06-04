@@ -56,8 +56,9 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  * 20071109            391 jkorman     Factored out time constants.
  * Sep 18, 2014 #3627      mapeters    Convert units using {@link UnitConverter}.
  * Sep 26, 2014 #3629      mapeters    Replaced static imports.
- * Sep 30, 2014 3629       mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement()} 
+ * Sep 30, 2014 #3629      mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement()} 
  *                                     calls, added HUMIDITY_PATTERN.
+ * May 26, 2015 #4525      mapeters    Fix pressure unit conversion.
  * 
  * </pre>
  * 
@@ -79,7 +80,7 @@ public class SynopticGroups {
     private static final UnitConverter cToK = SI.CELSIUS
             .getConverterTo(SI.KELVIN);
 
-    private static final UnitConverter hPaToPa = SI.HECTO(SI.PASCAL)
+    private static final UnitConverter daPaToPa = SI.DEKA(SI.PASCAL)
             .getConverterTo(SI.PASCAL);
 
     /**
@@ -188,7 +189,7 @@ public class SynopticGroups {
                     }
                     break;
                 }
-                    // No default specified!
+                // No default specified!
                 } // end.switch
             }
         }
@@ -214,13 +215,14 @@ public class SynopticGroups {
                 Integer val = AbstractSfcObsDecoder.getInt(groupData, 1, 5);
                 if ((val != null) && (val >= 0)) {
                     decodedItem = new DataItem("stationPressure");
-                    // RULE : If the value is between 0 and 100, assume the
-                    // value
-                    // is above 1000 hPa i.e. 0132 --> 1013.2 hPa --> 101320 Pa
+                    /*
+                     * RULE : If the value is between 0 and 1000 daPa, add 10000
+                     * daPa (e.g. 0132 = 10132 daPa).
+                     */
                     if (val < 1000) {
-                        decodedItem.setDataValue(hPaToPa.convert(val) + 100000);
+                        decodedItem.setDataValue(daPaToPa.convert(val + 10000));
                     } else {
-                        decodedItem.setDataValue(hPaToPa.convert(val));
+                        decodedItem.setDataValue(daPaToPa.convert(val));
                     }
                 }
             }
@@ -248,13 +250,14 @@ public class SynopticGroups {
                 Integer val = AbstractSfcObsDecoder.getInt(groupData, 1, 5);
                 if ((val != null) && (val >= 0)) {
                     decodedItem = new DataItem("seaLevelPressure");
-                    // RULE : If the value is between 0 and 100, assume the
-                    // value
-                    // is above 1000 hPa i.e. 0132 --> 1013.2 hPa --> 101320 Pa
+                    /*
+                     * RULE : If the value is between 0 and 1000 daPa, add 10000
+                     * daPa (e.g. 0132 = 10132 daPa).
+                     */
                     if (val < 1000) {
-                        decodedItem.setDataValue(hPaToPa.convert(val) + 100000);
+                        decodedItem.setDataValue(daPaToPa.convert(val + 10000));
                     } else {
-                        decodedItem.setDataValue(hPaToPa.convert(val));
+                        decodedItem.setDataValue(daPaToPa.convert(val));
                     }
                 }
             }
@@ -282,7 +285,7 @@ public class SynopticGroups {
                 Integer val = AbstractSfcObsDecoder.getInt(groupData, 2, 5);
                 if ((val != null) && (val >= 0)) {
                     decodedItem = new DataItem("3HRChange");
-                    decodedItem.setDataValue(hPaToPa.convert(val));
+                    decodedItem.setDataValue(daPaToPa.convert(val));
                     decodedItem.setDataPeriod(3 * TimeUtil.SECONDS_PER_HOUR);
                 }
             }
