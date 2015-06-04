@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Text Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.text
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.apache.commons.lang,
  com.raytheon.edex.common,
@@ -18,7 +18,8 @@ Export-Package: com.raytheon.uf.edex.plugin.text,
  com.raytheon.uf.edex.plugin.text.dao,
  com.raytheon.uf.edex.plugin.text.db,
  com.raytheon.uf.edex.plugin.text.dbsrv,
- com.raytheon.uf.edex.plugin.text.dbsrv.impl
+ com.raytheon.uf.edex.plugin.text.dbsrv.impl,
+ com.raytheon.uf.edex.plugin.text.security
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.edex.uengine.runners,
  com.raytheon.uf.common.dataplugin.text,
