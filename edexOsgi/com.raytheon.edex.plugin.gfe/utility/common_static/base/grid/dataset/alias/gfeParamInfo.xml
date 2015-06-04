@@ -99,7 +99,6 @@
     <alias base="RUC130">ruc130</alias>
     <alias base="RTMA25">rtmaNDFD</alias>
     <alias base="URMA25">urmaNDFD</alias>
-    <alias base="AK-RTMA">aKrtmaNDFD</alias>
     <alias base="NamDNG5">NamDNG5</alias>
     <alias base="GlobalWave">GlobalWave</alias>
     <alias base="AKwave10">AKwave10</alias>
@@ -141,12 +140,11 @@
     <alias base="SREF216">sref216</alias>
     <alias base="SREF243">sref243</alias>
     <alias base="RTGSST">RTGSST235</alias>
-    <alias base="GFSGuide">gfsGuide232</alias>
-    <alias base="AK-RTMA">aKrtmaNDFD</alias>
-    <alias base="AK-RTMA3">aKrtmaNDFD</alias>
-    <alias base="HI-RTMA">HIrtmaNDFD</alias>
-    <alias base="PR-RTMA">PRrtmaNDFD</alias>
-    <alias base="Guam-RTMA">rtmaNDFD</alias>
+    <alias base="GFSGuide">gfsGuide232</alias>    
+    <alias base="AK-RTMA3">OCONUSrtmaNDFD</alias>
+    <alias base="HI-RTMA">OCONUSrtmaNDFD</alias>
+    <alias base="PR-RTMA">OCONUSrtmaNDFD</alias>
+    <alias base="Guam-RTMA">OCONUSrtmaNDFD</alias>
     <alias base="RTGSSTHR">rtgssthr173</alias>
     <alias base="RFCqpf">qpf218</alias>
     <alias base="HPCqpf">hpc_qpf218</alias>

@@ -66,7 +66,8 @@
 #    05/12/2015          #17144    bhunder        Added RTMA model
 #    05/29/2015          17496     ryu            Changed parm definitions for Wave1-10 and Period1-10.
 #
-########################################################################
+#    05/29/2015          #17144    bhunder        Added weather Params for URMA25 and OCONUS RTMA 
+####################################################################################################
 
 #----------------------------------------------------------------------------
 # USEFUL DEFINES
@@ -303,12 +304,14 @@ Radar = ("Radar", SCALAR, "dbz", "Radar Reflectivity", 80.0, -20.0, 0, NO)
 # RTMA parms
 QPE =     ("QPE", SCALAR, "in", "QPE", 5.0, 0.0, 2, YES)
 #if SID in ALASKA_SITES: - not sure if this needs to be like that
-if SID in ALASKA_SITES or SID in ["HFO", "SJU"]:
+if SID in ALASKA_SITES or SID in ["HFO", "SJU", "GUM"]:
     TUnc =     ("TUnc", SCALAR, "F", "Temperature Anl Uncertainty", 20.0, 0.0, 0, NO)
     TdUnc =    ("TdUnc", SCALAR, "F", "Dewpoint Anl Uncertainty", 25.0, 0.0, 0, NO)
 else:
     TUnc =     ("TUnc", SCALAR, "F", "Temperature Anl Uncertainty", 10.0, 0.0, 0, NO)
     TdUnc =    ("TdUnc", SCALAR, "F", "Dewpoint Anl Uncertainty", 15.0, 0.0, 0, NO)
+# DR17144
+SkyUnc  =  ("SkyUnc", SCALAR, "%", "Sky Condition Uncertainty", 100.0, 0.0, 0, NO)
 WSpdUnc =  ("WSpdUnc", SCALAR, "kts", "WSpd Anl Uncertainty", 12.0, 0.0, 0, NO)
 WDirUnc =  ("WDirUnc", SCALAR, "deg", "WDir Anl Uncertainty", 10.0, 0.0, 0, NO)
 VisUnc  =  ("VisUnc", SCALAR, "SM", "Vsby Anl Uncertainty", 10.0, 0.0, 2, NO)
@@ -316,8 +319,6 @@ VisUnc  =  ("VisUnc", SCALAR, "SM", "Vsby Anl Uncertainty", 10.0, 0.0, 2, NO)
 PressUnc = ("PressUnc", SCALAR, "Pa", "Press Anl Uncertainty", 110000.0, 0.0, 2, NO)
 Pressure = ("Pressure", SCALAR, "Pa", "Pressure", 110000.0, 0.0, 2, NO)
 WGustUnc =  ("WGustUnc", SCALAR, "kts", "WGust Anl Uncertainty", 12.0, 0.0, 0, NO)
-# DR 17144
-SkyUnc =    ("SkyUnc", SCALAR, "%", "Sky Uncertainty", 100.0, 0.0, 0, NO)
 
 # NamDNG5 parms
 QPF3 =     ("QPF3", SCALAR, "in", "3HR QPF", 3.0, 0.0, 2, YES)
@@ -1124,6 +1125,7 @@ OPCTAFBNW   = ('OPCTAFBNW',    GRID,   '', NO,   NO,  2, 0)
 OPCTAFBSW   = ('OPCTAFBSW',    GRID,   '', NO,   NO,  2, 0)
 MOSGuide    = ('MOSGuide',     GRID,   '', NO,   NO,  2, 0)
 RTMA        = ('RTMA',         GRID,   '', YES,  NO,  1, 36)
+URMA25      = ('URMA25',       GRID,   '', YES,  NO,  1, 36) ####DR17144
 NamDNG5     = ('NamDNG5',      GRID,   '', NO,   NO,  2, 0)
 TPCProb     = ('TPCProb',      GRID,   '', NO,   NO, 30, 0)
 SREF        = ('SREF',         GRID,   '', NO,   NO,  3, 0)
@@ -1262,7 +1264,6 @@ elif SID == "GUM":
                  'RTOFS-Guam',
                  'WPHwave10',
                  'GLOBHwave',
-                 ('Guam-RTMA','RTMA'),
                  ('nwpsCG1', 'nwpsCG1'),
                  ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
                  ('GFS20-PAC', 'GFS20'),
@@ -1329,6 +1330,7 @@ elif SID in CONUS_EAST_SITES:
                  'NPHwave4',
                  'WPHwave10',
                  'GLOBHwave',
+           #########DR17144
                  'URMA25',
                  ('GFS215', 'GFS20'),
                  'ETSS',
@@ -1406,6 +1408,7 @@ else:   #######DCS3501 WEST_CONUS
                  'NPHwave4',
                  'WPHwave10',
                  'GLOBHwave',
+              ############DR17144
                  'URMA25',
                  ('GFS215', 'GFS20'),
                  'ETSS',
@@ -1571,7 +1574,7 @@ elif SID in ALASKA_SITES:
 #        "OPCTAFBNW" : ['OPCTAFBNW'],
         "nwpsCG1" : ['nwpsCG1'],
         "nwpsTrkngCG0" : ['nwpsTrkngCG0'],
-        "RTMA": ['RTMA'],
+        "RTMA" : ['RTMA'],
         "NamDNG5" : ["NamDNG5"],
         "AKMOSGuide" : ['MOSGuide'],
         "ETSS" : ["ETSS"],
@@ -1589,7 +1592,7 @@ elif SID == "HFO":
 #        "EPwave10" : ["EPwEave10"],
 #        "GWW" : ["GWW"],
 #        "gfsLR" : ["gfsLR"],
-        "RTMA": ['RTMA'],
+        "RTMA" : ['RTMA'],
         "NamDNG5" : ["NamDNG5"],
         "MOSGuide" : ['MOSGuide'],
         "nwpsCG1" : ['nwpsCG1'],
@@ -1623,7 +1626,7 @@ elif SID == "SJU":
 #        "OPCTAFBE" : ['OPCTAFBE'],
 #        "GlobalWave" : ["GlobalWave"],
 #        "EPwave10" : ["EPwEave10"],
-        "RTMA": ['RTMA'],
+        "RTMA" : ['RTMA'],
         "NamDNG5" : ["NamDNG5"],
         "ESTOFS" : ["ESTOFS"],
         "nwpsCG1" : ['nwpsCG1'],
@@ -1637,7 +1640,7 @@ elif SID == "GUM":
 #        "GWW" : ["GWW"],
 #        "gfsLR" : ["gfsLR"],
 #        "GlobalWave" : ["GlobalWave"],
-        "RTMA": ['RTMA'],
+        "RTMA" : ['RTMA'],
         "nwpsCG1" : ['nwpsCG1'],
         "nwpsTrkngCG0" : ['nwpsTrkngCG0'],
         }
@@ -1659,7 +1662,9 @@ else:
         "DGEX" : ['DGEX'],
         "MOSGuide" : ['MOSGuide'],
         "HPCGuide" : ['HPCGuide'],
-        "RTMA": ['RTMA'],
+        "RTMA" : ['RTMA'],
+   #######DR17144
+        "URMA25" : ['URMA25'],
         "NamDNG5" : ["NamDNG5"],
         "SREF" : ["SREF"],
         "HRRR" : ['HRRR'],
@@ -1726,6 +1731,7 @@ D2DAccumulativeElements= {
     "HIRESWarw": ["tp"],
     "HIRESWnmm": ["tp"],
     "RTMA": ["tp"],
+    "URMA25": ["tp"],
     "HPCERP": ["tpHPCndfd"], 
 #DR20634    "SPC": ["tp"],
 
@@ -1818,6 +1824,7 @@ localParms = localHIRESWarwParms = localHIRESWnmmParms = []    #######DCS3501
 #DR20634 localParms = localSPCParms = []
 localHPCGuideParms = []
 localRTMAParms = []
+localURMA25Parms = []  ###DR17144
 localNamDNG5Parms = []
 localSREFParms = []
 localTPCProbParms = []
@@ -1897,6 +1904,7 @@ if not BASELINE and siteImport('localConfig'):
     localHPCGuideParms = getattr(localConfig, 'parmsHPCGuide',
       localHPCGuideParms)
     localRTMAParms = getattr(localConfig, 'parmsRTMA', localRTMAParms)
+    localURMA25Parms = getattr(localConfig, 'parmsURMA25', localURMA25Parms)   ###DR17144
     localNamDNG5Parms = getattr(localConfig, 'parmsNamDNG5', localNamDNG5Parms)
     localTPCProbParms = getattr(localConfig, 'parmsTPCProb', localTPCProbParms)
     localAKwave10Parms = getattr(localConfig, 'parmsAKwave10', localAKwave10Parms)
@@ -2077,13 +2085,18 @@ TPCTCM_MODEL = [([HiWind], TC3)]
 # RTMA database parameter groupings
 #if SID in ALASKA_SITES: - not sure if this is right
 # DCS17288/DR17144
-if SID in ALASKA_SITES or SID in ["HFO", "SJU"]:
+if SID in ALASKA_SITES or SID in ["HFO", "SJU", "GUM"]:
     RTMAPARMS = [([Temp,Td,RH,Wind,Vis,Pressure,WindGust],TC1),
              ([MinT],MinTTC), ([MaxT],MaxTTC),
              ([MinRH],MinRHTC), ([MaxRH],MaxRHTC),
-             ([TUnc,TdUnc,WSpdUnc,WDirUnc,VisUnc,PressUnc,WGustUnc,SkyUnc],TC1)]
+             ([TUnc,TdUnc,WSpdUnc,WDirUnc,VisUnc,PressUnc,WGustUnc],TC1)]
 else:
     RTMAPARMS = [([Temp,Td,RH,Wind,QPE,Sky,Vis,Pressure,WindGust],TC1),
+             ([MinT],MinTTC), ([MaxT],MaxTTC),
+             ([MinRH],MinRHTC), ([MaxRH],MaxRHTC),
+             ([TUnc,TdUnc,WSpdUnc,WDirUnc,VisUnc,PressUnc,WGustUnc,SkyUnc],TC1)]
+
+URMA25PARMS = [([Temp,Td,RH,Wind,QPE,Sky,Vis,Pressure,WindGust],TC1),
              ([MinT],MinTTC), ([MaxT],MaxTTC),
              ([MinRH],MinRHTC), ([MaxRH],MaxRHTC),
              ([TUnc,TdUnc,WSpdUnc,WDirUnc,VisUnc,PressUnc,WGustUnc,SkyUnc],TC1)]
@@ -2172,6 +2185,7 @@ DATABASES = [(Official, OFFICIALDBS + localParms),
              (MSAS, MSASPARMS + localMSASParms),
              (GLERL, GLERLPARMS + localGLERLParms),
              (RTMA, RTMAPARMS + localRTMAParms),
+             (URMA25, URMA25PARMS + localURMA25Parms),  ####DR17144
              (NamDNG5, NamDNG5PARMS + localNamDNG5Parms),
              (TPCProb, TPCProbPARMS + localTPCProbParms),
              (ENPwave, ENPwave_parms + localENPwaveParms),
