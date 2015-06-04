@@ -18,33 +18,42 @@
 # further licensing information.
 ##
 from Init import *
-
+#
 ##--------------------------------------------------------------------------
-## Smart Init to transform RTMA D2D grids into corresponding GFE RTMA grids
+## Smart Init to transform URMA25 D2D grids into corresponding GFE URMA25 grids
 ##
 ##--------------------------------------------------------------------------
-class RTMAForecaster(Forecaster):
+class URMA25Forecaster(Forecaster):
     def __init__(self):
-        Forecaster.__init__(self, "RTMA", "RTMA")
-
+        Forecaster.__init__(self, "URMA25", "URMA25")
 ##--------------------------------------------------------------------------
 ##  Wind - change m/s to kts
-##--------------------------------------------------------------------------
+##-------------------------------------------
     def calcWind(self, wind_FHAG10):
         mag=wind_FHAG10[0]
         direc=wind_FHAG10[1]
         newmag=self.convertMsecToKts(mag)
         return (newmag,direc)
-
-    def calcWindGust(self, wgs_FHAG10):
-        newmag=self.convertMsecToKts(wgs_FHAG10)
-        return newmag
 ##--------------------------------------------------------------------------
 ##  QPE - change mm to inches and clip greater than 1000mm
 ##--------------------------------------------------------------------------
-    def calcQPE(self, tp_SFC):
-        grid = where(greater(tp_SFC, 1000), 0.0, tp_SFC / 25.4)
+    def calcQPE(self, tp6hr_SFC):
+        grid = where(greater(tp6hr_SFC, 1000), 0.0, tp6hr_SFC / 25.4)
         return clip(grid, 0, 10)  # clip at zero and 10 inches
+
+    #==========================================================================
+    #
+    #  QPF6 - sums up all QPF grids within each 6 hour period
+    #
+##    def calcQPE06(self, QPE, QPE06, ctime):
+##        modelhour = time.gmtime(ctime[0])
+##        forecastHR = modelhour[3]
+##        if forecastHR in [0, 6, 12, 18]:
+##           QPE06 = 0
+##        if QPE06 is None:
+##           QPE06 = 0
+##        QPE06 = QPE06 + QPE
+##        return QPE06
 ##--------------------------------------------------------------------------
 ##  Sky
 ##--------------------------------------------------------------------------
@@ -73,6 +82,16 @@ class RTMAForecaster(Forecaster):
         if MinT is  None:
             return T
         return minimum(MinT, T)
+##--------------------------------------------------------------------------
+##  Surface Pressure
+##--------------------------------------------------------------------------
+    def calcPressure(self, p_SFC):
+        return p_SFC
+##--------------------------------------------------------------------------
+##  Pressure Analysis Uncertainty
+##--------------------------------------------------------------------------
+    def calcPressUnc(self, perranl_SFC):
+        return perranl_SFC
 ##--------------------------------------------------------------------------
 ##  RH - calculated from T and Td, rather than from input specific humidity
 ##--------------------------------------------------------------------------
@@ -108,18 +127,6 @@ class RTMAForecaster(Forecaster):
     def calcTdUnc(self,dpterranl_FHAG2):
         return dpterranl_FHAG2 * 1.8
 ##--------------------------------------------------------------------------
-##  Pressure Analysis Uncertainty
-##--------------------------------------------------------------------------
-    def calcPressUnc(self, perranl_SFC):
-        return perranl_SFC
-##--------------------------------------------------------------------------
-##  Sky Analysis Uncertainty
-##--------------------------------------------------------------------------
-    def calcSkyUnc(self, tccerranl_EA):
-        grid = tccerranl_EA
-        return clip(grid, 0, 100)
-
-##--------------------------------------------------------------------------
 ##  Wind Analysis Uncertainty - change m/s to kts
 ##--------------------------------------------------------------------------
     def calcWSpdUnc(self, wserranl_FHAG10):
@@ -128,12 +135,18 @@ class RTMAForecaster(Forecaster):
         return newmag
 
     def calcWDirUnc(self, wderranl_FHAG10):
-        return wderranl_FHAG10    
+        return wderranl_FHAG10
     
     def calcWGustUnc(self, wgserranl_FHAG10):
         mag = wgserranl_FHAG10
         newmag=self.convertMsecToKts(mag)
         return newmag
+##--------------------------------------------------------------------------
+##  Sky Analysis Uncertainty
+##--------------------------------------------------------------------------
+    def calcSkyUnc(self, tccerranl_EA):
+        grid = tccerranl_EA
+        return clip(grid, 0, 100)
 ##--------------------------------------------------------------------------
 ##  Visibility
 ##--------------------------------------------------------------------------
@@ -142,42 +155,12 @@ class RTMAForecaster(Forecaster):
 
     def calcVisUnc(self, viserranl_SFC):
         return self.convertMtoSM(viserranl_SFC)
+    ##--------------------------------------------------------------------------
+    ##  Gust Wind - change m/s to kts
+    ##--------------------------------------------------------------------------
+    def calcWindGust(self, wgs_FHAG10):
+        newmag=self.convertMsecToKts(wgs_FHAG10)
+        return(newmag)
     
-##--------------------------------------------------------------------------
-##  Surface Pressure
-##--------------------------------------------------------------------------
-    def calcPressure(self, p_SFC):
-        return p_SFC
-##-------------------------------------------------------------------------
-##  TdAft and TdMrn - simply calculate from MaxT/MinRH and MinT/MaxRH
-##-------------------------------------------------------------------------
-    """
-    def dewFromTandRH(self,T,RH):
-        tc=(T-32.0)*(5.0/9.0)
-        rh=clip(RH,0.001,99.999)/100.0
-        x=(log(rh)/17.67)+(tc/(tc+243.5))
-        tdc=(243.5*x)/(1.0-x)
-        td=(tdc*9.0/5.0)+32.0
-        return td
-
-    def calcTdAft(self,MaxT,MinRH,TdAft,stopo):
-        if ((MaxT is None)or(MinRH is None)):
-           if TdAft is None:
-              return stopo*0.0
-           else:
-              return TdAft
-        Td=self.dewFromTandRH(MaxT,MinRH)
-        return Td
-
-    def calcTdMrn(self,MinT,MaxRH,TdMrn,stopo):
-        if ((MinT is None)or(MaxRH is None)):
-           if TdMrn is None:
-              return stopo*0.0
-           else:
-              return TdMrn
-        Td=self.dewFromTandRH(MinT,MaxRH)
-        return Td
-    """
-
 def main():
-    RTMAForecaster().run()
+    URMA25Forecaster().run()

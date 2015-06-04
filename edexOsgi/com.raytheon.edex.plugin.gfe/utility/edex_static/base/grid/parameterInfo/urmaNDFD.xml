@@ -86,21 +86,6 @@
     <fillValue>-99999.0</fillValue>
   </gridParameterInfo>
   <gridParameterInfo xsi:type="parameterInfo">
-    <short_name>tp6hr</short_name>
-    <long_name>total precipitation</long_name>
-    <units>mm</units>
-    <udunits>millimeter</udunits>
-    <uiname>totPrecip</uiname>
-    <valid_range>0.0</valid_range>
-    <valid_range>1000.0</valid_range>
-    <fillValue>-99999.0</fillValue>
-    <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
-    <levels>
-      <level>SFC</level>
-    </levels>
-  </gridParameterInfo>
-  <gridParameterInfo xsi:type="parameterInfo">
     <short_name>dpterranl</short_name>
     <long_name>Dewpoint Temperature error analysis</long_name>
     <units>K</units>
@@ -145,12 +130,26 @@
     <valid_range>0.0</valid_range>
     <valid_range>100.0</valid_range>
     <fillValue>-99999.0</fillValue>
-    <n3D>0</n3D>
     <levelsDesc>EA</levelsDesc>
     <levels>
       <level>EA</level>
     </levels>
-    <levels>EA</levels>
+    <n3D>0</n3D>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>tccerranl</short_name>
+    <long_name>Total Cloud cover uncertainty</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>TCerranlind</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <levelsDesc>EA</levelsDesc>
+    <levels>
+      <level>EA</level>
+    </levels>
+    <n3D>0</n3D>
   </gridParameterInfo>
   <gridParameterInfo xsi:type="parameterInfo">
     <short_name>dpt</short_name>
@@ -322,5 +321,20 @@
       <level>SFC</level>
     </levels>
     <n3D>1</n3D>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>tp6hr</short_name>
+    <long_name>total precipitation 6hr</long_name>
+    <units>mm</units>
+    <udunits>millimeter</udunits>
+    <uiname>totPrecip6hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
   </gridParameterInfo>
   </gridParamInfo>
