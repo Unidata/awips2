@@ -662,8 +662,6 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
     def _preProcessProduct(self, fcst, argDict):
         # Add product heading to fcst string
-        fcst = fcst + self._wmoID + " " + self._fullStationID + " " + \
-               self._ddhhmmTime + "\n"
         if self._productType == "AFM":
             productDescription = "Area Forecast Matrices"
         else:
@@ -674,13 +672,16 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         productName = self.checkTestMode(argDict, 
           productDescription) 
         
-        s = self._pil + "\n\n" + \
-            productName + "\n" + \
+        s = self._wmoID + " " + self._fullStationID + " " + \
+               self._ddhhmmTime + "\n" + self._pil + "\n\n"
+        fcst = fcst + s.upper()
+
+        s = productName + "\n" + \
             "National Weather Service " + \
             self._wfoCityState +"\n" + \
             issuedByString + \
             self._mndTimeLabel + "\n\n"
-        fcst = fcst + s.upper()
+        fcst = fcst + s
 
         return fcst 
 

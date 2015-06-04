@@ -449,13 +449,13 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         fcst = re.sub(r'(?i)(\W|^)PACIFIC(?=\W|$)', r'\1PAC', fcst) 
         fcst = re.sub(r'(?i)(\W|^)DEGREE(?=\W|$)', r'\1deg', fcst) 
         fcst = re.sub(r'(?i)(\W|^)PRESSURE(?=\W|$)', r'\1PRES', fcst)
-        fcst = re.sub(r'(?i)(\W|^)SUNDAY(?=\W|$)', r'\1Sun', fcst)
-        fcst = re.sub(r'(?i)(\W|^)MONDAY(?=\W|$)', r'\1Mon', fcst)
-        fcst = re.sub(r'(?i)(\W|^)TUESDAY(?=\W|$)', r'\1Tue', fcst)
-        fcst = re.sub(r'(?i)(\W|^)WEDNESDAY(?=\W|$)', r'\1Wed', fcst)
-        fcst = re.sub(r'(?i)(\W|^)THURSDAY(?=\W|$)', r'\1Thu', fcst)
-        fcst = re.sub(r'(?i)(\W|^)FRIDAY(?=\W|$)', r'\1Fri', fcst)
-        fcst = re.sub(r'(?i)(\W|^)SATURDAY(?=\W|$)', r'\1Sat', fcst)
+        fcst = re.sub(r'(?i)(\W|^)(SUN)DAY(?=\W|$)', r'\1\2', fcst)
+        fcst = re.sub(r'(?i)(\W|^)(MON)DAY(?=\W|$)', r'\1\2', fcst)
+        fcst = re.sub(r'(?i)(\W|^)(TUE)SDAY(?=\W|$)', r'\1\2', fcst)
+        fcst = re.sub(r'(?i)(\W|^)(WED)NESDAY(?=\W|$)', r'\1\2', fcst)
+        fcst = re.sub(r'(?i)(\W|^)(THU)RSDAY(?=\W|$)', r'\1\2', fcst)
+        fcst = re.sub(r'(?i)(\W|^)(FRI)DAY(?=\W|$)', r'\1\2', fcst)
+        fcst = re.sub(r'(?i)(\W|^)(SAT)URDAY(?=\W|$)', r'\1\2', fcst)
         fcst = re.sub(r'(?i)(\W|^)W HALF(?=\W|$)', r'\1West half', fcst)
         fcst = re.sub(r'(?i)(\W|^)E HALF(?=\W|$)', r'\1east half', fcst)
         fcst = re.sub(r'(?i)(\W|^)N HALF(?=\W|$)', r'\1north half', fcst)
@@ -788,12 +788,15 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         productName = self.checkTestMode(argDict, productName)
   
         s = self._wmoID + " " + self._fullStationID + " " + \
-               self._ddhhmmTime + "\n" + self._pil + '\n' + \
-               self._lakezone + "-" + self._expireTimeDDHHMM + "-\n\n" +\
+               self._ddhhmmTime + "\n" + self._pil + '\n'
+
+        fcst = fcst + s.upper()
+
+        s = self._lakezone + "-" + self._expireTimeDDHHMM + "-\n\n" +\
                productName +  "\n" +\
                "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
-        fcst = fcst + s.upper()
+        fcst = fcst + s
 
         fcst =  fcst +  self._headerphrase + "\n\n" + ".SYNOPSIS..." + "\n\n"
 
@@ -932,17 +935,17 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             ]        
         return [
             ("400 AM", self.DAY(), self.NIGHT(), 16,
-             ".Today...", "early in the morning", "late in the afternoon",
+             ".TODAY...", "early in the morning", "late in the afternoon",
              1, narrativeDefAM),
             ("1000 AM", "issuanceHour", self.NIGHT(), 16,
-             ".Rest of Today...", "early in the morning", "late in the afternoon",
+             ".REST OF TODAY...", "early in the morning", "late in the afternoon",
              1, narrativeDefAM),
             #  End times are tomorrow:
             ("400 PM", self.NIGHT(), 24 + self.DAY(), 24 + 4,
-             ".Tonight...", "late in the night", "early in the evening",
+             ".TONIGHT...", "late in the night", "early in the evening",
              1, narrativeDefPM),
             ("1000 PM", "issuanceHour", 24 + self.DAY(), 24 + 4,
-             ".Rest of Tonight...", "late in the night", "early in the evening",
+             ".REST OF TONIGHT...", "late in the night", "early in the evening",
              1, narrativeDefPM),
             ]
 

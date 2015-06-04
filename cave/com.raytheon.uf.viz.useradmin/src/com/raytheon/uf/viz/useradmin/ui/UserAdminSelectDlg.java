@@ -72,7 +72,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     and delete buttons. Give delete dialogs
  *                                     a title.
  * Apr 02, 2015   4345     skorolev    Fixed dialog to expand vertically properly.
- * May 04, 2015   4419     rferrel     Sort {@link #userPermList}.
+ * May 04, 2015   4419     rferrel     Sort {@link #userPermList} and {@link #rolePermList}.
  * 
  * </pre>
  * 
@@ -582,6 +582,7 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
         if (roleList.getSelectionIndex() != -1) {
             String roleId = roleList.getItem(roleList.getSelectionIndex());
             String[] perms = man.getRolePermissions(roleId, app);
+            Arrays.sort(perms);
 
             rolePermList.setItems(perms);
         }
