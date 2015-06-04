@@ -20,6 +20,7 @@
 package com.raytheon.uf.edex.activetable;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -492,7 +493,7 @@ public class ActiveTable {
                     0, 0);
             yearStart.set(Calendar.MILLISECOND, 0);
             query.addQueryParam("issueTime", yearStart.getTime(), ">=");
-            query.addOrder("etn", false);
+            query.addOrder("key.etn", false);
             query.setMaxResults(1);
         }
 
@@ -522,20 +523,27 @@ public class ActiveTable {
         Map<ActiveTableKey, ActiveTableRecord> updatesMap = new HashMap<>(
                 updated.size(), 1.0f);
         for (ActiveTableRecord rec : updated) {
-            ActiveTableRecord prevRec = updatesMap.get(rec.getKey());
+            ActiveTableKey key = rec.getKey();
+            ActiveTableRecord prevRec = updatesMap.get(key);
 
             // if multiple updates select the one with the latest issueTime
-            if ((prevRec == null)
-                    || rec.getIssueTime().after(prevRec.getIssueTime())) {
-                updatesMap.put(rec.getKey(), rec);
-
-                if (prevRec != null) {
-                    statusHandler.warn("Multiple updates received for: "
-                            + rec.getKey().toString() + "\n   "
-                            + prevRec.getVtecstr() + " " + prevRec.getUgcZone()
-                            + "\n   " + rec.getVtecstr() + " "
-                            + rec.getUgcZone());
+            if (prevRec == null) {
+                updatesMap.put(key, rec);
+            } else {
+                if (rec.getIssueTime().after(prevRec.getIssueTime())) {
+                    updatesMap.put(key, rec);
                 }
+
+                SimpleDateFormat sdf = new SimpleDateFormat(
+                        "yyyy-MM-dd HH:mm:ss");
+                sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+                statusHandler.warn("Multiple updates received for: "
+                        + rec.getKey().toString() + "\n   "
+                        + prevRec.getVtecstr() + " " + prevRec.getUgcZone()
+                        + " " + sdf.format(prevRec.getIssueTime()) + "\n   "
+                        + rec.getVtecstr() + " " + rec.getUgcZone()
+                        + sdf.format(rec.getIssueTime()));
             }
         }
 
@@ -550,11 +558,11 @@ public class ActiveTable {
         CoreDao dao = (ActiveTableMode.OPERATIONAL.equals(mode)) ? operationalDao
                 : practiceDao;
         try {
-            dao.bulkSaveOrUpdateAndDelete(updated, toDelete);
+            dao.bulkSaveOrUpdateAndDelete(updatesMap.values(), toDelete);
         } catch (NonUniqueObjectException e) {
             StringBuilder msg = new StringBuilder(
                     "Error saving updates to activetable\nUpdates:");
-            for (ActiveTableRecord rec : updated) {
+            for (ActiveTableRecord rec : updatesMap.values()) {
                 msg.append("\n").append(rec.getAct()).append(" ")
                         .append(rec.getKey());
             }
