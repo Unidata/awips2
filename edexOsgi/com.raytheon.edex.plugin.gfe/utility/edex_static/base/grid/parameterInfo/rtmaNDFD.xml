@@ -102,18 +102,18 @@
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>tccerranl</short_name>
-    <long_name>Total Cloud Cover error analysis</long_name>
+    <long_name>Total Cloud cover uncertainty</long_name>
     <units>%</units>
     <udunits>percent</udunits>
-    <uiname>ErrorAnalysisCloud</uiname>
+    <uiname>TCerranlind</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>100.0</valid_range>
     <fillValue>-99999.0</fillValue>
-    <n3D>0</n3D>
     <levelsDesc>EA</levelsDesc>
     <levels>
       <level>EA</level>
     </levels>
+    <n3D>0</n3D>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>tp</short_name>
