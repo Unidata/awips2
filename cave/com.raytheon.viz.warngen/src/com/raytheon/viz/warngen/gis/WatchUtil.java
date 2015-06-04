@@ -89,6 +89,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Sep 25, 2014 ASM #16783 D. Friedman  Do not use VTEC action to determine Watch uniqueness.
  * Apr 28, 2015 RODO #4027 randerso     Expunged Calendar from ActiveTableRecord
  * May  7, 2015 ASM #17438 D. Friedman  Clean up debug and performance logging.
+ * Jun 04, 2015 RODO #4522 randerso     Added proper primary key to ActiveTableRecord
  * </pre>
  * 
  * @author jsanchez
@@ -113,13 +114,13 @@ public class WatchUtil {
 
     private static final String END_TIME_FIELD = "endTime";
 
-    private static final String UGC_ZONE_FIELD = "ugcZone";
+    private static final String UGC_ZONE_FIELD = "key.ugcZone";
 
     private static final String PHEN_SIG_FIELD = "phensig";
 
-    private static final String ETN = "etn";
+    private static final String ETN_FIELD = "key.etn";
 
-    private static final String ACTION = "act";
+    private static final String ACTION_FIELD = "act";
 
     private static final String COUNTY_FIPS_FIELD = "FIPS";
 
@@ -139,7 +140,7 @@ public class WatchUtil {
 
     private static final String[] REQUEST_FIELDS = new String[] {
             ISSUE_TIME_FIELD, START_TIME_FIELD, END_TIME_FIELD, UGC_ZONE_FIELD,
-            PHEN_SIG_FIELD, END_TIME_FIELD, ACTION, ETN };
+            PHEN_SIG_FIELD, END_TIME_FIELD, ACTION_FIELD, ETN_FIELD };
 
     private GeospatialData[] countyGeoData;
 
@@ -296,7 +297,7 @@ public class WatchUtil {
         RequestConstraint ugcConstraint = new RequestConstraint("",
                 ConstraintType.IN);
         ugcConstraint.setConstraintValueList(ugcs);
-        request.addConstraint("ugcZone", ugcConstraint);
+        request.addConstraint(UGC_ZONE_FIELD, ugcConstraint);
 
         // These are the only fields we need for processing watches
         request.addFields(REQUEST_FIELDS);
@@ -324,7 +325,7 @@ public class WatchUtil {
         Set<String> ugczones = null;
         for (Map<String, Object> result : response.getResults()) {
             WarningAction action = WarningAction.valueOf(String.valueOf(result
-                    .get(ACTION)));
+                    .get(ACTION_FIELD)));
             /*
              * TODO: Currently limited to filtering out one of ("CAN","EXP").
              * Could use "Act" in addition to "act", but this should really be
@@ -339,12 +340,12 @@ public class WatchUtil {
                 record.setEndTime((Date) result.get(END_TIME_FIELD));
                 record.setUgcZone(String.valueOf(result.get(UGC_ZONE_FIELD)));
                 record.setPhensig(String.valueOf(result.get(PHEN_SIG_FIELD)));
-                record.setEtn(String.valueOf(result.get(ETN)));
-                record.setAct(String.valueOf(result.get(ACTION)));
+                record.setEtn(String.valueOf(result.get(ETN_FIELD)));
+                record.setAct(String.valueOf(result.get(ACTION_FIELD)));
                 records.add(record);
             } else {
                 Pair<String, String> key = new Pair<String, String>(null, null);
-                key.setFirst(String.valueOf(result.get(ETN)));
+                key.setFirst(String.valueOf(result.get(ETN_FIELD)));
                 key.setSecond(String.valueOf(result.get(PHEN_SIG_FIELD)));
                 ugczones = removedUgczones.get(key);
                 if (ugczones == null) {
