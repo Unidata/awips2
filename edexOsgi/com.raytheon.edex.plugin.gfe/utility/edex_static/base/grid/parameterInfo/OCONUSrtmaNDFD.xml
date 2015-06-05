@@ -201,8 +201,38 @@
     <levels>
       <level>SFC</level>
     </levels>
-  </gridParameterInfo>  
-<gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>wgs</short_name>
+    <long_name>Wind Gust Speed</long_name>
+    <units>m/s</units>
+    <udunits>meter/sec</udunits>
+    <uiname>windGustSpeed</uiname>
+    <valid_range>-150.0</valid_range>
+    <valid_range>150.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>FHAG 10</levelsDesc>
+    <levels>
+      <level>FHAG10</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>wgserranl</short_name>
+    <long_name>wind speed uncertainty</long_name>
+    <units>m/s</units>
+    <udunits>meter/sec</udunits>
+    <uiname>WGSerranlind</uiname>
+    <valid_range>-150.0</valid_range>
+    <valid_range>150.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>FHAG 10</levelsDesc>
+    <levels>
+      <level>FHAG10</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>vis</short_name>
     <long_name>visibility</long_name>
     <units>m</units>
@@ -232,49 +262,4 @@
       <level>SFC</level>
     </levels>
   </gridParameterInfo>
-  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>tcc</short_name>
-    <long_name>Total Cloud Covery</long_name>
-    <units>%</units>
-    <udunits>percent</udunits>
-    <uiname>toalCldCvr</uiname>
-    <valid_range>0.0</valid_range>
-    <valid_range>100.0</valid_range>
-    <fillValue>-99999.0</fillValue>
-    <n3D>0</n3D>
-    <levelsDesc>EA</levelsDesc>
-    <levels>
-      <level>EA</level>
-    </levels>
-  </gridParameterInfo>
-  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>wgs</short_name>
-    <long_name>Wind Gust Speed</long_name>
-    <units>m/s</units>
-    <udunits>meter/sec</udunits>
-    <uiname>windGustspeed</uiname>
-    <valid_range>-150.0</valid_range>
-    <valid_range>150.0</valid_range>
-    <fillValue>-99999.0</fillValue>
-    <n3D>1</n3D>
-    <levelsDesc>FHAG 10</levelsDesc>
-    <levels>
-      <level>FHAG10</level>
-    </levels>
-  </gridParameterInfo>
-  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>wgserranl</short_name>
-    <long_name>wind speed uncertainty</long_name>
-    <units>m/s</units>
-    <udunits>meter/sec</udunits>
-    <uiname>WGSerranlind</uiname>
-    <valid_range>-150.0</valid_range>
-    <valid_range>150.0</valid_range>
-    <fillValue>-99999.0</fillValue>
-    <n3D>1</n3D>
-    <levelsDesc>FHAG 10</levelsDesc>
-    <levels>
-      <level>FHAG10</level>
-    </levels>
-  </gridParameterInfo>
-</gridParamInfo>
+</gridParamInfo>  
