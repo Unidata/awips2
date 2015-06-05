@@ -21,12 +21,13 @@ package com.raytheon.uf.common.dataplugin.gfe.db.objects;
 
 import java.awt.Point;
 
+import jep.NDArray;
+
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.metadata.spatial.PixelOrientation;
 
 import com.raytheon.uf.common.dataplugin.gfe.config.ProjectionData;
 import com.raytheon.uf.common.dataplugin.gfe.config.ProjectionData.ProjectionType;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation.PythonNumpyLatLonGrid;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -40,6 +41,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 20, 2014  #3069     randerso    Initial creation
+ * Apr 23, 2015   4259     njensen     Updated for new JEP API
  * 
  * </pre>
  * 
@@ -102,8 +104,8 @@ public class GridLocationTest {
             System.out.println(gridGeometry.getEnvelope2D().toString());
             System.out.println(gridGeometry.toString());
 
-            PythonNumpyLatLonGrid latLonGrid = gloc.getLatLonGrid();
-            float[] data = (float[]) latLonGrid.getNumpy()[0];
+            NDArray<float[]> latLonGrid = gloc.getLatLonGrid();
+            float[] data = latLonGrid.getData();
             for (int x = 0; x < gloc.getNx(); x++) {
                 for (int y = 0; y < gloc.getNy(); y++) {
                     int idx = 2 * ((x * gloc.ny) + y);

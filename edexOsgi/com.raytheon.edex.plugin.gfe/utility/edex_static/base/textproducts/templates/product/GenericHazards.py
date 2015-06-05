@@ -38,12 +38,12 @@
 #
 #  You must set the following:
 #
-#  productName      defines name of product e.g. "ZONE FORECAST PRODUCT"
+#  productName      defines name of product e.g. "Zone Forecast Product"
 #  fullStationID    Full station identifier, 4 letter, such as "KSLC".
 #  wmoID            WMO ID code for product header, such as "FOUS45"
 #  pil              Product pil, such as "SFTBOS"
-#  areaName (opt.)  Area name for product header, such as "WESTERN NEW YORK"
-#  wfoCityState     City,state that the WFO is located in, such as "BUFFALO NY"
+#  areaName (opt.)  Area name for product header, such as "Western New York"
+#  wfoCityState     City,state that the WFO is located in, such as "Buffalo NY"
 #
 # Optional Configuration Items
 #
@@ -85,7 +85,7 @@
 #                   expire time.
 #  includeCities    If 1, cities will be included in the area header
 #  accurateCities   If 1, cities are determined from grids
-#  citiesPhrase     "INCLUDING THE CITIES OF" phrase used when including
+#  citiesPhrase     "Including the cities of" phrase used when including
 #                   cities
 #  includeZoneNames If 1, zone names will be included in the area header
 #  easPhrase        Optional EAS phrase to be include in product header
@@ -153,11 +153,11 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
         "defaultEditAreas" : "EditAreas_PublicZones_<site>_<MultiPil>",
 
         # product identifiers
-        "productName": "GENERIC HAZARD PRODUCT", # product name 
+        "productName": "Generic Hazard Product", # product name 
         "fullStationID": "<fullStationID>", # full station identifier (4letter)
         "wmoID": "<wmoID>",          # WMO ID
         "pil": "<pil>",            # Product pil
-        "areaName": "",             # Name of state, such as "GEORGIA" -- optional
+        "areaName": "",             # Name of state, such as "Georgia" -- optional
         "wfoCityState": "<wfoCityState>",  # Location of WFO - city,state
 
         "textdbPil": "<textdbPil>", # Product ID for storing to AWIPS text database.
@@ -181,7 +181,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
         "includeCities": 1 ,  # Cities included in area header
         "accurateCities": 0,  # Include all cities in area header
         "cityLocation": "CityLocation", # City lat/lon dictionary to use
-        "cityDescriptor":"INCLUDING THE CITIES OF",
+        "cityDescriptor":"Including the cities of",
         "includeZoneNames":1, # Zone names will be included in the area header
         "easPhrase" :"",      # Optional EAS phrase to be include in product header        
 
@@ -210,7 +210,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
         hazardsC = argDict['hazards']
         segmentList = self.organizeHazards(hazardsC.rawAnalyzedTable())
         if len(segmentList) == 0:
-            return "NO HAZARDS TO REPORT"
+            return "No hazards to report"
 
         # Determine time ranges
         error = self._determineTimeRanges(argDict)
@@ -273,7 +273,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
     def _preProcessProduct(self, fcst, argDict):
         # Product header
         if self._areaName != "":
-            self._areaName = " FOR " + self._areaName
+            self._areaName = " for " + self._areaName
         issuedByString = self.getIssuedByString()
         productName = self.checkTestMode(argDict, 
           self._productName + self._areaName) 
@@ -283,13 +283,14 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
         else:
             eas = ''
 
-        fcst =  fcst + self._wmoID + " " + self._fullStationID + " " + \
+        s = self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
                eas + productName + "\n" +\
-               "NATIONAL WEATHER SERVICE " + self._wfoCityState + \
-               "\n" + issuedByString + self._timeLabel + "\n\n" 
+               "National Weather Service " + self._wfoCityState + \
+               "\n" + issuedByString + self._timeLabel + "\n\n"
+        fcst =  fcst + s.upper()
 
-        fcst = fcst + "DEFAULT OVERVIEW SECTION\n"
+        fcst = fcst + "Default overview section\n"
         return fcst
 
     def _preProcessArea(self, fcst, segmentAreas, expireTime, argDict):
@@ -328,19 +329,19 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
         # If an overview exists for this product, insert it
         #
         overview = self.finalOverviewText()
-        overviewSearch = re.compile(r'DEFAULT OVERVIEW SECTION', re.DOTALL)
+        overviewSearch = re.compile(r'Default overview section', re.DOTALL)
         fcst = overviewSearch.sub(overview, fcst)
         #
         # Added to place line feeds in the CAP tags to keep separate from CTAs
 
         fcst = string.replace(fcst, \
-                              r"PRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.", \
-                              r"\nPRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.\n")
+                              r"Precautionary/preparedness actions\.\.\.", \
+                              r"\nPrecautionary/preparedness actions\.\.\.\n")
         fcst = string.replace(fcst, "\n ","\n")
         fcst = string.replace(fcst, "&&", "\n&&\n")
 
         # Prevent empty Call to Action Tags
-        fcst = re.sub(r'\nPRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.\s*&&\n', \
+        fcst = re.sub(r'\nPrecautionary/preparedness actions\.\.\.\s*&&\n', \
                       "", fcst)
         
         fcst = self._indentBulletText(fcst)
@@ -382,7 +383,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
 ##
 ##        ### loop through the bullets and format the output
 ##        for b in bList:
-##            bullets = bullets + "* " + b + "...|* ENTER BULLET TEXT *|\n\n"
+##            bullets = bullets + "* " + b + "...|* Enter bullet text *|\n\n"
 ##       # bullets = bullets + "\n"
 ##        return bullets
 
@@ -503,51 +504,51 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
                 continue   #no defined headline, skip phrase
             endTimePhrase = self.hazardTimePhrases(eachHazard, argDict)
             hazNameA = self.hazardName(eachHazard['hdln'], argDict, True)
+            hazNameACap = self.sentence(hazNameA, addPeriod=False)
             hazName = self.hazardName(eachHazard['hdln'], argDict, False)
 
-#            if hazName == "WINTER WEATHER ADVISORY" or hazName == "WINTER STORM WARNING":
-            if hazName in ["WINTER WEATHER ADVISORY", "WINTER STORM WARNING", "BEACH HAZARDS STATEMENT"]:
-                forPhrase = " FOR |* ENTER HAZARD TYPE *|"
+            if hazName in ["Winter Weather Advisory", "Winter Storm Warning", "Beach Hazards Statement"]:
+                forPhrase = " for |* Enter hazard type *|"
             else:
                 forPhrase =""
 
             if nwsIntroUsed == 0:
-                hazardBodyPhrase = "THE NATIONAL WEATHER SERVICE IN " + self._wfoCity
+                hazardBodyPhrase = "The National Weather Service in " + self._wfoCity
                 nwsIntroUsed = 1
             if phraseCount == 0:
                 phraseCount = 1
                 if eachHazard['phen'] in ['HU', 'TR', 'TY']:
-                    hazardBodyPhrase = hazardBodyPhrase + " HAS ISSUED " + \
+                    hazardBodyPhrase = hazardBodyPhrase + " has issued " + \
                     hazNameA + ". "
                 else:
-                    hazardBodyPhrase = hazardBodyPhrase + " HAS ISSUED " + \
+                    hazardBodyPhrase = hazardBodyPhrase + " has issued " + \
                     hazNameA + forPhrase + \
-                    "...WHICH IS IN EFFECT" + endTimePhrase + ". "
+                    "...which is in effect" + endTimePhrase + ". "
             elif phraseCount == 1:
                 phraseCount = 2
                 if hdln != lastHdln:
                     if eachHazard['phen'] in ['HU', 'TR', 'TY']:
-                        hazardBodyPhrase = hazardBodyPhrase + hazNameA + \
-                        " HAS ALSO BEEN ISSUED."
+                        hazardBodyPhrase = hazardBodyPhrase + hazNameACap + \
+                        " has also been issued."
                     else:    
-                        hazardBodyPhrase = hazardBodyPhrase + hazNameA + \
-                        " HAS ALSO BEEN ISSUED. THIS " + hazName + forPhrase + \
-                        " IS IN EFFECT" + endTimePhrase + ". "
+                        hazardBodyPhrase = hazardBodyPhrase + hazNameACap + \
+                        " has also been issued. This " + hazName + forPhrase + \
+                        " is in effect" + endTimePhrase + ". "
                 else:
                     if eachHazard['phen'] in ['HU', 'TR', 'TY']:
-                        hazardBodyPhrase = hazardBodyPhrase + hazNameA + \
-                        " HAS ALSO BEEN ISSUED."
+                        hazardBodyPhrase = hazardBodyPhrase + hazNameACap + \
+                        " has also been issued."
                     else:
-                        hazardBodyPhrase = hazardBodyPhrase + hazNameA + forPhrase + \
-                        " HAS ALSO BEEN ISSUED" + endTimePhrase + ". "
+                        hazardBodyPhrase = hazardBodyPhrase + hazNameACap + forPhrase + \
+                        " has also been issued" + endTimePhrase + ". "
             else:
                 if eachHazard['phen'] in ['HU', 'TR', 'TY']:
-                    hazardBodyPhrase = hazardBodyPhrase + "IN ADDITION..." + \
-                    hazNameA + " HAS BEEN ISSUED."
+                    hazardBodyPhrase = hazardBodyPhrase + "In addition..." + \
+                    hazNameA + " has been issued."
                 else:
-                    hazardBodyPhrase = hazardBodyPhrase + "IN ADDITION..." + \
-                    hazNameA + forPhrase + " HAS BEEN ISSUED. THIS " + hazName + \
-                    " IS IN EFFECT" + endTimePhrase + ". "
+                    hazardBodyPhrase = hazardBodyPhrase + "In addition..." + \
+                    hazNameA + forPhrase + " has been issued. This " + hazName + \
+                    " is in effect" + endTimePhrase + ". "
             lastHdln = hdln              
         #
         # This is for the can hazards
@@ -558,14 +559,14 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
                 continue   #no defined headline, skip phrase
             hazName = self.hazardName(eachHazard['hdln'], argDict, False)
             if nwsIntroUsed == 0:
-                hazardBodyPhrase = "THE NATIONAL WEATHER SERVICE IN " +\
+                hazardBodyPhrase = "The National Weather Service in " +\
                   self._wfoCity
                 nwsIntroUsed = 1
                 hazardBodyPhrase = hazardBodyPhrase + \
-                 " HAS CANCELLED THE " + hazName + ". "
+                 " has cancelled the " + hazName + ". "
             else:
-                hazardBodyPhrase = hazardBodyPhrase + "THE " + hazName + \
-                  " HAS BEEN CANCELLED. "
+                hazardBodyPhrase = hazardBodyPhrase + "The " + hazName + \
+                  " has been cancelled. "
 
         #
         # This is for the exp hazards
@@ -579,14 +580,14 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
                 continue   # No attribution for this case if it is a bullet product
             hazName = self.hazardName(eachHazard['hdln'], argDict, False)
             if eachHazard['endTime'] <= argDict['creationTime']:
-                hazardBodyPhrase = hazardBodyPhrase + "THE " + hazName + \
-                  " IS NO LONGER IN EFFECT. "
+                hazardBodyPhrase = hazardBodyPhrase + "The " + hazName + \
+                  " is no longer in effect. "
             else:
                expTimeCurrent = argDict['creationTime']
                timeWords = self.getTimingPhrase(eachHazard, expTimeCurrent)
                                          
-               hazardBodyPhrase = hazardBodyPhrase + "THE " + hazName + \
-                 " WILL EXPIRE " + timeWords + ". "
+               hazardBodyPhrase = hazardBodyPhrase + "The " + hazName + \
+                 " will expire " + timeWords + ". "
 
         #
         # This is for ext hazards
@@ -600,8 +601,8 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
             endTimePhrase = self.hazardTimePhrases(eachHazard, argDict)
             hazName = self.hazardName(eachHazard['hdln'], argDict, False)
             
-            hazardBodyPhrase = hazardBodyPhrase + "THE " + hazName + \
-              " IS NOW IN EFFECT" + endTimePhrase + ". "
+            hazardBodyPhrase = hazardBodyPhrase + "The " + hazName + \
+              " is now in effect" + endTimePhrase + ". "
 
         #
         # This is for upgrade hazards
@@ -611,8 +612,8 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
             if len(eachHazard['hdln']) == 0:
                 continue   #no defined headline, skip phrase
             hazName = self.hazardName(eachHazard['hdln'], argDict, False)
-            hazardBodyPhrase = hazardBodyPhrase + "THE " + hazName + \
-              " IS NO LONGER IN EFFECT. "
+            hazardBodyPhrase = hazardBodyPhrase + "The " + hazName + \
+              " is no longer in effect. "
 
         #
         # This is for con hazards
@@ -626,14 +627,14 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
             endTimePhrase = self.hazardTimePhrases(eachHazard, argDict)
             hazNameA = self.hazardName(eachHazard['hdln'], argDict, True)
             hazardBodyPhrase = hazardBodyPhrase + hazNameA + \
-              " REMAINS IN EFFECT" + endTimePhrase + ". "
+              " remains in effect" + endTimePhrase + ". "
 
         #
         # This is for statement hazards
         #
 
         for eachHazard in statementList:
-            hazardBodyPhrase = "...|* ADD STATEMENT HEADLINE *|...\n\n"
+            hazardBodyPhrase = "...|* Add statement headline *|...\n\n"
                         
         #
         # This adds segment text
@@ -670,6 +671,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
                         startPara = 1
                     else: 
                         startPara = 2
+
                 segmentText, foundCTAs = self.cleanCapturedText(prevText,
                   startPara, addFramingCodes = False,
                   skipCTAs = skipCTAs)
@@ -703,13 +705,13 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
                                     print "* " + self._bulletOrder()[i] + "... found!"
                                     segmentTextSplit = string.split(segmentText,"* " + self._bulletOrder()[i] + "...")
                                     segmentText = string.join(segmentTextSplit,"* " + bullet + \
-                                                              "...|* ENTER BULLET TEXT *|\n\n* " + self._bulletOrder()[i] + "...")
+                                                              "...|* Enter bullet text *|\n\n* " + self._bulletOrder()[i] + "...")
                                     bulletFlag = 0
                             if bulletFlag:
                                 print "appending to bottom list of bullets!"
-                                segmentTextSplit = string.split(segmentText,"PRECAUTIONARY/PREPAREDNESS ACTIONS...")
+                                segmentTextSplit = string.split(segmentText,"Precautionary/preparedness actions...")
                                 segmentText = "\n" + string.join(segmentTextSplit,"* " + bullet + \
-                                                                   "...|* ENTER BULLET TEXT *|\n\nPRECAUTIONARY/PREPAREDNESS ACTIONS...")
+                                                                   "...|* Enter bullet text *|\n\nPrecautionary/preparedness actions...")
                                 bulletFlag = 0
         #
         # Now if there is a can/exp hazard and previous segment Text, then
@@ -736,7 +738,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
             print "hazardBodyText info: keepBulletList: ",keepBulletList
             print "hazardBodyText info: removeBulletList: ",removeBulletList
             # Finally remove the bullets no longer needed.
-            PRECAUTION = "PRECAUTIONARY/PREPAREDNESS ACTIONS..."
+            PRECAUTION = "Precautionary/preparedness actions..."
             for bullet in removeBulletList:
                 segmentTextSplit = string.split(segmentText,"* " + bullet + "...")
                 print "segmentTextSplit is ", segmentTextSplit 
@@ -752,7 +754,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
                     segmentText = string.join(segmentTextSplit,"")
 
             if keepBulletList == []:
-                segmentText = "\n\n|* WRAP-UP TEXT GOES HERE *|.\n"
+                segmentText = "\n\n|* Wrap-up text goes here *|.\n"
             elif removeBulletList != []:
                 segmentText = "|*\n" + segmentText + "*|"
             else:
@@ -772,10 +774,10 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
             bulletFlag = 0
             if eachHazard['act'] == 'CAN':
                 hazardBodyPhrase = hazardBodyPhrase + \
-                  "\n\n|* WRAP-UP TEXT GOES HERE *|.\n"
+                  "\n\n|* Wrap-up text goes here *|.\n"
             elif eachHazard['act'] == 'EXP':
                 hazardBodyPhrase = hazardBodyPhrase + \
-                  "\n\n|* WRAP-UP TEXT GOES HERE *|.\n"
+                  "\n\n|* Wrap-up text goes here *|.\n"
             else:
                 bulletFlag = 1
 ##            print "bulletFlag is: ",bulletFlag
@@ -798,14 +800,14 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
                         bulletOrder.remove(bullet)
                 print "reordered bullets are: ", bulletOrder
                 for b in bulletOrder:
-                    bullets = bullets + "* " + b + "...|* ENTER BULLET TEXT *|\n\n"
+                    bullets = bullets + "* " + b + "...|* Enter bullet text *|\n\n"
 
                 hazardBodyPhrase = hazardBodyPhrase + "\n\n" + bullets
 
         # If segment doesn't pass the checks, put in framing codes
         else:
             hazardBodyPhrase = hazardBodyPhrase + \
-                "\n\n|* STATEMENT TEXT GOES HERE *|.\n\n"
+                "\n\n|* Statement text goes here *|.\n\n"
 
         # End code for DR 21310
 
@@ -835,13 +837,13 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
 
         if len(ctas) > 0:
             hazardBodyPhrase = hazardBodyPhrase + \
-                               'PRECAUTIONARY/PREPAREDNESS ACTIONS...\n\n'
+                               'Precautionary/preparedness actions...\n\n'
             for c in ctas:
                 hazardBodyPhrase = hazardBodyPhrase +  c + '\n\n'
             hazardBodyPhrase = hazardBodyPhrase + '&&\n\n'
 
         # Make sure there is only one CAP tag pairs
-        hazardBodyPhrase = re.sub(r'&&\s*PRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.\n', \
+        hazardBodyPhrase = re.sub(r'&&\s*Precautionary/preparedness actions\.\.\.\n', \
                                   "", hazardBodyPhrase)
 
         return hazardBodyPhrase 
@@ -851,13 +853,13 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
         if len(self.__overviewText) == 0:
 
             if self._includeOverviewHeadline:
-                overviewHeadline = "...|*OVERVIEW HEADLINE " + \
+                overviewHeadline = "...|*Overview headline " + \
                   "(must edit)*|...\n\n"
             else:
                 overviewHeadline = ""
 
             if self._includeOverview:
-                overviewBody = ".|*OVERVIEW (must edit)*|.\n\n"
+                overviewBody = ".|*Overview (must edit)*|.\n\n"
             else:
                 overviewBody = ""
 
@@ -987,7 +989,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
     def decodeBulletedText(self, prevText):
         # returns the bullet paragraph text or None, returns the
         # regular text after the bullets.  The afterText is text up to
-        # the next bullet or up to "THE NATIONAL WEATHER SERVICE". Note
+        # the next bullet or up to "The National Weather Service". Note
         # that this only correctly handles the 1st set of entries in 
         # a segment, thus double events will only decode the first set
         # of bullets and text. The multipleRecords is set to 1 in the
@@ -1028,7 +1030,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
         # beginning of any next NWS phrase. 
         lines = regText.split('\n')
         for x in xrange(len(lines)):
-            if lines[x].find('THE NATIONAL WEATHER SERVICE') == 0:
+            if lines[x].find('The National Weather Service') == 0:
                 lines = lines[0:x]  #eliminate following lines
                 break
         regText = ("\n").join(lines)

@@ -29,7 +29,7 @@ import java.util.Set;
 
 import org.eclipse.swt.graphics.RGB;
 
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData.RefType;
@@ -40,13 +40,12 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.point.display.PointWindDisplay.DisplayType;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.PythonPreferenceStore;
-import com.raytheon.viz.gfe.constants.StatusConstants;
 import com.raytheon.viz.gfe.rsc.GFEResource;
-import com.raytheon.viz.pointdata.PointWindDisplay.DisplayType;
 
 /**
  * Parm Display Attributes
@@ -63,7 +62,8 @@ import com.raytheon.viz.pointdata.PointWindDisplay.DisplayType;
  * @version 1.0
  */
 public class ParmDisplayAttributes {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(ParmDisplayAttributes.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ParmDisplayAttributes.class);
 
     private static PythonPreferenceStore prefs = Activator.getDefault()
             .getPreferenceStore();
@@ -232,7 +232,7 @@ public class ParmDisplayAttributes {
         // check for contourInterval from config file
         float interval = prefs.getFloat(pn + "_contourInterval");
 
-        if (contourValueObj != null && contourValueObj.length > 0) {
+        if ((contourValueObj != null) && (contourValueObj.length > 0)) {
             baseContourValues = new float[contourValueObj.length];
             for (int i = 0; i < contourValueObj.length; i++) {
                 baseContourValues[i] = contourValueObj[i].floatValue();
@@ -242,7 +242,7 @@ public class ParmDisplayAttributes {
         }
 
         // do automatic calculation
-        if (baseContourValues == null || baseContourValues.length == 0) {
+        if ((baseContourValues == null) || (baseContourValues.length == 0)) {
             // compute the interval
             final float multStep[] = { 1, 2, 5 };
 
@@ -328,11 +328,11 @@ public class ParmDisplayAttributes {
         // increased number of contours
         ArrayList<Float> ret = new ArrayList<Float>();
         if (contourDensity > 0) {
-            for (int i = 0; i < baseValues.length - 1; i++) {
+            for (int i = 0; i < (baseValues.length - 1); i++) {
                 float interval = baseValues[i + 1] - baseValues[i];
                 float delta = interval / (contourDensity + 1);
-                for (int j = 0; j < contourDensity + 1; j++) {
-                    ret.add((baseValues[i] + delta * j));
+                for (int j = 0; j < (contourDensity + 1); j++) {
+                    ret.add((baseValues[i] + (delta * j)));
                 }
             }
             ret.add(baseValues[baseValues.length - 1]);
@@ -342,7 +342,7 @@ public class ParmDisplayAttributes {
         else {
             double skip = -contourDensity + 1;
             for (int i = 0; i < baseValues.length; i++) {
-                if (i % skip == 0) {
+                if ((i % skip) == 0) {
                     ret.add(baseValues[i]);
                 }
             }
@@ -957,13 +957,12 @@ public class ParmDisplayAttributes {
 
         for (VisualizationType type : visualType) {
             if (!available.contains(type)) {
-                statusHandler.handle(
-                        Priority.PROBLEM,
-                        parm.getParmID().toString()
-                                + " Attempt to setVisualizationType to invalid: "
-                                + type.toString()
-                                + "\nAllowable vis types are: "
-                                + Arrays.toString(available.toArray()));
+                statusHandler.handle(Priority.PROBLEM, parm.getParmID()
+                        .toString()
+                        + " Attempt to setVisualizationType to invalid: "
+                        + type.toString()
+                        + "\nAllowable vis types are: "
+                        + Arrays.toString(available.toArray()));
                 return; // no action performed
             }
         }
@@ -1070,8 +1069,9 @@ public class ParmDisplayAttributes {
      * @param mask
      */
     public void setDisplayMask(final Grid2DBit bits) {
-        if (bits.getXdim() != parm.getGridInfo().getGridLoc().gridSize().x
-                || bits.getYdim() != parm.getGridInfo().getGridLoc().gridSize().y) {
+        if ((bits.getXdim() != parm.getGridInfo().getGridLoc().gridSize().x)
+                || (bits.getYdim() != parm.getGridInfo().getGridLoc()
+                        .gridSize().y)) {
             statusHandler.handle(
                     Priority.PROBLEM,
                     "ParmDspAttr::setMask(): mask dimensions ["
@@ -1148,8 +1148,10 @@ public class ParmDisplayAttributes {
             }
         }
 
-        statusHandler.handle(Priority.PROBLEM,
-                "Attempt to setDisplayMask on unknown ReferenceID [" + id + ']');
+        statusHandler
+                .handle(Priority.PROBLEM,
+                        "Attempt to setDisplayMask on unknown ReferenceID ["
+                                + id + ']');
     }
 
     public void setEmptyMask() {

@@ -47,11 +47,11 @@ class TextProduct(GenericHazards.TextProduct):
        # Map background for creating Combinations
 
     # Header configuration items
-    Definition["productName"] = "WATCH COUNTY NOTIFICATION"  # name of product
+    Definition["productName"] = "Watch County Notification"  # name of product
     Definition["fullStationID"] = "<fullStationID>"  # full station identifier (4letter)
     Definition["wmoID"] = "<wmoID>"        # WMO ID
     Definition["pil"] = "<pil>"          # product pil
-    #Definition["areaName"] = "STATENAME"  # Name of state, such as "GEORGIA"
+    #Definition["areaName"] = "Statename"  # Name of state, such as "Georgia"
     Definition["wfoCityState"] = "<wfoCityState>"  # Location of WFO - city state
     Definition["wfoCity"] = "<wfoCity>"       # WFO Name as it should appear in a text product
     Definition["textdbPil"] = "<textdbPil>"       # Product ID for storing to AWIPS text database.
@@ -66,7 +66,7 @@ class TextProduct(GenericHazards.TextProduct):
 
     Definition["purgeTime"] = 15        # Maximum hours for expireTime from issueTime
     Definition["includeCities"] = 0    # Cities included in area header
-    Definition["cityDescriptor"] = "INCLUDING THE CITIES OF"
+    Definition["cityDescriptor"] = "Including the cities of"
     Definition["includeZoneNames"] = 0 # Zone names will be included in the area header
     Definition["includeIssueTime"] = 0   # This should be set to zero for products
                                        # that do not include a time lime below the UGC
@@ -98,9 +98,9 @@ class TextProduct(GenericHazards.TextProduct):
                 allWatchList.append(hazard['etn'])
 
         if len(allWatchList) == 1:                        
-            watchPhrase = " FOR WATCH " +  str(allWatchList[0])
+            watchPhrase = " for watch " +  str(allWatchList[0])
         else:
-            watchPhrase = " FOR WATCHES "
+            watchPhrase = " for watches "
             allWatchList.sort()
             for x in xrange(len(allWatchList)):
                 watchPhrase = watchPhrase + str(allWatchList[x])
@@ -112,7 +112,7 @@ class TextProduct(GenericHazards.TextProduct):
         #
         
         if self._areaName != "":
-            self._areaName = " FOR " + self._areaName
+            self._areaName = " for " + self._areaName
         issuedByString = self.getIssuedByString()
         productName = self.checkTestMode(argDict, 
           self._productName + watchPhrase) 
@@ -120,7 +120,7 @@ class TextProduct(GenericHazards.TextProduct):
         s = self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
                productName + "\n" +\
-               "NATIONAL WEATHER SERVICE " + self._wfoCityState + \
+               "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n" + self._easPhrase + "\n"
         fcst = fcst + s.upper()
         return fcst
@@ -215,10 +215,10 @@ class TextProduct(GenericHazards.TextProduct):
                    False) + " " + str(oldWatch['etn'])
                  validTime = self.getTimingPhrase(newWatch, issuanceTime)
 
-                 attrPhrase =  "THE NATIONAL WEATHER SERVICE HAS ISSUED " + \
+                 attrPhrase =  "The National Weather Service has issued " + \
                    newWatchName + " " + validTime + \
-                   " WHICH REPLACES A PORTION OF " + oldWatchName + '. ' + \
-                   "THE NEW WATCH IS VALID FOR THE FOLLOWING AREAS"
+                   " which replaces a portion of " + oldWatchName + '. ' + \
+                   "The new watch is valid for the following areas"
                  
 
             #
@@ -245,14 +245,14 @@ class TextProduct(GenericHazards.TextProduct):
                  validTime = self.getTimingPhrase(newWatch, issuanceTime)
 
                  if oldWatch['endTime'] > argDict['creationTime']:
-                     expirePhrase = "WILL BE ALLOWED TO EXPIRE."
+                     expirePhrase = "will be allowed to expire."
                  else:
-                     expirePhrase = "HAS EXPIRED."
+                     expirePhrase = "has expired."
 
-                 attrPhrase = "THE NATIONAL WEATHER SERVICE HAS ISSUED " + \
+                 attrPhrase = "The National Weather Service has issued " + \
                    newWatchName + ' ' + validTime + ". " + \
                    oldWatchName + " " + expirePhrase + \
-                   " THE NEW WATCH IS VALID FOR THE FOLLOWING AREAS"
+                   " The new watch is valid for the following areas"
 
         #
         # Else if the hazardListLength isn't 2
@@ -270,9 +270,9 @@ class TextProduct(GenericHazards.TextProduct):
                 #
                 
                 if eachHazard['act'] == 'NEW':
-                    attrPhrase = "THE NATIONAL WEATHER SERVICE HAS ISSUED " +\
-                      watchName + " IN EFFECT " +\
-                       validTime + " FOR THE FOLLOWING AREAS"
+                    attrPhrase = "The National Weather Service has issued " +\
+                      watchName + " in effect " +\
+                       validTime + " for the following areas"
                     phraseType = "NEW"
 
                 #
@@ -280,8 +280,8 @@ class TextProduct(GenericHazards.TextProduct):
                 #
                 
                 elif eachHazard['act'] == 'CON':
-                    attrPhrase = watchName + " REMAINS VALID " + validTime + \
-                      " FOR THE FOLLOWING AREAS"
+                    attrPhrase = watchName + " remains valid " + validTime + \
+                      " for the following areas"
                     phraseType = "NEW"
 
                 #
@@ -290,13 +290,13 @@ class TextProduct(GenericHazards.TextProduct):
                 
                 elif eachHazard['act'] == 'EXP':
                     if eachHazard['endTime'] > argDict['creationTime']:
-                        attrPhrase = "THE NATIONAL WEATHER SERVICE " + \
-                          "WILL ALLOW " + watchName + " TO EXPIRE " +\
-                          validTime + " FOR THE FOLLOWING AREAS"
+                        attrPhrase = "The National Weather Service" + \
+                          " will allow " + watchName + " to expire " +\
+                          validTime + " for the following areas"
                     else:
-                        attrPhrase = "THE NATIONAL WEATHER SERVICE " + \
-                          "HAS ALLOWED " + watchName + " TO EXPIRE" +\
-                          " FOR THE FOLLOWING AREAS"
+                        attrPhrase = "The National Weather Service" + \
+                          " has allowed " + watchName + " to expire" +\
+                          " for the following areas"
                     phraseType = "EXPIRE"
 
                 #
@@ -304,9 +304,9 @@ class TextProduct(GenericHazards.TextProduct):
                 #
 
                 elif eachHazard['act'] == 'CAN':
-                    attrPhrase = "THE NATIONAL WEATHER SERVICE " +\
-                      "HAS CANCELLED " + watchName + \
-                      " FOR THE FOLLOWING AREAS"
+                    attrPhrase = "The National Weather Service" +\
+                      " has cancelled " + watchName + \
+                      " for the following areas"
                     phraseType = "CANCEL"
 
                 #
@@ -314,8 +314,8 @@ class TextProduct(GenericHazards.TextProduct):
                 #
                 
                 elif eachHazard['act'] in ['EXA', 'EXB']:
-                    attrPhrase="THE NATIONAL WEATHER SERVICE HAS EXTENDED " +\
-                      watchName + " TO INCLUDE THE FOLLOWING AREAS " + \
+                    attrPhrase="The National Weather Service has extended " +\
+                      watchName + " to include the following areas " + \
                       validTime
                     phraseType = "NEW"
 
@@ -331,18 +331,18 @@ class TextProduct(GenericHazards.TextProduct):
                     prevRec['endTime'] = eachHazard['previousEnd']
                     prevExpPhrase = self.getTimingPhrase(prevRec, issuanceTime)
                         
-                    attrPhrase = watchName + "...PREVIOUSLY IN EFFECT " +\
-                      prevExpPhrase + "...IS NOW IN EFFECT " + \
-                      validTime + " FOR THE FOLLOWING AREAS"
+                    attrPhrase = watchName + "...previously in effect " +\
+                      prevExpPhrase + "...is now in effect " + \
+                      validTime + " for the following areas"
 
                 #
                 # Generic Phrase...should never reach this point
                 #
                 
                 else:
-                    startingPhrase = "THE NATIONAL WEATHER SERVICE " + \
-                      "HAS ISSUED |* WATCH TYPE *| |* WATCH NUMBER *| " + \
-                      "UNTIL |* WATCH END TIME *| FOR THE FOLLOWING AREAS" 
+                    startingPhrase = "The National Weather Service" + \
+                      " has issued |* watch type *| |* watch number *|" + \
+                      " until |* watch end time *| for the following areas" 
                     attrPhrase = startingPhrase
                     phraseType = "NEW"
 
@@ -355,42 +355,38 @@ class TextProduct(GenericHazards.TextProduct):
 
         # Get the phrasing set up for the type of event 
         if phraseType == "NEW":
-            county1 = "IN {area} THIS WATCH INCLUDES {number} {placeType}"
-            county2 = "IN {area} THIS WATCH INCLUDES {number} {placeTypes}"
-            indepCity1 = "IN {area} THIS WATCH INCLUDES {number} " + \
-              "INDEPENDENT CITY"
-            indepCity2 = "IN {area} THIS WATCH INCLUDES {number} " + \
-              "INDEPENDENT CITIES"
-            marine = "THIS WATCH INCLUDES THE FOLLOWING ADJACENT " +\
-              "COASTAL WATERS"
+            county1 = "In {area} this watch includes {number} {placeType}"
+            county2 = "In {area} this watch includes {number} {placeTypes}"
+            indepCity1 = "In {area} this watch includes {number} " + \
+              "independent city"
+            indepCity2 = "In {area} this watch includes {number} " + \
+              "independent cities"
+            marine = "This watch includes the following adjacent coastal waters"
             
         elif phraseType == "CANCEL":
-            county1 = "IN {area} THIS CANCELS {number} {placeType}"
-            county2 = "IN {area} THIS CANCELS {number} {placeTypes}"
-            indepCity1 = "IN {area} THIS CANCELS {number} INDEPENDENT CITY"
-            indepCity2 = "IN {area} THIS CANCELS {number} INDEPENDENT CITIES"
-            marine = "THIS CANCELS THE FOLLOWING ADJACENT " +\
-              "COASTAL WATERS"
+            county1 = "In {area} this cancels {number} {placeType}"
+            county2 = "In {area} this cancels {number} {placeTypes}"
+            indepCity1 = "In {area} this cancels {number} INDEPENDENT CITY"
+            indepCity2 = "In {area} this cancels {number} INDEPENDENT CITIES"
+            marine = "This cancels the following adjacent coastal waters"
 
         elif phraseType == "EXPIRE":
-            county1 = "IN {area} THIS ALLOWS TO EXPIRE {number} {placeType}"
-            county2 = "IN {area} THIS ALLOWS TO EXPIRE {number} {placeTypes}"
-            indepCity1 = "IN {area} THIS ALLOWS TO EXPIRE {number} " +\
-              "INDEPENDENT CITY"
-            indepCity2 = "IN {area} THIS ALLOWS TO EXPIRE {number} " +\
-              "INDEPENDENT CITIES"
-            marine = "THIS ALLOWS TO EXPIRE THE FOLLOWING ADJACENT " +\
-              "COASTAL WATERS"
+            county1 = "In {area} this allows to expire {number} {placeType}"
+            county2 = "In {area} this allows to expire {number} {placeTypes}"
+            indepCity1 = "In {area} this allows to expire {number} " +\
+              "independent city"
+            indepCity2 = "In {area} this allows to expire {number} " +\
+              "independent cities"
+            marine = "This allows to expire the following adjacent coastal waters"
 
         elif phraseType == "REPLACE":
-            county1 = "IN {area} THE NEW WATCH INCLUDES {number} {placeType}"
-            county2 = "IN {area} THE NEW WATCH INCLUDES {number} {placeTypes}"
-            indepCity1 = "IN {area} THE NEW WATCH INCLUDES {number} " + \
-              "INDEPENDENT CITY"
-            indepCity2 = "IN {area} THE NEW WATCH INCLUDES {number} " + \
-              "INDEPENDENT CITIES"
-            marine = "THE NEW WATCH INCLUDES THE FOLLOWING ADJACENT " +\
-              "COASTAL WATERS"
+            county1 = "In {area} the new watch includes {number} {placeType}"
+            county2 = "In {area} the new watch includes {number} {placeTypes}"
+            indepCity1 = "In {area} the new watch includes {number} " + \
+              "independent city"
+            indepCity2 = "In {area} the new watch includes {number} " + \
+              "independent cities"
+            marine = "The new watch includes the following adjacent coastal waters"
 
         else:
             raise Exception, "Illegal phraseType in WCN formatter. " +\
@@ -545,7 +541,7 @@ class TextProduct(GenericHazards.TextProduct):
         return countyList
 
     def _makeTextFromMarineTuple(self, countyTuple, lineLength=66, colWidth=22,
-      mainFormat="THIS WATCH INCLUDES THE FOLLOWING ADJACENT COASTAL WATERS"):
+      mainFormat="This watch includes the following adjacent coastal waters"):
     
       #countyTuple:  (state, partOfStateAndState, name)
       #extract out the marine zones
@@ -561,9 +557,9 @@ class TextProduct(GenericHazards.TextProduct):
 
 
     def _makeTextFromCountyTuple(self, countyTuple, lineLength=66, colWidth=22,
-      mainFormatSingular="IN {area} THIS WATCH INCLUDES {number} {placeType}",
-      mainFormatPlural="IN {area} THIS WATCH INCLUDES {number} {placeTypes}",
-      subFormat="IN {area}", mode="byState"):
+      mainFormatSingular="In {area} this watch includes {number} {placeType}",
+      mainFormatPlural="In {area} this watch includes {number} {placeTypes}",
+      subFormat="In {area}", mode="byState"):
 
         #countyTuple:  (state, partOfStateAndState, name)
         #The type of text depends upon the mode: "byState" or "byPart"
@@ -629,8 +625,8 @@ class TextProduct(GenericHazards.TextProduct):
         for state, partStateNames in geoList:
 
             #special District of Columbia, no parts of state descriptors
-            if state == "DISTRICT OF COLUMBIA":
-                result = result + "THE DISTRICT OF COLUMBIA\n\n"
+            if state == "District of Columbia":
+                result = result + "The District of Columbia\n\n"
                 continue
 
             ccount = counts.get(state, 0)
@@ -640,12 +636,12 @@ class TextProduct(GenericHazards.TextProduct):
                 header = mainFormatSingular
             header = string.replace(header, '{area}', state)
             header = string.replace(header, '{number}', str(ccount))
-            if state == "LOUISIANA":
-                header = string.replace(header, '{placeType}', "PARISH")
-                header = string.replace(header, '{placeTypes}', "PARISHES")
+            if state == "Louisiana":
+                header = string.replace(header, '{placeType}', "parish")
+                header = string.replace(header, '{placeTypes}', "parishes")
             else:
-                header = string.replace(header, '{placeType}', "COUNTY")
-                header = string.replace(header, '{placeTypes}', "COUNTIES")
+                header = string.replace(header, '{placeType}', "county")
+                header = string.replace(header, '{placeTypes}', "counties")
  
 
             result = result + header + '\n\n'
@@ -689,8 +685,8 @@ class TextProduct(GenericHazards.TextProduct):
         for partState, names in geoList:
 
             #special District of Columbia
-            if partState.find("DISTRICT OF COLUMBIA") != -1:
-                result = result + "THE DISTRICT OF COLUMBIA\n\n"
+            if partState.find("District of Columbia") != -1:
+                result = result + "The District of Columbia\n\n"
                 continue
 
             ccount = counts.get(partState, 0)
@@ -700,12 +696,12 @@ class TextProduct(GenericHazards.TextProduct):
                 header = mainFormatSingular
             header = string.replace(header, '{area}', partState)
             header = string.replace(header, '{number}', str(ccount))
-            if partState.find("LOUISIANA") != -1:
-                header = string.replace(header, '{placeType}', "PARISH")
-                header = string.replace(header, '{placeTypes}', "PARISHES")
+            if partState.find("Louisiana") != -1:
+                header = string.replace(header, '{placeType}', "parish")
+                header = string.replace(header, '{placeTypes}', "parishes")
             else:
-                header = string.replace(header, '{placeType}', "COUNTY")
-                header = string.replace(header, '{placeTypes}', "COUNTIES")
+                header = string.replace(header, '{placeType}', "county")
+                header = string.replace(header, '{placeTypes}', "counties")
 
             counties = self.formatCountyColumns(names, colWidth, lineLength)
 

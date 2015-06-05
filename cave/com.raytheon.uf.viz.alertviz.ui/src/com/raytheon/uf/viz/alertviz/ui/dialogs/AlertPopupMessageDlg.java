@@ -67,6 +67,8 @@ import com.raytheon.uf.viz.alertviz.config.AlertMetadata;
  *                                     and store previous location.
  * 13 Jan 2011  7375       cjeanbap    Commented out shell.setVisible(...) in
  *                                     acknowledgeLastMessage().
+ * 20 Apr 2015  4311       lvenable    Fixed text field to accept really long text strings.
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -158,18 +160,18 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
     /**
      * Date format.
      */
-    private SimpleDateFormat dateFormat = new SimpleDateFormat(
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat(
             "MMM dd yy HH:mm:ss z");
 
     /**
      * Time format.
      */
-    private SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
+    private final SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
 
     /**
      * Array of status messages.
      */
-    private ArrayList<StatusMessage> statMsgArray = new ArrayList<StatusMessage>();
+    private final ArrayList<StatusMessage> statMsgArray = new ArrayList<StatusMessage>();
 
     /**
      * Source label.
@@ -204,7 +206,7 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
     /**
      * Maximum messages to acknowledge.
      */
-    private int maxMessages = 100;
+    private final int maxMessages = 100;
 
     /**
      * Move label.
@@ -259,14 +261,14 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
     /**
      * Listens for "Hide Dialog" event, implemented by AlertVisualization class
      */
-    private Listener hideListener;
+    private final Listener hideListener;
 
     /**
      * Initialized flag indicating if the control have been initialized.
      */
     private boolean initialized = false;
 
-    private AlertVisualization av;
+    private final AlertVisualization av;
 
     /**
      * Constructor.
@@ -464,8 +466,10 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
         messageComp.setBackground(display.getSystemColor(SWT.COLOR_RED));
 
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.heightHint = 20;
         gd.widthHint = 920;
-        messageTF = new Text(messageComp, SWT.BORDER | SWT.MULTI | SWT.WRAP);
+        messageTF = new Text(messageComp, SWT.BORDER | SWT.MULTI | SWT.WRAP
+                | SWT.V_SCROLL);
         messageTF.setLayoutData(gd);
         messageTF.setText(statMsgArray.get(0).getMessage());
         messageTF.setEditable(false);

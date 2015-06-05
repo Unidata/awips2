@@ -27,8 +27,9 @@
 #
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    03/18/13                      mnash        Initial Creation.
-#    11/08/13        2086          bkowal       Declare lists using [] instead of list()
+#    03/18/13                      mnash          Initial Creation.
+#    11/08/13        2086          bkowal         Declare lists using [] instead of list()
+#    Apr 27, 2015    4259          njensen        Updated for new JEP API
 #
 #
 #
@@ -43,7 +44,8 @@ from LockingFile import File
 
 from com.raytheon.uf.common.localization import PathManagerFactory
 from com.raytheon.uf.common.localization import LocalizationContext as JavaLocalizationContext
-from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType, LocalizationContext_LocalizationLevel as LocalizationLevel
+LocalizationType = JavaLocalizationContext.LocalizationType
+LocalizationLevel = JavaLocalizationContext.LocalizationLevel
 from java.io import File as JavaFile
 from java.lang import String
 

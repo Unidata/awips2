@@ -26,6 +26,7 @@
 #    08/20/2012           #1077    randerso       Fixed backgroundColor setting
 #    08/20/2012           #1082    randerso       fixed 1 image per grid
 #    08/29/2012           #1081    dgilling       Update usage statement.
+#    Apr 25, 2015          4952    njensen        Updated for new JEP API
 #    
 # 
 #
@@ -37,7 +38,8 @@ from operator import attrgetter
 from java.util import ArrayList
 from com.raytheon.uf.common.time import DataTime
 from com.raytheon.uf.viz.core import RGBColors
-from com.raytheon.viz.gfe.core.parm import ParmDisplayAttributes_VisMode as VisMode
+from com.raytheon.viz.gfe.core.parm import ParmDisplayAttributes
+VisMode = ParmDisplayAttributes.VisMode
 
 class PngWriter:
     def __init__(self, conf="testIFPImage", userName="", baseTime=None,

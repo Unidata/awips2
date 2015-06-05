@@ -62,7 +62,7 @@ class TextProduct(GenericHazards.TextProduct):
     Definition["fullStationID"] = "<fullStationID>"  # full station identifier (4letter)
     Definition["wmoID"] = "<wmoID>"        # WMO ID
     Definition["pil"] = "<pil>"          # product pil
-    #Definition["areaName"] = "STATENAME"  # Name of state, such as "GEORGIA"
+    #Definition["areaName"] = "Statename"  # Name of state, such as "Georgia"
     Definition["wfoCityState"] = "<wfoCityState>"  # Location of WFO - city state
     Definition["wfoCity"] = "<wfoCity>"       # WFO Name as it should appear in a text product
     Definition["textdbPil"] = "<textdbPil>"       # Product ID for storing to AWIPS text database.
@@ -80,7 +80,7 @@ class TextProduct(GenericHazards.TextProduct):
     Definition["accurateCities"] = 0  # If 1, cities are based on grids;
                                       # otherwise full list is included
     Definition["cityLocation"] = "CityLocation" # City lat/lon dictionary to use
-    Definition["cityDescriptor"] = "INCLUDING THE CITIES OF"
+    Definition["cityDescriptor"] = "Including the cities of"
     Definition["includeZoneNames"] = 1 # Zone names will be included in the area header
     Definition["includeIssueTime"] = 1   # This should be set to zero for products
                                        # that do not include a time lime below the UGC
@@ -93,8 +93,8 @@ class TextProduct(GenericHazards.TextProduct):
     #Definition["hazardSamplingThreshold"] = (10, None)  #(%cov, #points)
     
     Definition["numInHeadline"] = 1
-    Definition["GenericBullets"] = ["AFFECTED AREA", "WIND", "HUMIDITY", "THUNDERSTORMS", "HIGHEST THREAT", "IMPACTS"] 
-    Definition["locationsBullet"] = "AFFECTED AREA"
+    Definition["GenericBullets"] = ["Affected area", "Wind", "Humidity", "Thunderstorms", "Highest threat", "Impacts"] 
+    Definition["locationsBullet"] = "Affected area"
     Definition["noNameInBullet"] = 1
     Definition["includeStateName"] = 0
     Definition["urlText"] = ""
@@ -190,25 +190,25 @@ class TextProduct(GenericHazards.TextProduct):
             hazName = self.hazardName(eachHazard['hdln'], argDict, False)
 
             if nwsIntroUsed == 0:
-                hazardBodyPhrase = "THE NATIONAL WEATHER SERVICE IN " + self._wfoCity
+                hazardBodyPhrase = "The National Weather Service in " + self._wfoCity
                 nwsIntroUsed = 1
             if phraseCount == 0:
                 phraseCount = 1
-                hazardBodyPhrase = hazardBodyPhrase + " HAS ISSUED " + \
-                  hazNameA + "...WHICH IS IN EFFECT" + endTimePhrase + ". "
+                hazardBodyPhrase = hazardBodyPhrase + " has issued " + \
+                  hazNameA + "...which is in effect" + endTimePhrase + ". "
             elif phraseCount == 1:
                 phraseCount = 2
                 if hdln != lastHdln:
                     hazardBodyPhrase = hazardBodyPhrase + hazNameA + \
-                      " HAS ALSO BEEN ISSUED. THIS " + hazName + \
-                      " IS IN EFFECT" + endTimePhrase + ". "
+                      " has also been issued. This " + hazName + \
+                      " is in effect" + endTimePhrase + ". "
                 else:
                     hazardBodyPhrase = hazardBodyPhrase + hazNameA + \
-                      " HAS ALSO BEEN ISSUED" + endTimePhrase + ". "
+                      " has also been issued" + endTimePhrase + ". "
             else:
-                hazardBodyPhrase = hazardBodyPhrase + "IN ADDITION..." + \
-                  hazNameA + " HAS BEEN ISSUED. THIS " + hazName + \
-                  " IS IN EFFECT" + endTimePhrase + ". "
+                hazardBodyPhrase = hazardBodyPhrase + "In addition..." + \
+                  hazNameA + " has been issued. This " + hazName + \
+                  " is in effect" + endTimePhrase + ". "
             lastHdln = hdln
 
         # 
@@ -221,14 +221,14 @@ class TextProduct(GenericHazards.TextProduct):
             hazName = self.hazardName(eachHazard['hdln'], argDict, False)
           
             if nwsIntroUsed == 0: 
-                hazardBodyPhrase = "THE NATIONAL WEATHER SERVICE IN " +\
+                hazardBodyPhrase = "The National Weather Service in " +\
                   self._wfoCity 
                 nwsIntroUsed = 1 
                 hazardBodyPhrase = hazardBodyPhrase + \
-                 " HAS CANCELLED THE " + hazName + ". " 
+                 " has cancelled the " + hazName + ". " 
             else: 
-                hazardBodyPhrase = hazardBodyPhrase + "THE " + hazName + \
-                  " HAS BEEN CANCELLED. " 
+                hazardBodyPhrase = hazardBodyPhrase + "The " + hazName + \
+                  " has been cancelled. " 
  
         # 
         # This is for the exp hazards 
@@ -243,14 +243,14 @@ class TextProduct(GenericHazards.TextProduct):
             hazName = self.hazardName(eachHazard['hdln'], argDict, False)
              
             if eachHazard['endTime'] <= argDict['creationTime']: 
-                hazardBodyPhrase = hazardBodyPhrase + "THE " + hazName + \
-                  " IS NO LONGER IN EFFECT. " 
+                hazardBodyPhrase = hazardBodyPhrase + "The " + hazName + \
+                  " is no longer in effect. " 
             else: 
                expTimeCurrent = argDict['creationTime'] 
                timeWords = self.getTimingPhrase(eachHazard, expTimeCurrent)
                                           
-               hazardBodyPhrase = hazardBodyPhrase + "THE " + hazName + \
-                 " WILL EXPIRE " + timeWords + ". " 
+               hazardBodyPhrase = hazardBodyPhrase + "The " + hazName + \
+                 " will expire " + timeWords + ". " 
  
  # 
         # This is for ext hazards 
@@ -264,8 +264,8 @@ class TextProduct(GenericHazards.TextProduct):
             endTimePhrase = self.hazardTimePhrases(eachHazard, argDict)
             hazName = self.hazardName(eachHazard['hdln'], argDict, False)
                         
-            hazardBodyPhrase = hazardBodyPhrase + "THE " + hazName + \
-              " IS NOW IN EFFECT" + endTimePhrase + ". "
+            hazardBodyPhrase = hazardBodyPhrase + "The " + hazName + \
+              " is now in effect" + endTimePhrase + ". "
  
         # 
         # This is for upgrade hazards 
@@ -276,8 +276,8 @@ class TextProduct(GenericHazards.TextProduct):
                 continue   #no defined headline, skip phrase 
             hazName = self.hazardName(eachHazard['hdln'], argDict, False)
              
-            hazardBodyPhrase = hazardBodyPhrase + "THE " + hazName + \
-              " IS NO LONGER IN EFFECT. " 
+            hazardBodyPhrase = hazardBodyPhrase + "The " + hazName + \
+              " is no longer in effect. " 
 
         #
         # This is for con hazards
@@ -291,7 +291,7 @@ class TextProduct(GenericHazards.TextProduct):
             endTimePhrase = self.hazardTimePhrases(eachHazard, argDict)
             hazNameA = self.hazardName(eachHazard['hdln'], argDict, True)
             hazardBodyPhrase = hazardBodyPhrase + hazNameA + \
-              " REMAINS IN EFFECT" + endTimePhrase + ". "
+              " remains in effect" + endTimePhrase + ". "
 
         # 
         # This is for statement hazards 
@@ -300,7 +300,7 @@ class TextProduct(GenericHazards.TextProduct):
         #we will add in text later either by text capture or  
         #framing codes as needed
         #for eachHazard in statementList: 
-        #    hazardBodyPhrase = hazardBodyPhrase + "|* STATEMENT TEXT *|."
+        #    hazardBodyPhrase = hazardBodyPhrase + "|* Statement text *|."
          
         # 
         # This adds segment text 
@@ -406,7 +406,7 @@ class TextProduct(GenericHazards.TextProduct):
 ##                hazardBodyPhrase = hazardBodyPhrase + "\n\n" + bullets
 ##            else: 
 ##                hazardBodyPhrase = hazardBodyPhrase + \
-##                  "\n\n|* CANCELLATION TEXT GOES HERE *|.\n"  
+##                  "\n\n|* Cancellation text goes here *|.\n"  
         elif self._bulletProd:
             forceList = ['HW','DS','EH','EC','BZ','WS','IS']
             for h in newList:
@@ -414,17 +414,17 @@ class TextProduct(GenericHazards.TextProduct):
                     eachHazard = h 
             if eachHazard['act'] == 'CAN':
                 hazardBodyPhrase = hazardBodyPhrase + \
-                  "\n\n|* WRAP-UP TEXT GOES HERE *|.\n"
+                  "\n\n|* Wrap-up text goes here *|.\n"
             elif eachHazard['act'] == 'EXP':
                 hazardBodyPhrase = hazardBodyPhrase + \
-                  "\n\n|* WRAP-UP TEXT GOES HERE *|.\n"
+                  "\n\n|* Wrap-up text goes here *|.\n"
             else:
                 ### get the default bullets from the bullet dictionary
                 bullets = self._getBullets(eachHazard, argDict, self._areaDictionary)
                 hazardBodyPhrase = hazardBodyPhrase + "\n\n" + bullets
         else:
             hazardBodyPhrase = hazardBodyPhrase + \
-                  "\n\n|* SEGMENT TEXT GOES HERE *|.\n\n"
+                  "\n\n|* Segment text goes here *|.\n\n"
 # end addition
  
         #
@@ -453,13 +453,13 @@ class TextProduct(GenericHazards.TextProduct):
                  
         if len(ctas) > 0: 
             hazardBodyPhrase = hazardBodyPhrase + \
-                               'PRECAUTIONARY/PREPAREDNESS ACTIONS...\n\n'
+                               'Precautionary/preparedness actions...\n\n'
             for c in ctas: 
                 hazardBodyPhrase = hazardBodyPhrase +  c + '\n\n'
             hazardBodyPhrase = hazardBodyPhrase + '&&\n\n' 
  
         # Make sure there is only one CAP tag pairs
-        hazardBodyPhrase = re.sub(r'&&\s*PRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.\n', \
+        hazardBodyPhrase = re.sub(r'&&\s*Precautionary/preparedness actions\.\.\.\n', \
                                   "", hazardBodyPhrase) 
 
         return hazardBodyPhrase
@@ -480,7 +480,7 @@ class TextProduct(GenericHazards.TextProduct):
         if self._elevationSource == "Grids":
 
             ### initialize the phrase
-            le = " FOR "
+            le = " for "
             ### Set the phrase from the forecaster selections
             if len(self._rfwType) > 0:
                 ### add the event type
@@ -489,15 +489,15 @@ class TextProduct(GenericHazards.TextProduct):
                     le = le + phraseDict.get(t)[0]
                 ### add zone numbers or generic location description to headline
                 if self._numInHeadline == 0:
-                    le = le + "FOR |* LOCATION DESCRIPTION *|"
+                    le = le + "for |* location description *|"
                 else:
                     le = le + self._headlineNumbers(hazard['id'])
             else:
                 ### if no event type selected make a generic phrase
                 if self._numInHeadline == 0:
-                    le = le + "|* EVENT TYPE *| FOR |* LOCATION DESCRIPTION *|"
+                    le = le + "|* event type *| for |* location description *|"
                 else:
-                    le = le + "|* EVENT TYPE *| " + self._headlineNumbers(hazard['id'])
+                    le = le + "|* event type *| " + self._headlineNumbers(hazard['id'])
         else:
             ### get the additive data from the previous product
             le = self._buildForPhrase(hazard)
@@ -577,9 +577,9 @@ class TextProduct(GenericHazards.TextProduct):
         numList.sort()
         ### initialize the zone number list
         if len(numList) > 1:
-            numStr = "FOR FIRE WEATHER ZONES "
+            numStr = "for fire weather zones "
         else:
-            numStr = "FOR FIRE WEATHER ZONE "
+            numStr = "for fire weather zone "
 
         i = 0
         for i in range (len(numList)):
@@ -588,7 +588,7 @@ class TextProduct(GenericHazards.TextProduct):
             elif (len(numList) - i) > 2: ### more than three zones, and/or last zone in list
                 numStr = numStr + numList[i] + "..."
             elif (len(numList) - i) > 1: ### next to last zone in list
-                numStr = numStr + numList[i] + " AND "
+                numStr = numStr + numList[i] + " and "
 
         return numStr
 
@@ -657,7 +657,7 @@ class TextProduct(GenericHazards.TextProduct):
 
             ### include state name
             if self._includeStateName == 1:
-                nameString = nameString + "IN " + stateList[0] + "..."
+                nameString = nameString + "In " + stateList[0] + "..."
 
             ### sort based on zone number
             ugcList = sorted(ugcList, key=lambda ugc: ugc[2])
@@ -665,14 +665,14 @@ class TextProduct(GenericHazards.TextProduct):
             if self._noNameInBullet == 0:  ### include zone names and numbers
                 for i in range (len(ugcList)):
                     if (len(ugcList) - i) > 1:
-                        nameString = nameString + "FIRE WEATHER ZONE " + ugcList[i][2] + " " + ugcList[i][1] + "..."    
+                        nameString = nameString + "Fire weather zone " + ugcList[i][2] + " " + ugcList[i][1] + "..."    
                     else:
-                        nameString = nameString + "FIRE WEATHER ZONE " + ugcList[i][2] + " " + ugcList[i][1] + "."
+                        nameString = nameString + "Fire weather zone " + ugcList[i][2] + " " + ugcList[i][1] + "."
             else: ### include zone numbers 
                 if len(ugcList) > 1:
-                    nameString = nameString + "FIRE WEATHER ZONES "
+                    nameString = nameString + "Fire weather zones "
                 else:
-                    nameString = nameString + "FIRE WEATHER ZONE "
+                    nameString = nameString + "Fire weather zone "
 
                 for i in range (len(ugcList)):
                     if (len(ugcList) - i) == 1: ### one entry or last entry in list
@@ -680,14 +680,14 @@ class TextProduct(GenericHazards.TextProduct):
                     elif (len(ugcList) - i) > 2: ### more than three zones, and/or last zone in list
                         nameString = nameString + ugcList[i][2] + " " + "..."
                     elif (len(ugcList) - i) == 2: ### next to last zone in list
-                        nameString = nameString + ugcList[i][2] + " " + " AND "
+                        nameString = nameString + ugcList[i][2] + " " + " and "
         else: ### more than one state
 
             for state in stateList:
 
                 ### include state name
                 if self._includeStateName == 1:
-                    nameString = nameString + "IN " + state + "..."
+                    nameString = nameString + "In " + state + "..."
 
                 newList = []  ### split up ugcList for each state.
                 for st, name, num in ugcList:
@@ -700,14 +700,14 @@ class TextProduct(GenericHazards.TextProduct):
                 if self._noNameInBullet == 0:  ### include zone names
                     for i in range (len(newList)):
                         if (len(newList) - i) > 1:
-                            nameString = nameString + "FIRE WEATHER ZONE " + newList[i][0] + " " + newList[i][1] + "..."
+                            nameString = nameString + "Fire weather zone " + newList[i][0] + " " + newList[i][1] + "..."
                         else:
-                            nameString = nameString + "FIRE WEATHER ZONE " + newList[i][0] + " " + newList[i][1] + ". "
+                            nameString = nameString + "Fire weather zone " + newList[i][0] + " " + newList[i][1] + ". "
                 else: ### don't include zone names
                     if len(newList) > 1:
-                        nameString = nameString + "FIRE WEATHER ZONES "
+                        nameString = nameString + "Fire weather zones "
                     else:
-                        nameString = nameString + "FIRE WEATHER ZONE "
+                        nameString = nameString + "Fire weather zone "
 
                     for i in range (len(newList)):
                         if (len(newList) - i) == 1: ### one entry or last entry in list
@@ -715,7 +715,7 @@ class TextProduct(GenericHazards.TextProduct):
                         elif (len(newList) - i) > 2: ### more than three zones, and/or last zone in list
                             nameString = nameString+ newList[i][0] + " " + "..."
                         elif (len(newList) - i) == 2: ### next to last zone in list
-                            nameString = nameString + newList[i][0] + " " + " AND "
+                            nameString = nameString + newList[i][0] + " " + " and "
 
         ###  get rid of any spaces in the ellipses
         nameString = nameString.replace("... ","...")
@@ -742,7 +742,7 @@ class TextProduct(GenericHazards.TextProduct):
                 dict = self._bulletDict()
                 bList = bList + dict.get(b)[1]
 
-            bList.append("IMPACTS")
+            bList.append("Impacts")
 
         ### get the default configured list
         else:
@@ -763,19 +763,19 @@ class TextProduct(GenericHazards.TextProduct):
                 bullets = bullets + StringUtils.StringUtils().indentText(b+"..."+locations, \
                         indentFirstString="* ", indentNextString="  ", \
                         maxWidth=65,breakStrings=[" ","..."]) + "\n\n"
-            elif b == "EXTREME GRASSLAND FIRE DANGER":
-                bullets = bullets + "* " + b + "...IS FORECAST.\n\n"
+            elif b == "Extreme grassland fire danger":
+                bullets = bullets + "* " + b + "...is forecast.\n\n"
  
-            elif b == "HIGHEST THREAT": 
-                bullets = bullets + "|* * " + b + "...IS LOCATED (optional bullet)*|\n\n"
+            elif b == "Highest threat": 
+                bullets = bullets + "|* * " + b + "...is located (optional bullet)*|\n\n"
  
-            elif b == "IMPACTS":
-                bullets = bullets + "* " + b + "...ANY FIRES THAT DEVELOP WILL LIKELY SPREAD RAPIDLY."
-                bullets = bullets + " OUTDOOR BURNING IS NOT RECOMMENDED.\n\n"
+            elif b == "Impacts":
+                bullets = bullets + "* " + b + "...any fires that develop will likely spread rapidly."
+                bullets = bullets + " outdoor burning is not recommended.\n\n"
  
  
             else:
-                bullets = bullets + "* " + b + "...|* ENTER BULLET TEXT *|\n\n"
+                bullets = bullets + "* " + b + "...|* Enter bullet text *|\n\n"
 
         return bullets
  
@@ -786,7 +786,7 @@ class TextProduct(GenericHazards.TextProduct):
     ############################################################################################
  
     def _buildForPhrase (self, eHazard):
-        forPhrase = " FOR |* ENTER REASON FOR RFW *|"
+        forPhrase = " for |* enter reason for RFW *|"
  
         if eHazard.has_key('prevText'):
             prevProduct = eHazard['prevText']
@@ -810,7 +810,7 @@ class TextProduct(GenericHazards.TextProduct):
  
             else:
                     hazardTypeForWeather = ""
-            forPhrase = " FOR " + hazardTypeForWeather
+            forPhrase = " for " + hazardTypeForWeather
         return forPhrase
 
 
@@ -863,21 +863,21 @@ class TextProduct(GenericHazards.TextProduct):
         # If an overview exists for this product, insert it
         #
         overview = self.finalOverviewText()
-        overviewSearch = re.compile(r'DEFAULT OVERVIEW SECTION', re.DOTALL)
+        overviewSearch = re.compile(r'Default overview section', re.DOTALL)
         fcst = overviewSearch.sub(overview, fcst)
 
         #
         # Added to place line feeds in the CAP tags to keep separate from CTAs
 
         fcst = string.replace(fcst, \
-                              r"PRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.", \
-                              r"\nPRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.\n")
+                              r"Precautionary/preparedness actions\.\.\.", \
+                              r"\nPrecautionary/preparedness actions\.\.\.\n")
         # Commented out following line to prevent it from changing bullet indentation
         #fcst = string.replace(fcst, "\n ","\n")
         fcst = string.replace(fcst, "&&", "\n&&\n")
 
         # Prevent empty Call to Action Tags
-        fcst = re.sub(r'\nPRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.\s*&&\n', \
+        fcst = re.sub(r'\nPrecautionary/preparedness actions\.\.\.\s*&&\n', \
                       "", fcst)
 
         fcst = self._indentBulletText(fcst)

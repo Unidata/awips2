@@ -143,6 +143,7 @@ import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.viz.core.VizApp;
@@ -343,6 +344,10 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 11Sep2014   3580         mapeters    Replaced SerializationTuil usage with JAXBManager, 
  *                                      removed IQueryTransport usage (no longer exists).
  * 20Oct2014   3685         randerso    Made conversion to upper case conditional on product id
+ * 15Feb2015   4001         dgilling    Ensure all fields are set in SendPracticeProductRequest.
+ * 05Mar2015   RM 15025     kshrestha   Fix to maintain the headers that they are saved with
+ * 10Mar2015   RM 14866     kshrestha   Disable QC GUI pop up for TextWS
+ * 6Apr2015    RM14968   mgamazaychikov Fix formatting for pathcast section
  * 
  * </pre>
  * 
@@ -4958,24 +4963,29 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         if (!verifyRequiredFields()) {
             return;
         }
-        StdTextProduct prod = getStdTextProduct();
-        String afosId = prod.getCccid() + prod.getNnnid() + prod.getXxxid();
-        SendConfirmationMsg sendMsg = new SendConfirmationMsg(resend, afosId,
-                prod.getNnnid());
 
-        WarnGenConfirmationDlg wgcd = new WarnGenConfirmationDlg(shell,
-                sendMsg.getTitle(), sendMsg.getProductMessage(),
-                sendMsg.getModeMessage());
-        wgcd.setCloseCallback(new ICloseCallback() {
+        if (isWarnGenDlg == true){
+            StdTextProduct prod = getStdTextProduct();
+            String afosId = prod.getCccid() + prod.getNnnid() + prod.getXxxid();
+            SendConfirmationMsg sendMsg = new SendConfirmationMsg(resend, afosId,
+                    prod.getNnnid());
 
-            @Override
-            public void dialogClosed(Object returnValue) {
-                if (Boolean.TRUE.equals(returnValue)) {
-                    checkEmergencyProduct(resend);
+            WarnGenConfirmationDlg wgcd = new WarnGenConfirmationDlg(shell,
+                    sendMsg.getTitle(), sendMsg.getProductMessage(),
+                    sendMsg.getModeMessage());
+            wgcd.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (Boolean.TRUE.equals(returnValue)) {
+                        checkEmergencyProduct(resend);
+                    }
                 }
-            }
-        });
-        wgcd.open();
+            });
+            wgcd.open();
+        } else {
+            checkEmergencyProduct(resend);
+        }
     }
 
     /**
@@ -5108,6 +5118,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 SendPracticeProductRequest req = new SendPracticeProductRequest();
                 req.setProductText(TextDisplayModel.getInstance().getProduct(
                         token));
+                req.setNotifyGFE(true);
+                req.setDrtString(new SimpleDateFormat("yyyyMMdd_HHmm")
+                        .format(SimulatedTime.getSystemTime().getTime()));
 
                 ThriftClient.sendRequest(req);
             } catch (VizException e) {
@@ -5733,7 +5746,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         int numberOfLinesOfHeaderText = 2;
         int afosNnnLimit = 2; // first three characters is AFOS NNN
         int afosXxxLimit = 5; // second three characters is AFOS XXX
+        String prodText = textEditor.getText();
 
+       if (!prodText.startsWith("ZCZC")) {
         /*
          * DR15610 - Make sure that if the first line of the text product is not
          * a WMO heading it is treated as part of the text body.
@@ -5838,6 +5853,35 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 textEditor.setText("");
             }
         }
+       } else {
+           /**
+            * If the first word begins with "ZCZC", it is a two-line header at least,
+            * it is "ZCZC CCNNNXXX adr\r\r\nTTAA00 KCCC DDHHMM bbb\r\r\n"
+            */
+           int newLineIndex = prodText.indexOf("\n\n");
+           String first = prodText.substring(0, newLineIndex);
+
+           if (first.length() > 10 ) {
+              String rest = prodText.substring(newLineIndex+1);
+
+              headerTF.setText(first);
+              String cccnnnxxx = first.substring(5, 14);
+              setCurrentSiteId("");
+              setCurrentWmoId("");
+              setCurrentWsfoId(cccnnnxxx.substring(0, 3));
+              setCurrentProdCategory(cccnnnxxx.substring(3, 6));
+              setCurrentProdDesignator(cccnnnxxx.substring(6, 9));
+
+              try {
+                  textEditor.setText(rest.trim());
+                  textEditor.setEditable(true);
+                  textEditor.setEditable(false);
+               } catch (IllegalArgumentException e) {
+                  // There is no text product body, so set it to the empty string.
+                  textEditor.setText("");
+               }
+            }
+       }
     }
 
     /**
@@ -7887,6 +7931,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      */
     private void rewrapInternal(int lineNumber) {
         boolean inLocations = false;
+        boolean inPathcast = false;
         String padding = "";
         // get contents of line
         String line = textEditor.getLine(lineNumber);
@@ -7905,6 +7950,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             inLocations = true;
         }
 
+        // is this the pathcast paragragh?
+        if (paragraphStart.startsWith("* THIS") && paragraphStart.endsWith("WILL BE NEAR...")) {
+            inPathcast = true;
+        }
+
         if (paragraphStart.matches(METAR_PARAGRAPH)) {
             padding = "     ";
         } else if (checkParagraphPadding(paragraphStart)) {
@@ -7914,8 +7964,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             padding = "  ";
         }
 
-        if (inLocations && (paragraphStartLineNumber == lineNumber)) {
-            // Keep LOCATIONS first line short & don't paste more to it.
+        if ((inLocations || inPathcast) && (paragraphStartLineNumber == lineNumber)) {
+            // Keep LOCATIONS and PATHCAST first line short & don't paste more to it.
             if (line.indexOf("...") == line.lastIndexOf("...")) {
                 return;
             }
@@ -7995,7 +8045,13 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                                 && (allText.charAt(eol + 1) == '\n')) {
                             deleteLen = 2;
                         } else if (allText.charAt(eol) == '\n') {
-                            deleteLen = 1;
+                            if (allText.charAt(eol-1) == '.' && allText.charAt(eol-2) != '.') {
+                                // do not extend this line.
+                                return;
+                            }
+                            else {
+                                deleteLen = 1;
+                            }
                         } else {
                             return;
                         }
@@ -8140,6 +8196,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 }
             }
             textEditor.replaceTextRange(position, 0, replacement.toString());
+            // remove and extra space
+            if (textEditor.getText(position -1, position - 1).equals(" ")) {
+                textEditor.replaceTextRange(position-1, 1, "");
+            }
             ++endWrapLine;
         }
     }

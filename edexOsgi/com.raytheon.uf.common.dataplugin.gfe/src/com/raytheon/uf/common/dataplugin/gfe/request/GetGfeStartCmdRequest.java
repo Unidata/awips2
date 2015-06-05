@@ -23,7 +23,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * Request to get the startup command for GFE for the specified site.
  * 
  * <pre>
  * 

@@ -419,7 +419,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                     zoneTZ = localTZ
                     tzid = localTZid
                     LogStream.logProblem("WARNING: Entry " + area +  
-                      " missing from AreaDictionary. Using default time zone.")
+                      " missing from AreaDictionary. Using default time zone.", LogStream.exc())
 
                 if (zoneTZ, tzid) not in tzs:
                     tzs.append((zoneTZ, tzid))
@@ -665,23 +665,24 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         fcst = fcst + self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n"
         if self._productType == "AFM":
-            productDescription = "AREA FORECAST MATRICES"
+            productDescription = "Area Forecast Matrices"
         else:
-            productDescription = "POINT FORECAST MATRICES"
+            productDescription = "Point Forecast Matrices"
 
         issuedByString = self.getIssuedByString()
         
         productName = self.checkTestMode(argDict, 
           productDescription) 
         
-        fcst = fcst + self._pil + "\n\n"
-        fcst = fcst + productName + "\n"
-        fcst = fcst + "NATIONAL WEATHER SERVICE "
-        fcst = fcst + self._wfoCityState +"\n"
-        fcst = fcst + issuedByString 
-        fcst = fcst + self._mndTimeLabel + "\n\n"
+        s = self._pil + "\n\n" + \
+            productName + "\n" + \
+            "National Weather Service " + \
+            self._wfoCityState +"\n" + \
+            issuedByString + \
+            self._mndTimeLabel + "\n\n"
+        fcst = fcst + s.upper()
 
-        return fcst
+        return fcst 
 
     def _preProcessArea(self, fcst, editArea, areaLabel, argDict, timeLabel):
         # extract out the ugc codes and the area descriptors 

@@ -49,6 +49,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ---------- ----------- --------------------------
  * Nov 3,  2010            mschenke    Initial creation
  * Nov 27, 2013            mschenke    Moved into localization.perspective project
+ * Feb 11, 2015  4108      randerso    Implmented hashCode() and equals()
  * 
  * </pre>
  * 
@@ -226,4 +227,46 @@ public class LocalizationEditorInput implements IFileEditorInput,
     public String getFactoryId() {
         return FACTORY_ID;
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = (prime * result)
+                + ((localizationFile == null) ? 0 : localizationFile.hashCode());
+        return result;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        LocalizationEditorInput other = (LocalizationEditorInput) obj;
+        if (localizationFile == null) {
+            if (other.localizationFile != null) {
+                return false;
+            }
+        } else if (!localizationFile.equals(other.localizationFile)) {
+            return false;
+        }
+        return true;
+    }
+
 }

@@ -22,7 +22,7 @@
 ##
 
 import iscMosaic,iscUtil
-import os, stat, sys, re, string, traceback, types
+import os, stat, sys, re, string, types
 import time, xml, LogStream, IrtAccess
 import IrtServer
 from xml.etree import ElementTree
@@ -45,6 +45,8 @@ from java.util import ArrayList
 #    01/24/14        2504          randerso       removed obsolete A1 comments 
 #    12/08/2014      4953          randerso       Added support for sending/receiving TCV files
 #                                                 Additional code cleanup
+#    04/08/2015      4383          dgilling       Support FireWx ISC.
+#    04/23/2015      4383          randerso       Fixed exception logging
 #
 ##
 
@@ -77,7 +79,7 @@ def purgeFiles(msgid, files):
         try:
             os.remove(file)
         except:
-            logEvent("iscDataRec Failed to remove: ",file)
+            logException("iscDataRec Failed to remove file %s: ", str(file))
 
 
 def execIscDataRec(MSGID,SUBJECT,FILES):
@@ -108,7 +110,7 @@ def execIscDataRec(MSGID,SUBJECT,FILES):
                 destTree = ElementTree.ElementTree(ElementTree.XML(xmlFileBuf))
                 iscE = destTree.getroot()
             except:
-                logProblem("Malformed XML received")
+                logException("Malformed XML received")
                 return
         
         #no XML destination information. Default to dx4f,px3 98000000, 98000001
@@ -198,29 +200,12 @@ def execIscDataRec(MSGID,SUBJECT,FILES):
                 elif SUBJECT == 'GET_ACTIVE_TABLE2':
                     IrtServer.getVTECActiveTable(dataFile, xmlFileBuf) 
                 elif SUBJECT in ['ISCGRIDS', 'ISCGRIDS2']:
-                    args = {"siteID": siteConfig.GFESUITE_SITEID, 
-                            "userID": 'SITE', 
-                            "databaseID": siteConfig.GFESUITE_SITEID+"_GRID__ISC_00000000_0000",
-                            "parmsToProcess": [], 
-                            "blankOtherPeriods": True, 
-                            "startTime": None,
-                            "endTime": None, 
-                            "altMask": None,
-                            "replaceOnly": False, 
-                            "eraseFirst": False,
-                            "announce": "ISC: ", 
-                            "renameWE": True,
-                            "iscSends": False, 
-                            "inFiles": [dataFile],
-                            "ignoreMask": False, 
-                            "adjustTranslate": True,
-                            "deleteInput": True, 
-                            "parmsToIgnore": [],
-                            "gridDelay": 0.0, 
-                            "logFileName": None}                
-                    mosaic = iscMosaic.IscMosaic(args)
-                    mosaic.execute() 
-        
+                    import serverConfig
+                    
+                    additionalISCRouting = []
+                    if serverConfig.AdditionalISCRouting:
+                        additionalISCRouting = serverConfig.AdditionalISCRouting
+                    putISCGrids(dataFile, siteConfig.GFESUITE_SITEID, srcServer.get('site'), additionalISCRouting)
                 elif SUBJECT == 'ISCREQUEST':
                     IrtServer.serviceISCRequest(dataFile)
                 elif SUBJECT == 'PUT_TCV_FILES':
@@ -236,10 +221,47 @@ def execIscDataRec(MSGID,SUBJECT,FILES):
                 logEvent('Sent to:', 
                   irt.printServerInfo(destServer), "connectT=", delta1, "xmtT=", delta2)   
     except:
-        logProblem("iscDataRec failed!",traceback.format_exc())
+        logException("iscDataRec failed!")
+        
     finally:    
         # cleanup
         purgeFiles(MSGID, FILES)
+
+def putISCGrids(dataFile, destSite, srcSite, additionalISCRouting):
+    # iscMosaic now executes multiple times--once for the primary ISC database,
+    # and once more for each additional ISC database defined in the localConfig
+    args = {"siteID": destSite, 
+            "userID": 'SITE', 
+            "databaseID": destSite+"_GRID__ISC_00000000_0000",
+            "parmsToProcess": [], 
+            "blankOtherPeriods": True, 
+            "startTime": None,
+            "endTime": None, 
+            "altMask": None,
+            "replaceOnly": False, 
+            "eraseFirst": False,
+            "announce": "ISC: ", 
+            "renameWE": True,
+            "iscSends": False, 
+            "inFiles": [dataFile],
+            "ignoreMask": False, 
+            "adjustTranslate": True,
+            "deleteInput": False, 
+            "parmsToIgnore": [],
+            "gridDelay": 0.0, 
+            "logFileName": None}                
+    mosaic = iscMosaic.IscMosaic(args)
+    mosaic.execute()
+    
+    for entry in additionalISCRouting:
+        (parms, dbName, editAreaPrefix) = entry
+        parmNameList = [parm[0] + "_SFC" for parm in parms]
+        args['parmsToProcess'] = parmNameList
+        args['databaseID'] = destSite + "_GRID__" + dbName + "_00000000_0000"
+        args['altMask'] = editAreaPrefix + srcSite
+        mosaic = iscMosaic.IscMosaic(args)
+        mosaic.execute()
+
 
 #--------------------------------------------------------------------
 # Main Routine
@@ -283,8 +305,8 @@ def main(argv):
             execIscDataRec(MSGID,SUBJECT,FILES)
         
         except:
-            logProblem('Failure:', traceback.format_exc())
+            logException('Failure:')
     
     except:
-        logProblem("FAIL: ", traceback.format_exc())
+        logException("FAIL: ")
         

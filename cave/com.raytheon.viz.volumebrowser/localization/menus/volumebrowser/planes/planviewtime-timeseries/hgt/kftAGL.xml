@@ -19,10 +19,24 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <contribute xsi:type="menuItem" menuText="0 ft AGL" key="0FHAG"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="54 ft AGL" key="54ftAgl"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="2 kft AGL" key="2kftAgl"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="0-2 kft AGL" key="0-2kftAgl"
+        indentText="true" />
     <contribute xsi:type="menuItem" menuText="5 kft AGL" key="5kftAgl"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="6 kft AGL" key="6kftAgl"
         indentText="false" />
     <contribute xsi:type="menuItem" menuText="10 kft AGL"
         key="10kftAgl" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="9 kft AGL" key="9kftAgl"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="12 kft AGL" key="12kftAgl"
+        indentText="false" />
     <contribute xsi:type="menuItem" menuText="15 kft AGL"
         key="15kftAgl" indentText="false" />
     <contribute xsi:type="menuItem" menuText="20 kft AGL"

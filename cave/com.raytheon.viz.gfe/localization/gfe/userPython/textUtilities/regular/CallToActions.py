@@ -73,8 +73,8 @@ class CallToActions:
     # returns list of generic call to action statements
     def genericCTAs(self):
         return [
- """MONITOR NOAA WEATHER RADIO FOR THE LATEST INFORMATION...FORECASTS...AND WARNINGS.""",
- """LISTEN TO NOAA WEATHER RADIO OR YOUR LOCAL MEDIA FOR THE LATEST UPDATES ON THIS SITUATION.""",
+ """Monitor NOAA Weather Radio for the latest information...forecasts...and warnings.""",
+ """Listen to NOAA Weather Radio or your local media for the latest updates on this situation.""",
         ]
 
         
@@ -238,18 +238,18 @@ class CallToActions:
 #------------------------------------------------------------------------
     def winterWScta(self):
         return [
-      ("***HEAVY SNOW", """A WINTER STORM WARNING FOR HEAVY SNOW MEANS SEVERE WINTER WEATHER CONDITIONS ARE EXPECTED OR OCCURRING.  SIGNIFICANT AMOUNTS OF SNOW ARE FORECAST THAT WILL MAKE TRAVEL DANGEROUS. ONLY TRAVEL IN AN EMERGENCY. IF YOU MUST TRAVEL...KEEP AN EXTRA FLASHLIGHT...FOOD...AND WATER IN YOUR VEHICLE IN CASE OF AN EMERGENCY."""),
-      ("***SLEET", """A WINTER STORM WARNING FOR SLEET MEANS THAT A WINTER STORM SYSTEM IS IMPACTING THE AREA WITH SIGNIFICANT AMOUNTS OF SLEET. TRAVEL IS LIKELY TO BE SEVERELY IMPACTED."""),
-      ("***MIXED PRECIP", """A WINTER STORM WARNING MEANS SIGNIFICANT AMOUNTS OF SNOW...SLEET...AND ICE ARE EXPECTED OR OCCURRING. STRONG WINDS ARE ALSO POSSIBLE.  THIS WILL MAKE TRAVEL VERY HAZARDOUS OR IMPOSSIBLE."""),
+      ("***HEAVY SNOW", """A Winter Storm Warning for heavy snow means severe winter weather conditions are expected or occurring.  Significant amounts of snow are forecast that will make travel dangerous. Only travel in an emergency. If you must travel...keep an extra flashlight...food...and water in your vehicle in case of an emergency."""),
+      ("***SLEET", """A Winter Storm Warning for sleet means that a winter storm system is impacting the area with significant amounts of sleet. Travel is likely to be severely impacted."""),
+      ("***MIXED PRECIP", """A Winter Storm Warning means significant amounts of snow...sleet...and ice are expected or occurring. Strong winds are also possible.  This will make travel very hazardous or impossible."""),
               ]
 
     def winterWWcta(self):
         return [
-      ("***BLOWING SNOW", """A WINTER WEATHER ADVISORY FOR BLOWING SNOW MEANS THAT VISIBILITIES WILL BE LIMITED DUE TO STRONG WINDS BLOWING SNOW AROUND. USE CAUTION WHEN TRAVELING...ESPECIALLY IN OPEN AREAS."""),      
-      ("***SLEET", """A WINTER WEATHER ADVISORY FOR SLEET MEANS PERIODS OF SLEET ARE IMMINENT OR OCCURRING. SLEET MAY CAUSE DRIVING TO BECOME EXTREMELY DANGEROUS...SO BE PREPARED TO USE CAUTION WHEN TRAVELING."""),
-      ("***SNOW AND BLOWING SNOW", """A WINTER WEATHER ADVISORY FOR |*LAKE EFFECT*| SNOW AND BLOWING SNOW MEANS THAT VISIBILITIES WILL BE LIMITED DUE TO A COMBINATION OF FALLING AND BLOWING SNOW. USE CAUTION WHEN TRAVELING...ESPECIALLY IN OPEN AREAS."""),
-      ("***SNOW", """A WINTER WEATHER ADVISORY FOR SNOW MEANS THAT PERIODS OF SNOW WILL CAUSE PRIMARILY TRAVEL DIFFICULTIES. BE PREPARED FOR SNOW COVERED ROADS AND LIMITED VISIBILITIES...AND USE CAUTION WHILE DRIVING."""),
-      ("***MIXED PRECIP", """A WINTER WEATHER ADVISORY MEANS THAT PERIODS OF SNOW...SLEET...OR FREEZING RAIN WILL CAUSE TRAVEL DIFFICULTIES. BE PREPARED FOR SLIPPERY ROADS AND LIMITED VISIBILITIES...AND USE CAUTION WHILE DRIVING."""),
+      ("***BLOWING SNOW", """A Winter Weather Advisory for blowing snow means that visibilities will be limited due to strong winds blowing snow around. Use caution when traveling...especially in open areas."""),      
+      ("***SLEET", """A Winter Weather Advisory for sleet means periods of sleet are imminent or occurring. Sleet may cause driving to become extremely dangerous...so be prepared to use caution when traveling."""),
+      ("***SNOW AND BLOWING SNOW", """A Winter Weather Advisory for |*lake effect*| snow and blowing snow means that visibilities will be limited due to a combination of falling and blowing snow. Use caution when traveling...especially in open areas."""),
+      ("***SNOW", """A Winter Weather Advisory for snow means that periods of snow will cause primarily travel difficulties. Be prepared for snow covered roads and limited visibilities...and use caution while driving."""),
+      ("***MIXED PRECIP", """A Winter Weather Advisory means that periods of snow...sleet...or freezing rain will cause travel difficulties. Be prepared for slippery roads and limited visibilities...and use caution while driving."""),
         ]
 #------------------------------------------------------------------------
 # CALL TO ACTIONS - individual functions for each phen/sig
@@ -259,26 +259,26 @@ class CallToActions:
 
     def ctaAFW(self):
         return [ 
-"""AN ASHFALL WARNING MEANS THAT SIGNIFICANT ACCUMULATION OF VOLCANIC ASH IS EXPECTED OR OCCURRING DUE TO A VOLCANIC ERUPTION OR RESUSPENSION OF PREVIOUSLY DEPOSITED ASH.
+"""An Ashfall Warning means that significant accumulation of volcanic ash is expected or occurring due to a volcanic eruption or resuspension of previously deposited ash.
  
-SEAL WINDOWS AND DOORS.  PROTECT ELECTRONICS AND COVER AIR INTAKES AND OPEN WATER SOURCES.  AVOID DRIVING. REMAIN INDOORS UNLESS ABSOLUTELY NECESSARY.  USE EXTREME CAUTION CLEARING ROOFTOPS OF ASH.
+Seal windows and doors.  Protect electronics and cover air intakes and open water sources.  Avoid driving. Remain indoors unless absolutely necessary.  Use extreme caution clearing rooftops of ash.
 
-LISTEN TO NOAA WEATHER RADIO OR LOCAL MEDIA FOR FURTHER INFORMATION.""",
+Listen to NOAA Weather Radio or local media for further information.""",
         ]
 
     def ctaAFY(self):
         return [
- """AN ASHFALL ADVISORY MEANS THAT LARGE AMOUNTS OF ASH WILL BE DEPOSITED IN THE ADVISORY AREA. PERSONS WITH RESPIRATORY ILLNESSES SHOULD REMAIN INDOORS TO AVOID INHALING THE ASH PARTICLES...AND ALL PERSONS OUTSIDE SHOULD COVER THEIR MOUTH AND NOSE WITH A MASK OR CLOTH.""",
+ """An Ashfall Advisory means that large amounts of ash will be deposited in the advisory area. Persons with respiratory illnesses should remain indoors to avoid inhaling the ash particles...and all persons outside should cover their mouth and nose with a mask or cloth.""",
         ]
 
     def ctaASO(self):
         return [
- """AN AIR STAGNATION OUTLOOK IS ISSUED WHEN AN EXTENDED PERIOD OF WEATHER CONDITIONS ARE ANTICIPATED THAT COULD CONTRIBUTE TO POOR VENTILATION...AND THUS POTENTIALLY POOR AIR QUALITY.  BE PREPARED FOR THESE CONDITIONS TO DEVELOP IN THE NEXT 2 TO 3 DAYS...AND FOR THE ISSUANCE OF AIR STAGNATION ADVISORIES AS THE SITUATION BECOMES IMMINENT.""",
+ """An Air Stagnation Outlook is issued when an extended period of weather conditions are anticipated that could contribute to poor ventilation...and thus potentially poor air quality.  Be prepared for these conditions to develop in the next 2 to 3 days...and for the issuance of air stagnation advisories as the situation becomes imminent.""",
         ]
 
     def ctaASY(self):
         return [
- """AN AIR STAGNATION ADVISORY INDICATES THAT DUE TO LIMITED MOVEMENT OF AN AIR MASS ACROSS THE ADVISORY AREA...POLLUTION WILL INCREASE TO DANGEROUS LEVELS. PERSONS WITH RESPIRATORY ILLNESS SHOULD FOLLOW THEIR PHYSICIANS ADVICE FOR DEALING WITH HIGH LEVELS OF AIR POLLUTION.""",
+ """An Air Stagnation Advisory indicates that due to limited movement of an air mass across the advisory area...pollution will increase to dangerous levels. Persons with respiratory illness should follow their physicians advice for dealing with high levels of air pollution.""",
         ]
 
     def ctaBHS(self):
@@ -288,379 +288,379 @@ LISTEN TO NOAA WEATHER RADIO OR LOCAL MEDIA FOR FURTHER INFORMATION.""",
 
     def ctaBWY(self):
         return [
- """A BRISK WIND ADVISORY MEANS THAT WINDS WILL REACH SMALL CRAFT ADVISORY CRITERIA IN AREAS THAT ARE PRIMARILY ICE COVERED. MOVING ICE FLOES COULD DAMAGE SMALL CRAFT.""",
+ """A Brisk Wind Advisory means that winds will reach Small Craft Advisory criteria in areas that are primarily ice covered. Moving ice floes could damage small craft.""",
         ]
 
     def ctaBZA(self):
         return [
-"""A BLIZZARD WATCH MEANS THERE IS A POTENTIAL FOR FALLING AND/OR BLOWING SNOW WITH STRONG WINDS AND EXTREMELY POOR VISIBILITIES. THIS CAN LEAD TO WHITEOUT CONDITIONS AND MAKE TRAVEL VERY DANGEROUS.""",
+"""A Blizzard Watch means there is a potential for falling and/or blowing snow with strong winds and extremely poor visibilities. This can lead to whiteout conditions and make travel very dangerous.""",
         ]
 
     def ctaBZW(self):
         return [
- """A BLIZZARD WARNING MEANS SEVERE WINTER WEATHER CONDITIONS ARE EXPECTED OR OCCURRING. FALLING AND BLOWING SNOW WITH STRONG WINDS AND POOR VISIBILITIES ARE LIKELY. THIS WILL LEAD TO WHITEOUT CONDITIONS...MAKING TRAVEL EXTREMELY DANGEROUS. DO NOT TRAVEL. IF YOU MUST TRAVEL...HAVE A WINTER SURVIVAL KIT WITH YOU. IF YOU GET STRANDED...STAY WITH YOUR VEHICLE.""",
+ """A Blizzard Warning means severe winter weather conditions are expected or occurring. Falling and blowing snow with strong winds and poor visibilities are likely. This will lead to whiteout conditions...making travel extremely dangerous. Do not travel. If you must travel...have a winter survival kit with you. If you get stranded...stay with your vehicle.""",
         ]
 
     def ctaCFA(self):
         return [
- """A COASTAL FLOOD WATCH MEANS THAT CONDITIONS FAVORABLE FOR FLOODING ARE EXPECTED TO DEVELOP. COASTAL RESIDENTS SHOULD BE ALERT FOR LATER STATEMENTS OR WARNINGS...AND TAKE ACTION TO PROTECT PROPERTY.""",
+ """A Coastal Flood Watch means that conditions favorable for flooding are expected to develop. Coastal residents should be alert for later statements or warnings...and take action to protect property.""",
         ]
 
     def ctaCFW(self):
         return [
- """A COASTAL FLOOD WARNING MEANS THAT FLOODING IS OCCURRING OR IMMINENT. COASTAL RESIDENTS IN THE WARNED AREA SHOULD BE ALERT FOR RISING WATER...AND TAKE APPROPRIATE ACTION TO PROTECT LIFE AND PROPERTY.""",
+ """A Coastal Flood Warning means that flooding is occurring or imminent. Coastal residents in the warned area should be alert for rising water...and take appropriate action to protect life and property.""",
         ]
 
     def ctaCFY(self):
         return [
- """A COASTAL FLOOD ADVISORY INDICATES THAT ONSHORE WINDS AND TIDES WILL COMBINE TO GENERATE FLOODING OF LOW AREAS ALONG THE SHORE.""",
+ """A Coastal Flood Advisory indicates that onshore winds and tides will combine to generate flooding of low areas along the shore.""",
         ]
 
     def ctaDSW(self):
         return [
- """A DUST STORM WARNING MEANS SEVERELY LIMITED VISIBILITIES ARE EXPECTED WITH BLOWING DUST. TRAVEL COULD BECOME EXTREMELY DANGEROUS. PERSONS WITH RESPIRATORY PROBLEMS SHOULD MAKE PREPARATIONS TO STAY INDOORS UNTIL THE STORM PASSES.""",
+ """A Dust Storm Warning means severely limited visibilities are expected with blowing dust. Travel could become extremely dangerous. Persons with respiratory problems should make preparations to stay indoors until the storm passes.""",
         ]
 
     def ctaDUY(self):
         return [
- """A BLOWING DUST ADVISORY MEANS THAT BLOWING DUST WILL RESTRICT VISIBILITIES. TRAVELERS ARE URGED TO USE CAUTION.""",
+ """A Blowing Dust Advisory means that blowing dust will restrict visibilities. Travelers are urged to use caution.""",
         ]
 
     def ctaECA(self):
         return [
- """AN EXTREME COLD WATCH MEANS THAT PROLONGED PERIODS OF VERY COLD TEMPERATURES ARE EXPECTED. ENSURE THAT OUTDOOR ANIMALS HAVE WARM SHELTER...AND THAT CHILDREN WEAR A HAT AND GLOVES.""",
+ """An Extreme Cold Watch means that prolonged periods of very cold temperatures are expected. Ensure that outdoor animals have warm shelter...and that children wear a hat and gloves.""",
         ]
 
     def ctaECW(self):
         return [
- """AN EXTREME COLD WARNING MEAN THAT DANGEROUSLY LOW TEMPERATURES ARE EXPECTED FOR A PROLONGED PERIOD OF TIME. FROSTBITE AND HYPOTHERMIA ARE LIKELY IF EXPOSED TO THESE TEMPERATURES...SO MAKE SURE A HAT...FACEMASK...AND HEAVY GLOVES OR MITTENS ARE AVAILABLE.""",
+ """An Extreme Cold Warning means that dangerously low temperatures are expected for a prolonged period of time. Frostbite and hypothermia are likely if exposed to these temperatures...so make sure a hat...facemask...and heavy gloves or mittens are available.""",
         ]
 
     def ctaEHA(self):
         return [
- """AN EXCESSIVE HEAT WATCH MEANS THAT A PROLONGED PERIOD OF HOT TEMPERATURES IS EXPECTED. THE COMBINATION OF HOT TEMPERATURES AND HIGH HUMIDITY WILL COMBINE TO CREATE A DANGEROUS SITUATION IN WHICH HEAT ILLNESSES ARE POSSIBLE. DRINK PLENTY OF FLUIDS...STAY IN AN AIR-CONDITIONED ROOM...STAY OUT OF THE SUN...AND CHECK UP ON RELATIVES AND NEIGHBORS.""",
- """YOUNG CHILDREN AND PETS SHOULD NEVER BE LEFT UNATTENDED IN VEHICLES UNDER ANY CIRCUMSTANCES.  THIS IS ESPECIALLY TRUE DURING WARM OR HOT WEATHER WHEN CAR INTERIORS CAN REACH LETHAL TEMPERATURES IN A MATTER OF MINUTES.""", 
+ """An Excessive Heat Watch means that a prolonged period of hot temperatures is expected. The combination of hot temperatures and high humidity will combine to create a dangerous situation in which heat illnesses are possible. Drink plenty of fluids...stay in an air-conditioned room...stay out of the sun...and check up on relatives and neighbors.""",
+ """Young children and pets should never be left unattended in vehicles under any circumstances.  This is especially true during warm or hot weather when car interiors can reach lethal temperatures in a matter of minutes.""", 
         ]
 
     def ctaEHW(self):
         return [
- """TAKE EXTRA PRECAUTIONS...IF YOU WORK OR SPEND TIME OUTSIDE. WHEN POSSIBLE...RESCHEDULE STRENUOUS ACTIVITIES TO EARLY MORNING OR EVENING. KNOW THE SIGNS AND SYMPTOMS OF HEAT EXHAUSTION AND HEAT STROKE. WEAR LIGHT WEIGHT AND LOOSE FITTING CLOTHING WHEN POSSIBLE AND DRINK PLENTY OF WATER.\n\n
-    TO REDUCE RISK DURING OUTDOOR WORK...THE OCCUPATIONAL SAFETY AND HEALTH ADMINISTRATION RECOMMENDS SCHEDULING FREQUENT REST BREAKS IN SHADED OR AIR CONDITIONED ENVIRONMENTS. ANYONE OVERCOME BY HEAT SHOULD BE MOVED TO A COOL AND SHADED LOCATION.   HEAT STROKE IS AN EMERGENCY...CALL 9 1 1.\n\n
-    AN EXCESSIVE HEAT WARNING MEANS THAT A PROLONGED PERIOD OF DANGEROUSLY HOT TEMPERATURES WILL OCCUR. THE COMBINATION OF HOT TEMPERATURES AND HIGH HUMIDITY WILL COMBINE TO CREATE A DANGEROUS SITUATION IN WHICH HEAT ILLNESSES ARE LIKELY. DRINK PLENTY OF FLUIDS...STAY IN AN AIR-CONDITIONED ROOM...STAY OUT OF THE SUN...AND CHECK UP ON RELATIVES AND NEIGHBORS.\n\n
-    YOUNG CHILDREN AND PETS SHOULD NEVER BE LEFT UNATTENDED IN VEHICLES UNDER ANY CIRCUMSTANCES.  THIS IS ESPECIALLY TRUE DURING WARM OR HOT WEATHER WHEN CAR INTERIORS CAN REACH LETHAL TEMPERATURES IN A MATTER OF MINUTES.""",
+ """Take extra precautions...if you work or spend time outside. When possible...reschedule strenuous activities to early morning or evening. Know the signs and symptoms of heat exhaustion and heat stroke. Wear light weight and loose fitting clothing when possible and drink plenty of water.\n\n
+    To reduce risk during outdoor work...the occupational safety and health administration recommends scheduling frequent rest breaks in shaded or air conditioned environments. Anyone overcome by heat should be moved to a cool and shaded location.   Heat stroke is an emergency...call 9 1 1.\n\n
+    An Excessive Heat Warning means that a prolonged period of dangerously hot temperatures will occur. The combination of hot temperatures and high humidity will combine to create a dangerous situation in which heat illnesses are likely. Drink plenty of fluids...stay in an air-conditioned room...stay out of the sun...and check up on relatives and neighbors.\n\n
+    Young children and pets should never be left unattended in vehicles under any circumstances.  This is especially true during warm or hot weather when car interiors can reach lethal temperatures in a matter of minutes.""",
         ]
 
     def ctaFAA(self):
         return [
- """A FLOOD WATCH MEANS THERE IS A POTENTIAL FOR FLOODING BASED ON CURRENT FORECASTS.\n\nYOU SHOULD MONITOR LATER FORECASTS AND BE ALERT FOR POSSIBLE FLOOD WARNINGS. THOSE LIVING IN AREAS PRONE TO FLOODING SHOULD BE PREPARED TO TAKE ACTION SHOULD FLOODING DEVELOP.""",
+ """A Flood Watch means there is a potential for flooding based on current forecasts.\n\nYou should monitor later forecasts and be alert for possible Flood Warnings. Those living in areas prone to flooding should be prepared to take action should flooding develop.""",
         ]
 
     def ctaFFA(self):
         return [
- """A FLASH FLOOD WATCH MEANS THAT CONDITIONS MAY DEVELOP THAT LEAD TO FLASH FLOODING. FLASH FLOODING IS A VERY DANGEROUS SITUATION.\n\nYOU SHOULD MONITOR LATER FORECASTS AND BE PREPARED TO TAKE ACTION SHOULD FLASH FLOOD WARNINGS BE ISSUED.""",
+ """A Flash Flood Watch means that conditions may develop that lead to flash flooding. Flash flooding is a very dangerous situation.\n\nYou should monitor later forecasts and be prepared to take action should Flash Flood Warnings be issued.""",
         ]
 
     def ctaFGY(self):
         return [
-"""A DENSE FOG ADVISORY MEANS VISIBILITIES WILL FREQUENTLY BE REDUCED TO LESS THAN ONE QUARTER MILE. IF DRIVING...SLOW DOWN...USE YOUR HEADLIGHTS...AND LEAVE PLENTY OF DISTANCE AHEAD OF YOU.""",
+"""A Dense Fog Advisory means visibilities will frequently be reduced to less than one quarter mile. If driving...slow down...use your headlights...and leave plenty of distance ahead of you.""",
         ]
 
     def ctaFRY(self):
         return [
- """A FROST ADVISORY MEANS THAT WIDESPREAD FROST IS EXPECTED. SENSITIVE OUTDOOR PLANTS MAY BE KILLED IF LEFT UNCOVERED.""",
+ """A Frost Advisory means that widespread frost is expected. Sensitive outdoor plants may be killed if left uncovered.""",
         ]
 
     def ctaFWA(self):
         return [
- """A FIRE WEATHER WATCH MEANS THAT CRITICAL FIRE WEATHER CONDITIONS ARE FORECAST TO OCCUR. LISTEN FOR LATER FORECASTS AND POSSIBLE RED FLAG WARNINGS.""",
+ """A Fire Weather Watch means that critical fire weather conditions are forecast to occur. Listen for later forecasts and possible Red Flag Warnings.""",
         ]
 
     def ctaFWW(self):
         return [
- """A RED FLAG WARNING MEANS THAT CRITICAL FIRE WEATHER CONDITIONS ARE EITHER OCCURRING NOW...OR WILL SHORTLY. A COMBINATION OF STRONG WINDS...LOW RELATIVE HUMIDITY...AND WARM TEMPERATURES WILL CREATE EXPLOSIVE FIRE GROWTH POTENTIAL.""",
+ """A Red Flag Warning means that critical fire weather conditions are either occurring now...or will shortly. A combination of strong winds...low relative humidity...and warm temperatures will create explosive fire growth potential.""",
         ]
 
     def ctaFZA(self):
         return [
- """A FREEZE WATCH MEANS SUB-FREEZING TEMPERATURES ARE POSSIBLE. THESE CONDITIONS COULD KILL CROPS AND OTHER SENSITIVE VEGETATION.""",
+ """A Freeze Watch means sub-freezing temperatures are possible. These conditions could kill crops and other sensitive vegetation.""",
         ]
 
     def ctaFZW(self):
         return [
- """A FREEZE WARNING MEANS SUB-FREEZING TEMPERATURES ARE IMMINENT OR HIGHLY LIKELY. THESE CONDITIONS WILL KILL CROPS AND OTHER SENSITIVE VEGETATION.""",
+ """A Freeze Warning means sub-freezing temperatures are imminent or highly likely. These conditions will kill crops and other sensitive vegetation.""",
         ]
 
     def ctaGLA(self):
         return [
- """A GALE WATCH IS ISSUED WHEN THE RISK OF GALE FORCE WINDS OF 34 TO 47 KNOTS HAS SIGNIFICANTLY INCREASED...BUT THE SPECIFIC TIMING AND/OR LOCATION IS STILL UNCERTAIN. IT IS INTENDED TO PROVIDE ADDITIONAL LEAD TIME FOR MARINERS WHO MAY WISH TO CONSIDER ALTERING THEIR PLANS.""",
+ """A Gale Watch is issued when the risk of gale force winds of 34 to 47 knots has significantly increased...but the specific timing and/or location is still uncertain. It is intended to provide additional lead time for mariners who may wish to consider altering their plans.""",
         ]
 
     def ctaGLW(self):
         return [
- """A GALE WARNING MEANS WINDS OF 34 TO 47 KNOTS ARE IMMINENT OR OCCURING. OPERATING A VESSEL IN GALE CONDITIONS REQUIRES EXPERIENCE AND PROPERLY EQUIPPED VESSELS. IT IS HIGHLY RECOMMENDED THAT MARINERS WITHOUT THE PROPER EXPERIENCE SEEK SAFE HARBOR PRIOR TO THE ONSET OF GALE CONDITIONS.""",
+ """A Gale Warning means winds of 34 to 47 knots are imminent or occuring. Operating a vessel in gale conditions requires experience and properly equipped vessels. It is highly recommended that mariners without the proper experience seek safe harbor prior to the onset of gale conditions.""",
         ]
 
     def ctaHFA(self):
         return [
- """A HURRICANE FORCE WIND WATCH IS ISSUED WHEN THE RISK OF HURRICANE FORCE WINDS OF 64 KNOTS OR GREATER HAS SIGNIFICANTLY INCREASED...BUT THE SPECIFIC TIMING AND/OR LOCATION IS STILL UNCERTAIN.  IT IS INTENDED TO PROVIDE ADDITIONAL LEAD TIME FOR MARINERS WHO MAY WISH TO CONSIDER ALTERING THEIR PLANS.""",
+ """A Hurricane Force Wind Watch is issued when the risk of hurricane force winds of 64 knots or greater has significantly increased...but the specific timing and/or location is still uncertain.  It is intended to provide additional lead time for mariners who may wish to consider altering their plans.""",
         ]
 
     def ctaHFW(self):
         return [
- """A HURRICANE FORCE WIND WARNING MEANS WINDS OF 64 KNOTS OR GREATER ARE IMMINENT OR OCCURING. ALL VESSELS SHOULD REMAIN IN PORT...OR TAKE SHELTER AS SOON AS POSSIBLE...UNTIL WINDS AND WAVES SUBSIDE.""",
+ """A Hurricane Force Wind Warning means winds of 64 knots or greater are imminent or occuring. All vessels should remain in port...or take shelter as soon as possible...until winds and waves subside.""",
         ]
 
     def ctaHTY(self):
         return [
- """TAKE EXTRA PRECAUTIONS...IF YOU WORK OR SPEND TIME OUTSIDE. WHEN POSSIBLE...RESCHEDULE STRENUOUS ACTIVITIES TO EARLY MORNING OR EVENING. KNOW THE SIGNS AND SYMPTOMS OF HEAT EXHAUSTION AND HEAT STROKE. WEAR LIGHT WEIGHT AND LOOSE FITTING CLOTHING WHEN POSSIBLE AND DRINK PLENTY OF WATER.\n\n
-    TO REDUCE RISK DURING OUTDOOR WORK...THE OCCUPATIONAL SAFETY AND HEALTH ADMINISTRATION RECOMMENDS SCHEDULING FREQUENT REST BREAKS IN SHADED OR AIR CONDITIONED ENVIRONMENTS. ANYONE OVERCOME BY HEAT SHOULD BE MOVED TO A COOL AND SHADED LOCATION.   HEAT STROKE IS AN EMERGENCY...CALL 9 1 1.\n\n
-    A HEAT ADVISORY MEANS THAT A PERIOD OF HOT TEMPERATURES IS EXPECTED. THE COMBINATION OF HOT TEMPERATURES AND HIGH HUMIDITY WILL COMBINE TO CREATE A SITUATION IN WHICH HEAT ILLNESSES ARE POSSIBLE. DRINK PLENTY OF FLUIDS...STAY IN AN AIR-CONDITIONED ROOM...STAY OUT OF THE SUN...AND CHECK UP ON RELATIVES AND NEIGHBORS.""",
+ """Take extra precautions...if you work or spend time outside. When possible...reschedule strenuous activities to early morning or evening. Know the signs and symptoms of heat exhaustion and heat stroke. Wear light weight and loose fitting clothing when possible and drink plenty of water.\n\n
+    To reduce risk during outdoor work...the occupational safety and health administration recommends scheduling frequent rest breaks in shaded or air conditioned environments. Anyone overcome by heat should be moved to a cool and shaded location.   Heat stroke is an emergency...call 9 1 1.\n\n
+    A Heat Advisory means that a period of hot temperatures is expected. The combination of hot temperatures and high humidity will combine to create a situation in which heat illnesses are possible. Drink plenty of fluids...stay in an air-conditioned room...stay out of the sun...and check up on relatives and neighbors.""",
         ]
 
     def ctaHUA(self):
         return [
- """A HURRICANE WATCH IS ISSUED WHEN SUSTAINED WINDS OF |* 64 KTS OR 74 MPH *| OR HIGHER ASSOCIATED WITH A HURRICANE ARE POSSIBLE WITHIN 48 HOURS.""",
+ """A Hurricane Watch is issued when sustained winds of |* 64 kts or 74 mph *| or higher associated with a hurricane are possible within 48 hours.""",
         ] 
 
     def ctaHUW(self):
         return [
- """A HURRICANE WARNING MEANS SUSTAINED WINDS OF |* 64 KTS OR 74 MPH *| OR HIGHER ASSOCIATED WITH A HURRICANE ARE EXPECTED WITHIN 36 HOURS. A HURRICANE WARNING CAN REMAIN IN EFFECT WHEN DANGEROUSLY HIGH WATER OR A COMBINATION OF DANGEROUSLY HIGH WATER AND EXCEPTIONALLY HIGH WAVES CONTINUE...EVEN THOUGH WINDS MAY BE LESS THAN HURRICANE FORCE.""",
+ """A Hurricane Warning means sustained winds of |* 64 kts or 74 mph *| or higher associated with a hurricane are expected within 36 hours. A Hurricane Warning can remain in effect when dangerously high water or a combination of dangerously high water and exceptionally high waves continue...even though winds may be less than hurricane force.""",
         ] 
     
     def ctaHWA(self):
         return [
- """A HIGH WIND WATCH MEANS THERE IS THE POTENTIAL FOR A HAZARDOUS HIGH WIND EVENT. SUSTAINED WINDS OF AT LEAST 40 MPH...OR GUSTS OF 58 MPH OR STRONGER MAY OCCUR. CONTINUE TO MONITOR THE LATEST FORECASTS.""",
+ """A High Wind Watch means there is the potential for a hazardous high wind event. Sustained winds of at least 40 mph...or gusts of 58 mph or stronger may occur. Continue to monitor the latest forecasts.""",
         ]
 
     def ctaHWW(self):
         return [
- """A HIGH WIND WARNING MEANS A HAZARDOUS HIGH WIND EVENT IS EXPECTED OR OCCURRING. SUSTAINED WIND SPEEDS OF AT LEAST 40 MPH OR GUSTS OF 58 MPH OR MORE CAN LEAD TO PROPERTY DAMAGE.""",
+ """A High Wind Warning means a hazardous high wind event is expected or occurring. Sustained wind speeds of at least 40 mph or gusts of 58 mph or more can lead to property damage.""",
         ]
 
     def ctaHZA(self):
         return [
- """A HARD FREEZE WATCH MEANS SUB-FREEZING TEMPERATURES ARE POSSIBLE. THESE CONDITIONS COULD KILL CROPS AND OTHER SENSITIVE VEGETATION.""",
+ """A Hard Freeze Watch means sub-freezing temperatures are possible. These conditions could kill crops and other sensitive vegetation.""",
         ]
 
     def ctaHZW(self):
         return [
- """A HARD FREEZE WARNING MEANS SUB-FREEZING TEMPERATURES ARE IMMINENT OR HIGHLY LIKELY. THESE CONDITIONS WILL KILL CROPS AND OTHER SENSITIVE VEGETATION.""",
+ """A Hard Freeze Warning means sub-freezing temperatures are imminent or highly likely. These conditions will kill crops and other sensitive vegetation.""",
         ]
 
     def ctaISW(self):
         return [
- """AN ICE STORM WARNING MEANS SEVERE WINTER WEATHER CONDITIONS ARE EXPECTED OR OCCURRING. SIGNIFICANT AMOUNTS OF ICE ACCUMULATIONS WILL MAKE TRAVEL DANGEROUS OR IMPOSSIBLE. TRAVEL IS STRONGLY DISCOURAGED. COMMERCE WILL LIKELY BE SEVERELY IMPACTED. IF YOU MUST TRAVEL...KEEP AN EXTRA FLASHLIGHT...FOOD...AND WATER IN YOUR VEHICLE IN CASE OF AN EMERGENCY. ICE ACCUMULATIONS AND WINDS WILL LIKELY LEAD TO SNAPPED POWER LINES AND FALLING TREE BRANCHES THAT ADD TO THE DANGER.""",
+ """An Ice Storm Warning means severe winter weather conditions are expected or occurring. Significant amounts of ice accumulations will make travel dangerous or impossible. Travel is strongly discouraged. Commerce will likely be severely impacted. If you must travel...keep an extra flashlight...food...and water in your vehicle in case of an emergency. Ice accumulations and winds will likely lead to snapped power lines and falling tree branches that add to the danger.""",
         ]
 
     def ctaLEA(self):
          return [
- """A LAKE EFFECT SNOW WATCH MEANS THERE IS A POTENTIAL FOR A LARGE AMOUNT OF SNOW IN ONLY A FEW HOURS. VISIBILITIES AND DEPTH OF SNOW CAN VARY GREATLY...IMPACTING TRAVEL SIGNIFICANTLY. CONTINUE TO MONITOR THE LATEST FORECASTS.""",
+ """A Lake Effect Snow Watch means there is a potential for a large amount of snow in only a few hours. Visibilities and depth of snow can vary greatly...impacting travel significantly. Continue to monitor the latest forecasts.""",
         ]
 
     def ctaLEW(self):
         return [
- """A LAKE EFFECT SNOW WARNING MEANS SIGNIFICANT AMOUNTS OF LAKE-EFFECT SNOW ARE FORECAST THAT WILL MAKE TRAVEL VERY HAZARDOUS OR IMPOSSIBLE. LAKE-EFFECT SNOW SHOWERS TYPICALLY ALIGN THEMSELVES IN BANDS AND WILL LIKELY BE INTENSE ENOUGH TO DROP 1 TO SEVERAL INCHES OF SNOW PER HOUR FOR SEVERAL HOURS. VISIBILITIES VARY GREATLY AND CAN DROP TO ZERO WITHIN MINUTES.  TRAVEL IS STRONGLY DISCOURAGED. COMMERCE COULD BE SEVERELY IMPACTED. IF YOU MUST TRAVEL...KEEP AN EXTRA FLASHLIGHT...FOOD...AND WATER IN YOUR VEHICLE IN CASE OF AN EMERGENCY.""",
+ """A Lake Effect Snow Warning means significant amounts of lake-effect snow are forecast that will make travel very hazardous or impossible. Lake-effect snow showers typically align themselves in bands and will likely be intense enough to drop 1 to several inches of snow per hour for several hours. Visibilities vary greatly and can drop to zero within minutes.  Travel is strongly discouraged. Commerce could be severely impacted. If you must travel...keep an extra flashlight...food...and water in your vehicle in case of an emergency.""",
         ]
 
     def ctaLEY(self):
         return [
- """A LAKE EFFECT SNOW ADVISORY MEANS LAKE-EFFECT SNOW IS FORECAST THAT WILL MAKE TRAVEL DIFFICULT IN SOME AREAS. LAKE-EFFECT SNOW SHOWERS TYPICALLY ALIGN THEMSELVES IN BANDS AND WILL LIKELY BE INTENSE ENOUGH TO DROP SEVERAL INCHES IN LOCALIZED AREAS. USE CAUTION WHEN TRAVELING.""",
+ """A Lake Effect Snow Advisory means lake-effect snow is forecast that will make travel difficult in some areas. Lake-effect snow showers typically align themselves in bands and will likely be intense enough to drop several inches in localized areas. Use caution when traveling.""",
         ]
 
     def ctaLOY(self):
         return [
- """A LOW WATER ADVISORY MEANS WATER LEVELS ARE EXPECTED TO BE SIGNIFICANTLY BELOW AVERAGE. MARINERS SHOULD USE EXTREME CAUTION AND TRANSIT AT THE SLOWEST SAFE NAVIGABLE SPEED TO MINIMIZE IMPACT.""",
+ """A Low Water Advisory means water levels are expected to be significantly below average. Mariners should use extreme caution and transit at the slowest safe navigable speed to minimize impact.""",
         ]
 
     def ctaLSA(self):
         return [
- """A LAKESHORE FLOOD WATCH MEANS THAT CONDITIONS FAVORABLE FOR LAKESHORE FLOODING ARE EXPECTED TO DEVELOP. RESIDENTS ON OR NEAR THE SHORE SHOULD TAKE ACTION TO PROTECT PROPERTY...AND LISTEN FOR LATER STATEMENTS OR WARNINGS.""",
+ """A Lakeshore Flood Watch means that conditions favorable for lakeshore flooding are expected to develop. Residents on or near the shore should take action to protect property...and listen for later statements or warnings.""",
         ]
 
     def ctaLSW(self):
         return [
- """A LAKESHORE FLOOD WARNING MEANS THAT FLOODING IS OCCURRING OR IMMINENT ALONG THE LAKE. RESIDENTS ON OR NEAR THE SHORE IN THE WARNED AREA SHOULD BE ALERT FOR RISING WATER...AND TAKE APPROPRIATE ACTION TO PROTECT LIFE AND PROPERTY.""",
+ """A Lakeshore Flood Warning means that flooding is occurring or imminent along the lake. Residents on or near the shore in the warned area should be alert for rising water...and take appropriate action to protect life and property.""",
         ]
 
     def ctaLSY(self):
         return [
- """A LAKESHORE FLOOD ADVISORY INDICATES THAT ONSHORE WINDS WILL GENERATE FLOODING OF LOW AREAS ALONG THE LAKESHORE.""",
+ """A Lakeshore Flood Advisory indicates that onshore winds will generate flooding of low areas along the lakeshore.""",
         ]
 
     def ctaLWY(self):
         return [
- """A LAKE WIND ADVISORY INDICATES THAT WINDS WILL CAUSE ROUGH CHOP ON AREA LAKES. SMALL BOATS WILL BE ESPECIALLY PRONE TO CAPSIZING.""",
+ """A Lake Wind Advisory indicates that winds will cause rough chop on area lakes. Small boats will be especially prone to capsizing.""",
         ]
 
     def ctaMHW(self):
         return [
- """AN ASHFALL WARNING MEANS THAT SIGNIFICANT ACCUMULATION OF ASHFALL IS EXPECTED ON VESSELS. IT IS RECOMMENDED THAT VESSELS BE PREPARED TO TAKE THE NECESSARY COUNTER MEASURES BEFORE PUTTING TO SEA OR ENTERING THE WARNING AREA.""",
+ """An Ashfall Warning means that significant accumulation of ashfall is expected on vessels. It is recommended that vessels be prepared to take the necessary counter measures before putting to sea or entering the warning area.""",
         ]
 
     def ctaMFY(self):
         return [
-"""A DENSE FOG ADVISORY MEANS VISIBILITIES WILL FREQUENTLY BE REDUCED TO LESS THAN ONE MILE. INEXPERIENCED MARINERS...ESPECIALLY THOSE OPERATING SMALLER VESSELS SHOULD AVOID NAVIGATING IN THESE CONDITIONS. """,
+"""A Dense Fog Advisory means visibilities will frequently be reduced to less than one mile. Inexperienced mariners...especially those operating smaller vessels should avoid navigating in these conditions. """,
         ]
 
     def ctaMHY(self):
         return [
-"""AN ASHFALL ADVISORY MEANS THAT A LIGHT ACCUMULATION OF ASHFALL IS EXPECTED ON VESSELS. IT IS RECOMMENDED THAT VESSELS BE PREPARED TO TAKE APPROPRIATE COUNTER MEASURES BEFORE PUTTING TO SEA OR ENTERING THE ADVISORY AREA.""",
+"""An Ashfall Advisory means that a light accumulation of ashfall is expected on vessels. It is recommended that vessels be prepared to take appropriate counter measures before putting to sea or entering the advisory area.""",
         ]
 
     def ctaMSY(self):
         return [
- """A DENSE SMOKE ADVISORY MEANS WIDESPREAD FIRES WILL CREATE SMOKE...LIMITING VISIBILITIES. INEXPERIENCED MARINERS...ESPECIALLY THOSE OPERATING SMALLER VESSELS SHOULD AVOID NAVIGATING IN THESE CONDITIONS.""",
+ """A Dense Smoke Advisory means widespread fires will create smoke...limiting visibilities. Inexperienced mariners...especially those operating smaller vessels should avoid navigating in these conditions.""",
         ]
 
     def ctaRBY(self):
         return [
- """A SMALL CRAFT ADVISORY FOR ROUGH BAR MEANS THAT WAVE CONDITIONS ARE EXPECTED TO BE HAZARDOUS TO SMALL CRAFT IN OR NEAR HARBOR ENTRANCES.""",
+ """A Small Craft Advisory for rough bar means that wave conditions are expected to be hazardous to small craft in or near harbor entrances.""",
         ]
 
     def ctaRPS(self):
         return [
- """THERE IS A HIGH RISK OF RIP CURRENTS.
+ """There is a high risk of rip currents.
 
-RIP CURRENTS ARE POWERFUL CHANNELS OF WATER FLOWING QUICKLY AWAY FROM SHORE...WHICH OCCUR MOST OFTEN AT LOW SPOTS OR BREAKS IN THE SANDBAR AND IN THE VICINITY OF STRUCTURES SUCH AS GROINS...JETTIES AND PIERS. HEED THE ADVICE OF LIFEGUARDS...BEACH PATROL FLAGS AND SIGNS.
+Rip currents are powerful channels of water flowing quickly away from shore...which occur most often at low spots or breaks in the sandbar and in the vicinity of structures such as groins...jetties and piers. Heed the advice of lifeguards...beach patrol flags and signs.
 
-IF YOU BECOME CAUGHT IN A RIP CURRENT...YELL FOR HELP. REMAIN CALM...do not exhaust yourself and stay afloat while waiting for help. If you have to swim out of a rip current...SWIM PARALLEL TO SHORE and back toward the beach when possible. DO NOT ATTEMPT TO SWIM DIRECTLY AGAINST A RIP CURRENT as you will tire quickly. """,               
+If you become caught in a rip current...yell for help. Remain calm...do not exhaust yourself and stay afloat while waiting for help. If you have to swim out of a rip current...swim parallel to shore and back toward the beach when possible. Do not attempt to swim directly against a rip current as you will tire quickly. """,               
         ]
 
     def ctaSCY(self):
         return [
- """A SMALL CRAFT ADVISORY MEANS THAT WIND SPEEDS OF 21 TO 33 KNOTS ARE EXPECTED TO PRODUCE HAZARDOUS WAVE CONDITIONS TO SMALL CRAFT. INEXPERIENCED MARINERS...ESPECIALLY THOSE OPERATING SMALLER VESSELS SHOULD AVOID NAVIGATING IN THESE CONDITIONS.""",
+ """A Small Craft Advisory means that wind speeds of 21 to 33 knots are expected to produce hazardous wave conditions to small craft. Inexperienced mariners...especially those operating smaller vessels should avoid navigating in these conditions.""",
         ]
 
     def ctaSEA(self):
         return [
- """A HAZARDOUS SEAS WATCH IS ISSUED WHEN THE RISK OF HAZARDOUS SEAS HAS SIGNIFICANTLY INCREASED...BUT THE SPECIFIC TIMING AND/OR LOCATION IS STILL UNCERTAIN.  IT IS INTENDED TO PROVIDE ADDITIONAL LEAD TIME FOR MARINERS WHO MAY WISH TO CONSIDER ALTERING THEIR PLANS.""",
+ """A Hazardous Seas Watch is issued when the risk of hazardous seas has significantly increased...but the specific timing and/or location is still uncertain.  It is intended to provide additional lead time for mariners who may wish to consider altering their plans.""",
         ]
 
     def ctaSEW(self):
         return [
- """A HAZARDOUS SEAS WARNING MEANS HAZARDOUS SEA CONDITIONS ARE IMMINENT OR OCCURING. RECREATIONAL BOATERS SHOULD REMAIN IN PORT...OR TAKE SHELTER UNTIL WAVES SUBSIDE.  COMMERCIAL VESSELS SHOULD PREPARE FOR ROUGH SEAS AND CONSIDER REMAINING IN PORT OR TAKING SHELTER IN PORT UNTIL HAZARDOUS SEAS SUBSIDE.""",
+ """A Hazardous Seas Warning means hazardous sea conditions are imminent or occurring. Recreational boaters should remain in port...or take shelter until waves subside.  Commercial vessels should prepare for rough seas and consider remaining in port or taking shelter in port until hazardous seas subside.""",
         ]
 
     def ctaSIY(self):
         return [
- """A SMALL CRAFT ADVISORY FOR WIND MEANS THAT WIND SPEEDS OF 21 TO 33 KNOTS ARE EXPECTED. INEXPERIENCED MARINERS...ESPECIALLY THOSE OPERATING SMALLER VESSELS SHOULD AVOID NAVIGATING IN THESE CONDITIONS.""",
+ """A Small Craft Advisory for wind means that wind speeds of 21 to 33 knots are expected. Inexperienced mariners...especially those operating smaller vessels should avoid navigating in these conditions.""",
         ]
 
     def ctaSMY(self):
         return [
- """A DENSE SMOKE ADVISORY MEANS WIDESPREAD FIRES WILL CREATE SMOKE...LIMITING VISIBILITIES. IF DRIVING...SLOW DOWN...USE YOUR HEADLIGHTS...AND LEAVE PLENTY OF DISTANCE AHEAD OF YOU IN CASE A SUDDEN STOP IS NEEDED.""",
+ """A Dense Smoke Advisory means widespread fires will create smoke...limiting visibilities. If driving...slow down...use your headlights...and leave plenty of distance ahead of you in case a sudden stop is needed.""",
         ]
 
     def ctaSRA(self):
         return [
- """A STORM WATCH IS ISSUED WHEN THE RISK OF STORM FORCE WINDS OF 48 TO 63 KNOTS HAS SIGNIFICANTLY INCREASED...BUT THE SPECIFIC TIMING AND/OR LOCATION IS STILL UNCERTAIN.  IT IS INTENDED TO PROVIDE ADDITIONAL LEAD TIME FOR MARINERS WHO MAY WISH TO CONSIDER ALTERING THEIR PLANS.""",
+ """A Storm Watch is issued when the risk of storm force winds of 48 to 63 knots has significantly increased...but the specific timing and/or location is still uncertain.  It is intended to provide additional lead time for mariners who may wish to consider altering their plans.""",
         ]
 
     def ctaSRW(self):
         return [
- """A STORM WARNING MEANS WINDS OF 48 TO 63 KNOTS ARE IMMINENT OR OCCURING. RECREATIONAL BOATERS SHOULD REMAIN IN PORT...OR TAKE SHELTER UNTIL WINDS AND WAVES SUBSIDE. COMMERCIAL VESSELS SHOULD PREPARE FOR VERY STRONG WINDS AND DANGEROUS SEA CONDITIONS...AND CONSIDER REMAINING IN PORT OR TAKING SHELTER IN PORT UNTIL WINDS AND WAVES SUBSIDE.""",
+ """A Storm Warning means winds of 48 to 63 knots are imminent or occuring. Recreational boaters should remain in port...or take shelter until winds and waves subside. Commercial vessels should prepare for very strong winds and dangerous sea conditions...and consider remaining in port or taking shelter in port until winds and waves subside.""",
         ]
 
     def ctaSUW(self):
         return [
- """A HIGH SURF WARNING INDICATES THAT DANGEROUS...BATTERING WAVES WILL POUND THE SHORELINE. THIS WILL RESULT IN LIFE-THREATENING CONDITIONS.""",
+ """A High Surf Warning indicates that dangerous...battering waves will pound the shoreline. This will result in life-threatening conditions.""",
         ]
 
     def ctaSUY(self):
         return [
- """A HIGH SURF ADVISORY MEANS THAT HIGH SURF WILL AFFECT BEACHES IN THE ADVISORY AREA...PRODUCING LOCALIZED BEACH EROSION AND DANGEROUS SWIMMING CONDITIONS.""",
+ """A High Surf Advisory means that high surf will affect beaches in the advisory area...producing localized beach erosion and dangerous swimming conditions.""",
         ]
 
     def ctaSWY(self):
         return [
- """A SMALL CRAFT ADVISORY FOR HAZARDOUS SEAS MEANS THAT WAVES ARE EXPECTED TO BE HAZARDOUS TO SMALL CRAFT. MARINERS SHOULD AVOID SHOALING AREAS. LONG PERIOD SWELL CAN SHARPEN INTO LARGE BREAKING WAVES IN SHOALING AREAS. IT IS NOT UNUSUAL FOR WAVES TO BREAK MUCH FARTHER FROM SHOALING AREAS THAN IS NORMALLY EXPERIENCED. REMEMBER...BREAKING WAVES CAN EASILY CAPSIZE EVEN LARGER VESSELS.""",
+ """A Small Craft Advisory for hazardous seas means that waves are expected to be hazardous to small craft. Mariners should avoid shoaling areas. Long period swell can sharpen into large breaking waves in shoaling areas. It is not unusual for waves to break much farther from shoaling areas than is normally experienced. Remember...breaking waves can easily capsize even larger vessels.""",
         ]
 
     def ctaTRA(self):
         return [
- """A TROPICAL STORM WATCH MEANS SUSTAINED WINDS OF |* 34 TO 63 KT OR 39 TO 73 MPH OR 63 TO 118 KM PER HR *| ARE POSSIBLE DUE TO A TROPICAL STORM WITHIN 48 HOURS.""",
+ """A Tropical Storm Watch means sustained winds of |* 34 to 63 kt or 39 to 73 mph or 63 to 118 km per hr *| are possible due to a tropical storm within 48 hours.""",
         ] 
 
     def ctaTRW(self):
         return [
- """A TROPICAL STORM WARNING MEANS SUSTAINED WINDS OF |* 34 TO 63 KT OR 39 TO 73 MPH OR 63 TO 118 KM PER HR *| ARE EXPECTED DUE TO A TROPICAL STORM WITHIN 36 HOURS.""",
+ """A Tropical Storm Warning means sustained winds of |* 34 to 63 kt or 39 to 73 mph or 63 to 118 km per hr *| are expected due to a tropical storm within 36 hours.""",
         ] 
 
     def ctaUPA(self):
         return [
- """A HEAVY FREEZING SPRAY WATCH IS ISSUED WHEN THE RISK OF HEAVY FREEZING SPRAY HAS SIGNIFICANTLY INCREASED...BUT THE SPECIFIC TIMING AND/OR LOCATION IS STILL UNCERTAIN.  IT IS INTENDED TO PROVIDE ADDITIONAL LEAD TIME FOR MARINERS WHO MAY WISH TO CONSIDER ALTERING THEIR PLANS.""",
+ """A Heavy Freezing Spray Watch is issued when the risk of heavy freezing spray has significantly increased...but the specific timing and/or location is still uncertain.  It is intended to provide additional lead time for mariners who may wish to consider altering their plans.""",
         ]
 
     def ctaUPW(self):
         return [
- """A HEAVY FREEZING SPRAY WARNING MEANS HEAVY FREEZING SPRAY IS EXPECTED TO RAPIDLY ACCUMULATE ON VESSELS. THESE CONDITIONS CAN BE EXTREMELY HAZARDOUS TO NAVIGATION. IT IS RECOMMENDED THAT MARINERS NOT TRAINED TO OPERATE IN THESE CONDITIONS OR VESSELS NOT PROPERLY EQUIPED TO DO SO...REMAIN IN PORT OR AVOID THE WARING AREA.""",
+ """A Heavy Freezing Spray Warning means heavy freezing spray is expected to rapidly accumulate on vessels. These conditions can be extremely hazardous to navigation. It is recommended that mariners not trained to operate in these conditions or vessels not properly equiped to do so...remain in port or avoid the waring area.""",
         ]
 
     def ctaUPY(self):
         return [
- """A FREEZING SPRAY ADVISORY MEANS THAT LIGHT TO MODERATE ACCUMULATION OF ICE IS EXPECTED ON VESSELS. OPERATING A VESSEL IN FREEZING SPRAY CAN BE HAZARDOUS. IT IS RECOMMENDED THAT VESSELS BE PREPARED TO TAKE APPROPRIATE COUNTER MEASURES BEFORE PUTTING TO SEA OR ENTER THE ADVISORY AREA.""",
+ """A Freezing Spray Advisory means that light to moderate accumulation of ice is expected on vessels. Operating a vessel in freezing spray can be hazardous. It is recommended that vessels be prepared to take appropriate counter measures before putting to sea or enter the advisory area.""",
         ]
 
     def ctaWCA(self):
         return [
- """A WIND CHILL WATCH MEANS THE THERE IS THE POTENTIAL FOR A COMBINATION OF VERY COLD AIR AND STRONG WINDS TO CREATE DANGEROUSLY LOW WIND CHILL VALUES. MONITOR THE LATEST FORECASTS AND WARNINGS FOR UPDATES ON THIS SITUATION.""",
+ """A Wind Chill Watch means the there is the potential for a combination of very cold air and strong winds to create dangerously low wind chill values. Monitor the latest forecasts and warnings for updates on this situation.""",
         ]
 
     def ctaWCW(self):
         return [
- """A WIND CHILL WARNING MEANS THE COMBINATION OF VERY COLD AIR AND STRONG WINDS WILL CREATE DANGEROUSLY LOW WIND CHILL VALUES. THIS WILL RESULT IN FROST BITE AND LEAD TO HYPOTHERMIA OR DEATH IF PRECAUTIONS ARE NOT TAKEN.""",
+ """A Wind Chill Warning means the combination of very cold air and strong winds will create dangerously low wind chill values. This will result in frost bite and lead to hypothermia or death if precautions are not taken.""",
         ]
 
     def ctaWCY(self):
         return [
- """A WIND CHILL ADVISORY MEANS THAT VERY COLD AIR AND STRONG WINDS WILL COMBINE TO GENERATE LOW WIND CHILLS. THIS WILL RESULT IN FROST BITE AND LEAD TO HYPOTHERMIA IF PRECAUTIONS ARE NOT TAKEN.  IF YOU MUST VENTURE OUTDOORS...MAKE SURE YOU WEAR A HAT AND GLOVES.""",
+ """A Wind Chill Advisory means that very cold air and strong winds will combine to generate low wind chills. This will result in frost bite and lead to hypothermia if precautions are not taken.  If you must venture outdoors...make sure you wear a hat and gloves.""",
         ]
 
     def ctaWIY(self):
         return [
- """A WIND ADVISORY MEANS THAT WINDS OF 35 MPH ARE EXPECTED. WINDS THIS STRONG CAN MAKE DRIVING DIFFICULT...ESPECIALLY FOR HIGH PROFILE VEHICLES. USE EXTRA CAUTION.""",
+ """A Wind Advisory means that winds of 35 mph are expected. Winds this strong can make driving difficult...especially for high profile vehicles. Use extra caution.""",
         ]
 
     def ctaWSA(self):
         return [
- """A WINTER STORM WATCH MEANS THERE IS A POTENTIAL FOR SIGNIFICANT SNOW...SLEET...OR ICE ACCUMULATIONS THAT MAY IMPACT TRAVEL. CONTINUE TO MONITOR THE LATEST FORECASTS.""",
+ """A Winter Storm Watch means there is a potential for significant snow...sleet...or ice accumulations that may impact travel. Continue to monitor the latest forecasts.""",
         ]
 
     def ctaWSW(self):
         return [
- """|*Choose the appropriate CTA below and delete the rest*|
+ """|*Choose the appropriate CTA below and delete the rest*|""" """
 
-A WINTER STORM WARNING FOR HEAVY SNOW MEANS SEVERE WINTER WEATHER CONDITIONS ARE EXPECTED OR OCCURRING.  SIGNIFICANT AMOUNTS OF SNOW ARE FORECAST THAT WILL MAKE TRAVEL DANGEROUS. ONLY TRAVEL IN AN EMERGENCY. IF YOU MUST TRAVEL...KEEP AN EXTRA FLASHLIGHT...FOOD...AND WATER IN YOUR VEHICLE IN CASE OF AN EMERGENCY.
+A Winter Storm Warning for heavy snow means severe winter weather conditions are expected or occurring.  Significant amounts of snow are forecast that will make travel dangerous. Only travel in an emergency. If you must travel...keep an extra flashlight...food...and water in your vehicle in case of an emergency.
 
-A WINTER STORM WARNING MEANS SIGNIFICANT AMOUNTS OF SNOW...SLEET...AND ICE ARE EXPECTED OR OCCURRING. STRONG WINDS ARE ALSO POSSIBLE.  THIS WILL MAKE TRAVEL VERY HAZARDOUS OR IMPOSSIBLE.
+A Winter Storm Warning means significant amounts of snow...sleet...and ice are expected or occurring. Strong winds are also possible.  This will make travel very hazardous or impossible.
 
-A WINTER STORM WARNING FOR SLEET MEANS THAT A WINTER STORM SYSTEM IS IMPACTING THE AREA WITH SIGNIFICANT AMOUNTS OF SLEET. TRAVEL IS LIKELY TO BE SEVERELY IMPACTED.""",
+A Winter Storm Warning for sleet means that a winter storm system is impacting the area with significant amounts of sleet. Travel is likely to be severely impacted.""",
         ] 
 
     def ctaWWY(self):
         return [
- """|*Choose the appropriate CTA below and delete the rest*|
+ """|*Choose the appropriate CTA below and delete the rest*|""" """
 
-A WINTER WEATHER ADVISORY MEANS THAT PERIODS OF SNOW...SLEET...OR FREEZING RAIN WILL CAUSE TRAVEL DIFFICULTIES. BE PREPARED FOR SLIPPERY ROADS AND LIMITED VISIBILITIES...AND USE CAUTION WHILE DRIVING.
+A Winter Weather Advisory means that periods of snow...sleet...or freezing rain will cause travel difficulties. Be prepared for slippery roads and limited visibilities...and use caution while driving.
 
-A WINTER WEATHER ADVISORY FOR BLOWING SNOW MEANS THAT VISIBILITIES WILL BE LIMITED DUE TO STRONG WINDS BLOWING SNOW AROUND. USE CAUTION WHEN TRAVELING...ESPECIALLY IN OPEN AREAS.
+A Winter Weather Advisory for blowing snow means that visibilities will be limited due to strong winds blowing snow around. Use caution when traveling...especially in open areas.
  
-A WINTER WEATHER ADVISORY FOR SLEET MEANS PERIODS OF SLEET ARE IMMINENT OR OCCURRING. SLEET MAY CAUSE DRIVING TO BECOME EXTREMELY DANGEROUS...SO BE PREPARED TO USE CAUTION WHEN TRAVELING.
+A Winter Weather Advisory for sleet means periods of sleet are imminent or occurring. Sleet may cause driving to become extremely dangerous...so be prepared to use caution when traveling.
 
-A WINTER WEATHER ADVISORY FOR |*LAKE EFFECT*| SNOW AND BLOWING SNOW MEANS THAT VISIBILITIES WILL BE LIMITED DUE TO A COMBINATION OF FALLING AND BLOWING SNOW. USE CAUTION WHEN TRAVELING...ESPECIALLY IN OPEN AREAS.
+A Winter Weather Advisory for |*lake effect*| snow and blowing snow means that visibilities will be limited due to a combination of falling and blowing snow. Use caution when traveling...especially in open areas.
 
-A WINTER WEATHER ADVISORY FOR SNOW MEANS THAT PERIODS OF SNOW WILL CAUSE PRIMARILY TRAVEL DIFFICULTIES. BE PREPARED FOR SNOW COVERED ROADS AND LIMITED VISIBILITIES...AND USE CAUTION WHILE DRIVING.""",
+A Winter Weather Advisory for snow means that periods of snow will cause primarily travel difficulties. Be prepared for snow covered roads and limited visibilities...and use caution while driving.""",
 
         ] 
         
     def ctaZFY(self):
         return [
- """A FREEZING FOG ADVISORY MEANS VISIBILITIES WILL FREQUENTLY BE REDUCED TO LESS THAN ONE QUARTER MILE. IF DRIVING...SLOW DOWN...USE YOUR HEADLIGHTS...AND LEAVE PLENTY OF DISTANCE AHEAD OF YOU. ALSO...BE ALERT FOR FROST ON BRIDGE DECKS CAUSING SLIPPERY ROADS.""",
+ """A Freezing Fog Advisory means visibilities will frequently be reduced to less than one quarter mile. If driving...slow down...use your headlights...and leave plenty of distance ahead of you. Also...be alert for frost on bridge decks causing slippery roads.""",
         ]
 
     def ctaZRY(self):
         return [
- """A FREEZING RAIN ADVISORY MEANS THAT PERIODS OF FREEZING RAIN OR FREEZING DRIZZLE WILL CAUSE TRAVEL DIFFICULTIES. BE PREPARED FOR SLIPPERY ROADS. SLOW DOWN AND USE CAUTION WHILE DRIVING.""",
+ """A Freezing Rain Advisory means that periods of freezing rain or freezing drizzle will cause travel difficulties. Be prepared for slippery roads. Slow down and use caution while driving.""",
         ]
 
 #------------------------------------------------------------------------
@@ -706,15 +706,15 @@ A WINTER WEATHER ADVISORY FOR SNOW MEANS THAT PERIODS OF SNOW WILL CAUSE PRIMARI
         ]
 
     def ctaPilCFW(self):
-        return [("***RIP CURRENTS CTA", """RIP CURRENTS ARE POWERFUL CHANNELS OF WATER FLOWING QUICKLY AWAY FROM SHORE...WHICH OCCUR MOST OFTEN AT LOW SPOTS OR BREAKS IN THE SANDBAR AND IN THE VICINITY OF STRUCTURES SUCH AS GROINS...JETTIES AND PIERS. HEED THE ADVICE OF LIFEGUARDS...BEACH PATROL FLAGS AND SIGNS.
+        return [("***RIP CURRENTS CTA", """Rip currents are powerful channels of water flowing quickly away from shore...which occur most often at low spots or breaks in the sandbar and in the vicinity of structures such as groins...jetties and piers. Heed the advice of lifeguards...beach patrol flags and signs.
 
-IF YOU BECOME CAUGHT IN A RIP CURRENT...YELL FOR HELP. REMAIN CALM...do not exhaust yourself and stay afloat while waiting for help. If you have to swim out of a rip current...SWIM PARALLEL TO SHORE and back toward the beach when possible. DO NOT ATTEMPT TO SWIM DIRECTLY AGAINST A RIP CURRENT as you will tire quickly."""),
- ("***LONGSHORE CURRENTS CTA", """LONGSHORE CURRENTS COMMONLY OCCUR WHEN WAVES APPROACH THE SHORELINE AT AN ANGLE. THEY CAN BE PARTICULARLY DANGEROUS NEAR A JETTY OR PIER."""),
- ("***SNEAKER WAVES CTA", """ADD CTA HERE."""),
- ("***RED TIDE CTA", """ADD CTA HERE"""),
- ("***SEA NETTLES CTA", """ADD CTA HERE"""),
- ("***TSUNAMI DEBRIS CTA", """ADD CTA HERE"""), 
- ("***OTHER BEACH HAZARDS CTA", """ADD CTA HERE"""),
+If you become caught in a rip current...yell for help. Remain calm...do not exhaust yourself and stay afloat while waiting for help. If you have to swim out of a rip current...SWIM PARALLEL TO SHORE and back toward the beach when possible. Do not attempt to swim directly against a rip current as you will tire quickly."""),
+ ("***LONGSHORE CURRENTS CTA", """Longshore currents commonly occur when waves approach the shoreline at an angle. They can be particularly dangerous near a jetty or pier."""),
+ ("***SNEAKER WAVES CTA", """Add CTA here."""),
+ ("***RED TIDE CTA", """Add CTA here"""),
+ ("***SEA NETTLES CTA", """Add CTA here"""),
+ ("***TSUNAMI DEBRIS CTA", """Add CTA here"""), 
+ ("***OTHER BEACH HAZARDS CTA", """Add CTA here"""),
         ]
 
     def ctaPilCWF(self):
@@ -762,26 +762,26 @@ IF YOU BECOME CAUGHT IN A RIP CURRENT...YELL FOR HELP. REMAIN CALM...do not exha
         ]
 
     def ctaPilHLS(self):
-        return [("***MINOR FLOODING", """RESIDENTS CAN EXPECT MINOR FLOODING OF ROADS...ESPECIALLY THOSE WITH POOR DRAINAGE. KNOWN INTERSECTIONS WITH VERY POOR DRAINAGE MAY HAVE WATER LEVELS UP TO 3 FEET. OTHER POOR DRAINAGE AREAS WILL HAVE WATER RISES OF 1 FOOT."""),
- ("***WIDESPREAD FLOODING", """RESIDENTS CAN EXPECT WIDESPREAD FLOODING.  IN POOR DRAINAGE AREAS...MINOR TO MODERATE PROPERTY DAMAGE IS EXPECTED...AND SEVERAL MAIN THOROUGHFARES MAY BE CLOSED.  KNOWN INTERSECTIONS WITH VERY POOR DRAINAGE MAY HAVE WATER LEVELS UP TO 5 FEET.  OTHER POOR DRAINAGE AREAS WILL HAVE WATER RISES UP TO 3 FEET.  LEVELS WILL RISE 1 FOOT ELSEWHERE."""),
- """SMALL STREAMS WILL SURPASS BANK FULL...BUT ONLY FOR ONE HOUR OR LESS.""",
- ("***WIDESPREAD STREAM FLOODING", """MOST SMALL STREAMS AND CREEKS WILL SURPASS BANK FULL...FOR UP TO 3 HOURS.  LARGER RIVERS WILL RISE...AND THOSE WHICH RESPOND QUICKLY TO VERY HEAVY RAIN MAY BRIEFLY EXCEED FLOOD STAGE."""),
- ("***PRIOR NOTICE OF EXTENSIVE AREAL FLOODING", """EXTENSIVE FLOODING IS EXPECTED |**TODAY OR TONIGHT OR NEXT DAY**| \n\n PERSONS LIVING NEAR OR IN POOR DRAINAGE LOCATIONS SHOULD PREPARE FOR POSSIBLE EVACUATION LATER |**TODAY OR TONIGHT OR NEXT DAY**|. IN THESE AREAS...SIGNIFICANT PROPERTY DAMAGE WILL OCCUR...AND SOME POWER OUTAGES ARE LIKELY.  MINOR PROPERTY DAMAGE IS POSSIBLE ELSEWHERE. \n\nWATER LEVELS IN VERY POOR DRAINAGE AREAS WILL APPROACH 7 FEET.  OTHER POOR DRAINAGE LOCATIONS WILL HAVE RISES BETWEEN 3 AND 5 FEET.  ELSEWHERE...EXPECT WATER RISES TO NEAR 2 FEET.  NUMEROUS MAIN ROADS WILL BE CLOSED.  DRIVING IS HIGHLY DISCOURAGED EXCEPT FOR EMERGENCIES."""),
- ("***DANGEROUS FLOODING", """THIS IS A DANGEROUS FLOOD SITUATION!  \n\nPERSONS LIVING IN OR NEAR POOR DRAINAGE AREAS SHOULD EVACUATE IMMEDIATELY.  SIGNIFICANT PROPERTY DAMAGE WILL OCCUR IN THESE LOCATIONS.  MINOR PROPERTY DAMAGE IS POSSIBLE IN OTHER AREAS.  SOME POWER OUTAGES ARE EXPECTED. \n\n WATER LEVELS IN VERY POOR DRAINAGE AREAS WILL APPROACH 7 FEET.  OTHER POOR DRAINAGE LOCATIONS WILL HAVE RISES BETWEEN 3 AND 5 FEET.  ELSEWHERE...EXPECT WATER RISES TO NEAR 2 FEET.  NUMEROUS MAIN ROADS WILL BE CLOSED.  DRIVING IS HIGHLY DISCOURAGED UNTIL WELL AFTER FLOOD WATERS RECEDE. \n\n MOVE TO SAFETY IMMEDIATELY."""),
- ("***PRIOR NOTICE OF EXTENSIVE RIVER FLOODING", """EXTENSIVE FLOODING IS EXPECTED |**TODAY OR TONIGHT OR NEXT DAY**|. \n\n BY |**TIME**|...ALL SMALL STREAMS AND CREEKS WILL HAVE SURPASSED BANK FULL.  THESE CONDITIONS WILL LAST BETWEEN 3 AND 6 HOURS.  SOME STREAMS WILL EXCEED THEIR BANKS BY SEVERAL FEET AND MAY FLOOD NEARBY HOMES.  EVACUATIONS ARE POSSIBLE.\n\n RIVERS IN AFFECTED AREAS WILL RISE...WITH SOME REACHING OR EXCEEDING FLOOD STAGE.  NORMALLY QUICK-RISING RIVERS WILL EXCEED FLOOD STAGE BY SEVERAL FEET...FLOODING HOMES ALONG THE RIVERSIDE.  PASTURES WILL ALSO FLOOD...BUT LIVESTOCK LOSSES SHOULD BE MINIMAL.  SEVERAL SECONDARY ROADS AND BRIDGES WILL BE WASHED OUT.  DRIVING IS HIGHLY DISCOURAGED."""),
- ("***DANGEROUS RIVER FLOODING", """THIS IS A DANGEROUS SITUATION!  \n\nALL STREAMS...CREEKS..AND SOME RIVERS WILL SURPASS BANKFULL...FOR BETWEEN 3 AND 6 HOURS.  SOME STREAMS WILL EXCEED THEIR BANKS BY SEVERAL FEET...FLOODING NEARBY HOMES.  EVACUATIONS ARE POSSIBLE. \n\n RIVERS IN AFFECTED AREAS WILL RISE...WITH SOME REACHING OR EXCEEDING FLOOD STAGE.  NORMALLY QUICK RISING RIVERS WILL EXCEED FLOOD STAGE BY SEVERAL FEET...FLOODING HOMES ALONG THE RIVERSIDE.  PASTURES WILL ALSO FLOOD...BUT LIVESTOCK LOSSES SHOULD BE MINIMAL."""),
- ("***CATASTROPHIC FLOODING EXPECTED", """CATASTROPHIC FLOODING IS EXPECTED LATER |**EDIT DAY OR NIGHT PERIODS**|. \n\n A STATE OF EMERGENCY HAS BEEN ISSUED |**BY AGENCY**| FOR |**EDIT AREA HERE**|. \n\n RESIDENTS IN FLOOD PRONE AREAS SHOULD RUSH TO COMPLETION PREPARATIONS TO PROTECT THEIR PROPERTY...THEN MOVE TO A PLACE OF SAFETY...THIS |**EDIT TIME PERIOD**|. MANDATORY EVACUATIONS ARE UNDERWAY. \n\n |** OPENING PARAGRAPH DESCRIBING ANTECEDENT RAINFALL AND EXPECTED HEAVIER RAINFALL **| \n\n LIFE THREATENING FLOODING IS LIKELY!  IN URBAN AREAS...EXTENSIVE PROPERTY DAMAGE WILL OCCUR IN ALL POOR DRAINAGE AREAS...WITH MODERATE TO MAJOR PROPERTY DAMAGE ELSEWHERE.  WIDESPREAD POWER OUTAGES ARE LIKELY. \n\n IN RURAL LOCATIONS...ALL STREAMS...CREEKS...AND ARROYOS WILL SURPASS BANK FULL FOR MORE THAN 6 HOURS.  EACH WILL EXCEED THEIR BANKS BY SEVERAL FEET...FLOODING HOMES...EVEN THOSE UP TO ONE HALF MILE AWAY FROM THE BANKS. \n\n IN ALL AREAS...HUNDREDS OF ROADS WILL FLOOD.  DOZENS OF SECONDARY ROADS MAY BECOME WASHED OUT IN RURAL AREAS.  NUMEROUS LOW WATER BRIDGES WILL LIKELY WASH OUT AS WELL. \n\n WATER LEVELS WILL EXCEED 5 FEET IN ALL POOR DRAINAGE URBAN AREAS...AND AVERAGE AT LEAST 2 FEET ELSEWHERE.  ALL RIVERS IN AFFECTED AREAS WILL RISE...AND MOST WILL EXCEED FLOOD STAGE.  QUICK RISING RIVERS WILL EXCEED FLOOD STAGE...AND REACH NEAR RECORD CRESTS...CAUSING INUNDATION OF NEARBY HOMES.  IN RURAL LOCATIONS...EXTENSIVE PASTURELAND FLOODING WILL OCCUR AS WATER LEVELS RISE TO 2 FEET OR MORE.  WIDESPREAD LIVESTOCK LOSSES ARE LIKELY."""),
- ("***CATASTROPHIC FLOODING OCCURRING", """CATASTROPHIC FLOODING IS OCCURRING IN |**EDIT AREA**|. \n\n STATES OF EMERGENCY REMAIN IN EFFECT FOR THE FOLLOWING LOCATIONS: \n\n |**EDIT COUNTIES AND CITIES HERE**| \n\n RESIDENTS REMAIN PROHIBITED FROM VENTURING OUT.  LAW ENFORCEMENT AND |**MILITARY SUPPORT GROUP EDIT HERE**| EVACUATIONS ARE NOW UNDERWAY. \n\n THIS REMAINS A LIFE THREATENING SITUATION!  EXTENSIVE PROPERTY DAMAGE IS OCCURRING IN ALL POOR DRAINAGE AREAS.  ELSEWHERE...MODERATE TO MAJOR PROPERTY DAMAGE IS OCCURRING.  HUNDREDS OF ROADS ARE CLOSED...AND SOME ARE LIKELY DAMAGED.  SEVERAL AREA BRIDGES ARE WASHED OUT.  STREAMS...CREEKS...AND ARROYOS ARE SEVERAL FEET ABOVE BANK FULL...AND WILL REMAIN SO FOR HOURS.  MANY RIVERS ARE NEARING FLOOD STAGE...AND SOME HAVE ALREADY SURPASSED IT.  HOMES NEAR THESE RIVERS ARE LIKELY FLOODED. FLOOD WATERS WILL CONTINUE FOR SEVERAL MORE HOURS. \n\n WATER LEVELS ARE IN EXCESS OF 5 FEET IN ALL POOR DRAINAGE AREAS.  ELSEWHERE...AVERAGE WATER LEVELS ARE AT LEAST 2 FEET. POWER OUTAGES ARE WIDESPREAD. \n\n STAY TUNED TO NOAA WEATHER RADIO FOR FURTHER INFORMATION ON THIS DANGEROUS FLOOD.  HEED ALL EVACUATION ORDERS FROM LAW ENFORCEMENT OR MILITARY PERSONNEL."""),
- ("***GENERATOR PRECAUTIONS", """IF YOU PLAN ON USING A PORTABLE GENERATOR...BE SURE TO OBSERVE ALL SAFETY PRECAUTIONS TO AVOID CARBON MONOXIDE POISONING...ELECTROCUTION...OR FIRE.  BE SURE TO OPERATE YOUR GENERATOR IN A DRY OUTDOOR AREA AWAY FROM WINDOWS...DOORS AND VENTS. CARBON MONOXIDE POISONING DEATHS CAN OCCUR DUE TO IMPROPERLY LOCATED PORTABLE GENERATORS!"""),
- ("***FLAMMABLES PRECAUTION", """FLAMMABLE LIQUIDS SUCH AS GASOLINE OR KEROSENE SHOULD ONLY BE STORED OUTSIDE OF THE LIVING AREAS IN PROPERLY LABELED...NON GLASS SAFETY CONTAINERS.  DO NOT STORE IN AN ATTACHED GARAGE AS GAS FUMES CAN TRAVEL INTO THE HOME AND POTENTIALLY IGNITE...ESPECIALLY IF THE HOME HAS NATURAL OR PROPANE GAS LINES THAT COULD BECOME DAMAGED DURING THE HURRICANE."""),
- ("***HURRICANE WARNING DEFINITION", """A HURRICANE WARNING MEANS SUSTAINED WINDS OF |* 64 KTS OR 74 MPH *| OR HIGHER ASSOCIATED WITH A HURRICANE ARE EXPECTED WITHIN 36 HOURS. A HURRICANE WARNING CAN REMAIN IN EFFECT WHEN DANGEROUSLY HIGH WATER OR A COMBINATION OF DANGEROUSLY HIGH WATER AND EXCEPTIONALLY HIGH WAVES CONTINUE...EVEN THOUGH WINDS MAY BE LESS THAN HURRICANE FORCE."""),
- ("***HURRICANE WATCH DEFINITION", """A HURRICANE WATCH IS ISSUED WHEN SUSTAINED WINDS OF |* 64 KTS OR 74 MPH *| OR HIGHER ASSOCIATED WITH A HURRICANE ARE POSSIBLE WITHIN 48 HOURS."""),
- ("***HURRICANE WIND WARNING DEFINITION", """A HURRICANE WIND WARNING IS ISSUED WHEN A LANDFALLING HURRICANE IS EXPECTED TO SPREAD HURRICANE FORCE WINDS WELL INLAND. SERIOUS PROPERTY DAMAGE...POWER OUTAGES...BLOWING DEBRIS...AND FALLEN TREES CAN BE EXPECTED AS WINDS REACH OR EXCEED 74 MPH."""),
- ("***HURRICANE WIND WATCH DEFINITION", """A HURRICANE WIND WATCH IS ISSUED WHEN A LANDFALLING HURRICANE IS EXPECTED TO SPREAD HURRICANE FORCE WINDS WELL INLAND WITHIN THE NEXT 48 HOURS. PREPARE FOR WINDS IN EXCESS OF 74 MPH."""),
- ("***TROPICAL STORM WARNING DEFINITION", """A TROPICAL STORM WARNING MEANS SUSTAINED WINDS OF |* 34 TO 63 KT OR 39 TO 73 MPH OR 63 TO 118 KM PER HR *| ARE EXPECTED DUE TO A TROPICAL CYCLONE WITHIN 36 HOURS."""),
- ("***TROPICAL STORM WIND WARNING DEFINITION", """A TROPICAL STORM WIND WARNING MEANS WINDS OF 39 TO 73 MPH ARE EXPECTED DUE TO A LANDFALLING HURRICANE OR TROPICAL STORM. WINDS OF THIS MAGNITUDE ARE LIKELY TO CAUSE SPORADIC POWER OUTAGES...FALLEN TREES...MINOR PROPERTY DAMAGE...AND DANGEROUS DRIVING CONDITIONS FOR HIGH PROFILE VEHICLES."""),
- ("***TROPICAL STORM WATCH DEFINITION", """A TROPICAL STORM WATCH MEANS SUSTAINED WINDS OF |* 34 TO 63 KT OR 39 TO 73 MPH OR 63 TO 118 KM PER HR *| ARE POSSIBLE DUE TO A TROPICAL CYCLONE WITHIN 48 HOURS."""),
- ("***TROPICAL STORM WIND WATCH DEFINITION", """A TROPICAL STORM WIND WATCH MEANS WINDS OF 39 TO 73 MPH ARE EXPECTED DUE TO A LANDFALLING HURRICANE OR TROPICAL STORM WITHIN 48 HOURS."""),
+        return [("***MINOR FLOODING", """Residents can expect minor flooding of roads...especially those with poor drainage. Known intersections with very poor drainage may have water levels up to 3 feet. Other poor drainage areas will have water rises of 1 foot."""),
+ ("***WIDESPREAD FLOODING", """Residents can expect widespread flooding.  In poor drainage areas...minor to moderate property damage is expected...and several main thoroughfares may be closed.  Known intersections with very poor drainage may have water levels up to 5 feet.  Other poor drainage areas will have water rises up to 3 feet.  Levels will rise 1 foot elsewhere."""),
+ """Small streams will surpass bank full...but only for one hour or less.""",
+ ("***WIDESPREAD STREAM FLOODING", """Most small streams and creeks will surpass bank full...for up to 3 hours.  Larger rivers will rise...and those which respond quickly to very heavy rain may briefly exceed flood stage."""),
+ ("***PRIOR NOTICE OF EXTENSIVE AREAL FLOODING", """Extensive flooding is expected |**today or tonight or next day**|. \n\n Persons living near or in poor drainage locations should prepare for possible evacuation later |**today or tonight or next day**|. In these areas...significant property damage will occur...and some power outages are likely.  Minor property damage is possible elsewhere. \n\nWater levels in very poor drainage areas will approach 7 feet.  Other poor drainage locations will have rises between 3 and 5 feet.  Elsewhere...expect water rises to near 2 feet.  Numerous main roads will be closed.  Driving is highly discouraged except for emergencies."""),
+ ("***DANGEROUS FLOODING", """This is a dangerous flood situation!  \n\nPersons living in or near poor drainage areas should evacuate immediately.  Significant property damage will occur in these locations.  Minor property damage is possible in other areas.  Some power outages are expected. \n\n Water levels in very poor drainage areas will approach 7 feet.  Other poor drainage locations will have rises between 3 and 5 feet.  Elsewhere...expect water rises to near 2 feet.  Numerous main roads will be closed.  Driving is highly discouraged until well after flood waters recede. \n\n Move to safety immediately."""),
+ ("***PRIOR NOTICE OF EXTENSIVE RIVER FLOODING", """Extensive flooding is expected |**today or tonight or next day**|. \n\n By |**time**|...all small streams and creeks will have surpassed bank full.  These conditions will last between 3 and 6 hours.  Some streams will exceed their banks by several feet and may flood nearby homes.  Evacuations are possible.\n\n Rivers in affected areas will rise...with some reaching or exceeding flood stage.  Normally quick-rising rivers will exceed flood stage by several feet...flooding homes along the riverside.  Pastures will also flood...but livestock losses should be minimal.  Several secondary roads and bridges will be washed out.  Driving is highly discouraged."""),
+ ("***DANGEROUS RIVER FLOODING", """This is a dangerous situation!  \n\nAll streams...creeks..and some rivers will surpass bankfull...for between 3 and 6 hours.  Some streams will exceed their banks by several feet...flooding nearby homes.  Evacuations are possible. \n\n Rivers in affected areas will rise...with some reaching or exceeding flood stage.  Normally quick rising rivers will exceed flood stage by several feet...flooding homes along the riverside.  Pastures will also flood...but livestock losses should be minimal."""),
+ ("***CATASTROPHIC FLOODING EXPECTED", """Catastrophic flooding is expected later |**edit day or night periods**|. \n\n A state of emergency has been issued |**by agency**| for |**edit area here**|. \n\n Residents in flood prone areas should rush to completion preparations to protect their property...then move to a place of safety...this |**edit time period**|. Mandatory evacuations are underway. \n\n |** opening paragraph describing antecedent rainfall and expected heavier rainfall **| \n\n life threatening flooding is likely!  In urban areas...extensive property damage will occur in all poor drainage areas...with moderate to major property damage elsewhere.  Widespread power outages are likely. \n\n In rural locations...all streams...creeks...and arroyos will surpass bank full for more than 6 hours.  Each will exceed their banks by several feet...flooding homes...even those up to one half mile away from the banks. \n\n In all areas...hundreds of roads will flood.  Dozens of secondary roads may become washed out in rural areas.  Numerous low water bridges will likely wash out as well. \n\n Water levels will exceed 5 feet in all poor drainage urban areas...and average at least 2 feet elsewhere.  All rivers in affected areas will rise...and most will exceed flood stage.  Quick rising rivers will exceed flood stage...and reach near record crests...causing inundation of nearby homes.  In rural locations...extensive pastureland flooding will occur as water levels rise to 2 feet or more.  Widespread livestock losses are likely."""),
+ ("***CATASTROPHIC FLOODING OCCURRING", """Catastrophic flooding is occurring in |**edit area**|. \n\n States of emergency remain in effect for the following locations: \n\n |**edit counties and cities here**| \n\n residents remain prohibited from venturing out.  Law enforcement and |**military support group edit here**| evacuations are now underway. \n\n This remains a life threatening situation!  Extensive property damage is occurring in all poor drainage areas.  Elsewhere...moderate to major property damage is occurring.  Hundreds of roads are closed...and some are likely damaged.  Several area bridges are washed out.  Streams...creeks...and arroyos are several feet above bank full...and will remain so for hours.  Many rivers are nearing flood stage...and some have already surpassed it.  Homes near these rivers are likely flooded. Flood waters will continue for several more hours. \n\n Water levels are in excess of 5 feet in all poor drainage areas.  Elsewhere...average water levels are at least 2 feet. Power outages are widespread. \n\n Stay tuned to NOAA Weather Radio for further information on this dangerous flood.  Heed all evacuation orders from law enforcement or military personnel."""),
+ ("***GENERATOR PRECAUTIONS", """If you plan on using a portable generator...be sure to observe all safety precautions to avoid carbon monoxide poisoning...electrocution...or fire.  Be sure to operate your generator in a dry outdoor area away from windows...doors and vents. Carbon monoxide poisoning deaths can occur due to improperly located portable generators!"""),
+ ("***FLAMMABLES PRECAUTION", """Flammable liquids such as gasoline or kerosene should only be stored outside of the living areas in properly labeled...non glass safety containers.  Do not store in an attached garage as gas fumes can travel into the home and potentially ignite...especially if the home has natural or propane gas lines that could become damaged during the hurricane."""),
+ ("***HURRICANE WARNING DEFINITION", """A Hurricane Warning means sustained winds of |* 64 kts or 74 mph *| or higher associated with a hurricane are expected within 36 hours. A Hurricane Warning can remain in effect when dangerously high water or a combination of dangerously high water and exceptionally high waves continue...even though winds may be less than hurricane force."""),
+ ("***HURRICANE WATCH DEFINITION", """A Hurricane Watch is issued when sustained winds of |* 64 kts or 74 mph *| or higher associated with a hurricane are possible within 48 hours."""),
+ ("***HURRICANE WIND WARNING DEFINITION", """A Hurricane Wind Warning is issued when a landfalling hurricane is expected to spread hurricane force winds well inland. Serious property damage...power outages...blowing debris...and fallen trees can be expected as winds reach or exceed 74 mph."""),
+ ("***HURRICANE WIND WATCH DEFINITION", """A Hurricane Wind Watch is issued when a landfalling hurricane is expected to spread hurricane force winds well inland within the next 48 hours. Prepare for winds in excess of 74 mph."""),
+ ("***TROPICAL STORM WARNING DEFINITION", """A Tropical Storm Warning means sustained winds of |* 34 to 63 kt or 39 to 73 mph or 63 to 118 km per hr *| are expected due to a tropical cyclone within 36 hours."""),
+ ("***TROPICAL STORM WIND WARNING DEFINITION", """A Tropical Storm Wind Warning means winds of 39 to 73 mph are expected due to a landfalling hurricane or tropical storm. Winds of this magnitude are likely to cause sporadic power outages...fallen trees...minor property damage...and dangerous driving conditions for high profile vehicles."""),
+ ("***TROPICAL STORM WATCH DEFINITION", """A Tropical Storm Watch means sustained winds of |* 34 to 63 kt or 39 to 73 mph or 63 to 118 km per hr *| are possible due to a tropical cyclone within 48 hours."""),
+ ("***TROPICAL STORM WIND WATCH DEFINITION", """A Tropical Storm Wind Watch means winds of 39 to 73 mph are expected due to a landfalling hurricane or tropical storm within 48 hours."""),
         ]
 
     def ctaPilHMW(self):
@@ -806,7 +806,7 @@ IF YOU BECOME CAUGHT IN A RIP CURRENT...YELL FOR HELP. REMAIN CALM...do not exha
 
     def ctaPilMWW(self):
         return [
- """MARINERS SHOULD PAY CLOSE ATTENTION TO THE MARINE FORECAST...AND CONSIDER WIND AND SEA CONDITIONS IN PLANNING.""",
+ """Mariners should pay close attention to the marine forecast...and consider wind and sea conditions in planning.""",
         ]
 
     def ctaPilMVF(self):
@@ -892,4 +892,3 @@ IF YOU BECOME CAUGHT IN A RIP CURRENT...YELL FOR HELP. REMAIN CALM...do not exha
     def ctaPilZFP(self):
         return [
         ]
-

@@ -29,9 +29,9 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Op;
@@ -70,7 +70,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 04/15/2013   1892       randerso    Adding logging to help determine what is different in the gridInfos
  *                                     Changed how gridInfo is retrieved which seems to have fixed the problem
  * 04/23/2013   1949       rjpeter     Removed validation on copy, source is verified on store.
-
+ * 
  * </pre>
  * 
  * @author chammack
@@ -447,9 +447,9 @@ public abstract class AbstractGridData implements IGridData {
             return;
         }
 
-        if (edgeCount / editAreaCount > 0.9) {
+        if ((edgeCount / editAreaCount) > 0.9) {
             return;
-        } else if (edgeCount / editAreaCount < 0.5) {
+        } else if ((edgeCount / editAreaCount) < 0.5) {
             edge = edge.or(fringe(editArea.xor(edge)));
         }
 
@@ -503,14 +503,14 @@ public abstract class AbstractGridData implements IGridData {
                 Point delta = new Point();
                 delta.x = edge.x - center.x;
                 delta.y = edge.y - center.y;
-                float totalDist = (float) Math.sqrt(delta.x * delta.x + delta.y
-                        * delta.y);
+                float totalDist = (float) Math.sqrt((delta.x * delta.x)
+                        + (delta.y * delta.y));
 
                 // Get the distance from the edge to current location
                 delta.x = i - edge.x;
                 delta.y = j - edge.y;
-                float dist = (float) Math.sqrt(delta.x * delta.x + delta.y
-                        * delta.y);
+                float dist = (float) Math.sqrt((delta.x * delta.x)
+                        + (delta.y * delta.y));
 
                 // Taper value is the ratio of dist to total
                 if (totalDist == 0.0) {
@@ -650,8 +650,8 @@ public abstract class AbstractGridData implements IGridData {
                     if ((i == 0) || (i == xMax) || (j == 0) || (j == yMax)) {
                         edge.set(i, j);
                     } else {
-                        for (int k = i - 1; k <= i + 1; k++) {
-                            for (int m = j - 1; m <= j + 1; m++) {
+                        for (int k = i - 1; k <= (i + 1); k++) {
+                            for (int m = j - 1; m <= (j + 1); m++) {
                                 if (points.get(k, m) == 0) {
                                     edge.set(i, j);
                                     break;

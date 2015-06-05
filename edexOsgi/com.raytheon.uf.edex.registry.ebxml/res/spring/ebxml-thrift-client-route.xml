@@ -4,21 +4,25 @@
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
     <camelContext id="ebxml-request-service-camel"
-		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler">
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">    
+        
+        <propertyPlaceholder id="ebxmlThriftServiceProperties"
+                             location="classpath:com.raytheon.uf.edex.registry.ebxml.properties"/>    
+        
+        <restConfiguration component="jetty" host="0.0.0.0" port="{{ebxml.thrift.service.port}}" >
+            <endpointProperty key="disableStreamCache" value="{{ebxml.thrift.service.disableStreamCache}}" />
+            <endpointProperty key="chunked" value="{{ebxml.thrift.service.chunked}}" />
+        </restConfiguration>
 
-		<endpoint id="webServiceEndpoint"
-			uri="jetty:http://0.0.0.0:${ebxml.thrift.service.port}${HTTP_SERVER_PATH}?${edex.requestsrv.http.properties}" />
-
-		<route id="webServiceRoute" streamCache="false">
-			<from uri="webServiceEndpoint" />
-			<setBody>
-				<simple>
-					bodyAs(javax.servlet.http.HttpServletRequest)
-				</simple>
-			</setBody>
-			<bean ref="httpServiceExecutor" method="execute(${body}, ${in.header.CamelHttpServletResponse})"/>
-		</route>
-	</camelContext>
+        <rest path="{{env:HTTP_SERVER_PATH}}">
+            <post uri="/{format}">
+                <to uri="bean:httpServiceExecutor?method=execute(${body}, ${header.format}, ${in.header.accept-encoding}, ${in.header.CamelHttpServletResponse})" />
+            </post>
+            <post uri="/">
+                <to uri="bean:httpServiceExecutor?method=execute(${body}, ${in.header.content-type}, ${in.header.accept-encoding}, ${in.header.CamelHttpServletResponse})" />
+            </post>
+        </rest>
+    </camelContext>
 
 </beans>

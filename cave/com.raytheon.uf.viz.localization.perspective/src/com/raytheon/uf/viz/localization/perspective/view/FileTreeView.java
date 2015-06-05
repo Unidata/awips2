@@ -137,6 +137,7 @@ import com.raytheon.uf.viz.localization.service.ILocalizationService;
  * Oct  9, 2013  2104      mschenke    Fixed file delete/add refresh issue and file change message
  *                                     found when testing scalesInfo.xml file
  * Sep 18, 2014  3531      bclement    fixed file delete/add refresh issue when paths share string prefixes
+ * Feb 06, 2015  4028      mapeters    fixed file selection issue when reopening CAVE with files open
  * Apr 02, 2015  4288      randerso    Fix Widget is disposed error
  * 
  * </pre>
@@ -444,11 +445,21 @@ public class FileTreeView extends ViewPart implements IPartListener2,
                                 .getResource();
                         IWorkbenchPage page = getSite().getPage();
                         for (IEditorReference ref : page.getEditorReferences()) {
-                            IEditorPart part = ref.getEditor(false);
-                            IEditorInput input = part.getEditorInput();
+                            IEditorInput input = null;
+                            try {
+                                input = ref.getEditorInput();
+                            } catch (PartInitException pie) {
+                                statusHandler.handle(Priority.PROBLEM,
+                                        pie.getLocalizedMessage(), pie);
+                            }
                             if (input instanceof LocalizationEditorInput) {
-                                if (file == ((LocalizationEditorInput) input)
-                                        .getFile()) {
+                                if (file.equals(((LocalizationEditorInput) input)
+                                        .getFile())) {
+                                    /*
+                                     * Can only safely pass true to getEditor()
+                                     * once above conditions are met.
+                                     */
+                                    IEditorPart part = ref.getEditor(true);
                                     page.activate(part);
                                     break;
                                 }

@@ -20,7 +20,7 @@
 package com.raytheon.edex.plugin.gfe;
 
 import com.raytheon.edex.db.mapping.EnumUserType;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 
 /** Mapping class for persistence of GridType enum */
 public class GridTypeUserType extends EnumUserType<GridType> {

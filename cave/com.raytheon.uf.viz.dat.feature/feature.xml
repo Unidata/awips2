@@ -45,7 +45,8 @@
          id="com.raytheon.uf.viz.cwat"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="false"/>
 
    <plugin
          id="com.raytheon.uf.common.dataplugin.ffmp"
@@ -77,7 +78,8 @@
          id="com.raytheon.uf.viz.preciprate"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="false"/>
 
    <plugin
          id="com.raytheon.uf.common.dataplugin.qpf"
@@ -90,7 +92,8 @@
          id="com.raytheon.uf.viz.qpf"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="false"/>
 
    <plugin
          id="com.raytheon.uf.common.dataplugin.scan"
@@ -116,7 +119,8 @@
          id="com.raytheon.uf.viz.vil"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="false"/>
 
    <plugin
          id="com.raytheon.uf.common.monitor"

@@ -16,3 +16,4 @@ Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.bcd
 Import-Package: com.raytheon.uf.common.colormap
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ClassPath: com.raytheon.viz.bcd.jar

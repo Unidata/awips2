@@ -23,7 +23,7 @@ package com.raytheon.uf.common.dataplugin.gfe.grid;
 import java.awt.Point;
 import java.nio.FloatBuffer;
 
-import jep.INumpyable;
+import jep.NDArray;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -38,6 +38,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ---------- ----------- --------------------------
  * Jan 30, 2008 879        rbell       Initial Creation.
  * Sep 01, 2014 3572       randerso    Changed getNumpy to use getFloats()
+ * Apr 23, 2015 4259       njensen     Updated for new JEP API
  * 
  * </pre>
  * 
@@ -45,7 +46,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @DynamicSerialize
-public class Grid2DFloat implements IGrid2D, Cloneable, INumpyable {
+public class Grid2DFloat implements IGrid2D, Cloneable {
 
     /**
      * The data buffer, holding the grid's contents
@@ -426,19 +427,15 @@ public class Grid2DFloat implements IGrid2D, Cloneable, INumpyable {
         return rVal;
     }
 
-    @Override
-    public Object[] getNumpy() {
-        return new Object[] { getFloats() };
-    }
-
-    @Override
-    public int getNumpyX() {
-        return xdim;
-    }
-
-    @Override
-    public int getNumpyY() {
-        return ydim;
+    public NDArray<float[]> getNDArray() {
+        /*
+         * FIXME We reverse the x and y dimensions because that's what AWIPS 1
+         * did and that makes the pre-existing python code compatible. Java
+         * ordering is x,y while python is ordering is y,x. It's confusing and
+         * questionable at best so someday someone should correct all that. Good
+         * luck.
+         */
+        return new NDArray<float[]>(getFloats(), ydim, xdim);
     }
 
     /**

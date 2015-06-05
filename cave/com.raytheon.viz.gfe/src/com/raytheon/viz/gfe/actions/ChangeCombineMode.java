@@ -26,7 +26,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.core.parm.ParmState;
@@ -163,8 +163,7 @@ public class ChangeCombineMode extends AbstractRightClickAction implements
 
         public CombineModeChange(ParmState.CombineMode combineMode) {
             this.combineMode = combineMode;
-            this
-                    .setChecked(parm.getParmState().getCombineMode() == combineMode);
+            this.setChecked(parm.getParmState().getCombineMode() == combineMode);
         }
 
         @Override

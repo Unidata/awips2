@@ -39,6 +39,8 @@ import UFStatusHandler
 #    12/10/14        #14946        ryu           Add getTimeZones() function.
 #    04/16/15        #14946        ryu           Fix getTimeZones to return the office TZ if timezone
 #                                                is not set for any zone in a segment.
+#    04/20/2015      #4027         randerso      Fixes for formatter autotests
+#    Apr 25, 2015     4952         njensen        Updated for new JEP API
 #    05/06/2015      #4467         randerso      Convert to upper case before writing to files if
 #                                                mixed case is not enabled for the product.
 #                                                Cleaned up file writing code
@@ -63,7 +65,9 @@ try:
     
     # Get the information for the file logger
     from com.raytheon.uf.common.localization import PathManagerFactory
-    from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType, LocalizationContext_LocalizationLevel as LocalizationLevel
+    from com.raytheon.uf.common.localization import LocalizationContext
+    LocalizationType = LocalizationContext.LocalizationType 
+    LocalizationLevel = LocalizationContext.LocalizationLevel 
     PATH_MGR = PathManagerFactory.getPathManager()    
 except:    
     logging.basicConfig(filename=DEFAULT_LOG_FILENAME,level=logging.DEBUG)
@@ -98,7 +102,7 @@ def executeFromJava(databaseID, site, username, dataMgr, forecastList, logFile, 
     
     forecasts = runFormatter(databaseID=databaseID, site=site, forecastList=forecastList, testMode=testMode,
                         cmdLineVarDict=cmdLineVarDict, vtecMode=vtecMode, username=username,
-                        dataMgr=dataMgr, drtTime=drtTime)
+                        dataMgr=dataMgr, drtTime=drtTime, vtecActiveTable=vtecActiveTable)
     
     elapsedTime = (time.time() - startTime)*1000
     logger.info("Text Formatter Finished, took: %d ms",elapsedTime)
@@ -253,10 +257,9 @@ def runFormatter(databaseID, site, forecastList, cmdLineVarDict, vtecMode,
     argDict['creationTime'] = int(time.time()/60)*60.0
 
     # Set the Site Time Zone
-    #tz = ifpClient.getSiteTimeZone(site)
-    #os.environ['TZ'] = tz
     tz = str(ifpClient.getSiteTimeZone())
     os.environ['TZ'] = tz
+    time.tzset()
 
     # Create the formatter
     formatter = TextFormatter.TextFormatter(dataMgr)
@@ -482,6 +485,7 @@ def ppDef(definition):
 def getVarDict(dspName, dataMgr, issuedBy, dataSource):
     tz = str(dataMgr.getClient().getSiteTimeZone())
     os.environ['TZ'] = tz
+    time.tzset()
     productDef = displayNameDict[dspName][1]
     productDef['database'] = dataSource
     vdg = VarDictGroker.VarDictGroker(displayNameDict[dspName][0], productDef, dspName, issuedBy, dataMgr)

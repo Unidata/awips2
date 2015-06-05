@@ -312,7 +312,7 @@ class ScalarPhrases(PhraseBuilder.PhraseBuilder):
         # Used IF the areal_sky_flag is 1.
         # Weather types that are related to sky cover and will be included in the
         # sky phrase if their areal coverage matches the sky areal coverage.
-        # For example: AREAS OF LOW CLOUDS AND FOG IN THE MORNING...THEN MOSTLY SUNNY.
+        # For example: areas of low clouds and fog in the morning...then mostly sunny.
         return ["F", "L"]
 
     def disableSkyRelatedWx(self, tree, node):
@@ -955,7 +955,7 @@ class ScalarPhrases(PhraseBuilder.PhraseBuilder):
             elif digitMin >= upperMin and digitMax <= lowerMax and maxVal - minVal <= 10:
                 roundedMax = int(self.round(maxVal, "Nearest", 10))
                 return self.constructTempException("near %max", minVal, roundedMax)
-            # return 50s AND 60s (not LOWER 50s TO UPPER 60s)
+            # return 50s and 60s (not lower 50s to upper 60s)
             elif digitMin <= lowerMax and digitMax >= upperMin:
                 return "in the " + decadeMinStr + " to " + decadeMaxStr
             digitMinPhrase = digitMinStr + " " + decadeMinStr
@@ -2718,7 +2718,7 @@ class ScalarPhrases(PhraseBuilder.PhraseBuilder):
                 if minRH == None or rh < minRH:
                     minRH = rh
         if minRH is not None and minRH <= self.rh_threshold(tree, node):
-           words = "MINIMUM RH " + `int(minRH)` + " PERCENT"
+           words = "minimum RH " + `int(minRH)` + " percent"
         return self.setWords(node, words)
     
     # MultipleElementTable calls

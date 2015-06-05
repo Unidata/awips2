@@ -73,7 +73,8 @@ import com.raytheon.uf.viz.kml.export.graphics.ext.KmlRasterImage;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 1, 2012            bsteffen     Initial creation
+ * Jun 01, 2012            bsteffen     Initial creation
+ * Jan 26, 2015  3974      njensen      Removed tesselate parameter for createShadedShape()
  * 
  * </pre>
  * 
@@ -86,7 +87,7 @@ public class KmlGraphicsTarget extends AbstractGraphicsTarget {
 
     private final KmlFont defaultFont = new KmlFont();
 
-    private List<KmlFeatureGenerator> generators = new ArrayList<KmlFeatureGenerator>(
+    private final List<KmlFeatureGenerator> generators = new ArrayList<KmlFeatureGenerator>(
             256);
 
     protected IView view;
@@ -226,7 +227,7 @@ public class KmlGraphicsTarget extends AbstractGraphicsTarget {
 
     @Override
     public IShadedShape createShadedShape(boolean mutable,
-            GeneralGridGeometry targetGeometry, boolean tesselate) {
+            GeneralGridGeometry targetGeometry) {
         return new KmlShadedShape(targetGeometry);
     }
 

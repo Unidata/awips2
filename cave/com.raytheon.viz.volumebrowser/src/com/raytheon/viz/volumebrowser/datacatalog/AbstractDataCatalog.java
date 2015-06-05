@@ -44,6 +44,7 @@ import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.style.StyleManager;
 import com.raytheon.uf.common.style.StyleRule;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.grid.rsc.GridLoadProperties;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
@@ -57,7 +58,6 @@ import com.raytheon.uf.viz.xy.timeseries.rsc.TimeSeriesResourceData.AxisParamete
 import com.raytheon.uf.viz.xy.varheight.rsc.VarHeightResourceData;
 import com.raytheon.viz.awipstools.ToolsDataManager;
 import com.raytheon.viz.core.graphing.util.GraphPrefsFactory;
-import com.raytheon.viz.grid.rsc.GridLoadProperties;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 import com.vividsolutions.jts.geom.Coordinate;
 

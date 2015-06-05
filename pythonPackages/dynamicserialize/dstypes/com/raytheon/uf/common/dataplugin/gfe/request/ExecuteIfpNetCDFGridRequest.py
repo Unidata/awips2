@@ -28,7 +28,7 @@
 #    ------------    ----------    -----------    --------------------------
 #    xx/xx/??                      dgilling       Initial Creation.
 #    03/13/13         1759         dgilling       Add software history header.
-#    
+#    05/13/15         4427         dgilling       Add siteIdOverride field.    
 # 
 #
 
@@ -40,7 +40,7 @@ class ExecuteIfpNetCDFGridRequest(AbstractGfeRequest):
     def __init__(self, outputFilename=None, parmList=[], databaseID=None,
                  startTime=None, endTime=None, mask=None, geoInfo=False, 
                  compressFile=False, configFileName=None, compressFileFactor=0, 
-                 trim=False, krunch=False, userID=None, logFileName=None):
+                 trim=False, krunch=False, userID=None, logFileName=None, siteIdOverride=None):
         super(ExecuteIfpNetCDFGridRequest, self).__init__()
         self.outputFilename = outputFilename
         self.parmList = parmList
@@ -56,6 +56,7 @@ class ExecuteIfpNetCDFGridRequest(AbstractGfeRequest):
         self.krunch = krunch
         self.userID = userID
         self.logFileName = logFileName
+        self.siteIdOverride = siteIdOverride
         if self.userID is not None:
             self.workstationID = WsId(progName='ifpnetCDF', userName=self.userID)
         if self.databaseID is not None:
@@ -78,7 +79,9 @@ class ExecuteIfpNetCDFGridRequest(AbstractGfeRequest):
         retVal += "trim: " + str(self.trim) + ", "
         retVal += "krunch: " + str(self.krunch) + ", "
         retVal += "userID: " + str(self.userID) + ", "
-        retVal += "logFileName: " + str(self.logFileName) + "]"
+        retVal += "logFileName: " + str(self.logFileName) + ", "
+        retVal += "siteIdOverride: " + str(self.siteIdOverride)
+        retVal += "]"
         return retVal
     
     def __repr__(self):
@@ -98,7 +101,9 @@ class ExecuteIfpNetCDFGridRequest(AbstractGfeRequest):
         retVal += "trim=" + repr(self.trim) + ", "
         retVal += "krunch=" + repr(self.krunch) + ", "
         retVal += "userID=" + repr(self.userID) + ", "
-        retVal += "logFileName=" + repr(self.logFileName) + ")"
+        retVal += "logFileName=" + repr(self.logFileName) + ", "
+        retVal += "siteIdOverride: " + str(self.siteIdOverride)
+        retVal += ")"
         return retVal
 
     def getOutputFilename(self):
@@ -185,3 +190,8 @@ class ExecuteIfpNetCDFGridRequest(AbstractGfeRequest):
     def setLogFileName(self, logFileName):
         self.logFileName = logFileName
 
+    def getSiteIdOverride(self):
+        return self.siteIdOverride
+
+    def setSiteIdOverride(self, siteIdOverride):
+        self.siteIdOverride = siteIdOverride

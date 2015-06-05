@@ -29,7 +29,8 @@ import copy
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    09/19/08                      njensen       Initial Creation.
+#    09/19/08                      njensen        Initial Creation.
+#    04/28/2015      #4027         randerso       Expunged Calendar from ActiveTableRecord
 #    
 # 
 #
@@ -64,12 +65,12 @@ def transformActiveTableToPython(table):
         template['phensig'] = atr.getPhensig()
         template['act'] = atr.getAct()
         template['seg'] = atr.getSeg()                
-        template['startTime'] = atr.getStartTime().getTimeInMillis() / 1000
-        template['endTime'] = atr.getEndTime().getTimeInMillis() / 1000
+        template['startTime'] = atr.getStartTime().getTime() / 1000
+        template['endTime'] = atr.getEndTime().getTime() / 1000
         template['ufn'] = atr.isUfn()
         template['officeid'] = atr.getOfficeid()
-        template['purgeTime'] = atr.getPurgeTime().getTimeInMillis() / 1000
-        template['issueTime'] = atr.getIssueTime().getTimeInMillis() / 1000
+        template['purgeTime'] = atr.getPurgeTime().getTime() / 1000
+        template['issueTime'] = atr.getIssueTime().getTime() / 1000
         template['state'] = "Decoded"
         template['xxxid'] = atr.getXxxid()
         
@@ -98,7 +99,7 @@ def transfomActiveTableToThrift(table, mode='PRACTICE'):
     from dynamicserialize.dstypes.com.raytheon.uf.common.activetable.OperationalActiveTableRecord \
          import OperationalActiveTableRecord
     # TODO: Eliminate use of Calendar
-    from dynamicserialize.dstypes.java.util import GregorianCalendar
+    from dynamicserialize.dstypes.java.util import Date
     tableList = []
 
     if mode.upper()=='PRACTICE':
@@ -120,17 +121,13 @@ def transfomActiveTableToThrift(table, mode='PRACTICE'):
         atr.setAct(template['act'])
         atr.setSeg(template['seg'])
                                
-        start = GregorianCalendar.getInstance()
-        start.setTimeInMillis(template['startTime'] * 1000)        
+        start = Date(template['startTime'] * 1000)        
         atr.setStartTime(start)
-        end = GregorianCalendar.getInstance()
-        end.setTimeInMillis(template['endTime'] * 1000)        
+        end = Date(template['endTime'] * 1000)        
         atr.setEndTime(end)
-        purge = GregorianCalendar.getInstance()
-        purge.setTimeInMillis(template['purgeTime'] * 1000)        
+        purge = Date(template['purgeTime'] * 1000)        
         atr.setPurgeTime(purge)
-        issue = GregorianCalendar.getInstance()
-        issue.setTimeInMillis(template['issueTime'] * 1000)        
+        issue = Date(template['issueTime'] * 1000)        
         atr.setIssueTime(issue)        
                 
         atr.setUfn(template['ufn'])                

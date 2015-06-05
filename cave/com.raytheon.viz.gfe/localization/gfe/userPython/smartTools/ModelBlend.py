@@ -690,7 +690,7 @@ class Tool (SmartScript.SmartScript):
         #  Make edgegrid 0-1 across edit area
         #
         if (EdgeType=="Flat"):
-           edgegrid=editArea.getGrid().__numpy__[0]
+           edgegrid=editArea.getGrid().getNDArray()
         elif (EdgeType=="Edge"):
            edgegrid=self.taperGrid(editArea,EdgeWidth)
         else:

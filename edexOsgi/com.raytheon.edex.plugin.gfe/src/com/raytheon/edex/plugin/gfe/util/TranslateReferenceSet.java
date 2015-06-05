@@ -51,13 +51,16 @@ import com.vividsolutions.jts.operation.polygonize.Polygonizer;
 import com.vividsolutions.jts.operation.valid.IsValidOp;
 
 /**
- * TODO Add Description
+ * Command line utility to convert A1 edit area files to A2 edit area files.
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 02/07/2008
+ * Feb 07, 2008                         Initial creation
+ * Apr 01, 2015  #4353     dgilling     Improve logging of Geometry validation errors.
  * 
  * </pre>
  * 
@@ -119,8 +122,7 @@ public class TranslateReferenceSet {
 
     public static ReferenceData translate(File file) {
         ReferenceData refData = null;
-        try {
-            BufferedReader in = new BufferedReader(new FileReader(file));
+        try (BufferedReader in = new BufferedReader(new FileReader(file))) {
             String query = in.readLine();
             if ("NOQUERY".equals(query)) {
                 query = null;
@@ -160,7 +162,6 @@ public class TranslateReferenceSet {
                     excPolys.add(ls);
                 }
             }
-            in.close();
 
             Geometry mls = gf.buildGeometry(incPolys);
             Point pt = gf.createPoint(mls.getCoordinate());
@@ -188,17 +189,11 @@ public class TranslateReferenceSet {
 
             MultiPolygon polygons = gf.createMultiPolygon(included
                     .toArray(new Polygon[included.size()]));
-            if (!polygons.isValid()) {
+            IsValidOp validOp = new IsValidOp(polygons);
+            if (!validOp.isValid()) {
                 System.out.println("WARNING: " + file.getAbsolutePath()
                         + " contains invalid polygons.");
-                IsValidOp validOp = new IsValidOp(polygons);
                 System.out.println(validOp.getValidationError());
-                for (int i = 0; i < polygons.getNumGeometries(); i++) {
-                    Polygon g = (Polygon) polygons.getGeometryN(i);
-                    if (!g.isValid()) {
-                        System.out.println(g);
-                    }
-                }
             }
 
             mls = gf.buildGeometry(excPolys);
@@ -228,15 +223,11 @@ public class TranslateReferenceSet {
             if (excluded.size() > 0) {
                 MultiPolygon holes = gf.createMultiPolygon(excluded
                         .toArray(new Polygon[excPolys.size()]));
-                if (!holes.isValid()) {
+                validOp = new IsValidOp(holes);
+                if (!validOp.isValid()) {
                     System.out.println("WARNING: " + file.getAbsolutePath()
                             + " contains invalid polygons.");
-                    for (int i = 0; i < holes.getNumGeometries(); i++) {
-                        Geometry g = holes.getGeometryN(i);
-                        if (!g.isValid()) {
-                            System.out.println(g);
-                        }
-                    }
+                    System.out.println(validOp.getValidationError());
                 }
 
                 Geometry mp = polygons.difference(holes);
@@ -247,15 +238,11 @@ public class TranslateReferenceSet {
                             .createMultiPolygon(new Polygon[] { (Polygon) mp });
                 }
 
-                if (!polygons.isValid()) {
+                validOp = new IsValidOp(polygons);
+                if (!validOp.isValid()) {
                     System.out.println("WARNING: " + file.getAbsolutePath()
                             + " contains invalid polygons.");
-                    for (int i = 0; i < polygons.getNumGeometries(); i++) {
-                        Geometry g = polygons.getGeometryN(i);
-                        if (!g.isValid()) {
-                            System.out.println(g);
-                        }
-                    }
+                    System.out.println(validOp.getValidationError());
                 }
             }
 

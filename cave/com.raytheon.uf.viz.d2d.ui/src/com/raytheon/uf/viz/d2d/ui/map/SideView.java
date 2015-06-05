@@ -51,7 +51,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
 import com.raytheon.uf.viz.core.maps.scales.MapScalesManager;
 import com.raytheon.uf.viz.core.procedures.Bundle;
-import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.IInputHandler.InputPriority;
 import com.raytheon.uf.viz.core.time.TimeMatchingJob;
@@ -60,6 +59,7 @@ import com.raytheon.uf.viz.d2d.core.legend.D2DLegendResource.LegendMode;
 import com.raytheon.viz.ui.BundleLoader;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.HistoryList;
+import com.raytheon.viz.ui.IRenameablePart;
 import com.raytheon.viz.ui.UiUtil;
 import com.raytheon.viz.ui.color.BackgroundColor;
 import com.raytheon.viz.ui.color.IBackgroundColorChangedListener;
@@ -93,6 +93,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *      Oct 10, 2013    #2104       mschenke    Switched to use MapScalesManager
  *      Jul 15, 2014     2954       njensen     Updated init() for MapScalesManager change
  *      Aug 25, 2014     3467       mapeters    Removed changing of editability from swapPanes().
+ *      Mar 02, 2015     4204       njensen     Support for swapping part names
+ *      Apr 02, 2015     4204       njensen     Fix 4-panel swap of renamed parts
  * 
  * </pre>
  * 
@@ -100,7 +102,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  */
 public class SideView extends ViewPart implements IMultiPaneEditor,
-        IBackgroundColorChangedListener {
+        IBackgroundColorChangedListener, IRenameablePart {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SideView.class);
 
@@ -319,13 +321,21 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
 
             AbstractEditor theEditor = (AbstractEditor) editor;
 
+            // swap part name
+            String editorName = theEditor.getPartName();
+            String viewName = this.getPartName();
+            if ("D2D Side View".equals(viewName)) {
+                viewName = IRenameablePart.DEFAULT_PART_NAME;
+            }
+            theEditor.setPartName(viewName);
+            this.setPartName(editorName);
+
             // First thing to do, swap input handlers
             // Get editor resource handlers and unregister on editor
-            final InputPriority[] SWAPPABLE_PRIORITIES = { InputPriority.RESOURCE,
-                    InputPriority.SYSTEM_RESOURCE,
+            final InputPriority[] SWAPPABLE_PRIORITIES = {
+                    InputPriority.RESOURCE, InputPriority.SYSTEM_RESOURCE,
                     InputPriority.SYSTEM_RESOURCE_LOW };
-            HashMap<InputPriority, IInputHandler[]> editorHandlers =
-                    new HashMap<IInputHandler.InputPriority, IInputHandler[]>();
+            HashMap<InputPriority, IInputHandler[]> editorHandlers = new HashMap<IInputHandler.InputPriority, IInputHandler[]>();
             for (InputPriority priority : SWAPPABLE_PRIORITIES) {
                 IInputHandler[] handlers = theEditor.getMouseManager()
                         .getHandlersForPriority(priority);
@@ -336,8 +346,7 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
             }
 
             // Store and unregister input handlers on ourself
-            HashMap<InputPriority, IInputHandler[]> myHandlers =
-                    new HashMap<IInputHandler.InputPriority, IInputHandler[]>();
+            HashMap<InputPriority, IInputHandler[]> myHandlers = new HashMap<IInputHandler.InputPriority, IInputHandler[]>();
             for (InputPriority priority : SWAPPABLE_PRIORITIES) {
                 IInputHandler[] handlers = paneManager.getMouseManager()
                         .getHandlersForPriority(priority);
@@ -356,7 +365,6 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
             }
 
             IDisplayPane[] editorPanes = theEditor.getDisplayPanes();
-            AbstractVizResource<?, ?> editableResource = null;
             // Set swapping so we don't get disposed, and find an editable
             // resource if there is one
             for (IDisplayPane dPane : editorPanes) {
@@ -422,6 +430,8 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
                         .getId()
                         .equals(DescriptorMap.getEditorId(myRenderables[0]
                                 .getDescriptor().getClass().getName()))) {
+
+                    // swap loop properties
                     LoopProperties editorLoopProperties = theEditor
                             .getLoopProperties();
                     theEditor.setLoopProperties(loopProperties);
@@ -466,6 +476,11 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
                                 }
                             }
                         }
+                        /*
+                         * have to set part name again here cause addPane() or
+                         * removePane() may mess it up
+                         */
+                        theEditor.setPartName(viewName);
                     } else {
                         int min = Math.min(viewPaneCount, editorPaneCount);
                         for (int i = 0; i < min; ++i) {
@@ -490,6 +505,8 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
                     LoopProperties editorLoopProperties = theEditor
                             .getLoopProperties();
                     theEditor = UiUtil.createEditor(editorId, myRenderables);
+                    // closed the editor above so have to set the name again
+                    theEditor.setPartName(viewName);
 
                     theEditor.setLoopProperties(loopProperties);
                     this.loopProperties = editorLoopProperties;
@@ -550,8 +567,7 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
                 for (InputPriority priority : SWAPPABLE_PRIORITIES) {
                     IInputHandler[] handlers = myHandlers.get(priority);
                     for (IInputHandler handler : handlers) {
-                        theEditor.registerMouseHandler(handler,
-                                priority);
+                        theEditor.registerMouseHandler(handler, priority);
                     }
                 }
 
@@ -781,4 +797,10 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
         }
         refresh();
     }
+
+    @Override
+    public void setPartName(String partName) {
+        super.setPartName(partName);
+    }
+
 }

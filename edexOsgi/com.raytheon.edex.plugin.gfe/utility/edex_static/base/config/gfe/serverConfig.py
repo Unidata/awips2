@@ -47,14 +47,25 @@
 #    07/10/2014                    swhite         Add surge and tropical threat WEs and their dependencies
 #    01/08/2015          #15035    lshi           add site WNJ
 #    12/03/2014          #3866     rferrel        Added GFS20
+#    01/13/2015          #3955     randerso       Added definitions for NewTerrain database
+#                                                 Added Topo to ISCPARMS
+#    01/19/2015          #4014     dgilling       Added ETSS.
+#    02/11/2015          #4053     rferrel        Added GLWN and moved GLERL to display only for Great Lakes sites..
+#    01/19/2015          #4014     dgilling       Added ETSS. 
+#    02/24/2015          #16692    byin           Added RTMA. Removed gfsLR and GWW233
+#    03/19/2015          #4300     randerso       Remove GUMa as it is obsolete (per Shannon White)
+#    03/30/2015          #17288    bhunder        Added Guam-RTMA to D2D models
 #    03/30/2015          #17206    yteng          Changed some parameters that are not rate parameters
+#    03/31/2015          #17288    bhunder        Added Weather Params for RTMA
 #    04/03/2015          #4367     dgilling       Change WindGust's time constraints back to TC1 
+#    04/08/2015          #4383     dgilling       Define FireWX ISC configuration parameters.
+#
 #                                                 for Fcst/Official.
 #    04/15/2015          #17383    yteng          Change localTC to fix error that time constraints
-#                         being off
-#                                                 being off
+# 						  being off
+#    Apr 25, 2015         4952     njensen        Updated for new JEP API
 #    04/20/2015          #4414     dgilling       Add missing NWPSTrkngCG0 weather elements.
-#
+#    05/12/2015          #17144    bhunder        Added RTMA model
 ########################################################################
 
 #----------------------------------------------------------------------------
@@ -301,6 +312,12 @@ else:
 WSpdUnc =  ("WSpdUnc", SCALAR, "kts", "WSpd Anl Uncertainty", 12.0, 0.0, 0, NO)
 WDirUnc =  ("WDirUnc", SCALAR, "deg", "WDir Anl Uncertainty", 10.0, 0.0, 0, NO)
 VisUnc  =  ("VisUnc", SCALAR, "SM", "Vsby Anl Uncertainty", 10.0, 0.0, 2, NO)
+# DCS 17288
+PressUnc = ("PressUnc", SCALAR, "Pa", "Press Anl Uncertainty", 110000.0, 0.0, 2, NO)
+Pressure = ("Pressure", SCALAR, "Pa", "Pressure", 110000.0, 0.0, 2, NO)
+WGustUnc =  ("WGustUnc", SCALAR, "kts", "WGust Anl Uncertainty", 12.0, 0.0, 0, NO)
+# DR 17144
+SkyUnc =    ("SkyUnc", SCALAR, "%", "Sky Uncertainty", 100.0, 0.0, 0, NO)
 
 # NamDNG5 parms
 QPF3 =     ("QPF3", SCALAR, "in", "3HR QPF", 3.0, 0.0, 2, YES)
@@ -576,7 +593,8 @@ if not BASELINE and siteImport('localWxConfig'):
 #  Projection Configuration section.
 #
 #---------------------------------------------------------------------------
-from com.raytheon.uf.common.dataplugin.gfe.config import ProjectionData_ProjectionType as ProjectionType
+from com.raytheon.uf.common.dataplugin.gfe.config import ProjectionData
+ProjectionType = ProjectionData.ProjectionType
 NONE = ProjectionType.NONE
 LAMBERT_CONFORMAL = ProjectionType.LAMBERT_CONFORMAL
 MERCATOR = ProjectionType.MERCATOR
@@ -932,7 +950,7 @@ SITES = {
     'AICE' : ([560, 340], (9.0, 11.0), (29.0, 19.0), 'America/Anchorage',
        Grid203, "nc"),
 #Nested for GUM (future)
-    'GUMa': ([193, 193], (23.0, 26.0), (3.0, 3.0), 'Pacific/Guam', Grid204, "other"),
+#    'GUMa': ([193, 193], (23.0, 26.0), (3.0, 3.0), 'Pacific/Guam', Grid204, "other"),
 #Regional Offices
     'VUY' : ([337,449], (62.00, 19.00), (21.0, 28.0), 'EST5EDT', Grid211, "ro"),
     'BCQ' : ([145,145], (50.00, 27.00), (9.0, 9.0), 'CST6CDT', Grid211, "ro"),
@@ -1111,6 +1129,7 @@ NamDNG5     = ('NamDNG5',      GRID,   '', NO,   NO,  2, 0)
 TPCProb     = ('TPCProb',      GRID,   '', NO,   NO, 30, 0)
 SREF        = ('SREF',         GRID,   '', NO,   NO,  3, 0)
 ENPwave     = ('ENPwave',      GRID,   '', NO,   NO,  2, 0)
+ETSS        = ('ETSS',         GRID,   '', NO,   NO,  2, 0)
 GFSLAMPGrid = ('GFSLAMPGrid',  GRID,   '', NO,   NO,  3, 0)
 #---------------------------------------------------------------------------
 #
@@ -1176,6 +1195,7 @@ if SID in ALASKA_SITES:
                  'AKHwave4',
                  'GLOBHwave',
                  ('GFS217', 'GFS20'),
+                 ('ETSS-AK', 'ETSS'),
                ]
 
 # Hawaii OCONUS
@@ -1237,17 +1257,18 @@ elif SID == "SJU":
 
 # Guam OCONUS
 elif SID == "GUM":
-    D2DMODELS = [('MRF204', 'gfsLR'),
-                 ('AVN225', 'GFS75'),
-                 'GWW233',
+    D2DMODELS = [('AVN225', 'GFS75'),
                  'GlobalWave',
                  ('TPCWindProb', 'TPCProb'),
                  'RTOFS-Guam',
                  'WPHwave10',
                  'GLOBHwave',
+                 ('Guam-RTMA','RTMA'),
                  ('nwpsCG1', 'nwpsCG1'),
                  ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
                  ('GFS20-PAC', 'GFS20'),
+                 # DCS #17288
+                 ('Guam-RTMA', 'RTMA'),
                ]
 
 #CONUS sites
@@ -1269,7 +1290,6 @@ elif SID in CONUS_EAST_SITES:
                  ('HPCqpfNDFD', 'HPCERP'),
                  ('RFCqpf', 'RFCQPF'),
 #DR3511                 'HPCdelta',
-                 'GLERL',
                  'WNAWAVE238',
                  'TPCSurgeProb',
                  'GlobalWave',
@@ -1290,7 +1310,8 @@ elif SID in CONUS_EAST_SITES:
                  ('nwpsCG1', 'nwpsCG1'),
                  ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
                  'MOSGuide',
-                 'RTMA',
+            ##############DR17144  
+                 ('RTMA25', 'RTMA'),
                  'NamDNG5',
                  ('TPCWindProb','TPCProb'),
                  ('SREF212', 'SREF'),
@@ -1311,6 +1332,7 @@ elif SID in CONUS_EAST_SITES:
                  'GLOBHwave',
                  'URMA25',
                  ('GFS215', 'GFS20'),
+                 'ETSS',
                  'GFSLAMPGrid',
                  ('FFG-ALR', 'FFGALR'),
                  ('FFG-FWR', 'FFGFWR'),
@@ -1345,7 +1367,6 @@ else:   #######DCS3501 WEST_CONUS
                  ('RFCqpf', 'RFCQPF'),
                  ('HRRR', 'HRRR'),
 #DR3511                 'HPCdelta',
-                 'GLERL',
                  'WNAWAVE238',
                  'TPCSurgeProb',
                  'GlobalWave',
@@ -1367,7 +1388,8 @@ else:   #######DCS3501 WEST_CONUS
                  ('nwpsCG1', 'nwpsCG1'),
                  ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
                  'MOSGuide',
-                 'RTMA',
+              #######DR17144
+                 ('RTMA25', 'RTMA'),
                  'NamDNG5',
                  ('TPCWindProb','TPCProb'),
                  ('SREF212', 'SREF'),
@@ -1387,6 +1409,7 @@ else:   #######DCS3501 WEST_CONUS
                  'GLOBHwave',
                  'URMA25',
                  ('GFS215', 'GFS20'),
+                 'ETSS',
                  'GFSLAMPGrid',
                  ('FFG-ALR', 'FFGALR'),
                  ('FFG-FWR', 'FFGFWR'),
@@ -1404,6 +1427,8 @@ else:   #######DCS3501 WEST_CONUS
 
 if SID in GreatLake_SITES:
     D2DMODELS.append(('GRLKwave', 'GLWM'))
+    D2DMODELS.append('GLERL')
+    D2DMODELS.append('GLWN')
 
 #---------------------------------------------------------------------------
 #
@@ -1550,6 +1575,7 @@ elif SID in ALASKA_SITES:
         "RTMA": ['RTMA'],
         "NamDNG5" : ["NamDNG5"],
         "AKMOSGuide" : ['MOSGuide'],
+        "ETSS" : ["ETSS"],
         }
 
 # Hawaii OCONUS
@@ -1651,6 +1677,7 @@ else:
 #        "WNAwave4" : ["WNAwave4"],
 #        "ENPwave": ["ENPwave"],
         "ESTOFS" : ["ESTOFS"],
+        "ETSS" : ["ETSS"],
         "GFSLAMPGrid" : ["GFSLAMPGrid"],
         "nwpsCG1" : ['nwpsCG1'],
         "nwpsTrkngCG0" : ['nwpsTrkngCG0'],
@@ -1796,6 +1823,7 @@ localNamDNG5Parms = []
 localSREFParms = []
 localTPCProbParms = []
 localGFSLAMPGridParms = []
+localETSSParms = []
 localHRRRParms = []
 localESTOFSParms = []
 localnwpsCG1Parms = []
@@ -1803,6 +1831,13 @@ localnwpsTrkngCG0Parms = []
 localISCExtraParms = []
 
 myOfficeType = SITES[GFESUITE_SITEID][5]
+
+AdditionalISCRouting = [ 
+   # Configure by adding entries to this list in the form of:
+   # ([WeatherElements],  ModelName, EditAreaPrefix)
+   # Example: 
+   # ([Hazards, LAL, CWR], "ISCFire", "FireWxAOR_"), 
+]
 
 if not BASELINE and siteImport('localConfig'):
     #ensure office type is set properly in localConfig SITES[]
@@ -1814,6 +1849,7 @@ if not BASELINE and siteImport('localConfig'):
         myOfficeType = SITES[GFESUITE_SITEID]  #probably from localConfig
 
     localESTOFSParms = getattr(localConfig, 'parmsESTOFS', localESTOFSParms)
+    localETSSParms = getattr(localConfig, 'parmsETSS', localETSSParms)
     localnwpsCG1Parms = getattr(localConfig, 'parmsnwpsCG1', localnwpsCG1Parms)
     localnwpsTrkngCG0Parms = getattr(localConfig, 'parmsnwpsTrkngCG0', localnwpsTrkngCG0Parms)
     localParms = getattr(localConfig, 'parms', localParms)
@@ -1905,6 +1941,8 @@ STD1_MODEL = [([Temp, Td, RH, Wind, Wind20ft, Sky, FzLevel, SnowLevel], TC1),
 
 ESTOFSPARMS = [([StormSurge, AstroTide], TC1)]
 
+ETSSPARMS = [([StormSurge], TC1)]
+
 HRRRPARMS = [([Temp, Td, RH, Wind, WindGust, Sky, QPF], TC1)]
 
 # 3 hourly
@@ -1947,8 +1985,8 @@ OFFICIALDBS = [([Temp, Td, Wind, NWPSwind, Weather, Sky, FzLevel, SnowLevel], TC
           ([PoP, Ttrend, RHtrend, Wind20ft, WindGust], TC1),
           ([MinT], MinTTC), ([MaxT], MaxTTC),
           ([MinRH], MinRHTC), ([MaxRH], MaxRHTC),
-#          ([WaveHeight, SurfHeight, Swell, Swell2, Period], TC3NG), DR 17496 - this is appended below
-          ([SwanSwell, Wave1, Wave2, Wave3, Wave4, Wave5, Wave6, Wave7, Wave8, Wave9, Wave10, Period1, Period3, Period4, Period5, Period6, Period7, Period8, Period9, Period10], TC3NG),
+          ([WaveHeight, SurfHeight, Swell, Swell2, Period], TC3NG),
+          ([WindWaveHeight, SwanSwell, Wave1, Wave2, Wave3, Wave4, Wave5, Wave6, Wave7, Wave8, Wave9, Wave10, Period1, Period2, Period3, Period4, Period5, Period6, Period7, Period8, Period9, Period10], TC3NG),
           ([VentRate, LAL, Haines, MixHgt, FreeWind, TransWind], TC1),
           ([DSI, Stability, MarineLayer], TC1),
           ([HrsOfSun, InvBurnOffTemp], LT24),
@@ -1969,13 +2007,6 @@ OFFICIALDBS = [([Temp, Td, Wind, NWPSwind, Weather, Sky, FzLevel, SnowLevel], TC
           ([cape], LT6NG),
           ([ApparentT, HeatIndex, WindChill, UWaveDir, VWaveDir, LkSfcT, SnowMap, WaveDir, SnowRatio, StormTotalQPF], TC1),
           ]
-
-# Add wind/wave paramters based of site ID - DR 17496
-if SID in GreatLake_SITES:
-    OFFICIALDBS.append(([WaveHeight, WindWaveHeight, SurfHeight, Swell, Swell2, Period, Period2], TC1))
-else:
-    OFFICIALDBS.append(([WaveHeight, WindWaveHeight, SurfHeight, Swell, Swell2, Period, Period2], TC3NG))
-# End addition for DR 17496
 
 # NWPS
 nwpsCG1_MODEL = [([SwanSwell, Period, WaveHeight, WindWaveHeight, Wind], TC3NG)]
@@ -2039,16 +2070,17 @@ TPCTCM_MODEL = [([HiWind], TC3)]
 
 # RTMA database parameter groupings
 #if SID in ALASKA_SITES: - not sure if this is right
+# DCS17288/DR17144
 if SID in ALASKA_SITES or SID in ["HFO", "SJU"]:
-    RTMAPARMS = [([Temp,Td,RH,Wind,Vis],TC1),
+    RTMAPARMS = [([Temp,Td,RH,Wind,Vis,Pressure,WindGust],TC1),
              ([MinT],MinTTC), ([MaxT],MaxTTC),
              ([MinRH],MinRHTC), ([MaxRH],MaxRHTC),
-             ([TUnc,TdUnc,WSpdUnc,WDirUnc,VisUnc],TC1)]
+             ([TUnc,TdUnc,WSpdUnc,WDirUnc,VisUnc,PressUnc,WGustUnc,SkyUnc],TC1)]
 else:
-    RTMAPARMS = [([Temp,Td,RH,Wind,QPE,Sky,Vis],TC1),
+    RTMAPARMS = [([Temp,Td,RH,Wind,QPE,Sky,Vis,Pressure,WindGust],TC1),
              ([MinT],MinTTC), ([MaxT],MaxTTC),
              ([MinRH],MinRHTC), ([MaxRH],MaxRHTC),
-             ([TUnc,TdUnc,WSpdUnc,WDirUnc,VisUnc],TC1)]
+             ([TUnc,TdUnc,WSpdUnc,WDirUnc,VisUnc,PressUnc,WGustUnc,SkyUnc],TC1)]
 
 # NamDNG5 database parameter groupings
 NamDNG5PARMS = [([Temp, Td, RH, Wind, Sky, WindGust, Vis], TC3),
@@ -2104,6 +2136,7 @@ DATABASES = [(Official, OFFICIALDBS + localParms),
              (AKwave4, WAVEPARMS + localAKwave4Parms),
              (EPwave10, WAVEPARMS + localEPwave10Parms),
              (ESTOFS, ESTOFSPARMS + localESTOFSParms),
+             (ETSS, ETSSPARMS + localETSSParms),
              (nwpsCG1, nwpsCG1_MODEL + localnwpsCG1Parms),
              (nwpsTrkngCG0, nwpsTrkngCG0_MODEL + localnwpsTrkngCG0Parms),
              (GlobalWave, WAVEPARMS + localGlobalWaveParms),
@@ -2160,9 +2193,34 @@ RESTOREPARMS = []
 for wes, tc in (OFFICIALDBS + localParms):
     RESTOREPARMS.append((wes, TC1))
 
+#
+# Add new parameters for NewTerrain
+#
+OldTerrain = ("OldTerrain", SCALAR, "ft", "Old Terrain", 50000.0, -32000.0, 1, NO)
+NewTerrain = ("NewTerrain", SCALAR, "ft", "New Terrain", 50000.0, -32000.0, 1, NO)
+Topo       = ("Topo",       SCALAR, "ft", "Topography",  50000.0, -32000.0, 1, NO)
+
+NewTerrainDB = ("NewTerrain",   GRID, 'EditTopo', YES, NO, 1, 0)
+NewTerrainParms = [([OldTerrain, NewTerrain], TC1)]
+DATABASES.append((NewTerrainDB, NewTerrainParms))
+
+# Add Topo to ISC parms for NewTerrain
+if type(REQUESTED_ISC_PARMS) is list and not "Topo" in REQUESTED_ISC_PARMS:
+    REQUESTED_ISC_PARMS.append("Topo")
+ISCPARMS.append(([Topo], Persistent))
+
+
 # Now add the ISC and Restore databases to the DATABASES groupings
 DATABASES.append((Restore, RESTOREPARMS))
 DATABASES.append((ISC, ISCPARMS))
+
+for entry in AdditionalISCRouting:
+    (parmList, dbName, editAreaPrefix) = entry
+    parmList = list(parmList)
+    addedIscDbDefinition = (dbName, ) + ISC[1:]
+    addedIscParms = [(parmList, TC1)]
+    DATABASES.append((addedIscDbDefinition, addedIscParms))
+
 
 #---------------------------------------------------------------------------
 #
@@ -2244,5 +2302,6 @@ def doIt():
     IFPConfigServer.sendiscOnPublish = sendiscOnPublish
     IFPConfigServer.requestedISCparms = requestedISCparms
     IFPConfigServer.transmitScript = transmitScript
+    IFPConfigServer.iscRoutingConfig = doConfig.parseAdditionalISCRouting(AdditionalISCRouting)
 
 doIt()

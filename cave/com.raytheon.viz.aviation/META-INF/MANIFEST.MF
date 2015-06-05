@@ -57,3 +57,4 @@ Import-Package: com.raytheon.uf.common.dataplugin.acarssounding,
  com.raytheon.uf.common.serialization.comm,
  javax.measure.converter,
  javax.measure.unit
+Bundle-ClassPath: com.raytheon.viz.aviation.jar

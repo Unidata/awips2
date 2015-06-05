@@ -23,7 +23,7 @@
 
 	AWIPS II NEW FILE - Twstk.xml
 -->
-<DerivedParameter name="Wet-bulb Temp Stack" abbreviation="Twstk" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+<DerivedParameter unit="K" name="Wet-bulb Temp Stack" abbreviation="Twstk" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <Method levels="MB,C" name="Union">
         <Field abbreviation="TW"/>
     </Method>

@@ -37,13 +37,13 @@
 #  displayName      If not None, defines how product appears in GFE GUI
 #  defaultEditAreas defines edit areas, default is Combinations
 #
-#  productName      defines name of product e.g. "MARINE VERIFICATION FORECAST"
+#  productName      defines name of product e.g. "Marine Verification Forecast"
 #  fullStationID    Full station identifier, 4 letter, such as "KSLC".
 #  wmoID            WMO ID code for product header, such as "FOUS45"
 #  pil              Product pil, such as "MVFBOS"
 #  zoneCode         ZONE code for product header, such as "NYZ001>025"
-#  stateName        State name for product header, such as "WESTERN NEW YORK"
-#  wfoCityState     WFO location, such as "BUFFALO NY"
+#  stateName        State name for product header, such as "Western New York"
+#  wfoCityState     WFO location, such as "Buffalo NY"
 #
 # Optional Configuration Items
 #  database               Source database for product. Can be "Official", 
@@ -106,12 +106,12 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                                ("area2", "45005"),
                             ],
         # product identifiers
-        "productName": "MARINE VERIFICATION FORECAST", # product name 
+        "productName": "Marine Verification Forecast", # product name 
         "fullStationID": "<fullStationID>",    # full station identifier (4letter)
         "wmoID": "<wmoID>",          # WMO ID
         "pil": "<pil>",            # Product pil
         "zoneCode": "stZALL",       # Zone Code, such as "GAZ025-056"
-        "stateName": "<state>",   # Name of state, such as "GEORGIA"
+        "stateName": "<state>",   # Name of state, such as "Georgia"
         "wfoCityState": "<wfoCityState>", # Location of WFO - city state
         
         "textdbPil": "<textdbPil>",       # Product ID for storing to AWIPS text database.
@@ -259,8 +259,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
           (self._getAnalysisList(), self._timeRangeList, self._areaList))
 
     def _preProcessProduct(self, fcst, argDict):
-        fcst =  fcst + self._wmoID + " " + self._fullStationID + " " + \
-               self._ddhhmmTime + "\n" + self._pil + "\n\n"                     
+        s = self._wmoID + " " + self._fullStationID + " " + \
+               self._ddhhmmTime + "\n" + self._pil + "\n\n"
+        fcst =  fcst + s.upper()
         return fcst
 
     def _preProcessArea(self, fcst, editArea, areaLabel, argDict):

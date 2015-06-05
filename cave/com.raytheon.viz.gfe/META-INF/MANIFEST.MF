@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: GFE Plug-in
 Bundle-SymbolicName: com.raytheon.viz.gfe;singleton:=true
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.15.0.qualifier
 Bundle-Activator: com.raytheon.viz.gfe.Activator
 Bundle-Vendor: Raytheon
 Require-Bundle: org.eclipse.ui,
@@ -12,7 +12,6 @@ Require-Bundle: org.eclipse.ui,
  javax.measure,
  com.raytheon.viz.ui,
  org.apache.commons.lang,
- org.geotools,
  org.jep,
  org.apache.velocity,
  com.raytheon.viz.core.contours,
@@ -34,7 +33,11 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.activetable,
  com.raytheon.uf.viz.image.export;bundle-version="1.14.0",
  com.raytheon.uf.viz.kml.export;bundle-version="1.14.1",
- com.raytheon.uf.common.numeric;bundle-version="1.14.0"
+ com.raytheon.uf.common.numeric;bundle-version="1.14.0",
+ com.raytheon.uf.common.topo;bundle-version="1.14.0",
+ com.raytheon.uf.common.plugin.nwsauth;bundle-version="1.14.0",
+ com.raytheon.uf.viz.core.grid;bundle-version="1.15.0",
+ com.raytheon.uf.viz.core.point;bundle-version="1.15.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.gfe,
  com.raytheon.viz.gfe.constants,
@@ -62,8 +65,6 @@ Import-Package: com.raytheon.uf.common.dissemination,
  com.raytheon.uf.viz.python.swt,
  com.raytheon.uf.viz.python.swt.widgets,
  com.raytheon.uf.viz.ui.menus.widgets.tearoff,
- com.raytheon.viz.core.gl,
- com.raytheon.viz.pointdata,
  com.raytheon.viz.texteditor.util,
  com.raytheon.viz.ui.tools.map,
  org.apache.commons.logging,
@@ -72,3 +73,4 @@ Import-Package: com.raytheon.uf.common.dissemination,
  org.eclipse.jface.text.contentassist;resolution:=optional,
  org.eclipse.ui.texteditor.spelling;resolution:=optional
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ClassPath: com.raytheon.viz.gfe.jar

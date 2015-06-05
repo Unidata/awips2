@@ -54,7 +54,8 @@ import numpy
 import SmartScript
 import time
 import TimeRange
-from com.raytheon.uf.common.dataplugin.gfe.db.objects import GFERecord_GridType as GridType
+from com.raytheon.uf.common.dataplugin.gfe.db.objects import GridParmInfo
+GridType = GridParmInfo.GridType
 
 class ISC_Utility(SmartScript.SmartScript):
     def __init__(self, dbss, eaMgr, mdMode=None, toolType="numeric"):
@@ -1039,7 +1040,10 @@ class ISC_Utility(SmartScript.SmartScript):
     # 
     def _convertTimeRange(self, trName):
         if trName == "All Grids":
-            timeRange = TimeRange.allTimes()
+            curTime = time.gmtime()
+            startHour = curTime[3]
+            timeRange = self.createTimeRange(startHour, 204) 
+           #timeRange = TimeRange.allTimes()
            # timeRange = AFPS.TimeRange(AFPS.AbsTime(0),
            #      AFPS.AbsTime_maxFutureTime())
         elif trName == "Selected Time":

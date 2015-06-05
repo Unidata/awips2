@@ -64,7 +64,7 @@ class TextProduct(GenericReport.TextProduct):
         "defaultEditAreas" : "Combinations_RFD_<site>",
 
         # product identifiers
-        "productName": "FIRE DANGER STATEMENT", # product name 
+        "productName": "Fire Danger Statement", # product name 
         "fullStationID" : "<fullStationID>",    # 4 letter station ID
         "wmoID" : "<wmoID>",                    # WMO code
         "wfoCityState" : "<wfoCityState>",      # Location of WFO
@@ -79,7 +79,7 @@ class TextProduct(GenericReport.TextProduct):
         "language": "english",
         "lineLength": 66,   #Maximum line length
         "includeCities" : 0,    # Cities included in area header
-        "cityDescriptor" : "INCLUDING THE CITIES OF",
+        "cityDescriptor" : "Including the cities of",
         "includeZoneNames" : 0, # Zone names will be included in the area header
         "includeIssueTime" : 0,   # This should be set to zero
         "singleComboOnly" : 1, # Used for non-segmented products
@@ -121,14 +121,14 @@ class TextProduct(GenericReport.TextProduct):
         issuedByString = self.getIssuedByString()
         productName = self.checkTestMode(argDict, self._productName)
         s = productName + "\n" + \
-               "NATIONAL WEATHER SERVICE " + self._wfoCityState + \
+               "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
         fcst = fcst + s.upper()
         return fcst
 
     def _makeProduct(self, fcst, editArea, areaLabel, argDict):
-        fcst = fcst + "|* HEADLINE DESCRIBING FIRE DANGER INDEX LEVEL AND TIME PERIOD *|\n\n"
-        fcst = fcst + "|* DESCRIBE AREA OF THE FIRE DANGER AND WEATHER CONDITIONS *|"        
+        fcst = fcst + "|* Headline describing fire danger index level and time period *|\n\n"
+        fcst = fcst + "|* Describe area of the fire danger and weather conditions *|"        
         return fcst
 
     def _postProcessProduct(self, fcst, argDict):

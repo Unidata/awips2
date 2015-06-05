@@ -64,6 +64,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 01/07/2013	DR 15647   gzhang	   Use logger.warn for null earlyVilURI/earlyCZURI.	
  * 11/11/2013   2377       bclement    setRadarRecords returns bool for success
  * Apr 24, 2014 2060       njensen     Updates for removal of grid dataURI column
+ * Feb 09, 2105 3077       dhladky     Fixed underlying cache logic.
  * </pre>
  * 
  * @author dhladky
@@ -548,22 +549,12 @@ public class QPFConfig {
 
             int interval = TimeUtil.MINUTES_PER_DAY;
 
-            /*
-             * FIXME the inner calls to ####Product.getGridProduct below will
-             * always return null. The second parameter is supposed to be the
-             * model (e.g. RUC130) but is passing in the parameter.
-             * 
-             * Despite this problem, the code continues to function without
-             * exceptions because the call to DATUtils.getMostRecentGridRecord()
-             * will see the null record and then return the cached record, which
-             * was retrieved correctly.
-             */
             GridRecord modelURec = DATUtils.getMostRecentGridRecord(interval,
-                    U700Product.getGridRecord(interval, U700Product.U700),
+                    U700Product.getGridRecord(interval, paramXMLU.getModelName()),
                     paramXMLU);
 
             GridRecord modelVRec = DATUtils.getMostRecentGridRecord(interval,
-                    V700Product.getGridRecord(interval, V700Product.V700),
+                    V700Product.getGridRecord(interval, paramXMLV.getModelName()),
                     paramXMLV);
 
             if (modelURec != null && modelVRec != null) {

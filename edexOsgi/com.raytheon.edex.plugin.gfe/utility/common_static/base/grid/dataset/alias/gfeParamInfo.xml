@@ -8,6 +8,7 @@
     <alias base="estofsUS">ESTOFS</alias>
     <alias base="estofsPR">ESTOFS</alias>
     <alias base="GLERL">glerl</alias>
+    <alias base="GLWN">GRLKwave</alias>
     <alias base="MPE-Local">localMPE</alias>
     <alias base="MPE-Mosaic">mosaicMPE</alias>
     <alias base="HPE">localHPE</alias>
@@ -96,9 +97,8 @@
     <alias base="GFS161">gfs161</alias>
     <alias base="GFS199">gfs161</alias>
     <alias base="RUC130">ruc130</alias>
-    <alias base="RTMA">rtmaNDFD</alias>
+    <alias base="RTMA25">rtmaNDFD</alias>
     <alias base="URMA25">urmaNDFD</alias>
-    <alias base="RTMA-Mosaic">rtmaNDFD</alias>
     <alias base="AK-RTMA">aKrtmaNDFD</alias>
     <alias base="NamDNG5">NamDNG5</alias>
     <alias base="GlobalWave">GlobalWave</alias>
@@ -142,8 +142,6 @@
     <alias base="SREF243">sref243</alias>
     <alias base="RTGSST">RTGSST235</alias>
     <alias base="GFSGuide">gfsGuide232</alias>
-    <alias base="RTMA">rtmaNDFD</alias>
-    <alias base="RTMA-Mosaic">rtmaNDFD</alias>
     <alias base="AK-RTMA">aKrtmaNDFD</alias>
     <alias base="AK-RTMA3">aKrtmaNDFD</alias>
     <alias base="HI-RTMA">HIrtmaNDFD</alias>
@@ -215,6 +213,8 @@
     <alias base="NAHwave15">NAHwave15</alias>
     <alias base="NAHwave10">NAHwave10</alias>
     <alias base="NAHwave4">NAHwave4</alias>
+    <alias base="ETSS">ETSS</alias>
+    <alias base="ETSS-AK">ETSS</alias>
     <alias base="nwpsCG1">nwpsCG1</alias>
     <alias base="nwpsTrkngCG0">nwpsTrkngCG0</alias>
     <alias base="FFG-ALR">RFCFFG_ParameterInfo</alias>

@@ -291,6 +291,17 @@
         </process>
     </model>
     
+    <!-- Great Lakes (GLWN 2.5KM) -->
+    <model>
+        <name>GLWN</name>
+        <center>7</center>
+        <subcenter>0</subcenter>
+        <grid>GL-GRID-2P5KM</grid>
+        <process>
+            <id>131</id>
+        </process>
+    </model>
+    
 	<model>
 		<name>WAFS</name>
 		<center>7</center>
@@ -1103,7 +1114,7 @@
 	</model>
 
 	<model>
-		<name>RTMA-Mosaic</name>
+		<name>RTMA25</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>184</grid>
@@ -2525,17 +2536,7 @@
 	</model>
 
 	<model>
-		<name>RTMA2P5KM</name>
-		<center>7</center>
-		<subcenter>4</subcenter>
-		<grid>1971</grid>
-		<process>
-			<id>109</id>
-		</process>
-	</model>
-
-	<model>
-		<name>RTMA-Mosaic</name>
+		<name>RTMA25</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
 		<grid>184</grid>

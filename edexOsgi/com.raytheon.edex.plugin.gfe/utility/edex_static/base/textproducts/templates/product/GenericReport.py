@@ -35,12 +35,12 @@
 #
 #  You must set the following:
 #
-#  productName      defines name of product e.g. "ZONE FORECAST PRODUCT"
+#  productName      defines name of product e.g. "Zone Forecast Product"
 #  fullStationID    Full station identifier, 4 letter, such as "KSLC".
 #  wmoID            WMO ID code for product header, such as "FOUS45"
 #  pil              Product pil, such as "SFTBOS"
-#  areaName (opt.)  Area name for product header, such as "WESTERN NEW YORK"
-#  wfoCityState     City,state that the WFO is located in, such as "BUFFALO NY"
+#  areaName (opt.)  Area name for product header, such as "Western New York"
+#  wfoCityState     City,state that the WFO is located in, such as "Buffalo NY"
 #
 # Optional Configuration Items
 #
@@ -66,7 +66,7 @@
 #
 #  defaultEditAreas       Defines edit areas, default is Combinations
 #  includeCities          If 1, cities will be included in the area header
-#  cityDescriptor         "INCLUDING THE CITIES OF" phrase used when including
+#  cityDescriptor         "Including the cities of" phrase used when including
 #                         cities
 #  includeZoneNames       If 1, zone names will be included in the area header
 #
@@ -135,7 +135,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         ## Edit Areas: Create Combinations file with edit area combinations.
         "defaultEditAreas" : "",
         "includeCities": 1 ,  # Cities included in area header
-        "cityDescriptor":"INCLUDING THE CITIES OF",
+        "cityDescriptor":"Including the cities of",
         "includeZoneNames":1, # Zone names will be included in the area header
 
         # product identifiers
@@ -251,7 +251,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     def _preProcessProduct(self, fcst, argDict):
         # Product header
         if self._areaName != "":
-             productName = self._productName.strip() + " FOR " + \
+             productName = self._productName.strip() + " for " + \
                            self._areaName.strip()
         else:
              productName = self._productName.strip()
@@ -261,7 +261,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         s = self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
                productName + "\n" +\
-               "NATIONAL WEATHER SERVICE " + self._wfoCityState + \
+               "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
 
         fcst =  fcst + s.upper()

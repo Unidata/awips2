@@ -77,7 +77,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Sep 16, 2014 2757          skorolev     Updated createBottomButtons method.
  * Sep 24, 2014 2757          skorolev     Fixed problem with adding and removing zones.
  * Oct 27, 2014 3667          skorolev     Corrected functionality of dialog. Cleaned code.
- * Nov 12, 2014 3650          skorolev     Added confirmation box for unsaved changes in the dialog.
+ * Nov 12, 2014 3650          skorolev     Added confirmation box for unsaved changes in the dialog.   
  * Mar 08, 2015 3888          dhladky      Restored threshold pop-up when adding new stations/zones.
  * 
  * </pre>
@@ -1063,6 +1063,11 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     protected int showMessage(Shell shell, int style, String title, String msg) {
         MessageBox messageBox = new MessageBox(shell, style);
         messageBox.setText(title);
+        int cnt = title.length() - msg.length();
+        if (cnt > 0) {
+            // expand message by spaces
+            msg = msg + String.format("%" + (cnt + 3) + "s", " ");
+        }
         messageBox.setMessage(msg);
         return messageBox.open();
     }

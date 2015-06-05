@@ -46,6 +46,7 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * ------------ ----------  ----------- --------------------------
  * 06/22/09      2152       D. Hladky   Initial release
  * Apr 24, 2014  2060       njensen     Updates for removal of grid dataURI column
+ * 09 Feb 2015   3077       dhladky     Updated cache logic
  * 
  * </pre>
  * 
@@ -136,41 +137,55 @@ public class DATUtils {
 
         try {
             ScanDataCache cache = ScanDataCache.getInstance();
-            /*
-             * TODO njensen: we should only spend time populating if the new rec
-             * replaces the old rec. Delaying that change as at present as I'm
-             * just trying to make it work the same as before.
-             */
-            populateGridRecord(newRec);
-
+            // if this is true, existing grid is in the cache.
             if (cache.getModelData().isType(param.getModelName(),
                     param.getParameterName())) {
+                // get the old record for comparison
                 GridRecord oldRec = cache.getModelData().getGridRecord(
                         param.getModelName(), param.getParameterName());
-
+                
                 if (newRec != null) {
                     if (newRec.getDataTime().getRefTime()
                             .after(oldRec.getDataTime().getRefTime())) {
+                        // fully populate the new record
+                        populateGridRecord(newRec);
+                        // insert new record
                         cache.getModelData().setGridRecord(
                                 param.getModelName(), param.getParameterName(),
                                 newRec);
+                        // new record replaces old record.
                         rec = newRec;
                     } else {
+                        // old record is the same time as new
                         rec = oldRec;
                     }
                 } else {
+                    // new record is null, do not overwrite
                     rec = oldRec;
                 }
+            // if you get here this means that no grid exists in cache currently
             } else {
+                // new record is good, insert it
                 if (newRec != null) {
-                    cache.getModelData().setGridRecord(param.getModelName(),
-                            param.getParameterName(), newRec);
+                    // fully populate new record
+                    populateGridRecord(newRec);
+                    // insert new record
+                    cache.getModelData().setGridRecord(
+                            param.getModelName(), param.getParameterName(),
+                            newRec);
                     rec = newRec;
+                // no records for this grid exist at all
+                } else {
+                    logger.warn("No record(s) found matching these criteria. Model:"
+                        + param.getModelName()
+                        + " Param:"
+                        + param.getParameterName() + " Interval:" + interval);
                 }
             }
+
         } catch (Exception e) {
-            logger.error("Error in retrieval: " + param.getModelName() + ": "
-                    + param.getParameterName() + " record: " + newRec);
+            logger.error("Error in grid retrieval: " + param.getModelName() + ": "
+                    + param.getParameterName() + " record: " + newRec, e);
         }
 
         return rec;

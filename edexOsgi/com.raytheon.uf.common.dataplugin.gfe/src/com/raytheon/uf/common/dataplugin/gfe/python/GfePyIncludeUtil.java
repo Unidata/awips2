@@ -41,6 +41,8 @@ import com.raytheon.uf.common.util.FileUtil;
  * Sep 16, 2013      #1759 dgilling    Move tests and autotests to GfeCavePyIncludeUtil.
  * Aug 22, 2014      #3500 bclement    added python path in getConfigIncludePath()
  * Nov 11, 2014      #4953 randerso    Changed COMMON_GFE to public
+ * Jan 23, 2015      #4027 randerso    added configured and site to getCommonGfeIncludePath
+ * Mar 12, 2015      #4246 randerso    Changes to support VCModules at base, site, and user levels
  * </pre>
  * 
  * @author njensen
@@ -134,11 +136,6 @@ public class GfePyIncludeUtil extends PythonIncludePathUtil {
         return PATH_MANAGER.getLocalizationFile(ctx, HEADLINE);
     }
 
-    public static LocalizationFile getTextProductsTemplatesLF(
-            LocalizationContext ctx) {
-        return PATH_MANAGER.getLocalizationFile(ctx, TEXT_PRODUCTS);
-    }
-
     public static LocalizationFile getCombinationsLF(LocalizationContext ctx) {
         return PATH_MANAGER.getLocalizationFile(ctx, COMBINATIONS);
     }
@@ -151,10 +148,17 @@ public class GfePyIncludeUtil extends PythonIncludePathUtil {
 
     public static String getCommonGfeIncludePath() {
         String pythonDir = getCommonPythonIncludePath();
-        String gfeDir = getPath(PATH_MANAGER.getContext(
+        String baseDir = getPath(PATH_MANAGER.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.BASE),
                 COMMON_GFE);
-        return PyUtil.buildJepIncludePath(pythonDir, gfeDir);
+        String configDir = getPath(PATH_MANAGER.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.CONFIGURED),
+                COMMON_GFE);
+        String siteDir = getPath(PATH_MANAGER.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE),
+                COMMON_GFE);
+        return PyUtil.buildJepIncludePath(pythonDir, siteDir, configDir,
+                baseDir);
     }
 
     public static String getProceduresIncludePath() {
@@ -315,11 +319,6 @@ public class GfePyIncludeUtil extends PythonIncludePathUtil {
                 LocalizationLevel.BASE), HEADLINE);
     }
 
-    public static String getTextProductsTemplatesIncludePath() {
-        return getPath(PATH_MANAGER.getContext(LocalizationType.CAVE_STATIC,
-                LocalizationLevel.BASE), TEXT_PRODUCTS);
-    }
-
     public static String getCombinationsIncludePath() {
         return getCombinationsIncludePath(true);
     }
@@ -359,9 +358,16 @@ public class GfePyIncludeUtil extends PythonIncludePathUtil {
         return PATH_MANAGER.getLocalizationFile(ctx, GFE_CONFIG);
     }
 
-    public static String getVCModulesIncludePath() {
-        return getPath(PATH_MANAGER.getContext(LocalizationType.COMMON_STATIC,
-                LocalizationLevel.BASE), VCMODULES);
+    public static String getVCModulesIncludePath(String siteId) {
+        String baseDir = getPath(PATH_MANAGER.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE),
+                VCMODULES);
+        String siteDir = getPath(PATH_MANAGER.getContextForSite(
+                LocalizationType.COMMON_STATIC, siteId), VCMODULES);
+        String userDir = getPath(PATH_MANAGER.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.USER),
+                VCMODULES);
+        return PyUtil.buildJepIncludePath(userDir, siteDir, baseDir);
     }
 
     public static String getVCModUtilsIncludePath() {

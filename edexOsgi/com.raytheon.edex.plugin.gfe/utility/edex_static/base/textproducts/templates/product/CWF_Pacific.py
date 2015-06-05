@@ -37,12 +37,12 @@
 #
 #  displayName      If not None, defines how product appears in GFE GUI
 #  defaultEditAreas defines edit areas, default is Combinations
-#  productName      defines name of product e.g. "COASTAL WATERS FORECAST"
+#  productName      defines name of product e.g. "Coastal Waters Forecast"
 #  fullStationID    Full station identifier, 4 letter, such as "KSLC".
 #  wmoID            WMO ID code for product header, such as "FOUS45"
 #  pil              Product pil, such as "CWFBOS"
-#  areaName (opt.)  Area name for product header, such as "WESTERN NEW YORK"
-#  wfoCityState     City,state that the WFO is located in, such as "BUFFALO, NY"
+#  areaName (opt.)  Area name for product header, such as "Western New York"
+#  wfoCityState     City,state that the WFO is located in, such as "Buffalo, NY"
 #
 # Optional Configuration Items
 #
@@ -217,11 +217,11 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         "defaultEditAreas" : "Combinations_CWF_<site>_<MultiPil>",
         "editAreaSuffix": None,
         # product identifiers
-        "productName": "COASTAL WATERS FORECAST", # product name 
+        "productName": "Coastal Waters Forecast", # product name 
         "fullStationID": "<fullStationID>",    # full station identifier (4letter)
         "wmoID": "<wmoID>",          # WMO ID
         "pil": "<pil>",            # Product pil
-        "areaName": "<state>",             # Name of state, such as "GEORGIA" -- optional
+        "areaName": "<state>",             # Name of state, such as "Georgia" -- optional
         "wfoCityState": "<wfoCityState>",   # Location of WFO - city state
                 
         "textdbPil": "<textdbPil>",       # Product ID for storing to AWIPS text database.
@@ -391,19 +391,19 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     
     def inlandWatersWave_element(self, tree, node):
         # Weather element first and second choice to use for reporting inland waters waves
-        # "WAVES 1 TO 2 FEET."
+        # "Waves 1 to 2 feet."
         # If there is incomplete or no data for the first element, the second will be used.
         return ("WindWaveHgt", "WaveHeight")
     
     def seasWaveHeight_element(self, tree, node):
         # Weather element to use for reporting seas
-        # "COMBINED SEAS 10 TO 15 FEET."
+        # "Combined seas 10 to 15 feet."
         # IF above wind or swell thresholds
         return "WaveHeight"
 
     def seasWindWave_element(self, tree, node):
         # Weather element to use for reporting seas waves
-        # "WIND WAVES 3 TO 4 FEET."
+        # "Wind waves 3 to 4 feet."
         # IF above wind or swell thresholds
         return "WindWaveHgt"
 
@@ -417,7 +417,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     def combinedSeas_threshold(self, tree, node):
         # See wave_phrase
         # If waves and swells are above this threshold,
-        # combined seas will be reported AND no Swell phrase will be reported.
+        # combined seas will be reported and no Swell phrase will be reported.
         # Units: feet
         return 7
 
@@ -430,9 +430,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     def marine_wind_combining_flag(self, tree, node):
         # If 1, Wind combining will reflect the
         # crossing of significant thresholds such as gales.
-        # E.g. "NORTH HURRICANE FORCE WINDS TO 100 KNOTS." instead of
-        # "NORTH HURRICANE FORCE WINDS TO 100 KNOTS EASING TO
-        #  TO 80 KNOTS IN THE AFTERNOON."
+        # E.g. "North hurricane force winds to 100 knots." instead of
+        # "North hurricane force winds to 100 knots easing to
+        #  to 80 knots in the afternoon."
         return 0
 
     def phrase_descriptor_dict(self, tree, node):
@@ -811,12 +811,12 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 ##             # expirationHour -- hour when the product expires (in local time)
 ##             #                   This is relitive to midnight local time of the
 ##             #                   current day.
-##             # period1 Label  -- the label for the first period. e.g. ".TODAY...", ".REST OF TODAY..." 
+##             # period1 Label  -- the label for the first period. e.g. ".Today...", ".Rest of today..." 
 ##             # period1 lateNight phrase -- phrase to use if the hours of 3am to 6am must be qualified
 ##             #                e.g. "Partly cloudy in the early morning." 
 ##             # period1 lateDay phrase -- phrase to use if the hours of 3pm to 6pm must be qualified
 ##             #                e.g. "Partly cloudy in the early evening." 
-##             # todayFlag -- if 1, "TODAY" and "Tonight" phrasing will be used in subsequent periods,
+##             # todayFlag -- if 1, "Today" and "Tonight" phrasing will be used in subsequent periods,
 ##             #                otherwise, weekday wording will apply. 
 ##             # narrative definition -- component and time period pairs
             
@@ -867,9 +867,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
         return [        
             ("Morning", self.DAY(), self.NIGHT(), "issuanceHour + 13",
-             ".TODAY...", "early", "late", 1, narrativeDefAM), 
+             ".Today...", "early", "late", 1, narrativeDefAM), 
             ("Morning with Pre-1st Period", "issuanceHour", self.NIGHT(),
-             "issuanceHour + 13", ".TODAY...", "early", "late", 1,
+             "issuanceHour + 13", ".Today...", "early", "late", 1,
              narrativeDefAM),
             ("Morning Update", "issuanceHour", self.NIGHT(),
              "issuanceHour + 13", ".Rest of Today...", "early in the morning",
@@ -899,10 +899,10 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             # TODAY
             # TONIGHT
             #("Evening Update", "issuanceHour", 24 + self.DAY(), "issuanceHour + 13",
-            # ".REST OF TONIGHT...", "late in the night", "early in the evening",
+            # ".Rest of tonight...", "late in the night", "early in the evening",
             # 1, narrativeDefPM), 
             #("Early Morning Update", "issuanceHour", self.DAY(), "issuanceHour + 13",
-            # ".EARLY THIS MORNING...", "early in the morning", "late in the afternoon",
+            # ".Early this morning...", "early in the morning", "late in the afternoon",
             # 1, narrativeDefPM), 
             ]
 
@@ -988,7 +988,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             "phraseList":[],
             }
     def setLabel(self, tree, component):
-        component.set("words", "\n.EXTENDED FORECAST...\n")
+        component.set("words", "\n.Extended forecast...\n")
         return self.DONE()
 
     def generateForecast(self, argDict):
@@ -1105,7 +1105,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
     def _preProcessProduct(self, fcst, argDict):
         if self._areaName != "":
-             productName = self._productName.strip() + " FOR " + \
+             productName = self._productName.strip() + " for " + \
                            self._areaName.strip()
         else:
              productName = self._productName.strip()
@@ -1113,11 +1113,12 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         issuedByString = self.getIssuedByString()
         productName = self.checkTestMode(argDict, productName)
 
-        fcst =  fcst + self._wmoID + " " + self._fullStationID + " " + \
+        s = self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
                productName + "\n" +\
-               "NATIONAL WEATHER SERVICE " + self._wfoCityState + \
+               "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
+        fcst =  fcst + s.upper()
         fcst = fcst + self._Text1()
         try:
             text2 = self._Text2(argDict)
@@ -1131,7 +1132,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         print "Generating Forecast for", areaLabel
         areaHeader = self.makeAreaHeader(
             argDict, areaLabel, self._issueTime, self._expireTime,
-            self._areaDictionary, self._defaultEditAreas)
+            self._areaDictionary, self._defaultEditAreas, upperCase=True)
         fcst = fcst + areaHeader
 
         # get the hazards text
@@ -1270,7 +1271,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 ##            # expirationHour -- hour when the product expires (in local time)
 ##            #                   This is relitive to midnight local time of the
 ##            #                   current day.
-##            # period1 Label  -- the label for the first period. e.g. ".Today...", ".REST OF Today..." 
+##            # period1 Label  -- the label for the first period. e.g. ".Today...", ".Rest of Today..." 
 ##            # period1 lateNight phrase -- phrase to use if the hours of 3am to 6am must be qualified
 ##            #                e.g. "Partly cloudy in the early morning." 
 ##            # period1 lateDay phrase -- phrase to use if the hours of 3pm to 6pm must be qualified
@@ -1314,9 +1315,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         
     def splitDay24HourLabel_flag(self, tree, node):
         # Return 0 to have the TimeDescriptor module label 24 hour periods
-        # with simply the weekday name (e.g. SATURDAY)
+        # with simply the weekday name (e.g. Saturday)
         # instead of including the day and night periods
-        # (e.g. SATURDAY AND SATURDAY NIGHT)
+        # (e.g. Saturday and Saturday night)
         # NOTE: If you set this flag to 1, make sure the "nextDay24HourLabel_flag"
         # is set to zero.
         # NOTE: This applied only to periods that are exactly 24-hours in length.

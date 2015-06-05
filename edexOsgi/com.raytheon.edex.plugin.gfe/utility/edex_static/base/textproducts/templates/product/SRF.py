@@ -59,7 +59,7 @@
 #       You can copy the information from the AreaDictionary as a starting point.
 #       Then add the following information for each zone:
 #
-#       "landSeaArea": An edit area you need to create which contians grid
+#       "landSeaArea": An edit area you need to create which contains grid
 #                      points along the coast, including both land and sea. 
 #       "marineArea": Typically, the coastal waters area.
 #       "surfAreas": The surfAreas entry is an optional list of edit areas and labels
@@ -75,16 +75,16 @@
 #
 #            You would get a surfHeight report for each surfArea listed:
 #                
-#               SURF ALONG WEST FACING REEFS................10 TO 12 FEET.
-#               SURF ALONG NORTH FACING REEFS...............4 TO 6 FEET.
-#               SURF ALONG EAST FACING REEFS................2 TO 3 FEET.
-#               SURF ALONG SOUTH FACING REEFS...............4 TO 6 FEET.
+#               SURF ALONG WEST FACING REEFS................10 TO 12 feet.
+#               SURF ALONG NORTH FACING REEFS...............4 TO 6 feet.
+#               SURF ALONG EAST FACING REEFS................2 TO 3 feet.
+#               SURF ALONG SOUTH FACING REEFS...............4 TO 6 feet.
 #
 #             If the list is empty, you will simply get surfHeight reported
 #             for the current value of the WaveHeight Grid sampled from the
 #             landSea edit area:
 #
-#               SURF................1 TO 2 FEET.
+#               Surf................1 TO 2 feet.
 #
 #        "uviCity": The UVI index is take from the previous UVI product (pil is UVI<siteID>).
 #               This specifies the city name from which to report the uvi index.
@@ -107,12 +107,12 @@
 #                   Note that if you always have the same combinations,
 #                   you need only list this additional information for
 #                   one of the zones in each combination.
-#  productName      defines name of product e.g. "ZONE FORECAST PRODUCT"
+#  productName      defines name of product e.g. "Zone Forecast Product"
 #  fullStationID    Full station identifier, 4 letter, such as "KSLC".
 #  wmoID            WMO ID code for product header, such as "FOUS45"
 #  pil              Product pil, such as "SFTBOS"
-#  areaName (opt.)  Area name for product header, such as "WESTERN NEW YORK"
-#  wfoCityState     WFO location, such as "BUFFALO NY"
+#  areaName (opt.)  Area name for product header, such as "Western New York"
+#  wfoCityState     WFO location, such as "Buffalo NY"
 #
 # Optional Configuration Items
 #  mapNameForCombinations Name of the map background that is used for
@@ -259,11 +259,11 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         # Source database for product. Can be "Official", "Fcst" or "ISC"
         "database": "Official",
         "debug": 0,
-        "productName": "SURFZONE FORECAST", # product name
+        "productName": "Surfzone Forecast", # product name
         "fullStationID": "<fullStationID>",    # full station identifier (4letter)
         "wmoID": "<wmoID>",          # WMO ID
         "pil": "<pil>",            # Product pil
-        "areaName": "<state>",     # Name of state, such as "GEORGIA" -- optional
+        "areaName": "<state>",     # Name of state, such as "Georgia" -- optional
         "wfoCityState": "<wfoCityState>", # Location of WFO - city and state name
        
         "textdbPil": "<textdbPil>",       # Product ID for storing to AWIPS text database.
@@ -281,7 +281,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         "ripGrid": "",               # Use grid for rip_phrase
         "waterSpoutGrid": "",        # Use grid for waterSpout_phrase
         "includeOutlook": 0,         # If 1, OUTLOOK section included
-        "outLookText": "\n.OUTLOOK...",# Text for OUTLOOK section
+        "outLookText": "\n.Outlook...",# Text for OUTLOOK section
         "tideFiles": {               # For each tide table, list the file where it can
                                      # be found
              "Venice Inlet": "/data/local/localapps/tides/VeniceInlet.txt",
@@ -313,7 +313,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         "areaDictionary": "SurfAreaDictionary",
         "language": "english",
         "synopsisUGC": "",                # UGC code for synopsis
-        "synopsisHeading": ".SYNOPSIS...",# Heading for synopsis
+        "synopsisHeading": ".Synopsis...",# Heading for synopsis
         # If individualExtended == 1, an extended forecast will be
         # generated for each individual area
         # If extendedLabel == 1, a label will be included for each
@@ -355,17 +355,17 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         # If a method, it will be called with arguments:
         #   tree, node, key, element
         return {
-            "WaveHeight" : "surf................",
+            "WaveHeight" : "SURF................",
             "Swell":  "swell",
             "Swell2": "swell",
-            "LabelSwell":  "swell...............",
-            "LabelSwell2": "secondary swell.....",
-            "Period": "period..............",
-            "Period2":"secondary period....",
-            "chop" : "water condition.....",
-            "rip" :  "rip current risk....",
-            "HeatIndex": "heat index..........",
-            "20-FOOT WINDS......." : "Beach WINDS.........",
+            "LabelSwell":  "SWELL...............",
+            "LabelSwell2": "SECONDARY SWELL.....",
+            "Period": "PERIOD..............",
+            "Period2":"SECONDARY PERIOD....",
+            "chop" : "WATER CONDITION.....",
+            "rip" :  "RIP CURRENT RISK....",
+            "HeatIndex": "HEAT INDEX..........",
+            "20-FOOT WINDS......." : "BEACH WINDS.........",
             "MaxT_FireWx":"MAX TEMPERATURE.....",
             "SKY/WEATHER.........":  "SKY/WEATHER.........",
             "sst" : "WATER TEMPERATURE...",
@@ -377,8 +377,8 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             "MaxT":"highs",
             "Wind": "winds",           
             #  Used for Headlines
-            "EXPECTED" : "EXPECTED",
-            "IN EFFECT" : "IN EFFECT",
+            "EXPECTED" : "expected",
+            "IN EFFECT" : "in effect",
             # Used for single values
             "around": "around ",
             "    VALLEYS/LWR SLOPES...": "    INLAND...............",
@@ -857,7 +857,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     def _preProcessProduct(self, fcst, argDict,):
         # Product header
         if self._areaName != "":
-             productName = self._productName.strip() + " FOR " + \
+             productName = self._productName.strip() + " for " + \
                            self._areaName.strip()
         else:
              productName = self._productName.strip()
@@ -865,11 +865,12 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         issuedByString = self.getIssuedByString()
         productName = self.checkTestMode(argDict, productName)
 
-        fcst =  fcst + self._wmoID + " " + self._fullStationID + " " + \
+        s = self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
                productName + "\n" +\
-               "NATIONAL WEATHER SERVICE " + self._wfoCityState + \
+               "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
+        fcst =  fcst + s.upper()
        
         #  Try to get Synopsis from previous SRF
         srfPil = self._statePil + self._srfPil
@@ -883,7 +884,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         areaHeader = self.makeAreaHeader(
             argDict, areaLabel, self._issueTime, self._expireTime,
             self._areaDictionary, self._defaultEditAreas,
-            cityDescriptor = "INCLUDING THE BEACHES OF")
+            cityDescriptor = "Including the beaches of")
       
         fcst = fcst + areaHeader
         # get the hazards text
@@ -1116,7 +1117,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
     def untilPhrasing_flag_dict(self, tree, node):
         # If set to 1, "until" time descriptor phrasing will be used.
-        # E.g. "NORTH WINDS 20 MPH UNTIL 10 AM...THEN 35 MPH"
+        # E.g. "North winds 20 mph until 10 am...then 35 mph"
         dict = TextRules.TextRules.untilPhrasing_flag_dict(self, tree, node)
         componentName = node.getComponent().get("name")
         if componentName == "SurfPeriod":
@@ -1380,15 +1381,15 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             return self.setWords(node, "")
         lal = self.getValue(stats, "Max", self.SCALAR())
         if lal == 1:
-            value = "NO LIGHTNING"
+            value = "No lightning"
         elif lal == 2:
-            value = "VERY INFREQUENT DEADLY LIGHTNING"      
+            value = "Very infrequent deadly lightning"      
         elif lal == 3:
-            value = "INFREQUENT DEADLY LIGHTNING"
+            value = "Infrequent deadly lightning"
         elif lal == 4:
-           value = "FREQUENT DEADLY LIGHTNING"
+           value = "Frequent deadly lightning"
         elif lal == 5:
-            value = "EXTREME DEADLY LIGHTNING"
+            value = "Extreme deadly lightning"
         else:
             value = "!!!LAL phrase problem!!!"
         return self.setWords(node, value)
@@ -1428,15 +1429,15 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         waterSpout = self.getValue(stats, "Max", self.SCALAR())
         #print "LLLLLLLLLLLLLLLL", waterSpout
         if waterSpout == 1:
-            value = "NO WATERSPOUTS"
+            value = "No waterspouts"
         elif waterSpout == 2:
-            value = "VERY SLIGHT CHANCE OF WATERSPOUTS"      
+            value = "Very slight chance of waterspouts"      
         elif waterSpout == 3:
-            value = "VERY SLIGHT CHANCE OF WATERSPOUTS"
+            value = "Very slight chance of waterspouts"
         elif waterSpout == 4:
-           value = "MODERATE CHANCE OF WATERSPOUTS"
+           value = "Moderate chance of waterspouts"
         elif waterSpout == 5:
-            value = "VERY GOOD CHANCE OF WATERSPOUTS"
+            value = "Very good chance of waterspouts"
         else:
             value = "!!!WATERSPOUT phrase problem!!!"
         return self.setWords(node, value)
@@ -1538,7 +1539,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             tokens = line.split()
             # Look for the city
             for token in tokens:
-                if token == uviCity:
+                if token.upper() == uviCity.upper():
                     index = tokens.index(token)
                     state = tokens[index + 1]
                     if state == uviState:
@@ -1586,7 +1587,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         if labels == []:
             return fcst
             
-        fcst = fcst + "\nTIDE INFORMATION...\n"
+        fcst = fcst + "\nTide Information...\n"
         # Get day/month/year
         creationTime = time.localtime(argDict["creationTime"])
         currentDate = time.strftime("%m/%d/%Y", creationTime)
@@ -1597,7 +1598,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                 # Add error message to fcst
                 fcst = fcst + tideTable
                 continue
-            fcst = fcst + "\nAT " + label + "...\n\n"
+            fcst = fcst + "\nAt " + label + "...\n\n"
             for line in tideTable:
                 if line.find(currentDate) == 0:
                     # Get the tide info 
@@ -1613,16 +1614,16 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                     #print "tideList", tideList
                     for timeStr, timeDesc, height, lowHigh in tideList:
                         if lowHigh == "L":
-                            tideType = "LOW"
+                            tideType = "Low"
                         else:
-                            tideType = "HIGH"
+                            tideType = "High"
                         hrMin = timeStr[0:5].lstrip("0")
                         amPm = timeStr[5:]
                         if self._includeTideHeights:
-                            height = " " + height + " FEET"
+                            height = " " + height + " feet"
                         else:
                             height = ""
-                        fcst = fcst + tideType+" TIDE"+height+" AT "+hrMin+" "+amPm+ "\n"
+                        fcst = fcst + tideType+" tide"+height+" at "+hrMin+" "+amPm+ "\n"
                             
         return fcst
 
@@ -1897,9 +1898,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
     def ripPhrases(self):
         return {
-            "lowPhrase" : "LOW...HOWEVER...STRONG CURRENTS CAN OCCUR NEAR PIERS AND JETTIES. ALWAYS HAVE A FLOTATION DEVICE WITH YOU IN THE WATER",
-            "modPhrase" : "MODERATE. A MODERATE RISK OF RIP CURRENTS MEANS WIND AND OR WAVE CONDITIONS SUPPORT STRONGER OR MORE FREQUENT RIP CURRENTS. ALWAYS HAVE A FLOTATION DEVICE WITH YOU IN THE WATER",
-            "highPhrase" : "HIGH. HIGH SURF AND LARGE SWELLS WILL PRODUCE DANGEROUS POUNDING SURF AND RIP CURRENTS AT THE BEACHES. PEOPLE VISITING THE BEACHES SHOULD STAY OUT OF THE HIGH SURF",
+            "lowPhrase" : "Low...however...strong currents can occur near piers and jetties. Always have a flotation device with you in the water",
+            "modPhrase" : "Moderate. A moderate risk of rip currents means wind and or wave conditions support stronger or more frequent rip currents. Always have a flotation device with you in the water",
+            "highPhrase" : "High. High surf and large swells will produce dangerous pounding surf and rip currents at the beaches. People visiting the beaches should stay out of the high surf",
             }
     
     def ripGrid_value(self, value):

@@ -27,14 +27,16 @@
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    03/12/13                      mnash        Initial Creation.
-#    09/25/13        2250          mnash        Fix for FileLocker.unlock
-#                                               not being correctly called
+#    03/12/13                      mnash          Initial Creation.
+#    09/25/13         2250         mnash          Fix for FileLocker.unlock
+#                                                 not being correctly called
+#    Apr 27, 2015     4259         njensen        Updated for new JEP API
 #    
 # 
 #
 
-from com.raytheon.uf.common.localization import FileLocker, FileLocker_Type as Type
+from com.raytheon.uf.common.localization import FileLocker
+Type = FileLocker.Type 
 from java.io import File as JavaFile
 from java.lang import Object
 import jep

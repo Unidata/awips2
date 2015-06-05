@@ -34,7 +34,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
@@ -50,6 +49,7 @@ import com.raytheon.uf.common.geospatial.util.GridGeometryWrapChecker;
 import com.raytheon.uf.common.geospatial.util.SubGridGeometryCalculator;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.gridcoverage.LatLonGridCoverage;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.numeric.buffer.FloatBufferWrapper;
 import com.raytheon.uf.common.numeric.source.DataSource;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -58,6 +58,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.grid.rsc.data.GeneralGridData;
 import com.raytheon.uf.viz.core.rsc.AbstractNameGenerator;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
@@ -100,7 +101,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                    for data access
  * Mar 27, 2014  2945     bsteffen    Enable omitting the plane from the legend
  *                                    based off style rules.
- *
+ * May 04, 2015  4374     bsteffen    set dataModified when data does not
+ *                                    intersect descriptor
+ * 
  * </pre>
  * 
  * @author bsteffen
@@ -164,7 +167,6 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
     @Override
     protected GeneralGridData getData(GridRecord gridRecord)
             throws VizException {
-        try {
         Unit<?> dataUnit = gridRecord.getParameter().getUnit();
         GridCoverage location = gridRecord.getLocation();
         /*
@@ -186,6 +188,7 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
                         descriptor.getGridGeometry().getEnvelope(),
                         gridGeometry);
                 if (subGrid.isEmpty()) {
+                    dataModified = true;
                     return null;
                 } else if (subGrid.isFull()) {
                     dataRecs = DataCubeContainer.getDataRecord(gridRecord);
@@ -202,19 +205,28 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
                     gridGeometry = subGrid.getZeroedSubGridGeometry();
                     dataModified = true;
                 }
+            } catch (DataCubeException e) {
+                throw new VizException(e);
             } catch (TransformException e) {
                 /* Not a big deal, just request all data. */
-                statusHandler.handle(Priority.DEBUG,
+                statusHandler
+                        .handle(Priority.DEBUG,
                                 "Unable to request subgrid, full grid will be used.",
                                 e);
-                dataRecs = DataCubeContainer.getDataRecord(gridRecord);
+                try {
+                    dataRecs = DataCubeContainer.getDataRecord(gridRecord);
+                } catch (DataCubeException dce) {
+                    throw new VizException(dce);
+                }
             }
         }
 
         GeneralGridData data = getData(dataRecs, gridGeometry, dataUnit);
-        // For some grids, we may reproject (e.g., world-wide lat/lon grids),
-        // this is done to match A1, but it also makes the wind barbs look
-        // more evenly spaced near the pole.
+        /*
+         * For some grids, we may reproject (e.g., world-wide lat/lon grids),
+         * this is done to match A1, but it also makes the wind barbs look more
+         * evenly spaced near the pole.
+         */
         if (ReprojectionUtil.shouldReproject(gridRecord, gridGeometry,
                 getDisplayType(), descriptor.getGridGeometry())) {
             if (!gridLargerThanWorld
@@ -245,8 +257,7 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
                         grid2crs.transform(dp, dp);
                         crs2ll.transform(dp, dp);
                         Coordinate ll = new Coordinate(dp.x, dp.y);
-                        float rot = (float) MapUtil.rotation(ll,
-                                gridGeometry);
+                        float rot = (float) MapUtil.rotation(ll, gridGeometry);
                         dir = (dir + rot) % 360;
                         newScalar.setDataValue(dir, i, j);
                     }
@@ -263,9 +274,7 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
         }
         data = GridMemoryManager.getInstance().manage(data);
         return data;
-        } catch ( DataCubeException e ) {
-            throw new VizException(e);
-        }
+
     }
 
     public GeneralGridData reprojectData(GeneralGridData data) {

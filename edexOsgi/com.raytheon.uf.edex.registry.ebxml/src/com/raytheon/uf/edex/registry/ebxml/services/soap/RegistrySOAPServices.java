@@ -21,12 +21,6 @@ package com.raytheon.uf.edex.registry.ebxml.services.soap;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.ws.wsaddressing.W3CEndpointReferenceBuilder;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.Cataloger;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManager;
@@ -39,18 +33,16 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseStatus;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
-import org.apache.cxf.endpoint.Client;
-import org.apache.cxf.frontend.ClientProxy;
-import org.apache.cxf.message.Message;
-import org.apache.cxf.transport.http.HTTPConduit;
-import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor;
+import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 
-import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
-import com.raytheon.uf.common.registry.services.RegistryServiceConfiguration;
 import com.raytheon.uf.common.registry.services.RegistryServiceException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.security.SecurityConfiguration;
+import com.raytheon.uf.edex.registry.ebxml.services.cataloger.CatalogerImplWrapper;
+import com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerImplWrapper;
+import com.raytheon.uf.edex.registry.ebxml.services.notification.NotificationListenerImplWrapper;
+import com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImplWrapper;
+import com.raytheon.uf.edex.registry.ebxml.services.validator.ValidatorImplWrapper;
 
 /**
  * 
@@ -72,6 +64,7 @@ import com.raytheon.uf.edex.security.SecurityConfiguration;
  * 2/19/2014    2769        bphillip    Renamed getPort method
  * 6/5/2014     1712        bphillip    Moved configuration out to separate class.  Added outbound interceptor
  * 7/10/2014    1717        bphillip    Added authorization policy
+ * 5/11/2015    4448        bphillip    Separated EBXML Registry from Data Delivery
  * </pre>
  * 
  * @author bphillip
@@ -103,12 +96,6 @@ public class RegistrySOAPServices {
 
     /** The name of the validator service */
     protected static final String VALIDATOR_SERVICE_NAME = "validator";
-
-    protected WSS4JOutInterceptor securityInterceptor;
-
-    protected RegistryServiceConfiguration serviceConfig;
-
-    protected SecurityConfiguration securityConfig;
 
     /**
      * Gets the notification listener service URL for the given host
@@ -147,7 +134,7 @@ public class RegistrySOAPServices {
      */
     public NotificationListener getNotificationListenerServiceForUrl(
             final String url) throws RegistryServiceException {
-        return createService(url, NotificationListener.class);
+        return createService(url, NotificationListenerImplWrapper.class);
     }
 
     /**
@@ -170,7 +157,7 @@ public class RegistrySOAPServices {
      * @return The lifecycle manager service at the given URL string
      */
     public LifecycleManager getLifecycleManagerServiceForUrl(final String url) {
-        return createService(url, LifecycleManager.class);
+        return createService(url, LifecycleManagerImplWrapper.class);
     }
 
     /**
@@ -193,7 +180,7 @@ public class RegistrySOAPServices {
      * @return The cataloger service
      */
     public Cataloger getCatalogerServiceForUrl(final String url) {
-        return createService(url, Cataloger.class);
+        return createService(url, CatalogerImplWrapper.class);
     }
 
     /**
@@ -215,7 +202,7 @@ public class RegistrySOAPServices {
      * @return The query manager service at the given url string
      */
     public QueryManager getQueryServiceForUrl(final String url) {
-        return createService(url, QueryManager.class);
+        return createService(url, QueryManagerImplWrapper.class);
     }
 
     /**
@@ -241,7 +228,7 @@ public class RegistrySOAPServices {
      */
     public Validator getValidatorServiceForUrl(final String url)
             throws RegistryServiceException {
-        return createService(url, Validator.class);
+        return createService(url, ValidatorImplWrapper.class);
     }
 
     /**
@@ -295,39 +282,23 @@ public class RegistrySOAPServices {
         }
     }
 
+    /**
+     * Creates a SOAP service proxy object
+     * 
+     * @param serviceUrl
+     *            The url hosting the service
+     * @param serviceInterface
+     *            The service interface
+     * @return A proxy object encapsulating the service
+     */
     @SuppressWarnings("unchecked")
-    protected <T extends Object> T createService(String serviceUrl,
-            Class<?> serviceInterface) throws RegistryServiceException {
-        W3CEndpointReferenceBuilder endpointBuilder = new W3CEndpointReferenceBuilder();
-        endpointBuilder.wsdlDocumentLocation(serviceUrl.toString() + WSDL);
-        endpointBuilder.address(serviceUrl.toString());
-        T port = (T) endpointBuilder.build().getPort(serviceInterface);
-
-        Client client = ClientProxy.getClient(port);
-        client.getOutInterceptors().add(this.securityInterceptor);
-
-        HTTPConduit conduit = (HTTPConduit) client.getConduit();
-        conduit.setClient(serviceConfig.getHttpClientPolicy());
-        conduit.setTlsClientParameters(securityConfig.getTlsParams());
-        conduit.setAuthorization(securityConfig.getAuthPolicy());
-
-        // Create HTTP header containing the calling registry
-        Map<String, List<String>> headers = new HashMap<String, List<String>>();
-        headers.put(RegistryUtil.CALLING_REGISTRY_SOAP_HEADER_NAME,
-                Arrays.asList(RegistryUtil.LOCAL_REGISTRY_ADDRESS));
-        client.getRequestContext().put(Message.PROTOCOL_HEADERS, headers);
-        return port;
-    }
-
-    public void setSecurityInterceptor(WSS4JOutInterceptor securityInterceptor) {
-        this.securityInterceptor = securityInterceptor;
-    }
-
-    public void setServiceConfig(RegistryServiceConfiguration serviceConfig) {
-        this.serviceConfig = serviceConfig;
-    }
-
-    public void setSecurityConfig(SecurityConfiguration securityConfig) {
-        this.securityConfig = securityConfig;
+    public static <T extends Object> T createService(final String serviceUrl,
+            final Class<?> serviceInterface) {
+        JaxWsProxyFactoryBean proxyFactory = new JaxWsProxyFactoryBean();
+        proxyFactory.setWsdlURL(serviceUrl + WSDL);
+        proxyFactory.setAddress(serviceUrl);
+        proxyFactory.setServiceClass(serviceInterface);
+        T service = (T) proxyFactory.create();
+        return service;
     }
 }

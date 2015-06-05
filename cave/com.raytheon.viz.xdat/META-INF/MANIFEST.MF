@@ -15,3 +15,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.ohd,
  com.raytheon.uf.common.time,
  com.raytheon.uf.common.util
+Bundle-ClassPath: com.raytheon.viz.xdat.jar

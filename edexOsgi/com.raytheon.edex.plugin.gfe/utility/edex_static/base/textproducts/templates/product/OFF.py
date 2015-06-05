@@ -37,12 +37,12 @@
 #  displayName      If not None, defines how product appears in GFE GUI
 #  defaultEditAreas defines edit areas, default is Combinations
 #
-#  productName      defines name of product e.g. "COASTAL WATERS FORECAST"
+#  productName      defines name of product e.g. "Coastal Waters Rorecast"
 #  fullStationID    Full station identifier, 4 letter, such as "KSLC".
 #  wmoID            WMO ID code for product header, such as "FOUS45"
 #  pil              Product pil, such as "OFFBOS"
-#  areaName (opt.)  Area name for product header, such as "WESTERN NEW YORK"
-#  wfoCityState     City,state that the WFO is located in, such as "BUFFALO, NY"
+#  areaName (opt.)  Area name for product header, such as "Western New York"
+#  wfoCityState     City,state that the WFO is located in, such as "Buffalo, NY"
 #
 #  synopsisUGC      UGC code for Synopsis
 #  synopsisHeading  Heading for Synopsis
@@ -213,11 +213,11 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         "defaultEditAreas" : "Combinations_OFF_<site>_<MultiPil>",
         "editAreaSuffix": None,
         # product identifiers
-        "productName": "OFFSHORE FORECAST", # product name 
+        "productName": "Offshore Forecast", # product name 
         "fullStationID": "<fullStationID>",    # full station identifier (4letter)
         "wmoID": "<wmoID>",          # WMO ID
         "pil": "<pil>",            # Product pil
-        "areaName": "<state>",             # Name of state, such as "GEORGIA" -- optional
+        "areaName": "<state>",             # Name of state, such as "Georgia" -- optional
         "wfoCityState": "<wfoCityState>",   # Location of WFO - city state
 
         "synopsisUGC": "",                # UGC code for synopsis
@@ -503,7 +503,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     # MarinePhrases Overrides
     def seasWaveHeight_element(self, tree, node):
         # Weather element to use for reporting seas
-        # "COMBINED SEAS 10 TO 15 FEET."
+        # "combined seas 10 to 15 feet."
         # IF above wind or swell thresholds
         return "WaveHeight"
 
@@ -514,9 +514,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
     def splitDay24HourLabel_flag(self, tree, node):
         # Return 0 to have the TimeDescriptor module label 24 hour periods
-        # with simply the weekday name (e.g. SATURDAY)
+        # with simply the weekday name (e.g. Saturday)
         # instead of including the day and night periods
-        # (e.g. SATURDAY AND SATURDAY NIGHT)
+        # (e.g. Saturday and Saturday night)
         # NOTE: If you set this flag to 1, make sure the "nextDay24HourLabel_flag"
         # is set to zero.
         # NOTE: This applied only to periods that are exactly 24-hours in length.
@@ -920,18 +920,20 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
     def _preProcessProduct(self, fcst, argDict):
         if self._areaName != "":
-             productName = self._productName.strip() + " FOR " + \
+             productName = self._productName.strip() + " for " + \
                            self._areaName.strip()
         else:
              productName = self._productName.strip()
 
         issuedByString = self.getIssuedByString()
    
-        fcst =  fcst + self._wmoID + " " + self._fullStationID + " " + \
+        s = self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
                productName + "\n" +\
-               "NATIONAL WEATHER SERVICE " + self._wfoCityState + \
-               "\n" + issuedByString + self._timeLabel + "\n\n"
+               "National Weather Service " + self._wfoCityState + \
+               "\n" + issuedByString + self._timeLabel + "\n\n" 
+        fcst =  fcst + s.upper()
+        
         fcst = fcst + self._Text1()
         try:
             text2 = self._Text2(argDict["host"])

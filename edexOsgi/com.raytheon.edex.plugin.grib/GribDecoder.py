@@ -24,6 +24,7 @@
 # ------------ ---------- ----------- --------------------------
 # ???                                 Initial creation
 # Jul 07, 2014 3344       rferrel     Change GRID_FILL_VALUE to new plugin location.
+# Mar 05, 2015 3959       rjpeter     Fix subgrid across seam of world wide grid.
 # 
 
 import grib2
@@ -135,6 +136,7 @@ logHandler = UFStatusHandler.UFStatusHandler("com.raytheon.edex.plugin.grib", "E
 #                                    to GRID_FILL_VALUE 
 # Dec 15, 2014  DR16509  Matt Foster Changes in _decodePdsSection to accommodate
 #                                    EKDMOS
+# Mar 05, 2015  3959     rjpeter     Update sub gridding to handle world wrap.
 #
 class GribDecoder():
 
@@ -343,9 +345,19 @@ class GribDecoder():
             # handle world wide grid wrap
             if (endX > nx):
                 subGridDataArray = numpy.zeros((subny, subnx), numpy.float32)
-                midx = nx - startx
-                subGridDataArray[0:subny, 0:midx] = numpyDataArray[starty:endY, startx:nx]
-                subGridDataArray[0:subny, midx:subnx] = GridUtil.GRID_FILL_VALUE
+                endX = nx
+                wrapCount = gridCoverage.getWorldWrapCount()
+
+                if wrapCount > 0:
+                    # handle grid that comes in with data already wrapped
+                    endX = wrapCount
+
+                midx = endX - startx
+                subGridDataArray[0:subny, 0:midx] = numpyDataArray[starty:endY, startx:endX]
+                if (wrapCount > 0):
+                    subGridDataArray[0:subny, midx:subnx] = numpyDataArray[starty:endY, 0:subnx - midx]
+                else:
+                    subGridDataArray[0:subny, midx:subnx] = GridUtil.GRID_FILL_VALUE
                 numpyDataArray = subGridDataArray
             else:
                 numpyDataArray = numpyDataArray[starty:endY, startx:endX]

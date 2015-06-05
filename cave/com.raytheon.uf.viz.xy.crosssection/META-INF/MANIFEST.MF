@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: CrossSection
 Bundle-SymbolicName: com.raytheon.uf.viz.xy.crosssection;singleton:=true
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
@@ -21,7 +21,8 @@ Require-Bundle: com.raytheon.uf.common.colormap,
  javax.measure,
  org.eclipse.core.runtime;bundle-version="3.8.0",
  org.eclipse.ui;bundle-version="3.8.0",
- com.raytheon.uf.common.numeric;bundle-version="1.14.0"
+ com.raytheon.uf.common.numeric;bundle-version="1.14.0",
+ com.raytheon.uf.viz.core.point;bundle-version="1.15.0"
 Import-Package: com.raytheon.viz.core.imagery,
  com.raytheon.viz.core.map,
  com.raytheon.viz.core.rsc.jts
@@ -30,3 +31,4 @@ Export-Package: com.raytheon.uf.viz.xy.crosssection,
  com.raytheon.uf.viz.xy.crosssection.display,
  com.raytheon.uf.viz.xy.crosssection.graph,
  com.raytheon.uf.viz.xy.crosssection.rsc
+Bundle-ClassPath: com.raytheon.uf.viz.xy.crosssection.jar

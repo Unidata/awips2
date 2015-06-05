@@ -39,13 +39,13 @@
 #                   for all edit areas needed. Just uncomment the lines below the
 #                   lake the formatter will be run for...and comment
 #                   out the lines below the lakes not used.
-#  productName      defines name of product e.g. "OPEN LAKES FORECAST"
+#  productName      defines name of product e.g. "Open Lakes Forecast"
 #  fullStationID    Full station identifier, 4 letter, such as "KSLC".
 #  wmoID            WMO ID code for product header, such as "FOUS45"
 #  pil              Product pil, such as "GLFLS"
-#  areaName (opt.)  Area name for product header, such as "LAKE SUPERIOR"
-#  wfoCityState     WFO location, such as "BUFFALO NY"
-#  lake_name        Name of lake...not including the word "LAKE" e.g "SUPERIOR"
+#  areaName (opt.)  Area name for product header, such as "Lake Superior"
+#  wfoCityState     WFO location, such as "Buffalo NY"
+#  lake_name        Name of lake...not including the word "Lake" e.g "Superior"
 #  lakezone         Zone code for the text portion of the forecast e.g. "LSZ260"
 #  maforzone        Zone code for the mafor portion of the forecast e.g. "LSZ261"
 #  headerphrase     Phrase for the header portion of forecast immediately above
@@ -259,12 +259,12 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         "defaultEditAreas" : [("west_half", "WEST HALF\n\n"),
                               ("east_half", "EAST HALF\n\n")],
         # product identifiers
-        "lake_name": "SUPERIOR", # use -- SUPERIOR, HURON, ERIE, ONTARIO, MICHIGAN, ST_CLAIR
-        "productName": "OPEN LAKES FORECAST", # product name 
+        "lake_name": "Superior", # use -- Superior, Huron, Erie, Ontario, Michigan, St_Clair
+        "productName": "Open Lakes Forecast", # product name 
         "fullStationID": "<fullStationID>",    # full station identifier (4letter)
         "wmoID": "<wmoID>",          # WMO ID
         "pil": "<pil>",            # Product pil
-        "areaName": "STATENAME",   # Name of state, such as "GEORGIA"
+        "areaName": "Statename",   # Name of state, such as "Georgia"
         "wfoCityState": "<wfoCityState>",  # Location of WFO - city state
         "textdbPil": "<textdbPil>",       # Product ID for storing to AWIPS text database.
         "awipsWANPil": "<awipsWANPil>",   # Product ID for transmitting to AWIPS WAN.
@@ -273,7 +273,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
         "hazardSamplingThreshold": (10, None),  #(%cov, #points)
         
-        "headerphrase": "LAKE SUPERIOR FORECAST BEYOND FIVE NAUTICAL MILES FROM SHORE", # header phrase
+        "headerphrase": "Lake Superior forecast beyond five nautical miles from shore", # header phrase
         "lakezone": "LSZ260",       # Zone code for the Lake
         "maforzone": "LSZ261",       # Mafor zone code
         "processmafor" : 1, # process mafor data: 1=yes, 0=no
@@ -425,54 +425,49 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     def marine_wind_combining_flag(self, tree, node):
         # If 1, Wind combining will reflect the
         # crossing of significant thresholds such as gales.
-        # E.g. "HURRICANE FORCE WINDS TO 100 KNOTS." instead of
-        # "NORTH HURRICANE FORCE WINDS TO 100 KNOTS EASING TO
-        #  HURRICANE FORCE WINDS TO 80 KNOTS IN THE AFTERNOON."
+        # E.g. "Hurricane forece winds to 00 knots." instead of
+        # "North hurricane force winds to 100 knots easing to
+        #  hurricane force winds to 80 knots in the afternoon."
         return 1
 
     def marine_abbreviateText(self, fcst):
-        fcst = " " + string.upper(fcst)
-        fcst = re.sub(r'\n', r' ',fcst)        
-        fcst = re.sub(r'NORTH(?!WARD|ERN|WESTWARD|EASTWARD|WESTERN|EASTERN)',
-                      r'N', fcst)
-        fcst = re.sub(r'SOUTH(?!WARD|ERN|WESTWARD|EASTWARD|WESTERN|EASTERN)',
-                      r'S', fcst)
-        fcst = re.sub(r'EAST(?!WARD|ERN)', r'E', fcst)
-        fcst = re.sub(r'WEST(?!WARD|ERN)', r'W', fcst)
-        fcst = re.sub(r'KNOTS?', r'KT', fcst)
-        fcst = re.sub(r'MILLIBARS?', r'MB', fcst)
-        fcst = re.sub(r'FATHOMS?', r'FM', fcst)
-        fcst = re.sub(r'NAUTICAL MILES?', r'NM', fcst)
-        fcst = re.sub(r'FOOT|FEET', r'FT', fcst)
-        fcst = string.replace(fcst, 'POSITION', 'PSN') 
-        fcst = string.replace(fcst, 'VISIBILITY', 'VSBY') 
-        fcst = string.replace(fcst, 'THUNDERSTORM', 'TSTM') 
-        fcst = string.replace(fcst, 'AVERAGE', 'AVG') 
-        fcst = string.replace(fcst, 'ATLANTIC', 'ATLC') 
-        fcst = string.replace(fcst, 'LONGITUDE', 'LONG') 
-        fcst = string.replace(fcst, 'PACIFIC', 'PAC') 
-        fcst = string.replace(fcst, 'DEGREE', 'DEG') 
-        fcst = string.replace(fcst, 'PRESSURE', 'PRES')
-        fcst = string.replace(fcst, 'SUNDAY', 'SUN')
-        fcst = string.replace(fcst, 'MONDAY', 'MON')
-        fcst = string.replace(fcst, 'TUESDAY', 'TUE')
-        fcst = string.replace(fcst, 'WEDNESDAY', 'WED')
-        fcst = string.replace(fcst, 'THURSDAY', 'THU')
-        fcst = string.replace(fcst, 'FRIDAY', 'FRI')
-        fcst = string.replace(fcst, 'SATURDAY', 'SAT')
-        fcst = string.replace(fcst, 'W HALF', 'WEST HALF')
-        fcst = string.replace(fcst, 'E HALF', 'EAST HALF')
-        fcst = string.replace(fcst, 'N HALF', 'NORTH HALF')
-        fcst = string.replace(fcst, 'S HALF', 'SOUTH HALF')
-        fcst = string.replace(fcst, 'W THIRD', 'WEST THIRD')
-        fcst = string.replace(fcst, 'E THIRD', 'EAST THIRD')
-        fcst = string.replace(fcst, 'N THIRD', 'NORTH THIRD')
-        fcst = string.replace(fcst, 'S THIRD', 'SOUTH THIRD')
-        fcst = string.replace(fcst, 'W TWO', 'WEST TWO')
-        fcst = string.replace(fcst, 'E TWO', 'EAST TWO')
-        fcst = string.replace(fcst, 'N TWO', 'NORTH TWO')
-        fcst = string.replace(fcst, 'S TWO', 'SOUTH TWO')
-        fcst = re.sub(r'^ ', r'',fcst)        
+        fcst = re.sub(r'(?i)(\W|^)NORTH(?!WARD|ERN|WESTWARD|EASTWARD|WESTERN|EASTERN)(?=\W|$)', r'\1N', fcst)
+        fcst = re.sub(r'(?i)(\W|^)SOUTH(?!WARD|ERN|WESTWARD|EASTWARD|WESTERN|EASTERN)(?=\W|$)', r'\1S', fcst)
+        fcst = re.sub(r'(?i)(\W|^)EAST(?!WARD|ERN)(?=\W|$)', r'\1E', fcst)
+        fcst = re.sub(r'(?i)(\W|^)WEST(?!WARD|ERN)(?=\W|$)', r'\1W', fcst)
+        fcst = re.sub(r'(?i)(\W|^)KNOTS?(?=\W|$)', r'\1kt', fcst)
+        fcst = re.sub(r'(?i)(\W|^)MILLIBARS?(?=\W|$)', r'\1mb', fcst)
+        fcst = re.sub(r'(?i)(\W|^)FATHOMS?(?=\W|$)', r'\1fm', fcst)
+        fcst = re.sub(r'(?i)(\W|^)NAUTICAL MILES?(?=\W|$)', r'\1nm', fcst)
+        fcst = re.sub(r'(?i)(\W|^)(?:FOOT|FEET)(?=\W|$)', r'\1ft', fcst)
+        fcst = re.sub(r'(?i)(\W|^)POSITION(?=\W|$)', r'\1PSN', fcst) 
+        fcst = re.sub(r'(?i)(\W|^)VISIBILITY(?=\W|$)', r'\1VSBY', fcst) 
+        fcst = re.sub(r'(?i)(\W|^)THUNDERSTORM(?=\W|$)', r'\1TSTM', fcst) 
+        fcst = re.sub(r'(?i)(\W|^)AVERAGE(?=\W|$)', r'\1AVG', fcst) 
+        fcst = re.sub(r'(?i)(\W|^)ATLANTIC(?=\W|$)', r'\1ATLC', fcst) 
+        fcst = re.sub(r'(?i)(\W|^)LONGITUDE(?=\W|$)', r'\1LONG', fcst) 
+        fcst = re.sub(r'(?i)(\W|^)PACIFIC(?=\W|$)', r'\1PAC', fcst) 
+        fcst = re.sub(r'(?i)(\W|^)DEGREE(?=\W|$)', r'\1deg', fcst) 
+        fcst = re.sub(r'(?i)(\W|^)PRESSURE(?=\W|$)', r'\1PRES', fcst)
+        fcst = re.sub(r'(?i)(\W|^)SUNDAY(?=\W|$)', r'\1Sun', fcst)
+        fcst = re.sub(r'(?i)(\W|^)MONDAY(?=\W|$)', r'\1Mon', fcst)
+        fcst = re.sub(r'(?i)(\W|^)TUESDAY(?=\W|$)', r'\1Tue', fcst)
+        fcst = re.sub(r'(?i)(\W|^)WEDNESDAY(?=\W|$)', r'\1Wed', fcst)
+        fcst = re.sub(r'(?i)(\W|^)THURSDAY(?=\W|$)', r'\1Thu', fcst)
+        fcst = re.sub(r'(?i)(\W|^)FRIDAY(?=\W|$)', r'\1Fri', fcst)
+        fcst = re.sub(r'(?i)(\W|^)SATURDAY(?=\W|$)', r'\1Sat', fcst)
+        fcst = re.sub(r'(?i)(\W|^)W HALF(?=\W|$)', r'\1West half', fcst)
+        fcst = re.sub(r'(?i)(\W|^)E HALF(?=\W|$)', r'\1east half', fcst)
+        fcst = re.sub(r'(?i)(\W|^)N HALF(?=\W|$)', r'\1north half', fcst)
+        fcst = re.sub(r'(?i)(\W|^)S HALF(?=\W|$)', r'\1soutH half', fcst)
+        fcst = re.sub(r'(?i)(\W|^)W THIRD(?=\W|$)', r'\1west third', fcst)
+        fcst = re.sub(r'(?i)(\W|^)E THIRD(?=\W|$)', r'\1east third', fcst)
+        fcst = re.sub(r'(?i)(\W|^)N THIRD(?=\W|$)', r'\1north third', fcst)
+        fcst = re.sub(r'(?i)(\W|^)S THIRD(?=\W|$)', r'\1south third', fcst)
+        fcst = re.sub(r'(?i)(\W|^)W TWO(?=\W|$)', r'\1west two', fcst)
+        fcst = re.sub(r'(?i)(\W|^)E TWO(?=\W|$)', r'\1east two', fcst)
+        fcst = re.sub(r'(?i)(\W|^)N TWO(?=\W|$)', r'\1north two', fcst)
+        fcst = re.sub(r'(?i)(\W|^)S TWO(?=\W|$)', r'\1south two', fcst)
         return fcst
   
     def rounding_method_dict(self, tree, node):
@@ -610,7 +605,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
         # Get the edit areas
         try:
-            if self._groupings == "West 1/3:East 2/3":
+            if self._groupings == "West 1/3:east 2/3":
                 self._areaList = [("west_one_third", "WEST THIRD"),
                             ("east_two_thirds", "EAST TWO THIRDS")]
             elif self._groupings == "West 2/3:East 1/3":
@@ -784,7 +779,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
     def _preProcessProduct(self, fcst, argDict):
         if self._areaName != "":
-             productName = self._productName.strip() + " FOR " + \
+             productName = self._productName.strip() + " for " + \
                            self._areaName.strip()
         else:
              productName = self._productName.strip()
@@ -792,13 +787,15 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         issuedByString = self.getIssuedByString()
         productName = self.checkTestMode(argDict, productName)
   
-        fcst =  fcst + self._wmoID + " " + self._fullStationID + " " + \
+        s = self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n" + self._pil + '\n' + \
                self._lakezone + "-" + self._expireTimeDDHHMM + "-\n\n" +\
                productName +  "\n" +\
-               "NATIONAL WEATHER SERVICE " + self._wfoCityState + \
-               "\n" + issuedByString + self._timeLabel + "\n\n" + \
-               self._headerphrase + "\n\n" + ".SYNOPSIS..." + "\n\n"
+               "National Weather Service " + self._wfoCityState + \
+               "\n" + issuedByString + self._timeLabel + "\n\n"
+        fcst = fcst + s.upper()
+
+        fcst =  fcst +  self._headerphrase + "\n\n" + ".SYNOPSIS..." + "\n\n"
 
         # Set up hazards
         self.getHazards(argDict, self._areaList)
@@ -855,14 +852,14 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
     def _postProcessArea(self, fcst, editArea, areaLabel, argDict):
 
-        # Adjust some phrases to local requirments
+        # Adjust some phrases to local requirements
         # ========================================
-        fcst = string.replace(fcst,"WIDESPREAD RAIN", "OCCASIONAL RAIN")
-        fcst = string.replace(fcst,"WIDESPREAD SHOWERS", "SHOWERS")
-        fcst = string.replace(fcst,"WIDESPREAD THUNDERSTORMS", "THUNDERSTORMS")
+        fcst = string.replace(fcst,"widespread rain", "occasional rain")
+        fcst = string.replace(fcst,"widespread showers", "showers")
+        fcst = string.replace(fcst,"widespread thunderstorms", "thunderstorms")
 
-        fcst = string.replace(fcst, "RAIN SHOWERS", "SHOWERS")
-        fcst = string.replace(fcst, "THUNDERSTORMS AND SHOWERS", "SHOWERS AND THUNDERSTORMS")
+        fcst = string.replace(fcst, "rain showers", "showers")
+        fcst = string.replace(fcst, "thunderstorms and showers", "showers and thunderstorms")
         #phrase = string.replace(phrase, "widespread", "")
 
         # This is the footer for an edit area combination
@@ -872,9 +869,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
         fcst = fcst + "$$\n\n"
 
-        if string.find(fcst, "STORM FORCE") > 0 or\
-           string.find(fcst, "STORM WARNING") > 0 or\
-           string.find(fcst, "HURRICANE") > 0:
+        if string.find(fcst, "storm force") > 0 or\
+           string.find(fcst, "storm warning") > 0 or\
+           string.find(fcst, "hurricane") > 0:
             fcst = fcst + "&&STORM\n\n"
 
         if self._processmafor == 1:
@@ -967,9 +964,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
     def splitDay24HourLabel_flag(self, tree, node):
         # Return 0 to have the TimeDescriptor module label 24 hour periods
-        # with simply the weekday name (e.g. SATURDAY)
+        # with simply the weekday name (e.g. Saturday)
         # instead of including the day and night periods
-        # (e.g. SATURDAY AND SATURDAY NIGHT)
+        # (e.g. Saturday and Saturday night)
         # NOTE: If you set this flag to 1, make sure the "nextDay24HourLabel_flag"
         # is set to zero.
         # NOTE: This applied only to periods that are exactly 24-hours in length.

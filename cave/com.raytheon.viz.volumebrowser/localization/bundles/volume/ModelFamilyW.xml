@@ -41,7 +41,7 @@
                     <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
                         <metadataMap>
                             <mapping key="info.parameter.abbreviation">
-                                <constraint constraintValue="TP" constraintType="EQUALS"/>
+                                <constraint constraintValue="${TP}" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.datasetId">
                                 <constraint constraintValue="${modelName}" constraintType="EQUALS"/>
@@ -65,13 +65,13 @@
 
 		<!--|1.|msl-P,Surface\-->
                 <resource>
-                    <loadProperties xsi:type="gridLoadProperties" displayType="ICON" loadWithoutData="false">
+                     <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
                         <capabilities>
                             <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
                         </capabilities>
                         <resourceType>PLAN_VIEW</resourceType>
                     </loadProperties>
-                    <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+                    <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
                         <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
                     </properties>
                     <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
@@ -129,34 +129,7 @@
                     </resourceData>
                 </resource>
 
-		<!-- |0.| cCape, ML | PBE, Surface -->
-		<!-- Start of bestRes for cCape, PBE -->
-                <resource>
-                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-                        <resourceType>PLAN_VIEW</resourceType>
-                    </loadProperties>
-		    <resourceData xsi:type="bestResResourceData" productIdentifierKey="info.parameter.abbreviation" retrieveData="false">
-                        <metadataMap>
-                            <mapping key="info.parameter.abbreviation">
-                                <constraint constraintValue="cCape, PBE" constraintType="IN"/>
-                            </mapping>
-                            <mapping key="info.datasetId">
-                                <constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.leveltwovalue">
-                                <constraint constraintValue="-999999" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="pluginName">
-                                <constraint constraintValue="grid" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.masterLevel.name">
-                                <constraint constraintValue="SFC" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.levelonevalue">
-                                <constraint constraintValue="0.0" constraintType="EQUALS"/>
-                            </mapping>
-                        </metadataMap>
-			<!--1st of bestRes - cCape, ML-->
+			<!--cCape, ML-->
 			<resource>
 				<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
 					<capabilities>
@@ -176,22 +149,95 @@
 							<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 						</mapping>
 						<mapping key="info.level.leveltwovalue">
-							<constraint constraintValue="-999999" constraintType="EQUALS"/>
+							<constraint constraintValue="1000." constraintType="EQUALS"/>
 						</mapping>
 						<mapping key="pluginName">
 							<constraint constraintValue="grid" constraintType="EQUALS"/>
 						</mapping>
 						<mapping key="info.level.masterLevel.name">
-							<constraint constraintValue="MLD" constraintType="EQUALS"/>
+							<constraint constraintValue="FHAG" constraintType="EQUALS"/>
 						</mapping>
 						<mapping key="info.level.levelonevalue">
 							<constraint constraintValue="0.0" constraintType="EQUALS"/>
 						</mapping>
 					</metadataMap>
 					<alertParser xsi:type="dataCubeAlertMessageParser"/>
-				</resourceData>
-			</resource>
-			<!--2nd of bestRes - PBE, Surface-->			
+				</resourceData>	
+		    
+		</resource>	
+<!-- 		muCape in 0-3km Agl Layer -->
+		<resource>
+				<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+					<capabilities>
+						<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+					</capabilities>
+					<resourceType>PLAN_VIEW</resourceType>
+				</loadProperties>
+				<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+					<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+				</properties>
+				<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+					<metadataMap>
+						<mapping key="info.parameter.abbreviation">
+							<constraint constraintValue="muCape" constraintType="EQUALS"/>
+						</mapping>
+						<mapping key="info.datasetId">
+							<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+						</mapping>
+						<mapping key="info.level.leveltwovalue">
+							<constraint constraintValue="3000.0" constraintType="EQUALS"/>
+						</mapping>
+						<mapping key="pluginName">
+							<constraint constraintValue="grid" constraintType="EQUALS"/>
+						</mapping>
+						<mapping key="info.level.masterLevel.name">
+							<constraint constraintValue="FHAG" constraintType="EQUALS"/>
+						</mapping>
+						<mapping key="info.level.levelonevalue">
+							<constraint constraintValue="0.0" constraintType="EQUALS"/>
+						</mapping>
+					</metadataMap>
+					<alertParser xsi:type="dataCubeAlertMessageParser"/>
+				</resourceData>			    
+		</resource>	
+<!-- 		0-3km cape using ML parcel -->
+		<resource>
+				<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+					<capabilities>
+						<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+					</capabilities>
+					<resourceType>PLAN_VIEW</resourceType>
+				</loadProperties>
+				<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+					<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+				</properties>
+				<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+					<metadataMap>
+						<mapping key="info.parameter.abbreviation">
+							<constraint constraintValue="loCape" constraintType="EQUALS"/>
+						</mapping>
+						<mapping key="info.datasetId">
+							<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+						</mapping>
+						<mapping key="info.level.leveltwovalue">
+							<constraint constraintValue="1000." constraintType="EQUALS"/>
+						</mapping>
+						<mapping key="pluginName">
+							<constraint constraintValue="grid" constraintType="EQUALS"/>
+						</mapping>
+						<mapping key="info.level.masterLevel.name">
+							<constraint constraintValue="FHAG" constraintType="EQUALS"/>
+						</mapping>
+						<mapping key="info.level.levelonevalue">
+							<constraint constraintValue="0.0" constraintType="EQUALS"/>
+						</mapping>
+					</metadataMap>
+					<alertParser xsi:type="dataCubeAlertMessageParser"/>
+				</resourceData>	
+		    
+		</resource>	
+
+		<!--cCin, ML-->
 			<resource>
 				<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
 					<capabilities>
@@ -205,19 +251,19 @@
 				<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 					<metadataMap>
 						<mapping key="info.parameter.abbreviation">
-							<constraint constraintValue="PBE" constraintType="EQUALS"/>
+							<constraint constraintValue="cCin" constraintType="EQUALS"/>
 						</mapping>
 						<mapping key="info.datasetId">
 							<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 						</mapping>
 						<mapping key="info.level.leveltwovalue">
-							<constraint constraintValue="-999999" constraintType="EQUALS"/>
+							<constraint constraintValue="1000.0" constraintType="EQUALS"/>
 						</mapping>
 						<mapping key="pluginName">
 							<constraint constraintValue="grid" constraintType="EQUALS"/>
 						</mapping>
 						<mapping key="info.level.masterLevel.name">
-							<constraint constraintValue="SFC" constraintType="EQUALS"/>
+							<constraint constraintValue="FHAG" constraintType="EQUALS"/>
 						</mapping>
 						<mapping key="info.level.levelonevalue">
 							<constraint constraintValue="0.0" constraintType="EQUALS"/>
@@ -226,37 +272,7 @@
 					<alertParser xsi:type="dataCubeAlertMessageParser"/>
 				</resourceData>
 			</resource>
-		    </resourceData>
-		</resource>	
-
-		<!-- |0.| cCin, ML | NBE, Surface -->
-		<!-- Start of bestRes for cCin, NBE -->
-                <resource>
-                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-                        <resourceType>PLAN_VIEW</resourceType>
-                    </loadProperties>
-		    <resourceData xsi:type="bestResResourceData" productIdentifierKey="info.parameter.abbreviation" retrieveData="false">
-                        <metadataMap>
-                            <mapping key="info.parameter.abbreviation">
-                                <constraint constraintValue="cCin, NBE" constraintType="IN"/>
-                            </mapping>
-                            <mapping key="info.datasetId">
-                                <constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.leveltwovalue">
-                                <constraint constraintValue="-999999" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="pluginName">
-                                <constraint constraintValue="grid" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.masterLevel.name">
-                                <constraint constraintValue="SFC" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.levelonevalue">
-                                <constraint constraintValue="0.0" constraintType="EQUALS"/>
-                            </mapping>
-                        </metadataMap>
-			<!--1st of bestRes - cCin, ML-->
+			<!--cCin, Surface-->			
 			<resource>
 				<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
 					<capabilities>
@@ -282,41 +298,6 @@
 							<constraint constraintValue="grid" constraintType="EQUALS"/>
 						</mapping>
 						<mapping key="info.level.masterLevel.name">
-							<constraint constraintValue="MLD" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.level.levelonevalue">
-							<constraint constraintValue="0.0" constraintType="EQUALS"/>
-						</mapping>
-					</metadataMap>
-					<alertParser xsi:type="dataCubeAlertMessageParser"/>
-				</resourceData>
-			</resource>
-			<!--2nd of bestRes - NBE, Surface-->			
-			<resource>
-				<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-					<capabilities>
-						<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-					</capabilities>
-					<resourceType>PLAN_VIEW</resourceType>
-				</loadProperties>
-				<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-					<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-				</properties>
-				<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-					<metadataMap>
-						<mapping key="info.parameter.abbreviation">
-							<constraint constraintValue="NBE" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.datasetId">
-							<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.level.leveltwovalue">
-							<constraint constraintValue="-999999" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="pluginName">
-							<constraint constraintValue="grid" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.level.masterLevel.name">
 							<constraint constraintValue="SFC" constraintType="EQUALS"/>
 						</mapping>
 						<mapping key="info.level.levelonevalue">
@@ -325,10 +306,7 @@
 					</metadataMap>
 					<alertParser xsi:type="dataCubeAlertMessageParser"/>
 				</resourceData>
-			</resource>
-		    </resourceData>
-		</resource>	
-		
+			</resource>		
 		<!-- |0.|BlkMag,0-6kmAgl -->
 		<resource>
 			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
@@ -364,111 +342,9 @@
 				<alertParser xsi:type="dataCubeAlertMessageParser"/>
 			</resourceData>
                 </resource>
-
-		<!-- |0.| BlkMag, 0-1kmAgl | EHI, 0-1kmAgl -->
-		<!-- Start of bestRes for BlkMag, EHI -->
-                <resource>
-                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-                        <resourceType>PLAN_VIEW</resourceType>
-                    </loadProperties>
-		    <resourceData xsi:type="bestResResourceData" productIdentifierKey="info.parameter.abbreviation" retrieveData="false">
-                        <metadataMap>
-                            <mapping key="info.parameter.abbreviation">
-                                <constraint constraintValue="BlkMag, EHI" constraintType="IN"/>
-                            </mapping>
-                            <mapping key="info.datasetId">
-                                <constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.leveltwovalue">
-                                <constraint constraintValue="-999999" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="pluginName">
-                                <constraint constraintValue="grid" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.masterLevel.name">
-                                <constraint constraintValue="SFC" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.levelonevalue">
-                                <constraint constraintValue="0.0" constraintType="EQUALS"/>
-                            </mapping>
-                        </metadataMap>
-			<!-- 1st of bestRes - BlkMag, 0-1kmAgl -->
-			<resource>
-				<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-					<capabilities>
-						<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-					</capabilities>
-					<resourceType>PLAN_VIEW</resourceType>
-				</loadProperties>
-				<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-					<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-				</properties>
-				<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-					<metadataMap>
-						<mapping key="info.parameter.abbreviation">
-							<constraint constraintValue="BlkMag" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.datasetId">
-							<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.level.leveltwovalue">
-							<constraint constraintValue="1.0" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="pluginName">
-							<constraint constraintValue="grid" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.level.masterLevel.name">
-							<constraint constraintValue="FHAG" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.level.levelonevalue">
-							<constraint constraintValue="0.0" constraintType="EQUALS"/>
-						</mapping>
-					</metadataMap>
-					<alertParser xsi:type="dataCubeAlertMessageParser"/>
-				</resourceData>
-			</resource>
-			<!-- 2nd of bestRes - EHI, 0-1kmAgl -->			
-			<resource>
-				<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-					<capabilities>
-						<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-					</capabilities>
-					<resourceType>PLAN_VIEW</resourceType>
-				</loadProperties>
-				<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-					<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-				</properties>
-				<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-					<metadataMap>
-						<mapping key="info.parameter.abbreviation">
-							<constraint constraintValue="EHI" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.datasetId">
-							<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.level.leveltwovalue">
-							<constraint constraintValue="1.0" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="pluginName">
-							<constraint constraintValue="grid" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.level.masterLevel.name">
-							<constraint constraintValue="FHAG" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.level.levelonevalue">
-							<constraint constraintValue="0.0" constraintType="EQUALS"/>
-						</mapping>
-					</metadataMap>
-					<alertParser xsi:type="dataCubeAlertMessageParser"/>
-				</resourceData>
-			</resource>
-		    </resourceData>
-		</resource>	
-
-		
-		<!-- |50.|BlkShr,0-6kmAgl -->
+                <!-- |50.|BlkShr,0-6kmAgl -->
 		<resource>
-			<loadProperties xsi:type="gridLoadProperties" displayType="ARROW" loadWithoutData="false">
+			<loadProperties xsi:type="gridLoadProperties" displayType="BARB" loadWithoutData="false">
 				<capabilities>
 					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
 				</capabilities>
@@ -500,11 +376,45 @@
 				</metadataMap>
 				<alertParser xsi:type="dataCubeAlertMessageParser"/>
 			</resourceData>
-                </resource>
-		
-		<!-- |50.|BlkShr, 0-1kmAgl -->
+         </resource>
+         <!-- |0.|BlkMag,0-3kmAgl -->
 		<resource>
-			<loadProperties xsi:type="gridLoadProperties" displayType="ARROW" loadWithoutData="false">
+			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+				<capabilities>
+					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+				</capabilities>
+				<resourceType>PLAN_VIEW</resourceType>
+			</loadProperties>
+			<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+				<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+			</properties>
+			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+				<metadataMap>
+					<mapping key="info.parameter.abbreviation">
+						<constraint constraintValue="BlkMag" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.datasetId">
+						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.level.leveltwovalue">
+						<constraint constraintValue="3000.0" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="pluginName">
+						<constraint constraintValue="grid" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.level.masterLevel.name">
+						<constraint constraintValue="FHAG" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.level.levelonevalue">
+						<constraint constraintValue="0.0" constraintType="EQUALS"/>
+					</mapping>
+				</metadataMap>
+				<alertParser xsi:type="dataCubeAlertMessageParser"/>
+			</resourceData>
+                </resource>
+                <!-- |50.|BlkShr,0-3kmAgl -->
+		<resource>
+			<loadProperties xsi:type="gridLoadProperties" displayType="BARB" loadWithoutData="false">
 				<capabilities>
 					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
 				</capabilities>
@@ -522,7 +432,7 @@
 						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 					</mapping>
 					<mapping key="info.level.leveltwovalue">
-						<constraint constraintValue="1.0" constraintType="EQUALS"/>
+						<constraint constraintValue="3000.0" constraintType="EQUALS"/>
 					</mapping>
 					<mapping key="pluginName">
 						<constraint constraintValue="grid" constraintType="EQUALS"/>
@@ -536,36 +446,42 @@
 				</metadataMap>
 				<alertParser xsi:type="dataCubeAlertMessageParser"/>
 			</resourceData>
-                </resource>
-		
-		<!-- |0.| Heli, 0-3kmAgl | HeliD, 0-3kmAgl -->
-		<!-- Start of bestRes for Heli, HeliD -->
-                <resource>
-                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-                        <resourceType>PLAN_VIEW</resourceType>
-                    </loadProperties>
-		    <resourceData xsi:type="bestResResourceData" productIdentifierKey="info.parameter.abbreviation" retrieveData="false">
-                        <metadataMap>
-                            <mapping key="info.parameter.abbreviation">
-                                <constraint constraintValue="Heli, HeliD" constraintType="IN"/>
-                            </mapping>
-                            <mapping key="info.datasetId">
-                                <constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.leveltwovalue">
-                                <constraint constraintValue="-999999" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="pluginName">
-                                <constraint constraintValue="grid" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.masterLevel.name">
-                                <constraint constraintValue="SFC" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.levelonevalue">
-                                <constraint constraintValue="0.0" constraintType="EQUALS"/>
-                            </mapping>
-                        </metadataMap>
-			<!-- 1st of bestRes - Heli, 0-3kmAgl -->
+         </resource>		
+			<resource>
+				<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+					<capabilities>
+						<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+					</capabilities>
+					<resourceType>PLAN_VIEW</resourceType>
+				</loadProperties>
+				<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+					<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+				</properties>
+				<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+					<metadataMap>
+						<mapping key="info.parameter.abbreviation">
+							<constraint constraintValue="EHI" constraintType="EQUALS"/>
+						</mapping>
+						<mapping key="info.datasetId">
+							<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+						</mapping>
+						<mapping key="info.level.leveltwovalue">
+							<constraint constraintValue="1000.0" constraintType="EQUALS"/>
+						</mapping>
+						<mapping key="pluginName">
+							<constraint constraintValue="grid" constraintType="EQUALS"/>
+						</mapping>
+						<mapping key="info.level.masterLevel.name">
+							<constraint constraintValue="FHAG" constraintType="EQUALS"/>
+						</mapping>
+						<mapping key="info.level.levelonevalue">
+							<constraint constraintValue="0.0" constraintType="EQUALS"/>
+						</mapping>
+					</metadataMap>
+					<alertParser xsi:type="dataCubeAlertMessageParser"/>
+				</resourceData>
+			</resource>
+    <!-- Heli, 0-3kmAgl -->
 			<resource>
 				<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
 					<capabilities>
@@ -585,7 +501,7 @@
 							<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 						</mapping>
 						<mapping key="info.level.leveltwovalue">
-							<constraint constraintValue="3.0" constraintType="EQUALS"/>
+							<constraint constraintValue="3000.0" constraintType="EQUALS"/>
 						</mapping>
 						<mapping key="pluginName">
 							<constraint constraintValue="grid" constraintType="EQUALS"/>
@@ -600,72 +516,7 @@
 					<alertParser xsi:type="dataCubeAlertMessageParser"/>
 				</resourceData>
 			</resource>
-			<!-- 2nd of bestRes - HeliD, 0-3kmAgl -->			
-			<resource>
-				<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-					<capabilities>
-						<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-					</capabilities>
-					<resourceType>PLAN_VIEW</resourceType>
-				</loadProperties>
-				<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-					<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-				</properties>
-				<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-					<metadataMap>
-						<mapping key="info.parameter.abbreviation">
-							<constraint constraintValue="HeliD" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.datasetId">
-							<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.level.leveltwovalue">
-							<constraint constraintValue="3.0" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="pluginName">
-							<constraint constraintValue="grid" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.level.masterLevel.name">
-							<constraint constraintValue="FHAG" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.level.levelonevalue">
-							<constraint constraintValue="0.0" constraintType="EQUALS"/>
-						</mapping>
-					</metadataMap>
-					<alertParser xsi:type="dataCubeAlertMessageParser"/>
-				</resourceData>
-			</resource>
-		    </resourceData>
-		</resource>	
-
-		<!-- |0.| Heli, 0-1kmAgl | HeliD, 0-1kmAgl -->
-		<!-- Start of bestRes for Heli, HeliD -->
-                <resource>
-                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-                        <resourceType>PLAN_VIEW</resourceType>
-                    </loadProperties>
-		    <resourceData xsi:type="bestResResourceData" productIdentifierKey="info.parameter.abbreviation" retrieveData="false">
-                        <metadataMap>
-                            <mapping key="info.parameter.abbreviation">
-                                <constraint constraintValue="Heli, HeliD" constraintType="IN"/>
-                            </mapping>
-                            <mapping key="info.datasetId">
-                                <constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.leveltwovalue">
-                                <constraint constraintValue="-999999" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="pluginName">
-                                <constraint constraintValue="grid" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.masterLevel.name">
-                                <constraint constraintValue="SFC" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.levelonevalue">
-                                <constraint constraintValue="0.0" constraintType="EQUALS"/>
-                            </mapping>
-                        </metadataMap>
-			<!-- 1st of bestRes - Heli, 0-1kmAgl -->
+			<!-- Heli, 0-1kmAgl -->
 			<resource>
 				<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
 					<capabilities>
@@ -685,7 +536,7 @@
 							<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 						</mapping>
 						<mapping key="info.level.leveltwovalue">
-							<constraint constraintValue="1.0" constraintType="EQUALS"/>
+							<constraint constraintValue="1000.0" constraintType="EQUALS"/>
 						</mapping>
 						<mapping key="pluginName">
 							<constraint constraintValue="grid" constraintType="EQUALS"/>
@@ -700,47 +551,10 @@
 					<alertParser xsi:type="dataCubeAlertMessageParser"/>
 				</resourceData>
 			</resource>
-			<!-- 2nd of bestRes - HeliD, 0-1kmAgl -->			
-			<resource>
-				<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-					<capabilities>
-						<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-					</capabilities>
-					<resourceType>PLAN_VIEW</resourceType>
-				</loadProperties>
-				<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-					<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-				</properties>
-				<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-					<metadataMap>
-						<mapping key="info.parameter.abbreviation">
-							<constraint constraintValue="HeliD" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.datasetId">
-							<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.level.leveltwovalue">
-							<constraint constraintValue="1.0" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="pluginName">
-							<constraint constraintValue="grid" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.level.masterLevel.name">
-							<constraint constraintValue="FHAG" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.level.levelonevalue">
-							<constraint constraintValue="0.0" constraintType="EQUALS"/>
-						</mapping>
-					</metadataMap>
-					<alertParser xsi:type="dataCubeAlertMessageParser"/>
-				</resourceData>
-			</resource>
-		    </resourceData>
-		</resource>	
-				
-		<!-- |0.|SRMmM, Surface -->
+		
+		<!--|0.|RM5,Layer -->
 		<resource>
-			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+			<loadProperties xsi:type="gridLoadProperties" displayType="BARB" loadWithoutData="false">
 				<capabilities>
 					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
 				</capabilities>
@@ -752,19 +566,16 @@
 			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 				<metadataMap>
 					<mapping key="info.parameter.abbreviation">
-						<constraint constraintValue="SRMmM" constraintType="EQUALS"/>
+						<constraint constraintValue="RM5" constraintType="EQUALS"/>
 					</mapping>
 					<mapping key="info.datasetId">
 						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.level.leveltwovalue">
-						<constraint constraintValue="0.0" constraintType="EQUALS"/>
 					</mapping>
 					<mapping key="pluginName">
 						<constraint constraintValue="grid" constraintType="EQUALS"/>
 					</mapping>
 					<mapping key="info.level.masterLevel.name">
-						<constraint constraintValue="SFC" constraintType="EQUALS"/>
+						<constraint constraintValue="EA" constraintType="EQUALS"/>
 					</mapping>
 					<mapping key="info.level.levelonevalue">
 						<constraint constraintValue="0.0" constraintType="EQUALS"/>
@@ -772,11 +583,10 @@
 				</metadataMap>
 				<alertParser xsi:type="dataCubeAlertMessageParser"/>
 			</resourceData>
-		</resource>
-		
-		<!--|0.|SRMrM,Surface -->
+         </resource>
+         <!--|0.|LM5,Layer -->
 		<resource>
-			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+			<loadProperties xsi:type="gridLoadProperties" displayType="BARB" loadWithoutData="false">
 				<capabilities>
 					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
 				</capabilities>
@@ -788,7 +598,7 @@
 			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 				<metadataMap>
 					<mapping key="info.parameter.abbreviation">
-						<constraint constraintValue="SRMrM" constraintType="EQUALS"/>
+						<constraint constraintValue="LM5" constraintType="EQUALS"/>
 					</mapping>
 					<mapping key="info.datasetId">
 						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
@@ -797,7 +607,7 @@
 						<constraint constraintValue="grid" constraintType="EQUALS"/>
 					</mapping>
 					<mapping key="info.level.masterLevel.name">
-						<constraint constraintValue="SFC" constraintType="EQUALS"/>
+						<constraint constraintValue="EA" constraintType="EQUALS"/>
 					</mapping>
 					<mapping key="info.level.levelonevalue">
 						<constraint constraintValue="0.0" constraintType="EQUALS"/>
@@ -805,316 +615,9 @@
 				</metadataMap>
 				<alertParser xsi:type="dataCubeAlertMessageParser"/>
 			</resourceData>
-                </resource>
+         </resource>	
 		
-		<!--|0.|SRMlM, Surface	-->
-		<resource>
-			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-				<capabilities>
-					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-				</capabilities>
-				<resourceType>PLAN_VIEW</resourceType>
-			</loadProperties>
-			<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-				<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-			</properties>
-			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-				<metadataMap>
-					<mapping key="info.parameter.abbreviation">
-						<constraint constraintValue="SRMlM" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.datasetId">
-						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="pluginName">
-						<constraint constraintValue="grid" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.level.masterLevel.name">
-						<constraint constraintValue="SFC" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.level.levelonevalue">
-						<constraint constraintValue="0.0" constraintType="EQUALS"/>
-					</mapping>
-				</metadataMap>
-				<alertParser xsi:type="dataCubeAlertMessageParser"/>
-			</resourceData>
-                </resource>
-		
-		<!--|50.|SRMm, Surface| -->
-		<resource>
-			<loadProperties xsi:type="gridLoadProperties" displayType="ARROW" loadWithoutData="false">
-				<capabilities>
-					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-				</capabilities>
-				<resourceType>PLAN_VIEW</resourceType>
-			</loadProperties>
-			<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-				<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-			</properties>
-			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-				<metadataMap>
-					<mapping key="info.parameter.abbreviation">
-						<constraint constraintValue="SRMm" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.datasetId">
-						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="pluginName">
-						<constraint constraintValue="grid" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.level.masterLevel.name">
-						<constraint constraintValue="SFC" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.level.levelonevalue">
-						<constraint constraintValue="0.0" constraintType="EQUALS"/>
-					</mapping>
-				</metadataMap>
-				<alertParser xsi:type="dataCubeAlertMessageParser"/>
-			</resourceData>
-                </resource>		
-		
-		<!--|50.|SRMr, Surface -->
-		<resource>
-			<loadProperties xsi:type="gridLoadProperties" displayType="ARROW" loadWithoutData="false">
-				<capabilities>
-					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-				</capabilities>
-				<resourceType>PLAN_VIEW</resourceType>
-			</loadProperties>
-			<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-				<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-			</properties>
-			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-				<metadataMap>
-					<mapping key="info.parameter.abbreviation">
-						<constraint constraintValue="SRMr" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.datasetId">
-						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="pluginName">
-						<constraint constraintValue="grid" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.level.masterLevel.name">
-						<constraint constraintValue="SFC" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.level.levelonevalue">
-						<constraint constraintValue="0.0" constraintType="EQUALS"/>
-					</mapping>
-				</metadataMap>
-				<alertParser xsi:type="dataCubeAlertMessageParser"/>
-			</resourceData>
-                </resource>
-		
-		<!--|50.|SRMl, Surface -->
-		<resource>
-			<loadProperties xsi:type="gridLoadProperties" displayType="ARROW" loadWithoutData="false">
-				<capabilities>
-					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-				</capabilities>
-				<resourceType>PLAN_VIEW</resourceType>
-			</loadProperties>
-			<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-				<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-			</properties>
-			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-				<metadataMap>
-					<mapping key="info.parameter.abbreviation">
-						<constraint constraintValue="SRMl" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.datasetId">
-						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.level.leveltwovalue">
-						<constraint constraintValue="0.0" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="pluginName">
-						<constraint constraintValue="grid" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.level.masterLevel.name">
-						<constraint constraintValue="SFC" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.level.levelonevalue">
-						<constraint constraintValue="0.0" constraintType="EQUALS"/>
-					</mapping>
-				</metadataMap>
-				<alertParser xsi:type="dataCubeAlertMessageParser"/>
-			</resourceData>
-		</resource>
-		
-		<!--|0.|RV, Surface -->
-		<resource>
-			<loadProperties xsi:type="gridLoadProperties" displayType="ARROWS" loadWithoutData="false">
-				<capabilities>
-					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-				</capabilities>
-				<resourceType>PLAN_VIEW</resourceType>
-			</loadProperties>
-			<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-				<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-			</properties>
-			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-				<metadataMap>
-					<mapping key="info.parameter.abbreviation">
-						<constraint constraintValue="RV" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.datasetId">
-						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.level.leveltwovalue">
-						<constraint constraintValue="0.0" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="pluginName">
-						<constraint constraintValue="grid" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.level.masterLevel.name">
-						<constraint constraintValue="SFC" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.level.levelonevalue">
-						<constraint constraintValue="0.0" constraintType="EQUALS"/>
-					</mapping>
-				</metadataMap>
-				<alertParser xsi:type="dataCubeAlertMessageParser"/>
-			</resourceData>
-		</resource>		
-		
-		<!--|0.|MLLCL, ML -->
-		<resource>
-			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-				<capabilities>
-					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-				</capabilities>
-				<resourceType>PLAN_VIEW</resourceType>
-			</loadProperties>
-			<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-				<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-			</properties>
-			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-				<metadataMap>
-					<mapping key="info.parameter.abbreviation">
-						<constraint constraintValue="MLLCL" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.datasetId">
-						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.level.leveltwovalue">
-						<constraint constraintValue="-999999" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="pluginName">
-						<constraint constraintValue="grid" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.level.masterLevel.name">
-						<constraint constraintValue="MLD" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.level.levelonevalue">
-						<constraint constraintValue="0.0" constraintType="EQUALS"/>
-					</mapping>
-				</metadataMap>
-				<alertParser xsi:type="dataCubeAlertMessageParser"/>
-			</resourceData>
-		</resource>		
-		
-		<!--|0.|muCape, 0-4kmAgl -->
-		<resource>
-			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-				<capabilities>
-					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-				</capabilities>
-				<resourceType>PLAN_VIEW</resourceType>
-			</loadProperties>
-			<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-				<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-			</properties>
-			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-				<metadataMap>
-					<mapping key="info.parameter.abbreviation">
-						<constraint constraintValue="muCape" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.datasetId">
-						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.level.leveltwovalue">
-						<constraint constraintValue="4.0" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="pluginName">
-						<constraint constraintValue="grid" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.level.masterLevel.name">
-						<constraint constraintValue="FHAG" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.level.levelonevalue">
-						<constraint constraintValue="0.0" constraintType="EQUALS"/>
-					</mapping>
-				</metadataMap>
-				<alertParser xsi:type="dataCubeAlertMessageParser"/>
-			</resourceData>
-		</resource>		
-		
-		<!--|0.|VGP, 0-2kmAgl -->
-		<resource>
-			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-				<capabilities>
-					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-				</capabilities>
-				<resourceType>PLAN_VIEW</resourceType>
-			</loadProperties>
-			<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-				<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-			</properties>
-			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-				<metadataMap>
-					<mapping key="info.parameter.abbreviation">
-						<constraint constraintValue="VGP" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.datasetId">
-						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.level.leveltwovalue">
-						<constraint constraintValue="2000.0" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="pluginName">
-						<constraint constraintValue="grid" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.level.masterLevel.name">
-						<constraint constraintValue="FHAG" constraintType="EQUALS"/>
-					</mapping>
-					<mapping key="info.level.levelonevalue">
-						<constraint constraintValue="0.0" constraintType="EQUALS"/>
-					</mapping>
-				</metadataMap>
-				<alertParser xsi:type="dataCubeAlertMessageParser"/>
-			</resourceData>
-		</resource>		
-		
-
-		<!-- |0.| STP, Layer | VGP, 0-2kmAgl -->
-		<!-- Start of bestRes for Heli, HeliD -->
-                <resource>
-                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-                        <resourceType>PLAN_VIEW</resourceType>
-                    </loadProperties>
-		    <resourceData xsi:type="bestResResourceData" productIdentifierKey="info.parameter.abbreviation" retrieveData="false">
-                        <metadataMap>
-                            <mapping key="info.parameter.abbreviation">
-                                <constraint constraintValue="STP, VGP" constraintType="IN"/>
-                            </mapping>
-                            <mapping key="info.datasetId">
-                                <constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.leveltwovalue">
-                                <constraint constraintValue="-999999" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="pluginName">
-                                <constraint constraintValue="grid" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.masterLevel.name">
-                                <constraint constraintValue="SFC" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.levelonevalue">
-                                <constraint constraintValue="0.0" constraintType="EQUALS"/>
-                            </mapping>
-                        </metadataMap>
-			<!-- 1st of bestRes - STP, Layer -->
+<!-- 		STP, Layer -->
 			<resource>
 				<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
 					<capabilities>
@@ -1133,14 +636,11 @@
 						<mapping key="info.datasetId">
 							<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 						</mapping>
-						<mapping key="info.level.leveltwovalue">
-							<constraint constraintValue="0.0" constraintType="EQUALS"/>
-						</mapping>
 						<mapping key="pluginName">
 							<constraint constraintValue="grid" constraintType="EQUALS"/>
 						</mapping>
 						<mapping key="info.level.masterLevel.name">
-							<constraint constraintValue="SFC" constraintType="EQUALS"/>
+							<constraint constraintValue="EA" constraintType="EQUALS"/>
 						</mapping>
 						<mapping key="info.level.levelonevalue">
 							<constraint constraintValue="0.0" constraintType="EQUALS"/>
@@ -1149,7 +649,7 @@
 					<alertParser xsi:type="dataCubeAlertMessageParser"/>
 				</resourceData>
 			</resource>
-			<!-- 2nd of bestRes - VGP, 0-2kmAgl -->			
+			<!-- SuCP, Layer-->			
 			<resource>
 				<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
 					<capabilities>
@@ -1163,19 +663,16 @@
 				<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 					<metadataMap>
 						<mapping key="info.parameter.abbreviation">
-							<constraint constraintValue="VGP" constraintType="EQUALS"/>
+							<constraint constraintValue="SuCP" constraintType="EQUALS"/>
 						</mapping>
 						<mapping key="info.datasetId">
 							<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.level.leveltwovalue">
-							<constraint constraintValue="2000.0" constraintType="EQUALS"/>
 						</mapping>
 						<mapping key="pluginName">
 							<constraint constraintValue="grid" constraintType="EQUALS"/>
 						</mapping>
 						<mapping key="info.level.masterLevel.name">
-							<constraint constraintValue="FHAG" constraintType="EQUALS"/>
+							<constraint constraintValue="EA" constraintType="EQUALS"/>
 						</mapping>
 						<mapping key="info.level.levelonevalue">
 							<constraint constraintValue="0.0" constraintType="EQUALS"/>
@@ -1183,110 +680,7 @@
 					</metadataMap>
 					<alertParser xsi:type="dataCubeAlertMessageParser"/>
 				</resourceData>
-			</resource>
-		    </resourceData>
-		</resource>	
-		
-		
-		<!-- |21.| STP, Layer | VGP, 0-2kmAgl -->
-		<!-- Start of bestRes for STP, VGP -->
-                <resource>
-                    <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
-                        <resourceType>PLAN_VIEW</resourceType>
-                    </loadProperties>
-		    <resourceData xsi:type="bestResResourceData" productIdentifierKey="info.parameter.abbreviation" retrieveData="false">
-                        <metadataMap>
-                            <mapping key="info.parameter.abbreviation">
-                                <constraint constraintValue="STP, VGP" constraintType="IN"/>
-                            </mapping>
-                            <mapping key="info.datasetId">
-                                <constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.leveltwovalue">
-                                <constraint constraintValue="-999999" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="pluginName">
-                                <constraint constraintValue="grid" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.masterLevel.name">
-                                <constraint constraintValue="SFC" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.levelonevalue">
-                                <constraint constraintValue="0.0" constraintType="EQUALS"/>
-                            </mapping>
-                        </metadataMap>
-			<!-- 1st of bestRes - STP, Layer -->
-			<resource>
-				<loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
-					<capabilities>
-						<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-					</capabilities>
-					<resourceType>PLAN_VIEW</resourceType>
-				</loadProperties>
-				<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
-					<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-				</properties>
-				<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-					<metadataMap>
-						<mapping key="info.parameter.abbreviation">
-							<constraint constraintValue="STP" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.datasetId">
-							<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.level.leveltwovalue">
-							<constraint constraintValue="0.0" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="pluginName">
-							<constraint constraintValue="grid" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.level.masterLevel.name">
-							<constraint constraintValue="SFC" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.level.levelonevalue">
-							<constraint constraintValue="0.0" constraintType="EQUALS"/>
-						</mapping>
-					</metadataMap>
-					<alertParser xsi:type="dataCubeAlertMessageParser"/>
-				</resourceData>
-			</resource>
-			<!-- 2nd of bestRes - VGP, 0-2kmAgl -->			
-			<resource>
-				<loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
-					<capabilities>
-						<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-					</capabilities>
-					<resourceType>PLAN_VIEW</resourceType>
-				</loadProperties>
-				<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
-					<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-				</properties>
-				<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-					<metadataMap>
-						<mapping key="info.parameter.abbreviation">
-							<constraint constraintValue="VGP" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.datasetId">
-							<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.level.leveltwovalue">
-							<constraint constraintValue="2000.0" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="pluginName">
-							<constraint constraintValue="grid" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.level.masterLevel.name">
-							<constraint constraintValue="FHAG" constraintType="EQUALS"/>
-						</mapping>
-						<mapping key="info.level.levelonevalue">
-							<constraint constraintValue="0.0" constraintType="EQUALS"/>
-						</mapping>
-					</metadataMap>
-					<alertParser xsi:type="dataCubeAlertMessageParser"/>
-				</resourceData>
-			</resource>
-		    </resourceData>
-		</resource>	
+			</resource>	
 		
 		<timeMatcher xsi:type="d2DTimeMatcher" deltaFilter="0" forecastFilter="0"/>
                 <numberOfFrames>${frameCount}</numberOfFrames>

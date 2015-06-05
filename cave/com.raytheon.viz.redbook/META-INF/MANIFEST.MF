@@ -24,3 +24,4 @@ Export-Package: com.raytheon.viz.redbook,
  com.raytheon.viz.redbookua.rsc
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.colormap.prefs
+Bundle-ClassPath: com.raytheon.viz.redbook.jar

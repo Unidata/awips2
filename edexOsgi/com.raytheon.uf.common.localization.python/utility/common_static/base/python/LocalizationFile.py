@@ -28,7 +28,8 @@
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    03/12/13                      mnash        Initial Creation.
+#    03/12/13                      mnash          Initial Creation.
+#    Apr 27, 2015     4259         njensen        Updated for new JEP API
 #    
 # 
 #
@@ -38,7 +39,8 @@ from datetime import datetime
 from LockingFile import File
 
 from java.io import File as JavaFile
-from com.raytheon.uf.common.localization import LocalizationContext_LocalizationLevel as JavaLocalizationLevel
+from com.raytheon.uf.common.localization import LocalizationContext
+JavaLocalizationLevel = LocalizationContext.LocalizationLevel 
 
 
 class LocalizationFile(JUtil.JavaWrapperClass):

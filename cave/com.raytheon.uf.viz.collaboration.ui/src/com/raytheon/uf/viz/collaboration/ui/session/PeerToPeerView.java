@@ -78,6 +78,8 @@ import com.raytheon.uf.viz.core.sounds.SoundUtil;
  *                                     dispose them.
  * Jan 09, 2015 3709       bclement    color config manager API changes
  * Jan 13, 2015 3709       bclement    ChangeTextColorAction API changes
+ * Mar 24, 2015 4265       mapeters    abstracted out common styleAndAppendText()
+ * May 22, 2015 4328       mapeters    Add NOTIFICATION_IMAGE_NAME, getter
  * 
  * </pre>
  * 
@@ -90,6 +92,8 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
             .getHandler(PeerToPeerView.class);
 
     private static final String PEER_TO_PEER_IMAGE_NAME = "chats.gif";
+
+    private static final String NOTIFICATION_IMAGE_NAME = "chats_notification.gif";
 
     public static final String ID = "com.raytheon.uf.viz.collaboration.PeerToPeerView";
 
@@ -213,7 +217,7 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
 
     @Override
     protected void styleAndAppendText(StringBuilder sb, int offset,
-            String name, IUser userId, String subject, List<StyleRange> ranges) {
+            String name, IUser userId, List<StyleRange> ranges) {
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
         if (connection == null) {
@@ -231,34 +235,16 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
         }
         styleAndAppendText(sb, offset, name, userId, ranges, foreground,
                 background);
-    };
-
-    @Override
-    public void styleAndAppendText(StringBuilder sb, int offset, String name,
-            IUser userId, List<StyleRange> ranges, Color foreground,
-            Color background) {
-
-        StyleRange range = new StyleRange(messagesText.getCharCount(),
-                sb.length(), foreground, null, SWT.NORMAL);
-        ranges.add(range);
-        range = new StyleRange(messagesText.getCharCount() + offset,
-                (userId != null ? name.length() + 1 : sb.length() - offset),
-                foreground, null, SWT.BOLD);
-        ranges.add(range);
-        messagesText.append(sb.toString());
-
-        for (StyleRange newRange : ranges) {
-            messagesText.setStyleRange(newRange);
-        }
-
-        int lineNumber = messagesText.getLineCount() - 1;
-        messagesText.setLineBackground(lineNumber, 1, background);
-        messagesText.setTopIndex(lineNumber);
     }
 
     @Override
     protected String getSessionImageName() {
         return PEER_TO_PEER_IMAGE_NAME;
+    }
+
+    @Override
+    protected String getNotificationImageName() {
+        return NOTIFICATION_IMAGE_NAME;
     }
 
     /*

@@ -31,7 +31,9 @@ package com.raytheon.viz.hydrocommon.cresthistory;
  * Dec 11, 2008   1628  dhladky  initial
  * Nov 04, 2010   5518	lbousaid	added all/above/bellow flag to
  * 									getRiverCrestData
- * 
+ * Jan 09, 2015  16698  JingtaoD    Crest History failed validation dialog pops up when OK button clicked
+ * April 08 2015  17338 JingtaoD    "Apostrophe" entered into Hydrobase text fields  in dialog window are not 
+ *                                  written to the IHFS database
  * </pre>
  *
  * @author dhladky
@@ -47,6 +49,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.hydrocommon.data.RiverDataPoint;
 import com.raytheon.viz.hydrocommon.datamanager.RiverDataManager;
+import com.raytheon.viz.hydrocommon.datamanager.HydroDBDataManager;
 
 public class CrestHistoryDataManager {
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -106,6 +109,9 @@ public class CrestHistoryDataManager {
                 System.out.println("Query: " + deleteCrest);
             }
             
+         // check if dataQuery contains any apostrophe, if does, replace it to two single appostrophe
+            deleteCrest = HydroDBDataManager.getInstance().checkAppostrophe(deleteCrest);
+        
             DirectDbQuery.executeStatement(deleteCrest, HydroConstants.IHFS,
                     QueryLanguage.SQL);
         } catch (VizException ve) {
@@ -150,6 +156,9 @@ public class CrestHistoryDataManager {
                                 ad.getToken(HydroConstants.DB_NAME));
                         System.out.println("Query: " + query);
                     }
+                    // check if dataQuery contains any apostrophe, if does, replace it to two single appostrophe
+                    query = HydroDBDataManager.getInstance().checkAppostrophe(query);
+                    
                     DirectDbQuery.executeStatement(query, HydroConstants.IHFS, QueryLanguage.SQL);
                 } catch (VizException e) {
                     e.printStackTrace();
@@ -205,16 +214,22 @@ public class CrestHistoryDataManager {
         }
 
         try {
+        	 // check if dataQuery contains any apostrophe, if does, replace it to two single appostrophe
+            insertCrest = HydroDBDataManager.getInstance().checkAppostrophe(insertCrest);
+            
             DirectDbQuery.executeStatement(insertCrest, HydroConstants.IHFS,
                     QueryLanguage.SQL);
-        } catch (VizException e) {
-            /* If this update fails then try an insert */
-            if (e.getMessage().contains("crest_pk")) {
+        } catch (VizException e) {           
+      
+        	e.printStackTrace();      
+        	         
+        	//exception with duplicate key value is throwed in the 2nd cause
+        	
+        	if (e.getCause().getCause().getMessage().contains("crest_pk")) {
                 executeUpdate = true;                       
             } else {
                 errMsg = "Error inserting data into database.";
-            }
-            e.printStackTrace();
+            }                     
         }
 
         if (executeUpdate) {
@@ -269,8 +284,11 @@ public class CrestHistoryDataManager {
                             ad.getToken(HydroConstants.DB_NAME));
                     System.out.println("Query: " + query.toString());
                 }
-
-                DirectDbQuery.executeStatement(query.toString(), HydroConstants.IHFS, QueryLanguage.SQL);
+                
+                // check if dataQuery contains any apostrophe, if does, replace it to two single appostrophe
+              String newquery = HydroDBDataManager.getInstance().checkAppostrophe(query.toString());
+                
+                DirectDbQuery.executeStatement(newquery, HydroConstants.IHFS, QueryLanguage.SQL);
             } catch (VizException e) {
                 errMsg = "Error updating data in database";
                 e.printStackTrace();

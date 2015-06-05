@@ -42,7 +42,7 @@ import AbsTime, DatabaseID, StartupDialog
 DEG_TO_RAD = 0.017453292
 
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData, ReferenceID
-from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData_CoordinateType as CoordinateType
+CoordinateType = ReferenceData.CoordinateType
 
 
 import sys, types
@@ -60,7 +60,7 @@ class TextProduct(GenericHazards.TextProduct):
     Definition["defaultEditAreas"] = "EditAreas_PublicZones_<site>"
     Definition["showZoneCombiner"] = 1 # 1 to cause zone combiner to display
 
-    Definition["productName"]       = "TROPICAL CYCLONE LOCAL STATEMENT"
+    Definition["productName"]       = "Tropical Cyclone Local Statement"
 
     Definition["fullStationID" ]    = "<fullStationID>"
     Definition["wmoID" ]            = "<wmoID>"
@@ -78,7 +78,7 @@ class TextProduct(GenericHazards.TextProduct):
 
     Definition["purgeTime"]         = 8 # Default Expiration in hours if
     Definition["includeCities"]     = 0 # Cities not included in area header
-    Definition["cityDescriptor"]    = "INCLUDING THE CITIES OF"
+    Definition["cityDescriptor"]    = "Including the cities of"
     Definition["includeZoneNames"]  = 1 # Zone names will be included in the area header
     Definition["includeIssueTime"]  = 0 # Issue Time will be included in the area header
     Definition["easPhrase"] = \
@@ -185,13 +185,13 @@ class TextProduct(GenericHazards.TextProduct):
         return ""  #"TBW"
 
     def _cwa_descriptor(self):
-        return "" # "CENTRAL WEST FLORIDA"
+        return "" # "central west Florida"
 
     def _maor_descriptor(self):
-        return "" # "WEST CENTRAL FLORIDA WATERS AND THE GULF OF MEXICO"
+        return "" # "west central Florida waters and the Gulf of Mexico"
 
     def _cwa_maor_descriptor(self):
-        return "" #"WEST FLORIDA WATERS AND THE GULF OF MEXICO"
+        return "" #"west Florida waters and the Gulf of Mexico"
 
     def _localReferencePoints(self):
         # Give the name and lat/lon for each local reference point
@@ -215,7 +215,7 @@ class TextProduct(GenericHazards.TextProduct):
     def _overviewFormat(self):
         # For overview headlines specify "listAreas" if you want specific
         #  locations listed.
-        # Otherwise, specify "generic" for a general "ALL" or "PORTIONS OF"
+        # Otherwise, specify "generic" for a general "All" or "Portions of"
         #  the CWA
         return {
             "land": "listAreas",
@@ -583,7 +583,7 @@ class TextProduct(GenericHazards.TextProduct):
         #           It can be a tuple consisting of:
         #                 (Title for Public zones, Title for Marine Zones)
         #           For example:
-        #                 ("...WINDS...\n","...WINDS AND SEAS...\n")
+        #                 ("...Winds...\n","...Winds and Seas...\n")
         #
         # To ADD a new section, you must
         #  --Add a dictionary for the section in this list
@@ -618,7 +618,7 @@ class TextProduct(GenericHazards.TextProduct):
               "inSegments": "optional",
               "importMethod": None,
               "importPIL": None,
-              "title": "...NEW INFORMATION...\n",
+              "title": "...New Information...\n",
           },
           {
               "name": "PrecautionaryPreparednessActions",
@@ -629,7 +629,7 @@ class TextProduct(GenericHazards.TextProduct):
               "inSegments": "optional",
               "importMethod": None,
               "importPIL": None,
-              "title": "...PRECAUTIONARY/PREPAREDNESS ACTIONS...\nPRECAUTIONARY/PREPAREDNESS ACTIONS...\n\n",
+              "title": "...Precautionary/preparedness actions...\nprecautionary/preparedness actions...\n\n",
               "endStr":"\n&&",
           },
           {
@@ -641,7 +641,7 @@ class TextProduct(GenericHazards.TextProduct):
               "excludeFromSituations": ["Conditions", "PostEvent", "PostTropical"],
               "importMethod": None,
               "importPIL": None,
-              "title": "...PROBABILITY OF TROPICAL STORM/HURRICANE CONDITIONS...\n",
+              "title": "...Probability of tropical storm/hurricane conditions...\n",
           },
           {
               "name": "Wind",
@@ -653,7 +653,7 @@ class TextProduct(GenericHazards.TextProduct):
               "inSegments": "optional",
               "importMethod": None,
               "importPIL": None,
-              "title": ("...WINDS...\n","...WINDS AND SEAS...\n"),
+              "title": ("...Winds...\n","...Winds and Seas...\n"),
           },
           {
               "name": "StormSurgeTide",
@@ -665,7 +665,7 @@ class TextProduct(GenericHazards.TextProduct):
               "inSegments": "optional",
               "importMethod": None,
               "importPIL": None,
-              "title":"...STORM SURGE AND STORM TIDE...\n" ,
+              "title":"...Storm surge and storm tide...\n" ,
           },
           {
               "name": "InlandFlooding",
@@ -677,7 +677,7 @@ class TextProduct(GenericHazards.TextProduct):
               "inSegments": "optional",
               "importMethod": None,
               "importPIL": None,
-              "title": "...INLAND FLOODING...\n",
+              "title": "...Inland flooding...\n",
           },
           {
               "name": "Tornadoes",
@@ -689,7 +689,7 @@ class TextProduct(GenericHazards.TextProduct):
               "inSegments": "optional",
               "importMethod": None,
               "importPIL": None,
-              "title": ("...TORNADOES...\n","...TORNADOES AND WATERSPOUTS...\n")
+              "title": ("...Tornadoes...\n","...Tornadoes and Waterspouts...\n")
           },
 #          {
 #              "name": "Marine",
@@ -701,7 +701,7 @@ class TextProduct(GenericHazards.TextProduct):
 #              "inSegments": "optional",
 #              "importMethod": None,
 #              "importPIL": None,
-#              "title":"...MARINE...\n" ,
+#              "title":"...Marine...\n" ,
 #          },
           ]
 
@@ -893,7 +893,7 @@ class TextProduct(GenericHazards.TextProduct):
                        sections, extraInfo in self._segments]
         #print "\n\nSegment Information", self._segments, "\n\n"
         if len(segmentList) == 0:
-            return "NO HAZARDS TO REPORT"
+            return "No hazards to report"
 
         # Determine time ranges
         error = self._determineTimeRanges(argDict)
@@ -1035,12 +1035,12 @@ class TextProduct(GenericHazards.TextProduct):
         self._getStormInfo(argDict, info)
         if self._stormTypeName.find("|*")>=0: sn = "Tropical Cyclone"
         else:                              sn = self._stormTypeName
-        actualProductName = sn + " LOCAL STATEMENT"
+        actualProductName = sn + " Local Statement"
         actualProductName = self.checkTestMode(argDict, actualProductName)
 
         # Product header
         if self._areaName != "":
-            self._areaName = " FOR " + self._areaName
+            self._areaName = " for " + self._areaName
         issuedByString = self.getIssuedByString()
         productName = self.checkTestMode(argDict, actualProductName + self._areaName)
 
@@ -1049,11 +1049,12 @@ class TextProduct(GenericHazards.TextProduct):
         else:
             eas = ''
 
-        fcst =  fcst + self._wmoID + " " + self._fullStationID + " " + \
+        s = self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
                eas + productName + "\n" +\
-               "NATIONAL WEATHER SERVICE " + self._wfoCityState + \
+               "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
+        fcst =  fcst + s.upper()
 
         # Main Headline
         mh = self._MainHeadline
@@ -1255,7 +1256,7 @@ class TextProduct(GenericHazards.TextProduct):
                     #  Look to see if there are any section headers and framing
                     #  codes with dummy text in the existing section text
                     sectionMatch = re.search("(?is)^(\.{3}.+\.{3}.+?)\|\*" +
-                                             " *(ADDITIONAL FREE|ENTER|ADD)",
+                                             " *(additional free|enter|add)",
                                              sectionText)
 
 
@@ -1311,8 +1312,8 @@ class TextProduct(GenericHazards.TextProduct):
     #  section titles must match those as defined in the _segmentSections
     #  method (although any final "\n" can be ignored.
     def _noPrevTextSegmentSections(self):
-        return ["...NEW INFORMATION...",
-                "...PROBABILITY OF TROPICAL STORM/HURRICANE CONDITIONS...",
+        return ["...New Information...",
+                "...Probability of tropical storm/hurricane conditions...",
                ]
 
     def _getImportText(self, argDict, segment, sectionName, title):
@@ -1380,7 +1381,7 @@ class TextProduct(GenericHazards.TextProduct):
         fcst = fcst.replace("&&", "\n&&\n")
 
         # Prevent empty Call to Action Tags
-        fcst = re.sub(r'\nPRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.\s*&&\n', \
+        fcst = re.sub(r'\nPrecautionary/preparedness actions\.\.\.\s*&&\n', \
                       "", fcst)
         #
         # Clean up multiple line feeds
@@ -1857,7 +1858,7 @@ class TextProduct(GenericHazards.TextProduct):
     # OVERRIDE from DiscretePhrases -- Must use argDict hazards set up
     # by the HLS rather than the one generated by the Text Formatter
     # infrastructure which uses the combinations file differently than
-    # we want for the HLS.  See "HANDLING HLS SEGMENTATION" note
+    # we want for the HLS.  See "Handling HLS segmentation" note
     # above.
 
     # Returns a formatted string announcing the hazards that are valid with
@@ -2118,7 +2119,7 @@ class TextProduct(GenericHazards.TextProduct):
                 if mndSearch is not None:
 
                     #  Pick off the storm type and name
-                    dict["StormType"] = "REMNANTS OF"
+                    dict["StormType"] = "Remnants of"
                     dict["StormName"] = mndSearch.group(1).strip()
 
             #  end possible removal - 12/15/2010 (MHB)
@@ -2162,7 +2163,7 @@ class TextProduct(GenericHazards.TextProduct):
                                       (dict["StormTime"])
 
                 #  Now add some phrasing to maintain proper grammar, if needed
-                if dict["StormType"] == "REMNANTS OF":
+                if dict["StormType"] == "Remnants of":
                      dict["StormCenter"] = "%s THE" % (dict["StormCenter"])
 
                 #  Now add the storm type and storm name
@@ -2178,9 +2179,9 @@ class TextProduct(GenericHazards.TextProduct):
                 #----------------------------------------------------------------
                 #  Now add the primary NHC geographic reference
 
-                #  Get all the NHC references - starting with the word 'ABOUT'
+                #  Get all the NHC references - starting with the word 'about'
                 #  after the first one
-                referenceIndex = dict["StormReference"][4:].find('ABOUT')
+                referenceIndex = dict["StormReference"][4:].find('about')
 
                 #  Assume we only have one NHC reference point by default
                 nhcReference = dict["StormReference"]
@@ -2190,46 +2191,46 @@ class TextProduct(GenericHazards.TextProduct):
                 #  If we have more than one NHC reference point
                 if referenceIndex != -1:
 
-                    #  Adjust this index to account for the first 'ABOUT'
+                    #  Adjust this index to account for the first 'about'
                     referenceIndex += 4
 
                     #  Only keep the first NHC reference location
                     nhcReference = dict["StormReference"][:referenceIndex]
 
                 #  Convert any abbreviated bearings to full words
-                nhcReference = nhcReference.replace(' N ', ' NORTH ')
-                nhcReference = nhcReference.replace(' NNE ', ' NORTH-NORTHEAST ')
-                nhcReference = nhcReference.replace(' NE ', ' NORTHEAST ')
-                nhcReference = nhcReference.replace(' ENE ', ' EAST-NORTHEAST ')
-                nhcReference = nhcReference.replace(' E ', ' EAST ')
-                nhcReference = nhcReference.replace(' ESE ', ' EAST-SOUTHEAST ')
-                nhcReference = nhcReference.replace(' SE ', ' SOUTHEAST ')
-                nhcReference = nhcReference.replace(' SSE ', ' SOUTH-SOUTHEAST ')
-                nhcReference = nhcReference.replace(' S ', ' SOUTH ')
-                nhcReference = nhcReference.replace(' SSW ', ' SOUTH-SOUTHWEST ')
-                nhcReference = nhcReference.replace(' SW ', ' SOUTHWEST ')
-                nhcReference = nhcReference.replace(' WSW ', ' WEST-SOUTHWEST ')
-                nhcReference = nhcReference.replace(' W ', ' WEST ')
-                nhcReference = nhcReference.replace(' WNW ', ' WEST-NORTHWEST ')
-                nhcReference = nhcReference.replace(' NW ', ' NORTHWEST ')
-                nhcReference = nhcReference.replace(' NNW ', ' NORTH-NORTHWEST ')
+                nhcReference = nhcReference.replace(' N ', ' north ')
+                nhcReference = nhcReference.replace(' NNE ', ' north-northeast ')
+                nhcReference = nhcReference.replace(' NE ', ' northeast ')
+                nhcReference = nhcReference.replace(' ENE ', ' east-northeast ')
+                nhcReference = nhcReference.replace(' E ', ' east ')
+                nhcReference = nhcReference.replace(' ESE ', ' east-southeast ')
+                nhcReference = nhcReference.replace(' SE ', ' southeast ')
+                nhcReference = nhcReference.replace(' SSE ', ' south-southeast ')
+                nhcReference = nhcReference.replace(' S ', ' south ')
+                nhcReference = nhcReference.replace(' SSW ', ' south-southwest ')
+                nhcReference = nhcReference.replace(' SW ', ' southwest ')
+                nhcReference = nhcReference.replace(' WSW ', ' west-southwest ')
+                nhcReference = nhcReference.replace(' W ', ' west ')
+                nhcReference = nhcReference.replace(' WNW ', ' west-northwest ')
+                nhcReference = nhcReference.replace(' NW ', ' northwest ')
+                nhcReference = nhcReference.replace(' NNW ', ' north-northwest ')
 
                 #  Add only first one to the summary paragraph for brevity
-                dict["StormCenter"] = "%s THIS WAS %s. " % \
+                dict["StormCenter"] = "%s this was %s. " % \
                                       (dict["StormCenter"],
                                        self._removeKM(nhcReference.strip()))
 
                 #----------------------------------------------------------------
                 #  Add the maximum sustained wind speed phrase
 
-                dict["StormCenter"] = "%s MAXIMUM SUSTAINED WINDS WERE %s." % \
+                dict["StormCenter"] = "%s maximum sustained winds were %s." % \
                                        (dict["StormCenter"],
                                         self._removeKM(dict["StormIntensity"]))
 
                 #----------------------------------------------------------------
                 #  Now add the storm motion
 
-                dict["StormCenter"] = "%s THE STORM MOTION WAS %s." % \
+                dict["StormCenter"] = "%s the storm motion was %s." % \
                                        (dict["StormCenter"],
                                         self._removeKM(dict["StormMotion"]))
 
@@ -2505,13 +2506,13 @@ class TextProduct(GenericHazards.TextProduct):
 
     #  Modified 12/15/2010 (MHB) - fixed a potential problem with the
     #  _stormTypeName variable.  If used as a failsafe it would have come out
-    #  as "CYCLONE TROPICAL" instead of "TROPICAL CYCLONE".  Also disabled
+    #  as "Cyclone Tropical" instead of "Tropical Cyclone".  Also disabled
     #  the "Unnamed" option.
     def _getStormInfo(self, argDict, info):
         #  Get the Storm information
         st = self._StormInfo
-        self._stormType = "TROPICAL"
-        self._stormName = "CYCLONE"
+        self._stormType = "Tropical"
+        self._stormName = "Cyclone"
         self._stormTypeName = self._stormType + " " +self._stormName
 
         # Get the name
@@ -2779,7 +2780,7 @@ class TextProduct(GenericHazards.TextProduct):
         distKm_str = `int((distKm/10)*10)`
         direct = atan2(lon0-lon1, lat0-lat1) * RAD_TO_DEG
         direction = self._dirInEnglish(direct)
-        localRef ="ABOUT "+distMph_str+" MILES "+direction
+        localRef ="About "+distMph_str+" miles "+direction
         print "localRef", localRef
         return localRef
 
@@ -2793,7 +2794,7 @@ class TextProduct(GenericHazards.TextProduct):
         #distKm_str = `int((distKm/10)*10)`
         direction = self._bearing(lat1, lon1, lat0, lon0)
         direction = self._dirInEnglish(direction)
-        localRef ="ABOUT "+distMph_str+" MILES "+direction
+        localRef ="About "+distMph_str+" miles "+direction
         #print "localRef", localRef
         return localRef
 
@@ -2833,10 +2834,10 @@ class TextProduct(GenericHazards.TextProduct):
 
 
     def _dirInEnglish(self, direction):
-        dirList = ["North", "North-Northeast", "Northeast", "East-Northeast",
-                   "East", "East-Southeast", "Southeast", "South-Southeast",
-                   "South", "South-Southwest", "Southwest", "West-Southwest",
-                   "West", "West-Northwest", "Northwest", "North-NorthWest"]
+        dirList = ["north", "north-northeast", "northeast", "east-northeast",
+                   "east", "east-southeast", "southeast", "south-southeast",
+                   "south", "south-southwest", "southwest", "west-southwest",
+                   "west", "west-northwest", "northwest", "north-northwest"]
         dirIndex = int((direction + 11.25) / 22.5)
         if dirIndex > 15:
             dirIndex = dirIndex - 16
@@ -2850,7 +2851,7 @@ class TextProduct(GenericHazards.TextProduct):
 ##        t=""
 ##        ec = self._EventContext
 ##        if ec =="Abbreviated":
-##            t+="NEW WATCHES AND OR WARNINGS HAVE BEEN ISSUED. \n"
+##            t+="New watches and or warnings have been issued. \n"
 ##        else:
 ##            t+= self._frame("Please enter new information here. Keep it concise.") + "\n"
 ##        return title + t
@@ -2873,15 +2874,15 @@ class TextProduct(GenericHazards.TextProduct):
                 if act in self._ignoreActions():
                     continue
                 if hdlns.index(hazardHdln) > 0:
-                    t+= " AND "
+                    t+= " and "
                 t+= "A " + hdln
                 reported += 1
             if reported > 0:
-                if reported > 1: t+= " HAVE "
-                else:            t+= " HAS "
-                t+="NOW BEEN ISSUED. "
+                if reported > 1: t+= " have "
+                else:            t+= " has "
+                t+="now been issued. "
         elif ec == "PostEvent":
-            t+="WARNINGS HAVE BEEN DISCONTINUED.\n"
+            t+="Warnings have been discontinued.\n"
 
         else:
             t+= self._frame("Please enter new information here. Keep it concise.") + "\n"
@@ -2893,25 +2894,25 @@ class TextProduct(GenericHazards.TextProduct):
         t =  title
 
         if info.anyLand and info.anyMarine:
-            t+= "THIS LOCAL STATEMENT PROVIDES IMPORTANT INFORMATION AND RECOMMENDED ACTIONS FOR PEOPLE AND MARINE INTERESTS IN "
+            t+= "This local statement provides important information and recommended actions for people and marine interests in "
             t+=self._all_select(info.allLand and info.allMarine)
-            t+= " LOCATIONS AND COASTAL WATER OF "+self._cwa_maor_descriptor()+ ". "
+            t+= " locations and coastal water of "+self._cwa_maor_descriptor()+ ". "
 
         else:
             if info.anyLand:
-                t+= "THIS LOCAL STATEMENT PROVIDES IMPORTANT INFORMATION AND RECOMMENDED ACTIONS FOR PEOPLE IN "
+                t+= "This local statement provides important information and recommended actions for people in "
                 t+=self._all_select(info.allLand)
-                t+= " LOCATIONS WITHIN " + self._cwa_descriptor() + ". "
+                t+= " locations within " + self._cwa_descriptor() + ". "
 
             elif info.anyMarine:
-                t+= "THIS LOCAL STATEMENT OFFERS GUIDANCE AND RECOMMENDATIONS FOR MARINERS...AS WELL AS OTHER MARINE INTERESTS...ALONG "
+                t+= "This local statement offers guidance and recommendations for mariners...as well as other marine interests...along "
                 t+= self._all_select(info.allMarine)
-                t+= " COASTAL WATER OF " + self._maor_descriptor()  + ". "
+                t+= " coastal water of " + self._maor_descriptor()  + ". "
         return t  + "\n"
 
     def _all_select(self, value):
-        if value: return "ALL"
-        else: return "SELECT"
+        if value: return "All"
+        else: return "Select"
 
     def _generalAreas(self, segmentAreas):
         """This method formats the general area description given the list of segmentAreas.
@@ -2936,7 +2937,7 @@ class TextProduct(GenericHazards.TextProduct):
             if areaCount == 1:
                conn = ""
             elif areaCount == areaLen:
-               conn = " AND "
+               conn = " and "
             else:
                conn = "..."
             if generalArea[1] != "":
@@ -2983,38 +2984,38 @@ class TextProduct(GenericHazards.TextProduct):
                     HU_S_marineList = HU_S_marineList + marineList
 
         if ec == "NonEvent" and not anyWW and len(HU_S_Hdlns)>0:
-            t+="TROPICAL CYCLONE WATCHES AND WARNINGS ARE NOT IN EFFECT ANYWHERE ACROSS "
+            t+="Tropical cyclone watches and warnings are not in effect anywhere across "
             t+=self._cwa_maor_descriptor() + ".\n"
 
         elif ec == "PreEvent" and not anyWW:
             if len(HU_S_landList) > 0:
-                t+="ALTHOUGH TROPICAL CYCLONE WATCHES OR WARNINGS ARE NOT IN EFFECT ANYWHERE ACROSS "
+                t+="Although tropical cyclone watches or warnings are not in effect anywhere across "
                 t+=self._cwa_descriptor()
-                t+="...POSSIBLE IMPACTS FROM RELATED HAZARDS ARE BECOMING A CONCERN FOR "
+                t+="...possible impacts from related hazards are becoming a concern for "
                 if fmtDict["land"] == "listAreas":
                     t+= self._describeLocations(info, HU_S_landList, end="...")+ ".\n"
                 else:
-                    t+="PORTIONS OF THE AREA.\n"
+                    t+="portions of the area.\n"
 
             if len(HU_S_landList) > 0 and len(HU_S_marineList)>0: t+="\n"
 
             if len(HU_S_marineList)>0:
-                t+="FOR MARINE INTERESTS...ALTHOUGH TROPICAL CYCLONE WATCHES OR WARNINGS ARE NOT IN EFFECT ANYWHERE ACROSS "
+                t+="For marine interests...although tropical cyclone watches or warnings are not in effect anywhere across "
                 t+=self._maor_descriptor()
-                t+="...POSSIBLE IMPACTS FROM RELATED HAZARDS ARE BECOMING A CONCERN FOR "
+                t+="...possible impacts from related hazards are becoming a concern for "
                 if fmtDict["marine"] == "listAreas":
                     t+= self._describeLocations(info, HU_S_marineList, end="...")+ ".\n"
                 else:
-                    t+="PORTIONS OF THE "+ self._maor_descriptor() + ".\n"
+                    t+="portions of the "+ self._maor_descriptor() + ".\n"
 
         elif ec == "PostEvent" and not anyWW: # and (len(HU_S_landList)>0 or len(HU_S_marineList)>0):
-            t+="TROPICAL CYCLONE WATCHES AND WARNINGS ARE NO LONGER IN EFFECT ANYWHERE ACROSS "
+            t+="Tropical cyclone watches and warnings are no longer in effect anywhere across "
             t+=self._cwa_maor_descriptor() + ".\n"
 
         elif ec == "PostTropical" and not anyWW: # and (len(HU_S_landList)>0 or len(HU_S_marineList)>0):
-            t+="TROPICAL CYCLONE WATCHES AND WARNINGS ARE NO LONGER IN EFFECT ANYWHERE ACROSS "
+            t+="Tropical cyclone watches and warnings are no longer in effect anywhere across "
             t+=self._cwa_maor_descriptor()
-            t+=". THE ISSUANCE OF TROPICAL CYCLONE WATCHES AND WARNINGS IS BEING TRANSITIONED OVER TO WATCHES AND WARNINGS TRADITIONALLY ISSUED FOR NON-TROPICAL CYCLONE EVENTS.\n"
+            t+=". The issuance of tropical cyclone watches and warnings is being transitioned over to watches and warnings traditionally issued for non-tropical cyclone events.\n"
         else:
             t+=self._overview_headlines(info)
             if ec == "Abbreviated":
@@ -3027,15 +3028,15 @@ class TextProduct(GenericHazards.TextProduct):
         t = ""
         foundwatch = False
         foundwarning = False
-        desc = " MEANS THAT "
-        descwatch = " CONDITIONS ARE POSSIBLE WITHIN THE NEXT 48 HOURS SOMEWHERE WITHIN THE SPECIFIED " + \
-               "AREAS.\n\n"
-        descwarning = " CONDITIONS ARE EXPECTED WITHIN THE NEXT 36 HOURS SOMEWHERE WITHIN THE SPECIFIED " + \
-               "AREAS.\n\n"
-        ppwatch = " ALL PERSONS IN THE WATCH AREAS SHOULD REVIEW THEIR PREPAREDNESS PLAN AND BE READY TO " + \
-               "IMPLEMENT IT SHOULD A WARNING BE ISSUED FOR THEIR AREA.\n\n"
-        ppwarning = " ALL PERSONS IN THE WARNING AREAS SHOULD ALREADY HAVE PREPARATIONS UNDERWAY TO PROTECT " + \
-               "LIFE AND PROPERTY.\n\n"
+        desc = " means that "
+        descwatch = " conditions are possible within the next 48 hours somewhere within the specified " + \
+               "areas.\n\n"
+        descwarning = " conditions are expected within the next 36 hours somewhere within the specified " + \
+               "areas.\n\n"
+        ppwatch = " All persons in the watch areas should review their preparedness plan and be ready to " + \
+               "implement it should a warning be issued for their area.\n\n"
+        ppwarning = " All persons in the warning areas should already have preparations underway to protect " + \
+               "life and property.\n\n"
 
         #  Initialize a new dictionary to pair phenSig codes with their action
         hazardDict = {}
@@ -3059,24 +3060,24 @@ class TextProduct(GenericHazards.TextProduct):
         #  Look at each of the hazards
         if self._checkHazard(info.hazardHdlns, [("HU","W")]) and \
            hazardDict["HU.W"] not in ["CAN", "UPG"]:
-            hazardPhen = "HURRICANE"
-            hazardSig = "WARNING"
+            hazardPhen = "Hurricane"
+            hazardSig = "Warning"
             hazardPhenSig = hazardPhen+" "+hazardSig
             foundwarning = True
             t+= "A "+hazardPhenSig + desc + hazardPhen + descwarning
 
         if self._checkHazard(info.hazardHdlns, [("TY", "W")]) and \
            hazardDict["TY.W"] not in ["CAN", "UPG"]:
-            hazardPhen = "TYPHOON"
-            hazardSig = "WARNING"
+            hazardPhen = "Typhoon"
+            hazardSig = "Warning"
             hazardPhenSig = hazardPhen+" "+hazardSig
             foundwarning = True
             t+= "A "+hazardPhenSig + desc + hazardPhen + descwarning
 
         if self._checkHazard(info.hazardHdlns, [("TR","W")]) and \
            hazardDict["TR.W"] not in ["CAN", "UPG"]:
-            hazardPhen = "TROPICAL STORM"
-            hazardSig = "WARNING"
+            hazardPhen = "Tropical Storm"
+            hazardSig = "Warning"
             hazardPhenSig = hazardPhen+" "+hazardSig
             foundwarning = True
             t+= "A "+hazardPhenSig + desc + hazardPhen + descwarning
@@ -3086,24 +3087,24 @@ class TextProduct(GenericHazards.TextProduct):
 
         if self._checkHazard(info.hazardHdlns, [("HU","A")]) and \
            hazardDict["HU.A"] not in ["CAN", "UPG"]:
-            hazardPhen = "HURRICANE"
-            hazardSig = "WATCH"
+            hazardPhen = "Hurricane"
+            hazardSig = "Watch"
             hazardPhenSig = hazardPhen+" "+hazardSig
             foundwatch = True
             t+= "A "+hazardPhenSig + desc + hazardPhen + descwatch
 
         if self._checkHazard(info.hazardHdlns, [("TY", "A")]) and \
            hazardDict["TY.A"] not in ["CAN", "UPG"]:
-            hazardPhen = "TYPHOON"
-            hazardSig = "WATCH"
+            hazardPhen = "Typhoon"
+            hazardSig = "Watch"
             hazardPhenSig = hazardPhen+" "+hazardSig
             foundwatch = True
             t+= "A "+hazardPhenSig + desc + hazardPhen + descwatch
 
         if self._checkHazard(info.hazardHdlns, [("TR","A")]) and \
            hazardDict["TR.A"] not in ["CAN", "UPG"]:
-            hazardPhen = "TROPICAL STORM"
-            hazardSig = "WATCH"
+            hazardPhen = "Tropical Storm"
+            hazardSig = "Watch"
             hazardPhenSig = hazardPhen+" "+hazardSig
             foundwatch = True
             t+= "A "+hazardPhenSig + desc + hazardPhen + descwatch
@@ -3111,8 +3112,8 @@ class TextProduct(GenericHazards.TextProduct):
         if foundwatch:
             t+= ppwatch
 
-        t+= "IN ORDER TO MAKE THE BEST DECISIONS...BE SURE THAT YOU UNDERSTAND THE TERMINOLOGY AND " + \
-            "DEFINITIONS ASSOCIATED WITH TROPICAL CYCLONE EVENTS.\n\n"
+        t+= "In order to make the best decisions...be sure that you understand the terminology and " + \
+            "definitions associated with tropical cyclone events.\n\n"
 
 
         return t
@@ -3163,28 +3164,28 @@ class TextProduct(GenericHazards.TextProduct):
     def _overview_headline_groups(self):
         landAreas = self._inlandAreas()+ self._coastalAreas()
         return [
-          (["HU.W"], landAreas, "HURRICANE WARNING"),
-          (["TY.W"], landAreas, "TYPHOON WARNING"),
-          (["HU.W"], self._marineAreas(), "FOR MARINE INTERESTS...A HURRICANE WARNING"),
-          (["TY.W"], self._marineAreas(), "FOR MARINE INTERESTS...A TYPHOON WARNING"),
+          (["HU.W"], landAreas, "Hurricane Warning"),
+          (["TY.W"], landAreas, "Typhoon Warning"),
+          (["HU.W"], self._marineAreas(), "For marine interests...a Hurricane Warning"),
+          (["TY.W"], self._marineAreas(), "For marine interests...a Typhoon Warning"),
 
-          (["TR.W", "HU.A"], landAreas, "TROPICAL STORM WARNING AND A HURRICANE WATCH"),
-          (["TR.W", "TY.A"], landAreas, "TROPICAL STORM WARNING AND A TYPHOON WATCH"),
+          (["TR.W", "HU.A"], landAreas, "Tropical storm warning and a Hurricane Watch"),
+          (["TR.W", "TY.A"], landAreas, "Tropical storm warning and a Typhoon Watch"),
           (["TR.W", "HU.A"], self._marineAreas(),
-          "FOR MARINE INTERESTS...A TROPICAL STORM WARNING AND A HURRICANE WATCH"),
+          "For marine interests...a tropical storm warning and a Hurricane Watch"),
           (["TR.W", "TY.A"], self._marineAreas(),
-           "FOR MARINE INTERESTS...A TROPICAL STORM WARNING AND A TYPHOON WATCH"),
+           "For marine interests...a tropical storm warning and a Typhoon Watch"),
 
-          (["TR.W"], landAreas, "TROPICAL STORM WARNING"),
-          (["TR.W"], self._marineAreas(), "FOR MARINE INTERESTS...A TROPICAL STORM WARNING"),
+          (["TR.W"], landAreas, "Tropical storm warning"),
+          (["TR.W"], self._marineAreas(), "For marine interests...a Tropical Storm Warning"),
 
-          (["HU.A"], landAreas, "HURRICANE WATCH"),
-          (["TY.A"], landAreas, "TYPHOON WATCH"),
-          (["HU.A"], self._marineAreas(), "FOR MARINE INTERESTS...A HURRICANE WATCH"),
-          (["TY.A"], self._marineAreas(), "FOR MARINE INTERESTS...A TYPHOON WATCH"),
+          (["HU.A"], landAreas, "Hurricane watch"),
+          (["TY.A"], landAreas, "Typhoon watch"),
+          (["HU.A"], self._marineAreas(), "For marine interests...a Hurricane Watch"),
+          (["TY.A"], self._marineAreas(), "For marine interests...a Typhoon Watch"),
 
-          (["TR.A"], landAreas, "TROPICAL STORM WATCH"),
-          (["TR.A"], self._marineAreas(), "FOR MARINE INTERESTS...A TROPICAL STORM WATCH"),
+          (["TR.A"], landAreas, "Tropical storm watch"),
+          (["TR.A"], self._marineAreas(), "For marine interests...a Tropical Storm Watch"),
 
           ]
 
@@ -3275,11 +3276,11 @@ class TextProduct(GenericHazards.TextProduct):
             # overview format is "listAreas" i.e. specific
             if len(areaList) == 0 or fmtDict[areaType] == "generic":
                 continue
-            if areaType == "marine": t+="\nFOR MARINE INTERESTS..."
+            if areaType == "marine": t+="\nFor marine interests..."
             else:                    t+="\n"
-            t+="ALTHOUGH TROPICAL CYCLONE WATCHES OR WARNINGS ARE NOT IN EFFECT FOR "
+            t+="Although tropical cyclone watches or warnings are not in effect for "
             t+= self._describeLocations(info, areaList, end="...")
-            t+= "POSSIBLE IMPACTS FROM RELATED HAZARDS ARE STILL A CONCERN.\n"
+            t+= "possible impacts from related hazards are still a concern.\n"
         return t
 
     def _additional_headlines(self, info):
@@ -3328,14 +3329,14 @@ class TextProduct(GenericHazards.TextProduct):
         if len(hdlnList) > 0:
             t+="\n"
             t+=self._headlines(info, hdlnList, self._allPortions, ending=". ")
-            t+="PLEASE LISTEN CLOSELY FOR ANY FLOOD WARNINGS THAT MIGHT BE IN EFFECT FOR YOUR AREA.\n"
+            t+="Please listen closely for any Flood Warnings that might be in effect for your area.\n"
 
         hdlnList = self._checkHazard(hazardHdlns, [("TO","A")], returnList=True)
         print "hdlnList", hdlnList
         if len(hdlnList) > 0:
             t+="\n"
             t+=self._headlines(info, hdlnList, self._allPortions, ending=". ")
-            t+="PLEASE LISTEN CLOSELY FOR ANY TORNADO WARNINGS THAT MIGHT BE IN EFFECT FOR YOUR AREA.\n"
+            t+="Please listen closely for any Tornado Warnings that might be in effect for your area.\n"
 
         # Check additional hazards
         checkHazards = [("CF","W"), ("CF","A"),("CF","Y"),("RP","S"),("SU","W"),("SU","A"),("SU","Y"),
@@ -3343,26 +3344,26 @@ class TextProduct(GenericHazards.TextProduct):
                         ("SC","Y"),("SI","Y"),("SW","Y"), ("RB","Y")]
         hazList = self._checkHazard(hazardHdlns, checkHazards, returnList=True)
         if len(hazList) > 0:
-            t+= "\nPLEASE CHECK THE LATEST PUBLIC AND MARINE FORECASTS FOR DETAILED INFORMATION ABOUT ADDITIONAL HAZARDS.\n"
+            t+= "\nPlease check the latest public and marine forecasts for detailed information about additional hazards.\n"
         return t
 
     def _allPortions(self, info, hazAreas, prefix="", suffix=""):
         # Used for overview headlines
         descriptor, checkAreas = self._determineDescriptor(info, hazAreas)
-        portions = prefix + "PORTIONS OF " + suffix
+        portions = prefix + "portions of " + suffix
         allPortions = self._checkAreaInclusion(checkAreas, hazAreas, "ALL OF ", portions)
         return allPortions + descriptor
 
     def _allParts(self, info, hazAreas):
         # Used for overview additional headlines
         descriptor, checkAreas = self._determineDescriptor(info, hazAreas)
-        allParts = self._checkAreaInclusion(checkAreas, hazAreas, "ALL ", "PART ")
+        allParts = self._checkAreaInclusion(checkAreas, hazAreas, "all ", "part ")
         return allParts + "OF " + descriptor + ". "
 
     def _entirePortions(self, info, hazAreas):
         # Used by the optional template for optional sections
         return self._checkAreaInclusion(
-            info.allAreas, hazAreas, "THE ENTIRE AREA. ", "PORTIONS OF THE AREA. ")
+            info.allAreas, hazAreas, "the entire area. ", "portions of the area. ")
 
     def _checkAreaInclusion(self, compareAreas, hazAreas, allWords, partWords):
         words = allWords
@@ -3379,14 +3380,14 @@ class TextProduct(GenericHazards.TextProduct):
         t = ""
         for key, hazAreas in headlineList:
             hdln, act, phen, sig = key
-            if act == "CON": actWords = " CONTINUES FOR "
-            else:            actWords = " IS IN EFFECT FOR "
+            if act == "CON": actWords = " continues for "
+            else:            actWords = " is in effect for "
             # Skip HU.S headines
             if (phen =='HU' and sig =='S'):
                 continue
-            if hdln[0] in ["A","I"]:a='AN '
-            elif hdln.find("FOR") == 0: a = ' '
-            else:               a ='A '
+            if hdln[0] in ["A","I"]:a='an '
+            elif hdln.find("for") == 0: a = ' '
+            else:               a ='a '
 
             #print "\n Headline", hdln, phen
             if areaWordMethod is not None:
@@ -3421,11 +3422,11 @@ class TextProduct(GenericHazards.TextProduct):
         if fmt == "generic":
             suffix = ""
             if qualifier:
-                if inland: suffix = "INLAND "
-                elif coastal: suffix = "COASTAL "
+                if inland: suffix = "inland "
+                elif coastal: suffix = "coastal "
             t+= self._allPortions(info, areaList, prefix, suffix)
         else:
-            t+= "THE FOLLOWING LOCATIONS..." + self._areaWords(areaList)
+            t+= "The following locations..." + self._areaWords(areaList)
         t+= end
         return t
 
@@ -3435,21 +3436,21 @@ class TextProduct(GenericHazards.TextProduct):
 
         st = self._StormInfo
 #        if st.find("N/A (unnamed)") >= 0:
-#            t+="ALTHOUGH THE SYSTEM OF CONCERN HAS NOT BEEN NAMED..."
-#            t+="IT IS BEING ACTIVELY MONITORED FOR SIGNS OF TROPICAL CYCLONE DEVELOPMENT. "
+#            t+="Although the system of concern has not been named..."
+#            t+="it is being actively monitored for signs of tropical cyclone development. "
 #
 #        elif st.find("N/A (downgraded)")>= 0:
-#            t+=self._stormTypeName+" HAS BEEN DOWNGRADED TO BELOW TROPICAL STORM STRENGTH..."
-#            t+="BUT WILL CONTINUE TO BE MONITORED UNTIL IT NO LONGER THREATENS THE AREA. "
+#            t+=self._stormTypeName+" has been downgraded to below tropical storm strength..."
+#            t+="but will continue to be monitored until it no longer threatens the area. "
 #
 #        else:
-        t+="AT "+ self._stormTime + "...THE CENTER OF "
+        t+="At "+ self._stormTime + "...the center of "
 
         #  Fix the grammar if dealing with "remnants"
         if re.search("(?i)remnants", self._stormTypeName) is not None:
-            t+="THE "
+            t+="The "
 
-        t+=self._stormTypeName + " WAS LOCATED NEAR "
+        t+=self._stormTypeName + " was located near "
         t+=self._stormLocation
 
         #  if we kept the national reference
@@ -3462,10 +3463,10 @@ class TextProduct(GenericHazards.TextProduct):
         #  Now add the local references
         localRefs = self._stormLocalReferences
         if len(localRefs) > 0:
-            t+= "THIS WAS "
+            t+= "This was "
             for localRef in self._stormLocalReferences:
                 if localRefs.index(localRef) > 0:
-                    orStr = "...OR "
+                    orStr = "...or "
                 else:
                     orStr = ""
                 t+= orStr + localRef
@@ -3473,7 +3474,7 @@ class TextProduct(GenericHazards.TextProduct):
 
         #  Do not place storm motion and intensity on separate lines of text
 #        t+="\n"
-        t = t.replace("MILES...", "MILES ")
+        t = t.replace("miles...", "miles ")
         sm = self._stormMovementTrend
         si = self._stormIntensityTrend
 
@@ -3504,31 +3505,31 @@ class TextProduct(GenericHazards.TextProduct):
                 if act in self._ignoreActions():
                     continue
                 if hdlns.index(hazardHdln) > 0:
-                    t+= " AND "
+                    t+= " and "
                 t+= "A " + hdln
                 reported += 1
             if reported > 0:
-                if reported > 1: t+= " HAVE "
-                else:            t+= " HAS "
-                t+="NOW BEEN ISSUED. "
-            t+="A MORE DETAILED STATEMENT WILL FOLLOW SHORTLY.\n"
+                if reported > 1: t+= " have "
+                else:            t+= " has "
+                t+="now been issued. "
+            t+="A more detailed statement will follow shortly.\n"
 
         if ec in ["PreEvent","Watch","Warning"]:
             if un=="High":
-                t+="IT IS VITAL THAT YOU DO NOT FOCUS ON THE EXACT FORECAST TRACK. "
-                t+="TO DO SO COULD RESULT IN BAD DECISIONS AND PLACE YOU OR THOSE YOU ARE "
-                t+="RESPONSIBLE FOR AT GREATER RISK. "
+                t+="It is vital that you do not focus on the exact forecast track. "
+                t+="To do so could result in bad decisions and place you or those you are "
+                t+="responsible for at greater risk. "
             elif un == "Average":
-                t+="WHEN MAKING DECISIONS...DO NOT FOCUS ON THE EXACT FORECAST TRACK. "
+                t+="When making decisions...do not focus on the exact forecast track. "
 
         if ec != "Abbreviated": t+=self._frame("Succinctly describe the expected evolution of the event for the CWA & MAOR; which hazards are of greater (or lesser) concern, forecast focus, etc.")+ "\n"
 
         if ec in ["PreEvent", "Watch"]:
             if info.anyLand:
-                t+="IT IS TOO EARLY TO PROVIDE EXACT WIND AND SURGE FORECAST VALUES FOR SPECIFIC LOCATIONS. "
+                t+="It is too early to provide exact wind and surge forecast values for specific locations. "
                 damage = self._getCategoryDamage(info.maxWind_CWA_MAOR)
                 if damage.strip() != "":
-                    t+="A GENERAL CONCERN SHOULD BE FOR THE POSSIBILITY OF "+damage+" SOMEWHERE WITHIN "\
+                    t+="A general concern should be for the possibility of "+damage+" somewhere within "\
                     + self._cwa_descriptor() + ". "
 
         return t
@@ -3551,18 +3552,18 @@ class TextProduct(GenericHazards.TextProduct):
         t=""
         if info.anyInland or info.anyCoastal:
             t+= """
-PEOPLE ARE URGED TO REMAIN INFORMED AND LISTEN FOR ANY
-SIGNIFICANT CHANGES TO THE FORECAST. DO NOT LISTEN TO RUMORS OR
-UNINFORMED OPINIONS. RATHER...SEEK AUTHORITATIVE INFORMATION FROM
-YOUR LOCAL NATIONAL WEATHER SERVICE OFFICE AND EMERGENCY
-MANAGEMENT.
+People are urged to remain informed and listen for any
+significant changes to the forecast. Do not listen to rumors or
+uninformed opinions. Rather...seek authoritative information from
+your local National Weather Service office and emergency
+management.
 
 """
 
         if info.anyCoastal or info.anyMarine:
             t+= """
-MARINERS SHOULD KEEP INFORMED OF THE LATEST COASTAL WATERS
-FORECAST.
+Mariners should keep informed of the latest coastal waters
+forecast.
 """
         return self._frame(t.strip())
 
@@ -3570,48 +3571,48 @@ FORECAST.
         t = ""
         if info.anyInland or info.anyCoastal:
             t+= """
-EVEN BEFORE THE ISSUANCE OF WATCHES OR WARNINGS...IT MAY BECOME
-NECESSARY FOR LOCAL AUTHORITIES TO RENDER EVACUATION ORDERS. IF
-TOLD TO LEAVE...DO SO AS SOON AS POSSIBLE.
+Even before the issuance of watches or warnings...it may become
+necessary for local authorities to render evacuation orders. If
+told to leave...do so as soon as possible.
 
-THIS IS A GOOD TIME FOR RESIDENTS TO GO OVER THEIR HURRICANE
-DISASTER PLAN. VISITORS ARE ENCOURAGED TO CHECK WITH HOTEL
-MANAGEMENT OR WITH LOCAL OFFICIALS REGARDING ANY ACTIONS THEY
-SHOULD TAKE.
+This is a good time for residents to go over their hurricane
+disaster plan. Visitors are encouraged to check with hotel
+management or with local officials regarding any actions they
+should take.
 
-THE FOLLOWING ARE SUGGESTED ACTIONS THAT CAN BE TAKEN AT THIS
-TIME...
-- CHECK BATTERIES FOR RADIOS AND FLASHLIGHTS.
-- STOCK UP ON DRINKING WATER AND CANNED OR DRIED FOOD.
-- ENSURE YOU HAVE A MANUAL CAN OPENER.
-- HAVE ENOUGH FOR AT LEAST THREE TO FIVE DAYS PER PERSON.
-- GATHER MEDICINES...TOILETRIES...AND FIRST AID SUPPLIES.
-- HAVE A SUFFICIENT AMOUNT OF CASH ON HAND SINCE CREDIT CARDS AND
-  AUTOMATED CASH MACHINES DO NOT WORK WITHOUT POWER.
-- CHECK FUEL LEVELS ON AUTOMOBILES...GENERATORS...AND CHAIN SAWS.
-- IF YOU NEED TO MAKE A TRIP TO THE HARDWARE STORE...THE GROCERY
-  STORE...OR THE GAS STATION...DO SO AS EARLY AS POSSIBLE.
-- DETERMINE WHERE YOU SHOULD SEEK SHELTER IF THE STORM APPROACHES
-  YOUR AREA.
-- CONSIDER WHETHER YOU LIVE IN A POTENTIAL EVACUATION ZONE. IF
-  SO...IDENTIFY PRESCRIBED EVACUATION ROUTES WHICH LEAD OUT OF THE
-  THREATENED AREAS.
-- LEARN THE LOCATIONS OF OFFICIAL SHELTERS.
+The following are suggested actions that can be taken at this
+time...
+- check batteries for radios and flashlights.
+- stock up on drinking water and canned or dried food.
+- ensure you have a manual can opener.
+- have enough for at least three to five days per person.
+- gather medicines...toiletries...and first aid supplies.
+- have a sufficient amount of cash on hand since credit cards and
+  automated cash machines do not work without power.
+- check fuel levels on automobiles...generators...and chain saws.
+- if you need to make a trip to the hardware store...the grocery
+  store...or the gas station...do so as early as possible.
+- determine where you should seek shelter if the storm approaches
+  your area.
+- consider whether you live in a potential evacuation zone. If
+  so...identify prescribed evacuation routes which lead out of the
+  threatened areas.
+- learn the locations of official shelters.
 
-PLEASE VISIT WWW.READY.GOV FOR A MORE COMPLETE LIST OF ITEMS TO
-INCLUDE IN AN EMERGENCY PREPAREDNESS KIT.
+Please visit www.ready.gov for a more complete list of items to
+include in an emergency preparedness kit.
 
-IN ALL CASES...HEED THE ADVICE OF LOCAL OFFICIALS AND COMPLY WITH
-ANY ORDERS THAT ARE ISSUED.
+In all cases...heed the advice of local officials and comply with
+any orders that are issued.
 
 """
         if info.anyCoastal or info.anyMarine:
             t+= """
-MARINERS SHOULD MONITOR THE COASTAL WATERS FORECAST FOR UNSAFE
-CONDITIONS. CONSIDER EARLY STEPS FOR SECURING YOUR CRAFT. IF
-SMALL CRAFT MUST GO OUT AND CURRENT CONDITIONS ALLOW...DO NOT
-VENTURE FAR FROM PORT AND DO NOT STAY OUT VERY LONG. RETURN TO
-PORT QUICKLY IF A WATCH OR WARNING IS ISSUED.
+Mariners should monitor the coastal waters forecast for unsafe
+conditions. Consider early steps for securing your craft. If
+small craft must go out and current conditions allow...do not
+venture far from port and do not stay out very long. Return to
+port quickly if a watch or warning is issued.
 
 """
         return self._frame(t.strip())
@@ -3710,17 +3711,17 @@ PORT QUICKLY IF A WATCH OR WARNING IS ISSUED.
 
                 #  Completely new watches/warnings
                 t+="""
-FOR THOSE UNDER A WATCH OR WARNING...NOW IS THE TIME TO INITIATE
-PREPARATIONS ACCORDING TO YOUR HURRICANE DISASTER PLAN SPECIFIC
-TO YOUR HOME OR BUSINESS.
+For those under a watch or warning...now is the time to initiate
+preparations according to your hurricane disaster plan specific
+to your home or business.
 
-FOR THOSE NEARBY...REVIEW YOUR HURRICANE DISASTER PLAN AND
-BECOME READY TO ACT IF A WATCH OR A WARNING IS LATER ISSUED FOR
-YOUR AREA.
+For those nearby...review your hurricane disaster plan and
+become ready to act if a watch or a warning is later issued for
+your area.
 
-IT IS IMPORTANT TO ACTIVELY LISTEN FOR FORTHCOMING INFORMATION
-FROM YOUR LOCAL NATIONAL WEATHER SERVICE OFFICE AND EMERGENCY
-MANAGEMENT AGENCY.
+It is important to actively listen for forthcoming information
+from your local National Weather Service office and emergency
+management agency.
 
 """
 
@@ -3729,14 +3730,14 @@ MANAGEMENT AGENCY.
 
                 #  upgraded warning
                 t+="""
-FOR THOSE NOW UNDER THE NEW WARNING...NOW IS THE TIME TO
-INITIATE PREPARATIONS ACCORDING TO YOUR HURRICANE DISASTER PLAN
-SPECIFIC TO YOUR HOME OR BUSINESS...IF YOU HAVE NOT ALREADY
-DONE SO.
+For those now under the new warning...now is the time to
+initiate preparations according to your hurricane disaster plan
+specific to your home or business...if you have not already
+done so.
 
-IT IS IMPORTANT TO ACTIVELY LISTEN FOR FORTHCOMING INFORMATION
-FROM YOUR LOCAL NATIONAL WEATHER SERVICE OFFICE AND EMERGENCY
-MANAGEMENT AGENCY.
+It is important to actively listen for forthcoming information
+from your local National Weather Service office and emergency
+management agency.
 
 """
 
@@ -3745,14 +3746,14 @@ MANAGEMENT AGENCY.
 
                 #  Downgraded warning
                 t+="""
-WHILE THE INTENSITY OF THIS STORM IS NO LONGER EXPECTED TO BE
-AS STRONG...THERE IS STILL A THREAT TO LIFE AND PROPERTY. FOR
-THOSE STILL UNDER A WARNING...CONTINUE TO IMPLEMENT YOUR
-HURRICANE DISASTER PLAN SPECIFIC TO YOUR HOME OR BUSINESS.
+While the intensity of this storm is no longer expected to be
+as strong...there is still a threat to life and property. For
+those still under a warning...continue to implement your
+hurricane disaster plan specific to your home or business.
 
-IT IS IMPORTANT TO ACTIVELY LISTEN FOR FORTHCOMING INFORMATION
-FROM YOUR LOCAL NATIONAL WEATHER SERVICE OFFICE AND EMERGENCY
-MANAGEMENT AGENCY.
+It is important to actively listen for forthcoming information
+from your local National Weather Service office and emergency
+management agency.
 
 """
 
@@ -3761,13 +3762,13 @@ MANAGEMENT AGENCY.
 
                 #  Huh?! warning
                 t+="""
-THERE IS STILL A THREAT TO LIFE AND PROPERTY. CONTINUE TO
-IMPLEMENT YOUR HURRICANE DISASTER PLAN SPECIFIC TO YOUR HOME OR
-BUSINESS.
+There is still a threat to life and property. Continue to
+implement your hurricane disaster plan specific to your home or
+business.
 
-IT IS IMPORTANT TO ACTIVELY LISTEN FOR FORTHCOMING INFORMATION
-FROM YOUR LOCAL NATIONAL WEATHER SERVICE OFFICE AND EMERGENCY
-MANAGEMENT AGENCY.
+It is important to actively listen for forthcoming information
+from your local National Weather Service office and emergency
+management agency.
 
 """
 
@@ -3779,12 +3780,12 @@ MANAGEMENT AGENCY.
 
                 #  Completely new watches/warnings
                 t+= """
-MARINERS ARE URGED TO MAKE ALL NECESSARY PREPARATIONS TO RETURN
-TO PORT...SEEK SAFE HARBOR...AND SECURE THEIR CRAFT. NOW IS THE
-TIME TO INITIATE PREPARATIONS ACCORDING TO YOUR EMERGENCY PLAN
-FOR TROPICAL SYSTEMS. MONITOR WEATHER BROADCASTS FOR CHANGES TO
-THE LATEST FORECAST AND LISTEN FOR FURTHER STATEMENTS FROM LOCAL
-OFFICIALS.
+Mariners are urged to make all necessary preparations to return
+to port...seek safe harbor...and secure their craft. Now is the
+time to initiate preparations according to your emergency plan
+for tropical systems. Monitor weather broadcasts for changes to
+the latest forecast and listen for further statements from local
+officials.
 
 """
 
@@ -3794,11 +3795,11 @@ OFFICIALS.
 
                 #  upgraded warning
                 t+="""
-MARINERS ARE URGED TO RETURN TO PORT...SEEK SAFE HARBOR...AND
-SECURE THEIR CRAFT. NOW IS THE TIME TO COMPLETE PREPARATIONS
-ACCORDING TO YOUR EMERGENCY PLAN FOR TROPICAL SYSTEMS. MONITOR
-WEATHER BROADCASTS FOR CHANGES TO THE LATEST FORECAST AND
-LISTEN FOR FURTHER STATEMENTS FROM LOCAL OFFICIALS.
+Mariners are urged to return to port...seek safe harbor...and
+secure their craft. Now is the time to complete preparations
+according to your emergency plan for tropical systems. Monitor
+weather broadcasts for changes to the latest forecast and
+listen for further statements from local officials.
 
 """
 
@@ -3807,12 +3808,12 @@ LISTEN FOR FURTHER STATEMENTS FROM LOCAL OFFICIALS.
 
                 #  Downgraded warning
                 t+="""
-WHILE THE INTENSITY OF THIS STORM IS NO LONGER EXPECTED TO BE
-AS STRONG...THERE IS STILL A THREAT TO LIFE AND PROPERTY.
-MARINERS ARE URGED TO REMAIN IN PORT AND SECURE THEIR CRAFT.
-CONTINUE TO IMPLEMENT YOUR EMERGENCY PLAN FOR TROPICAL SYSTEMS.
-MONITOR WEATHER BROADCASTS FOR CHANGES TO THE LATEST FORECAST
-AND LISTEN FOR FURTHER STATEMENTS FROM LOCAL OFFICIALS.
+While the intensity of this storm is no longer expected to be
+as strong...there is still a threat to life and property.
+Mariners are urged to remain in port and secure their craft.
+Continue to implement your emergency plan for tropical systems.
+Monitor weather broadcasts for changes to the latest forecast
+and listen for further statements from local officials.
 
 """
 
@@ -3821,10 +3822,10 @@ AND LISTEN FOR FURTHER STATEMENTS FROM LOCAL OFFICIALS.
 
                 #  Huh?! warning
                 t+="""
-THERE IS STILL A THREAT TO LIFE AND PROPERTY. CONTINUE TO
-IMPLEMENT YOUR EMERGENCY PLAN FOR TROPICAL SYSTEMS. MONITOR
-WEATHER BROADCASTS FOR CHANGES TO THE LATEST FORECAST AND
-LISTEN FOR FURTHER STATEMENTS FROM LOCAL OFFICIALS.
+There is still a threat to life and property. Continue to
+implement your emergency plan for tropical systems. Monitor
+weather broadcasts for changes to the latest forecast and
+listen for further statements from local officials.
 
 """
 
@@ -3841,38 +3842,38 @@ LISTEN FOR FURTHER STATEMENTS FROM LOCAL OFFICIALS.
                                    [("HU","A"),("TR","A"),("TY","A")], ["marine"])
         if public_A:
             t+= """
-FOR THOSE UNDER A WATCH...NOW IS THE TIME TO BEGIN PREPARING YOUR
-HOME OR BUSINESS ACCORDING TO YOUR HURRICANE DISASTER PLAN.
-LISTEN FOR POSSIBLE WARNINGS AND BE READY TO EVACUATE IF
-NECESSARY. HEED THE ADVICE OF LOCAL OFFICIALS AND COMPLY WITH ANY
-ORDERS THAT ARE ISSUED.
+For those under a watch...now is the time to begin preparing your
+home or business according to your hurricane disaster plan.
+Listen for possible warnings and be ready to evacuate if
+necessary. Heed the advice of local officials and comply with any
+orders that are issued.
 
 """
         if coastal_A:
             t+= """
-FOR INTERESTS AT PORTS...DOCKS...AND MARINAS...IT IS RECOMMENDED
-THAT YOU PERFORM THE PRESCRIBED PREPARATIONS ACCORDING TO YOUR
-EMERGENCY OPERATIONS PLAN FOR TROPICAL CYCLONES. IF YOU LIVE ON A
-BOAT...BEGIN TO SAFELY SECURE YOUR CRAFT AND MAKE PLANS TO LEAVE
-IT FOR ADEQUATE LAND BASED SHELTER. LISTEN FOR POSSIBLE WARNINGS.
+For interests at ports...docks...and marinas...it is recommended
+that you perform the prescribed preparations according to your
+emergency operations plan for tropical cyclones. If you live on a
+boat...begin to safely secure your craft and make plans to leave
+it for adequate land based shelter. Listen for possible warnings.
 
 """
         if coastal_A or marine_A:
             t+= """
-REGARDING THE COASTAL WATERS UNDER A WATCH...SMALL CRAFT SHOULD
-RETURN TO PORT OR SEEK SAFE HARBOR.
+Regarding the coastal waters under a watch...small craft should
+return to port or seek safe harbor.
 
-CLOSELY MONITOR NOAA WEATHER RADIO OR OTHER LOCAL NEWS OUTLETS
-FOR OFFICIAL STORM INFORMATION. LISTEN FOR POSSIBLE CHANGES TO
-THE FORECAST.
+Closely monitor NOAA weather radio or other local news outlets
+for official storm information. Listen for possible changes to
+the forecast.
 
 """
         if public_A:
             t+= """
-FOR ADDITIONAL PRECAUTIONARY AND PREPAREDNESS INFORMATION...
-PLEASE REFER TO THE DETAILED RECOMMENDATIONS RELATIVE TO YOUR
-LOCATION AS FURTHER DESCRIBED BY YOUR LOCAL NATIONAL WEATHER
-SERVICE OFFICE AND YOUR LOCAL EMERGENCY MANAGEMENT.
+For additional precautionary and preparedness information...
+Please refer to the detailed recommendations relative to your
+location as further described by your local National Weather
+Service office and your local emergency management.
 
 """
         return self._frame(t.strip())
@@ -3893,50 +3894,50 @@ SERVICE OFFICE AND YOUR LOCAL EMERGENCY MANAGEMENT.
                                    [("HU","A"),("TR","A"),("TY","A")], ["marine"])
         if public_W:
             t+= """
-FOR THOSE UNDER A WARNING...NOW IS THE TIME TO RUSH TO COMPLETION
-PREPARATIONS FOR THE PROTECTION OF LIFE AND PROPERTY. EVACUATE IF
-DIRECTED TO DO SO BY LOCAL OFFICIALS...OR IF YOUR HOME IS
-VULNERABLE TO HIGH WINDS OR FLOODING.
+For those under a warning...now is the time to rush to completion
+preparations for the protection of life and property. Evacuate if
+directed to do so by local officials...or if your home is
+vulnerable to high winds or flooding.
 
 """
         if coastal_W:
             t+= """
-FOR INTERESTS AT PORTS...DOCKS...AND MARINAS...URGENTLY COMPLETE
-PRESCRIBED PREPARATIONS ACCORDING TO YOUR EMERGENCY OPERATIONS
-PLAN FOR TROPICAL CYCLONES. IF YOU LIVE ON A BOAT...MAKE FINAL
-PREPARATIONS FOR SECURING YOUR CRAFT BEFORE LEAVING IT. BE SURE
-TO ACCOUNT FOR THE POSSIBLE CLOSURE OF BRIDGES AND CAUSEWAYS.
+For interests at ports...docks...and marinas...urgently complete
+prescribed preparations according to your emergency operations
+plan for tropical cyclones. If you live on a boat...make final
+preparations for securing your craft before leaving it. Be sure
+to account for the possible closure of bridges and causeways.
 
 """
         if coastal_W or marine_W:
             t+= """
-REGARDING ANY COASTAL WATERS UNDER A WARNING...SMALL CRAFT SHOULD
-REMAIN IN PORT AND WELL SECURED.
+Regarding any coastal waters under a warning...small craft should
+remain in port and well secured.
 
 """
         if public_A:
             t+= """
-FOR THOSE UNDER A WATCH...CONTINUE WITH YOUR PREPARATIONS AND
-LISTEN FOR POSSIBLE WARNINGS.
+For those under a watch...continue with your preparations and
+listen for possible warnings.
 
 """
         if coastal_A or marine_A:
             t+= """
-REGARDING ANY COASTAL WATERS UNDER A WATCH...SMALL CRAFT SHOULD
-RETURN TO PORT OR SEEK SAFE HARBOR. DETERMINE THE BEST STRATEGY
-FOR SECURING YOUR CRAFT.
+Regarding any coastal waters under a watch...small craft should
+return to port or seek safe harbor. Determine the best strategy
+for securing your craft.
 
-CLOSELY MONITOR NOAA WEATHER RADIO OR OTHER LOCAL NEWS OUTLETS
-FOR OFFICIAL STORM INFORMATION. LISTEN FOR POSSIBLE CHANGES TO
-THE FORECAST.
+Closely monitor NOAA weather radio or other local news outlets
+for official storm information. Listen for possible changes to
+the forecast.
 
 """
         if public_W:
             t+= """
-FOR ADDITIONAL PRECAUTIONARY AND PREPAREDNESS INFORMATION...
-PLEASE REFER TO THE DETAILED RECOMMENDATIONS RELATIVE TO YOUR
-LOCATION AS FURTHER DESCRIBED BY YOUR LOCAL NATIONAL WEATHER
-SERVICE OFFICE AND LOCAL EMERGENCY MANAGEMENT.
+For additional precautionary and preparedness information...
+Please refer to the detailed recommendations relative to your
+location as further described by your local National Weather
+Service office and local emergency management.
 
 """
         return self._frame(t.strip())
@@ -3945,26 +3946,26 @@ SERVICE OFFICE AND LOCAL EMERGENCY MANAGEMENT.
         t=""
         if info.anyLand:
             t+=  """
-DURING THE STORM...STAY INSIDE AND AWAY FROM WINDOWS. DO NOT
-VENTURE OUTSIDE WHEN HIGH WINDS ARE OCCURRING OR DURING TEMPORARY
-LULLS AS FLYING DEBRIS CAN EASILY...AND SUDDENLY...CAUSE SERIOUS
-INJURY.
+During the storm...stay inside and away from windows. Do not
+venture outside when high winds are occurring or during temporary
+lulls as flying debris can easily...and suddenly...cause serious
+injury.
 
-HAVE A WELL-CHARGED CELL PHONE NEARBY...KEEPING NETWORK
-COMMUNICATIONS AS OPEN AS POSSIBLE FOR EMERGENCIES.
+Have a well-charged cell phone nearby...keeping network
+communications as open as possible for emergencies.
 
-CLOSELY MONITOR NOAA WEATHER RADIO OR OTHER LOCAL NEWS OUTLETS
-FOR OFFICIAL STORM INFORMATION. LISTEN FOR POSSIBLE CHANGES TO
-THE FORECAST.
+Closely monitor NOAA weather radio or other local news outlets
+for official storm information. Listen for possible changes to
+the forecast.
 
 """
         if info.anyMarine:
             t+= """
-FOR SMALL CRAFT WHO FAILED TO MAKE IT TO SAFE HARBOR OR PORT...
-AND ARE NOW IN DISTRESS...RADIO YOUR SITUATION ACCORDING TO
-MARITIME PROTOCOL. IF APPROPRIATE...DEPLOY YOUR EMERGENCY
-DISTRESS BEACON. ENSURE THAT EVERYONE IS WEARING LIFE JACKETS...
-AND SURVIVAL SUITS IF AVAILABLE.
+For small craft who failed to make it to safe harbor or port...
+And are now in distress...radio your situation according to
+maritime protocol. If appropriate...deploy your emergency
+distress beacon. Ensure that everyone is wearing life jackets...
+And survival suits if available.
 
 """
         return self._frame(t.strip())
@@ -3973,20 +3974,20 @@ AND SURVIVAL SUITS IF AVAILABLE.
         t=""
         if info.anyLand:
             t+=  """
-MANY CASUALTIES OCCUR AFTER A STORM HAS PASSED. BE SMART AND USE
-CAUTION. CONTINUE TO HEED THE ADVICE OF LOCAL OFFICIALS AS THEY
-CONDUCT RESCUE AND RECOVERY EFFORTS. WAIT FOR THE ALL-CLEAR
-SIGNAL BEFORE RE-ENTERING EVACUATION ZONES OR ANY AREA THAT
-RECEIVED SIGNIFICANT DAMAGE OR FLOODING.
+Many casualties occur after a storm has passed. Be smart and use
+caution. Continue to heed the advice of local officials as they
+conduct rescue and recovery efforts. Wait for the all-clear
+signal before re-entering evacuation zones or any area that
+received significant damage or flooding.
 
-PAY ATTENTION FOR POSSIBLE ROAD CLOSURES AND STAY AWAY FROM
-DOWNED POWER LINES. LISTEN FOR ANY BOIL WATER ALERTS.
+Pay attention for possible road closures and stay away from
+downed power lines. Listen for any boil water alerts.
 
 """
         if info.anyCoastal or info.anyMarine:
             t+= """
-MARINERS SHOULD CHECK THE LATEST COASTAL WATERS FORECAST BEFORE
-MAKING ANY DEFINITE PLANS.
+Mariners should check the latest coastal waters forecast before
+making any definite plans.
 
 """
         return self._frame(t.strip())
@@ -3995,15 +3996,15 @@ MAKING ANY DEFINITE PLANS.
         t=""
         if info.anyLand:
             t+= """
-EVERYONE IS URGED TO STAY INFORMED OF THE SITUATION. REMAIN
-DILIGENT IN YOUR EFFORTS TO PROTECT LIFE AND PROPERTY.
+Everyone is urged to stay informed of the situation. Remain
+diligent in your efforts to protect life and property.
 
 """
         if info.anyCoastal or info.anyMarine:
             t+= """
-MARINERS ARE ADVISED TO KEEP THEIR GUARD UP WHILE CLOSELY
-MONITORING THE LATEST COASTAL WATERS FORECAST. SMALL CRAFT SHOULD
-REMAIN IN PORT UNTIL THIS STORM PASSES.
+Mariners are advised to keep their guard up while closely
+monitoring the latest coastal waters forecast. Small craft should
+remain in port until this storm passes.
 
 """
         return self._frame(t.strip())
@@ -4013,23 +4014,23 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
         t = title
         wfo = self._wfoCity
         if self._NextUpdate == "Shortly":
-            t+= "THE NEXT LOCAL STATEMENT WILL BE ISSUED BY THE NATIONAL WEATHER SERVICE IN "
+            t+= "The next local statement will be issued by the National Weather Service in "
             t+= wfo
-            t+= " SHORTLY. IT WILL PROVIDE IMPORTANT DETAILS REGARDING THE EVOLVING TROPICAL CYCLONE THREATS AND THEIR POTENTIAL IMPACTS UPON THE AREA. "
+            t+= " shortly. It will provide important details regarding the evolving tropical cyclone threats and their potential impacts upon the area. "
         elif self._NextUpdate == "Enter":
-            t+="THE NEXT LOCAL STATEMENT WILL BE ISSUED BY THE NATIONAL WEATHER SERVICE IN "
+            t+="The next local statement will be issued by the National Weather Service in "
             t+= wfo
-            t+=" AROUND "
+            t+=" around "
             t+= self._NextUpdate_entry
-            t+="...OR SOONER IF CONDITIONS WARRANT. "
+            t+="...or sooner if conditions warrant. "
         elif self._NextUpdate == "Conditions":
-            t+="THE NEXT LOCAL STATEMENT WILL BE ISSUED BY THE NATIONAL WEATHER SERVICE IN "
+            t+="The next local statement will be issued by the National Weather Service in "
             t+=wfo
-            t+=" AS CONDITIONS WARRANT. "
+            t+=" as conditions warrant. "
         elif self._NextUpdate == "LastIssuance":
-            t+="AS IT PERTAINS TO THIS EVENT...THIS WILL BE THE LAST LOCAL STATEMENT ISSUED BY THE NATIONAL WEATHER SERVICE IN "
+            t+="As it pertains to this event...this will be the last local statement issued by the National Weather Service in "
             t+=wfo
-            t+=" REGARDING THE EFFECTS OF TROPICAL CYCLONE HAZARDS UPON THE AREA. "
+            t+=" regarding the effects of tropical cyclone hazards upon the area. "
         return t
 
     #####################################################################################
@@ -4052,14 +4053,14 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
                 if act in self._ignoreActions():
                     continue
                 if hdlns.index(hazardHdln) > 0:
-                    t+= " AND "
+                    t+= " and "
                 t+= "A " + hdln
                 reported += 1
             if reported > 0:
-                if reported > 1: t+= " HAVE "
-                else:            t+= " HAS "
-                t+="NOW BEEN ISSUED. "
-            t+="A MORE DETAILED STATEMENT WILL FOLLOW SHORTLY.\n"
+                if reported > 1: t+= " have "
+                else:            t+= " has "
+                t+="now been issued. "
+            t+="A more detailed statement will follow shortly.\n"
         else:
             t+= self._frame("Please enter new information here.") + "\n"
         return title + t
@@ -4254,17 +4255,17 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
             elif scenario == "Diminishing":
                 if info.anyLand:
                     if info.maxWind >= 64:
-                        desc = "HURRICANE"
+                        desc = "Hurricane"
                         somewhat = ""
                     elif info.maxWind >= 34:
-                        desc = "TROPICAL STORM"
-                        somewhat = "SOMEWHAT "
+                        desc = "Tropical storm"
+                        somewhat = "Somewhat "
                     else:
-                        desc = "STRONG WIND"
-                        somewhat = "SOMEWHAT "
+                        desc = "Strong wind"
+                        somewhat = "Somewhat "
                     landStr=self._pp_dict("Conditions", ["Diminishing", "land"])
-                    landStr = landStr.replace("{DESC}", desc)
-                    landStr = landStr.replace("{SOMEWHAT} ", somewhat)
+                    landStr = landStr.replace("{desc}", desc)
+                    landStr = landStr.replace("{somewhat} ", somewhat)
                     t+=landStr
                 if info.anyMarine:
                     t+=self._pp_dict("Conditions", ["Diminishing", "marine"])
@@ -4299,14 +4300,14 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
         t=""
         segmentNum, segmentAreas, situation, scenario, sections, extraInfo = segment
         if situation=="NonEvent":
-            t+=self._frame("AS CURRENTLY ASSESSED...THE ONSET OF EITHER TROPICAL STORM OR HURRICANE CONDITIONS IS UNLIKELY TO OCCUR.")+ "\n"
+            t+=self._frame("As currently assessed...the onset of either tropical storm or hurricane conditions is unlikely to occur.")+ "\n"
 
         elif situation=="PreEvent":
             if scenario=="Advancing":  t+=self._prob_stmts(info) + "\n"
             elif scenario=="Peripheral":  t+=self._prob_stmts(info, ifWording=True) + "\n"
             else:
-                t+="AT THIS TIME...THE PROBABILITY OF EITHER TROPICAL STORM OR HURRICANE CONDITIONS CANNOT BE DETERMINED UNTIL THE SYSTEM BECOMES AN ACTIVE TROPICAL CYCLONE.  HOWEVER...BASED ON THE LATEST OUTLOOK...THE CHANCE OF TROPICAL CYCLONE FORMATION IS "
-                t+= self._frame("LOW/MEDIUM/HIGH FROM TWOXXX. ")
+                t+="At this time...the probability of either tropical storm or hurricane conditions cannot be determined until the system becomes an active tropical cyclone.  However...based on the latest outlook...the chance of tropical cyclone formation is "
+                t+= self._frame("low/medium/high from twoxxx. ")
         elif situation=="Abbreviated":
                 pass
         elif situation in ["Watch", "Warning"]:
@@ -4400,11 +4401,11 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
                 self._hazardHdlns, hazardList, checkAreas=segmentAreas, returnList=True)
             if len(hdlnList) > 0:
                 t+=self._headlines(info, hdlnList, self._entirePortions, ending="")
-                t+="SEE LATEST FORECAST FOR LATEST INFORMATION. "
+                t+="See latest forecast for latest information. "
                 for listen in listenList:
                     t+=listen + "\n"
-        t+=self._frame("ADDITIONAL FREE EDIT AREA WITH RELEVANT INFO HERE.") + "\n"
-        t+=self._frame("POTENTIAL IMPACT STATEMENT FROM IMPACT LIBRARY FOR SPECIFIC HAZARD.")+ "\n"
+        t+=self._frame("Additional free edit area with relevant info here.") + "\n"
+        t+=self._frame("Potential impact statement from impact library for specific hazard.")+ "\n"
         t+="\n"
         return t
 
@@ -4416,7 +4417,7 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
 #                                         checkAreaTypes=["coastal"])
 
         if info.surgeHtPlusTide is None:
-            return title + self._frame("ENTER SURGE TEXT HERE")
+            return title + self._frame("Enter surge text here")
 
         t= ""
         segmentNum, segmentAreas, situation, scenario, sections, extraInfo = segment
@@ -4494,7 +4495,7 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
     def InlandFlooding(self, title, argDict, segment, section, info):
         hazards = [("FF", "A"), ("FA","A")]
         listenList = [
-            "LISTEN FOR POSSIBLE FLOOD WARNINGS FOR YOUR LOCATION...AND BE READY TO ACT IF FLOODING RAINS OCCUR. "
+            "Listen for possible flood warnings for your location...and be ready to act if flooding rains occur. "
             ]
         t=self._optionalSection_template(argDict, segment, info, hazards, listenList,
                                          checkAreaTypes=["land"])
@@ -4504,7 +4505,7 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
     def Tornadoes(self, title, argDict, segment, section, info):
         hazards = [("TO", "A")]
         listenList = [
-            "LISTEN FOR POSSIBLE TORNADO WARNINGS FOR YOUR LOCATION...AND BE READY TO ACT QUICKLY IF A TORNADO APPROACHES. "
+            "Listen for possible Tornado Warnings for your location...and be ready to act quickly if a tornado approaches. "
             ]
         t=self._optionalSection_template(argDict, segment, info, hazards, listenList)
         return title + t
@@ -4540,8 +4541,8 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
     def _NonEvent_textDict(self):
         return {
             "ActiveNonEvent":{
-                "land":self._frame("TAKE ADVANTAGE OF THIS OPPORTUNITY TO REVIEW YOUR HURRICANE DISASTER PLAN. IF YOU DO NOT HAVE A PLAN...MAKE ONE. IF YOU NEED ASSISTANCE WITH YOUR PLAN...CONTACT THE NATIONAL WEATHER SERVICE...LOCAL EMERGENCY MANAGEMENT...OR AMERICAN RED CROSS.\n\nSTORE ADEQUATE FOOD AND DRINK SUPPLIES FOR EACH MEMBER OF THE FAMILY FOR AT LEAST THREE TO FIVE DAYS. REPLACE BATTERIES IN FLASHLIGHTS AND PORTABLE RADIOS. FIX LOOSE AND CLOGGED RAIN GUTTERS AND DOWNSPOUTS. TRIM OVERHANGING TREES AND SHRUBBERY. ALSO...ACQUIRE PLYWOOD OR OTHER MATERIALS TO PROTECT YOUR HOME OR BUSINESS. REVIEW YOUR INSURANCE POLICY...UPDATING IT IF NECESSARY.")+"\n",
-                "marine":self._frame("BOAT OWNERS AND CAPTAINS OF SMALL CRAFT SHOULD TAKE THIS OPPORTUNITY TO REVIEW THEIR EMERGENCY OPERATIONS PLAN FOR TROPICAL CYCLONES AND EVALUATE THEIR STATE OF READINESS FOR THIS SEASON.")+"\n",
+                "land":self._frame("Take advantage of this opportunity to review your hurricane disaster plan. If you do not have a plan...make one. If you need assistance with your plan...contact the National Weather Service...local emergency management...or American Red Cross.\n\nStore adequate food and drink supplies for each member of the family for at least three to five days. Replace batteries in flashlights and portable radios. Fix loose and clogged rain gutters and downspouts. Trim overhanging trees and shrubbery. Also...acquire plywood or other materials to protect your home or business. Review your insurance policy...updating it if necessary.")+"\n",
+                "marine":self._frame("Boat owners and captains of small craft should take this opportunity to review their emergency operations plan for tropical cyclones and evaluate their state of readiness for this season.")+"\n",
                 },
             "EndNonEvent":{
                 "everywhere":self._frame("THIS EVENT IS NO LONGER EXPECTED TO HAVE AN IMPACT ACROSS THE AREA AT THIS TIME.\n\nadd other wording here.")+"\n",
@@ -4551,40 +4552,40 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
     def _PreEvent_textDict(self):
         return {
             "Advancing": {
-                "land":self._frame("EVERYONE IS STRONGLY URGED TO STAY INFORMED. IF EARLY EVACUATION ORDERS ARE ISSUED FOR YOUR AREA...STAY CALM AND TAKE THE NECESSARY STEPS TO LEAVE AS SOON AS POSSIBLE AND IN AN ORDERLY FASHION.\n\nMAKE PLANS TO EVACUATE IF YOU LIVE ON THE IMMEDIATE COAST AND BARRIER ISLANDS...OR IN A HIGH RISE BUILDING...OR IN A MOBILE HOME...OR IN A PLACE THAT FLOODS EASILY. BE READY TO ACT IF A WATCH OR WARNING IS ISSUED FOR YOUR AREA.") + "\n",
-                "marine":self._frame("AS SOON AS POSSIBLE...SMALL CRAFT ARE URGED TO RETURN TO PORT OR TO SEEK SAFE HARBOR. TAKE EARLY STEPS TO SECURE YOUR CRAFT.") + "\n",
+                "land":self._frame("Everyone is strongly urged to stay informed. If early evacuation orders are issued for your area...stay calm and take the necessary steps to leave as soon as possible and in an orderly fashion.\n\nMake plans to evacuate if you live on the immediate coast and barrier islands...or in a high rise building...or in a mobile home...or in a place that floods easily. Be ready to act if a watch or warning is issued for your area.") + "\n",
+                "marine":self._frame("As soon as possible...small craft are urged to return to port or to seek safe harbor. Take early steps to secure your craft.") + "\n",
                 },
             "Peripheral": {
-                "land":self._frame("STAY INFORMED AND LISTEN FOR CHANGES TO THE FORECAST. BE READY TO ACT IF WATCHES OR WARNINGS BECOME NECESSARY FOR YOUR AREA.")+"\n",
-                "marine":self._frame("SMALL CRAFT SHOULD CONSIDER RETURNING TO PORT OR SEEKING SAFE HARBOR.")+"\n",
+                "land":self._frame("Stay informed and listen for changes to the forecast. Be ready to act if watches or warnings become necessary for your area.")+"\n",
+                "marine":self._frame("Small craft should consider returning to port or seeking safe harbor.")+"\n",
                 },
             "InSitu": {
-                "land":self._frame("STAY INFORMED OF THE LATEST FORECAST. DO NOT GET CAUGHT OFF GUARD AND BE READY TO ACT QUICKLY IF WATCHES OR WARNINGS BECOME NECESSARY FOR YOUR AREA.")+"\n",
-                "marine":self._frame("AS SOON AS POSSIBLE...SMALL CRAFT ARE URGED TO RETURN TO PORT OR TO SEEK SAFE HARBOR. TAKE EARLY STEPS TO SECURE YOUR CRAFT.")+"\n",
+                "land":self._frame("Stay informed of the latest forecast. Do not get caught off guard and be ready to act quickly if watches or warnings become necessary for your area.")+"\n",
+                "marine":self._frame("As soon as possible...small craft are urged to return to port or to seek safe harbor. Take early steps to secure your craft.")+"\n",
                 }
              }
 
     def _Abbreviated_textDict(self):
         return {
             "HU_A": {
-                "land":self._frame("NOW IS THE TIME TO BEGIN IMPLEMENTING YOUR HURRICANE DISASTER PLAN. ADDITIONAL RECOMMENDATIONS FOR YOUR AREA WILL BE OFFERED SHORTLY.") + "\n",
-                "marine":self._frame("FOR MARINE INTERESTS...IMPLEMENT ACTIONS ACCORDING TO YOUR EMERGENCY OPERATIONS PLAN FOR POSSIBLE HURRICANE CONDITIONS.") + "\n",
+                "land":self._frame("Now is the time to begin implementing your hurricane disaster plan. Additional recommendations for your area will be offered shortly.") + "\n",
+                "marine":self._frame("For marine interests...implement actions according to your emergency operations plan for possible hurricane conditions.") + "\n",
                 },
             "TR_A": {
-                "land":self._frame("THIS IS A GOOD TIME TO BEGIN IMPLEMENTING YOUR DISASTER PLAN FOR POSSIBLE TROPICAL STORM CONDITIONS. ADDITIONAL RECOMMENDATIONS FOR YOUR AREA WILL BE OFFERED SHORTLY.") + "\n",
-                "marine":self._frame("FOR MARINE INTERESTS...IMPLEMENT ACTIONS ACCORDING TO YOUR EMERGENCY OPERATIONS PLAN FOR POSSIBLE TROPICAL STORM CONDITIONS.")+"\n",
+                "land":self._frame("This is a good time to begin implementing your disaster plan for possible tropical storm conditions. Additional recommendations for your area will be offered shortly.") + "\n",
+                "marine":self._frame("For marine interests...implement actions according to your emergency operations plan for possible tropical storm conditions.")+"\n",
                 },
             "HU_W": {
-                "land":self._frame("ACCORDING TO YOUR HURRICANE DISASTER PLAN...PREPARATIONS TO PROTECT LIFE AND PROPERTY SHOULD BE NEARING COMPLETION. ADDITIONAL RECOMMENDATIONS FOR YOUR AREA WILL BE OFFERED SHORTLY.")+"\n",
-                "marine":self._frame("FOR MARINE INTERESTS...URGENTLY COMPLETE ACTIONS ACCORDING TO YOUR EMERGENCY OPERATIONS PLAN FOR HURRICANE CONDITIONS.") + "\n",
+                "land":self._frame("According to your hurricane disaster plan...preparations to protect life and property should be nearing completion. Additional recommendations for your area will be offered shortly.")+"\n",
+                "marine":self._frame("For marine interests...urgently complete actions according to your emergency operations plan for hurricane conditions.") + "\n",
                 },
             "TR_W": {
-                "land":self._frame("ACCORDING TO YOUR DISASTER PLAN FOR TROPICAL STORM CONDITIONS...PREPARATIONS TO PROTECT LIFE AND PROPERTY SHOULD BE NEARING COMPLETION. ADDITIONAL RECOMMENDATIONS FOR YOUR AREA WILL BE OFFERED SHORTLY.")+"\n",
-                "marine":self._frame("FOR MARINE INTERESTS...URGENTLY COMPLETE ACTIONS ACCORDING TO YOUR EMERGENCY OPERATIONS PLAN FOR TROPICAL STORM CONDITIONS.")+"\n",
+                "land":self._frame("According to your disaster plan for tropical storm conditions...preparations to protect life and property should be nearing completion. Additional recommendations for your area will be offered shortly.")+"\n",
+                "marine":self._frame("For marine interests...urgently complete actions according to your emergency operations plan for tropical storm conditions.")+"\n",
                 },
             "TR_W_HU_A": {
-                "land":self._frame("DILIGENTLY COMPLETE ACTIONS ACCORDING TO YOUR HURRICANE DISASTER PLAN FOR TROPICAL STORM WARNINGS. BE READY TO IMPLEMENT YOUR PLAN FOR HURRICANE WARNINGS SHOULD THIS WARNING BE UPGRADED IN THE FUTURE. ADDITIONAL RECOMMENDATIONS FOR YOUR AREA WILL BE OFFERED SHORTLY.")+"\n",
-                "marine":self._frame("FOR MARINE INTERESTS...URGENTLY COMPLETE ACTIONS ACCORDING TO YOUR MARINERS EMERGENCY OPERATIONS PLAN FOR TROPICAL STORM WARNINGS...BUT ALSO BE READY TO IMPLMENT YOUR PLAN FOR HURRICANE WARNINGS SHOULD THIS WARNING BE UPGRADED IN THE FUTURE.")+"\n",
+                "land":self._frame("Diligently complete actions according to your hurricane disaster plan for tropical storm warnings. Be ready to implement your plan for hurricane warnings should this warning be upgraded in the future. Additional recommendations for your area will be offered shortly.")+"\n",
+                "marine":self._frame("For marine interests...urgently complete actions according to your mariners emergency operations plan for tropical storm warnings...but also be ready to implment your plan for hurricane warnings should this warning be upgraded in the future.")+"\n",
                 }
             }
 
@@ -4592,30 +4593,30 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
         return {
             "HU_A": {
                 "Advancing": {
-                    "land":self._frame("STAY CALM AND KEEP INFORMED. COMPLY WITH ANY EVACUATION ORDERS THAT ARE ISSUED FOR YOUR AREA. IF YOUR HOME IS VULNERABLE TO HIGH WINDS...OR YOU LIVE IN A SURGE ZONE OR ANY LOCATION PRONE TO FLOODING...EVACUATE TO A DESIGNATED SHELTER OR RIDE OUT THE STORM IN THE STURDY HOME OF FAMILY OR FRIENDS OUTSIDE OF EVACUATION ZONES.\n\nITEMS TO BRING TO A SHELTER INCLUDE A FIRST AID KIT...MEDICINES AND PRESCRIPTIONS...BABY FOOD AND DIAPERS...GAMES AND BOOKS...TOILETRIES...A BATTERY POWERED RADIO...A CELL PHONE...FLASHLIGHTS WITH EXTRA BATTERIES...A BLANKET OR SLEEPING BAG FOR EACH PERSON...PERSONAL IDENTIFICATION...COPIES OF KEY PAPERS SUCH AS INSURANCE POLICIES...AVAILABLE CASH AND CREDIT CARDS. REMEMBER...PETS ARE NOT ALLOWED IN MOST PUBLIC SHELTERS...SO CHECK AHEAD WITH YOUR INTENDED SHELTER.\n\nREGARDING YOUR HOME OR BUSINESS...COVER ALL WINDOWS AND DOORS WITH SHUTTERS OR PLYWOOD. MOVE PATIO FURNITURE AND OTHER LOOSE OBJECTS INDOORS. BRACE ALL EXTERIOR DOORS...INCLUDING GARAGE DOORS. DO THIS AS EARLY AS POSSIBLE.\n\nIF YOU NEED TO MAKE A TRIP TO THE HARDWARE STORE...THE GROCERY STORE...OR THE GAS STATION...DO SO AS EARLY AS POSSIBLE.")+"\n",
-                    "marine": self._frame("BOAT OWNERS AND CAPTAINS OF SMALL CRAFT NEED TO DETERMINE THE BEST STRATEGY FOR SECURING THEIR CRAFT.")+"\n",
+                    "land":self._frame("Stay calm and keep informed. Comply with any evacuation orders that are issued for your area. If your home is vulnerable to high winds...or you live in a surge zone or any location prone to flooding...evacuate to a designated shelter or ride out the storm in the sturdy home of family or friends outside of evacuation zones.\n\nItems to bring to a shelter include a first aid kit...medicines and prescriptions...baby food and diapers...games and books...toiletries...a battery powered radio...a cell phone...flashlights with extra batteries...a blanket or sleeping bag for each person...personal identification...copies of key papers such as insurance policies...available cash and credit cards. Remember...pets are not allowed in most public shelters...so check ahead with your intended shelter.\n\nRegarding your home or business...cover all windows and doors with shutters or plywood. Move patio furniture and other loose objects indoors. Brace all exterior doors...including garage doors. Do this as early as possible.\n\nIf you need to make a trip to the hardware store...the grocery store...or the gas station...do so as early as possible.")+"\n",
+                    "marine": self._frame("Boat owners and captains of small craft need to determine the best strategy for securing their craft.")+"\n",
                     },
                 "Peripheral": {
-                    "land":self._frame("KEEP INFORMED AND LISTEN FOR POSSIBLE CHANGES TO THE FORECAST. COMPLY WITH ANY EVACUATION ORDERS ISSUED FOR YOUR AREA. IF YOU LIVE IN A MOBILE HOME...MAKE PLANS TO EVACUATE.\n\nGATHER CLOTHES...IMPORTANT PAPERS...MEDICINES...AND SMALL VALUABLES AND KEEP THEM READY TO GO ON SHORT NOTICE. GAS UP YOUR VEHICLES AND HAVE EXTRA CASH ON HAND.\n\nREGARDING YOUR HOME OR BUSINESS...COVER ALL WINDOWS AND DOORS WITH SHUTTERS OR PLYWOOD. MOVE PATIO FURNITURE AND OTHER LOOSE OBJECTS INDOORS. BRACE ALL EXTERIOR DOORS...INCLUDING GARAGE DOORS.")+ "\n",
-                    "marine":self._frame("BOAT OWNERS AND CAPTAINS OF SMALL CRAFT NEED TO DETERMINE THE BEST STRATEGY FOR SECURING THEIR CRAFT.")+"\n",
+                    "land":self._frame("Keep informed and listen for possible changes to the forecast. Comply with any evacuation orders issued for your area. If you live in a mobile home...make plans to evacuate.\n\nGather clothes...important papers...medicines...and small valuables and keep them ready to go on short notice. Gas up your vehicles and have extra cash on hand.\n\nRegarding your home or business...cover all windows and doors with shutters or plywood. Move patio furniture and other loose objects indoors. Brace all exterior doors...including garage doors.")+ "\n",
+                    "marine":self._frame("Boat owners and captains of small craft need to determine the best strategy for securing their craft.")+"\n",
                     },
                 "InSitu": {
-                    "land":self._frame("DO NOT GET CAUGHT UNPREPARED AS CONDITIONS ARE SUBJECT TO CHANGE RAPIDLY. THE POTENTIAL IMPACTS ARE SIMPLY TOO GREAT TO IGNORE THE THREAT. ERR ON THE SIDE OF CAUTION AND TAKE APPROPRIATE ACTIONS FOR POSSIBLE HURRICANE CONDITIONS.")+"\n",
-                    "marine":self._frame("BOAT OWNERS AND CAPTAINS OF SMALL CRAFT SHOULD NOT ALLOW THEMSELVES TO GET CAUGHT UNPREPARED. ERR ON THE SIDE OF CAUTION AND TAKE PROTECTIVE ACTIONS. DETERMINE THE BEST STRATEGY FOR SECURING THEIR CRAFT.")+"\n",
+                    "land":self._frame("Do not get caught unprepared as conditions are subject to change rapidly. The potential impacts are simply too great to ignore the threat. Err on the side of caution and take appropriate actions for possible hurricane conditions.")+"\n",
+                    "marine":self._frame("Boat owners and captains of small craft should not allow themselves to get caught unprepared. Err on the side of caution and take protective actions. Determine the best strategy for securing their craft.")+"\n",
                     },
                 },
             "TR_A": {
                 "Advancing": {
-                    "land": self._frame("PREPARATIONS SHOULD BE MADE AS SOON AS POSSIBLE...BEFORE CONDITIONS DETERIORATE. KEEP INFORMED WHILE LISTENING FOR POSSIBLE WARNINGS. SECURE LOOSE OUTDOOR OBJECTS WHICH CAN BE BLOWN AROUND. STRONGLY CONSIDER EVACUATING IF YOU LIVE IN A MOBILE HOME...AND DO SO IF ORDERED BY LOCAL OFFICIALS.") + "\n",
-                    "marine":self._frame("BOAT OWNERS AND CAPTAINS OF SMALL CRAFT NEED TO DETERMINE THE BEST STRATEGY FOR SECURING THEIR CRAFT.") + "\n",
+                    "land": self._frame("Preparations should be made as soon as possible...before conditions deteriorate. Keep informed while listening for possible warnings. Secure loose outdoor objects which can be blown around. Strongly consider evacuating if you live in a mobile home...and do so if ordered by local officials.") + "\n",
+                    "marine":self._frame("Boat owners and captains of small craft need to determine the best strategy for securing their craft.") + "\n",
                     },
                 "Peripheral":{
-                    "land": self._frame("STAY INFORMED AND LISTEN FOR POSSIBLE CHANGES TO THE FORECAST. PREPARATIONS FOR THIS STORM SHOULD BE MADE AS SOON AS POSSIBLE.") + "\n",
-                    "marine": self._frame("BOAT OWNERS AND CAPTAINS OF SMALL CRAFT NEED TO DETERMINE THE BEST STRATEGY FOR SECURING THEIR CRAFT.") + "\n",
+                    "land": self._frame("Stay informed and listen for possible changes to the forecast. Preparations for this storm should be made as soon as possible.") + "\n",
+                    "marine": self._frame("Boat owners and captains of small craft need to determine the best strategy for securing their craft.") + "\n",
                     },
                 "InSitu":{
-                    "land": self._frame("DO NOT GET CAUGHT UNPREPARED. ERR ON THE SIDE OF CAUTION AND TAKE APPROPRIATE ACTIONS FOR POSSIBLE TROPICAL STORM CONDITIONS.") + "\n",
-                    "marine": self._frame("BOAT OWNERS AND CAPTAINS OF SMALL CRAFT SHOULD NOT ALLOW THEMSELVES TO GET CAUGHT UNPREPARED. ERR ON THE SIDE OF CAUTION AND TAKE PROTECTIVE ACTIONS. DETERMINE THE BEST STRATEGY FOR SECURING THEIR CRAFT.") + "\n",
+                    "land": self._frame("Do not get caught unprepared. Err on the side of caution and take appropriate actions for possible tropical storm conditions.") + "\n",
+                    "marine": self._frame("Boat owners and captains of small craft should not allow themselves to get caught unprepared. Err on the side of caution and take protective actions. Determine the best strategy for securing their craft.") + "\n",
                     },
                 },
             }
@@ -4624,44 +4625,44 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
         return {
             "HU_W": {
                 "Advancing": {
-                    "land":self._frame("MAKE THE FINAL PREPARATIONS TO PROTECT LIFE AND PROPERTY. RUSH TO COMPLETION THE HARDENING OF YOUR HOME OR BUSINESS BY CLOSING SHUTTERS AND BRACING GARAGE DOORS.\n\nIF EVACUATING...LEAVE AS SOON AS POSSIBLE. GUARD AGAINST BEING STUCK OUT ON ROADWAYS WHEN DANGEROUS WINDS AND HEAVY RAINS ARRIVE. AGAIN...DO NOT STAY IN A MOBILE OR MANUFACTURED HOME. REMEMBER...PETS ARE NOT ALLOWED IN MOST OFFICIAL SHELTERS...SO CHECK AHEAD WITH YOUR INTENDED SHELTER.\n\nIF STAYING IN A HOME...TURN THE REFRIGERATOR TO MAXIMUM COLD AND KEEP IT CLOSED. TURN OFF PROPANE TANKS AND UNPLUG SMALL APPLIANCES. FILL THE BATHTUB WITH WATER IN CASE THE TAP WATER BECOMES UNAVAILABLE AFTER THE STORM. THIS IS FOR CLEANING AND FLUSHING PURPOSES. DO NOT DRINK IT.") +"\n",
-                    "marine": self._frame("BOAT OWNERS AND CAPTAINS OF SMALL CRAFT SHOULD RUSH TO COMPLETION THE SECURING OF THEIR CRAFT.") +"\n",
+                    "land":self._frame("Make the final preparations to protect life and property. Rush to completion the hardening of your home or business by closing shutters and bracing garage doors.\n\nIf evacuating...leave as soon as possible. Guard against being stuck out on roadways when dangerous winds and heavy rains arrive. Again...do not stay in a mobile or manufactured home. Remember...pets are not allowed in most official shelters...so check ahead with your intended shelter.\n\nIf staying in a home...turn the refrigerator to maximum cold and keep it closed. Turn off propane tanks and unplug small appliances. Fill the bathtub with water in case the tap water becomes unavailable after the storm. This is for cleaning and flushing purposes. Do not drink it.") +"\n",
+                    "marine": self._frame("Boat owners and captains of small craft should rush to completion the securing of their craft.") +"\n",
                     },
                 "Peripheral": {
-                    "land":self._frame("MAKE PREPARATIONS TO PROTECT LIFE AND PROPERTY. COMPLETE THE HARDENING OF YOUR HOME OR BUSINESS BY CLOSING SHUTTERS AND BRACING GARAGE DOORS.\n\nIF EVACUATING...LEAVE AS SOON AS POSSIBLE. GUARD AGAINST BEING STUCK OUT ON ROADWAYS WHEN DANGEROUS WINDS AND HEAVY RAINS ARRIVE. AGAIN...DO NOT STAY IN A MOBILE OR MANUFACTURED HOME. REMEMBER...PETS ARE NOT ALLOWED IN MOST OFFICIAL SHELTERS...SO CHECK AHEAD WITH YOUR INTENDED SHELTER.") +"\n",
-                    "marine":self._frame("BOAT OWNERS AND CAPTAINS OF SMALL CRAFT SHOULD RUSH TO COMPLETION THE SECURING OF THEIR CRAFT.") +"\n",
+                    "land":self._frame("Make preparations to protect life and property. Complete the hardening of your home or business by closing shutters and bracing garage doors.\n\nIf evacuating...leave as soon as possible. Guard against being stuck out on roadways when dangerous winds and heavy rains arrive. Again...do not stay in a mobile or manufactured home. Remember...pets are not allowed in most official shelters...so check ahead with your intended shelter.") +"\n",
+                    "marine":self._frame("Boat owners and captains of small craft should rush to completion the securing of their craft.") +"\n",
                     },
                 "InSitu": {
-                    "land":self._frame("THIS IS A DANGEROUS AND RAPIDLY DEVELOPING SITUATION. ERR ON THE SIDE OF CAUTION AND URGENTLY TAKE ACTIONS TO PROTECT LIFE AND PROPERTY. COMPLY WITH ANY EVACUATION ORDERS ISSUED BY LOCAL AUTHORITIES FOR YOUR AREA. IF YOU LIVE IN A MOBILE HOME...LEAVE IT FOR MORE SUBSTANTIAL SHELTER.") +"\n",
-                    "marine":self._frame("BOAT OWNERS AND CAPTAINS OF SMALL CRAFT SHOULD RUSH TO COMPLETION THE SECURING OF THEIR CRAFT.") +"\n",
+                    "land":self._frame("This is a dangerous and rapidly developing situation. Err on the side of caution and urgently take actions to protect life and property. Comply with any evacuation orders issued by local authorities for your area. If you live in a mobile home...leave it for more substantial shelter.") +"\n",
+                    "marine":self._frame("Boat owners and captains of small craft should rush to completion the securing of their craft.") +"\n",
                     },
                 },
             "TR_W": {
                 "Advancing": {
-                    "land": self._frame("FINAL PREPARATIONS TO PROTECT LIFE AND PROPERTY SHOULD BE COMPLETED BEFORE CONDITIONS DETERIORATE. THE ONSET OF GUSTY WINDS AND HEAVY RAINS CAN CAUSE OUTSIDE ACTIVITIES TO BECOME DANGEROUS. SECURE LOOSE OUTDOOR OBJECTS WHICH CAN BE BLOWN AROUND. IF YOU LIVE IN A MOBILE HOME...LEAVE IT FOR MORE SUBSTANTIAL SHELTER.") +"\n",
-                    "marine":self._frame("BOAT OWNERS AND CAPTAINS OF SMALL CRAFT SHOULD RUSH TO COMPLETION THE SECURING OF THEIR CRAFT.") +"\n",
+                    "land": self._frame("Final preparations to protect life and property should be completed before conditions deteriorate. The onset of gusty winds and heavy rains can cause outside activities to become dangerous. Secure loose outdoor objects which can be blown around. If you live in a mobile home...leave it for more substantial shelter.") +"\n",
+                    "marine":self._frame("Boat owners and captains of small craft should rush to completion the securing of their craft.") +"\n",
                     },
                 "Peripheral":{
-                    "land": self._frame("OUTSIDE PREPARATIONS SHOULD BE COMPLETED AS SOON AS POSSIBLE BEFORE THE ONSET OF GUSTY WINDS AND HEAVY RAINS WHICH CAN CAUSE OUTSIDE ACTIVITIES TO BECOME DANGEROUS.") +"\n",
-                    "marine": self._frame("BOAT OWNERS AND CAPTAINS OF SMALL CRAFT SHOULD RUSH TO COMPLETION THE SECURING OF THEIR CRAFT.") +"\n",
+                    "land": self._frame("Outside preparations should be completed as soon as possible before the onset of gusty winds and heavy rains which can cause outside activities to become dangerous.") +"\n",
+                    "marine": self._frame("Boat owners and captains of small craft should rush to completion the securing of their craft.") +"\n",
                     },
                 "InSitu":{
-                    "land": self._frame("THIS IS A POTENTIALLY DANGEROUS AND RAPIDLY DEVELOPING SITUATION. ERR ON THE SIDE OF CAUTION AND COMPLETE PREPARATIONS FOR TROPICAL STORM CONDITIONS.") +"\n",
-                    "marine": self._frame("BOAT OWNERS AND CAPTAINS OF SMALL CRAFT SHOULD RUSH TO COMPLETION THE SECURING OF THEIR CRAFT.") +"\n",
+                    "land": self._frame("This is a potentially dangerous and rapidly developing situation. Err on the side of caution and complete preparations for tropical storm conditions.") +"\n",
+                    "marine": self._frame("Boat owners and captains of small craft should rush to completion the securing of their craft.") +"\n",
                     },
                 },
             "TR_W_HU_A": {
                 "Advancing": {
-                    "land":self._frame("FINAL ACTIONS TO PROTECT LIFE AND PROPERTY SHOULD BE COMPLETED BEFORE CONDITIONS DETERIORATE. COVER WINDOWS AND DOORS WITH SHUTTERS OR PLYWOOD. MOVE PATIO FURNITURE AND OTHER LOOSE OUTDOOR OBJECTS INSIDE. BRACE ALL EXTERIOR DOORS...INCLUDING GARAGE DOORS.\n\nCOMPLY WITH ANY EVACUATION ORDERS ISSUED FOR YOUR AREA. IF YOU LIVE IN A MOBILE HOME...LEAVE IT FOR MORE SUBSTANTIAL SHELTER. IF YOUR HOME IS VULNERABLE TO HIGH WINDS...OR YOU LIVE IN A SURGE ZONE OR ANY LOCATION PRONE TO FLOODING...EVACUATE TO A DESIGNATED SHELTER OR RIDE OUT THE STORM IN THE STURDY HOME OF FAMILY OR FRIENDS OUTSIDE OF EVACUATION ZONES.") +"\n",
-                    "marine":self._frame("BOAT OWNERS AND CAPTAINS OF SMALL CRAFT SHOULD RUSH TO COMPLETION THE SECURING OF THEIR CRAFT.") +"\n",
+                    "land":self._frame("Final actions to protect life and property should be completed before conditions deteriorate. Cover windows and doors with shutters or plywood. Move patio furniture and other loose outdoor objects inside. Brace all exterior doors...including garage doors.\n\nComply with any evacuation orders issued for your area. If you live in a mobile home...leave it for more substantial shelter. If your home is vulnerable to high winds...or you live in a surge zone or any location prone to flooding...evacuate to a designated shelter or ride out the storm in the sturdy home of family or friends outside of evacuation zones.") +"\n",
+                    "marine":self._frame("Boat owners and captains of small craft should rush to completion the securing of their craft.") +"\n",
                     },
                 "Peripheral":{
-                    "land": self._frame("PREPARATIONS TO PROTECT LIFE AND PROPERTY SHOULD BE COMPLETED AS SOON AS POSSIBLE SINCE THE ONSET OF GUSTY WINDS AND HEAVY RAINS CAN CAUSE OUTSIDE ACTIVITIES TO BECOME DANGEROUS. COVER WINDOWS AND DOORS WITH SHUTTERS OR PLYWOOD. MOVE PATIO FURNITURE AND OTHER LOOSE OUTDOOR OBJECTS INSIDE. BRACE ALL EXTERIOR DOORS...INCLUDING GARAGE DOORS.\n\nCOMPLY WITH ANY EVACUATION ORDERS ISSUED FOR YOUR AREA. IF YOU LIVE IN A MOBILE HOME...LEAVE IT FOR MORE SUBSTANTIAL SHELTER.") +"\n",
-                    "marine": self._frame("BOAT OWNERS AND CAPTAINS OF SMALL CRAFT SHOULD RUSH TO COMPLETION THE SECURING OF THEIR CRAFT.") +"\n",
+                    "land": self._frame("Preparations to protect life and property should be completed as soon as possible since the onset of gusty winds and heavy rains can cause outside activities to become dangerous. Cover windows and doors with shutters or plywood. Move patio furniture and other loose outdoor objects inside. Brace all exterior doors...including garage doors.\n\nComply with any evacuation orders issued for your area. If you live in a mobile home...leave it for more substantial shelter.") +"\n",
+                    "marine": self._frame("Boat owners and captains of small craft should rush to completion the securing of their craft.") +"\n",
                     },
                 "InSitu":{
-                    "land": self._frame("THIS IS A POTENTIALLY DANGEROUS AND RAPIDLY DEVELOPING SITUATION. DO NOT GET CAUGHT UNPREPARED. ERR ON THE SIDE OF CAUTION AND COMPLETE PREPARATIONS FOR TROPICAL STORM CONDITIONS AND POSSIBLE HURRICANE CONDITIONS.") +"\n",
-                    "marine": self._frame("BOAT OWNERS AND CAPTAINS OF SMALL CRAFT SHOULD RUSH TO COMPLETION THE SECURING OF THEIR CRAFT.") +"\n",
+                    "land": self._frame("This is a potentially dangerous and rapidly developing situation. Do not get caught unprepared. Err on the side of caution and complete preparations for tropical storm conditions and possible hurricane conditions.") +"\n",
+                    "marine": self._frame("Boat owners and captains of small craft should rush to completion the securing of their craft.") +"\n",
                     },
                 },
             }
@@ -4670,52 +4671,52 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
         return {
             "Imminent": {
                 "Cat3": {
-                    "land": self._frame("VERY DANGEROUS CONDITIONS WILL SOON OCCUR. MOVE TO AN INTERIOR ROOM ON THE LOWEST FLOOR OF YOUR HOME OR SHELTER...AND STAY AWAY FROM WINDOWS AND EXTERNAL DOORS. LISTEN FOR EXTREME WIND WARNINGS WHICH ARE ISSUED FOR THE IMMINENT ONSET OF EXTREME WINDS GREATER THAN 115 MPH. IF ISSUED...ACT QUICKLY TO TAKE THAT FINAL STEP TO PROTECT YOURSELF AND OTHERS...AND POSSIBLY SAVE LIVES.")+"\n",
-                    "marine":self._frame("SMALL CRAFT SHOULD ALREADY BE IN PORT AND WELL SECURED. CREWS SHOULD BE INSIDE LAND BASED SHELTERS. DO NOT ATTEMPT TO RIDE OUT THIS STORM ON YOUR VESSEL.")+"\n",
+                    "land": self._frame("Very dangerous conditions will soon occur. Move to an interior room on the lowest floor of your home or shelter...and stay away from windows and external doors. Listen for extreme wind warnings which are issued for the imminent onset of extreme winds greater than 115 mph. If issued...act quickly to take that final step to protect yourself and others...and possibly save lives.")+"\n",
+                    "marine":self._frame("Small craft should already be in port and well secured. Crews should be inside land based shelters. Do not attempt to ride out this storm on your vessel.")+"\n",
                     },
                 "Cat1": {
-                    "land":self._frame("DANGEROUS HURRICANE CONDITIONS WILL SOON OCCUR. EVERYONE SHOULD BE QUICKLY MOVING TO SAFETY WITHIN THEIR HOME OR SHELTER. ONCE INSIDE...ENSURE ALL WINDOWS AND DOORS ARE SECURED BEFORE DANGEROUS WINDS ARRIVE. MOVE TO AN INTERIOR ROOM ON THE LOWEST FLOOR.\n\nDO NOT GO OUTSIDE INTO THE EYE OF HURRICANES. WITHIN THE EYE...CONDITIONS CAN BECOME TEMPORARILY CALM...WHICH CAN BE MISLEADING. ONCE THE EYE PASSES...THE WINDS WILL CHANGE DIRECTION AND QUICKLY INCREASE AGAIN TO DANGEROUS SPEEDS.\n\nBE AWARE THAT THE LOSS OF COMMERCIAL POWER CAN HAPPEN QUICKLY. KEEP EMERGENCY GEAR HANDY.") + "\n",
-                    "marine":self._frame("SMALL CRAFT SHOULD ALREADY BE IN PORT AND WELL SECURED. CAPTAINS OF SMALL CRAFT AND THEIR CREWS SHOULD ALREADY BE SAFELY WITHIN LAND BASED SHELTERS. DO NOT ATTEMPT TO RIDE OUT THIS STORM ON YOUR VESSEL.")+"\n",
+                    "land":self._frame("Dangerous hurricane conditions will soon occur. Everyone should be quickly moving to safety within their home or shelter. Once inside...ensure all windows and doors are secured before dangerous winds arrive. Move to an interior room on the lowest floor.\n\nDo not go outside into the eye of hurricanes. Within the eye...conditions can become temporarily calm...which can be misleading. Once the eye passes...the winds will change direction and quickly increase again to dangerous speeds.\n\nBe aware that the loss of commercial power can happen quickly. Keep emergency gear handy.") + "\n",
+                    "marine":self._frame("Small craft should already be in port and well secured. Captains of small craft and their crews should already be safely within land based shelters. Do not attempt to ride out this storm on your vessel.")+"\n",
                     },
                 "34": {
-                    "land":self._frame("TROPICAL STORM CONDITIONS WILL SOON OCCUR. ALL EVACUEES SHOULD QUICKLY ARRIVE TO THEIR DESIGNATED SHELTER. EVERYONE SHOULD REMAIN ALERT AND MOVE INSIDE.\n\nLISTEN FOR POSSIBLE FLOOD OR TORNADO WARNINGS.") + "\n",
-                    "marine":self._frame("SMALL CRAFT SHOULD ALREADY BE IN PORT AND WELL SECURED. CAPTAINS OF SMALL CRAFT AND THEIR CREWS SHOULD ALREADY BE SAFELY WITHIN LAND BASED SHELTERS.")+"\n",
+                    "land":self._frame("Tropical storm conditions will soon occur. All evacuees should quickly arrive to their designated shelter. Everyone should remain alert and move inside.\n\nListen for possible flood or tornado warnings.") + "\n",
+                    "marine":self._frame("Small craft should already be in port and well secured. Captains of small craft and their crews should already be safely within land based shelters.")+"\n",
                     },
                 },
 
             "Ongoing": {
                 "Cat3": {
-                    "land":self._frame("VERY DANGEROUS CONDITIONS ARE OCCURRING NOW. GO TO THE SAFEST PLACE WITHIN YOUR HOME OR SHELTER AND STAY THERE. BE READY TO PROTECT YOUR HEAD AND BODY IN CASE YOUR SHELTER FAILS.") + "\n",
-                    "marine":self._frame("SMALL CRAFT SHOULD BE IN PORT AND WELL SECURED. CREWS SHOULD BE INSIDE LAND BASED SHELTERS. DO NOT ATTEMPT TO RIDE OUT THIS STORM ON YOUR VESSEL.")+"\n",
+                    "land":self._frame("Very dangerous conditions are occurring now. Go to the safest place within your home or shelter and stay there. Be ready to protect your head and body in case your shelter fails.") + "\n",
+                    "marine":self._frame("Small craft should be in port and well secured. Crews should be inside land based shelters. Do not attempt to ride out this storm on your vessel.")+"\n",
                     },
                 "Cat1": {
-                    "land":self._frame("DANGEROUS HURRICANE CONDITIONS ARE OCCURRING NOW. REMAIN IN AN INTERIOR ROOM ON THE LOWEST FLOOR. STAY AWAY FROM WINDOWS AND EXTERNAL DOORS. KEEP EMERGENCY GEAR HANDY.") + "\n",
-                    "marine":self._frame("SMALL CRAFT SHOULD BE IN PORT AND WELL SECURED. CREWS SHOULD BE INSIDE LAND BASED SHELTERS. DO NOT ATTEMPT TO RIDE OUT THIS STORM ON YOUR VESSEL.")+"\n",
+                    "land":self._frame("Dangerous hurricane conditions are occurring now. Remain in an interior room on the lowest floor. Stay away from windows and external doors. Keep emergency gear handy.") + "\n",
+                    "marine":self._frame("Small craft should be in port and well secured. Crews should be inside land based shelters. Do not attempt to ride out this storm on your vessel.")+"\n",
                     },
                 "34": {
-                    "land":self._frame("TROPICAL STORM CONDITIONS ARE OCCURRING. REMAIN ALERT AND STAY INSIDE.\n\nLISTEN FOR POSSIBLE FLOOD OR TORNADO WARNINGS.") + "\n",
-                    "marine":self._frame("SMALL CRAFT SHOULD BE IN PORT AND WELL SECURED.")+"\n",
+                    "land":self._frame("Tropical storm conditions are occurring. Remain alert and stay inside.\n\nListen for possible flood or tornado warnings.") + "\n",
+                    "marine":self._frame("Small craft should be in port and well secured.")+"\n",
                     },
                 },
             "Diminishing": {
-                "land":self._frame("AS {DESC} CONDITIONS DIMINISH...DO NOT GO OUTSIDE TO CHECK FOR DAMAGE OR TO IMPLEMENT TEMPORARY REPAIRS AS THE WIND SITUATION WILL REMAIN {SOMEWHAT} DANGEROUS UNTIL HIGH WINDS FULLY SUBSIDE. DO NOT OPEN THE DOORS OF YOUR HOME OR SHELTER. WAIT FOR THE ALL-CLEAR SIGNAL.\n\nSTAY INSIDE AND LISTEN FOR POSSIBLE FLOOD AND TORNADO WARNINGS.")+"\n",
-                "marine":self._frame("SMALL CRAFT SHOULD STAY IN PORT AND REMAIN WELL SECURED.")+"\n",
+                "land":self._frame("As {desc} conditions diminish...do not go outside to check for damage or to implement temporary repairs as the wind situation will remain {somewhat} dangerous until high winds fully subside. Do not open the doors of your home or shelter. Wait for the all-clear signal.\n\nStay inside and listen for possible flood and tornado warnings.")+"\n",
+                "marine":self._frame("Small craft should stay in port and remain well secured.")+"\n",
                 },
             }
 
     def _PostEvent_textDict(self):
         return {
             "Immediate": {
-                "land":self._frame("IF YOU OR SOMEONE ELSE NEEDS EMERGENCY HELP...CALL 9 1 1.\n\nAS SOON AS YOU ARE ABLE...CHECK IN WITH YOUR POINTS OF CONTACT AMONG FAMILY AND FRIENDS. INFORM THEM OF YOUR STATUS AND CONDITION. BE A GOOD SAMARITAN AND CHECK IN ON YOUR NEIGHBORS.\n\nLISTEN TO NOAA WEATHER RADIO AND OTHER LOCAL NEWS MEDIA FOR THE LATEST INFORMATION ON STORM IMPACTS.\n\nIF YOU ARE USING A PORTABLE GENERATOR...OBSERVE ALL SAFETY PRECAUTIONS TO AVOID CARBON MONOXIDE POISONING...ELECTROCUTION...OR FIRES. PORTABLE GENERATORS SHOULD BE OPERATED OUTDOORS...IN A DRY AND WELL VENTILATED PLACE. DO NOT STORE FUEL INSIDE YOUR HOME OR GARAGE.\n\nIF YOU RECEIVED ROOF DAMAGE...DO NOT GO UP ON THE ROOF UNTIL THE THREAT OF GUSTY WINDS AND HEAVY RAIN HAS FULLY SUBSIDED. IF OPERATING CHAIN SAWS AND PORTABLE GENERATORS...REVIEW THE OPERATORS MANUAL AND OBSERVE ALL SAFETY PRECAUTIONS.\n\nSTAY OUT OF FLOODED AREAS AS THE WATER MAY BE CONTAMINATED OR THE ROAD MIGHT HAVE BEEN WASHED AWAY. TEST DRINKING WATER BEFORE USING...PARTICULARLY FROM WELLS. STAY AWAY FROM DOWNED POWER LINES TOO.")+"\n",
-                "marine":self._frame("SMALL CRAFT SHOULD REMAIN IN PORT OR SAFE HARBOR UNTIL WINDS AND SEAS SUBSIDE. FOR ANY SMALL CRAFT WHO ARE IN DISTRESS...OR IF YOU SEE SOMEONE ELSE IN DISTRESS...RADIO YOUR SITUATION ACCORDING TO MARITIME PROTOCOL. IF APPROPRIATE...DEPLOY YOUR EMERGENCY DISTRESS BEACON.")+"\n",
+                "land":self._frame("If you or someone else needs emergency help...call 9 1 1.\n\nAs soon as you are able...check in with your points of contact among family and friends. Inform them of your status and condition. Be a good samaritan and check in on your neighbors.\n\nListen to NOAA weather radio and other local news media for the latest information on storm impacts.\n\nIf you are using a portable generator...observe all safety precautions to avoid carbon monoxide poisoning...electrocution...or fires. Portable generators should be operated outdoors...in a dry and well ventilated place. Do not store fuel inside your home or garage.\n\nIf you received roof damage...do not go up on the roof until the threat of gusty winds and heavy rain has fully subsided. If operating chain saws and portable generators...review the operators manual and observe all safety precautions.\n\nStay out of flooded areas as the water may be contaminated or the road might have been washed away. Test drinking water before using...particularly from wells. Stay away from downed power lines too.")+"\n",
+                "marine":self._frame("Small craft should remain in port or safe harbor until winds and seas subside. For any small craft who are in distress...or if you see someone else in distress...radio your situation according to maritime protocol. If appropriate...deploy your emergency distress beacon.")+"\n",
                 },
             "NoImpact": {
-                "general": self._frame("THIS EVENT IS NO LONGER EXPECTED TO HAVE AN IMPACT ACROSS THE AREA AT THIS TIME. USE THE OPPORTUNITY TO REVISE PREPAREDNESS PLANS AND REMAIN PREPARED FOR FUTURE EVENTS.\n\nadd other wrap-up wording here.")+"\n",
+                "general": self._frame("This event is no longer expected to have an impact across the area at this time. Use the opportunity to revise preparedness plans and remain prepared for future events.\n\nAdd other wrap-up wording here.")+"\n",
                 },
             "LongTerm": {
-                "land": self._frame("CONTINUE TO LISTEN TO NOAA WEATHER RADIO AND OTHER LOCAL NEWS MEDIA FOR THE LATEST INFORMATION ON STORM IMPACTS.\n\nIF YOU ARE USING A PORTABLE GENERATOR...OBSERVE ALL SAFETY PRECAUTIONS TO AVOID CARBON MONOXIDE POISONING...ELECTROCUTION...OR FIRES. PORTABLE GENERATORS SHOULD BE OPERATED OUTDOORS...IN A DRY AND WELL VENTILATED PLACE. DO NOT STORE FUEL INSIDE YOUR HOME OR GARAGE.\n\nCHAIN SAWS CAN BE VERY HELPFUL WHEN REMOVING FALLEN TREES AND LARGE BRANCHES. YET...OPERATING A CHAIN SAW IS DANGEROUS WORK. BE SURE TO REVIEW OPERATING PROCEDURES FOR SAFE CUTTING. TO REDUCE THE CHANCE OF MISHAP OR INJURY...WORK WITH ANOTHER PERSON WHO HAS EXPERIENCE.\n\nDO NOT GO SIGHT SEEING INTO AREAS WHICH HAVE BEEN HARDEST HIT AS YOU MAY HINDER ONGOING RESCUE AND RECOVERY OPERATIONS.\n\nSTAY OUT OF FLOODED AREAS AS THE WATER MAY BE CONTAMINATED OR THE ROAD MIGHT HAVE BEEN WASHED AWAY. TEST DRINKING WATER BEFORE USING...PARTICULARLY FROM WELLS. STAY AWAY FROM DOWNED POWER LINES TOO.")+"\n\n",
-                "marine": self._frame("SMALL CRAFT SHOULD ENSURE THAT WINDS AND SEAS HAVE FULLY SUBSIDED BEFORE VENTURING OUT.")+"\n\n",
-                "general": self._frame("FOR THE LATEST INFORMATION REGARDING THE THREAT OF HAZARDOUS WEATHER OF ANY TYPE...LISTEN TO NOAA WEATHER RADIO OR VISIT YOUR LOCAL NATIONAL WEATHER SERVICE WEB SITE.")+"\n",
+                "land": self._frame("Continue to listen to NOAA weather radio and other local news media for the latest information on storm impacts.\n\nIf you are using a portable generator...observe all safety precautions to avoid carbon monoxide poisoning...electrocution...or fires. Portable generators should be operated outdoors...in a dry and well ventilated place. Do not store fuel inside your home or garage.\n\nChain saws can be very helpful when removing fallen trees and large branches. Yet...operating a chain saw is dangerous work. Be sure to review operating procedures for safe cutting. To reduce the chance of mishap or injury...work with another person who has experience.\n\nDo not go sight seeing into areas which have been hardest hit as you may hinder ongoing rescue and recovery operations.\n\nStay out of flooded areas as the water may be contaminated or the road might have been washed away. Test drinking water before using...particularly from wells. Stay away from downed power lines too.")+"\n\n",
+                "marine": self._frame("Small craft should ensure that winds and seas have fully subsided before venturing out.")+"\n\n",
+                "general": self._frame("For the latest information regarding the threat of hazardous weather of any type...listen to NOAA weather radio or visit your local National Weather Service web site.")+"\n",
                 },
             }
 
@@ -4723,15 +4724,15 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
         return {
             "InProgress": self._frame(
 """
-ALTHOUGH THE SYSTEM IS LOSING ITS TROPICAL CHARACTERISTICS...THE
-POTENTIAL IMPACTS ARE SIMILAR TO THOSE PREVIOUSLY INDICATED
-REGARDLESS OF ITS NATURE. CONTINUE WITH READINESS ACTIONS AS
-RECOMMENDED."""),
+Although the system is losing its tropical characteristics...the
+potential impacts are similar to those previously indicated
+regardless of its nature. Continue with readiness actions as
+recommended."""),
             "Completed": self._frame(
 """
-ALTHOUGH THE SYSTEM HAS BECOME NON-TROPICAL...THE POTENTIAL
-IMPACTS ARE SIMILAR TO THOSE PREVIOUSLY INDICATED. CONTINUE WITH
-READINESS ACTIONS AS RECOMMENDED."""),
+Although the system has become non-tropical...the potential
+impacts are similar to those previously indicated. Continue with
+readiness actions as recommended."""),
             }
 
     #####################################################################################
@@ -4741,20 +4742,20 @@ READINESS ACTIONS AS RECOMMENDED."""),
 
     def _wind_NonEvent(self, info):
         t=""
-        t+=self._frame("TROPICAL CYCLONE WATCHES OR WARNINGS ARE CURRENTLY NOT IN EFFECT...NOR ARE THEY LIKELY UNDER PRESENT CIRCUMSTANCES.\n\nTHE LATEST FORECAST IS FOR MAXIMUM WINDS TO REMAIN BELOW TROPICAL STORM FORCE. AT THIS TIME...REMAIN CALM AND STAY INFORMED.")
+        t+=self._frame("Tropical cyclone watches or warnings are currently not in effect...nor are they likely under present circumstances.\n\nThe latest forecast is for maximum winds to remain below tropical storm force. At this time...remain calm and stay informed.")
         return t
    ##############
 
     def _wind_PreEvent_Advancing(self, info):
         t=""
-        t+="TROPICAL CYCLONE WATCHES OR WARNINGS ARE LIKELY TO BE ISSUED IN THE NEAR FUTURE. AS " + self._stormTypeName + " MOVES CLOSER...THE THREAT FOR SUSTAINED HIGH WINDS WILL LIKELY INCREASE. "
+        t+="Tropical cyclone watches or warnings are likely to be issued in the near future. As " + self._stormTypeName + " moves closer...the threat for sustained high winds will likely increase. "
         t+=self._wind_stmt(info)+ ". "
         t+=self._beginWind_stmt(info.maxWind, 50, info.windDur[34], end=". ")
         return t
 
     def _wind_Watch_Advancing(self, info):
         t=""
-        t+="AS "+self._stormTypeName+" MOVES CLOSER...THE THREAT FOR SUSTAINED HIGH WINDS IS LIKELY TO INCREASE. "
+        t+="AS "+self._stormTypeName+" moves closer...the threat for sustained high winds is likely to increase. "
         t+=self._wind_stmt(info)+". "
         t+=self._beginWind_stmt(info.maxWind, 50, info.windDur[34], end=". ")
         return t
@@ -4762,19 +4763,19 @@ READINESS ACTIONS AS RECOMMENDED."""),
     def _wind_Warning_Advancing(self, info):
         t=""
         if self._formatPeriod(info.windDur[34]) == "":
-            t+="|* THESE ZONES ARE NOT WITHIN THE 34KT RADII. RERUN AND CHOOSE PERIPHERAL. *|"
+            t+="|* these zones are not within the 34kt radii. Rerun and choose peripheral. *|"
         else:
-            t+="AS "+self._stormTypeName+" APPROACHES...SUSTAINED TROPICAL STORM FORCE WINDS ARE EXPECTED TO BEGIN "
+            t+="AS "+self._stormTypeName+" approaches...sustained tropical storm force winds are expected to begin "
             t+=self._formatPeriod(info.windDur[34])
             if info.maxWind >= 64:
-                t+= " AND HURRICANE FORCE WINDS " + self._formatPeriod(info.windDur[64]) + ". "
-                t+=self._specific_wind_stmt(info, intro="HURRICANE FORCE WINDS ARE FORECAST TO LAST",
+                t+= " and hurricane force winds " + self._formatPeriod(info.windDur[64]) + ". "
+                t+=self._specific_wind_stmt(info, intro="Hurricane force winds are forecast to last",
                                             duration=True, reportWindValues=False,
                                             windDur=info.windDur[64], end=". ")
             else:
                 t+= ". "
 
-        t+=self._specific_wind_stmt(info, intro="MAXIMUM WINDS ARE FORECAST TO BE IN THE ",
+        t+=self._specific_wind_stmt(info, intro="Maximum winds are forecast to be in the ",
                                     addRange=True)
         t+=". "
         return t
@@ -4782,38 +4783,38 @@ READINESS ACTIONS AS RECOMMENDED."""),
     ############
     def _wind_PreEvent_Peripheral(self,info):
         t= ""
-        t+="AT THIS TIME...THE ISSUANCE OF TROPICAL CYCLONE WATCHES OR WARNINGS IS UNCERTAIN. AS " + self._stormTypeName + " PASSES NEARBY...THE THREAT FOR SUSTAINED HIGH WINDS SHOULD NOT INCREASE. HOWEVER...SOME TROPICAL STORM FORCE GUSTS MAY STILL OCCUR. SINCE THERE IS STILL UNCERTAINTY...CLOSELY MONITOR THE FORECAST FOR ANY SIGNIFICANT CHANGES. "
+        t+="At this time...the issuance of tropical cyclone watches or warnings is uncertain. As " + self._stormTypeName + " passes nearby...the threat for sustained high winds should not increase. However...some tropical storm force gusts may still occur. Since there is still uncertainty...closely monitor the forecast for any significant changes. "
         return t
 
     def _wind_Watch_Peripheral(self, info):
         t= ""
-        t+="AS "+self._stormTypeName+" PASSES NEARBY...THE THREAT FOR SUSTAINED HIGH WINDS SHOULD NOT INCREASE. HOWEVER...THERE IS STILL SOME POSSIBILITY FOR TROPICAL STORM FORCE WINDS. SINCE THERE IS STILL UNCERTAINTY...CLOSELY MONITOR THE FORECAST FOR ANY SIGNIFICANT CHANGES. "
+        t+="AS "+self._stormTypeName+" passes nearby...the threat for sustained high winds should not increase. However...there is still some possibility for tropical storm force winds. Since there is still uncertainty...closely monitor the forecast for any significant changes. "
         return t
 
     def _wind_Warning_Peripheral(self, info):
         t=""
         t+=self._specific_wind_stmt(info) + ". "
-        t+="HOWEVER...AS "+self._stormTypeName+" APPROACHES...STRONGER WINDS ARE STILL POSSIBLE. CONTINUE TO CLOSELY MONITOR THE FORECAST FOR ANY SIGNIFICANT CHANGES AND BE READY TO ACT. "
+        t+="However...as "+self._stormTypeName+" approaches...stronger winds are still possible. Continue to closely monitor the forecast for any significant changes and be ready to act. "
         return t
 
     ############
     def _wind_PreEvent_InSitu(self, info):
         t=""
-        t+="TROPICAL CYCLONE WATCHES OR WARNINGS ARE CURRENTLY NOT IN EFFECT FOR THE AREA. HOWEVER...IF TROPICAL CYCLONE DEVELOPMENT BECOMES LIKELY THEN THEY COULD BE QUICKLY NEEDED.\n\n"
+        t+="Tropical cyclone watches or warnings are currently not in effect for the area. However...if tropical cyclone development becomes likely then they could be quickly needed.\n\n"
         t+=self._wind_stmt(info)+ ". "
-        t+="SINCE THERE IS STILL UNCERTAINTY...CLOSELY MONITOR THE FORECAST FOR ANY SIGNIFICANT CHANGES. "
+        t+="Since there is still uncertainty...closely monitor the forecast for any significant changes. "
         return t
 
     def _wind_Watch_InSitu(self, info):
         t=""
-        t+="AS "+self._stormTypeName+" DEVELOPS...THE THREAT FOR SUSTAINED HIGH WINDS MAY INCREASE. SINCE THERE IS STILL UNCERTAINTY...CLOSELY MONITOR THE FORECAST FOR ANY SIGNIFICANT CHANGES. "
+        t+="AS "+self._stormTypeName+" develops...the threat for sustained high winds may increase. Since there is still uncertainty...closely monitor the forecast for any significant changes. "
         return t
 
     def _wind_Warning_InSitu(self, info):
         t=""
-        t+="AS "+self._stormTypeName+" CONTINUES TO DEVELOP...THE THREAT FOR SUSTAINED HIGH WINDS MAY INCREASE SOON. "
+        t+="AS "+self._stormTypeName+" continues to develop...the threat for sustained high winds may increase soon. "
         t+=self._specific_wind_stmt(info)+ ". "
-        t+="SINCE THERE IS STILL UNCERTAINTY...CLOSELY MONITOR THE FORECAST FOR ANY SIGNIFICANT CHANGES. "
+        t+="Since there is still uncertainty...closely monitor the forecast for any significant changes. "
         return t
 
     ################
@@ -4821,18 +4822,18 @@ READINESS ACTIONS AS RECOMMENDED."""),
         t=""
         if self._checkCategory(info.maxWind, "Cat3"):
             catInfo = self._getCategoryInfo(info.maxWind)
-            t+="AS THE CENTER OF "+self._stormTypeName+" APPROACHES..."+catInfo
-            t+=" WINDS ARE IMMINENT. "
+            t+="As the center of "+self._stormTypeName+" approaches..."+catInfo
+            t+=" winds are imminent. "
             t+=self._specific_wind_stmt(
-                info, intro="MAXIMUM WINDS OF ", end=" ARE EXPECTED. ")
+                info, intro="Maximum winds of ", end=" are expected. ")
             t+=self._fallBelow_stmt(info, end=". ")
 
         elif info.maxWind >= 34:
             catInfo = self._getCategoryInfo(info.maxWind)
-            t+="AS "+self._stormTypeName+" APPROACHES...SUSTAINED "+catInfo
-            t+="WINDS ARE IMMINENT. "
+            t+="AS "+self._stormTypeName+" approaches...sustained "+catInfo
+            t+="Winds are imminent. "
             t+=self._specific_wind_stmt(
-                info, intro="MAXIMUM WINDS OF ",end=" ARE EXPECTED. ")
+                info, intro="Maximum winds of ",end=" are expected. ")
             t+=self._fallBelow_stmt(info, end=". ")
         return t
 
@@ -4841,74 +4842,74 @@ READINESS ACTIONS AS RECOMMENDED."""),
         period = info.windDur[info.maxWind]
         if self._checkCategory(info.maxWind, "Cat3"):
             catInfo = self._getCategoryInfo(info.maxWind)
-            t+=self._windContinue_stmt(info, period, catInfo + "WILL CONTINUE ", end=". ")
+            t+=self._windContinue_stmt(info, period, catInfo + "Will continue ", end=". ")
             if info.maxWind >= 50:  t+=self._fallBelow_stmt(info, end=". ")
 
         elif info.maxWind >= 34:
-            t+=self._specific_wind_stmt(info, intro="SUSTAINED WINDS OF ")
-            t+=self._windContinue_stmt(info, period, intro=" WILL CONTINUE ", end=". ")
+            t+=self._specific_wind_stmt(info, intro="Sustained winds of ")
+            t+=self._windContinue_stmt(info, period, intro=" will continue ", end=". ")
             if info.maxWind>= 50:  t+=self._fallBelow_stmt(info, end=". ")
         return t
 
     def _wind_Conditions_Diminishing(self, info):
         t=""
-        t+="AS "+self._stormTypeName+" EXITS THE AREA...HIGH WINDS WILL CONTINUE TO DIMINISH. WARNINGS WILL BE DISCONTINUED AS SOON AS THE THREAT COMPLETELY SUBSIDES. "
+        t+="AS "+self._stormTypeName+" exits the area...high winds will continue to diminish. Warnings will be discontinued as soon as the threat completely subsides. "
         return t
 
     ##############
     def _wind_PostEvent(self, info, scenario):
         t=""
         if scenario=="Immediate":
-            t+="TROPICAL CYCLONE WARNINGS HAVE BEEN DISCONTINUED. SUSTAINED HIGH WINDS ARE NO LONGER EXPECTED BUT STRONG WIND GUSTS MAY STILL OCCUR. "
+            t+="Tropical cyclone warnings have been discontinued. Sustained high winds are no longer expected but strong wind gusts may still occur. "
         else:
-            t+="SUSTAINED HIGH WINDS OR WIND GUSTS ARE NO LONGER EXPECTED. PLEASE REFER TO THE LATEST NATIONAL WEATHER SERVICE FORECAST FOR WIND INFORMATION. "
+            t+="Sustained high winds or wind gusts are no longer expected. Please refer to the latest National Weather Service forecast for wind information. "
         return t
 
     ############
     def _wind_PostTropical_InProgress(self, info):
         t=""
         if info.anyLand:
-            t+="THE REMNANTS OF "+self._stormTypeName
+            t+="The remnants of "+self._stormTypeName
             if info.maxWind >= 34:
-                t+=" WILL STILL IMPACT THE REGION WITH SUSTAINED WINDS EQUIVALENT TO "
-                t+=self._windDesc(info) + "WINDS. "
+                t+=" will still impact the region with sustained winds equivalent to "
+                t+=self._windDesc(info) + "Winds. "
             else:
-                t+=" COULD STILL IMPACT THE REGION WITH TROPICAL STORM FORCE WINDS. "
-            t+=self._specific_wind_stmt(info, intro="MAXIMUM WINDS OF ", end=" ARE EXPECTED. ")
+                t+=" could still impact the region with tropical storm force winds. "
+            t+=self._specific_wind_stmt(info, intro="Maximum winds of ", end=" are expected. ")
             t+=self._fallBelow_stmt(info, end=". ")
 
         if not info.anyLand and info.anyMarine:
-            t+="THE REMNANTS OF "+self._stormTypeName
+            t+="The remnants of "+self._stormTypeName
             if info.maxWind >= 34:
-                t+=" WILL STILL IMPACT THE REGION WITH SUSTAINED WINDS EQUIVALENT TO "
-                t+=self._marineWindDesc(info) + "WINDS. "
+                t+=" will still impact the region with sustained winds equivalent to "
+                t+=self._marineWindDesc(info) + "Winds. "
             else:
-                t+=" COULD STILL IMPACT THE REGION WITH GALE FORCE WINDS. "
-            t+=self._specific_wind_stmt(info, intro="MAXIMUM WINDS OF ", end=" ARE EXPECTED. ")
+                t+=" could still impact the region with gale force winds. "
+            t+=self._specific_wind_stmt(info, intro="Maximum winds of ", end=" are expected. ")
             t+=self._fallBelow_stmt(info, end=". ")
         return t
 
     def _wind_PostTropical_Completed(self, info):
         t=""
         if info.anyLand:
-            t+="AS THE REMNANTS OF "+self._stormTypeName+" AFFECT THE AREA..."
+            t+="As the remnants of "+self._stormTypeName+" affect the area..."
             if info.maxWind >= 34:
-                t+=" SUSTAINED WINDS EQUIVALENT TO "
+                t+=" sustained winds equivalent to "
                 windDesc = self._windDesc(info)
-                t+=windDesc + "WINDS ARE STILL POSSIBLE. "
+                t+=windDesc + "winds are still possible. "
             else:
-                "TROPICAL STORM FORCE WINDS COULD STILL IMPACT THE REGION. "
-            t+=self._specific_wind_stmt(info, intro="MAXIMUM WINDS OF ", end=" ARE EXPECTED. ")
+                "Tropical storm force winds could still impact the region. "
+            t+=self._specific_wind_stmt(info, intro="Maximum winds of ", end=" are expected. ")
             t+=self._fallBelow_stmt(info, end=". ")
 
         if not info.anyLand and info.anyMarine:
-            t+="AS THE REMNANTS OF "+self._stormTypeName+" AFFECT THE AREA..."
+            t+="As the remnants of "+self._stormTypeName+" affect the area..."
             if info.maxWind >= 34:
-                t+=" SUSTAINED WINDS EQUIVALENT TO "
-                windDesc = self._marineWindDesc(info) +" WINDS ARE STILL EXPECTED. "
+                t+=" sustained winds equivalent to "
+                windDesc = self._marineWindDesc(info) +" winds are still expected. "
             else:
-                t+=" GALE FORCE WINDS COULD STILL IMPACT THE REGION. "
-            t+=self._specific_wind_stmt(info, intro="WINDS OF ", end="ARE EXPECTED")+ ". "
+                t+=" gale force winds could still impact the region. "
+            t+=self._specific_wind_stmt(info, intro="Winds of ", end=" are expected")+ ". "
             t+=self._fallBelow_stmt(info, marine=True, end=". ")
         return t
 
@@ -4918,24 +4919,24 @@ READINESS ACTIONS AS RECOMMENDED."""),
 
     def _surge_PreEvent_Advancing(self, info):
         t = ""
-        t += "IT IS TOO EARLY TO DETERMINE THE EXACT HEIGHTS OF COMBINED STORM SURGE AND TIDE WATERS FOR SPECIFIC LOCATIONS WITHIN THE FORECAST AREA TO BE CAUSED BY """ + self._stormTypeName
-        t += ". MUCH DEPENDS ON THE PRECISE SIZE...INTENSITY AND TRACK OF THIS SYSTEM AS IT APPROACHES THE COAST. AT THIS TIME...THERE IS A GENERAL CONCERN FOR THE CHANCE OF "
-        t += self._frame("( MINOR | MODERATE | MAJOR -- YOU SHOULD BASE THIS ON YOUR MEOWS)") + " COASTAL FLOODING."
+        t += "It is too early to determine the exact heights of combined storm surge and tide waters for specific locations within the forecast area to be caused by """ + self._stormTypeName
+        t += ". Much depends on the precise size...intensity and track of this system as it approaches the coast. At this time...there is a general concern for the chance of "
+        t += self._frame("( minor | moderate | major -- you should base this on your MEOWS)") + " coastal flooding."
         return t
 
     def _surge_PreEvent_Peripheral(self, info):
         t = ""
-        t+= "IT IS TOO EARLY TO DETERMINE THE EXACT HEIGHTS OF COMBINED STORM SURGE AND TIDE WATERS FOR SPECIFIC LOCATIONS WITHIN THE FORECAST AREA TO BE CAUSED BY "
+        t+= "It is too early to determine the exact heights of combined storm surge and tide waters for specific locations within the forecast area to be caused by "
         t+= self._stormTypeName
-        t+= ". MUCH DEPENDS ON THE PRECISE SIZE...INTENSITY AND TRACK OF THIS SYSTEM AS IT PASSES NEARBY. AT THIS TIME...THERE IS A GENERAL CONCERN FOR THE CHANCE OF "
-        t+= self._frame("( MINOR | MODERATE | MAJOR -- YOU SHOULD BASE THIS ON YOUR MEOWS)") + " COASTAL FLOODING."
+        t+= ". Much depends on the precise size...intensity and track of this system as it passes nearby. At this time...there is a general concern for the chance of "
+        t+= self._frame("( minor | moderate | major -- you should base this on your MEOWS)") + " coastal flooding."
         return t
 
     def _surge_PreEvent_InSitu(self, info):
         t = ""
-        t+= "IT IS TOO EARLY TO DETERMINE THE EXACT HEIGHTS OF COMBINED STORM SURGE AND TIDE WATERS FOR SPECIFIC LOCATIONS WITHIN THE FORECAST AREA TO BE CAUSED BY "
+        t+= "It is too early to determine the exact heights of combined storm surge and tide waters for specific locations within the forecast area to be caused by "
         t+= self._stormTypeName
-        t+= ". MUCH DEPENDS ON THE PRECISE SIZE...INTENSITY...AND TRACK OF THE SYSTEM IF IT MORE FULLY DEVELOPS. SINCE THERE IS CONSIDERABLE UNCERTAINTY...CLOSELY MONITOR THE LATEST FORECAST."
+        t+= ". Much depends on the precise size...intensity...and track of the system if it more fully develops. Since there is considerable uncertainty...closely monitor the latest forecast."
 
         return t
 
@@ -4948,41 +4949,41 @@ READINESS ACTIONS AS RECOMMENDED."""),
 
     def _surge_Watch_Advancing(self, info):
         t=""
-        t+="IT IS STILL TOO EARLY TO DETERMINE THE EXACT HEIGHTS OF COMBINED STORM SURGE AND TIDE WATERS FOR SPECIFIC LOCATIONS WITHIN THE FORECAST AREA TO BE CAUSED BY " + self._stormTypeName
-        t+=". MUCH DEPENDS ON THE PRECISE SIZE...INTENSITY AND TRACK OF THE SYSTEM AS IT APPROACHES THE COAST. "
+        t+="It is still too early to determine the exact heights of combined storm surge and tide waters for specific locations within the forecast area to be caused by " + self._stormTypeName
+        t+=". Much depends on the precise size...intensity and track of the system as it approaches the coast. "
         if info.surgeHtPlusTide > 0:
-            t+="GIVEN THE LATEST FORECAST...THERE IS A CHANCE FOR COMBINED STORM SURGE AND ASTRONOMICAL TIDE WATERS UP TO "
-            t+=`info.surgeHtPlusTideWTopo` +" FEET ABOVE MEAN SEA LEVEL WITHIN AREAS CLOSER TO THE COAST..."
-            t+="RESULTING IN WORST CASE FLOOD INUNDATION "
+            t+="Given the latest forecast...there is a chance for combined storm surge and astronomical tide waters up to "
+            t+=`info.surgeHtPlusTideWTopo` +" feet above mean sea level within areas closer to the coast..."
+            t+="Resulting in worst case flood inundation "
             if info.surgeHtPlusTide > 2:
-                t+=" OF " + `info.deltaSurge`+" TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND SOMEWHERE WITHIN THE SURGE ZONE."
+                t+=" OF " + `info.deltaSurge`+" TO "+`info.surgeHtPlusTide`+" feet above ground somewhere within the surge zone."
             else:
-                t+="UP TO " + `info.surgeHtPlusTide`+" FEET ABOVE GROUND SOMEWHERE WITHIN THE SURGE ZONE."
+                t+="UP TO " + `info.surgeHtPlusTide`+" feet above ground somewhere within the surge zone."
         else:
-            t+=self._frame("ACCORDING TO THE LATEST SURGE GRIDS, COASTAL FLOODING IS LIKELY TO BE NEGLIGIBLE. PLEASE FURTHER DESCRIBE YOUR COASTAL FLOODING CONCERNS HERE OR DELETE THIS PARAGRAPH OR CONSIDER DELETING THE WHOLE STORM SURGE AND TIDE SECTION.")
+            t+=self._frame("According to the latest surge grids, coastal flooding is likely to be negligible. Please further describe your coastal flooding concerns here or delete this paragraph or consider deleting the whole storm surge and tide section.")
         return t
 
     def _surge_Watch_Peripheral(self, info):
         t=""
-        t+="IT IS STILL TOO EARLY TO DETERMINE THE EXACT HEIGHTS OF COMBINED STORM SURGE AND TIDE WATERS FOR SPECIFIC LOCATIONS WITHIN THE FORECAST AREA TO BE CAUSED BY " + self._stormTypeName
-        t+=". MUCH DEPENDS ON THE PRECISE SIZE...INTENSITY AND TRACK OF THE SYSTEM AS IT APPROACHES THE COAST AND PASSES NEARBY. "
+        t+="It is still too early to determine the exact heights of combined storm surge and tide waters for specific locations within the forecast area to be caused by " + self._stormTypeName
+        t+=". Much depends on the precise size...intensity and track of the system as it approaches the coast and passes nearby. "
         if info.surgeHtPlusTide > 0:
-            t+="GIVEN THE LATEST FORECAST...THERE IS A CHANCE FOR COMBINED STORM SURGE AND ASTRONOMICAL TIDE WATERS UP TO "
-            t+=`info.surgeHtPlusTideWTopo` +" FEET ABOVE MEAN SEA LEVEL WITHIN AREAS CLOSER TO THE COAST..."
-            t+="RESULTING IN WORST CASE FLOOD INUNDATION "
+            t+="Given the latest forecast...there is a chance for combined storm surge and astronomical tide waters up to "
+            t+=`info.surgeHtPlusTideWTopo` +" feet above mean sea level within areas closer to the coast..."
+            t+="Resulting in worst case flood inundation "
             if info.surgeHtPlusTide > 2:
-                t+="OF " +`info.deltaSurge`+" TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND SOMEWHERE WITHIN THE SURGE ZONE."
+                t+="OF " +`info.deltaSurge`+" TO "+`info.surgeHtPlusTide`+" feet above ground somewhere within the surge zone."
             else:
-                t+="UP TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND SOMEWHERE WITHIN THE SURGE ZONE."
+                t+="UP TO "+`info.surgeHtPlusTide`+" feet above ground somewhere within the surge zone."
         else:
-            t+=self._frame("ACCORDING TO THE LATEST SURGE GRIDS...COASTAL FLOODING IS LIKELY TO BE NEGLIGIBLE. PLEASE FURTHER DESCRIBE YOUR COASTAL FLOODING CONCERNS HERE OR DELETE THIS PARAGRAPH OR CONSIDER DELETING THE WHOLE STORM SURGE AND TIDE SECTION.")
+            t+=self._frame("According to the latest surge grids...coastal flooding is likely to be negligible. Please further describe your coastal flooding concerns here or delete this paragraph or consider deleting the whole storm surge and tide section.")
         return t
 
 
     def _surge_Watch_InSitu(self, info):
         t=""
-        t+="IT IS TOO EARLY TO DETERMINE IF THERE WILL BE ANY APPRECIABLE COASTAL FLOODING WITHIN THE FORECAST AREA FROM COMBINED STORM SURGE AND TIDE WATERS ASSOCIATED WITH "
-        t+=self._stormTypeName + ". MUCH DEPENDS ON THE PRECISE SIZE...INTENSITY...AND TRACK OF THE SYSTEM IF IT MORE FULLY DEVELOPS. SINCE THERE IS CONSIDERABLE UNCERTAINTY...CLOSELY MONITOR THE LATEST FORECAST. "
+        t+="It is too early to determine if there will be any appreciable coastal flooding within the forecast area from combined storm surge and tide waters associated with "
+        t+=self._stormTypeName + ". Much depends on the precise size...intensity...and track of the system if it more fully develops. Since there is considerable uncertainty...closely monitor the latest forecast. "
         return t
 
 
@@ -4992,23 +4993,23 @@ READINESS ACTIONS AS RECOMMENDED."""),
         t = ""
         if info.surgeHtPlusTide > 0:
 
-            t+="AS "+self._stormTypeName+" APPROACHES THE COAST...THERE IS AN INCREASING CHANCE FOR COMBINED STORM SURGE AND ASTRONOMICAL TIDE WATERS UP TO "
-            t+=`info.surgeHtPlusTideWTopo`+" FEET ABOVE MEAN SEA LEVEL WITHIN AREAS CLOSER TO THE COAST...RESULTING "
-            t+="IN WORST CASE FLOOD INUNDATION "
+            t+="As "+self._stormTypeName+" approaches the coast...there is an increasing chance for combined storm surge and astronomical tide waters up to "
+            t+=`info.surgeHtPlusTideWTopo`+" feet above mean sea level within areas closer to the coast...resulting "
+            t+="In worst case flood inundation "
 
             if info.surgeHtPlusTide > 2:
-                t+="OF " +`info.deltaSurge`+" TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND SOMEWHERE WITHIN THE SURGE ZONE."
+                t+="OF " +`info.deltaSurge`+" TO "+`info.surgeHtPlusTide`+" feet above ground somewhere within the surge zone."
             else:
-                t+="UP TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND SOMEWHERE WITHIN THE SURGE ZONE."
+                t+="UP TO "+`info.surgeHtPlusTide`+" feet above ground somewhere within the surge zone."
 
-            t+= "\n\nTHE LOCATIONS MOST LIKELY TO REALIZE THE GREATEST FLOODING INCLUDE "
-            t+=self._frame("RELATIVE TO THE SEGMENT...EXPLICITLY LIST LOCATIONS OF GREATEST CONCERN RELATIVE TO INUNDATION AS THAT IS WHAT THE IMPACT STATEMENT BELOW IS BASED ON FOR THE WORST AFFECTED AREA, INCLUDE INLAND REACH OF THE INUNDATION WATERS. FURTHER DESCRIBE INUNDATION ELSEWHERE WITHIN THE SURGE ZONE AS APPLICABLE. BE AWARE THAT LOCATIONS EXPERIENCING THE HIGHEST STORM SURGE AND TIDE MAY NOT REALIZE THE GREATEST INUNDATION. ")
-            t+="THE MOST LIKELY PERIOD OF IMPACT WILL BE "
-            t+=self._frame("BE SURE TO CITE THE EXPECTED PERIOD OF ONSET. REMEMBER SURGE WATERS OFTEN ARRIVE WELL BEFORE THE CORE WINDS AND CAN RISE VERY QUICKLY. ")
+            t+= "\n\nThe locations most likely to realize the greatest flooding include "
+            t+=self._frame("Relative to the segment...explicitly list locations of greatest concern relative to inundation as that is what the impact statement below is based on for the worst affected area, include inland reach of the inundation waters. Further describe inundation elsewhere within the surge zone as applicable. Be aware that locations experiencing the highest storm surge and tide may not realize the greatest inundation. ")
+            t+="The most likely period of impact will be "
+            t+=self._frame("Be sure to cite the expected period of onset. Remember surge waters often arrive well before the core winds and can rise very quickly. ")
 
         else:
-            t+="THE IMPACT FROM COMBINED STORM SURGE AND TIDE WATERS IS EXPECTED TO BE MINIMAL. "
-            t+=self._frame("ACCORDING TO THE LATEST SURGE GRIDS...COASTAL FLOODING IS LIKELY TO BE NEGLIGIBLE. PLEASE FURTHER DESCRIBE YOUR COASTAL FLOODING CONCERNS HERE...LEAVE THIS STATEMENT AS IS OR DELETE THE STORM SURGE SECTION ALL TOGETHER. ")
+            t+="The impact from combined storm surge and tide waters is expected to be minimal. "
+            t+=self._frame("According to the latest surge grids...coastal flooding is likely to be negligible. Please further describe your coastal flooding concerns here...leave this statement as is or delete the storm surge section all together. ")
 
         return t
 
@@ -5017,32 +5018,32 @@ READINESS ACTIONS AS RECOMMENDED."""),
         t = ""
         if info.surgeHtPlusTide > 0:
 
-            t+="ALTHOUGH THE CORE OF "+self._stormTypeName+" IS NOT CURRENTLY FORECAST TO MOVE ACROSS COASTAL SECTIONS OF THE FORECAST AREA AT THIS TIME..."
-            t+="THERE IS STILL A CHANCE FOR COMBINED STORM SURGE AND ASTRONOMICAL TIDE WATERS UP TO "
-            t+=`info.surgeHtPlusTideWTopo`+" FEET ABOVE MEAN SEA LEVEL WITHIN AREAS CLOSER TO THE COAST...RESULTING "
-            t+="IN WORST CASE FLOOD INUNDATION "
+            t+="Although the core of "+self._stormTypeName+" is not currently forecast to move across coastal sections of the forecast area at this time..."
+            t+="There is still a chance for combined storm surge and astronomical tide waters up to "
+            t+=`info.surgeHtPlusTideWTopo`+" feet above mean sea level within areas closer to the coast...resulting "
+            t+="In worst case flood inundation "
 
             if info.surgeHtPlusTide > 2:
-                t+="OF "+`info.deltaSurge`+" TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND SOMEWHERE WITHIN THE SURGE ZONE."
+                t+="of "+`info.deltaSurge`+" to "+`info.surgeHtPlusTide`+" feet above ground somewhere within the surge zone."
             else:
-                t+="UP TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND SOMEWHERE WITHIN THE SURGE ZONE."
+                t+="up to "+`info.surgeHtPlusTide`+" feet above ground somewhere within the surge zone."
 
-            t+= "\n\nTHE LOCATIONS MOST LIKELY TO REALIZE THE GREATEST FLOODING INCLUDE "
-            t+=self._frame("RELATIVE TO THE SEGMENT...EXPLICITLY LIST LOCATIONS OF GREATEST CONCERN RELATIVE TO INUNDATION AS THAT IS WHAT THE IMPACT STATEMENT BELOW IS BASED ON FOR THE WORST AFFECTED AREA, INCLUDE INLAND REACH OF THE INUNDATION WATERS. FURTHER DESCRIBE INUNDATION ELSEWHERE WITHIN THE SURGE ZONE AS APPLICABLE. BE AWARE THAT LOCATIONS EXPERIENCING THE HIGHEST STORM SURGE AND TIDE MAY NOT REALIZE THE GREATEST INUNDATION. ")
-            t+="THE MOST LIKELY PERIOD OF IMPACT WILL BE "
-            t+=self._frame("BE SURE TO CITE THE EXPECTED PERIOD OF ONSET. REMEMBER SURGE WATERS OFTEN ARRIVE WELL BEFORE THE CORE WINDS AND CAN RISE VERY QUICKLY. ")
+            t+= "\n\nThe locations most likely to realize the greatest flooding include "
+            t+=self._frame("Relative to the segment...explicitly list locations of greatest concern relative to inundation as that is what the impact statement below is based on for the worst affected area, include inland reach of the inundation waters. Further describe inundation elsewhere within the surge zone as applicable. Be aware that locations experiencing the highest storm surge and tide may not realize the greatest inundation. ")
+            t+="The most likely period of impact will be "
+            t+=self._frame("Be sure to cite the expected period of onset. Remember surge waters often arrive well before the core winds and can rise very quickly. ")
 
         else:
-            t+="THE IMPACT FROM COMBINED STORM SURGE AND TIDE WATERS IS EXPECTED TO BE MINIMAL. "
-            t+=self._frame("ACCORDING TO THE LATEST SURGE GRIDS...COASTAL FLOODING IS LIKELY TO BE NEGLIGIBLE. PLEASE FURTHER DESCRIBE YOUR COASTAL FLOODING CONCERNS HERE...LEAVE THIS STATEMENT AS IS OR DELETE THE STORM SURGE SECTION ALL TOGETHER. ")
+            t+="The impact from combined storm surge and tide waters is expected to be minimal. "
+            t+=self._frame("According to the latest surge grids...coastal flooding is likely to be negligible. Please further describe your coastal flooding concerns here...leave this statement as is or delete the storm surge section all together. ")
 
         return t
 
     def _surge_Warning_InSitu(self, info):
         t=""
-        t+="AS "+self._stormTypeName+" CONTINUES TO DEVELOP...COMBINED STORM SURGE AND TIDE WATERS MAY INCREASE SUDDENLY. SINCE THERE IS CONSIDERABLE UNCERTAINTY...CONTINUE TO CLOSELY MONITOR THE LATEST FORECAST. "
-        t+="AT THIS TIME...THERE IS A GENERAL CONCERN FOR THE CHANCE OF "
-        t+=self._frame("(MINOR| MODERATE| MAJOR)")+ " COASTAL FLOODING. "
+        t+="As "+self._stormTypeName+" continues to develop...combined storm surge and tide waters may increase suddenly. Since there is considerable uncertainty...continue to closely monitor the latest forecast. "
+        t+="At this time...there is a general concern for the chance of "
+        t+=self._frame("(minor| moderate| major)")+ " coastal flooding. "
         return t
 
     ###############
@@ -5050,63 +5051,63 @@ READINESS ACTIONS AS RECOMMENDED."""),
     def _surge_Conditions_Imminent(self, info):
         t = ""
         if info.surgeHtPlusTide > 0:
-            t+="WITH THE IMMINENT ARRIVAL OF "+self._stormTypeName+"...COMBINED STORM SURGE AND "
-            t+="ASTRONOMICAL TIDE WATERS UP TO "+`info.surgeHtPlusTideWTopo`+" FEET ABOVE MEAN SEA "
-            t+="LEVEL WITHIN AREAS CLOSER TO THE COAST WILL RESULT IN WORST CASE FLOOD INUNDATION "
+            t+="With the imminent arrival of "+self._stormTypeName+"...combined storm surge and "
+            t+="astronomical tide waters up to "+`info.surgeHtPlusTideWTopo`+" feet above mean sea "
+            t+="level within areas closer to the coast will result in worst case flood inundation "
 
             if info.surgeHtPlusTide > 2:
-                t+="OF "+`info.deltaSurge`+" TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND SOMEWHERE WITHIN PARTS OF THE SURGE ZONE."
+                t+="OF "+`info.deltaSurge`+" TO "+`info.surgeHtPlusTide`+" feet above ground somewhere within parts of the surge zone."
             else:
-                t+="UP TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND SOMEWHERE WITHIN PARTS OF THE SURGE ZONE."
+                t+="UP TO "+`info.surgeHtPlusTide`+" feet above ground somewhere within parts of the surge zone."
 
-            t+="\n\nTHE LOCATIONS MOST LIKELY TO REALIZE THE GREATEST FLOODING INCLUDE "
-            t+=self._frame("RELATIVE TO THE SEGMENT...EXPLICITLY LIST LOCATIONS OF GREATEST CONCERN RELATIVE TO INUNDATION AS THAT IS WHAT THE IMPACT STATEMENT BELOW IS BASED ON FOR THE WORST AFFECTED AREA, INCLUDE INLAND REACH OF THE INUNDATION WATERS; FURTHER DESCRIBE INUNDATION ELSEWHERE WITHIN THE SURGE ZONE AS APPLICABLE; BE AWARE THAT LOCATIONS EXPERIENCING THE HIGHEST STORM SURGE AND TIDE MAY NOT REALIZE THE GREATEST INUNDATION. ALSO STRESS THE RAPID WATER RISES THAT ARE LIKELY. ")
+            t+="\n\nThe locations most likely to realize the greatest flooding include "
+            t+=self._frame("Relative to the segment...explicitly list locations of greatest concern relative to inundation as that is what the impact statement below is based on for the worst affected area, include inland reach of the inundation waters; further describe inundation elsewhere within the surge zone as applicable; be aware that locations experiencing the highest storm surge and tide may not realize the greatest inundation. Also stress the rapid water rises that are likely. ")
         else:
-            t+="THE IMPACT FROM COMBINED STORM SURGE AND TIDE WATERS IS EXPECTED TO BE MINIMAL. "
-            t+=self._frame("ACCORDING TO THE LATEST SURGE GRIDS, COASTAL FLOODING IS NEGLIGIBLE. PLEASE FURTHER DESCRIBE YOUR COASTAL FLOODING CONCERNS HERE, LEAVE THIS STATEMENT AS IS OR DELETE THE STORM SURGE SECTION ALL TOGETHER.")
+            t+="The impact from combined storm surge and tide waters is expected to be minimal. "
+            t+=self._frame("According to the latest surge grids, coastal flooding is negligible. Please further describe your coastal flooding concerns here, leave this statement as is or delete the storm surge section all together.")
         return t
 
     def _surge_Conditions_Ongoing(self, info):
         t = ""
         if info.surgeHtPlusTide > 0:
-            t+="COMBINED STORM SURGE AND ASTRONOMICAL TIDE WATERS UP TO "+`info.surgeHtPlusTideWTopo`
-            t+=" FEET ABOVE MEAN SEA LEVEL ARE LIKELY BEING REALIZED WITHIN AREAS CLOSER TO THE COAST "
-            t+="AND RESULTING IN WORST CASE FLOOD INUNDATION "
+            t+="Combined storm surge and astronomical tide waters up to "+`info.surgeHtPlusTideWTopo`
+            t+=" feet above mean sea level are likely being realized within areas closer to the coast"
+            t+=" and resulting in worst case flood inundation "
 
             if info.surgeHtPlusTide > 2:
-                t+="OF "+`info.deltaSurge`+" TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND SOMEWHERE WITHIN PARTS OF THE SURGE ZONE."
+                t+="OF "+`info.deltaSurge`+" TO "+`info.surgeHtPlusTide`+" feet above ground somewhere within parts of the surge zone."
             else:
-                t+="UP TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND SOMEWHERE WITHIN PARTS OF THE SURGE ZONE."
+                t+="UP TO "+`info.surgeHtPlusTide`+" feet above ground somewhere within parts of the surge zone."
 
-            t+="\n\nTHE LOCATIONS MOST LIKELY REALIZING THE GREATEST FLOODING INCLUDE "
-            t+=self._frame("RELATIVE TO THE SEGMENT...EXPLICITLY LIST LOCATIONS OF GREATEST CONCERN RELATIVE TO INUNDATION AS THAT IS WHAT THE IMPACT STATEMENT BELOW IS BASED ON FOR THE WORST AFFECTED AREA, INCLUDE INLAND REACH OF THE INUNDATION WATERS; FURTHER DESCRIBE INUNDATION ELSEWHERE WITHIN THE SURGE ZONE AS APPLICABLE; BE AWARE THAT LOCATIONS EXPERIENCING THE HIGHEST STORM SURGE AND TIDE MAY NOT REALIZE THE GREATEST INUNDATION.")
+            t+="\n\nThe locations most likely realizing the greatest flooding include "
+            t+=self._frame("Relative to the segment...explicitly list locations of greatest concern relative to inundation as that is what the impact statement below is based on for the worst affected area, include inland reach of the inundation waters; further describe inundation elsewhere within the surge zone as applicable; be aware that locations experiencing the highest storm surge and tide may not realize the greatest inundation.")
         else:
-            t+= "MINIMAL STORM TIDE IMPACTS ARE BEING OBSERVED. "
-            t+=self._frame("ACCORDING TO THE LATEST SURGE GRIDS...COASTAL FLOODING IS NEGLIGIBLE. PLEASE FURTHER DESCRIBE YOUR COASTAL FLOODING CONCERNS HERE, LEAVE THIS STATEMENT AS IS OR DELETE THE STORM SURGE SECTION ALL TOGETHER.")
+            t+= "Minimal storm tide impacts are being observed. "
+            t+=self._frame("According to the latest surge grids...coastal flooding is negligible. Please further describe your coastal flooding concerns here, leave this statement as is or delete the storm surge section all together.")
         return t
 
 
     def _surge_Conditions_Diminishing(self, info):
         t = ""
         if info.surgeHtPlusTide > 0:
-            t+="ALTHOUGH COASTAL FLOOD WATERS WILL SOON BEGIN TO PARTIALLY RECEDE..."
-            t+="DO NOT ATTEMPT TO RETURN TO EVACUATED AREAS UNTIL OFFICIAL CONFIRMATION IS "
-            t+="RECEIVED THAT IT IS SAFE TO DO SO. "
-            t+="\n\nCOMBINED STORM SURGE AND ASTRONOMICAL TIDE WATERS UP TO "+`info.surgeHtPlusTideWTopo` + " "
-            t+=self._frame("THIS IS ONE CASE WHERE MORE DETERMINISTIC VALUES CAN BE DRAWN FROM SLOSH OR OTHER SOURCES.")
-            t+=" FEET ABOVE MEAN SEA LEVEL WERE LIKELY REALIZED WITHIN AREAS CLOSER TO THE COAST RESULTING "
-            t+="IN WORST CASE FLOOD INUNDATION "
+            t+="Although coastal flood waters will soon begin to partially recede..."
+            t+="do not attempt to return to evacuated areas until official confirmation is "
+            t+="received that it is safe to do so. "
+            t+="\n\nCombined storm surge and astronomical tide waters up to "+`info.surgeHtPlusTideWTopo` + " "
+            t+=self._frame("This is one case where more deterministic values can be drawn from slosh or other sources.")
+            t+=" feet above mean sea level were likely realized within areas closer to the coast resulting "
+            t+="in worst case flood inundation "
 
             if info.surgeHtPlusTide > 2:
-                t+="OF "+`info.deltaSurge`+" TO "+`info.surgeHtPlusTide`
+                t+="of "+`info.deltaSurge`+" to "+`info.surgeHtPlusTide`
             else:
-                t+="UP TO "+`info.surgeHtPlusTide`
+                t+="up to "+`info.surgeHtPlusTide`
 
-            t+=self._frame("SAME COMMENT HERE AS ABOVE BUT RELATIVE TO INUNDATION.")
-            t+=" FEET ABOVE GROUND. "
+            t+=self._frame("Same comment here as above but relative to inundation.")
+            t+=" feet above ground. "
         else:
-            t+="MINIMAL STORM TIDE IMPACTS ARE BEING OBSERVED. "
-            t+=self._frame("ACCORDING TO THE LATEST SURGE GRIDS...COASTAL FLOODING IS NEGLIGIBLE. PLEASE FURTHER DESCRIBE YOUR COASTAL FLOODING CONCERNS HERE, LEAVE THIS STATEMENT AS IS OR DELETE THE STORM SURGE SECTION ALL TOGETHER.")
+            t+="Minimal storm tide impacts are being observed. "
+            t+=self._frame("According to the latest surge grids...coastal flooding is negligible. Please further describe your coastal flooding concerns here, leave this statement as is or delete the storm surge section all together.")
         return t
 
 
@@ -5115,48 +5116,48 @@ READINESS ACTIONS AS RECOMMENDED."""),
         t = ""
         if scenario == "Immediate":
             if info.surgeHtPlusTide > 0:
-                t+="AS WIND CONDITIONS ASSOCIATED WITH "+self._stormTypeName+" CONTINUE TO IMPROVE...COASTAL FLOOD WATERS WILL BE SLOWER TO RECEDE. CERTAIN AREAS MAY STILL BE INUNDATED. DO NOT ATTEMPT TO RETURN TO EVACUATED AREAS UNTIL OFFICIAL CONFIRMATION IS RECEIVED THAT IT IS SAFE TO DO SO."
-                t+="\n\nTHE LOCATIONS WHICH REALIZED THE GREATEST FLOODING INCLUDE "
-                t+=self._frame("RELATIVE TO THE SEGMENT...EXPLICITLY LIST LOCATIONS THAT EXPERIENCED GREATEST INUNDATION FLOODING REMEMBER THAT IN THE ABSENCE OF TIDAL OR OTHER KIND OF OBSERVATIONS THE REAL TIME SLOSH RUN AT THE TIME OF LANDFALL IS LIKELY YOUR BEST SOURCE OF INFORMATION HERE, NOT NECESSARILY THE PSURGE DATA; FURTHER DESCRIBE INUNDATION ELSEHWERE WITHIN THE SURGE ZONE AS APPLICABLE; DESCRIBE ANY KNOWN IMPACTS.")
+                t+="As wind conditions associated with "+self._stormTypeName+" continue to improve...coastal flood waters will be slower to recede. Certain areas may still be inundated. Do not attempt to return to evacuated areas until official confirmation is received that it is safe to do so."
+                t+="\n\nThe locations which realized the greatest flooding include "
+                t+=self._frame("Relative to the segment...explicitly list locations that experienced greatest inundation flooding remember that in the absence of tidal or other kind of observations the real time slosh run at the time of landfall is likely your best source of information here, not necessarily the psurge data; further describe inundation elsehwere within the surge zone as applicable; describe any known impacts.")
             else:
-                t+="MINIMAL STORM TIDE IMPACTS ARE BEING OBSERVED. "
-                t+=self._frame("ACCORDING TO THE LATEST SURGE GRIDS...COASTAL FLOODING IS NEGLIGIBLE. PLEASE FURTHER DESCRIBE YOUR COASTAL FLOODING CONCERNS HERE, LEAVE THIS STATEMENT AS IS OR DELETE THE STORM SURGE SECTION ALL TOGETHER.")
+                t+="Minimal storm tide impacts are being observed. "
+                t+=self._frame("According to the latest surge grids...coastal flooding is negligible. Please further describe your coastal flooding concerns here, leave this statement as is or delete the storm surge section all together.")
         return t
 
     #############
     def _surge_PostTropical_InProgress(self, info):
         t = ""
         if info.surgeHtPlusTide > 0:
-            t+="AS "+self._stormTypeName+" IMPACTS THE FORECAST AREA...COMBINED STORM SURGE AND ASTRONOMICAL TIDE WATERS UP TO "
+            t+="As "+self._stormTypeName+" impacts the forecast area...combined storm surge and astronomical tide waters up to "
             t+=`info.surgeHtPlusTideWTopo`
-            t+=" FEET ABOVE MEAN SEA LEVEL WITHIN AREAS CLOSER TO THE COAST WILL LIKELY RESULT IN WORST CASE FLOOD INUNDATION "
+            t+=" feet above mean sea level within areas closer to the coast will likely result in worst case flood inundation "
             if info.surgeHtPlusTide > 2:
-                t+="OF "+`info.deltaSurge`+" TO "+`info.surgeHtPlusTide`
+                t+="of "+`info.deltaSurge`+" to "+`info.surgeHtPlusTide`
             else:
-                t+="UP TO "+`info.surgeHtPlusTide`
-            t+=" FEET ABOVE GROUND SOMEWHERE WITHIN THE SURGE ZONE. "
-            t+="\n\nTHE LOCATIONS WHICH WILL LIKELY REALIZE THE GREATEST FLOODING INCLUDE "
-            t+=self._frame("RELATIVE TO THE SEGMENT...EXPLICITLY LIST LOCATIONS OF GREATEST INUNDATION CONCERNS, INCLUDING INLAND REACH; FURTHER DESCRIBE INUNDATION ELSEWHERE WITHIN THE SURGE ZONE AS APPLICABLE.")
+                t+="up to "+`info.surgeHtPlusTide`
+            t+=" feet above ground somewhere within the surge zone. "
+            t+="\n\nThe locations which will likely realize the greatest flooding include "
+            t+=self._frame("Relative to the segment...explicitly list locations of greatest inundation concerns, including inland reach; further describe inundation elsewhere within the surge zone as applicable.")
         else:
-            t+="THE IMPACT FROM COMBINED STORM SURGE AND TIDE WATERS IS EXPECTED TO BE MINIMAL. "
-            t+=self._frame("ACCORDING TO THE LATEST SURGE GRIDS...COASTAL FLOODING IS LIKELY TO BE NEGLIGIBLE. PLEASE FURTHER DESCRIBE YOUR COASTAL FLOODING CONCERNS HERE, LEAVE THIS STATEMENT AS IS OR DELETE THE STORM SURGE SECTION ALL TOGETHER.")
+            t+="The impact from combined storm surge and tide waters is expected to be minimal. "
+            t+=self._frame("According to the latest surge grids...coastal flooding is likely to be negligible. Please further describe your coastal flooding concerns here, leave this statement as is or delete the storm surge section all together.")
         return t
 
     def _surge_PostTropical_Completed(self, info):
         t = ""
         if info.surgeHtPlusTide > 0:
-            t+="AS FORMER "+self._stormTypeName+" IMPACTS THE FORECAST AREA...COMBINED STORM SURGE AND ASTRONOMICAL TIDE WATERS UP TO "
-            t+=`info.surgeHtPlusTideWTopo`+" FEET ABOVE MEAN SEA LEVEL WITHIN AREAS CLOSER TO THE COAST WILL LIKELY RESULT IN WORST CASE FLOOD INUNDATION "
+            t+="As former "+self._stormTypeName+" impacts the forecast area...combined storm surge and astronomical tide waters up to "
+            t+=`info.surgeHtPlusTideWTopo`+" feet above mean sea level within areas closer to the coast will likely result in worst case flood inundation "
             if info.surgeHtPlusTide > 2:
-                t+="OF "+`info.deltaSurge`+" TO "+`info.surgeHtPlusTide`
+                t+="of "+`info.deltaSurge`+" to "+`info.surgeHtPlusTide`
             else:
-                t+="UP TO "+`info.surgeHtPlusTide`
-            t+=" FEET ABOVE GROUND SOMEWHERE WITHIN THE SURGE ZONE."
-            t+="\n\nTHE LOCATIONS WHICH WILL LIKELY REALIZE THE GREATEST FLOODING INCLUDE "
-            t+=self._frame("RELATIVE TO THE SEGMENT...EXPLICITLY LIST LOCATIONS OF GREATEST INUNDATION CONCERNS, INCLUDING INLAND REACH; FURTHER DESCRIBE INUNDATION ELSEWHERE WITHIN THE SURGE ZONE AS APPLICABLE.")
+                t+="up to "+`info.surgeHtPlusTide`
+            t+=" feet above ground somewhere within the surge zone."
+            t+="\n\nThe locations which will likely realize the greatest flooding include "
+            t+=self._frame("Relative to the segment...explicitly list locations of greatest inundation concerns, including inland reach; further describe inundation elsewhere within the surge zone as applicable.")
         else:
-            t+="THE IMPACT FROM COMBINED STORM SURGE AND TIDE WATERS IS EXPECTED TO BE MINIMAL. "
-            t+=self._frame("ACCORDING TO THE LATEST SURGE GRIDS...COASTAL FLOODING IS LIKELY TO BE NEGLIGIBLE. PLEASE FURTHER DESCRIBE YOUR COASTAL FLOODING CONCERNS HERE, LEAVE THIS STATEMENT AS IS OR DELETE THE STORM SURGE SECTION ALL TOGETHER.")
+            t+="The impact from combined storm surge and tide waters is expected to be minimal. "
+            t+=self._frame("According to the latest surge grids...coastal flooding is likely to be negligible. Please further describe your coastal flooding concerns here, leave this statement as is or delete the storm surge section all together.")
         return t
 
     ##############
@@ -5168,22 +5169,22 @@ READINESS ACTIONS AS RECOMMENDED."""),
         t=""
         water_dict = self._totalWaterLevel_dict(info, segment)
         if info.surgeHtPlusTide  >= water_dict.get("Extreme", 7):
-            damage="WIDESPREAD MAJOR"
+            damage="Widespread major"
 
         elif info.surgeHtPlusTide >= water_dict.get("High", 5):
-            damage="AREAS OF MAJOR"
+            damage="Areas of major"
 
         elif info.surgeHtPlusTide  >= water_dict.get("Moderate", 3):
-            damage="AREAS OF MODERATE"
+            damage="Areas of moderate"
 
         elif info.surgeHtPlusTide  >= water_dict.get("Low", 1):
-            damage="AREAS OF MINOR"
+            damage="Areas of minor"
         else:
             damage = None
         if damage is not None:
-            t+="\n\n"+self._frame("AT THIS TIME...THERE IS A GENERAL CONCERN " +
-                                  "FOR THE CHANCE OF "+ damage +
-                                  " COASTAL FLOODING.")
+            t+="\n\n"+self._frame("At this time...there is a general concern" +
+                                  " for the chance of "+ damage +
+                                  " coastal flooding.")
         return t
 
     def _surge_Impact_stmt(self, info, segment):
@@ -5201,7 +5202,7 @@ READINESS ACTIONS AS RECOMMENDED."""),
         elif info.surgeHtPlusTide  >= water_dict.get("Low", 1):
             damage= self._totalWaterLevel_Low_stmt(info, segment)
         else:
-            damage ="MINOR COASTAL FLOOD DAMAGE"
+            damage ="Minor coastal flood damage"
         t+="\n\n"+self._frame(damage)
         return t
 
@@ -5240,106 +5241,106 @@ READINESS ACTIONS AS RECOMMENDED."""),
     def _totalWaterLevel_Extreme_stmt(self, info, segment):
         t = ""
         t+= """
-THERE IS AN EXTREME THREAT TO LIFE AND PROPERTY FROM COASTAL
-FLOODING...POTENTIALLY HAVING A CATASTROPHIC IMPACT. THE CONCERN
-IS FOR THE CHANCE OF WIDESPREAD MAJOR COASTAL FLOODING TO OCCUR
-WITHIN THE SURGE ZONE...RESULTING IN DEVASTATING AND LIFE-
-THREATENING INUNDATION. IF REALIZED...PEOPLE WITHIN THE
-THREATENED AREAS WHO FAILED TO HEED OFFICIAL EVACUATION ORDERS
-WILL LIKELY DIE.
+There is an extreme threat to life and property from coastal
+flooding...potentially having a catastrophic impact. The concern
+is for the chance of widespread major coastal flooding to occur
+within the surge zone...resulting in devastating and life-
+threatening inundation. If realized...people within the
+threatened areas who failed to heed official evacuation orders
+will likely die.
 
-COASTAL COMMUNITIES WILL LIKELY BE DEVASTATED...WITH NUMEROUS
-HOMES AND BUSINESSES NEAR THE SHORE COMPLETELY DESTROYED.
-SHORESIDE CONDOMINIUMS AND HOTELS MAY ALSO BE DESTROYED...
-ESPECIALLY THOSE WITH INADEQUATE STRUCTURAL SUPPORT. FLOOD WATERS
-ARE LIKELY TO EXTEND WELL INLAND...FURTHER EXPANDING THE OVERALL
-THREAT TO LIFE AND PROPERTY. VEHICLES OF ANY TYPE WILL LIKELY BE
-SUBMERGED OR SWEPT AWAY.
+Coastal communities will likely be devastated...with numerous
+homes and businesses near the shore completely destroyed.
+Shoreside condominiums and hotels may also be destroyed...
+Especially those with inadequate structural support. Flood waters
+are likely to extend well inland...further expanding the overall
+threat to life and property. Vehicles of any type will likely be
+submerged or swept away.
 
-ROADS AND BRIDGES WILL LIKELY BE DAMAGED OR WASHED OUT BY THE
-COMBINED EFFECTS OF STORM SURGE AND TIDE WATERS...BATTERING
-WAVES...AND FLOATING DEBRIS. THIS COULD LEAVE ENTIRE FLOOD-PRONE
-COASTAL COMMUNITIES CUT OFF...PERHAPS FOR SEVERAL WEEKS OR
-MORE...AND WITH NO POWER OR WATER.
+Roads and bridges will likely be damaged or washed out by the
+combined effects of storm surge and tide waters...battering
+waves...and floating debris. This could leave entire flood-prone
+coastal communities cut off...perhaps for several weeks or
+more...and with no power or water.
 """
         return t
 
     def _totalWaterLevel_High_stmt(self, info, segment):
         t = ""
         t+= """
-THERE IS A CRITICAL THREAT TO LIFE AND PROPERTY FROM COASTAL
-FLOODING...POTENTIALLY HAVING A HIGH IMPACT. THE CONCERN IS FOR
-THE CHANCE OF MAJOR COASTAL FLOODING TO OCCUR IN AREAS WITHIN THE
-SURGE ZONE...RESULTING IN VERY DAMAGING AND LIFE-THREATENING
-INUNDATION. IF REALIZED...PEOPLE WITHIN THE THREATENED AREAS WHO
-FAILED TO HEED OFFICIAL EVACUATION ORDERS WILL HAVE NEEDLESSLY
-PLACED THEIR LIVES IN GRAVE DANGER AND MAY BE SWEPT AWAY.
+There is a critical threat to life and property from coastal
+flooding...potentially having a high impact. The concern is for
+the chance of major coastal flooding to occur in areas within the
+surge zone...resulting in very damaging and life-threatening
+inundation. If realized...people within the threatened areas who
+failed to heed official evacuation orders will have needlessly
+placed their lives in grave danger and may be swept away.
 
-MOST COASTAL COMMUNITIES WILL LIKELY BE HEAVILY DAMAGED...WITH
-MANY HOMES AND BUSINESSES NEAR THE SHORE DESTROYED BY BATTERING
-WAVES AND FLOATING DEBRIS. SOME SHORESIDE CONDOMINIUMS AND HOTELS
-MAY ALSO BE DAMAGED...ESPECIALLY THOSE WITH INADEQUATE STRUCTURAL
-SUPPORT. FLOOD WATERS ARE LIKELY TO EXTEND WELL INLAND...FURTHER
-EXPANDING THE OVERALL THREAT TO LIFE AND PROPERTY. MOST VEHICLES
-OF ANY TYPE WILL LIKELY BE SUBMERGED OR SWEPT AWAY.
+Most coastal communities will likely be heavily damaged...with
+many homes and businesses near the shore destroyed by battering
+waves and floating debris. Some shoreside condominiums and hotels
+may also be damaged...especially those with inadequate structural
+support. Flood waters are likely to extend well inland...further
+expanding the overall threat to life and property. Most vehicles
+of any type will likely be submerged or swept away.
 
-SEVERE BEACH EROSION WILL OCCUR. MOST ROADS AND SOME BRIDGES WILL
-LIKELY BE DAMAGED OR WASHED OUT...LEAVING ENTIRE FLOOD-PRONE
-COASTAL COMMUNITIES CUT OFF...PERHAPS FOR A WEEK OR MORE...AND
-WITH NO POWER OR WATER.
+Severe beach erosion will occur. Most roads and some bridges will
+likely be damaged or washed out...leaving entire flood-prone
+coastal communities cut off...perhaps for a week or more...and
+with no power or water.
 """
         return t
 
     def _totalWaterLevel_Moderate_stmt(self, info, segment):
         t = ""
         t+= """
-THERE IS A SIGNIFICANT THREAT TO LIFE AND PROPERTY FROM COASTAL
-FLOODING...POTENTIALLY HAVING A MODERATE IMPACT. THE CONCERN IS
-FOR THE CHANCE OF MODERATE COASTAL FLOODING TO OCCUR IN AREAS
-WITHIN THE SURGE ZONE...RESULTING IN DAMAGING AND
-LIFE-THREATENING INUNDATION. IF REALIZED...PEOPLE WITHIN THE
-THREATENED AREAS WHO FAILED TO HEED OFFICIAL EVACUATION ORDERS
-WILL HAVE NEEDLESSLY PLACED THEIR LIVES IN DANGER. THIS IS
-ESPECIALLY TRUE FOR THOSE STAYING BEHIND IN VULNERABLE LOCATIONS
-SUCH AS HOMES AND BUSINESSES NEAR THE SHORE...AND ONE STORY
-DWELLINGS IN FLOOD-PRONE AREAS.
+There is a significant threat to life and property from coastal
+flooding...potentially having a moderate impact. The concern is
+for the chance of moderate coastal flooding to occur in areas
+within the surge zone...resulting in damaging and
+life-threatening inundation. If realized...people within the
+threatened areas who failed to heed official evacuation orders
+will have needlessly placed their lives in danger. This is
+especially true for those staying behind in vulnerable locations
+such as homes and businesses near the shore...and one story
+dwellings in flood-prone areas.
 
-SEVERAL COASTAL COMMUNITIES WILL LIKELY BE DAMAGED...WITH THOSE
-STRUCTURES NOT RAISED OR PROTECTED BY A SEAWALL BEING SUBJECT TO
-SIGNIFICANT FLOODING...ESPECIALLY DURING HIGH TIDE. LARGE WAVES
-AND POUNDING SURF WILL ACCENTUATE PROPERTY DAMAGE IN EXPOSED
-LOCATIONS. FLOOD WATERS MAY EXTEND WELL INLAND IN SPOTS. MANY
-CARS WILL LIKELY BE SUBMERGED OR WASHED AWAY.
+Several coastal communities will likely be damaged...with those
+structures not raised or protected by a seawall being subject to
+significant flooding...especially during high tide. Large waves
+and pounding surf will accentuate property damage in exposed
+locations. Flood waters may extend well inland in spots. Many
+cars will likely be submerged or washed away.
 
-SUBSTANTIAL BEACH EROSION WILL OCCUR. MANY ROADS WILL LIKELY BE
-DAMAGED OR WASHED OUT BY THE FLOOD WATERS...LEAVING SECTIONS OF
-COASTAL COMMUNITIES IN FLOOD PRONE AREAS TEMPORARILY CUT OFF.
-ROADWAY TRAVEL MAY BE DANGEROUS WITH SEVERAL ROADS CLOSED.
+Substantial beach erosion will occur. Many roads will likely be
+damaged or washed out by the flood waters...leaving sections of
+coastal communities in flood prone areas temporarily cut off.
+Roadway travel may be dangerous with several roads closed.
 """
         return t
 
     def _totalWaterLevel_Low_stmt(self, info, segment):
         t = ""
         t+= """
-THERE IS AN ELEVATED THREAT TO LIFE AND PROPERTY FROM COASTAL
-FLOODING...POTENTIALLY HAVING A LOW BUT NOTABLE IMPACT. THE
-CONCERN IS FOR THE CHANCE OF MINOR COASTAL FLOODING TO OCCUR IN
-AREAS WITHIN THE SURGE ZONE...RESULTING IN SHALLOW INUNDATION. IF
-REALIZED...PEOPLE WITHIN THE THREATENED AREAS WHO FAILED TO ACT
-ACCORDING TO THEIR PERSONAL DISASTER PLAN WILL HAVE NEEDLESSLY
-PLACED THEMSELVES AT SOME MEASURE OF RISK.
+There is an elevated threat to life and property from coastal
+flooding...potentially having a low but notable impact. The
+concern is for the chance of minor coastal flooding to occur in
+areas within the surge zone...resulting in shallow inundation. If
+realized...people within the threatened areas who failed to act
+according to their personal disaster plan will have needlessly
+placed themselves at some measure of risk.
 
-MANY HOMES AND BUSINESSES ALONG THE SHORELINE...OR IN FLOOD-PRONE
-AREAS...WILL LIKELY EXPERIENCE SOME WATER ENTERING INSIDE...
-ESPECIALLY FOR THOSE STRUCTURES NOT RAISED OR PROTECTED BY A
-SEAWALL. HIGHER WAVES AND POUNDING SURF WILL INCREASE THE
-LIKELIHOOD OF PROPERTY DAMAGE NEAR THE COAST...ESPECIALLY IN
-EXPOSED LOCATIONS. SOME CARS MAY TAKE ON WATER OR EVEN BECOME
-DISPLACED.
+Many homes and businesses along the shoreline...or in flood-prone
+areas...will likely experience some water entering inside...
+Especially for those structures not raised or protected by a
+seawall. Higher waves and pounding surf will increase the
+likelihood of property damage near the coast...especially in
+exposed locations. Some cars may take on water or even become
+displaced.
 
-MODERATE BEACH EROSION WILL OCCUR...WHICH MAY BECOME SUBSTANTIAL
-IF CONDITIONS EXTEND THROUGH MULTIPLE HIGH TIDES. SEVERAL ROADS
-IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
+Moderate beach erosion will occur...which may become substantial
+if conditions extend through multiple high tides. Several roads
+in flood-prone areas will likely be closed.
 """
         return t
 
@@ -5357,7 +5358,7 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
         probHurricane = self._probHurricane_stmt(info, end=". ")
         probTropStorm = self._probTropStorm_stmt(info, end=". ")
         if probHurricane != "" and probTropStorm != "":
-            t+=probHurricane + "ALSO..." + probTropStorm
+            t+=probHurricane + "Also..." + probTropStorm
         else:
             t+= probHurricane
             t+= probTropStorm
@@ -5384,11 +5385,11 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
     def _prob_threshold(self):
         # If the difference between min and max probabilities are greater
         # than this, a range will not be reported.  For example,
-        # Instead of "20 to 50 PERCENT", we would say "UP TO 50 PERCENT"
+        # Instead of "20 to 50 PERCENT", we would say "up to 50 percent"
         return 10
 
     def _probStorm_stmt(self, info, thresholds, minProb, maxProb,
-                        conditions="HURRICANE", end=""):
+                        conditions="Hurricane", end=""):
         t=""
         if minProb is None or maxProb is None:
             return t
@@ -5397,45 +5398,45 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
         minProb = int(minProb)
         maxProb = int(maxProb)
         if maxProb < little:
-            t+="THERE IS LITTLE CHANCE FOR "+conditions+" CONDITIONS AT THIS TIME"
+            t+="There is little chance for "+conditions+" conditions at this time"
         else:
-            t+="THE CHANCE FOR "+conditions+" CONDITIONS AT THIS TIME IS "
+            t+="The chance for "+conditions+" conditions at this time is "
             if maxProb > chance:
                 if minProb < little:
-                    t+="LESS THAN OR EQUAL TO "+ `maxProb`
+                    t+="less than or equal to "+ `maxProb`
                 elif minProb >= maxProb:
                     t+= `maxProb`
                 elif maxProb-minProb <= self._prob_threshold():
                     t+= `minProb` + ' TO '+ `maxProb`
                 else:
                     t+= 'UP TO ' + `maxProb`
-                t+= " PERCENT"
-            else: t+="VERY SMALL"
+                t+= " percent"
+            else: t+="very small"
         return t + end
 
     def _probHurricane_stmt(self, info, end=""):
         thresholds = self._probHurricane_thresholds()
         return self._probStorm_stmt(
             info, self._probHurricane_thresholds(), info.minProb64, info.maxProb64,
-            conditions="HURRICANE", end=end)
+            conditions="Hurricane", end=end)
 
     def _probTropStorm_stmt(self, info, end=""):
         thresholds = self._probTropStorm_thresholds()
         return self._probStorm_stmt(
             info, self._probTropStorm_thresholds(), info.minProb34, info.maxProb34,
-            conditions="TROPICAL STORM", end=end)
+            conditions="Tropical Storm", end=end)
 
     def _probTrend_stmt(self, info, end=""):
         t=""
         if info.pwstrend is None:
-            t+=self._frame("THIS REPRESENTS A GENERAL {UPWARD/DOWNWARD/STEADY} TREND SINCE THE LAST FORECAST" + end)
+            t+=self._frame("This represents a general {upward/downward/steady} trend since the last forecast" + end)
 
         else:
-            t+="THIS REPRESENTS A GENERAL "
-            if info.pwstrend > 3: t+= " UPWARD "
-            elif info.pwstrend > -3 and info.pwstrend < 3: t+= " STEADY "
-            else: t+= " DOWNWARD "
-            t+="TREND SINCE THE LAST FORECAST" + end
+            t+="This represents a general "
+            if info.pwstrend > 3: t+= " upward"
+            elif info.pwstrend > -3 and info.pwstrend < 3: t+= " steady"
+            else: t+= " downward"
+            t+=" trend since the last forecast" + end
         return t
 
     def _checkOnsetTime(self, info):
@@ -5456,10 +5457,10 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
             condition = info.maxWind >= 64
         if condition:
             if ifWording:
-                t+="IF HURRICANE CONDITIONS WERE TO OCCUR...THE MOST LIKELY PERIOD OF ONSET IS "
+                t+="If hurricane conditions were to occur...the most likely period of onset is "
             else:
-                #t+="THE MOST LIKELY PERIOD OF ONSET OF HURRICANE CONDITIONS IS "
-                t+="THE ONSET OF HURRICANE CONDITIONS COULD START AS EARLY AS "
+                #t+="The most likely period of onset of hurricane conditions is "
+                t+="The onset of hurricane conditions could start as early as "
             t+=self._formatPeriod(info.maxINTprob64, resolution=6)
             t+=end
         return t
@@ -5474,10 +5475,10 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
 
         if condition:
             if ifWording:
-                t+="IF TROPICAL STORM CONDITIONS WERE TO OCCUR...THE MOST LIKELY PERIOD OF ONSET IS "
+                t+="If tropical storm conditions were to occur...the most likely period of onset is "
             else:
-                #t+="THE MOST LIKELY PERIOD OF ONSET OF TROPICAL STORM CONDITIONS IS "
-                t+="THE ONSET OF TROPICAL STORM CONDITIONS COULD START AS EARLY AS "
+                #t+="The most likely period of onset of tropical storm conditions is "
+                t+="The onset of tropical storm conditions could start as early as "
             t+=self._formatPeriod(info.maxINTprob34, resolution=6)
             t+=end
         return t
@@ -5486,7 +5487,7 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
         t=""
         if value >= threshold:
             if intro is None:
-                intro="TROPICAL STORM FORCE WINDS ARE CURRENTLY FORECAST TO BEGIN AFFECTING THE AREA "
+                intro="Tropical storm force winds are currently forecast to begin affecting the area "
             t+=intro + self._formatPeriod(timeRange)
             t+=end
         return t
@@ -5494,24 +5495,24 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
     def _windContinue_stmt(self, info, period, intro=None, end=""):
         t=""
         if intro is not None:  t+=intro
-        else:                  t+="WINDS WILL CONTINUE "
+        else:                  t+="Winds will continue "
         if period is None: return t + end
-        t+="THROUGH " + self._formatPeriod(period, useEndTime=True) + end
+        t+="through " + self._formatPeriod(period, useEndTime=True) + end
         return t
 
     def _fallBelow_stmt(self, info, intro=None, marine=False, end=""):
         t= ""
         if info.windDur[64] is None and info.windDur[34] is None: return t
-        if intro is None: intro = "WINDS ARE NOT FORECAST TO FALL BELOW "
+        if intro is None: intro = "Winds are not forecast to fall below "
         hurricane = False
         t+=intro
         if info.maxWind >= 64 and info.windDur[64] is not None:
-            t+="HURRICANE FORCE UNTIL "+ self._formatPeriod(info.windDur[64], useEndTime=True)
+            t+="hurricane force until "+ self._formatPeriod(info.windDur[64], useEndTime=True)
             hurricane = True
         if info.windDur[34] is not None:
-            if hurricane: t+="...AND BELOW "
-            if marine: t+="GALE FORCE UNTIL "
-            else: t+="TROPICAL STORM FORCE UNTIL "
+            if hurricane: t+="...and below "
+            if marine: t+="gale force until "
+            else: t+="tropical storm force until "
             t+=self._formatPeriod(info.windDur[34], useEndTime=True)
         t+=end
         return t
@@ -5557,8 +5558,8 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
             startTime = startTime - 24*3600
         todayFlag = currentTime.day == startTime.day
         if todayFlag:
-            if partOfDay.find("MIDNIGHT")>0: todayWord = "TONIGHT"
-            else: todayWord = "THIS"
+            if partOfDay.find("midnight")>0: todayWord = "Tonight"
+            else: todayWord = "This"
             weekday = todayWord
         else:
             weekday = labels["Weekday"][startTime.weekday()]
@@ -5574,28 +5575,28 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
         if resolution == 3:
             if hour < 3:
                 prevDay = True
-                partOfDay = "AFTER MIDNIGHT"
+                partOfDay = "After midnight"
             elif hour < 6:
-                partOfDay = "EARLY <weekday> MORNING"
+                partOfDay = "early <weekday> morning"
             elif hour < 9:
-                partOfDay = "MORNING"
+                partOfDay = "morning"
             elif hour < 12:
-                partOfDay = "LATE <weekday> MORNING"
+                partOfDay = "late <weekday> morning"
             elif hour < 15:
-                partOfDay = "EARLY <weekday> AFTERNOON"
+                partOfDay = "early <weekday> afternoon"
             elif hour < 18:
-                partOfDay = "LATE <weekday> AFTERNOON"
+                partOfDay = "late <weekday> afternoon"
             elif hour < 21:
-                partOfDay = "EARLY <weekday> EVENING"
+                partOfDay = "early <weekday> evening"
             else:
-                partOfDay = "LATE <weekday> EVENING"
+                partOfDay = "late <weekday> evening"
         else:
             if hour < 6:
                 prevDay = True
-                partOfDay = "AFTER MIDNIGHT"
-            elif hour < 12: partOfDay = "MORNING"
-            elif hour < 18: partOfDay =  "AFTERNOON"
-            else: partOfDay = "EVENING"
+                partOfDay = "After midnight"
+            elif hour < 12: partOfDay = "Morning"
+            elif hour < 18: partOfDay =  "Afternoon"
+            else: partOfDay = "Evening"
         return prevDay, partOfDay
 
     def _wind_stmt_type(self):
@@ -5605,27 +5606,27 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
     def _wind_stmt(self, info, intro=None, units=None, withTiming=True):
         t=""
         if intro is None:
-            intro="THE LATEST FORECAST IS FOR "
+            intro="The latest forecast is for "
         t+=intro
         descriptor, duration = self._categorical_wind_info(info)
         t+= descriptor
         if withTiming and duration is not None:
-            t+= " FROM " + self._formatPeriod(duration, wholePeriod=True)
+            t+= " from " + self._formatPeriod(duration, wholePeriod=True)
         return t
 
     def _categorical_wind_info(self, info):
         t=""
         if info.maxWind >= 64:
-            t+="HURRICANE FORCE WINDS"
+            t+="Hurricane force winds"
             duration = info.windDur[64]
         elif info.maxWind >=50:
-            t+="STRONG TROPICAL STORM FORCE WINDS"
+            t+="Strong tropical storm force winds"
             duration = info.windDur[50]
         elif info.maxWind >=34:
-            t+="TROPICAL STORM FORCE WINDS"
+            t+="Tropical storm force winds"
             duration = info.windDur[34]
         else:
-            t+="WINDS TO REMAIN BELOW TROPICAL STORM FORCE"
+            t+="Winds to remain below tropical storm force"
             duration = None
         return t, duration
 
@@ -5634,24 +5635,24 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
         t=""
         if info.maxWind is None: return t
         if intro is None:
-            intro = "THE LATEST AREA FORECAST IS FOR MAXIMUM WINDS OF "
+            intro = "The latest area forecast is for maximum winds of "
         t+= intro
 
         if reportWindValues:
             t+=self._formatWindRange(info, info.maxWind, units, "Wind")
-            if addRange: t+= " RANGE"
+            if addRange: t+= " range"
             if info.maxGust is not None:
-                t+=" WITH GUSTS TO "
+                t+=" with gusts to "
                 t+=self._formatWindValue(info, info.maxGust, units, "WindGust")
         if windDur is None:
             windDur = info.windDur[info.maxWind]
         if duration and windDur is not None:
-            t+= " FOR "
+            t+= " for "
             duration = windDur.duration()/3600
-            if duration <= 3: t+= "A FEW "
-            elif duration <= 6: t+= "SEVERAL "
-            else: t+= "MANY "
-            t+= "HOURS"
+            if duration <= 3: t+= "a few "
+            elif duration <= 6: t+= "several "
+            else: t+= "many "
+            t+= "hours"
         if end is not None: t+=end
         return t
 
@@ -5712,79 +5713,79 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
         catDict = self._hurricaneWind_categories()
 
         for key, label in [
-            ("Cat5","CATASTROPHIC CATEGORY 5 HURRICANE FORCE "),
-            ("Cat4", "DESTRUCTIVE CATEGORY 4 HURRICANE FORCE "),
-            ("Cat3","VERY DANGEROUS CATEGORY 3 HURRICANE FORCE "),
-            ("Cat2", "CATEGORY 2 HURRICANE FORCE "),
-            ("Cat1", "CATEGORY 1 HURRICANE FORCE "),
+            ("Cat5","Catastrophic category 5 hurricane force "),
+            ("Cat4", "Destructive category 4 hurricane force "),
+            ("Cat3","Very dangerous category 3 hurricane force "),
+            ("Cat2", "Category 2 hurricane force "),
+            ("Cat1", "Category 1 hurricane force "),
             ]:
             minVal, maxVal = catDict[key]
             if wind >= minVal:
                 return label
         if wind >= 50:
-            return "STRONG TROPICAL STORM FORCE "
+            return "Strong tropical storm force "
         elif wind >= 34:
-            return "TROPICAL STORM FORCE "
-        return "STRONG "
+            return "Tropical storm force "
+        return "Strong "
 
     def _getCategoryDamage(self, wind):
         # Convert from knots to mph
         wind_mph = self._ktToMph(wind, "Wind")
         if wind_mph > 130:
-            return "CATASTROPHIC DAMAGE"
+            return "Catastrophic damage"
         elif wind_mph > 110:
-            return "DEVASTATING DAMAGE"
+            return "Devastating damage"
         elif wind_mph > 90:
-            return "AT LEAST EXTENSIVE DAMAGE"
+            return "At least extensive damage"
         elif wind_mph > 75:
-            return "AT LEAST WIDESPREAD DAMAGE"
+            return "At least widespread damage"
         elif wind_mph > 60:
-            return "AT LEAST DAMAGING WINDS"
+            return "At least damaging winds"
         elif wind_mph > 50:
-            return "AT LEAST DAMAGING WINDS LIKELY"
+            return "At least damaging winds likely"
         elif wind_mph > 40:
-            return "AT LEAST MINOR TO LOCALLY MODERATE DAMAGE"
+            return "At least minor to locally moderate damage"
         elif wind > 30:
-            return "AT LEAST MINOR DAMAGE"
+            return "At least minor damage"
         else:
             return ""
 
 ##         catDict = self._hurricaneWind_categories()
 ##         for key, label in [
-##             ("Cat5","CATASTROPHIC DAMAGE"),
-##             ("Cat4", "AT LEAST DEVASTATING DAMAGE"),
-##             ("Cat3", "AT LEAST EXTENSIVE DAMAGE"),
-##             ("Cat2", "AT LEAST WIDESPREAD DAMAGE"),
-##             ("Cat1", "AT LEAST MODERATE DAMAGE"),
+##             ("Cat5","Catastrophic damage"),
+##             ("Cat4", "At least devastating damage"),
+##             ("Cat3", "At least extensive damage"),
+##             ("Cat2", "At least widespread damage"),
+##             ("Cat1", "At least moderate damage"),
 ##             ]:
 ##             minVal, maxVal = catDict[key]
 ##             if wind >= minVal:
 ##                 return label
 ##         if wind >= 50:
-##             return "AT LEAST MINOR TO LOCALLY MODERATE"
+##             return "At least minor to locally moderate"
 ##         elif wind >= 34:
-##             return "AT LEAST MINOR DAMAGE"
-##         return "DAMAGE"
+##             return "At least minor damage"
+##         return "Damage"
 
     def _windDesc(self, info):
         if info.maxWind >= 64:
-            return "HURRICANE FORCE "
+            return "hurricane force "
         elif info.maxWind >= 50:
-            return "STRONG TROPICAL STORM FORCE "
+            return "strong tropical storm force "
         elif info.maxWind >= 34:
-            return "TROPICAL STORM FORCE "
+            return "tropical storm force "
         else:
-            return "STRONG "
+            return "strong "
 
     def _marineWindDesc(self, info):
         if info.maxWind >= 64:
-            return "HURRICANE FORCE "
+            return "hurricane force "
         elif info.maxWind >= 48:
-            return "STORM FORCE "
+            return "storm force "
         elif info.maxWind >= 34:
-            return "GALE FORCE "
+            return "gale force "
         else:
-            return "STRONG "
+            return "strong "
 
     def _potentialImpact_thresholds(self):
         # Units are mph
@@ -5812,21 +5813,21 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
             return t
         t+="\n"
         if wind_mph <= thresholds.get('minor', 40):
-            t+="MINOR DAMAGE MAY OCCUR TO OLDER MOBILE HOMES. RESIDENTS SHOULD MOVE LOOSE ITEMS INDOORS...SUCH AS GARBAGE CANS AND OUTDOOR FURNITURE...AS THEY WILL BE BLOWN AROUND.  NEWLY PLANTED OR YOUNG TREES AND SHRUBS MAY BE UPROOTED IF NOT SECURED PROPERLY.  ISOLATED POWER OUTAGES WILL BE POSSIBLE.\n"
+            t+="Minor damage may occur to older mobile homes. Residents should move loose items indoors...such as garbage cans and outdoor furniture...as they will be blown around.  Newly planted or young trees and shrubs may be uprooted if not secured properly.  Isolated power outages will be possible.\n"
         elif wind_mph <= thresholds.get('moderate', 50):
-            t+="MINOR TO MODERATE DAMAGE IS LIKELY TO MANY MOBILE HOMES...ESPECIALLY THOSE THAT HAVE CANOPIES...AWNINGS...OR CARPORTS.  POORLY CONSTRUCTED HOMES MAY SUSTAIN MINOR WALL DAMAGE AND PARTIAL ROOF REMOVAL.  OTHER HOMES MAY HAVE MINOR ROOF AND SIDING DAMAGE.  SOME LOOSE OUTDOOR ITEMS WILL BE TOSSED AROUND AND MAY CAUSE ADDITIONAL DAMAGE.  A FEW POWER LINES WILL BE KNOCKED DOWN RESULTING IN SCATTERED POWER OUTAGES.  SOME LARGE BRANCHES OF HEALTHY TREES WILL BE SNAPPED.  MOST NEWLY PLANTED TREES AND SHRUBS WILL BE DAMAGED OR UPROOTED.\n"
+            t+="Minor to moderate damage is likely to many mobile homes...especially those that have canopies...awnings...or carports.  Poorly constructed homes may sustain minor wall damage and partial roof removal.  Other homes may have minor roof and siding damage.  Some loose outdoor items will be tossed around and may cause additional damage.  A few power lines will be knocked down resulting in scattered power outages.  Some large branches of healthy trees will be snapped.  Most newly planted trees and shrubs will be damaged or uprooted.\n"
         elif wind_mph <= thresholds.get('damageLikely', 60):
-            t+="DAMAGING WINDS ARE LIKELY.  MOST POORLY ANCHORED MOBILE HOMES WILL BE DAMAGED...SOME SEVERELY.   OTHER HOMES MAY HAVE DAMAGE TO SHINGLES...SIDING...GUTTERS AND WINDOWS...ESPECIALLY IF THESE ITEMS ARE NOT PROPERLY SECURED.  LOOSE OUTDOOR ITEMS WILL BECOME AIRBORNE...CAUSING ADDITIONAL DAMAGE AND POSSIBLE INJURY.  SOME POWER LINES WILL BE KNOCKED DOWN BY FALLING TREES...RESULTING IN SCATTERED POWER OUTAGES.  MANY LARGE BRANCHES OF TREES WILL BE SNAPPED...AND A FEW TREES WILL BE UPROOTED.\n"
+            t+="Damaging winds are likely.  Most poorly anchored mobile homes will be damaged...some severely.   Other homes may have damage to shingles...siding...gutters and windows...especially if these items are not properly secured.  Loose outdoor items will become airborne...causing additional damage and possible injury.  Some power lines will be knocked down by falling trees...resulting in scattered power outages.  Many large branches of trees will be snapped...and a few trees will be uprooted.\n"
         elif wind_mph <= thresholds.get('damageExpected', 75):
-            t+="DAMAGING WINDS ARE EXPECTED.  POORLY ANCHORED MOBILE HOMES MAY BE DESTROYED...ALONG WITH THOSE OF OLD OR POOR CONSTRUCTION.  SOME WELL ANCHORED MOBILE HOMES WILL HAVE SUBSTANTIAL DAMAGE TO ROOFS...WALLS...AND WINDOWS...AND COULD BECOME UNINHABITABLE.  SOME HOMES OF FRAME CONSTRUCTION WILL SUSTAIN PARTIAL WALL AND ROOF FAILURE...AND POSSIBLY BLOWN OUT WINDOWS.  LOOSE OUTDOOR ITEMS WILL BECOME PROJECTILES...CAUSING ADDITIONAL DAMAGE AND POSSIBLE INJURY.  MANY AREAS WILL EXPERIENCE POWER OUTAGES WITH SOME DOWNED POWER POLES.  NUMEROUS LARGE BRANCHES OF HEALTHY TREES WILL SNAP.  SOME TREES WILL BE UPROOTED...ESPECIALLY WHERE THE GROUND IS SATURATED.\n"
+            t+="Damaging winds are expected.  Poorly anchored mobile homes may be destroyed...along with those of old or poor construction.  Some well anchored mobile homes will have substantial damage to roofs...walls...and windows...and could become uninhabitable.  Some homes of frame construction will sustain partial wall and roof failure...and possibly blown out windows.  Loose outdoor items will become projectiles...causing additional damage and possible injury.  Many areas will experience power outages with some downed power poles.  Numerous large branches of healthy trees will snap.  Some trees will be uprooted...especially where the ground is saturated.\n"
         elif wind_mph <= thresholds.get('danger', 90):
-             t+="VERY DANGEROUS WINDS WILL PRODUCE WIDESPREAD DAMAGE.  AIRBORNE DEBRIS WILL CAUSE DAMAGE.  PERSONS STRUCK BY DEBRIS MAY BE INJURED OR POSSIBLY KILLED.  THE MAJORITY OF MOBILE HOMES WILL BE SEVERELY DAMAGED...OVERTURNED AND UNINHABITABLE.  SOME HOMES OF FRAME CONSTRUCTION WILL EXPERIENCE MAJOR DAMAGE...INCLUDING ROOFS BEING LIFTED OFF AND WALLS PARTIALLY COLLAPSING...LEAVING THEM UNINHABITABLE.  WELL CONSTRUCTED HOMES WILL HAVE DAMAGE TO SHINGLES...SIDING...AND GUTTERS.  WINDOWS WILL BE BLOWN OUT IF NOT PROPERLY COVERED.  PARTIAL ROOF FAILURE IS EXPECTED AT SOME INDUSTRIAL PARKS...ESPECIALLY TO THOSE BUILDINGS WITH LIGHT WEIGHT STEEL AND ALUMINUM COVERINGS.  SOME LOW RISE APARTMENT BUILDING ROOFS MAY BE TORN OFF...ALONG WITH SIDING AND SHINGLE DAMAGE.  A NUMBER OF GLASS WINDOWS IN HIGH RISE BUILDINGS WILL BE BLOWN OUT.  LOOSE OUTDOOR ITEMS WILL BECOME PROJECTILES...CAUSING ADDITIONAL DAMAGE AND POSSIBLE INJURY.  EXTENSIVE DAMAGE TO POWER LINES AND POLES WILL LIKELY RESULT IN WIDESPREAD POWER OUTAGES THAT COULD LAST FROM SEVERAL DAYS TO WEEKS.  NUMEROUS LARGE BRANCHES WILL BREAK.  MANY TREES WILL BE UPROOTED OR SNAPPED.\n"
+             t+="Very dangerous winds will produce widespread damage.  Airborne debris will cause damage.  Persons struck by debris may be injured or possibly killed.  The majority of mobile homes will be severely damaged...overturned and uninhabitable.  Some homes of frame construction will experience major damage...including roofs being lifted off and walls partially collapsing...leaving them uninhabitable.  Well constructed homes will have damage to shingles...siding...and gutters.  Windows will be blown out if not properly covered.  Partial roof failure is expected at some industrial parks...especially to those buildings with light weight steel and aluminum coverings.  Some low rise apartment building roofs may be torn off...along with siding and shingle damage.  A number of glass windows in high rise buildings will be blown out.  Loose outdoor items will become projectiles...causing additional damage and possible injury.  Extensive damage to power lines and poles will likely result in widespread power outages that could last from several days to weeks.  Numerous large branches will break.  Many trees will be uprooted or snapped.\n"
         elif wind_mph <= thresholds.get('extremeDanger', 110):
-             t+="EXTREMELY DANGEROUS WINDS WILL CAUSE EXTENSIVE DAMAGE.  STRUCTURAL COLLAPSE OF SOME HOMES COULD CAUSE SEVERE INJURIES OR POSSIBLE DEATH.  PERSONS STRUCK BY AIRBORNE DEBRIS RISK INJURY AND POSSIBLE DEATH.  MOST MOBILE HOMES WILL BE DESTROYED.  NUMEROUS HOMES OF POOR TO AVERAGE CONSTRUCTION WILL BE DESTROYED OR SEVERELY DAMAGED...LEAVING THEM UNINHABITABLE.  CONSIDERABLE DAMAGE TO WELL CONSTRUCTED HOMES IS EXPECTED.  A NUMBER OF ROOFS AND EXTERIOR WALLS WILL FAIL.  MANY METAL ROOFS WILL BE TORN OFF BUILDINGS AT INDUSTRIAL PARKS.  PARTIAL ROOF AND EXTERIOR WALL FAILURES ARE LIKELY AT LOW RISE APARTMENT BUILDINGS.  MANY WINDOWS IN HIGH RISE BUILDINGS WILL BE BLOWN OUT.  FALLING AND BROKEN GLASS WILL POSE A SIGNIFICANT DANGER EVEN AFTER THE STORM.  NEAR TOTAL POWER LOSS IS EXPECTED.  POTABLE WATER COULD BECOME SCARCE AS FILTRATION SYSTEMS BEGIN TO FAIL.  MANY TREES WILL BE SNAPPED OR UPROOTED AND BLOCK NUMEROUS ROADS.\n"
+             t+="Extremely dangerous winds will cause extensive damage.  Structural collapse of some homes could cause severe injuries or possible death.  Persons struck by airborne debris risk injury and possible death.  Most mobile homes will be destroyed.  Numerous homes of poor to average construction will be destroyed or severely damaged...leaving them uninhabitable.  Considerable damage to well constructed homes is expected.  A number of roofs and exterior walls will fail.  Many metal roofs will be torn off buildings at industrial parks.  Partial roof and exterior wall failures are likely at low rise apartment buildings.  Many windows in high rise buildings will be blown out.  Falling and broken glass will pose a significant danger even after the storm.  Near total power loss is expected.  Potable water could become scarce as filtration systems begin to fail.  Many trees will be snapped or uprooted and block numerous roads.\n"
         elif wind_mph <= thresholds.get('devastating', 130):
-             t+="DEVASTATING DAMAGE IS EXPECTED.  COLLAPSE OF SOME RESIDENTIAL STRUCTURES WILL PUT LIVES AT RISK.  AIRBORNE DEBRIS WILL CAUSE EXTENSIVE DAMAGE.  PERSONS...PETS...AND LIVESTOCK STRUCK BY THE WIND BLOWN DEBRIS WILL BE INJURED OR KILLED.  NEARLY ALL MOBILE HOMES WILL BE DESTROYED.  MOST HOMES WILL SUSTAIN SEVERE DAMAGE WITH POTENTIAL FOR COMPLETE ROOF FAILURE AND WALL COLLAPSE.  MOST INDUSTRIAL BUILDINGS WILL BE DESTROYED...WITH OTHERS EXPERIENCING PARTIAL ROOF AND WALL DAMAGE.  MOST LOW RISE APARTMENT BUILDINGS WILL BE SEVERELY DAMAGED OR DESTROYED...AND OTHERS WILL HAVE PARTIAL ROOF AND WALL FAILURE.  NUMEROUS WINDOWS WILL BE BLOWN OUT OF HIGH RISE BUILDINGS RESULTING IN FALLING GLASS...WHICH WILL POSE A THREAT FOR DAYS TO WEEKS AFTER THE STORM.  CONSIDERABLE STRUCTURAL DAMAGE TO LARGE BUILDINGS IS POSSIBLE.  ELECTRICITY AND WATER WILL BE UNAVAILABLE FOR DAYS AND PERHAPS WEEKS AFTER THE STORM PASSES.  MOST TREES WILL BE SNAPPED OR UPROOTED.  FALLEN TREES MAY CUT OFF RESIDENTIAL AREAS FOR DAYS TO WEEKS.\n"
+             t+="Devastating damage is expected.  Collapse of some residential structures will put lives at risk.  Airborne debris will cause extensive damage.  Persons...pets...and livestock struck by the wind blown debris will be injured or killed.  Nearly all mobile homes will be destroyed.  Most homes will sustain severe damage with potential for complete roof failure and wall collapse.  Most industrial buildings will be destroyed...with others experiencing partial roof and wall damage.  Most low rise apartment buildings will be severely damaged or destroyed...and others will have partial roof and wall failure.  Numerous windows will be blown out of high rise buildings resulting in falling glass...which will pose a threat for days to weeks after the storm.  Considerable structural damage to large buildings is possible.  Electricity and water will be unavailable for days and perhaps weeks after the storm passes.  Most trees will be snapped or uprooted.  Fallen trees may cut off residential areas for days to weeks.\n"
         else:
-             t+="CATASTROPHIC DAMAGE IS EXPECTED.  COLLAPSE OF RESIDENTIAL STRUCTURES WILL PUT LIVES AT RISK. SEVERE INJURY OR DEATH IS LIKELY FOR PERSONS...PETS...AND LIVESTOCK STRUCK BY WIND BLOWN DEBRIS.  MOST OF THE AREA WILL BE UNINHABITABLE FOR WEEKS...PERHAPS LONGER.  MOST HOMES WILL BE DESTROYED...WITH TOTAL ROOF FAILURE AND WALL COLLAPSE.  NEARLY ALL INDUSTRIAL BUILDINGS AND LOW RISE APARTMENT BUILDINGS WILL BE SEVERELY DAMAGED OR DESTROYED.  NEARLY ALL WINDOWS WILL BE BLOWN OUT OF HIGH RISE BUILDINGS RESULTING IN FALLING GLASS...WHICH WILL POSE A THREAT FOR DAYS TO WEEKS AFTER THE STORM.  CONSIDERABLE STRUCTURAL DAMAGE TO LARGE BUILDINGS IS LIKELY.  NEARLY ALL TREES WILL BE SNAPPED OR UPROOTED AND POWER POLES DOWNED.  FALLEN TREES AND POWER POLES WILL ISOLATE RESIDENTIAL AREAS.  POWER OUTAGES WILL LAST FOR WEEKS TO POSSIBLY MONTHS.  LONG TERM WATER SHORTAGES WILL INCREASE HUMAN SUFFERING.\n"
+             t+="Catastrophic damage is expected.  Collapse of residential structures will put lives at risk. Severe injury or death is likely for persons...pets...and livestock struck by wind blown debris.  Most of the area will be uninhabitable for weeks...perhaps longer.  Most homes will be destroyed...with total roof failure and wall collapse.  Nearly all industrial buildings and low rise apartment buildings will be severely damaged or destroyed.  Nearly all windows will be blown out of high rise buildings resulting in falling glass...which will pose a threat for days to weeks after the storm.  Considerable structural damage to large buildings is likely.  Nearly all trees will be snapped or uprooted and power poles downed.  Fallen trees and power poles will isolate residential areas.  Power outages will last for weeks to possibly months.  Long term water shortages will increase human suffering.\n"
         return self._frame(t)
 
     def _genericImpact_stmt(self, info):
@@ -5836,7 +5837,7 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
         damage = self._getCategoryDamage(info.maxWind)
         if damage.strip() == "": return t
         t+="\n"
-        t+=self._frame("A GENERAL CONCERN SHOULD BE FOR THE POSSIBILITY OF " + damage + " SOMEWHERE WITHIN THE AREA.")
+        t+=self._frame("A general concern should be for the possibility of " + damage + " somewhere within the area.")
         return t
 
     ###############################################################
@@ -5853,101 +5854,101 @@ ZCZC MIATCPAT2 ALL
 TTAA00 KNHC DDHHMM
 BULLETIN
 HURRICANE KATRINA ADVISORY NUMBER  10
-NWS TPC/NATIONAL HURRICANE CENTER MIAMI FL
+NWS TPC/NATIONAL HURRICANE CENTER Miami FL
 11 PM EDT THU AUG 25 2005
 
-...EYE OF KATRINA MOVING SOUTHWESTWARD ACROSS MIAMI-DADE COUNTY...
+...Eye of Katrina moving southwestward across Miami-Dade county...
 
 
-SUMMARY OF 1100 PM EDT...0300 UTC...INFORMATION
+Summary of 1100 PM EDT...0300 UTC...information
 -----------------------------------------------
-LOCATION...25.5N 80.7W
-ABOUT 35 MILES...55 KM SW OF MIAMI FLORIDA
-ABOUT 20 MILES...30 KM NW OF HOMESTEAD FLORIDA
-MAXIMUM SUSTAINED WINDS...75 MPH...120 KM/HR
-PRESENT MOVEMENT...WEST-SOUTHWEST OR 265 DEGREES AT 8 MPH...13 KM/HR
-MINIMUM CENTRAL PRESSURE...984 MB...29.06 INCHES
+Location...25.5N 80.7W
+About 35 miles...55 km SW of Miami Florida
+About 20 miles...30 km NW of Homestead Florida
+Maximum sustained winds...75 mph...120 km/hr
+Present movement...west-southwest or 265 degrees at 8 mph...13 km/hr
+Minimum central pressure...984 mb...29.06 inches
 
 
-WATCHES AND WARNINGS
+Watches and Warnings
 --------------------
-CHANGES WITH THIS ADVISORY...
+Changes with this advisory...
 
-*THE TROPICAL STORM WARNING AND TROPICAL STORM WATCH ALONG THE EAST
-COAST OF FLORIDA NORTH OF JUPITER HAVE BEEN DISCONTINUED.
-
-
-SUMMARY OF WARNINGS AND WATCHES IN EFFECT...
-
-A HURRICANE WARNING IS IN EFFECT FOR...
-*THE SOUTHEAST FLORIDA COAST FROM JUPITER INLET SOUTHWARD TO
-FLORIDA CITY...INCLUDING LAKE OKEECHOBEE. PREPARATIONS TO PROTECT
-LIFE AND PROPERTY SHOULD HAVE BEEN COMPLETED.
-
-A TROPICAL STORM WARNING IS IN EFFECT FOR...
-*ALL THE FLORIDA KEYS AND FLORIDA BAY FROM KEY WEST NORTHWARD
-*THE GULF COAST OF FLORIDA FROM LONGBOAT KEY SOUTH AND EASTWARD
-TO SOUTH OF FLORIDA CITY.
-
-A TROPICAL STORM WATCH IS IN EFFECT FOR...
-*THE FLORIDA WEST COAST FROM NORTH OF LONGBOAT KEY TO ANCLOTE KEY.
-
-INTERESTS ELSEWHERE ALONG THE GULF COAST OF THE UNITED STATES SHOULD
-MONITOR THE PROGRESS OF KATRINA.
-
-FOR STORM INFORMATION SPECIFIC TO YOUR AREA...INCLUDING POSSIBLE
-INLAND WATCHES AND WARNINGS...PLEASE MONITOR PRODUCTS ISSUED
-BY YOUR LOCAL WEATHER OFFICE.
+*The tropical storm warning and tropical storm watch along the east
+coast of Florida north of Jupiter have been discontinued.
 
 
-DISCUSSION AND 48-HOUR OUTLOOK
+Summary of Warnings and Watches in effect...
+
+A Hurricane Warning is in effect for...
+*The southeast Florida coast from Jupiter Inlet southward to
+Florida City...including Lake Okeechobee. Preparations to protect
+life and property should have been completed.
+
+A tropical storm warning is in effect for...
+*All the Florida Keys and Florida Bay from Key West northward
+*The gulf coast of Florida from Longboat Key south and eastward
+to south of Florida City.
+
+A Tropical Storm Watch is in effect for...
+*The Florida west coast from north of Longboat Key to Anclote Key.
+
+Interests elsewhere along the gulf coast of the United States should
+monitor the progress of Katrina.
+
+For storm information specific to your area...including possible
+inland watches and warnings...please monitor products issued
+by your local weather office.
+
+
+Discussion and 48-hour outlook
 ------------------------------
-AT 11 PM EDT...0300 UTC...THE EYE OF HURRICANE KATRINA WAS LOCATED
-NEAR LATITUDE 25.5 NORTH...LONGITUDE  80.7 WEST.  KATRINA IS MOVING
-TOWARD THE SOUTHWEST NEAR 8 MPH...13 KM/HR AND THIS MOTION IS
-EXPECTED TO CONTINUE DURING THE NEXT SEVERAL HOURS. KATRINA IS
-EXPECTED TO MOVE OVER THE GULF OF MEXICO FRIDAY AND SATURDAY.
+At 11 PM EDT...0300 UTC...the eye of hurricane Katrina was located
+near latitude 25.5 north...longitude  80.7 west.  Katrina is moving
+toward the southwest near 8 mph...13 km/hr and this motion is
+expected to continue during the next several hours. Katrina is
+expected to move over the Gulf of Mexico Friday and Saturday.
 
-MAXIMUM SUSTAINED WINDS ARE NEAR 75 MPH...130 KM/HR WITH HIGHER
-GUSTS. KATRINA IS A CATEGORY ONE HURRICANE ON THE SAFFIR-SIMPSON
-SCALE.  SOME ADDITIONAL WEAKENING IS ANTICIPATED WHILE KATRINA IS
-OVER LAND...AND IT COULD WEAKEN TO A TROPICAL STORM EARLY ON FRIDAY.
-RESTRENGTHENING IS EXPECTED ON FRIDAY OR SATURDAY...AND KATRINA
-COULD BECOME A DANGEROUS HURRICANE IN THE GULF OF MEXICO IN 2 TO
-3 DAYS.
+Maximum sustained winds are near 75 mph...130 km/hr with higher
+gusts. Katrina is a category one hurricane on the Saffir-Simpson
+scale.  Some additional weakening is anticipated while Katrina is
+over land...and it could weaken to a tropical storm early on Friday.
+Restrengthening is expected on Friday or Saturday...and Katrina
+could become a dangerous hurricane in the Gulf of Mexico in 2 to
+3 days.
 
-HURRICANE FORCE WINDS EXTEND OUTWARD UP TO 10 MILES FROM THE
-CENTER...AND TROPICAL STORM FORCE WINDS EXTEND OUTWARD UP TO
-70 MILES.  A WIND GUST TO 87 MPH...140 KM/HR WAS RECORDED AT MIAMI
-NATIONAL WEATHER SERVICE FORECAST OFFICE/NATIONAL HURRICANE CENTER
-AND 81 MPH...131 KM/HR AT THE TAMIAMI AIRPORT THIS EVENING.
+Hurricane force winds extend outward up to 10 miles from the
+center...and tropical storm force winds extend outward up to
+70 miles.  A wind gust to 87 mph...140 km/hr was recorded at Miami
+National Weather Service Forecast Office/National Hurricane Center
+and 81 mph...131 km/hr at the TaMiami airport this evening.
 
-ESTIMATED MINIMUM CENTRAL PRESSURE IS 984 MB...29.06 INCHES.
+Estimated minimum central pressure is 984 mb...29.06 inches.
 
 
-STORM HAZARDS
+Storm hazards
 -------------
-STORM SURGE FLOODING...2 TO 4 FEET ABOVE NORMAL TIDE LEVELS...CAN BE
-EXPECTED ALONG THE WEST COAST OF FLORIDA IN AREAS OF ONSHORE FLOW
-SOUTH OF VENICE AND IN FLORIDA BAY. STORM SURGE SHOULD BEGIN TO
-DECREASE ALONG THE EAST COAST OF FLORIDA.
+Storm surge flooding...2 to 4 feet above normal tide levels...can be
+expected along the west coast of Florida in areas of onshore flow
+south of Venice and in Florida bay. Storm surge should begin to
+decrease along the east coast of Florida.
 
-RAINFALL...KATRINA IS EXPECTED TO PRODUCE A SIGNIFICANT HEAVY
-RAINFALL EVENT OVER SOUTH FLORIDA...AND THE FLORIDA KEYS. TOTAL
-RAINFALL ACCUMULATIONS OF 6 TO 10 INCHES WITH ISOLATED MAXIMUM
-AMOUNTS OF 15 TO 20 INCHES ARE POSSIBLE.
+Rainfall...Katrina is expected to produce a significant heavy
+rainfall event over south Florida...and the Florida Keys. Total
+rainfall accumulations of 6 to 10 inches with isolated maximum
+amounts of 15 to 20 inches are possible.
 
-TORNADOES...ISOLATED TORNADOES WILL ALSO BE POSSIBLE OVER EASTERN
-FLORIDA AND THE FLORIDA KEYS.
+Tornadoes...isolated tornadoes will also be possible over eastern
+Florida and the Florida Keys.
 
 
-NEXT ADVISORY
+Next advisory
 --------------
-NEXT INTERMEDIATE ADVISORIES...100 AM AND 300 AM EDT.
-NEXT COMPLETE ADVISORY...500 AM EDT.
+Next intermediate advisories...100 AM and 300 AM EDT.
+Next complete advisory...500 AM EDT.
 
 $$
-FORECASTER AVILA
+forecaster Avila
 
 NNNN
 """
@@ -5959,53 +5960,53 @@ NNNN
 ##NWS TPC/NATIONAL HURRICANE CENTER MIAMI FL   EP152009
 ##800 PM PDT WED SEP 09 2009
 ##
-##...LINDA BECOMES A HURRICANE...THE SIXTH HURRICANE OF THE EASTERN
-##PACIFIC SEASON...
+##...Linda becomes a hurricane...the sixth hurricane of the eastern
+##Pacific season...
 ##
 ##
-##SUMMARY OF 800 PM PDT...0300 UTC...INFORMATION
+##Summary of 800 PM PDT...0300 UTC...information
 ##----------------------------------------------
-##LOCATION...17.1N 129.4W
-##ABOUT 1325 MILES...2135 KM WSW OF THE SOUTHERN TIP OF BAJA CALIFORNIA
-##MAXIMUM SUSTAINED WINDS...80 MPH...130 KM/HR
-##PRESENT MOVEMENT...NORTHWEST OR 320 DEGREES AT 6 MPH...9 KM/HR
-##MINIMUM CENTRAL PRESSURE...984 MB...29.06 INCHES
+##Location...17.1n 129.4w
+##About 1325 miles...2135 km wsw of the southern tip of Baja California
+##Maximum sustained winds...80 mph...130 km/hr
+##Present movement...northwest or 320 degrees at 6 mph...9 km/hr
+##Minimum central pressure...984 mb...29.06 inches
 ##
 ##
-##WATCHES AND WARNINGS
+##Watches and Warnings
 ##--------------------
-##THERE ARE NO COASTAL TROPICAL CYCLONE WATCHES OR WARNINGS IN EFFECT.
+##There are no coastal tropical cyclone watches or warnings in effect.
 ##
 ##
-##DISCUSSION AND 48-HOUR OUTLOOK
+##Discussion and 48-hour outlook
 ##------------------------------
-##AT 800 PM PDT...0300 UTC...THE CENTER OF HURRICANE LINDA WAS LOCATED
-##NEAR LATITUDE 17.1 NORTH...LONGITUDE 129.4 WEST.  LINDA IS MOVING
-##TOWARD THE NORTHWEST NEAR 6 MPH...9 KM/HR...AND THIS GENERAL MOTION
-##IS EXPECTED TO CONTINUE FOR THE NEXT COUPLE OF DAYS.
+##At 800 PM PDT...0300 UTC...the center of hurricane Linda was located
+##near latitude 17.1 north...longitude 129.4 west.  Linda is moving
+##toward the northwest near 6 mph...9 km/hr...and this general motion
+##is expected to continue for the next couple of days.
 ##
-##MAXIMUM SUSTAINED WINDS ARE NEAR 80 MPH...130 KM/HR...WITH HIGHER
-##GUSTS.  LITTLE CHANGE IN STRENGTH IS EXPECTED TONIGHT AND THURSDAY...
-##WITH LINDA FORECAST TO WEAKEN THURSDAY NIGHT AND FRIDAY.
+##Maximum sustained winds are near 80 mph...130 km/hr...with higher
+##gusts.  Little change in strength is expected tonight and Thursday...
+##with Linda forecast to weaken Thursday night and Friday.
 ##
-##HURRICANE FORCE WINDS EXTEND OUTWARD UP TO 25 MILES...35 KM...FROM
-##THE CENTER...AND TROPICAL STORM FORCE WINDS EXTEND OUTWARD UP TO
-##125 MILES...205 KM.
+##Hurricane force winds extend outward up to 25 miles...35 km...from
+##the center...and tropical storm force winds extend outward up to
+##125 miles...205 km.
 ##
-##ESTIMATED MINIMUM CENTRAL PRESSURE IS 984 MB...29.06 INCHES.
+##Estimated minimum central pressure is 984 mb...29.06 inches.
 ##
 ##
-##STORM HAZARDS
+##Storm Hazards
 ##-------------
-##NONE AFFECTING LAND.
+##None affecting land.
 ##
 ##
-##NEXT ADVISORY
+##Next advisory
 ##--------------
-##NEXT COMPLETE ADVISORY...200 AM PDT.
+##Next complete advisory...200 AM PDT.
 ##
 ##$$
-##FORECASTER BEVEN
+##forecaster Beven
 ##NNNN
 ##"""
 
@@ -6074,7 +6075,7 @@ NNNN
 #        print "dfEditAreas", dfEditAreas
         dfEditAreas = accessor.variable(dfEditAreas, "Combinations")
         if dfEditAreas is None:
-            LogStream.logVerbose("COMBINATION FILE NOT FOUND: " + dfEditAreas)
+            LogStream.logVerbose("Combination file not found: " + dfEditAreas)
             return [], None
 
         # Need to check hazards against all edit areas in the CWA MAOR

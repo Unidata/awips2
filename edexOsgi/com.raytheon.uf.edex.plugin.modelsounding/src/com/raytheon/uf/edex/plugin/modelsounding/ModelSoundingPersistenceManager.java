@@ -19,14 +19,21 @@
  **/
 package com.raytheon.uf.edex.plugin.modelsounding;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.core.IContextStateProcessor;
@@ -44,6 +51,7 @@ import com.raytheon.uf.edex.core.IContextStateProcessor;
  * ------------ ---------- ----------- --------------------------
  * Jul 17, 2013 2161       bkowal      Initial creation.
  * Mar 11, 2014 2726       rjpeter     Graceful shutdown, don't forward empty pdo lists.
+ * Feb 09, 2015 4101       rjpeter     Added MAX_CONTAINER_SIZE and changed store order to always store container with most entries first.
  * </pre>
  * 
  * @author bkowal
@@ -55,7 +63,12 @@ public class ModelSoundingPersistenceManager implements IContextStateProcessor {
     private final IUFStatusHandler logger = UFStatus
             .getHandler(ModelSoundingPersistenceManager.class);
 
-    private final LinkedHashMap<String, ModelSoundingStorageContainer> containerMap;
+    private static final int MAX_CONTAINER_SIZE = Integer.getInteger(
+            "ModelSoundingPersistenceManager.maxSize", 500);
+
+    private final Map<String, ModelSoundingStorageContainer> containerMap;
+
+    private final SortedSet<ModelSoundingStorageContainer> sizeSet;
 
     private volatile boolean run = false;
 
@@ -65,9 +78,19 @@ public class ModelSoundingPersistenceManager implements IContextStateProcessor {
      *
      */
     public ModelSoundingPersistenceManager() {
-        // super("ModelSoundingStore");
-        this.containerMap = new LinkedHashMap<String, ModelSoundingStorageContainer>(
+        this.containerMap = new HashMap<String, ModelSoundingStorageContainer>(
                 64, 1);
+        /* Sort descending by size */
+        this.sizeSet = new TreeSet<ModelSoundingStorageContainer>(
+                Collections
+                        .reverseOrder(new Comparator<ModelSoundingStorageContainer>() {
+                            @Override
+                            public int compare(
+                                    ModelSoundingStorageContainer o1,
+                                    ModelSoundingStorageContainer o2) {
+                                return Integer.compare(o1.size(), o2.size());
+                            }
+                        }));
     }
 
     public void run() {
@@ -86,20 +109,22 @@ public class ModelSoundingPersistenceManager implements IContextStateProcessor {
                         }
                     }
 
-                    Iterator<String> iter = containerMap.keySet().iterator();
+                    /*
+                     * Process container of next biggest size
+                     */
+                    Iterator<ModelSoundingStorageContainer> iter = sizeSet
+                            .iterator();
                     if (iter.hasNext()) {
-                        // remove first entry and process
-                        String key = iter.next();
-                        container = containerMap.remove(key);
-                        if (logger.isPriorityEnabled(Priority.DEBUG)) {
-                            logger.debug("Persisting "
-                                    + container.getPdos().size()
-                                    + " PluginDataObject(s) for : " + key);
-                        }
+                        container = iter.next();
+                        iter.remove();
+                        String key = container.getKey();
+                        containerMap.remove(key);
                     }
                 }
 
                 if (container != null) {
+                    ITimer timer = TimeUtil.getTimer();
+                    timer.start();
                     List<PluginDataObject> pdoList = container.getPdos();
                     if ((pdoList != null) && !pdoList.isEmpty()) {
                         PluginDataObject[] pdos = pdoList
@@ -107,9 +132,15 @@ public class ModelSoundingPersistenceManager implements IContextStateProcessor {
                         try {
                             EDEXUtil.getMessageProducer().sendSync(
                                     "modelSoundingPersistIndexAlert", pdos);
+                            timer.stop();
+                            logger.info("Stored container: "
+                                    + container.getKey() + ", size: "
+                                    + container.size() + ", in "
+                                    + timer.getElapsedTime() + "ms");
                         } catch (EdexException e) {
                             logger.error("Failed to persist " + pdos.length
-                                    + " PluginDataObject(s)!", e);
+                                    + " PluginDataObject(s) for key: "
+                                    + container.getKey(), e);
                         }
                     }
                 }
@@ -154,22 +185,33 @@ public class ModelSoundingPersistenceManager implements IContextStateProcessor {
     public void checkIn(String persistRecordKey,
             ModelSoundingStorageContainer container) {
         boolean storeLocal = true;
-        synchronized (containerMap) {
-            if (run) {
-                ModelSoundingStorageContainer prev = containerMap.put(
-                        persistRecordKey, container);
-                storeLocal = false;
-                if (prev != null) {
-                    // technically only possible in an environment where there
-                    // are multiple decode threads running, just append the
-                    // pdo's from the first, their pdc will not be used again
-                    if (logger.isPriorityEnabled(Priority.DEBUG)) {
-                        logger.debug("PDC for time already exists, appending previous PDC data");
-                    }
 
-                    container.addPdos(prev.getPdos());
+        /*
+         * Only allow further appending to container if its below max size
+         */
+        int size = container.size();
+        if ((size > 0) && (size < MAX_CONTAINER_SIZE)) {
+            synchronized (containerMap) {
+                if (run) {
+                    ModelSoundingStorageContainer prev = containerMap.put(
+                            persistRecordKey, container);
+                    storeLocal = false;
+                    if (prev != null) {
+                        /*
+                         * technically only possible in an environment where
+                         * there are multiple decode threads running, just
+                         * append the pdo's from the first, their pdc will not
+                         * be used again
+                         */
+                        if (logger.isPriorityEnabled(Priority.DEBUG)) {
+                            logger.debug("PDC for time already exists, appending previous PDC data");
+                        }
+
+                        container.addPdos(prev.getPdos());
+                    }
+                    sizeSet.add(container);
+                    containerMap.notify();
                 }
-                containerMap.notify();
             }
         }
 
@@ -188,7 +230,12 @@ public class ModelSoundingPersistenceManager implements IContextStateProcessor {
      */
     public ModelSoundingStorageContainer checkOut(String persistRecordKey) {
         synchronized (containerMap) {
-            return containerMap.remove(persistRecordKey);
+            ModelSoundingStorageContainer rval = containerMap
+                    .remove(persistRecordKey);
+            if (rval != null) {
+                sizeSet.remove(rval);
+            }
+            return rval;
         }
     }
 

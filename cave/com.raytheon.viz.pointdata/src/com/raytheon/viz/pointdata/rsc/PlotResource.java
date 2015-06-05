@@ -51,6 +51,8 @@ import com.raytheon.uf.viz.core.drawables.ext.ISingleColorImageExtension.ISingle
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.jobs.JobPool;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
+import com.raytheon.uf.viz.core.point.drawables.ext.IPointImageExtension;
+import com.raytheon.uf.viz.core.point.drawables.ext.IPointImageExtension.PointImage;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
@@ -61,8 +63,6 @@ import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.viz.pointdata.IPlotModelGeneratorCaller;
 import com.raytheon.viz.pointdata.PlotAlertParser;
 import com.raytheon.viz.pointdata.PlotInfo;
-import com.raytheon.viz.pointdata.drawables.IPointImageExtension;
-import com.raytheon.viz.pointdata.drawables.IPointImageExtension.PointImage;
 import com.raytheon.viz.pointdata.rsc.progdisc.AbstractProgDisclosure;
 import com.raytheon.viz.pointdata.rsc.progdisc.AbstractProgDisclosure.IProgDiscListener;
 import com.raytheon.viz.pointdata.rsc.progdisc.DynamicProgDisclosure;

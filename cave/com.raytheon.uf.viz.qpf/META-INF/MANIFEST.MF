@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: QPF Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.qpf;singleton:=true
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
@@ -10,7 +10,7 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.time;bundle-version="1.11.1",
  org.geotools;bundle-version="2.5.2",
  javax.measure,
- com.raytheon.viz.grid,
+ com.raytheon.uf.viz.core.grid;bundle-version="1.15.0",
  com.raytheon.viz.core,
  com.raytheon.uf.common.serialization,
  com.raytheon.viz.core.contours,
@@ -20,7 +20,7 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.style;bundle-version="1.0.0",
  com.raytheon.uf.common.numeric;bundle-version="1.14.0",
  com.raytheon.uf.viz.datacube
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.qpf
 Import-Package: com.raytheon.uf.common.colormap.prefs,

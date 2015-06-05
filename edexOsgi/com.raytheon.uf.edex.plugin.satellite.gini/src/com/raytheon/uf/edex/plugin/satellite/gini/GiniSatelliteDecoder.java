@@ -37,8 +37,8 @@ import com.raytheon.edex.util.satellite.SatSpatialFactory;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.exception.UnrecognizedDataException;
 import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
-import com.raytheon.uf.common.dataplugin.satellite.SatelliteMessageData;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
+import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationFile;
@@ -97,6 +97,7 @@ import com.raytheon.uf.edex.plugin.satellite.gini.lookup.NumericLookupTable;
  * Nov 04, 2014  2714     bclement    moved from satellite to satellite.gini
  *                                      renamed from SatelliteDecoder to GiniDecoder
  *                                      replaced database lookups with in memory tables
+ * Apr 15, 2014  4388     bsteffen    Set Fill Value.
  * 
  * </pre>
  * 
@@ -447,8 +448,6 @@ public class GiniSatelliteDecoder {
                 default:
                     break;
                 }
-                SatelliteMessageData messageData = new SatelliteMessageData(
-                        tempBytes, nx, ny);
 
                 // get the latitude of the first point
                 byteBuffer.position(20);
@@ -537,8 +536,11 @@ public class GiniSatelliteDecoder {
                 record.setTraceId(traceId);
                 record.setCoverage(mapCoverage);
                 // Create the data record.
-                IDataRecord dataRec = messageData.getStorageRecord(record,
-                        SatelliteRecord.SAT_DATASET_NAME);
+                long[] sizes = new long[] { nx, ny };
+                IDataRecord dataRec = DataStoreFactory.createStorageRecord(
+                        SatelliteRecord.SAT_DATASET_NAME, record.getDataURI(),
+                        tempBytes, 2, sizes);
+                dataRec.setFillValue(0);
                 record.setMessageData(dataRec);
             }
             timer.stop();

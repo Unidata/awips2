@@ -24,8 +24,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import jep.INumpyable;
-
 import org.apache.commons.lang.mutable.MutableByte;
 import org.geotools.geometry.jts.JTS;
 import org.opengis.metadata.spatial.PixelOrientation;
@@ -33,8 +31,8 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.gfe.RemapGrid;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DByte;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Op;
@@ -68,7 +66,8 @@ import com.vividsolutions.jts.geom.MultiPolygon;
  * Jan 30, 2013 #15719     jdynina      Allowed more than 128 chars in wx
  *                                      strings
  * 02/19/2013   1637       randerso    Added throws declarations to translateDataFrom
- * 04/01/2014   17187      randerso (code checked in by zhao) To allow over 128 wx lements 
+ * 04/01/2014   17187      randerso (code checked in by zhao) To allow over 128 wx lements
+ * Apr 23, 2015 4259       njensen     Removed unused INumpyable
  * 
  * </pre>
  * 
@@ -76,7 +75,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
  * @version 1.0
  */
 
-public class WeatherGridData extends AbstractGridData implements INumpyable {
+public class WeatherGridData extends AbstractGridData {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(WeatherGridData.class);
 
@@ -103,8 +102,8 @@ public class WeatherGridData extends AbstractGridData implements INumpyable {
         WeatherGridSlice thisSlice = getWeatherSlice();
         Grid2DByte grid = thisSlice.getWeatherGrid();
 
-        if (grid.getXdim() != pointsToSmooth.getXdim()
-                || grid.getYdim() != pointsToSmooth.getYdim()) {
+        if ((grid.getXdim() != pointsToSmooth.getXdim())
+                || (grid.getYdim() != pointsToSmooth.getYdim())) {
             statusHandler.handle(
                     Priority.ERROR,
                     "Dimension mismatch in doSmooth: " + getGrid().getXdim()
@@ -151,8 +150,8 @@ public class WeatherGridData extends AbstractGridData implements INumpyable {
                         // uses fewer than nine points if near grid edge,
                         // but always has at least four values to average.
                         Arrays.fill(histo, (short) 0);
-                        for (int newx = i - ss; newx <= i + ss; newx++) {
-                            for (int newy = j - ss; newy <= j + ss; newy++) {
+                        for (int newx = i - ss; newx <= (i + ss); newx++) {
+                            for (int newy = j - ss; newy <= (j + ss); newy++) {
                                 // if inside grid limits, make a
                                 // smoothed value
                                 if (originalGrid.isValid(newx, newy)) {
@@ -330,8 +329,8 @@ public class WeatherGridData extends AbstractGridData implements INumpyable {
     protected Grid2DBit doPencilStretch(Date time, WxValue value,
             Coordinate[] path, Grid2DBit editArea) {
         Grid2DByte grid = getGrid();
-        if (grid.getXdim() != editArea.getXdim()
-                || grid.getYdim() != editArea.getYdim()) {
+        if ((grid.getXdim() != editArea.getXdim())
+                || (grid.getYdim() != editArea.getYdim())) {
             statusHandler.handle(Priority.ERROR,
                     "Dimension mismatch in doPencilStretch: " + grid.getXdim()
                             + ',' + grid.getYdim() + ' ' + editArea.getXdim()
@@ -531,10 +530,6 @@ public class WeatherGridData extends AbstractGridData implements INumpyable {
         return didIt;
     }
 
-    /**
-     * @see com.raytheon.viz.gfe.core.griddata.AbstractGridData#doSet(com.raytheon.viz.gfe.core.wxvalue.WxValue,
-     *      com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit)
-     */
     @Override
     public Grid2DBit doSet(WxValue value, Grid2DBit pointsToSet) {
         GridType gridType = value.getParm().getGridInfo().getGridType();
@@ -676,8 +671,8 @@ public class WeatherGridData extends AbstractGridData implements INumpyable {
             boolean done = false;
             while (!done) {
                 // Check for bounds
-                if (coord.x < 0 || coord.x >= gridCells.getXdim()
-                        || coord.y < 0 || coord.y >= gridCells.getYdim()) {
+                if ((coord.x < 0) || (coord.x >= gridCells.getXdim())
+                        || (coord.y < 0) || (coord.y >= gridCells.getYdim())) {
                     done = true;
                 }
                 // Check for bit set
@@ -718,8 +713,8 @@ public class WeatherGridData extends AbstractGridData implements INumpyable {
     protected Grid2DBit doCopy(Date time, Grid2DBit pointsToCopy, Point delta) {
         WeatherGridSlice thisSlice = getWeatherSlice();
         Grid2DByte sliceGrid = thisSlice.getWeatherGrid();
-        if (sliceGrid.getXdim() != pointsToCopy.getXdim()
-                || sliceGrid.getYdim() != pointsToCopy.getYdim()) {
+        if ((sliceGrid.getXdim() != pointsToCopy.getXdim())
+                || (sliceGrid.getYdim() != pointsToCopy.getYdim())) {
             throw new IllegalArgumentException("Dimension mismatch in doCopy: "
                     + sliceGrid.getXdim() + ',' + sliceGrid.getYdim() + ' '
                     + pointsToCopy.getXdim() + ',' + pointsToCopy.getYdim());
@@ -818,21 +813,6 @@ public class WeatherGridData extends AbstractGridData implements INumpyable {
     }
 
     @Override
-    public Object[] getNumpy() {
-        return new Object[] { this.getGrid().getBuffer().array() };
-    }
-
-    @Override
-    public int getNumpyX() {
-        return this.getGrid().getXdim();
-    }
-
-    @Override
-    public int getNumpyY() {
-        return this.getGrid().getYdim();
-    }
-
-    @Override
     public void setGridSlice(IGridSlice gridSlice) {
         if (!(gridSlice instanceof WeatherGridSlice)) {
             throw new IllegalArgumentException(
@@ -860,8 +840,8 @@ public class WeatherGridData extends AbstractGridData implements INumpyable {
             Grid2DBit points) {
         Grid2DByte grid = getGrid();
         Point dim = new Point(grid.getXdim(), grid.getYdim());
-        if (values.getXdim() != dim.x || values.getYdim() != dim.y
-                || points.getXdim() != dim.x || points.getYdim() != dim.y) {
+        if ((values.getXdim() != dim.x) || (values.getYdim() != dim.y)
+                || (points.getXdim() != dim.x) || (points.getYdim() != dim.y)) {
             throw new IllegalArgumentException(
                     "bad values/points dimensions for grid for: "
                             + this.getParm().getParmID() + " gridDim="
@@ -881,7 +861,7 @@ public class WeatherGridData extends AbstractGridData implements INumpyable {
         int numValues = values.getXdim() * values.getYdim();
         byte[] bp = values.getBuffer().array();
         for (int i = 0; i < numValues; i++) {
-            if ((0xFF & bp[i]) > key.size() - 1) {
+            if ((0xFF & bp[i]) > (key.size() - 1)) {
                 throw new IllegalArgumentException(
                         "Illegal weather grid (bad values) in gridSet()");
             }
@@ -903,19 +883,19 @@ public class WeatherGridData extends AbstractGridData implements INumpyable {
                 }
             }
         }
-		// COMBINE mode is more difficult, have to do each one
-		else {
-			for (int i = 0; i < dim.x; i++) {
-				for (int j = 0; j < dim.y; j++) {
-					if (points.get(i, j) == 1) {
-						WeatherKey combined = new WeatherKey(
-								key.get(0xFF & values.get(i, j)));
-						combined.addAll(doGetWeatherValue(i, j));
-						grid.set(i, j, lookupKeyValue(combined));
-					}
-				}
-			}
-		}
+        // COMBINE mode is more difficult, have to do each one
+        else {
+            for (int i = 0; i < dim.x; i++) {
+                for (int j = 0; j < dim.y; j++) {
+                    if (points.get(i, j) == 1) {
+                        WeatherKey combined = new WeatherKey(
+                                key.get(0xFF & values.get(i, j)));
+                        combined.addAll(doGetWeatherValue(i, j));
+                        grid.set(i, j, lookupKeyValue(combined));
+                    }
+                }
+            }
+        }
 
         setGrid(grid);
     }
@@ -1006,8 +986,8 @@ public class WeatherGridData extends AbstractGridData implements INumpyable {
     protected boolean doValid() {
         String emsg = "Grid contains data which exceeds limits for this parm. ";
 
-        if (!getGridTime().isValid() || getParm() == null
-                || getGridSlice() == null) {
+        if (!getGridTime().isValid() || (getParm() == null)
+                || (getGridSlice() == null)) {
             statusHandler.handle(Priority.PROBLEM,
                     "Invalid grid time, bad parm or data slice");
             return false; // time, parm, or data slice not valid

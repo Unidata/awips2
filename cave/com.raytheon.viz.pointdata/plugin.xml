@@ -75,10 +75,4 @@
             name="Plot Models"
             category="com.raytheon.uf.viz.productbrowser.productbrowserpreferencespage"/>
    </extension>
-   <extension
-   		point="com.raytheon.uf.viz.core.graphicsExtension">
-   		<graphicsExtension
-           class="com.raytheon.viz.pointdata.drawables.GeneralPointImageExtension">
-   		</graphicsExtension>
-   	</extension>
 </plugin>

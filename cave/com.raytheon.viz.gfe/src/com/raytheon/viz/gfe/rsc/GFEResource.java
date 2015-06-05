@@ -50,9 +50,9 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;
@@ -93,7 +93,11 @@ import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.grid.display.GriddedImageDisplay;
+import com.raytheon.uf.viz.core.grid.display.GriddedVectorDisplay;
+import com.raytheon.uf.viz.core.grid.display.GriddedImageDisplay.GriddedImagePaintProperties;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
+import com.raytheon.uf.viz.core.point.display.VectorGraphicsConfig;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
@@ -108,10 +112,6 @@ import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.core.time.TimeMatchingJob;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedContourDisplay;
-import com.raytheon.viz.core.contours.rsc.displays.GriddedVectorDisplay;
-import com.raytheon.viz.core.contours.util.VectorGraphicsConfig;
-import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay;
-import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay.GriddedImagePaintProperties;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEPreference;
@@ -171,6 +171,8 @@ import com.vividsolutions.jts.geom.Envelope;
  *                                    remove dead code in paintInternal
  * Apr 03, 2014  2737     randerso    Uncommented out listers for iscParm inventory changed
  * May 20, 2014  15814    zhao        Make image display for model Parm not affected by ISC mode
+ * Jan 13, 2015  3995     randerso    Correctly fixed display of model Parms in ISC mode so ISC
+ *                                    will work when editting Topo.
  * 
  * </pre>
  * 
@@ -520,8 +522,9 @@ public class GFEResource extends
                 .getValidPeriod());
 
         boolean iscParm = this.parm.isIscParm();
-        boolean modelParm = isModelParm();
-        
+        GridID gid = new GridID(this.parm, this.curTime.getRefTime());
+        GridID iscGid = dataManager.getIscDataAccess().getISCGridID(gid, true);
+
         if ((gd.length == 0) && !dataManager.getParmManager().iscMode()) {
             return;
         }
@@ -608,10 +611,10 @@ public class GFEResource extends
                 VectorGridSlice vectorSlice = (VectorGridSlice) gs;
                 Grid2DBit mask = parm.getDisplayAttributes().getDisplayMask();
 
-                if ( (dataManager.getParmManager().iscMode() || iscParm) && !modelParm ) {
+                if ((dataManager.getParmManager().iscMode() || iscParm)
+                        && (iscGid != null)) {
                     vectorSlice = new VectorGridSlice();
-                    mask = dataManager.getIscDataAccess().getCompositeGrid(
-                            new GridID(this.parm, this.curTime.getRefTime()),
+                    mask = dataManager.getIscDataAccess().getCompositeGrid(gid,
                             true, vectorSlice);
                 }
 
@@ -695,10 +698,10 @@ public class GFEResource extends
                 ScalarGridSlice scalarSlice = (ScalarGridSlice) gs;
                 Grid2DBit mask = parm.getDisplayAttributes().getDisplayMask();
 
-                if ( (dataManager.getParmManager().iscMode() || iscParm) && !modelParm ) {
+                if ((dataManager.getParmManager().iscMode() || iscParm)
+                        && (iscGid != null)) {
                     scalarSlice = new ScalarGridSlice();
-                    mask = dataManager.getIscDataAccess().getCompositeGrid(
-                            new GridID(this.parm, this.curTime.getRefTime()),
+                    mask = dataManager.getIscDataAccess().getCompositeGrid(gid,
                             true, scalarSlice);
 
                 }
@@ -739,9 +742,9 @@ public class GFEResource extends
 
                 Grid2DBit mask = parm.getDisplayAttributes().getDisplayMask();
 
-                if ( (dataManager.getParmManager().iscMode() || iscParm) && !modelParm ) {
+                if ((dataManager.getParmManager().iscMode() || iscParm)
+                        && (iscGid != null)) {
                     slice = new DiscreteGridSlice();
-                    GridID gid = new GridID(parm, this.curTime.getRefTime());
                     mask = dataManager.getIscDataAccess().getCompositeGrid(gid,
                             true, slice);
                 }
@@ -816,9 +819,9 @@ public class GFEResource extends
 
                 Grid2DBit mask = parm.getDisplayAttributes().getDisplayMask();
 
-                if ( (dataManager.getParmManager().iscMode() || iscParm) && !modelParm ) {
+                if ((dataManager.getParmManager().iscMode() || iscParm)
+                        && (iscGid != null)) {
                     slice = new WeatherGridSlice();
-                    GridID gid = new GridID(parm, this.curTime.getRefTime());
                     mask = dataManager.getIscDataAccess().getCompositeGrid(gid,
                             true, slice);
                 }
@@ -1593,16 +1596,5 @@ public class GFEResource extends
                         this.gridChanged);
             }
         }
-    }
-
-    private boolean isModelParm() {
-        String parmId = parm.getParmID().toString();
-        if ( parmId.contains("__Fcst_") || 
-                parmId.contains("__ISC_") || 
-                parmId.contains("__Official_") || 
-                parmId.contains("__Restore_")) {
-            return false;
-        }
-        return true;
     }
 }

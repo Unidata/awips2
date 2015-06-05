@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DerivedParameter abbreviation="SNSQ" name="Snow Sql Parameter" xmlns:ns2="group">
+    <Method name="Difference" levels="100MB">
+        <Field level="0-2kmAgl" abbreviation="RH"/>
+        <ConstantField value="60.0"/>
+    </Method>
+    <Method name="Difference" levels="150MB">
+        <Field level="2kmAgl" abbreviation="EPT"/>
+        <Field level="Surface" abbreviation="EPT"/>
+    </Method>
+     <Method name="Difference" levels="200MB">
+        <ConstantField value="4.0"/>
+        <Field level="150MB" abbreviation="SNSQ"/>
+    </Method>
+     <Method levels="250MB" name="Test">
+        <Field level="100MB" abbreviation="SNSQ"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1.0E37"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="0.01"/>
+        <ConstantField value="1.0E37"/>
+        <Field level="100MB" abbreviation="SNSQ"/>
+    </Method>
+    <Method levels="300MB" name="Test">
+        <Field level="200MB" abbreviation="SNSQ"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1.0E37"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="0.01"/>
+        <ConstantField value="1.0E37"/>
+        <Field level="200MB" abbreviation="SNSQ"/>
+    </Method>
+    <Method name="Multiply" levels="350MB">
+          <Field level="300MB" abbreviation="SNSQ"/>
+          <Field level="250MB" abbreviation="SNSQ"/>
+          <Field level="0-2kmAgl" abbreviation="wSp"/>      
+          <ConstantField value="0.001852"/>
+    </Method>  
+    <Method levels="Layer" name="Test">
+        <Field level="Surface" abbreviation="TW"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1.0E37"/>
+        <ConstantField value="274.00000"/>
+        <Field level="350MB" abbreviation="SNSQ"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="274.00001"/>
+        <ConstantField value="1.0E37"/>
+        <ConstantField value="0.0"/>
+    </Method>
+</DerivedParameter>
+<!-- So, 0.001852 is the value 1 divided by the 15% RH, 4K, 
+and 9m/s in the denomenator of the parameter. Easier code to just multiply it.  -->
+
+ <!--  <Method name="Difference" levels="100MB">
+        <Field level="0-2kmAgl" abbreviation="RH"/>
+        <ConstantField value="60.0"/>
+    </Method>
+    <Method name="Difference" levels="150MB">
+        <Field level="2kmAgl" abbreviation="EPT"/>
+        <Field level="Surface" abbreviation="EPT"/>
+    </Method>
+     <Method name="Difference" levels="200MB">
+        <ConstantField value="4.0"/>
+        <Field level="150MB" abbreviation="SNSQ"/>
+    </Method>
+    <Method name="Multiply" levels="">
+          <Field level="100MB" abbreviation="SNSQ"/>
+          <Field level="200MB" abbreviation="SNSQ"/>
+          <Field level="0-2kmAgl" abbreviation="wSp"/>      
+          <ConstantField value="0.001852"/>
+    </Method>   -->

@@ -34,7 +34,7 @@ function lookupRPM()
 
    # foss rpms -> python rpms.
    if [ "${1}" = "awips2-python" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/python-2.7.8/"
+      export RPM_SPECIFICATION="${installer_dir}/python-2.7.9/"
       return 0
    fi
    if [ "${1}" = "awips2-python-cherrypy" ]; then
@@ -46,11 +46,7 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-python-h5py" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.h5py"
-      return 0
-   fi
-   if [ "${1}" = "awips2-python-jimporter" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.jimporter"
+      export RPM_SPECIFICATION="${installer_dir}/h5py-1.3.0/"
       return 0
    fi
    if [ "${1}" = "awips2-python-matplotlib" ]; then
@@ -62,7 +58,11 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-python-numpy" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.numpy"
+      export RPM_SPECIFICATION="${installer_dir}/numpy-1.7.2/"
+      return 0
+   fi
+   if [ "${1}" = "awips2-python-jep" ]; then
+      export RPM_SPECIFICATION="${installer_dir}/jep-3.3.0/"
       return 0
    fi
    if [ "${1}" = "awips2-python-pil" ]; then
@@ -78,19 +78,19 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-python-qpid" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.qpid"
+      export RPM_SPECIFICATION="${installer_dir}/qpid-python-0.32"
       return 0
    fi
    if [ "${1}" = "awips2-python-scientific" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.scientific"
+      export RPM_SPECIFICATION="${installer_dir}/scientific-2.8"
       return 0
    fi
    if [ "${1}" = "awips2-python-scipy" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.scipy"
+      export RPM_SPECIFICATION="${installer_dir}/scipy-0.15.0/"
       return 0
    fi
    if [ "${1}" = "awips2-python-tables" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.tables"
+      export RPM_SPECIFICATION="${installer_dir}/tables-2.1.2/"
       return 0
    fi
    if [ "${1}" = "awips2-python-thrift" ]; then
@@ -216,7 +216,7 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-java" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.java"
+      export RPM_SPECIFICATION="${installer_dir}/java-1.7"
       return 0
    fi
    if [ "${1}" = "awips2-groovy" ]; then

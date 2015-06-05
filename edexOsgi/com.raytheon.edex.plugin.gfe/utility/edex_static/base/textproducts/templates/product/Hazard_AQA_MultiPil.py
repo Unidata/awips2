@@ -24,6 +24,7 @@
 # Date            Ticket#        Engineer    Description
 # ------------    ----------     ----------- --------------------------
 # Oct 20, 2014    #3685          randerso    Changed to support mixed case
+# Apr 28, 2015    #4027          randerso    Additional changes for mixed case
 #
 ##
 
@@ -55,11 +56,11 @@ class TextProduct(GenericHazards.TextProduct):
                                            "AKZ215","AKZ216","AKZ217","AKZ227"]
 
     # Header configuration items
-    Definition["productName"] = "AIR QUALITY ALERT"  # name of product
+    Definition["productName"] = "Air Quality Alert"  # name of product
     Definition["fullStationID"] = "<fullStationID>"  # full station identifier (4letter)
     Definition["wmoID"] = "<wmoID>"        # WMO ID
     Definition["pil"] = "<pil>"          # product pil
-    #Definition["areaName"] = "STATENAME"  # Name of state, such as "GEORGIA"
+    #Definition["areaName"] = "Statename"  # Name of state, such as "Georgia"
     Definition["wfoCityState"] = "<wfoCityState>"  # Location of WFO - city state
     Definition["wfoCity"] = "<wfoCity>"       # WFO Name as it should appear in a text product
     Definition["textdbPil"] = "<textdbPil>"       # Product ID for storing to AWIPS text database.
@@ -74,7 +75,7 @@ class TextProduct(GenericHazards.TextProduct):
 
     Definition["purgeTime"] = 24       # Maximum hours for expireTime from issueTime
     Definition["includeCities"] = 1    # Cities included in area header
-    Definition["cityDescriptor"] = "INCLUDING THE CITIES OF"
+    Definition["cityDescriptor"] = "Including the cities of"
     Definition["includeZoneNames"] = 1 # Zone names will be included in the area header
     #Definition["easPhrase"] = ""       # Optional EAS phrase to be include in product header
     Definition["lineLength"] = 69
@@ -90,14 +91,14 @@ class TextProduct(GenericHazards.TextProduct):
         "name": "Forsyth County Environmental Affairs Department Winston-Salem NC",
         "declaration": "The Forsyth County Environmental Affairs Department has issued an Air Quality Action Day...",
         "zones": ["FLZ039"],
-        "text": "A Code @ALERTCODE Air Quality Alert for Ozone has been issued. Ground level ozone concentrations within the region may approach or exceed unhealthy standards. @ALERTCTA For additional information...please visit the Forsyth County Environmental Affairs Department Web site at http://www.co.forsyth.nc.us/envaffairs.",
+        "text": "A Code @ALERTCODE Air Quality Alert for Ozone has been issued. Ground level ozone concentrations within the region may approach or exceed unhealthy standards. @ALERTCTA For additional information...please visit the Forsyth County Environmental Affairs Department web site at http://www.co.forsyth.nc.us/envaffairs.",
         },
         
         "NC": {
         "name": "North Carolina Department of Environmental and Natural Resources Raleigh NC",
         "declaration": "The North Carolina Department of Environmental and Natural Resources has issued an Air Quality Action Day...",
         "zones" : ["FLZ042", "FLZ043","FLZ048"],
-        "text": "A Code @ALERTCODE Air Quality Alert for Ozone has been issued. Ground level ozone concentrations within the region may approach or exceed unhealthy standards. @ALERTCTA For additional information...please visit the North Carolina Division of Air Quality Web site at http://daq.state.nc.us/airaware/forecast/.",
+        "text": "A Code @ALERTCODE Air Quality Alert for Ozone has been issued. Ground level ozone concentrations within the region may approach or exceed unhealthy standards. @ALERTCTA For additional information...please visit the North Carolina Division of Air Quality web site at http://daq.state.nc.us/airaware/forecast/.",
         },        
         }
     
@@ -112,7 +113,7 @@ class TextProduct(GenericHazards.TextProduct):
     Definition["alertCodes"] = ["Orange", "Red", "Purple"]
     Definition["alertCTAsDict"] = {
         "Orange": "Members of sensitive groups may experience health effects. The general public is not likely to be affected.",
-        "Red" : "Everyone may experience health effects. Members of sensitive groups may experience more serious health effects.",
+        "Red" : "Everyone may experience health effects. Members of sensitive groups May experience more serious health effects.",
         "Purple" : "Health alert: everyone may experience serious health effects.",
         }
 
@@ -150,19 +151,19 @@ class TextProduct(GenericHazards.TextProduct):
 
         # Product header
         if self._areaName != "":
-             productName = self._productName.strip() + " FOR " + \
+             productName = self._productName.strip() + " for " + \
                            self._areaName.strip()
         else:
              productName = self._productName.strip()
         issuedByString = self.getIssuedByString()
         productName = self.checkTestMode(argDict, productName)
 
-        fcst = fcst + self._wmoID + " " + self._fullStationID + " " +\
+        s = self._wmoID + " " + self._fullStationID + " " +\
                self._ddhhmmTime + "\n" + self._pil + "\n\n" + productName + "\n"
 
         # Placeholder for Agency Names to be filled in in _postProcessProduct
-        #fcst = fcst + "@AGENCYNAMES" + "\n"
-        s = "RELAYED BY NATIONAL WEATHER SERVICE " + self._wfoCityState + "\n" +\
+        #s = s + "@AGENCYNAMES" + "\n"
+        s = s + "Relayed by National Weather Service " + self._wfoCityState + "\n" +\
                issuedByString + self._timeLabel + "\n\n"
 
         fcst = fcst + s.upper()
@@ -178,12 +179,12 @@ class TextProduct(GenericHazards.TextProduct):
         #   Each can be one of these phraseTypes: 
         #      "EXPLICIT" will return words such as "5 PM"
         #      "FUZZY4" will return words such as "THIS EVENING"
-        #      "DAY_NIGHT_ONLY" use only weekday or weekday "NIGHT" e.g.
-        #         "SUNDAY" or "SUNDAY NIGHT" or "TODAY" or "TONIGHT"
+        #      "DAY_NIGHT_ONLY" use only weekday or weekday "Night" e.g.
+        #         "Sunday" or "Sunday night" or "Today" or "Tonight"
         #         Note: You will probably want to set both the
         #         startPhraseType and endPhraseType to DAY_NIGHT_ONLY to
         #         have this work correctly.
-        #      "NONE" will result in no words
+        #      "None" will result in no words
         #   OR a method which takes arguments:
         #        issueTime, eventTime, timeZone, and timeType
         #     and returns:
@@ -243,7 +244,7 @@ class TextProduct(GenericHazards.TextProduct):
                                 
         # If no valid AQA hazard grid, just return a placeholder
         if headlines == "":
-            return fcst + "|* STATEMENT TEXT *|"
+            return fcst + "|* Statement text *|"
 
         # If valid hazard grid, insert headline, agency attribution, and any default text
         else:

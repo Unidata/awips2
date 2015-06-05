@@ -50,6 +50,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Sep 04, 2014 3220       skorolev    Added fireConfigUpdateEvent method. Updated handler.
  * Sep 19, 2014 2757       skorolev    Updated handlers for dialog buttons.
  * Oct 27, 2014 3667       skorolev    Cleaned code.
+ * Feb 10, 2015 3886       skorolev     Changed confirmation message.
  * 
  * 
  * </pre>
@@ -77,7 +78,7 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
     protected void handleOkBtnSelection() {
         if (dataIsChanged()) {
             int choice = showMessage(shell, SWT.YES | SWT.NO,
-                    "SAFESEAS Monitor Confirm Changes", "Save changes?");
+                    "Confirm Cofiguration Changes", "Save changes?");
             if (choice == SWT.YES) {
                 // Save the config xml file.
                 resetAndSave();

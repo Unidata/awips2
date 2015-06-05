@@ -61,11 +61,11 @@ class TextProduct(GenericHazards.TextProduct):
         Definition["mapNameForCombinations"] = "Zones_<site>"
 
     # Header configuration items
-    Definition["productName"] = "FLOOD WATCH"  # name of product
+    Definition["productName"] = "Flood Watch"  # name of product
     Definition["fullStationID"] = "<fullStationID>"  # full station identifier (4letter)
     Definition["wmoID"] = "<wmoID>"        # WMO ID
     Definition["pil"] = "<pil>"          # product pil
-    #Definition["areaName"] = "STATENAME"  # Name of state, such as "GEORGIA"
+    #Definition["areaName"] = "Statename"  # Name of state, such as "Georgia"
     Definition["wfoCityState"] = "<wfoCityState>"  # Location of WFO - city state
     Definition["wfoCity"] = "<wfoCity>"       # WFO Name as it should appear in a text product
     Definition["textdbPil"] = "<textdbPil>"       # Product ID for storing to AWIPS text database.
@@ -83,7 +83,7 @@ class TextProduct(GenericHazards.TextProduct):
     Definition["accurateCities"] = 0  # If 1, cities are based on grids;
                                       # otherwise full list is included
     Definition["cityLocation"] = "CityLocation" # City lat/lon dictionary to use
-    Definition["cityDescriptor"] = "INCLUDING THE CITIES OF"
+    Definition["cityDescriptor"] = "Including the cities of"
     Definition["includeZoneNames"] = 1 # Zone names will be included in the area header
     Definition["includeIssueTime"] = 1   # This should be set to zero for products
                                        # that do not include a time lime below the UGC
@@ -133,7 +133,7 @@ class TextProduct(GenericHazards.TextProduct):
         #
 
         if self._areaName != "":
-            self._areaName = " FOR " + self._areaName
+            self._areaName = " for " + self._areaName
         if useEAS == 1:
             easPhrase = "URGENT - IMMEDIATE BROADCAST REQUESTED\n"
         else:
@@ -142,13 +142,15 @@ class TextProduct(GenericHazards.TextProduct):
         issuedByString = self.getIssuedByString()
         productName = self.checkTestMode(argDict, self._productName)
 
-        fcst =  fcst + self._wmoID + " " + self._fullStationID + " " + \
+        s = self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n" + self._pil + "\n\n" + easPhrase +\
                productName + "\n" +\
-               "NATIONAL WEATHER SERVICE " + self._wfoCityState + \
+               "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n" + \
                self._easPhrase + "\n\n"
-        fcst = fcst + "DEFAULT OVERVIEW SECTION\n"
+        fcst =  fcst + s.upper()
+        
+        fcst = fcst + "Default overview section\n"
         return fcst
 
 
@@ -293,9 +295,9 @@ class TextProduct(GenericHazards.TextProduct):
         #period.
         areaGroupLen = len(areaGroups)
         if areaGroupLen == 1:
-            areaPhrase = "A PORTION OF "
+            areaPhrase = "a portion of "
         else:
-            areaPhrase = "PORTIONS OF "
+            areaPhrase = "portions of "
 
         #parts of the states
         areaGroupCount = 0
@@ -304,7 +306,7 @@ class TextProduct(GenericHazards.TextProduct):
             if areaGroupCount == 1:
                 conn = ""
             elif areaGroupCount == areaGroupLen:
-                conn = " AND "
+                conn = " and "
             else:
                 conn = "..."
 
@@ -314,55 +316,55 @@ class TextProduct(GenericHazards.TextProduct):
                 areaPhrase = areaPhrase + conn + partOfState + " " + state
 
         #including phrase, have to count what we have
-        d = {'INDEPENDENT CITY': ("INDEPENDENT CITY", "INDEPENDENT CITIES"),
-             'PARISH': ("PARISH", "PARISHES"),
-             'COUNTY': ("COUNTY", "COUNTIES"),
-             'ZONE':   ("AREA", "AREAS")  }
+        d = {'Independent city': ("Independent city", "Independent cities"),
+             'Parish': ("Parish", "Parishes"),
+             'County': ("County", "Counties"),
+             'Zone':   ("Area", "Areas")  }
         icCnt = 0
         parishCnt = 0
         zoneCnt = 0
         countyCnt = 0
         for state, partOfState, names in areaGroups:
             for name,nameType in names:
-                if nameType == "ZONE":
+                if nameType == "zone":
                     zoneCnt = zoneCnt + 1
-                elif nameType == "COUNTY":
+                elif nameType == "county":
                     countyCnt = countyCnt + 1
-                elif nameType == "INDEPENDENT CITY":
+                elif nameType == "independent city":
                     icCnt = icCnt + 1
-                elif nameType == "PARISH":
+                elif nameType == "parish":
                     parishCnt = parishCnt + 1
 
         incPhrases = []
         if zoneCnt == 1:
-            incPhrases.append("AREA")
+            incPhrases.append("area")
         elif zoneCnt > 1:
-            incPhrases.append("AREAS")
+            incPhrases.append("areas")
         if countyCnt == 1:
-            incPhrases.append("COUNTY")
+            incPhrases.append("county")
         elif countyCnt > 1:
-            incPhrases.append("COUNTIES")
+            incPhrases.append("counties")
         if icCnt == 1:
-            incPhrases.append("INDEPENDENT CITY")
+            incPhrases.append("independent city")
         elif icCnt > 1:
-            incPhrases.append("INDEPENDENT CITIES")
+            incPhrases.append("independent cities")
         if parishCnt == 1:
-            incPhrases.append("PARISH")
+            incPhrases.append("parish")
         elif parishCnt > 1:
-            incPhrases.append("PARISHES")
-        incPhrase = " AND ".join(incPhrases)
+            incPhrases.append("parishes")
+        incPhrase = " and ".join(incPhrases)
 
         if generalOnly:
             return areaPhrase
 
              
-        areaPhrase = areaPhrase + "...INCLUDING THE FOLLOWING " + \
+        areaPhrase = areaPhrase + "...including the following " + \
           incPhrase + "..."
 
         #list of the specific areas
         for i in xrange(len(areaGroups)):
             state, partOfState, names = areaGroups[i]
-            if state == "THE DISTRICT OF COLUMBIA":
+            if state == "The District of Columbia":
                 areaPhrase = areaPhrase + state
             else:
                 # extract out the names
@@ -375,7 +377,10 @@ class TextProduct(GenericHazards.TextProduct):
                     phrase = "...".join(snames[0:-1])
                 # complex phrasing (state, partOfState, and names)
                 else:
-                    phrase = "IN "
+                    if i == 0:
+                        phrase = "in "
+                    else:
+                        phrase = "In "
                     if partOfState != '' and partOfState != ' ':
                         phrase = phrase + partOfState + ' '
                     phrase = phrase + state + "..." + "...".join(snames[0:-1])
@@ -383,7 +388,7 @@ class TextProduct(GenericHazards.TextProduct):
                 if len(snames) == 1:
                     phrase = phrase + snames[-1]
                 else:
-                    phrase = phrase + " AND " + snames[-1]
+                    phrase = phrase + " and " + snames[-1]
                 areaPhrase = areaPhrase + phrase
             if i != len(areaGroups) - 1:
                 areaPhrase = areaPhrase + '. '  #another one coming, add period
@@ -401,7 +406,7 @@ class TextProduct(GenericHazards.TextProduct):
         #in.  canHazard is any associated CAN/EXP/UPG hazard, areaPhrase is
         #the area description for the segment.
 
-        nwsPhrase = "THE NATIONAL WEATHER SERVICE IN " + self._wfoCity + " HAS "
+        nwsPhrase = "The National Weather Service in " + self._wfoCity + " has "
 
         #
         # Attribution and 1st bullet (headPhrase)
@@ -412,42 +417,42 @@ class TextProduct(GenericHazards.TextProduct):
         hazName = self.hazardName(hazard['hdln'], argDict, False)
         
         if hazard['act'] == 'NEW' and len(hazard['hdln']):
-            attribution = nwsPhrase + "ISSUED A"
-            headPhrase =  "* " + hazName + " FOR " + areaPhrase + "."
+            attribution = nwsPhrase + "issued a"
+            headPhrase =  "* " + hazName + " for " + areaPhrase + "."
 
         elif hazard['act'] == 'CON' and len(hazard['hdln']):
-            attribution = "THE " + hazName + " CONTINUES FOR"
+            attribution = "The " + hazName + " continues for"
             headPhrase =  "* " + areaPhrase + "."
 
         elif hazard['act'] == 'EXA' and len(hazard['hdln']):
-            attribution = nwsPhrase + "EXPANDED THE"
-            headPhrase =  "* " + hazName + " TO INCLUDE " + areaPhrase + "."
+            attribution = nwsPhrase + "expanded the"
+            headPhrase =  "* " + hazName + " to include " + areaPhrase + "."
 
         elif hazard['act'] == 'EXT' and len(hazard['hdln']):
-            attribution = 'THE ' + hazName + " IS NOW IN EFFECT FOR" 
+            attribution = 'The ' + hazName + " is now in effect for" 
             headPhrase = "* " + areaPhrase + "."
                 
         elif hazard['act'] == 'EXB' and len(hazard['hdln']):
-            attribution = nwsPhrase + "EXPANDED THE"
-            headPhrase =  "* " + hazName + " TO INCLUDE " + areaPhrase + "."
+            attribution = nwsPhrase + "expanded the"
+            headPhrase =  "* " + hazName + " to include " + areaPhrase + "."
 
         elif hazard['act'] == 'CAN' and len(hazard['hdln']):
-            attribution = "THE " + hazName + \
-               " FOR " + areaPhrase + " HAS BEEN CANCELLED. " + \
-               "|* BRIEF POST-SYNOPSIS/SUMMARY OF HYDROMET ACTIVITY *|\n\n"
+            attribution = "The " + hazName + \
+               " for " + areaPhrase + " has been cancelled. " + \
+               "|* brief post-synopsis/summary of hydromet activity *|\n\n"
 
         elif hazard['act'] == 'EXP' and len(hazard['hdln']):
             expTimeCurrent = argDict['creationTime']
             if hazard['endTime'] <= expTimeCurrent:
-                attribution = "THE " + hazName + \
-                  " FOR " + areaPhrase + " HAS EXPIRED. " + \
-                  "|* BRIEF POST-SYNOPSIS/SUMMARY OF HYDROMET ACTIVITY *|"
+                attribution = "The " + hazName + \
+                  " for " + areaPhrase + " has expired. " + \
+                  "|* brief post-synopsis/summary of hydromet activity *|"
             else:
                timeWords = self.getTimingPhrase(hazard, expTimeCurrent)
-               attribution = "THE " + hazName + \
-                  " FOR " + areaPhrase + " WILL EXPIRE " + timeWords + \
+               attribution = "The " + hazName + \
+                  " for " + areaPhrase + " will expire " + timeWords + \
                   ". " + \
-                  "|* BRIEF POST-SYNOPSIS/SUMMARY OF HYDROMET ACTIVITY *|"
+                  "|* brief post-synopsis/summary of hydromet activity *|"
           
         #wrap it, if headPhrase, then we have bullets
         if headPhrase is not None:
@@ -458,7 +463,7 @@ class TextProduct(GenericHazards.TextProduct):
             endTimePhrase = self.hazardTimePhrases(hazard, argDict, 
               prefixSpace=False)
             endTimePhrase = self.substituteBulletedText(endTimePhrase,
-                  "TIME IS MISSING", "DefaultOnly")
+                  "Time is missing", "DefaultOnly")
 
             # 3rd bullet (basis), 4th bullet (impacts)
             if hazard['act'] == "NEW" and canHazard:
@@ -469,11 +474,11 @@ class TextProduct(GenericHazards.TextProduct):
               self.decodeBulletedText(capText)
 
             defaultBasis = {
-              'NEW': ("BASIS FOR THE WATCH", "Always"),
-              'CON': ("DESCRIBE CURRENT SITUATION", "DefaultOnly"),
-              'EXT': ("BASIS FOR EXTENDING THE WATCH", "DefaultOnly"),
-              'EXB': ("BASIS FOR EXPANSION OF THE WATCH", "DefaultOnly"),
-              'EXA': ("BASIS FOR EXPANSION OF THE WATCH", "DefaultOnly"),
+              'NEW': ("Basis for the watch", "Always"),
+              'CON': ("Describe current situation", "DefaultOnly"),
+              'EXT': ("Basis for extending the watch", "DefaultOnly"),
+              'EXB': ("Basis for expansion of the watch", "DefaultOnly"),
+              'EXA': ("Basis for expansion of the watch", "DefaultOnly"),
               }
             b = defaultBasis[hazard['act']]
             if multRecords == 0:
@@ -486,7 +491,7 @@ class TextProduct(GenericHazards.TextProduct):
             else:
                 framing = "DefaultOnly"
             impactsPhrase = self.substituteBulletedText(impact,
-              "(OPTIONAL) POTENTIAL IMPACTS OF FLOODING", framing)
+              "(optional) potential impacts of flooding", framing)
 
             #remainder of text
             general = ''
@@ -517,16 +522,16 @@ class TextProduct(GenericHazards.TextProduct):
                 cta = ''
 
             if len(cta) > 1:
-              ctaBodyPhrase ="\n\nPRECAUTIONARY/PREPAREDNESS ACTIONS...\n\n" + \
+              ctaBodyPhrase ="\n\nPrecautionary/preparedness actions...\n\n" + \
                 cta + \
                 "\n\n&&\n\n"
             else:
               ctaBodyPhrase = cta
 
-            if ctaBodyPhrase.find('PRECAUTIONARY/PREPAREDNESS ACTIONS...') != -1 and  \
+            if ctaBodyPhrase.find('Precautionary/preparedness actions...') != -1 and  \
                attribution.find('&&') != -1:
                  attribution = attribution.replace('&&','')
-                 ctaBodyPhrase = ctaBodyPhrase.replace('PRECAUTIONARY/PREPAREDNESS ACTIONS...','')
+                 ctaBodyPhrase = ctaBodyPhrase.replace('Precautionary/preparedness actions...','')
 
             attrPhrase = attribution + '\n\n' + headPhrase + '\n' + \
               endTimePhrase + '\n' + basisPhrase + '\n' + impactsPhrase + \

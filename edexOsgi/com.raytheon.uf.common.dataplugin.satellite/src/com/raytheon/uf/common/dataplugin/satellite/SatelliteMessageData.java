@@ -28,11 +28,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * Encapsulate satellite image data as well as the dimensions of the image grid.
- * Attributes about the data may also be added. As an example these attributes
- * could include "scale factor" and/or "fill_value".
+ * @Deprecated this class is not providing anything unique enough to justify
+ *             its existence, wherever it is used an IDataRecord of the
+ *             appropriate type can be used instead.
  * 
- * <pre>
+ *             TODO this class can be deleted when no decoders are using it.
+ * 
+ *             <pre>
  * 
  * SOFTWARE HISTORY
  * 
@@ -41,6 +43,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Jun 27, 2012        798     jkorman Initial creation
  * Nov 14, 2013  2393       bclement   use datastore factory in
  *                                     getStorageRecord()
+ * Apr 15, 2014  4388     bsteffen    Deprecate
  * 
  * </pre>
  * 
@@ -48,6 +51,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @DynamicSerialize
+@Deprecated
 public class SatelliteMessageData {
 
     private static final int DATA_DIMS = 2;

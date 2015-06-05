@@ -32,7 +32,9 @@
 #                                                 ProjectionType enumeration
 #    07/09/2014          #3146     randerso       Added check for duplicate smartInit
 #                                  rferrel        Corrected log to alertviz.
-#    11/18/2014          #4953     randerso       Added check for empty unit string       
+#    11/18/2014          #4953     randerso       Added check for empty unit string
+#    04/09/2015          #4383     dgilling       Added support for FireWx ISC.       
+#    Apr 23, 2015    4259          njensen        Updated for new JEP API       
 #
 ########################################################################
 import types
@@ -68,8 +70,8 @@ def check(data, fmt, message, allData = None):
          raise AssertionError, m
      for i in xrange(len(data)):
          obj = data[i]
-         if hasattr(obj, "jclassname"):
-             t = obj.jclassname
+         if hasattr(obj, "java_name"):
+             t = obj.java_name
          else:
              t = type(obj)
          
@@ -521,3 +523,22 @@ def otherParse(serverhost, mhsid, port,
       autoConfigureNotifyTextProd, \
       iscRoutingTableAddress, reqISCsites, requestISC, sendiscOnSave, \
       sendiscOnPublish, reqISCparms, transmitScript
+
+def parseAdditionalISCRouting(iscRoutingData):
+    from com.raytheon.edex.plugin.gfe.config import ISCRoutingConfig
+    
+    retVal = ArrayList()
+    if iscRoutingData:
+        try:
+            iter(iscRoutingData)
+        except TypeError:
+            raise TypeError("AdditionalISCRouting should be a list or tuple.")
+        
+        for entry in iscRoutingData:
+            (pyParms, dbName, editAreaPrefix) = check(entry, (list, str, str), "AdditionalISCRouting entry not in correct format.")
+            javaParms = ArrayList()
+            for parm in pyParms:
+                javaParms.add(str(parm[0]))
+            retVal.add(ISCRoutingConfig(javaParms, dbName, editAreaPrefix))
+    
+    return retVal

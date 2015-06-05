@@ -13,6 +13,8 @@
 		<echo message="ANT FILE DIR:${antfile.dir}" />
 		<dirname property="base.dir" file="${antfile.dir}" />
 		<echo message="BASE DIR:${base.dir}" />
+		<dirname property="repo.dir" file="${base.dir}" />
+		<echo message="REPO DIR:${repo.dir}"/>
 		<basename property="base.name" file="${base.dir}" />
 		<echo message="BASE NAME:${base.name}" />
 		<if>

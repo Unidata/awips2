@@ -30,7 +30,12 @@ import org.eclipse.jdt.internal.ui.JavaUIMessages;
 import org.eclipse.jdt.internal.ui.text.spelling.AddWordProposal;
 import org.eclipse.jdt.internal.ui.text.spelling.DisableSpellCheckingProposal;
 import org.eclipse.jdt.ui.PreferenceConstants;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.ITextListener;
 import org.eclipse.jface.text.Region;
@@ -46,20 +51,16 @@ import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.texteditor.spelling.ISpellingProblemCollector;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
-import com.google.common.collect.Ranges;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
@@ -87,6 +88,8 @@ import com.raytheon.uf.viz.spellchecker.jobs.EnhancedSpellCheckJob;
  *                                   to site level localization.
  * Oct 01, 2014 3453       rblum     Allow MB3 click anywhere in the textbox
  *                                   to enable/disable spellcheck.
+ * Mar 27, 2015 4138       dhladky   Guava name change.
+ * Apr 14, 2015 4362       mapeters  Allow external contribution of menu items.
  * 
  * </pre>
  * 
@@ -116,6 +119,8 @@ public class SpellCheckTextViewer extends TextViewer implements
     private final String siteDictionary = "spellcheck/dictionary.txt";
 
     private LocalizationFile lf;
+
+    private IAction[] menuItems;
 
     /**
      * @param parent
@@ -148,6 +153,7 @@ public class SpellCheckTextViewer extends TextViewer implements
             }
         };
         addTextListener(listener);
+
         getTextWidget().addMouseListener(new MouseAdapter() {
             @Override
             public void mouseDown(MouseEvent e) {
@@ -162,51 +168,32 @@ public class SpellCheckTextViewer extends TextViewer implements
                          */
                     }
                     SpellingProblem problem = getProblemInRange(offset);
-                    final Menu menu = new Menu(getTextWidget());
+
+                    MenuManager menuMgr = new MenuManager();
+                    if (menuItems != null) {
+                        for (IAction action : menuItems) {
+                            menuMgr.add(action);
+                        }
+                        menuMgr.add(new Separator());
+                    }
+
                     if (store
                             .getBoolean(SpellingService.PREFERENCE_SPELLING_ENABLED) == false) {
-                        MenuItem item = new MenuItem(menu, SWT.PUSH);
-                        item.setText(enableSpellCheckText);
-                        item.setImage(JavaPluginImages
-                                .get(JavaPluginImages.IMG_CORRECTION_ADD));
-                        item.addSelectionListener(new SelectionAdapter() {
-                            @Override
-                            public void widgetSelected(SelectionEvent e) {
-                                store.setValue(
-                                        SpellingService.PREFERENCE_SPELLING_ENABLED,
-                                        true);
-                                refreshAllTextViewers(true);
-                            }
-                        });
+                        menuMgr.add(new EnableDisableSpellCheckAction(true));
+
                     } else if (problem != null) {
                         for (ICompletionProposal prop : problem.getProposals()) {
-                            MenuItem item = new MenuItem(menu, SWT.PUSH);
-                            item.setText(prop.getDisplayString());
-                            item.setData(prop);
-                            item.setImage(prop.getImage());
-                            addSelectionAction(item);
+                            menuMgr.add(new SpellCheckProposalAction(prop));
                         }
-
                     } else {
                         /*
                          * Spell check is enabled but did not click on
                          * mis-spelled word - Allow disabling
                          */
-                        MenuItem item = new MenuItem(menu, SWT.PUSH);
-                        item.setText(JavaUIMessages.Spelling_disable_label);
-                        item.setImage(JavaPluginImages
-                                .get(JavaPluginImages.IMG_OBJS_NLS_NEVER_TRANSLATE));
-                        item.addSelectionListener(new SelectionAdapter() {
-                            @Override
-                            public void widgetSelected(SelectionEvent e) {
-                                store.setValue(
-                                        SpellingService.PREFERENCE_SPELLING_ENABLED,
-                                        false);
-                                refreshAllTextViewers(false);
-                            }
-                        });
+                        menuMgr.add(new EnableDisableSpellCheckAction(false));
                     }
 
+                    Menu menu = menuMgr.createContextMenu(getTextWidget());
                     menu.addMenuListener(new MenuAdapter() {
                         @Override
                         public void menuHidden(MenuEvent e) {
@@ -239,7 +226,7 @@ public class SpellCheckTextViewer extends TextViewer implements
     @Override
     public void accept(SpellingProblem problem) {
         problems.add(problem);
-        Range<Integer> range = Ranges.range(problem.getOffset(),
+        Range<Integer> range = Range.range(problem.getOffset(),
                 BoundType.CLOSED, problem.getOffset() + problem.getLength(),
                 BoundType.CLOSED);
         ranges.put(range, problem);
@@ -269,6 +256,7 @@ public class SpellCheckTextViewer extends TextViewer implements
     @Override
     public void endCollecting() {
         VizApp.runAsync(new Runnable() {
+            @Override
             public void run() {
                 TextPresentation presentation = new TextPresentation();
                 for (SpellingProblem problem : problems) {
@@ -285,7 +273,7 @@ public class SpellCheckTextViewer extends TextViewer implements
                     changeTextPresentation(presentation, true);
                 }
                 checkingSpelling = false;
-            };
+            }
         });
     }
 
@@ -298,35 +286,6 @@ public class SpellCheckTextViewer extends TextViewer implements
             }
         }
         return problem;
-    }
-
-    private void addSelectionAction(final MenuItem item) {
-        item.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                ICompletionProposal prop = (ICompletionProposal) item.getData();
-                if (prop instanceof DisableSpellCheckingProposal) {
-                    store.setValue(SpellingService.PREFERENCE_SPELLING_ENABLED,
-                            false);
-                } else {
-                    prop.apply(getDocument());
-
-                    if (prop instanceof AddWordProposal) {
-                        try {
-                            if (lf != null) {
-                                lf.save();
-                            }
-                        } catch (LocalizationOpFailedException exception) {
-                            statusHandler
-                                    .error("Unable to save dictionary into localization",
-                                            exception);
-                        }
-                    }
-                }
-                scheduleSpellJob(true);
-                refreshAllTextViewers(false);
-            }
-        });
     }
 
     /**
@@ -375,6 +334,68 @@ public class SpellCheckTextViewer extends TextViewer implements
             checkingSpelling = true;
             job.schedule();
             refresh();
+        }
+    }
+
+    public void addMenuItems(IAction[] menuItems) {
+        this.menuItems = menuItems;
+    }
+
+    private class EnableDisableSpellCheckAction extends Action {
+
+        private boolean enable;
+
+        private EnableDisableSpellCheckAction(boolean enable) {
+            String text = enable ? enableSpellCheckText
+                    : JavaUIMessages.Spelling_disable_label;
+            String imageName = enable ? JavaPluginImages.IMG_CORRECTION_ADD
+                    : JavaPluginImages.IMG_OBJS_NLS_NEVER_TRANSLATE;
+            setText(text);
+            setImageDescriptor(ImageDescriptor.createFromImage(JavaPluginImages
+                    .get(imageName)));
+            this.enable = enable;
+        }
+
+        @Override
+        public void run() {
+            store.setValue(SpellingService.PREFERENCE_SPELLING_ENABLED, enable);
+            refreshAllTextViewers(enable);
+        }
+    }
+
+    private class SpellCheckProposalAction extends Action {
+
+        private ICompletionProposal proposal;
+
+        private SpellCheckProposalAction(ICompletionProposal proposal) {
+            setText(proposal.getDisplayString());
+            setImageDescriptor(ImageDescriptor.createFromImage(proposal
+                    .getImage()));
+            this.proposal = proposal;
+        }
+
+        @Override
+        public void run() {
+            if (proposal instanceof DisableSpellCheckingProposal) {
+                store.setValue(SpellingService.PREFERENCE_SPELLING_ENABLED,
+                        false);
+            } else {
+                proposal.apply(getDocument());
+
+                if (proposal instanceof AddWordProposal) {
+                    try {
+                        if (lf != null) {
+                            lf.save();
+                        }
+                    } catch (LocalizationOpFailedException exception) {
+                        statusHandler.error(
+                                "Unable to save dictionary into localization",
+                                exception);
+                    }
+                }
+            }
+            scheduleSpellJob(true);
+            refreshAllTextViewers(false);
         }
     }
 }

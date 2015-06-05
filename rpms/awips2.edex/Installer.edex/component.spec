@@ -47,7 +47,7 @@ mkdir -p %{_build_root}/awips2/edex
 if [ $? -ne 0 ]; then
    exit 1
 fi
-mkdir -p %{_build_root}/awips2/edex/logs
+mkdir -p %{_build_root}/awips2/edex/bin
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -55,34 +55,11 @@ mkdir -p %{_build_root}/etc/init.d
 if [ $? -ne 0 ]; then
    exit 1
 fi
-mkdir -p %{_build_root}/awips2/edex/webapps
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-
-
-DEPLOY_SCRIPT="build.edex/deploy-common/deploy-esb.xml"
 
 BUILD_ARCH="%{_build_arch}"
 if [ "${BUILD_ARCH}" = "i386" ]; then
    BUILD_ARCH="x86"
 fi
-
-# use deploy-install to deploy edex.
-pushd . > /dev/null
-cd %{_baseline_workspace}
-/awips2/ant/bin/ant -f ${DEPLOY_SCRIPT} \
-   -Ddeploy.data=true -Ddeploy.web=true \
-   -Desb.overwrite=true \
-   -Desb.directory=%{_baseline_workspace}/build.edex/esb \
-   -Dedex.root.directory=${RPM_BUILD_ROOT}/awips2/edex \
-   -Dbasedir=%{_baseline_workspace}/build.edex \
-   -Dbasedirectories=%{_baseline_workspace} \
-   -Darchitecture=${BUILD_ARCH}
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-popd > /dev/null
 
 # remove any .gitignore files
 # currently, the ebxml webapp includes a .gitignore file
@@ -99,6 +76,11 @@ cp -v ${EDEX_BASE}/scripts/init.d/* \
 if [ $? -ne 0 ]; then
    exit 1
 fi
+# rename the script to prevent naming conflicts during installation
+pushd . > /dev/null 2>&1
+cd %{_build_root}/etc/init.d
+mv edexServiceList edexServiceList-edex
+popd > /dev/null 2>&1
 
 # copy versions.sh.
 UTILITY="${INSTALLER_RPM}/utility"
@@ -120,6 +102,19 @@ fi
 %pre
 
 %post
+# replace the service list script with the edex service list script
+if [ ! -f /etc/init.d/edexServiceList-datadelivery ]; then
+   if [ -f /etc/init.d/edexServiceList ]; then
+      mv /etc/init.d/edexServiceList /etc/init.d/edexServiceList.orig
+      if [ $? -ne 0 ]; then
+         exit 1
+      fi
+   fi
+   cp /etc/init.d/edexServiceList-edex /etc/init.d/edexServiceList
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+fi
 MACHINE_BIT=`uname -i`
 if [ "${MACHINE_BIT}" = "i386" ]
 then
@@ -184,16 +179,6 @@ rm -rf ${RPM_BUILD_ROOT}
 %defattr(644,awips,fxalpha,755)
 %dir /awips2
 %dir /awips2/edex
-%dir /awips2/edex/conf
-/awips2/edex/conf/*
-%dir /awips2/edex/data
-/awips2/edex/data/*
-%dir /awips2/edex/etc
-/awips2/edex/etc/*
-%dir /awips2/edex/lib
-/awips2/edex/lib/*
-%dir /awips2/edex/logs
-%dir /awips2/edex/webapps
 
 %defattr(755,awips,fxalpha,755)
 %dir /awips2/edex/bin

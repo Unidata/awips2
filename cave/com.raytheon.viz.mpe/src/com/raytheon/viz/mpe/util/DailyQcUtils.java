@@ -63,6 +63,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Sep 11, 2013 #2353      lvenable    Fixed cursor memory leaks and Scanner resource leak.
  * Nov 24, 2014 16911      xwei        The day of Hydrologic Date is set to the next day 
  *                                     if hour is greater than 18Z.
+ * Mar 10, 2015 14575      snaples     Added additional status flags.
  * 
  * </pre>
  * 
@@ -493,6 +494,12 @@ public class DailyQcUtils {
     public static int grids_flag = -1;
 
     public static int map_flag = -1;
+    
+    public static boolean qpf_flag = false;
+       
+    public static boolean maxmin_flag = false;
+       
+    public static boolean z_flag = false;
 
     static int curHrMinSec = -1;
 

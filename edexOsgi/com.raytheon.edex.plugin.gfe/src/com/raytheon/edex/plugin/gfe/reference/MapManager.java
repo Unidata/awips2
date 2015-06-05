@@ -32,6 +32,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -61,6 +62,7 @@ import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData.CoordinateT
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
 import com.raytheon.uf.common.dataplugin.gfe.sample.SampleData;
 import com.raytheon.uf.common.dataplugin.gfe.sample.SampleId;
+import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -70,6 +72,7 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.message.WsId;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonEval;
+import com.raytheon.uf.common.python.PythonIncludePathUtil;
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -87,20 +90,23 @@ import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 import com.vividsolutions.jts.operation.buffer.BufferParameters;
+import com.vividsolutions.jts.operation.valid.IsValidOp;
 import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
 
 /**
  * Creates edit areas for the currently selected WFO
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Apr 10, 2008		#1075	randerso	Initial creation
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Apr 02, 2015     #1075   randerso    Initial creation
  * Jun 25, 2008     #1210   randerso    Modified to get directories from UtilityContext
  * Oct 13, 2008     #1607   njensen     Added genCombinationsFiles()
  * Sep 18, 2012     #1091   randerso    Changed to use Maps.py and localMaps.py
- * Mar 14, 2013 1794        djohnson    Consolidate common FilenameFilter implementations.
+ * Mar 14, 2013      1794   djohnson    Consolidate common FilenameFilter implementations.
  * Mar 28, 2013     #1837   dgilling    Better error reporting if a map table
  *                                      from localMaps.py could not be found,
  *                                      warnings clean up.
@@ -109,6 +115,11 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * Aug 27, 2014     #3563   randerso    Fix issue where edit areas are regenerated unnecessarily
  * Oct 20, 2014     #3685   randerso    Changed structure of editAreaAttrs to keep zones from different maps separated
  * Feb 19, 2015     #4125   rjpeter     Fix jaxb performance issue
+ * Apr 01, 2015     #4353   dgilling    Improve logging of Geometry validation errors.
+ * Apr 08, 2015     #4383   dgilling    Change ISC_Send_Area to be union of 
+ *                                      areas ISC_XXX and FireWxAOR_XXX.
+ * May 11, 2015     #4259   njensen     Silence jep thread warning by closing pyScript earlier
+ * 
  * </pre>
  * 
  * @author randerso
@@ -197,7 +208,7 @@ public class MapManager {
             String includePath = PyUtil.buildJepIncludePath(true,
                     GfePyIncludeUtil.getGfeConfigIncludePath(siteId),
                     FileUtil.join(edexStaticBaseDir, "gfe"),
-                    GfePyIncludeUtil.getCommonPythonIncludePath());
+                    PythonIncludePathUtil.getCommonPythonIncludePath());
 
             List<DbShapeSource> maps = null;
             pyScript = null;
@@ -225,6 +236,15 @@ public class MapManager {
                 genEditArea(maps);
             } else {
                 statusHandler.info("All edit areas are up to date.");
+            }
+
+            /*
+             * after maps, pyScript is no longer needed, Configurator will make
+             * its own python interpreter on the same thread
+             */
+            if (pyScript != null) {
+                pyScript.dispose();
+                pyScript = null;
             }
 
             // configure the text products
@@ -417,6 +437,7 @@ public class MapManager {
             i++;
         }
         writeISCMarker();
+        writeSpecialISCEditAreas();
 
         long t1 = System.currentTimeMillis();
         statusHandler.info("EditArea generation time: " + (t1 - t0) + " ms");
@@ -480,6 +501,65 @@ public class MapManager {
         }
     }
 
+    private void writeSpecialISCEditAreas() {
+        statusHandler.debug("Creating: ISC_Tool_Area and ISC_Send_Area.");
+
+        ReferenceMgr refDataMgr = new ReferenceMgr(_config);
+        String thisSite = _config.getSiteID().get(0);
+
+        List<ReferenceData> areas = new ArrayList<>();
+        List<String> editAreaNames = new ArrayList<>();
+
+        ReferenceData iscSendArea = null;
+        ReferenceID iscAreaName = new ReferenceID("ISC_" + thisSite);
+        ServerResponse<List<ReferenceData>> sr = refDataMgr.getData(Arrays
+                .asList(iscAreaName));
+        if (sr.isOkay()) {
+            iscSendArea = new ReferenceData(sr.getPayload().get(0));
+            iscSendArea.setId(new ReferenceID("ISC_Send_Area"));
+            areas.add(iscSendArea);
+            editAreaNames.add(iscSendArea.getId().getName());
+
+            ReferenceData toolArea = createSwathArea("ISC_Tool_Area",
+                    iscSendArea, 4);
+            if (toolArea != null) {
+                areas.add(toolArea);
+                editAreaNames.add(toolArea.getId().getName());
+            }
+        } else {
+            String errorMsg = String.format(
+                    "Could not retrieve ISC edit area for site %s: %s",
+                    thisSite, sr.message());
+            statusHandler.error(errorMsg);
+            return;
+        }
+
+        Collection<String> altISCEditAreas = _config
+                .alternateISCEditAreaMasks();
+        for (String altISCEditArea : altISCEditAreas) {
+            ReferenceID editAreaName = new ReferenceID(altISCEditArea
+                    + thisSite);
+            sr = refDataMgr.getData(Arrays.asList(editAreaName));
+            if (sr.isOkay()) {
+                ReferenceData refData = sr.getPayload().get(0);
+                iscSendArea.orEquals(refData);
+            } else {
+                String errorMsg = String
+                        .format("Could not retrieve additional ISC edit area %s for site %s: %s. It will not be included in ISC_Send_Area defintion.",
+                                editAreaName.getName(), thisSite, sr.message());
+                statusHandler.warn(errorMsg);
+            }
+        }
+
+        ReferenceData swath = createSwathArea("ISC_Swath", iscSendArea, 4);
+        if (swath != null) {
+            iscSendArea.orEquals(swath);
+        }
+
+        saveEditAreas(areas);
+        saveGroupList("ISC", editAreaNames);
+    }
+
     /**
      * Based on the supplied map configuration, creates edit areas, saves them,
      * and updates group names. Handles special creation for ISC edit areas,
@@ -517,36 +597,10 @@ public class MapManager {
             List<String> knownSites = _config.allSites();
             boolean anySites = false;
             if (groupName.equals("ISC")) {
-                String thisSite = _config.getSiteID().get(0);
                 for (int i = 0; i < data.size(); i++) {
                     String n = data.get(i).getId().getName();
                     if ((n.length() == 7) && n.startsWith("ISC_")) {
                         String cwa = n.substring(4, 7);
-                        if (cwa.equals(thisSite)) {
-                            statusHandler
-                                    .debug("creating: ISC_Tool_Area and ISC_Send_Area"
-                                            + " from "
-                                            + data.get(i).getId().getName());
-
-                            List<ReferenceData> areas = new ArrayList<ReferenceData>();
-                            ReferenceData swath = createSwathArea(
-                                    "ISC_Tool_Area", data.get(i), 4);
-                            if (swath != null) {
-                                areas.add(swath);
-                                list.add(swath.getId().getName());
-                            }
-
-                            ReferenceData extend = new ReferenceData(
-                                    data.get(i));
-                            extend.setId(new ReferenceID("ISC_Send_Area"));
-                            if (swath != null) {
-                                extend.orEquals(swath);
-                            }
-                            areas.add(extend);
-                            list.add(extend.getId().getName());
-
-                            saveEditAreas(areas);
-                        }
 
                         // Need some special sample sets for ISC
                         // Create ISC_Marker_Set if any CWA, use ISC_cwa areas
@@ -907,18 +961,12 @@ public class MapManager {
                     polygons = gf.createMultiPolygon(new Polygon[] {});
                 }
 
-                if (!polygons.isValid()) {
-                    String error = "Table: "
-                            + shapeSource.getTableName()
-                            + " edit area:"
-                            + ean
-                            + " contains invalid polygons. This edit area will be skipped.";
-                    for (int i = 0; i < polygons.getNumGeometries(); i++) {
-                        Geometry g = polygons.getGeometryN(i);
-                        if (!g.isValid()) {
-                            error += "\n" + g;
-                        }
-                    }
+                IsValidOp polygonValidator = new IsValidOp(polygons);
+                if (!polygonValidator.isValid()) {
+                    String error = String
+                            .format("Table: %s edit area: %s contains invalid polygons: %s. This edit area will be skipped.",
+                                    shapeSource.getTableName(), ean,
+                                    polygonValidator.getValidationError());
                     statusHandler.error(error);
                     continue;
                 }

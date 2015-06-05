@@ -37,12 +37,12 @@
 #  displayName      If not None, defines how product appears in GFE GUI
 #  defaultEditAreas defines edit areas, default is Combinations
 #
-#  productName      defines name of product e.g. "COASTAL WATERS FORECAST"
+#  productName      defines name of product e.g. "Coastal Waters Forecast"
 #  fullStationID    Full station identifier, 4 letter, such as "KSLC".
 #  wmoID            WMO ID code for product header, such as "FOUS45"
 #  pil              Product pil, such as "CWFBOS"
-#  areaName (opt.)  Area name for product header, such as "WESTERN NEW YORK"
-#  wfoCityState     WFO location, such as "BUFFALO NY"
+#  areaName (opt.)  Area name for product header, such as "Western New York"
+#  wfoCityState     WFO location, such as "Buffalo NY"
 #
 # Optional Configuration Items
 #
@@ -210,11 +210,11 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         "defaultEditAreas" : "Combinations_CWF_<site>_<MultiPil>",
         "editAreaSuffix": None,
         # product identifiers
-        "productName": "COASTAL WATERS FORECAST", # product name 
+        "productName": "Coastal Waters Forecast", # product name 
         "fullStationID": "<fullStationID>",    # full station identifier (4letter)
         "wmoID": "<wmoID>",          # WMO ID
         "pil": "<pil>",              # Product pil
-        "areaName": "<state>",              # Name of state, such as "GEORGIA" -- optional
+        "areaName": "<state>",              # Name of state, such as "Georgia" -- optional
         "wfoCityState": "<wfoCityState>",  # Location of WFO - city,state
                 
         "textdbPil": "<textdbPil>",       # Product ID for storing to AWIPS text database.
@@ -606,7 +606,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             "phraseList":[],
             }
     def setLabel(self, tree, component):
-        component.set("words", "\n.EXTENDED FORECAST...\n")
+        component.set("words", "\n.Extended forecast...\n")
         return self.DONE()
 
     def CWFExtended(self):
@@ -802,7 +802,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
     def _preProcessProduct(self, fcst, argDict):
         if self._areaName != "":
-             productName = self._productName.strip() + " FOR " + \
+             productName = self._productName.strip() + " for " + \
                            self._areaName.strip()
         else:
              productName = self._productName.strip()
@@ -811,11 +811,13 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         
         productName = self.checkTestMode(argDict, productName)
         
-        fcst =  fcst + self._wmoID + " " + self._fullStationID + " " + \
+        s = self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
                productName + "\n" +\
-               "NATIONAL WEATHER SERVICE " + self._wfoCityState + \
+               "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
+        fcst =  fcst + s.upper()
+         
         fcst = fcst + self._Text1()
         try:
             text2 = self._Text2(argDict)
@@ -831,7 +833,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         print "Generating Forecast for", areaLabel
         areaHeader = self.makeAreaHeader(
             argDict, areaLabel, self._issueTime, self._expireTime,
-            self._areaDictionary, self._defaultEditAreas)
+            self._areaDictionary, self._defaultEditAreas, upperCase=True)
         fcst = fcst + areaHeader
 
         # get the hazards text
@@ -951,9 +953,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
         return [
             ("Morning", self.DAY(), self.NIGHT(), "issuanceHour + 13",
-             ".TODAY...", "early", "late", 1, narrativeDefAM), 
+             ".Today...", "early", "late", 1, narrativeDefAM), 
             ("Morning with Pre-1st Period", "issuanceHour", self.NIGHT(),
-             "issuanceHour + 13", ".TODAY...", "early", "late", 1,
+             "issuanceHour + 13", ".Today...", "early", "late", 1,
              narrativeDefAM),
             ("Morning Update", "issuanceHour", self.NIGHT(),
              "issuanceHour + 13", ".Rest of Today...", "early in the morning",
@@ -983,10 +985,10 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             # TODAY
             # TONIGHT
             #("Evening Update", "issuanceHour", 24 + self.DAY(), "issuanceHour + 13",
-            # ".REST OF TONIGHT...", "late in the night", "early in the evening",
+            # ".Rest of tonight...", "late in the night", "early in the evening",
             # 1, narrativeDefPM), 
             #("Early Morning Update", "issuanceHour", self.DAY(), "issuanceHour + 13",
-            # ".EARLY THIS MORNING...", "early in the morning", "late in the afternoon",
+            # ".Early this morning...", "early in the morning", "late in the afternoon",
             # 1, narrativeDefPM), 
             ]
 
@@ -1125,14 +1127,14 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         
     def splitDay24HourLabel_flag(self, tree, node):
         # Return 0 to have the TimeDescriptor module label 24 hour periods
-        # with simply the weekday name (e.g. SATURDAY)
+        # with simply the weekday name (e.g. Saturday)
         # instead of including the day and night periods
-        # (e.g. SATURDAY AND SATURDAY NIGHT)
+        # (e.g. Saturday and Saturday night)
         # NOTE: If you set this flag to 1, make sure the "nextDay24HourLabel_flag"
         # is set to zero.
         # NOTE: This applied only to periods that are exactly 24-hours in length.
         # Periods longer than that will always be split into day and night labels
-        # (e.g. SUNDAY THROUGH MONDAY NIGHT)
+        # (e.g. Sunday through Monday night)
         compName = node.getComponentName()
         if compName == "CWFExtended":
               return 0

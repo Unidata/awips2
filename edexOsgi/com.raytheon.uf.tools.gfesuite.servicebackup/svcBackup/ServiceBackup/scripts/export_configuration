@@ -26,9 +26,14 @@
 # SOFTWARE HISTORY
 # Date         Ticket#    Engineer    Description
 # ------------ ---------- ----------- --------------------------
+# Feb 09, 2015  #4103     dgilling    Refactored to support multiple svcbu 
+#                                     sites.
 # Mar 23, 2015  #4308     dgilling    Export mixedCaseProductIds.txt.
+# Apr 28, 2015  #4427     dgilling    Support subdomains of the
+#                                     primary domains.
 #
 ##
+
 
 
 if [ ${#AWIPS_HOME} = 0 ]
@@ -40,168 +45,180 @@ fi
 # $1 = Site name
 
 . ${AWIPS_HOME}/GFESuite/ServiceBackup/configuration/svcbu.env
+source ${AWIPS_HOME}/GFESuite/ServiceBackup/scripts/serviceBackupUtil.sh
 
 SITE=`echo ${1} | tr '[A-Z]' '[a-z]'`
 CAPS_SITE=`echo ${1} | tr [a-z] [A-Z]`
 export SITE
 
-if [ -f ${LOCK_DIR}/${SITE}exportConfig ];
+configureLogging "svcbu_export_config" ${SITE}
+
+lock_file=$(getLockFile "exportConfig" ${SITE})
+lock_status=$(isOperationInProgress "exportConfig" ${SITE})
+if [[ "${lock_status}" = "true" ]]
 then
-	log_msg Cannot export configuration for ${CAPS_SITE}.  Export configuration process already in progress!
+	echo "Cannot export configuration for ${CAPS_SITE}.  Export configuration process already in progress!"
 	exit 1
 fi
 
-touch ${LOCK_DIR}/${SITE}exportConfig
+markTaskInProgress ${lock_file}
 
-# Create the log file
-logdir=${IFPS_LOG}/`date +%Y%m%d`
-logfil=svcbu_export_config_`date +%H%M`
-logfile=${logdir}/${logfil}
-[ ! -d ${logdir} ] && (umask 000;mkdir ${logdir})
-touch ${logdir}/${logfil}
-exec 1>${logdir}/${logfil} 2>&1
+OUTPUT_DIR=$(getTempDirectory "export_configuration" ${CAPS_SITE})
 
-# Update status percent to 0
-log_msg 0
+echo "Clearing contents of ${OUTPUT_DIR}"
+rm -rf ${OUTPUT_DIR}/*
 
-log_msg Changing to SVCBU_HOME directory: ${SVCBU_HOME}
-cd ${SVCBU_HOME}
+echo "Preparing configuration files for export..."
 
-log_msg Clearing contents of ${SVCBU_HOME}
-echo ${SVCBU_HOME}/* | xargs rm -rf
-
-log_msg Writing site ID to text file...
-echo $SITE > ${SVCBU_HOME}/siteID.txt 
-log_msg 10
-
-log_msg  Preparing configuration files for export...
-
-edexDest=GFEconfig/edex_static
-commonDest=GFEconfig/common_static
-caveDest=GFEconfig/cave_static 
+edexDest=${OUTPUT_DIR}/GFEconfig/edex_static
+commonDest=${OUTPUT_DIR}/GFEconfig/common_static
+caveDest=${OUTPUT_DIR}/GFEconfig/cave_static 
 rsyncParms=GFEConfig    # DR 16464
-log_msg 15
 
-log_msg Making temporary edex configuration directories...
+echo "Making temporary edex configuration directories..."
 mkdir -p $edexDest/site
-log_msg 20
 
-log_msg Making temporary common configuration directories...
+echo "Making temporary common configuration directories..."
 mkdir -p $commonDest/site
-log_msg 25
 
-log_msg Making temporary cave configuration directories
+echo "Making temporary cave configuration directories"
 mkdir -p $caveDest/site
-log_msg 30
 
 # DR 16464
-log_msg Making temporary rsync_parms directory
+echo "Making temporary rsync_parms directory"
 mkdir -p $rsyncParms/site
-log_msg 35
+
+CP_COMMAND="rsync -aq --exclude=*.pyo --exclude=*.pyc --exclude=*.md5"
 
 # Copies the localization information to the staging area
-log_msg Copying common site configuration for site ${CAPS_SITE} to temporary directory...
-cp -r ${LOCALIZATION_PATH}/common_static/site/${CAPS_SITE}/gfe $commonDest/site
-cp -r ${LOCALIZATION_PATH}/common_static/site/${CAPS_SITE}/vtec $commonDest/site
-cp -r ${LOCALIZATION_PATH}/common_static/site/${CAPS_SITE}/mixedCase $commonDest/site
-log_msg 40
+echo "Copying common site configuration for site ${CAPS_SITE} to temporary directory..."
+${CP_COMMAND} ${LOCALIZATION_PATH}/common_static/site/${CAPS_SITE}/gfe $commonDest/site
+${CP_COMMAND} ${LOCALIZATION_PATH}/common_static/site/${CAPS_SITE}/vtec $commonDest/site
+${CP_COMMAND} ${LOCALIZATION_PATH}/common_static/site/${CAPS_SITE}/mixedCase $commonDest/site
 
-log_msg Copying edex site configuration for site ${CAPS_SITE} to temporary directory...
-cp -r ${LOCALIZATION_PATH}/edex_static/site/${CAPS_SITE}/config/gfe $edexDest/site
-log_msg 50
+echo "Copying edex site configuration for site ${CAPS_SITE} to temporary directory..."
+${CP_COMMAND} ${LOCALIZATION_PATH}/edex_static/site/${CAPS_SITE}/config/gfe $edexDest/site
 
-log_msg Copying edex smartinit for site ${CAPS_SITE} to temporary directory...
-cp -r ${LOCALIZATION_PATH}/edex_static/site/${CAPS_SITE}/smartinit $edexDest/site
-log_msg 60
+echo "Copying edex smartinit for site ${CAPS_SITE} to temporary directory..."
+${CP_COMMAND} ${LOCALIZATION_PATH}/edex_static/site/${CAPS_SITE}/smartinit $edexDest/site
 
-log_msg Copying cave site configuration for site ${CAPS_SITE} to temporary directory...
-cp -r ${LOCALIZATION_PATH}/cave_static/site/${CAPS_SITE}/gfe $caveDest/site
-log_msg 70
+echo "Copying cave site configuration for site ${CAPS_SITE} to temporary directory..."
+${CP_COMMAND} ${LOCALIZATION_PATH}/cave_static/site/${CAPS_SITE}/gfe $caveDest/site
 
-log_msg Copying cave site maps configuration for site ${CAPS_SITE} to temporary directory...
+echo "Copying cave site maps configuration for site ${CAPS_SITE} to temporary directory..."
 mkdir $caveDest/site/bundles
-cp -r ${LOCALIZATION_PATH}/cave_static/site/${CAPS_SITE}/bundles/maps $caveDest/site/bundles
-log_msg 75
+${CP_COMMAND} ${LOCALIZATION_PATH}/cave_static/site/${CAPS_SITE}/bundles/maps $caveDest/site/bundles
 
-log_msg Copying cave site colormaps configuration for site ${CAPS_SITE} to temporary directory...
-cp -r ${LOCALIZATION_PATH}/cave_static/site/${CAPS_SITE}/colormaps $caveDest/site
-log_msg 80
+echo "Copying cave site colormaps configuration for site ${CAPS_SITE} to temporary directory..."
+${CP_COMMAND} ${LOCALIZATION_PATH}/common_static/site/${CAPS_SITE}/colormaps $commonDest/site
 
 # DR 16464
-if [ -f /awips2/GFESuite/ServiceBackup/data/rsync_parms.${CAPS_SITE} ]; then
-    log_msg Copying the rsync_parms file for site ${CAPS_SITE} to temporary directory...
-    cp -a /awips2/GFESuite/ServiceBackup/data/rsync_parms.${CAPS_SITE} $rsyncParms/site
-    log_msg 83
+if [ -f ${IFPS_DATA}/rsync_parms.${CAPS_SITE} ]; then
+    echo "Copying the rsync_parms file for site ${CAPS_SITE} to temporary directory..."
+    cp -a ${IFPS_DATA}/rsync_parms.${CAPS_SITE} $rsyncParms/site
 fi
 
-# Tar up everything.
-log_msg 85
-log_msg Tarring and zipping configuration to file GFEconfig.${SITE}.tar.gz
-tar cf - GFEconfig|gzip -9 - > GFEconfig.${SITE}.tar.gz
-if [ $? -ne 0 ]
+# Determine if we're exporting for this site or for its subdomains
+SUBDOMAIN_STR=$(eval "echo \${SUBDOMAINS_$CAPS_SITE}")
+if [ -z "${SUBDOMAIN_STR}" ]
 then
-   log_msg "Failed to make GFEConfig tar file.Program exits now."
-   rm -f ${LOCK_DIR}/${SITE}exportConfig
-   exit 1
-fi
-# Cleanup
-log_msg Cleaning up temporary files
-rm -fR GFEconfig
-
-log_msg 90
-log_msg Preparing compressed file for exporting to central server...
-log_msg Compressing to file svc_bkup_${SITE}.tar
-tar cf svc_bkup_${SITE}.tar *.gz siteID.txt
-
-log_msg 93
-
-#check for failure of the tar file
-if [ $? -ne 0 ]
-then
-  log_msg "failed to make the tar file. Program exits."
-
-  rm -f ${LOCK_DIR}/${SITE}exportConfig 
-  exit 1
-fi
-
-# Cleanup zip files
-#
-log_msg Cleaning up zip files
-rm -fr *.gz
-rm siteID.txt
-
-
-log_msg Sending the tar file to the central server...
-
-log_msg 95
-
-# Check to see if ${SVCBU_WMO_HEADER} is assigned a value. If so, call msg_send with -i.
-# Otherwise, don't call it with -i
-if [ -n "${SVCBU_WMO_HEADER}" ]; then
-	log_msg $MSG_SEND_COMMAND -e ${SVCBU_HOME}/svc_bkup_${SITE}.tar -a ${SVCBU_ADDRESSEE} -i ${SVCBU_WMO_HEADER} -s ${SITE}2 -c 20
-    msgSendOutput=$($MSG_SEND_COMMAND -e ${SVCBU_HOME}/svc_bkup_${SITE}.tar -a ${SVCBU_ADDRESSEE} -i ${SVCBU_WMO_HEADER} -s ${SITE}2 -c 20)
-    exitValue=$?
-    if [ $exitValue -ne 0 ]
-    then
-		log_msg "msg_send FAILED with exit value $exitValue and the following error: $msgSendOutput"
-		rm -f ${LOCK_DIR}/${SITE}exportConfig
-	exit 1
-    fi
+    declare -a EXPORT_SITES=( "${CAPS_SITE}" )
 else
-	log_msg $MSG_SEND_COMMAND -e ${SVCBU_HOME}/svc_bkup_${SITE}.tar -a ${SVCBU_ADDRESSEE} -s ${SITE}2 -c 20
-    msgSendOutput=$($MSG_SEND_COMMAND -e ${SVCBU_HOME}/svc_bkup_${SITE}.tar -a ${SVCBU_ADDRESSEE} -s ${SITE}2 -c 20)
+    IFS=',' read -ra EXPORT_SITES <<< "${SUBDOMAIN_STR}"
+    echo "Found sub-domains ${EXPORT_SITES[@]} for ${CAPS_SITE}" 
+fi
+
+for siteid in "${EXPORT_SITES[@]}"
+do
+    siteid_lc=`echo ${siteid} | tr '[A-Z]' '[a-z]'`
+    siteid_caps=`echo ${siteid} | tr [a-z] [A-Z]`
+    
+    echo "Preparing site ${siteid_caps}'s compressed file for exporting to central server..."
+    
+    site_dir=${OUTPUT_DIR}
+    if [ "${siteid_caps}" != "${CAPS_SITE}" ]
+    then
+        site_dir=$(getTempDirectory "export_configuration" ${siteid_caps})
+        rm -rf ${site_dir}/*
+        cp -a ${OUTPUT_DIR}/GFEconfig ${site_dir}
+
+        ## Re-localize configuration files from the super-domain to the 
+        ## needed sub-domain
+
+        # replace GFESUITE_SITEID setting in siteConfig.py
+        config=${site_dir}/GFEconfig/edex_static/site/gfe/siteConfig.py
+        ORIG_SITEID=$(egrep "^GFESUITE_SITEID" ${config})
+        NEW_SITEID="GFESUITE_SITEID = '${siteid_caps}'"
+        sed -i "s/$ORIG_SITEID/$NEW_SITEID/" ${config}
+        
+        # rename rsync_parms to use sub-domain site ID
+        if [ -f ${site_dir}/GFEConfig/site/rsync_parms.${CAPS_SITE} ]
+        then
+            mv ${site_dir}/GFEConfig/site/rsync_parms.${CAPS_SITE} ${site_dir}/GFEConfig/site/rsync_parms.${siteid_caps}
+        fi
+    fi
+    
+    echo "Changing to output directory: ${site_dir}"
+    cd ${site_dir}
+    
+    # Tar up everything.
+    echo "Tarring and zipping configuration to file GFEconfig.${siteid_lc}.tar.gz"
+    tar -c GFEconfig | gzip -9 > GFEconfig.${siteid_lc}.tar.gz
+    if [ $? -ne 0 ]
+    then
+        echo "Failed to make GFEconfig.${siteid_lc}.tar.gz. Program exits now."
+        markTaskFailed ${lock_file}
+        exit 1
+    fi
+    
+    # Cleanup
+    echo "Cleaning up temporary files"
+    rm -rf ${site_dir}/GFEconfig
+
+    echo "Writing site ID to text file..."
+    echo ${siteid_lc} > siteID.txt
+    
+    echo "Compressing to file svc_bkup_${siteid_lc}.tar"
+    tar -cf svc_bkup_${siteid_lc}.tar GFEconfig.${siteid_lc}.tar.gz siteID.txt
+    # check for failure of the tar file
+    if [ $? -ne 0 ]
+    then
+        echo "Failed to make the tar file. Program exits."
+        markTaskFailed ${lock_file}
+        exit 1
+    fi
+    
+    # Cleanup zip files
+    echo "Cleaning up zip files"
+    rm -f ${site_dir}/*.gz
+    rm -f ${site_dir}/siteID.txt
+
+    echo "Sending the tar file to the central server..."
+
+	# Check to see if ${SVCBU_WMO_HEADER} is assigned a value. If so, call msg_send with -i.
+    # Otherwise, don't call it with -i
+    if [ -n "${SVCBU_WMO_HEADER}" ]; then
+        MSG_SEND_FLAGS="-e ${site_dir}/svc_bkup_${siteid_lc}.tar -a ${SVCBU_ADDRESSEE} -i ${SVCBU_WMO_HEADER} -s ${siteid_lc}2 -c 20"
+    else
+        MSG_SEND_FLAGS="-e ${site_dir}/svc_bkup_${siteid_lc}.tar -a ${SVCBU_ADDRESSEE} -s ${siteid_lc}2 -c 20"
+    fi
+    
+    echo "MSG_SEND COMMAND: $MSG_SEND_COMMAND $MSG_SEND_FLAGS"
+    msgSendOutput=$($MSG_SEND_COMMAND $MSG_SEND_FLAGS)
     exitValue=$?
     if [ $exitValue -ne 0 ]
     then
-		log_msg "msg_send FAILED with exit value $exitValue and the following error: $msgSendOutput"
-		rm -f ${LOCK_DIR}/${SITE}exportConfig
-	exit 1
+        echo "msg_send FAILED with exit value $exitValue and the following error: $msgSendOutput"
+        markTaskFailed ${lock_file}
+        exit 1
+    else
+        echo "Successfully sent message. MESSAGE ID: $msgSendOutput"
     fi
-fi
-log_msg Successfully sent message. MESSAGE ID: $msgSendOutput
+done
 
-#echo ${SVCBU_HOME}/* | xargs rm -rf
-rm -f ${LOCK_DIR}/${SITE}exportConfig
-log_msg Configuration data has been exported!
-log_msg 100
+echo "Cleaning up temporary files for main domain"
+rm -rf ${OUTPUT_DIR}/*
+
+echo "Configuration data has been exported!"
+markTaskSuccess ${lock_file}
 exit 0

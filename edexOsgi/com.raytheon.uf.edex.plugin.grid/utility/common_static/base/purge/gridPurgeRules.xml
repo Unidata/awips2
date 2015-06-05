@@ -517,6 +517,16 @@
 		<versionsToKeep>24</versionsToKeep>
 		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>
+	<rule>
+		<keyValue>RTMA25</keyValue>
+		<versionsToKeep>24</versionsToKeep>
+		<modTimeToWait>00-00:15:00</modTimeToWait>
+	</rule>
+	<rule>
+		<keyValue>URMA25</keyValue>
+		<versionsToKeep>24</versionsToKeep>
+		<modTimeToWait>00-00:15:00</modTimeToWait>
+	</rule>
 	<!-- Purge rule for AK-RTMA-3KM analysis -->
 	<rule>
 		<keyValue>AK-RTMA3</keyValue>
@@ -816,5 +826,15 @@
 		<keyValue>MRMS_0500</keyValue>
 		<versionsToKeep>120</versionsToKeep>
 		<period>03-00:00:00</period>
+	</rule>
+	
+	<!-- Purge rule for the ETSS model -->
+	<rule>
+		<keyValue>ETSS</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>ETSS-AK</keyValue>
+		<versionsToKeep>2</versionsToKeep>
 	</rule>
 </purgeRuleSet>

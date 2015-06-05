@@ -26,7 +26,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
     Definition["defaultEditAreas"] = "Combinations_HLS_<site>"
     Definition["showZoneCombiner"] = 0 # 1 to cause zone combiner to display
 
-    Definition["productName"]       = "LOCAL STATEMENT"
+    Definition["productName"]       = "Local Statement"
 
     Definition["fullStationID" ]    = "<fullStationID>"
     Definition["wmoID" ]            = "<wmoID>"
@@ -309,7 +309,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         return "" #"MFL"
     
     def _cwa_descriptor(self):
-        return "" #"SOUTH FLORIDA"
+        return "" #"South Florida"
     
     def _localReferencePoints(self):
         # Give the name and lat/lon for each local reference point
@@ -1009,7 +1009,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         return qualifier
     
     def _coastalHazardsSection(self, productDict, productSegmentGroup, productSegment):
-        productDict['coastalHazardsSection'] = self._frame("ENTER HERE A STATEMENT OF ANY ADDITIONAL HAZARDS OF CONCERN ALONG THE COAST SUCH AS RIP CURRENTS, HIGH WAVES, CONCERNS FOR BEACH EROSION ETC ETC IF NOT ALREADY DONE IN THE SURGE SECTION.")
+        productDict['coastalHazardsSection'] = self._frame("Enter here a statement of any additional hazards of concern along the coast such as rip currents, high waves, concerns for beach erosion etc etc if not already done in the surge section.")
     
     def _preparednessSection(self, productDict, productSegmentGroup, productSegment):
         sectionDict = dict()
@@ -1549,8 +1549,8 @@ class TextProduct(HLSTCV_Common.TextProduct):
     
     def _getStormInfo(self, argDict):
         #  Get the Storm information
-        self._stormType = "TROPICAL"
-        self._stormName = "CYCLONE"
+        self._stormType = "Tropical"
+        self._stormName = "Cyclone"
         self._stormTypeName = self._stormType + " " +self._stormName
 
 
@@ -1564,7 +1564,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         # Storm intensity in mph and the stated intensity trend.
         self._stormIntensityTrend = "Storm Intensity " + stormDict.get("StormIntensity","")
         
-        self.debug_print("BEGIN STORM INFORMATION", 1)
+        self.debug_print("Begin storm information", 1)
         self.debug_print("storm dict = %s" % (stormDict), 1)
         self.debug_print("storm name = %s" % (self._stormName), 1)
         self.debug_print("type = %s" % (self._stormType), 1)
@@ -1577,7 +1577,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         self.debug_print("references = %s" % (self._stormLocalReferences), 1)
         self.debug_print("movement trend = %s" % (self._stormMovementTrend), 1)
         self.debug_print("intensity trend = %s" % (self._stormIntensityTrend), 1)
-        self.debug_print("END STORM INFORMATION", 1)
+        self.debug_print("End storm information", 1)
     
     def _grabStormInfo(self, tcp):
         #  Get the storm information from the selected TCP
@@ -1635,7 +1635,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
                 if mndSearch is not None:
 
                     #  Pick off the storm type and name
-                    dict["StormType"] = "REMNANTS OF"
+                    dict["StormType"] = "Remnants of"
                     dict["StormName"] = mndSearch.group(1).strip()
 
             #  end possible removal - 12/15/2010 (MHB)
@@ -1679,7 +1679,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
                                       (dict["StormTime"])
 
                 #  Now add some phrasing to maintain proper grammar, if needed
-                if dict["StormType"] == "REMNANTS OF":
+                if dict["StormType"] == "Remnants of":
                      dict["StormCenter"] = "%s THE" % (dict["StormCenter"])
 
                 #  Now add the storm type and storm name
@@ -1695,9 +1695,9 @@ class TextProduct(HLSTCV_Common.TextProduct):
                 #----------------------------------------------------------------
                 #  Now add the primary NHC geographic reference
 
-                #  Get all the NHC references - starting with the word 'ABOUT'
+                #  Get all the NHC references - starting with the word 'About'
                 #  after the first one
-                referenceIndex = dict["StormReference"][4:].find('ABOUT')
+                referenceIndex = dict["StormReference"][4:].find('About')
 
                 #  Assume we only have one NHC reference point by default
                 nhcReference = dict["StormReference"]
@@ -1707,7 +1707,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
                 #  If we have more than one NHC reference point
                 if referenceIndex != -1:
 
-                    #  Adjust this index to account for the first 'ABOUT'
+                    #  Adjust this index to account for the first 'About'
                     referenceIndex += 4
 
                     #  Only keep the first NHC reference location
@@ -1943,7 +1943,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
             if coordPtnMatch.group(10) in ["W", "w"]:
                 self._stormLon *= -1.0
 
-            #  Construct the storm location pair and remove the "LATITUDE " and "LONGITUDE " text
+            #  Construct the storm location pair and remove the "Latitude " and "Longitude " text
             self._stormLocation = (coordPtnMatch.group(1)[9:], coordPtnMatch.group(7)[10:])
 
         #  If we found the primary NHC reference we were after
@@ -2000,22 +2000,22 @@ class TextProduct(HLSTCV_Common.TextProduct):
     
     def _expandBearings(self, text):
         #  Convert any abbreviated bearings to full words
-        text = text.replace(' N ', ' NORTH ')
-        text = text.replace(' NNE ', ' NORTH-NORTHEAST ')
-        text = text.replace(' NE ', ' NORTHEAST ')
-        text = text.replace(' ENE ', ' EAST-NORTHEAST ')
-        text = text.replace(' E ', ' EAST ')
-        text = text.replace(' ESE ', ' EAST-SOUTHEAST ')
-        text = text.replace(' SE ', ' SOUTHEAST ')
-        text = text.replace(' SSE ', ' SOUTH-SOUTHEAST ')
-        text = text.replace(' S ', ' SOUTH ')
-        text = text.replace(' SSW ', ' SOUTH-SOUTHWEST ')
-        text = text.replace(' SW ', ' SOUTHWEST ')
-        text = text.replace(' WSW ', ' WEST-SOUTHWEST ')
-        text = text.replace(' W ', ' WEST ')
-        text = text.replace(' WNW ', ' WEST-NORTHWEST ')
-        text = text.replace(' NW ', ' NORTHWEST ')
-        text = text.replace(' NNW ', ' NORTH-NORTHWEST ')
+        text = text.replace(' N ', ' north ')
+        text = text.replace(' NNE ', ' north-northeast ')
+        text = text.replace(' NE ', ' northeast ')
+        text = text.replace(' ENE ', ' east-northeast ')
+        text = text.replace(' E ', ' east ')
+        text = text.replace(' ESE ', ' east-southeast ')
+        text = text.replace(' SE ', ' southeast ')
+        text = text.replace(' SSE ', ' south-southeast ')
+        text = text.replace(' S ', ' south ')
+        text = text.replace(' SSW ', ' south-southwest ')
+        text = text.replace(' SW ', ' southwest ')
+        text = text.replace(' WSW ', ' west-southwest ')
+        text = text.replace(' W ', ' west ')
+        text = text.replace(' WNW ', ' west-northwest ')
+        text = text.replace(' NW ', ' northwest ')
+        text = text.replace(' NNW ', ' north-northwest ')
         
         return text
     
@@ -2089,7 +2089,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         #distKm_str = `int((distKm/10)*10)`
         direction = self._bearing(lat1, lon1, lat0, lon0)
         direction = self._dirInEnglish(direction)
-        localRef ="ABOUT "+distMph_str+" MILES "+direction
+        localRef ="About "+distMph_str+" miles "+direction
         self.debug_print("localRef = %s" % (localRef), 1)
         return localRef
     
@@ -2120,10 +2120,10 @@ class TextProduct(HLSTCV_Common.TextProduct):
         return direction
     
     def _dirInEnglish(self, direction):
-        dirList = ["North", "North-Northeast", "Northeast", "East-Northeast",
-                   "East", "East-Southeast", "Southeast", "South-Southeast",
-                   "South", "South-Southwest", "Southwest", "West-Southwest",
-                   "West", "West-Northwest", "Northwest", "North-NorthWest"]
+        dirList = ["north", "north-northeast", "northeast", "east-northeast",
+                   "east", "east-southeast", "southeast", "south-southeast",
+                   "south", "south-southwest", "southwest", "west-southwest",
+                   "west", "west-northwest", "northwest", "north-northwest"]
         dirIndex = int((direction + 11.25) / 22.5)
         if dirIndex > 15:
             dirIndex = dirIndex - 16

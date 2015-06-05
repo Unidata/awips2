@@ -870,6 +870,7 @@
 	<styleRule>
 		<paramLevelMatches>
 			<parameter>wSpea</parameter>
+			<parameter>WGSea</parameter>
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>kts</displayUnits>
@@ -1711,6 +1712,7 @@
 		<paramLevelMatches>
 			<parameter>CPr</parameter>
 			<parameter>P</parameter>
+			<parameter>Perranl</parameter>
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>mb</displayUnits>
@@ -1918,22 +1920,22 @@
 		* fGen
 		K^2/m^2/1e15s |1e15| 0.0 | .5 | 35 |x|m| 29 | 5 | 1 2 5 10 20
 	-->
-	<styleRule>
-		<paramLevelMatches>
-			<parameter>fGen</parameter>
-		</paramLevelMatches>
-		<imageStyle>
-			<displayUnits label="K^2/m^2/1e15s">K^2/(m^2/s)*1.0E15</displayUnits>
-			<range scale="LOG" mirror="true">
-				<minValue>0.5</minValue>
-				<maxValue>35</maxValue>
-			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
-			<colorbarLabeling>
-				<values>1 2 5 10 20</values>
-			</colorbarLabeling>
-		</imageStyle>
-	</styleRule>
+	 <styleRule>
+    <paramLevelMatches>
+      <parameter>fGen</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits label="K^2/m^2/1e15s">K^2/(m^2/s)*1.0E15</displayUnits>
+      <range mirror="true" scale="LOG">
+        <minValue>0.5</minValue>
+        <maxValue>35</maxValue>
+      </range>
+      <defaultColormap>Grid/gridded data</defaultColormap>
+      <colorbarLabeling>
+        <values>1 2 5 10 20</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
 	<!--
 		* PT3
 		mb | 0.01 | 0 | -12 | 12 | | | 29 | 0 | 3
@@ -2000,6 +2002,7 @@
 	<styleRule>
 		<paramLevelMatches>
 			<parameter>Vis</parameter>
+			<parameter>Viserranl</parameter>
 			<singleLevel units="SURFACE" />
 		</paramLevelMatches>
 		<imageStyle>
@@ -3197,15 +3200,22 @@
 		* PFrnt
 		K/m/1e10s  | 1e10 | 0.0 | 0 | 1 | | | 29 | -1 | 0.1
 	-->
-	<styleRule>
-		<paramLevelMatches>
-			<parameter>PFrnt</parameter>
-		</paramLevelMatches>
-		<imageStyle>
-			<displayUnits label="K/m/1e10s">K/m/s*1.0E-10</displayUnits>
-			<defaultColormap>Grid/gridded data</defaultColormap>
-		</imageStyle>
-	</styleRule>
+	 <styleRule>
+    <paramLevelMatches>
+      <parameter>PFrnt</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <range adaptive="false" scale="LINEAR">
+        <minValue>-100</minValue>
+        <maxValue>100</maxValue>
+      </range>
+      <displayUnits label="K/m/1e10s">K/m/s*1.0E-10</displayUnits>
+      <defaultColormap>Grid/gridded data</defaultColormap>
+      <colorbarLabeling>
+        <increment>20</increment>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
 	<!--
 		* DivF, DivFn, DivFs
 		K/m/1e14s^2  | 1e14 | 0.0 | 0 | 1 | | | 29 | -1 | 0.1
@@ -5524,6 +5534,61 @@
     </paramLevelMatches>
     <imageStyle>
       <displayUnits>cm/sec</displayUnits>
+    </imageStyle>
+  </styleRule>
+
+<!--   15.1 additions below -->
+   <styleRule>
+    <paramLevelMatches>
+      <parameter>50dbzZ</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits label="ft">ft</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>50000</maxValue>
+      </range>
+      <defaultColormap>Grid/gridded data</defaultColormap>
+      <colorbarLabeling>
+        <increment>10000</increment>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+   <styleRule>
+    <paramLevelMatches>
+      <parameter>RRtype</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits label=" ">dB</displayUnits>
+      <range>
+        <minValue>0</minValue>
+        <maxValue>321</maxValue>
+      </range>
+      <defaultColormap>Grid/Reflectivity PType</defaultColormap>
+      <interpolate>false</interpolate>
+	   <dataMapping>
+	    <entry pixelValue="39" displayValue="39" operator="=" label="SN" />
+		<entry pixelValue="40" displayValue="40" operator="=" label="SN" />
+		<entry pixelValue="120" displayValue="120" operator="=" label="PL" />
+		<entry pixelValue="200" displayValue="200" operator="=" label="FZRA" />
+		<entry pixelValue="280" displayValue="280" operator="=" label="RA" />
+	  </dataMapping>
+    </imageStyle>
+  </styleRule>
+   <styleRule>
+    <paramLevelMatches>
+      <parameter>WCD</parameter>      
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>m</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>6000</maxValue>
+      </range>
+      <defaultColormap>Grid/gridded data</defaultColormap>
+      <colorbarLabeling>
+        <increment>2000</increment>
+      </colorbarLabeling>
     </imageStyle>
   </styleRule>
   

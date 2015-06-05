@@ -19,9 +19,11 @@
  **/
 package com.raytheon.viz.hydrobase.dialogs;
 
+import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
@@ -46,6 +48,7 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrobase.listeners.ICountyStateListener;
 import com.raytheon.viz.hydrobase.listeners.IStationListener;
@@ -83,7 +86,11 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                     Changes for non-blocking CoopAgencyOfficeDlg.
  *                                     Changes for non-blocking CopyNewLocationDlg.
  *                                     Changes for non-blocking CountyStateDlg.
- * 
+ * 08 Jan 2015 15695, 15488 djingtao    fix the save/update text field with apostrophe, repleace the single
+ *                                     apostrophe to two single apostrophe before save/update to database.  
+ * 02 Feb 2015 13372        djingtao    change the GMT time to local time for "revise" field                                                                  
+ * 08 April 2015 17338      djingtao  "Apostrophe" entered into HB text fields are not written to IHFS database 
+ *                                    remove the changes in 15695/15488,  move the apostrophe fix into a more central position
  * 
  * </pre>
  * 
@@ -1800,7 +1807,40 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
              * If station is "Inactive", store an 'I' in the loc.type field.
              */
             dataToSave.setType((inactiveChk.getSelection()) ? "I" : "");
+            
+            /* Check if text fields in dataToSave include single apostrophe, if it do, replace to 
+            two single apostrophe */                               
+            	
+/*            AppsDefaults ad = AppsDefaults.getInstance();
+            boolean debug = ad.getBoolean(HydroConstants.DEBUG_HYDRO_DB_TOKEN, false);
+            
+            Class<?> c = dataToSave.getClass();
+                
+            Field fields[] = c.getDeclaredFields();
 
+            for (Field f : fields)            	
+            {            	
+            	try
+            	{
+            	    if (f.getType().isAssignableFrom(String.class))
+            	    {            		            	            		   
+                        if (debug)
+            			   System.out.println("The field name is " + f.getName());
+            			
+            			f.setAccessible(true);
+            			String value = (String) f.get(dataToSave).toString();            			            		            			            			
+            		
+                        if (value.contains("'")) 
+                        {                           
+                           value = value.replace("'", "''");                           
+                           f.set(dataToSave, value);
+                        }                           
+                   }
+            	} catch (IllegalAccessException e) {
+                	 e.printStackTrace();
+    	          }    
+            }*/
+        
             // Save to DB via DataManager
             try {
                 HydroDBDataManager.getInstance().putData(dataToSave);
@@ -1905,9 +1945,14 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
         // If the Revision Checkbox is checked, set the Revision Date to the
         // current date
         // Else load the date from the database
+    	
+    	Calendar now = Calendar.getInstance(Locale.getDefault());
+        String revise_str = new SimpleDateFormat("MM/dd/yyyy").format(now.getTime());
+        
         if (reviseChk.getSelection()) {
-            reviseTF.setText(locDate.format(Calendar.getInstance(
-                    TimeZone.getTimeZone("GMT")).getTime()));
+     //       reviseTF.setText(locDate.format(Calendar.getInstance(
+     //               TimeZone.getTimeZone("GMT")).getTime()));
+        	reviseTF.setText(revise_str);
         } else if (locData != null) {
             reviseTF.setText((locData.getReviseDate() != null) ? locDate
                     .format(locData.getReviseDate()) : "");

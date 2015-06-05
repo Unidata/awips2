@@ -23,4 +23,10 @@
 		<Field abbreviation="SA12hr" timeShift="0"/>
 		<Field abbreviation="SA12hr" timeShift="-43200"/>
     </Method>
+    <Method model="HPCWWD" name="Add" dtime="true">
+		<Field abbreviation="TOTSN6hr" timeShift="0"/>
+		<Field abbreviation="TOTSN6hr" timeShift="-21600"/>
+		<Field abbreviation="TOTSN6hr" timeShift="-43200"/>
+		<Field abbreviation="TOTSN6hr" timeShift="-64800"/>
+    </Method>
 </DerivedParameter>

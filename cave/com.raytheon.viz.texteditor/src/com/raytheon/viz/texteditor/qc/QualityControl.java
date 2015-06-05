@@ -49,6 +49,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Sep 6, 2011  10764      rferrel     Use QualityControlCfg.xml for
  *                                     configuable information.
  * Apr 29, 2013 3033       jsanchez    Updated method to retrieve files in localization.
+ * Mar 23, 2013 4320       dgilling    Integrate WarningDecoderQCCheck.
  * 
  * </pre>
  * 
@@ -78,7 +79,8 @@ public class QualityControl {
 
         try {
             QualityControl.loadQualityControlCfg();
-            String file = WarnFileUtil.convertFileContentsToString("countyTypes.txt", null, null);
+            String file = WarnFileUtil.convertFileContentsToString(
+                    "countyTypes.txt", null, null);
             countyTypes = new HashMap<String, String>();
             for (String line : file.split("\n")) {
                 String[] parts = line.split("\\\\");
@@ -131,7 +133,7 @@ public class QualityControl {
         IQCCheck[] checks = new IQCCheck[] { new WmoHeaderCheck(),
                 new MndHeaderCheck(), new TextSegmentCheck(),
                 new TimeConsistentCheck(), new CtaMarkerCheck(),
-                new TwoDollarCheck() };
+                new TwoDollarCheck(), new WarningDecoderQCCheck() };
 
         errorMsg = "";
         for (IQCCheck check : checks) {

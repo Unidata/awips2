@@ -50,7 +50,6 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseTrackAdapter;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
@@ -124,6 +123,9 @@ import com.raytheon.uf.viz.core.sounds.SoundUtil;
  * Dec 12, 2014 3709       mapeters    Store {@link ChangeTextColorAction}s in map, dispose them.
  * Jan 09, 2015 3709       bclement    color config manager API changes
  * Jan 12, 2015 3709       bclement    unified color management into SessionColorManager
+ * Mar 24, 2015 4265       mapeters    abstracted out common styleAndAppendText()s
+ * Mar 31, 2015 4327       mapeters    added shouldNotifyTaskbar() override
+ * May 22, 2015 4328       mapeters    Add NOTIFICATION_IMAGE_NAME, getter
  * 
  * </pre>
  * 
@@ -136,6 +138,8 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
             .getHandler(SessionView.class);
 
     private static final String SESSION_IMAGE_NAME = "chats.gif";
+
+    private static final String NOTIFICATION_IMAGE_NAME = "chats_notification.gif";
 
     public static final String ID = "com.raytheon.uf.viz.collaboration.SessionView";
 
@@ -164,6 +168,7 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
      * custom color configuration for a participant
      */
     protected final ChangeTextColorCallback refreshCallback = new ChangeTextColorCallback() {
+        @Override
         public void newColor(IUser user, UserColorInfo colors) {
             refreshParticipantList();
         }
@@ -510,47 +515,11 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
      */
     @Override
     protected void styleAndAppendText(StringBuilder sb, int offset,
-            String name, VenueParticipant userId, String subject,
-            List<StyleRange> ranges) {
+            String name, VenueParticipant userId, List<StyleRange> ranges) {
         UserColorInfo colors = colorManager.getColorForUser(userId);
         styleAndAppendText(sb, offset, name, userId, ranges,
                 getColorFromRGB(colors.getForeground()),
-                getColorFromRGB(colors.getBackground()), subject);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView#
-     * styleAndAppendText(java.lang.StringBuilder, int, java.lang.String,
-     * com.raytheon.uf.viz.collaboration.comm.provider.user.UserId,
-     * java.util.List, org.eclipse.swt.graphics.Color)
-     */
-    @Override
-    protected void styleAndAppendText(StringBuilder sb, int offset,
-            String name, VenueParticipant userId, List<StyleRange> ranges,
-            Color foreground, Color background) {
-        styleAndAppendText(sb, offset, name, userId, ranges, foreground,
-                background, null);
-    }
-
-    protected void styleAndAppendText(StringBuilder sb, int offset,
-            String name, VenueParticipant userId, List<StyleRange> ranges,
-            Color fgColor, Color bgColor, String subject) {
-        StyleRange range = new StyleRange(messagesText.getCharCount(),
-                sb.length(), fgColor, null, SWT.NORMAL);
-        ranges.add(range);
-        range = new StyleRange(messagesText.getCharCount() + offset,
-                (userId != null ? name.length() + 1 : sb.length() - offset),
-                fgColor, null, SWT.BOLD);
-        ranges.add(range);
-        messagesText.append(sb.toString());
-        for (StyleRange newRange : ranges) {
-            messagesText.setStyleRange(newRange);
-        }
-        int lineNumber = messagesText.getLineCount() - 1;
-        messagesText.setLineBackground(lineNumber, 1, bgColor);
-        messagesText.setTopIndex(lineNumber);
+                getColorFromRGB(colors.getBackground()));
     }
 
     public String getRoom() {
@@ -560,6 +529,11 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
     @Override
     protected String getSessionImageName() {
         return SESSION_IMAGE_NAME;
+    }
+
+    @Override
+    protected String getNotificationImageName() {
+        return NOTIFICATION_IMAGE_NAME;
     }
 
     private void createArrows() {
@@ -868,5 +842,17 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
         if (enabled) {
             SoundUtil.playSound(getJoinFile());
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView#
+     * shouldNotifyTaskbar()
+     */
+    @Override
+    protected boolean shouldNotifyTaskbar() {
+        return Activator.getDefault().getPreferenceStore()
+                .getBoolean("chatRoomTaskbarNotifications");
     }
 }

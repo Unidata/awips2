@@ -22,7 +22,10 @@
     <Method name="Alias" levels="Surface">
     	<Field abbreviation="MxT" level="2FHAG"/>
     </Method>
-    <Method name="Max" levels="Surface" models="RTMA">
+    <Method name="Max" levels="Surface" models="RTMA25">
+    	<Field abbreviation="T24hr"/>
+    </Method>
+     <Method name="Max" levels="Surface">
     	<Field abbreviation="T24hr"/>
     </Method>
 </DerivedParameter>

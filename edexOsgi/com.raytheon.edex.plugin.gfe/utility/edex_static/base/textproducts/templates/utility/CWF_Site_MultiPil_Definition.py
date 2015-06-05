@@ -77,11 +77,11 @@ elif "<site>" == "AFG":
 
 
 # Header configuration items
-#Definition["productName"] = "COASTAL WATERS FORECAST"  # name of product
+#Definition["productName"] = "Coastal Waters Forecast"  # name of product
 Definition["fullStationID"] = "<fullStationID>"  # full station identifier (4letter)
 Definition["wmoID"] = "<wmoID>"        # WMO ID
 Definition["pil"] = "<pil>"          # product pil
-Definition["areaName"] = "<state>"  # Name of state, such as "GEORGIA"
+Definition["areaName"] = "<state>"  # Name of state, such as "Georgia"
 Definition["wfoCityState"] = "<wfoCityState>"  # Location of WFO - city st
 Definition["textdbPil"] = "<textdbPil>"       # Product ID for storing to AWIPS text database.
 Definition["awipsWANPil"] = "<awipsWANPil>"   # Product ID for transmitting to AWIPS WAN.

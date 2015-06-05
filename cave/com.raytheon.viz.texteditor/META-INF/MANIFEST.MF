@@ -40,3 +40,4 @@ Import-Package: com.raytheon.uf.common.comm,
  com.raytheon.uf.common.message,
  com.raytheon.uf.common.wmo,
  com.raytheon.uf.viz.ui.menus
+Bundle-ClassPath: com.raytheon.viz.texteditor.jar

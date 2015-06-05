@@ -45,10 +45,12 @@ import com.raytheon.uf.common.wxmath.ZToPsa;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug 14, 2013 2260       bsteffen    Initial creation
- * Aug 27, 2013 2190       mschenke    Fixed unit for VerticalSounding creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Aug 14, 2013  2260     bsteffen    Initial creation
+ * Aug 27, 2013  2190     mschenke    Fixed unit for VerticalSounding creation
+ * May 04, 2015  4444     bsteffen    Fix typo in addRelativeHumidity
+ * May 11, 2015  4445     bsteffen    Add another way to calculate dewpoint
  * 
  * </pre>
  * 
@@ -193,7 +195,7 @@ public class SoundingLayerBuilder {
 
     public SoundingLayerBuilder addRelativeHumidity(double relativeHumidity,
             Unit<Dimensionless> unit) {
-        this.specificHumidity = Measure.valueOf(relativeHumidity, unit);
+        this.relativeHumidity = Measure.valueOf(relativeHumidity, unit);
         return this;
     }
 
@@ -216,8 +218,12 @@ public class SoundingLayerBuilder {
         if (dewpoint != null) {
             layer.setDewpoint(dewpoint.floatValue(NC_DEWPOINT_UNIT));
         } else if (specificHumidity != null && pressure != null) {
-            Measure<?, Temperature> dewpoint = Dewpoint.calculate(pressure,
-                    specificHumidity);
+            Measure<?, Temperature> dewpoint = Dewpoint.calculateFromPandSH(
+                    pressure, specificHumidity);
+            layer.setDewpoint(dewpoint.floatValue(NC_DEWPOINT_UNIT));
+        } else if (temperature != null && relativeHumidity != null) {
+            Measure<?, Temperature> dewpoint = Dewpoint.calculateFromTandRH(
+                    temperature, relativeHumidity);
             layer.setDewpoint(dewpoint.floatValue(NC_DEWPOINT_UNIT));
         }
         if (windDirection != null) {
@@ -263,9 +269,13 @@ public class SoundingLayerBuilder {
         if (dewpoint != null) {
             layer.setDewpoint(dewpoint.floatValue(DEWPOINT_UNIT));
         } else if (specificHumidity != null && pressure != null) {
-            Measure<?, Temperature> dewpoint = Dewpoint.calculate(pressure,
-                    specificHumidity);
+            Measure<?, Temperature> dewpoint = Dewpoint.calculateFromPandSH(
+                    pressure, specificHumidity);
             layer.setDewpoint(dewpoint.floatValue(DEWPOINT_UNIT));
+        } else if (temperature != null && relativeHumidity != null) {
+            Measure<?, Temperature> dewpoint = Dewpoint.calculateFromTandRH(
+                    temperature, relativeHumidity);
+            layer.setDewpoint(dewpoint.floatValue(NC_DEWPOINT_UNIT));
         }
         if (windDirection != null) {
             layer.setWindDirection(windDirection

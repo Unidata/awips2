@@ -11,28 +11,42 @@
     <bean id="jaxbMessageRegistry" class="com.raytheon.uf.common.message.JAXBMessageRegistry" factory-method="getInstance" />
 
 	<bean id="uEngine" class="com.raytheon.edex.services.ProductSrv" />
+    
+    <camelContext id="uengine-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+        
+        <propertyPlaceholder id="uengineProperties"
+                             location="classpath:edex-uengine.properties" />
+        
+        <restConfiguration component="jetty" host="0.0.0.0" port="{{env:HTTP_PORT}}" >
+            <endpointProperty key="disableStreamCache" value="{{edex.uengine.http.disableStreamCache}}" />
+            <endpointProperty key="chunked" value="{{edex.uengine.http.chunked}}" />
+        </restConfiguration>
 
-	<camelContext id="uengine-camel" xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler">
-		<endpoint id="uEngineHttpThrift_from"
-			uri="jetty:http://0.0.0.0:${HTTP_PORT}/services/pyproductthrift?disableStreamCache=true&amp;chunked=false&amp;httpBindingRef=#binaryHttpBinding" />
-		<endpoint id="uEngineHttpJaxb_from"
-			uri="jetty:http://0.0.0.0:${HTTP_PORT}/services/pyproductjaxb" />
-
-		<!-- UEngine routes -->
-		<route id="uEngineHttpThrift" streamCache="false">
-			<from uri="ref:uEngineHttpThrift_from" />
-			<removeHeaders pattern="CamelHttp*" />
-			<bean ref="uEngine" method="executePython" />
-			<bean ref="serializationUtil" method="transformToThrift" />
-		</route>
-		<route id="uEngineHttpJaxb" streamCache="false">
-			<from uri="ref:uEngineHttpJaxb_from" />
-			<removeHeaders pattern="CamelHttp*" />
-			<bean ref="uEngine" method="executePython" />
-			<bean ref="jaxbMessageRegistry" method="marshalToXml" />
-		</route>
-
-	</camelContext>
+        <rest path="{{env:HTTP_SERVER_PATH}}">
+            <post uri="/pyproductthrift">
+                <to uri="direct:uEngineHttpThrift" />
+            </post>
+            <post uri="/pyproductjaxb">
+                <to uri="direct:uEngineHttpJaxb" />
+            </post>
+        </rest>
+        
+        <!-- UEngine routes -->
+        <route id="uEngineHttpThrift" streamCache="false">
+            <from uri="direct:uEngineHttpThrift" />
+            <removeHeaders pattern="CamelHttp*" />
+            <bean ref="uEngine" method="executePython" />
+            <bean ref="serializationUtil" method="transformToThrift" />
+        </route>
+        <route id="uEngineHttpJaxb" streamCache="false">
+            <from uri="direct:uEngineHttpJaxb" />
+            <removeHeaders pattern="CamelHttp*" />
+            <bean ref="uEngine" method="executePython" />
+            <bean ref="jaxbMessageRegistry" method="marshalToXml" />
+        </route>
+        
+    </camelContext>
 	
 </beans>  

@@ -27,11 +27,13 @@
 #    11/10/2014                    randerso       Initial Creation.
 #    12/08/2014      #4953         randerso       Made for generic allowing specification of LocalizationLevel
 #                                                 Re-exported Java enums for easier use.
+#    Apr 25, 2015     4952         njensen        Updated for new JEP API
 ##
 from LockingFile import File
 from com.raytheon.uf.common.localization import PathManagerFactory
-from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType
-from com.raytheon.uf.common.localization import LocalizationContext_LocalizationLevel as LocalizationLevel
+from com.raytheon.uf.common.localization import LocalizationContext
+LocalizationType = LocalizationContext.LocalizationType
+LocalizationLevel = LocalizationContext.LocalizationLevel
 
 EDEX_STATIC = LocalizationType.EDEX_STATIC
 CAVE_STATIC = LocalizationType.CAVE_STATIC

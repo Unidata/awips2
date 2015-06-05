@@ -52,7 +52,7 @@ class TextProduct(GenericReport.TextProduct):
     Definition["showZoneCombiner"] = 1 # 1 to cause zone combiner to display
  
     # product identifiers
-    Definition["productName"] = "HAZARDOUS WEATHER OUTLOOK" # product name 
+    Definition["productName"] = "Hazardous Weather Outlook" # product name 
     Definition["fullStationID" ] = "<fullStationID>"    # 4 letter station ID
     Definition["wmoID" ] = "<wmoID>"                    # WMO code
     Definition["wfoCityState" ] = "<wfoCityState>"      # Location of WFO
@@ -74,7 +74,7 @@ class TextProduct(GenericReport.TextProduct):
 
     # Header format
     Definition["includeCities"] = 0  # Cities not included in area header
-    Definition ["cityDescriptor"] = "INCLUDING THE CITIES OF"
+    Definition ["cityDescriptor"] = "Including the cities of"
     Definition["includeZoneNames"] = 1 # Zone names will be included in the area header
 
     #
@@ -135,7 +135,7 @@ class TextProduct(GenericReport.TextProduct):
         #
         
         generalArea = self.getGeneralAreaList(areaList, areaDictName=self._areaDictionary)
-        areaPhrase = "THIS HAZARDOUS WEATHER OUTLOOK IS FOR PORTIONS OF "
+        areaPhrase = "This Hazardous Weather Outlook is for portions of "
         
         areaLen = len(generalArea)
         areaCount = 0
@@ -144,7 +144,7 @@ class TextProduct(GenericReport.TextProduct):
             if areaCount == 1:
                conn = ""
             elif areaCount == areaLen:
-               conn = " AND "
+               conn = " and "
             else:
                conn = "..."
             if eachGeneralArea[1] != "":

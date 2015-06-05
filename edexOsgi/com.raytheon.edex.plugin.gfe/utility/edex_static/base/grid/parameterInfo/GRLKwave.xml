@@ -146,6 +146,9 @@
     <fcst>511200</fcst>
     <fcst>514800</fcst>
     <fcst>518400</fcst>
+    <fcst>522000</fcst>
+    <fcst>525600</fcst>
+    <fcst>529200</fcst>
   </valtimeMINUSreftime>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>perpw</short_name>

@@ -27,6 +27,13 @@
 #
 # Author: hansen
 # ----------------------------------------------------------------------------
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    01/22/2015       4027         randerso       Removed upper casing of weather and discrete phrases
+#
+##
 
 import TextUtils
 from WxMethods import *
@@ -650,7 +657,7 @@ class TableBuilder(TextUtils.TextUtils):
         value = string.replace(value, " ", "|")
         value = string.replace(value, "thunderstorm","thunder|storm")
         #print "returning", value
-        return string.upper(value)
+        return value
 
     def long_weather_phrase(self, element, stats): 
         # Stats from SampleAnalysis method: weather_percentages 
@@ -686,7 +693,7 @@ class TableBuilder(TextUtils.TextUtils):
             
         if words == "": 
             words = "None" 
-        return words.upper() 
+        return words
 
     def discrete_value(self, element, stats):
         " Return string of hazards"
@@ -709,7 +716,7 @@ class TableBuilder(TextUtils.TextUtils):
                 "Hazards" + "_SFC", str)
             value = value + discreteWords + " "
         #print "returning", value
-        return value.upper()
+        return value
     
     def long_discrete_phrase(self, element, stats): 
         # Stats from SampleAnalysis method: discrete_percentages 
@@ -741,7 +748,7 @@ class TableBuilder(TextUtils.TextUtils):
             
         if words == "": 
             words = "None" 
-        return words.upper() 
+        return words
 
     def cloudCover(self, element, stats):
         # Return a text cloud cover given Sky average value
@@ -757,15 +764,15 @@ class TableBuilder(TextUtils.TextUtils):
             tr = TimeRange.TimeRange(period.startTime() + shift, period.endTime() + shift)
             dayNight = self.getPeriod(tr)
             if dayNight == self.NIGHTTIME():
-                valStr = "CLEAR"
+                valStr = "Clear"
             else:
-                valStr = "SUNNY"
+                valStr = "Sunny"
         elif value < 55:
-            valStr = "PARTLY|CLOUDY"
+            valStr = "Partly|Cloudy"
         elif value < 85:
-            valStr = "MOSTLY|CLOUDY"
+            valStr = "Mostly|Cloudy"
         else:
-            valStr = "CLOUDY"
+            valStr = "Cloudy"
 
         return valStr
 

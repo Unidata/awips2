@@ -532,11 +532,11 @@ class Header(EditAreaUtils.EditAreaUtils, StringUtils.StringUtils):
         
 
     # Header support for Watch/Warning products
-    def getCityList(self, areaList, label="THIS INCLUDES THE CITIES OF", 
+    def getCityList(self, areaList, label="This includes the cities of", 
       lineLength=66, areaDictName="AreaDictionary", addPeriod = False,
       forceAlphaSort=False):
         # Returns a list of cities (from the AreaDictionary)
-        # Appends an " AND " instead of "..." for the last city mentioned.
+        # Appends an " and " instead of "..." for the last city mentioned.
 
         # Access the UGC information for the area(s) if available
         areaDict = ModuleAccessor.ModuleAccessor().variable(areaDictName, "AreaDictionary")
@@ -557,7 +557,7 @@ class Header(EditAreaUtils.EditAreaUtils, StringUtils.StringUtils):
             for c in cities:
                 cityString = cityString + "..." + c  
 
-        cityString = self.replaceLast(cityString, "...", " AND ")
+        cityString = self.replaceLast(cityString, "...", " and ")
         if len(cityString) == 0:
             return ""
         else:
@@ -687,7 +687,7 @@ class Header(EditAreaUtils.EditAreaUtils, StringUtils.StringUtils):
                 first = 0
             else:
                 result = result + "..." + county
-        result = self.replaceLast(result, "...", " AND ")
+        result = self.replaceLast(result, "...", " and ")
         return result
 
     def replaceLast(self, str, str1, str2):
@@ -698,11 +698,11 @@ class Header(EditAreaUtils.EditAreaUtils, StringUtils.StringUtils):
             str = str.replace(str2, str1, count-1)
         return str
 
-    def getIssuedByString(self, words = "ISSUED BY NATIONAL WEATHER SERVICE "):
+    def getIssuedByString(self, words = "Issued by National Weather Service "):
         issuedByString = ""
         try:
             if self._issuedBy is not None:
-                issuedByString = "ISSUED BY NATIONAL WEATHER SERVICE " + \
+                issuedByString = "Issued by National Weather Service " + \
                         self.getSiteInfo("wfoCityState",self._issuedBy) + "\n"
         except:
             pass

@@ -12,7 +12,7 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.rcm.lib;bundle-version="1.0.0",
  com.raytheon.uf.common.localization;bundle-version="1.12.1174"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Vendor: Raytheon
 Export-Package: com.raytheon.uf.viz.radarapps.rps
 Import-Package: com.raytheon.uf.common.status

@@ -8,6 +8,7 @@
   Mar 31, 2014    #2934    dgilling    Updated params for pSurge2.0/PHISH data.
   Jul 03, 2014  DR 14068   mfoster     Added parameters for 3km AK-RTMA
   Dec 15, 2014  DR 14024   jwatson     Added parameters for 2.5km GFSLAMPGrid
+  Feb 24, 2015  DR 16671   byin        Added HPBL for RUC13
  -->
 <aliasList caseSensitive="true" namespace="gfeParamName">
     <alias base="AV">av</alias>
@@ -36,6 +37,7 @@
     <alias base="HAILPROB">hailprob</alias>
     <alias base="Heli">heli</alias>
     <alias base="HIdx">hidx</alias>
+    <alias base="HPBL">hpbl</alias>
     <alias base="HTSGW">htsgw</alias>
     <alias base="KI">ki</alias>
     <alias base="LgSP3hr">lgsp3hr</alias>
@@ -331,6 +333,7 @@
     <alias base="tp6c6">tp6c6</alias>
     <alias base="tp6c7">tp6c7</alias>
     <alias base="tp6c8">tp6c8</alias>
+    <alias base="TCCerranl">tccerranl</alias>
     <alias base="TP6mean">tpmean6</alias>
     <alias base="TP6sprd">tpsprd6</alias>
     <alias base="TP-ECMWF">tpecmwf</alias>

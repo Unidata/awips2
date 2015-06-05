@@ -40,12 +40,12 @@
 #  displayName      If not None, defines how product appears in GFE GUI
 #  defaultEditAreas defines edit areas, default is Combinations
 #
-#  productName      defines name of product e.g. "ZONE FORECAST PRODUCT"
+#  productName      defines name of product e.g. "Zone Forecast Product"
 #  fullStationID    Full station identifier, 4 letter, such as "KSLC".
 #  wmoID            WMO ID code for product header, such as "FOUS45"
 #  pil              Product pil, such as "SFTBOS"
-#  areaName (opt.)  Area name for product header, such as "WESTERN NEW YORK"
-#  wfoCityState     WFO location, such as "BUFFALO NY"
+#  areaName (opt.)  Area name for product header, such as "Western New York"
+#  wfoCityState     WFO location, such as "Buffalo NY"
 #
 # Optional Configuration Items
 #  editAreaSuffix      default None. Allows for generating the body of the product for
@@ -69,7 +69,7 @@
 #                         in the AWIPS text database. 
 #                         This value is also used for the default GUI entry for 
 #                         storage.
-#  awipsWANPil            Defines the awips product identifier 
+#  awipsWANPil            Defines the AWIPS product identifier 
 #                         (e.g., KBOUCCFDEN) that is used to transmit the 
 #                         product to the AWIPS WAN. 
 #                         This value is also used for the default GUI 
@@ -78,7 +78,7 @@
 #                    grid points in a zone that must contain the hazard
 #                    in order for it to be considered. Tuple (percent, points)
 #
-#  periodCombining         If 1, compnents an attempt will be made to combine components
+#  periodCombining         If 1, components an attempt will be made to combine components
 #                          or time periods into one.  Otherwise no period combining will
 #                          will be done.
 #  useAbbreviations
@@ -177,11 +177,11 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         "editAreaSuffix": None,
 
         # product identifiers
-        "productName": "NEARSHORE MARINE FORECAST", # product name 
+        "productName": "Nearshore Marine Forecast", # product name 
         "fullStationID": "<fullStationID>",    # full station identifier (4letter)
         "wmoID": "<wmoID>",          # WMO ID
         "pil": "<pil>",            # Product pil
-        "areaName": "<state>",             # Name of state, such as "GEORGIA"
+        "areaName": "<state>",             # Name of state, such as "Georgia"
         "wfoCityState": "<wfoCityState>",   # Location of WFO - city state
         
         "textdbPil": "<textdbPil>",       # Product ID for storing to AWIPS text database.
@@ -229,7 +229,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         return ""
 
     def _lakeStmt(self, argDict):
-        return "FOR WATERS WITHIN FIVE NAUTICAL MILES OF SHORE ON LAKE (NAME)"
+        return "For waters within five nautical miles of shore on Lake (name)"
 
     ########################################################################
     # OVERRIDING THRESHOLDS AND VARIABLES
@@ -321,15 +321,14 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     def marine_wind_combining_flag(self, tree, node):
         # If 1, Wind combining will reflect the
         # crossing of significant thresholds such as gales.
-        # E.g. "HURRICANE FORCE WINDS TO 100 KNOTS." instead of
-        # "NORTH HURRICANE FORCE WINDS TO 100 KNOTS EASING TO
-        #  HURRICANE FORCE WINDS TO 80 KNOTS IN THE AFTERNOON."
+        # E.g. "Hurricane force winds to 100 knots." instead of
+        # "north hurricane force winds to 100 knots easing to
+        #  hurricane force winds to 80 knots in the afternoon."
         return 1
 
     def postProcessPhrases(self, tree, node): 
         words = node.get("words") 
         if words is not None: 
-            words = string.lower(words) 
             words = string.replace(words, "thunderstorms and rain showers", 
                         "showers and thunderstorms") 
             words = string.replace(words, "snow showers and rain showers", "rain and snow showers") 
@@ -574,7 +573,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
     def _preProcessProduct(self, fcst, argDict):
         if self._areaName != "":
-             productName = self._productName.strip() + " FOR " + \
+             productName = self._productName.strip() + " for " + \
                            self._areaName.strip()
         else:
              productName = self._productName.strip()
@@ -582,19 +581,21 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         issuedByString = self.getIssuedByString()
         productName = self.checkTestMode(argDict, productName)
         
-        fcst =  fcst + self._wmoID + " " + self._fullStationID + " " + \
+        s = self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
                productName + "\n" +\
-               "NATIONAL WEATHER SERVICE " + self._wfoCityState + \
-               "\n" + issuedByString + self._timeLabel + "\n\n" + \
-               self._lakeStmt(argDict) + "\n\n"
+               "National Weather Service " + self._wfoCityState + \
+               "\n" + issuedByString + self._timeLabel + "\n\n"
+        fcst = fcst + s.upper()
+               
+        fcst =  fcst + self._lakeStmt(argDict) + "\n\n"
         fcst = fcst + self._Text1()
         return fcst
 
     def _preProcessArea(self, fcst, editArea, areaLabel, argDict):
         areaHeader = self.makeAreaHeader(
             argDict, areaLabel, self._issueTime, self._expireTime,
-            self._areaDictionary, self._defaultEditAreas)
+            self._areaDictionary, self._defaultEditAreas, upperCase=True)
         fcst = fcst + areaHeader 
 
         # get the hazards text
@@ -694,9 +695,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
     def splitDay24HourLabel_flag(self, tree, node):
         # Return 0 to have the TimeDescriptor module label 24 hour periods
-        # with simply the weekday name (e.g. SATURDAY)
+        # with simply the weekday name (e.g. Saturday)
         # instead of including the day and night periods
-        # (e.g. SATURDAY AND SATURDAY NIGHT)
+        # (e.g. Saturday and Saturday night)
         # NOTE: If you set this flag to 1, make sure the "nextDay24HourLabel_flag"
         # is set to zero.
         # NOTE: This applied only to periods that are exactly 24-hours in length.

@@ -47,6 +47,7 @@ import com.raytheon.viz.gfe.core.DataManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 22, 2012            dgilling     Initial creation
+ * Mar 12, 2015  #4246     randerso     Changes to support VCModules at base, site, and user levels
  * 
  * </pre>
  * 
@@ -82,7 +83,7 @@ public class VCModuleJobPool {
             Boolean system, Integer priority) {
         jobList = new ArrayList<Job>(size);
         for (int i = 0; i < size; i++) {
-            PooledJob job = new PooledJob(name, null);
+            PooledJob job = new PooledJob(name, dataMgr);
             if (system != null) {
                 job.setSystem(system);
             }
@@ -189,7 +190,7 @@ public class VCModuleJobPool {
             } catch (JepException e) {
                 statusHandler.handle(
                         Priority.WARN,
-                        "Could not instantiate VCMoudleController: "
+                        "Could not instantiate VCModuleController: "
                                 + e.getLocalizedMessage(), e);
             } finally {
                 if (python != null) {
