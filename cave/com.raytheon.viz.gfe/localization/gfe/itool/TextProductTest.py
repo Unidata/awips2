@@ -355,7 +355,7 @@ class ITool (ISmartScript.ISmartScript):
             self._runTestScript(index)
             if self._failures > self._failLimit:
                 break
-            time.sleep(0.5) # avoid some race conditions with fileChanges
+            time.sleep(2) # avoid some race conditions with fileChanges
 
         self._finished()
 

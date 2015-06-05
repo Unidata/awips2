@@ -25,9 +25,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.MappedSuperclass;
@@ -58,6 +56,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                     spatial
  * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * 04/28/2015   4027       randerso    Expunged Calendar from ActiveTableRecord
+ * 05/22/2015   4522       randerso    Create proper primary key for ActiveTableRecord
  * </pre>
  * 
  * @author njensen
@@ -66,17 +65,15 @@ import com.vividsolutions.jts.geom.Geometry;
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @DynamicSerialize
+// TODO: do we get anything from extending PersistableDataObject here?
 public abstract class ActiveTableRecord extends PersistableDataObject {
-
     protected static final long serialVersionUID = 1L;
 
-    protected static final String ID_GEN = "idgen";
+    @EmbeddedId
+    @DynamicSerializeElement
+    protected ActiveTableKey key;
 
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = ID_GEN)
-    @Id
-    protected int id;
-
-    @Column(length = 32)
+    @Column(length = 22)
     @DynamicSerializeElement
     protected String wmoid;
 
@@ -92,39 +89,18 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
     @DynamicSerializeElement
     protected String countyheader;
 
-    @Column(length = 8)
-    @DynamicSerializeElement
-    protected String ugcZone;
-
-    @Column(columnDefinition = "text")
+    @Column(length = 48)
     @DynamicSerializeElement
     protected String vtecstr;
 
-    @Column(length = 4)
+    @Column(length = 1)
     @DynamicSerializeElement
     protected String productClass;
 
     @DataURI(position = 4)
-    @Column(length = 4)
+    @Column(length = 3)
     @DynamicSerializeElement
     protected String act;
-
-    @Column(length = 8)
-    @DynamicSerializeElement
-    protected String officeid;
-
-    @Column(length = 4)
-    @DynamicSerializeElement
-    protected String phen;
-
-    @Column(length = 4)
-    @DynamicSerializeElement
-    protected String sig;
-
-    @DataURI(position = 5)
-    @Column(length = 4)
-    @DynamicSerializeElement
-    protected String etn;
 
     /** vtec start time */
     @DynamicSerializeElement
@@ -142,7 +118,7 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
     @DynamicSerializeElement
     protected Date purgeTime;
 
-    @Column(length = 8)
+    @Column
     @DynamicSerializeElement
     protected boolean ufn;
 
@@ -163,6 +139,7 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
     @DynamicSerializeElement
     protected Integer motspd;
 
+    // TODO: make this column a Geometry
     @Column(columnDefinition = "text")
     @DynamicSerializeElement
     protected String loc;
@@ -194,14 +171,15 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
     @DynamicSerializeElement
     protected String segText;
 
-    @Column(length = 8)
+    @Column(length = 5)
     @DynamicSerializeElement
     protected String locationID;
 
-    @Column(length = 2)
+    @Column(length = 1)
     @DynamicSerializeElement
     protected String floodSeverity;
 
+    @Column(length = 2)
     @DynamicSerializeElement
     protected String immediateCause;
 
@@ -221,9 +199,18 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
     @DynamicSerializeElement
     protected Date floodEnd;
 
+    public ActiveTableRecord() {
+        this.key = new ActiveTableKey();
+    }
+
     @Override
     public abstract Object clone();
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -255,13 +242,6 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
                 return false;
             }
         } else if (!endTime.equals(other.endTime)) {
-            return false;
-        }
-        if (etn == null) {
-            if (other.etn != null) {
-                return false;
-            }
-        } else if (!etn.equals(other.etn)) {
             return false;
         }
         if (floodBegin == null) {
@@ -310,7 +290,7 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
             if (other.geometry != null) {
                 return false;
             }
-        } else if (!geometry.equalsExact(other.geometry)) {
+        } else if (!geometry.equals(other.geometry)) {
             return false;
         }
         if (immediateCause == null) {
@@ -325,6 +305,13 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
                 return false;
             }
         } else if (!issueTime.equals(other.issueTime)) {
+            return false;
+        }
+        if (key == null) {
+            if (other.key != null) {
+                return false;
+            }
+        } else if (!key.equals(other.key)) {
             return false;
         }
         if (loc == null) {
@@ -355,25 +342,11 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
         } else if (!motspd.equals(other.motspd)) {
             return false;
         }
-        if (officeid == null) {
-            if (other.officeid != null) {
-                return false;
-            }
-        } else if (!officeid.equals(other.officeid)) {
-            return false;
-        }
         if (overviewText == null) {
             if (other.overviewText != null) {
                 return false;
             }
         } else if (!overviewText.equals(other.overviewText)) {
-            return false;
-        }
-        if (phen == null) {
-            if (other.phen != null) {
-                return false;
-            }
-        } else if (!phen.equals(other.phen)) {
             return false;
         }
         if (phensig == null) {
@@ -428,13 +401,6 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
         } else if (!segText.equals(other.segText)) {
             return false;
         }
-        if (sig == null) {
-            if (other.sig != null) {
-                return false;
-            }
-        } else if (!sig.equals(other.sig)) {
-            return false;
-        }
         if (startTime == null) {
             if (other.startTime != null) {
                 return false;
@@ -443,13 +409,6 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
             return false;
         }
         if (ufn != other.ufn) {
-            return false;
-        }
-        if (ugcZone == null) {
-            if (other.ugcZone != null) {
-                return false;
-            }
-        } else if (!ugcZone.equals(other.ugcZone)) {
             return false;
         }
         if (vtecstr == null) {
@@ -474,6 +433,21 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
             return false;
         }
         return true;
+    }
+
+    /**
+     * @return the key
+     */
+    public ActiveTableKey getKey() {
+        return key;
+    }
+
+    /**
+     * @param key
+     *            the key to set
+     */
+    public void setKey(ActiveTableKey key) {
+        this.key = key;
     }
 
     /**
@@ -540,7 +514,7 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
      * @return the ugcZone
      */
     public String getUgcZone() {
-        return ugcZone;
+        return key.ugcZone;
     }
 
     /**
@@ -548,7 +522,7 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
      *            the ugcZone to set
      */
     public void setUgcZone(String ugcZone) {
-        this.ugcZone = ugcZone;
+        this.key.ugcZone = ugcZone;
     }
 
     /**
@@ -600,7 +574,7 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
      * @return the officeid
      */
     public String getOfficeid() {
-        return officeid;
+        return key.officeid;
     }
 
     /**
@@ -608,14 +582,14 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
      *            the officeid to set
      */
     public void setOfficeid(String officeid) {
-        this.officeid = officeid;
+        this.key.officeid = officeid;
     }
 
     /**
      * @return the phen
      */
     public String getPhen() {
-        return phen;
+        return key.phen;
     }
 
     /**
@@ -623,14 +597,14 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
      *            the phen to set
      */
     public void setPhen(String phen) {
-        this.phen = phen;
+        this.key.phen = phen;
     }
 
     /**
      * @return the sig
      */
     public String getSig() {
-        return sig;
+        return key.sig;
     }
 
     /**
@@ -638,14 +612,14 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
      *            the sig to set
      */
     public void setSig(String sig) {
-        this.sig = sig;
+        this.key.sig = sig;
     }
 
     /**
      * @return the etn
      */
     public String getEtn() {
-        return etn;
+        return key.etn;
     }
 
     /**
@@ -653,7 +627,7 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
      *            the etn to set
      */
     public void setEtn(String etn) {
-        this.etn = etn;
+        this.key.etn = etn;
     }
 
     /**
