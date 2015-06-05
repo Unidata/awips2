@@ -69,7 +69,7 @@ copyVizShutdownUtilIfNecessary
 deleteOldCaveDiskCaches &
 
 # Enable core dumps
-ulimit -c unlimited
+ulimit -c unlimited >> /dev/null 2>&1
 
 export LD_LIBRARY_PATH=${JAVA_INSTALL}/lib:${PYTHON_INSTALL}/lib:$LD_LIBRARY_PATH
 export LD_PRELOAD=libpython.so
@@ -207,14 +207,14 @@ deleteOldCaveLogs &
 
 curTime=`date +%Y%m%d_%H%M%S`
 
+pid=$!
+export LOGFILE_STARTUP_SHUTDOWN="${LOGDIR}/${PROGRAM_NAME}_${pid}_${curTime}_pid_%PID%_startup-shutdown.log"
+
 # At this point fork so that log files can be set up with the process pid and
 # this process can log the exit status of cave.
 (
-  export pid=`/bin/bash -c 'echo $PPID'`
-
   # we include the PID of the launching process along with
   # a %PID% placeholder to be replaced with the "real" PID
-  LOGFILE_STARTUP_SHUTDOWN="${LOGDIR}/${PROGRAM_NAME}_${pid}_${curTime}_pid_%PID%_startup-shutdown.log"
   export LOGFILE_CAVE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_%PID%_logs.log"
   export LOGFILE_CONSOLE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_%PID%_console.log"
   export LOGFILE_PERFORMANCE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_%PID%_perf.log"
@@ -260,7 +260,5 @@ curTime=`date +%Y%m%d_%H%M%S`
 ) &
 
 pid=$!
-LOGFILE_STARTUP_SHUTDOWN="${LOGDIR}/${PROGRAM_NAME}_${pid}_${curTime}_pid_%PID%_startup-shutdown.log"
 logExitStatus $pid $LOGFILE_STARTUP_SHUTDOWN
-
 
