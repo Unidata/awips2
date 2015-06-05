@@ -72,7 +72,6 @@ deleteOldCaveDiskCaches &
 ulimit -c unlimited >> /dev/null 2>&1
 
 export LD_LIBRARY_PATH=${JAVA_INSTALL}/lib:${PYTHON_INSTALL}/lib:$LD_LIBRARY_PATH
-export LD_PRELOAD=libpython.so
 if [[ -z "$CALLED_EXTEND_LIB_PATH" ]]; then
     extendLibraryPath
 fi
