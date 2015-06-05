@@ -61,6 +61,7 @@ import com.raytheon.uf.common.util.mapping.MultipleMappingException;
  *                                    added Dflt if no levels specified
  * Apr 30, 2013  1961     bsteffen    Add ability to disable grib tables.
  * Oct 14, 2013  2473     bsteffen    Remove lookup of deprecated grib files.
+ * Jun 05, 2015  4495     njensen     Improved error message
  * 
  * 
  * </pre>
@@ -198,7 +199,8 @@ public class GridParamInfoLookup {
                 }
             } catch (JAXBException e) {
                 statusHandler.handle(Priority.PROBLEM,
-                        "Error unmarshalling grid parameter information", e);
+                        "Error unmarshalling grid parameter information from file "
+                                + file.getName(), e);
             }
         }
         for (GridParamInfo gridParamInfo : modelParamMap.values()) {
