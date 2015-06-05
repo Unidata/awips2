@@ -9,6 +9,7 @@
   Jul 03, 2014  DR 14068   mfoster     Added parameters for 3km AK-RTMA
   Dec 15, 2014  DR 14024   jwatson     Added parameters for 2.5km GFSLAMPGrid
   Feb 24, 2015  DR 16671   byin        Added HPBL for RUC13
+  May 21, 2015  DR 17515   bhunder     Added parameters for URMA25
  -->
 <aliasList caseSensitive="true" namespace="gfeParamName">
     <alias base="AV">av</alias>
@@ -74,6 +75,7 @@
     <alias base="SWELL">swell</alias>
     <alias base="SWPER">swper</alias>
     <alias base="TCC">tcc</alias>
+    <alias base="TCCerranl">tccerranl</alias>
     <alias base="ThP">thp</alias>
     <alias base="TKE">tke</alias>
     <alias base="TP12hr">tp12hr</alias>
@@ -333,7 +335,6 @@
     <alias base="tp6c6">tp6c6</alias>
     <alias base="tp6c7">tp6c7</alias>
     <alias base="tp6c8">tp6c8</alias>
-    <alias base="TCCerranl">tccerranl</alias>
     <alias base="TP6mean">tpmean6</alias>
     <alias base="TP6sprd">tpsprd6</alias>
     <alias base="TP-ECMWF">tpecmwf</alias>
