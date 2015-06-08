@@ -66,5 +66,18 @@
      <defaultColormap>NPP/VIIRS/CA (Low Light Vis)</defaultColormap>
   </imageStyle>
 </styleRule>
-
+<!-- Special Ref 1.378u Satellite Rule based on sample data -->
+<styleRule>
+  <viirsDataMatches>
+     <parameter>Ref</parameter>
+     <wavelength>1.378</wavelength>
+  </viirsDataMatches>
+  <imageStyle>
+     <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>0.6</maxValue>
+     </range>
+     <defaultColormap>NPP/VIIRS/CA (Low Light Vis)</defaultColormap>
+  </imageStyle>
+</styleRule>
 </styleRuleset>
