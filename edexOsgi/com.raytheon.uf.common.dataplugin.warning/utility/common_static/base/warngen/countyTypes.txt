@@ -1,23 +1,23 @@
-LA \ PARISH
-LOUISIANA \ PARISH
-LA+ \ PARISHES
-LOUISIANA+ \ PARISHES
+LA \ Parish
+Louisiana \ Parish
+LA+ \ Parishes
+Louisiana+ \ Parishes
 DC \
-DISTRICT OF COLUMBIA \ 
+District of Columbia \ 
 DC+ \ 
-DISTRICT OF COLUMBIA+ \ 
+District of Columbia+ \ 
 AK \
-ALASKA \ 
+Alaska \ 
 AK+ \ 
-ALASKA+ \ 
-PR \ MUNICIPALITY
-PUERTO RICO \ MUNICIPALITY
-PR+ \ MUNICIPALITIES
-PUERTO RICO+ \ MUNICIPALITIES
+Alaska+ \ 
+PR \ Municipality
+Puerto Rico \ Municipality
+PR+ \ Municipalities
+Puerto Rico+ \ Municipalities
 GU \
-GUAM \
+Guam \
 GU+ \
-GUAM+ \
-DEFAULT+ \ COUNTIES
-DEFAULT \ COUNTY
-CITY \
+Guam+ \
+DEFAULT+ \ Counties
+DEFAULT \ County
+City \

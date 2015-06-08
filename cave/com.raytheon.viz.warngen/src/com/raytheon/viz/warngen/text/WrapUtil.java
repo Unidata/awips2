@@ -40,7 +40,7 @@ import java.util.regex.Pattern;
  * @author jsanchez
  * @version 1.0
  */
-public class WrapUtil implements ICommonPatterns {
+public class WrapUtil {
 
     /** Maximum width of a warning */
     private static final int MAX_WIDTH = 69;
@@ -50,19 +50,24 @@ public class WrapUtil implements ICommonPatterns {
     private static final String BULLET_START = "* ";
 
     // Guess at the amount of extra characters added by wrapping
-    private static final int WRAP_COUNT_GUESS = 16 * 3; // *3 for bullet indent + \n
+    private static final int WRAP_COUNT_GUESS = 16 * 3; // *3 for bullet indent
+                                                        // + \n
 
     private static final String DELIM_GROUP = "\0";
-    private static final String[] NORMAL_DELIMS = { " ", "...", DELIM_GROUP, "-" };
+
+    private static final String[] NORMAL_DELIMS = { " ", "...", DELIM_GROUP,
+            "-" };
+
     private static final String[] AREA_DELIMS = { "-", "...", DELIM_GROUP, " " };
+
     private static final String[] UGC_DELIMS = AREA_DELIMS;
 
     // ugc pattern
-    private static final Pattern ugcPtrn = Pattern.compile(ugc);
+    private static final Pattern ugcPtrn = Pattern.compile(WarnGenPatterns.ugc);
 
     // list of areas pattern
     private static final Pattern listOfAreaNamePtrn = Pattern
-            .compile(listOfAreaName);
+            .compile(WarnGenPatterns.listOfAreaName);
 
     /**
      * Wraps the text independent of being locked before or after.
@@ -78,7 +83,8 @@ public class WrapUtil implements ICommonPatterns {
         String[] lines = text.split("\n");
         for (int i = 0; i < lines.length; i++) {
             String line = lines[i];
-            String unlocked = line.replaceAll(LOCK_START + "|" + LOCK_END, "");
+            String unlocked = line.replaceAll(WarnGenPatterns.LOCK_START + "|"
+                    + WarnGenPatterns.LOCK_END, "");
 
             if (unlocked.trim().length() == 0) { // BLANK LINE
                 inBullet = false;
@@ -93,7 +99,7 @@ public class WrapUtil implements ICommonPatterns {
                 // Add indenting if the template didn't account for it yet.
                 int add = wasInBullet && !unlocked.startsWith(INDENT) ? INDENT
                         .length() : 0;
-                if (unlocked.length() <= MAX_WIDTH - add) { // LESS THAN MAX
+                if (unlocked.length() <= (MAX_WIDTH - add)) { // LESS THAN MAX
                     if (add > 0) {
                         sb.append(INDENT);
                     }
@@ -104,7 +110,7 @@ public class WrapUtil implements ICommonPatterns {
             }
 
             sb.append(addLine);
-            if (i != lines.length - 1) {
+            if (i != (lines.length - 1)) {
                 sb.append("\n");
             }
         }
@@ -138,7 +144,8 @@ public class WrapUtil implements ICommonPatterns {
      * @param maxLength
      * @return
      */
-    public static String wrapLongLine(String line, boolean inBullet, String[] delims, int maxLength) {
+    public static String wrapLongLine(String line, boolean inBullet,
+            String[] delims, int maxLength) {
         StringBuilder sb = new StringBuilder(line.length() + WRAP_COUNT_GUESS);
         int start = 0;
         int allowLength = maxLength;
@@ -152,7 +159,7 @@ public class WrapUtil implements ICommonPatterns {
             char[] cb = new char[2];
             int i = indexIgnoringLockMarkers(line, start, 0);
             int o = 0;
-            while (i < line.length() && o < 2) {
+            while ((i < line.length()) && (o < 2)) {
                 cb[o++] = line.charAt(i);
                 i = indexIgnoringLockMarkers(line, i, 1);
             }
@@ -188,15 +195,17 @@ public class WrapUtil implements ICommonPatterns {
             int bestP = -1;
             for (String delim : delims) {
                 if (delim == DELIM_GROUP) {
-                    if (bestDelim != null)
+                    if (bestDelim != null) {
                         break;
+                    }
                     continue;
                 }
                 int backup = " ".equals(delim) ? 0 : delim.length();
                 int p = !failed ? line.lastIndexOf(delim, limit - backup)
                         : line.indexOf(delim, limit - backup);
-                if (p >= start && (bestDelim == null
-                        || !failed ? p > bestP : p < bestP)) {
+                if ((p >= start)
+                        && ((bestDelim == null) || !failed ? p > bestP
+                                : p < bestP)) {
                     bestDelim = delim;
                     bestP = p;
                 }
@@ -212,7 +221,7 @@ public class WrapUtil implements ICommonPatterns {
                 if (inBullet) {
                     allowLength = maxLength - INDENT.length();
                 }
-            } else if (! failed) {
+            } else if (!failed) {
                 /*
                  * Failed to wrap before the margin. Try again, wrapping the
                  * line after the margin, but still as close to it as possible.
@@ -268,20 +277,23 @@ public class WrapUtil implements ICommonPatterns {
      *            of characters in text past start.
      * @return
      */
-    private static int indexIgnoringLockMarkers(String text, int start, int count) {
+    private static int indexIgnoringLockMarkers(String text, int start,
+            int count) {
         int i = start;
         do {
-            if (text.startsWith(LOCK_START, i))
-                i += LOCK_START.length();
-            else if (text.startsWith(LOCK_END, i))
-                i += LOCK_END.length();
-            else if (count > 0) {
-                if (i >= text.length())
+            if (text.startsWith(WarnGenPatterns.LOCK_START, i)) {
+                i += WarnGenPatterns.LOCK_START.length();
+            } else if (text.startsWith(WarnGenPatterns.LOCK_END, i)) {
+                i += WarnGenPatterns.LOCK_END.length();
+            } else if (count > 0) {
+                if (i >= text.length()) {
                     break;
+                }
                 ++i;
                 --count;
-            } else
+            } else {
                 break;
+            }
         } while (true);
         return i;
     }
@@ -290,21 +302,25 @@ public class WrapUtil implements ICommonPatterns {
      * Append text.substring(start, end) to sb, removing any trailing
      * whitespace. The trailing whitespace may have have embedded lock marks.
      */
-    private static void appendRTrim(String text, int start, int end, StringBuilder sb) {
+    private static void appendRTrim(String text, int start, int end,
+            StringBuilder sb) {
         int sbStart = sb.length();
         sb.append(text, start, end);
         int i = sb.length();
         while (i > sbStart) {
             if (Character.isWhitespace(sb.charAt(i - 1))) {
                 sb.deleteCharAt(--i);
-            } else if (i - sbStart >= LOCK_START.length() &&
-                    LOCK_START.equals(sb.substring(i - LOCK_START.length(), i))) {
-                i -= LOCK_START.length();
-            } else if (i - sbStart >= LOCK_END.length() &&
-                    LOCK_END.equals(sb.substring(i - LOCK_END.length(), i))) {
-                i -= LOCK_END.length();
-            } else
+            } else if (((i - sbStart) >= WarnGenPatterns.LOCK_START.length())
+                    && WarnGenPatterns.LOCK_START.equals(sb.substring(i
+                            - WarnGenPatterns.LOCK_START.length(), i))) {
+                i -= WarnGenPatterns.LOCK_START.length();
+            } else if (((i - sbStart) >= WarnGenPatterns.LOCK_END.length())
+                    && WarnGenPatterns.LOCK_END.equals(sb.substring(i
+                            - WarnGenPatterns.LOCK_END.length(), i))) {
+                i -= WarnGenPatterns.LOCK_END.length();
+            } else {
                 break;
+            }
         }
     }
 
@@ -324,27 +340,30 @@ public class WrapUtil implements ICommonPatterns {
      * @return The index in text at which processing for the next line should
      *         begin.
      */
-    private static int splitEndOfLine(String text, int start, boolean inBullet, StringBuilder sb) {
+    private static int splitEndOfLine(String text, int start, boolean inBullet,
+            StringBuilder sb) {
         int goodBreak = start;
         int i = start;
 
         while (i < text.length()) {
             if (Character.isWhitespace(text.charAt(i))) {
                 ++i;
-            } else if (text.startsWith(LOCK_START, i)) {
+            } else if (text.startsWith(WarnGenPatterns.LOCK_START, i)) {
                 goodBreak = i;
-                i += LOCK_START.length();
+                i += WarnGenPatterns.LOCK_START.length();
                 break;
-            } else if (text.startsWith(LOCK_END, i)) {
-                i += LOCK_END.length();
+            } else if (text.startsWith(WarnGenPatterns.LOCK_END, i)) {
+                i += WarnGenPatterns.LOCK_END.length();
                 goodBreak = i;
                 break;
-            } else
+            } else {
                 break;
+            }
         }
 
-        if (i >= text.length())
+        if (i >= text.length()) {
             goodBreak = i;
+        }
         if (goodBreak >= start) {
             appendRTrim(text, start, goodBreak, sb);
         }
