@@ -21,7 +21,6 @@ package com.raytheon.viz.xdat;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Vector;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -48,6 +47,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * 10 Nov 2008             lvenable    Initial creation.
  * 10 Feb 2009             wkwock      Added functions.
+ * 31 May 2015  4501       skorolev    Got rid of Vector.
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -176,8 +177,9 @@ public class GroupDataDlg extends CaveSWTDialog {
      */
     private void retrieveAndDisplayGroupData() {
         String selectedGroup = groupList.getItem(groupList.getSelectionIndex());
-        
-        String groupsDir = AppsDefaults.getInstance().getToken("xdat_groups_dir");
+
+        String groupsDir = AppsDefaults.getInstance().getToken(
+                "xdat_groups_dir");
 
         File file = new File(groupsDir + File.separator + selectedGroup);
 
@@ -186,10 +188,9 @@ public class GroupDataDlg extends CaveSWTDialog {
 
         StringBuilder strBld = new StringBuilder();
         for (int i = 0; i < idList.size(); i++) {
-
-            Vector<String[]> results = databaseMgr.getGroupData(idList.get(i),
-                    displayCB.getStartDate(), displayCB.getEndDate());
-
+            java.util.List<String[]> results = databaseMgr.getGroupData(
+                    idList.get(i), displayCB.getStartDate(),
+                    displayCB.getEndDate());
             if (results == null) {
                 return;
             }
@@ -204,11 +205,11 @@ public class GroupDataDlg extends CaveSWTDialog {
     /**
      * Format the group data.
      * 
-     * @param dataArray
+     * @param results
      *            Array of data to be formatted for the display.
      * @return StringBuilder class containing the formatted data.
      */
-    private StringBuilder formatGroupData(Vector<String[]> dataArray) {
+    private StringBuilder formatGroupData(java.util.List<String[]> results) {
 
         StringBuilder strBld = new StringBuilder();
 
@@ -221,7 +222,7 @@ public class GroupDataDlg extends CaveSWTDialog {
         String hdr = "  ID       PE  DUR  TS  E       OBSTIME               PRODUCT   VALUE    CHANGE";
         String dashLine = "-------------------------------------------------------------------------------";
 
-        for (String[] rowData : dataArray) {
+        for (String[] rowData : results) {
 
             if (rowData.length == 2) {
 

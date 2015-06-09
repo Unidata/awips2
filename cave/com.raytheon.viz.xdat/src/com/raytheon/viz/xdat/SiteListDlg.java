@@ -19,8 +19,6 @@
  **/
 package com.raytheon.viz.xdat;
 
-import java.util.Vector;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -51,6 +49,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 17 Jan 2008             lvenable    Updated code to format data display on
  *                                     the screen.
  * 10 Feb 2009             wkwock      Added functions.
+ * 31 May 2015  4501       skorolev    Got rid of Vector.
  * 
  * </pre>
  * 
@@ -68,7 +67,7 @@ public class SiteListDlg extends CaveSWTDialog {
     /**
      * Data list control.
      */
-    private List dataList;
+    private List dataListLst;
 
     /**
      * Label for the data list control.
@@ -88,7 +87,7 @@ public class SiteListDlg extends CaveSWTDialog {
     /**
      * Data array.
      */
-    private Vector<String[]> dataArray;
+    private java.util.List<String[]> dataArray;
 
     /**
      * This is for TESTING PURPOSES ONLY. There can be a subset of states in the
@@ -218,12 +217,12 @@ public class SiteListDlg extends CaveSWTDialog {
         gd.widthHint = 350;
         gd.heightHint = 400;
         gd.horizontalSpan = 2;
-        dataList = new List(controlComp, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL
-                | SWT.H_SCROLL);
-        dataList.setLayoutData(gd);
-        dataList.setFont(controlFont);
+        dataListLst = new List(controlComp, SWT.BORDER | SWT.SINGLE
+                | SWT.V_SCROLL | SWT.H_SCROLL);
+        dataListLst.setLayoutData(gd);
+        dataListLst.setFont(controlFont);
 
-        dataList.addSelectionListener(new SelectionAdapter() {
+        dataListLst.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 displayListSelection();
@@ -288,7 +287,7 @@ public class SiteListDlg extends CaveSWTDialog {
         searchStr = searchTF.getText().toUpperCase();
 
         dataArray = databaseMgr.search_string_list(searchStr, peType);
-        dataList.removeAll();
+        dataListLst.removeAll();
 
         if (dataArray == null) {
             String msg = String.format(searchFmt, 0, peType, searchStr);
@@ -303,7 +302,7 @@ public class SiteListDlg extends CaveSWTDialog {
                 des = rowData[1];
             }
 
-            dataList.add(String.format(listFmt, rowData[0], des));
+            dataListLst.add(String.format(listFmt, rowData[0], des));
         }
 
         String str = String.format(searchFmt, dataArray.size(), peType,
@@ -334,7 +333,7 @@ public class SiteListDlg extends CaveSWTDialog {
         }
 
         dataArray = databaseMgr.searchIds(stateName, pe);
-        dataList.removeAll();
+        dataListLst.removeAll();
 
         if (dataArray == null) {
             String msg = String.format(searchFmt, 0, pe, stateName);
@@ -349,7 +348,7 @@ public class SiteListDlg extends CaveSWTDialog {
                 des = rowData[1];
             }
 
-            dataList.add(String.format(listFmt, rowData[0], des));
+            dataListLst.add(String.format(listFmt, rowData[0], des));
         }
 
         String str = String.format(searchFmt, dataArray.size(), pe, stateName);
@@ -365,16 +364,16 @@ public class SiteListDlg extends CaveSWTDialog {
         String peType = displayCB.getSelectedPE();
 
         // Get the ID from the data array.
-        int selectionIndex = dataList.getSelectionIndex();
+        int selectionIndex = dataListLst.getSelectionIndex();
         String selectedId = null;
         if (selectionIndex > -1) {
             selectedId = dataArray.get(selectionIndex)[0];
         }
 
-        Vector<String[]> dataVec = databaseMgr.getListData(selectedId, peType,
-                displayCB.getStartDate(), displayCB.getEndDate());
+        java.util.List<String[]> dataList = databaseMgr.getListData(selectedId,
+                peType, displayCB.getStartDate(), displayCB.getEndDate());
 
-        if (dataVec == null) {
+        if (dataList == null) {
             String[] msg = new String[] { "No data available." };
             displayCB.setDisplayText(msg);
             return;
@@ -389,7 +388,7 @@ public class SiteListDlg extends CaveSWTDialog {
             locationDes = "";
         }
 
-        String[] displayData = new String[dataVec.size() + 3]; // 1st three
+        String[] displayData = new String[dataList.size() + 3]; // 1st three
         // lines for
         // header
         String dataFmt = "%-8S %2s   %-4S %2S %1S %19S %13S % 6.2f   % 6.2f";
@@ -399,16 +398,17 @@ public class SiteListDlg extends CaveSWTDialog {
         displayData[1] = displayHeader;
         displayData[2] = dashLine;
 
-        for (int i = 0; i < dataVec.size(); i++) {
-            String[] rowData = dataVec.get(i);
+        for (int i = 0; i < dataList.size(); i++) {
+            String[] rowData = dataList.get(i);
 
             double dblVal = Double.valueOf(rowData[5]);
             double rndVal = (Math.round(dblVal * 100.0)) / 100.0;
             double change = 0;
 
-            if (i < (dataVec.size() - 1)) { // if this is not the last one, then
+            if (i < (dataList.size() - 1)) { // if this is not the last one,
+                                             // then
                 // calculate the changes
-                String[] nextRowData = dataVec.get(i + 1);
+                String[] nextRowData = dataList.get(i + 1);
                 if ((Double.valueOf(rowData[5]) != HydroConstants.MISSING_VALUE)
                         && (Double.valueOf(nextRowData[5]) != HydroConstants.MISSING_VALUE)) {
                     change = Double.valueOf(rowData[5])

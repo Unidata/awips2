@@ -47,6 +47,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * 10 Nov 2008             lvenable    Initial creation.
  * 10 Feb 2009             wkwock      Added functions.
+ * 22 May 2015             skorolev    Corrected shefParamCode. Got rid of Vector.
  * 
  * </pre>
  * 
@@ -203,7 +204,6 @@ public class InsertDataDlg extends CaveSWTDialog {
         Label idLbl = new Label(topCtrlComp, SWT.RIGHT);
         idLbl.setText("ID: ");
         idLbl.setLayoutData(gd);
-        ;
 
         gd = new GridData(100, SWT.DEFAULT);
         idTF = new Text(topCtrlComp, SWT.BORDER);
@@ -246,10 +246,11 @@ public class InsertDataDlg extends CaveSWTDialog {
                     return;
                 }
 
-                String[] shefParamCode = databaseMgr.getShefParamCode(ID, PE);
+                java.util.List<String> shefParamCode = databaseMgr
+                        .getShefParamCode(ID, PE);
                 if (shefParamCode != null) {
-                    for (int i = 0; i < shefParamCode.length; i++) {
-                        shefParamList.add(shefParamCode[i]);
+                    for (int i = 0; i < shefParamCode.size(); i++) {
+                        shefParamList.add(shefParamCode.get(i));
                     }
                 }
             }
@@ -368,12 +369,11 @@ public class InsertDataDlg extends CaveSWTDialog {
         hourSpnr.setEnabled(flag);
         minuteSpnr.setEnabled(flag);
     }
-    
+
     private void postToDB() {
         String id = idTF.getText().trim();
         if (id.compareTo("") == 0) {
-            MessageBox mb = new MessageBox(getParent(),
-                    SWT.ICON_ERROR | SWT.OK);
+            MessageBox mb = new MessageBox(getParent(), SWT.ICON_ERROR | SWT.OK);
             mb.setText("Error");
             mb.setMessage("ERROR:  cannot post because ID is blank.");
             mb.open();
@@ -382,8 +382,7 @@ public class InsertDataDlg extends CaveSWTDialog {
 
         String shefParamCode[] = shefParamList.getSelection();
         if (shefParamCode.length != 1) {
-            MessageBox mb = new MessageBox(getParent(),
-                    SWT.ICON_ERROR | SWT.OK);
+            MessageBox mb = new MessageBox(getParent(), SWT.ICON_ERROR | SWT.OK);
             mb.setText("Error");
             mb.setMessage("ERROR: cannot post because PE Type is blank.");
             mb.open();
@@ -396,19 +395,19 @@ public class InsertDataDlg extends CaveSWTDialog {
         try {
             value = Double.parseDouble(enterDataTF.getText().trim());
         } catch (NumberFormatException nfe) {
-            MessageBox mb = new MessageBox(getParent(),
-                    SWT.ICON_ERROR | SWT.OK);
+            MessageBox mb = new MessageBox(getParent(), SWT.ICON_ERROR | SWT.OK);
             mb.setText("Error");
             mb.setMessage("ERROR: cannot post because data value is blank or invalid.");
             mb.open();
             return;
         }
-        
+
         int hour = hourSpnr.getSelection();
         int minute = minuteSpnr.getSelection();
 
         XdatShefUtil shefUtil = new XdatShefUtil();
-        shefUtil.createInsertFile(id, pe, value, hour, minute, displayCB.getStartDate());
+        shefUtil.createInsertFile(id, pe, value, hour, minute,
+                displayCB.getStartDate());
         shefUtil.sendFile();
 
         shell.dispose();
