@@ -31,7 +31,7 @@ Developed on the Raytheon Visualization Environment (viz)
 -Dorg.eclipse.ui/KEY_CONFIGURATION_ID=com.raytheon.viz.ui.awips.scheme
 -Dqpid.dest_syntax=BURL
 -Dlogback.configurationFile=logback-alertviz.xml
--Dlogback.statusListenerClass=com.raytheon.uf.common.status.logback.UFLogbackInternalStatusListener
+-Dlogback.statusListenerClass=com.raytheon.uf.common.logback.UFLogbackInternalStatusListener
 -Dthrift.stream.maxsize=200</vmArgs>
    </launcherArgs>
 

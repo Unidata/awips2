@@ -4,10 +4,10 @@
 
    <!-- ProductSrvRequest log --> 
    <appender name="ProductSrvRequestLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="com.raytheon.uf.common.status.logback.StdTimeBasedRollingPolicy">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
          <name>productSrvRequest</name>
       </rollingPolicy>
-      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
    </appender>    
    
    <appender name="ProductSrvRequestLogAsync" class="ch.qos.logback.classic.AsyncAppender">            
@@ -16,11 +16,11 @@
 
    <!-- TextDBSrvRequest log --> 
    <appender name="TextDBSrvRequestLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="com.raytheon.uf.common.status.logback.StdTimeBasedRollingPolicy">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
          <name>textdbSrvRequest</name>
       </rollingPolicy>
 
-      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
    </appender>    
    
    <appender name="TextDBSrvRequestLogAsync" class="ch.qos.logback.classic.AsyncAppender">            
@@ -29,10 +29,10 @@
 
    <!-- ThriftSrv (RemoteRequestRouteWrapper) request log --> 
    <appender name="ThriftSrvRequestLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="com.raytheon.uf.common.status.logback.StdTimeBasedRollingPolicy">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
          <name>thriftSrv</name>
       </rollingPolicy>
-      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
    </appender>
 
    <appender name="ThriftSrvRequestLogAsync" class="ch.qos.logback.classic.AsyncAppender">            

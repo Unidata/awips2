@@ -4,10 +4,10 @@
    
    <!-- shef log --> 
    <appender name="shef" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="com.raytheon.uf.common.status.logback.StdTimeBasedRollingPolicy">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
          <name>shef</name>
       </rollingPolicy>
-      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
    </appender> 
 
    <!-- activeTableChange log --> 
@@ -15,61 +15,61 @@
 
    <!-- Purge log --> 
    <appender name="purge" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="com.raytheon.uf.common.status.logback.StdTimeBasedRollingPolicy">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
          <name>purge</name>
       </rollingPolicy>
-      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
    </appender> 
    
    <!-- RouteFailedLog log --> 
    <appender name="RouteFailedLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="com.raytheon.uf.common.status.logback.StdTimeBasedRollingPolicy">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
          <name>unrecognized-files</name>
       </rollingPolicy>
-      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
    </appender> 
 
    <!-- ShefPerformanceLog log --> 
    <appender name="ShefPerfLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="com.raytheon.uf.common.status.logback.StdTimeBasedRollingPolicy">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
          <name>shef-performance</name>
       </rollingPolicy>
-      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
    </appender> 
 
    <!-- Gen Areal FFG log --> 
    <appender name="GenArealFFG" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="com.raytheon.uf.common.status.logback.StdTimeBasedRollingPolicy">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
          <name>gen_areal_ffg</name>
       </rollingPolicy>
-      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
    </appender>
    
    <!-- Gen Areal QPE log --> 
    <appender name="GenArealQPE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="com.raytheon.uf.common.status.logback.StdTimeBasedRollingPolicy">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
          <name>gen_areal_qpe</name>
       </rollingPolicy>
-      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
    </appender> 
    
    <!-- Trigger log --> 
    <appender name="FailedTriggerLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="com.raytheon.uf.common.status.logback.StdTimeBasedRollingPolicy">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
          <name>trigger</name>
       </rollingPolicy>
-      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
    </appender>
    
    <!-- ohd log --> 
    <appender name="OhdLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="com.raytheon.uf.common.status.logback.StdTimeBasedRollingPolicy">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
          <name>ohd</name>
       </rollingPolicy>
-      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
    </appender>
 
-   <appender name="ThreadBasedLog" class="com.raytheon.uf.common.status.logback.ThreadBasedAppender">
+   <appender name="ThreadBasedLog" class="com.raytheon.uf.common.logback.appender.ThreadBasedAppender">
       <defaultAppenderName>asyncConsole</defaultAppenderName>
       <appender-ref ref="asyncConsole"/>
       <appender-ref ref="shef"/>
