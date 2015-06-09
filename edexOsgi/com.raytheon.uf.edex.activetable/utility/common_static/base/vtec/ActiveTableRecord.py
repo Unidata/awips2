@@ -31,6 +31,7 @@
 #                                                 __ne__().
 #    07/23/13         2212         dgilling       Fix typo in __eq__().
 #    04/28/2015       4027         randerso       Expunged Calendar from ActiveTableRecord
+#    05/22/2015       4522         randerso       Create proper primary key for ActiveTableRecord
 #
 #
 
@@ -139,12 +140,15 @@ class ActiveTableRecord(object):
             self.atr.setProductClass(value)
         elif key == 'id':                                
             self.id = value
+            if type(value) == str:
+                self.atr.setUgcZone(value)
         elif key == 'rawMessage':
             self.atr.setRawmessage(value)
         else:
             raise KeyError   
     
     def __delitem__(self, key):
+        # TODO: implement this
         pass
     
     def __deepcopy__(self, memo):

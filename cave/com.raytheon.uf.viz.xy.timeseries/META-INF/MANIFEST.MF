@@ -26,3 +26,4 @@ Export-Package: com.raytheon.uf.viz.xy.timeseries,
  com.raytheon.uf.viz.xy.timeseries.graph,
  com.raytheon.uf.viz.xy.timeseries.rsc,
  com.raytheon.uf.viz.xy.timeseries.util
+Bundle-ClassPath: com.raytheon.uf.viz.xy.timeseries.jar

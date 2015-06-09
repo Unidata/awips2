@@ -20,9 +20,7 @@
 
 package com.raytheon.viz.texteditor.dialogs;
 
-import java.io.IOException;
-import java.io.InputStream;
-
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -38,6 +36,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.viz.core.mode.CAVEMode;
+import com.raytheon.viz.texteditor.Activator;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -57,6 +56,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                      added to CaveSWTDialog.
  * 17 Sep 2013  #2384       lvenable    Fixed memory leak and utilized the disposed()
  *                                      method.
+ * May 29, 2015 #4441       randerso    Fixed loading of images
  * 
  * </pre>
  * 
@@ -120,36 +120,29 @@ public class WarnGenConfirmationDlg extends CaveSWTDialog {
 
     private void createImage(Composite mainComposite) {
 
-        InputStream is = null;
+        String imagePath = null;
         try {
-            ClassLoader cl = WarnGenConfirmationDlg.class.getClassLoader();
-
             if (mode.equals(CAVEMode.OPERATIONAL)) {
                 // add Live image
-                is = cl.getResourceAsStream(IMAGE_OPERATIONAL);
+                imagePath = IMAGE_OPERATIONAL;
             } else if (mode.equals(CAVEMode.TEST)) {
                 // add Test image
-                is = cl.getResourceAsStream(IMAGE_TEST);
+                imagePath = IMAGE_TEST;
             } else if (mode.equals(CAVEMode.PRACTICE)) {
                 // add Practice image
-                is = cl.getResourceAsStream(IMAGE_PRACTICE);
+                imagePath = IMAGE_PRACTICE;
             } else {
                 // unknown
-                is = cl.getResourceAsStream(IMAGE_OPERATIONAL);
+                imagePath = IMAGE_OPERATIONAL;
             }
 
-            stopSign = new Image(mainComposite.getDisplay(), is);
+            ImageDescriptor id = Activator.imageDescriptorFromPlugin(
+                    Activator.PLUGIN_ID, imagePath);
+            stopSign = id.createImage(mainComposite.getDisplay());
             Label stopSignLbl = new Label(mainComposite, 0);
             stopSignLbl.setImage(stopSign);
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        } finally {
-            try {
-                is.close();
-            } catch (IOException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-            }
         }
     }
 

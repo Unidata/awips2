@@ -24,8 +24,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import jep.INumpyable;
-
 import org.apache.commons.lang.mutable.MutableByte;
 import org.geotools.geometry.jts.JTS;
 import org.opengis.metadata.spatial.PixelOrientation;
@@ -69,6 +67,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
  *                                      strings
  * 02/19/2013   1637       randerso    Added throws declarations to translateDataFrom
  * 04/01/2014   17187      randerso (code checked in by zhao) To allow over 128 wx lements
+ * Apr 23, 2015 4259       njensen     Removed unused INumpyable
  * 
  * </pre>
  * 
@@ -76,7 +75,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
  * @version 1.0
  */
 
-public class WeatherGridData extends AbstractGridData implements INumpyable {
+public class WeatherGridData extends AbstractGridData {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(WeatherGridData.class);
 
@@ -531,10 +530,6 @@ public class WeatherGridData extends AbstractGridData implements INumpyable {
         return didIt;
     }
 
-    /**
-     * @see com.raytheon.viz.gfe.core.griddata.AbstractGridData#doSet(com.raytheon.viz.gfe.core.wxvalue.WxValue,
-     *      com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit)
-     */
     @Override
     public Grid2DBit doSet(WxValue value, Grid2DBit pointsToSet) {
         GridType gridType = value.getParm().getGridInfo().getGridType();
@@ -815,21 +810,6 @@ public class WeatherGridData extends AbstractGridData implements INumpyable {
         setGrid(grid);
 
         return pointsToFillIn;
-    }
-
-    @Override
-    public Object[] getNumpy() {
-        return new Object[] { this.getGrid().getBuffer().array() };
-    }
-
-    @Override
-    public int getNumpyX() {
-        return this.getGrid().getXdim();
-    }
-
-    @Override
-    public int getNumpyY() {
-        return this.getGrid().getYdim();
     }
 
     @Override

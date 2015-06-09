@@ -1,7 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Pypies Plug-in
-Bundle-SymbolicName: com.raytheon.uf.viz.pypies
-Bundle-Version: 1.12.1174.qualifier
-Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6

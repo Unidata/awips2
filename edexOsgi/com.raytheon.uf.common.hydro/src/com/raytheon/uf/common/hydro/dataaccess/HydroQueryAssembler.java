@@ -43,6 +43,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
  *                                     single request.
  * Mar 05, 2015 4217       mapeters    Available times are sorted in DataAccessLayer.
+ * May 12, 2015 4409       mapeters    Fix spacing in assembleGetData().
  * 
  * </pre>
  * 
@@ -124,7 +125,7 @@ public class HydroQueryAssembler {
             sb.append(where);
             sb.append(" and d.lid = l.lid");
         } else {
-            sb.append("where d.lid = l.lid");
+            sb.append(" where d.lid = l.lid");
         }
         sb.append(buildOrderByTime());
         sb.append(";");

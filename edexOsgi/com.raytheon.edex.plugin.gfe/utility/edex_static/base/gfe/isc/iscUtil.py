@@ -29,14 +29,14 @@ from java.io import File
 from com.raytheon.uf.common.time import TimeRange
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import GridLocation
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData
-from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData_CoordinateType as CoordinateType
+CoordinateType = ReferenceData.CoordinateType
 from com.raytheon.edex.plugin.gfe.config import IFPServerConfig
 from com.raytheon.edex.plugin.gfe.config import IFPServerConfigManager
 from com.raytheon.uf.common.localization import LocalizationFile
 from com.raytheon.uf.common.localization import PathManagerFactory
 from com.raytheon.uf.common.localization import LocalizationContext
-from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType
-from com.raytheon.uf.common.localization import LocalizationContext_LocalizationLevel as LocalizationLevel
+LocalizationType = LocalizationContext.LocalizationType
+LocalizationLevel = LocalizationContext.LocalizationLevel
 
 #
 # Utility module of isc functions
@@ -52,6 +52,7 @@ from com.raytheon.uf.common.localization import LocalizationContext_Localization
 #    11/07/13        2517          randerso       Allow getLogger to override logLevel
 #    01/22/14/       2504          randerso       Added hostname to log path
 #    04/10/2014      17241         David Gillingham (code checked in by zhao)
+#    Apr 25, 2015    4952          njensen        Updated for new JEP API
 #
 #
 

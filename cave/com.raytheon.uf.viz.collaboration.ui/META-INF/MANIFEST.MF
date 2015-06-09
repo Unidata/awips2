@@ -21,3 +21,4 @@ Bundle-ActivationPolicy: lazy
 Import-Package: com.raytheon.uf.common.xmpp.iq,
  com.raytheon.uf.viz.spellchecker.text,
  org.eclipse.jface.text
+Bundle-ClassPath: com.raytheon.uf.viz.collaboration.ui.jar

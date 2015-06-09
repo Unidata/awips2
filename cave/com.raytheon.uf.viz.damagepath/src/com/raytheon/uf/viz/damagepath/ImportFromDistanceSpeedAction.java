@@ -31,17 +31,19 @@ import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * Action to create a damage path from a DistanceSpeedLayer.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 23, 2015 3977       nabowle     Initial creation
- *
+ * Jun 01, 2015 3975       dgilling    Update for DamageLayer changes for 
+ *                                     multiple polygon support.
+ * 
  * </pre>
- *
+ * 
  * @author nabowle
  * @version 1.0
  */
@@ -52,7 +54,7 @@ public class ImportFromDistanceSpeedAction extends AbstractRightClickAction {
             .getHandler(ImportFromDistanceSpeedAction.class);
 
     public ImportFromDistanceSpeedAction() {
-        super("Import from Distance Speed Tool");
+        super("New from Distance Speed Tool");
     }
 
     @Override
@@ -71,7 +73,7 @@ public class ImportFromDistanceSpeedAction extends AbstractRightClickAction {
                 Polygon polygon = DamagePathUtils.estimateDamagePath(dsLayer);
 
                 if (polygon != null) {
-                    layer.setPolygon(polygon);
+                    layer.addPolygon(polygon.getExteriorRing().getCoordinates());
                 }
             }
         });
@@ -95,7 +97,7 @@ public class ImportFromDistanceSpeedAction extends AbstractRightClickAction {
 
     /**
      * Finds the DistanceSpeedLayer.
-     *
+     * 
      * @param rsc
      *            The current resource
      * @return The found DistanceSpeedLayer, or null if the tool is not loaded.

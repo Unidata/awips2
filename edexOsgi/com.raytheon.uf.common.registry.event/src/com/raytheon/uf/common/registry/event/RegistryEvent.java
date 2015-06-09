@@ -37,6 +37,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Mar 16, 2012            jsanchez     Initial creation
  * Nov 08, 2013 2506       bgonzale     Added constructors.
  * Mar 31, 2014 2889       dhladky      Added username for notification center tracking.
+ * May 15, 2015 4493       dhladky      Registry Events are delivered externally now.
  * 
  * </pre>
  * 
@@ -56,6 +57,7 @@ public abstract class RegistryEvent extends Event {
      * Default Constructor.
      */
     public RegistryEvent() {
+        this.setExternal(true);
     }
 
     /**
@@ -72,6 +74,7 @@ public abstract class RegistryEvent extends Event {
         this.objectType = objectType;
         this.username = username;
         this.action = action;
+        this.external = true;
     }
 
     @DynamicSerializeElement

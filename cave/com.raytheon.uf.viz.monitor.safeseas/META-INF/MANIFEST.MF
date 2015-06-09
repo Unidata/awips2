@@ -23,3 +23,4 @@ Bundle-ActivationPolicy: lazy
 Import-Package: com.raytheon.viz.pointdata,
  org.apache.commons.lang
 Export-Package: com.raytheon.uf.viz.monitor.safeseas.resources
+Bundle-ClassPath: com.raytheon.uf.viz.monitor.safeseas.jar

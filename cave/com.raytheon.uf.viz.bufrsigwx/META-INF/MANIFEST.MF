@@ -1,36 +1,22 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Bufrsigwx Plug-in
+Bundle-Name: Bufrsigwx Displays
 Bundle-SymbolicName: com.raytheon.uf.viz.bufrsigwx;singleton:=true
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Import-Package: com.raytheon.uf.common.dataplugin,
- com.raytheon.uf.common.dataplugin.bufrsigwx,
- com.raytheon.uf.common.dataplugin.bufrsigwx.common,
- com.raytheon.uf.common.geospatial,
- com.raytheon.uf.common.pointdata,
- com.raytheon.uf.common.serialization,
- com.raytheon.uf.common.status,
- com.raytheon.uf.common.time,
- com.raytheon.uf.viz.core,
- com.raytheon.uf.viz.core.drawables,
- com.raytheon.uf.viz.core.exception,
- com.raytheon.uf.viz.core.map,
- com.raytheon.uf.viz.core.rsc,
- com.raytheon.uf.viz.core.rsc.capabilities,
- com.raytheon.uf.viz.core.status,
- com.raytheon.viz.pointdata,
- com.raytheon.viz.pointdata.util,
- com.vividsolutions.jts.geom,
- org.eclipse.core.runtime,
- org.eclipse.swt.graphics,
- org.eclipse.ui.plugin,
- org.opengis.referencing.crs,
- org.osgi.framework
 Export-Package: com.raytheon.uf.viz.bufrsigwx.common,
  com.raytheon.uf.viz.bufrsigwx.rsc,
  com.raytheon.uf.viz.bufrsigwx.util
-Require-Bundle: com.raytheon.uf.viz.core,
- javax.measure;bundle-version="1.0.0"
+Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.15.0",
+ com.raytheon.uf.common.dataplugin.bufrsigwx;bundle-version="1.14.0",
+ com.raytheon.uf.common.dataplugin;bundle-version="1.14.0",
+ com.raytheon.uf.common.pointdata;bundle-version="1.15.0",
+ com.raytheon.viz.pointdata;bundle-version="1.14.1",
+ com.raytheon.uf.common.time;bundle-version="1.14.0",
+ com.raytheon.uf.common.geospatial;bundle-version="1.14.2",
+ com.raytheon.uf.viz.core.point;bundle-version="1.15.0",
+ org.eclipse.swt;bundle-version="3.8.1",
+ javax.measure
+Bundle-ClassPath: com.raytheon.uf.viz.bufrsigwx.jar

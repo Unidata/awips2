@@ -927,6 +927,7 @@ public class PolygonUtil {
                     }
                     if (k == k2) {
                         break;
+                    }
 
                     if (excludeList[k])
                         continue;
@@ -937,6 +938,7 @@ public class PolygonUtil {
                         dis = -dis;
                     } else {
                         dis -= bas;
+                    }
                     double newMaxDis = maxDis;
                     int newSimple = simple;
                     if (dis <= 0) {
@@ -946,8 +948,10 @@ public class PolygonUtil {
                         dis = dx * dy0 - dy * dx0;
                         if (dis < 0) {
                             dis = -dis;
-                    } else if (simple != 0)
+                        }
+                    } else if (simple != 0) {
                         newMaxDis = newSimple = 0;
+                    }
                     if (dis < newMaxDis) {
                         maxDis = newMaxDis;
                         continue;

@@ -35,3 +35,4 @@ Export-Package: com.raytheon.uf.viz.collaboration.display,
  com.raytheon.uf.viz.collaboration.display.rsc.telestrator,
  com.raytheon.uf.viz.collaboration.display.storage
 Import-Package: org.eclipse.swt.widgets
+Bundle-ClassPath: com.raytheon.uf.viz.collaboration.display.jar

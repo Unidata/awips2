@@ -21,3 +21,4 @@ Import-Package: org.eclipse.jdt.internal.ui.text.spelling,
  org.eclipse.ui.texteditor.spelling
 Export-Package: com.raytheon.uf.viz.spellchecker.dialogs,
  com.raytheon.uf.viz.spellchecker.text
+Bundle-ClassPath: com.raytheon.uf.viz.spellchecker.jar

@@ -355,7 +355,7 @@ class ITool (ISmartScript.ISmartScript):
             self._runTestScript(index)
             if self._failures > self._failLimit:
                 break
-            time.sleep(0.5) # avoid some race conditions with fileChanges
+            time.sleep(2) # avoid some race conditions with fileChanges
 
         self._finished()
 
@@ -1040,7 +1040,8 @@ def main():
     System.setProperty('user.name', 'GFETEST')
     
     from com.raytheon.uf.viz.core.localization import LocalizationManager
-    from com.raytheon.uf.common.localization import LocalizationContext_LocalizationLevel as LocalizationLevel
+    from com.raytheon.uf.common.localization import LocalizationContext
+    LocalizationLevel = LocalizationContext.LocalizationLevel
     LocalizationManager.registerContextName(LocalizationLevel.USER, 'GFETEST');
     
     import loadConfig

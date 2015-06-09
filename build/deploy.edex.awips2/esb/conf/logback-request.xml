@@ -60,6 +60,10 @@
    <logger name="org.hibernate">
       <level value="ERROR"/>
    </logger> 
+
+   <!-- activeTableChange log --> 
+   <include file="${edex.home}/conf/logback-activeTableChange.xml"/>
+
    <!-- default logging --> 
    <root> 
       <level value="INFO"/> 

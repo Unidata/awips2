@@ -19,14 +19,11 @@
  **/
 package com.raytheon.uf.viz.damagepath;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,13 +34,9 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
-import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.Name;
 
-import com.raytheon.uf.common.json.JsonException;
-import com.raytheon.uf.common.json.geo.BasicJsonService;
 import com.raytheon.uf.common.json.geo.GeoJsonMapUtil;
 import com.raytheon.uf.common.json.geo.IGeoJsonService;
 import com.raytheon.uf.common.json.geo.SimpleGeoJsonService;
@@ -59,10 +52,12 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.drawing.polygon.DrawablePolygon;
 import com.raytheon.uf.viz.drawing.polygon.PolygonLayer;
 import com.raytheon.uf.viz.drawing.polygon.PolygonUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.Polygon;
 
 /**
@@ -78,6 +73,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * Mar 31, 2015  3977      nabowle     Reset polygon when initializing from the
  *                                     localization file fails.
  * Apr 23, 2015  4354      dgilling    Support GeoJSON Feature properties.
+ * Jun 03, 2015  4375      dgilling    Support changes to PolygonLayer for 
+ *                                     multiple polygon support.
  * 
  * </pre>
  * 
@@ -92,7 +89,22 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
 
     private static final String DIR = "damagepath";
 
-    private static final String FILE = "damagepath1.json";
+    /*
+     * TODO: Since we've decided to use only 1 working file for this layer,
+     * there's no need to append numbers to the end of the file name. In some
+     * future release, remove this constant.
+     */
+    private static final String OLD_FILE = "damagepath1.json";
+
+    private static final String FILE = "damagepath.json";
+
+    /*
+     * TODO: Since we've decided to use only 1 working file for this layer,
+     * there's no need to append numbers to the end of the file name. In some
+     * future release, remove this constant.
+     */
+    private static final String OLD_PATH = DIR + IPathManager.SEPARATOR
+            + OLD_FILE;
 
     private static final String PATH = DIR + IPathManager.SEPARATOR + FILE;
 
@@ -113,18 +125,15 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
     private final Job loadJob = new Job("Loading Damage Path") {
         @Override
         protected IStatus run(IProgressMonitor monitor) {
-            LocalizationFile prevFile = getDamagePathFile();
+            LocalizationFile prevFile = getValidDamagePathFile();
             if (prevFile.exists()) {
                 loadDamagePath(prevFile);
 
                 // reset the polygon if the localization file is invalid.
-                if (getPolygon() == null) {
+                if (polygons.isEmpty()) {
                     statusHandler
                             .error("The damage path file was invalid. The polygon has been reset.");
-                    polygon = PolygonUtil
-                            .makeDefaultPolygon(getResourceContainer()
-                                    .getActiveDisplayPane()
-                                    .getRenderableDisplay());
+                    setDefaultPolygon();
                 }
             }
             return Status.OK_STATUS;
@@ -144,8 +153,7 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
         super(resourceData, loadProperties);
 
         // listen for changes to the directory
-        LocalizationFile dir = PathManagerFactory.getPathManager()
-                .getLocalizationFile(getContext(), DIR);
+        LocalizationFile dir = getDamagePathFile();
         dir.addFileUpdatedObserver(this);
 
         loadJob.setSystem(true);
@@ -156,15 +164,21 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         super.initInternal(target);
-        LocalizationFile prevFile = getDamagePathFile();
-        if (polygon == null && !prevFile.exists()) {
+        LocalizationFile prevFile = getValidDamagePathFile();
+        if (polygons.isEmpty() && prevFile != null) {
             /*
              * only get here if there is no previous file, otherwise loadJob
              * will load the polygon
              */
-            polygon = PolygonUtil.makeDefaultPolygon(getResourceContainer()
-                    .getActiveDisplayPane().getRenderableDisplay());
+            setDefaultPolygon();
         }
+    }
+
+    private void setDefaultPolygon() {
+        Polygon polygon = PolygonUtil.makeDefaultPolygon(getResourceContainer()
+                .getActiveDisplayPane().getRenderableDisplay());
+        DrawablePolygon drawablePolygon = new DrawablePolygon(polygon, this);
+        polygons.add(0, drawablePolygon);
     }
 
     @Override
@@ -181,39 +195,12 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
         return NAME;
     }
 
-    protected Polygon loadStormTrackPolygon() {
-        /*
-         * TODO get storm track file, use mathematical algorithm to derive
-         * damage track
-         */
-        return null;
-    }
-
-    protected Polygon loadFilesystemPolygon(File file) {
-        /*
-         * TODO load a polygon that was selected from a file chooser dialog from
-         * an import menu
-         */
-        return null;
-    }
-
-    protected Polygon loadMousePolygon() {
-        /*
-         * TODO create a new InputAdapter that takes highest priority and blocks
-         * other inputs. left clicking adds vertices, right click indicates the
-         * last point on the polygon, then connect the first and last point.
-         * 
-         * afterwards, remove and dispose of that input adapter
-         */
-        return null;
-    }
-
     @Override
-    public void resetPolygon(Coordinate[] coords) {
-        Polygon prevPolygon = this.getPolygon();
+    public void resetPolygon(int index, Coordinate[] coords) {
+        Polygon prevPolygon = getPolygon(index);
         // this call will alter the polygon unless coords is null
-        super.resetPolygon(coords);
-        Polygon newPolygon = this.getPolygon();
+        super.resetPolygon(index, coords);
+        Polygon newPolygon = getPolygon(0);
 
         /*
          * only bother saving the polygon if they're done dragging
@@ -235,6 +222,31 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
                 PATH);
     }
 
+    /*
+     * TODO: Since we've decided to use only 1 working file for this layer,
+     * there's no need to append numbers to the end of the file name. In some
+     * future release, remove this function and replace uses with
+     * getDamagePathFile.
+     */
+    private LocalizationFile getValidDamagePathFile() {
+        LocalizationContext ctx = getContext();
+        LocalizationFile file = PathManagerFactory.getPathManager()
+                .getLocalizationFile(ctx, PATH);
+        LocalizationFile oldFile = PathManagerFactory.getPathManager()
+                .getLocalizationFile(ctx, OLD_PATH);
+        if (file.exists()) {
+            System.out.println("Using NEW Damage Path location");
+
+            return file;
+        } else if (oldFile.exists()) {
+            System.out.println("Using OLD Damage Path location");
+
+            return oldFile;
+        } else {
+            return null;
+        }
+    }
+
     @Override
     public void fileUpdated(FileUpdatedMessage message) {
         if (message.getFileName().equals(PATH)) {
@@ -246,58 +258,20 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
     }
 
     protected void loadDamagePath(LocalizationFile file) {
-        try (InputStream is = file.openInputStream()) {
-            Geometry deserializedGeom = null;
-            Map<String, String> deserializedProps = Collections.emptyMap();
-            GeoJsonMapUtil geoJsonUtil = new GeoJsonMapUtil();
-
-            /*
-             * For compatibility with any users that may have an autosaved
-             * damage path file from build 15.1, we'll support deserializing
-             * both Geometry and Feature GeoJSON types.
-             * 
-             * TODO: remove this code for code that just expects the file to
-             * always be a Feature.
-             */
-            Map<String, Object> jsonObject = (Map<String, Object>) new BasicJsonService()
-                    .deserialize(is, LinkedHashMap.class);
-            String geoJsonType = jsonObject.get(GeoJsonMapUtil.TYPE_KEY)
-                    .toString();
-            if (geoJsonType.equals(GeoJsonMapUtil.FEATURE_TYPE)) {
-                SimpleFeature feature = geoJsonUtil.populateFeature(jsonObject);
-                deserializedGeom = (Geometry) feature.getDefaultGeometry();
-
-                Name defaultGeomAttrib = feature.getDefaultGeometryProperty()
-                        .getName();
-                deserializedProps = new LinkedHashMap<>();
-                deserializedProps.put(GeoJsonMapUtil.ID_KEY, feature.getID());
-                for (Property p : feature.getProperties()) {
-                    if (!defaultGeomAttrib.equals(p.getName())) {
-                        deserializedProps.put(p.getName().toString(), p
-                                .getValue().toString());
-                    }
-                }
-            } else if (isGeometryType(geoJsonType)) {
-                deserializedGeom = geoJsonUtil.populateGeometry(jsonObject);
-            } else {
-                String message = "Unexpected GeoJSON object type "
-                        + geoJsonType
-                        + ". This tool only supports Feature and Geometry objects.";
-                throw new JsonException(message);
+        try {
+            DamagePathLoader loader = new DamagePathLoader(file);
+            Collection<Polygon> newPolygons = loader.getPolygons();
+            if (!newPolygons.isEmpty()) {
+                /*
+                 * specifically call super.resetPolygon() cause
+                 * this.resetPolygon() will save the file and we don't want to
+                 * do that or we could infinite loop of load, save, load,
+                 * save...
+                 */
+                super.resetPolygons(newPolygons);
             }
 
-            Polygon geometry = (Polygon) deserializedGeom;
-            /*
-             * specifically call super.resetPolygon() cause this.resetPolygon()
-             * will save the file and we don't want to do that or we could
-             * infinite loop of load, save, load, save...
-             */
-            Polygon current = this.getPolygon();
-            if (current == null || !current.equals(geometry)) {
-                super.resetPolygon(geometry.getExteriorRing().getCoordinates());
-            }
-
-            featureProperties = deserializedProps;
+            featureProperties = loader.getProperties();
         } catch (Exception e) {
             statusHandler.error(
                     "Error loading damage path file " + file.getName(), e);
@@ -331,11 +305,12 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
         String id = jsonProps.get(GeoJsonMapUtil.ID_KEY);
         SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
         typeBuilder.setName("feature");
-        Geometry geom = getPolygon();
-        if (geom != null) {
-            typeBuilder.setDefaultGeometry("the_geom");
-            typeBuilder.add("the_geom", geom.getClass());
-        }
+
+        Collection<Polygon> polygons = getPolygons();
+        GeometryCollection geomCollection = PolygonUtil.FACTORY
+                .createGeometryCollection(polygons.toArray(new Geometry[0]));
+        typeBuilder.setDefaultGeometry("the_geom");
+        typeBuilder.add("the_geom", geomCollection.getClass());
 
         Collection<String> keysToIgnore = Arrays.asList(GeoJsonMapUtil.ID_KEY);
         Set<String> keySet = jsonProps.keySet();
@@ -350,8 +325,8 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
 
         SimpleFeatureType type = typeBuilder.buildFeatureType();
         SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(type);
-        if (geom != null) {
-            featureBuilder.add(geom);
+        if (geomCollection != null) {
+            featureBuilder.add(geomCollection);
         }
         featureBuilder.addAll(values);
         return featureBuilder.buildFeature(id);
@@ -366,13 +341,15 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
         saveJob.schedule();
     }
 
-    public boolean isGeometryType(String geoJsonType) {
-        return ((GeoJsonMapUtil.GEOM_COLL_TYPE.equals(geoJsonType))
-                || (GeoJsonMapUtil.LINE_STR_TYPE.equals(geoJsonType))
-                || (GeoJsonMapUtil.MULT_LINE_STR_TYPE.equals(geoJsonType))
-                || (GeoJsonMapUtil.MULT_POINT_TYPE.equals(geoJsonType))
-                || (GeoJsonMapUtil.MULT_POLY_TYPE.equals(geoJsonType))
-                || (GeoJsonMapUtil.POINT_TYPE.equals(geoJsonType)) || (GeoJsonMapUtil.POLY_TYPE
-                    .equals(geoJsonType)));
+    @Override
+    public void addPolygon(Coordinate[] coords) {
+        super.addPolygon(coords);
+        saveJob.schedule();
+    }
+
+    @Override
+    public void deletePolygon(int index) {
+        super.deletePolygon(index);
+        saveJob.schedule();
     }
 }

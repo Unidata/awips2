@@ -39,7 +39,7 @@ from com.raytheon.edex.plugin.gfe.util import CartDomain2D
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import GridLocation
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceID
-from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData_CoordinateType as CoordinateType
+CoordinateType = ReferenceData.CoordinateType
 
 from com.vividsolutions.jts.geom import Coordinate
 
@@ -53,6 +53,8 @@ from com.vividsolutions.jts.geom import Coordinate
 #    ------------    ----------    -----------    --------------------------
 #    07/06/09        1995          bphillip       Initial Creation.
 #    03/12/13        1759          dgilling       Change how ifpnetCDF is called.
+#    Apr 25, 2015     4952         njensen        Updated for new JEP API
+#    05/21/15        4427          dgilling       Add new ifpnetCDF argument.
 #    
 # 
 #
@@ -440,7 +442,8 @@ def executeIscExtract(parmNames, databaseName, startTime, endTime,
                     "trim": True, 
                     "krunch": True, 
                     "userID": "iscExtract",
-                    "logFileName": None}
+                    "logFileName": None,
+                    "siteIdOverride": None}
             ifpnetCDF.main(**argv)
             
             fname = fname + '.gz'

@@ -37,7 +37,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
-import jep.INumpyable;
+import jep.NDArray;
 
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
@@ -104,6 +104,7 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * 05/14/2014    #3069      randerso    Changed to store math transforms and CRS instead of
  *                                      GridGeometry2D since GeoTools now changes the supplied
  *                                      math transform when creating GridGeometry2D
+ * Apr 23, 2015   4259      njensen     Updated for new JEP API
  * 
  * 
  * </pre>
@@ -118,44 +119,6 @@ public class GridLocation extends PersistableDataObject<String> implements
         ISpatialObject, Cloneable {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GridLocation.class);
-
-    /**
-     * Container for lat/lon grids to be returned to python where they are
-     * reshaped using numpy for performance
-     * 
-     */
-    static class PythonNumpyLatLonGrid implements INumpyable {
-        private float[] data;
-
-        public PythonNumpyLatLonGrid(int nx, int ny, float[] data) {
-            if ((nx * ny * 2) != data.length) {
-                throw new IllegalArgumentException(
-                        "data must be of length nx*ny*2");
-            }
-            this.data = data;
-        }
-
-        @Override
-        public Object[] getNumpy() {
-            return new Object[] { data };
-        }
-
-        @Override
-        public int getNumpyX() {
-            return data.length;
-        }
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see jep.INumpyable#getNumpyY()
-         */
-        @Override
-        public int getNumpyY() {
-            return 1;
-        }
-
-    }
 
     private static final long serialVersionUID = 1L;
 
@@ -1001,7 +964,7 @@ public class GridLocation extends PersistableDataObject<String> implements
      * 
      * @return the lat/lon grid
      */
-    public PythonNumpyLatLonGrid getLatLonGrid() {
+    public NDArray<float[]> getLatLonGrid() {
         float[] gridCells = new float[2 * nx * ny];
         int i = 0;
         for (float x = 0; x < nx; x++) {
@@ -1020,7 +983,14 @@ public class GridLocation extends PersistableDataObject<String> implements
             e.printStackTrace();
         }
 
-        return new PythonNumpyLatLonGrid(nx, ny, latLon);
+        /*
+         * FIXME We reverse the x and y dimensions because that's what AWIPS 1
+         * did and that makes the pre-existing python code compatible. Java
+         * ordering is x,y while python is ordering is y,x. It's confusing and
+         * questionable at best so someday someone should correct all that. Good
+         * luck.
+         */
+        return new NDArray<float[]>(latLon, ny, nx, 2);
     }
 
     /**
@@ -1076,8 +1046,8 @@ public class GridLocation extends PersistableDataObject<String> implements
             System.out.println(gridGeometry.getEnvelope2D().toString());
             System.out.println(gridGeometry.toString());
 
-            PythonNumpyLatLonGrid latLonGrid = gloc.getLatLonGrid();
-            float[] data = (float[]) latLonGrid.getNumpy()[0];
+            NDArray<float[]> latLonGrid = gloc.getLatLonGrid();
+            float[] data = latLonGrid.getData();
             for (int x = 0; x < gloc.getNx(); x++) {
                 for (int y = 0; y < gloc.getNy(); y++) {
                     int idx = 2 * ((x * gloc.ny) + y);

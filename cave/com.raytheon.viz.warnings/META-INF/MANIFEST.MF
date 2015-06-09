@@ -19,3 +19,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.inventory.exception,
  com.raytheon.uf.common.dataplugin.warning,
  com.raytheon.uf.common.dataplugin.warning.util
+Bundle-ClassPath: com.raytheon.viz.warnings.jar

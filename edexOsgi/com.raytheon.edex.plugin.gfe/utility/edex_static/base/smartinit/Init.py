@@ -29,7 +29,8 @@
 #                                                 fix logging so you can actually determine why 
 #                                                 a smartInit is not calculating a parameter
 #    10/29/2013      #2476         njensen        Improved getting wx/discrete keys when retrieving data
-#    10/27/2014      #3766         randerso       Changed _getLatest to include error text returned from InitClient.createDB() 
+#    10/27/2014      #3766         randerso       Changed _getLatest to include error text returned from InitClient.createDB()
+#    Apr 23, 2015    4259          njensen        Updated for new JEP API 
 # 
 ##
 import string, sys, re, time, types, getopt, fnmatch, LogStream, DatabaseID, JUtil, AbsTime, TimeRange
@@ -336,7 +337,7 @@ class Forecaster(GridUtilities):
             try:
                 self.__stopo = self.srcdb().getItem("staticTopo_Dflt")
                 stopotr = self.__stopo.getKeys().get(0)
-                self.__stopo = self.__stopo.getItem(stopotr).__numpy__[0]
+                self.__stopo = self.__stopo.getItem(stopotr).getNDArray()
             except:
                 self.__stopo = None
         else:
@@ -525,8 +526,8 @@ class Forecaster(GridUtilities):
     #--------------------------------------------------------------------------
     def getTopo(self):
         topo = self._client.getTopo()        
-        topo = topo.__numpy__
-        return topo[0]        
+        topo = topo.getNDArray()
+        return topo  
 
     #--------------------------------------------------------------------------
     # Returns a dictionary of magical values that will be used in other
@@ -985,15 +986,11 @@ class Forecaster(GridUtilities):
         pkeys = TimeRange.javaTimeRangeListToPyList(p.getKeys())
         if  pytr in pkeys:            
             jslice = p.getItem(tr)
-            slice = jslice.__numpy__
-            if len(slice) == 1:
-                if slice[0].dtype != int8:
-                    # scalar
-                    slice = slice[0]
-                else:
-                    # discrete or weather
-                    keys = JUtil.javaObjToPyVal(jslice.getKeyList())
-                    slice.append(keys)            
+            slice = jslice.getNDArray()
+            if type(slice) is ndarray and slice.dtype == int8:
+                # discrete or weather
+                keys = JUtil.javaObjToPyVal(jslice.getKeyList())
+                slice = [slice, keys]           
             cache[arg] = (slice, pytr)
         else:            
             cache[arg] = (None, time)
@@ -1008,7 +1005,7 @@ class Forecaster(GridUtilities):
             if arg in self._editAreas:
                 if cache[arg][0] is None:
                     p = self.newdb().getItem(we)
-                    ea = p.getEditArea(arg).__numpy__[0]
+                    ea = p.getEditArea(arg).getNDArray()
                     cache[arg] = (ea, (0, sys.maxint))
                 gargs.append(cache[arg][0])
                 continue
@@ -1067,18 +1064,14 @@ class Forecaster(GridUtilities):
         try:
             rval = apply(mthd, tuple(gargs))
         
-            if type(rval) is not ndarray and rval is not None:
+            if type(rval) is not ndarray:
                 if type(rval) is not tuple:
-                     jrval = rval
-                     rval = rval.__numpy__
-                     if len(rval) == 1:
-                         if rval[0].dtype != int8:
-                            # scalar
-                            rval = rval[0]
-                         else:
-                             # discrete or weather
-                            keys = JUtil.javaObjToPyVal(jrval.getKeyList())
-                            rval.append(keys)
+                    jrval = rval
+                    rval = rval.getNDArray()
+                    if type(rval) is ndarray and rval.dtype == int8:
+                        # discrete or weather
+                        keys = JUtil.javaObjToPyVal(jrval.getKeyList())
+                        rval = [rval, keys]
             cache[we] = (rval, time)
                   
             if rval is not None and cache['mtime'][0] is not None and doStore:
@@ -1236,15 +1229,11 @@ class IFPIO:
             name, time, docube = qv        
         if not docube:
             slice = self.getSrcWE(name, 0).getItem(time)
-            out = slice.__numpy__
-            if len(out) == 1:
-                if out[0].dtype != int8:
-                    # scalar
-                    out = out[0]
-                else:
-                    # discrete or weather
-                    keys = JUtil.javaObjToPyVal(slice.getKeyList())
-                    out.append(keys)            
+            out = slice.getNDArray()
+            if type(out) is ndarray and out.dtype == int8:            
+                # discrete or weather
+                keys = JUtil.javaObjToPyVal(slice.getKeyList())
+                out = [out, keys]            
         else:
             out = self._getcube(self.eta, name, time)
         return out
@@ -1271,18 +1260,15 @@ class IFPIO:
         for l in lvls:
             p = self.getSrcWE(parm + "_" + l, 0)
             jslice = p.getItem(time)            
-            slice = jslice.__numpy__
-            if len(slice) == 1:
-                if slice[0].dtype != int8:
-                    # scalar
-                    slice = slice[0]
-                else:
-                    # discrete or weather
-                    keys = JUtil.javaObjToPyVal(jslice.getKeyList())
-                    slice.append(keys)            
+            slice = jslice.getNDArray()
+            if type(slice) is ndarray and slice.dtype == int8:
+                # discrete or weather
+                keys = JUtil.javaObjToPyVal(jslice.getKeyList())
+                slice = [slice, keys]            
             lst.append(slice)
             pres.append(int(l[2:]))
-        if type(lst[0]) == types.TupleType or type(lst[0]) == types.ListType:            
+        # only scalars will be ndarray, otherwise it was vector, discrete, or wx
+        if type(lst[0]) is not ndarray:
             ml = []
             dl = []
             for i in lst:

@@ -20,6 +20,8 @@
 package com.raytheon.uf.edex.activetable;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
@@ -27,14 +29,17 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
 import jep.JepException;
 
 import org.apache.log4j.Logger;
+import org.hibernate.NonUniqueObjectException;
 
 import com.raytheon.edex.site.SiteUtil;
+import com.raytheon.uf.common.activetable.ActiveTableKey;
 import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.activetable.ActiveTableRecord;
 import com.raytheon.uf.common.activetable.MergeResult;
@@ -111,6 +116,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Mar 04, 2015    4129    randerso    Pass active table change logger to ingestAt and/or MergeVTEC
  * Apr 28, 2015  #4027     randerso    Expunged Calendar from ActiveTableRecord, 
  *                                     fixed next ETN query to query for >= Jan 1
+ * May 22, 2015 4522       randerso    Create proper primary key for ActiveTableRecord
  * 
  * </pre>
  * 
@@ -362,7 +368,7 @@ public class ActiveTable {
                 perfStat.logDuration("filterTable", timer.getElapsedTime());
                 timer.reset();
                 timer.start();
-                updateTable(siteId, result, mode);
+                updateTable(result, mode);
                 timer.stop();
                 perfStat.logDuration("updateTable", timer.getElapsedTime());
             } finally {
@@ -472,7 +478,7 @@ public class ActiveTable {
         }
 
         if (etn != null) {
-            query.addQueryParam("etn", etn, "in");
+            query.addQueryParam("key.etn", etn, "in");
         }
 
         if (requestValidTimes && (currentTime != null)) {
@@ -487,11 +493,11 @@ public class ActiveTable {
                     0, 0);
             yearStart.set(Calendar.MILLISECOND, 0);
             query.addQueryParam("issueTime", yearStart.getTime(), ">=");
-            query.addOrder("etn", false);
+            query.addOrder("key.etn", false);
             query.setMaxResults(1);
         }
 
-        query.addQueryParam("officeid", siteId, "in");
+        query.addQueryParam("key.officeid", siteId, "in");
 
         List<ActiveTableRecord> result = null;
         try {
@@ -504,21 +510,69 @@ public class ActiveTable {
     }
 
     /**
-     * Replaces the active table for the site with the new active table
+     * Updates the active table
      * 
-     * @param siteId
-     *            the four letter site id to replace
      * @param changes
      *            the updated table followed by the purged records
      */
-    private static void updateTable(String siteId, MergeResult changes,
-            ActiveTableMode mode) {
+    private static void updateTable(MergeResult changes, ActiveTableMode mode) {
         List<ActiveTableRecord> updated = changes.updatedList;
         List<ActiveTableRecord> purged = changes.purgedList;
 
+        // Check for multiple updates for the same active table key
+        Map<ActiveTableKey, ActiveTableRecord> updatesMap = new HashMap<>(
+                updated.size(), 1.0f);
+        for (ActiveTableRecord rec : updated) {
+            ActiveTableKey key = rec.getKey();
+            ActiveTableRecord prevRec = updatesMap.get(key);
+
+            // if multiple updates select the one with the latest issueTime
+            if (prevRec == null) {
+                updatesMap.put(key, rec);
+            } else {
+                if (rec.getIssueTime().after(prevRec.getIssueTime())) {
+                    updatesMap.put(key, rec);
+                }
+
+                SimpleDateFormat sdf = new SimpleDateFormat(
+                        "yyyy-MM-dd HH:mm:ss");
+                sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+                statusHandler.warn("Multiple updates received for: "
+                        + rec.getKey().toString() + "\n   "
+                        + prevRec.getVtecstr() + " " + prevRec.getUgcZone()
+                        + " " + sdf.format(prevRec.getIssueTime()) + "\n   "
+                        + rec.getVtecstr() + " " + rec.getUgcZone()
+                        + sdf.format(rec.getIssueTime()));
+            }
+        }
+
+        // Don't try to delete purged records that are being updated
+        List<ActiveTableRecord> toDelete = new ArrayList<>(purged.size());
+        for (ActiveTableRecord rec : purged) {
+            if (!updatesMap.containsKey(rec.getKey())) {
+                toDelete.add(rec);
+            }
+        }
+
         CoreDao dao = (ActiveTableMode.OPERATIONAL.equals(mode)) ? operationalDao
                 : practiceDao;
-        dao.bulkSaveOrUpdateAndDelete(updated, purged);
+        try {
+            dao.bulkSaveOrUpdateAndDelete(updatesMap.values(), toDelete);
+        } catch (NonUniqueObjectException e) {
+            StringBuilder msg = new StringBuilder(
+                    "Error saving updates to activetable\nUpdates:");
+            for (ActiveTableRecord rec : updatesMap.values()) {
+                msg.append("\n").append(rec.getAct()).append(" ")
+                        .append(rec.getKey());
+            }
+            msg.append("\nDeletes:");
+            for (ActiveTableRecord rec : toDelete) {
+                msg.append("\n").append(rec.getAct()).append(" ")
+                        .append(rec.getKey());
+            }
+            statusHandler.error(msg.toString(), e);
+        }
     }
 
     /**
@@ -657,7 +711,7 @@ public class ActiveTable {
             }
 
             if (result != null) {
-                updateTable(siteId, result, tableName);
+                updateTable(result, tableName);
             }
         } finally {
             if (writeLock != null) {

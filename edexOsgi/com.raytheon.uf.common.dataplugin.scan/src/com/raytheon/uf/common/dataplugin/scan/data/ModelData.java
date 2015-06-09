@@ -20,8 +20,8 @@
 package com.raytheon.uf.common.dataplugin.scan.data;
 
 import java.awt.Point;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,8 +32,6 @@ import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.PointUtil;
-import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.time.DataTime;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -46,6 +44,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 02/01/13     1569        D. Hladky   removed XML where not needed, removed SS println's left in code
+ * 05/13/15     4487        D. Hladky   ISerializable is deprecated. Thread safety possible issue.
  * </pre>
  * 
  * @author dhladky
@@ -53,10 +52,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  */
 
-@DynamicSerialize
-public class ModelData implements ISerializableObject {
+public class ModelData {
 
-    private final Map<String, HashMap<String, GridRecord>> gribMap;
+    private final ConcurrentMap<String, ConcurrentHashMap<String, GridRecord>> gribMap;
 
     private transient final Log logger = LogFactory.getLog(getClass());
 
@@ -64,7 +62,7 @@ public class ModelData implements ISerializableObject {
      * Public constructor
      */
     public ModelData() {
-        gribMap = new HashMap<String, HashMap<String, GridRecord>>();
+        gribMap = new ConcurrentHashMap<String, ConcurrentHashMap<String, GridRecord>>();
     }
 
     /**
@@ -113,7 +111,7 @@ public class ModelData implements ISerializableObject {
                 gribMap.get(modelName).put(prodType, gr);
             }
         } else {
-            HashMap<String, GridRecord> modelHash = new HashMap<String, GridRecord>();
+            ConcurrentHashMap<String, GridRecord> modelHash = new ConcurrentHashMap<String, GridRecord>();
             modelHash.put(prodType, gr);
             // add new
             gribMap.put(modelName, modelHash);

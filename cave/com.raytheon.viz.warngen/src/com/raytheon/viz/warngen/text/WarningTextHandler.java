@@ -36,9 +36,10 @@ import com.raytheon.viz.warngen.gis.AffectedAreas;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 24, 2012    15322   jsanchez     Initial creation
- * Jan  8, 2013    15664   Qinglu Lin   Appended WarningAction to handle()'s parameter list, etc. 
- * May  7, 2015 ASM #17438 D. Friedman  Clean up debug and performance logging.
+ * Sep 24, 2012    15322   jsanchez    Initial creation
+ * Jan  8, 2013    15664   Qinglu Lin  Appended WarningAction to handle()'s parameter list, etc. 
+ * May  7, 2015 ASM #17438 D. Friedman Clean up debug and performance logging.
+ * May 29, 2014    4440    randerso    Allow mixed case in WarnGen text products
  * 
  * </pre>
  * 
@@ -57,15 +58,14 @@ public class WarningTextHandler {
             AffectedAreas[] canceledAreas, WarningAction action) {
         long t0 = System.currentTimeMillis();
 
-        text = text.toUpperCase();
-
         if (modifyTextBehavior != null) {
             text = modifyTextBehavior.modify(text);
             System.out.println("Modified text...");
         }
 
         if (lockingBehavior != null) {
-            text = lockingBehavior.lock(text, affectedAreas, canceledAreas, action);
+            text = lockingBehavior.lock(text, affectedAreas, canceledAreas,
+                    action);
             System.out.println("Locked text...");
         }
 
@@ -74,8 +74,7 @@ public class WarningTextHandler {
 
         text = clean(text);
 
-        perfLog.logDuration("Handle the text",
-                System.currentTimeMillis() - t0);
+        perfLog.logDuration("Handle the text", System.currentTimeMillis() - t0);
         return text;
     }
 
@@ -114,9 +113,8 @@ public class WarningTextHandler {
         String[] seperatedLines = text.replaceAll("\r", "").trim().split("\n");
         boolean blankLine = false;
         for (String line : seperatedLines) {
-            if (line.replace(AbstractLockingBehavior.LOCK_START, "")
-                    .replace(AbstractLockingBehavior.LOCK_END, "").trim()
-                    .length() > 0) {
+            if (line.replace(WarnGenPatterns.LOCK_START, "")
+                    .replace(WarnGenPatterns.LOCK_END, "").trim().length() > 0) {
                 sb.append(line + "\n");
                 blankLine = false;
             } else if (blankLine == false) {

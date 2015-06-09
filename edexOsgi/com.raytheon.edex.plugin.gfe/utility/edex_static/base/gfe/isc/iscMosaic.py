@@ -24,6 +24,8 @@
 #    02/17/2015      4139          randerso       Replaced call to iscTime.timeFromComponents
 #                                                 with call to calendar.timegm
 #    04/23/2015      4383          randerso       Changed to log arguments to aid in troubleshooting
+#    Apr 23, 2015    4259          njensen        Updated for new JEP API
+#
 ##
 
 
@@ -51,9 +53,9 @@ from com.raytheon.edex.plugin.gfe.config import IFPServerConfigManager
 from com.raytheon.edex.plugin.gfe.smartinit import IFPDB
 from com.raytheon.uf.common.dataplugin.gfe import GridDataHistory
 from com.raytheon.uf.common.dataplugin.gfe import RemapGrid
-from com.raytheon.uf.common.dataplugin.gfe import GridDataHistory_OriginType as OriginType
+OriginType = GridDataHistory.OriginType
 from com.raytheon.uf.common.dataplugin.gfe.config import ProjectionData
-from com.raytheon.uf.common.dataplugin.gfe.config import ProjectionData_ProjectionType as ProjectionType
+ProjectionType = ProjectionData.ProjectionType
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import DatabaseID
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import GridLocation
 from com.raytheon.uf.common.dataplugin.gfe.slice import DiscreteGridSlice
@@ -64,10 +66,11 @@ from com.raytheon.uf.common.dataplugin.gfe.discrete import DiscreteKey
 from com.raytheon.uf.common.dataplugin.gfe.weather import WeatherKey
 from com.raytheon.uf.common.dataplugin.gfe.server.notify import UserMessageNotification
 from com.raytheon.edex.plugin.gfe.util import SendNotifications
-from com.raytheon.uf.common.status import UFStatus_Priority as Priority
+from com.raytheon.uf.common.status import UFStatus
+Priority = UFStatus.Priority
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceID
-from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData_CoordinateType as CoordinateType
+CoordinateType = ReferenceData.CoordinateType
 from com.raytheon.uf.edex.database.cluster import ClusterLockUtils
 from com.raytheon.uf.edex.database.cluster import ClusterTask
 
@@ -100,6 +103,7 @@ from com.raytheon.uf.edex.database.cluster import ClusterTask
 #    07/22/2014      17484         randerso       Update cluster lock time to prevent time out
 #    08/07/2014      3517          randerso       Improved memory utilization and error handling when unzipping input file.
 #    08/14/2014      3526          randerso       Fix bug in WECache that could incorrectly delete grids in the destination database
+#    Apr 25, 2015    4952          njensen        Updated for new JEP API
 #
 
 BATCH_DELAY = 0.0
@@ -443,16 +447,16 @@ class WECache(object):
     def __encodeGridSlice(self, grid):
         gridType = self._we.getGridType()
         if gridType == "SCALAR":
-            return grid.__numpy__[0]
+            return grid.getNDArray()
         elif gridType == "VECTOR":
-            vecGrids = grid.__numpy__
+            vecGrids = grid.getNDArray()
             return (vecGrids[0], vecGrids[1])
         elif gridType == "WEATHER" or gridType =="DISCRETE":
             keys = grid.getKeys()
             keyList = []
             for theKey in keys:
                 keyList.append(theKey.toString())
-            return (grid.__numpy__[0], keyList)
+            return (grid.getNDArray(), keyList)
 
     def __encodeGridHistory(self, histories):
         retVal = []
@@ -745,7 +749,7 @@ class IscMosaic:
                         # compute the site mask
 
                         if self.__areaMask is None:
-                            self.__areaMask = self.__computeAreaMask().getGrid().__numpy__[0]
+                            self.__areaMask = self.__computeAreaMask().getGrid().getNDArray()
 
                         # create the mergeGrid class
                         mGrid = mergeGrid.MergeGrid(self.__creTime, self.__siteID, inFillV,
@@ -1288,21 +1292,21 @@ class IscMosaic:
 
         if gridType == 'SCALAR':
             newGrid = mapper.remap(gs.getScalarGrid(), fill, gpi.getMaxValue(), gpi.getMinValue(), fill)
-            return newGrid.__numpy__[0]
+            return newGrid.getNDArray()
 
         elif gridType == 'VECTOR':
             magGrid = Grid2DFloat(gs.getGridParmInfo().getGridLoc().getNx().intValue(), gs.getGridParmInfo().getGridLoc().getNy().intValue())
             dirGrid = Grid2DFloat(gs.getGridParmInfo().getGridLoc().getNx().intValue(), gs.getGridParmInfo().getGridLoc().getNy().intValue())
             mapper.remap(gs.getMagGrid(), gs.getDirGrid(), fill, gpi.getMaxValue(), gpi.getMinValue(), fill, magGrid, dirGrid)
-            return (magGrid.__numpy__[0], dirGrid.__numpy__[0])
+            return (magGrid.getNDArray(), dirGrid.getNDArray())
 
         elif gridType == 'WEATHER':
             newGrid = mapper.remap(gs.getWeatherGrid(), fill, fill)
-            return (newGrid.__numpy__[0], grid[1])
+            return (newGrid.getNDArray(), grid[1])
 
         elif gridType == 'DISCRETE':
             newGrid = mapper.remap(gs.getDiscreteGrid(), fill, fill)
-            return (newGrid.__numpy__[0], grid[1])
+            return (newGrid.getNDArray(), grid[1])
 
     def __decodeGridSlice(self, we, value, tr, history=None):
         pid = we.getParmid()
@@ -1687,9 +1691,7 @@ class IscMosaic:
 
 def convertList(unknownList):
     retVal = unknownList
-    try:
-        len(unknownList)
-    except TypeError:
+    if hasattr(unknownList, 'java_name'):
         retVal = JUtil.javaObjToPyVal(unknownList)
     return retVal
 

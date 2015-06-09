@@ -40,12 +40,12 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.point.display.PointWindDisplay.DisplayType;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.PythonPreferenceStore;
 import com.raytheon.viz.gfe.rsc.GFEResource;
-import com.raytheon.viz.pointdata.PointWindDisplay.DisplayType;
 
 /**
  * Parm Display Attributes

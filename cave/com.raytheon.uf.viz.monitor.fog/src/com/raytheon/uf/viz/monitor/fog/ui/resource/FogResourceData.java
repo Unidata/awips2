@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.monitor.fog.ui.resource;
 
-import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,14 +35,13 @@ import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.comm.Loader;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.grid.display.GriddedImageDisplay;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.monitor.fog.FogMonitor;
 import com.raytheon.uf.viz.monitor.fog.threshold.FogAlgorithmMgr;
-import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay;
 
 /**
  * FogResourceData

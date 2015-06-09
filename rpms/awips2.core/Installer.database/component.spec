@@ -25,6 +25,9 @@ provides: awips2-static-user
 requires: awips2-postgresql
 requires: awips2-psql
 requires: awips2-database-configuration
+requires: netcdf = 4.1.2
+requires: netcdf-devel = 4.1.2
+
 
 %description
 AWIPS II Database Installation - Sets Up The Basic AWIPS II Database, Creating The

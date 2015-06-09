@@ -25,8 +25,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import jep.INumpyable;
-
 import org.apache.commons.lang.mutable.MutableByte;
 import org.geotools.geometry.jts.JTS;
 import org.opengis.metadata.spatial.PixelOrientation;
@@ -73,13 +71,14 @@ import com.vividsolutions.jts.geom.MultiPolygon;
  *                                     than 128 characters
  * 02/19/2013   1637       randerso    Added throws declarations to translateDataFrom
  * 10/31/2013   2508       randerso    Change to use DiscreteGridSlice.getKeys()
+ * Apr 23, 2015 4259       njensen     Removed unused INumpyable
  * 
  * </pre>
  * 
  * @author chammack
  * @version 1.0
  */
-public class DiscreteGridData extends AbstractGridData implements INumpyable {
+public class DiscreteGridData extends AbstractGridData {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DiscreteGridData.class);
 
@@ -544,10 +543,6 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
         return didIt;
     }
 
-    /**
-     * @see com.raytheon.viz.gfe.core.griddata.AbstractGridData#doSet(com.raytheon.viz.gfe.core.wxvalue.WxValue,
-     *      com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit)
-     */
     @Override
     public Grid2DBit doSet(WxValue value, Grid2DBit pointsToSet) {
         GridType gridType = value.getParm().getGridInfo().getGridType();
@@ -841,21 +836,6 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
     }
 
     @Override
-    public Object[] getNumpy() {
-        return new Object[] { this.getGrid().getBuffer().array() };
-    }
-
-    @Override
-    public int getNumpyX() {
-        return this.getGrid().getXdim();
-    }
-
-    @Override
-    public int getNumpyY() {
-        return this.getGrid().getYdim();
-    }
-
-    @Override
     public void setGridSlice(IGridSlice gridSlice) {
         if (!(gridSlice instanceof DiscreteGridSlice)) {
             throw new IllegalArgumentException(
@@ -1024,7 +1004,7 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
     }
 
     private void setKey(DiscreteKey[] key) {
-        ((DiscreteGridSlice) getGridSlice()).setKey(key);
+        ((DiscreteGridSlice) getGridSlice()).setKeys(key);
     }
 
     public DiscreteGridSlice getDiscreteSlice() {

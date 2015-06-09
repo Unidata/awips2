@@ -125,6 +125,7 @@ import com.raytheon.uf.viz.core.sounds.SoundUtil;
  * Jan 12, 2015 3709       bclement    unified color management into SessionColorManager
  * Mar 24, 2015 4265       mapeters    abstracted out common styleAndAppendText()s
  * Mar 31, 2015 4327       mapeters    added shouldNotifyTaskbar() override
+ * May 22, 2015 4328       mapeters    Add NOTIFICATION_IMAGE_NAME, getter
  * 
  * </pre>
  * 
@@ -137,6 +138,8 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
             .getHandler(SessionView.class);
 
     private static final String SESSION_IMAGE_NAME = "chats.gif";
+
+    private static final String NOTIFICATION_IMAGE_NAME = "chats_notification.gif";
 
     public static final String ID = "com.raytheon.uf.viz.collaboration.SessionView";
 
@@ -526,6 +529,11 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
     @Override
     protected String getSessionImageName() {
         return SESSION_IMAGE_NAME;
+    }
+
+    @Override
+    protected String getNotificationImageName() {
+        return NOTIFICATION_IMAGE_NAME;
     }
 
     private void createArrows() {

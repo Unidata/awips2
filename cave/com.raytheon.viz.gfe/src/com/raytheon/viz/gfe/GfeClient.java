@@ -28,6 +28,7 @@ import java.util.TimerTask;
 
 import jep.Jep;
 import jep.JepException;
+import jep.NamingConventionClassEnquirer;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
@@ -66,6 +67,7 @@ import com.raytheon.viz.ui.personalities.awips.AbstractAWIPSComponent;
  * Aug 22, 2014  3500      bclement     override postStartupActions()
  * Aug 29, 2014  3500      bclement     removed override of postStartupActions() 
  *                                      since ProcedureXMLManager startup was moved to the CAVE subclass
+ * Apr 26, 2015  4259      njensen      Updated for new JEP API
  * May 20, 2015  4509      njensen      Added time and dataaccess to include path
  * 
  * </pre>
@@ -138,8 +140,8 @@ public class GfeClient extends AbstractAWIPSComponent {
 
         Jep jep = null;
         try {
-            jep = new Jep(false, includePath, GfeClient.class.getClassLoader());
-            jep.eval("import JavaImporter");
+            jep = new Jep(false, includePath, GfeClient.class.getClassLoader(),
+                    new NamingConventionClassEnquirer());
             jep.eval("import sys");
             jep.eval("sys.argv = []");
             boolean skipNextArg = false;

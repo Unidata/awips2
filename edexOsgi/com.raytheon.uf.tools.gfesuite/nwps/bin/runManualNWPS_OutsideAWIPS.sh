@@ -1,6 +1,14 @@
 #!/bin/bash
 
 NWPSLOCAL="/awips2/GFESuite/nwps"
+#
+# The following two variables need to be set to your regional LDM. This is the same
+# ldm servers you can reach from your ldad. If you do not know this info contact your
+# regional folks. This is how the input files for NWPS run requests will be routed to
+# NCO/WCOSS when that option is chosen from the GUI.
+#
+LDMSERVER1="srh-ls-cpnrs1.srh.noaa.gov"
+LDMSERVER2="srh-ls-cpnrs2.srh.noaa.gov"
 
 if [ ! -e ${NWPSLOCAL}/input ]
 then
@@ -187,15 +195,55 @@ touch $flagfile
 chmod 666 $textfile.gz
 chmod 666 $flagfile
 
-if [ $WHERETORUN == "Local" ]
+if [ $WHERETORUN == "Both" ]
 then
 
     logit " "
-    logit "RUNNING IN WORKSTATION"   
+    logit "RUNNING IN WORKSTATION"
     logit " "
     logit "### ROUTING 3 WIND FILES NEEDED BY SWAN THROUGH LDAD TO LOCAL WORKSTATION:"
 
-    ssh ldad@ls1 mkdir -p ${DIR} 
+    ssh ldad@ls1 mkdir -p ${DIR}
+    scp ${SCPARGS} $Output_File ldad@ls1:${DIR}  | tee -a $logfile
+    scp ${SCPARGS} $textfile.gz ldad@ls1:${DIR}  | tee -a $logfile
+    scp ${SCPARGS} $flagfile ldad@ls1:${DIR}     | tee -a $logfile
+
+    logit " "
+    #########################################################################
+    logit "##################################################################"
+    logit "### SENDING WIND FILES TO NWPS SYSTEM VIA LDAD TO TRIGGER NEW RUN"
+    logit "### Start Time is: $(date)"
+    logit "##################################################################"
+    logit " "
+
+    logit "Runtime Parameters are: $RUNLEN:$WNA:$NEST:$GS:$WINDS:$WEB:$PLOT:$DELTAC:$HOTSTART:$WATERLEVELS:$CORE:$EXCD"
+
+    ssh ${SSHARGS} ldad@ls1 echo "$RUNLEN:$WNA:$NEST:$GS:$WINDS:$WEB:$PLOT:$DELTAC:$HOTSTART:$WATERLEVELS:$CORE:$EXCD > /data/ldad/nwps/input/inp_args" 2>&1 | tee -a $logfile
+
+    logit " "
+    logit "RUNNING IN NCEP"
+    logit " "
+    echo "$RUNLEN:$WNA:$NEST:$GS:$WINDS:$WEB:$PLOT:$DELTAC:$HOTSTART:$WATERLEVELS:$CORE:$EXCD" > ${NWPSLOCAL}/wcoss/${siteid}_inp_args.ctl
+
+    chmod 666 ${NWPSLOCAL}/wcoss/${siteid}_inp_args.ctl
+
+    cd ${NWPSLOCAL}/wcoss/
+    NWPSWINDGRID="NWPSWINDGRID_${siteid}_$(date +%Y%m%d%H%M)_$$.tar.gz"
+    tar cvfz ${NWPSWINDGRID} ${siteid}_inp_args.ctl ${siteid}_domain_setup.cfg ${wcoss_textfile}
+    scp ${NWPSWINDGRID} ldad@ls1:/tmp/
+    ssh ldad@ls1 "cd /tmp; /usr/local/ldm/bin/ldmsend -v -h ${LDMSERVER1} -f EXP ${NWPSWINDGRID}" 2>&1 | tee -a $logfile
+    ssh ldad@ls1 "cd /tmp; /usr/local/ldm/bin/ldmsend -v -h ${LDMSERVER2} -f EXP ${NWPSWINDGRID}" 2>&1 | tee -a $logfile
+    ssh ldad@ls1 rm -fv /tmp/${NWPSWINDGRID}
+
+elif [ $WHERETORUN == "Local" ]
+then
+
+    logit " "
+    logit "RUNNING IN WORKSTATION"
+    logit " "
+    logit "### ROUTING 3 WIND FILES NEEDED BY SWAN THROUGH LDAD TO LOCAL WORKSTATION:"
+
+    ssh ldad@ls1 mkdir -p ${DIR}
     scp ${SCPARGS} $Output_File ldad@ls1:${DIR}  | tee -a $logfile
     scp ${SCPARGS} $textfile.gz ldad@ls1:${DIR}  | tee -a $logfile
     scp ${SCPARGS} $flagfile ldad@ls1:${DIR}     | tee -a $logfile
@@ -215,7 +263,7 @@ then
 else
 
     logit " "
-    logit "RUNNING IN NCEP"   
+    logit "RUNNING IN NCEP"
     logit " "
     echo "$RUNLEN:$WNA:$NEST:$GS:$WINDS:$WEB:$PLOT:$DELTAC:$HOTSTART:$WATERLEVELS:$CORE:$EXCD" > ${NWPSLOCAL}/wcoss/${siteid}_inp_args.ctl
 
@@ -224,9 +272,9 @@ else
     cd ${NWPSLOCAL}/wcoss/
     NWPSWINDGRID="NWPSWINDGRID_${siteid}_$(date +%Y%m%d%H%M)_$$.tar.gz"
     tar cvfz ${NWPSWINDGRID} ${siteid}_inp_args.ctl ${siteid}_domain_setup.cfg ${wcoss_textfile}
-    scp ${NWPSWINDGRID} ldad@ls1:/tmp/ 
-    ssh ldad@ls1 "cd /tmp; /usr/local/ldm/bin/ldmsend -v -h srh-ls-cpnrs1.srh.noaa.gov -f EXP ${NWPSWINDGRID}" 2>&1 | tee -a $logfile
-    ssh ldad@ls1 "cd /tmp; /usr/local/ldm/bin/ldmsend -v -h srh-ls-cpnrs2.srh.noaa.gov -f EXP ${NWPSWINDGRID}" 2>&1 | tee -a $logfile
+    scp ${NWPSWINDGRID} ldad@ls1:/tmp/
+    ssh ldad@ls1 "cd /tmp; /usr/local/ldm/bin/ldmsend -v -h ${LDMSERVER1} -f EXP ${NWPSWINDGRID}" 2>&1 | tee -a $logfile
+    ssh ldad@ls1 "cd /tmp; /usr/local/ldm/bin/ldmsend -v -h ${LDMSERVER2} -f EXP ${NWPSWINDGRID}" 2>&1 | tee -a $logfile
     ssh ldad@ls1 rm -fv /tmp/${NWPSWINDGRID}
 
 fi

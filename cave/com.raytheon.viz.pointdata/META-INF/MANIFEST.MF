@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Pointdata Plug-in
 Bundle-SymbolicName: com.raytheon.viz.pointdata;singleton:=true
-Bundle-Version: 1.14.1.qualifier
+Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: Raytheon
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
@@ -32,9 +32,10 @@ Require-Bundle: org.apache.batik;bundle-version="1.6",
  com.raytheon.uf.common.message;bundle-version="1.14.0",
  com.raytheon.uf.viz.productbrowser;bundle-version="1.14.0",
  com.raytheon.viz.alerts,
- com.raytheon.uf.common.comm
+ com.raytheon.uf.viz.core.point;bundle-version="1.15.0",
+ org.apache.commons.collections;bundle-version="3.2.0"
 Export-Package: com.raytheon.viz.pointdata,
- com.raytheon.viz.pointdata.drawables,
  com.raytheon.viz.pointdata.rsc,
  com.raytheon.viz.pointdata.rsc.retrieve,
  com.raytheon.viz.pointdata.util
+Bundle-ClassPath: com.raytheon.viz.pointdata.jar

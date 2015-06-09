@@ -27,10 +27,10 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
+import com.raytheon.uf.viz.core.grid.display.GriddedImageDisplay2;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedContourDisplay;
-import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay2;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager.DisplayMode;
 
 /**

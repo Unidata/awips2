@@ -21,5 +21,6 @@
 <menuContributionFile>
     <include installTo="menu:obs?after=LIGHTNINGPLACEHOLDER" 
              fileName="menus/lightning/lightningMenuItems.xml" 
-             subMenu="Lightning"/>
+             subMenu="Lightning"
+             subMenuId="obs-lighning"/>
 </menuContributionFile>

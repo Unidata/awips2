@@ -27,9 +27,9 @@ import java.util.Map;
 import java.util.Set;
 
 import jep.JepException;
+import jep.NDArray;
 
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
-import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.dataplugin.gfe.weather.WeatherKey;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -69,6 +69,8 @@ import com.raytheon.viz.gfe.core.wxvalue.WxValue;
  * Oct 29, 2013  2476      njensen     Renamed numeric methods to numpy
  * 10/31/2013    2508      randerso    Change to use DiscreteGridSlice.getKeys()
  * Oct 14, 2014  3676      njensen     Promoted getNumpyResult() to parent class
+ * Apr 23, 2015  4259      njensen     Updated for new JEP API
+ * 
  * 
  * </pre>
  * 
@@ -242,53 +244,46 @@ public class SmartToolController extends BaseGfePyController {
      * Evaluates python method arguments for smart tools, transforming Java
      * objects into python objects where appropriate.
      */
+    @SuppressWarnings("unchecked")
     @Override
     protected void evaluateArgument(String argName, Object argValue)
             throws JepException {
         if (argValue instanceof IGridData) {
-            if (argValue instanceof VectorGridData) {
-                VectorGridData grid = (VectorGridData) argValue;
-                Grid2DFloat mag = (grid.getVectorSlice()).getMagGrid();
-                Grid2DFloat dir = (grid.getVectorSlice()).getDirGrid();
+            IGridData grid = (IGridData) argValue;
+            if (grid instanceof VectorGridData) {
+                NDArray<float[]>[] data = (NDArray<float[]>[]) grid
+                        .getGridSlice().getNDArray();
                 String magName = argName + "Mag";
                 String dirName = argName + "Dir";
-                jep.setNumpy(magName, mag.getFloats(), mag.getXdim(),
-                        mag.getYdim());
-                jep.setNumpy(dirName, dir.getFloats(), dir.getXdim(),
-                        dir.getYdim());
+                jep.set(magName, data[0]);
+                jep.set(dirName, data[1]);
                 jep.eval(argName + " = [" + magName + ", " + dirName + "]");
                 jep.eval(magName + " = None");
                 jep.eval(dirName + " = None");
-            } else if (argValue instanceof ScalarGridData) {
-                ScalarGridData grid = (ScalarGridData) argValue;
-                Grid2DFloat f = (grid.getScalarSlice()).getScalarGrid();
-                jep.setNumpy(argName, f.getFloats(), f.getXdim(), f.getYdim());
-            } else if (argValue instanceof DiscreteGridData) {
-                DiscreteGridData grid = (DiscreteGridData) argValue;
-                jep.set("discreteGridData", grid);
-                jep.eval("discreteGridNumpy = discreteGridData.__numpy__");
-                jep.eval("discreteGridNumpy = discreteGridNumpy[0]");
-                DiscreteKey[] keys = grid.getDiscreteSlice().getKeys();
-                ArrayList<String> stringKeys = new ArrayList<String>();
+            } else if (grid instanceof ScalarGridData) {
+                jep.set(argName, grid.getGridSlice().getNDArray());
+            } else if (grid instanceof DiscreteGridData) {
+                jep.set("discreteGridData", grid.getGridSlice().getNDArray());
+                DiscreteKey[] keys = ((DiscreteGridData) grid)
+                        .getDiscreteSlice().getKeys();
+                List<String> stringKeys = new ArrayList<String>();
                 for (DiscreteKey k : keys) {
                     stringKeys.add(k.toString());
                 }
                 String pythonList = PyUtil.listToList(stringKeys);
                 jep.eval("discreteGridKeys = " + pythonList);
-                jep.eval(argName + " = (discreteGridNumpy, discreteGridKeys)");
-            } else if (argValue instanceof WeatherGridData) {
-                WeatherGridData grid = (WeatherGridData) argValue;
-                jep.set("weatherGridData", grid);
-                jep.eval("weatherGridNumpy = weatherGridData.__numpy__");
-                jep.eval("weatherGridNumpy = weatherGridNumpy[0]");
-                WeatherKey[] keys = grid.getWeatherSlice().getKeys();
+                jep.eval(argName + " = (discreteGridData, discreteGridKeys)");
+            } else if (grid instanceof WeatherGridData) {
+                jep.set("weatherGridData", grid.getGridSlice().getNDArray());
+                WeatherKey[] keys = ((WeatherGridData) grid).getWeatherSlice()
+                        .getKeys();
                 ArrayList<String> stringKeys = new ArrayList<String>();
                 for (WeatherKey k : keys) {
                     stringKeys.add(k.toString());
                 }
                 String pythonList = PyUtil.listToList(stringKeys);
                 jep.eval("weatherGridKeys = " + pythonList);
-                jep.eval(argName + " = (weatherGridNumpy, weatherGridKeys)");
+                jep.eval(argName + " = (weatherGridData, weatherGridKeys)");
             }
         } else if (argValue instanceof WxValue) {
             if (argValue instanceof VectorWxValue) {
@@ -323,5 +318,4 @@ public class SmartToolController extends BaseGfePyController {
             super.evaluateArgument(argName, argValue);
         }
     }
-
 }

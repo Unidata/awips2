@@ -33,6 +33,8 @@
 #                                                 to a separate thread in java.
 #                                                 Added performance logging
 #    02/05/15        #4099         randerso       Changed log level of year-end issuance tweak
+#    Apr 25, 2015     4952         njensen        Updated for new JEP API
+#    May 22, 2015     4522         randerso       Create proper primary key for ActiveTableRecord
 #
 
 import time
@@ -43,8 +45,9 @@ import LogStream, ActiveTableVtec, ActiveTableRecord
 import JUtil
 from java.util import ArrayList
 from com.raytheon.uf.common.localization import PathManagerFactory
-from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType
-from com.raytheon.uf.common.localization import LocalizationContext_LocalizationLevel as LocalizationLevel
+from com.raytheon.uf.common.localization import LocalizationContext
+LocalizationType = LocalizationContext.LocalizationType
+LocalizationLevel = LocalizationContext.LocalizationLevel
 from com.raytheon.uf.common.activetable import VTECPartners as JavaVTECPartners
 
 from com.raytheon.uf.common.time.util import TimeUtil
@@ -53,8 +56,9 @@ perfStat = PerformanceStatus.getHandler("ActiveTable")
 
 class ActiveTable(VTECTableUtil.VTECTableUtil):
     
-    def __init__(self, activeTableMode):
+    def __init__(self, activeTableMode, logger=None):
         self._time = time.time()
+        self._logger = logger
 
         # create a dummy name to simplify the file access code in VTECTableUtil
         pathMgr = PathManagerFactory.getPathManager()
@@ -218,6 +222,7 @@ class ActiveTable(VTECTableUtil.VTECTableUtil):
                                   "OldRec: ", self.printEntry(rec),
                                   "\nReassign action to: ", rec['act'])
                                 newR['act'] = rec['act']
+                                rec['state'] = "Replaced"
                                 break
                         #due to above code, this should never execute
                         if newR['act'] == "COR":
@@ -280,12 +285,11 @@ class ActiveTable(VTECTableUtil.VTECTableUtil):
          #strip out the "state" field
         outTable = []        
         for r in updatedTable:
-            if r['state'] not in ["Replaced", "Purged"]:
-                del r['state']
-                outTable.append(r)
+            if r['state'] == "Purged":
+                purgedRecords.append(r)                
             else:
-                purgedRecords.append(r)
-                
+                outTable.append(r)
+
         return outTable, purgedRecords, changes, changedFlag
 
 def mergeFromJava(siteId, activeTable, newRecords, logger, mode, offsetSecs=0):
@@ -304,7 +308,7 @@ def mergeFromJava(siteId, activeTable, newRecords, logger, mode, offsetSecs=0):
         rec = ActiveTableRecord.ActiveTableRecord(newRecords.get(i))
         pyNew.append(rec)
     
-    active = ActiveTable(mode)
+    active = ActiveTable(mode, logger)
     
     logger.info("Updating " + mode + " Active Table: new records\n" +
        active.printActiveTable(pyNew, combine=1))
@@ -321,29 +325,29 @@ def mergeFromJava(siteId, activeTable, newRecords, logger, mode, offsetSecs=0):
     logger.info("Updated " + mode + " Active Table: purged\n" +
        active.printActiveTable(purgeRecords, combine=1))
 
-    replaced  = []
-    decoded = []
-    other = []
+    stateDict = {}
     for r in updatedTable:
-        if r['state'] == "Replaced":
-            replaced.append(r)
-        elif r['state'] == "Decoded":
-            decoded.append(r)
-        else:
-            other.append(r)
+        recs = stateDict.get(r['state'], [])
+        recs.append(r)
+        stateDict[r['state']] = recs
+
+    keys = stateDict.keys()
+    keys.sort()
+    for key in keys:
+        if key == "Previous":
+            continue
         
-    logger.info("Updated " + mode + " Active Table: replaced\n" +
-       active.printActiveTable(replaced,  combine=1))
-    logger.info("Updated " + mode + " Active Table: decoded\n" +
-       active.printActiveTable(decoded, combine=1))
+        logger.info("Updated " + mode + " Active Table: "+ key +"\n" +
+            active.printActiveTable(stateDict[key],  combine=1))
 
     updatedList = ArrayList(len(updatedTable))
-    for x in updatedTable:
-        updatedList.add(x.javaRecord())
+    for r in updatedTable:
+        if r['state'] not in ["Previous", "Replaced"]:
+            updatedList.add(r.javaRecord())
     
     purgedList = ArrayList(len(purgeRecords))
-    for x in purgeRecords:
-        purgedList.add(x.javaRecord())
+    for r in purgeRecords:
+        purgedList.add(r.javaRecord())
     
     changeList = ArrayList(len(changes))
     if (changedFlag):

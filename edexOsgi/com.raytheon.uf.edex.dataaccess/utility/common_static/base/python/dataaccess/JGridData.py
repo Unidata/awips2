@@ -30,6 +30,7 @@
 #    12/10/12                      njensen        Initial Creation.
 #    05/01/14        3095          bsteffen       Move numeric data access to new plugin.
 #    08/06/14        3185          njensen        Only import Java classes when necessary
+#    Apr 23, 2015    4259          njensen        Updated for new JEP API
 #
 #    
 # 
@@ -37,6 +38,7 @@
 
 from ufpy.dataaccess import IGridData
 import JData
+import numpy as np
 
 class JGridData(IGridData, JData.JData):
     
@@ -64,7 +66,6 @@ class JGridData(IGridData, JData.JData):
     def getRawData(self, unit=None):
         # import only the modules that are needed
         from com.raytheon.uf.common.numeric.buffer import FloatBufferWrapper        
-        from com.raytheon.uf.common.python import PythonNumpyFloatArray
         
         nx = self.jobj.getGridGeometry().getGridRange().getSpan(0)
         ny = self.jobj.getGridGeometry().getGridRange().getSpan(1)
@@ -84,9 +85,10 @@ class JGridData(IGridData, JData.JData):
             unitDest = FilteredDataDestination.addFilters(dest, filters)
             self.jobj.populateData(unitDest)
         else:
-            self.jobj.populateData(dest)
-        pnfa = PythonNumpyFloatArray(dest.getBuffer().array(), nx, ny)
-        return pnfa.__numpy__[0]
+            self.jobj.populateData(dest)        
+        data = np.array(dest.getBuffer().array, dtype=np.float32)
+        data = data.reshape((nx, ny))
+        return data
     
     def getLatLonCoords(self):
         """
@@ -103,8 +105,10 @@ class JGridData(IGridData, JData.JData):
         from com.raytheon.uf.common.geospatial import LatLonReprojection
         latlons = LatLonReprojection.getLatLons(gridGeometry)
         nx = gridGeometry.getGridRange().getSpan(0)
-        ny = gridGeometry.getGridRange().getSpan(1)
-        latndarray = PythonNumpyFloatArray(latlons.getLats(), nx, ny).__numpy__[0]
-        lonndarray = PythonNumpyFloatArray(latlons.getLons(), nx, ny).__numpy__[0]
+        ny = gridGeometry.getGridRange().getSpan(1)        
+        latndarray = np.array(latlons.getLats(), dtype=np.float32)
+        latndarray = latndarray.reshape((nx, ny))
+        lonndarray = np.array(latlons.getLats(), dtype=np.float32)
+        lonndarray = lonndarray.reshape((nx, ny))
         return (lonndarray, latndarray)
         
