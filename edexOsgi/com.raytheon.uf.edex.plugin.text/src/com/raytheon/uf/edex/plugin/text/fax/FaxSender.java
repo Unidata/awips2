@@ -51,7 +51,7 @@ import com.raytheon.uf.edex.plugin.text.security.EnvPathWhiteList;
 public class FaxSender {
     private static final String getDate = "date -u +%Y%m%d%H%M%S";
 
-    private static final String ENV_ERROR_FMT = "Unable to valiate environment variable %s.";
+    private static final String ENV_ERROR_FMT = "Unable to validate environment variable %s.";
 
     private static final String FXA_DATA = "FXA_DATA";
 
