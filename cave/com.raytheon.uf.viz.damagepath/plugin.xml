@@ -6,26 +6,32 @@
       <contextualMenu
             actionClass="com.raytheon.uf.viz.damagepath.OpenGeoJsonPropertiesDlgAction"
             capabilityClass="com.raytheon.uf.viz.damagepath.DamagePathLayer"
-            name="Set GeoJSON Properties"
+            name="Set Properties"
             sortID="3">
-      </contextualMenu>
-      <contextualMenu
-            actionClass="com.raytheon.uf.viz.damagepath.ExportDamagePathAction"
-            capabilityClass="com.raytheon.uf.viz.damagepath.DamagePathLayer"
-            name="Export GeoJSON"
-            sortID="4">
-      </contextualMenu>
-      <contextualMenu
-            actionClass="com.raytheon.uf.viz.damagepath.ImportDamagePathAction"
-            capabilityClass="com.raytheon.uf.viz.damagepath.DamagePathLayer"
-            name="Import GeoJSON"
-            sortID="5">
       </contextualMenu>
       <contextualMenu
             actionClass="com.raytheon.uf.viz.damagepath.ImportFromDistanceSpeedAction"
             capabilityClass="com.raytheon.uf.viz.damagepath.DamagePathLayer"
             name="Import from Distance Speed Tool"
+            sortID="4">
+      </contextualMenu>
+      <contextualMenu
+            actionClass="com.raytheon.uf.viz.damagepath.ExportToLdadAction"
+            capabilityClass="com.raytheon.uf.viz.damagepath.DamagePathLayer"
+            name="Export to LDAD"
+            sortID="5">
+      </contextualMenu>
+      <contextualMenu
+            actionClass="com.raytheon.uf.viz.damagepath.ExportDamagePathAction"
+            capabilityClass="com.raytheon.uf.viz.damagepath.DamagePathLayer"
+            name="Export to File"
             sortID="6">
+      </contextualMenu>
+      <contextualMenu
+            actionClass="com.raytheon.uf.viz.damagepath.ImportDamagePathAction"
+            capabilityClass="com.raytheon.uf.viz.damagepath.DamagePathLayer"
+            name="Import from File"
+            sortID="7">
       </contextualMenu>
    </extension>
 </plugin>

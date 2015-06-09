@@ -15,6 +15,7 @@ Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.14.6",
  com.raytheon.viz.awipstools;bundle-version="1.14.0",
  com.raytheon.viz.radar;bundle-version="1.14.0",
  javax.measure;bundle-version="1.0.0",
- com.raytheon.uf.common.util;bundle-version="1.14.1"
+ com.raytheon.uf.common.util;bundle-version="1.14.1",
+ com.raytheon.uf.common.damagepath;bundle-version="1.15.0"
 Export-Package: com.raytheon.uf.viz.damagepath
 Bundle-ClassPath: com.raytheon.uf.viz.damagepath.jar

@@ -75,6 +75,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Apr 23, 2015  4354      dgilling    Support GeoJSON Feature properties.
  * Jun 03, 2015  4375      dgilling    Support changes to PolygonLayer for 
  *                                     multiple polygon support.
+ * Jun 08, 2015  4355      dgilling    Fix NullPointerException in loadJob.
  * 
  * </pre>
  * 
@@ -126,7 +127,7 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
         @Override
         protected IStatus run(IProgressMonitor monitor) {
             LocalizationFile prevFile = getValidDamagePathFile();
-            if (prevFile.exists()) {
+            if (prevFile != null) {
                 loadDamagePath(prevFile);
 
                 // reset the polygon if the localization file is invalid.
@@ -235,12 +236,8 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
         LocalizationFile oldFile = PathManagerFactory.getPathManager()
                 .getLocalizationFile(ctx, OLD_PATH);
         if (file.exists()) {
-            System.out.println("Using NEW Damage Path location");
-
             return file;
         } else if (oldFile.exists()) {
-            System.out.println("Using OLD Damage Path location");
-
             return oldFile;
         } else {
             return null;
