@@ -44,7 +44,7 @@
          point="org.eclipse.ui.preferencePages">
       <page
             class="com.raytheon.uf.viz.productbrowser.DataTypePreferencePage"
-            id="com.raytheon.uf.viz.productbrowser.productbrowserdatapreferencepage"
+            id="com.raytheon.viz.satellite.productbrowser.productbrowserdatapreferencepage"
             name="Satellite"
             category="com.raytheon.uf.viz.productbrowser.productbrowserpreferencespage"/>
    </extension>
