@@ -116,7 +116,7 @@
          point="org.eclipse.ui.preferencePages">
       <page
             class="com.raytheon.uf.viz.productbrowser.DataTypePreferencePage"
-            id="com.raytheon.uf.viz.productbrowser.productbrowserdatapreferencepage"
+            id="com.raytheon.viz.radar.productbrowser.productbrowserdatapreferencepage"
             name="Radar"
             category="com.raytheon.uf.viz.productbrowser.productbrowserpreferencespage"/>
    </extension>
