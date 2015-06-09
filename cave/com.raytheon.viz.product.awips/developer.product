@@ -18,7 +18,6 @@
       <vmArgs>-Xmx1536M
 -XX:+UseG1GC
 -Dosgi.instance.area.readOnly=true
--Declipse.log.enabled=false
 -Dorg.eclipse.update.reconcile=false -XX:MaxPermSize=256m 
 -Dorg.eclipse.ui/KEY_CONFIGURATION_ID=com.raytheon.viz.ui.awips.scheme 
 -Dqpid.dest_syntax=BURL 
@@ -53,11 +52,9 @@
       </win>
    </launcher>
 
-
    <vm>
       <windows include="true">jdk1.6.0</windows>
    </vm>
-
 
    <plugins>
    </plugins>

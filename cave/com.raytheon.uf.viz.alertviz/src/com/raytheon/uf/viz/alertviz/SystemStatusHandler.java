@@ -20,29 +20,20 @@
 package com.raytheon.uf.viz.alertviz;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.dialogs.ErrorDialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.statushandlers.AbstractStatusHandler;
 import org.eclipse.ui.statushandlers.StatusAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
 
 import com.raytheon.uf.common.message.StatusMessage;
-import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.status.slf4j.UFMarkers;
 import com.raytheon.uf.viz.alertviz.config.Category;
 import com.raytheon.uf.viz.alertviz.internal.LogMessageDAO;
-import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.status.VizStatusInternal;
 
 /**
- * Implements status handling by converting status messages into StatusMessages
- * and sending them to alertviz.
- * 
- * Also logs to a file so the error can be traced to the specific process id and
- * as a safety net in case alertviz cannot be reached.
+ * Implements status handling by converting Eclipse status messages and sending
+ * them to SLF4J. Only Eclipse logging should go through this class.
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -51,6 +42,7 @@ import com.raytheon.uf.viz.core.status.VizStatusInternal;
  * Sep 09, 2008 1433       chammack    Initial creation
  * Aug 26, 2013 2142       njensen     Changed to use SLF4J
  * Jul 02, 2014 3337       njensen     Disabled logback packaging data
+ * May 22, 2015 4473       njensen     Refactored
  * </pre>
  * 
  * @author chammack
@@ -59,121 +51,47 @@ import com.raytheon.uf.viz.core.status.VizStatusInternal;
 
 public class SystemStatusHandler extends AbstractStatusHandler {
 
+    /*
+     * TODO This should perhaps be changed to Eclipse since only Eclipse is
+     * coming through here now. Workstation maintains how it used to work
+     * though.
+     */
+    private static final String CATEGORY = "WORKSTATION";
+
     private transient static final Logger logger = LoggerFactory
             .getLogger("CaveLogger");
 
-    private static final String WORKSTATION = "WORKSTATION";
-
-    private static final Marker FATAL = MarkerFactory.getMarker("FATAL");
-
-    static {
-        /*
-         * Disables the packaging data feature of logback (ie how the
-         * stacktraces list the jar the class is in). Due to the viz dependency
-         * tree, in some scenarios the determination of the packaging data can
-         * spend an inordinate amount of time in the OSGi classloader trying to
-         * find classes. If the viz dependency tree is cleaned up (ie
-         * modularized, unnecessary imports removed, register buddies reduced)
-         * then this may be able to be re-enabled without a performance hit.
-         * 
-         * Unfortunately there is no way to do this other than casting to a
-         * logback Logger, see http://jira.qos.ch/browse/LOGBACK-730 and
-         * http://jira.qos.ch/browse/LOGBACK-899
-         */
-        try {
-            ((ch.qos.logback.classic.Logger) logger).getLoggerContext()
-                    .setPackagingDataEnabled(false);
-        } catch (Throwable t) {
-            /*
-             * given that this static block is for initializing the logger
-             * correctly, if that went wrong let's not even try to "log" it,
-             * just use stderr
-             */
-            System.err.println("Error disabling logback packaging data");
-            t.printStackTrace();
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.ui.statushandlers.AbstractStatusHandler#handle(org.eclipse
-     * .ui.statushandlers.StatusAdapter, int)
-     */
     @Override
     public void handle(StatusAdapter statusAdapter, int style) {
         final IStatus status = statusAdapter.getStatus();
-        StatusMessage sm = null;
-
-        if (status instanceof VizStatusInternal) {
-            VizStatusInternal vs = (VizStatusInternal) status;
-            sm = vs.toStatusMessage();
-        } else {
-            sm = from(status);
-
-        }
-
-        Priority p = sm.getPriority();
         String msg = status.getMessage();
         Throwable t = status.getException();
-        logStatus(p, msg, t);
-
-        try {
-            AlertVizClient.sendMessage(sm);
-        } catch (final AlertvizException e) {
-            // not a good situation, since we can't communicate with the log
-            // server properly
-
-            // log to internal log4j log
-            Container.logInternal(Priority.CRITICAL,
-                    "SystemStatusHandler: exception sending message: " + sm, e);
-
-            // DO NOT SEND TO LOG HERE OR INFINITE LOOPS MAY OCCUR
-            VizApp.runAsync(new Runnable() {
-
-                @Override
-                public void run() {
-                    ErrorDialog.openError(
-                            Display.getDefault().getActiveShell(),
-                            "Error communicating with log server",
-                            "Error communicating with log server "
-                                    + e.getCause().getMessage(), status);
-                }
-
-            });
-
+        Marker m = UFMarkers.getCategoryMarker(CATEGORY);
+        m.add(UFMarkers.getSourceMarker(CATEGORY));
+        String plugin = status.getPlugin();
+        if (plugin != null) {
+            m.add(UFMarkers.getPluginMarker(plugin));
         }
 
-    }
-
-    /**
-     * Construct a StatusMessage from a generic Eclipse IStatus
-     * 
-     * @param status
-     * @return
-     */
-    public static StatusMessage from(IStatus status) {
-        StatusMessage sm = new StatusMessage();
-        sm.setCategory(WORKSTATION);
-
-        sm.setMachineToCurrent();
         switch (status.getSeverity()) {
-        case Status.ERROR:
-            sm.setPriority(Priority.SIGNIFICANT);
+        case IStatus.CANCEL:
+        case IStatus.ERROR:
+            logger.error(m, msg, t);
             break;
-        case Status.WARNING:
-            sm.setPriority(Priority.INFO);
+        case IStatus.WARNING:
+            logger.warn(m, msg, t);
             break;
-        default:
-            sm.setPriority(Priority.VERBOSE);
+        case IStatus.INFO:
+            logger.info(m, msg, t);
+            break;
+        case IStatus.OK:
+            logger.debug(m, msg, t);
+            break;
         }
-        sm.setSourceKey(WORKSTATION);
-        StatusMessage.buildMessageAndDetails(status.getMessage(),
-                status.getException(), sm);
 
-        return sm;
     }
+
+    // TODO move static methods below elsewhere, they don't belong here
 
     /**
      * Acknowledge the message
@@ -229,27 +147,6 @@ public class SystemStatusHandler extends AbstractStatusHandler {
     public static StatusMessage[] retrieveByCategory(Category[] category,
             int count) throws AlertvizException {
         return LogMessageDAO.getInstance().load(count, category);
-    }
-
-    private void logStatus(Priority priority, String message, Throwable t) {
-        switch (priority) {
-        case CRITICAL:
-            logger.error(FATAL, message, t);
-            break;
-        case SIGNIFICANT:
-            logger.error(message, t);
-            break;
-        case PROBLEM:
-            logger.warn(message, t);
-            break;
-        case EVENTA: // fall through
-        case EVENTB:
-            logger.info(message, t);
-            break;
-        case VERBOSE:
-            logger.debug(message, t);
-            break;
-        }
     }
 
 }
