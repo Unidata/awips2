@@ -1,0 +1,42 @@
+<!-- 
+ The xmit tag is no longer used and can be removed. Permissions are now determined using CAVE's
+ AWIPS User Administration under Component "Official User Product in the Official User Product Users Tab
+ assigning the Defined Roles/Permissions "awips.oup". Note if user ALL is defined then everyone has the permission.
+ -->
+<aviationForecasterConfig>
+ <forecaster>
+  <id>001</id>
+  <name>Amanda</name>
+  <xmit>true</xmit>
+ </forecaster>
+ <forecaster>
+  <id>002</id>
+  <name>Bailing</name>
+  <xmit>true</xmit>
+ </forecaster>
+ <forecaster>
+  <id>003</id>
+  <name>Belinda</name>
+  <xmit>true</xmit>
+ </forecaster>
+ <forecaster>
+  <id>004</id>
+  <name>George</name>
+  <xmit>true</xmit>
+ </forecaster>
+ <forecaster>
+  <id>005</id>
+  <name>Mark</name>
+  <xmit>true</xmit>
+ </forecaster>
+ <forecaster>
+  <id>006</id>
+  <name>Matt</name>
+  <xmit>true</xmit>
+ </forecaster>
+ <forecaster>
+  <id>007</id>
+  <name>Mike</name>
+  <xmit>true</xmit>
+ </forecaster>
+</aviationForecasterConfig>

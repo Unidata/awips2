@@ -143,4 +143,23 @@
             <scale>0.20</scale>
 		</arrowStyle>
 	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<creatingEntity>nwpsTrkngCG0</creatingEntity>
+			<parameter>Wave1</parameter>
+			<parameter>Wave2</parameter>
+			<parameter>Wave3</parameter>
+			<parameter>Wave4</parameter>
+			<parameter>Wave5</parameter>
+			<parameter>Wave6</parameter>
+			<parameter>Wave7</parameter>
+			<parameter>Wave8</parameter>
+			<parameter>Wave9</parameter>
+			<parameter>Wave10</parameter>
+		</paramLevelMatches>
+		<arrowStyle>
+            <minimumMagnitude>1.00</minimumMagnitude>
+		</arrowStyle>
+	</styleRule>
 </styleRuleset>

@@ -89,7 +89,7 @@ class Procedure (SmartScript.SmartScript):
                                 ("How Long Do You Want To Run NWPS:" , 102, "scale", [12, 102], 3),
                                 #("NWPS Model Winds:", "ForecastWindGrids", "radio", ["ForecastWindGrids"]),
                                 ("Model Start Time:", buttonList[4], "radio", buttonList),
-                                ("Local or NCEP:", "Local", "radio", ["Local","NCEP"]),
+                                ("Local, NCEP, or Both:", "Both", "radio", ["Local","NCEP","Both"]),
                                 ("Model Core:", "SWAN", "radio", ["SWAN","NWW","UNSWAN"]),
                                 ("Send Output to Web:", "Yes", "radio", ["Yes","No"]),
                                 ("Plot Output Only (No Web):", "No", "radio", ["Yes","No"]),
@@ -112,7 +112,7 @@ class Procedure (SmartScript.SmartScript):
                 fcst_length = processVarList.varDict()["How Long Do You Want To Run NWPS:"]                
                 wind="ForecastWindGrids"
                 modelstarttime = processVarList.varDict()["Model Start Time:"]
-                wheretorun = processVarList.varDict()["Local or NCEP:"]
+                wheretorun = processVarList.varDict()["Local, NCEP, or Both:"]
                 model = processVarList.varDict()["Model Core:"]
                 web = processVarList.varDict()["Send Output to Web:"]
                 plot = processVarList.varDict()["Plot Output Only (No Web):"]
