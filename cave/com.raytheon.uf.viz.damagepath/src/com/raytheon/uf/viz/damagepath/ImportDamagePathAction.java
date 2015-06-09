@@ -46,6 +46,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Mar 31, 2015  3977      nabowle     Make sure the polygon is not empty.
  * Apr 23, 2015  4354      dgilling    Support GeoJSON Feature objects.
  * Jun 03, 2015  4375      dgilling    Support multiple polygons.
+ * Jun 09, 2015  4355      dgilling    Rename action for UI.
  * 
  * </pre>
  * 
@@ -59,7 +60,7 @@ public class ImportDamagePathAction extends AbstractRightClickAction {
             .getHandler(ImportDamagePathAction.class);
 
     public ImportDamagePathAction() {
-        super("Import GeoJSON");
+        super("Import from File");
     }
 
     @Override
