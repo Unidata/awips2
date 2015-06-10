@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -58,7 +58,7 @@ import org.eclipse.swt.widgets.Scale;
 
 import com.raytheon.rcm.config.RadarConfig;
 import com.raytheon.rcm.config.RadarType;
-import com.raytheon.rcm.config.Util;
+import com.raytheon.rcm.config.RcmUtil;
 import com.raytheon.rcm.message.GSM;
 import com.raytheon.rcm.mqsrvr.ReplyObj.ROStatus;
 import com.raytheon.rcm.mqsrvr.ReplyObj.StatusMessagesReply;
@@ -85,11 +85,11 @@ import com.raytheon.viz.ui.widgets.MinimumSizeComposite;
 /**
  * This abstract class generates a consistent layout for various products.
  * Example of use is the One Time Request Dialog.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  *                                     Initial creation
@@ -99,9 +99,10 @@ import com.raytheon.viz.ui.widgets.MinimumSizeComposite;
  * Jul 31, 2012 #875       rferrel     Points now group in menu items.
  * Oct 04, 2012 #1248      rferrel     Added Point change listener.
  * Jun 24, 2013 DR16023    zwang       Support all cuts for nexrad
- * 
+ * 2015-06-10   4498       nabowle     Rename Util->RcmUtil
+ *
  * </pre>
- * 
+ *
  * @author ?
  * @version 1.0
  */
@@ -387,7 +388,7 @@ public abstract class BaseRadarProductUI {
                     request.productCode);
             RadarProduct first = currentPossibleProducts.get(0);
             Request old = request;
-            request = (Request) old.clone();
+            request = old.clone();
             request.pdw20 = 0;
             request.pdw21 = 0;
             request.pdw22 = 0;
@@ -614,7 +615,7 @@ public abstract class BaseRadarProductUI {
     }
 
     public void setRequest(Request request) {
-        this.request = (Request) request.clone();
+        this.request = request.clone();
         desiredRepeatCount = request.count;
         desiredGeom = "";
 
@@ -642,7 +643,7 @@ public abstract class BaseRadarProductUI {
     }
 
     public Request getRequest() {
-        return (Request) request.clone();
+        return request.clone();
     }
 
     private int uiChangeLocked;
@@ -708,7 +709,7 @@ public abstract class BaseRadarProductUI {
     public void setRadarConfig(RadarConfig rc) {
         lockUIChange();
         try {
-            RadarType type = Util.getRadarType(rc);
+            RadarType type = RcmUtil.getRadarType(rc);
             if (type != radarType) {
                 setRadarType(type);
             } else {
@@ -896,7 +897,7 @@ public abstract class BaseRadarProductUI {
                          * products we work with (as long as setType has been
                          * called with WSR or TDWR.) So if this happens, it is
                          * an internal errors.
-                         * 
+                         *
                          * If this ever happens legitimately, we would need to
                          * recreate the parameter UI whenever the variant
                          * changes.
@@ -1324,17 +1325,17 @@ public abstract class BaseRadarProductUI {
                 // TODO: deg symbol
                 // TODO: decimal places like AWIPS 1
                 text = String.format("Azimuth: %.1f\u00b0\nRange: %.1f nmi",
-                        (double) request.getAzimuth() / 10.0,
-                        (double) request.getRange() / 10.0);
+                        request.getAzimuth() / 10.0,
+                        request.getRange() / 10.0);
             } else {
                 text = String
                         .format("Length: %.1f nmi\nAz/Ran\n%s: %.0f/%.0f\n%s': %.0f/%.0f",
                                 getBaselineLength(), desiredGeom,
-                                (double) request.getAzimuth() / 10.0,
-                                (double) request.getRange() / 10.0,
+                                request.getAzimuth() / 10.0,
+                                request.getRange() / 10.0,
                                 desiredGeom,
-                                (double) request.getAzimuth2() / 10.0,
-                                (double) request.getRange2() / 10.0);
+                                request.getAzimuth2() / 10.0,
+                                request.getRange2() / 10.0);
             }
             azRanLabel.setText(text);
         }
@@ -1810,7 +1811,7 @@ public abstract class BaseRadarProductUI {
                     || es == ElevationSelection.UP_TO) {
                 if (angles != null) {
                     for (int i = 0; i < angles.length; ++i) {
-                        float fAngle = (float) angles[i] / 10.0f;
+                        float fAngle = angles[i] / 10.0f;
                         elevationAnglesCombo.add(Float.toString(fAngle));
                     }
                 }
@@ -2499,14 +2500,14 @@ public abstract class BaseRadarProductUI {
 
     /**
      * Get an array of baseline names to process.
-     * 
+     *
      * @return baselineNames
      */
     abstract protected String[] getBaselineList();
 
     /**
      * Get point's azimuth and range from the radar.
-     * 
+     *
      * @param which
      *            - point name
      * @return result - [0] azimuth of point, [1] range of point; or null if
@@ -2517,7 +2518,7 @@ public abstract class BaseRadarProductUI {
     /**
      * Get the baseline's azimuth and range from the radar for the line's start
      * and end point.
-     * 
+     *
      * @param which
      *            - baseline name
      * @return result - [0] azimuth start point, [1] range start point, [2]
@@ -2528,7 +2529,7 @@ public abstract class BaseRadarProductUI {
 
     /**
      * Get the radar's location.
-     * 
+     *
      * @param radar
      * @return array - [0] latitude, [1] longitude, [3] elevation
      */
@@ -2536,7 +2537,7 @@ public abstract class BaseRadarProductUI {
 
     /**
      * Get point location
-     * 
+     *
      * @param which
      *            - point name
      * @return array - [0] latitude, [1] longitude
@@ -2545,7 +2546,7 @@ public abstract class BaseRadarProductUI {
 
     /**
      * Get location of baseline's start and end points.
-     * 
+     *
      * @param which
      *            - baseline name
      * @return array - [0] start latitude, [1] start longitude, [2] end
