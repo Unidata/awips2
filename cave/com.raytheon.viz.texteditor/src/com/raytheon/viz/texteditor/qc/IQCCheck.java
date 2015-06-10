@@ -63,15 +63,15 @@ public interface IQCCheck {
             .compile("^([\\w\\s\\.'/]*-)");
 
     public static final Pattern firstBulletPtrn = Pattern.compile(
-            "\\*\\s(.*)\\s(WARNING|ADVISORY)(\\sFOR(.*)|...)",
+            "^\\*\\s(.*)\\s(WARNING|ADVISORY)(\\sFOR(.*)|...)",
             Pattern.CASE_INSENSITIVE);
 
     public static final Pattern secondBulletPtrn = Pattern.compile(
-            "\\*\\sUNTIL\\s(\\d{1,2})(\\d{2})\\s(AM|PM)\\s(\\w{3,4})",
+            "^\\*\\sUNTIL\\s(\\d{1,2})(\\d{2})\\s(AM|PM)\\s(\\w{3,4})",
             Pattern.CASE_INSENSITIVE);
 
     public static final Pattern thirdBulletPtrn = Pattern.compile(
-            "\\*\\sAT\\s(\\d{1,2})(\\d{2})\\s(AM|PM)\\s(\\w{3,4})(.*)",
+            "^\\*\\sAT\\s(\\d{1,2})(\\d{2})\\s(AM|PM)\\s(\\w{3,4})(.*)",
             Pattern.CASE_INSENSITIVE);
 
     public static final Pattern latLonPtrn = Pattern
