@@ -40,6 +40,7 @@
 #
 
 import os.path
+import sys
 
 JEP_AVAILABLE = sys.modules.has_key('jep')
 
