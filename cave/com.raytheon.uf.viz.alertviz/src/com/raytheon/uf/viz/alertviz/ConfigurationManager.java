@@ -65,7 +65,7 @@ import com.raytheon.uf.viz.alertviz.config.Source;
  *                                     re-set configuration data and
  *                                     run notifyListeners().
  * Apr 07 2015  4346       rferrel     Created {@link #retrieveBaseConfiguration()}.
- * 
+ * May 20, 2015 4346       rjpeter     Updated to also load from common_static.
  * </pre>
  * 
  * @author mschenke
@@ -100,10 +100,10 @@ public class ConfigurationManager {
     private ConfigContext current;
 
     /** The config map */
-    private Map<ConfigContext, Configuration> configurationMap;
+    private final Map<ConfigContext, Configuration> configurationMap;
 
     /** Listeners get notified when configuration changes */
-    private Set<IConfigurationChangedListener> listeners;
+    private final Set<IConfigurationChangedListener> listeners;
 
     private LocalizationFile customLocalization;
 
@@ -118,8 +118,8 @@ public class ConfigurationManager {
      * changed to remove these permissions, then this file access will need to
      * be changed.
      */
-    private ConfigContext customContext = new ConfigContext("CustomRepository",
-            "customizations", LocalizationLevel.SITE);
+    private final ConfigContext customContext = new ConfigContext(
+            "CustomRepository", "customizations", LocalizationLevel.SITE);
 
     private boolean reloadCustomConfiguration;
 
@@ -310,9 +310,13 @@ public class ConfigurationManager {
      * Get files to display in the dialog.
      */
     private void loadFromLocalization() {
+        loadFromLocalizationType(LocalizationType.CAVE_STATIC);
+        loadFromLocalizationType(LocalizationType.COMMON_STATIC);
+    }
+
+    private void loadFromLocalizationType(LocalizationType type) {
         IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationContext[] contexts = pm
-                .getLocalSearchHierarchy(LocalizationType.CAVE_STATIC);
+        LocalizationContext[] contexts = pm.getLocalSearchHierarchy(type);
         LocalizationFile[] files = pm.listFiles(contexts, CONFIG_DIR,
                 EXTENSIONS, true, true); // Win32
 
@@ -377,9 +381,18 @@ public class ConfigurationManager {
     private Configuration retrieveBaseConfiguration() {
         LocalizationFile file = getLocalizationFile(DEFAULT_BASE_CONFIG);
         Configuration configuration = retrieveConfiguration(file);
+        configuration = mergeBaseConfigurations(LocalizationType.CAVE_STATIC,
+                configuration);
+        configuration = mergeBaseConfigurations(LocalizationType.COMMON_STATIC,
+                configuration);
+        return configuration;
+    }
+
+    private Configuration mergeBaseConfigurations(LocalizationType type,
+            Configuration configuration) {
         IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationContext context = pm.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.BASE);
+        LocalizationContext context = pm.getContext(type,
+                LocalizationLevel.BASE);
         LocalizationFile[] files = pm.listFiles(context, CONFIG_DIR,
                 EXTENSIONS, false, true);
         for (LocalizationFile f : files) {
@@ -392,6 +405,7 @@ public class ConfigurationManager {
                 configuration = mergeConfig.overlayWith(configuration, true);
             }
         }
+
         return configuration;
     }
 

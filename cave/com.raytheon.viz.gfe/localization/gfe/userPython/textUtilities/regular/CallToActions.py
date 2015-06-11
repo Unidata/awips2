@@ -377,7 +377,7 @@ Listen to NOAA Weather Radio or local media for further information.""",
 
     def ctaFWW(self):
         return [
- """A Red Flag Warning means that critical fire weather conditions are either occurring now...or will shortly. A combination of strong winds...low relative humidity...and warm temperatures will create explosive fire growth potential.""",
+ """A Red Flag Warning means that critical fire weather conditions are either occurring now....or will shortly.""",
         ]
 
     def ctaFZA(self):
@@ -628,7 +628,7 @@ If you become caught in a rip current...yell for help. Remain calm...do not exha
 
     def ctaWSW(self):
         return [
- """|*Choose the appropriate CTA below and delete the rest*|""" """
+ """|*Choose the appropriate CTA below and delete the rest*|
 
 A Winter Storm Warning for heavy snow means severe winter weather conditions are expected or occurring.  Significant amounts of snow are forecast that will make travel dangerous. Only travel in an emergency. If you must travel...keep an extra flashlight...food...and water in your vehicle in case of an emergency.
 
@@ -639,7 +639,7 @@ A Winter Storm Warning for sleet means that a winter storm system is impacting t
 
     def ctaWWY(self):
         return [
- """|*Choose the appropriate CTA below and delete the rest*|""" """
+ """|*Choose the appropriate CTA below and delete the rest*|
 
 A Winter Weather Advisory means that periods of snow...sleet...or freezing rain will cause travel difficulties. Be prepared for slippery roads and limited visibilities...and use caution while driving.
 

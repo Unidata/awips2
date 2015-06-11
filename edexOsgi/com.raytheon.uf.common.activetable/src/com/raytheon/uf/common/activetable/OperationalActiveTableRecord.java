@@ -20,7 +20,6 @@
 package com.raytheon.uf.common.activetable;
 
 import javax.persistence.Entity;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Index;
@@ -28,7 +27,8 @@ import org.hibernate.annotations.Index;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
- * Operational Active Table, separated so that practice and operational data go to separate tables.
+ * Operational Active Table, separated so that practice and operational data go
+ * to separate tables.
  * 
  * <pre>
  * 
@@ -37,6 +37,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * ------------ ---------- ----------- --------------------------
  * Feb 10, 2010            njensen     Initial creation
  * May 10, 2013 1951       rjpeter     Added own id sequence tagging and new index.
+ * May 22, 2015 4522       randerso    Create proper primary key for ActiveTableRecord
  * </pre>
  * 
  * @author njensen
@@ -44,7 +45,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  */
 
 @Entity
-@SequenceGenerator(initialValue = 1, name = ActiveTableRecord.ID_GEN, sequenceName = "activetableseq")
 @Table(name = "activetable")
 @DynamicSerialize
 @org.hibernate.annotations.Table(appliesTo = "activetable", indexes = { @Index(name = "activetable_officeid_phensig_idx", columnNames = {

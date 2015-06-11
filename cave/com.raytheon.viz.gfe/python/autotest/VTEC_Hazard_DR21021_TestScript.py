@@ -30,44 +30,46 @@
 import TestScript
 
 overrides = """
-def _inlandAreas(self):
-    return [
-        "FLZ039", "FLZ042", "FLZ043", "FLZ048", "FLZ049", "FLZ050",
-        ]
-def _coastalAreas(self):
-    return [
-        "FLZ039", "FLZ042", "FLZ043", "FLZ048", "FLZ049", "FLZ050",
-        ]
-def _marineAreas(self):
-    return [
-        "GMZ830", "GMZ850", "GMZ853", "GMZ856", "GMZ870","GMZ873","GMZ876"
-        ]    
+    def _inlandAreas(self):
+        return [
+            "FLZ239", "FLZ042", "FLZ043", "FLZ248", "FLZ249", "FLZ050",
+            ]
+    def _coastalAreas(self):
+        return [
+            "FLZ139", "FLZ042", "FLZ043", "FLZ148", "FLZ149", "FLZ050",
+            ]
+    def _marineAreas(self):
+        return [
+            "GMZ830", "GMZ850", "GMZ853", "GMZ856", "GMZ870","GMZ873","GMZ876"
+            ]    
 
-def _cwa(self):
-    return "TBW"
+    def _cwa(self):
+        return "TBW"
 
-def _cwa_descriptor(self):
-    return "CENTRAL WEST FLORIDA"
+    def _cwa_descriptor(self):
+        return "central west Florida"
 
-def _maor_descriptor(self):
-    return "WEST CENTRAL FLORIDA AND THE GULF OF MEXICO"
+    def _maor_descriptor(self):
+        return "west central Florida and the Gulf of Mexico"
 
-def _cwa_maor_descriptor(self):
-    return "WEST FLORIDA AND THE GULF OF MEXICO"
+    def _cwa_maor_descriptor(self):
+        return "west Florida and the Gulf of Mexico"
 
-def _localReferencePoints(self):
-    # Give the name and lat/lon for each local reference point
-    return [
-            ("Tampa Bay, FL", (28.01, -82.48)),
-            ("Cape Coral, FL", (26.63, -82.00)),
-            ("Lakeland, FL", (28.04, -81.95)),
-            ("Sarasota, FL", (27.37, -82.55)),
-            ]               
+    def _localReferencePoints(self):
+        # Give the name and lat/lon for each local reference point
+        return [
+                ("Tampa Bay, FL", (28.01, -82.48)),
+                ("Cape Coral, FL", (26.63, -82.00)),
+                ("Lakeland, FL", (28.04, -81.95)),
+                ("Sarasota, FL", (27.37, -82.55)),
+                ]               
 
-def _localReferencePoints_defaults(self):
-    # Give a list of the local reference point names to be
-    #  turned on by default
-    return ["Tampa Bay, FL", "Sarasota, FL"]
+    def _localReferencePoints_defaults(self):
+        # Give a list of the local reference point names to be
+        #  turned on by default
+        return ["Tampa Bay, FL", "Sarasota, FL"]    
+  
+
 """
 
 scripts = [
@@ -327,7 +329,7 @@ def testScript(self, dataMgr, level="Site"):
         "drtTime": drtTime,
         "internalStrip": 0, 
         "decodeVTEC": 1,
-        "publishGrids": 1,
+        "publishGrids": 0,
         "orderStrings": 1,
         "deleteGrids": [("Fcst", "Hazards", "SFC", "all", "all")],
         "fileChanges": [

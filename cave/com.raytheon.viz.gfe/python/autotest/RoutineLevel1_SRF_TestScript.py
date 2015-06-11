@@ -29,20 +29,23 @@
 
 #### File Changes
 
-testDefinitions  = [
-'Definition["tempLocalEffects"] = 1',
-'Definition["windLocalEffects"] = 1',
-'Definition["individualExtended"] = 0',
-'Definition["extendedLabel"] = 1',
-'Definition["ripGrid"] = "LAL"',
-'Definition["waterSpoutGrid"] = "LAL"',
-'Definition["includeOutlook"] = 1',
-'Definition["includeTideHeights"] = 1'
-]
+testDefinitions  = """
+
+Definition["tempLocalEffects"] = 1
+Definition["windLocalEffects"] = 1
+Definition["individualExtended"] = 0
+Definition["extendedLabel"] = 1
+Definition["ripGrid"] = "LAL"
+Definition["waterSpoutGrid"] = "LAL"
+Definition["includeOutlook"] = 1
+Definition["includeTideHeights"] = 1
+
+"""
 
 
-testUVI = [
-"""def getPreviousProduct(self, pil, searchString, version=0):
+testUVI = """
+
+    def getPreviousProduct(self, pil, searchString, version=0):
         print
         print pil
         if pil.find(self._uviPil) >= 0:
@@ -51,8 +54,8 @@ testUVI = [
         else:
             print 'returning blank'
             return ""
-""",
-"""def _uviProduct(self):
+
+    def _uviProduct(self):
           return  \"\"\"        
               Ultraviolet Index Forecast
 
@@ -113,14 +116,15 @@ testUVI = [
                       LAS VEGAS            NV     6       WICHITA              KS     1
 
             \"\"\"
-            
+
 """
-]
 
 import os
 path, file = os.path.split(__file__)
 path = os.path.abspath(os.path.join(path,"../../testdata"))
-testTides = """Definition["tideFiles"] = {               
+testTides = """
+
+Definition["tideFiles"] = {
              # For each tide table, list the file where it can
              # be found
              "Venice Inlet": "<testdata>/VeniceInlet2010.txt",
@@ -132,8 +136,9 @@ testTides = """Definition["tideFiles"] = {
 """
 testTides = testTides.replace("<testdata>", path)
 
-overrides = [
-"""def ridgeValleyAreas(self, tree, node):
+overrides = """
+
+    def ridgeValleyAreas(self, tree, node):
         # List of edit area names for which we want
         # ridge/valley winds reported:
         #
@@ -144,9 +149,10 @@ overrides = [
         # e.g.
         # return ["Area1"]
         #
-        return ["FLZ042"]
-""",
-"""def _surfPeriodAdditionalAreasDict(self):
+        return ["FLZ142", "FLZ242"]
+
+    
+    def _surfPeriodAdditionalAreasDict(self):
         return {
             "landSeaArea": {
                 "analysisList": [
@@ -199,8 +205,9 @@ overrides = [
                    ],
                 },
              }
+ 
+
 """
-]
 
 import TestScript
 import CreateGrids
@@ -216,54 +223,54 @@ scripts = [
     "checkStrings": [
         "SRFABC",
 
-        "SURFZONE FORECAST FOR FLORIDA",
-        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
-        "600 AM EST FRI JAN 1 2010",
-        "FLZ039-042-048-049",
-        "LEVY-CITRUS-HERNANDO-PASCO-",
+        "Surfzone Forecast for Florida",
+        "National Weather Service Tampa Bay Ruskin FL",
+        "600 AM EST Fri Jan 1 2010",
+        "FLZ139-142-148-149",
+        "Levy-Citrus-Hernando-Pasco-",
         ".TODAY...",
-        "SKY/WEATHER.........CLOUDY (95-100 PERCENT). PATCHY DENSE FOG. WIDESPREAD THUNDERSTORMS.", 
-        "MAX TEMPERATURE.....AROUND 78.", 
-        "BEACH WINDS.........VERY WINDY. SOUTHWEST WINDS AROUND 10 MPH INCREASING TO SOUTHEAST AROUND 45 MPH IN THE AFTERNOON.", 
-        "SURF ALONG NORTH FACING REEFS.............OVER 20 FEET SUBSIDING TO 8 TO 12 FEET IN THE AFTERNOON.",
-        "SURF ALONG SOUTH FACING REEFS.............OVER 20 FEET SUBSIDING TO 8 TO 12 FEET IN THE AFTERNOON.",
-        "SWELL...............LARGE SWELLS. WEST SWELL 20 TO 30 FEET BECOMING SOUTHEAST AND INCREASING TO AROUND 40 FEET IN THE AFTERNOON.", 
-        "PERIOD..............12 SECONDS DECREASING TO 10 SECONDS IN THE AFTERNOON.", 
-        "SECONDARY SWELL.....LARGE SWELLS. SOUTHEAST SWELL 20 TO 30 FEET BECOMING SOUTHWEST AND INCREASING TO AROUND 40 FEET IN THE AFTERNOON.", 
-        "SECONDARY PERIOD....7 SECONDS.", 
-        "WATER CONDITION.....A LIGHT CHOP INCREASING TO SMOOTH IN THE AFTERNOON.", 
-        "WATER TEMPERATURE...", "INSERT WATER TEMPERATURE HERE",
-        "UVI INDEX...........HIGH.", 
-        "RIP CURRENT RISK....HIGH. HIGH SURF AND LARGE SWELLS WILL PRODUCE DANGEROUS POUNDING SURF AND RIP CURRENTS AT THE BEACHES. PEOPLE VISITING THE BEACHES SHOULD STAY OUT OF THE HIGH SURF.",
-        "LIGHTNING THREAT....VERY INFREQUENT DEADLY LIGHTNING.", 
+        "SKY/WEATHER.........Cloudy (95-100 percent). Patchy dense fog. Widespread thunderstorms.", 
+        "MAX TEMPERATURE.....Around 78.", 
+        "BEACH WINDS.........Very windy. Southwest winds around 10 mph increasing to southeast around 45 mph in the afternoon.", 
+        "SURF ALONG NORTH FACING REEFS.............Over 20 feet subsiding to 8 to 12 feet in the afternoon.",
+        "SURF ALONG SOUTH FACING REEFS.............Over 20 feet subsiding to 8 to 12 feet in the afternoon.",
+        "SWELL...............Large swells. West swell 20 to 30 feet becoming southeast and increasing to around 40 feet in the afternoon.", 
+        "PERIOD..............12 seconds decreasing to 10 seconds in the afternoon.", 
+        "SECONDARY SWELL.....Large swells. Southeast swell 20 to 30 feet becoming southwest and increasing to around 40 feet in the afternoon.", 
+        "SECONDARY PERIOD....7 seconds.", 
+        "WATER CONDITION.....A light chop increasing to smooth in the afternoon.", 
+        "WATER TEMPERATURE...", "insert water temperature here",
+        "UVI INDEX...........High.", 
+        "RIP CURRENT RISK....High. High surf and large swells will produce dangerous pounding surf and rip currents at the beaches. People visiting the beaches should stay out of the high surf.",
+        "LIGHTNING THREAT....Very infrequent deadly lightning.", 
 
         ".TONIGHT...",
-        "VERY WINDY.",
-        "PARTLY CLOUDY.",
-        "WIDESPREAD THUNDERSTORMS.",
-        "WARMER.","LOWS AROUND 60","SOUTHWEST WINDS AROUND 45 MPH.", 
+        "Very windy.",
+        "Partly cloudy.",
+        "Widespread thunderstorms.",
+        "Warmer.","Lows around 60","Southwest winds around 45 mph.", 
         ".SATURDAY...",
-        "STRONG WINDS.",
-        "MOSTLY CLEAR.",
-        "FREQUENT LIGHT RAIN.","WIDESPREAD LIGHT FREEZING RAIN.","LOWS IN THE UPPER 60S.",
-        "HIGHS IN THE UPPER 70S.","WEST WINDS 45 TO 55 MPH.",
-        ".SUNDAY...","STRONG WINDS.","MOSTLY CLOUDY."," WIDESPREAD LIGHT FREEZING RAIN.",
-        "VERY LIGHT SNOW LIKELY.","WIDESPREAD VERY LIGHT SLEET.","LOWS IN THE MID 60S.",
-        "HIGHS IN THE UPPER 70S.","SOUTH WINDS 55 TO 60 MPH.",
-        ".MONDAY...","STRONG WINDS.","MOSTLY CLOUDY.","WIDESPREAD VERY LIGHT SLEET.",
-        "AREAS OF BLOWING SNOW.","PATCHY FOG.","LOWS IN THE MID 60S.","HIGHS AROUND 80.",
-        "SOUTHWEST WINDS AROUND 65 MPH.", 
+        "Strong winds.",
+        "Mostly clear.",
+        "Frequent light rain.","Widespread light freezing rain.","Lows in the upper 60s.",
+        "Highs in the upper 70s.","West winds 45 to 55 mph.",
+        ".SUNDAY...","Strong winds.","Mostly cloudy."," Widespread light freezing rain.",
+        "Very light snow likely.","Widespread very light sleet.","Lows in the mid 60s.",
+        "Highs in the upper 70s.","South winds 55 to 60 mph.",
+        ".MONDAY...","Strong winds.","Mostly cloudy.","Widespread very light sleet.",
+        "Areas of blowing snow.","Patchy fog.","Lows in the mid 60s.","Highs around 80.",
+        "Southwest winds around 65 mph.", 
 
-        "TIDE INFORMATION...",
+        "Tide Information...",
 
-        "AT VENICE INLET...",
+        "At Venice Inlet...",
 
-        "HIGH TIDE AT 2:34 AM",
-        "LOW TIDE AT 10:18 AM",
-        "HIGH TIDE AT 4:32 PM",
-        "LOW TIDE AT 10:23 PM",
-        "PINELLAS-HILLSBOROUGH-MANATEE-SARASOTA-",
-        "SURF................OVER 20 FEET SUBSIDING TO 8 TO 12 FEET IN THE AFTERNOON.", 
+        "High tide at 2:34 AM",
+        "Low tide at 10:18 AM",
+        "High tide at 4:32 PM",
+        "Low tide at 10:23 PM",
+        "Pinellas-Hillsborough-Manatee-Sarasota-",
+        "SURF................Over 20 feet subsiding to 8 to 12 feet in the afternoon.", 
         ],
     "createGrids": CreateGrids.Public_createGrids + CreateGrids.Marine_createGrids + \
                    CreateGrids.Fire_createGrids,
@@ -283,31 +290,31 @@ scripts = [
     "productType":"SRF",
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None }",
     "checkStrings": [
-        "TODAY",
-        "MAX TEMPERATURE.....AROUND 70...EXCEPT AROUND 30 NEAR THE COAST.",
+        ".TODAY...",
+        "MAX TEMPERATURE.....Around 70...except around 30 near the coast.",
         "BEACH WINDS.........",
-        "INLAND...............VERY WINDY. SOUTHWEST WINDS AROUND 10 MPH INCREASING TO SOUTHEAST AROUND 45 MPH IN THE AFTERNOON.",
-        "COASTAL..............VERY WINDY. NORTH WINDS AROUND 45 MPH SHIFTING TO THE SOUTHEAST IN THE AFTERNOON.",
-        "RIP CURRENT RISK....MODERATE. A MODERATE RISK OF RIP CURRENTS MEANS WIND AND OR WAVE CONDITIONS SUPPORT STRONGER OR MORE FREQUENT RIP CURRENTS. ALWAYS HAVE A FLOTATION DEVICE WITH YOU IN THE WATER.", 
-        "WATERSPOUT THREAT...VERY SLIGHT CHANCE OF WATERSPOUTS.",  
-        ".OUTLOOK",
-        "TIDE INFORMATION...",
+        "INLAND...............Very windy. Southwest winds around 10 mph increasing to southeast around 45 mph in the afternoon.",
+        "COASTAL..............Very windy. North winds around 45 mph shifting to the southeast in the afternoon.",
+        "RIP CURRENT RISK....Moderate. A moderate risk of rip currents means wind and or wave conditions support stronger or more frequent rip currents. Always have a flotation device with you in the water.", 
+        "WATERSPOUT THREAT...Very slight chance of waterspouts.",  
+        ".OUTLOOK...",
+        "Tide Information...",
 
-        "AT CEDAR KEY...",
+        "At Cedar Key...",
 
-        "HIGH TIDE 3.1 FEET AT 4:27 AM",
-        "LOW TIDE 0.0 FEET AT 11:15 AM",
-        "HIGH TIDE 3.0 FEET AT 5:42 PM",
-        "LOW TIDE 0.9 FEET AT 11:42 PM",
+        "High tide 3.1 feet at 4:27 AM",
+        "Low tide 0.0 feet at 11:15 AM",
+        "High tide 3.0 feet at 5:42 PM",
+        "Low tide 0.9 feet at 11:42 PM",
 
-        "AT VENICE INLET...",
+        "At Venice Inlet...",
 
-        "HIGH TIDE 1.6 FEET AT 2:34 AM",
-        "LOW TIDE -0.1 FEET AT 10:18 AM",
-        "HIGH TIDE 1.3 FEET AT 4:32 PM",
-        "LOW TIDE 0.6 FEET AT 10:23 PM",
+        "High tide 1.6 feet at 2:34 AM",
+        "Low tide -0.1 feet at 10:18 AM",
+        "High tide 1.3 feet at 4:32 PM",
+        "Low tide 0.6 feet at 10:23 PM",
 
-        "FLZ050-051-055-060", 
+        "FLZ050-151-155-160", 
 
     ],
     "createGrids": [
@@ -377,9 +384,9 @@ def testScript(self, dataMgr, level="Site"):
         "orderStrings": 1,
         "internalStrip": 1,
         "comboFlag": 1,
-        "combinations": [(["FLZ039", "FLZ042", "FLZ048", "FLZ049"], "Region01"),
-                         (["FLZ050", "FLZ051", "FLZ055", "FLZ060"], "Region02"),
-                         (["FLZ062", "FLZ065"], "Region03"),
+        "combinations": [(["FLZ139", "FLZ142", "FLZ148", "FLZ149"], "Region01"),
+                         (["FLZ050", "FLZ151", "FLZ155", "FLZ160"], "Region02"),
+                         (["FLZ162", "FLZ165"], "Region03"),
                          ],
         }
     for script in scripts:

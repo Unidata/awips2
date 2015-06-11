@@ -45,7 +45,7 @@
 #
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    04/28/2016      4027          randerso       Changes for mixed case
+#    04/28/2015      4027          randerso       Changes for mixed case
 #
 ##
 

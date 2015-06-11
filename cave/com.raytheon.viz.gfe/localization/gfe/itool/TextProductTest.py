@@ -89,7 +89,7 @@
 ##            "callVariables": optional. Applied only if cmdLineVars is a method.
 ##                Dictionary of "key:value" pairs to be added to the Defintion
 ##                before calling the cmdLineVars method.
-##            "database": optionla. Default is Fcst database.
+##            "database": optional. Default is Fcst database.
 ##            "checkMethod": optional. Method to call to check the product results.
 ##                The method will be given the product text output and should return
 ##                1 if the tests pass, 0 if failed.
@@ -152,7 +152,8 @@
 ##                       "add": the string will be added to the file
 ##                       "replace": a given string will be replaced by another
 ##                    strings: If add, the string to be added.
-##                        If replace, a tuple of string and replacement string
+##                        If replace, a tuple of original and replacement strings or
+##                        a list of tuples for multiple replacements in the same file 
 ##                    cleanup action: What to do when product is finished. Can be:
 ##                       "delete": Delete the file and revert to baseline version
 ##                       "undo": Undo the add or replace
@@ -276,6 +277,7 @@ import ProcessVariableList
 
 from com.raytheon.viz.gfe.textformatter import TextProductFinishWaiter, FormatterUtil, TextProductManager
 from com.raytheon.viz.gfe.smarttool import TextFileUtil
+from com.raytheon.viz.gfe.dialogs.formatterlauncher import ConfigData_ProductStateEnum as ProductStateEnum
 
 class ProcessInfo:
     def __init__(self, entry, name, pid, script):
@@ -297,7 +299,6 @@ class ITool (ISmartScript.ISmartScript):
         ISmartScript.ISmartScript.__init__(self, dbss)        
         self._dataMgr = dbss
         self._process = None            
-        self._textProductMgr = TextProductManager()        
 
     # Button 1 in ITool Dialog
     def execute(self, varDict):
@@ -317,9 +318,6 @@ class ITool (ISmartScript.ISmartScript):
         if setupTextEA == "yes":
             if self._reportingMode not in ["Pretty"]:
                 self.output("Calling setupTextEA", self._outFile)
-            #shost = self._dataMgr.serverHost()
-            #sport = self._dataMgr.serverPort()
-            #os.system("run/setupTextEA -h " + shost + " -p " + `sport`)
             import SetupTextEA
             SetupTextEA.main()
         scriptNames = varDict["Test Script Name"]
@@ -331,6 +329,10 @@ class ITool (ISmartScript.ISmartScript):
         self._testScript = []
         for scriptName in scriptNames:
             scriptName = scriptName.split(" -- ")[0]
+            scriptName = scriptName.strip()
+            if len(scriptName) == 0:
+                continue
+            
             if sys.modules.has_key(scriptName):
                 del sys.modules[scriptName]
             exec "import " + scriptName
@@ -353,6 +355,7 @@ class ITool (ISmartScript.ISmartScript):
             self._runTestScript(index)
             if self._failures > self._failLimit:
                 break
+            time.sleep(2) # avoid some race conditions with fileChanges
 
         self._finished()
 
@@ -418,34 +421,14 @@ class ITool (ISmartScript.ISmartScript):
         self._deleteGrids(entry)
         self._createGrids(entry)
         self._makeWritableCopy(entry)
-        #changed = self._fileChanges(entry)
-        runtimeModuleChanges = self._runTimeModuleChanges(entry)
+        self._fileChanges(entry)
         
-        if runtimeModuleChanges:
-            exec "changes = " + runtimeModuleChanges
-            for moduleName, chg in changes:
-                self._magicCodeChange(moduleName, chg)                         
-    
         cmdLineVars = self._getCmdLineVars(entry)
         vtecMode = entry.get("vtecMode", None)
 
         if productType is None:
             return
 
-        #script = "runIFPText" +\
-        #     " -t " + productType +\
-        #     " -a PRACTICE" +\
-        #    " -h " + host +\
-        #     " -p " + port +\
-        #     " -d " + database +\
-        #     " -u " + user +\
-        #     " -S " + \
-        #     cmdLineVars   +\
-        #     drtStr +\
-        #     vtecModeStr 
-      
-        #script = script.replace("<site>", self.getSiteID())
-        
         database = database.replace("<site>", self.getSiteID())
 
         # Run the product
@@ -456,52 +439,23 @@ class ITool (ISmartScript.ISmartScript):
            
         # this way goes through java in separate threads, debugging doesn't work with it cause each
         # thread has its own interpreter....     
-        #waiter = TextProductFinishWaiter()
-        #FormatterUtil.runFormatterScript(productType, vtecMode, database, cmdLineVars, "PRACTICE", drtTime, changes, waiter)
-        #fcst = waiter.waitAndGetProduct()
-        
-        import FormatterRunner
-        try:
-            fcst = FormatterRunner.runFormatter(databaseID=database, site="TBW",
-                                     forecastList=[productType], cmdLineVarDict=cmdLineVars,
-                                     vtecMode=vtecMode, vtecActiveTable='PRACTICE', drtTime=drtTime,
-                                     username='GFETEST', dataMgr=self._dataMgr)
-        except:
-            fcst = ''
-            LogStream.logProblem("Error generating product: " + LogStream.exc())
-        self._doExecuteMsg(name, fcst, entry, drtTime)        
-       
-        #Launch the formatter
-        #onServer = (self._processor == AFPS.ProcessStatus.SERVER)
-        #pid = External.system(script, name, onServer,
-        #  logCategory="Fmtr_Launcher")
+        # however, running the other way has issue with sampler caches not getting dumped between runs
+        waiter = TextProductFinishWaiter()
+        FormatterUtil.runFormatterScript(productType, vtecMode, database, cmdLineVars, "PRACTICE", drtTime, 0, waiter)
+        fcst = waiter.waitAndGetProduct()
+        state = waiter.getState()
+            
+#         import FormatterRunner
+#         try:
+#             fcst = FormatterRunner.runFormatter(databaseID=database, site="TBW",
+#                                      forecastList=[productType], cmdLineVarDict=cmdLineVars,
+#                                      vtecMode=vtecMode, vtecActiveTable='PRACTICE', drtTime=drtTime,
+#                                      username='GFETEST', dataMgr=self._dataMgr)
+#         except:
+#             fcst = ''
+#             LogStream.logProblem("Error generating product: " + LogStream.exc())
 
-        # Save process info handled by "executeMsg" when product is finished running.
-        #self._process = ProcessInfo(entry, name, pid, script)
-
-    def _magicCodeChange(self, moduleName, change):
-        "Replaces methods and fields of a module at runtime.  Intended only for the automated test."
-        
-        if type(moduleName) is str:
-            mod = __import__(moduleName)
-        else: # received a module
-            mod = moduleName
-        if type(change) is str:
-            if change.find('def ') > -1 and change.find('\n') > -1: # found method
-                exec change
-                methodName = change[change.find('def ') + 4:change.find('(')]
-                # making an assumption of exactly one class existing in the module
-                clzList = inspect.getmembers(mod, inspect.isclass)
-                if clzList:
-                    clz = clzList[0][1]                                
-                    exec "clz." + methodName + ' = ' + methodName
-                else:
-                    exec "mod." + methodName + ' = ' + methodName
-            else: # found field
-                exec "mod." + change
-        else: # received a list of changes
-            for chg in change:
-                self._magicCodeChange(mod, chg)            
+        self._doExecuteMsg(name, fcst, entry, drtTime, state)        
                     
     def _getCmdLineVars(self, entry):
         cmdLineVars = entry.get("cmdLineVars", None)
@@ -526,7 +480,7 @@ class ITool (ISmartScript.ISmartScript):
                     definition[key] = defVars[key]
             varDict = callMethod(definition)
             #for key in varDict.keys():
-            #    print key, varDict[key]
+            #    print "varDict['"+str(key)+"'] =", varDict[key]
             cmdLineVars = `varDict`
         if cmdLineVars is not None:
             return cmdLineVars
@@ -593,7 +547,7 @@ class ITool (ISmartScript.ISmartScript):
             if createdGrids.has_key(key):
                 grid = createdGrids[key]
             else:
-                grid = self._empty
+                grid = numpy.zeros_like(self._empty)
                 if defValue is not None:
                     grid = numpy.where(grid == 0, defValue, defValue)
             if editAreas == "all":
@@ -621,7 +575,7 @@ class ITool (ISmartScript.ISmartScript):
                 self.createGrid(model, elementName, elementType, (grid, wxKeys), timeRange)
             elif elementType == "VECTOR":
                 grid = numpy.where(mask, value[0], grid)
-                dirGrid = self._empty
+                dirGrid = numpy.zeros_like(self._empty)
                 dirGrid = numpy.where(mask, self.textToDir(value[1]), dirGrid)
                 elementType = self.getDataType(elementName)
                 self.createGrid(model, elementName, elementType, (grid, dirGrid), timeRange)
@@ -660,57 +614,68 @@ class ITool (ISmartScript.ISmartScript):
             if self._reportingMode not in ["Pretty"]:
                 self.output("All Writable Copies successful", self._outFile)
                 
-#    def _fileChanges(self, entry):
-#        fileChanges = entry.get("fileChanges", None)
-#        if fileChanges is None:
-#            return False
-#        failed = 0        
-#        for fileName, fileType, changeType, strings, cleanUp in fileChanges:
-#            fileName = fileName.replace("<site>", self.getSiteID())
-#            # Get the file
-#            textFileID = TextFileUtil.getTextFile(fileName, fileType)
-#            textFile = open(textFileID.getFile().getPath())
-#            text = textFile.read()
-#            textFile.close()
-#            #self.output("FILE CHANGES (initial): " + text, self._outFile) #DEBUG
-#            # Modify it
-#            if changeType == "add":
-#                text = text + strings
-#            elif changeType == "replace":
-#                #print "strIndex, string", strIndex, strings[0]
-#                strIndex = text.find(strings[0])
-#                text = text.replace(strings[0], strings[1])
-#                #self.output("FILE CHANGES (chg): " + strings[0] + \
-#                #  ' ' + strings[1], self._outFile) #DEBUG
-#                #self.output("FILE CHANGES (mod): " +  text, 
-#                #  self._outFile) #DEBUG
-#                if strIndex < 0:
-#                    self.output("File change failed for " + strings[0],
-#                      self._outFile)
-#                    failed = 1
-#            # Write it
-#            textFile = open(textFileID.getFile().getPath(), 'w')
-#            textFile.write(text)
-#            textFile.close()
-#            textFileID.save()            
-#            #self.output("FILE CHANGES (saved)" +  text, self._outFile) #DEBUG         
-#        if len(fileChanges) and not failed:            
-#            if self._reportingMode not in ["Pretty"]:
-#                self.output("All File Changes successful", self._outFile)
-#        return True
-
-    def _runTimeModuleChanges(self, entry):
+    def _fileChanges(self, entry):
         fileChanges = entry.get("fileChanges", None)
-        if fileChanges is None:
-            return None
-        failed = 0
-        changes = []        
+        if not fileChanges:
+            return False
+
+        from LockingFile import File
+        
+        failed = 0        
         for fileName, fileType, changeType, strings, cleanUp in fileChanges:
             fileName = fileName.replace("<site>", self.getSiteID())
-            changes.append((fileName, strings))
-        return str(changes)
-        
-            
+            # Get the file
+            lf = TextFileUtil.getTextFile(fileName, fileType)
+            if lf.getName().endswith(".py"):
+                if sys.modules.has_key(fileName):
+                    del sys.modules[fileName]
+            try:
+                with File(lf.getFile(), '', 'r') as pythonFile:
+                    text = pythonFile.read()
+            except:
+                failed = 1
+                print "FILE CHANGES failed reading from " + str(lf)
+                raise
+            #self.output("FILE CHANGES (initial) from " +str(lf) + "\n" + text, self._outFile) #DEBUG
+
+            # Modify it
+            if changeType == "add":
+                text = text + strings
+            elif changeType == "replace":
+                # strings may be a tuple (orig, repl) or 
+                # a list of tuples for multiple changes to the same file 
+                if type(strings) == tuple:
+                    strings = [strings]
+                for orig, repl in strings:
+                    strIndex = text.find(orig)
+                    text = text.replace(orig, repl)
+
+                    #self.output("FILE CHANGES (chg): " + orig + ' ' + repl, self._outFile) #DEBUG
+                    #self.output("FILE CHANGES (mod): " +  text, self._outFile) #DEBUG
+                    
+                    if strIndex < 0:
+                        self.output("File change failed for " + orig,
+                          self._outFile)
+                        failed = 1
+            # Write it
+            destLf = TextFileUtil.getUserTextFile(lf)
+            try:
+                with File(destLf.getFile(), '', 'w') as pythonFile:
+                    pythonFile.write(text)
+
+                destLf.save()
+
+            except:
+                failed = 1
+                print "FILE CHANGES failed writing to " + str(destLf)
+                raise      
+            #self.output("FILE CHANGES (saved) to " + str(destLf) + "\n" +  text, self._outFile) #DEBUG         
+
+        if len(fileChanges) and not failed:            
+            if self._reportingMode not in ["Pretty"]:
+                self.output("All File Changes successful", self._outFile)
+        return True
+
     def _determineMaxMinBeginEnd(self, entry):
         # Determine MaxT MinT MaxRH MinRH begin and end times
         # relative to gridsStartTime
@@ -770,9 +735,10 @@ class ITool (ISmartScript.ISmartScript):
                 self._doExecuteMsg(msg)  #call for each possible message
 
     # Performs the processing
-    def _doExecuteMsg(self, name, fcst, entry, drtTime):
+    def _doExecuteMsg(self, name, fcst, entry, drtTime, state):
         if self._reportingMode not in ["Pretty"]:
-            self.output("Calling TextProductTest Message Invoked " + `entry`, self._outFile)        
+            self.output("Calling TextProductTest Message Invoked " + `entry`, self._outFile)
+            
         checkMethod = entry.get("checkMethod", None)
         checkStrings = entry.get("checkStrings", None)
         notCheckStrings = entry.get("notCheckStrings", None)
@@ -782,10 +748,11 @@ class ITool (ISmartScript.ISmartScript):
                     
         if True:
             # Clean up fileChanges
-            #self._cleanUpFiles(entry)
-            #self._cleanUpWritableCopies(entry)
+            self._cleanUpFiles(entry)
+            self._cleanUpWritableCopies(entry)
             
             self.output("\n----------------------------------------------", self._outFile)
+
             if self._reportingMode not in ["Pretty"]:
                 self.output(name + "    (Elapsed time:" + self._getElapsedTimeStr() + ")",
                             self._outFile)
@@ -794,44 +761,51 @@ class ITool (ISmartScript.ISmartScript):
             if commentary is not None:
                 self.output(commentary + "\n", self._outFile)
             self._scripts += 1
-            # Look at results
-            # If any of the check fails, the test fails
-            check1 = 1
-            check2 = 1
-            check3 = 1
-            if checkMethod is not None:
-                check1 = checkMethod(fcst)
-                if self._reportingMode not in ["Pretty"]:
-                    if not check1:
-                        failMsg = "CHECK METHOD FAILED:" + name
-                        self.output(failMsg, self._outFile)
-                    else:
-                        self.output("CHECK METHOD PASSED: " + name, self._outFile)
-            # Prepare results for string searches
-            if fcst is not None:
-                fcstStr = fcst.replace("\n", " ")
-                fcstStrRaw = fcstStr
-                if internalStrip:
-                    fcstStr = self.internalStrip(fcstStr)
-                fcstStr = fcstStr.replace("... ", "...")
-                fcstStrRaw = fcstStrRaw.replace("... ", "...")
-                if checkStrings is not None:
-                    success = self._checkStrs(name, fcst, checkStrings,
-                      orderStrings, fcstStr, fcstStrRaw, internalStrip)
-                    if success:
-                        if self._reportingMode not in ["Pretty"]:
-                            self.output("STRING SEARCHES PASSED ", self._outFile)
-                    else:
-                        check2 = 0
-                if notCheckStrings is not None:
-                    success = self._checkStrs(name, fcst, notCheckStrings, 0,
-                      fcstStr, fcstStrRaw, internalStrip, checkMode=0)
-                    if success:
-                        if self._reportingMode not in ["Pretty"]:
-                            self.output("'NOT' STRING SEARCHES PASSED ", self._outFile)
-                    else:
-                        check3 = 0
-            success = check1 and check2 and check3
+
+            if state.equals(ProductStateEnum.Failed): 
+                self.output("Formatter failed!", self._outFile)
+                success = False
+
+            else:        
+                # Look at results
+                # If any of the check fails, the test fails
+                check1 = 1
+                check2 = 1
+                check3 = 1
+                if checkMethod is not None:
+                    check1 = checkMethod(fcst)
+                    if self._reportingMode not in ["Pretty"]:
+                        if not check1:
+                            failMsg = "CHECK METHOD FAILED:" + name
+                            self.output(failMsg, self._outFile)
+                        else:
+                            self.output("CHECK METHOD PASSED: " + name, self._outFile)
+                            
+                # Prepare results for string searches
+                if fcst is not None:
+                    fcstStr = fcst.replace("\n", " ")
+                    fcstStrRaw = fcstStr
+                    if internalStrip:
+                        fcstStr = self.internalStrip(fcstStr)
+                    fcstStr = fcstStr.replace("... ", "...")
+                    fcstStrRaw = fcstStrRaw.replace("... ", "...")
+                    
+                    if checkStrings is not None:
+                        check2 = self._checkStrs(name, fcst, checkStrings,
+                          orderStrings, fcstStr, fcstStrRaw, internalStrip)
+                        if check2:
+                            if self._reportingMode not in ["Pretty"]:
+                                self.output("STRING SEARCHES PASSED ", self._outFile)
+
+                    if notCheckStrings is not None:
+                        check3 = self._checkStrs(name, fcst, notCheckStrings, 0,
+                          fcstStr, fcstStrRaw, internalStrip, checkMode=0)
+                        if check3:
+                            if self._reportingMode not in ["Pretty"]:
+                                self.output("'NOT' STRING SEARCHES PASSED ", self._outFile)
+
+                success = check1 and check2 and check3
+                
             if success:
                 self._passed += 1
                 logmsg = name + " Passed"
@@ -859,7 +833,7 @@ class ITool (ISmartScript.ISmartScript):
 #                count = 0
                 t1 = time.time();
 #                time.sleep(0.1);
-                time.sleep(5)
+                time.sleep(1)
 #                while count < 50:
 #                    modTime1 = self._dataMgr.ifpClient().vtecTableModTime(
 #                      "PRACTICE")
@@ -880,13 +854,13 @@ class ITool (ISmartScript.ISmartScript):
             offsetTime.reset()
             reload(offsetTime)
             
-        fileChanges = entry.get("fileChanges", [])
-        for fileName, fileType, changeType, strings, cleanUp in fileChanges:
-            fileName = fileName.replace("<site>", self.getSiteID())
-            reload(sys.modules[fileName])
-        productType = entry['productType']
-        if sys.modules.has_key(productType):
-            del sys.modules[productType]            
+#         fileChanges = entry.get("fileChanges", [])
+#         for fileName, fileType, changeType, strings, cleanUp in fileChanges:
+#             fileName = fileName.replace("<site>", self.getSiteID())
+#             reload(sys.modules[fileName])
+#         productType = entry['productType']
+#         if sys.modules.has_key(productType):
+#             del sys.modules[productType]            
 
     def _cleanUpWritableCopies(self, entry, user="GFETEST"):
         writables = entry.get("writeableCopies", None)
@@ -910,23 +884,11 @@ class ITool (ISmartScript.ISmartScript):
             fileName = fileName.replace("<site>", self.getSiteID())
             textFileID = TextFileUtil.getTextFile(fileName, fileType)            
             if self._leaveFileChanges == "no":
-                if cleanUp == "delete":                    
-                    TextFileUtil.deleteTextFile(textFileID)
-                elif cleanUp == "undo":
-                    # Get the file
-                    textFile = open(textFileID.getFile().getPath())
-                    text = textFile.read()
-                    textFile.close()
-                    # Modify it
-                    if changeType == "add":
-                        text = text.replace(strings, "")
-                    elif changeType == "replace":
-                        text = text.replace(strings[1], strings[0])
-                    # Write it
-                    textFile = open(textFileID.getFile().getPath(), 'w')
-                    textFile.write(text)
-                    textFile.close()
-                    textFileID.save()
+                if cleanUp in ["delete", "undo"]:
+                    # File changes are made as overrides at the GFETEST user level
+                    # We just remove these files to restore the previous file
+                    destLf = TextFileUtil.getUserTextFile(textFileID)                  
+                    TextFileUtil.deleteTextFile(destLf)
 
     def _checkStrs(self, name, fcst, checkStrings, orderStrings, fcstStr,
       fcstStrRaw, internalStrip, checkMode=1):
@@ -952,6 +914,10 @@ class ITool (ISmartScript.ISmartScript):
                     found, strIndex, strIndexFlag = self._checkStr(
                         subStr, fcstStr, fcstStrRaw, internalStrip)
                     if found:
+                        if self._reportingMode in ["Verbose"]:
+                            self.output("StringCHECK: " + subStr + ' ' + `strIndex`, self._outFile)
+                        elif self._reportingMode in ["Pretty"]:
+                            self.output("CHECK String: " + subStr, self._outFile)
                         break
                 if not found:
                     self._failed(subStr, name, fcst, fcstStr, checkMode)
@@ -965,8 +931,12 @@ class ITool (ISmartScript.ISmartScript):
                     self.output("CHECK String: " + cStr, self._outFile)
                 if strIndex == -1:
                     # Handle special case of SHOWERS/RAIN SHOWERS
-                    if cStr.find("SHOWERS") >= 0:
-                        cStr = cStr.replace("SHOWERS", "RAIN SHOWERS")
+                    if cStr.find("showers") >= 0:
+                        cStr = cStr.replace("showers", "rain showers")
+                        found, strIndex, strIndexFlag = self._checkStr(
+                            cStr, fcstStr, fcstStrRaw, internalStrip)
+                    if cStr.find("Showers") >= 0:
+                        cStr = cStr.replace("Showers", "Rain showers")
                         found, strIndex, strIndexFlag = self._checkStr(
                             cStr, fcstStr, fcstStrRaw, internalStrip)
                     if strIndex < 0:
@@ -1016,22 +986,17 @@ class ITool (ISmartScript.ISmartScript):
         self.output(failMsg, self._outFile)
 
     def _finished(self):
-        self.output(
-            self._scriptName + " TESTING COMPLETE " + self._getElapsedTimeStr(),
-            self._outFile)
-        self.output(`self._scripts` + " SCRIPTS RUN", self._outFile)
-        self.output(`self._passed` + " TESTS PASSED", self._outFile)
-        self.output(`self._failures` + " TESTS FAILED:", self._outFile)
-        self._outFile.close()
-
-        #send user alert message to GFEs
-        message = "TESTING COMPLETE    " + \
+        message = "TESTING COMPLETE " + \
           self._scriptName + " \n" + \
           self._getElapsedTimeStr() + \
           "\n" + `self._scripts` + " SCRIPTS RUN.\n" + \
           `self._passed` + " TESTS PASSED.\n" + \
           `self._failures` + " TESTS FAILED."
       
+        self.output(message, self._outFile)
+        self._outFile.close()
+
+        #send user alert message to GFEs
         if self._failures:
             status = "U"
         else:
@@ -1057,13 +1022,14 @@ class ITool (ISmartScript.ISmartScript):
             file.write(fcst)
         
         url = urlparse.urlparse(VizApp.getHttpServer())
-        commandString = "VTECDecoder -f " + file.name + " -a practice -d -h " + url.hostname
+        commandString = "VTECDecoder -f " + file.name + " -a practice -h " + url.hostname
         if drtString is not None:
             commandString += " -z " + drtString
         os.system(commandString)
 
 def main():
     os.environ["TZ"] = 'EST5EDT'
+    time.tzset()
     import _strptime
     _strptime._cache_lock.acquire()
     _strptime._TimeRE_cache = _strptime.TimeRE()
@@ -1087,6 +1053,21 @@ def main():
     # TODO look into switching it from the java
     from com.raytheon.uf.common.dataplugin.gfe.python import GfePyIncludeUtil
 
+    for s in sys.path:
+        if 'textUtilities' in s \
+        or 'textProducts' in s \
+        or 'combinations' in s:
+            sys.path.remove(s) 
+
+    for s in str(GfePyIncludeUtil.getHeadlineIncludePath()).split(':'):
+        sys.path.append(s)
+
+    for s in str(GfePyIncludeUtil.getTextUtilitiesIncludePath()).split(':'):
+        sys.path.append(s)
+
+    for s in str(GfePyIncludeUtil.getTextProductsIncludePath()).split(':'):
+        sys.path.append(s)
+    
     for s in str(GfePyIncludeUtil.getCombinationsIncludePath()).split(':'):
         sys.path.append(s)
     
