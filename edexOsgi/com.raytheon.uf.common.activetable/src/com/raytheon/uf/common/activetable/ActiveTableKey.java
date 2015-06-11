@@ -23,6 +23,7 @@ import javax.persistence.Column;
 
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
@@ -41,7 +42,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @author randerso
  * @version 1.0
  */
+@DynamicSerialize
 public class ActiveTableKey extends PersistableDataObject {
+
+    private static final long serialVersionUID = 1L;
+
     @Column(length = 4)
     @DynamicSerializeElement
     protected String officeid;

@@ -22,14 +22,44 @@
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    05/22/2015       4522         randerso       Changed to inherit from ActiveTableRecord
+#    05/22/2015       4522         randerso       Initial creation
 #
 ##    
-
-import ActiveTableRecord
-
-class OperationalActiveTableRecord(ActiveTableRecord.ActiveTableRecord):
+class ActiveTableKey(object):
 
     def __init__(self):
-        super(OperationalActiveTableRecord, self).__init__()
+        self.officeid = None
+        self.phen = None
+        self.sig = None
+        self.etn = None
+        self.ugcZone = None
+
+    def getOfficeid(self):
+        return self.officeid
+
+    def setOfficeid(self, officeid):
+        self.officeid = officeid
+
+    def getPhen(self):
+        return self.phen
+
+    def setPhen(self, phen):
+        self.phen = phen
+
+    def getSig(self):
+        return self.sig
+
+    def setSig(self, sig):
+        self.sig = sig
+
+    def getEtn(self):
+        return self.etn
+
+    def setEtn(self, etn):
+        self.etn = etn
         
+    def getUgcZone(self):
+        return self.ugcZone
+    
+    def setUgcZone(self, ugcZone):
+        self.ugcZone = ugcZone
