@@ -74,6 +74,7 @@
             <fileset dir="${edex.root.directory}/conf">
                 <include name="**" />
                 <exclude name="**/site/**"/>
+            	<exclude name="**/*.jks"/>
             </fileset>
         </delete>
 	</target>
