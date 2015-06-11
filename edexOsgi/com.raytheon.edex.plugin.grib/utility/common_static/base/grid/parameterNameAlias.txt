@@ -210,3 +210,55 @@ TPCSurgeProb::PSurge22ftCumul::Cumulative Prob of Surge > 22 ft
 TPCSurgeProb::PSurge23ftCumul::Cumulative Prob of Surge > 23 ft
 TPCSurgeProb::PSurge24ftCumul::Cumulative Prob of Surge > 24 ft
 TPCSurgeProb::PSurge25ftCumul::Cumulative Prob of Surge > 25 ft
+// HPCqpfNDFD pqpf grids
+HPCqpfNDFD::ProbTP0p01in6hr::6hr Probability of Total Precipitation > 0.01 inches
+HPCqpfNDFD::ProbTP0p10in6hr::6hr Probability of Total Precipitation > 0.10 inches
+HPCqpfNDFD::ProbTP0p25in6hr::6hr Probability of Total Precipitation > 0.25 inches
+HPCqpfNDFD::ProbTP0p50in6hr::6hr Probability of Total Precipitation > 0.50 inches
+HPCqpfNDFD::ProbTP0p75in6hr::6hr Probability of Total Precipitation > 0.75 inches
+HPCqpfNDFD::ProbTP1p00in6hr::6hr Probability of Total Precipitation > 1.00 inch
+HPCqpfNDFD::ProbTP1p50in6hr::6hr Probability of Total Precipitation > 1.50 inches
+HPCqpfNDFD::ProbTP2p00in6hr::6hr Probability of Total Precipitation > 2.00 inches
+HPCqpfNDFD::ProbTP2p50in6hr::6hr Probability of Total Precipitation > 2.50 inches
+HPCqpfNDFD::ProbTP3p00in6hr::6hr Probability of Total Precipitation > 3.00 inches
+HPCqpfNDFD::ProbTP0p01in12hr::12hr Probability of Total Precipitation > 0.01 inches
+HPCqpfNDFD::ProbTP0p25in12hr::12hr Probability of Total Precipitation > 0.25 inches
+HPCqpfNDFD::ProbTP0p50in12hr::12hr Probability of Total Precipitation > 0.50 inches
+HPCqpfNDFD::ProbTP0p75in12hr::12hr Probability of Total Precipitation > 0.75 inches
+HPCqpfNDFD::ProbTP1p00in12hr::12hr Probability of Total Precipitation > 1.00 inch
+HPCqpfNDFD::ProbTP1p50in12hr::12hr Probability of Total Precipitation > 1.50 inches
+HPCqpfNDFD::ProbTP2p00in12hr::12hr Probability of Total Precipitation > 2.00 inches
+HPCqpfNDFD::ProbTP2p50in12hr::12hr Probability of Total Precipitation > 2.50 inches
+HPCqpfNDFD::ProbTP3p00in12hr::12hr Probability of Total Precipitation > 3.00 inches
+HPCqpfNDFD::ProbTP4p00in12hr::12hr Probability of Total Precipitation > 4.00 inches
+HPCqpfNDFD::ProbTP0p25in24hr::24hr Probability of Total Precipitation > 0.25 inches
+HPCqpfNDFD::ProbTP0p50in24hr::24hr Probability of Total Precipitation > 0.50 inches
+HPCqpfNDFD::ProbTP1p00in24hr::24hr Probability of Total Precipitation > 1.00 inch
+HPCqpfNDFD::ProbTP1p50in24hr::24hr Probability of Total Precipitation > 1.50 inches
+HPCqpfNDFD::ProbTP2p00in24hr::24hr Probability of Total Precipitation > 2.00 inches
+HPCqpfNDFD::ProbTP2p50in24hr::24hr Probability of Total Precipitation > 2.50 inches
+HPCqpfNDFD::ProbTP3p00in24hr::24hr Probability of Total Precipitation > 3.00 inches
+HPCqpfNDFD::ProbTP4p00in24hr::24hr Probability of Total Precipitation > 4.00 inches
+HPCqpfNDFD::ProbTP5p00in24hr::24hr Probability of Total Precipitation > 5.00 inches
+HPCqpfNDFD::ProbTP6p00in24hr::24hr Probability of Total Precipitation > 6.00 inches
+HPCqpfNDFD::TP5pct6hr::6hr 5th Percentile Total Precipitation
+HPCqpfNDFD::TP10pct6hr::6hr 10th Percentile Total Precipitation
+HPCqpfNDFD::TP25pct6hr::6hr 25th Percentile Total Precipitation
+HPCqpfNDFD::TP50pct6hr::6hr 50th Percentile Total Precipitation
+HPCqpfNDFD::TP75pct6hr::6hr 75th Percentile Total Precipitation
+HPCqpfNDFD::TP90pct6hr::6hr 90th Percentile Total Precipitation
+HPCqpfNDFD::TP95pct6hr::6hr 95th Percentile Total Precipitation
+HPCqpfNDFD::TP5pct12hr::12hr 5th Percentile Total Precipitation
+HPCqpfNDFD::TP10pct12hr::12hr 10th Percentile Total Precipitation
+HPCqpfNDFD::TP25pct12hr::12hr 25th Percentile Total Precipitation
+HPCqpfNDFD::TP50pct12hr::12hr 50th Percentile Total Precipitation
+HPCqpfNDFD::TP75pct12hr::12hr 75th Percentile Total Precipitation
+HPCqpfNDFD::TP90pct12hr::12hr 90th Percentile Total Precipitation
+HPCqpfNDFD::TP95pct12hr::12hr 95th Percentile Total Precipitation
+HPCqpfNDFD::TP5pct24hr::24hr 5th Percentile Total Precipitation
+HPCqpfNDFD::TP10pct24hr::24hr 10th Percentile Total Precipitation
+HPCqpfNDFD::TP25pct24hr::24hr 25th Percentile Total Precipitation
+HPCqpfNDFD::TP50pct24hr::24hr 50th Percentile Total Precipitation
+HPCqpfNDFD::TP75pct24hr::24hr 75th Percentile Total Precipitation
+HPCqpfNDFD::TP90pct24hr::24hr 90th Percentile Total Precipitation
+HPCqpfNDFD::TP95pct24hr::24hr 95th Percentile Total Precipitation

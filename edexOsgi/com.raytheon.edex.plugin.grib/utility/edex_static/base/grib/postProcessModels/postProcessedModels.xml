@@ -111,6 +111,12 @@
 		<modelName>RUC130</modelName>
 		<processorName>RUC130GribPostProcessor</processorName>
 	</postProcessedModel>
+	
+	<!-- Post processor definition for HPCqpfNDFD -->
+	<postProcessedModel>
+        <modelName>HPCqpfNDFD</modelName>
+        <processorName>HPCqpfPostProcessor</processorName>
+    </postProcessedModel>
 
 </postProcessedModels>
 
