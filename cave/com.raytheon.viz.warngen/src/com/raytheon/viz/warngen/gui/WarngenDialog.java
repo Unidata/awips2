@@ -159,6 +159,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Jul 01, 2014 DR 17450    D. Friedman Use list of templates from backup site.
  *  Jul 21, 2014 3419        jsanchez    Created a hidden button to make recreating polygons easier.
  *  Feb 26, 2015 3353        rjpeter     Fixed NPE on clear.
+ *  Jun 05, 2015 DR 17428    D. Friedman Fixed duration-related user interface issues.  Added duration logging.
  * </pre>
  * 
  * @author chammack
@@ -1085,15 +1086,25 @@ public class WarngenDialog extends CaveSWTDialog implements
      * @param durations
      */
     public void setDurations(int[] durations) {
-        String[] durList = new String[durations.length];
+        ArrayList<String> durList = new ArrayList<String>(durations.length);
+        boolean isDefaultDurationInList = false;
         durationList.removeAll();
         for (int i = 0; i < durations.length; i++) {
+            if (defaultDuration != null
+                    && defaultDuration.minutes == durations[i]) {
+                isDefaultDurationInList = true;
+            }
             DurationData data = new DurationData(durations[i]);
             durationList.setData(data.displayString, data);
-            durList[i] = data.displayString;
+            durList.add(data.displayString);
+        }
+        // Add the default duration to the list if what was missing
+        if (! isDefaultDurationInList && defaultDuration != null) {
+            durationList.setData(defaultDuration.displayString, defaultDuration);
+            durList.add(0, defaultDuration.displayString);
         }
 
-        durationList.setItems(durList);
+        durationList.setItems(durList.toArray(new String[durList.size()]));
     }
 
     /**
@@ -1167,6 +1178,8 @@ public class WarngenDialog extends CaveSWTDialog implements
                         throws InvocationTargetException, InterruptedException {
                     try {
                         monitor.beginTask("Generating product", 1);
+                        statusHandler.debug("using startTime " + startTime.getTime()
+                                + " endTime " + endTime.getTime());
                         long t0 = System.currentTimeMillis();
                         String result = TemplateRunner.runTemplate(
                                 warngenLayer, startTime.getTime(),
@@ -1313,9 +1326,10 @@ public class WarngenDialog extends CaveSWTDialog implements
      * Action for Reset button
      */
     private void resetPressed() {
+        statusHandler.debug("resetPressed");
+        int durationToUse = getSelectedDuration();
         warngenLayer.resetState();
-        warngenLayer.getStormTrackState().duration = ((DurationData) durationList
-                .getData(durationList.getItem(durationList.getSelectionIndex()))).minutes;
+        restoreDuration(durationToUse);
         durationList.setEnabled(warngenLayer.getConfiguration()
                 .isEnableDuration());
         if (lineOfStorms.getSelection()) {
@@ -1351,6 +1365,7 @@ public class WarngenDialog extends CaveSWTDialog implements
         warngenLayer.resetInitialFrame();
         warngenLayer.setWarningAction(null);
         instructionsLabel.setText("Instructions:");
+        changeStartEndTimes();
         warngenLayer.issueRefresh();
     }
 
@@ -1415,8 +1430,11 @@ public class WarngenDialog extends CaveSWTDialog implements
      * Select one storm
      */
     private void selectOneStorm() {
+        statusHandler.debug("selectOneStorm");
         if (warngenLayer.state.followupData == null) {
+            int savedDuration = warngenLayer.getStormTrackState().duration;
             warngenLayer.resetState();
+            restoreDuration(savedDuration);
             warngenLayer.reset("oneStorm");
             warngenLayer.clearWarningGeometries();
             warngenLayer.getStormTrackState().dragMeLine = null;
@@ -1432,8 +1450,11 @@ public class WarngenDialog extends CaveSWTDialog implements
      * Select line of storms
      */
     private void selectLineOfStorms() {
+        statusHandler.debug("selectLineOfStorms");
         if (warngenLayer.state.followupData == null) {
+            int savedDuration = warngenLayer.getStormTrackState().duration;
             warngenLayer.resetState();
+            restoreDuration(savedDuration);
             warngenLayer.reset("lineOfStorms");
             warngenLayer.clearWarningGeometries();
             warngenLayer.getStormTrackState().dragMeLine = null;
@@ -1581,6 +1602,7 @@ public class WarngenDialog extends CaveSWTDialog implements
      *            - The button that has been clicked
      */
     private void changeTemplate(String templateName) {
+        statusHandler.debug("changeTemplate: " + templateName);
 
         String lastAreaSource = warngenLayer.getConfiguration()
                 .getHatchedAreaSource().getAreaSource();
@@ -1671,11 +1693,11 @@ public class WarngenDialog extends CaveSWTDialog implements
     }
 
     protected void recreateDurations(Combo durList) {
-        setDurations(warngenLayer.getConfiguration().getDurations());
         if (warngenLayer.getConfiguration().getDefaultDuration() != 0) {
             setDefaultDuration(warngenLayer.getConfiguration()
                     .getDefaultDuration());
         }
+        setDurations(warngenLayer.getConfiguration().getDurations());
         durList.setText(defaultDuration.displayString);
         endTime = DurationUtil.calcEndTime(startTime, defaultDuration.minutes);
         end.setText(df.format(endTime.getTime()));
@@ -1736,6 +1758,7 @@ public class WarngenDialog extends CaveSWTDialog implements
             FollowupData data = (FollowupData) updateListCbo
                     .getData(updateListCbo.getItem(updateListCbo
                             .getSelectionIndex()));
+            statusHandler.debug("updateListSelected: " + (data != null ? data.getDisplayString() : "(null)"));
             Mode currMode = warngenLayer.getStormTrackState().mode;
             if (data != null) {
                 // does not refesh if user selected already highlighted option
@@ -1845,6 +1868,8 @@ public class WarngenDialog extends CaveSWTDialog implements
                     || (action == WarningAction.EXT)) {
                 recreateDurations(durationList);
             }
+        } else {
+            statusHandler.debug("updateListSelected");
         }
         updateListCbo.pack(true);
         productType.layout();
@@ -1877,6 +1902,7 @@ public class WarngenDialog extends CaveSWTDialog implements
     }
 
     private void changeSelected() {
+        statusHandler.debug("changeSelected");
         if ((validPeriodDlg == null) || validPeriodDlg.isDisposed()) {
             validPeriodDlg = new ValidPeriodDialog(shell, startTime, endTime);
             validPeriodDlg.setCloseCallback(new ICloseCallback() {
@@ -1884,6 +1910,7 @@ public class WarngenDialog extends CaveSWTDialog implements
                 @Override
                 public void dialogClosed(Object returnValue) {
                     int duration = (Integer) returnValue;
+                    statusHandler.debug("changeSelected.dialogClosed: " + duration);
                     if (duration != -1) {
                         durationList.setEnabled(false);
                         endTime.add(Calendar.MINUTE, duration);
@@ -1908,6 +1935,7 @@ public class WarngenDialog extends CaveSWTDialog implements
     private void durationSelected() {
         String selection = durationList.getItem(durationList
                 .getSelectionIndex());
+        statusHandler.debug("durationSelected: " + selection);
         endTime = DurationUtil.calcEndTime(extEndTime != null ? extEndTime
                 : startTime,
                 ((DurationData) durationList.getData(selection)).minutes);
@@ -2274,8 +2302,7 @@ public class WarngenDialog extends CaveSWTDialog implements
         updatePolygon(newWarn);
 
         recreateDurations(durationList);
-        int duration = ((DurationData) durationList.getData(durationList
-                .getItem(durationList.getSelectionIndex()))).minutes;
+        int duration = getSelectedDuration();
         warngenLayer.getStormTrackState().duration = duration;
 
         startTime = TimeUtil.newCalendar();
@@ -2595,6 +2622,41 @@ public class WarngenDialog extends CaveSWTDialog implements
             defaultTemplate = mainProducts.get(0).split("/")[1];
         }
         return defaultTemplate;
+    }
+
+    private void restoreDuration(int duration) {
+        warngenLayer.getStormTrackState().duration =
+                warngenLayer.getStormTrackState().newDuration = duration;
+        warngenLayer.getStormTrackState().geomChanged = true;
+    }
+
+    private int getSelectedDuration() {
+        Exception excToReport= null;
+        DurationData data = null;
+        try {
+            data = (DurationData) durationList.getData(durationList
+                    .getItem(durationList.getSelectionIndex()));
+        } catch (RuntimeException e) {
+            excToReport = e;
+        }
+        int duration;
+        if (data != null) {
+            duration = data.minutes;
+        } else {
+            try {
+                duration = warngenLayer.getConfiguration().getDefaultDuration();
+            } catch (RuntimeException e) {
+                if (excToReport == null) {
+                    excToReport = e;
+                }
+                duration = 30;
+            }
+            statusHandler.handle(Priority.WARN,
+                    "Unable to determine duration from selection in WarnGen dialog.  Using default of "
+                            + duration + " minutes.", excToReport);
+        }
+        statusHandler.debug("selected duration is " + duration);
+        return duration;
     }
 
 }
