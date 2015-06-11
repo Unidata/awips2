@@ -24,6 +24,7 @@ import gov.noaa.nws.ncep.ui.nsharp.NsharpStationInfo;
 import gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpResourceHandler;
 import gov.noaa.nws.ncep.ui.nsharp.natives.NsharpDataHandling;
+import gov.noaa.nws.ncep.ui.nsharp.view.NsharpHandleArchiveFile;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -59,6 +60,9 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 31, 2011            bsteffen     Initial creation
+ * 2/23/2015    RM#5694,7788 Chin Chen  Use NCP's Nsharp text file loader
+ *                                      and comment out openNspFile()
+ *      
  * 
  * </pre>
  * 
@@ -114,7 +118,7 @@ public class D2DNsharpHandleArchiveFile {
             if (isTabular) {
                 openTabularFile(lines);
             } else {
-                openNspFile(lines);
+            	NsharpHandleArchiveFile.nsharpParseAndLoadTextFile(fileName);////Task#5694 
             }
         } catch (IOException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
@@ -124,57 +128,57 @@ public class D2DNsharpHandleArchiveFile {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
     }
-
-    public static void openNspFile(List<String> lines) throws ParseException,
-            VizException {
-        // It would have been great to reuse some ncep code here but the parsing
-        // code is tied to the dialog/loading code.
-        if (lines.size() < 3) {
-            throw new VizException("Unrecognized file format");
-        }
-        NsharpStationInfo stninfo = new NsharpStationInfo();
-
-        // First line is all the metadata
-        String line = lines.remove(0);
-        line = line.replaceAll(" +", " ");
-        String[] values = line.split(" ");
-        if (values.length == 7) {
-            stninfo.setSndType(values[1]);
-            String stationId = values[2];
-            String yearMonthDay = values[3];
-            String hourMinuteSecond = values[4];
-            // looks like "LAT=44.847"
-            String lat = values[5];
-            // looks like "LON=-93.564"
-            String lon = values[6];
-            String dateStr = yearMonthDay + " " + hourMinuteSecond;
-            Date date = ncepDataFormat.parse(dateStr);
-            stninfo.setReftime(new Timestamp(date.getTime()));
-            stninfo.setRangestarttime(new Timestamp(date.getTime()));
-            stninfo.setStnDisplayInfo(stationId + " " + dateStr);
-            lat = lat.replace("LAT=", "");
-            lon = lon.replace("LON=", "");
-            stninfo.setLatitude(Float.parseFloat(lat));
-            stninfo.setLongitude(Float.parseFloat(lon));
-        } else {
-            // TODO it might be possible to look at each token and throw
-            // something together
-            throw new VizException("Unrecognized data headings");
-        }
-        // Second line is the headings
-        String headingLine = lines.remove(0);
-        // The rest of the lines should be data lines.
-        List<String> dataLines = new ArrayList<String>();
-        line = lines.remove(0);
-        while (!lines.isEmpty()) {
-            dataLines.add(line);
-            line = lines.remove(0);
-        }
-
-        List<NcSoundingLayer> layers = parseLayers(headingLine, dataLines);
-
-        load(stninfo, layers);
-    }
+    //Task#5694: openNspFile() is no longer used.
+//    public static void openNspFile(List<String> lines) throws ParseException,
+//            VizException {
+//        // It would have been great to reuse some ncep code here but the parsing
+//        // code is tied to the dialog/loading code.
+//        if (lines.size() < 3) {
+//            throw new VizException("Unrecognized file format");
+//        }
+//        NsharpStationInfo stninfo = new NsharpStationInfo();
+//
+//        // First line is all the metadata
+//        String line = lines.remove(0);
+//        line = line.replaceAll(" +", " ");
+//        String[] values = line.split(" ");
+//        if (values.length == 7) {
+//            stninfo.setSndType(values[1]);
+//            String stationId = values[2];
+//            String yearMonthDay = values[3];
+//            String hourMinuteSecond = values[4];
+//            // looks like "LAT=44.847"
+//            String lat = values[5];
+//            // looks like "LON=-93.564"
+//            String lon = values[6];
+//            String dateStr = yearMonthDay + " " + hourMinuteSecond;
+//            Date date = ncepDataFormat.parse(dateStr);
+//            stninfo.setReftime(new Timestamp(date.getTime()));
+//            stninfo.setRangestarttime(new Timestamp(date.getTime()));
+//            stninfo.setStnDisplayInfo(stationId + " " + dateStr);
+//            lat = lat.replace("LAT=", "");
+//            lon = lon.replace("LON=", "");
+//            stninfo.setLatitude(Float.parseFloat(lat));
+//            stninfo.setLongitude(Float.parseFloat(lon));
+//        } else {
+//            // TODO it might be possible to look at each token and throw
+//            // something together
+//            throw new VizException("Unrecognized data headings");
+//        }
+//        // Second line is the headings
+//        String headingLine = lines.remove(0);
+//        // The rest of the lines should be data lines.
+//        List<String> dataLines = new ArrayList<String>();
+//        line = lines.remove(0);
+//        while (!lines.isEmpty()) {
+//            dataLines.add(line);
+//            line = lines.remove(0);
+//        }
+//
+//        List<NcSoundingLayer> layers = parseLayers(headingLine, dataLines);
+//
+//        load(stninfo, layers);
+//    }
 
     public static void openTabularFile(List<String> lines)
             throws ParseException, VizException {
