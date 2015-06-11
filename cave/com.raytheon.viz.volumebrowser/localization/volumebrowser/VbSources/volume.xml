@@ -92,4 +92,5 @@
     <vbSource key="SREF212" category="Volume" views="PLANVIEW TIMESERIES" />
     <vbSource key="UKMET-NorthernHemisphere" category="Volume" />
     <vbSource key="radar" name="Radar" category="Volume" />
+    <vbSource key="GEFS" category="Volume" />
 </vbSourceList>
