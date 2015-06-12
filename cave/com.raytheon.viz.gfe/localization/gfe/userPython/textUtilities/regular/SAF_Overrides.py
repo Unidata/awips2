@@ -302,7 +302,7 @@ class SAF_Overrides:
         # Get Synopsis from previous forecast
         #productID = "PDXCWFPQR"
         #synopsis = self.getPreviousProduct(productID, "SYNOPSIS")
-        #SynopsisHeading = ".Synopsis for southern Washington and northern Oregon Coast..."
+        #SynopsisHeading = ".SYNOPSIS FOR SOUTHERN WASHINGTON AND NORTHERN OREGON COAST..."
         #synopsis = re.sub(r'\n', r' ', synopsis)
         #synopsis = self.endline(synopsis, linelength=self._lineLength)
         #fcst = fcst + "-\n" + SynopsisHeading + "\n" + synopsis + "\n$$\n\n"

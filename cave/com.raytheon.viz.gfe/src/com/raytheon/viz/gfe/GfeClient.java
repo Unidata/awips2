@@ -35,6 +35,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 
 import com.raytheon.uf.common.python.PyUtil;
+import com.raytheon.uf.common.python.PythonIncludePathUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -67,6 +68,7 @@ import com.raytheon.viz.ui.personalities.awips.AbstractAWIPSComponent;
  * Aug 29, 2014  3500      bclement     removed override of postStartupActions() 
  *                                      since ProcedureXMLManager startup was moved to the CAVE subclass
  * Apr 26, 2015  4259      njensen      Updated for new JEP API
+ * May 20, 2015  4509      njensen      Added time and dataaccess to include path
  * 
  * </pre>
  * 
@@ -121,16 +123,16 @@ public class GfeClient extends AbstractAWIPSComponent {
         boolean includeUser = (!VizApp.getWsId().getUserName().equals("SITE"));
 
         String includePath = PyUtil.buildJepIncludePath(true, utilityDir,
-                GfeCavePyIncludeUtil.getCommonPythonIncludePath(),
-                GfeCavePyIncludeUtil.getCommonGfeIncludePath(),
-                GfeCavePyIncludeUtil.getConfigIncludePath(includeUser),
-                pyVizDir,
+                PythonIncludePathUtil.getCommonPythonIncludePath("time",
+                        "dataaccess"), GfeCavePyIncludeUtil
+                        .getCommonGfeIncludePath(), GfeCavePyIncludeUtil
+                        .getConfigIncludePath(includeUser), pyVizDir,
                 GfeCavePyIncludeUtil.getUtilitiesIncludePath(includeUser),
                 GfeCavePyIncludeUtil.getIToolIncludePath(),
-                GfeCavePyIncludeUtil.getVtecIncludePath(),
-                GfeCavePyIncludeUtil.getHeadlineIncludePath(),
-                GfeCavePyIncludeUtil.getAutotestIncludePath(),
-                GfeCavePyIncludeUtil.getTextUtilitiesIncludePath(includeUser),
+                GfeCavePyIncludeUtil.getVtecIncludePath(), GfeCavePyIncludeUtil
+                        .getHeadlineIncludePath(), GfeCavePyIncludeUtil
+                        .getAutotestIncludePath(), GfeCavePyIncludeUtil
+                        .getTextUtilitiesIncludePath(includeUser),
                 GfeCavePyIncludeUtil.getTextProductsIncludePath(includeUser),
                 GfeCavePyIncludeUtil.getCombinationsIncludePath(includeUser),
                 GfeCavePyIncludeUtil.getTestsIncludePath(),

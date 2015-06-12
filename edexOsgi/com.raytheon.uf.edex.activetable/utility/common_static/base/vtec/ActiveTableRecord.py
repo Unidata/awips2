@@ -31,12 +31,13 @@
 #                                                 __ne__().
 #    07/23/13         2212         dgilling       Fix typo in __eq__().
 #    04/28/2015       4027         randerso       Expunged Calendar from ActiveTableRecord
+#    05/22/2015       4522         randerso       Create proper primary key for ActiveTableRecord
 #
 #
 
 
 import ActiveTableVtec
-from java.util import Calendar
+from java.util import Date
 
 class ActiveTableRecord(object):
     
@@ -113,20 +114,16 @@ class ActiveTableRecord(object):
         elif key =='seg':
             self.atr.setSeg(value)
         elif key == 'startTime':
-            start = Calendar.getInstance()
-            start.setTimeInMillis(long(value * 1000))        
+            start = Date(long(value * 1000))        
             self.atr.setStartTime(start)
         elif key == 'endTime':
-            end = Calendar.getInstance()
-            end.setTimeInMillis(long(value * 1000))        
+            end = Date(long(value * 1000))        
             self.atr.setEndTime(end)
         elif key == 'purgeTime':
-            purge = Calendar.getInstance()
-            purge.setTimeInMillis(long(value * 1000))        
+            purge = Date(long(value * 1000))        
             self.atr.setPurgeTime(purge)
         elif key == 'issueTime':
-            issue = Calendar.getInstance()
-            issue.setTimeInMillis(long(value * 1000))        
+            issue = Date(long(value * 1000))        
             self.atr.setIssueTime(issue)        
         elif key == 'ufn':
             self.atr.setUfn(value)
@@ -143,12 +140,15 @@ class ActiveTableRecord(object):
             self.atr.setProductClass(value)
         elif key == 'id':                                
             self.id = value
+            if type(value) == str:
+                self.atr.setUgcZone(value)
         elif key == 'rawMessage':
             self.atr.setRawmessage(value)
         else:
             raise KeyError   
     
     def __delitem__(self, key):
+        # TODO: implement this
         pass
     
     def __deepcopy__(self, memo):

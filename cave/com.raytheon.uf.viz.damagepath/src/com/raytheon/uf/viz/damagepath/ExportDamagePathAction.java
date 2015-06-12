@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.damagepath;
 
 import java.io.FileOutputStream;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
@@ -33,6 +34,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
+import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * Action to export a damage path as GeoJSON to a file specified by the user.
@@ -45,6 +47,8 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  * ------------ ---------- ----------- --------------------------
  * Feb 09, 2015  3975      njensen     Initial creation
  * Apr 23, 2015  4354      dgilling    Export as GeoJSON Feature object.
+ * Jun 05, 2015  4375      dgilling    Prompt user before exporting feature 
+ *                                     with no polygons.
  * 
  * </pre>
  * 
@@ -56,6 +60,10 @@ public class ExportDamagePathAction extends AbstractRightClickAction {
 
     protected static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ExportDamagePathAction.class);
+
+    private static final String CONFIRM_DLG_MSG = "Damage Path has no polygons. Continue with exporting file?";
+
+    private static final String CONFIRM_DLG_TITLE = "Damage Path has no polygons!";
 
     protected static final String[] EXTENSIONS = new String[] { "*.json" };
 
@@ -76,9 +84,22 @@ public class ExportDamagePathAction extends AbstractRightClickAction {
 
                 if (filename != null) {
                     DamagePathLayer<?> layer = (DamagePathLayer<?>) getSelectedRsc();
+                    SimpleFeature feature = layer.buildFeature();
+
+                    Geometry defaultGeometry = (Geometry) feature
+                            .getDefaultGeometry();
+                    if (defaultGeometry.getNumGeometries() < 1) {
+                        boolean export = MessageDialog.openConfirm(shell,
+                                CONFIRM_DLG_TITLE, CONFIRM_DLG_MSG);
+                        if (!export) {
+                            statusHandler
+                                    .info("User chose to cancel exporting damage path file because it had no polygons.");
+                            return;
+                        }
+                    }
+
                     try (FileOutputStream fos = new FileOutputStream(filename)) {
                         IGeoJsonService json = new SimpleGeoJsonService();
-                        SimpleFeature feature = layer.buildFeature();
                         json.serialize(feature, fos);
                     } catch (Exception e) {
                         statusHandler.error(

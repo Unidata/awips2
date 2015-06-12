@@ -57,7 +57,7 @@ Definition = {}
 #Definition['displayName'] = "FWS"
 Definition["statePil"] = "GTF"       # State Pil ID
 
-Definition["productName"] = "SPOT FORECAST"  # name of product
+Definition["productName"] = "Spot Forecast"  # name of product
 Definition["fullStationID"] = "<fullStationID>"  # full station identifier (4letter)
 Definition["wmoID"] = "<wmoID>"      # WMO ID
 Definition["pil"] = "<pil>"
@@ -75,7 +75,7 @@ Definition["defaultEditAreas"] = []
 
 # agencyList - This is a list of agency abbreviations as you want them to
 #              appear in the product header. For Example...
-#              SPOT FORECAST FOR WILLIE FIRE...USFS GNF
+#              Spot Forecast for Willie Fire...USFS GNF
 #              where "USFS GNF" is an example of agency abbreviation.
 #              The FWS formatter will read the STQ spot request product
 #              and will try to first guess the agency abbreviation from the
@@ -86,11 +86,11 @@ Definition["defaultEditAreas"] = []
 #              for the agency.
 
 #Definition["agencyList"] = [
-#    (1,"AGENCY 1"),
-#    (2,"AGENCY 2"),
-#    (3,"AGENCY 3"),
-#    (4,"AGENCY 4"),
-#    (5,"AGENCY 5"),
+#    (1,"Agency 1"),
+#    (2,"Agency 2"),
+#    (3,"Agency 3"),
+#    (4,"Agency 4"),
+#    (5,"Agency 5"),
 #    ]
 Definition["agencyList"] = []
 
@@ -101,11 +101,11 @@ Definition["agencyList"] = []
 #                  in that forecast.
 
 Definition["forecasterList"] = [
-    (1,"forecastera","FORECASTER A"),
-    (2,"forecasterb","FORECASTER B"),
-    (3,"forecasterc","FORECASTER C"),
-    (4,"forecasterd","FORECASTER D"),
-    (5,"forecastere","FORECASTER E"),
+    (1,"forecastera","Forecaster A"),
+    (2,"forecasterb","Forecaster B"),
+    (3,"forecasterc","Forecaster C"),
+    (4,"forecasterd","Forecaster D"),
+    (5,"forecastere","Forecaster E"),
     ]
 
 # stqNumberVersions - When you launch the FWS formatter, you will get a GUI
@@ -2096,7 +2096,7 @@ class FWS_Overrides:
     def _makeDiscussion(self, fcst, argDict):
 
         discussionHeader = ""
-        discussionHeader = ".Discussion...\n"
+        discussionHeader = ".DISCUSSION...\n"
 
         if self._insertDiscussionFromFile == 1:      
             discussion = ""
@@ -2349,10 +2349,13 @@ class FWS_Overrides:
 
         # Product header
         s = self._wmoID + " " + self._fullStationID + " " + \
-               self._ddhhmmTime + "\n" + self._pil + "\n\n" + productLabel + \
+               self._ddhhmmTime + "\n" + self._pil + "\n\n"
+        fcst =  fcst + s.upper()
+        
+        s = productLabel + \
                "\nNational Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
-        fcst =  fcst + s.upper()
+        fcst =  fcst + s
         
         # Add time disclaimer
         self._fireTR = None
@@ -2517,39 +2520,39 @@ in the future. *|''' % self._timeLabel
             pass
         return [
             ("Next Day", 24 + self.DAY(), 24 + self.NIGHT(), 24 + self.NIGHT(),  
-             ".Today...", "early in the morning", "late in the afternoon",  
+             ".TODAY...", "early in the morning", "late in the afternoon",  
              1, narrativeDef),                       
             ("Morning", self.DAY(), self.NIGHT(), self.NIGHT(),
-             ".Today...", "early in the morning", "late in the afternoon",
+             ".TODAY...", "early in the morning", "late in the afternoon",
              1, narrativeDef),
             ("Morning Update", "issuanceHour", self.NIGHT(), self.NIGHT(),
-             ".Rest of Today...", "early in the morning", "late in the afternoon",
+             ".REST OF TODAY...", "early in the morning", "late in the afternoon",
              1, narrativeDef),
             ("Afternoon Update", "issuanceHour", self.NIGHT(), self.NIGHT(),
-             ".Rest of Today...", "early in the morning","late in the afternoon",
+             ".REST OF TODAY...", "early in the morning","late in the afternoon",
              1, narrativeDef),
             #  End times are tomorrow:
             ("Afternoon", self.NIGHT(), 24 + self.DAY(), 24 + self.DAY(),
-             ".Tonight...", "late in the night", "early in the evening",
+             ".TONIGHT...", "late in the night", "early in the evening",
              1, narrativeDef),
             ("Afternoon with 4 periods", self.NIGHT(), 24 + self.DAY(), 24 + self.DAY(),
-             ".Tonight...", "late in the night", "early in the evening",
+             ".TONIGHT...", "late in the night", "early in the evening",
              1, narrativeDef),
             ("Evening Update", "issuanceHour", 24 + self.DAY(), 24 + self.DAY(),
-             ".Rest of Tonight...", "late in the night","early in the evening",
+             ".REST OF TONIGHT...", "late in the night","early in the evening",
              1, narrativeDef),
             ("Evening Update with 4 periods", "issuanceHour", 24 + self.DAY(), 24 + self.DAY(),
-             ".Rest of Tonight...", "late in the night","early in the evening",
+             ".REST OF TONIGHT...", "late in the night","early in the evening",
              1, narrativeDef),
             # For the early morning update, this produces:
             # Rest of Tonight:
             # Monday
             # Monday Night
             ("Early Morning Update", "issuanceHour", self.DAY(), self.DAY(),
-             ".Rest of Tonight...", "early in the morning","late in the afternoon",
+             ".REST OF TONIGHT...", "early in the morning","late in the afternoon",
              0, narrativeDef),
             ("Early Morning Update with 4 periods", "issuanceHour", self.DAY(), self.DAY(),
-             ".Rest of Tonight...", "early in the morning","late in the afternoon",
+             ".REST OF TONIGHT...", "early in the morning","late in the afternoon",
              0, narrativeDef),
             ]
 

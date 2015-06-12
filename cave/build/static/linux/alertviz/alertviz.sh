@@ -58,9 +58,8 @@ dir=$(dirname $path_to_script)
 
 export AWIPS_INSTALL_DIR=${ALERTVIZ_INSTALL}
 
-export LD_LIBRARY_PATH=${JAVA_INSTALL}/lib:${PYTHON_INSTALL}/lib:$LD_LIBRARY_PATH
-export LD_PRELOAD=${PYTHON_INSTALL}/lib/libpython2.7.so
-export PATH=${JAVA_INSTALL}/bin:${PYTHON_INSTALL}/bin:$PATH
+export LD_LIBRARY_PATH=${JAVA_INSTALL}/lib:$LD_LIBRARY_PATH
+export PATH=${JAVA_INSTALL}/bin:$PATH
 export JAVA_HOME="${JAVA_INSTALL}/jre"
 
 exitVal=1

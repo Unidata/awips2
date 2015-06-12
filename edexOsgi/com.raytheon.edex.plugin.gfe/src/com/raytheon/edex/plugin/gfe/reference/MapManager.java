@@ -36,6 +36,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -117,8 +118,11 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * Feb 19, 2015     #4125   rjpeter     Fix jaxb performance issue
  * Apr 01, 2015     #4353   dgilling    Improve logging of Geometry validation errors.
  * Apr 08, 2015     #4383   dgilling    Change ISC_Send_Area to be union of 
- *                                      areas ISC_XXX and FireWxAOR_XXX.
+ *                                      areas ISC_XXX and all edit area prefixes 
+ *                                      in AdditionalISCRouting.
  * May 11, 2015     #4259   njensen     Silence jep thread warning by closing pyScript earlier
+ * May 21, 2015     #4518   dgilling    Change ISC_Send_Area to always be union
+ *                                      of at least ISC_XXX and FireWxAOR_XXX.
  * 
  * </pre>
  * 
@@ -534,8 +538,14 @@ public class MapManager {
             return;
         }
 
-        Collection<String> altISCEditAreas = _config
-                .alternateISCEditAreaMasks();
+        /*
+         * ISC_Send_Area will always be at least the union of the ISC and
+         * FireWxAOR edit areas. If any additional ISC databases have been
+         * defined, we'll union in that database's edit area too.
+         */
+        Collection<String> altISCEditAreas = new HashSet<>();
+        altISCEditAreas.add("FireWxAOR_");
+        altISCEditAreas.addAll(_config.alternateISCEditAreaMasks());
         for (String altISCEditArea : altISCEditAreas) {
             ReferenceID editAreaName = new ReferenceID(altISCEditArea
                     + thisSite);

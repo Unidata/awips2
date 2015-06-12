@@ -17,6 +17,14 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+# ----------------------------------------------------------------------------
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    05/07/2015      4027          randerso       Migrated A1 OB9.16 code to A2
+#
 #-------------------------------------------------------------------------
 # Description: This product is a template for creating Hazard Products.
 #-------------------------------------------------------------------------
@@ -284,11 +292,13 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
             eas = ''
 
         s = self._wmoID + " " + self._fullStationID + " " + \
-               self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
-               eas + productName + "\n" +\
+               self._ddhhmmTime + "\n" + self._pil + "\n\n"
+        fcst =  fcst + s.upper()
+
+        s = eas + productName + "\n" +\
                "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
-        fcst =  fcst + s.upper()
+        fcst =  fcst + s
 
         fcst = fcst + "Default overview section\n"
         return fcst
@@ -738,28 +748,22 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
             print "hazardBodyText info: keepBulletList: ",keepBulletList
             print "hazardBodyText info: removeBulletList: ",removeBulletList
             # Finally remove the bullets no longer needed.
-            PRECAUTION = "Precautionary/preparedness actions..."
             for bullet in removeBulletList:
-                segmentTextSplit = string.split(segmentText,"* " + bullet + "...")
-                print "segmentTextSplit is ", segmentTextSplit 
-                if len(segmentTextSplit) > 1:
+                if string.find(segmentText,"* "+ bullet + "...") != -1: 
+                    segmentTextSplit = string.split(segmentText,"* " + bullet + "...")
+                    print "segmentTextSplit is ", segmentTextSplit 
                     segmentTextSplit2 = string.split(segmentTextSplit[1],"*",1)
                     if len(segmentTextSplit2) == 2:
                         segmentTextSplit[1] = "*" + segmentTextSplit2[1]
                     else:
-                        segmentTextSplit2 = string.split(segmentTextSplit[1], \
-                                                         PRECAUTION, 1)
+                        segmentTextSplit2 = string.split(segmentTextSplit[1],"Precautionary/preparedness actions...",1)
                         if len(segmentTextSplit2) == 2:
-                            segmentTextSplit[1] = PRECAUTION + segmentTextSplit2[1]
+                            segmentTextSplit[1] = "Precautionary/preparedness actions..." + segmentTextSplit2[1]
                     segmentText = string.join(segmentTextSplit,"")
-
-            if keepBulletList == []:
-                segmentText = "\n\n|* Wrap-up text goes here *|.\n"
-            elif removeBulletList != []:
+            if removeBulletList != []:
                 segmentText = "|*\n" + segmentText + "*|"
             else:
                 segmentText = segmentText
-
         #
         # If segment passes the above checks, add the text
         #
@@ -853,8 +857,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
         if len(self.__overviewText) == 0:
 
             if self._includeOverviewHeadline:
-                overviewHeadline = "...|*Overview headline " + \
-                  "(must edit)*|...\n\n"
+                overviewHeadline = "...|*Overview headline (must edit)*|...\n\n"
             else:
                 overviewHeadline = ""
 
@@ -946,8 +949,8 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
       skipCTAs = False):
         #
         # This method takes a block of text, wraps it preserving blank lines,
-        # then returns the part after 'paragaphs'. So, if paragraphs is 0, it
-        # returns the whole thing, if it's 2, it retunrs paragraphs 2 -> end, etc.
+        # then returns the part after 'paragraphs'. So, if paragraphs is 0, it
+        # returns the whole thing, if it's 2, it returns paragraphs 2 -> end, etc.
         # Headlines are always removed.
         # Framing codes are added if specified.
         #

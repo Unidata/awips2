@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Drawing
 Bundle-SymbolicName: com.raytheon.uf.viz.drawing;singleton:=true
-Bundle-Version: 1.15.0.qualifier
+Bundle-Version: 1.15.1.qualifier
 Bundle-Activator: com.raytheon.uf.viz.drawing.Activator
 Bundle-Vendor: RAYTHEON
 Bundle-ActivationPolicy: lazy

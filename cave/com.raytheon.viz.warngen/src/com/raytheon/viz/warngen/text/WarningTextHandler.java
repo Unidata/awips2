@@ -113,9 +113,8 @@ public class WarningTextHandler {
         String[] seperatedLines = text.replaceAll("\r", "").trim().split("\n");
         boolean blankLine = false;
         for (String line : seperatedLines) {
-            if (line.replace(AbstractLockingBehavior.LOCK_START, "")
-                    .replace(AbstractLockingBehavior.LOCK_END, "").trim()
-                    .length() > 0) {
+            if (line.replace(WarnGenPatterns.LOCK_START, "")
+                    .replace(WarnGenPatterns.LOCK_END, "").trim().length() > 0) {
                 sb.append(line + "\n");
                 blankLine = false;
             } else if (blankLine == false) {

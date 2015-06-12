@@ -159,14 +159,17 @@ class TextProduct(GenericHazards.TextProduct):
         productName = self.checkTestMode(argDict, productName)
 
         s = self._wmoID + " " + self._fullStationID + " " +\
-               self._ddhhmmTime + "\n" + self._pil + "\n\n" + productName + "\n"
+               self._ddhhmmTime + "\n" + self._pil + "\n\n"
+        fcst = fcst + s.upper()
+               
+        s = productName + "\n"
 
         # Placeholder for Agency Names to be filled in in _postProcessProduct
         #s = s + "@AGENCYNAMES" + "\n"
         s = s + "Relayed by National Weather Service " + self._wfoCityState + "\n" +\
                issuedByString + self._timeLabel + "\n\n"
+        fcst = fcst + s
 
-        fcst = fcst + s.upper()
         return fcst
 
     def headlinesTiming(self, tree, node, key, timeRange, areaLabel, issuanceTime):
@@ -211,6 +214,23 @@ class TextProduct(GenericHazards.TextProduct):
 
         return startPhraseType, endPhraseType
         
+    # Returns a formatted string announcing the hazards that are valid with
+    # timing phrases
+    def getHazardString(self, tree, node, fcstArea):
+        if len(fcstArea) <= 0:
+            return ""
+        hazardTable = self._hazards.getHazardList(fcstArea)
+        returnStr = ""
+        issuanceTime = self._issueTime.unixTime()
+
+        returnStr = self.makeHeadlinePhrases(tree, node, hazardTable,
+                                             issuanceTime)
+        #Test mode?
+        returnStr = self.headlinePhraseTESTcheck(tree.get("argDict"),
+          returnStr)
+
+        return returnStr
+
     def _makeProduct(self, fcst, segmentAreas, argDict):
         """
         Modified to allow headlines.  Segments will be automatically
@@ -275,11 +295,11 @@ class TextProduct(GenericHazards.TextProduct):
             
             # Make the headline using the first agency only
             if agencies == []:
-                print "\n\nCHECK SET UP OF agencyDict!! -- no agencyDict entry for "+`segmentAreas`+"\n\n"
+                print "\n\nCheck set up of agencyDict!! -- no agencyDict entry for "+`segmentAreas`+"\n\n"
             agency = agencies[0]
             HeadIssue1 = self._agencyDict[agency]['declaration']
             HeadIssue2 = headlines
-            if "REMAINS" in headlines:  # This is an update
+            if "remains" in headlines:  # This is an update
                 HeadIssue2 = Headissue2[29:len(HeadIssue2)-4]
             else:  # This is the first issuance
                 HeadIssue2 = HeadIssue2[21:len(HeadIssue2)-4]

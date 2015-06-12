@@ -35,7 +35,7 @@ class RTMAForecaster(Forecaster):
         direc=wind_FHAG10[1]
         newmag=self.convertMsecToKts(mag)
         return (newmag,direc)
-    
+
     def calcWindGust(self, wgs_FHAG10):
         newmag=self.convertMsecToKts(wgs_FHAG10)
         return newmag
@@ -50,12 +50,6 @@ class RTMAForecaster(Forecaster):
 ##--------------------------------------------------------------------------
     def calcSky(self, tcc_EA):
         grid = tcc_EA
-        return clip(grid, 0, 100)
-##--------------------------------------------------------------------------
-##  Sky Analysis Uncertainty
-##--------------------------------------------------------------------------
-    def calcSkyUnc(self, tccerranl_EA):
-        grid = tccerranl_EA
         return clip(grid, 0, 100)
 ##--------------------------------------------------------------------------
 ##  T - change K to F
@@ -119,6 +113,13 @@ class RTMAForecaster(Forecaster):
     def calcPressUnc(self, perranl_SFC):
         return perranl_SFC
 ##--------------------------------------------------------------------------
+##  Sky Analysis Uncertainty
+##--------------------------------------------------------------------------
+    def calcSkyUnc(self, tccerranl_EA):
+        grid = tccerranl_EA
+        return clip(grid, 0, 100)
+
+##--------------------------------------------------------------------------
 ##  Wind Analysis Uncertainty - change m/s to kts
 ##--------------------------------------------------------------------------
     def calcWSpdUnc(self, wserranl_FHAG10):
@@ -127,10 +128,12 @@ class RTMAForecaster(Forecaster):
         return newmag
 
     def calcWDirUnc(self, wderranl_FHAG10):
-        return wderranl_FHAG10
+        return wderranl_FHAG10    
     
     def calcWGustUnc(self, wgserranl_FHAG10):
-        return wgserranl_FHAG10
+        mag = wgserranl_FHAG10
+        newmag=self.convertMsecToKts(mag)
+        return newmag
 ##--------------------------------------------------------------------------
 ##  Visibility
 ##--------------------------------------------------------------------------

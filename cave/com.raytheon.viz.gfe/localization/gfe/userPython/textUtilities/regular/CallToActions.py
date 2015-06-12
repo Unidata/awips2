@@ -377,7 +377,7 @@ Listen to NOAA Weather Radio or local media for further information.""",
 
     def ctaFWW(self):
         return [
- """A Red Flag Warning means that critical fire weather conditions are either occurring now...or will shortly. A combination of strong winds...low relative humidity...and warm temperatures will create explosive fire growth potential.""",
+ """A Red Flag Warning means that critical fire weather conditions are either occurring now....or will shortly.""",
         ]
 
     def ctaFZA(self):
@@ -412,10 +412,10 @@ Listen to NOAA Weather Radio or local media for further information.""",
 
     def ctaHTY(self):
         return [
- """Take extra precautions...if you work or spend time outside. When possible...reschedule strenuous activities to early morning or evening. Know the signs and symptoms of heat exhaustion and heat stroke. Wear light weight and loose fitting clothing when possible and drink plenty of water.\n\n
-    To reduce risk during outdoor work...the occupational safety and health administration recommends scheduling frequent rest breaks in shaded or air conditioned environments. Anyone overcome by heat should be moved to a cool and shaded location.   Heat stroke is an emergency...call 9 1 1.\n\n
-    A Heat Advisory means that a period of hot temperatures is expected. The combination of hot temperatures and high humidity will combine to create a situation in which heat illnesses are possible. Drink plenty of fluids...stay in an air-conditioned room...stay out of the sun...and check up on relatives and neighbors.""",
-        ]
+ """A Heat Advisory means that a period of hot temperatures is expected. The combination of hot temperatures and high humidity will combine to create a situation in which heat illnesses are possible. Drink plenty of fluids...stay in an air-conditioned room...stay out of the sun...and check up on relatives and neighbors.\n\n
+    Take extra precautions...if you work or spend time outside. When possible...reschedule strenuous activities to early morning or evening. Know the signs and symptoms of heat exhaustion and heat stroke. Wear light weight and loose fitting clothing when possible and drink plenty of water.\n\n
+    To reduce risk during outdoor work...the occupational safety and health administration recommends scheduling frequent rest breaks in shaded or air conditioned environments. Anyone overcome by heat should be moved to a cool and shaded location.   Heat stroke is an emergency...call 9 1 1.""",
+        ]   
 
     def ctaHUA(self):
         return [
@@ -628,7 +628,7 @@ If you become caught in a rip current...yell for help. Remain calm...do not exha
 
     def ctaWSW(self):
         return [
- """|*Choose the appropriate CTA below and delete the rest*|""" """
+ """|*Choose the appropriate CTA below and delete the rest*|
 
 A Winter Storm Warning for heavy snow means severe winter weather conditions are expected or occurring.  Significant amounts of snow are forecast that will make travel dangerous. Only travel in an emergency. If you must travel...keep an extra flashlight...food...and water in your vehicle in case of an emergency.
 
@@ -639,7 +639,7 @@ A Winter Storm Warning for sleet means that a winter storm system is impacting t
 
     def ctaWWY(self):
         return [
- """|*Choose the appropriate CTA below and delete the rest*|""" """
+ """|*Choose the appropriate CTA below and delete the rest*|
 
 A Winter Weather Advisory means that periods of snow...sleet...or freezing rain will cause travel difficulties. Be prepared for slippery roads and limited visibilities...and use caution while driving.
 

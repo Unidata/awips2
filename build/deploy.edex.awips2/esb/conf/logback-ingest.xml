@@ -11,16 +11,7 @@
    </appender> 
 
    <!-- activeTableChange log --> 
-   <appender name="activeTableChangeLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="com.raytheon.uf.common.status.logback.StdTimeBasedRollingPolicy">
-         <name>activeTableChange</name>
-      </rollingPolicy>
-      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
-   </appender> 
-   
-   <appender name="activeTableChangeLogAsync" class="ch.qos.logback.classic.AsyncAppender">            
-      <appender-ref ref="activeTableChangeLog" />
-   </appender> 
+   <include file="${edex.home}/conf/logback-activeTableChange.xml"/>
 
    <!-- Purge log --> 
    <appender name="purge" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -89,11 +80,6 @@
    <include file="${edex.home}/conf/logback-edex-limited-loggers.xml"/>
    <include file="${edex.home}/conf/logback-edex-hibernate-logger.xml"/>
 
-   <logger name="ActiveTableChange" additivity="false">
-      <level value="DEBUG"/>
-      <appender-ref ref="activeTableChangeLogAsync" />
-   </logger>
-      
    <logger name="com.raytheon.edex.plugin.shef" additivity="false">
       <level value="INFO"/>
       <appender-ref ref="shef" />

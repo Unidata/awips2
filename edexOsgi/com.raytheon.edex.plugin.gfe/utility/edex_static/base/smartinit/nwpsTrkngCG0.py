@@ -57,8 +57,20 @@ class nwpsTrkngCG0Forecaster(Forecaster):
 
 def main():
     nwpsTrkngCG0Forecaster().run()
-
-    os.system('/awips2/GFESuite/bin/sendGfeMessage -s -m "TRACKING WAVE GRIDS ARE NOW IN GFE"')
+    chkfile = "/tmp/nwps/CGTrack"
+    chkfiledir = "/tmp/nwps"
+    try:
+        os.makedirs(chkfiledir)
+    except OSError:
+        pass
+    if not os.path.isfile(chkfile):
+        open(chkfile, 'a').close()
+        os.system('/awips2/GFESuite/bin/sendGfeMessage -s -m "TRACKING WAVE GRIDS ARE NOW IN GFE"')
+    filemodtime = os.stat(chkfile).st_mtime
+    twominutesago = time.time() - 120
+    if (twominutesago - filemodtime) > 0:
+        os.utime(chkfile, None)
+        os.system('/awips2/GFESuite/bin/sendGfeMessage -s -m "TRACKING WAVE GRIDS ARE NOW IN GFE"')
 
 if __name__ == "__main__":
     main()

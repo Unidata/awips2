@@ -49,9 +49,10 @@ import com.raytheon.viz.gfe.ui.runtimeui.SelectionDlg;
  * ------------ ---------- ----------- --------------------------
  * Feb 21, 2008            njensen     Initial creation
  * Dec 1,  2009  1426      ryu         Add time range warning
- * Nov 15, 2012 1298       rferrel     Changes for non-blocking prcedures.
+ * Nov 15, 2012  1298      rferrel     Changes for non-blocking prcedures.
  * Jun 25, 2013  16065     ryu         Passing outerLevel to smart tool job.
- * Dec 10, 2013  #2367     dgilling    Use new SmartToolJobPool.
+ * Dec 10, 2013  2367      dgilling    Use new SmartToolJobPool.
+ * Jun 05, 2015  4259      njensen     Removed LD_PRELOAD check
  * 
  * </pre>
  * 
@@ -62,23 +63,6 @@ import com.raytheon.viz.gfe.ui.runtimeui.SelectionDlg;
 public class SmartUtil {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SmartUtil.class);
-
-    /**
-     * Checks if LD_PRELOAD is set in the environment. If not, jep may have
-     * issues importing modules. (Note that this presumes LD_PRELOAD was set
-     * correctly to point at the python .so file).
-     * 
-     * @return if LD_PRELOAD is set
-     */
-    public static boolean isLdPreloadSet() {
-        String preload = System.getenv().get("LD_PRELOAD");
-        boolean set = false;
-        if (preload != null) {
-            set = true;
-        }
-
-        return set;
-    }
 
     public static SmartToolRequest buildSmartToolRequest(DataManager dm,
             PreviewInfo preview, boolean outerLevel) {
