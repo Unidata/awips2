@@ -76,6 +76,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * Jun 03, 2015  4375      dgilling    Support changes to PolygonLayer for 
  *                                     multiple polygon support.
  * Jun 08, 2015  4355      dgilling    Fix NullPointerException in loadJob.
+ * Jun 12, 2015  4375      dgilling    Fix ConcurrentModificationException in
+ *                                     initInternal.
  * 
  * </pre>
  * 
@@ -119,10 +121,6 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
             .valueOf(System.getProperty("damage.path.localization.level",
                     LocalizationLevel.USER.name()));
 
-    /*
-     * TODO: If we support multiple polygons in the future then the jobs will
-     * need to be smart enough to load/save different files.
-     */
     private final Job loadJob = new Job("Loading Damage Path") {
         @Override
         protected IStatus run(IProgressMonitor monitor) {
@@ -136,7 +134,10 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
                             .error("The damage path file was invalid. The polygon has been reset.");
                     setDefaultPolygon();
                 }
+            } else {
+                setDefaultPolygon();
             }
+
             return Status.OK_STATUS;
         }
     };
@@ -158,21 +159,13 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
         dir.addFileUpdatedObserver(this);
 
         loadJob.setSystem(true);
-        loadJob.schedule();
         saveJob.setSystem(true);
     }
 
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         super.initInternal(target);
-        LocalizationFile prevFile = getValidDamagePathFile();
-        if (polygons.isEmpty() && prevFile != null) {
-            /*
-             * only get here if there is no previous file, otherwise loadJob
-             * will load the polygon
-             */
-            setDefaultPolygon();
-        }
+        loadJob.schedule();
     }
 
     private void setDefaultPolygon() {
