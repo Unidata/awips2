@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <!--
   Mar 31, 2014    #2934    dgilling    Added new FHAG0 level needed for pSurge2.0.
+  Jun 24, 2015    #4537    rferrel     Added new FHAG80 and BL levels needed for HRRR.
  -->
 <LevelMappings>
     <Level key="BL030">
         <DatabaseLevel levelName="BL" levelOneValue="0.0" levelTwoValue="30.0" unit="hPa"/>
     </Level>
-    <Level key="BL0180">
+    <Level key="BL090">
+        <DatabaseLevel levelName="BL" levelOneValue="0.0" levelTwoValue="90.0" unit="hPa"/>
+    </Level>
+    <Level key="BL180">
         <DatabaseLevel levelName="BL" levelOneValue="0.0" levelTwoValue="180.0" unit="hPa"/>
     </Level>
     <Level key="BL0255">
@@ -248,6 +252,9 @@
     </Level>
     <Level key="FHAG10">
         <DatabaseLevel levelName="FHAG" levelOneValue="10.0" unit="m"/>
+    </Level>
+    <Level key="FHAG80">
+        <DatabaseLevel levelName="FHAG" levelOneValue="80.0" unit="m"/>
     </Level>
     <Level key="FHAG1000">
         <DatabaseLevel levelName="FHAG" levelOneValue="1000.0" unit="m"/>
