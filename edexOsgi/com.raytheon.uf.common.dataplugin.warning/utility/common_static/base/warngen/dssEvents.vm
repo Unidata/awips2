@@ -3,6 +3,7 @@ CREATED 09-20-2013 BY EVAN BOOKBINDER
         UPDATED 6-26-14 EVAN BOOKBINDER TO HANDLE MARINE EVENTS
         Right now DSS for marine events is restricted to IBW SMWs where
         #set($marine = "true") is explicitly created at the top of the .vm file
+        Mike Dangelo   23 March 2015    Mixed Case Changes
 
 dbTable list should include the pointSource objects created in
 dssEvents.xml
@@ -13,40 +14,40 @@ dssEvents.xml
 #if (($dss_events_marine))
 #set($size = ${list.size($dss_events_marine)})
 #if ($size > 0)
-PEOPLE ATTENDING ##
+People attending ##
 #set($counter = 1)
 #foreach($dss in $dss_events_marine)
 #if($counter < $size)
-${dss.name}...##
+${dss.name}, ##
 #set($counter = $counter + 1)
 #elseif($counter == $size)
 #if($size > 1)
-AND ## 
+and ## 
 #end
 ${dss.name} ##
 #end
 #end
-SHOULD SEEK SAFE SHELTER IMMEDIATELY!
+should seek safe shelter immediately!
 
 #end
 #end
 #elseif (($dss_events))
 #set($size = ${list.size($dss_events)})
 #if ($size > 0)
-PEOPLE ATTENDING ##
+People attending ##
 #set($counter = 1)
 #foreach($dss in $dss_events)
 #if($counter < $size)
-${dss.name}...####
+${dss.name}, ####
 #set($counter = $counter + 1)
 #elseif($counter == $size)
 #if($size > 1)
-AND ## 
+and ## 
 #end
 ${dss.name} ##
 #end
 #end
-SHOULD SEEK SAFE SHELTER IMMEDIATELY!
+should seek safe shelter immediately!
 
 #end
 #end

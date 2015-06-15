@@ -19,10 +19,6 @@
  **/
 package com.raytheon.uf.viz.alertviz;
 
-import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.dialogs.ErrorDialog;
-import org.eclipse.swt.widgets.Display;
-
 import com.raytheon.uf.common.jms.notification.INotificationObserver;
 import com.raytheon.uf.common.jms.notification.NotificationException;
 import com.raytheon.uf.common.jms.notification.NotificationMessage;
@@ -41,7 +37,8 @@ import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 14, 2009            mnash     Initial creation
+ * Jul 14, 2009            mnash       Initial creation
+ * Jun 02, 2015 4473       njensen     Updated for new AlertvizJob API
  * 
  * </pre>
  * 
@@ -102,30 +99,7 @@ public class AlertVizNotificationObserver implements INotificationObserver {
 
         @Override
         public void run() {
-            try {
-                AlertVizClient.sendMessage(sm);
-            } catch (final AlertvizException e) {
-                Container.logInternal(Priority.ERROR,
-                        "AlertVizNotificationObserver unable to send message through AlertVizClient: "
-                                + sm, e);
-                // not a good situation, since we can't communicate with the log
-                // server properly
-
-                // DO NOT SEND TO LOG HERE OR INFINITE LOOPS MAY OCCUR
-                VizApp.runAsync(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        ErrorDialog.openError(Display.getDefault()
-                                .getActiveShell(),
-                                "Error communicating with log server",
-                                "Error communicating with log server "
-                                        + e.getCause().getMessage(),
-                                Status.OK_STATUS);
-                    }
-
-                });
-            }
+            AlertvizJob.getInstance().receive(sm);
         }
     }
 

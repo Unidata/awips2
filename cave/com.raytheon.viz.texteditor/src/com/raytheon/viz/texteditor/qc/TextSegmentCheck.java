@@ -293,12 +293,12 @@ public class TextSegmentCheck implements IQCCheck {
                 continue;
             }
 
-            if (line.startsWith("*")) {
+            if (line.startsWith("* ")) {
                 nb++;
             }
 
             // third bullet
-            if (line.startsWith("*") && (nb == 3)) {
+            if (line.startsWith("* ") && (nb == 3)) {
                 m = thirdBulletPtrn.matcher(line);
                 if (!line.substring(0, 5).equals("* AT ")) {
                     errorMsg.append("Event bullet does not start with '* AT '\n.");
@@ -310,7 +310,7 @@ public class TextSegmentCheck implements IQCCheck {
             }
 
             // second bullet
-            if (line.startsWith("*") && (nb == 2)) {
+            if (line.startsWith("* ") && (nb == 2)) {
                 m = secondBulletPtrn.matcher(line);
                 if (m.find() || line.contains("* UNTIL NOON")
                         || line.contains("* UNTIL MIDNIGHT")) {

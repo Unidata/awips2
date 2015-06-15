@@ -185,7 +185,7 @@ public abstract class DataListingProductBrowserDefinition implements PreferenceB
                 Map<String, String> formattedMap = listing.getFormattedValues(nextKey, keyVals);
                 List<ProductBrowserLabel> labels = new ArrayList<>(formattedMap.size());
                 for (Entry<String, String> entry : formattedMap.entrySet()) {
-                    ProductBrowserLabel label = new ProductBrowserLabel(entry.getKey(), entry.getValue());
+                    ProductBrowserLabel label = new ProductBrowserLabel(entry.getValue(), entry.getKey());
                     label.setProduct(selection.length >= listing.getKeys().size());
                     labels.add(label);
                 }
@@ -212,7 +212,7 @@ public abstract class DataListingProductBrowserDefinition implements PreferenceB
         stringBuilder.append(PluginDataObject.PLUGIN_NAME_ID + " = " + listing.getPluginName());
         int index = 1;
         for (Entry<String, String> entry : createKeyValMap(selection).entrySet()) {
-            if (selection.length >= index) {
+            if (index >= selection.length) {
                 break;
             }
             stringBuilder.append("\n");

@@ -1,5 +1,6 @@
 #*
 CREATED 2-29-2012 BY EVAN BOOKBINDER
+UPDATED 3-23-2015 By EVAN BOOKBINDER - Mixed Case
 
 dbTable list should include the pointSource objects created in
 stormReports.xml
@@ -12,7 +13,7 @@ stormReports.xml
 #foreach($table in $dbTable)
 #set($size = ${list.size($table)})
 #if ($size > 0)
-!** RECENT LOCAL STORM REPORTS:
+!** Recent Local Storm Reports:
 (COPY AND PASTE VALID REPORTS INTO 3RD BULLET THEN DELETE THIS SECTION)
 #foreach($report in $table)
 ${report.name}

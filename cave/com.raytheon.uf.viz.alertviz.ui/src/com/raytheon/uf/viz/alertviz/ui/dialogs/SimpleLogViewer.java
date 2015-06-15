@@ -22,11 +22,13 @@ package com.raytheon.uf.viz.alertviz.ui.dialogs;
 import java.io.File;
 import java.sql.Timestamp;
 
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
@@ -49,9 +51,7 @@ import com.raytheon.uf.common.message.StatusMessage;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.alertviz.Activator;
 import com.raytheon.uf.viz.alertviz.AlertvizException;
-import com.raytheon.uf.viz.alertviz.AlertvizJob;
 import com.raytheon.uf.viz.alertviz.Container;
-import com.raytheon.uf.viz.alertviz.ILogUpdatedCallback;
 import com.raytheon.uf.viz.alertviz.LogUtil;
 import com.raytheon.uf.viz.alertviz.LogUtil.Order;
 import com.raytheon.uf.viz.alertviz.SystemStatusHandler;
@@ -64,6 +64,8 @@ import com.raytheon.uf.viz.alertviz.SystemStatusHandler;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 30, 2008 1433       chammack    Initial creation
+ * Jun 02, 2015 4473       njensen     Cleaned up warnings
+ * 
  * </pre>
  * 
  * @author chammack
@@ -202,54 +204,17 @@ public class SimpleLogViewer extends Dialog {
                 0));
         final Color black = new Color(Display.getCurrent(), new RGB(0, 0, 0));
 
-        table.addMouseListener(new MouseListener() {
-
+        table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseDoubleClick(MouseEvent e) {
-
-                // int idx = table.getSelectionIndex();
-                //
-                // try {
-                // StatusMessage sm = StatusMessage.retrieveByPk(idx
-                // + range[0]);
-                // if ( sdb != null && !sdb.isOpened()) {
-                // sdb.open(sm);
-                // }else if ( sdb != null ) {
-                // sdb.dispose();
-                // } else {
-                // sdb = new SimpleDetailsBox(shell);
-                // sdb.setMagicOffset(40);
-                // sdb.open(sm);
-                // }
-                // } catch (AlertvizException e1) {
-                // e1.printStackTrace();
-                // }
                 showHideLog();
             }
-
-            @Override
-            public void mouseDown(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseUp(MouseEvent e) {
-
-            }
-
         });
 
-        table.addSelectionListener(new SelectionListener() {
-
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-
-            }
-
+        table.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 int idx = table.getSelectionIndex();
-
                 try {
 
                     StatusMessage sm = SystemStatusHandler.retrieveByPk(idx
@@ -262,12 +227,11 @@ public class SimpleLogViewer extends Dialog {
                                     "SimpleLogViewer: exception retrieving StatusMessage by key from SystemStatusHandler: "
                                             + (idx + range[0]), e1);
                 }
-
             }
-
         });
 
         table.addListener(SWT.SetData, new Listener() {
+            @Override
             public void handleEvent(Event e) {
                 TableItem item = (TableItem) e.item;
                 int index = table.indexOf(item);
@@ -293,7 +257,7 @@ public class SimpleLogViewer extends Dialog {
                     }
 
                 } catch (AlertvizException e1) {
-                    Status s = new Status(Status.ERROR, Activator.PLUGIN_ID,
+                    Status s = new Status(IStatus.ERROR, Activator.PLUGIN_ID,
                             "Error fetching the data", e1);
                     ErrorDialog.openError(
                             Display.getCurrent().getActiveShell(),
@@ -306,33 +270,6 @@ public class SimpleLogViewer extends Dialog {
 
         table.setItemCount(sz);
 
-        ILogUpdatedCallback cb = new ILogUpdatedCallback() {
-
-            @Override
-            public void logUpdated(int minPk, int maxPk) {
-                if (table.isDisposed()) {
-                    return;
-                }
-
-                int idx = table.getTopIndex();
-                int curSz = maxPk - minPk + 1;
-                boolean setToEnd = false;
-                if (curSz - idx < 40) {
-                    setToEnd = true;
-                }
-
-                int sz = maxPk - minPk + 1;
-                table.setItemCount(sz);
-
-                if (setToEnd) {
-                    table.setTopIndex(idx + 1);
-                }
-            }
-
-        };
-
-        AlertvizJob.addLogUpdatedCallback(cb);
-
         Composite buttons = new Composite(shell, SWT.NONE);
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         buttons.setLayoutData(gd);
@@ -344,13 +281,7 @@ public class SimpleLogViewer extends Dialog {
         gd.widthHint = 100;
         button.setText("Export Log...");
         button.setLayoutData(gd);
-        button.addSelectionListener(new SelectionListener() {
-
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-
-            }
-
+        button.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 FileDialog fd = new FileDialog(shell, SWT.SAVE);
@@ -360,7 +291,7 @@ public class SimpleLogViewer extends Dialog {
                         LogUtil.saveLogToFile(new File(fileName),
                                 new Timestamp(0), Order.AFTER);
                     } catch (AlertvizException e1) {
-                        final Status s = new Status(Status.ERROR,
+                        final Status s = new Status(IStatus.ERROR,
                                 Activator.PLUGIN_ID, "Error saving log", e1);
                         ErrorDialog.openError(shell, "Error saving log",
                                 "Error saving log", s);
@@ -394,18 +325,11 @@ public class SimpleLogViewer extends Dialog {
         showLog = new Button(buttons, SWT.NONE);
         showLog.setText("Show Log...");
         showLog.setLayoutData(gd);
-        showLog.addSelectionListener(new SelectionListener() {
-
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-
-            }
-
+        showLog.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 showHideLog();
             }
-
         });
 
         sdb = new SimpleDetailsComp(shell, SWT.NONE);
@@ -421,7 +345,6 @@ public class SimpleLogViewer extends Dialog {
             }
         }
 
-        AlertvizJob.removeLogUpdatedCallback(cb);
         table.dispose();
         red.dispose();
         yellow.dispose();

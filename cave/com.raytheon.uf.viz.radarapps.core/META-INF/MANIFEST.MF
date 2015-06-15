@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Radar Apps Core Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.radarapps.core;singleton:=true
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.15.0
 Bundle-Vendor: Raytheon
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.eclipse.ui,
@@ -19,7 +19,8 @@ Require-Bundle: org.eclipse.ui,
  javax.jms;bundle-version="1.0.0",
  com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
  com.raytheon.viz.ui;bundle-version="1.12.1174",
- com.raytheon.uf.viz.points;bundle-version="1.0.0"
+ com.raytheon.uf.viz.points;bundle-version="1.0.0",
+ org.slf4j;bundle-version="1.7.5"
 Export-Package: com.raytheon.uf.viz.radarapps.client,
  com.raytheon.uf.viz.radarapps.core,
  com.raytheon.uf.viz.radarapps.products.ui

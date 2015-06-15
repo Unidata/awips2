@@ -90,6 +90,7 @@ import com.raytheon.viz.ui.UiUtil;
 import com.raytheon.viz.ui.actions.SaveBundle;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
+import com.raytheon.viz.ui.dialogs.localization.VizLocalizationFileListDlg;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.views.PartAdapter2;
 
@@ -106,7 +107,7 @@ import com.raytheon.viz.ui.views.PartAdapter2;
  *                                     Initial Creation
  * Oct 16, 2012 1229       rferrel     Changes for non-blocking AlterBundleDlg.
  * Oct 16, 2012 1229       rferrel     Changes to have displayDialog method.
- * Oct 16, 2012 1229       rferrel     Changes for non-blocking ProcedureListDlg.
+ * Oct 16, 2012 1229       rferrel     Changes for non-blocking VizLocalizationFileListDlg.
  * Jan 15, 2013  DR 15699  D. Friedman Prompt for save when close button clicked.
  * Jan 16, 2013  DR 15367  D. Friedman Enable save button for Up/Down changes.
  * Feb 25, 2013 1640       bsteffen    Dispose old display in BundleLoader
@@ -116,6 +117,7 @@ import com.raytheon.viz.ui.views.PartAdapter2;
  * Mar 02, 2015 4204       njensen     Copy In uses tab name if applicable
  * Mar 12, 2015 4204       njensen     Ensure renamed bundle goes into tab name on next load
  * Apr 08, 2015 4185       mapeters    Disable Copy In when not applicable for active editor
+ * Jun 02, 2015 4401       bkowal      Updated to use {@link VizLocalizationFileListDlg}.
  * 
  * </pre>
  * 
@@ -191,7 +193,7 @@ public class ProcedureDlg extends CaveSWTDialog {
 
     private AlterBundleDlg alterDlg;
 
-    private ProcedureListDlg saveAsDlg;
+    private ProcedureListFileDlg saveAsDlg;
 
     private IPartListener2 activeEditorListener;
 
@@ -998,8 +1000,8 @@ public class ProcedureDlg extends CaveSWTDialog {
 
     private void showSaveAsDlg(final boolean closeAfterSave) {
         if (mustCreate(saveAsDlg)) {
-            saveAsDlg = new ProcedureListDlg("Save Procedure As...", shell,
-                    ProcedureListDlg.Mode.SAVE);
+            saveAsDlg = new ProcedureListFileDlg("Save Procedure As...", shell,
+                    VizLocalizationFileListDlg.Mode.SAVE, PROCEDURES_DIR);
 
             saveAsDlg.setCloseCallback(new ICloseCallback() {
 
