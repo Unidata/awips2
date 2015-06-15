@@ -25,6 +25,12 @@
 		<region>Alaska</region>
 	</regionInfo>
 
+    <!-- Global region -->
+    <regionInfo id="TIPG">
+        <region>Global</region>
+    </regionInfo>
+
+
   <regionInfo id="TIPC">
     <region>CONUS</region>
   </regionInfo>
@@ -131,9 +137,10 @@
 	</channelInfo>
 	
 	<!-- DNB replace id when known -->
-	<channelInfo id="??">
+	<channelInfo id="10">
 		<channelType>Moderate</channelType>
 		<wavelength>0.7</wavelength>
+		<channel>10</channel>
 		<resolution>750.0</resolution>
 	</channelInfo>
 </viirsHeaderMapping>
