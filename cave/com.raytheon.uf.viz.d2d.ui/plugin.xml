@@ -348,7 +348,7 @@
 
          <menu
                id="D2Dmaps"
-               label="Overlays"
+               label="Maps"
                mnemonic="M">
              <visibleWhen>
                 <reference
