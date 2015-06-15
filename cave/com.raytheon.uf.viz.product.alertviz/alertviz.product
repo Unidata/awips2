@@ -22,7 +22,6 @@ Developed on the Raytheon Visualization Environment (viz)
       <programArgsLin>-consoleLog</programArgsLin>
       <vmArgs>-Xincgc -Xms16M -Xmx256M -Xss2024k
 -Dosgi.instance.area.readOnly=true
--Declipse.log.enabled=false
 -Dorg.eclipse.update.reconcile=false
 -Dqpid.dest_syntax=BURL
 -Dorg.eclipse.update.reconcile=false
