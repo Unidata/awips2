@@ -61,9 +61,11 @@ Developed on the Raytheon Visualization Environment (viz)
       <feature id="com.raytheon.uf.viz.feature.alertviz" version="1.9.0.qualifier"/>
    </features>
 
-   <configurations>
-      <plugin id="com.raytheon.uf.viz.spring.dm" autoStart="true" startLevel="0" />
+   <configurations>      
+      <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
+      <plugin id="com.raytheon.uf.viz.spring.dm" autoStart="true" startLevel="4" />
    </configurations>
 
 </product>
