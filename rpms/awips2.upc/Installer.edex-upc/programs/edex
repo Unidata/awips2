@@ -43,48 +43,21 @@ options=( 'status' 'start' 'stop' 'log' 'setup' 'test' )
 nopts=${options[@]}
 
 # main program
-#
 
 # Construct IP subnet
-#
 # OS X
-
 #IP=`ifconfig  | grep -E 'inet.[0-9]' | grep -v '127.0.0.1' | awk '{ print $2}'`
 
 # Linux
 # Simple solution
 #IP=`hostname -I`
 
-# For multiple IP addresses we need to account for non-routable IPs
-#IP=`/sbin/ifconfig | grep "inet addr" | grep -v 127.0.0 |  awk '{ print $2 }' | cut -d: -f2`
-
-ethdev=`ip link show| grep ^[0-9]| awk '{ print $2}'`
-
-if [[ $ethdev =~ eth0 ]]; then
-  usedev=eth0
-elif [[ $ethdev =~ wlan0 ]]; then
-  usedev=wlan0
-fi
-
+# better solution: find interface for routeable IPs
+usedev=`netstat -rn | egrep "^0.0.0.0" | awk '{print $8}'`
 IP=`/sbin/ifconfig $usedev | grep "inet addr" |  awk '{ print $2 }' | cut -d: -f2`
-
-if [[ $IP =~ ^10\..* || $IP =~ ^192\.168.* ]] # non-routable IP range
-then
-  if [[ $ethdev =~ eth1 ]]; then
-    IP=`/sbin/ifconfig eth1 | grep "inet addr" |  awk '{ print $2 }' | cut -d: -f2`
-  fi
-elif [[ $IP =~ ^172\..* ]]
-then
-  IPb=`echo $IP | cut -d"." -f2`
-  if [[ $IPb -gt 15 && $IPb -lt 32 ]] # non-routable 172.16 to 172.32 range
-  then
-    IP=`/sbin/ifconfig eth1 | grep "inet addr" |  awk '{ print $2 }' | cut -d: -f2`
-  fi
-fi
 
 # truncate
 IP_CIDR="${IP%.*}"
-
 editFiles=($PG_FILE $EDEX_ENV_FILE $LDMD_CONF)
 boolFiles=(true true true)
 editFuncs=(edit_pg edit_edex edit_ldm)
