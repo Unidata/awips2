@@ -99,10 +99,11 @@
          id="com.raytheon.uf.edex.radar.feature"
          version="0.0.0"/>
 
-   <includes
+   <!--
+        <includes
          id="com.raytheon.uf.edex.dat.feature"
          version="0.0.0"/>
-
+   -->
    <includes
          id="com.raytheon.uf.edex.ncep.feature"
          version="0.0.0"/>
