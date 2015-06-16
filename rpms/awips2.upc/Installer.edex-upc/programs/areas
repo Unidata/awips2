@@ -1,0 +1,53 @@
+#!/bin/bash -f
+# all of this sed crap for templates
+#dirs=$(find $GEMDATA/images/sat/GOES-13/4km/VIS/ -type f)
+export GEMTBL=/awips2/tools/bin
+if [[ $# -eq 0 ]] ; then
+    echo ''
+    echo '  ** no directory given.  Usage: "areas $DIR" **'
+    echo ''
+    exit 0
+fi
+
+dirs=$(find ${1} -type f)
+
+
+# id  | imagetype | imagetypenumber | satelliteid 
+#-----+-----------+-----------------+-------------
+#   1 | VIS       | 1               | 84
+
+
+#dirs=$(cat areadirs.txt)
+for dir in $dirs
+do
+	areafile=$dir
+	imgtype=$(arinfo -i $areafile | sed 's/Image Type =//g' | tr -d ' ')
+	band=$(arinfo -b $areafile | sed 's/Band Number =//g' | tr -d ' ')
+	bandLog=`echo 'l('$band')/l(2)' | bc -l`
+	bandNum=`echo ""$bandLog"/1" |bc `
+        if [[ $bandNum -lt 10 ]]; then
+		bandNum=`expr $bandNum + 1`
+	fi
+	satID=$(arinfo -a $areafile |grep --text "Sensor source number" | cut -d":" -f2 | tr -d ' ') 
+	areaNum=$(arinfo -a $areafile |grep --text "Area file number" | cut -d":" -f2 | tr -d ' ') 
+	#echo "insert into mcidas_image_type (imagetype, imagetypenumber, satelliteid) values ('$imgtype',$band,$satID);"
+	#echo "insert into awips.mcidas_area_names VALUES ($arenum,'');"
+	filename=`echo $areafile | cut -d "/" -f 9`
+        binrs=$(arinfo -binrs $areafile)
+        name=$(arinfo -s $areafile | sed 's/Satellite Name is //'| sed 's/[ \t]*$//')
+	echo $filename $binrs Sensor source number=$satID Area num=$areaNum
+	xmlLines=$xmlLines"<entry><key ss=\"$satID\" band=\"$bandNum\"/><value name=\"$imgtype\" /></entry>"$'\n'
+	areaLines=$areaLines"<entry><key>$areaNum</key><value>$name</value></entry>"$'\n'
+done
+
+echo ''
+echo '  ** entries for com.raytheon.uf.edex.plugin.satellite.mcidas -- physicalElements.xml'
+echo ''
+xmlSorted=`echo "$xmlLines" | sort | uniq`
+printf "%s\n" "$xmlSorted"
+echo ''
+echo '  ** entries for com.raytheon.uf.edex.plugin.satellite.mcidas -- areaNames.xml'
+echo ''
+areaSorted=`echo "$areaLines" | sort | uniq | sed 's/GOES13 13.3/GOES-East/g' |sed 's/GOES15 13.3/GOES-West/g' |sed 's/SOUNDER/GOES-Sounder/g' |sed 's/ANTARCTICA/Antarctica/g' | sed 's/ARCTIC 11.0/Arctic/g'`
+printf "%s\n" "$areaSorted"
+exit 1
