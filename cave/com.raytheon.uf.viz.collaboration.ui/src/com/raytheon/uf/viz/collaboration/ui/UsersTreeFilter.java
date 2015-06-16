@@ -19,15 +19,11 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui;
 
-import org.eclipse.jface.viewers.ILabelProvider;
-import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.jface.viewers.StructuredViewer;
-import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerFilter;
 import org.jivesoftware.smack.RosterEntry;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.viz.ui.widgets.AbstractVizTreeFilter;
 
 /**
  * Filters contact list tree according to a substring filter.
@@ -40,6 +36,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * ------------ ---------- ----------- --------------------------
  * Jun 13, 2012            mnash     Initial creation
  * May 20, 2014 3172       bclement  fixed filtering for contacts and sessions
+ * Jun 16, 2015 4401       bkowal    Updated to extend {@link AbstractVizTreeFilter}.
  * 
  * </pre>
  * 
@@ -47,50 +44,10 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * @version 1.0
  */
 
-public class UsersTreeFilter extends ViewerFilter {
-    private String currentText;
+public class UsersTreeFilter extends AbstractVizTreeFilter {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.viewers.ViewerFilter#select(org.eclipse.jface.viewers
-     * .Viewer, java.lang.Object, java.lang.Object)
-     */
     @Override
-    public boolean select(Viewer viewer, Object parentElement, Object element) {
-        boolean retVal = true;
-        if (currentText != null) {
-            String labelText = ((ILabelProvider) ((StructuredViewer) viewer)
-                    .getLabelProvider()).getText(element);
-            if (labelText.equals(currentText)) {
-                viewer.setSelection(new StructuredSelection(element));
-            }
-            if (element instanceof UserId || element instanceof RosterEntry
-                    || element instanceof ISession) {
-                String[] words = getWords(currentText);
-                for (String word : words) {
-                    if (!labelText.toUpperCase().contains(word.toUpperCase())) {
-                        retVal = false;
-                        break;
-                    }
-                }
-            } else {
-                retVal = true;
-            }
-        }
-        return retVal;
-    }
-
-    private String[] getWords(String text) {
-        return text.trim().split("\\s+");
-    }
-
-    /**
-     * @param currentText
-     *            the currentText to set
-     */
-    public void setCurrentText(String currentText) {
-        this.currentText = currentText;
+    protected boolean shouldFilter(Object element) {
+        return (element instanceof UserId || element instanceof RosterEntry || element instanceof ISession);
     }
 }

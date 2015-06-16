@@ -25,6 +25,7 @@ import java.util.List;
 
 import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
+import com.raytheon.viz.ui.widgets.IFilterInput;
 
 /**
  * Container for collaboration information window. Includes current user,
@@ -40,6 +41,8 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
  * Dec 20, 2013 2563       bclement  added items from server roster not in groups
  * Jan 24, 2014 2701       bclement  removed local groups, added shared groups
  * Oct 08, 2014 3705       bclement  added public room group
+ * Jun 16, 2015 4401       bkowal    updated to implement {@link IFilterInput} to provide
+ *                                   data to filter on.
  * 
  * </pre>
  * 
@@ -47,7 +50,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
  * @version 1.0
  */
 
-public class CollaborationGroupContainer {
+public class CollaborationGroupContainer implements IFilterInput {
 
     private final SessionGroupContainer sessionGroup = new SessionGroupContainer();
 

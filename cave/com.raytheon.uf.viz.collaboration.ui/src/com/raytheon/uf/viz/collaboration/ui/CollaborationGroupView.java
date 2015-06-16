@@ -39,25 +39,10 @@ import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.jface.window.ToolTip;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.accessibility.ACC;
-import org.eclipse.swt.accessibility.AccessibleAdapter;
-import org.eclipse.swt.accessibility.AccessibleControlAdapter;
-import org.eclipse.swt.accessibility.AccessibleControlEvent;
-import org.eclipse.swt.accessibility.AccessibleEvent;
 import org.eclipse.swt.custom.TreeEditor;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseMoveListener;
-import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
@@ -66,7 +51,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Text;
@@ -75,9 +59,6 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.internal.WorkbenchMessages;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
 import org.jivesoftware.smack.packet.Presence;
@@ -135,6 +116,7 @@ import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 import com.raytheon.viz.ui.views.CaveFloatingView;
 import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
+import com.raytheon.viz.ui.widgets.FilterDelegate;
 
 /**
  * This class is the main view to display the user's information and allow the
@@ -171,6 +153,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Dec 12, 2014 3709       mapeters    Store {@link ChangeTextColorAction}s in map, dispose them.
  * Jan 09, 2015 3709       bclement    color config manager API changes
  * Jan 13, 2015 3709       bclement    ChangeTextColorAction API changes
+ * Jun 16, 2015 4401       bkowal      Re-factored filtering into a common location.
  * 
  * </pre>
  * 
@@ -183,9 +166,9 @@ public class CollaborationGroupView extends CaveFloatingView implements
 
     private TreeViewer usersTreeViewer;
 
-    private UsersTreeFilter usersTreeFilter;
-
     private CollaborationGroupContainer topLevel;
+
+    private FilterDelegate filterDelegate;
 
     private CreateSessionAction createSessionAction;
 
@@ -200,12 +183,6 @@ public class CollaborationGroupView extends CaveFloatingView implements
     private TreeEditor treeEditor;
 
     private Composite parent;
-
-    private Image inactiveImage = null;
-
-    private Image activeImage = null;
-
-    private Image pressedImage = null;
 
     private LogoutAction logOut;
 
@@ -222,8 +199,6 @@ public class CollaborationGroupView extends CaveFloatingView implements
         this.parent = parent;
         this.parent.setLayout(new GridLayout());
 
-        createImages();
-
         // build the necessary actions for the view
         createActions();
 
@@ -233,20 +208,6 @@ public class CollaborationGroupView extends CaveFloatingView implements
         // add some actions to the menubar
         createMenubar();
         openConnection();
-    }
-
-    /**
-     * Create images.
-     */
-    private void createImages() {
-        inactiveImage = AbstractUIPlugin.imageDescriptorFromPlugin(
-                PlatformUI.PLUGIN_ID, "$nl$/icons/full/dtool16/clear_co.gif")
-                .createImage();
-        activeImage = AbstractUIPlugin.imageDescriptorFromPlugin(
-                PlatformUI.PLUGIN_ID, "$nl$/icons/full/etool16/clear_co.gif")
-                .createImage();
-        pressedImage = new Image(Display.getCurrent(), activeImage,
-                SWT.IMAGE_GRAY);
     }
 
     private void openConnection() {
@@ -260,7 +221,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
             connection = CollaborationConnection.getConnection();
         }
 
-        createFilterText(parent);
+        this.filterDelegate = new FilterDelegate(parent, new UsersTreeFilter());
         createUsersTree(parent);
         addDoubleClickListeners();
         createContextMenu();
@@ -283,10 +244,6 @@ public class CollaborationGroupView extends CaveFloatingView implements
             connection.getContactsManager().removeGroupListener(this);
         }
         super.dispose();
-
-        inactiveImage.dispose();
-        activeImage.dispose();
-        pressedImage.dispose();
 
         for (ChangeTextColorAction<?> userColorAction : userColorActions
                 .values()) {
@@ -687,159 +644,6 @@ public class CollaborationGroupView extends CaveFloatingView implements
     }
 
     /**
-     * Code was copied from FilteredTree, as FilteredTree did not offer an
-     * advanced enough matching capability
-     * 
-     * This creates a nice looking text widget with a button embedded in the
-     * widget
-     * 
-     * @param parent
-     */
-    private void createFilterText(Composite parent) {
-        Composite comp = new Composite(parent, SWT.BORDER);
-        comp.setBackground(Display.getCurrent().getSystemColor(
-                SWT.COLOR_LIST_BACKGROUND));
-        GridLayout layout = new GridLayout(2, false);
-        layout.marginHeight = 0;
-        layout.marginWidth = 0;
-        comp.setLayout(layout);
-        GridData gd = new GridData(SWT.FILL, SWT.NONE, true, false);
-        comp.setLayoutData(gd);
-
-        final Text text = new Text(comp, SWT.SINGLE | SWT.NONE);
-        GridData data = new GridData(SWT.FILL, SWT.NONE, true, false);
-        text.setLayoutData(data);
-        text.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased(KeyEvent e) {
-                filter(text);
-            }
-        });
-
-        // only create the button if the text widget doesn't support one
-        // natively
-        final Label clearButton = new Label(comp, SWT.NONE);
-        clearButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER,
-                false, false));
-        clearButton.setImage(inactiveImage);
-        clearButton.setBackground(parent.getDisplay().getSystemColor(
-                SWT.COLOR_LIST_BACKGROUND));
-        clearButton.setToolTipText(WorkbenchMessages.FilteredTree_ClearToolTip);
-        clearButton.addMouseListener(new MouseAdapter() {
-            private MouseMoveListener fMoveListener;
-
-            @Override
-            public void mouseDown(MouseEvent e) {
-                clearButton.setImage(pressedImage);
-                fMoveListener = new MouseMoveListener() {
-                    private boolean fMouseInButton = true;
-
-                    @Override
-                    public void mouseMove(MouseEvent e) {
-                        boolean mouseInButton = isMouseInButton(e);
-                        if (mouseInButton != fMouseInButton) {
-                            fMouseInButton = mouseInButton;
-                            clearButton.setImage(mouseInButton ? pressedImage
-                                    : inactiveImage);
-                        }
-                    }
-                };
-                clearButton.addMouseMoveListener(fMoveListener);
-            }
-
-            @Override
-            public void mouseUp(MouseEvent e) {
-                if (fMoveListener != null) {
-                    clearButton.removeMouseMoveListener(fMoveListener);
-                    fMoveListener = null;
-                    boolean mouseInButton = isMouseInButton(e);
-                    clearButton.setImage(mouseInButton ? activeImage
-                            : inactiveImage);
-                    if (mouseInButton) {
-                        text.setText("");
-                        filter(text);
-                        text.setFocus();
-                    }
-                }
-            }
-
-            private boolean isMouseInButton(MouseEvent e) {
-                Point buttonSize = clearButton.getSize();
-                return 0 <= e.x && e.x < buttonSize.x && 0 <= e.y
-                        && e.y < buttonSize.y;
-            }
-        });
-        clearButton.addMouseTrackListener(new MouseTrackAdapter() {
-            @Override
-            public void mouseEnter(MouseEvent e) {
-                clearButton.setImage(activeImage);
-            }
-
-            @Override
-            public void mouseExit(MouseEvent e) {
-                clearButton.setImage(inactiveImage);
-            }
-        });
-        clearButton.addDisposeListener(new DisposeListener() {
-            @Override
-            public void widgetDisposed(DisposeEvent e) {
-                inactiveImage.dispose();
-                activeImage.dispose();
-                pressedImage.dispose();
-            }
-        });
-        clearButton.getAccessible().addAccessibleListener(
-                new AccessibleAdapter() {
-                    @Override
-                    public void getName(AccessibleEvent e) {
-                        e.result = WorkbenchMessages.FilteredTree_AccessibleListenerClearButton;
-                    }
-                });
-        clearButton.getAccessible().addAccessibleControlListener(
-                new AccessibleControlAdapter() {
-                    @Override
-                    public void getRole(AccessibleControlEvent e) {
-                        e.detail = ACC.ROLE_PUSHBUTTON;
-                    }
-                });
-    }
-
-    /**
-     * Function to run through the tree and expand all elements if something is
-     * typed in the filter field, otherwise collapse them all
-     * 
-     * @param text
-     */
-    private void filter(Text text) {
-        // call refresh on the tree to get the most up-to-date children
-        usersTreeViewer.refresh(false);
-
-        if (usersTreeFilter == null) {
-            ViewerFilter[] filters = new ViewerFilter[1];
-            usersTreeFilter = new UsersTreeFilter();
-            filters[0] = usersTreeFilter;
-            usersTreeViewer.setFilters(filters);
-        }
-
-        // set the current filter text so that it can be used when refresh is
-        // called again
-        usersTreeFilter.setCurrentText(text.getText());
-        if (text.getText().length() == 0) {
-            for (Object ob : topLevel.getObjects()) {
-                usersTreeViewer.setExpandedState(ob, false);
-            }
-        }
-        // if text contains anything then expand all items in the tree
-        if (text.getText().length() > 0) {
-            for (Object ob : topLevel.getObjects()) {
-                usersTreeViewer.setExpandedState(ob, true);
-            }
-        }
-        // call refresh on the tree after things are expanded
-        usersTreeViewer.refresh(false);
-    }
-
-    /**
      * Generate the Tree View component and add tooltip tracking.
      * 
      * @param parent
@@ -850,6 +654,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
         child.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         usersTreeViewer = new TreeViewer(child, SWT.VIRTUAL | SWT.MULTI
                 | SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
+        this.filterDelegate.setTreeViewer(usersTreeViewer);
         usersTreeViewer.getTree().setLayoutData(
                 new GridData(SWT.FILL, SWT.FILL, true, true));
 
@@ -861,6 +666,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
         usersTreeViewer.setSorter(new UsersTreeViewerSorter());
         ColumnViewerToolTipSupport.enableFor(usersTreeViewer, ToolTip.RECREATE);
         topLevel = new CollaborationGroupContainer();
+        this.filterDelegate.setFilterInput(topLevel);
         usersTreeViewer.setInput(topLevel);
 
         treeEditor = new TreeEditor(usersTreeViewer.getTree());
