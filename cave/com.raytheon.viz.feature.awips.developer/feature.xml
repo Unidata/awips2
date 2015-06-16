@@ -64,11 +64,10 @@
    <includes
          id="com.raytheon.viz.text.feature"
          version="0.0.0"/>
-<!--
+
    <includes
          id="com.raytheon.viz.warngen.feature"
          version="0.0.0"/>
--->
 
    <includes
          id="gov.noaa.gsd.viz.ensemble.feature"

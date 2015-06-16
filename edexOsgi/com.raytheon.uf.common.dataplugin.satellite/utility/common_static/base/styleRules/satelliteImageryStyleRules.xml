@@ -146,6 +146,21 @@
 </styleRule>
 <styleRule>
   <paramLevelMatches>
+     <parameter>OZONE</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <range scale="LINEAR">
+       <minValue>100</minValue>
+       <maxValue>500</maxValue>
+     </range>
+     <defaultColormap>Sat/Ozone/Ozone</defaultColormap>
+     <colorbarLabeling> 
+ 	     <values>100 150 200 250 300 350 400 450 500</values> 
+ 	  </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
      <parameter>Sounder Based Derived Lifted Index (LI)</parameter>
   </paramLevelMatches>
   <imageStyle>
