@@ -39,6 +39,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * ------------ ---------- ----------- --------------------------
  * Apr 23, 2015  #4354     dgilling     Initial creation
  * Jun 09, 2015  #4355     dgilling     Rename action for UI.
+ * Jun 18, 2015  #4354     dgilling     Allow individual properties object for
+ *                                      each polygon.
  * 
  * </pre>
  * 
@@ -48,8 +50,11 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 public class OpenGeoJsonPropertiesDlgAction extends AbstractRightClickAction {
 
-    public OpenGeoJsonPropertiesDlgAction() {
+    private final DamagePathPolygon damagePath;
+
+    public OpenGeoJsonPropertiesDlgAction(final DamagePathPolygon damagePath) {
         super("Set Properties...");
+        this.damagePath = damagePath;
     }
 
     @Override
@@ -59,10 +64,10 @@ public class OpenGeoJsonPropertiesDlgAction extends AbstractRightClickAction {
             public void run() {
                 Shell shell = VizWorkbenchManager.getInstance()
                         .getCurrentWindow().getShell();
-                final DamagePathLayer<?> layer = (DamagePathLayer<?>) getSelectedRsc();
-                final Map<String, String> geoJsonProps = layer
-                        .getFeatureProperties();
 
+                final DamagePathLayer<?> layer = (DamagePathLayer<?>) getSelectedRsc();
+                final Map<String, String> geoJsonProps = damagePath
+                        .getProperties();
                 EditGeoJsonPropertiesDlg dlg = new EditGeoJsonPropertiesDlg(
                         shell, geoJsonProps);
                 dlg.setCloseCallback(new ICloseCallback() {
@@ -72,7 +77,8 @@ public class OpenGeoJsonPropertiesDlgAction extends AbstractRightClickAction {
                         if ((returnValue != null)
                                 && (!geoJsonProps.equals(returnValue))) {
                             Map<String, String> updatedProperties = (Map<String, String>) returnValue;
-                            layer.setFeatureProperties(updatedProperties);
+                            damagePath.setProperties(updatedProperties);
+                            layer.scheduleSaveJob();
                         }
                     }
                 });

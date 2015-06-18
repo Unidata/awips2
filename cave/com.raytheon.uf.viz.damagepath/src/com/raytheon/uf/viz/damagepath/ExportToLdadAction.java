@@ -22,7 +22,7 @@ package com.raytheon.uf.viz.damagepath;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import org.opengis.feature.simple.SimpleFeature;
+import org.geotools.data.simple.SimpleFeatureCollection;
 
 import com.raytheon.uf.common.damagepath.request.ExportToLdadRequest;
 import com.raytheon.uf.common.json.JsonException;
@@ -46,6 +46,8 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- -------------------------- 
  * Jun 08, 2015  #4355     dgilling    Initial creation
+ * Jun 18, 2015  #4354     dgilling    Support FeatureCollections so each 
+ *                                     polygon can have its own properties.
  * 
  * </pre>
  * 
@@ -69,9 +71,10 @@ public class ExportToLdadAction extends AbstractRightClickAction {
 
         try (ByteArrayOutputStream outStream = new ByteArrayOutputStream()) {
             DamagePathLayer<?> layer = (DamagePathLayer<?>) getSelectedRsc();
-            SimpleFeature feature = layer.buildFeature();
+            SimpleFeatureCollection featureCollection = layer
+                    .buildFeatureCollection();
 
-            new SimpleGeoJsonService().serialize(feature, outStream);
+            new SimpleGeoJsonService().serialize(featureCollection, outStream);
             jsonData = outStream.toByteArray();
         } catch (JsonException | IOException e) {
             statusHandler.error(
