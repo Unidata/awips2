@@ -25,5 +25,5 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.time,
  org.apache.log4j
 Bundle-ActivationPolicy: lazy
-Eclipse-RegisterBuddy: ch.qos.logback
+Eclipse-RegisterBuddy: ch.qos.logback, com.raytheon.uf.common.logback
 Bundle-ClassPath: com.raytheon.uf.viz.alertviz.jar,.

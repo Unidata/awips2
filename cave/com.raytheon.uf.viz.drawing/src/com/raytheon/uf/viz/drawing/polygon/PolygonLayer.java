@@ -57,6 +57,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * Jan 19, 2015  3974      njensen     Initial creation
  * Mar 31, 2015  3977      nabowle     Require non-empty coordinates in resetPolygon
  * May 15, 2015  4375      dgilling    Support multiple polygons.
+ * Jun 12, 2015  4375      dgilling    Only show AddVertexAction when on polygon's
+ *                                     edge and not near a current vertex.
  * 
  * </pre>
  * 
@@ -224,12 +226,13 @@ public class PolygonLayer<T extends AbstractResourceData> extends
     public void addContextMenuItems(IMenuManager menuManager, int x, int y) {
         int edgePolygonIdx = uiInput.pointOnEdge(x, y);
         boolean onEdge = (edgePolygonIdx >= 0);
-        if (onEdge) {
-            menuManager.add(new AddVertexAction(edgePolygonIdx, x, y, uiInput));
-        }
 
         int[] indices = uiInput.pointOnVertex(x, y);
         boolean onVertex = (indices != null);
+
+        if (onEdge && !onVertex) {
+            menuManager.add(new AddVertexAction(edgePolygonIdx, x, y, uiInput));
+        }
         if (onVertex) {
             int polygonIndex = indices[0];
             int vertexIndex = indices[1];
