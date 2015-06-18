@@ -61,7 +61,8 @@ import com.raytheon.viz.avnconfig.AvnConfigConstants.RuleType;
  * Sep 27, 2011 10958      rferrel     Added checks for required fields in
  *                                     configuration files.
  * Aug 07, 2014 3502       bclement     changes to StringUtil.split()
- * 
+ * Jun 02, 2015 17533      yteng       changes to getRules() to retrieve 
+ *                                     all rules
  * </pre>
  * 
  * @author avarani
@@ -354,17 +355,18 @@ public class AvnConfiguration {
             HierarchicalINIConfiguration config = new HierarchicalINIConfiguration(
                     file);
             config.setDelimiterParsingDisabled(true);
-            String aRules = config.getString("rules.active");
-            if (aRules == null || aRules.trim().isEmpty()) {
+            
+            String[] activeRules = config.getStringArray("rules.active");
+            if (activeRules == null || activeRules.length == 0)  {
                 throw new ConfigurationException(file.getName()
                         + ", no list of active rules");
             }
-
-            String[] activeRules = StringUtil.split(
-                    config.getString("rules.active"), ',');
-
+            
             for (String activeRule : activeRules) {
-                String key = "rule_" + activeRule;
+                if (activeRule.trim().equals("")) {
+                    continue;
+                }
+                String key = "rule_" + activeRule.trim();
                 String method = config.getString(key + ".method");
 
                 if (method == null) {

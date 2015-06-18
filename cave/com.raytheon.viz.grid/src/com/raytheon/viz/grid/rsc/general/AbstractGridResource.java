@@ -132,6 +132,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Aug 21, 2014  DR 17313 jgerth      Implements ImageProvider
  * Oct 07, 2014  3668     bclement    Renamed requestJob to requestRunner
  * Dec 09, 2014  5056     jing        Added data access interfaces
+ * May 11, 2015  4384     dgilling    Add arrow style preference for minimum
+ *                                    magnitude.
  * 
  * </pre>
  * 
@@ -510,6 +512,12 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
                         config.setLinearArrowScaleFactor(scale);
                     } else {
                         config.setArrowScaler(new LogArrowScaler(-1 * scale));
+                    }
+
+                    double minMagnitude = ((ArrowPreferences) stylePreferences)
+                            .getMinimumMagnitude();
+                    if (!Double.isNaN(minMagnitude)) {
+                        config.setMinimumMagnitude(minMagnitude);
                     }
                 } else {
                     config.setLinearArrowScaleFactor(1.0);
@@ -969,6 +977,7 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
         return new ArrayList<PluginDataObject>(list);
     }
 
+    @Override
     public Collection<DrawableImage> getImages(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
         if (getCapability(DisplayTypeCapability.class).getDisplayType() != DisplayType.IMAGE) {
