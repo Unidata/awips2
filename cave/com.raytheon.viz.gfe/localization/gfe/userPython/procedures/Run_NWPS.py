@@ -12,7 +12,7 @@
 #
 # Authors: Pablo Santos and Alex Gibbs.
 #
-# Last Modified: 01/23/15 by AG/PS for AWIPS Baseline.
+# Last Modified: 06/16/2015 by AG/PS for AWIPS Baseline.
 # ----------------------------------------------------------------------------
 
 # The MenuItems list defines the GFE menu item(s) under which the
@@ -158,8 +158,8 @@ class Procedure (SmartScript.SmartScript):
                     starttime = startHour
                      
                 timeRange1 = TimeRange.TimeRange(AbsTime.AbsTime(starttime - 7*24*3600), AbsTime.AbsTime(starttime + 8*24*3600))
-                timeRange2 = TimeRange.TimeRange(AbsTime.AbsTime(starttime), AbsTime.AbsTime(starttime + fcst_length*3600))               
-                                
+                timeRange2 = TimeRange.TimeRange(AbsTime.AbsTime(starttime), AbsTime.AbsTime(starttime + fcst_length*3600 + 3600))
+
                 self.deleteCmd(['NWPSwind'], timeRange1)
                 databaseID = self.findDatabase("Fcst")
                 self.copyToCmd([('Wind', 'NWPSwind')], databaseID, timeRange2) 
