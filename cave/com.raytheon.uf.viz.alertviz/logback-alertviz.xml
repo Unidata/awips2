@@ -4,8 +4,8 @@
    -->
    <!-- general application log --> 
    <appender name="console" class="ch.qos.logback.core.ConsoleAppender"> 
-      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
-      <filter class="com.raytheon.uf.common.status.logback.InvertedThresholdFilter">
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
+      <filter class="com.raytheon.uf.common.logback.filter.InvertedThresholdFilter">
          <level>INFO</level>         
       </filter>
    </appender>
@@ -15,14 +15,14 @@
       <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
         <level>WARN</level>
       </filter> 
-      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
    </appender>
    
-   <appender name="AlertVizAdminLogAppender" class="com.raytheon.uf.common.status.logback.EnvConfigurableRollingFileAppender">
+   <appender name="AlertVizAdminLogAppender" class="com.raytheon.uf.common.logback.appender.EnvConfigurableRollingFileAppender">
       <!--  file and fileNamePattern will be overridden by the env variable if present, but are required by logback -->
       <file>alertviz-admin.log</file>
       <envLogVar>LOGFILE_ALERTVIZ</envLogVar>
-      <rollingPolicy class="com.raytheon.uf.common.status.logback.EnvConfigurableFixedWindowRollingPolicy">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.EnvConfigurableFixedWindowRollingPolicy">
          <fileNamePattern>alertviz-admin.log%i</fileNamePattern>
          <envLogVar>LOGFILE_ALERTVIZ</envLogVar>
          <minIndex>1</minIndex>
@@ -32,7 +32,7 @@
          <maxFileSize>2GB</maxFileSize>
       </triggeringPolicy>
       <append>true</append>
-      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
    </appender> 
    
    <logger name="AlertVizAdminLogger" additivity="false">

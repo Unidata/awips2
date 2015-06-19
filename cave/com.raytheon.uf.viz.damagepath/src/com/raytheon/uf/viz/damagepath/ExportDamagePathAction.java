@@ -49,6 +49,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Apr 23, 2015  4354      dgilling    Export as GeoJSON Feature object.
  * Jun 05, 2015  4375      dgilling    Prompt user before exporting feature 
  *                                     with no polygons.
+ * Jun 09, 2015  4355      dgilling    Rename action for UI.
  * 
  * </pre>
  * 
@@ -68,7 +69,7 @@ public class ExportDamagePathAction extends AbstractRightClickAction {
     protected static final String[] EXTENSIONS = new String[] { "*.json" };
 
     public ExportDamagePathAction() {
-        super("Export GeoJSON");
+        super("Export to File");
     }
 
     @Override

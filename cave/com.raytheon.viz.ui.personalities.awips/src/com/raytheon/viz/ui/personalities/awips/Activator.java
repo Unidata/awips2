@@ -22,9 +22,18 @@ package com.raytheon.viz.ui.personalities.awips;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+
+import com.raytheon.uf.viz.alertviz.AlertVizPreferences;
+import com.raytheon.uf.viz.alertviz.AlertvizJob;
+import com.raytheon.uf.viz.alertviz.ReceiverConnChecker;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -38,6 +47,34 @@ public class Activator extends AbstractUIPlugin {
     private static Activator plugin;
 
     private BundleContext context;
+
+    private AlertVizChecker avChecker;
+
+    /**
+     * Checks if alertviz is running on the configured port, and if not, starts
+     * it internally. Reschedules itself automatically to periodically check
+     * again.
+     */
+    protected static class AlertVizChecker extends Job {
+        public AlertVizChecker() {
+            super("AlertViz Connection Check");
+        }
+
+        @Override
+        protected IStatus run(IProgressMonitor monitor) {
+            int port = AlertVizPreferences.getAlertVizPort();
+            if (!ReceiverConnChecker.isReceiverRunning(port)) {
+                AlertvizJob av = AlertvizJob.getInstance();
+                if (av != null) {
+                    av.start(port);
+                }
+            }
+
+            // TODO every 10 seconds good enough?
+            this.schedule(10000);
+            return Status.OK_STATUS;
+        }
+    }
 
     /**
      * The constructor
@@ -83,6 +120,9 @@ public class Activator extends AbstractUIPlugin {
     @Override
     public void stop(BundleContext context) throws Exception {
         plugin = null;
+        if (avChecker != null) {
+            avChecker.cancel();
+        }
         super.stop(context);
     }
 
@@ -93,6 +133,15 @@ public class Activator extends AbstractUIPlugin {
      */
     public static Activator getDefault() {
         return plugin;
+    }
+
+    public AlertVizChecker getAlertVizCheckJob() {
+        if (avChecker == null && LocalizationManager.internalAlertServer) {
+            avChecker = new AlertVizChecker();
+            avChecker.setSystem(true);
+        }
+
+        return avChecker;
     }
 
 }

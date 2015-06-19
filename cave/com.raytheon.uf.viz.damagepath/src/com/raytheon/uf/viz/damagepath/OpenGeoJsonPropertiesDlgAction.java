@@ -38,6 +38,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 23, 2015  #4354     dgilling     Initial creation
+ * Jun 09, 2015  #4355     dgilling     Rename action for UI.
  * 
  * </pre>
  * 
@@ -48,7 +49,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
 public class OpenGeoJsonPropertiesDlgAction extends AbstractRightClickAction {
 
     public OpenGeoJsonPropertiesDlgAction() {
-        super("Set GeoJSON Properties...");
+        super("Set Properties...");
     }
 
     @Override

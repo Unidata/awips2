@@ -1,27 +1,25 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 package com.raytheon.uf.viz.radarapps.client;
 
 import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -44,12 +42,11 @@ import javax.jms.Topic;
 import javax.jms.TopicConnection;
 import javax.jms.TopicSession;
 import javax.jms.TopicSubscriber;
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.rcm.event.ConfigEvent;
 import com.raytheon.rcm.event.NotificationEvent;
@@ -60,6 +57,7 @@ import com.raytheon.rcm.mqsrvr.ReplyObj;
 import com.raytheon.rcm.mqsrvr.ReqObj;
 import com.raytheon.rcm.rmr.RmrEvent;
 import com.raytheon.uf.common.dataplugin.radar.request.RadarServerConnectionRequest;
+import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 
@@ -69,23 +67,38 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
 // TODO: conflicts over setting fatalMsg
 
 /**
- * Manages client connection to RadarServer 
- * 
+ * Manages client connection to RadarServer
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer     Description
  * ------------ ---------- ------------ --------------------------
  * ????                    D. Friedman  Initial version
  * 2012-07-27   DR 14896   D. Friedman  Fix even topic name
- * 
+ * 2015-06-10   4497       nabowle      Use JAXBManager.
+ *
  * </pre>
- * 
+ *
  * @author dfriedma
  * @version 1.0
  */
 public class RcmClient implements MessageListener, ExceptionListener {
+
+    private static final Logger logger = LoggerFactory
+            .getLogger(RcmClient.class);
+
+    static JAXBManager jaxbManager;
+
+    static {
+        try {
+            jaxbManager = new JAXBManager(true, ReqObj.class, ReplyObj.class,
+                    EventObj.class, RmrEvent.class);
+        } catch (JAXBException e) {
+            logger.error("Could not instantiate the JAXBManager.", e);
+        }
+    }
 
     private String connectionURL;
 
@@ -128,7 +141,7 @@ public class RcmClient implements MessageListener, ExceptionListener {
         try {
             connectionURL = (String) ThriftClient.sendRequest(request);
         } catch (VizException e) {
-            e.printStackTrace();
+            logger.warn("Could not retrieve the connection url.", e);
         }
     }
 
@@ -190,8 +203,7 @@ public class RcmClient implements MessageListener, ExceptionListener {
                     }
                 });
             } catch (JMSException e) {
-                // TODO
-                e.printStackTrace(System.err);
+                logger.warn("Error subscribing to events.", e);
             }
         }
     }
@@ -295,7 +307,7 @@ public class RcmClient implements MessageListener, ExceptionListener {
             handler = handlers.get(id);
         } catch (JMSException e) {
             // TODO:...
-            System.err.println(e.toString());
+            logger.warn("Could not get the JMS Correlation ID.", e);
             return;
         }
 
@@ -306,13 +318,9 @@ public class RcmClient implements MessageListener, ExceptionListener {
 
             if (msg instanceof TextMessage) {
                 TextMessage tms = (TextMessage) msg;
-                StringReader sr = new StringReader(tms.getText());
                 Object o = null;
                 try {
-                    synchronized (u) {
-                        o = u.unmarshal(sr);
-                    }
-
+                    o = jaxbManager.unmarshalFromXml(tms.getText());
                     if (o instanceof ReplyObj) {
                         ro = (ReplyObj) o;
                     } else {
@@ -336,7 +344,7 @@ public class RcmClient implements MessageListener, ExceptionListener {
             handler.onReply(ro);
         } catch (Exception e) {
             // TODO: ...
-            e.printStackTrace(System.err);
+            logger.warn("Error handling a reply.", e);
         }
 
     }
@@ -347,16 +355,10 @@ public class RcmClient implements MessageListener, ExceptionListener {
         if (msg instanceof TextMessage) {
             TextMessage tms = (TextMessage) msg;
             try {
-                StringReader sr = new StringReader(tms.getText());
-                try {
-                    synchronized (u) {
-                        o = u.unmarshal(sr);
-                    }
-                } catch (JAXBException e) {
-                    // nothing
-                }
-            } catch (JMSException e) {
-                // nothing
+                    o = jaxbManager.unmarshalFromXml(tms.getText());
+            } catch (JMSException | JAXBException e) {
+                // TODO
+                logger.warn("Could not unmarshal the message.", e);
             }
         }
 
@@ -380,7 +382,7 @@ public class RcmClient implements MessageListener, ExceptionListener {
                     l.handleNotificationEvent((NotificationEvent) o);
             } catch (Exception e) {
                 // TODO: ...
-                e.printStackTrace(System.err);
+                logger.warn("Error handling the event.", e);
             }
         }
 
@@ -409,7 +411,7 @@ public class RcmClient implements MessageListener, ExceptionListener {
                 l.onRcmException(exc);
             } catch (Exception e) {
                 // TODO: ...
-                e.printStackTrace(System.err);
+                logger.warn("Error notifying listeners of an RCM Exception.", e);
             }
         }
     }
@@ -426,7 +428,7 @@ public class RcmClient implements MessageListener, ExceptionListener {
                 l.onRcmClientReady();
             } catch (Exception e) {
                 // TODO: ...
-                e.printStackTrace(System.err);
+                logger.warn("Error while notifying listeners of readiness.", e);
             }
         }
     }
@@ -491,13 +493,15 @@ public class RcmClient implements MessageListener, ExceptionListener {
                         if (qcToClose != null)
                             qcToClose.close();
                     } catch (JMSException e) {
-                        e.printStackTrace(System.err); // TODO:...
+                        // TODO:...
+                        logger.warn("Error closing QueueConnection.", e);
                     }
                     try {
                         if (tcToClose != null)
                             tcToClose.close();
                     } catch (JMSException e) {
-                        e.printStackTrace(System.err); // TODO:...
+                        // TODO:...
+                        logger.warn("Error closing TopicConnection.", e);
                     }
                 }
             });
@@ -571,11 +575,9 @@ public class RcmClient implements MessageListener, ExceptionListener {
 
     public void sendBlocking(ReqObj req, RcmClientHandler handler)
             throws IOException {
-        StringWriter sw = new StringWriter();
+        String xml;
         try {
-            synchronized (m) {
-                m.marshal(req, sw);
-            }
+            xml = jaxbManager.marshalToXml(req);
         } catch (JAXBException e) {
             throw new IOException(e);
         }
@@ -584,7 +586,7 @@ public class RcmClient implements MessageListener, ExceptionListener {
                 if (state != State.CONNECTED)
                     throw new IOException("Not connected to RadarServer");
             }
-            TextMessage msg = queueSession.createTextMessage(sw.toString());
+            TextMessage msg = queueSession.createTextMessage(xml);
             msg.setJMSReplyTo(replyQueue);
             // queueConn.stop();//cant get message id until its sent...// TODO:
             // abandoned message list?..
@@ -681,23 +683,6 @@ public class RcmClient implements MessageListener, ExceptionListener {
         }
         retryThread.setDaemon(true);
         retryThread.run();
-    }
-
-    static JAXBContext jaxbCtx;
-
-    static Marshaller m;
-
-    static Unmarshaller u;
-
-    static {
-        try {
-            jaxbCtx = JAXBContext.newInstance(ReqObj.class, ReplyObj.class,
-                    EventObj.class, RmrEvent.class);
-            m = jaxbCtx.createMarshaller();
-            u = jaxbCtx.createUnmarshaller();
-        } catch (JAXBException e) {
-            // TODO:
-        }
     }
 
     // TODO: should use this...

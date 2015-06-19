@@ -86,7 +86,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 public class IntegerValueType extends ValueType {
 
-    @Column
+    @Column(columnDefinition="bigint")
     @XmlElement(name = "Value")
     @DynamicSerializeElement
     protected BigInteger integerValue;

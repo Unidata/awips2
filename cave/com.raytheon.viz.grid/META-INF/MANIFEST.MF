@@ -32,7 +32,8 @@ Require-Bundle: org.eclipse.ui;bundle-version="3.8.0",
  com.raytheon.uf.common.numeric;bundle-version="1.14.0",
  javax.measure,
  com.raytheon.uf.viz.datacube;bundle-version="1.14.0",
- com.raytheon.uf.viz.core.grid;bundle-version="1.15.0"
+ com.raytheon.uf.viz.core.grid;bundle-version="1.15.0",
+ com.raytheon.uf.viz.productbrowser.datalisting;bundle-version="1.15.0"
 Export-Package: com.raytheon.viz.grid,
  com.raytheon.viz.grid.inv,
  com.raytheon.viz.grid.rsc,

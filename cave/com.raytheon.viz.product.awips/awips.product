@@ -18,13 +18,12 @@
       <programArgsLin>-consoleLog</programArgsLin>
       <vmArgs>-XX:+UseG1GC
 -Dosgi.instance.area.readOnly=true 
--Declipse.log.enabled=false
 -Dorg.eclipse.update.reconcile=false
 -XX:MaxPermSize=128m
 -Dorg.eclipse.ui/KEY_CONFIGURATION_ID=com.raytheon.viz.ui.awips.scheme
 -Dqpid.dest_syntax=BURL
 -Dlogback.configurationFile=logback-viz-core.xml
--Dlogback.statusListenerClass=com.raytheon.uf.common.status.logback.UFLogbackInternalStatusListener
+-Dlogback.statusListenerClass=com.raytheon.uf.common.logback.UFLogbackInternalStatusListener
 -Dthrift.stream.maxsize=200
 -Dviz.memory.warn.threshold=98
 -Dhttps.certificate.check=false
@@ -72,10 +71,11 @@
       <feature id="com.raytheon.viz.feature.awips" version="1.9.0.qualifier"/>
    </features>
 
-   <configurations>
-      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
+   <configurations>      
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
+      <plugin id="com.raytheon.uf.viz.spring.dm" autoStart="true" startLevel="4" />
    </configurations>
 
 </product>

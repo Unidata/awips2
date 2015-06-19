@@ -162,7 +162,11 @@ public class FollowUpLockingBehavior extends AbstractLockingBehavior {
 
             if ((affectedArea.getName() != null)
                     && (affectedArea.getName().trim().length() != 0)) {
-                names.add(affectedArea.getName());
+                /*
+                 * force area name to upper case for headlines since headlines
+                 * are all upper case
+                 */
+                names.add(affectedArea.getName().toUpperCase());
             }
         }
 
