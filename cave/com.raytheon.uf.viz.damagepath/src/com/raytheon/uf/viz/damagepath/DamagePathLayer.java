@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,6 +31,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.action.IMenuManager;
+import org.geotools.data.DataUtilities;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.opengis.feature.simple.SimpleFeature;
@@ -49,15 +51,16 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.LocalizationFileOutputStream;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.util.Pair;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.drawing.polygon.DrawablePolygon;
 import com.raytheon.uf.viz.drawing.polygon.PolygonLayer;
 import com.raytheon.uf.viz.drawing.polygon.PolygonUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.Polygon;
 
 /**
@@ -78,6 +81,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * Jun 08, 2015  4355      dgilling    Fix NullPointerException in loadJob.
  * Jun 12, 2015  4375      dgilling    Fix ConcurrentModificationException in
  *                                     initInternal.
+ * Jun 18, 2015  4354      dgilling    Allow each polygon to have their own 
+ *                                     properties.
  * 
  * </pre>
  * 
@@ -110,8 +115,6 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
             + OLD_FILE;
 
     private static final String PATH = DIR + IPathManager.SEPARATOR + FILE;
-
-    private Map<String, String> featureProperties = Collections.emptyMap();
 
     /**
      * JVM property to specify the localization level to attempt to save/load
@@ -171,7 +174,7 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
     private void setDefaultPolygon() {
         Polygon polygon = PolygonUtil.makeDefaultPolygon(getResourceContainer()
                 .getActiveDisplayPane().getRenderableDisplay());
-        DrawablePolygon drawablePolygon = new DrawablePolygon(polygon, this);
+        DrawablePolygon drawablePolygon = new DamagePathPolygon(polygon, this);
         polygons.add(0, drawablePolygon);
     }
 
@@ -250,18 +253,24 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
     protected void loadDamagePath(LocalizationFile file) {
         try {
             DamagePathLoader loader = new DamagePathLoader(file);
-            Collection<Polygon> newPolygons = loader.getPolygons();
-            if (!newPolygons.isEmpty()) {
+            Collection<Pair<Polygon, Map<String, String>>> newData = loader
+                    .getDamagePathData();
+            if (!newData.isEmpty()) {
+                Collection<DrawablePolygon> newDamagePaths = new ArrayList<>(
+                        newData.size());
+                for (Pair<Polygon, Map<String, String>> data : newData) {
+                    newDamagePaths.add(new DamagePathPolygon(data.getFirst(),
+                            data.getSecond(), this));
+                }
+
                 /*
                  * specifically call super.resetPolygon() cause
                  * this.resetPolygon() will save the file and we don't want to
                  * do that or we could infinite loop of load, save, load,
                  * save...
                  */
-                super.resetPolygons(newPolygons);
+                super.resetPolygons(newDamagePaths);
             }
-
-            featureProperties = loader.getProperties();
         } catch (Exception e) {
             statusHandler.error(
                     "Error loading damage path file " + file.getName(), e);
@@ -273,8 +282,8 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
         try {
             fos = file.openOutputStream();
             IGeoJsonService json = new SimpleGeoJsonService();
-            SimpleFeature feature = buildFeature();
-            json.serialize(feature, fos);
+            SimpleFeatureCollection featureCollection = buildFeatureCollection();
+            json.serialize(featureCollection, fos);
             fos.closeAndSave();
         } catch (Throwable t) {
             if (fos != null) {
@@ -289,18 +298,16 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
         }
     }
 
-    public SimpleFeature buildFeature() {
-        Map<String, String> jsonProps = getFeatureProperties();
+    private SimpleFeature buildFeature(final DamagePathPolygon damagePath) {
+        Map<String, String> jsonProps = damagePath.getProperties();
 
         String id = jsonProps.get(GeoJsonMapUtil.ID_KEY);
         SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
         typeBuilder.setName("feature");
 
-        Collection<Polygon> polygons = getPolygons();
-        GeometryCollection geomCollection = PolygonUtil.FACTORY
-                .createGeometryCollection(polygons.toArray(new Geometry[0]));
+        Geometry polygon = damagePath.getPolygon();
         typeBuilder.setDefaultGeometry("the_geom");
-        typeBuilder.add("the_geom", geomCollection.getClass());
+        typeBuilder.add("the_geom", polygon.getClass());
 
         Collection<String> keysToIgnore = Arrays.asList(GeoJsonMapUtil.ID_KEY);
         Set<String> keySet = jsonProps.keySet();
@@ -315,31 +322,55 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
 
         SimpleFeatureType type = typeBuilder.buildFeatureType();
         SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(type);
-        if (geomCollection != null) {
-            featureBuilder.add(geomCollection);
+        if (polygon != null) {
+            featureBuilder.add(polygon);
         }
         featureBuilder.addAll(values);
         return featureBuilder.buildFeature(id);
     }
 
-    public Map<String, String> getFeatureProperties() {
-        return featureProperties;
-    }
+    public SimpleFeatureCollection buildFeatureCollection() {
+        List<SimpleFeature> features = new ArrayList<>(polygons.size());
+        for (DrawablePolygon polygon : polygons) {
+            features.add(buildFeature((DamagePathPolygon) polygon));
+        }
 
-    public void setFeatureProperties(Map<String, String> featureProperties) {
-        this.featureProperties = featureProperties;
-        saveJob.schedule();
+        return DataUtilities.collection(features);
     }
 
     @Override
     public void addPolygon(Coordinate[] coords) {
-        super.addPolygon(coords);
+        super.addPolygon(new DamagePathPolygon(coords, this));
         saveJob.schedule();
     }
 
     @Override
     public void deletePolygon(int index) {
         super.deletePolygon(index);
+        saveJob.schedule();
+    }
+
+    @Override
+    public void addContextMenuItems(IMenuManager menuManager, int x, int y) {
+        if (!getCapability(EditableCapability.class).isEditable()) {
+            return;
+        }
+
+        super.addContextMenuItems(menuManager, x, y);
+
+        int onPolygonIdx = uiInput.pointOnPolygon(x, y);
+        if (onPolygonIdx >= 0) {
+            menuManager.add(new OpenGeoJsonPropertiesDlgAction(
+                    (DamagePathPolygon) polygons.get(onPolygonIdx)));
+        }
+    }
+
+    @Override
+    protected DrawablePolygon getNewDrawable() {
+        return new DamagePathPolygon(this);
+    }
+
+    protected void scheduleSaveJob() {
         saveJob.schedule();
     }
 }

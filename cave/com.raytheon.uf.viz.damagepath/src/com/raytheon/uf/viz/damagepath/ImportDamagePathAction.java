@@ -19,7 +19,9 @@
  **/
 package com.raytheon.uf.viz.damagepath;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
@@ -28,7 +30,11 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.uf.common.json.JsonException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.util.Pair;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
+import com.raytheon.uf.viz.drawing.polygon.DrawablePolygon;
 import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 import com.vividsolutions.jts.geom.Polygon;
@@ -47,6 +53,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * Apr 23, 2015  4354      dgilling    Support GeoJSON Feature objects.
  * Jun 03, 2015  4375      dgilling    Support multiple polygons.
  * Jun 09, 2015  4355      dgilling    Rename action for UI.
+ * Jun 18, 2015  4354      dgilling    Support modifications to loader so each 
+ *                                     polygon can have its own properties.
  * 
  * </pre>
  * 
@@ -80,10 +88,16 @@ public class ImportDamagePathAction extends AbstractRightClickAction {
                     try {
                         DamagePathLoader loader = new DamagePathLoader(filename);
 
-                        Collection<Polygon> newPolygons = loader.getPolygons();
-                        if (!newPolygons.isEmpty()) {
-                            layer.resetPolygons(newPolygons);
-                            layer.setFeatureProperties(loader.getProperties());
+                        Collection<Pair<Polygon, Map<String, String>>> newData = loader
+                                .getDamagePathData();
+                        if (!newData.isEmpty()) {
+                            Collection<DrawablePolygon> newDamagePaths = new ArrayList<>(
+                                    newData.size());
+                            for (Pair<Polygon, Map<String, String>> data : newData) {
+                                newDamagePaths.add(new DamagePathPolygon(data
+                                        .getFirst(), data.getSecond(), layer));
+                            }
+                            layer.resetPolygons(newDamagePaths);
                         } else {
                             throw new JsonException(
                                     "Damage path file contains no polygons.");
@@ -95,5 +109,11 @@ public class ImportDamagePathAction extends AbstractRightClickAction {
                 }
             }
         });
+    }
+
+    @Override
+    public boolean isEnabled() {
+        AbstractVizResource<?, ?> layer = getSelectedRsc();
+        return layer.getCapability(EditableCapability.class).isEditable();
     }
 }

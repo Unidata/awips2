@@ -25,7 +25,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
-import org.opengis.feature.simple.SimpleFeature;
+import org.geotools.data.simple.SimpleFeatureCollection;
 
 import com.raytheon.uf.common.json.geo.IGeoJsonService;
 import com.raytheon.uf.common.json.geo.SimpleGeoJsonService;
@@ -34,7 +34,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
-import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * Action to export a damage path as GeoJSON to a file specified by the user.
@@ -50,6 +49,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Jun 05, 2015  4375      dgilling    Prompt user before exporting feature 
  *                                     with no polygons.
  * Jun 09, 2015  4355      dgilling    Rename action for UI.
+ * Jun 18, 2015  #4354     dgilling    Support FeatureCollections so each 
+ *                                     polygon can have its own properties.
  * 
  * </pre>
  * 
@@ -85,11 +86,10 @@ public class ExportDamagePathAction extends AbstractRightClickAction {
 
                 if (filename != null) {
                     DamagePathLayer<?> layer = (DamagePathLayer<?>) getSelectedRsc();
-                    SimpleFeature feature = layer.buildFeature();
+                    SimpleFeatureCollection featureCollection = layer
+                            .buildFeatureCollection();
 
-                    Geometry defaultGeometry = (Geometry) feature
-                            .getDefaultGeometry();
-                    if (defaultGeometry.getNumGeometries() < 1) {
+                    if (featureCollection.size() < 1) {
                         boolean export = MessageDialog.openConfirm(shell,
                                 CONFIRM_DLG_TITLE, CONFIRM_DLG_MSG);
                         if (!export) {
@@ -101,7 +101,7 @@ public class ExportDamagePathAction extends AbstractRightClickAction {
 
                     try (FileOutputStream fos = new FileOutputStream(filename)) {
                         IGeoJsonService json = new SimpleGeoJsonService();
-                        json.serialize(feature, fos);
+                        json.serialize(featureCollection, fos);
                     } catch (Exception e) {
                         statusHandler.error(
                                 "Error exporting damage path file to "

@@ -22,7 +22,6 @@ package com.raytheon.uf.viz.drawing.polygon;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.List;
 
 import org.eclipse.jface.action.IMenuManager;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -59,6 +58,9 @@ import com.vividsolutions.jts.geom.Polygon;
  * May 15, 2015  4375      dgilling    Support multiple polygons.
  * Jun 12, 2015  4375      dgilling    Only show AddVertexAction when on polygon's
  *                                     edge and not near a current vertex.
+ * Jun 17, 2015  4354      dgilling    Fix bugs that would clear polygons on 
+ *                                     capability change or reproject.
+ * 
  * 
  * </pre>
  * 
@@ -75,7 +77,7 @@ public class PolygonLayer<T extends AbstractResourceData> extends
 
     protected PolygonInputAdapter uiInput = new PolygonInputAdapter(this);
 
-    protected final List<DrawablePolygon> polygons;
+    protected final LinkedList<DrawablePolygon> polygons;
 
     public PolygonLayer(T resourceData, LoadProperties loadProperties) {
         super(resourceData, loadProperties);
@@ -128,7 +130,7 @@ public class PolygonLayer<T extends AbstractResourceData> extends
         if ((index < polygons.size()) && (coords != null && coords.length > 0)) {
             DrawablePolygon polygon = polygons.remove(index);
             polygon.resetPolygon(coords);
-            polygons.add(0, polygon);
+            polygons.push(polygon);
             issueRefresh();
         }
     }
@@ -136,7 +138,12 @@ public class PolygonLayer<T extends AbstractResourceData> extends
     @Override
     protected void resourceDataChanged(ChangeType type, Object updateObject) {
         if (type.equals(ChangeType.CAPABILITY)) {
-            clearPolygons();
+            if (polygons != null) {
+                for (DrawablePolygon polygon : polygons) {
+                    polygon.resetPolygon();
+                }
+            }
+            issueRefresh();
         }
     }
 
@@ -145,6 +152,7 @@ public class PolygonLayer<T extends AbstractResourceData> extends
         for (DrawablePolygon drawPolygon : polygons) {
             drawPolygon.project(crs);
         }
+        issueRefresh();
     }
 
     public Polygon getPolygon(int index) {
@@ -155,24 +163,13 @@ public class PolygonLayer<T extends AbstractResourceData> extends
         resetPolygon(index, polygon.getExteriorRing().getCoordinates());
     }
 
-    protected void clearPolygons() {
-        if (polygons != null) {
-            for (DrawablePolygon polygon : polygons) {
-                polygon.dispose();
-            }
-            polygons.clear();
-            issueRefresh();
-        }
-    }
-
-    public void resetPolygons(Collection<Polygon> newPolygons) {
+    public void resetPolygons(Collection<DrawablePolygon> newPolygons) {
         if ((polygons != null) && (!newPolygons.isEmpty())) {
             resizePolygonStack(newPolygons.size());
 
             int i = 0;
-            for (Polygon newPolygon : newPolygons) {
-                polygons.get(i).resetPolygon(
-                        newPolygon.getExteriorRing().getCoordinates());
+            for (DrawablePolygon newPolygon : newPolygons) {
+                polygons.get(i).resetPolygon(newPolygon);
                 i++;
             }
 
@@ -185,21 +182,27 @@ public class PolygonLayer<T extends AbstractResourceData> extends
         if (newSize > currentSize) {
             int toAdd = newSize - currentSize;
             for (int i = 0; i < toAdd; i++) {
-                polygons.add(new DrawablePolygon(this));
+                polygons.add(getNewDrawable());
             }
         } else if (currentSize > newSize) {
             int toDelete = currentSize - newSize;
             for (int i = 0; i < toDelete; i++) {
-                DrawablePolygon polygonToDelete = polygons.remove(polygons
-                        .size() - 1);
+                DrawablePolygon polygonToDelete = polygons.removeLast();
                 polygonToDelete.dispose();
             }
         }
     }
 
+    protected DrawablePolygon getNewDrawable() {
+        return new DrawablePolygon(this);
+    }
+
     public void addPolygon(Coordinate[] coords) {
-        DrawablePolygon polygon = new DrawablePolygon(coords, this);
-        polygons.add(0, polygon);
+        addPolygon(new DrawablePolygon(coords, this));
+    }
+
+    protected void addPolygon(DrawablePolygon newPolygon) {
+        polygons.push(newPolygon);
     }
 
     public void deletePolygon(int index) {
@@ -224,6 +227,10 @@ public class PolygonLayer<T extends AbstractResourceData> extends
      */
     @Override
     public void addContextMenuItems(IMenuManager menuManager, int x, int y) {
+        if (!getCapability(EditableCapability.class).isEditable()) {
+            return;
+        }
+
         int edgePolygonIdx = uiInput.pointOnEdge(x, y);
         boolean onEdge = (edgePolygonIdx >= 0);
 

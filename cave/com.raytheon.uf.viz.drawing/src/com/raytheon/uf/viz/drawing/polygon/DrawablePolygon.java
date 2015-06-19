@@ -50,6 +50,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  *  May 27, 2015  #4375     dgilling     Initial creation
+ *  Jun 18, 2015  #4354     dgilling     Correct behavior of project.
  * 
  * </pre>
  * 
@@ -168,6 +169,23 @@ public class DrawablePolygon implements IRenderable2 {
             if (coords != null && coords.length > 0) {
                 polygon = PolygonUtil.FACTORY.createPolygon(coords);
             }
+
+            resetPolygon();
+        }
+    }
+
+    public void resetPolygon(DrawablePolygon newPolygon) {
+        synchronized (lock) {
+            if ((newPolygon != null) && (newPolygon.getPolygon() != null)) {
+                polygon = newPolygon.getPolygon();
+            }
+
+            resetPolygon();
+        }
+    }
+
+    public void resetPolygon() {
+        synchronized (lock) {
             if (wireframeShape != null) {
                 wireframeShape.reset();
             }
@@ -193,7 +211,7 @@ public class DrawablePolygon implements IRenderable2 {
     public void project(CoordinateReferenceSystem crs) {
         synchronized (lock) {
             dispose();
-            polygon = null;
+            resetPolygon();
         }
     }
 }
