@@ -23,7 +23,6 @@
 
     <import resource="classpath:META-INF/cxf/cxf.xml" />
     <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
-
     <import resource="file:///${edex.home}/conf/spring/edex-db.xml" />
     <import resource="classpath:res/spring/edex-security.xml" />
     <import resource="classpath:res/spring/eventbus-common.xml" />
@@ -39,7 +38,10 @@
     <import resource="classpath:res/spring/ebxml-impl.xml" />
     <import resource="classpath*:res/spring/ebxml-customQueryPlugin.xml" />
     <import resource="classpath:res/spring/ebxml-webservices.xml" />
+    <import resource="classpath:res/spring/utility-common.xml" />
     <import resource="classpath*:res/spring/webservices.xml" />
+    
+    <bean id="serializationUtil" class="com.raytheon.uf.common.serialization.SerializationUtil" />
 
     <bean id="QueryServiceWrapper"
         class="com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImplWrapper">
