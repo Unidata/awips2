@@ -44,6 +44,7 @@ import com.vividsolutions.jts.geom.util.AffineTransformation;
  * Mar 04, 2015  4194      njensen     Block other input on middle click drag on edges
  * Jun 03, 2015  4375      dgilling    Add methods for adding/deleting polygons, 
  *                                     support multiple polygons in PolygonLayer.
+ * Jun 18, 2015  4354      dgilling    Changed visibility of pointOnPolygon.
  * 
  * </pre>
  * 
@@ -306,7 +307,7 @@ public class PolygonInputAdapter extends RscInputAdapter<PolygonLayer<?>> {
      * @return Index of the polygon this screen point is on or -1 if it is not
      *         on any polygons.
      */
-    protected int pointOnPolygon(int screenX, int screenY) {
+    public int pointOnPolygon(int screenX, int screenY) {
         int polygonIdx = -1;
         Coordinate worldCoord = screenToLatLon(screenX, screenY);
         if (worldCoord != null) {
