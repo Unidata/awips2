@@ -803,7 +803,7 @@
                      commandId="com.raytheon.viz.ui.actions.setframes">
                   <parameter
                         name="frameCount"
-                        value="300">
+                        value="400">
                   </parameter>
                </command>
          </menuContribution>
