@@ -20,12 +20,13 @@
 
 package com.raytheon.uf.common.dataplugin.satellite;
 
-import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasMapCoverage;
-import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasRecord;
-import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasSpatialFactory;
-import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
+//import gov.noaa.nws.ncep.edex.util.McidasCRSBuilder;
+
+import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 
 import java.awt.geom.Rectangle2D;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -48,16 +49,21 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.Envelope2D;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.hibernate.annotations.Type;
 import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.geometry.Envelope;
+import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.NoSuchIdentifierException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.crs.ProjectedCRS;
 
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.geospatial.IGridGeometryProvider;
+import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.adapter.GeometryAdapter;
 import com.raytheon.uf.common.geospatial.util.EnvelopeIntersection;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -90,6 +96,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * May 19, 2015			  mjames@ucar Added decoding of GVAR native projection products,
  * 								      increased crsWKT to 5120 for GVAR the_geom
  * May 21, 2015			  mjames@ucar Added display capability for GVAR projection products
+ * Jun 23, 2015			  mjames@ucar Copied constructCRSfromWKT and constructCRS from
+ * 									  McidasCRSBuilder because PDE build dependency failed
  * </pre>
  */
 @Entity
@@ -233,10 +241,10 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
         this.ny = ny;
         this.dx = dx;
         this.dy = dy;
-        this.upperLeftElement = IDecoderConstantsN.INTEGER_MISSING;
-        this.upperLeftLine = IDecoderConstantsN.INTEGER_MISSING;
-        this.elementRes = IDecoderConstantsN.INTEGER_MISSING;
-        this.lineRes = IDecoderConstantsN.INTEGER_MISSING;
+        this.upperLeftElement = IDecoderConstants.VAL_MISSING;
+        this.upperLeftLine = IDecoderConstants.VAL_MISSING;
+        this.elementRes = IDecoderConstants.VAL_MISSING;
+        this.lineRes = IDecoderConstants.VAL_MISSING;
         this.crsObject = crs;
         Geometry latLonGeometry = null;
         try {
@@ -483,8 +491,7 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
         if (crsObject == null && crsWKT != null) {
             try {
                 if (this.projection == PROJ_GVAR) {
-                	crsObject = McidasSpatialFactory.getInstance()
-                            .constructCRSfromWKT(crsWKT);
+                	crsObject = constructCRSfromWKT(crsWKT);
                 	
             	} else {
                 	crsObject = CRSCache.getInstance()
@@ -584,5 +591,58 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
             return false;
         return true;
     }
+    
+    public static ProjectedCRS constructCRSfromWKT(String crsWKT) {
+        Pattern p = Pattern.compile("PROJCS\\[\"MCIDAS\\sAREA\\s(.*)\"");
+        Matcher m = p.matcher(crsWKT);
+        m.find();
+        ProjectedCRS crsObject = null;
 
+        if (m.groupCount() == 1) {
+            String type = m.group(1);
+            p = Pattern.compile("\\[\"NAV_BLOCK_BASE64\",\\s\"(.*)\"\\],");
+            m = p.matcher(crsWKT);
+            boolean found = m.find();
+            if (found) {
+                String navBlock = m.group(1);
+                crsObject = constructCRS(type, navBlock);
+            }
+        }
+
+        return crsObject;
+    }
+    
+    public static ProjectedCRS constructCRS(String type, String encoded) {
+
+        ParameterValueGroup pvg = null;
+
+        DefaultMathTransformFactory dmtFactory = new DefaultMathTransformFactory();
+        try {
+            pvg = dmtFactory.getDefaultParameters("MCIDAS_AREA_NAV");
+        } catch (NoSuchIdentifierException e1) {
+            e1.printStackTrace();
+        }
+        /*
+         * semi_major and semi_minor parameters are set to 1, so that no global
+         * scaling is performed during coordinate transforms by
+         * org.geotools.referencing.operation.projection.MapProjection based on
+         * the radius of earth
+         */
+        pvg.parameter("semi_major").setValue(1.0);
+        pvg.parameter("semi_minor").setValue(1.0);
+        pvg.parameter("central_meridian").setValue(0.0);
+        pvg.parameter("NAV_BLOCK_BASE64").setValue(encoded);
+
+        String projectionName = "MCIDAS AREA " + type;
+        ProjectedCRS mcidasCRS = null;
+        try {
+            mcidasCRS = MapUtil.constructProjection(projectionName, pvg);
+        } catch (NoSuchIdentifierException e) {
+            e.printStackTrace();
+        } catch (FactoryException e) {
+            e.printStackTrace();
+        }
+
+        return mcidasCRS;
+    }
 }
