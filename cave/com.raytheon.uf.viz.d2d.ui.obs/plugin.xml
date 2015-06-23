@@ -46,6 +46,14 @@
                 </separator>
                 <separator name="EndOfSynoptic" visible="true">
                 </separator>
+                <command
+                      commandId="com.raytheon.viz.ui.actions.titleAction"
+                      label="------ Lightning ------">
+                </command>
+                <separator
+                      name="USPLNPLACEHOLDER"
+                      visible="false">
+                </separator>
                 <command commandId="com.raytheon.viz.ui.actions.titleAction"
                     label="------ Local data ------">
                 </command>
