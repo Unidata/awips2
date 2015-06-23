@@ -25,6 +25,7 @@ import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.viz.awipstools.ui.layer.DistanceSpeedLayer;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 import com.vividsolutions.jts.geom.Polygon;
@@ -41,6 +42,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * Mar 23, 2015 3977       nabowle     Initial creation
  * Jun 01, 2015 3975       dgilling    Update for DamageLayer changes for 
  *                                     multiple polygon support.
+ * Jun 18, 2015 4354       dgilling    Update isEnabled to consider editable
+ *                                     capability.
  * 
  * </pre>
  * 
@@ -85,9 +88,10 @@ public class ImportFromDistanceSpeedAction extends AbstractRightClickAction {
      */
     @Override
     public boolean isEnabled() {
-        boolean enabled = super.isEnabled();
+        AbstractVizResource<?, ?> rsc = getSelectedRsc();
+        boolean enabled = rsc.getCapability(EditableCapability.class)
+                .isEditable();
         if (enabled) {
-            AbstractVizResource<?, ?> rsc = getSelectedRsc();
             if (rsc != null) {
                 enabled = findImportLayer(rsc) != null;
             }
@@ -111,5 +115,4 @@ public class ImportFromDistanceSpeedAction extends AbstractRightClickAction {
         }
         return null;
     }
-
 }
