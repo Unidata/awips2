@@ -21,7 +21,6 @@
 package com.raytheon.edex.util.satellite;
 
 import java.awt.geom.Rectangle2D;
-import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
 import org.geotools.geometry.DirectPosition2D;
 import org.opengis.referencing.crs.ProjectedCRS;
@@ -376,9 +375,9 @@ public class SatSpatialFactory {
     		int upperLeftLine, int xres, int yres, ProjectedCRS crs, 
     		Geometry geometry) {
     	
-    	// do your shit here.
-        float dx = IDecoderConstantsN.FLOAT_MISSING;
-        float dy = IDecoderConstantsN.FLOAT_MISSING;
+    	// do your stuff here.
+        float dx = 999999.f;
+        float dy = 999999.f;
         
         double minX, minY;
         //if (crsType == PROJ_GVAR) { // for native projection
