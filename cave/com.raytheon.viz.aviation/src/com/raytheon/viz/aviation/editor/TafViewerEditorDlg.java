@@ -241,7 +241,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * May 15, 2014 3002        bgonzale    Moved common taf code to com.raytheon.uf.common.dataplugin.taf.
  * 08/13/2014   3497        njensen     Refactored syntax checking to prevent potential infinite loop
  * 12/02/2014   #15007      zhao        Added restoreFrom() for the "Restore From..." menu option
- * 04/07/2015   17332       zhao        Added code to handle case of "Cancel" in "Restore From..." 
+ * 04/07/2015   17332       zhao        Added code to handle case of "Cancel" in "Restore From..."
+ * 06/23/2015   2282        skorolev    Corrected "CLEAR" case in updateSettings.
  * 
  * </pre>
  * 
@@ -450,7 +451,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
     /**
      * The list of Viewer tabs configured for display.
      */
-    private List<ViewerTab> modelsTabs = new ArrayList<ViewerTab>();
+    private final List<ViewerTab> modelsTabs = new ArrayList<ViewerTab>();
 
     /**
      * Current active Viewer tab.
@@ -505,7 +506,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
     /**
      * The station list.
      */
-    private List<String> stationList;
+    private final List<String> stationList;
 
     /**
      * Saved state of the QC check items
@@ -756,7 +757,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
             editorTafTabComp.setWmoIdLbl("");
             editorTafTabComp.setWmoSiteLbl("");
             editorTafTabComp.setLargeTF("");
-            editorTafTabComp.setSmallTF("");
+            // editorTafTabComp.setSmallTF("");
             editorTafTabComp.getTextEditorControl().setText("");
             if (editorTafTabComp.isTafSent()) {
                 editorTafTabComp.updateTafSent(false);
@@ -2096,7 +2097,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         return editorComp;
     }
 
-    /**  
+    /**
      * Check if there is an extra '=' sign in a TAF
      * 
      * @param doLogMessage
@@ -2113,7 +2114,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         st = editorTafTabComp.getTextEditorControl();
 
         in = in.toUpperCase().replaceAll("TAF", "\n\nTAF").trim();
-        while ( in.contains("\n\n\n") ) {
+        while (in.contains("\n\n\n")) {
             in = in.replace("\n\n\n", "\n\n");
         }
 
@@ -2153,29 +2154,33 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         String msg = "Syntax error: There is an extra '=' sign or 'TAF' is missing at beginning of TAF";
         String[] tafs = in.split("\n\n");
         int tafStartIndex = 0;
-        for ( String taf : tafs ) {
+        for (String taf : tafs) {
             int firstEqualSignIndex = taf.indexOf('=');
-            if ( firstEqualSignIndex == -1 ) {
+            if (firstEqualSignIndex == -1) {
                 tafStartIndex += taf.length() + 2;
                 continue;
             }
-            int secondEqualSignIndex = taf.indexOf('=', firstEqualSignIndex+1);
-            if ( secondEqualSignIndex == -1 ) {
+            int secondEqualSignIndex = taf
+                    .indexOf('=', firstEqualSignIndex + 1);
+            if (secondEqualSignIndex == -1) {
                 tafStartIndex += taf.length() + 2;
                 continue;
             }
-            while ( secondEqualSignIndex > -1 ) {
-                int secondEqualSignIndexInEditorText = tafStartIndex + secondEqualSignIndex;
-                StyleRange sr = new StyleRange(secondEqualSignIndexInEditorText, 1, null, qcColors[3]);
+            while (secondEqualSignIndex > -1) {
+                int secondEqualSignIndexInEditorText = tafStartIndex
+                        + secondEqualSignIndex;
+                StyleRange sr = new StyleRange(
+                        secondEqualSignIndexInEditorText, 1, null, qcColors[3]);
                 syntaxMap.put(sr, msg);
                 st.setStyleRange(sr);
-                secondEqualSignIndex = taf.indexOf('=', secondEqualSignIndex+1);
+                secondEqualSignIndex = taf.indexOf('=',
+                        secondEqualSignIndex + 1);
             }
             errorFound = true;
             tafStartIndex += taf.length() + 2;
         }
 
-        if ( doLogMessage ) {
+        if (doLogMessage) {
             msgStatComp.setMessageText(msg, qcColors[3].getRGB());
         }
 
@@ -2503,24 +2508,25 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
             }
         }
     }
-    
+
     /**
      * restore from a file a user selects
      */
     private void restoreFrom() {
-        
-        if ( tabFolder.getSelectionIndex() == VIEWER_TAB_SELECTED ) {
+
+        if (tabFolder.getSelectionIndex() == VIEWER_TAB_SELECTED) {
             tabFolder.setSelection(editorTab);
         }
-        
+
         String tempTafPath = "aviation/tmp/";
         IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationContext context = pm.getContext(LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
+        LocalizationContext context = pm.getContext(
+                LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
         String path = pm.getFile(context, tempTafPath).getAbsolutePath();
         FileDialog dlg = new FileDialog(shell, SWT.OPEN);
         dlg.setFilterPath(path);
         String filepath = dlg.open();
-        if ( filepath == null ) { // if "Cancel"; do nothing
+        if (filepath == null) { // if "Cancel"; do nothing
             return;
         }
 
@@ -2582,7 +2588,8 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         } catch (FileNotFoundException e) {
             setMessageStatusError("File " + filepath + " not found.");
         } catch (IOException e) {
-            setMessageStatusError("An IOException occured while opening file " + filepath);
+            setMessageStatusError("An IOException occured while opening file "
+                    + filepath);
         } finally {
             if (errorMsg != null) {
                 setMessageStatusError("File " + filepath + ": " + errorMsg);
@@ -3025,7 +3032,6 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         // reset everything since checkSyntax may have altered the TAF
         st.setStyleRange(null);
         syntaxMap.clear();
-
 
         /*
          * TODO Refactor all of this to be smarter. Right now it's kind of dumb
