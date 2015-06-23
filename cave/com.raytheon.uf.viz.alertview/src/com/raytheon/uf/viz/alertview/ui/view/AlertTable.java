@@ -64,6 +64,7 @@ import com.raytheon.uf.viz.alertview.style.StyleManager;
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------
  * Jun 18, 2015  4474     bsteffen  Initial creation
+ * Jun 23, 2015  4474     njensen   Added removeAll() and getFilter()
  * 
  * </pre>
  * 
@@ -101,14 +102,18 @@ public class AlertTable extends Composite {
             if (next != null) {
                 int processed = 0;
                 while (next != null) {
-                    addAlertInternal(next);
+                    if (!AlertTable.this.isDisposed()) {
+                        addAlertInternal(next);
+                    }
                     if (processed++ > 500) {
                         this.schedule(100);
                         break;
                     }
                     next = alertsToAdd.poll();
                 }
-                packColumns();
+                if (!AlertTable.this.isDisposed()) {
+                    packColumns();
+                }
             }
             return Status.OK_STATUS;
         }
@@ -214,6 +219,10 @@ public class AlertTable extends Composite {
                 item.dispose();
             }
         }
+    }
+
+    protected AlertFilter getFilter() {
+        return this.filter;
     }
 
     public void refresh(Alert alert) {
@@ -399,6 +408,10 @@ public class AlertTable extends Composite {
     @SuppressWarnings("unchecked")
     public List<Alert> getAlerts(TableItem item) {
         return (List<Alert>) item.getData();
+    }
+
+    public void removeAll() {
+        alertTable.removeAll();
     }
 
     @Override

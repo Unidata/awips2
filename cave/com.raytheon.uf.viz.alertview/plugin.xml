@@ -20,6 +20,9 @@
               commandId="com.raytheon.uf.viz.alertview.openAlertView"
               label="Open AlertView"
               style="push">
+              <visibleWhen>
+                 <systemTest property="alertview.enabled" value="true" />
+              </visibleWhen>
             </command>
       </menuContribution>
    </extension>

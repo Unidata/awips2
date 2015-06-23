@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.alertview.ui.view;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -58,6 +59,7 @@ import com.raytheon.uf.viz.alertview.prefs.PreferenceFile;
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------
  * Jun 18, 2015  4474     bsteffen  Initial creation
+ * Jun 22, 2015  4474     njensen   Fix bugs
  * 
  * </pre>
  * 
@@ -121,22 +123,26 @@ public class AlertView extends ViewPart implements AlertDestination,
 
         sashForm.setMaximizedControl(alertTable);
         loadAlerts();
+        destinationRegistration = getBundleContext().registerService(
+                AlertDestination.class, this, null);
+    }
+
+    protected BundleContext getBundleContext() {
+        return FrameworkUtil.getBundle(AlertView.class).getBundleContext();
     }
 
     private void loadAlerts() {
-        BundleContext context = FrameworkUtil.getBundle(getClass())
-                .getBundleContext();
+        BundleContext context = getBundleContext();
         ServiceReference<AlertStore> ref = context
                 .getServiceReference(AlertStore.class);
         if (ref != null) {
             AlertStore store = context.getService(ref);
+            alertTable.removeAll();
             for (Alert alert : store.getAlerts()) {
                 alertTable.addAlert(alert);
             }
             context.ungetService(ref);
         }
-        destinationRegistration = context.registerService(
-                AlertDestination.class, this, null);
         alertTable.packColumns();
     }
 
@@ -159,6 +165,7 @@ public class AlertView extends ViewPart implements AlertDestination,
     @Override
     public void dispose() {
         destinationRegistration.unregister();
+        super.dispose();
     }
 
     @Override
@@ -171,19 +178,19 @@ public class AlertView extends ViewPart implements AlertDestination,
         private final AlertFilter filter;
 
         public ShowFilteredAction(String name, AlertFilter filter) {
-            super("Show " + name, Action.AS_RADIO_BUTTON);
+            super("Show " + name, IAction.AS_RADIO_BUTTON);
             this.filter = filter;
         }
 
-
         @Override
         public void run() {
-            alertTable.setFilter(filter);
-            detailsConsoleViewer.setAlert(alertTable.getSingleSelection());
-            loadAlerts();
-            // TODO save prefs.
+            if (!this.filter.equals(alertTable.getFilter())) {
+                alertTable.setFilter(filter);
+                detailsConsoleViewer.setAlert(alertTable.getSingleSelection());
+                loadAlerts();
+                // TODO save prefs.
+            }
         }
-
     }
 
     public static void show(IWorkbenchWindow window, Alert alert) {
