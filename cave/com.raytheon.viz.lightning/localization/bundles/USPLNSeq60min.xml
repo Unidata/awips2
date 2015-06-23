@@ -27,7 +27,7 @@
 					<loadProperties loadWithoutData="true">
 						<capabilities>
 							<capability xsi:type="colorableCapability"
-								colorAsString="#ffffff" />
+								colorAsString="#b0e2f9" />
 						</capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
 					</loadProperties>
@@ -53,7 +53,7 @@
 					<loadProperties loadWithoutData="true">
 						<capabilities>
 							<capability xsi:type="colorableCapability"
-								colorAsString="#ffff9c" />
+								colorAsString="#7da1df" />
 						</capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
 					</loadProperties>
@@ -79,7 +79,7 @@
 					<loadProperties loadWithoutData="true">
 						<capabilities>
 							<capability xsi:type="colorableCapability"
-								colorAsString="#ffff00" />
+								colorAsString="#0365c8" />
 						</capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
 					</loadProperties>
@@ -105,7 +105,7 @@
 					<loadProperties loadWithoutData="true">
 						<capabilities>
 							<capability xsi:type="colorableCapability"
-								colorAsString="#ffa600" />
+								colorAsString="#0635a7" />
 						</capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
 					</loadProperties>
@@ -131,7 +131,7 @@
 					<loadProperties loadWithoutData="true">
 						<capabilities>
 							<capability xsi:type="colorableCapability"
-								colorAsString="#ff7900" />
+								colorAsString="#0c2780" />
 						</capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
 					</loadProperties>
@@ -157,7 +157,7 @@
 					<loadProperties loadWithoutData="true">
 						<capabilities>
 							<capability xsi:type="colorableCapability"
-								colorAsString="#ff0000" />
+								colorAsString="#191180" />
 						</capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
 					</loadProperties>
