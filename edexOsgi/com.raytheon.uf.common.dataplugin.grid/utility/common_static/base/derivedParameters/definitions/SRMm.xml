@@ -24,7 +24,7 @@
 	
 	AWIPS II NEW FILE - SRMm.xml
  -->
-<DerivedParameter name="Storm Relative Flow Vecs (Mean Wind)" abbreviation="SRMm" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+<DerivedParameter name="Storm Relative Flow Vecs (Mean Wind)" unit="m/s" abbreviation="SRMm" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <Method name="Difference">
         <Field abbreviation="Wind"/>
         <Field level="850MB-300MB" abbreviation="Wind"/>

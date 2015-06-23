@@ -18,7 +18,7 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter name="Bunkers Left-Moving Supercell" abbreviation="LM5" xmlns:ns2="group">
+<DerivedParameter name="Bunkers Left-Moving Supercell" unit="m/s" abbreviation="LM5" xmlns:ns2="group">
     <Method levels="Layer" name="Difference">
         <Field level="0-6kmAgl" abbreviation="Wind"/>
         <Field abbreviation="RMprop"/>

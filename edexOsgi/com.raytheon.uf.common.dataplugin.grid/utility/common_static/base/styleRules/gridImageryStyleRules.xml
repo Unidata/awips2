@@ -1410,7 +1410,7 @@
 				<minValue>-5</minValue>
 				<maxValue>30</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Vorticity</defaultColormap>
 			<colorbarLabeling>
 				<increment>5</increment>
 			</colorbarLabeling>
@@ -3210,7 +3210,7 @@
         <maxValue>100</maxValue>
       </range>
       <displayUnits label="K/m/1e10s">K/m/s*1.0E-10</displayUnits>
-      <defaultColormap>Grid/gridded data</defaultColormap>
+      <defaultColormap>Grid/Frontogenesis</defaultColormap>
       <colorbarLabeling>
         <increment>20</increment>
       </colorbarLabeling>
@@ -4927,7 +4927,7 @@
                 <minValue>5</minValue>
                 <maxValue>300</maxValue>
             </range>
-            <defaultColormap>Grid/gridded data</defaultColormap>
+            <defaultColormap>Grid/Vorticity</defaultColormap>
             <colorbarLabeling>
                 <increment>10</increment>
             </colorbarLabeling>
@@ -5604,4 +5604,18 @@
       <displayUnits>ft</displayUnits>
     </imageStyle>
   </styleRule>
+
+<!-- Max and Min T and Tw within a vertical layer      -->
+     <styleRule>
+        <paramLevelMatches>
+            <parameter>TwMax</parameter>
+            <parameter>TwMin</parameter>
+            <parameter>Tmax</parameter>
+            <parameter>Tmin</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>C</displayUnits>
+            <defaultColormap>Grid/gridded data</defaultColormap>
+        </imageStyle>
+    </styleRule>
 </styleRuleset>

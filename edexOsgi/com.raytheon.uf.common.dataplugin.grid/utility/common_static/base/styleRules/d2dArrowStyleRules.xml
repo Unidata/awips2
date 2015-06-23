@@ -58,6 +58,14 @@
 			<parameter>Geostrophic Wind</parameter>
 			<parameter>Ageo Wind</parameter>
 			<parameter>SNW</parameter>
+            <parameter>Corf</parameter>
+            <parameter>RM5</parameter>
+            <parameter>LM5</parameter>
+            <parameter>RM6</parameter>
+            <parameter>LM6</parameter>
+            <parameter>SRMr</parameter>
+            <parameter>SRMl</parameter>
+            <parameter>SRMm</parameter>
 		</paramLevelMatches>
 		<arrowStyle>
 			<displayUnits>kts</displayUnits>

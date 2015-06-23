@@ -387,6 +387,7 @@ ModFamV | | N|Conv: Severe Type Family| | OTHER| | \
 		<resource>
 			<loadProperties xsi:type="gridLoadProperties" displayType="BARB" loadWithoutData="true">
 				<capabilities>
+				    <capability xsi:type="colorableCapability" colorAsString="PaleGreen2"/>
 					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
 				</capabilities>
 				<resourceType>PLAN_VIEW</resourceType>
