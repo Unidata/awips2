@@ -45,6 +45,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Feb 12, 2014 2655       njensen     Set source
  * Jun 05, 2014 3226       bclement    LightningStikePoint refactor
  * Jun 10, 2014 3226       bclement    fixed source
+ * Jun 22, 2015            mjames@ucar Muted setSource
  * 
  * </pre>
  * 
@@ -103,7 +104,7 @@ public class TextLightningDecoder extends AbstractDecoder implements
 
         report.setTraceId(traceId);
 
-        report.setSource(SOURCE);
+        //report.setSource(SOURCE);
 
         return new PluginDataObject[] { report };
     }
