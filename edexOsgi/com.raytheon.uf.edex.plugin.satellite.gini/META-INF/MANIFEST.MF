@@ -5,11 +5,11 @@ Bundle-SymbolicName: com.raytheon.uf.edex.plugin.satellite.gini
 Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Require-Bundle: com.raytheon.edex.plugin.satellite;bundle-version="1.14.1",
+Require-Bundle: com.raytheon.edex.plugin.satellite,
  com.raytheon.uf.common.status;bundle-version="1.14.1",
  com.raytheon.uf.common.time;bundle-version="1.14.0",
  com.raytheon.uf.common.dataplugin;bundle-version="1.14.0",
- com.raytheon.uf.common.dataplugin.satellite;bundle-version="1.14.0",
+ com.raytheon.uf.common.dataplugin.satellite,
  com.raytheon.uf.common.serialization;bundle-version="1.14.2",
  com.raytheon.uf.common.localization;bundle-version="1.14.1",
  com.raytheon.uf.common.util;bundle-version="1.14.1",
