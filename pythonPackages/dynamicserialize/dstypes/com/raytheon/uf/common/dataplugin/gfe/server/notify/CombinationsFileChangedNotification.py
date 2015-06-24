@@ -22,41 +22,32 @@
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    06/22/2015       4573         randerso       Change to extend GfeNotification
+#    06/22/2015       4573         randerso       Initial creation (hand generated)
 #
 ##    
 
 import GfeNotification
 
-class UserMessageNotification(GfeNotification.GfeNotification):
+class CombinationsFileChangedNotification(GfeNotification.GfeNotification):
 
     def __init__(self):
-        super(UserMessageNotification, self).__init__()
-        self.category = None
-        self.priority = None
-        self.message = None
-
-    def getCategory(self):
-        return self.category
-
-    def setCategory(self, category):
-        self.category = category
-
-    def getPriority(self):
-        return self.priority
-
-    def setPriority(self, priority):
-        self.priority = priority
-
-    def getMessage(self):
-        return self.message
-
-    def setMessage(self, message):
-        self.message = message
+        super(CombinationsFileChangedNotification, self).__init__()
+        self.combinationsFileName = None
+        self.whoChanged = None
 
     def __str__(self):
-        msg = 'Message: ' + str(self.message) + '\n'
-        msg += 'Priority: ' + str(self.priority) + '\n'
-        msg += 'Category: ' + str(self.category) + '\n'
+        msg = "fileName: " + str(self.combinationsFileName)
+        msg += '\n' + "whoChanged: " + str(self.whoChanged)
         return msg
 
+    def getCombinationsFileName(self):
+        return self.combinationsFileName
+    
+    def setCombinationsFileName(self, combinationsFileName):
+        self.combinationsFileName = combinationsFileName
+    
+    def getWhoChanged(self):
+        return self.whoChanged
+    
+    def setWhoChanged(self, whoChanged):
+        self.whoChanged = whoChanged
