@@ -21,5 +21,7 @@
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <contribute xsi:type="subinclude" fileName="" />
 	<contribute xsi:type="separator" id="baseCompositeSeparator"/>
+    <!-- 
     <contribute xsi:type="subinclude" fileName="menus/satellite/basePOESImagery.xml" />
+     -->
 </menuTemplate>
