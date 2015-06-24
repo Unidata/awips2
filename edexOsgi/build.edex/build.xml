@@ -10,7 +10,7 @@
 	<property name="build.arch"
 		value="x86_64" />
 	<property name="lightning"
-		value="false" />
+		value="true" />
 	
 	<property name="pde.build.script"
 		value="./org.eclipse.pde.build_3.8.2.v20121114-140810/scripts/build.xml" />
