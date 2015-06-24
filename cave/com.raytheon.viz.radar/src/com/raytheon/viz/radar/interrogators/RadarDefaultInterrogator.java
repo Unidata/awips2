@@ -58,6 +58,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * May 02, 2013 14587      D. Friedman Refactor to store multiple types.
  * Aug 22, 2013 2278       bsteffen    Allow radar interrogation to work
  *                                     without ColorMapParameters.
+ * Jun 22, 2015 17486      Zihou Wang  Use displayUnits in style rules
  * 
  * </pre>
  * 
@@ -261,6 +262,11 @@ public class RadarDefaultInterrogator implements IRadarInterrogator {
             if (prefs.getSamplePrefs() != null
                     && prefs.getSamplePrefs().getFormatString() != null
                     && !prefs.getSamplePrefs().getFormatString().isEmpty()) {
+                // use the displayUnits in style rule
+                if (prefs.getDisplayUnitLabel() != null &&
+                    !Unit.ONE.equals(prefs.getDisplayUnits())) {
+                    unitString = prefs.getDisplayUnitLabel();
+                }
                 return String.format("%."
                         + prefs.getSamplePrefs().getFormatString() + "f %s",
                         dispVal, unitString);
