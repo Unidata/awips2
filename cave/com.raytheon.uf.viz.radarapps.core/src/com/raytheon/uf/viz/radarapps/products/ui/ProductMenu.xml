@@ -115,6 +115,13 @@
 		</menu>
 	</submenu>
 	<sep/>
+	<submenu name="Dual Pol Raw Prods">
+        <menu>
+            <item mne="SDC"/>
+            <item mne="SDP"/>
+        </menu>
+    </submenu>
+    <sep/>
 	<item mne="RCM"/>
 	<sep use="OTR"/>
 	<item mne="SRR" use="OTR"/>

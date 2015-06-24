@@ -270,4 +270,5 @@
 				<substitute key="elevation" value="0.0--360.0" />
 			</contribute>
 		</contribute>
+		<contribute xsi:type="subinclude" subMenu="${icao} Dual Pol Raw Products" fileName="menus/radar/dualPol/baseRadarDualPolRawProducts.xml" />
 </menuTemplate>
