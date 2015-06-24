@@ -19,21 +19,53 @@
         further_licensing_information.
     -->
 <mapScales>
-	<mapScale displayName="N. Hemisphere" fileName="NHemisphere.xml">
+	<mapScale displayName="N Hemisphere" fileName="NHemisphere.xml" areaScale="false">
 		<partId id="com.raytheon.uf.viz.d2d.ui.map.SideView:sideView1"/>
 	</mapScale>
-	<mapScale displayName="North American" fileName="NorthAmerican.xml">
+	<mapScale displayName="N America" fileName="NorthAmerican.xml" areaScale="false">
 		<partId id="com.raytheon.uf.viz.d2d.ui.map.SideView:sideView2"/>
 	</mapScale>
-	<mapScale displayName="CONUS" fileName="CONUS.xml">
+	<mapScale displayName="CONUS" fileName="CONUS.xml" areaScale="false">
 		<partId view="false" id="com.raytheon.viz.ui.glmap.GLMapEditor"/>
 	</mapScale>
-	<mapScale displayName="Regional" fileName="Regional.xml">
+	<mapScale displayName="Regional" fileName="Regional.xml" areaScale="false">
 		<partId id="com.raytheon.uf.viz.d2d.ui.map.SideView:sideView3"/>
 	</mapScale>
-	<mapScale displayName="State(s)" fileName="States.xml">
+	<mapScale displayName="State" fileName="States.xml" areaScale="false">
 		<partId id="com.raytheon.uf.viz.d2d.ui.map.SideView:sideView4"/>
 	</mapScale>
-	<mapScale displayName="WFO" fileName="WFO.xml">
+	<mapScale displayName="WFO" fileName="WFO.xml" areaScale="false">
+	</mapScale>
+	<mapScale displayName="World" fileName="World.xml" areaScale="false">
+	</mapScale>
+	<mapScale displayName="SAT/Arctic" fileName="Arctic.xml" areaScale="true">
+	</mapScale>
+	<mapScale displayName="SAT/Antarctic" fileName="Antarctic.xml" areaScale="true">
+	</mapScale>
+	<mapScale displayName="SAT/NEXRCOMP" fileName="NEXRAD.xml" areaScale="true">
+	</mapScale>
+	<mapScale displayName="SAT/Alaska National" fileName="Alaska-National.xml" areaScale="true">
+	</mapScale>
+	<mapScale displayName="SAT/Alaska Regional" fileName="Alaska-Regional.xml" areaScale="true">
+	</mapScale>
+	<mapScale displayName="SAT/East CONUS" fileName="East-CONUS.xml" areaScale="true">
+	</mapScale>
+	<mapScale displayName="SAT/West CONUS" fileName="West-CONUS.xml" areaScale="true">
+	</mapScale>
+	<mapScale displayName="SAT/Hawaii National" fileName="Hawaii-National.xml" areaScale="true">
+	</mapScale>
+	<mapScale displayName="SAT/Hawaii Regional" fileName="Hawaii-Regional.xml" areaScale="true">
+	</mapScale>
+	<mapScale displayName="SAT/Puerto Rico National" fileName="Puerto-Rico-National.xml" areaScale="true">
+	</mapScale>
+	<mapScale displayName="SAT/Puerto Rico Regional" fileName="Puerto-Rico-Regional.xml" areaScale="true">
+	</mapScale>
+	<mapScale displayName="SAT/Supernational" fileName="Supernational.xml" areaScale="true">
+	</mapScale>
+	<mapScale displayName="SAT/GOES-Sounder" fileName="SOUNDER.xml" areaScale="true">
+	</mapScale>
+	<mapScale displayName="SAT/Mollweide" fileName="Mollweide.xml" areaScale="true">
+	</mapScale>
+	<mapScale displayName="SAT/GOES-East-West" fileName="GEWCOMP.xml" areaScale="true">
 	</mapScale>
 </mapScales>
