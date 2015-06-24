@@ -44,7 +44,7 @@ fi
 # create build root directory
 rm -rf ${RPM_BUILD_ROOT}/awips2
 mkdir -p ${RPM_BUILD_ROOT}/awips2/tools/bin
-/bin/cp %{_baseline_workspace}/rpms/awips2.upc/Installer.edex-upc/programs/* ${RPM_BUILD_ROOT}/awips2/tools/bin/
+/bin/cp -r %{_baseline_workspace}/rpms/awips2.upc/Installer.edex-upc/programs/* ${RPM_BUILD_ROOT}/awips2/tools/bin/
 
 %pre
 
@@ -60,4 +60,4 @@ rm -rf ${RPM_BUILD_ROOT}/*
 %attr(755,awips,fxalpha) /awips2/tools/bin/edex
 %attr(755,awips,fxalpha) /awips2/tools/bin/arinfo
 %attr(755,awips,fxalpha) /awips2/tools/bin/areas
-%attr(644,awips,fxalpha) /awips2/tools/bin/imgtyp.tbl
+%attr(644,awips,fxalpha) /awips2/tools/bin/sat/imgtyp.tbl
