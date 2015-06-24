@@ -28,29 +28,14 @@ SET JavaJreDirectory=
 
 REM Determine where we will be logging to.
 SET HOME_DIRECTORY=%USERPROFILE%
-SET CAVEDATA_LOG_DIRECTORY=%HOME_DIRECTORY%\caveData\logs
-SET CONSOLE_LOG_DIRECTORY=%CAVEDATA_LOG_DIRECTORY%\consoleLogs\%COMPUTERNAME%
-IF NOT EXIST "%CONSOLE_LOG_DIRECTORY%" (MKDIR "%CONSOLE_LOG_DIRECTORY%")
 
-SET RND=%random%
-SET RND_DATETIME_FILE=%TMP%\awips2dt_%RND%.tmp
-REM Python is used to retrieve the current date and time because the order
-REM of the Windows date/time fields is not necessarily guaranteed and the
-REM Windows date/time fields can only be extracted using substring operations
-REM instead of -formatter- strings like Linux allows.
-python -c "from datetime import datetime; print datetime.now().strftime('%%Y%%m%%d_%%H%%M%%S');" > %RND_DATETIME_FILE%
-SET /p LOG_DATETIME= < %RND_DATETIME_FILE%
-DEL %RND_DATETIME_FILE%
-
-SET LOGFILE_CAVE=%CAVEDATA_LOG_DIRECTORY%\cave_%LOG_DATETIME%_logs.log
-SET LOGFILE_CONSOLE=%CAVEDATA_LOG_DIRECTORY%\cave_%LOG_DATETIME%_console.log
-SET LOGFILE_PERFORMANCE=%CAVEDATA_LOG_DIRECTORY%\cave_%LOG_DATETIME%_perf.log
-SET LOGFILE_PRODUCT_EDITOR=%CAVEDATA_LOG_DIRECTORY%\cave_%LOG_DATETIME%_productEditor.log
+REM Used by logback configuration files to determine console and admin
+SET LOGDIR=%HOME_DIRECTORY%\caveData\logs
 
 echo THIS CMD WINDOW CAN BE CLOSED AT ANY TIME!
 cd %HOMEPATH%
 REM Start CAVE.
-"%CONTAINING_DIRECTORY%cave.exe" %* > "%CONSOLE_LOG_DIRECTORY%\cave_%LOG_DATETIME%.log" 2>&1
+"%CONTAINING_DIRECTORY%cave.exe" %* 
 IF ERRORLEVEL 1 (echo CAVE ERROR - check the logs for additional information. && PAUSE)
 
 EXIT
