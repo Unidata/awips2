@@ -63,11 +63,11 @@ ${WMOId} ${vtecOffice} 000000 ${BBBId}
 FLS${siteId}
 
 #if(${productClass}=="T")
-TEST...FLOOD STATEMENT...TEST
+TEST...Flood Statement...TEST
 #else
-FLOOD STATEMENT
+Flood Statement
 #end
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 

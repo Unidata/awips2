@@ -42,13 +42,13 @@ ${ugcline}
 #################################### MND HEADER ###################################
 BULLETIN - EAS ACTIVATION REQUESTED
 #if(${productClass}=="T")
-TEST...FLASH FLOOD WARNING...TEST
+TEST...Flash Flood Warning...TEST
 #else
-FLASH FLOOD WARNING
+Flash Flood Warning
 #end
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
