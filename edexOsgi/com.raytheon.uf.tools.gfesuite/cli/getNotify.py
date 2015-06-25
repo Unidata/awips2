@@ -98,13 +98,17 @@ class GetGfeNotifyTopicListener(threading.Thread):
             print "Does not yet support type", t
 
     def receivedMessage(self, msg):
-        obj = dynamicserialize.deserialize(msg)
-        t = type(obj)
-        if t is list:
-            for notification in obj:
-                self.addMessageToQueue(notification, type(notification))
-        else:
-            self.addMessageToQueue(obj, t)
+        try:
+            obj = dynamicserialize.deserialize(msg)
+            t = type(obj)
+            if t is list:
+                for notification in obj:
+                    self.addMessageToQueue(notification, type(notification))
+            else:
+                self.addMessageToQueue(obj, t)
+        except:
+            import traceback
+            traceback.print_exc()
 
     def stop(self):
         self.qs.close()     
