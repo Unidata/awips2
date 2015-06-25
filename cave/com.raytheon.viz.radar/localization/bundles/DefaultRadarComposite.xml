@@ -25,10 +25,10 @@
                                 <constraint constraintValue="${element}" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="sectorID">
-                                <constraint constraintValue="CONUS" constraintType="EQUALS"/>
+                                <constraint constraintValue="NEXRCOMP" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="creatingEntity">
-								<constraint constraintValue="NEXRCOMP" constraintType="LIKE"/>
+								<constraint constraintValue="NEXRCOMP" constraintType="EQUALS"/>
 							</mapping>
                         </metadataMap>
                     </resourceData>
