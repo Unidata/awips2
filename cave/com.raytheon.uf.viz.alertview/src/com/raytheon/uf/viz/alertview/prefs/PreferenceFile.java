@@ -135,7 +135,8 @@ public class PreferenceFile<P> {
 
     public void close(){
         if(serviceReference != null){
-            remove(serviceReference);
+            prefStore.removeListener(prefStoreListener);
+            context.ungetService(serviceReference);
         }
         context.removeServiceListener(serviceListener);
     }
@@ -204,8 +205,8 @@ public class PreferenceFile<P> {
 
     protected void remove(ServiceReference<AlertViewPrefStore> ref) {
         if (ref.equals(serviceReference)) {
-            context.ungetService(serviceReference);
             prefStore.removeListener(prefStoreListener);
+            context.ungetService(serviceReference);
             updatePreferences(updateServiceReference(context
                     .getServiceReference(AlertViewPrefStore.class)));
         }
