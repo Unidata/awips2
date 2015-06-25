@@ -186,6 +186,7 @@ def printLoop(options):
                     print msg
                 else:
                     messageQueueMap[letter] = []
+            sys.stdout.flush()
     except KeyboardInterrupt:
         pass
 
