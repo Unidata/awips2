@@ -21,8 +21,6 @@
 	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
                 menuText="DHR - Digital Hybrid Reflectivity" id="DHR">
         <substitute key="element" value="DHR"/>
-        <substitute key="sectorID" value="CONUS"/>
-        <substitute key="creatingEntity" value="NEXRCOMP"/>
         <substitute key="colormap" value="Radar/Hi-Res Ref (SGF)"/>
     </contribute>
 	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
