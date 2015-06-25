@@ -23,8 +23,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.raytheon.uf.viz.alertview.ui.view.AlertTable;
 import com.raytheon.uf.viz.alertview.ui.view.AlertView;
 
 /**
@@ -52,11 +54,20 @@ public class AlertViewPreferences {
             new FilterMenu("Only Errors", "error"), new FilterMenu(
                     "Errors + Warnings", "warnPlus"));
 
+    private final List<String> DEFAULT_COLUMNS = Arrays.asList(
+            AlertTable.COLUMN_TIME, AlertTable.COLUMN_PRIORITY,
+            AlertTable.COLUMN_MESSAGE);
+
     private String activeFilter = "warnPlus";
 
     private List<FilterMenu> filterMenu = new ArrayList<>(DEFAULT_FILTERS);
 
+    private List<String> columns = new ArrayList<>(DEFAULT_COLUMNS);
+
     private int alertsToLoad = 1000;
+
+    /* Time in ms */
+    private int mergeRepeatInterval = 1000;
 
     public String getActiveFilter() {
         return activeFilter;
@@ -80,6 +91,23 @@ public class AlertViewPreferences {
 
     public void setAlertsToLoad(int alertsToLoad) {
         this.alertsToLoad = alertsToLoad;
+    }
+
+    @XmlElement(name = "column")
+    public List<String> getColumns() {
+        return columns;
+    }
+
+    public void setColumns(List<String> columns) {
+        this.columns = columns;
+    }
+
+    public int getMergeRepeatInterval() {
+        return mergeRepeatInterval;
+    }
+
+    public void setMergeRepeatInterval(int mergeRepeatInterval) {
+        this.mergeRepeatInterval = mergeRepeatInterval;
     }
 
     public static class FilterMenu {
