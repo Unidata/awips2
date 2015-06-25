@@ -127,6 +127,7 @@ import gov.noaa.nws.ncep.viz.common.area.IAreaProviderCapable;
  *  Jun 12, 2014  3238      bsteffen    Implement Interrogatable
  *  Aug 21, 2014  DR 17313  jgerth      Set no data value if no data mapping
  *  Oct 15, 2014  3681      bsteffen    create renderable in interrogate if necessary.
+ *  Jun 24, 2015            mjames@ucar Mute interrogating raw data error.
  * 
  * </pre>
  * 
@@ -442,7 +443,7 @@ public class SatResource extends
                             .getRecord().getCoverage());
                 }
             } catch (Exception e) {
-                throw new VizException("Error interrogating raw data", e);
+                //throw new VizException("Error interrogating raw data", e);
             }
         }
 
