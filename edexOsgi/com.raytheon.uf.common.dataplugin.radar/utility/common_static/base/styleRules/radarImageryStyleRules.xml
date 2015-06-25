@@ -112,10 +112,6 @@
 
 	<styleRule>
 		<paramLevelMatches>
-			<parameter>28</parameter>
-			<parameter>29</parameter>
-			<parameter>30</parameter>
-			<parameter>185</parameter>
 			<parameter>155</parameter>
 		</paramLevelMatches>
 		<imageStyle>
@@ -137,6 +133,29 @@
 		</imageStyle>
 	</styleRule>
 
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>28</parameter>
+            <parameter>29</parameter>
+            <parameter>30</parameter>
+            <parameter>185</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>kts</displayUnits>
+            <defaultColormap>Radar/Spectrum Width</defaultColormap>
+            <dataMapping>
+                <entry pixelValue="1" sample="RF" label="" />
+                <entry pixelValue="24" displayValue="0" />
+                <entry pixelValue="40" displayValue="4" />
+                <entry pixelValue="56" displayValue="8" />
+                <entry pixelValue="72" displayValue="12" />
+                <entry pixelValue="88" displayValue="16" />
+                <entry pixelValue="104" displayValue="20" />
+                <entry label="RF" pixelValue="136" />
+            </dataMapping>
+        </imageStyle>
+    </styleRule>
+    
 	<styleRule>
 		<paramLevelMatches>
 			<parameter>35</parameter>
@@ -477,6 +496,7 @@
 		<paramLevelMatches>
 			<parameter>160</parameter>
 			<parameter>161</parameter>
+			<parameter>167</parameter>
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>*1</displayUnits>
@@ -536,6 +556,36 @@
 				<entry displayValue='5.0' pixelValue='208' />
 				<entry displayValue='7.0' pixelValue='224' />
 				<entry displayValue='10.0' pixelValue='240' label='' />
+				<entry pixelValue='248' label='RF' />
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>168</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>deg</displayUnits>
+			<samplePrefs>
+			    <!-- Number of decimal places to format the sample string to -->
+				<formatString>2</formatString>
+			</samplePrefs>
+			<defaultColormap>Radar/DualPol/phiDP</defaultColormap>
+			<dataMapping>
+				<entry pixelValue="1" sample="RF" label="" />
+				<entry displayValue='30' pixelValue='16' />
+				<entry displayValue='60' pixelValue='32' />
+				<entry displayValue='90' />
+				<entry displayValue='120' />
+				<entry displayValue='150' />
+				<entry displayValue='180' />
+				<entry displayValue='210' />
+				<entry displayValue='240' />
+				<entry displayValue='270' />
+				<entry displayValue='300' />
+				<entry displayValue='330' />
+				<entry displayValue='360' pixelValue='240' />
 				<entry pixelValue='248' label='RF' />
 			</dataMapping>
 		</imageStyle>
