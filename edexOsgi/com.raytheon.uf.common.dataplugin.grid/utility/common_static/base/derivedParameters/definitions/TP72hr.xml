@@ -18,14 +18,21 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<DerivedParameter abbreviation="TP72hr" name="3 Day Total Gridded Precip" unit="mm">
+    <Method dtime="true" levels="Surface" name="Add">
+        <Field timeShift="0" abbreviation="TP6hr"/>
+        <Field timeShift="-21600" abbreviation="TP6hr"/>
+        <Field timeShift="-43200" abbreviation="TP6hr"/>
+        <Field timeShift="-64800" abbreviation="TP6hr"/>
+        <Field timeShift="-86400" abbreviation="TP6hr"/>
+        <Field timeShift="-108000" abbreviation="TP6hr"/>
+        <Field timeShift="-129600" abbreviation="TP6hr"/>
+        <Field timeShift="-151200" abbreviation="TP6hr"/>
+        <Field timeShift="-172800" abbreviation="TP6hr"/>
+        <Field timeShift="-194400" abbreviation="TP6hr"/>
+        <Field timeShift="-216000" abbreviation="TP6hr"/>
+        <Field timeShift="-237600" abbreviation="TP6hr"/>
+        <Field timeShift="-259200" abbreviation="TP6hr"/>
 
- 	<contribute xsi:type="bundleItem" file="bundles/ncepHydro/hpc/HPCqpfNDFD.xml" 
-              menuText="HPC QPF 6hr (Grid)" id="HPCQPF6hr">
-              <substitute key="frameCount" value="2" />
-              <substitute key="param" value="tpHPCndfd" />
-    </contribute>
-
-    <contribute xsi:type="subinclude" fileName="menus/ncepHydro/hpc/hpcMenus.xml"/>
-
-</menuTemplate>
+    </Method>
+</DerivedParameter>    

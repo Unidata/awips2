@@ -1095,7 +1095,9 @@ in|.0394|.0| 4 | |f5.2|@.|8000F0FF| |13|\
      <parameter>TP12hr</parameter>
      <parameter>TP48hr</parameter>     
      <parameter>TPrun</parameter>
-     <parameter>TP120hr</parameter>  
+     <parameter>TP120hr</parameter>
+     <parameter>TP72hr</parameter>
+     <parameter>TP168hr</parameter>
      <parameter>tpHPC</parameter>                            
      <parameter>tpHPCndfd</parameter>                       
   </paramLevelMatches>
