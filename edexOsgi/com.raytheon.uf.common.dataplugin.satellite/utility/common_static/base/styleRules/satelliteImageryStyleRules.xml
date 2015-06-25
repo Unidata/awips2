@@ -339,6 +339,7 @@
      </dataMapping>
   </imageStyle>
 </styleRule>
+<!-- Unidata FNEXRAD Rules -->
 <styleRule>
 	<paramLevelMatches>
 		<parameter>N0R</parameter>
@@ -492,28 +493,27 @@
 	</imageStyle>
 </styleRule>
 <styleRule>
-	<paramLevelMatches>
-		<parameter>HHC</parameter>
-	</paramLevelMatches>
-	<imageStyle>
-		<displayUnits>*1</displayUnits>
-		<defaultColormap>Radar/HHC NEXRCOMP</defaultColormap>
-		<dataMapping>
-			<entry displayValue='0' pixelValue='0' label='' />
-			<entry displayValue='10' pixelValue='6' label='BI' sample='Biological' />
-			<entry displayValue='20' pixelValue='16' label='GC' sample='Clutter' />
-			<entry displayValue='30' pixelValue='26' label='IC' sample='Ice Crystals' />
-			<entry displayValue='40' pixelValue='36' label='DS' sample='Dry Snow' />
-			<entry displayValue='50' pixelValue='47' label='WS' sample='Wet Snow' />
-			<entry displayValue='60' pixelValue='57' label='RA' sample='Rain' />
-			<entry displayValue='70' pixelValue='68' label='HR' sample='Heavy Rain' />
-			<entry displayValue='80' pixelValue='78' label='BD' sample='Big Drops' />
-			<entry displayValue='90' pixelValue='88' label='GR' sample='Graupel' />
-			<entry displayValue='100' pixelValue='98' label='HA' sample='Hail-Rain' />
-			<entry displayValue='140' pixelValue='127' label='UK' sample='Unknown' />
-			<entry displayValue='160' pixelValue='137' label='RF' />
-			<entry displayValue='255' pixelValue='255' label='' sample='TBD' />
-		</dataMapping>
-	</imageStyle>
+        <paramLevelMatches>
+                <parameter>HHC</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+                <displayUnits>*1</displayUnits>
+                <defaultColormap>Radar/HHC NEXRCOMP</defaultColormap>
+                <dataMapping>
+                        <entry displayValue='0' pixelValue='0' label='' />
+                        <entry displayValue='10' pixelValue='10' label='BI' sample='Biological' />
+                        <entry displayValue='20' pixelValue='20' label='GC' sample='Clutter' />
+                        <entry displayValue='30' pixelValue='30' label='IC' sample='Ice Crystals' />
+                        <entry displayValue='40' pixelValue='40' label='DS' sample='Dry Snow' />
+                        <entry displayValue='50' pixelValue='50' label='WS' sample='Wet Snow' />
+                        <entry displayValue='60' pixelValue='60' label='RA' sample='Rain' />
+                        <entry displayValue='70' pixelValue='70' label='HR' sample='Heavy Rain' />
+                        <entry displayValue='80' pixelValue='80' label='BD' sample='Big Drops' />
+                        <entry displayValue='90' pixelValue='90' label='GR' sample='Graupel' />
+                        <entry displayValue='95' pixelValue='100' label='HA' sample='Hail-Rain' />
+                        <entry displayValue='140' pixelValue='140' label='UK' sample='Unknown' />
+                        <entry displayValue='150' pixelValue='150' label='RF' />
+                </dataMapping>
+        </imageStyle>
 </styleRule>
 </styleRuleset>
