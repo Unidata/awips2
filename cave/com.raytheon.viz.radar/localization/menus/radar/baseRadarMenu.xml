@@ -28,7 +28,7 @@
 	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
                 menuText="DVL - Digital VIL" id="DVL">
         <substitute key="element" value="DVL"/>
-        <substitute key="colormap" value="Radar/Digital VIL"/>
+        <substitute key="colormap" value="Radar/OSF/Digital VIL"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
                 menuText="EET - Enhanced Echo Tops" id="EET">
@@ -43,17 +43,17 @@
      <contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
                 menuText="N0R - Base Reflectivity" id="N0R">
         <substitute key="element" value="N0R"/>
-        <substitute key="colormap" value="Radar/OSF/8 Level Reflectivity"/>
+        <substitute key="colormap" value="Radar/OSF/16 Level Reflectivity"/>
     </contribute>	
      <contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
                 menuText="N1P - One Hour Precipiation" id="N1P">
         <substitute key="element" value="N1P"/>
-        <substitute key="colormap" value="Radar/Storm Total Precip"/>
+        <substitute key="colormap" value="Radar/8-bit STP"/>
     </contribute>	
     <contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
                 menuText="NTP - Storm Total Precipiation" id="NTP">
         <substitute key="element" value="NTP"/>
-        <substitute key="colormap" value="Radar/Storm Total Precip"/>
+        <substitute key="colormap" value="Radar/8-bit STP"/>
     </contribute>
 	<contribute xsi:type="titleItem" titleText="------ Mosaic ------"
 		id="RadarMosaic" />
