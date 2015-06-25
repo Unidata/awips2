@@ -24,6 +24,8 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    05/07/2015      4027          randerso       Migrated A1 OB9.16 code to A2
+#    06/17/2015      4027          dgilling       Perform case-insensitive 
+#                                                 comparisons in foundCTAs.
 #
 #-------------------------------------------------------------------------
 # Description: This product is a template for creating Hazard Products.
@@ -1148,7 +1150,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
             for (ctaType, cta) in self.__procCTA:
                 ## Added following line to account for framing code issues in CTA
                 cta = re.sub("\|\*.*\*\|","",cta)
-                if para == cta and ctaType not in found:
+                # We want this comparison to be case-insensitive just in case
+                # the site is not transmitting in mixed case yet.
+                if para.upper() == cta.upper() and ctaType not in found:
                     found.append(ctaType)
         return found
 

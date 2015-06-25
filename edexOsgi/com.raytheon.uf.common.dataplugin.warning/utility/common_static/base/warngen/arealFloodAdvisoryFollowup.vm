@@ -217,11 +217,10 @@ THIS IS A TEST MESSAGE.##
 #### GP End
 
 #if(${list.contains(${bullets}, "recedingWater")})
-THE HIGH WATER IS RECEDING...AND IS NO LONGER EXPECTED TO POSE A THREAT. PLEASE CONTINUE TO HEED ANY ROAD CLOSURES.
-
+The high water is receding, and is no longer expected to pose a threat. Please continue to heed any road closures.
 #end
 #if(${list.contains(${bullets}, "rainEnded")})
-THE HEAVY RAIN HAS ENDED...AND FLOODING IS NO LONGER EXPECTED TO POSE A THREAT.
+The heavy rain has ended, and flooding is no longer expected to pose a threat.
 
 #end
 #end
