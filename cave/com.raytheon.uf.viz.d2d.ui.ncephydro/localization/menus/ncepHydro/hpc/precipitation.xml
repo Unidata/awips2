@@ -27,8 +27,10 @@
               menuText="Day 1 Excessive Rainfall" id="day1ExcessiveRainfall">
         <substitute key="wmo" value="PEI745"/>
     </contribute>
-	    <contribute xsi:type="bundleItem" file="bundles/ncepHydro/hpc/HPCqpfNDFD-PPFFG.xml"
+	    <contribute xsi:type="bundleItem" file="bundles/ncepHydro/hpc/HPCqpfNDFD.xml"
 			menuText="1-3 Day Excessive Rainfall (Grid)" id="day1to3ExcessiveRainfall">
+                        <substitute key="frameCount" value="3" />
+                        <substitute key="param" value="PPFFG" />
        </contribute>				
     <contribute xsi:type="bundleItem" file="bundles/Redbook_customLegend.xml" 
 			menuText="Precip Accum - 6 hr" id="precipAccum6hr">
