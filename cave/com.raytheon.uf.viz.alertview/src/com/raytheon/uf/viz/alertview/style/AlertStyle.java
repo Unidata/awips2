@@ -102,6 +102,66 @@ public class AlertStyle {
         this.fontStyle = fontStyle;
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((backgroundColor == null) ? 0 : backgroundColor.hashCode());
+        result = prime * result + ((filter == null) ? 0 : filter.hashCode());
+        result = prime * result
+                + ((fontName == null) ? 0 : fontName.hashCode());
+        result = prime * result
+                + ((fontSize == null) ? 0 : fontSize.hashCode());
+        result = prime * result
+                + ((fontStyle == null) ? 0 : fontStyle.hashCode());
+        result = prime * result
+                + ((foregroundColor == null) ? 0 : foregroundColor.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        AlertStyle other = (AlertStyle) obj;
+        if (backgroundColor == null) {
+            if (other.backgroundColor != null)
+                return false;
+        } else if (!backgroundColor.equals(other.backgroundColor))
+            return false;
+        if (filter == null) {
+            if (other.filter != null)
+                return false;
+        } else if (!filter.equals(other.filter))
+            return false;
+        if (fontName == null) {
+            if (other.fontName != null)
+                return false;
+        } else if (!fontName.equals(other.fontName))
+            return false;
+        if (fontSize == null) {
+            if (other.fontSize != null)
+                return false;
+        } else if (!fontSize.equals(other.fontSize))
+            return false;
+        if (fontStyle == null) {
+            if (other.fontStyle != null)
+                return false;
+        } else if (!fontStyle.equals(other.fontStyle))
+            return false;
+        if (foregroundColor == null) {
+            if (other.foregroundColor != null)
+                return false;
+        } else if (!foregroundColor.equals(other.foregroundColor))
+            return false;
+        return true;
+    }
+
     public Integer getFontSize() {
         return fontSize;
     }
@@ -109,5 +169,6 @@ public class AlertStyle {
     public void setFontSize(Integer fontSize) {
         this.fontSize = fontSize;
     }
+
 
 }

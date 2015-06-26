@@ -1,4 +1,5 @@
 <popUpPreferences>
+  <openFilter>none</openFilter>
   <activeFilter>warnPlus</activeFilter>
   <filterMenu>
     <filter>all</filter>

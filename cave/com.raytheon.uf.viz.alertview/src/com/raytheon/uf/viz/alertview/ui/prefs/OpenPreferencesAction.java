@@ -17,19 +17,16 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.alertview.style;
+package com.raytheon.uf.viz.alertview.ui.prefs;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.preference.IPreferencePage;
+import org.eclipse.jface.preference.PreferenceDialog;
+import org.eclipse.ui.dialogs.PreferencesUtil;
 
 /**
- * 
- * JAXB serializable list of {@link AlertStyle}s.
+ * Action which opens {@link PreferenceDialog} with the
+ * {@link AlertViewPreferencePage} and other associated {@link IPreferencePage}.
  * 
  * <pre>
  * 
@@ -37,40 +34,27 @@ import javax.xml.bind.annotation.XmlRootElement;
  * 
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------
- * Jun 18, 2015  4474     bsteffen  Initial creation
+ * Jun 25, 2015  4474     bsteffen  Initial creation
  * 
  * </pre>
  * 
  * @author bsteffen
  * @version 1.0
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.FIELD)
-public class StyleList {
+public class OpenPreferencesAction extends Action {
 
-    @XmlElement(name = "style")
-    private List<AlertStyle> styles = new ArrayList<>();
-
-    public StyleList() {
+    public OpenPreferencesAction() {
+        super("Preferences");
     }
 
-    public StyleList(List<AlertStyle> styles) {
-        this.styles = styles;
-    }
-
-    public List<AlertStyle> getStyles() {
-        return styles;
-    }
-
-    public void setStyles(List<AlertStyle> styles) {
-        this.styles = styles;
-    }
-
-    public void addStyle(AlertStyle style) {
-        if (styles == null) {
-            styles = new ArrayList<AlertStyle>();
-        }
-        styles.add(style);
+    @Override
+    public void run() {
+        PreferencesUtil.createPreferenceDialogOn(
+                null,
+                AlertViewPreferencePage.class.getName(),
+                new String[] { AlertViewPreferencePage.class.getName(),
+                        StylePreferencePage.class.getName(),
+                        PopupPreferencePage.class.getName() }, null).open();
     }
 
 }

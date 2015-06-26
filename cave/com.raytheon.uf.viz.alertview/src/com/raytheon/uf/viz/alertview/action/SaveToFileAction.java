@@ -66,6 +66,9 @@ public class SaveToFileAction extends Action {
     private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat(
             "yyyy-MM-dd HH:mm:ss,SSS");
 
+    /** Don't waste memory keeping excessive details. */
+    private static final int MAX_DETAILS_SIZE = 16 * 1024;
+
     private static Logger logger = LoggerFactory.getLogger(AlertView.class);
 
     private final Alert alert;
@@ -95,10 +98,9 @@ public class SaveToFileAction extends Action {
             String fileName = fd.open();
             if (fileName != null) {
                 path = Paths.get(fileName);
+            } else {
+                return;
             }
-        }
-        if (path == null) {
-            return;
         }
         try {
             write(path, alert);
@@ -141,7 +143,12 @@ public class SaveToFileAction extends Action {
             throw new IOException(path.toString()
                     + " is not a valid alert file");
         }
-        Priority priority = Priority.valueOf(split[0]);
+        Priority priority;
+        try {
+            priority = Priority.valueOf(split[0]);
+        } catch (IllegalArgumentException e) {
+            throw new IOException(split[0] + " is not a valid priority.");
+        }
         Date time;
         try {
             time = TIME_FORMAT.parse(split[1] + " " + split[2]);
@@ -150,6 +157,10 @@ public class SaveToFileAction extends Action {
                     + " is not a valid alert file", e);
         }
         String message = split[3];
+        if (details.length() > MAX_DETAILS_SIZE) {
+            details = details.substring(0, MAX_DETAILS_SIZE)
+                    + "\n...file content truncated...";
+        }
         return new ParsedAlert(priority, time, path.toString(), message,
                 details);
     }

@@ -17,22 +17,20 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.alertview.store;
+package com.raytheon.uf.viz.alertview.ui.view;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.uf.viz.alertview.Alert;
 import com.raytheon.uf.viz.alertview.AlertDestination;
-import com.raytheon.uf.viz.alertview.AlertStore;
+import com.raytheon.uf.viz.alertview.filter.AlertFilter;
+import com.raytheon.uf.viz.alertview.filter.FilterManager;
 import com.raytheon.uf.viz.alertview.prefs.AlertViewPreferences;
 import com.raytheon.uf.viz.alertview.prefs.PreferenceFile;
 
 /**
- * 
- * A simple {@link AlertStore} that retains all {@link Alert}s that arrive in
- * memory.
+ * Automatically open {@link AlertView} whenever new {@link Alert}s arrive that
+ * have a high enough priority.
  * 
  * <pre>
  * 
@@ -40,55 +38,44 @@ import com.raytheon.uf.viz.alertview.prefs.PreferenceFile;
  * 
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------
- * Jun 17, 2015  4474     bsteffen  Initial creation
+ * Jun 25, 2015  4474     bsteffen  Initial creation
  * 
  * </pre>
  * 
  * @author bsteffen
  * @version 1.0
  */
-public class MemoryAlertStore implements AlertStore, AlertDestination,
+public class AlertViewAutoOpen implements AlertDestination,
         PreferenceFile.Listener<AlertViewPreferences> {
-
-    private ConcurrentLinkedQueue<Alert> alerts = new ConcurrentLinkedQueue<>();
 
     private final PreferenceFile<AlertViewPreferences> prefsFile;
 
-    private int retentionCount;
+    private final FilterManager filters = new FilterManager();
 
-    public MemoryAlertStore() {
+    private AlertFilter filter;
+
+    public AlertViewAutoOpen() {
         prefsFile = AlertViewPreferences.load(this);
-        retentionCount = prefsFile.get().getAlertsToLoad();
+        filter = filters.getFilter(prefsFile.get().getOpenFilter());
     }
 
     @Override
-    public void update(AlertViewPreferences preferences) {
-        retentionCount = preferences.getAlertsToLoad();
-        while (alerts.size() > retentionCount) {
-            alerts.poll();
+    public void update(AlertViewPreferences preference) {
+        filter = filters.getFilter(prefsFile.get().getOpenFilter());
+
+    }
+
+    @Override
+    public void handleAlert(final Alert alert) {
+        if (filter.filter(alert)) {
+            Display.getDefault().asyncExec(new Runnable() {
+
+                @Override
+                public void run() {
+                    OpenAlertViewHandler.openInAlertView(alert);
+                }
+            });
         }
-    }
-
-    /**
-     * This will get called automatically by declaritive services.
-     */
-    public void deactivate() {
-        prefsFile.close();
-    }
-
-    @Override
-    public void handleAlert(Alert alert) {
-        /* Trim too desired number of alerts */
-        if (alerts.size() >= retentionCount) {
-            alerts.poll();
-        }
-        alerts.offer(alert);
-
-    }
-
-    @Override
-    public List<Alert> getAlerts() {
-        return Arrays.asList(alerts.toArray(new Alert[0]));
     }
 
 }

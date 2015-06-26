@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.alertview.prefs;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.raytheon.uf.viz.alertview.Alert.Priority;
 import com.raytheon.uf.viz.alertview.ui.popup.AlertPopup;
 
 /**
@@ -45,17 +46,53 @@ public class PopUpPreferences {
 
     public static enum PopUpCorner {
         UPPER_LEFT, UPPER_RIGHT, LOWER_LEFT, LOWER_RIGHT;
+
+        public String getPrettyName() {
+            String name = name();
+            String[] words = name.split("_");
+            StringBuilder pretty = new StringBuilder(name.length());
+            for (String word : words) {
+                if (pretty.length() > 0) {
+                    pretty.append(' ');
+                }
+                pretty.append(word.charAt(0));
+                pretty.append(word.substring(1).toLowerCase());
+            }
+            return pretty.toString();
+        }
+
+        public static PopUpCorner fromPrettyName(String corner) {
+            return valueOf(corner.replace(' ', '_').toUpperCase());
+        }
     }
 
-    private String filter = "warnPlus";
+    private String filter;
 
-    private int duration = 3;
+    /* Time in ms. */
+    private int duration;
 
-    private PopUpCorner corner = PopUpCorner.LOWER_RIGHT;
+    private PopUpCorner corner;
 
-    private int width = 500;
+    private int width;
 
-    private int height = 50;
+    private int height;
+
+    public PopUpPreferences() {
+        /* Everything needs reasonable defaults to keep PreferenceFile happy. */
+        filter = Priority.ERROR.name().toLowerCase();
+        duration = 3000;
+        corner = PopUpCorner.LOWER_RIGHT;
+        width = 500;
+        height = 50;
+    }
+
+    public PopUpPreferences(PopUpPreferences other) {
+        this.filter = other.getFilter();
+        this.duration = other.getDuration();
+        this.corner = other.getCorner();
+        this.width = other.getWidth();
+        this.height = other.getHeight();
+    }
 
     public String getFilter() {
         return filter;
@@ -95,6 +132,49 @@ public class PopUpPreferences {
 
     public void setHeight(int height) {
         this.height = height;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((corner == null) ? 0 : corner.hashCode());
+        result = prime * result + duration;
+        result = prime * result + ((filter == null) ? 0 : filter.hashCode());
+        result = prime * result + height;
+        result = prime * result + width;
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        PopUpPreferences other = (PopUpPreferences) obj;
+        if (corner != other.corner)
+            return false;
+        if (duration != other.duration)
+            return false;
+        if (filter == null) {
+            if (other.filter != null)
+                return false;
+        } else if (!filter.equals(other.filter))
+            return false;
+        if (height != other.height)
+            return false;
+        if (width != other.width)
+            return false;
+        return true;
+    }
+
+    public static PreferenceFile<PopUpPreferences> load(
+            PreferenceFile.Listener<? super PopUpPreferences> listener) {
+        return new PreferenceFile<>("alert_popup.xml", PopUpPreferences.class,
+                listener);
     }
 
 }

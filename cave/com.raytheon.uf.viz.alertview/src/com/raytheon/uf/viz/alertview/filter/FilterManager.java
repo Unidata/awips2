@@ -54,9 +54,21 @@ import com.raytheon.uf.viz.alertview.Alert.Priority;
  */
 public class FilterManager {
 
+    /** Name for a filter that accepts all alerts. */
+    public static final String ALL = "all";
+
+    /** Name for a filter that accepts no alerts. */
+    public static final String NONE = "none";
+
+    /** Name for a filter that accepts alerts with priority >= WARN. */
+    public static final String WARN_PLUS = "warnPlus";
+
+    /** Name for a filter that accepts alerts with priority >= INFO. */
+    public static final String INFO_PLUS = "infoPlus";
+
     private static Logger logger = LoggerFactory.getLogger(FilterManager.class);
 
-    public static final AlertFilter NONE = new ConstantFilter(false);
+    private static final AlertFilter NONE_FILTER = new ConstantFilter(false);
 
     private final Map<String, AlertFilter> filters = new HashMap<>();
 
@@ -65,13 +77,13 @@ public class FilterManager {
     }
 
     private void loadDefaultFilters() {
-        filters.put("all", new ConstantFilter(true));
-        filters.put("none", new ConstantFilter(false));
+        filters.put(ALL, new ConstantFilter(true));
+        filters.put(NONE, new ConstantFilter(false));
         for (Priority p : Priority.values()) {
             filters.put(p.name().toLowerCase(), new PriorityFilter(p));
         }
-        filters.put("warnPlus", new MinPriorityFilter(Priority.WARN));
-        filters.put("infoPlus", new MinPriorityFilter(Priority.INFO));
+        filters.put(WARN_PLUS, new MinPriorityFilter(Priority.WARN));
+        filters.put(INFO_PLUS, new MinPriorityFilter(Priority.INFO));
     }
 
     public AlertFilter getFilter(String id) {
@@ -79,7 +91,7 @@ public class FilterManager {
         if (filter == null) {
             logger.warn("AlertView FilterManager failed to find a filter with an id of "
                     + id);
-            filter = NONE;
+            filter = NONE_FILTER;
         }
         return filter;
     }
