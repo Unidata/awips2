@@ -131,6 +131,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 09/03/2014              mpduff      Fixed river status table updates.
  * 09/12/2014              mpduff      Fix for shef_load_ingest token
  * 09/18/2014   3627       mapeters    Updated deprecated {@link TimeTools} usage.
+ * 06/26/2015   17420      xwei        Fix for : Application fails to act on defined locdatalimit range for parameter element SW 
  * </pre>
  * 
  * @author mduff
@@ -2628,8 +2629,12 @@ public class PostShef {
                 Object[] oa = dao.executeSQLQuery(locLimitSql.toString());
 
                 if (oa.length == 0) {
-                    dataRangeMap.put(key, null);
-                    // default range
+                	
+                	if ( dataRangeMap.containsKey(key) ){
+                    	dataRangeMap.remove(key);
+                	}
+                    
+                	// default range
                     defLimitSql = new StringBuilder(sqlStart);
                     defLimitSql.append("datalimits where pe = '")
                             .append(data.getPhysicalElement().getCode())
@@ -2640,7 +2645,10 @@ public class PostShef {
                     key = data.getPhysicalElement().getCode()
                             + data.getDurationValue();
                     if (oa.length == 0) {
-                        dataRangeMap.put(key, null);
+                    	
+                    	if ( dataRangeMap.containsKey(key) ){
+                        	dataRangeMap.remove(key);
+                        }
                     }
                 }
 
