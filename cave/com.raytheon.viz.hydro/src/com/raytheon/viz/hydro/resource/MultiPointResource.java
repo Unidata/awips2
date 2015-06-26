@@ -130,6 +130,7 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * Feb 18, 2014 2596        mpduff      Check for null coordinates.
  * Feb 02, 2015 4075        ccody       Added getSelectedGage for HS issue #3961
  * Mar 09, 2015 13998       lbousaidi   changed the dur display when it is null to match A1. 
+ * Jun 26, 2015 17386       xwei        Fixed : HydroView crashes in when Refresh Data after loading saved display files
  * 
  * </pre>
  * 
@@ -792,6 +793,9 @@ public class MultiPointResource extends
         setScaleValues(paintProps);
         IExtent extent = paintProps.getView().getExtent();
         List<GageData> data = pdcManager.getObsReportList();
+        
+        resetDataMap();
+        
         if (data != null) {
             List<PointImage> images = new ArrayList<PointImage>(data.size());
             List<DrawableString> strings = new ArrayList<DrawableString>(
