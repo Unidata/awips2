@@ -29,6 +29,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
@@ -158,13 +159,21 @@ public class PopupPreferencePage extends PreferencePage implements
 
     @Override
     public void dispose() {
-        super.dispose();
         preferenceFile.close();
+        super.dispose();
     }
 
     @Override
     public void update(PopUpPreferences preferences) {
-        populate();
+        Display.getDefault().asyncExec(new Runnable() {
+
+            @Override
+            public void run() {
+                if (!getControl().isDisposed()) {
+                    populate();
+                }
+            }
+        });
     }
 
 }

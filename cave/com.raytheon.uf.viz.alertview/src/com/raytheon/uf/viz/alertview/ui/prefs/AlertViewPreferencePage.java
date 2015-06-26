@@ -32,6 +32,7 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
@@ -199,13 +200,21 @@ public class AlertViewPreferencePage extends PreferencePage implements
 
     @Override
     public void dispose() {
-        super.dispose();
         preferenceFile.close();
+        super.dispose();
     }
 
     @Override
     public void update(AlertViewPreferences preferences) {
-        populate();
+        Display.getDefault().asyncExec(new Runnable() {
+
+            @Override
+            public void run() {
+                if (!getControl().isDisposed()) {
+                    populate();
+                }
+            }
+        });
     }
 
 }

@@ -38,6 +38,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FontDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
@@ -237,8 +238,8 @@ public class StylePreferencePage extends PreferencePage implements
 
     @Override
     public void dispose() {
-        super.dispose();
         preferenceFile.close();
+        super.dispose();
     }
 
     protected void deleteStyle() {
@@ -297,8 +298,16 @@ public class StylePreferencePage extends PreferencePage implements
     }
 
     @Override
-    public void update(StylePreferences t) {
-        performDefaults();
+    public void update(StylePreferences preferences) {
+        Display.getDefault().asyncExec(new Runnable() {
+
+            @Override
+            public void run() {
+                if (!getControl().isDisposed()) {
+                    performDefaults();
+                }
+            }
+        });
     }
 
 }
