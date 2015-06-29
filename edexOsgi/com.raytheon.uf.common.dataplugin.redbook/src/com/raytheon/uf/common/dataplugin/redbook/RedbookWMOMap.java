@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.redbook;
+package com.raytheon.uf.common.dataplugin.redbook;
 
 import java.io.File;
 import java.util.HashMap;
@@ -35,10 +35,12 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * May 30, 2008				chammack	Initial creation
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * May 30, 2008             chammack    Initial creation
  * Nov 04, 2013 2361        njensen     Use JAXB instead of SerializationUtil
+ * Jun 25, 2015 4512        mapeters    Refactored from viz.redbook, made mapping
+ *                                      private, added getValue() and addEntry()
  * 
  * </pre>
  * 
@@ -57,32 +59,35 @@ public class RedbookWMOMap {
         public String projection;
     }
 
-    public HashMap<String, Info> mapping;
+    private HashMap<String, Info> mapping = new HashMap<>();
 
-    public static RedbookWMOMap load() throws Exception {
+    public Info getValue(String key) {
+        return mapping.get(key);
+    }
+
+    public void addEntry(String key, Info value) {
+        mapping.put(key, value);
+    }
+
+    public static RedbookWMOMap load() {
         File file = PathManagerFactory.getPathManager().getStaticFile(
                 "redbook/redbookMapping.xml");
-        try {
-            RedbookWMOMap map = JAXB.unmarshal(file, RedbookWMOMap.class);
+        RedbookWMOMap map = JAXB.unmarshal(file, RedbookWMOMap.class);
 
-            // add ability for comma separated values in xml file
-            RedbookWMOMap secondMap = new RedbookWMOMap();
-            secondMap.mapping = new HashMap<String, Info>();
-            secondMap.mapping.putAll(map.mapping);
-            for (String key : map.mapping.keySet()) {
-                if (key.contains(",")) {
-                    String[] keys = key.split(",");
-                    for (String theKey : keys) {
-                        secondMap.mapping.put(theKey.trim(),
-                                secondMap.mapping.get(key));
-                    }
-                    secondMap.mapping.remove(key);
+        // add ability for comma separated values in xml file
+        RedbookWMOMap secondMap = new RedbookWMOMap();
+        secondMap.mapping = new HashMap<String, Info>();
+        secondMap.mapping.putAll(map.mapping);
+        for (String key : map.mapping.keySet()) {
+            if (key.contains(",")) {
+                String[] keys = key.split(",");
+                for (String theKey : keys) {
+                    secondMap.mapping.put(theKey.trim(),
+                            secondMap.mapping.get(key));
                 }
+                secondMap.mapping.remove(key);
             }
-            return secondMap;
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
         }
+        return secondMap;
     }
 }

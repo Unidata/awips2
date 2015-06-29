@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.raytheon.uf.common.dataplugin.redbook.RedbookWMOMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -32,7 +33,6 @@ import com.raytheon.uf.viz.productbrowser.AbstractRequestableProductBrowserDataD
 import com.raytheon.uf.viz.productbrowser.ProductBrowserLabel;
 import com.raytheon.uf.viz.productbrowser.ProductBrowserPreference;
 import com.raytheon.uf.viz.productbrowser.ProductBrowserPreference.PreferenceType;
-import com.raytheon.viz.redbook.RedbookWMOMap;
 import com.raytheon.viz.redbookua.rsc.RedbookUpperAirResourceData;
 
 /**
@@ -43,7 +43,8 @@ import com.raytheon.viz.redbookua.rsc.RedbookUpperAirResourceData;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 17, 2010            mnash     Initial creation
+ * May 17, 2010            mnash       Initial creation
+ * Jun 26, 2015 4512       mapeters    Updated for RedbookWMOMap API changes
  * 
  * </pre>
  * 
@@ -92,7 +93,7 @@ public class RedbookProductBrowserDataDefinition extends
         List<ProductBrowserLabel> labels = new ArrayList<ProductBrowserLabel>();
         if ("wmoTTAAii".equals(param)) {
             for (int i = 0; i < parameters.length; i++) {
-                RedbookWMOMap.Info info = mapping.mapping.get(parameters[i]);
+                RedbookWMOMap.Info info = mapping.getValue(parameters[i]);
                 if (info != null) {
                     labels.add(new ProductBrowserLabel(info.name + " ("
                             + parameters[i] + ")", parameters[i]));
