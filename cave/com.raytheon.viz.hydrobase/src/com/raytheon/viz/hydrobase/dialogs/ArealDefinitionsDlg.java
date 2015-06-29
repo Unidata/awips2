@@ -77,6 +77,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 09 Sep 2009  2772       mpduff      Implemented Dialog.
  * 16 Apr 2013  1790       rferrel     Made dialog non-blocking.
  * 16 Jul 2013  2088       rferrel     Changes for non-blocking TextEditorDlg.
+ * 29 June 2015 14630      xwei        Fixed : Not able to import basins.dat with apostrophe and incorrect data posted
  * 
  * </pre>
  * 
@@ -692,6 +693,7 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
                 /* Remove any excess whitespace. */
                 str = str.trim();
                 str = str.replaceAll("\\s{2,}", " ");
+                str = str.replaceAll("'", "''"); 
 
                 String[] parts = str.split(" ");
                 int numParts = parts.length;

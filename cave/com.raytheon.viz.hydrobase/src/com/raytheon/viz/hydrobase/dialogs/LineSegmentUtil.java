@@ -37,7 +37,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 15, 2009 2772       mpduff     Initial creation
- * Apr 16, 2013 1790       rferrel     Code clean up for non-blocking dialogs.
+ * Apr 16, 2013 1790       rferrel    Code clean up for non-blocking dialogs.
+ * June 29, 2015 14630     xwei       Fixed : Not able to import basins.dat with apostrophe and incorrect data posted
  * 
  * </pre>
  * 
@@ -204,8 +205,7 @@ public class LineSegmentUtil {
          * longitude box defined by the max lat/lon and the min lat/lon pairs
          * retrieved above.
          */
-        Coordinate hrap = HrapUtil.latLonToHrap(new Coordinate(minLatLon.x,
-                maxLatLon.y));
+        Coordinate hrap = HrapUtil.latLonToHrap(new Coordinate(maxLatLon.x, maxLatLon.y));
         minRow = hrap.y;
         maxRow = hrap.y;
         minCol = hrap.x;
@@ -214,18 +214,15 @@ public class LineSegmentUtil {
         for (int i = LATLON_NORTHEAST_CORNER; i <= LATLON_SOUTHWEST_CORNER; i++) {
             switch (i) {
             case LATLON_NORTHEAST_CORNER:
-                hrap = HrapUtil.latLonToHrap(new Coordinate(maxLatLon.x,
-                        maxLatLon.y));
+            	hrap = HrapUtil.latLonToHrap(new Coordinate(minLatLon.x, maxLatLon.y));
                 break;
 
             case LATLON_SOUTHEAST_CORNER:
-                hrap = HrapUtil.latLonToHrap(new Coordinate(maxLatLon.x,
-                        minLatLon.y));
+            	hrap = HrapUtil.latLonToHrap(new Coordinate(minLatLon.x, minLatLon.y));
                 break;
 
             case LATLON_SOUTHWEST_CORNER:
-                hrap = HrapUtil.latLonToHrap(new Coordinate(minLatLon.x,
-                        minLatLon.y));
+            	hrap = HrapUtil.latLonToHrap(new Coordinate(maxLatLon.x, minLatLon.y));
                 break;
 
             default:
@@ -295,9 +292,20 @@ public class LineSegmentUtil {
                         binList.setArea(binList.getArea() + singleBinArea);
                     } else {
                         /* previous bin was outside */
-                        binList.getRows().add((long) r);
-                        binList.getBeginCols().add((long) c);
-                        binList.getEndCols().add((long) c);
+                    	if ( index >= binList.getRows().size() ){				 
+                        
+                    		binList.getRows().add((long) r);
+                        	binList.getBeginCols().add((long) c);
+                        	binList.getEndCols().add((long) c);                      	
+                        	
+                        }else{											         	
+                        	
+                        	binList.getRows().set( index, (long) r );			 
+                        	binList.getBeginCols().set( index, (long) c );       
+                        	binList.getEndCols().set( index, (long) c );         
+
+                        }													     
+
 
                         binList.setNumBins(binList.getNumBins() + 1);
                         singleBinArea = HrapUtil.getHrapBinArea(new Coordinate(
