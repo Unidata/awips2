@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<DerivedParameter abbreviation="FRZR12hr" name="12 Hr Ice Accum" unit="mm">
+  <Method dtime="true" name="Add">
+    <Field abbreviation="FRZR6hr" timeShift="0" />
+    <Field abbreviation="FRZR6hr" timeShift="-21600" />
+  </Method>
+  <Method dtime="true" name="LinTrans">
+    <Field abbreviation="TP12hr" timeShift="0" />
+    <Field abbreviation="snoRatOv2" timeShift="0" />
+    <Field abbreviation="TP12hr" timeShift="0" />
+    <Field abbreviation="snoRatOv2" timeShift="-43200" />
+  </Method>
+</DerivedParameter>
