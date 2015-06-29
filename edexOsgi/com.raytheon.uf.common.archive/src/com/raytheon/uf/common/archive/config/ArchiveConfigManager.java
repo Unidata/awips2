@@ -98,6 +98,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * Apr 29, 2014 3036       rferrel     Check for missing archive root directories.
  * May 22, 2014 3181       rferrel     Add check for valid array index.
  * Feb 24, 2015 3978       njensen     Changed to use abstract InputStream
+ * Jun 29, 2015 4583       rferrel     Log detail error message when archive configuration is invalid.
  * 
  * </pre>
  * 
@@ -354,9 +355,13 @@ public class ArchiveConfigManager {
                             archiveConfig.getName(), lFile);
                     archiveMap.put(archiveConfig.getName(), archiveConfig);
                 } else {
-                    statusHandler.handle(Priority.ERROR,
-                            "Bad Archive configuration file: "
-                                    + lFile.getFile().getName());
+                    StringBuilder sb = new StringBuilder(
+                            "Bad Archive configuration file: ");
+                    sb.append(lFile.getFile().getName());
+                    if (archiveConfig != null) {
+                        sb.append(archiveConfig.createErrorMsg());
+                    }
+                    statusHandler.handle(Priority.ERROR, sb.toString());
                 }
             } catch (DataBindingException ex) {
                 statusHandler.handle(Priority.ERROR,
