@@ -155,6 +155,6 @@ public class AlertConsoleViewer extends TextConsoleViewer {
             super.addHyperlink(hyperlink, offset, length);
             viewer.redraw();
         }
-    };
+    }
 
 }

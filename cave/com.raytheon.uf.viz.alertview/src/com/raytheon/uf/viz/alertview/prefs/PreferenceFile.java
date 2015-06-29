@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.alertview.prefs;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import javax.xml.bind.DataBindingException;
 import javax.xml.bind.JAXB;
@@ -82,7 +83,7 @@ public class PreferenceFile<P> {
 
     private final Class<P> type;
 
-    private final Listener<P> listener;
+    private final Listener<? super P> listener;
 
     private final AlertViewPrefListener prefStoreListener = new AlertViewPrefListener() {
         
@@ -115,7 +116,8 @@ public class PreferenceFile<P> {
 
     private P preferences;
 
-    public PreferenceFile(String fileName, Class<P> type, Listener<P> listener) {
+    public PreferenceFile(String fileName, Class<P> type,
+            Listener<? super P> listener) {
         this.fileName = fileName;
         this.type = type;
         this.listener = listener;
@@ -218,9 +220,8 @@ public class PreferenceFile<P> {
 
     public void write(P preferences) {
         if (prefStore != null) {
-            try {
-                JAXB.marshal(preferences,
-                        prefStore.writeConfigFile(fileName));
+            try (OutputStream out = prefStore.writeConfigFile(fileName)) {
+                JAXB.marshal(preferences, out);
             } catch (IOException e) {
                 logger.error("Unable to write {} to {}", type.getSimpleName(),
                         fileName, e);
@@ -229,9 +230,9 @@ public class PreferenceFile<P> {
         updatePreferences(preferences);
     }
 
-    public static interface Listener<T> {
+    public static interface Listener<P> {
 
-        public void update(T t);
+        public void update(P preference);
 
     }
 

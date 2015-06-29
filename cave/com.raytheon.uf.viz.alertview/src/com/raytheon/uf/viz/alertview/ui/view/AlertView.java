@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.alertview.ui.view;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.widgets.Composite;
@@ -46,6 +47,7 @@ import com.raytheon.uf.viz.alertview.filter.FilterManager;
 import com.raytheon.uf.viz.alertview.prefs.AlertViewPreferences;
 import com.raytheon.uf.viz.alertview.prefs.AlertViewPreferences.FilterMenu;
 import com.raytheon.uf.viz.alertview.prefs.PreferenceFile;
+import com.raytheon.uf.viz.alertview.ui.prefs.OpenPreferencesAction;
 
 /**
  * 
@@ -85,8 +87,7 @@ public class AlertView extends ViewPart implements AlertDestination,
 
     @Override
     public void createPartControl(Composite parent) {
-        preferencesFile = new PreferenceFile<>("alert_view.xml",
-                AlertViewPreferences.class, this);
+        preferencesFile = AlertViewPreferences.load(this);
         AlertViewPreferences preferences = preferencesFile.get();
 
         sashForm = new SashForm(parent, SWT.NONE);
@@ -122,10 +123,15 @@ public class AlertView extends ViewPart implements AlertDestination,
     }
 
     protected void populateFilterMenu() {
-        /* TODO the menu button looks stupid in CAVE because of the small tabs. */
+        /*
+         * TODO the menu button creates excessive unusable space in CAVE because
+         * there are no toolbar items and the tabs are so small.
+         */
         IMenuManager menuManager = getViewSite().getActionBars()
                 .getMenuManager();
         menuManager.removeAll();
+        MenuManager filterMenu = new MenuManager("Show", null);
+        menuManager.add(filterMenu);
         AlertViewPreferences prefs = preferencesFile.get();
         for (FilterMenu menuItem : prefs.getFilterMenu()) {
             Action action = new ShowFilteredAction(menuItem);
@@ -133,8 +139,9 @@ public class AlertView extends ViewPart implements AlertDestination,
                 action.setChecked(true);
                 action.run();
             }
-            menuManager.add(action);
+            filterMenu.add(action);
         }
+        menuManager.add(new OpenPreferencesAction());
     }
 
     private void loadAlerts() {
@@ -187,9 +194,11 @@ public class AlertView extends ViewPart implements AlertDestination,
         try {
             AlertView view = (AlertView) activePage.showView(AlertView.class
                     .getName());
-            view.handleAlert(alert);
-            view.alertTable.select(alert);
-            view.sashForm.setMaximizedControl(null);
+            if (alert != null) {
+                view.handleAlert(alert);
+                view.alertTable.select(alert);
+                view.sashForm.setMaximizedControl(null);
+            }
         } catch (PartInitException e) {
             logger.error("Cannot open AlertView", e);
         }
@@ -206,7 +215,7 @@ public class AlertView extends ViewPart implements AlertDestination,
         private final AlertFilter filter;
 
         public ShowFilteredAction(FilterMenu menuItem) {
-            super("Show " + menuItem.getText(), IAction.AS_RADIO_BUTTON);
+            super(menuItem.getText(), IAction.AS_RADIO_BUTTON);
             this.filterName = menuItem.getFilter();
             this.filter = filterManager.getFilter(filterName);
         }
@@ -219,6 +228,7 @@ public class AlertView extends ViewPart implements AlertDestination,
                 loadAlerts();
                 AlertViewPreferences prefs = preferencesFile.get();
                 if (!filterName.equals(prefs.getActiveFilter())) {
+                    prefs = new AlertViewPreferences(prefs);
                     prefs.setActiveFilter(filterName);
                     preferencesFile.write(prefs);
                 }

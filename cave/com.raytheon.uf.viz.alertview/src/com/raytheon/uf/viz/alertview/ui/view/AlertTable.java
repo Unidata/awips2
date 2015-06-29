@@ -55,6 +55,7 @@ import com.raytheon.uf.viz.alertview.Alert;
 import com.raytheon.uf.viz.alertview.action.SaveToFileAction;
 import com.raytheon.uf.viz.alertview.filter.AlertFilter;
 import com.raytheon.uf.viz.alertview.style.StyleManager;
+import com.raytheon.uf.viz.alertview.style.StyleManager.StyleListener;
 
 /**
  * 
@@ -74,7 +75,7 @@ import com.raytheon.uf.viz.alertview.style.StyleManager;
  * @author bsteffen
  * @version 1.0
  */
-public class AlertTable extends Composite {
+public class AlertTable extends Composite implements StyleListener {
 
     public static final String COLUMN_TIME = "Time";
 
@@ -83,6 +84,9 @@ public class AlertTable extends Composite {
     public static final String COLUMN_ORIGIN = "Origin";
 
     public static final String COLUMN_MESSAGE = "Message";
+
+    public static final String[] ALL_COLUMNS = { COLUMN_TIME, COLUMN_PRIORITY,
+            COLUMN_ORIGIN, COLUMN_MESSAGE };
 
     private StyleManager styles = new StyleManager();
 
@@ -130,6 +134,7 @@ public class AlertTable extends Composite {
         this.setLayout(new FillLayout());
         createAlertTable();
         rebuildColums(columns);
+        styles.addListener(this);
     }
 
     protected void createAlertTable() {
@@ -422,6 +427,21 @@ public class AlertTable extends Composite {
 
     protected void alertDoubleClick() {
         // sub classes can override this easily
+
+    }
+
+    @Override
+    public void updateStyle() {
+        getDisplay().asyncExec(new Runnable() {
+
+            @Override
+            public void run() {
+                for (TableItem item : alertTable.getItems()) {
+                    applyStyle(item);
+                }
+            }
+
+        });
 
     }
 
