@@ -5315,6 +5315,8 @@
  <!-- MRMS Reflectivity Products -->
  <styleRule>
 	<paramLevelMatches>
+		<parameter>CONUSMergedReflectivity</parameter>
+		<parameter>CONUSPlusMergedReflectivity</parameter>
 		<parameter>MergedReflectivityQCComposite</parameter>
 		<parameter>MergedReflectivityQC</parameter>
 		<parameter>Reflectivity0C</parameter>
