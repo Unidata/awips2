@@ -105,6 +105,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
  *                                      Changes for non-blocking DiscreteDialog. 
  * Feb 14, 2013            mnash       Move QueryScript to use new Python concurrency implementation
  * Jan 13, 2015 3955       randerso    Improve handling of Topo parm for Standard Terrain editing
+ * Jun 24, 2015 14401      yteng       Check whether activeDisplay is disposed before update 
  * 
  * </pre>
  * 
@@ -874,11 +875,15 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
                     @Override
                     public void run() {
                         if (result != null) {
-                            activeDisplay.setText(s);
                             refSetMgr.incomingRefSet(result,
                                     RefSetMode.USE_CURRENT);
                             addToHistory(s);
-                            queryField.setText("");
+                            
+                            if (activeDisplay != null || !activeDisplay.isDisposed())
+                                activeDisplay.setText(s);
+                            
+                            if (queryField != null && !queryField.isDisposed())
+                                queryField.setText("");
                         }
                     };
                 });
