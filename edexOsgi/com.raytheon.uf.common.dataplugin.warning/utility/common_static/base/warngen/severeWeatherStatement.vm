@@ -57,13 +57,13 @@ ${WMOId} ${vtecOffice} 000000 ${BBBId}
 SVS${siteId}
 
 #if(${productClass}=="T")
-TEST...SEVERE WEATHER STATEMENT...TEST
+TEST...Severe Weather Statement...TEST
 #else
-SEVERE WEATHER STATEMENT
+Severe Weather Statement
 #end
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${action}=="COR" && ${cancelareas})
@@ -103,7 +103,7 @@ ${ugcline}
 #end
 #end
 
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
@@ -328,7 +328,7 @@ ${ugcline}
 -##
 #end
 
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
@@ -348,7 +348,7 @@ ${ugcline}
 -##
 #end
 
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")

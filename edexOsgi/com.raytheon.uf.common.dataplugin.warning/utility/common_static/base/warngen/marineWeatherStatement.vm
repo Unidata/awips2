@@ -29,13 +29,13 @@ ${WMOId} ${vtecOffice} 000000 ${BBBId}
 MWS${siteId}
 
 #if(${productClass}=="T")
-TEST...MARINE WEATHER STATEMENT...TEST
+TEST...Marine Weather Statement...TEST
 #else
-MARINE WEATHER STATEMENT
+Marine Weather Statement
 #end
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 #if(${productClass}=="T")
 ...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
@@ -46,7 +46,7 @@ NATIONAL WEATHER SERVICE ${officeShort}
 ## Deleted VTEC and Marine Zone Name lines to come in line with NWS Directive 10-314
 ######################################################################
 ${ugcline}
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")

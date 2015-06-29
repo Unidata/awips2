@@ -107,14 +107,14 @@ ${ugcline}
 
 BULLETIN - EAS ACTIVATION REQUESTED
 #if(${productClass}=="T")
-TEST...TORNADO WARNING...TEST
+TEST...Tornado Warning...TEST
 #else
-TORNADO WARNING
+Tornado Warning
 #end
-##NATIONAL WEATHER SERVICE ${officeShort}
+##National Weather Service ${officeShort}
 National Weather Service ${officeShort}
 #backupText(${backupSite})
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 ## end of addition
 #if(${productClass}=="T")

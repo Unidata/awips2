@@ -345,7 +345,7 @@ ISSUED BY NATIONAL WEATHER SERVICE ${backupSite}
 
 #macro(headlineext $officeLoc $backupSite $extend)
 #if($extend)
-#set($issueVar = "extended a")
+#set($issueVar = "extended the")
 #else
 #set($issueVar = "issued a")
 #end

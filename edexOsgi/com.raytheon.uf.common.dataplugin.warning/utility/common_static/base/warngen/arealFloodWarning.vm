@@ -77,13 +77,13 @@ FLW${siteId}
 
 BULLETIN - IMMEDIATE BROADCAST REQUESTED
 #if(${productClass}=="T")
-TEST...FLOOD WARNING...TEST
+TEST...Flood Warning...TEST
 #else
-FLOOD WARNING
+Flood Warning
 #end
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 ${ugcline}
@@ -97,7 +97,7 @@ ${ugcline}
 -##
 #end
 
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")

@@ -21,19 +21,19 @@
 	#set($extend = false)
 #end
 ##
-#set($advType = "FLOOD ADVISORY")
+#set($advType = "Flood Advisory")
 #set($advTypeShort = "minor flooding")
 #if(${list.contains(${bullets}, "small")})
-	#set($advType = "SMALL STREAM FLOOD ADVISORY")
+	#set($advType = "Small Stream Flood Advisory")
 	#set($advTypeShort = "small stream flooding")
 #elseif(${list.contains(${bullets}, "uss")})
-	#set($advType = "URBAN AND SMALL STREAM FLOOD ADVISORY")
+	#set($advType = "Urban and Small Stream Flood Advisory")
 	#set($advTypeShort = "urban and small stream flooding")	
 #elseif(${list.contains(${bullets}, "arroyo")})
-	#set($advType = "ARROYO AND SMALL STREAM FLOOD ADVISORY")
+	#set($advType = "Arroyo and Small Stream Flood Advisory")
 	#set($advTypeShort = "arroyo and small stream flooding")
 #elseif(${list.contains(${bullets}, "hydrologic")})
-	#set($advType = "HYDROLOGIC ADVISORY")
+	#set($advType = "Hydrologic Advisory")
 	#set($advTypeShort = "minor flooding")
 #end
 
@@ -166,13 +166,13 @@ ${WMOId} ${vtecOffice} 000000 ${BBBId}
 FLS${siteId}
 
 #if(${productClass}=="T")
-TEST...FLOOD ADVISORY...TEST
+TEST...Flood Advisory...TEST
 #else
-FLOOD ADVISORY
+Flood Advisory
 #end
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
@@ -190,7 +190,7 @@ ${ugcline}
 -##
 #end
 
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
@@ -415,13 +415,13 @@ ${WMOId} ${vtecOffice} 000000 ${BBBId}
 FLS${siteId}
 
 #if(${productClass}=="T")
-TEST...FLOOD ADVISORY...TEST
+TEST...Flood Advisory...TEST
 #else
-FLOOD ADVISORY
+Flood Advisory
 #end
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
@@ -439,7 +439,7 @@ ${ugclinecan}
 -##
 #end
 
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
@@ -485,7 +485,7 @@ ${ugcline}
 -##
 #end
 
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
@@ -638,13 +638,13 @@ ${WMOId} ${vtecOffice} 000000 ${BBBId}
 FLS${siteId}
 
 #if(${productClass}=="T")
-TEST...FLOOD ADVISORY...TEST
+TEST...Flood Advisory...TEST
 #else
-FLOOD ADVISORY
+Flood Advisory
 #end
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
@@ -662,7 +662,7 @@ ${ugclinecan}
 -##
 #end
 
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
@@ -706,7 +706,7 @@ ${ugcline}
 -##
 #end
 
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")

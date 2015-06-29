@@ -22,19 +22,17 @@
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    ??/??/????       ????         njensen        Modified to add __repr__
-#    06/22/2015       4573         randerso       Change to extend GfeNotification
+#    06/22/2015       4573         randerso       Initial creation (hand generated)
 #
 ##    
 
 import GfeNotification
 
-class GridUpdateNotification(GfeNotification.GfeNotification):
+class GridHistoryUpdateNotification(GfeNotification.GfeNotification):
 
     def __init__(self):
-        super(GridUpdateNotification, self).__init__()
+        super(GridHistoryUpdateNotification, self).__init__()
         self.parmId = None
-        self.replacementTimeRange = None
         self.workstationID = None
         self.histories = None
 
@@ -43,12 +41,6 @@ class GridUpdateNotification(GfeNotification.GfeNotification):
 
     def setParmId(self, parmId):
         self.parmId = parmId
-
-    def getReplacementTimeRange(self):
-        return self.replacementTimeRange
-
-    def setReplacementTimeRange(self, replacementTimeRange):
-        self.replacementTimeRange = replacementTimeRange
 
     def getWorkstationID(self):
         return self.workstationID
@@ -64,7 +56,6 @@ class GridUpdateNotification(GfeNotification.GfeNotification):
         
     def __str__(self):
         msg = "ParmID: " + str(self.parmId)
-        msg += '\n' + "Replacement TimeRange: " + str(self.replacementTimeRange)
         msg += '\n' + "Histories: " + str(self.histories)
         return msg
 

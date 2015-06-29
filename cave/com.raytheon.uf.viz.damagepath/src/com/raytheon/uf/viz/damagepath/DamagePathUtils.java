@@ -34,8 +34,7 @@ import org.geotools.referencing.GeodeticCalculator;
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.viz.awipstools.common.stormtrack.AbstractStormTrackResource;
-import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState;
+import com.raytheon.viz.awipstools.ui.layer.InteractiveBaselinesLayer.Baseline;
 import com.raytheon.viz.radar.util.StationUtils;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -56,6 +55,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * Apr 01, 2015 3977       nabowle     rename the status handler.
  * Jun 18, 2015 3977       nabowle     Fix buffering. Renamed mehtods to
  *                                     specify that they're for Tornados.
+ * Jun 25, 2015 3977       nabowle     Redo inner-point buffering for use with
+ *                                     Interactive Baselines.
  *
  * </pre>
  *
@@ -69,6 +70,12 @@ public class DamagePathUtils {
      * Buffer.
      */
     private static final double END_DEGREE_DIFF = 30.0D;
+
+    /** Upper degree boundary to define a sharp angle. */
+    private static final double SHARP_ANGLE = 100;
+
+    /** Lower degree boundary when a sharp angle straddles 0 degrees. */
+    private static final double SHARP_ANGLE_INV = 360 - SHARP_ANGLE;
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(DamagePathUtils.class);
@@ -102,59 +109,52 @@ public class DamagePathUtils {
 
 
     /**
-     * Estimates a Tornado damage path polygon for a storm track.
+     * Estimates a Tornado damage path polygon for a baseline.
      *
-     * @param stormTrack
-     *            The storm track to create a tornado damage path for.
-     * @return The estimated tornado damage path polygon for a storm track.
+     * @param baseline
+     *            The baseline to create a tornado damage path for.
+     * @return The estimated tornado damage path polygon for a baseline.
      */
-    public static Polygon estimateTornadoDamagePath(
-            AbstractStormTrackResource stormTrack) {
+    public static Polygon estimateTornadoDamagePath(Baseline baseline) {
 
-        StormTrackState stState = stormTrack.getStormTrackState();
-
+        Coordinate[] coords = baseline.line.getCoordinates();
         RadarStation station = StationUtils.getInstance().getHomeRadarStation();
         GeometryFactory gf = new GeometryFactory();
 
-        List<StormTrackState.StormCoord> skippedCoords = new ArrayList<>();
+        List<Coordinate> skippedCoords = new ArrayList<>();
         List<Coordinate> validCoords = new ArrayList<>();
         GeodeticCalculator gc = new GeodeticCalculator();
-        filterCoords(stState.timePoints, station, skippedCoords, validCoords,
+        filterCoords(coords, station, skippedCoords, validCoords,
                 gc);
-        filterCoords(stState.futurePoints, station, skippedCoords, validCoords,
-                gc);
-
-        Coordinate[] damagePathCoords = createTornadoBuffer(validCoords, station, gc,
-                gf);
 
         if (!skippedCoords.isEmpty()) {
             StringBuilder sb = new StringBuilder();
-            sb.append("Skipped the following Storm Coordinates because they ")
+            sb.append(
+                    "Skipped the following Coordinates for Baseline "
+                            + baseline.name + " because they ")
                     .append("are out of range of the radar station. ");
-            for (StormTrackState.StormCoord coord : skippedCoords) {
-                sb.append("(").append(coord.time.toString()).append(", ")
-                        .append(coord.coord.x).append(", ")
-                        .append(coord.coord.y).append(") ");
+            for (Coordinate coord : skippedCoords) {
+                sb.append("(").append(coord.x).append(", ").append(coord.y)
+                        .append(") ");
             }
             statusHandler.info(sb.toString());
         }
 
-        /*
-         * user likely tried to import before creating track or entire track is
-         * outside of the max range.
-         */
-        if (damagePathCoords == null) {
+        if (validCoords.isEmpty()) {
             String suggestion;
             if (skippedCoords.isEmpty()) {
-                suggestion = "Make sure the storm track is initialized.";
+                suggestion = "Make sure the baseline is initialized.";
             } else {
-                suggestion = "Make sure the storm track is within range of the radar station.";
+                suggestion = "Make sure the baseline is within range of the radar station.";
             }
             statusHandler
-                    .warn("Could not create a Damage Path polygon for the storm track. "
-                            + suggestion);
+                    .warn("Could not create a Damage Path polygon for Baseline "
+                            + baseline.name + ". " + suggestion);
             return null;
         }
+
+        Coordinate[] damagePathCoords = createTornadoBuffer(validCoords, station, gc,
+                gf);
 
         Polygon polygon = gf.createPolygon(damagePathCoords);
 
@@ -178,15 +178,14 @@ public class DamagePathUtils {
      * @param gc
      *            A GeodeticCalculator.
      */
-    private static void filterCoords(StormTrackState.StormCoord[] stormCoords,
-            RadarStation station,
-            List<StormTrackState.StormCoord> skippedCoords,
+    private static void filterCoords(Coordinate[] stormCoords,
+            RadarStation station, List<Coordinate> skippedCoords,
             List<Coordinate> validCoords, GeodeticCalculator gc) {
         Coordinate stormCoord;
         double distance;
         if (stormCoords != null) {
             for (int i = 0; i < stormCoords.length; i++) {
-                stormCoord = stormCoords[i].coord;
+                stormCoord = stormCoords[i];
                 gc.setStartingGeographicPoint(stormCoord.x, stormCoord.y);
                 gc.setDestinationGeographicPoint(station.getLon(),
                         station.getLat());
@@ -194,10 +193,8 @@ public class DamagePathUtils {
 
                 if (distance > MAX_DISTANCE) {
                     skippedCoords.add(stormCoords[i]);
-                } else if (validCoords.isEmpty()
-                            || !validCoords.get(validCoords.size() - 1).equals(
-                                    stormCoords[i].coord)) {
-                    validCoords.add(stormCoords[i].coord);
+                } else {
+                    validCoords.add(stormCoords[i]);
                 }
             }
         }
@@ -221,44 +218,16 @@ public class DamagePathUtils {
      */
     private static Coordinate[] createTornadoBuffer(List<Coordinate> stormCoords,
             RadarStation station, GeodeticCalculator gc, GeometryFactory gf) {
-
-        if (stormCoords.isEmpty()) {
-            return null;
-        }
-
         // left hand side points
         List<Point2D> lhsPoints = new ArrayList<>();
         // right hand side points
         Deque<Point2D> rhsPoints = new ArrayDeque<>();
-        double distance;
         double uncertainty;
-        double azimuth;
-        double pointAzimuth;
         Coordinate stormCoord;
-        Coordinate otherCoord;
         /* Create a concave hull for a linear set of coordinates. */
         for (int i = 0; i < stormCoords.size(); i++) {
             stormCoord = stormCoords.get(i);
-            gc.setStartingGeographicPoint(stormCoord.x, stormCoord.y);
-            gc.setDestinationGeographicPoint(station.getLon(), station.getLat());
-            distance = gc.getOrthodromicDistance();
-
-            /*
-             * Based off of research done by Doug Speheger comparing surveyed
-             * tornado paths to manually identified radar tornadic vortex
-             * signatures in 2008-2012. In the initial dataset, 87% of tornadoes
-             * were within this range of uncertainty.
-             *
-             * Note: All units are in meters. Constants have been pre-converted
-             * from miles to meters.
-             */
-            if (distance < FORTY_MILES) {
-                uncertainty = THREE_TENTHS_MILE + distance * 0.005;
-            } else if (distance < EIGHTY_MILES) {
-                uncertainty = ONE_TENTH_MILE + distance * 0.01;
-            } else {
-                uncertainty = distance * 0.015 - THREE_TENTHS_MILE;
-            }
+            uncertainty = calculateUncertainty(station, gc, stormCoord);
 
             if (stormCoords.size() == 1) {
                 /*
@@ -272,48 +241,15 @@ public class DamagePathUtils {
                 break;
             }
 
-            if (i < stormCoords.size() - 1) {
-                otherCoord = stormCoords.get(i + 1);
-                gc.setDestinationGeographicPoint(otherCoord.x, otherCoord.y);
-                azimuth = gc.getAzimuth();
-
-                if (i == 0) {
-                    // create start cap
-                    pointAzimuth = clampAzimuth(azimuth + 90);
-                    gc.setDirection(pointAzimuth, uncertainty);
-                    lhsPoints.add(gc.getDestinationGeographicPoint());
-                    for (double d = END_DEGREE_DIFF; d <= 180; d += END_DEGREE_DIFF) {
-                        pointAzimuth = clampAzimuth(pointAzimuth
-                                + END_DEGREE_DIFF);
-                        gc.setDirection(pointAzimuth, uncertainty);
-                        lhsPoints.add(gc.getDestinationGeographicPoint());
-                    }
-                } else {
-                    /*
-                     * Create two points at 90 degrees from the direction of the
-                     * path.
-                     */
-                    pointAzimuth = clampAzimuth(azimuth - 90);
-                    gc.setDirection(pointAzimuth, uncertainty);
-                    lhsPoints.add(gc.getDestinationGeographicPoint());
-                    pointAzimuth = clampAzimuth(azimuth + 90);
-                    gc.setDirection(pointAzimuth, uncertainty);
-                    rhsPoints.push(gc.getDestinationGeographicPoint());
-                }
+            if (i == 0) {
+                createStartCap(stormCoords, gc, lhsPoints, uncertainty, i);
+            } else if (i < stormCoords.size() - 1) {
+                bufferInnerPoint(stormCoord, stormCoords, gc, lhsPoints,
+                        rhsPoints, uncertainty, i, station);
             } else {
-                // create end cap
-                otherCoord = stormCoords.get(i - 1);
-                gc.setDestinationGeographicPoint(otherCoord.x, otherCoord.y);
-                azimuth = gc.getAzimuth();
-                pointAzimuth = clampAzimuth(azimuth - 90);
-                gc.setDirection(pointAzimuth, uncertainty);
-                rhsPoints.push(gc.getDestinationGeographicPoint());
-                for (double d = END_DEGREE_DIFF; d <= 180; d += END_DEGREE_DIFF) {
-                    pointAzimuth = clampAzimuth(pointAzimuth - END_DEGREE_DIFF);
-                    gc.setDirection(pointAzimuth, uncertainty);
-                    rhsPoints.push(gc.getDestinationGeographicPoint());
-                }
+                createEndCap(stormCoords, gc, rhsPoints, uncertainty, i);
             }
+
         }
         lhsPoints.addAll(rhsPoints);
 
@@ -328,20 +264,247 @@ public class DamagePathUtils {
         return coordinates;
     }
 
+
     /**
-     * Clamps the azimuth to [-180, 180]
+     * Based off of research done by Doug Speheger comparing surveyed tornado
+     * paths to manually identified radar tornadic vortex signatures in
+     * 2008-2012. In the initial dataset, 87% of tornadoes were within this
+     * range of uncertainty.
+     *
+     * Note: All units are in meters. Constants have been pre-converted from
+     * miles to meters.
+     *
+     * @param station
+     * @param gc
+     * @param coord
+     * @return
+     */
+    private static double calculateUncertainty(RadarStation station,
+            GeodeticCalculator gc, Coordinate coord) {
+        gc.setStartingGeographicPoint(coord.x, coord.y);
+        gc.setDestinationGeographicPoint(station.getLon(), station.getLat());
+        double distance = gc.getOrthodromicDistance();
+
+        double uncertainty;
+        if (distance < FORTY_MILES) {
+            uncertainty = THREE_TENTHS_MILE + distance * 0.005;
+        } else if (distance < EIGHTY_MILES) {
+            uncertainty = ONE_TENTH_MILE + distance * 0.01;
+        } else {
+            uncertainty = distance * 0.015 - THREE_TENTHS_MILE;
+        }
+        return uncertainty;
+    }
+
+    /**
+     * Creates a buffer around a non-end point. If the path is on a generally
+     * straight path, just create two points on opposite sides of the path
+     * point. If the path coordinate is the vertex of an angle is sharp, create
+     * a couple points around the outside of the angle and create a single point
+     * on the inside that's uncertainty-meters from the point and both lines
+     * creating the angle.
+     *
+     * @param stormCoord
+     * @param stormCoords
+     * @param gc
+     * @param lhsPoints
+     * @param rhsPoints
+     * @param uncertainty
+     * @param i
+     * @param station
+     */
+    private static void bufferInnerPoint(Coordinate stormCoord,
+            List<Coordinate> stormCoords, GeodeticCalculator gc,
+            List<Point2D> lhsPoints, Deque<Point2D> rhsPoints,
+            double uncertainty, int i, RadarStation station) {
+        gc.setStartingGeographicPoint(stormCoord.x, stormCoord.y);
+
+        Coordinate nextCoord = stormCoords.get(i + 1);
+        gc.setDestinationGeographicPoint(nextCoord.x, nextCoord.y);
+        double azimuthToNext = nonNegativeAzimuth(gc.getAzimuth());
+
+        Coordinate prevCoord = stormCoords.get(i - 1);
+        gc.setDestinationGeographicPoint(prevCoord.x, prevCoord.y);
+        double azimuthToPrev = nonNegativeAzimuth(gc.getAzimuth());
+
+        double angle = Math.abs(azimuthToPrev - azimuthToNext);
+        boolean sharpAngle = (angle <= SHARP_ANGLE && angle > 0)
+                || (angle >= SHARP_ANGLE_INV && angle < 360);
+
+        if (sharpAngle) {
+            boolean rhsOnInside = angle <= SHARP_ANGLE ? azimuthToNext < azimuthToPrev
+                    : azimuthToPrev < azimuthToNext;
+            double bisectionAngle = Math
+                    .toRadians(angle >= SHARP_ANGLE_INV ? (360.0 - angle) / 2
+                            : angle / 2);
+
+            gc.setDirection(geodeticAzimuth(azimuthToNext + 180), uncertainty);
+            if (rhsOnInside) {
+                lhsPoints.add(gc.getDestinationGeographicPoint());
+
+                createOpposingPoints(stormCoord, gc, lhsPoints,
+                        new ArrayDeque<Point2D>(), uncertainty, azimuthToNext,
+                        azimuthToPrev);
+                double innerUncertainty = Math.abs(uncertainty
+                        / Math.sin(bisectionAngle));
+                if (innerUncertainty < uncertainty) {
+                    innerUncertainty = uncertainty;
+                }
+                createOpposingPoints(stormCoord, gc, new ArrayList<Point2D>(),
+                        rhsPoints, innerUncertainty, azimuthToNext,
+                        azimuthToPrev);
+
+                gc.setDirection(geodeticAzimuth(azimuthToPrev + 180),
+                        uncertainty);
+                lhsPoints.add(gc.getDestinationGeographicPoint());
+
+            } else {
+                rhsPoints.push(gc.getDestinationGeographicPoint());
+
+                createOpposingPoints(stormCoord, gc, new ArrayList<Point2D>(),
+                        rhsPoints, uncertainty, azimuthToNext, azimuthToPrev);
+                double innerUncertainty = Math.abs(uncertainty
+                        / Math.sin(bisectionAngle));
+                if (innerUncertainty < uncertainty) {
+                    innerUncertainty = uncertainty;
+                }
+                createOpposingPoints(stormCoord, gc, lhsPoints,
+                        new ArrayDeque<Point2D>(), innerUncertainty,
+                        azimuthToNext, azimuthToPrev);
+
+                gc.setDirection(geodeticAzimuth(azimuthToPrev + 180),
+                        uncertainty);
+                rhsPoints.push(gc.getDestinationGeographicPoint());
+            }
+        } else {
+            createOpposingPoints(stormCoord, gc, lhsPoints, rhsPoints, uncertainty,
+                    azimuthToNext, azimuthToPrev);
+        }
+    }
+
+    /**
+     * Create two points at 180 degrees from each other on the imaginary line
+     * that bisects the angle created at this point.
+     *
+     * @param coord
+     * @param gc
+     * @param lhsPoints
+     * @param rhsPoints
+     * @param uncertainty
+     * @param azimuthToNext
+     * @param azimuthToPrev
+     */
+    private static void createOpposingPoints(Coordinate coord,
+            GeodeticCalculator gc,
+            List<Point2D> lhsPoints, Deque<Point2D> rhsPoints,
+            double uncertainty, double azimuthToNext, double azimuthToPrev) {
+        gc.setStartingGeographicPoint(coord.x, coord.y);
+        double pointAzimuth = geodeticAzimuth(Math.min(azimuthToNext,
+                azimuthToPrev)
+                + Math.abs(azimuthToPrev - azimuthToNext) / 2);
+
+        if (azimuthToNext <= azimuthToPrev) {
+            pointAzimuth = geodeticAzimuth(pointAzimuth + 180);
+        }
+
+        gc.setDirection(pointAzimuth, uncertainty);
+        lhsPoints.add(gc.getDestinationGeographicPoint());
+
+        pointAzimuth = geodeticAzimuth(pointAzimuth + 180);
+
+        gc.setDirection(pointAzimuth, uncertainty);
+        rhsPoints.push(gc.getDestinationGeographicPoint());
+    }
+
+
+    /**
+     * Create's a curved half-circle buffer around the starting coordinate.
+     *
+     * @param stormCoords
+     * @param gc
+     * @param lhsPoints
+     * @param uncertainty
+     * @param i
+     */
+    private static void createStartCap(List<Coordinate> stormCoords,
+            GeodeticCalculator gc, List<Point2D> lhsPoints, double uncertainty,
+            int i) {
+        Coordinate nextCoord = stormCoords.get(i + 1);
+        gc.setDestinationGeographicPoint(nextCoord.x, nextCoord.y);
+        double azimuthToNext = gc.getAzimuth();
+
+        double pointAzimuth = geodeticAzimuth(azimuthToNext + 90);
+        gc.setDirection(pointAzimuth, uncertainty);
+        lhsPoints.add(gc.getDestinationGeographicPoint());
+
+        for (double d = END_DEGREE_DIFF; d <= 180; d += END_DEGREE_DIFF) {
+            pointAzimuth = geodeticAzimuth(pointAzimuth + END_DEGREE_DIFF);
+            gc.setDirection(pointAzimuth, uncertainty);
+            lhsPoints.add(gc.getDestinationGeographicPoint());
+        }
+    }
+
+    /**
+     * Create's a curved half-circle buffer around the ending coordinate.
+     *
+     * @param stormCoords
+     * @param gc
+     * @param rhsPoints
+     * @param uncertainty
+     * @param i
+     */
+    private static void createEndCap(List<Coordinate> stormCoords,
+            GeodeticCalculator gc, Deque<Point2D> rhsPoints,
+            double uncertainty, int i) {
+        Coordinate prevCoord = stormCoords.get(i - 1);
+        gc.setDestinationGeographicPoint(prevCoord.x, prevCoord.y);
+        double azimuthToPrev = gc.getAzimuth();
+
+        double pointAzimuth = geodeticAzimuth(azimuthToPrev - 90);
+        gc.setDirection(pointAzimuth, uncertainty);
+        rhsPoints.push(gc.getDestinationGeographicPoint());
+
+        for (double d = END_DEGREE_DIFF; d <= 180; d += END_DEGREE_DIFF) {
+            pointAzimuth = geodeticAzimuth(pointAzimuth - END_DEGREE_DIFF);
+            gc.setDirection(pointAzimuth, uncertainty);
+            rhsPoints.push(gc.getDestinationGeographicPoint());
+        }
+    }
+
+    /**
+     * Clamps the azimuth to [-180, 180] for use with the GeodeticCalculator.
      *
      * @param azimuth
      *            The azimuth.
-     * @return An equivalent azimuth in [-180, 180]
+     * @return An equivalent azimuth in [-180, 180].
      */
-    private static double clampAzimuth(double azimuth) {
+    private static double geodeticAzimuth(double azimuth) {
         double az = azimuth;
         while (az < -180.0) {
             az += 360.0;
         }
 
         while (az > 180.0) {
+            az -= 360.0;
+        }
+
+        return az;
+    }
+
+    /**
+     * Clamps the azimuth to [0, 360] to simplify the azimath.
+     *
+     * @param azimuth
+     *            The azimuth.
+     * @return An equivalent azimuth in [0, 360].
+     */
+    private static double nonNegativeAzimuth(double azimuth) {
+        double az = azimuth;
+        while (az < 0) {
+            az += 360.0;
+        }
+
+        while (az > 360.0) {
             az -= 360.0;
         }
 

@@ -15,9 +15,9 @@ FRW${siteId}
 
 <L>BULLETIN - EAS ACTIVATION REQUESTED</L>
 #if(${productClass}=="T")
-<L>TEST...FIRE WARNING...TEST</L>
+<L>TEST...Fire Warning...TEST</L>
 #else
-<L>FIRE WARNING</L>
+<L>Fire Warning</L>
 #end
 #set($requestedBy = "!** ENTER REQUESTING AGENCY NAME HERE **!")
 #if(${list.contains(${bullets}, "agency1")})
@@ -26,12 +26,12 @@ FRW${siteId}
 #if(${list.contains(${bullets}, "agency2")})
 #set($requestedBy = "Example Agency 2")
 #end
-#set($agencyNameLine = "REQUESTED BY ${requestedBy}")
+#set($agencyNameLine = "Requested by ${requestedBy}")
 #capitalize(${agencyNameLine} "ALL")
 
-<L>RELAYED BY NATIONAL WEATHER SERVICE ${officeShort}</L>
+<L>Relayed by National Weather Service ${officeShort}</L>
 #backupText(${backupSite})
-<L>#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+<L>${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 </L>
 
 #if(${productClass}=="T")

@@ -1,3 +1,4 @@
+##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
 # 
@@ -16,33 +17,35 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+
+
+#
+# Adapter for com.raytheon.uf.common.dataplugin.gfe.svcbu.JobProgress
+#  
 #    
 #     SOFTWARE HISTORY
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    10/07/2014       3684         randerso       Manually updated to add sourceID
+#    06/22/2015       4573         randerso       Initial creation
+#    
+# 
 #
-##    
-import abc
 
-class GfeNotification(object):
-    __metaclass__ = abc.ABCMeta
+from thrift.Thrift import TType
+from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.svcbu import JobProgress
 
-    @abc.abstractmethod
-    def __init__(self):
-        self.siteID = None
-        self.sourceID = None
+ClassAdapter = 'com.raytheon.uf.common.dataplugin.gfe.svcbu.JobProgress'
 
-    def getSiteID(self):
-        return self.siteID
-
-    def setSiteID(self, siteID):
-        self.siteID = siteID
-
-
-    def getSourceID(self):
-        return self.sourceID
-
-    def setSourceID(self, sourceID):
-        self.sourceID = sourceID
+def serialize(context, mode):
+    context.protocol.writeFieldBegin('__enumValue__', TType.STRING, 0)
+    context.writeString(mode.value)
+    
+def deserialize(context):
+    result = JobProgress()
+    # Read the TType.STRING, "__enumValue__", and id.
+    # We're not interested in any of those, so just discard them.
+    context.protocol.readFieldBegin()
+    # now get the actual enum value
+    result.value = context.readString()
+    return result

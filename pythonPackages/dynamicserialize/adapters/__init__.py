@@ -31,7 +31,7 @@
 #    03/20/13           #1774      randerso      Added TimeConstraintsAdapter
 #    04/22/13           #1949      rjpeter       Added LockTableAdapter
 #    02/06/14           #2672      bsteffen      Added JTSEnvelopeAdapter
-
+#    06/22/2015         #4573      randerso      Added JobProgressAdapter
 # 
 #
 
@@ -56,8 +56,8 @@ __all__ = [
            'ByteBufferAdapter',
            'TimeConstraintsAdapter',
            'LockTableAdapter',
-           'JTSEnvelopeAdapter'
-#           'GridDataHistoryAdapter',
+           'JTSEnvelopeAdapter',
+           'JobProgressAdapter',
            ]
  
 classAdapterRegistry = {}
