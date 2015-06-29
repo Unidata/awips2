@@ -75,10 +75,11 @@ import com.raytheon.uf.viz.core.VizApp;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 4, 2008  1433       chammack    Initial creation
- * Jun 3, 2013  2026       randerso    Improve error handling
- * May 5, 2015  4473       mschenke    Major refactor
- * Jun 1, 2015  4473       njensen     Major refactor, removed send ability
+ * Sep 04, 2008  1433       chammack    Initial creation
+ * Jun 03, 2013  2026       randerso    Improve error handling
+ * May 05, 2015  4473       mschenke    Major refactor
+ * Jun 01, 2015  4473       njensen     Major refactor, removed send ability
+ * Jun 29, 2015  4473       njensen     Register notification observer on start
  *
  * </pre>
  * 
@@ -178,6 +179,7 @@ public class AlertvizJob extends Job implements AlertService {
         this.broker.setPersistent(false);
         this.broker.setUseJmx(false);
         this.port = port;
+        AlertVizNotificationObserver.registerAlertVizNotificationObserver();
 
         String localIP = "localhost";
         try {
