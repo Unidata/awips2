@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.viz.ui.dialogs.localization.VizLocalizationFileListDlg;
 
 /**
@@ -43,6 +44,7 @@ import com.raytheon.viz.ui.dialogs.localization.VizLocalizationFileListDlg;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 2, 2015  4401       bkowal      Initial creation
+ * Jun 30, 2015 4401       bkowal      Specify the localization level during construction.
  * 
  * </pre>
  * 
@@ -67,7 +69,8 @@ public class ProcedureListFileDlg extends VizLocalizationFileListDlg {
      */
     public ProcedureListFileDlg(String title, Shell parent, Mode mode,
             String localizationDirectory) {
-        super(title, parent, mode, localizationDirectory, "procedures");
+        super(title, parent, mode, localizationDirectory, "procedures",
+                LocalizationType.CAVE_STATIC);
     }
 
     @Override
