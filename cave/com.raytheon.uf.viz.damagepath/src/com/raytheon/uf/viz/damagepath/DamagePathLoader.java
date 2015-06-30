@@ -26,7 +26,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -38,7 +37,6 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.Name;
 
 import com.raytheon.uf.common.json.JsonException;
-import com.raytheon.uf.common.json.geo.BasicJsonService;
 import com.raytheon.uf.common.json.geo.GeoJsonMapUtil;
 import com.raytheon.uf.common.json.geo.IGeoJsonService;
 import com.raytheon.uf.common.json.geo.SimpleGeoJsonService;
@@ -62,6 +60,8 @@ import com.vividsolutions.jts.operation.valid.IsValidOp;
  * Jun 05, 2015  #4375     dgilling    Initial creation
  * Jun 18, 2015  #4354     dgilling    Support FeatureCollections so each polygon
  *                                     can have its own properties.
+ * Jun 30, 2015  #4354     dgilling    Remove unnecessary back compat code for
+ *                                     15.1 version of damage path tool.
  * 
  * </pre>
  * 
@@ -70,8 +70,6 @@ import com.vividsolutions.jts.operation.valid.IsValidOp;
  */
 
 public final class DamagePathLoader {
-
-    private static final String UNSUPPORTED_GEOJSON_TYPE = "Damage path file is unsupported GeoJSON object type %s. This tool only supports Feature and Geometry objects.";
 
     private static final String UNSUPPORTED_GEOM_TYPE = "Damage path file contains invalid geometry type %s at geometry index %d. Must only contain Polygons.";
 
@@ -119,85 +117,6 @@ public final class DamagePathLoader {
     }
 
     private void loadFromInputStream(final InputStream is) throws JsonException {
-        Geometry deserializedGeom = null;
-        Map<String, String> deserializedProps = Collections.emptyMap();
-        GeoJsonMapUtil geoJsonUtil = new GeoJsonMapUtil();
-
-        /*
-         * For compatibility with any users that may have an autosaved damage
-         * path file from previous builds, we'll support deserializing Geometry,
-         * Feature and FeatureCollection GeoJSON types.
-         * 
-         * TODO: remove this code for code that just expects the file to always
-         * be a FeatureCollection.
-         */
-        Map<String, Object> jsonObject = (Map<String, Object>) new BasicJsonService()
-                .deserialize(is, LinkedHashMap.class);
-        String geoJsonType = jsonObject.get(GeoJsonMapUtil.TYPE_KEY).toString();
-        if (geoJsonType.equals(GeoJsonMapUtil.FEATURE_COLL_TYPE)) {
-            FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = geoJsonUtil
-                    .populateFeatureCollection(jsonObject);
-            populateDataFromFeatureCollection(featureCollection);
-            return;
-        } else if (geoJsonType.equals(GeoJsonMapUtil.FEATURE_TYPE)) {
-            SimpleFeature feature = geoJsonUtil.populateFeature(jsonObject);
-            deserializedGeom = (Geometry) feature.getDefaultGeometry();
-
-            Name defaultGeomAttrib = feature.getDefaultGeometryProperty()
-                    .getName();
-            deserializedProps = new LinkedHashMap<>();
-            deserializedProps.put(GeoJsonMapUtil.ID_KEY, feature.getID());
-            for (Property p : feature.getProperties()) {
-                if (!defaultGeomAttrib.equals(p.getName())) {
-                    deserializedProps.put(p.getName().toString(), p.getValue()
-                            .toString());
-                }
-            }
-        } else if (isGeometryType(geoJsonType)) {
-            deserializedGeom = geoJsonUtil.populateGeometry(jsonObject);
-        } else {
-            throw new JsonException(String.format(UNSUPPORTED_GEOJSON_TYPE,
-                    geoJsonType));
-        }
-
-        int numGeometries = deserializedGeom.getNumGeometries();
-        for (int i = 0; i < numGeometries; i++) {
-            Geometry geomN = deserializedGeom.getGeometryN(i);
-            if (geomN instanceof Polygon) {
-                Polygon newPolygon = (Polygon) geomN;
-                IsValidOp validator = new IsValidOp(newPolygon);
-                if (validator.isValid()) {
-                    Pair<Polygon, Map<String, String>> polygonAndProps = new Pair<>(
-                            newPolygon, deserializedProps);
-                    damagePathData.add(polygonAndProps);
-                } else {
-                    throw new JsonException(String.format(INVALID_POLYGON, i,
-                            validator.getValidationError()));
-                }
-            } else {
-                throw new JsonException(String.format(UNSUPPORTED_GEOM_TYPE,
-                        geomN.getGeometryType(), i));
-            }
-        }
-    }
-
-    private boolean isGeometryType(String geoJsonType) {
-        return ((GeoJsonMapUtil.GEOM_COLL_TYPE.equals(geoJsonType))
-                || (GeoJsonMapUtil.LINE_STR_TYPE.equals(geoJsonType))
-                || (GeoJsonMapUtil.MULT_LINE_STR_TYPE.equals(geoJsonType))
-                || (GeoJsonMapUtil.MULT_POINT_TYPE.equals(geoJsonType))
-                || (GeoJsonMapUtil.MULT_POLY_TYPE.equals(geoJsonType))
-                || (GeoJsonMapUtil.POINT_TYPE.equals(geoJsonType)) || (GeoJsonMapUtil.POLY_TYPE
-                    .equals(geoJsonType)));
-    }
-
-    /*
-     * TODO: Replace loadFromInputStream with this method when we no longer
-     * desire supporting the version 15.1 GeoJSON formatted damage path files.
-     */
-    @SuppressWarnings("unused")
-    private void loadFromInputStreamFuture(final InputStream is)
-            throws JsonException {
         IGeoJsonService json = new SimpleGeoJsonService();
         FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = json
                 .deserializeFeatureCollection(is);

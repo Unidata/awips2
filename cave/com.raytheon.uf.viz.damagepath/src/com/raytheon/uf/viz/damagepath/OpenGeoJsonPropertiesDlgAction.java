@@ -41,6 +41,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Jun 09, 2015  #4355     dgilling     Rename action for UI.
  * Jun 18, 2015  #4354     dgilling     Allow individual properties object for
  *                                      each polygon.
+ * Jun 30, 2015  #4354     dgilling     Fix NullPointerException.
  * 
  * </pre>
  * 
@@ -65,7 +66,6 @@ public class OpenGeoJsonPropertiesDlgAction extends AbstractRightClickAction {
                 Shell shell = VizWorkbenchManager.getInstance()
                         .getCurrentWindow().getShell();
 
-                final DamagePathLayer<?> layer = (DamagePathLayer<?>) getSelectedRsc();
                 final Map<String, String> geoJsonProps = damagePath
                         .getProperties();
                 EditGeoJsonPropertiesDlg dlg = new EditGeoJsonPropertiesDlg(
@@ -78,7 +78,6 @@ public class OpenGeoJsonPropertiesDlgAction extends AbstractRightClickAction {
                                 && (!geoJsonProps.equals(returnValue))) {
                             Map<String, String> updatedProperties = (Map<String, String>) returnValue;
                             damagePath.setProperties(updatedProperties);
-                            layer.scheduleSaveJob();
                         }
                     }
                 });
