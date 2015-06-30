@@ -27,6 +27,9 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.eclipse.swt.graphics.RGB;
+
+import com.raytheon.uf.viz.alertview.Alert.Priority;
 import com.raytheon.uf.viz.alertview.prefs.PreferenceFile;
 
 /**
@@ -54,6 +57,11 @@ public class StylePreferences {
     private List<AlertStyle> styles = new ArrayList<>();
 
     public StylePreferences() {
+        AlertStyle errorStyle = new AlertStyle();
+        errorStyle.setFilter(Priority.ERROR.name().toLowerCase());
+        errorStyle.setForegroundColor(StyleManager.formatColor(new RGB(255, 0,
+                0)));
+        styles.add(errorStyle);
     }
 
     public StylePreferences(List<AlertStyle> styles) {

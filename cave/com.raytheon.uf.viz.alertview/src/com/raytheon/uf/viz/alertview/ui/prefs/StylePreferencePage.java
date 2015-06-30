@@ -43,8 +43,6 @@ import org.eclipse.swt.widgets.FontDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import com.raytheon.uf.viz.alertview.Alert.Priority;
 import com.raytheon.uf.viz.alertview.prefs.PreferenceFile;
@@ -69,7 +67,7 @@ import com.raytheon.uf.viz.alertview.style.StylePreferences;
  * @version 1.0
  */
 public class StylePreferencePage extends PreferencePage implements
-        IWorkbenchPreferencePage, PreferenceFile.Listener<StylePreferences> {
+        PreferenceFile.Listener<StylePreferences> {
 
     protected PreferenceFile<StylePreferences> preferenceFile;
 
@@ -84,13 +82,8 @@ public class StylePreferencePage extends PreferencePage implements
     protected Button fontButton;
 
     @Override
-    public void init(IWorkbench workbench) {
-        setDescription("Configure the way alerts appear in the alert table.");
-        preferenceFile = StylePreferences.load(this);
-    }
-
-    @Override
     protected Control createContents(Composite parent) {
+        preferenceFile = StylePreferences.load(this);
         Composite composite = new Composite(parent, SWT.NONE);
         composite.setLayout(new GridLayout(1, false));
         Composite tableComp = new Composite(composite, SWT.NONE);

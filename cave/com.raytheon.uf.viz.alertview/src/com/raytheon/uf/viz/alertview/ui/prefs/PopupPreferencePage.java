@@ -32,8 +32,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import com.raytheon.uf.viz.alertview.prefs.PopUpPreferences;
 import com.raytheon.uf.viz.alertview.prefs.PopUpPreferences.PopUpCorner;
@@ -56,7 +54,7 @@ import com.raytheon.uf.viz.alertview.prefs.PreferenceFile;
  * @version 1.0
  */
 public class PopupPreferencePage extends PreferencePage implements
-        IWorkbenchPreferencePage, PreferenceFile.Listener<PopUpPreferences> {
+        PreferenceFile.Listener<PopUpPreferences> {
 
     private static final List<String> SIZES = Arrays.asList("Small", "Medium",
             "Large");
@@ -76,13 +74,8 @@ public class PopupPreferencePage extends PreferencePage implements
     protected Combo sizeCombo;
 
     @Override
-    public void init(IWorkbench workbench) {
-        setDescription("Configure Alert Popup appearance and behavior.");
-        preferenceFile = PopUpPreferences.load(this);
-    }
-
-    @Override
     protected Control createContents(Composite parent) {
+        preferenceFile = PopUpPreferences.load(this);
         Composite composite = new Composite(parent, SWT.NONE);
         composite.setLayout(new GridLayout(2, false));
         new Label(composite, SWT.NONE).setText("Popup Priority: ");

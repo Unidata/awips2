@@ -38,8 +38,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import com.raytheon.uf.viz.alertview.prefs.AlertViewPreferences;
 import com.raytheon.uf.viz.alertview.prefs.PreferenceFile;
@@ -62,7 +60,7 @@ import com.raytheon.uf.viz.alertview.ui.view.AlertTable;
  * @version 1.0
  */
 public class AlertViewPreferencePage extends PreferencePage implements
-        IWorkbenchPreferencePage, PreferenceFile.Listener<AlertViewPreferences> {
+        PreferenceFile.Listener<AlertViewPreferences> {
 
     protected PreferenceFile<AlertViewPreferences> preferenceFile;
 
@@ -73,13 +71,8 @@ public class AlertViewPreferencePage extends PreferencePage implements
     protected Table columnTable;
 
     @Override
-    public void init(IWorkbench workbench) {
-        setDescription("Configure AlertView appearance and behavior.");
-        preferenceFile = AlertViewPreferences.load(this);
-    }
-
-    @Override
     protected Control createContents(Composite parent) {
+        preferenceFile = AlertViewPreferences.load(this);
         Composite composite = new Composite(parent, SWT.NONE);
         composite.setLayout(new GridLayout(2, false));
 

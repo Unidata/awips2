@@ -40,24 +40,4 @@
             name="Open AlertView">
       </command>
    </extension>
-  <extension
-      point="org.eclipse.ui.preferencePages">
-       <page
-             class="com.raytheon.uf.viz.alertview.ui.prefs.AlertViewPreferencePage"
-             id="com.raytheon.uf.viz.alertview.ui.prefs.AlertViewPreferencePage"
-             name="Alert View">
-       </page>
-       <page
-             class="com.raytheon.uf.viz.alertview.ui.prefs.PopupPreferencePage"
-             id="com.raytheon.uf.viz.alertview.ui.prefs.PopupPreferencePage"
-             category="com.raytheon.uf.viz.alertview.ui.prefs.AlertViewPreferencePage"
-             name="Popup">
-       </page>
-       <page
-             class="com.raytheon.uf.viz.alertview.ui.prefs.StylePreferencePage"
-             id="com.raytheon.uf.viz.alertview.ui.prefs.StylePreferencePage"
-             category="com.raytheon.uf.viz.alertview.ui.prefs.AlertViewPreferencePage"
-             name="Style">
-       </page>
-    </extension>
 </plugin>
