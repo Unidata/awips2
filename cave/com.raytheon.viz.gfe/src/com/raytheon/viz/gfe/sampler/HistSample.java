@@ -64,6 +64,7 @@ import com.raytheon.viz.gfe.types.MutableInteger;
  * May 24, 2012  673        randerso    Added defaulted method calls
  * Jun 17, 2013 15951       ryu         Fix index to wx/discrete key array
  * Oct 31, 2013 2508        randerso    Change to use DiscreteGridSlice.getKeys()
+ * Jun 30, 2015 14552       yteng       Fix binnedHistogram method for SCALAR data
  * 
  * </pre>
  * 
@@ -199,6 +200,7 @@ public class HistSample {
         _stdDevMaxD = 0.0f;
         _stdDevMinD = 0.0f;
         _binnedMostCommonValue = new HistValue(0.0f);
+        _binnedHistPairs = new ArrayList<HistPair>();
         _binnedHistPairsValue = 0.0f;
 
         // count up the number of sample points
@@ -509,7 +511,7 @@ public class HistSample {
      * @param resolution
      * @return
      */
-    public final HistValue mostCommonValue(float resolution) {
+    public final HistValue mostCommonValueBinned(float resolution) {
         if (_histPairs.size() == 0) {
             return _mostCommonValue; // default HistValue()
         }
@@ -1190,19 +1192,17 @@ public class HistSample {
         if (_histPairs.get(0).value().dataType().equals(GridType.SCALAR)) {
             Map<Float, Integer> hp = new HashMap<Float, Integer>();
             for (int i = 0; i < _histPairs.size(); i++) {
-                hp.put(binit(_histPairs.get(i).value().scalar(), resolution),
-                        hp.get(binit(_histPairs.get(i).value().scalar(),
-                                resolution)) + _histPairs.get(i).count());
+                float value = binit(_histPairs.get(i).value().scalar(), resolution);
+                hp.put(value, (hp.get(value)==null?0:(int)hp.get(value))
+                        + _histPairs.get(i).count());
             }
 
-            int i = 0;
-            Iterator<?> pos = hp.entrySet().iterator();
-            Iterator<?> pos1 = hp.entrySet().iterator();
+            hs._binnedHistPairs = new ArrayList<HistPair>();
+            Iterator<Map.Entry<Float, Integer>> pos = hp.entrySet().iterator();
             while (pos.hasNext()) {
-                pos1.next();
-                hs._binnedHistPairs.set(i++,
-                        _histPairs.get(pos.next().hashCode()));
-                pos.next();
+                Entry<Float, Integer> p = pos.next();
+                hs._binnedHistPairs.add(
+                        new HistPair(p.getValue(), new HistValue(p.getKey())));
             }
         }
         // calculate the binned histogram for VECTOR
