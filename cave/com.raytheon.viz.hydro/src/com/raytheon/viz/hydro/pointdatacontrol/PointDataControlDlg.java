@@ -104,13 +104,14 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 09 OCT 2012 #15396				   Fixed Instantaneous precip index so legend and map display 
  * 									   will change each time duration is incremented or decremented
  * 									   for the "30 minutes Instantaneous" rainfall map .
- * 04 Dec 2012 15602     wkwock        Fix Hrs hour capped at 100.
+ * 04 Dec 2012 15602       wkwock      Fix Hrs hour capped at 100.
  * 07 Feb 2013 1578        rferrel     Changes for non-blocking FilteringDlg.
  *                                     Changes for non-blocking PDC_SaveDlg.
  * 13 Mar 2013 1790        rferrel     Changes for non-blocking dialog.
  *                                     Changes for non-blocking TabularDisplayDlg.
  *                                     Bug fix for non-blocking dialogs.
- * 09 Mar 2015 13998     lbousaidi	   Changes to fix the precipitation data display.                            
+ * 09 Mar 2015 13998       lbousaidi   Changes to fix the precipitation data display.  
+ * 22 Jun 2015 13892       lbousaidi   Fixed the saved the preset String selection.                          
  * </pre>
  * 
  * @author lvenable
@@ -546,6 +547,9 @@ public class PointDataControlDlg extends CaveSWTDialog {
 
     /** The tabular display dialog. */
     TabularDisplayDlg tabDisplay;
+    
+    /** Flag indicating to save PE Elements */
+    private boolean loadSaved = true; 
 
     /**
      * Obtain the singleton instance.
@@ -658,6 +662,8 @@ public class PointDataControlDlg extends CaveSWTDialog {
      * Initialize the dialog components.
      */
     private void initializeComponents() {
+    	
+        loadSaved = true;  
         createPresetsQueryModeGroup();
         createElementsGroup();
         createValueTimeGroup();
@@ -691,7 +697,8 @@ public class PointDataControlDlg extends CaveSWTDialog {
             shell.setCursor(null);
 
         }
-
+        
+        loadSaved = false;
     }
 
     /**
@@ -725,11 +732,14 @@ public class PointDataControlDlg extends CaveSWTDialog {
         selPresetCbo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
+            	
+            	loadSaved = true;
                 handlePresetSelection();
                 shell.setCursor(waitCursor);
                 updateData = true;
                 drawMap();
                 shell.setCursor(null);
+                loadSaved = false;
             }
         });
 
@@ -1800,6 +1810,8 @@ public class PointDataControlDlg extends CaveSWTDialog {
      *            The preset id
      */
     protected void populatePresetData(String id) {
+    	
+    	loadSaved = true;
         selPresetCbo.removeAll();
 
         try {
@@ -1826,6 +1838,8 @@ public class PointDataControlDlg extends CaveSWTDialog {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        
+        loadSaved = false;
     }
 
     /**
@@ -1928,7 +1942,12 @@ public class PointDataControlDlg extends CaveSWTDialog {
             physicalElementCbo.add(elementStr);
         }
 
-        physicalElementCbo.select(0);
+        if ( loadSaved == true ) {
+            physicalElementCbo.select( pcOptions.getPeSelection() );
+        }else{
+            physicalElementCbo.select(0);
+        }
+
         handlePeSelection();
     }
 
