@@ -5,7 +5,7 @@
                 <resource>
                     <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
                         <capabilities>
-                            <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="1.0" contrast="1.0"/>
+                            <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.5" contrast="1.0"/>
                         </capabilities>
                         <resourceType>PLAN_VIEW</resourceType>
                     </loadProperties>
@@ -85,7 +85,7 @@
                 <resource>
                     <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
                         <capabilities>
-                            <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="1.0" contrast="1.0"/>
+                            <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.5" contrast="1.0"/>
                         </capabilities>
                         <resourceType>PLAN_VIEW</resourceType>
                     </loadProperties>
@@ -163,7 +163,7 @@
                 <resource>
                     <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
                         <capabilities>
-                            <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="1.0" contrast="1.0"/>
+                            <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.5" contrast="1.0"/>
                         </capabilities>
                         <resourceType>PLAN_VIEW</resourceType>
                     </loadProperties>
@@ -232,7 +232,7 @@
                 <resource>
                     <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
                         <capabilities>
-                            <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="1.0" contrast="1.0"/>
+                            <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.5" contrast="1.0"/>
                         </capabilities>
                         <resourceType>PLAN_VIEW</resourceType>
                     </loadProperties>

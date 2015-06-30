@@ -71,6 +71,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Aug 23, 2013  2157     dgilling    Remove meteolib dependency.
  * Feb 27, 2014  2791     bsteffen    Switch from IDataRecord to DataSource and
  *                                    reduce loop freezing.
+ * Jun 30, 2015 RM14663   kshresth    Font size increased for Contour labels.
  * 
  * </pre>
  * 
@@ -230,19 +231,31 @@ public abstract class ContourRenderable implements IRenderable {
                 if (font == null) {
                     font = target.getDefaultFont();
 
-                    font = target.initializeFont(font.getFontName(),
-                            (float) (font.getFontSize() / 1.4 * magnification),
+                    if(magnification < 1.0f)
+                        font = target.initializeFont(font.getFontName(),
+                            (float) (font.getFontSize() / 0.9 * magnification),
+                            null);
+                    else
+                        font = target.initializeFont(font.getFontName(),
+                            (float) (font.getFontSize() / 1.05 * magnification),
                             null);
                 }
 
                 if (minMaxFont == null) {
                     minMaxFont = target.getDefaultFont();
 
-                    minMaxFont = target
+                    if (magnification < 1.0f)
+                        minMaxFont = target
                             .initializeFont(
                                     minMaxFont.getFontName(),
-                                    (float) (minMaxFont.getFontSize() / 1.3 * magnification),
+                                    (float) (minMaxFont.getFontSize() / 0.85 * magnification),
                                     new Style[] { Style.BOLD });
+                    else
+                        minMaxFont = target
+                        .initializeFont(
+                                minMaxFont.getFontName(),
+                                (float) (minMaxFont.getFontSize() / 1.0 * magnification),
+                                new Style[] { Style.BOLD });
                 }
 
                 // To convert from i to zoomLevel, take i + 1.0 / 2 so
