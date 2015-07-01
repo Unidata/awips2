@@ -89,6 +89,7 @@ import com.raytheon.viz.gfe.textformatter.TextFmtParserUtil;
  *                                     Added logging of text changes to help diagnose future issues.
  * 04 FEB 2015  17039      ryu         Removed HighlightFramingCodes feature which prevented 
  *                                     editing of framing codes.
+ * 07/02/2015  13753       lshi        Update times for products in Product Editor
  * 
  * </pre>
  * 
@@ -625,7 +626,11 @@ public class StyledTextComp extends Composite {
     }
 
     private void makeCorrections() {
-        parent.setPTypeCategory(PTypeCategory.COR);
+        if (!parent.isUpdateTime()) {
+            parent.setPTypeCategory(PTypeCategory.COR);
+        }
+        if (prodDataStruct == null)
+            return;
         List<SegmentData> segs = prodDataStruct.getSegmentsArray();
         for (SegmentData seg : segs) {
             if (seg.getSementMap().keySet().contains("vtec")) {
