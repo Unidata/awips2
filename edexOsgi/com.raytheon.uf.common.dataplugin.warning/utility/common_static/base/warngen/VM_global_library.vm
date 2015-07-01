@@ -1259,7 +1259,6 @@ Until ${dateUtil.formatUseNoonMidnight(${expire}, ${timeFormat.clock}, 15, ${loc
 /${dateUtil.formatUseNoonMidnight(${expire}, ${timeFormat.clock}, 15, ${secondtimezone})}/##
 #end
 #end
-.
 #end
 ########END MACRO
 
