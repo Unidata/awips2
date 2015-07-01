@@ -21,6 +21,21 @@ import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 
+/**
+ * 
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date           Ticket#    Engineer    Description
+ * ------------   ---------- ----------- --------------------------
+ * 15 Jun 2015    #15039     lbousaidi   add case 24 to be able to post data to hour24.
+ * </pre>
+ * 
+ * @author 
+ * @version 
+ */
+
+
 public abstract class PrecipUtils {
 
     private static final float MISSING_PRECIP = -9999f;
@@ -233,6 +248,7 @@ public abstract class PrecipUtils {
             break;
 
         case 0:
+        case 24: 	
             pHourly.setHour24(precip_value);
             break;
         default:
@@ -323,6 +339,7 @@ public abstract class PrecipUtils {
             precip_value = pHourlyPP.getHour23();
             break;
         case 0:
+        case 24:       	
             precip_value = pHourlyPP.getHour24();
             break;
         default:

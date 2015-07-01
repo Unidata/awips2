@@ -54,8 +54,9 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 02 Feb 2012    #15845     lbousaidi   added check for data that comes in as -999
  * 07 May 2013    #15880     lbousaidi   changed pPE parameter because it was inserting to the
  *                                       wrong hour field.
- * 15 Sep 2014   #17129     lbousaidi   add a fix for the top of hour issue for hourlypp.                                     
+ * 15 Sep 2014    #17129     lbousaidi   add a fix for the top of hour issue for hourlypp.                                     
  * 18 Sep 2014    #3627      mapeters    Updated deprecated {@link TimeTools} usage.
+ * 15 Jun 2015    #15039     lbousaidi   add a fix to be able to post data to hour24.
  * </pre>
  * 
  * @author mnash
@@ -573,7 +574,8 @@ public class GagePP {
             dt.add(Calendar.HOUR_OF_DAY, 1);
             rec.setObsTime(dt.getTime());
         }
-        if (hour == 0) {
+        
+        if (hour == 24 || hour == 0) {
             // hour = 24;
             dt.add(Calendar.DAY_OF_YEAR, -1);
             rec.setObsTime(dt.getTime());
