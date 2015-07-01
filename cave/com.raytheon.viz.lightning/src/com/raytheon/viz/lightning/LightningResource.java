@@ -96,6 +96,7 @@ import com.raytheon.viz.lightning.cache.LightningFrameRetriever;
  *    Aug 19, 2014  3542       bclement    fixed strike count clipping issue
  *    Mar 05, 2015  4233       bsteffen    include source in cache key.
  *    Apr 09, 2015  4386       bclement    added updateLightningFrames()
+ *    Jul 01, 2015  4592       bclement    cloud flashes are now points instead of circles
  * 
  * </pre>
  * 
@@ -337,7 +338,7 @@ public class LightningResource extends
                     }
                     if (resourceData.isHandlingCloudFlashes()) {
                         cloudCount = drawFilteredPoints(target, magnification,
-                                color, PointStyle.CIRCLE, extent, currCloudList);
+                                color, PointStyle.POINT, extent, currCloudList);
                     }
                     if (resourceData.isHandlingPulses()) {
                         pulseCount = drawFilteredPoints(target, magnification,
