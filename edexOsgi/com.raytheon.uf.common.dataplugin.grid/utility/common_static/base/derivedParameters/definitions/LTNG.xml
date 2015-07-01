@@ -18,5 +18,8 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="" name="Max Lightning Threat (flashes/km^2)" abbreviation="LTNG">
+<DerivedParameter unit="" name="Max 1hr Lightning Threat (flashes/km^2)" abbreviation="LTNG">
+    <Method name="Alias">
+      <Field abbreviation="LTNG1hr"/>
+    </Method>
 </DerivedParameter>

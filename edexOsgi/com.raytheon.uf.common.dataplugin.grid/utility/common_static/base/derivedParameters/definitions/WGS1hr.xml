@@ -3,7 +3,10 @@
     <Method name="Alias" levels="Surface">
     	<Field abbreviation="WGS1hr" level="10FHAG"/>
     </Method>
-        <Method name="Vector" levels="Surface" >
+    <Method name="Alias" levels="Surface">
+        <Field abbreviation="WS1hr" level="10FHAG"/>
+    </Method>
+    <Method name="Vector" levels="Surface" >
         <Field abbreviation="MAXUW1hr" level="FHAG10" />
         <Field abbreviation="MAXVW1hr" level="FHAG10" />
     </Method>
