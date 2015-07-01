@@ -95,6 +95,7 @@ import com.raytheon.uf.viz.core.VizApp;
  *                                     then set the icon to the default image.
  * 18 Mar 2015  4234       njensen     Remove reference to non-working python
  * 03 Jun 2015  4473       njensen     Updated for new AlertvizJob API
+ * 29 Jun 2015  4311       randerso    Reworking AlertViz dialogs to be resizable.
  * 
  * </pre>
  * 
@@ -377,8 +378,8 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                if (alertPopupDlg != null
-                        && alertPopupDlg.getNumberOfMessages() > 0) {
+                if ((alertPopupDlg != null)
+                        && (alertPopupDlg.getNumberOfMessages() > 0)) {
                     cancelTimer();
                     openAlertPopupDialog();
                 }
@@ -437,20 +438,15 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
         MenuItem viewLogMI = new MenuItem(trayItemMenu, SWT.NONE);
         viewLogMI.setText("System Log...");
         viewLogMI.addSelectionListener(new SelectionAdapter() {
-            boolean open = false;
-
             SimpleLogViewer slv = null;
 
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (open) {
-                    open = slv.focus(); // Do Nothing! It's open
-                } else {
-                    open = true;
+                if ((slv == null) || slv.isDisposed()) {
                     slv = new SimpleLogViewer(shell);
-                    slv.setText("System Log");
                     slv.open();
-                    open = false;
+                } else {
+                    slv.bringToTop();
                 }
             }
         });
@@ -597,7 +593,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
      * Show the Alert Visualization Configuration dialog.
      */
     private void showConfigDialog() {
-        if (configDlg != null && !configDlg.isDisposed()) {
+        if ((configDlg != null) && !configDlg.isDisposed()) {
             configDlg.close();
         }
         configDlg = new AlertVisConfigDlg(shell, alertMessageDlg, configData,
@@ -640,7 +636,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
                                 .hasMissing(statMsg))) {
                 Source source = configData.lookupSource("GDN_ADMIN");
                 RGB backgroundRBG = null;
-                if (source == null || source.getConfigurationItem() == null) {
+                if ((source == null) || (source.getConfigurationItem() == null)) {
                     backgroundRBG = ColorUtil.getColorValue("COLOR_YELLOW");
                 } else {
                     AlertMetadata am = source.getConfigurationItem().lookup(
@@ -663,7 +659,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
                         }
                     } else {
                         if (cat.getCategoryName().equals(Constants.MONITOR)
-                                || amd.isText() == true) {
+                                || (amd.isText() == true)) {
                             alertMessageDlg.messageHandler(statMsg, amd, cat,
                                     gConfig);
                         }
@@ -689,8 +685,8 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
                     audioFile = getFullAudioFilePath(audioFile);
                 } else {
                     audioFile = statMsg.getAudioFile();
-                    if (audioFile != null
-                            && (audioFile.trim().length() == 0 || audioFile
+                    if ((audioFile != null)
+                            && ((audioFile.trim().length() == 0) || audioFile
                                     .equals("NONE"))) {
                         audioFile = null;
                     }
@@ -703,10 +699,9 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
 
         // Pop-up message
         if (amd.isPopup() == true) {
-            if (alertPopupDlg == null || alertPopupDlg.isDisposed() == true) {
+            if ((alertPopupDlg == null) || (alertPopupDlg.isDisposed() == true)) {
                 alertPopupDlg = new AlertPopupMessageDlg(shell, statMsg,
-                        gConfig.isExpandedPopup(), this, amd.getBackground(),
-                        this);
+                        gConfig.isExpandedPopup(), this, amd.getBackground());
             } else {
                 alertPopupDlg.addNewMessage(statMsg, amd);
             }
@@ -739,7 +734,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
         if (!file.exists()) {
             file = PathManagerFactory.getPathManager().getStaticFile(
                     "alertVizAudio/" + file.getName());
-            if (file == null || !file.exists()) {
+            if ((file == null) || !file.exists()) {
                 filename = null;
             } else {
                 filename = file.getPath();
@@ -752,7 +747,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
      * Opens the alert pop-up dialog
      */
     public void openAlertPopupDialog() {
-        if (alertPopupDlg != null && alertPopupDlg.dialogIsOpen() == true) {
+        if ((alertPopupDlg != null) && (alertPopupDlg.dialogIsOpen() == true)) {
             alertPopupDlg.showDialog(true);
         } else {
             alertPopupDlg.open();
@@ -849,7 +844,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
         configData = ConfigurationManager.getInstance()
                 .getCurrentConfiguration();
         configContext = ConfigurationManager.getInstance().getCurrentContext();
-        if (alertMessageDlg != null && showAlertDialogMI != null) {
+        if ((alertMessageDlg != null) && (showAlertDialogMI != null)) {
             alertMessageDlg.setConfigData(configData);
             if (configData.isMonitorLayoutChanged(prevConfigFile)) {
                 if (alertMessageDlg.reLayout()) {
@@ -862,21 +857,6 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
         // if (configDlg != null && !configDlg.isDisposed()) {
         // configDlg.restart(requestRestart);
         // }
-    }
-
-    /**
-     * Set the Alert Popup Message previous location.
-     */
-    public void setAlertPopupMsgPrvLocation(Rectangle prevLocation) {
-        this.prevLocation = prevLocation;
-    }
-
-    /**
-     * Get the Alert Popup Message to restore the window to its previous
-     * location.
-     */
-    public Rectangle getAlertPopupMsgPrvLocation() {
-        return this.prevLocation;
     }
 
     /**
