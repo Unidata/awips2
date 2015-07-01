@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.Map;
 
 import com.raytheon.uf.viz.drawing.polygon.DrawablePolygon;
-import com.raytheon.uf.viz.drawing.polygon.PolygonLayer;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Polygon;
 
@@ -37,6 +36,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 18, 2015  #4354     dgilling     Initial creation
+ * Jun 30, 2015  #4354     dgilling     Force setProperties to trigger a save.
  * 
  * </pre>
  * 
@@ -51,23 +51,23 @@ public class DamagePathPolygon extends DrawablePolygon {
 
     private Map<String, String> properties;
 
-    public DamagePathPolygon(PolygonLayer<?> polygonLayer) {
-        super(polygonLayer);
+    public DamagePathPolygon(DamagePathLayer<?> layer) {
+        super(layer);
         this.properties = DEFAULT_PROPS;
     }
 
-    public DamagePathPolygon(Polygon polygon, PolygonLayer<?> polygonLayer) {
-        this(polygon, DEFAULT_PROPS, polygonLayer);
+    public DamagePathPolygon(Polygon polygon, DamagePathLayer<?> layer) {
+        this(polygon, DEFAULT_PROPS, layer);
     }
 
     public DamagePathPolygon(Polygon polygon, Map<String, String> properties,
-            PolygonLayer<?> polygonLayer) {
-        super(polygon, polygonLayer);
+            DamagePathLayer<?> layer) {
+        super(polygon, layer);
         this.properties = properties;
     }
 
-    public DamagePathPolygon(Coordinate[] coords, PolygonLayer<?> polygonLayer) {
-        super(coords, polygonLayer);
+    public DamagePathPolygon(Coordinate[] coords, DamagePathLayer<?> layer) {
+        super(coords, layer);
         this.properties = DEFAULT_PROPS;
     }
 
@@ -87,5 +87,6 @@ public class DamagePathPolygon extends DrawablePolygon {
 
     public void setProperties(Map<String, String> properties) {
         this.properties = properties;
+        ((DamagePathLayer<?>) polygonLayer).scheduleSaveJob();
     }
 }
