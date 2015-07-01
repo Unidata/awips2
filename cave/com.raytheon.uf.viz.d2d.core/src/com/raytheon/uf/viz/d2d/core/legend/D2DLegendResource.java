@@ -73,6 +73,7 @@ import com.raytheon.viz.ui.actions.DummyAction;
  *                                      when magnification set to 0
  * Aug 2, 2013 DR 16427    Qinglu Lin   (David's approach) Changing InputPriority.SYSTEM_RESOURCE to 
  *                                      InputPriority.SYSTEM_RESOURCE_LOW in initInternal().
+ * Jun 30, 2015 RM14663    kshresth     Font size increased for Contour labels.
  * 
  * </pre>
  * 
@@ -571,7 +572,7 @@ public class D2DLegendResource extends
     private float getScaledMagnification() {
         float magnification = getCapability(MagnificationCapability.class)
                 .getMagnification().floatValue();
-        if (magnification < 0.6f) {
+        if (magnification < 0.9f) {
             magnification = 1.0f;
         } else if (magnification > 1.0f) {
             magnification = 1 + (magnification / 4.0f);
