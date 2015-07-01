@@ -51,10 +51,15 @@ import com.raytheon.uf.common.message.StatusMessage;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.alertviz.Activator;
 import com.raytheon.uf.viz.alertviz.AlertvizException;
+import com.raytheon.uf.viz.alertviz.AlertvizJob;
 import com.raytheon.uf.viz.alertviz.Container;
+import com.raytheon.uf.viz.alertviz.IAlertArrivedCallback;
 import com.raytheon.uf.viz.alertviz.LogUtil;
 import com.raytheon.uf.viz.alertviz.LogUtil.Order;
 import com.raytheon.uf.viz.alertviz.SystemStatusHandler;
+import com.raytheon.uf.viz.alertviz.config.AlertMetadata;
+import com.raytheon.uf.viz.alertviz.config.Category;
+import com.raytheon.uf.viz.alertviz.config.TrayConfiguration;
 
 /**
  * Implements a basic log viewer capability
@@ -65,6 +70,7 @@ import com.raytheon.uf.viz.alertviz.SystemStatusHandler;
  * ------------ ---------- ----------- --------------------------
  * Sep 30, 2008 1433       chammack    Initial creation
  * Jun 02, 2015 4473       njensen     Cleaned up warnings
+ * Jul 01, 2015 4473       njensen     Fix update of table on alert arrival
  * 
  * </pre>
  * 
@@ -270,6 +276,19 @@ public class SimpleLogViewer extends Dialog {
 
         table.setItemCount(sz);
 
+        IAlertArrivedCallback cb = new IAlertArrivedCallback() {
+
+            @Override
+            public void alertArrived(StatusMessage statusMessage,
+                    AlertMetadata alertMetadata, Category category,
+                    TrayConfiguration globalConfiguration) {
+                if (!table.isDisposed()) {
+                    table.setItemCount(table.getItemCount() + 1);
+                }
+            }
+        };
+        AlertvizJob.getInstance().addAlertArrivedCallback(cb);
+
         Composite buttons = new Composite(shell, SWT.NONE);
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         buttons.setLayoutData(gd);
@@ -345,6 +364,7 @@ public class SimpleLogViewer extends Dialog {
             }
         }
 
+        AlertvizJob.getInstance().removeAlertArrivedCallback(cb);
         table.dispose();
         red.dispose();
         yellow.dispose();
