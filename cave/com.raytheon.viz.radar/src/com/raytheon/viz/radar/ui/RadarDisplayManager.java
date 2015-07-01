@@ -236,6 +236,7 @@ public class RadarDisplayManager {
 
         IPersistentPreferenceStore prefs = Activator.getDefault()
                 .getPreferenceStore();
+        prefs.setDefault("SAILS_FrameCoordinator", true);
 
         RadarDisplayControls currentVals = currentValues;
         if (currentVals == null) {
