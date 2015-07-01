@@ -45,7 +45,6 @@ import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.util.Pair;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.operation.valid.IsValidOp;
 
 /**
  * Loads a damage path GeoJSON-formatted file from either local disk or the
@@ -62,6 +61,8 @@ import com.vividsolutions.jts.operation.valid.IsValidOp;
  *                                     can have its own properties.
  * Jun 30, 2015  #4354     dgilling    Remove unnecessary back compat code for
  *                                     15.1 version of damage path tool.
+ * Jul 01, 2015  #4375     dgilling    Remove isValid check to imported 
+ *                                     polygons.
  * 
  * </pre>
  * 
@@ -72,8 +73,6 @@ import com.vividsolutions.jts.operation.valid.IsValidOp;
 public final class DamagePathLoader {
 
     private static final String UNSUPPORTED_GEOM_TYPE = "Damage path file contains invalid geometry type %s at geometry index %d. Must only contain Polygons.";
-
-    private static final String INVALID_POLYGON = "Damage path file contains an invalid Polyon at index %d: %s";
 
     private final Collection<Pair<Polygon, Map<String, String>>> damagePathData;
 
@@ -134,12 +133,6 @@ public final class DamagePathLoader {
                 Geometry geom = (Geometry) feature.getDefaultGeometry();
                 if (geom instanceof Polygon) {
                     Polygon newPolygon = (Polygon) geom;
-                    IsValidOp validator = new IsValidOp(newPolygon);
-                    if (!validator.isValid()) {
-                        throw new JsonException(String.format(INVALID_POLYGON,
-                                featureIdx, validator.getValidationError()));
-                    }
-
                     Map<String, String> properties = new LinkedHashMap<>();
                     Name defaultGeomAttrib = feature
                             .getDefaultGeometryProperty().getName();

@@ -83,6 +83,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *                                     initInternal.
  * Jun 18, 2015  4354      dgilling    Allow each polygon to have their own 
  *                                     properties.
+ * Jul 01, 2015  4375      dgilling    Fix setDefaultPolygon.
  * 
  * </pre>
  * 
@@ -175,7 +176,7 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
         Polygon polygon = PolygonUtil.makeDefaultPolygon(getResourceContainer()
                 .getActiveDisplayPane().getRenderableDisplay());
         DrawablePolygon drawablePolygon = new DamagePathPolygon(polygon, this);
-        polygons.add(0, drawablePolygon);
+        super.resetPolygons(Arrays.asList(drawablePolygon));
     }
 
     @Override
