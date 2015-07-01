@@ -17,25 +17,12 @@
 		<constructor-arg value="dpa" />
 		<constructor-arg value="jms-durable:queue:Ingest.dpa"/>
 	</bean>
-
-	<camelContext id="dpa-camel"
+	
+    <camelContext id="nonClusteredDPAroutes"
 		xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler">
-		<!--
-		<endpoint id="dpaFileEndpoint" uri="file:${edex.home}/data/sbn/dpa?noop=true&amp;idempotent=false" />
-
-		<route id="dpaFileConsumerRoute">
-			<from ref="dpaFileEndpoint" />
-			<bean ref="fileToString"  />
-			<setHeader headerName="pluginName">
-				<constant>dpa</constant>
-			</setHeader>
-			<to uri="jms-durable:queue:Ingest.dpa"/>
-		</route>
-		-->
-
-		<!-- Begin dpa Routes -->
-		<route id="dpaIngestRoute">
+		<!-- Begin non-clustered dpa Routes -->
+		<route id="dpaIngestFilter">
 			<from uri="jms-durable:queue:Ingest.dpa"/>
 			<setHeader headerName="pluginName">
 				<constant>dpa</constant>
@@ -45,9 +32,6 @@
 					<bean ref="stringToFile"  />
 					<bean ref="radarDecompressor" method="decompressWithHeader" />
 					<bean ref="dpaDecodeSrv" method="process"/>
-					<!-- Uncomment when dpaDecodeSrv route properly handles only its own files
-					<bean ref="processUtil" method="log"/>
-					-->
 				</pipeline>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
@@ -56,4 +40,27 @@
 			</doTry>
 		</route>
 	</camelContext>
+	
+	<camelContext id="clusteredDPAroutes"
+	   xmlns="http://camel.apache.org/schema/spring"
+	   errorHandlerRef="errorHandler">
+	   <!-- Begin dpa Routes -->
+	   <route id="dpaIngestRoute">
+            <from uri="jms-durable:queue:dpaProcess"/>
+            <doTry>
+                <pipeline>
+                    <bean ref="stringToFile"  />
+                    <bean ref="radarDecompressor" method="decompressWithHeader" />
+                    <bean ref="dpaDecodeSrv" method="process"/>
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:dpa?level=INFO"/>
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
+        <constructor-arg ref="clusteredDPAroutes" />
+    </bean>
 </beans>
