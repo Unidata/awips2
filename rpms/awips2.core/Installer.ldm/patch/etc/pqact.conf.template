@@ -822,3 +822,10 @@ NGRID	^(MHR...) (KNHC) (..)(..)(..)
 NGRID	^([YZ][BCE-HMO-Y][BEFN][A-Z][0-9][0-9]) KWBC (..)(..)(..) [^!]*!(grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
 	FILE	-overwrite -log -close -edex	/data_store/grib2/(\2:yyyy)(\2:mm)\2/\3/\6/GRID\7/\9Z_\(10)_\(11)_\1_KWBC_\2\3\4_(seq).\5.%Y%m%d%H
 
+# Encrypted WCL
+ANY	^(NWUS64) KWNS (..)(..)(..)
+	PIPE	-close	/usr/local/ldm/decoders/decrypt_file
+	/data_store/text/text_decrypted/wcl_decrypted_NWUS64_KWNS_\2\3\4.(seq).%Y%m%d%H
+
+EXP	(.*wcl_decrypted.*)
+	FILE	-overwrite -log -close -edex	\1
