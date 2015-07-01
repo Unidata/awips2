@@ -177,7 +177,11 @@ public class AlertView extends ViewPart implements AlertDestination,
 
     @Override
     public void update(final AlertViewPreferences preferences) {
-        Display.getDefault().asyncExec(new Runnable() {
+        Display display = Display.getCurrent();
+        if (display.isDisposed()) {
+            return;
+        }
+        display.asyncExec(new Runnable() {
             @Override
             public void run() {
                 if (alertTable.isDisposed()) {
