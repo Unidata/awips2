@@ -33,11 +33,12 @@
 #    07/22/14         #3185        njensen        Added optional/default args to newDataRequest
 #    07/23/14         #3185        njensen        Added new methods
 #    07/30/14         #3185        njensen        Renamed valid identifiers to optional
+#    06/30/15         #4569        nabowle        Use hex WKB for geometries.
 #
 
 
 import numpy
-import shapely.wkt
+import shapely.wkb
 
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.impl import DefaultDataRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetAvailableLocationNamesRequest
@@ -111,12 +112,15 @@ class ThriftClientRouter(object):
             geoDataRequest.setRequestedPeriod(times)
         response = self._client.sendRequest(geoDataRequest)
         geometries = []
-        for wkt in response.getGeometryWKTs():
-            geometries.append(shapely.wkt.loads(wkt))
-                
+        for wkb in response.getGeometryWKBs():
+            # convert the wkb to a bytearray with only positive values
+            byteArrWKB = bytearray(map(lambda x: x % 256,wkb.tolist()))
+            # convert the bytearray to a byte string and load it.
+            geometries.append(shapely.wkb.loads(str(byteArrWKB)))
+
         retVal = []
         for geoDataRecord in response.getGeoData():
-            geom = geometries[geoDataRecord.getGeometryWKTindex()]
+            geom = geometries[geoDataRecord.getGeometryWKBindex()]
             retVal.append(PyGeometryData.PyGeometryData(geoDataRecord, geom))
         return retVal
 
@@ -125,7 +129,7 @@ class ThriftClientRouter(object):
         locNamesRequest.setRequestParameters(request)
         response = self._client.sendRequest(locNamesRequest)
         return response
-    
+
     def getAvailableParameters(self, request):
         paramReq = GetAvailableParametersRequest()
         paramReq.setRequestParameters(request)

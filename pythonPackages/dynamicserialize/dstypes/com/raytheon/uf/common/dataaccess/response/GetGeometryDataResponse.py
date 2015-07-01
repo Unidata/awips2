@@ -23,14 +23,14 @@
 class GetGeometryDataResponse(object):
 
     def __init__(self):
-        self.geometryWKTs = None
+        self.geometryWKBs = None
         self.geoData = None
 
-    def getGeometryWKTs(self):
-        return self.geometryWKTs
+    def getGeometryWKBs(self):
+        return self.geometryWKBs
 
-    def setGeometryWKTs(self, geometryWKTs):
-        self.geometryWKTs = geometryWKTs
+    def setGeometryWKBs(self, geometryWKBs):
+        self.geometryWKBs = geometryWKBs
 
     def getGeoData(self):
         return self.geoData
