@@ -24,9 +24,8 @@ if [ "${LOCALIZATION_ROOT}" = "" ]; then
     export LOCALIZATION_ROOT=${EDEX_HOME}/data/utility/common_static
 fi  
 
-if [ "${apps_dir}" = "" ]; then
-	export apps_dir=/awips2/edex/data/share/hydroapps
-fi
+# Export the apps_dir environment variable
+export apps_dir=/awips2/edex/data/share/hydroapps
 
 # update the path to include the location of the runso rary.ohd.utility
 export PATH=$PATH:${EDEX_HOME}/bin:${apps_dir}/bin
