@@ -43,7 +43,7 @@
         <ConstantField value="0.0"/>
     </Method>
     <Method levels="Layer" name="Divide">
-        <Field level="0FHAG" abbreviation="RMprop"/>
+        <Field level="0FHAG" abbreviation="RMprop2"/>
         <Field level="1-6kmAgl" abbreviation="BlkMag"/>
     </Method>
 </DerivedParameter>

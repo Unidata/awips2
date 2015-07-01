@@ -44,12 +44,12 @@
 		<contribute xsi:type="menuItem" menuText="Elevated LM Supercell-Bunkers" key="LM6" indentText="false" />
 	</contribute>
 	<contribute xsi:type="toolbarSubMenu" menuText="Storm Relative Flow">
-		<contribute xsi:type="menuItem" menuText="Storm-relative Flow Barb -RMover" key="SRMr" indentText="false" />
-		<contribute xsi:type="menuItem" menuText="Storm-relative Flow Mag -RMover" key="SRMrM" indentText="false" />
-		<contribute xsi:type="menuItem" menuText="Storm-relative Flow Barb -LMover" key="SRMl" indentText="false" />
-		<contribute xsi:type="menuItem" menuText="Storm-relative Flow Mag -LMover" key="SRMlM" indentText="false" />
-		<contribute xsi:type="menuItem" menuText="Storm-relative Flow Barb -MeanWind" key="SRMm" indentText="false" />
-		<contribute xsi:type="menuItem" menuText="Storm-relative Flow Mag -MeanWind" key="SRMmM" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Storm-relative Flow  -RMover" key="SRMr" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Storm-relative Flow Mag -RMover" key="SRMrM" indentText="true" />
+		<contribute xsi:type="menuItem" menuText="Storm-relative Flow  -LMover" key="SRMl" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Storm-relative Flow Mag -LMover" key="SRMlM" indentText="true" />
+		<contribute xsi:type="menuItem" menuText="Storm-relative Flow -MeanWind" key="SRMm" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Storm-relative Flow Mag -MeanWind" key="SRMmM" indentText="true" />
 	</contribute>
 	<contribute xsi:type="toolbarSubMenu" menuText="Storm Scale">
 		<contribute xsi:type="menuItem" menuText="Reflectivity" key="RR" indentText="false" />
@@ -83,7 +83,7 @@
 	<contribute xsi:type="menuItem" menuText="Enhanced Stretching Potential" key="ESP" indentText="false" />
 	<contribute xsi:type="menuItem" menuText="Helicity" key="Heli" indentText="false" />
 	<contribute xsi:type="menuItem" menuText="Helicity (Model Delivered)" key="HeliD" indentText="false" />
-<!-- 	<contribute xsi:type="menuItem" menuText="Helicity (&gt; 300 MLCape)" key="HeliC" indentText="false" /> -->
+	<contribute xsi:type="menuItem" menuText="Helicity (&gt; 300J/Kg MLCape)" key="HeliC" indentText="false" />
 	<contribute xsi:type="menuItem" menuText="LCL - Mixed Layer" key="MLLCL" indentText="false" />
 	<contribute xsi:type="menuItem" menuText="MCS Maintenance Prob" key="MMP" indentText="false" />
 	<contribute xsi:type="menuItem" menuText="Moist Transport Vecs" key="MTV" indentText="false" />
@@ -94,12 +94,12 @@
 	<contribute xsi:type="menuItem" menuText="SPC Tornado Probability" key="PTOR" indentText="false" />
 	<contribute xsi:type="menuItem" menuText="Strong Tornado Parameter" key="StrTP" indentText="false" />
 	<contribute xsi:type="menuItem" menuText="Supercell Composite Parameter" key="SuCP" indentText="false" />
-	<contribute xsi:type="menuItem" menuText="Super Tor Icons" key="TORi" indentText="false" />	
+<!-- 	<contribute xsi:type="menuItem" menuText="Super Tor Icons" key="TORi" indentText="false" />	 -->
    	<contribute xsi:type="menuItem" menuText="Sweat Index" key="swtIdx" indentText="false" />
     <contribute xsi:type="menuItem" menuText="Theta E" key="EPT" indentText="false" />
 	<contribute xsi:type="menuItem" menuText="Theta E Advection" key="EPTA" indentText="false" />	
     <contribute xsi:type="menuItem" menuText="Thompson S-R Flow Tor Scells, icons" key="Thom6" indentText="false" />
-	<contribute xsi:type="menuItem" menuText="Tor Icons" key="BRNEHIi" indentText="false" />
+<!-- 	<contribute xsi:type="menuItem" menuText="Tor Icons" key="BRNEHIi" indentText="false" /> -->
 	<contribute xsi:type="menuItem" menuText="Warm Cloud Depth (Frzlvl-LCL)" key="WCD" indentText="false" />
     <contribute xsi:type="menuItem" menuText="VGP" key="VGP" indentText="false" />
 </menuTemplate>
