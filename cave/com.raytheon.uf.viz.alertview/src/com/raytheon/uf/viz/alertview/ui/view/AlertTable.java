@@ -436,6 +436,9 @@ public class AlertTable extends Composite implements StyleListener {
 
             @Override
             public void run() {
+                if (alertTable.isDisposed()) {
+                    return;
+                }
                 for (TableItem item : alertTable.getItems()) {
                     applyStyle(item);
                 }

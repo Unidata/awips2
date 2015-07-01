@@ -180,6 +180,9 @@ public class AlertView extends ViewPart implements AlertDestination,
         Display.getDefault().asyncExec(new Runnable() {
             @Override
             public void run() {
+                if (alertTable.isDisposed()) {
+                    return;
+                }
                 alertTable.setMergeRepeatInterval(preferences
                         .getMergeRepeatInterval());
                 alertTable.rebuildColums(preferences.getColumns());
