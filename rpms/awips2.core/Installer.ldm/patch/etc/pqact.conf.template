@@ -494,15 +494,16 @@ IDS|DDPLUS	^(FOUS[67].) (....) (..)(..)(..)
 #	FILE	-overwrite -log -close -edex	/data_store/misc_adm_messages/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 #
 # separate out svrwx lsr and GSM misc adm messages
-IDS|DDPLUS	^(N[A-VYZ]....) (.{4}) (..)(..)(..)
+# Changed patterns to ANY and removed NWUS6 to prevent encrypted WCL from storing for DR14314
+ANY	^(N[A-VYZ]....) (.{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/misc_adm_messages/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
-IDS|DDPLUS	^(NWUS[01346-9].) (.{4}) (..)(..)(..)
+ANY	^(NWUS[01347-9].) (.{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/misc_adm_messages/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
-IDS|DDPLUS	^(NWUS5.) (.{4}) (..)(..)(..)
+ANY	^(NWUS5.) (.{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/lsr/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
-IDS|DDPLUS	^(NWUS2.) (.{4}) (..)(..)(..)
+ANY	^(NWUS2.) (.{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/svrwx/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
-IDS|DDPLUS	^(NXUS[0-57-9].) (....) (..)(..)(..)
+ANY	^(NXUS[0-57-9].) (....) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/misc_adm_messages/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
 # xml 
