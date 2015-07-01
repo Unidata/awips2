@@ -59,6 +59,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
+import com.raytheon.viz.lightning.LightningResourceData.DisplayType;
 import com.raytheon.viz.lightning.cache.LightningFrame;
 import com.raytheon.viz.lightning.cache.LightningFrameMetadata;
 import com.raytheon.viz.lightning.cache.LightningFrameRetriever;
@@ -97,6 +98,7 @@ import com.raytheon.viz.lightning.cache.LightningFrameRetriever;
  *    Mar 05, 2015  4233       bsteffen    include source in cache key.
  *    Apr 09, 2015  4386       bclement    added updateLightningFrames()
  *    Jul 01, 2015  4592       bclement    cloud flashes are now points instead of circles
+ *    Jul 01, 2015  4597       bclement    reworked resource name using DisplayType
  * 
  * </pre>
  * 
@@ -210,26 +212,14 @@ public class LightningResource extends
         } else {
             rval = convertTimeIntervalToString(absTimeInterval);
         }
-        if (resourceData.isExclusiveForType()) {
-            String modifier;
-            if (resourceData.isHandlingCloudFlashes()) {
-                modifier = "Cloud Flash ";
-            } else if (resourceData.isHandlingNegativeStrikes()) {
-                modifier = "Negative ";
-            } else if (resourceData.isHandlingPositiveStrikes()) {
-                modifier = "Positive ";
-            } else if (resourceData.isHandlingPulses()) {
-                modifier = "Pulse ";
-            } else {
-                /* space to preserve formatting */
-                modifier = " ";
-            }
-            rval += modifier;
+        DisplayType displayType = resourceData.getDisplayType();
+        if (!displayType.equals(DisplayType.UNDEFINED)) {
+            rval += displayType.label + ' ';
         }
 
         String source = resourceData.getSource();
         if (source != null) {
-            rval += source + " ";
+            rval += source + ' ';
         }
         return rval;
     }
