@@ -2787,7 +2787,7 @@ class SampleAnalysis(CommonUtils.CommonUtils):
             if self.temporalCoverage_flag(
                 parmHisto, timeRange, componentName, histSample) == 0:
                 continue
-            mode = histSample.mostCommonValueBinned(binRes).scalar()
+            mode = histSample.mostCommonValueBinned(float(binRes)).scalar()
             if mode > maxMode:
                 maxMode = mode
 
