@@ -46,9 +46,10 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * ------------ ---------- ----------- --------------------------
  * Feb 18, 2009            chammack     Initial creation
  * Feb 27, 2013 DCS 152    jgerth       Support for WWLLN and multiple sources
- * Jun 19, 2014  3214      bclement     added pulse and cloud flash support
- * Jul 07, 2014  3333       bclement    removed plotLightSource field
+ * Jun 19, 2014 3214       bclement     added pulse and cloud flash support
+ * Jul 07, 2014 3333       bclement     removed plotLightSource field
  * Mar 05, 2015 4233       bsteffen     include source in cache key.
+ * Jul 01, 2015 4597       bclement     added DisplayType
  * </pre>
  * 
  * @author chammack
@@ -58,6 +59,20 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 public class LightningResourceData extends AbstractRequestableResourceData {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(LightningResourceData.class);
+
+    /*
+     * certain combination of lightning types get specific display labels
+     */
+    public static enum DisplayType {
+        UNDEFINED(""), CLOUD_FLASH("Cloud Flash"), NEGATIVE("Negative"), POSITIVE(
+                "Positive"), PULSE("Pulse"), TOTAL_FLASH("Total"), CLOUD_TO_GROUND(
+                "Cloud to Ground");
+        public final String label;
+
+        private DisplayType(String name) {
+            this.label = name;
+        }
+    }
 
     @XmlAttribute
     private boolean handlingPositiveStrikes = true;
@@ -73,7 +88,7 @@ public class LightningResourceData extends AbstractRequestableResourceData {
 
     @XmlAttribute
     private int countPosition = 0;
-    
+
     @Override
     protected AbstractVizResource<?, ?> constructResource(
             LoadProperties loadProperties, PluginDataObject[] objects) {
@@ -97,8 +112,8 @@ public class LightningResourceData extends AbstractRequestableResourceData {
 
     @Override
     public boolean isUpdatingOnMetadataOnly() {
-    	if (this.isUpdatingOnMetadataOnly == false)
-    		return false;
+        if (this.isUpdatingOnMetadataOnly == false)
+            return false;
         return true;
     }
 
@@ -160,32 +175,6 @@ public class LightningResourceData extends AbstractRequestableResourceData {
     }
 
     /**
-     * @see #isHandlingCloudFlashes()
-     * @see #isHandlingNegativeStrikes()
-     * @see #isHandlingPositiveStrikes()
-     * @see #isHandlingPulses()
-     * @return true if resource data handles exactly one type of data
-     */
-    public boolean isExclusiveForType() {
-        boolean[] bools = { isHandlingCloudFlashes(),
-                isHandlingNegativeStrikes(), isHandlingPositiveStrikes(),
-                isHandlingPulses() };
-        boolean handlingZero = true;
-        boolean handlingMoreThanOne = false;
-        for (boolean handlingSomething : bools) {
-            if (handlingSomething) {
-                if (handlingZero) {
-                    handlingZero = false;
-                } else {
-                    handlingMoreThanOne = true;
-                    break;
-                }
-            }
-        }
-        return !handlingZero && !handlingMoreThanOne;
-    }
-
-    /**
      * @param handlingPulses
      *            the handlingPulses to set
      */
@@ -194,11 +183,10 @@ public class LightningResourceData extends AbstractRequestableResourceData {
     }
 
     /**
-     * @return countPosition
-     *            the countPosition to get - JJG
+     * @return countPosition the countPosition to get - JJG
      */
     public int getCountPosition() {
-    	return countPosition;
+        return countPosition;
     }
 
     /**
@@ -216,6 +204,47 @@ public class LightningResourceData extends AbstractRequestableResourceData {
                     .getConstraintValue();
         }
         return null;
+    }
+
+    public DisplayType getDisplayType() {
+        DisplayType rval;
+        byte bitset = 0x00;
+        if (handlingCloudFlashes) {
+            bitset |= 0x01;
+        }
+        if (handlingNegativeStrikes) {
+            bitset |= 0x02;
+        }
+        if (handlingPositiveStrikes) {
+            bitset |= 0x04;
+        }
+        if (handlingPulses) {
+            bitset |= 0x08;
+        }
+
+        switch (bitset) {
+        case 0x01:
+            rval = DisplayType.CLOUD_FLASH;
+            break;
+        case 0x02:
+            rval = DisplayType.NEGATIVE;
+            break;
+        case 0x04:
+            rval = DisplayType.POSITIVE;
+            break;
+        case 0x06:
+            rval = DisplayType.CLOUD_TO_GROUND;
+            break;
+        case 0x07:
+            rval = DisplayType.TOTAL_FLASH;
+            break;
+        case 0x08:
+            rval = DisplayType.PULSE;
+            break;
+        default:
+            rval = DisplayType.UNDEFINED;
+        }
+        return rval;
     }
 
     /*
