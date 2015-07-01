@@ -154,7 +154,7 @@
 		fillValue="-2147483647.0" />
 	<parameter name="visibilityICR" numDims="1" type="INT" />
 	<parameter name="altimeterDD" numDims="1" type="STRING" size="1" />
-	<parameter name="relHumidity" numDims="1" type="FLOAT"
+	<parameter name="relHumidity" numDims="1" type="FLOAT" unit="%"
 		fillValue="3.40282346639e+38" />
 	<parameter name="isOverflow" numDims="1" type="INT"
 		fillValue="0.0" />
