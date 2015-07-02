@@ -36,7 +36,7 @@
 				<constraint constraintValue="grid"/>
 			</mapping>
 			<mapping key="info.datasetId">
-                <constraint constraintValue="RUC236"/>
+                <constraint constraintValue="RUC130"/>
             </mapping>
         </constraints>
 	</source>
@@ -47,7 +47,7 @@
 				<constraint constraintValue="grid"/>
 			</mapping>
 			<mapping key="info.datasetId">
-                <constraint constraintValue="Laps"/>
+                <constraint constraintValue="LAPS"/>
             </mapping>
         </constraints>
 	</source>
