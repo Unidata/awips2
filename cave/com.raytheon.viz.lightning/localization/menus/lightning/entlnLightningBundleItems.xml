@@ -31,6 +31,9 @@
     <contribute xsi:type="bundleItem" file="bundles/TotalLightningPlot5Min.xml" 
                 menuText="5min plot" id="5MinLightningFlashPlot">
     </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/TotalLightningPlot1Min.xml"
+                menuText="1min plot" id="1MinLightningFlashPlot">
+    </contribute>
     <contribute xsi:type="bundleItem" file="bundles/LightningSeq.xml" 
                 menuText="1min Lgtng Seq Plot" id="1MinLightningFlashSeq">
     </contribute>
