@@ -44,6 +44,7 @@ import com.raytheon.viz.mpe.util.ReadTemperatureStationList;
  * ------------ ---------- ----------- --------------------------
  * Mar 31, 2009            snaples     Initial creation
  * Feb 5, 2015  17101      snaples     Updated max_stations to use size of dqc.precip_stations.
+ * Jun 25, 2015 17397      snaples     Removed send_expose in apply_group method to prevent screen from blanking.
  * 
  * </pre>
  * 
@@ -163,7 +164,6 @@ public class GroupEditCalls {
 
         bv.restore_bad_values(pcpn_day, dqc.precip_stations,
                 max_stations);
-        opo.send_expose();
         group_edit = 0;
 
         QcPrecipOptionsDialog.groupEditBtn.setEnabled(true);

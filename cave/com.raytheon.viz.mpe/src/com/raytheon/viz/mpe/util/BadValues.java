@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Bad_Daily_Values;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
 
@@ -41,7 +42,8 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 9, 2009            snaples     Initial creation
- * Feb 5, 2015   17101    snaples     Fixed issue with writing zero length bad values file.
+ * Jun 17, 2015  17388    ptilles     added check on mpe_dqc_6hr_24hr_flag and
+ *                                      changed definition of max_stations variable
  * 
  * </pre>
  * 
@@ -52,7 +54,31 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
 public class BadValues {
     BufferedReader in = null;
     DailyQcUtils dqc = DailyQcUtils.getInstance();
-    private int max_stations = dqc.precip_stations.size();
+    ReadPrecipStationList rp = new ReadPrecipStationList();
+    //private int max_stations = rp.getNumPstations();
+    int max_stations = DailyQcUtils.precip_stations.size();
+    
+    static int mpe_dqc_6hr_24hr_flag = 1;
+    
+    static
+    {
+    	//token name:  mpe_dqc_6hr_24hr_set_bad
+    	// token value = OFF
+    	//   mpe_dqc_6hr_24hr_flag = 0
+    	//   if user sets 6hr value to Bad, then 24hr value is unaffected
+
+    	// token value = ON
+    	//   mpe_dqc_6hr_24hr_flag = 1
+    	//   if user sets 6hr value to Bad, then 24hr value is set to Bad
+
+    	String mpe_dqc_6hr_24hr_string = AppsDefaults.getInstance().getToken(
+    			"mpe_dqc_6hr_24hr_set_bad", "ON");
+
+    	if (mpe_dqc_6hr_24hr_string.equalsIgnoreCase("OFF"))
+    	{
+    		mpe_dqc_6hr_24hr_flag = 0;
+    	}
+    }
 
     
     public void read_bad_values(String precd, int m) {
@@ -76,7 +102,6 @@ public class BadValues {
                     break;
                 }
 
-                // ier=sscanf(ibuf,"%s %s %d %f",hb5,pc,&iquart,&fvalue);
                 s = new Scanner(vals);
 
                 bad_values[i].used = 1;
@@ -183,18 +208,19 @@ public class BadValues {
                     continue;
                 }
 
-                if (iday == bad_values[i].day) {
+                if (iday == bad_values[i].day)
+                {
 
-                    if (bad_values[i].fvalue < 0) {
+                    if (bad_values[i].fvalue < 0)
+                    {
 
                         System.out.println("Attempt to write value < 0\n");
                         continue;
                     }
 
-                    // ier=sprintf(ibuf,"%s %s %d %f\n",bad_values[i].hb5,bad_values[i].parm,
-                    // bad_values[i].quart,bad_values[i].fvalue);
-
-                    ibuf = String.format("%s %s %d %4.2f", bad_values[i].hb5,
+                    System.out.println("In write_bad_values method:" + bad_values[i].hb5 + bad_values[i].parm + 
+                    		bad_values[i].quart + bad_values[i].fvalue);
+                    ibuf = String.format("%s %s %d %f", bad_values[i].hb5,
                             bad_values[i].parm, bad_values[i].quart,
                             bad_values[i].fvalue);
                     out.write(ibuf);
@@ -226,9 +252,9 @@ public class BadValues {
         int i, j, h, k;
         Bad_Daily_Values bad_values[] = dqc.bad_values;
         ArrayList<Station> station = dqc.precip_stations;
-//        Pdata[] pdata = dqc.pdata;
 
-        for (i = 0; i < 6000; i++) {
+        for (i = 0; i < 6000; i++)
+        {
 
             if (bad_values[i].used == 0) {
                 continue;
@@ -242,17 +268,22 @@ public class BadValues {
 
         }
 
-        for (j = 0; j < max_stations; j++) {
+        for (j = 0; j < max_stations; j++)
+        {
 
-            for (k = 0; k < 5; k++) {
+            for (k = 0; k < 5; k++)
+            {
 
-                if (dqc.pdata[iday].stn[j].frain[k].qual != 1) {
+                if (dqc.pdata[iday].stn[j].frain[k].qual != 1)
+                {
                     continue;
                 }
+                
+                for (h = 0; h < 6000; h++)
+                {
 
-                for (h = 0; h < 6000; h++) {
-
-                    if (bad_values[h].used != 0) {
+                    if (bad_values[h].used != 0)
+                    {
                         continue;
                     }
 
@@ -265,8 +296,6 @@ public class BadValues {
                      */
 
                     bad_values[h].fvalue = dqc.pdata[iday].stn[j].frain[k].data;
-
-                    // bad_values[h].fvalue = pdata[iday].stn[j].rrain[k].data;
 
                     bad_values[h].hb5 = station.get(j).hb5;
                     bad_values[h].parm = station.get(j).parm;
@@ -284,15 +313,16 @@ public class BadValues {
 
     }
 
-    public void restore_bad_values(int iday,
-            ArrayList<Station> precip_stations, int max_stations) {
-//        Bad_Daily_Values bad_values[] = dqc.bad_values;
+    public void restore_bad_values(int iday, ArrayList<Station> precip_stations, int max_stations)
+    {
 
         int i, j, k;
 
-        for (k = 0; k < 5; k++) {
+        for (k = 0; k < 5; k++)
+        {
 
-            for (i = 0; i < 6000; i++) {
+            for (i = 0; i < 6000; i++)
+            {
 
                 if (dqc.bad_values[i].used == 0) {
                     continue;
@@ -302,24 +332,28 @@ public class BadValues {
                     continue;
                 }
 
-                for (j = 0; j < max_stations; j++) {
+                for (j = 0; j < max_stations; j++)
+                {
 
-                    if ((dqc.bad_values[i].hb5.equalsIgnoreCase(precip_stations
-                            .get(j).hb5))
-                            && dqc.bad_values[i].parm.charAt(4) == precip_stations
-                                    .get(j).parm.charAt(4)) {
+                    if ((dqc.bad_values[i].hb5.equalsIgnoreCase(precip_stations.get(j).hb5))
+                            && dqc.bad_values[i].parm.charAt(4) == precip_stations.get(j).parm.charAt(4))
+                    {
 
                         dqc.pdata[iday].stn[j].frain[k].data = dqc.bad_values[i].fvalue;
                         dqc.pdata[iday].stn[j].frain[k].qual = 1;
 
-                        /* fix for 6 hourly bad but 24 hour good */
+                        // 6hr qual code bad - check how to set 24hr qual code
+                        // added for DR 17388
+                        
+                        if(mpe_dqc_6hr_24hr_flag == 1)
+                        {
 
-                        if (k >= 0
-                                && k <= 3
-                                && dqc.pdata[iday].stn[j].rrain[4].data >= 0) {
+                        	if (k >= 0 && k <= 3 && dqc.pdata[iday].stn[j].rrain[4].data >= 0)
+                        	{
 
-                            dqc.pdata[iday].stn[j].frain[4].qual = 1;
+                        		dqc.pdata[iday].stn[j].frain[4].qual = 1;
 
+                        	}
                         }
 
                         break;
@@ -338,7 +372,6 @@ public class BadValues {
     public int is_bad(int iday, int iquart, String hb5, String parm)
 
     {
-//        Bad_Daily_Values bad_values[] = dqc.bad_values;
         int i, j;
 
         for (i = 0; i < 6000; i++) {

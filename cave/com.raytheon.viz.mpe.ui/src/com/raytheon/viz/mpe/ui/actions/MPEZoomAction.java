@@ -46,6 +46,8 @@ import com.raytheon.viz.ui.tools.ModalToolManager;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 11Apr2011     8738        jpiatt      Initial Creation.
+ * Jun 30, 2015  14317       snaples     Fixed issue when toggling back from Areal Zoom, 
+ *                                       not going to Pan mode.
  * 
  * </pre>
  * 
@@ -61,6 +63,7 @@ public class MPEZoomAction extends AbstractHandler {
 	private IDisplayPane pane = null;
 	
 	private IRenderableDisplay display = null;
+	
 
 	/*
 	 * (non-Javadoc)
@@ -108,6 +111,7 @@ public class MPEZoomAction extends AbstractHandler {
 					
 						pane.getRenderableDisplay().setExtent(unZoomedExtent);
 						pane.getDescriptor().getRenderableDisplay().refresh();
+						mgr.activateToolSet(PAN_ID);
 						break;
 					}
 				}
