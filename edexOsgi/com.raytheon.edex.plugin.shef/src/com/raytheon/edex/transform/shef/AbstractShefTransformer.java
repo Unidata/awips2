@@ -53,6 +53,7 @@ import com.raytheon.uf.common.wmo.WMOTimeParser;
  * AWIPS2 DR Work
  * 20120918           1185 jkorman     Added save to archive capability.  
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
+ * Jul 01, 2015 16903      lbousaidi   added routine for synoptic data
  * </pre>
  * 
  * @author jkorman
@@ -260,6 +261,28 @@ public abstract class AbstractShefTransformer<T extends PluginDataObject>
         return buffer;
     }
 
+    /**
+     * 
+     * @param buffer
+     * @param headers
+     * @param report
+     * @return
+     */
+    protected StringBuilder makeSynHeader(StringBuilder buffer,
+            String stationId, Headers headers, String hdr) {
+
+        Calendar c = null;
+        
+        if((hdr != null)&&(headers != null)) {
+            String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
+            c = WMOTimeParser.findDataTime(hdr, fileName);
+        } else {
+            c = TimeUtil.newGmtCalendar();
+        }
+        buffer.append(String.format(WMO_HEADER_FMT, stationId, c));
+        
+        return buffer;
+    }
     /**
      * 
      * @param buffer
