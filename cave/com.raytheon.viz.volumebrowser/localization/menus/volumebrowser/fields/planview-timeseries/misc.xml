@@ -83,12 +83,7 @@
     <contribute xsi:type="toolbarSubMenu" menuText="NWPS">
         <contribute xsi:type="subinclude"
             fileName="menus/volumebrowser/fields/planview-timeseries/sfc2d/NWPS.xml" />
-    </contribute>
-    
-    <contribute xsi:type="toolbarSubMenu" menuText="Simulated Satellite">
-        <contribute xsi:type="subinclude"
-            fileName="menus/volumebrowser/fields/planview-timeseries/sfc2d/simulated-satellite.xml" />
-    </contribute> 
+    </contribute>    
 
     <contribute xsi:type="menuItem" menuText="Altimeter" key="MSLSA" indentText="true" /> 
     <contribute xsi:type="menuItem" menuText="CU Rule" key="CURU" indentText="false" />
