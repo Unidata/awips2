@@ -34,6 +34,7 @@ import com.raytheon.uf.common.numeric.UnsignedNumbers;
  * ------------ ---------- ----------- --------------------------
  * Jun 03, 2014  3226      bclement    Initial creation
  * Jun 09, 2014 3226       bclement    Added ByteBuffer constructor
+ * Jul 01, 2015 4581       skorolev    Added condition in the getSum(int)
  * 
  * </pre>
  * 
@@ -53,7 +54,6 @@ public class ChecksumByteBuffer {
     private long totalSum;
 
     private long packetSum;
-
 
     /**
      * @see ByteBuffer#wrap(byte[])
@@ -80,6 +80,11 @@ public class ChecksumByteBuffer {
         int start = buff.position();
         int end = start + numberOfBytes;
         long rval = 0;
+        if (buff.remaining() < numberOfBytes) {
+            throw new IllegalArgumentException("Unable to get checksum for "
+                    + numberOfBytes + " bytes, only " + buff.remaining()
+                    + " bytes in buffer.");
+        }
         for (int i = start; i < end; ++i) {
             rval += UnsignedNumbers.ubyteToShort(buff.get(i));
         }
