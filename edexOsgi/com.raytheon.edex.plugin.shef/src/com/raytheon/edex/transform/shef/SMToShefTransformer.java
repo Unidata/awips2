@@ -19,7 +19,10 @@
  **/
 package com.raytheon.edex.transform.shef;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.TimeZone;
 
 import javax.xml.transform.TransformerException;
 
@@ -46,6 +49,8 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  * AWIPS2 DR Work
  * 20120918           1185 jkorman     Added save to archive capability.     
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
+ * Jul 01, 2015 16903      lbousaidi   fixed WMO header in ingest log and product_id inserted
+ *                                     into ihfs database
  * </pre>
  * 
  * @author jkorman
@@ -56,6 +61,14 @@ public class SMToShefTransformer extends AbstractShefTransformer<ObsCommon> {
 
     private static final String WMO_HEADER_FMT = CRCRLF
             + "SRXX99 %4s %2$td%2$tH%2$tM";
+    
+    private static final int DT_SIZE = 6;
+    private static final int CCC_SIZE = 6;
+    
+    private static final DateFormat dateFormat = new SimpleDateFormat("ddHHmm");
+    static {
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));        
+    }
 
     /**
      * 
@@ -78,22 +91,47 @@ public class SMToShefTransformer extends AbstractShefTransformer<ObsCommon> {
             throws TransformerException {
 
         // Transformed Synoptic PluginDataObject to SHEF
-        byte[] result = null;
+        byte[] result = null;        
         try {
             // Currently returns false, so nothing is encoded at this time.
             if (encodeThisStation(report)) {
-
-                WMOHeader hdr = new WMOHeader(report.getObsText().getBytes());
-
-                StringBuilder sb = makeWMOHeader(openWMOMessage(200),
-                        "KWOH", headers, hdr);
-                String fileName = makeWMOHeader(new StringBuilder(20), "KWOH",
-                        headers, hdr).toString().trim().replace(' ', '_');
-
-                startMessageLine(sb).append(
-                        ": SHEF derived data created by SMToShefTransformer");
-                startMessageLine(sb).append(": TRACEID = ");
-                sb.append(headers.get(DecoderTools.INGEST_FILE_NAME));
+                //get the id and use the alias to change digits to letters.
+            	String stnId = report.getStationId();
+            	
+            	if (options.isOptCheckAliasId()) {
+            		stnId = options.checkAlias(stnId);
+                }
+            	// make header for ingest log file printout
+            	String YYGGgg = report.getWmoHeader().substring(12, 12 + DT_SIZE);
+            	String ccc    = report.getWmoHeader().substring(6, 6 + CCC_SIZE);
+            	
+            	StringBuilder sb = makeSynHeader(openWMOMessage(200),stnId ,headers , YYGGgg);
+            	String fileName = makeSynHeader(new StringBuilder(20),stnId,headers, YYGGgg)
+            			.toString().trim().replace(' ', '_');
+                
+            	startMessageLine(sb);
+            	
+            	if (ccc != null) {
+            		if (ccc.length() > 3) {
+            			ccc = ccc.substring(ccc.length() - 4).trim();
+                    }
+            	}     
+            	
+            	sb.append(ccc);
+            	sb.append(METAR_2_SHEF_NNN);
+            	if (stnId.length() == 4) {
+            		sb.append(stnId.substring(1));
+            	} else if (stnId.length() == 3) {
+                   sb.append(stnId);
+                }
+            	
+            	startMessageLine(sb);
+            	startMessageLine(sb).append(
+            			": SHEF derived data created by SMToShefTransformer");
+            	startMessageLine(sb).append(": TRACEID = ");
+            	
+            	report.getWmoHeader();
+            	sb.append(report.getWmoHeader());
 
                 String shef = closeWMOMessage(encodeShef(sb, report, headers))
                         .toString();
