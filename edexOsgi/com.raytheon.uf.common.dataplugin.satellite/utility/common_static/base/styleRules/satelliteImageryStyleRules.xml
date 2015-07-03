@@ -146,7 +146,7 @@
 </styleRule>
 <styleRule>
   <paramLevelMatches>
-     <parameter>OZONE</parameter>
+     <parameter>Sounder Based Total Column Ozone</parameter>
   </paramLevelMatches>
   <imageStyle>
      <range scale="LINEAR">
