@@ -326,8 +326,6 @@ edex_stop() { # stop all edex services
 	su -c "service qpidd stop"
 	su -c "service httpd-pypies stop"
 	su -c "service edex_postgres stop"
-        sleep 5
-	su -c "service qpidd stop"
 	edex_status;
 }
 
