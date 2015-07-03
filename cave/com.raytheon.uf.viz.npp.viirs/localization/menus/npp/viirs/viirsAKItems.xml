@@ -19,16 +19,25 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<contribute xsi:type="bundleItem" file="bundles/npp/soundingAvailability.xml"
-			menuText="NUCAPS Sounding Availability" id="NUCAPSAvailability">
-			<substitute key="name" value="NUCAPS"/>
-			<substitute key="pluginName" value="nucaps"/>
-			<substitute key="soundingResourceData" value="com.raytheon.uf.viz.npp.nucaps.NucapsNSharpResourceData"/>
+	<contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsImagery.xml"
+		menuText="Imagery Band 1 (0.64u)" id="Img0.64">
+		<substitute key="parameter" value="0.64Ref"/>
 	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/npp/soundingAvailability.xml"
-			menuText="NCUAIR Sounding Availability" id="NCUAIRAvailability">
-			<substitute key="name" value="NCUAIR"/>
-			<substitute key="pluginName" value="ncuair"/>
-			<substitute key="soundingResourceData" value="com.raytheon.uf.viz.npp.nucaps.NucapsNSharpResourceData"/>
+	<contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsImagery.xml"
+		menuText="Imagery Band 4 (3.74u)" id="Img3.74">
+		<substitute key="parameter" value="3.74BT"/>
 	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsImagery.xml"
+		menuText="Imagery Band 5 (11.45u)" id="Img11.45">
+		<substitute key="parameter" value="11.45BT"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsImagery.xml"
+		menuText="Moderate Band 6 (0.746u)" id="Mod0.746">
+		<substitute key="parameter" value="0.746Ref"/>
+	</contribute>
+	
+	<!-- Uncomment to include sample 'True Color' RGB Composites -->
+	<!--
+	<contribute xsi:type="subinclude" fileName="menus/npp/viirs/viirsRGBBundleItems.xml"/>
+	-->
 </menuTemplate>
