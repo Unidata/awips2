@@ -285,7 +285,7 @@ shefdecode_host    : dx1f                     # controlling UNIX system.
 shefdecode_dir     : $(apps_dir)/shefdecode   # main directory location
 shefdecode_bin     : $(shefdecode_dir)/bin    # executable programs location
 shefdecode_input   : $(shefdecode_dir)/input  # SHEF parameter file location
-shef_data_dir      : /data/fxa/ispan/hydro    # input products location
+shef_data_dir      : /awips2/edex/data/shef    # input products location
 
 shefdecode_log     : $(shefdecode_dir)/logs/decoder  # daily log files location
 shef_error_dir     : $(shefdecode_dir)/logs/product  # product log files location
