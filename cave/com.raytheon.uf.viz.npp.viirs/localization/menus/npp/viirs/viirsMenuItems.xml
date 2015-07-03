@@ -20,14 +20,16 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<contribute xsi:type="titleItem" titleText="------ VIIRS ------" id="ImageryLine"/>
+	
+	<contribute xsi:type="subMenu" menuText="Alaska Imagery" id="Alaskaid">
+		<contribute xsi:type="subinclude" fileName="menus/npp/viirs/viirsAKItems.xml">
+			<substitute key="region" value="Alaska"/>
+		</contribute>
+	</contribute>
+	<!--
 	<contribute xsi:type="subMenu" menuText="CONUS Imagery" id="CONUSid">
 		<contribute xsi:type="subinclude" fileName="menus/npp/viirs/viirsBundleItems.xml">
 			<substitute key="region" value="CONUS"/>
-		</contribute>
-	</contribute>
-	<contribute xsi:type="subMenu" menuText="Alaska Imagery" id="Alaskaid">
-		<contribute xsi:type="subinclude" fileName="menus/npp/viirs/viirsBundleItems.xml">
-			<substitute key="region" value="Alaska"/>
 		</contribute>
 	</contribute>
 	<contribute xsi:type="subMenu" menuText="Pacific Imagery" id="Pacificid">
@@ -35,4 +37,5 @@
 			<substitute key="region" value="Pacific"/>
 		</contribute>
 	</contribute>
+	-->
 </menuTemplate>
