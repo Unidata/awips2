@@ -37,6 +37,8 @@
 #    Mar 19, 2014       2688       bgonzale      added more subprocess logging.  Return value from
 #                                                subprocess.check_output is not return code, but is
 #                                                process output.  h5repack has no output without -v arg.
+#    Jun 15, 2015   DR 17556      mgamazaychikov Add __doMakeReadable method to counteract umask 027 daemon
+#                                                and make copied files world-readable
 #
 #
 
@@ -747,10 +749,16 @@ class H5pyDataStore(IDataStore.IDataStore):
 
     def __doCopy(self, filepath, basePath, outputDir, compression):
         shutil.copy(filepath, outputDir)
-        success = (os.path.isfile(os.path.join(outputDir, os.path.basename(filepath))))
+        fileName = os.path.join(outputDir, os.path.basename(filepath))
+        success = os.path.isfile(fileName)
+        if success:
+           self.__doMakeReadable(fileName)
         return success
-    
+
     __doCopy.__display_name__ = 'copy'
+
+    def __doMakeReadable(self, fileName):
+        os.chmod(fileName,0644)
 
     def repack(self, request):
         resp = FileActionResponse()
