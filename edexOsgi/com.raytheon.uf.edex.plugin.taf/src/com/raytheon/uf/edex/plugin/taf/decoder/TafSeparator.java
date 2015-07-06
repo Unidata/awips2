@@ -50,7 +50,8 @@ import com.raytheon.uf.edex.plugin.taf.TafDecoder;
  * 9/4/2008     1444        grichard    Move constants to TafConstants class.
  * May 14, 2014 2536        bclement    moved WMO Header to common
  * May 15, 2014 3002        bgonzale    Moved common taf code to com.raytheon.uf.common.dataplugin.taf.
- * 
+ * July 6, 2015 DR17108     MPorricelli Clean control chars from header string.
+ *                                       
  * 
  * </pre>
  * 
@@ -274,7 +275,7 @@ public class TafSeparator extends AbstractRecordSeparator {
                             tafHdr.insert(0, TafConstants.TAF_IND);
                         }
 
-                        parts.setTafHeader(tafHdr.toString());
+                        parts.setTafHeader(cleanMessage(tafHdr.toString()));
 
                         parts.setTafBody(s.substring(partPos.get(i + 1),
                                 partPos.get(i + 2)));
@@ -305,5 +306,24 @@ public class TafSeparator extends AbstractRecordSeparator {
     public void setTraceId(String traceId) {
         this.traceId = traceId;
     }
+    
+
+    /**
+    * Get rid of control characters
+    * 
+    */
+    
+    private String cleanMessage(String message) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < message.length(); i++) {
+            char c = message.charAt(i);
+            if (c < ' ') {
+                sb.append(' ');
+            } else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
+    }    
 
 }
