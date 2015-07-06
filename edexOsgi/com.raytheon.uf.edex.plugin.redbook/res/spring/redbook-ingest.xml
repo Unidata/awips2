@@ -13,36 +13,53 @@
 		<constructor-arg value="jms-durable:queue:Ingest.redbook"/>
 	</bean>
 
-    <bean id="spcMenuListener" class="com.raytheon.uf.edex.plugin.redbook.ingest.RedbookMenuSubscriber"/>
+    <bean id="redbookNdmMenuListener" class="com.raytheon.uf.edex.plugin.redbook.ingest.RedbookNdmMenuSubscriber"/>
     
     <bean factory-bean="ndmProc" factory-method="registerListener">
-        <constructor-arg value="RedbookHazardMenus.xml" />
-        <constructor-arg ref="spcMenuListener" />
+        <constructor-arg value="redbookHazardMenus.txt" />
+        <constructor-arg ref="redbookNdmMenuListener" />
     </bean>
     
     <bean factory-bean="ndmProc" factory-method="registerListener">
-        <constructor-arg value="RedbookHPCMenus.xml" />
-        <constructor-arg ref="spcMenuListener" />
+        <constructor-arg value="redbookHPCMenus.txt" />
+        <constructor-arg ref="redbookNdmMenuListener" />
     </bean>
     
     <bean factory-bean="ndmProc" factory-method="registerListener">
-        <constructor-arg value="RedbookCPCMenus.xml" />
-        <constructor-arg ref="spcMenuListener" />
+        <constructor-arg value="redbookCPCMenus.txt" />
+        <constructor-arg ref="redbookNdmMenuListener" />
     </bean>
     
     <bean factory-bean="ndmProc" factory-method="registerListener">
-        <constructor-arg value="RedbookMPCMenus.xml" />
-        <constructor-arg ref="spcMenuListener" />
+        <constructor-arg value="redbookMarineMenus.txt" />
+        <constructor-arg ref="redbookNdmMenuListener" />
     </bean>
 
     <bean factory-bean="ndmProc" factory-method="registerListener">
-        <constructor-arg value="RedbookNCOMenus.xml" />
-        <constructor-arg ref="spcMenuListener" />
+        <constructor-arg value="redbookNCOMenus.txt" />
+        <constructor-arg ref="redbookNdmMenuListener" />
     </bean>
     
     <bean factory-bean="ndmProc" factory-method="registerListener">
-        <constructor-arg value="RedbookUAMenus.xml" />
-        <constructor-arg ref="spcMenuListener" />
+        <constructor-arg value="redbookUpperAirMenus.txt" />
+        <constructor-arg ref="redbookNdmMenuListener" />
+    </bean>
+    
+    <bean id="redbookNdmMappingListener" class="com.raytheon.uf.edex.plugin.redbook.ingest.RedbookNdmMappingSubscriber"/>
+    
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="redbookDataKeys.txt" />
+        <constructor-arg ref="redbookNdmMappingListener" />
+    </bean>
+    
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="redbookDepictKeys.txt" />
+        <constructor-arg ref="redbookNdmMappingListener" />
+    </bean>
+    
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="redbookProductButtons.txt" />
+        <constructor-arg ref="redbookNdmMappingListener" />
     </bean>
     
     <bean factory-bean="contextManager" factory-method="registerClusteredContext">

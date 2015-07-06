@@ -33,6 +33,10 @@ function lookupRPM()
    # lookup the rpm.
 
    # foss rpms -> python rpms.
+   if [ "${1}" = "awips2-maven" ]; then
+      export RPM_SPECIFICATION="${installer_dir}/maven-3.2.3/"
+      return 0
+   fi
    if [ "${1}" = "awips2-python" ]; then
       export RPM_SPECIFICATION="${installer_dir}/python-2.7.9/"
       return 0
@@ -252,7 +256,7 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-yajsw" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.yajsw"
+      export RPM_SPECIFICATION="${installer_dir}/yajsw-11.11"
       return 0
    fi
 

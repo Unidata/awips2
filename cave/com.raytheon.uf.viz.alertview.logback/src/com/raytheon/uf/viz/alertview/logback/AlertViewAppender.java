@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.viz.alertview.logback;
 
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.util.tracker.ServiceTracker;
@@ -61,7 +62,7 @@ public class AlertViewAppender extends AppenderBase<ILoggingEvent> {
 
     @Override
     protected void append(ILoggingEvent event) {
-        AlertDestination[] destinations =destinationTracker
+        AlertDestination[] destinations = destinationTracker
                 .getServices(new AlertDestination[0]);
         if(destinations == null || destinations.length == 0){
             return;
@@ -75,8 +76,9 @@ public class AlertViewAppender extends AppenderBase<ILoggingEvent> {
 
     @Override
     public void start() {
-        BundleContext context = FrameworkUtil.getBundle(getClass())
-                .getBundleContext();
+        Bundle bundle = FrameworkUtil.getBundle(getClass());
+        BundleContext context = bundle.getBundleContext();
+        context.addBundleListener(new AppenderBundleListener(bundle, this));
         destinationTracker = new ServiceTracker<>(context, AlertDestination.class,
                 null);
         destinationTracker.open();
@@ -94,8 +96,10 @@ public class AlertViewAppender extends AppenderBase<ILoggingEvent> {
     public void stop() {
         super.stop();
         layout.stop();
-        destinationTracker.close();
-        destinationTracker = null;
+        if (destinationTracker != null) {
+            destinationTracker.close();
+            destinationTracker = null;
+        }
     }
 
     @Override

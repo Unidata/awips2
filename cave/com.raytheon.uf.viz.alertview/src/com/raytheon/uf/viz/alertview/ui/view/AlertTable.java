@@ -31,6 +31,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
@@ -43,15 +44,19 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.progress.UIJob;
 
 import com.raytheon.uf.viz.alertview.Alert;
+import com.raytheon.uf.viz.alertview.action.SaveToFileAction;
 import com.raytheon.uf.viz.alertview.filter.AlertFilter;
 import com.raytheon.uf.viz.alertview.style.StyleManager;
+import com.raytheon.uf.viz.alertview.style.StyleManager.StyleListener;
 
 /**
  * 
@@ -64,13 +69,14 @@ import com.raytheon.uf.viz.alertview.style.StyleManager;
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------
  * Jun 18, 2015  4474     bsteffen  Initial creation
+ * Jun 23, 2015  4474     njensen   Added removeAll() and getFilter()
  * 
  * </pre>
  * 
  * @author bsteffen
  * @version 1.0
  */
-public class AlertTable extends Composite {
+public class AlertTable extends Composite implements StyleListener {
 
     public static final String COLUMN_TIME = "Time";
 
@@ -80,13 +86,18 @@ public class AlertTable extends Composite {
 
     public static final String COLUMN_MESSAGE = "Message";
 
+    public static final String[] ALL_COLUMNS = { COLUMN_TIME, COLUMN_PRIORITY,
+            COLUMN_ORIGIN, COLUMN_MESSAGE };
+
+    private StyleManager styles = new StyleManager();
+
+    private BlockingQueue<Alert> alertsToAdd = new LinkedBlockingQueue<Alert>();
+
     private Table alertTable;
 
     private AlertFilter filter;
 
-    private BlockingQueue<Alert> alertsToAdd = new LinkedBlockingQueue<Alert>();
-
-    private StyleManager styles = new StyleManager();
+    private int mergeRepeatInterval;
 
     /**
      * When things are going terribly wrong and a gazillion alerts are coming in
@@ -97,10 +108,15 @@ public class AlertTable extends Composite {
 
         @Override
         public IStatus runInUIThread(IProgressMonitor monitor) {
+            if (AlertTable.this.isDisposed()) {
+                alertsToAdd.clear();
+                return Status.OK_STATUS;
+            }
             Alert next = alertsToAdd.poll();
             if (next != null) {
                 int processed = 0;
                 while (next != null) {
+
                     addAlertInternal(next);
                     if (processed++ > 500) {
                         this.schedule(100);
@@ -114,10 +130,12 @@ public class AlertTable extends Composite {
         }
     };
 
-    public AlertTable(Composite parent) {
+    public AlertTable(Composite parent, List<String> columns) {
         super(parent, SWT.NONE);
         this.setLayout(new FillLayout());
         createAlertTable();
+        rebuildColums(columns);
+        styles.addListener(this);
     }
 
     protected void createAlertTable() {
@@ -125,7 +143,6 @@ public class AlertTable extends Composite {
                 | SWT.FULL_SELECTION | SWT.MULTI);
         alertTable.setHeaderVisible(true);
         alertTable.setLinesVisible(true);
-        rebuildColums();
         alertTable.addSelectionListener(new SelectionAdapter() {
 
             @Override
@@ -185,12 +202,69 @@ public class AlertTable extends Composite {
         if (filter != null && !filter.filter(alert)) {
             return null;
         }
-        TableItem item = new TableItem(alertTable, SWT.NONE);
-        item.setData(new ArrayList<Alert>(Arrays.asList(alert)));
-        item.setText(getText(alert));
-        applyStyle(item);
-        alertTable.showItem(item);
-        return item;
+        TableItem newItem = null;
+        for (int index = 0; index < alertTable.getItemCount(); index += 1) {
+            TableItem item = alertTable.getItem(index);
+            List<Alert> alerts = getAlerts(item);
+            Alert sample = alerts.get(0);
+            if (alerts.contains(alert)) {
+                return item;
+            } else if (equalsEnough(sample, alert)) {
+                alerts.add(alert);
+                return item;
+            } else if (sample.getTime().before(alert.getTime())) {
+                newItem = new TableItem(alertTable, SWT.NONE, index);
+                break;
+            }
+        }
+        if (newItem == null) {
+            newItem = new TableItem(alertTable, SWT.NONE);
+        }
+        newItem.setData(new ArrayList<Alert>(Arrays.asList(alert)));
+        newItem.setText(getText(alert));
+        applyStyle(newItem);
+        alertTable.showItem(newItem);
+        return newItem;
+    }
+
+    /**
+     * Used to determine if 2 messages are similar enough that they should not
+     * be displayed as separate items.
+     */
+    protected boolean equalsEnough(Alert a1, Alert a2) {
+        if (a1.getMessage() == null) {
+            if (a2.getMessage() != null) {
+                return false;
+            }
+        } else if (!a1.getMessage().equals(a2.getMessage())) {
+            return false;
+        }
+        if (a1.getOrigin() == null) {
+            if (a2.getOrigin() != null) {
+                return false;
+            }
+        } else if (!a1.getOrigin().equals(a2.getOrigin())) {
+            return false;
+        }
+        if (a1.getDetails() == null) {
+            if (a2.getDetails() != null) {
+                return false;
+            }
+        } else if (!a1.getDetails().equals(a2.getDetails())) {
+            return false;
+        }
+
+        long timeDiff = Math.abs(a2.getTime().getTime()
+                - a1.getTime().getTime());
+        if (timeDiff > mergeRepeatInterval) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public void setMergeRepeatInterval(int mergeRepeatInterval) {
+        this.mergeRepeatInterval = mergeRepeatInterval;
     }
 
     protected void applyStyle(TableItem item) {
@@ -216,23 +290,8 @@ public class AlertTable extends Composite {
         }
     }
 
-    public void refresh(Alert alert) {
-        for (TableItem item : alertTable.getItems()) {
-            List<Alert> alerts = getAlerts(item);
-            if (alerts.contains(alert)) {
-                boolean selected = false;
-                alerts.remove(alert);
-                if (alerts.isEmpty()) {
-                    selected = alertTable.isSelected(alertTable.indexOf(item));
-                    item.dispose();
-                }
-                TableItem newItem = addAlertInternal(alert);
-                if (selected && newItem != null) {
-                    alertTable.select(alertTable.indexOf(newItem));
-                }
-            }
-
-        }
+    protected AlertFilter getFilter() {
+        return this.filter;
     }
 
     public void select(Alert alert) {
@@ -278,29 +337,11 @@ public class AlertTable extends Composite {
         return text;
     }
 
-    // public void setFilter(StatusMessageFilter filter) {
-    // this.filter = filter;
-    // for (TableItem item : alertTable.getSelection()) {
-    // StatusMessage message = getStatusMessage(item);
-    // if (!filter.filter(message)) {
-    // item.dispose();
-    // }
-    // }
-    // for (TableItem item : alertTable.getItems()) {
-    // StatusMessage message = getStatusMessage(item);
-    // if (!filter.filter(message)) {
-    // item.dispose();
-    // }
-    // }
-    // }
-
-    public void rebuildColums() {
+    public void rebuildColums(List<String> columns) {
         for (TableColumn column : alertTable.getColumns()) {
             column.dispose();
         }
-        // TODO columns from config.
-        for (String columnText : new String[] { COLUMN_TIME, COLUMN_PRIORITY,
-                COLUMN_MESSAGE }) {
+        for (String columnText : columns) {
             TableColumn column = new TableColumn(alertTable, SWT.NONE);
             column.setText(columnText);
         }
@@ -331,44 +372,14 @@ public class AlertTable extends Composite {
     }
 
     protected void populateContextMenu(Menu menu) {
-        // TODO need standard way of filling menu with items.
-        // for (MenuItem item : menu.getItems()) {
-        // item.dispose();
-        // }
-        // List<StatusMessage> messages = getMultiSelection();
-        // if (!messages.isEmpty()) {
-        // manager.getMenuManager().populateContextMenu(menu, messages);
-        // }
-        // AcknowledgedFilter ackFilter = new AcknowledgedFilter();
-        // boolean ackAll = false;
-        // for (TableItem item : alertTable.getItems()) {
-        // StatusMessage m = getStatusMessage(item);
-        // if (ackFilter.filter(m) == false) {
-        // ackAll = true;
-        // break;
-        // }
-        // }
-        // if (ackAll) {
-        // new MenuItem(menu, SWT.SEPARATOR);
-        // MenuItem item = new MenuItem(menu, SWT.NONE);
-        // item.setText("Acknowledge All");
-        // item.addSelectionListener(new SelectionAdapter() {
-        //
-        // @Override
-        // public void widgetSelected(SelectionEvent e) {
-        // AcknowledgedFilter filter = new AcknowledgedFilter();
-        // AcknowledgeAction action = new AcknowledgeAction();
-        // for (TableItem item : alertTable.getItems()) {
-        // for (StatusMessage m : getStatusMessages(item)) {
-        // if (filter.filter(m) == false) {
-        // action.handle(m);
-        // }
-        // }
-        // }
-        // }
-        //
-        // });
-        // }
+        for (MenuItem item : menu.getItems()) {
+            item.dispose();
+        }
+        Alert alert = getSingleSelection();
+        if (alert != null) {
+            new ActionContributionItem(new SaveToFileAction(alert)).fill(menu,
+                    -1);
+        }
     }
 
     public Alert getSingleSelection() {
@@ -401,6 +412,10 @@ public class AlertTable extends Composite {
         return (List<Alert>) item.getData();
     }
 
+    public void removeAll() {
+        alertTable.removeAll();
+    }
+
     @Override
     public void dispose() {
         super.dispose();
@@ -413,6 +428,28 @@ public class AlertTable extends Composite {
 
     protected void alertDoubleClick() {
         // sub classes can override this easily
+
+    }
+
+    @Override
+    public void updateStyle() {
+        Display display = getDisplay();
+        if (display.isDisposed()) {
+            return;
+        }
+        display.asyncExec(new Runnable() {
+
+            @Override
+            public void run() {
+                if (alertTable.isDisposed()) {
+                    return;
+                }
+                for (TableItem item : alertTable.getItems()) {
+                    applyStyle(item);
+                }
+            }
+
+        });
 
     }
 

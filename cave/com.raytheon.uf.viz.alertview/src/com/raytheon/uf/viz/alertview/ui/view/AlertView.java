@@ -20,7 +20,9 @@
 package com.raytheon.uf.viz.alertview.ui.view;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.widgets.Composite;
@@ -45,6 +47,7 @@ import com.raytheon.uf.viz.alertview.filter.FilterManager;
 import com.raytheon.uf.viz.alertview.prefs.AlertViewPreferences;
 import com.raytheon.uf.viz.alertview.prefs.AlertViewPreferences.FilterMenu;
 import com.raytheon.uf.viz.alertview.prefs.PreferenceFile;
+import com.raytheon.uf.viz.alertview.ui.prefs.OpenPreferencesAction;
 
 /**
  * 
@@ -58,6 +61,7 @@ import com.raytheon.uf.viz.alertview.prefs.PreferenceFile;
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------
  * Jun 18, 2015  4474     bsteffen  Initial creation
+ * Jun 22, 2015  4474     njensen   Fix bugs
  * 
  * </pre>
  * 
@@ -69,7 +73,11 @@ public class AlertView extends ViewPart implements AlertDestination,
 
     private static Logger logger = LoggerFactory.getLogger(AlertView.class);
 
+    private FilterManager filterManager = new FilterManager();
+
     private ServiceRegistration<AlertDestination> destinationRegistration;
+
+    private PreferenceFile<AlertViewPreferences> preferencesFile;
 
     private SashForm sashForm;
 
@@ -79,9 +87,13 @@ public class AlertView extends ViewPart implements AlertDestination,
 
     @Override
     public void createPartControl(Composite parent) {
+        preferencesFile = AlertViewPreferences.load(this);
+        AlertViewPreferences preferences = preferencesFile.get();
+
         sashForm = new SashForm(parent, SWT.NONE);
         sashForm.setOrientation(SWT.VERTICAL);
-        alertTable = new AlertTable(sashForm) {
+
+        alertTable = new AlertTable(sashForm, preferences.getColumns()) {
 
             @Override
             protected void alertSelected() {
@@ -98,34 +110,42 @@ public class AlertView extends ViewPart implements AlertDestination,
             }
 
         };
+
         detailsConsoleViewer = new AlertConsoleViewer(sashForm);
 
-        PreferenceFile<AlertViewPreferences> file = new PreferenceFile<>(
-                "alert_view.xml", AlertViewPreferences.class, this);
+        sashForm.setMaximizedControl(alertTable);
 
-        /* TODO the menu button looks stupid in CAVE because of the small tabs. */
+        alertTable.setMergeRepeatInterval(preferences.getMergeRepeatInterval());
+
+        populateFilterMenu();
+        destinationRegistration = getBundleContext().registerService(
+                AlertDestination.class, this, null);
+    }
+
+    protected void populateFilterMenu() {
+        /*
+         * TODO the menu button creates excessive unusable space in CAVE because
+         * there are no toolbar items and the tabs are so small.
+         */
         IMenuManager menuManager = getViewSite().getActionBars()
                 .getMenuManager();
-
-        FilterManager filterManager = new FilterManager();
-        AlertViewPreferences prefs = file.get();
-        for (FilterMenu filter : prefs.getFilterMenu()) {
-            Action action = new ShowFilteredAction(filter.getText(),
-                    filterManager.getFilter(filter.getFilter()));
-            if (prefs.getActiveFilter().equals(filter.getFilter())) {
+        menuManager.removeAll();
+        MenuManager filterMenu = new MenuManager("Show", null);
+        menuManager.add(filterMenu);
+        AlertViewPreferences prefs = preferencesFile.get();
+        for (FilterMenu menuItem : prefs.getFilterMenu()) {
+            Action action = new ShowFilteredAction(menuItem);
+            if (prefs.getActiveFilter().equals(menuItem.getFilter())) {
                 action.setChecked(true);
                 action.run();
             }
-            menuManager.add(action);
+            filterMenu.add(action);
         }
-
-        sashForm.setMaximizedControl(alertTable);
-        loadAlerts();
+        menuManager.add(new OpenPreferencesAction());
     }
 
     private void loadAlerts() {
-        BundleContext context = FrameworkUtil.getBundle(getClass())
-                .getBundleContext();
+        BundleContext context = getBundleContext();
         ServiceReference<AlertStore> ref = context
                 .getServiceReference(AlertStore.class);
         if (ref != null) {
@@ -135,8 +155,6 @@ public class AlertView extends ViewPart implements AlertDestination,
             }
             context.ungetService(ref);
         }
-        destinationRegistration = context.registerService(
-                AlertDestination.class, this, null);
         alertTable.packColumns();
     }
 
@@ -145,20 +163,11 @@ public class AlertView extends ViewPart implements AlertDestination,
         alertTable.setFocus();
     }
 
-    public void rebuildColums() {
-        Display.getDefault().asyncExec(new Runnable() {
-            @Override
-            public void run() {
-                alertTable.rebuildColums();
-                loadAlerts();
-            }
-
-        });
-    }
-
     @Override
     public void dispose() {
         destinationRegistration.unregister();
+        preferencesFile.close();
+        super.dispose();
     }
 
     @Override
@@ -166,24 +175,24 @@ public class AlertView extends ViewPart implements AlertDestination,
         alertTable.addAlert(alert);
     }
 
-    private class ShowFilteredAction extends Action {
-
-        private final AlertFilter filter;
-
-        public ShowFilteredAction(String name, AlertFilter filter) {
-            super("Show " + name, Action.AS_RADIO_BUTTON);
-            this.filter = filter;
+    @Override
+    public void update(final AlertViewPreferences preferences) {
+        Display display = Display.getCurrent();
+        if (display.isDisposed()) {
+            return;
         }
-
-
-        @Override
-        public void run() {
-            alertTable.setFilter(filter);
-            detailsConsoleViewer.setAlert(alertTable.getSingleSelection());
-            loadAlerts();
-            // TODO save prefs.
-        }
-
+        display.asyncExec(new Runnable() {
+            @Override
+            public void run() {
+                if (alertTable.isDisposed()) {
+                    return;
+                }
+                alertTable.setMergeRepeatInterval(preferences
+                        .getMergeRepeatInterval());
+                alertTable.rebuildColums(preferences.getColumns());
+                populateFilterMenu();
+            }
+        });
     }
 
     public static void show(IWorkbenchWindow window, Alert alert) {
@@ -192,15 +201,45 @@ public class AlertView extends ViewPart implements AlertDestination,
         try {
             AlertView view = (AlertView) activePage.showView(AlertView.class
                     .getName());
-            view.alertTable.select(alert);
-            view.sashForm.setMaximizedControl(null);
+            if (alert != null) {
+                view.handleAlert(alert);
+                view.alertTable.select(alert);
+                view.sashForm.setMaximizedControl(null);
+            }
         } catch (PartInitException e) {
             logger.error("Cannot open AlertView", e);
         }
     }
 
-    @Override
-    public void update(AlertViewPreferences t) {
-        // TODO update fitler menu.
+    protected static BundleContext getBundleContext() {
+        return FrameworkUtil.getBundle(AlertView.class).getBundleContext();
+    }
+
+    private class ShowFilteredAction extends Action {
+
+        private final String filterName;
+
+        private final AlertFilter filter;
+
+        public ShowFilteredAction(FilterMenu menuItem) {
+            super(menuItem.getText(), IAction.AS_RADIO_BUTTON);
+            this.filterName = menuItem.getFilter();
+            this.filter = filterManager.getFilter(filterName);
+        }
+
+        @Override
+        public void run() {
+            if (!this.filter.equals(alertTable.getFilter())) {
+                alertTable.setFilter(filter);
+                detailsConsoleViewer.setAlert(alertTable.getSingleSelection());
+                loadAlerts();
+                AlertViewPreferences prefs = preferencesFile.get();
+                if (!filterName.equals(prefs.getActiveFilter())) {
+                    prefs = new AlertViewPreferences(prefs);
+                    prefs.setActiveFilter(filterName);
+                    preferencesFile.write(prefs);
+                }
+            }
+        }
     }
 }

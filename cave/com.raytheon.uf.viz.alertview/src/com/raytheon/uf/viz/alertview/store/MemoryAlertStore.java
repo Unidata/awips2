@@ -57,8 +57,7 @@ public class MemoryAlertStore implements AlertStore, AlertDestination,
     private int retentionCount;
 
     public MemoryAlertStore() {
-        prefsFile = new PreferenceFile<>("alert_view.xml",
-                AlertViewPreferences.class, this);
+        prefsFile = AlertViewPreferences.load(this);
         retentionCount = prefsFile.get().getAlertsToLoad();
     }
 

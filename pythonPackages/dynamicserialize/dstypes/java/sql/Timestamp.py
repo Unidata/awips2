@@ -18,25 +18,22 @@
 # further licensing information.
 ##
 
-## NOTE: This is a dummy class that is only used for deserialization
-## support. Further work required if it is need in the pure Python
-## environment.
+# File auto-generated against equivalent DynamicSerialize Java class
+# and then modified post-generation to add additional features to better
+# match Java implementation.
+#    
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    ??/??/??                      xxxxxxxx       Initial Creation.
+#    06/24/15         4480         dgilling       implement based on Date class.
+#
 
-class Timestamp(object):
+from dynamicserialize.dstypes.java.util import Date
+
+
+class Timestamp(Date):
 
     def __init__(self, time=None):
-        self.time = time
-        
-    def getTime(self):
-        return self.time
-    
-    def setTime(self, timeInMillis):
-        self.time = timeInMillis
-        
-    def __str__(self):
-        return self.__repr__()
-        
-    def __repr__(self):
-        from time import gmtime, strftime
-        
-        return strftime("%b %d %y %H:%M:%S GMT", gmtime(self.time/1000.0))
+        super(Timestamp, self).__init__(time)

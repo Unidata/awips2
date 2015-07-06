@@ -34,10 +34,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IWindowListener;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.viz.alertview.Alert;
 import com.raytheon.uf.viz.alertview.AlertDestination;
@@ -46,6 +42,7 @@ import com.raytheon.uf.viz.alertview.prefs.PopUpPreferences;
 import com.raytheon.uf.viz.alertview.prefs.PreferenceFile;
 import com.raytheon.uf.viz.alertview.style.StyleManager;
 import com.raytheon.uf.viz.alertview.ui.view.AlertView;
+import com.raytheon.uf.viz.alertview.ui.view.OpenAlertViewHandler;
 
 /**
  * 
@@ -81,9 +78,7 @@ public class AlertPopup implements AlertDestination,
     protected PopUpPreferences prefs;
 
     public AlertPopup() {
-        prefsFile = new PreferenceFile<>("alert_popup.xml",
-                PopUpPreferences.class,
-                this);
+        prefsFile = PopUpPreferences.load(this);
         prefs = prefsFile.get();
     }
 
@@ -163,15 +158,7 @@ public class AlertPopup implements AlertDestination,
 
         public void openInAlertView() {
             if (displayedAlert != null) {
-                IWorkbench workbench = PlatformUI.getWorkbench();
-                IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
-                if (workbench.isStarting()) {
-                    workbench
-                            .addWindowListener(new ShowAlertViewWindowListener(
-                                    displayedAlert));
-                } else if (window != null) {
-                    AlertView.show(window, displayedAlert);
-                }
+                OpenAlertViewHandler.openInAlertView(displayedAlert);
                 clear(displayedAlert);
             }
         }
@@ -261,7 +248,7 @@ public class AlertPopup implements AlertDestination,
                 label.setFont(styles.getFont(display, displayedAlert));
                 label.setText(displayedAlert.getMessage());
                 timer.schedule(new ClosePopupTask(displayedAlert),
-                        prefs.getDuration() * 1000);
+                        prefs.getDuration());
             }
         }
     }
@@ -286,40 +273,4 @@ public class AlertPopup implements AlertDestination,
             task.clear(alert);
         }
     }
-
-    /**
-     * If the user clicks on the alert popup while the workbench is starting
-     * then this listener will be used to wait until the workbench window is
-     * opened and then display the alert.
-     */
-    private class ShowAlertViewWindowListener implements IWindowListener {
-
-        private final Alert alert;
-
-        public ShowAlertViewWindowListener(Alert alert) {
-            this.alert = alert;
-        }
-
-        @Override
-        public void windowOpened(IWorkbenchWindow window) {
-            AlertView.show(window, alert);
-            window.getWorkbench().removeWindowListener(this);
-        }
-
-        @Override
-        public void windowDeactivated(IWorkbenchWindow window) {
-            /* Unused method required by interface. */
-        }
-
-        @Override
-        public void windowClosed(IWorkbenchWindow window) {
-            /* Unused method required by interface. */
-        }
-
-        @Override
-        public void windowActivated(IWorkbenchWindow window) {
-            /* Unused method required by interface. */
-        }
-    }
-
 }

@@ -25,6 +25,9 @@ import com.raytheon.edex.uengine.exception.MicroEngineException;
 import com.raytheon.uf.common.message.response.AbstractResponseMessage;
 
 /**
+ * @deprecated MicroEngine, aka uEngine, is deprecated.  Use IServerRequest/IRequestHandler
+ * framework instead.
+ * 
  * The public interface for all &mu;Engine script runners. It provides the required
  * operations to run a script. These operations are {@link #initialize()},
  * {@link #setScript(String)}, {@link #execute()}, {@link #getResult()}, and
@@ -56,12 +59,15 @@ import com.raytheon.uf.common.message.response.AbstractResponseMessage;
  * ------------ ---------- ----------- --------------------------
  * 12Nov2008    1709       MW Fegan    Initial Creation.
  * 25May2011    8686       cjeanbap    Add setter method.
+ * 25Jun2015    4495       njensen     Deprecated
+ * 
  * </pre>
  *
  * @author mfegan
  * @version 1.0	
  */
 
+@Deprecated
 public interface IMicroEngine {
     /**
      * Executes a previously set &mu;Engine script. Implementations of
@@ -71,6 +77,7 @@ public interface IMicroEngine {
      * @throws MicroEngineException if any error occurs
      */
     public void execute() throws MicroEngineException;
+
     /**
      * Executes the specified &mu;Engine script. This is a convenience method
      * that includes initialization and release operations on the script runner
@@ -95,7 +102,9 @@ public interface IMicroEngine {
      * @return the result of execution the script
      * @throws MicroEngineException if any error occurs
      */
-    public List<AbstractResponseMessage> executeScript(String script) throws MicroEngineException;
+    public List<AbstractResponseMessage> executeScript(String script)
+            throws MicroEngineException;
+
     /**
      * Returns the results from running a &mu;Engine script. Classes that implement
      * this interface should ensure that a valid, although possibly empty, list
@@ -103,6 +112,7 @@ public interface IMicroEngine {
      * should be obtained in this method.
      */
     public List<AbstractResponseMessage> getResult();
+
     /**
      * Initializes the &mu;Engine script runner. Initialization should not be
      * dependent on having set a script; it should only get the scripting engine
@@ -111,6 +121,7 @@ public interface IMicroEngine {
      * @throws MicroEngineException if any error occurs
      */
     public void initialize() throws MicroEngineException;
+
     /**
      * Initializes the &mu;Engine script runner. This version combines
      * {@link #setScript(String) setting the script} with 
@@ -120,6 +131,7 @@ public interface IMicroEngine {
      * @throws MicroEngineException if any error occurs
      */
     public void initialize(String script) throws MicroEngineException;
+
     /**
      * Releases any resources utilized by the &mu;Engine script runner. Generally,
      * this method should release resources allocated in {@link #initialize()}.
@@ -129,10 +141,11 @@ public interface IMicroEngine {
      * In case of failure, this method should log the failure and  fail silently.
      */
     public void release();
+
     /**
      * Provides the script to be executed.
      */
     public void setScript(String script);
-    
+
     public void setTrigger(String triggerId);
 }

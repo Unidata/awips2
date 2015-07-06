@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.alertview.ui.view;
 
 import java.io.IOException;
 
+import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.MenuAdapter;
@@ -34,8 +35,11 @@ import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.console.IOConsole;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.console.TextConsoleViewer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.viz.alertview.Alert;
+import com.raytheon.uf.viz.alertview.action.SaveToFileAction;
 
 /**
  * 
@@ -57,6 +61,8 @@ import com.raytheon.uf.viz.alertview.Alert;
  * @version 1.0
  */
 public class AlertConsoleViewer extends TextConsoleViewer {
+
+    private static Logger logger = LoggerFactory.getLogger(AlertView.class);
 
     private AlertConsole console;
 
@@ -95,6 +101,7 @@ public class AlertConsoleViewer extends TextConsoleViewer {
         if (alert == null) {
             return;
         }
+        new ActionContributionItem(new SaveToFileAction(alert)).fill(menu, -1);
     }
 
     public void setAlert(Alert alert) {
@@ -110,12 +117,10 @@ public class AlertConsoleViewer extends TextConsoleViewer {
         if (details.isEmpty()) {
             details = alert.getMessage();
         }
-        IOConsoleOutputStream os = console.newOutputStream();
-        try {
+        try (IOConsoleOutputStream os = console.newOutputStream()) {
             os.write(details);
-            os.close();
         } catch (IOException e) {
-            // TODO this.
+            logger.error("Unexpected IO exception writing to console.", e);
         }
     }
 
@@ -150,6 +155,6 @@ public class AlertConsoleViewer extends TextConsoleViewer {
             super.addHyperlink(hyperlink, offset, length);
             viewer.redraw();
         }
-    };
+    }
 
 }

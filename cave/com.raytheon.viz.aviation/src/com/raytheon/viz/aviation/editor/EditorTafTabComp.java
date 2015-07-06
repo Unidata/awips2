@@ -25,7 +25,6 @@ import java.util.HashMap;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ExtendedModifyEvent;
 import org.eclipse.swt.custom.ExtendedModifyListener;
-import org.eclipse.swt.custom.ST;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.DisposeEvent;
@@ -75,6 +74,7 @@ import com.raytheon.viz.aviation.resource.ResourceConfigMgr.ResourceTag;
  * 1/17/2011    7782        rferrel     Added qcSkipCheck to mimic A1.
  * 3/18/2011    7888        rferrel     Added getLargeTF method. 
  * 02/19/2014   16980       zhao        added getter and setter for the Alt flag
+ * 06/27/2015   4588        skorolev    Removed unnecessary insert toggle.
  * 
  * </pre>
  * 
@@ -380,22 +380,6 @@ public class EditorTafTabComp extends Composite {
         createCaretImage(insertWidth, size.y);
         caret.setImage(caretImage);
         tafEditorTxt.setCaret(caret);
-
-        /*
-         * NOTE:
-         * 
-         * The following code sets the TOGGLE_OVERWRITE for the text editor in
-         * the editor tabs. In the TafViewerEditorDlg, after the controls are
-         * initialized it is also set (if insert is false). Removing this code
-         * or the code in the TafViewerEditorDlg will cause the text editor
-         * control to not insert/overwrite properly. I do not understand why
-         * this is but that is why I am documenting this. This may be fixed in
-         * the future. --- L. Venable
-         */
-        if (configMgr.getResourceAsBoolean(ResourceTag.Insert) == false) {
-            tafEditorTxt.invokeAction(ST.TOGGLE_OVERWRITE);
-        }
-
         tafEditorTxt.addMouseListener(new MouseAdapter() {
 
             @Override
@@ -1370,11 +1354,11 @@ public class EditorTafTabComp extends Composite {
         corRdo.setEnabled(editable);
     }
 
-	public boolean getAlt() {
-		return alt;
-	}
+    public boolean getAlt() {
+        return alt;
+    }
 
-	public void setAlt(boolean b) {
-		alt = b;
-	}
+    public void setAlt(boolean b) {
+        alt = b;
+    }
 }

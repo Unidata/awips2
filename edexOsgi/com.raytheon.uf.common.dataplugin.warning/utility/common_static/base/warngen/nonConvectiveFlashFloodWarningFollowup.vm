@@ -147,13 +147,13 @@ ${WMOId} ${vtecOffice} 000000 ${BBBId}
 FFS${siteId}
 
 #if(${productClass}=="T")
-TEST...FLASH FLOOD STATEMENT...TEST
+TEST...Flash Flood Statement...TEST
 #else
-FLASH FLOOD STATEMENT
+Flash Flood Statement
 #end
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 ${ugcline}
@@ -167,7 +167,7 @@ ${ugcline}
 -##
 #end
 
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #end
@@ -407,13 +407,13 @@ ${WMOId} ${vtecOffice} 000000 ${BBBId}
 FFS${siteId}
 
 #if(${productClass}=="T")
-TEST...FLASH FLOOD STATEMENT...TEST
+TEST...Flash Flood Statement...TEST
 #else
-FLASH FLOOD STATEMENT
+Flash Flood Statement
 #end
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 ${ugclinecan}
@@ -427,7 +427,7 @@ ${ugclinecan}
 -##
 #end
 
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
@@ -467,7 +467,7 @@ ${ugcline}
 -##
 #end
 
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
@@ -663,13 +663,13 @@ ${WMOId} ${vtecOffice} 000000 ${BBBId}
 FFS${siteId}
 
 #if(${productClass}=="T")
-TEST...FLASH FLOOD STATEMENT...TEST
+TEST...Flash Flood Statement...TEST
 #else
-FLASH FLOOD STATEMENT
+Flash Flood Statement
 #end
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 ${ugclinecan}
@@ -683,7 +683,7 @@ ${ugclinecan}
 -##
 #end
 
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
@@ -715,7 +715,7 @@ ${ugcline}
 -##
 #end
 
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")

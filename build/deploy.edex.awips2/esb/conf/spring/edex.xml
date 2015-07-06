@@ -100,6 +100,16 @@
 		<property name="propagationBehaviorName" value="PROPAGATION_REQUIRED"/>
 	</bean>
 	-->
+  
+    
+    <bean id="appInfo" class="com.raytheon.uf.common.util.app.AppInfo" factory-method="initialize">
+        <constructor-arg value="EDEX"/>
+        <!-- TODO provide some mechanism to get the version. -->
+        <constructor-arg>
+		    <null />
+	    </constructor-arg>
+        <constructor-arg value="${edex.run.mode}"/>
+    </bean>
 
 	<bean id="httpClientConfigBuilder" class="com.raytheon.uf.common.comm.HttpClientConfigBuilder">
 		<property name="maxConnections" value="${PYPIES_MAX_CONN}"/>
@@ -109,7 +119,7 @@
     
     <bean id="httpClientConfig" factory-bean="httpClientConfigBuilder" factory-method="build"/>
     
-    <bean id="httpClient" class="com.raytheon.uf.common.comm.HttpClient" factory-method="configureGlobalInstance">
+    <bean id="httpClient" class="com.raytheon.uf.common.comm.HttpClient" factory-method="configureGlobalInstance"  depends-on="appInfo">
        <constructor-arg ref="httpClientConfig"/>
     </bean>
 

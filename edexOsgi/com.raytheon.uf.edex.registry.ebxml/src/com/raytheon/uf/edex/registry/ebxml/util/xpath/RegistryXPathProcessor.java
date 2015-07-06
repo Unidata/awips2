@@ -65,6 +65,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 8/8/2013     1692        bphillip    Initial implementation
+ * 06/02/2015   4499        dhladky     Security comment on xpath requests.
  * </pre>
  * 
  * @author bphillip
@@ -154,6 +155,7 @@ public class RegistryXPathProcessor {
             Node newNode = toDom(addNode).getDocumentElement();
             Node importedNode = domDocument.importNode(newNode, true);
             currentNode.appendChild(importedNode);
+
         }
         // Converts the updated object back from DOM
         return fromDom(domDocument);
@@ -190,6 +192,7 @@ public class RegistryXPathProcessor {
             if (currentNode.getNodeType() == Node.ATTRIBUTE_NODE) {
                 checkForProhibitedUpdates(currentNode);
                 currentNode.setNodeValue(String.valueOf(updateNode));
+
             } else {
                 currentNode.getParentNode().replaceChild(
                         domDocument.importNode(toDom(updateNode)
@@ -237,6 +240,12 @@ public class RegistryXPathProcessor {
         return fromDom(domDocument);
     }
 
+    /**
+     * Check the security blacklist of nodes not allowed for update.
+     * 
+     * @param node
+     * @throws MsgRegistryException
+     */
     private void checkForProhibitedUpdates(Node node)
             throws MsgRegistryException {
         String nodeName = node.getNodeName();
@@ -250,7 +259,7 @@ public class RegistryXPathProcessor {
     }
 
     /**
-     * Method used to evaulate XPATH expressions on a DOM Document
+     * Method used to evaluate XPATH expressions on a DOM Document
      * 
      * @param document
      *            The DOM document to apply the xpath expression to
@@ -268,10 +277,22 @@ public class RegistryXPathProcessor {
          * RegistryObject tag. This is so relative xpath queries will be based
          * off the RegistryObjectTag not the root
          */
+        NodeList list = null;
         xpath.reset();
+
         try {
-            return (NodeList) xpath.evaluate(xpathExpression,
-                    document.getFirstChild(), XPathConstants.NODESET);
+            /********************* Security Comment ***********************
+             * The entire xpathExpression was provided by the user and the 
+             * document is user stored content, not a system level document. 
+             * The authenticated user has full CRUD operation access to the document. 
+             * XPath injection is not considered to be a security risk in this scenario
+             * since the query was provided in entirety by the user and the query
+             * is running against their own previously stored document.
+             */
+            Node firstNode = document.getFirstChild();
+            list = (NodeList) xpath.evaluate(xpathExpression, firstNode,
+                    XPathConstants.NODESET);
+
         } catch (XPathExpressionException e) {
             throw EbxmlExceptionUtil.createMsgRegistryException(
                     LifecycleManagerImpl.UPDATE_OBJECTS_ERROR_MSG,
@@ -279,6 +300,8 @@ public class RegistryXPathProcessor {
                     new EbxmlRegistryException(
                             "Error evaluating XPath expression", e));
         }
+
+        return list;
     }
 
     /**

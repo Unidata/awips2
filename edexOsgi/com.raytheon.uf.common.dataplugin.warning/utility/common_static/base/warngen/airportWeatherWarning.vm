@@ -13,13 +13,13 @@ AWW${siteId}
 ${ugcline} 
 
 #if(${productClass}=="T")
-TEST...AIRPORT WEATHER WARNING...TEST##
+TEST...Airport Weather Warning...TEST##
 #else
-AIRPORT WEATHER WARNING
+Airport Weather Warning
 #end
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
  
 #if(${productClass}=="T")

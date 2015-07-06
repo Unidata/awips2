@@ -79,9 +79,9 @@ near ${singType}${list.get(${markers},0).name}.
 #set($marker1 = ${list.get(${markers},${startCounter}).name})
 #set($marker2 = ${list.get(${markers},${endCounter}).name})
 #if(${startCounter} == ${endCounter})
-near ${singType}${marker1}...##
+near ${singType}${marker1}, ##
 #else
-between ${plurType}${marker1} and ${marker2}...##
+between ${plurType}${marker1} and ${marker2}, ##
 #end
 #set($phraseCount = $phraseCount + 1)
 #set($startIdx = $intIndex)
@@ -108,7 +108,7 @@ ${singType}${marker1} and near ${singType}${marker2}.
 #set($marker1 = ${list.get(${markers},${startCounter}).name})
 #set($marker2 = ${list.get(${markers},${endCounter}).name})
 #set($marker3 = ${list.get(${markers},${counter}).name})
-between ${plurType}${marker1} and ${marker2}...and near ${singType}${marker3}.	
+between ${plurType}${marker1} and ${marker2}, and near ${singType}${marker3}.	
 #end
 #end
 #set($counter = $counter + 1)
@@ -118,11 +118,11 @@ near ${plurType}##
 #foreach($item in $markers)
 #set($counter = $counter + 1)
 #if($size > 1 && $counter == $size)
-AND ${item.name}.
+and ${item.name}.
 #elseif($size == 1 && $counter == $size)
 ${item.name}.
 #else
-${item.name}...##
+${item.name}, ##
 #end
 #end
 #end
@@ -345,7 +345,7 @@ ISSUED BY NATIONAL WEATHER SERVICE ${backupSite}
 
 #macro(headlineext $officeLoc $backupSite $extend)
 #if($extend)
-#set($issueVar = "extended a")
+#set($issueVar = "extended the")
 #else
 #set($issueVar = "issued a")
 #end
@@ -479,7 +479,7 @@ along a line extending from #outputLineOfStorms($used1, $nearText, $nearThreshol
 #set($used2 = [])
 #lineOfStorms($used2, $used, $points2, $threshold, $units)
 #if(${used1.size()} == ${used2.size()})
-...or along a line extending from #outputLineOfStorms($used2, $nearText, $nearThreshold, $overThreshold, $units)##
+, or along a line extending from #outputLineOfStorms($used2, $nearText, $nearThreshold, $overThreshold, $units)##
 #end
 #end
 #else
@@ -503,11 +503,11 @@ ${point1.roundedDistance} #capitalize($units "NONE") #direction(${point1.opposit
 ${location}##
 #if($point2 && $useSecondRef && ${point2.name} != ${point1.name})
 #if($point2.roundedDistance <= $overThreshold)
-...or ${overText} ##
+, or ${overText} ##
 #elseif($point2.roundedDistance <= $nearThreshold)
-...or ${nearText} ##
+, or ${nearText} ##
 #else
-...or ${point2.roundedDistance} #capitalize($units "NONE") #direction(${point2.oppositeRoundedAzimuth}) of ##
+, or ${point2.roundedDistance} #capitalize($units "NONE") #direction(${point2.oppositeRoundedAzimuth}) of ##
 #end
 #if(${point2.partOfArea}) 
 #set($location = "#areaFormat(${point2.partOfArea} true false false) ${point2.name}")
@@ -1308,8 +1308,8 @@ At ${dateUtil.format(${time}, ${timeFormat.clock}, ${localtimezone})}##
 ## This macro will output a pathcast based on the thresholds/parameters
 ## defined in the product's .xml configuration file
 ##    1 - These dangerous storms will be near...
-##        Kansas City...Independence...Grain Valley around 800 PM CDT...
-##        Lee's Summit...Grandview...Raytown around 805 PM CDT...
+##        Kansas City, Independence, Grain Valley around 800 PM CDT.
+##        Lee's Summit, Grandview, Raytown around 805 PM CDT.
 ## Inputs: pathcastLead (string containing a lead-in to the pathcast)
 ##         otherLead (string containing a lead-in to the list of other (typically 3rd level) towns
 ##         pathCast (array of ClosestPoint objects)
@@ -1343,7 +1343,7 @@ ${pathcastLead}
 #if($count == $numCities - 1)
 #set($output = "${output} and ")
 #elseif($count < $numCities)
-#set($output = "${output}...")
+#set($output = "${output}, ")
 #end
 #end
 #set($output = "${output} around ${dateUtil.format(${pc.time}, ${timeFormat.clock}, ${pc.timeZone})}.")
@@ -1368,7 +1368,7 @@ ${location}##
 #if($count == $numOtherPoints - 1)
  and ##
 #elseif($count < $numOtherPoints)
-...##
+, ##
 #else
 .
 #end
@@ -1384,7 +1384,7 @@ ${otherLead} will remain over ${noLocPhrase} of ##
 ### NEED TO CODE THIS ONCE SECTION IS ADDED
 #set($numOtherPoints = ${list.size($otherPoints)})
 #if($numOtherPoints > 0)
-...including the following locations...##
+, including the following locations: ##
 #set($count = 0)
 #foreach(${loc} in ${otherPoints})
 #set($count = $count + 1)
@@ -1398,11 +1398,13 @@ ${location}##
 #if($count == $numOtherPoints - 1)
  and ##
 #elseif($count < $numOtherPoints)
-...##
+, ##
 #else
 .##
 #end
 #end
+#else
+.##
 #end
 
 #end
@@ -1517,8 +1519,8 @@ ${inString}...##
 ##        Joppa...        Phelan...
 ##        Arab...         Wilburn...
 ##   3 -  Locations in the warning include but are not limited to...
-##        Quinton...Susan Moore...West Jefferson...Warrior...Rosa,
-##		  Fairview...Locust Fork...Trafford, Argo(--- yourself), Anderson, and Alton
+##        Quinton, Susan Moore, West Jefferson, Warrior, Rosa,
+##		  Fairview, Locust Fork, Trafford, Argo(--- yourself), Anderson, and Alton
 ## Inputs: bulletLead (string containing a lead-in to the list of cities e.g. Locations Impacted Include...)
 ##         stormType (string containing the storm type e.g. severe thunderstorm)
 ##         columns (number of columns to list the cities (0 is a normal ellipsees separated list)
@@ -1544,7 +1546,7 @@ ${bulletLead}
 #set($count = $count + 1)
 #if($count < $numMajorPoints)
 #if($columns == 0)
-#set($strOutput = "${location}...")
+#set($strOutput = "${location}, ")
 #else
 #set($strOutput = "${location}...")
 #end
@@ -1600,7 +1602,7 @@ ${ruralPhrase} will remain over ${noLocPhrase} OF #headlineLocList(${areas} true
 #if(${numMinorPoints} == 1)
 , which includes ##
 #elseif(${numMinorPoints} > 1)
-, including the following locations...##
+, including the following locations: ##
 #else
 .##
 #end

@@ -26,6 +26,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -35,6 +36,7 @@ import com.raytheon.uf.viz.d2d.ui.dialogs.procedures.ProcedureDlg;
 import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.actions.LoadPerspectiveHandler;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
+import com.raytheon.viz.ui.dialogs.localization.VizLocalizationFileListDlg;
 import com.raytheon.viz.ui.dialogs.localization.VizOpenLocalizationFileListDlg;
 
 /**
@@ -52,6 +54,8 @@ import com.raytheon.viz.ui.dialogs.localization.VizOpenLocalizationFileListDlg;
  *    Jun 07, 2013 2074        mnash       Don't open the dialog if no procedures are deserialized
  *    Aug 11, 2014 3480        bclement    added logging
  *    Jun 02, 2015 #4401       bkowal      Updated to use {@link VizOpenLocalizationFileListDlg}.
+ *    Jun 30, 2015 #4401       bkowal      Specify the localization type when constructing a
+ *                                         {@link VizOpenLocalizationFileListDlg}.
  * </pre>
  * 
  * @author chammack
@@ -76,7 +80,8 @@ public class OpenAWIPSProcedure extends AbstractHandler {
         if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
             dialog = new VizOpenLocalizationFileListDlg("Open Procedure",
                     HandlerUtil.getActiveShell(event),
-                    ProcedureDlg.PROCEDURES_DIR, "procedures");
+                    ProcedureDlg.PROCEDURES_DIR, "procedures",
+                    LocalizationType.CAVE_STATIC);
             dialog.setCloseCallback(new ICloseCallback() {
 
                 @Override

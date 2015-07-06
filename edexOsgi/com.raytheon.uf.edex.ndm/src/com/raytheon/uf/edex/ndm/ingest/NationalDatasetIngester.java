@@ -28,7 +28,6 @@ import java.util.Map;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.core.EdexException;
 
 /**
  * National Dataset Maintenance ingester.
@@ -44,6 +43,7 @@ import com.raytheon.uf.edex.core.EdexException;
  * Aug 24,2011  10775     rferrel     Fixed error in processEvent and added
  *                                    check on statusHandler messages.
  * Mar 06, 2014   2876     mpduff      New NDM plugin.
+ * Jun 25, 2015 4512      mapeters    Removed unnecessary Exception throw.
  * 
  * </pre>
  * 
@@ -61,7 +61,7 @@ public class NationalDatasetIngester implements IDataSetIngester {
      * 
      * @param filename
      * @param listener
-     * @return
+     * @return the registered listener
      */
     @Override
     public INationalDatasetSubscriber registerListener(String filename,
@@ -108,7 +108,7 @@ public class NationalDatasetIngester implements IDataSetIngester {
      * 
      * @see org.apache.camel.Processor#process(org.apache.camel.Exchange)
      */
-    public void processEvent(File file) throws EdexException {
+    public void processEvent(File file) {
         String fileName = file.getName();
         IUFStatusHandler statusHandler = UFStatus
                 .getHandler(NationalDatasetIngester.class);

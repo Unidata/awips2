@@ -23,10 +23,12 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
-import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWindowListener;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+
+import com.raytheon.uf.viz.alertview.Alert;
 
 /**
  * 
@@ -47,19 +49,65 @@ import org.eclipse.ui.PlatformUI;
  */
 public class OpenAlertViewHandler extends AbstractHandler {
 
+    private final Alert alert;
+
+    public OpenAlertViewHandler() {
+        this.alert = null;
+    }
+
+    public OpenAlertViewHandler(Alert alert) {
+        this.alert = alert;
+    }
+
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        IWorkbenchWindow window = PlatformUI.getWorkbench()
-                .getActiveWorkbenchWindow();
-        if (window == null) {
-            return null;
-        }
-        IWorkbenchPage activePage = window.getActivePage();
-        try {
-            activePage.showView(AlertView.class.getName());
-        } catch (PartInitException e) {
-            throw new ExecutionException("Error opening AlertView", e);
-        }
+        openInAlertView(alert);
         return null;
     }
+
+    public static void openInAlertView(Alert alert) {
+        IWorkbench workbench = PlatformUI.getWorkbench();
+        IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
+        if (workbench.isStarting()) {
+            workbench.addWindowListener(new ShowAlertViewWindowListener(alert));
+        } else if (window != null) {
+            AlertView.show(window, alert);
+        }
+    }
+
+    /**
+     * If the user clicks on the alert popup while the workbench is starting
+     * then this listener will be used to wait until the workbench window is
+     * opened and then display the alert.
+     */
+    private static class ShowAlertViewWindowListener implements IWindowListener {
+
+        private final Alert alert;
+
+        public ShowAlertViewWindowListener(Alert alert) {
+            this.alert = alert;
+        }
+
+        @Override
+        public void windowOpened(IWorkbenchWindow window) {
+            AlertView.show(window, alert);
+            window.getWorkbench().removeWindowListener(this);
+        }
+
+        @Override
+        public void windowDeactivated(IWorkbenchWindow window) {
+            /* Unused method required by interface. */
+        }
+
+        @Override
+        public void windowClosed(IWorkbenchWindow window) {
+            /* Unused method required by interface. */
+        }
+
+        @Override
+        public void windowActivated(IWorkbenchWindow window) {
+            /* Unused method required by interface. */
+        }
+    }
+
 }

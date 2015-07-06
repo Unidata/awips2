@@ -30,13 +30,13 @@ ${WMOId} ${vtecOffice} 000000 ${BBBId}
 SVS${siteId}
 
 #if(${productClass}=="T")
-TEST...SEVERE WEATHER STATEMENT...TEST
+TEST...Severe Weather Statement...TEST
 #else
-SEVERE WEATHER STATEMENT
+Severe Weather Statement
 #end
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
@@ -53,7 +53,7 @@ ${ugcline}
 -##
 #end
 
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
@@ -138,13 +138,13 @@ ${WMOId} ${vtecOffice} 000000 ${BBBId}
 SVS${siteId}
 
 #if(${productClass}=="T")
-TEST...SEVERE WEATHER STATEMENT...TEST
+TEST...Severe Weather Statement...TEST
 #else
-SEVERE WEATHER STATEMENT
+Severe Weather Statement
 #end
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
@@ -161,7 +161,7 @@ ${ugcline}
 -##
 #end
 
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
@@ -309,13 +309,13 @@ ${WMOId} ${vtecOffice} 000000 ${BBBId}
 SVS${siteId}
 
 #if(${productClass}=="T")
-TEST...SEVERE WEATHER STATEMENT...TEST
+TEST...Severe Weather Statement...TEST
 #else
-SEVERE WEATHER STATEMENT
+Severe Weather Statement
 #end
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
@@ -332,7 +332,7 @@ ${ugclinecan}
 -##
 #end
 
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
@@ -380,7 +380,7 @@ ${ugcline}
 -##
 #end
 
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
@@ -490,10 +490,10 @@ The safest place to be during a major landfalling hurricane is in a reinforced i
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 SVS${siteId}
 
-SEVERE WEATHER STATEMENT
-NATIONAL WEATHER SERVICE ${officeShort}
+Severe Weather Statement
+National Weather Service ${officeShort}
 #backupText(${backupSite})
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 ${ugcline}
@@ -506,7 +506,7 @@ ${ugcline}
 -##
 #end
 
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")

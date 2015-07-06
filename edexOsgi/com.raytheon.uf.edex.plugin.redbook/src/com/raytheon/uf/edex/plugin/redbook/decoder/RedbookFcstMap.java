@@ -43,13 +43,15 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	-----------	-----------	--------------------------
- * 20101022            6424 kshrestha	Add fcsttime
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------- ----------- --------------------------
+ * 20101022            6424 kshrestha   Add fcsttime
  * Apr 29, 2013        1958 bgonzale    Map is loaded once, and then
  *                                       not loaded again unless the mapping
  *                                       file changes.
  * Nov 04, 2013        2361 njensen     Use JAXB for XML instead of SerializationUtil
+ * Jun 25, 2015        4512 mapeters    Added addEntry(), check for redbookFcstMap.xml
+ *                                      in common_static before edex_static
  * 
  * </pre>
  * 
@@ -84,7 +86,11 @@ public class RedbookFcstMap {
 
     private HashMap<String, MapFcstHr> mapping;
 
-    private RedbookFcstMap() {
+    public void addEntry(String key, MapFcstHr value) {
+        if (mapping == null) {
+            mapping = new HashMap<String, MapFcstHr>();
+        }
+        mapping.put(key, value);
     }
 
     private static RedbookFcstMap load(LocalizationFile xmlFile) {
@@ -114,17 +120,31 @@ public class RedbookFcstMap {
     public static synchronized RedbookFcstMap getInstance() {
         if (instance == null) {
             IPathManager pathMgr = PathManagerFactory.getPathManager();
-            LocalizationContext ctx = pathMgr.getContext(
-                    LocalizationContext.LocalizationType.EDEX_STATIC,
-                    LocalizationContext.LocalizationLevel.BASE);
-            final LocalizationFile xmlFile = pathMgr.getLocalizationFile(ctx,
+            /*
+             * Check common_static/configured first, as it is now being saved
+             * there. If not found, check edex_static/base, where it used to be
+             * stored (in the future edex_static should no longer need to be
+             * checked).
+             */
+            LocalizationContext context = pathMgr.getContext(
+                    LocalizationContext.LocalizationType.COMMON_STATIC,
+                    LocalizationContext.LocalizationLevel.CONFIGURED);
+            LocalizationFile xmlFile = pathMgr.getLocalizationFile(context,
                     REDBOOK_FCST_MAP_XML);
+            if (xmlFile == null || !xmlFile.exists()) {
+                context = pathMgr.getContext(
+                        LocalizationContext.LocalizationType.EDEX_STATIC,
+                        LocalizationContext.LocalizationLevel.BASE);
+                xmlFile = pathMgr.getLocalizationFile(context,
+                        REDBOOK_FCST_MAP_XML);
+            }
 
+            final LocalizationFile finalXmlFile = xmlFile;
             instance = load(xmlFile);
             xmlFile.addFileUpdatedObserver(new ILocalizationFileObserver() {
                 @Override
                 public void fileUpdated(FileUpdatedMessage message) {
-                    RedbookFcstMap updatedMap = load(xmlFile);
+                    RedbookFcstMap updatedMap = load(finalXmlFile);
                     instance.mapping.clear();
                     instance.mapping.putAll(updatedMap.mapping);
                 }

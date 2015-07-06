@@ -19,8 +19,7 @@
  **/
 package com.raytheon.uf.viz.alertview.style;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
@@ -50,9 +49,7 @@ import com.raytheon.uf.viz.alertview.prefs.PreferenceFile;
  * @author bsteffen
  * @version 1.0
  */
-public class StyleManager {
-
-    private static final String CONFIG_FILE_LOC = "alert_styles.xml";
+public class StyleManager implements PreferenceFile.Listener<StylePreferences> {
 
     private static final String REGULAR = "Regular";
 
@@ -64,35 +61,37 @@ public class StyleManager {
 
     private final FilterManager filterManager = new FilterManager();
 
-    private List<AlertStyle> styles = new ArrayList<AlertStyle>();
+    private final PreferenceFile<StylePreferences> preferenceFile;
+
+    private final CopyOnWriteArraySet<StyleListener> listeners = new CopyOnWriteArraySet<>();
 
     public StyleManager() {
-        readConfig();
+        preferenceFile = StylePreferences.load(this);
+    }
+
+    public void addListener(StyleListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeListener(StyleListener listener) {
+        listeners.remove(listener);
+    }
+
+    @Override
+    public void update(StylePreferences preference) {
+        for(StyleListener listener : listeners){
+            listener.updateStyle();
+        }
     }
 
     public void close() {
-
-    }
-
-    private void readConfig() {
-        PreferenceFile<StyleList> file = new PreferenceFile<>(CONFIG_FILE_LOC,
-                StyleList.class,
-                new PreferenceFile.Listener<StyleList>() {
-
-                    @Override
-                    public void update(StyleList t) {
-
-                    }
-
-                });
-        styles = file.get().getStyles();
+        preferenceFile.close();
     }
 
     public Color getForegroundColor(Device device, Alert alert) {
-        for (AlertStyle style : styles) {
+        for (AlertStyle style : preferenceFile.get().getStyles()) {
             if (style.getForegroundColor() != null) {
-                AlertFilter filter = filterManager.getFilter(style
-                        .getFilter());
+                AlertFilter filter = filterManager.getFilter(style.getFilter());
                 if (filter.filter(alert)) {
                     return parseColor(device, style.getForegroundColor());
                 }
@@ -102,10 +101,9 @@ public class StyleManager {
     }
 
     public Color getBackgroundColor(Device device, Alert alert) {
-        for (AlertStyle style : styles) {
+        for (AlertStyle style : preferenceFile.get().getStyles()) {
             if (style.getBackgroundColor() != null) {
-                AlertFilter filter = filterManager.getFilter(style
-                        .getFilter());
+                AlertFilter filter = filterManager.getFilter(style.getFilter());
                 if (filter.filter(alert)) {
                     return parseColor(device, style.getBackgroundColor());
                 }
@@ -118,24 +116,21 @@ public class StyleManager {
         String name = null;
         Integer size = null;
         String fstyle = null;
-        for (AlertStyle style : styles) {
+        for (AlertStyle style : preferenceFile.get().getStyles()) {
             if (name == null && style.getFontName() != null) {
-                AlertFilter filter = filterManager.getFilter(style
-                        .getFilter());
+                AlertFilter filter = filterManager.getFilter(style.getFilter());
                 if (filter.filter(alert)) {
                     name = style.getFontName();
                 }
             }
             if (size == null && style.getFontSize() != null) {
-                AlertFilter filter = filterManager.getFilter(style
-                        .getFilter());
+                AlertFilter filter = filterManager.getFilter(style.getFilter());
                 if (filter.filter(alert)) {
                     size = style.getFontSize();
                 }
             }
             if (fstyle == null && style.getFontStyle() != null) {
-                AlertFilter filter = filterManager.getFilter(style
-                        .getFilter());
+                AlertFilter filter = filterManager.getFilter(style.getFilter());
                 if (filter.filter(alert)) {
                     fstyle = style.getFontStyle();
                 }
@@ -231,10 +226,9 @@ public class StyleManager {
                 colorValue.blue);
     }
 
-    public List<AlertStyle> getStyles() {
-        return styles;
+    public static interface StyleListener {
+
+        public void updateStyle();
     }
-
-
 
 }

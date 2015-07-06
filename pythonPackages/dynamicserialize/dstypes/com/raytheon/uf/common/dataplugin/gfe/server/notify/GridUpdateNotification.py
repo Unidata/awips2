@@ -17,17 +17,25 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+#    
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    ??/??/????       ????         njensen        Modified to add __repr__
+#    06/22/2015       4573         randerso       Change to extend GfeNotification
+#
+##    
 
-# File auto-generated against equivalent DynamicSerialize Java class
-# Modified by njensen to add __repr__
+import GfeNotification
 
-class GridUpdateNotification(object):
+class GridUpdateNotification(GfeNotification.GfeNotification):
 
     def __init__(self):
+        super(GridUpdateNotification, self).__init__()
         self.parmId = None
         self.replacementTimeRange = None
         self.workstationID = None
-        self.siteID = None
         self.histories = None
 
     def getParmId(self):
@@ -48,12 +56,6 @@ class GridUpdateNotification(object):
     def setWorkstationID(self, workstationID):
         self.workstationID = workstationID
 
-    def getSiteID(self):
-        return self.siteID
-
-    def setSiteID(self, siteID):
-        self.siteID = siteID
-        
     def getHistories(self):
         return self.histories
     
@@ -61,9 +63,6 @@ class GridUpdateNotification(object):
         self.histories = histories
         
     def __str__(self):
-        return self.__repr__()
-    
-    def __repr__(self):
         msg = "ParmID: " + str(self.parmId)
         msg += '\n' + "Replacement TimeRange: " + str(self.replacementTimeRange)
         msg += '\n' + "Histories: " + str(self.histories)

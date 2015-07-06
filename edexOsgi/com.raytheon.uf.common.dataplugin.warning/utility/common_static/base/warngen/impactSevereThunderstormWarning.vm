@@ -308,13 +308,13 @@ ${ugcline}
 
 BULLETIN - ${easActivation}
 #if(${productClass}=="T")
-TEST...SEVERE THUNDERSTORM WARNING...TEST
+TEST...Severe Thunderstorm Warning...TEST
 #else
-SEVERE THUNDERSTORM WARNING
+Severe Thunderstorm Warning
 #end
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")

@@ -30,58 +30,59 @@
 #    ------------    ----------    -----------    --------------------------
 #    11/18/10                      njensen       Initial Creation.
 #    06/13/13        #2044         randerso      Fixed to use correct python
-#    
+#    06/23/2015      #4573         randerso      Removed obsolete A1 options, added new options for A2
 # 
 #
 
 import time, sys
 import threading
+from collections import OrderedDict
 
 import dynamicserialize
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.server.notify import *
 from dynamicserialize.dstypes.com.raytheon.uf.common.activetable import VTECTableChangeNotification
 
-letterList = ['L', 'G', 'D', 'S', 'R', 'C', 'T', 'U', 'B', 'V']
-printoutMap = {'L': 'LOCK',
-                    'G': 'GRID',
-                    'D': 'DB',
-                    'S': 'SAMPLE',
-                    'R': 'REF',
-                    'C': 'COLOR',
-                    'T': 'TEXT',
-                    'U': 'USER',
-                    'B': 'PROC',
-                    'V': 'VTEC' }
+printoutMap = OrderedDict([
+    ('L', 'LOCK'),
+    ('G', 'GRID'),
+    ('D', 'DB'),
+    ('U', 'USER'),
+    ('V', 'VTEC'),
+    ('C', 'COMBO'),
+    ('S', 'SBU'),
+    ('H', 'HISTORY'),
+])
+
 classMap = {
-            LockNotification: 'L',
-            GridUpdateNotification: 'G',
-            DBInvChangeNotification: 'D',            
-            UserMessageNotification: 'U',
-            VTECTableChangeNotification: 'V',                
-            }
+    LockNotification: 'L',
+    GridUpdateNotification: 'G',
+    DBInvChangeNotification: 'D',
+    UserMessageNotification: 'U',
+    VTECTableChangeNotification: 'V',
+    CombinationsFileChangedNotification: 'C',
+    ServiceBackupJobStatusNotification: 'S',
+    GridHistoryUpdateNotification: 'H'
+}
 topicList = ['edex.alerts.gfe', 'edex.alerts.vtec']
 messageQueueMap = {}
-for letter in letterList:
+for letter in printoutMap.keys():
     messageQueueMap[letter] = []
 
 
 class GetGfeNotifyTopicListener(threading.Thread):
     
-    def __init__(self, topicName, hostname, portNumber, user, L, G, D, S, R, C, T, U, B, V):
+    def __init__(self, topicName, hostname, portNumber, L, G, D, U, V, C, S, H):
         self.hostname = hostname
         self.portNumber = portNumber
-        self.user = user
         self.topicName = topicName
         self.L = L
         self.G = G
         self.D = D
-        self.S = S
-        self.R = R
-        self.C = C
-        self.T = T
         self.U = U
-        self.B = B
         self.V = V
+        self.C = C
+        self.S = S
+        self.H = H
         self.qs = None        
         threading.Thread.__init__(self)
             
@@ -93,17 +94,21 @@ class GetGfeNotifyTopicListener(threading.Thread):
     def addMessageToQueue(self, obj, t):
         if classMap.has_key(t):
             messageQueueMap[classMap[t]].append(obj)
-#        else:
-#            print "Does not yet support type", t
+        else:
+            print "Does not yet support type", t
 
     def receivedMessage(self, msg):
-        obj = dynamicserialize.deserialize(msg)
-        t = type(obj)
-        if t is list:
-            for notification in obj:
-                self.addMessageToQueue(notification, type(notification))
-        else:
-            self.addMessageToQueue(obj, t)
+        try:
+            obj = dynamicserialize.deserialize(msg)
+            t = type(obj)
+            if t is list:
+                for notification in obj:
+                    self.addMessageToQueue(notification, type(notification))
+            else:
+                self.addMessageToQueue(obj, t)
+        except:
+            import traceback
+            traceback.print_exc()
 
     def stop(self):
         self.qs.close()     
@@ -112,45 +117,39 @@ class GetGfeNotifyTopicListener(threading.Thread):
 
 def decodeOptions():
     import getopt
-    optionlist, arglist = getopt.getopt(sys.argv[1:], 'h:p:u:lgdsrcbmtv')
+    optionlist, arglist = getopt.getopt(sys.argv[1:], 'h:p:lgduvcsH')
     
     badFormat = False
-    optionMap = {"hostname": "", "portNumber": 0, "user": None}
-    for letter in letterList:
+    optionMap = {"hostname": "", "portNumber": 5672, }
+    for letter in printoutMap.keys():
         optionMap[letter] = False
     
     for option in optionlist:
-        if option[0] == '-l':
+        if option[0] == '-h':
+            optionMap["hostname"] = option[1]
+        elif option[0] == '-p':
+            optionMap["portNumber"] = int(option[1])
+        elif option[0] == '-l':
             optionMap["L"] = True
         elif option[0] == '-g':
             optionMap["G"] = True
-        elif option[0] == '-v':
-            optionMap["V"] = True
         elif option[0] == '-d':
             optionMap["D"] = True
-        elif option[0] == '-s':
-            optionMap["S"] = True
-        elif option[0] == '-r':
-            optionMap["R"] = True
+        elif option[0] == '-u':
+            optionMap["U"] = True
+        elif option[0] == '-v':
+            optionMap["V"] = True
         elif option[0] == '-c':
             optionMap["C"] = True
-        elif option[0] == '-t':
-            optionMap["T"] = True
-        elif option[0] == '-b':
-            optionMap["B"] = True
-        elif option[0] == '-m':
-            optionMap["U"] = True
-        elif option[0] == '-p':
-            optionMap["portNumber"] = int(option[1])
-        elif option[0] == '-h':
-            optionMap["hostname"] = option[1]
-        elif option[0] == '-u':
-            optionMap["user"] = option[1]
+        elif option[0] == '-s':
+            optionMap["S"] = True
+        elif option[0] == '-H':
+            optionMap["H"] = True
         else:
             badFormat = True
             break
     
-    if len(optionMap["hostname"]) == 0 or optionMap["portNumber"] == 0 or badFormat:
+    if len(optionMap["hostname"]) == 0 == 0 or badFormat:
         usage()
         return None
     
@@ -158,21 +157,17 @@ def decodeOptions():
 
 def usage():
     s = """
-Usage: getNotify -h <hostname> -p <portNumber> [-u <user>]
-[-l] [-g] [-d] [-s] [-r] [-c] [-m] [-t] [-b] [-v]
-  -h hostname : upon which the ifpServer is running
-  -p portNumber: the RPC port that ifpServer is serving
-  -u user: user to connect to ifpServer
+Usage: getNotify -h <hostname> [-p <portNumber>] [-l] [-g] [-d] [-u] [-v] [-c] [-s] [-H]
+  -h hostname : upon which the JMS broker is running
+  -p portNumber: the port that JMS broker is using, defaults to 5672
   -l: display detailed lock notifications
   -g: display detailed grid update notifications
   -d: display detailed database update notifications
-  -s: display detailed sample notifications
-  -r: display detailed edit area notifications
-  -c: display detailed color table notifications
-  -b: display detailed server process notifications
-  -m: display detailed user message notifications
-  -t: display detailed TEXT notifications
+  -u: display detailed user message notifications
   -v: display detailed VTEC notifications
+  -c: display detailed combinations file change notifications
+  -s: display detailed service backup job status notifications
+  -H: display detailed grid history update notifications
     """
     
     print s
@@ -182,10 +177,10 @@ def printLoop(options):
         while True:
             time.sleep(3)
             msg = ''
-            for letter in letterList:
+            for letter in printoutMap.keys():
                 msg += letter + '=' + str(len(messageQueueMap[letter])) + ","            
             print msg
-            for letter in letterList:
+            for letter in printoutMap.keys():
                 if options[letter] and len(messageQueueMap[letter]) > 0:
                     msg = printoutMap[letter] + "=[" + "\n"
                     for obj in messageQueueMap[letter]:
@@ -195,6 +190,7 @@ def printLoop(options):
                     print msg
                 else:
                     messageQueueMap[letter] = []
+            sys.stdout.flush()
     except KeyboardInterrupt:
         pass
 

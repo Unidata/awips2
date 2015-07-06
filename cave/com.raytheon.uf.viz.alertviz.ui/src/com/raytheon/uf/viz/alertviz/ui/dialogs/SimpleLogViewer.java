@@ -26,12 +26,11 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -51,10 +50,15 @@ import com.raytheon.uf.common.message.StatusMessage;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.alertviz.Activator;
 import com.raytheon.uf.viz.alertviz.AlertvizException;
+import com.raytheon.uf.viz.alertviz.AlertvizJob;
 import com.raytheon.uf.viz.alertviz.Container;
+import com.raytheon.uf.viz.alertviz.IAlertArrivedCallback;
 import com.raytheon.uf.viz.alertviz.LogUtil;
 import com.raytheon.uf.viz.alertviz.LogUtil.Order;
 import com.raytheon.uf.viz.alertviz.SystemStatusHandler;
+import com.raytheon.uf.viz.alertviz.config.AlertMetadata;
+import com.raytheon.uf.viz.alertviz.config.Category;
+import com.raytheon.uf.viz.alertviz.config.TrayConfiguration;
 
 /**
  * Implements a basic log viewer capability
@@ -65,6 +69,8 @@ import com.raytheon.uf.viz.alertviz.SystemStatusHandler;
  * ------------ ---------- ----------- --------------------------
  * Sep 30, 2008 1433       chammack    Initial creation
  * Jun 02, 2015 4473       njensen     Cleaned up warnings
+ * Jul 01, 2015 4473       njensen     Fix update of table on alert arrival
+ * Jun 29, 2015 4311       randerso    Reworking AlertViz dialogs to be resizable.
  * 
  * </pre>
  * 
@@ -72,32 +78,29 @@ import com.raytheon.uf.viz.alertviz.SystemStatusHandler;
  * @version 1.0
  */
 
-public class SimpleLogViewer extends Dialog {
+public class SimpleLogViewer extends Dialog implements IAlertArrivedCallback {
 
-    /**
-     * 
-     */
+    private Display display;
+
     private Shell shell;
 
-    /**
-     * 
-     */
-    private SimpleDetailsComp sdb;
+    private SimpleDetailsComp detailsComp;
 
-    /**
-     * 
-     */
     private Button showLog;
 
-    /**
-     * 
-     */
-    private Table reference;
-
-    /**
-     * 
-     */
     int[] range;
+
+    private Table table;
+
+    private Color yellow;
+
+    private Color red;
+
+    private Color orange;
+
+    private Color black;
+
+    boolean first;
 
     /**
      * 
@@ -105,36 +108,37 @@ public class SimpleLogViewer extends Dialog {
      */
     public SimpleLogViewer(Shell parent) {
         super(parent, SWT.NONE);
+        first = true;
+
+        display = parent.getDisplay();
+
+        // Create a new shell object and set the text for the dialog.
+        shell = new Shell(display, SWT.DIALOG_TRIM | SWT.MIN | SWT.TITLE
+                | SWT.RESIZE);
+        shell.setText("System Log");
+
+        initializeComponents();
     }
 
     /**
-     * set focus to the dialog
-     * 
-     * @return false if not open or disposed, true otherwise
+     * @return true if shell is null or disposed;
      */
-    public boolean focus() {
-        if (shell == null || shell.isDisposed()) {
-            return false;
-        } else {
+    public boolean isDisposed() {
+        return ((shell != null) && shell.isDisposed());
+    }
+
+    /**
+     * Bring dialog to the top
+     */
+    public void bringToTop() {
+        if ((shell != null) && !shell.isDisposed()) {
+            shell.setVisible(true);
             shell.forceFocus();
-            return true;
+            shell.forceActive();
         }
     }
 
-    /**
-     * Opens the dialog (makes visible).
-     * 
-     * @return Null
-     */
-    public Object open() {
-        // Create a new shell object and set the text for the dialog.
-        Shell parent = getParent();
-        // shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE);
-        shell = new Shell(parent.getDisplay(), SWT.DIALOG_TRIM | SWT.MIN
-                | SWT.TITLE | SWT.RESIZE);
-        shell.setText(getText());
-
-        /* TODO: Max Code: */
+    private void initializeComponents() {
         GridLayout mainLayout = new GridLayout(1, true);
         mainLayout.marginHeight = 0;
         mainLayout.marginWidth = 0;
@@ -143,25 +147,13 @@ public class SimpleLogViewer extends Dialog {
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
         shell.setLayoutData(gd);
 
-        // shell.setLayout(new GridLayout(1, false));
-
-        // shell.setSize(800, 400);
-        // shell.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL
-        // | GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL
-        // | GridData.VERTICAL_ALIGN_FILL));
-
-        final Table table = new Table(shell, SWT.BORDER | SWT.VIRTUAL);
-        reference = table;
+        table = new Table(shell, SWT.BORDER | SWT.VIRTUAL);
         final TableColumn[] columns = new TableColumn[] {
                 new TableColumn(table, SWT.NONE),
                 new TableColumn(table, SWT.NONE),
                 new TableColumn(table, SWT.NONE),
                 new TableColumn(table, SWT.NONE),
                 new TableColumn(table, SWT.NONE) };
-
-        // table.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL
-        // | GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL
-        // | GridData.VERTICAL_ALIGN_FILL));
 
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.widthHint = 800;
@@ -179,47 +171,39 @@ public class SimpleLogViewer extends Dialog {
         columns[3].setWidth(100);
         columns[4].setText("Message");
         columns[4].setWidth(100);
-        final int[] range;
-        final int sz;
+        int sz = 0;
         try {
             range = SystemStatusHandler.getCurrentRange();
-            this.range = range;
-            sz = range[1] - range[0];
+            if ((range[0] == 0) && (range[1] == 0)) {
+                // database is empty
+                sz = 0;
+            } else {
+                sz = (range[1] - range[0]) + 1;
+            }
         } catch (AlertvizException e2) {
             Container
                     .logInternal(
                             Priority.ERROR,
                             "SimpleLogViewer: exception getting current range from SystemStatusHandler.",
                             e2);
-            return null;
         }
 
         table.setSortColumn(columns[0]);
         table.setSortDirection(SWT.UP);
 
-        final Color red = new Color(Display.getCurrent(), new RGB(255, 0, 0));
-        final Color yellow = new Color(Display.getCurrent(), new RGB(255, 255,
-                0));
-        final Color orange = new Color(Display.getCurrent(), new RGB(255, 128,
-                0));
-        final Color black = new Color(Display.getCurrent(), new RGB(0, 0, 0));
-
-        table.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseDoubleClick(MouseEvent e) {
-                showHideLog();
-            }
-        });
+        red = new Color(display, new RGB(255, 0, 0));
+        yellow = new Color(Display.getCurrent(), new RGB(255, 255, 0));
+        orange = new Color(display, new RGB(255, 128, 0));
+        black = new Color(display, new RGB(0, 0, 0));
 
         table.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 int idx = table.getSelectionIndex();
+                StatusMessage sm = null;
                 try {
 
-                    StatusMessage sm = SystemStatusHandler.retrieveByPk(idx
-                            + range[0]);
-                    sdb.displayDetails(sm);
+                    sm = SystemStatusHandler.retrieveByPk(idx + range[0]);
                 } catch (Exception e1) {
                     Container
                             .logInternal(
@@ -227,6 +211,12 @@ public class SimpleLogViewer extends Dialog {
                                     "SimpleLogViewer: exception retrieving StatusMessage by key from SystemStatusHandler: "
                                             + (idx + range[0]), e1);
                 }
+                detailsComp.displayDetails(sm);
+            }
+
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+                showHideLog();
             }
         });
 
@@ -332,19 +322,52 @@ public class SimpleLogViewer extends Dialog {
             }
         });
 
-        sdb = new SimpleDetailsComp(shell, SWT.NONE);
+        detailsComp = new SimpleDetailsComp(shell, SWT.NONE);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        detailsComp.setLayoutData(gd);
 
-        shell.pack();
+    }
+
+    @Override
+    public void alertArrived(StatusMessage statusMessage,
+            AlertMetadata alertMetadata, Category category,
+            TrayConfiguration globalConfiguration) {
+
+        if (!table.isDisposed()) {
+            int count = table.getItemCount();
+            table.setItemCount(count + 1);
+        }
+    }
+
+    /**
+     * Opens the dialog (makes visible).
+     * 
+     * @return null
+     */
+    public Object open() {
+        Point minSize = shell.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+        shell.setMinimumSize(minSize);
+
+        Point size = minSize;
+        shell.setSize(size);
+
+        showHideLog();
+
+        AlertvizJob.getInstance().addAlertArrivedCallback(this);
+
         shell.open();
+        table.showItem(table.getItem(table.getItemCount() - 1));
+        table.select(table.getItemCount() - 1);
 
         // Wait until the shell is disposed.
-        Display display = parent.getDisplay();
+        Display display = shell.getDisplay();
         while (!shell.isDisposed()) {
             if (!display.readAndDispatch()) {
                 display.sleep();
             }
         }
 
+        AlertvizJob.getInstance().removeAlertArrivedCallback(this);
         table.dispose();
         red.dispose();
         yellow.dispose();
@@ -358,26 +381,27 @@ public class SimpleLogViewer extends Dialog {
      * 
      */
     private void showHideLog() {
-        int idx = reference.getSelectionIndex();
-        if (idx < 0) {
-            return;
+        int delta = 0;
+        if (first || detailsComp.isVisible()) {
+            showLog.setText("Show Log...");
+
+            ((GridData) detailsComp.getLayoutData()).exclude = true;
+            detailsComp.setVisible(false);
+            delta -= detailsComp.getSize().y;
+            first = false;
+        } else {
+            showLog.setText("Hide Log...");
+            ((GridData) detailsComp.getLayoutData()).exclude = false;
+            detailsComp.setVisible(true);
+            delta += detailsComp.getSize().y;
         }
-        try {
-            StatusMessage sm = SystemStatusHandler.retrieveByPk(idx + range[0]);
-            if (sdb.isVisible() == false) {
-                sdb.setVisible(true);
-                sdb.displayDetails(sm);
-                showLog.setText("Hide Log...");
-            } else {
-                sdb.setVisible(false);
-                showLog.setText("Show Log...");
-            }
-        } catch (AlertvizException e1) {
-            Container
-                    .logInternal(
-                            Priority.ERROR,
-                            "SimpleLogViewer: exception retrieving StatusMessage by key from SystemStatusHandler: "
-                                    + (idx + range[0]), e1);
-        }
+
+        Point minSize = shell.getMinimumSize();
+        minSize.y += delta;
+        shell.setMinimumSize(minSize);
+
+        Point size = shell.getSize();
+        size.y += delta;
+        shell.setSize(size);
     }
 }

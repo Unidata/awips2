@@ -27,9 +27,11 @@ import java.util.List;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
 
 import com.raytheon.uf.common.comm.HttpClient;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
+import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -72,6 +74,7 @@ import com.raytheon.viz.ui.personalities.awips.CAVE;
  * Nov 06, 2014  3356      njensen     Always initialize ILocalizationAdapter   
  *                                      in case cache preference is not enabled
  * Feb 23, 2015  4164      dlovely     Call AlertViz initialize.
+ * Jun 26, 2015 4474       bsteffen    Register the PathManager as an OSGi service.
  * 
  * </pre>
  * 
@@ -185,6 +188,11 @@ public class ThinClientComponent extends CAVE implements IThinClientComponent {
             statusHandler.handle(Priority.CRITICAL,
                     "Error setting up localization", e1);
         }
+        FrameworkUtil
+                .getBundle(getClass())
+                .getBundleContext()
+                .registerService(IPathManager.class,
+                        PathManagerFactory.getPathManager(), null);
     }
 
     /*

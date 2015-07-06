@@ -1,4 +1,5 @@
 <popUpPreferences>
+  <openFilter>none</openFilter>
   <activeFilter>warnPlus</activeFilter>
   <filterMenu>
     <filter>all</filter>
@@ -12,5 +13,9 @@
     <filter>warnPlus</filter>
     <text>Errors and Warnings</text>
   </filterMenu>
+  <column>Time</column>
+  <column>Priority</column>
+  <column>Message</column>
   <alertsToLoad>1000</alertsToLoad>
+  <mergeRepeatInterval>1000</mergeRepeatInterval>
 </popUpPreferences>

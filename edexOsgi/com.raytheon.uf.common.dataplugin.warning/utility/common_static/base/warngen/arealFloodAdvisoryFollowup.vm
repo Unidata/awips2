@@ -24,17 +24,17 @@
 #set($advType = "FLOOD ADVISORY")
 #set($advTypeShort = "minor flooding")
 #if(${list.contains(${bullets}, "small")})
-	#set($advType = "SMALL STREAM FLOOD ADVISORY")
-	#set($advTypeShort = "small stream flooding")
+    #set($advType = "SMALL STREAM FLOOD ADVISORY")
+    #set($advTypeShort = "small stream flooding")
 #elseif(${list.contains(${bullets}, "uss")})
-	#set($advType = "URBAN AND SMALL STREAM FLOOD ADVISORY")
-	#set($advTypeShort = "urban and small stream flooding")	
+    #set($advType = "URBAN AND SMALL STREAM FLOOD ADVISORY")
+    #set($advTypeShort = "urban and small stream flooding") 
 #elseif(${list.contains(${bullets}, "arroyo")})
-	#set($advType = "ARROYO AND SMALL STREAM FLOOD ADVISORY")
-	#set($advTypeShort = "arroyo and small stream flooding")
+    #set($advType = "ARROYO AND SMALL STREAM FLOOD ADVISORY")
+    #set($advTypeShort = "arroyo and small stream flooding")
 #elseif(${list.contains(${bullets}, "hydrologic")})
-	#set($advType = "HYDROLOGIC ADVISORY")
-	#set($advTypeShort = "minor flooding")
+    #set($advType = "HYDROLOGIC ADVISORY")
+    #set($advTypeShort = "minor flooding")
 #end
 
 #set($hycType = "")
@@ -166,13 +166,13 @@ ${WMOId} ${vtecOffice} 000000 ${BBBId}
 FLS${siteId}
 
 #if(${productClass}=="T")
-TEST...FLOOD ADVISORY...TEST
+TEST...Flood Advisory...TEST
 #else
-FLOOD ADVISORY
+Flood Advisory
 #end
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
@@ -190,7 +190,7 @@ ${ugcline}
 -##
 #end
 
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
@@ -217,11 +217,10 @@ THIS IS A TEST MESSAGE.##
 #### GP End
 
 #if(${list.contains(${bullets}, "recedingWater")})
-THE HIGH WATER IS RECEDING...AND IS NO LONGER EXPECTED TO POSE A THREAT. PLEASE CONTINUE TO HEED ANY ROAD CLOSURES.
-
+The high water is receding, and is no longer expected to pose a threat. Please continue to heed any road closures.
 #end
 #if(${list.contains(${bullets}, "rainEnded")})
-THE HEAVY RAIN HAS ENDED...AND FLOODING IS NO LONGER EXPECTED TO POSE A THREAT.
+The heavy rain has ended, and flooding is no longer expected to pose a threat.
 
 #end
 #end
@@ -416,13 +415,13 @@ ${WMOId} ${vtecOffice} 000000 ${BBBId}
 FLS${siteId}
 
 #if(${productClass}=="T")
-TEST...FLOOD ADVISORY...TEST
+TEST...Flood Advisory...TEST
 #else
-FLOOD ADVISORY
+Flood Advisory
 #end
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
@@ -440,7 +439,7 @@ ${ugclinecan}
 -##
 #end
 
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
@@ -486,7 +485,7 @@ ${ugcline}
 -##
 #end
 
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
@@ -639,13 +638,13 @@ ${WMOId} ${vtecOffice} 000000 ${BBBId}
 FLS${siteId}
 
 #if(${productClass}=="T")
-TEST...FLOOD ADVISORY...TEST
+TEST...Flood Advisory...TEST
 #else
-FLOOD ADVISORY
+Flood Advisory
 #end
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
@@ -663,7 +662,7 @@ ${ugclinecan}
 -##
 #end
 
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
@@ -707,7 +706,7 @@ ${ugcline}
 -##
 #end
 
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")

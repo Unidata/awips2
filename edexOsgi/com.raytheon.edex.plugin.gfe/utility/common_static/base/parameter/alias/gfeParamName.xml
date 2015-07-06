@@ -10,6 +10,7 @@
   Dec 15, 2014  DR 14024   jwatson     Added parameters for 2.5km GFSLAMPGrid
   Feb 24, 2015  DR 16671   byin        Added HPBL for RUC13
   May 21, 2015  DR 17515   bhunder     Added parameters for URMA25
+  Jun 29, 2015    #4537    rferrel     Added parameters for HRRR.
  -->
 <aliasList caseSensitive="true" namespace="gfeParamName">
     <alias base="AV">av</alias>
@@ -27,7 +28,8 @@
     <alias base="DIRSW">dirsw</alias>
     <alias base="DpD">dpd</alias>
     <alias base="DpT">dpt</alias>
-    <alias base="DpTerranl">dpterranl</alias>    
+    <alias base="DpTerranl">dpterranl</alias>
+    <alias base="DSWRF">dswrf</alias>
     <alias base="ELEV">ELEV</alias>
     <alias base="EMSP">emsp</alias>
     <alias base="EPT">ept</alias>
@@ -60,6 +62,7 @@
     <alias base="PRSIGSV">prsigsv</alias>
     <alias base="PVV">pvv</alias>
     <alias base="PW">pw</alias>
+    <alias base="RETOP">retop</alias>
     <alias base="RH">rh</alias>
     <alias base="SCP">scp</alias>
     <alias base="SHF">shf</alias>
@@ -97,6 +100,7 @@
     <alias base="WD">wd</alias>
     <alias base="WDerranl">wderranl</alias>
     <alias base="WEASD">weasd</alias>
+    <alias base="WEASD1hr">weasd1hr</alias>
     <alias base="WGH">wgh</alias>
     <alias base="WGS">wgs</alias>
     <alias base="WINDPROB">windprob</alias>

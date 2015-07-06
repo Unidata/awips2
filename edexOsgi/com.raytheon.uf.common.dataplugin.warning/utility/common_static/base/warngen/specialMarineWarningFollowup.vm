@@ -34,13 +34,13 @@ ${WMOId} ${vtecOffice} 000000 ${BBBId}
 MWS${siteId}
 
 #if(${productClass}=="T")
-TEST...MARINE WEATHER STATEMENT...TEST
+TEST...Marine Weather Statement...TEST
 #else
-MARINE WEATHER STATEMENT
+Marine Weather Statement
 #end
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 #if(${productClass}=="T")
 
@@ -66,7 +66,7 @@ ${ugclinecan}
 ${ugcline}
 /${productClass}.${action}.${vtecOffice}.MA.W.${oldvtec}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
 #end
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 #if(${productClass}=="T")
 

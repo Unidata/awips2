@@ -36,6 +36,7 @@ import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.dataplugin.redbook.RedbookWMOMap;
 import com.raytheon.uf.common.dataplugin.redbook.blocks.Block_004_016;
 import com.raytheon.uf.common.dataplugin.redbook.blocks.DefaultBlock;
 import com.raytheon.uf.common.dataplugin.redbook.blocks.RedbookBlockBuilder;
@@ -65,7 +66,6 @@ import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
-import com.raytheon.viz.redbook.RedbookWMOMap;
 import com.raytheon.viz.redbook.blocks.AbstractTextBlock;
 import com.raytheon.viz.redbook.blocks.AlphaNumBlock;
 import com.raytheon.viz.redbook.blocks.PlotDataBlock;
@@ -95,6 +95,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Mar 13, 2014 2907        njensen     split edex.redbook plugin into common
  *                                      and edex redbook plugins
  * Apr 10, 2014 1803        njensen     Fix dispose() for collaboration
+ * Jun 26, 2015 4512        mapeters    Updated for RedbookWMOMap API changes
  * 
  * </pre>
  * 
@@ -209,12 +210,11 @@ public class RedbookFrame implements IRenderable {
                                     .getResourceData().getMetadataMap()
                                     .get("wmoTTAAii");
                             if (wmo != null) {
-                                RedbookWMOMap.Info info = RedbookWMOMap.load().mapping
-                                        .get(wmo.getConstraintValue());
+                                RedbookWMOMap.Info info = RedbookWMOMap.load()
+                                        .getValue(wmo.getConstraintValue());
                                 if (info != null) {
-                                    customProjection = info.projection; // may
-                                    // be
-                                    // null
+                                    // projection may be null
+                                    customProjection = info.projection;
                                 }
                             }
                         } catch (Exception e) {

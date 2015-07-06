@@ -82,8 +82,9 @@ abstract public class AbstractLockingBehavior {
             Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
 
     private static Pattern startMND = Pattern
-            .compile("(BULLETIN - IMMEDIATE BROADCAST REQUESTED)|(BULLETIN - EAS ACTIVATION REQUESTED)|"
-                    + warningType);
+            .compile(
+                    "(BULLETIN - IMMEDIATE BROADCAST REQUESTED)|(BULLETIN - EAS ACTIVATION REQUESTED)|"
+                            + warningType, Pattern.CASE_INSENSITIVE);
 
     private static Pattern stateAbbrevPtrn = Pattern.compile(
             WarnGenPatterns.listOfAreaName + WarnGenPatterns.NEWLINE,
