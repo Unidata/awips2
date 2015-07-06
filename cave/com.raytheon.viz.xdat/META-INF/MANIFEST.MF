@@ -9,9 +9,13 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.core,
  com.raytheon.viz.ui,
  com.raytheon.viz.hydrocommon;bundle-version="1.10.13",
- org.postgres;bundle-version="9.3.5"
+ org.postgres;bundle-version="9.3.5",
+ com.raytheon.uf.viz.application;bundle-version="1.14.0",
+ com.raytheon.uf.viz.personalities.cave;bundle-version="1.15.0",
+ com.raytheon.viz.ui.personalities.awips;bundle-version="1.12.1174"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.ohd,
  com.raytheon.uf.common.time,
- com.raytheon.uf.common.util
+ com.raytheon.uf.common.util,
+ com.raytheon.viz.ui.personalities.awips
