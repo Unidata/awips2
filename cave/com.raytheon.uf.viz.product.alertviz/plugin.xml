@@ -42,6 +42,9 @@
                   name="appName"
                   value="alertviz">
             </property>
+            <property
+               name="version"
+               value="%caveVersion"/>
          </product>
       </extension>
       
