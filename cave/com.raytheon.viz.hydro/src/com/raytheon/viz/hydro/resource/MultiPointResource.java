@@ -131,6 +131,7 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * Feb 02, 2015 4075        ccody       Added getSelectedGage for HS issue #3961
  * Mar 09, 2015 13998       lbousaidi   changed the dur display when it is null to match A1.
  * Apr 09, 2015 4215        mpduff      Check strTree before removing items.
+ * Jul 06, 2015 4215        mpduff      Correct the fact that user's cannot click and view time series.
  * 
  * </pre>
  * 
@@ -344,21 +345,21 @@ public class MultiPointResource extends
      */
     private synchronized void addPoint(GageData gage) {
         String lid = gage.getLid();
-        GageData existingGage = dataMap.get(lid);
-        Coordinate xy = new Coordinate(gage.getLon(), gage.getLat());
-        gage.setCoordinate(xy);
+        GageData existing = dataMap.get(lid);
+        if (gage != existing) {
+            Coordinate xy = new Coordinate(gage.getLon(), gage.getLat());
+            gage.setCoordinate(xy);
 
-        if (existingGage != null && existingGage != gage) {
-            PixelExtent pe = getPixelExtent(existingGage,
-                    getShiftWidth(existingGage), getShiftHeight(existingGage));
-            Envelope oldEnv = descriptor.pixelToWorld(pe);
-            List<?> list = strTree.query(oldEnv);
-            if (list != null && !list.isEmpty()) {
-                strTree.remove(oldEnv, existingGage);
+            if (existing != null) {
+                PixelExtent pe = getPixelExtent(existing,
+                        getShiftWidth(existing), getShiftHeight(existing));
+                Envelope oldEnv = descriptor.pixelToWorld(pe);
+                strTree.remove(oldEnv, existing);
             }
 
             /* Create a small envelope around the point */
-            pe = getPixelExtent(gage, getShiftWidth(gage), getShiftHeight(gage));
+            PixelExtent pe = getPixelExtent(gage, getShiftWidth(gage),
+                    getShiftHeight(gage));
             Envelope newEnv = descriptor.pixelToWorld(pe);
 
             strTree.insert(newEnv, gage);
