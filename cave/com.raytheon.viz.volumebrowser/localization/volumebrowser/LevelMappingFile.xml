@@ -1666,4 +1666,7 @@
         <Level displayName="OSEQD-10" key="OSEQD-10"> <!-- End NWPS -->
                 <DatabaseLevel levelName="OSEQD" levelOneValue="10" />
         </Level>
+        <Level displayName="NTAT" key="NTAT" group="S">
+                <DatabaseLevel levelName="NTAT" levelOneValue="0" />
+        </Level>
 </LevelMappings>
