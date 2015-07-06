@@ -79,7 +79,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Jun 11,2013  2088        rferrel     Make dialog non-blocking.
  *                                      Changes for non-blocking FcstPointGroupDlg.
  * Feb.02, 2015 #13372      djingtao    Change from GMT time to local time for "Revise" field                                      
- * 
+ * Jul 06, 2015 #14104      lbousaidi   increased textlimit to 15 
  * </pre>
  * 
  * @author lvenable
@@ -722,7 +722,7 @@ public class RiverGageDlg extends CaveSWTDialog implements
         gd = new GridData(120, SWT.DEFAULT);
         usgsNoTF = new Text(infoGroup, SWT.BORDER);
         usgsNoTF.setLayoutData(gd);
-        usgsNoTF.setTextLimit(10);
+        usgsNoTF.setTextLimit(15);
 
         // Lat/Lon Source
         gd = new GridData(SWT.FILL, SWT.CENTER, false, false);
