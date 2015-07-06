@@ -14,3 +14,4 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.message
 Export-Package: com.raytheon.uf.viz.product.alertviz
+Bundle-Localization: plugin
