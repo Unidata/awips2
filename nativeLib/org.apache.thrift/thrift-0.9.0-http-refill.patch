@@ -1,0 +1,15 @@
+diff -ur thrift-0.9.0/lib/cpp/src/thrift/transport/THttpTransport.cpp thrift-0.9.0-http-refill/lib/cpp/src/thrift/transport/THttpTransport.cpp
+--- thrift-0.9.0/lib/cpp/src/thrift/transport/THttpTransport.cpp	2012-10-12 00:58:06.000000000 +0000
++++ thrift-0.9.0-http-refill/lib/cpp/src/thrift/transport/THttpTransport.cpp	2015-06-19 10:50:02.818636967 +0000
+@@ -80,7 +80,10 @@
+   uint32_t size;
+ 
+   // Get more data!
+-  refill();
++  uint32_t avail = httpBufLen_ - httpPos_;
++  if (avail == 0) {
++    refill();
++  }
+ 
+   if (readHeaders_) {
+     readHeaders();
