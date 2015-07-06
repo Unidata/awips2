@@ -48,6 +48,7 @@ import javax.persistence.TemporalType;
  * Oct 17, 2008                        Initial generation by hbm2java
  * Aug 19, 2011      10672     jkorman Move refactor to new project
  * Oct 07, 2013       2361     njensen Removed XML annotations
+ * Jul 06, 2015      14104     lbousaidi increased length of gsno column.
  * 
  * </pre>
  * 
@@ -371,7 +372,7 @@ public class Riverstat extends com.raytheon.uf.common.dataplugin.persist.Persist
         this.fs = fs;
     }
 
-    @Column(name = "gsno", length = 10)
+    @Column(name = "gsno", length = 15)
     public String getGsno() {
         return this.gsno;
     }
