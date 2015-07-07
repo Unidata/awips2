@@ -980,17 +980,13 @@ public class GridLocation extends PersistableDataObject<String> implements
                     PixelOrientation.CENTER, this);
             mt.transform(gridCells, 0, latLon, 0, gridCells.length / 2);
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.error("Error computing lat/lon grid", e);
         }
 
         /*
-         * FIXME We reverse the x and y dimensions because that's what AWIPS 1
-         * did and that makes the pre-existing python code compatible. Java
-         * ordering is x,y while python is ordering is y,x. It's confusing and
-         * questionable at best so someday someone should correct all that. Good
-         * luck.
+         * return the 1-d array and let python reshape it
          */
-        return new NDArray<float[]>(latLon, ny, nx, 2);
+        return new NDArray<float[]>(latLon, 1, latLon.length);
     }
 
     /**
