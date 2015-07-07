@@ -37,7 +37,7 @@
       <vmArgsWin>-Dfile.encoding=UTF-8 -Xmx2560M</vmArgsWin>
    </launcherArgs>
 
-   <windowImages/>
+   <windowImages i16="/com.raytheon.viz.ui.personalities.awips/cave_16x16.png" i32="/com.raytheon.viz.ui.personalities.awips/cave_32x32.png" i48="/com.raytheon.viz.ui.personalities.awips/cave_48x48.png" i64="/com.raytheon.viz.ui.personalities.awips/cave_64x64.png" i128="/com.raytheon.viz.ui.personalities.awips/cave_128x128.png"/>
 
    <splash
       location="com.raytheon.viz.ui.personalities.awips"
@@ -48,18 +48,19 @@
       <solaris/>
       <win useIco="false">
          <bmp
-            winSmallHigh="/com.raytheon.viz.ui.personalities.awips/alertViz_icon16x16_32bit.bmp"
-            winSmallLow="/com.raytheon.viz.ui.personalities.awips/alertViz_icon16x16_8bit.bmp"
-            winMediumHigh="/com.raytheon.viz.ui.personalities.awips/alertViz_icon32x32_32bit.bmp"
-            winMediumLow="/com.raytheon.viz.ui.personalities.awips/alertViz_icon32x32_8bit.bmp"
-            winLargeHigh="/com.raytheon.viz.ui.personalities.awips/alertViz_icon48x48_32bit.bmp"
-            winLargeLow="/com.raytheon.viz.ui.personalities.awips/alertViz_icon48x48_8bit.bmp"/>
+            winSmallHigh="/com.raytheon.viz.ui.personalities.awips/cave_16x16_32bit.bmp"
+            winSmallLow="/com.raytheon.viz.ui.personalities.awips/cave_16x16_8bit.bmp"
+            winMediumHigh="/com.raytheon.viz.ui.personalities.awips/cave_32x32_32bit.bmp"
+            winMediumLow="/com.raytheon.viz.ui.personalities.awips/cave_32x32_8bit.bmp"
+            winLargeHigh="/com.raytheon.viz.ui.personalities.awips/cave_48x48_32bit.bmp"
+            winLargeLow="/com.raytheon.viz.ui.personalities.awips/cave_48x48_8bit.bmp"
+            winExtraLargeHigh="/com.raytheon.viz.ui.personalities.awips/cave_256x256_32bit.bmp"/>
       </win>
    </launcher>
 
    <vm>
-      <linux include="true">jdk1.6.0</linux>
-      <windows include="true">jdk1.6.0</windows>
+      <linux include="true">jdk1.7.0</linux>
+      <windows include="true">jdk1.7.0</windows>
    </vm>
 
    <plugins>
