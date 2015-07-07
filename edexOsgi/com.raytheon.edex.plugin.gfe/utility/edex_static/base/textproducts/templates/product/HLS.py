@@ -1,4 +1,4 @@
-#  Version 2015.5.21-0
+#  Version 2015.6.16-0
 
 import GenericHazards
 import string, time, os, re, types, copy, LogStream, collections
@@ -1171,25 +1171,26 @@ class TextProduct(HLSTCV_Common.TextProduct):
         
         editAreas = [(self._cwa(), self._cwa())]
         intersectAreas = self._computeIntersectAreas(editAreas, argDict)
-        intersectSampler = self.getSampler(argDict,
-                                           (self._intersectAnalysisList_HLS(), self._timeRangeList, intersectAreas))
-        
-        statList = self.getStatList(intersectSampler,
-                                    self._intersectAnalysisList_HLS(),
-                                    self._timeRangeList,
-                                    "intersect_" + self._cwa())
-        
-        for period in range(len(statList)):
-            statDict = statList[period]
-            self._sampleRankedDiscreteValue('StormSurgeThreat', statDict)
-            self._sampleMostSignificantDiscreteValue('StormSurgeThreat', statDict)
+        if len(intersectAreas) != 0:
+            intersectSampler = self.getSampler(argDict,
+                                               (self._intersectAnalysisList_HLS(), self._timeRangeList, intersectAreas))
             
-            inundationMax = self._getStatValue(statDict, "InundationMax", "Max")
-            decidingField = self._samplingDict['StormSurgeThreat']['decidingField']
-            if decidingField is None or inundationMax > decidingField:
-                self._samplingDict['StormSurgeThreat']['decidingField'] = inundationMax
-        
-        self.debug_print("StormSurgeThreat = %s" % (self._samplingDict['StormSurgeThreat']['inputThreatDominant']), 1)
+            statList = self.getStatList(intersectSampler,
+                                        self._intersectAnalysisList_HLS(),
+                                        self._timeRangeList,
+                                        "intersect_" + self._cwa())
+            
+            for period in range(len(statList)):
+                statDict = statList[period]
+                self._sampleRankedDiscreteValue('StormSurgeThreat', statDict)
+                self._sampleMostSignificantDiscreteValue('StormSurgeThreat', statDict)
+                
+                inundationMax = self._getStatValue(statDict, "InundationMax", "Max")
+                decidingField = self._samplingDict['StormSurgeThreat']['decidingField']
+                if decidingField is None or inundationMax > decidingField:
+                    self._samplingDict['StormSurgeThreat']['decidingField'] = inundationMax
+            
+            self.debug_print("StormSurgeThreat = %s" % (self._samplingDict['StormSurgeThreat']['inputThreatDominant']), 1)
     
     def _sampleTCVAdvisory(self, advisory):
         self.debug_print("sampling TCV advisory!", 1)
