@@ -36,6 +36,7 @@ import org.geotools.data.DataUtilities;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
@@ -85,7 +86,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *                                     properties.
  * Jul 01, 2015  4375      dgilling    Fix setDefaultPolygon.
  * Jul 07, 2015  4375      dgilling    Better error message for loadJob, make it
- *                                     INFO level.
+ *                                     INFO level, fix geotools CRS warning.
  * 
  * </pre>
  * 
@@ -137,7 +138,7 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
                 // reset the polygon if the localization file is invalid.
                 if (polygons.isEmpty()) {
                     statusHandler
-                            .info("The previously saved damage path file didn't contain any valid polygons. Resetting to default polygon.");
+                            .info("The previously saved damage path file didn't contain any polygons. Resetting to default polygon.");
                     setDefaultPolygon();
                 }
             } else {
@@ -308,6 +309,7 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
         SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
         typeBuilder.setName("feature");
 
+        typeBuilder.setCRS(DefaultGeographicCRS.WGS84);
         Geometry polygon = damagePath.getPolygon();
         typeBuilder.setDefaultGeometry("the_geom");
         typeBuilder.add("the_geom", polygon.getClass());
