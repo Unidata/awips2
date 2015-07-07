@@ -23,6 +23,7 @@
       <import feature="com.raytheon.uf.viz.core.feature" version="1.0.0.qualifier"/>
       <import feature="com.raytheon.viz.text.feature" version="1.0.0.qualifier"/>
       <import feature="com.raytheon.uf.viz.kml.export.feature" version="1.0.0.qualifier"/>
+      <import feature="com.raytheon.uf.viz.nwsauth.feature" version="1.0.0.qualifer"/>
    </requires>
 
    <plugin
