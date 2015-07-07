@@ -1703,11 +1703,7 @@ class SmartScript(BaseTool.BaseTool):
     def getLatLonGrids(self):
         gridLoc = self.getGridLoc()
         latLonGrid = gridLoc.getLatLonGrid()
-        # FIXME We reverse the x and y dimensions because that's what AWIPS 1
-        # did and that makes the pre-existing python code compatible. Java
-        # ordering is x,y while python is ordering is y,x. So our latlonGrid
-        # here has ordering y, x but gridLoc is a Java object so we have to
-        # get the values from it in reverse. 
+
         latLonGrid = numpy.reshape(latLonGrid, (2,gridLoc.getNy().intValue(),gridLoc.getNx().intValue()), order='F')
         return latLonGrid[1], latLonGrid[0]
 
