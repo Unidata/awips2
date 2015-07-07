@@ -501,6 +501,9 @@ ANY	^(NWUS[01347-9].) (.{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/misc_adm_messages/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 ANY	^(NWUS5.) (.{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/lsr/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+# DR16660 - time string changed back to original for PBP and HFO
+IDS|DDPLUS	^(NW(HW|MY)50) (.{4}) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/lsr/(\4:yyyy)(\4:mm)\4/\5/\1_\3_\4\5\6_(seq).%Y%m%d%H
 ANY	^(NWUS2.) (.{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/svrwx/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 ANY	^(NXUS[0-57-9].) (....) (..)(..)(..)
