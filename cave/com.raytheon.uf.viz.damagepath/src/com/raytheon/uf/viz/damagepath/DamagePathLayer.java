@@ -84,6 +84,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * Jun 18, 2015  4354      dgilling    Allow each polygon to have their own 
  *                                     properties.
  * Jul 01, 2015  4375      dgilling    Fix setDefaultPolygon.
+ * Jul 07, 2015  4375      dgilling    Better error message for loadJob, make it
+ *                                     INFO level.
  * 
  * </pre>
  * 
@@ -135,7 +137,7 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
                 // reset the polygon if the localization file is invalid.
                 if (polygons.isEmpty()) {
                     statusHandler
-                            .error("The damage path file was invalid. The polygon has been reset.");
+                            .info("The previously saved damage path file didn't contain any valid polygons. Resetting to default polygon.");
                     setDefaultPolygon();
                 }
             } else {
