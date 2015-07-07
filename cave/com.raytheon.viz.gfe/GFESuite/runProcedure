@@ -17,6 +17,13 @@ then
   echo "CAVE and/or gfeclient not installed on this workstation ..exiting"
   exit 1
 else
-  $_GFECLI $_MODULE "$@"
+  CONFDIR=${HOME}/.runProc-$(hostname)-$$
+  cleanup() {
+    rm -rf "$CONFDIR"
+  }
+  mkdir -p "$CONFDIR" || exit 1
+  trap cleanup EXIT
+
+  $_GFECLI -configuration $CONFDIR $_MODULE "$@"
 fi
 
