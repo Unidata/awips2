@@ -56,7 +56,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Nov 16, 2009 #3438      lvenable     Initial creation
  * Oct 08, 2012 #1229      rferrel     Changes for non-blocking GenScriptsDlg.
  * Oct 08, 2012 #1229      rferrel     Make dialog non-blocking.
- * 
+ * Jul 07, 2015 16907      zhao        changed 'ish-' to 'isd-' 
+ *
  * </pre>
  * 
  * @author lvenable
@@ -121,9 +122,9 @@ public class NCDCInvHistDlg extends CaveSWTDialog {
      */
     private GenScriptsDlg generateScriptsDlg;
 
-    private String invFilename = "ish-inventory.txt";
+    private String invFilename = "isd-inventory.txt";
 
-    private String histFilename = "ish-history.txt";
+    private String histFilename = "isd-history.txt";
 
     private File invFile;
 

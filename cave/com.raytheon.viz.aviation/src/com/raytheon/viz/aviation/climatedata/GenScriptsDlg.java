@@ -72,6 +72,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                      to save a script.
  * Oct 08, 2012 #1229      rferrel      Made non-blocking.
  * Aug 09, 2013 #2033      mschenke     Switched File.separator to IPathManager.SEPARATOR
+ * Jul 07, 2015 16907      zhao         Changed 'ish-' to 'isd-' 
+ *  
  * 
  * </pre>
  * 
@@ -272,9 +274,9 @@ public class GenScriptsDlg extends CaveSWTDialog {
             String fname = null;
 
             if (style.equals("inv")) {
-                fname = "ish-inventory.txt";
+                fname = "isd-inventory.txt";
             } else {
-                fname = "ish-history.txt";
+                fname = "isd-history.txt";
             }
 
             scriptMsg.append(wgetStart).append(ftpIshDir).append("/")
@@ -316,9 +318,9 @@ public class GenScriptsDlg extends CaveSWTDialog {
             String fname = null;
 
             if (style.equals("inv")) {
-                fname = "ish-inventory.txt";
+                fname = "isd-inventory.txt";
             } else {
-                fname = "ish-history.txt";
+                fname = "isd-history.txt";
             }
 
             scriptMsg.append(">> script.ftp ECHO get ").append(fname)
