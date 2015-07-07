@@ -29,7 +29,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.message.StatusMessage;
 
@@ -40,7 +39,8 @@ import com.raytheon.uf.common.message.StatusMessage;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 9, 2008            chammack     Initial creation
+ * Oct 09, 2008            chammack    Initial creation
+ * Jun 29, 2015  4311      randerso    Reworking AlertViz dialogs to be resizable.
  * </pre>
  * 
  * @author chammack
@@ -49,10 +49,7 @@ import com.raytheon.uf.common.message.StatusMessage;
 
 public class SimpleDetailsComp extends Composite {
 
-    /**
-     * Shell of the parent composite
-     */
-    private Shell shell = null;
+    private static final int NUM_DETAIL_LINES = 13;
 
     /**
      * Actually contains text of details message, lives in textBox
@@ -66,25 +63,22 @@ public class SimpleDetailsComp extends Composite {
      */
     public SimpleDetailsComp(Composite parent, int style) {
         super(parent, style);
-        this.shell = parent.getShell();
-
         initComponents();
-        setVisible(false);
     }
 
     /**
      * Lay out composite with StyledText
      */
     private void initComponents() {
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        setLayout(new GridLayout(1, false));
-        setLayoutData(gd);
+        GridLayout layout = new GridLayout(1, false);
+        setLayout(layout);
 
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        gd.heightHint = 250;
-        st = new StyledText(this, SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
+        st = new StyledText(this, SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER
+                | SWT.WRAP);
         st.setEditable(false);
-
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.heightHint = (st.getLineHeight() * NUM_DETAIL_LINES)
+                + (st.getBorderWidth() * 2);
         st.setLayoutData(gd);
 
         Menu popupMenu = new Menu(st);
@@ -121,41 +115,8 @@ public class SimpleDetailsComp extends Composite {
         if (sm == null) {
             st.setText("");
         } else {
-            StringBuilder sb = new StringBuilder();
-            // sb.append(sm.getMessage()).append("\n");
-
-            String details = sm.getDetails();
-            String[] lines = details.split("[\n]");
-
-            for (String line : lines) {
-                if (line.length() > 500) {
-                    sb.append(line.substring(0, 500)).append(
-                            "...text truncated\n");
-
-                } else {
-                    sb.append(line).append("\n");
-                }
-            }
-            st.setText(sb.toString());
+            st.setText(sm.getDetails());
         }
-    }
-
-    /**
-     * Override so we can exclude this composite from the layout when hidden
-     */
-    @Override
-    public void setVisible(boolean visible) {
-        ((GridData) this.getLayoutData()).exclude = !visible;
-
-        if (visible == true) {
-            ((GridData) st.getLayoutData()).widthHint = getParent().getBounds().width - 46;
-        }
-
-        super.setVisible(visible);
-
-        shell.layout();
-        shell.pack();
-
     }
 
     /**

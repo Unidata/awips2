@@ -34,6 +34,7 @@
 # Oct 10, 2014  #3675     njensen     Logback now does console logging to ensure correct pid 
 # Oct 13, 2014  #3675     bclement    startup shutdown log includes both launching pid and placeholder
 # Jan 28, 2015  #4018     randerso    Added a productEditor log file to changes in the GFE product editor
+# Jun 17, 2015  #4148     rferrel     Logback needs fewer environment variables.
 #
 
 
@@ -194,7 +195,7 @@ then
 fi
 
 BASE_LOGDIR=$HOME/caveData/logs/consoleLogs
-LOGDIR=$BASE_LOGDIR/$hostName/
+export LOGDIR=$BASE_LOGDIR/$hostName/
 
 # make sure directory exists
 if [ ! -d $LOGDIR ]; then
@@ -212,13 +213,6 @@ export LOGFILE_STARTUP_SHUTDOWN="${LOGDIR}/${PROGRAM_NAME}_${pid}_${curTime}_pid
 # At this point fork so that log files can be set up with the process pid and
 # this process can log the exit status of cave.
 (
-  # we include the PID of the launching process along with
-  # a %PID% placeholder to be replaced with the "real" PID
-  export LOGFILE_CAVE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_%PID%_logs.log"
-  export LOGFILE_CONSOLE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_%PID%_console.log"
-  export LOGFILE_PERFORMANCE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_%PID%_perf.log"
-  export LOGFILE_PRODUCT_EDITOR="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_%PID%_productEditor.log"
-
   # can we write to log directory
   if [ -w ${LOGDIR} ]; then
     touch ${LOGFILE_STARTUP_SHUTDOWN}

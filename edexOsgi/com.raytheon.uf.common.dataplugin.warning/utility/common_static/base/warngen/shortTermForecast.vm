@@ -18,13 +18,13 @@ ${WMOId} ${vtecOffice} 000000 ${BBBId}
 NOW${siteId}
 
 #if(${productClass}=="T")
-TEST...SHORT TERM FORECAST...TEST
+TEST...Short Term Forecast...TEST
 #else
-SHORT TERM FORECAST
+Short Term Forecast
 #end
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
  
 #if(${productClass}=="T")
@@ -37,7 +37,7 @@ ${ugcline}
 #set($zoneList = "${zoneList}#capitalize(${area.name} 'ALL')-")
 #end
 ${zoneList}
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 

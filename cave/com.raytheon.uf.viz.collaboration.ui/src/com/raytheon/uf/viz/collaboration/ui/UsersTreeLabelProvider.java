@@ -28,6 +28,7 @@ import java.util.Map;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -66,6 +67,7 @@ import com.raytheon.uf.viz.collaboration.ui.data.TreeObjectContainer;
  * Mar 06, 2014 2848       bclement    get venueName directly from session
  * Jun 12, 2014 3267       bclement    fixed missing null-check for outdated UI info
  * Oct 08, 2014 3705       bclement    replaced checks for SessionGroupContainer with TreeObjectContainer
+ * Jun 23, 2015 4563       mapeters    bold/color users in contacts list if logged-in
  * 
  * </pre>
  * 
@@ -86,6 +88,7 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
             return connection.getContactsManager().getPresence(user);
         }
 
+        @Override
         protected String getDisplayName(UserId user) {
             return getLocalAlias(user);
         }
@@ -136,7 +139,6 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
             }
             return rval;
         }
-
     };
 
     private List<ILabelProviderListener> listeners;
@@ -159,7 +161,7 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
         if (element instanceof UserId) {
             return userLabelProvider.getImage(element);
         } else if (element instanceof RosterEntry) {
-            return userLabelProvider.getImage((RosterEntry) element);
+            return userLabelProvider.getImage(element);
         } else if (element instanceof RosterGroup) {
             key = "roster_group";
         } else if (element instanceof SharedGroup) {
@@ -168,7 +170,7 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
             // key = "session_group";
         } else if (element instanceof TreeObjectContainer) {
             key = ((TreeObjectContainer) element).getIcon();
-        } 
+        }
 
         if (imageMap.get(key) == null && !key.equals("")) {
             imageMap.put(key, CollaborationUtils.getNodeImage(key));
@@ -183,7 +185,7 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
         } else if (element instanceof SharedGroup) {
             return ((SharedGroup) element).getName();
         } else if (element instanceof RosterEntry) {
-            return userLabelProvider.getText((RosterEntry) element);
+            return userLabelProvider.getText(element);
         } else if (element instanceof TreeObjectContainer) {
             return ((TreeObjectContainer) element).getLabel();
         } else if (element instanceof UserId) {
@@ -211,16 +213,30 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
 
     @Override
     public Font getFont(Object element) {
-        if (element instanceof RosterGroup || element instanceof SharedGroup
-                || element instanceof TreeObjectContainer) {
-            // for this case do nothing, as it is not the top level of
-            // session groups
+        boolean isGroupTitle = element instanceof RosterGroup
+                || element instanceof SharedGroup
+                || element instanceof TreeObjectContainer;
+        boolean isAvailableUser = element instanceof RosterEntry
+                && userLabelProvider.getPresence(
+                        userLabelProvider.convertObject(element)).isAvailable();
+        if (isGroupTitle || isAvailableUser) {
             if (boldFont == null) {
                 Font currFont = Display.getCurrent().getSystemFont();
                 boldFont = new Font(Display.getCurrent(), currFont.toString(),
                         currFont.getFontData()[0].getHeight(), SWT.BOLD);
             }
             return boldFont;
+        }
+        return null;
+    }
+
+    @Override
+    public Color getForeground(Object element) {
+        if (element instanceof RosterEntry) {
+            UserId user = userLabelProvider.convertObject(element);
+            if (userLabelProvider.getPresence(user).isAvailable()) {
+                return Display.getCurrent().getSystemColor(SWT.COLOR_BLUE);
+            }
         }
         return null;
     }
@@ -234,7 +250,7 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
         if (element instanceof UserId) {
             return userLabelProvider.getToolTipText(element);
         } else if (element instanceof RosterEntry) {
-            return userLabelProvider.getToolTipText((RosterEntry) element);
+            return userLabelProvider.getToolTipText(element);
         }
         // builds the tooltip text for the session group
         // portion of the view
@@ -242,10 +258,8 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
             IVenueSession sessGroup = (IVenueSession) element;
             IVenue venue = sessGroup.getVenue();
             builder.append("ID: ").append(venue.getId());
-            builder.append("\nName: ").append(venue.getName())
-                    .append("\n");
-            builder.append("Subject: ").append(venue.getSubject())
-                    .append("\n");
+            builder.append("\nName: ").append(venue.getName()).append("\n");
+            builder.append("Subject: ").append(venue.getSubject()).append("\n");
             builder.append("Participants: ")
                     .append(venue.getParticipantCount());
             return builder.toString();

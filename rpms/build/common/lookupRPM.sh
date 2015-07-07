@@ -256,7 +256,7 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-yajsw" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.yajsw"
+      export RPM_SPECIFICATION="${installer_dir}/yajsw-11.11"
       return 0
    fi
 

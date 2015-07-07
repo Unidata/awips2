@@ -33,9 +33,6 @@
 #    05/28/2014      2841          randerso       Added separate configurable limits for
 #                                                 text formatter and product script tasks
 #    02/04/2015      17039         ryu            Removed HighlightFramingCodes setting.
-#    06/15/2015      4422          dgilling       Add default color-mappings for 
-#                                                 simulated satellite parms.
-#
 
 GFESUITE_HOME = "/awips2/GFESuite"
 GFESUITE_PRDDIR = "/tmp/products"
@@ -1182,10 +1179,6 @@ ir11West_defaultColorTable = "Sat/IR/CIRA (IR Default)"
 ir13West_defaultColorTable = "Sat/IR/CIRA (IR Default)"
 ir39West_defaultColorTable = "Sat/IR/CIRA (IR Default)"
 waterVaporWest_defaultColorTable = "Sat/WV/Gray Scale Water Vapor"
-SBT124_defaultColorTable = "Sat/IR/CIRA (IR Default)"
-SBT125_defaultColorTable = "Sat/IR/CIRA (IR Default)"
-SBT122_defaultColorTable = "Sat/IR/CIRA (IR Default)"
-SBT123_defaultColorTable = "Sat/WV/Gray Scale Water Vapor"
 
 VisibleE_defaultColorTable = "Sat/VIS/ZA (Vis Default)"
 IR11E_defaultColorTable = "Sat/IR/CIRA (IR Default)"
@@ -1207,12 +1200,6 @@ IR13W_defaultColorTable = "Sat/IR/CIRA (IR Default)"
 IR39W_defaultColorTable = "Sat/IR/CIRA (IR Default)"
 WaterVaporW_defaultColorTable = "Sat/WV/Gray Scale Water Vapor"
 FogW_defaultColorTable = "Sat/WV/Gray Scale Water Vapor"
-
-IR11_defaultColorTable = "Sat/IR/CIRA (IR Default)"
-IR13_defaultColorTable = "Sat/IR/CIRA (IR Default)"
-IR39_defaultColorTable = "Sat/IR/CIRA (IR Default)"
-WaterVapor_defaultColorTable = "Sat/WV/Gray Scale Water Vapor"
-Fog_defaultColorTable = "Sat/WV/Gray Scale Water Vapor"
 
 Hazards_defaultColorTable = "GFE/Hazards"
 

@@ -28,6 +28,8 @@
 #    ------------    ----------    -----------    --------------------------
 #    05/29/13         2023         dgilling       Initial Creation.
 #    02/12/14         2672         bsteffen       Allow String constructor to parse floats.
+#    06/29/15         4480         dgilling       Implement __hash__, __eq__,
+#                                                 __str__ and rich comparison operators.
 #
 
 
@@ -58,6 +60,120 @@ class Level(object):
                if levelTwo:
                    self.leveltwovalue = numpy.float64(levelTwo)
 
+    def __hash__(self):
+        # XOR-ing the 3 items in a tuple ensures that order of the 
+        # values matters
+        hashCode = hash(self.masterLevel) ^ hash(self.levelonevalue) ^ hash(self.leveltwovalue)
+        hashCode ^= hash((self.masterLevel, self.levelonevalue, self.leveltwovalue))
+        return hashCode
+    
+    def __eq__(self, other):
+        if type(self) != type(other):
+            return False
+        else:
+            return (self.masterLevel, self.levelonevalue, self.leveltwovalue) == \
+                (other.masterLevel, other.levelonevalue, other.leveltwovalue)
+                
+    def __ne__(self, other):
+        return not self.__eq__(other)
+    
+    def __lt__(self, other):
+        if type(self) != type(other):
+            return NotImplemented
+        elif self.masterLevel.getName() != other.masterLevel.getName():
+            return NotImplemented
+        
+        myLevel1 = self.levelonevalue
+        myLevel2 = self.leveltwovalue
+        otherLevel1 = other.levelonevalue
+        otherLevel2 = other.leveltwovalue
+        if myLevel1 == INVALID_VALUE and myLevel2 != INVALID_VALUE:
+            myLevel1 = myLevel2
+            myLevel2 = INVALID_VALUE
+        if otherLevel1 == INVALID_VALUE and otherLevel2 != INVALID_VALUE:
+            otherLevel1 = otherLevel2
+            otherLevel2 = INVALID_VALUE
+            
+        # We default to descending order to make sorting levels from the DAF easier
+        compareType = self.masterLevel.getType() if self.masterLevel.getType() else "DEC"
+        if myLevel1 != INVALID_VALUE and otherLevel1 != INVALID_VALUE:
+            level1Cmp = self.__compareLevelValues(compareType, myLevel1, otherLevel1)
+            if level1Cmp == -1:
+                if myLevel2 != INVALID_VALUE and otherLevel2 != INVALID_VALUE:
+                    level2Cmp = self.__compareLevelValues(compareType, myLevel2, otherLevel2)
+                    return level2Cmp == -1
+                elif myLevel2 != INVALID_VALUE:
+                    level2Cmp = self.__compareLevelValues(compareType, myLevel2, otherLevel1)
+                    return level2Cmp == -1
+                else:
+                    return True
+        return False
+    
+    def __le__(self, other):
+        if type(self) != type(other):
+            return NotImplemented 
+        elif self.masterLevel.getName() != other.masterLevel.getName():
+            return NotImplemented
+        
+        return self.__lt__(other) or self.__eq__(other)
+    
+    def __gt__(self, other):
+        if type(self) != type(other):
+            return NotImplemented
+        elif self.masterLevel.getName() != other.masterLevel.getName():
+            return NotImplemented
+        
+        myLevel1 = self.levelonevalue
+        myLevel2 = self.leveltwovalue
+        otherLevel1 = other.levelonevalue
+        otherLevel2 = other.leveltwovalue
+        if myLevel1 == INVALID_VALUE and myLevel2 != INVALID_VALUE:
+            myLevel1 = myLevel2
+            myLevel2 = INVALID_VALUE
+        if otherLevel1 == INVALID_VALUE and otherLevel2 != INVALID_VALUE:
+            otherLevel1 = otherLevel2
+            otherLevel2 = INVALID_VALUE
+
+        # We default to descending order to make sorting levels from the DAF easier
+        compareType = self.masterLevel.getType() if self.masterLevel.getType() else "DEC"
+        if myLevel1 != INVALID_VALUE and otherLevel1 != INVALID_VALUE:
+            level1Cmp = self.__compareLevelValues(compareType, myLevel1, otherLevel1)
+            if level1Cmp == 1:
+                if myLevel2 != INVALID_VALUE and otherLevel2 != INVALID_VALUE:
+                    level2Cmp = self.__compareLevelValues(compareType, myLevel2, otherLevel2)
+                    return level2Cmp == 1
+                elif otherLevel2 != INVALID_VALUE:
+                    level2Cmp = self.__compareLevelValues(compareType, myLevel1, otherLevel2)
+                    return level2Cmp == 1
+                else:
+                    return True
+        return False
+    
+    def __ge__(self, other):
+        if type(self) != type(other):
+            return NotImplemented
+        elif self.masterLevel.getName() != other.masterLevel.getName():
+            return NotImplemented
+        
+        return self.__gt__(other) or self.__eq__(other)
+
+    def __compareLevelValues(self, compareType, val1, val2):
+        returnVal = 0
+        if val1 < val2:
+            returnVal = -1 if compareType == 'INC' else 1
+        elif val2 < val1:
+            returnVal = 1 if compareType == 'INC' else -1
+        return returnVal
+
+    def __str__(self):
+        retVal = ""
+        if INVALID_VALUE != self.levelonevalue:
+            retVal += str(self.levelonevalue)
+        if INVALID_VALUE != self.leveltwovalue:
+            retVal += "_" + str(self.leveltwovalue)
+        retVal += str(self.masterLevel.getName())
+        return retVal
+
     def getId(self):
         return self.id
 
@@ -87,4 +203,3 @@ class Level(object):
 
     def setIdentifier(self, identifier):
         self.identifier = identifier
-

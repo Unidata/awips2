@@ -26,6 +26,7 @@
 # Date         Ticket#    Engineer    Description
 # ------------ ---------- ----------- --------------------------
 # Oct 09, 2014  #3675     bclement    added cleanExit signal trap
+# Jun 17, 2015  #4148     rferrel     Logback needs fewer environment variables.
 #
 
 user=`/usr/bin/whoami`
@@ -96,7 +97,7 @@ fi
 
 #check for the logs directory, which may not be present at first start
 hostName=`hostname -s`
-LOGDIR=$HOME/caveData/logs/consoleLogs/$hostName/
+export LOGDIR=$HOME/caveData/logs/consoleLogs/$hostName/
 
 if [ ! -d $LOGDIR ]; then
  mkdir -p $LOGDIR
@@ -122,27 +123,17 @@ trap 'cleanExit $pid' SIGHUP SIGINT SIGQUIT SIGTERM
 count=0
 while [ $exitVal -ne 0 -a $count -lt 10 ]
 do
- count=`expr $count + 1`
- curTime=`date +%Y%m%d_%H%M%S`
- LOGFILE=${LOGDIR}/alertviz_${curTime}_console.log
- export LOGFILE_ALERTVIZ=${LOGDIR}/alertviz_${curTime}_admin.log
-
- #first check if we can write to the directory
- if [ -w ${LOGDIR} ]; then
-  touch ${LOGFILE}
- fi
-
- #check for display; if no display then exit
- if [ -z "${DISPLAY}" ]; then
-  echo "Display is not available."
-  exitVal=0
- else
-  #finally check if we can write to the file
-  if [ -w ${LOGFILE} ]; then
-   ${dir}/alertviz $*  > ${LOGFILE} 2>&1 &
+  count=`expr $count + 1`
+  #check for display; if no display then exit
+  if [ -z "${DISPLAY}" ]; then
+   echo "Display is not available."
+   exitVal=0
   else
-   ${dir}/alertviz $* &
-  fi
+    if [ -w ${LOGDIR} ] ; then
+        ${dir}/alertviz $* > /dev/null 2>&1 &
+    else
+        ${dir}/alertviz $* &
+    fi
   pid=$!
   wait $pid
   exitVal=$?

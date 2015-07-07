@@ -1686,25 +1686,5 @@ class NAM12Forecaster(Forecaster):
         value=where(less(value,0.0),value+360,value)
         return value
 
-    def gvar2T(self, ir):
-        t = where(ir < 177, (660 - ir) / 2.0, (418 - ir))
-        t = t - 273
-        return t
-
-    def calcIR11(self, SBT124_NTAT):
-        return self.gvar2T(SBT124_NTAT)
-
-    def calcIR13(self, SBT125_NTAT):
-        return self.gvar2T(SBT125_NTAT)
-
-    def calcIR39(self, SBT122_NTAT):
-        return self.gvar2T(SBT122_NTAT)
-
-    def calcWaterVapor(self, SBT123_NTAT):
-        return self.gvar2T(SBT123_NTAT)
-
-    def calcFog(self, IR11, IR39):
-        return IR11 - IR39
-
 def main():
     NAM12Forecaster().run()

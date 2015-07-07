@@ -114,13 +114,13 @@ ${WMOId} ${vtecOffice} 000000 ${BBBId}
 FLS${siteId}
 
 #if(${productClass}=="T")
-TEST...FLOOD ADVISORY...TEST
+TEST...Flood Advisory...TEST
 #else
-FLOOD ADVISORY
+Flood Advisory
 #end
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 ${ugcline}
@@ -134,7 +134,7 @@ ${ugcline}
 -##
 #end
 
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")

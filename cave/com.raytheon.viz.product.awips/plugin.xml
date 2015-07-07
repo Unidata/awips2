@@ -32,6 +32,9 @@
                name="aboutText"
                value="%caveAboutText"/>
          <property
+               name="version"
+               value="%caveVersion"/>
+         <property
                name="aboutImage"
                value="icons/ipr.gif"/>
          <property

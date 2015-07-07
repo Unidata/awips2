@@ -19,8 +19,7 @@
  **/
 package com.raytheon.uf.edex.plugin.redbook.menu;
 
-import java.io.File;
-
+import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 
@@ -35,6 +34,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * ------------ ---------- ----------- --------------------------
  * Mar 07, 2014    2858    mpduff      Initial creation
  * Mar 14, 2014    2855    mpduff      Renamed and refactored common code.
+ * Jun 26, 2015    4512    mapeters    Abstract out createMenusFromFile()
  * 
  * </pre>
  * 
@@ -48,31 +48,21 @@ public class RedbookHazardsMenuUtil extends RedbookMenuUtil {
             .getHandler(RedbookHpcMenuUtil.class);
 
     /** Menu type constant */
-    private static final String MENU_TYPE = "ncepHydro" + File.separator
+    private static final String MENU_TYPE = NCEP_HYDRO + IPathManager.SEPARATOR
             + "spc";
 
     /** SPC hazard menu file */
     private static final String HAZARD_MENU = "hazardMenus.xml";
 
     /** SPC hazard menu file including full path */
-    private static final String MENU_FILE = "menus" + File.separator
-            + MENU_TYPE + File.separator + HAZARD_MENU;
+    private static final String MENU_FILE = MENUS + IPathManager.SEPARATOR
+            + MENU_TYPE + IPathManager.SEPARATOR + HAZARD_MENU;
 
     /**
      * Constructor.
      */
     public RedbookHazardsMenuUtil() {
         super();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void createMenusFromFile(String filename) {
-        xml = read(filename);
-
-        createMenus();
     }
 
     /**

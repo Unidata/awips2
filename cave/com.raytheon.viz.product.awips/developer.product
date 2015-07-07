@@ -65,10 +65,10 @@
    </features>
 
    <configurations>
+      <plugin id="com.raytheon.uf.viz.spring.dm" autoStart="true" startLevel="4" />
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
-      <plugin id="com.raytheon.uf.viz.spring.dm" autoStart="true" startLevel="4" />
-      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />      
    </configurations>
 
 </product>

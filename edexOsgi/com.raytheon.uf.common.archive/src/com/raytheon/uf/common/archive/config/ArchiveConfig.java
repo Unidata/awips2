@@ -59,6 +59,8 @@ import javax.xml.bind.annotation.XmlRootElement;
  * May 31, 2013 1965       bgonzale    Added getCategory(categoryName)
  * Apr 17, 2014 3045       rferrel     Code cleanup to prevent null pointer.
  * Jan 22, 2015 3763       rferrel     Change tag from minRetentionHours to defaultRetentionHours
+ * Jun 29, 2015 4583       rferrel     Added check of retention hours to {@link #isValid()} and
+ *                                      added {@link #createErrorMsg()}.
  * 
  * </pre>
  * 
@@ -207,7 +209,52 @@ public class ArchiveConfig implements Comparable<ArchiveConfig> {
      * Check for required entries.
      */
     public boolean isValid() {
-        return (name != null) && (rootDir != null) && (categoryList.size() > 0);
+        return (name != null) && (rootDir != null) && (categoryList.size() > 0)
+                && (retentionHours > 0);
+    }
+
+    /**
+     * Detail information on what caused {@link #isValid()} to fail.
+     * 
+     * @return message
+     */
+    public String createErrorMsg() {
+        StringBuilder sb = new StringBuilder(" missing:");
+        boolean firstTag = true;
+        if (name == null) {
+            sb.append(" <name>");
+            firstTag = false;
+        }
+        if (rootDir == null) {
+            if (firstTag) {
+                firstTag = false;
+            } else {
+                sb.append(",");
+            }
+            sb.append(" <rootDir>");
+        }
+        if (retentionHours <= 0) {
+            if (firstTag) {
+                firstTag = false;
+            } else {
+                sb.append(",");
+            }
+            sb.append(" <defaultRetentionHours>");
+        }
+        if (categoryList.isEmpty()) {
+            if (firstTag) {
+                firstTag = false;
+            } else {
+                sb.append(",");
+            }
+            sb.append(" <rootDir>");
+            sb.append(" <category>s");
+        }
+
+        if (!firstTag) {
+            sb.append(".");
+        }
+        return sb.toString();
     }
 
     /*

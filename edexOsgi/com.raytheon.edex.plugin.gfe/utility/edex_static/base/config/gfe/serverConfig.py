@@ -66,8 +66,8 @@
 #    04/20/2015          #4414     dgilling       Add missing NWPSTrkngCG0 weather elements.
 #    05/12/2015          #17144    bhunder        Added RTMA model
 #    05/29/2015          17496     ryu            Changed parm definitions for Wave1-10 and Period1-10.
-#    05/29/2015          #17144    bhunder        Added weather Params for URMA25 and OCONUS RTMA
-#    06/15/2015          #4422     dgilling       Added parms for NAM12 simulated satellite.
+#
+#    05/29/2015          #17144    bhunder        Added weather Params for URMA25 and OCONUS RTMA 
 ####################################################################################################
 
 #----------------------------------------------------------------------------
@@ -391,16 +391,7 @@ FloodingRainThreat = ("FloodingRainThreat", DISCRETE, "Cat", "Flooding Rain Thre
 StormSurgeThreat = ("StormSurgeThreat", DISCRETE, "Cat", "Storm Surge Threat", NO, Threat4Keys,2)
 WindThreat = ("WindThreat", DISCRETE, "Cat", "Wind Threat", NO, Threat4Keys,2)
 TornadoThreat = ("TornadoThreat", DISCRETE, "Cat", "Tornado Threat", NO, Threat4Keys,2)
-QPFtoFFGRatio = ("QPFtoFFGRatio", SCALAR, "1", "QPF to FFG Ratio", 8.0, 0.0, 0, NO)
-
-# Parms for Simulated Satellite
-SatIR11 = ("IR11", SCALAR, "C", "11 micron temperature", 58.0, -111.0, 0, NO)
-SatIR13 = ("IR13", SCALAR, "C", "13 micron temperature", 50.0, -111.0, 0, NO)
-SatIR39 = ("IR39", SCALAR, "C", "3.9 micron temperature", 50.0,
-            -111.0, 0, NO)
-SatWV   = ("WaterVapor", SCALAR, "C", "water vapor temperature",
-            -62.0, -111.0, 0, NO)
-SatFog  = ("Fog", SCALAR, "C", "ir11 - ir39", 50.0, -111.0, 0, NO)
+QPFtoFFGRatio = ("QPFtoFFGRatio", SCALAR, "1", "QPF to FFG Ratio", 8.0, 0.0, 0, NO) 
 
 # Hazards
 HazardKeys = []
@@ -2143,9 +2134,6 @@ ENPwave_parms = [([WindWaveHeight, WaveHeight, SurfHeight, Wind], TC6),
 # GFSLAMPGrid
 GFSLAMPGridPARMS=[([Temp, Td, Vis, CigHgt],TC1)]
 
-# NAM12 Simulated Satellite
-NAM12SATSIMPARMS=[([SatIR39, SatIR11, SatIR13, SatWV, SatFog],TC3)]
-
 #---------------------------------------------------------------------------
 # Databases for a site.
 # list of (Database, [parms])
@@ -2165,7 +2153,7 @@ DATABASES = [(Official, OFFICIALDBS + localParms),
              (GFS75, STD6_MODEL + localGFS75Parms),
              (GFS190, STD6_MODEL + localGFS190Parms),
              (NAM40, STD3_MODEL + localNAM40Parms),
-             (NAM12, STD3_MODEL + NAM12SATSIMPARMS + localNAM12Parms),
+             (NAM12, STD3_MODEL + localNAM12Parms),
              (gfsLR, STD12_MODEL + localgfsLRParms),
              (GWW, WAVEPARMS + localGWWParms),
              (WNAWAVE, WAVEPARMS + localWNAWAVEParms),

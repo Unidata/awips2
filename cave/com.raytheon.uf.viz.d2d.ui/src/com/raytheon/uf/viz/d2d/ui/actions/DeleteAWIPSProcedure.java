@@ -24,6 +24,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -49,6 +50,8 @@ import com.raytheon.viz.ui.dialogs.localization.VizLocalizationFileListDlg.Mode;
  *    Jul 8, 2008  #1183       chammack    Migrate to new localization
  *    Oct 16, 2012 #1229       rferrel     Changes for non-blocking VizLocalizationFileListDlg.
  *    Jun 02, 2015 #4401       bkowal      Updated to use {@link VizLocalizationFileListDlg}.
+ *    Jun 30, 2015 #4401       bkowal      Specify the localization type when constructing a
+ *                                         {@link VizLocalizationFileListDlg}.
  * 
  * </pre>
  * 
@@ -74,7 +77,8 @@ public class DeleteAWIPSProcedure extends AbstractHandler {
                 || listDlg.isDisposed()) {
             listDlg = new VizLocalizationFileListDlg("Delete Procedure",
                     HandlerUtil.getActiveShell(event), Mode.DELETE,
-                    ProcedureDlg.PROCEDURES_DIR, "procedures");
+                    ProcedureDlg.PROCEDURES_DIR, "procedures",
+                    LocalizationType.CAVE_STATIC);
             listDlg.setCloseCallback(new ICloseCallback() {
 
                 @Override

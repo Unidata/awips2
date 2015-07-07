@@ -4,9 +4,9 @@
 <extension
          point="com.raytheon.viz.ui.contextualMenu">
       <contextualMenu
-            actionClass="com.raytheon.uf.viz.damagepath.ImportFromDistanceSpeedAction"
+            actionClass="com.raytheon.uf.viz.damagepath.NewTornadoDamagePathAction"
             capabilityClass="com.raytheon.uf.viz.damagepath.DamagePathLayer"
-            name="Import from Distance Speed Tool"
+            name="New Tornado Damage Path"
             sortID="4">
       </contextualMenu>
       <contextualMenu

@@ -118,6 +118,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  *                                      should be purged.
  * 09/09/2014   #3356       njensen     Remove CommunicationException
  * 03/05/2015   #4169       randerso    Fix error handling in getDatabase
+ * 06/29/2015   #4537       rferrel     Allow for durations less then 1 hour.
  * 
  * </pre>
  * 
@@ -1097,8 +1098,12 @@ public class D2DGridDatabase extends VGridDatabase {
                         TimeUtil.SECONDS_PER_HOUR, 0);
             }
         }
-        return new TimeConstraints(TimeUtil.SECONDS_PER_HOUR, (int) repeat,
-                (int) start);
+
+        int duration = TimeUtil.SECONDS_PER_HOUR;
+        if (duration > repeat) {
+            duration = (int) repeat;
+        }
+        return new TimeConstraints(duration, (int) repeat, (int) start);
     }
 
     private int calcPrecision(float minV, float maxV) {

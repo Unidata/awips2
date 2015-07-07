@@ -362,5 +362,19 @@
                 <value>196</value>
             </list>
         </constructor-arg>
+    </bean>
+
+    <bean id="radarSpatialDataFactory" class="com.raytheon.uf.common.dataaccess.impl.StationGeometryTimeAgnosticDatabaseFactory">
+        <constructor-arg value="awips" />
+        <constructor-arg value="metadata" />
+        <constructor-arg value="radar_spatial" />
+        <constructor-arg value="the_geom" />
+        <constructor-arg value="rda_id" />
+    </bean>
+
+    <bean factory-bean="dataAccessRegistry" factory-method="register" 
+    depends-on="radarSpatialDataFactory">
+        <constructor-arg value="radar_spatial" />
+        <constructor-arg ref="radarSpatialDataFactory" />
     </bean>	
 </beans>

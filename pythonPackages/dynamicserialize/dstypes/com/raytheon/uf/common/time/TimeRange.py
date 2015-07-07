@@ -28,6 +28,7 @@
 #    ??/??/??                      xxxxxxxx       Initial Creation.
 #    01/22/14        2667          bclement       fixed millisecond support
 #    02/28/14        2667          bclement       constructor can take extra micros for start and end
+#    06/24/15        4480          dgilling       fix __eq__.
 #    
 # 
 #
@@ -51,7 +52,15 @@ class TimeRange(object):
         return "(" + self.start.strftime("%b %d %y %H:%M:%S %Z") + ", " + self.end.strftime("%b %d %y %H:%M:%S %Z") + ")"
     
     def __eq__(self, other):
-        return ((self.start == other.start) and (self.end == other.end))
+        if type(self) != type(other):
+            return False
+        
+        if self.isValid() and other.isValid():
+            return self.getStart() == other.getStart() and self.getEnd() == other.getEnd()
+        elif not self.isValid() and not other.isValid():
+            return True
+        else:
+            return False
     
     def __ne__(self, other):
         return (not self.__eq__(other))
@@ -132,7 +141,7 @@ class TimeRange(object):
             return convTime == self.start
     
     def isValid(self):
-        return (self.start != self.end)
+        return bool(self.start != self.end)
     
     def overlaps(self, timeRange):
         return (timeRange.contains(self.start) or self.contains(timeRange.start))

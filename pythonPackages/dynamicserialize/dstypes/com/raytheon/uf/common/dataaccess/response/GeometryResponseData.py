@@ -27,6 +27,7 @@
 #    ------------    ----------    -----------    --------------------------
 #    06/04/13         #2023        dgilling       Initial Creation.
 #    01/06/14         #2537        bsteffen       Store geometry index instead of WKT.
+#    06/30/15         #4569        nabowle        Rename *WKT* to *WKB*.
 #
 #
 
@@ -38,7 +39,7 @@ class GeometryResponseData(AbstractResponseData):
     def __init__(self):
         super(GeometryResponseData, self).__init__()
         self.dataMap = None
-        self.geometryWKTindex = None
+        self.geometryWKBindex = None
 
     def getDataMap(self):
         return self.dataMap
@@ -46,8 +47,8 @@ class GeometryResponseData(AbstractResponseData):
     def setDataMap(self, dataMap):
         self.dataMap = dataMap
 
-    def getGeometryWKTindex(self):
-        return self.geometryWKTindex
+    def getGeometryWKBindex(self):
+        return self.geometryWKBindex
 
-    def setGeometryWKTindex(self, geometryWKTindex):
-        self.geometryWKTindex = geometryWKTindex
+    def setGeometryWKBindex(self, geometryWKBindex):
+        self.geometryWKBindex = geometryWKBindex

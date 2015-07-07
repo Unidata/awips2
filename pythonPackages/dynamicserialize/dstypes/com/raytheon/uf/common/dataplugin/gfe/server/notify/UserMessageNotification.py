@@ -17,16 +17,24 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+#    
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    06/22/2015       4573         randerso       Change to extend GfeNotification
+#
+##    
 
-# File auto-generated against equivalent DynamicSerialize Java class
+import GfeNotification
 
-class UserMessageNotification(object):
+class UserMessageNotification(GfeNotification.GfeNotification):
 
     def __init__(self):
+        super(UserMessageNotification, self).__init__()
         self.category = None
         self.priority = None
         self.message = None
-        self.siteID = None
 
     def getCategory(self):
         return self.category
@@ -46,13 +54,7 @@ class UserMessageNotification(object):
     def setMessage(self, message):
         self.message = message
 
-    def getSiteID(self):
-        return self.siteID
-
-    def setSiteID(self, siteID):
-        self.siteID = siteID
-    
-    def __repr__(self):
+    def __str__(self):
         msg = 'Message: ' + str(self.message) + '\n'
         msg += 'Priority: ' + str(self.priority) + '\n'
         msg += 'Category: ' + str(self.category) + '\n'

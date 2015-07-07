@@ -66,6 +66,7 @@ import com.raytheon.uf.viz.personalities.cave.component.CAVEApplication;
  * Feb 23, 2015  4164     dlovely     Extracted AlertViz initialize.
  * Jun 03, 2015  4473     njensen     If running with AlertViz, start a job to
  *                                    continuously check AlertViz status.
+ * Jun 22, 2015  4474     njensen     Don't check for alertviz if alertview is enabled                                   
  * 
  * </pre>
  * 
@@ -212,7 +213,8 @@ public abstract class AbstractAWIPSComponent extends CAVEApplication {
         // Setup AlertViz observer
         if ((getRuntimeModes() & ALERT_VIZ) != 0) {
             // Set up alertviz
-            if (LocalizationManager.internalAlertServer && !isNonUIComponent()) {
+            if (LocalizationManager.internalAlertServer && !isNonUIComponent()
+                    && !Boolean.getBoolean("alertview.enabled")) {
                 /*
                  * Potentially run alertviz inside viz. Will repeatedly schedule
                  * a check to verify it's running. If not found, it will try and

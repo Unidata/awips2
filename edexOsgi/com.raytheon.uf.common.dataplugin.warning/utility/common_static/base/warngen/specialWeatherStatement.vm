@@ -171,13 +171,13 @@ ${WMOId} ${vtecOffice} 000000 ${BBBId}
 SPS${siteId}
 
 #if(${productClass}=="T")
-TEST...SPECIAL WEATHER STATEMENT...TEST
+TEST...Special Weather Statement...TEST
 #else
-SPECIAL WEATHER STATEMENT
+Special Weather Statement
 #end
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
  
 #if(${productClass}=="T")
@@ -193,7 +193,7 @@ ${ugcline}
 -##
 #end
 
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")

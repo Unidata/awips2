@@ -33,13 +33,13 @@ ${ugcline}
 
 BULLETIN - IMMEDIATE BROADCAST REQUESTED
 #if(${productClass}=="T")
-TEST...SPECIAL MARINE WARNING...TEST
+TEST...Special Marine Warning...TEST
 #else
-SPECIAL MARINE WARNING
+Special Marine Warning
 #end
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")

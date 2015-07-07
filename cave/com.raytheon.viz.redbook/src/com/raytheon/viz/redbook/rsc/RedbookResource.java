@@ -31,6 +31,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.redbook.RedbookRecord;
+import com.raytheon.uf.common.dataplugin.redbook.RedbookWMOMap;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
@@ -50,7 +51,6 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
-import com.raytheon.viz.redbook.RedbookWMOMap;
 import com.raytheon.viz.redbook.rsc.RedbookFrame.RedbookStatus;
 
 /**
@@ -68,6 +68,7 @@ import com.raytheon.viz.redbook.rsc.RedbookFrame.RedbookStatus;
  * May 21, 2013 2001        njensen     Fixed display of messages
  * Mar 13, 2014 2907        njensen     split edex.redbook plugin into common
  *                                      and edex redbook plugins
+ * Jun 26, 2015 4512        mapeters    Updated for RedbookWMOMap API changes
  * 
  * </pre>
  * 
@@ -155,7 +156,7 @@ public class RedbookResource extends
                 if (wmoStr.isEmpty()) {
                     continue;
                 }
-                RedbookWMOMap.Info info = map.mapping.get(wmoStr);
+                RedbookWMOMap.Info info = map.getValue(wmoStr);
                 if (info != null && info.name != null) {
                     this.humanReadableName = info.name;
                     break;

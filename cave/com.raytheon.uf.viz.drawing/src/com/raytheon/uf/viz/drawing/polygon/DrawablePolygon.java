@@ -51,6 +51,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * ------------ ---------- ----------- --------------------------
  *  May 27, 2015  #4375     dgilling     Initial creation
  *  Jun 18, 2015  #4354     dgilling     Correct behavior of project.
+ *  Jun 30, 2015  #4354     dgilling     Make PolygonLayer visible to
+ *                                       subclasses.
  * 
  * </pre>
  * 
@@ -69,7 +71,10 @@ public class DrawablePolygon implements IRenderable2 {
 
     private final Object lock;
 
-    private final PolygonLayer<?> polygonLayer;
+    /**
+     * The PolygonLayer this polygon is attached to.
+     */
+    protected final PolygonLayer<?> polygonLayer;
 
     public DrawablePolygon(PolygonLayer<?> polygonLayer) {
         this.lock = new Object();

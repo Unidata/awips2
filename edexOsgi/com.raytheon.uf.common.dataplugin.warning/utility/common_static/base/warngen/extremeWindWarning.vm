@@ -20,13 +20,13 @@ ${ugcline}
 
 BULLETIN - EAS ACTIVATION REQUESTED
 #if(${productClass}=="T")
-TEST...EXTREME WIND WARNING...TEST
+TEST...Extreme Wind Warning...TEST
 #else
-EXTREME WIND WARNING
+Extreme Wind Warning
 #end
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
-#capitalize(${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})} "ALL")
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")

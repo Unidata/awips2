@@ -277,7 +277,8 @@ import ProcessVariableList
 
 from com.raytheon.viz.gfe.textformatter import TextProductFinishWaiter, FormatterUtil, TextProductManager
 from com.raytheon.viz.gfe.smarttool import TextFileUtil
-from com.raytheon.viz.gfe.dialogs.formatterlauncher import ConfigData_ProductStateEnum as ProductStateEnum
+from com.raytheon.viz.gfe.dialogs.formatterlauncher import ConfigData
+ProductStateEnum = ConfigData.ProductStateEnum
 
 class ProcessInfo:
     def __init__(self, entry, name, pid, script):
