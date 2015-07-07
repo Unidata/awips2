@@ -33,6 +33,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.smartscript.FieldDefinition;
 import com.raytheon.viz.gfe.smarttool.script.SmartToolBlockingSelectionDlg;
@@ -52,6 +53,7 @@ import com.raytheon.viz.gfe.ui.runtimeui.SelectionDlg;
  * Nov 15, 2012 1298       rferrel     Changes for non-blocking prcedures.
  * Jun 25, 2013  16065     ryu         Passing outerLevel to smart tool job.
  * Dec 10, 2013  #2367     dgilling    Use new SmartToolJobPool.
+ * Jul 07, 2015  14739     ryu         Modified callFromSmartScript() to return with updated varDict.
  * 
  * </pre>
  * 
@@ -89,7 +91,7 @@ public class SmartUtil {
     }
 
     public static void runTool(String toolName) {
-        DataManager dm = DataManager.getCurrentInstance();
+        DataManager dm = DataManagerUIFactory.getCurrentInstance();
         List<FieldDefinition> varList = null;
         try {
             varList = dm.getSmartToolInterface().getVarDictWidgets(toolName);
@@ -138,7 +140,7 @@ public class SmartUtil {
 
     public static Object callFromSmartScript(final DataManager dm,
             final String toolName, final String elementName,
-            ReferenceData editArea, TimeRange timeRange, String varDict,
+            ReferenceData editArea, TimeRange timeRange, List<String> varDictList,
             boolean emptyEditAreaFlag, List<String> passErrors,
             String missingDataMode, Parm parm) {
         EditAction editAction = new EditAction(toolName, elementName,
@@ -148,8 +150,8 @@ public class SmartUtil {
         final SmartToolRequest req = SmartUtil.buildSmartToolRequest(dm, pi,
                 false);
 
-        if (varDict != null) {
-            req.setVarDict(varDict);
+        if (varDictList != null) {
+            req.setVarDict(varDictList.get(0));
         } else {
             VizApp.runSync(new Runnable() {
                 @Override
@@ -196,6 +198,12 @@ public class SmartUtil {
         }
 
         dm.getSmartToolJobPool().schedule(req);
-        return req.getResult();
+        Object result = req.getResult();
+        
+        if (varDictList != null) {
+            varDictList.set(0, req.getVarDict());
+        }
+        
+        return result;
     }
 }
