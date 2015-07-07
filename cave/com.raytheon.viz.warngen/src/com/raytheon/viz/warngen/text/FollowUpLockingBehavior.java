@@ -146,32 +146,38 @@ public class FollowUpLockingBehavior extends AbstractLockingBehavior {
      * @return
      */
     private String headline(String headline) {
-        Set<String> notations = new HashSet<String>();
-        Set<String> names = new HashSet<String>();
-
-        for (AffectedAreas affectedArea : affectedAreas) {
-            if ((affectedArea.getAreaNotation() != null)
-                    && (affectedArea.getAreaNotation().trim().length() != 0)) {
-                notations.add(affectedArea.getAreaNotation());
-            }
-
-            if ((affectedArea.getAreasNotation() != null)
-                    && (affectedArea.getAreasNotation().trim().length() != 0)) {
-                notations.add(affectedArea.getAreasNotation());
-            }
-
-            if ((affectedArea.getName() != null)
-                    && (affectedArea.getName().trim().length() != 0)) {
-                /*
-                 * force area name to upper case for headlines since headlines
-                 * are all upper case
-                 */
-                names.add(affectedArea.getName().toUpperCase());
-            }
-        }
-
         // Marine products follow different locking rules
-        if (!isMarineProduct()) {
+        if (isMarineProduct()) {
+            // The full headline of a marine product should be locked.
+            headline = WarnGenPatterns.LOCK_START + headline
+                    + WarnGenPatterns.LOCK_END;
+
+        } else {
+            Set<String> notations = new HashSet<String>();
+            Set<String> names = new HashSet<String>();
+
+            for (AffectedAreas affectedArea : affectedAreas) {
+                if ((affectedArea.getAreaNotation() != null)
+                        && (affectedArea.getAreaNotation().trim().length() != 0)) {
+                    notations.add(affectedArea.getAreaNotation().toUpperCase());
+                }
+
+                if ((affectedArea.getAreasNotation() != null)
+                        && (affectedArea.getAreasNotation().trim().length() != 0)) {
+                    notations
+                            .add(affectedArea.getAreasNotation().toUpperCase());
+                }
+
+                if ((affectedArea.getName() != null)
+                        && (affectedArea.getName().trim().length() != 0)) {
+                    /*
+                     * force area name to upper case for headlines since
+                     * headlines are all upper case
+                     */
+                    names.add(affectedArea.getName().toUpperCase());
+                }
+            }
+
             headline = keywords(headline);
             Iterator<String> iterator1 = notations.iterator();
             while (iterator1.hasNext()) {
@@ -192,10 +198,6 @@ public class FollowUpLockingBehavior extends AbstractLockingBehavior {
                                     + WarnGenPatterns.LOCK_END);
                 }
             }
-        } else {
-            // The full headline of a marine product should be locked.
-            headline = WarnGenPatterns.LOCK_START + headline
-                    + WarnGenPatterns.LOCK_END;
         }
 
         return headline;
