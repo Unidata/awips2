@@ -31,6 +31,10 @@
 #    Change Document History:
 #       %PIRC%
 #
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    Jul 07, 2015    16907         zhao           Modified to work with new ids- files 
+
 import sys
 sys.argv = [__name__]
 
@@ -50,7 +54,7 @@ _Logger = logging.getLogger(ClimateProcessLogger.CLIMATE_CATEGORY)
 # Variables set for now, but to be replaced with cfg vars
 # ..before integrating this program
 #
-ish_inv = 'ish-inventory.txt'
+ish_inv = 'isd-inventory.txt'
 ftp_site = 'ftp.ncdc.noaa.gov'
 ftp_dir = '/pub/data/noaa'
 climo_dir = '/data/adapt/avnfps/climate'
