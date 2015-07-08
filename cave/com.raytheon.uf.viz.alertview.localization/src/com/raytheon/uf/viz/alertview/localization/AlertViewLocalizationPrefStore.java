@@ -117,12 +117,12 @@ public class AlertViewLocalizationPrefStore implements AlertViewPrefStore,
 
     @Override
     public void addListener(AlertViewPrefListener listener) {
-        listeners.remove(listener);
+        listeners.add(listener);
     }
 
     @Override
     public void removeListener(AlertViewPrefListener listener) {
-        listeners.add(listener);
+        listeners.remove(listener);
     }
 
     @Override
