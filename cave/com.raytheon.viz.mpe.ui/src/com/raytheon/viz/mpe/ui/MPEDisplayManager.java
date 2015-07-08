@@ -108,6 +108,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Feb 04, 2014   16410    lbousaidi    changed the first letter of the month to lower case.
  * Feb 19, 2014   2628     mpduff       Change cast from short to int when creating color bar.
  * Jun 30, 2014  17457     snaples      Added default case to switch in getXmrgfile.
+ * Jul 8, 2015   16790     snaples      Updated setCurrentEditDate to refresh resources when dateMap is stale.
  * 
  * </pre>
  * 
@@ -656,13 +657,20 @@ public class MPEDisplayManager {
      * @param force
      * @return
      */
-    private boolean setCurrentEditDate(Date newDate, boolean force) {
+    public boolean setCurrentEditDate(Date newDate, boolean force) {
         MPEDataManager dm = MPEDataManager.getInstance();
 
         // check for date in valid range
-        if (newDate.before(dm.getEarliestDate())
-                || newDate.after(dm.getLatestDate())) {
-            return false;
+        if ((newDate.before(dm.getEarliestDate())
+                || newDate.after(dm.getLatestDate())) || force ) {
+            IEditorPart editor = EditorUtil.getActiveEditor();
+
+            if (editor instanceof IDisplayPaneContainer) {
+                IDisplayPaneContainer container = (IDisplayPaneContainer) editor;
+                for (IDisplayPane pane : container.getDisplayPanes()) {
+                    pane.clear();
+                }
+            }
         }
 
         if (editTime.equals(newDate) == false) {
