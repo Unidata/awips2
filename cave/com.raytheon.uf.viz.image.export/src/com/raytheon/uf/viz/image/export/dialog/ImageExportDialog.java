@@ -57,14 +57,14 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Mar 10, 2014  2867     bsteffen    Better frame range validation.
  * Oct 28, 2014  3767     bsteffen    Automatically change filename if selected
  *                                    format does not support all options.
- * Dec 4, 2014   DR16713  jgerth      Support for date/time selection
+ * Dec 04, 2014  DR16713  jgerth      Support for date/time selection
+ * Jul 07, 2015  4607     bsteffen    Prompt to save as GeoTIFF
  * 
  * </pre>
  * 
  * @author bsteffen
  * @version 1.0
  */
-
 public class ImageExportDialog extends CaveSWTDialog {
 
     protected ImageExportOptions options;
@@ -134,6 +134,7 @@ public class ImageExportDialog extends CaveSWTDialog {
         Button button = new Button(group, SWT.PUSH);
         button.setText("Browse ...");
         button.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 selectDestinationFile();
             }
@@ -448,6 +449,31 @@ public class ImageExportDialog extends CaveSWTDialog {
             } else {
                 return false;
             }
+        }
+
+        if (options.isGeoreferencable()
+                && (suffix.equals("tif") || suffix.equals("tiff"))) {
+            MessageBox mb = new MessageBox(getShell(), SWT.ICON_QUESTION
+                    | SWT.YES | SWT.NO | SWT.CANCEL);
+            mb.setText("Convert to GeoTIFF?");
+            String image = "image";
+            if(options.getFrameSelection() != FrameSelection.CURRENT){
+                image = "images";
+            }
+            mb.setMessage("Your "
+                    + image
+                    + " can be converted to a GeoTIFF. This will allow "
+                    + "it to be properly positioned in geospatial software. Saving as a "
+                    + "GeoTIFF will reproject the image, which may introduce distortion "
+                    + "and will increase file size.\n\n"
+                    + "Reproject and include geospatial metadata?");
+            int result = mb.open();
+            if (result == SWT.CANCEL) {
+                return false;
+            }
+            options.setGeoreference(result == SWT.YES);
+        } else {
+            options.setGeoreference(false);
         }
 
         File file = options.getFileLocation();
