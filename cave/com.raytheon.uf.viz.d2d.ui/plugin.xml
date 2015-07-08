@@ -569,7 +569,28 @@
                         definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
                   </reference>
                </visibleWhen>
+            </command>git
+         </toolbar>
+         <toolbar
+               id="NC-1">
+            <command
+                  commandId="gov.noaa.nws.ncep.viz.actions.gridManager"
+                  id="gov.noaa.nws.ncep.viz.actions.gridManager"
+                  label="Ncgrid"
+                  style="push"
+                  tooltip="Ncgrid Manager">
+               <visibleWhen>
+                  <reference
+                        definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                  </reference>
+               </visibleWhen>
+               <parameter
+                     name="mode"
+                     value="CREATE_RBD">
+               </parameter>
             </command>
+
+
          </toolbar>
          </menuContribution>
          <menuContribution
