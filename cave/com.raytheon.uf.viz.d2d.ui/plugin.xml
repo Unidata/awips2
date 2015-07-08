@@ -569,7 +569,7 @@
                         definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
                   </reference>
                </visibleWhen>
-            </command>git
+            </command>
          </toolbar>
          <toolbar
                id="NC-1">
