@@ -335,7 +335,7 @@ VTECTable = {
 upgradeHazardsDict = {
 'WC.W': ['WC.A', 'WC.Y'], 
 'WC.Y': ['WC.A'],
-'BZ.W': ['WS.W', 'LE.W', 'WW.Y','ZR.Y', 'LE.Y',
+'BZ.W': ['WS.W', 'LE.W', 'ZR.Y', 'LE.Y', 'WW.Y',
          'BZ.A', 'WS.A', 'LE.A'],
 'IS.W': ['WS.W', 'LE.W', 'ZR.Y', 'LE.Y', 'WW.Y',
          'BZ.A', 'WS.A', 'LE.A'],
