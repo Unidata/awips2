@@ -96,7 +96,7 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-         
+
    <plugin
          id="com.raytheon.uf.common.dataplugin.climate"
          download-size="0"
@@ -194,6 +194,13 @@
 
    <plugin
          id="com.raytheon.uf.common.dataplugin.bufrmos"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.sr.oun.dataplugin.mping"
          download-size="0"
          install-size="0"
          version="0.0.0"
