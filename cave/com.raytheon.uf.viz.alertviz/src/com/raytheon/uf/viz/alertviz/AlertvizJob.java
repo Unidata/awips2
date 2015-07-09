@@ -56,9 +56,10 @@ import com.raytheon.uf.viz.alertviz.internal.LogMessageDAO;
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
+ * ------------ ---------- ----------- ---------------------------------
  * Sep 4, 2008  1433       chammack     Initial creation
  * Jun 3, 2013  2026       randerso     Improve error handling
+ * Jul 4, 2015  DR 17167   dhuffman     Remove nulls from incoming xml
  * </pre>
  * 
  * @author chammack
@@ -212,7 +213,7 @@ public class AlertvizJob extends Job {
                             String xmlString = null;
                             StatusMessage statusMessage = null;
                             try {
-                                xmlString = tm.getText();
+                                xmlString = tm.getText().replace("\u0000", "");
                                 StringReader sr = new StringReader(xmlString);
                                 statusMessage = (StatusMessage) umsh
                                         .unmarshal(sr);
