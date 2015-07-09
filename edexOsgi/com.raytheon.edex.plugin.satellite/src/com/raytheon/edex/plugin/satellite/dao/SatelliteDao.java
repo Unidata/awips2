@@ -67,6 +67,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  *                                    plugin.
  * Nov 04, 2014  2714     bclement    removed GINI specific DAOs
  * Apr 15, 2014  4388     bsteffen    Preserve fill value across interpolation levels.
+ * Jul 07, 2015  4279     rferrel     Override delete to clean up orphan entries in satellite_spatial table.
  * 
  * </pre>
  * 
@@ -131,11 +132,11 @@ public class SatelliteDao extends PluginDao {
 
             Rectangle fullScale = downScaler.getDownscaleSize(0);
             BufferWrapper dataSource = BufferWrapper.wrapArray(
-                    storageRecord.getDataObject(), fullScale.width, fullScale.height);
+                    storageRecord.getDataObject(), fullScale.width,
+                    fullScale.height);
 
             int levels = DownscaleStoreUtil.storeInterpolated(dataStore,
-                    downScaler, dataSource,
-                    new IDataRecordCreator() {
+                    downScaler, dataSource, new IDataRecordCreator() {
 
                         @Override
                         public IDataRecord create(Object data,
@@ -389,8 +390,8 @@ public class SatelliteDao extends PluginDao {
             int downscaleLevel, Rectangle size) {
         long[] sizes = new long[] { size.width, size.height };
         IDataRecord rec = DataStoreFactory.createStorageRecord(
-                String.valueOf(downscaleLevel),
-                satRec.getDataURI(), data, 2, sizes);
+                String.valueOf(downscaleLevel), satRec.getDataURI(), data, 2,
+                sizes);
         rec.setCorrelationObject(satRec);
         rec.setGroup(DataStoreFactory.createGroupName(satRec.getDataURI(),
                 SatelliteRecord.SAT_DATASET_NAME, true));
@@ -418,4 +419,17 @@ public class SatelliteDao extends PluginDao {
         return retValue;
     }
 
+    @Override
+    public void delete(List<PluginDataObject> objs) {
+        super.delete(objs);
+
+        /*
+         * Delete orphan entries in the satellite_spatial table.
+         */
+        try {
+            this.executeNativeSql("delete from satellite_spatial where gid not in (select distinct coverage_gid from satellite) ;");
+        } catch (DataAccessLayerException e) {
+            logger.error("Error purging orphaned satellite_spatial entries", e);
+        }
+    }
 }
