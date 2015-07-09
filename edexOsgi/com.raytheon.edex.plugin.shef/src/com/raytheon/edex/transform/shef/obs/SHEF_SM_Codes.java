@@ -36,7 +36,8 @@ import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 5, 2010            jkorman     Initial creation
- * Jul ,  2015  #16909    lbousaidi   added a routine to apply -sw option 
+ * Jul 02,2015  #16909    lbousaidi   added a routine to apply -sw option 
+ * Jul 09,2015  #16925    lbousaidi   trace value was considered missing
  * 
  * </pre>
  * 
@@ -183,7 +184,7 @@ public enum SHEF_SM_Codes implements SHEF_Obs_Codes<ObsCommon> {
                             if (d == 0) {
                                 if ((!options.isOptZero6HourPrecip())
                                         && (!options.isOptZeroAuto6HourPrecip())) {
-                                    d = -9999.0;                                	
+                                    d = 0.0;                                	
                                 }
                             }
                             if (d > -9999) {
