@@ -41,8 +41,14 @@
         indentText="false" />
     <contribute xsi:type="menuItem" menuText="Ceiling Height"
         key="Cig" indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Thunderstorm Prob"
-        key="ThP2hr" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Convective Prob"
+        key="CnvP2hr" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Convective Occr"
+        key="CnvPcat" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Lightning Prob"
+        key="LtgP2hr" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Lightning Occr"
+        key="LtgPcat" indentText="false" />
     <contribute xsi:type="menuItem" menuText="Thunderstorm Occr"
         key="ThPcat" indentText="false" />
 </menuTemplate>

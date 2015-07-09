@@ -109,7 +109,7 @@
       </timeSeriesAdapter>
       <timeSeriesAdapter
             adapter="com.raytheon.uf.viz.d2d.xy.adapters.timeseries.PointDataTimeSeriesAdapter"
-            class="com.raytheon.edex.plugin.bufrmos.common.BufrMosData"
+            class="com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosData"
             name="BufrMOS Time Series Adapter">
       </timeSeriesAdapter>
       <timeSeriesAdapter
