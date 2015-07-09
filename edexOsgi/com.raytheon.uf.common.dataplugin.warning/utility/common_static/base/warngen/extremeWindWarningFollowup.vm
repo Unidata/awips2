@@ -40,13 +40,13 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
-THIS MESSAGE IS FOR TEST PURPOSES ONLY.
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
 
 #end
 ${ugcline}
 /${productClass}.${action}.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz})}/
 #foreach (${area} in ${areas}) 
-#captialize(${area.name} "ALL")
+#capitalize(${area.name} "ALL")
 #if(${includeStateAbbreviation}==true)
  ${area.stateabbr}##
 #end
@@ -57,14 +57,14 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
-THIS MESSAGE IS FOR TEST PURPOSES ONLY.
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
 
 #end
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
-THE EXTREME WIND WARNING FOR ##
-#headlineLocList(${areas} true true true false "ALL") ${expcanHLTag}, 
+...THE EXTREME WIND WARNING FOR ##
+#headlineLocList(${areas} true true true false "ALL") ${expcanHLTag}...
 
 ## One line explanation
 !**EXPLANATION**!
@@ -146,15 +146,14 @@ National Weather Service ${officeShort}
 #backupText(${backupSite})
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
-
 #if(${productClass}=="T")
-THIS MESSAGE IS FOR TEST PURPOSES ONLY.
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
 
 #end
 ${ugcline}
 /${productClass}.${action}.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz})}/
 #foreach (${area} in ${areas}) 
-#captialize(${area.name} "ALL")
+#capitalize(${area.name} "ALL")
 #if(${includeStateAbbreviation}==true)
  ${area.stateabbr}##
 #end
@@ -163,16 +162,15 @@ ${ugcline}
 
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
-
 #if(${productClass}=="T")
-THIS MESSAGE IS FOR TEST PURPOSES ONLY.
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
 
 #end
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
-An extreme wind warning remains in effect until #headlineExpire(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) for ##
-#headlineLocList(${areas} true true true false "ALL"), 
+...AN EXTREME WIND WARNING REMAINS IN EFFECT UNTIL #headlineExpire(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
+#headlineLocList(${areas} true true true false "ALL")...
 ## Storm current location description
 
 #if(${productClass}=="T")
@@ -228,7 +226,7 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 
 #end
 #if(${list.contains(${bullets}, "cta1")})
-Widespread destructive winds of !** **! TO !** **! mph will spread across ##
+Widespread destructive winds of !** **! to !** **! mph will spread across ##
 #headlineLocList(${areas} true true true false), Producing swaths of tornado-like damage.
 
 #end
@@ -319,13 +317,13 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
-THIS MESSAGE IS FOR TEST PURPOSES ONLY.
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
 
 #end
 ${ugclinecan}
 /${productClass}.CAN.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz})}/
 #foreach (${area} in ${cancelareas})
-#captialize(${area.name} "ALL")
+#capitalize(${area.name} "ALL")
 #if(${includeStateAbbreviation}==true)
  ${area.stateabbr}##
 #end
@@ -336,16 +334,16 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
-THIS MESSAGE IS FOR TEST PURPOSES ONLY.
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
 
 #end
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE.##
 #end
-THE EXTREME WIND WARNING FOR ##
-#headlineLocList(${cancelareas} true true true false "ALL") ${expcanHLTag}, 
+...THE EXTREME WIND WARNING FOR ##
+#headlineLocList(${cancelareas} true true true false) ${expcanHLTag}...
 ###REPLACE headlineLocList ABOVE WITH THE FOLLOWING FOR ZONE BASED PRODUCT W/ COUNTY HEADLINE
-###headlineLocList(${cancelaffectedCounties} true true true false "ALL") ${expcanHLTag}, 
+###headlineLocList(${cancelaffectedCounties} true true true false "ALL") ${expcanHLTag}...
 
 ## One line explanation
 !**EXPLANATION**!
@@ -373,7 +371,7 @@ $$
 ${ugcline}
 /${productClass}.CON.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz})}/
 #foreach (${area} in ${areas}) 
-#captialize(${area.name} "ALL")
+#capitalize(${area.name} "ALL")
 #if(${includeStateAbbreviation}==true)
  ${area.stateabbr}##
 #end
@@ -384,21 +382,21 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
-THIS MESSAGE IS FOR TEST PURPOSES ONLY.
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
 
 #end
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE.##
 #end
-An extreme wind warning remains in effect until #headlineExpire(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) for ##
-#headlineLocList(${areas} true true true false "ALL"), 
+...An extreme wind warning remains in effect until #headlineExpire(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) for ##
+#headlineLocList(${areas} true true true false "ALL")...
 
 #if(${productClass}=="T")
 
-THIS IS A TEST MESSAGE. AT ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}, ${reportType}, ${reportType1} ##
+THIS IS A TEST MESSAGE. At ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}, ${reportType}, ${reportType1} ##
 #else
 
-at ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}, ${reportType}, ${reportType1} ##
+At ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}, ${reportType}, ${reportType1} ##
 #end
 ##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")
@@ -452,7 +450,7 @@ PRECUATIONARY/PREPAREDNESS ACTIONS...
 #end
 ##
 #if(${list.contains(${bullets}, "destructiveWindsCTA")})
-Widespread destructive winds of !** **! TO !** **! mph will spread across ##
+Widespread destructive winds of !** **! to !** **! mph will spread across ##
 #foreach (${area} in ${areas})
  ${area.name} ${area.areaNotation}, ##
 #end
@@ -499,7 +497,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ${ugcline}
 /${productClass}.${action}.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz})}/
 #foreach (${area} in ${areas}) 
-#captialize(${area.name} "ALL")
+#capitalize(${area.name} "ALL")
 #if(${includeStateAbbreviation}==true)
  ${area.stateabbr}##
 #end
@@ -510,14 +508,14 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
-THIS MESSAGE IS FOR TEST PURPOSES ONLY.
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
 
 #end
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE.##
 #end
-THE EXTREME WIND WARNING FOR##
-#headlineLocList(${areas} true true true false "ALL") ${expcanHLTag}, 
+...THE EXTREME WIND WARNING FOR##
+#headlineLocList(${areas} true true true false "ALL") ${expcanHLTag}...
 
 #############
 ## WATCHES ##
