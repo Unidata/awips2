@@ -412,7 +412,7 @@ public class TextSegmentCheck implements IQCCheck {
                     } else {
                         for (String state : QualityControl.getCountyTypeMap()
                                 .keySet()) {
-                            if (line.contains(state)
+                            if (line.contains(state.toUpperCase())
                                     && line.contains(QualityControl
                                             .getCountyTypeMap().get(state)
                                             .toUpperCase())) {
