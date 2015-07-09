@@ -560,7 +560,7 @@ if [ "${1}" = "-shp" ]; then
 fi
 
 if [ "${1}" = "-edex" ]; then
-   ##buildRPM "awips2-common-base"
+   buildRPM "awips2-common-base"
    #buildRPM "awips2"
    buildEDEX
    #buildRPM "awips2-data.hdf5-topo"
