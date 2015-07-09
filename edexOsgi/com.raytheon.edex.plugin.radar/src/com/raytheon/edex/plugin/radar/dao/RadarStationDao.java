@@ -23,10 +23,13 @@ package com.raytheon.edex.plugin.radar.dao;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Disjunction;
-import org.hibernate.criterion.Expression;
+import org.hibernate.criterion.Restrictions;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
 
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
 import com.raytheon.uf.common.dataquery.db.QueryResult;
@@ -46,9 +49,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 7/24/07      353         bphillip    Initial Check in
- * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
+ * 10/16/2014   3454        bphillip    Upgrading to Hibernate 4
  * 10/28/2014   3454        bphillip    Fix usage of getSession()
- * 
+ * Jul 09, 2015 4500        rjpeter     Add setSridOnAllRadarStation.
  * </pre>
  * 
  * @author bphillip
@@ -108,7 +111,7 @@ public class RadarStationDao extends CoreDao {
     public List<RadarStation> queryByWfo(String wfo)
             throws DataAccessLayerException {
         List<?> stations = queryBySingleCriteria("wfoId", wfo);
-        if (stations == null || stations.isEmpty()) {
+        if ((stations == null) || stations.isEmpty()) {
             return null;
         } else {
             return (List<RadarStation>) stations;
@@ -162,11 +165,11 @@ public class RadarStationDao extends CoreDao {
             DetachedCriteria crit = DetachedCriteria
                     .forClass(RadarStation.class);
 
-            Disjunction stationEq = Expression.disjunction();
-            for (int i = 0; i < names.length; i++) {
-                if (((Object[]) names[i])[0] != null) {
-                    stationEq.add(Expression.eq("wfoId",
-                            ((Object[]) names[i])[0].toString()));
+            Disjunction stationEq = Restrictions.disjunction();
+            for (Object name : names) {
+                if (((Object[]) name)[0] != null) {
+                    stationEq.add(Restrictions.eq("wfoId",
+                            ((Object[]) name)[0].toString()));
                 }
             }
             crit.add(stationEq);
@@ -174,7 +177,7 @@ public class RadarStationDao extends CoreDao {
             try {
                 return crit.getExecutableCriteria(session).list();
             } finally {
-                if (session != null){
+                if (session != null) {
                     session.close();
                 }
             }
@@ -221,4 +224,20 @@ public class RadarStationDao extends CoreDao {
         return rdaIds;
     }
 
+    /**
+     * Sets the station field on all radar spatial entries to setsrid of the
+     * geometry.
+     */
+    public void setSridOnAllRadarStation() {
+        txTemplate.execute(new TransactionCallback<Integer>() {
+            @Override
+            public Integer doInTransaction(TransactionStatus status) {
+                Session sess = getCurrentSession();
+                SQLQuery query = sess
+                        .createSQLQuery("update radar_spatial set station=st_setsrid(the_geom, 4326)");
+                return query.executeUpdate();
+            }
+        });
+
+    }
 }
