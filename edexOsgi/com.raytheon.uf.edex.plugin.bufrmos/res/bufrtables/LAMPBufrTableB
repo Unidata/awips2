@@ -615,7 +615,8 @@
 0	60	67	  1	       0	 12	DEG K     	CLIMATIC(NORMAL) NIGHT MIN TEMP            
 0	60	71	  0	       0	  7	%         	PROB. OF PCPN AMT GE .01 INCH PAST 6HRS    
 0	60	72	  0	       0	  7	%         	PROB. OF PCPN AMT GE .01 INCH PAST 12HRS   
-0	60	79	  0	       0	  7	%         	PROB OF TSTM PAST 2 HRS                    
+0	60	78	  0	       0	  7	%         	PROB OF CNV PAST 2 HRS
+0	60	79	  0	       0	  7	%         	PROB OF LTG PAST 2 HRS                    
 0	60	80	  0	       0	  7	%         	PROB CIG HGT 1000-1900 FT                  
 0	60	81	  0	       0	  7	%         	PROB CIG HGT 2000 - 3000 FT                
 0	60	82	  0	       0	  7	%         	COND PROB CIG HGT < 200 FT                 
@@ -658,7 +659,9 @@
 0	60	190	  0	       0	  4	CODE TABLE	VISIBILITY FCST (CATS)                     
 0	60	193	  0	       0	  4	CODE TABLE	COND VISIBILITY FCST (CATS)                
 0	60	194	  0	       0	  4	CODE TABLE	COND CIG HGT FCST (CATS)                   
-0	60	195	  0	       0	  2	CODE TABLE	PROB OF PRECIP FCST (CATS)                 
+0	60	195	  0	       0	  2	CODE TABLE	PROB OF PRECIP FCST (CATS)
+0	60	196	  0	       0	  4	CODE TABLE	CNV POT (CATS)            
+0	60	197	  0	       0	  4	CODE TABLE	LTG POT (CATS)                                  
 0	60	200	  0	       0	  7	%         	COND PROB VSBY <= 1/2 MILE                 
 0	60	201	  0	       0	  7	%         	COND PROB VSBY <= 1 MILE                   
 0	60	202	  0	       0	  7	%         	COND PROB VSBY <= 2 MILES                  
