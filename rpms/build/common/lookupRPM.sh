@@ -225,7 +225,7 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-ldm" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.ldm"
+      export RPM_SPECIFICATION="${awips2_upc_dir}/Installer.ldm"
       return 0
    fi
    if [ "${1}" = "awips2-edex-upc" ]; then
