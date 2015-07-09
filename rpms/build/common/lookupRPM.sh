@@ -66,7 +66,7 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-python-jep" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/jep-3.3.0/"
+      export RPM_SPECIFICATION="${installer_dir}/jep-3.3.5/"
       return 0
    fi
    if [ "${1}" = "awips2-python-pil" ]; then
