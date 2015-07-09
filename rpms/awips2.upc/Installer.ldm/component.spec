@@ -9,7 +9,7 @@
 Name: awips2-ldm
 Summary: AWIPS II LDM Distribution
 Version: %{_ldm_version}
-Release: 1
+Release: 2
 Group: AWIPSII
 BuildRoot: /tmp
 BuildArch: noarch
@@ -50,7 +50,7 @@ fi
 %install
 
 # create the ldm directory
-/bin/mkdir -p %{_build_root}/usr/local/ldm/SOURCES
+/bin/mkdir -p %{_build_root}/home/awips/ldm/SOURCES
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -72,12 +72,12 @@ if [ $? -ne 0 ]; then
 fi
 
 
-_ldm_destination=%{_build_root}/usr/local/ldm
+_ldm_destination=%{_build_root}/home/awips/ldm
 _ldm_destination_source=${_ldm_destination}/SOURCES
 
 _NATIVELIB_PROJECTS=( 'edexBridge' 'decrypt_file' )
 _RPM_directory=%{_baseline_workspace}/rpms
-_Installer_ldm=${_RPM_directory}/awips2.core/Installer.ldm
+_Installer_ldm=${_RPM_directory}/awips2.upc/Installer.ldm
 
 # copy the ldm source to the ldm destination directory.
 /bin/cp ${_Installer_ldm}/src/%{_ldm_src_tar} ${_ldm_destination_source}
@@ -174,14 +174,14 @@ fi
 chown -R ldm:fxalpha ${_ldm_dir}
 
 # create .bash_profile
-if [ ! -f /usr/local/ldm/.bash_profile ]; then
+if [ ! -f /home/awips/.bash_profile ]; then
    echo 'umask 002' > \
-      /usr/local/ldm/.bash_profile
+      /home/awips/.bash_profile
    echo 'export PATH=$HOME/decoders:$HOME/util:$HOME/bin:$PATH' >> \
-      /usr/local/ldm/.bash_profile
+      /home/awips/.bash_profile
    echo 'export MANPATH=$HOME/share/man:/usr/share/man' >> \
-      /usr/local/ldm/.bash_profile
-   /bin/chown ldm:fxalpha /usr/local/ldm/.bash_profile
+      /home/awips/.bash_profile
+   /bin/chown awips:fxalpha /home/awips/ldm/.bash_profile
 fi
 
 pushd . > /dev/null 2>&1
@@ -231,8 +231,8 @@ do
    fi
 done
 /bin/chmod a+x ${_ldm_dir}/bin/*
-/bin/chown ldm:fxalpha ${_ldm_root_dir}/bin
-/bin/chown -R ldm:fxalpha ${_ldm_dir}/etc ${_ldm_dir}/decoders
+/bin/chown awips:fxalpha ${_ldm_root_dir}/bin
+/bin/chown -R awips:fxalpha ${_ldm_dir}/etc ${_ldm_dir}/decoders
 popd > /dev/null 2>&1
 
 # construct pqact
@@ -262,7 +262,7 @@ if [ $? -ne 0 ]; then
    echo "FATAL: failed to remove edexBridge.tar and decrypt_file.tar!"
    exit 1
 fi
-/bin/chown -R ldm:fxalpha ${_ldm_dir}/SOURCES
+/bin/chown -R awips:fxalpha ${_ldm_dir}/SOURCES
 if [ $? -ne 0 ]; then
    echo "FATAL: failed to change owner of ldm SOURCES directory."
    exit 1
@@ -334,10 +334,10 @@ sed -i 's/<size>500M<\/size>/<size>1500M<\/size>/' ${_ldm_dir}/etc/registry.xml
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(-,ldm,fxalpha,-)
-%dir /usr/local/ldm
-%dir /usr/local/ldm/SOURCES
-/usr/local/ldm/SOURCES/*
+%defattr(-,awips,fxalpha,-)
+%dir /home/awips/ldm
+%dir /home/awips/ldm/SOURCES
+/home/awips/ldm/SOURCES/*
 
 %attr(755,root,root) /etc/profile.d/awipsLDM.csh
 %attr(755,root,root) /etc/profile.d/awipsLDM.sh
