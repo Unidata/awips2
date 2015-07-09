@@ -50,7 +50,7 @@ fi
 %install
 
 # create the ldm directory
-/bin/mkdir -p %{_build_root}/home/awips/ldm/SOURCES
+/bin/mkdir -p %{_build_root}/usr/local/ldm/SOURCES
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -72,7 +72,7 @@ if [ $? -ne 0 ]; then
 fi
 
 
-_ldm_destination=%{_build_root}/home/awips/ldm
+_ldm_destination=%{_build_root}/usr/local/ldm
 _ldm_destination_source=${_ldm_destination}/SOURCES
 
 _NATIVELIB_PROJECTS=( 'edexBridge' 'decrypt_file' )
@@ -174,14 +174,14 @@ fi
 chown -R ldm:fxalpha ${_ldm_dir}
 
 # create .bash_profile
-if [ ! -f /home/awips/.bash_profile ]; then
+if [ ! -f /usr/local/ldm/.bash_profile ]; then
    echo 'umask 002' > \
-      /home/awips/.bash_profile
+      /usr/local/ldm/.bash_profile
    echo 'export PATH=$HOME/decoders:$HOME/util:$HOME/bin:$PATH' >> \
-      /home/awips/.bash_profile
+      /usr/local/ldm/.bash_profile
    echo 'export MANPATH=$HOME/share/man:/usr/share/man' >> \
-      /home/awips/.bash_profile
-   /bin/chown awips:fxalpha /home/awips/ldm/.bash_profile
+      /usr/local/ldm/.bash_profile
+   /bin/chown ldm:fxalpha /usr/local/ldm/.bash_profile
 fi
 
 pushd . > /dev/null 2>&1
@@ -231,8 +231,8 @@ do
    fi
 done
 /bin/chmod a+x ${_ldm_dir}/bin/*
-/bin/chown awips:fxalpha ${_ldm_root_dir}/bin
-/bin/chown -R awips:fxalpha ${_ldm_dir}/etc ${_ldm_dir}/decoders
+/bin/chown ldm:fxalpha ${_ldm_root_dir}/bin
+/bin/chown -R ldm:fxalpha ${_ldm_dir}/etc ${_ldm_dir}/decoders
 popd > /dev/null 2>&1
 
 # construct pqact
@@ -262,7 +262,7 @@ if [ $? -ne 0 ]; then
    echo "FATAL: failed to remove edexBridge.tar and decrypt_file.tar!"
    exit 1
 fi
-/bin/chown -R awips:fxalpha ${_ldm_dir}/SOURCES
+/bin/chown -R ldm:fxalpha ${_ldm_dir}/SOURCES
 if [ $? -ne 0 ]; then
    echo "FATAL: failed to change owner of ldm SOURCES directory."
    exit 1
@@ -335,9 +335,9 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %files
 %defattr(-,awips,fxalpha,-)
-%dir /home/awips/ldm
-%dir /home/awips/ldm/SOURCES
-/home/awips/ldm/SOURCES/*
+%dir /usr/local/ldm
+%dir /usr/local/ldm/SOURCES
+/usr/local/ldm/SOURCES/*
 
 %attr(755,root,root) /etc/profile.d/awipsLDM.csh
 %attr(755,root,root) /etc/profile.d/awipsLDM.sh
