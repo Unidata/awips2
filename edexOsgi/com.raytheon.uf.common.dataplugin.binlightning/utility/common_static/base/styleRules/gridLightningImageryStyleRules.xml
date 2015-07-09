@@ -285,6 +285,7 @@
         <paramLevelMatches>
             <parameter>Pulse Lightning Density 1min</parameter>
             <parameter>Pulse Lightning Density 5min</parameter>
+            <parameter>Pulse Lightning Density 15min</parameter>
             <!-- level is km resolution -->
             <rangeLevel units="DEFAULT">
                 <lower>20</lower>
