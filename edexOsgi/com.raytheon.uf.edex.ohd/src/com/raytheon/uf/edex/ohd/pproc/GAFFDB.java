@@ -23,7 +23,9 @@ import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
@@ -47,7 +49,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Jan 11, 2011            mpduff      Initial creation
  * Mar 28, 2014   2952     mpduff      Changed to use UFStatus for logging.
  * Apr 21, 2014   2060     njensen     Remove dependency on grid dataURI column
- * 
+ * Jul 09, 2015 4500       rjpeter     Fix SQL Injection concern.
  * </pre>
  * 
  * @author mpduff
@@ -92,16 +94,17 @@ public class GAFFDB {
         cal.setTimeInMillis(start);
 
         String startTime = sdf.format(cal.getTime());
-        String process = processName;
         String sql = "insert into perflog (process, start_time, num_processed, "
                 + "num_reads, num_inserts, num_updates, num_deletes, "
-                + "elapsed_time, cpu_time, io_time) values ('"
-                + process
-                + "', " + " '" + startTime + "', 0, 0, 0, 0, 0, 0, 0, 0)";
+                + "elapsed_time, cpu_time, io_time) values (:process,"
+                + " :startTime, 0, 0, 0, 0, 0, 0, 0, 0)";
+        Map<String, Object> paramMap = new HashMap<>(2, 1);
+        paramMap.put("process", processName);
+        paramMap.put("startTime", startTime);
 
         CoreDao dao = null;
         dao = new CoreDao(DaoConfig.forDatabase(IHFS));
-        dao.executeNativeSql(sql, false);
+        dao.executeSQLUpdate(sql, paramMap);
 
     }
 
@@ -179,7 +182,7 @@ public class GAFFDB {
         List<?> rs = dao.queryByCriteria(query);
         if ((rs != null) && (!rs.isEmpty())) {
             Object result = rs.get(0);
-            if (result != null && result instanceof GridRecord) {
+            if ((result != null) && (result instanceof GridRecord)) {
                 rec = ((GridRecord) result);
             }
         }
@@ -250,35 +253,40 @@ public class GAFFDB {
             String sql = "insert into contingencyvalue (lid, pe, dur, ts, "
                     + "extremum, probability, validtime, basistime, value, "
                     + "shef_qual_code, quality_code, revision, product_id, "
-                    + "producttime, postingtime) values ('" + areaId + "', "
-                    + "'PP', " + dur + ", 'CP', 'Z', -1.0, '" + validDate
-                    + "', '" + basisTime + "', " + avgVal + ", 'Z', "
-                    + DEFAULT_QC_VALUE + ", " + "0, 'GRIDFFG', '" + validDate
-                    + "', '" + postDate + "')";
+                    + "producttime, postingtime) values (:areaId, 'PP', "
+                    + ":dur, 'CP', 'Z', -1.0, :validDate, :basisTime, :avgVal, "
+                    + "'Z', :qc, 0, 'GRIDFFG', :validDate, :postDate)";
 
             log.debug(sql);
+            Map<String, Object> paramMap = new HashMap<>(8, 1);
+            paramMap.put("areaId", areaId);
+            paramMap.put("dur", dur);
+            paramMap.put("validDate", validDate);
+            paramMap.put("basisTime", basisTime);
+            paramMap.put("avgVal", avgVal);
+            paramMap.put("qc", DEFAULT_QC_VALUE);
+            paramMap.put("validDate", validDate);
+            paramMap.put("postDate", postDate);
 
-            dao.executeNativeSql(sql, false);
+            dao.executeSQLUpdate(sql, paramMap);
         } else {
             // Need to do an update to the row
-            String updateSql = "update contingencyvalue set value = "
-                    + avgVal
-                    + ", shef_qual_code = 'Z', quality_code = "
-                    + DEFAULT_QC_VALUE
-                    + ", revision = 0, product_id = "
-                    + "'GRIDFFG', producttime = '"
-                    + validDate
-                    + "', "
-                    + " postingtime = '"
-                    + postDate
-                    + "' where "
-                    + "lid = '"
-                    + areaId
-                    + "' and pe = 'PP' and dur = "
-                    + dur
-                    + " and ts = 'CP' and extremum = 'Z' and probability = -1.0 "
-                    + " and validtime = '" + validDate + "' and basistime = '"
-                    + basisTime + "'";
+            String updateSql = "update contingencyvalue set value = :avgVal, "
+                    + "shef_qual_code = 'Z', quality_code = :qc, revision = 0, "
+                    + "product_id = 'GRIDFFG', producttime = :validDate, "
+                    + "postingtime = :postDate where lid = :areaId and pe = 'PP' "
+                    + "and dur = :dur and ts = 'CP' and extremum = 'Z' and probability = -1.0 "
+                    + " and validtime = :validDate and basistime = :basisTime";
+
+            Map<String, Object> paramMap = new HashMap<>(8, 1);
+            paramMap.put("avgVal", avgVal);
+            paramMap.put("qc", DEFAULT_QC_VALUE);
+            paramMap.put("validDate", validDate);
+            paramMap.put("postDate", postDate);
+            paramMap.put("areaId", areaId);
+            paramMap.put("dur", dur);
+            paramMap.put("validDate", validDate);
+            paramMap.put("basisTime", basisTime);
 
             dao.executeSQLUpdate(updateSql);
         }
@@ -317,8 +325,8 @@ public class GAFFDB {
     public Object[] getLineSegs(String areaId) {
         CoreDao dao = null;
         dao = new CoreDao(DaoConfig.forDatabase(IHFS));
-        Object[] rs = dao.executeSQLQuery(LINESEGS_QUERY + " where area_Id = '"
-                + areaId + "'");
+        Object[] rs = dao.executeSQLQuery(LINESEGS_QUERY
+                + " where area_Id = :areaId", "areaId", areaId);
 
         return rs;
     }
