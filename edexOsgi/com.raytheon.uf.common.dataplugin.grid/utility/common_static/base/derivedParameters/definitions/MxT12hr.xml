@@ -20,7 +20,7 @@
     -->
 <DerivedParameter abbreviation="MxT12hr" name="12-hr Maximum Temperature" unit="K">
     <Method name="Alias" levels="Surface"
-    	models="MOSGuide" displayName="Maximum Temperature">
+    	models="MOSGuide NationalBlend" displayName="Maximum Temperature">
         <Field abbreviation="MxT12hr" level="2FHAG"/>
     </Method>    
 </DerivedParameter>
