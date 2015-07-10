@@ -149,7 +149,7 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
     private String proxyAddress;
 
     public ThinClientConnectivityDialog(boolean checkAlertViz) {
-        super(checkAlertViz, "Thin Client Connectivity Preferences");
+        super(checkAlertViz, "AWIPS II Connectivity Preferences");
         IPreferenceStore store = Activator.getDefault().getPreferenceStore();
         useProxy = store
                 .getBoolean(ThinClientPreferenceConstants.P_USE_PROXIES);
@@ -162,95 +162,7 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
     @Override
     protected void createTextBoxes(Composite textBoxComp) {
         super.createTextBoxes(textBoxComp);
-
-        Label label = new Label(textBoxComp, SWT.RIGHT);
-        label.setText("Use Proxy Server:");
-        GridData gd = new GridData(SWT.RIGHT, SWT.CENTER, false, true);
-        gd.horizontalIndent = 20;
-        label.setLayoutData(gd);
-
-        Composite proxyComp = new Composite(textBoxComp, SWT.NONE);
-        GridLayout gl = new GridLayout(2, false);
-        gl.marginHeight = 0;
-        gl.marginWidth = 0;
-        proxyComp.setLayout(gl);
-        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
-        proxyComp.setLayoutData(gd);
-
-        useProxyCheck = new Button(proxyComp, SWT.CHECK | SWT.LEFT);
-        useProxyCheck.setSelection(useProxy);
-        useProxyCheck.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                updateProxyEnabled();
-            }
-        });
-
-        IPreferenceStore thinPrefs = Activator.getDefault()
-                .getPreferenceStore();
-        String[] proxyOptions = ServerRemembrance.getServerOptions(thinPrefs,
-                ThinClientPreferenceConstants.P_PROXY_SERVER_OPTIONS);
-        proxySrv = new TextOrCombo(proxyComp, SWT.BORDER, proxyOptions);
-        gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
-        proxySrv.widget.setLayoutData(gd);
-        proxySrv.setText(proxyAddress == null ? "" : proxyAddress);
-        proxySrv.widget.setBackground(getTextColor(servicesGood && pypiesGood));
-        proxySrv.addSelectionListener(new SelectionListener() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                // user clicked an option
-                validate();
-            }
-
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-                // user hit Enter
-                performOk();
-            }
-        });
-
         new Label(textBoxComp, SWT.NONE);
-
-        Composite jmsComp = new Composite(textBoxComp, SWT.NONE);
-        gl = new GridLayout(2, false);
-        gl.marginHeight = 0;
-        gl.marginWidth = 0;
-        jmsComp.setLayout(gl);
-
-        disableJmsCheck = new Button(jmsComp, SWT.CHECK | SWT.LEFT);
-        disableJmsCheck.setSelection(disableJms);
-        disableJmsCheck.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                disableJms = disableJmsCheck.getSelection();
-                validate();
-            }
-        });
-        disableJmsCheck.setText("Disable JMS");
-        jmsErrorLabel = new Label(jmsComp, SWT.LEFT);
-        jmsErrorLabel.setText("Error connecting to JMS");
-        jmsErrorLabel.setForeground(display.getSystemColor(SWT.COLOR_RED));
-        jmsErrorLabel.setVisible(true);
-        new Label(textBoxComp, SWT.NONE);
-
-        alwaysPrompt = LocalizationManager
-                .getInstance()
-                .getLocalizationStore()
-                .getBoolean(
-                        LocalizationConstants.P_LOCALIZATION_PROMPT_ON_STARTUP);
-        alwaysPromptCheck = new Button(textBoxComp, SWT.CHECK | SWT.LEFT);
-        alwaysPromptCheck.setText("Prompt for settings on startup");
-        alwaysPromptCheck.setSelection(alwaysPrompt);
-        alwaysPromptCheck.addSelectionListener(new SelectionAdapter() {
-
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                alwaysPrompt = alwaysPromptCheck.getSelection();
-            }
-
-        });
-
-        updateProxyEnabled();
     }
 
     @Override
@@ -376,22 +288,6 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
         ConnectivityManager.checkHttpServer(
                 ThinClientUriUtil.getPypiesAddress(proxyAddress),
                 pypiesCallback);
-    }
-
-    private void updateProxyEnabled() {
-        useProxy = useProxyCheck.getSelection();
-        proxySrv.widget.setEnabled(useProxy);
-        super.setLocalizationEnabled(!useProxy);
-        if (useProxy) {
-            if (localizationSrv != null && !localizationSrv.widget.isDisposed()) {
-                localizationSrv.widget.setBackground(getTextColor(true));
-            }
-        } else {
-            if (proxySrv != null && !proxySrv.widget.isDisposed()) {
-                proxySrv.widget.setBackground(getTextColor(true));
-            }
-        }
-        validate();
     }
 
     /**
