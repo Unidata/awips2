@@ -348,6 +348,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 05Mar2015   RM 15025     kshrestha   Fix to maintain the headers that they are saved with
  * 10Mar2015   RM 14866     kshrestha   Disable QC GUI pop up for TextWS
  * 6Apr2015    RM14968   mgamazaychikov Fix formatting for pathcast section
+ * 8Jul2015    DR 15044     dhuffman    Implemented tabbing and tabs to spaces.
  * 
  * </pre>
  * 
@@ -3838,10 +3839,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         });
 
-        // TODO - Use this to convert tabs to spaces and extra spaces in the
-        // middle of a line to a single space?
-        // textEditor.addVerifyListener(new VerifyListener() {
-        //
         // @Override
         // public void verifyText(VerifyEvent e) {
         // // TODO Auto-generated method stub
@@ -3968,7 +3965,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                             }
                             isTemplateOverwriteModeSet = true;
                         }
-
                         event.doit = false;
                         int currentPos = textEditor.getCaretOffset();
                         String textUpToCaret = textEditor.getText().substring(
@@ -3980,6 +3976,24 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     } else if (((event.keyCode >= 97) && (event.keyCode <= 122))
                             || ((event.keyCode >= 48) && (event.keyCode <= 57))) {
                         event.doit = true;
+                    }
+                } else { // (!AFOSParser.isTemplate)
+                    if (event.keyCode == SWT.TAB) {
+                        int lineStartOffset = textEditor
+                                .getOffsetAtLine(textEditor
+                                        .getLineAtOffset(textEditor
+                                                .getCaretOffset()));
+                        int caretOffsetOnLine = textEditor.getCaretOffset()
+                                - lineStartOffset;
+                        int numberOfSpaces = (textEditor.getTabs() - caretOffsetOnLine
+                                % textEditor.getTabs());
+                        String spaces = "";
+                        for (int x = 0; x < numberOfSpaces; x++)
+                            spaces += ' ';
+                        textEditor.insert(spaces);
+                        textEditor.setCaretOffset(textEditor.getCaretOffset()
+                                + numberOfSpaces);
+                        event.doit = false;
                     }
                 }
             }
