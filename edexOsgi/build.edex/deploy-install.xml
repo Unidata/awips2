@@ -17,13 +17,8 @@
 		<ant antfile="${basedir}/deploy-common/deploy-esb.xml" />
 		<!-- deploy esb configuration -->
 		<ant antfile="${basedir}/deploy-common/deploy-esb-configuration.xml" />
-		<!-- optionally: deploy gfesuite -->
-		<if>
-			<equals arg1="${deploy.gfesuite}" arg2="true" />
-			<then>
-				<ant antfile="${basedir}/deploy-common/deploy-gfesuite.xml" />
-			</then>
-		</if>
+		<!-- deploy gfesuite -->
+		<ant antfile="${basedir}/deploy-common/deploy-gfesuite.xml" />
 		<!-- deploy edex plugins -->
 		<!-- which feature do we want to deploy? -->
 		<if>
@@ -74,15 +69,8 @@
 				<antcall target="deploy.python" />
 			</then>
 		</if>
-		<!-- optionally: deploy site localization -->
-		<if>
-			<not>
-				<equals arg1="${localization.sites}" arg2="" />
-			</not>
-			<then>
-				<antcall target="deploy.localization" />
-			</then>
-		</if>
+		<!-- deploy site localization -->
+		<antcall target="deploy.localization" />
 
 		<!-- 
 			Search for WA-specific Non-Spring
