@@ -14,8 +14,8 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-data @user.home/caveData -user @user.home/caveData -component thinclient</programArgs>
-      <programArgsLin>-consoleLog</programArgsLin>
+      <programArgs>-data @user.home/caveData -user @user.home/caveData</programArgs>
+      <programArgsLin>-consoleLog -component thinclient</programArgsLin>
       <vmArgs>-XX:+UseG1GC
 -Dosgi.instance.area.readOnly=true 
 -Declipse.log.enabled=false
@@ -60,6 +60,7 @@
             winLargeLow="/com.raytheon.viz.ui.personalities.awips/awips2_tray48x48.bmp"/>
       </win>
    </launcher>
+
 
    <vm>
       <windows include="true">jdk1.6.0</windows>
