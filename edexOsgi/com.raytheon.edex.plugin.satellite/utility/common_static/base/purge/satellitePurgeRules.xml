@@ -525,47 +525,186 @@
 	<rule>
 		<keyValue>West CONUS</keyValue>
 		<keyValue>Low cloud base imagery</keyValue>
-		<versionsToKeep>62</versionsToKeep>
+		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
 		<keyValue>West CONUS</keyValue>
 		<keyValue>Sounder 11.03 micron imagery</keyValue>
-		<versionsToKeep>4</versionsToKeep>
+		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
 		<keyValue>West CONUS</keyValue>
 		<keyValue>Sounder 14.06 micron imagery</keyValue>
-		<versionsToKeep>4</versionsToKeep>
+		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
 		<keyValue>West CONUS</keyValue>
 		<keyValue>Sounder 3.98 micron imagery</keyValue>
-		<versionsToKeep>4</versionsToKeep>
+		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
 		<keyValue>West CONUS</keyValue>
 		<keyValue>Sounder 4.45 micron imagery</keyValue>
-		<versionsToKeep>4</versionsToKeep>
+		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
 		<keyValue>West CONUS</keyValue>
 		<keyValue>Sounder 6.51 micron imagery</keyValue>
-		<versionsToKeep>4</versionsToKeep>
+		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
 		<keyValue>West CONUS</keyValue>
 		<keyValue>Sounder 7.02 micron imagery</keyValue>
-		<versionsToKeep>4</versionsToKeep>
+		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
 		<keyValue>West CONUS</keyValue>
 		<keyValue>Sounder 7.43 micron imagery</keyValue>
-		<versionsToKeep>4</versionsToKeep>
+		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
 		<keyValue>West CONUS</keyValue>
 		<keyValue>Sounder Visible imagery</keyValue>
-		<versionsToKeep>4</versionsToKeep>
+		<versionsToKeep>96</versionsToKeep>
 	</rule>
-	
+	<rule>
+		<keyValue>NEXRCOMP</keyValue>
+		<keyValue>DHR</keyValue>
+		<versionsToKeep>500</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>NEXRCOMP</keyValue>
+		<keyValue>DVL</keyValue>
+		<versionsToKeep>500</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>NEXRCOMP</keyValue>
+		<keyValue>EET</keyValue>
+		<versionsToKeep>500</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>NEXRCOMP</keyValue>
+		<keyValue>N1P</keyValue>
+		<versionsToKeep>500</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>NEXRCOMP</keyValue>
+		<keyValue>NTP</keyValue>
+		<versionsToKeep>500</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>NEXRCOMP</keyValue>
+		<keyValue>HHC</keyValue>
+		<versionsToKeep>500</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>NEXRCOMP</keyValue>
+		<keyValue>N0R</keyValue>
+		<versionsToKeep>500</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>NEXRCOMP</keyValue>
+		<keyValue>OHA</keyValue>
+		<versionsToKeep>500</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>NEXRCOMP</keyValue>
+		<keyValue>DTA</keyValue>
+		<versionsToKeep>500</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>NEXRCOMP</keyValue>
+		<keyValue>DSP</keyValue>
+		<versionsToKeep>500</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>NEXRCOMP</keyValue>
+		<keyValue>N0X</keyValue>
+		<versionsToKeep>500</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>NEXRCOMP</keyValue>
+		<keyValue>N0K</keyValue>
+		<versionsToKeep>500</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>NEXRCOMP</keyValue>
+		<keyValue>N0C</keyValue>
+		<versionsToKeep>500</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Arctic</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Arctic</keyValue>
+		<keyValue>Imager Visible</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Arctic</keyValue>
+		<keyValue>Imager 12 micron IR</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Arctic</keyValue>
+		<keyValue>Imager 3.5-4.0 micro IR (Fog)</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Arctic</keyValue>
+		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Antarctic</keyValue>
+		<keyValue>Imager Visible</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Antarctic</keyValue>
+		<keyValue>Imager 12 micron IR</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Antarctic</keyValue>
+		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Global</keyValue>
+		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Mollweide</keyValue>
+		<keyValue>Imager 12 micron IR</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>Mollweide</keyValue>
+		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>GOES-Sounder</keyValue>
+		<keyValue>Sounder Based Derived Surface Skin Temp (SFC Skin)</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>GOES-Sounder</keyValue>
+		<keyValue>Sounder Based Derived Precipitable Water (PW)</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>GOES-Sounder</keyValue>
+		<keyValue>Sounder Based Total Column Ozone</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>GOES-Sounder</keyValue>
+		<keyValue>Sounder Based Derived Lifted Index (LI)</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
 </purgeRuleSet>
