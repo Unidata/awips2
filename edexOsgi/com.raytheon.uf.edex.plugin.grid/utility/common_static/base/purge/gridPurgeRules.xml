@@ -6,83 +6,82 @@
         <versionsToKeep>2</versionsToKeep>
         <period>07-00:00:00</period>
     </defaultRule>
-	<!-- Purge rule for the NAM80 (ETA) model -->
 	<rule>
-		<keyValue>ETA</keyValue>
+		<keyValue>AK-NAM-11km</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
-	<!-- Purge rule for the RUC80 (RUC) model -->
+	<!-- Purge rule for RAP -->
 	<rule>
-		<keyValue>RUC</keyValue>
+		<keyValue>RAP-13km</keyValue>
 		<versionsToKeep>8</versionsToKeep>
 	</rule>
-	<!-- Purge rule for the GFS180 (AVN) model -->
 	<rule>
-		<keyValue>AVN</keyValue>
+		<keyValue>RAP-20km</keyValue>
+		<versionsToKeep>8</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>RAP-40km</keyValue>
+		<versionsToKeep>8</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>AK-NamDNG5</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
-	<!-- Purge rule for the LAPS model -->
 	<rule>
-		<keyValue>LAPS</keyValue>
-		<versionsToKeep>30</versionsToKeep>
+		<keyValue>AK-RTMA</keyValue>
+		<versionsToKeep>8</versionsToKeep>
 	</rule>
-	<!-- Purge rule for the NGM80 (NGM) model -->
 	<rule>
-		<keyValue>NGM</keyValue>
+		<keyValue>Aviation</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
-	<!-- Purge rule for the gfsLR (MRF) model -->
 	<rule>
-		<keyValue>MRF</keyValue>
+		<keyValue>Aviation-0-252</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
-	<!-- Purge rule for the MSAS model -->
 	<rule>
-		<keyValue>MSAS</keyValue>
-		<versionsToKeep>24</versionsToKeep>
+		<keyValue>FNMOC-NCODA</keyValue>
+		<versionsToKeep>2</versionsToKeep>
 	</rule>
-	<!-- Purge rule for the GFS360 (GFS201) model -->
+	<rule>
+		<keyValue>GEFS</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>GFS</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>GFS-1p0</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
 	<rule>
 		<keyValue>GFS201</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
-	<!-- Purge rule for the gfsLR (mrfNH) model -->
 	<rule>
-		<keyValue>mrfNH</keyValue>
+		<keyValue>GFS20-PRICO</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
-	<!-- Purge rule for the GFS90 (GFS213) model -->
+	<rule>
+		<keyValue>GFS212</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
 	<rule>
 		<keyValue>GFS213</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
-	<!-- Purge rule for the NGM90 (NGM213) model -->
 	<rule>
-		<keyValue>NGM213</keyValue>
-		<versionsToKeep>1</versionsToKeep>
-		<modTimeToWait>00-00:15:00</modTimeToWait>
-	</rule>
-	<!-- Purge rule for the NGM180 (NGM202) model -->
-	<rule>
-		<keyValue>NGM202</keyValue>
+		<keyValue>GFS215</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
-	<!-- Purge rule for the GFS80 (AVN211) model -->
 	<rule>
-		<keyValue>AVN211</keyValue>
+		<keyValue>GFS217</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
-	<!-- Purge rule for the NAM40 (mesoEta212) model -->
 	<rule>
-		<keyValue>mesoEta212</keyValue>
+		<keyValue>GFSLAMP5km</keyValue>
 		<versionsToKeep>2</versionsToKeep>
-		<modTimeToWait>00-00:15:00</modTimeToWait>
-	</rule>
-	<!-- Purge rule for the NAM20 (mesoEta215) model -->
-	<rule>
-		<keyValue>mesoEta215</keyValue>
-		<versionsToKeep>2</versionsToKeep>
-		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>
 	<!-- Purge rules for the GFSensemble models -->
 	<rule>
@@ -121,93 +120,60 @@
 		<keyValue>ENSEMBLE44</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
-	<!-- Purge rule for the NAMWX (ETA212) model -->
 	<rule>
-		<keyValue>ETA212</keyValue>
+		<keyValue>Hawaii-NamDNG5</keyValue>
 		<versionsToKeep>1</versionsToKeep>
-		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>
-	<!-- Purge rule for the gfs190 (MRF203) model -->
 	<rule>
-		<keyValue>MRF203</keyValue>
+		<keyValue>Hawaii-RTMA</keyValue>
+		<versionsToKeep>1</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>HRRR</keyValue>
 		<versionsToKeep>3</versionsToKeep>
 	</rule>
-	<!-- Purge rule for the GFS190 (AVN203) model -->
 	<rule>
-		<keyValue>AVN203</keyValue>
-		<versionsToKeep>3</versionsToKeep>
-	</rule>
-	<!-- Purge rule for the GFS150 (MRF204) model -->
-	<rule>
-		<keyValue>MRF204</keyValue>
-		<versionsToKeep>3</versionsToKeep>
-	</rule>
-	<!-- Purge rule for the GFS150 (MRF205) model -->
-	<rule>
-		<keyValue>MRF205</keyValue>
-		<versionsToKeep>3</versionsToKeep>
-	</rule>
-	<!-- Purge rule for the NGM95 (NGM207) model -->
-	<rule>
-		<keyValue>NGM207</keyValue>
-		<versionsToKeep>3</versionsToKeep>
-	</rule>
-	<!-- Purge rule for the NAM95 (NAM95) model -->
-	<rule>
-		<keyValue>NAM207</keyValue>
-		<versionsToKeep>3</versionsToKeep>
-	</rule>
-	<!-- Purge rule for the ECMWF (ECMF-NorthernHemisphere) model -->
-	<rule>
-		<keyValue>ECMF-NorthernHemisphere</keyValue>
+		<keyValue>LAMP-2p5km</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>ECMF1</keyValue>
+		<keyValue>MOSGuide-AK</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>ECMF2</keyValue>
+		<keyValue>NAM-12km</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>ECMF3</keyValue>
+		<keyValue>NAM-40km</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>ECMF4</keyValue>
+		<keyValue>NamDNG5</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>ECMF5</keyValue>
+		<keyValue>PR-GFS</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>ECMF6</keyValue>
+		<keyValue>NAVGEM</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>ECMF7</keyValue>
+		<keyValue>RTMA</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>ECMF8</keyValue>
+		<keyValue>URMA25</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>ECMF9</keyValue>
+		<keyValue>RTMA-2p5km</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>ECMF10</keyValue>
-		<versionsToKeep>2</versionsToKeep>
-	</rule>
-	<rule>
-		<keyValue>ECMF11</keyValue>
-		<versionsToKeep>2</versionsToKeep>
-	</rule>
-	<rule>
-		<keyValue>ECMF12</keyValue>
+		<keyValue>SREF-40km</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<!-- Purge rule for the UKMET (UKMET-NorthernHemisphere) model -->
@@ -247,189 +213,78 @@
 		<keyValue>UKMET44</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
-	<!-- Purge rule for the AVN (AVN-NorthernHemisphere) model -->
-	<rule>
-		<keyValue>AVN-NorthernHemisphere</keyValue>
-		<versionsToKeep>2</versionsToKeep>
-	</rule>
-	<rule>
-		<keyValue>AVN37</keyValue>
-		<versionsToKeep>2</versionsToKeep>
-	</rule>
-	<rule>
-		<keyValue>AVN38</keyValue>
-		<versionsToKeep>2</versionsToKeep>
-	</rule>
-	<rule>
-		<keyValue>AVN39</keyValue>
-		<versionsToKeep>2</versionsToKeep>
-	</rule>
-	<rule>
-		<keyValue>AVN40</keyValue>
-		<versionsToKeep>2</versionsToKeep>
-	</rule>
-	<rule>
-		<keyValue>AVN41</keyValue>
-		<versionsToKeep>2</versionsToKeep>
-	</rule>
-	<rule>
-		<keyValue>AVN42</keyValue>
-		<versionsToKeep>2</versionsToKeep>
-	</rule>
-	<rule>
-		<keyValue>AVN43</keyValue>
-		<versionsToKeep>2</versionsToKeep>
-	</rule>
-	<rule>
-		<keyValue>AVN44</keyValue>
-		<versionsToKeep>2</versionsToKeep>
-	</rule>
 	<!-- Purge rule for the GWW (GWW233) model -->
 	<rule>
 		<keyValue>GWW233</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>
-	<!-- Purge rule for the RFCqpf (RFCqpf) model -->
 	<rule>
 		<keyValue>RFCqpf</keyValue>
 		<versionsToKeep>5</versionsToKeep>
 	</rule>
-	<!-- Purge rule for the RUC40 (RUC236) model -->
-	<rule>
-		<keyValue>RUC236</keyValue>
-		<versionsToKeep>8</versionsToKeep>
-	</rule>
-	<!-- Purge rule for the GFS75 (AVN225) model -->
-	<rule>
-		<keyValue>AVN225</keyValue>
-		<versionsToKeep>3</versionsToKeep>
-	</rule>
-	<!-- Purge rule for the WNAwave (WNAWAVE238) model -->
 	<rule>
 		<keyValue>WNAWAVE238</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>
-	<!-- Purge rule for the AK-NAM40 (mesoEta216) model -->
-	<rule>
-		<keyValue>mesoEta216</keyValue>
-		<versionsToKeep>1</versionsToKeep>
-		<modTimeToWait>00-00:15:00</modTimeToWait>
-	</rule>
-	<!-- Purge rule for the AK-NAM20 (mesoEta217) model -->
 	<rule>
 		<keyValue>mesoEta217</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>
-	<!-- Purge rule for the NAM12 (ETA218) model -->
-	<rule>
-		<keyValue>ETA218</keyValue>
-		<versionsToKeep>1</versionsToKeep>
-		<modTimeToWait>00-00:15:00</modTimeToWait>
-	</rule>
-	<!-- Purge rule for the AK-NAM12 (ETA242) model -->
-	<rule>
-		<keyValue>ETA242</keyValue>
-		<versionsToKeep>1</versionsToKeep>
-		<modTimeToWait>00-00:15:00</modTimeToWait>
-	</rule>
-	<!-- Purge rule for the HPCqpf (HPCqpf) model -->
 	<rule>
 		<keyValue>HPCqpf</keyValue>
 		<versionsToKeep>5</versionsToKeep>
 	</rule>
-	<!-- Purge rule for the ENPwave (ENPWAVE253) model -->
 	<rule>
 		<keyValue>ENPWAVE253</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>
-	<!-- Purge rule for the HPCdelta (HPCdelta) model -->
 	<rule>
 		<keyValue>HPCdelta</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
-	<!-- Purge rule for the TPC-HurWind (HurWind226) model -->
 	<rule>
 		<keyValue>HurWind226</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
-	<!-- Purge rule for the CPCoutlook-Long (CPCoutlook211) model -->
 	<rule>
 		<keyValue>CPCoutlook211</keyValue>
 		<versionsToKeep>14</versionsToKeep>
 	</rule>
-	<!-- Purge rule for the RTG-SST-HR-Analysis (RTGSSTHR) model -->
 	<rule>
 		<keyValue>RTGSSTHR</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
-	<!-- Purge rule for the NICICE (NICICE) model -->
 	<rule>
 		<keyValue>NICICE</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
-	<!-- Purge rule for the DGEX (DGEX185) model -->
-	<rule>
-		<keyValue>DGEX185</keyValue>
-		<versionsToKeep>2</versionsToKeep>
-		<modTimeToWait>00-00:15:00</modTimeToWait>
-	</rule>
-	<!-- Purge rule for the HPCGuide (HPCGuide) model -->
 	<rule>
 		<keyValue>HPCGuide</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>
-	<!-- Purge rule for the GFSGuide (GFSGuide) model -->
 	<rule>
 		<keyValue>GFSGuide</keyValue>
 		<versionsToKeep>8</versionsToKeep>
 		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>
-	<!-- Purge rule for the GFS40 (GFS212) model -->
-	<rule>
-		<keyValue>GFS212</keyValue>
-		<versionsToKeep>1</versionsToKeep>
-		<modTimeToWait>00-00:15:00</modTimeToWait>
-	</rule>
-	<!-- Purge rule for the AK-GFS (GFS160) model -->
-	<rule>
-		<keyValue>GFS160</keyValue>
-		<versionsToKeep>1</versionsToKeep>
-		<modTimeToWait>00-00:15:00</modTimeToWait>
-	</rule>
-	<!-- Purge rule for the PR-GFS (GFS254) model -->
-	<rule>
-		<keyValue>GFS254</keyValue>
-		<versionsToKeep>1</versionsToKeep>
-		<modTimeToWait>00-00:15:00</modTimeToWait>
-	</rule>
-	<!-- Purge rule for the SJU-GFS (GFS161) model -->
-	<rule>
-		<keyValue>GFS161</keyValue>
-		<versionsToKeep>1</versionsToKeep>
-		<modTimeToWait>00-00:15:00</modTimeToWait>
-	</rule>
-	<!-- Purge rule for the MPE (MPE-Local) model -->
 	<rule>
 		<keyValue>MPE-Local</keyValue>
 		<versionsToKeep>72</versionsToKeep>
 	</rule>
-	<!-- Purge rule for the MPE (MPE-Mosaic) model -->
 	<rule>
 		<keyValue>MPE-Mosaic</keyValue>
 		<versionsToKeep>72</versionsToKeep>
 	</rule>	
-	<!-- Purge rule for the TPCWindProb (TPCWindProb) model -->
 	<rule>
 		<keyValue>TPCWindProb</keyValue>
 		<versionsToKeep>8</versionsToKeep>
 		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>
-	<!-- Purge rule for the GriddedMOS (MOSGuide) model -->
 	<rule>
 		<keyValue>MOSGuide</keyValue>
 		<versionsToKeep>2</versionsToKeep>
@@ -511,24 +366,6 @@
 		<versionsToKeep>8</versionsToKeep>
 		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>
-	<!-- Purge rule for the RTMA (RTMA) model -->
-	<rule>
-		<keyValue>RTMA</keyValue>
-		<versionsToKeep>24</versionsToKeep>
-		<modTimeToWait>00-00:15:00</modTimeToWait>
-	</rule>
-	<!-- Purge rule for AK-RTMA-3KM analysis -->
-	<rule>
-		<keyValue>AK-RTMA3</keyValue>
-		<versionsToKeep>24</versionsToKeep>
-		<modTimeToWait>00-00:15:00</modTimeToWait>
-	</rule>
-	<!-- Purge rule for the SREF (SREF212) model -->
-	<rule>
-		<keyValue>SREF212</keyValue>
-		<versionsToKeep>2</versionsToKeep>
-		<modTimeToWait>00-00:15:00</modTimeToWait>
-	</rule>
 	<!-- Purge rule for the RTG-SST-Analysis (RTGSST) model -->
 	<rule>
 		<keyValue>RTGSST</keyValue>
@@ -551,12 +388,6 @@
 	<rule>
 		<keyValue>HPCqpfNDFD</keyValue>
 		<versionsToKeep>42</versionsToKeep>
-		<modTimeToWait>00-00:15:00</modTimeToWait>
-	</rule>
-	<!-- Purge rule for the NamDNG5 (NamDNG5) model -->
-	<rule>
-		<keyValue>NamDNG5</keyValue>
-		<versionsToKeep>2</versionsToKeep>
 		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>
 	<!-- Purge rule for the TPCSurgeProb (TPCSurgeProb) model -->
@@ -631,23 +462,6 @@
 		<versionsToKeep>1</versionsToKeep>
 		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>
-	<!-- Purge rule for the AK-GriddedMOS (MOSGuide-AK) model -->
-	<rule>
-		<keyValue>MOSGuide-AK</keyValue>
-		<versionsToKeep>2</versionsToKeep>
-		<modTimeToWait>00-00:15:00</modTimeToWait>
-	</rule>
-	<!-- Purge rule for the HI-RTMA (HI-RTMA) model -->
-	<rule>
-		<keyValue>HI_RTMA</keyValue>
-		<versionsToKeep>24</versionsToKeep>
-	</rule>
-        <!-- Purge rule for the Hawaii 2.5km MOSGuide model -->
-        <rule>
-                <keyValue>MOSGuide-HI</keyValue>
-                <versionsToKeep>2</versionsToKeep>
-		<modTimeToWait>00-00:15:00</modTimeToWait>
-        </rule>
 	<!-- Purge rule for the HiResW-ARW-East (HiResW-ARW-East) model -->
 	<rule>
 		<keyValue>HiRes-ARW-East</keyValue>
@@ -744,11 +558,6 @@
 		<versionsToKeep>5</versionsToKeep>
 		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>
-        <!-- Purge rule for the HRRR model -->
-        <rule>
-                <keyValue>HRRR</keyValue>
-                <versionsToKeep>4</versionsToKeep>
-        </rule>
 	<!-- Purge rule for the ESTOFS model -->
 	<rule>
 		<keyValue>estofsUS</keyValue>
