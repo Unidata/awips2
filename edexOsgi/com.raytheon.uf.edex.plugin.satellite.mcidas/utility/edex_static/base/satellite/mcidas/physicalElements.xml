@@ -78,7 +78,7 @@
 		<entry><key ss="401" band="4"/><value name="Imager 6.7-6.5 micron IR (WV)" /></entry>
 		<entry><key ss="401" band="5"/><value name="Imager 3.5-4.0 micro IR (Fog)" /></entry>
 		
-		<!-- Antarctica -->
+		<!-- Antarctic -->
 		<entry><key ss="72" band="1"/><value name="Imager Visible" /></entry>
 		<entry><key ss="72" band="3"/><value name="Imager 12 micron IR" units="IRPixel" /></entry>
 		<entry><key ss="72" band="4"/><value name="Imager 6.7-6.5 micron IR (WV)" /></entry>
