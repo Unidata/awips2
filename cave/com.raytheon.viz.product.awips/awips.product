@@ -14,7 +14,7 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-data @user.home/caveData -user @user.home/caveData</programArgs>
+      <programArgs>-data @user.home/caveData -user @user.home/caveData -component thinclient</programArgs>
       <programArgsLin>-consoleLog</programArgsLin>
       <vmArgs>-XX:+UseG1GC
 -Dosgi.instance.area.readOnly=true 
@@ -62,7 +62,6 @@
    </launcher>
 
    <vm>
-      <linux include="true">jdk1.6.0</linux>
       <windows include="true">jdk1.6.0</windows>
    </vm>
 
