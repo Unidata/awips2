@@ -166,6 +166,7 @@ public class VCModuleJobPool {
 
         @Override
         protected IStatus run(IProgressMonitor monitor) {
+        	/*
             try {
                 if (python == null) {
                     python = VCModuleControllerFactory.buildInstance(dataMgr);
@@ -196,7 +197,7 @@ public class VCModuleJobPool {
                     python.dispose();
                 }
             }
-
+			*/
             return Status.CANCEL_STATUS;
         }
 
