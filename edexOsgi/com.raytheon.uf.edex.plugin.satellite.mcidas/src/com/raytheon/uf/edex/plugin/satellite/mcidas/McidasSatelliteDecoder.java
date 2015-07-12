@@ -77,6 +77,7 @@ import com.raytheon.uf.edex.plugin.satellite.mcidas.util.McidasSatelliteLookups.
  * 09/18/2014   3627        mapeters    Updated deprecated method calls.
  * 05/11/2015           	mjames@ucar PS (south and north) stereogrpahic support added.
  * 05/19/2015				mjames@ucar	Added decoding of GVAR native projection products
+ * 07/12/2015				mjames@ucar	Account for GOES E and W UNIWISC AREA file numbers
  * </pre>
  * 
  * @author
@@ -502,6 +503,14 @@ public class McidasSatelliteDecoder {
     }
 
     private String getAreaName(int areaNumber) {
+    	// GOES-West UNIWISC McIDAS AREA files
+    	if ( (1161 <= areaNumber && areaNumber <= 1254) ||
+    			(1801 <= areaNumber && areaNumber <= 1851) ){
+    		areaNumber = 1161; 
+    	// GOES-East UNIWISC McIDAS AREA files
+    	} else if (1261 <= areaNumber && areaNumber <= 1524) {
+    		areaNumber = 1261; 
+    	}
         String value = McidasSatelliteLookups.getInstance().getAreaName(
                 areaNumber);
         return value != null ? value : String.format("AREA%04d", areaNumber);
