@@ -27,11 +27,6 @@
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue></keyValue>
-		<versionsToKeep>2</versionsToKeep>
-	</rule>
-	
-	<rule>
 		<keyValue>AKWAVE239</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
