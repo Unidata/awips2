@@ -10,7 +10,31 @@
 		<keyValue>AK-NAM-11km</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
-	<!-- Purge rule for RAP -->
+	<rule>
+		<keyValue>CMC-REG</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>DGEX</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>ENPWAVE253</keyValue>
+		<versionsToKeep>1</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>GLERL</keyValue>
+		<versionsToKeep>1</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue></keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	
+	<rule>
+		<keyValue>AKWAVE239</keyValue>
+		<versionsToKeep>1</versionsToKeep>
+	</rule>
 	<rule>
 		<keyValue>RAP-13km</keyValue>
 		<versionsToKeep>8</versionsToKeep>
@@ -41,6 +65,14 @@
 	</rule>
 	<rule>
 		<keyValue>FNMOC-NCODA</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>FNMOC-FAROP</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>FNMOC-WW3</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
@@ -153,6 +185,10 @@
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
+		<keyValue>NamDNG</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
 		<keyValue>PR-GFS</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
@@ -179,6 +215,10 @@
 	<!-- Purge rule for the UKMET (UKMET-NorthernHemisphere) model -->
 	<rule>
 		<keyValue>UKMET-NorthernHemisphere</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>UKMET-MODEL1</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
@@ -213,7 +253,6 @@
 		<keyValue>UKMET44</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
-	<!-- Purge rule for the GWW (GWW233) model -->
 	<rule>
 		<keyValue>GWW233</keyValue>
 		<versionsToKeep>1</versionsToKeep>
@@ -226,12 +265,6 @@
 	<rule>
 		<keyValue>WNAWAVE238</keyValue>
 		<versionsToKeep>1</versionsToKeep>
-		<modTimeToWait>00-00:15:00</modTimeToWait>
-	</rule>
-	<rule>
-		<keyValue>mesoEta217</keyValue>
-		<versionsToKeep>1</versionsToKeep>
-		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>
 	<rule>
 		<keyValue>HPCqpf</keyValue>
@@ -240,7 +273,6 @@
 	<rule>
 		<keyValue>ENPWAVE253</keyValue>
 		<versionsToKeep>1</versionsToKeep>
-		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>
 	<rule>
 		<keyValue>HPCdelta</keyValue>
@@ -248,7 +280,15 @@
 	</rule>
 	<rule>
 		<keyValue>HurWind226</keyValue>
-		<versionsToKeep>4</versionsToKeep>
+		<versionsToKeep>1</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>HurWave238</keyValue>
+		<versionsToKeep>1</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>HurWave253</keyValue>
+		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
 		<keyValue>CPCoutlook211</keyValue>
