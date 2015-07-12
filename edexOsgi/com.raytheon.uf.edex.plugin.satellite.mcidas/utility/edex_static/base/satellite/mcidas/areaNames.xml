@@ -11,65 +11,8 @@
 	<entry><key>13</key><value>GOES-Sounder</value></entry>
 	<entry><key>14</key><value>GOES-Sounder</value></entry>
 	<entry><key>15</key><value>GOES-Sounder</value></entry>
-	<entry><key>1174</key><value>GOES-West</value></entry>
-	<entry><key>1175</key><value>GOES-West</value></entry>
-	<entry><key>1176</key><value>GOES-West</value></entry>
-	<entry><key>1177</key><value>GOES-West</value></entry>
-	<entry><key>1178</key><value>GOES-West</value></entry>
-	<entry><key>1179</key><value>GOES-West</value></entry>
-	<entry><key>1214</key><value>GOES-West</value></entry>
-	<entry><key>1215</key><value>GOES-West</value></entry>
-	<entry><key>1216</key><value>GOES-West</value></entry>
-	<entry><key>1217</key><value>GOES-West</value></entry>
-	<entry><key>1218</key><value>GOES-West</value></entry>
-	<entry><key>1219</key><value>GOES-West</value></entry>
-	<entry><key>1244</key><value>GOES-West</value></entry>
-	<entry><key>1245</key><value>GOES-West</value></entry>
-	<entry><key>1246</key><value>GOES-West</value></entry>
-	<entry><key>1247</key><value>GOES-West</value></entry>
-	<entry><key>1248</key><value>GOES-West</value></entry>
-	<entry><key>1249</key><value>GOES-West</value></entry>
-	<entry><key>1274</key><value>GOES-East</value></entry>
-	<entry><key>1275</key><value>GOES-East</value></entry>
-	<entry><key>1276</key><value>GOES-East</value></entry>
-	<entry><key>1277</key><value>GOES-East</value></entry>
-	<entry><key>1278</key><value>GOES-East</value></entry>
-	<entry><key>1279</key><value>GOES-East</value></entry>
-	<entry><key>1344</key><value>GOES-East</value></entry>
-	<entry><key>1345</key><value>GOES-East</value></entry>
-	<entry><key>1346</key><value>GOES-East</value></entry>
-	<entry><key>1347</key><value>GOES-East</value></entry>
-	<entry><key>1348</key><value>GOES-East</value></entry>
-	<entry><key>1349</key><value>GOES-East</value></entry>
-	<entry><key>1444</key><value>GOES-East</value></entry>
-	<entry><key>1445</key><value>GOES-East</value></entry>
-	<entry><key>1446</key><value>GOES-East</value></entry>
-	<entry><key>1447</key><value>GOES-East</value></entry>
-	<entry><key>1448</key><value>GOES-East</value></entry>
-	<entry><key>1449</key><value>GOES-East</value></entry>
-	<entry><key>1474</key><value>GOES-East</value></entry>
-	<entry><key>1475</key><value>GOES-East</value></entry>
-	<entry><key>1476</key><value>GOES-East</value></entry>
-	<entry><key>1477</key><value>GOES-East</value></entry>
-	<entry><key>1478</key><value>GOES-East</value></entry>
-	<entry><key>1479</key><value>GOES-East</value></entry>
-	<entry><key>1514</key><value>GOES-East</value></entry>
-	<entry><key>1515</key><value>GOES-East</value></entry>
-	<entry><key>1516</key><value>GOES-East</value></entry>
-	<entry><key>1518</key><value>GOES-East</value></entry>
-	<entry><key>1519</key><value>GOES-East</value></entry>
-	<entry><key>1814</key><value>GOES-West</value></entry>
-	<entry><key>1815</key><value>GOES-West</value></entry>
-	<entry><key>1816</key><value>GOES-West</value></entry>
-	<entry><key>1817</key><value>GOES-West</value></entry>
-	<entry><key>1818</key><value>GOES-West</value></entry>
-	<entry><key>1819</key><value>GOES-West</value></entry>
-	<entry><key>1844</key><value>GOES-West</value></entry>
-	<entry><key>1845</key><value>GOES-West</value></entry>
-	<entry><key>1846</key><value>GOES-West</value></entry>
-	<entry><key>1847</key><value>GOES-West</value></entry>
-	<entry><key>1848</key><value>GOES-West</value></entry>
-	<entry><key>1849</key><value>GOES-West</value></entry>
+	<entry><key>1161</key><value>GOES-West</value></entry>
+	<entry><key>1261</key><value>GOES-East</value></entry>
 	<entry><key>3100</key><value>Global</value></entry>
 	<entry><key>3101</key><value>Global</value></entry>
 	<entry><key>601</key><value>Mollweide</value></entry>
