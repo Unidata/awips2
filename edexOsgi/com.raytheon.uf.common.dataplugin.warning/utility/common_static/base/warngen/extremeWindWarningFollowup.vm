@@ -222,7 +222,7 @@ THIS IS A TEST MESSAGE. ##
 ## CALL TO ACTIONS ##
 #####################
 #if(${list.contains(${bullets}, "cta1")} || ${list.contains(${bullets}, "cta2")} || ${list.contains(${bullets}, "cta3")})
-PRECAUTIONARY/PREPAREDNESS ACTIONS... 
+PRECAUTIONARY/PREPAREDNESS ACTIONS...
 
 #end
 #if(${list.contains(${bullets}, "cta1")})
@@ -341,7 +341,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE.##
 #end
 ...THE EXTREME WIND WARNING FOR ##
-#headlineLocList(${cancelareas} true true true false) ${expcanHLTag}...
+#headlineLocList(${cancelareas} true true true false "ALL") ${expcanHLTag}...
 ###REPLACE headlineLocList ABOVE WITH THE FOLLOWING FOR ZONE BASED PRODUCT W/ COUNTY HEADLINE
 ###headlineLocList(${cancelaffectedCounties} true true true false "ALL") ${expcanHLTag}...
 
@@ -445,7 +445,7 @@ THIS IS A TEST MESSAGE. ##
 #end
 ##
 #if(${ctaSelected} == "YES") 
-PRECUATIONARY/PREPAREDNESS ACTIONS... 
+PRECAUTIONARY/PREPAREDNESS ACTIONS...
 
 #end
 ##
@@ -527,7 +527,7 @@ THIS IS A TEST MESSAGE.##
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
 #end
-&&
+
 
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
