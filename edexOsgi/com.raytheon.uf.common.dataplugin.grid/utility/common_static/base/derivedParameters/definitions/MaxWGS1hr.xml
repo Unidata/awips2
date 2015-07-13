@@ -6,7 +6,7 @@
    <Method levels="Surface" name="Alias">
     <Field level="Surface" abbreviation="WGS1hr" />
   </Method>
-   <Method levels="Surface" models="CR-NAMNest" name="Magnitude">
+   <Method levels="Surface" name="Magnitude">
     <Field level="10FHAG" abbreviation="MaxWind1hr" />
   </Method>
  

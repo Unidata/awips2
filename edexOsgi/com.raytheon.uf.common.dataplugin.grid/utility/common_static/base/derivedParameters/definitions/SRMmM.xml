@@ -20,7 +20,7 @@
 	
 	AWIPS II NEW FILE - SRMmM.xml
  -->
-<DerivedParameter name="Storm Relative Flow Mag (Mean Wind)" abbreviation="SRMmM" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+<DerivedParameter name="Storm Relative Flow Mag (Mean Wind)" unit="m/s" abbreviation="SRMmM" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <Method name="Magnitude">
         <Field abbreviation="SRMm"/>
     </Method>

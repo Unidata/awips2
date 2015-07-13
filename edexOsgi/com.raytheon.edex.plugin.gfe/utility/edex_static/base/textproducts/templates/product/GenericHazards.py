@@ -26,6 +26,7 @@
 #    05/07/2015      4027          randerso       Migrated A1 OB9.16 code to A2
 #    06/17/2015      4027          dgilling       Perform case-insensitive 
 #                                                 comparisons in foundCTAs.
+#    07/13/2015      4648          randerso       Fix bullets in follow up products
 #
 #-------------------------------------------------------------------------
 # Description: This product is a template for creating Hazard Products.
@@ -707,21 +708,21 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
                     print "newBullets = ", newBullets
                     print "segment text is: ", segmentText
                     for bullet in newBullets:
-                        if not "* " + bullet + "..." in segmentText:
+                        if re.search("\* " + bullet + "\.\.\.", segmentText, flags=re.IGNORECASE) is None:
                             print bullet + " not in segmentText"
                             start = self._bulletOrder().index(bullet) + 1
                             end = len(self._bulletOrder())
                             bulletFlag = 1
                             for i in range(start,end):
-                                if "* " + self._bulletOrder()[i] + "..." in segmentText and bulletFlag:
+                                if (re.search("\* " + self._bulletOrder()[i] + "\.\.\.", segmentText, flags=re.IGNORECASE) is not None) and bulletFlag:
                                     print "* " + self._bulletOrder()[i] + "... found!"
-                                    segmentTextSplit = string.split(segmentText,"* " + self._bulletOrder()[i] + "...")
+                                    segmentTextSplit = re.split("\* " + self._bulletOrder()[i] + "\.\.\.", segmentText, flags=re.IGNORECASE)
                                     segmentText = string.join(segmentTextSplit,"* " + bullet + \
                                                               "...|* Enter bullet text *|\n\n* " + self._bulletOrder()[i] + "...")
                                     bulletFlag = 0
                             if bulletFlag:
                                 print "appending to bottom list of bullets!"
-                                segmentTextSplit = string.split(segmentText,"Precautionary/preparedness actions...")
+                                segmentTextSplit = re.split("Precautionary/preparedness actions\.\.\.", segmentText, flags=re.IGNORECASE)
                                 segmentText = "\n" + string.join(segmentTextSplit,"* " + bullet + \
                                                                    "...|* Enter bullet text *|\n\nPrecautionary/preparedness actions...")
                                 bulletFlag = 0
@@ -751,14 +752,14 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
             print "hazardBodyText info: removeBulletList: ",removeBulletList
             # Finally remove the bullets no longer needed.
             for bullet in removeBulletList:
-                if string.find(segmentText,"* "+ bullet + "...") != -1: 
-                    segmentTextSplit = string.split(segmentText,"* " + bullet + "...")
+                if re.search("\* "+ bullet + "\.\.\.", segmentText, flags=re.IGNORECASE) is not None: 
+                    segmentTextSplit = re.split("\* " + bullet + "\.\.\.", segmentText, flags=re.IGNORECASE)
                     print "segmentTextSplit is ", segmentTextSplit 
                     segmentTextSplit2 = string.split(segmentTextSplit[1],"*",1)
                     if len(segmentTextSplit2) == 2:
                         segmentTextSplit[1] = "*" + segmentTextSplit2[1]
                     else:
-                        segmentTextSplit2 = string.split(segmentTextSplit[1],"Precautionary/preparedness actions...",1)
+                        segmentTextSplit2 = re.split("Precautionary/preparedness actions\.\.\.", segmentTextSplit[1], 1, flags=re.IGNORECASE)
                         if len(segmentTextSplit2) == 2:
                             segmentTextSplit[1] = "Precautionary/preparedness actions..." + segmentTextSplit2[1]
                     segmentText = string.join(segmentTextSplit,"")

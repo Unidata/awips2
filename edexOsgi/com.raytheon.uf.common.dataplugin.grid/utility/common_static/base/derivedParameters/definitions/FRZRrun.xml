@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<DerivedParameter abbreviation="FRZRrun" name="Model Run Ice Accum" unit="mm">
+  <Method name="Add">
+    <Field abbreviation="FRZRmodel" />
+  </Method>
+</DerivedParameter>
