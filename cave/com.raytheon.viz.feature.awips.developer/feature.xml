@@ -72,7 +72,7 @@
    <includes
          id="gov.noaa.gsd.viz.ensemble.feature"
          version="0.0.0"/>
-         
+
    <includes
          id="com.raytheon.viz.grib.feature"
          version="0.0.0"/>
@@ -83,10 +83,6 @@
 
    <includes
          id="com.raytheon.uf.viz.displays.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.viz.satellite.feature"
          version="0.0.0"/>
 
    <includes
