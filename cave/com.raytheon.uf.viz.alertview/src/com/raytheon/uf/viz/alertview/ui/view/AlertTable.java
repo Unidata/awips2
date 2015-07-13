@@ -435,11 +435,10 @@ public class AlertTable extends Composite implements StyleListener {
 
     @Override
     public void updateStyle() {
-        Display display = getDisplay();
-        if (display.isDisposed()) {
+        if (this.isDisposed()){
             return;
         }
-        display.asyncExec(new Runnable() {
+        getDisplay().asyncExec(new Runnable() {
 
             @Override
             public void run() {
