@@ -30,6 +30,7 @@ import com.raytheon.viz.radar.ui.RadarDisplayManager.TrackTypes;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 11/06/2014   DCS 16776  zwang       Add control for MBA
+ * May 13, 2015 4461       bsteffen    Add option for sails.
  * 
  * </pre>
  * 
@@ -73,6 +74,8 @@ public class RadarDisplayControls {
     private String stormHexOrCircle;
 
     private boolean showAll;
+
+    private boolean sailsFrameCoordinator;
 
     public RadarDisplayControls() {
     }
@@ -383,4 +386,16 @@ public class RadarDisplayControls {
             RadarDisplayManager.getInstance().displayConfigUpdated();
         }
     }
+
+    public boolean isSailsFrameCoordinator() {
+        return sailsFrameCoordinator;
+    }
+
+    public void setSailsFrameCoordinator(boolean sailsFrameCoordinator) {
+        if (sailsFrameCoordinator != this.sailsFrameCoordinator) {
+            this.sailsFrameCoordinator = sailsFrameCoordinator;
+            RadarDisplayManager.getInstance().displayConfigUpdated();
+        }
+    }
+
 }

@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.measure.converter.UnitConverter;
+import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 
@@ -52,12 +53,16 @@ import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.style.image.ColorMapParameterFactory;
 import com.raytheon.uf.common.style.image.DataScale;
 import com.raytheon.uf.common.style.image.ImagePreferences;
+import com.raytheon.uf.common.style.level.Level.LevelType;
+import com.raytheon.uf.common.style.level.SingleLevel;
+import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.cache.CacheObject;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.grid.rsc.AbstractGridResource;
 import com.raytheon.uf.viz.core.grid.rsc.data.GeneralGridData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.viz.lightning.LightningResourceData.DisplayType;
 import com.raytheon.viz.lightning.cache.LightningFrame;
 import com.raytheon.viz.lightning.cache.LightningFrameMetadata;
 import com.raytheon.viz.lightning.cache.LightningFrameRetriever;
@@ -76,6 +81,7 @@ import com.raytheon.viz.lightning.cache.LightningFrameRetriever;
  * Jul 28, 2014 3451       bclement     uses intended range min
  * Jul 29, 2014 3463       bclement     uses sparse data source
  * Mar 05, 2015 4233       bsteffen     include source in cache key.
+ * Jul 02, 2015 4606       bclement     added getDisplayParameterName()
  * 
  * </pre>
  * 
@@ -85,7 +91,13 @@ import com.raytheon.viz.lightning.cache.LightningFrameRetriever;
 public class GridLightningResource extends
         AbstractGridResource<GridLightningResourceData> {
 
-    public static final String DENSITY_PARAM = "lightning density";
+    public static final String DENSITY_PARAM = "Lightning Density";
+
+    private static final Unit<?> BIN_OFFSET_UNIT = SI.SECOND;
+
+    private static final Unit<?> TIME_PARAM_UNIT = NonSI.MINUTE;
+
+    private static final String TIME_PARAM_LABEL = "min";
 
     private final Map<DataTime, CacheObject<LightningFrameMetadata, LightningFrame>> cacheObjectMap = new ConcurrentHashMap<>();
 
@@ -107,7 +119,39 @@ public class GridLightningResource extends
     @Override
     public ParamLevelMatchCriteria getMatchCriteria() {
         ParamLevelMatchCriteria rval = new ParamLevelMatchCriteria();
-        rval.setParameterName(Arrays.asList(DENSITY_PARAM));
+        GridLightningResourceData resourceData = getResourceData();
+
+        DisplayType type = resourceData.getDisplayType();
+        BinOffset offset = resourceData.getBinOffset();
+        String param = getDisplayParameterName(type, offset);
+        /* cave gets angry if there is ever more than one parameter here */
+        rval.setParameterName(Arrays.asList(param));
+
+        int resolution = resourceData.getKmResolution();
+        SingleLevel level = new SingleLevel(LevelType.DEFAULT);
+        level.setValue(resolution);
+        rval.setLevel(level);
+        return rval;
+    }
+
+    private static String getDisplayParameterName(DisplayType type,
+            BinOffset offset) {
+        String rval;
+        if (!type.equals(DisplayType.UNDEFINED)) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(type.label).append(' ');
+            sb.append(DENSITY_PARAM).append(' ');
+            UnitConverter converter = BIN_OFFSET_UNIT
+                    .getConverterTo(TIME_PARAM_UNIT);
+            double interval = converter.convert(offset.getInterval());
+            int timeLabel = (int) Math.round(interval);
+            sb.append(Integer.toString(timeLabel)).append(TIME_PARAM_LABEL);
+            rval = sb.toString();
+        } else {
+            /* if there isn't a display type defined, use the default param name */
+            rval = DENSITY_PARAM;
+        }
+
         return rval;
     }
 
@@ -149,8 +193,7 @@ public class GridLightningResource extends
                  */
                 rval = ColorMapParameterFactory.build(imgPrefs, Unit.ONE);
             } catch (StyleException e) {
-                throw new VizException(
-"Problem building lightning colormap"
+                throw new VizException("Problem building lightning colormap"
                         + " parameters from image preferences", e);
             }
         } else {
@@ -332,15 +375,13 @@ public class GridLightningResource extends
      * @throws VizException
      */
     private MathTransform getLonLatTransform(CoordinateReferenceSystem crs,
-            GeneralGridGeometry gridGeom)
-            throws VizException {
+            GeneralGridGeometry gridGeom) throws VizException {
         try {
             MathTransform latLonToCrs = MapUtil.getTransformFromLatLon(crs);
             MathTransform crsToGrid = gridGeom.getGridToCRS(
                     PixelInCell.CELL_CENTER).inverse();
             DefaultMathTransformFactory dmtf = new DefaultMathTransformFactory();
-            return dmtf.createConcatenatedTransform(
-                    latLonToCrs, crsToGrid);
+            return dmtf.createConcatenatedTransform(latLonToCrs, crsToGrid);
         } catch (Exception e) {
             throw new VizException(
                     "Problem converting from lon/lat to requested grid geometry",

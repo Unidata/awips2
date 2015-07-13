@@ -4348,11 +4348,13 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
       </contourLabeling>
     </contourStyle>
   </styleRule>
-  <!--   This entry is for Tmax TwMax field -->
+  <!--   This entry is for Tmax TwMax Tmin TwMin field -->
   <styleRule>
     <paramLevelMatches>
       <parameter>Tmax</parameter>
       <parameter>TwMax</parameter>
+       <parameter>Tmin</parameter>
+      <parameter>TwMin</parameter>
     </paramLevelMatches>
     <contourStyle>
       <displayUnits>C</displayUnits>

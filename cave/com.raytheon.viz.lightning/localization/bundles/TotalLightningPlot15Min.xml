@@ -22,47 +22,6 @@
 	<displayList>
 		<displays xsi:type="d2DMapRenderableDisplay" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 			<descriptor xsi:type="mapDescriptor">
-				<resource>
-				    <loadProperties loadWithoutData="true">
-               		</loadProperties>
-					<properties isSystemResource="false"
-						isBlinking="false" isMapLayer="false" isHoverOn="false"
-						isVisible="true" />
-					<resourceData xsi:type="lightningResourceData"
-						isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true" 
-						handlingPositiveStrikes="true" handlingNegativeStrikes="true">
-						<binOffset posOffset="0" negOffset="900" virtualOffset="0"/>
-						<metadataMap>
-							<mapping key="pluginName">
-								<constraint constraintValue="binlightning" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="source">
-                                <constraint constraintValue="${source}" constraintType="EQUALS" />
-                            </mapping>
-						</metadataMap>
-					</resourceData>
-				</resource>
-                <resource>
-                    <loadProperties loadWithoutData="true">
-                    </loadProperties>
-                    <properties isSystemResource="false"
-                        isBlinking="false" isMapLayer="false" isHoverOn="false"
-                        isVisible="true" />
-                    <resourceData xsi:type="lightningResourceData"
-                        isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true" 
-                        handlingPositiveStrikes="false" handlingNegativeStrikes="false"
-                        handlingCloudFlashes="true">
-                        <binOffset posOffset="0" negOffset="900" virtualOffset="0"/>
-                        <metadataMap>
-                            <mapping key="pluginName">
-                                <constraint constraintValue="binlightning" constraintType="EQUALS" />
-                            </mapping>
-                            <mapping key="source">
-                                <constraint constraintValue="${source}" constraintType="EQUALS" />
-                            </mapping>
-                        </metadataMap>
-                    </resourceData>
-                </resource>
                 <resource>
                     <loadProperties loadWithoutData="true">
                     </loadProperties>
@@ -84,6 +43,47 @@
                         </metadataMap>
                     </resourceData>
                 </resource>
+                <resource>
+                    <loadProperties loadWithoutData="true">
+                    </loadProperties>
+                    <properties isSystemResource="false"
+                        isBlinking="false" isMapLayer="false" isHoverOn="false"
+                        isVisible="true" />
+                    <resourceData xsi:type="lightningResourceData"
+                        isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true" 
+                        handlingPositiveStrikes="false" handlingNegativeStrikes="false"
+                        handlingCloudFlashes="true">
+                        <binOffset posOffset="0" negOffset="900" virtualOffset="0"/>
+                        <metadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="binlightning" constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="source">
+                                <constraint constraintValue="${source}" constraintType="EQUALS" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+				<resource>
+				    <loadProperties loadWithoutData="true">
+               		</loadProperties>
+					<properties isSystemResource="false"
+						isBlinking="false" isMapLayer="false" isHoverOn="false"
+						isVisible="true" />
+					<resourceData xsi:type="lightningResourceData"
+						isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true" 
+						handlingPositiveStrikes="true" handlingNegativeStrikes="true">
+						<binOffset posOffset="0" negOffset="900" virtualOffset="0"/>
+						<metadataMap>
+							<mapping key="pluginName">
+								<constraint constraintValue="binlightning" constraintType="EQUALS" />
+							</mapping>
+							<mapping key="source">
+                                <constraint constraintValue="${source}" constraintType="EQUALS" />
+                            </mapping>
+						</metadataMap>
+					</resourceData>
+				</resource>
 			</descriptor>
 		</displays>
 	</displayList>

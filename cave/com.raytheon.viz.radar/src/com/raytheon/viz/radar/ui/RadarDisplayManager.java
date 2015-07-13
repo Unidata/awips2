@@ -46,7 +46,7 @@ import com.raytheon.viz.radar.rsc.image.RadarSRMResource.SRMSource;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 
+ * May 13, 2015 4461       bsteffen    Add option for sails.
  * 
  * </pre>
  * 
@@ -222,6 +222,8 @@ public class RadarDisplayManager {
         prefs.setValue("SRM_Source", currentValues.getSrmSource().name());
         prefs.setValue("SRM_Direction", currentValues.getSrmDir());
         prefs.setValue("SRM_Speed", currentValues.getSrmSpeed());
+        prefs.setValue("SAILS_FrameCoordinator",
+                currentValues.isSailsFrameCoordinator());
         // Put the IO on a different thread to avoid hanging.
         saveJob.schedule();
     }
@@ -234,6 +236,7 @@ public class RadarDisplayManager {
 
         IPersistentPreferenceStore prefs = Activator.getDefault()
                 .getPreferenceStore();
+        prefs.setDefault("SAILS_FrameCoordinator", true);
 
         RadarDisplayControls currentVals = currentValues;
         if (currentVals == null) {
@@ -262,6 +265,8 @@ public class RadarDisplayManager {
                 .getString("SRM_Source")));
         currentVals.setSrmDir(prefs.getInt("SRM_Direction"));
         currentVals.setSrmSpeed(prefs.getInt("SRM_Speed"));
+        currentVals.setSailsFrameCoordinator(prefs
+                .getBoolean("SAILS_FrameCoordinator"));
         currentValues = currentVals;
     }
 
