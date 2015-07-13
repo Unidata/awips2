@@ -91,9 +91,8 @@ public class HMDBRptDao extends CoreDao {
 
                     Session sess = getCurrentSession();
                     Query query = sess
-                            .createQuery("delete from HMDBReport where nominal < :nominal");
+                            .createSQLQuery("delete from rpt where nominal < :nominal");
                     query.setCalendar("nominal", c);
-                    query.getQueryString();
                     queryString.append(query.getQueryString());
                     return query.executeUpdate();
                 }

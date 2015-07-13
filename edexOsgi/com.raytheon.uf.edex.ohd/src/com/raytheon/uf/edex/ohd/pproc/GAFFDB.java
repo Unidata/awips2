@@ -89,23 +89,20 @@ public class GAFFDB {
      */
     public void insertPerflog(String processName, long start)
             throws DataAccessLayerException {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         cal.setTimeInMillis(start);
 
-        String startTime = sdf.format(cal.getTime());
         String sql = "insert into perflog (process, start_time, num_processed, "
                 + "num_reads, num_inserts, num_updates, num_deletes, "
                 + "elapsed_time, cpu_time, io_time) values (:process,"
                 + " :startTime, 0, 0, 0, 0, 0, 0, 0, 0)";
         Map<String, Object> paramMap = new HashMap<>(2, 1);
         paramMap.put("process", processName);
-        paramMap.put("startTime", startTime);
+        paramMap.put("startTime", cal);
 
         CoreDao dao = null;
         dao = new CoreDao(DaoConfig.forDatabase(IHFS));
         dao.executeSQLUpdate(sql, paramMap);
-
     }
 
     /**
@@ -288,7 +285,7 @@ public class GAFFDB {
             paramMap.put("validDate", validDate);
             paramMap.put("basisTime", basisTime);
 
-            dao.executeSQLUpdate(updateSql);
+            dao.executeSQLUpdate(updateSql, paramMap);
         }
     }
 
