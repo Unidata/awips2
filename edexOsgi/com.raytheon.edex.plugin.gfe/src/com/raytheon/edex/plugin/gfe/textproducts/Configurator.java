@@ -50,7 +50,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
 import com.raytheon.uf.edex.database.cluster.ClusterTask;
-import com.raytheon.uf.edex.database.tasks.SqlQueryTask;
+import com.raytheon.uf.edex.database.dao.CoreDao;
+import com.raytheon.uf.edex.database.dao.DaoConfig;
 
 /**
  * Generate and configure text products when needed.
@@ -74,7 +75,7 @@ import com.raytheon.uf.edex.database.tasks.SqlQueryTask;
  *                                      Cleaned up how protected file updates are returned
  * Jan 23, 2015 #4027       randerso    Fixed python include path
  * Apr 27, 2015  4259       njensen     Updated for new JEP API
- * 
+ * Jul 13, 2015  4500       rjpeter     Removed SqlQueryTask.
  * </pre>
  * 
  * @author jelkins
@@ -210,8 +211,8 @@ public class Configurator {
             lf = pathMgr.getLocalizationFile(context,
                     FileUtil.join("python", "gfe", "SiteCFG.py"));
 
-            SqlQueryTask task = new SqlQueryTask(CWA_QUERY, "maps");
-            QueryResult results = task.execute();
+            CoreDao dao = new CoreDao(DaoConfig.forDatabase("maps"));
+            QueryResult results = dao.executeMappedSQLQuery(CWA_QUERY);
             try (PrintWriter out = new PrintWriter(lf.openOutputStream())) {
                 out.println("##");
                 out.println("# Contains information about products, regions, etc. for each site");
