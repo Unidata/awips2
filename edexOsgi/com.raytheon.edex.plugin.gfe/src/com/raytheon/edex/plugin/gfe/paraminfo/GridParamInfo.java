@@ -21,7 +21,6 @@ package com.raytheon.edex.plugin.gfe.paraminfo;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -32,9 +31,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * 
@@ -48,6 +44,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Jun 24, 2010 #6372      bphillip    Initial creation
  * Mar 20, 2013 #1774      randerso    Added getParmNames, 
  *                                     changed getAvailableTimes to match A1
+ * Jul 13, 2015 #4537      randerso    Remove getAvailableTimes as it is no longer used
+ *                                     and cleaned up some interfaces to use List instead of ArrayList
  * 
  * </pre>
  * 
@@ -61,16 +59,16 @@ public class GridParamInfo {
     /** The generating processes associated with this model */
     @XmlElementWrapper(name = "valtimeMINUSreftime", required = false)
     @XmlElement(name = "fcst")
-    private ArrayList<Integer> times = new ArrayList<Integer>();
+    private List<Integer> times = new ArrayList<Integer>();
 
     /** List of parameter information */
     @XmlElements({ @XmlElement(name = "gridParameterInfo", type = ParameterInfo.class) })
-    private ArrayList<ParameterInfo> gridParamInfo;
+    private List<ParameterInfo> gridParamInfo;
 
     /**
      * @return the gridParamInfo
      */
-    public ArrayList<ParameterInfo> getGridParamInfo() {
+    public List<ParameterInfo> getGridParamInfo() {
         return gridParamInfo;
     }
 
@@ -78,7 +76,7 @@ public class GridParamInfo {
      * @param gridParamInfo
      *            the gridParamInfo to set
      */
-    public void setGridParamInfo(ArrayList<ParameterInfo> gridParamInfo) {
+    public void setGridParamInfo(List<ParameterInfo> gridParamInfo) {
         this.gridParamInfo = gridParamInfo;
     }
 
@@ -101,7 +99,7 @@ public class GridParamInfo {
     /**
      * @return the times
      */
-    public ArrayList<Integer> getTimes() {
+    public List<Integer> getTimes() {
         return times;
     }
 
@@ -109,17 +107,8 @@ public class GridParamInfo {
      * @param times
      *            the times to set
      */
-    public void setTimes(ArrayList<Integer> times) {
+    public void setTimes(List<Integer> times) {
         this.times = times;
-    }
-
-    public List<TimeRange> getAvailableTimes(Date refTime) {
-        List<TimeRange> availTimes = new ArrayList<TimeRange>(times.size());
-        for (Integer fcstHour : times) {
-            availTimes.add(new TimeRange(new Date(refTime.getTime() + fcstHour
-                    * TimeUtil.MILLIS_PER_SECOND), TimeUtil.MILLIS_PER_HOUR));
-        }
-        return availTimes;
     }
 
     public Collection<String> getParmNames() {

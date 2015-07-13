@@ -329,7 +329,7 @@
   <gridParameterInfo xsi:type="parameterInfo">
     <short_name>cicep</short_name>
     <long_name>Categorical ice pellets</long_name>
-    <units>yes=1, no=0</units>
+    <units>yn</units>
     <udunits />
     <uiname>CategoricalIcePlt</uiname>
     <valid_range>0.0</valid_range>
@@ -357,7 +357,7 @@
   <gridParameterInfo xsi:type="parameterInfo">
     <short_name>crain</short_name>
     <long_name>Categorical rain</long_name>
-    <units>yes=1, no=0</units>
+    <units>yn</units>
     <udunits />
     <uiname>CategoricalRain</uiname>
     <valid_range>0.0</valid_range>
@@ -457,7 +457,7 @@
   <gridParameterInfo xsi:type="parameterInfo">
     <short_name>dswrf</short_name>
     <long_name>Downward shortwave radiation flux</long_name>
-    <units>W/m2</units>
+    <units>W/m**2</units>
     <udunits>watts/meter2</udunits>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
@@ -468,7 +468,7 @@
   <gridParameterInfo xsi:type="parameterInfo">
     <short_name>heli</short_name>
     <long_name>helicity sigma</long_name>
-    <units>m/s2</units>
+    <units>m/s**2</units>
     <udunits>meter/second2</udunits>
     <uiname>hel</uiname>
     <valid_range>0.0</valid_range>
@@ -599,7 +599,7 @@
   <gridParameterInfo xsi:type="parameterInfo">
     <short_name>pr</short_name>
     <long_name>precipitation rate</long_name>
-    <units>Kg/m**2 / s</units>
+    <units>(kg/m**2)/s</units>
     <valid_range>0.0</valid_range>
     <valid_range>0.10000000149</valid_range>
     <fillValue>-99999.0</fillValue>
@@ -627,7 +627,7 @@
   <gridParameterInfo xsi:type="parameterInfo">
     <short_name>cfrzr</short_name>
     <long_name>Categorical freezing rain</long_name>
-    <units>yes=1, no=0</units>
+    <units>yn</units>
     <udunits />
     <uiname>CategoricalFrzRain</uiname>
     <valid_range>0.0</valid_range>
@@ -642,7 +642,7 @@
   <gridParameterInfo xsi:type="parameterInfo">
     <short_name>wd</short_name>
     <long_name>Wind Direction</long_name>
-    <units>degreeTrue</units>
+    <units>degree_angle</units>
     <udunits>degree_True</udunits>
     <uiname>windDir</uiname>
     <valid_range>0.0</valid_range>
