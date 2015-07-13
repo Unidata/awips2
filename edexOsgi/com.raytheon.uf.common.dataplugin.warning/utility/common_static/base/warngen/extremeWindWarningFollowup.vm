@@ -388,7 +388,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE.##
 #end
-...An extreme wind warning remains in effect until #headlineExpire(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) for ##
+...AN EXTREME WIND WARNING REMAINS IN EFFECT UNTIL #headlineExpire(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
 #headlineLocList(${areas} true true true false "ALL")...
 
 #if(${productClass}=="T")
@@ -514,7 +514,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE.##
 #end
-...THE EXTREME WIND WARNING FOR##
+...THE EXTREME WIND WARNING FOR ##
 #headlineLocList(${areas} true true true false "ALL") ${expcanHLTag}...
 
 #############
