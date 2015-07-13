@@ -28,7 +28,6 @@ import java.util.regex.Pattern;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
-import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.edex.plugin.obs.metar.util.VisibilityParser;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.obs.metar.MetarRecord;
@@ -36,6 +35,8 @@ import com.raytheon.uf.common.dataplugin.obs.metar.util.SkyCover;
 import com.raytheon.uf.common.dataplugin.obs.metar.util.WeatherCondition;
 import com.raytheon.uf.common.pointdata.spatial.ObStation;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.wmo.WMOHeader;
@@ -86,6 +87,7 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
  * Jul 23, 2014  3410       bclement    location changed to floats
  * Oct 02, 2014 3693        mapeters    Added Pattern constants.
  * Apr 22, 2015 DR 16923    MPorricelli Modified cleanMessage to eliminate extra spaces
+ * Jul 13, 2015 4389        skorolev    Added correction of invalid (NUL) characters in the message.
  * 
  * </pre>
  * 
@@ -93,7 +95,10 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
  * @version 1
  */
 
-public class MetarDecoder extends AbstractDecoder {
+public class MetarDecoder {
+
+    private static final transient IUFStatusHandler logger = UFStatus
+            .getHandler(MetarDecoder.class);
 
     private static final char APOSTROPHE = '\'';
 
@@ -268,8 +273,15 @@ public class MetarDecoder extends AbstractDecoder {
                 }
             }
             message = sbm.toString().trim();
+            // Replace all invalid NUL chars on '?' in the raw message.
+            String rawMessage = new String(message);
+            if (rawMessage.indexOf('\0') > -1) {
+                logger.warn(headers.get(WMOHeader.INGEST_FILE_NAME)
+                        + ": There are invalid NUL characters in the message.");
+                rawMessage = rawMessage.replace('\0', '?');
+            }
             MetarRecord record = new MetarRecord();
-            record.setMessageData(message);
+            record.setMessageData(rawMessage);
             message = cleanMessage(message);
 
             String remarks = null;
@@ -989,8 +1001,8 @@ public class MetarDecoder extends AbstractDecoder {
     }
 
     /**
-     * Get rid of any control characters and extraneous spaces
-     * prior to parsing data.
+     * Get rid of any control characters and extraneous spaces prior to parsing
+     * data.
      * 
      * @param message
      * @return
@@ -1004,8 +1016,8 @@ public class MetarDecoder extends AbstractDecoder {
             // not a space, then add a space to string
             if (c <= ' ') {
                 if (lastChar != ' ') {
-                   sb.append(' ');
-                   lastChar = ' ';
+                    sb.append(' ');
+                    lastChar = ' ';
                 }
             } else {
                 sb.append(c);
