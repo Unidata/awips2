@@ -15,7 +15,7 @@
 
    <launcherArgs>
       <programArgs>-data @user.home/caveData -user @user.home/caveData</programArgs>
-      <programArgsLin>-consoleLog -component thinclient</programArgsLin>
+      <programArgsLin>-consoleLog</programArgsLin>
       <vmArgs>-XX:+UseG1GC
 -Dosgi.instance.area.readOnly=true 
 -Declipse.log.enabled=false
