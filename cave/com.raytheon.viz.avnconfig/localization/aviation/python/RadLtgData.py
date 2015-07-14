@@ -33,11 +33,12 @@ import ForecastPointDataRetrieve, NoDataException
 #    09/15/09                      njensen       Initial Creation.
 #    26APR2012       14688         rferrel       Use ForecastPointDataRetrieve.
 #    03APR2013       1735          rferrel       Limit retrieval for forecast times to the number used.
+#    13JUL2015       4544          dgilling      Use new lightning probability parameter.
 #    
 # 
 #
 
-PARAMETERS = ['tstorm2hr', 'stationId', 'refTime', 'fcstHr']
+PARAMETERS = ['ltg2hr', 'stationId', 'refTime', 'fcstHr']
 
 LOOK_AHEAD = 3 # hours
 SEC_PER_HOUR = 60*60
@@ -55,7 +56,7 @@ def retrieve(siteID):
         vtime = pdc[1]['refTime'] / 1000.0 + LOOK_AHEAD*SEC_PER_HOUR
         for n in range(1, LOOK_AHEAD):
             pdv = pdc[n]
-            pots.append(pdv['tstorm2hr'])
+            pots.append(pdv['ltg2hr'])
         data = max([x for x in pots if 0 <= x <= 100] + [0])
         return {'from': vtime-LOOK_AHEAD*SEC_PER_HOUR, 'to': vtime, 'prob': min(data, 100)}
     except KeyError:

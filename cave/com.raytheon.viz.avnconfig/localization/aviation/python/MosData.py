@@ -351,7 +351,8 @@ PARAMETERS = ["stationId", "refTime", "forecastHr",
             "precipSnow", "clouds_SC", "temperature", "clouds_BK",            
             "clouds_CL", "precipType", "obVis_bestCat",
             "clouds_bestCat", "POP6hr", "severe6hr", "csevere6hr", "POP_hour",
-            "windDir", 'cvis_bestCat', 'POP_hour_bestCat', 'tstorm2hr', 'tstorm_bestCat',
+            "windDir", 'cvis_bestCat', 'POP_hour_bestCat', 
+            'ltg2hr', 'ltg_bestCat', 'tstorm_bestCat',
             'PQPF_6hr', 'ceiling_cat8',
             'c_ceiling_cat1', 'c_ceiling_cat2', 'c_ceiling_cat3', 'c_ceiling_cat4',
             'c_ceiling_cat5', 'c_ceiling_cat6', 'c_ceiling_cat7', 'c_ceiling_cat8',
@@ -404,6 +405,9 @@ def _textObv(t):
 
 def _textLampObv(t):
     return {4: '', 2: 'HZ', 5: 'BR', 3: 'FG', 1: 'BL'}.get(t, '')
+
+def _textLampLtgCat(t):
+    return {0: 'NO', 4: 'LOW', 6: 'MED', 8: 'HIGH'}.get(t, '')
 
 def _textCld(t):
     return {0: 'SKC', 8: 'OVC', 11: 'SCT', 12: 'BKN', 13:'FEW'}.get(t, '')
@@ -885,32 +889,32 @@ class _GfsLampNetCDFFile(_NetCDFFile):
 
         #tstm has overlapped 2-hour forecasts in the first five hours,then 2 hour 
         if n < self.NumData-1:            
-            #p = v['tstorm2hr'][recno,n+1]
-            p = pdc[fcstHrList[n+1]]['tstorm2hr']
-            if p == v.getFillValue('tstorm2hr') and n < self.NumData-2: 
+            #p = v['ltg2hr'][recno,n+1]
+            p = pdc[fcstHrList[n+1]]['ltg2hr']
+            if p == v.getFillValue('ltg2hr') and n < self.NumData-2: 
                 try:
-                    #p = v['tstorm2hr'][recno,n+2]
-                    p = pdc[fcstHrList[n+2]]['tstorm2hr']
+                    #p = v['ltg2hr'][recno,n+2]
+                    p = pdc[fcstHrList[n+2]]['ltg2hr']
                 except:
-                    p = v.getFillValue('tstorm2hr')
+                    p = v.getFillValue('ltg2hr')
         else:
-            p = v.getFillValue('tstorm2hr')
-        if p != v.getFillValue('tstorm2hr'):
+            p = v.getFillValue('ltg2hr')
+        if p != v.getFillValue('ltg2hr'):
             d['pot'] = int(p)
 
         if n < self.NumData-1:
-            #p = int(v['tstorm_bestCat'][recno,n+1])
-            p = int(pdc[fcstHrList[n+1]]['tstorm_bestCat'])
-            if p == v.getFillValue('tstorm_bestCat') and n < self.NumData-2:
+            #p = int(v['ltg_bestCat'][recno,n+1])
+            p = int(pdc[fcstHrList[n+1]]['ltg_bestCat'])
+            if p == v.getFillValue('ltg_bestCat') and n < self.NumData-2:
                 try:
-                    #p = int(v['tstorm_bestCat'][recno,n+2])
-                    p = int(pdc[fcstHrList[n+2]]['tstorm_bestCat'])
+                    #p = int(v['ltg_bestCat'][recno,n+2])
+                    p = int(pdc[fcstHrList[n+2]]['ltg_bestCat'])
                 except:
-                    p = v.getFillValue('tstorm_bestCat')
+                    p = v.getFillValue('ltg_bestCat')
         else:
-            p = v.getFillValue('tstorm_bestCat')
+            p = v.getFillValue('ltg_bestCat')
 
-        if p != v.getFillValue('tstorm_bestCat'):
+        if p != v.getFillValue('ltg_bestCat'):
             d['tcat'] = p
         ptype = int(v['precipType'])
         #if ptype is missing, it's rain
@@ -1171,10 +1175,20 @@ class _GfsLampNetCDFFile(_NetCDFFile):
         if pdc.hasParam('POP_hour_bestCat'):
             t = map(_textProb, self.loopAll(pdc, fcstHrList, 'POP_hour_bestCat'))
             rpt.append('PCO      ' + '%-4s' * self.NumData % tuple(t))
-        if pdc.hasParam('tstorm2hr'):
-            t = map(_textProb, self.loopAll(pdc, fcstHrList, 'tstorm2hr'))
-            rpt.append('TP2      ' + '%-4s' * self.NumData % tuple(t))
-        if pdc.hasParam('tstorm_bestCat'):
+        
+        useOldData=True
+        if pdc.hasParam('ltg_bestCat'):
+            rawValues = self.loopAll(pdc, fcstHrList, 'ltg_bestCat')
+            unique = set(rawValues)
+            useOldData = bool(len(unique) == 1 and -9999 in unique)        
+        if pdc.hasParam('ltg2hr'):
+            t = map(_textProb, self.loopAll(pdc, fcstHrList, 'ltg2hr'))
+            rowHeader = 'TP2      ' if useOldData else 'LTG2     '
+            rpt.append(rowHeader + '%-4s' * self.NumData % tuple(t))
+        if not useOldData and pdc.hasParam('ltg_bestCat'):
+            t = map(_textLampLtgCat, self.loopAll(pdc, fcstHrList, 'ltg_bestCat'))
+            rpt.append('LTGC2    ' + '%+4s' * self.NumData % tuple(t))
+        elif useOldData and pdc.hasParam('tstorm_bestCat'):
             t = map(_textProb, self.loopAll(pdc, fcstHrList, 'tstorm_bestCat'))
             rpt.append('TC2      ' + '%-4s' * self.NumData % tuple(t))
         rpt.append('')
