@@ -49,6 +49,7 @@ import com.raytheon.uf.common.dataplugin.radar.level3.GraphicBlock;
 import com.raytheon.uf.common.dataplugin.radar.level3.SymbologyBlock;
 import com.raytheon.uf.common.dataplugin.radar.level3.TabularBlock;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants;
+import com.raytheon.uf.common.dataplugin.radar.util.RadarInfo;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarInfoDict;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarTextProductUtil;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarUtil;
@@ -101,6 +102,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * Jan 21, 2014  2627     njensen     Changed offset errors to MalformedDataException
  * May 14, 2014  2536     bclement    moved WMO Header to common, removed TimeTools usage
  *                                     added storeTextProduct()
+ * Jul 13  2015  DR 17672 D. Friedman Only decompress products documented to support compression
  * 
  * </pre>
  * 
@@ -744,7 +746,10 @@ public class Level3BaseRadar {
         int graphicBlockOffset = theRadarData.readInt() * 2;
         int tabularBlockOffset = theRadarData.readInt() * 2;
 
-        if (productDependentValues[7] == 1) {
+        RadarInfo radarInfo = dict.getInfo(theProductCode);
+
+        if (productDependentValues[7] == 1 && radarInfo != null
+                && radarInfo.isCompressionAllowed()) {
             int uncompressedSize = ((productDependentValues[8] & 0xffff) << 16)
                     | (productDependentValues[9] & 0xffff);
             byte[] uncompressed = null;
