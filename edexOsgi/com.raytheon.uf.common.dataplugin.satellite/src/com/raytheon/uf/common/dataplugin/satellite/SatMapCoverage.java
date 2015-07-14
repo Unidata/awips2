@@ -20,10 +20,6 @@
 
 package com.raytheon.uf.common.dataplugin.satellite;
 
-//import gov.noaa.nws.ncep.edex.util.McidasCRSBuilder;
-
-import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
-
 import java.awt.geom.Rectangle2D;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -113,6 +109,8 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
     public static final int PROJ_GVAR = 7585;
 
     private static final long serialVersionUID = 1L;
+    
+    public static final Integer VAL_MISSING = new Integer(-9999998);
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SATELLITE_SPATIAL_GENERATOR")
@@ -241,10 +239,10 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
         this.ny = ny;
         this.dx = dx;
         this.dy = dy;
-        this.upperLeftElement = IDecoderConstants.VAL_MISSING;
-        this.upperLeftLine = IDecoderConstants.VAL_MISSING;
-        this.elementRes = IDecoderConstants.VAL_MISSING;
-        this.lineRes = IDecoderConstants.VAL_MISSING;
+        this.upperLeftElement = VAL_MISSING;
+        this.upperLeftLine = VAL_MISSING;
+        this.elementRes = VAL_MISSING;
+        this.lineRes = VAL_MISSING;
         this.crsObject = crs;
         Geometry latLonGeometry = null;
         try {
