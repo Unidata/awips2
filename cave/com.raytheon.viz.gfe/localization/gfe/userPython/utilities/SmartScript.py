@@ -504,14 +504,14 @@ class SmartScript(BaseTool.BaseTool):
             else:
                 result = result[0];
                 slice = result.getGridSlice()
-                result = slice.getNDArray()
-                if type(result) is ndarray and result.dtype == numpy.int8:
+                retVal = slice.getNDArray()
+                if type(retVal) is ndarray and retVal.dtype == numpy.int8:
                     # discrete or weather
                     keys = JUtil.javaObjToPyVal(slice.getKeyList())
-                    retVal = (result, keys)
-                elif type(result) is not numpy.ndarray and len(result) == 2:
+                    retVal = (retVal, keys)
+                elif type(retVal) is not numpy.ndarray and len(retVal) == 2:
                     # vector
-                    retVal = tuple(result)
+                    retVal = tuple(retVal)
 
         if retVal is None or retVal == []:
             if noDataError == 1:
@@ -1702,12 +1702,8 @@ class SmartScript(BaseTool.BaseTool):
 
     def getLatLonGrids(self):
         gridLoc = self.getGridLoc()
-        latLonGrid = gridLoc.getLatLonGrid().getNDArray();                
-        # FIXME We reverse the x and y dimensions because that's what AWIPS 1
-        # did and that makes the pre-existing python code compatible. Java
-        # ordering is x,y while python is ordering is y,x. So our latlonGrid
-        # here has ordering y, x but gridLoc is a Java object so we have to
-        # get the values from it in reverse. 
+        latLonGrid = gridLoc.getLatLonGrid()
+
         latLonGrid = numpy.reshape(latLonGrid, (2,gridLoc.getNy().intValue(),gridLoc.getNx().intValue()), order='F')
         return latLonGrid[1], latLonGrid[0]
 

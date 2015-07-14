@@ -297,8 +297,10 @@ public class AlertTable extends Composite implements StyleListener {
     public void select(Alert alert) {
         if (alertsToAdd.contains(alert)) {
             TableItem item = addAlertInternal(alert);
-            alertTable.setSelection(alertTable.indexOf(item));
-            alertSelected();
+            if (item != null) {
+                alertTable.setSelection(alertTable.indexOf(item));
+                alertSelected();
+            }
             return;
         }
         for (TableItem item : alertTable.getItems()) {
@@ -433,11 +435,10 @@ public class AlertTable extends Composite implements StyleListener {
 
     @Override
     public void updateStyle() {
-        Display display = getDisplay();
-        if (display.isDisposed()) {
+        if (this.isDisposed()){
             return;
         }
-        display.asyncExec(new Runnable() {
+        getDisplay().asyncExec(new Runnable() {
 
             @Override
             public void run() {

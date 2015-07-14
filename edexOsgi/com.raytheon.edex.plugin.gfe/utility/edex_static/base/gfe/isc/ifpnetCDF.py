@@ -370,7 +370,7 @@ def storeLatLonGrids(client, file, databaseID, invMask, krunch, clipArea):
     gridLoc = IFPServerConfigManager.getServerConfig(DatabaseID(databaseID).getSiteId()).dbDomain()
     pDict = gridLoc.getProjection()
 
-    latLonGrid = gridLoc.getLatLonGrid().getNDArray()
+    latLonGrid = gridLoc.getLatLonGrid()
     
     latLonGrid = numpy.reshape(latLonGrid, (2,gridLoc.getNy().intValue(),gridLoc.getNx().intValue()), order='F')
 
@@ -1270,10 +1270,9 @@ def main(outputFilename, parmList, databaseID, startTime,
 #      AFPS.DBSubsystem_getBuiltBy(), AFPS.DBSubsystem_getBuiltOn(),
 #      AFPS.DBSubsystem_getBuildVersion())
 
-    try:
-        len(parmList)
-    except TypeError:
+    if hasattr(parmList, 'java_name'):
         parmList = JUtil.javaObjToPyVal(parmList)
+        
     argDict = {"outputFilename": outputFilename, 
                "parmList": parmList,
                "databaseID": databaseID, 

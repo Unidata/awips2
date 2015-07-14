@@ -27,10 +27,11 @@
                     </loadProperties>
                     <properties isSystemResource="false"
                         isBlinking="false" isMapLayer="false" isHoverOn="false"
-                        isVisible="true" />
+                        isVisible="false" />
                     <resourceData xsi:type="lightningResourceData"
                         isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true" 
-                        handlingPositiveStrikes="true" handlingNegativeStrikes="true">
+                        handlingPositiveStrikes="false" handlingNegativeStrikes="false"
+                        handlingPulses="true">
                         <binOffset posOffset="0" negOffset="3600" virtualOffset="0"/>
                         <metadataMap>
                             <mapping key="pluginName">
@@ -68,11 +69,10 @@
                     </loadProperties>
                     <properties isSystemResource="false"
                         isBlinking="false" isMapLayer="false" isHoverOn="false"
-                        isVisible="false" />
+                        isVisible="true" />
                     <resourceData xsi:type="lightningResourceData"
                         isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true" 
-                        handlingPositiveStrikes="false" handlingNegativeStrikes="false"
-                        handlingPulses="true">
+                        handlingPositiveStrikes="true" handlingNegativeStrikes="true">
                         <binOffset posOffset="0" negOffset="3600" virtualOffset="0"/>
                         <metadataMap>
                             <mapping key="pluginName">

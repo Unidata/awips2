@@ -21,7 +21,7 @@
 	
 	AWIPS II NEW FILE - LM6.xml
 -->
-<DerivedParameter name="Elevated Left-Moving Supercell" abbreviation="LM6" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+<DerivedParameter name="Elevated Left-Moving Supercell" unit="m/s" abbreviation="LM6" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <Method levels="Layer" name="Difference">
         <Field level="1-6kmAgl" abbreviation="Wind"/>
         <Field abbreviation="RMprop2"/>

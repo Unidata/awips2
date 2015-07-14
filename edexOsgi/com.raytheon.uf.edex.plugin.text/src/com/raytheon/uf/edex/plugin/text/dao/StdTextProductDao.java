@@ -101,6 +101,7 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  * 10/28/2014   3454        bphillip    Fix usage of getSession()
  * Jan 27, 2015 4031        rferrel     Resolve AFOS PILs site conflict using preferredAfosFirstLetter.
  * May 05, 2015 4462        rferrel     {@link #write(StdTextProduct)} when missing set the textProduct's site.
+ * Jul 06, 2015 4612        rferrel     Get all sites matching the preferredafosFirstLetter.
  * </pre>
  * 
  * @author garmendariz
@@ -132,7 +133,7 @@ public class StdTextProductDao extends CoreDao {
 
     private static final String NNN_ID = "nnnid";
 
-    private static final String SITE = "site";
+    private static final String SITES = "sites";
 
     private static final String PRODUCT = "product";
 
@@ -161,7 +162,7 @@ public class StdTextProductDao extends CoreDao {
 
             + " and " + ProdXXX_ID + " = :" + XXX_ID
 
-            + " and " + ProdSITE + " = :" + SITE
+            + " and " + ProdSITE + " in (:" + SITES + ")"
 
             + " order by " + REFTIME + " desc" + ", " + INSERTTIME + " desc";
 
@@ -309,7 +310,7 @@ public class StdTextProductDao extends CoreDao {
         List<StdTextProduct> products = null;
 
         try {
-            final List<Pair<String, AFOSProductId>> siteAfosIdList = querySiteAfosId(
+            final List<Pair<String[], AFOSProductId>> siteAfosIdList = querySiteAfosId(
                     ccc, nnn, xxx);
 
             products = txTemplate
@@ -337,14 +338,14 @@ public class StdTextProductDao extends CoreDao {
                                 query.setMaxResults(version + 1);
                             }
 
-                            for (Pair<String, AFOSProductId> siteAfosId : siteAfosIdList) {
-                                String site = siteAfosId.getFirst();
+                            for (Pair<String[], AFOSProductId> siteAfosId : siteAfosIdList) {
+                                String[] sites = siteAfosId.getFirst();
                                 AFOSProductId afosId = siteAfosId.getSecond();
-                                if (site != null) {
+                                if (sites != null) {
                                     query.setParameter(CCC_ID, afosId.getCcc());
                                     query.setParameter(NNN_ID, afosId.getNnn());
                                     query.setParameter(XXX_ID, afosId.getXxx());
-                                    query.setParameter(SITE, site);
+                                    query.setParameterList(SITES, sites);
 
                                     List<?> results = query.list();
                                     if (results != null && results.size() > 0) {
@@ -387,15 +388,15 @@ public class StdTextProductDao extends CoreDao {
     }
 
     /**
-     * Get desired site for the afosId the pairs are order by AfosId.
+     * Get desired sites for the afosId the pairs are order by AfosId.
      * 
      * @param ccc
      * @param nnn
      * @param xxx
      * @return siteAfosIds
      */
-    private List<Pair<String, AFOSProductId>> querySiteAfosId(final String ccc,
-            final String nnn, final String xxx) {
+    private List<Pair<String[], AFOSProductId>> querySiteAfosId(
+            final String ccc, final String nnn, final String xxx) {
         boolean hasCCC = ((ccc != null) && (ccc.length() > 0) && (!ccc
                 .equals("000")));
         boolean hasNNN = ((nnn != null) && (nnn.length() > 0) && (!nnn
@@ -405,10 +406,10 @@ public class StdTextProductDao extends CoreDao {
         final boolean createInitialFilter = !(hasCCC && hasNNN && hasXXX);
 
         return txTemplate
-                .execute(new TransactionCallback<List<Pair<String, AFOSProductId>>>() {
+                .execute(new TransactionCallback<List<Pair<String[], AFOSProductId>>>() {
 
                     @Override
-                    public List<Pair<String, AFOSProductId>> doInTransaction(
+                    public List<Pair<String[], AFOSProductId>> doInTransaction(
                             TransactionStatus status) {
                         String paddedccc = StringUtils.rightPad(ccc,
                                 MAX_FIELD_LENGTH);
@@ -417,7 +418,7 @@ public class StdTextProductDao extends CoreDao {
                         String paddedxxx = StringUtils.rightPad(xxx,
                                 MAX_FIELD_LENGTH);
                         Session session = getCurrentSession();
-                        List<Pair<String, AFOSProductId>> siteProductPairList = null;
+                        List<Pair<String[], AFOSProductId>> siteProductPairList = null;
                         StdTextProduct stdTextProduct = getStdTextProductInstance();
 
                         if (createInitialFilter) {
@@ -472,30 +473,30 @@ public class StdTextProductDao extends CoreDao {
                                         .keySet());
                                 Collections.sort(indices);
                                 for (int index : indices) {
-                                    String site = getSite(siteMap.get(index)
+                                    String[] sites = getSite(siteMap.get(index)
                                             .toArray());
                                     AFOSProductId afosId = orderedAfosIds
                                             .get(index);
-                                    Pair<String, AFOSProductId> pair = new Pair<String, AFOSProductId>(
-                                            site, afosId);
-                                    siteProductPairList.add(pair);
+                                    siteProductPairList
+                                            .add(new Pair<String[], AFOSProductId>(
+                                                    sites, afosId));
                                 }
                             } else {
-                                siteProductPairList = new ArrayList<Pair<String, AFOSProductId>>(
+                                siteProductPairList = new ArrayList<Pair<String[], AFOSProductId>>(
                                         0);
                             }
                         } else {
                             AFOSProductId afosId = new AFOSProductId(paddedccc,
                                     paddednnn, paddedxxx);
-                            String site = getSite(afosId);
-                            if (site == null) {
-                                siteProductPairList = new ArrayList<Pair<String, AFOSProductId>>(
+                            String[] sites = getSite(afosId);
+                            if (sites == null) {
+                                siteProductPairList = new ArrayList<Pair<String[], AFOSProductId>>(
                                         0);
                             } else {
                                 siteProductPairList = new ArrayList<>(1);
                                 siteProductPairList
-                                        .add(new Pair<String, AFOSProductId>(
-                                                site, afosId));
+                                        .add(new Pair<String[], AFOSProductId>(
+                                                sites, afosId));
                             }
                         }
                         return siteProductPairList;
@@ -504,12 +505,12 @@ public class StdTextProductDao extends CoreDao {
     }
 
     /**
-     * Get site based on the ordering from preferredAfosFirstLetter.
+     * Get sites based on the ordering from preferredAfosFirstLetter.
      * 
      * @param afosId
-     * @return site or null when no data.
+     * @return sites or null when no data.
      */
-    private String getSite(AFOSProductId afosId) {
+    private String[] getSite(AFOSProductId afosId) {
         String ccc = afosId.getCcc();
         String nnn = afosId.getNnn();
         String xxx = afosId.getXxx();
@@ -534,17 +535,18 @@ public class StdTextProductDao extends CoreDao {
     }
 
     /**
-     * From the array of sites determine which one is the preferred site.
+     * From the array of sites determine which ones are preferred sites.
      * 
      * @param values
      *            - Assume sites with common afosId
-     * @return site first site based on preferredAfosFirstLetter
+     * @return sites based on preferredAfosFirstLetter
      */
-    private String getSite(Object[] values) {
+    private String[] getSite(Object[] values) {
         if (values != null) {
             if (values.length == 1) {
-                return (String) values[0];
+                return new String[] { (String) values[0] };
             } else if (values.length > 1) {
+                List<String> results = new ArrayList<>(values.length);
                 String[] sites = new String[values.length];
                 for (int i = 0; i < values.length; ++i) {
                     sites[i] = (String) values[i];
@@ -552,17 +554,20 @@ public class StdTextProductDao extends CoreDao {
                 for (char c : preferredAfosFirstLetter) {
                     for (String site : sites) {
                         if (site.charAt(0) == c) {
-                            return site;
+                            results.add(site);
                         }
+                    }
+                    if (!results.isEmpty()) {
+                        return results.toArray(new String[results.size()]);
                     }
                 }
                 if (logger.isInfoEnabled()) {
                     String message = "None of the sites first character in preferred AFOS first letter list \""
                             + new String(preferredAfosFirstLetter)
-                            + "\". Using site: " + sites[0];
+                            + "\". Using sites: " + sites;
                     logger.info(message);
                 }
-                return sites[0];
+                return sites;
             }
         }
         return null;
@@ -586,7 +591,7 @@ public class StdTextProductDao extends CoreDao {
         Session session = null;
 
         try {
-            List<Pair<String, AFOSProductId>> siteAfosIdList = querySiteAfosId(
+            List<Pair<String[], AFOSProductId>> siteAfosIdList = querySiteAfosId(
                     ccc, nnn, xxx);
 
             session = getSession();
@@ -640,7 +645,7 @@ public class StdTextProductDao extends CoreDao {
         Session session = null;
 
         try {
-            List<Pair<String, AFOSProductId>> siteAfosIdList = querySiteAfosId(
+            List<Pair<String[], AFOSProductId>> siteAfosIdList = querySiteAfosId(
                     ccc, nnn, xxx);
 
             session = getSession();
@@ -687,7 +692,7 @@ public class StdTextProductDao extends CoreDao {
      * @throws HibernateException
      */
     private List<StdTextProduct> listProducts(Criteria criteria,
-            List<Pair<String, AFOSProductId>> siteAfosIdList)
+            List<Pair<String[], AFOSProductId>> siteAfosIdList)
             throws HibernateException {
 
         List<?> prodList = criteria.list();
@@ -699,9 +704,9 @@ public class StdTextProductDao extends CoreDao {
             products = new ArrayList<>(prodList.size());
 
             Iterator<?> iter = prodList.iterator();
-            Iterator<Pair<String, AFOSProductId>> siteAfosIdIter = siteAfosIdList
+            Iterator<Pair<String[], AFOSProductId>> siteAfosIdIter = siteAfosIdList
                     .iterator();
-            Pair<String, AFOSProductId> pair = siteAfosIdIter.next();
+            Pair<String[], AFOSProductId> pair = siteAfosIdIter.next();
 
             while (iter.hasNext()) {
                 StdTextProduct prod = (StdTextProduct) iter.next();
@@ -715,8 +720,11 @@ public class StdTextProductDao extends CoreDao {
                         pair = siteAfosIdIter.next();
                     }
                     String site = prod.getSite();
-                    if (site.equals(pair.getFirst())) {
-                        products.add(prod);
+                    for (String pSite : pair.getFirst()) {
+                        if (site.equals(pSite)) {
+                            products.add(prod);
+                            break;
+                        }
                     }
                 }
             }

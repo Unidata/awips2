@@ -38,7 +38,7 @@
       <vmArgsWin>-Dfile.encoding=UTF-8</vmArgsWin>
    </launcherArgs>
 
-   <windowImages/>
+   <windowImages i16="/com.raytheon.viz.ui.personalities.awips/cave_16x16.png" i32="/com.raytheon.viz.ui.personalities.awips/cave_32x32.png" i48="/com.raytheon.viz.ui.personalities.awips/cave_48x48.png" i64="/com.raytheon.viz.ui.personalities.awips/cave_64x64.png" i128="/com.raytheon.viz.ui.personalities.awips/cave_128x128.png"/>
 
    <splash
       location="com.raytheon.viz.ui.personalities.awips"
@@ -53,7 +53,7 @@
    </launcher>
 
    <vm>
-      <windows include="true">jdk1.6.0</windows>
+      <windows include="true">jdk1.7.0</windows>
    </vm>
 
    <plugins>

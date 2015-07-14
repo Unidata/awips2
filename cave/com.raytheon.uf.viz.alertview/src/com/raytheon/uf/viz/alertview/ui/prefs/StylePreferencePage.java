@@ -236,8 +236,11 @@ public class StylePreferencePage extends PreferencePage implements
     }
 
     protected void deleteStyle() {
-        table.getSelection()[0].dispose();
-        styleSelected();
+        TableItem[] selection = table.getSelection();
+        if (selection != null && selection.length > 0) {
+            selection[0].dispose();
+            styleSelected();
+        }
     }
 
     protected void styleSelected() {

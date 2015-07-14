@@ -21,10 +21,13 @@ package com.raytheon.uf.viz.alertview.ui.popup;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseTrackListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -109,6 +112,21 @@ public class AlertPopup implements AlertDestination,
      */
     private class PopupAlertTask implements Runnable {
 
+        private static final int UNBLOCK = 0;
+
+        private static final int BLOCK = 1;
+
+        /**
+         * Counter for generating unique keys for {@link UnblockPopupTask}s.
+         */
+        private int nextDelayUnblockKey = 2;
+
+        /**
+         * The popup becomes blocked and will not close or update if the
+         * {@link MouseTracker} detects that the mouse is over the popup.
+         */
+        private AtomicInteger blockingState = new AtomicInteger(UNBLOCK);
+
         private final Timer timer = new Timer("Remove Alert Popup");
 
         private Shell shell;
@@ -159,12 +177,37 @@ public class AlertPopup implements AlertDestination,
         public void openInAlertView() {
             if (displayedAlert != null) {
                 OpenAlertViewHandler.openInAlertView(displayedAlert);
+                blockingState.set(UNBLOCK);
                 clear(displayedAlert);
             }
         }
 
+        public void blockChanges() {
+            this.blockingState.set(BLOCK);
+        }
+
+        public void unblockChanges() {
+            if (blockingState.compareAndSet(BLOCK, nextDelayUnblockKey)) {
+                timer.schedule(new UnblockPopupTask(nextDelayUnblockKey), 500);
+                nextDelayUnblockKey += 1;
+            }
+        }
+
+        public void unblockChanges(int key) {
+            if (blockingState.compareAndSet(key, UNBLOCK)) {
+                Display.getDefault().asyncExec(PopupAlertTask.this);
+            }
+
+        }
+
         @Override
         public void run() {
+            if (blockingState.get() != UNBLOCK) {
+                return;
+            } else {
+                /* Reset count to prevent wrap-around.*/
+                nextDelayUnblockKey = 2;
+            }
             this.displayedAlert = this.alert;
             if (displayedAlert != null && (shell == null || shell.isDisposed())) {
                 shell = new Shell(Display.getDefault(), SWT.NO_FOCUS
@@ -233,6 +276,7 @@ public class AlertPopup implements AlertDestination,
                 }
 
                 shell.setLocation(startX, startY);
+                new MouseTracker(label);
                 shell.setVisible(true);
             }
             if (displayedAlert == null) {
@@ -272,5 +316,109 @@ public class AlertPopup implements AlertDestination,
         public void run() {
             task.clear(alert);
         }
+    }
+
+    /**
+     * This task is scheduled from the UI thread when the {@link MouseTracker}
+     * detects that the mouse is no longer over the popup. It will cause the
+     * {@link PopupAlertTask} to refresh. If the user moves the mouse over the
+     * popup before this task is executed then the {@link PopupAlertTask} will
+     * invalidate the key and ignore the request to unblock when this task runs.
+     */
+    private class UnblockPopupTask extends TimerTask {
+
+        private final int key;
+
+        public UnblockPopupTask(int key) {
+            this.key = key;
+        }
+
+        @Override
+        public void run() {
+            task.unblockChanges(key);
+        }
+    }
+
+    /**
+     * Change the cursor and color when the mouse is over the popup. Also
+     * prevents the popup from changing when the mouse is over it.
+     */
+    private class MouseTracker implements
+            MouseTrackListener {
+
+        private final Label label;
+
+        private final Shell shell;
+
+        /** True when mouse is in the popup. */
+        private boolean active = false;
+
+        private Color inactiveColor;
+
+        private Color activeColor;
+
+        public MouseTracker(Label label) {
+            this.label = label;
+            this.shell = label.getShell();
+            label.addMouseTrackListener(this);
+        }
+
+        private void activate() {
+            if (!active) {
+                shell.setCursor(shell.getDisplay().getSystemCursor(
+                        SWT.CURSOR_HAND));
+                if (activeColor == null
+                        || !inactiveColor.equals(label.getBackground())) {
+                    inactiveColor = label.getBackground();
+                    int r = inactiveColor.getRed();
+                    int g = inactiveColor.getGreen();
+                    int b = inactiveColor.getBlue();
+                    if (r + b + g < 32) {
+                        /* If its a really dark color, make it brighter */
+                        r = Math.min(255, r + 32);
+                        g = Math.min(255, g + 32);
+                        b = Math.min(255, b + 32);
+                    } else {
+                        /* If its a bright color make it darker */
+                        r = Math.max(0, r - 32);
+                        g = Math.max(0, g - 32);
+                        b = Math.max(0, b - 32);
+                    }
+                    if (activeColor != null) {
+                        activeColor.dispose();
+                    }
+                    activeColor = new Color(shell.getDisplay(), r, g, b);
+                }
+                label.setBackground(activeColor);
+                active = true;
+                task.blockChanges();
+            }
+        }
+
+        private void deactivate() {
+            if (active) {
+                shell.setCursor(shell.getDisplay().getSystemCursor(
+                        SWT.CURSOR_ARROW));
+                label.setBackground(inactiveColor);
+                active = false;
+                task.unblockChanges();
+            }
+        }
+
+        @Override
+        public void mouseEnter(MouseEvent e) {
+            activate();
+        }
+
+        @Override
+        public void mouseExit(MouseEvent e) {
+            deactivate();
+        }
+
+        @Override
+        public void mouseHover(MouseEvent e) {
+            activate();
+        }
+
     }
 }
