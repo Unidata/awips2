@@ -20,8 +20,8 @@
 package com.raytheon.uf.edex.plugin.bufrmos.decoder;
 
 import java.util.Calendar;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosAvnData;
 import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosData;
@@ -63,6 +63,8 @@ import com.raytheon.uf.edex.plugin.bufrmos.MOSPointDataState;
  * Jul 26, 2013 1051       bsteffen    Discard bufrmos data with invalid
  *                                     location.
  * May 14, 2014 2536       bclement    removed TimeTools usage
+ * Jul 14, 2015 4543       dgilling    Stop using relative indexing to perform
+ *                                     parameter mapping.
  * </pre>
  * 
  * @author jkorman
@@ -213,21 +215,16 @@ public class BufrMOSDataAdapter {
                 startTime = System.currentTimeMillis();
                 // Now collect this station's MOS data.
                 if (haveRequiredData && (mosType != null)) {
-                    //
-                    Iterator<BufrMOSElement> it = BUFRMOSStaticData
-                            .getInstance().getElementIterator(mosType);
+                    Map<Integer, BufrMOSElement> parameterMappings = BUFRMOSStaticData
+                            .getInstance().getModelParamterMappings(mosType);
                     PointDataView pdv = pdc.append();
-                    while (it.hasNext()) {
-                        BufrMOSElement element = it.next();
-
-                        IBUFRDataPacket packet = null;
-                        Integer idx = element.getElementIndex();
-                        if ((idx >= 0) && (idx < dataList.size())) {
-                            packet = dataList.get(idx);
+                    for (IBUFRDataPacket packet : dataList) {
+                        BufrMOSElement element = parameterMappings.get(packet
+                                .getReferencingDescriptor().getDescriptor());
+                        if (element != null) {
+                            populateMOSElement(packet, element, pdv);
                         }
-                        populateMOSElement(packet, element, pdv);
                     }
-
                     fcstData.setPointDataView(pdv);
                 } else {
                     fcstData = null;
@@ -255,8 +252,9 @@ public class BufrMOSDataAdapter {
             BufrMOSElement element, PointDataView view) {
         if ((packet != null) && (element != null)) {
             String elementName = element.getElementName();
-            if (elementName == null || elementName.equals(""))
+            if (elementName == null || elementName.equals("")) {
                 return;
+            }
 
             if (!view.getContainer().getParameters().contains(elementName)) {
                 // Discard any params not in the descriptor
