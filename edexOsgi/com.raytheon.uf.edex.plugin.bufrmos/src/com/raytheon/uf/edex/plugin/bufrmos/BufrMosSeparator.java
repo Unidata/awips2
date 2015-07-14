@@ -53,6 +53,8 @@ import com.raytheon.uf.edex.plugin.bufrmos.decoder.MOSDescriptorDelegate;
  * ------------ ---------- ----------- --------------------------
  * 20080221            862 jkorman     Initial Coding.
  * May 14, 2014 2536       bclement    moved WMO Header to common
+ * Jul 14, 2014 4543       dgilling    removed call to removed function in
+ *                                     getSelector.
  * </pre>
  * 
  * @author jkorman
@@ -76,6 +78,7 @@ public class BufrMosSeparator extends AbstractRecordSeparator implements
      * 
      * @see java.util.Iterator#next()
      */
+    @Override
     public Object next() {
         BUFRDataDocument data = null;
         if (hasNext()) {
@@ -193,13 +196,8 @@ public class BufrMosSeparator extends AbstractRecordSeparator implements
      */
     @Override
     public String getSelector() {
-        String retValue = null;
-
         BUFRMOSStaticData data = BUFRMOSStaticData.getInstance();
-        if (data.isLoaded()) {
-            retValue = data.getMOSType(this);
-        }
-
+        String retValue = data.getMOSType(this);
         return retValue;
     }
 
