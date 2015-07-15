@@ -28,7 +28,6 @@ Require-Bundle:  org.eclipse.core.runtime;bundle-version="3.8",
  com.raytheon.uf.viz.core.rsc;bundle-version="1.14",
  javax.measure
 Import-Package: com.raytheon.viz.core.rsc,
- com.raytheon.viz.core.rsc.hdf5,
- gov.noaa.nws.ncep.viz.common.area
+ com.raytheon.viz.core.rsc.hdf5
 Export-Package: com.raytheon.viz.satellite,
  com.raytheon.viz.satellite.rsc
