@@ -28,7 +28,8 @@ import java.io.IOException;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 
+ * ?                                   initial version
+ * Jul 13  2015 DR 17672   D. Friedman Add compressionAllowed field
  * 
  * </pre>
  * 
@@ -78,6 +79,8 @@ public class RadarInfo {
     private int awipsProdId;
 
     private String unit;
+
+    private boolean compressionAllowed;
 
     public int getProductCode() {
         return productCode;
@@ -159,6 +162,14 @@ public class RadarInfo {
         return unit;
     }
 
+    public boolean isCompressionAllowed() {
+        return compressionAllowed;
+    }
+
+    public void setCompressionAllowed(boolean compressionAllowed) {
+        this.compressionAllowed = compressionAllowed;
+    }
+
     public String getDescription() {
         String s = "";
         if (numLevels > 0) {
@@ -196,7 +207,9 @@ public class RadarInfo {
             bigSpeedDir = ("y".equals(tokens[++index]));
             mapAndSegment = ("y".equals(tokens[++index]));
             awipsProdId = Integer.parseInt(tokens[++index]);
-            unit = (tokens.length > ++index ? tokens[index] : null);
+            String trimmed = tokens.length > ++index ? tokens[index].trim() : null;
+            unit = trimmed != null && trimmed.length() > 0 ? trimmed : null;
+            compressionAllowed = tokens.length > ++index ? ("y".equals(tokens[index])) : false;
         } else {
             throw new IOException("Error parsing radar info");
         }
@@ -206,14 +219,14 @@ public class RadarInfo {
     public String toString() {
         String s = String
                 .format(
-                        "%3d | %3d | %1d | %-4s | %3d | %-4s | %-32s | %-11s | %-11s | %-7s | %s | %s | %s | %s | %-2s | %s | %s | %s | %s |%2d | %s",
+                        "%3d | %3d | %1d | %-4s | %3d | %-4s | %-32s | %-11s | %-11s | %-7s | %s | %s | %s | %s | %-2s | %s | %s | %s | %s |%2d | %s | %s",
                         productCode, numLevels, layer, resolution, range,
                         mnemonic, name, nameFormat, abrevNameFormat, format, (elevation ? "y" : " "),
                         (altitude ? "y" : " "), (azimuthRange ? "y" : " "),
                         (speedDir ? "y" : " "), displayModes, (xSection ? "y"
                                 : " "), (hourSpan ? "y" : " "),
                         (bigSpeedDir ? "y" : " "), (mapAndSegment ? "y" : " "),
-                        awipsProdId, (unit == null ? "" : unit));
+                        awipsProdId, (unit == null ? "" : unit), (compressionAllowed ? "y" : " "));
         return s;
     }
 
