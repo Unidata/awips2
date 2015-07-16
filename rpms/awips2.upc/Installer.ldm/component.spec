@@ -334,7 +334,7 @@ sed -i 's/<size>500M<\/size>/<size>1500M<\/size>/' ${_ldm_dir}/etc/registry.xml
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(-,awips,fxalpha,-)
+%defattr(-,ldm,fxalpha,-)
 %dir /usr/local/ldm
 %dir /usr/local/ldm/SOURCES
 /usr/local/ldm/SOURCES/*
