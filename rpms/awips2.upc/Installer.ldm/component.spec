@@ -27,6 +27,7 @@ requires: gcc
 requires: gcc-c++
 requires: libxml2-devel
 requires: libtool
+requires: libpng-devel
 provides: awips2-ldm
 provides: awips2-base-component
 
