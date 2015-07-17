@@ -47,6 +47,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
  * Nov 04, 2013 2361       njensen     Remove XML annotations
+ * Jul 17, 2015 4360       rferrel     Added name to unique constraint.
  * 
  * </pre>
  * 
@@ -55,17 +56,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "bufrmosEtaseq")
-@Table(name = "bufrmosEta", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = "bufrmosEta", uniqueConstraints = { @UniqueConstraint(name = "uk_bufrmoseta_datauri_fields", columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "bufrmosEta",
-		indexes = {
-				@Index(name = "bufrmosEta_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "bufrmosEta", indexes = { @Index(name = "bufrmosEta_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @DynamicSerialize
 public class BufrMosEtaData extends BufrMosData {
     @Override
