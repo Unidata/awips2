@@ -395,7 +395,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 #end
 #if(${action}=="CANCON" || ${action}=="CON" || ${action}=="COR" || ${CORCAN}=="true")
-...A ${eventType} WARNING REMAINS IN EFFECT #headlineExpire(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) for ##
+...A ${eventType} WARNING REMAINS IN EFFECT UNTIL #headlineExpire(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) for ##
 #headlineLocList(${areas} true true true false "ALL")...
 ########### END NEW HEADLINE CODE ####################
 #set($reportType = "!** BASIS FOR WARNING **!")
