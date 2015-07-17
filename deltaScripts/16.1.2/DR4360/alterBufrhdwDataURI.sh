@@ -14,12 +14,12 @@ renameConstraint ${table} uk_${table}_datauri_fields
 
 col=pressure
 echo "INFO: Update ${table}'s ${col}"
-${PSQL} -U awips -d metadata -c "UPDATE ${table} SET ${col}=-9999 where ${col} is NULL ; "
+${PSQL} -U awips -d metadata -c "DELETE from ${table} where ${col} is NULL ; "
 updateNotNullCol ${table} ${col}
 
 col=satType
 echo "Info Update ${table}'s ${col}"
-${PSQL} -U awips -d metadata -c "UPDATE ${table} SET ${col}='Null' where ${col} is NULL ; "
+${PSQL} -U awips -d metadata -c "DELETE from ${table} where ${col} is NULL ; "
 updateNotNullCol ${table} ${col}
 
 echo "INFO: ${table} dataURI columns updated successfully"

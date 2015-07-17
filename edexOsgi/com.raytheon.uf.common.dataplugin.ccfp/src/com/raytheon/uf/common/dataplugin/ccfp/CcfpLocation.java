@@ -49,6 +49,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Apr 15, 2014 3001        bgonzale    Refactored to common package,
  *                                      com.raytheon.uf.common.dataplugin.ccfp.
  * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
+ * Jul 20, 2015 4360        rferrel     DataURI's boxLat and boxLong no longer nullable.
  * 
  * 
  * </pre>
@@ -68,12 +69,12 @@ public class CcfpLocation implements ISpatialObject {
     private Geometry geometry;
 
     @DataURI(position = 0)
-    @Column
+    @Column(nullable = false)
     @DynamicSerializeElement
     private double boxLat;
 
     @DataURI(position = 1)
-    @Column
+    @Column(nullable = false)
     @DynamicSerializeElement
     private double boxLong;
 
