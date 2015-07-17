@@ -63,6 +63,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                     types.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * May 12, 2014 3133       njensen     Use TimeUtil instead of TimeTools
+ * Jul 17, 2015 4360       rferrel     Named unique constraint and satIde no longer nullable.
  * 
  * </pre>
  * 
@@ -71,7 +72,7 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "bufrssmiseq")
-@Table(name = "bufrssmi", uniqueConstraints = { @UniqueConstraint(columnNames = {
+@Table(name = "bufrssmi", uniqueConstraints = { @UniqueConstraint(name = "uk_bufrssmi_datauri_fields", columnNames = {
         "stationid", "refTime", "satId", "latitude", "longitude" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
@@ -86,10 +87,12 @@ public class SSMIScanData extends PersistablePluginDataObject implements
     private static final long serialVersionUID = 1L;
 
     @DataURI(position = 1)
+    @Column(nullable = false)
     @XmlAttribute
     @DynamicSerializeElement
-    private Integer satId;
+    private int satId;
 
+    // TODO Update once SurfaceObsLocation DataURI's are corrected.
     @Embedded
     @DataURI(position = 2, embedded = true)
     @DynamicSerializeElement
@@ -188,7 +191,7 @@ public class SSMIScanData extends PersistablePluginDataObject implements
     /**
      * @return the satId
      */
-    public Integer getSatId() {
+    public int getSatId() {
         return satId;
     }
 
@@ -196,7 +199,7 @@ public class SSMIScanData extends PersistablePluginDataObject implements
      * @param satId
      *            the satId to set
      */
-    public void setSatId(Integer satId) {
+    public void setSatId(int satId) {
         this.satId = satId;
     }
 
