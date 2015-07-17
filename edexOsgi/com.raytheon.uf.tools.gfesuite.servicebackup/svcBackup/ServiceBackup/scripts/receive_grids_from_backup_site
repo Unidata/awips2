@@ -1,4 +1,5 @@
 #!/bin/bash
+
 ##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
@@ -30,13 +31,15 @@
 #    06/16/14        3276          randerso       Added -T to iscMosaic call
 #    02/12/15        4103          dgilling       Support multiple service backup sites.
 #    03/30/15        4103          dgilling       Support new location for svcbu.properties.
+#    04/30/15        4427          dgilling       Support subdomains of the
+#                                                 primary domains.
 #
 ##############################################################################
 
 if [[ -z "${AWIPS_HOME}" ]]
 then
-        path_to_script=`readlink -f $0`
-		export AWIPS_HOME=$(dirname $(dirname $(dirname $(dirname  $path_to_script))))
+    path_to_script=`readlink -f $0`
+    export AWIPS_HOME=$(dirname $(dirname $(dirname $(dirname  $path_to_script))))
 fi
 
 source ${AWIPS_HOME}/edex/bin/setup.env
@@ -96,54 +99,78 @@ else
     exit 1
 fi
 
+IMPORTING_FROM_SUBDOMAIN=0
+SRC_SITEID="${SITE_ID_CAPS}"
+DEST_SITEID="${SITE_ID_CAPS}"
+while read -r line
+do
+    key=${line}
+    value=$(eval "echo \${$key}")
+    value=`echo ${value} | tr [a-z] [A-Z]`
+    
+    if [[ $value = *"${SITE_ID_CAPS}"* ]]
+    then
+        DEST_SITEID=`echo ${key:(-3)} | tr [a-z] [A-Z]`
+        IMPORTING_FROM_SUBDOMAIN=1
+        echo "Importing grids received from $SRC_SITEID as sub-domain of $DEST_SITEID." 
+        break
+    fi
+done < <(compgen -v | grep "^SUBDOMAINS_")
+
 # Check the status of the lock file to see if we are OK to proceed
-LOCK_FILE=$(getLockFile "importBkSiteGrids" ${SITE_ID})
-lock_status=$(isOperationInProgress "importBkSiteGrids" ${SITE_ID})
+LOCK_FILE=$(getLockFile "importBkSiteGrids" ${DEST_SITEID})
+lock_status=$(isOperationInProgress "importBkSiteGrids" ${DEST_SITEID})
 if [[ "${lock_status}" = "true" ]]
 then
 	echo "Cannot process grids."
 	exit 1
 fi
 
-echo "IN_PROGRESS" > ${LOCK_FILE}
+markTaskInProgress ${LOCK_FILE}
 
 # extract grids from package file
-OUTPUT_DIR=$(getTempDirectory "receive_grids_from_backup_site" ${SITE_ID})
-mv "${NETCDF_FILE}" "${OUTPUT_DIR}/${SITE_ID}Grd.netcdf"
+OUTPUT_DIR=$(getTempDirectory "receive_grids_from_backup_site" ${DEST_SITEID})
+import_file="${OUTPUT_DIR}/${SRC_SITEID}Grd.netcdf"
+mv "${NETCDF_FILE}" ${import_file}
 
 # Check if import file was supplied correctly by msg_send.
-import_file=${OUTPUT_DIR}/${SITE_ID}Grd.netcdf
 echo "import_file=${import_file}"
-
 if [ -f ${import_file} ]
 then
+    if [ $IMPORTING_FROM_SUBDOMAIN -eq 0 ]
+    then
+        MOSAIC_FLAGS="-n -T -x"
+    else
+        MOSAIC_FLAGS="-T"
+    fi
+    
     #use iscMosaic to load grids into databases
     echo "Running iscMosaic to unpack griddded data..."
-    ${GFESUITE_BIN}/iscMosaic -h $SVCBU_HOST -r $CDSPORT -d ${SITE_ID_CAPS}_GRID__Restore_00000000_0000 -f ${import_file} -n -T -x 
+    ${GFESUITE_BIN}/iscMosaic -h $SVCBU_HOST -r $CDSPORT -d ${DEST_SITEID}_GRID__Restore_00000000_0000 -f ${import_file} ${MOSAIC_FLAGS} 
+    
     if [ $? -ne 0 ]; 
     then
 		echo "ERROR: iscMosaic failed to run correctly. Please re-run iscMosaic manually."
-    	echo "FAILED" > ${LOCK_FILE}
+		markTaskFailed ${LOCK_FILE}
 		exit 1
     fi
     echo "Finished running iscMosaic..."
+    
     # Generate a GFE message saying new Grids have arrived in Restore database.
-    cd ${GFESUITE_BIN}
-    ./sendGfeMessage -h ${SVCBU_HOST} -p ${CDSPORT} -u -m "Restore database has been populated with new grids."
+    ${GFESUITE_BIN}/sendGfeMessage -h ${SVCBU_HOST} -p ${CDSPORT} -u -m "Restore database has been populated with new grids."
 else
    echo "Unable to locate the gridded data of the site,${import_file} You will need to request your backup site to send grids again."
-   echo "FAILED" > ${LOCK_FILE}
+   markTaskFailed ${LOCK_FILE}
    exit 1
 fi
-
 
 #clean-up.
 rm -f ${import_file}
 rm -rf ${TEMP_DIR}
-echo "SUCCESS" > ${LOCK_FILE}
+markTaskSuccess ${LOCK_FILE}
 
 #ALL well, send a msg and get out of here
 echo "Importing Grids from backup site is completed. You may start your GFE now."
-echo "Grids received from backup site are stored in ${SITE_ID_CAPS}_GRID__Restore_00000000_0000 database."
+echo "Grids received from backup site are stored in ${DEST_SITEID}_GRID__Restore_00000000_0000 database."
 exit 0
 

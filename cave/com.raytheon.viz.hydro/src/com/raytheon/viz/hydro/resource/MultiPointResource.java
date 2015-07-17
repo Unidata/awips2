@@ -67,6 +67,8 @@ import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
+import com.raytheon.uf.viz.core.point.drawables.ext.IPointImageExtension;
+import com.raytheon.uf.viz.core.point.drawables.ext.IPointImageExtension.PointImage;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
@@ -94,8 +96,6 @@ import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.ColorThresholdArray;
 import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.GetColorValues;
 import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.HydroViewColors;
 import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.NamedColorUseSet;
-import com.raytheon.viz.pointdata.drawables.IPointImageExtension;
-import com.raytheon.viz.pointdata.drawables.IPointImageExtension.PointImage;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 import com.raytheon.viz.ui.cmenu.IContextMenuContributor;
 import com.raytheon.viz.ui.input.InputAdapter;
@@ -129,7 +129,9 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * Feb 05, 2013 1578        rferrel     Changes for non-blocking singleton TimeSeriesDlg.
  * Feb 18, 2014 2596        mpduff      Check for null coordinates.
  * Feb 02, 2015 4075        ccody       Added getSelectedGage for HS issue #3961
- * Mar 09, 2015 13998       lbousaidi   changed the dur display when it is null to match A1. 
+ * Mar 09, 2015 13998       lbousaidi   changed the dur display when it is null to match A1.
+ * Apr 09, 2015 4215        mpduff      Check strTree before removing items.
+ * Jul 06, 2015 4215        mpduff      Correct the fact that user's cannot click and view time series.
  * 
  * </pre>
  * 
@@ -344,13 +346,9 @@ public class MultiPointResource extends
     private synchronized void addPoint(GageData gage) {
         String lid = gage.getLid();
         GageData existing = dataMap.get(lid);
-        if (existing != gage) {
+        if (gage != existing) {
             Coordinate xy = new Coordinate(gage.getLon(), gage.getLat());
             gage.setCoordinate(xy);
-
-            /* Create a small envelope around the point */
-            double shiftHeightValue = getShiftHeight(gage);
-            double shiftWidthValue = getShiftWidth(gage);
 
             if (existing != null) {
                 PixelExtent pe = getPixelExtent(existing,
@@ -638,8 +636,8 @@ public class MultiPointResource extends
                 shefDurCode = "I";
             } else {
                 shefDurCode = PDCUtils.convertDur((int) gage.getDur());
-                if (shefDurCode ==null) {
-                	shefDurCode = "?";
+                if (shefDurCode == null) {
+                    shefDurCode = "?";
                 }
             }
             String pe = gage.getPe() + shefDurCode + gage.getTs()

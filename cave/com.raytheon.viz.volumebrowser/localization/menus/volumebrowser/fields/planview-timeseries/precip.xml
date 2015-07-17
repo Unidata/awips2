@@ -32,6 +32,14 @@
 	<contribute xsi:type="menuItem" menuText="36hr Precip Accum" key="TP36hr" indentText="true" />
 	<contribute xsi:type="menuItem" menuText="48hr Precip Accum" key="TP48hr" indentText="true" />
 	<contribute xsi:type="menuItem" menuText="Run Precip Accum" key="TPrun" indentText="true" />
+    <contribute xsi:type="toolbarSubMenu" menuText="Probability of Precipitation">
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/fields/planview-timeseries/sfc2d/HPCtpProb.xml" />
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="Possible Percentile QPF">
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/fields/planview-timeseries/sfc2d/HPCppqpf.xml" />
+    </contribute>
 	<contribute xsi:type="menuItem" menuText="Precipitation Potential Placement" key="PEC"  indentText="false" />	
 	<contribute xsi:type="menuItem" menuText="24h Cumulative Precip Potential Placement" key="PEC_TT24"  indentText="true" />
     <contribute xsi:type="menuItem" menuText="Radar Reflectivity" key="RR" indentText="false" />

@@ -42,6 +42,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Nov 15, 2012            njensen     Initial creation
  * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
  *                                     single request.
+ * Mar 05, 2015 4217       mapeters    Available times are sorted in DataAccessLayer.
+ * May 12, 2015 4409       mapeters    Fix spacing in assembleGetData().
  * 
  * </pre>
  * 
@@ -73,8 +75,7 @@ public class HydroQueryAssembler {
      *            the times of data to request
      * @return the SQL query
      */
-    public static String assembleGetData(IDataRequest request,
-            DataTime[] times) {
+    public static String assembleGetData(IDataRequest request, DataTime[] times) {
         return assembleGetData(request, buildTimeConstraint(times)).toString();
     }
 
@@ -124,7 +125,7 @@ public class HydroQueryAssembler {
             sb.append(where);
             sb.append(" and d.lid = l.lid");
         } else {
-            sb.append("where d.lid = l.lid");
+            sb.append(" where d.lid = l.lid");
         }
         sb.append(buildOrderByTime());
         sb.append(";");
@@ -153,7 +154,6 @@ public class HydroQueryAssembler {
 
         // where
         sb.append(buildWhere(request, null));
-        sb.append(buildOrderByTime());
         sb.append(";");
 
         // TODO do i need a safety check to limit it, like at 5000 rows or

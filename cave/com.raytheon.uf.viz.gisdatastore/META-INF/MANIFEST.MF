@@ -20,3 +20,4 @@ Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.gisdatastore,
  com.raytheon.uf.viz.gisdatastore.rsc,
  com.raytheon.uf.viz.gisdatastore.ui
+Bundle-ClassPath: com.raytheon.uf.viz.gisdatastore.jar

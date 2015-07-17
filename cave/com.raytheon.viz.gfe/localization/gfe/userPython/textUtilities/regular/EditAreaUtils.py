@@ -203,7 +203,8 @@ class  EditAreaUtils(TextUtils.TextUtils):
     def makeArea(self, pointList, refname=None):
         " Make a Reference Area with a unique ReferenceID"
         from com.vividsolutions.jts.geom import GeometryFactory, LinearRing, Coordinate, Polygon
-        from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData_CoordinateType as CoordinateType
+        from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData
+        CoordinateType = ReferenceData.CoordinateType
         geomFactory = GeometryFactory()
         import jep
         size = len(pointList)
@@ -322,7 +323,8 @@ class  EditAreaUtils(TextUtils.TextUtils):
                 comboNumber = self.getComboNumber()
                 label = areaPrefix + `int(time.time())` + `comboNumber`
                 refId = ReferenceID(label)
-                from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData_CoordinateType as CoordinateType
+                from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData
+                CoordinateType = ReferenceData.CoordinateType
                 coordType = CoordinateType.valueOf('LATLON')
                 area = ReferenceData(
                     GridLoc, refId, newArea.getPolygons(coordType), coordType)

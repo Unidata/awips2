@@ -7,32 +7,35 @@
 ## UPDATED -- Kurimski 5/20/13 Addl IBW Changes         ##
 ## UPDATED -- Kurimski 9/17/13 Tor Emer Headline        ##
 ## UPDATED -- Bookbinder 9/18/2013 implement config.vm  ## 
-## UPDATED -- Dangelo 1/24/2014 added logic to keep defaultCTAs from being used in a TOR EMER (duplication) ##
-## UPDATED -- Bookbinder 2/27/2014 TOR EMER CTA         ##
+## UPDATED -- Dangelo 1/24/2014 added logic to keep defaultCTAs 
+##            from being used in a TOR EMER (duplication) ##
+## UPDATED -- Bookbinder 2/27/2014 TOR EMER CTA           ##
 ## UPDATED -- Bookbinder 6/24/14 Added code to prevent Lg/Vlnt TOR w/ base ##
-##########################################################
-## Impact Statements for IBW templates are contained in impactStatements.vm
+## UPDATED -- Tomalak/Bookbinder 3/24/15 CONVERT TO MIXED CASE  ##
+## UPDATED -- Phil Kurimski   3/26/2015 Fixed Preamble  ##
+################################################################
+## NOTE: Impact Statements for IBW templates are contained in impactStatements.vm
 ################################################################
 ## ESTABLISH SOME INITIAL VARIABLES ############################
 ################################################################
 #parse("config.vm")
-#set($preAmble = "")
+#set($preAmble = "Take cover now! ")
 #set($hailSize = 0) 
-#set($reportType = "A TORNADO WAS REPORTED")
-#set($pathcastLead = "THIS TORNADIC STORM")
-#set($moveLead = " DOPPLER RADAR SHOWED THIS TORNADO MOVING")
+#set($reportType = "A tornado was reported")
+#set($pathcastLead = "This tornadic storm")
+###set($moveLead = " Doppler radar showed this tornado moving")
 #set($torTag = "RADAR INDICATED")
 #set($torThreat = "")
 #set($pdstor = "")
 #set($confirmed = "")
-#set($torHazard = "TORNADO")
-#set($torGround = "ON THE GROUND")
-#set($source = "RADAR INDICATED ROTATION.")
+#set($torHazard = "Tornado")
+#set($torGround = "on the ground")
+#set($source = "Radar indicated rotation.")
 #set($extraSource = "")
 #if(${stormType} == "line")
-  #set($reportType = "TORNADO PRODUCING STORMS WERE REPORTED")
-  #set($pathcastLead = "THESE TORNADIC STORMS")
-  #set($moveLead = " DOPPLER RADAR SHOWED THESE STORMS MOVING")
+  #set($reportType = "Tornado producing storms were reported")
+  #set($pathcastLead = "These tornadic storms")
+##  #set($moveLead = " Doppler radar showed these storms moving")
 #end
 ##
 ###################################################
@@ -42,139 +45,139 @@
 #set($windImpact = "")
 #set($extensive = "")
 #set($windHazard = "")
-#set($windTag = "<50MPH")
+#set($windTag = "<50mph")
 #if(${list.contains(${bullets}, "60mphWind")})
-  #set($windThreat = "DAMAGING WINDS IN EXCESS OF 60 MPH") 
-  #set($windHazard = "60 MPH WIND GUSTS")
+  #set($windThreat = "damaging winds in excess of 60 mph") 
+  #set($windHazard = "60 mph wind gusts")
   #set($windSpeed = 60)
-  #set($windTag = "60MPH")
-##  #set($windImpact = "LARGE TREE LIMBS BROKEN OFF PARTIALLY BLOCKING ROADS...DAMAGING BUILDINGS...HOMES AND DOWNING POWER LINES.")
+  #set($windTag = "60mph")
+##  #set($windImpact = "large tree limbs broken off partially blocking roads, damaging buildings, homes and downing power lines.")
 #end
 #if(${list.contains(${bullets}, "70mphWind")})
-  #set($windThreat = "DESTRUCTIVE WINDS IN EXCESS OF 70 MPH")
-  #set($windHazard = "70 MPH WIND GUSTS")
+  #set($windThreat = "destructive winds in excess of 70 mph")
+  #set($windHazard = "70 mph wind gusts")
   #set($windSpeed = 70) 
-  #set($windTag = "70MPH")
-##  #set($windImpact = "TREES TO BE UPROOTED BLOCKING ROADS...DAMAGING BUILDINGS...HOMES AND DOWNING POWER LINES.")
+  #set($windTag = "70mph")
+##  #set($windImpact = "trees to be uprooted blocking roads, damaging buildings, homes and downing power lines.")
 #end
 #if(${list.contains(${bullets}, "80mphWind")})
-  #set($windThreat = "DESTRUCTIVE WINDS IN EXCESS OF 80 MPH")
-  #set($windHazard = "80 MPH WIND GUSTS")
+  #set($windThreat = "destructive winds in excess of 80 mph")
+  #set($windHazard = "80 mph wind gusts")
   #set($windSpeed = 80) 
-  #set($windTag = "80MPH")
-  #set($extensive = "EXTENSIVE ")
-##  #set($windImpact = "TREES TO BE UPROOTED BLOCKING ROADS...DAMAGING BUILDINGS...HOMES AND DOWNING POWER LINES.")
+  #set($windTag = "80mph")
+  #set($extensive = "extensive ")
+##  #set($windImpact = "trees to be uprooted blocking roads, damaging buildings, homes and downing power lines.")
 #end
 #if(${list.contains(${bullets}, "90mphWind")})
-  #set($windThreat = "EXTREME DAMAGING WINDS IN EXCESS OF 90 MPH")
-  #set($windHazard = "90 MPH WIND GUSTS")
+  #set($windThreat = "extreme damaging winds in excess of 90 mph")
+  #set($windHazard = "90 mph wind gusts")
   #set($windSpeed = 90)
-  #set($windTag = "90MPH")
-  #set($extensive = "EXTENSIVE ")
-##  #set($windImpact ="TREES TO BE UPROOTED BLOCKING ROADS...DAMAGING BUILDINGS...HOMES AND DOWNING POWER LINES.")
+  #set($windTag = "90mph")
+  #set($extensive = "extensive ")
+##  #set($windImpact ="trees to be uprooted blocking roads, damaging buildings, homes and downing power lines.")
 #end
 #if(${list.contains(${bullets}, "100mphWind")})
-  #set($windThreat = "EXTREME DAMAGING WINDS IN EXCESS OF 100 MPH")
-  #set($windHazard = "100 MPH WIND GUSTS")
+  #set($windThreat = "extreme damaging winds in excess of 100 mph")
+  #set($windHazard = "100 mph wind gusts")
   #set($windSpeed = 100)
-  #set($windTag = "100MPH")
-  #set($extensive = "EXTENSIVE ")
-##  #set($windImpact ="TREES TO BE UPROOTED BLOCKING ROADS...DAMAGING BUILDINGS...HOMES AND DOWNING POWER LINES.")
+  #set($windTag = "100mph")
+  #set($extensive = "extensive ")
+##  #set($windImpact ="trees to be uprooted blocking roads, damaging buildings, homes and downing power lines.")
 #end
 #######################################
 ## HANDLE HAIL POSSIBILITIES ##########
 #######################################
 #set($hailTag = "<.75")
-#set($hailHazard = "SMALL HAIL")
+#set($hailHazard = "small hail")
 #if(${list.contains(${bullets}, "noHail")})
   #set($hailThreat = "")  
   #set($hailSize = 0)
   #set($hailTag = "0.00IN")
-  #set($hailHazard = "NO HAIL")
+  #set($hailHazard = "no hail")
 #end
 #if(${list.contains(${bullets}, "smallHail")})
   #set($hailThreat = "")  
   #set($hailSize = 0.75)
   #set($hailTag = "<.75IN")
-  #set($hailHazard = "SMALL HAIL")
+  #set($hailHazard = "small hail")
 #end
 #if(${list.contains(${bullets}, "pennyHail")})
-  #set($hailThreat = "PENNY SIZE HAIL")  
+  #set($hailThreat = "penny size hail")  
   #set($hailSize = 0.75)
   #set($hailTag = "0.75IN")
-  #set($hailHazard = "PENNY SIZE HAIL")
+  #set($hailHazard = "penny size hail")
 #end
 #if(${list.contains(${bullets}, "nickelHail")})
-  #set($hailThreat = "NICKEL SIZE HAIL")
+  #set($hailThreat = "nickel size hail")
   #set($hailSize = 0.88)
   #set($hailTag = "0.88IN")
-  #set($hailHazard = "NICKEL SIZE HAIL")
+  #set($hailHazard = "nickel size hail")
 #end
 #if(${list.contains(${bullets}, "quarterHail")})
-  #set($hailThreat = "QUARTER SIZE HAIL")
+  #set($hailThreat = "quarter size hail")
   #set($hailSize = 1.00) 
   #set($hailTag = "1.00IN")
-  #set($hailHazard = "QUARTER SIZE HAIL")
+  #set($hailHazard = "quarter size hail")
 #end
 #if(${list.contains(${bullets}, "halfdollarHail")})
-  #set($hailThreat = "HALF DOLLAR SIZE HAIL")
+  #set($hailThreat = "half dollar size hail")
   #set($hailSize = 1.25)
   #set($hailTag = "1.25IN") 
-  #set($hailHazard = "HALF DOLLAR SIZE HAIL")
+  #set($hailHazard = "half dollar size hail")
 #end
 #if(${list.contains(${bullets}, "pingpongHail")})
-  #set($hailThreat = "PING PONG BALL SIZE") 
+  #set($hailThreat = "ping pong ball size") 
   #set($hailSize = 1.50)
   #set($hailTag = "1.50IN")
-  #set($hailHazard = "PING PONG BALL SIZE HAIL")
+  #set($hailHazard = "ping pong ball size hail")
 #end
 #if(${list.contains(${bullets}, "golfballHail")})
-  #set($hailThreat = "LARGE DAMAGING HAIL UP TO GOLF BALL SIZE") 
+  #set($hailThreat = "large damaging hail up to golf ball size") 
   #set($hailSize = 1.75)
   #set($hailTag = "1.75IN")
-  #set($hailHazard = "GOLF BALL SIZE HAIL")
+  #set($hailHazard = "golf ball size hail")
 #end
 #if(${list.contains(${bullets}, "twoinchHail")})
-  #set($hailThreat = "LARGE DAMAGING HAIL UP TO TWO INCHES IN DIAMETER") 
+  #set($hailThreat = "large damaging hail up to two inches in diameter") 
   #set($hailSize = 2.00)
   #set($hailTag = "2.00IN")
-  #set($hailHazard = "HAIL UP TO TWO INCHES IN DIAMETER")
+  #set($hailHazard = "hail up to two inches in diameter")
 #end
 #if(${list.contains(${bullets}, "tennisBallHail")})
-  #set($hailThreat = "LARGE DESTRUCTIVE HAIL UP TO TENNIS BALL SIZE") 
+  #set($hailThreat = "large destructive hail up to tennis ball size") 
   #set($hailSize = 2.50)
   #set($hailTag = "2.50IN")
-  #set($hailHazard = "TENNIS BALL SIZE HAIL")
+  #set($hailHazard = "tennis ball size hail")
 #end
 #if(${list.contains(${bullets}, "baseballHail")})
-  #set($hailThreat = "LARGE DESTRUCTIVE HAIL UP TO BASEBALL SIZE") 
+  #set($hailThreat = "large destructive hail up to baseball size") 
   #set($hailSize = 2.75)
   #set($hailTag = "2.75IN")
-  #set($hailHazard = "BASEBALL SIZE HAIL")
+  #set($hailHazard = "baseball size hail")
 #end
 #if(${list.contains(${bullets}, "threeinchHail")})
-  #set($hailThreat = "LARGE DESTRUCTIVE HAIL UP TO THREE INCHES IN DIAMETER") 
+  #set($hailThreat = "large destructive hail up to three inches in diameter") 
   #set($hailSize = 3.00)
   #set($hailTag = "3.00IN")
-  #set($hailHazard = "HAIL UP TO THREE INCHES IN DIAMETER")
+  #set($hailHazard = "hail up to three inches in diameter")
 #end
 #if(${list.contains(${bullets}, "grapefruitHail")})
-  #set($hailThreat = "DANGEROUS AND EXTREMELY LARGE DESTRUCTIVE HAIL UP TO GRAPEFRUIT SIZE") 
+  #set($hailThreat = "dangerous and extremely large destructive hail up to grapefruit size") 
   #set($hailSize = 4.00)
   #set($hailTag = "4.00IN")
-  #set($hailHazard = "GRAPEFRUIT SIZE HAIL")
+  #set($hailHazard = "grapefruit size hail")
 #end
 #if(${list.contains(${bullets}, "softballHail")})
-  #set($hailThreat = "DANGEROUS AND EXTREMELY LARGE DESTRUCTIVE HAIL UP TO SOFTBALL SIZE") 
+  #set($hailThreat = "dangerous and extremely large destructive hail up to softball size") 
   #set($hailSize = 4.25)
   #set($hailTag = "4.25IN")
-  #set($hailHazard = "SOFTBALL SIZE HAIL")
+  #set($hailHazard = "softball size hail")
 #end
 #if(${hailSize} >= 1.50)
   #if(${stormType} == "line")
-    #set($extraThreat = "IN ADDITION TO A TORNADO...${hailThreat} IS EXPECTED WITH THESE STORMS.")
+    #set($extraThreat = "In addition to a tornado, ${hailthreat} is expected with these storms.")
   #else
-    #set($extraThreat = "IN ADDITION TO A TORNADO...${hailThreat} IS EXPECTED WITH THIS STORM.")
+    #set($extraThreat = "In addition to a tornado, ${hailthreat} is expected with this storm.")
   #end
 #else
   #set($extraThreat = "")
@@ -186,17 +189,18 @@ ${ugcline}
 
 BULLETIN - EAS ACTIVATION REQUESTED
 #if(${productClass}=="T")
-TEST...TORNADO WARNING...TEST
+TEST...Tornado Warning...TEST
 #else
-TORNADO WARNING
+Tornado Warning
 #end
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
 ## end of addition
 #if(${productClass}=="T")
 
-...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+...This message is for test purposes only...
 #end
 
 ##########################################################################
@@ -214,9 +218,9 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ##################
 * ##
 #if(${productClass}=="T")
-THIS IS A TEST MESSAGE. ##
+This is a test message. ##
 #end
-TORNADO WARNING FOR...
+Tornado Warning for...
 #firstBullet(${areas})
 
 ###################
@@ -224,135 +228,135 @@ TORNADO WARNING FOR...
 ###################
 * ##
 #if(${productClass}=="T")
-THIS IS A TEST MESSAGE. ##
+This is a test message. ##
 #end
 #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone})
 
 #if(${list.contains(${bullets}, "doppler")})
   #if(${stormType} == "line")
-    #set($reportType = "SEVERE THUNDERSTORMS CAPABLE OF PRODUCING A TORNADO WERE LOCATED")
-    #set($pathcastLead = "THESE DANGEROUS STORMS")
+    #set($reportType = "severe thunderstorms capable of producing a tornado were located")
+    #set($pathcastLead = "These dangerous storms")
   #else
-    #set($reportType = "A SEVERE THUNDERSTORM CAPABLE OF PRODUCING A TORNADO WAS LOCATED")
-    #set($pathcastLead = "THIS DANGEROUS STORM")   
+    #set($reportType = "a severe thunderstorm capable of producing a tornado was located")
+    #set($pathcastLead = "This dangerous storm")   
   #end
-  #set($moveLead = "..AND MOVING")
-  #set($torGround = "DEVELOPING")
+##  #set($moveLead = "..and moving")
+  #set($torGround = "developing")
 #end
 #if(${list.contains(${bullets}, "dopplerSquall")})
-  #set($reportType = "SEVERE THUNDERSTORMS CAPABLE OF PRODUCING BOTH TORNADOES AND EXTENSIVE STRAIGHT LINE WIND DAMAGE WERE LOCATED")
-  #set($pathcastLead = "THESE DANGEROUS STORMS")   
-  #set($moveLead = "..AND MOVING")
-  #set($torGround = "DEVELOPING")
+  #set($reportType = "severe thunderstorms capable of producing both tornadoes and extensive straight line wind damage were located")
+  #set($pathcastLead = "These dangerous storms")   
+##  #set($moveLead = "..and moving")
+  #set($torGround = "developing")
 #end
 #if(${list.contains(${bullets}, "confirmedDoppler")})
   #set($torTag = "OBSERVED")
-  #set($torHazard = "DAMAGING TORNADO")
-  #set($confirmed = "CONFIRMED ")
-  #set($source = "RADAR CONFIRMED TORNADO.")
-  #set($preAmble = "TO REPEAT...A TORNADO IS ON THE GROUND. ")
+  #set($torHazard = "Damaging tornado")
+  #set($confirmed = "confirmed ")
+  #set($source = "Radar confirmed tornado.")
+  #set($preAmble = "To repeat, a tornado is on the ground. Take cover now! ")
   #if(${stormType} == "line")
-    #set($reportType = "TORNADO PRODUCING STORMS WERE LOCATED")
-    #set($pathcastLead = "THESE TORNADIC STORMS")
-    #set($moveLead = " DOPPLER RADAR SHOWED THESE TORNADIC STORMS MOVING")
+    #set($reportType = "tornado producing storms were located")
+    #set($pathcastLead = "These tornadic storms")
+##    #set($moveLead = " Doppler radar showed these tornadic storms moving")
   #else
-    #set($reportType = "A TORNADO PRODUCING STORM WAS LOCATED")
-    #set($pathcastLead = "THIS TORNADIC STORM")
-    #set($moveLead = " DOPPLER RADAR SHOWED THIS TORNADO MOVING")
+    #set($reportType = "a tornado producing storm was located")
+    #set($pathcastLead = "This tornadic storm")
+##    #set($moveLead = " Doppler radar showed this tornado moving")
   #end
 #end
 #*
 #if(${list.contains(${bullets}, "confirmedLarge")})
-  #set($reportType = "DOPPLER RADAR AND STORM SPOTTERS WERE TRACKING A LARGE AND EXTREMELY DANGEROUS TORNADO") 
+  #set($reportType = "doppler radar and storm spotters were tracking a large and extremely dangerous tornado") 
   #set($torTag = "OBSERVED")
-  #set($torHazard = "DAMAGING TORNADO")
-  #set($confirmed = "CONFIRMED ")
+  #set($torHazard = "damaging tornado")
+  #set($confirmed = "confirmed ")
   #if(${stormType} == "line")
-    #set($pathcastLead = "THESE TORNADIC STORMS")
-    #set($moveLead = " DOPPLER RADAR SHOWED THESE TORNADIC STORMS MOVING")
+    #set($pathcastLead = "these tornadic storms")
+    #set($moveLead = " doppler radar showed these tornadic storms moving")
   #else
-    #set($pathcastLead = "THE TORNADO")
-    #set($moveLead = " DOPPLER RADAR SHOWED THIS TORNADO MOVING")
+    #set($pathcastLead = "the tornado")
+    #set($moveLead = " doppler radar showed this tornado moving")
   #end 
-  #set($preAmble = "TO REPEAT...A LARGE...EXTREMELY DANGEROUS AND POTENTIALLY DEADLY TORNADO IS ON THE GROUND. TO PROTECT YOUR LIFE...")
+  #set($preAmble = "to repeat, a large, extremely dangerous and potentially deadly tornado is on the ground. to protect your life, ")
 #end
 *#
 #if(${list.contains(${bullets}, "spotter")})
   #set($torTag = "OBSERVED")
-  #set($torHazard = "DAMAGING TORNADO")
-  #set($confirmed = "CONFIRMED ")
-  #set($source = "WEATHER SPOTTERS CONFIRMED TORNADO.")
+  #set($torHazard = "Damaging tornado")
+  #set($confirmed = "confirmed ")
+  #set($source = "Weather spotters confirmed tornado.")
   #if(${stormType} == "line")
-    #set($reportType = "TORNADO PRODUCING STORMS WERE LOCATED")
-    #set($pathcastLead = "THESE TORNADIC STORMS")
-    #set($moveLead = " DOPPLER RADAR SHOWED THESE TORNADIC STORMS MOVING")
+    #set($reportType = "tornado producing storms were located")
+    #set($pathcastLead = "These tornadic storms")
+##    #set($moveLead = " Doppler radar showed these tornadic storms moving")
   #else
-    #set($reportType = "A CONFIRMED TORNADO WAS LOCATED")
-    #set($pathcastLead = "THE TORNADO")
-    #set($moveLead = " DOPPLER RADAR SHOWED THIS TORNADO MOVING")
+    #set($reportType = "a confirmed tornado was located")
+    #set($pathcastLead = "The tornado")
+##    #set($moveLead = " Doppler radar showed this tornado moving")
   #end 
-  #set($preAmble = "TO REPEAT...A TORNADO IS ON THE GROUND. ")
+  #set($preAmble = "To repeat, a tornado is on the ground. Take cover now! ")
 #end
 #if(${list.contains(${bullets}, "lawEnforcement")})
   #set($torTag = "OBSERVED")
-  #set($torHazard = "DAMAGING TORNADO")
-  #set($confirmed = "CONFIRMED ")
-  #set($source = "LAW ENFORCEMENT CONFIRMED TORNADO.")
+  #set($torHazard = "Damaging tornado")
+  #set($confirmed = "confirmed ")
+  #set($source = "Law enforcement confirmed tornado.")
   #if(${stormType} == "line")
-    #set($reportType = "TORNADO PRODUCING STORMS WERE LOCATED")
-    #set($pathcastLead = "THESE TORNADIC STORMS")
-    #set($moveLead = " DOPPLER RADAR SHOWED THESE TORNADIC STORMS MOVING")
+    #set($reportType = "tornado producing storms were located")
+    #set($pathcastLead = "These tornadic storms")
+##    #set($moveLead = " Doppler radar showed these tornadic storms moving")
   #else
-    #set($reportType = "A CONFIRMED TORNADO WAS LOCATED")
-    #set($pathcastLead = "THE TORNADO")
-    #set($moveLead = " DOPPLER RADAR SHOWED THIS TORNADO MOVING")
+    #set($reportType = "a confirmed tornado was located")
+    #set($pathcastLead = "The tornado")
+##    #set($moveLead = " Doppler radar showed this tornado moving")
   #end 
-  #set($preAmble = "TO REPEAT...A TORNADO IS ON THE GROUND. ") 
+  #set($preAmble = "To repeat, a tornado is on the ground. Take cover now! ") 
 #end
 #if(${list.contains(${bullets}, "emergencyManagement")})
   #set($torTag = "OBSERVED")
-  #set($torHazard = "DAMAGING TORNADO")
-  #set($confirmed = "CONFIRMED ")
-  #set($source = "EMERGENCY MANAGEMENT CONFIRMED TORNADO.")
+  #set($torHazard = "Damaging tornado")
+  #set($confirmed = "confirmed ")
+  #set($source = "Emergency Management confirmed tornado.")
   #if(${stormType} == "line")
-    #set($reportType = "TORNADO PRODUCING STORMS WERE LOCATED")
-    #set($pathcastLead = "THESE TORNADIC STORMS")
-    #set($moveLead = " DOPPLER RADAR SHOWED THESE TORNADIC STORMS MOVING")
+    #set($reportType = "tornado producing storms were located")
+    #set($pathcastLead = "These tornadic storms")
+##    #set($moveLead = " Doppler radar showed these tornadic storms moving")
   #else
-    #set($reportType = "A CONFIRMED TORNADO WAS LOCATED")
-    #set($pathcastLead = "THE TORNADO")
-    #set($moveLead = " DOPPLER RADAR SHOWED THIS TORNADO MOVING")
+    #set($reportType = "a confirmed tornado was located")
+    #set($pathcastLead = "The tornado")
+##    #set($moveLead = " Doppler radar showed this tornado moving")
   #end 
-  #set($preAmble = "TO REPEAT...A TORNADO IS ON THE GROUND. ") 
+  #set($preAmble = "To repeat, a tornado is on the ground. Take cover now! ") 
 #end
 #if(${list.contains(${bullets}, "public")})
   #set($torTag = "OBSERVED")
-  #set($torHazard = "DAMAGING TORNADO")
-  #set($confirmed = "CONFIRMED ")
-  #set($source = "PUBLIC CONFIRMED TORNADO.")
+  #set($torHazard = "Damaging tornado")
+  #set($confirmed = "confirmed ")
+  #set($source = "Public confirmed tornado.")
   #if(${stormType} == "line")
-    #set($reportType = "TORNADO PRODUCING STORMS WERE LOCATED")
-    #set($pathcastLead = "THESE TORNADIC STORMS")
-    #set($moveLead = " DOPPLER RADAR SHOWED THESE TORNADIC STORMS MOVING")
+    #set($reportType = "tornado producing storms were located")
+    #set($pathcastLead = "These tornadic storms")
+##    #set($moveLead = " Doppler radar showed these tornadic storms moving")
   #else
-    #set($reportType = "A CONFIRMED TORNADO WAS LOCATED")
-    #set($pathcastLead = "THE TORNADO")
-    #set($moveLead = " DOPPLER RADAR SHOWED THIS TORNADO MOVING")
+    #set($reportType = "a confirmed tornado was located")
+    #set($pathcastLead = "The tornado")
+##    #set($moveLead = " Doppler radar showed this tornado moving")
   #end 
-  #set($preAmble = "TO REPEAT...A TORNADO IS ON THE GROUND. ")
+  #set($preAmble = "To repeat, a tornado is on the ground. Take cover now! ")
 #end
 #if(${list.contains(${bullets}, "spotterFunnelCloud")})
-  ##set($reportType = "TRAINED WEATHER SPOTTERS REPORTED A FUNNEL CLOUD")
-  #set($source = "WEATHER SPOTTERS REPORTED FUNNEL CLOUD.")
-  #set($torGround = "DEVELOPING")
+  ##set($reportType = "trained weather spotters reported a funnel cloud")
+  #set($source = "Weather spotters reported funnel cloud.")
+  #set($torGround = "developing")
   #if(${stormType} == "line")
-    #set($reportType = "SEVERE THUNDERSTORMS CAPABLE OF PRODUCING A TORNADO WERE LOCATED")
-    #set($pathcastLead = "THESE DANGEROUS STORMS")
-    #set($moveLead = " A TORNADO MAY DEVELOP AT ANY TIME. DOPPLER RADAR SHOWED THESE DANGEROUS STORMS MOVING")
+    #set($reportType = "severe thunderstorms capable of producing a tornado were located")
+    #set($pathcastLead = "These dangerous storms")
+##    #set($moveLead = " A tornado may develop at any time. Doppler radar showed these dangerous storms moving")
   #else
-    #set($reportType = "A SEVERE THUNDERSTORM CAPABLE OF PRODUCING A TORNADO WAS LOCATED")
-    #set($pathcastLead = "THIS DANGEROUS STORM")
-    #set($moveLead = " A TORNADO MAY DEVELOP AT ANY TIME. DOPPLER RADAR SHOWED THIS DANGEROUS STORM MOVING")
+    #set($reportType = "a severe thunderstorm capable of producing a tornado was located")
+    #set($pathcastLead = "This dangerous storm")
+##    #set($moveLead = " A tornado may develop at any time. Doppler radar showed this dangerous storm moving")
   #end  
 #end
 
@@ -361,48 +365,48 @@ THIS IS A TEST MESSAGE. ##
 ## TORNADO HAZARD VARIABLE
 ############################################################################
 #if(${list.contains(${bullets}, "landspoutTornado")})
-  #set($torHazard = "TORNADO")
+  #set($torHazard = "tornado")
 #end
 ############################################################################
 ## IF A CONSIDERABLE TORNADO IS SELECTED THE FOLLOWING WILL OVERRIDE CERTAIN
 ## VARIABLES TO HEIGHTENHEIGHTEN AWARENESS OF THIS DANGEROUS SITUATION
 ############################################################################
 #if(${list.contains(${bullets}, "considerableTornado")})
-  #set($reportType = "A ${confirmed}LARGE AND EXTREMELY DANGEROUS TORNADO WAS LOCATED") 
-  #set($torHazard = "DAMAGING TORNADO")
+  #set($reportType = "a ${confirmed}large and extremely dangerous tornado was located") 
+  #set($torHazard = "Damaging tornado")
   #set($torThreat = "<L>TORNADO DAMAGE THREAT...CONSIDERABLE</L>")
-  #set($pdstor = "THIS IS A PARTICULARLY DANGEROUS SITUATION.")
+  #set($pdstor = "This is a particularly dangerous situation.")
   #if(${stormType} == "line")
-    #set($pathcastLead = "THESE TORNADIC STORMS")
-    #set($moveLead = " DOPPLER RADAR SHOWED THESE TORNADIC STORMS MOVING")
+    #set($pathcastLead = "These tornadic storms")
+##    #set($moveLead = " Doppler radar showed these tornadic storms moving")
   #else
-    #set($pathcastLead = "THE TORNADO")
-    #set($moveLead = " DOPPLER RADAR SHOWED THIS TORNADO MOVING")
+    #set($pathcastLead = "The tornado")
+##    #set($moveLead = " Doppler radar showed this tornado moving")
   #end 
-  #set($preAmble = "TO REPEAT...A LARGE...EXTREMELY DANGEROUS AND POTENTIALLY DEADLY TORNADO IS ${torGround}. TO PROTECT YOUR LIFE...")
+  #set($preAmble = "To repeat, a large, extremely dangerous and potentially deadly tornado is ${torGround}. To protect your life, take cover now! ")
 #end
 ############################################################################
 ## IF A TORNADO EMERGENCY IS SELECTED THE FOLLOWING WILL OVERRIDE CERTAIN
 ## VARIABLES TO HEIGHTEN AWARENESS OF THIS DANGEROUS SITUATION
 ############################################################################
 #if(${list.contains(${bullets}, "torEmergency")})
-  #set($reportType = "A CONFIRMED LARGE AND DESTRUCTIVE TORNADO WAS OBSERVED") 
+  #set($reportType = "a confirmed large and destructive tornado was observed") 
   #set($ctaSelected = "YES")
   #set($torTag = "OBSERVED")
-  #set($torHazard = "DEADLY TORNADO")
+  #set($torHazard = "Deadly tornado")
   #set($torThreat = "<L>TORNADO DAMAGE THREAT...CATASTROPHIC</L>")
-  #set($pdstor = "THIS IS A TORNADO EMERGENCY FOR !** EDIT LOCATION(S) **!. TAKE COVER NOW. THIS IS A PARTICULARLY DANGEROUS SITUATION.")
+  #set($pdstor = "This is a tornado emergency for !** EDIT LOCATION(S) **!. Take cover now! This is a particularly dangerous situation.")
   #if(${stormType} == "line")
-    #set($pathcastLead = "THESE TORNADIC STORMS")
-    #set($moveLead = " DOPPLER RADAR SHOWED THESE TORNADIC STORMS MOVING")
+    #set($pathcastLead = "These tornadic storms")
+##    #set($moveLead = " Doppler radar showed these tornadic storms moving")
   #else
-    #set($pathcastLead = "THE TORNADO")
-    #set($moveLead = " DOPPLER RADAR SHOWED THIS TORNADO MOVING")
+    #set($pathcastLead = "The tornado")
+##    #set($moveLead = " Doppler radar showed this tornado moving")
   #end 
   #if(${list.contains(${bullets}, "doppler")}||${list.contains(${bullets}, "dopplerSquall")})
-    #set($source = "WEATHER SPOTTERS CONFIRMED TORNADO.")
+    #set($source = "Weather spotters confirmed tornado.")
   #end
-  #set($preAmble = "TO REPEAT...A LARGE...EXTREMELY DANGEROUS AND DEADLY TORNADO IS ON THE GROUND. TO PROTECT YOUR LIFE...")
+  #set($preAmble = "To repeat, a large, extremely dangerous and deadly tornado is on the ground. To protect your life, take cover now! ")
 #end
 
 ####################################################
@@ -413,18 +417,18 @@ THIS IS A TEST MESSAGE. ##
 ###### If Additional Information is selected
 ######################################################
 #if(${list.contains(${bullets}, "extraReportTornado")})
- #set($extraSource = " AT !**enter time...enter tornado/report damage**! WAS REPORTED !**enter location**!.") 
+ #set($extraSource = " At !**ENTER TIME...ENTER TORNADO/REPORT DAMAGE**!, was reported !**ENTER LOCATION**!.") 
 #end
 ##########################################################
 ## Check to see if wind is selected for the hazard phrase
 ## and make sure hail is at least 1 inch
 ##########################################################
 #if(${windSpeed} >= 58 && ${hailSize} >= 1)
-  #set($hazard = "${torHazard}...${hailHazard} AND ${windHazard}.")
+  #set($hazard = "${torHazard}...${hailHazard} and ${windHazard}.")
 #elseif(${windSpeed} >= 58 && ${hailSize} < 1)
-  #set($hazard = "${torHazard} AND ${windHazard}.") 
+  #set($hazard = "${torHazard} and ${windHazard}.") 
 #elseif(${windSpeed} < 58 && ${hailSize} >= 1)
-  #set($hazard = "${torHazard} AND ${hailHazard}.") 
+  #set($hazard = "${torHazard} and ${hailHazard}.") 
 #else
   #set($hazard = "${torHazard}.") 
 #end
@@ -441,9 +445,9 @@ THIS IS A TEST MESSAGE. ##
 
 * ##
 #if(${productClass}=="T")
-THIS IS A TEST MESSAGE. ##
+This is a test message. ##
 #end
-#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})...${reportType} ##
+#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone}), ${reportType} ##
 ##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")
 #handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
@@ -452,12 +456,12 @@ THIS IS A TEST MESSAGE. ##
 #end
 #if(${movementSpeed} < ${landStationary} || ${stationary})
 #if(${stormType} == "line")
-...AND ARE NEARLY STATIONARY. 
+, and are nearly stationary. 
 #else
-...AND IS NEARLY STATIONARY. 
+, and is nearly stationary. 
 #end
 #else
-...MOVING #direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} MPH.
+, moving #direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} mph.
 #end
 
 ##########################################################################
@@ -478,31 +482,31 @@ THIS IS A TEST MESSAGE. ##
 
 
 #if(${stormType} == "line")
-#set($otherLead = "THESE TORNADIC STORMS")
+#set($otherLead = "These tornadic storms")
 #else
-#set($otherLead = "THIS TORNADIC THUNDERSTORM")
+#set($otherLead = "This tornadic thunderstorm")
 #end
 #if(${list.contains(${bullets}, "pathcast")})
 * ##
 #if(${productClass}=="T")
-THIS IS A TEST MESSAGE. ##
+This is a test message. ##
 #end
-#pathCast("${pathcastLead} WILL BE NEAR..." ${otherLead} ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+#pathCast("#capitalize(${pathcastLead} 'FIRSTONLY') will be near..." ${otherLead} ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
 
 #elseif(${list.contains(${bullets}, "listofcities")})
 * ##
 #if(${productClass}=="T")
-THIS IS A TEST MESSAGE. ##
+This is a test message. ##
 #end
-#### THE THIRD ARGUMENT IS A NUMBER SPECIFYING THE NUMBER OF COLUMNS TO OUTPUT THE CITIES LIST IN
-#### 0 IS A ... SEPARATED LIST, 1 IS ONE PER LINE, >1 IS A COLUMN FORMAT
-#### IF YOU USE SOMETHING OTHER THAN "LOCATIONS IMPACTED INCLUDE" LEAD IN BELOW, MAKE SURE THE
-#### ACCOMPANYING XML FILE PARSE STRING IS CHANGED TO MATCH!
-#locationsList("LOCATIONS IMPACTED INCLUDE..." ${otherLead} 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+#### The third argument is a number specifying the number of columns to output the cities list in
+#### 0 is a ... separated list, 1 is one per line, >1 is a column format
+#### If you use something other than "locations impacted include" lead in below, make sure the
+#### accompanying xml file parse string is changed to match!
+#locationsList("Locations impacted include..." ${otherLead} 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
 
 #else
-* LOCATIONS IMPACTED INCLUDE...  
-  !** YOU DID NOT SELECT A PATHCAST OR LIST OF CITIES BULLET. PLEASE ENTER LOCATIONS IMPACTED **!.
+* Locations impacted include...  
+  !** You did not select a pathcast or list of cities bullet. Please enter locations impacted **!.
 
 #end
 ##############################################
@@ -510,10 +514,10 @@ THIS IS A TEST MESSAGE. ##
 ##############################################
 #if(${list.contains(${bullets}, "specialEvent")})
 #if(${stormType} == "line")
-THOSE ATTENDING !**event/venue name or location**! ARE IN THE PATH OF THESE STORMS AND SHOULD PREPARE FOR IMMINENT DANGEROUS AND POTENTIALLY LIFE THREATENING WEATHER CONDITIONS. SEEK SHELTER NOW.
+Those attending !**EVENT/VENUE NAME OR LOCATION**! are in the path of these storms and should prepare for imminent dangerous and potentially life threatening weather conditions. Seek shelter now!
 
 #else
-THOSE ATTENDING !**event/venue name or location**! ARE IN THE PATH OF THIS STORM AND SHOULD PREPARE FOR IMMINENT DANGEROUS AND POTENTIALLY LIFE THREATENING WEATHER CONDITIONS. SEEK SHELTER NOW.
+Those attending !**EVENT/VENUE NAME OR LOCATION**! are in the path of this storm and should prepare for imminent dangerous and potentially life threatening weather conditions. Seek shelter now!
 
 #end
 #end
@@ -545,7 +549,7 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 ##
 #if(${list.contains(${bullets}, "torEmergencyCTA")} || ${list.contains(${bullets}, "torEmergency")})
 #if(${list.contains(${bullets}, "torEmergency")})
-TO REPEAT...A LARGE...EXTREMELY DANGEROUS...AND POTENTIALLY DEADLY TORNADO IS ON THE GROUND. TO PROTECT YOUR LIFE...TAKE COVER NOW. MOVE TO AN INTERIOR ROOM ON THE LOWEST FLOOR OF A STURDY BUILDING. AVOID WINDOWS. IF IN A MOBILE HOME...A VEHICLE OR OUTDOORS...MOVE TO THE CLOSEST SUBSTANTIAL SHELTER AND PROTECT YOURSELF FROM FLYING DEBRIS.
+To repeat, a large, extremely dangerous and potentially deadly tornado is on the ground. To protect your life, take cover now! Move to an interior room on the lowest floor of a sturdy building. Avoid windows. If in a mobile home, a vehicle or outdoors.. Move to the closest substantial shelter and protect yourself from flying debris.
 
 #else
 !** YOU SELECTED THE TORNADO EMERGENCY CTA WITHOUT SELECTING THE TORNADO EMERGENCY HEADER. PLEASE CLOSE THIS WINDOW AND RE-GENERATE THIS WARNING **!
@@ -553,31 +557,31 @@ TO REPEAT...A LARGE...EXTREMELY DANGEROUS...AND POTENTIALLY DEADLY TORNADO IS ON
 #end
 #end
 #if(${list.contains(${bullets}, "replacesSVRCTA")})
-THIS TORNADO WARNING REPLACES THE SEVERE THUNDERSTORM WARNING ISSUED FOR THE SAME AREA.
+This Tornado Warning replaces the Severe Thunderstorm Warning issued for the same area.
 
 #end
 #if(${list.contains(${bullets}, "torEmergencyCTA")} || ${list.contains(${bullets}, "torEmergency")})
-##AVOID DUPLICATE CTAS FOR GENERIC AND TOR EMER
+##avoid duplicate ctas for generic and tor emer
 #else
 #if(${list.contains(${bullets}, "defaultMobileCTA")})
-${preAmble}TAKE COVER NOW! MOVE TO A BASEMENT OR AN INTERIOR ROOM ON THE LOWEST FLOOR OF A STURDY BUILDING. AVOID WINDOWS. IF YOU ARE OUTDOORS...IN A MOBILE HOME...OR IN A VEHICLE...MOVE TO THE CLOSEST SUBSTANTIAL SHELTER AND PROTECT YOURSELF FROM FLYING DEBRIS.
+${preAmble}Move to a basement or an interior room on the lowest floor of a sturdy building. Avoid windows. If you are outdoors, in a mobile home, or in a vehicle, move to the closest substantial shelter and protect yourself from flying debris.
 
 #end
 #if(${list.contains(${bullets}, "defaultUrbanCTA")})
-${preAmble}TAKE COVER NOW! MOVE TO A BASEMENT OR AN INTERIOR ROOM ON THE LOWEST FLOOR OF A STURDY BUILDING. AVOID WINDOWS. IF YOU ARE OUTDOORS OR IN A VEHICLE...MOVE TO THE CLOSEST SUBSTANTIAL SHELTER AND PROTECT YOURSELF FROM FLYING DEBRIS.
+${preAmble}Move to a basement or an interior room on the lowest floor of a sturdy building. Avoid windows. If you are outdoors or in a vehicle, move to the closest substantial shelter and protect yourself from flying debris.
 
 #end
 #end
 #if(${list.contains(${bullets}, "motoristsCTA")})
-MOTORISTS SHOULD NOT TAKE SHELTER UNDER HIGHWAY OVERPASSES. IF YOU CANNOT SAFELY DRIVE AWAY FROM THE TORNADO...AS A LAST RESORT...EITHER PARK YOUR VEHICLE AND STAY PUT...OR ABANDON YOUR VEHICLE AND LIE DOWN IN A LOW LYING AREA AND PROTECT YOURSELF FROM FLYING DEBRIS.
+Motorists should not take shelter under highway overpasses. If you cannot safely drive away from the tornado, as a last resort, either park your vehicle and stay put, or abandon your vehicle and lie down in a low lying area and protect yourself from flying debris.
 
 #end
 #if(${list.contains(${bullets}, "rainWrappedCTA")})
-HEAVY RAINFALL MAY HIDE THIS TORNADO. DO NOT WAIT TO SEE OR HEAR THE TORNADO. TAKE COVER NOW.
+Heavy rainfall may hide this tornado. Do not wait to see or hear the tornado. Take cover now!
 
 #end
 #if(${list.contains(${bullets}, "nighttimeCTA")})
-TORNADOES ARE EXTREMELY DIFFICULT TO SEE AND CONFIRM AT NIGHT. DO NOT WAIT TO SEE OR HEAR THE TORNADO. TAKE COVER NOW.
+Tornadoes are extremely difficult to see and confirm at night. Do not wait to see or hear the tornado. Take cover now!
 
 #end
 
@@ -587,24 +591,24 @@ TORNADOES ARE EXTREMELY DIFFICULT TO SEE AND CONFIRM AT NIGHT. DO NOT WAIT TO SE
 YOUR SELECTIONS AND REGENERATE THIS WARNING **!
 
 #else
-A LARGE AND EXTREMELY DANGEROUS TORNADO IS ON THE GROUND. TAKE IMMEDIATE TORNADO PRECAUTIONS. THIS IS AN EMERGENCY SITUATION.
+A large and extremely dangerous tornado is on the ground. Take immediate tornado precautions. This is an emergency situation.
 
 #end
 #end
 #if(${list.contains(${bullets}, "lawEnforcementCTA")})
-TO REPORT SEVERE WEATHER CONTACT YOUR NEAREST LAW ENFORCEMENT AGENCY. THEY WILL SEND YOUR REPORT TO THE NATIONAL WEATHER SERVICE OFFICE IN ${officeLoc}.
+To report severe weather contact your nearest law enforcement agency. They will send your report to the National Weather Service office in ${officeLoc}.
 
 #end
 ##
 #if(${list.contains(${bullets}, "squallCTA")} && ${stormType} == "line")
-THIS LINE OF THUNDERSTORMS IS CAPABLE OF PRODUCING TORNADOES AND WIDESPREAD SIGNIFICANT WIND DAMAGE. DO NOT WAIT TO SEE OR HEAR THE TORNADO. FOR YOUR PROTECTION MOVE TO AN INTERIOR ROOM ON THE LOWEST FLOOR OF A BUILDING.
+This line of thunderstorms is capable of producing tornadoes and widespread significant wind damage. Do not wait to see or hear the tornado. For your protection move to an interior room on the lowest floor of a building.
 
 #elseif(${list.contains(${bullets}, "squallCTA")})
-THIS CLUSTER OF THUNDERSTORMS IS CAPABLE OF PRODUCING TORNADOES AND WIDESPREAD SIGNIFICANT WIND DAMAGE. DO NOT WAIT TO SEE OR HEAR THE TORNADO. FOR YOUR PROTECTION MOVE TO AN INTERIOR ROOM ON THE LOWEST FLOOR OF A BUILDING.
+This cluster of thunderstorms is capable of producing tornadoes and widespread significant wind damage. Do not wait to see or hear the tornado. For your protection move to an interior room on the lowest floor of a building.
 
 #end
 #if(${list.contains(${bullets}, "waterCTA")})
-IF ON OR NEAR !**NAME OF WATER BODY **!...GET AWAY FROM THE WATER AND MOVE TO SAFE SHELTER IMMEDIATELY. IF YOU CAN HEAR THUNDER...YOU ARE CLOSE ENOUGH TO BE STRUCK BY LIGHTNING. SEVERE THUNDERSTORMS CAN PRODUCE LARGE CAPSIZING WAVES...EVEN ON SMALL BODIES OF WATER. MOVE INTO DOCK AND SEEK SAFE SHELTER NOW. DO NOT BE CAUGHT ON THE WATER IN A THUNDERSTORM.
+If on or near !** NAME OF WATER BODY **!, get away from the water and move to safe shelter immediately. If you can hear thunder, you are close enough to be struck by lightning. Severe thunderstorms can produce large capsizing waves, even on small bodies of water. Move into dock and seek safe shelter now! Do not be caught on the water in a thunderstorm.
 
 #end
 #if(${ctaSelected} == "YES") 
@@ -614,7 +618,7 @@ IF ON OR NEAR !**NAME OF WATER BODY **!...GET AWAY FROM THE WATER AND MOVE TO SA
 ## LAT/LON, TML, SIGN ##
 ########################
 #if(${productClass}=="T")
-THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
+This is a test message. Do not take action based on this message.
 
 #end
 
@@ -631,7 +635,7 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 ${torThreat}
 #end
 <L>HAIL...${hailTag}</L>
-## UNCOMMENT OUT THE LINE BELOW TO USE THE WIND TAG
+## uncomment out the line below to use the wind tag
 ##<L>WIND...${windTag}</L>
 
 $$

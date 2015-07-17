@@ -22,6 +22,7 @@ package com.raytheon.edex.uengine.jep;
 
 import jep.Jep;
 import jep.JepException;
+import jep.NamingConventionClassEnquirer;
 
 import org.apache.commons.pool.KeyedPoolableObjectFactory;
 
@@ -35,9 +36,10 @@ import com.raytheon.uf.common.python.PyUtil;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
+ * Date         Ticket#     Engineer    Description
  * ------------	----------	-----------	--------------------------
- * Apr 15, 2008				njensen	Initial creation
+ * Apr 15, 2008             njensen     Initial creation
+ * Apr 26, 2015  4259       njensen     Updated for new JEP API
  * 
  * </pre>
  * 
@@ -100,9 +102,10 @@ public class JepFactory implements KeyedPoolableObjectFactory {
     public Object makeObject(Object key) throws Exception {
         Jep jep = null;
         try {
-            jep = new Jep(false, includePath, JepFactory.class.getClassLoader());
+            jep = new Jep(false, includePath,
+                    JepFactory.class.getClassLoader(),
+                    new NamingConventionClassEnquirer());
             // this enables easy import of java classes in the python script
-            jep.eval("import JavaImporter");
             jep.eval("import CatalogQuery");
         } catch (JepException e) {
             throw new Exception("Error instantiating jep", e);

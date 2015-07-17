@@ -13,3 +13,4 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.common.colormap;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: com.raytheon.uf.viz.truecolor.gl.jar

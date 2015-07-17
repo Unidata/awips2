@@ -34,6 +34,7 @@
     <vbSource key="CPCoutlook211" category="SfcGrid"
         views="PLANVIEW TIMESERIES" />
     <vbSource key="DHM" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="ECMWF-wave-guidance" category="SfcGrid" views="PLANVIEW TIMESERIES"/>
     <vbSource key="ENPWAVE253" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="EPwave10" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="estofsUS" category="SfcGrid" views="PLANVIEW TIMESERIES" />
@@ -69,6 +70,7 @@
     <vbSource key="NAHwave15" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="NAHwave10" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="NAHwave4" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="NationalBlend" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="NICICE" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="NPHwave15" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="NPHwave10" category="SfcGrid" views="PLANVIEW TIMESERIES" />

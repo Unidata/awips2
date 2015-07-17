@@ -39,3 +39,4 @@ Import-Package: com.raytheon.uf.common.activetable,
  com.raytheon.viz.warnings,
  javax.vecmath,
  org.eclipse.core.expressions
+Bundle-ClassPath: com.raytheon.viz.warngen.jar

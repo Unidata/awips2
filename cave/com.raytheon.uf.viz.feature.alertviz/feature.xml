@@ -227,8 +227,7 @@
          id="com.raytheon.uf.common.message"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.datastorage"
@@ -419,8 +418,7 @@
          id="com.raytheon.uf.common.units"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.velocity"
@@ -470,8 +468,7 @@
          id="com.raytheon.uf.viz.datacube"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.derivparam"
@@ -494,6 +491,13 @@
 
    <plugin
          id="com.raytheon.uf.common.convert"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.logback"
          download-size="0"
          install-size="0"
          version="0.0.0"

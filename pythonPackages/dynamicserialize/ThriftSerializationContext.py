@@ -36,6 +36,7 @@
 #    06/09/10                      njensen       Initial Creation.
 #    06/12/13         #2099        dgilling      Implement readObject() and
 #                                                writeObject().
+#    Apr 24, 2015    4425          nabowle       Add Double support
 #
 #
 
@@ -86,7 +87,7 @@ pythonToThriftMap = {
     numpy.int64: TType.I64
 }
 
-primitiveSupport = (TType.BYTE, TType.I16, TType.I32, TType.I64, SelfDescribingBinaryProtocol.FLOAT)
+primitiveSupport = (TType.BYTE, TType.I16, TType.I32, TType.I64, SelfDescribingBinaryProtocol.FLOAT, TType.DOUBLE)
 
 class ThriftSerializationContext(object):
     
@@ -128,14 +129,16 @@ class ThriftSerializationContext(object):
                                     TType.I16: self.protocol.readI16List,
                                     TType.I32: self.protocol.readI32List,
                                     TType.I64: self.protocol.readI64List,
-                                    SelfDescribingBinaryProtocol.FLOAT: self.protocol.readF32List
+                                    SelfDescribingBinaryProtocol.FLOAT: self.protocol.readF32List,
+                                    TType.DOUBLE: self.protocol.readF64List
                                     }
         self.listSerializationMethod = {
                                     TType.BYTE: self.protocol.writeI8List,
                                     TType.I16: self.protocol.writeI16List,
                                     TType.I32: self.protocol.writeI32List,
                                     TType.I64: self.protocol.writeI64List,
-                                    SelfDescribingBinaryProtocol.FLOAT: self.protocol.writeF32List
+                                    SelfDescribingBinaryProtocol.FLOAT: self.protocol.writeF32List,
+                                    TType.DOUBLE: self.protocol.writeF64List
                                     }
     
     

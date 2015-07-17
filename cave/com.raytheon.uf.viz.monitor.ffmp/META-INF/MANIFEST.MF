@@ -37,3 +37,4 @@ Export-Package: com.raytheon.uf.viz.monitor.ffmp,
  com.raytheon.uf.viz.monitor.ffmp.ui.listeners,
  com.raytheon.uf.viz.monitor.ffmp.ui.rsc,
  com.raytheon.uf.viz.monitor.ffmp.xml
+Bundle-ClassPath: com.raytheon.uf.viz.monitor.ffmp.jar

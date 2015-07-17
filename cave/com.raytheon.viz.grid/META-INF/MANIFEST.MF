@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Grid Display Plug-in
 Bundle-SymbolicName: com.raytheon.viz.grid;singleton:=true
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: Raytheon
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
@@ -14,7 +14,6 @@ Require-Bundle: org.eclipse.ui;bundle-version="3.8.0",
  com.raytheon.uf.common.datastorage,
  com.raytheon.uf.common.geospatial;bundle-version="1.14.0",
  com.raytheon.viz.core.contours;bundle-version="1.14.0",
- com.raytheon.viz.pointdata,
  com.raytheon.viz.radar,
  com.raytheon.uf.viz.productbrowser,
  com.raytheon.uf.common.dataplugin.radar;bundle-version="1.14.0",
@@ -32,7 +31,9 @@ Require-Bundle: org.eclipse.ui;bundle-version="3.8.0",
  com.raytheon.uf.common.topo;bundle-version="1.14.0",
  com.raytheon.uf.common.numeric;bundle-version="1.14.0",
  javax.measure,
- com.raytheon.uf.viz.datacube;bundle-version="1.14.0"
+ com.raytheon.uf.viz.datacube;bundle-version="1.14.0",
+ com.raytheon.uf.viz.core.grid;bundle-version="1.15.0",
+ com.raytheon.uf.viz.productbrowser.datalisting;bundle-version="1.15.0"
 Export-Package: com.raytheon.viz.grid,
  com.raytheon.viz.grid.inv,
  com.raytheon.viz.grid.rsc,
@@ -47,3 +48,4 @@ Import-Package: com.raytheon.uf.common.inventory.data,
  com.raytheon.viz.alerts.observers,
  com.raytheon.viz.core.rsc,
  com.raytheon.viz.core.units
+Bundle-ClassPath: com.raytheon.viz.grid.jar

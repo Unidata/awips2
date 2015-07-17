@@ -25,7 +25,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.viz.warngen.gis.AffectedAreas;
 
 /**
@@ -41,6 +40,7 @@ import com.raytheon.viz.warngen.gis.AffectedAreas;
  * Jan  8, 2013    15664   Qinglu Lin   Updated body().
  * Mar 13, 2013    15892   D. Friedman  Fix headline locking. Do not
  *                                      lock "AND" or "FOR".
+ * May 29, 2015    4442    randerso     Fixed WarnGen text locking to work with mixed case
  * 
  * </pre>
  * 
@@ -48,13 +48,39 @@ import com.raytheon.viz.warngen.gis.AffectedAreas;
  * @version 1.0
  */
 public class FollowUpLockingBehavior extends AbstractLockingBehavior {
+    private static Pattern headlinePtrn = Pattern
+            .compile(
+                    "^\\.\\.\\.(AN?|THE) (.*) (WARNING|ADVISORY) .*(REMAINS|EXPIRE|CANCELLED).*(\\.\\.\\.)$",
+                    Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+
+    private static Pattern expirePtrn = Pattern
+            .compile(
+                    "(HAS BEEN ALLOWED TO EXPIRE)|(WILL BE ALLOWED TO EXPIRE)|(WILL EXPIRE)|(HAS EXPIRED)|EXPIRED",
+                    Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+
+    private static Pattern timePtrn = Pattern.compile(
+            "AT \\d{3,4} (AM|PM) \\w{3,4}", Pattern.MULTILINE
+                    | Pattern.CASE_INSENSITIVE);
+
+    private static Pattern remainsPtrn = Pattern.compile(
+            "REMAINS IN EFFECT UNTIL \\d{3,4} (AM|PM) \\w{3,4}",
+            Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+
+    private static Pattern canceledPtrn = Pattern.compile(
+            "(IS|(HAS BEEN)) CANCELLED", Pattern.MULTILINE
+                    | Pattern.CASE_INSENSITIVE);
+
+    private static Pattern warningPtrn = Pattern.compile(
+            "(AN?|THE)( [\\w\\s]*?)(" + warningType + ")", Pattern.MULTILINE
+                    | Pattern.CASE_INSENSITIVE);
+
     /**
      * Locks the appropriate text of the body of an initial warning.
      */
     @Override
     public void body() {
-		headlines();
-		super.body();
+        headlines();
+        super.body();
     }
 
     /**
@@ -64,10 +90,6 @@ public class FollowUpLockingBehavior extends AbstractLockingBehavior {
     private void headlines() {
         // LOCK_END should not be found at the beginning since the previous line
         // should be blank.
-        Pattern headlinePtrn = Pattern
-                .compile(
-                        "^\\.\\.\\.(AN?|THE) (.*) (WARNING|ADVISORY) .*(REMAINS|EXPIRE|CANCELLED).*(\\.\\.\\.)$",
-                        Pattern.MULTILINE);
         Matcher m = headlinePtrn.matcher(text);
 
         while (m.find()) {
@@ -84,12 +106,12 @@ public class FollowUpLockingBehavior extends AbstractLockingBehavior {
      * Locks the expired text.
      */
     private String expired(String followupHeadline) {
-        // Based on the templates, the expired text is for the affected areas
-        // not the canceled areas.
-        String expire = "(HAS BEEN ALLOWED TO EXPIRE)|(WILL BE ALLOWED TO EXPIRE)|(WILL EXPIRE)|(HAS EXPIRED)|EXPIRED";
-        String time = "AT \\d{3,4} (AM|PM) \\w{3,4}";
-        return followupHeadline.replaceAll(expire, REPLACEMENT).replaceAll(
-                time, REPLACEMENT);
+        Matcher m = expirePtrn.matcher(followupHeadline);
+        followupHeadline = m.replaceAll(WarnGenPatterns.REPLACEMENT);
+
+        m = timePtrn.matcher(followupHeadline);
+        followupHeadline = m.replaceAll(WarnGenPatterns.REPLACEMENT);
+        return followupHeadline;
     }
 
     /**
@@ -99,9 +121,9 @@ public class FollowUpLockingBehavior extends AbstractLockingBehavior {
      * @return
      */
     private String remainsInEffect(String followupHeadline) {
-        return followupHeadline.replaceFirst(
-                "REMAINS IN EFFECT UNTIL \\d{3,4} (AM|PM) \\w{3,4}", LOCK_START
-                        + "$0" + LOCK_END);
+        Matcher m = remainsPtrn.matcher(followupHeadline);
+        followupHeadline = m.replaceFirst(WarnGenPatterns.REPLACEMENT);
+        return followupHeadline;
     }
 
     /**
@@ -111,8 +133,9 @@ public class FollowUpLockingBehavior extends AbstractLockingBehavior {
      * @return
      */
     private String canceled(String canceledHeadline) {
-        return canceledHeadline.replaceAll("(IS|(HAS BEEN)) CANCELLED",
-                REPLACEMENT);
+        Matcher m = canceledPtrn.matcher(canceledHeadline);
+        canceledHeadline = m.replaceAll(WarnGenPatterns.REPLACEMENT);
+        return canceledHeadline;
     }
 
     /**
@@ -123,35 +146,46 @@ public class FollowUpLockingBehavior extends AbstractLockingBehavior {
      * @return
      */
     private String headline(String headline) {
-        Set<String> notations = new HashSet<String>();
-        Set<String> names = new HashSet<String>();
-
-        for (AffectedAreas affectedArea : affectedAreas) {
-            if (affectedArea.getAreaNotation() != null
-                    && affectedArea.getAreaNotation().trim().length() != 0) {
-                notations.add(affectedArea.getAreaNotation().toUpperCase());
-            }
-
-            if (affectedArea.getAreasNotation() != null
-                    && affectedArea.getAreasNotation().trim().length() != 0) {
-                notations.add(affectedArea.getAreasNotation().toUpperCase());
-            }
-
-            if (affectedArea.getName() != null
-                    && affectedArea.getName().trim().length() != 0) {
-                names.add(affectedArea.getName().toUpperCase());
-            }
-        }
-
         // Marine products follow different locking rules
-        if (!isMarineProduct()) {
+        if (isMarineProduct()) {
+            // The full headline of a marine product should be locked.
+            headline = WarnGenPatterns.LOCK_START + headline
+                    + WarnGenPatterns.LOCK_END;
+
+        } else {
+            Set<String> notations = new HashSet<String>();
+            Set<String> names = new HashSet<String>();
+
+            for (AffectedAreas affectedArea : affectedAreas) {
+                if ((affectedArea.getAreaNotation() != null)
+                        && (affectedArea.getAreaNotation().trim().length() != 0)) {
+                    notations.add(affectedArea.getAreaNotation().toUpperCase());
+                }
+
+                if ((affectedArea.getAreasNotation() != null)
+                        && (affectedArea.getAreasNotation().trim().length() != 0)) {
+                    notations
+                            .add(affectedArea.getAreasNotation().toUpperCase());
+                }
+
+                if ((affectedArea.getName() != null)
+                        && (affectedArea.getName().trim().length() != 0)) {
+                    /*
+                     * force area name to upper case for headlines since
+                     * headlines are all upper case
+                     */
+                    names.add(affectedArea.getName().toUpperCase());
+                }
+            }
+
             headline = keywords(headline);
             Iterator<String> iterator1 = notations.iterator();
             while (iterator1.hasNext()) {
                 String notation = iterator1.next();
                 if (!hasBeenLocked(headline, notation)) {
-                    headline = headline.replace(notation, LOCK_START + notation
-                            + LOCK_END);
+                    headline = headline.replace(notation,
+                            WarnGenPatterns.LOCK_START + notation
+                                    + WarnGenPatterns.LOCK_END);
                 }
             }
 
@@ -159,13 +193,11 @@ public class FollowUpLockingBehavior extends AbstractLockingBehavior {
             while (iterator2.hasNext()) {
                 String name = iterator2.next();
                 if (!hasBeenLocked(headline, name)) {
-                    headline = headline.replace(name, LOCK_START + name
-                            + LOCK_END);
+                    headline = headline.replace(name,
+                            WarnGenPatterns.LOCK_START + name
+                                    + WarnGenPatterns.LOCK_END);
                 }
             }
-        } else {
-            // The full headline of a marine product should be locked.
-            headline = LOCK_START + headline + LOCK_END;
         }
 
         return headline;
@@ -179,16 +211,19 @@ public class FollowUpLockingBehavior extends AbstractLockingBehavior {
      */
     private String keywords(String headline) {
         // Locking the start of a head line (...)
-        headline = headline.replaceFirst("^\\.\\.\\.", LOCK_START + "$0"
-                + LOCK_END);
+        headline = headline.replaceFirst("^\\.\\.\\.",
+                WarnGenPatterns.REPLACEMENT);
         // Locking the end of a head line (...)
         if (headline.endsWith("...")) {
             headline = headline.substring(0, headline.length() - 3)
-                    + LOCK_START + "..." + LOCK_END;
+                    + WarnGenPatterns.LOCK_START + "..."
+                    + WarnGenPatterns.LOCK_END;
         }
         // Locks warning type (i.e. SEVERE THUNDERSTORM)
-        headline = headline.replaceAll("(AN?|THE)( [\\w\\s]*?)(" + warningType + ")",
-                LOCK_START + "$1" + LOCK_END + "$2" + LOCK_START + "$3" + LOCK_END);
+        Matcher m = warningPtrn.matcher(headline);
+        headline = m.replaceAll(WarnGenPatterns.LOCK_START + "$1"
+                + WarnGenPatterns.LOCK_END + "$2" + WarnGenPatterns.LOCK_START
+                + "$3" + WarnGenPatterns.LOCK_END);
 
         return headline;
     }

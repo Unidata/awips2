@@ -36,6 +36,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Sep 24, 2010            dgilling     Initial creation
  * Mar 11, 2013  #1759     dgilling     Re-factoring to use fields instead
  *                                      of an argument string.
+ * May 13, 2015  #4427     dgilling     Add siteIdOverride field.
  * 
  * </pre>
  * 
@@ -88,6 +89,9 @@ public class ExecuteIfpNetCDFGridRequest extends AbstractGfeRequest {
     @DynamicSerializeElement
     private String logFileName;
 
+    @DynamicSerializeElement
+    private String siteIdOverride;
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -119,6 +123,8 @@ public class ExecuteIfpNetCDFGridRequest extends AbstractGfeRequest {
         builder.append(userID);
         builder.append(", logFileName=");
         builder.append(logFileName);
+        builder.append(", siteIdOverride=");
+        builder.append(siteIdOverride);
         builder.append("]");
         return builder.toString();
     }
@@ -233,5 +239,13 @@ public class ExecuteIfpNetCDFGridRequest extends AbstractGfeRequest {
 
     public void setLogFileName(String logFileName) {
         this.logFileName = logFileName;
+    }
+
+    public String getSiteIdOverride() {
+        return siteIdOverride;
+    }
+
+    public void setSiteIdOverride(String siteIdOverride) {
+        this.siteIdOverride = siteIdOverride;
     }
 }

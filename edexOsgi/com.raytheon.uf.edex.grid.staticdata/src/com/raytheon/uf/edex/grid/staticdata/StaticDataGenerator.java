@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -72,12 +72,13 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * Feb 15, 2013  1638     mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
  * Mar 07, 2013  1587     bsteffen    rewrite static data generation.
  * Mar 14, 2013  1587     bsteffen    Fix persisting to datastore.
- * Apr 14, 2014  16752    MPorricelli Add ensembleid to hash key to allow 
+ * Apr 14, 2014  16752    MPorricelli Add ensembleid to hash key to allow
  *                                    creation of static data for all perturbations
  *                                    of Ensemble models
  * Apr 21, 2014  2060     njensen     Remove dependency on grid dataURI column
  * Sep 19, 2014  3627     mapeters    Updated deprecated TimeTools usage.
  * Aug 06, 2013  3805     bsteffen    Increase time of cluster locks.
+ * Apr 29, 2015  4167     nabowle     Propagate exceptions to #processNotification()
  * 
  * </pre>
  * 
@@ -153,7 +154,7 @@ public class StaticDataGenerator {
                     staticRecords.addAll(processRecord(record));
                 } catch (Exception e) {
                     statusHandler.handle(Priority.ERROR,
-                            "Error creating/saving staticTopo data!", e);
+                            "Error creating/saving staticTopo data.", e);
                 }
             }
         }
@@ -347,8 +348,12 @@ public class StaticDataGenerator {
     /**
      * Populate the message data for a static record, loads the correct type of
      * data based of the parameter in the record.
+     *
+     * @throws Exception
+     *             If the static topo data cannot retrieved for a GridCoverage.
      */
-    private void populateMessageData(GridRecord staticRecord) {
+    private void populateMessageData(GridRecord staticRecord)
+            throws Exception {
         if (staticRecord.getMessageData() != null) {
             // already populated, hits for static topo copied from the record.
             return;
@@ -399,7 +404,7 @@ public class StaticDataGenerator {
 
     /**
      * Return a set with only records which are not already in the database
-     * 
+     *
      * @throws PluginException
      */
     private Set<GridRecord> checkDatabase(Set<GridRecord> staticRecords)
@@ -461,7 +466,7 @@ public class StaticDataGenerator {
         private final int forecastTime;
 
         private final int coverageid;
-        
+
         private final String ensembleid;
 
         public CacheKey(GridRecord record) {
@@ -525,7 +530,7 @@ public class StaticDataGenerator {
                 }
             } else if (!ensembleid.equals(other.ensembleid)) {
                 return false;
-            }  
+            }
             return true;
         }
 

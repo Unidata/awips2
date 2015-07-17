@@ -24,14 +24,16 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.d2d.ui.dialogs.procedures.ProcedureListDlg;
-import com.raytheon.uf.viz.d2d.ui.dialogs.procedures.ProcedureListDlg.Mode;
+import com.raytheon.uf.viz.d2d.ui.dialogs.procedures.ProcedureDlg;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
+import com.raytheon.viz.ui.dialogs.localization.VizLocalizationFileListDlg;
+import com.raytheon.viz.ui.dialogs.localization.VizLocalizationFileListDlg.Mode;
 
 /**
  * DeleteAWIPSProcedure
@@ -46,7 +48,10 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *    ------------ ----------  ----------- --------------------------
  *    Sep 13, 2007             chammack    Initial Creation.
  *    Jul 8, 2008  #1183       chammack    Migrate to new localization
- *    Oct 16, 2012 #1229       rferrel     Changes for non-blocking ProcedureListDlg.
+ *    Oct 16, 2012 #1229       rferrel     Changes for non-blocking VizLocalizationFileListDlg.
+ *    Jun 02, 2015 #4401       bkowal      Updated to use {@link VizLocalizationFileListDlg}.
+ *    Jun 30, 2015 #4401       bkowal      Specify the localization type when constructing a
+ *                                         {@link VizLocalizationFileListDlg}.
  * 
  * </pre>
  * 
@@ -57,7 +62,7 @@ public class DeleteAWIPSProcedure extends AbstractHandler {
     private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DeleteAWIPSProcedure.class);
 
-    private ProcedureListDlg listDlg;
+    private VizLocalizationFileListDlg listDlg;
 
     /*
      * (non-Javadoc)
@@ -70,8 +75,10 @@ public class DeleteAWIPSProcedure extends AbstractHandler {
     public Object execute(ExecutionEvent event) throws ExecutionException {
         if (listDlg == null || listDlg.getShell() == null
                 || listDlg.isDisposed()) {
-            listDlg = new ProcedureListDlg("Delete Procedure",
-                    HandlerUtil.getActiveShell(event), Mode.DELETE);
+            listDlg = new VizLocalizationFileListDlg("Delete Procedure",
+                    HandlerUtil.getActiveShell(event), Mode.DELETE,
+                    ProcedureDlg.PROCEDURES_DIR, "procedures",
+                    LocalizationType.CAVE_STATIC);
             listDlg.setCloseCallback(new ICloseCallback() {
 
                 @Override

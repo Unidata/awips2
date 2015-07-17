@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -68,7 +68,7 @@ import com.raytheon.rcm.alertreq.AlertRequestDefinition;
 import com.raytheon.rcm.alertreq.AlertRequestDefinition.Threshold;
 import com.raytheon.rcm.config.RadarConfig;
 import com.raytheon.rcm.config.RadarType;
-import com.raytheon.rcm.config.Util;
+import com.raytheon.rcm.config.RcmUtil;
 import com.raytheon.rcm.message.AlertAdaptationParameters;
 import com.raytheon.rcm.message.AlertAdaptationParameters.ParameterSpec;
 import com.raytheon.rcm.message.MessageFormatException;
@@ -94,6 +94,18 @@ import com.raytheon.uf.viz.radarapps.core.RadarApps;
 import com.raytheon.uf.viz.radarapps.products.ui.ExtProductsUI;
 import com.raytheon.viz.ui.EditorUtil;
 
+/**
+ * A window for alert requests.
+ * 
+ * <pre>
+ * 
+ *  SOFTWARE HISTORY
+ *  Date         Ticket#    Engineer    Description
+ *  ------------ ---------- ----------- --------------------------
+ *  2015-06-10   4498       nabowle     Rename Util->RcmUtil
+ * </pre>
+ * 
+ */
 public class AlertRequestWindow extends Window {
     private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(AlertRequestWindow.class);
 
@@ -191,7 +203,7 @@ public class AlertRequestWindow extends Window {
                 if (element instanceof RadarConfig) {
                     RadarConfig rc = (RadarConfig) element;
                     return rc.isDedicated()
-                            && Util.getRadarType(rc) == RadarType.WSR;
+                            && RcmUtil.getRadarType(rc) == RadarType.WSR;
                 } else
                     return false;
             }

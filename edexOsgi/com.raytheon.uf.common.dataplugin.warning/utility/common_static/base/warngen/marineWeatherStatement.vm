@@ -9,6 +9,7 @@
 ## Phil Kurimski   -- SEP 17 2013  OB13.5.2-4      ##
 ## Evan Bookbinder -- SEP 18 2013  Implemented config.vm
 ## Mike Rega 5/23/14 DR 17380 svr wx watch logic OB14.3.1
+## UPDATED PHIL KURIMSKI -- MAR 23 2015 Mixed Case ##
 #####################################################
 #parse("config.vm")
 ## Set the visibility variable to be used for dense fog
@@ -28,13 +29,14 @@ ${WMOId} ${vtecOffice} 000000 ${BBBId}
 MWS${siteId}
 
 #if(${productClass}=="T")
-TEST...MARINE WEATHER STATEMENT...TEST
+TEST...Marine Weather Statement...TEST
 #else
-MARINE WEATHER STATEMENT
+Marine Weather Statement
 #end
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
 #if(${productClass}=="T")
 ...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
 
@@ -46,6 +48,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ${ugcline}
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
+
 #if(${productClass}=="T")
 ...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
 
@@ -55,80 +58,80 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ## Removed line selections and determined line based on Track Type in GUI.
 #######################################################################
 ## Assume head1 is selected.
-#set($headerType = "STRONG THUNDERSTORM")
-#set($eventType = "THUNDERSTORM")
-#set($reportLocation = "THIS THUNDERSTORM WAS LOCATED")
+#set($headerType = "strong thunderstorm")
+#set($eventType = "thunderstorm")
+#set($reportLocation = "This thunderstorm was located")
 ## Do not add any spaces or tabs to the next line
 ## Otherwise the headline in the product will have extra spaces
 #if(${stormType} == "line")
-  #set($reportLocation = "THESE THUNDERSTORMS WERE LOCATED")
+  #set($reportLocation = "These thunderstorms were located")
 #end
 #if(${list.contains(${bullets}, "shower")})
-  #set($headerType = "SHOWER")
-  #set($eventType = "SHOWER")
-  #set($reportLocation = "THIS SHOWER WAS LOCATED")
+  #set($headerType = "shower")
+  #set($eventType = "shower")
+  #set($reportLocation = "This shower was located")
 ## Do not add any spaces or tabs to the next line
 ## Otherwise the headline in the product will have extra spaces  
 #if(${stormType} == "line")
-  #set($reportLocation = "THESE SHOWERS WERE LOCATED")
+  #set($reportLocation = "These showers were located")
 #end
 #end
 #if(${list.contains(${bullets}, "cloud")})
-  #set($headerType = "CLOUD")
-  #set($eventType = "CLOUD")
-  #set($reportLocation = "THIS CLOUD FEATURE WAS LOCATED")
+  #set($headerType = "cloud")
+  #set($eventType = "cloud")
+  #set($reportLocation = "This cloud feature was located")
 #end
 #if(${list.contains(${bullets}, "front")})
-  #set($headerType = "FRONT")
-  #set($eventType = "FRONT")
-  #set($reportLocation = "THIS FRONT WAS LOCATED")
+  #set($headerType = "front")
+  #set($eventType = "front")
+  #set($reportLocation = "This front was located")
 #end
 #if(${list.contains(${bullets}, "fog")})
-  #set($headerType = "DENSE FOG")
-  #set($eventType = "DENSE FOG")
-  #set($reportLocation = "THE DENSE FOG WAS LOCATED")
+  #set($headerType = "dense fog")
+  #set($eventType = "dense fog")
+  #set($reportLocation = "The dense fog was located")
 #end
 #######################################################################
 ## Section to create line wording based on track type.
 #######################################################################
 #set($stormline = "${headerType}")
-#set($pathheader = "THE ${headerType}")
-#set($specialEvent = "THIS ${eventType}")
-#set($reportType2 = "THE ${eventType} WAS")
+#set($pathheader = "The ${headerType}")
+#set($specialEvent = "This ${eventType}")
+#set($reportType2 = "The ${eventType} was")
 #if(${stormType} == "line")
-  #set($stormline = "LINE OF ${headerType}S")
-  #set($pathheader = "${headerType}S")
-  #set($specialEvent = "THESE ${eventType}S")
-  #set($headerType = "A ${headerType}S")
-  #set($reportType2 = "THE ${eventType}S WERE")
+  #set($stormline = "line of ${headerType}s")
+  #set($pathheader = "${headerType}s")
+  #set($specialEvent = "These ${eventType}s")
+  #set($headerType = "A ${headerType}s")
+  #set($reportType2 = "The ${eventType}s were")
 #end
 #######################################################################
 ## Corrective coding to prevent the use of "Line of Fronts" in the Product
 #######################################################################
-#if(${eventType} == "FRONT")
+#if(${eventType} == "front")
   #set($stormline = "${eventType}")
-  #set($pathheader = "THE ${eventType}")
-  #set($specialEvent = "THIS ${eventType}")
-  #set($reportType2 = "THE ${eventType} WAS")
+  #set($pathheader = "The ${eventType}")
+  #set($specialEvent = "This ${eventType}")
+  #set($reportType2 = "The ${eventType} was")
 #end
 #######################################################################
 ## Corrective coding to prevent the use of "Line of Dense Fog" in the Product
 #######################################################################
-#if(${eventType} == "DENSE FOG")
+#if(${eventType} == "dense fog")
   #set($stormline = "${eventType}")
-  #set($pathheader = "THE ${eventType}")
-  #set($specialEvent = "THIS ${eventType}")
-  #set($reportType2 = "THE ${eventType} WAS")
+  #set($pathheader = "The ${eventType}")
+  #set($specialEvent = "This ${eventType}")
+  #set($reportType2 = "The ${eventType} was")
 #end
-#if(${eventType} == "CLOUD")
-  #set($pathheader = "THE STRONG WINDS")
+#if(${eventType} == "cloud")
+  #set($pathheader = "The strong winds")
 #end
-#set($threatType = "WINDS UP TO 33 KNOTS")
+#set($threatType = "winds up to 33 knots")
   #set($headerType1 = "...STRONG WINDS EXPECTED...")
 #if(${list.contains(${bullets}, "approachHead")})
   #set($headerType1 = "...${stormline} APPROACHING THE WATERS...")
 #*
-#if(${eventType} == "THUNDERSTORM")
+#if(${eventType} == "thunderstorm")
   #set($headerType1 = "...${stormline} APPROACHING THE WATERS...")
 #else
   #set($headerType1 = "...STRONG WINDS EXPECTED...")
@@ -138,7 +141,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${list.contains(${bullets}, "overHead")})
 #set($headerType1 = "...${stormline} OVER THE WATERS...")
 #*
-#if(${eventType} == "THUNDERSTORM")
+#if(${eventType} == "thunderstorm")
   #set($headerType1 = "...${stormline} OVER THE WATERS...")
 #else
   #set($headerType1 = "...STRONG WINDS EXPECTED...")
@@ -149,7 +152,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ## Added Hail Section
 #######################################################################
 #if(${list.contains(${bullets}, "smallHail")})
-  #set($hailType = " AND SMALL HAIL")
+  #set($hailType = " and small hail")
 #end
 #######################################################################
 ##  Section to produce areas affected by statement
@@ -157,9 +160,10 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${list.contains(${bullets}, "noHead")})
 A MARINE WEATHER STATEMENT HAS BEEN ISSUED FOR THE FOLLOWING AREAS...
 #else
-${headerType1}
+#capitalize(${headerType1} "ALL")
 
-THE AREAS AFFECTED INCLUDE...
+
+The areas affected include...
 #end
 #######################################################################
 ## Coding to use the raw marine zone output from the shapefiles
@@ -222,43 +226,43 @@ $zonecombo
 #######################################################################
 #set($report = "!** YOU DIDN'T SELECT A REPORTER **! ${threatType}")
 #if(${list.contains(${bullets}, "doppler")})
-  #set($capable = "CAPABLE OF ")
-  #set($report = "DOPPLER RADAR INDICATED A ${stormline}...${capable}PRODUCING ${threatType}${hailType}.")
+  #set($capable = "capable of ")
+  #set($report = "Doppler radar indicated a ${stormline}, ${capable}producing ${threatType}${hailType}.")
 #if(${list.contains(${bullets}, "fog")})
-  #set($capable = "CAPABLE OF ")
-  #set($report = "DOPPLER RADAR INDICATED AN AREA OF ${stormline}...${capable}REDUCING VISIBILITIES TO BELOW ${visibility}.")
+  #set($capable = "capable of ")
+  #set($report = "Doppler radar indicated an area of ${stormline}, ${capable}reducing visibilities to below ${visibility}.")
 #end
 #end
 #if(${list.contains(${bullets}, "marineSpotter")})
-  #set($report = "MARINE WEATHER SPOTTERS REPORTED A ${stormline}...${capable}PRODUCING ${threatType}${hailType}.") 
+  #set($report = "Marine weather spotters reported a ${stormline}, ${capable}producing ${threatType}${hailType}.") 
 #if(${list.contains(${bullets}, "fog")})
-  #set($report = "MARINE WEATHER SPOTTERS REPORTED AN AREA OF ${stormline}...${capable}REDUCING VISIBILITIES TO BELOW ${visibility}.")
+  #set($report = "Marine weather spotters reported an area of ${stormline}, ${capable}reducing visibilities to below ${visibility}.")
 #end
 #end
 #if(${list.contains(${bullets}, "mariner")})
-  #set($report = "A MARINER REPORTED A ${stormline}...${capable}PRODUCING ${threatType}${hailType}.") 
+  #set($report = "A mariner reported a ${stormline}, ${capable}producing ${threatType}${hailType}.") 
 #if(${list.contains(${bullets}, "fog")})
-  #set($report = "A MARINER REPORTED AN AREA OF ${stormline}...${capable}REDUCING VISIBILITIES TO BELOW ${visibility}.")
+  #set($report = "A mariner reported an area of ${stormline}, ${capable}reducing visibilities to below ${visibility}.")
 #end
 #end
 #if(${list.contains(${bullets}, "public")})
-  #set($report = "THE PUBLIC REPORTED A ${stormline}...${capable}PRODUCING ${threatType}${hailType}.") 
+  #set($report = "The public reported a ${stormline}, ${capable}producing ${threatType}${hailType}.") 
 #if(${list.contains(${bullets}, "fog")})
-  #set($report = "THE PUBLIC REPORTED AN AREA OF ${stormline}...${capable}REDUCING VISIBILITIES TO BELOW ${visibility}.")
+  #set($report = "The public reported an area of ${stormline}, ${capable}reducing visibilities to below ${visibility}.")
 #end
 #end
 #if(${list.contains(${bullets}, "satellite")})
-  #set($capable = "CAPABLE OF ")
-  #set($report = "SATELLITE IMAGERY INDICATED A ${stormline}...${capable}PRODUCING ${threatType}${hailType}.")
+  #set($capable = "capable of ")
+  #set($report = "Satellite imagery indicated a ${stormline}, ${capable}producing ${threatType}${hailType}.")
 #if(${list.contains(${bullets}, "fog")})
-  #set($capable = "CAPABLE OF ")
-  #set($report = "SATELLITE IMAGERY INDICATED AN AREA OF ${stormline}...${capable}REDUCING VISIBILITIES TO BELOW ${visibility}.")
+  #set($capable = "capable of ")
+  #set($report = "Satellite imagery indicated an area of ${stormline}, ${capable}reducing visibilities to below ${visibility}.")
 #end
 #end
 #if(${list.contains(${bullets}, "pilot")})
-  #set($report = "A PILOT REPORTED A ${stormline}...${capable}PRODUCING ${threatType}${hailType}.") 
+  #set($report = "A pilot reported a ${stormline}, ${capable}producing ${threatType}${hailType}.") 
 #if(${list.contains(${bullets}, "fog")})
-  #set($report = "A PILOT REPORTED AN AREA OF ${stormline}...${capable}REDUCING VISIBILITIES TO BELOW ${visibility}.")
+  #set($report = "A pilot reported an area of ${stormline}, ${capable}reducing visibilities to below ${visibility}.")
 #end
 #end
 ## Storm current location description
@@ -266,7 +270,7 @@ $zonecombo
 THIS IS A TEST MESSAGE. ##
 #end
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
-...${report} ${reportLocation} ##
+, ${report} ${reportLocation} ##
 ##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")
 #handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxMarineNearDistance}, ${overPhrase}, ${maxMarineOverDistance}, ${marineDistanceUnits}, ${useSecondReferenceLine})
@@ -274,9 +278,9 @@ THIS IS A TEST MESSAGE. ##
 #handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxMarineNearDistance}, ${overPhrase}, ${maxMarineOverDistance}, ${marineDistanceUnits}, ${useSecondReferenceCell})
 #end
 #if(${movementSpeed} < ${marineStationary} || ${stationary})
-. ${reportType2} NEARLY STATIONARY.
+. ${reportType2} nearly stationary.
 #else
-...MOVING #direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} KNOTS.
+, moving #direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} knots.
 #end
 
 #set($warningType = "STATEMENT") 
@@ -284,7 +288,7 @@ THIS IS A TEST MESSAGE. ##
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
-#pathCast("${pathheader} WILL BE NEAR..." ${pathheader} ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 1)
+#pathCast("${pathheader} will be near..." ${pathheader} ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 1)
 
 #elseif(${list.contains(${bullets}, "listoflocations")})
 #if(${productClass}=="T")
@@ -294,7 +298,7 @@ THIS IS A TEST MESSAGE. ##
 #### 0 IS A ... SEPARATED LIST, 1 IS ONE PER LINE, >1 IS A COLUMN FORMAT
 #### IF YOU USE SOMETHING OTHER THAN "LOCATIONS IMPACTED INCLUDE" LEAD IN BELOW, MAKE SURE THE
 #### ACCOMPANYING XML FILE PARSE STRING IS CHANGED TO MATCH!
-#locationsList("LOCATIONS IMPACTED INCLUDE..." ${pathheader} 0 ${locationList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 1)
+#locationsList("Locations impacted include..." ${pathheader} 0 ${locationList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 1)
 
 #end
 
@@ -303,7 +307,7 @@ THIS IS A TEST MESSAGE. ##
 ##############################################
 
 #if(${list.contains(${bullets}, "specialEvent")})
-THOSE ATTENDING !**event/venue name or location**! ARE IN THE PATH OF ${specialEvent} AND SHOULD PREPARE FOR IMMINENT DANGEROUS WEATHER CONDITIONS. SEEK SHELTER NOW.
+Those attending !**EVENT/VENUE NAME OR LOCATION**! are in the path of ${specialEvent} and should prepare for imminent dangerous weather conditions. Seek shelter now!
 
 #end
 #####################
@@ -327,55 +331,55 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 
 #if(${list.contains(${bullets}, "genericCTA")})
 #if(${stormType} == "line")
-MARINERS CAN EXPECT GUSTY WINDS UP TO 33 KNOTS...LOCALLY HIGHER WAVES...AND LIGHTNING STRIKES. BOATERS SHOULD SEEK SAFE HARBOR IMMEDIATELY UNTIL THESE STORMS PASS.
+Mariners can expect gusty winds up to 33 knots...locally higher waves...and lightning strikes. Boaters should seek safe harbor immediately until these storms pass.
 
 #else
-MARINERS CAN EXPECT GUSTY WINDS UP TO 33 KNOTS...LOCALLY HIGHER WAVES...AND LIGHTNING STRIKES. BOATERS SHOULD SEEK SAFE HARBOR IMMEDIATELY UNTIL THIS STORM PASSES.
+Mariners can expect gusty winds up to 33 knots...locally higher waves...and lightning strikes. Boaters should seek safe harbor immediately until this storm passes.
 
 #end
 #end
 #if(${list.contains(${bullets}, "heavyRainCTA")})
 #if(${stormType} == "line")
-MARINERS CAN EXPECT GUSTY WINDS UP TO 33 KNOTS...LOCALLY HIGHER WAVES...LIGHTNING STRIKES...AND HEAVY DOWNPOURS. BOATERS SHOULD SEEK SAFE HARBOR IMMEDIATELY UNTIL THESE STORMS PASS.
+Mariners can expect gusty winds up to 33 knots...locally higher waves...lightning strikes...and heavy downpours. Boaters should seek safe harbor immediately until these storms pass.
 
 #else
-MARINERS CAN EXPECT GUSTY WINDS UP TO 33 KNOTS...LOCALLY HIGHER WAVES...LIGHTNING STRIKES...AND HEAVY DOWNPOURS. BOATERS SHOULD SEEK SAFE HARBOR IMMEDIATELY UNTIL THIS STORM PASSES.
+Mariners can expect gusty winds up to 33 knots...locally higher waves...lightning strikes...and heavy downpours. Boaters should seek safe harbor immediately until this storm passes.
 
 #end
 #end
 #if(${list.contains(${bullets}, "possibleSmwCTA")})
 #if(${stormType} == "line")
-THIS ${stormline} WILL LIKELY PRODUCE WINDS UP TO 33 KNOTS...AND COULD POSE A SERIOUS HAZARD FOR BOATERS. A SPECIAL MARINE WARNING MAY EVENTUALLY BE REQUIRED WHEN THESE STORMS REACH THE NEARSHORE WATERS. BOATERS SHOULD CONSIDER HEADING FOR SHORE BEFORE THESE STORMS ARRIVE.
+This ${stormline} will likely produce winds up to 33 knots...and could pose a serious hazard for boaters. A special marine warning may eventually be required when these storms reach the nearshore waters. Boaters should consider heading for shore before these storms arrive.
 
 #else
-THIS ${stormline} WILL LIKELY PRODUCE WINDS UP TO 33 KNOTS...AND COULD POSE A SERIOUS HAZARD FOR BOATERS. A SPECIAL MARINE WARNING MAY EVENTUALLY BE REQUIRED WHEN THIS STORM REACHES THE NEARSHORE WATERS. BOATERS SHOULD CONSIDER HEADING FOR SHORE BEFORE THE STORM ARRIVES.
+This ${stormline} will likely produce winds up to 33 knots...and could pose a serious hazard for boaters. A special marine warning may eventually be required when this storm reaches the nearshore waters. Boaters should consider heading for shore before the storm arrives.
 
 #end
 #end
 #if(${list.contains(${bullets}, "likelySmwCTA")})
 #if(${stormType} == "line")
-THIS ${stormline} WILL LIKELY PRODUCE WINDS IN EXCESS OF 34 KNOTS...AND IS LIKELY TO POSE A SERIOUS HAZARD FOR BOATERS. A SPECIAL MARINE WARNING WILL LIKELY BE REQUIRED WHEN THESE STORMS REACH THE NEARSHORE WATERS. BOATERS SHOULD CONSIDER HEADING FOR SHORE BEFORE THESE STORMS ARRIVE.
+This ${stormline} will likely produce winds in excess of 34 knots...and is likely to pose a serious hazard for boaters. A special marine warning will likely be required when these storms reach the nearshore waters. Boaters should consider heading for shore before these storms arrive.
 
 #else
-THIS ${stormline} WILL LIKELY PRODUCE WINDS IN EXCESS OF 34 KNOTS...AND IS LIKELY TO POSE A SERIOUS HAZARD FOR BOATERS. A SPECIAL MARINE WARNING WILL LIKELY BE REQUIRED WHEN THIS STORM REACHES THE NEARSHORE WATERS. BOATERS SHOULD CONSIDER HEADING FOR SHORE BEFORE THE STORM ARRIVES.
+This ${stormline} will likely produce winds in excess of 34 knots...and is likely to pose a serious hazard for boaters. A special marine warning will likely be required when this storm reaches the nearshore waters. Boaters should consider heading for shore before the storm arrives.
 
 #end
 #end
 #if(${list.contains(${bullets}, "lightningCTA")})
 #if(${stormType} == "line")
-INTENSE LIGHTNING IS OCCURRING WITH THESE STORMS. IF CAUGHT ON THE OPEN WATER STAY BELOW DECK IF POSSIBLE...KEEP AWAY FROM UNGROUNDED METAL OBJECTS.
+Intense lightning is occurring with these storms. If caught on the open water stay below deck if possible...keep away from ungrounded metal objects.
 
 #else
-INTENSE LIGHTNING IS OCCURRING WITH THIS STORM. IF CAUGHT ON THE OPEN WATER STAY BELOW DECK IF POSSIBLE...KEEP AWAY FROM UNGROUNDED METAL OBJECTS.
+Intense lightning is occurring with this storm. If caught on the open water stay below deck if possible...keep away from ungrounded metal objects.
 
 #end
 #end
 #if(${list.contains(${bullets}, "reportCTA")})
-REPORT SEVERE WEATHER TO THE COAST GUARD OR NEAREST LAW ENFORCEMENT AGENCY. THEY WILL RELAY YOUR REPORT TO THE NATIONAL WEATHER SERVICE FORECAST OFFICE.
+Report severe weather to the coast guard or nearest law enforcement agency. They will relay your report to the National Weather Service forecast office.
 
 #end
 #if(${list.contains(${bullets}, "fogCTA")})
-DENSE FOG WAS REDUCING VISIBILITIES TO BELOW ${visibility}. REDUCE YOUR SPEED...AND KEEP A LOOKOUT FOR OTHER VESSELS...BUOYS...AND BREAKWATERS. KEEP YOUR NAVIGATION LIGHTS ON. IF NOT EQUIPPED WITH RADAR...YOU SHOULD CONSIDER SEEKING SAFE HARBOR.
+Dense fog was reducing visibilities to below ${visibility}. Reduce your speed...and keep a lookout for other vessels...buoys...and breakwaters. Keep your navigation lights on. If not equipped with radar...you should consider seeking safe harbor.
 
 #end
 #if(${ctaSelected} == "YES")

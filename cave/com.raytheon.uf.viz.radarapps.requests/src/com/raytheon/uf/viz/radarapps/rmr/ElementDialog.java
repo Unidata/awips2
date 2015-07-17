@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -44,11 +44,23 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.rcm.config.RadarConfig;
 import com.raytheon.rcm.config.RadarType;
-import com.raytheon.rcm.config.Util;
+import com.raytheon.rcm.config.RcmUtil;
 import com.raytheon.rcm.products.Usage;
 import com.raytheon.rcm.rmr.MultipleRequest.Element;
 import com.raytheon.uf.viz.radarapps.products.ui.RadarProductUI;
 
+/**
+ * Element dialog.
+ *
+ * <pre>
+ *
+ *  SOFTWARE HISTORY
+ *  Date         Ticket#    Engineer    Description
+ *  ------------ ---------- ----------- --------------------------
+ *  2015-06-10   4498       nabowle     Rename Util->RcmUtil
+ * </pre>
+ *
+ */
 public class ElementDialog extends Dialog {
 
     private RmrWindow rmr;
@@ -154,7 +166,7 @@ public class ElementDialog extends Dialog {
         WritableList dialList = new WritableList();
         WritableList dedList = new WritableList();
         for (RadarConfig rc : rmr.getRadars()) {
-            if (Util.getRadarType(rc) == radarType) {
+            if (RcmUtil.getRadarType(rc) == radarType) {
                 if (rc.isDedicated())
                     dedList.add(rc.getRadarID());
                 else
@@ -179,7 +191,7 @@ public class ElementDialog extends Dialog {
             String anID = input.getRadarIDs()[0];
             for (RadarConfig rc : rmr.getRadars()) {
                 if (rc.getRadarID().equalsIgnoreCase(anID)) {
-                    rt = Util.getRadarType(rc);
+                    rt = RcmUtil.getRadarType(rc);
                     break;
                 }
             }

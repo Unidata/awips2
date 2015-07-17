@@ -28,9 +28,10 @@ from com.raytheon.viz.core import ColorUtil
 from com.raytheon.viz.gfe.core import DataManagerOffscreenFactory, GFEMapRenderableDisplay
 from com.raytheon.viz.gfe.ifpimage import GfeImageUtil, ImageLegendResource
 from com.raytheon.viz.gfe.rsc import GFEResource, GFESystemResource
-from com.raytheon.viz.gfe.core.parm import ParmDisplayAttributes_EditorType as EditorType
-from com.raytheon.viz.gfe.core.parm import ParmDisplayAttributes_VisMode as VisMode
-from com.raytheon.viz.gfe.core.parm import ParmDisplayAttributes_VisualizationType as VisualizationType
+from com.raytheon.viz.gfe.core.parm import ParmDisplayAttributes
+EditorType = ParmDisplayAttributes.EditorType
+VisMode = ParmDisplayAttributes.VisMode
+VisualizationType = ParmDisplayAttributes.VisualizationType
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceID
 
 from java.lang import Double
@@ -52,6 +53,7 @@ from java.io import File
 #    09/13/2012           #1147    dgilling       Allow map labels to be disabled.
 #    11/06/2012           15406    ryu            Correction for computing domain from mask
 #    09/12/2013           #2033    dgilling       Change how logo files are accessed.
+#    Apr 25, 2015          4952    njensen        Updated for new JEP API
 #
 #
 
@@ -67,7 +69,8 @@ class GFEPainter(VizPainter.VizPainter):
         envelope = None
         gloc = self.dataMgr.getParmManager().compositeGridLocation()
         if mask is not None:
-            from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData_CoordinateType as CoordinateType
+            from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData
+            CoordinateType = ReferenceData.CoordinateType
             self.refId = ReferenceID(mask)
             if wholeDomain == 0:
                 envelope = self.dataMgr.getRefManager().loadRefSet(self.refId).overallDomain(CoordinateType.GRID)

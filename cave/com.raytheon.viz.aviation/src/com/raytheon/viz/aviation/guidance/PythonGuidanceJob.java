@@ -59,9 +59,10 @@ import com.raytheon.viz.aviation.monitor.AvnPyUtil;
  * Apr 14, 2011 8065       rferrel     Implemented enqueue to place
  *                                     Alerts at the front of the queue
  *                                     and work with data caching.
- * Nov 28, 2012 1363        rferrel    No longer add a dispose listener so the
+ * Nov 28, 2012 1363       rferrel     No longer add a dispose listener so the
  *                                      creation of instance can be done on
  *                                      any thread.
+ * May 14, 2015 4259       njensen     Updates for new JEP API                                     
  * 
  * </pre>
  * 
@@ -210,6 +211,7 @@ public class PythonGuidanceJob extends AbstractQueueJob<GuidanceRequest> {
      * com.raytheon.uf.viz.core.jobs.AbstractQueueJob#enqueue(com.raytheon.uf
      * .viz.core.jobs.QueueJobRequest)
      */
+    @Override
     public boolean enqueue(GuidanceRequest req) {
         boolean queueAlert = false;
         GuidanceType type = req.getGuidanceType();
@@ -259,6 +261,7 @@ public class PythonGuidanceJob extends AbstractQueueJob<GuidanceRequest> {
      * @seeorg.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime.
      * IProgressMonitor)
      */
+    @SuppressWarnings("unchecked")
     @Override
     protected IStatus run(IProgressMonitor monitor) {
         try {
@@ -286,8 +289,8 @@ public class PythonGuidanceJob extends AbstractQueueJob<GuidanceRequest> {
                             .getPythonMethod();
                     try {
                         // long t0 = System.currentTimeMillis();
-                        final String[] result = (String[]) python.execute(
-                                methodName, args);
+                        final String[] result = ((List<String>) python.execute(
+                                methodName, args)).toArray(new String[0]);
                         // long t1 = System.currentTimeMillis();
 
                         // // Start debug

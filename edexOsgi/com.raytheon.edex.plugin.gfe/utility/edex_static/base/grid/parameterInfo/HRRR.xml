@@ -1,21 +1,67 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <gridParamInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <valtimeMINUSreftime>
+    <!-- 15 minutes intervals-->
     <fcst>0</fcst>
+    <fcst>900</fcst>
+    <fcst>1800</fcst>
+    <fcst>2700</fcst>
     <fcst>3600</fcst>
+    <fcst>4500</fcst>
+    <fcst>5400</fcst>
+    <fcst>6300</fcst>
     <fcst>7200</fcst>
+    <fcst>8100</fcst>
+    <fcst>9000</fcst>
+    <fcst>9900</fcst>
     <fcst>10800</fcst>
+    <fcst>11700</fcst>
+    <fcst>12600</fcst>
+    <fcst>13500</fcst>
     <fcst>14400</fcst>
+    <fcst>15300</fcst>
+    <fcst>16200</fcst>
+    <fcst>17100</fcst>
     <fcst>18000</fcst>
+    <fcst>18900</fcst>
+    <fcst>19800</fcst>
+    <fcst>20700</fcst>
     <fcst>21600</fcst>
+    <fcst>22500</fcst>
+    <fcst>23400</fcst>
+    <fcst>24300</fcst>
     <fcst>25200</fcst>
+    <fcst>26100</fcst>
+    <fcst>27000</fcst>
+    <fcst>27900</fcst>
     <fcst>28800</fcst>
+    <fcst>29700</fcst>
+    <fcst>30600</fcst>
+    <fcst>31500</fcst>
     <fcst>32400</fcst>
+    <fcst>33300</fcst>
+    <fcst>34200</fcst>
+    <fcst>35100</fcst>
     <fcst>36000</fcst>
+    <fcst>36900</fcst>
+    <fcst>37800</fcst>
+    <fcst>38700</fcst>
     <fcst>39600</fcst>
+    <fcst>40500</fcst>
+    <fcst>41400</fcst>
+    <fcst>42300</fcst>
     <fcst>43200</fcst>
+    <fcst>44100</fcst>
+    <fcst>45000</fcst>
+    <fcst>45900</fcst>
     <fcst>46800</fcst>
+    <fcst>47700</fcst>
+    <fcst>48600</fcst>
+    <fcst>49500</fcst>
     <fcst>50400</fcst>
+    <fcst>51300</fcst>
+    <fcst>52200</fcst>
+    <fcst>53100</fcst>
     <fcst>54000</fcst>
   </valtimeMINUSreftime>
   <gridParameterInfo xsi:type="parameterInfo">
@@ -43,10 +89,28 @@
     <valid_range>100000.0</valid_range>
     <fillValue>-99999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>FHAG 1000 HYB 1</levelsDesc>
+    <levelsDesc>FHAG 1000 4000 HYB 1 NTAT 0</levelsDesc>
     <levels>
       <level>FHAG1000</level>
+      <level>FHAG4000</level>
       <level>HYB1</level>
+      <level>NTAT</level>
+    </levels>
+  </gridParameterInfo>
+  
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>retop</short_name>
+    <long_name>Echo top height of 18dBZ surface</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>echoTop</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>CTL</levelsDesc>
+    <levels>
+      <level>CTL</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xsi:type="parameterInfo">
@@ -74,9 +138,10 @@
     <valid_range>6000.0</valid_range>
     <fillValue>-99999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>SFC BL 0&gt;180 0&gt;255</levelsDesc>
+    <levelsDesc>SFC BL 0&gt;90 0&gt;180 0&gt;255</levelsDesc>
     <levels>
       <level>SFC</level>
+      <level>BL090</level>
       <level>BL0180</level>
       <level>BL0255</level>
     </levels>
@@ -89,8 +154,8 @@
     <n3D>0</n3D>
   </gridParameterInfo>
   <gridParameterInfo xsi:type="parameterInfo">
-    <short_name>tp</short_name>
-    <long_name>total precipitation</long_name>
+    <short_name>tp1hr</short_name>
+    <long_name>total precipitation (1 hr)</long_name>
     <units>mm</units>
     <udunits>millimeter</udunits>
     <uiname>totPrecip</uiname>
@@ -104,8 +169,8 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xsi:type="parameterInfo">
-    <short_name>weasd</short_name>
-    <long_name>water equivalent of accumulated snow depth</long_name>
+    <short_name>weasd1hr</short_name>
+    <long_name>water equivalent of accumulated snow depth (1 hr)</long_name>
     <units>ml</units>
     <udunits>mil</udunits>
     <uiname>waterEqvAccSnowDepth</uiname>
@@ -194,21 +259,6 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xsi:type="parameterInfo">
-    <short_name>crain</short_name>
-    <long_name>Categorical rain</long_name>
-    <units>yes=1, no=0</units>
-    <udunits />
-    <uiname>CategoricalRain</uiname>
-    <valid_range>0.0</valid_range>
-    <valid_range>1.0</valid_range>
-    <fillValue>-99999.0</fillValue>
-    <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
-    <levels>
-      <level>SFC</level>
-    </levels>
-  </gridParameterInfo>
-  <gridParameterInfo xsi:type="parameterInfo">
     <short_name>uw</short_name>
     <long_name>u wind component</long_name>
     <units>m/s</units>
@@ -218,9 +268,15 @@
     <valid_range>150.0</valid_range>
     <fillValue>-99999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>10 FHAG</levelsDesc>
+    <levelsDesc>FHAG 10 FHAG 80 MB 1000 925 850 700 500</levelsDesc>
     <levels>
       <level>FHAG10</level>
+      <level>FHAG80</level>
+      <level>MB1000</level>
+      <level>MB925</level>
+      <level>MB850</level>
+      <level>MB700</level>
+      <level>MB500</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xsi:type="parameterInfo">
@@ -233,9 +289,10 @@
     <valid_range>1000.0</valid_range>
     <fillValue>-99999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>SFC BL 0&gt;255</levelsDesc>
+    <levelsDesc>SFC BL 0&gt;90 0&gt;255</levelsDesc>
     <levels>
       <level>SFC</level>
+      <level>BL090</level>
       <level>BL0255</level>
     </levels>
   </gridParameterInfo>
@@ -270,25 +327,54 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xsi:type="parameterInfo">
-    <short_name>csnow</short_name>
-    <long_name>Categorical snow</long_name>
-    <units>yes=1, no=0</units>
+    <short_name>cicep</short_name>
+    <long_name>Categorical ice pellets</long_name>
+    <units>yn</units>
     <udunits />
-    <uiname>CategoricalSnow</uiname>
+    <uiname>CategoricalIcePlt</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>1.0</valid_range>
     <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
       <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xsi:type="parameterInfo">
-    <short_name>cicep</short_name>
-    <long_name>Categorical ice pellets</long_name>
-    <units>yes=1, no=0</units>
+    <short_name>cpofp</short_name>
+    <long_name>Probability of frozen precip</long_name>
+    <units>%</units>
+    <udunits>percent </udunits>
+    <uiname>FrznPcpProb</uiname>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>crain</short_name>
+    <long_name>Categorical rain</long_name>
+    <units>yn</units>
     <udunits />
-    <uiname>CategoricalIcePlt</uiname>
+    <uiname>CategoricalRain</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>csnow</short_name>
+    <long_name>Categorical snow</long_name>
+    <units>yn</units>
+    <udunits/>
+    <uiname>CategoricalSnow</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>1.0</valid_range>
     <fillValue>-99999.0</fillValue>
@@ -329,9 +415,9 @@
     <valid_range>150.0</valid_range>
     <fillValue>-99999.0</fillValue>
     <n3D>1</n3D>
-    <levelsDesc>10 FHAG</levelsDesc>
+    <levelsDesc>SFC</levelsDesc>
     <levels>
-      <level>FHAG10</level>
+      <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xsi:type="parameterInfo">
@@ -359,15 +445,30 @@
     <valid_range>330.0</valid_range>
     <fillValue>-99999.0</fillValue>
     <n3D>1</n3D>
-    <levelsDesc>FHAG 2</levelsDesc>
+    <levelsDesc>FHAG 2 MB 1000 0925 700 500</levelsDesc>
     <levels>
       <level>FHAG2</level>
+      <level>MB1000</level>
+      <level>MB925</level>
+      <level>MB700</level>
+      <level>MB500</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>dswrf</short_name>
+    <long_name>Downward shortwave radiation flux</long_name>
+    <units>W/m**2</units>
+    <udunits>watts/meter2</udunits>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xsi:type="parameterInfo">
     <short_name>heli</short_name>
     <long_name>helicity sigma</long_name>
-    <units>m/s2</units>
+    <units>m/s**2</units>
     <udunits>meter/second2</udunits>
     <uiname>hel</uiname>
     <valid_range>0.0</valid_range>
@@ -405,11 +506,34 @@
     <valid_range>150.0</valid_range>
     <fillValue>-99999.0</fillValue>
     <n3D>0</n3D>
+    <levelsDesc>FHAG 10 FHAG 80 MB 1000 925 850 700 500</levelsDesc>
+    <levels>
+      <level>FHAG10</level>
+      <level>FHAG80</level>
+      <level>MB1000</level>
+      <level>MB925</level>
+      <level>MB850</level>
+      <level>MB700</level>
+      <level>MB500</level>
+    </levels>
+  </gridParameterInfo>
+  
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>ws1hr</short_name>
+    <long_name>Wind Speed</long_name>
+    <units>m/s</units>
+    <udunits>meter/sec</udunits>
+    <uiname>windSpeed</uiname>
+    <valid_range>0</valid_range>
+    <valid_range>150</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
     <levelsDesc>10 FHAG</levelsDesc>
     <levels>
       <level>FHAG10</level>
     </levels>
   </gridParameterInfo>
+
   <gridParameterInfo xsi:type="parameterInfo">
     <short_name>t</short_name>
     <long_name>Temperature</long_name>
@@ -420,9 +544,14 @@
     <valid_range>330.0</valid_range>
     <fillValue>-99999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>2 FHAG</levelsDesc>
+    <levelsDesc>2 FHAG MB 1000 925 850 700 500</levelsDesc>
     <levels>
       <level>FHAG2</level>
+      <level>MB1000</level>
+      <level>MB925</level>
+      <level>MB850</level>
+      <level>MB700</level>
+      <level>MB500</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xsi:type="parameterInfo">
@@ -441,10 +570,15 @@
     <valid_range>20000.0</valid_range>
     <fillValue>-99999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>CBL CTL</levelsDesc>
+    <levelsDesc>SFC ADCL CBL CTL CLG MB 1000 500</levelsDesc>
     <levels>
+      <level>SFC</level>
+      <level>ADCL</level>
       <level>CBL</level>
       <level>CTL</level>
+      <level>CLG</level>
+      <level>MB1000</level>
+      <level>MB500</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xsi:type="parameterInfo">
@@ -457,6 +591,19 @@
     <valid_range>110000.0</valid_range>
     <fillValue>-99999.0</fillValue>
     <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>pr</short_name>
+    <long_name>precipitation rate</long_name>
+    <units>(kg/m**2)/s</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>0.10000000149</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
       <level>SFC</level>
@@ -480,7 +627,7 @@
   <gridParameterInfo xsi:type="parameterInfo">
     <short_name>cfrzr</short_name>
     <long_name>Categorical freezing rain</long_name>
-    <units>yes=1, no=0</units>
+    <units>yn</units>
     <udunits />
     <uiname>CategoricalFrzRain</uiname>
     <valid_range>0.0</valid_range>
@@ -495,7 +642,7 @@
   <gridParameterInfo xsi:type="parameterInfo">
     <short_name>wd</short_name>
     <long_name>Wind Direction</long_name>
-    <units>degreeTrue</units>
+    <units>degree_angle</units>
     <udunits>degree_True</udunits>
     <uiname>windDir</uiname>
     <valid_range>0.0</valid_range>
@@ -508,11 +655,11 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xsi:type="parameterInfo">
-    <short_name>mwind</short_name>
-    <long_name>Maximum Wind Speed</long_name>
+    <short_name>ws</short_name>
+    <long_name>Wind Speed</long_name>
     <units>m/s</units>
     <udunits>meter/sec</udunits>
-    <uiname>maxWindSpeed</uiname>
+    <uiname>windSpeed</uiname>
     <valid_range>0</valid_range>
     <valid_range>150</valid_range>
     <fillValue>-99999.0</fillValue>
@@ -522,4 +669,29 @@
       <level>FHAG10</level>
     </levels>
   </gridParameterInfo>
+  <!-- Found these in grid_info and level entries tables. 
+       For now ignore.
+   -->
+  <!-- USTM GHAG 0-6000 ? -->
+  <!-- LTNG SFC ? -->
+  <!-- MAXDVV BL 400-1000 ? -->
+  <!-- MAXDVV1hr BL 400-1000 ? -->
+  <!-- MAXREF FHAG 1000 ? -->
+  <!-- MAXREF1hr FHAG 1000 ? -->
+  <!-- MAXUVV BL 400-1000 ? -->
+  <!-- MAXUVV1hr BL 400-1000 ? -->
+  <!-- MXUPHL FHAG 2000-5000 ? -->
+  <!-- MxUPHL1hr FHAG 2000-5000 ?  -->
+  <!-- VILIQ EA ? -->
+  <!-- HPBL SFC ? -->
+  <!-- VSTM FHAG 0-6000 ?  -->
+  <!-- VUCSH FHAG 1000, 6000  ? -->
+  <!-- VVCSH FHAG 1000, 6000  ? -->
+  <!-- ULWRF NTAT ? -->
+  <!-- UPHL  FHAG 2000-5000 ? -->
+  <!-- GVV SIG ? -->
+  <!-- GVV1hr SIG ? -->
+  <!-- PLPL BL 0-255 -->
+  <!-- PMSL MSL ? -->
+  <!-- 4LFTX BL 180 ? -->
 </gridParamInfo>

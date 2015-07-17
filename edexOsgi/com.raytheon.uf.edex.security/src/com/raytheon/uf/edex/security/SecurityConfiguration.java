@@ -22,13 +22,19 @@ package com.raytheon.uf.edex.security;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.security.KeyStore;
 
+import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
+import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.transport.http.auth.HttpAuthSupplier;
 
 import com.raytheon.uf.edex.core.modes.EDEXModesUtil;
 
@@ -49,7 +55,7 @@ import com.raytheon.uf.edex.core.modes.EDEXModesUtil;
  * @author bphillip
  * @version 1
  **/
-public class SecurityConfiguration {
+public class SecurityConfiguration implements HttpAuthSupplier {
 
     /** The directory containing security related files such as keystores */
     private static final String SECURITY_DIR = EDEXModesUtil.CONF_DIR
@@ -144,6 +150,14 @@ public class SecurityConfiguration {
         }
     }
 
+    public TrustManager[] getTrustManager() {
+        return tmf.getTrustManagers();
+    }
+
+    public KeyManager[] getKeyManager() {
+        return kmf.getKeyManagers();
+    }
+
     /**
      * Initializes the trust store
      */
@@ -162,6 +176,7 @@ public class SecurityConfiguration {
                     .getInstance(getProperty("edex.security.truststore.type"));
             truststore.load(fis, storepass);
             tmf.init(truststore);
+            tmf.getTrustManagers();
         } catch (Exception e) {
             throw new SecurityException("Error initializing truststore", e);
         } finally {
@@ -196,24 +211,33 @@ public class SecurityConfiguration {
         return prop;
     }
 
-    /**
-     * Gets the TLSClientParameters
-     * 
-     * @return The TLSClientParameters
-     */
-    public TLSClientParameters getTlsParams() {
-        return tlsParams;
-    }
-
     public EncryptedProperties getSecurityProperties() {
         return securityProperties;
     }
 
-    /**
-     * @return the authPolicy
-     */
-    public AuthorizationPolicy getAuthPolicy() {
-        return authPolicy;
+    @Override
+    public boolean requiresRequestCaching() {
+        return false;
+    }
+
+    @Override
+    public String getAuthorization(AuthorizationPolicy authPolicy,
+            URI currentURI, Message message, String fullHeader) {
+        String userName = authPolicy.getUserName();
+        String password = authPolicy.getPassword();
+        if (userName == null) {
+            userName = getProperty("edex.security.auth.user");
+        }
+        if (password == null) {
+            password = getProperty("edex.security.auth.password");
+        }
+        return userName == null || password == null ? null
+                : getBasicAuthHeader(userName, password);
+    }
+
+    private String getBasicAuthHeader(String userName, String passwd) {
+        String userAndPass = userName + ":" + passwd;
+        return "Basic " + Base64Utility.encode(userAndPass.getBytes());
     }
 
 }

@@ -26,6 +26,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import jep.NDArray;
+
 import com.raytheon.uf.common.cache.CacheException;
 import com.raytheon.uf.common.cache.CacheFactory;
 import com.raytheon.uf.common.cache.ICache;
@@ -59,6 +61,8 @@ import com.raytheon.uf.common.time.TimeRange;
  *                                     debugger when trying to display the grid
  * 10/29/2013   2476       njensen     Updated getNumpy() and added getKeyList()
  * 10/31/2013   2508       randerso    Added getKeys(), deprecated getKey()
+ * Apr 23, 2015 4259       njensen     Updated for new JEP API
+ * 
  * </pre>
  * 
  * @author chammack
@@ -102,11 +106,12 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
     }
 
     /**
-     * Constructor with TimeRange, GFERecord, Grid2DByte, and a DiscreteKey
-     * array.
+     * Constructor with TimeRange, GridParmInfo, GridDataHistory, Grid2DByte,
+     * and a DiscreteKey array.
      * 
      * @param validTime
-     * @param gfeRecord
+     * @param gpi
+     * @param history
      * @param aGrid
      * @param aKey
      */
@@ -532,11 +537,11 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
     }
 
     /**
-     * Returns a Grid2DBit whose bits are set whereever the discrete type is the
+     * Returns a Grid2DBit whose bits are set wherever the discrete type is the
      * same as that specified in the TextString value.
      * 
      * @param value
-     * @return
+     * @return a new Grid2DBit indicating where the String value is
      */
     public Grid2DBit almost(String value) {
         Grid2DByte discreteGrid = getDiscreteGrid();
@@ -820,18 +825,16 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
     }
 
     @Override
-    public Object[] getNumpy() {
-        return new Object[] { getDiscreteGrid().getBuffer().array() };
-    }
-
-    @Override
-    public int getNumpyX() {
-        return getDiscreteGrid().getXdim();
-    }
-
-    @Override
-    public int getNumpyY() {
-        return getDiscreteGrid().getYdim();
+    public NDArray<byte[]> getNDArray() {
+        /*
+         * FIXME We reverse the x and y dimensions because that's what AWIPS 1
+         * did and that makes the pre-existing python code compatible. Java
+         * ordering is x,y while python is ordering is y,x. It's confusing and
+         * questionable at best so someday someone should correct all that. Good
+         * luck.
+         */
+        return new NDArray<byte[]>(getDiscreteGrid().getBytes(),
+                getDiscreteGrid().getYdim(), getDiscreteGrid().getXdim());
     }
 
     @Override

@@ -65,6 +65,7 @@
 #                                                 time regardless of setting of os.environ['TZ']
 #    Jan 13, 2015    3955          randerso       Added optional parameter to availableParms to specify desired databases.
 #                                                 Fixed createGrid to accept a DatabaseID for model
+#    Apr 23, 2015    4259          njensen        Updated for new JEP API
 ########################################################################
 import types, string, time, sys
 from math import *
@@ -93,7 +94,7 @@ from com.raytheon.uf.common.dataplugin.gfe.discrete import DiscreteDefinition
 from com.raytheon.uf.common.dataplugin.gfe.weather import WeatherKey
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import TimeConstraints
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import GridParmInfo
-from com.raytheon.uf.common.dataplugin.gfe.db.objects import GridParmInfo_GridType as GridType
+GridType = GridParmInfo.GridType
 from com.raytheon.uf.common.dataplugin.gfe.server.request import SendISCRequest
 
 class SmartScript(BaseTool.BaseTool):
@@ -490,34 +491,27 @@ class SmartScript(BaseTool.BaseTool):
                 xlated = []
                 for rgrid in result:
                     jxlgrid = rgrid.getGridSlice()                    
-                    xlgrid = jxlgrid.__numpy__
-                    if len(xlgrid) == 1:
-                        if xlgrid[0].dtype != numpy.int8:
-                            # scalar
-                            xlgrid = xlgrid[0]
-                        else:
-                            # discrete or weather
-                            keys = JUtil.javaObjToPyVal(jxlgrid.getKeyList())
-                            xlgrid = (xlgrid[0], keys)
-                    else:
-                        xlgrid = (xlgrid[0], xlgrid[1])                    
+                    xlgrid = jxlgrid.getNDArray()
+                    if type(xlgrid) is ndarray and xlgrid.dtype == numpy.int8:                    
+                        # discrete or weather
+                        keys = JUtil.javaObjToPyVal(jxlgrid.getKeyList())
+                        xlgrid = (xlgrid, keys)
+                    elif type(xlgrid) is not numpy.ndarray and len(xlgrid) == 2:
+                        # vector
+                        xlgrid = tuple(xlgrid)                    
                     xlated.append(xlgrid)
                 retVal = xlated
             else:
                 result = result[0];
                 slice = result.getGridSlice()
-                result = slice.__numpy__
-                if len(result) == 1:
-                    if result[0].dtype != numpy.int8:
-                        # scalar
-                        retVal = result[0]
-                    else:
-                        # discrete or weather
-                        keys = JUtil.javaObjToPyVal(slice.getKeyList())
-                        retVal = (result[0], keys)
-                else:
+                retVal = slice.getNDArray()
+                if type(retVal) is ndarray and retVal.dtype == numpy.int8:
+                    # discrete or weather
+                    keys = JUtil.javaObjToPyVal(slice.getKeyList())
+                    retVal = (retVal, keys)
+                elif type(retVal) is not numpy.ndarray and len(retVal) == 2:
                     # vector
-                    retVal = (result[0], result[1])
+                    retVal = tuple(retVal)
 
         if retVal is None or retVal == []:
             if noDataError == 1:
@@ -576,8 +570,7 @@ class SmartScript(BaseTool.BaseTool):
         #     return = variableElement + self._tGrid * 10.0
         #
         taperGrid = self.__refSetMgr.taperGrid(editArea, taperFactor)
-        taperGrid = taperGrid.__numpy__
-        taperGrid = taperGrid[0]
+        taperGrid = taperGrid.getNDArray()        
         return taperGrid
 
     def directionTaperGrid(self, editArea, direction):
@@ -599,8 +592,7 @@ class SmartScript(BaseTool.BaseTool):
         #      return variableElement * self._spaceProgress
         #
         taperGrid = self.__refSetMgr.directionTaperGrid(editArea, direction)
-        taperGrid = taperGrid.__numpy__
-        taperGrid = taperGrid[0]
+        taperGrid = taperGrid.getNDArray()        
         return taperGrid
 
 
@@ -659,12 +651,12 @@ class SmartScript(BaseTool.BaseTool):
             from com.raytheon.uf.common.dataplugin.gfe.slice import ScalarGridSlice
             slice = ScalarGridSlice()
             bits = self.__dataMgr.getIscDataAccess().getCompositeGrid(gid, exactMatch, slice)
-            args = (bits.__numpy__[0], slice.getScalarGrid().__numpy__[0])
+            args = (bits.getNDArray(), slice.getScalarGrid().getNDArray())
         elif GridType.VECTOR.equals(wxType):
             from com.raytheon.uf.common.dataplugin.gfe.slice import VectorGridSlice
             slice = VectorGridSlice()
             bits = self.__dataMgr.getIscDataAccess().getVectorCompositeGrid(gid, exactMatch, slice)
-            args = (bits.__numpy__[0], slice.getMagGrid().__numpy__[0], slice.getDirGrid().__numpy__[0])
+            args = (bits.getNDArray(), slice.getMagGrid().getNDArray(), slice.getDirGrid().getNDArray())
         elif GridType.WEATHER.equals(wxType):
             from com.raytheon.uf.common.dataplugin.gfe.slice import WeatherGridSlice
             slice = WeatherGridSlice()
@@ -672,7 +664,7 @@ class SmartScript(BaseTool.BaseTool):
             keys = []
             for k in slice.getKeys():
                 keys.append(str(k))
-            args = (bits.__numpy__[0], slice.getWeatherGrid().__numpy__[0], keys)
+            args = (bits.getNDArray(), slice.getWeatherGrid().getNDArray(), keys)
         elif GridType.DISCRETE.equals(wxType):
             from com.raytheon.uf.common.dataplugin.gfe.slice import DiscreteGridSlice
             slice = DiscreteGridSlice()
@@ -680,7 +672,7 @@ class SmartScript(BaseTool.BaseTool):
             keys = []
             for k in slice.getKeys():
                 keys.append(str(k))
-            args = (bits.__numpy__[0], slice.getDiscreteGrid().__numpy__[0], keys)
+            args = (bits.getNDArray(), slice.getDiscreteGrid().getNDArray(), keys)
         return args
 
     ##
@@ -928,7 +920,7 @@ class SmartScript(BaseTool.BaseTool):
     # @return: None
     def statusBarMsg(self, message, status, category="GFE"):
         from com.raytheon.uf.common.status import UFStatus
-        from com.raytheon.uf.common.status import UFStatus_Priority as Priority
+        Priority = UFStatus.Priority
 
         if "A" == status:
             importance = Priority.PROBLEM
@@ -1681,7 +1673,8 @@ class SmartScript(BaseTool.BaseTool):
         return self.__dataMgr.getSpatialDisplayManager().getActivatedParm()
 
     def getGridCellSwath(self, editArea, cells):
-        from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData_CoordinateType as CoordinateType
+        from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData
+        CoordinateType = ReferenceData.CoordinateType
         # Returns an AFPS.ReferenceData swath of the given
         # number of cells around the given an edit area.
         # The edit area must not be a query.
@@ -1709,7 +1702,8 @@ class SmartScript(BaseTool.BaseTool):
 
     def getLatLonGrids(self):
         gridLoc = self.getGridLoc()
-        latLonGrid = gridLoc.getLatLonGrid().__numpy__[0];
+        latLonGrid = gridLoc.getLatLonGrid()
+
         latLonGrid = numpy.reshape(latLonGrid, (2,gridLoc.getNy().intValue(),gridLoc.getNx().intValue()), order='F')
         return latLonGrid[1], latLonGrid[0]
 
@@ -1928,7 +1922,7 @@ class SmartScript(BaseTool.BaseTool):
 
     def combineMode(self):
         from com.raytheon.viz.gfe.core.parm import ParmState
-        from com.raytheon.viz.gfe.core.parm import ParmState_CombineMode as CombineMode
+        CombineMode = ParmState.CombineMode
         mode = ParmState.getCurrentCombineMode()
         if mode.equals(CombineMode.valueOf("COMBINE")):
             return True
@@ -1936,7 +1930,8 @@ class SmartScript(BaseTool.BaseTool):
             return False
 
     def setCombineMode(self, mode):
-        from com.raytheon.viz.gfe.core.parm import ParmState_CombineMode as CombineMode
+        from com.raytheon.viz.gfe.core.parm import ParmState
+        CombineMode = ParmState.CombineMode
         if mode == "Combine":
             self.__parmOp.setCombineMode(CombineMode.valueOf("COMBINE"))
         elif mode == "Replace":
@@ -1952,7 +1947,7 @@ class SmartScript(BaseTool.BaseTool):
         #    "Direction Only"
         #    "Both"
         from com.raytheon.viz.gfe.core.parm import ParmState
-        from com.raytheon.viz.gfe.core.parm import ParmState_VectorMode as VectorMode
+        VectorMode = ParmState.VectorMode
         mode = ParmState.getCurrentVectorMode()
         if mode.equals(VectorMode.valueOf("MAGNITUDE")):
             return "Magnitude Only"
@@ -1968,7 +1963,8 @@ class SmartScript(BaseTool.BaseTool):
         #    "Magnitude only"
         #    "Direction only"
         #    "Both"
-        from com.raytheon.viz.gfe.core.parm import ParmState_VectorMode as VectorMode
+        from com.raytheon.viz.gfe.core.parm import ParmState
+        VectorMode = ParmState.VectorMode
         if mode == "Magnitude Only":
             self.__parmOp.setVectorMode(VectorMode.valueOf("MAGNITUDE"))
         elif mode == "Direction Only":
@@ -2043,7 +2039,7 @@ class SmartScript(BaseTool.BaseTool):
             topo = self.__parmMgr.getParmInExpr("Topo", True)
             self.__topoGrid = self.__cycler.getCorrespondingResult(
                                 topo, TimeRange.allTimes().toJavaObj(), "TimeWtAverage")[0]
-            self.__topoGrid = self.__topoGrid.getGridSlice().__numpy__[0]
+            self.__topoGrid = self.__topoGrid.getGridSlice().getNDArray()
         return self.__topoGrid
 
     def wxMask(self, wx, query, isreg=0):
@@ -2177,7 +2173,7 @@ class SmartScript(BaseTool.BaseTool):
         if editArea.isQuery():
             editArea = self.__refSetMgr.evaluateQuery(editArea.getQuery())
 
-        return editArea.getGrid().__numpy__[0].astype(numpy.bool8)
+        return editArea.getGrid().getNDArray().astype(numpy.bool8)
 
     def decodeEditArea(self, mask):
         # Returns a refData object for the given mask
@@ -2203,7 +2199,7 @@ class SmartScript(BaseTool.BaseTool):
     def offset(self, a, x, y):
         # Gives an offset grid for array, a, by x and y points
         sy1, sy2 = self.getindicies(y, a.shape[0])
-        sx1, sx2 = self.getindicies(x, a.shape[1])
+        sx1, sx2 = self.getindicies(x, a.shape[1])        
         b = zeros(a.shape, a.dtype)
         b[sy1, sx1] = a[sy2, sx2]
         return b
@@ -2503,8 +2499,8 @@ class SmartScript(BaseTool.BaseTool):
 
     def __getUserFile(self, name, category):
         from com.raytheon.uf.common.localization import PathManagerFactory, LocalizationContext
-        from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType
-        from com.raytheon.uf.common.localization import LocalizationContext_LocalizationLevel as LocalizationLevel
+        LocalizationType = LocalizationContext.LocalizationType
+        LocalizationLevel = LocalizationContext.LocalizationLevel
         pathMgr = PathManagerFactory.getPathManager()
         path = 'gfe/userPython/' + category + '/' + name
         lc = pathMgr.getContext(LocalizationType.valueOf('CAVE_STATIC'), LocalizationLevel.valueOf('USER'))

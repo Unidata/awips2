@@ -64,6 +64,7 @@ import com.raytheon.viz.volumebrowser.vbui.VolumeBrowserAction;
  * Jan 30, 2014  #2725     ekladstrup  updated exception handling during move of derived
  *                                     parameters to common
  * Sep 09, 2014  3356      njensen     Remove CommunicationException
+ * May 18, 2015  4412     bsteffen     Use all level mappings for plane names
  * 
  * </pre>
  * 
@@ -185,12 +186,14 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
                 }
                 request.addAvailablePlane("spatial-"
                         + level.getMasterLevel().getName());
-                LevelMapping lm = LevelMappingFactory.getInstance(
+                Collection<LevelMapping> lms = LevelMappingFactory.getInstance(
                         LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
-                        .getLevelMappingForLevel(level);
+                        .getAllLevelMappingsForLevel(level);
 
-                if (lm != null) {
-                    request.addAvailablePlane(lm.getKey());
+                if (lms != null) {
+                    for (LevelMapping lm : lms) {
+                        request.addAvailablePlane(lm.getKey());
+                    }
                 }
                 levelStr = levelQueue.poll();
 

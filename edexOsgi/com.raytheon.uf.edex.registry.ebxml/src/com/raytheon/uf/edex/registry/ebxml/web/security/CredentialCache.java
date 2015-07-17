@@ -45,7 +45,6 @@ import com.raytheon.uf.common.security.encryption.AESEncryptor;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.util.ClusterIdUtil;
 import com.raytheon.uf.edex.registry.ebxml.RegistryUsers;
 import com.raytheon.uf.edex.registry.ebxml.dao.PersonDao;
 import com.raytheon.uf.edex.registry.ebxml.services.RegistryRESTServices;
@@ -66,6 +65,7 @@ import com.raytheon.uf.edex.security.SecurityConfiguration;
  * 7/10/2014    1717        bphillip    Initial creation
  * 7/24/2014    1712        bphillip    No longer singleton
  * 1/06/2015    3918        dhladky     Fixed issue where clients can't start without central registry.
+ * 5/29/2015    4448        bphillip    Added default user to registry on startup
  * </pre>
  * 
  * @author bphillip
@@ -105,13 +105,7 @@ public class CredentialCache {
             .getHandler(CredentialCache.class);
     
     /** used in non federated standalone environment */
-    private static final String DEFAULT_USER = "DEFAULT_USER_"+ClusterIdUtil.getId();
-    
-    /** used in non federated standalone environment */
-    private static final String DEFAULT_PASSWORD = "DEFAULT_PASSWORD_"+ClusterIdUtil.getId();
-    
-    /** used in non federated standalone environment */
-    private static final String DEFAULT_ROLE = "DEFAULT_ROLE_"+ClusterIdUtil.getId();
+    private static final String DEFAULT_ROLE = "RegistryLocalAdministrator";
 
     /** Cache holding users' credentials */
     private LoadingCache<String, String[]> credentialCache = CacheBuilder
@@ -205,8 +199,9 @@ public class CredentialCache {
                                         statusHandler
                                                 .handle(Priority.INFO,
                                                         "Federation not enabled! Proceeding with default user, pass, and role!");
-                                        localUserName = DEFAULT_USER;
-                                        password = DEFAULT_PASSWORD;
+                                        localUserName = securityConfig.getProperty("edex.security.auth.user");
+                                        password = securityConfig.getSecurityProperties().getProperty(
+                                                "edex.security.auth.password");
                                         role = DEFAULT_ROLE;
 
                                     }

@@ -43,4 +43,7 @@
    <logger name="org.geotools">
       <level value="WARN"/>
    </logger>
+   <logger name="org.apache.cxf">
+       <level value="ERROR"/>
+   </logger>
 </included>

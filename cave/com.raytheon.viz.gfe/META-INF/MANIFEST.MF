@@ -12,7 +12,6 @@ Require-Bundle: org.eclipse.ui,
  javax.measure,
  com.raytheon.viz.ui,
  org.apache.commons.lang,
- org.geotools,
  org.jep,
  org.apache.velocity,
  com.raytheon.viz.core.contours,
@@ -37,7 +36,9 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.numeric;bundle-version="1.14.0",
  com.raytheon.uf.common.topo;bundle-version="1.14.0",
  com.raytheon.uf.common.plugin.nwsauth;bundle-version="1.14.0",
- com.raytheon.uf.common.dataaccess;bundle-version="1.15.0"
+ com.raytheon.uf.viz.core.grid;bundle-version="1.15.0",
+ com.raytheon.uf.common.dataaccess;bundle-version="1.15.0",
+ com.raytheon.uf.viz.core.point;bundle-version="1.15.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.gfe,
  com.raytheon.viz.gfe.constants,
@@ -65,8 +66,6 @@ Import-Package: com.raytheon.uf.common.dissemination,
  com.raytheon.uf.viz.python.swt,
  com.raytheon.uf.viz.python.swt.widgets,
  com.raytheon.uf.viz.ui.menus.widgets.tearoff,
- com.raytheon.viz.core.gl,
- com.raytheon.viz.pointdata,
  com.raytheon.viz.texteditor.util,
  com.raytheon.viz.ui.tools.map,
  org.apache.commons.logging,
@@ -75,3 +74,4 @@ Import-Package: com.raytheon.uf.common.dissemination,
  org.eclipse.jface.text.contentassist;resolution:=optional,
  org.eclipse.ui.texteditor.spelling;resolution:=optional
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ClassPath: com.raytheon.viz.gfe.jar

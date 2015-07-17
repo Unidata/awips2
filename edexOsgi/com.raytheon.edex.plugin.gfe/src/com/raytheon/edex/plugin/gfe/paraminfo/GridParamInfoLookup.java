@@ -21,7 +21,6 @@ package com.raytheon.edex.plugin.gfe.paraminfo;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -40,7 +39,6 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.util.mapping.MultipleMappingException;
 
 /**
@@ -61,7 +59,8 @@ import com.raytheon.uf.common.util.mapping.MultipleMappingException;
  *                                    added Dflt if no levels specified
  * Apr 30, 2013  1961     bsteffen    Add ability to disable grib tables.
  * Oct 14, 2013  2473     bsteffen    Remove lookup of deprecated grib files.
- * 
+ * Jun 05, 2015  4495     njensen     Improved error message
+ * Jul 13, 2015  4537     randerso    Removed unused function
  * 
  * </pre>
  * 
@@ -145,14 +144,6 @@ public class GridParamInfoLookup {
         return parameterInfo;
     }
 
-    public List<TimeRange> getParameterTimes(String mappedModel, Date refTime) {
-        GridParamInfo modelInfo = getGridParamInfo(mappedModel);
-        if (modelInfo == null) {
-            return Collections.emptyList();
-        }
-        return modelInfo.getAvailableTimes(refTime);
-    }
-
     public Collection<String> getParmNames(String mappedModel) {
         GridParamInfo modelInfo = getGridParamInfo(mappedModel);
         if (modelInfo == null) {
@@ -198,7 +189,8 @@ public class GridParamInfoLookup {
                 }
             } catch (JAXBException e) {
                 statusHandler.handle(Priority.PROBLEM,
-                        "Error unmarshalling grid parameter information", e);
+                        "Error unmarshalling grid parameter information from file "
+                                + file.getName(), e);
             }
         }
         for (GridParamInfo gridParamInfo : modelParamMap.values()) {

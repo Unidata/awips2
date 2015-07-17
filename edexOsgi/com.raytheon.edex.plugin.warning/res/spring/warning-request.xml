@@ -22,6 +22,22 @@
         <constructor-arg value="com.raytheon.uf.common.dataplugin.warning.gis.GenerateGeospatialTimeSetRequest"/>
         <constructor-arg ref="generateGeospatialTimeSetHandler"/>
     </bean>
+    
+    <bean id="warningDecodeVerifier" class="com.raytheon.uf.edex.python.decoder.PythonDecoder">
+        <property name="pluginName" value="warning"/>
+        <property name="pluginFQN" value="com.raytheon.edex.plugin.warning"/>
+        <property name="moduleName" value="WarningDecoder"/>
+        <property name="cache" value="false"/>
+        <property name="recordClassname" value="com.raytheon.uf.common.dataplugin.warning.WarningRecord"/>
+    </bean>
+    
+    <bean id="VerifyProductDecodeHandler" class="com.raytheon.edex.plugin.warning.handler.VerifyProductDecodeHandler">
+    	<constructor-arg ref="warningDecodeVerifier" />
+    </bean>
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.dataplugin.warning.request.VerifyProductDecodeRequest" />
+        <constructor-arg ref="VerifyProductDecodeHandler" />
+    </bean>
 
     <camelContext id="geospatialDataGenerator-camel"
         xmlns="http://camel.apache.org/schema/spring"

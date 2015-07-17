@@ -20,7 +20,6 @@
 package com.raytheon.viz.warngen.text;
 
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 
@@ -34,7 +33,8 @@ import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 24, 2012    15322   jsanchez     Initial creation
+ * Sep 24, 2012    15322   jsanchez    Initial creation
+ * Jun 02, 2015     4441   randerso    Made first bullet regex case insensitive
  * 
  * </pre>
  * 
@@ -69,14 +69,12 @@ public class WarningTextHandlerFactory {
     }
 
     private static boolean isInitialWarning(WarningAction action, String text) {
-        if (action == WarningAction.NEW || action == WarningAction.EXT) {
+        if ((action == WarningAction.NEW) || (action == WarningAction.EXT)) {
             return true;
         } else if (action == WarningAction.COR) {
             // TODO Need a better solution not to include the text in the
             // factory.
-            Pattern firstBulletPtrn = Pattern
-                    .compile(InitialLockingBehavior.firstBullet);
-            Matcher m = firstBulletPtrn.matcher(text);
+            Matcher m = WarnGenPatterns.firstBulletPtrn.matcher(text);
             return m.find();
         }
 

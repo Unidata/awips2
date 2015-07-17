@@ -62,6 +62,7 @@
 #    04/08/2015          #4383     dgilling       Define FireWX ISC configuration parameters.
 #    04/15/2015          #17383    yteng          Change localTC to fix error that time constraints
 #                                                 being off
+#    Apr 25, 2015         4952     njensen        Updated for new JEP API
 #    04/20/2015          #4414     dgilling       Add missing NWPSTrkngCG0 weather elements.
 #    05/12/2015          #17144    bhunder        Added RTMA model
 #    05/29/2015          17496     ryu            Changed parm definitions for Wave1-10 and Period1-10.
@@ -594,7 +595,8 @@ if not BASELINE and siteImport('localWxConfig'):
 #  Projection Configuration section.
 #
 #---------------------------------------------------------------------------
-from com.raytheon.uf.common.dataplugin.gfe.config import ProjectionData_ProjectionType as ProjectionType
+from com.raytheon.uf.common.dataplugin.gfe.config import ProjectionData
+ProjectionType = ProjectionData.ProjectionType
 NONE = ProjectionType.NONE
 LAMBERT_CONFORMAL = ProjectionType.LAMBERT_CONFORMAL
 MERCATOR = ProjectionType.MERCATOR

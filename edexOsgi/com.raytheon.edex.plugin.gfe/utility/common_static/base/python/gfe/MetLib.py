@@ -209,7 +209,7 @@ def advection(windGrid, scalarGrid):
 # in any SmartTool.
 def getLatLonGrids(gridLoc):
     # Fetch the grids
-    latLonGrid = gridLoc.getLatLonGrid().__numpy__[0];
+    latLonGrid = gridLoc.getLatLonGrid()
     latLonGrid = reshape(latLonGrid, (2,gridLoc.getNy().intValue(),gridLoc.getNx().intValue()), order='F')
     return latLonGrid[1], latLonGrid[0]
 

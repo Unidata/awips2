@@ -21,7 +21,6 @@ package com.raytheon.uf.common.dataplugin.scan.data;
 
 import java.io.Serializable;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.DataTime;
@@ -35,7 +34,8 @@ import com.raytheon.uf.common.time.DataTime;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * April 29, 2009   2037    dhladky     Initial creation
- * 02/01/13     1569        D. Hladky   removed XML where not needed
+ * 02/01/13         1569    D. Hladky   removed XML where not needed
+ * 05/13/15         4487    D. Hladky   ISerializable is deprecated.
  * </pre>
  * 
  * @author dhladky
@@ -44,7 +44,7 @@ import com.raytheon.uf.common.time.DataTime;
  */
 
 @DynamicSerialize
-public abstract class ScanTableDataRow implements ISerializableObject, Serializable {
+public abstract class ScanTableDataRow implements Serializable {
 		
 	/**
      * 

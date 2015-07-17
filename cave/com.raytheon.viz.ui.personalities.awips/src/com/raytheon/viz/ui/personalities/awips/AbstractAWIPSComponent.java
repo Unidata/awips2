@@ -25,10 +25,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.eclipse.ui.statushandlers.StatusAdapter;
 
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.alertviz.SystemStatusHandler;
 import com.raytheon.uf.viz.alertviz.ui.dialogs.AlertVisualization;
-import com.raytheon.uf.viz.core.localization.LocalizationConstants;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.personalities.cave.component.CAVEApplication;
 
@@ -66,6 +64,9 @@ import com.raytheon.uf.viz.personalities.cave.component.CAVEApplication;
  * Sep 10, 2014  3612     mschenke    Refactored to extend CAVEApplication
  * Jan 15, 2015  3947     mapeters    cleanup() doesn't throw Exception.
  * Feb 23, 2015  4164     dlovely     Extracted AlertViz initialize.
+ * Jun 03, 2015  4473     njensen     If running with AlertViz, start a job to
+ *                                    continuously check AlertViz status.
+ * Jun 22, 2015  4474     njensen     Don't check for alertviz if alertview is enabled                                   
  * 
  * </pre>
  * 
@@ -212,36 +213,16 @@ public abstract class AbstractAWIPSComponent extends CAVEApplication {
         // Setup AlertViz observer
         if ((getRuntimeModes() & ALERT_VIZ) != 0) {
             // Set up alertviz
-            if (LocalizationManager.internalAlertServer && !isNonUIComponent()) {
-                com.raytheon.uf.viz.alertviz.AlertvizJob as = new com.raytheon.uf.viz.alertviz.AlertvizJob(
-                        61998);
-
-                if (as.isAlreadyStarted() == false) {
-
-                    // only run alert visualization inside viz if the server
-                    // is running, otherwise it is running as a separate pid
-                    try {
-                        this.alertViz = new AlertVisualization(false,
-                                getApplicationDisplay());
-                    } catch (RuntimeException e) {
-                        e.printStackTrace();
-                        String err = "Error starting alert visualization.";
-                        statusHandler.handle(Priority.PROBLEM, err, e);
-                    }
-                }
-            } else {
-                try {
-                    new com.raytheon.uf.viz.alertviz.AlertvizJob(
-                            LocalizationManager
-                                    .getInstance()
-                                    .getLocalizationStore()
-                                    .getString(
-                                            LocalizationConstants.P_ALERT_SERVER),
-                            !isNonUIComponent());
-                } catch (Exception e) {
-                    throw new RuntimeException("Error starting AlertVizJob", e);
-                }
+            if (LocalizationManager.internalAlertServer && !isNonUIComponent()
+                    && !Boolean.getBoolean("alertview.enabled")) {
+                /*
+                 * Potentially run alertviz inside viz. Will repeatedly schedule
+                 * a check to verify it's running. If not found, it will try and
+                 * grab the connection in case another viz instance went down.
+                 */
+                Activator.getDefault().getAlertVizCheckJob().schedule();
             }
+
         }
     }
 

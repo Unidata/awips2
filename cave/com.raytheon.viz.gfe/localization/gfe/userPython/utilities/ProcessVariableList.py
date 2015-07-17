@@ -130,7 +130,7 @@ class ProcessVariableList:
         self.__callbackLoop(callback, callbackArguments)
     
     def __convertJavaObjToPyWrapper(self, javaObj):
-        objtype = javaObj.jclassname
+        objtype = javaObj.java_name
         if objtype == "com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID":
             retVal = DatabaseID.DatabaseID(javaObj)
         elif objtype == "com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID":
@@ -163,7 +163,7 @@ def buildWidgetList(pythonWidgetList):
 
     from java.util import ArrayList
     from com.raytheon.viz.gfe.smartscript import FieldDefinition
-    from com.raytheon.viz.gfe.smartscript import FieldDefinition_FieldType as FieldType
+    FieldType = FieldDefinition.FieldType
     widgetList = ArrayList()
     
     for widget in pythonWidgetList:

@@ -17,5 +17,6 @@
 15:15:Virtual potential temperature:K:VPTMP:VPT
 16:16:Snow phase change heat flux:W/m^2:SNOHF
 17:17:Skin Temperature:K:SKTMP
+21:21:Apparent Temperature:K:APTMP
 #18-191 Reserved
 255:255:Missing

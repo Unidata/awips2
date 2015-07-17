@@ -22,11 +22,10 @@ package com.raytheon.uf.common.dataplugin.scan.data;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
-import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
@@ -38,6 +37,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 02/01/13     1569        D. Hladky   removed XML where not needed
+ * 05/13/15     4487        D. Hladky   Made thread safe.
  * </pre>
  * 
  * @author dhladky
@@ -45,16 +45,17 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * 
  */
 
-@DynamicSerialize
-public class LightningData implements ISerializableObject {
-
-    private final HashMap<Date, BinLightningRecord> lightningMap;
+public class LightningData {
+    
+    private final ConcurrentMap<Date, BinLightningRecord> lightningMap;
 
     /**
      * Public constructor
      */
     public LightningData() {
-        lightningMap = new HashMap<Date, BinLightningRecord>();
+        // we expect the average number of entries to be ~ 30. 
+        // So using Oracles suggested map size equation we get the initial sizing.
+        lightningMap = new ConcurrentHashMap<Date, BinLightningRecord>((int) ((30/0.75)+1));
     }
 
     /**

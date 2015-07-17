@@ -37,6 +37,7 @@
 #    Mar 19, 2014       2688       bgonzale      added more subprocess logging.  Return value from
 #                                                subprocess.check_output is not return code, but is
 #                                                process output.  h5repack has no output without -v arg.
+#    Apr 24, 2015    4425          nabowle       Add DoubleDataRecord
 #    Jun 15, 2015   DR 17556      mgamazaychikov Add __doMakeReadable method to counteract umask 027 daemon
 #                                                and make copied files world-readable
 #
@@ -65,6 +66,7 @@ dataRecordMap = {
                  IntegerDataRecord: numpy.int32,
                  LongDataRecord: numpy.int64,
                  FloatDataRecord: numpy.float32,
+                 DoubleDataRecord: numpy.float64,
                  StringDataRecord: types.StringType,
 }
 

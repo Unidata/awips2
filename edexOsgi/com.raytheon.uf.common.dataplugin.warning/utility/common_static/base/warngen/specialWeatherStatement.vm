@@ -7,7 +7,8 @@
 ## Evan Bookbinder        9.18.2013 Implemented config.vm ##
 ## Mike Dangelo 1/23/2014 Added blankStatement logic - default is still near-severe storm w/list of cities
 ## Mike Rega 5/23/14 DR 17380 svr wx watch logic OB14.3.1 ##
-## Mike Dangelo 6/24/2014 headline tweak to add 'COUNTIES' ## 
+## Mike Dangelo 6/24/2014 headline tweak to add 'COUNTIES'##
+## Mike Dangelo/Evan Bookbinder 3/25-26/2015  Mixed Case  ##
 ############################################################
 ##
 ## SET SOME INITIAL VARIABLES
@@ -21,48 +22,48 @@
 #end
 #if(${SvsR} == "SNOW")
   #if(${list.contains($bullets, "snowSquallDangerous")}) 
-    #set($level = "DANGEROUS ")
+    #set($level = "dangerous ")
   #end
   #if(${list.contains($bullets, "snowSquallSevere")}) 
-    #set($level = "SEVERE ")
+    #set($level = "severe ")
   #end
   #if(${list.contains($bullets, "snowArea")}) 
-    #set($describeEvent = "AN AREA OF HEAVY SNOW")
-    #set($describeEventShort = "HEAVY SNOW")
-    #set($thisEvent = "THIS AREA OF HEAVY SNOW")
-    #set($eventWas = "THE HEAVY SNOW WAS")
+    #set($describeEvent = "an area of heavy snow")
+    #set($describeEventShort = "heavy snow")
+    #set($thisEvent = "this area of heavy snow")
+    #set($eventWas = "The heavy snow was")
   #else
-    #set($describeEvent = "A ${level}SNOW SQUALL")
-    #set($describeEventShort = "${level}SNOW SQUALL")
-    #set($thisEvent = "THIS ${level}SQUALL")
-    #set($eventWas = "THE ${level}SQUALL WAS")
+    #set($describeEvent = "a ${level}snow squall")
+    #set($describeEventShort = "${level}snow squall")
+    #set($thisEvent = "this ${level}squall")
+    #set($eventWas = "The ${level}squall was")
   #end
 #else
 #if(${stormType} == "line")
-  #set($thisEvent = "THESE STORMS")
-  #set($eventWas = "THE STORMS WERE")
-  #set($describeEvent = "A LINE OF STRONG THUNDERSTORMS")
-  #set($describeEventShort = "LINE OF STRONG THUNDERSTORMS")
+  #set($thisEvent = "these storms")
+  #set($eventWas = "the storms were")
+  #set($describeEvent = "a line of strong thunderstorms")
+  #set($describeEventShort = "line of strong thunderstorms")
   #if(${list.contains($bullets, "noThunder")})
-    #set($describeEvent = "A LINE OF SHOWERS")
-    #set($describeEventShort = "LINE OF SHOWERS")
-    #set($thisEvent = "THESE SHOWERS")
-    #set($eventWas = "THE SHOWERS WERE")
+    #set($describeEvent = "a line of showers")
+    #set($describeEventShort = "line of showers")
+    #set($thisEvent = "these showers")
+    #set($eventWas = "The showers were")
   #end
 #else
-  #set($describeEvent = "A STRONG THUNDERSTORM")
-  #set($describeEventShort = "THUNDERSTORM")
-  #set($thisEvent = "THIS STORM")
-  #set($eventWas = "THE STORM WAS")
+  #set($describeEvent = "a strong thunderstorm")
+  #set($describeEventShort = "thunderstorm")
+  #set($thisEvent = "this storm")
+  #set($eventWas = "the storm was")
   #if(${list.contains($bullets, "noThunder")})
-    #set($describeEvent = "A SHOWER")
-    #set($describeEventShort = "SHOWER")
-    #set($thisEvent = "THIS SHOWER")
-    #set($eventWas = "THE SHOWER WAS")
+    #set($describeEvent = "a shower")
+    #set($describeEventShort = "shower")
+    #set($thisEvent = "this shower")
+    #set($eventWas = "The shower was")
   #end
 #if(${list.contains($bullets, "areaOfThunderstorms")})
-  #set($describeEvent = "AN AREA OF STRONG THUNDERSTORMS")
-  #set($describeEventShort = "THUNDERSTORMS")
+  #set($describeEvent = "an area of strong thunderstorms")
+  #set($describeEventShort = "thunderstorms")
 #end
 #end
 ## above is the end of line vs point
@@ -78,61 +79,61 @@
 #set($describeMovement = $describeEvent)
 #######################################################################
 #if(${list.contains($bullets, "freezingRain")})
-  #set($describeEvent = "FREEZING RAIN")
-  #set($describeEventShort = "FREEZING RAIN")
-  #set($describeMovement = "AN AREA OF FREEZING RAIN")
-  #set($thisEvent = "THIS AREA OF FREEZING RAIN")
-  #set($eventWas = "THE FREEZING RAIN WAS")
+  #set($describeEvent = "freezing rain")
+  #set($describeEventShort = "freezing rain")
+  #set($describeMovement = "an area of freezing rain")
+  #set($thisEvent = "this area of freezing rain")
+  #set($eventWas = "The freezing rain was")
 #end
 #if(${list.contains($bullets, "freezingDrizzle")})
-  #set($describeEvent = "FREEZING DRIZZLE")
-  #set($describeEventShort = "FREEZING DRIZZLE")
-  #set($describeMovement = "AN AREA OF FREEZING DRIZZLE")
-  #set($thisEvent = "THIS AREA OF FREEZING DRIZZLE")
-  #set($eventWas = "THE FREEZING DRIZZLE WAS")
+  #set($describeEvent = "freezing drizzle")
+  #set($describeEventShort = "freezing drizzle")
+  #set($describeMovement = "an area of freezing drizzle")
+  #set($thisEvent = "this area of freezing drizzle")
+  #set($eventWas = "The freezing drizzle was")
 #end
 #if(${list.contains($bullets, "sleet")})
-  #set($describeEvent = "SLEET")
-  #set($describeEventShort = "SLEET")
-  #set($describeMovement = "AN AREA OF SLEET")
-  #set($thisEvent = "THIS AREA OF SLEET")
-  #set($eventWas = "THE SLEET WAS")
+  #set($describeEvent = "sleet")
+  #set($describeEventShort = "sleet")
+  #set($describeMovement = "an area of sleet")
+  #set($thisEvent = "this area of sleet")
+  #set($eventWas = "The sleet was")
 #end
 #if(${list.contains($bullets, "wintryMix")})
-  #set($describeEvent = "A WINTRY MIX")
-  #set($describeEventShort = "WINTRY MIX")
-  #set($describeMovement = "AN AREA OF MIXED PRECIPITATION")
-  #set($thisEvent = "THIS WINTRY MIX")
-  #set($eventWas = "THE WINTRY MIX WAS")
+  #set($describeEvent = "a wintry mix")
+  #set($describeEventShort = "wintry mix")
+  #set($describeMovement = "an area of mixed precipitation")
+  #set($thisEvent = "this wintry mix")
+  #set($eventWas = "The wintry mix was")
 #end
 #if(${list.contains($bullets, "flashFreeze")})
-  #set($describeEvent = "BLACK ICE")
-  #set($describeEventShort = "A COLD FRONT")
-  #set($describeMovement = "A COLD FRONT")
-  #set($thisEvent = "THIS COLD FRONT")
-  #set($eventWas = "THE COLD FRONT WAS")
+  #set($describeEvent = "black ice")
+  #set($describeEventShort = "a cold front")
+  #set($describeMovement = "a cold front")
+  #set($thisEvent = "this cold front")
+  #set($eventWas = "The cold front was")
 #end
 ###################################################
 ## HANDLE WIND POSSIBILITIES ######################
 ###################################################
 #set($windSpeed = 0)
 #if(${list.contains(${bullets}, "wind30")})
-  #set($windThreat = "WINDS IN EXCESS OF 30 MPH") 
+  #set($windThreat = "winds in excess of 30 mph") 
   #set($windSpeed = 30)
   #set($windTag = "30MPH")
 #end
 #if(${list.contains(${bullets}, "wind40")})
-  #set($windThreat = "WINDS IN EXCESS OF 40 MPH") 
+  #set($windThreat = "winds in excess of 40 mph") 
   #set($windSpeed = 40)
   #set($windTag = "40MPH")
 #end
 #if(${list.contains(${bullets}, "wind50")})
-  #set($windThreat = "WIND GUSTS UP TO 50 MPH") 
+  #set($windThreat = "wind gusts up to 50 mph") 
   #set($windSpeed = 50)
   #set($windTag = "50MPH")
 #end
 #if(${list.contains(${bullets}, "wind55")})
-  #set($windThreat = "WIND GUSTS OF 50 TO 55 MPH") 
+  #set($windThreat = "wind gusts of 50 to 55 mph") 
   #set($windSpeed = 50)
   #set($windTag = "55MPH")
 #end
@@ -144,23 +145,23 @@
 #set($smallHail = "")
 #if(${list.contains(${bullets}, "peaHail")})
   #set($hailSize = 0.25)
-  #set($hailThreat = "PEA SIZE") 
-  #set($hailTrail = " HAIL") 
+  #set($hailThreat = "pea size") 
+  #set($hailTrail = " hail") 
 #end
 #if(${list.contains(${bullets}, "halfHail")})
   #set($hailSize = 0.50)
-  #set($hailThreat = "HALF INCH") 
-  #set($hailTrail = " HAIL") 
+  #set($hailThreat = "half inch") 
+  #set($hailTrail = " hail") 
 #end
 #if(${list.contains(${bullets}, "dimeHail")})
   #set($hailSize = 0.75)
-  #set($hailThreat = "DIME SIZE") 
-  #set($hailTrail = " HAIL") 
+  #set($hailThreat = "dime size") 
+  #set($hailTrail = " hail") 
 #end
 #if(${list.contains(${bullets}, "nickelHail")})
   #set($hailSize = 0.88)
-  #set($hailThreat = "NICKEL SIZE") 
-  #set($hailTrail = " HAIL") 
+  #set($hailThreat = "nickel size") 
+  #set($hailTrail = " hail") 
 #end
 ################################################################
 ######### ~*~*~*~*~*~* BEGIN OUTPUT ~*~*~*~*~*~*~ ##############
@@ -170,13 +171,14 @@ ${WMOId} ${vtecOffice} 000000 ${BBBId}
 SPS${siteId}
 
 #if(${productClass}=="T")
-TEST...SPECIAL WEATHER STATEMENT...TEST
+TEST...Special Weather Statement...TEST
 #else
-SPECIAL WEATHER STATEMENT
+Special Weather Statement
 #end
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
  
 #if(${productClass}=="T")
 ...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
@@ -184,7 +186,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #end
 ${ugcline}
 #foreach (${area} in ${areas})
-${area.name}##
+#capitalize(${area.name} "ALL")
 #if(${sAbbreviation}==true)
  ${area.stateabbr}##
 #end
@@ -193,23 +195,24 @@ ${area.name}##
 
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
+
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
 
 #if(${list.contains(${bullets}, "blankStatement")})
-... !** edit headline **! ...
+... !** EDIT HEADLINE **! ...
 
 #else
 #set($full = '')
 #foreach (${area} in ${areas})
-#set($full = "${full}${area.name}...")
+#set($full = "${full}#capitalize(${area.name} 'ALL')...")
 #end
 #if(${full.length()} > 140)
-... !** edit headline **! ...
+... !** EDIT HEADLINE **! ...
 #else
-...${describeEvent} WILL AFFECT ##
-#headlineLocList(${affectedCounties} true true true false)...
+...#capitalize(${describeEvent} 'ALL') WILL AFFECT ##
+#headlineLocList(${affectedCounties} true true true false "ALL")...
 
 #end
 #end
@@ -224,8 +227,8 @@ THIS IS A TEST MESSAGE. ##
 
 
 #else
-#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})...##
-${describeMovement} WAS ##
+#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone}), ##
+${describeMovement} was ##
 ##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")
 #handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
@@ -233,26 +236,26 @@ ${describeMovement} WAS ##
 #handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceCell})
 #end
 #if(${movementSpeed} < ${landStationary} || ${stationary})
-. ${eventWas} NEARLY STATIONARY. 
+. ${eventWas} nearly stationary. 
 #else
 #if(${stormType} == "line")
-...AND MOVING ## 
+, and moving ## 
 #else
-...MOVING ##
+, moving ##
 #end
-#direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} MPH. 
+#direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} mph. 
 #end
 
 #if(${windSpeed} > 0 && ${hailSize} > 0 && ${SvsR} == "RAIN")
-${windThreat} AND ${hailThreat}${hailTrail} ARE POSSIBLE WITH ${thisEvent}.
+#capitalize(${windThreat} "FIRSTONLY") and #capitalize(${hailThreat} "NONE")${hailTrail} are possible with ${thisEvent}.
 
 #else
 #if(${windSpeed} > 0)
-${windThreat} ARE POSSIBLE WITH ${thisEvent}.
+#capitalize(${windThreat} "FIRSTONLY") are possible with ${thisEvent}.
 
 #end
 #if(${hailSize} > 0 && ${SvsR} == "RAIN")
-${hailThreat}${hailTrail} IS POSSIBLE WITH ${thisEvent}.
+#capitalize(${hailThreat} "FIRSTONLY")${hailTrail} is possible with ${thisEvent}.
 
 #end
 #end
@@ -263,7 +266,7 @@ ${hailThreat}${hailTrail} IS POSSIBLE WITH ${thisEvent}.
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
-#pathCast("${thisEvent} WILL BE NEAR..." ${thisEvent} ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0) 
+#pathCast("#capitalize(${thisEvent} 'FIRSTONLY') will be near..." ${thisEvent} ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0) 
 #elseif(${list.contains($bullets, "listofcities")})
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
@@ -272,7 +275,7 @@ THIS IS A TEST MESSAGE. ##
 #### 0 IS A ... SEPARATED LIST, 1 IS ONE PER LINE, >1 IS A COLUMN FORMAT
 #### IF YOU USE SOMETHING OTHER THAN "LOCATIONS IMPACTED INCLUDE" LEAD IN BELOW, MAKE SURE THE
 #### ACCOMPANYING XML FILE PARSE STRING IS CHANGED TO MATCH!
-#locationsList("LOCATIONS IMPACTED INCLUDE..." ${thisEvent} 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+#locationsList("Locations impacted include..." ${thisEvent} 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
 
 #end
 ##############################################
@@ -280,7 +283,7 @@ THIS IS A TEST MESSAGE. ##
 ###### SPECIAL VENUE/EVENT CASE ##############
 ##############################################
 #if(${list.contains($bullets, "specialEvent")})
-THOSE ATTENDING THE !**event/venue name or location**! ARE IN THE PATH OF ${thisEvent} AND SHOULD PREPARE FOR THE EXPECTED WEATHER CONDITIONS. 
+Those attending the !**event/venue name or location**! are in the path of ${thisEvent} and should prepare for the expected weather conditions. 
 
 #end
 ## parse file command here is to pull in mile marker info
@@ -295,59 +298,59 @@ THIS IS A TEST MESSAGE. ##
 ######### CALLS TO ACTION ########
 ##################################
 #if(${list.contains($bullets, "quarterMile")} && ${SvsR} == "SNOW")
-VISIBILITIES WILL DROP QUICKLY TO LESS THAN A QUARTER OF A MILE IN ${thisEvent}.
+Visibilities will drop quickly to less than a quarter of a mile in ${thisEvent}.
 
 #end
 #if(${list.contains($bullets, "zeroMile")} && ${SvsR} == "SNOW")
-VISIBILITIES WILL DROP QUICKLY TO NEAR ZERO IN ${thisEvent}.
+Visibilities will drop quickly to near zero in ${thisEvent}.
 
 #end
 #if(${list.contains($bullets, "torrentialRainfallCTA")} && ${SvsR} == "RAIN")
-TORRENTIAL RAINFALL IS ALSO OCCURRING WITH ${thisEvent}...AND MAY CAUSE LOCALIZED FLOODING. DO NOT DRIVE YOUR VEHICLE THROUGH FLOODED ROADWAYS.
+Torrential rainfall is also occurring with ${thisEvent}, and may cause localized flooding. Do not drive your vehicle through flooded roadways.
 
 #end
 #if(${list.contains($bullets, "lightningCTA")} && ${SvsR} == "RAIN")
-FREQUENT CLOUD TO GROUND LIGHTNING IS OCCURRING WITH THIS STORM. LIGHTNING CAN STRIKE 15 MILES AWAY FROM A THUNDERSTORM. SEEK A SAFE SHELTER INSIDE A BUILDING OR VEHICLE.
+Frequent cloud to ground lightning is occurring with this storm. Lightning can strike 15 miles away from a thunderstorm. Seek a safe shelter inside a building or vehicle.
 
 #end
 #if(${list.contains($bullets, "stormIntensifyCTA")} && ${SvsR} == "RAIN")
-${thisEvent} MAY INTENSIFY...SO BE CERTAIN TO MONITOR LOCAL RADIO AND TV STATIONS...AS WELL AS LOCAL CABLE TV OUTLETS...FOR ADDITIONAL INFORMATION AND POSSIBLE WARNINGS FROM THE NATIONAL WEATHER SERVICE. 
+#capitalize(${thisEvent}, "firstOnly") may intensify, so be certain to monitor local radio stations and available television stations for additional information and possible warnings from the National Weather Service. 
 
 #end
 #if(${list.contains($bullets, "lawEnforcementCTA")})
-TO REPORT SEVERE WEATHER...CONTACT YOUR NEAREST LAW ENFORCEMENT AGENCY. THEY CAN RELAY YOUR REPORT TO THE NATIONAL WEATHER SERVICE OFFICE IN ${officeLoc}.
+To report severe weather, contact your nearest law enforcement agency. they can relay your report to the national weather service office in ${officeLoc}.
 
 #end
 #if(${list.contains($bullets, "boatersCTA")} && ${SvsR} == "RAIN")
-IF YOU ARE ON OR NEAR !**Name Of Lake**!...GET OUT OF THE WATER AND MOVE INDOORS OR INSIDE A VEHICLE. REMEMBER...LIGHTNING CAN STRIKE OUT TO 15 MILES FROM THE PARENT THUNDERSTORM. IF YOU CAN HEAR THUNDER...YOU ARE CLOSE ENOUGH TO BE STRUCK BY LIGHTNING. MOVE TO SAFE SHELTER NOW. DO NOT BE CAUGHT ON THE WATER IN A THUNDERSTORM.
+If you are on or near !**NAME OF LAKE**!, get out of the water and move indoors or inside a vehicle. Remember, lightning can strike out to 15 miles from the parent thunderstorm. If you can hear thunder, you are close enough to be struck by lightning. Move to safe shelter now! Do not be caught on the water in a thunderstorm.
 
 #end
 #if(${list.contains($bullets, "advisoryCTA")})
-ALTHOUGH THIS EVENT IS EXPECTED TO BE SHORT LIVED...IF CONDITIONS WORSEN...A WINTER WEATHER ADVISORY MAY BECOME NECESSARY. PLEASE MONITOR LOCAL MEDIA OUTLETS AND THE NATIONAL WEATHER SERVICE FOR FURTHER STATEMENTS.
+Although this event is expected to be short lived, if conditions worsen, a winter weather advisory may become necessary. Please monitor local media outlets and the national weather service for further statements.
 
 #end
 #if(${list.contains($bullets, "advisoryEffectCTA")})
-A WINTER WEATHER ADVISORY IS IN EFFECT FOR THE AREA. PLEASE MONITOR LOCAL MEDIA OUTLETS AND THE NATIONAL WEATHER SERVICE FOR FURTHER STATEMENTS.
+A winter weather advisory is in effect for the area. Please monitor local media outlets and the national weather service for further statements.
 
 #end
 #if(${list.contains($bullets, "snowSquallCTA")})
-USE EXTRA CAUTION IF YOU MUST TRAVEL INTO OR THROUGH THIS DANGEROUS SNOW SQUALL. RAPID CHANGES IN VISIBILITY AND POTENTIALLY SLICK ROADS ARE LIKELY TO LEAD TO ACCIDENTS. CONSIDER DELAYING TRAVEL UNTIL THE SQUALL PASSES YOUR LOCATION.
+Use extra caution if you must travel into or through this dangerous snow squall. Rapid changes in visibility and potentially slick roads are likely to lead to accidents. Consider delaying travel until the squall passes your location.
 
 #end
 #if(${list.contains($bullets, "freezingDrizzleCTA")} && (${describeEventShort} == "FREEZING RAIN" || ${describeEventShort} == "FREEZING DRIZZLE"))
-THE ${describeEventShort} MAY QUICKLY COAT ROADWAYS WITH A THIN LAYER OF ICE THAT MAY BE UNDETECTABLE. PLEASE USE EXTREME CAUTION...ESPECIALLY ON BRIDGES...OVERPASSES AND AROUND CURVES. ALLOW PLENTY OF STOPPING DISTANCE AND AVOID BRAKING SUDDENLY.
+The ${describeEventShort} may quickly coat roadways with a thin layer of ice that may be undetectable. Please use extreme caution, especially on bridges, overpasses and around curves. Allow plenty of stopping distance and avoid braking suddenly.
 
 #end
 #if(${list.contains($bullets, "flashFreezeCTA")})
-A RAPID DROP IN TEMPERATURES WILL LEAD TO THE RAPID FORMATION OF BLACK ICE ON AREA ROADWAYS. BLACK ICE IS NEARLY IMPOSSIBLE TO SEE AND ROADWAYS MAY APPEAR WET. PLEASE USE EXTREME CAUTION...ESPECIALLY ON BRIDGES...OVERPASSES AND AROUND CURVES. ALLOW PLENTY OF STOPPING DISTANCE AND AVOID BRAKING SUDDENLY.
+A rapid drop in temperatures will lead to the rapid formation of black ice on area roadways. Black ice is nearly impossible to see and roadways may appear wet. Please use extreme caution, especially on bridges, overpasses and around curves. Allow plenty of stopping distance and avoid braking suddenly.
 
 #end
 #if(${list.contains($bullets, "icyRoads")} && ${SvsR} == "SNOW")
-ICY ROADS ARE POSSIBLE AS THE SNOW MELTS ON THE ROADS THEN QUICKLY REFREEZES.
+Icy roads are possible as the snow melts on the roads then quickly refreezes.
 
 #end
 #if(${list.contains($bullets, "changingConditionsCTA")})
-CONDITIONS CAN DETERIORATE RAPIDLY IN WINTER WEATHER SITUATIONS. BE PREPARED FOR SNOW OR ICE COVERED ROADS. SLOW DOWN AND ALLOW EXTRA TIME WHEN TRAVELING. 
+Conditions can deteriorate rapidly in winter weather situations. Be prepared for snow or ice covered roads. Slow down and allow extra time when traveling. 
 
 #end
 #end

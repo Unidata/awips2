@@ -17,11 +17,13 @@ Require-Bundle: org.eclipse.ui,
  javax.jms;bundle-version="1.0.0",
  ch.qos.logback;bundle-version="1.0.13",
  org.slf4j;bundle-version="1.7.5",
- org.apache.derby;bundle-version="10.10.1"
+ org.apache.derby;bundle-version="10.10.1",
+ com.raytheon.uf.common.logback;bundle-version="1.15.0"
 Export-Package: com.raytheon.uf.viz.alertviz,
  com.raytheon.uf.viz.alertviz.config
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.time,
  org.apache.log4j
 Bundle-ActivationPolicy: lazy
-Eclipse-RegisterBuddy: ch.qos.logback
+Eclipse-RegisterBuddy: ch.qos.logback, com.raytheon.uf.common.logback
+Bundle-ClassPath: com.raytheon.uf.viz.alertviz.jar,.

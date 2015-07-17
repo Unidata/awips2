@@ -23,6 +23,7 @@ import java.io.File;
 
 import jep.Jep;
 import jep.JepException;
+import jep.NamingConventionClassEnquirer;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
@@ -39,7 +40,8 @@ import com.raytheon.viz.texteditor.msgs.IScriptRunnerObserver;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 29, 2009            mfegan     Initial creation
+ * Jun 29, 2009            mfegan      Initial creation
+ * Apr 26, 2015  4259      njensen     Updated for new JEP API
  * 
  * </pre>
  * 
@@ -84,7 +86,8 @@ public class TextWsPythonScript {
                 LocalizationType.CAVE_STATIC).getPathString();
         this.observer = observer;
         this.token = token;
-        jep = new Jep(false, path, TextWsPythonScript.class.getClassLoader());
+        jep = new Jep(false, path, TextWsPythonScript.class.getClassLoader(),
+                new NamingConventionClassEnquirer());
         initializeJep(bundle);
         jep.setInteractive(true);
         jep.set("observer", observer);
@@ -131,7 +134,6 @@ public class TextWsPythonScript {
     private void initializeJep(File path) throws JepException {
         String filePath = path.getPath();
         if (jep != null) {
-            jep.eval("import JavaImporter");
             jep.runScript(filePath);
         }
     }

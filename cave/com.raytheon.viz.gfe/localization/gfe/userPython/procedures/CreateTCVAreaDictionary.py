@@ -24,7 +24,9 @@ except:  # Must be the AWIPS II environment
 import SmartScript
 from LockingFile import File
 from com.raytheon.uf.common.localization import PathManagerFactory
-from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType, LocalizationContext_LocalizationLevel as LocalizationLevel
+from com.raytheon.uf.common.localization import LocalizationContext
+LocalizationType = LocalizationContext.LocalizationType
+LocalizationLevel = LocalizationContext.LocalizationLevel
 ## For documentation on the available commands,
 ##   see the SmartScript Utility, which can be viewed from
 ##   the Edit Actions Dialog Utilities window

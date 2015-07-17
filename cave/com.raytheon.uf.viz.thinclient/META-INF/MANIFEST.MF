@@ -18,3 +18,4 @@ Export-Package: com.raytheon.uf.viz.thinclient,
  com.raytheon.uf.viz.thinclient.preferences,
  com.raytheon.uf.viz.thinclient.refresh,
  com.raytheon.uf.viz.thinclient.ui
+Bundle-ClassPath: com.raytheon.uf.viz.thinclient.jar

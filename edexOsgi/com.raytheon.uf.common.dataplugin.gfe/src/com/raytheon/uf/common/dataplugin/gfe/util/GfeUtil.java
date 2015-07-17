@@ -41,6 +41,8 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.util.Pair;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -53,6 +55,7 @@ import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 import com.vividsolutions.jts.operation.polygonize.Polygonizer;
+import com.vividsolutions.jts.operation.valid.IsValidOp;
 
 /**
  * Utility class for performing miscellaneous tasks relating to GFE. This class
@@ -68,6 +71,8 @@ import com.vividsolutions.jts.operation.polygonize.Polygonizer;
  * 06/24/13     #2044      randerso    Changed format of hdf5 group to include 
  *                                     minutes for satellite data
  * 10/08/14     #3684      randerso    Removed NOTIFY
+ * 04/02/15     #4353      dgilling    Log Geometry validation errors in 
+ *                                     createPolygon().
  * 
  * </pre>
  * 
@@ -76,11 +81,16 @@ import com.vividsolutions.jts.operation.polygonize.Polygonizer;
  */
 public class GfeUtil {
 
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(GfeUtil.class);;
+
     private static final String FIELD_SEPARATOR = "_";
 
     private static final String DATASTORE_FILE_EXTENSION = ".h5";
 
     private static final String GROUP_SEPARATOR = "/";
+
+    private static final String INVALID_POLYGONS_MSG = "Edit area contains invalid polygons.";
 
     /** Date formatter for generating correct group names */
     private static final ThreadLocal<SimpleDateFormat> groupDateFormatter = new ThreadLocal<SimpleDateFormat>() {
@@ -434,29 +444,6 @@ public class GfeUtil {
         polygonizer.add(nodedLines);
         Collection<Polygon> polygons = polygonizer.getPolygons();
 
-        // Collection<?> dangles = polygonizer.getDangles();
-        // if (dangles != null && dangles.size() > 0) {
-        // StringBuilder s = new StringBuilder(
-        // "Edit area contains dangling lines.");
-        // for (Object g : dangles) {
-        // s.append("\n" + g);
-        // }
-        // Activator.getDefault().getLog().log(
-        // new Status(Status.WARNING, Activator.PLUGIN_ID, s
-        // .toString()));
-        // }
-        //
-        // Collection<?> cutEdges = polygonizer.getCutEdges();
-        // if (cutEdges != null && cutEdges.size() > 0) {
-        // StringBuilder s = new StringBuilder("Edit area contains cut edges.");
-        // for (Object g : cutEdges) {
-        // s.append("\n" + g);
-        // }
-        // Activator.getDefault().getLog().log(
-        // new Status(Status.WARNING, Activator.PLUGIN_ID, s
-        // .toString()));
-        // }
-
         // create a multipolygon from the collection of polygons
         Geometry g = gf.createMultiPolygon(polygons
                 .toArray(new Polygon[polygons.size()]));
@@ -469,26 +456,21 @@ public class GfeUtil {
             mp = (MultiPolygon) g;
         } else if (g instanceof Polygon) {
             mp = gf.createMultiPolygon(new Polygon[] { (Polygon) g });
+        } else {
+            statusHandler.warn(INVALID_POLYGONS_MSG);
+            return gf.createMultiPolygon(new Polygon[0]);
         }
 
-        if ((mp == null) || !mp.isValid()) {
-            // StringBuilder s = new StringBuilder();
-            // s.append("Edit area contains invalid polygons.\n");
-            // IsValidOp validOp = new IsValidOp(mp);
-            // s.append(validOp.getValidationError());
-            // for (int i = 0; i < mp.getNumGeometries(); i++) {
-            // Polygon p = (Polygon) mp.getGeometryN(i);
-            // if (!p.isValid()) {
-            // s.append("\n" + p);
-            // }
-            // }
-            // Activator.getDefault().getLog().log(
-            // new Status(Status.WARNING, Activator.PLUGIN_ID, s
-            // .toString()));
+        IsValidOp validOp = new IsValidOp(mp);
+        if (!validOp.isValid()) {
+            StringBuilder s = new StringBuilder(INVALID_POLYGONS_MSG).append(
+                    '\n').append(validOp.getValidationError());
+            statusHandler.warn(s.toString());
 
             // return an empty polygon
             mp = gf.createMultiPolygon(new Polygon[0]);
         }
+
         return mp;
     }
 

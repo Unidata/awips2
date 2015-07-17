@@ -206,9 +206,9 @@ Alaska end -->
   <bullet bulletText="****** REPORTED BY (choose 1) ******" bulletType="title"/>
   <bullet bulletName="county" bulletText="County dispatch" bulletGroup="reportedBy" parseString="COUNTY DISPATCH REPORTED"/>
   <bullet bulletName="lawEnforcement" bulletText="Law enforcement" bulletGroup="reportedBy" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
-  <bullet bulletName="corps" bulletText="Corps of engineers" bulletGroup="reportedBy" parseString="CORPS OF ENGINEERS REPORTED"/>
+  <bullet bulletName="corps" bulletText="Corps of Engineers" bulletGroup="reportedBy" parseString="CORPS OF ENGINEERS REPORTED"/>
   <bullet bulletName="damop" bulletText="Dam operator" bulletGroup="reportedBy" parseString="DAM OPERATORS REPORTED"/>
-  <bullet bulletName="bureau" bulletText="Bureau of reclamation" bulletGroup="reportedBy" parseString="BUREAU OF RECLAMATION REPORTED"/>
+  <bullet bulletName="bureau" bulletText="Bureau of Reclamation" bulletGroup="reportedBy" parseString="BUREAU OF RECLAMATION REPORTED"/>
   <bullet bulletName="public" bulletText="The public" bulletGroup="reportedBy" parseString="THE PUBLIC REPORTED"/>
   <bullet bulletName="onlyGauge" bulletText="Gauge reports" bulletGroup="reportedBy" parseString="GAUGE REPORTS "/>
 <!-- Uncomment for Alaska
@@ -230,7 +230,7 @@ Alaska end -->
   <bullet bulletName="childSafetyCTA" bulletText="Child Safety..." parseString="KEEP CHILDREN AWAY FROM STORM DRAINS"/>
   <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding..." parseString="BE ESPECIALLY CAUTIOUS AT NIGHT WHEN"/>
   <bullet bulletName="safetyCTA" bulletText="Safety...by foot or motorist" parseString="DO NOT ENTER OR CROSS FLOWING WATER"/>
-  <bullet bulletName="turnAroundCTA" bulletText="Turn around...dont drown" parseString="TURN AROUND...DONT DROWN"/>
+  <bullet bulletName="turnAroundCTA" bulletText="Turn around...dont drown" parseString="TURN AROUND, DON'T DROWN"/>
   <bullet bulletName="stayAwayCTA" bulletText="Stay away or be swept away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
   <bullet bulletName="arroyosCTA" bulletText="Arroyos..." parseString="ARROYOS...STREAMS AND RIVERS CAN BECOME RAGING KILLER CURRENTS"/>
   <bullet bulletName="burnAreasCTA" bulletText="Burn Areas..." parseString="MOVE AWAY FROM RECENTLY BURNED AREAS"/>
@@ -297,9 +297,9 @@ Alaska end -->
   <bullet bulletText="****** REPORTED BY (choose 1) ******" bulletType="title"/>
   <bullet bulletName="county" bulletText="County dispatch" bulletGroup="reportedBy" parseString="COUNTY DISPATCH REPORTED"/>
   <bullet bulletName="lawEnforcement" bulletText="Law enforcement" bulletGroup="reportedBy" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
-  <bullet bulletName="corps" bulletText="Corps of engineers" bulletGroup="reportedBy" parseString="CORPS OF ENGINEERS REPORTED"/>
+  <bullet bulletName="corps" bulletText="Corps of Engineers" bulletGroup="reportedBy" parseString="CORPS OF ENGINEERS REPORTED"/>
   <bullet bulletName="damop" bulletText="Dam operator" bulletGroup="reportedBy" parseString="DAM OPERATORS REPORTED"/>
-  <bullet bulletName="bureau" bulletText="Bureau of reclamation" bulletGroup="reportedBy" parseString="BUREAU OF RECLAMATION REPORTED"/>
+  <bullet bulletName="bureau" bulletText="Bureau of Reclamation" bulletGroup="reportedBy" parseString="BUREAU OF RECLAMATION REPORTED"/>
   <bullet bulletName="public" bulletText="The public" bulletGroup="reportedBy" parseString="THE PUBLIC REPORTED"/>
   <bullet bulletName="onlyGauge" bulletText="Gauge reports" bulletGroup="reportedBy" parseString="GAUGE REPORTS "/>
 <!-- Uncomment for Alaska  
@@ -321,7 +321,7 @@ Alaska end -->
   <bullet bulletName="childSafetyCTA" bulletText="Child Safety..." parseString="KEEP CHILDREN AWAY FROM STORM DRAINS"/>
   <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding..." parseString="BE ESPECIALLY CAUTIOUS AT NIGHT WHEN"/>
   <bullet bulletName="safetyCTA" bulletText="Safety...by foot or motorist" parseString="DO NOT ENTER OR CROSS FLOWING WATER"/>
-  <bullet bulletName="turnAroundCTA" bulletText="Turn around...dont drown" parseString="TURN AROUND...DONT DROWN"/>
+  <bullet bulletName="turnAroundCTA" bulletText="Turn around...dont drown" parseString="TURN AROUND, DON'T DROWN"/>
   <bullet bulletName="stayAwayCTA" bulletText="Stay away or be swept away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
   <bullet bulletName="arroyosCTA" bulletText="Arroyos..." parseString="ARROYOS...STREAMS AND RIVERS CAN BECOME RAGING KILLER CURRENTS"/>
   <bullet bulletName="burnAreasCTA" bulletText="Burn Areas..." parseString="MOVE AWAY FROM RECENTLY BURNED AREAS"/>

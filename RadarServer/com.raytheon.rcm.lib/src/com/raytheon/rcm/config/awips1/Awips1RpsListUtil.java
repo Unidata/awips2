@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -27,24 +27,25 @@ import java.util.regex.Pattern;
 
 import com.raytheon.rcm.config.RadarConfig;
 import com.raytheon.rcm.config.RadarType;
-import com.raytheon.rcm.config.Util;
+import com.raytheon.rcm.config.RcmUtil;
 import com.raytheon.rcm.message.GSM;
 import com.raytheon.rcm.request.Request;
 import com.raytheon.rcm.request.RpsList;
 
 /**
  * Utility class for dealing with AWIPS 1 RPS lists.
- * 
+ *
  * <pre>
  *  SOFTWARE HISTORY
- * 
+ *
  *  Date         Ticket#     Engineer    Description
  *  ------------ ----------  ----------- --------------------------
  *  2009                     dfriedma    Initial version
  *  2012-04-30   DR 14908    D. Friedman Require radar name for valid RPS
  *                                       file names.
+ *  2015-06-10   4498       nabowle     Rename Util->RcmUtil
  * </pre>
- *
+ * 
  */
 public class Awips1RpsListUtil {
     // is 'maint' an opMode??
@@ -244,14 +245,14 @@ public class Awips1RpsListUtil {
      * replaced with the lowest four elevation angles requested for products 180
      * - 183 in the site's local list. This essentially turns the national rps
      * list into a template.
-     * 
+     *
      * There may be a need for something like and RpsListTemplate in the config
      * package, but the extra logic will be kept here for now.
-     * 
+     *
      * The intent is to use the lowest four available elevation angles, so this
      * implementation uses the actual list of elevations angles instead of
      * relying on the existence of a configuration file.
-     * 
+     *
      * Note that there are two instances of this logic in AWIPS 1. One is
      * RadarServer, the other is in localization. The latter (which is applied
      * to the default local lists) does not examine the product ID.
@@ -260,7 +261,7 @@ public class Awips1RpsListUtil {
     public static RpsList maybeTransformForTDWR(RadarConfig rc, RpsList list,
             int[] cuts) {
 
-        if (list != null && Util.getRadarType(rc) == RadarType.TDWR) {
+        if (list != null && RcmUtil.getRadarType(rc) == RadarType.TDWR) {
             list = (RpsList) list.clone();
 
             int[] fourLowest = new int[4];

@@ -73,6 +73,7 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.message.WsId;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonEval;
+import com.raytheon.uf.common.python.PythonIncludePathUtil;
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -90,20 +91,23 @@ import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 import com.vividsolutions.jts.operation.buffer.BufferParameters;
+import com.vividsolutions.jts.operation.valid.IsValidOp;
 import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
 
 /**
  * Creates edit areas for the currently selected WFO
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Apr 10, 2008		#1075	randerso	Initial creation
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Apr 02, 2015     #1075   randerso    Initial creation
  * Jun 25, 2008     #1210   randerso    Modified to get directories from UtilityContext
  * Oct 13, 2008     #1607   njensen     Added genCombinationsFiles()
  * Sep 18, 2012     #1091   randerso    Changed to use Maps.py and localMaps.py
- * Mar 14, 2013 1794        djohnson    Consolidate common FilenameFilter implementations.
+ * Mar 14, 2013      1794   djohnson    Consolidate common FilenameFilter implementations.
  * Mar 28, 2013     #1837   dgilling    Better error reporting if a map table
  *                                      from localMaps.py could not be found,
  *                                      warnings clean up.
@@ -112,9 +116,11 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * Aug 27, 2014     #3563   randerso    Fix issue where edit areas are regenerated unnecessarily
  * Oct 20, 2014     #3685   randerso    Changed structure of editAreaAttrs to keep zones from different maps separated
  * Feb 19, 2015     #4125   rjpeter     Fix jaxb performance issue
+ * Apr 01, 2015     #4353   dgilling    Improve logging of Geometry validation errors.
  * Apr 08, 2015     #4383   dgilling    Change ISC_Send_Area to be union of 
  *                                      areas ISC_XXX and all edit area prefixes 
  *                                      in AdditionalISCRouting.
+ * May 11, 2015     #4259   njensen     Silence jep thread warning by closing pyScript earlier
  * May 21, 2015     #4518   dgilling    Change ISC_Send_Area to always be union
  *                                      of at least ISC_XXX and FireWxAOR_XXX.
  * 
@@ -206,7 +212,7 @@ public class MapManager {
             String includePath = PyUtil.buildJepIncludePath(true,
                     GfePyIncludeUtil.getGfeConfigIncludePath(siteId),
                     FileUtil.join(edexStaticBaseDir, "gfe"),
-                    GfePyIncludeUtil.getCommonPythonIncludePath());
+                    PythonIncludePathUtil.getCommonPythonIncludePath());
 
             List<DbShapeSource> maps = null;
             pyScript = null;
@@ -234,6 +240,15 @@ public class MapManager {
                 genEditArea(maps);
             } else {
                 statusHandler.info("All edit areas are up to date.");
+            }
+
+            /*
+             * after maps, pyScript is no longer needed, Configurator will make
+             * its own python interpreter on the same thread
+             */
+            if (pyScript != null) {
+                pyScript.dispose();
+                pyScript = null;
             }
 
             // configure the text products
@@ -956,18 +971,12 @@ public class MapManager {
                     polygons = gf.createMultiPolygon(new Polygon[] {});
                 }
 
-                if (!polygons.isValid()) {
-                    String error = "Table: "
-                            + shapeSource.getTableName()
-                            + " edit area:"
-                            + ean
-                            + " contains invalid polygons. This edit area will be skipped.";
-                    for (int i = 0; i < polygons.getNumGeometries(); i++) {
-                        Geometry g = polygons.getGeometryN(i);
-                        if (!g.isValid()) {
-                            error += "\n" + g;
-                        }
-                    }
+                IsValidOp polygonValidator = new IsValidOp(polygons);
+                if (!polygonValidator.isValid()) {
+                    String error = String
+                            .format("Table: %s edit area: %s contains invalid polygons: %s. This edit area will be skipped.",
+                                    shapeSource.getTableName(), ean,
+                                    polygonValidator.getValidationError());
                     statusHandler.error(error);
                     continue;
                 }

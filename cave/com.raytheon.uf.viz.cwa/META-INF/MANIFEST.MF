@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Cwa Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.cwa
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
@@ -13,6 +13,7 @@ Import-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.status,
  com.raytheon.uf.common.time,
+ com.raytheon.uf.common.time.util,
  com.raytheon.uf.viz.core,
  com.raytheon.uf.viz.core.drawables,
  com.raytheon.uf.viz.core.exception,
@@ -33,3 +34,4 @@ Require-Bundle: com.raytheon.uf.viz.core,
  org.apache.batik,
  com.raytheon.uf.viz.core,
  org.eclipse.core.runtime
+Bundle-ClassPath: com.raytheon.uf.viz.cwa.jar

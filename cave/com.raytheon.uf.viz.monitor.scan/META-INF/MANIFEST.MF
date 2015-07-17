@@ -23,3 +23,4 @@ Export-Package: com.raytheon.uf.viz.monitor.scan,
  com.raytheon.uf.viz.monitor.scan.data,
  com.raytheon.uf.viz.monitor.scan.resource
 Import-Package: com.raytheon.uf.common.dataplugin.warning
+Bundle-ClassPath: com.raytheon.uf.viz.monitor.scan.jar

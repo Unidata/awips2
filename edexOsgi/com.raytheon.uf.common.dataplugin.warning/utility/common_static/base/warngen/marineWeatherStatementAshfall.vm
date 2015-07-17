@@ -8,6 +8,7 @@
 ##   Phil Kurimski   FEB 07 2013    OB13.2.1-5      ##
 ##   Phil Kurimski   SEP 16 2013    OB13.5.2-4      ##
 ##   Evan Bookbinder SEP 18 2013 Implemented config.vm ##
+##   Phil Kurimski   MAR 24 2015 Mixed Case         ##
 #########################################################
 #parse("config.vm")
 ##########################################
@@ -22,13 +23,14 @@ ${WMOId} ${vtecOffice} 000000 ${BBBId}
 MWS${siteId}
 
 #if(${productClass}=="T")
-TEST...MARINE WEATHER STATEMENT...TEST
+TEST...Marine Weather Statement...TEST
 #else
-MARINE WEATHER STATEMENT
+Marine Weather Statement
 #end
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
 #if(${productClass}=="T")
 ...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
 
@@ -40,6 +42,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ${ugcline}
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
+
 #if(${productClass}=="T")
 ...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
 
@@ -49,41 +52,41 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ## Removed line selections and determined line based on Track Type in GUI.
 #######################################################################
 ## Assume head1 is selected.
-#set($headerType = "VOLCANIC ASH")
-#set($eventType = "VOLCANIC ASH")
+#set($headerType = "volcanic ash")
+#set($eventType = "volcanic ash")
 #if(${list.contains(${bullets}, "lightva")})
-	#set($headerType = "LIGHT VOLCANIC ASHFALL")
-	#set($eventType = "LIGHT VOLCANIC ASHFALL")
+	#set($headerType = "light volcanic ashfall")
+	#set($eventType = "light volcanic ashfall")
 #end
 #if(${list.contains(${bullets}, "verylightva")})
-	#set($headerType = "VERY LIGHT VOLCANIC ASHFALL")
-	#set($eventType = "VERY LIGHT VOLCANIC ASHFALL")
+	#set($headerType = "very light volcanic ashfall")
+	#set($eventType = "very light volcanic ashfall")
 #end
 #######################################################################
 ## Section to create line wording based on track type.
 #######################################################################
 #set($stormline = "${headerType}")
-#set($pathheader = "THE ${headerType}")
+#set($pathheader = "the ${headerType}")
 #if(${stormType} == "line")
-	#set($stormline = "LINE OF ${headerType}S")
-	#set($pathheader = "${headerType}S")
-	#set($headerType = "A ${headerType}S")
+	#set($stormline = "line of ${headerType}s")
+	#set($pathheader = "${headerType}s")
+	#set($headerType = "a ${headerType}s")
 #end
 #######################################################################
 ## Corrective coding (following this segemnt) to prevent the use of 
 ## "Line of Fronts" in the Product 
 ## and this segment was added to allow for visibility reduction
 #######################################################################
-#set($threatType = "REDUCING VISIBILITY TO LESS THAN 2 NM")
+#set($threatType = "reducing visibility to less than 2 nm")
 
 #if(${list.contains(${bullets}, "vis2nm")})
-	#set($threatType = "REDUCING VISIBILITY TO LESS THAN 2 NM")
+	#set($threatType = "reducing visibility to less than 2 nm")
 #end
 #if(${list.contains(${bullets}, "vis3nm")})
-	#set($threatType = "REDUCING VISIBILITY TO LESS THAN 3 NM")
+	#set($threatType = "reducing visibility to less than 3 nm")
 #end
 #if(${list.contains(${bullets}, "visnear5nm")})
-	#set($threatType = "REDUCING VISIBILITY TO NEAR 5 NM")
+	#set($threatType = "reducing visibility to near 5 nm")
 #end
 
 ########################################################
@@ -102,14 +105,16 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ## Added Hail Section
 #######################################################################
 #if(${list.contains(${bullets}, "smallHail")})
-	#set($hailType = " AND SMALL HAIL")
+	#set($hailType = " and small hail")
 #end
-${headerType1}
+##${headerType1}
+#capitalize(${headerType1} "ALL")
 
 #######################################################################
 ##  Added section to produce areas affected by statement
 #######################################################################
-THE AREAS AFFECTED INCLUDE...
+
+The areas affected include...
 #######################################################################
 ## Coding to use the raw marine zone output from the shapefiles
 ## Comment this section out if you are combining your marine zones
@@ -146,17 +151,17 @@ THE AREAS AFFECTED INCLUDE...
 #######################################################################
 #set($report = "!** YOU DIDN'T SELECT A REPORTER **! ${threatType}")
 #if(${list.contains(${bullets}, "seismic")})
-  #set($report = "SEISMIC ACTIVITY AND SATELLITE IMAGERY INDICATED THAT !** ENTER VOLCANO NAME HERE **! WAS ERUPTING...WITH ${stormline}...${threatType}...")
+  #set($report = "seismic activity and satellite imagery indicated that !** ENTER VOLCANO NAME HERE **! was erupting, with ${stormline}, ${threatType},")
 #end
 #if(${list.contains(${bullets}, "reports")})
-  #set($report = "REPORTS INDICATED THAT !** ENTER VOLCANO NAME HERE **! HAD ERUPTED...WITH ${stormline}...${threatType}...") 
+  #set($report = "reports indicated that !** ENTER VOLCANO NAME HERE **! had erupted, with ${stormline}, ${threatType},") 
 #end
 ## Storm current location description
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
-...${report} ##
+, ${report} ##
 ##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")
 #handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxMarineNearDistance}, ${overPhrase}, ${maxMarineOverDistance}, ${marineDistanceUnits}, ${useSecondReferenceLine})
@@ -164,9 +169,9 @@ THIS IS A TEST MESSAGE. ##
 #handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxMarineNearDistance}, ${overPhrase}, ${maxMarineOverDistance}, ${marineDistanceUnits}, ${useSecondReferenceCell})
 #end
 #if(${movementSpeed} < ${marineStationary} || ${stationary})
-. NEARLY STATIONARY.
+. nearly stationary.
 #else
-MOVING #direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} KNOTS.
+, moving #direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} knots.
 #end
 
 #set($phenomena = "${pathheader}") 
@@ -175,7 +180,7 @@ MOVING #direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movement
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
-#pathCast("${phenomena} WILL BE NEAR..." ${phenomena} ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 1)
+#pathCast("${phenomena} will be near..." ${phenomena} ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 1)
 
 #elseif(${list.contains(${bullets}, "listoflocations")})
 #if(${productClass}=="T")
@@ -185,7 +190,7 @@ THIS IS A TEST MESSAGE. ##
 #### 0 IS A ... SEPARATED LIST, 1 IS ONE PER LINE, >1 IS A COLUMN FORMAT
 #### IF YOU USE SOMETHING OTHER THAN "LOCATIONS IMPACTED INCLUDE" LEAD IN BELOW, MAKE SURE THE
 #### ACCOMPANYING XML FILE PARSE STRING IS CHANGED TO MATCH!
-#locationsList("LOCATIONS IMPACTED INCLUDE..." "${phenomena}" 0 ${locationList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 1)
+#locationsList("Locations impacted include..." "${phenomena}" 0 ${locationList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 1)
 
 #end
 
@@ -194,13 +199,13 @@ THIS IS A TEST MESSAGE. ##
 ##############################################
 #if(${list.contains(${bullets}, "specialEvent")})
 #if(${stormType} == "line")
-THOSE ATTENDING THE !**event/venue name or location**! ARE IN THE PATH OF THESE STORMS AND SHOULD PREPARE FOR IMMINENT DANGEROUS WEATHER CONDITIONS. SEEK SHELTER NOW.
+Those attending the !**EVENT/VENUE NAME OR LOCATION**! are in the path of these storms and should prepare for imminent dangerous weather conditions. Seek shelter now!
 #else
-THOSE ATTENDING THE !**event/venue name or location**! ARE IN THE PATH OF THIS STORM AND SHOULD PREPARE FOR IMMINENT DANGEROUS WEATHER CONDITIONS. SEEK SHELTER NOW.
+Those attending the !**EVENT/VENUE NAME OR LOCATION**! are in the path of this storm and should prepare for imminent dangerous weather conditions. Seek shelter now!
 
 #end
 #end
-AN ASHFALL ADVISORY MEANS THAT THE VOLCANO IS UNDERGOING A MINOR ERUPTION AND THERE IS THE POTENTIAL THAT MARINERS COULD BE AFFECTED BY A LIMITED HAZARD EXTENT...SUCH AS LESS THAN 1/4 INCH OF ASHFALL...PUMICE RAFTS...OR SOME FLOATING DEBRIS.
+An ashfall advisory means that the volcano is undergoing a minor eruption and there is the potential that mariners could be affected by a limited hazard extent...such as less than 1/4 inch of ashfall...pumice rafts...or some floating debris.
 
 #####################
 ## CALL TO ACTIONS ##
@@ -222,11 +227,11 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 ##
 
 #if(${list.contains(${bullets}, "ashCTA")})
-ASH IS AN EYE AND RESPIRATORY IRRITANT AND IS ABRASIVE. THOSE WITH RESPIRATORY SENSITIVITIES SHOULD TAKE EXTRA PRECAUTIONS TO MINIMIZE EXPOSURE. PROTECT ELECTRONICS AND COVER AIR INTAKES IF ASHFALL IS EXPECTED OR CONFIRMED. REMOVE ASH FROM SURFACES WITH WATER IF POSSIBLE TO PREVENT EXCESSIVE ACCUMULATION.
+Ash is an eye and respiratory irritant and is abrasive. Those with respiratory sensitivities should take extra precautions to minimize exposure. Protect electronics and cover air intakes if ashfall is expected or confirmed. Remove ash from surfaces with water if possible to prevent excessive accumulation.
 
 #end
 #if(${list.contains(${bullets}, "reportCTA")})
-REPORT SEVERE WEATHER TO THE COAST GUARD. THEY WILL RELAY YOUR REPORT TO THE NATIONAL WEATHER SERVICE IN ${officeLoc}.
+Report severe weather to the coast guard. They will relay your report to the National Weather Service in ${officeLoc}.
 
 #end
 #if(${ctaSelected} == "YES")

@@ -8,8 +8,7 @@
         <constructor-arg ref="iscProvider" />
     </bean>
     
-    <bean id="gfeSitesActiveRequest" factory-bean="siteAwareRegistry" factory-method="register"
-            depends-on="jepInit">
+    <bean id="gfeSitesActiveRequest" factory-bean="siteAwareRegistry" factory-method="register">
         <constructor-arg ref="gfeSiteActivation"/>
     </bean>
 

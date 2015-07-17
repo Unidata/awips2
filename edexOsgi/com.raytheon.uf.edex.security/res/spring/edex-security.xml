@@ -1,16 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans 
-	    http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
-	<bean id="encryption" class="com.raytheon.uf.common.security.encryption.AESEncryptor"/>
+    <bean id="encryption" class="com.raytheon.uf.common.security.encryption.AESEncryptor" />
 
-	<bean id="securityConfiguration" class="com.raytheon.uf.edex.security.SecurityConfiguration" />
+    <bean id="securityConfiguration" class="com.raytheon.uf.edex.security.SecurityConfiguration" />
 
-	<bean id="encryptedPropertyLoader" class="com.raytheon.uf.edex.security.EncryptedProperties">
-		<constructor-arg
-			value="/awips2/edex/conf/resources/site/${AW_SITE_IDENTIFIER}/security.properties" />
-	</bean>
+    <bean id="securityProperties" factory-bean="securityConfiguration"
+        factory-method="getSecurityProperties" />
+
+    <bean id="trustManager" factory-bean="securityConfiguration"
+        factory-method="getTrustManager" />
+
+    <bean id="keyManager" factory-bean="securityConfiguration"
+        factory-method="getKeyManager" />
+
+    <bean id="securityOutInterceptor" class="org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor">
+        <constructor-arg>
+            <map>
+                <entry key="mustUnderstand" value="false" />
+                <entry key="enableNonceCache" value="false" />
+                <entry key="enableTimestampCache" value="false" />
+                <entry key="enableSamlOneTimeUseCache" value="false" />
+                <entry key="action" value="UsernameToken Signature" />
+                <entry key="user" value="${edex.security.keystore.alias}" />
+                <entry key="signaturePropRefId" value="propRef" />
+                <entry key="propRef" value-ref="securityProperties" />
+                <entry key="passwordCallbackRef">
+                    <ref bean="registryPasswordCallback" />
+                </entry>
+                <entry key="signatureParts"
+                    value="{Element}{http://schemas.xmlsoap.org/soap/envelope/}Body" />
+                <entry key="signatureAlgorithm" value="http://www.w3.org/2000/09/xmldsig#rsa-sha1" />
+            </map>
+        </constructor-arg>
+    </bean>
 
 </beans>

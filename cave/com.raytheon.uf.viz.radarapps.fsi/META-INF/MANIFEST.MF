@@ -17,3 +17,4 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: com.raytheon.uf.viz.radarapps.fsi.jar

@@ -77,9 +77,9 @@ After creating these, we must create a match list containing all of our variable
 #end
 #end
 #if ($hits == 1)
-THIS INCLUDES$bigList 
+This includes$bigList 
 #end
 #if ($hits > 1)
-THIS INCLUDES THE FOLLOWING HIGHWAYS...
+This includes the following highways...
 $bigList
 #end
