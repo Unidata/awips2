@@ -98,6 +98,7 @@ import com.raytheon.viz.warnings.DateUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.TopologyException;
 import com.vividsolutions.jts.io.WKTReader;
 
 /**
@@ -145,6 +146,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * Aug 28, 2014 ASM #15551 Qinglu Lin  Replaced 1200 PM/1200 AM by NOON/MIDNIGHT, removed days in
  *                                     included tornado/severe thunderstorm watch message.
  * Sep 18, 2014 ASM #15465 Qinglu Lin  For backup, get officeShort and officeLoc from backup WFO's config.xml.
+ * Jul 15, 2015 DR17716 mgamazaychikov Change to Geometry class in total intersection calculations.
  * </pre>
  * 
  * @author njensen
@@ -325,7 +327,7 @@ public class TemplateRunner {
                         } else {
                             // Determine if one letter timezone is going to be
                             // put into timeZones.
-                            Polygon[] poly1, poly2;
+                            Geometry[] poly1, poly2;
                             int n1, n2;
                             double size, totalSize;
                             for (int i = 0; i < oneLetterTimeZones.length(); i++) {
@@ -345,14 +347,14 @@ public class TemplateRunner {
                                     if (intersectSize.get(oneLetterTZ[i]) != null) {
                                         continue;
                                     }
-                                    poly1 = new Polygon[warningArea
+                                    poly1 = new Geometry[warningArea
                                             .getNumGeometries()];
                                     n1 = warningArea.getNumGeometries();
                                     for (int j = 0; j < n1; j++) {
                                         poly1[j] = (Polygon) warningArea
                                                 .getGeometryN(j);
                                     }
-                                    poly2 = new Polygon[timezoneGeom
+                                    poly2 = new Geometry[timezoneGeom
                                             .getNumGeometries()];
                                     n2 = timezoneGeom.getNumGeometries();
                                     for (int j = 0; j < n2; j++) {
@@ -360,10 +362,17 @@ public class TemplateRunner {
                                                 .getGeometryN(j);
                                     }
                                     // Calculate the total size of intersection
-                                    for (Polygon p1 : poly1) {
-                                        for (Polygon p2 : poly2) {
-                                            size = p1.intersection(p2)
-                                                    .getArea();
+                                    for (Geometry p1 : poly1) {
+                                        for (Geometry p2 : poly2) {
+                                            try {
+                                                size = p1.intersection(p2)
+                                                        .getArea();
+                                            } catch (TopologyException e) {
+                                                statusHandler
+                                                        .handle(Priority.VERBOSE,
+                                                                "Geometry error calculating the total size of intersection.",
+                                                                e);
+                                            }
                                             if (size > 0.0) {
                                                 totalSize += size;
                                             }
