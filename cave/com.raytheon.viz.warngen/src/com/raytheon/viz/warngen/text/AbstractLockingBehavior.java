@@ -57,6 +57,8 @@ import com.raytheon.viz.warngen.gis.AffectedAreas;
  * Apr 29, 2014    3033    jsanchez     Moved patterns into ICommonPatterns
  * May  1, 2014  DR 16627  Qinglu Lin   Added hasStateAbbrev(), isOtherType(), lockListOfNames(), and updated lock(). 
  * May 13, 2014  DR 17177  Qinglu Lin   Updated secondBullet().
+ * Jul 10, 2015  DR 17314  Qinglu Lin   Updated firstBullet().
+ * Jul 17, 2015  DR 17314  D. Friedman  Fix string replacement in firstBullet().
  * 
  * </pre>
  * 
@@ -198,26 +200,38 @@ abstract public class AbstractLockingBehavior implements ICommonPatterns {
         // should not be locked. For some reason, this differs from followups as
         // stated in DR 15110. Need verification from NWS. This is a variance?
         if (!isMarineProduct()) {
+            StringBuilder newText = new StringBuilder(firstBulletText.length() + 1024);
             Matcher m = null;
-            for (String line : firstBulletText.split("\\n")) {
-
+            boolean first = true;
+            for (String line : firstBulletText.split("\\n", -1)) {
+                if (first) {
+                    first = false;
+                } else {
+                    newText.append('\n');
+                }
                 if (immediateCausePtrn != null) {
                     // immediate cause
                     m = immediateCausePtrn.matcher(line);
                     if (m.find()) {
                         String i = line.replace(line, LOCK_START + line
                                 + LOCK_END);
-                        firstBulletText = firstBulletText.replace(line, i);
+                        newText.append(i);
                         continue;
                     }
                 }
 
+                int endIndex = line.indexOf(" IN ");
+                String textForSearch = null;
+                if (endIndex == -1)
+                    textForSearch = line;
+                else
+                    textForSearch = line.substring(0, endIndex);
                 for (AffectedAreas affectedArea : affectedAreas) {
                     String name = affectedArea.getName();
                     String areaNotation = affectedArea.getAreaNotation();
                     String parentRegion = affectedArea.getParentRegion();
                     if (name != null && name.trim().length() != 0
-                            && line.contains(name.toUpperCase())) {
+                            && textForSearch.contains(name.toUpperCase())) {
                         name = name.toUpperCase();
                         String t = line;
                         if (!hasBeenLocked(line, name)) {
@@ -243,18 +257,20 @@ abstract public class AbstractLockingBehavior implements ICommonPatterns {
                         }
 
                         if (validate(t)) {
-                            firstBulletText = firstBulletText.replace(line, t);
+                            line = t;
                         }
                         break;
                     }
                 }
+                newText.append(line);
             }
+            firstBulletText = newText.toString();
         }
 
         firstBulletText = firstBulletText.replaceAll(firstBullet, LOCK_START
                 + "$0" + LOCK_END);
 
-        this.text = text.replace(text.substring(start, end), firstBulletText);
+        this.text = new StringBuffer(text).replace(start, end, firstBulletText).toString();
     }
 
     /**
