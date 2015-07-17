@@ -1082,7 +1082,7 @@ FORECASTER STEWART"""
         
         #  We need to reverse the order of the advisories so the latest 
         #  advisories come first in this list
-        stormAdvisories.reverse()
+        stormAdvisories.sort(reverse=True)
         
         lastTwoAdvisories = []
         
