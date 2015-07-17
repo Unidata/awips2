@@ -1,13 +1,13 @@
 %define contentdir /var/www
 %define suexec_caller apache
 %define mmn 20051115
-%define vstring Red Hat
+%define vstring Fedora Core
 %define mpms worker event
 
 Summary: Pypies Apache HTTP Server
 Name: awips2-httpd-pypies
 Version: 2.2.15
-Release: 15.7.el6
+Release: 15.8
 URL: http://httpd.apache.org/
 Source0: http://archive.apache.org/dist/httpd/httpd-%{version}.tar.gz
 Source1: index.html
