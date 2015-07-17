@@ -85,6 +85,7 @@ public abstract class BufrMosData extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     private PointDataView pointDataView = null;
 
+    // TODO Update once BufrMosDataLocation DataURI's are corrected.
     @ManyToOne(cascade = { CascadeType.REFRESH })
     @PrimaryKeyJoinColumn
     @DataURI(position = 1, embedded = true)

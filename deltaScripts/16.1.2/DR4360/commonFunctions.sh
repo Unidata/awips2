@@ -16,7 +16,7 @@ where table_catalog = 'metadata' and table_schema='awips' and constraint_type='U
 	
 	cnLen=${#constraint_name[@]}
 	if [ ${cnLen} -eq 0 ] ; then
-		echo "INFO: no unnamed UNIQUE constraint found for table $1"
+		echo "WARNING: no unnamed UNIQUE constraint found for table $1"
 	elif [ ${cnLen} -gt 1 ] ; then
 		echo "ERROR: More then one unnamed UNIQUE constraint found for table ${1} (${constraint_name[@]})"
 		echo "FATAL: The update has failed."
