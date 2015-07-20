@@ -210,7 +210,7 @@ public class SatResourceData extends AbstractRequestableResourceData{
 
 
 //	public AreaSource getSourceProvider() {
-//		return 	.getAreaSource("GINI_SECTOR_ID");
+//		return 	AreaSource.getAreaSource("GINI_SECTOR_ID");
 //	}
 //
 //	public String getAreaName() {
