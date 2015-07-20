@@ -19,6 +19,7 @@
  **/
 package com.raytheon.viz.gfe.smarttool;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +54,7 @@ import com.raytheon.viz.gfe.ui.runtimeui.SelectionDlg;
  * Jun 25, 2013  16065     ryu         Passing outerLevel to smart tool job.
  * Dec 10, 2013  2367      dgilling    Use new SmartToolJobPool.
  * Jun 05, 2015  4259      njensen     Removed LD_PRELOAD check
+ * Jul 17, 2015  4575      njensen     Changed varDict from String to Map
  * 
  * </pre>
  * 
@@ -122,9 +124,9 @@ public class SmartUtil {
 
     public static Object callFromSmartScript(final DataManager dm,
             final String toolName, final String elementName,
-            ReferenceData editArea, TimeRange timeRange, String varDict,
-            boolean emptyEditAreaFlag, List<String> passErrors,
-            String missingDataMode, Parm parm) {
+            ReferenceData editArea, TimeRange timeRange,
+            Map<String, Object> varDict, boolean emptyEditAreaFlag,
+            List<String> passErrors, String missingDataMode, Parm parm) {
         EditAction editAction = new EditAction(toolName, elementName,
                 timeRange, editArea, emptyEditAreaFlag,
                 MissingDataMode.valueFrom(missingDataMode));
@@ -161,14 +163,13 @@ public class SmartUtil {
                             Map<String, Object> resultMap = sd
                                     .getVarDictResult();
                             if (resultMap != null) {
-                                String userVarDict = dm.getSmartToolInterface()
-                                        .transformVarDict(resultMap);
-                                req.setVarDict(userVarDict);
+                                req.setVarDict(resultMap);
                             }
                         } else {
                             // set it to something so we don't trigger the null
                             // == user cancelled below
-                            req.setVarDict("{}");
+                            req.setVarDict(Collections
+                                    .<String, Object> emptyMap());
                         }
                     } catch (JepException e) {
                         statusHandler.handle(Priority.PROBLEM,

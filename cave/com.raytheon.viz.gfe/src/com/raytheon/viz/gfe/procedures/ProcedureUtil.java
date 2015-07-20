@@ -47,6 +47,7 @@ import com.raytheon.viz.gfe.smarttool.PreviewInfo;
  * Feb 09, 2010            njensen     Initial creation
  * Apr 26, 2012  14748     ryu         Use edit area and time range from preview info
  * Dec 09, 2013  #2367     dgilling    Use new ProcedureJobPool.
+ * Jul 17, 2015  4575      njensen     Changed varDict from String to Map
  * 
  * </pre>
  * 
@@ -79,7 +80,7 @@ public class ProcedureUtil {
 
     public static Object callFromSmartScript(final DataManager dm,
             final String procName, ReferenceData editArea, TimeRange timeRange,
-            String varDict) {
+            Map<String, Object> varDict) {
         PreviewInfo pi = dm.getEditActionProcessor().prepareExecute(
                 "Procedure", procName, editArea, timeRange, false);
 
@@ -109,9 +110,7 @@ public class ProcedureUtil {
                             Map<String, Object> resultMap = sd
                                     .getVarDictResult();
                             if (resultMap != null) {
-                                String userVarDict = dm.getProcedureInterface()
-                                        .transformVarDict(resultMap);
-                                req.setVarDict(userVarDict);
+                                req.setVarDict(resultMap);
                             }
                         } else {
                             req.setVarDict(null);

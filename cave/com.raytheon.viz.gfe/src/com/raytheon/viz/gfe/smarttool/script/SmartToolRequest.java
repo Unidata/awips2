@@ -19,6 +19,7 @@
  **/
 package com.raytheon.viz.gfe.smarttool.script;
 
+import java.util.Map;
 import java.util.concurrent.Semaphore;
 
 import com.raytheon.uf.viz.core.jobs.QueueJobRequest;
@@ -27,7 +28,7 @@ import com.raytheon.viz.gfe.smarttool.PreviewInfo;
 
 /**
  * Request to run a smart tool off the UI thread
- *
+ * 
  * <pre>
  *
  * SOFTWARE HISTORY
@@ -35,9 +36,10 @@ import com.raytheon.viz.gfe.smarttool.PreviewInfo;
  * ------------ ---------- ----------- --------------------------
  * Jan 19, 2010            njensen     Initial creation
  * Jun 25, 2013  16065     ryu         Adding outerLevel attribute
+ * Jul 17, 2015  4575      njensen     Changed varDict from String to Map
  *
  * </pre>
- *
+ * 
  * @author njensen
  * @version 1.0
  */
@@ -46,7 +48,7 @@ public class SmartToolRequest extends QueueJobRequest<Object> {
 
     private Parm inputParm;
 
-    private String varDict;
+    private Map<String, Object> varDict;
 
     private PreviewInfo preview;
 
@@ -75,11 +77,11 @@ public class SmartToolRequest extends QueueJobRequest<Object> {
         this.inputParm = inputParm;
     }
 
-    public String getVarDict() {
+    public Map<String, Object> getVarDict() {
         return varDict;
     }
 
-    public void setVarDict(String varDict) {
+    public void setVarDict(Map<String, Object> varDict) {
         this.varDict = varDict;
     }
 

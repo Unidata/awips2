@@ -20,6 +20,7 @@
 package com.raytheon.viz.gfe.smarttool.script;
 
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.swt.widgets.Shell;
 
@@ -37,9 +38,10 @@ import com.raytheon.viz.gfe.ui.runtimeui.SelectionDlg;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 9, 2010            njensen     Initial creation
- * Jun 25, 2013  16065    ryu         Passing outerLevel to tool job
- * Dec 10, 2013  #2367    dgilling    Use new SmartToolJobPool.
+ * Feb 09, 2010            njensen     Initial creation
+ * Jun 25, 2013  16065     ryu         Passing outerLevel to tool job
+ * Dec 10, 2013  #2367     dgilling    Use new SmartToolJobPool.
+ * Jul 17, 2015  4575      njensen     Changed varDict from String to Map
  * 
  * </pre>
  * 
@@ -66,8 +68,7 @@ public class SmartToolSelectionDlg extends SelectionDlg {
             SmartToolRequest req = SmartUtil.buildSmartToolRequest(dataMgr, pi,
                     true);
             if (req != null) {
-                String varDict = dataMgr.getSmartToolInterface()
-                        .transformVarDict(getValues());
+                Map<String, Object> varDict = getValues();
                 req.setVarDict(varDict);
                 dataMgr.getSmartToolJobPool().schedule(req);
             }
