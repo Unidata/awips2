@@ -28,6 +28,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -37,7 +39,8 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.database.tasks.SqlStatementTask;
+import com.raytheon.uf.edex.database.dao.CoreDao;
+import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
 
 /**
@@ -51,7 +54,7 @@ import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
  * ------------ ---------- ----------- --------------------------
  * Apr 11, 2011            bfarmer     Initial creation
  * Mar 06, 2014   2876     mpduff      New NDM plugin.
- * 
+ * Jul 13, 2015   4500     rjpeter     Fix SQL Injection concerns.
  * </pre>
  * 
  * @author bfarmer
@@ -137,24 +140,17 @@ public class MarineInfoSubscriber implements INationalDatasetSubscriber {
         if ((outFile != null) && outFile.exists()) {
             BufferedReader fis = null;
             try {
+                CoreDao dao = new CoreDao(DaoConfig.forDatabase("maps"));
                 fis = new BufferedReader(new InputStreamReader(
                         new FileInputStream(outFile)));
                 try {
-                    SqlStatementTask task = new SqlStatementTask(setupOne,
-                            "maps");
-                    task.execute();
-                    task = new SqlStatementTask(setupTwo, "maps");
-                    task.execute();
-                    task = new SqlStatementTask(setupThree, "maps");
-                    task.execute();
-                    task = new SqlStatementTask(setupFour, "maps");
-                    task.execute();
-                    task = new SqlStatementTask(setupFive, "maps");
-                    task.execute();
-                    task = new SqlStatementTask(setupSix, "maps");
-                    task.execute();
-                    task = new SqlStatementTask(setupSeven, "maps");
-                    task.execute();
+                    dao.executeSQLUpdate(setupOne);
+                    dao.executeSQLUpdate(setupTwo);
+                    dao.executeSQLUpdate(setupThree);
+                    dao.executeSQLUpdate(setupFour);
+                    dao.executeSQLUpdate(setupFive);
+                    dao.executeSQLUpdate(setupSix);
+                    dao.executeSQLUpdate(setupSeven);
                 } catch (Exception e) {
                     statusHandler.handle(Priority.CRITICAL,
                             "Error resetting the MarineInfo DB table, ", e);
@@ -163,7 +159,8 @@ public class MarineInfoSubscriber implements INationalDatasetSubscriber {
                 String line = null;
                 String[] splitOne = null;
                 String[] splitTwo = null;
-                StringBuilder query = null;
+                StringBuilder query = new StringBuilder();
+                Map<String, Object> paramMap = new HashMap<>(8, 1);
                 try {
                     while ((line = fis.readLine()) != null) {
                         splitOne = line.split("\\s+", 5);
@@ -176,27 +173,21 @@ public class MarineInfoSubscriber implements INationalDatasetSubscriber {
                         // "INSERT INTO" + DBSCHEMA + "." + DBTABLE
                         // "(st, name, prog_disc, warngenlev,the_geom) "
                         // "VALUES('3','4',2,5,GeomFromText('POINT(1, 0)', 4326));"
-                        query = new StringBuilder("INSERT INTO \"");
+                        query.setLength(0);
+                        query.append("INSERT INTO \"");
                         query.append(DBSCHEMA);
                         query.append("\".\"");
                         query.append(DBTABLE);
-                        query.append("\"(st, name, prog_disc, warngenlev, the_geom) VALUES('");
-                        query.append(splitOne[3]); // st
-                        query.append("', '");
-                        query.append(splitTwo[0]); // name
-                        query.append("', ");
-                        query.append(splitOne[2]); // prog_disc
-                        query.append(", ");
-                        query.append(splitTwo[1]); // warngenlev
-                        query.append(", ");
-                        query.append("GeomFromText('POINT(");
-                        query.append(splitOne[1]); // the_geom 1
-                        query.append(" ");
-                        query.append(splitOne[0]); // the_geom 2
-                        query.append(")', 4326));"); // End query
-                        SqlStatementTask task = new SqlStatementTask(
-                                query.toString(), "maps");
-                        task.execute();
+                        query.append("\"(st, name, prog_disc, warngenlev, the_geom) VALUES(");
+                        query.append(":st, :name, :prog_disc, :warngenlev, ");
+                        query.append("GeomFromText('POINT(:geom1, :geom2)', 4326))");
+                        paramMap.put("st", splitOne[3]);
+                        paramMap.put("name", splitTwo[0]);
+                        paramMap.put("prog_disc", splitOne[2]);
+                        paramMap.put("warngenlev", splitTwo[1]);
+                        paramMap.put("geom1", splitOne[1]);
+                        paramMap.put("geom2", splitOne[0]);
+                        dao.executeSQLUpdate(query.toString(), paramMap);
                     }
                 } catch (IOException e) {
                     statusHandler.handle(Priority.PROBLEM,

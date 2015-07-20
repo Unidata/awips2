@@ -49,10 +49,10 @@ public class RedbookUaMenuUtil extends RedbookMenuUtil {
     /** Menu type constant */
     private static final String MENU_TYPE = "upperair";
 
-    /** HPC menu file */
+    /** Upper Air menu file */
     private static final String UA_MENU = "uaMenus.xml";
 
-    /** HPC menu file full path */
+    /** Upper Air menu file full path */
     private static final String MENU_FILE = MENUS + IPathManager.SEPARATOR
             + MENU_TYPE + IPathManager.SEPARATOR + UA_MENU;
 

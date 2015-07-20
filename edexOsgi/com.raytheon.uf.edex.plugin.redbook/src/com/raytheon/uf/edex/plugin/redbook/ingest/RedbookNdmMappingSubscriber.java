@@ -59,7 +59,7 @@ import com.raytheon.uf.edex.plugin.redbook.decoder.RedbookFcstMap.MapFcstHr;
  */
 public class RedbookNdmMappingSubscriber extends AbstractRedbookNdmSubscriber {
 
-    protected static final IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(RedbookNdmMappingSubscriber.class);
 
     private static final String FCST_MAP_FILE_NAME = "redbookFcstMap.xml";

@@ -61,7 +61,7 @@ import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
 public abstract class AbstractRedbookNdmSubscriber implements
         INationalDatasetSubscriber {
 
-    protected static final IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractRedbookNdmSubscriber.class);
 
     /**

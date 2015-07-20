@@ -18,7 +18,8 @@
 # further licensing information.
 ##
 
-from com.raytheon.uf.edex.database.tasks import SqlQueryTask
+from com.raytheon.uf.edex.database.dao import CoreDao
+from com.raytheon.uf.edex.database.dao import DaoConfig
 from com.raytheon.uf.common.message.response import ResponseMessageGeneric
 from java.util import ArrayList
 
@@ -30,17 +31,19 @@ from java.util import ArrayList
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    10/16/08        #1615          bphillip       Initial Creation.
-#    
+#    10/16/08        #1615         bphillip       Initial Creation.
+#    07/13/15        4500          rjpeter        Remove SqlQueryTask.
 # 
 
 class SqlQuery():
     
     def __init__(self, sqlQuery,dbName="metadata"):
-        self.__query = SqlQueryTask(sqlQuery,dbName)
+        self.__query = sqlQuery
+        self.__dbName = dbName
     
     def execute(self):
-        queryResults = self.__query.execute()
+        dao = CoreDao(DaoConfig.forDatabase(self.__dbName))
+        queryResults = dao.executeMappedSQLQuery(self.__query)
         response = ArrayList()
         response.add(ResponseMessageGeneric(queryResults))
         return response 

@@ -50,10 +50,10 @@ public class RedbookNcoMenuUtil extends RedbookMenuUtil {
     private static final String MENU_TYPE = NCEP_HYDRO + IPathManager.SEPARATOR
             + "nco";
 
-    /** HPC menu file */
+    /** NCO menu file */
     private static final String NCO_MENU = "ncoMenus.xml";
 
-    /** HPC menu file full path */
+    /** NCO menu file full path */
     private static final String MENU_FILE = MENUS + IPathManager.SEPARATOR
             + MENU_TYPE + IPathManager.SEPARATOR + NCO_MENU;
 

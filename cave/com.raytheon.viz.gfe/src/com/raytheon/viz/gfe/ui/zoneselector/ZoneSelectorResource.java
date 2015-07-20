@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -50,6 +51,7 @@ import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.util.WorldWrapCorrector;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.Pair;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -109,7 +111,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * Aug 21, 2014     #3459  randerso    Restructured Map resource class hierarchy
  * Sep 04, 2014     #3365  ccody       Changes for removing Data_Delivery dependencies
  * Apr 06, 2015     #17340 randerso    Eliminated clipping to GFE domain, code cleanup
- * 
+ * Jul 13, 2015      4500  rjpeter     Fix SQL Injection concerns.
  * </pre>
  * 
  * @author randerso
@@ -117,6 +119,7 @@ import com.vividsolutions.jts.io.WKBReader;
  */
 
 public class ZoneSelectorResource extends DbMapResource {
+    private static final String EDIT_AREA = "editarea";
 
     private static final RGB NO_ZONE_COLOR;
     static {
@@ -147,12 +150,15 @@ public class ZoneSelectorResource extends DbMapResource {
 
             String query;
 
+            List<String> columns;
+
             Request(IGraphicsTarget target, IMapDescriptor descriptor,
-                    ZoneSelectorResource rsc, String query) {
+                    ZoneSelectorResource rsc, String query, List<String> columns) {
                 this.target = target;
                 this.descriptor = descriptor;
                 this.rsc = rsc;
                 this.query = query;
+                this.columns = columns;
             }
         }
 
@@ -177,10 +183,10 @@ public class ZoneSelectorResource extends DbMapResource {
             }
         }
 
-        private ArrayBlockingQueue<Request> requestQueue = new ArrayBlockingQueue<Request>(
+        private final ArrayBlockingQueue<Request> requestQueue = new ArrayBlockingQueue<Request>(
                 QUEUE_LIMIT);
 
-        private ArrayBlockingQueue<Result> resultQueue = new ArrayBlockingQueue<Result>(
+        private final ArrayBlockingQueue<Result> resultQueue = new ArrayBlockingQueue<Result>(
                 QUEUE_LIMIT);
 
         private boolean canceled;
@@ -190,11 +196,12 @@ public class ZoneSelectorResource extends DbMapResource {
         }
 
         public void request(IGraphicsTarget target, IMapDescriptor descriptor,
-                ZoneSelectorResource rsc, String query) {
+                ZoneSelectorResource rsc, String query, List<String> columns) {
             if (requestQueue.size() == QUEUE_LIMIT) {
                 requestQueue.poll();
             }
-            requestQueue.add(new Request(target, descriptor, rsc, query));
+            requestQueue.add(new Request(target, descriptor, rsc, query,
+                    columns));
 
             this.cancel();
             this.schedule();
@@ -222,6 +229,10 @@ public class ZoneSelectorResource extends DbMapResource {
                     QueryResult mappedResult = DirectDbQuery
                             .executeMappedQuery(req.query, "maps",
                                     QueryLanguage.SQL);
+                    int index = 0;
+                    for (String column : req.columns) {
+                        mappedResult.addColumnName(column, index++);
+                    }
 
                     // long t1 = System.currentTimeMillis();
                     // System.out.println("Maps DB query took: " + (t1 - t0)
@@ -540,9 +551,9 @@ public class ZoneSelectorResource extends DbMapResource {
         }
     }
 
-    private MapQueryJob queryJob;
+    private final MapQueryJob queryJob;
 
-    private Map<String, ZoneInfo> zoneData;
+    private final Map<String, ZoneInfo> zoneData;
 
     private List<String> limitZones;
 
@@ -556,7 +567,7 @@ public class ZoneSelectorResource extends DbMapResource {
 
     private IShadedShape shapeList[];
 
-    private GeometryFactory geomFactory;
+    private final GeometryFactory geomFactory;
 
     private IGraphicsTarget target;
 
@@ -566,9 +577,9 @@ public class ZoneSelectorResource extends DbMapResource {
 
     private Envelope boundingEnvelope;
 
-    private GridLocation gloc;
+    private final GridLocation gloc;
 
-    private WorldWrapCorrector worldWrapCorrector;
+    private final WorldWrapCorrector worldWrapCorrector;
 
     /**
      * @param data
@@ -716,8 +727,10 @@ public class ZoneSelectorResource extends DbMapResource {
                         clipToProjExtent(screenExtent).getEnvelope())) {
             if (!paintProps.isZooming()) {
                 PixelExtent clippedExtent = clipToProjExtent(screenExtent);
-                String query = buildQuery(clippedExtent, simpLev);
-                queryJob.request(aTarget, descriptor, this, query);
+                Pair<String, List<String>> queryPair = buildQuery(
+                        clippedExtent, simpLev);
+                queryJob.request(aTarget, descriptor, this,
+                        queryPair.getFirst(), queryPair.getSecond());
                 lastExtent = clippedExtent;
                 lastSimpLev = simpLev;
             }
@@ -828,7 +841,8 @@ public class ZoneSelectorResource extends DbMapResource {
         }
     }
 
-    protected String buildQuery(PixelExtent extent, double simpLev) {
+    protected Pair<String, List<String>> buildQuery(PixelExtent extent,
+            double simpLev) {
 
         DecimalFormat df = new DecimalFormat("0.######");
         String suffix = "_"
@@ -837,16 +851,19 @@ public class ZoneSelectorResource extends DbMapResource {
         String geometryField = resourceData.getGeomField() + suffix;
 
         // get the geometry field
+        List<String> columns = new LinkedList<>();
         StringBuilder query = new StringBuilder("SELECT AsBinary(");
         query.append(geometryField);
         query.append(") as ");
         query.append(geometryField);
+        columns.add(geometryField);
 
         // add any additional columns
         if (resourceData.getColumns() != null) {
             for (ColumnDefinition column : resourceData.getColumns()) {
                 query.append(", ");
                 query.append(column);
+                columns.add(column.toString());
             }
         }
 
@@ -863,7 +880,7 @@ public class ZoneSelectorResource extends DbMapResource {
 
         query.append(';');
 
-        return query.toString();
+        return new Pair<>(query.toString(), columns);
     }
 
     /**
@@ -890,7 +907,7 @@ public class ZoneSelectorResource extends DbMapResource {
 
         IShadedShape newShadedShape = target.createShadedShape(false,
                 new GeneralGridGeometry(descriptor.getGridGeometry()), true);
-//                new GeneralGridGeometry(descriptor.getGridGeometry()));
+        // new GeneralGridGeometry(descriptor.getGridGeometry()));
         JTSCompiler shapeCompiler = new JTSCompiler(newShadedShape, null,
                 descriptor);
         JTSGeometryData geomData = shapeCompiler.createGeometryData();
@@ -947,39 +964,41 @@ public class ZoneSelectorResource extends DbMapResource {
     public List<String> getZoneNames() {
         if (zoneData.isEmpty()) {
             try {
-                StringBuilder query = new StringBuilder("SELECT ");
 
                 // add any additional columns
-                int count = 0;
+                boolean hasEditArea = false;
                 if (resourceData.getColumns() != null) {
                     for (ColumnDefinition column : resourceData.getColumns()) {
-                        if (count > 0) {
-                            query.append(", ");
+                        if (EDIT_AREA.equals(column.toString())) {
+                            hasEditArea = true;
+                            break;
                         }
-                        query.append(column);
-                        count++;
                     }
                 }
-                // add the geometry table
-                query.append(" FROM ");
-                query.append(resourceData.getTable());
 
-                // add any constraints
-                String[] constraints = resourceData.getConstraints();
-                if ((constraints != null) && (constraints.length > 0)) {
-                    query.append(" WHERE ").append(
-                            StringUtils.join(constraints, " AND "));
-                }
+                if (hasEditArea) {
+                    StringBuilder query = new StringBuilder("SELECT ");
+                    query.append(EDIT_AREA);
+                    query.append(" FROM ");
+                    // add the geometry table
+                    query.append(resourceData.getTable());
 
-                query.append(';');
+                    // add any constraints
+                    String[] constraints = resourceData.getConstraints();
+                    if ((constraints != null) && (constraints.length > 0)) {
+                        query.append(" WHERE ").append(
+                                StringUtils.join(constraints, " AND "));
+                    }
 
-                QueryResult mappedResult = DirectDbQuery.executeMappedQuery(
-                        query.toString(), "maps", QueryLanguage.SQL);
+                    query.append(';');
 
-                if (mappedResult.getColumnNames().containsKey("editarea")) {
+                    QueryResult mappedResult = DirectDbQuery
+                            .executeMappedQuery(query.toString(), "maps",
+                                    QueryLanguage.SQL);
+
                     for (int i = 0; i < mappedResult.getResultCount(); i++) {
                         String zoneName = (String) mappedResult
-                                .getRowColumnValue(i, "editarea");
+                                .getRowColumnValue(i, 0);
                         getZoneInfo(zoneName);
                     }
                 }
@@ -1056,15 +1075,14 @@ public class ZoneSelectorResource extends DbMapResource {
                 WKBReader wkbReader = new WKBReader();
                 for (int i = 0; i < mappedResult.getResultCount(); i++) {
                     String zoneName = (String) mappedResult.getRowColumnValue(
-                            i, "editarea");
+                            i, 1);
 
                     if ((this.limitZones != null)
                             && !this.limitZones.contains(zoneName)) {
                         continue;
                     }
 
-                    byte[] b = (byte[]) mappedResult.getRowColumnValue(i,
-                            "extent");
+                    byte[] b = (byte[]) mappedResult.getRowColumnValue(i, 0);
                     if (b != null) {
                         Geometry geom = wkbReader.read(b);
 

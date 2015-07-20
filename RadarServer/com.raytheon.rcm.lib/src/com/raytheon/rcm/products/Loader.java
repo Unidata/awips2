@@ -47,7 +47,8 @@ import com.raytheon.rcm.products.RadarProduct.Param;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 03/07/2013   DR15495    zwang       Load elevation info for SSSS radars                                 
+ * 03/07/2013   DR15495    zwang       Load elevation info for SSSS radars
+ * 07/13/2015   DR 17672   D. Friedman Add compressionAllowed field
  * 
  * </pre>
  * 
@@ -110,7 +111,13 @@ public class Loader {
 			}
 			try {
 				ls.next(); // AWIPS ID
-				rp.azimuthalResolution = ls.nextFloat();
+				String token = ls.next();
+				try {
+				    rp.azimuthalResolution = Float.parseFloat(token);
+				} catch (NumberFormatException e) {
+				    // ignore
+				}
+				rp.compressionAllowed = ls.next().trim().equalsIgnoreCase("y");
 			} catch (NoSuchElementException e) {
 				// ignore
 			}

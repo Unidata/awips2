@@ -20,6 +20,7 @@
 package com.raytheon.edex.plugin.radar;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,6 +30,11 @@ import java.util.zip.Inflater;
 import org.itadaki.bzip2.BZip2InputStream;
 
 import com.raytheon.edex.esb.Headers;
+import com.raytheon.uf.common.dataplugin.radar.util.RadarInfo;
+import com.raytheon.uf.common.dataplugin.radar.util.RadarInfoDict;
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -47,6 +53,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Mar 20, 2013 1804       bsteffen    Switch all radar decompressing to be in
  *                                     memory.
  * Aug 20, 2013 16157      wkwock      Add bunzip2 cabability. 
+ * Jul 13  2015 DR 17672   D. Friedman Only decompress products documented to support compression
  * 
  * </pre>
  * 
@@ -69,6 +76,27 @@ public class RadarDecompressor {
 
     private static final Pattern WMO_PATTERN = Pattern
             .compile("([A-Z]{4}[0-9]{2} [A-Z]{4} [0-9]{6})\\x0D\\x0D\\x0A(\\w{6})\\x0D\\x0D\\x0A");
+
+    public final RadarInfoDict infoDict;
+
+    public RadarDecompressor() {
+        // TODO: This is duplicated in RadarDecoder
+        String dir = "";
+
+        IPathManager pathMgr = PathManagerFactory.getPathManager();
+        LocalizationContext commonStaticBase = pathMgr.getContext(
+                LocalizationContext.LocalizationType.COMMON_STATIC,
+                LocalizationContext.LocalizationLevel.BASE);
+
+        try {
+            dir = pathMgr.getFile(commonStaticBase, ".").getCanonicalPath();
+        } catch (IOException e) {
+            theHandler.handle(Priority.ERROR,
+                    "Failed to get localization directory", e);
+        }
+
+        infoDict = RadarInfoDict.getInstance(dir);
+    }
 
     public byte[] decompress(byte[] messageData, Headers headers) {
         return decompressImpl(messageData, headers, false);
@@ -190,6 +218,11 @@ public class RadarDecompressor {
      * @return true if data is bzip2 compressed
      */
     private boolean isBzip2Compressed(byte[] inBuf, int inOff) {
+        int productCode = ((inBuf[0] & 0xff) << 8) | (inBuf[1] & 0xff);
+        RadarInfo info = infoDict.getInfo(productCode);
+        if (info == null || ! info.isCompressionAllowed())
+            return false;
+
         if ((inBuf==null) || (inOff < 0) || ((inOff +120) >= inBuf.length)) {
             return false;
         }
