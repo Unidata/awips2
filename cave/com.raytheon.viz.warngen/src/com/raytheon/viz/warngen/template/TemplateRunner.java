@@ -351,14 +351,14 @@ public class TemplateRunner {
                                             .getNumGeometries()];
                                     n1 = warningArea.getNumGeometries();
                                     for (int j = 0; j < n1; j++) {
-                                        poly1[j] = (Polygon) warningArea
+                                        poly1[j] = warningArea
                                                 .getGeometryN(j);
                                     }
                                     poly2 = new Geometry[timezoneGeom
                                             .getNumGeometries()];
                                     n2 = timezoneGeom.getNumGeometries();
                                     for (int j = 0; j < n2; j++) {
-                                        poly2[j] = (Polygon) timezoneGeom
+                                        poly2[j] = timezoneGeom
                                                 .getGeometryN(j);
                                     }
                                     // Calculate the total size of intersection
