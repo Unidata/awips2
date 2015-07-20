@@ -1727,4 +1727,5 @@
 	<Level displayName="NTAT" key="NTAT" group="S">
 		<DatabaseLevel levelName="NTAT" levelOneValue="0" />
 	</Level>
+
 </LevelMappings>

@@ -46,7 +46,8 @@ import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.uf.edex.database.tasks.SqlQueryTask;
+import com.raytheon.uf.edex.database.dao.CoreDao;
+import com.raytheon.uf.edex.database.dao.DaoConfig;
 
 /**
  * Code to generate the AreaDictionary for text formatters
@@ -63,7 +64,7 @@ import com.raytheon.uf.edex.database.tasks.SqlQueryTask;
  *                                     python modules from the GIS database tables
  * Dec 08, 2014  #4953     randerso    Updated Jep include path to allow use of
  *                                     LocalizationSupport
- * 
+ * Jul 13, 2015   4500     rjpeter     Fix SQL Injection concerns.
  * </pre>
  * 
  * @author wldougher
@@ -77,14 +78,14 @@ public class AreaDictionaryMaker {
     protected static final String FIPS_CITY_QUERY = //
     "SELECT name, population,  ST_Y(city.the_geom), ST_X(city.the_geom) "
             + "FROM mapdata.city, mapdata.county "
-            + "WHERE county.state = '%1$s' AND substring(fips,3,3) = '%2$s' "
+            + "WHERE county.state = :state AND substring(fips,3,3) = :num "
             + "AND ST_Contains(county.the_geom, city.the_geom) "
             + "ORDER BY city.name;";
 
     protected static final String ZONES_CITY_QUERY = //
     "SELECT city.name, population,  ST_Y(city.the_geom), ST_X(city.the_geom) "
             + "FROM mapdata.city, mapdata.zone "
-            + "WHERE zone.state = '%1$s' AND zone.zone = '%2$s' "
+            + "WHERE zone.state = :state AND zone.zone = :num "
             + "AND ST_Contains(zone.the_geom, city.the_geom) "
             + "ORDER BY city.name;";
 
@@ -320,6 +321,7 @@ public class AreaDictionaryMaker {
                 StringBuilder sb = new StringBuilder();
                 Pattern pattern = Pattern.compile("(\\p{Upper}{2})" + separator
                         + "(\\d{3})");
+                CoreDao dao = new CoreDao(DaoConfig.forDatabase("maps"));
 
                 for (Map<String, Object> att : attributes) {
                     String ean = (String) att.get("editarea");
@@ -338,14 +340,15 @@ public class AreaDictionaryMaker {
                     String fullStateName = this.stateDict.get(state);
                     String partOfState = PART_OF_STATE.get(att.get("fe_area"));
                     String wfo = (String) att.get("cwa");
-
-                    SqlQueryTask task = new SqlQueryTask(String.format(
-                            cityQuery, state, num), "maps");
+                    Map<String, Object> paramMap = new HashMap<>(2, 1);
+                    paramMap.put("state", state);
+                    paramMap.put("num", num);
 
                     // retrieve cities for this area
                     QueryResult citiesResult = null;
                     try {
-                        citiesResult = task.execute();
+                        citiesResult = dao.executeMappedSQLQuery(cityQuery,
+                                paramMap);
                     } catch (Exception e) {
                         statusHandler
                                 .error("Error getting cites for " + ean, e);
@@ -407,10 +410,10 @@ public class AreaDictionaryMaker {
     }
 
     private void genStateDict() {
-        SqlQueryTask task = new SqlQueryTask(
-                "SELECT state, name FROM mapdata.states", "maps");
         try {
-            QueryResult result = task.execute();
+            CoreDao dao = new CoreDao(DaoConfig.forDatabase("maps"));
+            QueryResult result = dao
+                    .executeMappedSQLQuery("SELECT state, name FROM mapdata.states");
             stateDict = new HashMap<String, String>(result.getResultCount(),
                     1.0f);
             for (QueryResultRow row : result.getRows()) {

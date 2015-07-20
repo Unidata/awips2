@@ -25,7 +25,6 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
@@ -40,13 +39,12 @@ import com.vividsolutions.jts.io.WKTReader;
  * SOFTWARE HISTORY
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 10Oct2011   10520       JWork       Initial check-in.
+ * 10Oct2011    10520       JWork       Initial check-in.
  * 09/11/2012   DR 15366    D. Friedman Set SRID on radar stations.
- * Mar 06, 2014   2876      mpduff      Moved NationalDatasetSubscriber.
+ * Mar 06, 2014 2876        mpduff      Moved NationalDatasetSubscriber.
+ * Jul 09, 2015 4500        rjpeter     Fix SQL Injection concern.
  * </pre>
- * 
  */
-
 public class Import88DLocationsUtil implements INationalDatasetSubscriber {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(Import88DLocationsUtil.class);
@@ -292,11 +290,10 @@ public class Import88DLocationsUtil implements INationalDatasetSubscriber {
          * Once GetTools is updated/fixed, this should be removed.
          */
         try {
-            radarStationDAO
-                    .executeNativeSql("update radar_spatial set the_geom=st_setsrid(the_geom, 4326)");
-        } catch (DataAccessLayerException e) {
+            radarStationDAO.setSridOnAllRadarStation();
+        } catch (Exception e) {
             statusHandler.handle(Priority.ERROR,
-                    "Failed to update the SRIDs in the radar_spatial_table", e);
+                    "Failed to update the SRIDs in the radar_spatial table", e);
         }
 
         if (statusHandler.isPriorityEnabled(Priority.INFO)) {

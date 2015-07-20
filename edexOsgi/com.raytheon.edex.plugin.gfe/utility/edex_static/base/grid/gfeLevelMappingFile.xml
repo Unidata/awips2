@@ -496,4 +496,7 @@
     <Level key="BSS">
         <DatabaseLevel levelName="BSS" levelOneValue="0.0"/>
     </Level>
+    <Level key="NTAT">
+        <DatabaseLevel levelName="NTAT" levelOneValue="0.0"/>
+    </Level>
 </LevelMappings>

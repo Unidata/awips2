@@ -18,10 +18,12 @@
 #    ------------    ----------    -----------          --------------------------
 #    06/02/10        173_partC     mgamazaychikov       Initial Creation.
 #    09/09/10                      mgamazaychikov       Added setSeparator function
+#    07/13/15        4500          rjpeter              Remove SqlQueryTask
 #
 from com.raytheon.uf.common.message.response import ResponseMessageGeneric
 from com.raytheon.uf.common.dataquery.db import QueryResult
-from com.raytheon.uf.edex.database.tasks import SqlQueryTask
+from com.raytheon.uf.edex.database.dao import CoreDao
+from com.raytheon.uf.edex.database.dao import DaoConfig
 from java.util import ArrayList
 
 class GempakSqlQuery(): 
@@ -87,11 +89,8 @@ class GempakSqlQuery():
     def execute(self):
         #self.queryResults = ArrayList()
         
-        #
-        # Create an instance of SQL Query and execute it
-        #
-        self.sqlQuery = SqlQueryTask(self.query, self.dbname)
-        self.queryResults = self.sqlQuery.execute()
+        dao = CoreDao(DaoConfig.forDatabase(self.dbname))
+        self.queryResults = dao.executeMappedSQLQuery(self.query)
             
         #
         # Make response based on the query results

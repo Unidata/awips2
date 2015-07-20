@@ -185,7 +185,7 @@
         <property name="initialListeners">
            <list>
                <!--  This causes database tables to be initialized when a db plugin is registered -->
-               <bean class="com.raytheon.uf.edex.database.schema.SchemaManager" factory-method="getInstance"/>
+               <bean class="com.raytheon.uf.edex.database.plugin.SchemaManager" factory-method="getInstance"/>
            </list>
         </property>
         <property name="initialProperties">

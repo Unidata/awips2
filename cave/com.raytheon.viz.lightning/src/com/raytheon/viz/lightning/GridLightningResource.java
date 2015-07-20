@@ -62,8 +62,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.grid.rsc.AbstractGridResource;
 import com.raytheon.uf.viz.core.grid.rsc.data.GeneralGridData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.viz.grid.rsc.general.AbstractGridResource;
-import com.raytheon.viz.grid.rsc.general.GeneralGridData;
 import com.raytheon.viz.lightning.LightningResourceData.DisplayType;
 import com.raytheon.viz.lightning.cache.LightningFrame;
 import com.raytheon.viz.lightning.cache.LightningFrameMetadata;

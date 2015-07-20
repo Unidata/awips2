@@ -28,8 +28,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import com.raytheon.uf.common.awipstools.GetWfoCenterPoint;
-import com.raytheon.uf.common.dataquery.db.QueryResult;
-import com.raytheon.uf.common.dataquery.db.QueryResultRow;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
@@ -38,7 +36,6 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -52,8 +49,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 9, 2010            mschenke     Initial creation
- * 
+ * Jun 9, 2010             mschenke    Initial creation
+ * Jul 09, 2015 4500       rjpeter     Fix SQL Injection concern.
  * </pre>
  * 
  * @author mschenke
@@ -98,25 +95,22 @@ public class GetWfoCenterHandler implements IRequestHandler<GetWfoCenterPoint> {
     private static Coordinate lookupInWfoCenter(String wfoId) {
         Coordinate loc = null;
         try {
-            String query = String.format(
-                    "SELECT lat,lon FROM mapdata.cwa WHERE wfo = '%s' LIMIT 1",
-                    wfoId);
-            QueryResult result = (QueryResult) new CoreDao(
-                    DaoConfig.forDatabase("maps")).executeNativeSql(query);
+            CoreDao dao = new CoreDao(DaoConfig.forDatabase("maps"));
+            Object[] rows = dao.executeSQLQuery(
+                    "SELECT lat,lon FROM mapdata.cwa WHERE wfo = :wfo LIMIT 1",
+                    "wfo", wfoId);
 
-            if (result.getRows().length == 0) {
-                query = String
-                        .format("select ST_Y(theCentroid) as lat, ST_X(theCentroid) as lon from (select ST_CENTROID(theUnion) as theCentroid from (select ST_Union(the_geom) as theUnion from mapdata.rfc where site_id = '%s') as dummyAlias) as dummyAlias;",
-                                wfoId);
-                result = (QueryResult) new CoreDao(
-                        DaoConfig.forDatabase("maps")).executeNativeSql(query);
+            if ((rows == null) || (rows.length == 0)) {
+                rows = dao
+                        .executeSQLQuery(
+                                "select ST_Y(theCentroid) as lat, ST_X(theCentroid) as lon from (select ST_CENTROID(theUnion) as theCentroid from (select ST_Union(the_geom) as theUnion from mapdata.rfc where site_id = :site) as dummyAlias) as dummyAlias",
+                                "site", wfoId);
 
             }
-
-            if (result.getRows().length > 0) {
-                QueryResultRow row = result.getRows()[0];
-                Double lat = ((Number) row.getColumn(0)).doubleValue();
-                Double lon = ((Number) row.getColumn(1)).doubleValue();
+            if ((rows != null) && (rows.length > 0)) {
+                Object[] row = (Object[]) rows[0];
+                Double lat = ((Number) row[0]).doubleValue();
+                Double lon = ((Number) row[1]).doubleValue();
                 loc = new Coordinate(lon, lat);
             }
 
@@ -124,7 +118,7 @@ public class GetWfoCenterHandler implements IRequestHandler<GetWfoCenterPoint> {
                 statusHandler.handle(Priority.PROBLEM,
                         "No location information found for wfo: " + wfoId);
             }
-        } catch (DataAccessLayerException e) {
+        } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error executing query for wfo center point", e);
         }
@@ -152,7 +146,8 @@ public class GetWfoCenterHandler implements IRequestHandler<GetWfoCenterPoint> {
             double lat = Double.parseDouble(line.substring(0, p));
             double lon = Double.parseDouble(line.substring(p));
 
-            if (lat > 90.0 || lat < -90.0 || lon > 180.0 || lon < -180.0) {
+            if ((lat > 90.0) || (lat < -90.0) || (lon > 180.0)
+                    || (lon < -180.0)) {
                 statusHandler
                         .handle(Priority.PROBLEM,
                                 "Invalid lat/lon in wfo center point file, using default");

@@ -62,7 +62,7 @@ EDEX_BANNER_TXT=
 # 11.6.X builds.
 function updateCAVEVersionLegacy()
 {
-   local TMP_PRODUCTS_DIR="/awips2/cave/.tmp/products"
+   local TMP_PRODUCTS_DIR="/awips2/${AWIPS_PRODUCT}/.tmp/products"
 
    cd ${TMP_PRODUCTS_DIR}
    # update plugin.xml
@@ -100,9 +100,9 @@ function padEdexBannerLine()
 	return 0
 }
 
-function updateCAVEVersion()
+function updateVersion()
 {
-   local TMP_PRODUCTS_DIR="/awips2/cave/.tmp/products"
+   local TMP_PRODUCTS_DIR="/awips2/${AWIPS_PRODUCT}/.tmp/products"
 
    if [ -d ${TMP_PRODUCTS_DIR} ]; then
       rm -rf ${TMP_PRODUCTS_DIR}
@@ -126,7 +126,7 @@ function updateCAVEVersion()
    
    ARCH="x86"
    # Determine the architecture.
-   TMP=`file /awips2/cave/cave | grep "ELF 64-bit"`
+   TMP=`file /awips2/${AWIPS_PRODUCT}/${AWIPS_PRODUCT} | grep "ELF 64-bit"`
    if [ ! "${TMP}" = "" ]; then
       ARCH="x86_64"
    fi
@@ -143,15 +143,17 @@ function updateCAVEVersion()
    echo "\\tBUILD DATE: %{_component_build_date}\\n\\" \
       >> plugin.properties
    echo "\\tBUILD TIME: %{_component_build_time}\\n\\" >> plugin.properties
-   echo "\\tBUILD SYSTEM: %{_component_build_system}\\n\\" \
+   echo "\\tBUILD SYSTEM: %{_component_build_system}\\n" \
+      >> plugin.properties
+   echo "caveVersion=%{_component_version}-%{_component_release}" \
       >> plugin.properties
    # Update the jar file.
    /awips2/java/bin/jar uf ${AWIPS_PRODUCT_JAR} plugin.properties
    # Relocate the jar file.
-   mv ${AWIPS_PRODUCT_JAR} /awips2/cave/plugins 
+   mv ${AWIPS_PRODUCT_JAR} /awips2/${AWIPS_PRODUCT}/plugins 
    
    rm -rf ${TMP_PRODUCTS_DIR}
-   
+
    return 0
 }
 
@@ -184,7 +186,22 @@ if [ -d /awips2/cave/plugins ]; then
    if [ ${RC} -eq 0 ]; then
       # does the jar exist?
       if [ -f ${AWIPS_PRODUCT_JAR} ]; then
-         updateCAVEVersion
+         AWIPS_PRODUCT="cave"
+         updateVersion
+      fi
+   fi
+fi
+
+AWIPS_PRODUCT_WILDCARD="/awips2/alertviz/plugins/com.raytheon.uf.viz.product.alertviz_*.jar"
+# Get the actual name of the product jar.
+if [ -d /awips2/alertviz/plugins ]; then
+   AWIPS_PRODUCT_JAR=`ls -1 ${AWIPS_PRODUCT_WILDCARD}`
+   RC=$?
+   if [ ${RC} -eq 0 ]; then
+      # does the jar exist?
+      if [ -f ${AWIPS_PRODUCT_JAR} ]; then
+         AWIPS_PRODUCT="alertviz"
+         updateVersion
       fi
    fi
 fi

@@ -103,7 +103,7 @@ startEDEX() {
    local TIME=`/bin/date "+%F %T"`
    echo "$TIME: Service edex_camel Starting EDEX ${1}" >> $LOG
 
-   su $EDEXUSER -c "$DAEMON &" >> $LOG 2>&1
+   su - $EDEXUSER -c "$DAEMON &" >> $LOG 2>&1
    sleep 10
    local pidfile=${EDEX_INSTALL}/bin/${1}.pid
 

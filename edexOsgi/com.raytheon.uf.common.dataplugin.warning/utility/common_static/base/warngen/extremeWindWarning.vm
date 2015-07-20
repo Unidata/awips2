@@ -30,7 +30,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 
 #if(${productClass}=="T")
-This message is for test purposes only
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
 
 #end
 #headline(${officeLoc}, ${backupSite})
@@ -40,7 +40,7 @@ This message is for test purposes only
 ##################
 * ##
 #if(${productClass}=="T")
-This is a test message. ##
+THIS IS A TEST MESSAGE. ##
 #end
 Extreme Wind Warning for...
 #firstBullet(${areas})
@@ -50,7 +50,7 @@ Extreme Wind Warning for...
 ###################
 * ##
 #if(${productClass}=="T")
-This is a test message. ##
+THIS IS A TEST MESSAGE. ##
 #end
 #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone})
 
@@ -113,7 +113,7 @@ This is a test message. ##
 
 * ##
 #if(${productClass}=="T")
-This is a test message. ##
+THIS IS A TEST MESSAGE. ##
 #end
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
 , ${reportType}, ${reportType1} ##
@@ -135,14 +135,14 @@ This is a test message. ##
 #if(${list.contains(${bullets}, "pathcast")})
 * ##
 #if(${productClass}=="T")
-This is a test message. ##
+THIS IS A TEST MESSAGE. ##
 #end
 #pathCast("${phenomena} will be near..." ${phenomena} ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
 
 #elseif(${list.contains(${bullets}, "listofcities")})
 * ##
 #if(${productClass}=="T")
-This is a test message. ##
+THIS IS A TEST MESSAGE. ##
 #end
 #### THE THIRD ARGUMENT IS A NUMBER SPECIFYING THE NUMBER OF COLUMNS TO OUTPUT THE CITIES LIST IN
 #### 0 IS A ,  SEPARATED LIST, 1 IS ONE PER LINE, >1 IS A COLUMN FORMAT
@@ -167,11 +167,11 @@ This is a test message. ##
 #end
 ##
 #if(${ctaSelected} == "YES") 
-PRECAUTIONARY/PREPAREDNESS ACTIONS, 
+PRECAUTIONARY/PREPAREDNESS ACTIONS...
 
 #end
 #if(${list.contains(${bullets}, "destructiveWindsCTA")})
-Widespread destructive winds of !** **! TO !** **! mph will spread across ##
+Widespread destructive winds of !** **! to !** **! mph will spread across ##
 #foreach (${area} in ${areas})
  ${area.name} ${area.areaNotation}, ##
 #end
@@ -202,7 +202,7 @@ The safest place to be during a major landfalling hurricane is in a reinforced i
 
 
 #if(${productClass}=="T")
-This is a test message. do not take action based on this message.
+THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 
 #end
 #printcoords(${areaPoly}, ${list})

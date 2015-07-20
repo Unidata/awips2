@@ -79,7 +79,7 @@ import com.raytheon.uf.viz.alertviz.config.AlertMetadata;
  * 
  */
 public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
-        MouseListener {
+        MouseListener, DisposeListener {
     private static final int MAX_INITIAL_LINES = 5;
 
     private static final int WIDTH_IN_CHARS = 135;
@@ -266,9 +266,9 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
     private Label fillerLbl;
 
     /**
-     * Listens for "Hide Dialog" event, implemented by AlertVisualization class
+     * Listens for Hide and Dispose events
      */
-    private final Listener hideListener;
+    private final Listener eventListener;
 
     /**
      * Initialized flag indicating if the control have been initialized.
@@ -289,14 +289,14 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
      * @param expanded
      *            Expanded flag.
      * @param listener
-     *            Hide listener.
+     *            Event listener.
      * @param startUpRGB
      *            Color to be displayed at startup.
      */
     public AlertPopupMessageDlg(Shell parent, StatusMessage statMsg,
             boolean expanded, Listener listener, RGB startUpRGB) {
         super(parent, 0);
-        hideListener = listener;
+        eventListener = listener;
         statMsgArray.add(statMsg);
         this.expanded = expanded;
         this.first = true;
@@ -314,6 +314,8 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
         shell = new Shell(parent, SWT.ON_TOP | SWT.RESIZE);
         shell.setText("Alert Visualization Popup Message Dialog");
 
+        shell.addDisposeListener(this);
+
         // Create the main layout for the shell.
         GridLayout mainLayout = new GridLayout(1, false);
         mainLayout.marginWidth = 0;
@@ -330,28 +332,28 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
         setBackgroundColors(startUp);
 
         // listener event triggers when shell set to not be visible
-        shell.addListener(SWT.Hide, hideListener);
+        shell.addListener(SWT.Hide, eventListener);
+        shell.addListener(SWT.Dispose, eventListener);
+    }
 
-        shell.addDisposeListener(new DisposeListener() {
-
-            @Override
-            public void widgetDisposed(DisposeEvent e) {
-                while (statMsgArray.size() != 0) {
-                    if (!display.readAndDispatch()) {
-                        display.sleep();
-                    }
-                }
-                bgColor.dispose();
+    @Override
+    public void widgetDisposed(DisposeEvent e) {
+        while (statMsgArray.size() != 0) {
+            if (!display.readAndDispatch()) {
+                display.sleep();
             }
-        });
+        }
+        bgColor.dispose();
+
+        initialized = false;
+        labelFont.dispose();
     }
 
     /**
      * Open method used to display the dialog.
      * 
-     * @return True/False/null.
      */
-    public Object open() {
+    private void open() {
 
         setInitialDialogLocation();
 
@@ -366,12 +368,6 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
                 display.sleep();
             }
         }
-
-        initialized = false;
-
-        labelFont.dispose();
-
-        return null;
     }
 
     /**
@@ -553,7 +549,7 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
         ackAllBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                acknowledgeAllMessages(true);
+                acknowledgeAllMessages();
             }
         });
 
@@ -782,9 +778,6 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
         }
 
         msgLogList.select(currentIndex);
-        if (initialized == true) {
-            showDialog(true);
-        }
     }
 
     /**
@@ -900,7 +893,7 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
     /**
      * Acknowledge all of the messages.
      */
-    public void acknowledgeAllMessages(boolean confirmPrompt) {
+    public void acknowledgeAllMessages() {
         int index = msgLogList.getSelectionIndex();
 
         int result = SWT.CANCEL;
@@ -914,28 +907,26 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
             showHideLog();
         }
 
-        if (confirmPrompt) {
-            ConfirmationDlg cd = new ConfirmationDlg(shell,
-                    "Are you sure you want to acknowledge all popup messages?",
-                    SWT.ICON_QUESTION);
+        ConfirmationDlg cd = new ConfirmationDlg(shell,
+                "Are you sure you want to acknowledge all popup messages?",
+                SWT.ICON_QUESTION);
 
-            if ((msgLogList != null) && !msgLogList.isDisposed()) {
-                Rectangle logBounds = msgLogList.getBounds();
-                Point logDisplayOrigin = msgLogList.toDisplay(0, 0);
-                logBounds.x = logDisplayOrigin.x;
-                logBounds.y = logDisplayOrigin.y;
-                cd.setAvoidedArea(logBounds);
+        if ((msgLogList != null) && !msgLogList.isDisposed()) {
+            Rectangle logBounds = msgLogList.getBounds();
+            Point logDisplayOrigin = msgLogList.toDisplay(0, 0);
+            logBounds.x = logDisplayOrigin.x;
+            logBounds.y = logDisplayOrigin.y;
+            cd.setAvoidedArea(logBounds);
+        }
+
+        result = cd.open();
+
+        if (result != SWT.YES) {
+            if ((result == SWT.CANCEL) && expandedForPrompt) {
+                expanded = false;
+                showHideLog();
             }
-
-            result = cd.open();
-
-            if (result != SWT.YES) {
-                if ((result == SWT.CANCEL) && expandedForPrompt) {
-                    expanded = false;
-                    showHideLog();
-                }
-                return;
-            }
+            return;
         }
 
         String userName = System.getProperty("user.name");
@@ -987,17 +978,21 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
     }
 
     /**
-     * Shows or hides the dialog.
+     * Shows the dialog.
      * 
      * @param show
      *            True to show dialog, false to hide.
      */
-    public void showDialog(boolean show) {
-        shell.setLocation(dialogXY);
-        shell.setVisible(show);
+    public void showDialog() {
+        if (initialized) {
+            shell.setLocation(dialogXY);
+            shell.setVisible(true);
 
-        showSelectedListData();
-        msgLogList.showSelection();
+            showSelectedListData();
+            msgLogList.showSelection();
+        } else {
+            open();
+        }
     }
 
     /**

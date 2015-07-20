@@ -91,8 +91,9 @@ public abstract class RedbookMenuUtil extends AbstractMenuUtil {
      * Method called from the RedbookMenuSubscriber when new NDM files are
      * placed in /awips2/edex/data/ndm
      * 
-     * @param filename
-     *            The file droped into /awips2/edex/data/ndm
+     * @param xml
+     *            The Redbook menu XML object generated from the file(s) dropped
+     *            into /awips2/edex/data/ndm
      */
     public void createMenusFromFile(RedbookMenusXML xml) {
         this.xml = xml;

@@ -72,6 +72,7 @@ import com.raytheon.openfire.plugin.detailedfeedlog.listener.DetailedFeedLogEven
  *                                     and changed error handling to log each bad line.
  *                                     Create new DateFormatter for the purge thread.
  *                                     Moved presence/site determination out of log method.
+ * Jul 08, 2015 4316       mapeters    Include seconds in message times.
  * 
  * </pre>
  * 
@@ -117,7 +118,7 @@ public class DetailedFeedLogPlugin implements Plugin, PropertyEventListener {
 
     private static final String ROOM_DIR = "Rooms";
 
-    private static final String DATE_FORMAT_STR = "MM/dd/yyyy h:mm a";
+    private static final String DATE_FORMAT_STR = "MM/dd/yyyy h:mm:ss a";
 
     private DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT_STR);
 
@@ -195,8 +196,7 @@ public class DetailedFeedLogPlugin implements Plugin, PropertyEventListener {
                     try {
                         LogEntry entry = LogEntry.fromString(line, dateFormat);
                         addToMemoryLog(entry,
-                                file.getName()
-                                .replaceAll(".log", ""));
+                                file.getName().replaceAll(".log", ""));
                     } catch (ParseException e) {
                         logger.error("Failed in log " + file.getName()
                                 + " to parse date from line: " + line, e);
@@ -231,8 +231,7 @@ public class DetailedFeedLogPlugin implements Plugin, PropertyEventListener {
      *            - fqname
      * @param message
      */
-    public static void log(String user, String site, String message,
-            String room) {
+    public static void log(String user, String site, String message, String room) {
         logger.info("Logging : " + user + " \"" + message + "\"");
         Date date = new Date();
         LogEntry entry = new LogEntry(date, site, user, message);
@@ -245,8 +244,7 @@ public class DetailedFeedLogPlugin implements Plugin, PropertyEventListener {
      * @param entry
      * @param room
      */
-    private static void addToMemoryLog(LogEntry entry,
-            String room) {
+    private static void addToMemoryLog(LogEntry entry, String room) {
         Queue<LogEntry> queue = null;
         if (entries.containsKey(room)) {
             queue = entries.get(room);
@@ -311,7 +309,7 @@ public class DetailedFeedLogPlugin implements Plugin, PropertyEventListener {
                                         - (purgeLogTime * SECONDS_TO_MILLIS));
                         // DateFormat for this thread
                         DateFormat dateFormat = new SimpleDateFormat(
-                                "MM/dd/yyyy h:mm a");
+                                "MM/dd/yyyy h:mm:ss a");
                         String dateText = dateFormat.format(latestTimeToKeep);
                         logger.info("Purging the log of anything before "
                                 + dateText);
@@ -350,6 +348,7 @@ public class DetailedFeedLogPlugin implements Plugin, PropertyEventListener {
         return entries.get(room);
     }
 
+    @Override
     public void propertyDeleted(String arg0, Map<String, Object> arg1) {
         // do nothing, as we want to keep the current properties if some are
         // deleted

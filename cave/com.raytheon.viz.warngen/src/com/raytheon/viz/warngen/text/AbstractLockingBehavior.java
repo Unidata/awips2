@@ -299,7 +299,8 @@ abstract public class AbstractLockingBehavior {
             }
 
             pattern.append(")(.*)");
-            return Pattern.compile(pattern.toString());
+            return Pattern
+                    .compile(pattern.toString(), Pattern.CASE_INSENSITIVE);
         } catch (Exception e) {
             statusHandler
                     .handle(Priority.ERROR,
