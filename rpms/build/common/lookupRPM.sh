@@ -62,7 +62,7 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-python-numpy" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/numpy-1.7.2/"
+      export RPM_SPECIFICATION="${installer_dir}/numpy-1.9.2/"
       return 0
    fi
    if [ "${1}" = "awips2-python-jep" ]; then
