@@ -20,7 +20,7 @@
 
 	AWIPS II NEW FILE - RM6.xml
 -->
-<DerivedParameter name="Elevated Right-Moving Supercell" abbreviation="RM6" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+<DerivedParameter name="Elevated Right-Moving Supercell" unit="m/s" abbreviation="RM6" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <Method levels="Layer" name="Add">
         <Field level="1-6kmAgl" abbreviation="Wind"/>
         <Field abbreviation="RMprop2"/>

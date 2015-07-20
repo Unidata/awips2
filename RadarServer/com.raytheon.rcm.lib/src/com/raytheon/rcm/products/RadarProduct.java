@@ -24,6 +24,22 @@ import java.util.HashMap;
 
 import com.raytheon.rcm.config.RadarType;
 
+/**
+ * TODO Add Description
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 2009                    D. Friedman initial version
+ * 2015-07-13   DR 17672   D. Friedman Add compressionAllowed field
+ * 
+ * </pre>
+ * 
+ * @author dfriedman
+ * @version 1.0
+ */
 
 public class RadarProduct implements Cloneable {
 	public enum Format {
@@ -46,6 +62,7 @@ public class RadarProduct implements Cloneable {
 	public Format format;
 	public EnumSet<Param> params;
 	public EnumSet<RadarType> typeRestriction;
+	public boolean compressionAllowed;
 	
 	public Object clone() {
 		try {

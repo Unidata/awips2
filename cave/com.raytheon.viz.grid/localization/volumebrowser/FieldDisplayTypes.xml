@@ -34,6 +34,9 @@
 	<field key="BlkShr" displayTypes="BARB,ARROW"/>
 	<field key="RM5" displayTypes="BARB,ARROW"/>
 	<field key="LM5" displayTypes="BARB,ARROW"/>
+    <field key="RM6" displayTypes="BARB,ARROW"/>
+    <field key="LM6" displayTypes="BARB,ARROW"/>
+    <field key="SRMm" displayTypes="ARROW,BARB"/>
 	<field key="SRMr" displayTypes="ARROW,BARB"/>
 	<field key="SRMl" displayTypes="ARROW,BARB"/>
 	<field key="SNWA" displayTypes="BARB"/>
