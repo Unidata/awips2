@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -31,7 +31,7 @@ import org.itadaki.bzip2.BZip2InputStream;
 
 import com.raytheon.rcm.config.RadarConfig;
 import com.raytheon.rcm.config.RadarType;
-import com.raytheon.rcm.config.Util;
+import com.raytheon.rcm.config.RcmUtil;
 import com.raytheon.rcm.event.ConfigEvent;
 import com.raytheon.rcm.event.ConfigEvent.Category;
 import com.raytheon.rcm.event.RadarEvent;
@@ -45,10 +45,12 @@ import com.raytheon.rcm.products.ProductInfo.Selector;
 import com.raytheon.rcm.products.RadarProduct;
 
 /**
- * <p>A radar server component that delivers radar products to an EDEX file
+ * <p>
+ * A radar server component that delivers radar products to an EDEX file
  * endpoint.
  *
- * <p>This class is obsoleted by DataArchiveEndpoint.
+ * <p>
+ * This class is obsoleted by DataArchiveEndpoint.
  *
  * <pre>
  *
@@ -58,8 +60,9 @@ import com.raytheon.rcm.products.RadarProduct;
  * ...
  * 2014-02-03   DR 14762   D. Friedman Refactor config events.
  * 2015-07-13   DR 17672   D. Friedman Only decompress products documented to support compression
+ * 2015-07-20   4343       nabowle     Util is now RcmUtil.
  * </pre>
-*/
+ */
 public class Awips2Endpoint extends RadarEventAdapter {
 
     RadarServer radarServer;
@@ -185,8 +188,8 @@ public class Awips2Endpoint extends RadarEventAdapter {
         try {
 
             int code = Message.messageCodeOf(msg);
-            RadarType radarType = radarConfig != null ?
-                    Util.getRadarType(radarConfig) : null;
+            RadarType radarType = radarConfig != null ? RcmUtil
+                    .getRadarType(radarConfig) : null;
             RadarProduct rp = ProductInfo.getInstance().selectOne(
                     new Selector(radarType, null, code, null));
             if (rp != null && rp.compressionAllowed) {
