@@ -19,176 +19,1291 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
- <contribute xsi:type="subMenu" menuText="MSLP and Precipitation">
+	<!-- GFS -->
+	<contribute xsi:type="subMenu" menuText="GFS">
 		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
-			menuText="GFS" id="GFS" useReferenceTime="true">
-			<substitute key="modelName" value="GFS"/> 
+			menuText="MSLP and Precipitation" id="GFS" useReferenceTime="true">
+			<substitute key="modelName" value="GFS"/>
 			<substitute key="TP" value="TP"/>
 			<substitute key="frameCount" value="41"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
-			menuText="GFS 40km" id="gfs40" useReferenceTime="true">
-			<substitute key="modelName" value="GFS-40km"/> 
+		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
+		    menuText="500MB Height/Vorticity/Thickness" id="GFS" useReferenceTime="true">
+			<substitute key="modelName" value="GFS"/>
 			<substitute key="TP" value="TP"/>
 			<substitute key="frameCount" value="41"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
-			menuText="DGEX" id="DGEX" useReferenceTime="true">
-			<substitute key="modelName" value="DGEX"/>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyU.xml"
+		    menuText="Mid-Level Divergence / Vorticity" id="GFS" useReferenceTime="true">
+			<substitute key="modelName" value="GFS"/>
 			<substitute key="TP" value="TP"/>
 			<substitute key="frameCount" value="41"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
-			menuText="NAM 12km" id="NAM-12km" useReferenceTime="true">
-			<substitute key="modelName" value="NAM-12km"/>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyA.xml"
+		    menuText="Nonsupercell Tornado Threat / Wind" id="GFS" useReferenceTime="true">
+			<substitute key="modelName" value="GFS"/>
 			<substitute key="TP" value="TP"/>
 			<substitute key="frameCount" value="41"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
-			menuText="NAM 40km" id="NAM-40km" useReferenceTime="true">
-			<substitute key="modelName" value="NAM-40km"/>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyB.xml"
+		    menuText="Storm Initiation / CAPE" id="GFS" useReferenceTime="true">
+			<substitute key="modelName" value="GFS"/>
 			<substitute key="TP" value="TP"/>
 			<substitute key="frameCount" value="41"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
-			menuText="NamDNG" id="NamDNG" useReferenceTime="true">
-				<substitute key="modelName" value="NamDNG"/>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyC.xml"
+		    menuText="Hail Family" id="GFS" useReferenceTime="true">
+			<substitute key="modelName" value="GFS"/>
 			<substitute key="TP" value="TP"/>
 			<substitute key="frameCount" value="41"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
-			menuText="RAP 13km" id="RAP-13km" useReferenceTime="true">
-			<substitute key="modelName" value="RAP-13km"/>
-			<substitute key="TP" value="TP1hr"/>
-			<substitute key="frameCount" value="16"/>
-		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
-			menuText="HRRR" id="HRRR" useReferenceTime="true">
-			<substitute key="modelName" value="HRRR"/>
-			<substitute key="TP" value="TP1hr"/>
-			<substitute key="frameCount" value="16"/>
-		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
-			menuText="NAVGEM" id="NAVGEM" useReferenceTime="true">
-			<substitute key="modelName" value="NAVGEM"/> 
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyYY.xml"
+		    menuText="CAPE / CIN / Helicity" id="GFS" useReferenceTime="true">
+			<substitute key="modelName" value="GFS"/>
 			<substitute key="TP" value="TP"/>
 			<substitute key="frameCount" value="41"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
-	        menuText="CMC GEM" id="CMC" useReferenceTime="true">
-			<substitute key="modelName" value="CMC-REG"/>
-			<substitute key="TP" value="TP"/>
-			<substitute key="frameCount" value="12"/>
-		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
-			menuText="RTMA" id="RTMA" useReferenceTime="true">
-			<substitute key="modelName" value="RTMA"/> 
-			<substitute key="TP" value="TP1hr"/>
-			<substitute key="frameCount" value="16"/>
-		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
-                        menuText="URMA" id="URMA" useReferenceTime="true">
-                        <substitute key="modelName" value="URMA25"/>
-                        <substitute key="TP" value="TP1hr"/>
-                        <substitute key="frameCount" value="16"/>
-                </contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
-			menuText="NDFD" id="NDFD" useReferenceTime="true">
-			<substitute key="modelName" value="NDFD"/> 
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyX.xml"
+		    menuText="MCS Parameters" id="GFS" useReferenceTime="true">
+			<substitute key="modelName" value="GFS"/>
 			<substitute key="TP" value="TP"/>
 			<substitute key="frameCount" value="41"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
-			menuText="COAMPS-EU" id="COAMPS-EU" useReferenceTime="true">
-			<substitute key="modelName" value="COAMPS-EU"/> 
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyH.xml"
+		    menuText="Lapse Rate / Buoyancy / Wind" id="GFS" useReferenceTime="true">
+			<substitute key="modelName" value="GFS"/>
 			<substitute key="TP" value="TP"/>
-			<substitute key="frameCount" value="17"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyE.xml"
+		    menuText="4-Panel Nonsupercell Tornado Threat" id="GFS" useReferenceTime="true">
+			<substitute key="modelName" value="GFS"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyF.xml"
+		    menuText="4-Panel Nonsupercell / Isentropic" id="GFS" useReferenceTime="true">
+			<substitute key="modelName" value="GFS"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyI.xml"
+		    menuText="4-Panel Instability / Divergence" id="GFS" useReferenceTime="true">
+			<substitute key="modelName" value="GFS"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyJ.xml"
+		    menuText="4-Panel Frontogenesis / Precipitation" id="GFS" useReferenceTime="true">
+			<substitute key="modelName" value="GFS"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyL.xml"
+		    menuText="4-Panel Moisture / Precipiation" id="GFS" useReferenceTime="true">
+			<substitute key="modelName" value="GFS"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyV.xml"
+		    menuText="4-Panel Bulk Shear / Buoyancy" id="GFS" useReferenceTime="true">
+			<substitute key="modelName" value="GFS"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyW.xml"
+		    menuText="4-Panel Supercell Parameters" id="GFS" useReferenceTime="true">
+			<substitute key="modelName" value="GFS"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyY.xml"
+		    menuText="4-Panel Helicity / Shear / Buoyancy" id="GFS" useReferenceTime="true">
+			<substitute key="modelName" value="GFS"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyD.xml"
+		    menuText="Winter: Thickness / Divergence / Snow" id="GFS" useReferenceTime="true">
+			<substitute key="modelName" value="GFS"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyM.xml"
+		    menuText="Winter: 4-Panel Slantwise Instability" id="GFS" useReferenceTime="true">
+			<substitute key="modelName" value="GFS"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
 		</contribute>
 	</contribute>
-    <contribute xsi:type="subMenu" menuText="500MB Height/Vorticity/Thickness">
-		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-			menuText="GFS" id="GFS" useReferenceTime="true">
-			<substitute key="modelName" value="GFS"/> 
+	<!-- GFS-40km -->
+	<contribute xsi:type="subMenu" menuText="GFS 40km">
+				<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
+			menuText="MSLP and Precipitation" id="GFS-40km" useReferenceTime="true">
+			<substitute key="modelName" value="GFS-40km"/>
 			<substitute key="TP" value="TP"/>
 			<substitute key="frameCount" value="41"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-			menuText="GFS 40km" id="gfs40" useReferenceTime="true">
-			<substitute key="modelName" value="GFS-40km"/> 
+		    menuText="500MB Height/Vorticity/Thickness" id="GFS-40km" useReferenceTime="true">
+			<substitute key="modelName" value="GFS-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyU.xml"
+		    menuText="Mid-Level Divergence / Vorticity" id="GFS-40km" useReferenceTime="true">
+			<substitute key="modelName" value="GFS-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyA.xml"
+		    menuText="Nonsupercell Tornado Threat / Wind" id="GFS-40km" useReferenceTime="true">
+			<substitute key="modelName" value="GFS-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyB.xml"
+		    menuText="Storm Initiation / CAPE" id="GFS-40km" useReferenceTime="true">
+			<substitute key="modelName" value="GFS-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyC.xml"
+		    menuText="Hail Family" id="GFS-40km" useReferenceTime="true">
+			<substitute key="modelName" value="GFS-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyYY.xml"
+		    menuText="CAPE / CIN / Helicity" id="GFS-40km" useReferenceTime="true">
+			<substitute key="modelName" value="GFS-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyX.xml"
+		    menuText="MCS Parameters" id="GFS-40km" useReferenceTime="true">
+			<substitute key="modelName" value="GFS-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyH.xml"
+		    menuText="Lapse Rate / Buoyancy / Wind" id="GFS-40km" useReferenceTime="true">
+			<substitute key="modelName" value="GFS-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyE.xml"
+		    menuText="4-Panel Nonsupercell Tornado Threat" id="GFS-40km" useReferenceTime="true">
+			<substitute key="modelName" value="GFS-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyF.xml"
+		    menuText="4-Panel Nonsupercell / Isentropic" id="GFS-40km" useReferenceTime="true">
+			<substitute key="modelName" value="GFS-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyI.xml"
+		    menuText="4-Panel Instability / Divergence" id="GFS-40km" useReferenceTime="true">
+			<substitute key="modelName" value="GFS-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyJ.xml"
+		    menuText="4-Panel Frontogenesis / Precipitation" id="GFS-40km" useReferenceTime="true">
+			<substitute key="modelName" value="GFS-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyL.xml"
+		    menuText="4-Panel Moisture / Precipiation" id="GFS-40km" useReferenceTime="true">
+			<substitute key="modelName" value="GFS-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyV.xml"
+		    menuText="4-Panel Bulk Shear / Buoyancy" id="GFS-40km" useReferenceTime="true">
+			<substitute key="modelName" value="GFS-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyW.xml"
+		    menuText="4-Panel Supercell Parameters" id="GFS-40km" useReferenceTime="true">
+			<substitute key="modelName" value="GFS-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyY.xml"
+		    menuText="4-Panel Helicity / Shear / Buoyancy" id="GFS-40km" useReferenceTime="true">
+			<substitute key="modelName" value="GFS-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyD.xml"
+		    menuText="Winter: Thickness / Divergence / Snow" id="GFS-40km" useReferenceTime="true">
+			<substitute key="modelName" value="GFS-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyM.xml"
+		    menuText="Winter: 4-Panel Slantwise Instability" id="GFS-40km" useReferenceTime="true">
+			<substitute key="modelName" value="GFS-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+	</contribute>
+	<!-- NAM-4km -->
+	<contribute xsi:type="subMenu" menuText="NAM 4km">
+				<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
+			menuText="MSLP and Precipitation" id="NAM-4km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-4km"/>
 			<substitute key="TP" value="TP"/>
 			<substitute key="frameCount" value="41"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-			menuText="DGEX" id="DGEX" useReferenceTime="true">
-			<substitute key="modelName" value="DGEX"/>
+		    menuText="500MB Height/Vorticity/Thickness" id="NAM-4km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-4km"/>
 			<substitute key="TP" value="TP"/>
 			<substitute key="frameCount" value="41"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-			menuText="NAM 12km" id="NAM-12km" useReferenceTime="true">
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyU.xml"
+		    menuText="Mid-Level Divergence / Vorticity" id="NAM-4km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-4km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyA.xml"
+		    menuText="Nonsupercell Tornado Threat / Wind" id="NAM-4km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-4km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyB.xml"
+		    menuText="Storm Initiation / CAPE" id="NAM-4km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-4km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyC.xml"
+		    menuText="Hail Family" id="NAM-4km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-4km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyYY.xml"
+		    menuText="CAPE / CIN / Helicity" id="NAM-4km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-4km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyX.xml"
+		    menuText="MCS Parameters" id="NAM-4km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-4km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyH.xml"
+		    menuText="Lapse Rate / Buoyancy / Wind" id="NAM-4km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-4km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyE.xml"
+		    menuText="4-Panel Nonsupercell Tornado Threat" id="NAM-4km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-4km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyF.xml"
+		    menuText="4-Panel Nonsupercell / Isentropic" id="NAM-4km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-4km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyI.xml"
+		    menuText="4-Panel Instability / Divergence" id="NAM-4km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-4km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyJ.xml"
+		    menuText="4-Panel Frontogenesis / Precipitation" id="NAM-4km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-4km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyL.xml"
+		    menuText="4-Panel Moisture / Precipiation" id="NAM-4km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-4km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyV.xml"
+		    menuText="4-Panel Bulk Shear / Buoyancy" id="NAM-4km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-4km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyW.xml"
+		    menuText="4-Panel Supercell Parameters" id="NAM-4km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-4km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyY.xml"
+		    menuText="4-Panel Helicity / Shear / Buoyancy" id="NAM-4km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-4km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyD.xml"
+		    menuText="Winter: Thickness / Divergence / Snow" id="NAM-4km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-4km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyM.xml"
+		    menuText="Winter: 4-Panel Slantwise Instability" id="NAM-4km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-4km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+	</contribute>
+	<!-- NAM-12km -->
+	<contribute xsi:type="subMenu" menuText="NAM 12km">
+				<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
+			menuText="MSLP and Precipitation" id="NAM-12km" useReferenceTime="true">
 			<substitute key="modelName" value="NAM-12km"/>
 			<substitute key="TP" value="TP"/>
 			<substitute key="frameCount" value="41"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-			menuText="NAM 40km" id="NAM-40km" useReferenceTime="true">
+		    menuText="500MB Height/Vorticity/Thickness" id="NAM-12km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-12km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyU.xml"
+		    menuText="Mid-Level Divergence / Vorticity" id="NAM-12km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-12km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyA.xml"
+		    menuText="Nonsupercell Tornado Threat / Wind" id="NAM-12km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-12km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyB.xml"
+		    menuText="Storm Initiation / CAPE" id="NAM-12km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-12km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyC.xml"
+		    menuText="Hail Family" id="NAM-12km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-12km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyYY.xml"
+		    menuText="CAPE / CIN / Helicity" id="NAM-12km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-12km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyX.xml"
+		    menuText="MCS Parameters" id="NAM-12km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-12km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyH.xml"
+		    menuText="Lapse Rate / Buoyancy / Wind" id="NAM-12km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-12km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyE.xml"
+		    menuText="4-Panel Nonsupercell Tornado Threat" id="NAM-12km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-12km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyF.xml"
+		    menuText="4-Panel Nonsupercell / Isentropic" id="NAM-12km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-12km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyI.xml"
+		    menuText="4-Panel Instability / Divergence" id="NAM-12km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-12km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyJ.xml"
+		    menuText="4-Panel Frontogenesis / Precipitation" id="NAM-12km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-12km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyL.xml"
+		    menuText="4-Panel Moisture / Precipiation" id="NAM-12km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-12km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyV.xml"
+		    menuText="4-Panel Bulk Shear / Buoyancy" id="NAM-12km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-12km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyW.xml"
+		    menuText="4-Panel Supercell Parameters" id="NAM-12km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-12km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyY.xml"
+		    menuText="4-Panel Helicity / Shear / Buoyancy" id="NAM-12km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-12km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyD.xml"
+		    menuText="Winter: Thickness / Divergence / Snow" id="NAM-12km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-12km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyM.xml"
+		    menuText="Winter: 4-Panel Slantwise Instability" id="NAM-12km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-12km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+	</contribute>
+	<!--  NAM-40km -->
+ 	<contribute xsi:type="subMenu" menuText="NAM 40km">
+				<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
+			menuText="MSLP and Precipitation" id="NAM-40km" useReferenceTime="true">
 			<substitute key="modelName" value="NAM-40km"/>
 			<substitute key="TP" value="TP"/>
 			<substitute key="frameCount" value="41"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-			menuText="NamDNG" id="NamDNG" useReferenceTime="true">
-				<substitute key="modelName" value="NamDNG"/>
+		    menuText="500MB Height/Vorticity/Thickness" id="NAM-40km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyU.xml"
+		    menuText="Mid-Level Divergence / Vorticity" id="NAM-40km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyA.xml"
+		    menuText="Nonsupercell Tornado Threat / Wind" id="NAM-40km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyB.xml"
+		    menuText="Storm Initiation / CAPE" id="NAM-40km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyC.xml"
+		    menuText="Hail Family" id="NAM-40km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyYY.xml"
+		    menuText="CAPE / CIN / Helicity" id="NAM-40km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyX.xml"
+		    menuText="MCS Parameters" id="NAM-40km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyH.xml"
+		    menuText="Lapse Rate / Buoyancy / Wind" id="NAM-40km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyE.xml"
+		    menuText="4-Panel Nonsupercell Tornado Threat" id="NAM-40km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyF.xml"
+		    menuText="4-Panel Nonsupercell / Isentropic" id="NAM-40km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyI.xml"
+		    menuText="4-Panel Instability / Divergence" id="NAM-40km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyJ.xml"
+		    menuText="4-Panel Frontogenesis / Precipitation" id="NAM-40km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyL.xml"
+		    menuText="4-Panel Moisture / Precipiation" id="NAM-40km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyV.xml"
+		    menuText="4-Panel Bulk Shear / Buoyancy" id="NAM-40km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyW.xml"
+		    menuText="4-Panel Supercell Parameters" id="NAM-40km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyY.xml"
+		    menuText="4-Panel Helicity / Shear / Buoyancy" id="NAM-40km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyD.xml"
+		    menuText="Winter: Thickness / Divergence / Snow" id="NAM-40km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyM.xml"
+		    menuText="Winter: 4-Panel Slantwise Instability" id="NAM-40km" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-40km"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+	</contribute>
+	<!-- NamDNG -->
+	<contribute xsi:type="subMenu" menuText="NamDNG">
+				<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
+			menuText="MSLP and Precipitation" id="NamDNG" useReferenceTime="true">
+			<substitute key="modelName" value="NamDNG"/>
 			<substitute key="TP" value="TP"/>
 			<substitute key="frameCount" value="41"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-			menuText="RAP 13km" id="RAP-13km" useReferenceTime="true">
-			<substitute key="modelName" value="RAP-13km"/>
-			<substitute key="TP" value="TP1hr"/>
-			<substitute key="frameCount" value="16"/>
+		    menuText="500MB Height/Vorticity/Thickness" id="NamDNG" useReferenceTime="true">
+			<substitute key="modelName" value="NamDNG"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-			menuText="HRRR" id="HRRR" useReferenceTime="true">
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyU.xml"
+		    menuText="Mid-Level Divergence / Vorticity" id="NamDNG" useReferenceTime="true">
+			<substitute key="modelName" value="NamDNG"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyA.xml"
+		    menuText="Nonsupercell Tornado Threat / Wind" id="NamDNG" useReferenceTime="true">
+			<substitute key="modelName" value="NamDNG"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyB.xml"
+		    menuText="Storm Initiation / CAPE" id="NamDNG" useReferenceTime="true">
+			<substitute key="modelName" value="NamDNG"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyC.xml"
+		    menuText="Hail Family" id="NamDNG" useReferenceTime="true">
+			<substitute key="modelName" value="NamDNG"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyYY.xml"
+		    menuText="CAPE / CIN / Helicity" id="NamDNG" useReferenceTime="true">
+			<substitute key="modelName" value="NamDNG"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyX.xml"
+		    menuText="MCS Parameters" id="NamDNG" useReferenceTime="true">
+			<substitute key="modelName" value="NamDNG"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyH.xml"
+		    menuText="Lapse Rate / Buoyancy / Wind" id="NamDNG" useReferenceTime="true">
+			<substitute key="modelName" value="NamDNG"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyE.xml"
+		    menuText="4-Panel Nonsupercell Tornado Threat" id="NamDNG" useReferenceTime="true">
+			<substitute key="modelName" value="NamDNG"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyF.xml"
+		    menuText="4-Panel Nonsupercell / Isentropic" id="NamDNG" useReferenceTime="true">
+			<substitute key="modelName" value="NamDNG"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyI.xml"
+		    menuText="4-Panel Instability / Divergence" id="NamDNG" useReferenceTime="true">
+			<substitute key="modelName" value="NamDNG"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyJ.xml"
+		    menuText="4-Panel Frontogenesis / Precipitation" id="NamDNG" useReferenceTime="true">
+			<substitute key="modelName" value="NamDNG"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyL.xml"
+		    menuText="4-Panel Moisture / Precipiation" id="NamDNG" useReferenceTime="true">
+			<substitute key="modelName" value="NamDNG"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyV.xml"
+		    menuText="4-Panel Bulk Shear / Buoyancy" id="NamDNG" useReferenceTime="true">
+			<substitute key="modelName" value="NamDNG"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyW.xml"
+		    menuText="4-Panel Supercell Parameters" id="NamDNG" useReferenceTime="true">
+			<substitute key="modelName" value="NamDNG"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyY.xml"
+		    menuText="4-Panel Helicity / Shear / Buoyancy" id="NamDNG" useReferenceTime="true">
+			<substitute key="modelName" value="NamDNG"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyD.xml"
+		    menuText="Winter: Thickness / Divergence / Snow" id="NamDNG" useReferenceTime="true">
+			<substitute key="modelName" value="NamDNG"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyM.xml"
+		    menuText="Winter: 4-Panel Slantwise Instability" id="NamDNG" useReferenceTime="true">
+			<substitute key="modelName" value="NamDNG"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+	</contribute>
+	<!-- HRRR -->
+	<contribute xsi:type="subMenu" menuText="HRRR">
+		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
+			menuText="MSLP and Precipitation" id="HRRR" useReferenceTime="true">
 			<substitute key="modelName" value="HRRR"/>
 			<substitute key="TP" value="TP1hr"/>
 			<substitute key="frameCount" value="16"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-			menuText="NAVGEM" id="NAVGEM" useReferenceTime="true">
-			<substitute key="modelName" value="NAVGEM"/> 
-			<substitute key="TP" value="TP"/>
-			<substitute key="frameCount" value="41"/>
+		    menuText="500MB Height/Vorticity/Thickness" id="HRRR" useReferenceTime="true">
+			<substitute key="modelName" value="HRRR"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-	        menuText="CMC GEM" id="CMC" useReferenceTime="true">
-			<substitute key="modelName" value="CMC-REG"/>
-			<substitute key="TP" value="TP"/>
-			<substitute key="frameCount" value="12"/>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyU.xml"
+		    menuText="Mid-Level Divergence / Vorticity" id="HRRR" useReferenceTime="true">
+			<substitute key="modelName" value="HRRR"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-			menuText="RTMA" id="RTMA" useReferenceTime="true">
-			<substitute key="modelName" value="RTMA"/> 
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyA.xml"
+		    menuText="Nonsupercell Tornado Threat / Wind" id="HRRR" useReferenceTime="true">
+			<substitute key="modelName" value="HRRR"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyB.xml"
+		    menuText="Storm Initiation / CAPE" id="HRRR" useReferenceTime="true">
+			<substitute key="modelName" value="HRRR"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyC.xml"
+		    menuText="Hail Family" id="HRRR" useReferenceTime="true">
+			<substitute key="modelName" value="HRRR"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyYY.xml"
+		    menuText="CAPE / CIN / Helicity" id="HRRR" useReferenceTime="true">
+			<substitute key="modelName" value="HRRR"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyX.xml"
+		    menuText="MCS Parameters" id="HRRR" useReferenceTime="true">
+			<substitute key="modelName" value="HRRR"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyH.xml"
+		    menuText="Lapse Rate / Buoyancy / Wind" id="HRRR" useReferenceTime="true">
+			<substitute key="modelName" value="HRRR"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyE.xml"
+		    menuText="4-Panel Nonsupercell Tornado Threat" id="HRRR" useReferenceTime="true">
+			<substitute key="modelName" value="HRRR"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyF.xml"
+		    menuText="4-Panel Nonsupercell / Isentropic" id="HRRR" useReferenceTime="true">
+			<substitute key="modelName" value="HRRR"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyI.xml"
+		    menuText="4-Panel Instability / Divergence" id="HRRR" useReferenceTime="true">
+			<substitute key="modelName" value="HRRR"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyJ.xml"
+		    menuText="4-Panel Frontogenesis / Precipitation" id="HRRR" useReferenceTime="true">
+			<substitute key="modelName" value="HRRR"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyL.xml"
+		    menuText="4-Panel Moisture / Precipiation" id="HRRR" useReferenceTime="true">
+			<substitute key="modelName" value="HRRR"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyV.xml"
+		    menuText="4-Panel Bulk Shear / Buoyancy" id="HRRR" useReferenceTime="true">
+			<substitute key="modelName" value="HRRR"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyW.xml"
+		    menuText="4-Panel Supercell Parameters" id="HRRR" useReferenceTime="true">
+			<substitute key="modelName" value="HRRR"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyY.xml"
+		    menuText="4-Panel Helicity / Shear / Buoyancy" id="HRRR" useReferenceTime="true">
+			<substitute key="modelName" value="HRRR"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyD.xml"
+		    menuText="Winter: Thickness / Divergence / Snow" id="HRRR" useReferenceTime="true">
+			<substitute key="modelName" value="HRRR"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyM.xml"
+		    menuText="Winter: 4-Panel Slantwise Instability" id="HRRR" useReferenceTime="true">
+			<substitute key="modelName" value="HRRR"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+	</contribute>
+	<!-- RAP-13km -->
+	<contribute xsi:type="subMenu" menuText="RAP 13km">
+				<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
+			menuText="MSLP and Precipitation" id="RAP-13km" useReferenceTime="true">
+			<substitute key="modelName" value="RAP-13km"/>
 			<substitute key="TP" value="TP1hr"/>
 			<substitute key="frameCount" value="16"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-                        menuText="URMA" id="URMA" useReferenceTime="true">
-                        <substitute key="modelName" value="URMA25"/>
-                        <substitute key="TP" value="TP1hr"/>
-                        <substitute key="frameCount" value="16"/>
-                </contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-			menuText="NDFD" id="NDFD" useReferenceTime="true">
-			<substitute key="modelName" value="NDFD"/> 
-			<substitute key="TP" value="TP"/>
-			<substitute key="frameCount" value="41"/>
+		    menuText="500MB Height/Vorticity/Thickness" id="RAP-13km" useReferenceTime="true">
+			<substitute key="modelName" value="RAP-13km"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyU.xml"
+		    menuText="Mid-Level Divergence / Vorticity" id="RAP-13km" useReferenceTime="true">
+			<substitute key="modelName" value="RAP-13km"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyA.xml"
+		    menuText="Nonsupercell Tornado Threat / Wind" id="RAP-13km" useReferenceTime="true">
+			<substitute key="modelName" value="RAP-13km"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyB.xml"
+		    menuText="Storm Initiation / CAPE" id="RAP-13km" useReferenceTime="true">
+			<substitute key="modelName" value="RAP-13km"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyC.xml"
+		    menuText="Hail Family" id="RAP-13km" useReferenceTime="true">
+			<substitute key="modelName" value="RAP-13km"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyYY.xml"
+		    menuText="CAPE / CIN / Helicity" id="RAP-13km" useReferenceTime="true">
+			<substitute key="modelName" value="RAP-13km"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyX.xml"
+		    menuText="MCS Parameters" id="RAP-13km" useReferenceTime="true">
+			<substitute key="modelName" value="RAP-13km"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyH.xml"
+		    menuText="Lapse Rate / Buoyancy / Wind" id="RAP-13km" useReferenceTime="true">
+			<substitute key="modelName" value="RAP-13km"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyE.xml"
+		    menuText="4-Panel Nonsupercell Tornado Threat" id="RAP-13km" useReferenceTime="true">
+			<substitute key="modelName" value="RAP-13km"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyF.xml"
+		    menuText="4-Panel Nonsupercell / Isentropic" id="RAP-13km" useReferenceTime="true">
+			<substitute key="modelName" value="RAP-13km"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyI.xml"
+		    menuText="4-Panel Instability / Divergence" id="RAP-13km" useReferenceTime="true">
+			<substitute key="modelName" value="RAP-13km"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyJ.xml"
+		    menuText="4-Panel Frontogenesis / Precipitation" id="RAP-13km" useReferenceTime="true">
+			<substitute key="modelName" value="RAP-13km"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyL.xml"
+		    menuText="4-Panel Moisture / Precipiation" id="RAP-13km" useReferenceTime="true">
+			<substitute key="modelName" value="RAP-13km"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyV.xml"
+		    menuText="4-Panel Bulk Shear / Buoyancy" id="RAP-13km" useReferenceTime="true">
+			<substitute key="modelName" value="RAP-13km"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyW.xml"
+		    menuText="4-Panel Supercell Parameters" id="RAP-13km" useReferenceTime="true">
+			<substitute key="modelName" value="RAP-13km"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyY.xml"
+		    menuText="4-Panel Helicity / Shear / Buoyancy" id="RAP-13km" useReferenceTime="true">
+			<substitute key="modelName" value="RAP-13km"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyD.xml"
+		    menuText="Winter: Thickness / Divergence / Snow" id="RAP-13km" useReferenceTime="true">
+			<substitute key="modelName" value="RAP-13km"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyM.xml"
+		    menuText="Winter: 4-Panel Slantwise Instability" id="RAP-13km" useReferenceTime="true">
+			<substitute key="modelName" value="RAP-13km"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+	</contribute>
+	<!-- RTMA -->
+	<contribute xsi:type="subMenu" menuText="RTMA">
+				<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
+			menuText="MSLP and Precipitation" id="RTMA" useReferenceTime="true">
+			<substitute key="modelName" value="RTMA"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-			menuText="COAMPS-EU" id="COAMPS-EU" useReferenceTime="true">
-			<substitute key="modelName" value="COAMPS-EU"/> 
-			<substitute key="TP" value="TP"/>
-			<substitute key="frameCount" value="17"/>
+		    menuText="500MB Height/Vorticity/Thickness" id="RTMA" useReferenceTime="true">
+			<substitute key="modelName" value="RTMA"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyU.xml"
+		    menuText="Mid-Level Divergence / Vorticity" id="RTMA" useReferenceTime="true">
+			<substitute key="modelName" value="RTMA"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyA.xml"
+		    menuText="Nonsupercell Tornado Threat / Wind" id="RTMA" useReferenceTime="true">
+			<substitute key="modelName" value="RTMA"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyB.xml"
+		    menuText="Storm Initiation / CAPE" id="RTMA" useReferenceTime="true">
+			<substitute key="modelName" value="RTMA"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyC.xml"
+		    menuText="Hail Family" id="RTMA" useReferenceTime="true">
+			<substitute key="modelName" value="RTMA"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyYY.xml"
+		    menuText="CAPE / CIN / Helicity" id="RTMA" useReferenceTime="true">
+			<substitute key="modelName" value="RTMA"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyX.xml"
+		    menuText="MCS Parameters" id="RTMA" useReferenceTime="true">
+			<substitute key="modelName" value="RTMA"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyH.xml"
+		    menuText="Lapse Rate / Buoyancy / Wind" id="RTMA" useReferenceTime="true">
+			<substitute key="modelName" value="RTMA"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyE.xml"
+		    menuText="4-Panel Nonsupercell Tornado Threat" id="RTMA" useReferenceTime="true">
+			<substitute key="modelName" value="RTMA"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyF.xml"
+		    menuText="4-Panel Nonsupercell / Isentropic" id="RTMA" useReferenceTime="true">
+			<substitute key="modelName" value="RTMA"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyI.xml"
+		    menuText="4-Panel Instability / Divergence" id="RTMA" useReferenceTime="true">
+			<substitute key="modelName" value="RTMA"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyJ.xml"
+		    menuText="4-Panel Frontogenesis / Precipitation" id="RTMA" useReferenceTime="true">
+			<substitute key="modelName" value="RTMA"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyL.xml"
+		    menuText="4-Panel Moisture / Precipiation" id="RTMA" useReferenceTime="true">
+			<substitute key="modelName" value="RTMA"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyV.xml"
+		    menuText="4-Panel Bulk Shear / Buoyancy" id="RTMA" useReferenceTime="true">
+			<substitute key="modelName" value="RTMA"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyW.xml"
+		    menuText="4-Panel Supercell Parameters" id="RTMA" useReferenceTime="true">
+			<substitute key="modelName" value="RTMA"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyY.xml"
+		    menuText="4-Panel Helicity / Shear / Buoyancy" id="RTMA" useReferenceTime="true">
+			<substitute key="modelName" value="RTMA"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyD.xml"
+		    menuText="Winter: Thickness / Divergence / Snow" id="RTMA" useReferenceTime="true">
+			<substitute key="modelName" value="RTMA"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyM.xml"
+		    menuText="Winter: 4-Panel Slantwise Instability" id="RTMA" useReferenceTime="true">
+			<substitute key="modelName" value="RTMA"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+	</contribute>
+	<!--  URMA -->
+	<contribute xsi:type="subMenu" menuText="URMA">
+				<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
+			menuText="MSLP and Precipitation" id="URMA25" useReferenceTime="true">
+			<substitute key="modelName" value="URMA25"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
+		    menuText="500MB Height/Vorticity/Thickness" id="URMA25" useReferenceTime="true">
+			<substitute key="modelName" value="URMA25"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyU.xml"
+		    menuText="Mid-Level Divergence / Vorticity" id="URMA25" useReferenceTime="true">
+			<substitute key="modelName" value="URMA25"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyA.xml"
+		    menuText="Nonsupercell Tornado Threat / Wind" id="URMA25" useReferenceTime="true">
+			<substitute key="modelName" value="URMA25"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyB.xml"
+		    menuText="Storm Initiation / CAPE" id="URMA25" useReferenceTime="true">
+			<substitute key="modelName" value="URMA25"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyC.xml"
+		    menuText="Hail Family" id="URMA25" useReferenceTime="true">
+			<substitute key="modelName" value="URMA25"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyYY.xml"
+		    menuText="CAPE / CIN / Helicity" id="URMA25" useReferenceTime="true">
+			<substitute key="modelName" value="URMA25"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyX.xml"
+		    menuText="MCS Parameters" id="URMA25" useReferenceTime="true">
+			<substitute key="modelName" value="URMA25"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyH.xml"
+		    menuText="Lapse Rate / Buoyancy / Wind" id="URMA25" useReferenceTime="true">
+			<substitute key="modelName" value="URMA25"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyE.xml"
+		    menuText="4-Panel Nonsupercell Tornado Threat" id="URMA25" useReferenceTime="true">
+			<substitute key="modelName" value="URMA25"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyF.xml"
+		    menuText="4-Panel Nonsupercell / Isentropic" id="URMA25" useReferenceTime="true">
+			<substitute key="modelName" value="URMA25"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyI.xml"
+		    menuText="4-Panel Instability / Divergence" id="URMA25" useReferenceTime="true">
+			<substitute key="modelName" value="URMA25"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyJ.xml"
+		    menuText="4-Panel Frontogenesis / Precipitation" id="URMA25" useReferenceTime="true">
+			<substitute key="modelName" value="URMA25"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyL.xml"
+		    menuText="4-Panel Moisture / Precipiation" id="URMA25" useReferenceTime="true">
+			<substitute key="modelName" value="URMA25"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyV.xml"
+		    menuText="4-Panel Bulk Shear / Buoyancy" id="URMA25" useReferenceTime="true">
+			<substitute key="modelName" value="URMA25"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyW.xml"
+		    menuText="4-Panel Supercell Parameters" id="URMA25" useReferenceTime="true">
+			<substitute key="modelName" value="URMA25"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyY.xml"
+		    menuText="4-Panel Helicity / Shear / Buoyancy" id="URMA25" useReferenceTime="true">
+			<substitute key="modelName" value="URMA25"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyD.xml"
+		    menuText="Winter: Thickness / Divergence / Snow" id="URMA25" useReferenceTime="true">
+			<substitute key="modelName" value="URMA25"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyM.xml"
+		    menuText="Winter: 4-Panel Slantwise Instability" id="URMA25" useReferenceTime="true">
+			<substitute key="modelName" value="URMA25"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+	</contribute>
+	<!-- DGEX -->
+	<contribute xsi:type="subMenu" menuText="DGEX">
+		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
+			menuText="MSLP and Precipitation" id="DGEX" useReferenceTime="true">
+			<substitute key="modelName" value="DGEX"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
+		    menuText="500MB Height/Vorticity/Thickness" id="DGEX" useReferenceTime="true">
+			<substitute key="modelName" value="DGEX"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyU.xml"
+		    menuText="Mid-Level Divergence / Vorticity" id="DGEX" useReferenceTime="true">
+			<substitute key="modelName" value="DGEX"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyA.xml"
+		    menuText="Nonsupercell Tornado Threat / Wind" id="DGEX" useReferenceTime="true">
+			<substitute key="modelName" value="DGEX"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyB.xml"
+		    menuText="Storm Initiation / CAPE" id="DGEX" useReferenceTime="true">
+			<substitute key="modelName" value="DGEX"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyC.xml"
+		    menuText="Hail Family" id="DGEX" useReferenceTime="true">
+			<substitute key="modelName" value="DGEX"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyYY.xml"
+		    menuText="CAPE / CIN / Helicity" id="DGEX" useReferenceTime="true">
+			<substitute key="modelName" value="DGEX"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyX.xml"
+		    menuText="MCS Parameters" id="DGEX" useReferenceTime="true">
+			<substitute key="modelName" value="DGEX"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyH.xml"
+		    menuText="Lapse Rate / Buoyancy / Wind" id="DGEX" useReferenceTime="true">
+			<substitute key="modelName" value="DGEX"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyE.xml"
+		    menuText="4-Panel Nonsupercell Tornado Threat" id="DGEX" useReferenceTime="true">
+			<substitute key="modelName" value="DGEX"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyF.xml"
+		    menuText="4-Panel Nonsupercell / Isentropic" id="DGEX" useReferenceTime="true">
+			<substitute key="modelName" value="DGEX"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyI.xml"
+		    menuText="4-Panel Instability / Divergence" id="DGEX" useReferenceTime="true">
+			<substitute key="modelName" value="DGEX"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyJ.xml"
+		    menuText="4-Panel Frontogenesis / Precipitation" id="DGEX" useReferenceTime="true">
+			<substitute key="modelName" value="DGEX"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyL.xml"
+		    menuText="4-Panel Moisture / Precipiation" id="DGEX" useReferenceTime="true">
+			<substitute key="modelName" value="DGEX"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyV.xml"
+		    menuText="4-Panel Bulk Shear / Buoyancy" id="DGEX" useReferenceTime="true">
+			<substitute key="modelName" value="DGEX"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyW.xml"
+		    menuText="4-Panel Supercell Parameters" id="DGEX" useReferenceTime="true">
+			<substitute key="modelName" value="DGEX"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyY.xml"
+		    menuText="4-Panel Helicity / Shear / Buoyancy" id="DGEX" useReferenceTime="true">
+			<substitute key="modelName" value="DGEX"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyD.xml"
+		    menuText="Winter: Thickness / Divergence / Snow" id="DGEX" useReferenceTime="true">
+			<substitute key="modelName" value="DGEX"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyM.xml"
+		    menuText="Winter: 4-Panel Slantwise Instability" id="DGEX" useReferenceTime="true">
+			<substitute key="modelName" value="DGEX"/>
+			<substitute key="TP" value="TP1hr"/>
+			<substitute key="frameCount" value="16"/>
 		</contribute>
 	</contribute>
 </menuTemplate>

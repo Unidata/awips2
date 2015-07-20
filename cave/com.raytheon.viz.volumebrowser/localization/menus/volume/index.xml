@@ -19,7 +19,7 @@
         further_licensing_information.
     -->
 <menuContributionFile>
-	<substitute key="GFSmodel" value="GFS 40km" />
+	<substitute key="GFSmodel" value="GFS" />
 	<substitute key="NAM12model" value="NAM-12km" />
 	<substitute key="NAM40model" value="NAM-40km" />
 	<substitute key="ARWmodel1" value="HiResW-ARW-East" />
@@ -33,15 +33,14 @@
     <include installTo="menu:models" 
              fileName="menus/volume/baseFamilies.xml">
     </include>
+    <!-- 
     <include subMenu="Surface Wind / Temperature" installTo="menu:models" 
              fileName="menus/volume/baseSurfaceFamilies.xml">
-    </include>
-    <include installTo="menu:models" 
-             fileName="menus/volume/ModelFamilies.xml">
     </include>
     <include subMenu="4-Panel 500MB Height / Vorticity / Omega" installTo="menu:models" 
              fileName="menus/volume/baseFourPanelFamilies.xml">
     </include>
+     -->
     <include installTo="menu:models" 
              fileName="menus/volume/baseComparisonFamilies.xml">
     </include>
