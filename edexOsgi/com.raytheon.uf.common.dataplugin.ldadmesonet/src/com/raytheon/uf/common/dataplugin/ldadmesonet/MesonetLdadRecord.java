@@ -61,6 +61,8 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                      PluginDataObject.
  * May 15, 2013 1869        bsteffen    Remove DataURI column from ldadmesonet.
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Jul 20, 2015 4360        rferrel     Named unique constraint
+ *                                       Made reportType and dataProvider not nullable
  * 
  * </pre>
  * 
@@ -70,7 +72,7 @@ import com.vividsolutions.jts.geom.Geometry;
 
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "ldadmesonetseq")
-@Table(name = "ldadmesonet", uniqueConstraints = { @UniqueConstraint(columnNames = {
+@Table(name = "ldadmesonet", uniqueConstraints = { @UniqueConstraint(name = "uk_ldadmesonet_datauri_fields", columnNames = {
         "stationid", "reftime", "reportType", "dataProvider", "latitude",
         "longitude" }) })
 /*
@@ -89,13 +91,13 @@ public class MesonetLdadRecord extends PersistablePluginDataObject implements
 
     //
     @DataURI(position = 1)
-    @Column
+    @Column(nullable = false)
     @DynamicSerializeElement
     private String reportType;
 
     // LDAD data provider
     @DataURI(position = 2)
-    @Column
+    @Column(nullable = false)
     @DynamicSerializeElement
     private String dataProvider; // Typical data providers: CDoT, KDoT, UDFCD,
 
@@ -111,6 +113,7 @@ public class MesonetLdadRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     private Calendar observationTime; // observationTime
 
+    // TODO Update once SurfaceObsLocation DataURI's are corrected.
     @Embedded
     @DataURI(position = 3, embedded = true)
     @DynamicSerializeElement
@@ -120,7 +123,6 @@ public class MesonetLdadRecord extends PersistablePluginDataObject implements
 
     // Data provider Id
     @Column
-    // @DataURI(position = 3)
     @DynamicSerializeElement
     private String providerId; // * "110" "FA6026DA" Data Provider station Id
 
