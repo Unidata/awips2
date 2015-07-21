@@ -18,15 +18,16 @@
       <vmArgs>-Xmx1536M
 -XX:+UseG1GC
 -Dosgi.instance.area.readOnly=true
--Dorg.eclipse.update.reconcile=false -XX:MaxPermSize=256m 
--Dorg.eclipse.ui/KEY_CONFIGURATION_ID=com.raytheon.viz.ui.awips.scheme 
--Dqpid.dest_syntax=BURL 
+-Dorg.eclipse.update.reconcile=false -XX:MaxPermSize=256m
+-Dorg.eclipse.ui/KEY_CONFIGURATION_ID=com.raytheon.viz.ui.awips.scheme
+-Dqpid.dest_syntax=BURL
 -Dlogback.configurationFile=logback-viz-core-developer.xml
 -Dlogback.statusListenerClass=com.raytheon.uf.common.logback.UFLogbackInternalStatusListener
 -Dthrift.stream.maxsize=200
 -Dviz.memory.warn.threshold=99
 -Dorg.eclipse.swt.internal.gtk.cairoGraphics=false
 -Dhttps.certificate.check=false
+-Djava.library.path=/awips2/python/lib/python2.7/site-packages/jep
 -XX:MaxDirectMemorySize=1G
 -XX:+UnlockExperimentalVMOptions
 -XX:G1HeapRegionSize=4M

@@ -92,7 +92,7 @@ export PATH=$PATH:$awips_home/GFESuite/bin:$awips_home/GFESuite/ServiceBackup/sc
 export PATH=$PATH:$PROJECT/bin
 
 export JAVA_HOME="${JAVA_INSTALL}"
-export LD_LIBRARY_PATH=$EDEX_HOME/lib/native/linux32/awips1:${JAVA_INSTALL}/lib:${PYTHON_INSTALL}/lib:${PSQL_INSTALL}/lib:$PROJECT/sharedLib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$EDEX_HOME/lib/native/linux32/awips1:${JAVA_INSTALL}/lib:${PYTHON_INSTALL}/lib:${PYTHON_INSTALL}/lib/python2.7/site-packages/jep:${PSQL_INSTALL}/lib:$PROJECT/sharedLib:$LD_LIBRARY_PATH
 
 export FXA_DATA=$EDEX_HOME/data/fxa
 export ALLOW_ARCHIVE_DATA="false"

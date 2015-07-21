@@ -72,7 +72,7 @@ deleteOldCaveDiskCaches &
 # Enable core dumps
 ulimit -c unlimited >> /dev/null 2>&1
 
-export LD_LIBRARY_PATH=${JAVA_INSTALL}/lib:${PYTHON_INSTALL}/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=${JAVA_INSTALL}/lib:${PYTHON_INSTALL}/lib:${PYTHON_INSTALL}/lib/python2.7/site-packages/jep:$LD_LIBRARY_PATH
 if [[ -z "$CALLED_EXTEND_LIB_PATH" ]]; then
     extendLibraryPath
 fi
