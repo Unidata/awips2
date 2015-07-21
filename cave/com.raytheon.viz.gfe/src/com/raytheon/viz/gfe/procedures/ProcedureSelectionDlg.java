@@ -20,6 +20,7 @@
 package com.raytheon.viz.gfe.procedures;
 
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.swt.widgets.Shell;
 
@@ -38,6 +39,7 @@ import com.raytheon.viz.gfe.ui.runtimeui.SelectionDlg;
  * ------------ ---------- ----------- --------------------------
  * Feb 09, 2010            njensen     Initial creation
  * Dec 09, 2013  #2367     dgilling    Use new ProcedureJobPool.
+ * Jul 17, 2015  4575      njensen     Changed varDict from String to Map
  * 
  * </pre>
  * 
@@ -64,8 +66,7 @@ public class ProcedureSelectionDlg extends SelectionDlg {
             ProcedureRequest req = ProcedureUtil.buildProcedureRequest(name,
                     dataMgr);
             if (req != null) {
-                String varDict = dataMgr.getProcedureInterface()
-                        .transformVarDict(getValues());
+                Map<String, Object> varDict = getValues();
                 req.setVarDict(varDict);
                 req.setPreview(pi);
                 dataMgr.getProcedureJobPool().schedule(req);

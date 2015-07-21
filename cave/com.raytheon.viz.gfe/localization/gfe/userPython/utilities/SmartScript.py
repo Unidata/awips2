@@ -66,6 +66,7 @@
 #    Jan 13, 2015    3955          randerso       Added optional parameter to availableParms to specify desired databases.
 #                                                 Fixed createGrid to accept a DatabaseID for model
 #    Apr 23, 2015    4259          njensen        Updated for new JEP API
+#    Jul 17, 2015    4575          njensen        callSmartTool() and callProcedure() send HashMap for varDict
 ########################################################################
 import types, string, time, sys
 from math import *
@@ -1010,7 +1011,7 @@ class SmartScript(BaseTool.BaseTool):
         else:
             emptyEditAreaFlag = False
         if varDict is not None:
-            varDict = str(varDict)
+            varDict = JUtil.pyValToJavaObj(varDict)
 
         parm = self.getParm(self.__mutableID, elementName, "SFC")
         if timeRange is None:
@@ -1044,7 +1045,7 @@ class SmartScript(BaseTool.BaseTool):
 
         from com.raytheon.viz.gfe.procedures import ProcedureUtil
         if varDict is not None:
-            varDict = str(varDict)
+            varDict = JUtil.pyValToJavaObj(varDict)
 
         result = ProcedureUtil.callFromSmartScript(self.__dataMgr, name, editArea, timeRange, varDict)
 

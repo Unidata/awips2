@@ -19,6 +19,7 @@
  **/
 package com.raytheon.viz.gfe.procedures;
 
+import java.util.Map;
 import java.util.concurrent.Semaphore;
 
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
@@ -34,7 +35,8 @@ import com.raytheon.viz.gfe.smarttool.PreviewInfo;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 8, 2009            njensen     Initial creation
+ * Oct 08, 2009            njensen     Initial creation
+ * Jul 17, 2015  4575      njensen     Changed varDict from String to Map
  * 
  * </pre>
  * 
@@ -50,7 +52,7 @@ public class ProcedureRequest extends QueueJobRequest<Object> {
 
     private TimeRange timeRange;
 
-    private String varDict;
+    private Map<String, Object> varDict;
 
     private PreviewInfo preview;
 
@@ -93,11 +95,11 @@ public class ProcedureRequest extends QueueJobRequest<Object> {
         this.timeRange = timeRange;
     }
 
-    public String getVarDict() {
+    public Map<String, Object> getVarDict() {
         return varDict;
     }
 
-    public void setVarDict(String varDict) {
+    public void setVarDict(Map<String, Object> varDict) {
         this.varDict = varDict;
     }
 

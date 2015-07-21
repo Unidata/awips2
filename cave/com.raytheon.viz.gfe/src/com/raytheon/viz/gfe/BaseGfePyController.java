@@ -52,6 +52,7 @@ import com.raytheon.viz.gfe.smartscript.FieldDefinition;
  *                                      calls from python copying/casting to correct types
  * Feb 05, 2015  4089      njensen     Replaced previous hardening with ensureResultType()
  * Apr 23, 2015  4259      njensen     Updated for new JEP API
+ * Jul 17, 2015  4575      njensen     Changed varDict from String to Map
  * 
  * </pre>
  * 
@@ -124,11 +125,13 @@ public abstract class BaseGfePyController extends PythonScriptController {
      *            a string representation of a python dictionary
      * @throws JepException
      */
-    public void setVarDict(String varDict) throws JepException {
+    public void setVarDict(Map<String, Object> varDict) throws JepException {
         if (varDict == null) {
             jep.eval("varDict = None");
         } else {
-            jep.eval("varDict = " + varDict);
+            jep.set("varDict", varDict);
+            jep.eval("import JUtil");
+            jep.eval("varDict = JUtil.javaObjToPyVal(varDict)");
         }
     }
 
@@ -155,22 +158,6 @@ public abstract class BaseGfePyController extends PythonScriptController {
         }
 
         return fieldDefs;
-    }
-
-    public String transformVarDict(Map<String, Object> map) {
-        String varDict = null;
-        try {
-            jep.eval("import JUtil");
-            jep.set("varDictMap", map);
-            jep.eval("temp = JUtil.javaMapToPyDict(varDictMap)");
-            varDict = (String) jep.getValue("temp");
-            jep.eval("varDictMap = None");
-            jep.eval("temp = None");
-        } catch (JepException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Exception while transforming varDict", e);
-        }
-        return varDict;
     }
 
     /**
