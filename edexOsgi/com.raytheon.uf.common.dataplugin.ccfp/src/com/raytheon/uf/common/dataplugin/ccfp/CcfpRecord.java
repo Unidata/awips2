@@ -57,6 +57,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Apr 15, 2014 3001        bgonzale    Refactored to common package,
  *                                      com.raytheon.uf.common.dataplugin.ccfp.
  * Oct 03, 2014 3644        mapeters    Removed dataURI column.
+ * Jul 17, 2015 4360        rferrel     Named unique constraint, producttype no longer nullable.
  * 
  * 
  * </pre>
@@ -66,18 +67,16 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "ccfpseq")
-@Table(name = "ccfp", uniqueConstraints = { @UniqueConstraint(columnNames = {
+@Table(name = "ccfp", uniqueConstraints = { @UniqueConstraint(name = "uk_ccfp_datauri_fields", columnNames = {
         "refTime", "producttype", "boxLat", "boxLong" }) })
-
-@org.hibernate.annotations.Table(appliesTo = "ccfp", indexes = { @Index(name = "ccfp_refTimeIndex", columnNames = {
- "refTime" }) })
+@org.hibernate.annotations.Table(appliesTo = "ccfp", indexes = { @Index(name = "ccfp_refTimeIndex", columnNames = { "refTime" }) })
 @DynamicSerialize
 public class CcfpRecord extends PluginDataObject implements ISpatialEnabled {
 
     private static final long serialVersionUID = 1L;
 
     @DataURI(position = 1)
-    @Column(length = 8)
+    @Column(length = 8, nullable = false)
     @DynamicSerializeElement
     private String producttype;
 
@@ -119,16 +118,6 @@ public class CcfpRecord extends PluginDataObject implements ISpatialEnabled {
      */
     public CcfpRecord() {
     }
-
-    // /**
-    // * Constructor.
-    // *
-    // * @param message
-    // * The text of the message
-    // */
-    // public CcfpRecord(String message) {
-    // super(message);
-    // }
 
     /**
      * Constructs a ccfp record from a dataURI
