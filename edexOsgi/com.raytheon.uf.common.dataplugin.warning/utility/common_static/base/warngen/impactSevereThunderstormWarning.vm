@@ -396,10 +396,10 @@ THIS IS A TEST MESSAGE. ##
 ######## GENERATE PATHCAST OR CITIES LIST #########
 ###################################################
 #if(${stormType} == "line")
-#set($pathcastLead = "severe thunderstorms")
+#set($pathcastLead = "Severe thunderstorms")
 #set($otherLead = "these severe thunderstorms")
 #else 
-#set($pathcastLead = "this severe thunderstorm")
+#set($pathcastLead = "This severe thunderstorm")
 #set($otherLead = "this severe thunderstorm")
 #end
 #if(${list.contains(${bullets}, "pathcast")})
