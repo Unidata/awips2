@@ -61,6 +61,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                     PluginDataObject.
  * Oct 22, 2013 2361       njensen     Remove XML annotations
  * Nov 26, 2013 2582       njensen     Remove dataURI and recordType columns
+ * Jul 21, 2015 4360       rferrel     Named unique constraint. Made advisoryNumber not-nullable.
  * 
  * </pre>
  * 
@@ -70,7 +71,7 @@ import com.vividsolutions.jts.geom.Geometry;
 
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "vaaseq")
-@Table(name = "vaa", uniqueConstraints = { @UniqueConstraint(columnNames = {
+@Table(name = "vaa", uniqueConstraints = { @UniqueConstraint(name = "uk_vaa_datauri_fields", columnNames = {
         "latitude", "longitude", "stationId", "refTime", "forecastTime",
         "advisoryNumber" }) })
 /*
@@ -89,10 +90,7 @@ public class VAARecord extends PluginDataObject implements ISpatialEnabled {
     @DynamicSerializeElement
     private SurfaceObsLocation location;
 
-    /**
-     * 
-     */
-    @Column(length = 16)
+    @Column(length = 16, nullable = false)
     @DataURI(position = 2)
     @DynamicSerializeElement
     private String advisoryNumber;
