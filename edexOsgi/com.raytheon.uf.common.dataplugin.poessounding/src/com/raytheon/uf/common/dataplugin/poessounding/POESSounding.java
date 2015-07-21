@@ -60,6 +60,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                     PluginDataObject.
  * May 15, 2013 1869       bsteffen    Remove DataURI from goes/poes soundings.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Jul 21, 2015 4360       rferrel     Named unique constraint.
  * 
  * </pre>
  * 
@@ -68,7 +69,7 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "poessoundingseq")
-@Table(name = "poessounding", uniqueConstraints = { @UniqueConstraint(columnNames = {
+@Table(name = "poessounding", uniqueConstraints = { @UniqueConstraint(name = "uk_poessounding_datauri_fields", columnNames = {
         "stationid", "reftime", "latitude", "longitude" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
@@ -90,6 +91,7 @@ public class POESSounding extends PersistablePluginDataObject implements
     @Transient
     private Set<POESSoundingLevel> soundingLevels;
 
+    // TODO Update once SurfaceObsLocation DataURI's are corrected.
     @Embedded
     @DataURI(position = 1, embedded = true)
     @DynamicSerializeElement
