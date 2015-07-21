@@ -36,10 +36,10 @@ import com.raytheon.viz.hydrocommon.util.HydroDataUtils;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 8, 2008 1697       askripsky   Initial Creation
- * Apr 18,2013 1790       rferrel     Cleanup method interfaces; 
+ * Dec 8, 2008 1697        askripsky   Initial Creation
+ * Apr 18,2013 1790        rferrel     Cleanup method interfaces; 
  *                                      part of non-blocking dialogs.
- * 
+ * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
  * </pre>
  * 
  * @author askripsky
@@ -73,7 +73,7 @@ public class QcAlertAlarmLimitsDataManager {
             manager = new QcAlertAlarmLimitsDataManager();
         }
 
-        return (QcAlertAlarmLimitsDataManager) manager;
+        return manager;
     }
 
     /**
@@ -94,8 +94,8 @@ public class QcAlertAlarmLimitsDataManager {
             for (QueryResultRow currNet : data.getRows()) {
                 String name = (String) currNet.getColumn(data.getColumnNames()
                         .get("name"));
-                int dur = (Integer) currNet.getColumn(data.getColumnNames()
-                        .get("dur"));
+                int dur = ((Number) currNet.getColumn(data.getColumnNames()
+                        .get("dur"))).intValue();
                 rval.add(String.format("%s (%s)", name, dur));
             }
         }
@@ -110,7 +110,7 @@ public class QcAlertAlarmLimitsDataManager {
 
     public List<DataLimitData> getDefaultLimits(boolean filterByPE,
             List<String> selectedPE, boolean forceLoad) throws VizException {
-        if (defaultData == null || forceLoad) {
+        if ((defaultData == null) || forceLoad) {
             defaultData = HydroDBDataManager.getInstance().getData(
                     DataLimitData.class);
         }
@@ -198,7 +198,7 @@ public class QcAlertAlarmLimitsDataManager {
     public List<LocationDataLimitData> getLocationLimits(boolean filterByLID,
             String lidFilter, boolean filterByPE, List<String> selectedPE,
             boolean forceLoad) throws VizException {
-        if (locationData == null || forceLoad) {
+        if ((locationData == null) || forceLoad) {
             locationData = HydroDBDataManager.getInstance().getData(
                     LocationDataLimitData.class);
         }

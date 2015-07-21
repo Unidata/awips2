@@ -59,7 +59,7 @@
          </property>
          <property
                name="windowImages"
-               value="icons/cave_16x16.gif,icons/cave_32x32.gif">
+               value="platform:/plugin/com.raytheon.viz.ui.personalities.awips/cave_16x16.png,platform:/plugin/com.raytheon.viz.ui.personalities.awips/cave_32x32.png,platform:/plugin/com.raytheon.viz.ui.personalities.awips/cave_48x48.png,platform:/plugin/com.raytheon.viz.ui.personalities.awips/cave_64x64.png,platform:/plugin/com.raytheon.viz.ui.personalities.awips/cave_128x128.png">
          </property>
       </product>
    </extension>

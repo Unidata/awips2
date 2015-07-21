@@ -42,14 +42,14 @@ import com.raytheon.viz.hydrocommon.datamanager.HydroDataManager;
  * 24 Nov 2008  1682        dhladky     Made interactive.
  * 15 Dec 2009  2422        mpduff      Added query for rating date and 
  *                                      USGS rating number.
- * 
+ * Jul 21, 2015 4500        rjpeter     Use Number in blind cast.
  * </pre>
  * 
  * @version 1.0
  */
 public class RatingCurveDataManager extends HydroDataManager {
 
-    private SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+    private final SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
 
     public RatingCurveDataManager() {
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -191,18 +191,21 @@ public class RatingCurveDataManager extends HydroDataManager {
     public void insertRatingCurveShift(RatingCurveShiftData rcsd) {
         if (rcsd.getLid() != null) {
             // Check to see if we need to update or insert
-            ArrayList<RatingCurveShiftData> dataList = getRatingCurveShift(rcsd.getLid());
+            ArrayList<RatingCurveShiftData> dataList = getRatingCurveShift(rcsd
+                    .getLid());
             boolean doUpdate = false;
             if (dataList.size() > 0) {
-                for (RatingCurveShiftData data: dataList) {
+                for (RatingCurveShiftData data : dataList) {
                     // if a pk match, then need to update
-                    if (data.getLid().equals(rcsd.getLid()) && data.getDate().getTime().equals(rcsd.getDate().getTime())) {
+                    if (data.getLid().equals(rcsd.getLid())
+                            && data.getDate().getTime()
+                                    .equals(rcsd.getDate().getTime())) {
                         doUpdate = true;
                         break;
                     }
                 }
             }
-            
+
             String lid = rcsd.getLid();
             double value = rcsd.getValue();
             String date = rcsd.getDateString();
@@ -216,13 +219,21 @@ public class RatingCurveDataManager extends HydroDataManager {
             String query = null;
             if (doUpdate) {
                 // do an update
-                query = "update ratingShift set shift_amount = " + value + ", active = '" + active + "' " 
-                    + " where lid = '" + lid + "' and date = '" + date + "'";
+                query = "update ratingShift set shift_amount = " + value
+                        + ", active = '" + active + "' " + " where lid = '"
+                        + lid + "' and date = '" + date + "'";
             } else {
                 query = "INSERT INTO ratingshift (lid, date, shift_amount, active) VALUES ('"
-                    + lid + "', '" + date + "', " + value + ", '" + active + "')";
+                        + lid
+                        + "', '"
+                        + date
+                        + "', "
+                        + value
+                        + ", '"
+                        + active
+                        + "')";
             }
-            
+
             try {
                 DirectDbQuery.executeStatement(query, HydroConstants.IHFS,
                         QueryLanguage.SQL);
@@ -261,37 +272,38 @@ public class RatingCurveDataManager extends HydroDataManager {
     public void insertRatingCurveData(RatingCurveData rcd, String lid) {
         if (lid != null) {
             // Check for update or insert
-            String countQuery = "select count(*) from rating where lid = '" + lid + "'" 
-                    + " and stage = " + rcd.getStage();
+            String countQuery = "select count(*) from rating where lid = '"
+                    + lid + "'" + " and stage = " + rcd.getStage();
             try {
-                List<Object[]> rs = DirectDbQuery.executeQuery(countQuery, HydroConstants.IHFS, QueryLanguage.SQL);
+                List<Object[]> rs = DirectDbQuery.executeQuery(countQuery,
+                        HydroConstants.IHFS, QueryLanguage.SQL);
                 if ((rs != null) && (rs.size() > 0)) {
                     Object[] oa = rs.get(0);
                     if ((oa != null) && (oa.length > 0)) {
-                        long count = (Long) oa[0];
+                        long count = ((Number) oa[0]).longValue();
                         if (count > 0) {
                             // need to delete, then insert
-                            String query = "delete from rating where lid = '" + lid + "' and stage = " + rcd.getStage();
-                            DirectDbQuery.executeStatement(query, HydroConstants.IHFS,
-                                    QueryLanguage.SQL);
+                            String query = "delete from rating where lid = '"
+                                    + lid + "' and stage = " + rcd.getStage();
+                            DirectDbQuery.executeStatement(query,
+                                    HydroConstants.IHFS, QueryLanguage.SQL);
                         }
                         // need to do an insert
                         String query = "INSERT INTO rating (lid, stage, discharge) VALUES ('"
-                            + lid
-                            + "', "
-                            + rcd.getStage()
-                            + ", "
-                            + rcd.getDischarge()
-                            + ")";
-                        DirectDbQuery.executeStatement(query, HydroConstants.IHFS,
-                                QueryLanguage.SQL);
+                                + lid
+                                + "', "
+                                + rcd.getStage()
+                                + ", "
+                                + rcd.getDischarge() + ")";
+                        DirectDbQuery.executeStatement(query,
+                                HydroConstants.IHFS, QueryLanguage.SQL);
                     } else {
                         throw new Exception("Error accessing Hydor Database");
                     }
                 } else {
                     throw new Exception("Error accessing Hydor Database");
                 }
-                
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
