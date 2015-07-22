@@ -44,14 +44,15 @@ import com.raytheon.viz.core.slice.request.HeightScale;
 import com.vividsolutions.jts.geom.LineString;
 
 /**
- * TODO Add Description
+ * An IDescriptor for cross sections
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 28, 2010            bsteffen     Initial creation
+ * Jun 28, 2010            bsteffen    Initial creation
+ * Jul 22, 2015  4669      njensen     Fixed isCompatible()
  * 
  * </pre>
  * 
@@ -80,18 +81,14 @@ public class CrossSectionDescriptor extends XyGraphDescriptor implements
     }
 
     /**
+     * Constructor
+     * 
      * @param pixelExtent
-     * @param varHeightGraphFactory
      */
     public CrossSectionDescriptor(PixelExtent pixelExtent) {
         super(pixelExtent);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.xy.graph.XyGraphDescriptor#constructGraph()
-     */
     @Override
     public IGraph constructGraph() {
         return new CrossSectionGraph(this);
@@ -197,7 +194,7 @@ public class CrossSectionDescriptor extends XyGraphDescriptor implements
     public boolean isCompatible(IDescriptor other) {
         if (other instanceof CrossSectionDescriptor) {
             CrossSectionDescriptor csOther = (CrossSectionDescriptor) other;
-            if (csOther.lines.equals(this.lines)) {
+            if (!csOther.lines.equals(this.lines)) {
                 return false;
             }
             return csOther.heightScale.equals(this.heightScale);
@@ -205,35 +202,16 @@ public class CrossSectionDescriptor extends XyGraphDescriptor implements
         return false;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.IBaseLinesContainer#setBaseLine(java.lang
-     * .String)
-     */
     @Override
     public void setBaseLine(String baseLine) {
         setLineID(LINE_PREFIX + baseLine);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.IBaseLinesContainer#setBaseLineString(com
-     * .vividsolutions.jts.geom.LineString)
-     */
     @Override
     public void setBaseLineString(LineString baseLineString) {
         setLines(Arrays.asList(baseLineString));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.IBaseLinesContainer#getBaseLine()
-     */
     @Override
     public String getBaseLine() {
         return getLineID();
