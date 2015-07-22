@@ -235,11 +235,11 @@ public class RadarMenuUtil extends AbstractMenuUtil implements
         }
 
         Arrays.sort(menuTemplateFile.contributions);
-        // only want 12 radars in the dial radar menu, otherwise put it in
+        // only want 18 radars in the dial radar menu, otherwise put it in
         // submenus
-        if (menuTemplateFile.contributions.length > 12) {
+        if (menuTemplateFile.contributions.length > 18) {
             double numMenus = Math
-                    .ceil(((double) menuTemplateFile.contributions.length) / 12);
+                    .ceil(((double) menuTemplateFile.contributions.length) / 18);
             int perMenu = (int) (menuTemplateFile.contributions.length
                     / numMenus + 1);
             statusHandler.info("For " + menuTemplateFile.contributions.length
