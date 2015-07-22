@@ -59,6 +59,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Feb 10, 2011 8244       bkowal       replaced deprecated method calls;
  *                                      magnitude influences axis label font.
  * Jun 18, 2014 3242       njensen      Replaced deprecated calls
+ * Jul 21, 2015 4220       mapeters     Reset zoomHandler when constructing this graph
  * 
  * </pre>
  * 
@@ -206,6 +207,10 @@ public class TimeSeriesGraph extends AbstractGraph {
             if (rsc.getStatus() != ResourceStatus.INITIALIZED) {
                 return;
             }
+        }
+
+        if (zoomHandler != null) {
+            zoomHandler.reset();
         }
 
         // TODO: Loop through resources and create extent then call

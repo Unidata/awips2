@@ -54,11 +54,11 @@ import com.raytheon.viz.core.slice.request.HeightScale.ScaleType;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- *
+ * 
  * The background graph for a var height display
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
@@ -69,9 +69,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Mar 02, 2015 4189       nabowle     Prevent NPE when panning. Copy
  *                                     graphResource in paintUnits() to prevent
  *                                     ConcurrentModification in a single thread.
- *
+ * Jul 21, 2015 4220       mapeters    Reset zoomHandler when constructing this graph
+ * 
  * </pre>
- *
+ * 
  * @author bsteffen
  * @version 1.0
  */
@@ -90,7 +91,7 @@ public class VarHeightGraph extends AbstractGraph {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.uf.viz.xy.graph.AbstractGraph#canHandleResoruce(com.raytheon
      * .uf.viz.xy.map.rsc.IGraphableResource)
@@ -102,12 +103,15 @@ public class VarHeightGraph extends AbstractGraph {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.uf.viz.xy.graph.AbstractGraph#constructVirtualExtent()
      */
     @Override
     protected void constructVirtualExtent() {
         this.zoomLevel = 1;
+        if (zoomHandler != null) {
+            zoomHandler.reset();
+        }
         double[] minMaxX = new double[2];
         ArrayList<IGraphLabel<Double>> xLabels = new ArrayList<IGraphLabel<Double>>();
         getRangeData(xLabels, new ArrayList<IGraphLabel<Double>>());
@@ -132,7 +136,7 @@ public class VarHeightGraph extends AbstractGraph {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.uf.viz.xy.graph.AbstractGraph#createAxes()
      */
     @Override
@@ -177,7 +181,7 @@ public class VarHeightGraph extends AbstractGraph {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.uf.viz.xy.graph.AbstractGraph#paintTitles(com.raytheon.uf
      * .viz.core.IGraphicsTarget,
@@ -202,7 +206,7 @@ public class VarHeightGraph extends AbstractGraph {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.uf.viz.xy.graph.AbstractGraph#paintUnits(com.raytheon.uf
      * .viz.core.IGraphicsTarget,
@@ -298,5 +302,4 @@ public class VarHeightGraph extends AbstractGraph {
         }
         updateVirtualExtent();
     }
-
 }

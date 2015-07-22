@@ -21,8 +21,10 @@ package com.raytheon.uf.viz.xy.map.rsc;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -39,18 +41,20 @@ import com.vividsolutions.jts.geom.Coordinate;
 /**
  * The graph resource is a resource that contains 1-N graphs, lays them out and
  * provides functionality for drawing to them / sampling them
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 29, 2009            mschenke     Initial creation
  * Mar 04, 2015 4189       nabowle      Copy graphs in paintInternal to prevent
  *                                      ConcurrentModification in a single thread.
- *
+ * Jul 16, 2015 4220       mapeters     When new graph is added, remove other graphs 
+ *                                      if empty, otherwise reconstruct them.
+ * 
  * </pre>
- *
+ * 
  * @author mschenke
  * @version 1.0
  */
@@ -159,19 +163,41 @@ public class GraphResource extends
                 }
             }
         }
+
     }
 
     /**
      * Returns the graph associated with this graphable resource, graph will be
      * constructed if doesn't exist, should only be called once by the resource
      * and cached
-     *
+     * 
      * @param rsc
-     * @return
+     * @return the graph associated with this graphable resource
      */
     public synchronized IGraph getGraph(IGraphableResource<?, ?> rsc) {
         IGraph graph = graphMap.get(rsc.getGraphKey());
         if (graph == null) {
+            Iterator<Entry<Object, IGraph>> itr = graphMap.entrySet()
+                    .iterator();
+            while (itr.hasNext()) {
+                Entry<Object, IGraph> entry = itr.next();
+                IGraph otherGraph = entry.getValue();
+                if (otherGraph.getResourceCount() == 0) {
+                    /*
+                     * Remove empty graphs that were only kept around to keep
+                     * gridlines displayed.
+                     */
+                    itr.remove();
+                    graphs.remove(otherGraph);
+                } else {
+                    /*
+                     * Reconstruct other graphs so they redraw to same zoom
+                     * level (fully zoomed out).
+                     */
+                    otherGraph.reconstruct();
+                }
+            }
+
             graph = descriptor.constructGraph();
             graphMap.put(rsc.getGraphKey(), graph);
             graphs.add(graph);
@@ -197,9 +223,9 @@ public class GraphResource extends
 
     /**
      * Returns the closest graph to the grid coordinates
-     *
+     * 
      * @param gridCoords
-     * @return
+     * @return the closest graph to the grid coordinates
      */
     public IGraph getClosestGraph(Coordinate gridCoords) {
         if (graphs.size() == 0) {
@@ -218,7 +244,7 @@ public class GraphResource extends
                 IExtent extent = graph.getExtent();
                 // because the graphs are laid out from top to bottom
                 if (extent != null && extent.getMaxY() > yclick) {
-                    return graphs.get(i);
+                    return graph;
                 }
             }
         }
@@ -227,10 +253,10 @@ public class GraphResource extends
     }
 
     /**
-     * Returns the closest graph to the grid coordinates
-     *
+     * Returns the graph furthest from the grid coordinates
+     * 
      * @param gridCoords
-     * @return
+     * @return the graph furthest from the grid coordinates
      */
     public IGraph getFurthestGraph(Coordinate gridCoords) {
         if (graphs.size() == 0) {

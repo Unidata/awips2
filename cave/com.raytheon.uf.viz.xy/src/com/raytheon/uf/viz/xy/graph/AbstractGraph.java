@@ -52,6 +52,7 @@ import com.raytheon.uf.viz.xy.graph.axis.IAxisPlacer;
 import com.raytheon.uf.viz.xy.graph.axis.OutlineAxis;
 import com.raytheon.uf.viz.xy.graph.labeling.IGraphLabel;
 import com.raytheon.uf.viz.xy.map.rsc.IGraphableResource;
+import com.raytheon.uf.viz.xy.util.AbstractGraphZoomHandler;
 import com.raytheon.viz.core.slice.request.HeightScale;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -67,6 +68,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Feb 10, 2011 8244       bkowal      Keep track of the current
  *                                     magnification settings.
  * Jun 18, 2014 3242       njensen     Replace deprecated calls
+ * Jul 21, 2015 4220       mapeters    Added zoomHandler
  * 
  * </pre>
  * 
@@ -134,6 +136,8 @@ public abstract class AbstractGraph implements IGraph {
     protected boolean displayed = true;
 
     protected Double currentMagnification = 1.0;
+
+    protected AbstractGraphZoomHandler zoomHandler;
 
     public AbstractGraph(XyGraphDescriptor descriptor) {
         this.descriptor = descriptor;
@@ -869,5 +873,15 @@ public abstract class AbstractGraph implements IGraph {
     @Override
     public void setCurrentMagnification(Double currentMagnification) {
         this.currentMagnification = currentMagnification;
+    }
+
+    @Override
+    public AbstractGraphZoomHandler getZoomHandler() {
+        return zoomHandler;
+    }
+
+    @Override
+    public void setZoomHandler(AbstractGraphZoomHandler zoomHandler) {
+        this.zoomHandler = zoomHandler;
     }
 }

@@ -57,6 +57,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Feb 23, 2009            njensen     Initial creation
  * May 08, 2014 2060       njensen     Constructor sets alert parser
+ * Jul 17, 2015 4220       mapeters    Added hashCode(), AxisParameter.equals()/hashCode()
  * 
  * </pre>
  * 
@@ -75,6 +76,36 @@ public class TimeSeriesResourceData extends AbstractRequestableResourceData
 
         /** long name for the parameter */
         public String name;
+
+        @Override
+        public boolean equals(Object object) {
+            if (this == object)
+                return true;
+            if (this.getClass() != object.getClass())
+                return false;
+            AxisParameter otherAxisParameter = (AxisParameter) object;
+            if (this.code == null) {
+                if (otherAxisParameter.code != null)
+                    return false;
+            } else if (!this.code.equals(otherAxisParameter.code))
+                return false;
+            if (this.name == null) {
+                if (otherAxisParameter.name != null)
+                    return false;
+            } else if (!this.name.equals(otherAxisParameter.name))
+                return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((code == null) ? 0 : code.hashCode());
+            result = prime * result + ((name == null) ? 0 : name.hashCode());
+            return result;
+        }
     }
 
     /**
@@ -322,6 +353,24 @@ public class TimeSeriesResourceData extends AbstractRequestableResourceData
         }
 
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((coordinate == null) ? 0 : coordinate.hashCode());
+        result = prime * result
+                + ((pointLetter == null) ? 0 : pointLetter.hashCode());
+        result = prime * result + ((source == null) ? 0 : source.hashCode());
+        result = prime * result
+                + ((yParameter == null) ? 0 : yParameter.hashCode());
+        result = prime
+                * result
+                + ((secondaryResourceData == null) ? 0 : secondaryResourceData
+                        .hashCode());
+        return result;
     }
 
     public void setLevelKey(String levelKey) {

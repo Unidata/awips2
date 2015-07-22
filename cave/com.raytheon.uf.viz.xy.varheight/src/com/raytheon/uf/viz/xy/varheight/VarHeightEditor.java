@@ -24,12 +24,14 @@ import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.IInputHandler.InputPriority;
 import com.raytheon.uf.viz.xy.VizXyEditor;
+import com.raytheon.uf.viz.xy.varheight.display.VarHeightRenderableDisplay;
 import com.raytheon.uf.viz.xy.varheight.util.VarHeightPanHandler;
 import com.raytheon.uf.viz.xy.varheight.util.VarHeightZoomHandler;
 import com.raytheon.viz.ui.input.InputManager;
 
 /**
- * TODO Add Description
+ * Editor for var height graphs that registers/updates zoom and pan handlers
+ * when {@link VarHeightRenderableDisplay}s are added/changed.
  * 
  * <pre>
  * 
@@ -37,6 +39,7 @@ import com.raytheon.viz.ui.input.InputManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 28, 2010            bsteffen     Initial creation
+ * Jul 26, 2015 4220       mapeters     Correctly register/update handlers
  * 
  * </pre>
  * 
@@ -68,29 +71,21 @@ public class VarHeightEditor extends VizXyEditor {
     public void registerMouseHandler(IInputHandler handler,
             InputPriority priority) {
         if (handler instanceof VarHeightZoomHandler) {
-            if (zoomHandler == null) {
-                zoomHandler = (VarHeightZoomHandler) handler;
-                this.updateHandlers();
-            } else {
+            if (zoomHandler != null) {
                 // remove the old one
                 this.getMouseManager().unregisterMouseHandler(zoomHandler);
-                // register the new one
-                zoomHandler = (VarHeightZoomHandler) handler;
-                this.getMouseManager().registerMouseHandler(zoomHandler);
-                this.updateHandlers();
             }
+            zoomHandler = (VarHeightZoomHandler) handler;
+            this.getMouseManager().registerMouseHandler(zoomHandler);
+            this.updateHandlers();
         } else if (handler instanceof VarHeightPanHandler) {
-            if (panHandler == null) {
-                panHandler = (VarHeightPanHandler) handler;
-                this.updateHandlers();
-            } else {
+            if (panHandler != null) {
                 // remove the old one
                 this.getMouseManager().unregisterMouseHandler(panHandler);
-                // register the new one
-                panHandler = (VarHeightPanHandler) handler;
-                this.getMouseManager().registerMouseHandler(panHandler);
-                this.updateHandlers();
             }
+            panHandler = (VarHeightPanHandler) handler;
+            this.getMouseManager().registerMouseHandler(panHandler);
+            this.updateHandlers();
         } else {
             super.registerMouseHandler(handler, priority);
         }
@@ -118,15 +113,13 @@ public class VarHeightEditor extends VizXyEditor {
             panHandler = new VarHeightPanHandler(display);
             this.getMouseManager().registerMouseHandler(panHandler);
         } else {
-            zoomHandler.setRenderableDisplay(display);
+            panHandler.setRenderableDisplay(display);
         }
     }
 
     @Override
     public void renderableDisplayChanged(IDisplayPane pane,
             IRenderableDisplay newRenderableDisplay, DisplayChangeType type) {
-        // mouse listener?
-        // System.err.println("renderable display changed!");
         if (type.equals(DisplayChangeType.ADD)) {
             this.updateHandlers(newRenderableDisplay);
         }
