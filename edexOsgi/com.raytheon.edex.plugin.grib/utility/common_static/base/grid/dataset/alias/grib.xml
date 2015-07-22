@@ -19,8 +19,8 @@
         further_licensing_information.
     -->
 <aliasList namespace="grib">
-	<alias base="GFS212">GribModel:7:0:96:212</alias>
-	<alias base="GFS212">GribModel:7:0:81:212</alias>
-	<alias base="GFS212">GribModel:7:0:77:212</alias>
+	<alias base="GFS-40km">GribModel:7:0:96:212</alias>
+	<alias base="GFS-40km">GribModel:7:0:81:212</alias>
+	<alias base="GFS-40km">GribModel:7:0:77:212</alias>
 	<alias base="EKDMOS">GribModel:7:14:114</alias>
 </aliasList>
