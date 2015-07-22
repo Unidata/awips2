@@ -167,7 +167,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 02/04/2014  17039       ryu         Removed menu item related to the HighlighFramingCodes feature.
  * 04/20/2015   4027       randerso    Renamed ProductStateEnum with an initial capital
  *                                     Expunged Calendar from ActiveTableRecord
- * 07/02/2015  13753       lshi        Update times for products in Product Editor                                  
+ * 07/02/2015  13753       lshi        Update times for products in Product Editor 
+ * 07/22/2015  13753       lshi        Keeps issue time unchanged                                 
  * </pre>
  * 
  * @author lvenable
@@ -423,7 +424,7 @@ public class ProductEditorComp extends Composite implements
 
     private final DataManager dm;
     
-    boolean updateTime = false;
+    private boolean updateTime = false;
 
     /**
      * Constructor.
@@ -1964,21 +1965,12 @@ public class ProductEditorComp extends Composite implements
         // I know this time string has been replaced. If the lengths of the
         // before and after strings are different, a reParse() will be made,
         // else it will continue on.
+        
+        
         if (textComp != null) {
-            try {
-                textComp.startUpdate();
-                ProductDataStruct pds = textComp.getProductDataStruct();
-
-                if (pds != null) {
-                    TextIndexPoints pit = pds.getPIT();
-                    if (pit != null) {
-                        String time = purgeTimeFmt.format(now);
-                        textComp.replaceText(pit, time);
-                    }
-                }
-            } finally {
-                textComp.endUpdate();
-            }
+         // Update Issue time -- removed
+            
+         // Update MND time
             try {
                 textComp.startUpdate();
                 ProductDataStruct pds = textComp.getProductDataStruct();
@@ -1992,7 +1984,7 @@ public class ProductEditorComp extends Composite implements
                         String issueTime = fmt.format(now).toUpperCase();
 
                         if (tip != null) {
-                            textComp.replaceText(tip, issueTime);
+                           textComp.replaceText(tip, issueTime);
                         }
                     }
                 }
@@ -2000,13 +1992,14 @@ public class ProductEditorComp extends Composite implements
                 textComp.endUpdate();
             }
 
-
             // The working assumption here is that any time replacement we will
             // perform will not alter the number of segments in the products. So
             // the number of iterations is predetermined, but we will force
             // StyledTextComp to re-evaluate whether a reParse() is needed and
             // ask it for the segment information each time through the loop (in
             // case we're at one of the 4 transition points).
+            
+         // Update segments' time
             try {
                 ProductDataStruct pds = textComp.getProductDataStruct();
 
@@ -2018,6 +2011,7 @@ public class ProductEditorComp extends Composite implements
                     fmt.setTimeZone(localTimeZone);
                     String officeIssueTime = fmt.format(now).toUpperCase();
 
+                    
                     for (int i = 0; i < numSegments; i++) {
                         textComp.startUpdate();
                         HashMap<String, TextIndexPoints> segMap = pds
@@ -3072,4 +3066,5 @@ public class ProductEditorComp extends Composite implements
     protected boolean isUpdateTime() {
         return updateTime;
     }
+    
 }
