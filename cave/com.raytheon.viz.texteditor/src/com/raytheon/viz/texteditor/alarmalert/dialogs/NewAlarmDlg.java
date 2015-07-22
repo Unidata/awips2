@@ -36,12 +36,12 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.dataplugin.text.alarms.AlarmAlertProduct;
 import com.raytheon.uf.common.dataplugin.text.alarms.AlarmAlertProduct.ProductType;
+import com.raytheon.viz.texteditor.dialogs.TextWSMessageBox;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -476,9 +476,8 @@ public class NewAlarmDlg extends CaveSWTDialog {
                     buildAlarmAlertObject();
                     shell.dispose();
                 } else {
-                    MessageBox m = new MessageBox(getShell(), SWT.ERROR);
-                    m.setMessage("ProductID must contain an entry.");
-                    m.open();
+                    TextWSMessageBox.open(getShell(), "",
+                            "ProductID must contain an entry.");
                 }
             }
         });

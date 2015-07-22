@@ -47,7 +47,6 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.dataplugin.text.AfosWmoIdDataContainer;
@@ -665,14 +664,14 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
 			// CaveSWTDialog in a similar manner to
 			// WarnGenConfirmationDlg. Better solution if possible
 			// change AlermAlertBell so modal MessagBox can be used..
-			MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES
-					| SWT.NO);
-			mb.setMessage("Product Designator " + wsfoIdTF.getText()
-					+ prodCatTF.getText() + prodDesignatorTF.getText()
-					+ " is not in the list of valid products. Use it anyway?");
-			if (mb.open() == SWT.NO) {
-				return;
-			}
+            String message = "Product Designator " + wsfoIdTF.getText()
+                    + prodCatTF.getText() + prodDesignatorTF.getText()
+                    + " is not in the list of valid products. Use it anyway?";
+            int response = TextWSMessageBox.open(shell, "", message,
+                    SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+            if (response == SWT.NO) {
+                return;
+            }
 			parentEditor.enableSend(false);
 			sendEnabled = false;
             if(isAfosPilComplete()) {

@@ -33,7 +33,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -212,10 +211,7 @@ public class TextCharWrapDlg extends CaveSWTDialog {
     }
 
     private void userInformation(String information) {
-        MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-        mb.setText("Sorry!");
-        mb.setMessage(information);
-        mb.open();
+        TextWSMessageBox.open(shell, "Sorry!", information);
     }
 
     private boolean isColWidthValid() {
