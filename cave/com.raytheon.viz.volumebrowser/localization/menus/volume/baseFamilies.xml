@@ -75,8 +75,8 @@
 			<substitute key="frameCount" value="41"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
-	        menuText="CMC GEM" id="CMC" useReferenceTime="true">
-			<substitute key="modelName" value="CMC-REG"/>
+	        menuText="CMC" id="CMC" useReferenceTime="true">
+			<substitute key="modelName" value="CMC"/>
 			<substitute key="TP" value="TP"/>
 			<substitute key="frameCount" value="12"/>
 		</contribute>
@@ -161,8 +161,8 @@
 			<substitute key="frameCount" value="41"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-	        menuText="CMC GEM" id="CMC" useReferenceTime="true">
-			<substitute key="modelName" value="CMC-REG"/>
+	        menuText="CMC" id="CMC" useReferenceTime="true">
+			<substitute key="modelName" value="CMC"/>
 			<substitute key="TP" value="TP"/>
 			<substitute key="frameCount" value="12"/>
 		</contribute>
