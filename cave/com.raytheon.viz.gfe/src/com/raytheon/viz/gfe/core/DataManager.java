@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import jep.JepException;
 
@@ -71,9 +72,8 @@ import com.raytheon.viz.gfe.procedures.ProcedureJobPool;
 import com.raytheon.viz.gfe.procedures.ProcedureUIController;
 import com.raytheon.viz.gfe.smarttool.EditActionProcessor;
 import com.raytheon.viz.gfe.smarttool.GridCycler;
-import com.raytheon.viz.gfe.smarttool.script.SmartToolFactory;
 import com.raytheon.viz.gfe.smarttool.script.SmartToolJobPool;
-import com.raytheon.viz.gfe.smarttool.script.SmartToolUIController;
+import com.raytheon.viz.gfe.smarttool.script.SmartToolMetadataManager;
 import com.raytheon.viz.gfe.textformatter.TextProductManager;
 
 /**
@@ -104,6 +104,8 @@ import com.raytheon.viz.gfe.textformatter.TextProductManager;
  * 09/09/2014    3592      randerso    Added call to SampleSetManager.dispose()
  * 10/30/2014    3775      randerso    Added parmCacheInit to initStatus
  * 04/20/2015    4027      randerso    Let TextProductManager know we are not running in a GUI
+ * 07/23/2015    4263      dgilling    Refactor to support initialization of smart tool 
+ *                                     inventory off main thread.
  * 
  * </pre>
  * 
@@ -166,7 +168,7 @@ public class DataManager {
 
     private AutoSaveJob autoSaveJob;
 
-    private SmartToolUIController smartToolInterface;
+    private SmartToolMetadataManager smartToolInterface;
 
     private ProcedureUIController procedureInterface;
 
@@ -204,6 +206,8 @@ public class DataManager {
 
     private final SmartToolJobPool toolJobPool;
 
+    private final AtomicBoolean smartToolsInitialized;
+
     public IISCDataAccess getIscDataAccess() {
         return iscDataAccess;
     }
@@ -239,7 +243,9 @@ public class DataManager {
         strInitJob.setSystem(true);
         strInitJob.schedule();
 
+        smartToolsInitialized = new AtomicBoolean(false);
         initializeScriptControllers(discriminator);
+        waitForScriptControllers();
         procJobPool = new ProcedureJobPool(4, 4, this);
         toolJobPool = new SmartToolJobPool(3, 3, this);
 
@@ -514,6 +520,16 @@ public class DataManager {
     }
 
     private void initializeScriptControllers(final Object discriminator) {
+        smartToolInterface = new SmartToolMetadataManager(this);
+        IAsyncStartupObjectListener smartToolListener = new IAsyncStartupObjectListener() {
+
+            @Override
+            public void objectInitialized() {
+                smartToolsInitialized.set(true);
+            }
+        };
+        smartToolInterface.initialize(smartToolListener);
+
         // it would be really nice to be able to spawn the construction of these
         // two heavy objects into another thread. Unfortunately, Jep requires
         // creation and all subsequent access to happen on the same thread. So
@@ -534,21 +550,28 @@ public class DataManager {
                             "Error initializing procedure interface", e);
                 }
 
-                try {
-                    DataManager.this.smartToolInterface = SmartToolFactory
-                            .buildUIController(DataManager.this);
-                } catch (JepException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error initializing smart tool interface", e);
-                }
-
                 DataManager.this.textProductMgr = new TextProductManager(
                         discriminator != null);
             }
         });
     }
 
-    public SmartToolUIController getSmartToolInterface() {
+    private void waitForScriptControllers() {
+        long waitTime = 0;
+        while (!smartToolsInitialized.get()) {
+            try {
+                waitTime += 10;
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                statusHandler.error(e.getLocalizedMessage(), e);
+            }
+        }
+
+        statusHandler.info("Waited " + waitTime
+                + "ms for smart tool initialization...");
+    }
+
+    public SmartToolMetadataManager getSmartToolInterface() {
         return smartToolInterface;
     }
 

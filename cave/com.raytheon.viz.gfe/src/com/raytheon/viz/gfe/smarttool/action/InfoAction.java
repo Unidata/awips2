@@ -19,18 +19,12 @@
  **/
 package com.raytheon.viz.gfe.smarttool.action;
 
-import jep.JepException;
-
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.viz.gfe.Activator;
-import com.raytheon.viz.gfe.constants.StatusConstants;
-import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 
 /**
  * Action for getting info on a smart tool
@@ -39,7 +33,8 @@ import com.raytheon.viz.gfe.core.DataManager;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 20, 2008            njensen     Initial creation	
+ * Feb 20, 2008            njensen      Initial creation
+ * Jul 23, 2015  #4263     dgilling     Support SmartToolMetadataManager.
  * 
  * </pre>
  * 
@@ -48,7 +43,6 @@ import com.raytheon.viz.gfe.core.DataManager;
  */
 
 public class InfoAction extends AbstractSmartToolAction {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(InfoAction.class);
 
     public InfoAction(String smartToolName, String text) {
         super(smartToolName, text, false);
@@ -56,18 +50,13 @@ public class InfoAction extends AbstractSmartToolAction {
 
     @Override
     public void run() {
-        try {
-            if (!utility) {
-                String info = DataManager.getCurrentInstance()
-                        .getSmartToolInterface().getInfo(name);
-                Shell shell = PlatformUI.getWorkbench()
-                        .getActiveWorkbenchWindow().getShell();
-                MessageDialog.openInformation(shell, name, info);
-            }
-        } catch (JepException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error retrieving info on smart tool " + name, e);
+        if (!utility) {
+            IWorkbenchWindow window = PlatformUI.getWorkbench()
+                    .getActiveWorkbenchWindow();
+            String info = DataManagerUIFactory.getInstance(window)
+                    .getSmartToolInterface().getInfo(name);
+            Shell shell = window.getShell();
+            MessageDialog.openInformation(shell, name, info);
         }
     }
-
 }

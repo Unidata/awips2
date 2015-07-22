@@ -63,6 +63,7 @@ import com.raytheon.viz.gfe.dialogs.TimeRangeWarningDialog;
  *                                     Keep TimeRangeWarningdialog blocking.
  * Jan 8, 2013  1486       dgilling    Support changes to BaseGfePyController.
  * Mar 14, 2014 15813      ryu         Fixed default time range used.
+ * Jul 23, 2015 4263       dgilling    Support SmartToolMetadataManager.
  * 
  * </pre>
  * 
@@ -131,14 +132,8 @@ public class EditActionProcessor {
         String element = null;
         Parm effectiveParm = null;
         if (itemKind.equals("Tool")) {
-            // Find the parm modified by the tool
-            // Check in tool itself to see if element to edit is specified
-            try {
-                element = dataMgr.getSmartToolInterface()
-                        .getWeatherElementEdited(itemName);
-            } catch (JepException e) {
-                handleError(e.getMessage(), true);
-            }
+            element = dataMgr.getSmartToolInterface().getWeatherElementEdited(
+                    itemName);
             if (element == null) {
                 processError("ExecuteOrClassError", "Tool Not Found: "
                         + itemName, null);
