@@ -505,7 +505,7 @@ public class McidasSatelliteDecoder {
     private String getAreaName(int areaNumber) {
     	// GOES-West UNIWISC McIDAS AREA files
     	if ( (1161 <= areaNumber && areaNumber <= 1254) ||
-    			(1801 <= areaNumber && areaNumber <= 1851) ){
+    			(1801 <= areaNumber && areaNumber <= 1854) ){
     		areaNumber = 1161; 
     	// GOES-East UNIWISC McIDAS AREA files
     	} else if (1261 <= areaNumber && areaNumber <= 1524) {
