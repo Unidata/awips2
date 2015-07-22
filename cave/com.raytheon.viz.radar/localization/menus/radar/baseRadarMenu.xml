@@ -15,7 +15,7 @@
 		id="RadarMenuTwdrRadarsSubMenu">
 		<contribute xsi:type="subinclude" fileName="menus/radar/tdwrRadars.xml" />
 	</contribute>
-	<contribute xsi:type="titleItem" titleText="------ Unidata Composites ------"
+	<contribute xsi:type="titleItem" titleText="------ FNEXRAD Composites ------"
 		id="RadarMosaic" />
 	<!--  Unidata Composite -->
 	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
