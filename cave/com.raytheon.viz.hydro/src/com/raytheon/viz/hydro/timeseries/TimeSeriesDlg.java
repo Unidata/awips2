@@ -123,6 +123,7 @@ import com.raytheon.viz.hydrocommon.util.StnClassSyncUtil;
  * 06 May 2013  1976       mpduff      Code cleanup.
  * 06 Jun 2013 2076        mpduff      Fix station list selection and graph button enabling.
  * 0  Jun 2013 15980       wkwock      Fix selected station not update
+ * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
  * </pre>
  * 
  * @author lvenable
@@ -490,7 +491,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
      */
     public final static TimeSeriesDlg getInstance() {
         // Independent shell must be recreated after closing.
-        if (instance == null || !instance.isOpen()) {
+        if ((instance == null) || !instance.isOpen()) {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
             instance = new TimeSeriesDlg(shell);
@@ -528,12 +529,12 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
 
         this.standaloneMode = true;
         // Ensure That The Group Configuration File Exists.
-        if (groupConfigFile == null || !groupConfigFile.exists()) {
+        if ((groupConfigFile == null) || !groupConfigFile.exists()) {
             // if it does not, check localization for the file
             IPathManager pm = PathManagerFactory.getPathManager();
             groupConfigFile = pm.getStaticFile(HydroConstants.GROUP_DEFINITION);
 
-            if (groupConfigFile == null || !groupConfigFile.exists()) {
+            if ((groupConfigFile == null) || !groupConfigFile.exists()) {
                 String name = HydroConstants.GROUP_DEFINITION;
                 if (name.startsWith("/")) {
                     name = name.substring(1);
@@ -1527,7 +1528,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                 si.setPe((String) row[1]);
                 si.setTs((String) row[2]);
                 si.setExt((String) row[3]);
-                si.setDur((Integer) row[4]);
+                si.setDur(((Number) row[4]).intValue());
 
                 if (si.getPe().startsWith("H")) {
                     if (!si.getPe().equals(prevPE)) {
@@ -1692,8 +1693,9 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                         if (values.length > 1) {
                             if ((values[0] != null)
                                     && values[0].equalsIgnoreCase(NAME)) {
-                                if (values[1] != null)
+                                if (values[1] != null) {
                                     groupInfo.setGroupName(values[1]);
+                                }
                                 groupDataList.add(groupInfo.getGroupName());
                             } else if (values[0].equalsIgnoreCase(DESCRIPT)) {
                                 groupInfo.setDescription(values[1]);
@@ -1788,10 +1790,11 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                             } else if (values[0]
                                     .equalsIgnoreCase(HydroConstants.PC)) {
                                 td.setPc(values[1]);
-                                if (showpp_flag == true)
+                                if (showpp_flag == true) {
                                     graphData.setShowpp(true);
-                                else
+                                } else {
                                     graphData.setShowpp(false);
+                                }
                             } else if (values[0].equalsIgnoreCase(COLOR)) {
                                 td.setColorName(values[1]);
                             }
@@ -1959,9 +1962,9 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             }
 
             String[] dataString2 = bottomDataList.getSelection();
-            for (int i = 0; i < dataString2.length; i++) {
+            for (String element : dataString2) {
                 LIDData tmpLidData = new LIDData();
-                tmpLidData.setData(dataString2[i]);
+                tmpLidData.setData(element);
 
                 check1 = lidCheck(prevLidData, tmpLidData);
                 check2 = lidCheck(currLidData, tmpLidData);
@@ -2182,12 +2185,12 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
 
                 ArrayList<TraceData> dataList = new ArrayList<TraceData>();
 
-                for (int i = 0; i < indices.length; i++) {
+                for (int indice : indices) {
                     /*
                      * Check the selections and determine if 1 or 2 graphs are
                      * needed
                      */
-                    String selection = bottomDataList.getItem(indices[i]);
+                    String selection = bottomDataList.getItem(indice);
                     String[] pieces2 = selection.split("\\s+");
                     LIDData lidData = new LIDData();
 
@@ -2301,7 +2304,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                 GroupInfo groupInfo = groupList.get(groupDataList
                         .getSelectionIndex());
 
-                if (prevGroupInfo == null || !prevGroupInfo.equals(groupInfo)) {
+                if ((prevGroupInfo == null) || !prevGroupInfo.equals(groupInfo)) {
                     int pastHours = groupInfo.getPastHours();
                     int futureHours = groupInfo.getFutureHours();
                     beginCal = Calendar
@@ -2344,7 +2347,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
     private boolean validateForm() {
         boolean valid = true;
         if (modeCbo.getText().equals(STATION_SELECTION)) {
-            if (endCal.getTimeInMillis() - beginCal.getTimeInMillis() < 0) {
+            if ((endCal.getTimeInMillis() - beginCal.getTimeInMillis()) < 0) {
                 MessageDialog.openWarning(shell, "Invalid Date Selection",
                         "Ending Time is prior to Beginning Time");
                 valid = false;
@@ -2615,15 +2618,15 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
     }
 
     /**
-     * In case user selected a different station in the Hydro perspective, 
+     * In case user selected a different station in the Hydro perspective,
      * update currentLid, etc
      */
     public void updateFromDisplayManager() {
         HydroDisplayManager hdm = HydroDisplayManager.getInstance();
-        String newLid=hdm.getCurrentLid();
-        if (newLid!=null && !newLid.equalsIgnoreCase(currentLid)) {
-        	updateAndOpen(newLid, this.displayGraph);
-        	openGraph();
+        String newLid = hdm.getCurrentLid();
+        if ((newLid != null) && !newLid.equalsIgnoreCase(currentLid)) {
+            updateAndOpen(newLid, this.displayGraph);
+            openGraph();
         }
     }
 

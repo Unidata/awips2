@@ -72,9 +72,9 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  * Feb  22 2013 14676      lbousaidi   check when producttime is null
  * Mar 25, 2013  1781      mpduff      Constrain time series table query with a start time.
  * May 12  2014  16705     lbousaidi   update revision and shef_qual_code in edit routine.
- * Dec 14, 2014  16388     xwei        updated the insertion of rejecteddata table. 
- * 
-</pre>
+ * Dec 14, 2014  16388     xwei        updated the insertion of rejecteddata table.
+ * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
+ * </pre>
  * 
  * @author dhladky
  * @version 1.0
@@ -251,7 +251,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
             SiteInfo si = new SiteInfo();
             si.setLid((String) oa[0]);
             si.setPe((String) oa[1]);
-            si.setDur((Integer) oa[2]);
+            si.setDur(((Number) oa[2]).intValue());
             si.setTs((String) oa[3]);
             si.setExt((String) oa[4]);
             returnData.add(si);
@@ -561,15 +561,15 @@ public class TimeSeriesDataManager extends HydroDataManager {
             td.setLid((String) oa[0]);
             td.setObsTime((Date) oa[1]);
             td.setValue((Double) oa[2]);
-            td.setRevision((Integer) oa[3]);
+            td.setRevision(((Number) oa[3]).intValue());
             td.setShefQualCode((String) oa[4]);
-            td.setQualityCode((Integer) oa[5]);
+            td.setQualityCode(((Number) oa[5]).intValue());
             td.setProductId((String) oa[6]);
             td.setProductTime((Date) oa[7]);
             td.setPostingTime((Date) oa[8]);
             if (forecastData) {
                 td.setValidTime((Date) oa[9]);
-                td.setProbability((Float) oa[10]);
+                td.setProbability(((Number) oa[10]).floatValue());
             }
             tabularData.add(td);
         }
@@ -612,7 +612,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
             return -1;
         }
 
-        return (Long) results.get(0)[0];
+        return ((Number) results.get(0)[0]).longValue();
     }
 
     /**
@@ -927,8 +927,8 @@ public class TimeSeriesDataManager extends HydroDataManager {
         try {
             sqlResult = (DirectDbQuery.executeQuery(sql.toString(),
                     HydroConstants.IHFS, QueryLanguage.SQL));
-            if (sqlResult != null && sqlResult.size() > 0
-                    && sqlResult.get(0)[0] != null) {
+            if ((sqlResult != null) && (sqlResult.size() > 0)
+                    && (sqlResult.get(0)[0] != null)) {
                 return sqlResult.get(0)[0];
             }
         } catch (VizException e) {
@@ -949,8 +949,9 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
             int probability = -1;
             int revision = 1;
-            
-            if ( dr.getTs().toUpperCase().startsWith("F") || dr.getTs().toUpperCase().startsWith("C") ) {
+
+            if (dr.getTs().toUpperCase().startsWith("F")
+                    || dr.getTs().toUpperCase().startsWith("C")) {
                 probability = 0;
             }
 
@@ -1302,18 +1303,18 @@ public class TimeSeriesDataManager extends HydroDataManager {
             FcstheightId fhid = new FcstheightId();
             fhid.setLid((String) item[i++]);
             fhid.setPe((String) item[i++]);
-            Integer in = (Integer) item[i++];
+            Number in = (Number) item[i++];
             fhid.setDur(in.shortValue());
             fhid.setTs((String) item[i++]);
             fhid.setExtremum((String) item[i++]);
-            fhid.setProbability((Float) item[i++]);
+            fhid.setProbability(((Number) item[i++]).floatValue());
             fhid.setValidtime((Date) item[i++]);
             fhid.setBasistime((Date) item[i++]);
             fh.setId(fhid);
             fh.setValue((Double) item[i++]);
             fh.setShefQualCode((String) item[i++]);
-            fh.setQualityCode((Integer) item[i++]);
-            in = (Integer) item[i++];
+            fh.setQualityCode(((Number) item[i++]).intValue());
+            in = (Number) item[i++];
             fh.setRevision(in.shortValue());
             fh.setProductId((String) item[i++]);
             fh.setProducttime((Date) item[i++]);

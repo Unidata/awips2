@@ -32,7 +32,7 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Nov 14, 2008	1697		askripsky	Initial creation
- * 
+ * Jul 21, 2015 4500        rjpeter     Use Number in blind cast.
  * </pre>
  * 
  * @author askripsky
@@ -112,7 +112,8 @@ public class LowWaterStatementData {
             setUpperValue((Double) data.getColumn(dataMap.get("upper_value")));
         }
 
-        setCriteriaRank((Integer) data.getColumn(dataMap.get("criteria_rank")));
+        setCriteriaRank(((Number) data.getColumn(dataMap.get("criteria_rank")))
+                .intValue());
 
         if (data.getColumn(dataMap.get("statement")) != null) {
             setStatement((String) data.getColumn(dataMap.get("statement")));

@@ -158,7 +158,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ##  Section to produce areas affected by statement
 #######################################################################
 #if(${list.contains(${bullets}, "noHead")})
-A MARINE WEATHER STATEMENT HAS BEEN ISSUED FOR THE FOLLOWING AREAS...
+A Marine Weather Statement has been issued for the following areas...
 #else
 #capitalize(${headerType1} "ALL")
 

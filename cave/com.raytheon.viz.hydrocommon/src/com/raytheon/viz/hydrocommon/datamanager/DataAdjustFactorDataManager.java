@@ -38,7 +38,7 @@ import com.raytheon.viz.hydrocommon.util.HydroDataUtils;
  * Dec 15, 2008 1787       askripsky   Initial Creation
  * Apr 18, 2013 1790       rferrel     Cleanup method interfaces; 
  *                                      part of non-blocking dialogs.
- * 
+ * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
  * </pre>
  * 
  * @author askripsky
@@ -66,7 +66,7 @@ public class DataAdjustFactorDataManager {
             manager = new DataAdjustFactorDataManager();
         }
 
-        return (DataAdjustFactorDataManager) manager;
+        return manager;
     }
 
     /**
@@ -87,8 +87,8 @@ public class DataAdjustFactorDataManager {
             for (QueryResultRow currNet : data.getRows()) {
                 String name = (String) currNet.getColumn(data.getColumnNames()
                         .get("name"));
-                int dur = (Integer) currNet.getColumn(data.getColumnNames()
-                        .get("dur"));
+                int dur = ((Number) currNet.getColumn(data.getColumnNames()
+                        .get("dur"))).intValue();
                 rval.add(String.format("%s (%s)", name, dur));
             }
         }
@@ -156,7 +156,7 @@ public class DataAdjustFactorDataManager {
 
     public List<DataAdjustFactorData> getAdjustFactorData(boolean forceLoad)
             throws VizException {
-        if (adjustFactorData == null || forceLoad) {
+        if ((adjustFactorData == null) || forceLoad) {
             adjustFactorData = HydroDBDataManager.getInstance().getData(
                     DataAdjustFactorData.class);
         }

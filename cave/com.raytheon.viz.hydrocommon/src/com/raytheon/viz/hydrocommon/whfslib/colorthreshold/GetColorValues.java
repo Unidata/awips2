@@ -42,9 +42,9 @@ import com.raytheon.viz.hydrocommon.whfslib.IHFSDbGenerated;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 10, 2008            randerso     Initial creation
- * May 27, 2014  3133      njensen      Organized imports, fixed == to equals
- * 
+ * Nov 10, 2008            randerso    Initial creation
+ * May 27, 2014  3133      njensen     Organized imports, fixed == to equals
+ * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
  * </pre>
  * 
  * @author randerso
@@ -158,7 +158,7 @@ public class GetColorValues {
                     statusHandler.handle(Priority.PROBLEM, "ERROR in " + method
                             + " Colors/levels not defined for application "
                             + application_name + " use_name = " + coloruse_name
-                                            + " user_id = " + user_id);
+                            + " user_id = " + user_id);
                 }
             }
         }
@@ -198,8 +198,8 @@ public class GetColorValues {
                 application_name, coloruse_name, duration, threshold_unit);
 
         // does the closest one match?
-        if (closest_duration != NO_DURATION_FOUND
-                && duration == closest_duration) {
+        if ((closest_duration != NO_DURATION_FOUND)
+                && (duration == closest_duration)) {
             cvHead = getColorValueTableEntries(user_id, application_name,
                     coloruse_name, closest_duration, threshold_unit);
         }
@@ -347,7 +347,7 @@ public class GetColorValues {
 
             if ((results != null) && (results.size() > 0)) {
                 for (Object[] item : results) {
-                    duration_value = (Integer) item[0];
+                    duration_value = ((Number) item[0]).intValue();
                     duration_diff = Math.abs(duration - duration_value);
 
                     // Is this duration the closest to the original duration

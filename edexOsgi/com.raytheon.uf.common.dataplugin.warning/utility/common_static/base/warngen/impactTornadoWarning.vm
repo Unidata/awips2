@@ -272,10 +272,10 @@ This is a test message. ##
   #set($torHazard = "damaging tornado")
   #set($confirmed = "confirmed ")
   #if(${stormType} == "line")
-    #set($pathcastLead = "these tornadic storms")
+    #set($pathcastLead = "These tornadic storms")
     #set($moveLead = " doppler radar showed these tornadic storms moving")
   #else
-    #set($pathcastLead = "the tornado")
+    #set($pathcastLead = "The tornado")
     #set($moveLead = " doppler radar showed this tornado moving")
   #end 
   #set($preAmble = "to repeat, a large, extremely dangerous and potentially deadly tornado is on the ground. to protect your life, ")

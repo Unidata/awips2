@@ -36,7 +36,7 @@ import com.raytheon.viz.hydrocommon.util.QualityCodeUtil;
  * ------------	----------	-----------	--------------------------
  * Oct 28, 2008 1636        askripsky	Initial creation
  * 11/5/2008    1662        grichard    Added another constructor.
- * 
+ * Jul 21, 2015 4500        rjpeter     Use Number in blind cast.
  * </pre>
  * 
  * @author askripsky
@@ -150,7 +150,7 @@ public class HydroData extends HydroDBData {
         setLid((String) data[0]);
         setName((String) data[1]);
         setPe((String) data[2]);
-        setDur((Integer) data[3]);
+        setDur(((Number) data[3]).intValue());
         setTs((String) data[4]);
         setExtremum((String) data[5]);
         setValue(data[6]);
@@ -171,7 +171,7 @@ public class HydroData extends HydroDBData {
     public HydroData(Object[] data, Object name) {
         setLid((String) data[0]);
         setPe((String) data[1]);
-        setDur((Integer) data[2]);
+        setDur(((Number) data[2]).intValue());
         setTs((String) data[3]);
         setExtremum((String) data[4]);
         setValue(data[5]);
@@ -187,7 +187,7 @@ public class HydroData extends HydroDBData {
     public HydroData(Object[] data, String table) {
         setLid((String) data[0]);
         setPe((String) data[1]);
-        setDur((Integer) data[2]);
+        setDur(((Number) data[2]).intValue());
         setTs((String) data[3]);
         setExtremum((String) data[4]);
         setObsTime((Date) data[5]);
@@ -282,8 +282,8 @@ public class HydroData extends HydroDBData {
     }
 
     public void setQualityCode(Object qualityCode) {
-        this.qualityCode = (qualityCode != null) ? (Integer) qualityCode
-                : HydroConstants.MISSING_VALUE;
+        this.qualityCode = (qualityCode != null) ? ((Number) qualityCode)
+                .intValue() : HydroConstants.MISSING_VALUE;
     }
 
     public int getRevision() {
@@ -291,7 +291,7 @@ public class HydroData extends HydroDBData {
     }
 
     public void setRevision(Object revision) {
-        this.revision = (revision != null) ? (Integer) revision : 0;
+        this.revision = (revision != null) ? ((Number) revision).intValue() : 0;
     }
 
     public String getProductID() {
@@ -373,7 +373,8 @@ public class HydroData extends HydroDBData {
     }
 
     /**
-     * @param previousValue the previousValue to set
+     * @param previousValue
+     *            the previousValue to set
      */
     public void setPreviousValue(double previousValue) {
         this.previousValue = previousValue;
