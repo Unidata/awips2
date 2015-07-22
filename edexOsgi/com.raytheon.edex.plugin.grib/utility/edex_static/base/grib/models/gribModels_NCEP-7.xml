@@ -859,7 +859,7 @@
 	</model>
 
 	<model>
-		<name>NAM-5km</name>
+		<name>NAM-4km</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>227</grid>
@@ -1030,7 +1030,7 @@
 	</model>
 
 	<model>
-		<name>GFS212</name>
+		<name>GFS-40km</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>212</grid>

@@ -298,7 +298,7 @@
 								<constraint constraintValue="500.0" constraintType="IN" />
 							</mapping>
 							<mapping key="info.datasetId">
-								<constraint constraintValue="CMC-REG"
+								<constraint constraintValue="CMC"
 									constraintType="EQUALS" />
 							</mapping>
 						</metadataMap>

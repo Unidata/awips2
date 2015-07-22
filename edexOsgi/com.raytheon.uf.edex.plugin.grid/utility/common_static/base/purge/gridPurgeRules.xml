@@ -11,7 +11,7 @@
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>CMC-REG</keyValue>
+		<keyValue>CMC</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
@@ -91,7 +91,7 @@
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>GFS212</keyValue>
+		<keyValue>GFS-40km</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
@@ -168,6 +168,10 @@
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
+		<keyValue>NAM-4km</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
 		<keyValue>NAM-12km</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
@@ -200,7 +204,7 @@
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>RTMA-2p5km</keyValue>
+		<keyValue>RTMA-5km</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
