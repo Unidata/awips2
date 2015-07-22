@@ -22,19 +22,19 @@
     <vbSource key="DGEX" category="Volume" />
     <vbSource key="GFS" category="Volume" />
     <vbSource key="GFS201" category="Volume" />
-    <vbSource key="GFS212" category="Volume" />
+    <vbSource key="GFS-40km" category="Volume" />
     <vbSource key="GFSGuide" category="Volume" />
     <vbSource key="ENSEMBLE" category="Volume" views="PLANVIEW TIMESERIES" />
     <vbSource key="HiResW-ARW-East" category="Volume" />
     <vbSource key="HiResW-ARW-West" category="Volume" />
     <vbSource key="HiResW-NMM-East" category="Volume" />
     <vbSource key="HiResW-NMM-West" category="Volume" />
-    <vbSource key="CMC-REG" category="Volume" />
+    <vbSource key="CMC" category="Volume" />
     <vbSource key="HRRR" category="Volume" />
+    <vbSource key="NAM-4km" category="Volume" />
     <vbSource key="NAM-12km" category="Volume" />
     <vbSource key="NAM-40km" category="Volume" />
     <vbSource key="NamDNG" category="Volume" />
-    <vbSource key="NamDNG5" category="Volume" />
     <vbSource key="NAVGEM" category="Volume" />
     <vbSource key="NDFD" category="Volume" />
     <vbSource key="FNMOC-FAROP" category="Volume" />
@@ -45,10 +45,8 @@
     <vbSource key="COAMPS-WA" category="Volume" />
     <vbSource key="URMA25" category="Volume" />    
     <vbSource key="RTMA" category="Volume" />
-    <vbSource key="RTMA-5km" category="Volume" />
     <vbSource key="RAP-13km" category="Volume" />
     <vbSource key="RAP-20km" category="Volume" />
-    <vbSource key="RAP-40km" category="Volume" />
     <vbSource key="GFS254" category="Volume" />
     <vbSource key="SREF-40km" category="Volume" views="PLANVIEW TIMESERIES" />
     <vbSource key="GWW233" category="Volume" />

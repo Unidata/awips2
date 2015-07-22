@@ -235,7 +235,7 @@
                                 <constraint constraintValue="grid" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.datasetId">
-                                <constraint constraintValue="CMC-REG" constraintType="EQUALS"/>
+                                <constraint constraintValue="CMC" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.level.masterLevel.name">
                                 <constraint constraintValue="SFC" constraintType="EQUALS"/>
