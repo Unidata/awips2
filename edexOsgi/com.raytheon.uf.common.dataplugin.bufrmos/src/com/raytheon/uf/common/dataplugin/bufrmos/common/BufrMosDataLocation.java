@@ -46,6 +46,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Jul 26, 2013 1051       bsteffen    Discard bufrmos data with invalid
  *                                     location.
  * Nov 04, 2013 2361       njensen     Remove XML annotations
+ * Jul 22, 2015 4360       rferrel     Named unique constraint;
+ *                                      stationid, latitude and longitude no longer nullable.
  * 
  * </pre>
  * 
@@ -53,7 +55,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @Entity
-@Table(name = "bufrmos_location", uniqueConstraints = { @UniqueConstraint(columnNames = {
+@Table(name = "bufrmos_location", uniqueConstraints = { @UniqueConstraint(name = "uk_bufrmos_location_datauri_fields", columnNames = {
         "stationId", "latitude", "longitude" }) })
 @DynamicSerialize
 public class BufrMosDataLocation extends PersistableDataObject {
@@ -65,19 +67,19 @@ public class BufrMosDataLocation extends PersistableDataObject {
     private Integer id;
 
     // Id of the station making this observation.
-    @Column(length = 48)
+    @Column(length = 48, nullable = false)
     @Index(name = "mosLocationStationIndex")
     @DataURI(position = 0)
     @DynamicSerializeElement
     private String stationId;
 
     @DataURI(position = 1)
-    @Column
+    @Column(nullable = false)
     @DynamicSerializeElement
     private Double latitude;
 
     @DataURI(position = 2)
-    @Column
+    @Column(nullable = false)
     @DynamicSerializeElement
     private Double longitude;
 

@@ -55,6 +55,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * May 14, 2013 1869       bsteffen    Remove DataURI column from bufrmos.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Nov 04, 2013 2361       njensen     Remove XML annotations
+ * Jul 22, 1015 4360       rferrel     Make location not nullable.
  * 
  * </pre>
  * 
@@ -85,8 +86,7 @@ public abstract class BufrMosData extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     private PointDataView pointDataView = null;
 
-    // TODO Update once BufrMosDataLocation DataURI's are corrected.
-    @ManyToOne(cascade = { CascadeType.REFRESH })
+    @ManyToOne(optional = false, cascade = { CascadeType.REFRESH })
     @PrimaryKeyJoinColumn
     @DataURI(position = 1, embedded = true)
     @DynamicSerializeElement
