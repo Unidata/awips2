@@ -94,7 +94,7 @@
 	</model>
 
 	<model>
-		<name>CMC-REG</name>
+		<name>CMC</name>
 		<center>54</center>
 		<subcenter>0</subcenter>
 		<grid>493399</grid>
@@ -106,7 +106,7 @@
 	</model>
 
 	<model>
-		<name>CMC-REG</name>
+		<name>CMC</name>
 		<center>54</center>
 		<subcenter>0</subcenter>
 		<grid>245190</grid>
