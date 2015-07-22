@@ -31,12 +31,6 @@
 	<substitute key="RAPmodel" value="RAP-40km" />
 	<substitute key="RAP20model" value="RAP-20km" />
     <include installTo="menu:models" 
-             fileName="menus/volume/baseFamilies.xml">
-    </include>
-    <include subMenu="Surface Wind / Temperature" installTo="menu:models" 
-             fileName="menus/volume/baseSurfaceFamilies.xml">
-    </include>
-    <include installTo="menu:models" 
              fileName="menus/volume/ModelFamilies.xml">
     </include>
     <include subMenu="4-Panel 500MB Height / Vorticity / Omega" installTo="menu:models" 
