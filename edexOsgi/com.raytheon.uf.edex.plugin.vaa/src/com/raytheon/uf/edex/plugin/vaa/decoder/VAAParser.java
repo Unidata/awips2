@@ -52,6 +52,7 @@ import com.raytheon.uf.common.wmo.WMOHeader;
  * Mar 10, 2014 2807       skorolev    Added MalformedDataException for VAA decoding.
  * May 14, 2014 2536       bclement    moved WMO Header to common
  * Jul 23, 2014 3410       bclement    location changed to floats
+ * Jul 21, 2015 4360       rferrel     The {@link VAARecord}'s advisoryNumber can no longer be null.
  * 
  * </pre>
  * 
@@ -169,6 +170,7 @@ public class VAAParser implements Iterable<VAARecord> {
         VAARecord vaa = new VAARecord();
         vaa.setTraceId(traceId);
         vaa.setWmoHeader(wmoHeader.getWmoHeader());
+        vaa.setAdvisoryNumber("null");
         String cor = wmoHeader.getBBBIndicator();
         if (cor != null) {
             Matcher m = COR_P.matcher(cor);
