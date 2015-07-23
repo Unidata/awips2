@@ -19,18 +19,13 @@
  **/
 package com.raytheon.viz.gfe.smarttool;
 
-import jep.JepException;
-
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 
 /**
  * Display information dialog for Smart Tool.
@@ -41,7 +36,8 @@ import com.raytheon.viz.gfe.core.DataManager;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 9, 2010            mpduff     Initial creation
+ * Nov 09, 2010            mpduff       Initial creation
+ * Jul 23, 2015  #4263     dgilling     Support SmartToolMetadataManager.
  * 
  * </pre>
  * 
@@ -50,8 +46,6 @@ import com.raytheon.viz.gfe.core.DataManager;
  */
 
 public class InfoAction extends Action {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(InfoAction.class);
 
     private String item = null;
 
@@ -67,22 +61,15 @@ public class InfoAction extends Action {
      */
     @Override
     public void run() {
-        String info;
-        try {
-            if (item.indexOf(".") != -1) {
-                item = item.substring(0, item.indexOf("."));
-            }
-
-            IWorkbenchWindow window = PlatformUI.getWorkbench()
-                    .getActiveWorkbenchWindow();
-            info = DataManager.getInstance(window).getSmartToolInterface()
-                    .getInfo(item);
-            Shell shell = window.getShell();
-            MessageDialog.openInformation(shell, item, info);
-        } catch (JepException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error retrieving info on smart tool " + item, e);
+        if (item.indexOf(".") != -1) {
+            item = item.substring(0, item.indexOf("."));
         }
-    }
 
+        IWorkbenchWindow window = PlatformUI.getWorkbench()
+                .getActiveWorkbenchWindow();
+        String info = DataManagerUIFactory.getInstance(window)
+                .getSmartToolInterface().getInfo(item);
+        Shell shell = window.getShell();
+        MessageDialog.openInformation(shell, item, info);
+    }
 }

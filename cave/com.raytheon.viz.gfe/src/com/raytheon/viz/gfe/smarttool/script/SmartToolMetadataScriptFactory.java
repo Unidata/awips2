@@ -28,28 +28,49 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonIncludePathUtil;
+import com.raytheon.uf.common.python.concurrent.AbstractPythonScriptFactory;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.viz.gfe.core.DataManager;
 
 /**
- * Factory for smart tools
+ * Script factory for {@code SmartToolUIController} instances.
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * Mar 21, 2008             njensen	    Initial creation
- * Jul 9, 2009    2454      ryu         Put user and site's python scripts on path for import
- * May 20, 2015   4509      njensen     Added time and dataaccess to include path
- * Jul 23, 2015   4263      dgilling    Refactored to support changes to SmartToolController.
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Jul 22, 2015  #4263     dgilling     Initial creation
  * 
  * </pre>
  * 
- * @author njensen
+ * @author dgilling
  * @version 1.0
  */
 
-public class SmartToolFactory {
+public class SmartToolMetadataScriptFactory extends
+        AbstractPythonScriptFactory<SmartToolMetadataController> {
+
+    private final DataManager dataMgr;
+
+    public SmartToolMetadataScriptFactory(final DataManager dataMgr) {
+        super("smart-tool", 1);
+        this.dataMgr = dataMgr;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.python.concurrent.AbstractPythonScriptFactory#
+     * createPythonScript()
+     */
+    @Override
+    public SmartToolMetadataController createPythonScript() throws JepException {
+        return new SmartToolMetadataController(getScriptPath(),
+                getIncludePath(), getClass().getClassLoader(), dataMgr);
+    }
 
     private static String getScriptPath() {
         LocalizationContext baseCtx = PathManagerFactory.getPathManager()
@@ -67,30 +88,5 @@ public class SmartToolFactory {
                         .getCommonGfeIncludePath(), GfePyIncludeUtil
                         .getSmartToolsIncludePath(), GfePyIncludeUtil
                         .getUtilitiesIncludePath());
-    }
-
-    private static SmartToolController buildInstance(DataManager dataMgr,
-            boolean ui) throws JepException {
-        SmartToolController smartCont = null;
-        if (ui) {
-            smartCont = new SmartToolMetadataScriptFactory(dataMgr)
-                    .createPythonScript();
-        } else {
-            smartCont = new SmartToolRunnerController(getScriptPath(),
-                    getIncludePath(), SmartToolFactory.class.getClassLoader(),
-                    dataMgr);
-        }
-
-        return smartCont;
-    }
-
-    public static SmartToolRunnerController buildController(DataManager dataMgr)
-            throws JepException {
-        return (SmartToolRunnerController) buildInstance(dataMgr, false);
-    }
-
-    public static SmartToolMetadataController buildUIController(
-            DataManager dataMgr) throws JepException {
-        return (SmartToolMetadataController) buildInstance(dataMgr, true);
     }
 }

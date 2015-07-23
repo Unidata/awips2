@@ -52,6 +52,7 @@ import com.raytheon.viz.gfe.smarttool.Tool;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 09, 2013  #2367    dgilling     Initial creation
+ * Jul 23, 2015  #4263    dgilling     Support SmartToolRunnerController.
  * 
  * </pre>
  * 
@@ -245,7 +246,7 @@ public class SmartToolJobPool {
         private final IUFStatusHandler statusHandler = UFStatus
                 .getHandler(SmartToolJob.class);
 
-        private SmartToolController python;
+        private SmartToolRunnerController python;
 
         private final DataManager dataMgr;
 
@@ -340,7 +341,7 @@ public class SmartToolJobPool {
          * @param monitor
          * @throws SmartToolException
          */
-        private void execute(SmartToolController controller,
+        private void execute(SmartToolRunnerController controller,
                 SmartToolRequest request, IProgressMonitor monitor)
                 throws SmartToolException {
             EditAction ea = request.getPreview().getEditAction();

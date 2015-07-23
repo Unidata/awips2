@@ -23,17 +23,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import jep.JepException;
-
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.smartscript.FieldDefinition;
 import com.raytheon.viz.gfe.smarttool.script.SmartToolBlockingSelectionDlg;
@@ -55,6 +51,7 @@ import com.raytheon.viz.gfe.ui.runtimeui.SelectionDlg;
  * Dec 10, 2013  2367      dgilling    Use new SmartToolJobPool.
  * Jun 05, 2015  4259      njensen     Removed LD_PRELOAD check
  * Jul 17, 2015  4575      njensen     Changed varDict from String to Map
+ * Jul 23, 2015  4263      dgilling    Support SmartToolMetadataManager.
  * 
  * </pre>
  * 
@@ -63,8 +60,6 @@ import com.raytheon.viz.gfe.ui.runtimeui.SelectionDlg;
  */
 
 public class SmartUtil {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(SmartUtil.class);
 
     public static SmartToolRequest buildSmartToolRequest(DataManager dm,
             PreviewInfo preview, boolean outerLevel) {
@@ -75,14 +70,9 @@ public class SmartUtil {
     }
 
     public static void runTool(String toolName) {
-        DataManager dm = DataManager.getCurrentInstance();
-        List<FieldDefinition> varList = null;
-        try {
-            varList = dm.getSmartToolInterface().getVarDictWidgets(toolName);
-        } catch (JepException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error getting VariableList for procedure: " + toolName, e);
-        }
+        DataManager dm = DataManagerUIFactory.getCurrentInstance();
+        List<FieldDefinition> varList = dm.getSmartToolInterface()
+                .getVarDictWidgets(toolName);
         if (varList == null || varList.size() == 0) {
             runToolNoVarDict(dm, toolName);
         } else {
@@ -140,41 +130,32 @@ public class SmartUtil {
             VizApp.runSync(new Runnable() {
                 @Override
                 public void run() {
-                    try {
-                        List<FieldDefinition> varList = dm
-                                .getSmartToolInterface().getVarDictWidgets(
-                                        toolName);
-                        if (varList != null && varList.size() > 0) {
-                            // The SmartToolBlockingSelectionDlg changes based
-                            // on the procedure. Since it is non-modal several
-                            // dialogs may be displayed. This mimics the AWIPS 1
-                            // behavior.
+                    List<FieldDefinition> varList = dm.getSmartToolInterface()
+                            .getVarDictWidgets(toolName);
+                    if (varList != null && varList.size() > 0) {
+                        // The SmartToolBlockingSelectionDlg changes based
+                        // on the procedure. Since it is non-modal several
+                        // dialogs may be displayed. This mimics the AWIPS 1
+                        // behavior.
 
-                            // make the gui, let it handle running the procedure
-                            SmartToolBlockingSelectionDlg sd = new SmartToolBlockingSelectionDlg(
-                                    PlatformUI.getWorkbench()
-                                            .getActiveWorkbenchWindow()
-                                            .getShell(), toolName, dm, varList);
+                        // make the gui, let it handle running the procedure
+                        SmartToolBlockingSelectionDlg sd = new SmartToolBlockingSelectionDlg(
+                                PlatformUI.getWorkbench()
+                                        .getActiveWorkbenchWindow().getShell(),
+                                toolName, dm, varList);
 
-                            // must block because this method needs the results
-                            // to determine what to return.
-                            sd.setBlockOnOpen(true);
-                            sd.open();
-                            Map<String, Object> resultMap = sd
-                                    .getVarDictResult();
-                            if (resultMap != null) {
-                                req.setVarDict(resultMap);
-                            }
-                        } else {
-                            // set it to something so we don't trigger the null
-                            // == user cancelled below
-                            req.setVarDict(Collections
-                                    .<String, Object> emptyMap());
+                        // must block because this method needs the results
+                        // to determine what to return.
+                        sd.setBlockOnOpen(true);
+                        sd.open();
+                        Map<String, Object> resultMap = sd.getVarDictResult();
+                        if (resultMap != null) {
+                            req.setVarDict(resultMap);
                         }
-                    } catch (JepException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                "Error getting VariableList for procedure: "
-                                        + toolName, e);
+                    } else {
+                        // set it to something so we don't trigger the null
+                        // == user cancelled below
+                        req.setVarDict(Collections.<String, Object> emptyMap());
                     }
                 }
             });

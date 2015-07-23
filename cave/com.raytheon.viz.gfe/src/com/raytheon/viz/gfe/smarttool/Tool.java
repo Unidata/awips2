@@ -58,7 +58,7 @@ import com.raytheon.viz.gfe.query.QueryScript;
 import com.raytheon.viz.gfe.query.QueryScriptExecutor;
 import com.raytheon.viz.gfe.query.QueryScriptFactory;
 import com.raytheon.viz.gfe.smarttool.SmartToolException.ErrorType;
-import com.raytheon.viz.gfe.smarttool.script.SmartToolController;
+import com.raytheon.viz.gfe.smarttool.script.SmartToolRunnerController;
 
 /**
  * Ported from Tool.py
@@ -73,7 +73,8 @@ import com.raytheon.viz.gfe.smarttool.script.SmartToolController;
  * 02/20/2013        #1597 randerso    Added logging to support GFE Performance metrics
  * 04/10/2013    16028     ryu         Check for null seTime in execute()
  * Jul 17, 2015  4575      njensen     Changed varDict from String to Map
- *
+ * Jul 23, 2015  4263      dgilling    Support SmartToolMetadataManager.
+ * 
  * </pre>
  * 
  * @author njensen
@@ -93,7 +94,7 @@ public class Tool {
 
     private Parm inputParm;
 
-    private final SmartToolController tool;
+    private final SmartToolRunnerController tool;
 
     private String toolName;
 
@@ -123,7 +124,7 @@ public class Tool {
      * @throws SmartToolException
      */
     public Tool(IParmManager aParmMgr, Parm anInputParm, String aToolName,
-            SmartToolController aTool) throws SmartToolException {
+            SmartToolRunnerController aTool) throws SmartToolException {
         parmMgr = aParmMgr;
         inputParm = anInputParm;
         toolName = aToolName;
@@ -422,13 +423,8 @@ public class Tool {
         }
         this.inputParm = inputParm;
 
-        String weToEdit = null;
-        try {
-            weToEdit = tool.getWeatherElementEdited(toolName);
-        } catch (JepException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error determining weather element to edit", e);
-        }
+        String weToEdit = DataManagerUIFactory.getCurrentInstance()
+                .getSmartToolInterface().getWeatherElementEdited(toolName);
         Parm parmToEdit = null;
         if (weToEdit != null && !weToEdit.equals("None")) {
             parmToEdit = this.inputParm;
