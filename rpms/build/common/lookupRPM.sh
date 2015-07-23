@@ -53,8 +53,28 @@ function lookupRPM()
       export RPM_SPECIFICATION="${installer_dir}/h5py-1.3.0/"
       return 0
    fi
+   if [ "${1}" = "awips2-python-setuptools" ]; then
+      export RPM_SPECIFICATION="${installer_dir}/setuptools-18.0.1/"
+      return 0
+   fi
    if [ "${1}" = "awips2-python-matplotlib" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/matplotlib-1.2.0/"
+      export RPM_SPECIFICATION="${installer_dir}/matplotlib-1.4.3/"
+      return 0
+   fi
+   if [ "${1}" = "awips2-python-dateutil" ]; then
+      export RPM_SPECIFICATION="${installer_dir}/python-dateutil-2.4.2/"
+      return 0
+   fi
+   if [ "${1}" = "awips2-python-pytz" ]; then
+      export RPM_SPECIFICATION="${installer_dir}/pytz-2015.4/"
+      return 0
+   fi
+   if [ "${1}" = "awips2-python-six" ]; then
+      export RPM_SPECIFICATION="${installer_dir}/six-1.9.0/"
+      return 0
+   fi
+   if [ "${1}" = "awips2-python-pyparsing" ]; then
+      export RPM_SPECIFICATION="${installer_dir}/pyparsing-2.0.3/"
       return 0
    fi
    if [ "${1}" = "awips2-python-nose" ]; then
