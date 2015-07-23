@@ -37,6 +37,7 @@
 # Jul 10, 2014  #3363     bclement    fixed precedence order for ini file lookup
 # Jul 11, 2014  #3371     bclement    added killSpawn()
 # Oct 13, 2014  #3675     bclement    logExitStatus() waits for child to start and renames log with child PID 
+# Jul 23, 2015  ASM#13849 D. Friedman Use a unique Eclipse configuration directory
 
 
 source /awips2/cave/iniLookup.sh
@@ -390,5 +391,27 @@ function deleteOldCaveLogs()
 
     exit 0
 
+}
+
+function deleteEclipseConfigurationDir()
+{
+    if [[ -n $eclipseConfigurationDir ]]; then
+        rm -rf "$eclipseConfigurationDir"
+    fi
+}
+
+function createEclipseConfigurationDir()
+{
+    local d dir id=$(hostname)-$(whoami)
+    for d in "/local/cave-eclipse/" "$HOME/.cave-eclipse/"; do
+        if dir=$(mktemp -d -p "$d" "${id}-XXXX"); then
+            eclipseConfigurationDir=$dir
+            trap deleteEclipseConfigurationDir EXIT
+            SWITCHES+=(-configuration "$eclipseConfigurationDir")
+            return 0
+        fi
+    done
+    echo "Unable to create a unique Eclipse configuration directory.  Will proceed with default." >&2
+    return 1
 }
 

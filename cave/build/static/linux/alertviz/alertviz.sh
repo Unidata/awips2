@@ -26,6 +26,7 @@
 # Date         Ticket#    Engineer    Description
 # ------------ ---------- ----------- --------------------------
 # Oct 09, 2014  #3675     bclement    added cleanExit signal trap
+# Jul 23, 2015  ASM#13849 D. Friedman Use a unique Eclipse configuration directory
 #
 
 user=`/usr/bin/whoami`
@@ -103,6 +104,32 @@ if [ ! -d $LOGDIR ]; then
  mkdir -p $LOGDIR
 fi
 
+SWITCHES=()
+
+function deleteEclipseConfigurationDir()
+{
+    if [[ -n $eclipseConfigurationDir ]]; then
+        rm -rf "$eclipseConfigurationDir"
+    fi
+}
+
+function createEclipseConfigurationDir()
+{
+    local d dir id=$(hostname)-$(whoami)
+    for d in "/local/cave-eclipse/" "$HOME/.cave-eclipse/"; do
+        if dir=$(mktemp -d -p "$d" "${id}-XXXX"); then
+            eclipseConfigurationDir=$dir
+            trap deleteEclipseConfigurationDir EXIT
+            SWITCHES+=(-configuration "$eclipseConfigurationDir")
+            return 0
+        fi
+    done
+    echo "Unable to create a unique Eclipse configuration directory.  Will proceed with default." >&2
+    return 1
+}
+
+createEclipseConfigurationDir
+
 # takes in a process id
 # kills spawned subprocesses of pid
 # and then kills the process itself and exits
@@ -140,9 +167,9 @@ do
  else
   #finally check if we can write to the file
   if [ -w ${LOGFILE} ]; then
-   ${dir}/alertviz $*  > ${LOGFILE} 2>&1 &
+   ${dir}/alertviz "${SWITCHES[@]}" $*  > ${LOGFILE} 2>&1 &
   else
-   ${dir}/alertviz $* &
+   ${dir}/alertviz "${SWITCHES[@]}" $* &
   fi
   pid=$!
   wait $pid

@@ -34,6 +34,7 @@
 # Oct 10, 2014  #3675     njensen     Logback now does console logging to ensure correct pid 
 # Oct 13, 2014  #3675     bclement    startup shutdown log includes both launching pid and placeholder
 # Jan 28, 2015  #4018     randerso    Added a productEditor log file to changes in the GFE product editor
+# Jul 23, 2015  ASM#13849 D. Friedman Use a unique Eclipse configuration directory
 #
 
 
@@ -91,6 +92,7 @@ if [ $? -ne 0 ]; then
 fi
 export apps_dir=${HYDRO_APPS_DIR} 
 
+SWITCHES=()
 TESTCHECK="$TMCP_HOME/bin/getTestMode"
 if [ -x ${TESTCHECK} ]; then
     echo "Calling getTestMode()"
@@ -98,16 +100,15 @@ if [ -x ${TESTCHECK} ]; then
     status=${?}
     if [ $status -eq 11 ]; then
         MODE="TEST"
-        SWITCHES="${SWITCHES} -mode TEST "
+        SWITCHES+=(-mode TEST)
     elif [ $status -eq 12 ];then
         MODE="PRACTICE"
-        SWITCHES="${SWITCHES} -mode PRACTICE "
+        SWITCHES+=(-mode PRACTICE)
     elif [ $status -eq 15 ];then
         MODE="OPERATIONAL"
-        SWITCHES="${SWITCHES} -mode OPERATIONAL"
+        SWITCHES+=(-mode OPERATIONAL)
     else
         MODE="OPERATIONAL (no response)"
-        SWITCHES="${SWITCHES} "
     fi
     echo "getTestMode() returned ${MODE}"
 else
@@ -210,6 +211,8 @@ curTime=`date +%Y%m%d_%H%M%S`
 pid=$!
 export LOGFILE_STARTUP_SHUTDOWN="${LOGDIR}/${PROGRAM_NAME}_${pid}_${curTime}_pid_%PID%_startup-shutdown.log"
 
+createEclipseConfigurationDir
+
 # At this point fork so that log files can be set up with the process pid and
 # this process can log the exit status of cave.
 (
@@ -242,20 +245,25 @@ export LOGFILE_STARTUP_SHUTDOWN="${LOGDIR}/${PROGRAM_NAME}_${pid}_${curTime}_pid
 
   lookupINI "${USER_ARGS[@]}"
 
+  # Make it easy to determine which process is using the directory
+  if [[ -n $eclipseConfigurationDir ]]; then
+      echo "$$" > "$eclipseConfigurationDir"/pid
+  fi
+
   if [[ "${runMonitorThreads}" == "true" ]] ; then 
     # nohup to allow tar process to continue after user has logged out
     nohup ${CAVE_INSTALL}/monitorThreads.sh $pid >> /dev/null 2>&1 &
   fi
 
   echo "Launching cave application using the following command: " >> ${LOGFILE_STARTUP_SHUTDOWN}
-  echo "${CAVE_INSTALL}/cave ${CAVE_INI_ARG} ${SWITCHES} ${USER_ARGS[@]}" >> ${LOGFILE_STARTUP_SHUTDOWN}
+  echo "${CAVE_INSTALL}/cave ${CAVE_INI_ARG} ${SWITCHES[@]} ${USER_ARGS[@]}" >> ${LOGFILE_STARTUP_SHUTDOWN}
 
   if [[ "${redirect}" == "true" ]] ; then
      # send output to /dev/null because the logback CaveConsoleAppender will capture that output 
-    exec ${CAVE_INSTALL}/cave ${CAVE_INI_ARG} ${SWITCHES} "${USER_ARGS[@]}" >> /dev/null 2>&1
+    exec ${CAVE_INSTALL}/cave ${CAVE_INI_ARG} "${SWITCHES[@]}" "${USER_ARGS[@]}" >> /dev/null 2>&1
   else
     # allow output to print to the console/terminal that launched CAVE
-    exec ${CAVE_INSTALL}/cave ${CAVE_INI_ARG} ${SWITCHES} "${USER_ARGS[@]}" 2>&1
+    exec ${CAVE_INSTALL}/cave ${CAVE_INI_ARG} "${SWITCHES[@]}" "${USER_ARGS[@]}" 2>&1
   fi
 ) &
 
