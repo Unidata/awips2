@@ -1,4 +1,4 @@
-#  Version 2015.6.16-0
+#  Version 2015.7.22-0
 
 import GenericHazards
 import string, time, os, re, types, copy, LogStream, collections
@@ -23,7 +23,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
     Definition["database"]      =  "Official"  # Source database
     Definition["debug"]         =  1
     Definition["mapNameForCombinations"] = "Zones_<site>"
-    Definition["defaultEditAreas"] = ""
+    Definition["defaultEditAreas"] = []
     Definition["showZoneCombiner"] = 0 # 1 to cause zone combiner to display
 
     Definition["productName"]       = "LOCAL STATEMENT"
@@ -1137,6 +1137,8 @@ class TextProduct(HLSTCV_Common.TextProduct):
             statDict = statList[period]
             for threatName in ['WindThreat', 'FloodingRainThreat', 'TornadoThreat']:
                 self._sampleRankedDiscreteValue(threatName, statDict)
+                # TODO: Investigate if this sampling method is still really needed. The JSON files may
+                #       have all the needed information now
                 self._sampleMostSignificantDiscreteValue(threatName, statDict)
             
             qpfToFfgRatio = self._getStatValue(statDict, "QPFtoFFGRatio", "Max")
@@ -1183,7 +1185,6 @@ class TextProduct(HLSTCV_Common.TextProduct):
             for period in range(len(statList)):
                 statDict = statList[period]
                 self._sampleRankedDiscreteValue('StormSurgeThreat', statDict)
-                self._sampleMostSignificantDiscreteValue('StormSurgeThreat', statDict)
                 
                 inundationMax = self._getStatValue(statDict, "InundationMax", "Max")
                 decidingField = self._samplingDict['StormSurgeThreat']['decidingField']
