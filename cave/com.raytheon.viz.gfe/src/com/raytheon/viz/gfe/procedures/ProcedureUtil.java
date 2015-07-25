@@ -22,14 +22,9 @@ package com.raytheon.viz.gfe.procedures;
 import java.util.List;
 import java.util.Map;
 
-import jep.JepException;
-
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.core.DataManager;
@@ -48,6 +43,7 @@ import com.raytheon.viz.gfe.smarttool.PreviewInfo;
  * Apr 26, 2012  14748     ryu         Use edit area and time range from preview info
  * Dec 09, 2013  #2367     dgilling    Use new ProcedureJobPool.
  * Jul 17, 2015  4575      njensen     Changed varDict from String to Map
+ * Jul 27, 2015  4263      dgilling    Support ProcedureMetadataManager.
  * 
  * </pre>
  * 
@@ -56,8 +52,6 @@ import com.raytheon.viz.gfe.smarttool.PreviewInfo;
  */
 
 public class ProcedureUtil {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(ProcedureUtil.class);
 
     public static ProcedureRequest buildProcedureRequest(String procedureName,
             DataManager dataMgr) {
@@ -96,28 +90,21 @@ public class ProcedureUtil {
             VizApp.runSync(new Runnable() {
                 @Override
                 public void run() {
-                    try {
-                        List<FieldDefinition> varList = dm
-                                .getProcedureInterface().getVarDictWidgets(
-                                        procName);
-                        if (varList != null && varList.size() > 0) {
-                            // make the gui, let it handle running the procedure
-                            ProcedureSelectionBlockingDlg sd = new ProcedureSelectionBlockingDlg(
-                                    PlatformUI.getWorkbench()
-                                            .getActiveWorkbenchWindow()
-                                            .getShell(), procName, dm, varList);
-                            sd.open();
-                            Map<String, Object> resultMap = sd
-                                    .getVarDictResult();
-                            if (resultMap != null) {
-                                req.setVarDict(resultMap);
-                            }
-                        } else {
-                            req.setVarDict(null);
+                    List<FieldDefinition> varList = dm.getProcedureInterface()
+                            .getVarDictWidgets(procName);
+                    if (varList != null && varList.size() > 0) {
+                        // make the gui, let it handle running the procedure
+                        ProcedureSelectionBlockingDlg sd = new ProcedureSelectionBlockingDlg(
+                                PlatformUI.getWorkbench()
+                                        .getActiveWorkbenchWindow().getShell(),
+                                procName, dm, varList);
+                        sd.open();
+                        Map<String, Object> resultMap = sd.getVarDictResult();
+                        if (resultMap != null) {
+                            req.setVarDict(resultMap);
                         }
-                    } catch (JepException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                "Error getting VariableList", e);
+                    } else {
+                        req.setVarDict(null);
                     }
                 }
             });

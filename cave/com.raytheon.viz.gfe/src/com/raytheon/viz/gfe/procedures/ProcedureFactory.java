@@ -19,8 +19,6 @@
  **/
 package com.raytheon.viz.gfe.procedures;
 
-import jep.JepException;
-
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -28,6 +26,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonIncludePathUtil;
+import com.raytheon.uf.common.python.concurrent.AbstractPythonScriptFactory;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.viz.gfe.core.DataManager;
 
@@ -41,6 +40,7 @@ import com.raytheon.viz.gfe.core.DataManager;
  * Nov 5, 2008            njensen     Initial creation
  * Feb 25, 2010  4108     ryu         Add user/site directories to include path
  * May 20, 2015  4509     njensen     Added time and dataaccess to include path
+ * Jul 27, 2015  #4263    dgilling    Refactor and make abstract.
  * 
  * </pre>
  * 
@@ -48,45 +48,32 @@ import com.raytheon.viz.gfe.core.DataManager;
  * @version 1.0
  */
 
-public class ProcedureFactory {
+public abstract class ProcedureFactory<C extends ProcedureController> extends
+        AbstractPythonScriptFactory<C> {
 
-    private static ProcedureController buildInstance(DataManager dataMgr,
-            boolean ui) throws JepException {
+    protected final DataManager dataMgr;
+
+    public ProcedureFactory(String name, int numThreads,
+            final DataManager dataMgr) {
+        super(name, numThreads);
+        this.dataMgr = dataMgr;
+    }
+
+    protected static String buildScriptPath() {
         LocalizationContext baseCtx = PathManagerFactory.getPathManager()
                 .getContext(LocalizationType.CAVE_STATIC,
                         LocalizationLevel.BASE);
-
         String baseUtil = GfePyIncludeUtil.getUtilitiesLF(baseCtx).getFile()
                 .getPath();
-        String scriptPath = FileUtil.join(baseUtil, "ProcedureInterface.py");
+        return FileUtil.join(baseUtil, "ProcedureInterface.py");
+    }
 
-        String includePath = PyUtil.buildJepIncludePath(PythonIncludePathUtil
+    protected static String buildIncludePath() {
+        return PyUtil.buildJepIncludePath(PythonIncludePathUtil
                 .getCommonPythonIncludePath("time", "dataaccess"),
                 GfePyIncludeUtil.getVtecIncludePath(), GfePyIncludeUtil
                         .getCommonGfeIncludePath(), GfePyIncludeUtil
                         .getProceduresIncludePath(), GfePyIncludeUtil
                         .getUtilitiesIncludePath());
-
-        ProcedureController procCont = null;
-        if (ui) {
-            procCont = new ProcedureUIController(scriptPath, includePath,
-                    ProcedureFactory.class.getClassLoader(), dataMgr);
-        } else {
-            procCont = new ProcedureController(scriptPath, includePath,
-                    ProcedureFactory.class.getClassLoader(), dataMgr);
-        }
-
-        return procCont;
     }
-
-    public static ProcedureController buildController(DataManager dataMgr)
-            throws JepException {
-        return buildInstance(dataMgr, false);
-    }
-
-    public static ProcedureUIController buildUIController(DataManager dataMgr)
-            throws JepException {
-        return (ProcedureUIController) buildInstance(dataMgr, true);
-    }
-
 }

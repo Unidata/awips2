@@ -17,14 +17,14 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.gfe.smarttool.script;
+package com.raytheon.viz.gfe.procedures;
 
 import jep.JepException;
 
 import com.raytheon.viz.gfe.core.DataManager;
 
 /**
- * Script factory for {@code SmartToolMetadataController} instances.
+ * Script factory for {@code ProcedureMetadataController} instances.
  * 
  * <pre>
  * 
@@ -32,7 +32,7 @@ import com.raytheon.viz.gfe.core.DataManager;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 22, 2015  #4263     dgilling     Initial creation
+ * Jul 24, 2015  #4263     dgilling     Initial creation
  * 
  * </pre>
  * 
@@ -40,14 +40,14 @@ import com.raytheon.viz.gfe.core.DataManager;
  * @version 1.0
  */
 
-public final class SmartToolMetadataScriptFactory extends
-        SmartToolFactory<SmartToolMetadataController> {
+public final class ProcedureMetadataScriptFactory extends
+        ProcedureFactory<ProcedureMetadataController> {
 
-    private static final String SCRIPT_EXECUTOR_NAME = "smart-tool-metadata";
+    private static final String SCRIPT_EXECUTOR_NAME = "procedure-metadata";
 
     private static final int EXECUTOR_NUM_THREADS = 1;
 
-    public SmartToolMetadataScriptFactory(final DataManager dataMgr) {
+    public ProcedureMetadataScriptFactory(final DataManager dataMgr) {
         super(SCRIPT_EXECUTOR_NAME, EXECUTOR_NUM_THREADS, dataMgr);
     }
 
@@ -59,8 +59,8 @@ public final class SmartToolMetadataScriptFactory extends
      * createPythonScript()
      */
     @Override
-    public SmartToolMetadataController createPythonScript() throws JepException {
-        return new SmartToolMetadataController(getScriptPath(),
-                getIncludePath(), getClass().getClassLoader(), dataMgr);
+    public ProcedureMetadataController createPythonScript() throws JepException {
+        return new ProcedureMetadataController(buildScriptPath(),
+                buildIncludePath(), getClass().getClassLoader(), dataMgr);
     }
 }

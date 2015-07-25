@@ -59,6 +59,7 @@ import com.raytheon.viz.gfe.jobs.AsyncProgressJob;
  * ------------ ---------- ----------- --------------------------
  * Dec 09, 2013  #2367     dgilling    Initial creation
  * Apr 16, 2015   4259     njensen     Removed unreachable catch
+ * Jul 27, 2015  #4263     dgilling    Use new ProcedureRunnerController.
  * 
  * </pre>
  * 
@@ -267,7 +268,7 @@ public class ProcedureJobPool {
         private final IUFStatusHandler statusHandler = UFStatus
                 .getHandler(ProcedureJob.class);
 
-        private ProcedureController python;
+        private ProcedureRunnerController python;
 
         private final DataManager dataMgr;
 
@@ -283,7 +284,8 @@ public class ProcedureJobPool {
         @Override
         protected IStatus run(IProgressMonitor monitor) {
             try {
-                python = ProcedureFactory.buildController(dataMgr);
+                python = new ProcedureRunnerScriptFactory(dataMgr)
+                        .createPythonScript();
             } catch (JepException e) {
                 jobList.remove(this);
                 statusHandler.error("Error initializing procedure python", e);
@@ -355,17 +357,16 @@ public class ProcedureJobPool {
         }
 
         /**
-         * Executes a procedure
+         * Executes a procedure.
          * 
-         * @param procedureName
-         *            the name of the procedure
+         * @param controller
+         *            The script object used to execute the procedure code.
          * @param request
          *            the request containing data on the procedure to run.
          * @throws Exception
-         * @throws JepException
          */
-        private void execute(ProcedureController controller,
-                ProcedureRequest request) throws Exception, JepException {
+        private void execute(ProcedureRunnerController controller,
+                ProcedureRequest request) throws Exception {
             String procedureName = request.getProcedureName();
             Job progressJob = new AsyncProgressJob(procedureName, this);
             IStatus pjStatus = Status.CANCEL_STATUS;

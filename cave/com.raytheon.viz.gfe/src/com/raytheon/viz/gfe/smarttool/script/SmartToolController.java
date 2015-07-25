@@ -43,7 +43,7 @@ import com.raytheon.viz.gfe.core.DataManager;
  * 10/31/2013    2508      randerso    Change to use DiscreteGridSlice.getKeys()
  * Oct 14, 2014  3676      njensen     Promoted getNumpyResult() to parent class
  * Apr 23, 2015  4259      njensen     Updated for new JEP API
- * Jul 23, 2015  4263     dgilling     Refactored to abstract class.
+ * Jul 23, 2015  4263      dgilling    Refactored to abstract class.
  * 
  * 
  * </pre>
@@ -88,15 +88,5 @@ public abstract class SmartToolController extends BaseGfePyController {
             statusHandler.handle(Priority.PROBLEM, sb.toString());
         }
         jep.eval("import TimeRange, numpy");
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.common.python.PythonInterpreter#dispose()
-     */
-    @Override
-    public void dispose() {
-        super.dispose();
     }
 }

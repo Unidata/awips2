@@ -39,24 +39,32 @@
 #
 
 
+import logging
 import sys
 import Exceptions
+
 import JUtil
+import ProcessVariableList
 import RollbackMasterInterface
+import UFStatusHandler
+
+
+PLUGIN_NAME = 'com.raytheon.viz.gfe'
+CATEGORY = 'GFE'
 
 
 class SmartToolInterface(RollbackMasterInterface.RollbackMasterInterface):
     
     def __init__(self, scriptPath):
         super(SmartToolInterface, self).__init__(scriptPath)
+        
+        logging.basicConfig(level=logging.INFO)
+        self.log = logging.getLogger("SmartToolInterface")
+        self.log.addHandler(UFStatusHandler.UFStatusHandler(PLUGIN_NAME, CATEGORY))
+        
         self.importModules()
             
     def __getToolInfo(self, script, dataMgr):
-        if not self.isInstantiated(script):
-            args = {'moduleName' : script,
-                    'className': "Tool",
-                    'dbss': dataMgr}
-            self.instantiate(**args)
         elementToEdit = self.getWeatherElementEdited(script)
         screenList = self.getScreenList(script)
         hideTool = self.getHideTool(script)
@@ -65,10 +73,10 @@ class SmartToolInterface(RollbackMasterInterface.RollbackMasterInterface):
         return elementToEdit, screenList, hideTool, docString, varDict
                     
     def getWeatherElementEdited(self, name):
-        return getattr(sys.modules[name], "WeatherElementEdited", None)
+        return getattr(sys.modules[name], "WeatherElementEdited", "None")
 
     def getScreenList(self, name):
-        return getattr(sys.modules[name], "ScreenList", [])
+        return getattr(sys.modules[name], "ScreenList", None)
 
     def getVariableList(self, name):
         return getattr(sys.modules[name], "VariableList", [])
@@ -81,7 +89,7 @@ class SmartToolInterface(RollbackMasterInterface.RollbackMasterInterface):
     
     def getVariableListInputs(self, name):
         varList = self.getVariableList(name)
-        return self.runMethod(name, "Tool", "getVariableListInputs", VariableList=varList)
+        return ProcessVariableList.buildWidgetList(varList)
     
     def getScripts(self, dataMgr):
         from java.util import HashMap
@@ -90,13 +98,17 @@ class SmartToolInterface(RollbackMasterInterface.RollbackMasterInterface):
         scriptList = HashMap()
         
         for script in self.scripts:
-            (element, screenList, hideTool, docString, varDict) = self.__getToolInfo(script, dataMgr)
-            name = str(script)
-            screenList = JUtil.pyValToJavaObj(screenList)
-            hideTool = bool(hideTool)
-            docString = str(docString)
-            metadata = SmartToolMetadata(name, element, screenList, hideTool, docString, varDict)
-            scriptList.put(name, metadata)
+            try:
+                (element, screenList, hideTool, docString, varDict) = self.__getToolInfo(script, dataMgr)
+                name = str(script)
+                if screenList is not None:
+                    screenList = JUtil.pyValToJavaObj(screenList)            
+                hideTool = bool(hideTool)
+                docString = str(docString)
+                metadata = SmartToolMetadata(name, element, screenList, hideTool, docString, varDict)
+                scriptList.put(name, metadata)
+            except:
+                self.log.exception("Unable to load metadata for smart tool " + script)
                 
         return scriptList
     

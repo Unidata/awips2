@@ -262,7 +262,8 @@ public class SmartToolJobPool {
         @Override
         protected IStatus run(IProgressMonitor monitor) {
             try {
-                python = SmartToolFactory.buildController(dataMgr);
+                python = new SmartToolRunnerScriptFactory(dataMgr)
+                        .createPythonScript();
             } catch (JepException e) {
                 jobList.remove(this);
                 statusHandler.error("Error initializing procedure python", e);
