@@ -15,11 +15,21 @@
 # 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
+##
+#    
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    10/07/2014       3684         randerso       Manually updated to add sourceID
+#
+##    
+import abc
 
-# File auto-generated against equivalent DynamicSerialize Java class
+class GfeNotification(object):
+    __metaclass__ = abc.ABCMeta
 
-class GfeNotification:
-
+    @abc.abstractmethod
     def __init__(self):
         self.siteID = None
         self.sourceID = None

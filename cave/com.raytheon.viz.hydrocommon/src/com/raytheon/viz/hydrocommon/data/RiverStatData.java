@@ -38,7 +38,8 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * Jan 3, 2013  15520       lbousaidi   added a dollar-quoted string to getUpdate and
  *                                      getInsert statements to always write literally
  *                                      the string content.
- * April 8, 2015 17338      jingtaoD   "Apostrophes" entered into HB text fields are not written to IHFS database 
+ * Apr 08, 2015 17338       jingtaoD    "Apostrophes" entered into HB text fields are not written to IHFS database
+ * May 18, 2015 4380        skorolev    Added issuestg and issueflow parameters.
  * 
  * </pre>
  * 
@@ -207,6 +208,16 @@ public class RiverStatData extends HydroDBData implements IHydroDBData {
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     /**
+     * Issuance Stage
+     */
+    private double issuestg;
+
+    /**
+     * Issuance Flow
+     */
+    private double issueflow;
+
+    /**
      * Constructor
      */
     public RiverStatData() {
@@ -224,32 +235,32 @@ public class RiverStatData extends HydroDBData implements IHydroDBData {
 
         setLid(getDBValue("lid", data, dataMap, ""));
         setPrimaryPE(getDBValue("primary_pe", data, dataMap, ""));
-        setBankFull(getDBValue("bf", data, dataMap, Double
-                .valueOf(HydroConstants.MISSING_VALUE)));
-        setCheckBar(getDBValue("cb", data, dataMap, Double
-                .valueOf(HydroConstants.MISSING_VALUE)));
-        setDrainageArea(getDBValue("da", data, dataMap, Double
-                .valueOf(HydroConstants.MISSING_VALUE)));
-        setResponseTime(getDBValue("response_time", data, dataMap, Double
-                .valueOf(HydroConstants.MISSING_VALUE)));
-        setThresholdRunoff(getDBValue("threshold_runoff", data, dataMap, Double
-                .valueOf(HydroConstants.MISSING_VALUE)));
-        setFloodFlow(getDBValue("fq", data, dataMap, Double
-                .valueOf(HydroConstants.MISSING_VALUE)));
-        setFloodStage(getDBValue("fs", data, dataMap, Double
-                .valueOf(HydroConstants.MISSING_VALUE)));
+        setBankFull(getDBValue("bf", data, dataMap,
+                Double.valueOf(HydroConstants.MISSING_VALUE)));
+        setCheckBar(getDBValue("cb", data, dataMap,
+                Double.valueOf(HydroConstants.MISSING_VALUE)));
+        setDrainageArea(getDBValue("da", data, dataMap,
+                Double.valueOf(HydroConstants.MISSING_VALUE)));
+        setResponseTime(getDBValue("response_time", data, dataMap,
+                Double.valueOf(HydroConstants.MISSING_VALUE)));
+        setThresholdRunoff(getDBValue("threshold_runoff", data, dataMap,
+                Double.valueOf(HydroConstants.MISSING_VALUE)));
+        setFloodFlow(getDBValue("fq", data, dataMap,
+                Double.valueOf(HydroConstants.MISSING_VALUE)));
+        setFloodStage(getDBValue("fs", data, dataMap,
+                Double.valueOf(HydroConstants.MISSING_VALUE)));
         setGageNumber(getDBValue("gsno", data, dataMap, ""));
         setLevel(getDBValue("level", data, dataMap, ""));
-        setRiverMile(getDBValue("mile", data, dataMap, Double
-                .valueOf(HydroConstants.MISSING_VALUE)));
-        setPool(getDBValue("pool", data, dataMap, Double
-                .valueOf(HydroConstants.MISSING_VALUE)));
+        setRiverMile(getDBValue("mile", data, dataMap,
+                Double.valueOf(HydroConstants.MISSING_VALUE)));
+        setPool(getDBValue("pool", data, dataMap,
+                Double.valueOf(HydroConstants.MISSING_VALUE)));
         setPeriodOfRecord(getDBValue("por", data, dataMap, ""));
         setRated(getDBValue("rated", data, dataMap, ""));
-        setLatitude(getDBValue("lat", data, dataMap, Double
-                .valueOf(HydroConstants.MISSING_VALUE)));
-        setLongitude(getDBValue("lon", data, dataMap, Double
-                .valueOf(HydroConstants.MISSING_VALUE)));
+        setLatitude(getDBValue("lat", data, dataMap,
+                Double.valueOf(HydroConstants.MISSING_VALUE)));
+        setLongitude(getDBValue("lon", data, dataMap,
+                Double.valueOf(HydroConstants.MISSING_VALUE)));
         setRemark(getDBValue("remark", data, dataMap, ""));
         setReviseDate(getDBValue("rrevise", data, dataMap, (Date) null));
         setLatLonSource(getDBValue("rsource", data, dataMap, ""));
@@ -257,17 +268,21 @@ public class RiverStatData extends HydroDBData implements IHydroDBData {
         setTidalEffect(getDBValue("tide", data, dataMap, ""));
         setBackWater(getDBValue("backwater", data, dataMap, ""));
         setVerticalDatum(getDBValue("vdatum", data, dataMap, ""));
-        setActionFlow(getDBValue("action_flow", data, dataMap, Double
-                .valueOf(HydroConstants.MISSING_VALUE)));
-        setActionStage(getDBValue("wstg", data, dataMap, Double
-                .valueOf(HydroConstants.MISSING_VALUE)));
-        setZeroDatum(getDBValue("zd", data, dataMap, Double
-                .valueOf(HydroConstants.MISSING_VALUE)));
+        setActionFlow(getDBValue("action_flow", data, dataMap,
+                Double.valueOf(HydroConstants.MISSING_VALUE)));
+        setActionStage(getDBValue("wstg", data, dataMap,
+                Double.valueOf(HydroConstants.MISSING_VALUE)));
+        setZeroDatum(getDBValue("zd", data, dataMap,
+                Double.valueOf(HydroConstants.MISSING_VALUE)));
         setDateOfRating(getDBValue("ratedat", data, dataMap, (Date) null));
         setUsgsRateNumber(getDBValue("usgs_ratenum", data, dataMap, ""));
         setUnitHydrographDuration(getDBValue("uhgdur", data, dataMap,
                 HydroConstants.MISSING_VALUE));
         setUseLatestForecast(getDBValue("use_latest_fcst", data, dataMap, ""));
+        setIssuestg(getDBValue("issuestg", data, dataMap,
+                Double.valueOf(HydroConstants.MISSING_VALUE)));
+        setIssueflow(getDBValue("issueflow", data, dataMap,
+                Double.valueOf(HydroConstants.MISSING_VALUE)));
     }
 
     private void initDateFormat() {
@@ -744,7 +759,7 @@ public class RiverStatData extends HydroDBData implements IHydroDBData {
         String columns = "lid, primary_pe, bf, cb, da, response_time, threshold_runoff,"
                 + " fq, fs, gsno, level, mile, pool, por, rated, lat, lon, remark, rrevise,"
                 + " rsource, stream, tide, backwater, vdatum, action_flow, wstg, zd, ratedat,"
-                + " usgs_ratenum, uhgdur, use_latest_fcst";
+                + " usgs_ratenum, uhgdur, use_latest_fcst, issuestg, issueflow";
         String query = "SELECT " + columns + " FROM riverstat WHERE lid="
                 + getDBString(lid);
         return query;
@@ -765,12 +780,12 @@ public class RiverStatData extends HydroDBData implements IHydroDBData {
         String columns = "lid, primary_pe, bf, cb, da, response_time, threshold_runoff,"
                 + " fq, fs, gsno, level, mile, pool, por, rated, lat, lon, remark, rrevise,"
                 + " rsource, stream, tide, backwater, vdatum, action_flow, wstg, zd, ratedat,"
-                + " usgs_ratenum, uhgdur, use_latest_fcst";
+                + " usgs_ratenum, uhgdur, use_latest_fcst, issuestg, issueflow";
 
         String rval = "INSERT INTO riverstat ( " + columns
                 + " ) VALUES ( %s, %s, %s, %s, %s, %s, %s,"
                 + " %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, $$%s$$, %s,"
-                + " %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )";
+                + " %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )";
 
         rval = String.format(rval, getDBString(lid), getDBString(primaryPE),
                 getDBString(bankFull), getDBString(checkBar),
@@ -780,14 +795,16 @@ public class RiverStatData extends HydroDBData implements IHydroDBData {
                 getDBString(level), getDBString(riverMile), getDBString(pool),
                 getDBString(periodOfRecord), getDBString(rated),
                 getDBString(latitude), getDBString(longitude),
-                getDBStringNoQuote(remark), getDBString(reviseDate, dateFormat),
-                getDBString(latLonSource), getDBString(stream),
-                getDBString(tidalEffect), getDBString(backWater),
-                getDBString(verticalDatum), getDBString(actionFlow),
-                getDBString(actionStage), getDBString(zeroDatum), getDBString(
-                        dateOfRating, dateFormat), getDBString(usgsRateNumber),
+                getDBStringNoQuote(remark),
+                getDBString(reviseDate, dateFormat), getDBString(latLonSource),
+                getDBString(stream), getDBString(tidalEffect),
+                getDBString(backWater), getDBString(verticalDatum),
+                getDBString(actionFlow), getDBString(actionStage),
+                getDBString(zeroDatum), getDBString(dateOfRating, dateFormat),
+                getDBString(usgsRateNumber),
                 getDBString(unitHydrographDuration),
-                getDBString(useLatestForecast));
+                getDBString(useLatestForecast), getDBString(issuestg),
+                getDBString(issueflow));
 
         return rval;
     }
@@ -803,7 +820,7 @@ public class RiverStatData extends HydroDBData implements IHydroDBData {
         String columns = "lid, primary_pe, bf, cb, da, response_time, threshold_runoff,"
                 + " fq, fs, gsno, level, mile, pool, por, rated, lat, lon, remark, rrevise,"
                 + " rsource, stream, tide, backwater, vdatum, action_flow, wstg, zd, ratedat,"
-                + " usgs_ratenum, uhgdur, use_latest_fcst";
+                + " usgs_ratenum, uhgdur, use_latest_fcst, issuestg, issueflow";
 
         String query = "SELECT " + columns + " FROM riverstat";
         return query;
@@ -815,7 +832,7 @@ public class RiverStatData extends HydroDBData implements IHydroDBData {
         String rval = "UPDATE riverstat SET lid=%s, primary_pe=%s, bf=%s, cb=%s, da=%s, response_time=%s, threshold_runoff=%s,"
                 + " fq=%s, fs=%s, gsno=%s, level=%s, mile=%s, pool=%s, por=%s, rated=%s, lat=%s, lon=%s, remark=$$%s$$, rrevise=%s,"
                 + " rsource=%s, stream=%s, tide=%s, backwater=%s, vdatum=%s, action_flow=%s, wstg=%s, zd=%s, ratedat=%s,"
-                + " usgs_ratenum=%s, uhgdur=%s, use_latest_fcst=%s WHERE %s";
+                + " usgs_ratenum=%s, uhgdur=%s, use_latest_fcst=%s, issuestg=%s, issueflow=%s WHERE %s";
 
         // Populate the values
         rval = String.format(rval, getDBString(lid), getDBString(primaryPE),
@@ -826,15 +843,47 @@ public class RiverStatData extends HydroDBData implements IHydroDBData {
                 getDBString(level), getDBString(riverMile), getDBString(pool),
                 getDBString(periodOfRecord), getDBString(rated),
                 getDBString(latitude), getDBString(longitude),
-                getDBStringNoQuote(remark), getDBString(reviseDate, dateFormat),
-                getDBString(latLonSource), getDBString(stream),
-                getDBString(tidalEffect), getDBString(backWater),
-                getDBString(verticalDatum), getDBString(actionFlow),
-                getDBString(actionStage), getDBString(zeroDatum), getDBString(
-                        dateOfRating, dateFormat), getDBString(usgsRateNumber),
+                getDBStringNoQuote(remark),
+                getDBString(reviseDate, dateFormat), getDBString(latLonSource),
+                getDBString(stream), getDBString(tidalEffect),
+                getDBString(backWater), getDBString(verticalDatum),
+                getDBString(actionFlow), getDBString(actionStage),
+                getDBString(zeroDatum), getDBString(dateOfRating, dateFormat),
+                getDBString(usgsRateNumber),
                 getDBString(unitHydrographDuration),
-                getDBString(useLatestForecast), getPKStatement());
+                getDBString(useLatestForecast), getDBString(issuestg),
+                getDBString(issueflow), getPKStatement());
 
         return rval;
+    }
+
+    /**
+     * @return the issuestg
+     */
+    public double getIssuestg() {
+        return issuestg;
+    }
+
+    /**
+     * @param issuestg
+     *            the issuestg to set
+     */
+    public void setIssuestg(double issuestg) {
+        this.issuestg = issuestg;
+    }
+
+    /**
+     * @return the issueflow
+     */
+    public double getIssueflow() {
+        return issueflow;
+    }
+
+    /**
+     * @param issueflow
+     *            the issueflow to set
+     */
+    public void setIssueflow(double issueflow) {
+        this.issueflow = issueflow;
     }
 }

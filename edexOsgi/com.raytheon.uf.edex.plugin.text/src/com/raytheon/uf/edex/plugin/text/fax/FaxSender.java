@@ -25,6 +25,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import com.raytheon.uf.common.util.RunProcess;
+import com.raytheon.uf.edex.plugin.text.security.EnvPathWhiteList;
 
 /**
  * Sends FAX to number using LDAD system
@@ -39,6 +40,7 @@ import com.raytheon.uf.common.util.RunProcess;
  * Sep 19, 2011 10955      rferrel     Use RunProcess
  * Jan 10, 2012  4550	   mgamazaychikov	Fixed the sshCommand
  * May 20, 2014 2536       bclement    moved from edex.textdb to edex.plugin.text
+ * Jun 03, 2015 4492       rferrel     Use {@link EnvPathWhiteList} for security check.
  * 
  * </pre>
  * 
@@ -48,6 +50,14 @@ import com.raytheon.uf.common.util.RunProcess;
 
 public class FaxSender {
     private static final String getDate = "date -u +%Y%m%d%H%M%S";
+
+    private static final String ENV_ERROR_FMT = "Unable to validate environment variable %s.";
+
+    private static final String FXA_DATA = "FXA_DATA";
+
+    private static final String LDAD_EXTERNAL_PUBLIC = "LDAD_EXTERNAL_PUBLIC";
+
+    private static final String LDAD_EXTERNAL_HOME = "LDAD_EXTERNAL_HOME";
 
     // Utility class constructor.
     private FaxSender() {
@@ -66,8 +76,15 @@ public class FaxSender {
             retval = "Error reading date from system." + error;
             return retval;
         }
+
         String date = p.getStdout().trim();
-        String fxadata = System.getenv("FXA_DATA");
+
+        EnvPathWhiteList manager = new EnvPathWhiteList();
+        String fxadata = manager.getenv(FXA_DATA);
+        if (fxadata == null) {
+            retval = String.format(ENV_ERROR_FMT, FXA_DATA);
+            return retval;
+        }
         // Make fax data directory.
         String faxDir = fxadata + "/workFiles/fax/";
         // Make fax data file name.
@@ -77,7 +94,11 @@ public class FaxSender {
         String faxScriptFilename = fxadata + "/workFiles/fax/" + faxTitle
                 + date + ".msg";
         // Make ldad fax data file name.
-        String ldadExternalPublic = System.getenv("LDAD_EXTERNAL_PUBLIC");
+        String ldadExternalPublic = manager.getenv(LDAD_EXTERNAL_PUBLIC);
+        if (ldadExternalPublic == null) {
+            retval = String.format(ENV_ERROR_FMT, LDAD_EXTERNAL_PUBLIC);
+            return retval;
+        }
         String ldadDataFilename = ldadExternalPublic + "/fax/" + faxTitle
                 + date + ".data";
         // Make ldad fax script file name.
@@ -153,16 +174,21 @@ public class FaxSender {
         // Execute faxSender.csh on ldad fax script file (system exec)
         StringBuilder sshCommand = new StringBuilder();
         /*
-         * DR4550 - the sshCommand should be:
-         * ssh -n ls1 -l ldad $LDAD_EXTERNAL_HOME/bin/faxSender.csh filename
+         * DR4550 - the sshCommand should be: ssh -n ls1 -l ldad
+         * $LDAD_EXTERNAL_HOME/bin/faxSender.csh filename
          */
+        String ldadHome = manager.getenv(LDAD_EXTERNAL_HOME);
+        if (ldadHome == null) {
+            retval = String.format(ENV_ERROR_FMT, LDAD_EXTERNAL_HOME);
+            return retval;
+        }
         sshCommand.append("ssh -n ls1 -l ldad ");
-        sshCommand.append(System.getenv("LDAD_EXTERNAL_HOME"));
+        sshCommand.append(ldadHome);
         sshCommand.append("/bin/faxSender.csh ");
         sshCommand.append(ldadScriptFilename);
         // DR#10955
         RunProcess sshCommandExec = RunProcess.getRunProcess().exec(
-        		sshCommand.toString());
+                sshCommand.toString());
         error = sshCommandExec.getStderr().trim();
         if (error.length() != 0) {
             // Send back an appropriate error string.
@@ -172,5 +198,4 @@ public class FaxSender {
         // Return
         return retval;
     }
-
 }

@@ -147,8 +147,8 @@ public class WarningRecord extends AbstractWarningRecord {
     /**
      * Constructor to duplicate record.
      * 
-     * @param message
-     *            The text of the message
+     * @param old
+     *            The record to be duplicated
      */
     public WarningRecord(WarningRecord old) {
         super(old);
@@ -159,8 +159,6 @@ public class WarningRecord extends AbstractWarningRecord {
      * 
      * @param uri
      *            The dataURI
-     * @param tableDef
-     *            The table definition associated with this class
      */
     public WarningRecord(String uri) {
         super(uri);

@@ -31,7 +31,6 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
-import java.util.Vector;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
@@ -61,6 +60,7 @@ import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
@@ -79,6 +79,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 23 Nov 2010  6244       lbousaidi   cleared idTF box after search
  * 16 Mar 2011  6251	   lbousaidi   activate [Enter] for idTF box
  * 02 Jun 2011  9150       mduff       xdat_flood_hours needs to be negative on the calendar.add
+ * 22 May 2015  4501       skorolev    Removed old DB connection commands. Got rid of Vector.
  * 
  * </pre>
  * 
@@ -92,11 +93,6 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
      * Control font.
      */
     private Font controlFont;
-
-    /**
-     * Database name.
-     */
-    private String dbName;
 
     /**
      * Version.
@@ -179,11 +175,6 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
     private XdatDB databaseMgr;
 
     /**
-     * URL for JDBC.
-     */
-    private String jdbcUrl;
-
-    /**
      * Array of Physical Element radio buttons.
      */
     private ArrayList<Button> peButtons;
@@ -192,7 +183,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
      * Printer class.
      */
     private Printer printer;
-    
+
     private GroupDataDlg groupDlg = null;
 
     /**
@@ -202,30 +193,17 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
      *            Parent shell.
      */
     public XdatDlg(Shell parentShell) {
-        super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE);
-
+        super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE | CAVE.DO_NOT_BLOCK);
+        databaseMgr = new XdatDB();
         appsDefaults = AppsDefaults.getInstance();
-
-        StringBuilder buffer = new StringBuilder("jdbc:postgresql://");
-        buffer.append(appsDefaults.getToken("pghost") + ":");
-        buffer.append(appsDefaults.getToken("pgport") + "/");
-        dbName = appsDefaults.getToken("db_name");
-        buffer.append(dbName + "?user=");
-        buffer.append(appsDefaults.getToken("pguser"));
-        jdbcUrl = buffer.toString();
-        System.out.println(jdbcUrl);
 
         StringBuilder title = new StringBuilder("xdat (Version: ");
         title.append(version).append(") (db_name = ");
-
-        if (dbName == null) {
-            title.append("UNKNOWN");
-        } else {
-            title.append(dbName);
-        }
+        title.append(XdatDB.IHFS);
         title.append(")");
 
         setText(title.toString());
+
     }
 
     @Override
@@ -241,19 +219,6 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
-
-        databaseMgr = new XdatDB(jdbcUrl);
-        if (!databaseMgr.isDBConnected()) {
-            MessageBox mb = new MessageBox(getParent(), SWT.ICON_WARNING
-                    | SWT.OK);
-            mb.setText("Error");
-            mb.setMessage("Unable to connect to \n" + jdbcUrl
-                    + "\n\nPlease make sure\n"
-                    + "the tokens pghost and pgport are set\n"
-                    + "correctly in Apps_defaults\n"
-                    + "and the database server is running.");
-            mb.open();
-        }
 
         controlFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
 
@@ -847,8 +812,8 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
 
         String peStr = getSelectedPE();
 
-        Vector<String[]> rejectedDataBuf = databaseMgr.getRejectedData(peStr,
-                startDateStr, endDateStr);
+        java.util.List<String[]> rejectedDataBuf = databaseMgr.getRejectedData(
+                peStr, startDateStr, endDateStr);
 
         if (rejectedDataBuf == null) {
             textArea.setText("No rejected " + peStr
@@ -863,13 +828,13 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
     /**
      * Format the rejected data for displaying.
      * 
-     * @param rejectedData
+     * @param rejectedDataBuf
      *            Array of rejected data.
      * @param peStr
      *            Physical Element.
      * @return The formatted data.
      */
-    private String formatRejectedData(Vector<String[]> rejectedData,
+    private String formatRejectedData(java.util.List<String[]> rejectedDataBuf,
             String peStr) {
         StringBuilder strBld = new StringBuilder();
 
@@ -901,7 +866,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
         /*
          * Add the data
          */
-        for (String[] strArray : rejectedData) {
+        for (String[] strArray : rejectedDataBuf) {
 
             double dblVal = Double.valueOf(strArray[7]);
             double rndVal = (Math.round(dblVal * 10.0)) / 10.0;
@@ -922,13 +887,13 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
         SimpleDateFormat dbFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         SimpleDateFormat startDate = new SimpleDateFormat("mm/dd/yyy",
                 Locale.US);
-        
+
         Date sDate = SimulatedTime.getSystemTime().getTime();
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
         String setToday = appsDefaults.getToken("xdat_settoday");
         String floodHours = appsDefaults.getToken("xdat_flood_hours", "6");
-        
+
         try {
             if ((setToday != null) && !setToday.equals("")
                     && !setToday.equals(" ")) {
@@ -947,7 +912,8 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
         sDate = cal.getTime();
         String dateStr = dbFormat.format(sDate);
 
-        Vector<String[]> aboveFsBuf = databaseMgr.getAboveFsSearch(dateStr);
+        java.util.List<String[]> aboveFsBuf = databaseMgr
+                .getAboveFsSearch(dateStr);
 
         if (aboveFsBuf == null) {
             textArea.setText("No sites above flood stage");
@@ -960,12 +926,12 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
     /**
      * Format the site above flood stage data for displaying.
      * 
-     * @param abvFldStgText
+     * @param aboveFsBuf
      *            Array of flood stage data.
      * @return The formatted data.
      */
-    private String formatSiteAboveFldStageData(Vector<String[]> abvFldStgText,
-            Date sDate) {
+    private String formatSiteAboveFldStageData(
+            java.util.List<String[]> aboveFsBuf, Date sDate) {
         SimpleDateFormat displayDate = new SimpleDateFormat(
                 "yyyy-MM-dd HH:00:00", Locale.US);
         StringBuilder strBld = new StringBuilder();
@@ -977,8 +943,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
         /*
          * Add the Title text
          */
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        cal.setTime(sDate);
+        Calendar cal = TimeUtil.newGmtCalendar(sDate);
         String floodHours = appsDefaults.getToken("xdat_flood_hours");
         if ((floodHours != null) && (floodHours.length() > 0)) {
             cal.add(Calendar.HOUR_OF_DAY, -1 * (Integer.parseInt(floodHours)));
@@ -1005,7 +970,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
         /*
          * Add the data
          */
-        for (String[] dataArray : abvFldStgText) {
+        for (String[] dataArray : aboveFsBuf) {
 
             double dblVal = Double.valueOf(dataArray[6]);
             double rndVal = (Math.round(dblVal * 100.0)) / 100.0;
@@ -1032,7 +997,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
      */
     private void displaySitesTurnedOffData() {
 
-        Vector<String[]> sitesTurnedOffBuf = databaseMgr
+        java.util.List<String[]> sitesTurnedOffBuf = databaseMgr
                 .getSitesTurnedOffData();
 
         if (sitesTurnedOffBuf == null) {
@@ -1046,11 +1011,12 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
     /**
      * Format the sites turned off data for displaying.
      * 
-     * @param sitesTurnedOffArray
+     * @param sitesTurnedOffBuf
      *            Array of data.
      * @return The formatted data.
      */
-    private String formatSitesTurnedOffData(Vector<String[]> sitesTurnedOffArray) {
+    private String formatSitesTurnedOffData(
+            java.util.List<String[]> sitesTurnedOffBuf) {
         StringBuilder strBld = new StringBuilder();
 
         String titleFmt = "%50s";
@@ -1081,7 +1047,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
         /*
          * Add the data
          */
-        for (String[] dataArray : sitesTurnedOffArray) {
+        for (String[] dataArray : sitesTurnedOffBuf) {
 
             strBld.append(
                     String.format(dataFmt, dataArray[0], dataArray[1],
@@ -1096,18 +1062,18 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
      */
     private void displayUnknownSitesData() {
         String postFlag = appsDefaults.getToken("xdat_post_unk");
-        
+
         if (postFlag.equalsIgnoreCase("NONE")) {
             textArea.setText("Shefdecoder not posting unknown data.");
             return;
-        }        
+        }
 
         String unknownTable = "unkstnvalue";
         if (postFlag.compareTo("IDS_ONLY") == 0) {
             unknownTable = "unkstn";
         }
 
-        Vector<String[]> unknownSiteBuf = databaseMgr
+        java.util.List<String[]> unknownSiteBuf = databaseMgr
                 .getUnknownSites(unknownTable);
 
         if (unknownSiteBuf == null) {
@@ -1122,11 +1088,12 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
     /**
      * Format the unknown sites data for displaying.
      * 
-     * @param unknownSiteArray
+     * @param unknownSiteBuf
      *            Array of data.
      * @return The formatted data.
      */
-    private String formatUnknownSitesData(Vector<String[]> unknownSiteArray) {
+    private String formatUnknownSitesData(
+            java.util.List<String[]> unknownSiteBuf) {
         StringBuilder strBld = new StringBuilder();
 
         String titleFmt = "%40s";
@@ -1157,7 +1124,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
         /*
          * Add the data
          */
-        for (String[] dataArray : unknownSiteArray) {
+        for (String[] dataArray : unknownSiteBuf) {
             String productID = dataArray[1];
             if (productID == null) {
                 productID = "";
@@ -1179,11 +1146,10 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
     /**
      * Display the search data on the display.
      */
-    private void displaySearchData() /*
-                                      * code very similiar to
-                                      * SiteListDlg.displayListSelection(). need
-                                      * refactor
-                                      */
+    private void displaySearchData()
+    /*
+     * code very similar to SiteListDlg.displayListSelection(). need refactor
+     */
     {
         String selectedId = idTF.getText().trim().toUpperCase();
 
@@ -1198,8 +1164,8 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
 
         String peType = getSelectedPE();
 
-        Vector<String[]> dataVec = databaseMgr.getListData(selectedId, peType,
-                getStartDate(), getEndDate());
+        java.util.List<String[]> dataVec = databaseMgr.getListData(selectedId,
+                peType, getStartDate(), getEndDate());
 
         if (dataVec == null) {
             String[] msg = new String[] { "No data available." };
@@ -1213,9 +1179,8 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
             locationDes = "";
         }
 
-        String[] displayData = new String[dataVec.size() + 3]; // 1st three
-        // lines for
-        // header
+        String[] displayData = new String[dataVec.size() + 3];
+        // 1st three lines for header
         String dataFmt = "%-8S %2s   %-4S %2S %1S %19S %13S % 6.2f   % 6.2f";
         String displayHeader = " ID      PE  DUR   TS E       OBSTIME           PRODUCT    VALUE   CHANGE";
         String dashLine = "---------------------------------------------------------------------------";
@@ -1405,7 +1370,9 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
         }
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.raytheon.viz.xdat.ITextDisplay#getSelectedSite()
      */
     @Override

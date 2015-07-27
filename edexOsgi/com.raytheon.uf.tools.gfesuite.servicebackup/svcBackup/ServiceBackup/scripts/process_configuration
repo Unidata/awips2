@@ -16,6 +16,8 @@
 #                                                 proc_receive_config into 1 script.
 #    03/23/15        #4103         dgilling       Save off MHSID of failed site so to fix
 #                                                 export_grids_to_failed_site script.
+#    04/29/15        #4427         dgilling       Code cleanup.
+#
 ##############################################################################
 
 
@@ -209,14 +211,14 @@ failed_config=${LOCALIZATION_PATH}/edex_static/site/${SITE_ID_CAPS}/config/gfe/s
 
 sed -i "s/  / /" $failed_config
 sed -i "s/   / /" $failed_config
-BACKUP_MHSID=$(egrep "GFESUITE_MHSID" ${backup_config})
-FAILED_MHSID=$(egrep "GFESUITE_MHSID" ${failed_config})
-BACKUP_SERVER=$(egrep "GFESUITE_SERVER" ${backup_config})
-FAILED_SERVER=$(egrep "GFESUITE_SERVER" ${failed_config})
-BACKUP_LOGDIR=$(egrep "GFESUITE_LOGDIR" ${backup_config})
-FAILED_LOGDIR=$(egrep "GFESUITE_LOGDIR" ${failed_config})
-BACKUP_PRDDIR=$(egrep "GFESUITE_PRDDIR" ${backup_config})
-FAILED_PRDDIR=$(egrep "GFESUITE_PRDDIR" ${failed_config})
+BACKUP_MHSID=$(egrep "^GFESUITE_MHSID" ${backup_config})
+FAILED_MHSID=$(egrep "^GFESUITE_MHSID" ${failed_config})
+BACKUP_SERVER=$(egrep "^GFESUITE_SERVER" ${backup_config})
+FAILED_SERVER=$(egrep "^GFESUITE_SERVER" ${failed_config})
+BACKUP_LOGDIR=$(egrep "^GFESUITE_LOGDIR" ${backup_config})
+FAILED_LOGDIR=$(egrep "^GFESUITE_LOGDIR" ${failed_config})
+BACKUP_PRDDIR=$(egrep "^GFESUITE_PRDDIR" ${backup_config})
+FAILED_PRDDIR=$(egrep "^GFESUITE_PRDDIR" ${failed_config})
 
 sed -i "s/$FAILED_MHSID/$BACKUP_MHSID/" ${failed_config}
 sed -i "s/$FAILED_SERVER/$BACKUP_SERVER/" ${failed_config}

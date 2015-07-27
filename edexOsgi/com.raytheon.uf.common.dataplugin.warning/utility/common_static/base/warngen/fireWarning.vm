@@ -1,10 +1,13 @@
-###############################################################################
-## FIRE WARNING TEMPLATE                                                     ##
-## VERSION 1.1                                                               ##
-## CREATED BOOKBINDER/DANGELO - 2-07-12 - Initial OB12 Write                 ##
-##           Mike Dangelo 9-13-2012 minor tweaks to ${variables}             ##
-##           Mike Dangelo 6-25-2014 turned off auto-lock in xml and added specific lock tags herein to facilitate editing the agency name in the MND header. ## 
-###############################################################################
+####################################################################################
+## FIRE WARNING TEMPLATE                                                          ##
+## VERSION 1.1                                                                    ##
+## CREATED BOOKBINDER/DANGELO - 2-07-12 - Initial OB12 Write                      ##
+##           Mike Dangelo 9-13-2012 minor tweaks to ${variables}                  ##
+##           Mike Dangelo 6-25-2014 turned off auto-lock in xml and added         ##
+##                                  specific lock tags herein to facilitate       ##
+##                                  editing the agency name in the MND header.    ##
+##           Mike Dangelo   23 March 2015    Mixed Case Changes                   ##
+####################################################################################
 #parse("config.vm")
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 FRW${siteId}
@@ -12,29 +15,32 @@ FRW${siteId}
 
 <L>BULLETIN - EAS ACTIVATION REQUESTED</L>
 #if(${productClass}=="T")
-<L>TEST...FIRE WARNING...TEST</L>
+<L>TEST...Fire Warning...TEST</L>
 #else
-<L>FIRE WARNING</L>
+<L>Fire Warning</L>
 #end
 #set($requestedBy = "!** ENTER REQUESTING AGENCY NAME HERE **!")
 #if(${list.contains(${bullets}, "agency1")})
-#set($requestedBy = "EXAMPLE AGENCY 1")
+#set($requestedBy = "Example Agency 1")
 #end
 #if(${list.contains(${bullets}, "agency2")})
-#set($requestedBy = "EXAMPLE AGENCY 2")
+#set($requestedBy = "Example Agency 2")
 #end
-REQUESTED BY ${requestedBy}
-<L>RELAYED BY NATIONAL WEATHER SERVICE ${officeShort}</L>
+#set($agencyNameLine = "Requested by ${requestedBy}")
+#capitalize(${agencyNameLine} "ALL")
+
+<L>Relayed by National Weather Service ${officeShort}</L>
 #backupText(${backupSite})
-<L>${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}</L>
+<L>${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+</L>
 
 #if(${productClass}=="T")
 ...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
 
 #end
 
-THE FOLLOWING MESSAGE IS BEING TRANSMITTED AT THE REQUEST OF 
-$requestedBy
+The following message is being transmitted at the request of 
+${requestedBy}
 
 ############################
 ### FIRE WEATHER EMERGENCY #
@@ -53,7 +59,7 @@ THIS IS A FIRE EMERGENCY FOR !** EDIT LOCATION(S) **!...TAKE IMMEDIATE SAFETY PR
 
 #if(${list.contains(${bullets}, "actual")})
 
-A FIRE WAS LOCATED !** DETAILS **! AND COULD AFFECT !** AREAS **!.
+A fire was located !** DETAILS **! and could affect !** AREAS **!.
 
 
 
@@ -61,7 +67,7 @@ A FIRE WAS LOCATED !** DETAILS **! AND COULD AFFECT !** AREAS **!.
 
 #if(${list.contains(${bullets}, "racing")})
 
-A FIRE WAS RACING TOWARD !** LOCATIONS **! AND COULD REACH THERE BY !** TIME **!.
+A fire was racing toward !** LOCATIONS **! and could reach there by !** TIME **!.
 
 
 
@@ -93,7 +99,7 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 ##
 #if(${list.contains(${bullets}, "stayIndoorsCTA")})
 
-STAY INDOORS TO KEEP SAFE FROM THE SMOKE. KEEP WINDOWS AND DOORS SHUT AND TURN OFF ALL VENTILATION SYSTEMS. 
+Stay indoors to keep safe from the smoke. Keep windows and doors shut and turn off all ventilation systems. 
 
 
 
@@ -101,7 +107,7 @@ STAY INDOORS TO KEEP SAFE FROM THE SMOKE. KEEP WINDOWS AND DOORS SHUT AND TURN O
 
 #if(${list.contains(${bullets}, "followInstructionsCTA")})
 
-FOLLOW SAFETY INSTRUCTIONS FROM LOCAL LAW ENFORCEMENT OFFICIALS. 
+Follow safety instructions from local law enforcement officials. 
 
 
 
@@ -109,7 +115,7 @@ FOLLOW SAFETY INSTRUCTIONS FROM LOCAL LAW ENFORCEMENT OFFICIALS.
 
 #if(${list.contains(${bullets}, "heedEvacuationsCTA")})
 
-HEED ANY EVACUATION ORDERS AND FOLLOW ALL SAFETY PRECAUTIONS.
+Heed any evacuation orders and follow all safety precautions.
 
 
 

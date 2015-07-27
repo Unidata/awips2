@@ -117,7 +117,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Apr 28, 2015  #4027     randerso    Expunged Calendar from ActiveTableRecord, 
  *                                     fixed next ETN query to query for >= Jan 1
  * May 22, 2015 4522       randerso    Create proper primary key for ActiveTableRecord
- * 
+ * Jul 09, 2015 4500       rjpeter     Fix SQL Injection concern.
  * </pre>
  * 
  * @author njensen
@@ -743,12 +743,11 @@ public class ActiveTable {
             throws DataAccessLayerException {
         CoreDao dao = practiceDao;
         String sql = "delete from practice_activetable;";
-        dao.executeNativeSql(sql);
+        dao.executeSQLUpdate(sql);
 
-        sql = "delete from cluster_task where name ='"
-                + GetNextEtnUtil.getEtnClusterLockName(requestedSiteId,
-                        ActiveTableMode.PRACTICE) + "';";
-        dao.executeNativeSql(sql);
+        sql = "delete from cluster_task where name = :name";
+        dao.executeSQLUpdate(sql, "name", GetNextEtnUtil.getEtnClusterLockName(
+                requestedSiteId, ActiveTableMode.PRACTICE));
     }
 
     /**

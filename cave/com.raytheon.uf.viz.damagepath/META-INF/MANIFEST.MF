@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Damage Path
 Bundle-SymbolicName: com.raytheon.uf.viz.damagepath;singleton:=true
-Bundle-Version: 1.15.0.qualifier
+Bundle-Version: 1.15.2.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.14.6",
@@ -11,5 +11,11 @@ Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.14.6",
  com.raytheon.uf.common.geospatial;bundle-version="1.14.2",
  com.raytheon.uf.common.json;bundle-version="1.0.0",
  org.eclipse.core.runtime;bundle-version="3.8.0",
- com.raytheon.viz.ui;bundle-version="1.14.1"
+ com.raytheon.viz.ui;bundle-version="1.14.1",
+ com.raytheon.viz.awipstools;bundle-version="1.14.0",
+ com.raytheon.viz.radar;bundle-version="1.14.0",
+ javax.measure;bundle-version="1.0.0",
+ com.raytheon.uf.common.util;bundle-version="1.14.1",
+ com.raytheon.uf.common.damagepath;bundle-version="1.15.0"
 Export-Package: com.raytheon.uf.viz.damagepath
+Bundle-ClassPath: com.raytheon.uf.viz.damagepath.jar

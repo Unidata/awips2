@@ -15,13 +15,15 @@
 #                                                 and all other go to exportgrids/backup/.
 #    02/12/15        #4103         dgilling       Refactored to support multiple service
 #                                                 backup sites.
+#    04/28/15        #4427         dgilling       Refactored to support subdomains of the
+#                                                 primary domains.
 #
 ##############################################################################
 
 if [ ${#AWIPS_HOME} = 0 ]
 then
-        path_to_script=`readlink -f $0`
-		export AWIPS_HOME=$(dirname $(dirname $(dirname $(dirname  $path_to_script))))
+    path_to_script=`readlink -f $0`
+    export AWIPS_HOME=$(dirname $(dirname $(dirname $(dirname  $path_to_script))))
 fi
 
 # ARGUMENTS 
@@ -77,18 +79,18 @@ fi
 lock_status=$(isOperationInProgress "exportGrids" ${SITE})
 if [[ "${lock_status}" = "true" ]]
 then
-	echo "Cannot export grids for ${CAPS_SITE}.  Export grids process already in progress!  Cron will not run this hour."
-	exit 1
+    echo "Cannot export grids for ${CAPS_SITE}.  Export grids process already in progress!  Cron will not run this hour."
+    exit 1
 fi
 
-echo "IN_PROGRESS" > ${lockFile}
+markTaskInProgress ${lockFile}
 
 echo "Starting exporting grids..."
 
 #
 # If this is a non-wfo/non-rfc site, they may not have an edit area for clipping - handle it
 #
-if [ "$SVCBU_GRIDAREA" == "" ] ; then
+if [ -z "$SVCBU_GRIDAREA" ] ; then
    SVCBU_MASK=""
 else
    SVCBU_MASK="-m $SVCBU_GRIDAREA"
@@ -98,7 +100,6 @@ fi
 # The start time needs to be 6 hours prior to current time, and end time needs to be 6 hours after the 9th day time.
 starttime=`date -d "24 hours ago" +%Y%m%d`_`date -d "24 hours ago" +%H00`
 endtime=`date -d "+8 days 6 hours" +%Y%m%d`_`date -d "+8 days 6 hours" +%H00`
-#
 
 echo "Running ifpnetCDF..." 
 
@@ -110,7 +111,7 @@ then
 else
    DB_NAME=${CAPS_SITE}_GRID__Official_00000000_0000
 fi
-echo ${DB_NAME}
+echo "DB_NAME: ${DB_NAME}"
 
 # use PRIMARY_SITES setting to determine NETCDF_PATH
 IFS=',' read -ra PRI_SITES <<< "${PRIMARY_SITES}"
@@ -131,13 +132,13 @@ done
 
 NETCDF_PATH=${GFESUITE_HOME}/exportgrids/primary
 export NETCDF_TMP_PATH=/tmp/exportgrids
-if [ $EXPORT_FOR_PRIMARY = 0 ]
+if [ $EXPORT_FOR_PRIMARY -eq 0 ]
 then
    NETCDF_PATH=${GFESUITE_HOME}/exportgrids/backup
 fi
 
 if [ ! -d ${NETCDF_TMP_PATH} ]; then
-   mkdir ${NETCDF_TMP_PATH}
+   mkdir -p ${NETCDF_TMP_PATH}
    chmod 777 ${NETCDF_TMP_PATH}
 fi
 
@@ -146,95 +147,99 @@ fi
 # of element a site wants to include. We'll also check if the site has 
 # $SVCBU_TRIM_ELEMS variable set to 1. We will only do wx element trimming if 
 # this variable is set to 1. Otherwise, we'll continue to send all grids.
-NETCDF_SUCCESS=1
-
-if [ "${SVCBU_TRIM_ELEMS}" != "" -a "${SVCBU_TRIM_ELEMS}" = "1" ]
+wxflags=""
+if [ "${SVCBU_TRIM_ELEMS}" = "1" ]
 then
-   # Check if we have the file that has list of elements to trim for.
-   if [ -f ${IFPS_DATA}/svcbu_export_elements.${SITE} ]; then
-      # Building the -p arguments to ifpnetCDF.
-      wxflags=""
-      for elem in `cat ${IFPS_DATA}/svcbu_export_elements.${SITE}`
-      do
-         wxflags="$wxflags -p ${elem}"
-      done
-      #Now run ifpnetCDF with $wxflags as well as time flags.
-      ${GFESUITE_BIN}/ifpnetCDF -o ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf -h ${SVCBU_HOST} -r ${CDSPORT} -d ${DB_NAME} -k -t ${SVCBU_MASK} ${wxflags}
-      #check if the netcdf file is there;if not,exit
-      if [ $? -ne 0 ]
-      then
-         NETCDF_SUCCESS=0
-	     if [ "$1" != "-c" ] 
-	     then
-	        netcdf_error=`grep "Some of the requested time ranges are not in the inventory" $logfile`
-            if [ "$netcdf_error" != "" ]; then
-               NETCDF_SUCCESS=1
-            else
-               echo "ifpnetCDF failed. Export exits."
-               echo "FAILED" > ${lockFile}
-               exit 1
-            fi
-         fi
-      fi
-   else
-      echo "export_grids was not able to find ${IFPS_DATA}/svcbu_export_elements.${SITE} file."
-      echo "Without this file, ifpnetCDF will not know how to trim for needed weather elements."
-      echo "ifpnetCDF will run without doing any trimming."
-      #Starting ifpnetCDF to pack the grids (netcdf file is stored in the IFPS_LOG dir)
-      ${GFESUITE_BIN}/ifpnetCDF -o ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf -h $SVCBU_HOST -r ${CDSPORT} -d ${DB_NAME} -k -t ${SVCBU_MASK}
-      #check if the netcdf file is there;if not,exit
-      if [ $? -ne 0 ]
-      then
-         NETCDF_SUCCESS=0
-	     if [ "$1" != "-c" ]
-         then
-		    netcdf_error=`grep "Some of the requested time ranges are not in the inventory" $logfile`
-            if [ "$netcdf_error" != "" ]; then
-               NETCDF_SUCCESS=1
-            else
-		       echo "ifpnetCDF failed. Export exits."
-               echo "FAILED" > ${lockFile}
-               exit 1
-            fi
-	     fi	
-	  fi
-   fi
+    # Check if we have the file that has list of elements to trim for.
+    if [ -f ${IFPS_DATA}/svcbu_export_elements.${SITE} ]; then
+        for elem in `cat ${IFPS_DATA}/svcbu_export_elements.${SITE}`
+        do
+            wxflags="$wxflags -p ${elem}"
+        done
+    else
+        echo "export_grids was not able to find ${IFPS_DATA}/svcbu_export_elements.${SITE} file."
+        echo "Without this file, ifpnetCDF will not know how to trim for needed weather elements."
+        echo "ifpnetCDF will run without doing any trimming."
+    fi
+fi
+
+SUBDOMAIN_STR=$(eval "echo \${SUBDOMAINS_$CAPS_SITE}")
+if [ -z "${SUBDOMAIN_STR}" ]
+then
+    declare -a EXPORT_SITES=( "${CAPS_SITE}" )
+    declare -a MASKS=( "${SVCBU_MASK}" )
 else
-   # NOTE: This is the case when no wx elems trimming will done. ifpnetCDF file will contain everything.
-   #Starting ifpnetCDF to pack the grids (netcdf file is stored in the IFPS_LOG dir)
-   ${GFESUITE_BIN}/ifpnetCDF -o ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf -h $SVCBU_HOST -r ${CDSPORT} -d ${DB_NAME} -k -t ${SVCBU_MASK}
-   #check if the netcdf file is there;if not,exit before we call msg_send
-   if [ $? -ne 0 ]
-   then
-      NETCDF_SUCCESS=0
-	  if [ "$1" != "-c" ]
-      then
-	     netcdf_error=`grep "Some of the requested time ranges are not in the inventory" $logfile`
-	     if [ "$netcdf_error" != "" ]; then
-	        NETCDF_SUCCESS=1
-	     else
-	        echo "ifpnetCDF failed."
-	        echo "FAILED" > ${lockFile}
-	        exit 1
-	     fi
-	  fi
-   fi
+    IFS=',' read -ra EXPORT_SITES <<< "${SUBDOMAIN_STR}"
+    echo "Found sub-domains ${EXPORT_SITES[@]} for ${CAPS_SITE}"
+    MASKS=()
+    for siteid in "${EXPORT_SITES[@]}"
+    do
+        subdomain=`echo ${siteid} | tr [a-z] [A-Z]`
+        if [ -z "$SVCBU_GRIDAREA" ]
+        then
+            MASKS+=( "" )
+        else
+            MASKS+=( "-m ${SVCBU_GRIDAREA}_${subdomain}" )
+        fi
+    done
 fi
 
-if [ $NETCDF_SUCCESS = 1 ] 
+EXPORT_SUCCESS=1
+for (( i=0; i<${#EXPORT_SITES[@]}; i++ ));
+do
+    DOMAIN_SUCCESS=1
+    site_id=${EXPORT_SITES[$i]}
+    site_id_lc=`echo ${site_id} | tr '[A-Z]' '[a-z]'`
+    mask=${MASKS[$i]}
+    echo "Export grids for domain ${site_id} using mask: ${mask}"
+    
+    # Override output site ID if exporting for subdomain
+    IFPNETCDF_FLAGS="-o ${NETCDF_TMP_PATH}/${site_id_lc}Grd.netcdf -h $SVCBU_HOST -r ${CDSPORT} -d ${DB_NAME} -k -t ${mask} ${wxflags}"
+    if [ "${site_id}" != "${CAPS_SITE}" ]
+    then
+        IFPNETCDF_FLAGS="${IFPNETCDF_FLAGS} -S ${site_id}"
+    fi
+
+    # Starting ifpnetCDF to pack the grids
+    ${GFESUITE_BIN}/ifpnetCDF ${IFPNETCDF_FLAGS}
+    
+    if [ $? -ne 0 ]
+    then
+        DOMAIN_SUCCESS=0
+        if [ "$1" != "-c" ]
+        then
+            netcdf_error=`grep "Some of the requested time ranges are not in the inventory" $logfile`
+            if [ -n "$netcdf_error" ]; then
+                DOMAIN_SUCCESS=1
+            else
+                echo "ifpnetCDF failed for site ${site_id}."
+            fi
+        fi    
+    fi
+    
+    if [ $DOMAIN_SUCCESS -eq 1 ] 
+    then
+        echo "Copying ${NETCDF_TMP_PATH}/${site_id_lc}Grd.netcdf to ${NETCDF_PATH}/${site_id_lc}Grd.netcdf"
+        cp ${NETCDF_TMP_PATH}/${site_id_lc}Grd.netcdf ${NETCDF_PATH}/${site_id_lc}Grd.netcdf
+    else
+        EXPORT_SUCCESS=0
+    fi
+
+    if [ -f ${NETCDF_TMP_PATH}/${site_id_lc}Grd.netcdf ]
+    then
+        echo "Removing ${NETCDF_TMP_PATH}/${site_id_lc}Grd.netcdf"
+        rm -f ${NETCDF_TMP_PATH}/${site_id_lc}Grd.netcdf
+    fi
+done
+
+if [ $EXPORT_SUCCESS -eq 1 ] 
 then
-   echo "Copying ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf to ${NETCDF_PATH}/${SITE}Grd.netcdf"
-   cp ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf ${NETCDF_PATH}/${SITE}Grd.netcdf
+    # Completed successfully
+    markTaskSuccess ${lockFile}
+    echo "All done. Export Gridded data has completed"
+    exit 0
+else
+    markTaskFailed ${lockFile}
+    echo "Export Gridded data has completed with some errors."
+    exit 1
 fi
-
-if [ -f ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf ]
-then
-   echo "Removing ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf"
-   rm -f ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf
-fi
-
-echo "SUCCESS" > ${lockFile}
-
-# Completed successfully
-echo "All done. Export Gridded data has completed"
-exit 0

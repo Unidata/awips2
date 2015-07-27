@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import jep.NDArray;
+
 import com.raytheon.uf.common.cache.CacheException;
 import com.raytheon.uf.common.cache.CacheFactory;
 import com.raytheon.uf.common.cache.ICache;
@@ -55,7 +57,8 @@ import com.raytheon.uf.common.time.TimeRange;
  * Jan 30, 2013 15719      jdynina      Allowed more than 128 char wx string
  * Aug 13, 2013  1571      randerso     Removed toString to stop it from hanging the 
  *                                      debugger when trying to display the grid
- * Oct 29, 2013  2476      njensen      Updated getNumpy() and added getKeyList()
+ * Oct 29, 2013 2476       njensen      Updated getNumpy() and added getKeyList()
+ * Apr 23, 2015 4259       njensen      Updated for new JEP API
  * 
  * </pre>
  * 
@@ -814,18 +817,16 @@ public class WeatherGridSlice extends AbstractGridSlice {
     }
 
     @Override
-    public Object[] getNumpy() {
-        return new Object[] { getWeatherGrid().getBuffer().array() };
-    }
-
-    @Override
-    public int getNumpyX() {
-        return getWeatherGrid().getXdim();
-    }
-
-    @Override
-    public int getNumpyY() {
-        return getWeatherGrid().getYdim();
+    public Object getNDArray() {
+        /*
+         * FIXME We reverse the x and y dimensions because that's what AWIPS 1
+         * did and that makes the pre-existing python code compatible. Java
+         * ordering is x,y while python is ordering is y,x. It's confusing and
+         * questionable at best so someday someone should correct all that. Good
+         * luck.
+         */
+        return new NDArray<byte[]>(getWeatherGrid().getBytes(),
+                getWeatherGrid().getYdim(), getWeatherGrid().getXdim());
     }
 
     @Override

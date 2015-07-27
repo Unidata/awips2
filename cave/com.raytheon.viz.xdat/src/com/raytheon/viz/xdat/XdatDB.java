@@ -24,32 +24,27 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.SQLWarning;
-import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
-
-import org.postgresql.util.PSQLException;
 
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
+import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.HydroConstants;
 
 /**
- * This class acquire all xdat tokens.
+ * XdatDB manager. This class acquire all xdat tokens.
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -60,6 +55,8 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  *                         Duff
  * 10 Feb 2009             wkwock      Added functions and clean up.
  * 12 Aug 2014  3049       bkowal      Close the BufferedReader when finished.
+ * 21 May 2015  4501       skorolev    Changed a way of database connection. Got rid of Vector.
+ * 
  * </pre>
  * 
  * @author wkwock
@@ -70,54 +67,15 @@ public class XdatDB {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(XdatDB.class);
 
-    /**
-     * Database connection.
-     */
-    private Connection conn;
-
-    /**
-     * Query statement.
-     */
-    private Statement queryStmt;
+    public static final String IHFS = "ihfs";
 
     private Map<String, String> peMap = null;
 
     /**
      * Constructor
-     * 
-     * @param shell
-     *            , URL
      */
-    public XdatDB(String URL) {
-        try {
-            Class.forName("org.postgresql.Driver");
-        } catch (ClassNotFoundException cnfe) {
-            cnfe.printStackTrace();
-        }
+    public XdatDB() {
 
-        try {
-
-            conn = DriverManager.getConnection(URL);
-
-            // Print all warnings
-            for (SQLWarning warn = conn.getWarnings(); warn != null; warn = warn
-                    .getNextWarning()) {
-                conn = null;
-            }
-
-            if (conn != null) {
-                queryStmt = conn.createStatement();
-            }
-
-        } catch (PSQLException pe) {
-            conn = null;
-            pe.printStackTrace();
-        } catch (SQLException se) {
-            conn = null;
-            se.printStackTrace();
-        }
-
-        // peMap = new ReadPeMap();
     }
 
     /**
@@ -125,40 +83,26 @@ public class XdatDB {
      * 
      * @param query
      *            SQL statement.
-     * @return Vector Rows of data.
+     * @return List Rows of data.
      */
-    public Vector<String> runQuery(String query) {
-        Vector<String> result = new Vector<String>();
-
-        if (conn == null) {
-            return null;
-        }
-
+    public List<String> runQuery(String query) {
+        List<String> result = new ArrayList<String>();
         try {
-            ResultSet rs = queryStmt.executeQuery(query);
-
-            if (rs == null) {
-                return null;
-            }
-
-            while (rs.next()) {
-
-                StringBuilder strBld = new StringBuilder();
-
-                int numberOfCols = rs.getMetaData().getColumnCount();
-
-                for (int i = 1; i <= numberOfCols; i++) {
-                    strBld.append(rs.getString(i)).append(" ");
+            List<Object[]> rs = DirectDbQuery.executeQuery(query, IHFS,
+                    QueryLanguage.SQL);
+            if (!rs.isEmpty()) {
+                for (Object[] obj : rs) {
+                    if (obj[0] != null) {
+                        result.add(((String) obj[0]).trim());
+                    }
                 }
-
-                result.add(strBld.toString().trim());
+            } else {
+                result = null;
             }
-        } catch (SQLException se) {
-
-            se.printStackTrace();
-            return null;
+        } catch (VizException e) {
+            statusHandler
+                    .handle(Priority.PROBLEM, "Error querying database", e);
         }
-
         return result;
     }
 
@@ -168,42 +112,37 @@ public class XdatDB {
      * 
      * @param query
      *            SQL query.
-     * @return Vector (rows) of String arrays (columns of data).
+     * @return List (rows) of String arrays (columns of data).
      */
-    public Vector<String[]> runDetailedQuery(String query) {
-        Vector<String[]> result = null;
-        // If the database connection is null then return null.
-        if (conn == null) {
-            return null;
-        }
+    public List<String[]> runDetailedQuery(String query) {
+        List<String[]> result = null;
 
         try {
-            ResultSet rs = queryStmt.executeQuery(query);
-
-            if (rs == null) {
-                return null;
-            }
-
-            while (rs.next()) {
-
+            List<Object[]> rs = DirectDbQuery.executeQuery(query, IHFS,
+                    QueryLanguage.SQL);
+            if (!rs.isEmpty()) {
                 if (result == null) {
-                    result = new Vector<String[]>();
+                    result = new ArrayList<String[]>();
                 }
+                Iterator<Object[]> rsiterator = rs.iterator();
+                while (rsiterator.hasNext()) {
+                    Object[] row = rsiterator.next();
+                    int numberOfCols = row.length;
+                    String[] data = new String[numberOfCols];
+                    for (int i = 0; i < numberOfCols; i++) {
+                        if (row[i] != null) {
+                            data[i] = row[i].toString();
+                        }
 
-                // Get the number of columns in the row of data.
-                int numberOfCols = rs.getMetaData().getColumnCount();
-                String[] data = new String[numberOfCols];
-
-                for (int i = 0; i < numberOfCols; i++) {
-                    data[i] = rs.getString(i + 1);
+                    }
+                    result.add(data);
                 }
-                result.add(data);
             }
-        } catch (SQLException se) {
-            se.printStackTrace();
+        } catch (VizException e) {
+            statusHandler
+                    .handle(Priority.PROBLEM, "Error querying database", e);
             return null;
         }
-
         return result;
     }
 
@@ -223,23 +162,23 @@ public class XdatDB {
             if (table.compareTo("_no_table_") != 0) {
                 String queryStr = "SELECT num_hours_host from purgedyndata where table_name = '"
                         + table + "'";
-
-                ResultSet rs;
+                List<Integer> hours;
                 try {
-                    rs = queryStmt.executeQuery(queryStr);
-                    if (rs == null) {
-                        numHours = 0;
-                    } else {
-                        if (rs.next()) {
-                            numHours = rs.getInt(1);
-                        }
+                    List<Object[]> rs = DirectDbQuery.executeQuery(queryStr,
+                            IHFS, QueryLanguage.SQL);
+                    hours = new ArrayList<Integer>(rs.size());
+                    for (Object[] obj : rs) {
+                        hours.add((Integer) obj[0]);
                     }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-
-                if (numHours > maxNumHours) {
-                    maxNumHours = numHours;
+                    if (hours != null && hours.size() > 1) {
+                        numHours = hours.get(0);
+                    }
+                    if (numHours > maxNumHours) {
+                        maxNumHours = numHours;
+                    }
+                } catch (VizException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Error to get number of observation days", e);
                 }
             }
         }
@@ -259,11 +198,9 @@ public class XdatDB {
      */
     public String[] getStateList() {
         String states[];
-        // select DISTINCT state from location where post = 1 and state !='XX'
-        // order by state
 
-        Vector<String> stateVector = runQuery("select DISTINCT state from location where post = 1 and state !='XX' order by state");
-        states = stateVector.toArray(new String[stateVector.size()]);
+        List<String> stateList = runQuery("select DISTINCT state from location where post = 1 and state !='XX' order by state");
+        states = stateList.toArray(new String[stateList.size()]);
 
         return states;
     }
@@ -274,10 +211,9 @@ public class XdatDB {
      * @param stateName
      *            2 Letter state abbreviation.
      * @param pe
-     * @return Vector<String[]> Vector (rows) of String arrays (columns) of
-     *         data.
+     * @return List<String[]> List (rows) of String arrays (columns) of data.
      */
-    public Vector<String[]> searchIds(String stateName, String pe) {
+    public List<String[]> searchIds(String stateName, String pe) {
 
         String queryStr = "select distinct location.lid, des from location, latestobsvalue "
                 + "where location.lid = latestobsvalue.lid and location.state = '"
@@ -286,7 +222,7 @@ public class XdatDB {
                 + pe
                 + "' order by location.lid";
 
-        Vector<String[]> idVector = runDetailedQuery(queryStr);
+        List<String[]> idVector = runDetailedQuery(queryStr);
 
         return idVector;
     }
@@ -298,7 +234,7 @@ public class XdatDB {
      * @param peType
      * @return ID and Destination from location table
      */
-    public Vector<String[]> search_string_list(String searchStr, String peType) {
+    public List<String[]> search_string_list(String searchStr, String peType) {
         String queryStr = "select distinct location.lid, location.des from location, latestobsvalue "
                 + "where location.lid = latestobsvalue.lid and (location.lid like '%"
                 + searchStr
@@ -308,7 +244,7 @@ public class XdatDB {
                 + peType
                 + "' order by location.lid";
 
-        Vector<String[]> idVector = runDetailedQuery(queryStr);
+        List<String[]> idVector = runDetailedQuery(queryStr);
 
         return idVector;
     }
@@ -318,10 +254,9 @@ public class XdatDB {
      * 
      * @param dateStr
      *            Date in a String format.
-     * @return Vector<String[]> Vector (rows) of String arrays (columns) of
-     *         data.
+     * @return List<String[]> List (rows) of String arrays (columns) of data.
      */
-    public Vector<String[]> getAboveFsSearch(String dateStr) {
+    public List<String[]> getAboveFsSearch(String dateStr) {
 
         String query = "select height.lid, height.pe, height.dur, height.ts, height.extremum, "
                 + "height.obstime, height.value, height.product_id, riverstat.fs "
@@ -332,7 +267,7 @@ public class XdatDB {
                 + "' and height.value >= riverstat.fs order by height.lid, "
                 + "height.obstime desc";
 
-        Vector<String[]> aboveFsVector = runDetailedQuery(query);
+        List<String[]> aboveFsVector = runDetailedQuery(query);
 
         return aboveFsVector;
     }
@@ -342,15 +277,14 @@ public class XdatDB {
      * 
      * @param unknownTable
      *            Unknown table name.
-     * @return Vector<String[]> Vector (rows) of String arrays (columns) of
-     *         data.
+     * @return List<String[]> List (rows) of String arrays (columns) of data.
      */
-    public Vector<String[]> getUnknownSites(String unknownTable) {
+    public List<String[]> getUnknownSites(String unknownTable) {
 
         String query = "select lid, product_id, producttime from "
                 + unknownTable + " order by lid, producttime desc";
         System.out.println("Query = [" + query + "]");
-        Vector<String[]> unknownSitesVector = runDetailedQuery(query);
+        List<String[]> unknownSitesVector = runDetailedQuery(query);
 
         return unknownSitesVector;
     }
@@ -364,10 +298,9 @@ public class XdatDB {
      *            Starting date string.
      * @param endDateStr
      *            Ending date string.
-     * @return Vector<String[]> Vector (rows) of String arrays (columns) of
-     *         data.
+     * @return List<String[]> List (rows) of String arrays (columns) of data.
      */
-    public Vector<String[]> getRejectedData(String peStr, String startDateStr,
+    public List<String[]> getRejectedData(String peStr, String startDateStr,
             String endDateStr) {
 
         String query = "select lid, pe, dur, ts, extremum, validtime, postingtime, value "
@@ -379,7 +312,7 @@ public class XdatDB {
                 + endDateStr
                 + " 23:59:59' order by lid, validtime desc";
 
-        Vector<String[]> rejectedDataVector = runDetailedQuery(query);
+        List<String[]> rejectedDataVector = runDetailedQuery(query);
 
         return rejectedDataVector;
     }
@@ -387,14 +320,13 @@ public class XdatDB {
     /**
      * Get the sites turned off.
      * 
-     * @return Vector<String[]> Vector (rows) of String arrays (columns) of
-     *         data.
+     * @return List<String[]> List (rows) of String arrays (columns) of data.
      */
-    public Vector<String[]> getSitesTurnedOffData() {
+    public List<String[]> getSitesTurnedOffData() {
 
         String query = "select lid, county, state, des from location where post = 0 order by state, lid";
 
-        Vector<String[]> sitesTurnedOffVector = runDetailedQuery(query);
+        List<String[]> sitesTurnedOffVector = runDetailedQuery(query);
 
         return sitesTurnedOffVector;
 
@@ -411,8 +343,7 @@ public class XdatDB {
      *            Starting date.
      * @param endDateStr
      *            Ending date.
-     * @return Vector<String[]> Vector (rows) of String arrays (columns) of
-     *         data.
+     * @return List<String[]> List (rows) of String arrays (columns) of data.
      */
     public String[] getSearchData(String lidStr, String peStr,
             String startDateStr, String endDateStr) {
@@ -426,7 +357,7 @@ public class XdatDB {
                 + endDateStr
                 + " 23:59:59' order by obstime desc";
 
-        Vector<String> searchDataVector = runQuery(query);
+        List<String> searchDataVector = runQuery(query);
 
         if (searchDataVector != null) {
             searchDataBuf = new String[searchDataVector.size()];
@@ -450,7 +381,7 @@ public class XdatDB {
 
         String locationDes = "";
         String query = "select des from location where lid = '" + ID + "'";
-        Vector<String> searchDataVector = runQuery(query);
+        List<String> searchDataVector = runQuery(query);
 
         if (searchDataVector != null) {
 
@@ -471,13 +402,12 @@ public class XdatDB {
      *            Starting Date
      * @param endDate
      *            Ending Date
-     * @return Vector<String[]> Vector (rows) of String arrays (columns) of
-     *         data.
+     * @return List<String[]> List (rows) of String arrays (columns) of data.
      */
-    public Vector<String[]> getGroupData(String[] input, String startDate,
+    public List<String[]> getGroupData(String[] input, String startDate,
             String endDate) {
 
-        Vector<String[]> returnVec = new Vector<String[]>();
+        ArrayList<String[]> returnVec = new ArrayList<String[]>();
         String lid = null;
         String pe = null;
         StringBuffer sql = new StringBuffer();
@@ -489,7 +419,7 @@ public class XdatDB {
 
         sql.append("select des from location where lid = '" + lid + "'");
 
-        Vector<String[]> rs = runDetailedQuery(sql.toString());
+        List<String[]> rs = runDetailedQuery(sql.toString());
         sql.setLength(0);
 
         data = new String[2];
@@ -502,7 +432,7 @@ public class XdatDB {
         } else {
             data[1] = "";
         }
-        /* Add row to return Vector */
+        /* Add row to return List */
         returnVec.add(data);
 
         // Determine the table to query
@@ -529,10 +459,10 @@ public class XdatDB {
         double nextValue = 0.0;
         double value = 0.0;
 
-        /* Need to calculate the chage */
+        /* Need to calculate the change */
         if ((rs != null) && (rs.size() > 0)) {
             for (int j = 0; j < rs.size(); j++) { // Vector
-                ArrayList<String> list = new ArrayList<String>();
+                List<String> list = new ArrayList<String>();
                 list.add(lid);
                 list.add(pe);
                 nextValue = HydroConstants.MISSING_VALUE;
@@ -574,7 +504,6 @@ public class XdatDB {
                     } else {
                         list.add(row[k]);
                     }
-                    // returnVec.add(list.toArray(new String[list.size()]));
                 }
                 returnVec.add(list.toArray(new String[list.size()]));
             }
@@ -594,10 +523,9 @@ public class XdatDB {
      *            Start date.
      * @param endDate
      *            End date.
-     * @return Vector<String[]> Vector (rows) of String arrays (columns) of
-     *         data.
+     * @return List<String[]> List (rows) of String arrays (columns) of data.
      */
-    public Vector<String[]> getListData(String id, String peStr,
+    public List<String[]> getListData(String id, String peStr,
             String startDate, String endDate) {
 
         String dbTable = getPeMap().get(peStr);
@@ -622,7 +550,7 @@ public class XdatDB {
                 + " 00:00:00' and '"
                 + endDate + " 23:59:59' order by obstime desc";
 
-        Vector<String[]> listDataVector = runDetailedQuery(query);
+        List<String[]> listDataVector = runDetailedQuery(query);
 
         return listDataVector;
     }
@@ -634,9 +562,9 @@ public class XdatDB {
      *            The ID.
      * @param pe
      *            Physical Element.
-     * @return The SHEF parameter code.
+     * @return List<String> List The SHEF parameter code.
      */
-    public String[] getShefParamCode(String id, String pe) {
+    public List<String> getShefParamCode(String id, String pe) {
 
         String query = "select ingestfilter.ts, ingestfilter.extremum, shefdur.durcode, shefdur.name "
                 + "from ingestfilter, shefdur where  ingestfilter.lid = '"
@@ -645,38 +573,28 @@ public class XdatDB {
                 + pe
                 + "' and ingestfilter.ts like 'R%' and ingestfilter.dur = shefdur.dur";
 
-        Vector<String> result = new Vector<String>();
-
-        if (conn == null) {
-            return null;
-        }
+        List<String> result = new ArrayList<String>();
 
         try {
-            ResultSet rs = queryStmt.executeQuery(query);
-            if (rs == null) {
+            List<Object[]> rs = DirectDbQuery.executeQuery(query, IHFS,
+                    QueryLanguage.SQL);
+            if (!rs.isEmpty()) {
+                Iterator<Object[]> shefIterator = rs.iterator();
+                while (shefIterator.hasNext()) {
+                    Object[] row = shefIterator.next();
+                    String strBuf = pe + row[2].toString() + row[0].toString()
+                            + row[1].toString() + " (" + row[3].toString()
+                            + ")";
+                    result.add(strBuf);
+                }
+            } else {
                 return null;
             }
-
-            while (rs.next()) {
-                String strBuf = pe + rs.getString(3) + rs.getString(1)
-                        + rs.getString(2) + " (" + rs.getString(4) + ")";
-                result.add(strBuf);
-            }
-        } catch (SQLException se) {
-            se.printStackTrace();
-            return null;
+        } catch (VizException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error to get the SHEF parameter code.", e);
         }
-
-        String paramCode[] = null;
-
-        if (result.size() > 0) {
-            paramCode = new String[result.size()];
-
-            for (int i = 0; i < result.size(); i++) {
-                paramCode[i] = result.get(i);
-            }
-        }
-        return paramCode;
+        return result;
     }
 
     /**
@@ -684,7 +602,7 @@ public class XdatDB {
      * 
      * @return Vector<String> Array of coop precip data.
      */
-    public Vector<String[]> getCoopPrecipData(String startDate) {
+    public List<String[]> getCoopPrecipData(String startDate) {
 
         String query = "select lid, dur, ts, extremum, obstime, product_id, value "
                 + "from rawpp where (pe = 'PP' and obstime between '"
@@ -695,7 +613,7 @@ public class XdatDB {
                 + " 14:00:00' and value >= 0.00 and (dur = 2001 or dur = 5004)) "
                 + "order by value desc,lid";
 
-        Vector<String[]> precipDataVector = runDetailedQuery(query);
+        List<String[]> precipDataVector = runDetailedQuery(query);
 
         return precipDataVector;
     }
@@ -738,37 +656,26 @@ public class XdatDB {
      * Get precipitation ID and value
      * 
      * @param obsDate
-     * @return Vector<String[]> Array of ID and value from rawpc table.
+     * @return HashMap<String, Double> of ID and value from rawpc table.
      */
     public HashMap<String, Double> getPrecipLidAndValue(String obsDate) {
         String query = "select lid, value from rawpc where (pe = 'PC' and obstime = '"
                 + obsDate + "' and value >= 0.00)";
-
-        // If the database connection is null then return null.
-        if (conn == null) {
-            return null;
-        }
-
         HashMap<String, Double> results = new HashMap<String, Double>();
         try {
-            ResultSet rs = queryStmt.executeQuery(query);
-
-            if (rs == null) {
+            List<Object[]> rs = DirectDbQuery.executeQuery(query, IHFS,
+                    QueryLanguage.SQL);
+            if (!rs.isEmpty()) {
+                // Get the number of columns in the row of data.
+                int numberOfCols = rs.get(0).length;
+                results = new HashMap<String, Double>(numberOfCols);
+            } else {
                 return null;
             }
-
-            // Get the number of columns in the row of data.
-            int numberOfCols = rs.getMetaData().getColumnCount();
-            results = new HashMap<String, Double>(numberOfCols);
-
-            while (rs.next()) {
-                results.put(rs.getString(1), rs.getDouble(2));
-            }
-        } catch (SQLException se) {
-            se.printStackTrace();
-            return null;
+        } catch (VizException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error to get precipitation ID and value.", e);
         }
-
         return results;
     }
 
@@ -776,21 +683,21 @@ public class XdatDB {
      * Get precipitation value
      * 
      * @param obsDate
-     * @return Vector<String[]> Array value from rawpc table.
+     * @return List<String[]> Array of values from rawpc table.
      */
-    public Vector<String[]> getPrecipValues(String obstime, String lid,
+    public List<String[]> getPrecipValues(String obstime, String lid,
             double value) {
         String query = "select value from rawpc where (lid = '" + lid
                 + "' and pe = 'PC' and obstime = '" + obstime
                 + "' and value <= " + value + ")";
 
-        Vector<String[]> precipValueVector = runDetailedQuery(query);
+        List<String[]> precipValueVector = runDetailedQuery(query);
 
         return precipValueVector;
     }
 
     /**
-     * update the rejectteddata table.
+     * Update the rejected data table.
      * 
      * @param lid
      * @param pe
@@ -819,9 +726,8 @@ public class XdatDB {
         final int QC_MANUAL_FAILED = 123;
         Long quality_code = new Long(0);
 
-        set_qccode(QC_MANUAL_FAILED, quality_code);// set_qccode should be
-        // defined in some other
-        // package
+        set_qccode(QC_MANUAL_FAILED, quality_code);
+        // set_qccode should be defined in some other package
 
         GregorianCalendar postTime = new GregorianCalendar();
         SimpleDateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss",
@@ -836,27 +742,23 @@ public class XdatDB {
                 + "', " + quality_code + ", '" + rejected_type + "', '"
                 + userid + "')";
 
-        if (conn == null) {
-            return;
-        }
-
         try {
-            queryStmt.executeUpdate(query);
-        } catch (SQLException se) {
-            se.printStackTrace();
-            return;
+            DirectDbQuery.executeQuery(query, IHFS, QueryLanguage.SQL);
+        } catch (VizException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error to update the rejected data table.", e);
         }
     }
 
     /**
-     * get durcode from shefdur table
+     * Get durcode from shefdur table
      * 
      * @param dur
      * @return durcode from shefdur table
      */
     public String getDurcode(int dur) {
         String query = "select durcode from shefdur where dur=" + dur;
-        Vector<String[]> durcodeVector = runDetailedQuery(query);
+        List<String[]> durcodeVector = runDetailedQuery(query);
         if (durcodeVector != null) {
             return durcodeVector.get(0)[0];
         }
@@ -962,18 +864,5 @@ public class XdatDB {
         }
 
         return (status);
-    }
-
-    /**
-     * return whether the database has connected.
-     * 
-     * @return true/ false
-     */
-    public boolean isDBConnected() {
-        if (conn == null) {
-            return false;
-        }
-
-        return true;
     }
 }

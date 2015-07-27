@@ -31,6 +31,9 @@
 #    01/22/14         2667         bclement       preserved milliseconds in string representation 
 #    03/03/14         2673         bsteffen       allow construction using a Date for refTime
 #    06/24/14         3096         mnash          implement __cmp__
+#    06/24/15         4480         dgilling       implement __hash__ and __eq__,
+#                                                 replace __cmp__ with rich comparison 
+#                                                 operators.
 #
 
 import calendar
@@ -66,9 +69,7 @@ class DataTime(object):
                 self.refTime = long(self.refTime.getTime())
             else:
                 self.refTime = long(refTime)
-            dateObj = Date()
-            dateObj.setTime(self.refTime)
-            self.refTime = dateObj
+            self.refTime = Date(self.refTime)
             
             if self.validPeriod is None:
                 validTimeMillis = self.refTime.getTime() + long(self.fcstTime * 1000)
@@ -112,38 +113,6 @@ class DataTime(object):
     def setLevelValue(self, levelValue):
         self.levelValue = numpy.float64(levelValue)
     
-    def __cmp__(self, other):
-        if other is None :
-            return 1
-        
-        # compare the valid times, which are the ref times + forecast times
-        validTimeCmp = cmp(self.getRefTime().getTime() + self.getFcstTime(),
-                           other.getRefTime().getTime() + other.getFcstTime())
-        if validTimeCmp != 0 :
-            return validTimeCmp
-        
-        # compare the forecast times
-        fcstTimeCmp = cmp(self.getFcstTime(), other.getFcstTime())
-        if fcstTimeCmp != 0 :
-            return fcstTimeCmp
-        
-        # compare the level values
-        levelCmp = cmp(self.getLevelValue(), other.getLevelValue())
-        if levelValue != 0 :
-            return levelValue
-        
-        # compare the valid periods
-        period1 = self.getValidPeriod()
-        period2 = other.getValidPerid()
-        
-        if period1 is None :
-            return -1
-        elif period2 is None :
-            return 1
-        
-        return cmp(period1.getDuration(), period2.getDuration())
-        
-            
     def __str__(self):
         buffer = StringIO.StringIO()
         
@@ -172,3 +141,86 @@ class DataTime(object):
         strVal = buffer.getvalue()
         buffer.close()
         return strVal
+
+    def __repr__(self):
+        return "<DataTime instance: " + str(self) + " >"
+
+    def __hash__(self):
+        hashCode = hash(self.refTime) ^ hash(self.fcstTime)
+        if self.validPeriod is not None and self.validPeriod.isValid():
+            hashCode ^= hash(self.validPeriod.getStart()) 
+            hashCode ^= hash(self.validPeriod.getEnd()) 
+        hashCode ^= hash(self.levelValue)        
+        return hashCode
+    
+    def __eq__(self, other):
+        if type(self) != type(other):
+            return False
+        
+        if other.getRefTime() is None:
+            return self.fcstTime == other.fcstTime
+        
+        dataTime1 = (self.refTime, self.fcstTime, self.validPeriod, self.levelValue)
+        dataTime2 = (other.refTime, other.fcstTime, other.validPeriod, other.levelValue)
+        return dataTime1 == dataTime2
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __lt__(self, other):
+        if type(self) != type(other):
+            return NotImplemented
+
+        myValidTime = self.getRefTime().getTime() + self.getFcstTime()
+        otherValidTime = other.getRefTime().getTime() + other.getFcstTime()
+        if myValidTime < otherValidTime:
+            return True
+
+        if self.fcstTime < other.fcstTime:
+            return True
+
+        if self.levelValue < other.levelValue:
+            return True
+
+        myValidPeriod = self.validPeriod
+        otherValidPeriod = other.validPeriod
+        if myValidPeriod != otherValidPeriod:
+            if myValidPeriod.duration() < otherValidPeriod.duration():
+                return True
+            return myValidPeriod.getStartInMillis() < otherValidPeriod.getStartInMillis()
+        return False
+    
+    def __le__(self, other):
+        if type(self) != type(other):
+            return NotImplemented
+        
+        return self.__lt__(other) or self.__eq__(other)
+    
+    def __gt__(self, other):
+        if type(self) != type(other):
+            return NotImplemented
+
+        myValidTime = self.getRefTime().getTime() + self.getFcstTime()
+        otherValidTime = other.getRefTime().getTime() + other.getFcstTime()
+        if myValidTime > otherValidTime:
+            return True
+
+        if self.fcstTime > other.fcstTime:
+            return True
+
+        if self.levelValue > other.levelValue:
+            return True
+
+        myValidPeriod = self.validPeriod
+        otherValidPeriod = other.validPeriod
+        if myValidPeriod != otherValidPeriod:
+            if myValidPeriod.duration() > otherValidPeriod.duration():
+                return True
+            return myValidPeriod.getStartInMillis() > otherValidPeriod.getStartInMillis()
+        return False
+    
+    def __ge__(self, other):
+        if type(self) != type(other):
+            return NotImplemented
+        
+        return self.__gt__(other) or self.__eq__(other)

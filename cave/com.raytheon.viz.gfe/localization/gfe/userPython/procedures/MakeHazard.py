@@ -12,6 +12,7 @@
 #                                      level of site customization
 #  Apr 09,2012 436        randerso     Merged RNK's MakeHazards_Elevation procedure
 #  Feb 12,2014 17058      ryu          Extend converter for Collections$EmptyList objects.
+#  Apr 23, 2015 4259      njensen      Updated for new JEP API
 #
 # Author: randerso
 # ----------------------------------------------------------------------------
@@ -305,7 +306,7 @@ def converter(obj):
     import TimeRange
     retVal = None
 
-    objtype = obj.jclassname
+    objtype = obj.java_name
     if objtype == "java.util.Date":
         retVal = AbsTime.AbsTime(obj)
     elif objtype == "java.util.Collections$EmptyList":

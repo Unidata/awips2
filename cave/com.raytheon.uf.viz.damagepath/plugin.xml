@@ -4,16 +4,28 @@
 <extension
          point="com.raytheon.viz.ui.contextualMenu">
       <contextualMenu
+            actionClass="com.raytheon.uf.viz.damagepath.NewTornadoDamagePathAction"
+            capabilityClass="com.raytheon.uf.viz.damagepath.DamagePathLayer"
+            name="New Tornado Damage Path"
+            sortID="4">
+      </contextualMenu>
+      <contextualMenu
+            actionClass="com.raytheon.uf.viz.damagepath.ExportToLdadAction"
+            capabilityClass="com.raytheon.uf.viz.damagepath.DamagePathLayer"
+            name="Export to LDAD"
+            sortID="5">
+      </contextualMenu>
+      <contextualMenu
             actionClass="com.raytheon.uf.viz.damagepath.ExportDamagePathAction"
             capabilityClass="com.raytheon.uf.viz.damagepath.DamagePathLayer"
-            name="Export GeoJSON"
-            sortID="3">
+            name="Export to File"
+            sortID="6">
       </contextualMenu>
       <contextualMenu
             actionClass="com.raytheon.uf.viz.damagepath.ImportDamagePathAction"
             capabilityClass="com.raytheon.uf.viz.damagepath.DamagePathLayer"
-            name="Import GeoJSON"
-            sortID="4">
+            name="Import from File"
+            sortID="7">
       </contextualMenu>
    </extension>
 </plugin>

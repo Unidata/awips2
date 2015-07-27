@@ -37,6 +37,7 @@
 #    11/20/13        DR 16777      D. Friedman   Add a test mode.
 #    12/05/16        DR 16842      D. Friedman   Do not set product ID on MhsMessage
 #    07/29/14        DR  2914      G. Armendariz Remove call to PropertiesFactory
+#    Apr 25, 2015     4952         njensen        Updated for new JEP API
 # 
 #
 
@@ -54,7 +55,9 @@ DB_DUPLICATE = 4;
 
 ACTION_CODES = {}
 from com.raytheon.uf.common.localization import PathManagerFactory
-from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType, LocalizationContext_LocalizationLevel as LocalizationLevel
+from com.raytheon.uf.common.localization import LocalizationContext
+LocalizationType = LocalizationContext.LocalizationType
+LocalizationLevel = LocalizationContext.LocalizationLevel
 pathMgr = PathManagerFactory.getPathManager()
 ctx = pathMgr.getContext(LocalizationType.valueOf('EDEX_STATIC'), LocalizationLevel.valueOf('BASE'))
 DPATH = pathMgr.getFile(ctx, 'dissemination').getPath()

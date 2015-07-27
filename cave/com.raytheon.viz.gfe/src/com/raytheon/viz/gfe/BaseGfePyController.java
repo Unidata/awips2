@@ -19,13 +19,12 @@
  **/
 package com.raytheon.viz.gfe;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import jep.JepException;
+import jep.NDArray;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DByte;
@@ -52,6 +51,7 @@ import com.raytheon.viz.gfe.smartscript.FieldDefinition;
  *                                      hardened it by separating jep.getValue()
  *                                      calls from python copying/casting to correct types
  * Feb 05, 2015  4089      njensen     Replaced previous hardening with ensureResultType()
+ * Apr 23, 2015  4259      njensen     Updated for new JEP API
  * 
  * </pre>
  * 
@@ -198,46 +198,50 @@ public abstract class BaseGfePyController extends PythonScriptController {
      * @return the result of the execution in Java format
      * @throws JepException
      */
+    @SuppressWarnings("unchecked")
     protected Object getNumpyResult(GridType type) throws JepException {
         Object result = null;
         boolean resultFound = (Boolean) jep.getValue(RESULT + " is not None");
 
         if (resultFound) {
-            int xDim, yDim = 0;
-
             // this will safely alter the result dtypes in place if necessary
             ensureResultType(type);
 
+            /*
+             * FIXME We reverse the x and y dimensions because that's what AWIPS
+             * 1 did and that makes the pre-existing python code compatible.
+             * Java ordering is x,y while python is ordering is y,x. It's
+             * confusing and questionable at best so someday someone should
+             * correct all that. Good luck.
+             */
             switch (type) {
             case SCALAR:
                 // don't make python func calls within a jep.getValue() call
-                float[] scalarData = (float[]) jep.getValue(RESULT);
-                xDim = (Integer) jep.getValue(RESULT + ".shape[1]");
-                yDim = (Integer) jep.getValue(RESULT + ".shape[0]");
-                result = new Grid2DFloat(xDim, yDim, scalarData);
+                NDArray<float[]> arr = (NDArray<float[]>) jep.getValue(RESULT);
+                result = new Grid2DFloat(arr.getDimensions()[1],
+                        arr.getDimensions()[0], arr.getData());
                 break;
             case VECTOR:
                 // don't make python func calls within a jep.getValue() call
-                float[] mag = (float[]) jep.getValue(RESULT + "[0]");
-                float[] dir = (float[]) jep.getValue(RESULT + "[1]");
-                xDim = (Integer) jep.getValue(RESULT + "[0].shape[1]");
-                yDim = (Integer) jep.getValue(RESULT + "[0].shape[0]");
-
-                Grid2DFloat magGrid = new Grid2DFloat(xDim, yDim, mag);
-                Grid2DFloat dirGrid = new Grid2DFloat(xDim, yDim, dir);
+                NDArray<float[]> mag = (NDArray<float[]>) jep.getValue(RESULT
+                        + "[0]");
+                NDArray<float[]> dir = (NDArray<float[]>) jep.getValue(RESULT
+                        + "[1]");
+                Grid2DFloat magGrid = new Grid2DFloat(mag.getDimensions()[1],
+                        mag.getDimensions()[0], mag.getData());
+                Grid2DFloat dirGrid = new Grid2DFloat(dir.getDimensions()[1],
+                        dir.getDimensions()[0], dir.getData());
                 result = new Grid2DFloat[] { magGrid, dirGrid };
                 break;
             case WEATHER:
             case DISCRETE:
                 // don't make python func calls within a jep.getValue() call
-                byte[] bytes = (byte[]) jep.getValue(RESULT + "[0]");
-                String[] keys = (String[]) jep.getValue(RESULT + "[1]");
-                xDim = (Integer) jep.getValue(RESULT + "[0].shape[1]");
-                yDim = (Integer) jep.getValue(RESULT + "[0].shape[0]");
-
-                Grid2DByte grid = new Grid2DByte(xDim, yDim, bytes);
-                List<String> keysList = new ArrayList<String>();
-                Collections.addAll(keysList, keys);
+                NDArray<byte[]> bytes = (NDArray<byte[]>) jep.getValue(RESULT
+                        + "[0]");
+                List<String> keysList = (List<String>) jep.getValue(RESULT
+                        + "[1]");
+                Grid2DByte grid = new Grid2DByte(bytes.getDimensions()[1],
+                        bytes.getDimensions()[0], bytes.getData());
 
                 result = new Object[] { grid, keysList };
                 break;

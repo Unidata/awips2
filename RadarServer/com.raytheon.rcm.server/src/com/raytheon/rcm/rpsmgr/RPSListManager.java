@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -33,7 +33,7 @@ import com.raytheon.rcm.config.EndpointConfig;
 import com.raytheon.rcm.config.LinkResource;
 import com.raytheon.rcm.config.RadarConfig;
 import com.raytheon.rcm.config.RadarType;
-import com.raytheon.rcm.config.Util;
+import com.raytheon.rcm.config.RcmUtil;
 import com.raytheon.rcm.event.ConfigEvent;
 import com.raytheon.rcm.event.ConfigEvent.Category;
 import com.raytheon.rcm.event.RadarEvent;
@@ -60,10 +60,10 @@ import com.raytheon.rcm.server.StatusManager.RadarStatus;
  */
 
 /**
- * Manages current RPS lists and requests for changes to RPS lists. 
- * 
+ * Manages current RPS lists and requests for changes to RPS lists.
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
@@ -71,8 +71,9 @@ import com.raytheon.rcm.server.StatusManager.RadarStatus;
  * ...
  * 2013-01-31   DR 15458   D. Friedman Explicitly handle UNSPECIFIED_VCP.
  * 2014-02-03   DR 14762   D. Friedman Handle updated national RPS lists.
+ * 2015-06-10   4498       nabowle     Rename Util->RcmUtil
  * </pre>
- * 
+ *
  */
 public class RPSListManager extends RadarEventAdapter {
 
@@ -178,9 +179,9 @@ public class RPSListManager extends RadarEventAdapter {
             // TODO: losing information
             return "Error getting radar status";
         }
-        
+
         int[] cuts = ElevationInfo.getInstance().getScanElevations(radarID, currentVCP);
-        if (cuts == null && Util.getRadarType(rc) == RadarType.WSR)
+        if (cuts == null && RcmUtil.getRadarType(rc) == RadarType.WSR)
             cuts = gsmCuts;
 
         if (list.getVcp() != RpsList.UNSPECIFIED_VCP && list.getVcp() != currentVCP) {
@@ -240,7 +241,7 @@ public class RPSListManager extends RadarEventAdapter {
         if (rpsList == null) {
             int[] cuts = ElevationInfo.getInstance().
                 getScanElevations(rc.getRadarID(), gsm.vcp);
-            if (cuts == null && Util.getRadarType(rc) == RadarType.WSR)
+            if (cuts == null && RcmUtil.getRadarType(rc) == RadarType.WSR)
                 cuts = gsm.cuts;
 
             rpsList = getMergedRpsListForRadar(rc, gsm.opMode, gsm.vcp,
@@ -257,7 +258,7 @@ public class RPSListManager extends RadarEventAdapter {
 
     /**
      * From AWIPS 1 ProductRequestList::addMiniVolumeProduct() (DCS 3411)
-     * 
+     *
      * For TDWR VCP80, 2 products might be generated in one volume (2 mini
      * volumes) for some products. Parameter lowerLayer is used to specify these
      * 2 products: 1 - generated at mid volume; 2 - generated at end volume
@@ -265,10 +266,10 @@ public class RPSListManager extends RadarEventAdapter {
      * implementation ---------------------------------------------------------
      * Searches list for mini volume products, add a new entry with lowerLayer 1
      * CZ(35-38),ET(41),VIL(57),STI(58),HI(59),TVS(61),MD(141),DMD(149)
-     * 
+     *
      */
     /*
-     * This must be kept in sync with 
+     * This must be kept in sync with
      * com.raytheon.rcm.request.RpsList.getAdditionalMiniVolumeProductCount.
      */
     private void maybeAddSPGMiniVolumeProducts(RadarConfig rc,
@@ -282,7 +283,7 @@ public class RPSListManager extends RadarEventAdapter {
          */
         Selector sel = new Selector();
         sel.radarType = RadarType.TDWR;
-        
+
         int end = reqs.size();
         for (int i = 0; i < end; ++i) {
             Request r = reqs.get(i);
@@ -290,7 +291,7 @@ public class RPSListManager extends RadarEventAdapter {
             RadarProduct prod = ProductInfo.getInstance().selectOne(sel);
             if (prod != null && prod.params.contains(Param.MINI_VOLUME) &&
                     r.getMiniVolume() != 1) {
-                Request r2 = (Request) r.clone();
+                Request r2 = r.clone();
                 r2.setMiniVolume(1);
                 reqs.add(r2);
             }
@@ -311,9 +312,9 @@ public class RPSListManager extends RadarEventAdapter {
             if (lr != null)
                 maxSize = lr.getMaxRpsListSize();
         }
-        
+
         int requestCount = rpsList.getRequestCount(rc.getRadarID(),
-                Util.getRadarType(rc));
+                RcmUtil.getRadarType(rc));
 
         if (maxSize < 0)
             Log.warnf("Cannot determine maximum RPS list size for %s",
@@ -326,13 +327,13 @@ public class RPSListManager extends RadarEventAdapter {
             int i;
             for (i = reqs.length - 1; i >= 0; --i) {
                 truncCount += RpsList.getRequestCount(reqs[i], rc.getRadarID(), rpsList.getVcp(),
-                        Util.getRadarType(rc));
+                        RcmUtil.getRadarType(rc));
                 if (requestCount - truncCount <= maxSize)
                     break;
             }
             if (i < 0)
                 i = 0;
-            
+
             int originalCount = requestCount;
             requestCount = requestCount - truncCount;
             Log.warnf("Truncated list for %s from %d entries (%d requests) to %d entries (%d requests)",
@@ -370,7 +371,7 @@ public class RPSListManager extends RadarEventAdapter {
 
             File dir = new File(ec.getArchiveRoot());
             if (ec.getPrefixPathWithRadar() != null
-                    && (boolean) ec.getPrefixPathWithRadar())
+                    && ec.getPrefixPathWithRadar())
                 dir = new File(dir, "radar");
             dir = new File(dir, "lists");
             if (!dir.exists())
@@ -429,7 +430,7 @@ public class RPSListManager extends RadarEventAdapter {
     /**
      * Constructs a an RPS list for the given parameters, merging national and
      * local lists as appropriate.
-     * 
+     *
      * @param rc
      * @param opMode
      * @param vcp
@@ -456,7 +457,7 @@ public class RPSListManager extends RadarEventAdapter {
                     elevList);
 
         if (natl == null && local == null) {
-            RadarType radarType = Util.getRadarType(rc);
+            RadarType radarType = RcmUtil.getRadarType(rc);
 
             /*
              * We do not currently send RPS lists to ASRs so not having a list
@@ -488,14 +489,14 @@ public class RPSListManager extends RadarEventAdapter {
          * AWIPS 1 disabled duplicate merging for TDWRs because some requests
          * in the national RPS list would disappear. This was due to incorrect
          * handling of multi-elevation requests. AWIPS 2 handles
-         * multi-elevation request correctly. (See DCS 3472, DRs 19386, 20239, 
-         * and 20244.) 
-         * 
+         * multi-elevation request correctly. (See DCS 3472, DRs 19386, 20239,
+         * and 20244.)
+         *
          * if (vcp == 80 || vcp == 90)
          *     elevList = null;
          */
 
-        RadarType radarType = Util.getRadarType(rc);
+        RadarType radarType = RcmUtil.getRadarType(rc);
 
         iLoop: for (int i = 0; i < reqs.size(); ++i) {
             Request ri = reqs.get(i);
@@ -516,7 +517,7 @@ public class RPSListManager extends RadarEventAdapter {
                          * later multi-elevation request that subsumes it to be
                          * lost when the list is truncated to fix the maximum
                          * number of products.
-                         * 
+                         *
                          * On the other hand, this could cause products listed
                          * before index j to be lost because the RPG counts each
                          * elevation in a multi-elevation request as a separate

@@ -50,6 +50,7 @@ import com.raytheon.uf.viz.datacube.AbstractDataCubeAdapter;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 09, 2014  2947     bsteffen    Initial creation
+ * May 04, 2015  4453     bsteffen    Fix getBaseUpdateConstraints when the database is empty.
  * 
  * </pre>
  * 
@@ -149,6 +150,9 @@ public class SatelliteDataCubeAdapter extends AbstractDataCubeAdapter {
     public List<Map<String, RequestConstraint>> getBaseUpdateConstraints(
             Map<String, RequestConstraint> constraints) {
         List<AbstractRequestableNode> nodes = evaluateRequestConstraints(constraints);
+        if (nodes.isEmpty()) {
+            return Collections.singletonList(constraints);
+        }
         List<Map<String, RequestConstraint>> baseConstraints = new ArrayList<Map<String, RequestConstraint>>(
                 nodes.size() * 2);
         for (AbstractRequestableNode node : nodes) {

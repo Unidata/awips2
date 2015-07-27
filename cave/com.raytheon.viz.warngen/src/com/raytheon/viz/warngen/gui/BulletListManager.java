@@ -18,7 +18,7 @@ import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
 
 /**
  * 
- * BulletLIstManager.java
+ * BulletListManager.java
  * 
  * Manages the selection of the individual bullets that might be a part of a
  * multi-selection or a single-selection group.
@@ -33,7 +33,8 @@ import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
  * 
  * 01/26/2012   14466      D.Friedman  Fix parseString processing.
  * 01/26/2012   14469      D.Friedman  Fix followup bullet processing
- * Feb 13, 2013 1606       jsanchez    Did not set default bullets for CORs.
+ * 02/13/2013   1606       jsanchez    Did not set default bullets for CORs.
+ * 05/29/2015   4443       randerso    Fix parseString/showString for mixed case
  * 
  * </pre>
  * 
@@ -107,7 +108,7 @@ public class BulletListManager {
         Set<Integer> defaultIndices = new TreeSet<Integer>();
         for (int i = 0; i < this.bullets.length; i++) {
             Bullet b = this.bullets[i];
-            if (b.getBulletType() != null
+            if ((b.getBulletType() != null)
                     && b.getBulletType().equalsIgnoreCase(TITLE)) {
                 titleGroup.add(i);
             } else if (b.getBulletGroup() != null) {
@@ -121,7 +122,7 @@ public class BulletListManager {
                 /* Stores all the screnario indices for a dam group */
                 if (b.getBulletGroup().equalsIgnoreCase("DAM")) {
                     damName = b.getBulletName();
-                } else if (damName != null
+                } else if ((damName != null)
                         && b.getBulletGroup().equalsIgnoreCase(SCENARIO)) {
                     List<Integer> scenarioIndices = damGroups.get(damName);
                     if (scenarioIndices == null) {
@@ -132,7 +133,7 @@ public class BulletListManager {
                 }
             }
 
-            if (b.getBulletDefault() != null
+            if ((b.getBulletDefault() != null)
                     && b.getBulletDefault().equalsIgnoreCase(TRUE)) {
                 defaultIndices.add(i);
             }
@@ -176,17 +177,18 @@ public class BulletListManager {
             ArrayList<Bullet> resultList = new ArrayList<Bullet>();
             if (sourceList != null) {
                 for (Bullet b : sourceList) {
-                    if (b != null
-                            && (b.getShowString() == null || selectBulletFromFollowup(
+                    if ((b != null)
+                            && ((b.getShowString() == null) || selectBulletFromFollowup(
                                     b.getShowString(), warningText))) {
                         resultList.add(b);
                     }
                 }
             }
-            if (pass == 0)
+            if (pass == 0) {
                 displayedBullets = resultList;
-            else
+            } else {
                 displayedDamInfoBullets = resultList;
+            }
         }
 
         /* Sets up the appropriate bullet groups */
@@ -199,7 +201,7 @@ public class BulletListManager {
         if (configuration.getLockedGroupsOnFollowup() != null) {
             for (String lockedGroup : configuration.getLockedGroupsOnFollowup()
                     .split(",")) {
-                if (lockedGroup != null && lockedGroup.length() != 0) {
+                if ((lockedGroup != null) && (lockedGroup.length() != 0)) {
                     lockedGroups.add(lockedGroup.toLowerCase());
                 }
             }
@@ -212,7 +214,7 @@ public class BulletListManager {
                 updateSelectedIndices(i, false, true);
             }
 
-            if (bullet.getFloodSeverity() != null
+            if ((bullet.getFloodSeverity() != null)
                     && bullet.getFloodSeverity().equals(
                             record.getFloodSeverity())) {
                 updateSelectedIndices(i, false, true);
@@ -253,7 +255,7 @@ public class BulletListManager {
      */
     public void updateSelectedIndices(int selectionIndex, boolean isFollowup,
             boolean selectUnconditionally) {
-        if (selectionIndex < 0 || selectionIndex >= bullets.length
+        if ((selectionIndex < 0) || (selectionIndex >= bullets.length)
                 || titleGroup.contains(selectionIndex)) {
             return;
         }
@@ -263,8 +265,9 @@ public class BulletListManager {
 
         if (group == null) {
             if (selectUnconditionally) {
-                if (!selectedIndices.contains(selectionIndex))
+                if (!selectedIndices.contains(selectionIndex)) {
                     selectedIndices.add(selectionIndex);
+                }
             } else {
                 // toggle
                 if (selectedIndices.contains(selectionIndex)) {
@@ -282,13 +285,14 @@ public class BulletListManager {
         }
 
         if (!isDamCauseSelected
-                && bullet.getBulletName() != null
+                && (bullet.getBulletName() != null)
                 && (bullet.getBulletName().equalsIgnoreCase("siteimminent") || bullet
                         .getBulletName().equalsIgnoreCase("sitefailed"))) {
             isDamCauseSelected = true;
         } else if (group.equalsIgnoreCase(DAM)) {
             /* Unselect the scenarios */
-            if (selectedDamIndex != -1 && selectionIndex != selectedDamIndex) {
+            if ((selectedDamIndex != -1)
+                    && (selectionIndex != selectedDamIndex)) {
                 clearScenarios(selectedDamIndex);
             }
             selectedDamIndex = selectionIndex;
@@ -302,7 +306,7 @@ public class BulletListManager {
             if (selectedDamIndex != -1) {
                 List<Integer> scenarioIndices = damGroups
                         .get(bullets[selectedDamIndex].getBulletName());
-                if (scenarioIndices != null
+                if ((scenarioIndices != null)
                         && scenarioIndices.contains(selectionIndex)) {
                     if (selectedIndices.contains(selectionIndex)) {
                         selectedIndices.remove(selectionIndex);
@@ -322,8 +326,9 @@ public class BulletListManager {
              */
             if (selectUnconditionally) {
                 if (index.equals(selectionIndex)) {
-                    if (!selectedIndices.contains(selectionIndex))
+                    if (!selectedIndices.contains(selectionIndex)) {
                         selectedIndices.add(index);
+                    }
                 } else {
                     selectedIndices.remove(index);
                     clearScenarios(index);
@@ -432,7 +437,9 @@ public class BulletListManager {
 
     private boolean selectBulletFromFollowup(String parseString,
             String warningText) {
-        if (parseString == null || parseString.length() == 0) {
+        warningText = warningText.toUpperCase();
+
+        if ((parseString == null) || (parseString.length() == 0)) {
             return false;
         }
 
@@ -441,7 +448,8 @@ public class BulletListManager {
                 .split("\",")) {
             p = p.replace("\"", "");
             if ((p.startsWith("-") && warningText.contains(p.substring(1)))
-                    || (p.startsWith("-") == false && warningText.contains(p) == false)) {
+                    || ((p.startsWith("-") == false) && (warningText
+                            .contains(p) == false))) {
                 selectBullet = false;
                 break;
             }
@@ -456,7 +464,7 @@ public class BulletListManager {
         }
         List<Integer> scenarioIndices = damGroups.get(bullets[damIndex]
                 .getBulletName());
-        if (scenarioIndices != null && scenarioIndices.size() > 0) {
+        if ((scenarioIndices != null) && (scenarioIndices.size() > 0)) {
             selectedIndices.removeAll(scenarioIndices);
         }
     }

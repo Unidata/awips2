@@ -29,8 +29,8 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 import com.raytheon.uf.common.http.MimeType;
-import com.raytheon.uf.common.json.geo.GeoJsonUtil;
-import com.raytheon.uf.common.json.geo.GeoJsonUtilSimpleImpl;
+import com.raytheon.uf.common.json.geo.IGeoJsonService;
+import com.raytheon.uf.common.json.geo.SimpleGeoJsonService;
 import com.raytheon.uf.common.json.geo.MixedFeatureCollection;
 import com.raytheon.uf.edex.ogc.common.OgcResponse;
 import com.raytheon.uf.edex.ogc.common.OgcResponse.TYPE;
@@ -56,7 +56,7 @@ public class JsonFeatureFormatter implements SimpleFeatureFormatter {
 
     public static MimeType mimeType = new MimeType("application/json");
 
-    protected GeoJsonUtil jsonUtil = new GeoJsonUtilSimpleImpl();
+    protected IGeoJsonService jsonUtil = new SimpleGeoJsonService();
 
     /*
      * (non-Javadoc)

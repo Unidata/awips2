@@ -40,8 +40,8 @@ import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.pointdata.PointWindDisplay;
-import com.raytheon.viz.pointdata.PointWindDisplay.DisplayType;
+import com.raytheon.uf.viz.core.point.display.PointWindDisplay;
+import com.raytheon.uf.viz.core.point.display.PointWindDisplay.DisplayType;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**

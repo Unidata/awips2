@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -41,7 +42,7 @@ import com.raytheon.viz.texteditor.util.VtecObject;
 import com.raytheon.viz.texteditor.util.VtecUtil;
 
 /**
- * TODO Add Description
+ * QC text segment
  * 
  * <pre>
  * 
@@ -52,15 +53,16 @@ import com.raytheon.viz.texteditor.util.VtecUtil;
  *                                     Initial creation
  * 25 AUG 2011  10719      rferrel     Changed ugcPtrn to handle multi-line UGCs
  * 01 SEP 2011  10764      rferrel     Allow multiple bullet types for given Vtec.
- * 20 JUL 2012  15003	   mgamazaychikov	Allow standalone MWS have no headline
- * 											Add vtec to checkHeadline signature
- * 20 JUL 2012  15006	   mgamazaychikov	Do not perform search for a list of 
- * 											county/zones names in the MWS segment heading.
+ * 20 JUL 2012  15003	   mgamazaychikov   Allow standalone MWS have no headline
+ *                                          Add vtec to checkHeadline signature
+ * 20 JUL 2012  15006	   mgamazaychikov   Do not perform search for a list of 
+ *                                          county/zones names in the MWS segment heading.
  * 07 NOV 2012  15003	   mgamazaychikov	Do not perform QC check on standalone MWS headline.
  * 21 MAY 2013  16200      Qinglu Lin  Prevent countyOrZoneCounter from being increased for a line
  *                                     that has no word County/Parish/Municipality in it. 
  * 13 MAY 2014  17177      Qinglu Lin  Updated runQC().
- * 15 SEP 2014    529      mgamazaychikov	Create firstBulletImmediateCauseQCExclusions list and add IC to it.
+ * 15 SEP 2014    529      mgamazaychikov   Create firstBulletImmediateCauseQCExclusions list and add IC to it.
+ * 29 MAY 2015   4441      randerso    Fixed QC to work with mixed case
  * 
  * </pre>
  * 
@@ -88,11 +90,16 @@ public class TextSegmentCheck implements IQCCheck {
         }
     }
 
-    // List of immediate causes to be excluded from quality control check in the first bullet
-    private static List<String> firstBulletImmediateCauseQCExclusions = Arrays.asList("ER", "MC", "UU", "IC");
+    // List of immediate causes to be excluded from quality control check in the
+    // first bullet
+    private static List<String> firstBulletImmediateCauseQCExclusions = Arrays
+            .asList("ER", "MC", "UU", "IC");
 
     @Override
     public String runQC(String header, String body, String nnn) {
+        header = header.toUpperCase();
+        body = body.toUpperCase();
+
         int countyOrZoneCounter = 0;
         int ugcLength = 0;
         int czmType = 1;
@@ -131,22 +138,17 @@ public class TextSegmentCheck implements IQCCheck {
         }
 
         Set<String> countyParishMunicipality = new HashSet<String>();
-        for (String countyType : QualityControl
-                .getCountyTypeMap().values()) {
+        for (Entry<String, String> entry : QualityControl.getCountyTypeMap()
+                .entrySet()) {
+            String key = entry.getKey();
+            String countyType = entry.getValue();
             if (countyType.length() > 1) {
-                countyParishMunicipality.add(countyType.trim());
-            } else {
+                countyParishMunicipality.add(countyType.trim().toUpperCase());
+            } else if (key.length() > 1) {
+                countyParishMunicipality.add(key.toUpperCase());
+            }
+        }
 
-            }
-        }
-        for (String key : QualityControl.getCountyTypeMap().keySet()) {
-            if (QualityControl.getCountyTypeMap()
-                    .get(key).length() <= 1) {
-                if (key.length() > 1) {
-                    countyParishMunicipality.add(key);
-                }
-            }
-        }
         countyParishMunicipality.remove("AK");
         countyParishMunicipality.remove("DC");
         countyParishMunicipality.add("CITY");
@@ -163,7 +165,7 @@ public class TextSegmentCheck implements IQCCheck {
 
             if (line.equals("$$")) {
 
-                if (ugc.length() == 0 && vtec == null) {
+                if ((ugc.length() == 0) && (vtec == null)) {
                     errorMsg.append("Badly placed segment end.\n");
                     return errorMsg.toString();
                 }
@@ -173,14 +175,14 @@ public class TextSegmentCheck implements IQCCheck {
                 ugc = "";
 
                 /*
-                 * DR15003 - Add vtec to signature ias n order 
-                 * to distinguish between standalone
-                 * and followup MWS a check of VTEC is needed.
+                 * DR15003 - Add vtec to signature ias n order to distinguish
+                 * between standalone and followup MWS a check of VTEC is
+                 * needed.
                  */
                 errorMsg.append(checkHeadline(headline, nnn, vtec));
                 headline = "";
 
-                if (segmentCount > 1
+                if ((segmentCount > 1)
                         && !QualityControl.segmentedNNN.contains(nnn)) {
                     errorMsg.append("Segments exist in unsegmented product.\n");
                 }
@@ -200,11 +202,11 @@ public class TextSegmentCheck implements IQCCheck {
                 if (ugc.matches("\\w{2}[CZ]\\d{3}[->].*") == false) {
                     errorMsg.append("First UGC does not specify a zone or county.\n");
                 }
-                if (ugc.length() > 2 && ugc.charAt(2) == 'C') {
+                if ((ugc.length() > 2) && (ugc.charAt(2) == 'C')) {
                     ++countyZoneCnt;
                     countyBased = true;
                 }
-                if (ugc.length() > 2 && ugc.charAt(2) == 'Z') {
+                if ((ugc.length() > 2) && (ugc.charAt(2) == 'Z')) {
                     ++countyZoneCnt;
                 }
 
@@ -264,15 +266,14 @@ public class TextSegmentCheck implements IQCCheck {
             if (expectNamesList) {
                 m = listOfAreaNamePtrn.matcher(line);
                 /*
-                 * DR15006 - MWS does not have the list of 
-                 * marine zones names in the segment heading,
-                 * so skip the check for MWS
+                 * DR15006 - MWS does not have the list of marine zones names in
+                 * the segment heading, so skip the check for MWS
                  */
-                if ( !nnn.equalsIgnoreCase("MWS")) {
-                	if (!m.find()) {
+                if (!nnn.equalsIgnoreCase("MWS")) {
+                    if (!m.find()) {
                         errorMsg.append("List of county/zone names missing.\n");
                     }
-                }                
+                }
                 expectNamesList = false;
                 continue;
             }
@@ -292,12 +293,12 @@ public class TextSegmentCheck implements IQCCheck {
                 continue;
             }
 
-            if (line.startsWith("*")) {
+            if (line.startsWith("* ")) {
                 nb++;
             }
 
             // third bullet
-            if (line.startsWith("*") && nb == 3) {
+            if (line.startsWith("* ") && (nb == 3)) {
                 m = thirdBulletPtrn.matcher(line);
                 if (!line.substring(0, 5).equals("* AT ")) {
                     errorMsg.append("Event bullet does not start with '* AT '\n.");
@@ -309,9 +310,10 @@ public class TextSegmentCheck implements IQCCheck {
             }
 
             // second bullet
-            if (line.startsWith("*") && nb == 2) {
+            if (line.startsWith("* ") && (nb == 2)) {
                 m = secondBulletPtrn.matcher(line);
-                if (m.find() || line.contains("* UNTIL NOON") || line.contains("* UNTIL MIDNIGHT")) {
+                if (m.find() || line.contains("* UNTIL NOON")
+                        || line.contains("* UNTIL MIDNIGHT")) {
                     secondBulletFound = true;
                     insideFirstBullet = false;
                     continue;
@@ -360,14 +362,14 @@ public class TextSegmentCheck implements IQCCheck {
                         && !secondBulletFound
                         && (line.contains("AREA...")
                                 || line.contains("AREAS...") || line
-                                .contains("AREA WAS..."))) {
+                                    .contains("AREA WAS..."))) {
                     insideFirstBullet = true;
                     continue;
                 }
             }
 
             if (insideFirstBullet) {
-                if (ic != null
+                if ((ic != null)
                         && !firstBulletImmediateCauseQCExclusions.contains(ic)
                         && checkIC) {
                     boolean validIC = false;
@@ -391,7 +393,7 @@ public class TextSegmentCheck implements IQCCheck {
                 }
 
                 if (czmType == 3) {
-                    if (line != null && line.trim().startsWith("INCLUDING ")) {
+                    if ((line != null) && line.trim().startsWith("INCLUDING ")) {
                         insideFirstBullet = false; // stop adding counties/zones
                         continue;
                     }
@@ -402,7 +404,7 @@ public class TextSegmentCheck implements IQCCheck {
                     }
 
                     boolean invalidCountyOrZone = true;
-                    if (ugc.length() > 2 && ugc.charAt(2) == 'Z') {
+                    if ((ugc.length() > 2) && (ugc.charAt(2) == 'Z')) {
                         // zones do not use countyTypes
                         if (line.contains(" IN ")) {
                             invalidCountyOrZone = false;
@@ -410,18 +412,20 @@ public class TextSegmentCheck implements IQCCheck {
                     } else {
                         for (String state : QualityControl.getCountyTypeMap()
                                 .keySet()) {
-                            if (line.contains(state)
+                            if (line.contains(state.toUpperCase())
                                     && line.contains(QualityControl
-                                            .getCountyTypeMap().get(state))) {
+                                            .getCountyTypeMap().get(state)
+                                            .toUpperCase())) {
                                 invalidCountyOrZone = false;
                             }
                         }
                         if (invalidCountyOrZone) {
                             for (String countyType : QualityControl
                                     .getCountyTypeMap().values()) {
-                                if (countyType.trim().length() > 0
+                                if ((countyType.trim().length() > 0)
                                         && line.contains(" "
-                                                + countyType.trim())) {
+                                                + countyType.trim()
+                                                        .toUpperCase())) {
                                     invalidCountyOrZone = false;
                                     break;
                                 }
@@ -436,7 +440,7 @@ public class TextSegmentCheck implements IQCCheck {
 
                 int cpmCounter = 0;
                 Iterator<String> iter = countyParishMunicipality.iterator();
-                while(iter.hasNext()) {
+                while (iter.hasNext()) {
                     if (line.contains(iter.next())) {
                         break;
                     } else {
@@ -482,8 +486,9 @@ public class TextSegmentCheck implements IQCCheck {
 
         if (ugcLength == 0) {
             errorMsg.append("No UGC text was found\n");
-        } else if (nb > 0 && (czmType == 1 || (czmType == 2 && countyBased))
-                && ugcLength != countyOrZoneCounter) {
+        } else if ((nb > 0)
+                && ((czmType == 1) || ((czmType == 2) && countyBased))
+                && (ugcLength != countyOrZoneCounter)) {
             // DR 11060 - Don't count zone areas for hydro products
             errorMsg.append(ugcLength).append(" UGCs while ")
                     .append(countyOrZoneCounter)
@@ -516,13 +521,13 @@ public class TextSegmentCheck implements IQCCheck {
             pairs++;
             double lat = Double.parseDouble(m.group(1));
             double lon = Double.parseDouble(m.group(2));
-            if (lat > 9000 || lon > 18000) {
+            if ((lat > 9000) || (lon > 18000)) {
                 errorMsg += "Data error in the LAT...LON line.\n";
                 return errorMsg;
             }
         }
 
-        if (pairs <= 2 || pairs > 20) {
+        if ((pairs <= 2) || (pairs > 20)) {
             errorMsg += "LAT...LON line missing or malformed.\n";
         }
 
@@ -546,13 +551,12 @@ public class TextSegmentCheck implements IQCCheck {
             return errorMsg;
         }
         /*
-         * DR15003: no headline QC on standalone MWS.
-         * To distinguish between standalone and follow up MWS
-         * the VTEC check is performed as standalone MWS 
-         * do not contain VTEC
+         * DR15003: no headline QC on standalone MWS. To distinguish between
+         * standalone and follow up MWS the VTEC check is performed as
+         * standalone MWS do not contain VTEC
          */
-        if (nnn.equals("MWS") && vtec == null) {
-            return "";  	
+        if (nnn.equals("MWS") && (vtec == null)) {
+            return "";
         }
 
         if (headline.length() == 0) {

@@ -37,3 +37,4 @@ Export-Package: com.raytheon.uf.viz.collaboration.comm,
  com.raytheon.uf.viz.collaboration.comm.provider.info,
  com.raytheon.uf.viz.collaboration.comm.provider.session,
  com.raytheon.uf.viz.collaboration.comm.provider.user
+Bundle-ClassPath: com.raytheon.uf.viz.collaboration.comm.jar

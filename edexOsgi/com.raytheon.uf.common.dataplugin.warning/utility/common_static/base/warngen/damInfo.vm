@@ -6,44 +6,44 @@
 #########################################################################
 #*
 #if(${list.contains(${bullets}, "BigRockDam")})
-    #set($riverName = "PHIL RIVER")
-    #set($damName = "BIG ROCK DAM")
-    #set($cityInfo = "EVAN...LOCATED ABOUT 3 MILES")
+    #set($riverName = "Phil River")
+    #set($damName = "Big Rock Dam")
+    #set($cityInfo = "Evan, located about 3 miles")
 #end
 #if(${list.contains(${bullets}, "BigRockhighfast")})
-    #set($scenario = "IF A COMPLETE FAILURE OF THE DAM OCCURS...THE WATER DEPTH AT EVAN COULD EXCEED 18 FEET IN 16 MINUTES.")
+    #set($scenario = "If a complete failure of the dam occurs, the water depth at Evan could exceed 18 feet in 16 minutes.")
 #end
 #if(${list.contains(${bullets}, "BigRockhighnormal")})
-    #set($scenario = "IF A COMPLETE FAILURE OF THE DAM OCCURS...THE WATER DEPTH AT EVAN COULD EXCEED 23 FEET IN 31 MINUTES.")
+    #set($scenario = "If a complete failure of the dam occurs, the water depth at Evan could exceed 23 feet in 31 minutes.")
 #end
 #if(${list.contains(${bullets}, "BigRockmediumfast")})
-    #set($scenario = "IF A COMPLETE FAILURE OF THE DAM OCCURS...THE WATER DEPTH AT EVAN COULD EXCEED 14 FEET IN 19 MINUTES.")
+    #set($scenario = "If a complete failure of the dam occurs, the water depth at Evan could exceed 14 feet in 19 minutes.")
 #end
 #if(${list.contains(${bullets}, "BigRockmediumnormal")})
-    #set($scenario = "IF A COMPLETE FAILURE OF THE DAM OCCURS...THE WATER DEPTH AT EVAN COULD EXCEED 17 FEET IN 32 MINUTES.")
+    #set($scenario = "If a complete failure of the dam occurs, the water depth at Evan could exceed 17 feet in 32 minutes.")
 #end
 #if(${list.contains(${bullets}, "BigRockruleofthumb")})
-    #set($ruleofthumb = "FLOOD WAVE ESTIMATE BASED ON THE DAM IN IDAHO: FLOOD INITIALLY HALF OF ORIGINAL HEIGHT BEHIND DAM AND 3-4 MPH; 5 MILES IN 1/2 HOURS; 10 MILES IN 1 HOUR; AND 20 MILES IN 9 HOURS.")
+    #set($ruleofthumb = "Flood wave estimate based on the dam in Idaho: Flood initially half of original height behind dam and 3-4 mph; 5 miles in 1/2 hours; 10 miles in 1 hour; and 20 miles in 9 hours.")
 #end
 #if(${list.contains(${bullets}, "BranchedOakDam")})
-    #set($riverName = "KELLS RIVER")
-    #set($damName = "BRANCHED OAK DAM")
-    #set($cityInfo = "DANGELO...LOCATED ABOUT 6 MILES")
+    #set($riverName = "Kells River")
+    #set($damName = "Branched Oak Dam")
+    #set($cityInfo = "Dangelo, located about 6 miles")
 #end
 #if(${list.contains(${bullets}, "BranchedOakhighfast")})
-    #set($scenario = "IF A COMPLETE FAILURE OF THE DAM OCCURS...THE WATER DEPTH AT DANGELO COULD EXCEED 19 FEET IN 32 MINUTES.")
+    #set($scenario = "If a complete failure of the dam occurs, the water depth at Dangelo could exceed 19 feet in 32 minutes.")
 #end
 #if(${list.contains(${bullets}, "BranchedOakhighnormal")})
-    #set($scenario = "IF A COMPLETE FAILURE OF THE DAM OCCURS...THE WATER DEPTH AT DANGELO COULD EXCEED 26 FEET IN 56 MINUTES.")
+    #set($scenario = "If a complete failure of the dam occurs, the water depth at Dangelo could exceed 26 feet in 56 minutes.")
 #end
 #if(${list.contains(${bullets}, "BranchedOakmediumfast")})
-    #set($scenario = "IF A COMPLETE FAILURE OF THE DAM OCCURS...THE WATER DEPTH AT DANGELO COULD EXCEED 14 FEET IN 33 MINUTES.")
+    #set($scenario = "If a complete failure of the dam occurs, the water depth at Dangelo could exceed 14 feet in 33 minutes.")
 #end
 #if(${list.contains(${bullets}, "BranchedOakmediumnormal")})
-    #set($scenario = "IF A COMPLETE FAILURE OF THE DAM OCCURS...THE WATER DEPTH AT DANGELO COULD EXCEED 20 FEET IN 60 MINUTES.")
+    #set($scenario = "If a complete failure of the dam occurs, the water depth at Dangelo could exceed 20 feet in 60 minutes.")
 #end
 #if(${list.contains(${bullets}, "BranchedOakruleofthumb")})
-    #set($ruleofthumb = "FLOOD WAVE ESTIMATE BASED ON THE DAM IN IDAHO: FLOOD INITIALLY HALF OF ORIGINAL HEIGHT BEHIND DAM AND 3-4 MPH; 5 MILES IN 1/2 HOURS; 10 MILES IN 1 HOUR; AND 20 MILES IN 9 HOURS.")
+    #set($ruleofthumb = "Flood wave estimate based on the dam in Idaho: Flood initially half of original height behind dam and 3-4 mph; 5 miles in 1/2 hours; 10 miles in 1 hour; and 20 miles in 9 hours.")
 #end
 *#
 #########################################################
@@ -63,10 +63,14 @@
     #set($sitespecSelected = "YES")
     #set($hycType = "THE ${riverName} BELOW ${damName}")
     #set($emergencyHeadline = "TOWNS AND CITIES IMMEDIATELY BELOW ${damName} ON THE ${riverName}")
-    #set($headline = "FOR ${reportType2} ${damName} ON THE ${riverName} ")
-    #set($reportType1 = "${reportType2} ${damName} ON THE ${riverName}")
-    #set($addInfo = "THE NEAREST DOWNSTREAM TOWN IS ${cityInfo} FROM THE DAM.")
-    #set($sitespecCTA = "IF YOU ARE IN LOW LYING AREAS BELOW THE ${damName} YOU SHOULD MOVE TO HIGHER GROUND IMMEDIATELY.")
+    #set($emergencyHeadline = "#capitalize(${emergencyHeadline} 'ALL')")
+    #set($headline = "for ${reportType2} ${damName} on the ${riverName} ")
+## The following line will capitalize the headline in the product.
+## If the headline will be mixed case just comment out the line below.    
+    #set($headline = "#capitalize(${headline} 'ALL')")
+    #set($reportType1 = "${reportType2} ${damName} on the ${riverName}")
+    #set($addInfo = "The nearest downstream town is ${cityInfo} from the dam.")
+    #set($sitespecCTA = "If you are in low lying areas below the ${damName} you should move to higher ground immediately.")
 #end
 #end
 #######################################################################

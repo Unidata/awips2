@@ -33,12 +33,12 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.point.drawables.ext.IPointImageExtension;
 import com.raytheon.uf.viz.kml.export.KmlFeatureGenerator;
 import com.raytheon.uf.viz.kml.export.graphics.KmlGraphicsTarget;
 import com.raytheon.uf.viz.kml.export.graphics.ext.KmlRasterImage;
 import com.raytheon.uf.viz.kml.export.graphics.ext.KmlRasterImageExtension;
 import com.raytheon.uf.viz.kml.export.io.KmlOutputManager;
-import com.raytheon.viz.pointdata.drawables.IPointImageExtension;
 
 import de.micromata.opengis.kml.v_2_2_0.Coordinate;
 import de.micromata.opengis.kml.v_2_2_0.Icon;

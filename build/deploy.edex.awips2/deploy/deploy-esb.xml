@@ -74,6 +74,7 @@
             <fileset dir="${edex.root.directory}/conf">
                 <include name="**" />
                 <exclude name="**/site/**"/>
+            	<exclude name="**/*.jks"/>
             </fileset>
         </delete>
 	</target>
@@ -86,25 +87,9 @@
 				<exclude name="svcBackup/**" />
 				<exclude name="**/bin/setup.env" />
 				<exclude name="**/bin/linux-x86-32/**" />
-				<exclude name="**/bin/linux-x86-64/**" />
-				<exclude name="**/lib/lib_illusion/**" />
+				<exclude name="**/bin/linux-x86-64/**" />				
 			</fileset>
-		</copy>
-		
-		<!-- copy the correct 'libpython.so' based on architecture. -->
-                <if>
-                   <available
-                           file="${esb.directory}/lib/lib_illusion/${architecture}"
-                           type="dir" />
-                   <then>
-		      <mkdir dir="${edex.root.directory}/lib/lib_illusion" />
-		      <copy todir="${edex.root.directory}/lib/lib_illusion">
-			      <fileset dir="${esb.directory}/lib/lib_illusion/${architecture}">
-				      <include name="*.so" />
-			      </fileset>
-		      </copy>
-                   </then>
-                </if>
+		</copy>		
 		
 		<!-- set executable permissions - start.sh. -->
 		<chmod file="${edex.root.directory}/bin/start.sh" perm="ugo+rx" />

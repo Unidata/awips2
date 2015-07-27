@@ -113,7 +113,6 @@ public class RedbookDecoder extends AbstractDecoder {
     /**
      * Empty constructor required by DecoderFactory.
      * 
-     * @throws DecoderException
      */
     public RedbookDecoder(String pluginName) {
         PLUGIN_NAME = pluginName;

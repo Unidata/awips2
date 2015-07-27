@@ -1,26 +1,24 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 package com.raytheon.edex.rpgenvdata;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.Properties;
 
 import javax.jms.JMSException;
@@ -35,16 +33,31 @@ import javax.jms.Session;
 import javax.jms.TemporaryQueue;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 
 import com.raytheon.rcm.mqsrvr.EventObj;
 import com.raytheon.rcm.mqsrvr.ReplyObj;
 import com.raytheon.rcm.mqsrvr.ReqObj;
 import com.raytheon.rcm.rmr.RmrEvent;
+import com.raytheon.uf.common.serialization.JAXBManager;
 
+/**
+ * Manages client connection to RadarServer
+ *
+ * <pre>
+ *
+ * SOFTWARE HISTORY
+ *
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ *                         D. Friedman Initial creation
+ * Jun 10, 2015 4497       nabowle     Use JAXBManager.
+ *
+ * </pre>
+ *
+ * @author dfriedma
+ * @version 1.0
+ */
 public class RcmClient {
     private Properties properties;
 
@@ -62,11 +75,7 @@ public class RcmClient {
 
     private QueueReceiver queueReceiver;
 
-    private static JAXBContext jaxbCtx;
-
-    private Marshaller marshaller;
-
-    private Unmarshaller unmarshaller;
+    private static JAXBManager jaxbManager;
 
     private static final long RESPONSE_TIMEOUT = 30 * 1000;
 
@@ -83,17 +92,14 @@ public class RcmClient {
             properties = new Properties();
         }
 
-        if (jaxbCtx == null) {
+        if (jaxbManager == null) {
             synchronized (RcmClient.class) {
-                if (jaxbCtx == null) {
-                    jaxbCtx = JAXBContext.newInstance(ReqObj.class,
+                if (jaxbManager == null) {
+                    jaxbManager = new JAXBManager(true, ReqObj.class,
                             ReplyObj.class, EventObj.class, RmrEvent.class);
                 }
             }
         }
-
-        marshaller = jaxbCtx.createMarshaller();
-        unmarshaller = jaxbCtx.createUnmarshaller();
 
         properties.setProperty("queue.RadarServer", "RadarServer");
         properties.setProperty("java.naming.factory.initial",
@@ -122,9 +128,9 @@ public class RcmClient {
             return null;
         }
 
-        StringWriter sw = new StringWriter();
+        String xml;
         try {
-            marshaller.marshal(req, sw);
+            xml = jaxbManager.marshalToXml(req);
         } catch (JAXBException e) {
             onFailure("Error creating message", e);
             return null;
@@ -133,7 +139,7 @@ public class RcmClient {
         String messageText = null;
 
         try {
-            TextMessage msg = queueSession.createTextMessage(sw.toString());
+            TextMessage msg = queueSession.createTextMessage(xml);
             msg.setJMSReplyTo(replyQueue);
             queueSender.send(msg);
             String msgId = msg.getJMSMessageID();
@@ -169,8 +175,7 @@ public class RcmClient {
             if (messageText == null) {
                 throw new Exception("Error decoding reply message");
             }
-            StringReader sr = new StringReader(messageText);
-            Object o = unmarshaller.unmarshal(sr);
+            Object o = jaxbManager.unmarshalFromXml(messageText);
             ro = (ReplyObj) o;
         } catch (Exception e) {
             // Catches JAXB exceptions and cast exception for assuming ReplyObj

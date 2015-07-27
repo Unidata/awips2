@@ -32,8 +32,6 @@ import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.dataplugin.binlightning.LightningConstants;
 import com.raytheon.uf.common.dataplugin.persist.DefaultPathProvider;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
-import com.raytheon.uf.common.dataquery.db.QueryResult;
-import com.raytheon.uf.common.dataquery.db.QueryResultRow;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.StorageException;
@@ -49,26 +47,26 @@ import com.vividsolutions.jts.geom.Coordinate;
 /**
  * Service implementation for gathering the lightning datasets from files in
  * HDF5 format and inserting them into the ifhs lightning table.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- * Date              Ticket#    Engineer    Description
+ * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 06, 2011       5951      jnjanga     Initial creation
- * Jan 10, 2013       1448      bgonzale    Added app context check in runOnSchedule().
- * Jan 18, 2013       1469      bkowal      Removed the hdf5 data directory.
- * Mar 28, 2014       2952      mpduff      Changed to use UFStatus for logging.
- * Jun 05, 2014       3226      bclement    BinLightning refactor
- * Aug 20, 2014       3549      njensen     Fixed spelling in exceptions
- * Sep 17, 2014       3015      bclement    improved exception handling
- * Dec 04, 2014       3015      njensen     Corrected usage of Coordinate(x, y)
- * Feb 25, 2015       3992      nabowle     Limit getMostRecentStrikes to NLDN.
- *                                          Deduplicate lightning data in a
- *                                          single BinLightningRecord.
- *
+ * Jan 06, 2011 5951       jnjanga     Initial creation
+ * Jan 10, 2013 1448       bgonzale    Added app context check in runOnSchedule().
+ * Jan 18, 2013 1469       bkowal      Removed the hdf5 data directory.
+ * Mar 28, 2014 2952       mpduff      Changed to use UFStatus for logging.
+ * Jun 05, 2014 3226       bclement    BinLightning refactor
+ * Aug 20, 2014 3549       njensen     Fixed spelling in exceptions
+ * Sep 17, 2014 3015       bclement    improved exception handling
+ * Dec 04, 2014 3015       njensen     Corrected usage of Coordinate(x, y)
+ * Feb 25, 2015 3992       nabowle     Limit getMostRecentStrikes to NLDN.
+ *                                     Deduplicate lightning data in a
+ *                                     single BinLightningRecord.
+ * Jul 09, 2015 4500       rjpeter     Fix SQL Injection concern.
  * </pre>
- *
+ * 
  * @author jnjanga
  * @version 1.0
  */
@@ -96,27 +94,30 @@ public class MpeLightningSrv {
 
     /**
      * Check the metadata Database for new lightning entries.
-     *
+     * 
      * @return rows returned from the query
      */
-    private QueryResultRow[] getMostRecentStrikes() throws EdexException {
-        QueryResult rs = null;
+    private Object[] getMostRecentStrikes() throws EdexException {
         CoreDao coreDao = new CoreDao(DaoConfig.DEFAULT);
+        /*
+         * TODO: This can miss data, should use insertTime and track last pull
+         * time
+         */
         final String lgtSQL = "select datauri from binlightning "
                 + "where reftime > (now()- interval \'30 minutes \')"
-                + "and source = '" + LightningConstants.DEFAULT_SOURCE + "'";
+                + "and source = :source";
         try {
-            rs = (QueryResult) coreDao.executeNativeSql(lgtSQL, true);
+            return coreDao.executeSQLQuery(lgtSQL, "source",
+                    LightningConstants.DEFAULT_SOURCE);
         } catch (Exception e) {
             throw new EdexException("Couldn't get BinLightning records from"
                     + " metadata database. Failed SQL: " + lgtSQL, e);
         }
-        return rs.getRows();
     }
 
     /**
      * Inserts a single record into ihfs's lightning table.
-     *
+     * 
      * @param dataURI
      * @throws EdexException
      */
@@ -231,34 +232,33 @@ public class MpeLightningSrv {
     /**
      * Populates ifhs' lightning table with the resultset obtained from querying
      * metadata's binlighting table.
-     *
+     * 
      * @param rows
      * @throws EdexException
      */
-    private void ifhsInsertMostRecentStrikes(QueryResultRow[] rows)
+    private void ifhsInsertMostRecentStrikes(Object[] rows)
             throws EdexException {
         if (rows.length == 0) {
             logger.info("No new lightning records to insert in ifhs. ");
         }
-        for (QueryResultRow row : rows) {
-            String dataURI = (String) row.getColumn(0);
+        for (Object col : rows) {
+            String dataURI = (String) col;
             ifhsInsertLightRecord(dataURI);
         }
     }
 
     /**
      * run at scheduled timer.
-     *
+     * 
      * @throws EdexException
      */
     public void runOnSchedule() throws EdexException {
         if (!AppsDefaults.getInstance().setAppContext(this)) {
             return;
         }
-        QueryResultRow[] rows = getMostRecentStrikes();
+        Object[] rows = getMostRecentStrikes();
         ifhsInsertMostRecentStrikes(rows);
     }
-
 
     /**
      * Class to simplify deduplicating lightning data in a
@@ -266,13 +266,13 @@ public class MpeLightningSrv {
      * key.
      */
     private static class LightningData {
-        private short x;
+        private final short x;
 
-        private short y;
+        private final short y;
 
-        private long obstime;
+        private final long obstime;
 
-        private byte strikes;
+        private final byte strikes;
 
         public LightningData(short x, short y, long time, byte strikes) {
             super();
@@ -310,7 +310,6 @@ public class MpeLightningSrv {
             return strikes;
         }
 
-
         /**
          * Generate a hashcode using the ihfs primary key fields: x, y, and
          * time.
@@ -319,9 +318,9 @@ public class MpeLightningSrv {
         public int hashCode() {
             final int prime = 31;
             int result = 1;
-            result = prime * result + (int) (obstime ^ (obstime >>> 32));
-            result = prime * result + x;
-            result = prime * result + y;
+            result = (prime * result) + (int) (obstime ^ (obstime >>> 32));
+            result = (prime * result) + x;
+            result = (prime * result) + y;
             return result;
         }
 

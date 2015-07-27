@@ -25,6 +25,7 @@ import java.util.List;
 
 import jep.Jep;
 import jep.JepException;
+import jep.NDArray;
 
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;
@@ -50,6 +51,7 @@ import com.raytheon.viz.gfe.core.griddata.WeatherGridData;
  * Jan 12, 2012            dgilling     Initial creation
  * Oct 29, 2013  2476       njensen     Renamed numeric methods to numpy
  * Oct 31, 2013     #2508  randerso    Change to use DiscreteGridSlice.getKeys()
+ * Apr 23, 2015 4259       njensen     Updated for new JEP API
  * 
  * </pre>
  * 
@@ -115,11 +117,20 @@ public class CalcVcModGridArg implements IVcModuleArgument {
                 + "_" + offset + "_";
         Collection<String> tempGridNames = new ArrayList<String>(2);
 
+        /*
+         * FIXME We reverse the x and y dimensions because that's what AWIPS 1
+         * did and that makes the pre-existing python code compatible. Java
+         * ordering is x,y while python is ordering is y,x. It's confusing and
+         * questionable at best so someday someone should correct all that. Good
+         * luck.
+         */
         if (gd instanceof ScalarGridData) {
             ScalarGridData grid = (ScalarGridData) gd;
             Grid2DFloat f = (grid.getScalarSlice()).getScalarGrid();
             String name = prefix + "grid";
-            jep.setNumpy(name, f.getFloats(), f.getXdim(), f.getYdim());
+            NDArray<float[]> arr = new NDArray<>(f.getFloats(), f.getYdim(),
+                    f.getXdim());
+            jep.set(name, arr);
             jepString.append(name);
             jepString.append(", ");
             tempGridNames.add(name);
@@ -129,10 +140,12 @@ public class CalcVcModGridArg implements IVcModuleArgument {
             Grid2DFloat dir = (grid.getVectorSlice()).getDirGrid();
             String magName = prefix + "Mag";
             String dirName = prefix + "Dir";
-            jep.setNumpy(magName, mag.getFloats(), mag.getXdim(),
-                    mag.getYdim());
-            jep.setNumpy(dirName, dir.getFloats(), dir.getXdim(),
-                    dir.getYdim());
+            NDArray<float[]> mArr = new NDArray<>(mag.getFloats(),
+                    mag.getYdim(), mag.getXdim());
+            jep.set(magName, mArr);
+            NDArray<float[]> dArr = new NDArray<>(dir.getFloats(),
+                    dir.getYdim(), dir.getXdim());
+            jep.set(dirName, dArr);
             jepString.append('(');
             jepString.append(magName);
             jepString.append(',');
@@ -144,8 +157,9 @@ public class CalcVcModGridArg implements IVcModuleArgument {
             WeatherGridData grid = (WeatherGridData) gd;
             Grid2DByte bytes = grid.getWeatherSlice().getWeatherGrid();
             String name = prefix + "grid";
-            jep.setNumpy(name, bytes.getBytes(), bytes.getXdim(),
-                    bytes.getYdim());
+            NDArray<byte[]> arr = new NDArray<>(bytes.getBytes(),
+                    bytes.getYdim(), bytes.getXdim());
+            jep.set(name, arr);
             jepString.append('(');
             jepString.append(name);
             jepString.append(',');
@@ -161,8 +175,9 @@ public class CalcVcModGridArg implements IVcModuleArgument {
             DiscreteGridData grid = (DiscreteGridData) gd;
             Grid2DByte bytes = grid.getDiscreteSlice().getDiscreteGrid();
             String name = prefix + "grid";
-            jep.setNumpy(name, bytes.getBytes(), bytes.getXdim(),
-                    bytes.getYdim());
+            NDArray<byte[]> arr = new NDArray<>(bytes.getBytes(),
+                    bytes.getYdim(), bytes.getXdim());
+            jep.set(name, arr);
             jepString.append('(');
             jepString.append(name);
             jepString.append(',');
@@ -177,8 +192,9 @@ public class CalcVcModGridArg implements IVcModuleArgument {
         }
 
         String maskName = prefix + "mask";
-        jep.setNumpy(maskName, mask.getBytes(), mask.getXdim(),
-                mask.getYdim());
+        NDArray<byte[]> arr = new NDArray<>(mask.getBytes(), mask.getYdim(),
+                mask.getXdim());
+        jep.set(maskName, arr);
         jepString.append(maskName);
         sb.append(jepString);
         tempGridNames.add(maskName);

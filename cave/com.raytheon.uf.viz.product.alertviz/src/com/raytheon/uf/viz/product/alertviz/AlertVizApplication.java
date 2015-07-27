@@ -35,8 +35,10 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.alertviz.AlertVizPreferences;
 import com.raytheon.uf.viz.alertviz.AlertvizJob;
 import com.raytheon.uf.viz.alertviz.Container;
+import com.raytheon.uf.viz.alertviz.ReceiverConnChecker;
 import com.raytheon.uf.viz.alertviz.SystemStatusHandler;
 import com.raytheon.uf.viz.alertviz.ui.dialogs.AlertVisualization;
 import com.raytheon.uf.viz.application.component.IStandaloneComponent;
@@ -60,6 +62,7 @@ import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
  * Jan 12, 2012 #27        rferrel     Added createAlertVisualization
  * May 08, 2013 1939       rjpeter     Updated to start NotificationManagerJob.
  * Aug 26, 2014 3356       njensen     Explicitly set localization adapter
+ * Jun 04, 2015 4473       njensen     Defer launching of UI to Activator and OSGi services
  * 
  * </pre>
  * 
@@ -82,7 +85,7 @@ public class AlertVizApplication implements IStandaloneComponent {
     public Object startComponent(String componentName) throws Exception {
         Display display = PlatformUI.createDisplay();
 
-        int port = 61998;
+        int port = -1;
         Integer checkPort = ProgramArguments.getInstance().getInteger("-p");
         if (checkPort != null) {
             port = checkPort.intValue();
@@ -91,6 +94,10 @@ public class AlertVizApplication implements IStandaloneComponent {
         // No need to check alertviz, we are alertviz
         try {
             initializeLocalization();
+            if (port < 1) {
+                // access prefs after localization is initialized
+                port = AlertVizPreferences.getAlertVizPort();
+            }
             // Need to register localization updates
             initializeObservers();
             IPreferenceStore store = LocalizationManager.getInstance()
@@ -125,17 +132,15 @@ public class AlertVizApplication implements IStandaloneComponent {
 
                 });
 
-        AlertvizJob as = new AlertvizJob(port);
-        if (as.isAlreadyStarted()) {
+        if (ReceiverConnChecker.isReceiverRunning(port)) {
             String exitMsg = "Alertviz already started on port: " + port
                     + ", exiting";
             System.out.println(exitMsg);
             Container.logInternal(Priority.ERROR, exitMsg);
             return IApplication.EXIT_OK;
         }
-
-        // Job is not running on port, launch UI.
-        AlertVisualization av = createAlertVisualization(true, display);
+        AlertvizJob.getInstance().setEmbedded(false);
+        AlertvizJob.getInstance().start(port);
 
         // open JMS connection to allow alerts to be received
         NotificationManagerJob.connect();
@@ -161,7 +166,6 @@ public class AlertVizApplication implements IStandaloneComponent {
                     "Error occured while running alertviz", t1);
             t = t1;
         } finally {
-            av.dispose();
             display.dispose();
             if (t != null) {
                 // Killed because of error, set exit status to non zero value
@@ -169,7 +173,7 @@ public class AlertVizApplication implements IStandaloneComponent {
             }
         }
 
-        return av.getExitStatus();
+        return AlertvizJob.getInstance().getExitStatus();
     }
 
     protected AlertVisualization createAlertVisualization(

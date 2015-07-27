@@ -54,6 +54,7 @@ import com.raytheon.uf.viz.localization.perspective.editor.LocalizationEditorInp
  * ------------ ---------- ----------- --------------------------
  * Nov 3, 2010            mschenke     Initial creation
  * Feb 18, 2015 4132      mapeters     Fixed issue with deleting overrides.
+ * Jun 29, 2015 946       rferrel      Do not allow delete of a protected level file.
  * 
  * </pre>
  * 
@@ -213,6 +214,10 @@ public class DeleteAction extends Action {
             LocalizationContext ctx = file.getContext();
             LocalizationLevel level = ctx.getLocalizationLevel();
             if (level.isSystemLevel()) {
+                canDelete = false;
+                break;
+            }
+            if (file.isProtected() && file.getProtectedLevel().equals(level)) {
                 canDelete = false;
                 break;
             }

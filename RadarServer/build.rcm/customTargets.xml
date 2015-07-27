@@ -71,32 +71,36 @@
                 <copy todir="${buildDirectory}/plugins">
                         <fileset dir="${buildDirectory}/../../" includes="com.raytheon.rcm*/**"/>
                 </copy>
-	    		<copy todir="${buildDirectory}/plugins">
-	    	    	<fileset dir="${buildDirectory}/../../" includes="org.itadaki.bzip2*/**"/>
-	    	    </copy>
-        		<copy todir="${buildDirectory}/plugins">
-        		    	    	<fileset dir="${buildDirectory}/../../" includes="org.apache.*/**"/>
-        		</copy>
-        		<copy todir="${buildDirectory}/plugins">
-        		    <fileset dir="${buildDirectory}/../../" includes="org.slf4j*/**"/>
-        		</copy>
+                 <copy todir="${buildDirectory}/plugins">
+                        <fileset dir="${buildDirectory}/../../" includes="net.sf.cglib*/**"/>
+                </copy>
+                <copy todir="${buildDirectory}/plugins">
+                    <fileset dir="${buildDirectory}/../../" includes="org.itadaki.bzip2*/**"/>
+                </copy>
+                <copy todir="${buildDirectory}/plugins">
+                                <fileset dir="${buildDirectory}/../../" includes="org.apache.*/**"/>
+                </copy>
+                <copy todir="${buildDirectory}/plugins">
+                    <fileset dir="${buildDirectory}/../../" includes="org.slf4j*/**"/>
+                </copy>
                         <copy todir="${buildDirectory}/plugins">
                             <fileset dir="${buildDirectory}/../../" includes="ch.*/**"/>
                         </copy>
-        		<copy todir="${buildDirectory}/plugins">
-        	        		    <fileset dir="${buildDirectory}/../../" includes="javax.jms*/**"/>
-        	    </copy>
-    			<copy todir="${buildDirectory}/plugins">
-    		    	    	<fileset dir="${buildDirectory}/../../" includes="org.springframework*/**"/>
-    			</copy>
+                <copy todir="${buildDirectory}/plugins">
+                                <fileset dir="${buildDirectory}/../../" includes="javax.jms*/**"/>
+                </copy>
+                <copy todir="${buildDirectory}/plugins">
+                            <fileset dir="${buildDirectory}/../../" includes="org.springframework*/**"/>
+                </copy>
                         <copy todir="${buildDirectory}/plugins">
                                 <fileset dir="${buildDirectory}/../../" includes="org.quartz*/**"/>
                         </copy>
-				<copy todir="${buildDirectory}/plugins">
-		    	    	<fileset dir="${buildDirectory}/../../" includes="com.raytheon.uf.common.util*/**"/>
-		    	    	<fileset dir="${buildDirectory}/../../" includes="com.raytheon.uf.common.status*/**"/>
-				</copy>
-        		<copy todir="${buildDirectory}/features">
+                <copy todir="${buildDirectory}/plugins">
+                        <fileset dir="${buildDirectory}/../../" includes="com.raytheon.uf.common.util*/**"/>
+                        <fileset dir="${buildDirectory}/../../" includes="com.raytheon.uf.common.status*/**"/>
+                        <fileset dir="${buildDirectory}/../../" includes="com.raytheon.uf.common.serialization*/**"/>
+                </copy>
+                <copy todir="${buildDirectory}/features">
                         <fileset dir="${buildDirectory}/../../" includes="com.raytheon.rcm.feature*/**"/>
                 </copy>
                 <antcall target="getBaseComponents" />

@@ -23,6 +23,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    Sep 01, 2014    3572          randerso       Fix getTopo       
+#    Apr 23, 2015    4259          njensen        Updated for new JEP API
 #
 ########################################################################
 import DatabaseID, AbsTime, JUtil
@@ -31,7 +32,7 @@ from com.raytheon.uf.common.dataplugin.gfe.db.objects import DatabaseID as JavaD
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceID
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import ParmID
 
-from numpy import int8
+import numpy
 
 class DBSSWE:
     def __init__(self, parm):
@@ -59,15 +60,11 @@ class DBSSWE:
                 #return g.pyData()
                 g.populate()
                 slice = g.getGridSlice()
-                result = slice.__numpy__
-                if len(result) == 1:
-                    if result[0].dtype != int8:
-                        # scalar
-                        result = result[0]
-                    else:
-                        # discrete or weather
-                        dkeys = JUtil.javaObjToPyVal(slice.getKeyList())
-                        result.append(dkeys) 
+                result = slice.getNDArray()
+                if type(result) is numpy.ndarray and result.dtype == numpy.int8:                
+                    # discrete or weather
+                    dkeys = JUtil.javaObjToPyVal(slice.getKeyList())
+                    result = [result, keys] 
                 return result
         return None
 
@@ -118,10 +115,10 @@ class DBSSClient:
         rs = self._refmgr.loadRefSet(ReferenceID(name))
         if rs.isQuery():
             return rs.getQuery()
-        return rs.getGrid().__numpy__[0]
+        return rs.getGrid().getNDArray()
     
     def getOpMode(self):
         return self._dataMgr.getOpMode().name()
 
     def getTopo(self):
-        return self._tmgr.getCompositeTopo().__numpy__[0]
+        return self._tmgr.getCompositeTopo().getNDArray()

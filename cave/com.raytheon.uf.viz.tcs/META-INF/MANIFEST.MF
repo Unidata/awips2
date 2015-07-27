@@ -2,20 +2,18 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tcs Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.tcs
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.core,
- org.eclipse.core.runtime,
- org.geotools;bundle-version="2.6.4"
+ com.raytheon.uf.viz.core.point;bundle-version="1.15.0",
+ com.raytheon.uf.common.geospatial;bundle-version="1.14.2"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Import-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.dataplugin.tcs,
  com.raytheon.uf.common.dataplugin.tcs.util,
- com.raytheon.uf.common.geospatial,
  com.raytheon.uf.common.pointdata,
- com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.status,
  com.raytheon.uf.common.time,
  com.raytheon.uf.viz.core,
@@ -24,14 +22,10 @@ Import-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.viz.core.map,
  com.raytheon.uf.viz.core.rsc,
  com.raytheon.uf.viz.core.rsc.capabilities,
- com.raytheon.uf.viz.core.status,
  com.raytheon.viz.pointdata,
- com.raytheon.viz.pointdata.util,
  com.vividsolutions.jts.geom,
  javax.measure.converter,
  javax.measure.unit,
- org.eclipse.core.runtime,
- org.eclipse.swt.graphics,
- org.eclipse.ui.plugin,
- org.osgi.framework
+ org.eclipse.swt.graphics
 Export-Package: com.raytheon.uf.viz.tcs.rsc
+Bundle-ClassPath: com.raytheon.uf.viz.tcs.jar

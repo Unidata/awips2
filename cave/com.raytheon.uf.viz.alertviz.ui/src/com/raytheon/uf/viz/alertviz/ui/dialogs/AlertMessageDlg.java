@@ -20,12 +20,14 @@
 package com.raytheon.uf.viz.alertviz.ui.dialogs;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentSkipListMap;
 
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.DisposeEvent;
@@ -52,6 +54,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.contexts.IContextService;
+import org.eclipse.ui.preferences.ScopedPreferenceStore;
 
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
 import com.raytheon.uf.common.localization.ILocalizationFileObserver;
@@ -62,6 +65,7 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.message.StatusMessage;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.viz.alertviz.Activator;
 import com.raytheon.uf.viz.alertviz.ConfigContext;
 import com.raytheon.uf.viz.alertviz.ConfigurationManager;
 import com.raytheon.uf.viz.alertviz.config.AlertMetadata;
@@ -96,6 +100,8 @@ import com.raytheon.uf.viz.alertviz.ui.audio.IAudioAction;
  * 27 May 2011  9575       cjeanbap    Moved moveLabel to first image in list.
  * 31 May 2011  8058       cjeanbap    Kill sound based on TextMsgBox id.
  * 26 Aug 2013  #2293      lvenable    Fixed color memory leaks.
+ * 02 Jun 2015  4473       mschenke    Remember dialog position
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -107,6 +113,11 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AlertMessageDlg.class, "GDN_ADMIN", "GDN_ADMIN");
+
+    private static final String P_ALERT_MSG_DLG_POSITION = "alertMessageDlg.position";
+
+    private static final ScopedPreferenceStore dialogPrefs = new ScopedPreferenceStore(
+            InstanceScope.INSTANCE, Activator.PLUGIN_ID);
 
     /**
      * Parent shell.
@@ -272,6 +283,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
         Shell shell1 = new Shell(parentShell, SWT.NO_TRIM);
         shell = new Shell(shell1, SWT.ON_TOP);
+        shell.setLocation(getDialogPosition());
 
         shell.addDisposeListener(new DisposeListener() {
             @Override
@@ -294,6 +306,22 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
         shell.pack();
         shell.open();
 
+        Point shellLoc = shell.getLocation();
+        Point shellSize = shell.getSize();
+        Display d = shell.getDisplay();
+        Rectangle dBounds = d.getBounds();
+        if (shellLoc.x < dBounds.x) {
+            shellLoc.x = dBounds.x;
+        } else if ((shellLoc.x + shellSize.x) > (dBounds.x + dBounds.width)) {
+            shellLoc.x = (dBounds.x + dBounds.width) - shellSize.x;
+        }
+        if (shellLoc.y < dBounds.y) {
+            shellLoc.y = dBounds.y;
+        } else if ((shellLoc.y + shellSize.y) > (dBounds.y + dBounds.height)) {
+            shellLoc.y = (dBounds.y + dBounds.height) - shellSize.y;
+        }
+        shell.setLocation(shellLoc);
+
         if (Boolean.getBoolean("SystemTray")
                 && !Boolean.getBoolean("ShowAlertVizBar")) {
             enabled = false;
@@ -309,6 +337,8 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
      * Dispose of all the message timers.
      */
     public void dispose() {
+        setDialogPosition(dialogLoc);
+
         // Stop all of the message timers.
         for (int i = 0; i < txtMsgCompArray.size(); i++) {
             txtMsgCompArray.get(i).stopTimer();
@@ -434,12 +464,6 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
         ConfigurationManager.getInstance().getCustomLocalization()
                 .addFileUpdatedObserver(this);
-
-        Rectangle position = configData.getGlobalConfiguration().getPosition();
-        if (position == null) {
-            position = new Rectangle(-1, -1, -1, 37);
-        }
-        shell.setLocation(position.x, position.y);
     }
 
     private int getDisplayedMonitorCount() {
@@ -1229,5 +1253,21 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     public AlertAudioMgr getAlertAudioManager() {
         return alertAudioMgr;
+    }
+
+    public static Point getDialogPosition() {
+        return new Point(dialogPrefs.getInt(P_ALERT_MSG_DLG_POSITION + ".x"),
+                dialogPrefs.getInt(P_ALERT_MSG_DLG_POSITION + ".y"));
+    }
+
+    public static void setDialogPosition(Point p) {
+        dialogPrefs.setValue(P_ALERT_MSG_DLG_POSITION + ".x", p.x);
+        dialogPrefs.setValue(P_ALERT_MSG_DLG_POSITION + ".y", p.y);
+        try {
+            dialogPrefs.save();
+        } catch (IOException e) {
+            statusHandler.handle(UFStatus.Priority.ERROR,
+                    e.getLocalizedMessage(), e);
+        }
     }
 }

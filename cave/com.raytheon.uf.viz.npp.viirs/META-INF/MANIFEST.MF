@@ -33,3 +33,4 @@ Import-Package: com.raytheon.uf.common.inventory.data,
  com.raytheon.uf.common.inventory.exception,
  com.raytheon.uf.common.inventory,
  com.raytheon.uf.common.inventory.tree
+Bundle-ClassPath: com.raytheon.uf.viz.npp.viirs.jar

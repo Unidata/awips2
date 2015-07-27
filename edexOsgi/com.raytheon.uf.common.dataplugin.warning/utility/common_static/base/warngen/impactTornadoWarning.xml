@@ -15,6 +15,7 @@
      Evan Bookbinder 2-18-2014 added dssEvents hook, 2014 IBW impacts
      Evan Bookbinder 10-24-2014 Fixed parse strings for Base TOR option for COR
                                 Fixed parseString for SqLn embedded TOR for COR
+     Tomalak 3-24-2015 Converted Upper to Mixed Case for Impacts                           
 -->
 
 <warngenConfig>

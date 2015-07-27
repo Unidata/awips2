@@ -93,9 +93,9 @@ class Procedure (SmartScript.SmartScript):
         
         # get the proper localization context
         from com.raytheon.uf.common.localization import LocalizationContext
-        from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType
+        LocalizationType = LocalizationContext.LocalizationType
         CAVE_STATIC = LocalizationType.valueOf("CAVE_STATIC")
-        from com.raytheon.uf.common.localization import LocalizationContext_LocalizationLevel as LocalizationLevel
+        LocalizationLevel = LocalizationContext.LocalizationLevel
         SITE = LocalizationLevel.valueOf("SITE")
         ctx = pathManager.getContext(CAVE_STATIC, SITE)
         

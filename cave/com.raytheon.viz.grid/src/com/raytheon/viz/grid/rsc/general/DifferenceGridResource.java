@@ -44,6 +44,8 @@ import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.grid.rsc.AbstractGridResource;
+import com.raytheon.uf.viz.core.grid.rsc.data.GeneralGridData;
 import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
@@ -65,6 +67,7 @@ import com.raytheon.viz.core.rsc.ICombinedResourceData.CombineUtil;
  * Mar 16, 2011           bsteffen    Initial creation
  * Feb 28, 2013  2791     bsteffen    Use DataSource instead of FloatBuffers
  *                                    for data access
+ * May 15, 2015  4079     bsteffen    Use publicly accessible display unit.
  * 
  * </pre>
  * 
@@ -180,15 +183,17 @@ public class DifferenceGridResource extends
         if (!oneData.convert(newUnit)) {
             // if oneData is somehow incompatible with our style rule then just
             // convert to its style units
-            if (one.stylePreferences != null) {
-                oneData.convert(one.stylePreferences.getDisplayUnits());
+            Unit<?> oneUnit = one.getDisplayUnit();
+            if (oneUnit != null) {
+                oneData.convert(oneUnit);
             }
         }
         if (!twoData.convert(newUnit)) {
             // if twoData is somehow incompatible with our style rule then just
             // convert to its style units
-            if (two.stylePreferences != null) {
-                twoData.convert(two.stylePreferences.getDisplayUnits());
+            Unit<?> twoUnit = two.getDisplayUnit();
+            if (twoUnit != null) {
+                twoData.convert(twoUnit);
             }
         }
         GridGeometry2D newGeom = oneData.getGridGeometry();

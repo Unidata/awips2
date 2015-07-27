@@ -38,7 +38,8 @@ Require-Bundle: com.raytheon.uf.common.registry.schemas.ebxml;bundle-version="1.
  org.opensaml;bundle-version="1.0.0",
  com.raytheon.uf.common.security;bundle-version="1.14.0",
  org.joda.time;bundle-version="1.6.2",
- com.raytheon.uf.common.geospatial;bundle-version="1.14.2"
+ com.raytheon.uf.common.geospatial;bundle-version="1.14.2",
+ org.reflections;bundle-version="0.9.9"
 Export-Package: com.raytheon.uf.edex.registry.ebxml,
  com.raytheon.uf.edex.registry.ebxml.acp,
  com.raytheon.uf.edex.registry.ebxml.dao,

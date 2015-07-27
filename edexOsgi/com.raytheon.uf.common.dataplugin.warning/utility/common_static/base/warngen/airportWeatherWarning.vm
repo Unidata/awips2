@@ -1,23 +1,26 @@
-######################################################
-## AIRPORT WEATHER WARNING TEMPLATE                 ##
-## EXAMPLE TEMPLATE USING HUNTSVILLE PRODUCT        ##
-## CREATED BY PHIL KURIMSKI - WFO DTX               ##
-##     UPDATED EVAN BOOKBINDER 9-18-2013 Implemented config.vm ##
-##     MIKE DANGELO 06-25-2014 removed bullet format/went to free form text per request of local offices, moved ugcline per local examples ## 
-##################################################################
+####################################################################################
+## AIRPORT WEATHER WARNING TEMPLATE                                               ##
+## EXAMPLE TEMPLATE USING HUNTSVILLE PRODUCT                                      ##
+## CREATED BY PHIL KURIMSKI - WFO DTX                                             ##
+##     UPDATED EVAN BOOKBINDER 9-18-2013 Implemented config.vm                    ##
+##     MIKE DANGELO 06-25-2014 removed bullet format/went to free form text       ##
+##                 per request of local offices, moved ugcline per local examples ## 
+##     Mike Dangelo   26 March 2015   Mixed Case Changes                          ##
+####################################################################################
 #parse("config.vm")
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 AWW${siteId}
 ${ugcline} 
 
 #if(${productClass}=="T")
-TEST...AIRPORT WEATHER WARNING...TEST##
+TEST...Airport Weather Warning...TEST##
 #else
-AIRPORT WEATHER WARNING
+Airport Weather Warning
 #end
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
  
 #if(${productClass}=="T")
 ...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
@@ -27,13 +30,13 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ## Set initial variables for initial issuance
 #######################################################################
 #set ($cancel = "")
-#set ($issue = "ISSUED AN")
+#set ($issue = "issued an")
 #######################################################################
 ## Override initial variables if a cancellation is selected
 #######################################################################
 #if(${list.contains(${bullets}, "cancelAWW")})
 #set ($cancel = " CANCELLED")
-#set ($issue = "CANCELLED THE")
+#set ($issue = "cancelled the")
 #end
 #######################################################################
 ## Set the airport based on selection in template 
@@ -41,17 +44,17 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #######################################################################
 #set ($site = "!** YOU DIDN'T SELECT AN AIRPORT **!")
 #if(${list.contains(${bullets}, "HSV")})
-  #set ($site = "HUNTSVILLE INTERNATIONAL AIRPORT /HSV/")
+  #set ($site = "Huntsville International Airport /HSV/")
 #end
 #if(${list.contains(${bullets}, "MSL")})
-  #set ($site = "NORTHWEST ALABAMA REGIONAL AIRPORT (IN MUSCLE SHOALS) /MSL/") 
+  #set ($site = "Northwest Alabama Regional Airport (in Muscle Shoals) /MSL/") 
 #end
 ######################################################
 ###### Storm current location description   ##########
 ######################################################
 ...AIRPORT WEATHER WARNING${cancel}...
 
-THE NATIONAL WEATHER SERVICE IN ${officeLoc} HAS ${issue} AIRPORT WEATHER WARNING FOR...
+The National Weather Service in ${officeLoc} has ${issue} Airport Weather Warning for...
 
 ${site}
 
@@ -68,30 +71,30 @@ ${site}
 THIS IS A TEST MESSAGE. ##
 #end
 
-FOR THE FOLLOWING THREATS...
+For the following threats...
 
 ###################################################################
 ## Create threats based on selections in the xml file
 ## Sites can add or modify threats by changing the code below
 ###################################################################
 #if(${list.contains(${bullets}, "wind")})
-WIND GUSTS 30 KNOTS OR HIGHER.
+Wind gusts 30 knots or higher.
 
 #end
 #if(${list.contains(${bullets}, "lightning")})
-CLOUD TO GROUND LIGHTNING WITHIN 5 NM OF THE AIRPORT.
+Cloud to ground lightning within 5 nm of the airport.
 
 #end
 #if(${list.contains(${bullets}, "hail")})
-HAIL OF 1/2 INCH OR GREATER.
+Hail of 1/2 inch or greater.
 
 #end
 #if(${list.contains(${bullets}, "freezingRain")})
-THE ONSET OF FREEZING RAIN.
+The onset of freezing rain.
 
 #end
 #if(${list.contains(${bullets}, "sleetSnow")})
-THE ONSET OF ACCUMULATING SLEET OR SNOW.
+The onset of accumulating sleet or snow.
 
 #end
 

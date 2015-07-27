@@ -29,9 +29,9 @@ import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.point.display.SymbolLoader;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
-import com.raytheon.viz.pointdata.util.SymbolLoader;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -129,6 +129,7 @@ public class SigWxVtsResource extends SigWxResource {
         return "SIGWX VTS";
     }
 
+    @Override
     protected String[] getParameters() {
         return PARAMETERS;
     }

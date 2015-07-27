@@ -19,8 +19,8 @@
  **/
 package com.raytheon.viz.gfe.rsc;
 
-import com.raytheon.viz.core.contours.util.VectorGraphicsConfig;
-import com.raytheon.viz.core.contours.util.VectorGraphicsConfig.IArrowScaler;
+import com.raytheon.uf.viz.core.point.display.VectorGraphicsConfig;
+import com.raytheon.uf.viz.core.point.display.VectorGraphicsConfig.IArrowScaler;
 
 /**
  * 

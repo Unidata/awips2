@@ -21,7 +21,6 @@ package com.raytheon.viz.gfe.dialogs;
 
 import java.util.Date;
 
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -41,12 +40,12 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
 import com.raytheon.viz.gfe.core.msgs.IActivatedParmChangedListener;
 import com.raytheon.viz.gfe.core.msgs.ISmartToolInventoryChanged;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.smarttool.SmartToolMouseListener;
-import com.raytheon.viz.gfe.smarttool.SmartUtil;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
@@ -57,10 +56,11 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 18, 2007            njensen     Initial creation.	
- * 05Aug2008    #1407       ebabin      Dim delta button for wx/discrete types.
+ * 05Aug2008    #1407      ebabin      Dim delta button for wx/discrete types.
  * Oct 25, 2012 #1287      rferrel     Code clean up part of non-blocking dialog.
  * Oct 13, 2012 #1298      rferrel     Changes for non-blocking SetDeltaDialog.
  *                                      Changes for non-blocking SetValueDialog.
+ * Jun 05, 2015  4259      njensen     Removed LD_PRELOAD check                                     
  * </pre>
  * 
  * @author njensen
@@ -114,7 +114,7 @@ public class EditActionsDialog extends CaveJFACEDialog implements
         title = "Edit Actions";
         setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS | SWT.RESIZE);
 
-        dataManager = DataManager.getCurrentInstance();
+        dataManager = DataManagerUIFactory.getCurrentInstance();
         parm = dataManager.getSpatialDisplayManager().getActivatedParm();
 
         parmChanged = new IActivatedParmChangedListener() {
@@ -236,11 +236,6 @@ public class EditActionsDialog extends CaveJFACEDialog implements
         initToolsList();
 
         applyDialogFont(composite);
-
-        if (!SmartUtil.isLdPreloadSet()) {
-            String warning = "Environment variable LD_PRELOAD is not set.  It should be set to the Python library (e.g. /usr/lib/libpython2.7.so) for smart tools to work correctly.";
-            MessageDialog.openWarning(shell, "Warning", warning);
-        }
 
         return composite;
     }

@@ -49,7 +49,7 @@
          point="org.eclipse.ui.preferencePages">
       <page
             class="com.raytheon.uf.viz.productbrowser.DataTypePreferencePage"
-            id="com.raytheon.uf.viz.productbrowser.productbrowserdatapreferencepage"
+            id="com.raytheon.viz.grid.productbrowser.productbrowserdatapreferencepage"
             name="Grid"
             category="com.raytheon.uf.viz.productbrowser.productbrowserpreferencespage"/>
    </extension>

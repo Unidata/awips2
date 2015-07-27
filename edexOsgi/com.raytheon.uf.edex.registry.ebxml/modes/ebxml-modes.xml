@@ -23,7 +23,13 @@
        Refer to edex/modes/README.txt for documentation
 --> 
 <edexModes>
-	<mode name="ingest">
+    <mode name="ingest">
         <exclude>ebxml.*\.xml</exclude>
-	</mode>
+    </mode>
+    <mode name="ebxmlRegistry">
+        <include>ebxml.*\.xml</include>
+        <include>eventbus-common.xml</include>
+        <include>edex-security.xml</include>
+        <include>geo-common.xml</include>
+    </mode>
 </edexModes>

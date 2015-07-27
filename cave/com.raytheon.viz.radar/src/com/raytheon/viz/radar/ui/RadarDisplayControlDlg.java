@@ -20,11 +20,10 @@
 package com.raytheon.viz.radar.ui;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
@@ -54,6 +53,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * 04 DEC 2007  373        lvenable    Initial creation
  * 06 Nov 2014  DCS 16776  zwang       Add control for MBA
+ * May 13, 2015 4461       bsteffen    Add option for sails.
  * 
  * </pre>
  * 
@@ -132,7 +132,7 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
      * Show MBA Wind Shear check box.
      */
     private Button showMbaWindShear;
-    
+
     /**
      * Overlap Mesos check box.
      */
@@ -194,6 +194,11 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
     private Spinner speedSpnr;
 
     /**
+     * enable sails frame coordinator check box.
+     */
+    private Button enableSails;
+
+    /**
      * Constructor.
      * 
      * @param parent
@@ -234,6 +239,8 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
         addSeparator();
         createSrmControls();
         createCustomStormMotionGroup();
+        addSeparator();
+        createSailsControls();
         createCloseButton();
 
         updateDialogFromValues();
@@ -294,6 +301,7 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
         speedSpnr.setSelection(values.getSrmSpeed());
         enableCustomStormControls(values.getSrmSource().equals(
                 RadarSRMResource.SRMSource.CUSTOM));
+        enableSails.setSelection(values.isSailsFrameCoordinator());
     }
 
     /**
@@ -323,18 +331,14 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
         showStormScale.setPageIncrement(1);
         showStormScale.setLayoutData(gd);
         showStormScale.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 showStormLbl.setText(String.valueOf(showStormScale
                         .getSelection()));
 
             }
         });
-        showStormScale.addKeyListener(new KeyListener() {
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-
-            }
+        showStormScale.addKeyListener(new KeyAdapter() {
 
             @Override
             public void keyReleased(KeyEvent e) {
@@ -372,6 +376,7 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
         }
         stiTrackToShowCbo.setLayoutData(gd);
         stiTrackToShowCbo.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 values.setStiTrackType(RadarDisplayManager.TrackTypes
                         .fromString(stiTrackToShowCbo.getText()));
@@ -429,6 +434,7 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
         lowPohCbo.setLayoutData(gd);
         lowPohCbo.setLayoutData(gd);
         lowPohCbo.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 if (lowPohCbo.getSelectionIndex() > highPohCbo
                         .getSelectionIndex()) {
@@ -459,6 +465,7 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
         lowPoshCbo.setLayoutData(gd);
         lowPoshCbo.setLayoutData(gd);
         lowPoshCbo.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 if (lowPoshCbo.getSelectionIndex() > highPoshCbo
                         .getSelectionIndex()) {
@@ -490,6 +497,7 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
         highPohCbo.setLayoutData(gd);
         highPohCbo.setLayoutData(gd);
         highPohCbo.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 if (lowPohCbo.getSelectionIndex() > highPohCbo
                         .getSelectionIndex()) {
@@ -519,6 +527,7 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
         highPoshCbo.setLayoutData(gd);
         highPoshCbo.setLayoutData(gd);
         highPoshCbo.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 if (lowPoshCbo.getSelectionIndex() > highPoshCbo
                         .getSelectionIndex()) {
@@ -555,6 +564,7 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
         showElevatedTvsChk = new Button(tvsComp, SWT.CHECK);
         showElevatedTvsChk.setText("Show elevated TVS");
         showElevatedTvsChk.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 values.setTvsShowElevated(showElevatedTvsChk.getSelection());
             }
@@ -586,6 +596,7 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
         showExtrapolatedChk = new Button(dmdMdTvsComp, SWT.CHECK);
         showExtrapolatedChk.setText("Show extrapolated features");
         showExtrapolatedChk.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 values.setDmdMdTvsShowExtrapolated(showExtrapolatedChk
                         .getSelection());
@@ -617,6 +628,7 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
         minFeatureScale.setMaximum(15);
         minFeatureScale.setLayoutData(gd);
         minFeatureScale.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 minFeatureScaleLbl.setText(String.valueOf(minFeatureScale
                         .getSelection()));
@@ -642,6 +654,7 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
         overlapMesosChk.setText("Show overlapping Mesos");
         overlapMesosChk.setLayoutData(gd);
         overlapMesosChk.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 values.setDmdShowOverlapping(overlapMesosChk.getSelection());
             }
@@ -662,6 +675,7 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
         }
         dmdTrackToShowCbo.setLayoutData(gd);
         dmdTrackToShowCbo.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 values.setDmdTrackType(RadarDisplayManager.TrackTypes
                         .fromString(dmdTrackToShowCbo.getText()));
@@ -687,6 +701,7 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
         showMbaWindShear = new Button(mbaComp, SWT.CHECK);
         showMbaWindShear.setText("Show Wind Shear");
         showMbaWindShear.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 values.setMbaShowWindShear(showMbaWindShear.getSelection());
             }
@@ -708,6 +723,7 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
         stormMotionRdo = new Button(srmComp, SWT.RADIO);
         stormMotionRdo.setText("Storm Motion from WarnGen Track");
         stormMotionRdo.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 values.setSrmSource(RadarSRMResource.SRMSource.WARNGEN);
                 enableCustomStormControls(false);
@@ -724,6 +740,7 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
         averageStormRdo = new Button(srmComp, SWT.RADIO);
         averageStormRdo.setText("Average Storm Motion from STI");
         averageStormRdo.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 values.setSrmSource(RadarSRMResource.SRMSource.STI);
                 enableCustomStormControls(false);
@@ -736,6 +753,7 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
         customStormRdo = new Button(srmComp, SWT.RADIO);
         customStormRdo.setText("Custom Storm Motion");
         customStormRdo.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 values.setSrmSource(RadarSRMResource.SRMSource.CUSTOM);
                 enableCustomStormControls(true);
@@ -768,9 +786,7 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
         dirScale.setMaximum(359);
         dirScale.setIncrement(5);
         dirScale.setLayoutData(gd);
-        dirScale.addMouseListener(new MouseListener() {
-            public void mouseDoubleClick(MouseEvent e) {
-            }
+        dirScale.addMouseListener(new MouseAdapter() {
 
             @Override
             public void mouseUp(MouseEvent e) {
@@ -778,9 +794,6 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
                 dirSpnr.setSelection(dirScale.getSelection());
             }
 
-            @Override
-            public void mouseDown(MouseEvent e) {
-            }
         });
 
         gd = new GridData(30, SWT.DEFAULT);
@@ -788,9 +801,7 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
         dirSpnr.setLayoutData(gd);
         dirSpnr.setMinimum(dirScale.getMinimum());
         dirSpnr.setMaximum(dirScale.getMaximum());
-        dirSpnr.addMouseListener(new MouseListener() {
-            public void mouseDoubleClick(MouseEvent e) {
-            }
+        dirSpnr.addMouseListener(new MouseAdapter() {
 
             @Override
             public void mouseUp(MouseEvent e) {
@@ -798,9 +809,6 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
                 dirScale.setSelection(dirSpnr.getSelection());
             }
 
-            @Override
-            public void mouseDown(MouseEvent e) {
-            }
         });
 
         // Filler label
@@ -837,9 +845,7 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
         speedScale.setMaximum(99);
         speedScale.setIncrement(5);
         speedScale.setLayoutData(gd);
-        speedScale.addMouseListener(new MouseListener() {
-            public void mouseDoubleClick(MouseEvent e) {
-            }
+        speedScale.addMouseListener(new MouseAdapter() {
 
             @Override
             public void mouseUp(MouseEvent e) {
@@ -847,9 +853,6 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
                 speedSpnr.setSelection(speedScale.getSelection());
             }
 
-            @Override
-            public void mouseDown(MouseEvent e) {
-            }
         });
 
         gd = new GridData(30, SWT.DEFAULT);
@@ -857,9 +860,7 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
         speedSpnr.setLayoutData(gd);
         speedSpnr.setMinimum(speedScale.getMinimum());
         speedSpnr.setMaximum(speedScale.getMaximum());
-        speedSpnr.addMouseListener(new MouseListener() {
-            public void mouseDoubleClick(MouseEvent e) {
-            }
+        speedSpnr.addMouseListener(new MouseAdapter() {
 
             @Override
             public void mouseUp(MouseEvent e) {
@@ -867,9 +868,6 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
                 speedScale.setSelection(speedSpnr.getSelection());
             }
 
-            @Override
-            public void mouseDown(MouseEvent e) {
-            }
         });
 
         // Filler label
@@ -892,6 +890,31 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
         spdMaxLbl.setLayoutData(gd);
     }
 
+    private void createSailsControls() {
+        Composite sailsComp = new Composite(shell, SWT.NONE);
+        GridLayout gl = new GridLayout(2, false);
+        sailsComp.setLayout(gl);
+
+        GridData gd = new GridData(60, SWT.DEFAULT);
+        Label mbaLbl = new Label(sailsComp, SWT.NONE);
+        mbaLbl.setFont(labelFont);
+        mbaLbl.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLUE));
+        mbaLbl.setText("SAILS");
+        mbaLbl.setLayoutData(gd);
+
+        enableSails = new Button(sailsComp, SWT.CHECK);
+        enableSails.setText("Enable SAILS Frame Coordinator");
+        enableSails
+                .setToolTipText("The SAILS frame coordinator enables custom actions for the up/down arrows and the last frame button that");
+        enableSails.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                values.setSailsFrameCoordinator(enableSails.getSelection());
+            }
+        });
+
+    }
+
     /**
      * Create the close button.
      */
@@ -908,6 +931,7 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
         closeBtn.setText("Close");
         closeBtn.setLayoutData(gd);
         closeBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 shell.dispose();
             }

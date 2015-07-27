@@ -28,6 +28,9 @@ import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.serialization.comm.RequestRouter;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * A cache of {@link SatMapCoverage} based off the gid field. This cache can be
@@ -39,9 +42,10 @@ import com.raytheon.uf.common.serialization.comm.RequestRouter;
  * 
  * SOFTWARE HISTORY
  * 
- * Date          Ticket#  Engineer    Description
- * ------------- -------- ----------- --------------------------
- * Apr 09, 2014  2947     bsteffen    Initial creation
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------
+ * Apr 09, 2014  2947     bsteffen  Initial creation
+ * Jun 19, 2015  4554     bsteffen  Limit the damage done when the bulk query fails.
  * 
  * </pre>
  * 
@@ -50,6 +54,8 @@ import com.raytheon.uf.common.serialization.comm.RequestRouter;
  */
 
 public class SatelliteCoverageCache {
+    private static final transient IUFStatusHandler logger = UFStatus
+            .getHandler(SatelliteCoverageCache.class);
 
     private static final String GID = "gid";
 
@@ -59,11 +65,29 @@ public class SatelliteCoverageCache {
      */
     private final Map<Integer, SatMapCoverage> cache = new HashMap<Integer, SatMapCoverage>();
 
-    public SatelliteCoverageCache() throws DataCubeException {
+    public SatelliteCoverageCache() {
         /* Prepopulate the cache. */
         DbQueryRequest request = new DbQueryRequest();
         request.setEntityClass(SatMapCoverage.class);
-        handleRequest(request);
+        /*
+         * On normal systems there are not more than a few hundred coverages so
+         * the limit statement does nothing. There are certain error conditions
+         * on the server that can cause it to have more coverages so the limit
+         * statement is in place to prevent the query from failing due to the
+         * size of the results. In this case any coverages that are needed
+         * beyond the original 1024 will end up being requested individually.
+         */
+        request.setLimit(1024);
+        try {
+            handleRequest(request);
+        } catch (DataCubeException e) {
+            /*
+             * This is non-fatal because the coverages will be requested
+             * indivdually when they are needed.
+             */
+            logger.handle(Priority.DEBUG, getClass().getSimpleName()
+                    + " failed to bulk retrieve coverages.", e);
+        }
     }
 
     public SatMapCoverage get(int gid) throws DataCubeException {

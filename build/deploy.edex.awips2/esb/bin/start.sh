@@ -92,9 +92,8 @@ export PATH=$PATH:$awips_home/GFESuite/bin:$awips_home/GFESuite/ServiceBackup/sc
 export PATH=$PATH:$PROJECT/bin
 
 export JAVA_HOME="${JAVA_INSTALL}"
-export LD_LIBRARY_PATH=$EDEX_HOME/lib/lib_illusion:$EDEX_HOME/lib/native/linux32/awips1:${JAVA_INSTALL}/lib:${PYTHON_INSTALL}/lib:${PSQL_INSTALL}/lib:$PROJECT/sharedLib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$EDEX_HOME/lib/native/linux32/awips1:${JAVA_INSTALL}/lib:${PYTHON_INSTALL}/lib:${PSQL_INSTALL}/lib:$PROJECT/sharedLib:$LD_LIBRARY_PATH
 
-export LD_PRELOAD="libpython.so"
 export FXA_DATA=$EDEX_HOME/data/fxa
 export ALLOW_ARCHIVE_DATA="false"
 
@@ -129,15 +128,6 @@ fi
 
 export CONSOLE_LOGLEVEL
 
-# determine whether we are running a 32-bit or 64-bit version of EDEX -
-# based on the AWIPS II Java that has been installed
-EDEX_BITS="32"
-EXPECTED_ARCH=`file ${JAVA_INSTALL}/bin/java | awk '{ print $3; }'`
-if [ "${EXPECTED_ARCH}" = "64-bit" ]; then
-   EDEX_BITS="64"
-fi
-export EDEX_BITS=${EDEX_BITS}
-
 # source environment files
 . $EDEX_HOME/etc/default.sh
 
@@ -156,6 +146,16 @@ WRAPPER_ARGS=""
 if [ $DEBUG_FLAG == "on" ]; then
    WRAPPER_ARGS="wrapper.java.debug.port=${EDEX_DEBUG_PORT}"
    echo "To Debug ... Connect to Port: ${EDEX_DEBUG_PORT}."
+fi
+
+#create tmp dir
+mkdir -p ${AWIPS2_TEMP}
+
+RC=$?
+if [ ${RC} -ne 0 ]; then
+   echo "ERROR: Failed to create temp directory ${AWIPS2_TEMP}."
+   echo "Unable To Continue ... Terminating."
+   exit 1
 fi
 
 java -Xmx32m -XX:MaxPermSize=12m -XX:ReservedCodeCacheSize=4m -jar ${YAJSW_HOME}/wrapper.jar -c ${EDEX_HOME}/conf/${CONF_FILE} ${WRAPPER_ARGS}

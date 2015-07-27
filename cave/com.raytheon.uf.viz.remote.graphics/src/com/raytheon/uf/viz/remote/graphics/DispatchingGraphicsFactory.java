@@ -36,6 +36,7 @@ import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.time.TimeMatchingJob;
 import com.raytheon.uf.viz.remote.graphics.objects.ViewWrapper;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -47,10 +48,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * SOFTWARE HISTORY
  * 
- * Date          Ticket#  Engineer    Description
- * ------------- -------- ----------- --------------------------
- * Mar 05, 2012           mschenke    Initial creation
- * Mar 05, 2014  2843     bsteffen    Catch recycle errors.
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------
+ * Mar 05, 2012           mschenke  Initial creation
+ * Mar 05, 2014  2843     bsteffen  Catch recycle errors.
+ * May 19, 2015  3938     bsteffen  Prevent painting during recycle.
  * 
  * </pre>
  * 
@@ -209,12 +211,13 @@ public class DispatchingGraphicsFactory extends AbstractGraphicsFactoryAdapter {
     private static void refreshPane(IDisplayPane pane) {
         IRenderableDisplay display = pane.getRenderableDisplay();
         IDescriptor descriptor = display.getDescriptor();
-        // Force resetting of the pane's display
+        /*
+         * The renderable display must be null while it is recycling to prevent
+         * the pane from painting. Even though refresh is on the main thread, it
+         * is still possible to paint if the recycle causes a Job.join because
+         * eclipse allows some events to process while waiting for the join.
+         */
         pane.setRenderableDisplay(null);
-        pane.setRenderableDisplay(display);
-
-        display.setup(pane.getTarget());
-
         for (ResourcePair rp : descriptor.getResourceList()) {
             if (rp.getResource() != null) {
                 try {
@@ -229,15 +232,11 @@ public class DispatchingGraphicsFactory extends AbstractGraphicsFactoryAdapter {
             }
         }
 
-        if (descriptor.getTimeMatcher() != null) {
-            try {
-                descriptor.getTimeMatcher().redoTimeMatching(descriptor);
-            } catch (VizException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error redoing time matching", e);
-            }
-        }
+        TimeMatchingJob.scheduleTimeMatch(descriptor);
 
+        pane.setRenderableDisplay(display);
+
+        display.setup(pane.getTarget());
         pane.refresh();
     }
 }

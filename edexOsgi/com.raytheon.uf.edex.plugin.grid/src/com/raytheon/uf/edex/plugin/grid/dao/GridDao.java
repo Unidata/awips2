@@ -28,6 +28,11 @@ import java.util.Set;
 
 import javax.measure.converter.UnitConverter;
 
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
@@ -37,7 +42,6 @@ import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
-import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.StorageException;
@@ -70,7 +74,7 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * Mar 14, 2013  1587     bsteffen    Fix static data persisting to datastore.
  * Mar 27, 2013  1821     bsteffen    Speed up GridInfoCache.   
  * Mar 20, 2013  2910     bsteffen    Clear dataURI after loading cached info.
- * 
+ * Jul 09, 2015  4500     rjpeter     Fix SQL Injection concern.
  * </pre>
  * 
  * @author bphillip
@@ -99,7 +103,7 @@ public class GridDao extends PluginDao {
         GridRecord gridRec = (GridRecord) obj;
         Object messageData = gridRec.getMessageData();
         GridCoverage location = gridRec.getLocation();
-        if (location != null && messageData instanceof float[]) {
+        if ((location != null) && (messageData instanceof float[])) {
             long[] sizes = new long[] { location.getNx(), location.getNy() };
             String abbrev = gridRec.getParameter().getAbbreviation();
             String group = gridRec.getDataURI();
@@ -109,8 +113,7 @@ public class GridDao extends PluginDao {
                 datasetName = abbrev;
             }
             AbstractStorageRecord storageRecord = new FloatDataRecord(
-                    datasetName,
-                    group, (float[]) messageData, 2, sizes);
+                    datasetName, group, (float[]) messageData, 2, sizes);
 
             storageRecord.setCorrelationObject(gridRec);
             StorageProperties sp = new StorageProperties();
@@ -136,8 +139,8 @@ public class GridDao extends PluginDao {
                 records.length);
         for (PluginDataObject record : records) {
             GridRecord rec = (GridRecord) record;
-            if (rec.getParameter() == null
-                    || rec.getParameter().getName() == null
+            if ((rec.getParameter() == null)
+                    || (rec.getParameter().getName() == null)
                     || rec.getParameter().getName().equals("Missing")) {
                 logger.info("Discarding record due to missing or unknown parameter mapping: "
                         + record);
@@ -148,7 +151,7 @@ public class GridDao extends PluginDao {
                 if (level != null) {
                     MasterLevel ml = level.getMasterLevel();
 
-                    if (ml != null
+                    if ((ml != null)
                             && !LevelFactory.UNKNOWN_LEVEL.equals(ml.getName())) {
                         validLevel = true;
                     }
@@ -242,7 +245,8 @@ public class GridDao extends PluginDao {
             record.setInfo(GridInfoCache.getInstance().getGridInfo(
                     record.getInfo()));
         } catch (DataAccessLayerException e) {
-            logger.handle(Priority.PROBLEM,
+            logger.handle(
+                    Priority.PROBLEM,
                     "Cannot load GridInfoRecord from DB for: "
                             + record.getDataURI(), e);
             return false;
@@ -285,7 +289,8 @@ public class GridDao extends PluginDao {
                 // // match, but currently we will persist it anyway.
                 // // result = false;
                 // } else
-                if (converter != null && converter != UnitConverter.IDENTITY) {
+                if ((converter != null)
+                        && (converter != UnitConverter.IDENTITY)) {
                     Object messageData = record.getMessageData();
                     if (messageData instanceof float[]) {
                         float[] data = (float[]) messageData;
@@ -338,7 +343,8 @@ public class GridDao extends PluginDao {
         if (level != null) {
             MasterLevel ml = level.getMasterLevel();
 
-            if (ml != null && !LevelFactory.UNKNOWN_LEVEL.equals(ml.getName())) {
+            if ((ml != null)
+                    && !LevelFactory.UNKNOWN_LEVEL.equals(ml.getName())) {
                 result = true;
             }
         }
@@ -354,60 +360,59 @@ public class GridDao extends PluginDao {
      * Overridden to clean up orphan GridInfoRecords.
      */
     @Override
-    public void delete(List<PluginDataObject> objs) {
+    public void delete(final List<PluginDataObject> objs) {
         super.delete(objs);
-        Set<Integer> orphanedIds = new HashSet<Integer>(objs.size());
-        StringBuilder sqlString = new StringBuilder(objs.size() * 15 + 80);
-        sqlString
-                .append("select distinct info_id from awips.grid where info_id in (");
-        for (PluginDataObject pdo : objs) {
-            if (pdo instanceof GridRecord) {
-                Integer id = ((GridRecord) pdo).getInfo().getId();
-                if (orphanedIds.add(id)) {
-                    if (orphanedIds.size() > 1) {
-                        sqlString.append(", ");
-                    }
-                    sqlString.append(id);
-                }
-            }
-        }
-        sqlString.append(");");
         try {
-            QueryResult result = (QueryResult) this.executeNativeSql(sqlString
-                    .toString());
-            for (int i = 0; i < result.getResultCount(); i++) {
-                orphanedIds.remove(result.getRowColumnValue(i, 0));
-            }
-            if (!orphanedIds.isEmpty()) {
-                sqlString = new StringBuilder(orphanedIds.size() * 15 + 60);
-                sqlString.append("delete from awips.grid_info where id in (");
-                boolean first = true;
-                for (Integer id : orphanedIds) {
-                    if (!first) {
-                        sqlString.append(", ");
-                    } else {
-                        first = false;
+            txTemplate.execute(new TransactionCallback<Integer>() {
+                @Override
+                public Integer doInTransaction(TransactionStatus status) {
+                    Set<Integer> orphanedIds = new HashSet<Integer>(objs.size());
+                    for (PluginDataObject pdo : objs) {
+                        if (pdo instanceof GridRecord) {
+                            Integer id = ((GridRecord) pdo).getInfo().getId();
+                            orphanedIds.add(id);
+                        }
                     }
-                    sqlString.append(id);
+                    int rowsDeleted = 0;
+                    if (!orphanedIds.isEmpty()) {
+                        Session sess = getCurrentSession();
+                        Query query = sess
+                                .createQuery("select distinct info.id from GridRecord where info.id in (:ids)");
+                        query.setParameterList("ids", orphanedIds);
+
+                        List<?> idsToKeep = query.list();
+                        if (idsToKeep != null) {
+                            orphanedIds.removeAll(idsToKeep);
+                        }
+                        if (!orphanedIds.isEmpty()) {
+                            if (purgeModelCacheTopic != null) {
+                                query = sess
+                                        .createQuery("delete from GridInfoRecord where id in (:ids)");
+                                query.setParameterList("ids", orphanedIds);
+                                rowsDeleted = query.executeUpdate();
+
+                                try {
+                                    EDEXUtil.getMessageProducer().sendAsyncUri(
+                                            purgeModelCacheTopic, orphanedIds);
+                                } catch (EdexException e) {
+                                    logger.error(
+                                            "Error sending message to purge grid info topic",
+                                            e);
+                                }
+                            } else {
+                                GridInfoCache.getInstance().purgeCache(
+                                        new ArrayList<Integer>(orphanedIds));
+                                logger.warn("Unable to purge model cache of clustered edices");
+                            }
+
+                        }
+                    }
+
+                    return rowsDeleted;
                 }
-                sqlString.append(");");
-                if (purgeModelCacheTopic != null) {
-                    this.executeNativeSql(sqlString.toString());
-                    EDEXUtil.getMessageProducer().sendAsyncUri(
-                            purgeModelCacheTopic, orphanedIds);
-                } else {
-                    GridInfoCache.getInstance().purgeCache(
-                            new ArrayList<Integer>(orphanedIds));
-                    logger
-                            .warn("Unable to purge model cache of clustered edices");
-                }
-            }
-        } catch (DataAccessLayerException e1) {
-            logger.error("Error purging orphaned grid info entries", e1);
-        } catch (EdexException e) {
-            logger.error(
-                    "Error sending message to purge grid info topic", e);
+            });
+        } catch (Exception e) {
+            logger.error("Error purging orphaned grid info entries", e);
         }
     }
-
 }

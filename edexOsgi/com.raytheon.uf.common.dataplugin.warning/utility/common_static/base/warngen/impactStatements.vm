@@ -8,7 +8,9 @@
 ## EDITED PHIL KURIMSKI 9-17-13 FOR SMW IMPACT STATEMENTS     ##
 ## EDITED EVAN BOOKBINDER 2-18-14 FOR 2014 IMPACT STATEMENTS  ##
 ## EDITED PHIL KURIMSKI 6-26-15 FIXED CONSID IMPCT VARIABLE   ##
-## EDITED PHIL KURIMSKI 2-19-15 UPDATED SMW IMPACT STATEMENTS ##
+## EDITED PHIL KURIMSKI 2-19-15 UPDATED SMW IMPACT STATEMENTS ## 
+## EDITED DAVE TOMALAK  3-25-15 CONVERT UPPER TO MIXED CASE   ##
+## EDITED PHIL KURIMSKI 3-26-15 CHANGED ELLIPSES TO COMMAS    ##
 ################################################################
 ##
 ################################################################
@@ -28,36 +30,36 @@
 ###################################################
 #set ($windImpact = "")
 #if(${windSpeed} == 60)
-#set ($windImpact = "EXPECT DAMAGE TO ROOFS...SIDING AND TREES.")
-#set ($windImpactComb = "EXPECT WIND DAMAGE TO ROOFS...SIDING AND TREES.")
+#set ($windImpact = "Expect damage to roofs, siding, and trees.")
+#set ($windImpactComb = "Expect wind damage to roofs, siding, and trees.")
 #end
 #if(${windSpeed} == 70)
-#set ($windImpact = "EXPECT CONSIDERABLE TREE DAMAGE. DAMAGE IS LIKELY TO MOBILE HOMES...ROOFS AND OUTBUILDINGS.")
-#set ($windImpactComb = "EXPECT CONSIDERABLE TREE DAMAGE. WIND DAMAGE IS ALSO LIKELY TO MOBILE HOMES...ROOFS AND OUTBUILDINGS.")
+#set ($windImpact = "Expect considerable tree damage. Damage is likely to mobile homes, roofs, and outbuildings.")
+#set ($windImpactComb = "Expect considerable tree damage. Wind damage is also likely to mobile homes, roofs, and outbuildings.")
 #end
 #if(${windSpeed} == 80)
-#set ($windImpact = "FLYING DEBRIS WILL BE DANGEROUS TO THOSE CAUGHT WITHOUT SHELTER. MOBILE HOMES WILL BE HEAVILY DAMAGED. EXPECT CONSIDERABLE DAMAGE TO ROOFS...WINDOWS AND VEHICLES. EXTENSIVE TREE DAMAGE AND POWER OUTAGES ARE LIKELY.")
+#set ($windImpact = "Flying debris will be dangerous to those caught without shelter. Mobile homes will be heavily damaged. Expect considerable damage to roofs, windows, and vehicles. Extensive tree damage and power outages are likely.")
 #end
 #if(${windSpeed} == 90)
-#set ($windImpact ="YOU ARE IN A LIFE-THREATENING SITUATION. FLYING DEBRIS MAY BE DEADLY TO THOSE CAUGHT WITHOUT SHELTER. MOBILE HOMES WILL BE HEAVILY DAMAGED OR DESTROYED. HOMES AND BUSINESSES WILL HAVE SUBSTANTIAL ROOF AND WINDOW DAMAGE. EXPECT EXTENSIVE TREE DAMAGE AND POWER OUTAGES.")
+#set ($windImpact ="You are in a life-threatening situation. Flying debris may be deadly to those caught without shelter. Mobile homes will be heavily damaged or destroyed. Homes and businesses will have substantial roof and window damage. Expect extensive tree damage and power outages.")
 #end
 #if(${windSpeed} == 100)
-#set ($windImpact ="YOU ARE IN A LIFE-THREATENING SITUATION. FLYING DEBRIS MAY BE DEADLY TO THOSE CAUGHT WITHOUT SHELTER. MOBILE HOMES WILL BE DESTROYED. EXPECT CONSIDERABLE DAMAGE TO HOMES AND BUSINESSES. EXPECT EXTENSIVE TREE DAMAGE AND POWER OUTAGES.")
+#set ($windImpact ="You are in a life-threatening situation. Flying debris may be deadly to those caught without shelter. Mobile homes will be destroyed. Expect considerable damage to homes and businesses. Expect extensive tree damage and power outages.")
 #end
 ###################################################
 ## HANDLE HAIL POSSIBILITIES ######################
 ###################################################
 #set ($hailImpact = "")
 #if(${hailSize} < 1.50 && ${hailSize} >= 1)
-#set ($hailImpact = "DAMAGE TO VEHICLES IS EXPECTED.")
-#set ($hailImpactComb = "HAIL DAMAGE TO VEHICLES IS EXPECTED.")
+#set ($hailImpact = "Damage to vehicles is expected.")
+#set ($hailImpactComb = "Hail damage to vehicles is expected.")
 #end
 #if(${hailSize} >= 1.50 && ${hailSize} < 2.75)
-#set ($hailImpact = "PEOPLE AND ANIMALS OUTDOORS WILL BE INJURED. EXPECT DAMAGE TO ROOFS...SIDING...WINDOWS AND VEHICLES.")
-#set ($hailImpactComb = "PEOPLE AND ANIMALS OUTDOORS WILL BE INJURED. EXPECT HAIL DAMAGE TO ROOFS...SIDING...WINDOWS AND VEHICLES.")
+#set ($hailImpact = "People and animals outdoors will be injured. Expect damage to roofs, siding, windows, and vehicles.")
+#set ($hailImpactComb = "People and animals outdoors will be injured. Expect hail damage to roofs, siding, windows, and vehicles.")
 #end
 #if(${hailSize} >= 2.75)
-#set ($hailImpact = "PEOPLE AND ANIMALS OUTDOORS WILL BE SEVERELY INJURED. EXPECT SHATTERED WINDOWS...EXTENSIVE DAMAGE TO ROOFS...SIDING AND VEHICLES.")
+#set ($hailImpact = "People and animals outdoors will be severely injured. Expect shattered windows, extensive damage to roofs, siding, and vehicles.")
 #end
 ######################################################################
 ## Setup wind/hail impact statement based on wind speed and hail size
@@ -80,27 +82,27 @@
 ################################################################
 ## The following is the base Tornado Impact Statement
 ################################################################
-#set ($torimpact = "FLYING DEBRIS WILL BE DANGEROUS TO THOSE CAUGHT WITHOUT SHELTER. MOBILE HOMES WILL BE DAMAGED OR DESTROYED. DAMAGE TO ROOFS...WINDOWS AND VEHICLES WILL OCCUR.  TREE DAMAGE IS LIKELY.")
+#set ($torimpact = "Flying debris will be dangerous to those caught without shelter. Mobile homes will be damaged or destroyed. Damage to roofs, windows, and vehicles will occur.  Tree damage is likely.")
 ################################################################
 ## IF A LANDSPOUT/VERY WEAK TORNADO IS SELECTED THE FOLLOWING
 ## IMPACT STATEMENT WILL BE USED WITH TONED DOWN WORDING
 ################################################################
 #if(${list.contains($bullets, "landspoutTornado")})
-#set ($torimpact = "EXPECT DAMAGE TO MOBILE HOMES...ROOFS AND VEHICLES.")
+#set ($torimpact = "Expect damage to mobile homes, roofs, and vehicles.")
 #end
 ############################################################################
 ## IF A SIGNIFICANT TORNADO IS SELECTED THE FOLLOWING IMPACT STATEMENT
 ## WILL BE USED TO HEIGHTEN AWARENESS OF THIS DANGEROUS SITUATION
 ############################################################################
 #if(${list.contains($bullets, "considerableTornado")})
-#set ($torimpact = "YOU ARE IN A LIFE THREATENING SITUATION. FLYING DEBRIS MAY BE DEADLY TO THOSE CAUGHT WITHOUT SHELTER. MOBILE HOMES WILL BE DESTROYED. CONSIDERABLE DAMAGE TO HOMES...BUSINESSES AND VEHICLES IS LIKELY AND COMPLETE DESTRUCTION IS POSSIBLE.")
+#set ($torimpact = "You are in a life threatening situation. Flying debris may be deadly to those caught without shelter. Mobile homes will be destroyed. Considerable damage to homes, businesses, and vehicles is likely and complete destruction is possible.")
 #end
 ############################################################################
 ## IF A TORNADO EMERGENCY IS SELECTED THE FOLLOWING IMPACT STATEMENT 
 ## WILL BE USED TO HEIGHTEN AWARENESS OF THIS DANGEROUS SITUATION
 ############################################################################
 #if(${list.contains($bullets, "torEmergency")})
-#set ($torimpact = "YOU ARE IN A LIFE THREATENING SITUATION. FLYING DEBRIS MAY BE DEADLY TO THOSE CAUGHT WITHOUT SHELTER. MOBILE HOMES WILL BE DESTROYED. CONSIDERABLE DAMAGE TO HOMES...BUSINESSES AND VEHICLES IS LIKELY AND COMPLETE DESTRUCTION IS POSSIBLE.")
+#set ($torimpact = "You are in a life threatening situation. Flying debris may be deadly to those caught without shelter. Mobile homes will be destroyed. Considerable damage to homes, businesses, and vehicles is likely and complete destruction is possible.")
 #end
 ############################################################################
 ## Since the SVS template uses both the torimpact and svrimpact variables
@@ -121,23 +123,23 @@
 #set($smwHailImpact = "")
 #set($hailAppend = "")
 #if($hailTag == ">.75")
-	#set($smwHailImpact = "LARGE HAIL COULD RESULT IN STRUCTURAL DAMAGE.")
-	#set($hailAppend = " AND HAIL")
+	#set($smwHailImpact = "Large hail could result in structural damage.")
+	#set($hailAppend = " and hail")
 #end
 #if($hailTag == ">2.0")
-	#set($smwHailImpact = "LARGE HAIL COULD RESULT IN PERSONAL INJURY AND SIGNIFICANT STRUCTURAL DAMAGE.")
-	#set($hailAppend = " AND HAIL")
+	#set($smwHailImpact = "Large hail could result in personal injury and significant structural damage.")
+	#set($hailAppend = " and hail")
 #end
 ###################################################
 ## HANDLE WIND POSSIBILITIES ######################
 ###################################################
 #set($smwWindImpact = "")
 #if(${windTag} == ">34" || ${windTag} == "40" || ${windTag} == "49")
-	#set($smwWindImpact = "SMALL CRAFT COULD BE DAMAGED IN BRIEFLY HIGHER WINDS AND SUDDENLY HIGHER WAVES.")
+	#set($smwWindImpact = "Small craft could be damaged in briefly higher winds and suddenly higher waves.")
 #end
 ## If winds are 50 knots or greater do not include hail impact statement
 #if(${windTag} == "50" || ${windTag} == "65")
-	#set($smwWindImpact = "BOATS COULD SUFFER SIGNIFICANT STRUCTURAL DAMAGE IN HIGH WINDS${hailAppend}. SMALL CRAFT COULD CAPSIZE IN SUDDENLY HIGHER WAVES.")
+	#set($smwWindImpact = "Boats could suffer significant structural damage in high winds${hailAppend}. Small craft could capsize in suddenly higher waves.")
 	#set($smwHailImpact = "")
 #end
 ###################################################
@@ -145,12 +147,12 @@
 ###################################################
 #set($smwWaterspoutImpact = "")
 #if(${list.contains(${bullets}, "thunderstorm")})
-	#set($extraImpact = "EASILY OVERTURN BOATS AND ")
+	#set($extraImpact = "easily overturn boats and ")
 #else
 	#set($extraImpact = "")
 #end
 #if(${list.contains(${bullets}, "sightedSpout")} || ${list.contains(${bullets}, "possibleSpout")})
-	#set($smwWaterspoutImpact = "WATERSPOUTS CAN ${extraImpact}CREATE LOCALLY HAZARDOUS SEAS.")
+	#set($smwWaterspoutImpact = "Waterspouts can ${extraImpact}create locally hazardous seas.")
 #end
 ##########################################################
 ## Merge the Hail...Wind and Waterspout Impact Statements

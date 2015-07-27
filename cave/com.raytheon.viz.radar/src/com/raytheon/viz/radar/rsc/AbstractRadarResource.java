@@ -62,6 +62,7 @@ import com.raytheon.uf.viz.d2d.core.time.ID2DTimeMatchingExtension;
 import com.raytheon.uf.viz.d2d.core.time.TimeMatcher;
 import com.raytheon.viz.radar.DefaultVizRadarRecord;
 import com.raytheon.viz.radar.VizRadarRecord;
+import com.raytheon.viz.radar.frame.SailsFrameCoordinator;
 import com.raytheon.viz.radar.interrogators.IRadarInterrogator;
 import com.raytheon.viz.radar.rsc.RadarTextResource.IRadarTextGeneratingResource;
 import com.raytheon.viz.radar.textcontributors.IRadarTextContributor;
@@ -82,6 +83,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Apr 11, 2013  16030    D. Friedman Fix NPE.
  * May  5, 2014  17201    D. Friedman Enable same-radar time matching.
  * Jun 11, 2014  2061     bsteffen    Move rangeable methods to radial resource
+ * May 13, 2015  4461     bsteffen    Add sails frame coordinator.
  * 
  * </pre>
  * 
@@ -179,6 +181,7 @@ public class AbstractRadarResource<D extends IDescriptor> extends
      */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
+        SailsFrameCoordinator.addToDescriptor(descriptor);
         RadarTextResourceData.addRadarTextResource(descriptor);
     }
 

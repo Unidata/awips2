@@ -23,13 +23,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import jep.INumpyable;
-
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.TimeRange;
 
@@ -43,7 +40,8 @@ import com.raytheon.uf.common.time.TimeRange;
  * 
  * END LEGACY DOCUMENTATION
  * 
- * TODO Add Description
+ * An abstract grid slice that contains useful code used by differing
+ * implementations of IGridSlice.
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -51,14 +49,14 @@ import com.raytheon.uf.common.time.TimeRange;
  * ------------ ---------- ----------- --------------------------
  * 01/29/2008              chammack    Initial Creation.
  * 01/31/2008   879        rbell       Legacy conversion
+ * Apr 23, 2015 4259       njensen     Updated for new JEP API
  * 
  * </pre>
  * 
  * @author chammack
  * @version 1.0
  */
-public abstract class AbstractGridSlice implements IGridSlice,
-        Comparable<IGridSlice>, INumpyable, ISerializableObject {
+public abstract class AbstractGridSlice implements IGridSlice {
 
     @DynamicSerializeElement
     protected TimeRange validTime;
@@ -336,4 +334,5 @@ public abstract class AbstractGridSlice implements IGridSlice,
      * Called if data is currently in cache and should be moved to in memory.
      */
     abstract protected void moveDataToMem();
+
 }

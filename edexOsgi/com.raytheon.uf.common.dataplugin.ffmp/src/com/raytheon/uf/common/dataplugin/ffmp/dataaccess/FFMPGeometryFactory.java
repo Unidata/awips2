@@ -77,6 +77,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Jul 14, 2014 3184       njensen     Overrode getAvailableLevels()
  * Jul 30, 2014 3184       njensen     Overrode required and optional identifiers
  * Feb 27, 2015 4180       mapeters    Overrode getAvailableParameters().
+ * Jun 15, 2015 4560       ccody       Added support for configurable rate/accumulation calculation for getGeometryData
  * 
  * </pre>
  * 
@@ -260,7 +261,12 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
         FFMPSourceConfigurationManager srcConfigMan = FFMPSourceConfigurationManager
                 .getInstance();
         SourceXML sourceXml = srcConfigMan.getSource(rec.getSourceName());
-
+        String rateOrAccum = sourceXml.getRateOrAccum(siteKey);
+        boolean isRate = false;
+        if ((rateOrAccum != null) && (rateOrAccum.isEmpty() == false)
+                && (rateOrAccum.compareToIgnoreCase("RATE") == 0)) {
+            isRate = true;
+        }
         DefaultGeometryData data = null;
 
         String[] locationNames = request.getLocationNames();
@@ -307,7 +313,7 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
                 } else {
                     value = basin.getAccumValue(start, end,
                             sourceXml.getExpirationMinutes(rec.getSiteKey()),
-                            false);
+                            isRate);
                     // value = basin.getValue(rec.getDataTime().getRefTime());
                 }
                 String parameter = rec.getSourceName();

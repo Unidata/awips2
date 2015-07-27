@@ -40,6 +40,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Mar 07, 2014    2858    mpduff      Initial creation.
  * Mar 17, 2014    2855    mpduff      Renamed to RedbookMenusXML.java.
  * Jan 28, 2015    4030    mpduff      Added addMenuEntry method.
+ * Jun 26, 2015    4512    mapeters    Use System.lineSeparator() for new line.
  * 
  * </pre>
  * 
@@ -90,7 +91,7 @@ public class RedbookMenusXML {
      */
     @Override
     public String toString() {
-        final String nl = System.getProperty("line.separator");
+        final String nl = System.lineSeparator();
         StringBuilder sb = new StringBuilder("RedbookMenusXML").append(nl);
         for (MenuEntry sub : menuEntryList) {
             sb.append(sub.toString());

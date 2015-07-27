@@ -27,7 +27,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.pointdata.PointIconFactory;
+import com.raytheon.uf.viz.core.point.display.PointIconFactory;
 
 /**
  * XYImageData for wind barbs

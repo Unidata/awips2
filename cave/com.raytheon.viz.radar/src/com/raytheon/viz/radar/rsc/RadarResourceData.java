@@ -52,6 +52,8 @@ import com.raytheon.viz.radar.interrogators.IRadarInterrogator;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 23, 2009            chammack     Initial creation
+ * May 13, 2015 4461       bsteffen    Invalidate time cache on all updates
+ *                                     for SAILS.
  * 
  * </pre>
  * 
@@ -230,6 +232,16 @@ public class RadarResourceData extends AbstractRequestableResourceData {
     }
 
     @Override
+    public void update(Object updateData) {
+        super.update(updateData);
+        /*
+         * The available time cache will contain DataTime objects when it needs
+         * to contain RadarDataTime objects so it must be invalidated.
+         */
+        invalidateAvailableTimesCache();
+    }
+
+    @Override
     public void update(AlertMessage... messages) {
         for (AlertMessage message : messages) {
             // since radar dataTimes are expected to set the level value,
@@ -242,6 +254,7 @@ public class RadarResourceData extends AbstractRequestableResourceData {
             }
         }
         super.update(messages);
+        invalidateAvailableTimesCache();
     }
 
 }

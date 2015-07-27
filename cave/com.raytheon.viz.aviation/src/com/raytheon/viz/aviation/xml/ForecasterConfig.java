@@ -33,6 +33,7 @@ import javax.xml.bind.annotation.XmlElement;
  * ------------ ---------- ----------- --------------------------
  * 2/6/2008     817        grichard    Initial creation
  * 5/20/2015    4510       rferrel     Added {@link #getFormattedId()}.
+ * 06/09/2015   4515       rferrel     Remove no longer needed xmit field.
  * 
  * </pre>
  * 
@@ -54,21 +55,11 @@ public class ForecasterConfig {
     private String forecasterName;
 
     /**
-     * The forecaster's transmit privilege
-     */
-    @XmlElement(name = "xmit")
-    private String xmitPrivilege;
-
-    /**
      * Getters and setters
      */
 
     public String getName() {
         return forecasterName;
-    }
-
-    public boolean getXmitPrivilege() {
-        return Boolean.parseBoolean(xmitPrivilege);
     }
 
     public int getId() {
@@ -87,10 +78,6 @@ public class ForecasterConfig {
 
     public void setName(String name) {
         this.forecasterName = name;
-    }
-
-    public void setXmit(boolean privilege) {
-        this.xmitPrivilege = Boolean.toString(privilege);
     }
 
     public void setId(int id) {

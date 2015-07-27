@@ -22,9 +22,9 @@ package com.raytheon.viz.warngen.template;
 import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -148,6 +148,7 @@ import com.vividsolutions.jts.io.WKTReader;
  *                                     included tornado/severe thunderstorm watch message.
  * Sep 18, 2014 ASM #15465 Qinglu Lin  For backup, get officeShort and officeLoc from backup WFO's config.xml.
  * May  7, 2015 ASM #17438 D. Friedman Clean up debug and performance logging.
+ * May 29, 2015   4440     randerso    Fix resource leak (file not closed)
  * </pre>
  * 
  * @author njensen
@@ -194,10 +195,8 @@ public class TemplateRunner {
         File timezoneFile = pathMgr.getFile(lc, fileToRetrieve);
         String line;
         String[] splitLine;
-        BufferedReader timezoneReader;
-        try {
-            timezoneReader = new BufferedReader(new InputStreamReader(
-                    new FileInputStream(timezoneFile)));
+        try (BufferedReader timezoneReader = Files.newBufferedReader(
+                timezoneFile.toPath(), StandardCharsets.UTF_8)) {
             for (line = timezoneReader.readLine(); line != null; line = timezoneReader
                     .readLine()) {
                 splitLine = line.trim().split("\\\\");
@@ -386,8 +385,9 @@ public class TemplateRunner {
                                             "Either timezoneGeom or/and warningArea is null. "
                                                     + "Timezone cannot be determined.");
                                 }
-                                perfLog.logDuration("runTemplate size computation",
-                                                System.currentTimeMillis() - t0);
+                                perfLog.logDuration(
+                                        "runTemplate size computation",
+                                        System.currentTimeMillis() - t0);
                                 if (totalSize > minSize) {
                                     timeZones.add(oneLetterTZ[i]);
                                 }
@@ -865,7 +865,7 @@ public class TemplateRunner {
             List<Watch> watches = watchUtil.getWatches(config, warnPolygon,
                     simulatedTime);
             perfLog.logDuration("getWatches", System.currentTimeMillis() - t0);
-            if (watches != null && watches.isEmpty() == false) {
+            if ((watches != null) && (watches.isEmpty() == false)) {
                 context.put("watches", watches);
             }
         } catch (Exception e) {

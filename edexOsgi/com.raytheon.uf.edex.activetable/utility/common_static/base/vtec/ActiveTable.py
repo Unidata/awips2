@@ -33,6 +33,7 @@
 #                                                 to a separate thread in java.
 #                                                 Added performance logging
 #    02/05/15        #4099         randerso       Changed log level of year-end issuance tweak
+#    Apr 25, 2015     4952         njensen        Updated for new JEP API
 #    May 22, 2015     4522         randerso       Create proper primary key for ActiveTableRecord
 #
 
@@ -44,8 +45,9 @@ import LogStream, ActiveTableVtec, ActiveTableRecord
 import JUtil
 from java.util import ArrayList
 from com.raytheon.uf.common.localization import PathManagerFactory
-from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType
-from com.raytheon.uf.common.localization import LocalizationContext_LocalizationLevel as LocalizationLevel
+from com.raytheon.uf.common.localization import LocalizationContext
+LocalizationType = LocalizationContext.LocalizationType
+LocalizationLevel = LocalizationContext.LocalizationLevel
 from com.raytheon.uf.common.activetable import VTECPartners as JavaVTECPartners
 
 from com.raytheon.uf.common.time.util import TimeUtil

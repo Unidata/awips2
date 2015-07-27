@@ -30,8 +30,8 @@
 #    07/21/10                      njensen       Initial Creation.
 #    09/19/13        2309          bsteffen      Fix group name in returned
 #                                                records.
-#   Nov 14, 2013     2393          bclement      removed interpolation
-#    
+#    Nov 14, 2013    2393          bclement      removed interpolation
+#    Apr 24, 2015    4425          nabowle       Add DoubleDataRecord
 # 
 #
 
@@ -47,6 +47,7 @@ typeToClassMap = {
                   numpy.int32: IntegerDataRecord,
                   numpy.int64: LongDataRecord,
                   numpy.float32: FloatDataRecord,
+                  numpy.float64: DoubleDataRecord,
                   numpy.object_: StringDataRecord,
                   numpy.string_: StringDataRecord
 }

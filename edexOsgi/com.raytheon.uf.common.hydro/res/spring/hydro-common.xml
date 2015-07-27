@@ -5,7 +5,7 @@
 	<bean id="hydroDataFactory" class="com.raytheon.uf.common.hydro.dataaccess.HydroGeometryFactory" />
 	
 	<bean factory-bean="dataAccessRegistry" factory-method="register">
-		<constructor-arg value="ihfsData"/>
+		<constructor-arg value="hydro"/>
 		<constructor-arg ref="hydroDataFactory"/>
 	</bean>	
 	

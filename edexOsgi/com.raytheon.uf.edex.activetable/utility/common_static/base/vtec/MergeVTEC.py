@@ -37,6 +37,7 @@
 #    05/15/14        #3157         dgilling       Support multiple TPC and SPC sites.
 #    03/04/2015      #4129         randerso       Log the active table changes at info level 
 #                                                 in the active table change log
+#    Apr 25, 2015     4952         njensen        Updated for new JEP API
 #    May 22, 2015     4522         randerso       Create proper primary key for ActiveTableRecord
 #
 ##
@@ -59,7 +60,8 @@ from java.util import ArrayList
 from com.raytheon.uf.common.activetable import MergeResult
 from com.raytheon.uf.common.activetable import VTECChange
 from com.raytheon.uf.common.localization import PathManagerFactory
-from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType
+from com.raytheon.uf.common.localization import LocalizationContext
+LocalizationType = LocalizationContext.LocalizationType
 from com.raytheon.uf.common.site import SiteMap
 from com.raytheon.uf.common.activetable import VTECPartners as JavaVTECPartners
 
