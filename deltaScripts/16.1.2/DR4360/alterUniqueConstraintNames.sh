@@ -9,9 +9,9 @@ source ${cmdDir}/commonFunctions.sh
 
 # A table listed here doesn't need changes to any columns or the change
 # is handled in some other script.
-tables=("acarssounding" "bufrmosavn" "bufrmoseta" "bufrmosgfs" "bufrmoshpc"
-"bufrmoslamp" "bufrmosmrf" "bufrmosngm" "goessounding" "poessounding" "qc")
-
+tables=("acarssounding" "binlightning" "bufrncwf" "bufrmosavn" "bufrmoseta" "bufrmosgfs" "bufrmoshpc"
+"bufrmoslamp" "bufrmosmrf" "bufrmosngm" "bufrquikscat" "bufrsigwx" "bufrua" "cwa" "cwat" "ffmp" "fog"
+"fssobs" "goessounding" "ldad_manual" "ldadhydro" "ldadprofiler" "poessounding" "qc")
 echo "INFO: rename tables unique constraints"
 
 for table in ${tables[@]} ; do

@@ -60,6 +60,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Oct 15, 2013 2361       njensen     Removed XML annotations
  * Feb 27, 2014 2638       njensen     Corrected dataURI annotation for eventId
+ * Jul 23, 2015 2360       rferrel     Add name to unique constraint.
  * 
  * </pre>
  * 
@@ -68,7 +69,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "cwaseq")
-@Table(name = "cwa", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = "cwa", uniqueConstraints = { @UniqueConstraint(name = "uk_cwa_datauri_fields", columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.

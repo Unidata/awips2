@@ -62,6 +62,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                     PluginDataObject.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Oct 14, 2013 2361       njensen     Removed XML annotations
+ * Jul 23, 2015 2360       rferrel     Add name to unique constraint.
  * 
  * </pre>
  * 
@@ -70,7 +71,7 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "bufrquikscatseq")
-@Table(name = "bufrquikscat", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = "bufrquikscat", uniqueConstraints = { @UniqueConstraint(name = "uk_bufrquikscat_datauri_field", columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.

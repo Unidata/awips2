@@ -59,6 +59,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  *                                     PluginDataObject.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Oct 15, 2013 2361       njensen     Remove XML annotations and IDecoderGettable
+ * Jul 23, 2015 4360       rferrel     Add name to unique constraint.
  * 
  * </pre>
  * 
@@ -67,7 +68,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "bufrncwfseq")
-@Table(name = "bufrncwf", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = "bufrncwf", uniqueConstraints = { @UniqueConstraint(name = "uk_bufrncwf_datauri_fields", columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
