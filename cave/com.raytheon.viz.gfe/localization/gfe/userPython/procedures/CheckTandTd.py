@@ -29,6 +29,8 @@
 # Version Date: 4 January 2006
 # Version: 6.5
 #
+# 7/27/2015    yteng    Use the time range selected in the Grid Manager if any
+#
 # ----------------------------------------------------------------------------
 
 # The MenuItems list defines the GFE menu item(s) under which the
@@ -43,10 +45,12 @@ VariableList = [("Check or Force:" , "Check Only", "radio",
 import SmartScript
 import TimeRange
 import AbsTime
+from JUtil import JavaWrapperClass
 from numpy import *
 
 MODEL = "Fcst"
 LEVEL = "SFC"
+DAY_IN_SECS = 24 * 3600
 
 class Procedure (SmartScript.SmartScript):
     def __init__(self, dbss):
@@ -61,16 +65,20 @@ class Procedure (SmartScript.SmartScript):
     # @type WEName: string
     # @return: time ranges at which WEName has data.
     # @rtype: Python list of Python TimeRange objects
-    def getWEInventory(self, WEName):
-        yesterday = self._gmtime() - (2 * 24 * 3600) # two days ago
-        later = self._gmtime() + 10 * 24 * 3600  # 10 days from now
-        allTimes = TimeRange.TimeRange(yesterday, later)
+    def getWEInventory(self, WEName, timeRange=None):
+        if timeRange is None:
+            yesterday = self._gmtime() - (2 * DAY_IN_SECS) # two days ago
+            later = self._gmtime() + 10 * DAY_IN_SECS  # 10 days from now
+            timeRange = TimeRange.TimeRange(yesterday, later)
+        if isinstance(timeRange, JavaWrapperClass):
+            timeRange = timeRange.toJavaObj()
         parm = self.getParm(MODEL, WEName, LEVEL);
-        inv = parm.getGridInventory(allTimes.toJavaObj())
+        inv = parm.getGridInventory(timeRange)
         trList = []
         for gd in inv:
             tr = TimeRange.TimeRange(gd.getGridTime())
             trList.append(tr)
+            
         return trList
 
     ##
@@ -150,7 +158,7 @@ class Procedure (SmartScript.SmartScript):
     # @param varDict: Determines whether temporary grids are created or 
     # temperature grids are modified.
     # @type varDict: Python dictionary of strings to strings 
-    def execute(self, varDict):
+    def execute(self, timeRange, varDict):
         checkOnly = varDict["Check or Force:"] == "Check Only"
 
         # remove any temporary WEs we created
@@ -163,20 +171,25 @@ class Procedure (SmartScript.SmartScript):
 
         self.setToolType("numeric")
 
+        if timeRange is None or not timeRange.isValid():
+            start = self._gmtime() - (2 * DAY_IN_SECS) # two days ago
+            end = self._gmtime() + (10 * DAY_IN_SECS)  # 10 days from now
+            timeRange = TimeRange.TimeRange(start, end)
+
         # get all the grids for all elements upfront and update as we modify
         # any grids.  We need to do this because the GFE caches the original
         # version of all grids and there's no way yet to turn this off.
 
-        minTRList = self.getWEInventory("MinT")
+        minTRList = self.getWEInventory("MinT", timeRange)
         minTDict = self.getGrids(MODEL, "MinT", LEVEL, minTRList, mode = "First")
         
-        maxTRList = self.getWEInventory("MaxT")
+        maxTRList = self.getWEInventory("MaxT", timeRange)
         maxTDict = self.getGrids(MODEL, "MaxT", LEVEL, maxTRList, mode = "First")
         
-        TTRList = self.getWEInventory("T")
+        TTRList = self.getWEInventory("T", timeRange)
         tDict = self.getGrids(MODEL, "T", LEVEL, TTRList, mode = "First")
         
-        TdTRList = self.getWEInventory("Td")
+        TdTRList = self.getWEInventory("Td", timeRange)
         tdDict = self.getGrids(MODEL, "Td", LEVEL, TdTRList, mode = "First")
         
         # get the all locks by other users, so we can detect they are locked

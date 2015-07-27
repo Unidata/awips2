@@ -35,8 +35,10 @@
 # on "Force: TMin<=T<=TMax\n and Td<=T" option anytime T and / or Td are
 # changed (change on Td only does not affect WindChill).
 #
+# 7/27/2015    yteng     Use the time range selected in the Grid Manager if any, 
+#                        and retrived teh necessary grids for improved efficiency
+#
 # ----------------------------------------------------------------------------
-
 # The MenuItems list defines the GFE menu item(s) under which the
 # Procedure is to appear.
 # Possible items are: Populate, Edit, Consistency, Verify
@@ -49,29 +51,34 @@ import SmartScript
 import time
 import TimeRange
 import AbsTime
+from JUtil import JavaWrapperClass
 from numpy import *
 
 MODEL = "Fcst"
 LEVEL = "SFC"
+DAY_IN_SECS = 24 * 3600
 
 class Procedure (SmartScript.SmartScript):
     def __init__(self, dbss):
         SmartScript.SmartScript.__init__(self, dbss)
 
 
-    def getWEInventory(self, WEName):
-        yesterday = self._gmtime() - (2 * 24 * 3600) # two days ago
-        later = self._gmtime() + 10 * 24 * 3600  # 10 days from now
-        allTimes = TimeRange.TimeRange(yesterday, later)
+    def getWEInventory(self, WEName, timeRange=None):
+        if timeRange is None:
+            yesterday = self._gmtime() - (2 * DAY_IN_SECS) # two days ago
+            later = self._gmtime() + 10 * DAY_IN_SECS  # 10 days from now
+            timeRange = TimeRange.TimeRange(yesterday, later)
+        if isinstance(timeRange, JavaWrapperClass):
+            timeRange = timeRange.toJavaObj()
         parm = self.getParm(MODEL, WEName, LEVEL);
-        inv = parm.getGridInventory(allTimes.toJavaObj())
-
+        inv = parm.getGridInventory(timeRange)
         trList = []
         for gd in inv:
             tr = TimeRange.TimeRange(gd.getGridTime())
             trList.append(tr)
 
         return trList
+
 
     def getLocksByOthers(self, weName):
         # returns list of time ranges locked by others for this weather element
@@ -109,7 +116,7 @@ class Procedure (SmartScript.SmartScript):
         bigList.sort(self.trSortMethod)
         return bigList
 
-    def execute(self, varDict):
+    def execute(self, timeRange, varDict):
         checkOnly = varDict["Check or Force:"] == "Check Only"
         startWindChill = 10     ## First month to report wind chill
         endWindChill = 4        ## Last month to report wind chill
@@ -138,6 +145,12 @@ class Procedure (SmartScript.SmartScript):
                 self.unloadWE(MODEL, we, LEVEL)
 
         self.setToolType("numeric")
+        
+        # if no timeRange selected then make a big timeRange
+        if timeRange is None or not timeRange.isValid():
+            start = self._gmtime() - (2 * DAY_IN_SECS) # two days ago
+            end = self._gmtime() + (10 * DAY_IN_SECS)  # 10 days from now
+            timeRange = TimeRange.TimeRange(start, end)
 
         # get all the grids for all elements upfront and update as we modify
         # any grids.  We need to do this because the GFE caches the original
@@ -146,18 +159,16 @@ class Procedure (SmartScript.SmartScript):
         WindDirDict = {}
         WindSpeedDict = {}
         WindGustDict = {}
-        
-        WindTRList = self.getWEInventory("Wind")
+
+        WindTRList = self.getWEInventory("Wind", timeRange)
         for tr in WindTRList:
             grid = self.getGrids(MODEL, "Wind", LEVEL, tr, mode = "First")
             WindDirDict[tr] = grid[1]
             WindSpeedDict[tr] = grid[0]
-        
-        WindGustTRList = self.getWEInventory("WindGust")
-        for tr in WindGustTRList:
-            grid = self.getGrids(MODEL, "WindGust", LEVEL, tr, mode = "First")
-            WindGustDict[tr] = grid
-        
+
+        WindGustTRList = self.getWEInventory("WindGust", timeRange)
+        WindGustDict = self.getGrids(MODEL, "WindGust", LEVEL, WindGustTRList, mode = "First")
+
         # get the all locks by other users, so we can detect they are locked
         # before attempting to modify them
         WindLocks = self.getLocksByOthers("Wind")
@@ -165,7 +176,7 @@ class Procedure (SmartScript.SmartScript):
 
         nowZ = time.gmtime(time.time())
         curMon = nowZ[1]
-        
+
         WindChangeTools = []
         if curMon >= startWindChill or curMon <= endWindChill:
             WindChangeTools.append(("WindChillTool", "WindChill"))
@@ -187,7 +198,7 @@ class Procedure (SmartScript.SmartScript):
             mask = (WindGustGrid < WindSpeedGrid) & siteMask
             if not sometrue(mask):   # make sure some points are set
                 continue
-            
+
             errorsFound = "yes"
             if checkOnly:   # just make a grid
                 self.createGrid(MODEL, "WindGustLessThanWindSpeed", "SCALAR", mask.astype('float32'), tr, minAllowedValue=0.0, maxAllowedValue= 1.0)
@@ -219,4 +230,3 @@ class Procedure (SmartScript.SmartScript):
             self.statusBarMsg('CheckWindGust completed - One or more Flags on the play.', 'R')
         else:
             self.statusBarMsg('CheckWindGust completed - No Flags!', 'R')
-
