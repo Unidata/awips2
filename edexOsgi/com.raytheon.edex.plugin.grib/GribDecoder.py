@@ -65,6 +65,8 @@ from com.raytheon.edex.util.grib import GribParamTranslator
 from com.raytheon.uf.common.parameter import Parameter;
 from com.raytheon.uf.common.parameter.mapping import ParameterMapper;
 
+# default fill value for now...someday NaN would be better
+F32_GRID_FILL_VALUE = numpy.float32(GridUtil.GRID_FILL_VALUE)
 
 # Static values for accessing parameter lookup tables
 PARAMETER_TABLE = "4.2"
@@ -137,6 +139,8 @@ logHandler = UFStatusHandler.UFStatusHandler("com.raytheon.edex.plugin.grib", "E
 # Dec 15, 2014  DR16509  Matt Foster Changes in _decodePdsSection to accommodate
 #                                    EKDMOS
 # Mar 05, 2015  3959     rjpeter     Update sub gridding to handle world wrap.
+# Jul 28, 2015  4264     njensen     Use constant float32 fill value
+#
 #
 class GribDecoder():
 
@@ -256,7 +260,7 @@ class GribDecoder():
         # Apply the bitmap if one is provided and set masked values to missing value
         if gribDict['ibmap'] == 0:
             bitMap = gribDict['bmap']
-            data = numpy.where(bitMap == 0, -999999, data)
+            data = numpy.where(bitMap == 0, F32_GRID_FILL_VALUE, data)
             
         # Check for fill value provided if complex packing is used
         drsTemplateNumber =  gribDict['idrtnum']
@@ -265,10 +269,10 @@ class GribDecoder():
             primaryFill = Float.intBitsToFloat(int(drs[7]))
             secondaryFill = Float.intBitsToFloat(int(drs[8]))
             if drs[6] == 1:
-                data = numpy.where(data == primaryFill, -999999, data)
+                data = numpy.where(data == primaryFill, F32_GRID_FILL_VALUE, data)
             elif drs[6] == 2:
-                data = numpy.where(data == primaryFill, -999999, data)
-                data = numpy.where(data == secondaryFill, -999999, data)
+                data = numpy.where(data == primaryFill, F32_GRID_FILL_VALUE, data)
+                data = numpy.where(data == secondaryFill, F32_GRID_FILL_VALUE, data)
              
         gridCoverage = gribDict['coverage']
         nx = gridCoverage.getNx().intValue()
