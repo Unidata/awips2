@@ -99,6 +99,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
  * Dec 02, 2013  2537     bsteffen    Move to common, remove IDecoderGettable,
  *                                    remove unnecessary fields.
+ * Jul 27, 2015  4360     rferrel     Named unique constraint. Made reportType non-nullable.
  * 
  * </pre>
  * 
@@ -107,7 +108,7 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "modelsoundingseq")
-@Table(name = "modelsounding", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = "modelsounding", uniqueConstraints = { @UniqueConstraint(name = "uk_modelsounding_datauri_fields", columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
@@ -128,10 +129,11 @@ public class SoundingSite extends PersistablePluginDataObject implements
     private String siteId;
 
     @DataURI(position = 1)
-    @Column
+    @Column(nullable = false)
     @DynamicSerializeElement
     private String reportType;
 
+    // TODO Update once SurfaceObsLocation DataURI's are corrected.
     @Embedded
     @DataURI(position = 2, embedded = true)
     @DynamicSerializeElement
@@ -258,14 +260,14 @@ public class SoundingSite extends PersistablePluginDataObject implements
         this.wmoHeader = wmoHeader;
     }
 
-    private void populateLevels(){
+    private void populateLevels() {
         if (levels == null) {
             int count = pointDataView.getInt(NUM_LEVELS);
             if (count < 0) {
                 count = 0;
             }
             levels = new HashSet<SoundingLevel>(count, 1.0f);
-            for(int i = 0 ; i < count ; i += 1){
+            for (int i = 0; i < count; i += 1) {
                 levels.add(new SoundingLevel(pointDataView, i));
             }
         }

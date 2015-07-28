@@ -60,6 +60,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                     PluginDataObject.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Oct 14, 2013 2361       njensen     Remove XML annotations
+ * Jul 28, 2015 4360      rferrel      Named unique constraint. Made reportType non-nullable.
  * 
  * </pre>
  * 
@@ -68,7 +69,7 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "svrwxseq")
-@Table(name = "svrwx", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = "svrwx", uniqueConstraints = { @UniqueConstraint(name = "uk_svrwx_datauri_fields", columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
@@ -90,6 +91,7 @@ public class SvrWxRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     private String wmoHeader = "";
 
+    // TODO Update once SurfaceObsLocation DataURI's are corrected.
     @Embedded
     @DataURI(position = 2, embedded = true)
     @DynamicSerializeElement
@@ -100,7 +102,7 @@ public class SvrWxRecord extends PersistablePluginDataObject implements
     protected String eventKey;
 
     @DynamicSerializeElement
-    @Column
+    @Column(nullable = false)
     @DataURI(position = 1)
     protected String reportType;
 

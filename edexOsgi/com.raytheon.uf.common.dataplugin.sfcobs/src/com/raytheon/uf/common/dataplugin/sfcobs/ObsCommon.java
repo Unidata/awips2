@@ -40,6 +40,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
+import com.raytheon.uf.common.dataplugin.NullUtil;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
@@ -66,7 +67,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * May 07, 2013  1869     bsteffen    Remove dataURI column from
  *                                    PluginDataObject.
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
- * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
+ * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable 
+ * Jul 27, 2015  4360     rferrel     Named unique constraint. Made reportType and corIndicator non-nullable.
  * 
  * </pre>
  * 
@@ -75,7 +77,7 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "sfcobsseq")
-@Table(name = "sfcobs", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = "sfcobs", uniqueConstraints = { @UniqueConstraint(name = "uk_sfcobs_datauri_fields", columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
@@ -92,7 +94,7 @@ public class ObsCommon extends PersistablePluginDataObject implements
 
     //
     @DataURI(position = 1)
-    @Column
+    @Column(nullable = false)
     @XmlAttribute
     @DynamicSerializeElement
     @Index(name = "reporttype_index")
@@ -100,11 +102,12 @@ public class ObsCommon extends PersistablePluginDataObject implements
 
     // Correction indicator from wmo header
     @DataURI(position = 2)
-    @Column
+    @Column(nullable = false, length = 1)
     @XmlElement
     @DynamicSerializeElement
-    private String corIndicator;
+    private String corIndicator = NullUtil.EMPTY_STRING;
 
+    // TODO Update once SurfaceObsLocation DataURI's are corrected.
     @Embedded
     @DataURI(position = 3, embedded = true)
     @XmlElement
@@ -450,7 +453,7 @@ public class ObsCommon extends PersistablePluginDataObject implements
      * @return the corIndicator
      */
     public String getCorIndicator() {
-        return corIndicator;
+        return NullUtil.convertEmptyToNull(this.corIndicator);
     }
 
     /**
@@ -458,7 +461,7 @@ public class ObsCommon extends PersistablePluginDataObject implements
      *            the corIndicator to set
      */
     public void setCorIndicator(String corIndicator) {
-        this.corIndicator = corIndicator;
+        this.corIndicator = NullUtil.converNullToEmpty(corIndicator);
     }
 
     /**

@@ -11,7 +11,8 @@ source ${cmdDir}/commonFunctions.sh
 # is handled in some other script.
 tables=("acarssounding" "binlightning" "bufrncwf" "bufrmosavn" "bufrmoseta" "bufrmosgfs" "bufrmoshpc"
 "bufrmoslamp" "bufrmosmrf" "bufrmosngm" "bufrquikscat" "bufrsigwx" "bufrua" "cwa" "cwat" "ffmp" "fog"
-"fssobs" "goessounding" "ldad_manual" "ldadhydro" "ldadprofiler" "poessounding" "qc")
+"fssobs" "goessounding" "ldad_manual" "ldadhydro" "ldadprofiler" "modelsounding" "obs" "poessounding"
+"profiler" "qc" "sfcobs" "svrwx" "tcg" "tcs")
 echo "INFO: rename tables unique constraints"
 
 for table in ${tables[@]} ; do

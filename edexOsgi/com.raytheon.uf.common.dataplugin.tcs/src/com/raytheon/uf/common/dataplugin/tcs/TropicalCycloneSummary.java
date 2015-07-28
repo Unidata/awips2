@@ -62,6 +62,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Oct 22, 2013 2361       njensen     Remove XML annotations
  * Jul 23, 2014 3410       bclement    location changed to floats
+ * Jul 28, 2015 4360       rferrel     Named unique constraint. Made productType non-nullable.
  * 
  * </pre>
  * 
@@ -70,7 +71,7 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "tcsseq")
-@Table(name = "tcs", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = "tcs", uniqueConstraints = { @UniqueConstraint(name = "uk_tcs_datauri_fields", columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
@@ -93,10 +94,11 @@ public class TropicalCycloneSummary extends PersistablePluginDataObject
     private String wmoHeader = "";
 
     @DynamicSerializeElement
-    @Column
+    @Column(nullable = false)
     @DataURI(position = 1)
     protected String productType = "";
 
+    // TODO Update once SurfaceObsLocation DataURI's are corrected.
     @Embedded
     @DataURI(position = 2, embedded = true)
     @DynamicSerializeElement

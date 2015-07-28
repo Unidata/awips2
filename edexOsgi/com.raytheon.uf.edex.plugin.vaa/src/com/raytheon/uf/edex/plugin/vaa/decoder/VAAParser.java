@@ -30,6 +30,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.raytheon.edex.esb.Headers;
+import com.raytheon.uf.common.dataplugin.NullUtil;
 import com.raytheon.uf.common.dataplugin.exception.MalformedDataException;
 import com.raytheon.uf.common.dataplugin.vaa.VAARecord;
 import com.raytheon.uf.common.dataplugin.vaa.VAASubPart;
@@ -170,7 +171,7 @@ public class VAAParser implements Iterable<VAARecord> {
         VAARecord vaa = new VAARecord();
         vaa.setTraceId(traceId);
         vaa.setWmoHeader(wmoHeader.getWmoHeader());
-        vaa.setAdvisoryNumber("null");
+        vaa.setAdvisoryNumber(NullUtil.NULL_STRING);
         String cor = wmoHeader.getBBBIndicator();
         if (cor != null) {
             Matcher m = COR_P.matcher(cor);
