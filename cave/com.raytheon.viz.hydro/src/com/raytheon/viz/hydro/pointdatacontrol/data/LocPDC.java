@@ -26,7 +26,8 @@ package com.raytheon.viz.hydro.pointdatacontrol.data;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 24, 2008            mpduff     Initial creation
+ * Nov 24, 2008            mpduff      Initial creation
+ * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
  * </pre>
  * 
  * @author mpduff
@@ -97,76 +98,76 @@ public class LocPDC {
      * Telemetry Type.
      */
     private String telemType = null;
-    
+
     public LocPDC() {
-        
+
     }
-    
+
     public LocPDC(Object[] data) {
         int i = 0;
-        if (data[i] != null) {  // LID
-            setLid((String)data[i]);
+        if (data[i] != null) { // LID
+            setLid((String) data[i]);
         }
-        
-        if (data[++i] != null) {  // name
-            setName((String)data[i]);
+
+        if (data[++i] != null) { // name
+            setName((String) data[i]);
         }
-        
-        if (data[++i] != null) {  // lat
-            setLat((Double)data[i]);
+
+        if (data[++i] != null) { // lat
+            setLat((Double) data[i]);
         }
-        
-        if (data[++i] != null) {  // lon
-            setLon((Double)data[i]);
+
+        if (data[++i] != null) { // lon
+            setLon((Double) data[i]);
         }
-        
-        if (data[++i] != null) {  // hsa
-            setHsa((String)data[i]);
+
+        if (data[++i] != null) { // hsa
+            setHsa((String) data[i]);
         }
-        
-        if (data[++i] != null) {  // post
-            setPost((Integer)data[i]);
+
+        if (data[++i] != null) { // post
+            setPost(((Number) data[i]).intValue());
         }
-        
-        if (data[++i] != null) {  // elev
-            setElev((Double)data[i]);
+
+        if (data[++i] != null) { // elev
+            setElev((Double) data[i]);
         }
-       
-        if (data[++i] != null) {  // primary_pe
-            setPrimaryPe((String)data[i]);
+
+        if (data[++i] != null) { // primary_pe
+            setPrimaryPe((String) data[i]);
         }
-        
-        if (data[++i] != null) {  // fs
-            setFs((Double)data[i]);
+
+        if (data[++i] != null) { // fs
+            setFs((Double) data[i]);
         }
-        
-        if (data[++i] != null) {  // fq
-            setFq((Double)data[i]);
+
+        if (data[++i] != null) { // fq
+            setFq((Double) data[i]);
         }
-//      disp_class, is_dcp, is_observer, telem_type
-        
-        if (data[++i] != null) {  // disp_class
-            setDispClass((String)data[i]);
+        // disp_class, is_dcp, is_observer, telem_type
+
+        if (data[++i] != null) { // disp_class
+            setDispClass((String) data[i]);
         }
-        
+
         if (data[++i] != null) {
-            if (((String)data[i]).equalsIgnoreCase("F")) {
+            if (((String) data[i]).equalsIgnoreCase("F")) {
                 setDcp(false);
             } else {
                 setDcp(true);
             }
         }
-        
+
         if (data[++i] != null) {
-            if (((String)data[i]).equalsIgnoreCase("F")) {
+            if (((String) data[i]).equalsIgnoreCase("F")) {
                 setObserver(false);
             } else {
                 setObserver(true);
             }
         }
-        
-        if (data[++i] != null) {  // Telem_type
-            setTelemType((String)data[i]);       
+
+        if (data[++i] != null) { // Telem_type
+            setTelemType((String) data[i]);
         }
     }
 

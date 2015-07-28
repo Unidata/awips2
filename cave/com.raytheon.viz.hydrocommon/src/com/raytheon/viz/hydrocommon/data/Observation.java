@@ -25,17 +25,17 @@ import java.util.Date;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 19, 2008            mpduff     Initial creation
- *
+ * Nov 19, 2008            mpduff      Initial creation
+ * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
  * </pre>
- *
+ * 
  * @author mpduff
- * @version 1.0 
+ * @version 1.0
  */
 
 public class Observation {
@@ -68,12 +68,12 @@ public class Observation {
      * Obstime
      */
     private Date obstime;
-    
+
     /**
      * Basistime
      */
     private Date basisTime;
-    
+
     /**
      * Data value
      */
@@ -98,29 +98,29 @@ public class Observation {
      * Product ID
      */
     private String productId;
-    
+
     public Observation() {
     }
 
     public Observation(Object[] oa) {
-        setLid((String)oa[0]);
-        setPe((String)oa[1]);
-        setDur((Integer)oa[2]);
-        setTs((String)oa[3]);
-        setExtremum((String)oa[4]);
-        setObstime((Date)oa[5]);
-        setValue((Double)oa[6]);
+        setLid((String) oa[0]);
+        setPe((String) oa[1]);
+        setDur(((Number) oa[2]).intValue());
+        setTs((String) oa[3]);
+        setExtremum((String) oa[4]);
+        setObstime((Date) oa[5]);
+        setValue((Double) oa[6]);
         if (oa[7] != null) {
-            setShefQualCode((String)oa[7]);
+            setShefQualCode((String) oa[7]);
         }
         if (oa[8] != null) {
-            setQualityCode((Integer)oa[8]);
+            setQualityCode(((Number) oa[8]).intValue());
         }
         if (oa[9] != null) {
-            setRevision((Integer)oa[9]);
+            setRevision(((Number) oa[9]).intValue());
         }
         if (oa[10] != null) {
-            setProductId((String)oa[10]);
+            setProductId((String) oa[10]);
         }
     }
 
@@ -132,7 +132,8 @@ public class Observation {
     }
 
     /**
-     * @param lid the lid to set
+     * @param lid
+     *            the lid to set
      */
     public void setLid(String lid) {
         this.lid = lid;
@@ -146,7 +147,8 @@ public class Observation {
     }
 
     /**
-     * @param pe the pe to set
+     * @param pe
+     *            the pe to set
      */
     public void setPe(String pe) {
         this.pe = pe;
@@ -160,7 +162,8 @@ public class Observation {
     }
 
     /**
-     * @param dur the dur to set
+     * @param dur
+     *            the dur to set
      */
     public void setDur(int dur) {
         this.dur = dur;
@@ -174,7 +177,8 @@ public class Observation {
     }
 
     /**
-     * @param ts the ts to set
+     * @param ts
+     *            the ts to set
      */
     public void setTs(String ts) {
         this.ts = ts;
@@ -188,7 +192,8 @@ public class Observation {
     }
 
     /**
-     * @param extremum the extremum to set
+     * @param extremum
+     *            the extremum to set
      */
     public void setExtremum(String extremum) {
         this.extremum = extremum;
@@ -202,7 +207,8 @@ public class Observation {
     }
 
     /**
-     * @param obstime the obstime to set
+     * @param obstime
+     *            the obstime to set
      */
     public void setObstime(Date obstime) {
         this.obstime = obstime;
@@ -216,7 +222,8 @@ public class Observation {
     }
 
     /**
-     * @param value the value to set
+     * @param value
+     *            the value to set
      */
     public void setValue(Double value) {
         this.value = value;
@@ -230,7 +237,8 @@ public class Observation {
     }
 
     /**
-     * @param shefQualCode the shefQualCode to set
+     * @param shefQualCode
+     *            the shefQualCode to set
      */
     public void setShefQualCode(String shefQualCode) {
         this.shefQualCode = shefQualCode;
@@ -244,7 +252,8 @@ public class Observation {
     }
 
     /**
-     * @param qualityCode the qualityCode to set
+     * @param qualityCode
+     *            the qualityCode to set
      */
     public void setQualityCode(Integer qualityCode) {
         this.qualityCode = qualityCode;
@@ -258,7 +267,8 @@ public class Observation {
     }
 
     /**
-     * @param revision the revision to set
+     * @param revision
+     *            the revision to set
      */
     public void setRevision(int revision) {
         this.revision = revision;
@@ -272,12 +282,13 @@ public class Observation {
     }
 
     /**
-     * @param productId the productId to set
+     * @param productId
+     *            the productId to set
      */
     public void setProductId(String productId) {
         this.productId = productId;
     }
-    
+
     /**
      * @return the basisTime
      */
@@ -286,7 +297,8 @@ public class Observation {
     }
 
     /**
-     * @param basisTime the basisTime to set
+     * @param basisTime
+     *            the basisTime to set
      */
     public void setBasisTime(Date basisTime) {
         this.basisTime = basisTime;
@@ -306,7 +318,7 @@ public class Observation {
         sb.append("Value = " + getValue() + "\n");
         sb.append("Obstime = " + getObstime() + "\n");
         sb.append("Quality Code = " + getQualityCode() + "\n");
-        
+
         return sb.toString();
     }
 }

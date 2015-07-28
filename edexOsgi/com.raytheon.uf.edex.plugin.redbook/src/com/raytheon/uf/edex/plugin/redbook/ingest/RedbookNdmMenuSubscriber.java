@@ -44,8 +44,8 @@ import com.raytheon.uf.edex.plugin.redbook.menu.RedbookNcoMenuUtil;
 import com.raytheon.uf.edex.plugin.redbook.menu.RedbookUaMenuUtil;
 
 /**
- * This class updates the Redbook menus when Redbook A1 NDM files are dropped
- * into EDEX ingest.
+ * This class updates the Redbook menus when Redbook AWIPS1 NDM files are
+ * dropped into EDEX ingest.
  * 
  * <pre>
  * 
@@ -57,6 +57,7 @@ import com.raytheon.uf.edex.plugin.redbook.menu.RedbookUaMenuUtil;
  * Mar 19, 2015   4310     mpduff      Some values must be trimmed.
  * Jun 26, 2015   4512     mapeters    Renamed from NdmMenuConverter, automatically
  *                                     runs and updates menus when A1 files dropped in.
+ * Jul 14, 2015   4512     mapeters    Don't set product buttons' files to null.
  * 
  * </pre>
  * 
@@ -66,7 +67,7 @@ import com.raytheon.uf.edex.plugin.redbook.menu.RedbookUaMenuUtil;
 
 public class RedbookNdmMenuSubscriber extends AbstractRedbookNdmSubscriber {
 
-    protected static final IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(RedbookNdmMenuSubscriber.class);
 
     private static final String WMO = "wmo";
@@ -95,7 +96,7 @@ public class RedbookNdmMenuSubscriber extends AbstractRedbookNdmSubscriber {
         RedbookMenusXML menuXml = new RedbookMenusXML();
         MenuEntry titleMenuEntry;
         int sepCounter = 0;
-        List<MenuEntry> subMenuList = new ArrayList<MenuEntry>();
+        List<MenuEntry> subMenuList = new ArrayList<>();
 
         List<String> menuFileLines = getNdmFileLines(menuFileName);
         List<String> dataKeysLines = getNdmFileLines(DATA_KEYS_FILE_NAME);
@@ -137,14 +138,18 @@ public class RedbookNdmMenuSubscriber extends AbstractRedbookNdmSubscriber {
             } else if (line.startsWith("productButton")) {
                 String[] parts = line.split(":");
                 MenuEntry me = new MenuEntry();
-                me.setFile(null);
+                /*
+                 * Intentionally don't set MenuEntry's file, as it correctly
+                 * defaults to bundles/Redbook.xml.
+                 */
                 me.setType(MenuEntryType.ProductButton);
                 /*
-                 * There are certain productButtons in the NCO menu data keys in
-                 * the (25000 range) that have data keys that don't map to
-                 * anything. This results in those menu items not being created.
-                 * The site will need to fix this after generating the new
-                 * menus.
+                 * There are certain productButtons in the NCO menu with data
+                 * keys in the (25000 range) and certain productButtons in the
+                 * HPC menu with data keys in the (3313800000 range). These
+                 * don't map to anything, which results in those menu items not
+                 * being created. The site will need to fix this after
+                 * generating the new menus.
                  */
                 String dataKey = parts[1].trim().substring(0, 4);
                 StringBuilder subValue = new StringBuilder();

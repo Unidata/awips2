@@ -219,7 +219,7 @@ THIS IS A TEST MESSAGE.##
 #if(${hycType} != "")
 FOR <L>${hycType}</L> ##
 #end
-REMAINS IN EFFECT #headlineExpire(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
+REMAINS IN EFFECT UNTIL #headlineExpire(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
 #headlineLocList(${areas} true true true false "ALL")...
 
 ################################################

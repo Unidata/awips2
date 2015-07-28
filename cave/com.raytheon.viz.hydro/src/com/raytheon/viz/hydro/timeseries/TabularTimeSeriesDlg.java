@@ -129,7 +129,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Feb 27,2013 1790        rferrel     Bug fix for non-blocking dialogs.
  * Jun 07, 2013 1981       mpduff      Set user's id on the OUPRequest as it is now protected.
  * Jul 16, 2013 2088       rferrel     Changes for non-blocking TextEditorDlg.
- * 
+ * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
  * </pre>
  * 
  * @author lvenable
@@ -1033,7 +1033,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
         reviewSendScriptBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (sendConfigDlg == null || sendConfigDlg.isDisposed()) {
+                if ((sendConfigDlg == null) || sendConfigDlg.isDisposed()) {
                     sendConfigDlg = new SendConfigDlg(shell);
                     sendConfigDlg.open();
                 } else {
@@ -1883,8 +1883,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
         StringBuilder sb = new StringBuilder();
         ArrayList<DataRecord> dataRecordList = new ArrayList<DataRecord>();
 
-        for (int i = 0; i < selectionIndices.length; i++) {
-            TabularData td = tabularDataList.get(selectionIndices[i]);
+        for (int selectionIndice : selectionIndices) {
+            TabularData td = tabularDataList.get(selectionIndice);
 
             /* set the update structure with data which doesn't change */
             dr = new DataRecord();
@@ -1997,8 +1997,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
             /* Loop through the data values selected and delete each one */
             int[] selectionIndices = bottomListControl.getSelectionIndices();
 
-            for (int i = 0; i < selectionIndices.length; i++) {
-                TabularData td = tabularDataList.get(selectionIndices[i]);
+            for (int selectionIndice : selectionIndices) {
+                TabularData td = tabularDataList.get(selectionIndice);
                 // SiteInfo si = tabInfo.getSiteInfo(topDataList
                 // .getSelectionIndex());
                 DataRecord dr = new DataRecord();
@@ -2134,8 +2134,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
         DataRecord dr = new DataRecord();
 
         /* code to update an observation qc info */
-        for (int i = 0; i < selectionIndices.length; i++) {
-            TabularData td = tabularDataList.get(selectionIndices[i]);
+        for (int selectionIndice : selectionIndices) {
+            TabularData td = tabularDataList.get(selectionIndice);
 
             /* set the update structure with data which doesn't change */
             dr.setLid(lid);
@@ -2325,11 +2325,11 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
             // one inch from left side of paper
             leftMargin = dpi.x + trim.x;
             // one inch from right side of paper
-            rightMargin = clientArea.width - dpi.x + trim.x + trim.width;
+            rightMargin = (clientArea.width - dpi.x) + trim.x + trim.width;
             // one inch from top edge of paper
             topMargin = dpi.y + trim.y;
             // one inch from bottom edge of paper
-            bottomMargin = clientArea.height - dpi.y + trim.y + trim.height;
+            bottomMargin = (clientArea.height - dpi.y) + trim.y + trim.height;
 
             // Create a buffer for computing tab width.
             int tabSize = 4; // is tab width a user setting in your UI?
@@ -2541,7 +2541,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                 }
             }
         }
-        if (y + lineHeight <= bottomMargin) {
+        if ((y + lineHeight) <= bottomMargin) {
             printer.endPage();
         }
         wordBuffer = null;
@@ -2554,7 +2554,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
         if (wordBuffer.length() > 0) {
             String word = wordBuffer.toString();
             int wordWidth = gc.stringExtent(word).x;
-            if (x + wordWidth > rightMargin) {
+            if ((x + wordWidth) > rightMargin) {
                 // word doesn't fit on current line, so wrap
                 newline();
             }
@@ -2570,9 +2570,9 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
     private void newline() {
         x = leftMargin;
         y += lineHeight;
-        if (y + lineHeight > bottomMargin) {
+        if ((y + lineHeight) > bottomMargin) {
             printer.endPage();
-            if (index + 1 < end) {
+            if ((index + 1) < end) {
                 y = topMargin;
                 printer.startPage();
             }
@@ -2715,7 +2715,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
         }
 
         /* Should only be one here, lid is primary key */
-        if (floodList != null && floodList.size() > 0) {
+        if ((floodList != null) && (floodList.size() > 0)) {
             Object[] oa = floodList.get(0);
             String floodStage = "0.0";
             String floodFlow = "0";
@@ -2785,7 +2785,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                 FcstheightId fhid = new FcstheightId();
                 fhid.setLid(si.getLid());
                 fhid.setPe(si.getPe());
-                fhid.setDur(((Integer) si.getDur()).shortValue());
+                fhid.setDur((short) si.getDur());
                 fhid.setExtremum(si.getExt());
                 fcstRow.setPostingtime(postingTime);
 
@@ -2928,7 +2928,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
             BufferedWriter out = new BufferedWriter(new FileWriter(
                     shefFileName, true));
             int[] indices = bottomListControl.getSelectionIndices();
-            for (int i = 0; i < indices.length; i++) {
+            for (int indice : indices) {
 
                 String data = topDataList.getItem(topDataList
                         .getSelectionIndex());
@@ -2957,7 +2957,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                             endingTime, basisTime, forecast);
 
                     /* if manually edited data then format as .AR message */
-                    TabularData td = tabularDataList.get(indices[i]);
+                    TabularData td = tabularDataList.get(indice);
                     if (td.getShefQualCode().startsWith("M")) {
                         fmtType = ".AR";
                     }
@@ -3027,7 +3027,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
         if ((shefFileName != null) && (shefFileName.length() > 0)) {
             File shefFile = new File(shefFileName);
             if (shefFile.exists()) {
-                if (editor == null || editor.isDisposed()) {
+                if ((editor == null) || editor.isDisposed()) {
                     editor = new TextEditorDlg(shell, false, shefFile);
                     editor.open();
                 } else {

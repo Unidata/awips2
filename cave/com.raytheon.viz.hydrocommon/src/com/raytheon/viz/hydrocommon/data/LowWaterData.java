@@ -35,7 +35,7 @@ import com.raytheon.uf.common.dataquery.db.QueryResultRow;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Nov 11, 2008				askripsky	Initial creation
- * 
+ * Jul 21, 2015 4500        rjpeter     Use Number in blind cast.
  * </pre>
  * 
  * @author askripsky
@@ -75,7 +75,8 @@ public class LowWaterData {
     /**
      * Date format.
      */
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat(
+            "MM/dd/yyyy");
 
     /**
      * Constructor
@@ -136,7 +137,7 @@ public class LowWaterData {
     }
 
     public void setFlow(Object q) {
-        flow = (q != null) ? (Integer) q : MISSING_VALUE;
+        flow = (q != null) ? ((Number) q).intValue() : MISSING_VALUE;
     }
 
     public String getRemark() {
@@ -152,8 +153,8 @@ public class LowWaterData {
         return String
                 .format("%-24s        %-27s                 %-12s",
                         (stage != MISSING_VALUE_D) ? String.format("%8.2f",
-                                stage) : "", (flow != MISSING_VALUE) ? String
-                                .format("%8d", flow) : "", dateFormat
-                                .format(lwDate));
+                                stage) : "",
+                        (flow != MISSING_VALUE) ? String.format("%8d", flow)
+                                : "", dateFormat.format(lwDate));
     }
 }

@@ -18,14 +18,13 @@
 #    Date            Ticket#       Engineer             Description
 #    ------------    ----------    -----------          --------------------------
 #    12/22/09        173_partB     mgamazaychikov       Initial Creation
+#    07/13/15        4500          rjpeter              Remove SqlQueryTask
 #
 
 import BaseRequest
 from com.raytheon.uf.common.message.response import ResponseMessageGeneric
 from java.util import ArrayList
 from gov.noaa.nws.ncep.edex.uengine.utility import GempakConvert
-from com.raytheon.edex.uengine.tasks.query import SqlQueryTask
-
 
 class GempakMcidasHdrRequest(BaseRequest.BaseRequest):
 

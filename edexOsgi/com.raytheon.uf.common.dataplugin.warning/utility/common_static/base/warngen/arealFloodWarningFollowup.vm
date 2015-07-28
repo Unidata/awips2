@@ -249,7 +249,7 @@ THIS IS A TEST MESSAGE.##
 #if(${hycType} != "")
 FOR <L>${hycType}</L> ##
 #end
-REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
+REMAINS IN EFFECT UNTIL #headlineExpire(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
 ### added by GP
 #if(${alaska}=="true")
 !**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!...

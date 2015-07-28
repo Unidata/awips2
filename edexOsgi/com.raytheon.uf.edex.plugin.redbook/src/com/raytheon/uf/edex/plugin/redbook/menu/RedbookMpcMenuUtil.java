@@ -50,10 +50,10 @@ public class RedbookMpcMenuUtil extends RedbookMenuUtil {
     private static final String MENU_TYPE = NCEP_HYDRO + IPathManager.SEPARATOR
             + "mpc";
 
-    /** HPC menu file */
+    /** MPC menu file */
     private static final String MPC_MENU = "mpcMenus.xml";
 
-    /** HPC menu file full path */
+    /** MPC menu file full path */
     private static final String MENU_FILE = MENUS + IPathManager.SEPARATOR
             + MENU_TYPE + IPathManager.SEPARATOR + MPC_MENU;
 

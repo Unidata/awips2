@@ -36,7 +36,7 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * ------------ ---------- ----------- --------------------------
  * 02 Sep 2008             lvenable    Initial creation.
  * 18 Nov 2008             dhladky     Made Interactive.
- * 
+ * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
  * </pre>
  * 
  * @author lvenable
@@ -82,7 +82,7 @@ public class CrestData implements Comparable<CrestData> {
     /**
      * Flag indicating if the data is record data or not.
      */
-    private boolean record = false;
+    private final boolean record = false;
 
     /**
      * Indicator on how to sort the data.
@@ -104,7 +104,7 @@ public class CrestData implements Comparable<CrestData> {
             setStage((Double) objects[0]);
         }
         if (objects[1] != null) {
-            setFlow((Integer) objects[1]);
+            setFlow(((Number) objects[1]).intValue());
         }
         if (objects[2] != null) {
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
@@ -255,7 +255,7 @@ public class CrestData implements Comparable<CrestData> {
     public String getDateString() {
         DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
         df.setTimeZone(TimeZone.getTimeZone("GMT"));
-        
+
         return df.format(crestDate.getTime());
     }
 
@@ -271,7 +271,7 @@ public class CrestData implements Comparable<CrestData> {
 
         DateFormat df = new SimpleDateFormat("HH:mm");
         df.setTimeZone(TimeZone.getTimeZone("GMT"));
-        
+
         return df.format(crestDate.getTime());
     }
 
@@ -328,22 +328,25 @@ public class CrestData implements Comparable<CrestData> {
         }
 
         if (stage == HydroConstants.MISSING_VALUE) {
-            str = String.format("%10s   %8s    %10s  %10s %-6s", HydroConstants.MISSING_STRING, flow,
-                    getDateString(), getTimeString(), crestType);
-        }  else if (flow == HydroConstants.MISSING_VALUE) {
-            str = String.format("  %8.2f   %8s    %10s  %10s %-6s", stage, HydroConstants.MISSING_STRING,
-                    getDateString(), getTimeString(), crestType);
+            str = String.format("%10s   %8s    %10s  %10s %-6s",
+                    HydroConstants.MISSING_STRING, flow, getDateString(),
+                    getTimeString(), crestType);
+        } else if (flow == HydroConstants.MISSING_VALUE) {
+            str = String.format("  %8.2f   %8s    %10s  %10s %-6s", stage,
+                    HydroConstants.MISSING_STRING, getDateString(),
+                    getTimeString(), crestType);
         } else {
-            str = String.format("  %8.2f   %8s    %10s  %10s %-6s", stage, flow,
-                    getDateString(), getTimeString(), crestType);
+            str = String.format("  %8.2f   %8s    %10s  %10s %-6s", stage,
+                    flow, getDateString(), getTimeString(), crestType);
         }
-        
+
         return str;
     }
 
     /**
      * Compare method used to determine what data type to sort on.
      */
+    @Override
     public int compareTo(CrestData obj) {
         CrestData otherObject = obj;
 

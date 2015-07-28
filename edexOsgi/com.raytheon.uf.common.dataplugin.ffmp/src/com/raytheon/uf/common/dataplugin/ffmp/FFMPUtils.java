@@ -93,8 +93,9 @@ import com.vividsolutions.jts.io.WKTWriter;
  * Apr 21, 2014  2060       njensen     Remove dependency on grid dataURI column
  * Apr 22, 2014  2984       njensen     Remove dependency on edex/CoreDao
  * Nov 18, 2014  3831       dhladky     StatusHandler logging. Proper list sizing.
- * 
+ * Jul 13, 2015  4500       rjpeter     Fix SQL Injection concerns.
  * </pre>
+ * 
  * @author dhladky
  * @version 1
  */
@@ -117,7 +118,7 @@ public class FFMPUtils {
     public static float MISSING = -99999.0f;
 
     private static NumberFormat formatter = new DecimalFormat("#.##");
-        
+
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(FFMPUtils.class);
 
@@ -178,26 +179,26 @@ public class FFMPUtils {
 
             if (results.length > 0) {
                 if (mode.equals("CAVE")) {
-                    for (int i = 0; i < results.length; i++) {
-                        Object[] results2 = (Object[]) results[i];
-                        for (int j = 0; j < results2.length; j++) {
-                            if (((String) results2[j]) != null) {
-                                pfafs.add(Long.parseLong((String) results2[j]));
+                    for (Object result : results) {
+                        Object[] results2 = (Object[]) result;
+                        for (Object element : results2) {
+                            if (((String) element) != null) {
+                                pfafs.add(Long.parseLong((String) element));
                             }
                         }
                     }
                 }
 
                 else {
-                    for (int j = 0; j < results.length; j++) {
-                        if (((String) results[j]) != null) {
-                            pfafs.add(Long.parseLong((String) results[j]));
+                    for (Object result : results) {
+                        if (((String) result) != null) {
+                            pfafs.add(Long.parseLong((String) result));
                         }
                     }
                 }
             }
         } catch (SpatialException e) {
-            statusHandler.error("Error querying allPfafs: +sql: "+sql, e);
+            statusHandler.error("Error querying allPfafs: +sql: " + sql, e);
         }
 
         return pfafs;
@@ -217,12 +218,12 @@ public class FFMPUtils {
          * DR 13228 state added to the below query
          */
         String sql = "SELECT lid, county, name, lat, lon, state FROM location "
-                + "where lid in " + "(select distinct(lid) from IngestFilter "
-                + "where pe in ('PC', 'PP') " + "and ingest = 'T' "
-                + "and dur < 2000)";
+                + "where lid in (select distinct(lid) from IngestFilter "
+                + "where pe in ('PC', 'PP') and ingest = 'T' and dur < 2000)";
         try {
             Object[] results = executeSqlQuery(sql, ShefConstants.IHFS);
-            virtualBasins = new LinkedHashMap<String, FFMPVirtualGageBasinMetaData>(results.length, 1.0f);
+            virtualBasins = new LinkedHashMap<String, FFMPVirtualGageBasinMetaData>(
+                    results.length, 1.0f);
             Geometry poly = getCwaGeometry(cwa, mode);
             PreparedGeometry pg = PreparedGeometryFactory.prepare(poly);
             Coordinate coor = poly.getCentroid().getCoordinate();
@@ -242,7 +243,8 @@ public class FFMPUtils {
                 }
             }
         } catch (Exception e) {
-            statusHandler.error("Error querying Virtual Gage's: +sql: "+sql, e);
+            statusHandler.error("Error querying Virtual Gage's: +sql: " + sql,
+                    e);
         }
 
         return virtualBasins;
@@ -266,8 +268,8 @@ public class FFMPUtils {
             int j = 1;
 
             if (results.length > 0) {
-                for (int i = 0; i < results.length; i++) {
-                    String column_name = (String) results[i]/*((Object[]) results[i])[0]*/;
+                for (Object result : results) {
+                    String column_name = (String) result;
                     if (column_name.startsWith("upstream")) {
                         upstreams.add("upstream" + j);
                         j++;
@@ -275,7 +277,8 @@ public class FFMPUtils {
                 }
             }
         } catch (SpatialException e) {
-            statusHandler.error("Error determining upstream depth: +sql: "+sql, e);
+            statusHandler.error("Error determining upstream depth: +sql: "
+                    + sql, e);
         }
 
         return upstreams;
@@ -304,7 +307,8 @@ public class FFMPUtils {
             sq = SpatialQueryFactory.create();
             results = sq.dbRequest(sql.toString(), MAPS_DB);
         } catch (SpatialException e) {
-           statusHandler.error("Failed to lookup Huc Parameters: sql: "+sql, e);
+            statusHandler.error("Failed to lookup Huc Parameters: sql: " + sql,
+                    e);
         }
 
         String[] pfafs = new String[results.length];
@@ -321,8 +325,8 @@ public class FFMPUtils {
         int maxDepth = prelimstartDepth;
         int startDepth = prelimstartDepth;
 
-        for (int i = 0; i < pfafs.length; i++) {
-            int depth = pfafs[i].substring(prelimstartDepth).indexOf("0");
+        for (String pfaf : pfafs) {
+            int depth = pfaf.substring(prelimstartDepth).indexOf("0");
             depth = prelimstartDepth + depth;
             if (depth > maxDepth) {
                 maxDepth = depth;
@@ -333,15 +337,14 @@ public class FFMPUtils {
         if (pfafs.length > 0) {
             for (int myMinDepth = maxDepth; myMinDepth > 0; myMinDepth--) {
                 int ilevelcount = 0;
-                for (int i = 0; i < pfafs.length; i++) {
-                    int idepth = pfafs[i].substring(prelimstartDepth).indexOf(
-                            "0");
+                for (String pfaf : pfafs) {
+                    int idepth = pfaf.substring(prelimstartDepth).indexOf("0");
                     idepth = prelimstartDepth + idepth;
                     if (idepth >= myMinDepth) {
                         ilevelcount++;
                     }
                 }
-                if ((ilevelcount / pfafs.length) * 100 < 80) {
+                if (((ilevelcount / pfafs.length) * 100) < 80) {
                     startDepth = myMinDepth;
                 } else {
                     break;
@@ -397,7 +400,8 @@ public class FFMPUtils {
                 sq = SpatialQueryFactory.create();
                 results = sq.dbRequest(sql.toString(), MAPS_DB);
             } catch (SpatialException e) {
-                statusHandler.error("Error getting basins: sql:"+sql+"\n", e);
+                statusHandler.error("Error getting basins: sql:" + sql + "\n",
+                        e);
             }
 
             return results;
@@ -440,7 +444,8 @@ public class FFMPUtils {
                 results = sq.dbRequest(builder.toString(), MAPS_DB);
                 rval = new HashMap<Long, Geometry>(results.length, 1.0f);
             } catch (SpatialException e) {
-                statusHandler.error("Error querying Raw Geometries: +sql: "+builder.toString(), e);
+                statusHandler.error("Error querying Raw Geometries: +sql: "
+                        + builder.toString(), e);
             }
 
             WKBReader wkbReader = new WKBReader();
@@ -516,8 +521,8 @@ public class FFMPUtils {
             // sql, FFMPUtils.MAPS_DB, QueryLanguage.SQL);
             if (results.length > 0) {
                 if (mode.equals("EDEX")) {
-                    for (int i = 0; i < results.length; i++) {
-                        Object[] results2 = (Object[]) results[i];
+                    for (Object result : results) {
+                        Object[] results2 = (Object[]) result;
 
                         String countyName = null;
                         String state = null;
@@ -537,14 +542,14 @@ public class FFMPUtils {
                     }
                 } else {
 
-                    for (int i = 0; i < results.length; i++) {
+                    for (Object result : results) {
 
                         String countyName = null;
                         String state = null;
 
                         Object[] results2 = null;
                         try {
-                            results2 = (Object[]) results[i];
+                            results2 = (Object[]) result;
 
                             if (results2[0] instanceof String) {
                                 countyName = (String) results2[0];
@@ -576,7 +581,7 @@ public class FFMPUtils {
                 }
             }
         } catch (SpatialException e) {
-            statusHandler.error("Error retrieving COUNTY, pfaf: "+pfaf, e);
+            statusHandler.error("Error retrieving COUNTY, pfaf: " + pfaf, e);
         }
 
         return county;
@@ -612,17 +617,16 @@ public class FFMPUtils {
 
             if (results != null) {
                 if (results.length > 0) {
-                    for (int i = 0; i < results.length; i++) {
-                        if (results[i] != null) {
-                            keys.add(new Integer(
-                                    (String)results[i]/* ((Object[]) results[i])[0]*/)
-                                    .longValue());
+                    for (Object result : results) {
+                        if (result != null) {
+                            keys.add(new Integer((String) result).longValue());
                         }
                     }
                 }
             }
         } catch (SpatialException e) {
-            statusHandler.error("Error retreiving COUNTY FIPS list! sql: "+sql, e);
+            statusHandler.error("Error retreiving COUNTY FIPS list! sql: "
+                    + sql, e);
         }
 
         return removeDuplicates(keys);
@@ -681,16 +685,17 @@ public class FFMPUtils {
             if (results != null) {
                 gids = new ArrayList<Long>(results.length);
                 if (results.length > 0) {
-                    for (int i = 0; i < results.length; i++) {
-                        gids.add(((Number) results[i]).longValue());
+                    for (Object result : results) {
+                        gids.add(((Number) result).longValue());
                     }
                 }
             }
 
         } catch (SpatialException e) {
-            statusHandler.error("Error retreiving COUNTY INFO, part 1! sql: "+sql1, e);
+            statusHandler.error("Error retreiving COUNTY INFO, part 1! sql: "
+                    + sql1, e);
         }
-        
+
         Geometry geom = null;
         String countyName = null;
         String state = null;
@@ -711,10 +716,10 @@ public class FFMPUtils {
                 Object[] results = sq.dbRequest(sql, FFMPUtils.MAPS_DB);
 
                 if (results.length > 0) {
-                    for (int i = 0; i < results.length; i++) {
-                        Object[] results2 = (Object[]) results[i];
+                    for (Object result : results) {
+                        Object[] results2 = (Object[]) result;
                         WKBReader wkbReader = new WKBReader();
-                        
+
                         if (results2[0] != null) {
                             if (geom == null) {
                                 geom = readGeometry(results2[0], wkbReader);
@@ -736,7 +741,8 @@ public class FFMPUtils {
                 }
 
             } catch (SpatialException e) {
-                statusHandler.error("Error retreiving COUNTY INFO, part 2! sql: "+sql, e);
+                statusHandler.error(
+                        "Error retreiving COUNTY INFO, part 2! sql: " + sql, e);
             } catch (ParseException e) {
                 statusHandler.error("Error parsing COUNTY INFO!", e);
             }
@@ -777,7 +783,8 @@ public class FFMPUtils {
             }
 
         } catch (SpatialException e) {
-            statusHandler.error("Error retrieving basins: sql: "+sql+"\n basin: "+basinId);
+            statusHandler.error("Error retrieving basins: sql: " + sql
+                    + "\n basin: " + basinId);
         }
 
         return pfaf;
@@ -811,7 +818,8 @@ public class FFMPUtils {
             coor = new Coordinate(lon, lat);
 
         } catch (SpatialException e) {
-            statusHandler.error("Error getting radar geometry description: "+sql, e);
+            statusHandler.error("Error getting radar geometry description: "
+                    + sql, e);
         }
 
         return coor;
@@ -842,7 +850,7 @@ public class FFMPUtils {
                 statusHandler.error("Error parsing CWA geometry!", e);
             }
         } catch (SpatialException e) {
-            statusHandler.error("Error querying CWA geometry: "+sql, e);
+            statusHandler.error("Error querying CWA geometry: " + sql, e);
         }
 
         return geo;
@@ -869,12 +877,12 @@ public class FFMPUtils {
             cwas = new ArrayList<String>();
 
             if (results.length > 0) {
-                for (int i = 0; i < results.length; i++) {
-                    cwas.add((String) results[i]);
+                for (Object result : results) {
+                    cwas.add((String) result);
                 }
             }
         } catch (Exception e) {
-            statusHandler.error("Error querying CWA descriptions!: "+sql, e);
+            statusHandler.error("Error querying CWA descriptions!: " + sql, e);
         }
 
         return cwas;
@@ -909,7 +917,7 @@ public class FFMPUtils {
                 rfc = SiteMap.getInstance().getSite4LetterId(rfc.toUpperCase());
             }
         } catch (Exception e) {
-            statusHandler.error("Error querying RFC designation: "+sql, e);
+            statusHandler.error("Error querying RFC designation: " + sql, e);
         }
 
         return rfc;
@@ -937,14 +945,15 @@ public class FFMPUtils {
             DbQueryResponse response = (DbQueryResponse) RequestRouter
                     .route(request);
             ffgHash = new HashSet<String>(response.getResults().size(), 1.0f);
-            
+
             for (Map<String, Object> map : response.getResults()) {
                 String key = (String) map
                         .get(GridConstants.PARAMETER_ABBREVIATION);
                 ffgHash.add(key);
             }
         } catch (Exception e) {
-            statusHandler.error("Error querying FFG parameters: "+request.toString(), e);
+            statusHandler.error(
+                    "Error querying FFG parameters: " + request.toString(), e);
         }
 
         return ffgHash;
@@ -970,7 +979,8 @@ public class FFMPUtils {
                     .route(request);
             return response.getEntityObjects(GridRecord.class)[0].getDataURI();
         } catch (Exception e) {
-            statusHandler.error("Error querying FFG Data URIS: "+request.toString(), e);
+            statusHandler.error(
+                    "Error querying FFG Data URIS: " + request.toString(), e);
         }
 
         return null;
@@ -995,7 +1005,7 @@ public class FFMPUtils {
                 uri = (String) results[0];
             }
         } catch (SpatialException e) {
-            statusHandler.error("Error querying RADAR Data URI: "+sql, e);
+            statusHandler.error("Error querying RADAR Data URI: " + sql, e);
         }
 
         return uri;
@@ -1023,7 +1033,8 @@ public class FFMPUtils {
             subGrid = new HRAPSubGrid(extent, gridFactor);
 
         } catch (Exception e) {
-            statusHandler.error("Error looking up XMRG geometry: "+xmrg.toString(), e);
+            statusHandler.error(
+                    "Error looking up XMRG geometry: " + xmrg.toString(), e);
         }
 
         return MapUtil.getGridGeometry(subGrid);
@@ -1051,7 +1062,8 @@ public class FFMPUtils {
             subGrid = new HRAPSubGrid(extent, gridFactor);
 
         } catch (Exception e) {
-            statusHandler.error("Error querying XMRG sub grid: "+xmrg.toString(), e);
+            statusHandler.error(
+                    "Error querying XMRG sub grid: " + xmrg.toString(), e);
         }
 
         return subGrid;
@@ -1388,14 +1400,8 @@ public class FFMPUtils {
      */
     private static Object[] executeSqlQuery(String query, String database)
             throws Exception {
-        // code shamelessly modeled after DirectDbQuery
-        // TODO DirectDbQuery should be changed to use RequestRouter instead of
-        // ThriftClient and should be promoted to a common plugin
-        Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>();
-        constraints.put("query", new RequestConstraint(query));
-        constraints.put("database", new RequestConstraint(database));
-        constraints.put("mode", new RequestConstraint("sqlquery"));
-        QlServerRequest request = new QlServerRequest(constraints);
+        QlServerRequest request = new QlServerRequest(query);
+        request.setDatabase(database);
         ResponseMessageGeneric resp = (ResponseMessageGeneric) RequestRouter
                 .route(request);
 

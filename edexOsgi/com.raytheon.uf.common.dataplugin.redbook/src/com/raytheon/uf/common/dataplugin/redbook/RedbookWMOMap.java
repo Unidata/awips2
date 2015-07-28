@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.common.dataplugin.redbook;
 
-import java.io.File;
 import java.util.HashMap;
 
 import javax.xml.bind.JAXB;
@@ -28,6 +27,9 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 
 /**
@@ -41,6 +43,8 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
  * Nov 04, 2013 2361        njensen     Use JAXB instead of SerializationUtil
  * Jun 25, 2015 4512        mapeters    Refactored from viz.redbook, made mapping
  *                                      private, added getValue() and addEntry()
+ * Jul 21, 2015 4512        mapeters    Check for redbookMapping.xml in common_static.configured,
+ *                                      then cave_static.base
  * 
  * </pre>
  * 
@@ -50,6 +54,9 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class RedbookWMOMap {
+
+    private static final String FILE_PATH = "redbook" + IPathManager.SEPARATOR
+            + "redbookMapping.xml";
 
     @XmlAccessorType(XmlAccessType.FIELD)
     public static class Info {
@@ -70,9 +77,26 @@ public class RedbookWMOMap {
     }
 
     public static RedbookWMOMap load() {
-        File file = PathManagerFactory.getPathManager().getStaticFile(
-                "redbook/redbookMapping.xml");
-        RedbookWMOMap map = JAXB.unmarshal(file, RedbookWMOMap.class);
+        IPathManager pathMgr = PathManagerFactory.getPathManager();
+        /*
+         * Check common_static.configured first, as it is now being saved there.
+         * If not found, check cave_static.base, where it used to be stored (in
+         * the future cave_static should no longer need to be checked).
+         */
+        LocalizationContext context = pathMgr.getContext(
+                LocalizationContext.LocalizationType.COMMON_STATIC,
+                LocalizationContext.LocalizationLevel.CONFIGURED);
+        LocalizationFile locFile = pathMgr.getLocalizationFile(context,
+                FILE_PATH);
+        if (locFile == null || !locFile.exists()) {
+            context = pathMgr.getContext(
+                    LocalizationContext.LocalizationType.CAVE_STATIC,
+                    LocalizationContext.LocalizationLevel.BASE);
+            locFile = pathMgr.getLocalizationFile(context, FILE_PATH);
+        }
+
+        RedbookWMOMap map = JAXB.unmarshal(locFile.getFile(),
+                RedbookWMOMap.class);
 
         // add ability for comma separated values in xml file
         RedbookWMOMap secondMap = new RedbookWMOMap();

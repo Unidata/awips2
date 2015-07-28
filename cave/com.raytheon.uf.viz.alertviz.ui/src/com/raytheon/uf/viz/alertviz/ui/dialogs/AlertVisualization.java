@@ -1,4 +1,5 @@
 /**
+ * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
  * 
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
@@ -21,7 +22,6 @@ package com.raytheon.uf.viz.alertviz.ui.dialogs;
 import java.io.File;
 
 import org.eclipse.equinox.app.IApplication;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MenuDetectEvent;
 import org.eclipse.swt.events.MenuDetectListener;
@@ -359,7 +359,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
      */
     private void createTray() {
         trayItem = new TrayItem(tray, SWT.NONE);
-        addToolTip();
+        updateToolTip();
 
         trayItemMenu = new Menu(shell, SWT.POP_UP);
 
@@ -378,9 +378,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                if ((alertPopupDlg != null)
-                        && (alertPopupDlg.getNumberOfMessages() > 0)) {
-                    cancelTimer();
+                if (alertPopupDlg != null) {
                     openAlertPopupDialog();
                 }
             }
@@ -459,9 +457,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
         showPopup.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (alertPopupDlg != null) {
-                    openAlertPopupDialog();
-                }
+                openAlertPopupDialog();
             }
         });
 
@@ -471,19 +467,13 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
         ackAll.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                // Verify user meant to acknowledge all messages
-                boolean rval = MessageDialog.openConfirm(shell, "Confirm",
-                        "Acknowledge all messages?");
-
-                if (rval == true) {
-                    if (alertPopupDlg != null) {
-                        alertPopupDlg.acknowledgeAllMessages(false);
-                        alertPopupDlg = null;
-                        addToolTip();
-                        ackAll.setEnabled(false);
-                        showPopup.setEnabled(false);
-                    }
-                    cancelTimer();
+                if (alertPopupDlg != null) {
+                    alertPopupDlg.showDialog();
+                    alertPopupDlg.acknowledgeAllMessages();
+                } else {
+                    // should never happen
+                    Container.logInternal(Priority.ERROR,
+                            "alertPopupDlg unexpectedly null");
                 }
             }
         });
@@ -699,16 +689,17 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
 
         // Pop-up message
         if (amd.isPopup() == true) {
-            if ((alertPopupDlg == null) || (alertPopupDlg.isDisposed() == true)) {
+            if (alertPopupDlg == null) {
                 alertPopupDlg = new AlertPopupMessageDlg(shell, statMsg,
                         gConfig.isExpandedPopup(), this, amd.getBackground());
+                showPopup.setEnabled(true);
+                ackAll.setEnabled(true);
+                startBlinkTrayTimer();
             } else {
                 alertPopupDlg.addNewMessage(statMsg, amd);
             }
-            startBlinkTrayTimer();
-            addToolTip();
-            showPopup.setEnabled(true);
-            ackAll.setEnabled(true);
+
+            updateToolTip();
             if (doNotDisturb == false) {
                 openAlertPopupDialog();
             }
@@ -747,15 +738,12 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
      * Opens the alert pop-up dialog
      */
     public void openAlertPopupDialog() {
-        if ((alertPopupDlg != null) && (alertPopupDlg.dialogIsOpen() == true)) {
-            alertPopupDlg.showDialog(true);
+        if (alertPopupDlg != null) {
+            alertPopupDlg.showDialog();
         } else {
-            alertPopupDlg.open();
-            alertPopupDlg = null;
-            cancelTimer();
-            addToolTip();
-            ackAll.setEnabled(false);
-            showPopup.setEnabled(showAlertDlg);
+            // should never happen
+            Container.logInternal(Priority.ERROR,
+                    "alertPopupDlg unexpectedly null");
         }
     }
 
@@ -785,7 +773,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
      * Adds a tool tip to the tray icon, if messages need to be acknowledged,
      * shows the number, otherwise displays general text.
      */
-    private void addToolTip() {
+    private void updateToolTip() {
         if (alertPopupDlg == null) {
             this.trayItem.setToolTipText("AlertViz Menu");
         } else {
@@ -819,10 +807,26 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
      */
     @Override
     public void handleEvent(Event event) {
-        ackAll.setEnabled(true);
-        showPopup.setEnabled(true);
-        startBlinkTrayTimer();
-        addToolTip();
+        switch (event.type) {
+        case SWT.Hide:
+            ackAll.setEnabled(true);
+            showPopup.setEnabled(true);
+            startBlinkTrayTimer();
+            updateToolTip();
+            break;
+
+        case SWT.Dispose:
+            alertPopupDlg = null;
+            cancelTimer();
+            updateToolTip();
+            ackAll.setEnabled(false);
+            showPopup.setEnabled(false);
+            break;
+        default:
+            Container.logInternal(Priority.WARN, "Unexpected event type: "
+                    + event.type);
+            break;
+        }
     }
 
     @Override
