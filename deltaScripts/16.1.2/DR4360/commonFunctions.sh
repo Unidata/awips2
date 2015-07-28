@@ -34,7 +34,7 @@ where table_catalog = 'metadata' and table_schema='awips' and constraint_type='U
 	fi
 }
 
-# takes to args: table column
+# takes two args: table column
 # Add not null constraint to table's column
 function updateNotNullCol {
 	${PSQL} -U awips -d metadata -c "ALTER TABLE $1 ALTER COLUMN $2 SET NOT NULL ;"
@@ -45,4 +45,12 @@ function updateNotNullCol {
 	else
 		echo "INFO: Added non null constraint to column $2 on table $1."
 	fi
+}
+
+# takes one args: table
+# return 0 status if the table exists.
+function tableExists {
+${PSQL} -U awips -d metadata -q \
+	-c "SELECT count(*) from information_schema.tables where table_schema='awips' and table_name='${1}' ; " \
+	2>1 | grep -q '^\s*1$'
 }

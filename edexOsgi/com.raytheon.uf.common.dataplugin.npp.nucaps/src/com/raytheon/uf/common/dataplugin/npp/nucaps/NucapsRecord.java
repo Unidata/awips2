@@ -46,6 +46,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  *                                     PluginDataObject.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Oct 14, 2013 2361       njensen     Removed XML annotations
+ * Jul 27, 2015 4360       rferrel     Named unique constraint.
  * 
  * </pre>
  * 
@@ -54,7 +55,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "nucapsseq")
-@Table(name = NucapsRecord.PLUGIN_NAME, uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = NucapsRecord.PLUGIN_NAME, uniqueConstraints = { @UniqueConstraint(name = "uk_nucaps_datauri_fields", columnNames = { "dataURI" }) })
 @DynamicSerialize
 public class NucapsRecord extends NPPSoundingRecord {
 
