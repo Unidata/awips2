@@ -27,19 +27,20 @@
 #
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    06/16/10                      njensen       Initial Creation.
-#    05/03/11        9134          njensen       Optimized for pointdata
-#    10/09/12                      rjpeter       Optimized __getGroup for retrievals
-#    01/17/13        DR 15294      D. Friedman   Clear out data in response
-#    02/12/13           #1608      randerso      Added support for explicitly deleting groups and datasets
-#    Nov 14, 2013       2393       bclement      removed interpolation
-#    Jan 17, 2014       2688       bclement      added file action and subprocess error logging  
-#    Mar 19, 2014       2688       bgonzale      added more subprocess logging.  Return value from
-#                                                subprocess.check_output is not return code, but is
-#                                                process output.  h5repack has no output without -v arg.
-#    Apr 24, 2015    4425          nabowle       Add DoubleDataRecord
-#    Jun 15, 2015   DR 17556      mgamazaychikov Add __doMakeReadable method to counteract umask 027 daemon
-#                                                and make copied files world-readable
+#    06/16/10                      njensen        Initial Creation.
+#    05/03/11           9134       njensen        Optimized for pointdata
+#    10/09/12                      rjpeter        Optimized __getGroup for retrievals
+#    01/17/13        DR 15294      D. Friedman    Clear out data in response
+#    02/12/13           1608       randerso       Added support for explicitly deleting groups and datasets
+#    Nov 14, 2013       2393       bclement       removed interpolation
+#    Jan 17, 2014       2688       bclement       added file action and subprocess error logging  
+#    Mar 19, 2014       2688       bgonzale       added more subprocess logging.  Return value from
+#                                                 subprocess.check_output is not return code, but is
+#                                                 process output.  h5repack has no output without -v arg.
+#    Apr 24, 2015       4425       nabowle        Add DoubleDataRecord
+#    Jun 15, 2015   DR 17556      mgamazaychikov  Add __doMakeReadable method to counteract umask 027 daemon
+#                                                 and make copied files world-readable
+#    Jul 27, 2015       4402       njensen        Set fill_time_never on write if fill value is None       
 #
 #
 
@@ -540,6 +541,9 @@ class H5pyDataStore(IDataStore.IDataStore):
             fVal[0] = fillValue
             plc.set_fill_value(fVal)
             plc.set_fill_time(h5py.h5d.FILL_TIME_IFSET)
+        else:
+            plc.set_fill_time(h5py.h5d.FILL_TIME_NEVER)
+            
         if chunks:
             plc.set_chunk(chunks)
         if compression == 'LZF':
