@@ -35,6 +35,7 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.Type;
 
+import com.raytheon.uf.common.dataplugin.NullUtil;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -58,6 +59,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
  * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
  * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
+ * Jul 29, 2015  4360     rferrel     Made wmoid, pil, xxxid, act, etn, seg and phensig non-nullable.
  * 
  * </pre>
  * 
@@ -74,19 +76,19 @@ public abstract class AbstractWarningRecord extends PluginDataObject {
     private static final long serialVersionUID = 1L;
 
     @DataURI(position = 1)
-    @Column(length = 32)
+    @Column(length = 32, nullable = false)
     @DynamicSerializeElement
-    private String wmoid;
+    private String wmoid = NullUtil.NULL_STRING;
 
     @DataURI(position = 2)
-    @Column(length = 4)
+    @Column(length = 4, nullable = false)
     @DynamicSerializeElement
-    private String pil;
+    private String pil = NullUtil.NULL_STRING;
 
     @DataURI(position = 3)
-    @Column(length = 4)
+    @Column(length = 4, nullable = false)
     @DynamicSerializeElement
-    private String xxxid;
+    private String xxxid = NullUtil.NULL_STRING;
 
     @Column(columnDefinition = "text")
     @DynamicSerializeElement
@@ -108,9 +110,9 @@ public abstract class AbstractWarningRecord extends PluginDataObject {
     private String productClass;
 
     @DataURI(position = 4)
-    @Column(length = 4)
+    @Column(length = 4, nullable = false)
     @DynamicSerializeElement
-    private String act;
+    private String act = NullUtil.NULL_STRING;
 
     @Column(length = 8)
     @DynamicSerializeElement
@@ -125,7 +127,7 @@ public abstract class AbstractWarningRecord extends PluginDataObject {
     private String sig;
 
     @DataURI(position = 5)
-    @Column(length = 4)
+    @Column(length = 4, nullable = false)
     @DynamicSerializeElement
     private String etn;
 
@@ -176,14 +178,14 @@ public abstract class AbstractWarningRecord extends PluginDataObject {
     private String rawmessage;
 
     @DataURI(position = 6)
-    @Column
+    @Column(nullable = false)
     @DynamicSerializeElement
     private int seg;
 
     @DataURI(position = 7)
-    @Column(length = 4)
+    @Column(length = 4, nullable = false)
     @DynamicSerializeElement
-    private String phensig;
+    private String phensig = NullUtil.NULL_STRING;
 
     @Transient
     @DynamicSerializeElement
@@ -283,27 +285,27 @@ public abstract class AbstractWarningRecord extends PluginDataObject {
     }
 
     public String getWmoid() {
-        return wmoid;
+        return NullUtil.convertNullStringToNull(this.wmoid);
     }
 
     public void setWmoid(String wmoid) {
-        this.wmoid = wmoid;
+        this.wmoid = NullUtil.convertNullToNullString(wmoid);
     }
 
     public String getPil() {
-        return pil;
+        return NullUtil.convertNullStringToNull(this.pil);
     }
 
     public void setPil(String pil) {
-        this.pil = pil;
+        this.pil = NullUtil.convertNullToNullString(pil);
     }
 
     public String getXxxid() {
-        return xxxid;
+        return NullUtil.convertNullStringToNull(xxxid);
     }
 
     public void setXxxid(String xxxid) {
-        this.xxxid = xxxid;
+        this.xxxid = NullUtil.convertNullToNullString(xxxid);
     }
 
     public String getVtecstr() {
@@ -339,11 +341,11 @@ public abstract class AbstractWarningRecord extends PluginDataObject {
     }
 
     public String getEtn() {
-        return etn;
+        return NullUtil.convertNullStringToNull(this.etn);
     }
 
     public void setEtn(String etn) {
-        this.etn = etn;
+        this.etn = NullUtil.convertNullToNullString(etn);
     }
 
     public String getRawmessage() {
@@ -363,11 +365,11 @@ public abstract class AbstractWarningRecord extends PluginDataObject {
     }
 
     public String getAct() {
-        return act;
+        return NullUtil.convertNullStringToNull(this.act);
     }
 
-    public void setAct(String action) {
-        this.act = action;
+    public void setAct(String act) {
+        this.act = NullUtil.convertNullToNullString(act);
     }
 
     public String getOfficeid() {
@@ -437,7 +439,7 @@ public abstract class AbstractWarningRecord extends PluginDataObject {
      * @return the phensig
      */
     public String getPhensig() {
-        return phensig;
+        return NullUtil.convertNullStringToNull(phensig);
     }
 
     /**
@@ -445,7 +447,7 @@ public abstract class AbstractWarningRecord extends PluginDataObject {
      *            the phensig to set
      */
     public void setPhensig(String phensig) {
-        this.phensig = phensig;
+        this.phensig = NullUtil.convertNullToNullString(phensig);
     }
 
     /**
