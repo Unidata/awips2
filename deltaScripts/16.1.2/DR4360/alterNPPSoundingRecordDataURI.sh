@@ -17,7 +17,6 @@ echo "INFO: Start update of tables derived from NPPSoundingRecord."
 for table in ${tables[@]} ; do
 	if tableExists ${table}  ; then
 		echo "INFO: Start update of ${table} dataURI columns."
-		echo renameConstraint ${table} uk_${table}_datauri_fields
 
 		for col in ${cols[@]} ; do
 			echo "INFO: Update ${table}'s ${col}"

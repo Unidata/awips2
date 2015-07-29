@@ -10,7 +10,6 @@ table=lsr
 
 # table and constraint names form LocalStormReport.
 echo "INFO: Start update of ${table} dataURI columns."
-renameConstraint ${table} uk_${table}_datauri_fields
 col=eventtype
 echo "Info Update ${table}'s ${col}"
 ${PSQL} -U awips -d metadata -c "DELETE from  ${table} where ${col} is NULL ; "

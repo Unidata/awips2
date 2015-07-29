@@ -8,9 +8,8 @@ cmdDir=`dirname $0`
 source ${cmdDir}/commonFunctions.sh
 table=bufrascat
 
-# table and constraint names form AScatObs.
+# table and constraint names from AScatObs.
 echo "INFO: Start update of ${table} dataURI columns."
-renameConstraint ${table} uk_${table}_datauri_fields
 
 col=windSpd
 echo "INFO: Update ${table}'s ${col}"

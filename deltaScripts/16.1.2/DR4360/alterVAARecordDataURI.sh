@@ -10,7 +10,6 @@ table=vaa
 
 # table and constraint names from VAARecord.
 echo "INFO: Start update of ${table} dataURI columns."
-renameConstraint ${table} uk_${table}_datauri_fields
 
 col=advisorynumber
 echo "INFO: Update ${table}'s ${col}"

@@ -14,7 +14,6 @@ cols=("stationId" "latitude" "longitude")
 
 # table and constraint names from BufrMosDataLocation.
 echo "INFO: Start update of ${table} dataURI columns."
-renameConstraint ${table} uk_${table}_datauri_fields
 
 for col in ${cols[@]} ; do
 	echo "INFO: Update ${table}'s ${col}"

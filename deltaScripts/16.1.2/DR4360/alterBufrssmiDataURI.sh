@@ -10,7 +10,6 @@ table=bufrssmi
 
 # table and constraint names form BufrMTHDWObs.
 echo "INFO: Start update of ${table} dataURI columns."
-renameConstraint ${table} uk_${table}_datauri_fields
 
 col=satid
 echo "INFO: Update ${table}'s ${col}"

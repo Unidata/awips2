@@ -8,9 +8,8 @@ cmdDir=`dirname $0`
 source ${cmdDir}/commonFunctions.sh
 table=acars
 
-# table and constraint names form ACARSRecord.
+# table and constraint names from ACARSRecord.
 echo "INFO: Start update of ${table} dataURI columns."
-renameConstraint ${table} uk_${table}_datauri_fields
 
 col=tailNumber
 echo "INFO: Update ${table}' ${col}"

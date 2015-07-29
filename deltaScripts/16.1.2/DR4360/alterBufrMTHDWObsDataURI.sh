@@ -8,9 +8,8 @@ cmdDir=`dirname $0`
 source ${cmdDir}/commonFunctions.sh
 table=bufrmthdw
 
-# table and constraint names form BufrMTHDWObs.
+# table and constraint names from BufrMTHDWObs.
 echo "INFO: Start update of ${table} dataURI columns."
-renameConstraint ${table} uk_${table}_datauri_fields
 
 col=pressure
 echo "INFO: Update ${table}'s ${col}"

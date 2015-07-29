@@ -10,7 +10,6 @@ table=madis
 
 # table and constraint names from MadisRecord.
 echo "INFO: Start update of ${table} dataURI columns."
-renameConstraint ${table} uk_${table}_datauri_fields
 col=provider
 echo "Info Update ${table}'s ${col}"
 ${PSQL} -U awips -d metadata -c "DELETE from  ${table} where ${col} is NULL ; "

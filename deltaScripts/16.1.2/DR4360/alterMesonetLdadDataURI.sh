@@ -10,7 +10,6 @@ table=ldadmesonet
 
 # table and constraint names form AScatObs.
 echo "INFO: Start update of ${table} dataURI columns."
-renameConstraint ${table} uk_${table}_datauri_fields
 
 col=reportType
 echo "INFO: Update ${table}'s ${col}"

@@ -10,7 +10,6 @@ table=ccfp
 
 # table and constraint names from CcfpRecord.
 echo "INFO: Start update of ${table} dataURI columns."
-renameConstraint ${table} uk_${table}_datauri_fields
 
 col=producttype
 echo "INFO: Update ${table}'s ${col}"
