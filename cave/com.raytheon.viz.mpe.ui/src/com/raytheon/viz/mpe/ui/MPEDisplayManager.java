@@ -29,6 +29,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
@@ -109,6 +110,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Feb 19, 2014   2628     mpduff       Change cast from short to int when creating color bar.
  * Jun 30, 2014  17457     snaples      Added default case to switch in getXmrgfile.
  * Jul 8, 2015   16790     snaples      Updated setCurrentEditDate to refresh resources when dateMap is stale.
+ * Jul 29, 2015  17471     snaples      Updated editTime to ensure that it always references "GMT" timezone.
  * 
  * </pre>
  * 
@@ -454,6 +456,9 @@ public class MPEDisplayManager {
             throw new RuntimeException("Error time matching MPE", e);
         }
         editTime = getCurrentDisplayedDate();
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        cal.setTime(editTime);
+        editTime = cal.getTime();
 
         // token for default display
         String mdd = AppsDefaults.getInstance().getToken("mpe_def_display");

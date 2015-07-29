@@ -79,6 +79,8 @@ import com.raytheon.viz.mpe.ui.radartable.ReadBiasTableParam;
  * May 1, 2014   16626     snaples     Updated the Manual Bias button to allow revert to original value.
  * May 8, 2014   DCS167    cgobs       Updated Dialog for DualPol features
  * May 23, 2014  DCS167    cgobs       Resolved merge conflict
+ * Jul 29, 2015  17471     snaples     Added logging for radar result table query date value.
+ * 
  * </pre>
  * 
  * @author snaples
@@ -362,6 +364,8 @@ public class RadarBiasTableDialog extends Dialog {
       
         
         dt = pgsdf.format(dt3);
+        // This lets us know what date is being requested from radar result tables
+        System.out.println("Radar Bias table query using time: " + dt3);
         
         radarIdToSPDataMap = MPEDataManager.getInstance().readSPRadarData(dt3);
         radarIdToDPDataMap = MPEDataManager.getInstance().readDPRadarData(dt3);
