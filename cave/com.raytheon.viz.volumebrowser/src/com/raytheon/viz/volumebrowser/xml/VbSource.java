@@ -22,6 +22,7 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
  * Dec 11, 2013  2602     bsteffen    Remove ISerializableObject.
  * Aug 14, 2014  3506     mapeters    Added remove field and equals 
  *                                    and hashCode functions.
+ * Jul 10, 2015  4641     mapeters    Added toString().
  * 
  * </pre>
  * 
@@ -142,7 +143,6 @@ public class VbSource {
 
     @Override
     public boolean equals(Object that) {
-
         if (that instanceof VbSource) {
             if ((this.key.equals(((VbSource) that).getKey()) && (this
                     .getCategory().compareTo(((VbSource) that).getCategory()) == 0))) {
@@ -156,6 +156,20 @@ public class VbSource {
     public int hashCode() {
         String newKey = key.concat(category);
         return newKey.hashCode();
+    }
 
+    @Override
+    public String toString() {
+        StringBuilder sourceString = new StringBuilder("VbSource[");
+        sourceString.append("key=").append(key);
+        sourceString.append(", ");
+        sourceString.append("name=").append(name);
+        sourceString.append(", ");
+        sourceString.append("category=").append(category);
+        sourceString.append(", ");
+        sourceString.append("subCategory=").append(subCategory);
+        sourceString.append("]");
+
+        return sourceString.toString();
     }
 }
