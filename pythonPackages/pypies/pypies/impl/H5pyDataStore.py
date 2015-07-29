@@ -541,7 +541,7 @@ class H5pyDataStore(IDataStore.IDataStore):
             fVal[0] = fillValue
             plc.set_fill_value(fVal)
             plc.set_fill_time(h5py.h5d.FILL_TIME_IFSET)
-        else:
+        elif dtype != vlen_str_type:
             plc.set_fill_time(h5py.h5d.FILL_TIME_NEVER)
             
         if chunks:
