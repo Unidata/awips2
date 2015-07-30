@@ -7,11 +7,11 @@ cmdDir=`dirname $0`
 
 source ${cmdDir}/commonFunctions.sh
 
-# A table listed here doesn't need changes to any columns or the change
-# is handled in some other script.
+# Does not include tables generated from classes in the AWIP2_NCEP branch
+
 tables=("acars" "acarssounding" "binlightning" "bufrncwf" "bufrmos_location" "bufrmosavn" "bufrmoseta" "bufrmosgfs" "bufrmoshpc"
 "bufrmoslamp" "bufrmosmrf" "bufrmosngm" "bufrmthdw" "bufrquikscat" "bufrascat" "bufrhdw" "bufrsigwx" "bufrssmi" "bufrua" "cwa" "cwat" "ffmp" "fog"
-"ccfp" "crimss" "fssobs" "goessounding" "ldad_manual" "ldadhydro" "ldadmesonet" "ldadprofiler" "lsr" "madis" "modelsounding"
+"ccfp" "crimss" "fssobs" "goessounding" "grid" "ldad_manual" "ldadhydro" "ldadmesonet" "ldadprofiler" "lsr" "madis" "modelsounding"
 "nucaps" "obs" "poessounding"
 "practicewarning" "profiler" "qc" "sfcobs" "svrwx" "tcg" "tcs" "vaa" "warning")
 echo "INFO: rename tables unique constraints"

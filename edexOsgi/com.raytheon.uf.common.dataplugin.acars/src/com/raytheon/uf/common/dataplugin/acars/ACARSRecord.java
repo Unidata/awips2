@@ -109,7 +109,6 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
     @XmlElement
     private String tailNumber;
 
-    // TODO Update once AircraftObsLocation DataURI's are corrected.
     @Embedded
     @DataURI(position = 2, embedded = true)
     @XmlElement
