@@ -168,7 +168,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 04/20/2015   4027       randerso    Renamed ProductStateEnum with an initial capital
  *                                     Expunged Calendar from ActiveTableRecord
  * 07/02/2015  13753       lshi        Update times for products in Product Editor 
- * 07/22/2015  13753       lshi        Keeps issue time unchanged                                 
+ * 07/22/2015  13753       lshi        Keeps issue time unchanged
+ * 07/28/2015   4263       dgilling    Support changes to TextProductManager.                                
  * </pre>
  * 
  * @author lvenable
@@ -2037,7 +2038,7 @@ public class ProductEditorComp extends Composite implements
                         // segment
                         List<String> zones = decodeUGCs(pds.getSegmentsArray()
                                 .get(i));
-                        List<String> timeZones = dm.getTextProductMgr()
+                        Collection<String> timeZones = dm.getTextProductMgr()
                                 .getTimeZones(zones, officeTimeZone);
 
                         StringBuilder sb = new StringBuilder();

@@ -19,18 +19,14 @@
  **/
 package com.raytheon.viz.gfe.textformatter;
 
-import java.io.File;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Map.Entry;
 
-import jep.JepException;
-
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.dataplugin.gfe.textproduct.ProductDefinition;
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
@@ -41,13 +37,12 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.python.concurrent.IPythonJobListener;
+import com.raytheon.uf.common.python.concurrent.PythonJobCoordinator;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
-import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.IAsyncStartupObjectListener;
 
 /**
  * Manages the available text products.
@@ -64,6 +59,8 @@ import com.raytheon.viz.gfe.core.DataManager;
  * Dec 15, 2014  #14946    ryu         Add getTimeZones() method.
  * Apr 20, 2015  4027      randerso    Made fileObservers conditional as they are not needed
  *                                     in a non-GUI environment like GFE formatter auto-tests
+ * Jul 30, 2015  4263      dgilling    Major refactor so this object can be initialized off
+ *                                     UI thread.
  * 
  * </pre>
  * 
@@ -71,104 +68,136 @@ import com.raytheon.viz.gfe.core.DataManager;
  * @version 1.0
  */
 
-public class TextProductManager {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(TextProductManager.class);
+public class TextProductManager implements ILocalizationFileObserver {
 
-    private String issuedBy = "";
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(getClass());
 
-    private FormatterScript script;
+    private String issuedBy;
 
-    private Map<String, String> scriptToModuleMap = new HashMap<String, String>();
+    private final PythonJobCoordinator<FormatterScript> jobCoordinator;
 
-    private Map<String, ProductDefinition> scriptToDefinitionMap = new HashMap<String, ProductDefinition>();
+    /**
+     * Text product inventory. Maps product display name to product metadata.
+     */
+    private final Map<String, TextProductMetadata> metadata;
 
-    private LocalizationFile lfConfigDir;
+    /**
+     * Manages the default VTEC mode for Hazard products. Maps PIL to VTEC mode
+     * code.
+     */
+    private final Map<String, String> productDefaultVtecCoding;
 
-    private LocalizationFile lfSiteDir;
+    private final Object accessLock;
 
-    private LocalizationFile lfUserDir;
+    private final LocalizationFile textProductsDir;
 
-    private TextProductListener listener;
+    public TextProductManager() {
+        this.issuedBy = "";
 
-    public TextProductManager(boolean startListener) {
-        try {
-            init(startListener);
-        } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Exception initializing TextProductManager", e);
-        } catch (JepException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Exception initializing TextProductManager", e);
-        }
-    }
+        FormatterScriptFactory factory = new FormatterScriptFactory();
+        this.jobCoordinator = PythonJobCoordinator.newInstance(factory);
 
-    private void init(boolean startListener) throws VizException, JepException {
         IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationContext configContext = pm.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.CONFIGURED);
-        LocalizationContext siteContext = pm.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
-        LocalizationContext userContext = pm.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
+        LocalizationContext baseContext = pm.getContext(
+                LocalizationType.CAVE_STATIC, LocalizationLevel.BASE);
+        this.textProductsDir = pm.getLocalizationFile(baseContext,
+                GfePyIncludeUtil.TEXT_PRODUCTS);
 
-        lfConfigDir = pm.getLocalizationFile(configContext,
-                GfePyIncludeUtil.TEXT_PRODUCTS);
-        lfSiteDir = pm.getLocalizationFile(siteContext,
-                GfePyIncludeUtil.TEXT_PRODUCTS);
-        lfUserDir = pm.getLocalizationFile(userContext,
-                GfePyIncludeUtil.TEXT_PRODUCTS);
+        this.productDefaultVtecCoding = new HashMap<>();
+        this.metadata = new HashMap<>();
+        this.accessLock = new Object();
+    }
+
+    public void init(boolean startListener,
+            final IAsyncStartupObjectListener initListener) {
+        TextProductConfigDataExecutor executor = new TextProductConfigDataExecutor(
+                true);
+        IPythonJobListener<TextProductConfigData> listener = new IPythonJobListener<TextProductConfigData>() {
+
+            @Override
+            public void jobFinished(TextProductConfigData result) {
+                buildTextProductMaps(result, true);
+                initListener.objectInitialized();
+            }
+
+            @Override
+            public void jobFailed(Throwable t) {
+                statusHandler
+                        .error("Error building text product inventory.", t);
+                initListener.objectInitialized();
+            }
+        };
+        try {
+            jobCoordinator.submitAsyncJob(executor, listener);
+        } catch (Exception e) {
+            statusHandler.error("Error building text product inventory.", e);
+        }
+
         if (startListener) {
-            listener = new TextProductListener();
-            lfConfigDir.addFileUpdatedObserver(listener);
-            lfSiteDir.addFileUpdatedObserver(listener);
-            lfUserDir.addFileUpdatedObserver(listener);
+            textProductsDir.addFileUpdatedObserver(this);
         }
-
-        script = FormatterScriptFactory.buildFormatterScript();
-
-        buildTextProductMaps();
     }
 
-    private void buildTextProductMaps() throws VizException, JepException {
-        File configDir = lfConfigDir.getFile();
-        File siteDir = lfSiteDir.getFile();
-        File userDir = lfUserDir.getFile();
+    private void buildTextProductMaps(TextProductConfigData configData,
+            boolean updateVtecMap) {
+        synchronized (accessLock) {
+            if (updateVtecMap) {
+                productDefaultVtecCoding.clear();
+                productDefaultVtecCoding.putAll(configData
+                        .getDefaultVtecModes());
+            }
 
-        scriptToModuleMap.clear();
-        scriptToDefinitionMap.clear();
-
-        HashMap<String, Object> map = new HashMap<String, Object>();
-        String paths = configDir.getPath();
-        if ((siteDir != null) && siteDir.exists()) {
-            paths = siteDir + ":" + paths;
+            metadata.clear();
+            for (TextProductMetadata textProduct : configData
+                    .getProductInventory()) {
+                metadata.put(textProduct.getDisplayName(), textProduct);
+            }
         }
-        if ((userDir != null) && userDir.exists()) {
-            paths = userDir + ":" + paths;
-        }
-        map.put("paths", paths);
-        map.put("nameMap", scriptToModuleMap);
-        map.put("definitionMap", scriptToDefinitionMap);
-
-        script.execute("getScripts", map);
     }
 
-    public String[] getProductNames() {
-        Set<String> keySet = scriptToModuleMap.keySet();
-        String[] names = keySet.toArray(new String[keySet.size()]);
-        Arrays.sort(names, String.CASE_INSENSITIVE_ORDER);
+    public List<String> getProductNames() {
+        List<String> names = Collections.emptyList();
+        synchronized (accessLock) {
+            names = new ArrayList<>(metadata.keySet());
+        }
+        Collections.sort(names, String.CASE_INSENSITIVE_ORDER);
         return names;
     }
 
-    public String[] getModuleNames() {
-        Collection<String> vals = scriptToModuleMap.values();
-        String[] names = vals.toArray(new String[vals.size()]);
-        Arrays.sort(names);
+    public List<String> getModuleNames() {
+        List<String> names = new ArrayList<>();
+        synchronized (accessLock) {
+            for (TextProductMetadata textProduct : metadata.values()) {
+                names.add(textProduct.getModuleName());
+            }
+        }
+        Collections.sort(names);
         return names;
     }
 
     public String getModuleName(String productName) {
-        return scriptToModuleMap.get(productName);
+        TextProductMetadata productMetadata = null;
+        synchronized (accessLock) {
+            productMetadata = metadata.get(productName);
+        }
+
+        String moduleName = (productMetadata != null) ? productMetadata
+                .getModuleName() : null;
+        return moduleName;
+    }
+
+    public String getDisplayName(String moduleName) {
+        String displayName = null;
+        synchronized (accessLock) {
+            for (Entry<String, TextProductMetadata> entry : metadata.entrySet()) {
+                if (moduleName.equals(entry.getValue().getModuleName())) {
+                    displayName = entry.getKey();
+                    break;
+                }
+            }
+        }
+        return displayName;
     }
 
     public String getCombinationsFileName(String productName) {
@@ -207,74 +236,49 @@ public class TextProductManager {
     }
 
     public Object getDefinitionValue(String productName, String key) {
-        Object obj;
-        try {
-            obj = scriptToDefinitionMap.get(productName).get(key);
-        } catch (NullPointerException e) {
-            obj = "Combinations_Default_" + productName;
+        Object obj = null;
+        synchronized (accessLock) {
+            try {
+                obj = metadata.get(productName).getProductDefinition().get(key);
+            } catch (NullPointerException e) {
+                obj = "Combinations_Default_" + productName;
+            }
         }
         return obj;
     }
 
     public ProductDefinition getProductDefinition(String productName) {
-        return scriptToDefinitionMap.get(productName);
-    }
-
-    public String getVarDict(String productName, DataManager dataManager,
-            String dbId) {
-        String varDict = null;
-        HashMap<String, Object> map = new HashMap<String, Object>(1);
-        map.put("dspName", productName);
-        map.put("dataMgr", dataManager);
-        map.put("issuedBy", issuedBy);
-        DatabaseID dataSource = new DatabaseID(dbId);
-        map.put("dataSource", dataSource.getModelName());
-        try {
-            varDict = (String) script.execute("getVarDict", map);
-        } catch (JepException e) {
-            statusHandler.handle(Priority.PROBLEM, "Exception getting VarDict",
-                    e);
+        ProductDefinition productDef = null;
+        synchronized (accessLock) {
+            productDef = metadata.get(productName).getProductDefinition();
         }
-
-        return varDict;
+        return productDef;
     }
 
     public String getVtecMessageType(String productCategory) {
-        String vtec = null;
-        HashMap<String, Object> map = new HashMap<String, Object>(1);
-        map.put("productCategory", productCategory);
-        try {
-            vtec = (String) script.execute("getVTECMessageType", map);
-        } catch (JepException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Exception getting VTECMessageType", e);
-        }
+        String vtec = productDefaultVtecCoding.get(productCategory);
         if (vtec == null) {
             vtec = "";
         }
         return vtec;
     }
 
-    public List<String> getTimeZones(List<String> zones, String officeTimeZone) {
-        List<String> timeZones = Collections.emptyList();
-        HashMap<String, Object> map = new HashMap<String, Object>(2);
-        map.put("zones", zones);
-        map.put("officeTZ", officeTimeZone);
+    public Collection<String> getTimeZones(Collection<String> zones,
+            String officeTimeZone) {
+        Collection<String> timeZones = Collections.emptyList();
         try {
-            timeZones = (List<String>) script.execute("getTimeZones", map);
-        } catch (JepException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Exception getting time zones", e);
+            timeZones = jobCoordinator
+                    .submitSyncJob(new TextProductTimeZonesExecutor(zones,
+                            officeTimeZone));
+        } catch (Exception e) {
+            statusHandler.error("Exception getting time zones.", e);
         }
         return timeZones;
     }
 
     public void dispose() {
-        script.dispose();
-
-        lfConfigDir.removeFileUpdatedObserver(listener);
-        lfSiteDir.removeFileUpdatedObserver(listener);
-        lfUserDir.removeFileUpdatedObserver(listener);
+        textProductsDir.removeFileUpdatedObserver(this);
+        jobCoordinator.shutdown();
     }
 
     /**
@@ -306,23 +310,34 @@ public class TextProductManager {
         return issuedBy;
     }
 
-    private class TextProductListener implements ILocalizationFileObserver {
-        @Override
-        public void fileUpdated(FileUpdatedMessage message) {
-            VizApp.runAsync(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        buildTextProductMaps();
-                    } catch (VizException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                "Exception updating TextProductManager", e);
-                    } catch (JepException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                "Exception updating TextProductManager", e);
-                    }
-                }
-            });
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.localization.ILocalizationFileObserver#fileUpdated
+     * (com.raytheon.uf.common.localization.FileUpdatedMessage)
+     */
+    @Override
+    public void fileUpdated(FileUpdatedMessage message) {
+        TextProductConfigDataExecutor executor = new TextProductConfigDataExecutor(
+                false);
+        IPythonJobListener<TextProductConfigData> listener = new IPythonJobListener<TextProductConfigData>() {
+
+            @Override
+            public void jobFinished(TextProductConfigData result) {
+                buildTextProductMaps(result, false);
+            }
+
+            @Override
+            public void jobFailed(Throwable t) {
+                statusHandler
+                        .error("Error updating text product inventory.", t);
+            }
+        };
+        try {
+            jobCoordinator.submitAsyncJob(executor, listener);
+        } catch (Exception e) {
+            statusHandler.error("Error updating text product inventory.", e);
         }
     }
 }

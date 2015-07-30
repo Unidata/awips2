@@ -28,8 +28,8 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PyUtil;
+import com.raytheon.uf.common.python.concurrent.AbstractPythonScriptFactory;
 import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.gfe.python.GfeCavePyIncludeUtil;
 
 /**
@@ -42,6 +42,7 @@ import com.raytheon.viz.gfe.python.GfeCavePyIncludeUtil;
  * Jun 02, 2008            njensen     Initial creation
  * Apr 20, 2015  4027      randerso    Remove unused TextProductsTemplates path and added 
  *                                     Tests path for GFE formatter auto tests
+ * Jul 28, 2015  4263      dgilling    Refactor based on AbstractPythonScriptFactory.
  * 
  * </pre>
  * 
@@ -49,20 +50,28 @@ import com.raytheon.viz.gfe.python.GfeCavePyIncludeUtil;
  * @version 1.0
  */
 
-public class FormatterScriptFactory {
+public class FormatterScriptFactory extends
+        AbstractPythonScriptFactory<FormatterScript> {
 
-    public static FormatterScript buildFormatterScript() throws JepException,
-            VizException {
+    private static final String SCRIPT_EXECUTOR_NAME = "text-product-metadata";
 
+    private static final int EXECUTOR_NUM_THREADS = 1;
+
+    public FormatterScriptFactory() {
+        super(SCRIPT_EXECUTOR_NAME, EXECUTOR_NUM_THREADS);
+    }
+
+    private static String buildScriptPath() {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
-
         LocalizationContext baseContext = pathMgr.getContext(
                 LocalizationType.CAVE_STATIC, LocalizationLevel.BASE);
-
         String headlineDir = GfePyIncludeUtil.getHeadlineLF(baseContext)
                 .getFile().getPath();
         String runnerPath = FileUtil.join(headlineDir, "FormatterRunner.py");
+        return runnerPath;
+    }
 
+    private static String buildIncludePath() {
         String include = PyUtil.buildJepIncludePath(true,
                 GfePyIncludeUtil.getCommonPythonIncludePath(),
                 GfePyIncludeUtil.getVtecIncludePath(),
@@ -73,8 +82,19 @@ public class FormatterScriptFactory {
                 GfePyIncludeUtil.getUtilitiesIncludePath(),
                 GfePyIncludeUtil.getCombinationsIncludePath(),
                 GfeCavePyIncludeUtil.getTestsIncludePath());
+        return include;
+    }
 
-        return new FormatterScript(runnerPath, include,
-                FormatterScript.class.getClassLoader());
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.python.concurrent.AbstractPythonScriptFactory#
+     * createPythonScript()
+     */
+    @Override
+    public FormatterScript createPythonScript() throws JepException {
+        return new FormatterScript(buildScriptPath(), buildIncludePath(),
+                getClass().getClassLoader());
     }
 }

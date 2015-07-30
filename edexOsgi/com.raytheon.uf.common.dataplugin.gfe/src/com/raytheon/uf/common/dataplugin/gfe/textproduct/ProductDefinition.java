@@ -20,8 +20,8 @@
 package com.raytheon.uf.common.dataplugin.gfe.textproduct;
 
 import java.util.HashMap;
+import java.util.Map;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -34,6 +34,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 23, 2010     #2866  randerso     Initial creation
+ * Jul 30, 2015     #4263  dgilling     Add second constructor.
  * 
  * </pre>
  * 
@@ -42,19 +43,24 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 
 @DynamicSerialize
-public class ProductDefinition implements ISerializableObject {
+public class ProductDefinition {
+
     @DynamicSerializeElement
-    private HashMap<String, Object> definition;
+    private Map<String, Object> definition;
 
     public ProductDefinition() {
-        definition = new HashMap<String, Object>();
+        this.definition = new HashMap<>();
     }
 
-    public HashMap<String, Object> getDefinition() {
+    public ProductDefinition(Map<String, Object> definition) {
+        this.definition = definition;
+    }
+
+    public Map<String, Object> getDefinition() {
         return definition;
     }
 
-    public void setDefinition(HashMap<String, Object> definition) {
+    public void setDefinition(Map<String, Object> definition) {
         this.definition = definition;
     }
 

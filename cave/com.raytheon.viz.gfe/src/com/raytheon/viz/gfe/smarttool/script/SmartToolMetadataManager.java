@@ -22,10 +22,10 @@ package com.raytheon.viz.gfe.smarttool.script;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.core.runtime.ListenerList;
 
@@ -72,7 +72,9 @@ public class SmartToolMetadataManager implements ILocalizationFileObserver {
 
     private final PythonJobCoordinator<SmartToolMetadataController> jobCoordinator;
 
-    private final AtomicReference<Map<String, SmartToolMetadata>> toolMetadata;
+    private final Map<String, SmartToolMetadata> toolMetadata;
+
+    private final Object accessLock;
 
     private final LocalizationFile smartToolDir;
 
@@ -84,16 +86,15 @@ public class SmartToolMetadataManager implements ILocalizationFileObserver {
         SmartToolMetadataScriptFactory scriptFactory = new SmartToolMetadataScriptFactory(
                 dataMgr);
         this.jobCoordinator = PythonJobCoordinator.newInstance(scriptFactory);
-        Map<String, SmartToolMetadata> emptyMap = Collections.emptyMap();
-        this.toolMetadata = new AtomicReference<>(emptyMap);
+
+        this.toolMetadata = new HashMap<>();
+        this.accessLock = new Object();
 
         LocalizationContext baseCtx = PathManagerFactory.getPathManager()
                 .getContext(LocalizationType.CAVE_STATIC,
                         LocalizationLevel.BASE);
         this.smartToolDir = GfePyIncludeUtil.getSmartToolsLF(baseCtx);
-        this.smartToolDir.addFileUpdatedObserver(this);
         this.utilitiesDir = GfePyIncludeUtil.getUtilitiesLF(baseCtx);
-        this.utilitiesDir.addFileUpdatedObserver(this);
 
         this.invChangedListeners = new ListenerList(ListenerList.IDENTITY);
     }
@@ -104,7 +105,7 @@ public class SmartToolMetadataManager implements ILocalizationFileObserver {
 
             @Override
             public void jobFinished(Map<String, SmartToolMetadata> result) {
-                toolMetadata.set(result);
+                updateMetadata(result);
                 startupListener.objectInitialized();
             }
 
@@ -120,12 +121,22 @@ public class SmartToolMetadataManager implements ILocalizationFileObserver {
         } catch (Exception e1) {
             statusHandler.error("Error initializing smart tool metadata.", e1);
         }
+
+        smartToolDir.addFileUpdatedObserver(this);
+        utilitiesDir.addFileUpdatedObserver(this);
     }
 
     public void dispose() {
         smartToolDir.removeFileUpdatedObserver(this);
         utilitiesDir.removeFileUpdatedObserver(this);
         jobCoordinator.shutdown();
+    }
+
+    private void updateMetadata(Map<String, SmartToolMetadata> newMetadata) {
+        synchronized (accessLock) {
+            toolMetadata.clear();
+            toolMetadata.putAll(newMetadata);
+        }
     }
 
     /**
@@ -145,23 +156,25 @@ public class SmartToolMetadataManager implements ILocalizationFileObserver {
 
         Collection<String> tools = new HashSet<>();
         boolean listAll = ((parmName == null) && (parmTypeName == null));
-        for (SmartToolMetadata toolData : toolMetadata.get().values()) {
-            String toolName = toolData.getName();
+        synchronized (accessLock) {
+            for (SmartToolMetadata toolData : toolMetadata.values()) {
+                String toolName = toolData.getName();
 
-            if (listAll) {
-                tools.add(toolName);
-            } else if (toolData.isHideTool()) {
-                continue;
-            } else if (parmName.equals(toolData.getWeatherElementEdited())) {
-                tools.add(toolName);
-            } else if (toolData.getScreenList() != null) {
-                if ((toolData.getScreenList().contains(parmName))
-                        || (toolData.getScreenList().contains(parmTypeName))) {
+                if (listAll) {
+                    tools.add(toolName);
+                } else if (toolData.isHideTool()) {
+                    continue;
+                } else if (parmName.equals(toolData.getWeatherElementEdited())) {
+                    tools.add(toolName);
+                } else if (toolData.getScreenList() != null) {
+                    if ((toolData.getScreenList().contains(parmName))
+                            || (toolData.getScreenList().contains(parmTypeName))) {
+                        tools.add(toolName);
+                    }
+                } else if (toolData.getWeatherElementEdited().equals(
+                        "variableElement")) {
                     tools.add(toolName);
                 }
-            } else if (toolData.getWeatherElementEdited().equals(
-                    "variableElement")) {
-                tools.add(toolName);
             }
         }
 
@@ -178,20 +191,26 @@ public class SmartToolMetadataManager implements ILocalizationFileObserver {
      * @return the WeatherElementEdited
      */
     public String getWeatherElementEdited(String toolName) {
-        SmartToolMetadata metadata = toolMetadata.get().get(toolName);
-        if (metadata != null) {
-            return metadata.getWeatherElementEdited();
+        SmartToolMetadata toolData = null;
+        synchronized (accessLock) {
+            toolData = toolMetadata.get(toolName);
         }
 
+        if (toolData != null) {
+            return toolData.getWeatherElementEdited();
+        }
         return null;
     }
 
     public List<FieldDefinition> getVarDictWidgets(String toolName) {
-        SmartToolMetadata metadata = toolMetadata.get().get(toolName);
-        if (metadata != null) {
-            return metadata.getVarDictWidgets();
+        SmartToolMetadata toolData = null;
+        synchronized (accessLock) {
+            toolData = toolMetadata.get(toolName);
         }
 
+        if (toolData != null) {
+            return toolData.getVarDictWidgets();
+        }
         return Collections.emptyList();
     }
 
@@ -203,11 +222,14 @@ public class SmartToolMetadataManager implements ILocalizationFileObserver {
      * @return the tool's execute() documentation, or null if there isn't any
      */
     public String getInfo(String toolName) {
-        SmartToolMetadata metadata = toolMetadata.get().get(toolName);
-        if (metadata != null) {
-            return metadata.getDocString();
+        SmartToolMetadata toolData = null;
+        synchronized (accessLock) {
+            toolData = toolMetadata.get(toolName);
         }
 
+        if (toolData != null) {
+            return toolData.getDocString();
+        }
         return null;
     }
 
@@ -240,7 +262,7 @@ public class SmartToolMetadataManager implements ILocalizationFileObserver {
 
             @Override
             public void jobFinished(Map<String, SmartToolMetadata> result) {
-                toolMetadata.set(result);
+                updateMetadata(result);
                 notifyListeners();
             }
 

@@ -89,7 +89,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Jun 19, 2010 4684       mduff       Corrected the Data Sources menu for 
  *                                     practice and test modes
  * Sep 16, 2010 6831       ryu         Show same product for different areas on a sub-menu
- * Nov 22, 2011 8781       mli		   remove Processor menu
+ * Nov 22, 2011 8781       mli         remove Processor menu
  * Jul 26, 2012 15165      ryu         Set default db source when formatter has no db defined.
  * Oct 23, 2012 1287       rferrel     Changes for non-blocking dialogs and code clean up.
  * Nov 08, 2012 1298       rferrel     Changes for non-blocking IssuanceSiteIdDlg.
@@ -99,6 +99,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * May 15, 2013 1842       dgilling    Pass DataManager instance down to sub-
  *                                     components.
  * Feb 12, 2014 2801       randerso    Added prompting if formatter is run against non-normal database
+ * Jul 29, 2015 4263       dgilling    Support changes to TextProductManager.
  * 
  * </pre>
  * 
@@ -491,8 +492,8 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
                 .getStringArray("FormatterLauncherDialog_Categories");
         Map<String, ArrayList<String>> categoryMap = new HashMap<String, ArrayList<String>>();
 
-        String[] names = textProductMgr.getProductNames();
-        if (names.length > 0) {
+        java.util.List<String> names = textProductMgr.getProductNames();
+        if (!names.isEmpty()) {
             ArrayList<String> civilEmergencies = new ArrayList<String>();
             ArrayList<String> hazards = new ArrayList<String>();
             ArrayList<String> baselines = new ArrayList<String>();

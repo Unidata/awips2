@@ -23,8 +23,6 @@ import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
 import com.raytheon.uf.common.activetable.ActiveTableMode;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.viz.core.mode.CAVEMode;
@@ -46,6 +44,8 @@ import com.raytheon.viz.gfe.tasks.TaskManager;
  *                                     Removed call to TextProductManager.reloadModule
  * Apr 20, 2015  4027      randerso    Renamed ProductStateEnum with an initial capital
  *                                     Fixed hard coded active table mode in runFormatterScript
+ * Jul 30, 2015  4263      dgilling    Pass DataManager instance to TextFormatter, stop passing
+ *                                     varDict through.
  * 
  * </pre>
  * 
@@ -54,8 +54,6 @@ import com.raytheon.viz.gfe.tasks.TaskManager;
  */
 
 public class FormatterUtil {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(FormatterUtil.class);
 
     public static String[] VTEC_MODES = { "Normal: NoVTEC", "Normal: O-Vtec",
             "Normal: E-Vtec", "Normal: X-Vtec", "Test: NoVTEC", "Test: T-Vtec" };
@@ -107,33 +105,23 @@ public class FormatterUtil {
         }
 
         String name = productMgr.getModuleName(productName);
-        String varDict = productMgr.getVarDict(productName, dataMgr, dbId);
 
-        if (varDict != null) {
-            String time = null;
-            if (!SimulatedTime.getSystemTime().isRealTime()) {
-                SimpleDateFormat gmtFormatter = new SimpleDateFormat(
-                        "yyyyMMdd_HHmm");
-                gmtFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
-
-                time = gmtFormatter.format(SimulatedTime.getSystemTime()
-                        .getTime());
-            }
-            runFormatterScript(name, shortVtec, dbId, varDict, atMode.name(),
-                    time, testMode, finish);
-        } else {
-            finish.textProductFinished("Formatter canceled",
-                    ConfigData.ProductStateEnum.Finished);
+        String time = null;
+        if (!SimulatedTime.getSystemTime().isRealTime()) {
+            SimpleDateFormat gmtFormatter = new SimpleDateFormat(
+                    "yyyyMMdd_HHmm");
+            gmtFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
+            time = gmtFormatter.format(SimulatedTime.getSystemTime().getTime());
         }
+        runFormatterScript(name, shortVtec, dbId, atMode.name(), time,
+                testMode, finish, dataMgr);
     }
 
     public static void runFormatterScript(String name, String vtecMode,
-            String databaseID, String varDict, String vtecActiveTable,
-            String drtTime, int testMode, TextProductFinishListener finish) {
+            String databaseID, String vtecActiveTable, String drtTime,
+            int testMode, TextProductFinishListener finish, DataManager dataMgr) {
         TextFormatter formatter = new TextFormatter(name, vtecMode, databaseID,
-                varDict, vtecActiveTable, drtTime, testMode, finish);
-        // Thread thread = new Thread(formatter);
-        // thread.start();
+                vtecActiveTable, drtTime, testMode, finish, dataMgr);
         finish.textProductQueued(ConfigData.ProductStateEnum.Queued);
         TaskManager.getInstance().queueFormatter(formatter);
     }

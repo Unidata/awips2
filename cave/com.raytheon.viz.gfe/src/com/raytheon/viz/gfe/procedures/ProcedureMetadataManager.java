@@ -22,9 +22,9 @@ package com.raytheon.viz.gfe.procedures;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
@@ -68,7 +68,9 @@ public final class ProcedureMetadataManager implements
 
     private final PythonJobCoordinator<ProcedureMetadataController> jobCoordinator;
 
-    private final AtomicReference<Map<String, ProcedureMetadata>> metadata;
+    private final Map<String, ProcedureMetadata> metadata;
+
+    private final Object accessLock;
 
     private final LocalizationFile proceduresDir;
 
@@ -78,16 +80,15 @@ public final class ProcedureMetadataManager implements
         ProcedureMetadataScriptFactory scriptFactory = new ProcedureMetadataScriptFactory(
                 dataMgr);
         this.jobCoordinator = PythonJobCoordinator.newInstance(scriptFactory);
-        Map<String, ProcedureMetadata> emptyMap = Collections.emptyMap();
-        this.metadata = new AtomicReference<>(emptyMap);
+
+        this.metadata = new HashMap<>();
+        this.accessLock = new Object();
 
         LocalizationContext baseCtx = PathManagerFactory.getPathManager()
                 .getContext(LocalizationType.CAVE_STATIC,
                         LocalizationLevel.BASE);
         this.proceduresDir = GfePyIncludeUtil.getProceduresLF(baseCtx);
-        this.proceduresDir.addFileUpdatedObserver(this);
         this.utilitiesDir = GfePyIncludeUtil.getUtilitiesLF(baseCtx);
-        this.utilitiesDir.addFileUpdatedObserver(this);
     }
 
     public void initialize(final IAsyncStartupObjectListener startupListener) {
@@ -96,7 +97,7 @@ public final class ProcedureMetadataManager implements
 
             @Override
             public void jobFinished(Map<String, ProcedureMetadata> result) {
-                metadata.set(result);
+                updateMetadata(result);
                 startupListener.objectInitialized();
             }
 
@@ -112,12 +113,22 @@ public final class ProcedureMetadataManager implements
         } catch (Exception e1) {
             statusHandler.error("Error initializing procedure metadata.", e1);
         }
+
+        proceduresDir.addFileUpdatedObserver(this);
+        utilitiesDir.addFileUpdatedObserver(this);
     }
 
     public void dispose() {
         proceduresDir.removeFileUpdatedObserver(this);
         utilitiesDir.removeFileUpdatedObserver(this);
         jobCoordinator.shutdown();
+    }
+
+    private void updateMetadata(Map<String, ProcedureMetadata> newMetadata) {
+        synchronized (accessLock) {
+            metadata.clear();
+            metadata.putAll(newMetadata);
+        }
     }
 
     /**
@@ -128,11 +139,12 @@ public final class ProcedureMetadataManager implements
      * @return the names of procedures that should appear in the menu.
      */
     public List<String> getMenuItems(String menuName) {
-        Map<String, ProcedureMetadata> inventory = metadata.get();
         List<String> proceduresForMenu = new ArrayList<>();
-        for (ProcedureMetadata procMetadata : inventory.values()) {
-            if (procMetadata.getMenuNames().contains(menuName)) {
-                proceduresForMenu.add(procMetadata.getName());
+        synchronized (accessLock) {
+            for (ProcedureMetadata procMetadata : metadata.values()) {
+                if (procMetadata.getMenuNames().contains(menuName)) {
+                    proceduresForMenu.add(procMetadata.getName());
+                }
             }
         }
         Collections.sort(proceduresForMenu);
@@ -140,20 +152,26 @@ public final class ProcedureMetadataManager implements
     }
 
     public List<FieldDefinition> getVarDictWidgets(String procedureName) {
-        ProcedureMetadata procMetadata = metadata.get().get(procedureName);
+        ProcedureMetadata procMetadata = null;
+        synchronized (accessLock) {
+            procMetadata = metadata.get(procedureName);
+        }
+
         if (procMetadata != null) {
             return procMetadata.getVarDictWidgets();
         }
-
         return Collections.emptyList();
     }
 
     public Collection<String> getMethodArguments(String procedureName) {
-        ProcedureMetadata procMetadata = metadata.get().get(procedureName);
+        ProcedureMetadata procMetadata = null;
+        synchronized (accessLock) {
+            procMetadata = metadata.get(procedureName);
+        }
+
         if (procMetadata != null) {
             return procMetadata.getArgNames();
         }
-
         return Collections.emptyList();
     }
 
@@ -172,7 +190,7 @@ public final class ProcedureMetadataManager implements
 
             @Override
             public void jobFinished(Map<String, ProcedureMetadata> result) {
-                metadata.set(result);
+                updateMetadata(result);
             }
 
             @Override
