@@ -99,10 +99,10 @@ class setupTextEA:
         topo = self.__dataMgr.getParmManager().getParmInExpr("Topo", True)
         topogrid = GridCycler.getInstance().getCorrespondingResult(
                                 topo, TimeRange.allTimes().toJavaObj(), "TimeWtAverage")
-        topogrid = topogrid[0].getGridSlice().__numpy__[0]
+        topogrid = topogrid[0].getGridSlice().getNDArray()
         iscSend = ReferenceID('ISC_Send_Area') 
         #wholeGrid = self.__client.getEditArea("ISC_Send_Area")
-        wholeGrid = refMgr.loadRefSet(iscSend).getGrid().__numpy__[0]
+        wholeGrid = refMgr.loadRefSet(iscSend).getGrid().getNDArray()
         topoAve = 0
         count = 0
         minx, maxx, miny, maxy = self.__extremaOfSetBits(wholeGrid)
@@ -170,7 +170,7 @@ class setupTextEA:
           ("area3",["city4", "area3_pt"])]
         for baseArea,cityAreas in cityBased:
             #wholeGrid = self.__client.getEditArea(baseArea)
-            wholeGrid = refMgr.loadRefSet(ReferenceID(baseArea)).getGrid().__numpy__[0]
+            wholeGrid = refMgr.loadRefSet(ReferenceID(baseArea)).getGrid().getNDArray()
             minx, maxx, miny, maxy = self.__extremaOfSetBits(wholeGrid)
             cNumber = 0 
             print minx, maxx, miny, maxy, wholeGrid.shape
@@ -201,7 +201,7 @@ class setupTextEA:
             for i in iscList:
                 if i == "ISC_Send_Area" or i == "ISC_Tool_Area":
                     continue                
-                wholeGrid = refMgr.loadRefSet(ReferenceID(i)).getGrid().__numpy__[0]                
+                wholeGrid = refMgr.loadRefSet(ReferenceID(i)).getGrid().getNDArray()                
                 minx, maxx, miny, maxy = self.__extremaOfSetBits(wholeGrid)
                 if minx == -1:
                     continue

@@ -46,6 +46,8 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants.HandleOpti
  * Jan 27, 2014 2700       bclement     added auto accept subscribe
  * Feb  3, 2014 2699       bclement     added handle preferences
  * Oct  9, 2014 3711       mapeters     added chat lines preferences
+ * Mar 24, 2015 4316       mapeters     added date display preferences
+ * Mar 31, 2015 4327       mapeters     added task bar notification preferences
  * 
  * </pre>
  * 
@@ -89,15 +91,25 @@ public class CollaborationPreferencePage extends FieldEditorPreferencePage
                 getFieldEditorParent());
         this.addField(chatLines);
 
+        FieldEditor displayDate = new BooleanFieldEditor("displayDate",
+                "Always Show The Date On Messages", getFieldEditorParent());
+        this.addField(displayDate);
+
         FieldEditor notifications = new BooleanFieldEditor("notifications",
                 "Show Chat Notification Popups", getFieldEditorParent());
         this.addField(notifications);
+
+        FieldEditor taskbarNotifications = new BooleanFieldEditor(
+                "chatRoomTaskbarNotifications",
+                "Notify System Task Bar For Chat Room Activity",
+                getFieldEditorParent());
+        this.addField(taskbarNotifications);
 
         FieldEditor autojoinColl = new BooleanFieldEditor(
                 CollabPrefConstants.AUTO_JOIN, "Join Discussion On Login",
                 getFieldEditorParent());
         this.addField(autojoinColl);
-        
+
         FieldEditor toggleIdle = new BooleanFieldEditor(
                 CollabPrefConstants.AWAY_ON_IDLE, "Change Status On Idle",
                 getFieldEditorParent()) {
@@ -109,8 +121,7 @@ public class CollaborationPreferencePage extends FieldEditorPreferencePage
         };
         this.addField(toggleIdle);
 
-        awayTimeOut = new IntegerFieldEditor(
-                CollabPrefConstants.AWAY_TIMEOUT,
+        awayTimeOut = new IntegerFieldEditor(CollabPrefConstants.AWAY_TIMEOUT,
                 "Minutes Before Becoming Idle:", getFieldEditorParent());
         boolean awayChecked = this.getPreferenceStore().getBoolean(
                 CollabPrefConstants.AWAY_ON_IDLE);
@@ -119,8 +130,7 @@ public class CollaborationPreferencePage extends FieldEditorPreferencePage
 
         FieldEditor autoSubscribe = new BooleanFieldEditor(
                 CollabPrefConstants.AUTO_ACCEPT_SUBSCRIBE,
-                "Automatically Accept Contact Requests",
-                getFieldEditorParent());
+                "Automatically Accept Contact Requests", getFieldEditorParent());
 
         this.addField(autoSubscribe);
 
@@ -136,14 +146,14 @@ public class CollaborationPreferencePage extends FieldEditorPreferencePage
             }
         };
         this.addField(defaultHandle);
-        
+
         customHandle = new StringFieldEditor(CollabPrefConstants.CUSTOM_HANDLE,
                 "Custom Handle Text (see above)", getFieldEditorParent());
         String string = this.getPreferenceStore().getString(
                 CollabPrefConstants.DEFAULT_HANDLE);
         setEnableForCustomHandle(string);
         this.addField(customHandle);
-        
+
     }
 
     /**
@@ -164,8 +174,7 @@ public class CollaborationPreferencePage extends FieldEditorPreferencePage
      * @param editor
      * @param enabled
      */
-    private void setEnabledForFieldEditor(FieldEditor editor,
-            boolean enabled){
+    private void setEnabledForFieldEditor(FieldEditor editor, boolean enabled) {
         editor.setEnabled(enabled, getFieldEditorParent());
     }
 

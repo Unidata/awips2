@@ -62,7 +62,8 @@ import com.raytheon.uf.viz.thinclient.ui.ThinClientConnectivityDialog;
  * May 19, 2014  3164       bsteffen    Disable request compression if it
  *                                      doesn't work.
  * Sep 05, 2014  3570       bclement    HTTP client API changes
- * Jan 26, 2014  3952       njensen     gzip handled by default
+ * Jan 26, 2015  3952       njensen     gzip handled by default
+ * Jul 06, 2015  4614       njensen     explicitly enable gzip
  * 
  * </pre>
  * 
@@ -88,6 +89,7 @@ public class ThinClientLocalizationInitializer extends LocalizationInitializer {
         HttpClient httpClient = HttpClient.getInstance();
         HttpClientConfigBuilder confBuilder = new HttpClientConfigBuilder(
                 httpClient.getConfig());
+        confBuilder.setGzipEnabled(true);
         HttpClient.configureGlobalInstance(confBuilder.build());
         if (promptUI) {
             ThinClientConnectivityDialog dlg = new ThinClientConnectivityDialog(

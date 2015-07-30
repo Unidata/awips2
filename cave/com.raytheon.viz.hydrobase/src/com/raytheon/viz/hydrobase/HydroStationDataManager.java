@@ -39,6 +39,7 @@ import com.raytheon.viz.hydrocommon.IGetSortType;
  * 16Oct2008    1636       askripsky   Initial Creation
  * Oct 27, 2011	11267	   lbousaidi   change showNoPost initial value to false
  *  									to match AWIPS I default setting
+ * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
  * </pre>
  * 
  * @author askripsky
@@ -66,7 +67,7 @@ public class HydroStationDataManager {
     private boolean showPost = true;
 
     private boolean showNoPost = false;
-    
+
     private IGetSortType sortType;
 
     /**
@@ -103,7 +104,7 @@ public class HydroStationDataManager {
     public ArrayList<HydroStationData> getStationData(IGetSortType sortType) {
         ArrayList<HydroStationData> rval = new ArrayList<HydroStationData>();
         this.sortType = sortType;
-        
+
         // Verify data is empty
         if (stationData == null) {
             stationData = new ArrayList<HydroStationData>();
@@ -123,8 +124,8 @@ public class HydroStationDataManager {
         hydroStationQuery.append(getWhereClause());
 
         try {
-            List<Object[]> data = DirectDbQuery.executeQuery(hydroStationQuery
-                    .toString(), HydroConstants.IHFS,
+            List<Object[]> data = DirectDbQuery.executeQuery(
+                    hydroStationQuery.toString(), HydroConstants.IHFS,
                     DirectDbQuery.QueryLanguage.SQL);
 
             for (Object[] currData : data) {
@@ -141,10 +142,11 @@ public class HydroStationDataManager {
         StringBuffer rval = new StringBuffer();
 
         if (showPost) {
-            if (showNoPost)
+            if (showNoPost) {
                 rval.append(" WHERE post IS NOT NULL ");
-            else
+            } else {
                 rval.append(" WHERE post = 1 ");
+            }
         } else if (showNoPost) {
             rval.append(" WHERE post = 0 ");
         } else {
@@ -176,15 +178,12 @@ public class HydroStationDataManager {
         /* specify the lat-lon filter if it is enabled */
 
         if (filterByLatLon) {
-            rval
-                    .append(String
-                            .format(
-                                    " AND ((lat > %f) AND (lat < %f)) AND ((lon > %f) AND (lon < %f)) ",
-                                    latCenter - latOffset, latCenter
-                                            + latOffset, lonCenter - lonOffset,
-                                    lonCenter + lonOffset));
+            rval.append(String
+                    .format(" AND ((lat > %f) AND (lat < %f)) AND ((lon > %f) AND (lon < %f)) ",
+                            latCenter - latOffset, latCenter + latOffset,
+                            lonCenter - lonOffset, lonCenter + lonOffset));
         }
-        
+
         /* Determine sort selection criteria */
         String sort = sortType.getSortType();
         if (sort.compareTo("State,County") == 0) {
@@ -195,40 +194,40 @@ public class HydroStationDataManager {
         {
             rval.append(" order by lid");
         }
-        
 
         return rval.toString();
     }
-    
+
     /**
      * Check if the lid passed in is a river site or not.
      * 
      * @param lid
-     *      The lid to check
-     * @return
-     *      True if site is a river site
+     *            The lid to check
+     * @return True if site is a river site
      */
     public boolean isRiverSite(String lid) {
         boolean riverSite = false;
-        
-        String query = "select count(*) from riverstat where lid = '" + lid + "'";
+
+        String query = "select count(*) from riverstat where lid = '" + lid
+                + "'";
         List<Object[]> rs;
         try {
-            rs = DirectDbQuery.executeQuery(query, HydroConstants.IHFS, QueryLanguage.SQL);
-        
+            rs = DirectDbQuery.executeQuery(query, HydroConstants.IHFS,
+                    QueryLanguage.SQL);
+
             if ((rs != null) && (rs.size() > 0)) {
-                long num = (Long) rs.get(0)[0];
+                long num = ((Number) rs.get(0)[0]).longValue();
                 if (num > 0) {
                     riverSite = true;
                 }
             }
         } catch (VizException e) {
             System.err.println("Error querying riverstat table");
-        } 
-        
+        }
+
         return riverSite;
     }
-    
+
     /**
      * @return the latCenter
      */

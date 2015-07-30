@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Spellchecker Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.spellchecker;singleton:=true
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.15.0.qualifier
 Bundle-Activator: com.raytheon.uf.viz.spellchecker.Activator
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.ui,
@@ -21,3 +21,4 @@ Import-Package: org.eclipse.jdt.internal.ui.text.spelling,
  org.eclipse.ui.texteditor.spelling
 Export-Package: com.raytheon.uf.viz.spellchecker.dialogs,
  com.raytheon.uf.viz.spellchecker.text
+Bundle-ClassPath: com.raytheon.uf.viz.spellchecker.jar

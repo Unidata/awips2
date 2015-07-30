@@ -112,6 +112,12 @@
 		<processorName>RUC130GribPostProcessor</processorName>
 	</postProcessedModel>
 	
+	<!-- Post processor definition for HPCqpfNDFD -->
+	<postProcessedModel>
+	    <modelName>HPCqpfNDFD</modelName>
+            <processorName>HPCqpfPostProcessor</processorName>
+        </postProcessedModel>
+	
 	<!-- Post processor definition for the GFS20 model -->
 	<postProcessedModel>
 	    <modelName>GFS215|GFS217|GFS20-*</modelName>

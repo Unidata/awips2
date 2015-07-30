@@ -90,6 +90,7 @@ import com.vividsolutions.jts.precision.SimpleGeometryPrecisionReducer;
  * 06/27/2014  DR 17443   D. Friedman  Fix some odd cases in which parts of a polygon not covering a
  *                                     hatched area would be retained after redrawing.
  * 07/22/2014  DR 17475   Qinglu Lin   Updated createPolygonByPoints() and created second createPolygonByPoints().
+ * 04/02/2015  DR 4353    dgilling     Fix bad exception handler in hatchWarningArea.
  * 04/29/2015  DR 17310   D. Friedman  Use Geometry.buffer() to fix self-intersections.  Fix bug in alterVertexes.
  * 05/07/2015  DR 17438   D. Friedman  Clean up debug and performance logging.
  * 05/08/2015  DR 17310   D. Friedman  Prevent reducePoints from generating invalid polygons.
@@ -111,7 +112,8 @@ public class PolygonUtil {
 
     private MathTransform latLonToContour, contourToLatLon;
 
-    private static final PrecisionModel REDUCED_PRECISION = new PrecisionModel(10000000000.0);
+    private static final PrecisionModel REDUCED_PRECISION = new PrecisionModel(
+            10000000000.0);
 
     public PolygonUtil(WarngenLayer layer, int nx, int ny, int maxVertices,
             IExtent localExtent, MathTransform localToLatLon) throws Exception {
@@ -132,14 +134,16 @@ public class PolygonUtil {
     }
 
     public Polygon hatchWarningArea(Polygon origPolygon,
-            Geometry origWarningArea, Polygon oldWarningPolygon) throws VizException {
+            Geometry origWarningArea, Polygon oldWarningPolygon)
+            throws VizException {
         float[][] contourAreaData = toFloatData(origWarningArea);
 
-        /* If we have an oldWarningPolygon, we can take a shortcut and see
-         * if the intersection of the current polygon and the old polygon
-         * generates the same input to the contouring algorithm as the current
-         * hatched area.  If it does, that intersection can be used instead of
-         * generating a new contour.
+        /*
+         * If we have an oldWarningPolygon, we can take a shortcut and see if
+         * the intersection of the current polygon and the old polygon generates
+         * the same input to the contouring algorithm as the current hatched
+         * area. If it does, that intersection can be used instead of generating
+         * a new contour.
          */
         if (oldWarningPolygon != null && oldWarningPolygon.isValid()
                 && origPolygon.isValid()) {
@@ -148,29 +152,32 @@ public class PolygonUtil {
                  * Create a clone to ensure we do not use a Coordinate from
                  * oldWarningPolygon.
                  */
-                Geometry intersection = (Geometry) origPolygon
-                        .intersection(oldWarningPolygon).clone();
+                Geometry intersection = (Geometry) origPolygon.intersection(
+                        oldWarningPolygon).clone();
                 if (intersection instanceof Polygon) {
                     Polygon polygonIntersection = (Polygon) intersection;
-                    if (polygonIntersection.isValid() &&
-                            polygonIntersection.getNumInteriorRing() == 0 &&
-                            polygonIntersection.getNumPoints() - 1 <= maxVertices) {
+                    if (polygonIntersection.isValid()
+                            && polygonIntersection.getNumInteriorRing() == 0
+                            && polygonIntersection.getNumPoints() - 1 <= maxVertices) {
                         /*
-                         * Use buildIdealArea to clip the current polygon against the old
-                         * polygon (actually oldWarningArea) and the CWA, using the same
-                         * coordinate transformations that are used to generate
-                         * origWarningArea.
+                         * Use buildIdealArea to clip the current polygon
+                         * against the old polygon (actually oldWarningArea) and
+                         * the CWA, using the same coordinate transformations
+                         * that are used to generate origWarningArea.
                          */
-                        Geometry comparableIntersection = layer.buildIdealArea(origPolygon);
+                        Geometry comparableIntersection = layer
+                                .buildIdealArea(origPolygon);
                         float[][] interAreaData = toFloatData(comparableIntersection);
                         if (areasEqual(interAreaData, contourAreaData)) {
                             return polygonIntersection;
                         }
                     }
                 }
-            } catch (RuntimeException e) {
-                statusHandler.handle(Priority.WARN,
-                        "Error while using simple polygon redraw method.  Will continue using contouring method.", e);
+            } catch (Exception e) {
+                statusHandler
+                        .handle(Priority.WARN,
+                                "Error while using simple polygon redraw method.  Will continue using contouring method.",
+                                e);
             }
         }
 
@@ -217,8 +224,9 @@ public class PolygonUtil {
         if (contour != null && !showContour) {
             rval = awips1PointReduction(contour, origPolygon, origWarningArea,
                     config, oldWarningPolygon);
-            if (rval == null)
+            if (rval == null) {
                 return (Polygon) origPolygon.clone();
+            }
         } else if (contour != null) {
             // Create a polygon from the contour
             GeometryFactory gf = new GeometryFactory();
@@ -255,10 +263,11 @@ public class PolygonUtil {
             if (oldWarningPolygon != null) {
                 Polygon p = removeCollinear(warningPolygon);
                 return layer.convertGeom(p, latLonToContour);
-            } else
+            } else {
                 return null;
-        } else if (oldWarningPolygon != null &&
-                areasEqual(toFloatData(oldWarningPolygon), currentPolyData)) {
+            }
+        } else if (oldWarningPolygon != null
+                && areasEqual(toFloatData(oldWarningPolygon), currentPolyData)) {
             return layer.convertGeom(oldWarningPolygon, latLonToContour);
         }
 
@@ -296,12 +305,13 @@ public class PolygonUtil {
                 if (dx == 0 && dy == 0) {
                     i = 0;
                 } else if (dx < 0) {
-                    if (dy < 0)
+                    if (dy < 0) {
                         i = dx < dy ? (int) (hp * dy / dx) : 50 + (int) (hp
                                 * dx / dy);
-                    else
+                    } else {
                         i = -dx > dy ? 100 + (int) (hm * dy / dx)
                                 : 150 + (int) (hm * dx / dy);
+                    }
                 } else {
                     if (dy < 0) {
                         i = dx > -dy ? 200 + (int) (hm * dy / dx)
@@ -329,9 +339,9 @@ public class PolygonUtil {
                 dx = kPt.x - avg.x;
                 dy = kPt.y - avg.y;
                 match[k] = -1;
-                if (dx == 0 && dy == 0)
+                if (dx == 0 && dy == 0) {
                     i = 0;
-                else if (dx < 0) {
+                } else if (dx < 0) {
                     if (dy < 0) {
                         i = dx < dy ? (int) (hp * dy / dx) : 50 + (int) (hp
                                 * dx / dy);
@@ -391,17 +401,20 @@ public class PolygonUtil {
                 // Ambiguous points next to unmatched points are
                 // considered unmatched.
                 for (k = 0; k < npoints; k++) {
-                    if (match[k] < 0)
+                    if (match[k] < 0) {
                         continue;
+                    }
                     for (i = 0; i < nv; ++i) {
                         dx = longest[k].x - vert[i].x;
                         dy = longest[k].y - vert[i].y;
                         da = dx * ux[i] + dy * uy[i];
-                        if (da < 0 || da > vlen[i])
+                        if (da < 0 || da > vlen[i]) {
                             continue;
+                        }
                         dn = dy * ux[i] - dx * uy[i];
-                        if (dn < -1 || dn > 1)
+                        if (dn < -1 || dn > 1) {
                             continue;
+                        }
                         if (match[k] < nv) {
                             match[k] = nv;
                             break;
@@ -410,39 +423,47 @@ public class PolygonUtil {
                     }
                 }
 
-                for (j = npoints - 1, k = 0; k < npoints; j = k++)
-                    if (match[j] < 0 && match[k] == nv)
+                for (j = npoints - 1, k = 0; k < npoints; j = k++) {
+                    if (match[j] < 0 && match[k] == nv) {
                         match[k] = -1;
-                for (j = 0, k = npoints - 1; k >= 0; j = k--)
-                    if (match[j] < 0 && match[k] == nv)
+                    }
+                }
+                for (j = 0, k = npoints - 1; k >= 0; j = k--) {
+                    if (match[j] < 0 && match[k] == nv) {
                         match[k] = -1;
+                    }
+                }
 
                 // Now we replace matched points with ones in the
                 // original base polygon
                 int p1 = npoints - 1;
-                while (p1 >= 0 && match[p1] == nv)
+                while (p1 >= 0 && match[p1] == nv) {
                     p1--;
+                }
 
                 if (p1 >= 0) {
                     Coordinate last = new Coordinate();
                     int n, best1, best2;
                     for (n = k = 0; k < npoints; k++) {
-                        if (match[k] == nv)
+                        if (match[k] == nv) {
                             continue;
+                        }
                         best1 = match[p1];
                         best2 = match[k];
                         last.x = longest[p1].x;
                         last.y = longest[p1].y;
                         p1 = k;
                         if (best1 < 0 && best2 < 0) {
-                            if (k == n)
+                            if (k == n) {
                                 continue;
+                            }
                             fixed[n] = 0;
                             longest[n++] = new Coordinate(longest[k]);
                             continue;
                         }
-                        if (best1 == best2)
+                        if (best1 == best2) {
                             continue;
+                        }
                         if (best1 < 0 || best2 < 0) {
                             i = best1 > best2 ? best1 : best2;
                             dx = longest[k].x - vert[i].x;
@@ -453,11 +474,12 @@ public class PolygonUtil {
                                     * ux[i], vert[i].y + da * uy[i]);
                             continue;
                         }
-                        if (best2 - best1 == 1 || best1 - best2 == nv - 1)
+                        if (best2 - best1 == 1 || best1 - best2 == nv - 1) {
                             i = best2;
-                        else if (best1 - best2 == 1 || best2 - best1 == nv - 1)
+                        } else if (best1 - best2 == 1
+                                || best2 - best1 == nv - 1) {
                             i = best1;
-                        else {
+                        } else {
                             dx = longest[k].x - vert[best1].x;
                             dy = longest[k].y - vert[best1].y;
                             da = dx * ux[best1] + dy * uy[best1]
@@ -466,10 +488,11 @@ public class PolygonUtil {
                             dy = longest[k].y - vert[best2].y;
                             dn = dx * ux[best2] + dy * uy[best2]
                                     + totlen[best2];
-                            if (dn - da > len2)
+                            if (dn - da > len2) {
                                 best1 += nv;
-                            else if (dn - da < -len2)
+                            } else if (dn - da < -len2) {
                                 best2 += nv;
+                            }
 
                             /*
                              * We have apparently jumped from side best1 to side
@@ -478,7 +501,7 @@ public class PolygonUtil {
                              * significantly longer then the distance from the
                              * last contour point to this one, it is probably
                              * the wrong thing to do.
-                             *
+                             * 
                              * The factor of 3 assumes that all points along the
                              * contour we ware redrawing are fairly close so
                              * that three times the length from any one point to
@@ -490,9 +513,11 @@ public class PolygonUtil {
                             int va = Math.min(best1, best2);
                             int vb = Math.max(best1, best2);
                             if (va < nv) {
-                                patchLen =  totlen[Math.min(nv, vb)] - totlen[va];
-                                if (vb >= nv)
+                                patchLen = totlen[Math.min(nv, vb)]
+                                        - totlen[va];
+                                if (vb >= nv) {
                                     patchLen += totlen[vb % nv];
+                                }
                             } else {
                                 patchLen = totlen[vb % nv] - totlen[va % nv];
                             }
@@ -528,8 +553,9 @@ public class PolygonUtil {
                         fixed[n] = 1;
                         longest[n++] = new Coordinate(vert[i]);
                     }
-                    if (n > 0)
+                    if (n > 0) {
                         npoints = n;
+                    }
                 }
 
             }
@@ -579,11 +605,14 @@ public class PolygonUtil {
     }
 
     private boolean areasEqual(float[][] a, float[][] b) {
-        if (a.length != b.length)
+        if (a.length != b.length) {
             return false;
-        for (int r = 0; r < a.length; ++r)
-            if (! Arrays.equals(a[r], b[r]))
+        }
+        for (int r = 0; r < a.length; ++r) {
+            if (!Arrays.equals(a[r], b[r])) {
                 return false;
+            }
+        }
         return true;
     }
 
@@ -642,14 +671,17 @@ public class PolygonUtil {
             for (k++; k < largest.length; ++k) {
                 c = largest[k];
                 dx = c.x - avg.x;
-                if (dx < -dbest || dx > dbest)
+                if (dx < -dbest || dx > dbest) {
                     continue;
+                }
                 dy = c.y - avg.y;
-                if (dy < -dbest || dy > dbest)
+                if (dy < -dbest || dy > dbest) {
                     continue;
+                }
                 dx = dx * dx + dy * dy;
-                if (dx > d2)
+                if (dx > d2) {
                     continue;
+                }
                 d2 = dx;
                 dbest = Math.sqrt(d2);
                 j = k;
@@ -666,14 +698,17 @@ public class PolygonUtil {
             for (k++; k < polyCoords.length; ++k) {
                 c = polyCoords[k];
                 dx = c.x - closest.x;
-                if (dx < -dbest || dx > dbest)
+                if (dx < -dbest || dx > dbest) {
                     continue;
+                }
                 dy = c.y - closest.y;
-                if (dy < -dbest || dy > dbest)
+                if (dy < -dbest || dy > dbest) {
                     continue;
+                }
                 dx = dx * dx + dy * dy;
-                if (dx > d2)
+                if (dx > d2) {
                     continue;
+                }
                 d2 = dx;
                 dbest = Math.sqrt(d2);
                 i = k;
@@ -764,14 +799,17 @@ public class PolygonUtil {
         float intcp = 0.5f + j1 - slope * i1;
         array[i1][j1] = val;
         for (int i = i1; i <= i2; i++) {
-            if (array[i][j1] == 0)
+            if (array[i][j1] == 0) {
                 array[i][j1] = val;
+            }
             j2 = (int) (slope * i + intcp);
-            if (j2 == j1)
+            if (j2 == j1) {
                 continue;
+            }
             j1 = j2;
-            if (array[i][j1] == 0)
+            if (array[i][j1] == 0) {
                 array[i][j1] = val;
+            }
         }
         array[i2][j2] = val;
     }
@@ -792,14 +830,17 @@ public class PolygonUtil {
         float intcp = 0.5f + i1 - slope * j1;
         array[i1][j1] = val;
         for (int j = j1; j <= j2; j++) {
-            if (array[i1][j] == 0)
+            if (array[i1][j] == 0) {
                 array[i1][j] = val;
+            }
             i2 = (int) (slope * j + intcp);
-            if (i2 == i1)
+            if (i2 == i1) {
                 continue;
+            }
             i1 = i2;
-            if (array[i1][j] == 0)
+            if (array[i1][j] == 0) {
                 array[i1][j] = val;
+            }
         }
         array[i2][j2] = val;
     }
@@ -834,8 +875,9 @@ public class PolygonUtil {
             dx = pts[k].x - xavg;
             dy = pts[k].y - yavg;
             dis = dx * dx + dy * dy;
-            if (dis < maxDis)
+            if (dis < maxDis) {
                 continue;
+            }
             maxDis = dis;
             k1 = k;
         }
@@ -845,8 +887,9 @@ public class PolygonUtil {
             dx = pts[k].x - pts[k1].x;
             dy = pts[k].y - pts[k1].y;
             dis = dx * dx + dy * dy;
-            if (dis < maxDis)
+            if (dis < maxDis) {
                 continue;
+            }
             maxDis = dis;
             k2 = k;
         }
@@ -879,29 +922,35 @@ public class PolygonUtil {
                 dy0 /= bas;
                 k = k1;
                 while (true) {
-                    if (++k >= npts)
+                    if (++k >= npts) {
                         k = 0;
-                    if (k == k2)
+                    }
+                    if (k == k2) {
                         break;
+                    }
                     if (excludeList[k])
                         continue;
                     dx = pts[k].x - pts[k1].x;
                     dy = pts[k].y - pts[k1].y;
                     dis = dx * dx0 + dy * dy0;
-                    if (dis < 0)
+                    if (dis < 0) {
                         dis = -dis;
-                    else
+                    } else {
                         dis -= bas;
+                    }
                     double newMaxDis = maxDis;
                     int newSimple = simple;
                     if (dis <= 0) {
-                        if (simple == 0)
+                        if (simple == 0) {
                             continue;
+                        }
                         dis = dx * dy0 - dy * dx0;
-                        if (dis < 0)
+                        if (dis < 0) {
                             dis = -dis;
-                    } else if (simple != 0)
+                        }
+                    } else if (simple != 0) {
                         newMaxDis = newSimple = 0;
+                    }
                     if (dis < newMaxDis) {
                         maxDis = newMaxDis;
                         continue;
@@ -926,15 +975,18 @@ public class PolygonUtil {
             }
 
             if (simple != 0 && nyes > 2) {
-                if (maxDis * 40 < bigDis)
+                if (maxDis * 40 < bigDis) {
                     break;
-                dis = (4.0 * nyes / (float) maxNpts) - 1;
-                if (maxDis < dis)
+                }
+                dis = (4.0 * nyes / maxNpts) - 1;
+                if (maxDis < dis) {
                     break;
+                }
             }
 
-            for (y = nyes - 1; y >= 0 && kn < yesList[y]; y--)
+            for (y = nyes - 1; y >= 0 && kn < yesList[y]; y--) {
                 yesList[y + 1] = yesList[y];
+            }
             nyes++;
             yesList[y + 1] = kn;
         }
@@ -982,28 +1034,33 @@ public class PolygonUtil {
         double besty = -1e10;
 
         // First, determine if the points are ordered in CW or CCW order
-        for (i = 0; i < npts; ++i)
+        for (i = 0; i < npts; ++i) {
             if (pts[i].y < besty || (pts[i].y == besty && pts[i].x > bestx)) {
                 best = i;
                 bestx = pts[i].x;
                 besty = pts[i].y;
             }
+        }
 
         i = best;
 
-        if (--i < 0)
+        if (--i < 0) {
             i = npts - 1;
-        if ((j = i + 1) >= npts)
+        }
+        if ((j = i + 1) >= npts) {
             j -= npts;
-        if ((k = j + 1) >= npts)
+        }
+        if ((k = j + 1) >= npts) {
             k -= npts;
+        }
 
         double crs = (pts[j].x - pts[i].x) * (pts[k].y - pts[j].y)
                 - (pts[j].y - pts[i].y) * (pts[k].x - pts[j].x);
 
         int orient = crs < 0 ? -1 : (crs > 0 ? 1 : 0);
-        if (orient == 0)
+        if (orient == 0) {
             return false;
+        }
 
         best = -1;
         double besta = 1e10;
@@ -1011,20 +1068,24 @@ public class PolygonUtil {
 
         // find smallest kink
         while (i < npts) {
-            if ((j = i + 1) >= npts)
+            if ((j = i + 1) >= npts) {
                 j -= npts;
-            if ((k = j + 1) >= npts)
+            }
+            if ((k = j + 1) >= npts) {
                 k -= npts;
+            }
             crs = (pts[j].x - pts[i].x) * (pts[k].y - pts[j].y)
                     - (pts[j].y - pts[i].y) * (pts[k].x - pts[j].x);
-            if (orient < 0)
+            if (orient < 0) {
                 crs = -crs;
+            }
 
             if (crs < 0) {
                 crs = (pts[i].x - pts[j].x) * (pts[k].y - pts[j].y)
                         - (pts[i].y - pts[j].y) * (pts[k].x - pts[j].x);
-                if (crs < 0)
+                if (crs < 0) {
                     crs = -crs;
+                }
                 double area = 0.5 * crs;
 
                 double dx = pts[k].x - pts[i].x;
@@ -1056,8 +1117,9 @@ public class PolygonUtil {
         ArrayList<Coordinate> coords = new ArrayList<Coordinate>(
                 Arrays.asList(polygon.getExteriorRing().getCoordinates()));
         boolean changed = false;
-        if (coords.size() <= 4) // i.e., 3 real vertices
+        if (coords.size() <= 4) {
             return polygon;
+        }
         coords.remove(coords.size() - 1);
 
         for (int i = 0; i < coords.size() && coords.size() > 3; ++i) {
@@ -1073,10 +1135,12 @@ public class PolygonUtil {
             double crs = ux * vy - vx * uy; // cross product
             double ul = Math.sqrt(ux * ux + uy * uy);
             double vl = Math.sqrt(vx * vx + vy * vy);
-            if (ul != 0)
+            if (ul != 0) {
                 crs /= ul;
-            if (vl != 0)
+            }
+            if (vl != 0) {
                 crs /= vl;
+            }
 
             if (Math.abs(crs) <= 0.01) {
                 coords.remove(j);
@@ -1091,10 +1155,11 @@ public class PolygonUtil {
             try {
                 Polygon p = gf.createPolygon(gf.createLinearRing(coords
                         .toArray(new Coordinate[coords.size()])), null);
-                if (p.isValid())
+                if (p.isValid()) {
                     return p;
-                else
+                } else {
                     return polygon;
+                }
             } catch (IllegalArgumentException e) {
                 /*
                  * An invalid ring can be created when the original has an
@@ -1102,8 +1167,9 @@ public class PolygonUtil {
                  */
                 return polygon;
             }
-        } else
+        } else {
             return polygon;
+        }
     }
 
     private float[][] toFloatData(Geometry warningArea) throws VizException {
@@ -1141,8 +1207,7 @@ public class PolygonUtil {
                     pointCS.setOrdinate(0, 0, x);
                     pointCS.setOrdinate(0, 1, y);
                     point.geometryChanged();
-                    if (contourAreaData[x][y] == 0.0f
-                            && geom.intersects(point)) {
+                    if (contourAreaData[x][y] == 0.0f && geom.intersects(point)) {
                         contourAreaData[x][y] = 1.0f;
                     }
                 }
@@ -1241,7 +1306,8 @@ public class PolygonUtil {
         double y = coordinate.y * Math.pow(10, decimalPlaces);
 
         if (Double.isNaN(x) || Double.isNaN(y)) {
-            throw new IllegalArgumentException("Invalid coordinate " + coordinate);
+            throw new IllegalArgumentException("Invalid coordinate "
+                    + coordinate);
         }
 
         x = Math.round(x);
@@ -1259,10 +1325,12 @@ public class PolygonUtil {
         if (polygon == null) {
             return null;
         }
-        if (polygon.getNumPoints() <= 4) 
+        if (polygon.getNumPoints() <= 4) {
             return polygon;
-        Coordinate[] coords = removeDuplicateCoordinate(polygon.getCoordinates());
-        GeometryFactory gf = new GeometryFactory(); 
+        }
+        Coordinate[] coords = removeDuplicateCoordinate(polygon
+                .getCoordinates());
+        GeometryFactory gf = new GeometryFactory();
         try {
             polygon = gf.createPolygon(gf.createLinearRing(coords), null);
         } catch (Exception e) {
@@ -1275,14 +1343,17 @@ public class PolygonUtil {
         if (verts == null) {
             return null;
         }
-        if (verts.length <= 4)
+        if (verts.length <= 4) {
             return verts;
+        }
 
         Set<Coordinate> coords = new LinkedHashSet<Coordinate>();
-        for (Coordinate c : verts)
+        for (Coordinate c : verts) {
             coords.add(c);
-        if ((verts.length - coords.size()) < 2)
+        }
+        if ((verts.length - coords.size()) < 2) {
             return verts;
+        }
         Coordinate[] vertices = new Coordinate[coords.size() + 1];
         Iterator<Coordinate> iter = coords.iterator();
         int i = 0;
@@ -1291,10 +1362,11 @@ public class PolygonUtil {
             i += 1;
         }
         vertices[i] = new Coordinate(vertices[0]);
-        if (vertices.length <=3) 
+        if (vertices.length <= 3) {
             return verts;
-        else
+        } else {
             return vertices;
+        }
     }
 
     /**
@@ -1329,15 +1401,17 @@ public class PolygonUtil {
             double min1 = 0.005d;
             y = slope * (c[j].x - c[i].x) + c[i].y;
             double d = Math.abs(y - c[j].y);
-            if (d > min1)
+            if (d > min1) {
                 return;
+            }
 
             double min2 = 1.0E-8d;
             double delta = 0.005d; // empirical value
             double dyMin = 0.01d;
             int jMinus1 = j - 1;
-            if (jMinus1 < 0)
+            if (jMinus1 < 0) {
                 jMinus1 = c.length - 2;
+            }
             int jPlus1 = j + 1;
             if (Math.abs(y - c[j].y) < min1) {
                 double dy1, dy2;
@@ -1349,8 +1423,9 @@ public class PolygonUtil {
                     if (c[j].y == c[jMinus1].y
                             && Math.abs(c[j].x - c[jMinus1].x) > min2) {
                         // l2 is a horizontal line, use l3 for computation
-                        if (c[jPlus1].y < c[j].y)
+                        if (c[jPlus1].y < c[j].y) {
                             delta = -delta;
+                        }
                         slope = computeSlope(c, j);
                         if (Math.abs(slope) > min2) {
                             y = c[j].y + delta;
@@ -1362,8 +1437,9 @@ public class PolygonUtil {
                         }
                     } else {
                         // use l2 for computation
-                        if (c[jMinus1].y < c[j].y)
+                        if (c[jMinus1].y < c[j].y) {
                             delta = -delta;
+                        }
                         slope = computeSlope(c, jMinus1);
                         if (Math.abs(slope) > min2) {
                             y = c[j].y + delta;
@@ -1380,8 +1456,9 @@ public class PolygonUtil {
                         if (c[j].y == c[jPlus1].y
                                 && Math.abs(c[j].x - c[jPlus1].x) > min2) {
                             // l3 is a horizontal line, use l2 for computation
-                            if (c[jMinus1].y < c[j].y)
+                            if (c[jMinus1].y < c[j].y) {
                                 delta = -delta;
+                            }
                             slope = computeSlope(c, jMinus1);
                             if (Math.abs(slope) > min2) {
                                 y = c[j].y + delta;
@@ -1393,8 +1470,9 @@ public class PolygonUtil {
                             }
                         } else {
                             // use l3 for computation
-                            if (c[jPlus1].y < c[j].y)
+                            if (c[jPlus1].y < c[j].y) {
                                 delta = -delta;
+                            }
                             slope = computeSlope(c, j);
                             if (Math.abs(slope) > min2) {
                                 y = c[j].y + delta;
@@ -1412,10 +1490,12 @@ public class PolygonUtil {
                 }
                 c[j].x = x;
                 c[j].y = y;
-                if (j == 0)
+                if (j == 0) {
                     c[c.length - 1] = c[j];
-                if (j == c.length - 1)
+                }
+                if (j == c.length - 1) {
                     c[0] = c[j];
+                }
             }
         }
     }
@@ -1434,38 +1514,41 @@ public class PolygonUtil {
             for (j = i + 2; j <= n - 2; j++) {
                 computeCoordinate(coords, i, j);
             }
-            if (i <= n - 3)
+            if (i <= n - 3) {
                 for (j = 0; j < i; j++) {
                     computeCoordinate(coords, i, j);
                 }
-            else
+            } else {
                 for (j = 1; j < i; j++) {
                     computeCoordinate(coords, i, j);
                 }
+            }
         }
     }
 
     public static Coordinate[] removeOverlaidLinesegments(Coordinate[] coords) {
-        if (coords.length <= 4)
+        if (coords.length <= 4) {
             return coords;
+        }
         Coordinate[] expandedCoords = null;
         boolean flag = true;
         while (flag) {
             if (coords.length <= 4) {
                 return coords;
             }
-            expandedCoords = new Coordinate[coords.length+1];
+            expandedCoords = new Coordinate[coords.length + 1];
             flag = false;
             for (int i = 0; i < coords.length; i++) {
                 expandedCoords[i] = new Coordinate(coords[i]);
             }
-            expandedCoords[expandedCoords.length-1] = new Coordinate(coords[1]);
+            expandedCoords[expandedCoords.length - 1] = new Coordinate(
+                    coords[1]);
             double min = 1.0E-8;
             int m = expandedCoords.length;
             int count = 0;
             double slope = 0.0, slope1 = 0.0;
             for (int i = 0; i < m - 1; i++) {
-                slope = computeSlope(expandedCoords,i);
+                slope = computeSlope(expandedCoords, i);
                 if (count == 0) {
                     slope1 = slope;
                     count += 1;
@@ -1479,23 +1562,25 @@ public class PolygonUtil {
                     }
                 }
                 if (count == 2) {
-                    // remove the middle point, i.e., that has index of i, of the three that either form two
-                    // overlaid/partial overlaid line segments or is in the middle
+                    // remove the middle point, i.e., that has index of i, of
+                    // the three that either form two
+                    // overlaid/partial overlaid line segments or is in the
+                    // middle
                     // of a straight line segment
                     coords = new Coordinate[coords.length - 1];
                     if (i == m - 2) {
                         for (int j = 1; j <= m - 2; j++) {
-                            coords[j-1] = new Coordinate(expandedCoords[j]);
+                            coords[j - 1] = new Coordinate(expandedCoords[j]);
                         }
-                        coords[coords.length-1] = new Coordinate(coords[0]);
+                        coords[coords.length - 1] = new Coordinate(coords[0]);
                     } else {
                         for (int j = 0; j < i; j++) {
                             coords[j] = new Coordinate(expandedCoords[j]);
                         }
-                        for (int j = i + 1; j < expandedCoords.length-2; j++) {
-                            coords[j-1] = new Coordinate(expandedCoords[j]);
+                        for (int j = i + 1; j < expandedCoords.length - 2; j++) {
+                            coords[j - 1] = new Coordinate(expandedCoords[j]);
                         }
-                        coords[coords.length-1] = new Coordinate(coords[0]);
+                        coords[coords.length - 1] = new Coordinate(coords[0]);
                     }
                     flag = true;
                     break;
@@ -1524,11 +1609,13 @@ public class PolygonUtil {
                 index[0] = i;
                 index[1] = index[0] + 1;
                 index[2] = index[1] + skippedSegment;
-                if (index[2] >= length)
+                if (index[2] >= length) {
                     index[2] = index[2] - length + 1;
+                }
                 index[3] = index[2] + 1;
-                if (index[3] >= length)
+                if (index[3] >= length) {
                     index[3] = index[3] - length + 1;
+                }
                 ls1 = new LineSegment(coord[index[0]], coord[index[1]]);
                 ls2 = new LineSegment(coord[index[2]], coord[index[3]]);
                 intersectCoord = ls1.intersection(ls2);
@@ -1583,23 +1670,26 @@ public class PolygonUtil {
                      * closest to intersectCoord. That point may not actually be
                      * on line segment A.
                      */
-                    Coordinate c = adjustVertex2(intersectCoord, coord[theOtherIndex], b0, b1);
+                    Coordinate c = adjustVertex2(intersectCoord,
+                            coord[theOtherIndex], b0, b1);
                     if (c != null) {
                         coord[replaceIndex].x = c.x;
                         coord[replaceIndex].y = c.y;
                     }
 
-                    //PolygonUtil.round(coord, 2);
+                    // PolygonUtil.round(coord, 2);
                     PolygonUtil.round(coord[replaceIndex], 2);
-                    if (replaceIndex == 0)
+                    if (replaceIndex == 0) {
                         coord[length - 1] = new Coordinate(coord[replaceIndex]);
-                    else if (replaceIndex == length - 1)
+                    } else if (replaceIndex == length - 1) {
                         coord[0] = new Coordinate(coord[replaceIndex]);
+                    }
                     lr = gf.createLinearRing(coord);
                     p = gf.createPolygon(lr, null);
                     isPolygonValid = p.isValid();
-                    if (isPolygonValid)
+                    if (isPolygonValid) {
                         break outerLoop;
+                    }
                 }
             }
         }
@@ -1608,27 +1698,34 @@ public class PolygonUtil {
 
     private static final double SIDE_OF_LINE_THRESHOLD = 1e-9;
 
-    /** Returns 1, -1, or 0 if p is on the left of, on the right of, or on pa -> pb */
+    /**
+     * Returns 1, -1, or 0 if p is on the left of, on the right of, or on pa ->
+     * pb
+     */
     private static int sideOfLine(Coordinate p, Coordinate pa, Coordinate pb) {
-        double cp = (pb.x - pa.x) * (p.y - pa.y) - (p.x - pa.x) * (pb.y - pa.y); // Cross product
-        return Math.abs(cp) > SIDE_OF_LINE_THRESHOLD ?
-                (cp < 0 ? -1 : (cp > 0 ? 1 : 0)) : 0;
+        double cp = (pb.x - pa.x) * (p.y - pa.y) - (p.x - pa.x) * (pb.y - pa.y); // Cross
+                                                                                 // product
+        return Math.abs(cp) > SIDE_OF_LINE_THRESHOLD ? (cp < 0 ? -1
+                : (cp > 0 ? 1 : 0)) : 0;
     }
 
     /** Returns the angle between p -> pa and p -> pb */
-    private static double angleBetween(Coordinate p, Coordinate pa, Coordinate pb) {
+    private static double angleBetween(Coordinate p, Coordinate pa,
+            Coordinate pb) {
         double ax = pa.x - p.x;
         double ay = pa.y - p.y;
         double bx = pb.x - p.x;
         double by = pb.y - p.y;
 
         double m = Math.sqrt((ax * ax + ay * ay) * (bx * bx + by * by));
-        return m != 0 ? Math.acos((ax * bx + ay * by) / m ) : 0;
+        return m != 0 ? Math.acos((ax * bx + ay * by) / m) : 0;
     }
 
     private static int N_CANDIDATE_POINTS = 8;
-    private static byte[] CANDIDATE_DX = {  1,  1,  1,  0, -1, -1, -1,  0 };
-    private static byte[] CANDIDATE_DY = {  1,  0, -1, -1, -1,  0,  1,  1 };
+
+    private static byte[] CANDIDATE_DX = { 1, 1, 1, 0, -1, -1, -1, 0 };
+
+    private static byte[] CANDIDATE_DY = { 1, 0, -1, -1, -1, 0, 1, 1 };
 
     /**
      * Returns the coordinate within one grid point on the 0.01 grid next to
@@ -1644,8 +1741,9 @@ public class PolygonUtil {
     private static Coordinate adjustVertex2(Coordinate intersectCoord,
             Coordinate destination, Coordinate b0, Coordinate b1) {
         int sideOfTheOther = sideOfLine(destination, b0, b1);
-        if (sideOfTheOther == 0)
+        if (sideOfTheOther == 0) {
             return null;
+        }
 
         double pxh = intersectCoord.x * 100;
         double pyh = intersectCoord.y * 100;
@@ -1656,10 +1754,14 @@ public class PolygonUtil {
         double fy = Math.floor(pyh);
 
         double ox, oy;
-        if (Math.abs(cx - pxh) < SIDE_OF_LINE_THRESHOLD || Math.abs(fx - pxh) < SIDE_OF_LINE_THRESHOLD)
+        if (Math.abs(cx - pxh) < SIDE_OF_LINE_THRESHOLD
+                || Math.abs(fx - pxh) < SIDE_OF_LINE_THRESHOLD) {
             cx = fx = pxh;
-        if (Math.abs(cy - pyh) < SIDE_OF_LINE_THRESHOLD || Math.abs(fy - pyh) < SIDE_OF_LINE_THRESHOLD)
+        }
+        if (Math.abs(cy - pyh) < SIDE_OF_LINE_THRESHOLD
+                || Math.abs(fy - pyh) < SIDE_OF_LINE_THRESHOLD) {
             cy = fy = pyh;
+        }
 
         Coordinate best = null;
         double bestAngle = Math.PI * 2;
@@ -1669,24 +1771,28 @@ public class PolygonUtil {
             int dy = CANDIDATE_DY[ci];
 
             if (dx == 0) {
-                if (cx != fx)
+                if (cx != fx) {
                     continue;
+                }
                 ox = pxh;
             } else {
-                if (dx > 0)
+                if (dx > 0) {
                     ox = cx == fx ? pxh + 1 : cx;
-                else
+                } else {
                     ox = cx == fx ? pxh - 1 : fx;
+                }
             }
             if (dy == 0) {
-                if (cy != fy)
+                if (cy != fy) {
                     continue;
+                }
                 oy = pyh;
             } else {
-                if (dy > 0)
+                if (dy > 0) {
                     oy = cy == fy ? pyh + 1 : cy;
-                else
+                } else {
                     oy = cy == fy ? pyh - 1 : fy;
+                }
             }
             Coordinate c = new Coordinate(ox / 100.0, oy / 100.0);
             if (c != null && sideOfLine(c, b0, b1) == sideOfTheOther) {
@@ -1702,8 +1808,9 @@ public class PolygonUtil {
     }
 
     /**
-     * Alter the location of two vertexes that cause polygon self-crossing.
-     * This method would be used if polygon is still invalid after using adjustVertex().
+     * Alter the location of two vertexes that cause polygon self-crossing. This
+     * method would be used if polygon is still invalid after using
+     * adjustVertex().
      */
     static public Coordinate[] alterVertexes(Coordinate[] coord) {
         GeometryFactory gf = new GeometryFactory();
@@ -1720,11 +1827,13 @@ public class PolygonUtil {
                 index[0] = i;
                 index[1] = index[0] + 1;
                 index[2] = index[1] + skippedSegment;
-                if (index[2] >= length)
+                if (index[2] >= length) {
                     index[2] = index[2] - length + 1;
+                }
                 index[3] = index[2] + 1;
-                if (index[3] >= length)
+                if (index[3] >= length) {
                     index[3] = index[3] - length + 1;
+                }
                 ls1 = new LineSegment(coord[index[0]], coord[index[1]]);
                 ls2 = new LineSegment(coord[index[2]], coord[index[3]]);
                 intersectCoord = null;
@@ -1736,22 +1845,23 @@ public class PolygonUtil {
                             0.5*(coord[index[index1]].y + coord[index[2+index2]].y));
                     PolygonUtil.round(c, 2);
                     coord[index[index1]] = new Coordinate(c);
-                    coord[index[2+index2]] = new Coordinate(c);
+                    coord[index[2 + index2]] = new Coordinate(c);
                     if (index[index1] == 0) {
-                        coord[coord.length-1] = new Coordinate(c);
-                    } else if (index[index1] == coord.length-1) {
+                        coord[coord.length - 1] = new Coordinate(c);
+                    } else if (index[index1] == coord.length - 1) {
                         coord[0] = new Coordinate(c);
                     }
-                    if (index[2+index2] == 0) {
-                        coord[coord.length-1] = new Coordinate(c);
-                    } else if (index[2+index2] == coord.length-1) {
+                    if (index[2 + index2] == 0) {
+                        coord[coord.length - 1] = new Coordinate(c);
+                    } else if (index[2 + index2] == coord.length - 1) {
                         coord[0] = new Coordinate(c);
                     }
                     lr = gf.createLinearRing(coord);
                     p = gf.createPolygon(lr, null);
                     isPolygonValid = p.isValid();
-                    if (isPolygonValid)
+                    if (isPolygonValid) {
                         break outerLoop;
+                    }
                 }
             }
         }
@@ -1761,10 +1871,11 @@ public class PolygonUtil {
     static public int calcShortestDistance(Coordinate p, LineSegment ls) {
         double d1 = p.distance(ls.p0);
         double d2 = p.distance(ls.p1);
-        if (d1 <= d2)
+        if (d1 <= d2) {
             return 0;
-        else
+        } else {
             return 1;
+        }
     }
 
     static public double computeSlope(Coordinate[] coords, int i, int j) {
@@ -1780,7 +1891,8 @@ public class PolygonUtil {
     /**
      * Create a polygon whose two diagonal coordinates are a and b.
      **/
-    static public Geometry createPolygonByPoints(GeometryFactory gf, Coordinate a, Coordinate b) {
+    static public Geometry createPolygonByPoints(GeometryFactory gf,
+            Coordinate a, Coordinate b) {
         double maxX, minX, maxY, minY;
         maxX = Math.max(a.x, b.x);
         minX = Math.min(a.x, b.x);
@@ -1796,18 +1908,20 @@ public class PolygonUtil {
         return gf.createPolygon(lr, null);
     }
 
-    static public Geometry createPolygonByPoints(GeometryFactory gf, Coordinate a, double shift) {
+    static public Geometry createPolygonByPoints(GeometryFactory gf,
+            Coordinate a, double shift) {
         Coordinate b = new Coordinate(a.x + shift, a.y + shift);
         return createPolygonByPoints(gf, a, b);
     }
 
-    /** Creates a copy of a Geometry with reduced precision to reduce the chance of topology errors when used
-     * in intersection operations.
-     *
+    /**
+     * Creates a copy of a Geometry with reduced precision to reduce the chance
+     * of topology errors when used in intersection operations.
+     * 
      * @param g
      * @return a new Geometry that is a copy of given Geometry with reduced
-     * precision.  References to user data are copied.  If there are GeometryCollection
-     * objects, user data is copied for each element.
+     *         precision. References to user data are copied. If there are
+     *         GeometryCollection objects, user data is copied for each element.
      */
     static public Geometry reducePrecision(Geometry g) {
         Geometry result;
@@ -1818,8 +1932,10 @@ public class PolygonUtil {
             }
             GeometryFactory gf = new GeometryFactory();
             result = gf.createGeometryCollection(list);
-        } else
-            result = SimpleGeometryPrecisionReducer.reduce(g, REDUCED_PRECISION);
+        } else {
+            result = SimpleGeometryPrecisionReducer
+                    .reduce(g, REDUCED_PRECISION);
+        }
         result.setUserData(g.getUserData());
         return result;
     }

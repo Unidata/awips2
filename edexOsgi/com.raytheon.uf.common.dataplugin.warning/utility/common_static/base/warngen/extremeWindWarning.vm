@@ -6,6 +6,7 @@
 ##          Mike Dangelo 9-13-2012 minor tweaks to ${variables}           ##
 ##          Evan Bookbinder 06-07-2013 Fixed CTAs/&&
 ##          Evan Bookbinder 09-18-2013 Implemented config.vm 
+##          Dave Tomalak 03-24-2015 Mixed Case
 ############################################################################
 #################
 ## EWW PRODUCT ##
@@ -19,13 +20,14 @@ ${ugcline}
 
 BULLETIN - EAS ACTIVATION REQUESTED
 #if(${productClass}=="T")
-TEST...EXTREME WIND WARNING...TEST
+TEST...Extreme Wind Warning...TEST
 #else
-EXTREME WIND WARNING
+Extreme Wind Warning
 #end
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
 
 #if(${productClass}=="T")
 ...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
@@ -40,7 +42,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
-EXTREME WIND WARNING FOR...
+Extreme Wind Warning for...
 #firstBullet(${areas})
 
 ###################
@@ -55,56 +57,56 @@ THIS IS A TEST MESSAGE. ##
 #set($reportType1 = "!**NO THREAT TYPE WAS SELECTED. PLEASE CHECK YOUR WARNGEN SELECTIONS AND RE-GENERATE THIS PRODUCT**!")
 
 #if(${list.contains(${bullets}, "var1")})
-#set($reportType1 = "ASSOCIATED WITH THE EYEWALL OF HURRICANE !**name**!...WERE MOVING ONSHORE")
-#set($reportType = "EXTREME WINDS")
-#set($reportType2 = "THE HURRICANE EYEWALL WAS")
+#set($reportType1 = "associated with the eyewall of Hurricane !**name**!, were moving onshore")
+#set($reportType = "extreme winds")
+#set($reportType2 = "the hurricane eyewall was")
 #end
 
 ##
 #if(${list.contains(${bullets}, "var2")})
-#set($reportType1 = "ASSOCIATED WITH A BROAD AREA OF INTENSE THUNDERSTORMS...LOCATED")
-#set($reportType = "EXTREME WINDS WERE OCCURING")
-#set($reportType2 = "THIS AREA OF THUNDERSTORM WINDS WAS")
+#set($reportType1 = "associated with a broad area of intense thunderstorms, located")
+#set($reportType = "extreme winds were occurinG")
+#set($reportType2 = "this area of thunderstorm winds was")
 #end
 ##
 #if(${list.contains(${bullets}, "var3")})
-#set($reportType1 = "ASSOCIATED WITH AN INTENSE LOW PRESSURE AREA...LOCATED")
-#set($reportType = "EXTREME WINDS WERE OCCURING")
-#set($reportType2 = "THIS INTENSE LOW PRESSURE SYSTEM WAS")
+#set($reportType1 = "associated with an intense low pressure area, located")
+#set($reportType = "extreme winds were occuring")
+#set($reportType2 = "this intense low pressure system was")
 #end
 ##
 #if(${list.contains(${bullets}, "var4")})
-#set($reportType1 = "ASSOCIATED WITH A DOWNSLOPE WINDSTORM...LOCATED")
-#set($reportType = "EXTREME WINDS WERE OCCURING")
-#set($reportType2 = "THIS AREA OF DOWNSLOPE WINDS WAS")
+#set($reportType1 = "associated with a downslope windstorm, located")
+#set($reportType = "extreme winds were occuring")
+#set($reportType2 = "this area of downslope winds was")
 #end
 ##
 #if(${list.contains(${bullets}, "basis1")})
-#set($reportType = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED EXTREME WINDS")
+#set($reportType = "National Weather Service Doppler radar indicated extreme winds")
 #end
 ##
 #if(${list.contains(${bullets}, "basis2")})
-#set($reportType = "SURFACE OBSERVATIONS INDICATED EXTREME WINDS")
+#set($reportType = "surface observations indicated extreme winds")
 #end
 ##
 #if(${list.contains(${bullets}, "basis3")})
-#set($reportType = "MARITIME OBSERVATIONS INDICATED EXTREME WINDS")
+#set($reportType = "maritime observations indicated extreme winds")
 #end
 ##
 #if(${list.contains(${bullets}, "basis4")})
-#set($reportType = "TRAINED WEATHER SPOTTERS REPORTED EXTREME WINDS")
+#set($reportType = "trained weather spotters reported extreme winds")
 #end
 ##
 #if(${list.contains(${bullets}, "basis5")})
-#set($reportType = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND SURFACE OBSERVATIONS INDICATED EXTREME WINDS")
+#set($reportType = "National Weather Service Doppler radar and surface observations indicated extreme winds")
 #end
 ##
 #if(${list.contains(${bullets}, "basis6")})
-#set($reportType = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND MARITIME OBSERVATIONS INDICATED EXTREME WINDS")
+#set($reportType = "National Weather Service Doppler radar and maritime observations indicated extreme winds")
 #end
 ##
 #if(${list.contains(${bullets}, "basis7")})
-#set($reportType = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND TRAINED WEATHER SPOTTERS REPORTED EXTREME WINDS")
+#set($reportType = "National Weather Service Doppler radar and trained weather spotters reported extreme winds")
 #end
 ##
 ## Storm current location description
@@ -114,7 +116,7 @@ THIS IS A TEST MESSAGE. ##
 THIS IS A TEST MESSAGE. ##
 #end
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
-...${reportType}...${reportType1} ##
+, ${reportType}, ${reportType1} ##
 ##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")
 #handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
@@ -122,20 +124,20 @@ THIS IS A TEST MESSAGE. ##
 #handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceCell})
 #end
 #if(${movementSpeed} < ${landStationary} || ${stationary})
-. ${reportType2} NEARLY STATIONARY.##
+. ${reportType2} nearly stationary.##
 #else
-...MOVING #direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} MPH.##
+, moving #direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} mph.##
 #end
- THIS IS AN EXTREMELY DANGEROUS AND LIFE-THREATENING SITUATION!
+ This is an extremely dangerous and life-threatening situation!
 
-#set($phenomena = "EXTREME WINDS") 
-#set($warningType = "WARNING") 
+#set($phenomena = "Extreme winds") 
+#set($warningType = "Warning") 
 #if(${list.contains(${bullets}, "pathcast")})
 * ##
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
-#pathCast("${phenomena} WILL BE NEAR..." ${phenomena} ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+#pathCast("${phenomena} will be near..." ${phenomena} ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
 
 #elseif(${list.contains(${bullets}, "listofcities")})
 * ##
@@ -143,10 +145,10 @@ THIS IS A TEST MESSAGE. ##
 THIS IS A TEST MESSAGE. ##
 #end
 #### THE THIRD ARGUMENT IS A NUMBER SPECIFYING THE NUMBER OF COLUMNS TO OUTPUT THE CITIES LIST IN
-#### 0 IS A ... SEPARATED LIST, 1 IS ONE PER LINE, >1 IS A COLUMN FORMAT
+#### 0 IS A ,  SEPARATED LIST, 1 IS ONE PER LINE, >1 IS A COLUMN FORMAT
 #### IF YOU USE SOMETHING OTHER THAN "LOCATIONS IMPACTED INCLUDE" LEAD IN BELOW, MAKE SURE THE
 #### ACCOMPANYING XML FILE PARSE STRING IS CHANGED TO MATCH!
-#locationsList("LOCATIONS IMPACTED INCLUDE..." ${phenomena} 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+#locationsList("Locations impacted include... " ${phenomena} 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
 
 #end
 
@@ -169,19 +171,19 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 
 #end
 #if(${list.contains(${bullets}, "destructiveWindsCTA")})
-WIDESPREAD DESTRUCTIVE WINDS OF !** **! TO !** **! MPH WILL SPREAD ACROSS ##
+Widespread destructive winds of !** **! to !** **! mph will spread across ##
 #foreach (${area} in ${areas})
- ${area.name} ${area.areaNotation}...##
+ ${area.name} ${area.areaNotation}, ##
 #end
-PRODUCING SWATHS OF TORNADO-LIKE DAMAGE.
+producing swaths of tornado-like damage.
 
 #end
 #if(${list.contains(${bullets}, "takeCoverCTA")})
-TAKE COVER NOW! TREAT THESE IMMINENT EXTREME WINDS AS IF A TORNADO WAS APPROACHING AND MOVE IMMEDIATELY TO THE SAFE ROOM IN YOUR SHELTER. TAKE ACTION NOW TO PROTECT YOUR LIFE!
+Take cover now! Treat these imminent extreme winds as if a tornado was approaching and move immediately to the safe room in your shelter. Take action now to protect your life!
 
 #end
 #if(${list.contains(${bullets}, "safePlacesCTA")})
-THE SAFEST PLACE TO BE DURING A MAJOR LANDFALLING HURRICANE IS IN A REINFORCED INTERIOR ROOM AWAY FROM WINDOWS. GET UNDER A TABLE OR OTHER PIECE OF STURDY FURNITURE. USE MATTRESSES...BLANKETS OR PILLOWS TO COVER YOUR HEAD AND BODY. REMAIN IN PLACE THROUGH THE PASSAGE OF THESE LIFE THREATENING CONDITIONS.
+The safest place to be during a major landfalling hurricane is in a reinforced interior room away from windows. Get under a table or other piece of sturdy furniture. Use mattresses, blankets or pillows to cover your head and body. Remain in place through the passage of these life threatening conditions.
 
 #end
 #if(${ctaSelected} == "YES") 

@@ -108,7 +108,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 02/17/2009   1981       dhladky    Initial Creation.
- * 02/26/2014   2836       dhladky      Added diagnostic information.
+ * 02/26/2014   2836       dhladky    Added diagnostic information.
+ * 07/02/2015   3073       dhladky    Fixed walking off the two dimensional array.
  * </pre>
  * 
  * @author dhladky
@@ -596,16 +597,8 @@ public class QPF {
         while (doSearch) {
             for (id = imove_last - 2; id <= imove_last + 2; id++) {
                 for (jd = jmove_last - 2; jd <= jmove_last + 2; jd++) {
-
-                    try {
-                        if (binc[id + 10][jd + 10] >= 0.0) {
-                            continue;
-                        }
-                    } catch (ArrayIndexOutOfBoundsException aioe) {
-                        statusHandler.error("jd = "+jd+" id = "+id +"\n"
-                        +"jd + 10 = "+(jd+10)+" id + 10 = "+(id + 10) +"\n"
-                        +"imove_last = "+imove_last+" jmove_last = "+jmove_last +"\n"
-                        +"binc[][] size = "+binc.length, aioe);
+                    if (walkSurroundingValues(binc, id, jd, 10, 10) >= 0.0) {
+                        continue;
                     }
 
                     // Displace the portion of grid1 that lies between JMIN to
@@ -688,6 +681,46 @@ public class QPF {
         r.non2 = non2;
         r.pb = pb;
         return r;
+    }
+    
+    /**
+     * Attempts to scan values +10 i and j from the value being evaluated for the BINCOR test.
+     * It falls back by 1 in succession if you walk off the end of the two dimensional array.  
+     * Attempting to stay within the grids boundaries.
+     * 
+     * @param binc
+     * @param id
+     * @param jd
+     * @param i
+     * @param j
+     * @return
+     */
+    private float walkSurroundingValues(float binc[][], int id, int jd, int i, int j) {
+
+        float val = 0.0f;
+
+        try {
+            val = binc[id + i][jd + j];
+        } catch (ArrayIndexOutOfBoundsException aioe) {
+            // recurse until either you stay within or exhaust ability to stay within the array.
+            if (i > 1 && j > 1) {
+                i = i - 1;
+                j = j - 1;
+            } else {
+                statusHandler
+                        .error("Exhausted attempts to constrain grid walking, i and j values out of bounds: "
+                                + i
+                                + " "
+                                + j
+                                + " values for grid at this point are unreliable!",
+                                aioe);
+                return val;
+            }
+            val = walkSurroundingValues(binc, id, jd, i, j);
+        }
+
+        return val;
+
     }
 
     private class BincorDirectResult {

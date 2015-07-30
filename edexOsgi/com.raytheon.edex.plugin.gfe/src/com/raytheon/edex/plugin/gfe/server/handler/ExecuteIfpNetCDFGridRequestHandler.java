@@ -46,6 +46,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * Sep 24, 2010            dgilling     Initial creation
  * Mar 11, 2013  #1759     dgilling     Re-write using new IscScript classes.
  * Nov 20, 2014  #98       lshi			ifpnetCDF no longer gives an error code in some cases
+ * May 13, 2015  #4427     dgilling     Add siteIdOverride field.
  * 
  * </pre>
  * 
@@ -69,23 +70,23 @@ public class ExecuteIfpNetCDFGridRequestHandler implements
     }
 
     @Override
-    public ServerResponse<Boolean> handleRequest(ExecuteIfpNetCDFGridRequest request)
-            throws Exception {
+    public ServerResponse<Boolean> handleRequest(
+            ExecuteIfpNetCDFGridRequest request) throws Exception {
         ServerResponse<Boolean> sr = new ServerResponse<Boolean>();
         sr.setPayload(Boolean.FALSE);
-        
-     //#98 verify requested database exists
+
+        // #98 verify requested database exists
         IFPServer ifpServer = IFPServer.getActiveServer(request.getDatabaseID()
                 .getSiteId());
-        ServerResponse<java.util.List<DatabaseID>> ssr = ifpServer.getGridParmMgr()
-                .getDbInventory();
+        ServerResponse<java.util.List<DatabaseID>> ssr = ifpServer
+                .getGridParmMgr().getDbInventory();
         if (!ssr.isOkay()) {
             sr.addMessages(ssr);
             return sr;
         } else if (!ssr.getPayload().contains(request.getDatabaseID())) {
             sr.addMessage(request.getDatabaseID() + " does not exist");
             return sr;
-        } 
+        }
 
         statusHandler.debug("Received ifpnetCDF request: " + request);
         Map<String, Object> args = new HashMap<String, Object>();
@@ -103,6 +104,7 @@ public class ExecuteIfpNetCDFGridRequestHandler implements
         args.put("krunch", request.isKrunch());
         args.put("userID", request.getUserID());
         args.put("logFileName", request.getLogFileName());
+        args.put("siteIdOverride", request.getSiteIdOverride());
         IscScriptExecutor executor = new IscScriptExecutor(METHOD_NAME,
                 request.getSiteID(), args);
         String retVal = threadPool.submitSyncJob(executor);

@@ -44,6 +44,9 @@ usage() {
    echo "Script for capturing information about cave/edex and general server health."
    echo 
    echo "Following options allowed"
+   echo -e "-quick"
+   echo "  Turns off jmap and reduces jstack iterations to 5"
+   echo
    echo -e "-c \"{host names}\"\tdefault [$REMOTE_SERVERS_TO_CHECK]"
    echo "  The servers to grab top information from, make sure list is quoted and space delimited"
    echo
@@ -474,6 +477,7 @@ while [ ! -z "$1" ]; do
       -v) GRAB_REMOTE_VMSTAT="$1"; shift 1;;
       -V) RUN_VERSIONS="$1"; shift 1;;
       -z) TGZ_OUTPUT="$1"; shift 1;;
+      -quick) RUN_JMAP="N"; JSTACK_ITERATIONS=5;;
       -h|*) usage;;
    esac
 done

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gfe EDEX Plug-in
 Bundle-SymbolicName: com.raytheon.edex.plugin.gfe
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.15.0.qualifier
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.uf.common.dataplugin.gfe;bundle-version="1.12.1174",
@@ -68,4 +68,4 @@ Import-Package: com.raytheon.edex.db.dao,
  com.raytheon.uf.edex.site,
  org.apache.commons.logging,
  org.hibernate
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7

@@ -27,3 +27,4 @@ Require-Bundle: org.python.pydev,
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: com.raytheon.uf.viz.localization.perspective.editor
+Bundle-ClassPath: com.raytheon.uf.viz.localization.perspective.jar

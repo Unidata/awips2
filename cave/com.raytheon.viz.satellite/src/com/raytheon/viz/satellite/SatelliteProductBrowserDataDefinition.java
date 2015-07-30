@@ -20,11 +20,14 @@ package com.raytheon.viz.satellite;
  * further licensing information.
  **/
 
-import java.util.List;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
-import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.productbrowser.AbstractRequestableProductBrowserDataDefinition;
-import com.raytheon.uf.viz.productbrowser.ProductBrowserPreference;
+import com.raytheon.uf.common.datalisting.impl.DefaultDataListing;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
+import com.raytheon.uf.viz.productbrowser.datalisting.DataListingProductBrowserDefinition;
 import com.raytheon.viz.satellite.rsc.SatResourceData;
 
 /**
@@ -33,47 +36,28 @@ import com.raytheon.viz.satellite.rsc.SatResourceData;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 3, 2010            mnash     Initial creation
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------
+ * May 03, 2010           mnash     Initial creation
+ * Jun 04, 2015  4153     bsteffen  Switch to use a datalisting.
  * 
  * </pre>
  * 
  * @author mnash
  * @version 1.0
  */
-public class SatelliteProductBrowserDataDefinition extends
-        AbstractRequestableProductBrowserDataDefinition<SatResourceData> {
+public class SatelliteProductBrowserDataDefinition extends DataListingProductBrowserDefinition {
 
     public SatelliteProductBrowserDataDefinition() {
-        productName = "satellite";
-        displayName = "Satellite";
-        order = new String[] { "creatingEntity", "sectorID", "physicalElement" };
-        order = getOrder();
-        loadProperties = new LoadProperties();
-        loadProperties.setResourceType(getResourceType());
+        super(new DefaultDataListing("satellite", Arrays.asList("creatingEntity", "sectorID", "physicalElement")));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.productbrowser.AbstractProductBrowserDataDefinition
-     * #getResourceData()
-     */
     @Override
-    public SatResourceData getResourceData() {
-        return new SatResourceData();
+    protected AbstractResourceData createResourceData(Map<String, String> keyVals) {
+        SatResourceData resourceData = new SatResourceData();
+        Map<String, RequestConstraint> constraints = listing.getRequestConstraints(keyVals);
+        resourceData.setMetadataMap(new HashMap<>(constraints));
+        return resourceData;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.productbrowser.xml.IProductBrowserPreferences#
-     * configurePreferences()
-     */
-    @Override
-    public List<ProductBrowserPreference> configurePreferences() {
-        return super.configurePreferences();
-    }
 }

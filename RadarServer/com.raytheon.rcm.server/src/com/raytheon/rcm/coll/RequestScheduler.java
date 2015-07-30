@@ -26,7 +26,7 @@ import org.quartz.impl.StdSchedulerFactory;
 
 import com.raytheon.rcm.config.Configuration;
 import com.raytheon.rcm.config.RadarConfig;
-import com.raytheon.rcm.config.Util;
+import com.raytheon.rcm.config.RcmUtil;
 import com.raytheon.rcm.event.ConfigEvent;
 import com.raytheon.rcm.event.OtrEvent;
 import com.raytheon.rcm.event.RadarEventAdapter;
@@ -40,44 +40,45 @@ import com.raytheon.rcm.server.RadarServer;
 
 /**
  * Represents the standard configuration model of the AWIPS 2 RadarServer.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * ...
  * 2015-02-11   DR 17092   D. Friedman Handle NDM cronOTRs.xml updates.
+ * 2015-06-10   4498       nabowle     Rename Util->RcmUtil
  * </pre>
- *
+ * 
  */
 public class RequestScheduler extends RadarEventAdapter {
 
     // Quartz job detail properties
     private static final String SCHEDULER = "SC";
     private static final String CRON_OTR = "CO";
-    
+
     private RadarServer radarServer;
     private OTRManager otrManager;
 
     private Scheduler scheduler;
-    
+
     private Random random = new Random();
-    
+
     private static JAXBContext jaxbContext;
-    
+
     public RequestScheduler(RadarServer radarServer) {
         this.radarServer = radarServer;
-        
+
         for (RadarEventListener l : radarServer.getListeners()) {
             if (l instanceof OTRManager) {
                 otrManager = (OTRManager) l;
                 break;
             }
         }
-        
+
         if (otrManager == null) {
-            Log.errorf("%s requires an %s which was not found", 
+            Log.errorf("%s requires an %s which was not found",
                     RequestScheduler.class.getSimpleName(),
                     OTRManager.class.getSimpleName());
             return;
@@ -125,7 +126,7 @@ public class RequestScheduler extends RadarEventAdapter {
                     try {
                         trigger.setCronExpression(cronOTR.getCron());
                     } catch (Exception e) {
-                        Log.errorf("Error setting cron \"%s\": %s", 
+                        Log.errorf("Error setting cron \"%s\": %s",
                                 cronOTR.getCron(), e);
                         continue;
                     }
@@ -153,32 +154,33 @@ public class RequestScheduler extends RadarEventAdapter {
             jaxbContext = JAXBContext.newInstance(CronOTRConfiguration.class);
         return jaxbContext;
     }
-    
+
     private static synchronized Unmarshaller createUnmarshaller() throws JAXBException {
         return getJAXBContext().createUnmarshaller();
     }
 
     protected static final TimeZone gmt = new SimpleTimeZone(0, "GMT"); // TimeZone.getTimeZone("GMT+0");
-    
+
     private void runCron(CronOTR cronOTR) {
         Calendar cal = new GregorianCalendar(gmt);
-        
+
         MyOTRHandler handler = null;
         if (cronOTR.isSendSpecified())
             handler = new MyOTRHandler(cronOTR);
         // else, handled by Collector as specified by prodList.txt
 
         for (RadarConfig rc : getCollectedRadars()) {
-            List<Request> requests = cronOTR.createRequests(Util.getRadarType(rc), cal);
+            List<Request> requests = cronOTR.createRequests(
+                    RcmUtil.getRadarType(rc), cal);
             if (requests.size() > 0)
                 otrManager.sendOneTimeRequests(Arrays.asList(rc.getRadarID()),
                         requests, handler);
         }
     }
-    
+
     private List<RadarConfig> getCollectedRadars() {
         Configuration config = radarServer.getConfiguration();
-        ArrayList<RadarConfig> radarIDs = new ArrayList<RadarConfig>();        
+        ArrayList<RadarConfig> radarIDs = new ArrayList<RadarConfig>();
         for (String radarID : config.getConfiguredRadarList()) {
             RadarConfig rc = config.getConfigForRadar(radarID);
             if (isCollectedRadar(rc))
@@ -186,7 +188,7 @@ public class RequestScheduler extends RadarEventAdapter {
         }
         return radarIDs;
     }
-    
+
     private boolean isCollectedRadar(RadarConfig rc) {
         return rc != null && rc.isDedicated() && rc.isCollectionEnabled()
                 && rc.isEnabled();
@@ -201,7 +203,7 @@ public class RequestScheduler extends RadarEventAdapter {
                 // ignore
             }
         }
-        
+
         runCron(cronOTR);
     }
 
@@ -221,11 +223,11 @@ public class RequestScheduler extends RadarEventAdapter {
         public void execute(JobExecutionContext context)
                 throws JobExecutionException {
             JobDataMap jdm = context.getMergedJobDataMap();
-            RequestScheduler scheduler = 
+            RequestScheduler scheduler =
                 (RequestScheduler) jdm.get(SCHEDULER);
             scheduler.runJob((CronOTR) jdm.get(CRON_OTR));
         }
-        
+
     }
 
     private class MyOTRHandler implements OTRHandler {
@@ -240,7 +242,7 @@ public class RequestScheduler extends RadarEventAdapter {
         public void handleOtrEvent(OtrEvent event) {
             byte[] data = event.product;
             int code = Message.messageCodeOf(data);
-            
+
             if (code == Message.REQUEST_RESPONSE)
                 return; // OTR failed
 

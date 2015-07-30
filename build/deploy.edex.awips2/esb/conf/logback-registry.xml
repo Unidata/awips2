@@ -4,45 +4,45 @@
    
    <!-- BandwidthManager log --> 
    <appender name="BandwidthManagerLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="com.raytheon.uf.common.status.logback.StdTimeBasedRollingPolicy">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
          <name>bandwidth</name>
       </rollingPolicy>
-      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
    </appender> 
 
    <!-- data delivery log --> 
    <appender name="DataDeliveryLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="com.raytheon.uf.common.status.logback.StdTimeBasedRollingPolicy">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
          <name>datadelivery</name>
       </rollingPolicy>
-      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
    </appender> 
    
    <!-- data delivery Notification log --> 
    <appender name="NotificationLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="com.raytheon.uf.common.status.logback.StdTimeBasedRollingPolicy">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
          <name>notification</name>
       </rollingPolicy>
-      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
    </appender> 
    
    <!-- data delivery Retrieval log --> 
    <appender name="RetrievalLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="com.raytheon.uf.common.status.logback.StdTimeBasedRollingPolicy">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
          <name>retrieval</name>
       </rollingPolicy>
-      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
    </appender> 
 
    <!-- Purge log -->
    <appender name="PurgeLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="com.raytheon.uf.common.status.logback.StdTimeBasedRollingPolicy">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
          <name>purge</name>
       </rollingPolicy>
-      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
    </appender>
 
-   <appender name="ThreadBasedLog" class="com.raytheon.uf.common.status.logback.ThreadBasedAppender">
+   <appender name="ThreadBasedLog" class="com.raytheon.uf.common.logback.appender.ThreadBasedAppender">
       <defaultAppenderName>console</defaultAppenderName>
       <appender-ref ref="console"/>
    </appender>
@@ -54,7 +54,17 @@
       <level value="WARN" />
    </logger>
    <logger name="org.apache.cxf">
-   	  <level value="ERROR"/>
+         <level value="ERROR"/>
+   </logger>
+   
+  <logger name="org.apache.cxf.interceptor.LoggingOutInterceptor" additivity="false">
+        <level value="WARN"/>
+        <appender-ref ref="DataDeliveryLog"/>
+   </logger>
+
+   <logger name="org.apache.cxf.interceptor.LoggingInInterceptor" additivity="false">
+        <level value="WARN"/>
+        <appender-ref ref="DataDeliveryLog"/>
    </logger>
 
    <logger name="com.raytheon.uf.common.datadelivery" additivity="false">

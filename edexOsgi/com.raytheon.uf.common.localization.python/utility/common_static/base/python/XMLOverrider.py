@@ -27,13 +27,15 @@
 #
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    03/12/13                      mnash        Initial Creation.
+#    03/12/13                      mnash          Initial Creation.
+#    Apr 27, 2015     4259         njensen        Updated for new JEP API
 #
 #
 #
 
 from com.raytheon.uf.common.localization.overrides import XMLOverrider as JavaXMLOverrider
-from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType
+from com.raytheon.uf.common.localization import LocalizationContext
+LocalizationType = LocalizationContext.LocalizationType
 
 def override(name, loctype):
     """

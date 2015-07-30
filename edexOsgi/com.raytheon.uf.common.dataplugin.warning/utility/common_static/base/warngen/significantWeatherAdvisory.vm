@@ -1,23 +1,25 @@
-######################################################
-## SPS - SIGNIFICANT WEATHER ADVISORY               ##
-## WRITTEN BY:                                      ##
-## TOM BIRCHARD WFO HFO/EVAN BOOKBINDER WFO EAX     ##
+###################################################################
+## SPS - SIGNIFICANT WEATHER ADVISORY                            ##
+## WRITTEN BY:                                                   ##
+## TOM BIRCHARD WFO HFO/EVAN BOOKBINDER WFO EAX                  ##
 ## Modified by:                                                  ##
 ##             Phil Kurimski 16 Sep 2013 OB13.5.2-4              ## 
 ##             Evan Bookbinder Sep 18 2013 Implemented config.vm ##
-##             Mike Dangelo 26 June 2014 made inclusion of both watches dependent on GUI bullet choices ##
+##             Mike Dangelo 26 Jun  2014 made inclusion of both  ##
+##                       watches dependent on GUI bullet choices ##
+##             Mike Dangelo 26 Mar 2015 Mixed Case edits         ##
 ###################################################################
 ##
 ##SET SOME INITIAL VARIABLES
 #parse("config.vm")
 #if(${stormType} == "line")
-  #set($report = "A LINE OF STRONG THUNDERSTORMS WERE REPORTED")
-  #set($reportType1 = "LINE OF STRONG THUNDERSTORMS")
-  #set($reportType2 = "THESE STORMS WERE")
+  #set($report = "A line of strong thunderstorms were reported")
+  #set($reportType1 = "line of strong thunderstorms")
+  #set($reportType2 = "these storms were")
 #else
-  #set($report = "A STRONG THUNDERSTORM WAS REPORTED")
-  #set($reportType1 = "STRONG THUNDERSTORM")
-  #set($reportType2 = "THIS STORM WAS")
+  #set($report = "A strong thunderstorm was reported")
+  #set($reportType1 = "strong thunderstorm")
+  #set($reportType2 = "this storm was")
 #end
 #set($windThreat = "")
 #set($hailThreat = "")
@@ -26,50 +28,50 @@
 #### CREATE BASIS WORDING ###################################
 #############################################################
 #if(${list.contains(${bullets}, "doppler")})
-  #set($report = "DOPPLER RADAR WAS TRACKING A ${reportType1}")
-  #set($reportAuthSVR = "CAPABLE OF PRODUCING")
+  #set($report = "Doppler radar was tracking a ${reportType1}")
+  #set($reportAuthSVR = "capable of producing")
 #end
 #if(${list.contains(${bullets}, "stormSpotters")})
-  #set($report = "TRAINED WEATHER SPOTTERS REPORTED A ${reportType1}")
-  #set($reportAuthSVR = "PRODUCING") 
+  #set($report = "trained weather spotters reported a ${reportType1}")
+  #set($reportAuthSVR = "producing") 
 #end
 #if(${list.contains(${bullets}, "lawEnforcement")})
-  #set($report = "LOCAL LAW ENFORCEMENT REPORTED A ${reportType1}")
-  #set($reportAuthSVR = "PRODUCING") 
+  #set($report = "local law enforcement reported a ${reportType1}")
+  #set($reportAuthSVR = "producing") 
 #end
 #if(${list.contains(${bullets}, "emergencyMgmt")})
-  #set($report = "EMERGENCY MANAGEMENT REPORTED A ${reportType1}")
-  #set($reportAuthSVR = "PRODUCING") 
+  #set($report = "emergency management reported a ${reportType1}")
+  #set($reportAuthSVR = "producing") 
 #end
 #if(${list.contains(${bullets}, "public")})
-  #set($report = "THE PUBLIC REPORTED A ${reportType1}")
-  #set($reportAuthSVR = "PRODUCING") 
+  #set($report = "the public reported a ${reportType1}")
+  #set($reportAuthSVR = "producing") 
 #end
 #if(${list.contains(${bullets}, "amateurRadio")})
-  #set($report = "AMATEUR RADIO OPERATORS REPORTED A ${reportType1}")
-  #set($reportAuthSVR = "PRODUCING") 
+  #set($report = "amateur radio operators reported a ${reportType1}")
+  #set($reportAuthSVR = "producing") 
 #end
 ###################################################
 ## HANDLE WIND POSSIBILITIES ######################
 ###################################################
 #set($windSpeed = 0)
 #if(${list.contains(${bullets}, "wind30")})
-  #set($windThreat = "WINDS IN EXCESS OF 30 MPH") 
+  #set($windThreat = "Winds in excess of 30 mph") 
   #set($windSpeed = 30)
   #set($windTag = "30MPH")
 #end
 #if(${list.contains(${bullets}, "wind40")})
-  #set($windThreat = "WINDS IN EXCESS OF 40 MPH") 
+  #set($windThreat = "Winds in excess of 40 mph") 
   #set($windSpeed = 40)
   #set($windTag = "40MPH")
 #end
 #if(${list.contains(${bullets}, "wind50")})
-  #set($windThreat = "WIND GUSTS UP TO 50 MPH") 
+  #set($windThreat = "Wind gusts up to 50 mph") 
   #set($windSpeed = 50)
   #set($windTag = "50MPH")
 #end
 #if(${list.contains(${bullets}, "wind55")})
-  #set($windThreat = "WIND GUSTS OF 50 TO 55 MPH") 
+  #set($windThreat = "Wind gusts of 50 to 55 mph") 
   #set($windSpeed = 50)
   #set($windTag = "55MPH")
 #end
@@ -81,23 +83,23 @@
 #set($smallHail = "")
 #if(${list.contains(${bullets}, "peaHail")})
   #set($hailSize = 0.25)
-  #set($hailThreat = "PEA SIZE") 
-  #set($hailTrail = " HAIL") 
+  #set($hailThreat = "Pea size") 
+  #set($hailTrail = " hail") 
 #end
 #if(${list.contains(${bullets}, "halfHail")})
   #set($hailSize = 0.50)
-  #set($hailThreat = "HALF INCH") 
-  #set($hailTrail = " HAIL") 
+  #set($hailThreat = "Half inch") 
+  #set($hailTrail = " hail") 
 #end
 #if(${list.contains(${bullets}, "dimeHail")})
   #set($hailSize = 0.75)
-  #set($hailThreat = "DIME SIZE") 
-  #set($hailTrail = " HAIL") 
+  #set($hailThreat = "Dime size") 
+  #set($hailTrail = " hail") 
 #end
 #if(${list.contains(${bullets}, "nickelHail")})
   #set($hailSize = 0.88)
-  #set($hailThreat = "NICKEL SIZE") 
-  #set($hailTrail = " HAIL") 
+  #set($hailThreat = "Nickel size") 
+  #set($hailTrail = " hail") 
 #end
 ################################################################
 ######### ~*~*~*~*~*~* BEGIN OUTPUT ~*~*~*~*~*~*~ ##############
@@ -106,22 +108,24 @@
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 SPS${siteId}
 #if(${productClass}=="T")
-TEST...SPECIAL WEATHER STATEMENT...TEST##
+TEST...Special Weather Statement...TEST##
 #else
-SPECIAL WEATHER STATEMENT##
+Special Weather Statement##
 #end
 
-NATIONAL WEATHER SERVICE ${officeShort}
+National Weather Service ${officeShort}
 #backupText(${backupSite})
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
  
 #if(${productClass}=="T")
+
 ...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
  
 #end
+
 ${ugcline}
 #foreach (${area} in ${areas})
-${area.name}##
+#capitalize(${area.name} "ALL")
 #if(${includeStateAbbreviation}==true)
  ${area.stateabbr}##
 #end
@@ -131,18 +135,22 @@ ${area.name}##
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 #if(${productClass}=="T")
+
 THIS IS A TEST MESSAGE. ##
 #end
 #if(${windSpeed} >= 40 || ${hailSize} >= 0.70)
+
 ...SIGNIFICANT WEATHER ADVISORY FOR ##
-###zoneHeadlineLocList(${areas} true true true false) 
+## #zoneHeadlineLocList(${areas} true true true false "ALL") 
 ##REPLACE WITH THE LINE ABOVE WITH THE FOLLOWING IF YOU USE ZONE OUTPUT
-#headlineLocList(${affectedCounties} true true true false) 
- #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone})
+#headlineLocList(${affectedCounties} true true true false "ALL") 
+ UNTIL #headlineExpire(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone})
 ...##
 #elseif(${windSpeed} == 0 && ${hailSize} == 0)
+
 !** YOU DID NOT SELECT ANY WIND OR HAIL THREATS. PLEASE RE-GENERATE THIS ADVISORY **!
 #else
+
 ...SPECIAL WEATHER STATEMENT...
 #end
 
@@ -154,7 +162,7 @@ THIS IS A TEST MESSAGE. ##
 THIS IS A TEST MESSAGE. ##
 #end
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
-...${report} ##
+, ${report} ##
 ##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")
 #handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
@@ -162,31 +170,31 @@ THIS IS A TEST MESSAGE. ##
 #handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceCell})
 #end
 #if(${movementSpeed} < ${landStationary} || ${stationary})
-. ${reportType2} NEARLY STATIONARY. ${smallHail}
+. ${reportType2} nearly stationary. ${smallHail}
 #else
 #if(${stormType} == "line")
-...AND MOVING ## 
+, and moving ## 
 #else
-...MOVING ##
+, moving ##
 #end
-#direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} MPH. ${smallHail}
+#direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} mph. ${smallHail}
 #end
 
 #if(${stormType} == "line")
 #if(${hailThreat} != "" && ${windThreat} != "")
-${hailThreat}${hailTrail} AND ${windThreat} WILL BE POSSIBLE WITH THESE STORMS.
+${hailThreat}${hailTrail} and #capitalize(${windThreat} "NONE") will be possible with these storms.
 #elseif(${hailThreat}=="" && ${windThreat}!="")
-${windThreat} WILL BE POSSIBLE WITH THESE STORMS.
+${windThreat} will be possible with these storms.
 #elseif(${hailThreat}!="" && ${windThreat}=="")
-${hailThreat}${hailTrail} WILL BE POSSIBLE WITH THESE STORMS.
+${hailThreat}${hailTrail} will be possible with these storms.
 #end
 #else
 #if(${hailThreat} != "" && ${windThreat} != "")
-${hailThreat}${hailTrail} AND ${windThreat} WILL BE POSSIBLE WITH THIS STORM.
+${hailThreat}${hailTrail} and ${windThreat} will be possible with this storm.
 #elseif(${hailThreat}=="" && ${windThreat}!="")
-${windThreat} WILL BE POSSIBLE WITH THIS STORM.
+${windThreat} will be possible with this storm.
 #elseif(${hailThreat}!="" && ${windThreat}=="")
-${hailThreat}${hailTrail} WILL BE POSSIBLE WITH THIS STORM.
+${hailThreat}${hailTrail} will be possible with this storm.
 #end
 #end
 
@@ -198,17 +206,17 @@ THIS IS A TEST MESSAGE. ##
 ######## GENERATE PATHCAST OR CITIES LIST #########
 ###################################################
 #if(${stormType} == "line")
-#set($pathcastLead = "STRONG THUNDERSTORMS")
-#set($otherLead = "THESE STORMS")
+#set($pathcastLead = "Strong thunderstorms")
+#set($otherLead = "These storms")
 #else 
-#set($pathcastLead = "THIS STRONG THUNDERSTORM")
-#set($otherLead = "THIS STORM")
+#set($pathcastLead = "This strong thunderstorm")
+#set($otherLead = "This storm")
 #end
 #if(${list.contains(${bullets}, "pathcast")})
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
-#pathCast("${pathcastLead} WILL BE NEAR..." ${otherLead} ${pathCast} ${otherPoints} ${affectedCounties} ${dateUtil} ${timeFormat} 0) 
+#pathCast("${pathcastLead} will be near..." ${otherLead} ${pathCast} ${otherPoints} ${affectedCounties} ${dateUtil} ${timeFormat} 0) 
 
 #elseif(${list.contains(${bullets}, "listofcities")})
 #if(${productClass}=="T")
@@ -218,7 +226,7 @@ THIS IS A TEST MESSAGE. ##
 #### 0 IS A ... SEPARATED LIST, 1 IS ONE PER LINE, >1 IS A COLUMN FORMAT
 #### IF YOU USE SOMETHING OTHER THAN "LOCATIONS IMPACTED INCLUDE" LEAD IN BELOW, MAKE SURE THE
 #### ACCOMPANYING XML FILE PARSE STRING IS CHANGED TO MATCH!
-#locationsList("LOCATIONS IMPACTED INCLUDE..." ${otherLead} 0 ${cityList} ${otherPoints} ${affectedCounties} ${dateUtil} ${timeFormat} 0)
+#locationsList("Locations impacted include..." ${otherLead} 0 ${cityList} ${otherPoints} ${affectedCounties} ${dateUtil} ${timeFormat} 0)
 
 #end
 ##############################################
@@ -227,10 +235,10 @@ THIS IS A TEST MESSAGE. ##
 ##############################################
 #if(${list.contains(${bullets}, "specialEvent")})
 #if(${stormType} == "line")
-THOSE ATTENDING THE !**event/venue name or location**! ARE IN THE PATH OF THESE STORMS AND SHOULD PREPARE FOR IMMINENT DANGEROUS WEATHER CONDITIONS. 
+Those attending the !**EVENT/VENUE NAME OR LOCATION**! are in the path of these storms and should prepare for imminent dangerous weather conditions. 
 
 #else
-THOSE ATTENDING THE !**event/venue name or location**! ARE IN THE PATH OF THIS STORM AND SHOULD PREPARE FOR IMMINENT DANGEROUS WEATHER CONDITIONS. 
+Those attending the !**EVENT/VENUE NAME OR LOCATION**! are in the path of this storm and should prepare for imminent dangerous weather conditions. 
 
 #end
 #end
@@ -260,20 +268,20 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
  
 #if(${list.contains(${bullets}, "torrentialRainfallCTA")})
 #if(${stormType} == "line")
-TORRENTIAL RAINFALL IS ALSO OCCURRING WITH THESE STORMS...AND MAY LEAD TO FLASH FLOODING. DO NOT DRIVE YOUR VEHICLE THROUGH FLOODED ROADWAYS.
+Torrential rainfall is also occurring with these storms, and may lead to flash flooding. Do not drive your vehicle through flooded roadways.
 
 #else
-TORRENTIAL RAINFALL IS ALSO OCCURRING WITH THIS STORM...AND MAY LEAD TO FLASH FLOODING. DO NOT DRIVE YOUR VEHICLE THROUGH FLOODED ROADWAYS.
+Torrential rainfall is also occurring with this storm, and may lead to flash flooding. Do not drive your vehicle through flooded roadways.
 
 #end
 #end
 
 #if(${list.contains(${bullets}, "lightningCTA")})
 #if(${stormType} == "line")
-FREQUENT CLOUD TO GROUND LIGHTNING IS OCCURRING WITH THESE STORMS. LIGHTNING CAN STRIKE 15 MILES AWAY FROM A THUNDERSTORM. SEEK A SAFE SHELTER INSIDE A BUILDING OR VEHICLE.
+Frequent cloud to ground lightning is occurring with these storms. Lightning can strike 15 miles away from a thunderstorm. Seek a safe shelter inside a building or vehicle.
 
 #else
-FREQUENT CLOUD TO GROUND LIGHTNING IS OCCURRING WITH THIS STORM. LIGHTNING CAN STRIKE 15 MILES AWAY FROM A THUNDERSTORM. SEEK A SAFE SHELTER INSIDE A BUILDING OR VEHICLE.
+Frequent cloud to ground lightning is occurring with this storm. Lightning can strike 15 miles away from a thunderstorm. Seek a safe shelter inside a building or vehicle.
 
 #end
 #end
@@ -281,23 +289,23 @@ FREQUENT CLOUD TO GROUND LIGHTNING IS OCCURRING WITH THIS STORM. LIGHTNING CAN S
 
 #if(${list.contains(${bullets}, "stormIntensify")})
 #if(${stormType} == "line")
-THESE STORMS MAY INTENSIFY...SO BE CERTAIN TO MONITOR LOCAL RADIO AND TV STATIONS...AS WELL AS LOCAL CABLE TV OUTLETS...FOR ADDITIONAL INFORMATION AND POSSIBLE WARNINGS FROM THE NATIONAL WEATHER SERVICE. 
+These storms may intensify, so be certain to monitor local radio stations and available television stations for additional information and possible warnings from the National Weather Service. 
 
 #else
-THIS STORM MAY INTENSIFY...SO BE CERTAIN TO MONITOR LOCAL RADIO AND TV STATIONS...AS WELL AS LOCAL CABLE TV OUTLETS...FOR ADDITIONAL INFORMATION AND POSSIBLE WARNINGS FROM THE NATIONAL WEATHER SERVICE. 
+This storm may intensify, so be certain to monitor local radio stations and available television stations for additional information and possible warnings from the National Weather Service. 
 
 #end
 #end
 ##
 
 #if(${list.contains(${bullets}, "lawEnforcementCTA")})
-TO REPORT SEVERE WEATHER...CONTACT YOUR NEAREST LAW ENFORCEMENT AGENCY. THEY WILL RELAY YOUR REPORT TO THE NATIONAL WEATHER SERVICE OFFICE IN ${officeLoc}.
+To report severe weather, contact your nearest law enforcement agency. They will relay your report to the National Weather Service office in ${officeLoc}.
 
 #end
 ##
 
 #if(${list.contains(${bullets}, "boatersCTA")})
-IF ON OR NEAR !**Name Of Lake**!...GET OUT OF THE WATER AND MOVE INDOORS OR INSIDE A VEHICLE. REMEMBER...LIGHTNING CAN STRIKE OUT TO 15 MILES FROM THE PARENT THUNDERSTORM. IF YOU CAN HEAR THUNDER...YOU ARE CLOSE ENOUGH TO BE STRUCK BY LIGHTNING. MOVE TO SAFE SHELTER NOW. DO NOT BE CAUGHT ON THE WATER IN A THUNDERSTORM.
+If on or near !**NAME OF LAKE**!, get out of the water and move indoors or inside a vehicle. Remember, lightning can strike out to 15 miles from the parent thunderstorm. If you can hear thunder, you are close enough to be struck by lightning. Move to safe shelter now! Do not be caught on the water in a thunderstorm.
 
 #end
 

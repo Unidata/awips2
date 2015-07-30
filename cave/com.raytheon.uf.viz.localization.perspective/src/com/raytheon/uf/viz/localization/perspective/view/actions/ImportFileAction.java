@@ -51,7 +51,8 @@ import com.raytheon.viz.ui.VizWorkbenchManager;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 1, 2011            mschenke     Initial creation
+ * Nov  1, 2011            mschenke     Initial creation
+ * Jun 11, 2015 4541       skorolev     Added NULL test for lf.
  * 
  * </pre>
  * 
@@ -69,11 +70,11 @@ public class ImportFileAction extends Action {
 
     private static final String ASTERISK = "*";
 
-    private String directoryPath;
+    private final String directoryPath;
 
-    private LocalizationType contextType;
+    private final LocalizationType contextType;
 
-	private String[] fileExtensionFilterArr;
+    private String[] fileExtensionFilterArr;
 
     public ImportFileAction(LocalizationType contextType, String directoryPath) {
         super("Import File...");
@@ -81,22 +82,23 @@ public class ImportFileAction extends Action {
         this.directoryPath = directoryPath;
     }
 
-    public ImportFileAction(LocalizationType contextType, String directoryPath, String[] filter) {
-    	this(contextType, directoryPath);
-		if (filter != null) {
-			this.fileExtensionFilterArr = new String[filter.length];
-			for (int i = 0; i < filter.length; ++i) {
-				if (filter[i] != null && filter[i].startsWith(".")) {
-					// prepend an asterisk as required by FileDialog.
-					this.fileExtensionFilterArr[i] = ASTERISK + filter[i];
-				} else {
-					this.fileExtensionFilterArr[i] = filter[i];
-				}
-			}
-		}
-	}
+    public ImportFileAction(LocalizationType contextType, String directoryPath,
+            String[] filter) {
+        this(contextType, directoryPath);
+        if (filter != null) {
+            this.fileExtensionFilterArr = new String[filter.length];
+            for (int i = 0; i < filter.length; ++i) {
+                if (filter[i] != null && filter[i].startsWith(".")) {
+                    // prepend an asterisk as required by FileDialog.
+                    this.fileExtensionFilterArr[i] = ASTERISK + filter[i];
+                } else {
+                    this.fileExtensionFilterArr[i] = filter[i];
+                }
+            }
+        }
+    }
 
-	/*
+    /*
      * (non-Javadoc)
      * 
      * @see org.eclipse.jface.action.Action#run()
@@ -107,7 +109,7 @@ public class ImportFileAction extends Action {
                 .getShell();
         FileDialog dialog = new FileDialog(parent);
         if (fileExtensionFilterArr != null) {
-        	dialog.setFilterExtensions(fileExtensionFilterArr);
+            dialog.setFilterExtensions(fileExtensionFilterArr);
         }
         String fileToImport = dialog.open();
         if (fileToImport != null) {
@@ -137,9 +139,16 @@ public class ImportFileAction extends Action {
             LocalizationFile lf = pm.getLocalizationFile(
                     pm.getContext(contextType, LocalizationLevel.USER),
                     newFilePath);
-            localizationFiles.add(lf);
-            if (lf.exists()) {
-                existing.add(lf);
+            if ((lf != null) && !lf.isProtected()) {
+                localizationFiles.add(lf);
+                if (lf.exists()) {
+                    existing.add(lf);
+                }
+            } else {
+                statusHandler
+                        .handle(Priority.WARN,
+                                newFilePath
+                                        + " is protected. A user level version of this file is not allowed to be created.");
             }
         }
 
@@ -164,14 +173,16 @@ public class ImportFileAction extends Action {
         int addCount = 0;
         for (int i = 0; i < applicable.size(); ++i) {
             File importFile = applicable.get(i);
-            LocalizationFile lf = localizationFiles.get(i);
-            if (skip.contains(lf) == false) {
-                try {
-                    lf.write(FileUtil.file2bytes(importFile));
-                    ++addCount;
-                } catch (Exception e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error importing file into localization", e);
+            if (!localizationFiles.isEmpty()) {
+                LocalizationFile lf = localizationFiles.get(i);
+                if (skip.contains(lf) == false) {
+                    try {
+                        lf.write(FileUtil.file2bytes(importFile));
+                        ++addCount;
+                    } catch (Exception e) {
+                        statusHandler.handle(Priority.PROBLEM,
+                                "Error importing file into localization", e);
+                    }
                 }
             }
         }
@@ -180,9 +191,9 @@ public class ImportFileAction extends Action {
 
     private static class MultiConfirmDialog extends MessageDialog {
 
-        private List<LocalizationFile> confirmedFiles;
+        private final List<LocalizationFile> confirmedFiles;
 
-        private List<LocalizationFile> existingFiles;
+        private final List<LocalizationFile> existingFiles;
 
         private int curIdx = 0;
 

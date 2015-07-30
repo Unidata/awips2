@@ -50,10 +50,13 @@ import com.vividsolutions.jts.operation.valid.IsValidOp;
  * This tool allows the user to hand draw/modify an edit area
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Apr 16, 2008		#1075	randerso	Initial creation
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Apr 16, 2008     #1075  randerso     Initial creation
+ * Apr 01, 2015     #4353  dgilling     Improve logging of Geometry validation errors.
  * 
  * </pre>
  * 
@@ -97,27 +100,6 @@ public class SelectPointsTool extends AbstractFreeformTool {
         polygonizer.add(nodedLines);
         Collection<Polygon> polygons = polygonizer.getPolygons();
 
-        // Collection<?> dangles = polygonizer.getDangles();
-        // if (dangles != null && dangles.size() > 0) {
-        // StringBuilder s = new StringBuilder(
-        // "Edit area contains dangling lines.");
-        // for (Object g : dangles) {
-        // s.append("\n" + g);
-        // }
-        // UFStatus.handle(Priority.PROBLEM, Activator.PLUGIN_ID,
-        // StatusConstants.CATEGORY_GFE, null, s.toString());
-        // }
-        //
-        // Collection<?> cutEdges = polygonizer.getCutEdges();
-        // if (cutEdges != null && cutEdges.size() > 0) {
-        // StringBuilder s = new StringBuilder("Edit area contains cut edges.");
-        // for (Object g : cutEdges) {
-        // s.append("\n" + g);
-        // }
-        // UFStatus.handle(Priority.PROBLEM, Activator.PLUGIN_ID,
-        // StatusConstants.CATEGORY_GFE, null, s.toString());
-        // }
-
         // create a multipolygon from the collection of polygons
         Geometry g = gf.createMultiPolygon(polygons
                 .toArray(new Polygon[polygons.size()]));
@@ -133,7 +115,8 @@ public class SelectPointsTool extends AbstractFreeformTool {
         }
 
         if (mp != null) {
-            if (mp.isValid()) {
+            IsValidOp validOp = new IsValidOp(mp);
+            if (validOp.isValid()) {
                 // create the reference data
                 ReferenceData refData = new ReferenceData(this.dataManager
                         .getParmManager().compositeGridLocation(),
@@ -151,15 +134,8 @@ public class SelectPointsTool extends AbstractFreeformTool {
             } else {
                 StringBuilder s = new StringBuilder();
                 s.append("Edit area contains invalid polygons.\n");
-                IsValidOp validOp = new IsValidOp(mp);
                 s.append(validOp.getValidationError());
-                for (int i = 0; i < mp.getNumGeometries(); i++) {
-                    Polygon p = (Polygon) mp.getGeometryN(i);
-                    if (!p.isValid()) {
-                        s.append("\n" + p);
-                    }
-                }
-                statusHandler.handle(Priority.PROBLEM, s.toString());
+                statusHandler.error(s.toString());
             }
         }
     }

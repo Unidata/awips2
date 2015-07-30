@@ -17,15 +17,23 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+#    
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    ??/??/????       ????         njensen        Modified to add __repr__
+#    06/22/2015       4573         randerso       Change to extend GfeNotification
+#
+##    
 
-# File auto-generated against equivalent DynamicSerialize Java class
-# Modified by njensen to add __repr__
+import GfeNotification
 
-class LockNotification(object):
+class LockNotification(GfeNotification.GfeNotification):
 
     def __init__(self):
+        super(LockNotification, self).__init__()
         self.lockTable = None
-        self.siteID = None
 
     def getLockTable(self):
         return self.lockTable
@@ -33,12 +41,6 @@ class LockNotification(object):
     def setLockTable(self, lockTable):
         self.lockTable = lockTable
 
-    def getSiteID(self):
-        return self.siteID
-
-    def setSiteID(self, siteID):
-        self.siteID = siteID
-    
-    def __repr__(self):
+    def __str__(self):
         return str(self.lockTable)
 

@@ -34,6 +34,7 @@
 # Oct 10, 2014  #3675     njensen     Logback now does console logging to ensure correct pid 
 # Oct 13, 2014  #3675     bclement    startup shutdown log includes both launching pid and placeholder
 # Jan 28, 2015  #4018     randerso    Added a productEditor log file to changes in the GFE product editor
+# Jun 17, 2015  #4148     rferrel     Logback needs fewer environment variables.
 # Jul 23, 2015  ASM#13849 D. Friedman Use a unique Eclipse configuration directory
 #
 
@@ -73,7 +74,6 @@ deleteOldCaveDiskCaches &
 ulimit -c unlimited >> /dev/null 2>&1
 
 export LD_LIBRARY_PATH=${JAVA_INSTALL}/lib:${PYTHON_INSTALL}/lib:$LD_LIBRARY_PATH
-export LD_PRELOAD=libpython.so
 if [[ -z "$CALLED_EXTEND_LIB_PATH" ]]; then
     extendLibraryPath
 fi
@@ -196,7 +196,7 @@ then
 fi
 
 BASE_LOGDIR=$HOME/caveData/logs/consoleLogs
-LOGDIR=$BASE_LOGDIR/$hostName/
+export LOGDIR=$BASE_LOGDIR/$hostName/
 
 # make sure directory exists
 if [ ! -d $LOGDIR ]; then
@@ -216,13 +216,6 @@ createEclipseConfigurationDir
 # At this point fork so that log files can be set up with the process pid and
 # this process can log the exit status of cave.
 (
-  # we include the PID of the launching process along with
-  # a %PID% placeholder to be replaced with the "real" PID
-  export LOGFILE_CAVE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_%PID%_logs.log"
-  export LOGFILE_CONSOLE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_%PID%_console.log"
-  export LOGFILE_PERFORMANCE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_%PID%_perf.log"
-  export LOGFILE_PRODUCT_EDITOR="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_%PID%_productEditor.log"
-
   # can we write to log directory
   if [ -w ${LOGDIR} ]; then
     touch ${LOGFILE_STARTUP_SHUTDOWN}

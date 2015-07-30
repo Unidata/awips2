@@ -21,13 +21,18 @@ package com.raytheon.uf.edex.metartohmdb.dao;
 
 import java.util.Calendar;
 
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
- * TODO Add Description
+ * Dao for HMDBReport.
  * 
  * <pre>
  * 
@@ -37,7 +42,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * ------------ ---------- ----------- --------------------------
  * Jun 29, 2009            jkorman     Initial creation
  * Sep 18, 2014 #3627      mapeters    Updated deprecated {@link TimeTools} usage.
- * 
+ * Jun 18, 2015 4500       rjpeter     Fix SQL Injection concern.
  * </pre>
  * 
  * @author jkorman
@@ -46,7 +51,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
 public class HMDBRptDao extends CoreDao {
 
     private static final Object LOCK = new Object();
-    
+
     public HMDBRptDao() {
         super(DaoConfig.forClass("hmdb", HMDBReport.class));
     }
@@ -58,43 +63,46 @@ public class HMDBRptDao extends CoreDao {
      */
     public boolean storeToTable(HMDBReport report) {
         boolean status = true;
-        synchronized(LOCK) {
+        synchronized (LOCK) {
             logger.debug("SQL = " + report.toInsertSQL());
             try {
                 status = (executeSQLUpdate(report.toInsertSQL()) == 1);
-            } catch(Exception e) {
+            } catch (Exception e) {
                 logger.error("Insert query = " + report.toInsertSQL());
                 logger.error("Error writing to rpt table", e);
             }
         }
         return status;
     }
-    
+
     /**
      * 
      * @return
      */
-    public boolean purgeTable(int purgeHours) {
+    public boolean purgeTable(final int purgeHours) {
         boolean status = true;
-        
-        Calendar c = TimeUtil.newGmtCalendar();
-        c.add(Calendar.HOUR_OF_DAY,-purgeHours);
-        
-        StringBuilder sb = new StringBuilder("delete from rpt where nominal < ");
-        sb.append(String.format(HMDBReport.DTFMT, c));
-        sb.append(";");
-
-        String query = sb.toString();
+        final StringBuilder queryString = new StringBuilder();
         try {
-            logger.debug("Delete query = " + query);
-            
-            executeNativeSql(query);
-        } catch(Exception e) {
-            logger.error("Purge query = " + query);
-            logger.error("Error in purging hmdb.rpt",e);
+            txTemplate.execute(new TransactionCallback<Integer>() {
+                @Override
+                public Integer doInTransaction(TransactionStatus status) {
+                    Calendar c = TimeUtil.newGmtCalendar();
+                    c.add(Calendar.HOUR_OF_DAY, -purgeHours);
+
+                    Session sess = getCurrentSession();
+                    Query query = sess
+                            .createSQLQuery("delete from rpt where nominal < :nominal");
+                    query.setCalendar("nominal", c);
+                    queryString.append(query.getQueryString());
+                    return query.executeUpdate();
+                }
+            });
+        } catch (Exception e) {
+            logger.error("Purge query = " + queryString);
+            logger.error("Error in purging hmdb.rpt", e);
             status = false;
         }
         return status;
     }
-    
+
 }

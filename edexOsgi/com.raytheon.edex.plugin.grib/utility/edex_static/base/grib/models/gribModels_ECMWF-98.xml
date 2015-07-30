@@ -11,6 +11,16 @@
 <gribModelSet>
 
 	<!-- SUBCENTER 0 -->
+    <model>
+       <name>ECMWF-wave-guidance</name>
+       <center>98</center>
+       <subcenter>0</subcenter>
+       <grid>ECMWF-wave-0p25deg</grid>
+       <process>
+          <id>110</id>
+       </process>
+    </model>
+    
 	<model>
 		<name>ecmwfP25</name>
 		<center>98</center>

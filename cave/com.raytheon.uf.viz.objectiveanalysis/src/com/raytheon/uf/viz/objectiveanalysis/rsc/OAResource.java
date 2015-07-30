@@ -67,7 +67,11 @@ import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.grid.display.GriddedImageDisplay;
+import com.raytheon.uf.viz.core.grid.display.GriddedVectorDisplay;
+import com.raytheon.uf.viz.core.grid.display.GriddedImageDisplay.GriddedImagePaintProperties;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
+import com.raytheon.uf.viz.core.point.display.VectorGraphicsConfig;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
@@ -82,10 +86,6 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedContourDisplay;
-import com.raytheon.viz.core.contours.rsc.displays.GriddedVectorDisplay;
-import com.raytheon.viz.core.contours.util.VectorGraphicsConfig;
-import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay;
-import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay.GriddedImagePaintProperties;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**

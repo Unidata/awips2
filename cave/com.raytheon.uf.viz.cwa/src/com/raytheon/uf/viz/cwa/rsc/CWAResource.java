@@ -1,29 +1,35 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 package com.raytheon.uf.viz.cwa.rsc;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -35,6 +41,10 @@ import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.ISimulatedTimeChangeListener;
+import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.viz.core.AbstractTimeMatcher;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IFont;
@@ -45,11 +55,12 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
-import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
+import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
+import com.raytheon.uf.viz.core.time.TimeMatchingJob;
 import com.raytheon.viz.pointdata.PointDataRequest;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -59,27 +70,25 @@ import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * Resource for Center Weather Advisory
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 4, 2010             jsanchez     Initial creation
  * Jun 10,2011  9744       cjeanbap     Added Magnification, Outline, and Density
  *                                      compabilities.
+ * May 11, 2015 4379       nabowle      Display all current CWAs for each frame.
+ * Jun 15, 2015 4379       nabowle      Make last frame a live frame.
  * </pre>
- * 
+ *
  * @author jsanchez
  * @version 1.0
  */
 public class CWAResource extends
         AbstractVizResource<CWAResourceData, MapDescriptor> implements
-        IResourceDataChanged {
-
-    protected DataTime displayedDataTime;
-
-    private Map<DataTime, CWAFrame> frameMap;
+        ISimulatedTimeChangeListener {
 
     private static final String LATS = "latitudes";
 
@@ -95,6 +104,24 @@ public class CWAResource extends
 
     private static final String CWA_NAME = "Conus Center Weather Advisory";
 
+    private static final String DATA_TIME = "dataTime";
+
+    private static final String REF_TIME = "refTime";
+
+    private static final String END = DATA_TIME + ".validPeriod.end";
+
+    private static final String START = DATA_TIME + ".validPeriod.start";
+
+    protected static RefreshTimerTask refreshTask;
+
+    protected static Timer refreshTimer;
+
+    protected DataTime displayedDataTime;
+
+    private Map<DataTime, CWAFrame> frameMap;
+
+    private CWAFrame liveFrame = new CWAFrame(now());
+
     private IFont font;
 
     private class CWAFrame implements IRenderable {
@@ -102,30 +129,21 @@ public class CWAResource extends
 
         private PointDataContainer pdc;
 
+        private List<PointDataView> framePdvs;
+
         private IWireframeShape wfs;
 
         private List<DrawableString> strings;
 
-        private List<CWARecord> recordsToParse;
-
         private CWAFrame(DataTime time) {
             this.time = time;
             strings = new ArrayList<DrawableString>();
-            recordsToParse = new ArrayList<CWARecord>();
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see
-         * com.raytheon.uf.viz.core.drawables.IRenderable#paint(com.raytheon
-         * .uf.viz.core.IGraphicsTarget,
-         * com.raytheon.uf.viz.core.drawables.PaintProperties)
-         */
         @Override
         public void paint(IGraphicsTarget target, PaintProperties paintProps)
                 throws VizException {
-            synchronized (recordsToParse) {
+            synchronized (this) {
                 if (wfs == null) {
                     updateFrame(target, paintProps);
                 }
@@ -147,38 +165,32 @@ public class CWAResource extends
             target.drawStrings(strings);
         }
 
-        public void addRecord(CWARecord record) {
-            synchronized (recordsToParse) {
-                recordsToParse.add(record);
-            }
-        }
-
         /**
          * @param target
          * @param paintProps
          */
         private void updateFrame(IGraphicsTarget target,
                 PaintProperties paintProps) throws VizException {
+            Map<String, RequestConstraint> constraints = new HashMap<>();
+            String startTime = TimeUtil.formatToSqlTimestamp(time.getRefTime());
+
+            // Select CWAs whose valid period contains this frame's start time.
             RequestConstraint constraint = new RequestConstraint();
-            Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>();
-            PointDataContainer pdc;
+            constraint.setConstraintType(ConstraintType.LESS_THAN_EQUALS);
+            constraint.setConstraintValue(startTime);
+            constraints.put(START, constraint);
 
-            for (CWARecord record : recordsToParse) {
-                constraint.setConstraintType(ConstraintType.IN);
-                constraint.addToConstraintValueList(record.getDataURI());
-            }
-            constraints.put("dataURI", constraint);
+            constraint = new RequestConstraint();
+            constraint.setConstraintType(ConstraintType.GREATER_THAN_EQUALS);
+            constraint.setConstraintValue(startTime);
+            constraints.put(END, constraint);
+
             // Request the point data
-            pdc = PointDataRequest.requestPointDataAllLevels(time, resourceData
-                    .getMetadataMap().get("pluginName").getConstraintValue(),
+            this.pdc = PointDataRequest
+                    .requestPointDataAllLevels((DataTime) null,
+                    resourceData.getMetadataMap().get("pluginName")
+                            .getConstraintValue(),
                     getParameters(), null, constraints);
-
-            if (this.pdc == null) {
-                this.pdc = pdc;
-            } else {
-                this.pdc.combine(pdc);
-                this.pdc.setCurrentSz(this.pdc.getAllocatedSz());
-            }
 
             if (wfs != null) {
                 wfs.dispose();
@@ -186,9 +198,15 @@ public class CWAResource extends
             strings.clear();
 
             wfs = target.createWireframeShape(false, descriptor);
-            for (int uriCounter = 0; uriCounter < pdc.getAllocatedSz(); uriCounter++) {
-                PointDataView pdv = pdc.readRandom(uriCounter);
 
+            if (this.pdc == null) {
+                // nothing met the query restraints
+                this.framePdvs = Collections.emptyList();
+            } else {
+                this.framePdvs = getPDVs();
+            }
+
+            for (PointDataView pdv : this.framePdvs) {
                 Coordinate rightMost = new Coordinate(-9999, 0);
                 int numOfPoints = pdv.getNumber(NUM_OF_POINTS).intValue();
                 Number[] latitudes = pdv.getNumberAllLevels(LATS);
@@ -228,9 +246,79 @@ public class CWAResource extends
             wfs.compile();
         }
 
+        /**
+         * Get the list of PointDataViews. PointDataViews that share an event id
+         * will be deduplicated to the most recent record for that event id.
+         *
+         * @return The list of PointDataViews.
+         * @throws VizException
+         */
+        private List<PointDataView> getPDVs() throws VizException {
+            Map<String, PointDataView> eventIdMap = new HashMap<>();
+            PointDataView pdv;
+            PointDataView pdv2;
+            String eventId;
+            for (int uriCounter = 0; uriCounter < pdc.getAllocatedSz(); uriCounter++) {
+                pdv = pdc.readRandom(uriCounter);
+                eventId = pdv.getString(EVENT_ID);
+
+                /*
+                 * CWAs may be updated and reissued with the same eventId. In
+                 * this case, display only the latest CWA for that eventId for
+                 * this frame so we don't end up with overlapping and/or
+                 * outdated CWAs. Outdated CWAs will still be the most recent
+                 * for their eventId the frame at their reftime.
+                 */
+                /*
+                 * FIXME - outdated CWAs may still be viewable on future frames
+                 * if the validTo date was shortened.
+                 */
+                pdv2 = eventIdMap.get(eventId);
+                if (pdv2 == null
+                        || pdv.getLong(REF_TIME) > pdv2.getLong(REF_TIME)) {
+                    eventIdMap.put(eventId, pdv);
+                }
+            }
+
+            List<PointDataView> pdvs = new ArrayList<>();
+            pdvs.addAll(eventIdMap.values());
+
+            return pdvs;
+        }
+
         public void dispose() {
             if (wfs != null) {
                 wfs.dispose();
+            }
+        }
+    }
+
+    protected static class RefreshTimerTask extends TimerTask {
+
+        private final Set<CWAResource> resourceSet = new HashSet<>();
+
+        @Override
+        public void run() {
+            List<CWAResource> rscs;
+            synchronized (resourceSet) {
+                rscs = new ArrayList<>(resourceSet);
+            }
+            for (CWAResource rsc : rscs) {
+                rsc.updateLiveFrame(now());
+                rsc.issueRefresh();
+                rsc.redoTimeMatching();
+            }
+        }
+
+        public void addResource(CWAResource rsc) {
+            synchronized (resourceSet) {
+                resourceSet.add(rsc);
+            }
+        }
+
+        public void removeResource(CWAResource rsc) {
+            synchronized (resourceSet) {
+                resourceSet.remove(rsc);
             }
         }
     }
@@ -242,19 +330,66 @@ public class CWAResource extends
         this.dataTimes = new ArrayList<DataTime>();
     }
 
+    /**
+     * Cancel the heart beat timer task
+     *
+     * @param resource
+     */
+    protected static void cancelRefreshTask(CWAResource resource) {
+        synchronized (RefreshTimerTask.class) {
+            if (refreshTask != null) {
+                refreshTask.removeResource(resource);
+                if (refreshTask.resourceSet.isEmpty()) {
+                    refreshTimer.cancel();
+                    refreshTimer = null;
+                    refreshTask = null;
+                }
+            }
+        }
+    }
+
+    /**
+     * schedule the heart beat for the next minute
+     */
+    protected static void scheduleRefreshTask(CWAResource resource) {
+        synchronized (RefreshTimerTask.class) {
+            if (refreshTask == null) {
+                refreshTimer = new Timer(true);
+                refreshTask = new RefreshTimerTask();
+
+                Calendar cal = Calendar.getInstance();
+                cal.add(Calendar.MINUTE, 1);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+
+                refreshTimer.scheduleAtFixedRate(refreshTask, cal.getTime(),
+                        TimeUtil.MILLIS_PER_MINUTE);
+            }
+            refreshTask.addResource(resource);
+        }
+    }
+
+    /**
+     * Get the current/simulated time to the minute. Seconds and Milliseconds
+     * will be zero so a consistent time can be used each minute when retrieving
+     * from the frame map.
+     *
+     * @return
+     */
+    public static DataTime now() {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(SimulatedTime.getSystemTime().getTime());
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+
+        return new DataTime(cal);
+    }
+
     @Override
     public String getName() {
         return CWA_NAME;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#paintInternal(com.raytheon
-     * .uf.viz.core.IGraphicsTarget,
-     * com.raytheon.uf.viz.core.drawables.PaintProperties)
-     */
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
@@ -273,6 +408,7 @@ public class CWAResource extends
 
     @Override
     protected void disposeInternal() {
+        cancelRefreshTask(this);
         if (font != null) {
             font.dispose();
             font = null;
@@ -290,6 +426,9 @@ public class CWAResource extends
     protected void initInternal(IGraphicsTarget target) throws VizException {
         this.font = target.initializeFont("Monospace", 11,
                 new Style[] { Style.ITALIC });
+        updateLiveFrame(now());
+        scheduleRefreshTask(this);
+        SimulatedTime.getSystemTime().addSimulatedTimeChangeListener(this);
     }
 
     @Override
@@ -299,9 +438,7 @@ public class CWAResource extends
             return "NO DATA";
         }
 
-        for (int uriCounter = 0; uriCounter < frame.pdc.getAllocatedSz(); uriCounter++) {
-            PointDataView pdv = frame.pdc.readRandom(uriCounter);
-
+        for (PointDataView pdv : frame.framePdvs) {
             Coordinate rightMost = new Coordinate(-9999, 0);
             int numOfPoints = pdv.getNumber(NUM_OF_POINTS).intValue();
             Number[] latitudes = pdv.getNumberAllLevels(LATS);
@@ -323,6 +460,16 @@ public class CWAResource extends
                 }
                 temp[numOfPoints] = temp[0];
                 coordinates = temp;
+            }
+
+            /*
+             * FIXME - quick fix for 3-point lines since you can't create a
+             * linear ring from the line. Adding a fourth point doesn't add
+             * value since contains() will return false, or at least did while
+             * testing.
+             */
+            if (coordinates.length < 4) {
+                continue;
             }
 
             // GeometryFactory factory = new GeometryFactory();
@@ -369,7 +516,7 @@ public class CWAResource extends
 
     /**
      * Adds a new record to this resource
-     * 
+     *
      * @param obj
      */
     protected void addRecord(CWARecord obj) {
@@ -380,13 +527,12 @@ public class CWAResource extends
                 frame = new CWAFrame(dataTime);
                 frameMap.put(dataTime, frame);
             }
-            frame.addRecord(obj);
         }
     }
 
     private String[] getParameters() {
         return new String[] { LATS, LONS, EVENT_ID, DIMENSION, TEXT,
-                NUM_OF_POINTS };
+                NUM_OF_POINTS, REF_TIME };
     }
 
     public class CoordinateComparator implements Comparator<Coordinate> {
@@ -401,18 +547,13 @@ public class CWAResource extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.IResourceDataChanged#resourceChanged(com
-     * .raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType,
-     * java.lang.Object)
+    /**
+     * Handle Data Updates by adding the record and refreshing the display.
      */
     @Override
-    public void resourceChanged(ChangeType type, Object object) {
+    protected void resourceDataChanged(ChangeType type, Object updateObject) {
         if (type == ChangeType.DATA_UPDATE) {
-            PluginDataObject[] pdo = (PluginDataObject[]) object;
+            PluginDataObject[] pdo = (PluginDataObject[]) updateObject;
             for (PluginDataObject p : pdo) {
                 if (p instanceof CWARecord) {
                     addRecord((CWARecord) p);
@@ -422,17 +563,43 @@ public class CWAResource extends
         issueRefresh();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#project(org.opengis.
-     * referencing.crs.CoordinateReferenceSystem)
-     */
     @Override
     public void project(CoordinateReferenceSystem crs) throws VizException {
         frameMap.get(displayedDataTime).wfs.dispose();
         frameMap.get(displayedDataTime).wfs = null;
     }
 
+    /**
+     * Update the live frame's time and mapping.
+     */
+    protected void updateLiveFrame(DataTime time) {
+        synchronized (this.frameMap) {
+            this.frameMap.remove(this.liveFrame.time);
+            this.liveFrame.time = time;
+            this.liveFrame.dispose();
+            this.liveFrame.wfs = null;
+            this.frameMap.put(time, this.liveFrame);
+        }
+    }
+
+    /**
+     * Redo the time matching
+     */
+    protected void redoTimeMatching() {
+        AbstractTimeMatcher timeMatcher = this.getDescriptor().getTimeMatcher();
+        if (timeMatcher != null) {
+            timeMatcher.redoTimeMatching(this);
+            TimeMatchingJob.scheduleTimeMatch(this.getDescriptor());
+        }
+    }
+
+    /**
+     * Updates the live frame to the current time set.
+     */
+    @Override
+    public void timechanged() {
+        updateLiveFrame(now());
+        issueRefresh();
+        redoTimeMatching();
+    }
 }

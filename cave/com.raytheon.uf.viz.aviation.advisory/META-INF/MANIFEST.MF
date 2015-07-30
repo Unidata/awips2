@@ -38,3 +38,4 @@ Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.aviation.advisory,
  com.raytheon.uf.viz.aviation.advisory.adapter,
  com.raytheon.uf.viz.aviation.advisory.rsc
+Bundle-ClassPath: com.raytheon.uf.viz.aviation.advisory.jar

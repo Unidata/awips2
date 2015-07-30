@@ -740,6 +740,10 @@ HDS	^(JUTX0[1-9]) (....) (..)(..)(..)
 HDS	^(IUTX0[1-9]) (....) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/poessounding/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).bufr.%Y%m%d%H
 
+# Added NUCAPS pattern - DR 17631
+HDS	^(IUTN0[1-5]) (....) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/nucaps/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).bufr.%Y%m%d%H
+
 ## HDW Bufr Patterns ##
 # From [east|west]HDWBufrAcq_patterns.template # 
 ### From Automation ###

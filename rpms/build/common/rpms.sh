@@ -33,7 +33,7 @@ function buildJava()
 {
    pushd . > /dev/null 2>&1
 
-   cd ${WORKSPACE}/rpms/awips2.core/Installer.java
+   cd ${WORKSPACE}/installers/RPMs/java-1.7
    /bin/bash build.sh
    if [ $? -ne 0 ]; then
       return 1
@@ -65,7 +65,7 @@ function buildQPID()
       fi
    fi
    
-   cd ${WORKSPACE}/installers/RPMs/qpid-lib-0.30
+   cd ${WORKSPACE}/installers/RPMs/qpid-lib-0.32
    if [ $? -ne 0 ]; then
       echo "ERROR: Failed to build the qpid rpms."
       return 1
@@ -77,16 +77,16 @@ function buildQPID()
       return 1
    fi
 
-   #build 0.30
+   #build 0.32
    export AWIPS_II_TOP_DIR
-   cd ${WORKSPACE}/installers/RPMs/qpid-java-broker-0.30
+   cd ${WORKSPACE}/installers/RPMs/qpid-java-broker-0.32
    if [ $? -ne 0 ]; then
-      echo "ERROR: Failed to build Qpid Broker v0.30."
+      echo "ERROR: Failed to build Qpid Broker v0.32."
       return 1
    fi
    /bin/bash build.sh
    if [ $? -ne 0 ]; then
-      echo "ERROR: Failed to build Qpid Broker v0.30."
+      echo "ERROR: Failed to build Qpid Broker v0.32."
       return 1
    fi
 

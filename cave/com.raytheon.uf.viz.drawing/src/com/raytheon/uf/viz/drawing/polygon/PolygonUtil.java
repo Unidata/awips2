@@ -40,6 +40,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * ------------ ---------- ----------- --------------------------
  * Jan 26, 2015  3974      njensen     Initial creation
  * Mar 04, 2015  4194      njensen     Fix removing first vertex of a LinearRing
+ * Jun 03, 2015  4375      dgilling    Add method to create polygon centered
+ *                                     around arbitrary screen point.
  * 
  * </pre>
  * 
@@ -63,11 +65,27 @@ public class PolygonUtil {
      */
     public static Polygon makeDefaultPolygon(IRenderableDisplay display) {
         IExtent extent = display.getExtent();
+        double[] center = extent.getCenter();
+        return makePolygon(display, new Coordinate(center[0], center[1]));
+    }
+
+    /**
+     * Makes a rectangular polygon centered on the specified point and sized
+     * according to the display aspect ratio.
+     * 
+     * @param display
+     * @param center
+     *            A {@code Coordinate} instance in pixel coordinates that will
+     *            act as the center of the new polygon.
+     * @return a basic rectangle
+     */
+    public static Polygon makePolygon(IRenderableDisplay display,
+            Coordinate center) {
+        IExtent extent = display.getExtent();
         IDescriptor descriptor = display.getDescriptor();
 
-        double[] center = extent.getCenter();
         IExtent clone = extent.clone();
-        clone.scaleAndBias(.2, center[0], center[1]);
+        clone.scaleAndBias(.2, center.x, center.y);
         Coordinate[] square = new Coordinate[5];
 
         double[] pxUL = new double[] { clone.getMinX(), clone.getMaxY() };

@@ -24,7 +24,7 @@ import java.awt.Point;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import jep.INumpyable;
+import jep.NDArray;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -41,6 +41,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jan 30, 2008 879        rbell       Initial Creation.
  * Oct 22, 2008 1624       wdougherty  Speed up translate method
  * Sep 01, 2014 3572       randerso    Changed getNumpy to use getBytes()
+ * Apr 23, 2015 4259       njensen     Updated for new JEP API
  * 
  * </pre>
  * 
@@ -48,7 +49,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 @DynamicSerialize
-public class Grid2DByte implements IGrid2D, Cloneable, INumpyable {
+public class Grid2DByte implements IGrid2D, Cloneable {
 
     /**
      * The data buffer, holding the grid's contents
@@ -415,19 +416,14 @@ public class Grid2DByte implements IGrid2D, Cloneable, INumpyable {
         return rVal;
     }
 
-    @Override
-    public Object[] getNumpy() {
-        return new Object[] { getBytes() };
-    }
-
-    @Override
-    public int getNumpyX() {
-        return xdim;
-    }
-
-    @Override
-    public int getNumpyY() {
-        return ydim;
+    public NDArray<byte[]> getNDArray() {
+        /*
+         * FIXME We reverse the x and y dimensions because that's what AWIPS 1
+         * did and that makes the pre-existing python code compatible. However,
+         * it's confusing and questionable at best so someday someone should
+         * correct all that. Good luck.
+         */
+        return new NDArray<byte[]>(getBytes(), ydim, xdim);
     }
 
     /**

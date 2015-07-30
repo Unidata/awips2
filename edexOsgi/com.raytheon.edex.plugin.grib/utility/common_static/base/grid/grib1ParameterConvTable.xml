@@ -6638,6 +6638,43 @@
 	</grib1Parameter>
 
 <!-- ecmwfWave -->
+<!-- start of ecmwf_wave_0p25 parameters -->
+    <grib1Parameter>
+        <center>98</center>
+        <grib1TableVersion>140</grib1TableVersion>
+        <grib1Value>215</grib1Value>
+        <grib2discipline>10</grib2discipline>
+        <grib2category>0</grib2category>
+        <grib2Value>21</grib2Value>
+    </grib1Parameter>
+
+    <grib1Parameter>
+        <center>98</center>
+        <grib1TableVersion>140</grib1TableVersion>
+        <grib1Value>216</grib1Value>
+        <grib2discipline>10</grib2discipline>
+        <grib2category>0</grib2category>
+        <grib2Value>22</grib2Value>
+    </grib1Parameter>
+
+    <grib1Parameter>
+        <center>98</center>
+        <grib1TableVersion>140</grib1TableVersion>
+        <grib1Value>217</grib1Value>
+        <grib2discipline>10</grib2discipline>
+        <grib2category>0</grib2category>
+        <grib2Value>23</grib2Value>
+    </grib1Parameter>
+    
+    <grib1Parameter>
+        <center>98</center>
+        <grib1TableVersion>140</grib1TableVersion>
+        <grib1Value>218</grib1Value>
+        <grib2discipline>10</grib2discipline>
+        <grib2category>0</grib2category>
+        <grib2Value>24</grib2Value>
+    </grib1Parameter>
+<!-- end -->
 	<grib1Parameter>
 		<center>98</center>
 		<grib1TableVersion>140</grib1TableVersion>

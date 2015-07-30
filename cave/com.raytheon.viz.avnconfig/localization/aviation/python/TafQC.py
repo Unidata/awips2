@@ -104,6 +104,7 @@
 #       
 #
 #   21Mar2014    #2925       lvenable    Fixed global name not defined error in run() method.
+#   Apr 25, 2015  4952       njensen     Updated for new JEP API
 #
 import itertools, logging, math, os, sets, time
 import ConfigParser
@@ -117,7 +118,9 @@ _MetarMonitorDict = None
 ConfigDir = 'etc'
 try:
     from com.raytheon.uf.common.localization import PathManagerFactory
-    from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType, LocalizationContext_LocalizationLevel as LocalizationLevel
+    from com.raytheon.uf.common.localization import LocalizationContext
+    LocalizationType = LocalizationContext.LocalizationType
+    LocalizationLevel = LocalizationContext.LocalizationLevel
     pathMgr = PathManagerFactory.getPathManager()
     ctx = pathMgr.getContext(LocalizationType.valueOf('CAVE_STATIC'), LocalizationLevel.valueOf('BASE'))
     ConfigDir = pathMgr.getFile(ctx, os.path.join('aviation', 'config')).getPath()               

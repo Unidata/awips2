@@ -20,3 +20,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.ui.popupskewt.rsc,
  com.raytheon.uf.viz.ui.popupskewt.ui
+Bundle-ClassPath: com.raytheon.uf.viz.ui.popupskewt.jar

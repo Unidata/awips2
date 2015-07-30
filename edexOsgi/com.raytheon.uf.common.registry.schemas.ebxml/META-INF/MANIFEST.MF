@@ -21,4 +21,5 @@ Export-Package: com.raytheon.uf.common.registry.schemas.ebxml.util,
  oasis.names.tc.ebxml.regrep.xsd.query.v4,
  oasis.names.tc.ebxml.regrep.xsd.rim.v4,
  oasis.names.tc.ebxml.regrep.xsd.rs.v4,
- oasis.names.tc.ebxml.regrep.xsd.spi.v4
+ oasis.names.tc.ebxml.regrep.xsd.spi.v4,
+ org.w3.v1999.xlink

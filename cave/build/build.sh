@@ -69,6 +69,7 @@ java -jar $LAUNCHER_JAR -application org.eclipse.ant.core.antRunner \
 -Dbuilder=$BUILDER \
 -DbuildDirectory=${BUILDER}/tmp \
 -Dbase=$BUILDER \
+-DproductFile=awips.product \
 $OPTS_FOR_ANT
 
 rc=$?

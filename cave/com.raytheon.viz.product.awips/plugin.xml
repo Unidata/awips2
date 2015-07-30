@@ -32,6 +32,9 @@
                name="aboutText"
                value="%caveAboutText"/>
          <property
+               name="version"
+               value="%caveVersion"/>
+         <property
                name="aboutImage"
                value="icons/ipr.gif"/>
          <property
@@ -53,6 +56,10 @@
          <property
                name="startupForegroundColor"
                value="000000">
+         </property>
+         <property
+               name="windowImages"
+               value="icons/cave_16x16.png,icons/cave_32x32.png,icons/cave_48x48.png,icons/cave_64x64.png,icons/cave_128x128.png">
          </property>
       </product>
    </extension>

@@ -26,10 +26,9 @@
   <parameter name="longitude" numDims="1" type="FLOAT" unit="degree_E" />
   <parameter name="wmoHeader" numDims="1" type="STRING" />
   <parameter name="dataURI" numDims="1" type="STRING" />
-  <parameter name="eventId" numDims="1" type="STRING" />
   <parameter name="dimension" numDims="1" type="STRING" />
   <parameter name="text" numDims="1" type="STRING" />
-  
+
   <parameter name="numOfPoints" numDims="1" type="INT" />
   <parameter name="latitudes" numDims="2" type="FLOAT" unit="degree_N"/>
   <parameter name="longitudes" numDims="2" type="FLOAT" unit="degree_E"/>

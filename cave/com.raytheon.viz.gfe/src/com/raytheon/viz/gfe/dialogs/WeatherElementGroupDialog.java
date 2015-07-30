@@ -28,6 +28,7 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -59,6 +60,8 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * 11/14/2012   #1298      rferrel     Changes for non-blocking dialog.
  * 11/20/2012   DR 15532   jzeng       Added popup dialog to make sure group saved with 
  * 									   valid characters
+ * 03/03/2015   #4203      dgilling    Make list of weather element groups scrollable.
+ * 
  * </pre>
  * 
  * @author ebabin
@@ -66,8 +69,13 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  */
 
 public class WeatherElementGroupDialog extends CaveJFACEDialog {
-    private final transient IUFStatusHandler statusHandler = UFStatus
+
+    private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(WeatherElementGroupDialog.class);
+
+    private static final int DEFAULT_WIDTH = 24;
+
+    private static final int NUM_ITEMS = 10;
 
     private Composite top;
 
@@ -92,7 +100,7 @@ public class WeatherElementGroupDialog extends CaveJFACEDialog {
     public WeatherElementGroupDialog(Shell parent, DataManager dataManager,
             boolean saveType) {
         super(parent);
-        setShellStyle(SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+        setShellStyle(SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
         this.dataManager = dataManager;
         this.wegManager = this.dataManager.getWEGroupManager();
         this.saveType = saveType;
@@ -128,16 +136,13 @@ public class WeatherElementGroupDialog extends CaveJFACEDialog {
     }
 
     private void initializeComponents() {
-
         if (names.size() == 0 && !saveType) {
             Label label = new Label(top, SWT.CENTER);
             label.setText("No groups available for deletion.");
             return;
         }
 
-        GridData data = new GridData(GridData.FILL_BOTH);
-
-        groupList = new List(top, SWT.BORDER | SWT.SINGLE);
+        groupList = new List(top, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
         groupList.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent arg0) {
@@ -152,6 +157,14 @@ public class WeatherElementGroupDialog extends CaveJFACEDialog {
             }
         });
 
+        GridData data = new GridData(GridData.FILL_BOTH);
+        Rectangle rect = groupList.computeTrim(0, 0,
+                this.convertWidthInCharsToPixels(DEFAULT_WIDTH),
+                groupList.getItemHeight() * NUM_ITEMS);
+        data = new GridData(GridData.FILL_BOTH);
+        data.minimumWidth = rect.width;
+        data.heightHint = rect.height;
+
         String[] items = names.toArray(new String[names.size()]);
         Arrays.sort(items);
         groupList.setItems(items);
@@ -163,6 +176,7 @@ public class WeatherElementGroupDialog extends CaveJFACEDialog {
         groupField.setLayoutData(data);
         groupField.setEnabled(saveType);
         groupField.addModifyListener(new ModifyListener() {
+            @Override
             public void modifyText(ModifyEvent arg0) {
                 selectedItem = groupField.getText().trim();
                 okButton.setEnabled(selectedItem.length() > 0);

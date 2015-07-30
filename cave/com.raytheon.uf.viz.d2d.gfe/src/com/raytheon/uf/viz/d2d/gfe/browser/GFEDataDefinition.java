@@ -25,12 +25,12 @@ import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.gfe.dataaccess.GFEDataAccessUtil;
+import com.raytheon.uf.viz.core.grid.rsc.GridLoadProperties;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.d2d.gfe.rsc.GFEGridResourceData;
 import com.raytheon.uf.viz.productbrowser.AbstractRequestableProductBrowserDataDefinition;
-import com.raytheon.viz.grid.rsc.GridLoadProperties;
 
 /**
  * 

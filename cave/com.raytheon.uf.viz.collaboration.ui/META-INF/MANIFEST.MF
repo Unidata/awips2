@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Collaboration UI Plugin
 Bundle-SymbolicName: com.raytheon.uf.viz.collaboration.ui;singleton:=true
-Bundle-Version: 1.14.0
+Bundle-Version: 1.15.0
 Bundle-Activator: com.raytheon.uf.viz.collaboration.ui.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: com.raytheon.uf.viz.collaboration.ui
@@ -19,4 +19,6 @@ Require-Bundle: org.eclipse.ui,
  org.jivesoftware.smack;bundle-version="3.3.0"
 Bundle-ActivationPolicy: lazy
 Import-Package: com.raytheon.uf.common.xmpp.iq,
- com.raytheon.uf.viz.core.maps.display
+ com.raytheon.uf.viz.spellchecker.text,
+ org.eclipse.jface.text
+Bundle-ClassPath: com.raytheon.uf.viz.collaboration.ui.jar

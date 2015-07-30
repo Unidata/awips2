@@ -33,8 +33,8 @@ import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.pointdata.drawables.IPointImageExtension;
-import com.raytheon.viz.pointdata.drawables.IPointImageExtension.PointImage;
+import com.raytheon.uf.viz.core.point.drawables.ext.IPointImageExtension;
+import com.raytheon.uf.viz.core.point.drawables.ext.IPointImageExtension.PointImage;
 
 /**
  * Class for rending PointImage objects, handles DrawPointImagesEvent events

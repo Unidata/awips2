@@ -25,9 +25,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -51,6 +51,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
 
 import com.google.common.eventbus.Subscribe;
@@ -70,6 +71,8 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 import com.raytheon.uf.viz.core.sounds.SoundUtil;
+import com.raytheon.uf.viz.spellchecker.text.SpellCheckTextViewer;
+import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.views.CaveFloatingView;
 
 /**
@@ -100,6 +103,12 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * Nov 26, 2014 3709       mapeters    Added {@link #getColorFromRGB()}.
  * Dec 08, 2014 3709       mapeters    Removed messagesTextMenuMgr.
  * Jan 13, 2015 3709       bclement    styleAndAppendText() takes foreground and background
+ * Mar 24, 2015 4265       mapeters    Implement common styleAndAppendText()s here, apply
+ *                                     most general StyleRange to text first.
+ * Mar 24, 2015 4316       mapeters    Display date of message if new day or user-preferred
+ * Mar 27, 2015 4327       mapeters    Added task bar notification for received messages
+ * Apr 14, 2015 4362       mapeters    Added spell checking to chat input box.
+ * May 22, 2015 4328       mapeters    Change icon of non-visible tabs that receive message
  * </pre>
  * 
  * @author rferrel
@@ -108,11 +117,14 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
 
 public abstract class AbstractSessionView<T extends IUser> extends
         CaveFloatingView {
-    private static final String SESSION_IMAGE_KEY = "sessionId.key";
+
+    private static ThreadLocal<SimpleDateFormat> timeFormatter = TimeUtil
+            .buildThreadLocalSimpleDateFormat("HH:mm:ss",
+                    TimeUtil.GMT_TIME_ZONE);
 
     private static ThreadLocal<SimpleDateFormat> dateFormatter = TimeUtil
-            .buildThreadLocalSimpleDateFormat("HH:mm:ss",
-                    TimeZone.getTimeZone("GMT"));
+            .buildThreadLocalSimpleDateFormat("yyyy-MM-dd ",
+                    TimeUtil.GMT_TIME_ZONE);
 
     /**
      * Mapping of images used in the view so they are not constantly created and
@@ -129,7 +141,7 @@ public abstract class AbstractSessionView<T extends IUser> extends
     /** Font used with the messagesText control. */
     private Font messagesTextFont;
 
-    private StyledText composeText;
+    private SpellCheckTextViewer composeTextViewer;
 
     protected SessionMsgArchive msgArchive;
 
@@ -143,7 +155,11 @@ public abstract class AbstractSessionView<T extends IUser> extends
 
     private Action searchAction;
 
+    private Date lastMessageDay;
+
     protected abstract String getSessionImageName();
+
+    protected abstract String getNotificationImageName();
 
     protected abstract String getSessionName();
 
@@ -212,6 +228,7 @@ public abstract class AbstractSessionView<T extends IUser> extends
             public void keyPressed(KeyEvent e) {
                 // is it a visible character
                 if (Character.isISOControl(e.character) == false) {
+                    StyledText composeText = composeTextViewer.getTextWidget();
                     composeText.setFocus();
                     composeText.append(Character.toString(e.character));
                     composeText.setCaretOffset(composeText.getText().length());
@@ -243,8 +260,11 @@ public abstract class AbstractSessionView<T extends IUser> extends
 
         Label label = new Label(composeComp, SWT.NONE);
         label.setText("Compose:");
-        composeText = new StyledText(composeComp, SWT.MULTI | SWT.WRAP
-                | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+
+        composeTextViewer = new SpellCheckTextViewer(composeComp, SWT.MULTI
+                | SWT.WRAP | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+        StyledText composeText = composeTextViewer.getTextWidget();
+
         composeText.setLayoutData(new GridData(GridData.FILL_BOTH));
         composeText.setToolTipText("Enter message here");
         composeText.addKeyListener(new KeyListener() {
@@ -275,23 +295,21 @@ public abstract class AbstractSessionView<T extends IUser> extends
 
         // adding a menu item so that Paste can be found when clicking on the
         // composeText styledtext
-        MenuManager menuMgr = new MenuManager();
-        menuMgr.add(new CopyTextAction(composeText));
-        menuMgr.add(new PasteTextAction(composeText));
-        menuMgr.add(new CutTextAction(composeText));
-
-        Menu menu = menuMgr.createContextMenu(composeText);
-        composeText.setMenu(menu);
+        List<IAction> menuItems = new ArrayList<>();
+        menuItems.add(new CopyTextAction(composeText));
+        menuItems.add(new PasteTextAction(composeText));
+        menuItems.add(new CutTextAction(composeText));
+        composeTextViewer.addMenuItems(menuItems.toArray(new IAction[0]));
     }
 
-    private Image getImage() {
-        Image image = imageMap.get(SESSION_IMAGE_KEY);
+    private Image getImage(String imageName) {
+        Image image = imageMap.get(imageName);
         if (image == null) {
             image = IconUtil.getImageDescriptor(
-                    Activator.getDefault().getBundle(), getSessionImageName())
+                    Activator.getDefault().getBundle(), imageName)
                     .createImage();
             if (image != null) {
-                imageMap.put(SESSION_IMAGE_KEY, image);
+                imageMap.put(imageName, image);
             }
         }
         return image;
@@ -303,6 +321,7 @@ public abstract class AbstractSessionView<T extends IUser> extends
      * @return message
      */
     protected String getComposedMessage() {
+        StyledText composeText = composeTextViewer.getTextWidget();
         String message = composeText.getText();
         int returnIndex = message.lastIndexOf("\n");
         message = message.substring(0, returnIndex);
@@ -346,15 +365,32 @@ public abstract class AbstractSessionView<T extends IUser> extends
                 service.warnOfContentChange();
 
                 Date date = new Date(timestamp);
-                String time = dateFormatter.get().format(date);
+                String time = timeFormatter.get().format(date);
 
                 String name = getDisplayName(userId);
 
                 UserId myUser = connection.getUser();
-                if (!myUser.isSameUser(userId)
-                        && Activator.getDefault().getPreferenceStore()
-                                .getBoolean("notifications")) {
-                    createNotifier(name, time, body);
+                if (!myUser.isSameUser(userId)) {
+                    // If user-preferred, notify with popup
+                    if (Activator.getDefault().getPreferenceStore()
+                            .getBoolean("notifications")) {
+                        createNotifier(name, time, body);
+                    }
+
+                    // Bold/flash task bar item for windows out of focus if
+                    // peer-to-peer chat or user-preferred for group chats
+                    if (shouldNotifyTaskbar()) {
+                        getSite().getShell().forceActive();
+                    }
+
+                    // Change tab icon if the tab isn't visible
+                    IWorkbenchPage activePage = VizWorkbenchManager
+                            .getInstance().getCurrentWindow().getActivePage();
+                    if (!activePage.isPartVisible(AbstractSessionView.this)) {
+                        Image notificationImage = getImage(getNotificationImageName());
+                        AbstractSessionView.this
+                                .setTitleImage(notificationImage);
+                    }
                 }
 
                 StringBuilder sb = new StringBuilder();
@@ -362,6 +398,13 @@ public abstract class AbstractSessionView<T extends IUser> extends
                 if (messagesText.isDisposed() == false
                         && messagesText.getCharCount() != 0) {
                     sb.append("\n");
+                }
+
+                boolean newDay = storeAndCompareTimestamp(date);
+                if (Activator.getDefault().getPreferenceStore()
+                        .getBoolean("displayDate")
+                        || newDay) {
+                    time = dateFormatter.get().format(date) + time;
                 }
 
                 sb.append("(").append(time).append(") ");
@@ -450,8 +493,7 @@ public abstract class AbstractSessionView<T extends IUser> extends
                         }
                     }
 
-                    styleAndAppendText(sb, offset, name, userId, subject,
-                            ranges);
+                    styleAndAppendText(sb, offset, name, userId, ranges);
                 }
 
                 // Archive the message
@@ -467,12 +509,42 @@ public abstract class AbstractSessionView<T extends IUser> extends
         });
     }
 
-    protected abstract void styleAndAppendText(StringBuilder sb, int offset,
-            String name, T userId, String subject, List<StyleRange> ranges);
+    /**
+     * Determines if task bar notifications for new messages should be given in
+     * this room (always for peer-to-peer, otherwise depends on preferences).
+     * 
+     * @return whether or not to notify the task bar
+     */
+    protected boolean shouldNotifyTaskbar() {
+        return true;
+    }
 
     protected abstract void styleAndAppendText(StringBuilder sb, int offset,
+            String name, T userId, List<StyleRange> ranges);
+
+    protected void styleAndAppendText(StringBuilder sb, int offset,
             String name, T userId, List<StyleRange> ranges, Color foreground,
-            Color background);
+            Color background) {
+        StyleRange range = new StyleRange(messagesText.getCharCount(),
+                sb.length(), foreground, null, SWT.NORMAL);
+        // This must go first to be overridden by other ranges (name bolding,
+        // alert words)
+        ranges.add(0, range);
+
+        range = new StyleRange(messagesText.getCharCount() + offset,
+                (userId != null ? name.length() + 1 : sb.length() - offset),
+                foreground, null, SWT.BOLD);
+        ranges.add(range);
+        messagesText.append(sb.toString());
+
+        for (StyleRange newRange : ranges) {
+            messagesText.setStyleRange(newRange);
+        }
+
+        int lineNumber = messagesText.getLineCount() - 1;
+        messagesText.setLineBackground(lineNumber, 1, background);
+        messagesText.setTopIndex(lineNumber);
+    }
 
     /**
      * Find keys words in body of message starting at offset.
@@ -483,7 +555,7 @@ public abstract class AbstractSessionView<T extends IUser> extends
      */
     protected List<AlertWord> retrieveAlertWords() {
         if (alertWords == null) {
-            alertWords = CollaborationUtils.getAlertWords();
+            alertWords = CollaborationUtils.getAlertWords(false);
         }
         return alertWords;
     }
@@ -516,7 +588,7 @@ public abstract class AbstractSessionView<T extends IUser> extends
     public void createPartControl(Composite parent) {
         parent.setLayout(new GridLayout());
         super.createPartControl(parent);
-        setTitleImage(getImage());
+        setTitleImage(getImage(getSessionImageName()));
         setPartName(getSessionName());
         initComponents(parent);
         createActions();
@@ -571,7 +643,12 @@ public abstract class AbstractSessionView<T extends IUser> extends
      */
     @Override
     public void setFocus() {
-        composeText.setFocus();
+        composeTextViewer.getTextWidget().setFocus();
+        /*
+         * Revert image to normal (in case it was changed to notify of a message
+         * being received)
+         */
+        setTitleImage(getImage(getSessionImageName()));
     }
 
     private void createNotifier(String id, String time, String body) {
@@ -629,7 +706,7 @@ public abstract class AbstractSessionView<T extends IUser> extends
             @Override
             public void run() {
                 Date date = new Date();
-                String time = dateFormatter.get().format(date);
+                String time = timeFormatter.get().format(date);
                 builder.insert(0, "(" + time + ") : ");
 
                 // Update the messagesText with the StyleRange highlights
@@ -677,5 +754,23 @@ public abstract class AbstractSessionView<T extends IUser> extends
             colors.put(rgb, color);
         }
         return color;
+    }
+
+    /**
+     * Determines if the given date (of the current message) is a newer day
+     * compared to the stored date (of the last message) and replaces the stored
+     * date with the given date.
+     * 
+     * @param currentMessageDay
+     *            the date to compare with the stored date
+     * @return true if the message with the given date occurs on a new day from
+     *         the last message, false otherwise
+     */
+    private boolean storeAndCompareTimestamp(Date currentMessageDay) {
+        boolean newDay = lastMessageDay == null
+                || TimeUtil.isNewerDay(lastMessageDay, currentMessageDay,
+                        TimeUtil.GMT_TIME_ZONE);
+        this.lastMessageDay = currentMessageDay;
+        return newDay;
     }
 }

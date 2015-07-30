@@ -33,6 +33,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * ------------ ---------- ----------- --------------------------
  * 01/29/2008              chammack    Initial creation.
  * 01/31/2008   879        rbell       Legacy conversion
+ * Apr 23, 2015 4259       njensen     Added getNDArray()
  * 
  * </pre>
  * 
@@ -46,7 +47,6 @@ public interface IGridSlice extends Comparable<IGridSlice> {
      * 
      * @param gs
      *            the grid slice containing values to assign
-     * @return
      */
     public void assign(IGridSlice gs);
 
@@ -107,7 +107,7 @@ public interface IGridSlice extends Comparable<IGridSlice> {
     /**
      * Clone the grid slice, cloning will not use a cache on cloned slice
      * 
-     * @return
+     * @return a clone of the IGridSlice
      */
     public IGridSlice clone() throws CloneNotSupportedException;
 
@@ -120,7 +120,7 @@ public interface IGridSlice extends Comparable<IGridSlice> {
     /**
      * Returns whether the slice is using a cache for the underlying data.
      * 
-     * @return
+     * @return if the cache is currently enabled
      */
     public boolean getUseCache();
 
@@ -129,4 +129,17 @@ public interface IGridSlice extends Comparable<IGridSlice> {
      * and use a cache mechanism to store the data.
      */
     public void setUseCache(boolean useCache);
+
+    /**
+     * Gets a representation of the underlying grid slice as an NDArray.
+     * 
+     * FIXME The returned NDArray object will have the x and y dimensions
+     * reversed. That's what AWIPS 1 did and that makes the pre-existing python
+     * code compatible. Java ordering is x,y while python is ordering is y,x.
+     * It's confusing and questionable at best so someday someone should correct
+     * all that. Good luck.
+     * 
+     * @return an NDArray or NDArray[]
+     */
+    public Object getNDArray();
 }

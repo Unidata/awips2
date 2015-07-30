@@ -82,8 +82,8 @@ public class PracticeWarningRecord extends AbstractWarningRecord {
     /**
      * Constructor to duplicate record.
      * 
-     * @param message
-     *            The text of the message
+     * @param old
+     *            The record to be duplicated
      */
     public PracticeWarningRecord(PracticeWarningRecord old) {
         super(old);
@@ -94,8 +94,6 @@ public class PracticeWarningRecord extends AbstractWarningRecord {
      * 
      * @param uri
      *            The dataURI
-     * @param tableDef
-     *            The table definition associated with this class
      */
     public PracticeWarningRecord(String uri) {
         super(uri);

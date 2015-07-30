@@ -24,7 +24,7 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.List;
 
-import jep.INumpyable;
+import jep.NDArray;
 
 import com.raytheon.uf.common.cache.CacheException;
 import com.raytheon.uf.common.cache.CacheFactory;
@@ -57,6 +57,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * 06/10/2009   2159       rjpeter     Updated checkDims to check scalarGrid for null
  * 08/13/2013   1571       randerso    Removed toString to stop it from hanging the 
  *                                     debugger when trying to display the grid
+ * Apr 23, 2015 4259       njensen     Updated for new JEP API
  * </pre>
  * 
  * @author chammack
@@ -64,7 +65,7 @@ import com.raytheon.uf.common.time.TimeRange;
  */
 @DynamicSerialize
 public class ScalarGridSlice extends AbstractGridSlice implements
-        IContinuousSlice, Cloneable, INumpyable {
+        IContinuousSlice, Cloneable {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ScalarGridSlice.class);
@@ -882,7 +883,7 @@ public class ScalarGridSlice extends AbstractGridSlice implements
      * between the cell value and the specified value are within the specified
      * fuzz.
      * 
-     * @param value
+     * @param rhs
      *            to compare to
      * @param fuzz
      *            allowed difference in value
@@ -937,18 +938,16 @@ public class ScalarGridSlice extends AbstractGridSlice implements
     }
 
     @Override
-    public Object[] getNumpy() {
-        return new Object[] { this.getScalarGrid().getFloats() };
-    }
-
-    @Override
-    public int getNumpyX() {
-        return this.getScalarGrid().getXdim();
-    }
-
-    @Override
-    public int getNumpyY() {
-        return this.getScalarGrid().getYdim();
+    public Object getNDArray() {
+        /*
+         * FIXME We reverse the x and y dimensions because that's what AWIPS 1
+         * did and that makes the pre-existing python code compatible. Java
+         * ordering is x,y while python is ordering is y,x. It's confusing and
+         * questionable at best so someday someone should correct all that. Good
+         * luck.
+         */
+        return new NDArray<float[]>(getScalarGrid().getFloats(),
+                getScalarGrid().getYdim(), getScalarGrid().getXdim());
     }
 
     @Override

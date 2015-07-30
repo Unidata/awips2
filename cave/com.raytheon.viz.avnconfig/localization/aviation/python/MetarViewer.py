@@ -126,7 +126,7 @@ import logging, re, time
 import AvnLib, AvnParser, Globals, MetarMonitor
 
 TAG = 'warning'
-sfcvis = re.compile(r'SFC\s+VIS\s+((\d{1,2}(?!/)\s*)?([1357]/1?[2468])?)')
+sfcvis = re.compile(r'SFC\s+VIS\s+((\d{1,2}(?!/)\s*)?(M?[1357]/1?[2468])?)')
 
 _Logger = logging.getLogger(__name__)
 

@@ -102,6 +102,8 @@ def get_and_check_args():
                         metavar="configIntervalFilename")
     parser.add_argument("-v", action="store", dest="logFileName", 
                         help="Optional. If present, the output from the script will be logged to the specified file.  If not present, logging will default to ifpnetCDF.log located in GFESUITE_LOGDIR")
+    parser.add_argument("-S", action="store", dest="siteIdOverride", 
+                        help="Optional. If present, will override the site ID used in the netCDF file to the specified identifier.")
     
     options = parser.parse_args()
     
@@ -125,10 +127,10 @@ def get_and_check_args():
 
 def create_request(host, port, outputFilename, parmList, databaseID, startTime,
                    endTime, mask, geoInfo, compressFile, configFileName, 
-                   compressFileFactor, trim, krunch, userID, logFileName):   
+                   compressFileFactor, trim, krunch, userID, logFileName, siteIdOverride):   
     obj = ExecuteIfpNetCDFGridRequest(outputFilename, parmList, databaseID, 
             startTime, endTime, mask, geoInfo, compressFile, configFileName, 
-            compressFileFactor, trim, krunch, userID, logFileName)
+            compressFileFactor, trim, krunch, userID, logFileName, siteIdOverride)
     return obj
 
 

@@ -22,3 +22,4 @@ Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.cloudheight.data,
  com.raytheon.uf.viz.cloudheight.rsc
 Import-Package: com.raytheon.viz.core.map
+Bundle-ClassPath: com.raytheon.uf.viz.cloudheight.jar

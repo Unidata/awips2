@@ -38,8 +38,7 @@ import com.raytheon.viz.hydrocommon.data.DataIngestFilterData;
  * Dec 11, 2008 1787       askripsky   Initial Creation
  * Apr 18, 2013 1790       rferrel     Code clean up with non-blocking dialogs.
  * May 1,  2014 17096      xwei        Updated the filter list SQL statement
- * 
- * 
+ * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
  * </pre>
  * 
  * @author askripsky
@@ -84,8 +83,8 @@ public class DataIngestFilterDataManager {
             for (QueryResultRow currNet : data.getRows()) {
                 String name = (String) currNet.getColumn(data.getColumnNames()
                         .get("name"));
-                int dur = (Integer) currNet.getColumn(data.getColumnNames()
-                        .get("dur"));
+                int dur = ((Number) currNet.getColumn(data.getColumnNames()
+                        .get("dur"))).intValue();
                 rval.add(String.format("%s (%s)", name, dur));
             }
         }
@@ -222,7 +221,7 @@ public class DataIngestFilterDataManager {
 
             StringBuffer whereClause = new StringBuffer();
             if (filterByLocation) {
-                whereClause.append( "lid='" + selectedLocation + "'" );
+                whereClause.append("lid='" + selectedLocation + "'");
             }
 
             if (filterByPE && (selectedPE.size() > 0)) {

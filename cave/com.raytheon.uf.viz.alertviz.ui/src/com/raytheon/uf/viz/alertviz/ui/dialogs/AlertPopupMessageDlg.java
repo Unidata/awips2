@@ -33,6 +33,8 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
@@ -67,6 +69,9 @@ import com.raytheon.uf.viz.alertviz.config.AlertMetadata;
  *                                     and store previous location.
  * 13 Jan 2011  7375       cjeanbap    Commented out shell.setVisible(...) in
  *                                     acknowledgeLastMessage().
+ * 20 Apr 2015  4311       lvenable    Fixed text field to accept really long text strings.
+ * 29 Jun 2015  4311       randerso    Reworking AlertViz dialogs to be resizable.
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -74,7 +79,21 @@ import com.raytheon.uf.viz.alertviz.config.AlertMetadata;
  * 
  */
 public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
-        MouseListener {
+        MouseListener, DisposeListener {
+    private static final int MAX_INITIAL_LINES = 5;
+
+    private static final int WIDTH_IN_CHARS = 135;
+
+    private static final double PERCENT_OF_SCREEN_WIDTH = 0.75;
+
+    private static final int NUM_LIST_ITEMS = 10;
+
+    /*
+     * Adjustment for SWT bug where shell.getSize() returns incorrect value when
+     * SWT.ON_TOP style is used.
+     */
+    private static final int SWT_BUG_FACTOR = 6;
+
     /**
      * Dialog shell.
      */
@@ -86,19 +105,9 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
     private Display display;
 
     /**
-     * Font used for the controls.
-     */
-    private Font controlFont;
-
-    /**
      * Font used for labels
      */
     private Font labelFont;
-
-    /**
-     * Font used for the double click label.
-     */
-    private Font dblClickLblFont;
 
     /**
      * Message text field.
@@ -158,18 +167,18 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
     /**
      * Date format.
      */
-    private SimpleDateFormat dateFormat = new SimpleDateFormat(
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat(
             "MMM dd yy HH:mm:ss z");
 
     /**
      * Time format.
      */
-    private SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
+    private final SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
 
     /**
      * Array of status messages.
      */
-    private ArrayList<StatusMessage> statMsgArray = new ArrayList<StatusMessage>();
+    private final ArrayList<StatusMessage> statMsgArray = new ArrayList<StatusMessage>();
 
     /**
      * Source label.
@@ -204,7 +213,7 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
     /**
      * Maximum messages to acknowledge.
      */
-    private int maxMessages = 100;
+    private final int maxMessages = 100;
 
     /**
      * Move label.
@@ -257,16 +266,18 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
     private Label fillerLbl;
 
     /**
-     * Listens for "Hide Dialog" event, implemented by AlertVisualization class
+     * Listens for Hide and Dispose events
      */
-    private Listener hideListener;
+    private final Listener eventListener;
 
     /**
      * Initialized flag indicating if the control have been initialized.
      */
     private boolean initialized = false;
 
-    private AlertVisualization av;
+    private boolean first;
+
+    private int controlWidth;
 
     /**
      * Constructor.
@@ -278,18 +289,17 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
      * @param expanded
      *            Expanded flag.
      * @param listener
-     *            Hide listener.
+     *            Event listener.
      * @param startUpRGB
      *            Color to be displayed at startup.
      */
     public AlertPopupMessageDlg(Shell parent, StatusMessage statMsg,
-            boolean expanded, Listener listener, RGB startUpRGB,
-            AlertVisualization av) {
+            boolean expanded, Listener listener, RGB startUpRGB) {
         super(parent, 0);
-        hideListener = listener;
+        eventListener = listener;
         statMsgArray.add(statMsg);
         this.expanded = expanded;
-        this.av = av;
+        this.first = true;
 
         initShell(startUpRGB);
     }
@@ -301,15 +311,16 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
         Shell parent = getParent();
         display = parent.getDisplay();
 
-        shell = new Shell(parent, SWT.ON_TOP);
+        shell = new Shell(parent, SWT.ON_TOP | SWT.RESIZE);
         shell.setText("Alert Visualization Popup Message Dialog");
-        Rectangle prvLocation = av.getAlertPopupMsgPrvLocation();
-        if (prvLocation != null) {
-            shell.getBounds().add(prvLocation);
-        }
+
+        shell.addDisposeListener(this);
 
         // Create the main layout for the shell.
         GridLayout mainLayout = new GridLayout(1, false);
+        mainLayout.marginWidth = 0;
+        mainLayout.marginHeight = 0;
+        mainLayout.verticalSpacing = 0;
         shell.setLayout(mainLayout);
 
         // initialize data, fonts, and arrays
@@ -321,33 +332,34 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
         setBackgroundColors(startUp);
 
         // listener event triggers when shell set to not be visible
-        shell.addListener(SWT.Hide, hideListener);
+        shell.addListener(SWT.Hide, eventListener);
+        shell.addListener(SWT.Dispose, eventListener);
+    }
 
-        shell.addDisposeListener(new DisposeListener() {
-
-            @Override
-            public void widgetDisposed(DisposeEvent e) {
-                while (statMsgArray.size() != 0) {
-                    if (!display.readAndDispatch()) {
-                        display.sleep();
-                    }
-                }
-                bgColor.dispose();
+    @Override
+    public void widgetDisposed(DisposeEvent e) {
+        while (statMsgArray.size() != 0) {
+            if (!display.readAndDispatch()) {
+                display.sleep();
             }
-        });
+        }
+        bgColor.dispose();
+
+        initialized = false;
+        labelFont.dispose();
     }
 
     /**
      * Open method used to display the dialog.
      * 
-     * @return True/False/null.
      */
-    public Object open() {
-        shell.pack();
+    private void open() {
 
         setInitialDialogLocation();
 
         initialized = true;
+
+        showHideLog();
 
         shell.open();
 
@@ -356,24 +368,32 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
                 display.sleep();
             }
         }
-
-        initialized = false;
-
-        controlFont.dispose();
-        labelFont.dispose();
-        dblClickLblFont.dispose();
-
-        return null;
     }
 
     /**
      * Initialize font data
      */
     private void initalizeData() {
-        controlFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
-        labelFont = new Font(shell.getDisplay(), "Monospace", 14, SWT.BOLD);
-        dblClickLblFont = new Font(shell.getDisplay(), "Monospace", 10,
-                SWT.BOLD);
+        FontData fontData = display.getSystemFont().getFontData()[0];
+        labelFont = new Font(shell.getDisplay(), fontData.getName(),
+                (int) (fontData.getHeight() * 1.4), SWT.BOLD);
+
+        /*
+         * compute preferred height to display entire message.
+         */
+        int screenWidth = display.getPrimaryMonitor().getBounds().width;
+
+        /*
+         * compute width of controls as the lesser of WIDTH_IN_CHARS or
+         * PERCENT_OF_SCREEN_WIDTH
+         */
+        GC gc = new GC(display);
+        gc.setFont(display.getSystemFont());
+        int charWidth = gc.getFontMetrics().getAverageCharWidth();
+        gc.dispose();
+
+        controlWidth = Math.min(charWidth * WIDTH_IN_CHARS,
+                (int) (screenWidth * PERCENT_OF_SCREEN_WIDTH));
     }
 
     /**
@@ -397,7 +417,7 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
     private void createTitleBarLabel() {
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         gd.horizontalSpan = 3;
-        moveLabel = new Label(shell, SWT.CENTER | SWT.BORDER);
+        moveLabel = new Label(shell, SWT.CENTER);
         moveLabel.setText("Alert Visualization Popup Message Dialog");
         moveLabel.setLayoutData(gd);
         moveLabel.setFont(labelFont);
@@ -413,95 +433,90 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
      * Create the labels at the top of the dialog.
      */
     private void createTopLabels() {
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         topLabelComp = new Composite(shell, SWT.NONE);
         GridLayout gl = new GridLayout(3, false);
         gl.horizontalSpacing = 35;
         topLabelComp.setLayout(gl);
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         topLabelComp.setLayoutData(gd);
         topLabelComp.setBackground(display.getSystemColor(SWT.COLOR_RED));
 
+        sourceLbl = new Label(topLabelComp, SWT.BORDER);
+        sourceLbl.setText(sourceStr + statMsgArray.get(0).getSourceKey());
         gd = new GridData(200, SWT.DEFAULT);
         gd.verticalIndent = 10;
-        sourceLbl = new Label(topLabelComp, SWT.NONE);
-        sourceLbl.setText(sourceStr + statMsgArray.get(0).getSourceKey());
         sourceLbl.setLayoutData(gd);
 
-        gd = new GridData(200, SWT.DEFAULT);
-        gd.verticalIndent = 10;
-        priorityLbl = new Label(topLabelComp, SWT.NONE);
+        priorityLbl = new Label(topLabelComp, SWT.BORDER);
         priorityLbl.setText(priorityStr
                 + statMsgArray.get(0).getPriority().ordinal());
-        priorityLbl.setLayoutData(gd);
-
         gd = new GridData(200, SWT.DEFAULT);
         gd.verticalIndent = 10;
-        categoryLbl = new Label(topLabelComp, SWT.NONE);
-        categoryLbl.setText(categoryStr + statMsgArray.get(0).getCategory());
-        categoryLbl.setLayoutData(gd);
+        priorityLbl.setLayoutData(gd);
 
-        /*
-         * If the expanded flag is false then hide the labels that display the
-         * Category/Source/Priority information.
-         */
-        if (expanded == false) {
-            // Hide the message labels
-            ((GridData) topLabelComp.getLayoutData()).exclude = true;
-            topLabelComp.setVisible(false);
-            shell.layout();
-            shell.pack();
-        }
+        categoryLbl = new Label(topLabelComp, SWT.BORDER);
+        categoryLbl.setText(categoryStr + statMsgArray.get(0).getCategory());
+        gd = new GridData(200, SWT.DEFAULT);
+        gd.verticalIndent = 10;
+        categoryLbl.setLayoutData(gd);
     }
 
     /**
      * Create the message text control.
      */
     private void createMessageControl() {
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         messageComp = new Composite(shell, SWT.NONE);
         messageComp.setLayout(new GridLayout(1, false));
         messageComp.setLayoutData(gd);
         messageComp.setBackground(display.getSystemColor(SWT.COLOR_RED));
 
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        gd.widthHint = 920;
-        messageTF = new Text(messageComp, SWT.BORDER | SWT.MULTI | SWT.WRAP);
-        messageTF.setLayoutData(gd);
-        messageTF.setText(statMsgArray.get(0).getMessage());
+        messageTF = new Text(messageComp, SWT.BORDER | SWT.MULTI | SWT.WRAP
+                | SWT.V_SCROLL);
         messageTF.setEditable(false);
+        messageTF.setText(statMsgArray.get(0).getMessage());
+
+        int preferredHeight = messageTF.computeSize(controlWidth, SWT.DEFAULT).y;
+
+        /*
+         * compute size to display only max initial lines
+         */
+        int height = messageTF.getLineHeight() * MAX_INITIAL_LINES;
+        Rectangle initialSize = messageTF.computeTrim(0, 0, controlWidth,
+                height);
+
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gd.widthHint = initialSize.width;
+
+        gd.heightHint = Math.min(preferredHeight, initialSize.height);
+        gd.minimumHeight = gd.heightHint;
+        messageTF.setLayoutData(gd);
     }
 
     /**
      * Create the action buttons for the dialog.
      */
     private void createActionButtons() {
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         actionComp = new Composite(shell, SWT.NONE);
         actionComp.setLayout(new GridLayout(7, false));
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         actionComp.setLayoutData(gd);
         actionComp.setBackground(display.getSystemColor(SWT.COLOR_RED));
 
-        gd = new GridData(200, SWT.DEFAULT);
-        timeLbl = new Label(actionComp, SWT.NONE);
+        timeLbl = new Label(actionComp, SWT.BORDER);
         timeLbl.setText(dateFormat.format(statMsgArray.get(0).getEventTime()));
+        gd = new GridData(200, SWT.DEFAULT);
         timeLbl.setLayoutData(gd);
 
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         fillerLbl = new Label(actionComp, SWT.NONE);
         fillerLbl.setText("");
         fillerLbl.setBackground(display.getSystemColor(SWT.COLOR_RED));
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         fillerLbl.setLayoutData(gd);
 
-        gd = new GridData(100, SWT.DEFAULT);
         hideShowLogBtn = new Button(actionComp, SWT.PUSH);
-        hideShowLogBtn.setLayoutData(gd);
-
-        if (expanded == true) {
-            hideShowLogBtn.setText("Hide Log");
-        } else {
-            hideShowLogBtn.setText("Show Log");
-        }
-
+        hideShowLogBtn.setLayoutData(new GridData());
+        hideShowLogBtn.setText("Hide Log");
         hideShowLogBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -534,7 +549,7 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
         ackAllBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                acknowledgeAllMessages(true);
+                acknowledgeAllMessages();
             }
         });
 
@@ -543,90 +558,69 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
         hideDialogBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                Rectangle prevLocation = Display.getCurrent().getBounds();
-                av.setAlertPopupMsgPrvLocation(prevLocation);
                 shell.setVisible(false);
             }
         });
-
-        /*
-         * If the expanded flag is false then hide the Acknowledge Selected
-         * button.
-         */
-        if (expanded == false) {
-            // Hide the Acknowledge Selected button
-            ((GridData) ackSelectedBtn.getLayoutData()).exclude = true;
-            ackSelectedBtn.setVisible(false);
-            actionComp.layout();
-            actionComp.pack();
-        }
     }
 
     /**
      * Create the message log list control.
      */
     private void createMessageLogControl() {
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         logComp = new Composite(shell, SWT.NONE);
         logComp.setLayout(new GridLayout(1, false));
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         logComp.setLayoutData(gd);
 
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Label dblClickLBl = new Label(logComp, SWT.BORDER | SWT.CENTER);
         dblClickLBl
                 .setText("Double-click message to display more information:");
-        dblClickLBl.setFont(dblClickLblFont);
+        dblClickLBl.setFont(labelFont);
         dblClickLBl.setForeground(display.getSystemColor(SWT.COLOR_DARK_BLUE));
         dblClickLBl.setLayoutData(gd);
 
-        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        gd.widthHint = 900;
-        gd.heightHint = 250;
         msgLogList = new List(logComp, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
-        msgLogList.setFont(controlFont);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        Rectangle size = msgLogList.computeTrim(0, 0, controlWidth,
+                msgLogList.getItemHeight() * NUM_LIST_ITEMS);
+        gd.widthHint = size.width;
+        gd.heightHint = size.height;
+        gd.heightHint = (msgLogList.getItemHeight() * 10)
+                + (msgLogList.getBorderWidth() * 2);
         msgLogList.setLayoutData(gd);
         msgLogList.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 showSelectedListData();
             }
-        });
 
-        detailsComp = new SimpleDetailsComp(logComp, SWT.NONE);
-
-        msgLogList.addMouseListener(new MouseListener() {
             @Override
-            public void mouseDoubleClick(MouseEvent e) {
-
-                if (detailsComp.isVisible() == false) {
+            public void widgetDefaultSelected(SelectionEvent e) {
+                int delta = 0;
+                if (detailsComp.isVisible()) {
+                    ((GridData) detailsComp.getLayoutData()).exclude = true;
+                    detailsComp.setVisible(false);
+                    delta -= detailsComp.getSize().y;
+                } else {
                     int idx = msgLogList.getSelectionIndex();
                     if (idx < 0) {
                         return;
                     }
                     StatusMessage sm = statMsgArray.get(idx);
                     detailsComp.displayDetails(sm);
+                    ((GridData) detailsComp.getLayoutData()).exclude = false;
                     detailsComp.setVisible(true);
-                } else {
-                    detailsComp.setVisible(false);
+                    delta += detailsComp.getSize().y;
                 }
-            }
 
-            @Override
-            public void mouseDown(MouseEvent e) {
+                adjustHeight(delta);
             }
-
-            @Override
-            public void mouseUp(MouseEvent e) {
-            }
-
         });
 
-        if (expanded == false) {
-            ((GridData) logComp.getLayoutData()).exclude = true;
-            logComp.setVisible(false);
-            shell.layout();
-            shell.pack();
-        }
+        detailsComp = new SimpleDetailsComp(shell, SWT.NONE);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        detailsComp.setLayoutData(gd);
 
         msgLogList.add(getFormattedMessage(statMsgArray.get(0)));
         msgLogList.select(0);
@@ -637,46 +631,59 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
      * Show/Hide the message log list.
      */
     private void showHideLog() {
+        int delta = 0;
         if (expanded == true) {
             // Show the message labels
             ((GridData) topLabelComp.getLayoutData()).exclude = false;
             topLabelComp.setVisible(true);
-            shell.layout();
-            shell.pack();
+            delta += topLabelComp.getSize().y;
 
             // Show the Acknowledge Selected button
             ((GridData) ackSelectedBtn.getLayoutData()).exclude = false;
             ackSelectedBtn.setVisible(true);
-            actionComp.layout();
-            actionComp.pack();
+            hideShowLogBtn.setText("Hide Log");
 
             // Show the message log
             ((GridData) logComp.getLayoutData()).exclude = false;
             logComp.setVisible(true);
-            shell.layout();
-            shell.pack();
-            hideShowLogBtn.setText("Hide Log");
+            delta += logComp.getSize().y;
         } else {
             // Hide the message labels
             ((GridData) topLabelComp.getLayoutData()).exclude = true;
             topLabelComp.setVisible(false);
-            shell.layout();
-            shell.pack();
+            delta -= topLabelComp.getSize().y;
 
             // Hide the Acknowledge Selected button
             ((GridData) ackSelectedBtn.getLayoutData()).exclude = true;
             ackSelectedBtn.setVisible(false);
-            actionComp.layout();
-            actionComp.pack();
+            hideShowLogBtn.setText("Show Log");
 
             // Hide the message log
-            detailsComp.setVisible(false);
+            if (this.first || detailsComp.isVisible()) {
+                ((GridData) detailsComp.getLayoutData()).exclude = true;
+                detailsComp.setVisible(false);
+                delta -= detailsComp.getSize().y;
+                this.first = false;
+            }
+
             ((GridData) logComp.getLayoutData()).exclude = true;
             logComp.setVisible(false);
-            shell.layout();
-            shell.pack();
-            hideShowLogBtn.setText("Show Log");
+            delta -= logComp.getSize().y;
         }
+        actionComp.layout();
+
+        adjustHeight(delta);
+    }
+
+    private void adjustHeight(int delta) {
+        Point minSize = shell.getMinimumSize();
+        minSize.y += delta;
+        shell.setMinimumSize(minSize);
+
+        Point size = shell.getSize();
+        size.x += SWT_BUG_FACTOR;
+        size.y += delta + SWT_BUG_FACTOR;
+        shell.setSize(size);
     }
 
     /**
@@ -697,10 +704,19 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
         sourceLbl.setText(sourceStr + sm.getSourceKey());
         timeLbl.setText(dateFormat.format(sm.getEventTime()));
         messageTF.setText(sm.getMessage());
+        int desiredHeight = Math.min(MAX_INITIAL_LINES,
+                messageTF.getLineCount())
+                * messageTF.getLineHeight();
+        Rectangle clientArea = messageTF.getClientArea();
+        if (clientArea.height < desiredHeight) {
+            Rectangle trim = messageTF.computeTrim(clientArea.x, clientArea.y,
+                    clientArea.width, desiredHeight);
+            Point oldSize = messageTF.getSize();
+            messageTF.setSize(oldSize.x, trim.height);
+            adjustHeight(trim.height - oldSize.y);
+        }
 
         detailsComp.displayDetails(sm);
-
-        this.shell.pack();
     }
 
     /**
@@ -743,7 +759,7 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
         }
 
         // Check if a message is not selected.
-        if (currentIndex < 0 || !expanded) {
+        if ((currentIndex < 0) || !expanded) {
             if (msgLogList.getItemCount() > 0) {
                 msgLogList.select(0);
                 showSelectedListData();
@@ -755,16 +771,13 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
 
         // Check if the current index will go outside the array
         // (it should never do this but check anyway...)
-        if (currentIndex > 0 && currentIndex == statMsgArray.size()) {
+        if ((currentIndex > 0) && (currentIndex == statMsgArray.size())) {
             msgLogList.select(0);
             showSelectedListData();
             return;
         }
 
         msgLogList.select(currentIndex);
-        if (initialized == true) {
-            showDialog(true);
-        }
     }
 
     /**
@@ -873,12 +886,14 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
         messageComp.setBackground(bgColor);
         actionComp.setBackground(bgColor);
         fillerLbl.setBackground(bgColor);
+        logComp.setBackground(bgColor);
+        detailsComp.setBackground(bgColor);
     }
 
     /**
      * Acknowledge all of the messages.
      */
-    public void acknowledgeAllMessages(boolean confirmPrompt) {
+    public void acknowledgeAllMessages() {
         int index = msgLogList.getSelectionIndex();
 
         int result = SWT.CANCEL;
@@ -886,34 +901,32 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
             return;
         }
 
-        boolean expandedForPromp = false;
+        boolean expandedForPrompt = false;
         if (!expanded) {
-            expandedForPromp = expanded = true;
+            expandedForPrompt = expanded = true;
+            showHideLog();
         }
 
-        showHideLog();
-        if (confirmPrompt) {
-            ConfirmationDlg cd = new ConfirmationDlg(shell,
-                    "Are you sure you want to acknowledge all popup messages?",
-                    SWT.ICON_QUESTION);
+        ConfirmationDlg cd = new ConfirmationDlg(shell,
+                "Are you sure you want to acknowledge all popup messages?",
+                SWT.ICON_QUESTION);
 
-            if (msgLogList != null && !msgLogList.isDisposed()) {
-                Rectangle logBounds = msgLogList.getBounds();
-                Point logDisplayOrigin = msgLogList.toDisplay(0, 0);
-                logBounds.x = logDisplayOrigin.x;
-                logBounds.y = logDisplayOrigin.y;
-                cd.setAvoidedArea(logBounds);
+        if ((msgLogList != null) && !msgLogList.isDisposed()) {
+            Rectangle logBounds = msgLogList.getBounds();
+            Point logDisplayOrigin = msgLogList.toDisplay(0, 0);
+            logBounds.x = logDisplayOrigin.x;
+            logBounds.y = logDisplayOrigin.y;
+            cd.setAvoidedArea(logBounds);
+        }
+
+        result = cd.open();
+
+        if (result != SWT.YES) {
+            if ((result == SWT.CANCEL) && expandedForPrompt) {
+                expanded = false;
+                showHideLog();
             }
-
-            result = cd.open();
-
-            if (result != SWT.YES) {
-                if (result == SWT.CANCEL && expandedForPromp) {
-                    expanded = false;
-                    showHideLog();
-                }
-                return;
-            }
+            return;
         }
 
         String userName = System.getProperty("user.name");
@@ -947,34 +960,39 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
     private void setInitialDialogLocation() {
 
         if (dialogXY == null) {
+            Point minSize = shell.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+            shell.setMinimumSize(minSize);
 
             int screenHeight = display.getBounds().height;
             int screenWidth = display.getPrimaryMonitor().getBounds().width;
 
-            int newX = screenWidth / 2
-                    - (shell.getChildren())[0].getBounds().width / 2;
-            int newY = (screenHeight / 2 - (shell.getChildren())[0].getBounds().height / 2) - 200;
+            Point size = minSize;
+            shell.setSize(size);
 
-            shell.setLocation(newX, newY);
-
-            dialogXY = new Point(newX, newY);
+            dialogXY = new Point((screenWidth - size.x) / 2,
+                    (screenHeight - size.y) / 4);
+            shell.setLocation(dialogXY);
         } else {
             shell.setLocation(dialogXY);
         }
     }
 
     /**
-     * Shows or hides the dialog.
+     * Shows the dialog.
      * 
      * @param show
      *            True to show dialog, false to hide.
      */
-    public void showDialog(boolean show) {
-        shell.setLocation(dialogXY);
-        shell.setVisible(show);
+    public void showDialog() {
+        if (initialized) {
+            shell.setLocation(dialogXY);
+            shell.setVisible(true);
 
-        showSelectedListData();
-        msgLogList.showSelection();
+            showSelectedListData();
+            msgLogList.showSelection();
+        } else {
+            open();
+        }
     }
 
     /**
@@ -993,7 +1011,7 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
      * @return True if open, false if not.
      */
     public boolean dialogIsOpen() {
-        return (shell != null && !shell.isDisposed() && shell.isVisible());
+        return ((shell != null) && !shell.isDisposed() && shell.isVisible());
     }
 
     /**
@@ -1038,7 +1056,7 @@ public class AlertPopupMessageDlg extends Dialog implements MouseMoveListener,
      */
     @Override
     public void mouseMove(MouseEvent e) {
-        if (origin != null && moveDialog == true) {
+        if ((origin != null) && (moveDialog == true)) {
             // Move the dialog.
             dialogLoc = display.map(shell, null, e.x, e.y);
             dialogXY.x = dialogLoc.x - origin.x;

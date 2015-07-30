@@ -51,7 +51,8 @@ import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.core.EDEXUtil;
-import com.raytheon.uf.edex.database.tasks.SqlQueryTask;
+import com.raytheon.uf.edex.database.dao.CoreDao;
+import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
@@ -65,14 +66,14 @@ import com.vividsolutions.jts.geom.Polygon;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Sep 18, 2012		 #1091  randerso	Initial creation
- * Mar 28, 2013      #1837  dgilling    Change error handling in 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Sep 18, 2012 #1091       randerso    Initial creation
+ * Mar 28, 2013 #1837       dgilling    Change error handling in 
  *                                      getLastUpdated().
- * Mar 11, 2014      #2718 randerso     Changes for GeoTools 10.5
- * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
- * 
+ * Mar 11, 2014 #2718       randerso    Changes for GeoTools 10.5
+ * Oct 16, 2014 3454        bphillip    Upgrading to Hibernate 4
+ * Jul 13, 2015 4500        rjpeter     Fix SQL Injection concerns.
  * </pre>
  * 
  * @author randerso
@@ -105,7 +106,7 @@ public class DbShapeSource {
 
     private String instanceName;
 
-    private String tableName;
+    private final String tableName;
 
     private List<String> attributeNames;
 
@@ -447,14 +448,13 @@ public class DbShapeSource {
 
     public Date getLastUpdated() throws MissingLocalMapsException {
         String sqlQuery = "SELECT import_time FROM " + SCHEMA_NAME
-                + ".map_version WHERE table_name = '" + this.tableName + "';";
+                + ".map_version WHERE table_name = :tableName";
         try {
-            SqlQueryTask task = new SqlQueryTask(sqlQuery, DB_NAME);
-            QueryResult result = task.execute();
+            CoreDao dao = new CoreDao(DaoConfig.forDatabase(DB_NAME));
+            QueryResult result = dao.executeMappedSQLQuery(sqlQuery,
+                    "tableName", this.tableName);
             return (Date) result.getRowColumnValue(0, 0);
         } catch (Exception e) {
-            // statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-            // e);
             throw new MissingLocalMapsException(e);
         }
     }

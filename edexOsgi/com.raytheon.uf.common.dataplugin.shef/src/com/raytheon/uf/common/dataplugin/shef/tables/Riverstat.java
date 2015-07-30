@@ -1,29 +1,31 @@
 /**
-* This software was developed and / or modified by Raytheon Company,
-* pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-* 
-* U.S. EXPORT CONTROLLED TECHNICAL DATA
-* This software product contains export-restricted data whose
-* export/transfer/disclosure is restricted by U.S. law. Dissemination
-* to non-U.S. persons whether in the United States or abroad requires
-* an export license or other authorization.
-* 
-* Contractor Name:        Raytheon Company
-* Contractor Address:     6825 Pine Street, Suite 340
-*                         Mail Stop B8
-*                         Omaha, NE 68106
-*                         402.291.0100
-* 
-* See the AWIPS II Master Rights File ("Master Rights File.pdf") for
-* further licensing information.
-**/
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
 package com.raytheon.uf.common.dataplugin.shef.tables;
+
 // default package
 // Generated Oct 17, 2008 2:22:17 PM by Hibernate Tools 3.2.2.GA
 
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -46,9 +48,10 @@ import javax.persistence.TemporalType;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 17, 2008                        Initial generation by hbm2java
- * Aug 19, 2011      10672     jkorman Move refactor to new project
- * Oct 07, 2013       2361     njensen Removed XML annotations
- * Jul 06, 2015      14104     lbousaidi increased length of gsno column.
+ * Aug 19, 2011      10672  jkorman    Move refactor to new project
+ * Oct 07, 2013       2361  njensen    Removed XML annotations
+ * May 15, 2015       4380  skorolev   Add new issuestg and issueflow fields.
+ * Jul 06, 2015      14104  lbousaidi  increased length of gsno column.
  * 
  * </pre>
  * 
@@ -58,7 +61,9 @@ import javax.persistence.TemporalType;
 @Entity
 @Table(name = "riverstat")
 @com.raytheon.uf.common.serialization.annotations.DynamicSerialize
-public class Riverstat extends com.raytheon.uf.common.dataplugin.persist.PersistableDataObject implements java.io.Serializable {
+public class Riverstat extends
+        com.raytheon.uf.common.dataplugin.persist.PersistableDataObject
+        implements java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -206,6 +211,12 @@ public class Riverstat extends com.raytheon.uf.common.dataplugin.persist.Persist
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Set<Hgstation> hgstations = new HashSet<Hgstation>(0);
 
+    @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
+    private Double issuestg;
+
+    @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
+    private Double issueflow;
+
     public Riverstat() {
     }
 
@@ -229,7 +240,7 @@ public class Riverstat extends com.raytheon.uf.common.dataplugin.persist.Persist
             Set<Fcstptservice> fcstptservices, Set<Lowwater> lowwaters,
             Set<Crest> crests, Set<Floodstmt> floodstmts, Set<Pub> pubs,
             Set<Descrip> descrips, Set<Unitgraph> unitgraphs,
-            Set<Hgstation> hgstations) {
+            Set<Hgstation> hgstations, Double issuestg, Double issueflow) {
         this.lid = lid;
         this.location = location;
         this.primaryPe = primaryPe;
@@ -278,6 +289,8 @@ public class Riverstat extends com.raytheon.uf.common.dataplugin.persist.Persist
         this.descrips = descrips;
         this.unitgraphs = unitgraphs;
         this.hgstations = hgstations;
+        this.issuestg = issuestg;
+        this.issueflow = issueflow;
     }
 
     @Id
@@ -714,6 +727,22 @@ public class Riverstat extends com.raytheon.uf.common.dataplugin.persist.Persist
 
     public void setHgstations(Set<Hgstation> hgstations) {
         this.hgstations = hgstations;
+    }
+
+    public Double getIssuestg() {
+        return issuestg;
+    }
+
+    public void setIssuestg(Double issuestg) {
+        this.issuestg = issuestg;
+    }
+
+    public Double getIssueflow() {
+        return issueflow;
+    }
+
+    public void setIssueflow(Double issueflow) {
+        this.issueflow = issueflow;
     }
 
 }

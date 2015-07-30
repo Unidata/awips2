@@ -36,7 +36,8 @@ import java.util.regex.Pattern;
  * May  1, 2013 15893	mgamazaychikov Changed listOfAreaNamePtrn.
  * Feb 26, 2014 16386      Qinglu Lin  Updated listOfAreaNamePtrn to handle issue caused by 
  *                                     hyphens in county name, and that by "'" and "/" as well.
- *
+ * May 29, 2015 4441       randerso    Made bullet patterns case insensitive
+ * 
  * </pre>
  * 
  * @version 1.0
@@ -61,14 +62,17 @@ public interface IQCCheck {
     public static final Pattern listOfAreaNamePtrn = Pattern
             .compile("^([\\w\\s\\.'/]*-)");
 
-    public static final Pattern firstBulletPtrn = Pattern
-            .compile("\\*\\s(.*)\\s(WARNING|ADVISORY)(\\sFOR(.*)|...)");
+    public static final Pattern firstBulletPtrn = Pattern.compile(
+            "^\\*\\s(.*)\\s(WARNING|ADVISORY)(\\sFOR(.*)|...)",
+            Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
-    public static final Pattern secondBulletPtrn = Pattern
-            .compile("\\*\\sUNTIL\\s(\\d{1,2})(\\d{2})\\s(AM|PM)\\s(\\w{3,4})");
+    public static final Pattern secondBulletPtrn = Pattern.compile(
+            "^\\*\\sUNTIL\\s(\\d{1,2})(\\d{2})\\s(AM|PM)\\s(\\w{3,4})",
+            Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
-    public static final Pattern thirdBulletPtrn = Pattern
-            .compile("\\*\\sAT\\s(\\d{1,2})(\\d{2})\\s(AM|PM)\\s(\\w{3,4})(.*)");
+    public static final Pattern thirdBulletPtrn = Pattern.compile(
+            "^\\*\\sAT\\s(\\d{1,2})(\\d{2})\\s(AM|PM)\\s(\\w{3,4})(.*)",
+            Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
     public static final Pattern latLonPtrn = Pattern
             .compile("LAT...LON+(\\s\\d{3,4}\\s\\d{3,5}){1,}");

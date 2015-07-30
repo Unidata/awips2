@@ -104,8 +104,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 09/29/2010   4384      lbousaidi    Fixed PC/PP display and make Save button 
  * 									   save to tokenized directory
  * 03/14/2013   1790       rferrel     Changes for non-blocking dialog.
- * 
- * 
+ * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
  * </pre>
  * 
  * @author lvenable
@@ -180,7 +179,7 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
     /**
      * Selected Durations.
      */
-    private int[] selectedDurations = new int[durationValues.length];
+    private final int[] selectedDurations = new int[durationValues.length];
 
     /**
      * Durations.
@@ -250,7 +249,7 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
     /**
      * List of PTS values.
      */
-    private java.util.List<String> pTs = new ArrayList<String>();
+    private final java.util.List<String> pTs = new ArrayList<String>();
 
     /**
      * Sort combo box.
@@ -544,13 +543,13 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
         // durList has the pa_options.duration_set of values (indirectly)
         durList = new List(durComp, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
         durList.setLayoutData(gd);
-        durList.add(((Integer) durationValues[0]).toString() + " Hour");
-        durList.add(((Integer) durationValues[1]).toString() + " Hour");
-        durList.add(((Integer) durationValues[2]).toString() + " Hour");
-        durList.add(((Integer) durationValues[3]).toString() + " Hour");
-        durList.add(((Integer) durationValues[4]).toString() + " Hour");
-        durList.add(((Integer) durationValues[5]).toString() + " Hour");
-        durList.add(((Integer) durationValues[6]).toString() + " Hour");
+        durList.add(((Number) durationValues[0]).toString() + " Hour");
+        durList.add(((Number) durationValues[1]).toString() + " Hour");
+        durList.add(((Number) durationValues[2]).toString() + " Hour");
+        durList.add(((Number) durationValues[3]).toString() + " Hour");
+        durList.add(((Number) durationValues[4]).toString() + " Hour");
+        durList.add(((Number) durationValues[5]).toString() + " Hour");
+        durList.add(((Number) durationValues[6]).toString() + " Hour");
         durList.add("Other");
         durList.setFont(font);
         durList.setSelection(4);
@@ -980,8 +979,8 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
 
         // Determine the length (i.e., NUMDURATIONS) of the new durations array
         int NUMDURATIONS = 0;
-        for (int i = 0; i < selectedDurations.length; i++) {
-            if (selectedDurations[i] == 9999) {
+        for (int selectedDuration : selectedDurations) {
+            if (selectedDuration == 9999) {
                 break;
             } else {
                 NUMDURATIONS++;
@@ -1263,9 +1262,9 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
         int index = hdr.indexOf("<duration>");
         index += 10;
 
-        for (int i = 0; i < durations.length; i++) {
-            hdr.insert(index, durations[i]);
-            index += Integer.toString(durations[i]).length();
+        for (int duration : durations) {
+            hdr.insert(index, duration);
+            index += Integer.toString(duration).length();
             hdr.insert(index, ",");
             index++;
             hdr.insert(index, " ");
@@ -1298,13 +1297,13 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
         hdr.append("\n");
         hdr.append(String.format(FMT_DUR_HD_TR, "Location", "Name", "PE", "TS"));
 
-        for (int i = 0; i < durations.length; i++) {
-            hdr.append(String.format(FMT_DUR, durations[i], "hr"));
+        for (int duration : durations) {
+            hdr.append(String.format(FMT_DUR, duration, "hr"));
         }
         hdr.append("\n");
         hdr.append(String.format(FMT_DUR_HD_TR, "========", "====", "==", "=="));
 
-        for (int i = 0; i < durations.length; i++) {
+        for (int duration : durations) {
             hdr.append(String.format(FMT_DUR_TR, "===", "=="));
         }
 
@@ -1675,11 +1674,11 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
             Point dpi = printer.getDPI();
             leftMargin = dpi.x + trim.x; // one inch from left side of paper
             // one inch from right side of paper
-            rightMargin = clientArea.width - dpi.x + trim.x + trim.width;
+            rightMargin = (clientArea.width - dpi.x) + trim.x + trim.width;
             // one inch from top edge of paper
             topMargin = dpi.y + trim.y;
             // one inch from bottom edge of paper
-            bottomMargin = clientArea.height - dpi.y + trim.y + trim.height;
+            bottomMargin = (clientArea.height - dpi.y) + trim.y + trim.height;
 
             /* Create a buffer for computing tab width. */
             int tabSize = 4; // is tab width a user setting in your UI?
@@ -1757,7 +1756,7 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
                 }
             }
         }
-        if (y + lineHeight <= bottomMargin) {
+        if ((y + lineHeight) <= bottomMargin) {
             printer.endPage();
         }
     }
@@ -1769,7 +1768,7 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
         if (wordBuffer.length() > 0) {
             String word = wordBuffer.toString();
             int wordWidth = gc.stringExtent(word).x;
-            if (x + wordWidth > rightMargin) {
+            if ((x + wordWidth) > rightMargin) {
                 /* word doesn't fit on current line, so wrap */
                 newline();
             }
@@ -1785,9 +1784,9 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
     private void newline() {
         x = leftMargin;
         y += lineHeight;
-        if (y + lineHeight > bottomMargin) {
+        if ((y + lineHeight) > bottomMargin) {
             printer.endPage();
-            if (index + 1 < end) {
+            if ((index + 1) < end) {
                 y = topMargin;
                 printer.startPage();
             }

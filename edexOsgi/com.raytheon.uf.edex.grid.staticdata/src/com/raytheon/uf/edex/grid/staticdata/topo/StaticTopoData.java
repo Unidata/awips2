@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -53,6 +53,7 @@ import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.StorageProperties;
 import com.raytheon.uf.common.datastorage.StorageProperties.Compression;
+import com.raytheon.uf.common.datastorage.StorageStatus;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -74,7 +75,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Class used for accessing static topography information for GFE smart inits
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date          Ticket#  Engineer    Description
@@ -89,9 +90,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Feb 12, 2013  1608     randerso    Changed to call deleteDatasets
  * Aug 06, 2013  2235     bsteffen    Added Caching version of TopoQuery.
  * Aug 06, 2013  3805     bsteffen    Add timing to logging.
- * 
+ * Apr 29, 2015  4167     nabowle     Propagate exceptions from
+ *                                    #initStopoData(GridCoverage)
+ *
  * </pre>
- * 
+ *
  * @author bphillip
  * @version 1.0
  */
@@ -147,7 +150,7 @@ public class StaticTopoData {
 
     /**
      * Gets the singleton instance of StaticTopoData
-     * 
+     *
      * @return The singleton instance
      */
     public static synchronized StaticTopoData getInstance() {
@@ -268,7 +271,7 @@ public class StaticTopoData {
      * Prepare DataSource for interpolation. Since TiledTopoSource loads all
      * data on demand this will inititialize the source but will not request any
      * data.
-     * 
+     *
      * @throws FactoryException
      * @throws MismatchedDimensionException
      * @throws TransformException
@@ -313,7 +316,7 @@ public class StaticTopoData {
     /**
      * Splits the Pacific grid into east and west hemisphere chunks to reduce
      * memory usage
-     * 
+     *
      * @throws Exception
      */
     private void splitPacific() throws Exception {
@@ -354,7 +357,7 @@ public class StaticTopoData {
 
     /**
      * Checks to see if the topo file exists
-     * 
+     *
      * @return True if the file exists
      */
     private boolean topoFileExists() {
@@ -371,7 +374,7 @@ public class StaticTopoData {
 
     /**
      * Initializes the attributes so they can be easily retrieved
-     * 
+     *
      * @throws Exception
      */
     private void initAttributes() throws Exception {
@@ -394,7 +397,7 @@ public class StaticTopoData {
      * Initializes the topography data for the given site. The data is extracted
      * from the static topo file and resampled according to the site location
      * information
-     * 
+     *
      * @param modelName
      *            The site for which to initalize the topo data
      * @param config
@@ -425,18 +428,30 @@ public class StaticTopoData {
                         inGeom.getGridRange().getHigh(0) + 1,
                         inGeom.getGridRange().getHigh(1) + 1 });
         siteDataStore.addDataRecord(outRecord, sp);
-        siteDataStore.store(StoreOp.REPLACE);
+        StorageStatus storestatus = siteDataStore.store(StoreOp.REPLACE);
         long endTimeMillis = System.currentTimeMillis();
-        statusHandler.handle(Priority.INFO,
-                "Stopo data successfully initialized for " + coverage.getName()
-                        + " in " + (endTimeMillis - startTimeMillis) + "ms");
+        if (storestatus.hasExceptions()) {
+            throw storestatus.getExceptions()[0];
+        } else {
+            statusHandler.handle(
+                    Priority.INFO,
+                    "Stopo data successfully initialized for "
+                            + coverage.getName() + " in "
+                            + (endTimeMillis - startTimeMillis) + "ms");
+        }
     }
 
     /**
      * Private method used by the initialization code to see if the static topo
      * data for a coverage has been initialized
+     *
+     * @throws StorageException
+     * @throws SerializationException
+     *             If the topography data cannot be initialized for the given
+     *             site
      */
-    public boolean checkModelTopo(GridCoverage coverage) {
+    public boolean checkModelTopo(GridCoverage coverage)
+            throws SerializationException, StorageException {
         ClusterTask ct = ClusterLockUtils.lock(TASK_NAME,
                 coverage.spatialKey(), 120000, false);
 
@@ -451,11 +466,6 @@ public class StaticTopoData {
                                     + coverage.getName());
                     initStopoData(coverage);
                 }
-            } catch (Exception e) {
-                statusHandler.handle(
-                        Priority.INFO,
-                        "Error storing static topo data for "
-                                + coverage.getName(), e);
             } finally {
                 ClusterLockUtils.unlock(ct, false);
             }
@@ -466,7 +476,7 @@ public class StaticTopoData {
 
     /**
      * Chekcs if the static topo data for a model exists in the file
-     * 
+     *
      * @param modelName
      *            The model to check
      * @return True if the data exists, else false
@@ -491,12 +501,18 @@ public class StaticTopoData {
 
     /**
      * Retrieves the static topo data for the given site
-     * 
+     *
      * @param modelName
      *            The site for which to get the static topo data
      * @return The static topo data
+     * @throws StorageException
+     * @throws SerializationException
+     *             If the topography data cannot be initialized for the given
+     *             site
+     *
      */
-    public FloatDataRecord getStopoData(GridCoverage coverage) {
+    public FloatDataRecord getStopoData(GridCoverage coverage)
+            throws SerializationException, StorageException {
         if (!topoExists(coverage)) {
             while (!checkModelTopo(coverage)) {
             }
@@ -518,7 +534,7 @@ public class StaticTopoData {
 
     /**
      * Extracts the the topo data from each of the topo data sets.
-     * 
+     *
      * @param inGeom
      *            The geometry of the data to be requested
      * @return A float array containing the extracted topo data
@@ -582,7 +598,7 @@ public class StaticTopoData {
 
     /**
      * Reads the raw data from the topo files
-     * 
+     *
      * @param name
      *            The name of the topo data set
      * @param llLat
@@ -667,7 +683,7 @@ public class StaticTopoData {
 
     /**
      * Creates a grid geometry object from the provided information
-     * 
+     *
      * @param crs
      *            The coordinate reference system
      * @param llCoord
@@ -718,7 +734,7 @@ public class StaticTopoData {
     /**
      * Retrieves a slab of data from a data set and returns a float array
      * containing the data
-     * 
+     *
      * @param name
      *            The name of the data set to get the data slab from
      * @param minX

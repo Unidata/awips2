@@ -35,7 +35,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 
-
 import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.mpe.util.XmrgFile;
@@ -70,7 +69,7 @@ import com.raytheon.viz.mpe.ui.rsc.PAAsciiXmrgResourceData;
 import com.raytheon.viz.mpe.ui.rsc.PAXmrgResource;
 import com.raytheon.viz.mpe.ui.rsc.PAXmrgResourceData;
 import com.raytheon.viz.mpe.util.ReadQPFGrids;
-import com.raytheon.viz.ui.actions.LoadSerializedXml;
+import com.raytheon.viz.ui.actions.LoadPerspectiveHandler;
 import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 import com.raytheon.viz.ui.editor.ISelectedPanesChangedListener;
 import com.raytheon.viz.ui.input.PanHandler;
@@ -88,6 +87,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Jun 14, 2011            lvenable     Initial creation
  * Dec 15, 2013            cgobs        Wrapup of functionality
+ * Jun 05, 2015 4401       bkowal       Renamed LoadSerializedXml to
+ *                                      LoadPerspectiveHandler.
  * 
  * </pre>
  * 
@@ -96,11 +97,12 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 
 public class MapsComp implements IMultiPaneEditor {
-////////////////////////////////////
+    // //////////////////////////////////
     /** The application name */
     private final String APPLICATION_NAME = "hmapmpe";
-	//private final String APPLICATION_NAME = "PostAnalysis";
-////////////////////////////////////    
+
+    // private final String APPLICATION_NAME = "PostAnalysis";
+    // //////////////////////////////////
     /**
      * Parent shell.
      */
@@ -130,16 +132,17 @@ public class MapsComp implements IMultiPaneEditor {
     private Rectangle rectBounds;
 
     private double[] centerArray = new double[3];
-    
+
     private BasePostAnalysisDlg dialog = null;
-    
-    private static final List<NamedColorUseSet> pColorSetGroup = MPEColors.build_mpe_colors();
-    
-   // ColorLegendMgr colorLegendMgr = null;
-    
-//////////////////////////////////////////    
-//    private List<NamedColorUseSet> colorSetGroups;
-//////////////////////////////////////////    
+
+    private static final List<NamedColorUseSet> pColorSetGroup = MPEColors
+            .build_mpe_colors();
+
+    // ColorLegendMgr colorLegendMgr = null;
+
+    // ////////////////////////////////////////
+    // private List<NamedColorUseSet> colorSetGroups;
+    // ////////////////////////////////////////
 
     /**
      * Constructor.
@@ -149,15 +152,15 @@ public class MapsComp implements IMultiPaneEditor {
      */
     public MapsComp(Shell parentShell, BasePostAnalysisDlg baseDialog) {
         this.parentShell = parentShell;
-        
+
         dialog = baseDialog;
-        
+
         initializeMapsComp();
-        
-  //      setColorLegendMgr( baseDialog.getColorLegendMgr();
-//////////////////////////////////////////    
-  //      colorSetGroups = MPEDisplayManager.getCurrent().getColorSetGroup();
-//////////////////////////////////////////    
+
+        // setColorLegendMgr( baseDialog.getColorLegendMgr();
+        // ////////////////////////////////////////
+        // colorSetGroups = MPEDisplayManager.getCurrent().getColorSetGroup();
+        // ////////////////////////////////////////
     }
 
     /**
@@ -176,11 +179,10 @@ public class MapsComp implements IMultiPaneEditor {
         gd.widthHint = 900;
         comp.setLayoutData(gd);
 
-        
-        //////////////////////////////////////////
+        // ////////////////////////////////////////
         loadData();
-        //////////////////////////////////////////
-     
+        // ////////////////////////////////////////
+
         createMaps(comp);
 
     }
@@ -210,12 +212,12 @@ public class MapsComp implements IMultiPaneEditor {
                 BUNDLE_LOC);
 
         try {
-            LoadSerializedXml.loadTo(this,
+            LoadPerspectiveHandler.loadTo(this,
                     Bundle.unmarshalBundle(defaultBundle, getSubstitutions()));
             IDisplayPane[] panes = getDisplayPanes();
 
             IDisplayPane pane = panes[0];
-       
+
             for (ResourcePair rp : pane.getDescriptor().getResourceList()) {
                 if (rp.getProperties().isMapLayer()) {
                     rectBounds = rp.getResource().getDescriptor()
@@ -232,145 +234,131 @@ public class MapsComp implements IMultiPaneEditor {
             parentShell.dispose();
         }
     }
-    
-//////////////////////////////////////////    
+
+    // ////////////////////////////////////////
     /**
-     * Load the data.  
+     * Load the data.
      */
     private void loadData() {
-        
+
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHH");
         dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-    //    String userId = System.getProperty("user.name");
+        // String userId = System.getProperty("user.name");
         IDisplayPane[] panes = getDisplayPanes();
 
-        try
-        {
-        	loadDataByPane(panes[0], dialog.getDataFileName1(), dialog.getDataArray1(), dialog.getExtent1(), 
-        							 dialog.getNamedColorUseSet1(), dialog.getResourceType1());
-        	
-        	loadDataByPane(panes[1], dialog.getDataFileName2(), dialog.getDataArray2(), dialog.getExtent2(),
-        							 dialog.getNamedColorUseSet2(), dialog.getResourceType2());
+        try {
+            loadDataByPane(panes[0], dialog.getDataFileName1(),
+                    dialog.getDataArray1(), dialog.getExtent1(),
+                    dialog.getNamedColorUseSet1(), dialog.getResourceType1());
+
+            loadDataByPane(panes[1], dialog.getDataFileName2(),
+                    dialog.getDataArray2(), dialog.getExtent2(),
+                    dialog.getNamedColorUseSet2(), dialog.getResourceType2());
+        } catch (Throwable t) {
+            System.out.println(t.getStackTrace());
         }
-        catch (Throwable t)
+
+    }
+
+    private void loadDataByPane(IDisplayPane pane, String filePath,
+            float[] dataArray, java.awt.Rectangle extent,
+            NamedColorUseSet namedColorUseSet, PAResourceType resourceType) {
+
+        if (resourceType == PAResourceType.XMRG) {
+
+            loadDataByPaneXmrg(pane, filePath, dataArray, extent,
+                    namedColorUseSet);
+        } else // (resourceType == PAResourceType.ASCII_XMRG)
         {
-        	System.out.println(t.getStackTrace());
+            loadDataByPaneAsciiXmrg(pane, filePath, dataArray, extent,
+                    namedColorUseSet);
         }
-        
-    }
-    
-    private void loadDataByPane(IDisplayPane pane, String filePath, float[] dataArray, 
-    							java.awt.Rectangle extent,
-    							NamedColorUseSet namedColorUseSet,
-    							PAResourceType resourceType)
-    {
-    	
-    	if (resourceType == PAResourceType.XMRG)
-    	{
-    	
-    		loadDataByPaneXmrg(pane, filePath, dataArray, extent, namedColorUseSet);
-    	}
-    	else // (resourceType == PAResourceType.ASCII_XMRG)
-    	{
-    		loadDataByPaneAsciiXmrg(pane, filePath, dataArray, extent, namedColorUseSet);
-    	}
-    }
-    
-    private void loadDataByPaneXmrg(IDisplayPane pane, String filePath, float[] dataArray, java.awt.Rectangle extent, NamedColorUseSet namedColorUseSet)
-    {
-    	  String userId = System.getProperty("user.name");
-    	
-    	  IDescriptor descriptor = pane.getDescriptor();
-
-          //DisplayFieldData dataType = DisplayFieldData.gageOnly;
-         // String cv_use = dataType.getCv_use();
-    
-    	  String cv_use = namedColorUseSet.getColor_use_db_name();
-    	  int cv_duration = namedColorUseSet.getDefault_duration();
-    	  
-          String fname = filePath;
-          PAXmrgResourceData xmrgRscData = null;
-          
-          ResourcePair rp = new ResourcePair();
-          
-          if (filePath != null)
-          {
-        	  XmrgFile xmrg = new XmrgFile(fname);
-              xmrgRscData = new PAXmrgResourceData(xmrg, cv_use);
-          }
-          else
-          {
-        	  xmrgRscData = new PAXmrgResourceData(dataArray, extent, cv_use);
-          }
-          
-        
-      
-          List<NamedColorUseSet> namedColorUseSetList = pColorSetGroup;
-           
-          List<Colorvalue> colorSet = GetColorValues.get_colorvalues(userId,
-        		  APPLICATION_NAME, cv_use,
-        		  cv_duration, "E", namedColorUseSetList);
-
-
-
-          xmrgRscData.setColorList(colorSet);
-          rp.setResourceData(xmrgRscData);
-          descriptor.getResourceList().add(rp);
-          descriptor.getResourceList().instantiateResources(descriptor, true);
-          PAXmrgResource resource = (PAXmrgResource) rp.getResource();
-          
-          resource.getProperties().setMapLayer(true);       
     }
 
-    
+    private void loadDataByPaneXmrg(IDisplayPane pane, String filePath,
+            float[] dataArray, java.awt.Rectangle extent,
+            NamedColorUseSet namedColorUseSet) {
+        String userId = System.getProperty("user.name");
+
+        IDescriptor descriptor = pane.getDescriptor();
+
+        // DisplayFieldData dataType = DisplayFieldData.gageOnly;
+        // String cv_use = dataType.getCv_use();
+
+        String cv_use = namedColorUseSet.getColor_use_db_name();
+        int cv_duration = namedColorUseSet.getDefault_duration();
+
+        String fname = filePath;
+        PAXmrgResourceData xmrgRscData = null;
+
+        ResourcePair rp = new ResourcePair();
+
+        if (filePath != null) {
+            XmrgFile xmrg = new XmrgFile(fname);
+            xmrgRscData = new PAXmrgResourceData(xmrg, cv_use);
+        } else {
+            xmrgRscData = new PAXmrgResourceData(dataArray, extent, cv_use);
+        }
+
+        List<NamedColorUseSet> namedColorUseSetList = pColorSetGroup;
+
+        List<Colorvalue> colorSet = GetColorValues.get_colorvalues(userId,
+                APPLICATION_NAME, cv_use, cv_duration, "E",
+                namedColorUseSetList);
+
+        xmrgRscData.setColorList(colorSet);
+        rp.setResourceData(xmrgRscData);
+        descriptor.getResourceList().add(rp);
+        descriptor.getResourceList().instantiateResources(descriptor, true);
+        PAXmrgResource resource = (PAXmrgResource) rp.getResource();
+
+        resource.getProperties().setMapLayer(true);
+    }
+
     private void loadDataByPaneAsciiXmrg(IDisplayPane pane, String filePath,
-    									 float[] dataArray, java.awt.Rectangle extent, 
-    									 NamedColorUseSet namedColorUseSet)
-    {
-    	  String userId = System.getProperty("user.name");
-    	
-    	  IDescriptor descriptor = pane.getDescriptor();
-  
-    	  String cv_use = namedColorUseSet.getColor_use_db_name();
-    	  int cv_duration = namedColorUseSet.getDefault_duration();
-    	  
-          PAAsciiXmrgResourceData gridResourceData = null;
-          
-          ResourcePair rp = new ResourcePair();
+            float[] dataArray, java.awt.Rectangle extent,
+            NamedColorUseSet namedColorUseSet) {
+        String userId = System.getProperty("user.name");
 
-          if (filePath != null)
-          {
-        	  gridResourceData = new PAAsciiXmrgResourceData(filePath, cv_use);
-          }
-          else
-          {
-        	  gridResourceData = new PAAsciiXmrgResourceData(dataArray, extent, cv_use);
-        	  //  gridResourceData.
-          }
-          
-          //hook up to MPEColors
-          List<NamedColorUseSet> namedColorUseSetList = pColorSetGroup;
-                  
-          List<Colorvalue> colorSet = GetColorValues.get_colorvalues(userId,
-        		  APPLICATION_NAME, cv_use,
-        		  cv_duration, "E", namedColorUseSetList);
+        IDescriptor descriptor = pane.getDescriptor();
 
-          
-          gridResourceData.setColorList(colorSet);
+        String cv_use = namedColorUseSet.getColor_use_db_name();
+        int cv_duration = namedColorUseSet.getDefault_duration();
 
-          //get the resource
-          rp.setResourceData(gridResourceData);
-          descriptor.getResourceList().add(rp);
-          descriptor.getResourceList().instantiateResources(descriptor, true);
-          PAAsciiXmrgResource resource = (PAAsciiXmrgResource) rp.getResource();
+        PAAsciiXmrgResourceData gridResourceData = null;
 
+        ResourcePair rp = new ResourcePair();
 
-          //set resource properties    
-          ResourceProperties gageResourceProperties = resource.getProperties();
-          gageResourceProperties.setMapLayer(true);
-  
+        if (filePath != null) {
+            gridResourceData = new PAAsciiXmrgResourceData(filePath, cv_use);
+        } else {
+            gridResourceData = new PAAsciiXmrgResourceData(dataArray, extent,
+                    cv_use);
+            // gridResourceData.
+        }
+
+        // hook up to MPEColors
+        List<NamedColorUseSet> namedColorUseSetList = pColorSetGroup;
+
+        List<Colorvalue> colorSet = GetColorValues.get_colorvalues(userId,
+                APPLICATION_NAME, cv_use, cv_duration, "E",
+                namedColorUseSetList);
+
+        gridResourceData.setColorList(colorSet);
+
+        // get the resource
+        rp.setResourceData(gridResourceData);
+        descriptor.getResourceList().add(rp);
+        descriptor.getResourceList().instantiateResources(descriptor, true);
+        PAAsciiXmrgResource resource = (PAAsciiXmrgResource) rp.getResource();
+
+        // set resource properties
+        ResourceProperties gageResourceProperties = resource.getProperties();
+        gageResourceProperties.setMapLayer(true);
+
     }
-//////////////////////////////////////////    
+
+    // ////////////////////////////////////////
     /**
      * Get substitutions for the map center.
      * 
@@ -406,7 +394,7 @@ public class MapsComp implements IMultiPaneEditor {
                 if (rp.getProperties().isMapLayer()
                         && rp.getResource().getName().equals(menuText)) {
                     rp.getProperties().setVisible(visible);
-                    
+
                 }
             }
         }
@@ -419,7 +407,7 @@ public class MapsComp implements IMultiPaneEditor {
 
             ((VizDisplayPane) pane).getRenderableDisplay()
                     .recenter(centerArray);
- 
+
             ((VizDisplayPane) pane).zoom(.25);
         }
     }
@@ -475,8 +463,8 @@ public class MapsComp implements IMultiPaneEditor {
     @Override
     public void refresh() {
         loadData();
-    	paneManager.refresh();
-        
+        paneManager.refresh();
+
     }
 
     /*

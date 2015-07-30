@@ -49,7 +49,7 @@ import com.raytheon.viz.hydrocommon.HydroDataCache;
  * 04Sept2008   1509       dhladky     abstraction.
  * 13Oct2008    1580       askripsky   Refactored
  * 21 Feb 2010  2915       mpduff      Fixed Time Zone problem.
- * 
+ * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
  * </pre>
  * 
  * @author ebabin
@@ -66,7 +66,7 @@ public class StationReportingDataManager {
 
     private HashMap<String, StationReportingTimingData> stationTime;
 
-    private String LATEST_OBS_FOR_LID_QUERY = "select lid,pe,dur,ts,extremum,obstime,value,shef_Qual_Code,quality_Code,revision,product_Id,producttime,postingtime from latestobsvalue where lid = ':lid' order by obstime desc, pe desc,ts desc,dur desc,extremum desc";
+    private final String LATEST_OBS_FOR_LID_QUERY = "select lid,pe,dur,ts,extremum,obstime,value,shef_Qual_Code,quality_Code,revision,product_Id,producttime,postingtime from latestobsvalue where lid = ':lid' order by obstime desc, pe desc,ts desc,dur desc,extremum desc";
 
     private String previousWhere = " ";
 
@@ -127,8 +127,9 @@ public class StationReportingDataManager {
 
         List<Object[]> data;
         try {
-            data = DirectDbQuery.executeQuery(LATEST_OBS_FOR_LID_QUERY.replace(
-                    ":lid", lid), HydroConstants.IHFS, QueryLanguage.SQL);
+            data = DirectDbQuery.executeQuery(
+                    LATEST_OBS_FOR_LID_QUERY.replace(":lid", lid),
+                    HydroConstants.IHFS, QueryLanguage.SQL);
             for (Object[] rowData : data) {
                 retVal.add(convertObsToDataRecord(rowData));
             }
@@ -142,7 +143,7 @@ public class StationReportingDataManager {
     public StationReportingTimingData getTimingData(String lid) {
         if (stationTime == null) {
             loadTimingData();
-            
+
             if (stationTime != null) {
                 return stationTime.get(lid);
             }
@@ -162,7 +163,8 @@ public class StationReportingDataManager {
             StationReportingConstants.Duration duration, int durationHours)
             throws VizException {
         HydroDataCache hydroCache = HydroDataCache.getInstance();
-        SimpleDateFormat currentTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat currentTimeFormat = new SimpleDateFormat(
+                "yyyy-MM-dd HH:mm:ss");
         currentTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
         previousWhere = "";
 
@@ -182,17 +184,16 @@ public class StationReportingDataManager {
                     + " FROM latestobsvalue WHERE obstime > '" + obsTimeString
                     + "')");
         } else if (listType == ListType.NEVER) {
-            where
-                    .append(" WHERE lid = 'X-N/A-X' "
-                            + "UNION "
-                            + "SELECT lid, "
-                            + "  '', 0, '', '', "
-                            + "  '1-1-1 00:00:00', "
-                            + " 0.0, 0, '', 0,'', "
-                            + "  '1-1-1 00:00:00', "
-                            + "  '1-1-1 00:00:00' "
-                            + "  FROM location "
-                            + " WHERE lid NOT IN (SELECT DISTINCT lid FROM latestobsvalue) ");
+            where.append(" WHERE lid = 'X-N/A-X' "
+                    + "UNION "
+                    + "SELECT lid, "
+                    + "  '', 0, '', '', "
+                    + "  '1-1-1 00:00:00', "
+                    + " 0.0, 0, '', 0,'', "
+                    + "  '1-1-1 00:00:00', "
+                    + "  '1-1-1 00:00:00' "
+                    + "  FROM location "
+                    + " WHERE lid NOT IN (SELECT DISTINCT lid FROM latestobsvalue) ");
         }
 
         /* define the sort order */
@@ -243,17 +244,20 @@ public class StationReportingDataManager {
                             StationReportingData srd = new StationReportingData(
                                     lid, hydroCache.getLocationMap().get(lid));
                             srd.setPe((String) oa[1]);
-                            srd.setDur(((Integer) oa[2]).shortValue());
+                            srd.setDur(((Number) oa[2]).shortValue());
                             srd.setTs((String) oa[3]);
                             srd.setExtremum((String) oa[4]);
-                            srd.setObstime(currentTimeFormat.format((Date) oa[5]));
+                            srd.setObstime(currentTimeFormat
+                                    .format((Date) oa[5]));
                             srd.setValue((Double) oa[6]);
-                            srd.setRevision(((Integer) oa[7]).shortValue());
+                            srd.setRevision(((Number) oa[7]).shortValue());
                             srd.setShefQualCode((String) oa[8]);
-                            srd.setQualityCode((Integer) oa[9]);
+                            srd.setQualityCode(((Number) oa[9]).intValue());
                             srd.setProductId((String) oa[10]);
-                            srd.setProducttime(currentTimeFormat.format((Date) oa[11]));
-                            srd.setPostingtime(currentTimeFormat.format((Date) oa[12]));
+                            srd.setProducttime(currentTimeFormat
+                                    .format((Date) oa[11]));
+                            srd.setPostingtime(currentTimeFormat
+                                    .format((Date) oa[12]));
 
                             rval.add(srd);
                             lidList.add(lid);
@@ -267,7 +271,7 @@ public class StationReportingDataManager {
                 return null;
             }
         }
-        
+
         return rval;
     }
 
@@ -286,7 +290,7 @@ public class StationReportingDataManager {
         retVal.setPe(dataRow[1].toString());
 
         if (dataRow[2] != null) {
-            retVal.setDur(((Integer) dataRow[2]).shortValue());
+            retVal.setDur(((Number) dataRow[2]).shortValue());
         }
 
         retVal.setTs(dataRow[3].toString());
@@ -299,11 +303,11 @@ public class StationReportingDataManager {
         retVal.setShefQualCode(dataRow[7].toString());
 
         if (dataRow[8] != null) {
-            retVal.setQualityCode((Integer) dataRow[8]);
+            retVal.setQualityCode(((Number) dataRow[8]).intValue());
         }
 
         if (dataRow[9] != null) {
-            retVal.setRevision(((Integer) dataRow[9]).shortValue());
+            retVal.setRevision(((Number) dataRow[9]).shortValue());
         }
 
         retVal.setProductId(dataRow[10].toString());

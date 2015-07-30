@@ -39,12 +39,12 @@
             <substitute key="source" value="GLD"/>
         </contribute>
     </contribute>
-    <contribute xsi:type="subMenu" menuText="Total Lightning" id="ENTLNSubMenu">
+    <contribute xsi:type="subMenu" menuText="ENI Total Lightning" id="ENTLNSubMenu">
         <contribute xsi:type="subinclude" fileName="menus/lightning/entlnLightningBundleItems.xml">
             <substitute key="source" value="ENTLN"/>
         </contribute>
     </contribute>
-    <contribute xsi:type="subMenu" menuText="Total Lightning Grid" id="entlnGridSubmenu">
+    <contribute xsi:type="subMenu" menuText="ENI Total Lightning Grid" id="entlnGridSubmenu">
         <contribute xsi:type="subinclude" fileName="menus/lightning/gridTotalLightningMenuItems.xml">
             <substitute key="source" value="ENTLN"/>
         </contribute>

@@ -112,7 +112,6 @@ function extendLibraryPath()
       local CAVE_LIB_DIRECTORY="/awips2/cave/lib64"
    fi
 
-   export LD_LIBRARY_PATH="${CAVE_LIB_DIRECTORY}/lib_illusion:$LD_LIBRARY_PATH"
    if [ "${1}" = "-noX" ]; then
       export LD_LIBRARY_PATH="${CAVE_LIB_DIRECTORY}/lib_mesa:$LD_LIBRARY_PATH"
    fi

@@ -1,10 +1,10 @@
 <included>
    <!-- activeTableChange log --> 
    <appender name="activeTableChangeLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="com.raytheon.uf.common.status.logback.StdTimeBasedRollingPolicy">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
          <name>activeTableChange</name>
       </rollingPolicy>
-      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
    </appender> 
 
    <appender name="activeTableChangeLogAsync" class="ch.qos.logback.classic.AsyncAppender">            

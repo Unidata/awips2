@@ -37,6 +37,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.redbook.RedbookRecord;
+import com.raytheon.uf.common.dataplugin.redbook.RedbookWMOMap;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
@@ -71,7 +72,6 @@ import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.viz.pointdata.PlotData;
 import com.raytheon.viz.pointdata.PlotModelFactory;
 import com.raytheon.viz.redbook.Activator;
-import com.raytheon.viz.redbook.RedbookWMOMap;
 import com.raytheon.viz.redbookua.RedbookUpperAirDecoder;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -90,6 +90,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jul 29, 2014 3465       mapeters    Updated deprecated drawString() calls.
  * Aug 11, 2014 3504       mapeters    Replaced deprecated IODataPreparer
  *                                     instances with IRenderedImageCallback.
+ * Jun 26, 2015 4512       mapeters    Updated for RedbookWMOMap API changes.
  * 
  * </pre>
  * 
@@ -179,7 +180,7 @@ public class RedbookUpperAirResource extends
                         Activator.getDefault(), Activator.PLUGIN_ID);
                 return;
             }
-            RedbookWMOMap.Info info = map.mapping.get(wmo.getConstraintValue());
+            RedbookWMOMap.Info info = map.getValue(wmo.getConstraintValue());
             if (info != null && info.name != null)
                 this.humanReadableName = info.name;
         }

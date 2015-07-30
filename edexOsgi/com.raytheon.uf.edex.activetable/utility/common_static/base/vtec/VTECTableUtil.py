@@ -25,6 +25,7 @@
 #    ------------    ----------    -----------    --------------------------
 #    06/17/13        #3296         randerso       Moved active table backup and purging 
 #                                                 to a separate thread in java.
+#    Apr 23, 2015    4259          njensen        Updated for new JEP API
 
 import copy
 import cPickle
@@ -98,7 +99,7 @@ class VTECTableUtil:
         if table is None:
             s = "Table is None"
             return s
-        elif hasattr(table,"jclassname"):
+        elif hasattr(table,"java_name"):
             table = JUtil.javaObjToPyVal(table)
             print type(table)
             

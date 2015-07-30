@@ -137,7 +137,7 @@ Must be paired with proper vm code (also commented out in flashFloodWarning.vm)!
   <bullet bulletName="childSafetyCTA" bulletText="Child Safety..." parseString="KEEP CHILDREN AWAY FROM STORM DRAINS"/>
   <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding..." parseString="BE ESPECIALLY CAUTIOUS AT NIGHT WHEN"/>
   <bullet bulletName="safetyCTA" bulletText="Safety...by foot or motorist" parseString="DO NOT ENTER OR CROSS FLOWING WATER"/>
-  <bullet bulletName="turnAroundCTA" bulletText="Turn around...dont drown" parseString="TURN AROUND...DONT DROWN"/>
+  <bullet bulletName="turnAroundCTA" bulletText="Turn around...dont drown" parseString="TURN AROUND, DON'T DROWN"/>
   <bullet bulletName="stayAwayCTA" bulletText="Stay away or be swept away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
   <bullet bulletName="arroyosCTA" bulletText="Arroyos..." parseString="ARROYOS...STREAMS AND RIVERS CAN BECOME RAGING KILLER CURRENTS"/>
   <bullet bulletName="burnAreasCTA" bulletText="Burn Areas..." parseString="MOVE AWAY FROM RECENTLY BURNED AREAS"/>
@@ -187,7 +187,7 @@ Must be paired with proper vm code (also commented out in flashFloodWarning.vm)!
   <bullet bulletName="childSafetyCTA" bulletText="Child Safety..." parseString="KEEP CHILDREN AWAY FROM STORM DRAINS"/>
   <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding..." parseString="BE ESPECIALLY CAUTIOUS AT NIGHT WHEN"/>
   <bullet bulletName="safetyCTA" bulletText="Safety...by foot or motorist" parseString="DO NOT ENTER OR CROSS FLOWING WATER"/>
-  <bullet bulletName="turnAroundCTA" bulletText="Turn around...dont drown" parseString="TURN AROUND...DONT DROWN"/>
+  <bullet bulletName="turnAroundCTA" bulletText="Turn around...dont drown" parseString="TURN AROUND, DON'T DROWN"/>
   <bullet bulletName="stayAwayCTA" bulletText="Stay away or be swept away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
   <bullet bulletName="arroyosCTA" bulletText="Arroyos..." parseString="ARROYOS...STREAMS AND RIVERS CAN BECOME RAGING KILLER CURRENTS"/>
   <bullet bulletName="burnAreasCTA" bulletText="Burn Areas..." parseString="MOVE AWAY FROM RECENTLY BURNED AREAS"/>
@@ -238,7 +238,7 @@ Must be paired with proper vm code (also commented out in flashFloodWarning.vm)!
   <bullet bulletName="childSafetyCTA" bulletText="Child Safety..." parseString="KEEP CHILDREN AWAY FROM STORM DRAINS"/>
   <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding..." parseString="BE ESPECIALLY CAUTIOUS AT NIGHT WHEN"/>
   <bullet bulletName="safetyCTA" bulletText="Safety...by foot or motorist" parseString="DO NOT ENTER OR CROSS FLOWING WATER"/>
-  <bullet bulletName="turnAroundCTA" bulletText="Turn around...dont drown" parseString="TURN AROUND...DONT DROWN"/>
+  <bullet bulletName="turnAroundCTA" bulletText="Turn around...dont drown" parseString="TURN AROUND, DON'T DROWN"/>
   <bullet bulletName="stayAwayCTA" bulletText="Stay away or be swept away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
   <bullet bulletName="arroyosCTA" bulletText="Arroyos..." parseString="ARROYOS...STREAMS AND RIVERS CAN BECOME RAGING KILLER CURRENTS"/>
   <bullet bulletName="burnAreasCTA" bulletText="Burn Areas..." parseString="MOVE AWAY FROM RECENTLY BURNED AREAS"/>

@@ -18,14 +18,12 @@
       <programArgsLin>-consoleLog</programArgsLin>
       <vmArgs>-XX:+UseG1GC
 -Dosgi.instance.area.readOnly=true 
--Declipse.log.enabled=false
 -Dorg.eclipse.update.reconcile=false
 -XX:MaxPermSize=128m
 -Dorg.eclipse.ui/KEY_CONFIGURATION_ID=com.raytheon.viz.ui.awips.scheme
 -Dqpid.dest_syntax=BURL
--XX:OnOutOfMemoryError=&quot;capture -t no -p $pid &amp;&quot;
 -Dlogback.configurationFile=logback-viz-core.xml
--Dlogback.statusListenerClass=com.raytheon.uf.common.status.logback.UFLogbackInternalStatusListener
+-Dlogback.statusListenerClass=com.raytheon.uf.common.logback.UFLogbackInternalStatusListener
 -Dthrift.stream.maxsize=200
 -Dviz.memory.warn.threshold=98
 -Dhttps.certificate.check=false
@@ -36,11 +34,12 @@
 -XX:G1MixedGCLiveThresholdPercent=25
 -XX:G1OldCSetRegionThresholdPercent=25
 -XX:G1HeapWastePercent=5</vmArgs>
-      <vmArgsLin>-Xmx2048M -XX:MaxDirectMemorySize=2G</vmArgsLin>
+      <vmArgsLin>-Xmx2048M -XX:MaxDirectMemorySize=2G
+-XX:OnOutOfMemoryError=&quot;capture -t no -p $pid &amp;&quot;</vmArgsLin>
       <vmArgsWin>-Dfile.encoding=UTF-8 -Xmx2560M</vmArgsWin>
    </launcherArgs>
 
-   <windowImages/>
+   <windowImages i16="/com.raytheon.viz.product.awips/icons/cave_16x16.png" i32="/com.raytheon.viz.product.awips/icons/cave_32x32.png" i48="/com.raytheon.viz.product.awips/icons/cave_48x48.png" i64="/com.raytheon.viz.product.awips/icons/cave_64x64.png" i128="/com.raytheon.viz.product.awips/icons/cave_128x128.png"/>
 
    <splash
       location="com.raytheon.viz.ui.personalities.awips"
@@ -51,18 +50,19 @@
       <solaris/>
       <win useIco="false">
          <bmp
-            winSmallHigh="/com.raytheon.viz.ui.personalities.awips/alertViz_icon16x16_32bit.bmp"
-            winSmallLow="/com.raytheon.viz.ui.personalities.awips/alertViz_icon16x16_8bit.bmp"
-            winMediumHigh="/com.raytheon.viz.ui.personalities.awips/alertViz_icon32x32_32bit.bmp"
-            winMediumLow="/com.raytheon.viz.ui.personalities.awips/alertViz_icon32x32_8bit.bmp"
-            winLargeHigh="/com.raytheon.viz.ui.personalities.awips/alertViz_icon48x48_32bit.bmp"
-            winLargeLow="/com.raytheon.viz.ui.personalities.awips/alertViz_icon48x48_8bit.bmp"/>
+            winSmallHigh="/com.raytheon.viz.ui.personalities.awips/cave_16x16_32bit.bmp"
+            winSmallLow="/com.raytheon.viz.ui.personalities.awips/cave_16x16_8bit.bmp"
+            winMediumHigh="/com.raytheon.viz.ui.personalities.awips/cave_32x32_32bit.bmp"
+            winMediumLow="/com.raytheon.viz.ui.personalities.awips/cave_32x32_8bit.bmp"
+            winLargeHigh="/com.raytheon.viz.ui.personalities.awips/cave_48x48_32bit.bmp"
+            winLargeLow="/com.raytheon.viz.ui.personalities.awips/cave_48x48_8bit.bmp"
+            winExtraLargeHigh="/com.raytheon.viz.ui.personalities.awips/cave_256x256_32bit.bmp"/>
       </win>
    </launcher>
 
    <vm>
-      <linux include="true">jdk1.6.0</linux>
-      <windows include="true">jdk1.6.0</windows>
+      <linux include="true">jdk1.7.0</linux>
+      <windows include="true">jdk1.7.0</windows>
    </vm>
 
    <plugins>
@@ -72,10 +72,11 @@
       <feature id="com.raytheon.viz.feature.awips" version="1.9.0.qualifier"/>
    </features>
 
-   <configurations>
-      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
+   <configurations>      
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
+      <plugin id="com.raytheon.uf.viz.spring.dm" autoStart="true" startLevel="4" />
    </configurations>
 
 </product>

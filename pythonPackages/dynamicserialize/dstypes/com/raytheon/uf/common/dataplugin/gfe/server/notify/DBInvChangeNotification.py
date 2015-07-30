@@ -17,23 +17,25 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+#    
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    ??/??/????       ????         njensen        Modified to add __repr__
+#    06/22/2015       4573         randerso       Change to extend GfeNotification
+#                                                 removed inventory methods
+#
+##    
 
-# File auto-generated against equivalent DynamicSerialize Java class
-# Modified by njensen to add __repr__
+import GfeNotification
 
-class DBInvChangeNotification(object):
+class DBInvChangeNotification(GfeNotification.GfeNotification):
 
     def __init__(self):
-        self.inventory = None
+        super(DBInvChangeNotification, self).__init__()
         self.additions = None
         self.deletions = None
-        self.siteID = None
-
-    def getInventory(self):
-        return self.inventory
-
-    def setInventory(self, inventory):
-        self.inventory = inventory
 
     def getAdditions(self):
         return self.additions
@@ -47,15 +49,8 @@ class DBInvChangeNotification(object):
     def setDeletions(self, deletions):
         self.deletions = deletions
 
-    def getSiteID(self):
-        return self.siteID
-
-    def setSiteID(self, siteID):
-        self.siteID = siteID
-    
-    def __repr__(self):
-        msg = 'Inventory' + str(self.inventory) + '\n'
-        msg += 'Additions' + str(self.additions) + '\n'
+    def __str__(self):
+        msg = 'Additions' + str(self.additions) + '\n'
         msg += 'Deletions' + str(self.deletions)
         return msg
 

@@ -23,7 +23,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
@@ -49,6 +48,7 @@ import org.eclipse.swt.widgets.Text;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrobase.FcstPointGroupDlg;
 import com.raytheon.viz.hydrobase.listeners.IForecastGroupAssignmentListener;
@@ -78,8 +78,10 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Apr 16,2012  14797       wkwock      Change lat/lon from hour minute sec to decimal.
  * Jun 11,2013  2088        rferrel     Make dialog non-blocking.
  *                                      Changes for non-blocking FcstPointGroupDlg.
- * Feb.02, 2015 #13372      djingtao    Change from GMT time to local time for "Revise" field                                      
+ * Feb.02, 2015 #13372      djingtao    Change from GMT time to local time for "Revise" field
+ * May 15, 2015 4380        skorolev    Added issuanceStage and issuanceFlow text fields.
  * Jul 06, 2015 #14104      lbousaidi   increased textlimit to 15 
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -333,6 +335,16 @@ public class RiverGageDlg extends CaveSWTDialog implements
     private final int MAX_REMARK_CHAR = 255;
 
     /**
+     * Issuance Stage text control
+     */
+    private Text issuanceStageTF;
+
+    /**
+     * Issuance Flow text control
+     */
+    private Text issuanceFlowTF;
+
+    /**
      * Constructor.
      * 
      * @param parent
@@ -484,7 +496,7 @@ public class RiverGageDlg extends CaveSWTDialog implements
         streamLbl.setText("Stream:");
         streamLbl.setLayoutData(gd);
 
-        gd = new GridData(250, SWT.DEFAULT);
+        gd = new GridData(200, SWT.DEFAULT);
         gd.horizontalSpan = 3;
         streamTF = new Text(leftComp, SWT.BORDER);
         streamTF.setLayoutData(gd);
@@ -496,11 +508,11 @@ public class RiverGageDlg extends CaveSWTDialog implements
         latLonLbl.setText("Lat/Lon:");
         latLonLbl.setLayoutData(gd);
 
-        gd = new GridData(120, SWT.DEFAULT);
+        gd = new GridData(90, SWT.DEFAULT);
         latitudeTF = new Text(leftComp, SWT.BORDER);
         latitudeTF.setLayoutData(gd);
 
-        gd = new GridData(120, SWT.DEFAULT);
+        gd = new GridData(90, SWT.DEFAULT);
         gd.horizontalSpan = 2;
         longitudeTF = new Text(leftComp, SWT.BORDER);
         longitudeTF.setLayoutData(gd);
@@ -537,7 +549,7 @@ public class RiverGageDlg extends CaveSWTDialog implements
         floodStageTF = new Text(leftComp, SWT.BORDER);
         floodStageTF.setLayoutData(gd);
 
-        gd = new GridData(50, SWT.DEFAULT);
+        gd = new GridData(95, SWT.DEFAULT);
         Label floodStageFlowLbl = new Label(leftComp, SWT.RIGHT);
         floodStageFlowLbl.setText("Flow:");
         floodStageFlowLbl.setLayoutData(gd);
@@ -556,7 +568,7 @@ public class RiverGageDlg extends CaveSWTDialog implements
         actionStageTF = new Text(leftComp, SWT.BORDER);
         actionStageTF.setLayoutData(gd);
 
-        gd = new GridData(50, SWT.DEFAULT);
+        gd = new GridData(95, SWT.DEFAULT);
         Label actionStageFlowLbl = new Label(leftComp, SWT.RIGHT);
         actionStageFlowLbl.setText("Flow:");
         actionStageFlowLbl.setLayoutData(gd);
@@ -572,9 +584,18 @@ public class RiverGageDlg extends CaveSWTDialog implements
         zeroDatumLbl.setLayoutData(gd);
 
         gd = new GridData(90, SWT.DEFAULT);
-        gd.horizontalSpan = 3;
         zeroDatumTF = new Text(leftComp, SWT.BORDER);
         zeroDatumTF.setLayoutData(gd);
+
+        // Issuance Stage
+        gd = new GridData(95, SWT.DEFAULT);
+        Label issuanceStageLbl = new Label(leftComp, SWT.RIGHT);
+        issuanceStageLbl.setText("Issuance Stage:");
+        issuanceStageLbl.setLayoutData(gd);
+
+        gd = new GridData(90, SWT.DEFAULT);
+        issuanceStageTF = new Text(leftComp, SWT.BORDER);
+        issuanceStageTF.setLayoutData(gd);
 
         // Threshold Runoff
         gd = new GridData(SWT.FILL, SWT.CENTER, false, true);
@@ -583,9 +604,18 @@ public class RiverGageDlg extends CaveSWTDialog implements
         threasholdRunoffLbl.setLayoutData(gd);
 
         gd = new GridData(90, SWT.DEFAULT);
-        gd.horizontalSpan = 3;
         thresholdRunoffTF = new Text(leftComp, SWT.BORDER);
         thresholdRunoffTF.setLayoutData(gd);
+
+        // Issuance Flow
+        gd = new GridData(95, SWT.DEFAULT);
+        Label issuanceFlowLbl = new Label(leftComp, SWT.RIGHT);
+        issuanceFlowLbl.setText("Issuance Flow:");
+        issuanceFlowLbl.setLayoutData(gd);
+
+        gd = new GridData(90, SWT.DEFAULT);
+        issuanceFlowTF = new Text(leftComp, SWT.BORDER);
+        issuanceFlowTF.setLayoutData(gd);
 
         // ------------------------------------------
         // Create the right side composite of the
@@ -1017,9 +1047,17 @@ public class RiverGageDlg extends CaveSWTDialog implements
             actionStageFlowTF.setText(HydroDataUtils
                     .getDisplayString(riverGageData.getActionFlow()));
 
+            // Issuance Stage
+            issuanceStageTF.setText(HydroDataUtils
+                    .getDisplayString(riverGageData.getIssuestg()));
+
             // Zero Datum
             zeroDatumTF.setText(HydroDataUtils.getDisplayString(riverGageData
                     .getZeroDatum()));
+
+            // Issuance Flow
+            issuanceFlowTF.setText(HydroDataUtils
+                    .getDisplayString(riverGageData.getIssueflow()));
 
             // Threshold Runoff
             thresholdRunoffTF.setText(HydroDataUtils
@@ -1353,6 +1391,20 @@ public class RiverGageDlg extends CaveSWTDialog implements
                     .valueOf(HydroConstants.MISSING_VALUE));
             newData.setUnitHydrographDuration(HydroConstants.MISSING_VALUE);
         }
+        // Issuance Stage
+        dTemp = HydroDataUtils.getDoubleFromTF(shell, issuanceStageTF,
+                "Issuance Stage");
+        if (dTemp == null) {
+            return successful;
+        }
+        newData.setIssuestg(dTemp);
+        // Issuance Flow
+        dTemp = HydroDataUtils.getDoubleFromTF(shell, issuanceFlowTF,
+                "Issuance Flow");
+        if (dTemp == null) {
+            return successful;
+        }
+        newData.setIssueflow(dTemp);
 
         // Save the River Gage
         try {
@@ -1532,17 +1584,11 @@ public class RiverGageDlg extends CaveSWTDialog implements
      * Handles the changes in the Revision Date
      */
     private void updateRevisionDate() {
-        // If the Revision Checkbox is checked, set the Revision Date to the
-        // current date in local time
-        // Else load the date from the database
-        //Date now = Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime();
-        
-        Calendar now = Calendar.getInstance(Locale.getDefault());
-        String revise_str = new SimpleDateFormat("MM/dd/yyyy").format(now.getTime());
-        
-        if (reviseChk.getSelection()) { 
-            //dateTF.setText(dateFormat.format(now));
-        	dateTF.setText(revise_str);
+        Calendar now = TimeUtil.newCalendar(TimeZone.getDefault());
+        String revise_str = new SimpleDateFormat("MM/dd/yyyy").format(now
+                .getTime());
+        if (reviseChk.getSelection()) {
+            dateTF.setText(revise_str);
         } else if (riverGageData != null) {
             dateTF.setText((riverGageData.getReviseDate() != null) ? dateFormat
                     .format(riverGageData.getReviseDate()) : "");

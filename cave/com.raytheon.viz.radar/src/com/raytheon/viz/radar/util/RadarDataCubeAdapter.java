@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequestSet;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
@@ -36,6 +35,7 @@ import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponseSet;
 import com.raytheon.uf.common.derivparam.library.DerivedParameterGenerator;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.serialization.comm.RequestRouter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -47,6 +47,7 @@ import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.pointdata.util.AbstractPointDataInventory;
 import com.raytheon.viz.pointdata.util.PointDataCubeAdapter;
+import com.raytheon.viz.radar.frame.RadarDataTime;
 
 /**
  * 
@@ -60,6 +61,9 @@ import com.raytheon.viz.pointdata.util.PointDataCubeAdapter;
  * ------------ ---------- ----------- --------------------------
  * Oct 8, 2009             bsteffen    Initial creation
  * Nov 21, 2009 #3576      rjpeter     Refactored use of DerivParamDesc.
+ * May 13, 2015  4461      bsteffen    Generate radar times from time queries.
+ * 
+ * 
  * </pre>
  * 
  * @author bsteffen
@@ -74,6 +78,10 @@ public class RadarDataCubeAdapter extends PointDataCubeAdapter {
     private static final String LATEST_DATA_TIME_FIELD = "dataTime.refTime";
 
     private static final String LEVEL_FIELD = "primaryElevationAngle";
+
+    private static final String ELEVATION_FIELD = "elevationNumber";
+
+    private static final String VOLUME_FIELD = "volumeScanNumber";
 
     @Override
     public String[] getSupportedPlugins() {
@@ -133,7 +141,14 @@ public class RadarDataCubeAdapter extends PointDataCubeAdapter {
                 time = new DataTime((Date) map.get(dataTimefield), 0);
             } else {
                 time = (DataTime) map.get(dataTimefield);
-                time.setLevelValue((Double) map.get(LEVEL_FIELD));
+                RadarDataTime radarTime = new RadarDataTime(time);
+                Number level = (Number) map.get(LEVEL_FIELD);
+                radarTime.setLevelValue(level.doubleValue());
+                Number elevation = (Number) map.get(ELEVATION_FIELD);
+                radarTime.setElevationNumber(elevation.intValue());
+                Number volume = (Number) map.get(VOLUME_FIELD);
+                radarTime.setVolumeScanNumber(volume.intValue());
+                time = radarTime;
             }
             // Best res requests need this because they span a time period
             if (time.getRefTime().before(
@@ -166,6 +181,8 @@ public class RadarDataCubeAdapter extends PointDataCubeAdapter {
         request.addRequestField(dataTimefield, latestOnly);
         if (!latestOnly) {
             request.addRequestField(LEVEL_FIELD);
+            request.addRequestField(ELEVATION_FIELD);
+            request.addRequestField(VOLUME_FIELD);
         }
         request.setDistinct(true);
         return request;

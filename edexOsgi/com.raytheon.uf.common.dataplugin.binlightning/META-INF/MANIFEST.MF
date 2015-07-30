@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Binlightning Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.binlightning
-Bundle-Version: 1.14.0
+Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: com.raytheon.uf.common.dataplugin.binlightning,

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -68,7 +68,7 @@ import org.eclipse.ui.dialogs.ListDialog;
 
 import com.raytheon.rcm.config.LinkResource;
 import com.raytheon.rcm.config.RadarType;
-import com.raytheon.rcm.config.Util;
+import com.raytheon.rcm.config.RcmUtil;
 import com.raytheon.rcm.config.awips1.Awips1RpsListUtil;
 import com.raytheon.rcm.config.awips1.Awips1RpsListUtil.Selector;
 import com.raytheon.rcm.message.GSM;
@@ -100,9 +100,9 @@ import com.raytheon.uf.viz.radarapps.products.ui.RadarProductUI;
 
 /**
  * RPS List Editor window
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
@@ -110,8 +110,9 @@ import com.raytheon.uf.viz.radarapps.products.ui.RadarProductUI;
  * ...
  * 2013-01-31   DR 15458   D. Friedman Send RPS list so that it will be
  *                                     accepted for any VCP.
+ * 2015-06-10   4498       nabowle     Rename Util->RcmUtil
  * </pre>
- * 
+ *
  */
 public class ListEditorWindow {
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -478,7 +479,7 @@ public class ListEditorWindow {
         SendRpsList msg = new SendRpsList();
         msg.radarIDs = Arrays.asList(rpg);
         msg.requests = Arrays.asList(listEditor.getRpsList().getRequests());
-        /* Specify that the RadarServer should accept this list no matter 
+        /* Specify that the RadarServer should accept this list no matter
          * what VCP the RPG is currently using.
          */
         msg.vcp = RpsList.UNSPECIFIED_VCP;
@@ -868,7 +869,7 @@ public class ListEditorWindow {
                 vcp = sel.vcp;
             }
 
-            newList = Util.parseRpsListData(buf.array(), opMode, vcp);
+            newList = RcmUtil.parseRpsListData(buf.array(), opMode, vcp);
 
         } catch (IOException e) {
             exc = e;

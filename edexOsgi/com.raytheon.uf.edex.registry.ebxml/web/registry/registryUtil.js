@@ -24,28 +24,29 @@ SOFTWARE HISTORY
 Date         Ticket#     Engineer    Description
 ------------ ----------  ----------- --------------------------
 10/15/2013   1682        bphillip    Initial implementation
+5/11/2015    4448        bphillip    Separated EBXML Registry from Data Delivery
 </pre>
 
 @author bphillip
 @version 1
 */
-	
-	function callRestService(url,arg){
-		var url = "https://"+window.location.host+"/"+url
-		if(arg != null){
-			url+="/"+arg;
-		}
-		var client = new XMLHttpRequest();
-		client.open("GET", url, false);
-		client.setRequestHeader("Content-Type", "text/plain");
-		client.send();
-		return client.responseText
-	}
+    
+    function callRestService(url,arg){
+        var url = "https://"+window.location.host+"/"+url
+        if(arg != null){
+            url+="/"+arg;
+        }
+        var client = new XMLHttpRequest();
+        client.open("GET", url, false);
+        client.setRequestHeader("Content-Type", "text/plain");
+        client.send();
+        return client.responseText
+    }
 
-	function callDataAccessServiceWithArg(func,arg){
-		return callRestService("dataDelivery/dataAccess/"+func+"/"+arg);
-	}
+    function callDataAccessServiceWithArg(func,arg){
+        return callRestService("rest/dataAccess/"+func+"/"+arg);
+    }
 
-	function callDataAccessService(func){
-		return callRestService("dataDelivery/dataAccess/"+func);
-	}
+    function callDataAccessService(func){
+        return callRestService("rest/dataAccess/"+func);
+    }

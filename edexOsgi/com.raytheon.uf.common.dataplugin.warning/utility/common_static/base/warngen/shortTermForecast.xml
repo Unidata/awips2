@@ -106,10 +106,10 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletDefault="true" bulletGroup="pcast"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** Supplemental Statements **********" bulletType="title"/>
-  <bullet bulletName="gustFrontPassage" bulletText="gust front passage"/>
-  <bullet bulletName="frontalPassage" bulletText="cold frontal passage"/>
-  <bullet bulletName="heavySnow" bulletText="heavy snow/low visibility"/>
-  <bullet bulletName="snowAmt" bulletText="snowfall amounts"/>
+  <bullet bulletName="gustFrontPassage" bulletText="Gust front passage"/>
+  <bullet bulletName="frontalPassage" bulletText="Cold frontal passage"/>
+  <bullet bulletName="heavySnow" bulletText="Heavy snow/low visibility"/>
+  <bullet bulletName="snowAmt" bulletText="Snowfall amounts"/>
   <bullet bulletName="includeTorWatches" bulletText="Include Tornado Watches" parseString=""/>
   <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" parseString=""/>
  </bullets>
@@ -143,10 +143,10 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** Supplemental Statements **********" bulletType="title"/>
-  <bullet bulletName="gustFrontPassage" bulletText="gust front passage"/>
-  <bullet bulletName="frontalPassage" bulletText="cold frontal passage"/>
-  <bullet bulletName="heavySnow" bulletText="heavy snow/low visibility"/>
-  <bullet bulletName="snowAmt" bulletText="snowfall amounts"/>
+  <bullet bulletName="gustFrontPassage" bulletText="Gust front passage"/>
+  <bullet bulletName="frontalPassage" bulletText="Cold frontal passage"/>
+  <bullet bulletName="heavySnow" bulletText="Heavy snow/low visibility"/>
+  <bullet bulletName="snowAmt" bulletText="Snowfall amounts"/>
   <bullet bulletName="includeTorWatches" bulletText="Include Tornado Watches" parseString=""/>
   <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" parseString=""/>
 </bullets>

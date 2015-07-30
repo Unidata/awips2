@@ -28,10 +28,10 @@ import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences.DataMappingEntry;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.grid.rsc.data.GeneralGridData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.viz.grid.rsc.general.D2DGridResource;
-import com.raytheon.viz.grid.rsc.general.GeneralGridData;
 
 /**
  * Grid Resource that does not do simple mapping from data to colors but has an

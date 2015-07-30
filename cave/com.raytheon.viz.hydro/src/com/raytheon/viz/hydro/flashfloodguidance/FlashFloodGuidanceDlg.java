@@ -76,7 +76,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 29 NOV 2007  373        lvenable    Initial creation.
  * 13 Oct 2009  2256       mpduff      Implement the dialog.
  * 07 Feb 2013  1578       rferrel     Changes for non-blocking dialog.
- * 
+ * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
  * </pre>
  * 
  * @author lvenable
@@ -218,7 +218,7 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
     private Button closeBtn;
 
     /** Bundle variables */
-    private Map<String, String> parameters = new HashMap<String, String>();
+    private final Map<String, String> parameters = new HashMap<String, String>();
 
     /**
      * The selected RFC.
@@ -243,12 +243,12 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
     /**
      * Holds the display string and insert time for later use.
      */
-    private Map<String, Date> dataMap = new HashMap<String, Date>();
+    private final Map<String, Date> dataMap = new HashMap<String, Date>();
 
     /**
      * Holds the display string and the xmrg File object.
      */
-    private Map<String, File> fileMap = new HashMap<String, File>();
+    private final Map<String, File> fileMap = new HashMap<String, File>();
 
     /**
      * The wait mouse pointer.
@@ -1073,8 +1073,8 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
 
         for (Object[] oa : rs) {
             Timestamp validTime = (Timestamp) oa[0];
-            int shefDur = (Integer) oa[1];
-            int dur = shefDur - (shefDur / 1000) * 1000;
+            int shefDur = ((Number) oa[1]).intValue();
+            int dur = shefDur - ((shefDur / 1000) * 1000);
 
             // Dur is FFG03, FFG06, etc
             // selectedDur is 1hr, 3hr, etc

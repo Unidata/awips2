@@ -55,6 +55,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
@@ -77,6 +78,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Jul 14, 2014 3184       njensen     Overrode getAvailableLevels()
  * Jul 30, 2014 3184       njensen     Overrode required and optional identifiers
  * Feb 27, 2015 4180       mapeters    Overrode getAvailableParameters().
+ * Jun 15, 2015 4560       ccody       Added support for configurable rate/accumulation calculation for getGeometryData
+ * Jul 16, 2015 4658       dhladky     Expiration times fixed.
  * 
  * </pre>
  * 
@@ -251,16 +254,18 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
 
         HucLevelGeometriesFactory geomFactory = HucLevelGeometriesFactory
                 .getInstance();
-        // BAL - Switched to use siteKey instead of dataKey.
-        // Map<Long, Geometry> geomMap = geomFactory.getGeometries(templates,
-        // dataKey, cwa, huc);
         Map<Long, Geometry> geomMap = geomFactory.getGeometries(templates,
                 siteKey, cwa, huc);
 
         FFMPSourceConfigurationManager srcConfigMan = FFMPSourceConfigurationManager
                 .getInstance();
         SourceXML sourceXml = srcConfigMan.getSource(rec.getSourceName());
-
+        String rateOrAccum = sourceXml.getRateOrAccum(siteKey);
+        boolean isRate = false;
+        if ((rateOrAccum != null) && (rateOrAccum.isEmpty() == false)
+                && (rateOrAccum.compareToIgnoreCase("RATE") == 0)) {
+            isRate = true;
+        }
         DefaultGeometryData data = null;
 
         String[] locationNames = request.getLocationNames();
@@ -297,18 +302,14 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
                 }
 
                 if (basin instanceof FFMPGuidanceBasin) {
-                    /*
-                     * Bryon L - Added test for FFMPGuidanceBasin object.
-                     * Couldn't use getValue(Date, Sourcename) here. Odd problem
-                     * with date key reference.
-                     */
                     value = ((FFMPGuidanceBasin) basin).getValue(
-                            rec.getSourceName(), 1000);
+                            rec.getSourceName(),
+                            sourceXml.getExpirationMinutes(rec.getSiteKey())
+                                    * TimeUtil.MILLIS_PER_MINUTE);
                 } else {
                     value = basin.getAccumValue(start, end,
-                            sourceXml.getExpirationMinutes(rec.getSiteKey()),
-                            false);
-                    // value = basin.getValue(rec.getDataTime().getRefTime());
+                            sourceXml.getExpirationMinutes(rec.getSiteKey())
+                                    * TimeUtil.MILLIS_PER_MINUTE, isRate);
                 }
                 String parameter = rec.getSourceName();
                 String unitStr = sourceXml.getUnit();

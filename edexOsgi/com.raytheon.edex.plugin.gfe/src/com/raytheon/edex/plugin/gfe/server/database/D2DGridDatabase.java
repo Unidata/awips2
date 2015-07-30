@@ -118,6 +118,8 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  *                                      should be purged.
  * 09/09/2014   #3356       njensen     Remove CommunicationException
  * 03/05/2015   #4169       randerso    Fix error handling in getDatabase
+ * 06/29/2015   #4537       rferrel     Allow for durations less then 1 hour.
+ * 07/13/2015   #4537       randerso    Additional changes to allow D2DParms with sub-hourly durations/intervals
  * 
  * </pre>
  * 
@@ -317,7 +319,7 @@ public class D2DGridDatabase extends VGridDatabase {
 
     private GridParamInfo modelInfo;
 
-    private List<TimeRange> availableTimes;
+    private List<Long> availableTimes;
 
     private GFED2DDao d2dDao;
 
@@ -369,7 +371,12 @@ public class D2DGridDatabase extends VGridDatabase {
             throw new GfeException("No model info for: " + d2dModelName);
         }
 
-        this.availableTimes = modelInfo.getAvailableTimes(refTime);
+        List<Integer> fcstHours = modelInfo.getTimes();
+        this.availableTimes = new ArrayList<>(fcstHours.size());
+        for (int fcstHour : fcstHours) {
+            this.availableTimes.add(refTime.getTime()
+                    + (fcstHour * TimeUtil.MILLIS_PER_SECOND));
+        }
 
         // Get the database id for this database.
         this.valid = this.dbId.isValid();
@@ -460,19 +467,20 @@ public class D2DGridDatabase extends VGridDatabase {
         List<Integer> forecastTimes = this.modelInfo.getTimes();
         possibleInventorySlots = new HashMap<Integer, TimeRange>(
                 forecastTimes.size(), 1.0f);
+        long millisDur = tc.getDuration() * TimeUtil.MILLIS_PER_SECOND;
         if (accParm) {
-            long millisDur = tc.getDuration() * TimeUtil.MILLIS_PER_SECOND;
             // adjust accumulative parms to have forecast hour
             // at end of time range
             for (int i = 0; i < forecastTimes.size(); i++) {
-                possibleInventorySlots.put(forecastTimes.get(i), new TimeRange(
-                        new Date(availableTimes.get(i).getStart().getTime()
-                                - millisDur), millisDur));
+                possibleInventorySlots.put(forecastTimes.get(i),
+                        new TimeRange(availableTimes.get(i) - millisDur,
+                                availableTimes.get(i)));
             }
         } else if ((GridPathProvider.STATIC_PARAMETERS.contains(atts
                 .getShort_name())) && !availableTimes.isEmpty()) {
-            TimeRange ntr = availableTimes.get(0).combineWith(
-                    availableTimes.get(availableTimes.size() - 1));
+            TimeRange ntr = new TimeRange(availableTimes.get(0),
+                    availableTimes.get(availableTimes.size() - 1)
+                            + TimeUtil.MILLIS_PER_HOUR);
             // make static parms have a single time range that spans
             // all availableTimes
             for (int i = 0; i < forecastTimes.size(); i++) {
@@ -480,8 +488,9 @@ public class D2DGridDatabase extends VGridDatabase {
             }
         } else {
             for (int i = 0; i < forecastTimes.size(); i++) {
-                possibleInventorySlots.put(forecastTimes.get(i),
-                        availableTimes.get(i));
+                TimeRange timeRange = new TimeRange(availableTimes.get(i),
+                        availableTimes.get(i) + millisDur);
+                possibleInventorySlots.put(forecastTimes.get(i), timeRange);
             }
         }
 
@@ -524,9 +533,11 @@ public class D2DGridDatabase extends VGridDatabase {
         List<Integer> forecastTimes = this.modelInfo.getTimes();
         Map<Integer, TimeRange> possibleInventorySlots = new HashMap<Integer, TimeRange>(
                 forecastTimes.size(), 1.0f);
+        long millisDur = tc.getDuration() * TimeUtil.MILLIS_PER_SECOND;
         for (int i = 0; i < forecastTimes.size(); i++) {
-            possibleInventorySlots.put(forecastTimes.get(i),
-                    availableTimes.get(i));
+            TimeRange timeRange = new TimeRange(availableTimes.get(i),
+                    availableTimes.get(i) + millisDur);
+            possibleInventorySlots.put(forecastTimes.get(i), timeRange);
         }
 
         String uGfeParmName = uatts.getShort_name();
@@ -1077,28 +1088,30 @@ public class D2DGridDatabase extends VGridDatabase {
      *            The times
      * @return The time constraints
      */
-    private TimeConstraints getTimeConstraints(List<TimeRange> times) {
+    private TimeConstraints getTimeConstraints(List<Long> times) {
 
         if (times.size() <= 1) {
             return new TimeConstraints(TimeUtil.SECONDS_PER_HOUR,
                     TimeUtil.SECONDS_PER_HOUR, 0);
         }
 
-        long repeat = (times.get(1).getStart().getTime() - times.get(0)
-                .getStart().getTime())
+        long repeat = (times.get(1) - times.get(0))
                 / TimeUtil.MILLIS_PER_SECOND;
-        long start = (times.get(0).getStart().getTime() / TimeUtil.MILLIS_PER_SECOND)
+        long start = (times.get(0) / TimeUtil.MILLIS_PER_SECOND)
                 % TimeUtil.SECONDS_PER_DAY;
 
         for (int i = 1; i < (times.size() - 1); i++) {
-            if (((times.get(i + 1).getStart().getTime() - times.get(i)
-                    .getStart().getTime()) / TimeUtil.MILLIS_PER_SECOND) != repeat) {
+            if (((times.get(i + 1) - times.get(i)) / TimeUtil.MILLIS_PER_SECOND) != repeat) {
                 return new TimeConstraints(TimeUtil.SECONDS_PER_HOUR,
                         TimeUtil.SECONDS_PER_HOUR, 0);
             }
         }
-        return new TimeConstraints(TimeUtil.SECONDS_PER_HOUR, (int) repeat,
-                (int) start);
+
+        int duration = TimeUtil.SECONDS_PER_HOUR;
+        if (duration > repeat) {
+            duration = (int) repeat;
+        }
+        return new TimeConstraints(duration, (int) repeat, (int) start);
     }
 
     private int calcPrecision(float minV, float maxV) {

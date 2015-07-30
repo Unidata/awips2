@@ -34,30 +34,40 @@
 #    02/13/14        2712          bkowal       The main PythonOverrider module can now determine whether
 #                                               it is running in Jep or not and make the necessary
 #                                               adjustments.
+#    06/01/15        4433          bkowal       Specified a default thrift host and port.
 #
 #
 #
 
-import subprocess
+import os.path
+import sys
 
-THRIFT_HOST = subprocess.check_output(
-                    'source /awips2/fxa/bin/setup.env; echo $DEFAULT_HOST', 
-                    shell=True).strip()
-THRIFT_PORT = subprocess.check_output(
-                    'source /awips2/fxa/bin/setup.env; echo $DEFAULT_PORT', 
-                    shell=True).strip()
+JEP_AVAILABLE = sys.modules.has_key('jep')
+
+if JEP_AVAILABLE:
+    from PathManager import PathManager
+else:
+    SETUP_FILE = '/awips2/fxa/bin/setup.env'
+    THRIFT_HOST = 'localhost'
+    THRIFT_PORT = '9581'    
+    
+    import PythonOverriderPure
+    
+    if os.path.isfile(SETUP_FILE):
+        import subprocess
+        
+        format = 'source {0}; echo ${1}'
+        test_host = subprocess.check_output(format.format(SETUP_FILE, "DEFAULT_HOST"), shell=True).strip()
+        if test_host:
+            THRIFT_HOST = test_host
+        test_port = subprocess.check_output(format.format(SETUP_FILE, "DEFAULT_PORT"), shell=True).strip()
+        if test_port:
+            THRIFT_PORT = test_port
 
 import PythonOverriderCore
 
-JEP_AVAILABLE = True
-try:
-    from PathManager import PathManager
-except ImportError:
-    import PythonOverriderPure
-    JEP_AVAILABLE = False
-
-def importModule(name, loctype='COMMON_STATIC', level=None, localizationHost=None, 
-                localizationPort=None, localizedSite=None, localizationUser=None):
+def importModule(name, loctype='COMMON_STATIC', level=None, localizedSite=None, 
+                localizationUser=None):
     """
     Takes a name (filename and localization path) and the localization type and finds the 
     file and overrides it, and returns the module
@@ -66,6 +76,10 @@ def importModule(name, loctype='COMMON_STATIC', level=None, localizationHost=Non
             name : the name and path of the file in localization
             loctype : a string representation of the localization type
             level : a string representation of the localization level (BASE, SITE, etc.)
+            localizedSite: the site that localization information should be
+                retrieved for (if applicable)
+            localizationUser: the user that localization information should
+                be retrieved for (if applicable)
     
     Returns:
             a module that has all the correct methods after being overridden

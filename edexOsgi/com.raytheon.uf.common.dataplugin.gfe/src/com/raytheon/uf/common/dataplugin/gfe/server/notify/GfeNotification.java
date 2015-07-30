@@ -37,7 +37,8 @@ import com.raytheon.uf.common.util.SystemUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 7, 2014   #3684     randerso    Added sourceId field
+ * Oct  7, 2014  #3684     randerso    Added sourceId field
+ * Jun 25, 2015  #4573     randerso    Made class abstract
  * 
  * </pre>
  * 
@@ -45,7 +46,7 @@ import com.raytheon.uf.common.util.SystemUtil;
  * @version 1.0
  */
 @DynamicSerialize
-public class GfeNotification implements IMessage {
+public abstract class GfeNotification implements IMessage {
     private static final String localSourceID;
     static {
         String host = SystemUtil.getHostName();

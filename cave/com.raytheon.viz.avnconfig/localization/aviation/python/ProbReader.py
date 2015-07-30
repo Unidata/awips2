@@ -75,7 +75,9 @@ _Logger = logging.getLogger(Avn.CATEGORY)
 ThresholdDir = 'etc'
 try:
     from com.raytheon.uf.common.localization import PathManagerFactory
-    from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType, LocalizationContext_LocalizationLevel as LocalizationLevel
+    from com.raytheon.uf.common.localization import LocalizationContext
+    LocalizationType = LocalizationContext.LocalizationType
+    LocalizationLevel = LocalizationContext.LocalizationLevel 
     pathMgr = PathManagerFactory.getPathManager()
     ctx = pathMgr.getContext(LocalizationType.valueOf('CAVE_STATIC'), LocalizationLevel.valueOf('BASE'))
     ThresholdDir = pathMgr.getFile(ctx, os.path.join('aviation', 'thresholds')).getPath()               

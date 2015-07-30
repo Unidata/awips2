@@ -33,6 +33,10 @@ function lookupRPM()
    # lookup the rpm.
 
    # foss rpms -> python rpms.
+   if [ "${1}" = "awips2-maven" ]; then
+      export RPM_SPECIFICATION="${installer_dir}/maven-3.2.3/"
+      return 0
+   fi
    if [ "${1}" = "awips2-python" ]; then
       export RPM_SPECIFICATION="${installer_dir}/python-2.7.9/"
       return 0
@@ -49,10 +53,6 @@ function lookupRPM()
       export RPM_SPECIFICATION="${installer_dir}/h5py-1.3.0/"
       return 0
    fi
-   if [ "${1}" = "awips2-python-jimporter" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.jimporter"
-      return 0
-   fi
    if [ "${1}" = "awips2-python-matplotlib" ]; then
       export RPM_SPECIFICATION="${installer_dir}/matplotlib-1.2.0/"
       return 0
@@ -63,6 +63,10 @@ function lookupRPM()
    fi
    if [ "${1}" = "awips2-python-numpy" ]; then
       export RPM_SPECIFICATION="${installer_dir}/numpy-1.7.2/"
+      return 0
+   fi
+   if [ "${1}" = "awips2-python-jep" ]; then
+      export RPM_SPECIFICATION="${installer_dir}/jep-3.3.5/"
       return 0
    fi
    if [ "${1}" = "awips2-python-pil" ]; then
@@ -78,7 +82,7 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-python-qpid" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.qpid"
+      export RPM_SPECIFICATION="${installer_dir}/qpid-python-0.32"
       return 0
    fi
    if [ "${1}" = "awips2-python-scientific" ]; then
@@ -216,7 +220,7 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-java" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.java"
+      export RPM_SPECIFICATION="${installer_dir}/java-1.7"
       return 0
    fi
    if [ "${1}" = "awips2-groovy" ]; then
@@ -252,7 +256,7 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-yajsw" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.yajsw"
+      export RPM_SPECIFICATION="${installer_dir}/yajsw-11.11"
       return 0
    fi
 

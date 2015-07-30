@@ -7,6 +7,8 @@
 		value="gtk" />
 	<property name="build.arch"
 		value="x86" />
+        <property name="build.product"
+                value="awips.product" />
 	<!-- Copy the zip file that is produced to this location. -->
 	<property name="destination.dir"
 		value="" />
@@ -71,6 +73,7 @@
 			<arg value="-DbuildDirectory=${basedir}/cave/tmp" />
 			<arg value="-Dbase=${basedir}/cave" />
 			<arg value="-Dconfigs=${build.os},${build.ws},${build.arch}" />
+			<arg value="-DproductFile=${build.product}" />
 			
 			<classpath>
 				<pathelement 

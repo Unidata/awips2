@@ -291,7 +291,7 @@ public class RadarImageResource<D extends IDescriptor> extends
         params.setColorMapMin(0);
         params.setDataMax(255);
         params.setDataMin(0);
-
+        params.setNoDataValue(0.0);
         return params;
     }
 

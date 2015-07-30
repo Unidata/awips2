@@ -56,6 +56,8 @@ import com.raytheon.uf.edex.plugin.redbook.ingest.xml.RedbookMenusXML;
  * Mar 19, 2014   2860     mpduff      Implemented Redbook UpperAir.
  * Apr 30, 2014   2860     mpduff      Fixed instances of empty substitution tags.
  * Jun 09, 2014   3266     njensen     Removed reference to dataURIs
+ * Jun 26, 2015   4512     mapeters    Implement createMenusFromFile() here, takes in
+ *                                     {@link RedbookMenusXML} object.
  * 
  * </pre>
  * 
@@ -89,10 +91,14 @@ public abstract class RedbookMenuUtil extends AbstractMenuUtil {
      * Method called from the RedbookMenuSubscriber when new NDM files are
      * placed in /awips2/edex/data/ndm
      * 
-     * @param filename
-     *            The file droped into /awips2/edex/data/ndm
+     * @param xml
+     *            The Redbook menu XML object generated from the file(s) dropped
+     *            into /awips2/edex/data/ndm
      */
-    public abstract void createMenusFromFile(String filename);
+    public void createMenusFromFile(RedbookMenusXML xml) {
+        this.xml = xml;
+        createMenus();
+    }
 
     /**
      * Create the JaxB context.

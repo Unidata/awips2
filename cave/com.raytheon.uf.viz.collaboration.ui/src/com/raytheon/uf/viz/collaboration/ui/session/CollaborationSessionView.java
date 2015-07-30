@@ -110,6 +110,7 @@ import com.raytheon.viz.ui.input.EditableManager;
  * Dev 02, 2014 3709       mapeters    added {@link #initComponents()} override
  * Jan 09, 2015 3709       bclement    now uses ForegroundColorDlg for consistency
  * Jan 13, 2015 3709       bclement    now uses ChangeTextColorAction for consistency
+ * May 22, 2015 4328       mapeters    Add NOTIFICATION_IMAGE_NAME, getter
  * 
  * </pre>
  * 
@@ -125,6 +126,8 @@ public class CollaborationSessionView extends SessionView implements
             .getHandler(CollaborationSessionView.class);
 
     private static final String COLLABORATION_SESSION_IMAGE_NAME = "messages.gif";
+
+    private static final String NOTIFICATION_IMAGE_NAME = "messages_notification.gif";
 
     private Runnable actionUpdater = new Runnable() {
         @Override
@@ -537,6 +540,11 @@ public class CollaborationSessionView extends SessionView implements
     @Override
     protected String getSessionImageName() {
         return COLLABORATION_SESSION_IMAGE_NAME;
+    }
+
+    @Override
+    protected String getNotificationImageName() {
+        return NOTIFICATION_IMAGE_NAME;
     }
 
     /*

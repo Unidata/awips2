@@ -35,6 +35,11 @@
 #
 #
 
+#
+# TODO: Update to use the HTTP Rest Service to retrieve localization files instead
+# of thrift.
+#
+
 import os, tempfile, shutil
 import numpy
 import PythonOverriderCore

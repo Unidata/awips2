@@ -42,6 +42,7 @@ import com.raytheon.uf.common.numeric.sparse.SparseFloatArray;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.grid.rsc.data.GeneralGridData;
 
 /**
  * Manages grid memory. Parses command line options to determine how much direct

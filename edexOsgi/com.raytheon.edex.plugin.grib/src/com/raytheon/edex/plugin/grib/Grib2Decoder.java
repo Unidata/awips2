@@ -22,6 +22,8 @@ package com.raytheon.edex.plugin.grib;
 import java.util.HashMap;
 import java.util.Map;
 
+import jep.NDArray;
+
 import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
@@ -38,6 +40,7 @@ import com.raytheon.uf.edex.python.decoder.PythonDecoder;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Oct 04, 2013  2402     bsteffen    Initial creation
+ * Apr 29, 2015  4259     njensen     Updated for new JEP API
  * 
  * </pre>
  * 
@@ -55,8 +58,6 @@ public class Grib2Decoder extends PythonDecoder {
         setCache(true);
     }
 
-
-
     public GridRecord[] decode(GribDecodeMessage message) throws GribException {
         Map<String, Object> argMap = new HashMap<String, Object>(4);
         argMap.put("filePath", message.getFileName());
@@ -67,6 +68,10 @@ public class Grib2Decoder extends PythonDecoder {
             GridRecord[] records = new GridRecord[pdos.length];
             for (int i = 0; i < pdos.length; i++) {
                 records[i] = (GridRecord) pdos[i];
+                if (records[i].getMessageData() instanceof NDArray) {
+                    records[i].setMessageData(((NDArray<?>) records[i]
+                            .getMessageData()).getData());
+                }
             }
             return records;
         } catch (Exception e) {

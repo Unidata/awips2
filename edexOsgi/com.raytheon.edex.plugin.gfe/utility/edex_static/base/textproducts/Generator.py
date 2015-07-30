@@ -38,6 +38,7 @@
 #                                            Fixed logging to log to a file
 #                                            Cleaned up how protected file updates are returned
 # Jan 23, 2015    #4027          randerso    Cleaned up import of SiteInfo
+# Apr 25, 2015     4952          njensen     Updated for new JEP API
 #
 # @author: jelkins
 #
@@ -53,11 +54,12 @@ from os.path import dirname
 from com.raytheon.uf.common.serialization import SerializationUtil
 from com.raytheon.uf.common.localization import LocalizationFile
 from com.raytheon.uf.common.localization import PathManagerFactory
-from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType
-from com.raytheon.uf.common.localization import LocalizationContext_LocalizationLevel as LocalizationLevel
+from com.raytheon.uf.common.localization import LocalizationContext
+LocalizationType = LocalizationContext.LocalizationType
+LocalizationLevel = LocalizationContext.LocalizationLevel
 from java.lang import System
 
-SCRIPT_DIR = dirname(__file__)
+# SCRIPT_DIR passed in from Java
 
 # ---- Standard Paths ----------------------------------------------
 
