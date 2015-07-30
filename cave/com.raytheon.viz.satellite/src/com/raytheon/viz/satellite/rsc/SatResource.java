@@ -87,12 +87,12 @@ import com.raytheon.uf.viz.core.rsc.interrogation.InterrogationKey;
 import com.raytheon.uf.viz.core.rsc.interrogation.Interrogator;
 import com.raytheon.uf.viz.core.rsc.interrogation.StringInterrogationKey;
 import com.raytheon.uf.viz.datacube.DataCubeContainer;
+import com.raytheon.viz.awipstools.IToolChangedListener;
 import com.raytheon.viz.satellite.SatelliteConstants;
 import com.raytheon.viz.satellite.inventory.DerivedSatelliteRecord;
 import com.raytheon.viz.satellite.tileset.SatDataRetriever;
 import com.raytheon.viz.satellite.tileset.SatTileSetRenderable;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.raytheon.viz.awipstools.IToolChangedListener;
 
 /**
  * Provides satellite raster rendering support
@@ -136,6 +136,8 @@ import com.raytheon.viz.awipstools.IToolChangedListener;
  *  Feb 17, 2015  4135      bsteffen    Set no data value for derived products.
  *  Mar 3, 2015   DCS 14960 jgerth      Retrieve legend from style rules if available
  *  Apr 15, 2014  4388      bsteffen    Use fill value from record.
+ *  Jul 28, 2015  4633      bsteffen    Create tileset in resource so it can be
+ *                                      overridden for daylight transition.
  * 
  * </pre>
  * 
@@ -250,8 +252,7 @@ public class SatResource extends
                     }
                 }
                 if (tileSet == null) {
-                    tileSet = new SatTileSetRenderable(SatResource.this, record);
-                    tileSet.project(descriptor.getGridGeometry());
+                    tileSet = createTileSet(record);
                     tileMap.put(record.getCoverage(), tileSet);
                 }
             }
@@ -304,6 +305,13 @@ public class SatResource extends
     public SatResource(SatResourceData data, LoadProperties props) {
         super(data, props);
         addDataObject(data.getRecords());
+    }
+
+    protected SatTileSetRenderable createTileSet(SatelliteRecord record) {
+        SatTileSetRenderable tileSet = new SatTileSetRenderable(
+this, record);
+        tileSet.project(descriptor.getGridGeometry());
+        return tileSet;
     }
 
     @Override

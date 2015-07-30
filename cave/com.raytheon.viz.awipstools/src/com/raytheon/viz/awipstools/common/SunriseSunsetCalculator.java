@@ -35,6 +35,7 @@ package com.raytheon.viz.awipstools.common;
  *                                        function so that it would be
  *                                        capable of recognizing additional
  *                                        timezones.
+ * Jul 28, 2015  4633       bsteffen       Remove println
  * </pre>
  * 
  * @author Eric Babin
@@ -283,9 +284,6 @@ public class SunriseSunsetCalculator {
             if (w8 == 0)
                 sunriseTime = "No Sunset this date";
         }
-
-        System.out.println(sunriseTime + " : " + sunriseAzimuth + "   "
-                + sunsetTime + " : " + sunsetAzimuth);
     }
 
     /*
