@@ -948,41 +948,42 @@ public class ZoneSelectorResource extends DbMapResource {
     public List<String> getZoneNames() {
         if (zoneData.isEmpty()) {
             try {
+                StringBuilder query = new StringBuilder("SELECT ");
 
                 // add any additional columns
-                boolean hasEditArea = false;
                 if (resourceData.getColumns() != null) {
+                    int count = 0;
+
                     for (ColumnDefinition column : resourceData.getColumns()) {
-                        if (EDIT_AREA.equals(column.toString())) {
-                            hasEditArea = true;
-                            break;
+                        if (count > 0) {
+                            query.append(", ");
                         }
+
+                        query.append(column);
+                        count++;
                     }
                 }
 
-                if (hasEditArea) {
-                    StringBuilder query = new StringBuilder("SELECT ");
-                    query.append(EDIT_AREA);
-                    query.append(" FROM ");
-                    // add the geometry table
-                    query.append(resourceData.getTable());
+                query.append(" FROM ");
+                // add the geometry table
+                query.append(resourceData.getTable());
 
-                    // add any constraints
-                    String[] constraints = resourceData.getConstraints();
-                    if ((constraints != null) && (constraints.length > 0)) {
-                        query.append(" WHERE ").append(
-                                StringUtils.join(constraints, " AND "));
-                    }
+                // add any constraints
+                String[] constraints = resourceData.getConstraints();
+                if ((constraints != null) && (constraints.length > 0)) {
+                    query.append(" WHERE ").append(
+                            StringUtils.join(constraints, " AND "));
+                }
 
-                    query.append(';');
+                query.append(';');
 
-                    QueryResult mappedResult = DirectDbQuery
-                            .executeMappedQuery(query.toString(), "maps",
-                                    QueryLanguage.SQL);
+                QueryResult mappedResult = DirectDbQuery.executeMappedQuery(
+                        query.toString(), "maps", QueryLanguage.SQL);
+                if (mappedResult.getColumnNames().containsKey("editarea")) {
 
                     for (int i = 0; i < mappedResult.getResultCount(); i++) {
                         String zoneName = (String) mappedResult
-                                .getRowColumnValue(i, 0);
+                                .getRowColumnValue(i, "editarea");
                         getZoneInfo(zoneName);
                     }
                 }
