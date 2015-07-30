@@ -48,7 +48,7 @@ import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.smartscript.FieldDefinition;
 
 /**
- * Manages the smart tool inventory and the asssociated metadata for each tool
+ * Manages the smart tool inventory and the associated metadata for each tool
  * for the current GFE session.
  * 
  * <pre>
@@ -118,7 +118,7 @@ public class SmartToolMetadataManager implements ILocalizationFileObserver {
         try {
             jobCoordinator.submitAsyncJob(executor, listener);
         } catch (Exception e1) {
-            statusHandler.error("Error updating smart tool metadata.", e1);
+            statusHandler.error("Error initializing smart tool metadata.", e1);
         }
     }
 
@@ -154,9 +154,11 @@ public class SmartToolMetadataManager implements ILocalizationFileObserver {
                 continue;
             } else if (parmName.equals(toolData.getWeatherElementEdited())) {
                 tools.add(toolName);
-            } else if (toolData.getScreenList().contains(parmName)
-                    || toolData.getScreenList().contains(parmTypeName)) {
-                tools.add(toolName);
+            } else if (toolData.getScreenList() != null) {
+                if ((toolData.getScreenList().contains(parmName))
+                        || (toolData.getScreenList().contains(parmTypeName))) {
+                    tools.add(toolName);
+                }
             } else if (toolData.getWeatherElementEdited().equals(
                     "variableElement")) {
                 tools.add(toolName);

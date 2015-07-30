@@ -17,14 +17,14 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.gfe.smarttool.script;
+package com.raytheon.viz.gfe.procedures;
 
 import jep.JepException;
 
 import com.raytheon.viz.gfe.core.DataManager;
 
 /**
- * Script factory for {@code SmartToolMetadataController} instances.
+ * Script factory for {@code ProcedureRunnerController} instances.
  * 
  * <pre>
  * 
@@ -32,7 +32,7 @@ import com.raytheon.viz.gfe.core.DataManager;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 22, 2015  #4263     dgilling     Initial creation
+ * Jul 25, 2015  #4263     dgilling     Initial creation
  * 
  * </pre>
  * 
@@ -40,14 +40,19 @@ import com.raytheon.viz.gfe.core.DataManager;
  * @version 1.0
  */
 
-public final class SmartToolMetadataScriptFactory extends
-        SmartToolFactory<SmartToolMetadataController> {
+public final class ProcedureRunnerScriptFactory extends
+        ProcedureFactory<ProcedureRunnerController> {
 
-    private static final String SCRIPT_EXECUTOR_NAME = "smart-tool-metadata";
+    /*
+     * These constants that are passed to the super constructor only matter if
+     * procedure execution gets hooked into our python concurrent execution
+     * framework. Since it isn't we use dummy values for now...
+     */
+    private static final String SCRIPT_EXECUTOR_NAME = "procedure-runner";
 
-    private static final int EXECUTOR_NUM_THREADS = 1;
+    private static final int EXECUTOR_NUM_THREADS = 0;
 
-    public SmartToolMetadataScriptFactory(final DataManager dataMgr) {
+    public ProcedureRunnerScriptFactory(final DataManager dataMgr) {
         super(SCRIPT_EXECUTOR_NAME, EXECUTOR_NUM_THREADS, dataMgr);
     }
 
@@ -59,8 +64,8 @@ public final class SmartToolMetadataScriptFactory extends
      * createPythonScript()
      */
     @Override
-    public SmartToolMetadataController createPythonScript() throws JepException {
-        return new SmartToolMetadataController(getScriptPath(),
-                getIncludePath(), getClass().getClassLoader(), dataMgr);
+    public ProcedureRunnerController createPythonScript() throws JepException {
+        return new ProcedureRunnerController(buildScriptPath(),
+                buildIncludePath(), getClass().getClassLoader(), dataMgr);
     }
 }

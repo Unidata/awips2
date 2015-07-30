@@ -32,68 +32,73 @@
 #    11/05/08                      njensen        Initial Creation.
 #    01/17/13         1486         dgilling       Re-factor based on 
 #                                                 RollbackMasterInterface.
+#    07/27/15         4263         dgilling       Support refactored Java
+#                                                 ProcedureControllers.
 #    
 # 
 #
 
 
+import logging
 import sys
 import Exceptions
+
+import JUtil
+import ProcessVariableList
 import RollbackMasterInterface
+import UFStatusHandler
+
+
+PLUGIN_NAME = 'com.raytheon.viz.gfe'
+CATEGORY = 'GFE'
+
 
 class ProcedureInterface(RollbackMasterInterface.RollbackMasterInterface):
     
     def __init__(self, scriptPath):
         super(ProcedureInterface, self).__init__(scriptPath)
-        self.importModules()
         
-        self.menuToProcMap = {}
-        for script in self.scripts:
-            self.__mapMenuList(script)
+        logging.basicConfig(level=logging.INFO)
+        self.log = logging.getLogger("ProcedureInterface")
+        self.log.addHandler(UFStatusHandler.UFStatusHandler(PLUGIN_NAME, CATEGORY))
+        
+        self.importModules()
                     
-    def __mapMenuList(self, script):
-        if hasattr(sys.modules[script], "MenuItems"):
-            menus = sys.modules[script].MenuItems
-            if menus is not None:
-                for item in menus:
-                    if item is not None and len(item) > 0:
-                        if self.menuToProcMap.has_key(item):
-                            self.menuToProcMap[item].add(script)
-                        else:
-                            self.menuToProcMap[item] = set([script])
+    def __getProcedureInfo(self, script, dataMgr):
+        menus = self.getMenuName(script)
+        argNames = self.getMethodArgNames(script, "Procedure", "execute")
+        varDict = self.getVariableListInputs(script)
+        return menus, argNames, varDict
     
-    def getScripts(self, menu):
-        from java.util import HashSet
-        scriptList = HashSet()
-        if self.menuToProcMap.has_key(menu):
-            menuItems = self.menuToProcMap[menu]
-            for item in menuItems:
-                scriptList.add(str(item))             
+    def getScripts(self, dataMgr):
+        from java.util import HashMap
+        from com.raytheon.viz.gfe.procedures import ProcedureMetadata
+        
+        scriptList = HashMap()
+        for script in self.scripts:
+            try:
+                (menus, argNames, varDict) = self.__getProcedureInfo(script, dataMgr)
+                name = str(script)
+                if not menus:
+                    menus = [] 
+                menus = JUtil.pyValToJavaObj(menus)
+                argNames = JUtil.pyValToJavaObj(argNames)
+                metadata = ProcedureMetadata(name, menus, argNames, varDict)
+                scriptList.put(name, metadata)
+            except:
+                self.log.exception("Unable to load metadata for procedure " + script)
+                
         return scriptList
     
     def addModule(self, moduleName):
         super(ProcedureInterface, self).addModule(moduleName)
-        self.__mapMenuList(moduleName)
         
     def removeModule(self, moduleName):
         super(ProcedureInterface, self).removeModule(moduleName)
-        for key in self.menuToProcMap:
-            procList = self.menuToProcMap.get(key)
-            if moduleName in procList:
-                procList.remove(moduleName)
-                self.menuToProcMap[key] = procList
-        # in-case we removed just an override, let's
-        # check to see if another script with the same name exists
-        if sys.modules.has_key(moduleName):
-            self.__mapMenuList(moduleName)
     
-    def getMethodArgNames(self, moduleName, className, methodName):
-        from java.util import ArrayList        
+    def getMethodArgNames(self, moduleName, className, methodName):  
         args = self.getMethodArgs(moduleName, className, methodName)
-        argList = ArrayList()
-        for a in args:
-            argList.add(a)
-        return argList
+        return JUtil.pyValToJavaObj(args)
     
     def runProcedure(self, moduleName, className, methodName, **kwargs):
         try:
@@ -103,29 +108,16 @@ class ProcedureInterface(RollbackMasterInterface.RollbackMasterInterface):
                 return None
             msg = moduleName + ":" + e.errorType() + ": " + e.errorInfo()
             raise RuntimeError(msg)
-        
+
+    def getMenuName(self, name):
+        return getattr(sys.modules[name], "MenuItems", [])
+
     def getVariableList(self, name):
-        result = None
-        if hasattr(sys.modules[name], "VariableList"):
-            result = sys.modules[name].VariableList
-        return result
+        return getattr(sys.modules[name], "VariableList", [])
     
     def getVariableListInputs(self, name):
         varList = self.getVariableList(name)
-        return self.runMethod(name, "Procedure", "getVariableListInputs", VariableList=varList)
+        return ProcessVariableList.buildWidgetList(varList)
     
     def reloadModule(self, moduleName):
-        if sys.modules.has_key(moduleName):
-            mod = sys.modules[moduleName]
-            if hasattr(mod, "MenuItems"):
-                menus = mod.MenuItems
-                if menus is not None:
-                    for item in menus:
-                        try:
-                            self.menuToProcMap[item].remove(moduleName)
-                        except ValueError:
-                            # wasn't in list
-                            pass
-                        
         super(ProcedureInterface, self).reloadModule(moduleName)
-        self.__mapMenuList(moduleName)

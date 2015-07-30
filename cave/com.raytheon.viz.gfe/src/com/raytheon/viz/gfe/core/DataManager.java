@@ -67,9 +67,8 @@ import com.raytheon.viz.gfe.core.msgs.ISCSendStatusChangedMsg;
 import com.raytheon.viz.gfe.core.parm.ParmOp;
 import com.raytheon.viz.gfe.gridmanager.IGridManager;
 import com.raytheon.viz.gfe.jobs.AutoSaveJob;
-import com.raytheon.viz.gfe.procedures.ProcedureFactory;
 import com.raytheon.viz.gfe.procedures.ProcedureJobPool;
-import com.raytheon.viz.gfe.procedures.ProcedureUIController;
+import com.raytheon.viz.gfe.procedures.ProcedureMetadataManager;
 import com.raytheon.viz.gfe.smarttool.EditActionProcessor;
 import com.raytheon.viz.gfe.smarttool.GridCycler;
 import com.raytheon.viz.gfe.smarttool.script.SmartToolJobPool;
@@ -104,8 +103,8 @@ import com.raytheon.viz.gfe.textformatter.TextProductManager;
  * 09/09/2014    3592      randerso    Added call to SampleSetManager.dispose()
  * 10/30/2014    3775      randerso    Added parmCacheInit to initStatus
  * 04/20/2015    4027      randerso    Let TextProductManager know we are not running in a GUI
- * 07/23/2015    4263      dgilling    Refactor to support initialization of smart tool 
- *                                     inventory off main thread.
+ * 07/23/2015    4263      dgilling    Refactor to support initialization of script 
+ *                                     controllers off main thread.
  * 
  * </pre>
  * 
@@ -170,7 +169,7 @@ public class DataManager {
 
     private SmartToolMetadataManager smartToolInterface;
 
-    private ProcedureUIController procedureInterface;
+    private ProcedureMetadataManager procedureInterface;
 
     private TextProductManager textProductMgr;
 
@@ -208,6 +207,8 @@ public class DataManager {
 
     private final AtomicBoolean smartToolsInitialized;
 
+    private final AtomicBoolean proceduresInitialized;
+
     public IISCDataAccess getIscDataAccess() {
         return iscDataAccess;
     }
@@ -244,6 +245,7 @@ public class DataManager {
         strInitJob.schedule();
 
         smartToolsInitialized = new AtomicBoolean(false);
+        proceduresInitialized = new AtomicBoolean(false);
         initializeScriptControllers(discriminator);
         waitForScriptControllers();
         procJobPool = new ProcedureJobPool(4, 4, this);
@@ -530,6 +532,16 @@ public class DataManager {
         };
         smartToolInterface.initialize(smartToolListener);
 
+        procedureInterface = new ProcedureMetadataManager(this);
+        IAsyncStartupObjectListener procedureListener = new IAsyncStartupObjectListener() {
+
+            @Override
+            public void objectInitialized() {
+                proceduresInitialized.set(true);
+            }
+        };
+        procedureInterface.initialize(procedureListener);
+
         // it would be really nice to be able to spawn the construction of these
         // two heavy objects into another thread. Unfortunately, Jep requires
         // creation and all subsequent access to happen on the same thread. So
@@ -542,14 +554,6 @@ public class DataManager {
 
             @Override
             public void run() {
-                try {
-                    DataManager.this.procedureInterface = ProcedureFactory
-                            .buildUIController(DataManager.this);
-                } catch (JepException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error initializing procedure interface", e);
-                }
-
                 DataManager.this.textProductMgr = new TextProductManager(
                         discriminator != null);
             }
@@ -558,7 +562,7 @@ public class DataManager {
 
     private void waitForScriptControllers() {
         long waitTime = 0;
-        while (!smartToolsInitialized.get()) {
+        while (!(smartToolsInitialized.get() && proceduresInitialized.get())) {
             try {
                 waitTime += 10;
                 Thread.sleep(10);
@@ -568,14 +572,14 @@ public class DataManager {
         }
 
         statusHandler.info("Waited " + waitTime
-                + "ms for smart tool initialization...");
+                + "ms for script controller initialization...");
     }
 
     public SmartToolMetadataManager getSmartToolInterface() {
         return smartToolInterface;
     }
 
-    public ProcedureUIController getProcedureInterface() {
+    public ProcedureMetadataManager getProcedureInterface() {
         return procedureInterface;
     }
 

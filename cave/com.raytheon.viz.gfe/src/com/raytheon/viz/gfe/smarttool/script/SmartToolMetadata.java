@@ -41,7 +41,7 @@ import com.raytheon.viz.gfe.smartscript.FieldDefinition;
  * @version 1.0
  */
 
-public class SmartToolMetadata {
+public final class SmartToolMetadata {
 
     private final String name;
 
@@ -56,12 +56,23 @@ public class SmartToolMetadata {
     private final List<FieldDefinition> varDictWidgets;
 
     /**
+     * Construct a smart tool metadata record.
+     * 
      * @param name
+     *            Name of the smart tool.
      * @param weatherElementEdited
+     *            The parm name of the parm this tool modifies.
      * @param screenList
+     *            A list of parm names or parm types to show this tool for when
+     *            showing tool inventories.
      * @param hideTool
+     *            Whether or not to show this tool in inventories for menus or
+     *            dialogs.
      * @param docString
+     *            A short description of what this tool does.
      * @param varDictWidgets
+     *            A list of {@code FieldDefinition} objects that is used to
+     *            construct the user GUI for this tool.
      */
     public SmartToolMetadata(String name, String weatherElementEdited,
             Collection<String> screenList, boolean hideTool, String docString,
@@ -100,8 +111,18 @@ public class SmartToolMetadata {
 
     @Override
     public String toString() {
-        return "SmartToolMetadata [name=" + name + ", weatherElementEdited="
-                + weatherElementEdited + ", screenList=" + screenList
-                + ", hideTool=" + hideTool + ", docString=" + docString + "]";
+        StringBuilder builder = new StringBuilder();
+        builder.append("SmartToolMetadata [name=");
+        builder.append(name);
+        builder.append(", weatherElementEdited=");
+        builder.append(weatherElementEdited);
+        builder.append(", screenList=");
+        builder.append(screenList);
+        builder.append(", hideTool=");
+        builder.append(hideTool);
+        builder.append(", docString=");
+        builder.append(docString);
+        builder.append("]");
+        return builder.toString();
     }
 }

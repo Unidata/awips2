@@ -20,11 +20,10 @@
 package com.raytheon.viz.gfe.smarttool;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
-import jep.JepException;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
@@ -402,20 +401,15 @@ public class EditActionProcessor {
 
                 @Override
                 public void run() {
-                    try {
-                        List<String> argList = dataMgr.getProcedureInterface()
-                                .getMethodArguments(name, "execute");
-                        if (!argList.contains("timeRange")
-                                && checkedList.contains("EmptyTimeRange")) {
-                            checkedList.remove("EmptyTimeRange");
-                        }
-                        if (!argList.contains("editArea")
-                                && checkedList.contains("EmptyEditArea")) {
-                            checkedList.remove("EmptyEditArea");
-                        }
-                    } catch (JepException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                e.getLocalizedMessage(), e);
+                    Collection<String> argList = dataMgr
+                            .getProcedureInterface().getMethodArguments(name);
+                    if (!argList.contains("timeRange")
+                            && checkedList.contains("EmptyTimeRange")) {
+                        checkedList.remove("EmptyTimeRange");
+                    }
+                    if (!argList.contains("editArea")
+                            && checkedList.contains("EmptyEditArea")) {
+                        checkedList.remove("EmptyEditArea");
                     }
                 }
 
