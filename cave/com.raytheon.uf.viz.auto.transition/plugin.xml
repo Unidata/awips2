@@ -9,9 +9,6 @@
             name="com.raytheon.uf.viz.auto.transition.AutoTransitionAction"
             sortID="50">
       </contextualMenu>
-   </extension>
-   <extension
-         point="com.raytheon.viz.ui.contextualMenu">
       <contextualMenu
             actionClass="com.raytheon.uf.viz.auto.transition.ConfigureAutoTransitionAction"
             capabilityClass="com.raytheon.uf.viz.auto.transition.AutoTransitionResource"
