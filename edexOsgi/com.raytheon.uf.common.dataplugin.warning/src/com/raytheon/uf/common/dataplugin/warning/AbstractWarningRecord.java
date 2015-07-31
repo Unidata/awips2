@@ -129,7 +129,7 @@ public abstract class AbstractWarningRecord extends PluginDataObject {
     @DataURI(position = 5)
     @Column(length = 4, nullable = false)
     @DynamicSerializeElement
-    private String etn;
+    private String etn = NullUtil.NULL_STRING;
 
     /** vtec start time */
     @DynamicSerializeElement
