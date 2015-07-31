@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -32,6 +33,9 @@ import com.raytheon.uf.common.menus.xml.CommonMenuContribution;
 import com.raytheon.uf.common.menus.xml.CommonTitleImgContribution;
 import com.raytheon.uf.common.menus.xml.CommonToolBarContribution;
 import com.raytheon.uf.common.menus.xml.CommonToolbarSubmenuContribution;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 
 /**
@@ -51,6 +55,8 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
  * Aug 19, 2014  3506     mapeters    Populate toolbar contributions from directory of 
  *                                    source files instead of one file, merge sources from 
  *                                    different localization levels instead of overriding.
+ * Jul 07, 2015  4641     mapeters    Fix/improve comparators for VbSource sorting.
+ * Jul 10, 2015  4641     mapeters    Added check for sources with null key/category fields.
  * 
  * </pre>
  * 
@@ -61,30 +67,88 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 @XmlRootElement
 public class VbSourceList {
 
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(VbSourceList.class);
+
     private final static IPathManager pm = PathManagerFactory.getPathManager();
 
+    /** The sources categories in order */
+    private static final String[] CATEGORIES = new String[] { "Volume",
+            "SfcGrid", "Local", "Point" };
+
+    /**
+     * Comparator for sorting sources (compares category, then subcategory, then
+     * name).
+     */
     private static Comparator<VbSource> comparator = new Comparator<VbSource>() {
-        /*
-         * For sorting sources, compare subcategories first. If they are the
-         * same or either source doesn't have one, compare display names.
-         */
         @Override
         public int compare(VbSource source1, VbSource source2) {
+            String cat1 = source1.getCategory();
+            String cat2 = source2.getCategory();
+            if (!cat1.equals(cat2)) {
+                /*
+                 * Categories are in the format
+                 * "DropDownMenu/SubMenu/SubMenu/..."
+                 */
+                String[] cat1Parts = cat1.split("/");
+                String[] cat2Parts = cat2.split("/");
+                int minParts = Math.min(cat1Parts.length, cat2Parts.length);
+                for (int i = 0; i < minParts; i++) {
+                    if (!cat1Parts[i].equals(cat2Parts[i])) {
+                        /*
+                         * Compare the drop down menu names differently to keep
+                         * them in the order the NWS is used to.
+                         */
+                        Comparator<String> comparator = (i == 0) ? categoryComparator
+                                : stringComparator;
+                        return comparator.compare(cat1Parts[i], cat2Parts[i]);
+                    }
+                }
+
+                /*
+                 * At this point, categories must match up to the end of the
+                 * smaller of the two (e.g. SfcGrid and SfcGrid/RTOFS/forecast).
+                 * Return the comparison of sourceWithShorterCategory's name and
+                 * otherSource's next submenu level (RTOFS in the example).
+                 */
+                if (cat1Parts.length > minParts) {
+                    return stringComparator.compare(cat1Parts[minParts],
+                            source2.getName());
+                } else {
+                    return stringComparator.compare(source1.getName(),
+                            cat2Parts[minParts]);
+                }
+            }
+
+            /*
+             * Compare subcategories next. If one source has a subcategory and
+             * another doesn't, return the source with a subcategory as being
+             * larger (later in the list).
+             */
             String subCat1 = source1.getSubCategory();
             String subCat2 = source2.getSubCategory();
-            if (subCat1 != null && subCat2 != null && !subCat1.equals(subCat2)) {
-                return comparatorString.compare(subCat1, subCat2);
+            if (subCat1 != null && subCat2 != null) {
+                if (!subCat1.equals(subCat2)) {
+                    return stringComparator.compare(subCat1, subCat2);
+                }
+            } else if (subCat1 != null) {
+                return 1;
+            } else if (subCat2 != null) {
+                return -1;
             }
-            return comparatorString.compare(source1.getName(),
+
+            // Compare names if categories and subcategories match.
+            return stringComparator.compare(source1.getName(),
                     source2.getName());
         }
     };
 
-    private static Comparator<String> comparatorString = new Comparator<String>() {
-        /*
-         * Compares two strings, ignoring capitalization and comparing numeric
-         * values.
-         */
+    /**
+     * Comparator for comparing two strings, ignoring capitalization and
+     * comparing numeric values (assumes there are no leading zeros in the
+     * numeric values).
+     */
+    private static Comparator<String> stringComparator = new Comparator<String>() {
         @Override
         public int compare(String s1, String s2) {
             int n1 = s1.length();
@@ -95,47 +159,54 @@ public class VbSourceList {
             for (int i = 0; i < min; i++) {
                 char c1 = s1.charAt(i);
                 char c2 = s2.charAt(i);
-                if (c1 != c2) {
-                    if (Character.isDigit(c1) && Character.isDigit(c2)) {
-                        // Store aligned numeric values as strings
-                        number1 += c1;
-                        number2 += c2;
-                    } else if (!number1.equals(number2)) {
-                        if (Character.isDigit(c1)) {
-                            /*
-                             * Return first string as larger if it has
-                             * longer/larger numeric value.
-                             */
-                            return 1;
-                        } else if (Character.isDigit(c2)) {
-                            /*
-                             * Return second string as larger if it has
-                             * longer/larger numeric value.
-                             */
-                            return -1;
-                        } else {
-                            /*
-                             * Compare stored numeric values.
-                             */
-                            return number1.charAt(0) - number2.charAt(0);
-                        }
+                if (Character.isDigit(c1) && Character.isDigit(c2)) {
+                    /*
+                     * If aligned characters are both digits, store them as
+                     * strings and proceed to next pair of aligned characters.
+                     */
+                    number1 += c1;
+                    number2 += c2;
+                    continue;
+                } else if (!(Character.isDigit(c1) || Character.isDigit(c2))) {
+                    /*
+                     * If neither aligned character is a digit, return
+                     * difference in stored numbers if they aren't equal,
+                     * otherwise reset numbers if they aren't already empty.
+                     */
+                    if (!number1.equals(number2)) {
+                        return Integer.valueOf(number1)
+                                - Integer.valueOf(number2);
+                    } else if (!number1.isEmpty()) {
+                        number1 = "";
+                        number2 = "";
+                    }
+                } else if (!number1.isEmpty()) {
+                    /*
+                     * Exactly one of the two characters must be a digit to
+                     * reach here. If the numbers aren't empty, whichever string
+                     * has the extra digit is larger as its number is larger.
+                     */
+                    if (Character.isDigit(c1)) {
+                        return 1;
                     } else {
-                        c1 = Character.toUpperCase(c1);
-                        c2 = Character.toUpperCase(c2);
-                        if (c1 != c2) {
-                            c1 = Character.toLowerCase(c1);
-                            c2 = Character.toLowerCase(c2);
-                            if (c1 != c2) {
-                                // No overflow because of numeric promotion
-                                return c1 - c2;
-                            }
-                        }
+                        return -1;
+                    }
+                }
+                c1 = Character.toUpperCase(c1);
+                c2 = Character.toUpperCase(c2);
+                if (c1 != c2) {
+                    c1 = Character.toLowerCase(c1);
+                    c2 = Character.toLowerCase(c2);
+                    if (c1 != c2) {
+                        // No overflow because of numeric promotion
+                        return c1 - c2;
                     }
                 }
             }
             /*
-             * If two strings end with numeric values after for loop, check for
-             * additional digits beyond minimum length to determine order.
+             * If two strings end with unequal numeric values after for loop,
+             * check for additional digits beyond minimum length to determine
+             * order.
              */
             if (!number1.equals(number2)) {
                 if (n1 > n2 && Character.isDigit(s1.charAt(n2))) {
@@ -143,9 +214,41 @@ public class VbSourceList {
                 } else if (n2 > n1 && Character.isDigit(s2.charAt(n1))) {
                     return -1;
                 } else
-                    return number1.charAt(0) - number2.charAt(0);
+                    return Integer.valueOf(number1) - Integer.valueOf(number2);
             }
             return n1 - n2;
+        }
+    };
+
+    /**
+     * Comparator for comparing the drop down menu names of the sources.
+     * Determines order based on {@link #CATEGORIES}.
+     */
+    private static Comparator<String> categoryComparator = new Comparator<String>() {
+        @Override
+        public int compare(String cat1, String cat2) {
+            if (cat1.equals(cat2)) {
+                return 0;
+            }
+            for (String category : CATEGORIES) {
+                /*
+                 * The categories aren't equal (checked for above), so whichever
+                 * one appears first in the ordered categories list (CATEGORIES)
+                 * should be returned as being smaller (making it also appear
+                 * earlier in the sorted list of VbSources).
+                 */
+                if (cat1.equals(category)) {
+                    return -1;
+                } else if (cat2.equals(category)) {
+                    return 1;
+                }
+            }
+
+            /*
+             * If neither category is in the ordered list of expected
+             * categories, compare them alphabetically.
+             */
+            return stringComparator.compare(cat1, cat2);
         }
     };
 
@@ -153,6 +256,7 @@ public class VbSourceList {
      * @deprecated This file path string exists only to support legacy overrides
      *             and should eventually be removed.
      */
+    @Deprecated
     private final static String VB_SOURCE_FILE = "volumebrowser/VbSources.xml";
 
     private final static char SUB_MENU_SPLIT = '/';
@@ -257,6 +361,18 @@ public class VbSourceList {
                     List<VbSource> sources = JAXB.unmarshal(locFile.getFile(),
                             VbSourceList.class).getEntries();
                     if (sources != null) {
+                        Iterator<VbSource> itr = sources.iterator();
+                        while (itr.hasNext()) {
+                            VbSource source = itr.next();
+                            if (source.getCategory() == null
+                                    || source.getKey() == null) {
+                                statusHandler
+                                        .handle(Priority.WARN,
+                                                source
+                                                        + " was excluded from sources menu due to null key and/or category field.");
+                                itr.remove();
+                            }
+                        }
                         allSources.addAll(sources);
                     }
                 }
@@ -267,8 +383,11 @@ public class VbSourceList {
         DatasetInfo info;
         // Set containing sources to not be added to lists
         Set<VbSource> removes = new HashSet<VbSource>();
-        for (int i = 0; i < allSources.size(); i++) {
-            VbSource source = allSources.get(i);
+        Iterator<VbSource> itr = allSources.iterator();
+        // The current index in allSources
+        int i = 0;
+        while (itr.hasNext()) {
+            VbSource source = itr.next();
             // Set display names for sources
             if (source.getName() == null) {
                 info = lookup.getInfo(source.getKey());
@@ -277,11 +396,14 @@ public class VbSourceList {
             if (source.getRemove()) {
                 // Add sources with remove tags to removal set and remove them.
                 removes.add(source);
-                allSources.remove(i--);
+                itr.remove();
             } else if (removes.contains(source)
                     || allSources.subList(0, i).contains(source)) {
                 // Remove sources in removal set and repeats
-                allSources.remove(i--);
+                itr.remove();
+            } else {
+                // Increment index in allSources if source wasn't removed
+                i++;
             }
         }
         Collections.sort(allSources, comparator);
