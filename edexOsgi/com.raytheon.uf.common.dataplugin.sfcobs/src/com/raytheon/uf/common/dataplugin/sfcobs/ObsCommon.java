@@ -107,7 +107,6 @@ public class ObsCommon extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     private String corIndicator = NullUtil.EMPTY_STRING;
 
-    // TODO Update once SurfaceObsLocation DataURI's are corrected.
     @Embedded
     @DataURI(position = 3, embedded = true)
     @XmlElement

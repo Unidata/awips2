@@ -128,7 +128,6 @@ public class ProfilerObs extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     private Calendar timeObs;
 
-    // TODO Update once SurfaceObsLocation DataURI's are corrected.
     @Embedded
     @DataURI(position = 2, embedded = true)
     @XmlElement

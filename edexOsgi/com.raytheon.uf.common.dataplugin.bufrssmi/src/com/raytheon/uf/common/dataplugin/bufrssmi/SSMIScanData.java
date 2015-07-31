@@ -92,7 +92,6 @@ public class SSMIScanData extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     private int satId;
 
-    // TODO Update once SurfaceObsLocation DataURI's are corrected.
     @Embedded
     @DataURI(position = 2, embedded = true)
     @DynamicSerializeElement

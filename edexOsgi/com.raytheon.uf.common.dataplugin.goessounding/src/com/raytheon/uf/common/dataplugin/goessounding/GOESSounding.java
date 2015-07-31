@@ -89,7 +89,6 @@ public class GOESSounding extends PersistablePluginDataObject implements
 
     private static final long serialVersionUID = 1L;
 
-    // TODO Update once SurfaceObsLocation DataURI's are corrected.
     @Embedded
     @DataURI(position = 1, embedded = true)
     @DynamicSerializeElement

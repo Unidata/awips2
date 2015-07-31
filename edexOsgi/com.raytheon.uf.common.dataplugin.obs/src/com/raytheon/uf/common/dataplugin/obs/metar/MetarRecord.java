@@ -158,7 +158,6 @@ public class MetarRecord extends PersistablePluginDataObject implements
     @DataURI(position = 2)
     private String correction = NullUtil.NULL_STRING;
 
-    // TODO Update once SurfaceObsLocation DataURI's are corrected.
     @Embedded
     @DataURI(position = 3, embedded = true)
     @XmlElement

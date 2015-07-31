@@ -94,7 +94,6 @@ public class ACARSSoundingRecord extends PluginDataObject implements
     @DynamicSerializeElement
     private Calendar timeObs;
 
-    // TODO Update once SurfaceObsLocation DataURI's are corrected.
     @Embedded
     @DataURI(position = 1, embedded = true)
     @DynamicSerializeElement

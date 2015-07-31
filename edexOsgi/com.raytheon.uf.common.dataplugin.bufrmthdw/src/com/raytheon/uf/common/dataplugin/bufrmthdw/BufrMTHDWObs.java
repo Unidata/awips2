@@ -94,7 +94,6 @@ public class BufrMTHDWObs extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     private double pressure;
 
-    // TODO Update once SurfaceObsLocation DataURI's are corrected.
     @Embedded
     @DataURI(position = 3, embedded = true)
     @DynamicSerializeElement

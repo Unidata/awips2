@@ -98,7 +98,6 @@ public class TropicalCycloneSummary extends PersistablePluginDataObject
     @DataURI(position = 1)
     protected String productType = "";
 
-    // TODO Update once SurfaceObsLocation DataURI's are corrected.
     @Embedded
     @DataURI(position = 2, embedded = true)
     @DynamicSerializeElement

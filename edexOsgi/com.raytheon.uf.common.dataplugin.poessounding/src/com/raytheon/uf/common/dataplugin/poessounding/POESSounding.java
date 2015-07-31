@@ -91,7 +91,6 @@ public class POESSounding extends PersistablePluginDataObject implements
     @Transient
     private Set<POESSoundingLevel> soundingLevels;
 
-    // TODO Update once SurfaceObsLocation DataURI's are corrected.
     @Embedded
     @DataURI(position = 1, embedded = true)
     @DynamicSerializeElement

@@ -94,7 +94,6 @@ public class AScatObs extends PersistablePluginDataObject implements
     @Column(nullable = false)
     private int satId;
 
-    // TODO Update once SurfaceObsLocation DataURI's are corrected.
     @Embedded
     @DataURI(position = 2, embedded = true)
     @DynamicSerializeElement

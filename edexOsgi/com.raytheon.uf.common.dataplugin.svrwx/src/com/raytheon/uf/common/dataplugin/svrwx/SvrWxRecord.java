@@ -91,7 +91,6 @@ public class SvrWxRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     private String wmoHeader = "";
 
-    // TODO Update once SurfaceObsLocation DataURI's are corrected.
     @Embedded
     @DataURI(position = 2, embedded = true)
     @DynamicSerializeElement

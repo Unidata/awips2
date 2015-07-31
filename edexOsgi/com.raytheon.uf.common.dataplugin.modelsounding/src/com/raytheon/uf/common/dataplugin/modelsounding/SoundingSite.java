@@ -133,7 +133,6 @@ public class SoundingSite extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     private String reportType;
 
-    // TODO Update once SurfaceObsLocation DataURI's are corrected.
     @Embedded
     @DataURI(position = 2, embedded = true)
     @DynamicSerializeElement
