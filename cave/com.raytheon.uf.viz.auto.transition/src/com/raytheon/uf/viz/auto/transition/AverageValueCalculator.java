@@ -57,7 +57,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 public class AverageValueCalculator extends Job {
 
-    private static final int NUM_POINTS = 5;
+    private static final int NUM_POINTS = 8;
 
     private final Object lock = new Object();
 
