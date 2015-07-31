@@ -25,3 +25,26 @@ for table in ${tables[@]} ; do
 	done
 	echo "INFO: Finish update of embedded ${embClass} dataURI columns in table ${table}."
 done
+
+tables=("airep" "pirep")
+
+#tables have the same non-nullable @DataURI columns
+cols=("reporttype" "corindicator")
+
+# table and constraint names from AirepRecord and PirepRecord.
+for table in ${tables[@]} ; do
+	if tableExists $table ; then
+		echo "INFO: Start update of ${table} dataURI columns."
+
+		for col in ${cols[@]} ; do
+					echo "INFO: Update ${table}'s ${col}"
+			${PSQL} -U awips -d metadata -c "UPDATE  ${table} SET ${col}='null' where ${col} is NULL ; "
+			updateNotNullCol ${table} ${col}
+		done
+
+		echo "INFO: ${table} dataURI columns updated successfully"
+	else
+		echo "WARNING: ${table} does not exist."
+	fi
+done
+
