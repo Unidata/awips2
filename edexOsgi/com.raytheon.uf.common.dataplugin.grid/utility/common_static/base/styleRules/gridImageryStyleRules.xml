@@ -1271,9 +1271,11 @@
 			<parameter>TP48hr</parameter>
 			<parameter>TPrun</parameter>
 			<parameter>TP120hr</parameter>
-            <parameter>TP6hr_std</parameter>
-            <parameter>TP6hr_avg</parameter>
-            <parameter>TP24hr_avg</parameter> 
+                        <parameter>TP72hr</parameter>
+                        <parameter>TP168hr</parameter>
+                        <parameter>TP6hr_std</parameter>
+                        <parameter>TP6hr_avg</parameter>
+                        <parameter>TP24hr_avg</parameter> 
 		</paramLevelMatches>
 		<imageStyle>
 			<!-- filterLow="true" -->
@@ -5313,6 +5315,8 @@
  <!-- MRMS Reflectivity Products -->
  <styleRule>
 	<paramLevelMatches>
+		<parameter>CONUSMergedReflectivity</parameter>
+		<parameter>CONUSPlusMergedReflectivity</parameter>
 		<parameter>MergedReflectivityQCComposite</parameter>
 		<parameter>MergedReflectivityQC</parameter>
 		<parameter>Reflectivity0C</parameter>

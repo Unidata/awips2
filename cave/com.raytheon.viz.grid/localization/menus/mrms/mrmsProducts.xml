@@ -324,6 +324,189 @@
 				<substitute key="parameterID" value="ReflectivityM20C"/>
 		 	</contribute>
 		</contribute>
+		<contribute xsi:type="subMenu" menuText="Merged Reflectivity Cube" id="REF_CUBE">
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms3D.xml" menuText="0.5km-3.0km Merged Reflectivity All-Tilts" id="MRMS-03-ALL">
+				<substitute key="levelOneValue" value="500.0--3000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms3D.xml" menuText="0.5km-6.0km Merged Reflectivity All-Tilts" id="MRMS-06-ALL">
+				<substitute key="levelOneValue" value="500.0--6000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms3D.xml" menuText="0.5km-19.0km Merged Reflectivity All-Tilts" id="MRMS-019-ALL">
+				<substitute key="levelOneValue" value="500.0--19000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="separator" id="MRMS-Cube-Static" />
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 0.5km/1.6kft" id="MRMS-REF-500">
+				<substitute key="levelOneValue" value="500.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 0.75km/2.5kft" id="MRMS-REF-750">
+				<substitute key="levelOneValue" value="750.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 1.0km/3.3kft" id="MRMS-REF-1000">
+				<substitute key="levelOneValue" value="1000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 1.25km/4.1kft" id="MRMS-REF-1250">
+				<substitute key="levelOneValue" value="1250.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 1.5km/4.9kft" id="MRMS-REF-1500">
+				<substitute key="levelOneValue" value="1500.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 1.75km/5.7kft" id="MRMS-REF-1750">
+				<substitute key="levelOneValue" value="1750.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 2.0km/6.6kft" id="MRMS-REF-2000">
+				<substitute key="levelOneValue" value="2000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 2.25km/7.4kft" id="MRMS-REF-2250">
+				<substitute key="levelOneValue" value="2250.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 2.5km/8.2kft" id="MRMS-REF-2500">
+				<substitute key="levelOneValue" value="2500.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 2.75km/9.0kft" id="MRMS-REF-2750">
+				<substitute key="levelOneValue" value="2750.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 3.0km/9.8kft" id="MRMS-REF-3000">
+				<substitute key="levelOneValue" value="3000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 3.5km/11.5kft" id="MRMS-REF-3500">
+				<substitute key="levelOneValue" value="3500.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 4.0km/13.1kft" id="MRMS-REF-4000">
+				<substitute key="levelOneValue" value="4000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 4.5km/14.8kft" id="MRMS-REF-4500">
+				<substitute key="levelOneValue" value="4500.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 5.0km/16.4kft" id="MRMS-REF-5000">
+				<substitute key="levelOneValue" value="5000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 5.5km/18.0kft" id="MRMS-REF-5500">
+				<substitute key="levelOneValue" value="5500.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 6.0km/19.7kft" id="MRMS-REF-6000">
+				<substitute key="levelOneValue" value="6000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 6.5km/21.3kft" id="MRMS-REF-6500">
+				<substitute key="levelOneValue" value="6500.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 7.0km/23.0kft" id="MRMS-REF-7000">
+				<substitute key="levelOneValue" value="7000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 7.5km/24.6kft" id="MRMS-REF-7500">
+				<substitute key="levelOneValue" value="7500.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 8.0km/26.2kft" id="MRMS-REF-8000">
+				<substitute key="levelOneValue" value="8000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 8.5km/27.9kft" id="MRMS-REF-8500">
+				<substitute key="levelOneValue" value="8500.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 9.0km/29.5kft" id="MRMS-REF-9000">
+				<substitute key="levelOneValue" value="9000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 10.0km/32.8kft" id="MRMS-REF-10000">
+				<substitute key="levelOneValue" value="10000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 11.0km/36.1kft" id="MRMS-REF-11000">
+				<substitute key="levelOneValue" value="11000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 12.0km/39.4kft" id="MRMS-REF-12000">
+				<substitute key="levelOneValue" value="12000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 13.0km/42.7kft" id="MRMS-REF-13000">
+				<substitute key="levelOneValue" value="13000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 14.0km/45.9kft" id="MRMS-REF-14000">
+				<substitute key="levelOneValue" value="14000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 15.0km/49.2kft" id="MRMS-REF-15000">
+				<substitute key="levelOneValue" value="15000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 16.0km/52.5kft" id="MRMS-REF-16000">
+				<substitute key="levelOneValue" value="16000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 17.0km/55.8kft" id="MRMS-REF-17000">
+				<substitute key="levelOneValue" value="17000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 18.0km/59.1kft" id="MRMS-REF-18000">
+				<substitute key="levelOneValue" value="18000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 		<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Merged Reflectivity at 19.0km/62.3kft" id="MRMS-REF-19000">
+				<substitute key="levelOneValue" value="19000.0"/>
+				<substitute key="datasetID" value="MRMS_1000"/>
+				<substitute key="parameterID" value="CONUSMergedReflectivity"/>
+	 		</contribute>
+	 	</contribute>
 		<contribute xsi:type="subMenu" menuText="Thickness" id="REF_THICKNESS">
 			<contribute xsi:type="bundleItem" file="bundles/mrms/mrms2D.xml" menuText="Height of 50dBZ Echo Above -20°C" id="H50253">
 				<substitute key="levelOneValue" value="500.0"/>

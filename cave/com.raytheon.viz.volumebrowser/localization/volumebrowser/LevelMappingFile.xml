@@ -919,20 +919,39 @@
 	<Level displayName="0.5 km MSL" key="0.5km" group="S">
 		<DatabaseLevel levelName="FH" levelOneValue="500" unit="m" />
 	</Level>
+	<Level displayName="0.75 km MSL" key="0.75km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="750" unit="m" />
+	</Level>
 	<Level displayName="1 km MSL" key="1km" group="S">
 		<DatabaseLevel levelName="FH" levelOneValue="1000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="1.25 km MSL" key="1.25km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="1250.0"
 			unit="m" />
 	</Level>
 	<Level displayName="1.5 km MSL" key="1.5km" group="S">
 		<DatabaseLevel levelName="FH" levelOneValue="1500.0"
 			unit="m" />
 	</Level>
+	<Level displayName="1.75 km MSL" key="1.75km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="1750.0"
+			unit="m" />
+	</Level>
 	<Level displayName="2 km MSL" key="2km" group="S">
 		<DatabaseLevel levelName="FH" levelOneValue="2000.0"
 			unit="m" />
 	</Level>
+	<Level displayName="2.25 km MSL" key="2.25km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="2250.0"
+			unit="m" />
+	</Level>
 	<Level displayName="2.5 km MSL" key="2.5km" group="S">
 		<DatabaseLevel levelName="FH" levelOneValue="2500.0"
+			unit="m" />
+	</Level>
+	<Level displayName="2.75 km MSL" key="2.75km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="2750.0"
 			unit="m" />
 	</Level>
 	<Level displayName="3 km MSL" key="3km" group="S">
@@ -963,12 +982,24 @@
 		<DatabaseLevel levelName="FH" levelOneValue="6000.0"
 			unit="m" />
 	</Level>
+	<Level displayName="6.5 km MSL" key="6.5km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="6500.0"
+			unit="m" />
+	</Level>
 	<Level displayName="7 km MSL" key="7km" group="S">
 		<DatabaseLevel levelName="FH" levelOneValue="7000.0"
 			unit="m" />
 	</Level>
+	<Level displayName="7.5 km MSL" key="7.5km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="7500.0"
+			unit="m" />
+	</Level>
 	<Level displayName="8 km MSL" key="8km" group="S">
 		<DatabaseLevel levelName="FH" levelOneValue="8000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="8.5 km MSL" key="8.5km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="8500.0"
 			unit="m" />
 	</Level>
 	<Level displayName="9 km MSL" key="9km" group="S">
@@ -985,6 +1016,34 @@
 	</Level>
 	<Level displayName="12 km MSL" key="12km" group="S">
 		<DatabaseLevel levelName="FH" levelOneValue="12000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="13 km MSL" key="13km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="13000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="14 km MSL" key="14km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="14000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="15 km MSL" key="15km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="15000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="16 km MSL" key="16km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="16000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="17 km MSL" key="17km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="17000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="18 km MSL" key="18km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="18000.0"
+			unit="m" />
+	</Level>
+	<Level displayName="19 km MSL" key="19km" group="S">
+		<DatabaseLevel levelName="FH" levelOneValue="19000.0"
 			unit="m" />
 	</Level>
 	<Level displayName="1 kft MSL" key="1kft" group="S">
@@ -1623,7 +1682,6 @@
 		<DatabaseLevel levelName="Ke" levelOneValue="350"
 			levelTwoValue="360" unit="K" />
 	</Level>
-	
 	<Level displayName="Surface" key="1HYB">
 		<DatabaseLevel levelName="HYB" levelOneValue="1" />
 	</Level>
@@ -1642,31 +1700,32 @@
 		<DatabaseLevel levelName="BL" levelOneValue="1000"
 		levelTwoValue="400" unit="hPa" />
 	</Level>
-        <Level displayName="Tertiary" key="Tertiary"> <!-- Start NWPS -->
-                <DatabaseLevel levelName="OSEQD" levelOneValue="3" />
-        </Level>
-        <Level displayName="OSEQD-4" key="OSEQD-4">
-                <DatabaseLevel levelName="OSEQD" levelOneValue="4" />
-        </Level>
-        <Level displayName="OSEQD-5" key="OSEQD-5">
-                <DatabaseLevel levelName="OSEQD" levelOneValue="5" />
-        </Level>
-        <Level displayName="OSEQD-6" key="OSEQD-6">
-                <DatabaseLevel levelName="OSEQD" levelOneValue="6" />
-        </Level>
-        <Level displayName="OSEQD-7" key="OSEQD-7">
-                <DatabaseLevel levelName="OSEQD" levelOneValue="7" />
-        </Level>
-        <Level displayName="OSEQD-8" key="OSEQD-8">
-                <DatabaseLevel levelName="OSEQD" levelOneValue="8" />
-        </Level>
-        <Level displayName="OSEQD-9" key="OSEQD-9">
-                <DatabaseLevel levelName="OSEQD" levelOneValue="9" />
-        </Level>
-        <Level displayName="OSEQD-10" key="OSEQD-10"> <!-- End NWPS -->
-                <DatabaseLevel levelName="OSEQD" levelOneValue="10" />
-        </Level>
-        <Level displayName="NTAT" key="NTAT" group="S">
-                <DatabaseLevel levelName="NTAT" levelOneValue="0" />
-        </Level>
+	<Level displayName="Tertiary" key="Tertiary"> <!-- Start NWPS -->
+		<DatabaseLevel levelName="OSEQD" levelOneValue="3" />
+	</Level>
+	<Level displayName="OSEQD-4" key="OSEQD-4">
+		<DatabaseLevel levelName="OSEQD" levelOneValue="4" />
+	</Level>
+	<Level displayName="OSEQD-5" key="OSEQD-5">
+		<DatabaseLevel levelName="OSEQD" levelOneValue="5" />
+	</Level>
+	<Level displayName="OSEQD-6" key="OSEQD-6">
+		<DatabaseLevel levelName="OSEQD" levelOneValue="6" />
+	</Level>
+	<Level displayName="OSEQD-7" key="OSEQD-7">
+		<DatabaseLevel levelName="OSEQD" levelOneValue="7" />
+	</Level>
+	<Level displayName="OSEQD-8" key="OSEQD-8">
+		<DatabaseLevel levelName="OSEQD" levelOneValue="8" />
+	</Level>
+	<Level displayName="OSEQD-9" key="OSEQD-9">
+		<DatabaseLevel levelName="OSEQD" levelOneValue="9" />
+	</Level>
+	<Level displayName="OSEQD-10" key="OSEQD-10"> <!-- End NWPS -->
+		<DatabaseLevel levelName="OSEQD" levelOneValue="10" />
+	</Level>
+	<Level displayName="NTAT" key="NTAT" group="S">
+		<DatabaseLevel levelName="NTAT" levelOneValue="0" />
+	</Level>
+
 </LevelMappings>
