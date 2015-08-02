@@ -49,19 +49,27 @@ Adapted for SciPy by Stefan van der Walt.
 
 """
 
+from __future__ import division, print_function, absolute_import
+
 __all__ = ['lsqr']
 
 import numpy as np
 from math import sqrt
 from scipy.sparse.linalg.interface import aslinearoperator
 
-def _sym_ortho(a,b):
+eps = np.finfo(np.float64).eps
+
+
+def _sym_ortho(a, b):
     """
-    Jeffery Kline noted: I added the routine 'SymOrtho' for numerical
-    stability. This is recommended by S.-C. Choi in [1]_. It removes
-    the unpleasant potential of ``1/eps`` in some important places
-    (see, for example text following "Compute the next
-    plane rotation Qk" in minres_py).
+    Stable implementation of Givens rotation.
+
+    Notes
+    -----
+    The routine 'SymOrtho' was added for numerical stability. This is
+    recommended by S.-C. Choi in [1]_.  It removes the unpleasant potential of
+    ``1/eps`` in some important places (see, for example text following
+    "Compute the next plane rotation Qk" in minres.py).
 
     References
     ----------
@@ -70,34 +78,20 @@ def _sym_ortho(a,b):
            http://www.stanford.edu/group/SOL/dissertations/sou-cheng-choi-thesis.pdf
 
     """
-    aa = abs(a)
-    ab = abs(b)
-    if b == 0.:
-        s = 0.
-        r = aa
-        if aa == 0.:
-            c = 1.
-        else:
-            c = a/aa
-    elif a == 0.:
-        c = 0.
-        s = b / ab
-        r = ab
-    elif ab >= aa:
-        sb = 1
-        if b < 0: sb=-1
-        tau = a/b
-        s = sb * (1 + tau**2)**-0.5
+    if b == 0:
+        return np.sign(a), 0, abs(a)
+    elif a == 0:
+        return 0, np.sign(b), abs(b)
+    elif abs(b) > abs(a):
+        tau = a / b
+        s = np.sign(b) / sqrt(1 + tau * tau)
         c = s * tau
         r = b / s
-    elif aa > ab:
-        sa = 1
-        if a < 0: sa = -1
+    else:
         tau = b / a
-        c = sa * (1 + tau**2)**-0.5
+        c = np.sign(a) / sqrt(1+tau*tau)
         s = c * tau
         r = a / c
-
     return c, s, r
 
 
@@ -107,7 +101,7 @@ def lsqr(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
     of equations.
 
     The function solves ``Ax = b``  or  ``min ||b - Ax||^2`` or
-    ``min ||Ax - b||^2 + d^2 ||x||^2.
+    ``min ||Ax - b||^2 + d^2 ||x||^2``.
 
     The matrix A may be square or rectangular (over-determined or
     under-determined), and may have any rank.
@@ -125,19 +119,19 @@ def lsqr(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
 
     Parameters
     ----------
-    A : {sparse matrix, ndarray, LinearOperatorLinear}
-        Representation of an mxn matrix.  It is required that
+    A : {sparse matrix, ndarray, LinearOperator}
+        Representation of an m-by-n matrix.  It is required that
         the linear operator can produce ``Ax`` and ``A^T x``.
     b : (m,) ndarray
         Right-hand side vector ``b``.
     damp : float
         Damping coefficient.
-    atol, btol : float
+    atol, btol : float, optional
         Stopping tolerances. If both are 1.0e-9 (say), the final
         residual norm should be accurate to about 9 digits.  (The
         final x will usually have fewer correct digits, depending on
         cond(A) and the size of damp.)
-    conlim : float
+    conlim : float, optional
         Another stopping tolerance.  lsqr terminates if an estimate of
         ``cond(A)`` exceeds `conlim`.  For compatible systems ``Ax =
         b``, `conlim` could be as large as 1.0e+12 (say).  For
@@ -145,11 +139,11 @@ def lsqr(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
         Maximum precision can be obtained by setting ``atol = btol =
         conlim = zero``, but the number of iterations may then be
         excessive.
-    iter_lim : int
+    iter_lim : int, optional
         Explicit limitation on number of iterations (for safety).
-    show : bool
+    show : bool, optional
         Display an iteration log.
-    calc_var : bool
+    calc_var : bool, optional
         Whether to estimate diagonals of ``(A'A + damp^2*I)^{-1}``.
 
     Returns
@@ -256,38 +250,40 @@ def lsqr(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
 
     """
     A = aslinearoperator(A)
-    b = b.squeeze()
+    if len(b.shape) > 1:
+        b = b.squeeze()
 
     m, n = A.shape
-    if iter_lim is None: iter_lim = 2 * n
+    if iter_lim is None:
+        iter_lim = 2 * n
     var = np.zeros(n)
 
-    msg=('The exact solution is  x = 0                              ',
+    msg = ('The exact solution is  x = 0                              ',
          'Ax - b is small enough, given atol, btol                  ',
          'The least-squares solution is good enough, given atol     ',
          'The estimate of cond(Abar) has exceeded conlim            ',
          'Ax - b is small enough for this machine                   ',
          'The least-squares solution is good enough for this machine',
          'Cond(Abar) seems to be too large for this machine         ',
-         'The iteration limit has been reached                      ');
+         'The iteration limit has been reached                      ')
 
     if show:
-        print ' '
-        print 'LSQR            Least-squares solution of  Ax = b'
+        print(' ')
+        print('LSQR            Least-squares solution of  Ax = b')
         str1 = 'The matrix A has %8g rows  and %8g cols' % (m, n)
         str2 = 'damp = %20.14e   calc_var = %8g' % (damp, calc_var)
-        str3 = 'atol = %8.2e                 conlim = %8.2e'%( atol, conlim)
-        str4 = 'btol = %8.2e               iter_lim = %8g'  %( btol, iter_lim)
-        print str1
-        print str2
-        print str3
-        print str4
+        str3 = 'atol = %8.2e                 conlim = %8.2e' % (atol, conlim)
+        str4 = 'btol = %8.2e               iter_lim = %8g' % (btol, iter_lim)
+        print(str1)
+        print(str2)
+        print(str3)
+        print(str4)
 
     itn = 0
     istop = 0
-    nstop = 0
     ctol = 0
-    if conlim > 0: ctol = 1/conlim
+    if conlim > 0:
+        ctol = 1/conlim
     anorm = 0
     acond = 0
     dampsq = damp**2
@@ -303,8 +299,6 @@ def lsqr(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
     Set up the first vectors u and v for the bidiagonalization.
     These satisfy  beta*u = b,  alfa*v = A'u.
     """
-    __xm = np.zeros(m) # a matrix for temporary holding
-    __xn = np.zeros(n) # a matrix for temporary holding
     v = np.zeros(n)
     u = b
     x = np.zeros(n)
@@ -332,20 +326,21 @@ def lsqr(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
     # there was an error on return when arnorm==0
     arnorm = alfa * beta
     if arnorm == 0:
-        print msg[0];
+        print(msg[0])
         return x, istop, itn, r1norm, r2norm, anorm, acond, arnorm, xnorm, var
 
-    head1  = '   Itn      x[0]       r1norm     r2norm ';
-    head2  = ' Compatible    LS      Norm A   Cond A';
+    head1 = '   Itn      x[0]       r1norm     r2norm '
+    head2 = ' Compatible    LS      Norm A   Cond A'
 
     if show:
-        print ' '
-        print head1, head2
-        test1  = 1;             test2  = alfa / beta;
-        str1   = '%6g %12.5e'    %(    itn,   x[0] );
-        str2   = ' %10.3e %10.3e'%( r1norm, r2norm );
-        str3   = '  %8.1e %8.1e' %(  test1,  test2 );
-        print str1, str2, str3
+        print(' ')
+        print(head1, head2)
+        test1 = 1
+        test2 = alfa / beta
+        str1 = '%6g %12.5e' % (itn, x[0])
+        str2 = ' %10.3e %10.3e' % (r1norm, r2norm)
+        str3 = '  %8.1e %8.1e' % (test1, test2)
+        print(str1, str2, str3)
 
     # Main iteration loop.
     while itn < iter_lim:
@@ -363,7 +358,7 @@ def lsqr(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
             u = (1/beta) * u
             anorm = sqrt(anorm**2 + alfa**2 + beta**2 + damp**2)
             v = A.rmatvec(u) - beta * v
-            alfa  = np.linalg.norm(v)
+            alfa = np.linalg.norm(v)
             if alfa > 0:
                 v = (1 / alfa) * v
 
@@ -405,11 +400,11 @@ def lsqr(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
         rhs = phi - delta * z
         zbar = rhs / gambar
         xnorm = sqrt(xxnorm + zbar**2)
-        gamma = sqrt(gambar**2 +theta**2)
+        gamma = sqrt(gambar**2 + theta**2)
         cs2 = gambar / gamma
-        sn2 = theta  / gamma
+        sn2 = theta / gamma
         z = rhs / gamma
-        xxnorm = xxnorm  +  z**2
+        xxnorm = xxnorm + z**2
 
         # Test for convergence.
         # First, estimate the condition of the matrix  Abar,
@@ -436,36 +431,50 @@ def lsqr(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
         # Now use these norms to estimate certain other quantities,
         # some of which will be small near a solution.
         test1 = rnorm / bnorm
-        test2 = arnorm / (anorm * rnorm)
-        test3 = 1 / acond
+        test2 = arnorm / (anorm * rnorm + eps)
+        test3 = 1 / (acond + eps)
         t1 = test1 / (1 + anorm * xnorm / bnorm)
-        rtol = btol + atol *  anorm * xnorm / bnorm
+        rtol = btol + atol * anorm * xnorm / bnorm
 
         # The following tests guard against extremely small values of
         # atol, btol  or  ctol.  (The user may have set any or all of
         # the parameters  atol, btol, conlim  to 0.)
         # The effect is equivalent to the normal tests using
         # atol = eps,  btol = eps,  conlim = 1/eps.
-        if itn >= iter_lim: istop = 7
-        if 1 + test3 <= 1: istop = 6
-        if 1 + test2 <= 1: istop = 5
-        if 1 + t1 <= 1: istop = 4
+        if itn >= iter_lim:
+            istop = 7
+        if 1 + test3 <= 1:
+            istop = 6
+        if 1 + test2 <= 1:
+            istop = 5
+        if 1 + t1 <= 1:
+            istop = 4
 
         # Allow for tolerances set by the user.
-        if test3 <= ctol: istop = 3
-        if test2 <= atol: istop = 2
-        if test1 <= rtol: istop = 1
+        if test3 <= ctol:
+            istop = 3
+        if test2 <= atol:
+            istop = 2
+        if test1 <= rtol:
+            istop = 1
 
         # See if it is time to print something.
-        prnt = False;
-        if n <= 40: prnt = True
-        if itn <= 10: prnt = True
-        if itn >= iter_lim-10: prnt = True
+        prnt = False
+        if n <= 40:
+            prnt = True
+        if itn <= 10:
+            prnt = True
+        if itn >= iter_lim-10:
+            prnt = True
         # if itn%10 == 0: prnt = True
-        if test3 <= 2*ctol: prnt = True
-        if test2 <= 10*atol: prnt = True
-        if test1 <= 10*rtol: prnt = True
-        if istop != 0: prnt = True
+        if test3 <= 2*ctol:
+            prnt = True
+        if test2 <= 10*atol:
+            prnt = True
+        if test1 <= 10*rtol:
+            prnt = True
+        if istop != 0:
+            prnt = True
 
         if prnt:
             if show:
@@ -473,23 +482,24 @@ def lsqr(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
                 str2 = ' %10.3e %10.3e' % (r1norm, r2norm)
                 str3 = '  %8.1e %8.1e' % (test1, test2)
                 str4 = ' %8.1e %8.1e' % (anorm, acond)
-                print str1, str2, str3, str4
+                print(str1, str2, str3, str4)
 
-        if istop != 0: break
+        if istop != 0:
+            break
 
     # End of iteration loop.
     # Print the stopping condition.
     if show:
-        print ' '
-        print 'LSQR finished'
-        print msg[istop]
-        print ' '
+        print(' ')
+        print('LSQR finished')
+        print(msg[istop])
+        print(' ')
         str1 = 'istop =%8g   r1norm =%8.1e' % (istop, r1norm)
         str2 = 'anorm =%8.1e   arnorm =%8.1e' % (anorm, arnorm)
         str3 = 'itn   =%8g   r2norm =%8.1e' % (itn, r2norm)
         str4 = 'acond =%8.1e   xnorm  =%8.1e' % (acond, xnorm)
-        print str1+ '   ' + str2
-        print str3+ '   ' + str4
-        print ' '
+        print(str1 + '   ' + str2)
+        print(str3 + '   ' + str4)
+        print(' ')
 
     return x, istop, itn, r1norm, r2norm, anorm, acond, arnorm, xnorm, var

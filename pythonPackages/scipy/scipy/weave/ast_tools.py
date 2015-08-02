@@ -1,9 +1,13 @@
+from __future__ import absolute_import, print_function
+
 import token
 import symbol
 import parser
 
+
 def issequence(t):
     return isinstance(t, (list, tuple))
+
 
 def int_to_symbol(i):
     """ Convert numeric symbol or token to a desriptive name.
@@ -12,6 +16,7 @@ def int_to_symbol(i):
         return symbol.sym_name[i]
     except KeyError:
         return token.tok_name[i]
+
 
 def translate_symbols(ast_tuple):
     """ Translate numeric grammar symbols in an ast_tuple descriptive names.
@@ -32,6 +37,7 @@ def translate_symbols(ast_tuple):
     else:
         return new_list
 
+
 def ast_to_string(ast_seq):
     """* Traverse an ast tree sequence, printing out all leaf nodes.
 
@@ -48,6 +54,7 @@ def ast_to_string(ast_seq):
             output = output + ast_to_string(item)
     return output
 
+
 def build_atom(expr_string):
     """ Build an ast for an atom from the given expr string.
 
@@ -63,17 +70,20 @@ def build_atom(expr_string):
     if isinstance(expr_string, str):
         ast = parser.expr(expr_string).totuple()[1][1]
     else:
-        ast = parser.expr(`expr_string`).totuple()[1][1]
+        ast = parser.expr(repr(expr_string)).totuple()[1][1]
     return ast
+
 
 def atom_tuple(expr_string):
     return build_atom(expr_string)
 
+
 def atom_list(expr_string):
     return tuples_to_lists(build_atom(expr_string))
 
+
 def find_first_pattern(ast_tuple,pattern_list):
-    """* Find the first occurence of a pattern one of a list of patterns
+    """* Find the first occurrence of a pattern one of a list of patterns
         in ast_tuple.
 
         Used for testing at the moment.
@@ -111,6 +121,7 @@ def find_first_pattern(ast_tuple,pattern_list):
 
 name_pattern = (token.NAME, ['var'])
 
+
 def remove_duplicates(lst):
     output = []
     for item in lst:
@@ -119,6 +130,7 @@ def remove_duplicates(lst):
     return output
 
 reserved_names = ['sin']
+
 
 def remove_reserved_names(lst):
     """ These are functions names -- don't create variables for them
@@ -131,8 +143,9 @@ def remove_reserved_names(lst):
             output.append(item)
     return output
 
+
 def harvest_variables(ast_list):
-    """ Retreive all the variables that need to be defined.
+    """ Retrieve all the variables that need to be defined.
     """
     variables = []
     if issequence(ast_list):
@@ -145,6 +158,7 @@ def harvest_variables(ast_list):
     variables = remove_duplicates(variables)
     variables = remove_reserved_names(variables)
     return variables
+
 
 def match(pattern, data, vars=None):
     """match `data' to `pattern', with variable extraction.
@@ -180,7 +194,7 @@ def match(pattern, data, vars=None):
         return (pattern == data), vars
     if len(data) != len(pattern):
         return 0, vars
-    for pattern, data in map(None, pattern, data):
+    for pattern, data in zip(pattern, data):
         same, vars = match(pattern, data, vars)
         if not same:
             break

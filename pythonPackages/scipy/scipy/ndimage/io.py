@@ -1,17 +1,23 @@
+from __future__ import division, print_function, absolute_import
+
 __all__ = ['imread']
 
 from numpy import array
 
-def imread(fname, flatten=False):
+
+def imread(fname, flatten=False, mode=None):
     """
-    Load an image from file.
+    Read an image from a file as an array.
 
     Parameters
     ----------
     fname : str
-        Image file name, e.g. ``test.jpg``.
+        Image file name, e.g. ``test.jpg``, or a file object.
     flatten : bool, optional
         If true, convert the output to grey-scale. Default is False.
+    mode : str, optional
+        mode to convert image to, e.g. ``RGB``.
+
 
     Returns
     -------
@@ -35,7 +41,9 @@ def imread(fname, flatten=False):
                           " instructions.")
 
     im = Image.open(fname)
+    if mode:
+        im = im.convert(mode)
     if flatten:
         im = im.convert('F')
-    return array(im)
-
+    result = array(im)
+    return result
