@@ -1,9 +1,12 @@
-import _zeros
-from numpy import finfo
+from __future__ import division, print_function, absolute_import
+
+import warnings
+
+from . import _zeros
+from numpy import finfo, sign, sqrt
 
 _iter = 100
 _xtol = 1e-12
-# not actually used at the moment
 _rtol = finfo(float).eps * 2
 
 __all__ = ['newton', 'bisect', 'ridder', 'brentq', 'brenth']
@@ -11,10 +14,24 @@ __all__ = ['newton', 'bisect', 'ridder', 'brentq', 'brenth']
 CONVERGED = 'converged'
 SIGNERR = 'sign error'
 CONVERR = 'convergence error'
-flag_map = {0 : CONVERGED, -1 : SIGNERR, -2 : CONVERR}
+flag_map = {0: CONVERGED, -1: SIGNERR, -2: CONVERR}
 
 
 class RootResults(object):
+    """ Represents the root finding result.
+    Attributes
+    ----------
+    root : float
+        Estimated root location.
+    iterations : int
+        Number of iterations needed to find the root.
+    function_calls : int
+        Number of times the function was called.
+    converged : bool
+        True if the routine converged.
+    flag : str
+        Description of the cause of termination.
+    """
     def __init__(self, root, iterations, function_calls, flag):
         self.root = root
         self.iterations = iterations
@@ -39,12 +56,16 @@ def results_c(full_output, r):
 
 
 # Newton-Raphson method
-def newton(func, x0, fprime=None, args=(), tol=1.48e-8, maxiter=50):
-    """Find a zero using the Newton-Raphson or secant method.
+def newton(func, x0, fprime=None, args=(), tol=1.48e-8, maxiter=50,
+           fprime2=None):
+    """
+    Find a zero using the Newton-Raphson or secant method.
 
     Find a zero of the function `func` given a nearby starting point `x0`.
-    The Newton-Rapheson method is used if the derivative `fprime` of `func`
-    is provided, otherwise the secant method is used.
+    The Newton-Raphson method is used if the derivative `fprime` of `func`
+    is provided, otherwise the secant method is used.  If the second order
+    derivate `fprime2` of `func` is provided, parabolic Halley's method
+    is used.
 
     Parameters
     ----------
@@ -55,15 +76,20 @@ def newton(func, x0, fprime=None, args=(), tol=1.48e-8, maxiter=50):
     x0 : float
         An initial estimate of the zero that should be somewhere near the
         actual zero.
-    fprime : {None, function}, optional
+    fprime : function, optional
         The derivative of the function when available and convenient. If it
-        is None, then the secant method is used. The default is None.
+        is None (default), then the secant method is used.
     args : tuple, optional
         Extra arguments to be used in the function call.
     tol : float, optional
         The allowable error of the zero value.
     maxiter : int, optional
         Maximum number of iterations.
+    fprime2 : function, optional
+        The second order derivative of the function when available and
+        convenient. If it is None (default), then the normal Newton-Raphson
+        or the secant method is used. If it is given, parabolic Halley's
+        method is used.
 
     Returns
     -------
@@ -72,38 +98,53 @@ def newton(func, x0, fprime=None, args=(), tol=1.48e-8, maxiter=50):
 
     See Also
     --------
-    brentq, brenth, ridder, bisect -- find zeroes in one dimension.
-    fsolve -- find zeroes in n dimensions.
+    brentq, brenth, ridder, bisect
+    fsolve : find zeroes in n dimensions.
 
     Notes
     -----
-    The convergence rate of the Newton-Rapheson method is quadratic while
-    that of the secant method is somewhat less. This means that if the
-    function is  well behaved the actual error in the estimated zero is
-    approximatly the square of the requested tolerance up to roundoff
-    error. However, the stopping criterion used here is the step size and
-    there is no quarantee that a zero has been found. Consequently the
-    result should be verified. Safer algorithms are brentq, brenth, ridder,
-    and bisect, but they all require that the root first be bracketed in an
-    interval where the function changes sign. The brentq algorithm is
-    recommended for general use in one dimemsional problems when such an
-    interval has been found.
+    The convergence rate of the Newton-Raphson method is quadratic,
+    the Halley method is cubic, and the secant method is
+    sub-quadratic.  This means that if the function is well behaved
+    the actual error in the estimated zero is approximately the square
+    (cube for Halley) of the requested tolerance up to roundoff
+    error. However, the stopping criterion used here is the step size
+    and there is no guarantee that a zero has been found. Consequently
+    the result should be verified. Safer algorithms are brentq,
+    brenth, ridder, and bisect, but they all require that the root
+    first be bracketed in an interval where the function changes
+    sign. The brentq algorithm is recommended for general use in one
+    dimensional problems when such an interval has been found.
 
     """
+    if tol <= 0:
+        raise ValueError("tol too small (%g <= 0)" % tol)
     if fprime is not None:
         # Newton-Rapheson method
         # Multiply by 1.0 to convert to floating point.  We don't use float(x0)
         # so it still works if x0 is complex.
         p0 = 1.0 * x0
+        fder2 = 0
         for iter in range(maxiter):
             myargs = (p0,) + args
-            fval = func(*myargs)
             fder = fprime(*myargs)
             if fder == 0:
                 msg = "derivative was zero."
                 warnings.warn(msg, RuntimeWarning)
                 return p0
-            p = p0 - func(*myargs)/fprime(*myargs)
+            fval = func(*myargs)
+            if fprime2 is not None:
+                fder2 = fprime2(*myargs)
+            if fder2 == 0:
+                # Newton step
+                p = p0 - fval / fder
+            else:
+                # Parabolic Halley's method
+                discr = fder ** 2 - 2 * fval * fder2
+                if discr < 0:
+                    p = p0 - fder / fder2
+                else:
+                    p = p0 - 2*fval / (fder + sign(fder) * sqrt(discr))
             if abs(p - p0) < tol:
                 return p
             p0 = p
@@ -137,36 +178,41 @@ def newton(func, x0, fprime=None, args=(), tol=1.48e-8, maxiter=50):
 def bisect(f, a, b, args=(),
            xtol=_xtol, rtol=_rtol, maxiter=_iter,
            full_output=False, disp=True):
-    """Find root of f in [a,b].
+    """
+    Find root of a function within an interval.
 
-    Basic bisection routine to find a zero of the function f between the
-    arguments a and b. f(a) and f(b) can not have the same signs. Slow but
-    sure.
+    Basic bisection routine to find a zero of the function `f` between the
+    arguments `a` and `b`. `f(a)` and `f(b)` cannot have the same signs.
+    Slow but sure.
 
     Parameters
     ----------
     f : function
-        Python function returning a number.  f must be continuous, and f(a) and
-        f(b) must have opposite signs.
+        Python function returning a number.  `f` must be continuous, and
+        f(a) and f(b) must have opposite signs.
     a : number
         One end of the bracketing interval [a,b].
     b : number
         The other end of the bracketing interval [a,b].
     xtol : number, optional
-        The routine converges when a root is known to lie within xtol of the
+        The routine converges when a root is known to lie within `xtol` of the
         value return. Should be >= 0.  The routine modifies this to take into
         account the relative precision of doubles.
+    rtol : number, optional
+        The routine converges when a root is known to lie within `rtol` times
+        the value returned of the value returned. Should be >= 0. Defaults to
+        ``np.finfo(float).eps * 2``.
     maxiter : number, optional
-        if convergence is not achieved in maxiter iterations, and error is
+        if convergence is not achieved in `maxiter` iterations, an error is
         raised.  Must be >= 0.
     args : tuple, optional
         containing extra arguments for the function `f`.
         `f` is called by ``apply(f, (x)+args)``.
     full_output : bool, optional
         If `full_output` is False, the root is returned.  If `full_output` is
-        True, the return value is ``(x, r)``, where `x` is the root, and `r` is
-        a RootResults object.
-    disp : {True, bool} optional
+        True, the return value is ``(x, r)``, where x is the root, and r is
+        a `RootResults` object.
+    disp : bool, optional
         If True, raise RuntimeError if the algorithm didn't converge.
 
     Returns
@@ -179,14 +225,18 @@ def bisect(f, a, b, args=(),
 
     See Also
     --------
-        brentq, brenth, bisect, newton : one-dimensional root-finding
-        fixed_point : scalar fixed-point finder
-        fsolve -- n-dimensional root-finding
+    brentq, brenth, bisect, newton
+    fixed_point : scalar fixed-point finder
+    fsolve : n-dimensional root-finding
 
     """
-    if type(args) != type(()) :
+    if not isinstance(args, tuple):
         args = (args,)
-    r = _zeros._bisect(f,a,b,xtol,maxiter,args,full_output,disp)
+    if xtol <= 0:
+        raise ValueError("xtol too small (%g <= 0)" % xtol)
+    if rtol < _rtol:
+        raise ValueError("rtol too small (%g < %g)" % (rtol, _rtol))
+    r = _zeros._bisect(f,a,b,xtol,rtol,maxiter,args,full_output,disp)
     return results_c(full_output, r)
 
 
@@ -209,8 +259,12 @@ def ridder(f, a, b, args=(),
         The routine converges when a root is known to lie within xtol of the
         value return. Should be >= 0.  The routine modifies this to take into
         account the relative precision of doubles.
+    rtol : number, optional
+        The routine converges when a root is known to lie within `rtol` times
+        the value returned of the value returned. Should be >= 0. Defaults to
+        ``np.finfo(float).eps * 2``.
     maxiter : number, optional
-        if convergence is not achieved in maxiter iterations, and error is
+        if convergence is not achieved in maxiter iterations, an error is
         raised.  Must be >= 0.
     args : tuple, optional
         containing extra arguments for the function `f`.
@@ -219,7 +273,7 @@ def ridder(f, a, b, args=(),
         If `full_output` is False, the root is returned.  If `full_output` is
         True, the return value is ``(x, r)``, where `x` is the root, and `r` is
         a RootResults object.
-    disp : {True, bool} optional
+    disp : bool, optional
         If True, raise RuntimeError if the algorithm didn't converge.
 
     Returns
@@ -254,9 +308,13 @@ def ridder(f, a, b, args=(),
        IEEE Trans. Circuits Systems 26, 979-980, 1979.
 
     """
-    if type(args) != type(()) :
+    if not isinstance(args, tuple):
         args = (args,)
-    r = _zeros._ridder(f,a,b,xtol,maxiter,args,full_output,disp)
+    if xtol <= 0:
+        raise ValueError("xtol too small (%g <= 0)" % xtol)
+    if rtol < _rtol:
+        raise ValueError("rtol too small (%g < %g)" % (rtol, _rtol))
+    r = _zeros._ridder(f,a,b,xtol,rtol,maxiter,args,full_output,disp)
     return results_c(full_output, r)
 
 
@@ -275,7 +333,7 @@ def brentq(f, a, b, args=(),
     rootfinding routines here.  It is a safe version of the secant method that
     uses inverse quadratic extrapolation.  Brent's method combines root
     bracketing, interval bisection, and inverse quadratic interpolation.  It is
-    sometimes known as the van Wijngaarden-Deker-Brent method.  Brent (1973)
+    sometimes known as the van Wijngaarden-Dekker-Brent method.  Brent (1973)
     claims convergence is guaranteed for functions computable within [a,b].
 
     [Brent1973]_ provides the classic description of the algorithm.  Another
@@ -299,8 +357,12 @@ def brentq(f, a, b, args=(),
         The routine converges when a root is known to lie within xtol of the
         value return. Should be >= 0.  The routine modifies this to take into
         account the relative precision of doubles.
+    rtol : number, optional
+        The routine converges when a root is known to lie within `rtol` times
+        the value returned of the value returned. Should be >= 0. Defaults to
+        ``np.finfo(float).eps * 2``.
     maxiter : number, optional
-        if convergence is not achieved in maxiter iterations, and error is
+        if convergence is not achieved in maxiter iterations, an error is
         raised.  Must be >= 0.
     args : tuple, optional
         containing extra arguments for the function `f`.
@@ -309,7 +371,7 @@ def brentq(f, a, b, args=(),
         If `full_output` is False, the root is returned.  If `full_output` is
         True, the return value is ``(x, r)``, where `x` is the root, and `r` is
         a RootResults object.
-    disp : {True, bool} optional
+    disp : bool, optional
         If True, raise RuntimeError if the algorithm didn't converge.
 
     Returns
@@ -329,7 +391,7 @@ def brentq(f, a, b, args=(),
     constrained multivariate optimizers
       `fmin_l_bfgs_b`, `fmin_tnc`, `fmin_cobyla`
     global optimizers
-      `anneal`, `brute`
+      `basinhopping`, `brute`, `differential_evolution`
     local scalar minimizers
       `fminbound`, `brent`, `golden`, `bracket`
     n-dimensional root-finding
@@ -341,10 +403,11 @@ def brentq(f, a, b, args=(),
 
     Notes
     -----
+    `f` must be continuous.  f(a) and f(b) must have opposite signs.
 
-    f must be continuous.  f(a) and f(b) must have opposite signs.
 
-
+    References
+    ----------
     .. [Brent1973]
        Brent, R. P.,
        *Algorithms for Minimization Without Derivatives*.
@@ -357,9 +420,13 @@ def brentq(f, a, b, args=(),
        Section 9.3:  "Van Wijngaarden-Dekker-Brent Method."
 
     """
-    if type(args) != type(()) :
+    if not isinstance(args, tuple):
         args = (args,)
-    r = _zeros._brentq(f,a,b,xtol,maxiter,args,full_output,disp)
+    if xtol <= 0:
+        raise ValueError("xtol too small (%g <= 0)" % xtol)
+    if rtol < _rtol:
+        raise ValueError("rtol too small (%g < %g)" % (rtol, _rtol))
+    r = _zeros._brentq(f,a,b,xtol,rtol,maxiter,args,full_output,disp)
     return results_c(full_output, r)
 
 
@@ -371,7 +438,7 @@ def brenth(f, a, b, args=(),
     A variation on the classic Brent routine to find a zero of the function f
     between the arguments a and b that uses hyperbolic extrapolation instead of
     inverse quadratic extrapolation. There was a paper back in the 1980's ...
-    f(a) and f(b) can not have the same signs. Generally on a par with the
+    f(a) and f(b) cannot have the same signs. Generally on a par with the
     brent routine, but not as heavily tested.  It is a safe version of the
     secant method that uses hyperbolic extrapolation. The version here is by
     Chuck Harris.
@@ -389,8 +456,12 @@ def brenth(f, a, b, args=(),
         The routine converges when a root is known to lie within xtol of the
         value return. Should be >= 0.  The routine modifies this to take into
         account the relative precision of doubles.
+    rtol : number, optional
+        The routine converges when a root is known to lie within `rtol` times
+        the value returned of the value returned. Should be >= 0. Defaults to
+        ``np.finfo(float).eps * 2``.
     maxiter : number, optional
-        if convergence is not achieved in maxiter iterations, and error is
+        if convergence is not achieved in maxiter iterations, an error is
         raised.  Must be >= 0.
     args : tuple, optional
         containing extra arguments for the function `f`.
@@ -399,7 +470,7 @@ def brenth(f, a, b, args=(),
         If `full_output` is False, the root is returned.  If `full_output` is
         True, the return value is ``(x, r)``, where `x` is the root, and `r` is
         a RootResults object.
-    disp : {True, bool} optional
+    disp : bool, optional
         If True, raise RuntimeError if the algorithm didn't converge.
 
     Returns
@@ -412,25 +483,29 @@ def brenth(f, a, b, args=(),
 
     See Also
     --------
-      fmin, fmin_powell, fmin_cg,
-             fmin_bfgs, fmin_ncg -- multivariate local optimizers
-      leastsq -- nonlinear least squares minimizer
+    fmin, fmin_powell, fmin_cg,
+           fmin_bfgs, fmin_ncg : multivariate local optimizers
 
-      fmin_l_bfgs_b, fmin_tnc,
-             fmin_cobyla -- constrained multivariate optimizers
+    leastsq : nonlinear least squares minimizer
 
-      anneal, brute -- global optimizers
+    fmin_l_bfgs_b, fmin_tnc, fmin_cobyla : constrained multivariate optimizers
 
-      fminbound, brent, golden, bracket -- local scalar minimizers
+    basinhopping, differential_evolution, brute : global optimizers
 
-      fsolve -- n-dimensional root-finding
+    fminbound, brent, golden, bracket : local scalar minimizers
 
-      brentq, brenth, ridder, bisect, newton -- one-dimensional root-finding
+    fsolve : n-dimensional root-finding
 
-      fixed_point -- scalar fixed-point finder
+    brentq, brenth, ridder, bisect, newton : one-dimensional root-finding
+
+    fixed_point : scalar fixed-point finder
 
     """
-    if type(args) != type(()) :
+    if not isinstance(args, tuple):
         args = (args,)
-    r = _zeros._brenth(f,a, b, xtol, maxiter, args, full_output, disp)
+    if xtol <= 0:
+        raise ValueError("xtol too small (%g <= 0)" % xtol)
+    if rtol < _rtol:
+        raise ValueError("rtol too small (%g < %g)" % (rtol, _rtol))
+    r = _zeros._brenth(f,a, b, xtol, rtol, maxiter, args, full_output, disp)
     return results_c(full_output, r)
