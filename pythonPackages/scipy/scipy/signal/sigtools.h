@@ -2,6 +2,12 @@
 #define _SCIPY_PRIVATE_SIGNAL_SIGTOOLS_H_
 
 #include "Python.h"
+
+#if PY_VERSION_HEX >= 0x03000000
+    #define PyString_AsString PyBytes_AsString
+    #define PyString_FromFormat PyBytes_FromFormat
+#endif
+
 #include "numpy/noprefix.h"
 
 #define BOUNDARY_MASK 12
@@ -56,7 +62,7 @@ PyObject*
 scipy_signal_sigtools_correlateND(PyObject *NPY_UNUSED(dummy), PyObject *args);
 
 void
-scipy_signal_sigtools_linear_filter_module_init();
+scipy_signal_sigtools_linear_filter_module_init(void);
 
 /*
 static int index_out_of_bounds(int *, int *, int );
