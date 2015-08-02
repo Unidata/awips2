@@ -10,8 +10,8 @@ BuildRoot: %{_build_root}
 URL: N/A
 License: N/A
 Distribution: N/A
-Vendor: Raytheon
-Packager: Bryan Kowal
+Vendor: Unidata
+Packager: Michael James
 
 provides: awips2-edex
 provides: awips2-base-component
