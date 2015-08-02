@@ -1,6 +1,6 @@
-/*							mconf.h
+/*                                                     mconf.h
  *
- *	Common include file for math routines
+ *     Common include file for math routines
  *
  *
  *
@@ -58,9 +58,9 @@
  */
 
 /*
-Cephes Math Library Release 2.3:  June, 1995
-Copyright 1984, 1987, 1989, 1995 by Stephen L. Moshier
-*/
+ * Cephes Math Library Release 2.3:  June, 1995
+ * Copyright 1984, 1987, 1989, 1995 by Stephen L. Moshier
+ */
 
 #ifndef CEPHES_MCONF_H
 #define CEPHES_MCONF_H
@@ -70,6 +70,7 @@ Copyright 1984, 1987, 1989, 1995 by Stephen L. Moshier
 
 #include "cephes_names.h"
 #include "protos.h"
+#include "polevl.h"
 
 /* Constant definitions for math error conditions
  */
@@ -80,7 +81,7 @@ Copyright 1984, 1987, 1989, 1995 by Stephen L. Moshier
 #define UNDERFLOW	4	/* underflow range error */
 #define TLOSS		5	/* total loss of precision */
 #define PLOSS		6	/* partial loss of precision */
-#define TOOMANY         7       /* too many iterations */
+#define TOOMANY         7	/* too many iterations */
 #define MAXITER        500
 
 #define EDOM		33
@@ -88,12 +89,12 @@ Copyright 1984, 1987, 1989, 1995 by Stephen L. Moshier
 
 /* Long double complex numeral.  */
 /*
-typedef struct
-	{
-	long double r;
-	long double i;
-	} cmplxl;
-*/
+ * typedef struct
+ * {
+ * long double r;
+ * long double i;
+ * } cmplxl;
+ */
 
 /* Type of computer arithmetic */
 
@@ -138,7 +139,7 @@ typedef struct
 #define MINUSZERO 1
 
 /* Define 1 for ANSI C atan2() function
-   See atan.c and clog.c. */
+ * See atan.c and clog.c. */
 #define ANSIC 1
 
 /* Variable for error reporting.  See mtherr.c.  */
@@ -146,4 +147,21 @@ extern int merror;
 
 #define gamma Gamma
 
-#endif /* CEPHES_MCONF_H */
+/*
+ * Enable loop unrolling on GCC and use faster isnan et al.
+ */
+#if !defined(__clang__) && defined(__GNUC__) && defined(__GNUC_MINOR__)
+#if __GNUC__ >= 5 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 4)
+#pragma GCC optimize("unroll-loops")
+#define cephes_isnan(x) __builtin_isnan(x)
+#define cephes_isinf(x) __builtin_isinf(x)
+#define cephes_isfinite(x) __builtin_isfinite(x)
+#endif
+#endif
+#ifndef cephes_isnan
+#define cephes_isnan(x) npy_isnan(x)
+#define cephes_isinf(x) npy_isinf(x)
+#define cephes_isfinite(x) npy_isfinite(x)
+#endif
+
+#endif				/* CEPHES_MCONF_H */

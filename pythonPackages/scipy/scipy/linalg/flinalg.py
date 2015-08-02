@@ -2,13 +2,15 @@
 # Author: Pearu Peterson, March 2002
 #
 
+from __future__ import division, print_function, absolute_import
+
 __all__ = ['get_flinalg_funcs']
 
 # The following ensures that possibly missing flavor (C or Fortran) is
 # replaced with the available one. If none is available, exception
 # is raised at the first attempt to use the resources.
 try:
-    import _flinalg
+    from . import _flinalg
 except ImportError:
     _flinalg = None
 #    from numpy.distutils.misc_util import PostponedException
@@ -16,10 +18,12 @@ except ImportError:
 #    print _flinalg.__doc__
     has_column_major_storage = lambda a:0
 
+
 def has_column_major_storage(arr):
     return arr.flags['FORTRAN']
 
-_type_conv = {'f':'s', 'd':'d', 'F':'c', 'D':'z'} # 'd' will be default for 'i',..
+_type_conv = {'f':'s', 'd':'d', 'F':'c', 'D':'z'}  # 'd' will be default for 'i',..
+
 
 def get_flinalg_funcs(names,arrays=(),debug=0):
     """Return optimal available _flinalg function objects with

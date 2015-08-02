@@ -15,8 +15,9 @@ Authors:
   Prabhu Ramachandran <prabhu@aero.iitm.ernet.in>
   Eric Jones <eric@enthought.com>
 """
+from __future__ import absolute_import, print_function
 
-from c_spec import common_base_converter
+from .c_spec import common_base_converter
 
 
 vtk_py_to_c_template = \
@@ -72,17 +73,17 @@ class vtk_converter(common_base_converter):
         self.type_name = self.class_name
         self.c_type = self.class_name + "*"
         self.return_type = self.c_type
-        self.to_c_return = None # not used
-        self.check_func = None # not used
+        self.to_c_return = None  # not used
+        self.check_func = None  # not used
         hdr = self.class_name + ".h"
         # Remember that you need both the quotes!
         self.headers.extend(['"vtkPythonUtil.h"', '"vtkObject.h"',
-                             '"%s"'%hdr])
-        #self.include_dirs.extend(vtk_inc)
-        #self.define_macros.append(('SOME_VARIABLE', '1'))
-        #self.library_dirs.extend(vtk_lib)
+                             '"%s"' % hdr])
+        # self.include_dirs.extend(vtk_inc)
+        # self.define_macros.append(('SOME_VARIABLE', '1'))
+        # self.library_dirs.extend(vtk_lib)
         self.libraries.extend(['vtkCommonPython', 'vtkCommon'])
-        #self.support_code.append(common_info.swig_support_code)
+        # self.support_code.append(common_info.swig_support_code)
 
     def type_match(self,value):
         is_match = 0
@@ -99,7 +100,7 @@ class vtk_converter(common_base_converter):
         else:
             # if there isn't a class_name, we don't want the
             # we don't want the support_code to be included
-            import base_info
+            from . import base_info
             res = base_info.base_info()
         return res
 
@@ -117,7 +118,7 @@ class vtk_converter(common_base_converter):
         return new_spec
 
     def __cmp__(self,other):
-        #only works for equal
+        # only works for equal
         res = -1
         try:
             res = cmp(self.name,other.name) or \
