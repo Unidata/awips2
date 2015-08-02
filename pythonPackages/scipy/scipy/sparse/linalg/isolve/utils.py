@@ -1,3 +1,5 @@
+from __future__ import division, print_function, absolute_import
+
 __docformat__ = "restructuredtext en"
 
 __all__ = []
@@ -6,7 +8,8 @@ from warnings import warn
 
 from numpy import asanyarray, asarray, asmatrix, array, matrix, zeros
 
-from scipy.sparse.linalg.interface import aslinearoperator, LinearOperator
+from scipy.sparse.linalg.interface import aslinearoperator, LinearOperator, \
+     IdentityOperator
 
 _coerce_rules = {('f','f'):'f', ('f','d'):'d', ('f','F'):'F',
                  ('f','D'):'D', ('d','f'):'d', ('d','d'):'d',
@@ -15,6 +18,7 @@ _coerce_rules = {('f','f'):'f', ('f','d'):'d', ('f','F'):'F',
                  ('D','f'):'D', ('D','d'):'D', ('D','F'):'D',
                  ('D','D'):'D'}
 
+
 def coerce(x,y):
     if x not in 'fdFD':
         x = 'd'
@@ -22,8 +26,10 @@ def coerce(x,y):
         y = 'd'
     return _coerce_rules[x,y]
 
+
 def id(x):
     return x
+
 
 def make_system(A, M, x0, b, xtype=None):
     """Make a linear system Ax=b
@@ -39,7 +45,7 @@ def make_system(A, M, x0, b, xtype=None):
         initial guess to iterative method
     b : array_like
         right hand side
-    xtype : {'f', 'd', 'F', 'D', None}
+    xtype : {'f', 'd', 'F', 'D', None}, optional
         dtype of the x vector
 
     Returns
@@ -62,7 +68,7 @@ def make_system(A, M, x0, b, xtype=None):
     A = aslinearoperator(A)
 
     if A.shape[0] != A.shape[1]:
-        raise ValueError('expected square matrix (shape=%s)' % shape)
+        raise ValueError('expected square matrix, but got shape=%s' % (A.shape,))
 
     N = A.shape[0]
 
@@ -72,7 +78,7 @@ def make_system(A, M, x0, b, xtype=None):
         raise ValueError('A and b have incompatible dimensions')
 
     if b.dtype.char not in 'fdFD':
-        b = b.astype('d') # upcast non-FP types to double
+        b = b.astype('d')  # upcast non-FP types to double
 
     def postprocess(x):
         if isinstance(b,matrix):
@@ -86,16 +92,16 @@ def make_system(A, M, x0, b, xtype=None):
             xtype = A.matvec(b).dtype.char
         xtype = coerce(xtype, b.dtype.char)
     else:
-        warn('Use of xtype argument is deprecated. '\
-                'Use LinearOperator( ... , dtype=xtype) instead.',\
+        warn('Use of xtype argument is deprecated. '
+                'Use LinearOperator( ... , dtype=xtype) instead.',
                 DeprecationWarning)
         if xtype == 0:
             xtype = b.dtype.char
         else:
             if xtype not in 'fdFD':
-                raise ValueError, "xtype must be 'f', 'd', 'F', or 'D'"
+                raise ValueError("xtype must be 'f', 'd', 'F', or 'D'")
 
-    b = asarray(b,dtype=xtype) #make b the same type as x
+    b = asarray(b,dtype=xtype)  # make b the same type as x
     b = b.ravel()
 
     if x0 is None:
@@ -116,7 +122,11 @@ def make_system(A, M, x0, b, xtype=None):
             rpsolve = A_.rpsolve
         else:
             rpsolve = id
-        M = LinearOperator(A.shape, matvec=psolve, rmatvec=rpsolve, dtype=A.dtype)
+        if psolve is id and rpsolve is id:
+            M = IdentityOperator(shape=A.shape, dtype=A.dtype)
+        else:
+            M = LinearOperator(A.shape, matvec=psolve, rmatvec=rpsolve,
+                               dtype=A.dtype)
     else:
         M = aslinearoperator(M)
         if A.shape != M.shape:

@@ -1,12 +1,14 @@
 ''' Some tests for the documenting decorator and support functions '''
 
-import numpy as np
+from __future__ import division, print_function, absolute_import
 
-from numpy.testing import assert_equal, assert_raises
-
-from nose.tools import assert_true
+import sys
+from numpy.testing import assert_equal, dec
 
 from scipy.misc import doccer
+
+# python -OO strips docstrings
+DOCSTRINGS_STRIPPED = sys.flags.optimize > 1
 
 docstring = \
 """Docstring
@@ -64,9 +66,11 @@ def test_docformat():
    with some indent"""
 
 
+@dec.skipif(DOCSTRINGS_STRIPPED)
 def test_decorator():
     # with unindentation of parameters
     decorator = doccer.filldoc(doc_dict, True)
+
     @decorator
     def func():
         """ Docstring
@@ -76,8 +80,10 @@ def test_decorator():
         Another test
            with some indent
         """
+
     # without unindentation of parameters
     decorator = doccer.filldoc(doc_dict, False)
+
     @decorator
     def func():
         """ Docstring
@@ -87,3 +93,32 @@ def test_decorator():
             Another test
                with some indent
         """
+
+
+@dec.skipif(DOCSTRINGS_STRIPPED)
+def test_inherit_docstring_from():
+
+    class Foo(object):
+        def func(self):
+            '''Do something useful.'''
+            return
+
+        def func2(self):
+            '''Something else.'''
+
+    class Bar(Foo):
+        @doccer.inherit_docstring_from(Foo)
+        def func(self):
+            '''%(super)sABC'''
+            return
+
+        @doccer.inherit_docstring_from(Foo)
+        def func2(self):
+            # No docstring.
+            return
+
+    assert_equal(Bar.func.__doc__, Foo.func.__doc__ + 'ABC')
+    assert_equal(Bar.func2.__doc__, Foo.func2.__doc__)
+    bar = Bar()
+    assert_equal(bar.func.__doc__, Foo.func.__doc__ + 'ABC')
+    assert_equal(bar.func2.__doc__, Foo.func2.__doc__)

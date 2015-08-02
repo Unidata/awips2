@@ -1,7 +1,9 @@
+from __future__ import division, print_function, absolute_import
 
 import numpy as np
-from numpy.testing import TestCase, assert_almost_equal, assert_equal, assert_, \
-        assert_raises, run_module_suite
+from numpy.testing import (TestCase, assert_almost_equal, assert_equal,
+                           assert_, assert_raises, run_module_suite,
+                           assert_allclose)
 
 import scipy.signal.waveforms as waveforms
 
@@ -13,6 +15,7 @@ def chirp_linear(t, f0, f1, t1):
     f = f0 + (f1 - f0) * t / t1
     return f
 
+
 def chirp_quadratic(t, f0, f1, t1, vertex_zero=True):
     if vertex_zero:
         f = f0 + (f1 - f0) * t**2 / t1**2
@@ -20,9 +23,11 @@ def chirp_quadratic(t, f0, f1, t1, vertex_zero=True):
         f = f1 - (f1 - f0) * (t1 - t)**2 / t1**2
     return f
 
+
 def chirp_geometric(t, f0, f1, t1):
     f = f0 * (f1/f0)**(t/t1)
     return f
+
 
 def chirp_hyperbolic(t, f0, f1, t1):
     f = f0*f1*t1 / ((f0 - f1)*t + f1*t1)
@@ -73,7 +78,7 @@ class TestChirp(TestCase):
 
     def test_quadratic_at_zero2(self):
         w = waveforms.chirp(t=0, f0=1.0, f1=2.0, t1=1.0, method='quadratic',
-                                                                vertex_zero=False)
+                            vertex_zero=False)
         assert_almost_equal(w, 1.0)
 
     def test_quadratic_freq_01(self):
@@ -141,40 +146,36 @@ class TestChirp(TestCase):
 
     def test_hyperbolic_freq_01(self):
         method = 'hyperbolic'
-        f0 = 10.0
-        f1 = 1.0
         t1 = 1.0
         t = np.linspace(0, t1, 10000)
-        phase = waveforms._chirp_phase(t, f0, t1, f1, method)
-        tf, f = compute_frequency(t, phase)
-        abserr = np.max(np.abs(f - chirp_hyperbolic(tf, f0, f1, t1)))
-        assert_(abserr < 1e-6)
+        #           f0     f1
+        cases = [[10.0, 1.0],
+                 [1.0, 10.0],
+                 [-10.0, -1.0],
+                 [-1.0, -10.0]]
+        for f0, f1 in cases:
+            phase = waveforms._chirp_phase(t, f0, t1, f1, method)
+            tf, f = compute_frequency(t, phase)
+            expected = chirp_hyperbolic(tf, f0, f1, t1)
+            assert_allclose(f, expected)
 
-    def test_hyperbolic_freq_02(self):
+    def test_hyperbolic_zero_freq(self):
+        # f0=0 or f1=0 must raise a ValueError.
         method = 'hyperbolic'
-        f0 = 10.0
-        f1 = 100.0
         t1 = 1.0
-        t = np.linspace(0, t1, 10)
-        assert_raises(ValueError, waveforms.chirp, t, f0, t1, f1, method)
-
-    def test_hyperbolic_freq_03(self):
-        method = 'hyperbolic'
-        f0 = -10.0
-        f1 = 0.0
-        t1 = 1.0
-        t = np.linspace(0, t1, 10)
-        assert_raises(ValueError, waveforms.chirp, t, f0, t1, f1, method)
+        t = np.linspace(0, t1, 5)
+        assert_raises(ValueError, waveforms.chirp, t, 0, t1, 1, method)
+        assert_raises(ValueError, waveforms.chirp, t, 1, t1, 0, method)
 
     def test_unknown_method(self):
         method = "foo"
         f0 = 10.0
         f1 = 20.0
         t1 = 1.0
-        t = np.linspace(0, t1, 10)        
+        t = np.linspace(0, t1, 10)
         assert_raises(ValueError, waveforms.chirp, t, f0, t1, f1, method)
 
-    def test_integer_t1(self): 
+    def test_integer_t1(self):
         f0 = 10.0
         f1 = 20.0
         t = np.linspace(-1, 1, 11)
@@ -182,10 +183,10 @@ class TestChirp(TestCase):
         float_result = waveforms.chirp(t, f0, t1, f1)
         t1 = 3
         int_result = waveforms.chirp(t, f0, t1, f1)
-        err_msg = "Integer input 't1=3' gives wrong result" 
+        err_msg = "Integer input 't1=3' gives wrong result"
         assert_equal(int_result, float_result, err_msg=err_msg)
 
-    def test_integer_f0(self): 
+    def test_integer_f0(self):
         f1 = 20.0
         t1 = 3.0
         t = np.linspace(-1, 1, 11)
@@ -193,8 +194,8 @@ class TestChirp(TestCase):
         float_result = waveforms.chirp(t, f0, t1, f1)
         f0 = 10
         int_result = waveforms.chirp(t, f0, t1, f1)
-        err_msg = "Integer input 'f0=10' gives wrong result" 
-        assert_equal(int_result, float_result, err_msg=err_msg) 
+        err_msg = "Integer input 'f0=10' gives wrong result"
+        assert_equal(int_result, float_result, err_msg=err_msg)
 
     def test_integer_f1(self):
         f0 = 10.0
@@ -204,8 +205,8 @@ class TestChirp(TestCase):
         float_result = waveforms.chirp(t, f0, t1, f1)
         f1 = 20
         int_result = waveforms.chirp(t, f0, t1, f1)
-        err_msg = "Integer input 'f1=20' gives wrong result" 
-        assert_equal(int_result, float_result, err_msg=err_msg) 
+        err_msg = "Integer input 'f1=20' gives wrong result"
+        assert_equal(int_result, float_result, err_msg=err_msg)
 
     def test_integer_all(self):
         f0 = 10
@@ -214,8 +215,9 @@ class TestChirp(TestCase):
         t = np.linspace(-1, 1, 11)
         float_result = waveforms.chirp(t, float(f0), float(t1), float(f1))
         int_result = waveforms.chirp(t, f0, t1, f1)
-        err_msg = "Integer input 'f0=10, t1=3, f1=20' gives wrong result" 
-        assert_equal(int_result, float_result, err_msg=err_msg) 
+        err_msg = "Integer input 'f0=10, t1=3, f1=20' gives wrong result"
+        assert_equal(int_result, float_result, err_msg=err_msg)
+
 
 class TestSweepPoly(TestCase):
 
@@ -286,7 +288,7 @@ class TestSweepPoly(TestCase):
 
 
 class TestGaussPulse(TestCase):
-    
+
     def test_integer_fc(self):
         float_result = waveforms.gausspulse('cutoff', fc=1000.0)
         int_result = waveforms.gausspulse('cutoff', fc=1000)

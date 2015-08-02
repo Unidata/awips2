@@ -16,6 +16,9 @@ SciPy Tutorial
    fftpack
    signal
    linalg
+   arpack
+   csgraph
+   spatial
    stats
    ndimage
    io
