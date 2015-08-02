@@ -1,5 +1,11 @@
-import numpy as np
+from __future__ import division, print_function, absolute_import
 
+import numpy as np
+from numpy.testing import assert_, assert_equal, assert_array_almost_equal
+from scipy._lib.six import xrange
+
+import scipy.sparse
+import scipy.sparse.linalg
 from scipy.sparse.linalg import lsqr
 from time import time
 
@@ -9,7 +15,7 @@ G = np.eye(n)
 normal = np.random.normal
 norm = np.linalg.norm
 
-for jj in range(5):
+for jj in xrange(5):
     gg = normal(size=n)
     hh = gg * gg.T
     G += (hh + hh.T) * 0.5
@@ -21,11 +27,52 @@ tol = 1e-10
 show = False
 maxit = None
 
+
 def test_basic():
     svx = np.linalg.solve(G, b)
     X = lsqr(G, b, show=show, atol=tol, btol=tol, iter_lim=maxit)
     xo = X[0]
-    assert norm(svx - xo) < 1e-5
+    assert_(norm(svx - xo) < 1e-5)
+
+
+def test_gh_2466():
+    row = np.array([0, 0])
+    col = np.array([0, 1])
+    val = np.array([1, -1])
+    A = scipy.sparse.coo_matrix((val, (row, col)), shape=(1, 2))
+    b = np.asarray([4])
+    lsqr(A, b)
+
+
+def test_well_conditioned_problems():
+    # Test that sparse the lsqr solver returns the right solution
+    # on various problems with different random seeds.
+    # This is a non-regression test for a potential ZeroDivisionError
+    # raised when computing the `test2` & `test3` convergence conditions.
+    n = 10
+    A_sparse = scipy.sparse.eye(n, n)
+    A_dense = A_sparse.toarray()
+
+    with np.errstate(invalid='raise'):
+        for seed in range(30):
+            rng = np.random.RandomState(seed + 10)
+            beta = rng.rand(n)
+            beta[beta == 0] = 0.00001  # ensure that all the betas are not null
+            b = A_sparse * beta[:, np.newaxis]
+            output = lsqr(A_sparse, b, show=show)
+
+            # Check that the termination condition corresponds to an approximate
+            # solution to Ax = b
+            assert_equal(output[1], 1)
+            solution = output[0]
+
+            # Check that we recover the ground truth solution
+            assert_array_almost_equal(solution, beta)
+
+            # Sanity check: compare to the dense array solver
+            reference_solution = np.linalg.solve(A_dense, b).ravel()
+            assert_array_almost_equal(solution, reference_solution)
+
 
 if __name__ == "__main__":
     svx = np.linalg.solve(G, b)
@@ -39,21 +86,21 @@ if __name__ == "__main__":
     chio = X[8]
     mg = np.amax(G - G.T)
     if mg > 1e-14:
-        sym='No'
+        sym = 'No'
     else:
-        sym='Yes'
+        sym = 'Yes'
 
-    print 'LSQR'
-    print "Is linear operator symmetric? " + sym
-    print "n: %3g  iterations:   %3g" % (n, k)
-    print "Norms computed in %.2fs by LSQR" % (time() - tic)
-    print " ||x||  %9.4e  ||r|| %9.4e  ||Ar||  %9.4e " %( chio, phio, psio)
-    print "Residual norms computed directly:"
-    print " ||x||  %9.4e  ||r|| %9.4e  ||Ar||  %9.4e" %  (norm(xo),
+    print('LSQR')
+    print("Is linear operator symmetric? " + sym)
+    print("n: %3g  iterations:   %3g" % (n, k))
+    print("Norms computed in %.2fs by LSQR" % (time() - tic))
+    print(" ||x||  %9.4e  ||r|| %9.4e  ||Ar||  %9.4e " % (chio, phio, psio))
+    print("Residual norms computed directly:")
+    print(" ||x||  %9.4e  ||r|| %9.4e  ||Ar||  %9.4e" % (norm(xo),
                                                           norm(G*xo - b),
-                                                          norm(G.T*(G*xo-b)))
-    print "Direct solution norms:"
-    print " ||x||  %9.4e  ||r|| %9.4e " %  (norm(svx), norm(G*svx -b))
-    print ""
-    print " || x_{direct} - x_{LSQR}|| %9.4e " % norm(svx-xo)
-    print ""
+                                                          norm(G.T*(G*xo-b))))
+    print("Direct solution norms:")
+    print(" ||x||  %9.4e  ||r|| %9.4e " % (norm(svx), norm(G*svx - b)))
+    print("")
+    print(" || x_{direct} - x_{LSQR}|| %9.4e " % norm(svx-xo))
+    print("")

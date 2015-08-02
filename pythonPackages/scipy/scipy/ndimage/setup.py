@@ -1,6 +1,9 @@
+from __future__ import division, print_function, absolute_import
+
 from numpy.distutils.core import setup
 from numpy.distutils.misc_util import Configuration
 from numpy import get_include
+
 
 def configuration(parent_package='', top_path=None):
 
@@ -12,8 +15,13 @@ def configuration(parent_package='', top_path=None):
                  "src/ni_measure.c",
                  "src/ni_morphology.c","src/ni_support.c"],
         include_dirs=['src']+[get_include()],
-        extra_compile_args=['-Wall'],
     )
+
+    # Cython wants the .c and .pyx to have the underscore.
+    config.add_extension("_ni_label",
+                         sources=["src/_ni_label.c",],
+                         include_dirs=['src']+[get_include()],
+                         )
 
     config.add_data_dir('tests')
 

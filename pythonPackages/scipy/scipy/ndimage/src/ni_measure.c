@@ -41,234 +41,24 @@ typedef struct {
     void* next;
 } _index_pair;
 
-#define CASE_LABEL(_p, _pi, _type) \
-case t ## _type:                   \
-    *_p = *(_type*)_pi ? -1 : 0;     \
-    break
-
-int NI_Label(PyArrayObject* input, PyArrayObject* strct,
-                         maybelong *max_label, PyArrayObject* output)
-{
-    int kk;
-    maybelong jj, ll, ssize, size, filter_size, *offsets = NULL;
-    maybelong mask_value, *oo;
-    Bool *ps, *footprint = NULL;
-    char *pi, *po;
-    Int32 index = 0, *index_map = NULL;
-    NI_FilterIterator fi;
-    NI_Iterator ii, io;
-    _index_pair *pairs = NULL;
-
-    /* structure size */
-    ssize = 1;
-    for(kk = 0; kk < strct->nd; kk++)
-        ssize *= strct->dimensions[kk];
-    /* we only use the first half of the structure data, so we make a
-         temporary structure for use with the filter functions: */
-    footprint = (Bool*)malloc(ssize * sizeof(Bool));
-    if (!footprint) {
-        PyErr_NoMemory();
-        goto exit;
-    }
-    ps = (Bool*)PyArray_DATA(strct);
-    filter_size = 0;
-    for(jj = 0; jj < ssize / 2; jj++) {
-        footprint[jj] = ps[jj];
-        if (ps[jj])
-            ++filter_size;
-    }
-    for(jj = ssize / 2; jj < ssize; jj++)
-        footprint[jj] = 0;
-    /* get data and size */
-    pi = (void *)PyArray_DATA(input);
-    po = (void *)PyArray_DATA(output);
-    size = 1;
-    for(kk = 0; kk < output->nd; kk++)
-        size *= output->dimensions[kk];
-    if (!NI_InitPointIterator(input, &ii))
-        goto exit;
-    if (!NI_InitPointIterator(output, &io))
-        goto exit;
-    /* set all elements in the output corresponding to non-zero elements
-         in input to -1: */
-    for(jj = 0; jj < size; jj++) {
-        Int32 *p = (Int32*)po;
-        switch (input->descr->type_num) {
-        CASE_LABEL(p, pi, Bool);
-        CASE_LABEL(p, pi, UInt8);
-        CASE_LABEL(p, pi, UInt16);
-        CASE_LABEL(p, pi, UInt32);
-#if HAS_UINT64
-        CASE_LABEL(p, pi, UInt64);
-#endif
-        CASE_LABEL(p, pi, Int8);
-        CASE_LABEL(p, pi, Int16);
-        CASE_LABEL(p, pi, Int32);
-        CASE_LABEL(p, pi, Int64);
-        CASE_LABEL(p, pi, Float32);
-        CASE_LABEL(p, pi, Float64);
-        default:
-            PyErr_SetString(PyExc_RuntimeError, "data type not supported");
-            goto exit;
-        }
-        NI_ITERATOR_NEXT2(ii, io, pi, po);
-    }
-
-    /* calculate the filter offsets: */
-    if (!NI_InitFilterOffsets(output, footprint, strct->dimensions, NULL,
-                                                    NI_EXTEND_CONSTANT, &offsets, &mask_value, NULL))
-        goto exit;
-    /* initialize filter iterator: */
-    if (!NI_InitFilterIterator(input->nd, strct->dimensions, filter_size,
-                                                                                     input->dimensions, NULL, &fi))
-        goto exit;
-    /* reset output iterator: */
-    NI_ITERATOR_RESET(io);
-    po = (void *)PyArray_DATA(output);
-    /* iterator over the elements: */
-    oo = offsets;
-    for(jj = 0; jj < size; jj++) {
-        if (*(Int32*)po < 0) {
-            Int32 neighbor = 0;
-            /* iterate over structuring element: */
-            for(ll = 0; ll < filter_size; ll++) {
-                int offset = oo[ll];
-                if (offset != mask_value) {
-                    Int32 tt = *(Int32*)(po + offset);
-                    if (tt > 0) {
-                        /* this element is next to an already found object: */
-                        if (neighbor && neighbor != tt) {
-                            /* we have two objects that must be merged later: */
-                            _index_pair* tp = (_index_pair*)malloc(sizeof(_index_pair));
-                            if (!tp) {
-                                PyErr_NoMemory();
-                                goto exit;
-                            }
-                            tp->next = pairs;
-                            /* the pairs must be ordered: */
-                            if (neighbor < tt) {
-                                tp->index1 = neighbor;
-                                tp->index2 = tt;
-                            } else {
-                                tp->index1 = tt;
-                                tp->index2 = neighbor;
-                            }
-                            pairs = tp;
-                        } else {
-                            neighbor = tt;
-                        }
-                    }
-                }
-            }
-            if (neighbor) {
-                /* this point belongs to an existing object */
-                *(Int32*)po = neighbor;
-            } else {
-                /* this may be a new object: */
-                *(Int32*)po = ++index;
-            }
-        }
-        NI_FILTER_NEXT(fi, io, oo, po);
-    }
-    *max_label = index;
-    /* merge any touching objects: */
-    if (pairs) {
-        Int32 counter;
-        index_map = (Int32*)malloc(index * sizeof(Int32));
-        if (!index_map) {
-            PyErr_NoMemory();
-            goto exit;
-        }
-        for(jj = 0; jj < index; jj++)
-            index_map[jj] = (Int32)jj;
-        while (pairs) {
-            Int32 idx1 = pairs->index1 - 1;
-            Int32 idx2 = pairs->index2 - 1;
-            if (index_map[idx2] == idx1 || index_map[idx2] == idx2) {
-                /* if this pair was already processed, or if idx2 was not
-                     mapped yet, we delete this pair and map idx2 to idx1: */
-                _index_pair *tp = pairs;
-                pairs = tp->next;
-                free(tp);
-                index_map[idx2] = idx1;
-            } else {
-                /* idx2 was already mapped, therefore we find what it was
-                     mapped to and change the current pair to the result of that
-                     and idx1. Since the pair is not destroyed, it will be
-                     re-processed with the adapted values.  */
-                idx2 = index_map[idx2];
-                /* keep the pairs ordered: */
-                if (idx1 < idx2) {
-                    pairs->index1 = idx1 + 1;
-                    pairs->index2 = idx2 + 1;
-                } else {
-                    pairs->index1 = idx2 + 1;
-                    pairs->index2 = idx1 + 1;
-                }
-            }
-        }
-        for(jj = 0; jj < index; jj++) {
-            /* if the current index maps to a index that is also mapped,
-                 change it to map to that index. Since an index always maps to
-                 a lower index or to itself, this will make sure that at the
-                 end all indices map to an unmapped index. */
-            if (index_map[index_map[jj]] < index_map[jj])
-                index_map[jj] = index_map[index_map[jj]];
-        }
-        /* renumber the indices that are not mapped: */
-        counter = 0;
-        for(jj = 0; jj < index; jj++)
-            if (index_map[jj] == jj)
-                index_map[jj] = ++counter;
-            else
-                index_map[jj] = index_map[index_map[jj]];
-    }
-
-    /* relabel the output if we merged some objects: */
-    if (index_map) {
-        *max_label = 0;
-        NI_ITERATOR_RESET(io);
-        po = (void *)PyArray_DATA(output);
-        for(jj = 0; jj < size; jj++) {
-            Int32 p = *(Int32*)po;
-            if (p > 0 )
-                *(Int32*)po = index_map[p - 1];
-            if (*(Int32*)po > *max_label)
-                *max_label = *(Int32*)po;
-            NI_ITERATOR_NEXT(io, po);
-        }
-    }
- exit:
-    if (offsets) free(offsets);
-    if (index_map) free(index_map);
-    while (pairs) {
-        _index_pair *tp = pairs;
-        pairs = (_index_pair*)pairs->next;
-        free(tp);
-    }
-    if (footprint)
-        free(footprint);
-    return PyErr_Occurred() ? 0 : 1;
-}
-
 #define CASE_FIND_OBJECT_POINT(_pi, _regions, _rank, _dimensions, \
                                                              _max_label, _ii, _type)            \
 case t ## _type:                                                  \
 {                                                                 \
     int _kk;                                                        \
-    maybelong _sindex = *(_type*)_pi - 1;                           \
+    npy_intp _sindex = *(_type*)_pi - 1;                            \
     if (_sindex >= 0 && _sindex < _max_label) {                     \
         if (_rank > 0) {                                              \
             _sindex *= 2 * _rank;                                       \
             if (_regions[_sindex] < 0) {                                \
                 for(_kk = 0; _kk < _rank; _kk++) {                        \
-                    maybelong _cc = _ii.coordinates[_kk];                   \
+                    npy_intp _cc = _ii.coordinates[_kk];            \
                     _regions[_sindex + _kk] = _cc;                          \
                     _regions[_sindex + _kk + _rank] = _cc + 1;              \
                 }                                                         \
             } else {                                                    \
                 for(_kk = 0; _kk < _rank; _kk++) {                        \
-                    maybelong _cc = _ii.coordinates[_kk];                   \
+                    npy_intp _cc = _ii.coordinates[_kk];            \
                     if (_cc < _regions[_sindex + _kk])                      \
                         _regions[_sindex + _kk] = _cc;                        \
                     if (_cc + 1 > _regions[_sindex + _kk + _rank])          \
@@ -282,13 +72,16 @@ case t ## _type:                                                  \
 }                                                                 \
 break
 
-int NI_FindObjects(PyArrayObject* input, maybelong max_label,
-                                     maybelong* regions)
+int NI_FindObjects(PyArrayObject* input, npy_intp max_label,
+                                     npy_intp* regions)
 {
     int kk;
-    maybelong size, jj;
+    npy_intp size, jj;
     NI_Iterator ii;
     char *pi;
+    NPY_BEGIN_THREADS_DEF;
+
+    NPY_BEGIN_THREADS;
 
     /* get input data, size and iterator: */
     pi = (void *)PyArray_DATA(input);
@@ -306,7 +99,7 @@ int NI_FindObjects(PyArrayObject* input, maybelong max_label,
     }
     /* iterate over all points: */
     for(jj = 0 ; jj < size; jj++) {
-        switch (input->descr->type_num) {
+        switch (NI_NormalizeType(input->descr->type_num)) {
         CASE_FIND_OBJECT_POINT(pi, regions, input->nd, input->dimensions,
                                                      max_label, ii,  Bool);
         CASE_FIND_OBJECT_POINT(pi, regions, input->nd, input->dimensions,
@@ -329,12 +122,14 @@ int NI_FindObjects(PyArrayObject* input, maybelong max_label,
                                                      max_label, ii, Int64);
             break;
         default:
+            NPY_END_THREADS;
             PyErr_SetString(PyExc_RuntimeError, "data type not supported");
             goto exit;
         }
         NI_ITERATOR_NEXT(ii, pi);
     }
  exit:
+    NPY_END_THREADS;
     return PyErr_Occurred() ? 0 : 1;
 }
 
@@ -378,7 +173,9 @@ int NI_FindObjects(PyArrayObject* input, maybelong max_label,
         _v = *(Float64*)_pi;                                              \
         break;                                                            \
     default:                                                            \
-            PyErr_SetString(PyExc_RuntimeError, "data type not supported"); \
+            NPY_END_THREADS;                                          \
+            PyErr_SetString(PyExc_RuntimeError,                       \
+                                         "data type not supported");  \
             return 0;                                                       \
     }                                                                   \
 }
@@ -417,7 +214,9 @@ int NI_FindObjects(PyArrayObject* input, maybelong max_label,
         _v = *(Float64*)_pi;                                              \
         break;                                                            \
     default:                                                            \
-            PyErr_SetString(PyExc_RuntimeError, "data type not supported"); \
+            NPY_END_THREADS;                                          \
+            PyErr_SetString(PyExc_RuntimeError,                       \
+                                        "data type not supported");   \
             return 0;                                                       \
     }                                                                   \
 }
@@ -463,7 +262,9 @@ int NI_FindObjects(PyArrayObject* input, maybelong max_label,
             _label = *(Float64*)_pm;                                        \
             break;                                                          \
         default:                                                          \
-            PyErr_SetString(PyExc_RuntimeError, "data type not supported"); \
+            NPY_END_THREADS;                                          \
+            PyErr_SetString(PyExc_RuntimeError,                       \
+                                        "data type not supported");   \
             return 0;                                                       \
         }                                                                 \
     }                                                                   \
@@ -504,7 +305,9 @@ int NI_FindObjects(PyArrayObject* input, maybelong max_label,
             _label = *(Float64*)_pm;                                        \
             break;                                                          \
         default:                                                          \
-            PyErr_SetString(PyExc_RuntimeError, "data type not supported"); \
+            NPY_END_THREADS;                                          \
+            PyErr_SetString(PyExc_RuntimeError,                       \
+                                        "data type not supported");   \
             return 0;                                                       \
         }                                                                 \
     }                                                                   \
@@ -512,14 +315,15 @@ int NI_FindObjects(PyArrayObject* input, maybelong max_label,
 #endif
 
 int NI_Statistics(PyArrayObject *input, PyArrayObject *labels,
-    maybelong min_label, maybelong max_label, maybelong *indices,
-    maybelong n_results, double *sum, maybelong *total, double *variance,
-    double *minimum, double *maximum, maybelong* min_pos, maybelong* max_pos)
+    npy_intp min_label, npy_intp max_label, npy_intp *indices,
+    npy_intp n_results, double *sum, npy_intp *total, double *variance,
+    double *minimum, double *maximum, npy_intp* min_pos, npy_intp* max_pos)
 {
     char *pi = NULL, *pm = NULL;
     NI_Iterator ii, mi;
-    maybelong jj, size, idx = 0, label = 1, doit = 1;
+    npy_intp jj, size, idx = 0, label = 1, doit = 1;
     int qq;
+    NPY_BEGIN_THREADS_DEF;
 
     /* input iterator: */
     if (!NI_InitPointIterator(input, &ii))
@@ -531,6 +335,9 @@ int NI_Statistics(PyArrayObject *input, PyArrayObject *labels,
             return 0;
         pm = (void *)PyArray_DATA(labels);
     }
+
+    NPY_BEGIN_THREADS;
+
     /* input size: */
     size = 1;
     for(qq = 0; qq < input->nd; qq++)
@@ -553,7 +360,7 @@ int NI_Statistics(PyArrayObject *input, PyArrayObject *labels,
     }
     /* iterate over array: */
     for(jj = 0; jj < size; jj++) {
-        NI_GET_LABEL(pm, label, labels->descr->type_num);
+        NI_GET_LABEL(pm, label, NI_NormalizeType(labels->descr->type_num));
         if (min_label >= 0) {
             if (label >= min_label && label <= max_label) {
                 idx = indices[label - min_label];
@@ -566,7 +373,7 @@ int NI_Statistics(PyArrayObject *input, PyArrayObject *labels,
         }
         if (doit) {
             double val;
-            NI_GET_VALUE(pi, val, input->descr->type_num);
+            NI_GET_VALUE(pi, val, NI_NormalizeType(input->descr->type_num));
             if (sum)
                 sum[idx] += val;
             if (total)
@@ -617,7 +424,7 @@ int NI_Statistics(PyArrayObject *input, PyArrayObject *labels,
                 pm = (void *)PyArray_DATA(labels);
             }
             for(jj = 0; jj < size; jj++) {
-                NI_GET_LABEL(pm, label, labels->descr->type_num);
+                NI_GET_LABEL(pm, label, NI_NormalizeType(labels->descr->type_num));
                 if (min_label >= 0) {
                     if (label >= min_label && label <= max_label) {
                         idx = indices[label - min_label];
@@ -630,7 +437,7 @@ int NI_Statistics(PyArrayObject *input, PyArrayObject *labels,
                 }
                 if (doit) {
                     double val;
-                    NI_GET_VALUE(pi, val, input->descr->type_num);
+                    NI_GET_VALUE(pi, val, NI_NormalizeType(input->descr->type_num));
                     val = val - sum[idx] / total[idx];
                     variance[idx] += val * val;
                 }
@@ -645,19 +452,21 @@ int NI_Statistics(PyArrayObject *input, PyArrayObject *labels,
                                                 variance[jj] / (total[jj] - 1) : 0.0);
         }
     }
+    NPY_END_THREADS;
     return 1;
 }
 
 
 int NI_CenterOfMass(PyArrayObject *input, PyArrayObject *labels,
-                            maybelong min_label, maybelong max_label, maybelong *indices,
-                            maybelong n_results, double *center_of_mass)
+                    npy_intp min_label, npy_intp max_label, npy_intp *indices,
+                    npy_intp n_results, double *center_of_mass)
 {
     char *pi = NULL, *pm = NULL;
     NI_Iterator ii, mi;
-    maybelong jj, kk, size, idx = 0, label = 1, doit = 1;
+    npy_intp jj, kk, size, idx = 0, label = 1, doit = 1;
     double *sum = NULL;
     int qq;
+    NPY_BEGIN_THREADS_DEF;
 
     /* input iterator: */
     if (!NI_InitPointIterator(input, &ii))
@@ -673,11 +482,14 @@ int NI_CenterOfMass(PyArrayObject *input, PyArrayObject *labels,
     size = 1;
     for(qq = 0; qq < input->nd; qq++)
         size *= input->dimensions[qq];
-    sum = (double*)malloc(n_results * sizeof(double));
+    sum = malloc(n_results * sizeof(double));
     if (!sum) {
         PyErr_NoMemory();
         goto exit;
     }
+
+    NPY_BEGIN_THREADS;
+
     for(jj = 0; jj < n_results; jj++) {
         sum[jj] = 0.0;
         for(kk = 0; kk < input->nd; kk++)
@@ -685,7 +497,7 @@ int NI_CenterOfMass(PyArrayObject *input, PyArrayObject *labels,
     }
     /* iterate over array: */
     for(jj = 0; jj < size; jj++) {
-        NI_GET_LABEL(pm, label, labels->descr->type_num);
+        NI_GET_LABEL(pm, label, NI_NormalizeType(labels->descr->type_num));
         if (min_label >= 0) {
             if (label >= min_label && label <= max_label) {
                 idx = indices[label - min_label];
@@ -698,7 +510,7 @@ int NI_CenterOfMass(PyArrayObject *input, PyArrayObject *labels,
         }
         if (doit) {
             double val;
-            NI_GET_VALUE(pi, val, input->descr->type_num);
+            NI_GET_VALUE(pi, val, NI_NormalizeType(input->descr->type_num));
             sum[idx] += val;
             for(kk = 0; kk < input->nd; kk++)
                 center_of_mass[idx * input->nd + kk] += val * ii.coordinates[kk];
@@ -713,23 +525,24 @@ int NI_CenterOfMass(PyArrayObject *input, PyArrayObject *labels,
         for(kk = 0; kk < input->nd; kk++)
             center_of_mass[jj * input->nd + kk] /= sum[jj];
  exit:
-    if (sum)
-        free(sum);
+    NPY_END_THREADS;
+    free(sum);
     return  PyErr_Occurred() == NULL;
 }
 
 
 int NI_Histogram(PyArrayObject *input, PyArrayObject *labels,
-                            maybelong min_label, maybelong max_label, maybelong *indices,
-                            maybelong n_results, PyArrayObject **histograms,
-                            double min, double max, maybelong nbins)
+                 npy_intp min_label, npy_intp max_label, npy_intp *indices,
+                 npy_intp n_results, PyArrayObject **histograms,
+                 double min, double max, npy_intp nbins)
 {
     char *pi = NULL, *pm = NULL;
     NI_Iterator ii, mi;
-    maybelong jj, kk, size, idx = 0, label = 1, doit = 1;
+    npy_intp jj, kk, size, idx = 0, label = 1, doit = 1;
     Int32 **ph = NULL;
     double bsize;
     int qq;
+    NPY_BEGIN_THREADS_DEF;
 
     /* input iterator: */
     if (!NI_InitPointIterator(input, &ii))
@@ -741,11 +554,14 @@ int NI_Histogram(PyArrayObject *input, PyArrayObject *labels,
             goto exit;
         pm = (void *)PyArray_DATA(labels);
     }
-    ph = (Int32**)malloc(n_results * sizeof(Int32*));
+    ph = malloc(n_results * sizeof(Int32*));
     if (!ph) {
         PyErr_NoMemory();
         goto exit;
     }
+
+    NPY_BEGIN_THREADS;
+
     for(jj = 0; jj < n_results; jj++) {
             ph[jj] = (Int32*)PyArray_DATA(histograms[jj]);
             for(kk = 0; kk < nbins; kk++)
@@ -758,7 +574,7 @@ int NI_Histogram(PyArrayObject *input, PyArrayObject *labels,
         size *= input->dimensions[qq];
     /* iterate over array: */
     for(jj = 0; jj < size; jj++) {
-        NI_GET_LABEL(pm, label, labels->descr->type_num);
+        NI_GET_LABEL(pm, label, NI_NormalizeType(labels->descr->type_num));
         if (min_label >= 0) {
             if (label >= min_label && label <= max_label) {
                 idx = indices[label - min_label];
@@ -770,11 +586,11 @@ int NI_Histogram(PyArrayObject *input, PyArrayObject *labels,
             doit = label != 0;
         }
         if (doit) {
-            int bin;
+            npy_intp bin;
             double val;
-            NI_GET_VALUE(pi, val, input->descr->type_num);
+            NI_GET_VALUE(pi, val, NI_NormalizeType(input->descr->type_num));
             if (val >= min && val < max) {
-                bin = (int)((val - min) / bsize);
+                bin = (npy_intp)((val - min) / bsize);
                 ++(ph[idx][bin]);
             }
         }
@@ -785,8 +601,8 @@ int NI_Histogram(PyArrayObject *input, PyArrayObject *labels,
         }
     }
  exit:
-    if (ph)
-        free(ph);
+    NPY_END_THREADS;
+    free(ph);
     return  PyErr_Occurred() == NULL;
 }
 
@@ -797,7 +613,7 @@ do {                                                              \
         _out = _index * sizeof(_type);                                \
     } else {                                                        \
         int _qq;                                                      \
-        maybelong _cc, _idx = _index;                                 \
+        npy_intp _cc, _idx = _index;                              \
         _out = 0;                                                     \
         for (_qq = 0; _qq < _rank; _qq++) {                           \
             _cc = _idx / _c_strides[_qq];                               \
@@ -854,7 +670,7 @@ break
 #define WS_MAXDIM 7
 
 typedef struct {
-    maybelong index;
+    npy_intp index;
     COST_TYPE cost;
     void *next, *prev;
     DONE_TYPE done;
@@ -865,13 +681,14 @@ int NI_WatershedIFT(PyArrayObject* input, PyArrayObject* markers,
 {
     char *pl, *pm, *pi;
     int ll;
-    maybelong size, jj, hh, kk, maxval;
-    maybelong strides[WS_MAXDIM], coordinates[WS_MAXDIM];
-    maybelong *nstrides = NULL, nneigh, ssize;
+    npy_intp size, jj, hh, kk, maxval;
+    npy_intp strides[WS_MAXDIM], coordinates[WS_MAXDIM];
+    npy_intp *nstrides = NULL, nneigh, ssize;
     int i_contiguous, o_contiguous;
     NI_WatershedElement *temp = NULL, **first = NULL, **last = NULL;
     Bool *ps = NULL;
     NI_Iterator mi, ii, li;
+    NPY_BEGIN_THREADS_DEF;
 
     i_contiguous = PyArray_ISCONTIGUOUS(input);
     o_contiguous = PyArray_ISCONTIGUOUS(output);
@@ -886,22 +703,26 @@ int NI_WatershedIFT(PyArrayObject* input, PyArrayObject* markers,
     for(ll = 0; ll < input->nd; ll++)
         size *= input->dimensions[ll];
     /* Storage for the temporary queue data. */
-    temp = (NI_WatershedElement*)malloc(size * sizeof(NI_WatershedElement));
+    temp = malloc(size * sizeof(NI_WatershedElement));
     if (!temp) {
         PyErr_NoMemory();
         goto exit;
     }
+
+    NPY_BEGIN_THREADS;
+
     pi = (void *)PyArray_DATA(input);
     if (!NI_InitPointIterator(input, &ii))
         goto exit;
     /* Initialization and find the maximum of the input. */
     maxval = 0;
     for(jj = 0; jj < size; jj++) {
-        int ival = 0;
-        switch(input->descr->type_num) {
+        npy_intp ival = 0;
+        switch(NI_NormalizeType(input->descr->type_num)) {
         CASE_GET_INPUT(ival, pi, UInt8);
         CASE_GET_INPUT(ival, pi, UInt16);
         default:
+            NPY_END_THREADS;
             PyErr_SetString(PyExc_RuntimeError, "data type not supported");
             goto exit;
         }
@@ -913,11 +734,10 @@ int NI_WatershedIFT(PyArrayObject* input, PyArrayObject* markers,
     }
     pi = (void *)PyArray_DATA(input);
     /* Allocate and initialize the storage for the queue. */
-    first = (NI_WatershedElement**)malloc((maxval + 1) *
-                                                                                sizeof(NI_WatershedElement*));
-    last = (NI_WatershedElement**)malloc((maxval + 1) *
-                                                                             sizeof(NI_WatershedElement*));
-    if (!first || !last) {
+    first = malloc((maxval + 1) * sizeof(NI_WatershedElement*));
+    last = malloc((maxval + 1) * sizeof(NI_WatershedElement*));
+    if (NI_UNLIKELY(!first || !last)) {
+        NPY_END_THREADS;
         PyErr_NoMemory();
         goto exit;
     }
@@ -937,7 +757,7 @@ int NI_WatershedIFT(PyArrayObject* input, PyArrayObject* markers,
     for(jj = 0; jj < size; jj++) {
         /* get marker */
         int label = 0;
-        switch(markers->descr->type_num) {
+        switch(NI_NormalizeType(markers->descr->type_num)) {
         CASE_GET_LABEL(label, pm, UInt8);
         CASE_GET_LABEL(label, pm, UInt16);
         CASE_GET_LABEL(label, pm, UInt32);
@@ -949,10 +769,11 @@ int NI_WatershedIFT(PyArrayObject* input, PyArrayObject* markers,
         CASE_GET_LABEL(label, pm, Int32);
         CASE_GET_LABEL(label, pm, Int64);
         default:
+            NPY_END_THREADS;
             PyErr_SetString(PyExc_RuntimeError, "data type not supported");
             goto exit;
         }
-        switch(output->descr->type_num) {
+        switch(NI_NormalizeType(output->descr->type_num)) {
         CASE_PUT_LABEL(label, pl, UInt8);
         CASE_PUT_LABEL(label, pl, UInt16);
         CASE_PUT_LABEL(label, pl, UInt32);
@@ -964,6 +785,7 @@ int NI_WatershedIFT(PyArrayObject* input, PyArrayObject* markers,
         CASE_PUT_LABEL(label, pl, Int32);
         CASE_PUT_LABEL(label, pl, Int64);
         default:
+            NPY_END_THREADS;
             PyErr_SetString(PyExc_RuntimeError, "data type not supported");
             goto exit;
         }
@@ -978,8 +800,8 @@ int NI_WatershedIFT(PyArrayObject* input, PyArrayObject* markers,
                 last[0] = first[0];
             } else {
                 if (label > 0) {
-                    /* object markers are enqueued at the beginning, so they are
-                         processed first. */
+                    /* object markers are enqueued at the beginning, so they
+                       are processed first. */
                     temp[jj].next = first[0];
                     temp[jj].prev = NULL;
                     first[0]->prev = &(temp[jj]);
@@ -1014,8 +836,9 @@ int NI_WatershedIFT(PyArrayObject* input, PyArrayObject* markers,
     for (kk = 0; kk < ssize; kk++)
         if (ps[kk] && kk != (ssize / 2))
             ++nneigh;
-    nstrides = (maybelong*)malloc(nneigh * sizeof(maybelong));
-    if (!nstrides) {
+    nstrides = malloc(nneigh * sizeof(npy_intp));
+    if (NI_UNLIKELY(!nstrides)) {
+        NPY_END_THREADS;
         PyErr_NoMemory();
         goto exit;
     }
@@ -1057,7 +880,7 @@ int NI_WatershedIFT(PyArrayObject* input, PyArrayObject* markers,
             v->done = 1;
             /* Iterate over the neighbors of the element: */
             for(hh = 0; hh < nneigh; hh++) {
-                maybelong v_index = v->index, p_index = v->index, idx, cc;
+                npy_intp v_index = v->index, p_index = v->index, idx, cc;
                 int qq, outside = 0;
                 p_index += nstrides[hh];
                 /* check if the neighbor is within the extent of the array: */
@@ -1075,7 +898,7 @@ int NI_WatershedIFT(PyArrayObject* input, PyArrayObject* markers,
                     if (!(p->done)) {
                         /* If the neighbor was not processed yet: */
                         int max, pval, vval, wvp, pcost, label, p_idx, v_idx;
-                        switch(input->descr->type_num) {
+                        switch(NI_NormalizeType(input->descr->type_num)) {
                         CASE_WINDEX1(v_index, p_index, strides, input->strides,
                                                  input->nd, i_contiguous, p_idx, v_idx, pi,
                                                  vval, pval, UInt8);
@@ -1083,6 +906,7 @@ int NI_WatershedIFT(PyArrayObject* input, PyArrayObject* markers,
                                                  input->nd, i_contiguous, p_idx, v_idx, pi,
                                                  vval, pval, UInt16);
                         default:
+                            NPY_END_THREADS;
                             PyErr_SetString(PyExc_RuntimeError,
                                                             "data type not supported");
                             goto exit;
@@ -1100,7 +924,7 @@ int NI_WatershedIFT(PyArrayObject* input, PyArrayObject* markers,
                                  adapt the cost and the label of the neighbor: */
                             int idx;
                             p->cost = max;
-                            switch(output->descr->type_num) {
+                            switch(NI_NormalizeType(output->descr->type_num)) {
                             CASE_WINDEX2(v_index, strides, output->strides, input->nd,
                                                      idx, o_contiguous, label, pl, UInt8);
                             CASE_WINDEX2(v_index, strides, output->strides, input->nd,
@@ -1120,11 +944,12 @@ int NI_WatershedIFT(PyArrayObject* input, PyArrayObject* markers,
                             CASE_WINDEX2(v_index, strides, output->strides, input->nd,
                                                      idx, o_contiguous, label, pl, Int64);
                             default:
+                                NPY_END_THREADS;
                                 PyErr_SetString(PyExc_RuntimeError,
                                                                 "data type not supported");
                                 goto exit;
                             }
-                            switch(output->descr->type_num) {
+                            switch(NI_NormalizeType(output->descr->type_num)) {
                             CASE_WINDEX3(p_index, strides, output->strides, input->nd,
                                                      idx, o_contiguous, label, pl, UInt8);
                             CASE_WINDEX3(p_index, strides, output->strides, input->nd,
@@ -1144,6 +969,7 @@ int NI_WatershedIFT(PyArrayObject* input, PyArrayObject* markers,
                             CASE_WINDEX3(p_index, strides, output->strides, input->nd,
                                                      idx, o_contiguous, label, pl, Int64);
                             default:
+                                NPY_END_THREADS;
                                 PyErr_SetString(PyExc_RuntimeError,
                                                                 "data type not supported");
                                 goto exit;
@@ -1185,13 +1011,10 @@ int NI_WatershedIFT(PyArrayObject* input, PyArrayObject* markers,
         }
     }
  exit:
-    if (temp)
-        free(temp);
-    if (first)
-        free(first);
-    if (last)
-        free(last);
-    if (nstrides)
-        free(nstrides);
+    NPY_END_THREADS;
+    free(temp);
+    free(first);
+    free(last);
+    free(nstrides);
     return PyErr_Occurred() ? 0 : 1;
 }
