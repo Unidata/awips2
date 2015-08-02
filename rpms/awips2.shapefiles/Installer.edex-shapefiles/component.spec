@@ -11,8 +11,8 @@ BuildArch: noarch
 URL: N/A
 License: N/A
 Distribution: N/A
-Vendor: Raytheon
-Packager: Bryan Kowal
+Vendor: Unidata
+Packager: Michael James
 
 AutoReq: no
 provides: awips2-edex-shapefiles
