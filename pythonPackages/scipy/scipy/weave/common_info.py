@@ -4,8 +4,9 @@
         swig pointer (old style) conversion support
 
 """
+from __future__ import absolute_import, print_function
 
-import base_info
+from . import base_info
 
 module_support_code = \
 """
@@ -32,7 +33,7 @@ const char* find_type(PyObject* py_obj)
     if(PyCallable_Check(py_obj) && PyInstance_Check(py_obj)) return "callable";
     if(PyInstance_Check(py_obj)) return "instance";
     if(PyCallable_Check(py_obj)) return "callable";
-    return "unkown type";
+    return "unknown type";
 }
 
 void throw_error(PyObject* exc, const char* msg)
@@ -62,6 +63,7 @@ void handle_conversion_error(PyObject* py_obj, const char* good_type, const char
 """
 #include "compile.h" /* Scary dangerous stuff */
 #include "frameobject.h" /* Scary dangerous stuff */
+
 
 class basic_module_info(base_info.base_info):
     _headers = ['"Python.h"','"compile.h"','"frameobject.h"']
@@ -110,6 +112,7 @@ PyObject* py_to_raw_dict(PyObject* py_obj, const char* name)
 }
 """
 
+
 class inline_info(base_info.base_info):
     _support_code = [get_variable_support_code, py_to_raw_dict_support_code]
 
@@ -123,8 +126,9 @@ class inline_info(base_info.base_info):
 # installations. New style swig pointers are not yet supported.
 #----------------------------------------------------------------------------
 
-import swigptr
+from . import swigptr
 swig_support_code = swigptr.swigptr_code
+
 
 class swig_info(base_info.base_info):
     _support_code = [swig_support_code]

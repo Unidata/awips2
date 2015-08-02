@@ -1,32 +1,47 @@
 """Iterative methods for solving linear systems"""
 
+from __future__ import division, print_function, absolute_import
+
 __all__ = ['bicg','bicgstab','cg','cgs','gmres','qmr']
 
-import _iterative
-import numpy as np
+from . import _iterative
 
 from scipy.sparse.linalg.interface import LinearOperator
-from utils import make_system
+from scipy._lib.decorator import decorator
+from .utils import make_system
+from scipy._lib._util import _aligned_zeros
 
 _type_conv = {'f':'s', 'd':'d', 'F':'c', 'D':'z'}
 
 
 # Part of the docstring common to all iterative solvers
-common_doc = \
+common_doc1 = \
 """
 Parameters
 ----------
-A : {sparse matrix, dense matrix, LinearOperator}
-    The N-by-N matrix of the linear system.
-b : {array, matrix}
+A : {sparse matrix, dense matrix, LinearOperator}"""
+
+common_doc2 = \
+"""b : {array, matrix}
     Right hand side of the linear system. Has shape (N,) or (N,1).
 
-Optional Parameters
--------------------
+Returns
+-------
+x : {array, matrix}
+    The converged solution.
+info : integer
+    Provides convergence information:
+        0  : successful exit
+        >0 : convergence to tolerance not achieved, number of iterations
+        <0 : illegal input or breakdown
+
+Other Parameters
+----------------
 x0  : {array, matrix}
     Starting guess for the solution.
 tol : float
-    Relative tolerance to achieve before terminating.
+    Tolerance to achieve. The algorithm terminates when either the relative
+    or the absolute residual is below `tol`.
 maxiter : integer
     Maximum number of iterations.  Iteration will stop after maxiter
     steps even if the specified tolerance has not been achieved.
@@ -38,38 +53,45 @@ M : {sparse matrix, dense matrix, LinearOperator}
 callback : function
     User-supplied function to call after each iteration.  It is called
     as callback(xk), where xk is the current solution vector.
-
-Outputs
--------
-x : {array, matrix}
-    The converged solution.
-info : integer
-    Provides convergence information:
-        0  : successful exit
-        >0 : convergence to tolerance not achieved, number of iterations
-        <0 : illegal input or breakdown
-
-Deprecated Parameters
-----------------------
 xtype : {'f','d','F','D'}
+    This parameter is deprecated -- avoid using it.
+
     The type of the result.  If None, then it will be determined from
     A.dtype.char and b.  If A does not have a typecode method then it
     will compute A.matvec(x0) to get a typecode.   To save the extra
     computation when A does not have a typecode attribute use xtype=0
     for the same type as b or use xtype='f','d','F',or 'D'.
-    This parameter has been superceeded by LinearOperator.
+    This parameter has been superseded by LinearOperator.
+
 """
 
 
-def set_docstring(header, footer):
+def set_docstring(header, Ainfo, footer=''):
     def combine(fn):
-        fn.__doc__ = header + '\n' + common_doc + '\n' + footer
+        fn.__doc__ = '\n'.join((header, common_doc1,
+                               '    ' + Ainfo.replace('\n', '\n    '),
+                               common_doc2, footer))
         return fn
     return combine
 
 
+@decorator
+def non_reentrant(func, *a, **kw):
+    d = func.__dict__
+    if d.get('__entered'):
+        raise RuntimeError("%s is not re-entrant" % func.__name__)
+    try:
+        d['__entered'] = True
+        return func(*a, **kw)
+    finally:
+        d['__entered'] = False
 
-@set_docstring('Use BIConjugate Gradient iteration to solve A x = b','')
+
+@set_docstring('Use BIConjugate Gradient iteration to solve A x = b',
+               'The real or complex N-by-N matrix of the linear system\n'
+               'It is required that the linear operator can produce\n'
+               '``Ax`` and ``A^T x``.')
+@non_reentrant
 def bicg(A, b, x0=None, tol=1e-5, maxiter=None, xtype=None, M=None, callback=None):
     A,M,x,b,postprocess = make_system(A,M,x0,b,xtype)
 
@@ -80,13 +102,14 @@ def bicg(A, b, x0=None, tol=1e-5, maxiter=None, xtype=None, M=None, callback=Non
     matvec, rmatvec = A.matvec, A.rmatvec
     psolve, rpsolve = M.matvec, M.rmatvec
     ltr = _type_conv[x.dtype.char]
-    revcom   = getattr(_iterative, ltr + 'bicgrevcom')
+    revcom = getattr(_iterative, ltr + 'bicgrevcom')
     stoptest = getattr(_iterative, ltr + 'stoptest2')
 
     resid = tol
     ndx1 = 1
     ndx2 = -1
-    work = np.zeros(6*n,dtype=x.dtype)
+    # Use _aligned_zeros to work around a f2py bug in Numpy 1.9.1
+    work = _aligned_zeros(6*n,dtype=x.dtype)
     ijob = 1
     info = 0
     ftflag = True
@@ -125,12 +148,16 @@ def bicg(A, b, x0=None, tol=1e-5, maxiter=None, xtype=None, M=None, callback=Non
         ijob = 2
 
     if info > 0 and iter_ == maxiter and resid > tol:
-        #info isn't set appropriately otherwise
+        # info isn't set appropriately otherwise
         info = iter_
 
     return postprocess(x), info
 
-@set_docstring('Use BIConjugate Gradient STABilized iteration to solve A x = b','')
+
+@set_docstring('Use BIConjugate Gradient STABilized iteration to solve A x = b',
+               'The real or complex N-by-N matrix of the linear system\n'
+               '``A`` must represent a hermitian, positive definite matrix')
+@non_reentrant
 def bicgstab(A, b, x0=None, tol=1e-5, maxiter=None, xtype=None, M=None, callback=None):
     A,M,x,b,postprocess = make_system(A,M,x0,b,xtype)
 
@@ -141,13 +168,14 @@ def bicgstab(A, b, x0=None, tol=1e-5, maxiter=None, xtype=None, M=None, callback
     matvec = A.matvec
     psolve = M.matvec
     ltr = _type_conv[x.dtype.char]
-    revcom   = getattr(_iterative, ltr + 'bicgstabrevcom')
+    revcom = getattr(_iterative, ltr + 'bicgstabrevcom')
     stoptest = getattr(_iterative, ltr + 'stoptest2')
 
     resid = tol
     ndx1 = 1
     ndx2 = -1
-    work = np.zeros(7*n,dtype=x.dtype)
+    # Use _aligned_zeros to work around a f2py bug in Numpy 1.9.1
+    work = _aligned_zeros(7*n,dtype=x.dtype)
     ijob = 1
     info = 0
     ftflag = True
@@ -169,8 +197,6 @@ def bicgstab(A, b, x0=None, tol=1e-5, maxiter=None, xtype=None, M=None, callback
             work[slice2] *= sclr2
             work[slice2] += sclr1*matvec(work[slice1])
         elif (ijob == 2):
-            if psolve is None:
-                psolve = get_psolve(A)
             work[slice1] = psolve(work[slice2])
         elif (ijob == 3):
             work[slice2] *= sclr2
@@ -183,12 +209,16 @@ def bicgstab(A, b, x0=None, tol=1e-5, maxiter=None, xtype=None, M=None, callback
         ijob = 2
 
     if info > 0 and iter_ == maxiter and resid > tol:
-        #info isn't set appropriately otherwise
+        # info isn't set appropriately otherwise
         info = iter_
 
     return postprocess(x), info
 
-@set_docstring('Use Conjugate Gradient iteration to solve A x = b','')
+
+@set_docstring('Use Conjugate Gradient iteration to solve A x = b',
+               'The real or complex N-by-N matrix of the linear system\n'
+               '``A`` must represent a hermitian, positive definite matrix')
+@non_reentrant
 def cg(A, b, x0=None, tol=1e-5, maxiter=None, xtype=None, M=None, callback=None):
     A,M,x,b,postprocess = make_system(A,M,x0,b,xtype)
 
@@ -199,13 +229,14 @@ def cg(A, b, x0=None, tol=1e-5, maxiter=None, xtype=None, M=None, callback=None)
     matvec = A.matvec
     psolve = M.matvec
     ltr = _type_conv[x.dtype.char]
-    revcom   = getattr(_iterative, ltr + 'cgrevcom')
+    revcom = getattr(_iterative, ltr + 'cgrevcom')
     stoptest = getattr(_iterative, ltr + 'stoptest2')
 
     resid = tol
     ndx1 = 1
     ndx2 = -1
-    work = np.zeros(4*n,dtype=x.dtype)
+    # Use _aligned_zeros to work around a f2py bug in Numpy 1.9.1
+    work = _aligned_zeros(4*n,dtype=x.dtype)
     ijob = 1
     info = 0
     ftflag = True
@@ -238,15 +269,16 @@ def cg(A, b, x0=None, tol=1e-5, maxiter=None, xtype=None, M=None, callback=None)
             bnrm2, resid, info = stoptest(work[slice1], b, bnrm2, tol, info)
         ijob = 2
 
-
     if info > 0 and iter_ == maxiter and resid > tol:
-        #info isn't set appropriately otherwise
+        # info isn't set appropriately otherwise
         info = iter_
 
     return postprocess(x), info
 
 
-@set_docstring('Use Conjugate Gradient Squared iteration to solve A x = b','')
+@set_docstring('Use Conjugate Gradient Squared iteration to solve A x = b',
+               'The real-valued N-by-N matrix of the linear system')
+@non_reentrant
 def cgs(A, b, x0=None, tol=1e-5, maxiter=None, xtype=None, M=None, callback=None):
     A,M,x,b,postprocess = make_system(A,M,x0,b,xtype)
 
@@ -257,13 +289,14 @@ def cgs(A, b, x0=None, tol=1e-5, maxiter=None, xtype=None, M=None, callback=None
     matvec = A.matvec
     psolve = M.matvec
     ltr = _type_conv[x.dtype.char]
-    revcom   = getattr(_iterative, ltr + 'cgsrevcom')
+    revcom = getattr(_iterative, ltr + 'cgsrevcom')
     stoptest = getattr(_iterative, ltr + 'stoptest2')
 
     resid = tol
     ndx1 = 1
     ndx2 = -1
-    work = np.zeros(7*n,dtype=x.dtype)
+    # Use _aligned_zeros to work around a f2py bug in Numpy 1.9.1
+    work = _aligned_zeros(7*n,dtype=x.dtype)
     ijob = 1
     info = 0
     ftflag = True
@@ -297,67 +330,85 @@ def cgs(A, b, x0=None, tol=1e-5, maxiter=None, xtype=None, M=None, callback=None
         ijob = 2
 
     if info > 0 and iter_ == maxiter and resid > tol:
-        #info isn't set appropriately otherwise
+        # info isn't set appropriately otherwise
         info = iter_
 
     return postprocess(x), info
 
 
+@non_reentrant
 def gmres(A, b, x0=None, tol=1e-5, restart=None, maxiter=None, xtype=None, M=None, callback=None, restrt=None):
-    """Use Generalized Minimal RESidual iteration to solve A x = b
+    """
+    Use Generalized Minimal RESidual iteration to solve A x = b.
 
     Parameters
     ----------
     A : {sparse matrix, dense matrix, LinearOperator}
-        The N-by-N matrix of the linear system.
+        The real or complex N-by-N matrix of the linear system.
     b : {array, matrix}
         Right hand side of the linear system. Has shape (N,) or (N,1).
 
-    Optional Parameters
-    -------------------
-    x0  : {array, matrix}
-        Starting guess for the solution.
-    tol : float
-        Relative tolerance to achieve before terminating.
-    restart : integer, optional
-        Number of iterations between restarts. Larger values increase
-        iteration cost, but may be necessary for convergence.
-        (Default: 20)
-    maxiter : integer, optional
-        Maximum number of iterations.  Iteration will stop after maxiter
-        steps even if the specified tolerance has not been achieved.
-    M : {sparse matrix, dense matrix, LinearOperator}
-        Preconditioner for A.  The preconditioner should approximate the
-        inverse of A.  Effective preconditioning dramatically improves the
-        rate of convergence, which implies that fewer iterations are needed
-        to reach a given error tolerance.
-    callback : function
-        User-supplied function to call after each iteration.  It is called
-        as callback(rk), where rk is the current residual vector.
-
-    Outputs
+    Returns
     -------
     x : {array, matrix}
         The converged solution.
-    info : integer
+    info : int
         Provides convergence information:
-            0  : successful exit
-            >0 : convergence to tolerance not achieved, number of iterations
-            <0 : illegal input or breakdown
+          * 0  : successful exit
+          * >0 : convergence to tolerance not achieved, number of iterations
+          * <0 : illegal input or breakdown
 
-    See Also
-    --------
-    LinearOperator
-
-    Deprecated Parameters
-    ---------------------
+    Other parameters
+    ----------------
+    x0 : {array, matrix}
+        Starting guess for the solution (a vector of zeros by default).
+    tol : float
+        Tolerance to achieve. The algorithm terminates when either the relative
+        or the absolute residual is below `tol`.
+    restart : int, optional
+        Number of iterations between restarts. Larger values increase
+        iteration cost, but may be necessary for convergence.
+        Default is 20.
+    maxiter : int, optional
+        Maximum number of iterations (restart cycles).  Iteration will stop
+        after maxiter steps even if the specified tolerance has not been
+        achieved.
     xtype : {'f','d','F','D'}
+        This parameter is DEPRECATED --- avoid using it.
+
         The type of the result.  If None, then it will be determined from
         A.dtype.char and b.  If A does not have a typecode method then it
         will compute A.matvec(x0) to get a typecode.   To save the extra
         computation when A does not have a typecode attribute use xtype=0
         for the same type as b or use xtype='f','d','F',or 'D'.
-        This parameter has been superceeded by LinearOperator.
+        This parameter has been superseded by LinearOperator.
+    M : {sparse matrix, dense matrix, LinearOperator}
+        Inverse of the preconditioner of A.  M should approximate the
+        inverse of A and be easy to solve for (see Notes).  Effective
+        preconditioning dramatically improves the rate of convergence,
+        which implies that fewer iterations are needed to reach a given
+        error tolerance.  By default, no preconditioner is used.
+    callback : function
+        User-supplied function to call after each iteration.  It is called
+        as callback(rk), where rk is the current residual vector.
+    restrt : int, optional
+        DEPRECATED - use `restart` instead.
+
+    See Also
+    --------
+    LinearOperator
+
+    Notes
+    -----
+    A preconditioner, P, is chosen such that P is close to A but easy to solve
+    for. The preconditioner parameter required by this routine is
+    ``M = P^-1``. The inverse should preferably not be calculated
+    explicitly.  Rather, use the following template to produce M::
+
+      # Construct a linear operator that computes P^-1 * x.
+      import scipy.sparse.linalg as spla
+      M_x = lambda x: spla.spsolve(P, x)
+      M = spla.LinearOperator((n, n), M_x)
 
     """
 
@@ -381,14 +432,15 @@ def gmres(A, b, x0=None, tol=1e-5, restart=None, maxiter=None, xtype=None, M=Non
     matvec = A.matvec
     psolve = M.matvec
     ltr = _type_conv[x.dtype.char]
-    revcom   = getattr(_iterative, ltr + 'gmresrevcom')
+    revcom = getattr(_iterative, ltr + 'gmresrevcom')
     stoptest = getattr(_iterative, ltr + 'stoptest2')
 
     resid = tol
     ndx1 = 1
     ndx2 = -1
-    work  = np.zeros((6+restrt)*n,dtype=x.dtype)
-    work2 = np.zeros((restrt+1)*(2*restrt+2),dtype=x.dtype)
+    # Use _aligned_zeros to work around a f2py bug in Numpy 1.9.1
+    work = _aligned_zeros((6+restrt)*n,dtype=x.dtype)
+    work2 = _aligned_zeros((restrt+1)*(2*restrt+2),dtype=x.dtype)
     ijob = 1
     info = 0
     ftflag = True
@@ -402,11 +454,11 @@ def gmres(A, b, x0=None, tol=1e-5, restart=None, maxiter=None, xtype=None, M=Non
         olditer = iter_
         x, iter_, resid, info, ndx1, ndx2, sclr1, sclr2, ijob = \
            revcom(b, x, restrt, work, work2, iter_, resid, info, ndx1, ndx2, ijob)
-        #if callback is not None and iter_ > olditer:
+        # if callback is not None and iter_ > olditer:
         #    callback(x)
         slice1 = slice(ndx1-1, ndx1-1+n)
         slice2 = slice(ndx2-1, ndx2-1+n)
-        if (ijob == -1): # gmres success, update last residual
+        if (ijob == -1):  # gmres success, update last residual
             if resid_ready and callback is not None:
                 callback(resid)
                 resid_ready = False
@@ -417,7 +469,7 @@ def gmres(A, b, x0=None, tol=1e-5, restart=None, maxiter=None, xtype=None, M=Non
             work[slice2] += sclr1*matvec(x)
         elif (ijob == 2):
             work[slice1] = psolve(work[slice2])
-            if not first_pass and old_ijob==3:
+            if not first_pass and old_ijob == 3:
                 resid_ready = True
 
             first_pass = False
@@ -442,28 +494,42 @@ def gmres(A, b, x0=None, tol=1e-5, restart=None, maxiter=None, xtype=None, M=Non
             break
 
     if info >= 0 and resid > tol:
-        #info isn't set appropriately otherwise
+        # info isn't set appropriately otherwise
         info = maxiter
 
     return postprocess(x), info
 
 
+@non_reentrant
 def qmr(A, b, x0=None, tol=1e-5, maxiter=None, xtype=None, M1=None, M2=None, callback=None):
     """Use Quasi-Minimal Residual iteration to solve A x = b
 
     Parameters
     ----------
     A : {sparse matrix, dense matrix, LinearOperator}
-        The N-by-N matrix of the linear system.
+        The real-valued N-by-N matrix of the linear system.
+        It is required that the linear operator can produce
+        ``Ax`` and ``A^T x``.
     b : {array, matrix}
         Right hand side of the linear system. Has shape (N,) or (N,1).
 
-    Optional Parameters
-    -------------------
+    Returns
+    -------
+    x : {array, matrix}
+        The converged solution.
+    info : integer
+        Provides convergence information:
+            0  : successful exit
+            >0 : convergence to tolerance not achieved, number of iterations
+            <0 : illegal input or breakdown
+
+    Other Parameters
+    ----------------
     x0  : {array, matrix}
         Starting guess for the solution.
     tol : float
-        Relative tolerance to achieve before terminating.
+        Tolerance to achieve. The algorithm terminates when either the relative
+        or the absolute residual is below `tol`.
     maxiter : integer
         Maximum number of iterations.  Iteration will stop after maxiter
         steps even if the specified tolerance has not been achieved.
@@ -476,30 +542,19 @@ def qmr(A, b, x0=None, tol=1e-5, maxiter=None, xtype=None, M1=None, M2=None, cal
     callback : function
         User-supplied function to call after each iteration.  It is called
         as callback(xk), where xk is the current solution vector.
-
-    Outputs
-    -------
-    x : {array, matrix}
-        The converged solution.
-    info : integer
-        Provides convergence information:
-            0  : successful exit
-            >0 : convergence to tolerance not achieved, number of iterations
-            <0 : illegal input or breakdown
-
-    See Also
-    --------
-    LinearOperator
-
-    Deprecated Parameters
-    ---------------------
     xtype : {'f','d','F','D'}
+        This parameter is DEPRECATED -- avoid using it.
+
         The type of the result.  If None, then it will be determined from
         A.dtype.char and b.  If A does not have a typecode method then it
         will compute A.matvec(x0) to get a typecode.   To save the extra
         computation when A does not have a typecode attribute use xtype=0
         for the same type as b or use xtype='f','d','F',or 'D'.
-        This parameter has been superceeded by LinearOperator.
+        This parameter has been superseded by LinearOperator.
+
+    See Also
+    --------
+    LinearOperator
 
     """
     A_ = A
@@ -509,10 +564,13 @@ def qmr(A, b, x0=None, tol=1e-5, maxiter=None, xtype=None, M1=None, M2=None, cal
         if hasattr(A_,'psolve'):
             def left_psolve(b):
                 return A_.psolve(b,'left')
+
             def right_psolve(b):
                 return A_.psolve(b,'right')
+
             def left_rpsolve(b):
                 return A_.rpsolve(b,'left')
+
             def right_rpsolve(b):
                 return A_.rpsolve(b,'right')
             M1 = LinearOperator(A.shape, matvec=left_psolve, rmatvec=left_rpsolve)
@@ -528,13 +586,14 @@ def qmr(A, b, x0=None, tol=1e-5, maxiter=None, xtype=None, M1=None, M2=None, cal
         maxiter = n*10
 
     ltr = _type_conv[x.dtype.char]
-    revcom   = getattr(_iterative, ltr + 'qmrrevcom')
+    revcom = getattr(_iterative, ltr + 'qmrrevcom')
     stoptest = getattr(_iterative, ltr + 'stoptest2')
 
     resid = tol
     ndx1 = 1
     ndx2 = -1
-    work = np.zeros(11*n,x.dtype)
+    # Use _aligned_zeros to work around a f2py bug in Numpy 1.9.1
+    work = _aligned_zeros(11*n,x.dtype)
     ijob = 1
     info = 0
     ftflag = True
@@ -577,7 +636,7 @@ def qmr(A, b, x0=None, tol=1e-5, maxiter=None, xtype=None, M1=None, M2=None, cal
         ijob = 2
 
     if info > 0 and iter_ == maxiter and resid > tol:
-        #info isn't set appropriately otherwise
+        # info isn't set appropriately otherwise
         info = iter_
 
     return postprocess(x), info

@@ -3,23 +3,20 @@
 of mat file.
 
 '''
-from os.path import join as pjoin, dirname
-from cStringIO import StringIO
+from __future__ import division, print_function, absolute_import
 
-from numpy.testing import \
-     assert_array_equal, \
-     assert_array_almost_equal, \
-     assert_equal, \
-     assert_raises
+import os.path
+import sys
+import io
 
-from nose.tools import assert_true
+from numpy.testing import run_module_suite
+from numpy.compat import asstr
 
-import numpy as np
+from scipy.io.matlab.mio5 import (MatlabObject, MatFile5Writer,
+                                  MatFile5Reader, MatlabFunction)
 
-from scipy.io.matlab.mio5 import MatlabObject, MatFile5Writer, \
-      MatFile5Reader, MatlabFunction
+test_data_path = os.path.join(os.path.dirname(__file__), 'data')
 
-test_data_path = pjoin(dirname(__file__), 'data')
 
 def read_minimat_vars(rdr):
     rdr.initialize_read()
@@ -27,7 +24,7 @@ def read_minimat_vars(rdr):
     i = 0
     while not rdr.end_of_stream():
         hdr, next_position = rdr.read_var_header()
-        name = hdr.name
+        name = asstr(hdr.name)
         if name == '':
             name = 'var_%d' % i
             i += 1
@@ -38,22 +35,28 @@ def read_minimat_vars(rdr):
             mdict['__globals__'].append(name)
     return mdict
 
+
 def read_workspace_vars(fname):
-    rdr = MatFile5Reader(file(fname, 'rb'),
-                          struct_as_record=True)
+    fp = open(fname, 'rb')
+    rdr = MatFile5Reader(fp, struct_as_record=True)
     vars = rdr.get_variables()
     fws = vars['__function_workspace__']
-    ws_bs = StringIO(fws.tostring())
+    ws_bs = io.BytesIO(fws.tostring())
     ws_bs.seek(2)
     rdr.mat_stream = ws_bs
     # Guess byte order.
     mi = rdr.mat_stream.read(2)
-    rdr.byte_order = mi == 'IM' and '<' or '>'
-    rdr.mat_stream.read(4) # presumably byte padding
-    return read_minimat_vars(rdr)
+    rdr.byte_order = mi == b'IM' and '<' or '>'
+    rdr.mat_stream.read(4)  # presumably byte padding
+    mdict = read_minimat_vars(rdr)
+    fp.close()
+    return mdict
 
 
 def test_jottings():
     # example
-    fname = pjoin(test_data_path, 'parabola.mat')
+    fname = os.path.join(test_data_path, 'parabola.mat')
     ws_vars = read_workspace_vars(fname)
+
+if __name__ == "__main__":
+    run_module_suite()

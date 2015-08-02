@@ -1,7 +1,13 @@
 ''' Utilities to allow inserting docstring fragments for common
 parameters into function and method docstrings'''
 
+from __future__ import division, print_function, absolute_import
+
 import sys
+
+__all__ = ['docformat', 'inherit_docstring_from', 'indentcount_lines',
+           'filldoc', 'unindent_dict', 'unindent_string']
+
 
 def docformat(docstring, docdict=None):
     ''' Fill a function docstring from variables in dictionary
@@ -12,7 +18,7 @@ def docformat(docstring, docdict=None):
     ----------
     docstring : string
         docstring from function, possibly with dict formatting strings
-    docdict : dict
+    docdict : dict, optional
         dictionary with keys that match the dict formatting strings
         and values that are docstring fragments to be inserted.  The
         indentation of the inserted docstrings is set to match the
@@ -62,8 +68,65 @@ def docformat(docstring, docdict=None):
     return docstring % indented
 
 
+def inherit_docstring_from(cls):
+    """
+    This decorator modifies the decorated function's docstring by
+    replacing occurrences of '%(super)s' with the docstring of the
+    method of the same name from the class `cls`.
+
+    If the decorated method has no docstring, it is simply given the
+    docstring of `cls`s method.
+
+    Parameters
+    ----------
+    cls : Python class or instance
+        A class with a method with the same name as the decorated method.
+        The docstring of the method in this class replaces '%(super)s' in the
+        docstring of the decorated method.
+
+    Returns
+    -------
+    f : function
+        The decorator function that modifies the __doc__ attribute
+        of its argument.
+
+    Examples
+    --------
+    In the following, the docstring for Bar.func created using the
+    docstring of `Foo.func`.
+
+    >>> class Foo(object):
+    ...     def func(self):
+    ...         '''Do something useful.'''
+    ...         return
+    ...
+    >>> class Bar(Foo):
+    ...     @inherit_docstring_from(Foo)
+    ...     def func(self):
+    ...         '''%(super)s
+    ...         Do it fast.
+    ...         '''
+    ...         return
+    ...
+    >>> b = Bar()
+    >>> b.func.__doc__
+    'Do something useful.\n        Do it fast.\n        '
+
+    """
+    def _doc(func):
+        cls_docstring = getattr(cls, func.__name__).__doc__
+        func_docstring = func.__doc__
+        if func_docstring is None:
+            func.__doc__ = cls_docstring
+        else:
+            new_docstring = func_docstring % dict(super=cls_docstring)
+            func.__doc__ = new_docstring
+        return func
+    return _doc
+
+
 def indentcount_lines(lines):
-    ''' Minumum indent for all lines in line list
+    ''' Minimum indent for all lines in line list
 
     >>> lines = [' one', '  two', '   three']
     >>> indentcount_lines(lines)
@@ -77,12 +140,12 @@ def indentcount_lines(lines):
     >>> indentcount_lines(['    '])
     0
     '''
-    indentno = sys.maxint
+    indentno = sys.maxsize
     for line in lines:
         stripped = line.lstrip()
         if stripped:
             indentno = min(indentno, len(line) - len(stripped))
-    if indentno == sys.maxint:
+    if indentno == sys.maxsize:
         return 0
     return indentno
 
@@ -106,6 +169,7 @@ def filldoc(docdict, unindent_params=True):
     '''
     if unindent_params:
         docdict = unindent_dict(docdict)
+
     def decorate(f):
         f.__doc__ = docformat(f.__doc__, docdict)
         return f
