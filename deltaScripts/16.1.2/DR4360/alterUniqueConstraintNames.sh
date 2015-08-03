@@ -11,7 +11,7 @@ source ${cmdDir}/commonFunctions.sh
 
 tables=("acars" "acarssounding" "airep" "binlightning" "bufrncwf" "bufrmos_location" "bufrmosavn" "bufrmoseta" "bufrmosgfs" "bufrmoshpc"
 "bufrmoslamp" "bufrmosmrf" "bufrmosngm" "bufrmthdw" "bufrquikscat" "bufrascat" "bufrhdw" "bufrsigwx" "bufrssmi" "bufrua" "cwa" "cwat" "ffmp" "fog"
-"ccfp" "crimss" "fssobs" "goessounding" "grid" "ldad_manual" "ldadhydro" "ldadmesonet" "ldadprofiler" "lsr" "madis" "modelsounding"
+"ccfp" "crimss" "fssobs" "goessounding" "grid" "grid_info" "ldad_manual" "ldadhydro" "ldadmesonet" "ldadprofiler" "lsr" "madis" "modelsounding"
 "ncpafm" "ncscd" "nctaf" "ncuair" "nucaps" "obs" "pirep" "poessounding"
 "practicewarning" "profiler" "qc" "sfcobs" "svrwx" "tcg" "tcs" "vaa" "warning")
 echo "INFO: rename tables unique constraints"

@@ -30,6 +30,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import com.raytheon.uf.common.dataplugin.NullUtil;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
@@ -55,6 +56,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Nov 25, 2013  2574     bsteffen    Add converter to location dataURI
  *                                    annotation.
  * Apr 15, 2014  2060     njensen     Added unique constraint annotation
+ * Aug 03, 2016  4360     rferrel     Add name to unique constraint.
+ *                                     Made datasetId, secondaryId, ensembleId, non-nullable.
  * 
  * </pre>
  * 
@@ -62,7 +65,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @Entity
-@Table(name = "grid_info", uniqueConstraints = { @UniqueConstraint(columnNames = {
+@Table(name = "grid_info", uniqueConstraints = { @UniqueConstraint(name = "uk_grid_info_datauri_fields", columnNames = {
         "datasetid", "parameter_abbreviation", "level_id", "secondaryid",
         "ensembleid", "location_id" }) })
 @SequenceGenerator(name = "GRIDINFO_GENERATOR", sequenceName = "gridinfo_seq", allocationSize = 1)
@@ -77,40 +80,40 @@ public class GridInfoRecord extends PersistableDataObject<Integer> {
     @DynamicSerializeElement
     private Integer id;
 
-    @Column
+    @Column(nullable = false)
     @DataURI(position = 0)
     @DynamicSerializeElement
-    private String datasetId;
+    private String datasetId = NullUtil.NULL_STRING;
 
     /**
      * Any string which can differentiate this record from other records with
      * the same datasetId, examples of this would be for different versions of
      * the same grid or for different events from the same model.
      */
-    @Column
+    @Column(nullable = false)
     @DataURI(position = 1)
     @DynamicSerializeElement
-    private String secondaryId;
+    private String secondaryId = NullUtil.NULL_STRING;
 
-    @Column
+    @Column(nullable = false)
     @DynamicSerializeElement
     @DataURI(position = 2)
-    private String ensembleId;
+    private String ensembleId = NullUtil.NULL_STRING;
 
     /** The spatial information */
-    @ManyToOne
+    @ManyToOne(optional = false)
     @PrimaryKeyJoinColumn
     @DataURI(position = 3, converter = GridCoverageConverter.class)
     @DynamicSerializeElement
     private GridCoverage location;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @PrimaryKeyJoinColumn
     @DataURI(position = 4, embedded = true)
     @DynamicSerializeElement
     private Parameter parameter;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @PrimaryKeyJoinColumn
     @DynamicSerializeElement
     @DataURI(position = 5, embedded = true)
@@ -139,27 +142,27 @@ public class GridInfoRecord extends PersistableDataObject<Integer> {
     }
 
     public String getDatasetId() {
-        return datasetId;
+        return NullUtil.convertNullStringToNull(this.datasetId);
     }
 
     public void setDatasetId(String datasetId) {
-        this.datasetId = datasetId;
+        this.datasetId = NullUtil.convertNullToNullString(datasetId);
     }
 
     public String getSecondaryId() {
-        return secondaryId;
+        return NullUtil.convertNullStringToNull(this.secondaryId);
     }
 
     public void setSecondaryId(String secondaryId) {
-        this.secondaryId = secondaryId;
+        this.secondaryId = NullUtil.convertNullToNullString(secondaryId);
     }
 
     public String getEnsembleId() {
-        return ensembleId;
+        return NullUtil.convertNullStringToNull(this.ensembleId);
     }
 
     public void setEnsembleId(String ensembleId) {
-        this.ensembleId = ensembleId;
+        this.ensembleId = NullUtil.convertNullToNullString(ensembleId);
     }
 
     public GridCoverage getLocation() {

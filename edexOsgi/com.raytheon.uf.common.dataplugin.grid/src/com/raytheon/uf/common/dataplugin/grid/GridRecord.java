@@ -68,6 +68,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Dec 16, 2013  2574     bsteffen    Remove getDecoderGettable.
  * Apr 15, 2014  2060     njensen     Remove dataURI column
  * May 07, 2014  2060     njensen     GridRecord(String) will do parameter lookup
+ * Aug 03, 2015  4360     rferrel     Name unique constraint. Made info non-nullable.
  * 
  * </pre>
  * 
@@ -80,7 +81,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * No need for a separate refTime/forecastTime index since its included in grid
  * unique constraint
  */
-@Table(name = "grid", uniqueConstraints = { @UniqueConstraint(columnNames = {
+@Table(name = "grid", uniqueConstraints = { @UniqueConstraint(name = "uk_grid_datauri_fields", columnNames = {
         "refTime", "forecastTime", "info_id", "rangestart", "rangeend" }) })
 @org.hibernate.annotations.Table(appliesTo = "grid", indexes = { @Index(name = "grid_info_id_index", columnNames = { "info_id" }) })
 @DynamicSerialize
@@ -89,7 +90,7 @@ public class GridRecord extends PersistablePluginDataObject implements
 
     private static final long serialVersionUID = 1L;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @PrimaryKeyJoinColumn
     @DataURI(position = 1, embedded = true)
     @DynamicSerializeElement
