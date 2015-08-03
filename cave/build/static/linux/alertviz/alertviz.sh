@@ -28,6 +28,7 @@
 # Oct 09, 2014  #3675     bclement    added cleanExit signal trap
 # Jun 17, 2015  #4148     rferrel     Logback needs fewer environment variables.
 # Jul 23, 2015  ASM#13849 D. Friedman Use a unique Eclipse configuration directory
+# Aug 03, 2015  #4694     dlovely     Logback will now add user.home to LOGDIR
 #
 
 user=`/usr/bin/whoami`
@@ -98,10 +99,12 @@ fi
 
 #check for the logs directory, which may not be present at first start
 hostName=`hostname -s`
-export LOGDIR=$HOME/caveData/logs/consoleLogs/$hostName/
+# Logback configuration files will append user.home to LOGDIR.
+export LOGDIR=caveData/logs/consoleLogs/$hostName/
+FULL_LOGDIR=$HOME/$LOGDIR
 
-if [ ! -d $LOGDIR ]; then
- mkdir -p $LOGDIR
+if [ ! -d $FULL_LOGDIR ]; then
+ mkdir -p $FULL_LOGDIR
 fi
 
 SWITCHES=()
@@ -156,7 +159,7 @@ do
    echo "Display is not available."
    exitVal=0
   else
-    if [ -w ${LOGDIR} ] ; then
+    if [ -w $FULL_LOGDIR ] ; then
         ${dir}/alertviz "${SWITCHES[@]}" $* > /dev/null 2>&1 &
     else
         ${dir}/alertviz "${SWITCHES[@]}" $* &

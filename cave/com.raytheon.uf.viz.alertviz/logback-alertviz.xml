@@ -4,11 +4,11 @@
    -->
    <timestamp key="startTime" datePattern="yyyyMMdd_HHmmss" />
    <define name="adminLogFile" class="com.raytheon.uf.common.logback.LogFilePropertyDefiner" >
-       <directory>${LOGDIR}</directory>
+       <directory>${user.home}/${LOGDIR}</directory>
        <name>alertviz_${startTime}_admin.log</name>
    </define>
    <define name="consoleLogFile" class="com.raytheon.uf.common.logback.LogFilePropertyDefiner" >
-       <directory>${LOGDIR}</directory>
+       <directory>${user.home}/${LOGDIR}</directory>
        <name>alertviz_${startTime}_console.log</name>
    </define>
    
