@@ -33,7 +33,8 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 31, 2009            snaples     Initial creation
- * Dec 22, 2014  #16952    lbousaidi   fixed the eratic estimate values. 
+ * Dec 22, 2014  #16952    lbousaidi   fixed the eratic estimate values.
+ * Jun 26, 2015  17397     snaples     fixed another instance of erratic estimates. 
  * 
  * </pre>
  * 
@@ -208,8 +209,8 @@ public class EstMissingStations {
                             padj = pdata[j].stn[i].frain[h].data;
                         }
 
-                        fdist = 1 / (testdist + fdist);
-                        fdata = padj / (testdist + fdata);
+                        fdist += 1 / testdist;
+                        fdata += padj / testdist;
 
                         l++;
 

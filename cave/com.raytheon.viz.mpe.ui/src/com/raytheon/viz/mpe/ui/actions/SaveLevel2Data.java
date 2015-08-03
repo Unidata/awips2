@@ -78,6 +78,7 @@ import com.raytheon.viz.mpe.util.WriteQPFGrids;
  * Nov 06, 2012 15481      wkwock      Fix save 6 hours precipitation files
  * May 02, 2013 15956      wkwock      Fix incorrect contents in precip_LLL_grid_yyyymmdd.nc file
  * Mar 10, 2015 14575      snaples     Added status check to make sure that we close everything before exiting.
+ * Jun 25, 2015 17462      snaples     Fixed loop of basins for temp and freezing.
  * 
  * </pre>
  * 
@@ -1629,7 +1630,7 @@ public class SaveLevel2Data {
                 gm.add(Calendar.SECOND, -86400);
 
                 /* loop through and write maps to file */
-                for (m = 0; mean_areal_precip_global[m].hb5 != ""; m++) {
+                for (m = 0; m < dqc.getMax_basins(); m++) {
                     numzones = 0;
 
                     for (l = 0; l < 4; l++) {
@@ -2245,8 +2246,7 @@ public class SaveLevel2Data {
                 gm.add(Calendar.SECOND, -86400);
 
                 /* loop through and write maps to file */
-                for (m = 0; mean_areal_precip_global[m].hb5 != ""; m++) {
-
+                for (m = 0; m < dqc.getMax_basins(); m++) {
                     numzones = 0;
 
                     for (l = 0; l < 4; l++) {

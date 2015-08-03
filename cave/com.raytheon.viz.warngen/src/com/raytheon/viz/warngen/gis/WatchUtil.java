@@ -90,6 +90,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Apr 28, 2015 RODO #4027 randerso     Expunged Calendar from ActiveTableRecord
  * May  7, 2015 ASM #17438 D. Friedman  Clean up debug and performance logging.
  * Jun 04, 2015 RODO #4522 randerso     Added proper primary key to ActiveTableRecord
+ * Jul 16, 2015 ASM #17741 D. Friedman  Use acceptable timestamp format in query
  * </pre>
  * 
  * @author jsanchez
@@ -280,10 +281,10 @@ public class WatchUtil {
         DbQueryRequest request = new DbQueryRequest();
         request.setEntityClass(entityClass);
         request.addConstraint(START_TIME_FIELD,
-                new RequestConstraint(TimeUtil.formatDate(startConstraintTime),
+                new RequestConstraint(TimeUtil.formatToSqlTimestamp(startConstraintTime),
                         ConstraintType.LESS_THAN_EQUALS));
         request.addConstraint(END_TIME_FIELD,
-                new RequestConstraint(TimeUtil.formatDate(simulatedTime),
+                new RequestConstraint(TimeUtil.formatToSqlTimestamp(simulatedTime),
                         ConstraintType.GREATER_THAN_EQUALS));
         request.addConstraint("phensig",
                 new RequestConstraint(phenSig.toString(), ConstraintType.IN));

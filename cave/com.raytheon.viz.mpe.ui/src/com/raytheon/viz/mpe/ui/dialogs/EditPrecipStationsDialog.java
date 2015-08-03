@@ -82,9 +82,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 13, 2009            snaples     Initial creation
- * Jun 27, 2013 15859      wkwock      Update this dialog after click Apply button
+ * Jun 27, 2013  15859     wkwock      Update this dialog after click Apply button
  * Nov 26, 2014  16889     snaples     Updated to fix SNOTEL display
- * 
+ * Jun 18, 2015  14298,17388     ptilles    Updated to fix problem with mpe_dqc_6hr_24hr_ste_bad token and problem
+ *                                            with changing a 6hr value in 24hr mode
+ *                  
  * </pre>
  * 
  * @author snaples
@@ -252,7 +254,9 @@ public class EditPrecipStationsDialog extends AbstractMPEDialog implements
     int[] allowedQualityCodes = dqc.func;
 
     int pcpn_day = DailyQcUtils.pcpn_day;
-
+    
+    int mpe_dqc_6hr_24hr_flag = 1;
+    
     Coordinate coord = new Coordinate();
 
     boolean mpe_dqc_warningpopup_flag = false;
@@ -1011,15 +1015,20 @@ public class EditPrecipStationsDialog extends AbstractMPEDialog implements
     protected void resetStationQuality(Integer data) {
         int k;
 
-        if (pcpn_time_step == 0) {
+        if (pcpn_time_step == 0)
+        {
             time_pos = pcpn_time;
-        } else {
+        }
+        else
+        {
             time_pos = HOURS_24;
         }
 
-        if (data == 1) {
+        if (data == 1)
+        {
 
-            for (k = 0; k < 5; k++) {
+            for (k = 0; k < 5; k++)
+            {
 
                 pdata[pcpn_day].stn[isave].frain[k].qual = pdata[pcpn_day].stn[isave].rrain[k].qual;
 
@@ -1030,7 +1039,9 @@ public class EditPrecipStationsDialog extends AbstractMPEDialog implements
             reset_value = 1;
             new_qual = pdata[pcpn_day].stn[isave].rrain[time_pos].qual;
 
-        } else {
+        }
+        else
+        {
             reset_value = 0;
         }
 
@@ -1047,7 +1058,6 @@ public class EditPrecipStationsDialog extends AbstractMPEDialog implements
 
         new_qual = allowedQualityCodes[data];
         pdata[pcpn_day].stn[isave].frain[time_pos].qual = (short) new_qual;
-        System.out.println(header + " new_qual = " + new_qual);
     }
 
     protected void changeCustomFile() {
@@ -1076,15 +1086,28 @@ public class EditPrecipStationsDialog extends AbstractMPEDialog implements
         custom.setReadable(true, false);
         custom.setWritable(true, false);
 
+        //token name:  mpe_dqc_6hr_24hr_set_bad
+        // token value = OFF
+        //   mpe_dqc_6hr_24hr_flag = 0
+        //   if user sets 6hr value to Bad, then 24hr value is unaffected
+        
+        // token value = ON
+        //   mpe_dqc_6hr_24hr_flag = 1
+        //   if user sets 6hr value to Bad, then 24hr value is set to Bad
+        
         String mpe_dqc_6hr_24hr_string = AppsDefaults.getInstance().getToken(
-                "mpe_dqc_6hr_24hr_set_bad", "OFF");
+                "mpe_dqc_6hr_24hr_set_bad", "ON");
 
-        int mpe_dqc_6hr_24hr_flag = 0;
-
-        if (mpe_dqc_6hr_24hr_string.equalsIgnoreCase("ON")) {
-            mpe_dqc_6hr_24hr_flag = 1;
+        if (mpe_dqc_6hr_24hr_string.equalsIgnoreCase("OFF"))
+        {
+            mpe_dqc_6hr_24hr_flag = 0;
+            System.out.println("mpe_dqc_6hr_24hr_flag = 0 -- token = OFF"); 
         }
-
+        else
+        {
+        	System.out.println("mpe_dqc_6hr_24hr_flag = 1 -- token = ON");
+        }
+        
         if (pcpn_time_step == 0) {
             time_pos = pcpn_time;
         } else {
@@ -1093,7 +1116,7 @@ public class EditPrecipStationsDialog extends AbstractMPEDialog implements
 
         try {
             out = new BufferedWriter(new FileWriter(custom));
-
+            
             for (i = 0; i < max_stations; i++) {
                 Station station = precipStationList.get(i);
                 String rec = String.format("%s %s %d %d\n", station.hb5,
@@ -1123,7 +1146,8 @@ public class EditPrecipStationsDialog extends AbstractMPEDialog implements
         /* snotel path */
 
         if (snow == true
-                && ((bval == true && pdata[pcpn_day].stn[isave].sflag[HOURS_24] == -1) || (bval == false && pdata[pcpn_day].stn[isave].sflag[HOURS_24] == 1))) {
+                && ((bval == true && pdata[pcpn_day].stn[isave].sflag[HOURS_24] == -1) || (bval == false && pdata[pcpn_day].stn[isave].sflag[HOURS_24] == 1)))
+        {
 
             pdata[pcpn_day].stn[isave].sflag[HOURS_24] = (short) -pdata[pcpn_day].stn[isave].sflag[HOURS_24];
 
@@ -1140,30 +1164,25 @@ public class EditPrecipStationsDialog extends AbstractMPEDialog implements
 
         }
 
-        else {
+        else
+        {
             boolean value_edit_flag = false;
             val = pdata[pcpn_day].stn[isave].frain[time_pos].data;
             p = -1;
-            // if (editVal != null) // null unless a value was edited
-            // {
-            for (k = 0; k < 5; k++) {
-                /* other path */
+            
+            for (k = 0; k < 5; k++)
+            {
                 cstr = precipValueStringArray[k];
-                System.out.println(header + "cstr = " + cstr);
                 val = Float.parseFloat(cstr);
-                System.out.println(header + "value = " + val);
                 p = cstr.indexOf('M');
                 cstr = null;
 
-                // } // end if editVal != null
                 /* use manually entered data */
 
-                /* need to ensure consistency in 6 and 24 hour data??? */
-
-                fdif = Math.abs(val
-                        - pdata[pcpn_day].stn[isave].frain[time_pos].data);
-
-                if (fdif > .005 && p == -1 && reset_value == 0) {
+                fdif = Math.abs(val - pdata[pcpn_day].stn[isave].frain[k].data);  // changed for DR 17388
+                
+                if (fdif > .005 && p == -1 && reset_value == 0)
+                {
                     pdata[pcpn_day].stn[isave].frain[k].data = val;
                     pdata[pcpn_day].stn[isave].frain[k].qual = F_MANUAL;
                     pdata[pcpn_day].stn[isave].sflag[k] = -1;
@@ -1171,11 +1190,14 @@ public class EditPrecipStationsDialog extends AbstractMPEDialog implements
 
                 }
             }
-            if (value_edit_flag == true && reset_value == 0) {
+            if (value_edit_flag == true && reset_value == 0)
+            {
                 rtotal = 0;
 
-                for (m = 0; m < 4; m++) {
-                    if (pdata[pcpn_day].stn[isave].frain[m].data >= 0) {
+                for (m = 0; m < 4; m++)
+                {
+                    if (pdata[pcpn_day].stn[isave].frain[m].data >= 0)
+                    {
                         rtotal = rtotal
                                 + pdata[pcpn_day].stn[isave].frain[m].data;
                     }
@@ -1186,33 +1208,33 @@ public class EditPrecipStationsDialog extends AbstractMPEDialog implements
                  * values to zero and set their QC codes to "Manual" as well.
                  */
 
-                if ((Math
-                        .abs(pdata[pcpn_day].stn[isave].frain[HOURS_24].data - 0.0) < 0.001)
-                        && (time_pos == HOURS_24)) {
-                    for (m = 0; m < 4; m++) {
+                if ((Math.abs(pdata[pcpn_day].stn[isave].frain[HOURS_24].data - 0.0) < 0.001) && (time_pos == HOURS_24))
+                {
+                    for (m = 0; m < 4; m++)
+                    {
                         pdata[pcpn_day].stn[isave].frain[m].data = 0;
                         pdata[pcpn_day].stn[isave].frain[m].qual = F_MANUAL;
                     }
                     rtotal = 0;
                 }
 
-                if (Math.abs(rtotal
-                        - pdata[pcpn_day].stn[isave].frain[HOURS_24].data) > .005) {
+                if (Math.abs(rtotal - pdata[pcpn_day].stn[isave].frain[HOURS_24].data) > .005)
+                {
                     read_text();
                     return;
 
                 }
 
-            } // end if (frain.qual == MANUAL || tcmode == 1)
-
-            else {
+            } 
+            else
+            {
 
                 pdata[pcpn_day].stn[isave].frain[time_pos].qual = (short) new_qual;
 
                 /* 24 hour data set bad/good then 6 hourly bad/good also */
 
-                if (new_qual == F_BAD && time_pos == HOURS_24
-                        && pdata[pcpn_day].stn[isave].sflag[time_pos] == 1) {
+                if (new_qual == F_BAD && time_pos == HOURS_24 && pdata[pcpn_day].stn[isave].sflag[time_pos] == 1)
+                {
 
                     pdata[pcpn_day].stn[isave].frain[time_pos].data = pdata[pcpn_day].stn[isave].rrain[time_pos].data;
 
@@ -1220,69 +1242,72 @@ public class EditPrecipStationsDialog extends AbstractMPEDialog implements
 
                 }
 
-                if (time_pos == HOURS_24
-                        && (new_qual == F_BAD || new_qual == F_SCREENED
-                                || new_qual == F_VERIFIED || new_qual == F_PARTIAL)) {
+                if (time_pos == HOURS_24 && (new_qual == F_BAD || new_qual == F_SCREENED
+                                || new_qual == F_VERIFIED || new_qual == F_PARTIAL))
+                {
 
-                    for (k = 0; k < 4; k++) {
-                        /* if(pdata[pcpn_day].stn[isave].frain[k].qual!=1) */
+                    for (k = 0; k < 4; k++)
+                    {
                         pdata[pcpn_day].stn[isave].frain[k].qual = (short) new_qual;
                     }
 
                 }
                 /*-------------------------------------------------------*/
                 /*
-                 * if 6 hr QC code set bad by user, then some RFCs want the 24hr
-                 * QC code to be set to Bad
+                 * if 6 hr QC code set Bad by user and token value = ON, then set 24hr QC code to Bad
+                 * following code also allows 24 hr partial data to be set to Bad
                  */
-                /* others want the 24hr QC code to remain unchanged */
-                /* added token to choose behavior */
-                /* following code also allows partial data to be set as bad */
-                /* 6 hour data set bad set 24 hour bad too */
 
-                if (time_pos != HOURS_24
-                        && new_qual == F_BAD
+                if (time_pos != HOURS_24 && new_qual == F_BAD
                         && pdata[pcpn_day].stn[isave].frain[HOURS_24].qual != F_ESTIMATED
-                        && pdata[pcpn_day].stn[isave].frain[HOURS_24].data >= 0) {
-                    if (mpe_dqc_6hr_24hr_flag == 1) {
-                        System.out
-                                .println("6hr qual code set to Bad - 24hr qual code changed to Bad\n");
-                        // frain24.qual = (short) new_qual;
-                        pdata[pcpn_day].stn[isave].frain[HOURS_24].qual = (short) new_qual;
+                        && pdata[pcpn_day].stn[isave].frain[HOURS_24].data >= 0)
+                {
+                    if (mpe_dqc_6hr_24hr_flag == 1)
+                    {
+                        System.out.println(header + "6hr qual code set to Bad - 24hr qual code changed to Bad\n");
+                        pdata[pcpn_day].stn[isave].frain[HOURS_24].qual = F_BAD;
+                    }
+                    else
+                    {
+                    	System.out.println(header + "6hr qual code set to Bad - 24hr qual code unchanged\n");
                     }
                 }
 
-                /*
-                 * --------------------------------------------------------------
-                 * --
-                 */
-
-                if (pdata[pcpn_day].stn[isave].frain[4].qual == F_BAD
-                        || pdata[pcpn_day].stn[isave].frain[4].data < 0) {
-                    if (tcmode == 0) {
+                if (pdata[pcpn_day].stn[isave].frain[HOURS_24].qual == F_BAD ||
+                			pdata[pcpn_day].stn[isave].frain[HOURS_24].data < 0)
+                {
+                    if (tcmode == 0)
+                    {
                         pdata[pcpn_day].stn[isave].tcons = 1;
-                    } else {
+                    }
+                    else
+                    {
                         pdata[pcpn_day].stn[isave].tcons = -1;
                     }
                 }
-            } // end else
-        } // end else
+                
+            } // end if (value_edit_flag == true && reset_value == 0)
+            
+        } // end if (snow == true)
 
-        for (k = 0; k < 5; k++) {
+        for (k = 0; k < 5; k++)
+        {
 
-            if (k < 4) {
+            if (k < 4)
+            {
                 time_pos = pcpn_day * 4 + k;
-            } else {
+            }
+            else
+            {
                 time_pos = 40 + pcpn_day;
             }
 
-            // pcp_in_use[time_pos] = -1;
-
-            if (pdata[pcpn_day].used[k] != 0) {
+            if (pdata[pcpn_day].used[k] != 0)
+            {
                 pdata[pcpn_day].used[k] = 2;
             }
         }
-
+        
         QcPrecipOptionsDialog.dataSet.clear();
         QcPrecipOptionsDialog.dataSet.addAll(QcPrecipOptionsDialog.dataType);
         for (k = 1; k < 7; k++) {
@@ -1292,7 +1317,7 @@ public class EditPrecipStationsDialog extends AbstractMPEDialog implements
         String[] a = new String[QcPrecipOptionsDialog.dataSet.size()];
         QcPrecipOptionsDialog.setDataSetCombo(QcPrecipOptionsDialog.dataSet
                 .toArray(a));
-
+        
         if (pcpn_time_step == 0) {
             time_pos = pcp_flag;
         } else {
@@ -1320,7 +1345,6 @@ public class EditPrecipStationsDialog extends AbstractMPEDialog implements
         }
 
         QcPrecipOptionsDialog.selectDataSetVal(k);
-
         rpbutton.setEnabled(true);
 
         BadValues bv = new BadValues();
@@ -1331,20 +1355,21 @@ public class EditPrecipStationsDialog extends AbstractMPEDialog implements
          * if run DQC on partial time frame and pcpn_day=0
          */
 
-        if (pcpn_day == 0
-                && (dqc.curHr00_06 == 1
-                        || dqc.curHr06_12 == 1 || dqc.curHr18_00 == 1)) {
-            // do nothing
-        } else {
-            EstDailyStations eds = new EstDailyStations();
-            eds.estimate_daily_stations(pcpn_day, precipStationList,
-                    max_stations);
-
-            EstPartStations eps = new EstPartStations();
-            eps.estimate_partial_stations(pcpn_day, precipStationList,
-                    max_stations);
+        if (pcpn_day == 0 && (dqc.curHr00_06 == 1 || dqc.curHr06_12 == 1 || dqc.curHr18_00 == 1))
+        {
+        	// do nothing
         }
+        else
+        {
 
+        	EstDailyStations eds = new EstDailyStations();
+        	eds.estimate_daily_stations(pcpn_day, precipStationList,
+        			max_stations);
+        	EstPartStations eps = new EstPartStations();
+        	eps.estimate_partial_stations(pcpn_day, precipStationList,
+        			max_stations);
+        }
+        
         QCStations qcs = new QCStations();
         qcs.quality_control_stations(pcpn_day, precipStationList, max_stations);
 
@@ -1353,12 +1378,7 @@ public class EditPrecipStationsDialog extends AbstractMPEDialog implements
 
         bv.restore_bad_values(pcpn_day, precipStationList, max_stations);
 
-        // logMessage("new_qual again %d station qual %d\n", new_qual,
-        // pdata[pcpn_day].stn[isave].frain[4].qual);
-
-        if (k == 1 || k == 3) {
-            grids_flag = 1;
-        }
+        if (k == 1 || k == 3) grids_flag = 1;
 
         OtherPrecipOptions op = new OtherPrecipOptions();
         op.send_expose();
@@ -1485,7 +1505,6 @@ public class EditPrecipStationsDialog extends AbstractMPEDialog implements
         int k, p;
         String cstr;
         float val, fdif;
-//        int[] pcp_in_use = DailyQcUtils.pcp_in_use;
         int pcp_flag = DailyQcUtils.pcp_flag;
         Button rpbutton = QcPrecipOptionsDialog.renderGridsBtn;
         int grids_flag = DailyQcUtils.grids_flag;
@@ -1495,28 +1514,31 @@ public class EditPrecipStationsDialog extends AbstractMPEDialog implements
 
         Rain frain24 = pdata[pcpn_day].stn[isave].frain[HOURS_24];
 
-        for (k = 0; k < 5; k++) {
+        for (k = 0; k < 5; k++)
+        {
 
             Rain frain = pdata[pcpn_day].stn[isave].frain[k];
-
             cstr = precipValueStringArray[k];
             val = 0;
             p = cstr.indexOf('M');
-            if (p == -1) {
+            if (p == -1)
+            {
                 val = Float.parseFloat(cstr);
             }
 
             fdif = Math.abs(val - frain.data);
 
-            if (p != -1) {
+            if (p != -1)
+            {
                 pdata[pcpn_day].stn[isave].frain[k].data = -1;
                 p = -1;
-            } else if (fdif > .005 && p == -1) {
-
+            }
+            else if (fdif > .005 && p == -1)
+            {	
                 pdata[pcpn_day].stn[isave].frain[k].data = val;
                 pdata[pcpn_day].stn[isave].frain[k].qual = F_MANUAL;
                 pdata[pcpn_day].stn[isave].sflag[k] = -1;
-
+                
             }
             cstr = null;
         }
@@ -1549,10 +1571,6 @@ public class EditPrecipStationsDialog extends AbstractMPEDialog implements
 
         QcPrecipOptionsDialog.dataSet.clear();
         QcPrecipOptionsDialog.dataSet.addAll(QcPrecipOptionsDialog.dataType);
-        // for (k = 1; k < 7; k++) {
-        // QcPrecipOptionsDialog.dataSet.remove(QcPrecipOptionsDialog.dataSet
-        // .indexOf(QcPrecipOptionsDialog.dataType.get(k)));
-        // }
 
         if (pcpn_time_step == 0) {
             time_pos = pcp_flag;

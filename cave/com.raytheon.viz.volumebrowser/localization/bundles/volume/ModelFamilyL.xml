@@ -26,7 +26,7 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
 						<capabilities>
 							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-							<capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="1.0" contrast="1.0"/>
+							<capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.5" contrast="1.0"/>
                         </capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
 					</loadProperties>
@@ -61,7 +61,7 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					<loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="true">
 						<capabilities>
 					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-						<capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="1.0" contrast="1.0"/></capabilities>
+						<capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.5" contrast="1.0"/></capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
 					</loadProperties>
 					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
@@ -94,7 +94,7 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="true">
 						<capabilities>
 							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-						<capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="1.0" contrast="1.0"/></capabilities>
+						<capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.5" contrast="1.0"/></capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
 					</loadProperties>
 					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
@@ -127,7 +127,7 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					<loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="true">
 						<capabilities>
 							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-						<capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="1.0" contrast="1.0"/></capabilities>
+						<capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.5" contrast="1.0"/></capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
 					</loadProperties>
 					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
@@ -505,7 +505,7 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					<loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
 						<capabilities>
 							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-						    <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="1.0" contrast="1.0"/>
+						    <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.5" contrast="1.0"/>
                         </capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
 					</loadProperties>
@@ -690,7 +690,7 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 				<resource>
 					<loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
 						<capabilities>
-						<capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="1.0" contrast="1.0"/>
+						<capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.5" contrast="1.0"/>
 						<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
 						</capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
@@ -977,7 +977,7 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 				<resource>
 					<loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
 						<capabilities>
-						<capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="1.0" contrast="1.0"/>
+						<capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.5" contrast="1.0"/>
 						<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
 						</capabilities>
 						<resourceType>PLAN_VIEW</resourceType>

@@ -74,12 +74,13 @@ import com.raytheon.uf.viz.core.VizApp;
  * SOFTWARE HISTORY
  * 
  * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Sep 04, 2008  1433       chammack    Initial creation
- * Jun 03, 2013  2026       randerso    Improve error handling
- * May 05, 2015  4473       mschenke    Major refactor
- * Jun 01, 2015  4473       njensen     Major refactor, removed send ability
- * Jun 29, 2015  4473       njensen     Register notification observer on start
+ * ------------ ---------- ----------- ---------------------------------
+ * Sep 4, 2008  1433        chammack    Initial creation
+ * Jun 3, 2013  2026        randerso    Improve error handling
+ * May 05, 2015 4473        mschenke    Major refactor
+ * Jun 01, 2015 4473        njensen     Major refactor, removed send ability
+ * Jun 29, 2015 4473        njensen     Register notification observer on start
+ * Jul 4, 2015  DR 17167    dhuffman    Remove nulls from incoming xml
  *
  * </pre>
  * 
@@ -260,7 +261,7 @@ public class AlertvizJob extends Job implements AlertService {
         if (message instanceof TextMessage) {
             String xml = null;
             try {
-                xml = ((TextMessage) message).getText();
+                xml = ((TextMessage) message).getText().replace("\u0000", "");
                 StatusMessage sm = jaxb.unmarshalFromXml(StatusMessage.class,
                         xml);
                 if (sm.getEventTime() == null) {

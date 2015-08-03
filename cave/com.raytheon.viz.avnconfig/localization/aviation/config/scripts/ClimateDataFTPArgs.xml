@@ -19,7 +19,7 @@
         further_licensing_information.
     -->
 <ClimateDataFTPArgs>
-	<Site>ftp3.ncdc.noaa.gov</Site>
+	<Site>ftp.ncdc.noaa.gov</Site>
 	<DataDir>pub///data/noaa</DataDir>
 	<IshDir>/pub/data/noaa</IshDir>
 	<User>anonymous</User>

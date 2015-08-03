@@ -41,6 +41,7 @@ import com.raytheon.viz.hydrocommon.datamanager.HydroDataManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 12, 2009 2772       mpduff     Initial creation
+ * 30 June 2015 17360      xwei        Fixed : basins.dat import failed if the first line does not have Lat Lon
  * 
  * </pre>
  * 
@@ -187,7 +188,7 @@ public class GeoDataManager extends HydroDataManager {
              */
             for (int i = 0; i < data.getNumberPoints(); i++) {
                 if (i > 0) {
-                    posWeight = Math.sqrt(Math.pow((lat[i] - lat[i - 2]), 2)
+                    posWeight = Math.sqrt(Math.pow((lat[i] - lat[i - 1]), 2)
                             + Math.pow((lon[i] - lon[i - 1]), 2));
                 }
 

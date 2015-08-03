@@ -80,6 +80,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                      Changes for non-blocking FcstPointGroupDlg.
  * Feb.02, 2015 #13372      djingtao    Change from GMT time to local time for "Revise" field
  * May 15, 2015 4380        skorolev    Added issuanceStage and issuanceFlow text fields.
+ * Jul 06, 2015 #14104      lbousaidi   increased textlimit to 15 
  * 
  * </pre>
  * 
@@ -751,7 +752,7 @@ public class RiverGageDlg extends CaveSWTDialog implements
         gd = new GridData(120, SWT.DEFAULT);
         usgsNoTF = new Text(infoGroup, SWT.BORDER);
         usgsNoTF.setLayoutData(gd);
-        usgsNoTF.setTextLimit(10);
+        usgsNoTF.setTextLimit(15);
 
         // Lat/Lon Source
         gd = new GridData(SWT.FILL, SWT.CENTER, false, false);

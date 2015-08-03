@@ -30,13 +30,13 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.python.PythonLocalizationPathBuilder;
 import com.raytheon.viz.texteditor.command.ICommand;
+import com.raytheon.viz.texteditor.dialogs.TextWSMessageBox;
 
 /**
  * Text Editor Utilities.
@@ -172,9 +172,6 @@ public class TextEditorUtil {
     }
 
     public static void userInformation(Shell shell, String information) {
-        MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-        mb.setText("Notice");
-        mb.setMessage(information);
-        mb.open();
+        TextWSMessageBox.open(shell, "Notice", information);
     }
 }

@@ -320,6 +320,7 @@
 #    02APR2014       17211         zhao (code obtained from the listserver via Virgil that implements a new rule regarding CB, TS etc) 
 #    May 12, 2014    16928         zhao           Modified check_prev_time()
 #    Sep 17, 2014    16928         zhao           Added a line break "\n" to message 25 (since it appears together with message 49) 
+#    Jul 07, 2015    16973         zhao           Added 'DRSN' as valid value of sig weather
 #
 #
 import exceptions, re, time, types
@@ -477,14 +478,14 @@ _ValidVsby = { \
 _ValidObvis = dict.fromkeys(['BR', 'FG', 'FZFG', 'MIFG', 'PRFG', 'BCFG', \
     'FU', 'VA', 'HZ', 'BLPY', \
     'DU', 'DRDU', 'BLDU', \
-    'SA', 'DRSA', 'BLSA', \
+    'SA', 'DRSA', 'BLSA', 'DRSN', \
     'BLSN', 'BLSA', 'BLDU', \
     'PO', 'SQ', 'FC', '+FC', 'SS', '+SS', 'DS', '+DS'])
 
 _ValidPcp = dict.fromkeys(['-DZ', 'DZ', '+DZ', '-FZDZ', 'FZDZ', '+FZDZ', \
     '-RA', 'RA', '+RA', '-SHRA', 'SHRA', '+SHRA', \
         '-TSRA', 'TSRA', '+TSRA', '-FZRA', 'FZRA', '+FZRA', \
-    '-SN', 'SN', '+SN', '-SHSN', 'SHSN', '+SHSN', \
+    '-SN', 'SN', '+SN', '-SHSN', 'SHSN', '+SHSN', 'DRSN', \
         '-TSSN', 'TSSN', '+TSSN', \
     '-PL', 'PL', '+PL', '+SHPL', 'SHPL', '+SHPL', \
         '-TSPL', 'TSPL', '+TSPL', \

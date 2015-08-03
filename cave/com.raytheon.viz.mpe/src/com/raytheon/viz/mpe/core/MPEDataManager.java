@@ -79,6 +79,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Nov 24, 2008 1748      snaples      Added getters to MPEGageData
  * Jun 18, 2013 16053     snaples      Removed methods set and getRadarEditFlag
  * Dec 15 2013  DCS 167   cgobs        DualPol capabilities
+ * Jul 29, 2015  17471    snaples      Added logging for Radar Bias results table query.
+ * 
  * </pre>
  * 
  * @author randerso
@@ -881,6 +883,7 @@ public class MPEDataManager {
         StringBuffer sqlQuery = new StringBuffer();
         sqlQuery.append("select radid,num_gages, rad_avail, rw_bias_val_used, mem_span_used, edit_bias, ignore_radar from " + 
         				 tableName + " where obstime='" + sdf.format(date) + "' and radid in(");
+        System.out.println("Datestring actually passed in query to radar table: " + sdf.format(date));
         for (int i = 0; i < radarList.size(); i++) {
             sqlQuery.append("'");
             sqlQuery.append(radarList.get(i).getId());

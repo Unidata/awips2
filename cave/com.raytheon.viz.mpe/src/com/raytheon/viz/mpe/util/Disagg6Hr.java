@@ -59,6 +59,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Apr 20, 2009            snaples     Initial creation
  * Mar 2, 2015  15660      snaples     Fixed the disagg logging and corrected the procedure.
+ * Jul 16, 2015 17561      snaples     Updated to fix issues with QPE Grid.
  * 
  * </pre>
  * 
@@ -522,20 +523,27 @@ public class Disagg6Hr {
                         disagg_station_6hr[index].lat = disagg_station_6hr[i].lat;
                         disagg_station_6hr[index].lon = disagg_station_6hr[i].lon;
 
-                        for (k = 0; k < max_stations; k++) {
-                            if (!(disagg_station_6hr[index].hb5
-                                    .compareToIgnoreCase(station.get(k).hb5) == 0)) {
+                        for (k = 0; k < max_stations; k++)
+                        {
+                            //if (!(disagg_station_6hr[index].hb5.compareToIgnoreCase(station.get(k).hb5) == 0))
+                            if (disagg_station_6hr[index].hb5.compareToIgnoreCase(station.get(k).hb5) == 0) // fixed for DR 17561
+                            {
                                 values6hr[index].ID = disagg_station_6hr[index].hb5;
+                                //disagg_log_fd.write(String.format(" station.get(k).hb5 %s\t\n", station.get(k).hb5));
                                 for (ii = 0; ii < 4; ii++) // for 4 6hr values
                                 {
-                                    // we treat "bad" 6hr stations as missing in
-                                    // Disagg calculationa
-                                    // note that "bad" stations have a quality
-                                    // code of '1'
-                                    if ((pdata[j].stn[k].frain[ii].data >= 0)
-                                            && (pdata[j].stn[k].frain[ii].data != 1)) {
+                                    // we treat "bad" 6hr stations as missing in Disagg calculations
+                                    // note that "bad" stations have a quality code of '1'
+                                    if ((pdata[j].stn[k].frain[ii].data >= 0) && (pdata[j].stn[k].frain[ii].data != 1))
+                                    {
                                         values6hr[index].value[ii] = pdata[j].stn[k].frain[ii].data;
-                                    } else {
+                                        
+                                        // print values
+                                        //disagg_log_fd.write(String.format("  pdata[].stn[].frain[] %d\t%d\t%d\t%5.2f\n",
+                                        //		j, k, ii, pdata[j].stn[k].frain[ii].data ));
+                                    }
+                                    else
+                                    {
                                         values6hr[index].value[ii] = -9999.f;
                                     }
                                 }
@@ -598,24 +606,26 @@ public class Disagg6Hr {
 
                 index = -1;
 
-                for (i = 0; i < num_disagg_stations; i++) {
-                    for (j = 0; j < num_days_to_qc; j++) {
+                for (i = 0; i < num_disagg_stations; i++)
+                {
+                    for (j = 0; j < num_days_to_qc; j++)
+                    {
                         index = (j * num_disagg_stations) + i;
 
-                        if (values6hr[index].ID
-                                .equals(DISAGG_MISSING_STATION_SYMBOL)) {
+                        if (values6hr[index].ID.equals(DISAGG_MISSING_STATION_SYMBOL))
+                        {
                             continue;
                         }
 
-                        if (j == 0) {
-                            disagg_log_fd.write(String.format("%s \n",
-                                    disagg_station_6hr[index].hb5));
+                        if (j == 0)
+                        {
+                            disagg_log_fd.write(String.format("%s \n", disagg_station_6hr[index].hb5));
                         }
 
-                        for (ii = 0; ii < 4; ii++) {
-                            disagg_log_fd.write(String.format(
-                                    "  %d\t%d\t%5.2f\n", j, ii,
-                                    values6hr[index].value[ii]));
+                        for (ii = 0; ii < 4; ii++)
+                        {
+                            disagg_log_fd.write(String.format("  %d\t%d\t%5.2f\n", j, ii,
+                                    values6hr[index].value[ii])); 
 
                         }
                     }
@@ -672,15 +682,23 @@ public class Disagg6Hr {
                     /* j = num of rows */
                     QPEgrids = new double[6][disagg_maxy][disagg_maxx];
 
-                    for (k = 0; k < 6; k++){
-                        for (i = 0; i < disagg_maxy; i++){
-                            for (j = 0; j < disagg_maxx; j++) {
-                                QPEgrids[k][i][j] = -9.0;
+                    // fixed for DR 17561
+                    for (k = 0; k < 6; k++)
+                    {
 
-                            }
-                        }
+                    	for (i = 0; i < disagg_maxy; i++)
+                    	{
+
+                    		for (j = 0; j < disagg_maxx; j++)
+                    		{
+                    			QPEgrids[k][i][j] = -9.0;
+
+                    		}
+
+                    	}
+
                     }
-                    
+
                 }
 
                 else {

@@ -17,7 +17,10 @@
 #    03/23/15        #4103         dgilling       Save off MHSID of failed site so to fix
 #                                                 export_grids_to_failed_site script.
 #    04/29/15        #4427         dgilling       Code cleanup.
-#
+#    06/24/15        #16831        bhunder        Copy colormaps directory into localization
+#                                                 directory.
+#    06/30/15        #17443        lshi           Bug in scripts results in rsync_parms.ccc 
+#                                                 file not getting used
 ##############################################################################
 
 
@@ -175,8 +178,11 @@ cp -r GFEconfig/edex_static/site/gfe ${edex_site_dest}
 cp -r GFEconfig/edex_static/site/smartinit ${edex_site_si_dest}
 cp -r GFEconfig/cave_static/site/* ${cave_site_dest}
 
-# DR 16464
-cp -a GFEConfig/site/rsync_parms.${SITE_ID_CAPS} ${rsync_parms_dest}.${SITE_ID_CAPS}
+# DR 16831
+cp -r GFEconfig/common_static/site/colormaps ${common_site_dest}
+
+# DR 17443
+cp -a GFEConfig/site/rsync_parms.${SITE_ID_CAPS} ${rsync_parms_dest}
 echo "Files successfully copied!"
 
 echo "Changing ownership of received configuration"

@@ -374,6 +374,23 @@
         <memory-setting>
             <command-line-args>
                 <first-arg>-component</first-arg>
+                <second-arg>hydroXdat</second-arg>
+            </command-line-args>
+        
+            <ini-substitutions>
+                <max-memory>
+                    <value>256M</value>
+                </max-memory>
+            
+                <max-perm>
+                    <value>64M</value>
+                </max-perm>
+            </ini-substitutions>
+        </memory-setting>
+        
+        <memory-setting>
+            <command-line-args>
+                <first-arg>-component</first-arg>
                 <second-arg>autodqc</second-arg>
             </command-line-args>
         

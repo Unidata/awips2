@@ -167,6 +167,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 02/04/2014  17039       ryu         Removed menu item related to the HighlighFramingCodes feature.
  * 04/20/2015   4027       randerso    Renamed ProductStateEnum with an initial capital
  *                                     Expunged Calendar from ActiveTableRecord
+ * 07/02/2015  13753       lshi        Update times for products in Product Editor 
+ * 07/22/2015  13753       lshi        Keeps issue time unchanged                                 
  * </pre>
  * 
  * @author lvenable
@@ -373,6 +375,7 @@ public class ProductEditorComp extends Composite implements
     private ChangeTimesJob timeUpdater;
 
     private Listener visibilityListener;
+    
 
     /**
      * Enumeration of product types.
@@ -420,6 +423,8 @@ public class ProductEditorComp extends Composite implements
     private String prodEditorDirectory = null;
 
     private final DataManager dm;
+    
+    private boolean updateTime = false;
 
     /**
      * Constructor.
@@ -1186,16 +1191,16 @@ public class ProductEditorComp extends Composite implements
         return true;
     }
 
-    private boolean changeTimes() {
+    private synchronized boolean changeTimes() {
         Calendar GMT = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         GMT.setTime(SimulatedTime.getSystemTime().getTime());
         GMT.set(Calendar.SECOND, 0);
         Date tt = GMT.getTime();
 
+        updateTime = true;
         tweakVTEC(tt);
-
         updateIssueExpireTimes(tt);
-
+        updateTime = false;
         return true;
     }
 
@@ -1943,7 +1948,7 @@ public class ProductEditorComp extends Composite implements
         this.expireDate = cal.getTime();
         dateTimeLbl.setText(expireLabelFmt.format(expireDate));
 
-        if (!dead && !editorCorrectionMode) { // && !spellDialog) {
+        if (!dead) { //&& !editorCorrectionMode) { // && !spellDialog) {
             changeTimes();
         }
     }
@@ -1960,18 +1965,17 @@ public class ProductEditorComp extends Composite implements
         // I know this time string has been replaced. If the lengths of the
         // before and after strings are different, a reParse() will be made,
         // else it will continue on.
+        
+        
         if (textComp != null) {
+         // Update Issue time -- removed
+            
+         // Update MND time
             try {
                 textComp.startUpdate();
                 ProductDataStruct pds = textComp.getProductDataStruct();
 
                 if (pds != null) {
-                    TextIndexPoints pit = pds.getPIT();
-                    if (pit != null) {
-                        String time = purgeTimeFmt.format(now);
-                        textComp.replaceText(pit, time);
-                    }
-
                     TextIndexPoints tip = pds.getMndMap().get("nwstime");
                     if (tip != null) {
                         SimpleDateFormat fmt = new SimpleDateFormat(
@@ -1980,7 +1984,7 @@ public class ProductEditorComp extends Composite implements
                         String issueTime = fmt.format(now).toUpperCase();
 
                         if (tip != null) {
-                            textComp.replaceText(tip, issueTime);
+                           textComp.replaceText(tip, issueTime);
                         }
                     }
                 }
@@ -1994,6 +1998,8 @@ public class ProductEditorComp extends Composite implements
             // StyledTextComp to re-evaluate whether a reParse() is needed and
             // ask it for the segment information each time through the loop (in
             // case we're at one of the 4 transition points).
+            
+         // Update segments' time
             try {
                 ProductDataStruct pds = textComp.getProductDataStruct();
 
@@ -2005,6 +2011,7 @@ public class ProductEditorComp extends Composite implements
                     fmt.setTimeZone(localTimeZone);
                     String officeIssueTime = fmt.format(now).toUpperCase();
 
+                    
                     for (int i = 0; i < numSegments; i++) {
                         textComp.startUpdate();
                         HashMap<String, TextIndexPoints> segMap = pds
@@ -3055,4 +3062,9 @@ public class ProductEditorComp extends Composite implements
         callToActionsMI.setMenu(callToActionsSubMenu);
         createCallToActionsMenu(callToActionsSubMenu);
     }
+    
+    protected boolean isUpdateTime() {
+        return updateTime;
+    }
+    
 }

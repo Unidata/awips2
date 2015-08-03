@@ -41,13 +41,13 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.viz.texteditor.dialogs.SearchReplaceDlg;
+import com.raytheon.viz.texteditor.dialogs.TextWSMessageBox;
 import com.raytheon.viz.texteditor.scripting.dialogs.HelpRequestDlg.EnumHelpTypes;
 import com.raytheon.viz.texteditor.scripting.dialogs.util.FileUtilities;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
@@ -896,12 +896,10 @@ public class ScriptEditorDialog extends CaveSWTDialog implements IScriptEditor {
     private void dirtyFileHelper(String condition) {
         boolean newFile = FILE_DEFAULT.equalsIgnoreCase(this.fileName);
         if (scriptEditorDirty || (newFile && !scriptEditor.getText().isEmpty())) {
-            MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES
-                    | SWT.NO);
-            mb.setText("File Open");
-            mb.setMessage("Save the changes to document\n\"" + this.fileName
-                    + "\" " + condition + "?");
-            int response = mb.open();
+            int response = TextWSMessageBox.open(shell, "File Open",
+                    "Save the changes to document\n\"" + this.fileName + "\" "
+                            + condition + "?",
+                            SWT.ICON_QUESTION | SWT.YES | SWT.NO);
             if (response == SWT.YES) {
                 handleFileSave(newFile);
             }
