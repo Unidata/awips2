@@ -19,11 +19,16 @@
  **/
 package com.raytheon.uf.viz.acarssounding;
 
-import com.raytheon.uf.viz.volumebrowser.dataplugin.point.PointDataCatalog;
-import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
+import com.raytheon.uf.viz.core.rsc.DisplayType;
+import com.raytheon.uf.viz.d2d.nsharp.rsc.D2DNSharpResourceData;
+import com.raytheon.uf.viz.d2d.nsharp.vb.NSharpProductCreator;
+import com.raytheon.viz.volumebrowser.datacatalog.IDataCatalog;
+import com.raytheon.viz.volumebrowser.datacatalog.IDataCatalogEntry;
 
 /**
- * Volume browser catalog which enables acars sounding data to work.
+ * 
+ * Creates {@link AcarsSndNSharpResourceData} for loading acars sounding data in
+ * nsharp.
  * 
  * <pre>
  * 
@@ -31,21 +36,18 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
  * 
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------
- * Aug 19, 2013  2269     bsteffen  Initial javadoc
- * Aug 19, 2013  2269     bsteffen  Fix MDCRS data and switch acars to use
- *                                  nsharp.
- *  Aug 03, 2015  3861     bsteffen  Move resource creation to product creator
+ * Aug 03, 2015  3861     bsteffen  Initial Creation
  * 
  * </pre>
  * 
- * @author unknown
- * @version 1.0
+ * @author bsteffen
  */
-public class AcarsSoundingVbDataCatalog extends PointDataCatalog {
+public class AcarsSoundingProductCreator extends NSharpProductCreator {
 
     @Override
-    protected String[] getPlugins(ViewMenu setting) {
-        return new String[] { "acarssounding" };
+    protected D2DNSharpResourceData createNewResourceData(
+            IDataCatalog dataCatalog, IDataCatalogEntry catalogEntry,
+            DisplayType displayType) {
+        return new AcarsSndNSharpResourceData();
     }
-
 }

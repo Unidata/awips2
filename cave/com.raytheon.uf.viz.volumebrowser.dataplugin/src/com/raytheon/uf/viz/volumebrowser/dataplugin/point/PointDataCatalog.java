@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.volumebrowser.datacatalog;
+package com.raytheon.uf.viz.volumebrowser.dataplugin.point;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,22 +40,16 @@ import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.viz.core.catalog.DbQuery;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
-import com.raytheon.uf.viz.core.rsc.ResourceType;
-import com.raytheon.uf.viz.d2d.nsharp.rsc.BufruaNSharpResourceData;
-import com.raytheon.uf.viz.d2d.nsharp.rsc.GoesSndNSharpResourceData;
-import com.raytheon.uf.viz.d2d.nsharp.rsc.MdlSndNSharpResourceData;
-import com.raytheon.uf.viz.d2d.nsharp.rsc.PoesSndNSharpResourceData;
-import com.raytheon.uf.viz.objectiveanalysis.rsc.OAResourceData;
 import com.raytheon.uf.viz.points.PointsDataManager;
-import com.raytheon.uf.viz.xy.crosssection.rsc.CrossSectionResourceData;
-import com.raytheon.uf.viz.xy.timeheight.rsc.TimeHeightResourceData;
-import com.raytheon.uf.viz.xy.varheight.rsc.VarHeightResourceData;
+import com.raytheon.uf.viz.volumebrowser.dataplugin.AbstractInventoryDataCatalog;
 import com.raytheon.viz.awipstools.ToolsDataManager;
 import com.raytheon.viz.pointdata.util.AbstractPointDataInventory;
+import com.raytheon.viz.volumebrowser.datacatalog.AvailableDataRequest;
+import com.raytheon.viz.volumebrowser.datacatalog.DataCatalogEntry;
+import com.raytheon.viz.volumebrowser.datacatalog.IDataCatalogEntry;
+import com.raytheon.viz.volumebrowser.util.PointLineUtil;
 import com.raytheon.viz.volumebrowser.vbui.SelectedData;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 import com.raytheon.viz.volumebrowser.vbui.VolumeBrowserAction;
@@ -69,17 +63,18 @@ import com.vividsolutions.jts.geom.LineString;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Dec 01, 2009            bsteffen    Initial creation
- * May 08, 2013 DR14824 mgamazaychikov Added alterProductParameters method
- * May 09, 2013 1869       bsteffen    Modified D2D time series of point data to
- *                                     work without dataURI.
- * Aug 15, 2013 2258       bsteffen    Convert profiler sounding to var height
- *                                     with hodo.
- * Aug 15, 2013 2260       bsteffen    Switch poessounding to NSharp.
- * Jul 23, 2014 3410       bclement    location changed to floats
- * Sep 09, 2014 3356       njensen     Remove CommunicationException
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------
+ * Dec 01, 2009           bsteffen  Initial creation
+ * May 08, 2013  14824    mgamazay  Added alterProductParameters method
+ * May 09, 2013  1869     bsteffen  Modified D2D time series of point data to
+ *                                  work without dataURI.
+ * Aug 15, 2013  2258     bsteffen  Convert profiler sounding to var height
+ *                                  with hodo.
+ * Aug 15, 2013  2260     bsteffen  Switch poessounding to NSharp.
+ * Jul 23, 2014  3410     bclement  location changed to floats
+ * Sep 09, 2014  3356     njensen   Remove CommunicationException
+ * Aug 03, 2015  3861     bsteffen  Move resource creation to ProductCreators
  * 
  * </pre>
  * 
@@ -182,12 +177,12 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
         }
     }
 
-    protected SurfaceObsLocation getClosestStation(Coordinate coordinate,
+    public SurfaceObsLocation getClosestStation(Coordinate coordinate,
             String sourceKey) {
         return getClosestStation(coordinate, sourceKey, null);
     }
 
-    protected SurfaceObsLocation getClosestStation(Coordinate coordinate,
+    public SurfaceObsLocation getClosestStation(Coordinate coordinate,
             String sourceKey, Collection<String> ignore) {
         SurfaceObsLocation[] availableStations = getStationLocations(sourceKey);
         if ((availableStations == null) || (availableStations.length == 0)
@@ -253,12 +248,13 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
             IDataCatalogEntry catalogEntry,
             HashMap<String, RequestConstraint> productParameters,
             String constraintKey) {
-        if (!isPointLine(catalogEntry.getSelectedData().getPlanesKey())
+        if (!PointLineUtil.isPointLine(catalogEntry.getSelectedData()
+                .getPlanesKey())
                 && (catalogEntry.getDialogSettings().getViewSelection() != ViewMenu.TIMESERIES)) {
             return;
         }
         if (catalogEntry.getSelectedData().getSourcesKey().endsWith("OA")) {
-            Coordinate current = getPointCoordinate(catalogEntry);
+            Coordinate current = PointLineUtil.getPointCoordinate(catalogEntry);
             double lon0 = current.x - 5;
             double lon1 = current.y + 5;
             double lat0 = current.y - 5;
@@ -301,7 +297,8 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
             }
             productParameters.put(constraintKey, stationRC);
         } else {
-            Coordinate coordinate = getPointCoordinate(catalogEntry);
+            Coordinate coordinate = PointLineUtil
+                    .getPointCoordinate(catalogEntry);
 
             if (coordinate != null) {
                 String sourceKey = catalogEntry.getSelectedData()
@@ -404,108 +401,6 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
                 .getInstance(
                         LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
                 .getLevelMappingForKey("Station").getLevels();
-    }
-
-    @Override
-    protected AbstractRequestableResourceData getResourceData(
-            IDataCatalogEntry catalogEntry, ResourceType resourceType) {
-        String sourceKey = catalogEntry.getSelectedData().getSourcesKey();
-        String sourceText = catalogEntry.getSelectedData().getSourcesText();
-
-        switch (resourceType) {
-        case PLAN_VIEW:
-            OAResourceData rscData = new OAResourceData();
-            // TODO this should be configurable
-            if (sourceText.equals("RaobOA")) {
-                BinOffset binOffset = new BinOffset(3600, 3600);
-                rscData.setBinOffset(binOffset);
-            } else if (sourceText.equals("MetarOA")) {
-                BinOffset binOffset = new BinOffset(1800, 1800);
-                rscData.setBinOffset(binOffset);
-            }
-            rscData.setParameter(catalogEntry.getSelectedData().getFieldsKey());
-            rscData.setParameterName(catalogEntry.getSelectedData()
-                    .getFieldsText());
-            rscData.setSource(sourceText);
-            String levelKey = catalogEntry.getSelectedData().getPlanesKey();
-            rscData.setLevelKey(levelKey);
-            rscData.setRetrieveData(false);
-            rscData.setUpdatingOnMetadataOnly(true);
-            return rscData;
-        case TIME_SERIES:
-            AbstractRequestableResourceData resourceData = super
-                    .getResourceData(catalogEntry, resourceType);
-            // TODO this should be configurable, and shared with PLAN_VIEW
-            if (sourceText.equals("RaobOA")) {
-                BinOffset binOffset = new BinOffset(3600, 3600);
-                resourceData.setBinOffset(binOffset);
-            } else if (sourceText.equals("MetarOA")) {
-                BinOffset binOffset = new BinOffset(1800, 1800);
-                resourceData.setBinOffset(binOffset);
-            }
-            return resourceData;
-        case TIME_HEIGHT:
-            resourceData = getResourceData(catalogEntry, resourceType,
-                    new TimeHeightResourceData());
-
-            Coordinate coordinate = getPointCoordinate(catalogEntry);
-            SurfaceObsLocation closestLoc = getClosestStation(coordinate,
-                    sourceKey);
-            Coordinate closestCoord = new Coordinate(closestLoc.getLongitude(),
-                    closestLoc.getLatitude());
-            ((TimeHeightResourceData) resourceData)
-                    .setPointCoordinate(closestCoord);
-
-            String pointLetter = getPointLetter(catalogEntry);
-            PointsDataManager.getInstance().setCoordinate(pointLetter,
-                    closestCoord);
-            return resourceData;
-        case CROSS_SECTION:
-            resourceData = super.getResourceData(catalogEntry, resourceType);
-            List<String> closest = new ArrayList<String>();
-            String letter = catalogEntry.getSelectedData().getPlanesKey()
-                    .replace("Line", "");
-            LineString line = ToolsDataManager.getInstance()
-                    .getBaseline(letter);
-            Coordinate[] newLine = new Coordinate[line.getNumPoints()];
-            for (int i = 0; i < line.getNumPoints(); i++) {
-                SurfaceObsLocation loc = getClosestStation(
-                        line.getCoordinateN(i), sourceKey, closest);
-                if (loc == null) {
-                    break;
-                }
-                closest.add(loc.getStationId());
-                newLine[i] = new Coordinate(loc.getLongitude(),
-                        loc.getLatitude());
-            }
-            ToolsDataManager.getInstance().setBaseline(letter,
-                    line.getFactory().createLineString(newLine));
-            ((CrossSectionResourceData) resourceData).setStationIDs(closest);
-            return resourceData;
-        case SOUNDING:
-            if (getPlugin(sourceKey).equals("bufrua")) {
-                return new BufruaNSharpResourceData();
-            } else if (sourceKey.equals("modelsoundingETA")) {
-                return new MdlSndNSharpResourceData("NAMSND");
-            } else if (sourceKey.equals("modelsoundingGFS")) {
-                return new MdlSndNSharpResourceData("GFSSND");
-            } else if (sourceKey.equals("poessounding")) {
-                return new PoesSndNSharpResourceData();
-            } else if (sourceKey.equals("goessounding")) {
-                return new GoesSndNSharpResourceData();
-            } else if (sourceKey.equals("profiler")) {
-                VarHeightResourceData vhData = new VarHeightResourceData();
-                vhData.setPoint(getPointCoordinate(catalogEntry));
-                vhData.setParameter("Wind");
-                vhData.setParameterName("Wind");
-                vhData.setPointLetter(getPointLetter(catalogEntry));
-                vhData.setSource(sourceText);
-                return vhData;
-            }
-        default:
-            return super.getResourceData(catalogEntry, resourceType);
-        }
-
     }
 
     @Override
@@ -619,7 +514,7 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
                 || (viewSelection == ViewMenu.PLANVIEW)
                 || (viewSelection == ViewMenu.TIMESERIES)) {
             Set<String> results = new HashSet<String>();
-            results.addAll(getPointLineKeys());
+            results.addAll(PointLineUtil.getPointLineKeys());
             return results;
         }
         ToolsDataManager tdm = ToolsDataManager.getInstance();

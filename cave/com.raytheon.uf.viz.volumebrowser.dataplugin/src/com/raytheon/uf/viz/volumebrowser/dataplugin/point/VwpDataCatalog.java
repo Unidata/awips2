@@ -17,31 +17,30 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.volumebrowser.datacatalog;
+package com.raytheon.uf.viz.volumebrowser.dataplugin.point;
 
 import java.util.HashMap;
 import java.util.List;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
-import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.viz.core.catalog.DbQuery;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
-import com.raytheon.uf.viz.core.rsc.ResourceType;
-import com.raytheon.uf.viz.xy.varheight.rsc.VarHeightResourceData;
+import com.raytheon.viz.volumebrowser.datacatalog.IDataCatalogEntry;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 
 /**
  * 
- * Catalog for radar point data(VWP, DMD).
+ * Catalog for radar VWP data.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Dec 1, 2009            bsteffen     Initial creation
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------
+ * Dec 01, 2009           bsteffen  Initial creation
+ * Aug 03, 2015  3861     bsteffen  Move resource creation to ProductCreators
+ * 
  * 
  * </pre>
  * 
@@ -92,29 +91,5 @@ public class VwpDataCatalog extends PointDataCatalog {
         productParameters.put("productCode", new RequestConstraint("48"));
     }
 
-    protected AbstractRequestableResourceData getResourceData(
-            IDataCatalogEntry catalogEntry, ResourceType resourceType) {
-
-        AbstractRequestableResourceData resourceData = super.getResourceData(
-                catalogEntry, resourceType);
-        ;
-
-        switch (resourceType) {
-
-        case CROSS_SECTION:
-            resourceData.setBinOffset(new BinOffset(120, 120));
-            break;
-        case SOUNDING:
-            VarHeightResourceData vhData = new VarHeightResourceData();
-            vhData.setPoint(getPointCoordinate(catalogEntry));
-            vhData.setParameter("Wind");
-            vhData.setParameterName("Wind");
-            vhData.setPointLetter(getPointLetter(catalogEntry));
-            vhData.setSource(catalogEntry.getSelectedData().getSourcesText());
-            resourceData = vhData;
-            break;
-        }
-        return resourceData;
-    }
 
 }

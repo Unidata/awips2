@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.volumebrowser.datacatalog;
+package com.raytheon.uf.viz.volumebrowser.dataplugin.point;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,6 +36,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.pointdata.StaticPlotInfoPV;
 import com.raytheon.viz.pointdata.StaticPlotInfoPV.SPIEntry;
+import com.raytheon.viz.volumebrowser.datacatalog.AvailableDataRequest;
+import com.raytheon.viz.volumebrowser.datacatalog.DelegateAvailableRequest;
 import com.raytheon.viz.volumebrowser.vbui.SelectedData;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 import com.raytheon.viz.volumebrowser.xml.VbSource;
@@ -48,15 +50,16 @@ import com.raytheon.viz.volumebrowser.xml.VbSourceList;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Sep 28, 2011            mschenke     Initial creation
- * May 02, 2013 1949       bsteffen    Force ModelSounding in Vb to play nicely
- *                                     with others.
- * Jul 23, 2014 3410       bclement    location changed to floats
- * Aug 19, 2014 3506       mapeters    Modified getTypeMap function to still get 
- *                                     correct VB sources after splitting them 
- *                                     into multiple files.
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------
+ * Sep 28, 2011           mschenke  Initial creation
+ * May 02, 2013  1949     bsteffen  Force ModelSounding in Vb to play nicely
+ *                                  with others.
+ * Jul 23, 2014  3410     bclement  location changed to floats
+ * Aug 19, 2014  3506     mapeters  Modified getTypeMap function to still get 
+ *                                  correct VB sources after splitting them 
+ *                                  into multiple files.
+ * Aug 03, 2015  3861     bsteffen  Move to volumebrowser.dataplugin plugin.
  * 
  * </pre>
  * 

@@ -17,12 +17,13 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.volumebrowser.datacatalog;
+package com.raytheon.uf.viz.volumebrowser.dataplugin.grid;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import com.raytheon.uf.viz.core.rsc.DisplayType;
+import com.raytheon.viz.volumebrowser.datacatalog.DataCatalogEntry;
 import com.raytheon.viz.volumebrowser.vbui.SelectedData;
 
 /**
@@ -33,9 +34,10 @@ import com.raytheon.viz.volumebrowser.vbui.SelectedData;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Sep 25, 2012            bsteffen     Initial javadoc
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------
+ * Sep 25, 2012           bsteffen  Initial javadoc
+ * Aug 03, 2015  3861     bsteffen  Move to new plugin
  * 
  * </pre>
  * 

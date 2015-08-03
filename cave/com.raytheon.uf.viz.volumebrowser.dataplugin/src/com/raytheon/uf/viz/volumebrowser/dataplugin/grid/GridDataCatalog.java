@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.volumebrowser.datacatalog;
+package com.raytheon.uf.viz.volumebrowser.dataplugin.grid;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Set;
 
@@ -36,7 +35,6 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.referencing.operation.MathTransform;
 
-import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.uf.common.dataplugin.level.util.LevelUtilities;
@@ -47,20 +45,15 @@ import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.drawables.ResourcePair;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
-import com.raytheon.uf.viz.core.rsc.ResourceType;
-import com.raytheon.uf.viz.d2d.nsharp.rsc.D2DNSharpResourceData;
-import com.raytheon.uf.viz.d2d.nsharp.rsc.GribNSharpResourceData;
 import com.raytheon.uf.viz.points.PointsDataManager;
+import com.raytheon.uf.viz.volumebrowser.dataplugin.AbstractInventoryDataCatalog;
 import com.raytheon.viz.awipstools.ToolsDataManager;
 import com.raytheon.viz.grid.inv.GridInventory;
-import com.raytheon.viz.grid.rsc.GridNameGenerator;
-import com.raytheon.viz.grid.rsc.GridResourceData;
 import com.raytheon.viz.grid.util.CoverageUtils;
 import com.raytheon.viz.grid.xml.FieldDisplayTypesFactory;
+import com.raytheon.viz.volumebrowser.datacatalog.IDataCatalogEntry;
+import com.raytheon.viz.volumebrowser.util.PointLineUtil;
 import com.raytheon.viz.volumebrowser.vbui.MenuItemManager;
 import com.raytheon.viz.volumebrowser.vbui.SelectedData;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.SpaceTimeMenu;
@@ -70,24 +63,25 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
 
 /**
- * Implements the IDataCatalog interface for grib data.
+ * Implements the IDataCatalog interface for grid data.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 27, 2009 2161       lvenable    Initial creation
- * Oct 21, 2009 1711       bsteffen    Updated Baseline and Points to use new
- *                                     ToolsDataManager
- * Nov 17, 2009 3120       rjpeter     Updated to use LevelMappingFactory.
- * Jul 31, 2012 875        rferrel     Now uses points.
- * May 30, 2013 2055       bsteffen    Remove modelName from sounding pointName.
- * Dec 06, 2013 2271       mpduff      Added check for null coordinate.
- * Jan 30, 2014 #2725      ekladstrup  updated exception handling during move of derived
- *                                     parameters to common
- * Mar 11, 2014 #2718      randerso    Changes for GeoTools 10.5
- * Sep 09, 2014  3356      njensen     Remove CommunicationException
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------
+ * May 27, 2009  2161     lvenable  Initial creation
+ * Oct 21, 2009  1711     bsteffen  Updated Baseline and Points to use new
+ *                                  ToolsDataManager
+ * Nov 17, 2009  3120     rjpeter   Updated to use LevelMappingFactory.
+ * Jul 31, 2012  875      rferrel   Now uses points.
+ * May 30, 2013  2055     bsteffen  Remove modelName from sounding pointName.
+ * Dec 06, 2013  2271     mpduff    Added check for null coordinate.
+ * Jan 30, 2014  2725     ekladstr  updated exception handling during move of derived
+ *                                  parameters to common
+ * Mar 11, 2014  2718     randerso  Changes for GeoTools 10.5
+ * Sep 09, 2014  3356     njensen   Remove CommunicationException
+ * Aug 03, 2015  3861     bsteffen  Move resource creation to ProductCreators
  * 
  * </pre>
  * 
@@ -255,83 +249,6 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
         return new String[] { GridInventory.PLUGIN_NAME };
     }
 
-    @Override
-    protected AbstractRequestableResourceData getResourceData(
-            IDataCatalogEntry catalogEntry, ResourceType resourceType) {
-
-        AbstractRequestableResourceData rscData = null;
-
-        switch (resourceType) {
-        case PLAN_VIEW:
-            GridResourceData gRscData = new GridResourceData();
-
-            if (catalogEntry.getDialogSettings().getSpaceTimeSelection() == SpaceTimeMenu.SPACE) {
-                gRscData.setSpatial(true);
-            } else {
-                gRscData.setNameGenerator(new GridNameGenerator(catalogEntry
-                        .getSelectedData().getPlanesText()));
-            }
-            rscData = gRscData;
-
-            break;
-
-        case SOUNDING:
-            D2DNSharpResourceData tmpData = new GribNSharpResourceData(
-                    catalogEntry.getSelectedData().getSourcesKey());
-            tmpData.setCoordinate(getPointCoordinate(catalogEntry));
-            String pointName = catalogEntry.getSelectedData().getPlanesKey();
-            tmpData.setPointName(pointName);
-            rscData = tmpData;
-            break;
-        default:
-            rscData = super.getResourceData(catalogEntry, resourceType);
-        }
-
-        return rscData;
-    }
-
-    @Override
-    public Collection<ResourcePair> getResourcesToLoad(
-            IDataCatalogEntry catalogEntry, ResourceType resourceType,
-            DisplayType displayType) {
-        Map<String, RequestConstraint> metadataMap = getProductParameters(catalogEntry);
-
-        List<String> ensemebles = null;
-        try {
-            ensemebles = getGridInventory().getEnsembles(metadataMap);
-        } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error occured during perturbation query.", e);
-        }
-        if ((ensemebles != null) && (ensemebles.size() > 1)) {
-            Collections.sort(ensemebles);
-            Collection<ResourcePair> requests = new ArrayList<ResourcePair>();
-            for (String ensemble : ensemebles) {
-                Collection<ResourcePair> origRequests = super
-                        .getResourcesToLoad(catalogEntry, resourceType,
-                                displayType);
-                for (ResourcePair request : origRequests) {
-                    ((AbstractRequestableResourceData) request
-                            .getResourceData()).getMetadataMap().put(
-                            GridConstants.ENSEMBLE_ID,
-                            new RequestConstraint(ensemble.toString()));
-                    requests.add(request);
-                }
-            }
-            return requests;
-        } else {
-            return super.getResourcesToLoad(catalogEntry, resourceType,
-                    displayType);
-        }
-    }
-
-    /**
-     * @return
-     */
-    private GridInventory getGridInventory() {
-        return (GridInventory) getInventory();
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -483,7 +400,7 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
                 || (viewSelection == ViewMenu.TIMESERIES)) {
             Set<String> results = new HashSet<String>();
             results.addAll(MenuItemManager.getInstance().getLatLonKeys());
-            results.addAll(getPointLineKeys());
+            results.addAll(PointLineUtil.getPointLineKeys());
             return results;
         }
         ToolsDataManager tdm = ToolsDataManager.getInstance();
@@ -497,7 +414,7 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
                     Set<String> results = new HashSet<String>();
                     results.addAll(MenuItemManager.getInstance()
                             .getLatLonKeys());
-                    results.addAll(getPointLineKeys());
+                    results.addAll(PointLineUtil.getPointLineKeys());
                     return results;
                 }
                 for (GridCoverage coverage : coverages) {

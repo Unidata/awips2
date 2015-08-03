@@ -17,7 +17,10 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.volumebrowser.datacatalog;
+package com.raytheon.uf.viz.volumebrowser.dataplugin.point;
+
+import com.raytheon.viz.volumebrowser.datacatalog.AvailableDataRequest;
+import com.raytheon.viz.volumebrowser.datacatalog.DelegateAvailableRequest;
 
 /**
  * 
@@ -31,6 +34,7 @@ package com.raytheon.viz.volumebrowser.datacatalog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 25, 2011            bsteffen     Initial creation
+ * Aug 03, 2015  3861      bsteffen     Move to volumebrowser.dataplugin plugin.
  * 
  * </pre>
  * 

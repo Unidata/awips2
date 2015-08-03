@@ -19,14 +19,11 @@
  **/
 package com.raytheon.viz.volumebrowser.datacatalog;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
-import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.viz.volumebrowser.vbui.SelectedData;
 
 /**
@@ -37,9 +34,10 @@ import com.raytheon.viz.volumebrowser.vbui.SelectedData;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 27, 2009 #2161      lvenable     Initial creation
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------
+ * May 27, 2009  2161     lvenable  Initial creation
+ * Aug 03, 2015  3861     bsteffen  Move resource creation to ProductCreators
  * 
  * </pre>
  * 
@@ -89,22 +87,6 @@ public interface IDataCatalog {
      * @throws InterruptedException
      */
     void getAvailableData(AvailableDataRequest request);
-
-    /**
-     * Get the Request object for a single catalog Entry
-     * 
-     * @param catalogEntry
-     *            the catalog entry for which to obtain a request
-     * @param resourceType
-     *            the type of request
-     * @param displayType
-     *            display an image, or contour, etc
-     * @return a request that can be used along with the editor returned from
-     *         the getEditor() method to request a catalogEntry to be fetched,
-     *         loaded, and displayed on the display.
-     */
-    Collection<ResourcePair> getResourcesToLoad(IDataCatalogEntry catalogEntry,
-            ResourceType resourceType, DisplayType displayType);
 
     /**
      * Get all possible sources for which this catalog can provide data

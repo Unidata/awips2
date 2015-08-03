@@ -19,9 +19,6 @@
  **/
 package com.raytheon.viz.volumebrowser.vbui;
 
-import gov.noaa.nws.ncep.ui.nsharp.display.NsharpSkewTPaneDescriptor;
-import gov.noaa.nws.ncep.ui.nsharp.display.NsharpSkewTPaneDisplay;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -30,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -59,49 +55,14 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.ui.IEditorPart;
 
-import com.raytheon.uf.viz.core.DescriptorMap;
-import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
-import com.raytheon.uf.viz.core.drawables.ResourcePair;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.map.MapDescriptor;
-import com.raytheon.uf.viz.core.maps.actions.NewMapEditor;
-import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
-import com.raytheon.uf.viz.core.rsc.ResourceType;
-import com.raytheon.uf.viz.d2d.nsharp.rsc.D2DNSharpResourceData;
-import com.raytheon.uf.viz.xy.crosssection.display.CrossSectionDescriptor;
-import com.raytheon.uf.viz.xy.crosssection.display.CrossSectionRenderableDisplay;
-import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightDescriptor;
-import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightDescriptor.TimeDirection;
-import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightRenderableDisplay;
-import com.raytheon.uf.viz.xy.timeseries.display.TimeSeriesRenderableDisplay;
-import com.raytheon.uf.viz.xy.varheight.display.VarHeightDescriptor;
-import com.raytheon.uf.viz.xy.varheight.display.VarHeightRenderableDisplay;
-import com.raytheon.uf.viz.xy.varheight.hodo.VarHeightHodoDescriptor;
-import com.raytheon.uf.viz.xy.varheight.rsc.VarHeightResourceData;
-import com.raytheon.viz.awipstools.ToolsDataManager;
-import com.raytheon.viz.core.rsc.ICombinedResourceData;
-import com.raytheon.viz.core.rsc.ICombinedResourceData.CombineOperation;
-import com.raytheon.viz.core.slice.request.HeightScales;
-import com.raytheon.viz.ui.BundleProductLoader;
-import com.raytheon.viz.ui.EditorUtil;
-import com.raytheon.viz.ui.UiUtil;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
-import com.raytheon.viz.ui.editor.AbstractEditor;
-import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 import com.raytheon.viz.volumebrowser.datacatalog.DataCatalogManager;
 import com.raytheon.viz.volumebrowser.datacatalog.IDataCatalogEntry;
-import com.raytheon.viz.volumebrowser.util.CrossSectionUtil;
-import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.LeftRightMenu;
-import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.SpaceTimeMenu;
+import com.raytheon.viz.volumebrowser.loader.ProductLoader;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
 
 /**
  * 
@@ -110,17 +71,20 @@ import com.vividsolutions.jts.geom.LineString;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 08, 2009 2161       lvenable    Initial creation
- * Mar 27, 2012 14506      Qinglu Lin  For cross section plot along a line of
- *                                     latitude, swap xStart and xEnd.
- * Jan 16, 2013 1492       rferrel     Changes for non-blocking InventoryDlg.
- * Jan 25, 2013 15529      kshresth    Fixed cross section "Unhandled event loop
- *                                     exception"  when loading contours and
- *                                     Image combo
- * Aug 20, 2013 2259       bsteffen    Delete old skewt plugin.
- * Feb 12, 2015 4105       rferrel     Remove duplicate update of table item in addProduct.
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------
+ * Jun 08, 2009  2161     lvenable  Initial creation
+ * Mar 27, 2012  14506    qlin      For cross section plot along a line of
+ *                                  latitude, swap xStart and xEnd.
+ * Jan 16, 2013  1492     rferrel   Changes for non-blocking InventoryDlg.
+ * Jan 25, 2013  15529    kshresth  Fixed cross section "Unhandled event loop
+ *                                  exception"  when loading contours and Image
+ *                                  combo
+ * Aug 20, 2013  2259     bsteffen  Delete old skewt plugin.
+ * Feb 12, 2015  4105     rferrel   Remove duplicate update of table item in
+ *                                  addProduct.
+ * Aug 03, 2015  3861     bsteffen  Move product loading to ProductLoader
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -691,28 +655,18 @@ public class ProductTableComp extends Composite {
 
                             ProductTableData productTableData = tableDataArray
                                     .get(indexOf);
-                            DisplayType currentDisplayType = productTableData
-                                    .getDisplayTypeSet().iterator().next();
 
-                            productTableData.getDisplayTypeSet().clear();
-
+                            ProductLoader loader = new ProductLoader();
                             for (DisplayType displayType : productTableData
                                     .getSelectedData().getDisplayTypes()) {
-
-                                productTableData.getDisplayTypeSet().add(
+                                loader.addProduct(
+                                        productTableData.getCatalogEntry(),
                                         displayType);
 
                             }
-                            List<ResourcePair> resources = productTableData
-                                    .getResourcesToLoad();
-                            loadResources(false, resources);
+                            loader.load();
 
                             unselectProduct(indexOf);
-
-                            productTableData.getDisplayTypeSet().clear();
-                            productTableData.getDisplayTypeSet().add(
-                                    currentDisplayType);
-
                             updateLoadButtonAndProductLabels();
                         }
 
@@ -859,242 +813,23 @@ public class ProductTableComp extends Composite {
      */
     private void loadProducts(boolean difference) {
         int[] prodIndexes = prodSelTable.getSelectionIndices();
+        ProductLoader loader = new ProductLoader();
 
-        List<ResourcePair> resources = new ArrayList<ResourcePair>(
-                prodIndexes.length);
         for (int i = 0; i < prodIndexes.length; i++) {
             ProductTableData productData = tableDataArray.get(prodIndexes[i]);
-            resources.addAll(productData.getResourcesToLoad());
+            for (DisplayType displayType : productData.getDisplayTypeSet()) {
+                loader.addProduct(productData.getCatalogEntry(), displayType);
+            }
         }
-
-        loadResources(difference, resources);
+        if (difference) {
+            loader.loadDifference();
+        } else {
+            loader.load();
+        }
 
         unselectProduct(prodIndexes);
 
         updateLoadButtonAndProductLabels();
-    }
-
-    private void loadResources(boolean difference,
-            List<ResourcePair> resourceList) {
-        if (difference) {
-            try {
-                ((ICombinedResourceData) resourceList.get(0).getResourceData())
-                        .setSecondaryData(resourceList.get(1).getResourceData());
-                ((ICombinedResourceData) resourceList.get(0).getResourceData())
-                        .setCombineOperation(CombineOperation.DIFFERENCE);
-                resourceList.remove(1);
-            } catch (Exception e) {
-                resourceList.clear();
-                throw new RuntimeException(
-                        "Unable to obtain a difference request", e);
-            }
-        }
-        VolumeBrowserDialogSettings dialogSettings = VolumeBrowserAction
-                .getVolumeBrowserDlg().getDialogSettings();
-
-        ResourceType resourceType = dialogSettings.getViewSelection()
-                .getResourceType();
-
-        AbstractRenderableDisplay display = null;
-
-        switch (resourceType) {
-        case PLAN_VIEW:
-            String editorId = DescriptorMap.getEditorId(MapDescriptor.class
-                    .getName());
-
-            IEditorPart editorPart = EditorUtil.findEditor(editorId);
-            if (editorPart == null) {
-                try {
-                    new NewMapEditor().execute(null);
-                } catch (ExecutionException e) {
-                    throw new RuntimeException(e);
-                }
-                editorPart = EditorUtil.findEditor(editorId);
-            }
-            AbstractEditor editor = (AbstractEditor) editorPart;
-            display = (AbstractRenderableDisplay) editor.getActiveDisplayPane()
-                    .getRenderableDisplay().createNewDisplay();
-            try {
-                display.setDescriptor(new MapDescriptor());
-            } catch (VizException e) {
-                throw new RuntimeException(e);
-            }
-            break;
-        case CROSS_SECTION:
-            CrossSectionRenderableDisplay csDisplay = new CrossSectionRenderableDisplay();
-            CrossSectionDescriptor csDesc = csDisplay.getDescriptor();
-            csDesc.setRenderableDisplay(csDisplay);
-
-            selectNewTableItem();
-
-            IDataCatalogEntry catalogEntry = getSelectedData().get(0)
-                    .getCatalogEntry();
-            VBMenuBarItemsMgr.SpaceTimeMenu currentSpaceTime = dialogSettings
-                    .getSpaceTimeSelection();
-            String selectedPlaneKey = catalogEntry.getSelectedData()
-                    .getPlanesKey();
-
-            // the selected Plane in Time setting will be either a Baseline or a
-            // Lat/Lon Line
-            if (currentSpaceTime == SpaceTimeMenu.TIME) {
-                java.awt.Rectangle coverageRectangle = VbUtil
-                        .getMapCoverageRectangle();
-                LineString line = null;
-
-                if (selectedPlaneKey.startsWith("Lon")) {
-                    double yEnd, yStart, xEnd, xStart;
-                    yEnd = coverageRectangle.getMinY();
-                    yStart = coverageRectangle.getMaxY();
-                    xEnd = Double.parseDouble(selectedPlaneKey.replace("Lon",
-                            ""));
-                    xStart = xEnd;
-                    line = (new GeometryFactory())
-                            .createLineString(new Coordinate[] {
-                                    new Coordinate(xStart, yStart),
-                                    new Coordinate(xEnd, yEnd) });
-                } else if (selectedPlaneKey.startsWith("Lat")) {
-                    double yEnd, yStart, xEnd, xStart;
-                    xStart = coverageRectangle.getMinX();
-                    xEnd = coverageRectangle.getMaxX();
-                    yEnd = Double.parseDouble(selectedPlaneKey.replace("Lat",
-                            ""));
-                    yStart = yEnd;
-                    line = (new GeometryFactory())
-                            .createLineString(new Coordinate[] {
-                                    new Coordinate(xStart, yStart),
-                                    new Coordinate(xEnd, yEnd) });
-
-                }
-                // assume we have selected a baseline
-                else {
-                    ToolsDataManager dataManager = ToolsDataManager
-                            .getInstance();
-
-                    line = dataManager.getBaseline(selectedPlaneKey.replace(
-                            "Line", ""));
-                    // default to Baseline A if all else fails
-
-                    if (line == null) {
-                        line = dataManager.getBaseline("A");
-                    }
-
-                }
-
-                // set the line at which the results are displayed
-                csDesc.setLines(Arrays.asList(line));
-                csDesc.setLineID(catalogEntry.getSelectedData().getPlanesText());
-            } else if (currentSpaceTime == SpaceTimeMenu.SPACE) {
-                if (selectedPlaneKey.equals("LATS")) {
-                    csDesc.setLines(CrossSectionUtil.getAllLats());
-                    csDesc.setLineID("AllLAT");
-                } else if (selectedPlaneKey.equals("LONS")) {
-                    csDesc.setLines(CrossSectionUtil.getAllLons());
-                    csDesc.setLineID("AllLON");
-                }
-            }
-            csDesc.setHeightScale(dialogSettings.getHeightScaleSelection());
-            display = csDisplay;
-            break;
-        case VAR_HEIGHT:
-            VarHeightRenderableDisplay vhDisplay = new VarHeightRenderableDisplay();
-            VarHeightDescriptor vhDesc = vhDisplay.getDescriptor();
-            vhDesc.setRenderableDisplay(vhDisplay);
-            vhDesc.setHeightScale(dialogSettings.getHeightScaleSelection());
-            display = vhDisplay;
-            break;
-        case TIME_SERIES:
-            display = new TimeSeriesRenderableDisplay();
-            break;
-        case TIME_HEIGHT:
-            TimeHeightRenderableDisplay thDisplay = new TimeHeightRenderableDisplay();
-            TimeHeightDescriptor thDesc = thDisplay.getDescriptor();
-            thDesc.setRenderableDisplay(thDisplay);
-            thDesc.setHeightScale(dialogSettings.getHeightScaleSelection());
-            LeftRightMenu leftRightMenu = dialogSettings
-                    .getTimeDirectionSelection();
-            if (leftRightMenu == LeftRightMenu.LEFT) {
-                thDesc.timeDirection = TimeDirection.RIGHT_TO_LEFT;
-            } else {
-                thDesc.timeDirection = TimeDirection.LEFT_TO_RIGHT;
-            }
-            display = thDisplay;
-            break;
-        case SOUNDING:
-            // need to handle both legacy skeqwT and nsharp skewT at the same
-            // time.
-            List<ResourcePair> varheightSkewtResources = new ArrayList<ResourcePair>();
-            List<ResourcePair> nsharpSkewtResources = new ArrayList<ResourcePair>();
-            for (ResourcePair pair : resourceList) {
-                if (pair.getResourceData() instanceof D2DNSharpResourceData) {
-                    nsharpSkewtResources.add(pair);
-                } else if (pair.getResourceData() instanceof VarHeightResourceData) {
-                    varheightSkewtResources.add(pair);
-                }
-            }
-            if (!nsharpSkewtResources.isEmpty()) {
-                display = new NsharpSkewTPaneDisplay();
-                display.setDescriptor(new NsharpSkewTPaneDescriptor());
-                if (!varheightSkewtResources.isEmpty()) {
-                    resourceList.removeAll(varheightSkewtResources);
-                    loadResources(difference, varheightSkewtResources);
-                }
-            } else {
-                VarHeightRenderableDisplay vhhDisplay = new VarHeightRenderableDisplay();
-                VarHeightHodoDescriptor vhhDesc = new VarHeightHodoDescriptor();
-                vhhDisplay.setDescriptor(vhhDesc);
-                vhhDesc.setRenderableDisplay(vhhDisplay);
-                vhhDesc.setHeightScale(HeightScales.fromName("Log 1050-150"));
-                display = vhhDisplay;
-            }
-            break;
-        }
-
-        String editorId = DescriptorMap.getEditorId(display.getDescriptor()
-                .getClass().getName());
-
-        IEditorPart activeEditor = EditorUtil.getActiveEditor();
-        AbstractEditor editor = UiUtil.createOrOpenEditor(editorId,
-                display.cloneDisplay());
-
-        if (editor != null) {
-            if (activeEditor != null && editor != activeEditor
-                    && activeEditor instanceof IMultiPaneEditor
-                    && editor instanceof IMultiPaneEditor) {
-                IMultiPaneEditor activeMpe = (IMultiPaneEditor) activeEditor;
-                IMultiPaneEditor mpe = (IMultiPaneEditor) editor;
-
-                if (mpe.getNumberofPanes() < activeMpe.getNumberofPanes()) {
-                    for (int i = mpe.getNumberofPanes(); i < activeMpe
-                            .getNumberofPanes(); ++i) {
-                        mpe.addPane(display.createNewDisplay());
-                    }
-
-                    IDisplayPane selectedPane = activeMpe
-                            .getSelectedPane(IMultiPaneEditor.LOAD_ACTION);
-                    if (selectedPane != null) {
-                        IDisplayPane[] allPanes = activeMpe.getDisplayPanes();
-                        for (int i = 0; i < allPanes.length; ++i) {
-                            if (selectedPane == allPanes[i]) {
-                                IDisplayPane newSelectedPane = mpe
-                                        .getDisplayPanes()[i];
-                                mpe.setSelectedPane(
-                                        IMultiPaneEditor.LOAD_ACTION,
-                                        newSelectedPane);
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-            for (ResourcePair pair : resourceList) {
-                display.getDescriptor().getResourceList().add(pair);
-            }
-
-            Bundle b = new Bundle();
-            b.setDisplays(new AbstractRenderableDisplay[] { display });
-            Job j = new BundleProductLoader(editor, b);
-            j.schedule();
-        }
     }
 
     /**
@@ -1118,8 +853,11 @@ public class ProductTableComp extends Composite {
      */
     private void loadSingleProduct(int selectedItemIndex) {
         ProductTableData productData = tableDataArray.get(selectedItemIndex);
-        List<ResourcePair> resources = productData.getResourcesToLoad();
-        loadResources(false, resources);
+        ProductLoader loader = new ProductLoader();
+        for (DisplayType displayType : productData.getDisplayTypeSet()) {
+            loader.addProduct(productData.getCatalogEntry(), displayType);
+        }
+        loader.load();
         unselectProduct(selectedItemIndex);
         updateLoadButtonAndProductLabels();
     }

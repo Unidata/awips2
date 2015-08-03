@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.volumebrowser.datacatalog;
+package com.raytheon.uf.viz.volumebrowser.dataplugin;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,6 +45,10 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.datacube.DataCubeContainer;
+import com.raytheon.viz.volumebrowser.datacatalog.AbstractDataCatalog;
+import com.raytheon.viz.volumebrowser.datacatalog.AvailableDataRequest;
+import com.raytheon.viz.volumebrowser.datacatalog.IDataCatalog;
+import com.raytheon.viz.volumebrowser.util.PointLineUtil;
 import com.raytheon.viz.volumebrowser.vbui.DataListsProdTableComp.DataSelection;
 import com.raytheon.viz.volumebrowser.vbui.MenuItemManager;
 import com.raytheon.viz.volumebrowser.vbui.SelectedData;
@@ -52,19 +56,21 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 import com.raytheon.viz.volumebrowser.vbui.VolumeBrowserAction;
 
 /**
- * TODO Add Description
+ * Base {@link IDataCatalog} for plugin types that use an
+ * {@link AbstractInventory} to track parameter availability.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 14, 2010            bsteffen    Initial creation
- * Jul 25, 2013 2112       bsteffen    Fix volume browser sounding errors.
- * Jan 30, 2014  #2725     ekladstrup  updated exception handling during move of derived
- *                                     parameters to common
- * Sep 09, 2014  3356      njensen     Remove CommunicationException
- * May 18, 2015  4412     bsteffen     Use all level mappings for plane names
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------
+ * Apr 14, 2010           bsteffen  Initial creation
+ * Jul 25, 2013  2112     bsteffen  Fix volume browser sounding errors.
+ * Jan 30, 2014  2725     ekladstr  updated exception handling during move of derived
+ *                                  parameters to common
+ * Sep 09, 2014  3356     njensen   Remove CommunicationException
+ * May 18, 2015  4412     bsteffen  Use all level mappings for plane names
+ * Aug 03, 2015  3861     bsteffen  Move resource creation to ProductCreators
  * 
  * </pre>
  * 
@@ -223,13 +229,13 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
     protected Collection<String> get3DPlanes(Collection<String> sources) {
         Set<String> results = new HashSet<String>();
         if (sources == null || sources.isEmpty()) {
-            results.addAll(getPointLineKeys());
+            results.addAll(PointLineUtil.getPointLineKeys());
             results.addAll(MenuItemManager.getInstance().getLatLonKeys());
         } else {
             List<String> allSources = getSupportedSourcesInternal();
             for (String source : sources) {
                 if (allSources.contains(source)) {
-                    results.addAll(getPointLineKeys());
+                    results.addAll(PointLineUtil.getPointLineKeys());
                     results.addAll(MenuItemManager.getInstance()
                             .getLatLonKeys());
                 }

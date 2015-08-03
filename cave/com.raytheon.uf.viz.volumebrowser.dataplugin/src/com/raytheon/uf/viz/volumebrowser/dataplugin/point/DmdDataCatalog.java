@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.volumebrowser.datacatalog;
+package com.raytheon.uf.viz.volumebrowser.dataplugin.point;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,19 +28,45 @@ import java.util.List;
 import java.util.Set;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.viz.volumebrowser.datacatalog.AbstractDataCatalog;
+import com.raytheon.viz.volumebrowser.datacatalog.AvailableDataRequest;
+import com.raytheon.viz.volumebrowser.datacatalog.DataCatalogEntry;
+import com.raytheon.viz.volumebrowser.datacatalog.IDataCatalogEntry;
+import com.raytheon.viz.volumebrowser.util.PointLineUtil;
 import com.raytheon.viz.volumebrowser.vbui.SelectedData;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 
+/**
+ * 
+ * Implements the IDataCatalog interface for dmd data.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Aug 3, 2015            bsteffen     Initial javadoc
+ * 
+ * </pre>
+ * 
+ * @author bsteffen
+ * @version 1.0
+ */
 public class DmdDataCatalog extends AbstractDataCatalog {
 
     private static final String[] fieldPlanePairs = { "LowLyr:ShrMag",
             "MaxShear:ShrMag", "LowLyr:wDiv", "MidLyr:wDiv", "LowLyr:g2gsh",
             "LowLyr:RRV", "MaxWind:RRV", "LowLyr:diam", "Layer:sRank",
             "LowLyr:GH", "MaxWind:GH", "MaxShear:GH", "HiLyr:GH", "LowLyr:P",
-            "MaxWind:P", "MaxShear:P", "HiLyr:P", POINT_LINE_KEY + ":ShrMag",
-            POINT_LINE_KEY + ":wDiv", POINT_LINE_KEY + ":g2gsh",
-            POINT_LINE_KEY + ":RRV", POINT_LINE_KEY + ":diam",
-            POINT_LINE_KEY + ":GH", POINT_LINE_KEY + ":P" };
+            "MaxWind:P", "MaxShear:P", "HiLyr:P",
+            PointLineUtil.POINT_LINE_KEY + ":ShrMag",
+            PointLineUtil.POINT_LINE_KEY + ":wDiv",
+            PointLineUtil.POINT_LINE_KEY + ":g2gsh",
+            PointLineUtil.POINT_LINE_KEY + ":RRV",
+            PointLineUtil.POINT_LINE_KEY + ":diam",
+            PointLineUtil.POINT_LINE_KEY + ":GH",
+            PointLineUtil.POINT_LINE_KEY + ":P" };
 
     @Override
     protected void addProductParameters(IDataCatalogEntry catalogEntry,
@@ -72,7 +98,7 @@ public class DmdDataCatalog extends AbstractDataCatalog {
 
         if (!getAvailablePlanes(selectedSources, selectedFields).contains(
                 selectedData.getPlanesKey())
-                && !isPointLine(selectedData.getPlanesKey())) {
+                && !PointLineUtil.isPointLine(selectedData.getPlanesKey())) {
             return null;
         }
 
@@ -107,13 +133,14 @@ public class DmdDataCatalog extends AbstractDataCatalog {
             List<String> planes = Arrays.asList(selectedPlanes);
             boolean hasPointLine = false;
             for (String plane : planes) {
-                hasPointLine = hasPointLine || isPointLine(plane);
+                hasPointLine = hasPointLine || PointLineUtil.isPointLine(plane);
             }
             for (String fieldPlanePair : fieldPlanePairs) {
                 String[] split = fieldPlanePair.split(":");
                 if (planes.isEmpty() || planes.contains(split[0])) {
                     fields.add(split[1]);
-                } else if (hasPointLine && split[0].equals(POINT_LINE_KEY)) {
+                } else if (hasPointLine
+                        && split[0].equals(PointLineUtil.POINT_LINE_KEY)) {
                     fields.add(split[1]);
                 }
             }
@@ -131,8 +158,8 @@ public class DmdDataCatalog extends AbstractDataCatalog {
             for (String fieldPlanePair : fieldPlanePairs) {
                 String[] split = fieldPlanePair.split(":");
                 if (fields.contains(split[1]) || fields.isEmpty()) {
-                    if (split[0].equals(POINT_LINE_KEY)) {
-                        for (String plane : getPointLineKeys()) {
+                    if (split[0].equals(PointLineUtil.POINT_LINE_KEY)) {
+                        for (String plane : PointLineUtil.getPointLineKeys()) {
                             planes.add(plane);
                         }
                     } else {
@@ -151,7 +178,7 @@ public class DmdDataCatalog extends AbstractDataCatalog {
         List<String> planes = Arrays.asList(selectedPlanes);
         boolean hasPointLine = false;
         for (String plane : planes) {
-            hasPointLine = hasPointLine || isPointLine(plane);
+            hasPointLine = hasPointLine || PointLineUtil.isPointLine(plane);
         }
         for (String fieldPlanePair : fieldPlanePairs) {
             String[] split = fieldPlanePair.split(":");
@@ -159,7 +186,8 @@ public class DmdDataCatalog extends AbstractDataCatalog {
                 if (planes.contains(split[0]) || planes.isEmpty()) {
 
                     return Arrays.asList("radar149");
-                } else if (hasPointLine && split[0].equals(POINT_LINE_KEY)) {
+                } else if (hasPointLine
+                        && split[0].equals(PointLineUtil.POINT_LINE_KEY)) {
                     return Arrays.asList("radar149");
                 }
             }

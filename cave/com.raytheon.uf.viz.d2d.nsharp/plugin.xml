@@ -79,5 +79,13 @@
       </contextId>
   </classContext>
 </extension>
+<extension
+      point="com.raytheon.viz.volumebrowser.productcreator">
+   <productCreator
+         creatorClass="com.raytheon.uf.viz.d2d.nsharp.vb.NSharpProductCreator"
+         plugins="grid,bufrua,modelsounding,poessounding,goessounding"
+         resourceType="sounding">
+   </productCreator>
+</extension>
       
 </plugin>

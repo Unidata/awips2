@@ -20,6 +20,8 @@
     -->
 <?eclipse version="3.2"?>
 <plugin>
+   <extension-point id="com.raytheon.viz.volumebrowser.datacatalog" name="Volume Browser Data Catalog" schema="schema/com.raytheon.viz.volumebrowser.datacatalog.exsd"/>
+   <extension-point id="com.raytheon.viz.volumebrowser.productcreator" name="Volume Browser Product Creator" schema="schema/com.raytheon.viz.volumebrowser.productcreator.exsd"/>
    <extension
          point="org.eclipse.ui.commands">
       <command

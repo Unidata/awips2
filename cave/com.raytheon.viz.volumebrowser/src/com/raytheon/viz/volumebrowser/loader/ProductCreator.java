@@ -17,13 +17,18 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.acarssounding;
+package com.raytheon.viz.volumebrowser.loader;
 
-import com.raytheon.uf.viz.volumebrowser.dataplugin.point.PointDataCatalog;
-import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
+import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
+import com.raytheon.uf.viz.core.rsc.DisplayType;
+import com.raytheon.viz.volumebrowser.datacatalog.IDataCatalog;
+import com.raytheon.viz.volumebrowser.datacatalog.IDataCatalogEntry;
 
 /**
- * Volume browser catalog which enables acars sounding data to work.
+ * 
+ * Interface for classes which know how to load a specific product from the
+ * volume browser. Instances of this class should be registered with the
+ * {@link ProductCreatorManager} so they will be used to create products.
  * 
  * <pre>
  * 
@@ -31,21 +36,14 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
  * 
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------
- * Aug 19, 2013  2269     bsteffen  Initial javadoc
- * Aug 19, 2013  2269     bsteffen  Fix MDCRS data and switch acars to use
- *                                  nsharp.
- *  Aug 03, 2015  3861     bsteffen  Move resource creation to product creator
+ * Aug 03, 2015  3861     bsteffen  Initial Creation
  * 
  * </pre>
  * 
- * @author unknown
- * @version 1.0
+ * @author bsteffen
  */
-public class AcarsSoundingVbDataCatalog extends PointDataCatalog {
+public interface ProductCreator {
 
-    @Override
-    protected String[] getPlugins(ViewMenu setting) {
-        return new String[] { "acarssounding" };
-    }
-
+    public AbstractRenderableDisplay loadProduct(IDataCatalog dataCatalog,
+            IDataCatalogEntry catalogEntry, DisplayType displayType);
 }

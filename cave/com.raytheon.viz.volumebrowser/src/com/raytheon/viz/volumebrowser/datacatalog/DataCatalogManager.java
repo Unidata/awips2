@@ -22,8 +22,14 @@ package com.raytheon.viz.volumebrowser.datacatalog;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtension;
+import org.eclipse.core.runtime.IExtensionPoint;
+import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.progress.UIJob;
@@ -42,11 +48,12 @@ import com.raytheon.viz.volumebrowser.vbui.VbUtil;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 27, 2009 2161       lvenable    Initial creation
- * Aug 19, 2013 2269       bsteffen    Fix MDCRS data and switch acars to use
- *                                     nsharp.
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------
+ * May 27, 2009  2161     lvenable  Initial creation
+ * Aug 19, 2013  2269     bsteffen  Fix MDCRS data and switch acars to use
+ *                                  nsharp.
+ * Aug 03, 2015  3861     bsteffen  Load catalogs from extension point
  * 
  * </pre>
  * 
@@ -56,6 +63,8 @@ import com.raytheon.viz.volumebrowser.vbui.VbUtil;
 public class DataCatalogManager {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DataCatalogManager.class);
+
+    private static final String EXTENSION_POINT_ID = "com.raytheon.viz.volumebrowser.datacatalog";
 
     private static DataCatalogManager dataCatalogManager;
 
@@ -96,7 +105,7 @@ public class DataCatalogManager {
             request.cancel();
         }
 
-    };
+    }
 
     private static class MenuUpdateJob extends UIJob {
 
@@ -168,13 +177,33 @@ public class DataCatalogManager {
      *            Volume Browser's product table.
      */
     private DataCatalogManager() {
-        // TODO these should be read from an extension point.
         catalogs = new ArrayList<IDataCatalog>();
-        catalogs.add(new GridDataCatalog());
-        catalogs.add(new DmdDataCatalog());
-        catalogs.add(new PointDataCatalog());
-        catalogs.add(new ModelSoundingCatalog());
-        catalogs.add(new VwpDataCatalog());
+        loadFromExtensionPoint();
+
+    }
+
+    private void loadFromExtensionPoint() {
+        IExtensionRegistry registry = Platform.getExtensionRegistry();
+        IExtensionPoint point = registry.getExtensionPoint(EXTENSION_POINT_ID);
+        IExtension[] extensions = point.getExtensions();
+
+        for (IExtension ext : extensions) {
+            IConfigurationElement[] config = ext.getConfigurationElements();
+
+            for (IConfigurationElement cfg : config) {
+                try {
+                    IDataCatalog catalog = (IDataCatalog) cfg
+                            .createExecutableExtension("catalogClass");
+                    catalogs.add(catalog);
+
+                } catch (CoreException e) {
+                    statusHandler
+                            .handle(Priority.PROBLEM,
+                                    "Unable to load a Volume Browser data catalog, some products will not load.",
+                                    e);
+                }
+            }
+        }
     }
 
     public void addDataCatalog(IDataCatalog catalog) {

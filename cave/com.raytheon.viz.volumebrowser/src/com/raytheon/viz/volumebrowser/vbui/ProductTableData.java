@@ -19,16 +19,12 @@
  **/
 package com.raytheon.viz.volumebrowser.vbui;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
-import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.viz.volumebrowser.datacatalog.DataCatalogManager;
 import com.raytheon.viz.volumebrowser.datacatalog.IDataCatalog;
 import com.raytheon.viz.volumebrowser.datacatalog.IDataCatalogEntry;
@@ -40,9 +36,10 @@ import com.raytheon.viz.volumebrowser.datacatalog.IDataCatalogEntry;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 9, 2009  #2161      lvenable     Initial creation
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------
+ * Jun 09, 2009  2161     lvenable  Initial creation
+ * Aug 03, 2015  3861     bsteffen  Move resource creation to ProductCreators
  * 
  * </pre>
  * 
@@ -170,21 +167,6 @@ public class ProductTableData {
     public IDataCatalog getDataCatalog() {
         return DataCatalogManager.getDataCatalogManager().getDataCatalog(
                 catalogEntry.getSelectedData());
-    }
-
-    public List<ResourcePair> getResourcesToLoad() {
-
-        ResourceType currentSetting = catalogEntry.getDialogSettings()
-                .getViewSelection().getResourceType();
-
-        List<ResourcePair> resourceList = new ArrayList<ResourcePair>();
-
-        for (DisplayType displayType : displayTypeSet) {
-            resourceList.addAll(getDataCatalog().getResourcesToLoad(
-                    catalogEntry, currentSetting, displayType));
-        }
-
-        return resourceList;
     }
 
     /**

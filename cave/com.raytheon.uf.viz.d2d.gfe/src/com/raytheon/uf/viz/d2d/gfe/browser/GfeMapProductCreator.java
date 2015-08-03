@@ -17,13 +17,18 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.acarssounding;
+package com.raytheon.uf.viz.d2d.gfe.browser;
 
-import com.raytheon.uf.viz.volumebrowser.dataplugin.point.PointDataCatalog;
-import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
+import com.raytheon.uf.viz.core.maps.display.MapRenderableDisplay;
+import com.raytheon.uf.viz.core.rsc.DisplayType;
+import com.raytheon.uf.viz.d2d.gfe.rsc.GFEGridResourceData;
+import com.raytheon.viz.volumebrowser.datacatalog.IDataCatalog;
+import com.raytheon.viz.volumebrowser.datacatalog.IDataCatalogEntry;
+import com.raytheon.viz.volumebrowser.loader.AbstractMapProductCreator;
 
 /**
- * Volume browser catalog which enables acars sounding data to work.
+ * 
+ * Creates {@link GFEGridResourceData} for use on a {@link MapRenderableDisplay}
  * 
  * <pre>
  * 
@@ -31,21 +36,20 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
  * 
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------
- * Aug 19, 2013  2269     bsteffen  Initial javadoc
- * Aug 19, 2013  2269     bsteffen  Fix MDCRS data and switch acars to use
- *                                  nsharp.
- *  Aug 03, 2015  3861     bsteffen  Move resource creation to product creator
+ * Aug 03, 2015  3861     bsteffen  Initial Creation
  * 
  * </pre>
  * 
- * @author unknown
- * @version 1.0
+ * @author bsteffen
  */
-public class AcarsSoundingVbDataCatalog extends PointDataCatalog {
+public class GfeMapProductCreator extends AbstractMapProductCreator {
 
     @Override
-    protected String[] getPlugins(ViewMenu setting) {
-        return new String[] { "acarssounding" };
+    protected GFEGridResourceData createNewResourceData(
+            IDataCatalog dataCatalog, IDataCatalogEntry catalogEntry, DisplayType displayType) {
+        GFEGridResourceData data = new GFEGridResourceData();
+        data.setLegendString(dataCatalog.getName(catalogEntry, displayType));
+        return data;
     }
 
 }

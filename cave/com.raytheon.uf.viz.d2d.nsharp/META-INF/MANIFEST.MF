@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: D2D Nsharp
 Bundle-SymbolicName: com.raytheon.uf.viz.d2d.nsharp;singleton:=true
-Bundle-Version: 1.14.1.qualifier
+Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
@@ -22,8 +22,10 @@ Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.14.0",
  com.raytheon.uf.common.topo,
  com.raytheon.viz.pointdata,
  com.raytheon.uf.viz.image.export;bundle-version="1.14.0",
- org.eclipse.core.runtime;bundle-version="3.8.0"
+ org.eclipse.core.runtime;bundle-version="3.8.0",
+ com.raytheon.viz.volumebrowser;bundle-version="1.15.0"
 Export-Package: com.raytheon.uf.viz.d2d.nsharp,
  com.raytheon.uf.viz.d2d.nsharp.display,
- com.raytheon.uf.viz.d2d.nsharp.rsc
+ com.raytheon.uf.viz.d2d.nsharp.rsc,
+ com.raytheon.uf.viz.d2d.nsharp.vb
 Bundle-ClassPath: com.raytheon.uf.viz.d2d.nsharp.jar
