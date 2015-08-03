@@ -66,6 +66,7 @@
 #    Jan 13, 2015    3955          randerso       Added optional parameter to availableParms to specify desired databases.
 #                                                 Fixed createGrid to accept a DatabaseID for model
 #    Apr 23, 2015    4259          njensen        Updated for new JEP API
+#    Jul 07, 2015    14739         ryu            Modified callSmartTool to return with updated varDict.
 ########################################################################
 import types, string, time, sys
 from math import *
@@ -1009,8 +1010,13 @@ class SmartScript(BaseTool.BaseTool):
             emptyEditAreaFlag = True
         else:
             emptyEditAreaFlag = False
+            
         if varDict is not None:
-            varDict = str(varDict)
+            from java.lang import String
+            varDictList = ArrayList()
+            varDictList.add(String(str(varDict)))
+        else:
+            varDictList = None
 
         parm = self.getParm(self.__mutableID, elementName, "SFC")
         if timeRange is None:
@@ -1022,9 +1028,14 @@ class SmartScript(BaseTool.BaseTool):
         from com.raytheon.viz.gfe.smarttool import SmartUtil
 
         result = SmartUtil.callFromSmartScript(self.__dataMgr, toolName, elementName, editArea,
-                                            timeRange, varDict, emptyEditAreaFlag,
+                                            timeRange, varDictList, emptyEditAreaFlag,
                                             JUtil.pylistToJavaStringList(passErrors),
                                             missingDataMode, parm)
+        
+        if varDict is not None:
+            newDict = eval(str(varDictList.get(0)))
+            varDict.clear()
+            varDict.update(newDict)
 
         if result:
             raise Exceptions.EditActionError(errorType="Error", errorInfo=str(result))

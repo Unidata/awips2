@@ -34,5 +34,11 @@
             commandId="com.raytheon.viz.xdat.openxdat">
       </handler>
    </extension>
-
+   <extension
+         point="com.raytheon.uf.viz.core.component">                
+      <component
+            class="com.raytheon.viz.xdat.XdatComponent"
+            key="hydroXdat">
+      </component>
+   </extension>
 </plugin>

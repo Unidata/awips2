@@ -44,6 +44,7 @@ import com.raytheon.viz.aviation.monitor.AvnPyUtil;
  * ------------ ---------- ----------- --------------------------
  * Nov 17, 2009            avarani     Initial creation
  * Feb 16, 2011 7878       rferrel     Modifications for create ident/site.
+ * Jul 07, 2015 16907      zhao        Changed 'ish-' to 'isd-' 
  * 
  * </pre>
  * 
@@ -80,12 +81,12 @@ public class ClimateDataPython {
     }
 
     /**
-     * Obtain path name of the directory with the ISH files and verify the files
+     * Obtain path name of the directory with the ISD files and verify the files
      * exist.
      * 
      * @return dataDir
      * @throws VizException
-     *             when unable to find ISH files
+     *             when unable to find ISD files
      */
     public static String getIshFilePath() throws VizException {
         String dataDirStr = VizApp.getDataDir();
@@ -95,17 +96,17 @@ public class ClimateDataPython {
                     "Directory: \"%s\" does not exist.", dataDir.getPath()));
         }
 
-        File histFile = new File(dataDir, "ish-history.txt");
+        File histFile = new File(dataDir, "isd-history.txt");
         if (histFile == null || !histFile.exists()) {
             throw new VizException(String.format(
-                    "ISH history file: \"%s\" does not exist.",
+                    "ISD history file: \"%s\" does not exist.",
                     histFile.getPath()));
         }
 
-        File invFile = new File(dataDir, "ish-inventory.txt");
+        File invFile = new File(dataDir, "isd-inventory.txt");
         if (invFile == null || !invFile.exists()) {
             throw new VizException(String.format(
-                    "ISH inventory file: \"%s\" does not exist.",
+                    "ISD inventory file: \"%s\" does not exist.",
                     invFile.getPath()));
         }
 

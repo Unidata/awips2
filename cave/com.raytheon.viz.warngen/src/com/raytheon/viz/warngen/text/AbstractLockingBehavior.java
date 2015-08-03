@@ -58,6 +58,8 @@ import com.raytheon.viz.warngen.gis.AffectedAreas;
  * May  1, 2014  DR 16627  Qinglu Lin   Added hasStateAbbrev(), isOtherType(), lockListOfNames(), and updated lock(). 
  * May 13, 2014  DR 17177  Qinglu Lin   Updated secondBullet().
  * May 29, 2015    4442    randerso     Fixed WarnGen text locking to work with mixed case
+ * Jul 10, 2015  DR 17314  Qinglu Lin   Updated firstBullet().
+ * Jul 17, 2015  DR 17314  D. Friedman  Fix string replacement in firstBullet().
  * 
  * </pre>
  * 
@@ -213,9 +215,15 @@ abstract public class AbstractLockingBehavior {
         // should not be locked. For some reason, this differs from followups as
         // stated in DR 15110. Need verification from NWS. This is a variance?
         if (!isMarineProduct()) {
+            StringBuilder newText = new StringBuilder(firstBulletText.length() + 1024);
             Matcher m = null;
-            for (String line : firstBulletText.split("\\n")) {
-
+            boolean first = true;
+            for (String line : firstBulletText.split("\\n", -1)) {
+                if (first) {
+                    first = false;
+                } else {
+                    newText.append('\n');
+                }
                 if (immediateCausePtrn != null) {
                     // immediate cause
                     m = immediateCausePtrn.matcher(line);
@@ -223,17 +231,23 @@ abstract public class AbstractLockingBehavior {
                         String i = line.replace(line,
                                 WarnGenPatterns.LOCK_START + line
                                         + WarnGenPatterns.LOCK_END);
-                        firstBulletText = firstBulletText.replace(line, i);
+                        newText.append(i);
                         continue;
                     }
                 }
 
+                int endIndex = line.indexOf(" IN ");
+                String textForSearch = null;
+                if (endIndex == -1)
+                    textForSearch = line;
+                else
+                    textForSearch = line.substring(0, endIndex);
                 for (AffectedAreas affectedArea : affectedAreas) {
                     String name = affectedArea.getName();
                     String areaNotation = affectedArea.getAreaNotation();
                     String parentRegion = affectedArea.getParentRegion();
                     if ((name != null) && (name.trim().length() != 0)
-                            && line.contains(name)) {
+                            && textForSearch.contains(name)) {
                         String t = line;
                         if (!hasBeenLocked(line, name)) {
                             t = t.replace(name, WarnGenPatterns.LOCK_START
@@ -261,18 +275,20 @@ abstract public class AbstractLockingBehavior {
                         }
 
                         if (validate(t)) {
-                            firstBulletText = firstBulletText.replace(line, t);
+                            line = t;
                         }
                         break;
                     }
                 }
+                newText.append(line);
             }
+            firstBulletText = newText.toString();
         }
 
         Matcher m = WarnGenPatterns.firstBulletPtrn.matcher(firstBulletText);
         firstBulletText = m.replaceAll(WarnGenPatterns.REPLACEMENT);
 
-        this.text = text.replace(text.substring(start, end), firstBulletText);
+        this.text = new StringBuffer(text).replace(start, end, firstBulletText).toString();
     }
 
     /**

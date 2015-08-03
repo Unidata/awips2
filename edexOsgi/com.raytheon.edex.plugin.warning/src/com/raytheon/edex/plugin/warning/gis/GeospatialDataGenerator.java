@@ -111,6 +111,9 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * Jul 15, 2014  3352      rferrel     Better logging and threading added.
  * Aug 21, 2014  3353      rferrel     Added getGeospatialTimeset and cluster locking of METADATA_FILE.
  *                                      generateGeoSpatialList now sends GenerateGeospatialDataResult.
+ * Jun 26, 2015  17212     Qinglu Lin  Removed features whose geometry is empty in queryGeospatialData(),
+ *                                     caught exception in updateFeatures() & topologySimplifyQueryResults(),
+ *                                     and added composeMessage().
  * </pre>
  * 
  * @author rjpeter
@@ -599,10 +602,29 @@ public class GeospatialDataGenerator {
                     .query(cwaSource,
                             cwaAreaFields.toArray(new String[cwaAreaFields
                                     .size()]), null, cwaMap, SearchMode.WITHIN);
-            updateFeatures(features, cwaFeatures);
+            updateFeatures(features, cwaFeatures, areaSource);
         }
 
-        topologySimplifyQueryResults(features);
+        boolean emptyFeatureFound = false;
+        List<SpatialQueryResult> geomFeatures = new ArrayList<SpatialQueryResult>();
+        for (int i = 0; i < features.length; i++) {
+            if (features[i].geometry.isEmpty()) {
+                // create log message for a feature that has empty geometry
+                emptyFeatureFound = true;
+                String message = composeMessage("Geometry for", areaSource, features[i],
+                        "in features[" + i + "] is empty. Check out " + areaSource
+                        + " and CWA tables/shapefiles.");
+                statusHandler.handle(Priority.ERROR, message);
+            } else {
+                geomFeatures.add(features[i]);
+            }
+        }
+        if (emptyFeatureFound) {
+            // recreate features in which each feature has no-empty geometry
+            features = geomFeatures.toArray(new SpatialQueryResult[geomFeatures.size()]);
+        }
+
+        topologySimplifyQueryResults(features, areaSource);
 
         // convert to GeospatialData
         GeospatialData[] rval = new GeospatialData[features.length];
@@ -627,8 +649,8 @@ public class GeospatialDataGenerator {
      * @throws ExecutionException
      */
     private void updateFeatures(SpatialQueryResult[] features,
-            SpatialQueryResult[] cwaFeatures) throws InterruptedException,
-            ExecutionException {
+            SpatialQueryResult[] cwaFeatures, String areaSource) throws
+            InterruptedException, ExecutionException {
         List<Future<Geometry>> featureFutures = new ArrayList<Future<Geometry>>(
                 features.length);
         Geometry[] cwaFeturesGeoms = new Geometry[cwaFeatures.length];
@@ -653,8 +675,16 @@ public class GeospatialDataGenerator {
         featureFutures = pool.invokeAll(featuresCallable);
 
         for (int index = 0; index < features.length; ++index) {
-            Future<Geometry> future = featureFutures.get(index);
-            features[index].geometry = future.get();
+            try {
+                Future<Geometry> future = featureFutures.get(index);
+                features[index].geometry = future.get();
+            } catch (Exception e) {
+                String message = composeMessage("Error while trying to get geometry for",
+                        areaSource, features[index],
+                        "from element " + index + " of featureFutures.");
+                statusHandler.handle(Priority.ERROR, message);
+                throw e;
+            }
         }
     }
 
@@ -684,38 +714,17 @@ public class GeospatialDataGenerator {
      * 
      * @param results
      */
-    private void topologySimplifyQueryResults(SpatialQueryResult[] results) {
-        GeometryFactory gf = new GeometryFactory();
-        Geometry[] geoms = new Geometry[results.length];
+    private void topologySimplifyQueryResults(SpatialQueryResult[] results, String areaSource) {
         for (int i = 0; i < results.length; i++) {
-            geoms[i] = results[i].geometry;
-        }
-
-        GeometryCollection geoColl = gf.createGeometryCollection(geoms);
-        Geometry simpGeo = TopologyPreservingSimplifier.simplify(geoColl,
-                0.0001);
-        if (simpGeo instanceof GeometryCollection) {
-            GeometryCollection simpGeoColl = (GeometryCollection) simpGeo;
-            int numGeoms = simpGeoColl.getNumGeometries();
-            if (numGeoms == geoms.length) {
-                for (int i = 0; i < numGeoms; i++) {
-                    results[i].geometry = simpGeoColl.getGeometryN(i);
-                }
-            } else {
-                statusHandler
-                        .handle(Priority.WARN,
-                                "Error in simplifying geometries.  Geometry simplification returned a different number of geometries. Expected: "
-                                        + geoms.length
-                                        + ", received: "
-                                        + numGeoms);
+            try {
+                results[i].geometry = TopologyPreservingSimplifier.simplify(results[i].geometry, 0.0001);
+            } catch (RuntimeException e) {
+                String message = composeMessage("Error while invoking "
+                        + "TopologyPreservingSimplifier.simplify() for geometry of results["
+                        + i + "] for", areaSource, results[i], ".");
+                statusHandler.handle(Priority.ERROR, message);
+                throw e;
             }
-        } else {
-            statusHandler
-                    .handle(Priority.WARN,
-                            "Error in simplifying geometries.  Geometry simplification returned an unhandled class.  Expected: "
-                                    + GeometryCollection.class.getName()
-                                    + ", received: "
-                                    + simpGeo.getClass().getName());
         }
     }
 
@@ -794,7 +803,7 @@ public class GeospatialDataGenerator {
                             new String[] { metaData.getAreaNotationField(),
                                     metaData.getParentAreaField() }, hull,
                             null, false, SearchMode.INTERSECTS);
-            topologySimplifyQueryResults(parentRegionFeatures);
+            topologySimplifyQueryResults(parentRegionFeatures, metaData.getAreaSource());
 
             rval = new GeospatialData[parentRegionFeatures.length];
             for (int i = 0; i < parentRegionFeatures.length; i++) {
@@ -916,4 +925,15 @@ public class GeospatialDataGenerator {
         calendar.setTimeInMillis(tmStampMs);
         return sdf.format(calendar.getTime());
     }
+
+    private String composeMessage(String s, String areaSource,
+            SpatialQueryResult sqr, String where) {
+        String name = (String) sqr.attributes.get("NAME");
+        if (name == null) {
+            name = (String) sqr.attributes.get("COUNTYNAME");
+        }
+        return String.format("%s %s %s (gid=%s) %s", s, areaSource, name,
+                sqr.attributes.get(WarningConstants.GID).toString(), where);
+    }
+
 }

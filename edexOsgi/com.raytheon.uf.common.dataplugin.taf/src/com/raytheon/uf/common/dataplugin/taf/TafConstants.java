@@ -32,6 +32,9 @@ import java.util.regex.Pattern;
  * May 15, 2014 3002       bgonzale    Moved to com.raytheon.uf.common.dataplugin.taf.
  *                                     Changed String patterns to Patterns.
  *                                     Refactored Strings to Patterns in TafConstants.
+ * July 6, 2015 DR17108    MPorricelli Changed REPORT_HEADER* patterns to accommodate
+ *                                     report format where 'TAF' is on separate line
+ *                                     from rest of report
  * </pre>
  * 
  * @author grichard
@@ -124,11 +127,11 @@ public final class TafConstants {
     public static final String COR_IND = "COR";
 
     public static final Pattern REPORT_HEADER = Pattern
-            .compile("(TAF )?((AMD|COR) )*?"
+            .compile("(TAF\\s)?((AMD|COR)\\s)*?"
                     + "([A-Z][A-Z,0-9]{3}) ([0-3]\\d{5}Z )?([0-3]\\d{5})( )");
 
     public static final Pattern REPORT_HEADER30 = Pattern
-            .compile("(TAF )?((AMD|COR) )*?"
+            .compile("(TAF\\s)?((AMD|COR)\\s)*?"
                     + "([A-Z][A-Z,0-9]{3}) ([0-3]\\d{5}Z )?(\\d{4}/\\d{4})( )");
 
     public static final Pattern RPT_HDR_TAF = Pattern

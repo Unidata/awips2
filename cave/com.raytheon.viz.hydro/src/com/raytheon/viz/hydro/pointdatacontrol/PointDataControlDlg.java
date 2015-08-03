@@ -73,6 +73,7 @@ import com.raytheon.viz.hydro.pointdatacontrol.db.PDCDataManager;
 import com.raytheon.viz.hydro.pointdatacontrol.util.PDCUtils;
 import com.raytheon.viz.hydro.resource.MultiPointResource;
 import com.raytheon.viz.hydrocommon.HydroConstants;
+import com.raytheon.viz.hydrocommon.HydroConstants.TimeStepDataElementType;
 import com.raytheon.viz.hydrocommon.HydroDisplayManager;
 import com.raytheon.viz.hydrocommon.colorscalemgr.HydroColorManager;
 import com.raytheon.viz.hydrocommon.colorscalemgr.NamedColorSetGroup;
@@ -104,19 +105,23 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 09 OCT 2012 #15396				   Fixed Instantaneous precip index so legend and map display 
  * 									   will change each time duration is incremented or decremented
  * 									   for the "30 minutes Instantaneous" rainfall map .
- * 04 Dec 2012 15602     wkwock        Fix Hrs hour capped at 100.
+ * 04 Dec 2012 15602       wkwock      Fix Hrs hour capped at 100.
  * 07 Feb 2013 1578        rferrel     Changes for non-blocking FilteringDlg.
  *                                     Changes for non-blocking PDC_SaveDlg.
  * 13 Mar 2013 1790        rferrel     Changes for non-blocking dialog.
  *                                     Changes for non-blocking TabularDisplayDlg.
  *                                     Bug fix for non-blocking dialogs.
- * 09 Mar 2015 13998     lbousaidi	   Changes to fix the precipitation data display.                            
+ * 09 Mar 2015 13998       lbousaidi   Changes to fix the precipitation data display.  
+ * 22 Jun 2015 13892       lbousaidi   Fixed the saved the preset String selection.                          
+ * 01 July 2015 17002      xwei        Added drop down button for PC and PP                          
+ * 
  * </pre>
  * 
  * @author lvenable
  * @version 1.0
  * 
  */
+
 public class PointDataControlDlg extends CaveSWTDialog {
     /** Singleton instance. */
     private static PointDataControlDlg instance = null;
@@ -363,12 +368,12 @@ public class PointDataControlDlg extends CaveSWTDialog {
     /**
      * Stations label.
      */
-    private Label stationsLbl;
+    private Label stationsOrPELbl;
 
     /**
      * Stations label.
      */
-    private Combo stationsCbo;
+    private Combo stationsOrPECbo;
 
     /**
      * Service area check box.
@@ -546,6 +551,9 @@ public class PointDataControlDlg extends CaveSWTDialog {
 
     /** The tabular display dialog. */
     TabularDisplayDlg tabDisplay;
+    
+    /** Flag indicating to save PE Elements */
+    private boolean loadSaved = true; 
 
     /**
      * Obtain the singleton instance.
@@ -658,6 +666,8 @@ public class PointDataControlDlg extends CaveSWTDialog {
      * Initialize the dialog components.
      */
     private void initializeComponents() {
+    	
+        loadSaved = true;  
         createPresetsQueryModeGroup();
         createElementsGroup();
         createValueTimeGroup();
@@ -691,7 +701,8 @@ public class PointDataControlDlg extends CaveSWTDialog {
             shell.setCursor(null);
 
         }
-
+        
+        loadSaved = false;
     }
 
     /**
@@ -725,11 +736,14 @@ public class PointDataControlDlg extends CaveSWTDialog {
         selPresetCbo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
+            	
+            	loadSaved = true;
                 handlePresetSelection();
                 shell.setCursor(waitCursor);
                 updateData = true;
                 drawMap();
                 shell.setCursor(null);
+                loadSaved = false;
             }
         });
 
@@ -835,6 +849,9 @@ public class PointDataControlDlg extends CaveSWTDialog {
                     handleTimeStepElementComboSelection();
                     handleTsPhysicalElementSelection(physicalElementCbo
                             .getItem(physicalElementCbo.getSelectionIndex()));
+                    
+                    handleStationsOrPE(); 
+                    
                     if ((physicalElementCbo.getSelectionIndex() == 0)
                             && (elementTypeCbo.getSelectionIndex() == 1)) {
                         stackLayout.topControl = precipGroup;
@@ -874,6 +891,9 @@ public class PointDataControlDlg extends CaveSWTDialog {
                     }
                     handleTsPhysicalElementSelection(physicalElementCbo
                             .getItem(physicalElementCbo.getSelectionIndex()));
+                    
+                    handleStationsOrPE(); 
+                    
                     loadTimeInfo();
                 }
                 HydroDisplayManager.getInstance().setDataChanged(true);
@@ -1204,23 +1224,28 @@ public class PointDataControlDlg extends CaveSWTDialog {
         stationsComp.setLayoutData(gd);
 
         gd = new GridData(70, SWT.DEFAULT);
-        stationsLbl = new Label(stationsComp, SWT.NONE | SWT.RIGHT);
-        stationsLbl.setText("Stations: ");
-        stationsLbl.setLayoutData(gd);
+        stationsOrPELbl = new Label(stationsComp, SWT.NONE | SWT.RIGHT);
+        stationsOrPELbl.setText("Stations: ");
+        stationsOrPELbl.setLayoutData(gd);
 
         gd = new GridData(110, SWT.DEFAULT);
-        stationsCbo = new Combo(stationsComp, SWT.DROP_DOWN | SWT.READ_ONLY);
-        stationsCbo.add("All");
-        stationsCbo.add("Stream");
-        stationsCbo.add("Reservoir");
-        stationsCbo.select(0);
-        stationsCbo.setLayoutData(gd);
-        stationsCbo.addSelectionListener(new SelectionAdapter() {
+        stationsOrPECbo = new Combo(stationsComp, SWT.DROP_DOWN | SWT.READ_ONLY);
+        stationsOrPECbo.add("All");
+        stationsOrPECbo.add("Stream");
+        stationsOrPECbo.add("Reservoir");
+        stationsOrPECbo.select(0);
+        stationsOrPECbo.setLayoutData(gd);
+        stationsOrPECbo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 PDCOptionData pcOptions = PDCOptionData.getInstance();
-                pcOptions.setRiverStationFilter(stationsCbo.getSelectionIndex());
+                
+                setStationsOrPE( pcOptions ); 
+                
                 shell.setCursor(waitCursor);
+                
+                updateData = true;    
+                
                 drawMap();
                 shell.setCursor(null);
             }
@@ -1800,6 +1825,8 @@ public class PointDataControlDlg extends CaveSWTDialog {
      *            The preset id
      */
     protected void populatePresetData(String id) {
+    	
+    	loadSaved = true;
         selPresetCbo.removeAll();
 
         try {
@@ -1826,6 +1853,8 @@ public class PointDataControlDlg extends CaveSWTDialog {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        
+        loadSaved = false;
     }
 
     /**
@@ -1909,7 +1938,79 @@ public class PointDataControlDlg extends CaveSWTDialog {
         // physicalElementCbo.select(pcOptions.getPeSelection());
         physicalElementCbo.select(0);
     }
+    
+         
+    private void handleStationsOrPE() {
+    	
+    	if ( elementTypeCbo.getSelectionIndex() != TimeStepDataElementType.RAIN_TIME_STEP_TYPE.ordinal() ) {
+    		
+    		stationsOrPELbl.setVisible(true);
+			stationsOrPECbo.setVisible(true);
+		
+			stationsOrPELbl.setText("Stations: ");
+	        
+			stationsOrPECbo.removeAll();
+			stationsOrPECbo.add("All");
+	        stationsOrPECbo.add("Stream");
+	        stationsOrPECbo.add("Reservoir");
+    		stationsOrPECbo.select(0);
+    					
+    	}else{
+    	
+    		if ( physicalElementCbo.getSelectionIndex() == 0 ) {  // See TIMESTEP_DATA_ELEMENT_STRING_ARRAY for position
+    			
+    			stationsOrPELbl.setVisible(false);
+    			stationsOrPECbo.setVisible(false);
+            
+    		}else{
+    			
+    			stationsOrPELbl.setVisible(true);
+    			stationsOrPECbo.setVisible(true);
+    			
+    			stationsOrPELbl.setText("Use PE: ");
+    		
+    			stationsOrPECbo.removeAll();
+    			stationsOrPECbo.add("PC and PP");
+    			stationsOrPECbo.add("PC Only");
+    			stationsOrPECbo.add("PP Only");
+    			stationsOrPECbo.select(0);
+    		}
+    	}
+    }
+    
+         
+    private void setStationsOrPE( PDCOptionData pcOptions ) {
+    	
+    	if ( elementTypeCbo.getSelectionIndex() != TimeStepDataElementType.RAIN_TIME_STEP_TYPE.ordinal() ) {
+    		
+    		pcOptions.setRiverStationFilter( stationsOrPECbo.getSelectionIndex() );
+    					
+    	}else{
+    	
+    		if ( physicalElementCbo.getSelectionIndex() != 0 ) {  // See TIMESTEP_DATA_ELEMENT_STRING_ARRAY for position
+    			
+    			pcOptions.setPrecipPeFilter( stationsOrPECbo.getSelectionIndex() );
+    		}
+    	}
+    }
 
+         
+    private void selectStationsOrPE( PDCOptionData pcOptions ) {
+    	
+    	if ( elementTypeCbo.getSelectionIndex() != TimeStepDataElementType.RAIN_TIME_STEP_TYPE.ordinal() ) {
+    		
+    		stationsOrPECbo.select(pcOptions.getRiverStationFilter());
+    					
+    	}else{
+    	
+    		if ( physicalElementCbo.getSelectionIndex() != 0 ) {  // See TIMESTEP_DATA_ELEMENT_STRING_ARRAY for position
+    			
+    			stationsOrPECbo.select(pcOptions.getPrecipPeFilter());
+    			
+    		}
+    	}
+    }
+    
     /**
      * Perform updates for currently selected element type.
      */
@@ -1928,7 +2029,12 @@ public class PointDataControlDlg extends CaveSWTDialog {
             physicalElementCbo.add(elementStr);
         }
 
-        physicalElementCbo.select(0);
+        if ( loadSaved == true ) {
+            physicalElementCbo.select( pcOptions.getPeSelection() );
+        }else{
+            physicalElementCbo.select(0);
+        }
+
         handlePeSelection();
     }
 
@@ -1979,8 +2085,8 @@ public class PointDataControlDlg extends CaveSWTDialog {
      */
     private void showAdHocControls(boolean flag) {
         // Time Step control
-        stationsLbl.setVisible(!flag);
-        stationsCbo.setVisible(!flag);
+        stationsOrPELbl.setVisible(!flag);
+        stationsOrPECbo.setVisible(!flag);
 
         // Ad Hoc control
         dataSourceChk.setVisible(flag);
@@ -2286,6 +2392,9 @@ public class PointDataControlDlg extends CaveSWTDialog {
             handleTimeStepElementComboSelection();
             handleTsPhysicalElementSelection(physicalElementCbo
                     .getItem(physicalElementCbo.getSelectionIndex()));
+            
+            handleStationsOrPE(); 
+            
             if ((physicalElementCbo.getSelectionIndex() == 0)
                     && (elementTypeCbo.getSelectionIndex() == 1)) {
                 stackLayout.topControl = precipGroup;
@@ -2876,8 +2985,8 @@ public class PointDataControlDlg extends CaveSWTDialog {
         }
 
         /* set the pc_pc_riverStationFilterOM based on river_station_filter */
-        stationsCbo.select(pcOptions.getRiverStationFilter());
-
+        selectStationsOrPE( pcOptions ); 
+        
         /* set the pc_precipPeOM based on precip_pe_filter */
         pcOptions.getPrecipPeFilter();
         // TODO - This is invisible if not a rain PE Verify with the vpn

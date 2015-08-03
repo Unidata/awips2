@@ -29,6 +29,22 @@ import com.raytheon.uf.common.geospatial.MapUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 
+/**
+ * TODO Add Description
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Jun 26, 2015  17098     snaples     Adjust Pixel Orientation from Lower Left to Center
+ * 
+ * </pre>
+ * 
+ * @author snaples
+ * @version 1.0
+ */
+
 public class HRAPSubGrid implements ISpatialObject {
     private static final long serialVersionUID = 1L;
 
@@ -54,16 +70,16 @@ public class HRAPSubGrid implements ISpatialObject {
         // transform the grid corners from grid coordinates to latLon
         Coordinate ll = hrap.gridCoordinateToLatLon(
                 new Coordinate(extent.getMinX(), extent.getMinY()),
-                PixelOrientation.LOWER_LEFT);
+                PixelOrientation.CENTER);
         Coordinate ul = hrap.gridCoordinateToLatLon(
                 new Coordinate(extent.getMinX(), extent.getMaxY()),
-                PixelOrientation.LOWER_LEFT);
+                PixelOrientation.CENTER);
         Coordinate ur = hrap.gridCoordinateToLatLon(
                 new Coordinate(extent.getMaxX(), extent.getMaxY()),
-                PixelOrientation.LOWER_LEFT);
+                PixelOrientation.CENTER);
         Coordinate lr = hrap.gridCoordinateToLatLon(
                 new Coordinate(extent.getMaxX(), extent.getMinY()),
-                PixelOrientation.LOWER_LEFT);
+                PixelOrientation.CENTER);
         Coordinate[] corners = new Coordinate[] { ll, ul, ur, lr, ll };
 
         this.geometry = MapUtil.getPolygon(corners);
@@ -84,15 +100,15 @@ public class HRAPSubGrid implements ISpatialObject {
         // transform the grid corners from grid coordinates to latLon
         Coordinate[] corners = new Coordinate[] {
                 hrap.gridCoordinateToLatLon(new Coordinate(extent.getMinX(),
-                        extent.getMinY()), PixelOrientation.LOWER_LEFT),
+                        extent.getMinY()), PixelOrientation.CENTER),
                 hrap.gridCoordinateToLatLon(new Coordinate(extent.getMinX(),
-                        extent.getMaxY()), PixelOrientation.LOWER_LEFT),
+                        extent.getMaxY()), PixelOrientation.CENTER),
                 hrap.gridCoordinateToLatLon(new Coordinate(extent.getMaxX(),
-                        extent.getMaxY()), PixelOrientation.LOWER_LEFT),
+                        extent.getMaxY()), PixelOrientation.CENTER),
                 hrap.gridCoordinateToLatLon(new Coordinate(extent.getMaxX(),
-                        extent.getMinY()), PixelOrientation.LOWER_LEFT),
+                        extent.getMinY()), PixelOrientation.CENTER),
                 hrap.gridCoordinateToLatLon(new Coordinate(extent.getMinX(),
-                        extent.getMinY()), PixelOrientation.LOWER_LEFT) };
+                        extent.getMinY()), PixelOrientation.CENTER) };
 
         this.geometry = MapUtil.getPolygon(corners);
     }

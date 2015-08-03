@@ -99,6 +99,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                     (background/foreground colors) since the Redhat
  *                                     6 upgrade causes the check in the checkbox to be
  *                                     colored the same as the background.
+ * Jul, 20 2015 #17584     lshi        The SCAN Cell table quit updating caused by NPE
  * 
  * </pre>
  * 
@@ -1173,6 +1174,7 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
                         }
                     }
                     if (((scanTable == ScanTables.CELL) || (scanTable == ScanTables.DMD))
+                            && (EditorUtil.getActiveVizContainer() != null)
                             && !(EditorUtil.getActiveVizContainer()
                                     .getLoopProperties().isLooping())
                             && (mgr.getScheduledAlarms(site, scanTable).size() > 0)

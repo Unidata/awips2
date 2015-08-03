@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -56,6 +58,7 @@ import com.vividsolutions.jts.geom.Point;
  * Mar  5, 2013  1600      jsanchez     Used AdjustAngle instead of AbstractStormTrackResource to handle angle adjusting.
  * Mar 26, 2013  1819      jsanchez     Allowed points to be not be based on point source inclusion constraints.
  * May  7, 2015 ASM #17438 D. Friedman  Clean up debug and performance logging.
+ * Jul  9, 2015 ASM #16769 mgamazaychikov Add filtering out pathcast data features based on the inclusion criteria.
  * 
  * </pre>
  * 
@@ -71,7 +74,7 @@ abstract public class AbstractDbSourceDataAdaptor {
 
     private static final String GEOM_FIELD = "the_geom";
 
-    private static UnitConverter meterSqToKmSq = SI.METRE.times(SI.METRE)
+    protected static UnitConverter meterSqToKmSq = SI.METRE.times(SI.METRE)
             .getConverterTo(SI.KILOMETRE.times(SI.KILOMETRE));
 
     protected Set<String> undatabasedSortableFields = new HashSet<String>(
@@ -240,7 +243,7 @@ abstract public class AbstractDbSourceDataAdaptor {
      * @param geom
      * @return
      */
-    private boolean includeArea(PointSourceConfiguration pointConfig,
+    protected boolean includeArea(PointSourceConfiguration pointConfig,
             Geometry geom) {
         String inclusionAndOr = pointConfig.getInclusionAndOr();
         double inclusionPercent = pointConfig.getInclusionPercent();
@@ -296,6 +299,18 @@ abstract public class AbstractDbSourceDataAdaptor {
             }
         }
 
+        // filter out features based on the inclusion criteria
+        List<SpatialQueryResult> ptFeaturesList = new LinkedList<SpatialQueryResult>(
+                Arrays.asList(this.ptFeatures));
+        Iterator<SpatialQueryResult> iter = ptFeaturesList.iterator();
+        while (iter.hasNext()) {
+            SpatialQueryResult pf = iter.next();
+            if (!includeArea(pathcastConfiguration, pf.geometry)) {
+                iter.remove();
+            }
+        }
+        SpatialQueryResult[] ptFeaturesFiltered = ptFeaturesList.toArray(new SpatialQueryResult[ptFeaturesList.size()]);
+
         Geometry localPCGeom = null;
         if (pcGeom != null) {
             localPCGeom = JTS.transform(pcGeom, latLonToLocal);
@@ -303,8 +318,8 @@ abstract public class AbstractDbSourceDataAdaptor {
 
         // Find closest points
         List<ClosestPoint> points = new ArrayList<ClosestPoint>(
-                ptFeatures.length);
-        for (SpatialQueryResult pointRslt : ptFeatures) {
+                ptFeaturesFiltered.length);
+        for (SpatialQueryResult pointRslt : ptFeaturesFiltered) {
             Geometry localPt = (Geometry) pointRslt.attributes
                     .get(transformedKey);
             double minDist = Double.MAX_VALUE;

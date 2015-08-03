@@ -35,6 +35,7 @@
     <regex>^BMBB91.*</regex>
     <regex>^N.*</regex>
     <regex>^F[EHIJKLMQVWX].*</regex>
+    <regex>wcl_decrypted</regex>
     
     <!-- AWIPS I pattern
     TextDBPatterns.txt

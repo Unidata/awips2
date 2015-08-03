@@ -77,6 +77,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 09 Sep 2009  2772       mpduff      Implemented Dialog.
  * 16 Apr 2013  1790       rferrel     Made dialog non-blocking.
  * 16 Jul 2013  2088       rferrel     Changes for non-blocking TextEditorDlg.
+ * 29 June 2015 14630      xwei        Fixed : Not able to import basins.dat with apostrophe and incorrect data posted
+ * 30 June 2015 17360      xwei        Fixed : basins.dat import failed if the first line does not have Lat Lon
  * 
  * </pre>
  * 
@@ -692,6 +694,7 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
                 /* Remove any excess whitespace. */
                 str = str.trim();
                 str = str.replaceAll("\\s{2,}", " ");
+                str = str.replaceAll("'", "''"); 
 
                 String[] parts = str.split(" ");
                 int numParts = parts.length;
@@ -701,7 +704,7 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
                  * point is found then assume this line has two lat/lon values
                  * at the end.
                  */
-                if (parts[numParts - 2].contains(".")
+                if (numParts == 6 && parts[numParts - 2].contains(".")
                         && parts[numParts - 1].contains(".")) {
                     intLat = Double.parseDouble(parts[numParts - 2]);
                     intLon = Double.parseDouble(parts[numParts - 1]);
@@ -719,11 +722,17 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
                     }
                 }
 
+                int shiftNum = 0;
+                if ( numParts == 4 ){
+                	shiftNum = 2;
+                }
+                
                 /*
                  * get the number of lat-lon pairs that follow, from the end of
                  * the line
                  */
-                nPts = Integer.parseInt(parts[numParts - 3]);
+                nPts = Integer.parseInt(parts[numParts - 3 + shiftNum]); 
+                
                 double[] lonPoints = new double[nPts];
                 double[] latPoints = new double[nPts];
 
@@ -731,7 +740,7 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
                  * get the stream order, which is not always specified, from the
                  * field preceding the num of lat-lon pairs
                  */
-                int streamOrder = Integer.parseInt(parts[numParts - 4]);
+                int streamOrder = Integer.parseInt(parts[numParts - 4 + shiftNum]);
 
                 if ((streamOrder < -1) || (streamOrder > 50)) {
                     log("WARNING: Error reading stream order in line "
@@ -743,7 +752,7 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
 
                 /* get the identifying name */
                 StringBuilder name = new StringBuilder();
-                for (int j = 1; j <= numParts - 5; j++) {
+                for (int j = 1; j <= numParts - 5 + shiftNum; j++) {
                     name.append(parts[j] + " ");
                 }
 
@@ -790,7 +799,7 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
                     } else {
                         double lat = Double.parseDouble(latlon[0]);
                         double lon = Double.parseDouble(latlon[1]);
-                        lon *= -1;
+                        
                         /* Test the bounds of the longitude value. */
                         if ((lon < -180) || (lon > 180)) {
                             log("ERROR reading or invalid lon for id "

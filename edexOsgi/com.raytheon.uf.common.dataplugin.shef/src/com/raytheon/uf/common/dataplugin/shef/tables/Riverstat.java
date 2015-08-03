@@ -51,6 +51,7 @@ import javax.persistence.TemporalType;
  * Aug 19, 2011      10672  jkorman    Move refactor to new project
  * Oct 07, 2013       2361  njensen    Removed XML annotations
  * May 15, 2015       4380  skorolev   Add new issuestg and issueflow fields.
+ * Jul 06, 2015      14104  lbousaidi  increased length of gsno column.
  * 
  * </pre>
  * 
@@ -384,7 +385,7 @@ public class Riverstat extends
         this.fs = fs;
     }
 
-    @Column(name = "gsno", length = 10)
+    @Column(name = "gsno", length = 15)
     public String getGsno() {
         return this.gsno;
     }

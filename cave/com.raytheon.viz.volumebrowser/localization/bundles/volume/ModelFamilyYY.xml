@@ -29,7 +29,7 @@
                     <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="true">
                         <capabilities>                       
                       
-                            <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="false" brightness="1.0" contrast="1.0"/>
+                            <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="false" brightness="0.5" contrast="1.0"/>
                         </capabilities>
                         <resourceType>PLAN_VIEW</resourceType>
                     </loadProperties>
@@ -64,7 +64,7 @@
                     <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="true">
                         <capabilities>                       
                       
-                            <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="false" brightness="1.0" contrast="1.0"/>
+                            <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="false" brightness="0.5" contrast="1.0"/>
                         </capabilities>
                         <resourceType>PLAN_VIEW</resourceType>
                     </loadProperties>
