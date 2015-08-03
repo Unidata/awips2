@@ -9,27 +9,21 @@ where table_catalog = 'metadata' and table_schema='awips' and constraint_type='U
 	constraint_name=(`${PSQL} -U awips -d metadata -t -c "$cmd"`)
 	
 	if [ $? -ne 0 ] ; then
-		echo "ERROR: Failed to obtain 'unnamed' unique constraint on table $1"
-		echo "FATAL: The update failed."
-		exit 1
+		echo "ERROR: The update failed to obtain 'unnamed' unique constraint on table $1"
 	fi
 	
 	cnLen=${#constraint_name[@]}
 	if [ ${cnLen} -eq 0 ] ; then
 		echo "WARNING: no UNIQUE constraint found for table $1"
 	elif [ ${cnLen} -gt 1 ] ; then
-		echo "ERROR: More then one unnamed UNIQUE constraint found for table ${1} (${constraint_name[@]})"
-		echo "FATAL: The update has failed."
-		exit 1
+		echo "ERROR: The update failed. More then one unnamed UNIQUE constraint found for table ${1} (${constraint_name[@]})"
 	elif [ ${constraint_name} == ${2} ] ; then
 		echo "INFO: No constraint rename on table ${table} performed; ${2} already exists."
 	else
 		echo "INFO: On $1 renaming constraint: ${constraint_name} to ${2}"
 		${PSQL} -U awips -d metadata -c "ALTER TABLE ${1} RENAME CONSTRAINT ${constraint_name} TO ${2} ;"
 		if [ $? -ne 0 ] ; then
-			echo "ERROR: Failed on table $1 to rename unique constraint ${constraint_name} to $2."
-			echo "FATAL: The update failed."
-			exit 1
+			echo "ERROR: The update failed on table $1 to rename unique constraint ${constraint_name} to $2."
 		fi
 	fi
 }
