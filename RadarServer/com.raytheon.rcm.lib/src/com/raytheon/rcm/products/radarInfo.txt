@@ -139,8 +139,10 @@
 158| 16 | 0 | 1.0  | 230 | ZDR | Differential Refl (ZDR)       | Radial  | y |   |   |   |   |   |   |   |   |29 |     |
 161|256 | 0 | 0.25 | 300 | CC  | Correlation Coeff (CC)        | Radial  | y |   |   |   | S |   |   |   |   |34 |     | y
 160| 16 | 0 | 1.0  | 230 | CC  | Correlation Coeff (CC)        | Radial  | y |   |   |   |   |   |   |   |   |34 |     |
+167|256 | 0 | 0.25 | 300 | SDC | Raw CC (SDC)                  | Radial  | y |   |   |   | S |   |   |   |   |34
 163|256 | 0 | 0.25 | 300 | KDP | Specific Diff Phase (KDP)     | Radial  | y |   |   |   | S |   |   |   |   |35 |     | y
 162| 16 | 0 | 1.0  | 230 | KDP | Specific Diff Phase (KDP)     | Radial  | y |   |   |   |   |   |   |   |   |35 |     |
+168|256 | 0 | 0.25 | 300 | SDP | Raw PHIDP (SDP)               | Radial  | y |   |   |   | S |   |   |   |   |35
 165|256 | 0 | 0.25 | 300 | HC  | Hydrometeor Class (HC)        | Radial  | y |   |   |   |   |   |   |   |   |36 |     | y
 164| 16 | 0 | 1.0  | 230 | HC  | Hydrometeor Class (HC)        | Radial  | y |   |   |   |   |   |   |   |   |36 |     |
 177|256 | 0 | 0.25 | 230 | HHC | Hybrid Hydrometeor Class (HHC)| Radial  |   |   |   |   |   |   |   |   |   |68 |     | y
@@ -158,3 +160,4 @@
 196|  0 | 0 | 0.0  |  50 | MBA | Microburst AMDA (MBA)         | Generic |   |   |   |   |   |   |   |   |   |28 |     |
 500|  8 | 0 | 0.463| 463 | Z   | Reflectivity (Z)              | Radial  |   |   |   |   |   |   |   |   |   |64 |     |
 550|  8 | 0 | 0.926| 111 | Z   | Reflectivity (Z)              | Radial  |   |   |   |   |   |   |   |   |   |64 |     |
+>>>>>>> master_15.1.1
