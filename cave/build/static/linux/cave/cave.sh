@@ -36,6 +36,7 @@
 # Jan 28, 2015  #4018     randerso    Added a productEditor log file to changes in the GFE product editor
 # Jun 17, 2015  #4148     rferrel     Logback needs fewer environment variables.
 # Jul 23, 2015  ASM#13849 D. Friedman Use a unique Eclipse configuration directory
+# Aug 03, 2015  #4694     dlovely     Logback will now add user.home to LOGDIR
 #
 
 
@@ -195,12 +196,14 @@ then
     PROGRAM_NAME="cave"
 fi
 
-BASE_LOGDIR=$HOME/caveData/logs/consoleLogs
+BASE_LOGDIR=caveData/logs/consoleLogs
+# Logback configuration files will append user.home to LOGDIR.
 export LOGDIR=$BASE_LOGDIR/$hostName/
+FULL_LOGDIR=$HOME/$LOGDIR
 
 # make sure directory exists
-if [ ! -d $LOGDIR ]; then
- mkdir -p $LOGDIR
+if [ ! -d $FULL_LOGDIR ]; then
+ mkdir -p $FULL_LOGDIR
 fi
 
 # delete any old disk caches in the background
@@ -209,7 +212,7 @@ deleteOldCaveLogs &
 curTime=`date +%Y%m%d_%H%M%S`
 
 pid=$!
-export LOGFILE_STARTUP_SHUTDOWN="${LOGDIR}/${PROGRAM_NAME}_${pid}_${curTime}_pid_%PID%_startup-shutdown.log"
+export LOGFILE_STARTUP_SHUTDOWN="$FULL_LOGDIR/${PROGRAM_NAME}_${pid}_${curTime}_pid_%PID%_startup-shutdown.log"
 
 createEclipseConfigurationDir
 
@@ -217,7 +220,7 @@ createEclipseConfigurationDir
 # this process can log the exit status of cave.
 (
   # can we write to log directory
-  if [ -w ${LOGDIR} ]; then
+  if [ -w $FULL_LOGDIR ]; then
     touch ${LOGFILE_STARTUP_SHUTDOWN}
   fi
 

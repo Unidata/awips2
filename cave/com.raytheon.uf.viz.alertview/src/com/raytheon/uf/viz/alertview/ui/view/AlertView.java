@@ -62,6 +62,7 @@ import com.raytheon.uf.viz.alertview.ui.prefs.OpenPreferencesAction;
  * ------------- -------- --------- --------------------------
  * Jun 18, 2015  4474     bsteffen  Initial creation
  * Jun 22, 2015  4474     njensen   Fix bugs
+ * Aug 03, 2015  4693     bsteffen  Bring view to top instead of activating.
  * 
  * </pre>
  * 
@@ -199,12 +200,14 @@ public class AlertView extends ViewPart implements AlertDestination,
         IWorkbenchPage activePage = window.getActivePage();
 
         try {
-            AlertView view = (AlertView) activePage.showView(AlertView.class
-                    .getName());
+            AlertView view = (AlertView) activePage.showView(
+                    AlertView.class.getName(), null,
+                    IWorkbenchPage.VIEW_VISIBLE);
             if (alert != null) {
                 view.handleAlert(alert);
                 view.alertTable.select(alert);
                 view.sashForm.setMaximizedControl(null);
+                activePage.bringToTop(view);
             }
         } catch (PartInitException e) {
             logger.error("Cannot open AlertView", e);

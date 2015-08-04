@@ -2876,12 +2876,12 @@
 	</model>
 	
 	<model>
-		<name>estofsHW</name>
+		<name>estofsHI</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
 		<grid>321225001</grid>
 		<process>
-			<id>14</id>
+			<id>17</id>
 		</process>
 	</model>
 
@@ -2891,9 +2891,19 @@
 		<subcenter>4</subcenter>
 		<grid>825553001</grid>
 		<process>
-			<id>14</id>
+			<id>17</id>
 		</process>
 	</model>
+
+        <model>
+                <name>estofsEP</name>
+                <center>7</center>
+                <subcenter>4</subcenter>
+                <grid>184</grid>
+                <process>
+                        <id>17</id>
+                </process>
+        </model>
 
 	<!-- END SUBCENTER 4: ENVIRONMENTAL MODELING CENTER -->
 

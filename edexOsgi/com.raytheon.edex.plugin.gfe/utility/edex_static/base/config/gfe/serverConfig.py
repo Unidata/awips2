@@ -1193,6 +1193,7 @@ if SID in ALASKA_SITES:
                  'RTOFS-Bering',
                  'RTOFS-GulfAlaska',
                  'RTOFS-HudsonBaffin',
+                 ('estofsAK', 'ESTOFS'),
                  'NPHwave15',
                  'AKHwave10',
                  'AKHwave4',
@@ -1217,6 +1218,7 @@ elif SID == "HFO":
                  ('TPCWindProb', 'TPCProb'),
                  ('ECMWF-HiRes','ECMWFHiRes'),
                  'RTOFS-Honolulu',
+                 ('estofsHI', 'ESTOFS'), 
                  'NPHwave15',
                  'WPHwave10',
                  'NPHwave4',
@@ -1410,6 +1412,7 @@ else:   #######DCS3501 WEST_CONUS
                  'NPHwave4',
                  'WPHwave10',
                  'GLOBHwave',
+                 ('estofsEP', 'ESTOFS'),
               ############DR17144
                  'URMA25',
                  ('GFS215', 'GFS20'),
@@ -1579,6 +1582,7 @@ elif SID in ALASKA_SITES:
         "RTMA" : ['RTMA'],
         "NamDNG5" : ["NamDNG5"],
         "AKMOSGuide" : ['MOSGuide'],
+        "ESTOFS" : ["ESTOFS"],
         "ETSS" : ["ETSS"],
         }
 
@@ -1597,6 +1601,7 @@ elif SID == "HFO":
         "RTMA" : ['RTMA'],
         "NamDNG5" : ["NamDNG5"],
         "MOSGuide" : ['MOSGuide'],
+        "ESTOFS" : ["ESTOFS"], 
         "nwpsCG1" : ['nwpsCG1'],
         "nwpsTrkngCG0" : ['nwpsTrkngCG0'],
         }

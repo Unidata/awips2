@@ -43,10 +43,10 @@
 # May 15, 2014  3157     dgilling       Update location of WclInfo class.
 # Jun 10, 2014  3268     dgilling       Update location of WclInfo class.
 # Dec 17, 2014  4953     randerso       Fixed decoding of non-VTEC from command line
+# May 14, 2015  4027     randerso       Changed regex used to decode date line to accept mixed case
 # Mar 24, 2015  4320     dgilling       Fix NullPointerException in StdWarningDecoder.__init__()
 #                                       when decoding product not from a file.
 # Mar 26, 2015  4324     dgilling       Improve handling of all 0s time values in HVTEC strings.
-# May 14, 2015  4027     randerso       Changed regex used to decode date line to accept mixed case
 #
 #
 # @author rferrel

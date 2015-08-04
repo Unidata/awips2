@@ -20,8 +20,10 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
- 	<contribute xsi:type="bundleItem" file="bundles/ncepHydro/hpc/HPC6hrQPF.xml" 
+ 	<contribute xsi:type="bundleItem" file="bundles/ncepHydro/hpc/HPCqpfNDFD.xml" 
               menuText="HPC QPF 6hr (Grid)" id="HPCQPF6hr">
+              <substitute key="frameCount" value="2" />
+              <substitute key="param" value="tpHPCndfd" />
     </contribute>
 
     <contribute xsi:type="subinclude" fileName="menus/ncepHydro/hpc/hpcMenus.xml"/>

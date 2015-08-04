@@ -244,6 +244,10 @@
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.npp.feature" />
 		</antcall>
+        <antcall target="p2.build.repo">
+             <param name="feature"
+                  value="com.raytheon.uf.viz.ncep.npp.feature" />
+        </antcall>		
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.d2d.skewt.feature" />
 		</antcall>
