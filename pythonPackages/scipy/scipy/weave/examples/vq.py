@@ -1,5 +1,7 @@
 """
 """
+from __future__ import absolute_import, print_function
+
 # C:\home\ej\wrk\scipy\weave\examples>python vq.py
 # vq with 1000 observation, 10 features and 30 codes fo 100 iterations
 #  speed in python: 0.150119999647
@@ -22,6 +24,7 @@ import scipy.weave.converters as converters
 blitz_type_converters = converters.blitz
 import scipy.weave.c_spec as c_spec
 
+
 def vq(obs,code_book):
     # make sure we're looking at arrays.
     obs = asarray(obs)
@@ -34,7 +37,7 @@ def vq(obs,code_book):
     type = c_spec.num_to_c_types[obs.typecode()]
     # band aid for now.
     ar_type = 'PyArray_FLOAT'
-    code =  """
+    code = """
             #line 37 "vq.py"
             // Use tensor notation.
             blitz::Array<%(type)s,2> dist_sq(Ncode_book[0],Nobs[0]);
@@ -58,10 +61,11 @@ def vq(obs,code_book):
                 return_val = results;
             """ % locals()
     code, distortion = inline_tools.inline(code,['obs','code_book'],
-                                           type_converters = blitz_type_converters,
-                                           compiler = 'gcc',
-                                           verbose = 1)
+                                           type_converters=blitz_type_converters,
+                                           compiler='gcc',
+                                           verbose=1)
     return code, distortion
+
 
 def vq2(obs,code_book):
     """ doesn't use blitz (except in conversion)
@@ -79,7 +83,7 @@ def vq2(obs,code_book):
     type = c_spec.num_to_c_types[obs.typecode()]
     # band aid for now.
     ar_type = 'PyArray_FLOAT'
-    code =  """
+    code = """
             #line 83 "vq.py"
             // THIS DOES NOT HANDLE STRIDED ARRAYS CORRECTLY
             // Surely there is a better way to do this...
@@ -122,9 +126,9 @@ def vq2(obs,code_book):
                 return_val = results;
             """ % locals()
     code, distortion = inline_tools.inline(code,['obs','code_book'],
-                                         type_converters = blitz_type_converters,
-                                         compiler = 'gcc',
-                                         verbose = 1)
+                                         type_converters=blitz_type_converters,
+                                         compiler='gcc',
+                                         verbose=1)
     return code, distortion
 
 
@@ -142,7 +146,7 @@ def vq3(obs,code_book):
     assert(obs_sh[1] == code_book_sh[1])
     assert(obs.typecode() == code_book.typecode())
     type = c_spec.num_to_c_types[obs.typecode()]
-    code =  """
+    code = """
             #line 139 "vq.py"
             // Surely there is a better way to do this...
             PyArrayObject* py_code = (PyArrayObject*) PyArray_FromDims(1,&Nobs[0],PyArray_LONG);
@@ -188,28 +192,30 @@ def vq3(obs,code_book):
 
 import time
 import RandomArray
+
+
 def compare(m,Nobs,Ncodes,Nfeatures):
     obs = RandomArray.normal(0.,1.,(Nobs,Nfeatures))
     codes = RandomArray.normal(0.,1.,(Ncodes,Nfeatures))
     import scipy.cluster.vq
     scipy.cluster.vq
-    print 'vq with %d observation, %d features and %d codes for %d iterations' % \
-           (Nobs,Nfeatures,Ncodes,m)
+    print('vq with %d observation, %d features and %d codes for %d iterations' %
+           (Nobs,Nfeatures,Ncodes,m))
     t1 = time.time()
     for i in range(m):
         code,dist = scipy.cluster.vq.py_vq(obs,codes)
     t2 = time.time()
     py = (t2-t1)
-    print ' speed in python:', (t2 - t1)/m
-    print code[:2],dist[:2]
+    print(' speed in python:', (t2 - t1)/m)
+    print(code[:2],dist[:2])
 
     t1 = time.time()
     for i in range(m):
         code,dist = scipy.cluster.vq.vq(obs,codes)
     t2 = time.time()
-    print ' speed in standard c:', (t2 - t1)/m
-    print code[:2],dist[:2]
-    print ' speed up: %3.2f' % (py/(t2-t1))
+    print(' speed in standard c:', (t2 - t1)/m)
+    print(code[:2],dist[:2])
+    print(' speed up: %3.2f' % (py/(t2-t1)))
 
     # load into cache
     b = vq(obs,codes)
@@ -217,9 +223,9 @@ def compare(m,Nobs,Ncodes,Nfeatures):
     for i in range(m):
         code,dist = vq(obs,codes)
     t2 = time.time()
-    print ' speed inline/blitz:',(t2 - t1)/ m
-    print code[:2],dist[:2]
-    print ' speed up: %3.2f' % (py/(t2-t1))
+    print(' speed inline/blitz:',(t2 - t1) / m)
+    print(code[:2],dist[:2])
+    print(' speed up: %3.2f' % (py/(t2-t1)))
 
     # load into cache
     b = vq2(obs,codes)
@@ -227,9 +233,9 @@ def compare(m,Nobs,Ncodes,Nfeatures):
     for i in range(m):
         code,dist = vq2(obs,codes)
     t2 = time.time()
-    print ' speed inline/blitz2:',(t2 - t1)/ m
-    print code[:2],dist[:2]
-    print ' speed up: %3.2f' % (py/(t2-t1))
+    print(' speed inline/blitz2:',(t2 - t1) / m)
+    print(code[:2],dist[:2])
+    print(' speed up: %3.2f' % (py/(t2-t1)))
 
     # load into cache
     b = vq3(obs,codes)
@@ -237,9 +243,9 @@ def compare(m,Nobs,Ncodes,Nfeatures):
     for i in range(m):
         code,dist = vq3(obs,codes)
     t2 = time.time()
-    print ' speed using C arrays:',(t2 - t1)/ m
-    print code[:2],dist[:2]
-    print ' speed up: %3.2f' % (py/(t2-t1))
+    print(' speed using C arrays:',(t2 - t1) / m)
+    print(code[:2],dist[:2])
+    print(' speed up: %3.2f' % (py/(t2-t1)))
 
 if __name__ == "__main__":
     compare(100,1000,30,10)
