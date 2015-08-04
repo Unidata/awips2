@@ -186,14 +186,14 @@ c     svout   ARPACK utility routine that prints vectors.
 c     sgeqr2  LAPACK routine that computes the QR factorization of
 c             a matrix.
 c     slacpy  LAPACK matrix copy routine.
-c     slamch  LAPACK routine that determines machine constants.
+c     wslamch  LAPACK routine that determines machine constants.
 c     sorm2r  LAPACK routine that applies an orthogonal matrix in
 c             factored form.
 c     ssteqr  LAPACK routine that computes eigenvalues and eigenvectors
 c             of a tridiagonal matrix.
 c     sger    Level 2 BLAS rank one update to a matrix.
 c     scopy   Level 1 BLAS that copies one vector to another .
-c     snrm2   Level 1 BLAS that computes the norm of a vector.
+c     wsnrm2   Level 1 BLAS that computes the norm of a vector.
 c     sscal   Level 1 BLAS that scales a vector.
 c     sswap   Level 1 BLAS that swaps the contents of two vectors.
 
@@ -283,8 +283,8 @@ c     | External Functions |
 c     %--------------------%
 c
       Real 
-     &           snrm2, slamch
-      external   snrm2, slamch
+     &           wsnrm2, wslamch
+      external   wsnrm2, wslamch
 c
 c     %---------------------%
 c     | Intrinsic Functions |
@@ -427,7 +427,7 @@ c     %---------------------------------%
 c     | Set machine dependent constant. |
 c     %---------------------------------%
 c
-      eps23 = slamch('Epsilon-Machine') 
+      eps23 = wslamch('Epsilon-Machine') 
       eps23 = eps23**(2.0E+0  / 3.0E+0 )
 c
 c     %---------------------------------------%
@@ -441,7 +441,7 @@ c
       if (bmat .eq. 'I') then
          bnorm2 = rnorm
       else if (bmat .eq. 'G') then
-         bnorm2 = snrm2(n, workd, 1)
+         bnorm2 = wsnrm2(n, workd, 1)
       end if
 c
       if (msglvl .gt. 2) then
@@ -501,7 +501,7 @@ c
      &          workl(ibd+jj-1) .le. tol*temp1) then
                select(jj) = .true.
                numcnv = numcnv + 1
-               if (jj .gt. nev) reord = .true.
+               if (jj .gt. nconv) reord = .true.
             endif
    11    continue
 c
@@ -609,9 +609,9 @@ c
 c
             if (leftptr .lt. rghtptr) go to 20
 c
- 30      end if
+         end if
 c
-         if (msglvl .gt. 2) then
+ 30      if (msglvl .gt. 2) then
              call svout (logfil, ncv, workl(ihd), ndigit,
      &       '_seupd: The eigenvalues of H--reordered')
          end if
@@ -760,6 +760,16 @@ c
      &                ldq   , workl(iw+ncv), workl(ihb),
      &                ncv   , temp         , ierr)
 c
+c        %-----------------------------------------------------%
+c        | Make a copy of the last row into                    |
+c        | workl(iw+ncv:iw+2*ncv), as it is needed again in    |
+c        | the Ritz vector purification step below             |
+c        %-----------------------------------------------------%
+c
+         do 67 j = 1, nconv
+            workl(iw+ncv+j-1) = workl(ihb+j-1)
+ 67      continue
+
       else if (rvec .and. howmny .eq. 'S') then
 c
 c     Not yet implemented. See remark 2 above.
@@ -830,14 +840,14 @@ c
       if (rvec .and. (type .eq. 'SHIFTI' .or. type .eq. 'CAYLEY')) then
 c
          do 110 k=0, nconv-1
-            workl(iw+k) = workl(iq+k*ldq+ncv-1)
+            workl(iw+k) = workl(iw+ncv+k)
      &                  / workl(iw+k)
  110     continue
 c
       else if (rvec .and. type .eq. 'BUCKLE') then
 c
          do 120 k=0, nconv-1
-            workl(iw+k) = workl(iq+k*ldq+ncv-1)
+            workl(iw+k) = workl(iw+ncv+k)
      &                  / (workl(iw+k)-one)
  120     continue
 c

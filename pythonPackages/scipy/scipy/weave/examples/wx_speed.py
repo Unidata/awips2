@@ -1,3 +1,5 @@
+from __future__ import absolute_import, print_function
+
 """ Implements a fast replacement for calling DrawLines with an array as an
     argument.  It uses weave, so you'll need that installed.
 
@@ -38,12 +40,13 @@ for (int i = 0; i < bunches; i++)
 Polyline(hdc,(POINT*)p_data,left_over);
 """
 
+
 def polyline(dc,line,xoffset=0,yoffset=0):
     #------------------------------------------------------------------------
     # Make sure the array is the correct size/shape
     #------------------------------------------------------------------------
     shp = line.shape
-    assert(len(shp)==2 and shp[1] == 2)
+    assert(len(shp) == 2 and shp[1] == 2)
 
     #------------------------------------------------------------------------
     # Offset data if necessary
@@ -63,16 +66,15 @@ def polyline(dc,line,xoffset=0,yoffset=0):
                Polyline(hdc,(POINT*)line,Nline[0]);
                """
     else:
-        if (line.typecode() != uint16 or
-            not line.iscontiguous()):
+        if (line.typecode() != uint16 or not line.iscontiguous()):
             line = line.astype(uint16)
+
         code = """
                GdkWindow* win = dc->m_window;
                GdkGC* pen = dc->m_penGC;
                gdk_draw_lines(win,pen,(GdkPoint*)line,Nline[0]);
                """
     weave.inline(code,['dc','line'])
-
 
     #------------------------------------------------------------------------
     # Find the maximum and minimum points in the drawing list and add
@@ -87,6 +89,8 @@ def polyline(dc,line,xoffset=0,yoffset=0):
 # Define a new version of DrawLines that calls the optimized
 # version for numpy arrays when appropriate.
 #-----------------------------------------------------------------------------
+
+
 def NewDrawLines(dc,line):
     """
     """
@@ -107,7 +111,7 @@ if __name__ == '__main__':
     import time
 
     class Canvas(wxWindow):
-        def __init__(self, parent, id = -1, size = wxDefaultSize):
+        def __init__(self, parent, id=-1, size=wxDefaultSize):
             wxWindow.__init__(self, parent, id, wxPoint(0, 0), size,
                               wxSUNKEN_BORDER | wxWANTS_CHARS)
             self.calc_points()
@@ -129,7 +133,7 @@ if __name__ == '__main__':
 
         def OnPaint(self,event):
             w,h = self.GetSizeTuple()
-            print len(self.points)
+            print(len(self.points))
             dc = wxPaintDC(self)
             dc.BeginDrawing()
 
@@ -140,8 +144,8 @@ if __name__ == '__main__':
             t1 = time.clock()
             offset = array((1,0))
             mod = array((w,0))
-            x = pt_copy[:,0];
-            ang = 2*pi/w;
+            x = pt_copy[:,0]
+            ang = 2*pi/w
 
             size = 1
             red_pen = wxPen('red',size)
@@ -163,7 +167,7 @@ if __name__ == '__main__':
                 pt_copy[:,1] = next_y
                 phase += ang
             t2 = time.clock()
-            print 'Weave Polyline:', t2-t1
+            print('Weave Polyline:', t2-t1)
 
             t1 = time.clock()
             pt_copy = self.points.copy()
@@ -184,7 +188,7 @@ if __name__ == '__main__':
                 phase += ang
             t2 = time.clock()
             dc.SetPen(red_pen)
-            print 'wxPython DrawLines:', t2-t1
+            print('wxPython DrawLines:', t2-t1)
 
             dc.EndDrawing()
 

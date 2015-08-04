@@ -1,12 +1,15 @@
 """Functions to extract parts of sparse matrices
 """
 
+from __future__ import division, print_function, absolute_import
+
 __docformat__ = "restructuredtext en"
 
 __all__ = ['find', 'tril', 'triu']
 
 
-from coo import coo_matrix
+from .coo import coo_matrix
+
 
 def find(A):
     """Return the indices and values of the nonzero elements of a matrix
@@ -23,21 +26,20 @@ def find(A):
         of the nonzero matrix entries.
 
 
-    Example
-    -------
-    >>> from scipy.sparse import csr_matrix
+    Examples
+    --------
+    >>> from scipy.sparse import csr_matrix, find
     >>> A = csr_matrix([[7.0, 8.0, 0],[0, 0, 9.0]])
     >>> find(A)
     (array([0, 0, 1], dtype=int32), array([0, 1, 2], dtype=int32), array([ 7.,  8.,  9.]))
 
     """
 
-    A = coo_matrix(A).tocsr()  #sums duplicates
-    A.eliminate_zeros()        #removes explicit zeros
-    A = A.tocoo(copy=False)    #(cheaply) convert to COO
+    A = coo_matrix(A).tocsr()  # sums duplicates
+    A.eliminate_zeros()        # removes explicit zeros
+    A = A.tocoo(copy=False)    # (cheaply) convert to COO
 
     return A.row,A.col,A.data
-
 
 
 def tril(A, k=0, format=None):
@@ -68,26 +70,27 @@ def tril(A, k=0, format=None):
 
     Examples
     --------
-    >>> from scipy.sparse import csr_matrix
-    >>> A = csr_matrix( [[1,2,0,0,3],[4,5,0,6,7],[0,0,8,9,0]], dtype='int32' )
-    >>> A.todense()
-    matrix([[1, 2, 0, 0, 3],
-            [4, 5, 0, 6, 7],
-            [0, 0, 8, 9, 0]])
-    >>> tril(A).todense()
-    matrix([[1, 0, 0, 0, 0],
-            [4, 5, 0, 0, 0],
-            [0, 0, 8, 0, 0]])
+    >>> from scipy.sparse import csr_matrix, tril
+    >>> A = csr_matrix([[1, 2, 0, 0, 3], [4, 5, 0, 6, 7], [0, 0, 8, 9, 0]],
+    ...                dtype='int32')
+    >>> A.toarray()
+    array([[1, 2, 0, 0, 3],
+           [4, 5, 0, 6, 7],
+           [0, 0, 8, 9, 0]])
+    >>> tril(A).toarray()
+    array([[1, 0, 0, 0, 0],
+           [4, 5, 0, 0, 0],
+           [0, 0, 8, 0, 0]])
     >>> tril(A).nnz
     4
-    >>> tril(A, k=1).todense()
-    matrix([[1, 2, 0, 0, 0],
-            [4, 5, 0, 0, 0],
-            [0, 0, 8, 9, 0]])
-    >>> tril(A, k=-1).todense()
-    matrix([[0, 0, 0, 0, 0],
-            [4, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0]])
+    >>> tril(A, k=1).toarray()
+    array([[1, 2, 0, 0, 0],
+           [4, 5, 0, 0, 0],
+           [0, 0, 8, 9, 0]])
+    >>> tril(A, k=-1).toarray()
+    array([[0, 0, 0, 0, 0],
+           [4, 0, 0, 0, 0],
+           [0, 0, 0, 0, 0]])
     >>> tril(A, format='csc')
     <3x5 sparse matrix of type '<type 'numpy.int32'>'
             with 4 stored elements in Compressed Sparse Column format>
@@ -99,11 +102,11 @@ def tril(A, k=0, format=None):
 
     mask = A.row + k >= A.col
 
-    row  = A.row[mask]
-    col  = A.col[mask]
+    row = A.row[mask]
+    col = A.col[mask]
     data = A.data[mask]
 
-    return coo_matrix( (data,(row,col)), shape=A.shape ).asformat(format)
+    return coo_matrix((data,(row,col)), shape=A.shape).asformat(format)
 
 
 def triu(A, k=0, format=None):
@@ -134,26 +137,27 @@ def triu(A, k=0, format=None):
 
     Examples
     --------
-    >>> from scipy.sparse import csr_matrix
-    >>> A = csr_matrix( [[1,2,0,0,3],[4,5,0,6,7],[0,0,8,9,0]], dtype='int32' )
-    >>> A.todense()
-    matrix([[1, 2, 0, 0, 3],
-            [4, 5, 0, 6, 7],
-            [0, 0, 8, 9, 0]])
-    >>> triu(A).todense()
-    matrix([[1, 2, 0, 0, 3],
-            [0, 5, 0, 6, 7],
-            [0, 0, 8, 9, 0]])
+    >>> from scipy.sparse import csr_matrix, triu
+    >>> A = csr_matrix([[1, 2, 0, 0, 3], [4, 5, 0, 6, 7], [0, 0, 8, 9, 0]],
+    ...                dtype='int32')
+    >>> A.toarray()
+    array([[1, 2, 0, 0, 3],
+           [4, 5, 0, 6, 7],
+           [0, 0, 8, 9, 0]])
+    >>> triu(A).toarray()
+    array([[1, 2, 0, 0, 3],
+           [0, 5, 0, 6, 7],
+           [0, 0, 8, 9, 0]])
     >>> triu(A).nnz
     8
-    >>> triu(A, k=1).todense()
-    matrix([[0, 2, 0, 0, 3],
-            [0, 0, 0, 6, 7],
-            [0, 0, 0, 9, 0]])
-    >>> triu(A, k=-1).todense()
-    matrix([[1, 2, 0, 0, 3],
-            [4, 5, 0, 6, 7],
-            [0, 0, 8, 9, 0]])
+    >>> triu(A, k=1).toarray()
+    array([[0, 2, 0, 0, 3],
+           [0, 0, 0, 6, 7],
+           [0, 0, 0, 9, 0]])
+    >>> triu(A, k=-1).toarray()
+    array([[1, 2, 0, 0, 3],
+           [4, 5, 0, 6, 7],
+           [0, 0, 8, 9, 0]])
     >>> triu(A, format='csc')
     <3x5 sparse matrix of type '<type 'numpy.int32'>'
             with 8 stored elements in Compressed Sparse Column format>
@@ -165,8 +169,8 @@ def triu(A, k=0, format=None):
 
     mask = A.row + k <= A.col
 
-    row  = A.row[mask]
-    col  = A.col[mask]
+    row = A.row[mask]
+    col = A.col[mask]
     data = A.data[mask]
 
-    return coo_matrix( (data,(row,col)), shape=A.shape ).asformat(format)
+    return coo_matrix((data,(row,col)), shape=A.shape).asformat(format)
