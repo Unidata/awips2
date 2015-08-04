@@ -29,10 +29,13 @@ import com.raytheon.uf.common.python.PythonScript;
  * A script that runs the text formatter python
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Jun 2, 2008				njensen	Initial creation
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Jun 02, 2008            njensen      Initial creation
+ * Jul 30, 2015  #4263     dgilling     Support updated TextProductManager.
  * 
  * </pre>
  * 
@@ -72,5 +75,4 @@ public class FormatterScript extends PythonScript {
     public Object execute(Map<String, Object> args) throws JepException {
         return execute(METHOD_NAME, args);
     }
-
 }

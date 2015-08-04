@@ -44,6 +44,7 @@ import UFStatusHandler
 #    05/06/2015      #4467         randerso      Convert to upper case before writing to files if
 #                                                mixed case is not enabled for the product.
 #                                                Cleaned up file writing code
+#    07/29/2015      #4263         dgilling      Support updated TextProductManager.
 # 
 #
 
@@ -391,20 +392,22 @@ def writeToServerFile(forecasts, outputFile, writeToSite):
             return 0
     return 1
 
-def getScripts(paths, nameMap, definitionMap):
+def importModules(paths):
     global displayNameDict
     displayNameDict = {}
     
-    rval = []
-    split = paths.split(':')
+    split = paths.split(os.path.pathsep)
     for path in split:
         if not path in sys.path:
             sys.path.append(path)
-        inv = os.listdir(path)
-        inv = filter(filterScripts, inv)
-        logger.info("TextProduct FormatterLauncher Processing....")
+
+        inv = []
+        if os.path.exists(path):
+            inv = os.listdir(path)
+            inv = filter(filterScripts, inv)
+
         for pid in inv:
-            name = string.split(pid, ".")[0]
+            name = os.path.splitext(pid)[0]
             if sys.modules.has_key(name):
                 del sys.modules[name]
             try:
@@ -429,30 +432,38 @@ def getScripts(paths, nameMap, definitionMap):
                 logger.info("Formatter: No Definition Found " + 
                                      name)
                 continue
-            #fs = FormatterScript(self._dataMgr, name, mod, definition)
             dspName = getDisplayName(definition)
             if dspName is None or dspName == "None":
-                #LogStream.logVerbose("Formatter displayName is None: " + 
-                #    ppDef(definition))
                 continue
-            #LogStream.logVerbose("Formatter displayName set: ", fs.dspName(),
-            #    ppDef(definition))        
-            nameMap.put(dspName, name)
-            from com.raytheon.uf.common.dataplugin.gfe.textproduct import ProductDefinition
-            pdef = ProductDefinition()
-            pdef.setDefinition(JUtil.pyDictToJavaMap(definition))
-            definitionMap.put(dspName, pdef)
             displayNameDict[dspName] = (mod, definition)
-            #rval.append(fs)
-    #rval.sort()
+
+def getScripts(paths, getVtecCodes):
+    from java.util import ArrayList
+    from com.raytheon.uf.common.dataplugin.gfe.textproduct import ProductDefinition
+    from com.raytheon.viz.gfe.textformatter import TextProductConfigData
+    from com.raytheon.viz.gfe.textformatter import TextProductMetadata
+    
+    logger.info("TextProduct FormatterLauncher Processing....")
+    importModules(paths)    
+    textProducts = ArrayList()
+    for (displayName, value) in displayNameDict.items():
+        (module, definition) = value
+        moduleName = module.__name__
+        pdef = ProductDefinition(JUtil.pyDictToJavaMap(definition))
+        productMetadata = TextProductMetadata(moduleName, displayName, pdef)
+        textProducts.add(productMetadata)
+    
+    vtecCodes = {}
+    if getVtecCodes:
+        import VTECMessageType
+        vtecCodes = VTECMessageType.VTECMessageTypeDict
+
     logger.info("TextProduct FormatterLauncher Done....")
-    #return rval
+    return TextProductConfigData(JUtil.pyValToJavaObj(vtecCodes), textProducts)
 
 def filterScripts(name):
-    result = False
-    if name.endswith(".py") and not name.endswith("Definition.py"):
-        result = True
-    return result
+    (filename, ext) = os.path.splitext(name)
+    return ext == ".py" and not filename.endswith("Definition")
 
 def getDisplayName(definition):
     try:
@@ -482,7 +493,9 @@ def ppDef(definition):
     else:
         return "<Definition not dictionary>\n" + `definition`
     
-def getVarDict(dspName, dataMgr, issuedBy, dataSource):
+def getVarDict(paths, dspName, dataMgr, issuedBy, dataSource):
+    importModules(paths)
+    
     tz = str(dataMgr.getClient().getSiteTimeZone())
     os.environ['TZ'] = tz
     time.tzset()
@@ -499,7 +512,7 @@ def getTimeZones(zones, officeTZ):
     import AreaDictionary
     timezones = []
     if zones is not None:
-        for zone in JUtil.javaStringListToPylist(zones):
+        for zone in zones:
             zdict = AreaDictionary.AreaDictionary.get(zone, {})
             tzs = zdict.get("ugcTimeZone", [])
             if type(tzs) is str:

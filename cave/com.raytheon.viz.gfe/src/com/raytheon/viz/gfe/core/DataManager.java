@@ -209,6 +209,8 @@ public class DataManager {
 
     private final AtomicBoolean proceduresInitialized;
 
+    private final AtomicBoolean textProductsInitialized;
+
     public IISCDataAccess getIscDataAccess() {
         return iscDataAccess;
     }
@@ -246,6 +248,7 @@ public class DataManager {
 
         smartToolsInitialized = new AtomicBoolean(false);
         proceduresInitialized = new AtomicBoolean(false);
+        textProductsInitialized = new AtomicBoolean(false);
         initializeScriptControllers(discriminator);
         waitForScriptControllers();
         procJobPool = new ProcedureJobPool(4, 4, this);
@@ -542,27 +545,22 @@ public class DataManager {
         };
         procedureInterface.initialize(procedureListener);
 
-        // it would be really nice to be able to spawn the construction of these
-        // two heavy objects into another thread. Unfortunately, Jep requires
-        // creation and all subsequent access to happen on the same thread. So
-        // we need to make use of runSync() here. It would be even be acceptable
-        // if we could make this a UIJob; unfortunately the thread most often
-        // used to create DataManager is the UI thread at perspective open, so
-        // we can't block and wait on the UI thread for a job that
-        // requires the UI thread to run.
-        VizApp.runSync(new Runnable() {
+        textProductMgr = new TextProductManager();
+        IAsyncStartupObjectListener textProductListener = new IAsyncStartupObjectListener() {
 
             @Override
-            public void run() {
-                DataManager.this.textProductMgr = new TextProductManager(
-                        discriminator != null);
+            public void objectInitialized() {
+                textProductsInitialized.set(true);
             }
-        });
+        };
+        boolean startLocalizationListener = (discriminator != null);
+        textProductMgr.init(startLocalizationListener, textProductListener);
     }
 
     private void waitForScriptControllers() {
         long waitTime = 0;
-        while (!(smartToolsInitialized.get() && proceduresInitialized.get())) {
+        while (!(smartToolsInitialized.get() && proceduresInitialized.get() && textProductsInitialized
+                .get())) {
             try {
                 waitTime += 10;
                 Thread.sleep(10);

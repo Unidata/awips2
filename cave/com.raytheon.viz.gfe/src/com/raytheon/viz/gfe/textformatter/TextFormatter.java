@@ -22,8 +22,13 @@ package com.raytheon.viz.gfe.textformatter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
+import jep.JepException;
+
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
+import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.PerformanceStatus;
@@ -54,6 +59,8 @@ import com.raytheon.viz.gfe.tasks.AbstractGfeTask;
  * Dec 1, 2010    6130     ryu         Set proper state and invoke callback
  * May 29, 2014   2841     randerso    Handle failure to queue due to pending limit
  * Apr 20, 2015  4027      randerso    Renamed ProductStateEnum with an initial capital
+ * Jul 28, 2015  4263      dgilling    Support changes to FormatterScriptFactory,
+ *                                     get DataManager instance via constructor.
  * 
  * </pre>
  * 
@@ -70,18 +77,20 @@ public class TextFormatter extends AbstractGfeTask {
     private final IPerformanceStatusHandler perfLog = PerformanceStatus
             .getHandler("GFE:");
 
-    private TextProductFinishListener listener;
+    private final TextProductFinishListener listener;
 
-    private HashMap<String, Object> argMap;
+    private final Map<String, Object> argMap;
 
     private ConfigData.ProductStateEnum state;
+
+    private final DataManager dataMgr;
 
     /**
      * Constructor
      */
     public TextFormatter(String productName, String vtecMode,
-            String databaseID, String varDict, String vtecActiveTable,
-            String drtTime, int testMode, TextProductFinishListener finish) {
+            String databaseID, String vtecActiveTable, String drtTime,
+            int testMode, TextProductFinishListener finish, DataManager dataMgr) {
         super(productName);
         String addr = null;
 
@@ -91,16 +100,17 @@ public class TextFormatter extends AbstractGfeTask {
             addr = UUID.randomUUID().toString();
         }
 
+        this.dataMgr = dataMgr;
+
         argMap = new HashMap<String, Object>();
         argMap.put("testMode", testMode);
         argMap.put(ArgDictConstants.DATABASE_ID, databaseID);
-        argMap.put(ArgDictConstants.SITE, DataManager.getCurrentInstance()
-                .getSiteID());
+        argMap.put(ArgDictConstants.SITE, this.dataMgr.getSiteID());
         argMap.put(ArgDictConstants.FORECAST_LIST, productName);
         argMap.put("username", System.getProperty("user.name") + ":" + addr);
-        argMap.put("dataMgr", DataManager.getCurrentInstance());
+        argMap.put("dataMgr", this.dataMgr);
         argMap.put(ArgDictConstants.VTEC_MODE, vtecMode);
-        argMap.put(ArgDictConstants.CMDLINE_VARDICT, varDict);
+
         argMap.put(ArgDictConstants.VTEC_ACTIVE_TABLE, vtecActiveTable);
         argMap.put("drtTime", drtTime);
         listener = finish;
@@ -121,15 +131,27 @@ public class TextFormatter extends AbstractGfeTask {
             });
 
             argMap.put("logFile", getLogFile().getAbsolutePath());
-            script = FormatterScriptFactory.buildFormatterScript();
-            ITimer timer = TimeUtil.getTimer();
-            timer.start();
-            forecast = (String) script.execute(argMap);
-            timer.stop();
+            script = new FormatterScriptFactory().createPythonScript();
+
             String productName = (String) argMap
                     .get(ArgDictConstants.FORECAST_LIST);
-            perfLog.logDuration("Text Formatter " + productName,
-                    timer.getElapsedTime());
+            String issuedBy = dataMgr.getTextProductMgr().getIssuedBy();
+            String dbId = (String) argMap.get(ArgDictConstants.DATABASE_ID);
+            String varDict = getVarDict(productName, dataMgr, dbId, issuedBy,
+                    script);
+
+            if (varDict != null) {
+                argMap.put(ArgDictConstants.CMDLINE_VARDICT, varDict);
+
+                ITimer timer = TimeUtil.getTimer();
+                timer.start();
+                forecast = (String) script.execute(argMap);
+                timer.stop();
+                perfLog.logDuration("Text Formatter " + productName,
+                        timer.getElapsedTime());
+            } else {
+                forecast = "Formatter canceled";
+            }
 
             state = ConfigData.ProductStateEnum.Finished;
         } catch (Throwable t) {
@@ -207,5 +229,20 @@ public class TextFormatter extends AbstractGfeTask {
                 .append(argMap.get(ArgDictConstants.VTEC_ACTIVE_TABLE));
 
         return sb.toString();
+    }
+
+    private String getVarDict(String productName, DataManager dataManager,
+            String dbId, String issuedBy, FormatterScript script)
+            throws JepException {
+        Map<String, Object> map = new HashMap<String, Object>(5, 1f);
+        map.put("paths", GfePyIncludeUtil.getTextProductsIncludePath());
+        map.put("dspName",
+                dataManager.getTextProductMgr().getDisplayName(productName));
+        map.put("dataMgr", dataManager);
+        map.put("issuedBy", issuedBy);
+        map.put("dataSource", new DatabaseID(dbId).getModelName());
+
+        String varDict = (String) script.execute("getVarDict", map);
+        return varDict;
     }
 }
