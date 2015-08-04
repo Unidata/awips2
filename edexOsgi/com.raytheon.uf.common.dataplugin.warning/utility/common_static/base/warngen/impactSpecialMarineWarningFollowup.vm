@@ -211,7 +211,7 @@ ${area.name}...
 ## Section for end of warning statements. Replaced default wording with
 ## a better defined reason for the end to the warning.
 #######################################################################
-#set($canwarning = "The ${eventType} !** WEAKENED / MOVED OUT OF THE WARNED AREA **! and no longer ${pose} a significant threat to boaters.")
+#set($canwarning = "The ${eventType} !** weakened / moved out of the warned area **! and no longer ${pose} a significant threat to boaters.")
 #if(${list.contains(${bullets}, "weakenedWarnEnd")})
 	#set($canwarning = "The ${eventType} weakened and no longer ${pose} a significant threat to boaters.")
 #end

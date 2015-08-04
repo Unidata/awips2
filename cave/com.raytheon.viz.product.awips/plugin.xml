@@ -59,7 +59,7 @@
          </property>
          <property
                name="windowImages"
-               value="icons/cave_16x16.gif,icons/cave_32x32.gif">
+               value="icons/cave_16x16.png,icons/cave_32x32.png,icons/cave_48x48.png,icons/cave_64x64.png,icons/cave_128x128.png">
          </property>
       </product>
    </extension>

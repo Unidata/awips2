@@ -8,7 +8,7 @@
                         <perspectiveProperty xsi:type="d2dLoadProperties" timeMatchBasis="true" loadMode="VALID_TIME_SEQ"/>
                         <capabilities>
                             <capability xsi:type="displayTypeCapability" displayType="IMAGE"/>
-                            <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="1.0" contrast="1.0"/>
+                            <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.5" contrast="1.0"/>
                             <capability xsi:type="colorMapCapability">
                                 <colorMapParameters colorMapName="SITE/ARX/Radar/Ref/ARX-Radar-Ref X-Section">
                                     <persisted/>

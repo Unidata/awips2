@@ -47,12 +47,12 @@
       #set($reportType1 = "severe thunderstorms were")
       #set($reportType2 = "these storms were")
       #set($reportType = "severe thunderstorms are")
-      #set($pathcastLead = "these severe storms")
+      #set($pathcastLead = "These severe storms")
     #else
       #set($reportType1 = "a severe thunderstorm was")
       #set($reportType2 = "this storm was")
       #set($reportType = "a severe thunderstorm is")
-      #set($pathcastLead = "this severe storm")
+      #set($pathcastLead = "This severe storm")
     #end
 #elseif(${phenomena}=="TO")
   #set($eventType = "TORNADO")
@@ -65,12 +65,12 @@
       #set($reportType = "a tornado was reported")
       #set($reportType1 = "line of tornado producing storms")
       #set($reportType2 = "these tornado producing storms were")
-      #set($pathcastLead = "these tornadic storms")
+      #set($pathcastLead = "These tornadic storms")
     #else
       #set($reportType = "a line of tornado producing storms was reported")
       #set($reportType1 = "tornado")
       #set($reportType2 = "this tornadic storm was")
-      #set($pathcastLead = "this tornado")
+      #set($pathcastLead = "This tornado")
     #end
 #end
 ######################################################
@@ -395,7 +395,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 #end
 #if(${action}=="CANCON" || ${action}=="CON" || ${action}=="COR" || ${CORCAN}=="true")
-...A ${eventType} WARNING REMAINS IN EFFECT UNTIL #headlineExpire(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) for ##
+...A ${eventType} WARNING REMAINS IN EFFECT UNTIL #headlineExpire(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
 #headlineLocList(${areas} true true true false "ALL")...
 ########### END NEW HEADLINE CODE ####################
 #set($reportType = "!** BASIS FOR WARNING **!")
@@ -406,16 +406,16 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
   #if(${stormType} == "line")
     #set($reportType = "severe thunderstorms capable of producing tornadoes were")
     #set($reportType2 = "these dangerous storms were")
-    #set($pathcastLead = "these dangerous storms") 
+    #set($pathcastLead = "These dangerous storms") 
   #else
     #set($reportType = "a severe thunderstorm capable of producing a tornado was")
     #set($reportType2 = "this dangerous storm was")
-    #set($pathcastLead = "this dangerous storm") 
+    #set($pathcastLead = "This dangerous storm") 
   #end
 #elseif(${list.contains(${bullets}, "dopplerSquallTOR")})
   #set($reportType = "a severe squall line capable of producing both tornadoes and extensive straight line wind damage was")
   #set($reportType2 = "these dangerous storms were")
-  #set($pathcastLead = "these dangerous storms") 
+  #set($pathcastLead = "These dangerous storms") 
 #elseif(${list.contains(${bullets}, "confirmedDopplerTOR")})
   #set($torTag = "observed")
   #set($torHazard = "damaging tornado")
@@ -483,11 +483,11 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
     #if(${stormType} == "line")
       #set($reportType = "severe thunderstorms capable of producing a tornado were")
       #set($reportType2 = "a tornado may develop at any time. these dangerous storms were")
-      #set($pathcastLead = "these dangerous storms") 
+      #set($pathcastLead = "These dangerous storms") 
     #else
       #set($reportType = "a severe thunderstorm capable of producing a tornado was")
       #set($reportType2 = "a tornado may develop at any time. This dangerous storm was")
-      #set($pathcastLead = "this dangerous storm") 
+      #set($pathcastLead = "This dangerous storm") 
     #end
 #elseif(${list.contains(${bullets}, "dopplerSVR")})
   #set($reportType = "${reportType1}")
@@ -528,10 +528,10 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
   #set($torThreat = "<L>TORNADO DAMAGE THREAT...CONSIDERABLE</L>")
   #set($pdstor = "This is a PARTICULARLY DANGEROUS SITUATION.")
   #if(${stormType} == "line")
-    #set($pathcastLead = "these tornadic storms")
+    #set($pathcastLead = "These tornadic storms")
     #set($moveLead = " Doppler radar showed these tornadic storms moving")
   #else
-    #set($pathcastLead = "the tornado")
+    #set($pathcastLead = "The tornado")
     #set($moveLead = " Doppler radar showed this tornado moving")
   #end 
   #set($preAmbleTOR = "To repeat, a large, extremely dangerous and potentially deadly tornado is ${torground}. To protect your life, ")
@@ -548,10 +548,10 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
   #set($reportType = "a confirmed large and destructive tornado was")
   #set($pdstor = "TORNADO EMERGENCY for !** EDIT LOCATION(S) **!. Take cover now! This is a PARTICULARLY DANGEROUS SITUATION.")
   #if(${stormType} == "line")
-    #set($pathcastLead = "these tornadic storms")
+    #set($pathcastLead = "These tornadic storms")
     #set($moveLead = " doppler radar showed these tornadic storms moving")
   #else
-    #set($pathcastLead = "the tornado")
+    #set($pathcastLead = "The tornado")
     #set($moveLead = " Doppler radar showed this tornado moving")
   #end 
   #if(${list.contains(${bullets}, "dopplerTOR")})
@@ -866,7 +866,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE. ##
 #end
 
-#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})...##
+#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone}), #
 ${reportType} located ##
 ##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")

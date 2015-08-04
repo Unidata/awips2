@@ -91,7 +91,9 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 02 Feb 2015 13372        djingtao    change the GMT time to local time for "revise" field                                                                  
  * 08 April 2015 17338      djingtao  "Apostrophe" entered into HB text fields are not written to IHFS database 
  *                                    remove the changes in 15695/15488,  move the apostrophe fix into a more central position
+ * 01 July 2015 15642      xwei        Added read-only lat/lon in DMS format
  * 
+ *  
  * </pre>
  * 
  * @author lvenable
@@ -191,7 +193,17 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
      * Longitude text control.
      */
     private Text lonTF;
+    
+    /**
+     * Latitude in DMS text control.
+     */
+    private Text latDMSTF;			 
 
+    /**
+     * Longitude in DMS text control.
+     */
+    private Text lonDMSTF;            
+    
     /**
      * Elevation text control.
      */
@@ -695,6 +707,21 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
         lonTF = new Text(leftComp, SWT.BORDER);
         lonTF.setLayoutData(gd);
 
+        gd = new GridData(leftCellWidth, SWT.DEFAULT);
+        Label latLonDMSLbl = new Label(leftComp, SWT.RIGHT);
+        latLonDMSLbl.setText("Lat/Lon (DMS): ");
+        latLonDMSLbl.setLayoutData(gd);
+
+        gd = new GridData(110, SWT.DEFAULT);
+        latDMSTF = new Text(leftComp, SWT.BORDER);
+        latDMSTF.setLayoutData(gd);
+        latDMSTF.setEnabled(false);
+        
+        gd = new GridData(110, SWT.DEFAULT);
+        lonDMSTF = new Text(leftComp, SWT.BORDER);
+        lonDMSTF.setLayoutData(gd);
+        lonDMSTF.setEnabled(false);
+        
         gd = new GridData(leftCellWidth, SWT.DEFAULT);
         Label elevationLbl = new Label(leftComp, SWT.RIGHT);
         elevationLbl.setText("Elevation: ");
@@ -1393,6 +1420,14 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
         lonTF.setText((locData.getLongitude() != HydroConstants.MISSING_VALUE) ? String
                 .valueOf(locData.getLongitude()) : "");
 
+        latDMSTF.setText(
+                GeoUtil.getInstance().cvt_latlon_from_double( ( locData.getLatitude() != HydroConstants.MISSING_VALUE ) ? locData.getLatitude() : 0 )
+                );
+        
+        lonDMSTF.setText(
+                GeoUtil.getInstance().cvt_latlon_from_double( ( locData.getLongitude() != HydroConstants.MISSING_VALUE) ? locData.getLongitude() : 0 )
+                );
+        
         // Only display elevation if it isn't missing, i.e. null in DB
         elevationTF
                 .setText((locData.getElevation() != HydroConstants.MISSING_VALUE) ? String

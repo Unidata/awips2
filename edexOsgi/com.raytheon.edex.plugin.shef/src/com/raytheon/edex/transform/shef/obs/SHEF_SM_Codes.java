@@ -36,6 +36,8 @@ import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 5, 2010            jkorman     Initial creation
+ * Jul 02,2015  #16909    lbousaidi   added a routine to apply -sw option 
+ * Jul 09,2015  #16925    lbousaidi   trace value was considered missing
  * 
  * </pre>
  * 
@@ -167,11 +169,13 @@ public enum SHEF_SM_Codes implements SHEF_Obs_Codes<ObsCommon> {
         }
     },
     // 7 Precip 6 hour
-    PPQRVZZ("%s  %6.2f", "PPQ") {
+    PPQRZZZ("%s  %6.2f", "PPQ") {
         @Override
         StringBuilder intFormat(StringBuilder buffer, ObsCommon report,
                 String format, String reportText, ObsToSHEFOptions options) {
             List<AncPrecip> precip = report.getAncPrecip();
+            String pedtsep = checkPEDTSEP(name(), options);
+            
             if ((precip != null) && (precip.size() > 0)) {
                 for (AncPrecip p : precip) {
                     if (HOURS_06.equals(p.getTimePeriod())) {
@@ -180,12 +184,12 @@ public enum SHEF_SM_Codes implements SHEF_Obs_Codes<ObsCommon> {
                             if (d == 0) {
                                 if ((!options.isOptZero6HourPrecip())
                                         && (!options.isOptZeroAuto6HourPrecip())) {
-                                    d = -9999.0;
+                                    d = 0.0;                                	
                                 }
                             }
                             if (d > -9999) {
                                 d = d * 0.03937D;
-                                buffer.append(String.format(format, name(), d));
+                                buffer.append(String.format(format,pedtsep, d));                                
                             }
                         }
                     }
@@ -544,6 +548,20 @@ public enum SHEF_SM_Codes implements SHEF_Obs_Codes<ObsCommon> {
 
         return formattedData;
     }
+    
+    private static final String checkPEDTSEP(String pedtsep, ObsToSHEFOptions options) {
+    	StringBuilder sb = null;
+
+        // 0123456789
+        // PEDTSEP
+        if(pedtsep != null) {
+        	sb = new StringBuilder(pedtsep);
+        	if(options.isOptTypeSrcV()) {
+        		sb.setCharAt(4, 'V');
+            }
+        }
+        return (sb != null) ? sb.toString() : null;
+    }    
 
     /**
      * This default does nothing. Each enum may override this method to provide

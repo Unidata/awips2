@@ -38,6 +38,7 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
  * ------------ ---------- ----------- --------------------------
  * Mar 5, 2009            snaples     Initial creation
  * Nov 26, 2014  16889     snaples     Updated to fix SNOTEL display
+ * Jun 30, 2015  17229    snaples      Fixed error in parsing snow water value.
  * 
  * </pre>
  * 
@@ -164,7 +165,7 @@ public class ReadSnowData {
                     }
 
                     else {
-                        String qbuf = buf.substring(0, buf.indexOf('.')+3);
+                        String qbuf = buf.substring(0, buf.indexOf('.')+2);
 
                         dqc.pdata[i].stn[j].srain[kk].data = Float.parseFloat(qbuf);
 

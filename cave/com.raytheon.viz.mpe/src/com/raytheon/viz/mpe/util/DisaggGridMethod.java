@@ -43,6 +43,7 @@ import com.raytheon.viz.mpe.util.Disagg6Hr.Values_6hr;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 20, 2009            snaples     Initial creation
+ * Jul 16, 2015 17561      snaples     Updated to fix issues with QPE Grid.
  * 
  * </pre>
  * 
@@ -109,47 +110,45 @@ public class DisaggGridMethod {
 
         try {
 
-            // out = new BufferedWriter(new FileWriter(disagg_log_fd));
-            for (j = 0; j < num_days_to_qc; j++) {
+            for (j = 0; j < num_days_to_qc; j++)
+            {
                 for (k = 0; k < 4; k++)// loop on 4 6hr periods
                 {
-                    /*-------------------------------------------*/
-                    /*
-                     * if 6hr value is missing, set all resulting 1hr values to
-                     * missing
-                     */
-                    /*-------------------------------------------*/
-                    /*-------------------------------------------*/
-                    /* read QPE grids into QPEgrids array */
-                    /*-------------------------------------------*/
-
+                 
                     out.write(String.format("\n   -- 6hr Period %d -- \n", k));
                     out.flush();
+                    
+                    /*---------------------------------------------------*/
+                    /* read QPE grids from files into QPEgrids array     */
+                    /* if QPE grids are missing then num_miss set to 99  */
+                    /*---------------------------------------------------*/
                     num_miss = getQPEGrids(j, k);
 
-                    if (num_miss > 0) {
+                    if (num_miss > 0)
+                    {
                         /*---------------------------------------------------------*/
                         /* case of missing QPE grid(s) */
                         /* set all 1hr values to missing for all disagg stations */
                         /* and take next 6hr period */
                         /*---------------------------------------------------------*/
 
-                        out.write(String
-                                .format("%d QPE grids missing -- all 1hr values set to missing\n",
-                                        num_miss));
+                        out.write(String.format("QPE grids missing -- all 1hr values set to missing\n"));
                         out.flush();
 
-                        for (l = 0; l < 6; l++) {
-                            for (i = 0; i < num_disagg_stations; i++) {
-                                disaggValues[j * num_disagg_stations + i].HourlyValues[6
-                                        * k + l] = -9999;
+                        for (l = 0; l < 6; l++)
+                        {
+                            for (i = 0; i < num_disagg_stations; i++)
+                            {
+                                disaggValues[j * num_disagg_stations + i].HourlyValues[6 * k + l] = -9999;
 
                             }
 
                         }
                         continue;
 
-                    } else {
+                    }
+                    else
+                    {
 
                         /*------------------------------------------------------------*/
                         /* case of all 6 QPE grids available */
@@ -171,61 +170,73 @@ public class DisaggGridMethod {
                         /* beyond the bounds of the area (array) */
                         /*------------------------------------------------------------*/
 
-                        for (i = 0; i < num_disagg_stations; i++) {
+                        for (i = 0; i < num_disagg_stations; i++)
+                        {
                             index = j * num_disagg_stations + i;
 
-                            if (values6hr[index].ID
-                                    .equals(Disagg6Hr.DISAGG_MISSING_STATION_SYMBOL)) {
+                            if (values6hr[index].ID.equals(Disagg6Hr.DISAGG_MISSING_STATION_SYMBOL))
+                            {
                                 continue;
                             }
 
                             hrapx = values6hr[index].hrapx_local;
                             hrapy = values6hr[index].hrapy_local;
-
+                            
                             total_6hr[i] = 0.0;
 
-                            for (l = 0; l < 6; l++) {
+                            for (l = 0; l < 6; l++)
+                            {
 
                                 total = 0;
                                 nbox = 0;
 
-                                for (nn = -1; nn < 2; nn++) {
+                                for (nn = -1; nn < 2; nn++)
+                                {
                                     hynn = hrapy + nn;
-                                    if (hynn >= Disagg6Hr.disagg_maxy) {
+                                    if (hynn >= Disagg6Hr.disagg_maxy)
+                                    {
                                         continue;
                                     }
-                                    if (hynn < 0) {
+                                    
+                                    if (hynn < 0)
+                                    {
                                         continue;
                                     }
 
-                                    for (mm = -1; mm < 2; mm++) {
+                                    for (mm = -1; mm < 2; mm++)
+                                    {
                                         hxmm = hrapx + mm;
-                                        if (hxmm >= Disagg6Hr.disagg_maxx) {
+                                        if (hxmm >= Disagg6Hr.disagg_maxx)
+                                        {
                                             continue;
                                         }
-                                        if (hxmm < 0) {
+                                        
+                                        if (hxmm < 0)
+                                        {
                                             continue;
                                         }
 
                                         nbox++;
-                                        total = total
-                                                + QPEgrids[l][hrapy + nn][hrapx
-                                                        + mm];
+                                        
+                                        out.write(String.format("QPEgrids[%d][%d][%d] = %5.2f \n",
+                                        		l, hynn, hxmm, 
+                                        		QPEgrids[l][hynn][hxmm]));
+                                        
+                                        total = total + QPEgrids[l][hynn][hxmm];
                                     }
                                 }
 
-                                if (nbox > 0) {
+                                if (nbox > 0)
+                                {
                                     totals_1hr[l][i] = total / 9.;
                                     total_6hr[i] = total_6hr[i] + total / 9.;
-                                    out.write(String.format(
-                                            " i=%d  l=%d  avg1hr=%5.2f\n", i,
-                                            l, totals_1hr[l][i]));
-                                } else {
+                                    out.write(String.format(" i=%d  l=%d  avg1hr=%5.2f\n", i, l, totals_1hr[l][i]));
+                                }
+                                else
+                                {
                                     totals_1hr[l][i] = -9999.;
                                     total_6hr[i] = -9999.;
-                                    out.write(String.format(
-                                            " i=%d  l=%d  avg1hr = missing\n",
-                                            i, l));
+                                    out.write(String.format(" i=%d  l=%d  avg1hr = missing\n", i, l));
                                 }
                             }
 
@@ -252,40 +263,47 @@ public class DisaggGridMethod {
                         /* (future enhancement) */
                         /*----------------------------------------------------------*/
 
-                        for (i = 0; i < num_disagg_stations; i++) {
+                        for (i = 0; i < num_disagg_stations; i++)
+                        {
                             index = j * num_disagg_stations + i;
 
-                            if (values6hr[index].ID
-                                    .equals(Disagg6Hr.DISAGG_MISSING_STATION_SYMBOL)) {
+                            if (values6hr[index].ID.equals(Disagg6Hr.DISAGG_MISSING_STATION_SYMBOL))
+                            {
                                 continue;
                             }
 
-                            out.write(String.format("%s \n",
-                                    disagg_station_6hr[i].hb5));
+                            out.write(String.format("%s \n", disagg_station_6hr[i].hb5));
 
-                            if (values6hr[index].value[k] == -9999.) {
-                                for (l = 0; l < 6; l++) {
-                                    disaggValues[j * num_disagg_stations + i].HourlyValues[6
-                                            * k + l] = -9999.f;
+                            if (values6hr[index].value[k] == -9999.)
+                            {
+                                for (l = 0; l < 6; l++)
+                                {
+                                    disaggValues[j * num_disagg_stations + i].HourlyValues[6 * k + l] = -9999.f;
 
                                 }
 
-                            } else if (values6hr[index].value[k] == 0.0
-                                    && total_6hr[i] > 0.0) {
+                            }
+                            else if (values6hr[index].value[k] == 0.0 && total_6hr[i] > 0.0)
+                            {
 
-                                if (val6hreq0 == 1) {
+                                if (val6hreq0 == 1)
+                                {
                                     out.write("case of 6hr value = 0.0, sum 1hr values > 0.0 -- ");
                                     out.write("ignore 1hr estimates, set all 1hr values = 0.0\n");
-                                    for (l = 0; l < 6; l++) {
-                                        disaggValues[j * num_disagg_stations
-                                                + i].HourlyValues[6 * k + l] = 0.0f;
+                                    
+                                    for (l = 0; l < 6; l++)
+                                    {
+                                        disaggValues[j * num_disagg_stations + i].HourlyValues[6 * k + l] = 0.0f;
 
                                     }
 
-                                } else {
+                                }
+                                else
+                                {
                                     out.write("case of 6hr value = 0.0, sum 1hr values > 0.0 -- ");
                                     out.write("ignore 6hr value, use 1hr values from grids\n");
-                                    for (l = 0; l < 6; l++) {
+                                    for (l = 0; l < 6; l++)
+                                    {
                                         disaggValues[j * num_disagg_stations
                                                 + i].HourlyValues[6 * k + l] = (float) (totals_1hr[l][i] * disagg_db_factor);
 
@@ -293,18 +311,23 @@ public class DisaggGridMethod {
 
                                 }
 
-                            } else if (values6hr[index].value[k] > 0.0
-                                    && total_6hr[i] == 0.0) {
-                                if (val6hrgt0 == 1) {
+                            } 
+                            else if (values6hr[index].value[k] > 0.0 && total_6hr[i] == 0.0)
+                            {
+                                if (val6hrgt0 == 1)
+                                {
                                     out.write("case of 6hr value > 0.0, sum 1hr values = 0.0 -- ");
                                     out.write("ignore 6hr gage value, set all 1hr values to 0.0\n");
-                                    for (l = 0; l < 6; l++) {
-                                        disaggValues[j * num_disagg_stations
-                                                + i].HourlyValues[6 * k + l] = 0.0f;
+                                
+                                    for (l = 0; l < 6; l++)
+                                    {
+                                        disaggValues[j * num_disagg_stations + i].HourlyValues[6 * k + l] = 0.0f;
 
                                     }
 
-                                } else {
+                                }
+                                else
+                                {
                                     /*
                                      * future enhancement - use nearest neighbor
                                      * method to estimate 1hr values
@@ -312,12 +335,15 @@ public class DisaggGridMethod {
 
                                     out.write("case of 6hr value > 0.0, sum 1hr values = 0.0 -- ");
                                     out.write("ignore 6hr gage value, set all 1hr values to 0.0\n");
-                                    for (l = 0; l < 6; l++) {
-                                        disaggValues[j * num_disagg_stations
-                                                + i].HourlyValues[6 * k + l] = 0.0f;
+                                
+                                    for (l = 0; l < 6; l++)
+                                    {
+                                        disaggValues[j * num_disagg_stations + i].HourlyValues[6 * k + l] = 0.0f;
                                     }
                                 }
-                            } else {
+                            } 
+                            else
+                            {
                                 /*-------------------------------------------------*/
                                 /*
                                  * compare 6hr value against sum of six 1hr
@@ -331,23 +357,22 @@ public class DisaggGridMethod {
 
                                 diff_1hr = (values6hr[index].value[k] - total_6hr[i]) / 6.;
 
-                                for (l = 0; l < 6; l++) {
+                                for (l = 0; l < 6; l++)
+                                {
                                     disaggValues[j * num_disagg_stations + i].HourlyValues[6
                                             * k + l] = (float) ((totals_1hr[l][i] + diff_1hr) * disagg_db_factor);
-                                    if (disaggValues[j * num_disagg_stations
-                                            + i].HourlyValues[6 * k + l] < 0.0) {
-                                        disaggValues[j * num_disagg_stations
-                                                + i].HourlyValues[6 * k + l] = 0.0f;
+                                    if (disaggValues[j * num_disagg_stations + i].HourlyValues[6 * k + l] < 0.0)
+                                    {
+                                        disaggValues[j * num_disagg_stations + i].HourlyValues[6 * k + l] = 0.0f;
                                     }
                                 }
                             }
 
-                            for (l = 0; l < 6; l++) {
+                            for (l = 0; l < 6; l++)
+                            {
                                 hour = (k * 6) + l;
                                 out.write(String.format("    %d    %6.1f\n",
-                                        hour,
-                                        disaggValues[j * num_disagg_stations
-                                                + i].HourlyValues[6 * k + l]));
+                                        hour, disaggValues[j * num_disagg_stations + i].HourlyValues[6 * k + l]));
                                 out.flush();
                             }
 
@@ -364,7 +389,6 @@ public class DisaggGridMethod {
                 nt.setTime(end_time_temp);
                 nt.add(Calendar.SECOND, 86400);
                 end_time_temp = nt.getTime();
-                // out.close();
 
             } /* end loop on for(j=0;j<num_days_to_qc;j++) */
 
@@ -373,7 +397,8 @@ public class DisaggGridMethod {
         }
     }
 
-    public int getQPEGrids(int j, int k) {
+    public int getQPEGrids(int j, int k)
+    {
 
         /*------------------------------------------------*/
         /* function to read QPE grids for a 6hr period */
@@ -387,13 +412,12 @@ public class DisaggGridMethod {
         /* - format of date in filename */
         /*                                                */
         /* Output: */
-        /* 1) QPE grid values stored in QPEgrids array */
-        /* 2) num_miss = number of missing 1hr QPE grids */
+        /* 1) QPE grid values stored in QPEgrids array    */
+        /* 2) num_miss = number of missing QPE grids      */
         /*------------------------------------------------*/
 
-        int i, l, jj, hour, num_miss;
+        int i, ii, l, jj, hour, num_miss;
         String qpe_filename = "";
-        String qpe_file_fd = "";
         double factor = 2540.;
         String qpe_files_dir = Disagg6Hr.qpe_files_dir;
         String date_form = Disagg6Hr.date_form;
@@ -409,9 +433,9 @@ public class DisaggGridMethod {
         /* loop on 6 hours in each period */
         /*----------------------------------------------*/
         try {
-            // out = new BufferedWriter(new FileWriter(disagg_log_fd));
 
-            for (l = 0; l < 6; l++) {
+            for (l = 0; l < 6; l++)
+            {
                 /*----------------------------------------------*/
                 /* create file name */
                 /* filenames are of the form: */
@@ -420,17 +444,20 @@ public class DisaggGridMethod {
                 /*----------------------------------------------*/
 
                 hour = 12 + (k * 6) + l + 1;
-                if (hour == 24) {
+                if (hour == 24)
+                {
                     hour = 0;
                     jj = j;
 
-                } else if (hour > 23) {
+                } else if (hour > 23)
+                {
                     hour = ((k - 2) * 6) + l + 1;
                     jj = j;
 
                 }
 
-                if (date_form.charAt(0) == 'm') {
+                if (date_form.charAt(0) == 'm')
+                {
                     qpe_filename = String.format(
                             "%s/xmrg%c%c%c%c%c%c%c%c%02dz", qpe_files_dir,
                             obsdate[jj].charAt(5), obsdate[jj].charAt(6),
@@ -438,7 +465,9 @@ public class DisaggGridMethod {
                             obsdate[jj].charAt(0), obsdate[jj].charAt(1),
                             obsdate[jj].charAt(2), obsdate[jj].charAt(3), hour);
 
-                } else {
+                }
+                else
+                {
                     qpe_filename = String.format(
                             "%s/xmrg%c%c%c%c%c%c%c%c%02dz", qpe_files_dir,
                             obsdate[jj].charAt(0), obsdate[jj].charAt(1),
@@ -452,66 +481,84 @@ public class DisaggGridMethod {
                 /* attempt to open the file */
                 /*----------------------------*/
 
-                out.write(String.format("attempting to open file %s\n",
-                        qpe_filename));
+                out.write(String.format("attempting to open file %s\n", qpe_filename));
                 out.flush();
-
-                in = new BufferedReader(new FileReader(qpe_file_fd));
-                if (!in.ready()) {
-                    out.write("      could not open file\n");
-                    out.flush();
-                    num_miss++;
-                    continue;
-                }
-
+                
                 /*--------------------------------------*/
                 /* read QPE file */
                 /* format of file is xmrg */
                 /* store values in QPEgrids array */
                 /*--------------------------------------*/
 
-                int xor = (int) MPEDataManager.getInstance().getHRAPExtent()
-                        .getMinX();
-                int yor = (int) MPEDataManager.getInstance().getHRAPExtent()
-                        .getMinY();
-                XmrgFile xmFile = new XmrgFile(qpe_filename);
-                Rectangle rec = new Rectangle();
-                rec.setRect(xor, yor, disagg_maxx, disagg_maxy);
-                short[][] tempg = xmFile.getData(rec);
+                XmrgFile xmrgFile = new XmrgFile(qpe_filename);
+                
+                if ( xmrgFile.getFile().length() > 0)
+    		    {
+    		        xmrgFile.load();
 
-                if (tempg.length <= 0) {
-                    out.write("   error reading file\n");
+    		        Rectangle hrapExtent = xmrgFile.getHrapExtent();
+
+    		        short[][]  hourlyShortData = xmrgFile.getData(hrapExtent);
+
+
+    		        int maxCols = hrapExtent.width;
+    		        int maxRows = hrapExtent.height;
+
+    		        double value = 0.0;
+
+    		        for (int row = 0; row < maxRows; row++)
+    		        {
+    		            int rowValue = maxRows - row - 1;
+    		            
+    		        	for (int col = 0; col < maxCols; col++)
+    		            {
+
+    		                short shortValue = hourlyShortData[row][col];
+
+    		                if (shortValue >= 0)
+    		                {
+    		                    //convert from hundredths of MM to inches
+    		                    value = ( ((double) shortValue) / ( 25.4 * 100.0) );
+    		             
+    		                }
+    		                else //keep special MISSING value
+    		                {
+    		                    value = shortValue;
+    		                }
+
+    		                QPEgrids[l][rowValue][col] = value;
+    		                
+    		                //if (value > 0.99)
+    		                //{
+    		                //    out.write(String.format(" in getQPEGrids -- QPEgrids[l][%d][%d] = %5.2f \n", rowValue, col, QPEgrids[l][rowValue][col]));
+    		                //}
+    		          
+    		            } //end for col
+    		        } //end for row
+
+    		    }//end if length > 0
+                else
+                {
+                    out.write("   error reading file\n" + qpe_filename + "\n" );
                     num_miss++;
-                    continue;
-
                 }
+              
+         
+              
+                
+              
+        
+            
+            } // end for (l = 0; l < 6; l++)
 
-                for (i = 0; i < disagg_maxy; i++) {
-                    for (j = 0; j < disagg_maxx; j++) {
-                        QPEgrids[l][i][j] = tempg[i][j] * 1.0 / factor;
-                    }
-                }
-            }
-
-            in.close();
+          
             return num_miss;
-        } catch (IOException e) {
-            return 0;
+        } //end try
+        catch (IOException e)
+        {
+            return 99;
 
         }
-        // finally {
-        // try {
-        // // if (out != null) {
-        // // out.close();
-        //
-        // }
-        //
-        // } catch (IOException e) {
-        // e.printStackTrace();
-        //
-        // }
-
-        // }
-
+       
     }
 }

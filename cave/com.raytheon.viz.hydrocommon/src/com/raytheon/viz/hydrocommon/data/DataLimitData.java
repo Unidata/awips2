@@ -88,7 +88,7 @@ public class DataLimitData extends HydroDBData implements IHydroDBData {
     public DataLimitData(Object[] data) {
         setPe((String) data[0]);
         // limitQuery.append("pe,");
-        setDur((Short) data[1]);
+        setDur(((Number) data[1]).shortValue());
         // limitQuery.append("dur,");
         setMonthDayStart((String) data[2]);
         // limitQuery.append("monthdaystart,");

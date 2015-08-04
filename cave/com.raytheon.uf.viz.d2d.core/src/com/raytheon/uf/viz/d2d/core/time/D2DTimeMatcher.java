@@ -83,6 +83,8 @@ import com.raytheon.uf.viz.d2d.core.D2DLoadProperties;
  *                                    null dataTimes.
  * May 13, 2015  4461     bsteffen    Move the logic to change frames into the
  *                                    FrameCoordinator.
+ * Jul 14, 2015  DR 13900 D. Friedman Validate descriptor of time match basis
+ *                                    before time matching it.
  * 
  * </pre>
  * 
@@ -246,8 +248,13 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
             if (timeMatchBasis != null) {
                 IDescriptor tmDescriptor = timeMatchBasis.getDescriptor();
                 if (tmDescriptor != null) {
-                    if (tmDescriptor != descriptor) {
-                        redoTimeMatching(tmDescriptor);
+                    if (tmDescriptor != descriptor
+                            && tmDescriptor.getTimeMatcher() == this) {
+                        if (validateDescriptor(tmDescriptor)) {
+                            redoTimeMatching(tmDescriptor);
+                        } else {
+                            changeTimeMatchBasis(null);
+                        }
                     } else if (contained(tmDescriptor, timeMatchBasis) == false) {
                         // Checks to ensure the timeMatchBasis is not "orphaned"
                         timeMatchBasis = null;
@@ -1047,6 +1054,25 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
                         .getResourceData()).getResourceList())) {
                     return true;
                 }
+            }
+        }
+        return false;
+    }
+
+    boolean rocket = true;
+    private boolean validateDescriptor(IDescriptor descriptor) {
+        if (! rocket)
+            return true;
+        IRenderableDisplay display = descriptor.getRenderableDisplay();
+        IDisplayPaneContainer container = display != null ? display
+                .getContainer() : null;
+        if (container != null) {
+            for (IDisplayPane pane : container.getDisplayPanes()) {
+                IRenderableDisplay paneDisplay = pane.getRenderableDisplay();
+                IDescriptor paneDescriptor = paneDisplay != null ? paneDisplay
+                        .getDescriptor() : null;
+                if (paneDescriptor == descriptor)
+                    return true;
             }
         }
         return false;

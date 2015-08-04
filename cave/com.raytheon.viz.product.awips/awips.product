@@ -39,7 +39,7 @@
       <vmArgsWin>-Dfile.encoding=UTF-8 -Xmx2560M</vmArgsWin>
    </launcherArgs>
 
-   <windowImages i16="/com.raytheon.viz.ui.personalities.awips/cave_16x16.png" i32="/com.raytheon.viz.ui.personalities.awips/cave_32x32.png" i48="/com.raytheon.viz.ui.personalities.awips/cave_48x48.png" i64="/com.raytheon.viz.ui.personalities.awips/cave_64x64.png" i128="/com.raytheon.viz.ui.personalities.awips/cave_128x128.png"/>
+   <windowImages i16="/com.raytheon.viz.product.awips/icons/cave_16x16.png" i32="/com.raytheon.viz.product.awips/icons/cave_32x32.png" i48="/com.raytheon.viz.product.awips/icons/cave_48x48.png" i64="/com.raytheon.viz.product.awips/icons/cave_64x64.png" i128="/com.raytheon.viz.product.awips/icons/cave_128x128.png"/>
 
    <splash
       location="com.raytheon.viz.ui.personalities.awips"

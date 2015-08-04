@@ -36,6 +36,21 @@ import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.ColorThreshold;
 import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.ColorThresholdArray;
 import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.NamedColorUseSet;
 
+/**
+ * Hydro Color Manager
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
+ * </pre>
+ * 
+ * @author rjpeter
+ * @version 1.0
+ */
 public abstract class ColorManager {
     protected static final String HARDCODED = "HARDCODED";
 
@@ -121,8 +136,7 @@ public abstract class ColorManager {
         rval.add(data);
 
         ColorThreshold[] thresholds = arr.getThresholds();
-        for (int i = 0; i < thresholds.length; ++i) {
-            ColorThreshold ct = thresholds[i];
+        for (ColorThreshold ct : thresholds) {
             double tmpVal = ct.getValue();
             data = new ColorScaleData();
             // We already added the default and missing values... replace them?
@@ -152,7 +166,7 @@ public abstract class ColorManager {
                 return entry.getValue().getColor_use_db_name();
             } else if (description.equals(entry.getValue()
                     .getColor_use_db_name())) {
-            	// if passing in the data type name then just return it
+                // if passing in the data type name then just return it
                 return description;
             }
         }
@@ -201,10 +215,11 @@ public abstract class ColorManager {
                     rval = entry.getValue().getColor_use_display_string();
                     break;
                 }
-            } else if (dataType.equals(entry.getValue().getColor_use_display_string())) {
-            	// if the display string is passed in just return it
-            	rval = dataType;
-            	break;
+            } else if (dataType.equals(entry.getValue()
+                    .getColor_use_display_string())) {
+                // if the display string is passed in just return it
+                rval = dataType;
+                break;
             }
         }
 
@@ -391,7 +406,7 @@ public abstract class ColorManager {
         colorValue.setUserID((String) oa[0]);
         colorValue.setApplicationName((String) oa[1]);
         colorValue.setColorUseName((String) oa[2]);
-        colorValue.setDuration(((Integer) oa[3]) / 3600);
+        colorValue.setDuration(((Number) oa[3]).intValue() / 3600);
         colorValue.setThresholdValue((Double) oa[4]);
         colorValue.setThresholdUnit((String) oa[5]);
         colorValue.setColorName((String) oa[6]);

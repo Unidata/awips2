@@ -70,6 +70,8 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Nov 24, 2014  16911     xwei         The day of Hydrologic Date is set to the next day 
  *                                      if hour is greater than 18Z. 
  * Jan 05, 2015   14246   lbousaidi    enable Transmit Best Estimate QPE.
+ * Jul 8, 2015   16790    snaples       Updated call to setCurrentEditDate to pass force variable.
+ * 
  * </pre>
  * 
  * @author randerso
@@ -159,7 +161,7 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
 
         displayMgr = MPEDisplayManager.getInstance(pane);
         dataMgr = MPEDataManager.getInstance();
-        dateMap = dataMgr.getDateMap(false);
+        dateMap = dataMgr.getDateMap(true);
         qcEnable = MPEDisplayManager.isMpeQcOptionEnabled();
         cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         hydroCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
@@ -328,7 +330,7 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
                 // Hide so if setCurrentEditDate returns false, we can continue
                 // to display
                 hide();
-                if (displayMgr.setCurrentEditDate(getTime())) {
+                if (displayMgr.setCurrentEditDate(getTime(), true)) {
                     close();
                 } else {
                     restore();

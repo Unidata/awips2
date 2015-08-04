@@ -61,6 +61,7 @@ import com.raytheon.viz.mpe.util.WriteQPFGrids;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 30, 2009            snaples     Initial creation
+ * Jul 9, 2015  14618      snaples     Updated render_options to be more efficient, and resolve an error.
  * 
  * </pre>
  * 
@@ -130,7 +131,6 @@ public class OtherPrecipOptions {
         int map_flag = DailyQcUtils.map_flag;
 
         /* 24 hour or 6 hour time step */
-
         if (MPEDisplayManager.pcpn_time_step == 0) {
             time_pos = DailyQcUtils.pcpn_time;
         } else {
@@ -157,8 +157,6 @@ public class OtherPrecipOptions {
                 change_rpcpn_flag = -1;
                 change_pcpn_flag = 1;
                 rsmode = 1;
-                // show legend
-
             }
 
         }
@@ -287,7 +285,7 @@ public class OtherPrecipOptions {
 
         Calendar tget = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         long offset = (DailyQcUtils.pcpn_day * 86400);
-        tget.setTime(dqc.btime.getTime());
+        tget.setTime(DailyQcUtils.btime.getTime());
         tget.add(Calendar.SECOND, (int) -offset);
         DailyQcUtils.isom = tget.get(Calendar.MONTH);
 
@@ -432,16 +430,11 @@ public class OtherPrecipOptions {
         int clientdata = i;
         Date old_time = null;
         String dbuf = "";
-//        String[][] timefile = dqc.timefile;
-//        String[][] ztimefile = dqc.ztimefile;
-//        String[][] ttimefile = dqc.ttimefile;
         WriteQPFGrids wq = new WriteQPFGrids();
         RenderPcp rpc = new RenderPcp();
         CreateMap cm = new CreateMap();
         MakeRsel mr = new MakeRsel();
-//        Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
         Calendar tmtime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-//        ReadPrecipStationList rp = new ReadPrecipStationList();
         int num_stations = DailyQcUtils.precip_stations.size();
         String s = appsDefaults.getToken(dqc_ending_6hour_obstime_tok);
         int dqc_ending_6hour_obstime = ((!(null == s)) ? Integer.parseInt(s)
@@ -455,12 +448,8 @@ public class OtherPrecipOptions {
         // // do nothing
         // }
 
-        if (clientdata == 1) {
-            // do nothing
-        }
-
         /* Rendering the grids and MAPs. */
-        else if (clientdata == 0) {
+        if (clientdata == 0) {
 
             BadValues bv = new BadValues();
             bv.update_bad_values(DailyQcUtils.pcpn_day);
@@ -1053,7 +1042,6 @@ public class OtherPrecipOptions {
             QcTempOptionsDialog.renderGridsBtn.setEnabled(false);
         }
         send_expose();
-        // refresh_exposure();
     }
 
     public void send_expose() {

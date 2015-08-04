@@ -72,6 +72,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                      to save a script.
  * Oct 08, 2012 #1229      rferrel      Made non-blocking.
  * Aug 09, 2013 #2033      mschenke     Switched File.separator to IPathManager.SEPARATOR
+ * Jul 10, 2015 16907      zhao         Changed 'ish-' to 'isd-' 
+ *  
  * 
  * </pre>
  * 
@@ -272,9 +274,9 @@ public class GenScriptsDlg extends CaveSWTDialog {
             String fname = null;
 
             if (style.equals("inv")) {
-                fname = "ish-inventory.txt";
+                fname = "isd-inventory.txt";
             } else {
-                fname = "ish-history.txt";
+                fname = "isd-history.txt";
             }
 
             scriptMsg.append(wgetStart).append(ftpIshDir).append("/")
@@ -316,9 +318,9 @@ public class GenScriptsDlg extends CaveSWTDialog {
             String fname = null;
 
             if (style.equals("inv")) {
-                fname = "ish-inventory.txt";
+                fname = "isd-inventory.txt";
             } else {
-                fname = "ish-history.txt";
+                fname = "isd-history.txt";
             }
 
             scriptMsg.append(">> script.ftp ECHO get ").append(fname)
@@ -368,8 +370,7 @@ public class GenScriptsDlg extends CaveSWTDialog {
             } else {
                 instructions = "==================================================\n";
                 instructions += "Please move this just-downloaded NCDC file to an\n";
-                instructions += "AWIPS machine into the " + targetPath
-                        + "/etc\n";
+                instructions += "AWIPS machine into the " + targetPath + "\n";
                 instructions += "directory.\n";
                 instructions += "==================================================\n";
             }
@@ -409,7 +410,7 @@ public class GenScriptsDlg extends CaveSWTDialog {
                 sb.append(ext);
                 scriptFile = sb.toString();
             } else {
-                scriptFile = "getNCDC-ISHFile" + ext;
+                scriptFile = "getNCDC-ISDFile" + ext;
             }
 
             FileDialog dlg = new FileDialog(shell, SWT.SAVE);

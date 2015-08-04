@@ -97,7 +97,7 @@ THIS IS A TEST MESSAGE. ##
 #end
 #if(${list.contains(${bullets}, "leadingRain")})
 	#set($eventType = "the leading edge of an area of rain")
-	#set($pathcastLead = "the rain will begin at ")
+	#set($pathcastLead = "The rain will begin at ")
 	#set($otherLead = "the rain")
 	#set($reportType2 = "${otherLead} was")
 #end

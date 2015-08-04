@@ -62,15 +62,17 @@ import com.raytheon.viz.hydrocommon.whfslib.PrecipUtil;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 22, 2008            mpduff     Initial creation
+ * Oct 22, 2008            mpduff      Initial creation
+ * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
  * </pre>
+ * 
  * @author mpduff
  * @version 1.0
  */
 
 public class PDCDataManager extends HydroDataManager {
     private static PDCDataManager instance = null;
-    
+
     private static Map<String, String> peMap = null;
 
     private static final String obsQueryHead = "select lid, pe, dur, ts, extremum, obstime, "
@@ -79,19 +81,19 @@ public class PDCDataManager extends HydroDataManager {
     private static Map<String, List<IngestFilter>> ingestFilterMap = null;
 
     private static Map<String, RiverStat> riverStatMap = null;
-    
+
     /**
      * Private constructor.
      */
     private PDCDataManager() {
-        
+
     }
-    
+
     public static synchronized PDCDataManager getInstance() {
         if (instance == null) {
             instance = new PDCDataManager();
         }
-        
+
         return instance;
     }
 
@@ -109,17 +111,18 @@ public class PDCDataManager extends HydroDataManager {
         }
         return result;
     }
-    
+
     public String[] getIngestFilterPE() throws VizException {
         ArrayList<String> peList = new ArrayList<String>();
-        
+
         String query = "select distinct(pe) from ingestfilter";
-        List<Object[]> rs = DirectDbQuery.executeQuery(query, HydroConstants.IHFS, QueryLanguage.SQL);
-        
-        for (Object[] oa:  rs) {
-            peList.add((String)oa[0]);
+        List<Object[]> rs = DirectDbQuery.executeQuery(query,
+                HydroConstants.IHFS, QueryLanguage.SQL);
+
+        for (Object[] oa : rs) {
+            peList.add((String) oa[0]);
         }
-        
+
         return peList.toArray(new String[peList.size()]);
     }
 
@@ -153,7 +156,7 @@ public class PDCDataManager extends HydroDataManager {
             PointDataPreset pdp = new PointDataPreset();
             pdp.setPresetId((String) oa[0]);
             pdp.setDescription((String) oa[1]);
-            pdp.setPresetRank((Integer) oa[2]);
+            pdp.setPresetRank(((Number) oa[2]).intValue());
             pdp.setPresetString((String) oa[3]);
             presetList.add(pdp);
         }
@@ -203,9 +206,7 @@ public class PDCDataManager extends HydroDataManager {
                 "insert into pointdatapresets (preset_id, descr, preset_rank, preset_string) ");
         sql.append("values ('" + node.getPresetId() + "', '"
                 + node.getDescription() + "', ");
-        sql
-                .append(node.getPresetRank() + ", '" + node.getPresetString()
-                        + "')");
+        sql.append(node.getPresetRank() + ", '" + node.getPresetString() + "')");
 
         runStatement(sql.toString());
     }
@@ -355,7 +356,7 @@ public class PDCDataManager extends HydroDataManager {
             for (Object[] oa : results) {
                 lid = (String) oa[0];
                 if (!lid.equalsIgnoreCase(prevLid)) {
-                    ingestFilterMap.put(prevLid, filterList);                    
+                    ingestFilterMap.put(prevLid, filterList);
                     prevLid = lid;
                     filterList = new ArrayList<IngestFilter>();
                 }
@@ -417,7 +418,8 @@ public class PDCDataManager extends HydroDataManager {
      * observed or forecast, or can be any designated type-source.
      */
     public void getRiverData(PDCOptions pcOptions) {
-        PointDataControlManager pdcManager = PointDataControlManager.getInstance();
+        PointDataControlManager pdcManager = PointDataControlManager
+                .getInstance();
         String where = null;
 
         /*
@@ -514,7 +516,8 @@ public class PDCDataManager extends HydroDataManager {
      * Get the PC and/or PP rain data.
      */
     public void getRainData() {
-        PointDataControlManager pdcManager = PointDataControlManager.getInstance();
+        PointDataControlManager pdcManager = PointDataControlManager
+                .getInstance();
         PDCOptionData pcOptions = PDCOptionData.getInstance();
         PrecipUtil precipUtil = PrecipUtil.getInstance();
         List<String> typeSourceArray = null;
@@ -524,7 +527,7 @@ public class PDCDataManager extends HydroDataManager {
         ArrayList<Object[]> ppList = null;
         ArrayList<Curpc> pcObjectList = new ArrayList<Curpc>();
         ArrayList<Curpp> ppObjectList = new ArrayList<Curpp>();
-        
+
         /* Empty out the data lists */
         pdcManager.setPpList(null);
         pdcManager.setPcList(null);
@@ -573,7 +576,7 @@ public class PDCDataManager extends HydroDataManager {
                         typeSourceArray, HydroConstants.PhysicalElement.PP);
             }
         }
-        
+
         /* Save the data to the PointDataControlManager */
         if (pcList != null) {
             /*
@@ -591,11 +594,11 @@ public class PDCDataManager extends HydroDataManager {
                 id.setExtremum((String) oa[4]);
                 id.setObstime((Date) oa[12]);
                 pc.setPe((String) oa[1]);
-                pc.setDur(((Integer)oa[2]).shortValue());
+                pc.setDur(((Number) oa[2]).shortValue());
                 pc.setValue((Double) oa[5]);
                 pc.setShefQualCode((String) oa[6]);
-                pc.setQualityCode((Integer) oa[7]);
-                pc.setRevision(((Integer)(oa[8])).shortValue());
+                pc.setQualityCode(((Number) oa[7]).intValue());
+                pc.setRevision(((Number) (oa[8])).shortValue());
                 pc.setProductId((String) oa[9]);
                 pc.setProducttime((Date) oa[10]);
                 pc.setPostingtime((Date) oa[11]);
@@ -619,15 +622,15 @@ public class PDCDataManager extends HydroDataManager {
                 Curpp pp = new Curpp();
                 CurppId id = new CurppId();
                 id.setLid((String) oa[0]);
-                id.setDur(((Integer) oa[2]).shortValue());
+                id.setDur(((Number) oa[2]).shortValue());
                 id.setTs((String) oa[3]);
                 id.setExtremum((String) oa[4]);
                 id.setObstime((Date) oa[12]);
                 pp.setPe((String) oa[1]);
                 pp.setValue((Double) oa[5]);
                 pp.setShefQualCode((String) oa[6]);
-                pp.setQualityCode((Integer) oa[7]);
-                pp.setRevision(((Integer) oa[8]).shortValue());
+                pp.setQualityCode(((Number) oa[7]).intValue());
+                pp.setRevision(((Number) oa[8]).shortValue());
                 pp.setProductId((String) oa[9]);
                 pp.setProducttime((Date) oa[10]);
                 pp.setPostingtime((Date) oa[11]);
@@ -640,7 +643,8 @@ public class PDCDataManager extends HydroDataManager {
     }
 
     public void getSnowTempOtherData() {
-        PointDataControlManager pdcManager = PointDataControlManager.getInstance();
+        PointDataControlManager pdcManager = PointDataControlManager
+                .getInstance();
         PDCOptionData pcOptions = PDCOptionData.getInstance();
         String typeSource = null;
         String tablename = null;
@@ -684,8 +688,8 @@ public class PDCDataManager extends HydroDataManager {
 
                 typeSource = pcOptions.getTypeSourceChosenList().get(0);
 
-                tablename = DbUtils.getTableName(pcOptions
-                        .getSelectedAdHocElementString(), typeSource);
+                tablename = DbUtils.getTableName(
+                        pcOptions.getSelectedAdHocElementString(), typeSource);
 
                 obsResult = getObservationData(tablename, where);
             }
@@ -700,13 +704,13 @@ public class PDCDataManager extends HydroDataManager {
         }
 
         for (Object[] oa : obsResult) {
-//            if (oa.length == 11) {
-//                Observation obs = new Observation(oa);
-//                obsList.add(obs);
-//            } else {
-                Observation obs = new Observation(oa);
-                obsList.add(obs);
-//            }
+            // if (oa.length == 11) {
+            // Observation obs = new Observation(oa);
+            // obsList.add(obs);
+            // } else {
+            Observation obs = new Observation(oa);
+            obsList.add(obs);
+            // }
         }
 
         pdcManager.setObservationList(obsList);
@@ -758,8 +762,7 @@ public class PDCDataManager extends HydroDataManager {
         Map<String, LocPDC> returnMap = new HashMap<String, LocPDC>();
 
         StringBuilder sql = new StringBuilder();
-        sql
-                .append("Select lid, name, lat, lon, hsa, post, elev, primary_pe, fs, fq, ");
+        sql.append("Select lid, name, lat, lon, hsa, post, elev, primary_pe, fs, fq, ");
         sql.append("disp_class, is_dcp, is_observer, telem_type from locPDC");
 
         ArrayList<Object[]> results = runQuery(sql.toString());

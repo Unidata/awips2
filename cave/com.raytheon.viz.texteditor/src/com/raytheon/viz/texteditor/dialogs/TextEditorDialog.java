@@ -106,7 +106,6 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
@@ -347,8 +346,9 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 15Feb2015   4001         dgilling    Ensure all fields are set in SendPracticeProductRequest.
  * 05Mar2015   RM 15025     kshrestha   Fix to maintain the headers that they are saved with
  * 10Mar2015   RM 14866     kshrestha   Disable QC GUI pop up for TextWS
- * 06Apr2015   RM14968   mgamazaychikov Fix formatting for pathcast section
+ * 6Apr2015    RM14968   mgamazaychikov Fix formatting for pathcast section
  * 15Jun2015   4441         randerso    Unconditionally convert text to upper case for QC
+ * 8Jul2015    DR 15044     dhuffman    Implemented tabbing and tabs to spaces.
  * 
  * </pre>
  * 
@@ -3839,10 +3839,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         });
 
-        // TODO - Use this to convert tabs to spaces and extra spaces in the
-        // middle of a line to a single space?
-        // textEditor.addVerifyListener(new VerifyListener() {
-        //
         // @Override
         // public void verifyText(VerifyEvent e) {
         // // TODO Auto-generated method stub
@@ -3969,7 +3965,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                             }
                             isTemplateOverwriteModeSet = true;
                         }
-
                         event.doit = false;
                         int currentPos = textEditor.getCaretOffset();
                         String textUpToCaret = textEditor.getText().substring(
@@ -3981,6 +3976,24 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     } else if (((event.keyCode >= 97) && (event.keyCode <= 122))
                             || ((event.keyCode >= 48) && (event.keyCode <= 57))) {
                         event.doit = true;
+                    }
+                } else { // (!AFOSParser.isTemplate)
+                    if (event.keyCode == SWT.TAB) {
+                        int lineStartOffset = textEditor
+                                .getOffsetAtLine(textEditor
+                                        .getLineAtOffset(textEditor
+                                                .getCaretOffset()));
+                        int caretOffsetOnLine = textEditor.getCaretOffset()
+                                - lineStartOffset;
+                        int numberOfSpaces = (textEditor.getTabs() - caretOffsetOnLine
+                                % textEditor.getTabs());
+                        String spaces = "";
+                        for (int x = 0; x < numberOfSpaces; x++)
+                            spaces += ' ';
+                        textEditor.insert(spaces);
+                        textEditor.setCaretOffset(textEditor.getCaretOffset()
+                                + numberOfSpaces);
+                        event.doit = false;
                     }
                 }
             }
@@ -4554,11 +4567,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      */
     private void cutText() {
         if (textEditor.getSelectionCount() == 0) {
-            MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-            mb.setText("Cut Error");
-            mb.setMessage("You must first select text to\n"
+            userInformation("Cut Error", "You must first select text to\n"
                     + "cut (by dragging, for example).");
-            mb.open();
             return;
         }
 
@@ -4573,11 +4583,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      */
     private void copyText() {
         if (textEditor.getSelectionCount() == 0) {
-            MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-            mb.setText("Copy Error");
-            mb.setMessage("You must first select text to\n"
+            userInformation("Copy Error", "You must first select text to\n"
                     + "copy (by dragging, for example).");
-            mb.open();
             return;
         }
 
@@ -4601,18 +4608,16 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      */
     private void printSelectedText() {
         if (textEditor.getSelectionCount() == 0) {
-            MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-            mb.setText("Print Selection Error");
-            mb.setMessage("You must first select text to\n"
-                    + "print (by dragging, for example).");
-            mb.open();
+            userInformation("Print Selection Error",
+                    "You must first select text to\n"
+                            + "print (by dragging, for example).");
             return;
         }
 
-        MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES
-                | SWT.NO);
-        mb.setMessage("Do you want to print the current selection?");
-        if (mb.open() == SWT.YES) {
+        int response = TextWSMessageBox.open(shell, "",
+                "Do you want to print the current selection?",
+                SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+        if (response == SWT.YES) {
             String tmpText = textEditor.getText();
             Point point = textEditor.getSelection();
             FontData fontData = textEditor.getFont().getFontData()[0];
@@ -4740,8 +4745,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                             .lastIndexOf(File.separator) + 1);
                     statusBarLabel.setText("Attachment: " + fn);
                 } else {
-                    MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR
-                            | SWT.OK);
                     StringBuilder sb = new StringBuilder();
                     if (!file.exists()) {
                         sb.append("File does NOT exist!\n\n");
@@ -4750,9 +4753,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     } else {
                         sb.append("File is NOT a text file!\n\n");
                     }
-                    mb.setText("Notice");
-                    mb.setMessage(sb.toString() + fn);
-                    mb.open();
+                    userInformation(sb.toString() + fn);
                 }
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM, "Error attaching file",
@@ -4871,10 +4872,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     // when functionality has not been implemented...
     //
     private void notImplementedYet(String information) {
-        MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-        mb.setText("Notice");
-        mb.setMessage("Functionality not implemented yet:\n\n" + information);
-        mb.open();
+        userInformation("Functionality not implemented yet:\n\n" + information);
     }
 
     /**
@@ -4884,10 +4882,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * @param information
      */
     private void userInformation(String title, String information) {
-        MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-        mb.setText(title);
-        mb.setMessage(information);
-        mb.open();
+        TextWSMessageBox.open(shell, title, information);
     }
 
     /**
@@ -4946,10 +4941,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             int startIndex = "Attachment:".length() + 1;
             sb.append(statusBarLabel.getText().substring(startIndex));
             sb.append(") will be transmitted with this message.");
-            MessageBox mb = new MessageBox(shell, SWT.OK | SWT.CANCEL);
-            mb.setText("Notice");
-            mb.setMessage(sb.toString());
-            if (SWT.OK != mb.open()) {
+            int response = TextWSMessageBox.open(shell, "Notice", sb.toString(),
+                    SWT.OK | SWT.CANCEL);
+            if (SWT.OK != response) {
                 return;
             }
         }

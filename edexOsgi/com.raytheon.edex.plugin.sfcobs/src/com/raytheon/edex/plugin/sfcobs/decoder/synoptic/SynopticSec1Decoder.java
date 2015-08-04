@@ -51,6 +51,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Sep 26, 2014 #3629      mapeters    Replaced static imports.
  * Sep 30, 2014 #3629      mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement()} 
  *                                     calls, added PATTERN_8094.
+ * Jul 09, 2015 #16924    lbousaidi    fixed the precip value for trace data      
  * 
  * </pre>
  * 
@@ -353,7 +354,7 @@ public class SynopticSec1Decoder extends AbstractSectionDecoder {
         if (precip != null) {
             Double v = precip.getDataValue();
             Integer p = precip.getDataPeriod();
-            if ((v != null) && (v > 0) && (p != null)) {
+            if ((v != null) && (v >= 0) && (p != null)) {
                 AncPrecip precip = new AncPrecip();
                 precip.setPrecipAmount(v);
                 precip.setTimePeriod(p);

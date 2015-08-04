@@ -52,6 +52,7 @@ import com.raytheon.viz.gfe.smartscript.FieldDefinition;
  *                                      calls from python copying/casting to correct types
  * Feb 05, 2015  4089      njensen     Replaced previous hardening with ensureResultType()
  * Apr 23, 2015  4259      njensen     Updated for new JEP API
+ * Jul 07, 2015  14739     ryu         Added getVarDict().
  * 
  * </pre>
  * 
@@ -130,6 +131,24 @@ public abstract class BaseGfePyController extends PythonScriptController {
         } else {
             jep.eval("varDict = " + varDict);
         }
+    }
+
+    /**
+     * Gets a module's varDict (variable list inputs)
+     * 
+     * @return   a string representation of a python dictionary
+     */
+    public String getVarDict() {
+        String varDict = null;
+        try {
+            jep.eval("temp = str(varDict)");
+            varDict = (String) jep.getValue("temp");
+            jep.eval("temp = None");
+        } catch (JepException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Exception while getting varDict", e);
+        }
+        return varDict;
     }
 
     /**

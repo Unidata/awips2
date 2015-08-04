@@ -494,15 +494,19 @@ IDS|DDPLUS	^(FOUS[67].) (....) (..)(..)(..)
 #	FILE	-overwrite -log -close -edex	/data_store/misc_adm_messages/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 #
 # separate out svrwx lsr and GSM misc adm messages
-IDS|DDPLUS	^(N[A-VYZ]....) (.{4}) (..)(..)(..)
+# Changed patterns to ANY and removed NWUS6 to prevent encrypted WCL from storing for DR14314
+ANY	^(N[A-VYZ]....) (.{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/misc_adm_messages/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
-IDS|DDPLUS	^(NWUS[01346-9].) (.{4}) (..)(..)(..)
+ANY	^(NWUS[01347-9].) (.{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/misc_adm_messages/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
-IDS|DDPLUS	^(NWUS5.) (.{4}) (..)(..)(..)
+ANY	^(NWUS5.) (.{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/lsr/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
-IDS|DDPLUS	^(NWUS2.) (.{4}) (..)(..)(..)
+# DR16660 - time string changed back to original for PBP and HFO
+IDS|DDPLUS	^(NW(HW|MY)50) (.{4}) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/lsr/(\4:yyyy)(\4:mm)\4/\5/\1_\3_\4\5\6_(seq).%Y%m%d%H
+ANY	^(NWUS2.) (.{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/svrwx/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
-IDS|DDPLUS	^(NXUS[0-57-9].) (....) (..)(..)(..)
+ANY	^(NXUS[0-57-9].) (....) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/misc_adm_messages/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
 # xml 
@@ -830,3 +834,10 @@ NGRID	^(MHR...) (KNHC) (..)(..)(..)
 NGRID	^([YZ][BCE-HMO-Y][BEFN][A-Z][0-9][0-9]) KWBC (..)(..)(..) [^!]*!(grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
 	FILE	-overwrite -log -close -edex	/data_store/grib2/(\2:yyyy)(\2:mm)\2/\3/\6/GRID\7/\9Z_\(10)_\(11)_\1_KWBC_\2\3\4_(seq).\5.%Y%m%d%H
 
+# Encrypted WCL
+ANY	^(NWUS64) KWNS (..)(..)(..)
+	PIPE	-close	/usr/local/ldm/decoders/decrypt_file
+	/data_store/text/text_decrypted/wcl_decrypted_NWUS64_KWNS_\2\3\4.(seq).%Y%m%d%H
+
+EXP	(.*wcl_decrypted.*)
+	FILE	-overwrite -log -close -edex	\1

@@ -32,7 +32,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -307,10 +306,8 @@ public class SearchReplaceDlg extends CaveSWTDialog {
         checkForUpdates();
         int searchTextLength = searchForTF.getText().length();
         if (searchTextLength == 0) {
-            MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-            mb.setText("Search Warning");
-            mb.setMessage("You do not have text in the 'Search For' field.");
-            mb.open();
+            TextWSMessageBox.open(shell, "Search Warning",
+                    "You do not have text in the 'Search For' field.");
             return false;
         }
 
@@ -319,12 +316,10 @@ public class SearchReplaceDlg extends CaveSWTDialog {
                 .toUpperCase(), searchOffset++);
 
         if (foundIndex == -1) {
-            MessageBox searchTopMB = new MessageBox(shell, SWT.ICON_ERROR
+            int result = TextWSMessageBox.open(shell, "Warning", "\""
+                    + searchForTF.getText() + "\"" + " not found.\n"
+                    + "Start from the top of the product?", SWT.ICON_ERROR
                     | SWT.YES | SWT.NO);
-            searchTopMB.setText("Warning");
-            searchTopMB.setMessage("\"" + searchForTF.getText() + "\""
-                    + " not found.\n" + "Start from the top of the product?");
-            int result = searchTopMB.open();
 
             if (result == SWT.NO) {
                 foundIndex = tmpIndex;
@@ -337,11 +332,8 @@ public class SearchReplaceDlg extends CaveSWTDialog {
                     .toUpperCase(), searchOffset++);
 
             if (foundIndex == -1) {
-                MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-                mb.setText("Warning");
-                mb.setMessage("\"" + searchForTF.getText() + "\""
-                        + " not found.");
-                mb.open();
+                TextWSMessageBox.open(shell, "Warning",
+                        "\"" + searchForTF.getText() + "\"" + " not found.");
                 return false;
             }
         }
@@ -358,10 +350,9 @@ public class SearchReplaceDlg extends CaveSWTDialog {
      */
     private boolean replaceText() {
         if (textEditor.getSelectionCount() == 0) {
-            MessageBox mb = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
-            mb.setText("Sorry!");
-            mb.setMessage("Please select 'search' before 'replace.'");
-            mb.open();
+            TextWSMessageBox.open(shell, "Sorry!",
+                    "Please select 'search' before 'replace.'",
+                    SWT.ICON_INFORMATION | SWT.OK);
             return false;
         }
 

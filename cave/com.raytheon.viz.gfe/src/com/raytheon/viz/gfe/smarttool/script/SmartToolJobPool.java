@@ -19,6 +19,7 @@
  **/
 package com.raytheon.viz.gfe.smarttool.script;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -52,6 +53,7 @@ import com.raytheon.viz.gfe.smarttool.Tool;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 09, 2013  #2367    dgilling     Initial creation
+ * Jul 07, 2015  14739    ryu          Modified execute() to retrieve updated varDict after tool execution.
  * 
  * </pre>
  * 
@@ -356,9 +358,13 @@ public class SmartToolJobPool {
                 }
                 Tool tool = new Tool(dataMgr.getParmManager(), request
                         .getPreview().getParm(), ea.getItemName(), python);
+                List<String> varDictList = new ArrayList<String>(1);
+                varDictList.add(request.getVarDict());
                 tool.execute(ea.getItemName(), request.getPreview().getParm(),
                         ea.getRefSet(), ea.getTimeRange(),
-                        request.getVarDict(), ea.getMissingDataMode(), monitor);
+                        varDictList, ea.getMissingDataMode(), monitor);
+                //reset varDict
+                request.setVarDict(varDictList.get(0));
                 pjStatus = Status.OK_STATUS;
             } catch (SmartToolException e) {
                 pjStatus = new Status(IStatus.WARNING, Activator.PLUGIN_ID,

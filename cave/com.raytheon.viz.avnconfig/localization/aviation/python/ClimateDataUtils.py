@@ -32,6 +32,10 @@
 #       %PIRC%
 #
 #   TODO: make the # climate years configurable
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    Jul 07, 2015    16907         zhao           Modified to work with new ids- files 
+#
 import ConfigParser
 import logging, time, os
 
@@ -40,8 +44,8 @@ sys.argv = [__name__]
 
 import tables
 
-ish_inv = 'ish-inventory.txt'
-ish_his = 'ish-history.txt'
+ish_inv = 'isd-inventory.txt'
+ish_his = 'isd-history.txt'
 _Logger=logging.getLogger('CLIMATE')
 
 def get_climo_years(climateFilePath, stn='', lines = []):
@@ -140,5 +144,5 @@ def getIdnumsList(ishDirPath, climateFilePath, stn=''):
 def getHistory(ishDirPath, stn=''):
     if stn == '': return []
     fh = open(os.path.join(ishDirPath, ish_his), 'r')
-    return [line[:12] for line in fh.readlines() if stn == line[52:56] and line[:6] != '999999']
+    return [line[:12] for line in fh.readlines() if stn == line[51:55] and line[:6] != '999999']
     

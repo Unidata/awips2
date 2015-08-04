@@ -72,6 +72,7 @@ import com.raytheon.viz.gfe.smarttool.script.SmartToolController;
  * 02/14/2013              mnash       Change QueryScript to use new Python concurrency
  * 02/20/2013        #1597 randerso    Added logging to support GFE Performance metrics
  * 04/10/2013    16028     ryu         Check for null seTime in execute()
+ * 07/07/2015    14739     ryu         Modified execute() to return with updated varDict.
  *
  * </pre>
  *
@@ -397,7 +398,7 @@ public class Tool {
      * @throws SmartToolException
      */
     public void execute(String toolName, Parm inputParm,
-            final ReferenceData editArea, TimeRange timeRange, String varDict,
+            final ReferenceData editArea, TimeRange timeRange, List<String> varDictList,
             MissingDataMode missingDataMode, IProgressMonitor monitor)
             throws SmartToolException {
         ITimer timer = TimeUtil.getTimer();
@@ -461,7 +462,7 @@ public class Tool {
         boolean saveParams = false;
 
         try {
-            tool.setVarDict(varDict);
+            tool.setVarDict(varDictList.get(0));
             // # PreProcess Tool
             handlePreAndPostProcess("preProcessTool", null, timeRange,
                     editArea, dataMode);
@@ -559,6 +560,9 @@ public class Tool {
             handlePreAndPostProcess("postProcessTool", null, timeRange,
                     trueEditArea, dataMode);
             saveParams = true;
+            
+            // reset varDict
+            varDictList.set(0, tool.getVarDict());
         } catch (SmartToolException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         } catch (JepException e) {
