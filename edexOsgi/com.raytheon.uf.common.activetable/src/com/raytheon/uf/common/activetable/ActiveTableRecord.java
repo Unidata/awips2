@@ -57,6 +57,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * 04/28/2015   4027       randerso    Expunged Calendar from ActiveTableRecord
  * 05/22/2015   4522       randerso    Create proper primary key for ActiveTableRecord
+ * 08/04/2015   4712       bphillip    Added parameter to PersistableDataObject
  * </pre>
  * 
  * @author njensen
@@ -66,7 +67,7 @@ import com.vividsolutions.jts.geom.Geometry;
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @DynamicSerialize
 // TODO: do we get anything from extending PersistableDataObject here?
-public abstract class ActiveTableRecord extends PersistableDataObject {
+public abstract class ActiveTableRecord extends PersistableDataObject<ActiveTableKey> {
     protected static final long serialVersionUID = 1L;
 
     @EmbeddedId
