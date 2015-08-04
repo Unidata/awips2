@@ -1,0 +1,372 @@
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
+package com.raytheon.uf.edex.plugin.pointset.netcdf;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.LongBuffer;
+import java.nio.ShortBuffer;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+import javax.xml.bind.JAXB;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ucar.ma2.DataType;
+import ucar.nc2.Attribute;
+import ucar.nc2.NetcdfFile;
+import ucar.nc2.Variable;
+
+import com.raytheon.uf.common.dataplugin.level.LevelFactory;
+import com.raytheon.uf.common.dataplugin.pointset.PointSetLocation;
+import com.raytheon.uf.common.dataplugin.pointset.PointSetRecord;
+import com.raytheon.uf.common.datastorage.StorageException;
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
+import com.raytheon.uf.common.parameter.lookup.ParameterLookup;
+import com.raytheon.uf.edex.plugin.pointset.netcdf.description.PointSetProductDescriptions;
+import com.raytheon.uf.edex.plugin.pointset.netcdf.description.ProductDescription;
+import com.raytheon.uf.edex.plugin.pointset.netcdf.description.VariableDescription;
+
+/**
+ * 
+ * Decoder which can read {@link NetcdfFile}s and extract out one or more
+ * {@link PointSetRecord}s. The decode is controlled by
+ * {@link PointSetProductDescriptions} which are loaded from an
+ * {@link IPathManager}. Currently this decoder can handle any file which stores
+ * the longitude,latitude and data in three distinct netcdf variable that have
+ * the same shape and which stores the time in a global attribute. The variable
+ * names and all metadata can be controlled from the config file.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------
+ * Aug 11, 2015  4709     bsteffen  Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bsteffen
+ */
+public class PointSetNetcdfDecoder {
+
+    private static final Pattern LONGITUDE_COORDINATE_PATTERN = Pattern
+            .compile("LON", Pattern.CASE_INSENSITIVE);
+
+    private static final Pattern LATITUDE_COORDINATE_PATTERN = Pattern.compile(
+            "LAT",
+            Pattern.CASE_INSENSITIVE);
+
+    private static final PointSetRecord[] EMPTY_POINTSET_ARRAY = new PointSetRecord[0];
+
+    private static final Logger logger = LoggerFactory
+            .getLogger(PointSetNetcdfDecoder.class);
+
+    private PointSetProductDescriptions descriptions;
+
+    private LevelFactory levelFactory;
+
+    private ParameterLookup parameterLookup;
+
+    public PointSetRecord[] decode(String name, byte[] data) {
+        if (levelFactory == null) {
+            levelFactory = LevelFactory.getInstance();
+        }
+        if (parameterLookup == null) {
+            parameterLookup = ParameterLookup.getInstance();
+        }
+        try {
+            NetcdfFile file = NetcdfFile.openInMemory(name, data);
+            Map<String, String> locationCache = new HashMap<String, String>();
+            List<PointSetRecord> records = new ArrayList<>();
+            for (ProductDescription description : descriptions
+                    .getDescriptions()) {
+                PointSetRecord record = processDescription(file, description,
+                        locationCache);
+                if (record != null) {
+                    records.add(record);
+                }
+            }
+            if (records.isEmpty()) {
+                logger.warn("No valid pointsets were found in file: {}", name);
+                return EMPTY_POINTSET_ARRAY;
+            } else {
+                return records.toArray(EMPTY_POINTSET_ARRAY);
+            }
+        } catch (ParseException | IOException | StorageException e) {
+            logger.error("Unable to decode pointset from file: {}", name, e);
+        }
+        return EMPTY_POINTSET_ARRAY;
+    }
+
+    private PointSetRecord processDescription(NetcdfFile file,
+            ProductDescription description, Map<String, String> locationCache)
+            throws ParseException, IOException, StorageException {
+        String dataVarName = description.getDataVariable();
+        boolean debug = description.isDebug();
+        Variable dataVariable = file.findVariable(NetcdfFile
+                .escapeName(dataVarName));
+        if (dataVariable == null) {
+            if (debug) {
+                logger.debug(
+                        "Product Description skipped because no data variable was found called {}",
+                        dataVarName);
+            }
+            return null;
+        }
+
+        Variable lonVariable = null;
+        String lonName = description.getLongitudeVariable();
+        if (lonName != null) {
+            lonVariable = file.findVariable(NetcdfFile.escapeName(lonName));
+            if (lonVariable == null) {
+                if (debug) {
+                    logger.debug(
+                            "Product Description skipped because no longitude variable was found called {}",
+                            lonName);
+                }
+                return null;
+            }
+        }
+
+        Variable latVariable = null;
+        String latName = description.getLatitudeVariable();
+        if (latName != null) {
+            latVariable = file.findVariable(NetcdfFile.escapeName(latName));
+            if (latVariable == null) {
+                if (debug) {
+                    logger.debug(
+                            "Product Description skipped because no latitude variable was found called {}",
+                            latName);
+                }
+                return null;
+            }
+        }
+
+        if (lonVariable == null || latVariable == null) {
+            Attribute coordinates = dataVariable.findAttribute("coordinates");
+            if (coordinates == null) {
+                if (debug) {
+                    logger.debug(
+                            "Product Description for data variable, {}, was skipped because the variable does not have coordinates and no longitude/latitude was provided.",
+                            dataVarName);
+                }
+                return null;
+            }
+            int[] expectedShape = dataVariable.getShape();
+            if (coordinates.isArray()) {
+                for (int i = 0; i < coordinates.getLength(); i += 1) {
+                    String coordinate = coordinates.getStringValue(i);
+                    if (lonVariable == null) {
+                        lonVariable = checkCoordinate(file, coordinate,
+                                LONGITUDE_COORDINATE_PATTERN, expectedShape);
+                    }
+                    if (latVariable == null) {
+                        latVariable = checkCoordinate(file, coordinate,
+                                LATITUDE_COORDINATE_PATTERN, expectedShape);
+
+                    }
+
+                }
+            } else if (coordinates.isString()) {
+                for (String coordinate : coordinates.getStringValue().split(
+                        "\\W")) {
+                    if (lonVariable == null) {
+                        lonVariable = checkCoordinate(file, coordinate,
+                                LONGITUDE_COORDINATE_PATTERN, expectedShape);
+                    }
+                    if (latVariable == null) {
+                        latVariable = checkCoordinate(file, coordinate,
+                                LATITUDE_COORDINATE_PATTERN, expectedShape);
+
+                    }
+                }
+            } else {
+                if (debug) {
+                    logger.debug(
+                            "Product Description for data variable, {}, was skipped because the variable coordinates are not a compatible type.",
+                            dataVarName);
+                }
+                return null;
+            }
+            if (lonVariable == null || latVariable == null) {
+                if (debug) {
+                    String type = "longitude or latidue";
+                    if (lonVariable != null) {
+                        type = "latidue";
+                    } else if (latVariable != null) {
+                        type = "longitude";
+                    }
+                    logger.debug(
+                            "Product Description for data variable, {}, was skipped because no {} was found in the variable coordinates.",
+                            dataVarName, type);
+                }
+                return null;
+            }
+        }
+
+        PointSetRecord record = description.getRecord(file, parameterLookup,
+                levelFactory);
+        if (record == null) {
+            if (debug) {
+                logger.debug(
+                        "Product Description for data variable, {}, was skipped because the metadata was invalid.",
+                        dataVarName);
+            }
+            return null;
+        }
+        Buffer numericData = null;
+        DataType dataType = dataVariable.getDataType();
+        switch (dataType) {
+        case FLOAT:
+            float[] fdata = (float[]) dataVariable.read().copyTo1DJavaArray();
+            numericData = FloatBuffer.wrap(fdata);
+            break;
+        case BYTE:
+            byte[] bdata = (byte[]) dataVariable.read().copyTo1DJavaArray();
+            numericData = ByteBuffer.wrap(bdata);
+            break;
+        case SHORT:
+            short[] sdata = (short[]) dataVariable.read().copyTo1DJavaArray();
+            numericData = ShortBuffer.wrap(sdata);
+            break;
+        case DOUBLE:
+            double[] ddata = (double[]) dataVariable.read().copyTo1DJavaArray();
+            numericData = DoubleBuffer.wrap(ddata);
+            break;
+        case INT:
+            int[] idata = (int[]) dataVariable.read().copyTo1DJavaArray();
+            numericData = IntBuffer.wrap(idata);
+            break;
+        case LONG:
+            long[] ldata = (long[]) dataVariable.read().copyTo1DJavaArray();
+            numericData = LongBuffer.wrap(ldata);
+            break;
+        default:
+            logger.error(
+                    "Unable to generate record for data variable, {}, because the dataType, {}, was not recognized",
+                    dataVarName, dataType);
+            return null;
+        }
+        record.setData(numericData);
+
+        StringBuilder locationKeyBuilder = new StringBuilder();
+        lonVariable.getNameAndDimensions(locationKeyBuilder);
+        locationKeyBuilder.append("\n");
+        latVariable.getNameAndDimensions(locationKeyBuilder);
+        String locationKey = locationKeyBuilder.toString();
+        if (locationCache.containsKey(locationKey)) {
+            record.setLocationId(locationCache.get(locationKey));
+        } else {
+            float[] lonVals = (float[]) lonVariable.read().get1DJavaArray(
+                    float.class);
+            float[] latVals = (float[]) latVariable.read().get1DJavaArray(
+                    float.class);
+            PointSetLocation location = new PointSetLocation(lonVals, latVals);
+            record.setLocationId(location.getId());
+            location.save(record.getStoragePath().toFile());
+        }
+        return record;
+    }
+
+    private static Variable checkCoordinate(NetcdfFile file, String coordinate,
+            Pattern pattern, int[] expectedShape) {
+        if (pattern.matcher(coordinate).find()) {
+            Variable variable = file.findVariable(coordinate);
+            if (variable != null
+                    && !Arrays.equals(expectedShape, variable.getShape())) {
+                return null;
+            } else {
+                return variable;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * The {@link IPathManager} is used to look up description files.
+     */
+    public void setPathManager(IPathManager pathManager) {
+        LocalizationFile[] files = pathManager.listStaticFiles(
+                "pointset/netcdf", new String[] { ".xml" }, true, true);
+        PointSetProductDescriptions descriptions = new PointSetProductDescriptions();
+        for (LocalizationFile file : files) {
+            logger.info("Loading pointset data description from "
+                    + file.getName());
+            try (InputStream inputStream = file.openInputStream()) {
+                PointSetProductDescriptions unmarshalled = JAXB.unmarshal(
+                        inputStream, PointSetProductDescriptions.class);
+                for (ProductDescription description : unmarshalled
+                        .getDescriptions()) {
+                    if (validate(file.getName(), description)) {
+                        descriptions.addDescription(description);
+                    }
+                }
+            } catch (LocalizationException | IOException e) {
+                logger.error("Unable to load product descriptions from {}",
+                        file.getName(), e);
+            }
+        }
+        this.descriptions = descriptions;
+    }
+
+    public void setDescriptions(PointSetProductDescriptions descriptions) {
+        this.descriptions = descriptions;
+    }
+
+    public void setLevelFactory(LevelFactory levelFactory) {
+        this.levelFactory = levelFactory;
+    }
+
+    public void setParameterLookup(ParameterLookup parameterLookup) {
+        this.parameterLookup = parameterLookup;
+    }
+
+    protected boolean validate(String fileName, ProductDescription description) {
+        VariableDescription data = description.getData();
+        if (data == null) {
+            logger.warn(
+                    "Discarding data description from {} because no data element is present.",
+                    fileName);
+            return false;
+        } else if (data.getVariable() == null) {
+            logger.warn(
+                    "Discarding data description from {} because data element has no variable.",
+                    fileName);
+            return false;
+        }
+        return true;
+    }
+}

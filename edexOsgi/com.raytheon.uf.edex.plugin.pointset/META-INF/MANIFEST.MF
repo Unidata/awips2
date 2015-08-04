@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Edex Pointset Data Access
+Bundle-SymbolicName: com.raytheon.uf.edex.plugin.pointset
+Bundle-Version: 1.15.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: com.raytheon.uf.common.dataplugin;bundle-version="1.14.0",
+ com.raytheon.uf.common.dataplugin.pointset;bundle-version="1.15.0",
+ com.raytheon.uf.common.datastorage;bundle-version="1.15.0",
+ com.raytheon.uf.edex.database;bundle-version="1.15.0"
