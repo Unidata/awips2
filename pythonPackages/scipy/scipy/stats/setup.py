@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import division, print_function, absolute_import
 
 from os.path import join
 
@@ -9,19 +10,25 @@ def configuration(parent_package='',top_path=None):
 
     config.add_data_dir('tests')
 
-    config.add_library('statlib',
-                       sources=[join('statlib', '*.f')])
+    statlib_src = [join('statlib', '*.f')]
+    config.add_library('statlib', sources=statlib_src)
 
     # add statlib module
     config.add_extension('statlib',
         sources=['statlib.pyf'],
         f2py_options=['--no-wrap-functions'],
         libraries=['statlib'],
+        depends=statlib_src
     )
 
     # add vonmises_cython module
     config.add_extension('vonmises_cython',
-        sources=['vonmises_cython.c'], # FIXME: use cython source
+        sources=['vonmises_cython.c'],  # FIXME: use cython source
+    )
+
+    # add _rank module
+    config.add_extension('_rank',
+        sources=['_rank.c'],          # FIXME: use cython source
     )
 
     # add futil module

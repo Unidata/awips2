@@ -55,7 +55,7 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-python-matplotlib" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/matplotlib-1.2.0/"
+      export RPM_SPECIFICATION="${installer_dir}/matplotlib-1.4.3/"
       return 0
    fi
    if [ "${1}" = "awips2-python-nose" ]; then
@@ -64,6 +64,18 @@ function lookupRPM()
    fi
    if [ "${1}" = "awips2-python-numpy" ]; then
       export RPM_SPECIFICATION="${python_site__dir}/Installer.numpy"
+      return 0
+   fi
+   if [ "${1}" = "awips2-python-cython" ]; then
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.cython"
+      return 0
+   fi
+   if [ "${1}" = "awips2-python-six" ]; then
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.six"
+      return 0
+   fi
+   if [ "${1}" = "awips2-python-dateutil" ]; then
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.dateutil"
       return 0
    fi
    if [ "${1}" = "awips2-python-pil" ]; then
@@ -90,6 +102,16 @@ function lookupRPM()
       export RPM_SPECIFICATION="${python_site__dir}/Installer.scipy"
       return 0
    fi
+   if [ "${1}" = "awips2-python-metpy" ]; then
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.metpy"
+      return 0
+   fi
+   if [ "${1}" = "awips2-python-pint" ]; then
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.pint"
+      return 0
+   fi
+
+
    if [ "${1}" = "awips2-python-tables" ]; then
       export RPM_SPECIFICATION="${python_site__dir}/Installer.tables"
       return 0
@@ -119,7 +141,7 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-python-shapely" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/shapely-1.4.4/"
+      export RPM_SPECIFICATION="${installer_dir}/shapely-1.5.9/"
       return 0
    fi
 
