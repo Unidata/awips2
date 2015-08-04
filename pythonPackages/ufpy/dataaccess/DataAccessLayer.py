@@ -43,9 +43,7 @@
 import sys
 import subprocess
 
-THRIFT_HOST = subprocess.check_output(
-                    "source /awips2/fxa/bin/setup.env; echo $DEFAULT_HOST", 
-                    shell=True).strip()
+THRIFT_HOST = "edex"
 USING_NATIVE_THRIFT = False
 
 if sys.modules.has_key('JavaImporter'):
