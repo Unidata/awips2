@@ -5,9 +5,10 @@
     class ft_converter(cpp_namespace_converter):
         namespace = 'ft::'
 """
+from __future__ import absolute_import, print_function
 
 from weave import common_info
-from weave import  base_info
+from weave import base_info
 from weave.base_spec import base_converter
 
 cpp_support_template = \
@@ -51,11 +52,13 @@ std::string %(cpp_clean_struct)s_to_py( %(cpp_struct)s* cpp_ptr)
 
 """
 
+
 class cpp_namespace_converter(base_converter):
     _build_information = [common_info.swig_info()]
+
     def __init__(self,class_name=None):
-        self.type_name = 'unkown cpp_object'
-        self.name =  'no name'
+        self.type_name = 'unknown cpp_object'
+        self.name = 'no name'
         if class_name:
             # customize support_code for whatever type I was handed.
             clean_name = class_name.replace('::','_')
@@ -66,7 +69,7 @@ class cpp_namespace_converter(base_converter):
             str_len = len(clean_name) + 20
             vals = {'cpp_struct': class_name,
                     'cpp_clean_struct': clean_name,
-                    'ptr_string_len': str_len }
+                    'ptr_string_len': str_len}
             specialized_support = cpp_support_template % vals
             custom = base_info.base_info()
             custom._support_code = [specialized_support]
@@ -76,7 +79,7 @@ class cpp_namespace_converter(base_converter):
     def type_match(self,value):
         try:
             cpp_ident = value.split('_')[2]
-            if self.namespace in cpp.ident:
+            if self.namespace in cpp_ident:
                 return 1
         except:
             pass
@@ -103,6 +106,7 @@ class cpp_namespace_converter(base_converter):
     def __repr__(self):
         msg = "(%s:: name: %s)" % (self.type_name,self.name)
         return msg
+
     def __cmp__(self,other):
         #only works for equal
         return cmp(self.name,other.name) or \

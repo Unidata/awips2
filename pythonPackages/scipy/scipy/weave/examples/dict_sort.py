@@ -12,10 +12,12 @@
 #     speed in c (scxx): 0.200000047684
 #     speed up: 1.25
 #    [0, 1, 2, 3, 4]
+from __future__ import absolute_import, print_function
 
 import sys
 sys.path.insert(0,'..')
 import inline_tools
+
 
 def c_sort(adict):
     assert(type(adict) is dict)
@@ -37,6 +39,7 @@ def c_sort(adict):
            """
     return inline_tools.inline(code,['adict'])
 
+
 def c_sort2(adict):
     assert(type(adict) is dict)
     code = """
@@ -54,6 +57,8 @@ def c_sort2(adict):
     return inline_tools.inline(code,['adict'],verbose=1)
 
 # (IMHO) the simplest approach:
+
+
 def sortedDictValues1(adict):
     items = adict.items()
     items.sort()
@@ -62,6 +67,8 @@ def sortedDictValues1(adict):
 # an alternative implementation, which
 # happens to run a bit faster for large
 # dictionaries on my machine:
+
+
 def sortedDictValues2(adict):
     keys = adict.keys()
     keys.sort()
@@ -69,6 +76,8 @@ def sortedDictValues2(adict):
 
 # a further slight speed-up on my box
 # is to map a bound-method:
+
+
 def sortedDictValues3(adict):
     keys = adict.keys()
     keys.sort()
@@ -76,33 +85,35 @@ def sortedDictValues3(adict):
 
 import time
 
+
 def sort_compare(a,n):
-    print 'Dict sort of %d items for %d iterations:'%(len(a),n)
+    print('Dict sort of %d items for %d iterations:' % (len(a),n))
     t1 = time.time()
     for i in range(n):
-        b=sortedDictValues3(a)
+        b = sortedDictValues3(a)
     t2 = time.time()
     py = (t2-t1)
-    print ' speed in python:', (t2 - t1)
-    print b[:5]
+    print(' speed in python:', (t2 - t1))
+    print(b[:5])
 
-    b=c_sort(a)
+    b = c_sort(a)
     t1 = time.time()
     for i in range(n):
-        b=c_sort(a)
+        b = c_sort(a)
     t2 = time.time()
-    print ' speed in c (Python API):',(t2 - t1)
-    print ' speed up: %3.2f' % (py/(t2-t1))
-    print b[:5]
+    print(' speed in c (Python API):',(t2 - t1))
+    print(' speed up: %3.2f' % (py/(t2-t1)))
+    print(b[:5])
 
-    b=c_sort2(a)
+    b = c_sort2(a)
     t1 = time.time()
     for i in range(n):
-        b=c_sort2(a)
+        b = c_sort2(a)
     t2 = time.time()
-    print ' speed in c (scxx):',(t2 - t1)
-    print ' speed up: %3.2f' % (py/(t2-t1))
-    print b[:5]
+    print(' speed in c (scxx):',(t2 - t1))
+    print(' speed up: %3.2f' % (py/(t2-t1)))
+    print(b[:5])
+
 
 def setup_dict(m):
     " does insertion order matter?"
@@ -112,7 +123,7 @@ def setup_dict(m):
     for i in range(m):
         key = random.choice(a)
         a.remove(key)
-        d[key]=key
+        d[key] = key
     return d
 if __name__ == "__main__":
     m = 1000
