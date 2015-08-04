@@ -1685,6 +1685,20 @@
 		</process>
 	</model>
 
+        <!-- 0.25 degree GFS -->
+        <model>
+                <name>GFS25</name>
+                <center>7</center>
+                <subcenter>0</subcenter>
+                <grid>193</grid>
+                <process>
+                        <id>96</id>
+                        <id>77</id>
+                        <id>81</id>
+                </process>
+        </model>
+
+	<!-- 0.5 degree GFS -->
 	<model>
 		<name>GFS</name>
 		<center>7</center>
@@ -1718,6 +1732,7 @@
 		</process>
 	</model>
 
+	<!-- 1.0 degree GFS -->
 	<model>
 		<name>GFS-1p0</name>
 		<center>7</center>
