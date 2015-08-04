@@ -1,5 +1,5 @@
-Linear Algebra
-==============
+Linear Algebra (`scipy.linalg`)
+===============================
 
 .. sectionauthor:: Travis E. Oliphant
 
@@ -13,28 +13,95 @@ interfaces to these routines are described.
 
 All of these linear algebra routines expect an object that can be
 converted into a 2-dimensional array. The output of these routines is
-also a two-dimensional array. There is a matrix class defined in
-Numpy, which you can initialize with an appropriate Numpy array in
-order to get objects for which multiplication is matrix-multiplication
-instead of the default, element-by-element multiplication.
+also a two-dimensional array.
+
+scipy.linalg vs numpy.linalg
+----------------------------
+
+``scipy.linalg`` contains all the functions in ``numpy.linalg``.
+plus some other more advanced ones not contained in ``numpy.linalg``
+
+Another advantage of using ``scipy.linalg`` over ``numpy.linalg`` is that
+it is always compiled with BLAS/LAPACK support, while for numpy this is
+optional. Therefore, the scipy version might be faster depending on how
+numpy was installed.
+
+Therefore, unless you don't want to add ``scipy`` as a dependency to
+your ``numpy`` program, use ``scipy.linalg`` instead of ``numpy.linalg``
 
 
-Matrix Class
-------------
+numpy.matrix vs 2D numpy.ndarray
+--------------------------------
 
-The matrix class is initialized with the SciPy command :obj:`mat`
-which is just convenient short-hand for :class:`matrix
-<numpy.matrix>`. If you are going to be doing a lot of matrix-math, it
-is convenient to convert arrays into matrices using this command. One
-advantage of using the :func:`mat` command is that you can enter
-two-dimensional matrices using MATLAB-like syntax with commas or
-spaces separating columns and semicolons separting rows as long as the
-matrix is placed in a string passed to :obj:`mat` .
+The classes that represent matrices, and basic operations such as
+matrix multiplications and transpose are a part of ``numpy``.
+For convenience, we summarize the differences between ``numpy.matrix``
+and ``numpy.ndarray`` here.
+
+``numpy.matrix`` is matrix class that has a more convenient interface
+than ``numpy.ndarray`` for matrix operations. This class supports for
+example MATLAB-like creation syntax via the, has matrix multiplication
+as default for the ``*`` operator, and contains ``I`` and ``T`` members
+that serve as shortcuts for inverse and transpose:
+
+    >>> import numpy as np
+    >>> A = np.mat('[1 2;3 4]')
+    >>> A
+    matrix([[1, 2],
+            [3, 4]])
+    >>> A.I
+    matrix([[-2. ,  1. ],
+            [ 1.5, -0.5]])
+    >>> b = np.mat('[5 6]')
+    >>> b
+    matrix([[5, 6]])
+    >>> b.T
+    matrix([[5],
+            [6]])
+    >>> A*b.T
+    matrix([[17],
+            [39]])
+
+Despite its convenience, the use of the ``numpy.matrix`` class is
+discouraged, since it adds nothing that cannot be accomplished
+with 2D ``numpy.ndarray`` objects, and may lead to a confusion of which class
+is being used. For example, the above code can be rewritten as:
+
+    >>> import numpy as np
+    >>> from scipy import linalg
+    >>> A = np.array([[1,2],[3,4]])
+    >>> A
+    array([[1, 2],
+          [3, 4]])
+    >>> linalg.inv(A)
+    array([[-2. ,  1. ],
+          [ 1.5, -0.5]])
+    >>> b = np.array([[5,6]]) #2D array
+    >>> b
+    array([[5, 6]])
+    >>> b.T
+    array([[5],
+          [6]])
+    >>> A*b #not matrix multiplication!
+    array([[ 5, 12],
+          [15, 24]])
+    >>> A.dot(b.T) #matrix multiplication
+    array([[17],
+          [39]])
+    >>> b = np.array([5,6]) #1D array
+    >>> b
+    array([5, 6])
+    >>> b.T  #not matrix transpose!
+    array([5, 6])
+    >>> A.dot(b)  #does not matter for multiplication
+    array([17, 39])
+
+``scipy.linalg`` operations can be applied equally to
+``numpy.matrix`` or to 2D ``numpy.ndarray`` objects.
 
 
 Basic routines
 --------------
-
 
 Finding Inverse
 ^^^^^^^^^^^^^^^
@@ -48,34 +115,37 @@ the Numpy array, A, is obtained using :obj:`linalg.inv` ``(A)`` , or
 using ``A.I`` if ``A`` is a Matrix. For example, let
 
 .. math::
-   :nowrap:
 
-    \[ \mathbf{A=}\left[\begin{array}{ccc} 1 & 3 & 5\\ 2 & 5 & 1\\ 2 & 3 & 8\end{array}\right]\]
+    \mathbf{A} = \left[\begin{array}{ccc} 1 & 3 & 5\\ 2 & 5 & 1\\ 2 & 3 & 8\end{array}\right]
 
 then
 
 .. math::
-   :nowrap:
 
-    \[ \mathbf{A^{-1}=\frac{1}{25}\left[\begin{array}{ccc} -37 & 9 & 22\\ 14 & 2 & -9\\ 4 & -3 & 1\end{array}\right]=\left[\begin{array}{ccc} -1.48 & 0.36 & 0.88\\ 0.56 & 0.08 & -0.36\\ 0.16 & -0.12 & 0.04\end{array}\right].}\]
+    \mathbf{A^{-1}} = \frac{1}{25}
+        \left[\begin{array}{ccc} -37 & 9 & 22 \\ 
+                                  14 & 2 & -9 \\ 
+                                  4 & -3 & 1
+              \end{array}\right] = %
+         \left[\begin{array}{ccc} -1.48 & 0.36 & 0.88  \\
+                                   0.56 & 0.08 & -0.36 \\
+                                   0.16 & -0.12 & 0.04
+               \end{array}\right].
 
 The following example demonstrates this computation in SciPy
 
-    >>> A = mat('[1 3 5; 2 5 1; 2 3 8]')
-    >>> A
-    matrix([[1, 3, 5],
-            [2, 5, 1],
-            [2, 3, 8]])
-    >>> A.I
-    matrix([[-1.48,  0.36,  0.88],
-            [ 0.56,  0.08, -0.36],
-            [ 0.16, -0.12,  0.04]])
+    >>> import numpy as np
     >>> from scipy import linalg
+    >>> A = np.array([[1,2],[3,4]])
+    array([[1, 2],
+          [3, 4]])
     >>> linalg.inv(A)
-    array([[-1.48,  0.36,  0.88],
-           [ 0.56,  0.08, -0.36],
-           [ 0.16, -0.12,  0.04]])
-    
+    array([[-2. ,  1. ],
+          [ 1.5, -0.5]])
+    >>> A.dot(linalg.inv(A)) #double check
+    array([[  1.00000000e+00,   0.00000000e+00],
+          [  4.44089210e-16,   1.00000000e+00]])
+
 Solving linear system
 ^^^^^^^^^^^^^^^^^^^^^
 
@@ -89,29 +159,43 @@ to solve the following simultaneous equations:
 .. math::
    :nowrap:
 
-    \begin{eqnarray*} x+3y+5z & = & 10\\ 2x+5y+z & = & 8\\ 2x+3y+8z & = & 3\end{eqnarray*}
+    \begin{eqnarray*} x + 3y + 5z & = & 10 \\
+                      2x + 5y + z & = & 8  \\
+                      2x + 3y + 8z & = & 3
+    \end{eqnarray*}
 
 We could find the solution vector using a matrix inverse:
 
 .. math::
-   :nowrap:
 
-    \[ \left[\begin{array}{c} x\\ y\\ z\end{array}\right]=\left[\begin{array}{ccc} 1 & 3 & 5\\ 2 & 5 & 1\\ 2 & 3 & 8\end{array}\right]^{-1}\left[\begin{array}{c} 10\\ 8\\ 3\end{array}\right]=\frac{1}{25}\left[\begin{array}{c} -232\\ 129\\ 19\end{array}\right]=\left[\begin{array}{c} -9.28\\ 5.16\\ 0.76\end{array}\right].\]
+    \left[\begin{array}{c} x\\ y\\ z\end{array}\right]=\left[\begin{array}{ccc} 1 & 3 & 5\\ 2 & 5 & 1\\ 2 & 3 & 8\end{array}\right]^{-1}\left[\begin{array}{c} 10\\ 8\\ 3\end{array}\right]=\frac{1}{25}\left[\begin{array}{c} -232\\ 129\\ 19\end{array}\right]=\left[\begin{array}{c} -9.28\\ 5.16\\ 0.76\end{array}\right].
 
 However, it is better to use the linalg.solve command which can be
 faster and more numerically stable. In this case it however gives the
 same answer as shown in the following example:
 
-    >>> A = mat('[1 3 5; 2 5 1; 2 3 8]')
-    >>> b = mat('[10;8;3]')
-    >>> A.I*b
-    matrix([[-9.28],
-            [ 5.16],
-            [ 0.76]])
-    >>> linalg.solve(A,b)
-    array([[-9.28],
-           [ 5.16],
-           [ 0.76]])
+    >>> import numpy as np
+    >>> from scipy import linalg
+    >>> A = np.array([[1,2],[3,4]])
+    >>> A
+    array([[1, 2],
+          [3, 4]])
+    >>> b = np.array([[5],[6]])
+    >>> b
+    array([[5],
+          [6]])
+    >>> linalg.inv(A).dot(b) #slow
+    array([[-4. ],
+          [ 4.5]]
+    >>> A.dot(linalg.inv(A).dot(b))-b #check
+    array([[  8.88178420e-16],
+          [  2.66453526e-15]])
+    >>> np.linalg.solve(A,b) #fast
+    array([[-4. ],
+          [ 4.5]])
+    >>> A.dot(np.linalg.solve(A,b))-b #check
+    array([[ 0.],
+          [ 0.]])
 
 
 Finding Determinant
@@ -126,18 +210,16 @@ be the determinant of the matrix left by removing the
 :math:`\mathbf{A}` . Then for any row :math:`i,`
 
 .. math::
-   :nowrap:
 
-    \[ \left|\mathbf{A}\right|=\sum_{j}\left(-1\right)^{i+j}a_{ij}M_{ij}.\]
+    \left|\mathbf{A}\right|=\sum_{j}\left(-1\right)^{i+j}a_{ij}M_{ij}.
 
 This is a recursive way to define the determinant where the base case
 is defined by accepting that the determinant of a :math:`1\times1` matrix is the only matrix element. In SciPy the determinant can be
 calculated with :obj:`linalg.det` . For example, the determinant of
 
 .. math::
-   :nowrap:
 
-    \[ \mathbf{A=}\left[\begin{array}{ccc} 1 & 3 & 5\\ 2 & 5 & 1\\ 2 & 3 & 8\end{array}\right]\]
+    \mathbf{A=}\left[\begin{array}{ccc} 1 & 3 & 5\\ 2 & 5 & 1\\ 2 & 3 & 8\end{array}\right]
 
 is
 
@@ -148,9 +230,14 @@ is
 
 In SciPy this is computed as shown in this example:
 
-    >>> A = mat('[1 3 5; 2 5 1; 2 3 8]')
+    >>> import numpy as np
+    >>> from scipy import linalg
+    >>> A = np.array([[1,2],[3,4]])
+    >>> A
+    array([[1, 2],
+          [3, 4]])
     >>> linalg.det(A)
-    -25.000000000000004
+    -2.0
 
 
 Computing norms
@@ -167,20 +254,37 @@ For vector *x* , the order parameter can be any real number including
 ``inf`` or ``-inf``. The computed norm is
 
 .. math::
-   :nowrap:
 
-    \[ \left\Vert \mathbf{x}\right\Vert =\left\{ \begin{array}{cc} \max\left|x_{i}\right| & \textrm{ord}=\textrm{inf}\\ \min\left|x_{i}\right| & \textrm{ord}=-\textrm{inf}\\ \left(\sum_{i}\left|x_{i}\right|^{\textrm{ord}}\right)^{1/\textrm{ord}} & \left|\textrm{ord}\right|<\infty.\end{array}\right.\]
+    \left\Vert \mathbf{x}\right\Vert =\left\{ \begin{array}{cc} \max\left|x_{i}\right| & \textrm{ord}=\textrm{inf}\\ \min\left|x_{i}\right| & \textrm{ord}=-\textrm{inf}\\ \left(\sum_{i}\left|x_{i}\right|^{\textrm{ord}}\right)^{1/\textrm{ord}} & \left|\textrm{ord}\right|<\infty.\end{array}\right.
 
 
 
 For matrix :math:`\mathbf{A}` the only valid values for norm are :math:`\pm2,\pm1,` :math:`\pm` inf, and 'fro' (or 'f') Thus,
 
 .. math::
-   :nowrap:
 
-    \[ \left\Vert \mathbf{A}\right\Vert =\left\{ \begin{array}{cc} \max_{i}\sum_{j}\left|a_{ij}\right| & \textrm{ord}=\textrm{inf}\\ \min_{i}\sum_{j}\left|a_{ij}\right| & \textrm{ord}=-\textrm{inf}\\ \max_{j}\sum_{i}\left|a_{ij}\right| & \textrm{ord}=1\\ \min_{j}\sum_{i}\left|a_{ij}\right| & \textrm{ord}=-1\\ \max\sigma_{i} & \textrm{ord}=2\\ \min\sigma_{i} & \textrm{ord}=-2\\ \sqrt{\textrm{trace}\left(\mathbf{A}^{H}\mathbf{A}\right)} & \textrm{ord}=\textrm{'fro'}\end{array}\right.\]
+    \left\Vert \mathbf{A}\right\Vert =\left\{ \begin{array}{cc} \max_{i}\sum_{j}\left|a_{ij}\right| & \textrm{ord}=\textrm{inf}\\ \min_{i}\sum_{j}\left|a_{ij}\right| & \textrm{ord}=-\textrm{inf}\\ \max_{j}\sum_{i}\left|a_{ij}\right| & \textrm{ord}=1\\ \min_{j}\sum_{i}\left|a_{ij}\right| & \textrm{ord}=-1\\ \max\sigma_{i} & \textrm{ord}=2\\ \min\sigma_{i} & \textrm{ord}=-2\\ \sqrt{\textrm{trace}\left(\mathbf{A}^{H}\mathbf{A}\right)} & \textrm{ord}=\textrm{'fro'}\end{array}\right.
 
 where :math:`\sigma_{i}` are the singular values of :math:`\mathbf{A}` .
+
+Examples:
+
+    >>> import numpy as np
+    >>> from scipy import linalg
+    >>> A=np.array([[1,2],[3,4]])
+    >>> A
+    array([[1, 2],
+          [3, 4]])
+    >>> linalg.norm(A)
+    5.4772255750516612
+    >>> linalg.norm(A,'fro') # frobenius norm is the default
+    5.4772255750516612
+    >>> linalg.norm(A,1) # L1 norm (max column sum)
+    6
+    >>> linalg.norm(A,-1)
+    4
+    >>> linalg.norm(A,inf) # L inf norm (max row sum)
+    7
 
 
 Solving linear least-squares problems and pseudo-inverses
@@ -194,27 +298,24 @@ through a set of coefficients :math:`c_{j}` and model functions
 :math:`f_{j}\left(\mathbf{x}_{i}\right)` via the model
 
 .. math::
-   :nowrap:
 
-    \[ y_{i}=\sum_{j}c_{j}f_{j}\left(\mathbf{x}_{i}\right)+\epsilon_{i}\]
+    y_{i}=\sum_{j}c_{j}f_{j}\left(\mathbf{x}_{i}\right)+\epsilon_{i}
 
 where :math:`\epsilon_{i}` represents uncertainty in the data. The
 strategy of least squares is to pick the coefficients :math:`c_{j}` to
 minimize
 
 .. math::
-   :nowrap:
 
-    \[ J\left(\mathbf{c}\right)=\sum_{i}\left|y_{i}-\sum_{j}c_{j}f_{j}\left(x_{i}\right)\right|^{2}.\]
+    J\left(\mathbf{c}\right)=\sum_{i}\left|y_{i}-\sum_{j}c_{j}f_{j}\left(x_{i}\right)\right|^{2}.
 
 
 
 Theoretically, a global minimum will occur when
 
 .. math::
-   :nowrap:
 
-    \[ \frac{\partial J}{\partial c_{n}^{*}}=0=\sum_{i}\left(y_{i}-\sum_{j}c_{j}f_{j}\left(x_{i}\right)\right)\left(-f_{n}^{*}\left(x_{i}\right)\right)\]
+    \frac{\partial J}{\partial c_{n}^{*}}=0=\sum_{i}\left(y_{i}-\sum_{j}c_{j}f_{j}\left(x_{i}\right)\right)\left(-f_{n}^{*}\left(x_{i}\right)\right)
 
 or
 
@@ -226,25 +327,22 @@ or
 where
 
 .. math::
-   :nowrap:
 
-    \[ \left\{ \mathbf{A}\right\} _{ij}=f_{j}\left(x_{i}\right).\]
+    \left\{ \mathbf{A}\right\} _{ij}=f_{j}\left(x_{i}\right).
 
 When :math:`\mathbf{A^{H}A}` is invertible, then
 
 .. math::
-   :nowrap:
 
-    \[ \mathbf{c}=\left(\mathbf{A}^{H}\mathbf{A}\right)^{-1}\mathbf{A}^{H}\mathbf{y}=\mathbf{A}^{\dagger}\mathbf{y}\]
+    \mathbf{c}=\left(\mathbf{A}^{H}\mathbf{A}\right)^{-1}\mathbf{A}^{H}\mathbf{y}=\mathbf{A}^{\dagger}\mathbf{y}
 
 where :math:`\mathbf{A}^{\dagger}` is called the pseudo-inverse of
 :math:`\mathbf{A}.` Notice that using this definition of
 :math:`\mathbf{A}` the model can be written
 
 .. math::
-   :nowrap:
 
-    \[ \mathbf{y}=\mathbf{Ac}+\boldsymbol{\epsilon}.\]
+    \mathbf{y}=\mathbf{Ac}+\boldsymbol{\epsilon}.
 
 The command :obj:`linalg.lstsq` will solve the linear least squares
 problem for :math:`\mathbf{c}` given :math:`\mathbf{A}` and
@@ -258,9 +356,8 @@ The following example and figure demonstrate the use of
 problem. The data shown below were generated using the model:
 
 .. math::
-   :nowrap:
 
-    \[ y_{i}=c_{1}e^{-x_{i}}+c_{2}x_{i}\]
+    y_{i}=c_{1}e^{-x_{i}}+c_{2}x_{i}
 
 where :math:`x_{i}=0.1i` for :math:`i=1\ldots10` , :math:`c_{1}=5` ,
 and :math:`c_{2}=4.` Noise is added to :math:`y_{i}` and the
@@ -269,21 +366,21 @@ linear least squares.
 
 .. plot::
 
-   >>> from numpy import *
+   >>> import numpy as np
    >>> from scipy import linalg
    >>> import matplotlib.pyplot as plt
 
-   >>> c1,c2= 5.0,2.0
-   >>> i = r_[1:11]
+   >>> c1, c2 = 5.0, 2.0
+   >>> i = np.r_[1:11]
    >>> xi = 0.1*i
-   >>> yi = c1*exp(-xi)+c2*xi
-   >>> zi = yi + 0.05*max(yi)*random.randn(len(yi))
+   >>> yi = c1*np.exp(-xi) + c2*xi
+   >>> zi = yi + 0.05 * np.max(yi) * np.random.randn(len(yi))
 
-   >>> A = c_[exp(-xi)[:,newaxis],xi[:,newaxis]]
-   >>> c,resid,rank,sigma = linalg.lstsq(A,zi)
+   >>> A = np.c_[np.exp(-xi)[:, np.newaxis], xi[:, np.newaxis]]
+   >>> c, resid, rank, sigma = linalg.lstsq(A, zi)
 
-   >>> xi2 = r_[0.1:1.0:100j]
-   >>> yi2 = c[0]*exp(-xi2) + c[1]*xi2
+   >>> xi2 = np.r_[0.1:1.0:100j]
+   >>> yi2 = c[0]*np.exp(-xi2) + c[1]*xi2
 
    >>> plt.plot(xi,zi,'x',xi2,yi2)
    >>> plt.axis([0,1.1,3.0,5.5])
@@ -304,23 +401,20 @@ decomposition. Let :math:`\mathbf{A}` be an :math:`M\times N` matrix,
 then if :math:`M>N` the generalized inverse is
 
 .. math::
-   :nowrap:
 
-    \[ \mathbf{A}^{\dagger}=\left(\mathbf{A}^{H}\mathbf{A}\right)^{-1}\mathbf{A}^{H}\]
+    \mathbf{A}^{\dagger}=\left(\mathbf{A}^{H}\mathbf{A}\right)^{-1}\mathbf{A}^{H}
 
 while if :math:`M<N` matrix the generalized inverse is
 
 .. math::
-   :nowrap:
 
-    \[ \mathbf{A}^{\#}=\mathbf{A}^{H}\left(\mathbf{A}\mathbf{A}^{H}\right)^{-1}.\]
+    \mathbf{A}^{\#}=\mathbf{A}^{H}\left(\mathbf{A}\mathbf{A}^{H}\right)^{-1}.
 
 In both cases for :math:`M=N` , then
 
 .. math::
-   :nowrap:
 
-    \[ \mathbf{A}^{\dagger}=\mathbf{A}^{\#}=\mathbf{A}^{-1}\]
+    \mathbf{A}^{\dagger}=\mathbf{A}^{\#}=\mathbf{A}^{-1}
 
 as long as :math:`\mathbf{A}` is invertible.
 
@@ -342,40 +436,36 @@ eigenvalue-eigenvector problem is to find for some square matrix
 :math:`\mathbf{v}` such that
 
 .. math::
-   :nowrap:
 
-    \[ \mathbf{Av}=\lambda\mathbf{v}.\]
+    \mathbf{Av}=\lambda\mathbf{v}.
 
 For an :math:`N\times N` matrix, there are :math:`N` (not necessarily
 distinct) eigenvalues --- roots of the (characteristic) polynomial
 
 .. math::
-   :nowrap:
 
-    \[ \left|\mathbf{A}-\lambda\mathbf{I}\right|=0.\]
+    \left|\mathbf{A}-\lambda\mathbf{I}\right|=0.
 
 The eigenvectors, :math:`\mathbf{v}` , are also sometimes called right
 eigenvectors to distinguish them from another set of left eigenvectors
 that satisfy
 
 .. math::
-   :nowrap:
 
-    \[ \mathbf{v}_{L}^{H}\mathbf{A}=\lambda\mathbf{v}_{L}^{H}\]
+    \mathbf{v}_{L}^{H}\mathbf{A}=\lambda\mathbf{v}_{L}^{H}
 
 or
 
 .. math::
-   :nowrap:
 
-    \[ \mathbf{A}^{H}\mathbf{v}_{L}=\lambda^{*}\mathbf{v}_{L}.\]
+    \mathbf{A}^{H}\mathbf{v}_{L}=\lambda^{*}\mathbf{v}_{L}.
 
 With it's default optional arguments, the command :obj:`linalg.eig`
 returns :math:`\lambda` and :math:`\mathbf{v}.` However, it can also
 return :math:`\mathbf{v}_{L}` and just :math:`\lambda` by itself (
 :obj:`linalg.eigvals` returns just :math:`\lambda` as well).
 
-In addtion, :obj:`linalg.eig` can also solve the more general eigenvalue problem
+In addition, :obj:`linalg.eig` can also solve the more general eigenvalue problem
 
 .. math::
    :nowrap:
@@ -389,9 +479,8 @@ eigenvalue problem can be solved, then it provides a decomposition of
 :math:`\mathbf{A}` as
 
 .. math::
-   :nowrap:
 
-    \[ \mathbf{A}=\mathbf{BV}\boldsymbol{\Lambda}\mathbf{V}^{-1}\]
+    \mathbf{A}=\mathbf{BV}\boldsymbol{\Lambda}\mathbf{V}^{-1}
 
 where :math:`\mathbf{V}` is the collection of eigenvectors into
 columns and :math:`\boldsymbol{\Lambda}` is a diagonal matrix of
@@ -406,9 +495,8 @@ As an example, consider finding the eigenvalues and eigenvectors of
 the matrix
 
 .. math::
-   :nowrap:
 
-    \[ \mathbf{A}=\left[\begin{array}{ccc} 1 & 5 & 2\\ 2 & 4 & 1\\ 3 & 6 & 2\end{array}\right].\]
+    \mathbf{A}=\left[\begin{array}{ccc} 1 & 5 & 2\\ 2 & 4 & 1\\ 3 & 6 & 2\end{array}\right].
 
 The characteristic polynomial is
 
@@ -428,38 +516,35 @@ The eigenvectors corresponding to each eigenvalue can be found using
 the original equation. The eigenvectors associated with these
 eigenvalues can then be found.
 
+    >>> import numpy as np
     >>> from scipy import linalg
-    >>> A = mat('[1 5 2; 2 4 1; 3 6 2]')
+    >>> A = np.array([[1,2],[3,4]])
     >>> la,v = linalg.eig(A)
-    >>> l1,l2,l3 = la
-    >>> print l1, l2, l3
-    (7.95791620491+0j) (-1.25766470568+0j) (0.299748500767+0j)
-    
-    >>> print v[:,0]
-    [-0.5297175  -0.44941741 -0.71932146]
-    >>> print v[:,1]
-    [-0.90730751  0.28662547  0.30763439]
-    >>> print v[:,2]
-    [ 0.28380519 -0.39012063  0.87593408]
-    >>> print sum(abs(v**2),axis=0)
-    [ 1.  1.  1.]
-    
-    >>> v1 = mat(v[:,0]).T
-    >>> print max(ravel(abs(A*v1-l1*v1)))
-    8.881784197e-16
+    >>> l1,l2 = la
+    >>> print l1, l2  #eigenvalues
+    (-0.372281323269+0j) (5.37228132327+0j)
+    >>> print v[:,0]  #first eigenvector
+    [-0.82456484  0.56576746]
+    >>> print v[:,1]  #second eigenvector
+    [-0.41597356 -0.90937671]
+    >>> print np.sum(abs(v**2),axis=0) #eigenvectors are unitary
+    [ 1.  1. ]
+    >>> v1 = np.array(v[:,0]).T
+    >>> print linalg.norm(A.dot(v1)-l1*v1) #check the computation
+    3.23682852457e-16
 
 
 Singular value decomposition
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Singular Value Decompostion (SVD) can be thought of as an extension of
+Singular Value Decomposition (SVD) can be thought of as an extension of
 the eigenvalue problem to matrices that are not square. Let
 :math:`\mathbf{A}` be an :math:`M\times N` matrix with :math:`M` and
 :math:`N` arbitrary. The matrices :math:`\mathbf{A}^{H}\mathbf{A}` and
 :math:`\mathbf{A}\mathbf{A}^{H}` are square hermitian matrices [#]_ of
 size :math:`N\times N` and :math:`M\times M` respectively. It is known
 that the eigenvalues of square hermitian matrices are real and
-non-negative. In addtion, there are at most
+non-negative. In addition, there are at most
 :math:`\min\left(M,N\right)` identical non-zero eigenvalues of
 :math:`\mathbf{A}^{H}\mathbf{A}` and :math:`\mathbf{A}\mathbf{A}^{H}.`
 Define these positive eigenvalues as :math:`\sigma_{i}^{2}.` The
@@ -474,9 +559,8 @@ in an :math:`M\times N` zero matrix
 the singular values. Then
 
 .. math::
-   :nowrap:
 
-    \[ \mathbf{A=U}\boldsymbol{\Sigma}\mathbf{V}^{H}\]
+    \mathbf{A=U}\boldsymbol{\Sigma}\mathbf{V}^{H}
 
 is the singular-value decomposition of :math:`\mathbf{A}.` Every
 matrix has a singular value decomposition. Sometimes, the singular
@@ -487,28 +571,29 @@ singular values. To obtain the matrix :math:`\mathbf{\Sigma}` use
 :obj:`linalg.diagsvd`. The following example illustrates the use of
 :obj:`linalg.svd` .
 
-    >>> A = mat('[1 3 2; 1 2 3]')
+    >>> import numpy as np
+    >>> from scipy import linalg
+    >>> A = np.array([[1,2,3],[4,5,6]])
+    >>> A
+    array([[1, 2, 3],
+          [4, 5, 6]])
     >>> M,N = A.shape
     >>> U,s,Vh = linalg.svd(A)
-    >>> Sig = mat(linalg.diagsvd(s,M,N))
-    >>> U, Vh = mat(U), mat(Vh)
-    >>> print U
-    [[-0.70710678 -0.70710678]
-     [-0.70710678  0.70710678]]
-    >>> print Sig
-    [[ 5.19615242  0.          0.        ]
-     [ 0.          1.          0.        ]]
-    >>> print Vh
-    [[ -2.72165527e-01  -6.80413817e-01  -6.80413817e-01]
-     [ -6.18652536e-16  -7.07106781e-01   7.07106781e-01]
-     [ -9.62250449e-01   1.92450090e-01   1.92450090e-01]]
-    
-    >>> print A
-    [[1 3 2]
-     [1 2 3]]
-    >>> print U*Sig*Vh
-    [[ 1.  3.  2.]
-     [ 1.  2.  3.]]
+    >>> Sig = linalg.diagsvd(s,M,N)
+    >>> U, Vh = U, Vh
+    >>> U
+    array([[-0.3863177 , -0.92236578],
+          [-0.92236578,  0.3863177 ]])
+    >>> Sig
+    array([[ 9.508032  ,  0.        ,  0.        ],
+          [ 0.        ,  0.77286964,  0.        ]])
+    >>> Vh
+    array([[-0.42866713, -0.56630692, -0.7039467 ],
+          [ 0.80596391,  0.11238241, -0.58119908],
+          [ 0.40824829, -0.81649658,  0.40824829]])
+    >>> U.dot(Sig.dot(Vh)) #check computation
+    array([[ 1.,  2.,  3.],
+          [ 4.,  5.,  6.]])
 
 .. [#] A hermitian matrix :math:`\mathbf{D}` satisfies :math:`\mathbf{D}^{H}=\mathbf{D}.`
 
@@ -518,12 +603,12 @@ singular values. To obtain the matrix :math:`\mathbf{\Sigma}` use
 LU decomposition
 ^^^^^^^^^^^^^^^^
 
-The LU decompostion finds a representation for the :math:`M\times N` matrix :math:`\mathbf{A}` as
+The LU decomposition finds a representation for the :math:`M\times N`
+matrix :math:`\mathbf{A}` as
 
 .. math::
-   :nowrap:
 
-    \[ \mathbf{A}=\mathbf{PLU}\]
+    \mathbf{A}=\mathbf{P}\,\mathbf{L}\,\mathbf{U}
 
 where :math:`\mathbf{P}` is an :math:`M\times M` permutation matrix (a
 permutation of the rows of the identity matrix), :math:`\mathbf{L}` is
@@ -537,16 +622,14 @@ equations where the left-hand-side does not change but the right hand
 side does. For example, suppose we are going to solve
 
 .. math::
-   :nowrap:
 
-    \[ \mathbf{A}\mathbf{x}_{i}=\mathbf{b}_{i}\]
+    \mathbf{A}\mathbf{x}_{i}=\mathbf{b}_{i}
 
 for many different :math:`\mathbf{b}_{i}` . The LU decomposition allows this to be written as
 
 .. math::
-   :nowrap:
 
-    \[ \mathbf{PLUx}_{i}=\mathbf{b}_{i}.\]
+    \mathbf{PLUx}_{i}=\mathbf{b}_{i}.
 
 Because :math:`\mathbf{L}` is lower-triangular, the equation can be
 solved for :math:`\mathbf{U}\mathbf{x}_{i}` and finally
@@ -576,7 +659,7 @@ then decompositions of :math:`\mathbf{A}` can be found so that
 
 where :math:`\mathbf{L}` is lower-triangular and :math:`\mathbf{U}` is
 upper triangular. Notice that :math:`\mathbf{L}=\mathbf{U}^{H}.` The
-command :obj:`linagl.cholesky` computes the cholesky
+command :obj:`linalg.cholesky` computes the cholesky
 factorization. For using cholesky factorization to solve systems of
 equations there are also :obj:`linalg.cho_factor` and
 :obj:`linalg.cho_solve` routines that work similarly to their LU
@@ -592,16 +675,14 @@ matrix :math:`\mathbf{Q}` and an :math:`M\times N` upper-trapezoidal
 matrix :math:`\mathbf{R}` such that
 
 .. math::
-   :nowrap:
 
-    \[ \mathbf{A=QR}.\]
+    \mathbf{A=QR}.
 
 Notice that if the SVD of :math:`\mathbf{A}` is known then the QR decomposition can be found
 
 .. math::
-   :nowrap:
 
-    \[ \mathbf{A}=\mathbf{U}\boldsymbol{\Sigma}\mathbf{V}^{H}=\mathbf{QR}\]
+    \mathbf{A}=\mathbf{U}\boldsymbol{\Sigma}\mathbf{V}^{H}=\mathbf{QR}
 
 implies that :math:`\mathbf{Q}=\mathbf{U}` and
 :math:`\mathbf{R}=\boldsymbol{\Sigma}\mathbf{V}^{H}.` Note, however,
@@ -617,9 +698,8 @@ decomposition finds (not-necessarily unique) matrices
 :math:`\mathbf{T}` and :math:`\mathbf{Z}` such that
 
 .. math::
-   :nowrap:
 
-    \[ \mathbf{A}=\mathbf{ZT}\mathbf{Z}^{H}\]
+    \mathbf{A}=\mathbf{ZT}\mathbf{Z}^{H}
 
 where :math:`\mathbf{Z}` is a unitary matrix and :math:`\mathbf{T}` is
 either upper-triangular or quasi-upper triangular depending on whether
@@ -675,23 +755,50 @@ The following example illustrates the schur decomposition:
      [  1.48694940e-16   8.95109973e-16   8.92966151e-16]
      [  1.33228956e-15   1.33582317e-15   3.55373104e-15]]
 
+
+Interpolative Decomposition
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+:mod:`scipy.linalg.interpolative` contains routines for computing the
+interpolative decomposition (ID) of a matrix. For a matrix :math:`A
+\in \mathbb{C}^{m \times n}` of rank :math:`k \leq \min \{ m, n \}`
+this is a factorization
+
+.. math::
+
+  A \Pi =
+  \begin{bmatrix}
+   A \Pi_{1} & A \Pi_{2}
+  \end{bmatrix} =
+  A \Pi_{1}
+  \begin{bmatrix}
+   I & T
+  \end{bmatrix},
+
+where :math:`\Pi = [\Pi_{1}, \Pi_{2}]` is a permutation matrix with
+:math:`\Pi_{1} \in \{ 0, 1 \}^{n \times k}`, i.e., :math:`A \Pi_{2} =
+A \Pi_{1} T`. This can equivalently be written as :math:`A = BP`,
+where :math:`B = A \Pi_{1}` and :math:`P = [I, T] \Pi^{\mathsf{T}}`
+are the *skeleton* and *interpolation matrices*, respectively.
+
+.. seealso:: `scipy.linalg.interpolative` --- for more information.
+
+
 Matrix Functions
 ----------------
 
 Consider the function :math:`f\left(x\right)` with Taylor series expansion
 
 .. math::
-   :nowrap:
 
-    \[ f\left(x\right)=\sum_{k=0}^{\infty}\frac{f^{\left(k\right)}\left(0\right)}{k!}x^{k}.\]
+    f\left(x\right)=\sum_{k=0}^{\infty}\frac{f^{\left(k\right)}\left(0\right)}{k!}x^{k}.
 
 A matrix function can be defined using this Taylor series for the
 square matrix :math:`\mathbf{A}` as
 
 .. math::
-   :nowrap:
 
-    \[ f\left(\mathbf{A}\right)=\sum_{k=0}^{\infty}\frac{f^{\left(k\right)}\left(0\right)}{k!}\mathbf{A}^{k}.\]
+    f\left(\mathbf{A}\right)=\sum_{k=0}^{\infty}\frac{f^{\left(k\right)}\left(0\right)}{k!}\mathbf{A}^{k}.
 
 While, this serves as a useful representation of a matrix function, it
 is rarely the best way to calculate a matrix function.
@@ -704,9 +811,8 @@ The matrix exponential is one of the more common matrix functions. It
 can be defined for square matrices as
 
 .. math::
-   :nowrap:
 
-    \[ e^{\mathbf{A}}=\sum_{k=0}^{\infty}\frac{1}{k!}\mathbf{A}^{k}.\]
+    e^{\mathbf{A}}=\sum_{k=0}^{\infty}\frac{1}{k!}\mathbf{A}^{k}.
 
 The command :obj:`linalg.expm3` uses this Taylor series definition to compute the matrix exponential.
 Due to poor convergence properties it is not often used.
@@ -715,16 +821,14 @@ Another method to compute the matrix exponential is to find an
 eigenvalue decomposition of :math:`\mathbf{A}` :
 
 .. math::
-   :nowrap:
 
-    \[ \mathbf{A}=\mathbf{V}\boldsymbol{\Lambda}\mathbf{V}^{-1}\]
+    \mathbf{A}=\mathbf{V}\boldsymbol{\Lambda}\mathbf{V}^{-1}
 
 and note that
 
 .. math::
-   :nowrap:
 
-    \[ e^{\mathbf{A}}=\mathbf{V}e^{\boldsymbol{\Lambda}}\mathbf{V}^{-1}\]
+    e^{\mathbf{A}}=\mathbf{V}e^{\boldsymbol{\Lambda}}\mathbf{V}^{-1}
 
 where the matrix exponential of the diagonal matrix :math:`\boldsymbol{\Lambda}` is just the exponential of its elements. This method is implemented in :obj:`linalg.expm2` .
 
@@ -736,9 +840,8 @@ The inverse of the matrix exponential is the matrix logarithm defined
 as the inverse of the matrix exponential.
 
 .. math::
-   :nowrap:
 
-    \[ \mathbf{A}\equiv\exp\left(\log\left(\mathbf{A}\right)\right).\]
+    \mathbf{A}\equiv\exp\left(\log\left(\mathbf{A}\right)\right).
 
 The matrix logarithm can be obtained with :obj:`linalg.logm` .
 
@@ -759,16 +862,14 @@ sin and cosine can be defined using Euler's identity as
 The tangent is
 
 .. math::
-   :nowrap:
 
-    \[ \tan\left(x\right)=\frac{\sin\left(x\right)}{\cos\left(x\right)}=\left[\cos\left(x\right)\right]^{-1}\sin\left(x\right)\]
+    \tan\left(x\right)=\frac{\sin\left(x\right)}{\cos\left(x\right)}=\left[\cos\left(x\right)\right]^{-1}\sin\left(x\right)
 
 and so the matrix tangent is defined as
 
 .. math::
-   :nowrap:
 
-    \[ \left[\cos\left(\mathbf{A}\right)\right]^{-1}\sin\left(\mathbf{A}\right).\]
+    \left[\cos\left(\mathbf{A}\right)\right]^{-1}\sin\left(\mathbf{A}\right).
 
 
 
@@ -823,3 +924,38 @@ Bessel function applied to a matrix.
 Note how, by virtue of how matrix analytic functions are defined,
 the Bessel function has acted on the matrix eigenvalues.
 
+
+Special matrices
+----------------
+
+SciPy and NumPy provide several functions for creating special matrices
+that are frequently used in engineering and science.
+
+====================  =========================  =========================================================
+Type                  Function                   Description
+====================  =========================  =========================================================
+block diagonal        `scipy.linalg.block_diag`  Create a block diagonal matrix from the provided arrays.
+--------------------  -------------------------  ---------------------------------------------------------
+circulant             `scipy.linalg.circulant`   Construct a circulant matrix.
+--------------------  -------------------------  ---------------------------------------------------------
+companion             `scipy.linalg.companion`   Create a companion matrix.
+--------------------  -------------------------  ---------------------------------------------------------
+Hadamard              `scipy.linalg.hadamard`    Construct a Hadamard matrix.
+--------------------  -------------------------  ---------------------------------------------------------
+Hankel                `scipy.linalg.hankel`      Construct a Hankel matrix.
+--------------------  -------------------------  ---------------------------------------------------------
+Hilbert               `scipy.linalg.hilbert`     Construct a Hilbert matrix.
+--------------------  -------------------------  ---------------------------------------------------------
+Inverse Hilbert       `scipy.linalg.invhilbert`  Construct the inverse of a Hilbert matrix.
+--------------------  -------------------------  ---------------------------------------------------------
+Leslie                `scipy.linalg.leslie`      Create a Leslie matrix.
+--------------------  -------------------------  ---------------------------------------------------------
+Pascal                `scipy.linalg.pascal`      Create a Pascal matrix.
+--------------------  -------------------------  ---------------------------------------------------------
+Toeplitz              `scipy.linalg.toeplitz`    Construct a Toeplitz matrix.
+--------------------  -------------------------  ---------------------------------------------------------
+Van der Monde         `numpy.vander`             Generate a Van der Monde matrix.
+====================  =========================  =========================================================
+
+
+For examples of the use of these functions, see their respective docstrings.

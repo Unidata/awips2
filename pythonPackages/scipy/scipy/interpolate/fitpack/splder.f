@@ -1,10 +1,11 @@
-      subroutine splder(t,n,c,k,nu,x,y,m,wrk,ier)
+      subroutine splder(t,n,c,k,nu,x,y,m,e,wrk,ier)
+      implicit none  
 c  subroutine splder evaluates in a number of points x(i),i=1,2,...,m
 c  the derivative of order nu of a spline s(x) of degree k,given in
 c  its b-spline representation.
 c
 c  calling sequence:
-c     call splder(t,n,c,k,nu,x,y,m,wrk,ier)
+c     call splder(t,n,c,k,nu,x,y,m,e,wrk,ier)
 c
 c  input parameters:
 c    t    : array,length n, which contains the position of the knots.
@@ -16,6 +17,10 @@ c    x    : array,length m, which contains the points where the deriv-
 c           ative of s(x) must be evaluated.
 c    m    : integer, giving the number of points where the derivative
 c           of s(x) must be evaluated
+c    e    : integer, if 0 the spline is extrapolated from the end
+c           spans for points not in the support, if 1 the spline
+c           evaluates to zero for those points, and if 2 ier is set to
+c           1 and the subroutine returns.
 c    wrk  : real array of dimension n. used as working space.
 c
 c  output parameters:
@@ -23,6 +28,7 @@ c    y    : array,length m, giving the value of the derivative of s(x)
 c           at the different points.
 c    ier  : error flag
 c      ier = 0 : normal return
+c      ier = 1 : argument out of bounds and e == 2
 c      ier =10 : invalid input data (see restrictions)
 c
 c  restrictions:
@@ -54,7 +60,7 @@ c++   - removed the restriction of the orderness of x values
 c++   - fixed initialization of sp to double precision value
 c
 c  ..scalar arguments..
-      integer n,k,nu,m,ier
+      integer n,k,nu,m,e,ier
 c  ..array arguments..
       real*8 t(n),c(n),x(m),y(m),wrk(n)
 c  ..local scalars..
@@ -76,7 +82,7 @@ c..++
 c--  10  do 20 i=2,m
 c--        if(x(i).lt.x(i-1)) go to 200
 c--  20  continue
-  30  ier = 0
+      ier = 0
 c  fetch tb and te, the boundaries of the approximation interval.
       k1 = k+1
       k3 = k1+1
@@ -112,21 +118,35 @@ c  using the recurrence scheme of de boor.
 c  if nu=k the derivative is a piecewise constant function
       j = 1
       do 90 i=1,m
-         arg = x(i)
+        arg = x(i)
 c++..
- 65      if(arg.ge.t(l) .or. l+1.eq.k2) go to 70
-         l1 = l
-         l = l-1
-         j = j-1
-         go to 65
+c  check if arg is in the support
+        if (arg .lt. tb .or. arg .gt. te) then
+            if (e .eq. 0) then
+                goto 65
+            else if (e .eq. 1) then
+                y(i) = 0
+                goto 90
+            else if (e .eq. 2) then
+                ier = 1
+                goto 200
+            endif
+        endif
+c  search for knot interval t(l) <= arg < t(l+1)
+ 65     if(arg.ge.t(l) .or. l+1.eq.k3) go to 70
+        l1 = l
+        l = l-1
+        j = j-1
+        go to 65
 c..++
-  70     if(arg.lt.t(l+1) .or. l.eq.nk1) go to 80
-         l = l+1
-         j = j+1
-         go to 70
-  80     y(i) = wrk(j)
+  70    if(arg.lt.t(l+1) .or. l.eq.nk1) go to 80
+        l = l+1
+        j = j+1
+        go to 70
+  80    y(i) = wrk(j)
   90  continue
       go to 200
+
  100  l = k1
       l1 = l+1
       k2 = k1-nu
@@ -134,10 +154,19 @@ c  main loop for the different points.
       do 180 i=1,m
 c  fetch a new x-value arg.
         arg = x(i)
-c--        if(arg.lt.tb) arg = tb
-c--        if(arg.gt.te) arg = te
+c  check if arg is in the support
+        if (arg .lt. tb .or. arg .gt. te) then
+            if (e .eq. 0) then
+                goto 135
+            else if (e .eq. 1) then
+                y(i) = 0
+                goto 180
+            else if (e .eq. 2) then
+                ier = 1
+                goto 200
+            endif
+        endif
 c  search for knot interval t(l) <= arg < t(l+1)
-c++..
  135    if(arg.ge.t(l) .or. l1.eq.k3) go to 140
         l1 = l
         l = l-1
