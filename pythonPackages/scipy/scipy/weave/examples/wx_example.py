@@ -4,7 +4,7 @@
     or so have been translated into C++.
 
 """
-
+from __future__ import absolute_import, print_function
 
 import sys
 sys.path.insert(0,'..')
@@ -12,27 +12,27 @@ import inline_tools
 
 from wxPython.wx import *
 
+
 class MyCanvas(wxScrolledWindow):
-    def __init__(self, parent, id = -1, size = wxDefaultSize):
+    def __init__(self, parent, id=-1, size=wxDefaultSize):
         wxScrolledWindow.__init__(self, parent, id, wxPoint(0, 0), size, wxSUNKEN_BORDER)
 
         self.lines = []
-        self.maxWidth  = 1000
+        self.maxWidth = 1000
         self.maxHeight = 1000
 
         self.SetBackgroundColour(wxNamedColor("WHITE"))
         EVT_LEFT_DOWN(self, self.OnLeftButtonEvent)
-        EVT_LEFT_UP(self,   self.OnLeftButtonEvent)
-        EVT_MOTION(self,    self.OnLeftButtonEvent)
+        EVT_LEFT_UP(self, self.OnLeftButtonEvent)
+        EVT_MOTION(self, self.OnLeftButtonEvent)
 
         EVT_PAINT(self, self.OnPaint)
 
-
         self.SetCursor(wxStockCursor(wxCURSOR_PENCIL))
-        #bmp = images.getTest2Bitmap()
-        #mask = wxMaskColour(bmp, wxBLUE)
-        #bmp.SetMask(mask)
-        #self.bmp = bmp
+        # bmp = images.getTest2Bitmap()
+        # mask = wxMaskColour(bmp, wxBLUE)
+        # bmp.SetMask(mask)
+        # self.bmp = bmp
 
         self.SetScrollbars(20, 20, self.maxWidth/20, self.maxHeight/20)
 
@@ -42,19 +42,17 @@ class MyCanvas(wxScrolledWindow):
     def getHeight(self):
         return self.maxHeight
 
-
     def OnPaint(self, event):
         dc = wxPaintDC(self)
         self.PrepareDC(dc)
         self.DoDrawing2(dc)
-
 
     def DoDrawing(self, dc):
         dc.BeginDrawing()
         dc.SetPen(wxPen(wxNamedColour('RED')))
         dc.DrawRectangle(5, 5, 50, 50)
 
-        dc.SetBrush(wxLIGHT_GREY_BRUSH)#
+        dc.SetBrush(wxLIGHT_GREY_BRUSH)
         dc.SetPen(wxPen(wxNamedColour('BLUE'), 4))
         dc.DrawRectangle(15, 15, 50, 50)
 
@@ -73,9 +71,9 @@ class MyCanvas(wxScrolledWindow):
         dc.SetPen(wxGREEN_PEN)
         dc.DrawSpline(lst+[(100,100)])
 
-        #dc.DrawBitmap(self.bmp, 200, 20, true)
-        #dc.SetTextForeground(wxColour(0, 0xFF, 0x80))
-        #dc.DrawText("a bitmap", 200, 85)
+        # dc.DrawBitmap(self.bmp, 200, 20, true)
+        # dc.SetTextForeground(wxColour(0, 0xFF, 0x80))
+        # dc.DrawText("a bitmap", 200, 85)
 
         font = wxFont(20, wxSWISS, wxNORMAL, wxNORMAL)
         dc.SetFont(font)
@@ -96,9 +94,9 @@ class MyCanvas(wxScrolledWindow):
 
     def DoDrawing2(self, dc):
 
-        red = wxNamedColour("RED");
-        blue = wxNamedColour("BLUE");
-        grey_brush = wxLIGHT_GREY_BRUSH;
+        red = wxNamedColour("RED")
+        blue = wxNamedColour("BLUE")
+        grey_brush = wxLIGHT_GREY_BRUSH
         code = \
         """
         //#line 108 "wx_example.py"
@@ -127,9 +125,9 @@ class MyCanvas(wxScrolledWindow):
         dc.SetPen(wxGREEN_PEN)
         dc.DrawSpline(lst+[(100,100)])
 
-        #dc.DrawBitmap(self.bmp, 200, 20, true)
-        #dc.SetTextForeground(wxColour(0, 0xFF, 0x80))
-        #dc.DrawText("a bitmap", 200, 85)
+        # dc.DrawBitmap(self.bmp, 200, 20, true)
+        # dc.SetTextForeground(wxColour(0, 0xFF, 0x80))
+        # dc.DrawText("a bitmap", 200, 85)
 
         font = wxFont(20, wxSWISS, wxNORMAL, wxNORMAL)
         dc.SetFont(font)
@@ -148,13 +146,11 @@ class MyCanvas(wxScrolledWindow):
         self.DrawSavedLines(dc)
         dc.EndDrawing()
 
-
     def DrawSavedLines(self, dc):
         dc.SetPen(wxPen(wxNamedColour('MEDIUM FOREST GREEN'), 4))
         for line in self.lines:
             for coords in line:
                 apply(dc.DrawLine, coords)
-
 
     def SetXY(self, event):
         self.x, self.y = self.ConvertEventCoords(event)
@@ -190,11 +186,12 @@ class MyCanvas(wxScrolledWindow):
 #---------------------------------------------------------------------------
 # This example isn't currently used.
 
+
 class py_canvas(wx.wxWindow):
-    def __init__(self, parent, id = -1, pos=wx.wxPyDefaultPosition,
+    def __init__(self, parent, id=-1, pos=wx.wxPyDefaultPosition,
                  size=wx.wxPyDefaultSize, **attr):
         wx.wxWindow.__init__(self, parent, id, pos,size)
-        #wx.EVT_PAINT(self,self.on_paint)
+        # wx.EVT_PAINT(self,self.on_paint)
         background = wx.wxNamedColour('white')
 
         code = """
@@ -203,24 +200,26 @@ class py_canvas(wx.wxWindow):
         inline_tools.inline(code,['self','background'],compiler='msvc')
 #----------------------------------------------------------------------------
 
+
 class MyFrame(wxFrame):
     def __init__(self, parent, ID, title, pos=wxDefaultPosition,
                  size=wxDefaultSize, style=wxDEFAULT_FRAME_STYLE):
         wxFrame.__init__(self, parent, ID, title, pos, size, style)
-        #panel = wxPanel(self, -1)
+        # panel = wxPanel(self, -1)
         self.GetSize()
-        #button = wxButton(panel, 1003, "Close Me")
-        #button.SetPosition(wxPoint(15, 15))
-        #EVT_BUTTON(self, 1003, self.OnCloseMe)
-        #EVT_CLOSE(self, self.OnCloseWindow)
-        #canvas = py_canvas(self,-1)
+        # button = wxButton(panel, 1003, "Close Me")
+        # button.SetPosition(wxPoint(15, 15))
+        # EVT_BUTTON(self, 1003, self.OnCloseMe)
+        # EVT_CLOSE(self, self.OnCloseWindow)
+        # canvas = py_canvas(self,-1)
         canvas = MyCanvas(self,-1)
         canvas.Show(true)
+
 
 class MyApp(wxApp):
     def OnInit(self):
         win = MyFrame(NULL, -1, "This is a wxFrame", size=(350, 200),
-                      style = wxDEFAULT_FRAME_STYLE)# |  wxFRAME_TOOL_WINDOW )
+                      style = wxDEFAULT_FRAME_STYLE)  # |  wxFRAME_TOOL_WINDOW )
         win.Show(true)
         return true
 

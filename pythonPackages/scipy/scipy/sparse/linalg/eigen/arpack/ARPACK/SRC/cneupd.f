@@ -161,7 +161,7 @@ c                occurs.
 c
 c          = -1: N must be positive.
 c          = -2: NEV must be positive.
-c          = -3: NCV-NEV >= 1 and less than or equal to N.
+c          = -3: NCV-NEV >= 2 and less than or equal to N.
 c          = -5: WHICH must be one of 'LM', 'SM', 'LR', 'SR', 'LI', 'SI'
 c          = -6: BMAT must be one of 'I' or 'G'.
 c          = -7: Length of private work WORKL array is not sufficient.
@@ -209,13 +209,13 @@ c             in upper triangular form.
 c     ctrsen  LAPACK routine that re-orders the Schur form.
 c     cunm2r  LAPACK routine that applies an orthogonal matrix in 
 c             factored form.
-c     slamch  LAPACK routine that determines machine constants.
+c     wslamch  LAPACK routine that determines machine constants.
 c     ctrmm   Level 3 BLAS matrix times an upper triangular matrix.
 c     cgeru   Level 2 BLAS rank one update to a matrix.
 c     ccopy   Level 1 BLAS that copies one vector to another .
 c     cscal   Level 1 BLAS that scales a vector.
 c     csscal  Level 1 BLAS that scales a complex vector by a real number.
-c     scnrm2  Level 1 BLAS that computes the norm of a complex vector.
+c     wscnrm2  Level 1 BLAS that computes the norm of a complex vector.
 c
 c\Remarks
 c
@@ -240,7 +240,7 @@ c     Rice University
 c     Houston, Texas
 c
 c\SCCS Information: @(#)
-c FILE: neupd.F   SID: 2.8   DATE OF SID: 07/21/02   RELEASE: 2
+c FILE: neupd.F   SID: 2.7   DATE OF SID: 09/20/00   RELEASE: 2
 c
 c\EndLib
 c
@@ -301,8 +301,8 @@ c
      &           invsub, iuptri, iwev  , j    , ldh   , ldq   ,
      &           mode  , msglvl, ritz  , wr   , k     , irz   ,
      &           ibd   , outncv, iq    , np   , numcnv, jj    ,
-     &           ishift
-      Complex
+     &           ishift, nconv2
+      Complex 
      &           rnorm, temp, vl(1)
       Real
      &           conds, sep, rtemp, eps23
@@ -321,8 +321,8 @@ c     | External Functions |
 c     %--------------------%
 c
       Real
-     &           scnrm2, slamch, slapy2
-      external   scnrm2, slamch, slapy2
+     &           wscnrm2, wslamch, wslapy2
+      external   wscnrm2, wslamch, wslapy2
 c
       Complex
      &           wcdotc
@@ -346,7 +346,7 @@ c     %---------------------------------%
 c     | Get machine dependent constant. |
 c     %---------------------------------%
 c
-      eps23 = slamch('Epsilon-Machine')
+      eps23 = wslamch('Epsilon-Machine')
       eps23 = eps23**(2.0E+0 / 3.0E+0)
 c
 c     %-------------------------------%
@@ -362,7 +362,7 @@ c
          ierr = -1
       else if (nev .le. 0) then
          ierr = -2
-      else if (ncv .le. nev .or.  ncv .gt. n) then
+      else if (ncv .le. nev+1 .or.  ncv .gt. n) then
          ierr = -3
       else if (which .ne. 'LM' .and.
      &        which .ne. 'SM' .and.
@@ -515,16 +515,16 @@ c
          numcnv = 0
          do 11 j = 1,ncv
             rtemp = max(eps23,
-     &                 slapy2 ( real(workl(irz+ncv-j)),
+     &                 wslapy2 ( real(workl(irz+ncv-j)),
      &                          aimag(workl(irz+ncv-j)) ))
             jj = workl(bounds + ncv - j)
             if (numcnv .lt. nconv .and.
-     &          slapy2( real(workl(ibd+jj-1)),
+     &          wslapy2( real(workl(ibd+jj-1)),
      &          aimag(workl(ibd+jj-1)) )
      &          .le. tol*rtemp) then
                select(jj) = .true.
                numcnv = numcnv + 1
-               if (jj .gt. nev) reord = .true.
+               if (jj .gt. nconv) reord = .true.
             endif
    11    continue
 c
@@ -592,9 +592,13 @@ c
             call ctrsen('None'       , 'V'          , select      ,
      &                   ncv          , workl(iuptri), ldh         ,
      &                   workl(invsub), ldq          , workl(iheig),
-     &                   nconv        , conds        , sep         , 
+     &                   nconv2       , conds        , sep         , 
      &                   workev       , ncv          , ierr)
 c
+            if (nconv2 .lt. nconv) then
+               nconv = nconv2
+            end if
+
             if (ierr .eq. 1) then
                info = 1
                go to 9000
@@ -713,7 +717,7 @@ c           | magnitude 1.                                   |
 c           %------------------------------------------------%
 c
             do 40 j=1, nconv
-                  rtemp = scnrm2(ncv, workl(invsub+(j-1)*ldq), 1)
+                  rtemp = wscnrm2(ncv, workl(invsub+(j-1)*ldq), 1)
                   rtemp = real(one) / rtemp
                   call csscal ( ncv, rtemp,
      &                 workl(invsub+(j-1)*ldq), 1 )

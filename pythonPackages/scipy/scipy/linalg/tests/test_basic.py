@@ -5,6 +5,8 @@
 """ Test functions for linalg.basic module
 
 """
+from __future__ import division, print_function, absolute_import
+
 """
 Bugs:
 1) solve.check_random_sym_complex fails if a is complex
@@ -19,16 +21,20 @@ Run tests if linalg is not installed:
   python tests/test_basic.py
 """
 
-import warnings
-
+import numpy as np
 from numpy import arange, array, dot, zeros, identity, conjugate, transpose, \
-        float32, zeros_like
+        float32
 import numpy.linalg as linalg
 
-from numpy.testing import *
+from numpy.testing import TestCase, rand, run_module_suite, assert_raises, \
+    assert_equal, assert_almost_equal, assert_array_almost_equal, assert_, \
+    assert_allclose
 
-from scipy.linalg import solve, inv, det, lstsq, pinv, pinv2, norm,\
-        solve_banded, solveh_banded, cholesky_banded
+from scipy.linalg import solve, inv, det, lstsq, pinv, pinv2, pinvh, norm,\
+        solve_banded, solveh_banded, solve_triangular, solve_circulant, \
+        circulant, LinAlgError
+
+from scipy.linalg._testutils import assert_no_overwrite
 
 
 def random(size):
@@ -38,21 +44,21 @@ def random(size):
 class TestSolveBanded(TestCase):
 
     def test_real(self):
-        a = array([[ 1.0, 20,  0,  0],
-                   [ -30,  4,  6,  0],
-                   [   2,  1, 20,  2],
-                   [   0, -1,  7, 14]])
-        ab = array([[ 0.0, 20,  6,  2],
-                    [   1,  4, 20, 14],
-                    [ -30,  1,  7,  0],
-                    [   2, -1,  0,  0]])
+        a = array([[1.0, 20, 0, 0],
+                   [-30, 4, 6, 0],
+                   [2, 1, 20, 2],
+                   [0, -1, 7, 14]])
+        ab = array([[0.0, 20, 6, 2],
+                    [1, 4, 20, 14],
+                    [-30, 1, 7, 0],
+                    [2, -1, 0, 0]])
         l,u = 2,1
         b4 = array([10.0, 0.0, 2.0, 14.0])
         b4by1 = b4.reshape(-1,1)
-        b4by2 = array([[ 2, 1],
+        b4by2 = array([[2, 1],
                        [-30, 4],
-                       [  2, 3],
-                       [  1, 3]])
+                       [2, 3],
+                       [1, 3]])
         b4by4 = array([[1, 0, 0, 0],
                        [0, 0, 0, 1],
                        [0, 1, 0, 0],
@@ -62,21 +68,21 @@ class TestSolveBanded(TestCase):
             assert_array_almost_equal(dot(a, x), b)
 
     def test_complex(self):
-        a = array([[ 1.0, 20,  0,   0],
-                   [ -30,  4,  6,   0],
-                   [  2j,  1, 20,  2j],
-                   [   0, -1,  7,  14]])
-        ab = array([[ 0.0, 20,  6,  2j],
-                    [   1,  4, 20,  14],
-                    [ -30,  1,  7,   0],
-                    [  2j, -1,  0,   0]])
+        a = array([[1.0, 20, 0, 0],
+                   [-30, 4, 6, 0],
+                   [2j, 1, 20, 2j],
+                   [0, -1, 7, 14]])
+        ab = array([[0.0, 20, 6, 2j],
+                    [1, 4, 20, 14],
+                    [-30, 1, 7, 0],
+                    [2j, -1, 0, 0]])
         l,u = 2,1
         b4 = array([10.0, 0.0, 2.0, 14.0j])
         b4by1 = b4.reshape(-1,1)
-        b4by2 = array([[ 2, 1],
+        b4by2 = array([[2, 1],
                        [-30, 4],
-                       [  2, 3],
-                       [  1, 3]])
+                       [2, 3],
+                       [1, 3]])
         b4by4 = array([[1, 0, 0, 0],
                        [0, 0, 0,1j],
                        [0, 1, 0, 0],
@@ -85,11 +91,63 @@ class TestSolveBanded(TestCase):
             x = solve_banded((l, u), ab, b)
             assert_array_almost_equal(dot(a, x), b)
 
+    def test_tridiag_real(self):
+        ab = array([[0.0, 20, 6, 2],
+                   [1, 4, 20, 14],
+                   [-30, 1, 7, 0]])
+        a = np.diag(ab[0,1:], 1) + np.diag(ab[1,:], 0) + np.diag(ab[2,:-1], -1) 
+        b4 = array([10.0, 0.0, 2.0, 14.0])
+        b4by1 = b4.reshape(-1,1)
+        b4by2 = array([[2, 1],
+                       [-30, 4],
+                       [2, 3],
+                       [1, 3]])
+        b4by4 = array([[1, 0, 0, 0],
+                       [0, 0, 0, 1],
+                       [0, 1, 0, 0],
+                       [0, 1, 0, 0]])
+        for b in [b4, b4by1, b4by2, b4by4]:
+            x = solve_banded((1, 1), ab, b)
+            assert_array_almost_equal(dot(a, x), b)
+    
+    def test_tridiag_complex(self):
+        ab = array([[0.0, 20, 6, 2j],
+                   [1, 4, 20, 14],
+                   [-30, 1, 7, 0]])
+        a = np.diag(ab[0,1:], 1) + np.diag(ab[1,:], 0) + np.diag(ab[2,:-1], -1) 
+        b4 = array([10.0, 0.0, 2.0, 14.0j])
+        b4by1 = b4.reshape(-1,1)
+        b4by2 = array([[2, 1],
+                       [-30, 4],
+                       [2, 3],
+                       [1, 3]])
+        b4by4 = array([[1, 0, 0, 0],
+                       [0, 0, 0, 1],
+                       [0, 1, 0, 0],
+                       [0, 1, 0, 0]])
+        for b in [b4, b4by1, b4by2, b4by4]:
+            x = solve_banded((1, 1), ab, b)
+            assert_array_almost_equal(dot(a, x), b)
+
+    def test_check_finite(self):
+        a = array([[1.0, 20, 0, 0],
+                   [-30, 4, 6, 0],
+                   [2, 1, 20, 2],
+                   [0, -1, 7, 14]])
+        ab = array([[0.0, 20, 6, 2],
+                    [1, 4, 20, 14],
+                    [-30, 1, 7, 0],
+                    [2, -1, 0, 0]])
+        l,u = 2,1
+        b4 = array([10.0, 0.0, 2.0, 14.0])
+        x = solve_banded((l, u), ab, b4, check_finite=False)
+        assert_array_almost_equal(dot(a, x), b4)
+
     def test_bad_shape(self):
-        ab = array([[ 0.0, 20,  6,  2],
-                    [   1,  4, 20, 14],
-                    [ -30,  1,  7,  0],
-                    [   2, -1,  0,  0]])
+        ab = array([[0.0, 20, 6, 2],
+                    [1, 4, 20, 14],
+                    [-30, 1, 7, 0],
+                    [2, -1, 0, 0]])
         l,u = 2,1
         bad = array([1.0, 2.0, 3.0, 4.0]).reshape(-1,4)
         assert_raises(ValueError, solve_banded, (l, u), ab, bad)
@@ -100,12 +158,162 @@ class TestSolveBanded(TestCase):
 
 
 class TestSolveHBanded(TestCase):
-    # solveh_banded currently has a DeprecationWarning.  When the warning
-    # is removed in scipy 0.9, the 'ignore' filters and the test for the
-    # warning can be removed.
 
     def test_01_upper(self):
-        warnings.simplefilter('ignore', category=DeprecationWarning)
+        # Solve
+        # [ 4 1 2 0]     [1]
+        # [ 1 4 1 2] X = [4]
+        # [ 2 1 4 1]     [1]
+        # [ 0 2 1 4]     [2]
+        # with the RHS as a 1D array.
+        ab = array([[0.0, 0.0, 2.0, 2.0],
+                    [-99, 1.0, 1.0, 1.0],
+                    [4.0, 4.0, 4.0, 4.0]])
+        b = array([1.0, 4.0, 1.0, 2.0])
+        x = solveh_banded(ab, b)
+        assert_array_almost_equal(x, [0.0, 1.0, 0.0, 0.0])
+
+    def test_02_upper(self):
+        # Solve
+        # [ 4 1 2 0]     [1 6]
+        # [ 1 4 1 2] X = [4 2]
+        # [ 2 1 4 1]     [1 6]
+        # [ 0 2 1 4]     [2 1]
+        #
+        ab = array([[0.0, 0.0, 2.0, 2.0],
+                    [-99, 1.0, 1.0, 1.0],
+                    [4.0, 4.0, 4.0, 4.0]])
+        b = array([[1.0, 6.0],
+                   [4.0, 2.0],
+                   [1.0, 6.0],
+                   [2.0, 1.0]])
+        x = solveh_banded(ab, b)
+        expected = array([[0.0, 1.0],
+                          [1.0, 0.0],
+                          [0.0, 1.0],
+                          [0.0, 0.0]])
+        assert_array_almost_equal(x, expected)
+
+    def test_03_upper(self):
+        # Solve
+        # [ 4 1 2 0]     [1]
+        # [ 1 4 1 2] X = [4]
+        # [ 2 1 4 1]     [1]
+        # [ 0 2 1 4]     [2]
+        # with the RHS as a 2D array with shape (3,1).
+        ab = array([[0.0, 0.0, 2.0, 2.0],
+                    [-99, 1.0, 1.0, 1.0],
+                    [4.0, 4.0, 4.0, 4.0]])
+        b = array([1.0, 4.0, 1.0, 2.0]).reshape(-1,1)
+        x = solveh_banded(ab, b)
+        assert_array_almost_equal(x, array([0.0, 1.0, 0.0, 0.0]).reshape(-1,1))
+
+    def test_01_lower(self):
+        # Solve
+        # [ 4 1 2 0]     [1]
+        # [ 1 4 1 2] X = [4]
+        # [ 2 1 4 1]     [1]
+        # [ 0 2 1 4]     [2]
+        #
+        ab = array([[4.0, 4.0, 4.0, 4.0],
+                    [1.0, 1.0, 1.0, -99],
+                    [2.0, 2.0, 0.0, 0.0]])
+        b = array([1.0, 4.0, 1.0, 2.0])
+        x = solveh_banded(ab, b, lower=True)
+        assert_array_almost_equal(x, [0.0, 1.0, 0.0, 0.0])
+
+    def test_02_lower(self):
+        # Solve
+        # [ 4 1 2 0]     [1 6]
+        # [ 1 4 1 2] X = [4 2]
+        # [ 2 1 4 1]     [1 6]
+        # [ 0 2 1 4]     [2 1]
+        #
+        ab = array([[4.0, 4.0, 4.0, 4.0],
+                    [1.0, 1.0, 1.0, -99],
+                    [2.0, 2.0, 0.0, 0.0]])
+        b = array([[1.0, 6.0],
+                   [4.0, 2.0],
+                   [1.0, 6.0],
+                   [2.0, 1.0]])
+        x = solveh_banded(ab, b, lower=True)
+        expected = array([[0.0, 1.0],
+                          [1.0, 0.0],
+                          [0.0, 1.0],
+                          [0.0, 0.0]])
+        assert_array_almost_equal(x, expected)
+
+    def test_01_float32(self):
+        # Solve
+        # [ 4 1 2 0]     [1]
+        # [ 1 4 1 2] X = [4]
+        # [ 2 1 4 1]     [1]
+        # [ 0 2 1 4]     [2]
+        #
+        ab = array([[0.0, 0.0, 2.0, 2.0],
+                    [-99, 1.0, 1.0, 1.0],
+                    [4.0, 4.0, 4.0, 4.0]], dtype=float32)
+        b = array([1.0, 4.0, 1.0, 2.0], dtype=float32)
+        x = solveh_banded(ab, b)
+        assert_array_almost_equal(x, [0.0, 1.0, 0.0, 0.0])
+
+    def test_02_float32(self):
+        # Solve
+        # [ 4 1 2 0]     [1 6]
+        # [ 1 4 1 2] X = [4 2]
+        # [ 2 1 4 1]     [1 6]
+        # [ 0 2 1 4]     [2 1]
+        #
+        ab = array([[0.0, 0.0, 2.0, 2.0],
+                    [-99, 1.0, 1.0, 1.0],
+                    [4.0, 4.0, 4.0, 4.0]], dtype=float32)
+        b = array([[1.0, 6.0],
+                   [4.0, 2.0],
+                   [1.0, 6.0],
+                   [2.0, 1.0]], dtype=float32)
+        x = solveh_banded(ab, b)
+        expected = array([[0.0, 1.0],
+                          [1.0, 0.0],
+                          [0.0, 1.0],
+                          [0.0, 0.0]])
+        assert_array_almost_equal(x, expected)
+
+    def test_01_complex(self):
+        # Solve
+        # [ 4 -j  2  0]     [2-j]
+        # [ j  4 -j  2] X = [4-j]
+        # [ 2  j  4 -j]     [4+j]
+        # [ 0  2  j  4]     [2+j]
+        #
+        ab = array([[0.0, 0.0, 2.0, 2.0],
+                    [-99, -1.0j, -1.0j, -1.0j],
+                    [4.0, 4.0, 4.0, 4.0]])
+        b = array([2-1.0j, 4.0-1j, 4+1j, 2+1j])
+        x = solveh_banded(ab, b)
+        assert_array_almost_equal(x, [0.0, 1.0, 1.0, 0.0])
+
+    def test_02_complex(self):
+        # Solve
+        # [ 4 -j  2  0]     [2-j 2+4j]
+        # [ j  4 -j  2] X = [4-j -1-j]
+        # [ 2  j  4 -j]     [4+j 4+2j]
+        # [ 0  2  j  4]     [2+j j]
+        #
+        ab = array([[0.0, 0.0, 2.0, 2.0],
+                    [-99, -1.0j, -1.0j, -1.0j],
+                    [4.0, 4.0, 4.0, 4.0]])
+        b = array([[2-1j, 2+4j],
+                   [4.0-1j, -1-1j],
+                   [4.0+1j, 4+2j],
+                   [2+1j, 1j]])
+        x = solveh_banded(ab, b)
+        expected = array([[0.0, 1.0j],
+                          [1.0, 0.0],
+                          [1.0, 1.0],
+                          [0.0, 0.0]])
+        assert_array_almost_equal(x, expected)
+
+    def test_tridiag_01_upper(self):
         # Solve
         # [ 4 1 0]     [1]
         # [ 1 4 1] X = [4]
@@ -113,17 +321,10 @@ class TestSolveHBanded(TestCase):
         # with the RHS as a 1D array.
         ab = array([[-99, 1.0, 1.0], [4.0, 4.0, 4.0]])
         b = array([1.0, 4.0, 1.0])
-        c, x = solveh_banded(ab, b)
+        x = solveh_banded(ab, b)
         assert_array_almost_equal(x, [0.0, 1.0, 0.0])
-        # Remove the following part of this test in scipy 0.9.
-        a = array([[4.0, 1.0, 0.0], [1.0, 4.0, 1.0], [0.0, 1.0, 4.0]])
-        fac = zeros_like(a)
-        fac[range(3),range(3)] = c[-1]
-        fac[(0,1),(1,2)] = c[0,1:]
-        assert_array_almost_equal(a, dot(fac.T, fac))
 
-    def test_02_upper(self):
-        warnings.simplefilter('ignore', category=DeprecationWarning)
+    def test_tridiag_02_upper(self):
         # Solve
         # [ 4 1 0]     [1 4]
         # [ 1 4 1] X = [4 2]
@@ -134,14 +335,13 @@ class TestSolveHBanded(TestCase):
         b = array([[1.0, 4.0],
                    [4.0, 2.0],
                    [1.0, 4.0]])
-        c, x = solveh_banded(ab, b)
+        x = solveh_banded(ab, b)
         expected = array([[0.0, 1.0],
                           [1.0, 0.0],
                           [0.0, 1.0]])
         assert_array_almost_equal(x, expected)
 
-    def test_03_upper(self):
-        warnings.simplefilter('ignore', category=DeprecationWarning)
+    def test_tridiag_03_upper(self):
         # Solve
         # [ 4 1 0]     [1]
         # [ 1 4 1] X = [4]
@@ -149,11 +349,10 @@ class TestSolveHBanded(TestCase):
         # with the RHS as a 2D array with shape (3,1).
         ab = array([[-99, 1.0, 1.0], [4.0, 4.0, 4.0]])
         b = array([1.0, 4.0, 1.0]).reshape(-1,1)
-        c, x = solveh_banded(ab, b)
+        x = solveh_banded(ab, b)
         assert_array_almost_equal(x, array([0.0, 1.0, 0.0]).reshape(-1,1))
 
-    def test_01_lower(self):
-        warnings.simplefilter('ignore', category=DeprecationWarning)
+    def test_tridiag_01_lower(self):
         # Solve
         # [ 4 1 0]     [1]
         # [ 1 4 1] X = [4]
@@ -162,11 +361,10 @@ class TestSolveHBanded(TestCase):
         ab = array([[4.0, 4.0, 4.0],
                     [1.0, 1.0, -99]])
         b = array([1.0, 4.0, 1.0])
-        c, x = solveh_banded(ab, b, lower=True)
+        x = solveh_banded(ab, b, lower=True)
         assert_array_almost_equal(x, [0.0, 1.0, 0.0])
 
-    def test_02_lower(self):
-        warnings.simplefilter('ignore', category=DeprecationWarning)
+    def test_tridiag_02_lower(self):
         # Solve
         # [ 4 1 0]     [1 4]
         # [ 1 4 1] X = [4 2]
@@ -177,14 +375,13 @@ class TestSolveHBanded(TestCase):
         b = array([[1.0, 4.0],
                    [4.0, 2.0],
                    [1.0, 4.0]])
-        c, x = solveh_banded(ab, b, lower=True)
+        x = solveh_banded(ab, b, lower=True)
         expected = array([[0.0, 1.0],
                           [1.0, 0.0],
                           [0.0, 1.0]])
         assert_array_almost_equal(x, expected)
 
-    def test_01_float32(self):
-        warnings.simplefilter('ignore', category=DeprecationWarning)
+    def test_tridiag_01_float32(self):
         # Solve
         # [ 4 1 0]     [1]
         # [ 1 4 1] X = [4]
@@ -192,11 +389,10 @@ class TestSolveHBanded(TestCase):
         #
         ab = array([[-99, 1.0, 1.0], [4.0, 4.0, 4.0]], dtype=float32)
         b = array([1.0, 4.0, 1.0], dtype=float32)
-        c, x = solveh_banded(ab, b)
+        x = solveh_banded(ab, b)
         assert_array_almost_equal(x, [0.0, 1.0, 0.0])
 
-    def test_02_float32(self):
-        warnings.simplefilter('ignore', category=DeprecationWarning)
+    def test_tridiag_02_float32(self):
         # Solve
         # [ 4 1 0]     [1 4]
         # [ 1 4 1] X = [4 2]
@@ -207,14 +403,13 @@ class TestSolveHBanded(TestCase):
         b = array([[1.0, 4.0],
                    [4.0, 2.0],
                    [1.0, 4.0]], dtype=float32)
-        c, x = solveh_banded(ab, b)
+        x = solveh_banded(ab, b)
         expected = array([[0.0, 1.0],
                           [1.0, 0.0],
                           [0.0, 1.0]])
         assert_array_almost_equal(x, expected)
 
-    def test_01_complex(self):
-        warnings.simplefilter('ignore', category=DeprecationWarning)
+    def test_tridiag_01_complex(self):
         # Solve
         # [ 4 -j 0]     [ -j]
         # [ j 4 -j] X = [4-j]
@@ -222,11 +417,10 @@ class TestSolveHBanded(TestCase):
         #
         ab = array([[-99, -1.0j, -1.0j], [4.0, 4.0, 4.0]])
         b = array([-1.0j, 4.0-1j, 4+1j])
-        c, x = solveh_banded(ab, b)
+        x = solveh_banded(ab, b)
         assert_array_almost_equal(x, [0.0, 1.0, 1.0])
 
-    def test_02_complex(self):
-        warnings.simplefilter('ignore', category=DeprecationWarning)
+    def test_tridiag_02_complex(self):
         # Solve
         # [ 4 -j 0]     [ -j    4j]
         # [ j 4 -j] X = [4-j  -1-j]
@@ -234,18 +428,27 @@ class TestSolveHBanded(TestCase):
         #
         ab = array([[-99, -1.0j, -1.0j],
                     [4.0, 4.0, 4.0]])
-        b = array([[   -1j,    4.0j],
+        b = array([[-1j, 4.0j],
                    [4.0-1j, -1.0-1j],
-                   [4.0+1j,     4.0]])
-        c, x = solveh_banded(ab, b)
+                   [4.0+1j, 4.0]])
+        x = solveh_banded(ab, b)
         expected = array([[0.0, 1.0j],
-                          [1.0,  0.0],
-                          [1.0,  1.0]])
+                          [1.0, 0.0],
+                          [1.0, 1.0]])
         assert_array_almost_equal(x, expected)
 
-    def test_bad_shapes(self):
-        warnings.simplefilter('ignore', category=DeprecationWarning)
+    def test_check_finite(self):
+        # Solve
+        # [ 4 1 0]     [1]
+        # [ 1 4 1] X = [4]
+        # [ 0 1 4]     [1]
+        # with the RHS as a 1D array.
+        ab = array([[-99, 1.0, 1.0], [4.0, 4.0, 4.0]])
+        b = array([1.0, 4.0, 1.0])
+        x = solveh_banded(ab, b, check_finite=False)
+        assert_array_almost_equal(x, [0.0, 1.0, 0.0])
 
+    def test_bad_shapes(self):
         ab = array([[-99, 1.0, 1.0],
                     [4.0, 4.0, 4.0]])
         b = array([[1.0, 4.0],
@@ -254,21 +457,17 @@ class TestSolveHBanded(TestCase):
         assert_raises(ValueError, solveh_banded, ab, [1.0, 2.0])
         assert_raises(ValueError, solveh_banded, ab, [1.0])
 
-    def test_00_deprecation_warning(self):
-        warnings.simplefilter('error', category=DeprecationWarning)
-        ab = array([[-99, 1.0, 1.0], [4.0, 4.0, 4.0]])
-        b = array([1.0, 4.0, 1.0])
-        assert_raises(DeprecationWarning, solveh_banded, ab, b)
-
 
 class TestSolve(TestCase):
+    def setUp(self):
+        np.random.seed(1234)
 
     def test_20Feb04_bug(self):
-        a = [[1,1],[1.0,0]] # ok
+        a = [[1,1],[1.0,0]]  # ok
         x0 = solve(a,[1,0j])
         assert_array_almost_equal(dot(a,x0),[1,0])
 
-        a = [[1,1],[1.2,0]] # gives failure with clapack.zgesv(..,rowmajor=0)
+        a = [[1,1],[1.2,0]]  # gives failure with clapack.zgesv(..,rowmajor=0)
         b = [1,0j]
         x0 = solve(a,b)
         assert_array_almost_equal(dot(a,x0),[1,0])
@@ -322,7 +521,8 @@ class TestSolve(TestCase):
 
         n = 20
         a = random([n,n])
-        for i in range(n): a[i,i] = 20*(.1+a[i,i])
+        for i in range(n):
+            a[i,i] = 20*(.1+a[i,i])
         for i in range(4):
             b = random([n,3])
             x = solve(a,b)
@@ -331,7 +531,8 @@ class TestSolve(TestCase):
     def test_random_complex(self):
         n = 20
         a = random([n,n]) + 1j * random([n,n])
-        for i in range(n): a[i,i] = 20*(.1+a[i,i])
+        for i in range(n):
+            a[i,i] = 20*(.1+a[i,i])
         for i in range(2):
             b = random([n,3])
             x = solve(a,b)
@@ -352,7 +553,7 @@ class TestSolve(TestCase):
     def test_random_sym_complex(self):
         n = 20
         a = random([n,n])
-        #a  = a + 1j*random([n,n]) # XXX: with this the accuracy will be very low
+        # a  = a + 1j*random([n,n]) # XXX: with this the accuracy will be very low
         for i in range(n):
             a[i,i] = abs(20*(.1+a[i,i]))
             for j in range(i):
@@ -362,8 +563,59 @@ class TestSolve(TestCase):
             x = solve(a,b,sym_pos=1)
             assert_array_almost_equal(dot(a,x),b)
 
+    def test_check_finite(self):
+        a = [[1,20],[-30,4]]
+        for b in ([[1,0],[0,1]],[1,0],
+                  [[2,1],[-30,4]]):
+            x = solve(a,b, check_finite=False)
+            assert_array_almost_equal(dot(a,x),b)
+
+
+class TestSolveTriangular(TestCase):
+
+    def test_simple(self):
+        """
+        solve_triangular on a simple 2x2 matrix.
+        """
+        A = array([[1,0], [1,2]])
+        b = [1, 1]
+        sol = solve_triangular(A, b, lower=True)
+        assert_array_almost_equal(sol, [1, 0])
+
+        # check that it works also for non-contiguous matrices
+        sol = solve_triangular(A.T, b, lower=False)
+        assert_array_almost_equal(sol, [.5, .5])
+
+        # and that it gives the same result as trans=1
+        sol = solve_triangular(A, b, lower=True, trans=1)
+        assert_array_almost_equal(sol, [.5, .5])
+
+        b = identity(2)
+        sol = solve_triangular(A, b, lower=True, trans=1)
+        assert_array_almost_equal(sol, [[1., -.5], [0, 0.5]])
+
+    def test_simple_complex(self):
+        """
+        solve_triangular on a simple 2x2 complex matrix
+        """
+        A = array([[1+1j, 0], [1j, 2]])
+        b = identity(2)
+        sol = solve_triangular(A, b, lower=True, trans=1)
+        assert_array_almost_equal(sol, [[.5-.5j, -.25-.25j], [0, 0.5]])
+
+    def test_check_finite(self):
+        """
+        solve_triangular on a simple 2x2 matrix.
+        """
+        A = array([[1,0], [1,2]])
+        b = [1, 1]
+        sol = solve_triangular(A, b, lower=True, check_finite=False)
+        assert_array_almost_equal(sol, [1, 0])
+
 
 class TestInv(TestCase):
+    def setUp(self):
+        np.random.seed(1234)
 
     def test_simple(self):
         a = [[1,2],[3,4]]
@@ -379,10 +631,12 @@ class TestInv(TestCase):
         n = 20
         for i in range(4):
             a = random([n,n])
-            for i in range(n): a[i,i] = 20*(.1+a[i,i])
+            for i in range(n):
+                a[i,i] = 20*(.1+a[i,i])
             a_inv = inv(a)
             assert_array_almost_equal(dot(a,a_inv),
                                       identity(n))
+
     def test_simple_complex(self):
         a = [[1,2],[3,4j]]
         a_inv = inv(a)
@@ -393,13 +647,22 @@ class TestInv(TestCase):
         n = 20
         for i in range(4):
             a = random([n,n])+2j*random([n,n])
-            for i in range(n): a[i,i] = 20*(.1+a[i,i])
+            for i in range(n):
+                a[i,i] = 20*(.1+a[i,i])
             a_inv = inv(a)
             assert_array_almost_equal(dot(a,a_inv),
                                       identity(n))
 
+    def test_check_finite(self):
+        a = [[1,2],[3,4]]
+        a_inv = inv(a, check_finite=False)
+        assert_array_almost_equal(dot(a,a_inv),
+                                  [[1,0],[0,1]])
+
 
 class TestDet(TestCase):
+    def setUp(self):
+        np.random.seed(1234)
 
     def test_simple(self):
         a = [[1,2],[3,4]]
@@ -427,7 +690,12 @@ class TestDet(TestCase):
             a = random([n,n]) + 2j*random([n,n])
             d1 = det(a)
             d2 = basic_det(a)
-            assert_almost_equal(d1,d2)
+            assert_allclose(d1, d2, rtol=1e-13)
+
+    def test_check_finite(self):
+        a = [[1,2],[3,4]]
+        a_det = det(a, check_finite=False)
+        assert_almost_equal(a_det,-2.0)
 
 
 def direct_lstsq(a,b,cmplx=0):
@@ -438,12 +706,17 @@ def direct_lstsq(a,b,cmplx=0):
     b1 = dot(at, b)
     return solve(a1, b1)
 
+
 class TestLstsq(TestCase):
+    def setUp(self):
+        np.random.seed(1234)
+
     def test_random_overdet_large(self):
-        #bug report: Nils Wagner
+        # bug report: Nils Wagner
         n = 200
         a = random([n,2])
-        for i in range(2): a[i,i] = 20*(.1+a[i,i])
+        for i in range(2):
+            a[i,i] = 20*(.1+a[i,i])
         b = random([n,3])
         x = lstsq(a,b)[0]
         assert_array_almost_equal(x,direct_lstsq(a,b))
@@ -459,22 +732,29 @@ class TestLstsq(TestCase):
         a = [[1,2],[4,5],[3,4]]
         b = [1,2,3]
         x,res,r,s = lstsq(a,b)
-        #XXX: check defintion of res
         assert_array_almost_equal(x,direct_lstsq(a,b))
+        assert_almost_equal((abs(dot(a,x) - b)**2).sum(axis=0), res)
+
+    def test_simple_overdet_complex(self):
+        a = [[1+2j,2],[4,5],[3,4]]
+        b = [1,2+4j,3]
+        x,res,r,s = lstsq(a,b)
+        assert_array_almost_equal(x,direct_lstsq(a,b,cmplx=1))
+        assert_almost_equal(res, (abs(dot(a,x) - b)**2).sum(axis=0))
 
     def test_simple_underdet(self):
         a = [[1,2,3],[4,5,6]]
         b = [1,2]
         x,res,r,s = lstsq(a,b)
-        #XXX: need independent check
-        assert_array_almost_equal(x,[[-0.05555556],
-                                     [0.11111111],[0.27777778]])
+        # XXX: need independent check
+        assert_array_almost_equal(x,[-0.05555556, 0.11111111, 0.27777778])
 
     def test_random_exact(self):
 
         n = 20
         a = random([n,n])
-        for i in range(n): a[i,i] = 20*(.1+a[i,i])
+        for i in range(n):
+            a[i,i] = 20*(.1+a[i,i])
         for i in range(4):
             b = random([n,3])
             x = lstsq(a,b)[0]
@@ -483,7 +763,8 @@ class TestLstsq(TestCase):
     def test_random_complex_exact(self):
         n = 20
         a = random([n,n]) + 1j * random([n,n])
-        for i in range(n): a[i,i] = 20*(.1+a[i,i])
+        for i in range(n):
+            a[i,i] = 20*(.1+a[i,i])
         for i in range(2):
             b = random([n,3])
             x = lstsq(a,b)[0]
@@ -493,12 +774,13 @@ class TestLstsq(TestCase):
         n = 20
         m = 15
         a = random([n,m])
-        for i in range(m): a[i,i] = 20*(.1+a[i,i])
+        for i in range(m):
+            a[i,i] = 20*(.1+a[i,i])
         for i in range(4):
             b = random([n,3])
             x,res,r,s = lstsq(a,b)
-            assert r==m,'unexpected efficient rank'
-            #XXX: check definition of res
+            assert_(r == m, 'unexpected efficient rank')
+            # XXX: check definition of res
             assert_array_almost_equal(x,direct_lstsq(a,b))
 
     def test_random_complex_overdet(self):
@@ -510,42 +792,258 @@ class TestLstsq(TestCase):
         for i in range(2):
             b = random([n,3])
             x,res,r,s = lstsq(a,b)
-            assert r==m,'unexpected efficient rank'
-            #XXX: check definition of res
+            assert_(r == m, 'unexpected efficient rank')
+            # XXX: check definition of res
             assert_array_almost_equal(x,direct_lstsq(a,b,1))
+
+    def test_check_finite(self):
+        a = [[1,20],[-30,4]]
+        for b in ([[1,0],[0,1]],[1,0],
+                  [[2,1],[-30,4]]):
+            x = lstsq(a,b, check_finite=False)[0]
+            assert_array_almost_equal(dot(a,x),b)
 
 
 class TestPinv(TestCase):
 
-    def test_simple(self):
-        a=array([[1,2,3],[4,5,6.],[7,8,10]])
+    def test_simple_real(self):
+        a = array([[1, 2, 3], [4, 5, 6], [7, 8, 10]], dtype=float)
         a_pinv = pinv(a)
-        assert_array_almost_equal(dot(a,a_pinv),[[1,0,0],[0,1,0],[0,0,1]])
+        assert_array_almost_equal(dot(a,a_pinv), np.eye(3))
         a_pinv = pinv2(a)
-        assert_array_almost_equal(dot(a,a_pinv),[[1,0,0],[0,1,0],[0,0,1]])
+        assert_array_almost_equal(dot(a,a_pinv), np.eye(3))
 
-    def test_simple_0det(self):
-        a=array([[1,2,3],[4,5,6.],[7,8,9]])
+    def test_simple_complex(self):
+        a = (array([[1, 2, 3], [4, 5, 6], [7, 8, 10]], dtype=float)
+             + 1j * array([[10, 8, 7], [6, 5, 4], [3, 2, 1]], dtype=float))
+        a_pinv = pinv(a)
+        assert_array_almost_equal(dot(a, a_pinv), np.eye(3))
+        a_pinv = pinv2(a)
+        assert_array_almost_equal(dot(a, a_pinv), np.eye(3))
+
+    def test_simple_singular(self):
+        a = array([[1, 2, 3], [4, 5, 6], [7, 8, 9]], dtype=float)
         a_pinv = pinv(a)
         a_pinv2 = pinv2(a)
         assert_array_almost_equal(a_pinv,a_pinv2)
 
     def test_simple_cols(self):
-        a=array([[1,2,3],[4,5,6.]])
+        a = array([[1, 2, 3], [4, 5, 6]], dtype=float)
         a_pinv = pinv(a)
         a_pinv2 = pinv2(a)
         assert_array_almost_equal(a_pinv,a_pinv2)
 
     def test_simple_rows(self):
-        a=array([[1,2],[3,4],[5,6]])
+        a = array([[1, 2], [3, 4], [5, 6]], dtype=float)
         a_pinv = pinv(a)
         a_pinv2 = pinv2(a)
         assert_array_almost_equal(a_pinv,a_pinv2)
 
-class TestNorm(object):
+    def test_check_finite(self):
+        a = array([[1,2,3],[4,5,6.],[7,8,10]])
+        a_pinv = pinv(a, check_finite=False)
+        assert_array_almost_equal(dot(a,a_pinv),[[1,0,0],[0,1,0],[0,0,1]])
+        a_pinv = pinv2(a, check_finite=False)
+        assert_array_almost_equal(dot(a,a_pinv),[[1,0,0],[0,1,0],[0,0,1]])
+
+
+class TestPinvSymmetric(TestCase):
+
+    def test_simple_real(self):
+        a = array([[1, 2, 3], [4, 5, 6], [7, 8, 10]], dtype=float)
+        a = np.dot(a, a.T)
+        a_pinv = pinvh(a)
+        assert_array_almost_equal(np.dot(a, a_pinv), np.eye(3))
+
+    def test_nonpositive(self):
+        a = array([[1, 2, 3], [4, 5, 6], [7, 8, 9]], dtype=float)
+        a = np.dot(a, a.T)
+        u, s, vt = np.linalg.svd(a)
+        s[0] *= -1
+        a = np.dot(u * s, vt)  # a is now symmetric non-positive and singular
+        a_pinv = pinv2(a)
+        a_pinvh = pinvh(a)
+        assert_array_almost_equal(a_pinv, a_pinvh)
+
+    def test_simple_complex(self):
+        a = (array([[1, 2, 3], [4, 5, 6], [7, 8, 10]], dtype=float)
+             + 1j * array([[10, 8, 7], [6, 5, 4], [3, 2, 1]], dtype=float))
+        a = np.dot(a, a.conj().T)
+        a_pinv = pinvh(a)
+        assert_array_almost_equal(np.dot(a, a_pinv), np.eye(3))
+
+
+class TestVectorNorms(object):
+
+    def test_types(self):
+        for dtype in np.typecodes['AllFloat']:
+            x = np.array([1,2,3], dtype=dtype)
+            tol = max(1e-15, np.finfo(dtype).eps.real * 20)
+            assert_allclose(norm(x), np.sqrt(14), rtol=tol)
+            assert_allclose(norm(x, 2), np.sqrt(14), rtol=tol)
+
+        for dtype in np.typecodes['Complex']:
+            x = np.array([1j,2j,3j], dtype=dtype)
+            tol = max(1e-15, np.finfo(dtype).eps.real * 20)
+            assert_allclose(norm(x), np.sqrt(14), rtol=tol)
+            assert_allclose(norm(x, 2), np.sqrt(14), rtol=tol)
+
+    def test_overflow(self):
+        # unlike numpy's norm, this one is
+        # safer on overflow
+        a = array([1e20], dtype=float32)
+        assert_almost_equal(norm(a), a)
+
+    def test_stable(self):
+        # more stable than numpy's norm
+        a = array([1e4] + [1]*10000, dtype=float32)
+        try:
+            # snrm in double precision; we obtain the same as for float64
+            # -- large atol needed due to varying blas implementations
+            assert_allclose(norm(a) - 1e4, 0.5, atol=1e-2)
+        except AssertionError:
+            # snrm implemented in single precision, == np.linalg.norm result
+            msg = ": Result should equal either 0.0 or 0.5 (depending on " \
+                  "implementation of snrm2)."
+            assert_almost_equal(norm(a) - 1e4, 0.0, err_msg=msg)
+
     def test_zero_norm(self):
         assert_equal(norm([1,0,3], 0), 2)
         assert_equal(norm([1,2,3], 0), 3)
+
+
+class TestMatrixNorms(object):
+
+    def test_matrix_norms(self):
+        # Not all of these are matrix norms in the most technical sense.
+        np.random.seed(1234)
+        for n, m in (1, 1), (1, 3), (3, 1), (4, 4), (4, 5), (5, 4):
+            for t in np.single, np.double, np.csingle, np.cdouble, np.int64:
+                A = 10 * np.random.randn(n, m).astype(t)
+                if np.issubdtype(A.dtype, np.complexfloating):
+                    A = (A + 10j * np.random.randn(n, m)).astype(t)
+                    t_high = np.cdouble
+                else:
+                    t_high = np.double
+                for order in (None, 'fro', 1, -1, 2, -2, np.inf, -np.inf):
+                    actual = norm(A, ord=order)
+                    desired = np.linalg.norm(A, ord=order)
+                    # SciPy may return higher precision matrix norms.
+                    # This is a consequence of using LAPACK.
+                    if not np.allclose(actual, desired):
+                        desired = np.linalg.norm(A.astype(t_high), ord=order)
+                        np.assert_allclose(actual, desired)
+
+
+class TestOverwrite(object):
+    def test_solve(self):
+        assert_no_overwrite(solve, [(3,3), (3,)])
+
+    def test_solve_triangular(self):
+        assert_no_overwrite(solve_triangular, [(3,3), (3,)])
+
+    def test_solve_banded(self):
+        assert_no_overwrite(lambda ab, b: solve_banded((2,1), ab, b),
+                            [(4,6), (6,)])
+
+    def test_solveh_banded(self):
+        assert_no_overwrite(solveh_banded, [(2,6), (6,)])
+
+    def test_inv(self):
+        assert_no_overwrite(inv, [(3,3)])
+
+    def test_det(self):
+        assert_no_overwrite(det, [(3,3)])
+
+    def test_lstsq(self):
+        assert_no_overwrite(lstsq, [(3,2), (3,)])
+
+    def test_pinv(self):
+        assert_no_overwrite(pinv, [(3,3)])
+
+    def test_pinv2(self):
+        assert_no_overwrite(pinv2, [(3,3)])
+
+    def test_pinvh(self):
+        assert_no_overwrite(pinvh, [(3,3)])
+
+
+class TestSolveCirculant(TestCase):
+
+    def test_basic1(self):
+        c = np.array([1, 2, 3, 5])
+        b = np.array([1, -1, 1, 0])
+        x = solve_circulant(c, b)
+        y = solve(circulant(c), b)
+        assert_allclose(x, y)
+
+    def test_basic2(self):
+        # b is a 2-d matrix.
+        c = np.array([1, 2, -3, -5])
+        b = np.arange(12).reshape(4, 3)
+        x = solve_circulant(c, b)
+        y = solve(circulant(c), b)
+        assert_allclose(x, y)
+
+    def test_basic3(self):
+        # b is a 3-d matrix.
+        c = np.array([1, 2, -3, -5])
+        b = np.arange(24).reshape(4, 3, 2)
+        x = solve_circulant(c, b)
+        y = solve(circulant(c), b)
+        assert_allclose(x, y)
+
+    def test_complex(self):
+        # Complex b and c
+        c = np.array([1+2j, -3, 4j, 5])
+        b = np.arange(8).reshape(4, 2) + 0.5j
+        x = solve_circulant(c, b)
+        y = solve(circulant(c), b)
+        assert_allclose(x, y)
+
+    def test_random_b_and_c(self):
+        # Random b and c
+        np.random.seed(54321)
+        c = np.random.randn(50)
+        b = np.random.randn(50)
+        x = solve_circulant(c, b)
+        y = solve(circulant(c), b)
+        assert_allclose(x, y)
+
+    def test_singular(self):
+        # c gives a singular circulant matrix.
+        c = np.array([1, 1, 0, 0])
+        b = np.array([1, 2, 3, 4])
+        x = solve_circulant(c, b, singular='lstsq')
+        y, res, rnk, s = lstsq(circulant(c), b)
+        assert_allclose(x, y)
+        assert_raises(LinAlgError, solve_circulant, x, y)
+
+    def test_axis_args(self):
+        # Test use of caxis, baxis and outaxis.
+
+        # c has shape (2, 1, 4)
+        c = np.array([[[-1, 2.5, 3, 3.5]], [[1, 6, 6, 6.5]]])
+
+        # b has shape (3, 4)
+        b = np.array([[0, 0, 1, 1], [1, 1, 0, 0], [1, -1, 0, 0]])
+
+        x = solve_circulant(c, b, baxis=1)
+        assert_equal(x.shape, (4, 2, 3))
+        expected = np.empty_like(x)
+        expected[:, 0, :] = solve(circulant(c[0]), b.T)
+        expected[:, 1, :] = solve(circulant(c[1]), b.T)
+        assert_allclose(x, expected)
+
+        x = solve_circulant(c, b, baxis=1, outaxis=-1)
+        assert_equal(x.shape, (2, 3, 4))
+        assert_allclose(np.rollaxis(x, -1), expected)
+
+        # np.swapaxes(c, 1, 2) has shape (2, 4, 1); b.T has shape (4, 3).
+        x = solve_circulant(np.swapaxes(c, 1, 2), b.T, caxis=1)
+        assert_equal(x.shape, (4, 2, 3))
+        assert_allclose(x, expected)
+
 
 if __name__ == "__main__":
     run_module_suite()

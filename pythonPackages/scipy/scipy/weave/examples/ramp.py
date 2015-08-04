@@ -14,15 +14,18 @@
     arr[500]: 0.0500050005001
 
 """
+from __future__ import absolute_import, print_function
 
 import time
 import scipy.weave as weave
 from numpy import *
 
+
 def Ramp(result, size, start, end):
     step = (end-start)/(size-1)
     for i in xrange(size):
         result[i] = start + step*i
+
 
 def Ramp_numeric1(result,start,end):
     code = """
@@ -33,6 +36,7 @@ def Ramp_numeric1(result,start,end):
                *result++ = start + step*i;
            """
     weave.inline(code,['result','start','end'],compiler='gcc')
+
 
 def Ramp_numeric2(result,start,end):
     code = """
@@ -47,6 +51,7 @@ def Ramp_numeric2(result,start,end):
            """
     weave.inline(code,['result','start','end'],compiler='gcc')
 
+
 def Ramp_list1(result, start, end):
     code = """
            const int size = result.len();
@@ -55,6 +60,7 @@ def Ramp_list1(result, start, end):
                result[i] = start + step*i;
            """
     weave.inline(code, ["result","start", "end"], verbose=2)
+
 
 def Ramp_list2(result, start, end):
     code = """
@@ -67,6 +73,7 @@ def Ramp_list2(result, start, end):
            }
            """
     weave.inline(code, ["result", "start", "end"], verbose=2)
+
 
 def main():
     N_array = 10000
@@ -81,8 +88,8 @@ def main():
         Ramp(arr, N_array, 0.0, 1.0)
     t2 = time.time()
     py_time = (t2 - t1) * ratio
-    print 'python (seconds*ratio):', py_time
-    print 'arr[500]:', arr[500]
+    print('python (seconds*ratio):', py_time)
+    print('arr[500]:', arr[500])
 
     arr1 = array([0]*N_array,float)
     # First call compiles function or loads from cache.
@@ -93,8 +100,8 @@ def main():
         Ramp_numeric1(arr1, 0.0, 1.0)
     t2 = time.time()
     c_time = (t2 - t1)
-    print 'compiled numeric1 (seconds, speed up):', c_time, py_time/ c_time
-    print 'arr[500]:', arr1[500]
+    print('compiled numeric1 (seconds, speed up):', c_time, py_time / c_time)
+    print('arr[500]:', arr1[500])
 
     arr2 = array([0]*N_array,float)
     # First call compiles function or loads from cache.
@@ -105,8 +112,8 @@ def main():
         Ramp_numeric2(arr2, 0.0, 1.0)
     t2 = time.time()
     c_time = (t2 - t1)
-    print 'compiled numeric2 (seconds, speed up):', c_time, py_time/ c_time
-    print 'arr[500]:', arr2[500]
+    print('compiled numeric2 (seconds, speed up):', c_time, py_time / c_time)
+    print('arr[500]:', arr2[500])
 
     arr3 = [0]*N_array
     # First call compiles function or loads from cache.
@@ -117,8 +124,8 @@ def main():
         Ramp_list1(arr3, 0.0, 1.0)
     t2 = time.time()
     c_time = (t2 - t1) * ratio
-    print 'compiled list1 (seconds, speed up):', c_time, py_time/ c_time
-    print 'arr[500]:', arr3[500]
+    print('compiled list1 (seconds, speed up):', c_time, py_time / c_time)
+    print('arr[500]:', arr3[500])
 
     arr4 = [0]*N_array
     # First call compiles function or loads from cache.
@@ -129,8 +136,8 @@ def main():
         Ramp_list2(arr4, 0.0, 1.0)
     t2 = time.time()
     c_time = (t2 - t1) * ratio
-    print 'compiled list4 (seconds, speed up):', c_time, py_time/ c_time
-    print 'arr[500]:', arr4[500]
+    print('compiled list4 (seconds, speed up):', c_time, py_time / c_time)
+    print('arr[500]:', arr4[500])
 
 
 if __name__ == '__main__':
