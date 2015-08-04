@@ -64,7 +64,7 @@ c     xxxxxx  Complex
 c
 c\Routines called:
 c     ivout   ARPACK utility routine that prints integers.
-c     second  ARPACK utility routine for timing.
+c     arscnd  ARPACK utility routine for timing.
 c     cmout   ARPACK utility routine that prints matrices
 c     cvout   ARPACK utility routine that prints vectors.
 c     svout   ARPACK utility routine that prints vectors.
@@ -76,7 +76,7 @@ c     ctrevc  LAPACK routine to compute the eigenvectors of a matrix
 c             in upper triangular form
 c     ccopy   Level 1 BLAS that copies one vector to another. 
 c     csscal  Level 1 BLAS that scales a complex vector by a real number.
-c     scnrm2  Level 1 BLAS that computes the norm of a vector.
+c     wscnrm2  Level 1 BLAS that computes the norm of a vector.
 c     
 c
 c\Author
@@ -152,15 +152,15 @@ c     | External Subroutines |
 c     %----------------------%
 c
       external   clacpy, clahqr, ctrevc, ccopy, 
-     &           csscal, cmout, cvout, second
+     &           csscal, cmout, cvout, arscnd
 c
 c     %--------------------%
 c     | External Functions |
 c     %--------------------%
 c
       Real 
-     &           scnrm2
-      external   scnrm2
+     &           wscnrm2
+      external   wscnrm2
 c
 c     %-----------------------%
 c     | Executable Statements |
@@ -171,7 +171,7 @@ c     | Initialize timing statistics  |
 c     | & message level for debugging |
 c     %-------------------------------%
 c
-      call second (t0)
+      call arscnd (t0)
       msglvl = mceigh
 c 
       if (msglvl .gt. 2) then
@@ -220,7 +220,7 @@ c     | number (x,y) is taken to be |x| + |y|.         |
 c     %------------------------------------------------%
 c
       do 10 j=1, n
-            temp = scnrm2( n, q(1,j), 1 )
+            temp = wscnrm2( n, q(1,j), 1 )
             call csscal ( n, rone / temp, q(1,j), 1 )
    10 continue
 c
@@ -244,7 +244,7 @@ c
      &              '_neigh: Ritz estimates for the eigenvalues of H')
       end if
 c
-      call second(t1)
+      call arscnd(t1)
       tceigh = tceigh + (t1 - t0)
 c
  9000 continue

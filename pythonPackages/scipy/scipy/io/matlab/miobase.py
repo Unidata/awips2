@@ -1,69 +1,92 @@
 # Authors: Travis Oliphant, Matthew Brett
 
 """
-Base classes for matlab (TM) file stream reading
+Base classes for MATLAB file stream reading.
+
+MATLAB is a registered trademark of the Mathworks inc.
 """
+from __future__ import division, print_function, absolute_import
+
+import sys
+import operator
+
+from scipy._lib.six import reduce
+
 import numpy as np
+
+if sys.version_info[0] >= 3:
+    byteord = int
+else:
+    byteord = ord
 
 from scipy.misc import doccer
 
-import byteordercodes as boc
+from . import byteordercodes as boc
 
-class MatReadError(Exception): pass
 
-class MatWriteError(Exception): pass
+class MatReadError(Exception):
+    pass
+
+
+class MatWriteError(Exception):
+    pass
+
+
+class MatReadWarning(UserWarning):
+    pass
+
 
 doc_dict = \
     {'file_arg':
-         '''file_name : string
+         '''file_name : str
    Name of the mat file (do not need .mat extension if
-   appendmat==True) Can also pass open file-like object''',
+   appendmat==True) Can also pass open file-like object.''',
      'append_arg':
-         '''appendmat : {True, False} optional
+         '''appendmat : bool, optional
    True to append the .mat extension to the end of the given
-   filename, if not already present''',
+   filename, if not already present.''',
      'load_args':
-         '''byte_order : {None, string}, optional
+         '''byte_order : str or None, optional
    None by default, implying byte order guessed from mat
    file. Otherwise can be one of ('native', '=', 'little', '<',
-   'BIG', '>')
-mat_dtype : {False, True} optional
+   'BIG', '>').
+mat_dtype : bool, optional
    If True, return arrays in same dtype as would be loaded into
-   matlab (instead of the dtype with which they are saved)
-squeeze_me : {False, True} optional
-   whether to squeeze unit matrix dimensions or not
-chars_as_strings : {True, False} optional
-   whether to convert char arrays to string arrays
-matlab_compatible : {False, True}
-   returns matrices as would be loaded by matlab (implies
+   MATLAB (instead of the dtype with which they are saved).
+squeeze_me : bool, optional
+   Whether to squeeze unit matrix dimensions or not.
+chars_as_strings : bool, optional
+   Whether to convert char arrays to string arrays.
+matlab_compatible : bool, optional
+   Returns matrices as would be loaded by MATLAB (implies
    squeeze_me=False, chars_as_strings=False, mat_dtype=True,
-   struct_as_record=True)''',
+   struct_as_record=True).''',
      'struct_arg':
-         '''struct_as_record : {True, False} optional
-   Whether to load matlab structs as numpy record arrays, or as
+         '''struct_as_record : bool, optional
+   Whether to load MATLAB structs as numpy record arrays, or as
    old-style numpy arrays with dtype=object.  Setting this flag to
-   False replicates the behaviour of scipy version 0.7.x (returning
+   False replicates the behavior of scipy version 0.7.x (returning
    numpy object arrays).  The default setting is True, because it
-   allows easier round-trip load and save of matlab files.''',
+   allows easier round-trip load and save of MATLAB files.''',
      'matstream_arg':
          '''mat_stream : file-like
-   object with file API, open for reading''',
+   Object with file API, open for reading.''',
      'long_fields':
-         '''long_field_names : boolean, optional, default=False
+         '''long_field_names : bool, optional
    * False - maximum field name length in a structure is 31 characters
-     which is the documented maximum length
+     which is the documented maximum length. This is the default.
    * True - maximum field name length in a structure is 63 characters
-     which works for Matlab 7.6''',
+     which works for MATLAB 7.6''',
      'do_compression':
-         '''do_compression : {False, True} bool, optional
-   Whether to compress matrices on write. Default is False''',
+         '''do_compression : bool, optional
+   Whether to compress matrices on write. Default is False.''',
      'oned_as':
-         '''oned_as : {'column', 'row'} string, optional
-   If 'column', write 1D numpy arrays as column vectors
-   If 'row', write 1D numpy arrays as row vectors''',
+         '''oned_as : {'row', 'column'}, optional
+   If 'column', write 1-D numpy arrays as column vectors.
+   If 'row', write 1D numpy arrays as row vectors.''',
      'unicode_strings':
-         '''unicode_strings : {True, False} boolean, optional
-   If True, write strings as Unicode, else matlab usual encoding'''}
+         '''unicode_strings : bool, optional
+   If True, write strings as Unicode, else MATLAB usual encoding.'''}
 
 docfiller = doccer.filldoc(doc_dict)
 
@@ -82,13 +105,13 @@ file. At the moment these are:
 * byte_order
 * chars_as_strings
 * squeeze_me
-* struct_as_record (matlab 5 files)
-* class_dtypes (derived from order code, matlab 5 files)
-* codecs (matlab 5 files)
-* uint16_codec (matlab 5 files)
+* struct_as_record (MATLAB 5 files)
+* class_dtypes (derived from order code, MATLAB 5 files)
+* codecs (MATLAB 5 files)
+* uint16_codec (MATLAB 5 files)
 
-Another set of parameters are those that apply only the the current
-variable being read - the header**:
+Another set of parameters are those that apply only to the current
+variable being read - the *header*:
 
 * header related variables (different for v4 and v5 mat files)
 * is_complex
@@ -98,8 +121,8 @@ variable being read - the header**:
 With the header, we need ``next_position`` to tell us where the next
 variable in the stream is.
 
-Then, there can be, for each element in a matrix, *element read
-parameters*.  An element is, for example, one element in a Matlab cell
+Then, for each element in a matrix, there can be *element read
+parameters*.  An element is, for example, one element in a MATLAB cell
 array.  At the moment these are:
 
 * mat_dtype
@@ -141,16 +164,16 @@ def read_dtype(mat_stream, a_dtype):
 
     Parameters
     ----------
-    mat_stream : file-like object
-        Matlam (TM) stream
+    mat_stream : file_like object
+        MATLAB (tm) mat file stream
     a_dtype : dtype
-       dtype of array to read.  `a_dtype` is assumed to be correct
-       endianness
+        dtype of array to read.  `a_dtype` is assumed to be correct
+        endianness.
 
     Returns
     -------
-    arr : array
-        Array of given datatype obtained from stream.
+    arr : ndarray
+        Array of dtype `a_dtype` read from stream.
 
     """
     num_bytes = a_dtype.itemsize
@@ -162,7 +185,8 @@ def read_dtype(mat_stream, a_dtype):
 
 
 def get_matfile_version(fileobj):
-    ''' Return major, minor tuple depending on apparent mat file type
+    """
+    Return major, minor tuple depending on apparent mat file type
 
     Where:
 
@@ -172,70 +196,75 @@ def get_matfile_version(fileobj):
 
     Parameters
     ----------
-    fileobj : {file-like}
-              object implementing seek() and read()
+    fileobj : file_like
+        object implementing seek() and read()
 
     Returns
     -------
     major_version : {0, 1, 2}
-                    major matlab file format version
+        major MATLAB File format version
     minor_version : int
-                    major matlab file format version
+        minor MATLAB file format version
+
+    Raises
+    ------
+    MatReadError
+        If the file is empty.
+    ValueError
+        The matfile version is unknown.
 
     Notes
     -----
     Has the side effect of setting the file read pointer to 0
-    '''
+    """
     # Mat4 files have a zero somewhere in first 4 bytes
     fileobj.seek(0)
-    mopt_bytes = np.ndarray(shape=(4,),
-                           dtype=np.uint8,
-                           buffer = fileobj.read(4))
-    if 0 in mopt_bytes:
+    mopt_bytes = fileobj.read(4)
+    if len(mopt_bytes) == 0:
+        raise MatReadError("Mat file appears to be empty")
+    mopt_ints = np.ndarray(shape=(4,), dtype=np.uint8, buffer=mopt_bytes)
+    if 0 in mopt_ints:
         fileobj.seek(0)
         return (0,0)
-
     # For 5 format or 7.3 format we need to read an integer in the
     # header. Bytes 124 through 128 contain a version integer and an
     # endian test string
     fileobj.seek(124)
     tst_str = fileobj.read(4)
     fileobj.seek(0)
-    maj_ind = int(tst_str[2] == 'I')
-    maj_val = ord(tst_str[maj_ind])
-    min_val = ord(tst_str[1-maj_ind])
+    maj_ind = int(tst_str[2] == b'I'[0])
+    maj_val = byteord(tst_str[maj_ind])
+    min_val = byteord(tst_str[1-maj_ind])
     ret = (maj_val, min_val)
     if maj_val in (1, 2):
         return ret
-    else:
-        raise ValueError('Unknown mat file type, version %s, %s'
-                         % ret)
+    raise ValueError('Unknown mat file type, version %s, %s' % ret)
 
 
 def matdims(arr, oned_as='column'):
     """
-    Determine equivalent matlab dimensions for given array
+    Determine equivalent MATLAB dimensions for given array
 
     Parameters
     ----------
     arr : ndarray
-        Input array.
+        Input array
     oned_as : {'column', 'row'}, optional
-        Whether 1-D arrays are returned as Matlab row or column matrices.
+        Whether 1-D arrays are returned as MATLAB row or column matrices.
         Default is 'column'.
 
     Returns
     -------
     dims : tuple
-        Shape tuple, in the form Matlab expects it.
+        Shape tuple, in the form MATLAB expects it.
 
     Notes
     -----
     We had to decide what shape a 1 dimensional array would be by
     default.  ``np.atleast_2d`` thinks it is a row vector.  The
-    default for a vector in matlab (e.g. ``>> 1:12``) is a row vector.
+    default for a vector in MATLAB (e.g. ``>> 1:12``) is a row vector.
 
-    Versions of scipy up to and including 0.7 resulted (accidentally)
+    Versions of scipy up to and including 0.11 resulted (accidentally)
     in 1-D arrays being read as column vectors.  For the moment, we
     maintain the same tradition here.
 
@@ -273,12 +302,12 @@ def matdims(arr, oned_as='column'):
     ValueError: 1D option "bizarre" is strange
 
     """
-    if arr.size == 0: # empty
-        return (0,) * np.max([arr.ndim, 2])
     shape = arr.shape
-    if shape == (): # scalar
+    if shape == ():  # scalar
         return (1,1)
-    if len(shape) == 1: # 1D
+    if reduce(operator.mul, shape) == 0:  # zero elememts
+        return (0,) * np.max([arr.ndim, 2])
+    if len(shape) == 1:  # 1D
         if oned_as == 'column':
             return shape + (1,)
         elif oned_as == 'row':
@@ -320,7 +349,8 @@ class MatFileReader(object):
                  squeeze_me=False,
                  chars_as_strings=True,
                  matlab_compatible=False,
-                 struct_as_record=True
+                 struct_as_record=True,
+                 verify_compressed_data_integrity=True
                  ):
         '''
         Initializer for mat file reader
@@ -344,9 +374,10 @@ class MatFileReader(object):
             self.squeeze_me = squeeze_me
             self.chars_as_strings = chars_as_strings
             self.mat_dtype = mat_dtype
+        self.verify_compressed_data_integrity = verify_compressed_data_integrity
 
     def set_matlab_compatible(self):
-        ''' Sets options to return arrays as matlab (tm) loads them '''
+        ''' Sets options to return arrays as MATLAB loads them '''
         self.mat_dtype = True
         self.squeeze_me = False
         self.chars_as_strings = False
