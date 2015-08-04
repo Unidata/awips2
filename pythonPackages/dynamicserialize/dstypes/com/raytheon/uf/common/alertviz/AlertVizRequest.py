@@ -19,6 +19,7 @@
 ##
 
 # File auto-generated against equivalent DynamicSerialize Java class
+# Jul 27, 2015 4654     skorolev     Added filters
 
 class AlertVizRequest(object):
 
@@ -29,7 +30,8 @@ class AlertVizRequest(object):
         self.sourceKey = None
         self.category = None
         self.audioFile = None
-
+        self.filters = None
+        
     def getMessage(self):
         return self.message
 
@@ -65,4 +67,14 @@ class AlertVizRequest(object):
 
     def setAudioFile(self, audioFile):
         self.audioFile = audioFile
-
+        
+    def getFilters(self):
+        return self.filters
+    
+    def setFilters(self, filters):
+        if filters is None:
+           self.filters = {}
+        elif not(filters.has_key(None) or filters.values().count(None)>0):
+           self.filters = filters
+        else:
+           raise ValueError('Filters must not contain None in keys or values: %s' % filters)

@@ -47,6 +47,7 @@ from dynamicserialize import DynamicSerializationManager
 #    01/07/11        5645          cjeanbap       Added audio file to Status Message.
 #    05/27/11        3050          cjeanbap       Added if-statement to check Priority
 #                                                 value
+#    07/27/15        4654          skorolev       Added filters
 #
 class NotificationMessage:
   
@@ -58,13 +59,14 @@ class NotificationMessage:
              4: 'EVENTB',
              5: 'VERBOSE'}
 
-   def __init__(self, host='localhost', port=61999, message='', priority='PROBLEM', category="LOCAL", source="ANNOUNCER", audioFile="NONE"):
+   def __init__(self, host='localhost', port=61999, message='', priority='PROBLEM', category="LOCAL", source="ANNOUNCER", audioFile="NONE", filters=None):
       self.host = host
       self.port = port
       self.message = message
       self.audioFile = audioFile
       self.source = source
       self.category = category 
+      self.filters = filters
 
       priorityInt = None
 
@@ -132,6 +134,7 @@ class NotificationMessage:
         sm.set("category", self.category)
         sm.set("sourceKey", self.source)
         sm.set("audioFile", self.audioFile)
+        sm.set("filters", self.filters)
         msg = ET.SubElement(sm, "message")
         msg.text = self.message
         details = ET.SubElement(sm, "details")
@@ -144,7 +147,7 @@ class NotificationMessage:
             conn.stop()
     else:
         # use ThriftClient
-        alertVizRequest = createRequest(self.message, self.priority, self.source, self.category, self.audioFile)
+        alertVizRequest = createRequest(self.message, self.priority, self.source, self.category, self.audioFile, self.filters)
         thriftClient = ThriftClient.ThriftClient(self.host, self.port, "/services")
     
         serverResponse = None
@@ -159,7 +162,7 @@ class NotificationMessage:
         else:
             print "Response: " + str(serverResponse)        
         
-def createRequest(message, priority, source, category, audioFile):    
+def createRequest(message, priority, source, category, audioFile, filters):    
     obj = AlertVizRequest()
     
     obj.setMachine(socket.gethostname())    
@@ -171,7 +174,7 @@ def createRequest(message, priority, source, category, audioFile):
         obj.setAudioFile(audioFile)
     else:
         obj.setAudioFile('\0')
-    
+    obj.setFilters(filters)
     return obj
 
 if __name__ == '__main__':

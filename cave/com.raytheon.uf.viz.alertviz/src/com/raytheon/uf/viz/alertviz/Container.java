@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.alertviz;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -28,6 +29,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.message.StatusMessage;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
@@ -39,6 +41,7 @@ import com.raytheon.uf.viz.alertviz.config.Source;
 import com.raytheon.uf.viz.alertviz.internal.LogMessageDAO;
 import com.raytheon.uf.viz.alertviz.internal.PurgeLogJob;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
 
 /**
  * Container provides basic message dispatching services
@@ -52,6 +55,8 @@ import com.raytheon.uf.viz.core.VizApp;
  * Sep 8, 2008  1433       chammack    Initial creation
  * Oct 18, 2010 5849       cjeanbap    NullPointerExceptin thrown if category is null
  * Jun 03, 2013 2026       randerso    Fixed typo
+ * Jul 27, 2015 4654       skorolev    Added a localization level filtration
+ * 
  * </pre>
  * 
  * @author chammack
@@ -69,11 +74,11 @@ public class Container implements IConfigurationChangedListener {
 
     private Configuration configuration;
 
-    private ForcedConfiguration forcedConfiguration;
+    private final ForcedConfiguration forcedConfiguration;
 
     private StatusMessage lastMessage;
 
-    private Set<IAlertArrivedCallback> callbacks;
+    private final Set<IAlertArrivedCallback> callbacks;
 
     private long lastMessageReceivedInSec = 0;
 
@@ -138,6 +143,26 @@ public class Container implements IConfigurationChangedListener {
         updateMessageStatistics();
 
         addToLog(message);
+
+        if (message.getFilters() != null && !message.getFilters().isEmpty()) {
+            Map<String, String> filters = message.getFilters();
+            if (filters.keySet().contains("") || filters.values().contains("")) {
+                throw new IllegalArgumentException(
+                        "Filters must not have empty key and/or value :"
+                                + filters);
+            }
+            LocalizationLevel[] lvls = LocalizationLevel.values();
+            for (int i = 0; i < lvls.length; i++) {
+                String lvl = LocalizationManager.getContextName(lvls[i]);
+                String key = lvls[i].name();
+                if (filters.containsKey(key)) {
+                    String value = filters.get(key);
+                    if (!value.equals(lvl)) {
+                        return;
+                    }
+                }
+            }
+        }
 
         // Check to make sure messages aren't coming in so fast it could cause a
         // system issue
