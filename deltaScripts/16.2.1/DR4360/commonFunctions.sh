@@ -20,10 +20,10 @@ where table_catalog = 'metadata' and table_schema='awips' and constraint_type='U
 	elif [ ${constraint_name} == ${2} ] ; then
 		echo "INFO: No constraint rename on table ${table} performed; ${2} already exists."
 	else
-		echo "INFO: On $1 renaming constraint: ${constraint_name} to ${2}"
-		${PSQL} -U awips -d metadata -c "ALTER TABLE ${1} RENAME CONSTRAINT ${constraint_name} TO ${2} ;"
+		echo "INFO: On $1 renaming constraint: \"${constraint_name}\" to ${2}"
+		${PSQL} -U awips -d metadata -c "ALTER TABLE ${1} RENAME CONSTRAINT \"${constraint_name}\" TO ${2} ;"
 		if [ $? -ne 0 ] ; then
-			echo "ERROR: The update failed on table $1 to rename unique constraint ${constraint_name} to $2."
+			echo "ERROR: The update failed on table $1 to rename unique constraint \"${constraint_name}\" to $2."
 		fi
 	fi
 }
