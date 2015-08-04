@@ -9,9 +9,14 @@
 #  http://math.nist.gov/MatrixMarket/
 #
 
+from __future__ import division, print_function, absolute_import
+
 import os
+import sys
 from numpy import asarray, real, imag, conj, zeros, ndarray, concatenate, \
                   ones, ascontiguousarray, vstack, savetxt, fromfile, fromstring
+from numpy.compat import asbytes, asstr
+from scipy._lib.six import string_types
 
 __all__ = ['mminfo','mmread','mmwrite', 'MMFile']
 
@@ -36,17 +41,19 @@ def mminfo(source):
     entries : int
         Number of non-zero entries of a sparse matrix
         or rows*cols for a dense matrix
-
-    format : {'coordinate', 'array'}
-
-    field : {'real', 'complex', 'pattern', 'integer'}
-
-    symm : {'general', 'symmetric', 'skew-symmetric', 'hermitian'}
+    format : str
+        Either 'coordinate' or 'array'.
+    field : str
+        Either 'real', 'complex', 'pattern', or 'integer'.
+    symm : str
+        Either 'general', 'symmetric', 'skew-symmetric', or 'hermitian'.
 
     """
     return MMFile.info(source)
 
 #-------------------------------------------------------------------------------
+
+
 def mmread(source):
     """
     Reads the contents of a Matrix Market file 'filename' into a matrix.
@@ -67,25 +74,24 @@ def mmread(source):
     return MMFile().read(source)
 
 #-------------------------------------------------------------------------------
+
+
 def mmwrite(target, a, comment='', field=None, precision=None):
     """
-    Writes the sparse or dense matrix A to a Matrix Market formatted file.
+    Writes the sparse or dense array `a` to a Matrix Market formatted file.
 
     Parameters
     ----------
-
     target : file
         Matrix Market filename (extension .mtx) or open file object
     a : array like
-        Sparse or full matrix
-    comment : str
+        Sparse or dense 2D array
+    comment : str, optional
         comments to be prepended to the Matrix Market file
-
-    field : {'real', 'complex', 'pattern', 'integer'}, optional
-
-    precision :
+    field : None or str, optional
+        Either 'real', 'complex', 'pattern', or 'integer'.
+    precision : None or int, optional
         Number of digits to display for real or complex values.
-
     """
     MMFile().write(target, a, comment, field, precision)
 
@@ -101,17 +107,28 @@ class MMFile (object):
       '_symmetry')
 
     @property
-    def rows(self): return self._rows
+    def rows(self):
+        return self._rows
+
     @property
-    def cols(self): return self._cols
+    def cols(self):
+        return self._cols
+
     @property
-    def entries(self): return self._entries
+    def entries(self):
+        return self._entries
+
     @property
-    def format(self): return self._format
+    def format(self):
+        return self._format
+
     @property
-    def field(self): return self._field
+    def field(self):
+        return self._field
+
     @property
-    def symmetry(self): return self._symmetry
+    def symmetry(self):
+        return self._symmetry
 
     @property
     def has_symmetry(self):
@@ -126,12 +143,12 @@ class MMFile (object):
     @classmethod
     def _validate_format(self, format):
         if format not in self.FORMAT_VALUES:
-            raise ValueError,'unknown format type %s, must be one of %s'% \
-              (`format`, `self.FORMAT_VALUES`)
+            raise ValueError('unknown format type %s, must be one of %s' %
+                                (format, self.FORMAT_VALUES))
 
     # field values
     FIELD_INTEGER = 'integer'
-    FIELD_REAL    = 'real'
+    FIELD_REAL = 'real'
     FIELD_COMPLEX = 'complex'
     FIELD_PATTERN = 'pattern'
     FIELD_VALUES = (FIELD_INTEGER, FIELD_REAL, FIELD_COMPLEX, FIELD_PATTERN)
@@ -139,36 +156,38 @@ class MMFile (object):
     @classmethod
     def _validate_field(self, field):
         if field not in self.FIELD_VALUES:
-            raise ValueError,'unknown field type %s, must be one of %s'% \
-              (`field`, `self.FIELD_VALUES`)
+            raise ValueError('unknown field type %s, must be one of %s' %
+                                (field, self.FIELD_VALUES))
 
     # symmetry values
-    SYMMETRY_GENERAL        = 'general'
-    SYMMETRY_SYMMETRIC      = 'symmetric'
+    SYMMETRY_GENERAL = 'general'
+    SYMMETRY_SYMMETRIC = 'symmetric'
     SYMMETRY_SKEW_SYMMETRIC = 'skew-symmetric'
-    SYMMETRY_HERMITIAN      = 'hermitian'
-    SYMMETRY_VALUES = ( SYMMETRY_GENERAL,        SYMMETRY_SYMMETRIC,
+    SYMMETRY_HERMITIAN = 'hermitian'
+    SYMMETRY_VALUES = (SYMMETRY_GENERAL, SYMMETRY_SYMMETRIC,
                         SYMMETRY_SKEW_SYMMETRIC, SYMMETRY_HERMITIAN)
 
     @classmethod
     def _validate_symmetry(self, symmetry):
         if symmetry not in self.SYMMETRY_VALUES:
-            raise ValueError,'unknown symmetry type %s, must be one of %s'% \
-              (`symmetry`, `self.SYMMETRY_VALUES`)
+            raise ValueError('unknown symmetry type %s, must be one of %s' %
+                                (symmetry, self.SYMMETRY_VALUES))
 
     DTYPES_BY_FIELD = {
       FIELD_INTEGER: 'i',
-      FIELD_REAL:    'd',
+      FIELD_REAL: 'd',
       FIELD_COMPLEX: 'D',
       FIELD_PATTERN: 'd'}
 
     #---------------------------------------------------------------------------
     @staticmethod
-    def reader(): pass
+    def reader():
+        pass
 
     #---------------------------------------------------------------------------
     @staticmethod
-    def writer(): pass
+    def writer():
+        pass
 
     #---------------------------------------------------------------------------
     @classmethod
@@ -179,45 +198,50 @@ class MMFile (object):
 
             # read and validate header line
             line = source.readline()
-            mmid, matrix, format, field, symmetry  = \
-              [part.strip().lower() for part in line.split()]
-            if not mmid.startswith('%%matrixmarket'):
-                raise ValueError,'source is not in Matrix Market format'
+            mmid, matrix, format, field, symmetry = \
+              [asstr(part.strip()) for part in line.split()]
+            if not mmid.startswith('%%MatrixMarket'):
+                raise ValueError('source is not in Matrix Market format')
+            if not matrix.lower() == 'matrix':
+                raise ValueError("Problem reading file header: " + line)
 
-            assert matrix == 'matrix',`line`
-
-            # ??? Is this necessary?  I don't see 'dense' or 'sparse' in the spec
             # http://math.nist.gov/MatrixMarket/formats.html
-            if format == 'dense': format = self.FORMAT_ARRAY
-            elif format == 'sparse': format = self.FORMAT_COORDINATE
+            if format.lower() == 'array':
+                format = self.FORMAT_ARRAY
+            elif format.lower() == 'coordinate':
+                format = self.FORMAT_COORDINATE
 
             # skip comments
-            while line.startswith('%'): line = source.readline()
+            while line.startswith(b'%'):
+                line = source.readline()
 
             line = line.split()
             if format == self.FORMAT_ARRAY:
-                assert len(line)==2,`line`
-                rows,cols = map(float, line)
-                entries = rows*cols
+                if not len(line) == 2:
+                    raise ValueError("Header line not of length 2: " + line)
+                rows, cols = map(int, line)
+                entries = rows * cols
             else:
-                assert len(line)==3,`line`
-                rows, cols, entries = map(float, line)
+                if not len(line) == 3:
+                    raise ValueError("Header line not of length 3: " + line)
+                rows, cols, entries = map(int, line)
 
-            return (rows, cols, entries, format, field, symmetry)
+            return (rows, cols, entries, format, field.lower(), symmetry.lower())
 
         finally:
-            if close_it: source.close()
+            if close_it:
+                source.close()
 
     #---------------------------------------------------------------------------
     @staticmethod
-    def _open(filespec, mode='r'):
+    def _open(filespec, mode='rb'):
         """
         Return an open file stream for reading based on source.  If source is
         a file name, open it (after trying to find it with mtx and gzipped mtx
         extensions).  Otherwise, just return source.
         """
         close_it = False
-        if type(filespec) is type(''):
+        if isinstance(filespec, string_types):
             close_it = True
 
             # open for reading
@@ -237,7 +261,7 @@ class MMFile (object):
                     stream = gzip.open(filespec, mode)
                 elif filespec.endswith('.bz2'):
                     import bz2
-                    stream = bz2.BZ2File(filespec, 'r')
+                    stream = bz2.BZ2File(filespec, 'rb')
                 else:
                     stream = open(filespec, mode)
 
@@ -255,7 +279,7 @@ class MMFile (object):
     @staticmethod
     def _get_symmetry(a):
         m,n = a.shape
-        if m!=n:
+        if m != n:
             return MMFile.SYMMETRY_GENERAL
         issymm = 1
         isskew = 1
@@ -271,9 +295,12 @@ class MMFile (object):
                     isherm = 0
                 if not (issymm or isskew or isherm):
                     break
-        if issymm: return MMFile.SYMMETRY_SYMMETRIC
-        if isskew: return MMFile.SYMMETRY_SKEW_SYMMETRIC
-        if isherm: return MMFile.SYMMETRY_HERMITIAN
+        if issymm:
+            return MMFile.SYMMETRY_SYMMETRIC
+        if isskew:
+            return MMFile.SYMMETRY_SKEW_SYMMETRIC
+        if isherm:
+            return MMFile.SYMMETRY_HERMITIAN
         return MMFile.SYMMETRY_GENERAL
 
     #---------------------------------------------------------------------------
@@ -286,7 +313,8 @@ class MMFile (object):
         }.get(field, None)
 
     #---------------------------------------------------------------------------
-    def __init__(self, **kwargs): self._init_attrs(**kwargs)
+    def __init__(self, **kwargs):
+        self._init_attrs(**kwargs)
 
     #---------------------------------------------------------------------------
     def read(self, source):
@@ -297,18 +325,21 @@ class MMFile (object):
             return self._parse_body(stream)
 
         finally:
-            if close_it: stream.close()
+            if close_it:
+                stream.close()
 
     #---------------------------------------------------------------------------
     def write(self, target, a, comment='', field=None, precision=None):
-        stream, close_it = self._open(target, 'w')
+        stream, close_it = self._open(target, 'wb')
 
         try:
             self._write(stream, a, comment, field, precision)
 
         finally:
-            if close_it: stream.close()
-            else: stream.flush()
+            if close_it:
+                stream.close()
+            else:
+                stream.flush()
 
     #---------------------------------------------------------------------------
     def _init_attrs(self, **kwargs):
@@ -321,11 +352,11 @@ class MMFile (object):
         invalid_keys = set(kwargs.keys()) - set(public_attrs)
 
         if invalid_keys:
-            raise ValueError, \
-              'found %s invalid keyword arguments, please only use %s' % \
-              (`tuple(invalid_keys)`, `public_attrs`)
+            raise ValueError('found %s invalid keyword arguments, please only use %s' %
+                                (tuple(invalid_keys), public_attrs))
 
-        for attr in attrs: setattr(self, attr, kwargs.get(attr[1:], None))
+        for attr in attrs:
+            setattr(self, attr, kwargs.get(attr[1:], None))
 
     #---------------------------------------------------------------------------
     def _parse_header(self, stream):
@@ -336,8 +367,8 @@ class MMFile (object):
 
     #---------------------------------------------------------------------------
     def _parse_body(self, stream):
-        rows, cols, entries, format, field, symm = \
-          (self.rows, self.cols, self.entries, self.format, self.field, self.symmetry)
+        rows, cols, entries, format, field, symm = (self.rows, self.cols,
+            self.entries, self.format, self.field, self.symmetry)
 
         try:
             from scipy.sparse import coo_matrix
@@ -353,26 +384,26 @@ class MMFile (object):
         is_pattern = field == self.FIELD_PATTERN
 
         if format == self.FORMAT_ARRAY:
-            a = zeros((rows,cols),dtype=dtype)
+            a = zeros((rows,cols), dtype=dtype)
             line = 1
             i,j = 0,0
             while line:
                 line = stream.readline()
-                if not line or line.startswith('%'):
+                if not line or line.startswith(b'%'):
                     continue
                 if is_complex:
                     aij = complex(*map(float,line.split()))
                 else:
                     aij = float(line)
                 a[i,j] = aij
-                if has_symmetry and i!=j:
+                if has_symmetry and i != j:
                     if is_skew:
                         a[j,i] = -aij
                     elif is_herm:
                         a[j,i] = conj(aij)
                     else:
                         a[j,i] = aij
-                if i<rows-1:
+                if i < rows-1:
                     i = i + 1
                 else:
                     j = j + 1
@@ -380,7 +411,8 @@ class MMFile (object):
                         i = 0
                     else:
                         i = j
-            assert i in [0,j] and j==cols,`i,j,rows,cols`
+            if not (i in [0,j] and j == cols):
+                raise ValueError("Parse error, did not read all lines.")
 
         elif format == self.FORMAT_COORDINATE and coo_matrix is None:
             # Read sparse matrix to dense when coo_matrix is not available.
@@ -389,7 +421,7 @@ class MMFile (object):
             k = 0
             while line:
                 line = stream.readline()
-                if not line or line.startswith('%'):
+                if not line or line.startswith(b'%'):
                     continue
                 l = line.split()
                 i,j = map(int,l[:2])
@@ -399,7 +431,7 @@ class MMFile (object):
                 else:
                     aij = float(l[2])
                 a[i,j] = aij
-                if has_symmetry and i!=j:
+                if has_symmetry and i != j:
                     if is_skew:
                         a[j,i] = -aij
                     elif is_herm:
@@ -407,19 +439,23 @@ class MMFile (object):
                     else:
                         a[j,i] = aij
                 k = k + 1
-            assert k==entries,`k,entries`
+            if not k == entries:
+                ValueError("Did not read all entries")
 
         elif format == self.FORMAT_COORDINATE:
             # Read sparse COOrdinate format
-            
+
             if entries == 0:
                 # empty matrix
                 return coo_matrix((rows, cols), dtype=dtype)
 
             try:
-                # fromfile works for normal files
-                flat_data = fromfile(stream, sep=' ')
-            except:
+                if not _is_fromfile_compatible(stream):
+                    flat_data = fromstring(stream.read(), sep=' ')
+                else:
+                    # fromfile works for normal files
+                    flat_data = fromfile(stream, sep=' ')
+            except Exception:
                 # fallback - fromfile fails for some file-like objects
                 flat_data = fromstring(stream.read(), sep=' ')
 
@@ -443,11 +479,11 @@ class MMFile (object):
                 J = ascontiguousarray(flat_data[:,1], dtype='intc')
                 V = ascontiguousarray(flat_data[:,2], dtype='float')
 
-            I -= 1 #adjust indices (base 1 -> base 0)
+            I -= 1  # adjust indices (base 1 -> base 0)
             J -= 1
 
             if has_symmetry:
-                mask = (I != J)       #off diagonal mask
+                mask = (I != J)       # off diagonal mask
                 od_I = I[mask]
                 od_J = J[mask]
                 od_V = V[mask]
@@ -464,7 +500,7 @@ class MMFile (object):
 
             a = coo_matrix((V, (I, J)), shape=(rows, cols), dtype=dtype)
         else:
-            raise NotImplementedError,`format`
+            raise NotImplementedError(format)
 
         return a
 
@@ -475,9 +511,8 @@ class MMFile (object):
             rep = self.FORMAT_ARRAY
             a = asarray(a)
             if len(a.shape) != 2:
-                raise ValueError, 'expected matrix'
+                raise ValueError('Expected 2 dimensional array')
             rows,cols = a.shape
-            entries = rows*cols
 
             if field is not None:
 
@@ -493,10 +528,9 @@ class MMFile (object):
         else:
             from scipy.sparse import spmatrix
             if not isinstance(a,spmatrix):
-                raise ValueError,'unknown matrix type ' + `type(a)`
+                raise ValueError('unknown matrix type: %s' % type(a))
             rep = 'coordinate'
             rows, cols = a.shape
-            entries = a.getnnz()
 
         typecode = a.dtype.char
 
@@ -528,12 +562,11 @@ class MMFile (object):
         self.__class__._validate_symmetry(symm)
 
         # write initial header line
-        stream.write('%%%%MatrixMarket matrix %s %s %s\n' % (rep,field,symm))
+        stream.write(asbytes('%%%%MatrixMarket matrix %s %s %s\n' % (rep,field,symm)))
 
         # write comments
         for line in comment.split('\n'):
-            stream.write('%%%s\n' % (line))
-
+            stream.write(asbytes('%%%s\n' % (line)))
 
         template = self._field_template(field, precision)
 
@@ -541,18 +574,18 @@ class MMFile (object):
         if rep == self.FORMAT_ARRAY:
 
             # write shape spec
-            stream.write('%i %i\n' % (rows,cols))
+            stream.write(asbytes('%i %i\n' % (rows,cols)))
 
             if field in (self.FIELD_INTEGER, self.FIELD_REAL):
 
                 if symm == self.SYMMETRY_GENERAL:
                     for j in range(cols):
                         for i in range(rows):
-                            stream.write(template % a[i,j])
+                            stream.write(asbytes(template % a[i,j]))
                 else:
                     for j in range(cols):
                         for i in range(j,rows):
-                            stream.write(template % a[i,j])
+                            stream.write(asbytes(template % a[i,j]))
 
             elif field == self.FIELD_COMPLEX:
 
@@ -560,18 +593,18 @@ class MMFile (object):
                     for j in range(cols):
                         for i in range(rows):
                             aij = a[i,j]
-                            stream.write(template % (real(aij),imag(aij)))
+                            stream.write(asbytes(template % (real(aij),imag(aij))))
                 else:
                     for j in range(cols):
                         for i in range(j,rows):
                             aij = a[i,j]
-                            stream.write(template % (real(aij),imag(aij)))
+                            stream.write(asbytes(template % (real(aij),imag(aij))))
 
             elif field == self.FIELD_PATTERN:
-                raise ValueError,'pattern type inconsisted with dense format'
+                raise ValueError('pattern type inconsisted with dense format')
 
             else:
-                raise TypeError,'Unknown field type %s'% `field`
+                raise TypeError('Unknown field type %s' % field)
 
         # write sparse format
         else:
@@ -579,33 +612,61 @@ class MMFile (object):
             if symm != self.SYMMETRY_GENERAL:
                 raise NotImplementedError('symmetric matrices not yet supported')
 
-            coo = a.tocoo() # convert to COOrdinate format
+            coo = a.tocoo()  # convert to COOrdinate format
 
             # write shape spec
-            stream.write('%i %i %i\n' % (rows, cols, coo.nnz))
+            stream.write(asbytes('%i %i %i\n' % (rows, cols, coo.nnz)))
 
             fmt = '%%.%dg' % precision
 
             if field == self.FIELD_PATTERN:
                 IJV = vstack((coo.row, coo.col)).T
-            elif field in [ self.FIELD_INTEGER, self.FIELD_REAL ]:
+            elif field in [self.FIELD_INTEGER, self.FIELD_REAL]:
                 IJV = vstack((coo.row, coo.col, coo.data)).T
             elif field == self.FIELD_COMPLEX:
                 IJV = vstack((coo.row, coo.col, coo.data.real, coo.data.imag)).T
             else:
-                raise TypeError('Unknown field type %s' % `field`)
+                raise TypeError('Unknown field type %s' % field)
 
-            IJV[:,:2] += 1 # change base 0 -> base 1
+            IJV[:,:2] += 1  # change base 0 -> base 1
 
             savetxt(stream, IJV, fmt=fmt)
+
+
+def _is_fromfile_compatible(stream):
+    """
+    Check whether stream is compatible with numpy.fromfile.
+
+    Passing a gzipped file to fromfile/fromstring doesn't work
+    with Python3
+
+    """
+    if sys.version_info[0] < 3:
+        return True
+
+    bad_cls = []
+    try:
+        import gzip
+        bad_cls.append(gzip.GzipFile)
+    except ImportError:
+        pass
+    try:
+        import bz2
+        bad_cls.append(bz2.BZ2File)
+    except ImportError:
+        pass
+
+    bad_cls = tuple(bad_cls)
+    return not isinstance(stream, bad_cls)
+
 
 #-------------------------------------------------------------------------------
 if __name__ == '__main__':
     import sys
     import time
     for filename in sys.argv[1:]:
-        print 'Reading',filename,'...',
+        print('Reading',filename,'...', end=' ')
         sys.stdout.flush()
         t = time.time()
         mmread(filename)
-        print 'took %s seconds' % (time.time() - t)
+        print('took %s seconds' % (time.time() - t))
