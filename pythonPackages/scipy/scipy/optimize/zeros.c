@@ -26,9 +26,7 @@ typedef struct {
 #define SIGNERR -1
 #define CONVERR -2
 
-static double scipy_zeros_rtol=0;
-
-double
+static double
 scipy_zeros_functions_func(double x, void *params)
 {
     scipy_zeros_parameters *myparams = params;
@@ -54,14 +52,14 @@ scipy_zeros_functions_func(double x, void *params)
 static PyObject *
 call_solver(solver_type solver, PyObject *self, PyObject *args)
 {
-    double a,b,xtol,zero;
+    double a,b,xtol,rtol,zero;
     int iter,i, len, fulloutput, disp=1, flag=0;
     scipy_zeros_parameters params;
     jmp_buf env;
     PyObject *f, *xargs, *item, *fargs=NULL;
 
-    if (!PyArg_ParseTuple(args, "OdddiOi|i",
-                &f, &a, &b, &xtol, &iter, &xargs, &fulloutput, &disp))
+    if (!PyArg_ParseTuple(args, "OddddiOi|i",
+                &f, &a, &b, &xtol, &rtol, &iter, &xargs, &fulloutput, &disp))
         {
             PyErr_SetString(PyExc_RuntimeError, "Unable to parse arguments");
             return NULL;
@@ -102,7 +100,7 @@ call_solver(solver_type solver, PyObject *self, PyObject *args)
         memcpy(params.env, env, sizeof(jmp_buf));
         params.error_num = 0;
         zero = solver(scipy_zeros_functions_func, a, b,
-                xtol, scipy_zeros_rtol, iter, (default_parameters*)&params);
+                xtol, rtol, iter, (default_parameters*)&params);
         Py_DECREF(fargs);
         if (params.error_num != 0) {
             if (params.error_num == SIGNERR) {
@@ -178,15 +176,30 @@ Zerosmethods[] = {
 	{NULL, NULL}
 };
 
+#if PY_VERSION_HEX >= 0x03000000
+static struct PyModuleDef moduledef = {
+    PyModuleDef_HEAD_INIT,
+    "_zeros",
+    NULL,
+    -1,
+    Zerosmethods,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+};
+
+PyObject *PyInit__zeros(void)
+{
+    PyObject *m;
+
+    m = PyModule_Create(&moduledef);
+
+    return m;
+}
+#else
 PyMODINIT_FUNC init_zeros(void)
 {
-        double tol;
-
-        /* Determine relative precision of doubles, assumes binary */
-        for(tol = 1; tol + 1 != 1; tol /= 2);
-        scipy_zeros_rtol = 2*tol;
-
         Py_InitModule("_zeros", Zerosmethods);
 }
-
-
+#endif
