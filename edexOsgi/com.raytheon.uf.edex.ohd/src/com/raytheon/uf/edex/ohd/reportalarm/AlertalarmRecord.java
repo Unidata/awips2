@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.edex.ohd.reportalarm;
 
-
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -45,7 +44,7 @@ import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
  * October 20, 2014 DR DIM#17259  deng   fix false alert/alarm are generated with
  *                                       NEW_OR_INCREASED mode
  * Jan 07, 2015 3692       bclement    no longer a singleton
-
+ * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
  * </pre>
  * 
  * @author jnjanga
@@ -163,34 +162,35 @@ class AlertalarmRecord {
 
         return aaVal;
     }
-    
+
     private long getMilliSeconds(Object o) {
-        if(o instanceof java.sql.Timestamp){
-            java.sql.Timestamp t = (java.sql.Timestamp) o;
-            return t.getTime() + (t.getNanos() / 1000000);
+        if (o instanceof Date) {
+            Date t = (Date) o;
+            return t.getTime();
         }
         return 0;
     }
-    
-    
+
     /**
-     * @return - a print ready string for
-     * the list of alertalarmval row data
-     * contained in this record.
+     * @return - a print ready string for the list of alertalarmval row data
+     *         contained in this record.
      */
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         Set<String> grps = getGroups();
-        for(String grp : grps) 
+        for (String grp : grps) {
             sb.append(grpDataToString(grp));
+        }
         return sb.toString();
     }
 
-    private String grpDataToString(String grp){
-        DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);      
+    private String grpDataToString(String grp) {
+        DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT,
+                DateFormat.SHORT);
         StringBuilder sb = new StringBuilder("!");
         List<Alertalarmval> grpData = getGroupData(grp);
-        for(Alertalarmval aav : grpData){
+        for (Alertalarmval aav : grpData) {
             sb.append("|");
             sb.append(aav.getId().getLid());
             sb.append("|");
@@ -231,9 +231,9 @@ class AlertalarmRecord {
             sb.append(aav.getId().getAaCheck());
             sb.append("|");
             sb.append(Constants.EOL);
-        }    
-        
+        }
+
         return sb.toString();
     }
-    
+
 }

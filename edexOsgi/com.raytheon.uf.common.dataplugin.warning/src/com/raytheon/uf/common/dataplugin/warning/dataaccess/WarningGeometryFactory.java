@@ -19,9 +19,9 @@
  **/
 package com.raytheon.uf.common.dataplugin.warning.dataaccess;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.Map;
 
@@ -47,7 +47,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Mar 18, 2015  4227     mapeters    Initial creation.
- * 
+ * Aug 05, 2015  4486     rjpeter     Changed Timestamp to Date.
  * </pre>
  * 
  * @author mapeters
@@ -191,14 +191,14 @@ public class WarningGeometryFactory extends AbstractGeometryDatabaseFactory {
 
     private static String buildDataTimesConstraint(DataTime... dataTimes) {
         StringBuilder dataTimesConstraint = new StringBuilder();
-        if (dataTimes != null && dataTimes.length > 0) {
+        if ((dataTimes != null) && (dataTimes.length > 0)) {
             dataTimesConstraint.append(REF_TIME).append(" in (");
             for (int i = 0; i < dataTimes.length; i++) {
                 dataTimesConstraint.append("'");
                 dataTimesConstraint.append(TimeUtil
                         .formatToSqlTimestamp(dataTimes[i].getRefTime()));
                 dataTimesConstraint.append("'");
-                if (i < dataTimes.length - 1) {
+                if (i < (dataTimes.length - 1)) {
                     dataTimesConstraint.append(",");
                 }
             }
@@ -263,7 +263,7 @@ public class WarningGeometryFactory extends AbstractGeometryDatabaseFactory {
 
         Geometry geometry = null;
         byte[] geomBytes = (byte[]) data[5];
-        if (geomBytes != null && geomBytes.length > 0) {
+        if ((geomBytes != null) && (geomBytes.length > 0)) {
             WKBReader wkbreader = new WKBReader();
             try {
                 geometry = wkbreader.read(geomBytes);
@@ -295,9 +295,8 @@ public class WarningGeometryFactory extends AbstractGeometryDatabaseFactory {
         DataTime dataTime = super.buildDataTimeFromQueryResults(results);
         if (results.length > 1) {
             dataTime.setFcstTime((int) results[1]);
-            TimeRange timeRange = new TimeRange(
-                    ((Timestamp) results[2]).getTime(),
-                    ((Timestamp) results[3]).getTime());
+            TimeRange timeRange = new TimeRange(((Date) results[2]).getTime(),
+                    ((Date) results[3]).getTime());
             dataTime.setValidPeriod(timeRange);
 
             EnumSet<FLAG> utilityFlags = EnumSet.noneOf(FLAG.class);

@@ -20,7 +20,6 @@
 package com.raytheon.uf.viz.monitor.scan;
 
 import java.io.File;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -111,13 +110,14 @@ import com.vividsolutions.jts.io.WKBReader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 29, 2009            dhladky     Initial creation
- * Apr 18, 2013     1926   njensen    Changed inner data maps to have Long key
+ * Apr 18, 2013     1926   njensen     Changed inner data maps to have Long key
  *                                                       to avoid !TimeStamp.equals(Date) issue
  * Apr 26, 2013     1926   njensen     Optimized getAvailableUris()
  * Jul 24, 2013     2218   mpduff      Improved error handling, optimizations
  * Jul 30, 2013     2143   skorolev    Changes for non-blocking dialogs.
  * Aug 15, 2013     2143   mpduff      Fixed bug in nullifyMonitor()
  * Sep 11, 2013     2277   mschenke    Got rid of ScriptCreator references
+ * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
  * </pre>
  * 
  * @author dhladky
@@ -528,7 +528,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
             scanType = ScanTables.CELL;
         }
         Set<Long> ds = getData(scanType, icao).keySet();
-        if (ds == null || ds.isEmpty()) {
+        if ((ds == null) || ds.isEmpty()) {
             return null;
         }
         List<Long> timeList = new ArrayList<Long>();
@@ -755,7 +755,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
             if (cellDialogs.isEmpty()) {
                 getScanConfig().reload(ScanTables.CELL);
             }
-            if (cellDialogs.get(icao) == null
+            if ((cellDialogs.get(icao) == null)
                     || cellDialogs.get(icao).isDisposed()) {
                 SCANCellTableDlg cellDialog = new SCANCellTableDlg(shell, icao,
                         new SCANTableData(ScanTables.CELL));
@@ -769,7 +769,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
             if (dmdDialogs.isEmpty()) {
                 getScanConfig().reload(ScanTables.DMD);
             }
-            if (dmdDialogs.get(icao) == null
+            if ((dmdDialogs.get(icao) == null)
                     || dmdDialogs.get(icao).isDisposed()) {
                 SCANDmdTableDlg dmdDialog = new SCANDmdTableDlg(shell, icao,
                         new SCANTableData(ScanTables.DMD));
@@ -783,7 +783,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
             if (mesoDialogs.isEmpty()) {
                 getScanConfig().reload(ScanTables.MESO);
             }
-            if (mesoDialogs.get(icao) == null
+            if ((mesoDialogs.get(icao) == null)
                     || mesoDialogs.get(icao).isDisposed()) {
                 SCANMesoTableDlg mesoDialog = new SCANMesoTableDlg(shell, icao,
                         new SCANTableData(ScanTables.MESO));
@@ -798,7 +798,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
             if (tvsDialogs.isEmpty()) {
                 getScanConfig().reload(ScanTables.TVS);
             }
-            if (tvsDialogs.get(icao) == null
+            if ((tvsDialogs.get(icao) == null)
                     || tvsDialogs.get(icao).isDisposed()) {
                 SCANTvsTableDlg tvsDialog = new SCANTvsTableDlg(shell, icao,
                         new SCANTableData(ScanTables.TVS));
@@ -1302,7 +1302,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
                 recordList = new long[results.size()];
                 for (int i = 0; i < recordList.length; i++) {
                     Object[] oa = results.get(i);
-                    Timestamp reftime = (Timestamp) oa[0];
+                    Date reftime = (Date) oa[0];
                     recordList[i] = reftime.getTime();
                 }
             }
@@ -1421,7 +1421,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
 
         for (Date date : getTimeOrderedKeys(this, ScanTables.DMD.name(), icao)) {
             // Current time plus 4 minutes
-            if (date.getTime() <= currentTime.getTime() + 240000) {
+            if (date.getTime() <= (currentTime.getTime() + 240000)) {
                 dmdScanData = (DMDScanData) getData(ScanTables.DMD, icao).get(
                         date.getTime());
 

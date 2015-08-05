@@ -20,9 +20,9 @@
 package com.raytheon.uf.edex.ohd.pproc;
 
 import java.math.BigInteger;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +50,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Mar 28, 2014   2952     mpduff      Changed to use UFStatus for logging.
  * Apr 21, 2014   2060     njensen     Remove dependency on grid dataURI column
  * Jul 09, 2015 4500       rjpeter     Fix SQL Injection concern.
+ * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
  * </pre>
  * 
  * @author mpduff
@@ -121,15 +122,15 @@ public class GAFFDB {
             CoreDao dao = null;
             dao = new CoreDao(DaoConfig.forDatabase(IHFS));
             Object[] rs = dao.executeSQLQuery(sql);
-            Timestamp ts = null;
+            Date ts = null;
             if ((rs != null) && (rs.length > 0)) {
                 if (rs[0] instanceof Object[]) {
                     Object[] oa = (Object[]) rs[0];
-                    if ((oa != null) && (oa[0] instanceof Timestamp)) {
-                        ts = (Timestamp) oa[0];
+                    if ((oa != null) && (oa[0] instanceof Date)) {
+                        ts = (Date) oa[0];
                     }
-                } else if (rs[0] instanceof Timestamp) {
-                    ts = (Timestamp) rs[0];
+                } else if (rs[0] instanceof Date) {
+                    ts = (Date) rs[0];
                 } else {
                     throw new Exception("Error getting Last Run Time");
                 }

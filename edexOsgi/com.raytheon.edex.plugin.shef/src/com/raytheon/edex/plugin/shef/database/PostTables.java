@@ -88,7 +88,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  *                                     More performance fixes.
  * 09/03/2014              mpduff      postRiverStatus() writes directly, not via batch
  * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
- * 
+ * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
  * </pre>
  * 
  * @author mduff
@@ -117,13 +117,13 @@ public class PostTables {
 
     private static GagePPOptions gagePPOptions;
 
-    private CoreDao dao;
+    private final CoreDao dao;
 
     private Connection conn;
 
-    private ConnectionProvider cp;
+    private final ConnectionProvider cp;
 
-    private Map<String, CallableStatement> statementMap = new HashMap<String, CallableStatement>();
+    private final Map<String, CallableStatement> statementMap = new HashMap<String, CallableStatement>();
 
     static {
         gagePPSetup();
@@ -1221,7 +1221,7 @@ public class PostTables {
         float probability = -9999;
         int status = -1;
         PreparedStatement ps = null;
-        
+
         try {
             conn = getConnection();
             ps = getRiverStatusPreparedStatement(updateFlag);
@@ -1275,37 +1275,37 @@ public class PostTables {
                         "Error inserting into RiverStatus with [%s]", record),
                         e);
             }
-		} finally {
-			if (ps != null) {
-				try {
-					ps.close();
-				} catch (SQLException e) {
-					log.error(
-							"Error closing prepared statement for RiverStatus",
-							e);
-				}
-			}
-		}
+        } finally {
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                    log.error(
+                            "Error closing prepared statement for RiverStatus",
+                            e);
+                }
+            }
+        }
 
         return status;
     }
 
     private PreparedStatement getRiverStatusPreparedStatement(boolean updateFlag)
             throws SQLException {
-		if (updateFlag) {
-			PreparedStatement riverStatusUpdateStatement = conn
-					.prepareCall(RIVER_STATUS_UPDATE_STATEMENT);
-			return riverStatusUpdateStatement;
-		} else {
-			PreparedStatement riverStatusInsertStatement = conn
-					.prepareCall(RIVER_STATUS_INSERT_STATEMENT);
-			return riverStatusInsertStatement;
-		}
+        if (updateFlag) {
+            PreparedStatement riverStatusUpdateStatement = conn
+                    .prepareCall(RIVER_STATUS_UPDATE_STATEMENT);
+            return riverStatusUpdateStatement;
+        } else {
+            PreparedStatement riverStatusInsertStatement = conn
+                    .prepareCall(RIVER_STATUS_INSERT_STATEMENT);
+            return riverStatusInsertStatement;
+        }
     }
 
     private Connection getConnection() {
         try {
-            if (conn == null || conn.isClosed()) {
+            if ((conn == null) || conn.isClosed()) {
                 conn = cp.getConnection();
             }
         } catch (SQLException e) {
@@ -1328,7 +1328,7 @@ public class PostTables {
             }
         }
 
-        if (cp != null && conn != null) {
+        if ((cp != null) && (conn != null)) {
             try {
                 cp.closeConnection(conn);
             } catch (SQLException e) {

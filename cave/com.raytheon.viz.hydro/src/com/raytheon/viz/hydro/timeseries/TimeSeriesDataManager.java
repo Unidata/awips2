@@ -19,7 +19,6 @@
  **/
 package com.raytheon.viz.hydro.timeseries;
 
-import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -74,6 +73,7 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  * May 12  2014  16705     lbousaidi   update revision and shef_qual_code in edit routine.
  * Dec 14, 2014  16388     xwei        updated the insertion of rejecteddata table.
  * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
+ * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
  * </pre>
  * 
  * @author dhladky
@@ -683,23 +683,12 @@ public class TimeSeriesDataManager extends HydroDataManager {
                     + dr.getPe().toUpperCase() + "', ");
             sb.append(dr.getDur() + ", '" + dr.getTs().toUpperCase() + "', '");
             sb.append(dr.getExt().toUpperCase() + "', -1, ");
-            Date d;
-            if (dr.getObsTime() instanceof Timestamp) {
-                d = timestampToDate((Timestamp) dr.getObsTime());
-                sb.append("'" + dateFormat.format(d) + "', '");
-            } else {
-                sb.append("'" + dateFormat.format(dr.getObsTime()) + "', '");
-            }
+            sb.append("'" + dateFormat.format(dr.getObsTime()) + "', '");
             sb.append(dr.getBasisTime() + "', " + dr.getValue() + ", ");
             sb.append(dr.getQualityCode() + ", '" + dr.getShefQualCode()
                     + "', ");
             sb.append(dr.getRevision() + ", '" + dr.getProductId() + "', ");
-            if (dr.getObsTime() instanceof Timestamp) {
-                d = timestampToDate((Timestamp) dr.getProductTime());
-                sb.append("'" + dateFormat.format(d) + "', '");
-            } else {
-                sb.append("'" + dateFormat.format(dr.getProductTime()) + "', '");
-            }
+            sb.append("'" + dateFormat.format(dr.getProductTime()) + "', '");
             sb.append(dateFormat.format(now) + "')");
 
         } else {
@@ -711,13 +700,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
                     + dr.getPe().toUpperCase() + "', ");
             sb.append(dr.getDur() + ", '" + dr.getTs().toUpperCase() + "', '");
             sb.append(dr.getExt().toUpperCase() + "', ");
-            Date d;
-            if (dr.getObsTime() instanceof Timestamp) {
-                d = timestampToDate((Timestamp) dr.getObsTime());
-                sb.append("'" + dateFormat.format(d) + "', '");
-            } else {
-                sb.append("'" + dateFormat.format(dr.getObsTime()) + "', '");
-            }
+            sb.append("'" + dateFormat.format(dr.getObsTime()) + "', '");
 
             sb.append(dateFormat.format(now) + "', ");
 
@@ -1362,19 +1345,6 @@ public class TimeSeriesDataManager extends HydroDataManager {
         }
 
         return useLatest;
-    }
-
-    /**
-     * Convert Timestamp object to java.util.Date object.
-     * 
-     * @param timestamp
-     *            The Timestamp to convert
-     * @return The Date object
-     */
-    public Date timestampToDate(Timestamp timestamp) {
-        long milliseconds = timestamp.getTime();// + (timestamp.getNanos() /
-                                                // 1000000);
-        return new java.util.Date(milliseconds);
     }
 
     /**

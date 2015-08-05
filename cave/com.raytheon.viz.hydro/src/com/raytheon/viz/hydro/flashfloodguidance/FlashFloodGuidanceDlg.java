@@ -20,7 +20,6 @@
 package com.raytheon.viz.hydro.flashfloodguidance;
 
 import java.io.File;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -77,6 +76,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 13 Oct 2009  2256       mpduff      Implement the dialog.
  * 07 Feb 2013  1578       rferrel     Changes for non-blocking dialog.
  * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
+ * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
  * </pre>
  * 
  * @author lvenable
@@ -1072,7 +1072,7 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
                 .getInstance().getContingencyValue(level.getResolution());
 
         for (Object[] oa : rs) {
-            Timestamp validTime = (Timestamp) oa[0];
+            Date validTime = (Date) oa[0];
             int shefDur = ((Number) oa[1]).intValue();
             int dur = shefDur - ((shefDur / 1000) * 1000);
 
@@ -1250,7 +1250,7 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
                     for (Object[] oa2 : rs2) {
                         ArealData ad = new ArealData();
                         ad.setLid((String) oa2[0]);
-                        ad.setValidTime(((Timestamp) oa2[1]));
+                        ad.setValidTime((Date) oa2[1]);
                         ad.setValue((Double) oa2[2]);
                         ad.setLat(lat);
                         ad.setLon(lon);
