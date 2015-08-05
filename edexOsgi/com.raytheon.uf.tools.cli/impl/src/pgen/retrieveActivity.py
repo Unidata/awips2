@@ -41,38 +41,42 @@ def __parseCommandLine():
     parser = UsageArgumentParser.UsageArgumentParser(prog='retrieveActivity',description="Retrieve PGEN Activities from EDEX.  When invoked without any arguments, retrieveActivity is run in interactive mode.")
     bgroup = parser.add_argument_group(title='batch',description='For running in scripts and/or batch mode.')
 
-    bgroup.add_argument("-l*", action="store", dest="label", 
-                      help="Activity Label being requested", 
-                      required=False, metavar="label")
-    bgroup.add_argument("-t*", action="store", dest="type", 
+    bgroup.add_argument("-type", action="store", dest="type", 
                       help="Activity Type being requested",
-                      required=False, metavar="type")
+                      required=False, metavar="  type")
     bgroup.add_argument("-st", action="store", dest="subtype", 
                       help="Activity Subtype being requested",
-                      required=False, metavar="subtype")
-    bgroup.add_argument("-d*", action="store", dest="reftime", 
+                      required=False, metavar="    subtype")
+    bgroup.add_argument("-tag", action="store", dest="tagId", 
+                      help="Tag ID being requested", 
+                      required=False, metavar="   tag")
+    bgroup.add_argument("-l", action="store", dest="label", 
+                      help="Activity Label being requested", 
+                      required=False, metavar="     label")
+    bgroup.add_argument("-time", action="store", dest="reftime", 
                       help="Activity Ref Time being requested (YYYY-MM-DD_HH:MM)",
-                      required=False, metavar="reftime")
-    bgroup.add_argument("-n*", action="store", dest="name", 
+                      required=False, metavar="  time")
+    bgroup.add_argument("-n", action="store", dest="name", 
                       help="Activity Name being requested",
-                      required=False, metavar="name")
+                      required=False, metavar="     name")
     bgroup.add_argument("-f", action="store", dest="fullpath", 
                       help="Write out XML with full path? (Yes/No)",
-                      required=False, metavar="fullpath")
+                      required=False, metavar="     Yes/No")
     
-    bgroup = parser.add_argument_group(title='Note',description='Pattern match with "*" is allowed for -l, -t, -d, and -n. E.g, -l "*CCFP*3*" will match any activities whose label contains CCFP and 3.')
+    bgroup = parser.add_argument_group(title='Note',description='Pattern matching with "*" is allowed for -type, -l, -time, and -n. E.g., -l "*CCFP*3*" will match any activities whose label contains CCFP and 3.')
     
     options = parser.parse_args()
     
     options.interactive = False
     if (options.label == None and options.type == None and 
         options.reftime == None and options.subtype == None and 
+        options.tagId == None and 
         options.fullpath == None and options.name == None):
             options.interactive = True
     else:
         if (options.label == None and options.type == None and 
             options.reftime == None and options.name == None):
-            print "Must enter values for at least one of -l, -t, -d, or -n"
+            print "Must enter values for at least one of -type, -l, -d, or -n"
             exit(0)
        
     logger.debug("Command-line arguments: " + str(options))
@@ -100,17 +104,24 @@ def main():
         mu = ActivityUtil.ActivityUtil()
         activityMap = mu.getActivityMap()
     
+        # Replace a space with the "_" in the type, accepting "CONV SIGMET" & "OUTL SIGMET".
         reqtype = None
         if ( options.type != None ):
-            reqtype = options.type;
+            reqtype = options.type.replace(" ", "_");
             if ( options.subtype != None ) :
                 reqtype = options.type + "(" + options.subtype + ")"
-                     
+
+	    # Form the matching pattern for tag ID
+        tagID = None
+        if ( options.tagId != None):
+            tagID = "*\." + options.tagId + "\.*"
+
         records = []
         for key in activityMap.iterkeys():
             recs = activityMap[key]
             for rec in recs:
                 if ( mu.stringMatcher(options.label, rec["activityLabel"]) and
+		     mu.stringMatcher(tagID, rec["activityLabel"]) and
                      mu.stringMatcher(reqtype, key ) and 
                      mu.stringMatcher(options.name, rec["activityName"] ) ):
                          #Remove sec.msec from record's refTime
@@ -122,7 +133,9 @@ def main():
                              shortTime = dbRefTime
                          
                          #Replace the "_" with a whitespace in reftime.
-                         optionTime = options.reftime.replace("_", " ")
+                         optionTime =  options.reftime
+                         if ( optionTime != None ):
+                                optionTime = optionTime.replace("_", " ")
                  
                          if ( mu.stringMatcher( optionTime, shortTime ) ):
                              records.append( rec )    
