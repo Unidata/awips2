@@ -142,6 +142,10 @@
          version="0.0.0"/>
 
    <includes
+         id="com.raytheon.uf.viz.npp.sounding.feature"
+         version="0.0.0"/>
+
+   <includes
          id="com.raytheon.uf.viz.d2d.skewt.feature"
          version="0.0.0"/>
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="com.raytheon.uf.viz.npp.feature"
-      label="NPP Data Feature"
+      id="com.raytheon.uf.viz.npp.sounding.feature"
+      label="NPP Sounding Feature"
       version="1.0.0.qualifier"
       provider-name="RAYTHEON">
 
@@ -21,25 +21,34 @@
       <import feature="com.raytheon.uf.viz.cots.feature" version="1.0.0.qualifier"/>
       <import feature="com.raytheon.uf.viz.common.core.feature" version="1.0.0.qualifier"/>
       <import feature="com.raytheon.uf.viz.core.feature" version="1.0.0.qualifier"/>
+      <import feature="com.raytheon.uf.viz.npp.feature" version="1.0.0.qualifier"/>
+      <import feature="com.raytheon.uf.viz.d2d.nsharp.feature" version="1.0.0.qualifier"/>
    </requires>
 
    <plugin
-         id="com.raytheon.uf.common.dataplugin.npp.viirs"
+         id="com.raytheon.uf.common.dataplugin.npp.sounding"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.viz.npp.sounding"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
 
    <plugin
-         id="com.raytheon.uf.viz.npp.viirs"
+         id="com.raytheon.uf.common.dataplugin.npp.nucaps"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.viz.npp"
+         id="com.raytheon.uf.viz.npp.nucaps"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
-
 
 </feature>
