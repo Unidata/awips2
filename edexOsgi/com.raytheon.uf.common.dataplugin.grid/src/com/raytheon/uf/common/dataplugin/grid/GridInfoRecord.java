@@ -124,13 +124,13 @@ public class GridInfoRecord extends PersistableDataObject<Integer> {
     }
 
     public GridInfoRecord(GridInfoRecord record) {
-        this.datasetId = record.getDatasetId();
-        this.level = record.getLevel();
-        this.location = record.getLocation();
-        this.parameter = record.getParameter();
-        this.ensembleId = record.getEnsembleId();
-        this.secondaryId = record.getSecondaryId();
-        this.id = record.getId();
+        this.datasetId = record.datasetId;
+        this.level = record.level;
+        this.location = record.location;
+        this.parameter = record.parameter;
+        this.ensembleId = record.ensembleId;
+        this.secondaryId = record.secondaryId;
+        this.id = record.id;
     }
 
     public Integer getId() {
