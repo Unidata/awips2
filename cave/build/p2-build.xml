@@ -221,9 +221,6 @@
 			<param name="feature" value="com.raytheon.uf.viz.ncep.nsharp.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
-			<param name="feature" value="com.raytheon.uf.viz.d2d.nsharp.feature" />
-		</antcall>
-		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.archive.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
@@ -242,18 +239,20 @@
 			<param name="feature" value="com.raytheon.uf.viz.datadelivery.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
-			<param name="feature" value="com.raytheon.uf.viz.npp.feature" />
-		</antcall>
-        <antcall target="p2.build.repo">
-             <param name="feature"
-                  value="com.raytheon.uf.viz.ncep.npp.feature" />
-        </antcall>		
-		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.d2d.skewt.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.viz.volumebrowser.feature" />
 		</antcall>
+        <antcall target="p2.build.repo">
+            <param name="feature" value="com.raytheon.uf.viz.d2d.nsharp.feature" />
+        </antcall>
+        <antcall target="p2.build.repo">
+            <param name="feature" value="com.raytheon.uf.viz.npp.feature" />
+        </antcall>
+        <antcall target="p2.build.repo">
+             <param name="feature" value="com.raytheon.uf.viz.ncep.npp.feature" />
+        </antcall>      
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.acarssounding.feature" />
 		</antcall>
@@ -268,9 +267,9 @@
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.collaboration.feature" />
-        	</antcall>
-        	<antcall target="p2.build.repo">
-             		<param name="feature" value="com.raytheon.uf.viz.d2d.damagepath.feature" />
+        </antcall>
+        <antcall target="p2.build.repo">
+            <param name="feature" value="com.raytheon.uf.viz.d2d.damagepath.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.gisdatastore.feature" />
