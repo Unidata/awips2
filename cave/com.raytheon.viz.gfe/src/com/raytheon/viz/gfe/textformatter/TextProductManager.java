@@ -236,22 +236,25 @@ public class TextProductManager implements ILocalizationFileObserver {
     }
 
     public Object getDefinitionValue(String productName, String key) {
-        Object obj = null;
+        TextProductMetadata productMetadata = null;
         synchronized (accessLock) {
-            try {
-                obj = metadata.get(productName).getProductDefinition().get(key);
-            } catch (NullPointerException e) {
-                obj = "Combinations_Default_" + productName;
-            }
+            productMetadata = metadata.get(productName);
         }
+
+        Object obj = (productMetadata != null) ? productMetadata
+                .getProductDefinition().get(key) : "Combinations_Default_"
+                + productName;
         return obj;
     }
 
     public ProductDefinition getProductDefinition(String productName) {
-        ProductDefinition productDef = null;
+        TextProductMetadata productMetadata = null;
         synchronized (accessLock) {
-            productDef = metadata.get(productName).getProductDefinition();
+            productMetadata = metadata.get(productName);
         }
+
+        ProductDefinition productDef = (productMetadata != null) ? productMetadata
+                .getProductDefinition() : null;
         return productDef;
     }
 
