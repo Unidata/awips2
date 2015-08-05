@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -67,6 +67,7 @@ import org.eclipse.ui.progress.UIJob;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
+import com.google.common.collect.ImmutableMap;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteDefinition;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
@@ -102,7 +103,7 @@ import com.raytheon.viz.ui.statusline.StatusStore;
 
 /**
  * Make Hazard Dialog
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer     Description
@@ -114,9 +115,10 @@ import com.raytheon.viz.ui.statusline.StatusStore;
  *  Apr 09,2012 436         randerso    Merged RNK's MakeHazards_Elevation procedure
  *  May 30,2012 2028        randerso    Cleaned up dialog layout
  *  Nov 13,2014 646         lshi        Fixed hard coded endTimeSlider's Max value
- * 
+ *  Jul 30,2015 17770       lshi        Add handling for AT, EP, CP and WP basins
+ *
  * </pre>
- * 
+ *
  * @author ebabin
  * @version 1.0
  */
@@ -136,20 +138,20 @@ public class MakeHazardDialog extends CaveSWTDialog implements
 
     private static final String EDIT_AREA_MSG = "USING ACTIVE EDIT AREA";
 
-    private List<String> tropicalHaz;
+    private final List<String> tropicalHaz;
 
-    private int natlBaseETN;
+    private final int natlBaseETN;
 
-    private Map<String, List<String>> localEffectAreas;
+    private final Map<String, List<String>> localEffectAreas;
 
-    private Map<String, List<Object>> localAreaData;
+    private final Map<String, List<Object>> localAreaData;
 
     /**
      * Zoom step size.
      */
     private static final double ZOOM_STEP = 0.75;
 
-    private Map<String, List<String>> hazardDict;
+    private final Map<String, List<String>> hazardDict;
 
     private Text etnSegNumberField;
 
@@ -157,15 +159,15 @@ public class MakeHazardDialog extends CaveSWTDialog implements
 
     private Label startTimeLabel, endTimeLabel;
 
-    private String gmtPattern = "HH:mm'Z' EEE dd-MMM-yy";
+    private final String gmtPattern = "HH:mm'Z' EEE dd-MMM-yy";
 
-    private SimpleDateFormat dateFormatter;
+    private final SimpleDateFormat dateFormatter;
 
     private ZoneSelector zoneSelector;
 
     /**
      * Used by hazard start and end Time.
-     * 
+     *
      */
     private int toHours = 96;
 
@@ -180,9 +182,9 @@ public class MakeHazardDialog extends CaveSWTDialog implements
     /**
      * The Python script to load and run methods from.
      */
-    private String defaultHazardType;
+    private final String defaultHazardType;
 
-    private Map<String, List<String>> mapNames;
+    private final Map<String, List<String>> mapNames;
 
     private Group hazardTypeGroup;
 
@@ -194,11 +196,11 @@ public class MakeHazardDialog extends CaveSWTDialog implements
 
     private Label usingLabel;
 
-    private int defaultMapWidth;
+    private final int defaultMapWidth;
 
     private RGB mapColor;
 
-    private int timeScaleEndTime;
+    private final int timeScaleEndTime;
 
     private double areaThreshold = DEFAULT_AREA_THRESHOLD;
 
@@ -210,9 +212,9 @@ public class MakeHazardDialog extends CaveSWTDialog implements
 
     private String defaultSegment;
 
-    private DataManager dataManager;
+    private final DataManager dataManager;
 
-    private List<String> tcmList;
+    private final List<String> tcmList;
 
     private String tcmProduct = null;
 
@@ -231,6 +233,14 @@ public class MakeHazardDialog extends CaveSWTDialog implements
     private boolean running;
 
     private org.eclipse.swt.widgets.List hazardGroupList;
+
+    private static final String[] WMO_TITLES = {
+        "NATIONAL HURRICANE CENTER",        //NHC
+        "NATIONAL WEATHER SERVICE TIYAN",   //GUM
+        "CENTRAL PACIFIC HURRICANE CENTER"  //CPHC
+    };
+
+    private static final Map<String, String> BASINS = ImmutableMap.of("AT", "10", "EP", "20", "CP", "30", "WP", "40");
 
     public MakeHazardDialog(Shell parent, DataManager dataManager,
             String colorName, int defaultMapWidth, int timeScaleEndTime,
@@ -465,7 +475,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
      * preview() process. Currently, we don't implement preview(), but we
      * probably will at some point in the future. When we do, we can get rid of
      * this method and let preview() do this for us like AWIPS I did.
-     * 
+     *
      * @param parm
      * @return
      */
@@ -512,7 +522,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
      * Figure out the hazard type (i.e., "Winter Weather") and db tables to use,
      * based on phen_sig. The same phensig sometimes appears in multiple hazard
      * types, so pick the one that draws from the most db tables.
-     * 
+     *
      * @param phen_sig
      */
     protected void pickDefaultCategory(String phen_sig) {
@@ -568,7 +578,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
      * Create the hazard in response to the run or run/dismiss button. Indicate
      * whether the run succeeded so run/dismiss knows whether it's OK to close
      * the dialog.
-     * 
+     *
      * @return true if the hazard was created, false otherwise.
      */
     private boolean doRunInternal(boolean dismiss) {
@@ -605,8 +615,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         int segNum = getSegment();
         String segmentNumber = "";
         // Validate the segment number
-        if ((this.tropicalHaz.contains(phenSig))
-                && !(this.dataManager.getSiteID().equals("GUM"))) {
+        if ((this.tropicalHaz.contains(phenSig))) {
             // if ETN is already correctly assigned, use it
             if (segNum >= this.natlBaseETN) {
                 segmentNumber = Integer.toString(segNum);
@@ -682,16 +691,18 @@ public class MakeHazardDialog extends CaveSWTDialog implements
             return null;
         } else {
             String altFileName = getAltInfoFilename(tcmProduct);
-            String stormNum = altFileName.substring(2, 4);
-
-            System.out.println("storm number is " + stormNum);
-
-            String nationalBase = "10";
-            tropicalETN = nationalBase + stormNum;
-
-            System.out.println("Tropical ETN is: " + tropicalETN);
-            System.out.println("length of tropical ETN is: "
-                    + tropicalETN.length());
+            if (altFileName != null) {
+                String nationalBase = BASINS.get("AT");
+                String baseETN = altFileName.substring(0, 2);
+                String baseEtnCode = BASINS.get(baseETN);
+                if (baseEtnCode != null) {
+                    nationalBase = baseEtnCode;
+                } else {
+                    statusHandler.warn("Undefined basin ID: " + baseETN + ", defaulting to AT");
+                }
+                String stormNum = altFileName.substring(2, 4);
+                tropicalETN = nationalBase + stormNum;
+            }
         }
         return tropicalETN;
     }
@@ -699,10 +710,12 @@ public class MakeHazardDialog extends CaveSWTDialog implements
     private String getAltInfoFilename(String[] tcmProduct) {
         String altFilename = null;
         for (int i = 0; i < tcmProduct.length; i++) {
-            if (tcmProduct[i].contains("NATIONAL HURRICANE CENTER")) {
-                String[] parts = tcmProduct[i].split("\\s");
-                altFilename = parts[parts.length - 1];
-                break;
+            for (String title : WMO_TITLES) {
+                if (tcmProduct[i].contains(title)) {
+                    String[] parts = tcmProduct[i].split("\\s");
+                    altFilename = parts[parts.length - 1];
+                    return altFilename;
+                }
             }
         }
         return altFilename;
@@ -1120,7 +1133,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
              * Event handler for when the user moves the slider. This updates
              * the slider label and changes the end time slider if the end time
              * is before the start time.
-             * 
+             *
              * @param e
              *            The event that caused this handler to be called.
              */
@@ -1185,7 +1198,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
              * Event handler for when the user moves the slider. This updates
              * the slider label and changes the start time slider if the end
              * time is before the start time.
-             * 
+             *
              * @param e
              *            The event that caused this handler to be called.
              */
@@ -1302,7 +1315,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
      * Add <code>selection</code> hours to <code>hazardStartTime</code> (that
      * is, the default starting time), and set the text of <code>label</code> to
      * the result, formatted by <code>dateFormatter</code>.
-     * 
+     *
      * @param selection
      *            The integer slider value selected by the user.
      * @param label
@@ -1335,7 +1348,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
      * Set the hazard type in the radio button control. If the hazard type is
      * changed, the radio button selection listener will fire, changing and
      * clearing selectedHazardList as a side effect.
-     * 
+     *
      * @param hazardType
      *            the hazard type to select.
      */
@@ -1384,7 +1397,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
      * Set the selection in selectedHazardList to the first item that starts
      * with phen_sig. If phen_sig is null or an empty string, clears all
      * selections.
-     * 
+     *
      * @param phen_sig
      *            The phen_sig to select
      */
@@ -1487,7 +1500,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector.IZoneSelectionListener
      * #zonesSelected()
