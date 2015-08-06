@@ -26,3 +26,4 @@ Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.14.0",
 Export-Package: com.raytheon.uf.viz.d2d.nsharp,
  com.raytheon.uf.viz.d2d.nsharp.display,
  com.raytheon.uf.viz.d2d.nsharp.rsc
+Import-Package: gov.noaa.nws.ncep.viz.soundingrequest
