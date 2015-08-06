@@ -87,6 +87,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * Jul 01, 2015  4375      dgilling    Fix setDefaultPolygon.
  * Jul 07, 2015  4375      dgilling    Better error message for loadJob, make it
  *                                     INFO level, fix geotools CRS warning.
+ * Aug 05, 2015  4635      dgilling    Default save location for damage path
+ *                                     is now at SITE level.
  * 
  * </pre>
  * 
@@ -122,11 +124,11 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
 
     /**
      * JVM property to specify the localization level to attempt to save/load
-     * with. Falls back to USER if not defined.
+     * with. Falls back to SITE if not defined.
      */
     private static final LocalizationLevel LEVEL_TO_USE = LocalizationLevel
             .valueOf(System.getProperty("damage.path.localization.level",
-                    LocalizationLevel.USER.name()));
+                    LocalizationLevel.SITE.name()));
 
     private final Job loadJob = new Job("Loading Damage Path") {
         @Override
