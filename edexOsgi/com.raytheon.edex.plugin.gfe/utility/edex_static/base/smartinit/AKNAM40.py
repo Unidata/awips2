@@ -29,17 +29,17 @@ class AKNAM40Forecaster(NAM40Forecaster):
 
     # Alaska does not get pop_SFC
     def calcPoP(self, gh_c, rh_c, QPF, topo):
-        rhavg = where(less(gh_c, topo), -1, rh_c)
+        rhavg = where(less(gh_c, topo), float32(-1), rh_c)
 #        rhavg = where(greater(gh_c, topo + (5000 * 12 * 2.54) / 100),
 #                      -1, rhavg)
         rhavg[greater(gh_c, topo + (5000 * 12 * 2.54) / 100)] = -1 
-        count = where(not_equal(rhavg, -1), 1, 0)
+        count = where(not_equal(rhavg, -1), float32(1), float32(0))
 #        rhavg = where(equal(rhavg, -1), 0, rhavg)
         rhavg[equal(rhavg, -1)] = 0 
         count = add.reduce(count, 0)
         rhavg = add.reduce(rhavg, 0)
         ## add this much based on humidity only
-        dpop = where(count, rhavg / (count + .001), 0) - 70.0
+        dpop = where(count, rhavg / (count + .001), float32(0)) - 70.0
 #        dpop = where(less(dpop, -30), -30, dpop)
         dpop[equal(dpop, -30)] = -30 
         ## calculate the base PoP

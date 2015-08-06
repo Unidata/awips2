@@ -39,6 +39,8 @@
 #                                                 functions in favor of calendar.timegm
 #    Apr 23, 2015    4259          njensen        Updated for new JEP API
 #    05/13/2015      4427          dgilling       Add siteIdOverride field.
+#    08/06/2015      4718          dgilling       Optimize casting when using where with
+#                                                 NumPy 1.9.
 #
 ##
 
@@ -947,7 +949,7 @@ def collapseKey(keys, grid):
     newGrid = grid
     for k in range(len(map)):
        mask = numpy.equal(k, grid)
-       newGrid = numpy.where(mask, map[k], newGrid).astype(numpy.int8)
+       newGrid = numpy.where(mask, numpy.int8(map[k]), newGrid).astype(numpy.int8)
 
     return (newKeys, newGrid)
 

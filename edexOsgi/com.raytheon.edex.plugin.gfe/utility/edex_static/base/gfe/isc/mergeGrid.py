@@ -37,6 +37,8 @@ import LogStream, fcntl
 #    ------------    ----------    -----------    --------------------------
 #    07/06/09        1995          bphillip       Initial Creation.
 #    11/05/13        2517          randerso       Improve memory utilization
+#    08/06/2015      4718          dgilling       Optimize casting when using where with
+#                                                 NumPy 1.9.
 #
 #
 #
@@ -59,7 +61,7 @@ class MergeGrid:
         self.__creationTime = creationTime
         self.__siteID = siteID
         self.__inFillV = inFillValue
-        self.__outFillV = outFillValue
+        self.__outFillV = numpy.float32(outFillValue)
         self.__areaMask = areaMask
         self.__gridType = gridType
         self.__discreteKeys = discreteKeys
@@ -171,7 +173,7 @@ class MergeGrid:
 
             if gridB is None:
                 magGrid = numpy.where(mask, gridA[0], self.__outFillV)
-                dirGrid = numpy.where(mask, gridA[1], 0.0)
+                dirGrid = numpy.where(mask, gridA[1], numpy.float32(0.0))
             else:
                 magGrid = numpy.where(mask, gridA[0], gridB[0])
                 dirGrid = numpy.where(mask, gridA[1], gridB[1])
@@ -180,7 +182,7 @@ class MergeGrid:
         # blank out the data
         else:
             magGrid = numpy.where(self.__areaMask, self.__outFillV, gridB[0])
-            dirGrid = numpy.where(self.__areaMask, 0.0, gridB[1])
+            dirGrid = numpy.where(self.__areaMask, numpy.float32(0.0), gridB[1])
             return (magGrid, dirGrid)
 
 

@@ -37,7 +37,9 @@ class OPCWAVEForecaster(Forecaster):
     def calcWaveHeight(self, htsgw_SFC, topo):
     
         #  Assign the value filtering out everything above 50 meters
-        grid = where(greater(htsgw_SFC, 50), 0.0, htsgw_SFC * 3.28)
+        grid = htsgw_SFC.copy()
+        grid[greater(htsgw_SFC, 50)] = 0.0
+        grid *= 3.28
 
         #  Make a mask where topo is 0.0 m MSL
         topoMask = equal(topo, 0.0)
@@ -49,10 +51,11 @@ class OPCWAVEForecaster(Forecaster):
         grid = self.fillEditArea(grid, logical_and(dataMask, topoMask))
         
         #  Ensure grid values are between 0 ft and 100 ft
-        grid = clip(grid, 0, 100)       
+        grid.clip(0, 100, grid)       
         
         #  Return completed grid - but only where topo is 0 ft MSL
-        return where(topoMask, grid, 0.0)
+        grid[logical_not(topoMask)] = 0.0
+        return grid
 
 
 

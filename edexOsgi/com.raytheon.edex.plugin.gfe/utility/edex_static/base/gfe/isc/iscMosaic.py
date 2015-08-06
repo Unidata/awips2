@@ -25,6 +25,8 @@
 #                                                 with call to calendar.timegm
 #    04/23/2015      4383          randerso       Changed to log arguments to aid in troubleshooting
 #    Apr 23, 2015    4259          njensen        Updated for new JEP API
+#    08/06/2015      4718          dgilling       Optimize casting when using where with
+#                                                 NumPy 1.9.
 #
 ##
 
@@ -1259,6 +1261,7 @@ class IscMosaic:
         outFillV = self.__determineFillValue(var)
         if outFillV == inFillV and multiplier is None:
             return grid    # no changes needed
+        outFillV = numpy.float32(outFillV)
 
         # get mask of valid points
         goodDataMask = numpy.not_equal(grid, inFillV)

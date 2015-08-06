@@ -31,6 +31,8 @@
 #    10/29/2013      #2476         njensen        Improved getting wx/discrete keys when retrieving data
 #    10/27/2014      #3766         randerso       Changed _getLatest to include error text returned from InitClient.createDB()
 #    Apr 23, 2015    4259          njensen        Updated for new JEP API 
+#    08/06/2015      4718          dgilling       Prevent numpy 1.9 from wasting memory by
+#                                                 upcasting scalars too high when using where.
 # 
 ##
 import string, sys, re, time, types, getopt, fnmatch, LogStream, DatabaseID, JUtil, AbsTime, TimeRange
@@ -277,11 +279,15 @@ class GridUtilities:
         # now make the categories
         mask3 = greater_equal(hainesT, dd['stabThresh'][1])
         mask1 = less(hainesT, dd['stabThresh'][0])
-        hainesT = where(mask3, 3, where(mask1, 1, 2))
+        hainesT = full_like(mask3, 2, dtype=float32)
+        hainesT[mask1] = 1
+        hainesT[mask3] = 3
 
         mask3 = greater_equal(hainesM, dd['moiThresh'][1])
         mask1 = less(hainesM, dd['moiThresh'][0])
-        hainesM = where(mask3, 3, where(mask1, 1, 2))
+        hainesM = full_like(mask3, 2, dtype=float32)
+        hainesM[mask1] = 1
+        hainesM[mask3] = 3
 
         return hainesT + hainesM
 
