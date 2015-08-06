@@ -103,6 +103,10 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
     @XmlElement
     private String wmoHeader;
 
+    /*
+     * Assumes ACARSDataAdapter only creates instance of this class when it has
+     * a non-null tail number.
+     */
     @DataURI(position = 1)
     @Column(length = 32, nullable = false)
     @DynamicSerializeElement

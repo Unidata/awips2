@@ -71,7 +71,7 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "bufrquikscatseq")
-@Table(name = "bufrquikscat", uniqueConstraints = { @UniqueConstraint(name = "uk_bufrquikscat_datauri_field", columnNames = { "dataURI" }) })
+@Table(name = "bufrquikscat", uniqueConstraints = { @UniqueConstraint(name = "uk_bufrquikscat_datauri_fields", columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.

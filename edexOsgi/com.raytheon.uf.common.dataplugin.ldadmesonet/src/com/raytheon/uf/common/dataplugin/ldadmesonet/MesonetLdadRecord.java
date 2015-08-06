@@ -73,7 +73,7 @@ import com.vividsolutions.jts.geom.Geometry;
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "ldadmesonetseq")
 @Table(name = "ldadmesonet", uniqueConstraints = { @UniqueConstraint(name = "uk_ldadmesonet_datauri_fields", columnNames = {
-        "stationid", "reftime", "reportType", "dataProvider", "latitude",
+        "stationid", "reftime", "reporttype", "dataprovider", "latitude",
         "longitude" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since

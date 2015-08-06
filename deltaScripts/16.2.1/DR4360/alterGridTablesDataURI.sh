@@ -20,7 +20,7 @@ echo "INFO: ${table} dataURI columns updated successfully"
 
 table=grid_info
 strCols=("datasetid" "secondaryid" "ensembleid")
-dropCols=("parameter_abbreviation" "level_id")
+dropCols=("parameter_abbreviation" "level_id" "location_id")
 
 # table and constraint names from GridInfoRecord.
 echo "INFO: Start update of ${table} dataURI columns."

@@ -89,8 +89,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "madisseq")
 @Table(name = "madis", uniqueConstraints = { @UniqueConstraint(name = "uk_madis_datauri_fields", columnNames = {
-        "latitude", "longitude", "stationId", "refTime", "provider",
-        "subProvider", "restriction" }) })
+        "latitude", "longitude", "stationid", "reftime", "provider",
+        "subprovider", "restriction" }) })
 @org.hibernate.annotations.Table(appliesTo = "madis", indexes = { @Index(name = "madis_wfsQueryIndex", columnNames = {
         "insertTime", "location" }), })
 @DynamicSerialize
