@@ -53,6 +53,8 @@ import com.raytheon.uf.viz.alertview.ui.view.AlertTable;
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------
  * Jun 25, 2015  4474     bsteffen  Initial creation
+ * Aug 06, 2015  4693     bsteffen  Update text and add tooltips.
+ * 
  * 
  * </pre>
  * 
@@ -76,12 +78,18 @@ public class AlertViewPreferencePage extends PreferencePage implements
         Composite composite = new Composite(parent, SWT.NONE);
         composite.setLayout(new GridLayout(2, false));
 
-        new Label(composite, SWT.NONE).setText("Auto Open Priority: ");
+        new Label(composite, SWT.NONE)
+                .setText("Automatically show AlertView for alerts with priority: ");
         openFilterCombo = new PriorityFilterCombo(composite);
+        openFilterCombo
+                .setToolTipText("Alerts with this priority will cause the AlertView to open automatically.");
 
         new Label(composite, SWT.NONE)
-                .setText("Hide Duplicate Interval(seconds): ");
+                .setText("Hide Duplicate Message Interval (seconds): ");
         intervalText = new Text(composite, SWT.SINGLE | SWT.BORDER);
+        intervalText
+                .setToolTipText("When multiple identical alerts arrive within this many seconds then only one alert is displayed.");
+
         GridData gridData = new GridData();
         gridData.widthHint = 30;
         intervalText.setLayoutData(gridData);

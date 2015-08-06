@@ -40,6 +40,7 @@ import com.raytheon.uf.viz.alertview.filter.FilterManager;
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------
  * Jun 25, 2015  4474     bsteffen  Initial creation
+ * Aug 06, 2015  4693     bsteffen  Add setToolTipText.
  * 
  * </pre>
  * 
@@ -61,6 +62,10 @@ public class PriorityFilterCombo {
         for (Entry<String, String> entry : MAPPING.entrySet()) {
             combo.add(entry.getKey());
         }
+    }
+
+    public void setToolTipText(String string) {
+        combo.setToolTipText(string);
     }
 
     public void setSelection(String filter) {
