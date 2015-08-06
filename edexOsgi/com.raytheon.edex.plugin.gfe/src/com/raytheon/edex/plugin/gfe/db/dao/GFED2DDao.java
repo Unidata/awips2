@@ -60,7 +60,7 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * Jun 13, 2013 2044       randerso    Cleaned up JavaDoc
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
- * 
+ * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
  * </pre>
  * 
  * @author randerso
@@ -151,8 +151,7 @@ public class GFED2DDao extends GridDao {
                 try {
                     s.close();
                 } catch (Exception e) {
-                    logger.error(
-                            "Error occurred closing database session", e);
+                    logger.error("Error occurred closing database session", e);
                 }
             }
         }
@@ -291,8 +290,7 @@ public class GFED2DDao extends GridDao {
                 try {
                     s.close();
                 } catch (Exception e) {
-                    logger.error(
-                            "Error occurred closing database session", e);
+                    logger.error("Error occurred closing database session", e);
                 }
             }
         }
@@ -322,10 +320,7 @@ public class GFED2DDao extends GridDao {
 
         List<Date> inventory = new ArrayList<Date>(result.size());
         for (Object obj : result) {
-            // convert returned "Dates" (actually java.sql.TimeStamps) to actual
-            // java.util.Dates so equals comparisons work correctly
-            Date date = new Date(((Date) obj).getTime());
-            inventory.add(date);
+            inventory.add((Date) obj);
         }
 
         return inventory;

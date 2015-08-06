@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.common.hydro.dataaccess;
 
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataaccess.IDataRequest;
@@ -53,7 +53,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Feb 03, 2015  4009     mapeters    Moved getAvailableLevels() override to super
  * Mar 18, 2015  4227     mapeters    Removed getAvailableTimes(), assembleGetTimes()
  *                                    taking BinOffsets.
- * 
+ * Aug 05, 2015  4486     rjpeter     Changed Timestamp to Date.
  * </pre>
  * 
  * @author njensen
@@ -71,7 +71,7 @@ public class HydroGeometryFactory extends AbstractGeometryDatabaseFactory {
     // TODO add support for envelopes bounding the request
     private static final String[] REQUIRED = { HydroQueryAssembler.TABLE };
 
-    private GeometryFactory gisFactory = new GeometryFactory();
+    private final GeometryFactory gisFactory = new GeometryFactory();
 
     private static final String IHFS_DATABASE = "ihfs";
 
@@ -92,7 +92,7 @@ public class HydroGeometryFactory extends AbstractGeometryDatabaseFactory {
 
         // order is lid, producttime, lat, lon, other params
         String lid = (String) data[0];
-        Timestamp date = (Timestamp) data[1];
+        Date date = (Date) data[1];
         double lat = (Double) data[2];
         double lon = (Double) data[3];
         /*

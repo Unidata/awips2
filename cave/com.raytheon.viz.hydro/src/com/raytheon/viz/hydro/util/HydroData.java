@@ -51,6 +51,7 @@ import com.raytheon.viz.hydrocommon.whfslib.IHFSDbGenerated;
  * Mar 31, 2009            mpduff      Initial creation.
  * Nov 06, 2009 2639       mpduff      Added getRiverStat method.
  * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
+ * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
  * </pre>
  * 
  * @author mpduff
@@ -321,9 +322,8 @@ public class HydroData {
             Object[] oa = results.get(i);
             ArrayList<String> al = new ArrayList<String>();
             for (Object o : oa) {
-                if (o instanceof java.sql.Timestamp) {
-                    al.add(HydroConstants.DATE_FORMAT
-                            .format((java.sql.Timestamp) o));
+                if (o instanceof Date) {
+                    al.add(HydroConstants.DATE_FORMAT.format((Date) o));
                 } else if (o instanceof Number) {
                     al.add(((Number) o).toString());
                 } else {
