@@ -109,6 +109,7 @@ SWITCHES=()
 function deleteEclipseConfigurationDir()
 {
     if [[ -n $eclipseConfigurationDir ]]; then
+        sleep 2
         rm -rf "$eclipseConfigurationDir"
     fi
 }
@@ -117,7 +118,10 @@ function createEclipseConfigurationDir()
 {
     local d dir id=$(hostname)-$(whoami)
     for d in "/local/cave-eclipse/" "$HOME/.cave-eclipse/"; do
-        if dir=$(mktemp -d -p "$d" "${id}-XXXX"); then
+        if [[ $d == $HOME/* ]]; then
+            mkdir -p "$d" || continue
+        fi
+        if dir=$(mktemp -d --tmpdir="$d" "${id}-XXXX"); then
             eclipseConfigurationDir=$dir
             trap deleteEclipseConfigurationDir EXIT
             SWITCHES+=(-configuration "$eclipseConfigurationDir")
