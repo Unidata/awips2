@@ -34,7 +34,7 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * ------------	----------	-----------	--------------------------
  * Oct 22, 2008				askripsk	Initial creation
  * Dec 8, 2008  1744        askripsk    Changed to implement IHydroDBData
- * 
+ * Aug 07, 2015 4500        rjpeter     Fix type case.
  * </pre>
  * 
  * @author askripsk
@@ -152,7 +152,7 @@ public class DataLimitData extends HydroDBData implements IHydroDBData {
         // initDateFormat();
 
         setPe(getDBValue("pe", data, dataMap, ""));
-        setDur(getDBValue("dur", data, dataMap, HydroConstants.MISSING_VALUE));
+        setDur(getDBValue("dur", data, dataMap, (short) HydroConstants.MISSING_VALUE).intValue());
         setMonthDayStart(getDBValue("monthdaystart", data, dataMap, ""));
         setMonthDayEnd(getDBValue("monthdayend", data, dataMap, ""));
         setGrossRangeMin(getDBValue("gross_range_min", data, dataMap, Double
