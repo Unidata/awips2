@@ -23,7 +23,6 @@ package com.raytheon.uf.common.dataplugin.ffmp;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -37,6 +36,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 01/27/13     1478        D. Hladky   Created to reduce memory and disk read/writes for FFMP
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
+ * Aug 08, 2015 4722        dhladky     Dynamic serialize imp not needed.
  * 
  * </pre>
  * 
@@ -45,7 +45,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 
 @DynamicSerialize
-public class FFMPAggregateRecord implements ISerializableObject {
+public class FFMPAggregateRecord {
 
     @DynamicSerializeElement
     private String wfo;

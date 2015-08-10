@@ -148,6 +148,44 @@
         <guidanceType>RFC</guidanceType>
     </source>
     <source>
+        <SourceName>MRMS</SourceName>
+        <DisplayName>MRMS-1000</DisplayName>
+        <DurationHour>0.0</DurationHour>
+        <dataPath>/grid/%/MRMS_1000/.*/.*/.*/PrecipRate/FH/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>QPE</sourceType>
+        <rateOrAccum>rate</rateOrAccum>
+        <expirationMinutes>5</expirationMinutes>
+        <conversion>0.03937</conversion>
+        <mosaic>false</mosaic>
+    </source>
+    <source>
+        <SourceName>MRMSQPF</SourceName>
+        <DisplayName>MRMS-RadarOnlyQPE01H</DisplayName>
+        <DurationHour>1.0</DurationHour>
+        <dataPath>/grid/%/MRMS_1000/.*/.*/.*/RadarOnlyQPE01H/FH/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>QPF</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>5</expirationMinutes>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+    </source>
+    <source>
+        <SourceName>MRMSVGB</SourceName>
+        <DisplayName>Virtual Gage Basins MRMS</DisplayName>
+        <DurationHour>1.0</DurationHour>
+        <dataPath>hd_ob92oax</dataPath>
+        <dataType>GRID</dataType>
+        <sourceType>GAGE</sourceType>
+        <rateOrAccum>rate</rateOrAccum>
+        <expirationMinutes>5</expirationMinutes>
+        <conversion>0.03937</conversion>
+        <mosaic>false</mosaic>
+    </source>
+    <source>
         <SourceName>VGBBIASHPE</SourceName>
         <DisplayName>Virtual Gage Basins HPE</DisplayName>
         <DurationHour>0.0</DurationHour>
@@ -232,5 +270,15 @@
         <qpf>PRTM</qpf>
         <guidance>FFG0124hr, FFG0324hr, FFG0624hr</guidance>
         <virtual>VGBDPR</virtual>
+    </product>
+    <product primarySource="MRMS">
+        <rate>MRMS</rate>
+        <qpe>MRMS</qpe>
+        <qpf>QPFSCAN</qpf>
+        <qpf>BPRTM</qpf>
+        <qpf>PRTM</qpf>
+        <qpf>MRMSQPF</qpf>
+        <guidance>FFG0124hr, FFG0324hr, FFG0624hr</guidance>
+        <virtual>MRMSVGB</virtual>
     </product>
 </FFMPSourceConfig>

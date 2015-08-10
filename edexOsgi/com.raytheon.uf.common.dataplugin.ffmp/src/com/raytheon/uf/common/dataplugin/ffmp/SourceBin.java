@@ -21,7 +21,6 @@ package com.raytheon.uf.common.dataplugin.ffmp;
 
 import java.util.ArrayList;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -37,6 +36,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ----------  ----------- --------------------------
  * 10/22/10      6581       D. Hladky   Initial release
  * 01/27/13     1478        D. Hladky   Removed un needed XML annotations
+ * Aug 08, 2015 4722        dhladky     Dynamic serialize imp not needed.
  * 
  * </pre>
  * 
@@ -45,7 +45,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 
 @DynamicSerialize
-public class SourceBin implements ISerializableObject {
+public class SourceBin {
     
     /** sourceName and dataKey **/
     @DynamicSerializeElement

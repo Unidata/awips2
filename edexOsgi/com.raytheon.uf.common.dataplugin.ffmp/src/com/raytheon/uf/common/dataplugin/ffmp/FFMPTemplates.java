@@ -37,6 +37,7 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.raytheon.uf.common.datastorage.StorageException;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.hydro.spatial.HRAPCoordinates;
 import com.raytheon.uf.common.hydro.spatial.HRAPSubGrid;
 import com.raytheon.uf.common.localization.IPathManager;
@@ -91,6 +92,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * 07/01/13      2155       dhladky     Fixed duplicate pfafs that were in domainList arrays from overlapping domains.
  * 07/15/13      2184       dhladky     Remove all HUC's for storage except ALL
  * Nov 18, 2014  3831       dhladky     StatusHandler logging. Proper list sizing. Geometry chunk sizing.
+ * Aug 08, 2015  4722       dhladky     Improved Grid support.
  * </pre>
  * 
  * @author dhladky
@@ -161,7 +163,7 @@ public class FFMPTemplates {
             .getHandler(FFMPTemplates.class);
 
     private final IPathManager pathManager;
-
+    
     /**
      * Single constructor
      * 
@@ -1065,7 +1067,7 @@ public class FFMPTemplates {
      * @param cwa
      * @return
      */
-    public String getSiteExtents(String dataKey) {
+    public String getSiteExtents(String dataKey) throws Exception {
 
         String siteExtents = null;
         // figure out which product to apply this to
@@ -1083,7 +1085,6 @@ public class FFMPTemplates {
 
             Rectangle rect = null;
 
-            try {
                 rect = HRAPCoordinates.getHRAPCoordinates();
                 rect.setBounds(rect.x * primeSource.getHrapGridFactor(), rect.y
                         * primeSource.getHrapGridFactor(), rect.width
@@ -1095,9 +1096,6 @@ public class FFMPTemplates {
                 Geometry geo = hrapgrid.getGeometry();
                 siteExtents = FFMPUtils.getGeometryText(geo);
 
-            } catch (Exception e) {
-                statusHandler.error("Couldn't lookup site Extents!: dataKey: "+dataKey, e);
-            }
         } else if (primeSource.getDataType().equals(
                 FFMPSourceConfigurationManager.DATA_TYPE.RADAR.getDataType())) {
 
@@ -1109,9 +1107,9 @@ public class FFMPTemplates {
 
         } else if (primeSource.getDataType().equals(
                 FFMPSourceConfigurationManager.DATA_TYPE.GRID.getDataType())) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "GRID Not yet implemented:  " + dataKey);
-
+            // extract the Grid Coverage for use in site extents creation
+            GridCoverage coverage = FFMPUtils.getGridCoverageRecord(primeSource.getDataPath());
+            siteExtents = FFMPUtils.getGeometryText(coverage.getGeometry());
         } else if (primeSource.getDataType().equals(
                 FFMPSourceConfigurationManager.DATA_TYPE.PDO.getDataType())) {
             statusHandler.handle(Priority.PROBLEM, "PDO Not yet implemented:  "
@@ -1167,10 +1165,13 @@ public class FFMPTemplates {
                 Map<Long, TreeSet<Long>> aggrPfafToAllChildPfafsMap = null;
 
                 if (huc.equals(FFMPRecord.ALL)) {
-                    map = loadBasins(dataKey, cwa, FFMPUtils.getBasins(cwa,
-                            getMaxExtent(), getSiteExtents(dataKey),
-                            mode.getMode()));
-
+                    try {
+                        map = loadBasins(dataKey, cwa, FFMPUtils.getBasins(cwa,
+                                getMaxExtent(), getSiteExtents(dataKey),
+                                mode.getMode()));
+                    } catch (Exception e) {
+                        statusHandler.handle(Priority.PROBLEM, "Unable to create FFMP Template for this dataKey: "+dataKey, e);
+                    }
                 } else if (huc.equals(FFMPRecord.COUNTY)) {
                     list = getCountyFips(cwa, dataKey);
                 } else {
@@ -2360,8 +2361,12 @@ public class FFMPTemplates {
 
             if (res >= 0.004) {
 
-                list = FFMPUtils.getUniqueCountyFips(cwa, getMaxExtent(),
-                        getSiteExtents(dataKey), mode.getMode(), resolution);
+                try {
+                    list = FFMPUtils.getUniqueCountyFips(cwa, getMaxExtent(),
+                            getSiteExtents(dataKey), mode.getMode(), resolution);
+                } catch (Exception e) {
+                    statusHandler.handle(Priority.PROBLEM, "Unable to create FFMP Template for this dataKey: "+dataKey, e);
+                }
 
                 if (list.size() > 0) {
                     break;

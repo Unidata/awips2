@@ -58,6 +58,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * ------------ ---------- ----------- --------------------------
  * 06/30/2009   2521       dhladky     Initial Creation.
  * Apr 24, 2014  2060      njensen     Removed unnecessary catch
+ * Aug 08, 2015  4722      dhladky     Simplified source map additions, config.
  * 
  * </pre>
  * 
@@ -328,44 +329,61 @@ public class FFMPConfig {
                 for (String dataKey : sourceMap.keySet()) {
 
                     String[] keys = dataKey.split(":");
-                    String checkSourceName = keys[0];
-                    String sourceKey = keys[1];
+                    String checkSourceName = null;
+                    String sourceKey = null;
+                    
+                    if (keys != null && keys.length > 1) {
+                        checkSourceName = keys[0];
+                        sourceKey = keys[1];
+                    } else {
+                        checkSourceName = dataKey;
+                    }
 
                     if (checkSourceName.equals(sourceName)) {
 
                         String dataUri = sourceMap.get(dataKey);
+                        Object dataObject = null;
 
                         if (source.getDataType().equals(
                                 FFMPSourceConfigurationManager.DATA_TYPE.XMRG
                                         .getDataType())) {
+                            dataObject = getXMRGFile(dataUri);
+                        } else if (source.getDataType().equals(
+                                FFMPSourceConfigurationManager.DATA_TYPE.PDO
+                                        .getDataType())) {
+                            dataObject = getPDOFile(source, dataUri);
+                        } else if (source.getDataType().equals(
+                                FFMPSourceConfigurationManager.DATA_TYPE.RADAR
+                                        .getDataType())) {
+                            dataObject = getRADARRecord(dataUri);
+                        } else if (source.getDataType().equals(
+                                FFMPSourceConfigurationManager.DATA_TYPE.GRID
+                                        .getDataType())) {
+                            dataObject = getGrib(dataUri);
+                        }
+                        if (dataObject != null) {
+                            // process as a VGB too
+                            ProductXML product = sourceConfig.getProduct(source
+                                    .getSourceName());
 
-                            Object dataObject = getXMRGFile(dataUri);
-
-                            if (dataObject != null) {
-                                // process as a VGB too
-                                ProductXML product = sourceConfig
-                                        .getProduct(source.getSourceName());
-                                // This is something that only HPE/N data does
-                                // reset the sourceKey to the real key, not just
-                                // XMRG
-                                if (product != null) {
-
-                                    for (ProductRunXML productRun : ffmpgen
-                                            .getRunConfig().getRunner(getCWA())
-                                            .getProducts()) {
-                                        if (productRun.getProductName().equals(
-                                                product.getPrimarySource())) {
-                                            sourceKey = productRun
-                                                    .getProductKey();
-                                        }
+                            if (product != null) {
+                                // This indicates a primary source and QPE source
+                                for (ProductRunXML productRun : ffmpgen
+                                        .getRunConfig().getRunner(getCWA())
+                                        .getProducts()) {
+                                    if (productRun.getProductName().equals(
+                                            product.getPrimarySource())) {
+                                        sourceKey = productRun.getProductKey();
                                     }
+                                }
 
-                                    HashMap<String, Object> virtSourceHash = new HashMap<String, Object>();
-                                    virtSourceHash.put(sourceKey, dataObject);
-                                    sources.put(product.getVirtual(),
-                                            virtSourceHash);
-                                } else {
-                                    // NON-QPE sources
+                                HashMap<String, Object> virtSourceHash = new HashMap<String, Object>();
+                                virtSourceHash.put(sourceKey, dataObject);
+                                sources.put(product.getVirtual(),
+                                        virtSourceHash);
+                            } else {
+                                // NON-Primary sources and non-RFCFFG
+                                if (!source.isRfc()) {
                                     String primarySource = ffmpgen
                                             .getSourceConfig()
                                             .getPrimarySource(source);
@@ -380,44 +398,9 @@ public class FFMPConfig {
                                         }
                                     }
                                 }
+                            }
 
-                                sourceHash.put(sourceKey, dataObject);
-                            }
-                        } else if (source.getDataType().equals(
-                                FFMPSourceConfigurationManager.DATA_TYPE.PDO
-                                        .getDataType())) {
-                            Object dataObject = getPDOFile(source, dataUri);
-                            if (dataObject != null) {
-                                sourceHash.put(sourceKey, dataObject);
-                            }
-                        } else if (source.getDataType().equals(
-                                FFMPSourceConfigurationManager.DATA_TYPE.RADAR
-                                        .getDataType())) {
-                            Object dataObject = getRADARRecord(dataUri);
-
-                            if (dataObject != null) {
-                                // process as a VGB too
-                                ProductXML product = sourceConfig
-                                        .getProduct(source.getSourceName());
-                                if (product != null) {
-                                    HashMap<String, Object> virtSourceHash = new HashMap<String, Object>();
-                                    virtSourceHash.put(sourceKey, dataObject);
-                                    sources.put(product.getVirtual(),
-                                            virtSourceHash);
-                                }
-
-                                sourceHash.put(sourceKey, dataObject);
-                            }
-                        }
-                        // special here because we can have more than one rfc
-                        // for some guidance source types
-                        else if (source.getDataType().equals(
-                                FFMPSourceConfigurationManager.DATA_TYPE.GRID
-                                        .getDataType())) {
-                            Object dataObject = getGrib(dataUri);
-                            if (dataObject != null) {
-                                sourceHash.put(sourceKey, dataObject);
-                            }
+                            sourceHash.put(sourceKey, dataObject);
                         }
                     }
                 }

@@ -10,7 +10,6 @@ import java.util.TreeMap;
 import javax.persistence.Transient;
 
 import com.raytheon.uf.common.monitor.config.FFFGDataMgr;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -25,6 +24,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 08/22/10      3437       D. Hladky   Initial release
  * 01/17/13      1478        D. Hladky  Removed un-needed XML attributes
+ * Aug 08, 2015 4722        dhladky     Dynamic serialize imp not needed.
  * 
  * </pre>
  * 
@@ -32,7 +32,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1
  */
 @DynamicSerialize
-public class FFMPGuidanceBasin extends FFMPBasin implements ISerializableObject {
+public class FFMPGuidanceBasin extends FFMPBasin {
     
     public FFMPGuidanceBasin() {
 
