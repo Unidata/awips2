@@ -38,9 +38,9 @@
 6  |  0 | 0 | 0.0  |   0 | AAP | Alert Adaptation Parms (AAP)  | AAP     |   |   |   |   |   |   |   |   |   |22 |     |
 8  |  0 | 0 | 0.0  |   0 | PTL | Product List (PTL)            | PTL     |   |   |   |   |   |   |   |   |   |66 |     |
 9  |  0 | 0 | 0.0  |   0 | AM  | Alert Message (AM)            | AM      |   |   |   |   |   |   |   |   |   |38 |     |
-180| 256| 0 | 0.15 |  90 | Z   | Reflectivity (Z)              | Radial  | y |   |   |   | Z |   |   |   |   | 0 |     |
+180| 256| 0 | 0.15 |  90 | Z   | Reflectivity (Z)              | Radial  | y |   |   |   | Z |   |   |   |   | 0 |     | y
 181| 16 | 0 | 0.15 |  90 | Z   | Reflectivity (Z)              | Radial  | y |   |   |   | Z |   |   |   |   | 0 |     |
-186| 256| 0 | 0.30 | 460 | Z   | Long Range Refl (Z)           | Radial  | y |   |   |   | Z |   |   |   |   | 0 |     |
+186| 256| 0 | 0.30 | 460 | Z   | Long Range Refl (Z)           | Radial  | y |   |   |   | Z |   |   |   |   | 0 |     | y
 187| 16 | 0 | 0.30 | 460 | Z   | Long Range Refl (Z)           | Radial  | y |   |   |   | Z |   |   |   |   | 0 |     |
 94 |256 | 0 | 1.0  | 460 | Z   | 8-bit Refl Array (Z)          | Radial  | y |   |   |   | Z |   |   |   |   | 0 |     | y
 153|256 | 0 | 0.25 | 460 | HZ  | Super Res Reflectivity (Z)    | Radial  | y |   |   |   | Z |   |   |   |   | 0 | 0.5 | y
@@ -52,7 +52,7 @@
 21 | 16 | 0 | 4.0  | 460 | Z   | Reflectivity (Z)              | Radial  | y |   |   |   | Z |   |   |   |   | 0 |     |
 99 |256 | 0 | 0.25 | 300 | V   | 8-bit Velocity Array (V)      | Radial  | y |   |   |   | Vm|   |   |   |   | 1 |     | y
 154|256 | 0 | 0.25 | 300 | HV  | Super Res Velocity (V)        | Radial  | y |   |   |   | Vm|   |   |   |   | 1 | 0.5 | y
-182| 256| 0 | 0.15 |  90 | V   | Velocity (V)                  | Radial  | y |   |   |   | Vm|   |   |   |   | 1 |     |
+182| 256| 0 | 0.15 |  90 | V   | Velocity (V)                  | Radial  | y |   |   |   | Vm|   |   |   |   | 1 |     | y
 183| 16 | 0 | 0.15 |  90 | V   | Velocity (V)                  | Radial  | y |   |   |   | V |   |   |   |   | 1 |     |
 22 |  8 | 0 | 0.25 |  60 | V   | Velocity (V)                  | Radial  | y |   |   |   | V |   |   |   |   | 1 |     |
 23 |  8 | 0 | 0.50 | 115 | V   | Velocity (V)                  | Radial  | y |   |   |   | V |   |   |   |   | 1 |     |
