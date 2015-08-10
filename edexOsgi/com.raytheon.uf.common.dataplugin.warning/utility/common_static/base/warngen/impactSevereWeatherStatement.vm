@@ -866,7 +866,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE. ##
 #end
 
-#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone}), #
+#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone}), ##
 ${reportType} located ##
 ##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")
