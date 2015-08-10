@@ -37,8 +37,11 @@
     <vbSource key="ECMWF-wave-guidance" category="SfcGrid" views="PLANVIEW TIMESERIES"/>
     <vbSource key="ENPWAVE253" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="EPwave10" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-    <vbSource key="estofsUS" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="estofsAK" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="estofsEP" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="estofsHI" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="estofsPR" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="estofsUS" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="ETSS" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="ETSS-AK" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="GFE" category="SfcGrid" views="PLANVIEW TIMESERIES" />

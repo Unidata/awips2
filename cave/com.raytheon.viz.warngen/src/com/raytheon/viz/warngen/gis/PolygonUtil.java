@@ -928,6 +928,7 @@ public class PolygonUtil {
                     if (k == k2) {
                         break;
                     }
+
                     if (excludeList[k])
                         continue;
                     dx = pts[k].x - pts[k1].x;

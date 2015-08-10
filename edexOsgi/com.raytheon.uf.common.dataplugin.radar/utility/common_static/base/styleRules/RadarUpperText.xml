@@ -319,6 +319,12 @@
 		<productDependent format='MX: %.3f' index='4' multiplier='0.004' />
 		<sails />
 	</upperText>
+	<upperText productCodes='167'>
+        <vcp />
+        <resolution />
+        <productDependent format='MN: %.3f' index='3' multiplier='0.004' />
+        <productDependent format='MX: %.3f' index='4' multiplier='0.004' />
+	</upperText>
 	
 	<!-- Spec Diff Phase -->
 	<upperText productCodes='162 163'>
@@ -327,6 +333,10 @@
 		<productDependent format='MN: %.2f Deg/km' index='3' multiplier='0.05' />
 		<productDependent format='MX: %.2f Deg/km' index='4' multiplier='0.05' />
 		<sails />
+	</upperText>
+	<upperText productCodes='168'>
+        <vcp />
+        <resolution />
 	</upperText>
 	
 	<!-- hydro class -->

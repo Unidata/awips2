@@ -202,8 +202,12 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.viz.alertview.feature"
+         id="com.raytheon.uf.viz.ncep.npp.feature"
          version="0.0.0"/>
+         
+   <includes
+         id="com.raytheon.uf.viz.alertview.feature"
+         version="0.0.0"/>         
 
    <requires>
       <import feature="com.raytheon.uf.viz.application.feature" version="1.0.0.qualifier"/>
