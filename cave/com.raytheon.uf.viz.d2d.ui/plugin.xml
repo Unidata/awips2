@@ -1545,6 +1545,34 @@
             </parameter>
       </key>
       <key
+            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+            contextId="com.raytheon.viz.ui.loopContext"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="SHIFT+M1+ARROW_DOWN">
+            <parameter
+                  id="mode"
+                  value="SPACE_AND_TIME">
+            </parameter>
+            <parameter
+                  id="operation"
+                  value="FIRST">
+            </parameter>
+      </key>
+      <key
+            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+            contextId="com.raytheon.viz.ui.loopContext"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="SHIFT+M1+ARROW_UP">
+            <parameter
+                  id="mode"
+                  value="SPACE_AND_TIME">
+            </parameter>
+            <parameter
+                  id="operation"
+                  value="LAST">
+            </parameter>
+      </key>
+      <key
             commandId="com.raytheon.viz.ui.tools.looping.fasterLoop"
             contextId="com.raytheon.viz.ui.loopContext"
             schemeId="com.raytheon.viz.ui.cave.scheme"
