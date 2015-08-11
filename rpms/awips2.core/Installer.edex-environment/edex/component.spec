@@ -112,8 +112,9 @@ if [ $? -ne 0 ]; then
 fi
 
 _QPID_VERSION="0.32"
+_POSTGRESQL_VERSION="9.3.9"
 RPM_PROJECT="%{_baseline_workspace}/rpms"
-POSTGRES_INITD="${RPM_PROJECT}/awips2.core/Installer.postgres/scripts/init.d/edex_postgres"
+POSTGRES_INITD="%{_baseline_workspace}/foss/postgresql-${_POSTGRESQL_VERSION}/scripts/init.d/edex_postgres"
 QPID_INITD="%{_baseline_workspace}/foss/qpid-java-broker-${_QPID_VERSION}/src/patch/qpid-java-broker-${_QPID_VERSION}/wrapper/qpidd"
 EDEX_INITD="${RPM_PROJECT}/awips2.edex/Installer.edex/scripts/init.d/edex_camel"
 HTTPD_PYPIES_INITD="${RPM_PROJECT}/awips2.core/Installer.httpd-pypies/configuration/etc/init.d/httpd-pypies"
