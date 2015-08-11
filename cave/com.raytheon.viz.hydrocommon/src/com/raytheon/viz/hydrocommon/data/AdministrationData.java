@@ -36,7 +36,7 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * ------------	----------	-----------	--------------------------
  * Nov 11, 2008	1697		askripsky	Initial creation
  * Nov 21, 2008             askripsky   Changed to implement IHydroDBData to work with new DB access.
- * 
+ * Aug 07, 2015 4500        rjpeter     Fix type case.
  * </pre>
  * 
  * @author askripsky
@@ -129,8 +129,8 @@ public class AdministrationData extends HydroDBData implements IHydroDBData {
         setTenYearDate(getDBValue("tenyr", data, dataMap, (Date) null));
         setOneYearDate(getDBValue("oneyr", data, dataMap, (Date) null));
         setHsa(getDBValue("hsa", data, dataMap, ""));
-        setHsaNumber(getDBValue("hsa_num", data, dataMap,
-                HydroConstants.MISSING_VALUE));
+        setHsaNumber((getDBValue("hsa_num", data, dataMap,
+                (short) HydroConstants.MISSING_VALUE)).intValue());
         setHbPassword(getDBValue("hb_password", data, dataMap, ""));
     }
 

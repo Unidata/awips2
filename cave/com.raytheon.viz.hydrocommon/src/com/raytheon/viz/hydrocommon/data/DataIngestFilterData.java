@@ -32,7 +32,7 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Dec 12, 2008	1787    	askripsky	Initial creation
- * 
+ * Aug 07, 2015 4500        rjpeter     Fix type case.
  * </pre>
  * 
  * @author askripsky
@@ -104,11 +104,11 @@ public class DataIngestFilterData extends HydroDBData implements IHydroDBData {
         setLid(getDBValue("lid", data, dataMap, ""));
         setPe(getDBValue("pe", data, dataMap, ""));
         setDuration(getDBValue("dur", data, dataMap,
-                HydroConstants.MISSING_VALUE));
+                (short) HydroConstants.MISSING_VALUE).intValue());
         setTypeSource(getDBValue("ts", data, dataMap, ""));
         setExtremum(getDBValue("extremum", data, dataMap, ""));
         setTsRank(getDBValue("ts_rank", data, dataMap,
-                HydroConstants.MISSING_VALUE));
+                (short) HydroConstants.MISSING_VALUE).intValue());
         setIngest(getDBValue("ingest", data, dataMap, ""));
         setOfsInput(getDBValue("ofs_input", data, dataMap, ""));
         setStg2Input(getDBValue("stg2_input", data, dataMap, ""));

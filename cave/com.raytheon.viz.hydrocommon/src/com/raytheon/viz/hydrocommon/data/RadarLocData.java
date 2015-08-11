@@ -32,7 +32,7 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Jan 9, 2008	1802    	askripsky	Initial creation
- * 
+ * Aug 07, 2015 4500        rjpeter     Fix type case.
  * </pre>
  * 
  * @author askripsky
@@ -117,7 +117,7 @@ public class RadarLocData extends HydroDBData implements IHydroDBData {
         setName(getDBValue("name", data, dataMap, ""));
         setRadarPrefix(getDBValue("radid_prefix", data, dataMap, ""));
         setRadarNumber(getDBValue("radar_num", data, dataMap,
-                HydroConstants.MISSING_VALUE));
+                (short) HydroConstants.MISSING_VALUE).intValue());
         setState(getDBValue("state", data, dataMap, ""));
         setLatitude(getDBValue("lat", data, dataMap, Double
                 .valueOf(HydroConstants.MISSING_VALUE)));

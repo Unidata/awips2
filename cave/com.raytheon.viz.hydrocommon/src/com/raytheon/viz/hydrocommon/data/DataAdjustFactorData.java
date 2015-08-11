@@ -32,7 +32,7 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Dec 15, 2008	1787    	askripsky	Initial creation
- * 
+ * Aug 07, 2015 4500        rjpeter     Fix type case.
  * </pre>
  * 
  * @author askripsky
@@ -102,7 +102,7 @@ public class DataAdjustFactorData extends HydroDBData implements IHydroDBData {
         setLid(getDBValue("lid", data, dataMap, ""));
         setPe(getDBValue("pe", data, dataMap, ""));
         setDuration(getDBValue("dur", data, dataMap,
-                HydroConstants.MISSING_VALUE));
+                (short) HydroConstants.MISSING_VALUE).intValue());
         setTypeSource(getDBValue("ts", data, dataMap, ""));
         setExtremum(getDBValue("extremum", data, dataMap, ""));
         setDivisor(getDBValue("divisor", data, dataMap, Double
