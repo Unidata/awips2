@@ -68,7 +68,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Nov 04, 2014  2714     bclement    removed GINI specific DAOs
  * Apr 15, 2014  4388     bsteffen    Preserve fill value across interpolation levels.
  * Jul 07, 2015  4279     rferrel     Override delete to clean up orphan entries in satellite_spatial table.
- * 
+ * Aug 11, 2015  4673     rjpeter     Remove use of executeNativeSql.
  * </pre>
  * 
  * @author bphillip
@@ -427,8 +427,8 @@ public class SatelliteDao extends PluginDao {
          * Delete orphan entries in the satellite_spatial table.
          */
         try {
-            this.executeNativeSql("delete from satellite_spatial where gid not in (select distinct coverage_gid from satellite) ;");
-        } catch (DataAccessLayerException e) {
+            this.executeSQLUpdate("delete from satellite_spatial where gid not in (select distinct coverage_gid from satellite) ;");
+        } catch (Exception e) {
             logger.error("Error purging orphaned satellite_spatial entries", e);
         }
     }
