@@ -70,5 +70,21 @@
                 menuText="5min pulse density" id="1HrGridLightningPulsePlot">
                 <substitute key="negOffset" value="300"/>
     </contribute>
- 
+    
+    <contribute xsi:type="bundleItem" file="bundles/GridLightningCGPlot.xml"
+                menuText="1min cloud to ground density" id="1HrGridLightningCGPlot">
+                <substitute key="negOffset" value="60"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/GridLightningCloudFlashPlot.xml"
+                menuText="1min cloud flash density" id="1HrGridLightningCloudFlashPlot">
+                <substitute key="negOffset" value="60"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/GridLightningTotalFlashPlot.xml"
+                menuText="1min total flash density" id="1HrGridLightningFlashPlot">
+                <substitute key="negOffset" value="60"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/GridLightningPulsePlot.xml"
+                menuText="1min pulse density" id="1HrGridLightningPulsePlot">
+                <substitute key="negOffset" value="60"/>
+    </contribute>
 </menuTemplate>

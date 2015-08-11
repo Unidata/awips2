@@ -1,4 +1,4 @@
-# Version 2015.5.22-0
+# Version 2015.7.23-0
 
 import GenericHazards
 import JsonSupport
@@ -433,7 +433,6 @@ class TextProduct(HLSTCV_Common.TextProduct):
         analysisList = [
             ("InundationMax", self.moderatedMax, [6]),
             ("InundationTiming", self.moderatedMax, [6]),
-            ("StormSurgeThreat", self.mostSignificantDiscreteValue),
             ]
 
         return analysisList
@@ -1774,16 +1773,36 @@ class StormSurgeSection(SectionCommon):
                                       summary + " storm surge possible")
 
     def _peakSurge(self, segmentDict, productSegmentGroup, productSegment):
+        self._textProduct.debug_print("_peakSurge _inundationMax = %s" % (self._stats._inundationMax), 1)
+        
         if self._stats._inundationMax is not None and self._stats._inundationMax >= 1:
-            max = self._stats._inundationMax
+            max = round(self._stats._inundationMax)
+            self._stats._maxThreat = "None"
             if max > 10:
                 maxRange = 4
+                self._stats._maxThreat = "Extreme"
             elif max > 6:
                 maxRange = 3
-            elif max > 2:
+                if max >= 10:
+                    self._stats._maxThreat = "Extreme"
+                else:
+                    self._stats._maxThreat = "High"
+            elif max >= 3:
                 maxRange = 2
+                if max >= 4:
+                    self._stats._maxThreat = "Mod"
+                else:
+                    self._stats._maxThreat = "Elevated"
             else:
                 maxRange = None
+                if max > 0:
+                    self._stats._maxThreat = "Elevated"
+            
+            self._textProduct.debug_print("_peakSurge maxRange = %s" % (maxRange), 1)
+            self._textProduct.debug_print("_peakSurge _maxThreat = %s" % (self._stats._maxThreat), 1)
+            
+            # Save off the surge threat to the advisory
+            self._textProduct._currentAdvisory['ZoneData'][self._segment]["StormSurgeThreat"] = self._stats._maxThreat
 
             if maxRange is not None:
                 words = str(int(max - maxRange)) + "-" + str(int(max)) + " feet above ground"
@@ -2680,8 +2699,7 @@ class StormSurgeSectionStats(SectionCommonStats):
                     
                     if phishEndTime is None:
                         phishEndTime = tr.startTime()
-            
-            self._updateThreatStats(tr, statDict, "StormSurgeThreat")
+        
         
         self._windowSurge = "Window of concern: "
         
@@ -2720,7 +2738,6 @@ class StormSurgeSectionStats(SectionCommonStats):
                 else:
                     self._windowSurge += "through " + endTimeDescriptor
         
-        self._currentAdvisory["StormSurgeThreat"] = self._maxThreat
         if self._inundationMax is not None:
             # Round so we don't store values like 1.600000023841858
             self._currentAdvisory["StormSurgeForecast"] = \
@@ -2751,10 +2768,6 @@ class StormSurgeSectionStats(SectionCommonStats):
             #  Inundation timing - only applies if any inundation forecast
             if self._inundationMax >= 1 and self._onsetSurgeHour is None:
                 missingGridsList.append("InundationTiming")
-    
-            #  Threat grid
-            if self._maxThreat is None:
-                 missingGridsList.append("StormSurgeThreat")
                        
             #  If there are any missing grids - let the user know
             if len(missingGridsList) > 0:

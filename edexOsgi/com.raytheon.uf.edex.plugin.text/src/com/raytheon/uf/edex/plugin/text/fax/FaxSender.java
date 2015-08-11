@@ -121,7 +121,7 @@ public class FaxSender {
         faxWriter.write("\n");
         faxWriter.close();
         StringBuilder faxDataCommand = new StringBuilder();
-        faxDataCommand.append("scp ");
+        faxDataCommand.append("scp -q ");
         faxDataCommand.append(faxDataFilename);
         faxDataCommand.append(" ldad@ls1:");
         faxDataCommand.append(ldadDataFilename);
@@ -136,7 +136,7 @@ public class FaxSender {
             return retval;
         }
         StringBuilder ldadDataCommand = new StringBuilder();
-        ldadDataCommand.append("scp ");
+        ldadDataCommand.append("scp -q ");
         ldadDataCommand.append(faxScriptFilename);
         ldadDataCommand.append(" ldad@ls1:");
         ldadDataCommand.append(ldadScriptFilename);

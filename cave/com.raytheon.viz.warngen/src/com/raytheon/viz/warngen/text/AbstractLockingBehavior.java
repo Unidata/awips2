@@ -57,6 +57,7 @@ import com.raytheon.viz.warngen.gis.AffectedAreas;
  * Apr 29, 2014    3033    jsanchez     Moved patterns into ICommonPatterns
  * May  1, 2014  DR 16627  Qinglu Lin   Added hasStateAbbrev(), isOtherType(), lockListOfNames(), and updated lock(). 
  * May 13, 2014  DR 17177  Qinglu Lin   Updated secondBullet().
+ * Jul 15, 2015 DR17716 mgamazaychikov  Remove all nulls from the affectedAreas to avoid TimSort NPE in initialize.
  * 
  * </pre>
  * 
@@ -311,6 +312,8 @@ abstract public class AbstractLockingBehavior implements ICommonPatterns {
         if (canceledAreas != null) {
             this.affectedAreas.addAll(Arrays.asList(canceledAreas));
         }
+        // remove all nulls from the collection to avoid TimSort NPE
+        this.affectedAreas.removeAll(Collections.singleton(null));
         Collections.sort(this.affectedAreas, comparator);
     }
 
