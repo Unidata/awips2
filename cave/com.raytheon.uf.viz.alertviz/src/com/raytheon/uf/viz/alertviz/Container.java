@@ -55,7 +55,7 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  * Sep 8, 2008  1433       chammack    Initial creation
  * Oct 18, 2010 5849       cjeanbap    NullPointerExceptin thrown if category is null
  * Jun 03, 2013 2026       randerso    Fixed typo
- * Jul 27, 2015 4654       skorolev    Added a localization level filtration
+ * Jul 27, 2015 4654       skorolev    Added a localization level filtration.
  * 
  * </pre>
  * 
@@ -146,18 +146,13 @@ public class Container implements IConfigurationChangedListener {
 
         if (message.getFilters() != null && !message.getFilters().isEmpty()) {
             Map<String, String> filters = message.getFilters();
-            if (filters.keySet().contains("") || filters.values().contains("")) {
-                throw new IllegalArgumentException(
-                        "Filters must not have empty key and/or value :"
-                                + filters);
-            }
             LocalizationLevel[] lvls = LocalizationLevel.values();
             for (int i = 0; i < lvls.length; i++) {
                 String lvl = LocalizationManager.getContextName(lvls[i]);
                 String key = lvls[i].name();
                 if (filters.containsKey(key)) {
                     String value = filters.get(key);
-                    if (!value.equals(lvl)) {
+                    if (value != null && !value.equals(lvl)) {
                         return;
                     }
                 }

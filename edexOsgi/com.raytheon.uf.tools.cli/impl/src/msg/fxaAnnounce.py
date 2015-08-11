@@ -38,7 +38,7 @@ import os
 #    04/14/11        4514          cjeanbap       Change SYSTEM to Systat
 #    05/03/11        5149          cjeanbap       Updated usage statement.
 #    11/11/2011      11484         rferrel        Added SYSTEM for WSHNIMNAT
-#    07/27/15        4654          skorolev       Added level filters
+#    07/27/15        4654          skorolev       Added level filters. Added input test.
 #
 
 from ufpy import NotificationMessage 
@@ -70,7 +70,7 @@ if len(sys.argv) > 4:
       if not filtersInput.strip():
          raise ValueError('Filters input must not be empty or blank')
       else:
-         fltrs=dict(item.split("=") for item in filtersInput.strip().split(","))
+         fltrs=dict(item.strip().split("=") for item in filtersInput.strip().split(","))
 if importance.upper() == "URGENT":
    pri = 1
 elif importance.upper() == "SIGNIFICANT":

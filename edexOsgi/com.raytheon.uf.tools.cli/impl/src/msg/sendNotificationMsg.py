@@ -35,7 +35,7 @@ import os, socket
 #    10/22/10        5849          cjeanbap       Updated to use AlertVizMessage.		
 #    12/08/10        7656          cjeanbap       Retrieve environment variable.
 #    05/03/11        5149          cjeanbap       Updated usage statement.
-#    07/27/15        4654          skorolev       Added filters
+#    07/27/15        4654          skorolev       Added filters and input test.
 #
 
 from ufpy import NotificationMessage
@@ -110,7 +110,7 @@ def main():
       if not filtersInput.strip():
          raise ValueError('Filters input must not be empty or blank')
       else:
-         filters=dict(item.split("=") for item in filtersInput.strip().split(","))
+         filters=dict(item.strip().split("=") for item in filtersInput.strip().split(","))
    else:
        filters={}
        
