@@ -46,16 +46,16 @@ class NamDNG5Forecaster(Forecaster):
 ##  QPF - change mm to inches and clip greater than 1000mm
 ##--------------------------------------------------------------------------
     def calcQPF3(self, tp3hr_SFC):
-        grid = where(greater(tp3hr_SFC, 1000), 0.0, tp3hr_SFC / 25.4)
-        return clip(grid, 0, 5)  # clip at zero and 5 inches
+        grid = where(greater(tp3hr_SFC, 1000), float32(0.0), tp3hr_SFC / 25.4)
+        return grid.clip(0, 5, grid)  # clip at zero and 5 inches
 
     def calcQPF6(self, tp6hr_SFC):
-        grid = where(greater(tp6hr_SFC, 1000), 0.0, tp6hr_SFC / 25.4)
-        return clip(grid, 0, 10)  # clip at zero and 10 inches
+        grid = where(greater(tp6hr_SFC, 1000), float32(0.0), tp6hr_SFC / 25.4)
+        return grid.clip(0, 10, grid)  # clip at zero and 10 inches
 
     def calcQPF12(self, tp12hr_SFC):
-        grid = where(greater(tp12hr_SFC, 1000), 0.0, tp12hr_SFC / 25.4)
-        return clip(grid, 0, 15)  # clip at zero and 15 inches
+        grid = where(greater(tp12hr_SFC, 1000), float32(0.0), tp12hr_SFC / 25.4)
+        return grid.clip(0, 15, grid)  # clip at zero and 15 inches
 
 ##--------------------------------------------------------------------------
 ##  Snow fall - convert from meters to inches

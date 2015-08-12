@@ -83,7 +83,7 @@ class HIRESWnmmForecaster(Forecaster):
                       exp(val), p)
             # interpolate the temperature at true elevation
             tval1 = self.linear(gh_c[i], gh_c[i - 1], t_c[i], t_c[i - 1], topo)
-            tmb = where(logical_and(equal(tmb, -1), greater(gh_c[i], topo)),
+            tmb = where(logical_and(equal(tmb, -1), higher),
                         tval1, tmb)
             # interpolate the temperature at model elevation
             tval2 = self.linear(gh_c[i], gh_c[i - 1], t_c[i], t_c[i - 1], stopo)
@@ -200,7 +200,6 @@ class HIRESWnmmForecaster(Forecaster):
             tmp = self.ptemp(t_c[i], p)    # calculate the pot. temp
             pt = pt + [tmp]                # add to the list
         pt = array(pt)
-#        pt = where(mask, pt, 0)
         pt[logical_not(mask)] = 0
         avg = add.accumulate(pt, 0)
         count = add.accumulate(mask, 0)
@@ -243,10 +242,8 @@ class HIRESWnmmForecaster(Forecaster):
         # start at the bottom and store the first point we find that's
         # above the topo + 3000 feet level.
         for i in xrange(wind_c[0].shape[0]):
-            famag = where(equal(famag, -1),
-                          where(mask[i], wm[i], famag), famag)
-            fadir = where(equal(fadir, -1),
-                          where(mask[i], wd[i], fadir), fadir)
+            famag = where(logical_and(equal(famag, -1), mask[i]), wm[i], famag)
+            fadir = where(logical_and(equal(fadir, -1), mask[i]), wd[i], fadir)
         fadir = clip(fadir, 0, 360)  # clip the value to 0, 360
         famag = famag * 1.94    # convert to knots
         return (famag, fadir)   # return the tuple of grids
@@ -269,8 +266,8 @@ class HIRESWnmmForecaster(Forecaster):
         mask = add.reduce(mask) # add up the number of set points vert.
         mmask = mask + 0.0001
         # calculate the average value in the mixed layerlayer
-        u = where(mask, add.reduce(u) / mmask, 0)
-        v = where(mask, add.reduce(v) / mmask, 0)
+        u = where(mask, add.reduce(u) / mmask, float32(0))
+        v = where(mask, add.reduce(v) / mmask, float32(0))
         # convert u, v to mag, dir
         tmag, tdir = self._getMD(u, v)
         tdir = clip(tdir, 0, 359.5)
@@ -290,7 +287,7 @@ class HIRESWnmmForecaster(Forecaster):
         m4 = logical_and(greater(QPF, 0.1), less(QPF, 0.3))
         # assign 0 to the dry grid point, 100 to the wet grid points,
         # and a ramping function to all point in between
-        cwr = where(m1, 0, where(m2, 100,
+        cwr = where(m1, float32(0), where(m2, float32(100),
                                  where(m3, 444.4 * (QPF - 0.01) + 10,
                                        where(m4, 250 * (QPF - 0.1) + 50,
                                              QPF))))

@@ -86,8 +86,7 @@ class GFS80Forecaster(Forecaster):
                       exp(val), p)
             # interpolate the temperature at true elevation
             tval1 = self.linear(gh_c[i], gh_c[i - 1], t_c[i], t_c[i - 1], topo)
-            tmb = where(logical_and(equal(tmb, -1), greater(gh_c[i], topo)),
-                        tval1, tmb)
+            tmb = where(logical_and(equal(tmb, -1), higher), tval1, tmb)
             # interpolate the temperature at model elevation
             tval2 = self.linear(gh_c[i], gh_c[i - 1], t_c[i], t_c[i - 1], stopo)
             tms = where(logical_and(equal(tms, -1), greater(gh_c[i], stopo)),
@@ -184,18 +183,14 @@ class GFS80Forecaster(Forecaster):
 ##  of QPF < 0.2 raise the PoP if it's very humid.
 ##-------------------------------------------------------------------------
     def calcPoP(self, gh_c, rh_c, QPF, topo):
-        rhavg = where(less(gh_c, topo), -1, rh_c)
-#        rhavg = where(greater(gh_c, topo + (5000 * 12 * 2.54) / 100),
-#                      -1, rhavg)
+        rhavg = where(less(gh_c, topo), float32(-1), rh_c)
         rhavg[greater(gh_c, topo + (5000 * 12 * 2.54) / 100)] = -1
-        count = where(not_equal(rhavg, -1), 1, 0)
-#        rhavg = where(equal(rhavg, -1), 0, rhavg)
+        count = not_equal(rhavg, -1)
         rhavg[equal(rhavg, -1)] = 0
-        count = add.reduce(count, 0)
+        count = add.reduce(count, 0, dtype=float32)
         rhavg = add.reduce(rhavg, 0)
         ## add this much based on humidity only
         dpop = where(count, rhavg / (count + .001), 0) - 70.0
-#        dpop = where(less(dpop, -30), -30, dpop)
         dpop[less(dpop, -30)] = -30
         ## calculate the base PoP
         pop = where(less(QPF, 0.02), QPF * 1000, QPF * 350 + 13)
@@ -298,7 +293,7 @@ class GFS80Forecaster(Forecaster):
         snowr[greater_equal(T, 30)] = 0
         # calc. snow amount based on the QPF and the ratio
         snowamt = where(less_equal(FzLevel - 1000, topo * 3.28),
-                        snowr * QPF, 0)
+                        snowr * QPF, float32(0))
         # Only make snow at points where the weather is snow
         snowmask = logical_or(equal(Wx[0], 1), equal(Wx[0], 3))
         snowmask = logical_or(snowmask, logical_or(equal(Wx[0], 7),
@@ -328,7 +323,6 @@ class GFS80Forecaster(Forecaster):
             pt = pt + [tmp]                # add to the list
         pt = array(pt)
         # set up masks
-#        pt = where(mask, pt, 0)
         pt[logical_not(mask)] = 0
         avg = add.accumulate(pt, 0)
         count = add.accumulate(mask, 0)
@@ -370,10 +364,8 @@ class GFS80Forecaster(Forecaster):
         # start at the bottom and store the first point we find that's
         # above the topo + 3000 feet level.
         for i in xrange(wind_c[0].shape[0]):
-            famag = where(equal(famag, -1),
-                          where(mask[i], wm[i], famag), famag)
-            fadir = where(equal(fadir, -1),
-                          where(mask[i], wd[i], fadir), fadir)
+            famag = where(logical_and(equal(famag, -1), mask[i]), wm[i], famag)
+            fadir = where(logical_and(equal(fadir, -1), mask[i]), wd[i], fadir)
         fadir = clip(fadir, 0, 360)  # clip the value to 0, 360
         famag = famag * 1.94    # convert to knots
         return (famag, fadir)   # return the tuple of grids
@@ -397,8 +389,8 @@ class GFS80Forecaster(Forecaster):
         mask = add.reduce(mask) # add up the number of set points vert.
         mmask = mask + 0.0001
         # calculate the average value in the mixed layerlayer
-        u = where(mask, add.reduce(u) / mmask, 0)
-        v = where(mask, add.reduce(v) / mmask, 0)
+        u = where(mask, add.reduce(u) / mmask, float32(0))
+        v = where(mask, add.reduce(v) / mmask, float32(0))
         # convert u, v to mag, dir
         tmag, tdir = self._getMD(u, v)
         tmag = tmag * 1.94   # convert to knots
@@ -461,21 +453,14 @@ class GFS80Forecaster(Forecaster):
                "Chc:ZR:-:<NoVis>:", 'Chc:IP:-:<NoVis>:',
                'Chc:ZR:-:<NoVis>:^Chc:IP:-:<NoVis>:']
 
-        wx = zeros(self._empty.shape, dtype = int8)
+        wx = zeros(self._empty.shape, dtype=int8)
         # Case d (snow)
         snowmask = equal(aindex, 0)
-#        wx = where(logical_and(snowmask, greater(a1, 0)), 2, wx)
-#        wx = where(logical_and(snowmask, less_equal(a1, 0)), 1, wx)
         wx[logical_and(snowmask, greater(a1, 0))] = 2
         wx[logical_and(snowmask, less_equal(a1, 0))] = 1
 
         # Case c (rain / snow / rainSnowMix)
         srmask = equal(aindex, 1)
-#        wx = where(logical_and(srmask, less(a1, 5.6)), 1, wx)
-#        wx = where(logical_and(srmask, greater(a1, 13.2)), 2, wx)
-#        wx = where(logical_and(srmask,
-#                               logical_and(greater_equal(a1, 5.6),
-#                                           less(a1, 13.2))), 3, wx)
         wx[logical_and(srmask, less(a1, 5.6))] = 1
         wx[logical_and(srmask, greater(a1, 13.2))] = 2
         wx[logical_and(srmask,
@@ -485,41 +470,26 @@ class GFS80Forecaster(Forecaster):
         # Case a (Freezing Rain / Ice Pellets)
         ipmask = equal(aindex, 2)
         ipm = greater(a1, a2 * 0.66 + 66)
-#        wx = where(logical_and(ipmask, ipm), 5, wx)
         wx[logical_and(ipmask, ipm)] = 5
         zrm = less(a1, a2 * 0.66 + 46)
-#        wx = where(logical_and(ipmask, zrm), 4, wx)
         wx[logical_and(ipmask, zrm)] = 4
         zrm = logical_not(zrm)
         ipm = logical_not(ipm)
-#        wx = where(logical_and(ipmask, logical_and(zrm, ipm)), 6, wx)
         wx[logical_and(ipmask, logical_and(zrm, ipm))] = 6
 
         # Case b (Ice pellets / rain)
         cmask = greater_equal(aindex, 3)
         ipmask = logical_and(less(a3, 2), cmask)
-#        wx = where(logical_and(ipmask, less(a1, 5.6)), 1, wx)
-#        wx = where(logical_and(ipmask, greater(a1, 13.2)), 2, wx)
-#        wx = where(logical_and(ipmask, logical_and(greater_equal(a1, 5.6),
-#                                                   less_equal(a1, 13.2))),
-#                   3, wx)
-
         wx[logical_and(ipmask, less(a1, 5.6))] = 1
         wx[logical_and(ipmask, greater(a1, 13.2))] = 2
         wx[logical_and(ipmask, logical_and(greater_equal(a1, 5.6),
                                                    less_equal(a1, 13.2)))] = 3
 
         ipmask = logical_and(greater_equal(a3, 2), cmask)
-#        wx = where(logical_and(ipmask, greater(a1, 66 + 0.66 * a2)), 5, wx)
-#        wx = where(logical_and(ipmask, less(a1, 46 + 0.66 * a2)), 4, wx)
-#        wx = where(logical_and(ipmask,
-#                               logical_and(greater_equal(a1, 46 + 0.66 * a2),
-#                                           less_equal(a1, 66 + 0.66 * a2))),
-#                   6, wx)
         wx[logical_and(ipmask, greater(a1, 66 + 0.66 * a2))] = 5
         wx[logical_and(ipmask, less(a1, 46 + 0.66 * a2))] = 4
-        wx[logical_and(ipmask, logical_and(greater_equal(a1, 5.6),
-                                                   less_equal(a1, 13.2)))] = 6
+        wx[logical_and(ipmask, logical_and(greater_equal(a1, 46 + 0.66 * a2),
+                                           less_equal(a1, 66 + 0.66 * a2)))] = 6
 
         # Make showers (scattered/Chc)
 #         convecMask = greater(cp_SFC / (tp_SFC + .001), 0.5)
@@ -532,10 +502,9 @@ class GFS80Forecaster(Forecaster):
                 tcov = "Sct"
             key.append(key[i] + "^" + tcov
                        + ":T:<NoInten>:<NoVis>:")
-        wx = where(less_equal(sli_SFC, -3), wx + 13, wx)
+        wx[less_equal(sli_SFC, -3)] += 13
 
         # No wx where no qpf
-#        wx = where(less(QPF, 0.01), 0, wx)
         wx[less(QPF, 0.01)] = 0
         return(wx, key)
 
@@ -551,7 +520,7 @@ class GFS80Forecaster(Forecaster):
         m4 = logical_and(greater(QPF, 0.1), less(QPF, 0.3))
         # assign 0 to the dry grid point, 100 to the wet grid points,
         # and a ramping function to all point in between
-        cwr = where(m1, 0, where(m2, 100,
+        cwr = where(m1, float32(0), where(m2, float32(100),
                                  where(m3, 444.4 * (QPF - 0.01) + 10,
                                        where(m4, 250 * (QPF - 0.1) + 50,
                                              QPF))))
@@ -563,22 +532,19 @@ class GFS80Forecaster(Forecaster):
 ##-------------------------------------------------------------------------
     def calcLAL(self, tp_SFC, sli_SFC, rh_c, rh_BL030):
         bli = sli_SFC  # surface lifted index
-        ttp = self._empty + 0.00001   # nearly zero grid
-        lal = self._empty + 1         # initialize the return grid to 1
+        ttp = full_like(self._empty, 0.00001)   # nearly zero grid
+        lal = ones_like(self._empty)  # initialize the return grid to 1
         # Add one to lal if QPF > 0.5
-        lal = where(logical_and(logical_and(greater(tp_SFC, 0),
-                                            greater(ttp, 0)),
-                                greater(tp_SFC / ttp, 0.5)), lal + 1, lal)
+        lal[logical_and(greater(ttp, 0), greater(tp_SFC / ttp, 0.5))] += 1
 
         #  make an average rh field
         midrh = add.reduce(rh_c[6:9], 0) / 3
         # Add one to lal if mid-level rh high and low level rh low
-        lal = where(logical_and(greater(midrh, 70), less(rh_BL030, 30)),
-                    lal + 1, lal)
+        lal[logical_and(greater(midrh, 70), less(rh_BL030, 30))] += 1
 
         # Add on to lal if lifted index is <-3 and another if <-5
-        lal = where(less(bli, -3), lal + 1, lal)
-        lal = where(less(bli, -5), lal + 1, lal)
+        lal[less(bli, -3)] += 1
+        lal[less(bli, -5)] += 1
         return lal
 
 

@@ -84,8 +84,8 @@ class GWWForecaster(Forecaster):
 ##--------------------------------------------------------------------------
     def calcWind(self, wind_SFC):
         # extract the wind speed and direction
-        mag = where(greater(wind_SFC[0], 100), 0, wind_SFC[0]*1.94) # convert
-        dir = where(greater(wind_SFC[0], 100), 0, wind_SFC[1])
+        mag = where(greater(wind_SFC[0], 100), float32(0), wind_SFC[0]*1.94) # convert
+        dir = where(greater(wind_SFC[0], 100), float32(0), wind_SFC[1])
         dir = clip(dir, 0, 359.5)
         return (mag, dir)
 

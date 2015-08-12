@@ -14,7 +14,7 @@ class GFSLAMPGridForecaster(Forecaster):
 
     def calcCigHgt(self, cc_CLG):
         ceil = cc_CLG / 0.3048 
-        ceil = where(less(cc_CLG, 0), -99., ceil)
+        ceil[less(cc_CLG, 0)] = -99.
         return ceil
 
     def calcVis(self, vis_SFC):

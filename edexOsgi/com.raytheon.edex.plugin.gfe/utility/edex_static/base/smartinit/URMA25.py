@@ -38,8 +38,10 @@ class URMA25Forecaster(Forecaster):
 ##  QPE - change mm to inches and clip greater than 1000mm
 ##--------------------------------------------------------------------------
     def calcQPE(self, tp6hr_SFC):
-        grid = where(greater(tp6hr_SFC, 1000), 0.0, tp6hr_SFC / 25.4)
-        return clip(grid, 0, 10)  # clip at zero and 10 inches
+        grid = tp6hr_SFC.copy()
+        grid[greater(tp6hr_SFC, 1000)] = 0.0
+        grid /= 25.4
+        return grid.clip(0, 10, grid)  # clip at zero and 10 inches
 
     #==========================================================================
     #

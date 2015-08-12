@@ -151,8 +151,6 @@ class GFS75Forecaster(Forecaster):
 
     def calcSky(self, rh_c, topo):
         rh_c = rh_c[:8, :, :]
-#        rh_c = where(less_equal(rh_c, 25.0), 25.0, rh_c)
-#        rh_c = where(greater_equal(rh_c, 100.0), 100.0, rh_c)
         rh_c[less_equal(rh_c, 25.0)] = 25.0
         rh_c[less_equal(rh_c, 100.0)] = 100.0
 
@@ -183,8 +181,6 @@ class GFS75Forecaster(Forecaster):
     def calcPoP(self, rh_c, pvv_MB700, topo):
         # use only the first 11 levels (up to 500MB)
         rh_c = rh_c[:8, :, :]
-#        rh_c = where(less_equal(rh_c, 43.0), 43.0, rh_c)
-#        rh_c = where(greater_equal(rh_c, 100.0), 100.0, rh_c)
         rh_c[less_equal(rh_c, 43.0)] = 43.0
         rh_c[greater_equal(rh_c, 100.0)] = 100.0
 
@@ -308,7 +304,7 @@ class GFS75Forecaster(Forecaster):
         snowr[greater_equal(T, 30)] = 0
         # calc. snow amount based on the QPF and the ratio
         snowamt = where(less_equal(FzLevel - 1000, topo * 3.28),
-                        snowr * QPF, 0)
+                        snowr * QPF, float32(0))
         # Only make snow at points where the weather is snow
         snowmask = logical_or(equal(Wx[0], 1), equal(Wx[0], 3))
         snowmask = logical_or(snowmask, logical_or(equal(Wx[0], 7),
@@ -338,8 +334,7 @@ class GFS75Forecaster(Forecaster):
             pt = pt + [tmp]                # add to the list
         pt = array(pt)
         # set up masks
-#        pt = where(mask, pt, 0)
-        pt[less(gh_c, topo)] = 0
+        pt[logical_not(mask)] = 0
 
         avg = add.accumulate(pt, 0)
         count = add.accumulate(mask, 0)
@@ -406,10 +401,8 @@ class GFS75Forecaster(Forecaster):
         # start at the bottom and store the first point we find that's
         # above the topo + 3000 feet level.
         for i in xrange(wind_c[0].shape[0]):
-            famag = where(equal(famag, -1),
-                          where(mask[i], wm[i], famag), famag)
-            fadir = where(equal(fadir, -1),
-                          where(mask[i], wd[i], fadir), fadir)
+            famag = where(logical_and(equal(famag, -1), mask[i]), wm[i], famag)
+            fadir = where(logical_and(equal(fadir, -1), mask[i]), wd[i], fadir)
         fadir = clip(fadir, 0, 360)  # clip the value to 0, 360
         famag = famag * 1.94    # convert to knots
         return (famag, fadir)   # return the tuple of grids
@@ -427,21 +420,19 @@ class GFS75Forecaster(Forecaster):
         mask = logical_and(greater_equal(gh_c, topo),
                            less_equal(gh_c, nmh + topo))
         # set the points outside the layer to zero
-#        u = where(mask, u, 0)
-#        v = where(mask, v, 0)
         if type(u) is ndarray:
             u[logical_not(mask)] = 0
         else:
-            u = where(mask, u, 0)
+            u = where(mask, u, float32(0))
         if type(v) is ndarray:
             v[logical_not(mask)] = 0
         else:
-            v = where(mask, v, 0)
+            v = where(mask, v, float32(0))
         mask = add.reduce(mask) # add up the number of set points vert.
         mmask = mask + 0.0001
         # calculate the average value in the mixed layerlayer
-        u = where(mask, add.reduce(u) / mmask, 0)
-        v = where(mask, add.reduce(v) / mmask, 0)
+        u = where(mask, add.reduce(u) / mmask, float32(0))
+        v = where(mask, add.reduce(v) / mmask, float32(0))
         # convert u, v to mag, dir
         tmag, tdir = self._getMD(u, v)
         tmag = tmag * 1.94   # convert to knots
@@ -475,39 +466,16 @@ class GFS75Forecaster(Forecaster):
                "Lkly:RW:+:<NoVis>:",
                "Ocnl:RW:+:<NoVis>:"]
 
-        wx = self._empty
-
-        wx = where(less_equal(PoP, 14.4), 0, wx)
+        wx = zeros(self._empty.shape, dtype=int8)
+        wx[less_equal(PoP, 14.4)] = 0
 
         hvymask = greater_equal(kindex, 35)
-#        wx = where(logical_and(hvymask,
-#                               logical_and(greater(PoP, 14.4),
-#                                           less(PoP, 24.4))), 5, wx)
-#        wx = where(logical_and(hvymask,
-#                               logical_and(greater(PoP, 24.4),
-#                                           less(PoP, 54.4))), 6, wx)
-#        wx = where(logical_and(hvymask,
-#                               logical_and(greater(PoP, 54.4),
-#                                           less(PoP, 74.4))), 7, wx)
-#        wx = where(logical_and(hvymask, greater(PoP, 74.4)), 8, wx)
-
         wx[logical_and(hvymask, logical_and(greater(PoP, 14.4), less(PoP, 24.4)))] = 5
         wx[logical_and(hvymask, logical_and(greater(PoP, 24.4), less(PoP, 54.4)))] = 6
         wx[logical_and(hvymask, logical_and(greater(PoP, 54.4), less(PoP, 74.4)))] = 7
         wx[logical_and(hvymask, greater(PoP, 74.4))] = 8
 
         lgtmask = less(kindex, 35)
-#        wx = where(logical_and(lgtmask,
-#                               logical_and(greater(PoP, 14.4),
-#                                           less(PoP, 24.4))), 1, wx)
-#        wx = where(logical_and(lgtmask,
-#                               logical_and(greater(PoP, 24.4),
-#                                           less(PoP, 54.4))), 2, wx)
-#        wx = where(logical_and(lgtmask,
-#                               logical_and(greater(PoP, 54.4),
-#                                           less(PoP, 74.4))), 3, wx)
-#        wx = where(logical_and(lgtmask, greater(PoP, 74.4)), 4, wx)
-
         wx[logical_and(lgtmask, logical_and(greater(PoP, 14.4), less(PoP, 24.4)))] = 1
         wx[logical_and(lgtmask, logical_and(greater(PoP, 24.4), less(PoP, 54.4)))] = 2
         wx[logical_and(lgtmask, logical_and(greater(PoP, 54.4), less(PoP, 74.4)))] = 3
@@ -519,7 +487,7 @@ class GFS75Forecaster(Forecaster):
             if tcov == "<NoCov>":
                 tcov = "Iso"
             key.append(key[i] + "^" + tcov + ":T:<NoInten>:<NoVis>:")
-        wx = where(logical_and(greater(PoP, 14.4), greater_equal(cape_SFC, 1000)), wx + 9, wx)
+        wx[logical_and(greater(PoP, 14.4), greater_equal(cape_SFC, 1000))] += 9
 
         return(wx, key)
 
@@ -535,7 +503,7 @@ class GFS75Forecaster(Forecaster):
         m4 = logical_and(greater(QPF, 0.1), less(QPF, 0.3))
         # assign 0 to the dry grid point, 100 to the wet grid points,
         # and a ramping function to all point in between
-        cwr = where(m1, 0, where(m2, 100,
+        cwr = where(m1, float32(0), where(m2, float32(100),
                                  where(m3, 444.4 * (QPF - 0.01) + 10,
                                        where(m4, 250 * (QPF - 0.1) + 50,
                                              QPF))))
@@ -547,21 +515,19 @@ class GFS75Forecaster(Forecaster):
 ##-------------------------------------------------------------------------
     def calcLAL(self, tp_SFC, sli_SFC, rh_c, rh_BL030):
         bli = sli_SFC  # surface lifted index
-        ttp = self._empty + 0.00001   # nearly zero grid
-        lal = self._empty + 1         # initialize the return grid to 1
+        ttp = full_like(self._empty, 0.00001)   # nearly zero grid
+        lal = ones_like(self._empty)  # initialize the return grid to 1
         # Add one to lal if QPF > 0.5
-        lal = where(logical_and(logical_and(greater(tp_SFC, 0),
-                                            greater(ttp, 0)),
-                                greater(tp_SFC / ttp, 0.5)), lal + 1, lal)
+        lal[logical_and(greater(ttp, 0), greater(tp_SFC / ttp, 0.5))] += 1
+
         #  make an average rh field
         midrh = add.reduce(rh_c[6:9], 0) / 3
         # Add one to lal if mid-level rh high and low level rh low
-        lal = where(logical_and(greater(midrh, 70), less(rh_BL030, 30)),
-                    lal + 1, lal)
+        lal[logical_and(greater(midrh, 70), less(rh_BL030, 30))] += 1
 
         # Add on to lal if lifted index is <-3 and another if <-5
-        lal = where(less(bli, -3), lal + 1, lal)
-        lal = where(less(bli, -5), lal + 1, lal)
+        lal[less(bli, -3)] += 1
+        lal[less(bli, -5)] += 1
 
         return lal
 

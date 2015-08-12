@@ -52,9 +52,12 @@ class WW3Forecaster(Forecaster):
 ##--------------------------------------------------------------------------
     def calcWind(self, wind_SFC):
         # extract the wind speed and direction
-        mag = where(greater(wind_SFC[0], 100), 0, wind_SFC[0]*1.94) # convert
-        dir = where(greater(wind_SFC[0], 100), 0, wind_SFC[1])
-        dir = clip(dir, 0, 359.5)
+        mag = wind_SFC[0].copy()
+        mag[greater(wind_SFC[0], 100)] = 0
+        mag *= 1.94 # convert
+        dir = wind_SFC[1].copy()
+        dir[greater(wind_SFC[0], 100)] = 0
+        dir.clip(0, 359.5, dir)
         return (mag, dir)
 
 ##--------------------------------------------------------------------------
