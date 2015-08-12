@@ -321,7 +321,7 @@ public class SearchReplaceDlg extends CaveSWTDialog {
                     + "Start from the top of the product?", SWT.ICON_ERROR
                     | SWT.YES | SWT.NO);
 
-            if (result == SWT.NO) {
+            if (result == SWT.NO || searchForTF.isDisposed()) {
                 foundIndex = tmpIndex;
                 return false;
             }

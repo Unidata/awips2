@@ -853,11 +853,13 @@ public class ScriptEditorDialog extends CaveSWTDialog implements IScriptEditor {
      */
     private void handleFileNew() {
         dirtyFileHelper("before deleting");
-        this.scriptEditor.setText("");
         this.fileName = FILE_DEFAULT;
         this.filePath = "";
         scriptEditorDirty = false;
-        setTitle();
+        if (!scriptEditor.isDisposed()) {
+            this.scriptEditor.setText("");
+            setTitle();
+        }
     }
 
     /**
@@ -865,6 +867,9 @@ public class ScriptEditorDialog extends CaveSWTDialog implements IScriptEditor {
      */
     private void handleFileOpen() {
         dirtyFileHelper("before opening new script");
+        if (shell.isDisposed()) {
+            return;
+        }
         FileDialog fd = new FileDialog(shell, SWT.OPEN);
         fd.setText("Open Script File");
         fd.setFilterExtensions(SCRIPT_EXTNS);
