@@ -38,9 +38,9 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 28, 2009 2675       mpduff     Initial creation
- * Aug 13, 2009 2675       mpduff     TIM changes added
- * 
+ * Jul 28, 2009 2675       mpduff      Initial creation
+ * Aug 13, 2009 2675       mpduff      TIM changes added
+ * Aug 11, 2015 4500       rjpeter     Fix type casts.
  * </pre>
  * 
  * @author mpduff
@@ -697,43 +697,43 @@ public class RadarDataManager {
         if (rs.size() > 0) {
             Object[] retArr = rs.get(0);
             data = new DPAAdaptableParam();
-            data.setMin_reflth((Float) retArr[0]);
-            data.setMax_reflth((Float) retArr[1]);
-            data.setRef_tltest((Float) retArr[2]);
-            data.setRng_tltin((Float) retArr[3]);
-            data.setRng_tltout((Float) retArr[4]);
-            data.setMax_birng((Float) retArr[5]);
-            data.setMin_birng((Float) retArr[6]);
-            data.setMin_echoar((Float) retArr[7]);
-            data.setMin_awrefl((Float) retArr[8]);
-            data.setMax_pctred((Float) retArr[9]);
-            data.setMlt_zrcoef((Float) retArr[10]);
-            data.setPwr_zrcoef((Float) retArr[11]);
-            data.setMin_zrefl((Float) retArr[12]);
-            data.setMax_zrefl((Float) retArr[13]);
-            data.setMax_stmspd((Float) retArr[14]);
-            data.setMax_timdif((Float) retArr[15]);
-            data.setMin_artcon((Float) retArr[16]);
-            data.setTim_p1cont((Float) retArr[17]);
-            data.setTim_p2cont((Float) retArr[18]);
-            data.setMax_ecarch((Float) retArr[19]);
-            data.setRng_cutoff((Float) retArr[20]);
-            data.setRng_e1coef((Float) retArr[21]);
-            data.setRng_e2coef((Float) retArr[22]);
-            data.setRng_e3coef((Float) retArr[23]);
-            data.setMin_prate((Float) retArr[24]);
-            data.setMax_prate((Float) retArr[25]);
-            data.setTim_restrt((Float) retArr[26]);
-            data.setMax_timint((Float) retArr[27]);
-            data.setMin_timprd((Float) retArr[28]);
-            data.setThr_hlyout((Float) retArr[29]);
-            data.setEnd_timgag((Float) retArr[30]);
-            data.setMax_prdval((Float) retArr[31]);
-            data.setMax_hlyval((Float) retArr[32]);
-            data.setTim_biest((Float) retArr[33]);
-            data.setThr_nosets((Float) retArr[34]);
-            data.setRes_bias((Float) retArr[35]);
-            data.setLongest_lag((Float) retArr[36]);
+            data.setMin_reflth(((Number) retArr[0]).floatValue());
+            data.setMax_reflth(((Number) retArr[1]).floatValue());
+            data.setRef_tltest(((Number) retArr[2]).floatValue());
+            data.setRng_tltin(((Number) retArr[3]).floatValue());
+            data.setRng_tltout(((Number) retArr[4]).floatValue());
+            data.setMax_birng(((Number) retArr[5]).floatValue());
+            data.setMin_birng(((Number) retArr[6]).floatValue());
+            data.setMin_echoar(((Number) retArr[7]).floatValue());
+            data.setMin_awrefl(((Number) retArr[8]).floatValue());
+            data.setMax_pctred(((Number) retArr[9]).floatValue());
+            data.setMlt_zrcoef(((Number) retArr[10]).floatValue());
+            data.setPwr_zrcoef(((Number) retArr[11]).floatValue());
+            data.setMin_zrefl(((Number) retArr[12]).floatValue());
+            data.setMax_zrefl(((Number) retArr[13]).floatValue());
+            data.setMax_stmspd(((Number) retArr[14]).floatValue());
+            data.setMax_timdif(((Number) retArr[15]).floatValue());
+            data.setMin_artcon(((Number) retArr[16]).floatValue());
+            data.setTim_p1cont(((Number) retArr[17]).floatValue());
+            data.setTim_p2cont(((Number) retArr[18]).floatValue());
+            data.setMax_ecarch(((Number) retArr[19]).floatValue());
+            data.setRng_cutoff(((Number) retArr[20]).floatValue());
+            data.setRng_e1coef(((Number) retArr[21]).floatValue());
+            data.setRng_e2coef(((Number) retArr[22]).floatValue());
+            data.setRng_e3coef(((Number) retArr[23]).floatValue());
+            data.setMin_prate(((Number) retArr[24]).floatValue());
+            data.setMax_prate(((Number) retArr[25]).floatValue());
+            data.setTim_restrt(((Number) retArr[26]).floatValue());
+            data.setMax_timint(((Number) retArr[27]).floatValue());
+            data.setMin_timprd(((Number) retArr[28]).floatValue());
+            data.setThr_hlyout(((Number) retArr[29]).floatValue());
+            data.setEnd_timgag(((Number) retArr[30]).floatValue());
+            data.setMax_prdval(((Number) retArr[31]).floatValue());
+            data.setMax_hlyval(((Number) retArr[32]).floatValue());
+            data.setTim_biest(((Number) retArr[33]).floatValue());
+            data.setThr_nosets(((Number) retArr[34]).floatValue());
+            data.setRes_bias(((Number) retArr[35]).floatValue());
+            data.setLongest_lag(((Number) retArr[36]).floatValue());
             data.setBias_applied(String.valueOf(retArr[37]));
         }
         return data;
@@ -766,20 +766,20 @@ public class RadarDataManager {
         if (rs.size() > 0) {
             Object[] retArr = rs.get(0);
             data = new DPASupplementalData();
-            data.setNisolbin((Integer) retArr[0]);
-            data.setNoutint((Integer) retArr[1]);
-            data.setNoutrep((Integer) retArr[2]);
-            data.setNbadscan((Integer) retArr[3]);
-            data.setNhourout((Integer) retArr[4]);
-            data.setVolcovpat((Integer) retArr[5]);
-            data.setOpermode((Integer) retArr[6]);
-            data.setAreared((Float) retArr[7]);
-            data.setBiscanr((Float) retArr[8]);
-            data.setSupplmess((Integer) retArr[9]);
-            data.setMinoff((Integer) retArr[10]);
-            data.setMaxvald((Float) retArr[11]);
-            data.setMaxvalh((Float) retArr[12]);
-            data.setS1_bias_value((Float) retArr[13]);
+            data.setNisolbin(((Number) retArr[0]).intValue());
+            data.setNoutint(((Number) retArr[1]).intValue());
+            data.setNoutrep(((Number) retArr[2]).intValue());
+            data.setNbadscan(((Number) retArr[3]).intValue());
+            data.setNhourout(((Number) retArr[4]).intValue());
+            data.setVolcovpat(((Number) retArr[5]).intValue());
+            data.setOpermode(((Number) retArr[6]).intValue());
+            data.setAreared(((Number) retArr[7]).floatValue());
+            data.setBiscanr(((Number) retArr[8]).floatValue());
+            data.setSupplmess(((Number) retArr[9]).intValue());
+            data.setMinoff(((Number) retArr[10]).intValue());
+            data.setMaxvald(((Number) retArr[11]).floatValue());
+            data.setMaxvalh(((Number) retArr[12]).floatValue());
+            data.setS1_bias_value(((Number) retArr[13]).floatValue());
             data.setProducttime((Date) retArr[14]);
         }
         return data;

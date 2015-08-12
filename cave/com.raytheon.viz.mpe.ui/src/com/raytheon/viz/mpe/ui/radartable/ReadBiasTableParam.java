@@ -43,7 +43,7 @@ import com.raytheon.viz.mpe.ui.dialogs.RadarBiasTableDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 15, 2009            snaples     Initial creation
- * 
+ * Aug 11, 2015 4500       rjpeter     Fix type casts.
  * </pre>
  * 
  * @author snaples
@@ -155,8 +155,8 @@ public class ReadBiasTableParam {
         coefs = new float[2];
         for (int i = 0; i < rs.size(); i++) {
             Object[] oa = rs.get(i);
-            coefs[0] = (Float) oa[0];
-            coefs[1] = (Float) oa[1];
+            coefs[0] = ((Number) oa[0]).floatValue();
+            coefs[1] = ((Number) oa[1]).floatValue();
         }
         return coefs;
     }

@@ -3210,7 +3210,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         AfosBrowserModel.getInstance().getLocalSite());
                 if (!parser.isValidCommand()) {
                     userInformation("AFOSCMD is invalid");
-                    afosCmdTF.setFocus();
+                    if (!afosCmdTF.isDisposed()) {
+                        afosCmdTF.setFocus();
+                    }
                     return;
                 }
 
@@ -3419,7 +3421,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 int charCount = awipsIdTF.getCharCount();
                 if ((charCount < 4) || (charCount > 6)) {
                     userInformation("Must enter a 4 to 6 character AWIPS ID");
-                    awipsIdTF.setFocus();
+                    if (!awipsIdTF.isDisposed()) {
+                        awipsIdTF.setFocus();
+                    }
                     return;
                 } else {
                     TextDisplayModel.getInstance().setProductCategory(token,
@@ -4098,7 +4102,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             } else if (popupItems[3].equals(choice)) {
                 pasteText();
             }
-            textEditor.update();
+            if (!textEditor.isDisposed()) {
+                textEditor.update();
+            }
         }
     }
 
@@ -6211,7 +6217,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             } else {
                 userInformation("No product in the database matches your request.");
 
-                if (!accumChkBtn.getSelection()) {
+                if (!accumChkBtn.isDisposed() && !accumChkBtn.getSelection()) {
                     textEditor.setText("");
                 }
                 validExecuteCommand = false;
@@ -6401,7 +6407,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                             + "ms to show dialog");
                     enterEditor();
 
-                    if (autoWrapMenuItem != null) {
+                    if (autoWrapMenuItem != null && !autoWrapMenuItem.isDisposed()) {
                         Menu menu = autoWrapMenuItem.getMenu();
                         for (MenuItem item : menu.getItems()) {
                             if (item.getSelection()) {
@@ -7212,7 +7218,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 rval = false;
                 textEditor.setSelection(startIndex, endIndex + 3);
                 userInformation("You must modify the selected region before sending or saving the product.");
-                textEditor.setFocus();
+                if (!textEditor.isDisposed()) {
+                    textEditor.setFocus();
+                }
             }
         }
 

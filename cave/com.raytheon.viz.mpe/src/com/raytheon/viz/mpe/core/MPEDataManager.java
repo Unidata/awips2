@@ -72,15 +72,15 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 1, 2008            randerso     Initial creation
- * Nov 6, 2008  1649      snaples      Added updatePseudogageval method
- * Nov 6, 2008  1649      snaples      Added new methods for getting and 
+ * Oct 1, 2008             randerso    Initial creation
+ * Nov 6, 2008  1649       snaples     Added updatePseudogageval method
+ * Nov 6, 2008  1649       snaples     Added new methods for getting and 
  *                                     updating RawPP records
- * Nov 24, 2008 1748      snaples      Added getters to MPEGageData
- * Jun 18, 2013 16053     snaples      Removed methods set and getRadarEditFlag
- * Dec 15 2013  DCS 167   cgobs        DualPol capabilities
- * Jul 29, 2015  17471    snaples      Added logging for Radar Bias results table query.
- * 
+ * Nov 24, 2008 1748       snaples     Added getters to MPEGageData
+ * Jun 18, 2013 16053      snaples     Removed methods set and getRadarEditFlag
+ * Dec 15 2013  DCS 167    cgobs       DualPol capabilities
+ * Jul 29, 2015  17471     snaples     Added logging for Radar Bias results table query.
+ * Aug 11, 2015 4500       rjpeter     Fix type casts.
  * </pre>
  * 
  * @author randerso
@@ -777,7 +777,7 @@ public class MPEDataManager {
             for (Object[] item : results) {
                 // note db stores west longitude as positive so must negate
                 MPERadarLoc radarLoc = new MPERadarLoc((String) item[0],
-                        (Double) item[1], -(Double) item[2]);
+                        ((Number) item[1]).doubleValue(), -((Number) item[2]).doubleValue());
                 radarList.add(radarLoc);
             }
         } catch (VizException e) {
@@ -819,7 +819,7 @@ public class MPEDataManager {
                     radarData.setProductDate(date);
 
                 } else if (compareResult == 0) {
-                    radarData.setNumGages((Integer) item[1]);
+                    radarData.setNumGages(((Number) item[1]).intValue());
 
                     RadarAvailability radAvail = RadarAvailability.MISSING;
                     if ("y".equals(item[2])) {
@@ -829,8 +829,8 @@ public class MPEDataManager {
                     }
                     radarData.setRadAvail(radAvail);
 
-                    radarData.setRwBiasValUsed((Double) item[3]);
-                    radarData.setMemSpanUsed((Double) item[4]);
+                    radarData.setRwBiasValUsed(((Number) item[3]).doubleValue());
+                    radarData.setMemSpanUsed(((Number) item[4]).doubleValue());
                     radarData.setEditBias((String) item[5]);
                     radarData.setIgnoreRadar(!"n".equals(item[6]));
 
@@ -912,7 +912,7 @@ public class MPEDataManager {
                     radarData.setProductDate(date);
 
                 } else if (compareResult == 0) {
-                    radarData.setNumGages((Integer) item[1]);
+                    radarData.setNumGages(((Number) item[1]).intValue());
 
                     RadarAvailability radAvail = RadarAvailability.MISSING;
                     if ("y".equals(item[2])) {
@@ -922,8 +922,8 @@ public class MPEDataManager {
                     }
                     radarData.setRadAvail(radAvail);
 
-                    radarData.setRwBiasValUsed((Double) item[3]);
-                    radarData.setMemSpanUsed((Double) item[4]);
+                    radarData.setRwBiasValUsed(((Number) item[3]).doubleValue());
+                    radarData.setMemSpanUsed(((Number) item[4]).doubleValue());
                     radarData.setEditBias((String) item[5]);
                     radarData.setIgnoreRadar(!"n".equals(item[6]));
 

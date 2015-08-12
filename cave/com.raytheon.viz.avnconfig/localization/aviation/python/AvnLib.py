@@ -228,9 +228,13 @@
 #       	Status:           NEXTRELEASE
 #       	Title:             OB9.2 AvnFPS - TPO/FuelAlternate Rule Doesn't work
 #       
+#    Date          Ticket#       Engineer       Description
+#    ----------    ----------    -----------    --------------------------
+#    08/03/2015    17540         zhao           Modified to make default issue time configurable
 #
 import itertools, os, time
 import Avn, Globals
+import ConfigParser
 
 # transmission times
 _Fcst_Times = (6*3600, 12*3600, 18*3600, 24*3600)
@@ -341,10 +345,32 @@ def getIssueTime(kind, bbb, t=None):
         t = time.time()
     if not bbb or bbb[0] == ' ':    # regular issue forecast
         itime = Avn.string2time('%s00' % getFmtValidTime(kind, bbb, t)[:8])
-        itime -= _Xmit_Windows[0]
+        
+        minutesBeforeForecastTime = getMinutesBeforeForecastTime()
+        
+        if minutesBeforeForecastTime != None: 
+            itime -= 60*int(minutesBeforeForecastTime)
+        else:
+            itime -= _Xmit_Windows[0]
+            
         if itime > t:
             return itime
     return t
+
+def getMinutesBeforeForecastTime():
+    try:
+        f = Avn.PATH_MGR.getStaticFile(Avn.ConfigDir)
+        fname = f.getPath()
+        fname = os.path.join(fname, 'default_issue_time.cfg')
+        if not (os.path.exists(fname)):
+            return None
+        cp = ConfigParser.RawConfigParser()
+        cp.read(fname)
+        d = cp.get('minutesBeforeForecastTime', 'minutes')
+        return d
+    
+    except Exception:
+        raise
 
 def getFmtIssueTime(kind, bbb, t=None):
     if t is None:

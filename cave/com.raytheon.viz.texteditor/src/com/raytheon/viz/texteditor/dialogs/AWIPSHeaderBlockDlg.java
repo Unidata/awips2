@@ -669,7 +669,7 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
                     + " is not in the list of valid products. Use it anyway?";
             int response = TextWSMessageBox.open(shell, "", message,
                     SWT.ICON_QUESTION | SWT.YES | SWT.NO);
-            if (response == SWT.NO) {
+            if (response == SWT.NO || parentEditor.isDisposed()) {
                 return;
             }
 			parentEditor.enableSend(false);

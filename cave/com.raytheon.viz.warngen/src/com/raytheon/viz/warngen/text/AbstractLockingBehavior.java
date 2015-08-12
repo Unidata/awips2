@@ -60,6 +60,7 @@ import com.raytheon.viz.warngen.gis.AffectedAreas;
  * May 29, 2015    4442    randerso     Fixed WarnGen text locking to work with mixed case
  * Jul 10, 2015  DR 17314  Qinglu Lin   Updated firstBullet().
  * Jul 17, 2015  DR 17314  D. Friedman  Fix string replacement in firstBullet().
+ * Aug  5, 2015  DR 17865  Qinglu Lin   Updated firstBullet() for issue brought in by mixed case DCS.
  * 
  * </pre>
  * 
@@ -236,7 +237,7 @@ abstract public class AbstractLockingBehavior {
                     }
                 }
 
-                int endIndex = line.indexOf(" IN ");
+                int endIndex = line.toUpperCase().indexOf(" IN ");
                 String textForSearch = null;
                 if (endIndex == -1)
                     textForSearch = line;
