@@ -167,6 +167,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 02/04/2014  17039       ryu         Removed menu item related to the HighlighFramingCodes feature.
  * 04/20/2015   4027       randerso    Renamed ProductStateEnum with an initial capital
  *                                     Expunged Calendar from ActiveTableRecord
+ * 08/10/2015   4721       randerso    Changed getNNNid() to use the productID field (not textdbPil)
  * </pre>
  * 
  * @author lvenable
@@ -2705,7 +2706,7 @@ public class ProductEditorComp extends Composite implements
     }
 
     public String getNNNid() {
-        return textdbPil.substring(3, 6);
+        return productId.substring(4, 7);
     }
 
     public String getProductName() {
