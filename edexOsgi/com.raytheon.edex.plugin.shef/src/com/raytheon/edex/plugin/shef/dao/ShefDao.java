@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -25,10 +25,27 @@ import com.raytheon.edex.db.dao.DefaultPluginDao;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 
+/**
+ * Dao for SHEF Data.
+ * 
+ * <pre>
+ *
+ * SOFTWARE HISTORY
+ *
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ *                                     Initial creation
+ * Jul 30, 2015 1574       nabowle     Override purgeOrphanedData() to noop
+ *
+ * </pre>
+ *
+ * @author nabowle
+ * @version 1.0
+ */
 public class ShefDao extends DefaultPluginDao {
 
     /**
-     * 
+     *
      * @param pluginName
      * @throws PluginException
      */
@@ -54,5 +71,10 @@ public class ShefDao extends DefaultPluginDao {
         if (!metarInputFile.exists()) {
             metarInputFile.mkdir();
         }
+    }
+
+    @Override
+    public void purgeOrphanedData() {
+        // Noop.
     }
 }

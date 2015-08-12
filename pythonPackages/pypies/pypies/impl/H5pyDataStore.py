@@ -40,13 +40,14 @@
 #    Apr 24, 2015       4425       nabowle        Add DoubleDataRecord
 #    Jun 15, 2015   DR 17556      mgamazaychikov  Add __doMakeReadable method to counteract umask 027 daemon
 #                                                 and make copied files world-readable
-#    Jul 27, 2015       4402       njensen        Set fill_time_never on write if fill value is None       
-#
+#    Jul 27, 2015       4402       njensen        Set fill_time_never on write if fill value is None 
+#    Jul 30, 2015       1574       nabowle        Add deleteOrphanFiles()
 #
 
 import h5py, os, numpy, pypies, re, logging, shutil, time, types, traceback
 import fnmatch
 import subprocess, stat  #for h5repack
+from datetime import datetime
 from pypies import IDataStore, StorageException, NotImplementedException
 from pypies import MkDirLockManager as LockManager
 #from pypies import LockManager
@@ -78,6 +79,9 @@ REQUEST_ALL = Request()
 REQUEST_ALL.setType('ALL')
 
 PURGE_REGEX = re.compile('(/[a-zA-Z]{1,25})/([0-9]{4}-[0-9]{2}-[0-9]{2})_([0-9]{2}):[0-9]{2}:[0-9]{2}')
+
+# matches the date formats used in hdf5 filenames. 
+ORPHAN_REGEX = re.compile('(19|20)(\d\d)-?(0[1-9]|1[012])-?(0[1-9]|[12][0-9]|3[01])')
 
 class H5pyDataStore(IDataStore.IDataStore):
 
@@ -596,12 +600,15 @@ class H5pyDataStore(IDataStore.IDataStore):
             if gotLock:
                 LockManager.releaseLock(lock)
 
-    def __removeDir(self, path):
+    def __removeDir(self, path, onlyIfEmpty=False):
         gotLock = False
         try:
             gotLock, lock = LockManager.getLock(path, 'a')
             if gotLock:
-                shutil.rmtree(path)
+                if onlyIfEmpty:
+                    os.rmdir(path)
+                else:
+                    shutil.rmtree(path)
             else:
                 raise StorageException('Unable to acquire lock on file ' + path + ' for deleting')
         finally:
@@ -890,3 +897,51 @@ class H5pyDataStore(IDataStore.IDataStore):
         finally:
             if lock:
                 LockManager.releaseLock(lock)
+
+    def deleteOrphanFiles(self, request):
+        path = request.getFilename()
+        oldestDate = request.getOldestDate()
+        deletedFiles = []
+        failedFiles = []
+        if oldestDate:
+            oldestDatetime = datetime.utcfromtimestamp(oldestDate.getTime()/1000)
+            for base, dirs, files in os.walk(path, topdown=False):
+                datafiles = fnmatch.filter(files, '*.h5')
+                for f in datafiles:
+                    matches = ORPHAN_REGEX.search(f)
+                    if matches:
+                        stringDate = matches.group(1) + matches.group(2) + \
+                                     matches.group(3) + matches.group(4)
+                        filedate = datetime.strptime(stringDate, "%Y%m%d")
+                        if filedate < oldestDatetime:
+                            try:
+                                f = os.path.join(base, f)
+                                logger.info("Deleting orphaned file " + f + ", age " + str(datetime.utcnow() - filedate))
+                                self.__removeFile(f)
+                                deletedFiles.append(f)
+                            except Exception as e:
+                                logger.error("Error deleting file " + f + ": " + str(e))
+                                logger.error(traceback.format_exc())
+                                failedFiles.append(f)
+                # cleanup any empty directories
+                fullPathDirs = []
+                fullPathDirs.extend(os.path.join(base, d) for d in dirs)
+                fullPathDirs.append(os.path.join(base))
+                for d in fullPathDirs:
+                    if os.path.exists(d) and not os.listdir(d):
+                        try:
+                            logger.info("Deleting empty directory " + d)
+                            self.__removeDir(d, True)
+                        except OSError as ose:
+                            # Deletion may fail if something writes to it 
+                            # between checking and trying to delete it, which is
+                            # acceptable.
+                            if not os.listdir(d): 
+                                logger.error("Error removing empty directory " + d + ": " + str(ose))
+                        except StorageException as se:
+                            logger.error("Error removing empty directory " + d + ": " + str(se))
+
+        resp = FileActionResponse()
+        resp.setSuccessfulFiles(deletedFiles)
+        resp.setFailedFiles(failedFiles)
+        return resp

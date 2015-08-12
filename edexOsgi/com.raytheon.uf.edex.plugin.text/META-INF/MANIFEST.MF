@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Text Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.text
-Bundle-Version: 1.15.0.qualifier
+Bundle-Version: 1.15.1.qualifier
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.apache.commons.lang,
  com.raytheon.edex.common,

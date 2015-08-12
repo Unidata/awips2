@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.thinclient.cave.cache;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,11 +40,11 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
  * Data store which wraps with another {@link IDataStore}. This data store will
  * always check with its cache before using the delegate and adds all results to
  * the cache.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Nov 08, 2011           mschenke    Initial creation
@@ -51,9 +52,10 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
  *                                    datasets
  * Sep 18, 2013  2309     bsteffen    Move disk acces to DataStoreCache
  * Nov 14, 2013  2393     bclement    removed datastore interpolation
- * 
+ * Jul 30, 2015  1574     nabowle     Add #deleteOrphanData(Date)
+ *
  * </pre>
- * 
+ *
  * @author mschenke
  * @version 1.0
  */
@@ -70,7 +72,7 @@ public class CachingDataStore implements IDataStore {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.raytheon.uf.common.datastorage.IDataStore#retrieve(java.lang.String)
      */
@@ -111,7 +113,7 @@ public class CachingDataStore implements IDataStore {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.raytheon.uf.common.datastorage.IDataStore#retrieve(java.lang.String,
      * java.lang.String, com.raytheon.uf.common.datastorage.Request)
@@ -130,7 +132,7 @@ public class CachingDataStore implements IDataStore {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.raytheon.uf.common.datastorage.IDataStore#retrieveDatasets(java.lang
      * .String[], com.raytheon.uf.common.datastorage.Request)
@@ -167,7 +169,7 @@ public class CachingDataStore implements IDataStore {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.raytheon.uf.common.datastorage.IDataStore#retrieveGroups(java.lang
      * .String[], com.raytheon.uf.common.datastorage.Request)
@@ -223,7 +225,7 @@ public class CachingDataStore implements IDataStore {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.raytheon.uf.common.datastorage.IDataStore#getDatasets(java.lang.String
      * )
@@ -274,7 +276,7 @@ public class CachingDataStore implements IDataStore {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.raytheon.uf.common.datastorage.IDataStore#deleteFiles(java.lang.String
      * [])
@@ -287,7 +289,7 @@ public class CachingDataStore implements IDataStore {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.raytheon.uf.common.datastorage.IDataStore#createDataset(com.raytheon
      * .uf.common.datastorage.records.IDataRecord)
@@ -300,7 +302,7 @@ public class CachingDataStore implements IDataStore {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.raytheon.uf.common.datastorage.IDataStore#addDataRecord(com.raytheon
      * .uf.common.datastorage.records.IDataRecord,
@@ -314,7 +316,7 @@ public class CachingDataStore implements IDataStore {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.raytheon.uf.common.datastorage.IDataStore#addDataRecord(com.raytheon
      * .uf.common.datastorage.records.IDataRecord)
@@ -326,7 +328,7 @@ public class CachingDataStore implements IDataStore {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.raytheon.uf.common.datastorage.IDataStore#store()
      */
     @Override
@@ -336,7 +338,7 @@ public class CachingDataStore implements IDataStore {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.raytheon.uf.common.datastorage.IDataStore#deleteDatasets(java.lang
      * .String[])
@@ -349,7 +351,7 @@ public class CachingDataStore implements IDataStore {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.raytheon.uf.common.datastorage.IDataStore#deleteGroups(java.lang.
      * String[])
@@ -362,7 +364,7 @@ public class CachingDataStore implements IDataStore {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.raytheon.uf.common.datastorage.IDataStore#store(com.raytheon.uf.common
      * .datastorage.IDataStore.StoreOp)
@@ -374,7 +376,7 @@ public class CachingDataStore implements IDataStore {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.raytheon.uf.common.datastorage.IDataStore#createLinks(java.util.Map)
      */
@@ -386,7 +388,7 @@ public class CachingDataStore implements IDataStore {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.raytheon.uf.common.datastorage.IDataStore#repack(com.raytheon.uf.
      * common.datastorage.StorageProperties.Compression)
@@ -398,7 +400,7 @@ public class CachingDataStore implements IDataStore {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.raytheon.uf.common.datastorage.IDataStore#copy(java.lang.String,
      * com.raytheon.uf.common.datastorage.StorageProperties.Compression,
      * java.lang.String, int, int)
@@ -409,5 +411,10 @@ public class CachingDataStore implements IDataStore {
             int maxMillisSinceLastChange) throws StorageException {
         delegate.copy(outputDir, compression, timestampCheck,
                 minMillisSinceLastChange, maxMillisSinceLastChange);
+    }
+
+    @Override
+    public void deleteOrphanData(Date oldestDate) throws StorageException {
+        this.delegate.deleteOrphanData(oldestDate);
     }
 }
