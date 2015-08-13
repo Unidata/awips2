@@ -105,13 +105,7 @@ class Procedure (SmartScript.SmartScript):
         mask1 = topoGrid < min
         mask2 = topoGrid > max
         topoGrid[mask1] = -80
-        topoGrid[mask2] = self.getTopo()[mask2]
-
-#        mask1 = topoVal< min
-#        mask2 = topoVal> max
-#        topoGrid = np.where(mask1,-80.0,topoVal)
-#        topoGrid = np.where(mask2,self.getTopo(),topoVal)
-       
+        topoGrid[mask2] = self.getTopo()[mask2]       
         return topoGrid
 
     def makeNewTimeRange(self, hours):
@@ -171,7 +165,7 @@ class Procedure (SmartScript.SmartScript):
         
         surgeVal = grid.copy()
         mask = surgeVal > -100
-        grid = np.where(mask,surgeVal*3.28, -80.0)
+        grid = np.where(mask,surgeVal*3.28, np.float32(-80.0))
 
         return grid  # convert meters to feet 
     
@@ -211,7 +205,7 @@ class Procedure (SmartScript.SmartScript):
             if smoothThreatGrid is "Yes":
                 phishGrid = np.where(np.greater(phishGrid, 0.0), self.smoothGrid(phishGrid,3), phishGrid)        
             
-            grid = np.where(phishGrid>-100,phishGrid*3.28, -80.0)
+            grid = np.where(phishGrid>-100,phishGrid*3.28, np.float32(-80.0))
             self.createGrid("Fcst", "InundationTiming", "SCALAR", grid, tr6, precision=1)
   
         return
@@ -241,7 +235,7 @@ class Procedure (SmartScript.SmartScript):
         #maxGrid = where(greater(maxGrid,-100.0), maxGrid*3.28, maxGrid)
         conversionGrid = grid.copy()
         mask = conversionGrid>-0.40
-        grid = np.where(mask, conversionGrid*3.28, -80.0)        
+        grid = np.where(mask, conversionGrid*3.28, np.float32(-80.0))
 
         #return maxGrid  # convert meters to feet
         return grid
@@ -271,7 +265,7 @@ class Procedure (SmartScript.SmartScript):
         #maxGrid = where(greater(maxGrid,-100.0),maxGrid*3.28, maxGrid)
         conversionGrid = grid.copy()
         mask = conversionGrid>0.0
-        grid = np.where(mask,conversionGrid *3.28, -80.0) 
+        grid = np.where(mask,conversionGrid *3.28, np.float32(-80.0))
 
         #return maxGrid  # convert meters to feet
         return grid
@@ -301,7 +295,7 @@ class Procedure (SmartScript.SmartScript):
         #maxGrid = where(greater(maxGrid,-100.0),maxGrid*3.28, maxGrid)
         conversionGrid = grid.copy()
         mask = conversionGrid>-3.09
-        grid = np.where(mask, conversionGrid*3.28, -80.0) 
+        grid = np.where(mask, conversionGrid*3.28, np.float32(-80.0))
 
         #return maxGrid  # convert meters to feet
         return grid
@@ -330,7 +324,7 @@ class Procedure (SmartScript.SmartScript):
         #maxGrid = where(greater(maxGrid,-100.0),maxGrid*3.28, maxGrid)
         conversionGrid=grid.copy()
         mask = conversionGrid>-2.20
-        grid = np.where(mask, conversionGrid*3.28, -80.0) 
+        grid = np.where(mask, conversionGrid*3.28, np.float32(-80.0))
 
         #return maxGrid  # convert meters to feet
         return grid
@@ -360,7 +354,7 @@ class Procedure (SmartScript.SmartScript):
         #maxGrid = where(greater(maxGrid,-100.0),maxGrid*3.28, maxGrid)
         conversionGrid = grid.copy()
         mask = conversionGrid>-3.40
-        grid = np.where(mask, conversionGrid*3.28, -80.0) 
+        grid = np.where(mask, conversionGrid*3.28, np.float32(-80.0))
 
         #return maxGrid  # convert meters to feet
         return grid
@@ -400,7 +394,7 @@ class Procedure (SmartScript.SmartScript):
                 sg[target] = np.where(np.greater(grid[src],-80.0),sg[target] + grid[src],sg[target])
                 count[target] = np.where(np.greater(grid[src],-80.0),count[target] + gridOfOnes[src],count[target])
 
-        return np.where(np.greater(count,0.0), sg / count, -80.0)
+        return np.where(np.greater(count,0.0), sg / count, np.float32(-80.0))
     
     
     # Copies the specified weather elements in elementList into the Fcst database.
@@ -537,13 +531,13 @@ class Procedure (SmartScript.SmartScript):
                 surgePctGridNAVD = np.where(np.greater(surgePctGridNAVD, -10.0), self.smoothGrid(surgePctGridNAVD,3), surgePctGridNAVD)
         
             mask1 = np.logical_and(np.greater(msltonavd, -80.0),np.greater(surgePctGridNAVD,-80.0))
-            surgePctGridMSL= np.where(mask1, surgePctGridNAVD - msltonavd, -80.0) # MSL Grid     
+            surgePctGridMSL= np.where(mask1, surgePctGridNAVD - msltonavd, np.float32(-80.0)) # MSL Grid     
             surgePctGridMLLW = np.where(np.greater(navdtomllw,-80.0) & np.greater(surgePctGridNAVD,-80.0), \
-                                        surgePctGridNAVD + navdtomllw, -80.0)# MLLW Grid
+                                        surgePctGridNAVD + navdtomllw, np.float32(-80.0)) # MLLW Grid
             surgePctGridMHHW = np.where(np.greater(navdtomhhw,-80.0) & np.greater(surgePctGridNAVD,-80.0), \
-                                        surgePctGridNAVD + navdtomhhw, -80.0)# MHHW Grid
+                                        surgePctGridNAVD + navdtomhhw, np.float32(-80.0)) # MHHW Grid
             surgeDiffMLLWMHHW = np.where(np.greater(surgePctGridMLLW,-80.0) & np.greater(surgePctGridMHHW, -80.0), \
-                                         surgePctGridMLLW-surgePctGridMHHW, -80.0)# Diff Grid Between MLLW and MHHW   
+                                         surgePctGridMLLW-surgePctGridMHHW, np.float32(-80.0)) # Diff Grid Between MLLW and MHHW   
            
             self.makePhishGrid(pctStr, "FHAG0", smoothThreatGrid) 
         
@@ -665,8 +659,7 @@ class Procedure (SmartScript.SmartScript):
             #print "THRESHOLD FOR KEY IS: ", key, threshDict[key]
             thresh = threshDict[key]
             keyIndex = self.getIndex(key, threatKeys)
-            coastalThreat = np.where(ssea & np.greater_equal(surgePctGrid, thresh), keyIndex,
-                                     coastalThreat)
+            coastalThreat[ssea & np.greater_equal(surgePctGrid, thresh)] = keyIndex
  
 #       create the CoastalThreat Grid
         self.createGrid("Fcst", threatWEName, "DISCRETE",

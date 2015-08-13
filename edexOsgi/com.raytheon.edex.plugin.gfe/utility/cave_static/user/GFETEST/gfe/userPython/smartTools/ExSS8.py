@@ -40,12 +40,12 @@ class Tool (SmartScript.SmartScript):
     def execute(self, PoP, Wx):
          # Assign PoP based on Wx
 
-          PoP = where(self.wxMask(Wx, "<NoCov>:"),  0,   PoP)
+          PoP[self.wxMask(Wx, "<NoCov>:")] = 0
 
           # Here we need to require a regular expression to avoid confusion between "Chc" and "SChc" and "Sct" and "WSct"
-          PoP = where(self.wxMask(Wx, "^Chc:", 1),  25,   PoP)
-          PoP = where(self.wxMask(Wx, "^Sct:", 1),  55,   PoP)
+          PoP[self.wxMask(Wx, "^Chc:", 1)] = 25
+          PoP[self.wxMask(Wx, "^Sct:", 1)] = 55
 
-          PoP = where(self.wxMask(Wx, "Wide:"),  80,   PoP)
+          PoP[self.wxMask(Wx, "Wide:")] = 80
 
           return PoP

@@ -530,7 +530,7 @@ class ITool (ISmartScript.ISmartScript):
         for gridEntry in createGrids:
             if len(gridEntry) == 7:
                 model, elementName, elementType, startHour, endHour, value, editAreas = gridEntry
-                defValue = None
+                defValue = 0
             elif len(gridEntry) == 8:
                 model, elementName, elementType, startHour, endHour, value, editAreas, defValue = gridEntry
             else:
@@ -548,11 +548,10 @@ class ITool (ISmartScript.ISmartScript):
             if createdGrids.has_key(key):
                 grid = createdGrids[key]
             else:
-                grid = numpy.zeros_like(self._empty)
-                if defValue is not None:
-                    grid = numpy.where(grid == 0, defValue, defValue)
+                grid = self.newGrid(defValue)
+
             if editAreas == "all":
-                mask = self._empty + 1
+                mask = self.newGrid(True, bool)
             else:
                 mask = self._makeMask(editAreas)
             #self.output("mask "+`size(mask)`, self._outFile)
@@ -562,7 +561,7 @@ class ITool (ISmartScript.ISmartScript):
                 #self._addHazard(elementName, timeRange, value, mask)
                 value = self.getIndex(value, hazKeys)
                 #self.output("setting value "+value+" "+hazKeys, self._outFile)
-                grid = numpy.where(mask, value, grid)
+                grid[mask] = value
                 grid = grid.astype('int8')
                 elementType = self.getDataType(elementName)
                 self.createGrid(model, elementName, elementType, (grid, hazKeys), timeRange)
@@ -571,17 +570,18 @@ class ITool (ISmartScript.ISmartScript):
                     value = "<NoCov>:<NoWx>:<NoInten>:<NoVis>:"
                 value = self.getIndex(value, wxKeys)
                 #self.output("setting value "+value+" "+wxKeys, self._outFile)
-                grid = numpy.where(mask, value, grid)
+                grid[mask] = value
+                grid = grid.astype('int8')
                 elementType = self.getDataType(elementName)
                 self.createGrid(model, elementName, elementType, (grid, wxKeys), timeRange)
             elif elementType == "VECTOR":
-                grid = numpy.where(mask, value[0], grid)
+                grid[mask] = value[0]
                 dirGrid = numpy.zeros_like(self._empty)
-                dirGrid = numpy.where(mask, self.textToDir(value[1]), dirGrid)
+                dirGrid[mask] = self.textToDir(value[1])
                 elementType = self.getDataType(elementName)
                 self.createGrid(model, elementName, elementType, (grid, dirGrid), timeRange)
             else:
-                grid = numpy.where(mask, value, grid)
+                grid[mask] = value
                 elementType = self.getDataType(elementName)
                 self.createGrid(model, elementName, elementType, grid, timeRange)
             # Save the grid in the createdGridDict

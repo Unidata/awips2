@@ -71,7 +71,7 @@ class Procedure (SmartScript.SmartScript):
         # convert to feet
         topoGridC = topoGrid * 3.281
         topoGridC[less(topoGridC,0.0)] = 0.0
-        #topoGrid = where(greater(topoGrid,200.0),200.0,topoGrid)
+        #topoGrid[greater(topoGrid,200.0)] = 200.0
        
         return topoGridC
 
@@ -91,7 +91,7 @@ class Procedure (SmartScript.SmartScript):
         # convert to feet
         topoGridC = topoGrid * 3.281
         topoGridC[less(topoGridC,-50.0)] = 0.0
-        #topoGrid = where(greater(topoGrid,200.0),200.0,topoGrid)
+        #topoGrid[greater(topoGrid,200.0)] = 200.0
        
         return topoGridC
 
@@ -111,7 +111,7 @@ class Procedure (SmartScript.SmartScript):
         # convert to feet
         topoGridC = topoGrid * 3.281
         topoGridC[less(topoGridC,-50.0)] = 0.0
-        #topoGrid = where(greater(topoGrid,200.0),200.0,topoGrid)
+        #topoGrid[greater(topoGrid,200.0)] = 200.0
 
         
         return topoGridC
@@ -132,7 +132,7 @@ class Procedure (SmartScript.SmartScript):
         # convert to feet
         topoGridC = topoGrid * 3.281
         topoGridC[less(topoGridC,-50.0)] = 0.0
-        #topoGrid = where(greater(topoGrid,200.0),200.0,topoGrid)
+        #topoGrid[greater(topoGrid,200.0)] = 200.0
        
         return topoGridC    
 
@@ -152,7 +152,7 @@ class Procedure (SmartScript.SmartScript):
         # convert to feet
         topoGridC = topoGrid * 3.281
         topoGridC[less(topoGridC,-50.0)] = 0.0
-        #topoGrid = where(greater(topoGrid,200.0),200.0,topoGrid)
+        #topoGrid[greater(topoGrid,200.0)] = 200.0
         
         return topoGridC
 
@@ -172,7 +172,7 @@ class Procedure (SmartScript.SmartScript):
         # convert to feet
         topoGridC = topoGrid * 3.281
         topoGridC[less(topoGridC,-50.0)] = 0.0
-        #topoGrid = where(greater(topoGrid,200.0),200.0,topoGrid)
+        #topoGrid[greater(topoGrid,200.0)] = 200.0
        
         return topoGridC 
     

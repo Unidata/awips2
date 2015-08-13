@@ -453,7 +453,7 @@ class Procedure (SmartScript.SmartScript):
          #
          #  Calculate the variance in that grid
          #
-         obsgrid=where(self.eaMask,ravel(ogrid),0)
+         obsgrid=where(self.eaMask,ravel(ogrid),float32(0))
          obsgrid2=obsgrid*obsgrid
          std=sqrt(float(add.reduce(obsgrid2))/self.numpoints-((float(add.reduce(obsgrid))/self.numpoints)**2))
          stds[key]=std
@@ -471,7 +471,7 @@ class Procedure (SmartScript.SmartScript):
             records=obsCases[prevkey]
             pgrid=self.VU.getVerGrids(self.obsModel,pbasetime,parm,pstime,petime,recList=records)
             if pgrid is not None:
-               prevgrid=where(self.eaMask,ravel(pgrid),0)
+               prevgrid=where(self.eaMask,ravel(pgrid),float32(0))
                chggrid=obsgrid-prevgrid
                chgs[key]=add.reduce(chggrid)/self.numpoints
                abschgs[key]=add.reduce(abs(chggrid))/self.numpoints
@@ -483,7 +483,7 @@ class Procedure (SmartScript.SmartScript):
          anomstr="              "
          cgrid=self.getClimoGrid(parm,pyea,pmon,pday)
          if cgrid is not None:
-            climgrid=where(self.eaMask,ravel(cgrid),0)
+            climgrid=where(self.eaMask,ravel(cgrid),float32(0))
             anomgrid=obsgrid-climgrid
             anom[key]=add.reduce(anomgrid)/self.numpoints
             absanom[key]=add.reduce(abs(anomgrid))/self.numpoints

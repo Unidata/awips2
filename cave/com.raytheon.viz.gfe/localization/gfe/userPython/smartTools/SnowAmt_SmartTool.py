@@ -47,18 +47,18 @@ class Tool (SmartScript.SmartScript):
 ##            SnowRatio = 7
 ##        else:
 ##            SnowRatio = SnowRatioDict[int(T)]
-        SnowRatio = zeros(T.shape)        
-        SnowRatio = where(less(T, 9), 20,
-                        where(greater_equal(T, 30), 7,
-                              self.linear(9,29,18,8,T)))
+        SnowRatio = self.linear(9,29,18,8,T).astype(float32)
+        SnowRatio[less(T, 9)] = 20
+        SnowRatio[greater_equal(T, 30)] = 7
                     
 ##        # Determine new value
 ##        if (FzLevel-1000) <= Topo:
 ##            SnowAmt = SnowRatio * QPF
 ##        else:
 ##            SnowAmt = 0
-        SnowAmt = zeros(T.shape)
-        SnowAmt = where(less_equal(FzLevel-1000, Topo), SnowRatio*QPF,0)
+        SnowAmt = self.empty()
+        fzLevelMask = less_equal(FzLevel-1000, Topo)
+        SnowAmt[fzLevelMask] = SnowRatio[fzLevelMask] * QPF[fzLevelMask]
 
         # Return the new value
         return SnowAmt

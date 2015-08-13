@@ -1387,7 +1387,7 @@ class SmartScript(BaseTool.BaseTool):
                     if combinedKey not in headKeys:
                         headKeys.append(combinedKey)
                     index = self.getIndex(combinedKey, headKeys)
-                    headValues = where(overlap, index, headValues)
+                    headValues[overlap] = index
 
         # return the new headlines grid
         return (headValues, headKeys)

@@ -184,19 +184,19 @@ class Tool (SmartScript.SmartScript):
                 bits,iscgrid=isc
                 if ((WEname=="MaxT")or(WEname=="PoP")):
                     sum=where(bits,maximum(iscgrid,sum),sum)
-                    cnt=where(bits,1,cnt)
+                    cnt[bits] = 1
                 elif (WEname=="MinT"):
                     sum=where(bits,minimum(iscgrid,sum),sum)
-                    cnt=where(bits,1,cnt)
+                    cnt[bits] = 1
                 else:
                     sum=where(bits,sum+iscgrid,sum)
-                    cnt=where(bits,cnt+1,cnt)
+                    cnt[bits] += 1
             if wxType==2:  # VECTOR
                 bits,mag,dir=isc
                 (u,v)=self.MagDirToUV(mag,dir)
                 sum[0]=where(bits,sum[0]+u,sum[0])
                 sum[1]=where(bits,sum[1]+v,sum[1])
-                cnt=where(bits,cnt+1,cnt)
+                cnt[bits] += 1
         #
         #  now calculate average/max/min, etc.
         #  (count is always 1 for max/min)
@@ -209,7 +209,7 @@ class Tool (SmartScript.SmartScript):
                 sum[1]=where(equal(cnt,0),v,sum[1])
             else:
                 sum=where(equal(cnt,0),variableElement,sum)
-            cnt=where(equal(cnt,0),1,cnt)
+            cnt[equal(cnt,0)] = 1
             new=sum/cnt
             if (wxType==2):
                 (mag,dir)=self.UVToMagDir(new[0],new[1])

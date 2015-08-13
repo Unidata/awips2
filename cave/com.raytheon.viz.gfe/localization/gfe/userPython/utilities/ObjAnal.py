@@ -543,7 +543,7 @@ class ObjAnal(SmartScript.SmartScript):
       #
       #
       nearzero=np.logical_and(np.less(zarr,0.001),np.greater(zarr,-0.001))
-      zarr=np.where(nearzero,0.001,zarr).astype(np.float32)
+      zarr[nearzero] = 0.001
       del nearzero
       zw=zarr*self.SerpWsum
       del zarr
@@ -615,7 +615,7 @@ class ObjAnal(SmartScript.SmartScript):
       zarr=np.array(zlist,np.float32)
       #
       nearzero=np.logical_and(np.less(zarr,0.001),np.greater(zarr,-0.001))
-      zarr=np.where(nearzero,0.001,zarr)
+      zarr[nearzero] = 0.001
 
       newsize=(numpts,self.ymax,self.xmax)
          
@@ -625,7 +625,7 @@ class ObjAnal(SmartScript.SmartScript):
       self.logtime("Getting distances",3)
       for k in range(numpts):
          dist=self.getDistance(xarr[k],yarr[k],harr[k],scaledtopo,newlandMask)
-         dist=np.where(np.less(dist,0.000001),0.000001,dist)
+         dist[np.less(dist,0.000001)] = 0.000001
          dsquared[k]=(dist*dist).astype(np.float32)
          dists[k]=dist.astype(np.float32)
       self.logtime("Done getting distances",3)   
@@ -643,13 +643,13 @@ class ObjAnal(SmartScript.SmartScript):
             if self.DSquaredDist>0:
                dd=self.DSquaredDist/self.gridres
                finalDist=np.where(np.greater(dd,finalDist),dd,finalDist)
-            w=np.where(np.greater(dists[k],finalDist),0.0,w)
+            w[np.greater(dists[k],finalDist)] = 0.0
          elif self.DSquaredDist>0:
-            w=np.where(np.greater(dists[k],self.DSquaredDist/self.gridres),0.0,w)
+            w[np.greater(dists[k],self.DSquaredDist/self.gridres)] = 0.0
          totweight=totweight+w
          totsum=totsum+(zarr[k]*w)
 
-      totweight=np.where(np.less(totweight,1.0e-200),1.0,totweight)
+      totweight[np.less(totweight,1.0e-200)] = 1.0
       chg=totsum/totweight
       self.logtime("Done with Distance Squared calculations",2)
       return chg
@@ -744,7 +744,7 @@ class ObjAnal(SmartScript.SmartScript):
          #  Barnes weight is e taken to the negative xx power -
          #  but make sure it isn't huge - which would return a zero weight
          #
-         xx=np.where(np.greater(xx,200.0),200.0,xx)
+         xx[np.greater(xx,200.0)] = 200.0
          w=(np.exp(xx*-1.0)).astype(np.float32)         
          totweights=totweights+w
          #
@@ -756,7 +756,7 @@ class ObjAnal(SmartScript.SmartScript):
       #  Calculate weighted average.  Sum of (weights * values) divided by
       #  the sum of weights (make sure sum of weights is non-zero)
       #
-      totweights=np.where(np.less(totweights,1.0e-200),1.0e-200,totweights)
+      totweights[np.less(totweights,1.0e-200)] = 1.0e-200
       chg=totsum/totweights
       #
       #  Barnes PASS 2
@@ -773,7 +773,7 @@ class ObjAnal(SmartScript.SmartScript):
          #  Barnes weight is e taken to the negative xx power -
          #  but make sure it isn't huge - which would return a zero weight
          #
-         xx=np.where(np.greater(xx,200.0),200.0,xx)
+         xx[np.greater(xx,200.0)] = 200.0
          w=(np.exp(xx*-1.0)).astype(np.float32)
          totweights=totweights+w
          #
@@ -788,7 +788,7 @@ class ObjAnal(SmartScript.SmartScript):
       #  Calculate weighted average.  Sum of (weights * values) divided by
       #  the sum of weights (make sure sum of weights is non-zero)
       #
-      totweights=np.where(np.less(totweights,1.0e-200),1.0e-200,totweights)
+      totweights[np.less(totweights,1.0e-200)] = 1.0e-200
       chg2=totsum/totweights
       #
       #  Add the adjustment from PASS 2 to PASS 1
@@ -970,7 +970,7 @@ class ObjAnal(SmartScript.SmartScript):
       #  that way maximum value in each column will be the one where
       #  distance is less or equal to mostremote distance
       #
-      dloc=np.where(np.greater(dsums,mostremote),0,dsums)
+      dloc=np.where(np.greater(dsums,mostremote),np.float32(0),dsums)
       #
       #  get total distance up to the point where it is less than mostremote
       #

@@ -2066,7 +2066,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
 		else:
 		   cyc=cycle*HOURSECS
                 rem=remainder(self.fncBtime,DAYSECS).astype(int)
-                rightCycle=where(equal(rem,cyc),1,rightCycle)
+                rightCycle[equal(rem,cyc)] = 1
           #
           #  get list of forecast records with right forecast hours
           #
@@ -3265,7 +3265,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
           for cycle in cycleList:
              cyc=cycle*HOURSECS
              rem=remainder(self.fncBtime,DAYSECS).astype('i')
-             rightCycle=where(equal(rem,cyc),1,rightCycle)
+             rightCycle[equal(rem,cyc)] = 1
        #
        #  get logical array of records with right forecast hours
        #
@@ -3309,15 +3309,15 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        ctype=type(cycles)
        if ((ctype is types.TupleType)or(ctype is types.ListType)):
           for cycle in cycles:
-	     if type(cycle) is types.StringType:
-	        cycleList.append(int(cycle))
-	     else:
-                cycleList.append(cycle)
+              if type(cycle) is types.StringType:
+                  cycleList.append(int(cycle))
+              else:
+                  cycleList.append(cycle)
        else:
-          if type(cycles) is types.StringType:
-	     cycleList.append(int(cycles))
-	  else:
-             cycleList.append(cycles)
+           if type(cycles) is types.StringType:
+               cycleList.append(int(cycles))
+           else:
+               cycleList.append(cycles)
        if (-1 in cycleList):
           rightCycle=ones(self.sncBtime.shape)
        else:
@@ -3325,7 +3325,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
           for cycle in cycleList:
              cyc=cycle*HOURSECS
              rem=remainder(self.sncBtime,DAYSECS).astype('i')
-             rightCycle=where(equal(rem,cyc),1,rightCycle)
+             rightCycle[equal(rem,cyc)] = 1
        #
        #  get logical array of records with right forecast hours
        #
@@ -3575,9 +3575,9 @@ class BOIVerifyUtility(SmartScript.SmartScript):
           #  been done...so don't do that...
           #
           if vectorErr==0:
-             err=where(eaGrid,fcstGrid-obsGrid,0)
+             err=where(eaGrid,fcstGrid-obsGrid,float32(0))
           else:
-             err=where(eaGrid,err,0)
+             err=where(eaGrid,err,float32(0))
           #
           #  Now all the stat calculations
           #
@@ -3650,10 +3650,10 @@ class BOIVerifyUtility(SmartScript.SmartScript):
           #
           notFcst=logical_not(fcstOccur)
           notObs=logical_not(obsOccur)
-          hits=add.reduce(add.reduce(where(eaGrid,logical_and(fcstOccur,obsOccur),0)))
-          miss=add.reduce(add.reduce(where(eaGrid,logical_and(notFcst,obsOccur)  ,0)))
-          falr=add.reduce(add.reduce(where(eaGrid,logical_and(fcstOccur,notObs)  ,0)))
-          corn=add.reduce(add.reduce(where(eaGrid,logical_and(notFcst,notObs)    ,0)))
+          hits=count_nonzero(logical_and(eaGrid,logical_and(fcstOccur,obsOccur)))
+          miss=count_nonzero(logical_and(eaGrid,logical_and(notFcst,obsOccur)))
+          falr=count_nonzero(logical_and(eaGrid,logical_and(fcstOccur,notObs)))
+          corn=count_nonzero(logical_and(eaGrid,logical_and(notFcst,notObs)))
           total=hits+miss+falr+corn
           if abs(float(total)-fnum)>0.5:
              self.logMsg("Number in binary histogram not the same as number of points")
@@ -3770,98 +3770,98 @@ class BOIVerifyUtility(SmartScript.SmartScript):
           return corn/1.0
        if statID in ["fc","afc"]:
           nofcst=less(total,1)
-          total=where(nofcst,1,total)
+          total[nofcst] = 1
           score=(hits+corn)/total
-          score=where(nofcst,1.0,score)
+          score[nofcst] = 1.0
           return score
        if statID in ["freqo",]:
           nofcst=less(total,1)
-          total=where(nofcst,1,total)
+          total[nofcst] = 1
           score=(hits+miss)/total
-          score=where(nofcst,0.0,score)
+          score[nofcst] = 0.0
           return score
        if statID in ["freqf",]:
           nofcst=less(total,1)
-          total=where(nofcst,1,total)
+          total[nofcst] = 1
           score=(hits+falr)/total
-          score=where(nofcst,0.0,score)
+          score[nofcst] = 0.0
           return score
        if statID in ["freqbias","afreqbias"]:
           denom=hits+miss
           nofcst=less(denom,1)
-          denom=where(nofcst,1,denom)
+          denom[nofcst] = 1
           score=(hits+falr)/denom
-          score=where(nofcst,1.0,score)
+          score[nofcst] = 1.0
           return score
        if statID in ["pod","apod"]:
           denom=hits+miss
           nofcst=less(denom,1)
-          denom=where(nofcst,1,denom)
+          denom[nofcst] = 1
           score=hits/denom
-          score=where(nofcst,1.0,score)
+          score[nofcst] = 1.0
           return score
        if statID in ["far","afar"]:
           denom=falr+hits
           nofcst=less(denom,1)
-          denom==where(nofcst,1,denom)
+          denom[nofcst] = 1
           score=falr/denom
-          score=where(nofcst,0.0,score)
+          score[nofcst] = 0.0
           return score
        if statID in ["pofd","apofd"]:
           denom=falr+corn
           nofcst=less(denom,1)
-          denom=where(nofcst,1,denom)
+          denom[nofcst] = 1
           score=falr/denom
-          score=where(nofcst,0.0,score)
+          score[nofcst] = 0.0
           return score
        if statID in ["ts","ats"]:
           denom=hits+miss+falr
           nofcst=less(denom,1)
-          denom=where(nofcst,1,denom)
+          denom[nofcst] = 1
           score=hits/denom
-          score=where(nofcst,1.0,score)
+          score[nofcst] = 1.0
           return score
        if statID in ["ets","aets"]:
-          total=where(less(total,1),1,total)
+          total[less(total,1)] = 1
           hitsrand=((hits+miss)*(hits+falr))/total
           denom=hits+miss+falr-hitsrand
           nofcst=logical_and(greater(denom,-0.1),less(denom,0.1))
-          denom=where(nofcst,1,denom)
+          denom[nofcst] = 1
           score=(hits-hitsrand)/denom
-          score=where(nofcst,1.0,score)
+          score[nofcst] = 1.0
           return score
        if statID in ["hk","ahk"]:
           #pofd
           denom=falr+corn
           nofcst=less(denom,1)
-          denom=where(nofcst,1,denom)
+          denom[nofcst] = 1
           pofd=falr/denom
-          pofd=where(nofcst,0.0,pofd)
+          pofd[nofcst] = 0.0
           #pod
           denom=hits+miss
           nofcst=less(denom,1)
-          denom=where(nofcst,1,denom)
+          denom[nofcst] = 1
           pod=hits/denom
-          pod=where(nofcst,1.0,pod)
+          pod[nofcst] = 1.0
           score=pod-pofd
           return score
        if statID in ["hss","ahss"]:
-          total=where(less(total,1),1,total)
+          total[less(total,1)] = 1
           ecrand=(((hits+miss)*(hits+falr))+((corn+miss)*(corn+falr)))/total
           denom=total-ecrand
           nofcst=logical_and(greater(denom,-0.1),less(denom,0.1))
-          denom=where(nofcst,1,denom)
+          denom[nofcst] = 1
           score=(hits+corn-ecrand)/denom
-          score=where(nofcst,1.0,score)
+          score[nofcst] = 1.0
           return score
        if statID in ["oddsratio","aoddsratio"]:
           no1=logical_or(less(hits,0.5),less(corn,0.5))
           no2=logical_or(less(falr,0.5),less(miss,0.5))
           nofcst=logical_or(no1,no2)
           denom=falr*miss
-          denom=where(less(denom,1),1,denom)
+          denom[less(denom,1)] = 1
           score=(hits*corn)/denom
-          score=where(nofcst,200.0,score)
+          score[nofcst] = 200.0
           return score
     #==================================================================
     #  getVerStatScales - Main routine to get a calculate a statistic
@@ -4029,9 +4029,9 @@ class BOIVerifyUtility(SmartScript.SmartScript):
              #  been done...so don't do that...
              #
              if vectorErr==0:
-                err=where(eaGrid,fcstGrid-obsGrid,0)
+                err=where(eaGrid,fcstGrid-obsGrid,float32(0))
              else:
-                err=where(eaGrid,err,0)
+                err=where(eaGrid,err,float32(0))
              #
              #  Now all the stat calculations
              #
@@ -4099,10 +4099,10 @@ class BOIVerifyUtility(SmartScript.SmartScript):
              #
              notFcst=logical_not(fcstOccur)
              notObs=logical_not(obsOccur)
-             hits=add.reduce(add.reduce(where(eaGrid,logical_and(fcstOccur,obsOccur),0)))
-             miss=add.reduce(add.reduce(where(eaGrid,logical_and(notFcst,obsOccur)  ,0)))
-             falr=add.reduce(add.reduce(where(eaGrid,logical_and(fcstOccur,notObs)  ,0)))
-             corn=add.reduce(add.reduce(where(eaGrid,logical_and(notFcst,notObs)    ,0)))
+             hits=count_nonzero(logical_and(eaGrid,logical_and(fcstOccur,obsOccur)))
+             miss=count_nonzero(logical_and(eaGrid,logical_and(notFcst,obsOccur)))
+             falr=count_nonzero(logical_and(eaGrid,logical_and(fcstOccur,notObs)))
+             corn=count_nonzero(logical_and(eaGrid,logical_and(notFcst,notObs)))
              total=hits+miss+falr+corn
              if abs(float(total)-fnum)>0.5:
                 self.logMsg("Number in binary histogram not the same as number of points")
@@ -4928,7 +4928,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
           #  Average over the first (y) dimension - making the 'mid' grid
           #
           mask=clip(mask,0,1)
-          gridmin1=where(mask,gridmin,0)
+          gridmin1=where(mask,gridmin,float32(0))
           mid=grid*0.0
           midd=grid*0.0
           c=cumsum(gridmin1,0)
@@ -5009,7 +5009,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
           grid1=grid
        else:
           mask=clip(mask,0,1)
-          grid1=where(mask,grid,0)
+          grid1=where(mask,grid,float32(0))
        #
        #  Average over the first (y) dimension - making the 'mid' grid
        #

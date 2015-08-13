@@ -329,7 +329,7 @@ class Tool (SmartScript.SmartScript):
           #  Average over the first (y) dimension - making the 'mid' grid
           #
           mask=clip(mask,0,1)
-          gridmin1=where(mask,gridmin,0)
+          gridmin1=where(mask,gridmin,float32(0))
           mid=grid*0.0
           midd=grid*0.0
           c=cumsum(gridmin1,0)

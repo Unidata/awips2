@@ -177,7 +177,7 @@ class ISmartScript(SmartScript.SmartScript):
                 editMask = logical_and(equal(byteGrid, oldIndex), mask)
         
                 # poke in the new values
-                byteGrid = where(editMask, newIndex, byteGrid)
+                byteGrid[editMask] = newIndex
 
             self.createGrid("Fcst", weName, "DISCRETE", (byteGrid, hazKey),
                             tr, discreteOverlap=1, discreteAuxDataLength=4)

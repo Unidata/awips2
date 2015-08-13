@@ -72,15 +72,11 @@ class Tool (SmartScript.SmartScript):
         d = [0.0110, -0.0742, -0.0488, 0.0103, 0.2960, -0.1368, -0.0074, -0.0218, -0.0027]
 
         # Initialize the coeficient grids
-        aGrid = empty_like(tGrid)
-        aGrid.fill(a[-1])   #last value in list
-        bGrid = empty_like(tGrid)
-        bGrid.fill(b[-1])
-        cGrid = empty_like(tGrid)
-        cGrid.fill(c[-1])
-        dGrid = empty_like(tGrid)
-        dGrid.fill(d[-1])
-        tDiff = zeros(tGrid.shape,dtype=float32)
+        aGrid = self.newGrid(a[-1])
+        bGrid = self.newGrid(b[-1])
+        cGrid = self.newGrid(c[-1])
+        dGrid = self.newGrid(d[-1])
+        tDiff = self.empty()
 
         # define grids of coefficients based on tGrid
         for i in xrange(len(tThresh) - 1):
@@ -98,8 +94,8 @@ class Tool (SmartScript.SmartScript):
                     + dGrid * pow(tDiff, 3)
 
         # Clip the snowRatio grid to 10.0 where tGrid is outside limits
-        #baseRatio = where(greater(tGrid, 1.0), 0.0, baseRatio)
-        #baseRatio = where(less(tGrid, tThresh[0]), 10.0, baseRatio)
+        #baseRatio[greater(tGrid, 1.0)] = 0.0
+        #baseRatio[less(tGrid, tThresh[0])] = 10.0
 
         return baseRatio
 
@@ -182,7 +178,7 @@ class Tool (SmartScript.SmartScript):
 
             # adjust snowRatio based on lapseRate
             #lr = -(tCube[i+1] - tCube[i])
-            #lrAdj = where(greater_equal(lr,6.5), 1.0 + ((lr - lrMin) / (lrMax - lrMin)) * lrMaxAdj, 1.0)
+            #lrAdj = where(greater_equal(lr,6.5), 1.0 + ((lr - lrMin) / (lrMax - lrMin)) * lrMaxAdj, float32(1.0))
             #layerSR[i] = layerSR[i] * lrAdj
             
             # Calc avg pressure vertical velocity, scale based on RH and sum
@@ -211,10 +207,10 @@ class Tool (SmartScript.SmartScript):
         # This is basically Baumgardt - Top Down Approach - No ice No dice!
         #mask = logical_and(less(tCube, 265.15), greater_equal(rhCube, 50.0))
         #mask = sum(mask)  # reduce to single level by adding bits verically
-        #totalSnowRatio = where(equal(mask, 0), 0.0, totalSnowRatio)
+        #totalSnowRatio[equal(mask, 0)] = 0.0
 
         #
-        thicknessSnowRatio = zeros(gridShape,dtype=float32)
+        thicknessSnowRatio = self.empty()
         myThickness = varDict["Thickness"]
 
         if myThickness == "850-700":
@@ -238,7 +234,7 @@ class Tool (SmartScript.SmartScript):
         mask = any(less_equal(tCube, 272.65), axis = 0) 
         mask = sum(mask) # reduce to single level by adding bits vertically
         # if mask == 0, nowhere in the column is temp < 0.5C
-        totalSnowRatio = where(mask, totalSnowRatio, 0.0)
+        totalSnowRatio[logical_not(mask)] = 0.0
         #Calculate Snowfall - taper to zero from 31 to 34 F.
         snowfall = QPF * totalSnowRatio
         snowfall = where(greater(T, 31.0), pow(35.0 - T,2)/16.0 * snowfall , snowfall)

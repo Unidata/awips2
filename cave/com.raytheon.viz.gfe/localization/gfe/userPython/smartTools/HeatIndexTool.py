@@ -65,7 +65,7 @@ class Tool (SmartScript.SmartScript):
         downMask = logical_and(rhLessThan13, T80to112)
 
         # make array that is T where conditions are true and 100, otherwise
-        adjustT = where(downMask, T, 80.0)
+        adjustT = where(downMask, T, float32(80.0))
         HeatIndex = where(downMask, HeatIndex - (((13.0 - RH) / 4.0) * \
                               sqrt((17.0 - abs(adjustT - 95.0)) / 17)),
                               HeatIndex)

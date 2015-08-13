@@ -328,7 +328,7 @@ class ISC_Utility(SmartScript.SmartScript):
             if (landea is not None):
                 landGrid=self.encodeEditArea(landea)
         if landGrid is None:
-            landGrid=self.getTopo() * 0.0
+            landGrid = self.empty(numpy.bool)
             eanames=self.editAreaList()
             for eaname in eanames:
                 if ((len(eaname)==7)and(eaname[0:4]=="ISC_")):
@@ -337,7 +337,7 @@ class ISC_Utility(SmartScript.SmartScript):
                         ea=self.getEditArea(name)
                         if ea is not None:
                             grid=self.encodeEditArea(ea)
-                            landGrid=numpy.where(grid,1,landGrid)
+                            landGrid |= grid
         return landGrid
     #========================================================================
     #  _getThresholdInfo - return thresholdInfo structure for the
@@ -921,7 +921,7 @@ class ISC_Utility(SmartScript.SmartScript):
             sum=self._empty
             if GridType.VECTOR.equals(wxType):
                 sumv=self._empty
-        cnt=self._empty
+        cnt = self.empty()
         #
         #  foreach time range...get the ISC composite for
         #  that hour
@@ -936,22 +936,22 @@ class ISC_Utility(SmartScript.SmartScript):
             if GridType.SCALAR.equals(wxType):
                 bits,isc=comp
                 #isc=self.getGrids("ISC",parmName,"SFC",tr)
-                if ((parmName=="MaxT")or(parmName=="PoP")):
+                if parmName in ["MaxT", "PoP"]:
                     sum=numpy.where(bits,numpy.maximum(isc,sum),sum)
-                    cnt=numpy.where(bits,1,cnt)
-                elif (parmName=="MinT"):
+                    cnt[bits] = 1
+                elif parmName=="MinT":
                     sum=numpy.where(bits,numpy.minimum(isc,sum),sum)
-                    cnt=numpy.where(bits,1,cnt)
+                    cnt[bits] = 1
                 else:
                     sum=numpy.where(bits,sum+isc,sum)
-                    cnt=numpy.where(bits,cnt+1,cnt)
+                    cnt[bits] += 1
             if GridType.VECTOR.equals(wxType):
                 bits,mag,direc = comp
                 #(mag,direc)=self.getGrids("ISC",parmName,"SFC",tr)
                 (u,v)=self.MagDirToUV(mag,direc)
                 sum=numpy.where(bits,sum+u,sum)
                 sumv=numpy.where(bits,sumv+v,sumv)
-                cnt=numpy.where(bits,cnt+1,cnt)
+                cnt[bits] += 1
             if GridType.WEATHER.equals(wxType):
                 bits = comp
                 bits,keys,strings=comp
@@ -963,14 +963,14 @@ class ISC_Utility(SmartScript.SmartScript):
         noISC=numpy.less(cnt,0.5)
         bits=numpy.greater(cnt,0.5)
         if GridType.SCALAR.equals(wxType) or GridType.VECTOR.equals(wxType):
-            cnt=numpy.where(numpy.less(cnt,1),1,cnt)
+            cnt[numpy.less(cnt, 1)] = 1
             if GridType.VECTOR.equals(wxType):
                 sum=numpy.where(noISC,minlimit,sum/cnt)
                 sumv=numpy.where(noISC,minlimit,sumv/cnt)
                 (mag,direc)=self.UVToMagDir(sum,sumv)
                 (baseMag,baseDir)=baseGrid
-                mag=numpy.where(noISC,baseMag,mag)
-                direc=numpy.where(noISC,baseDir,direc)
+                mag[noISC] = baseMag
+                direc[noISC] = baseDir
                 return bits,mag,direc
             else:
                 sum=numpy.where(noISC,baseGrid,sum/cnt)
@@ -1085,7 +1085,7 @@ class ISC_Utility(SmartScript.SmartScript):
     #  just like other calcuations
     #
     def _checkViolate(self, bits, criteria, areamask, discGrid, threshold):
-       violate=self._empty
+       violate = self.empty(bool)
        for i in range(4): # range(8) to consider diagonal neighbors
            #
            #  make sure data exists for both points
@@ -1108,7 +1108,7 @@ class ISC_Utility(SmartScript.SmartScript):
            #
            mask=logical_and(logical_and(logical_and(exist,meetcrit),onborder),less(self._topodiff[i],self.MAXTOPODIFF))
            #
-           violate=where(logical_and(mask,greater(abs(discGrid),threshold)),1,violate)
+           violate[logical_and(mask, greater(abs(discGrid), threshold))] = True
        return violate
 
 

@@ -1547,7 +1547,7 @@ class Procedure (SmartScript.SmartScript):
 
         # clip values between zero and the maximum allowable wind speed
         maxWind = self.getMaxAllowableWind(maxWind)
-        grid = clip(grid, 0.0, maxWind)
+        grid.clip(0.0, maxWind, grid)
         # apply the wind reduction over land
         fraction = 1.0 - (self.lessOverLand / 100.0)
         grid = self.decreaseWindOverLand(grid, fraction, self.elevation, timeRange)

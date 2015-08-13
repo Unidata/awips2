@@ -89,10 +89,10 @@ class Tool (SmartScript.SmartScript):
             mainAddMask = logical_and(greater_equal(PoP, 5), less(Sky, PoP + self._factor))
             Sky = where(logical_and(less(PoP, 5), less_equal(Sky, PoP * self._lofactor)), PoP * self._lofactor,
                   where(logical_and(mainAddMask, less_equal(PoP, self._breathingRoom)), PoP + self._factor,
-                  where(greater(PoP, self._breathingRoom), 100, Sky)))
+                  where(greater(PoP, self._breathingRoom), float32(100), Sky)))
         elif self._operator == "multiply":
             Sky = where(logical_and(less(Sky, PoP * self._factor), less_equal(PoP * self._factor, 100)), PoP * self._factor,
-                  where(logical_and(less(Sky, PoP * self._factor), greater(PoP * self._factor, 100)), 100, Sky))
+                  where(logical_and(less(Sky, PoP * self._factor), greater(PoP * self._factor, 100)), float32(100), Sky))
         else:
             lowSkyMask = less(Sky, self._SkyLimit)
             Sky = where(logical_and(lowSkyMask, greater_equal(PoP, self._PoPLimit)), self._SkyLimit,
