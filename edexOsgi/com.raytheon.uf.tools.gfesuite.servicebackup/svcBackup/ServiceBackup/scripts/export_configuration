@@ -31,6 +31,8 @@
 # Mar 23, 2015  #4308     dgilling    Export mixedCaseProductIds.txt.
 # Apr 28, 2015  #4427     dgilling    Support subdomains of the
 #                                     primary domains.
+# Aug 10, 2015  #17443    lshi        Bug in scripts results in rsync_parms.ccc 
+#                                     file not getting used
 #
 ##
 
@@ -73,7 +75,7 @@ echo "Preparing configuration files for export..."
 edexDest=${OUTPUT_DIR}/GFEconfig/edex_static
 commonDest=${OUTPUT_DIR}/GFEconfig/common_static
 caveDest=${OUTPUT_DIR}/GFEconfig/cave_static 
-rsyncParms=GFEConfig    # DR 16464
+rsyncParmsDest=${OUTPUT_DIR}/GFEConfig/site    # DR 16464/17443
 
 echo "Making temporary edex configuration directories..."
 mkdir -p $edexDest/site
@@ -86,7 +88,7 @@ mkdir -p $caveDest/site
 
 # DR 16464
 echo "Making temporary rsync_parms directory"
-mkdir -p $rsyncParms/site
+mkdir -p $rsyncParmsDest
 
 CP_COMMAND="rsync -aq --exclude=*.pyo --exclude=*.pyc --exclude=*.md5"
 
@@ -112,10 +114,10 @@ ${CP_COMMAND} ${LOCALIZATION_PATH}/cave_static/site/${CAPS_SITE}/bundles/maps $c
 echo "Copying cave site colormaps configuration for site ${CAPS_SITE} to temporary directory..."
 ${CP_COMMAND} ${LOCALIZATION_PATH}/common_static/site/${CAPS_SITE}/colormaps $commonDest/site
 
-# DR 16464
-if [ -f ${IFPS_DATA}/rsync_parms.${CAPS_SITE} ]; then
-    echo "Copying the rsync_parms file for site ${CAPS_SITE} to temporary directory..."
-    cp -a ${IFPS_DATA}/rsync_parms.${CAPS_SITE} $rsyncParms/site
+# DR 16464, 17443: CAPS_SITE->SITE (lower case)
+if [ -f ${IFPS_DATA}/rsync_parms.${SITE} ]; then
+    echo "Copying the rsync_parms file for site ${SITE} to temporary directory..."
+    cp -a ${IFPS_DATA}/rsync_parms.${SITE} $rsyncParmsDest
 fi
 
 # Determine if we're exporting for this site or for its subdomains
@@ -152,9 +154,9 @@ do
         sed -i "s/$ORIG_SITEID/$NEW_SITEID/" ${config}
         
         # rename rsync_parms to use sub-domain site ID
-        if [ -f ${site_dir}/GFEConfig/site/rsync_parms.${CAPS_SITE} ]
+        if [ -f ${site_dir}/GFEConfig/site/rsync_parms.${SITE} ]
         then
-            mv ${site_dir}/GFEConfig/site/rsync_parms.${CAPS_SITE} ${site_dir}/GFEConfig/site/rsync_parms.${siteid_caps}
+            mv ${site_dir}/GFEConfig/site/rsync_parms.${SITE} ${site_dir}/GFEConfig/site/rsync_parms.${siteid_lc}
         fi
     fi
     
