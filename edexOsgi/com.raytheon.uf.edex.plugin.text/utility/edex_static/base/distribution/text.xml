@@ -36,6 +36,7 @@
     <regex>^N.*</regex>
     <regex>^F[EHIJKLMQVWX].*</regex>
     <regex>wcl_decrypted</regex>
+    <regex>ecmwf_mos_decrypted</regex>
     
     <!-- AWIPS I pattern
     TextDBPatterns.txt
