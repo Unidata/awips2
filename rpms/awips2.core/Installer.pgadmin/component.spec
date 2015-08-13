@@ -20,7 +20,7 @@ Vendor: Raytheon
 Packager: Bryan Kowal
 
 AutoReq: no
-BuildRequires: awips2-postgresql = 9.2.3-1.el6
+BuildRequires: awips2-postgresql
 BuildRequires: postgresql 
 BuildRequires: postgresql-devel
 BuildRequires: postgresql-libs
@@ -28,7 +28,7 @@ BuildRequires: wxGTK
 BuildRequires: wxGTK-devel
 
 provides: awips2-pgadmin3
-requires: awips2-psql = 9.2.3-1
+requires: awips2-psql
 requires: wxGTK
 
 %description
