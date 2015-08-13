@@ -156,7 +156,7 @@ public class FaxSender {
          * DR4550 - the sshCommand should be:
          * ssh -n ls1 -l ldad $LDAD_EXTERNAL_HOME/bin/faxSender.csh filename
          */
-        sshCommand.append("ssh -n ls1 -l ldad ");
+        sshCommand.append("ssh -q -n ls1 -l ldad ");
         sshCommand.append(System.getenv("LDAD_EXTERNAL_HOME"));
         sshCommand.append("/bin/faxSender.csh ");
         sshCommand.append(ldadScriptFilename);
