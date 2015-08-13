@@ -67,11 +67,12 @@ import com.raytheon.viz.gfe.temporaleditor.TemporalEditor;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 7, 2009            randerso     Redesigned
- * May 18, 2009 2159      rjpeter      Added temporal editor.
+ * Apr 7, 2009             randerso    Redesigned
+ * May 18, 2009 2159       rjpeter     Added temporal editor.
  * Jan 14, 2013 1442       rferrel     Add SimulatedTimeChangeListener.
- * Jan 15, 2014 16072     ryu          Modify syncSelectTR() to skip the original code when 
+ * Jan 15, 2014 16072      ryu         Modify syncSelectTR() to skip the original code when 
  *                                     called back from setSelectedTime().
+ * Aug 13, 2015  4749      njensen     Implemented dispose()                                    
  *
  * </pre>
  * 
@@ -81,7 +82,7 @@ import com.raytheon.viz.gfe.temporaleditor.TemporalEditor;
 
 public class GridManager implements IGridManager,
         ISpatialEditorTimeChangedListener {
-    
+
     private Date selectedTime = null;
 
     private class RedrawRunnable implements Runnable {
@@ -211,12 +212,6 @@ public class GridManager implements IGridManager,
             this.setSystem(true);
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @seeorg.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime.
-         * IProgressMonitor)
-         */
         @Override
         protected IStatus run(IProgressMonitor monitor) {
             if (temporalEditor != null && temporalEditor.checkDeactive()) {
@@ -230,7 +225,9 @@ public class GridManager implements IGridManager,
                 });
             }
 
-            this.schedule(60000);
+            if (!monitor.isCanceled()) {
+                this.schedule(60000);
+            }
             return Status.OK_STATUS;
         }
     }
@@ -276,6 +273,14 @@ public class GridManager implements IGridManager,
     private boolean selectionActive;
 
     private Runnable redraw = new RedrawRunnable();
+
+    @Override
+    public void dispose() {
+        teDeactivateJob.cancel();
+        updateJob.cancel();
+        scrollJob.cancel();
+        activeList.remove(this);
+    }
 
     /**
      * @return the selectionActive
@@ -773,8 +778,10 @@ public class GridManager implements IGridManager,
     }
 
     protected void syncSelectTR(Date t) {
-        // setSelectedTime() will eventually call back to this method, in which case
-        // skip the original code (within the if block immediately below).
+        /*
+         * setSelectedTime() will eventually call back to this method, in which
+         * case skip the original code (within the if block immediately below).
+         */
         if (t.equals(selectedTime) == false) {
             // Use a selection tr of 1 hour duration if no active parm,
             // if active parm and no grid, use the parm's time constraint,
@@ -783,7 +790,7 @@ public class GridManager implements IGridManager,
                 TimeRange tr;
                 Parm parm = dataManager.getSpatialDisplayManager()
                         .getActivatedParm();
-    
+
                 if (parm == null) {
                     Date tbase = new Date(
                             (t.getTime() / GridManagerUtil.MILLIS_PER_HOUR)
@@ -800,11 +807,10 @@ public class GridManager implements IGridManager,
                     dataManager.getParmOp().deselectAll();
                     parm.getParmState().setSelected(true);
                 }
-    
+
                 dataManager.getParmOp().setSelectionTimeRange(tr);
             }
-        }
-        else {
+        } else {
             // reset
             selectedTime = null;
         }

@@ -36,11 +36,12 @@ import com.raytheon.viz.gfe.core.msgs.IReferenceSetInvChangedListener;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Apr 2, 2008				randerso	Initial creation
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Apr 2, 2008              randerso    Initial creation
  * 02/14/2013        #1506  mnash       Move away from using QueryScript on the UI thread
  * 02/26/2013        #1708  randerso    Remove evaluateRefSet from public interface
+ * Aug 13, 2015   4749      njensen     Extends DisposableManager
  * 
  * </pre>
  * 
@@ -48,7 +49,7 @@ import com.raytheon.viz.gfe.core.msgs.IReferenceSetInvChangedListener;
  * @version 1.0
  */
 
-public interface IReferenceSetManager {
+public interface IReferenceSetManager extends DisposableManager {
 
     public static enum RefSetMode {
         REPLACE("="), UNION("|"), INTERSECT("&&"), SUBTRACT("-"), USE_CURRENT(
@@ -66,7 +67,7 @@ public interface IReferenceSetManager {
         public String getSymbol() {
             return symbol;
         }
-    };
+    }
 
     public static enum QuickSetMode {
         RESTORE, SAVE
@@ -308,11 +309,6 @@ public interface IReferenceSetManager {
     public void saveGroup(String groupName, List<String> areaNames);
 
     public void deleteGroup(String groupName);
-
-    /**
-     * Dispose of this instance
-     */
-    public void dispose();
 
     /**
      * Retrieves a list of ReferenceData corresponding to the referenceIDs

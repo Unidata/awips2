@@ -32,16 +32,17 @@ import com.raytheon.uf.common.dataplugin.gfe.weatherelement.WEGroup;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Jun 30, 2008	 #878	    chammack	Initial creation
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Jun 30, 2008  #878       chammack    Initial creation
+ * Aug 13, 2015  4749       njensen     Extends DisposableManager
  * 
  * </pre>
  * 
  * @author chammack
  * @version 1.0
  */
-public interface IWEGroupManager {
+public interface IWEGroupManager extends DisposableManager {
 
     /**
      * Public function called to save a Bundle. This function takes a Bundle

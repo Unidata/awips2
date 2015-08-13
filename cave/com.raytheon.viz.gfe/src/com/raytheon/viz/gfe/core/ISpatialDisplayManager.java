@@ -21,9 +21,7 @@ package com.raytheon.viz.gfe.core;
 
 import java.util.Date;
 
-import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.gfe.GFEOperationFailedException;
@@ -45,14 +43,16 @@ import com.raytheon.viz.gfe.rsc.GFESystemResource;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 03/20/2008              chammack    Initial Creation.
- * 07/03/2008       #1160  randerso    Added makeVisible method
- * 04/09/2009        1288  rjpeter     Added toggleVisibility and removed refresh.
+ * 07/03/2008    1160      randerso    Added makeVisible method
+ * 04/09/2009    1288      rjpeter     Added toggleVisibility and removed refresh.
+ * Aug 13, 2015  4749      njensen     Extends DisposableManager
+ * 
  * </pre>
  * 
  * @author chammack
  * @version 1.0
  */
-public interface ISpatialDisplayManager {
+public interface ISpatialDisplayManager extends DisposableManager {
 
     /**
      * Get the spatial editor time

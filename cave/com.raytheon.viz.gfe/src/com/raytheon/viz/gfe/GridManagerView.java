@@ -55,6 +55,8 @@ import com.raytheon.viz.ui.color.IBackgroundColorChangedListener.BGColorMode;
  *                                     save then the close is cancelled.
  * 10/30/2012   #1298      rferrel     Must keep blocking dialogs to work with eclipse plugins.
  * 12/10/2013   #2367      dgilling    Use new ProcedureJobePool and SmartToolJobPool.
+ * Aug 13, 2015  4749      njensen     dispose() disposes of GridManager
+ * 
  * </pre>
  * 
  * @author dfitch
@@ -79,6 +81,7 @@ public class GridManagerView extends ViewPart implements ISaveablePart2 {
     @Override
     public void dispose() {
         super.dispose();
+        getDataManager().getGridManager().dispose();
     }
 
     public DataManager getDataManager() {
@@ -112,8 +115,7 @@ public class GridManagerView extends ViewPart implements ISaveablePart2 {
 
     @Override
     public void setFocus() {
-        // TODO Auto-generated method stub
-
+        //
     }
 
     public void refresh() {
@@ -183,6 +185,7 @@ public class GridManagerView extends ViewPart implements ISaveablePart2 {
 
     @Override
     public void doSaveAs() {
+        //
     }
 
     @Override
