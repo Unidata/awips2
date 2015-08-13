@@ -67,6 +67,8 @@
 #                                                 Fixed createGrid to accept a DatabaseID for model
 #    Apr 23, 2015    4259          njensen        Updated for new JEP API
 #    Jul 17, 2015    4575          njensen        callSmartTool() and callProcedure() send HashMap for varDict
+#    Aug 13, 2015    4704          randerso       Added NumpyJavaEnforcer support in createGrids and decodeEditArea
+#                                                 additional code cleanup
 ########################################################################
 import types, string, time, sys
 from math import *
@@ -80,6 +82,7 @@ import BaseTool, Exceptions
 import DatabaseID, TimeRange, AbsTime, ParmID
 import GridInfo
 import JUtil
+import NumpyJavaEnforcer
 
 from java.util import ArrayList
 from java.util import Date
@@ -112,12 +115,21 @@ class SmartScript(BaseTool.BaseTool):
         #self.__pythonGrids = []
         self.__accessTime = 0
         self.__gridLoc = self.__parmMgr.compositeGridLocation()
+        self.__gridShape = (self.__gridLoc.getNy().intValue(), self.__gridLoc.getNx().intValue())
         self.__topoGrid = None
         self.__toolType = "numeric"
-        self._empty = zeros(self.getGridShape(), float32)
-        self._minus = self._empty - 1
+        self._empty = self.empty()
+        self._minus = self.newGrid(-1)
         self._handlers = dict()
 
+
+    def empty(self, dtype=float32):
+        """Return a grid filled with 0"""
+        return zeros(self.getGridShape(), dtype)
+    
+    def newGrid(self, initialValue, dtype=float32):
+        """Return a grid filled with initialValue"""
+        return full(self.getGridShape(), initialValue, dtype)
 
     ##
     ## Call ProcessVariableList to obtain values from the user
@@ -1244,11 +1256,10 @@ class SmartScript(BaseTool.BaseTool):
         auxJavaGrid = None
         javaOldKeys = None
         if elementType == "DISCRETE" or elementType == "WEATHER":
-            ngZero = numericGrid[0]
+            ngZero = NumpyJavaEnforcer.checkdTypes(numericGrid[0], int8)
             dimx = ngZero.shape[1]
             dimy = ngZero.shape[0]
             # Use createGrid() to get around Jep problems with 3-arg ctor.
-            ngZero = ngZero.astype('int8')
             javaGrid = Grid2DByte.createGrid(dimx, dimy, ngZero)
             oldKeys = numericGrid[1]
             javaOldKeys = ArrayList()
@@ -1263,12 +1274,11 @@ class SmartScript(BaseTool.BaseTool):
                 # FIXME: add oldKey[0] to the ArrayList for tuple types
                 javaOldKeys.add(str(oldKey))
         elif elementType == "SCALAR":
-            if numericGrid.dtype.name != 'float32':
-                numericGrid = numericGrid.astype('float32')
+            numericGrid = NumpyJavaEnforcer.checkdTypes(numericGrid, float32)
             javaGrid = Grid2DFloat.createGrid(numericGrid.shape[1], numericGrid.shape[0], numericGrid)
         elif elementType == "VECTOR":
-            ngZero = numericGrid[0].astype(float32)
-            ngOne = numericGrid[1].astype(float32)
+            ngZero = NumpyJavaEnforcer.checkdTypes(numericGrid[0], float32)
+            ngOne = NumpyJavaEnforcer.checkdTypes(numericGrid[1], float32)
             javaGrid = Grid2DFloat.createGrid(ngZero.shape[1], ngZero.shape[0], ngZero)
             auxJavaGrid = Grid2DFloat.createGrid(ngOne.shape[1], ngOne.shape[0], ngOne)
         else:
@@ -2174,7 +2184,7 @@ class SmartScript(BaseTool.BaseTool):
         if editArea.isQuery():
             editArea = self.__refSetMgr.evaluateQuery(editArea.getQuery())
 
-        return editArea.getGrid().getNDArray().astype(numpy.bool8)
+        return editArea.getGrid().getNDArray().astype(bool)
 
     def decodeEditArea(self, mask):
         # Returns a refData object for the given mask
@@ -2183,7 +2193,7 @@ class SmartScript(BaseTool.BaseTool):
         gridLoc = self.getGridLoc()
         nx = gridLoc.getNx().intValue()
         ny = gridLoc.getNy().intValue()
-        bytes = mask.astype('int8')
+        bytes = NumpyJavaEnforcer.checkdTypes(mask, int8)
         grid = Grid2DBit.createBitGrid(nx, ny, bytes)
         return ReferenceData(gridLoc, ReferenceID("test"), grid)
 
@@ -2244,9 +2254,7 @@ class SmartScript(BaseTool.BaseTool):
     # @return: The number of data points in the X and Y directions.
     # @rtype: 2-tuple of int
     def getGridShape(self):
-        gridLoc = self.__parmMgr.compositeGridLocation()
-        gridShape = (gridLoc.getNy().intValue(), gridLoc.getNx().intValue())
-        return gridShape
+        return self.__gridShape
 
 #########################################################################
 ## Procedure methods                                                   ##
