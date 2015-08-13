@@ -229,10 +229,10 @@
 			<param name="feature"
 				value="com.raytheon.viz.grib.feature" />
 		</antcall>
-        	<antcall target="p2.build.repo">
-                     <param name="feature"
-                                value="com.raytheon.uf.viz.kml.export.feature" />
-                </antcall>
+		<antcall target="p2.build.repo">
+			<param name="feature"
+				value="com.raytheon.uf.viz.kml.export.feature" />
+		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature"
 				value="com.raytheon.viz.gfe.feature" />
@@ -294,18 +294,22 @@
 		          value="com.raytheon.uf.viz.thinclient.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
-		             <param name="feature"
-		                  value="com.raytheon.uf.viz.useradmin.feature" />
+	             <param name="feature"
+	                  value="com.raytheon.uf.viz.useradmin.feature" />
 		</antcall>
         <antcall target="p2.build.repo">
              <param name="feature"
                   value="com.raytheon.uf.viz.registry.feature" />
         </antcall>
-        <!--
+        <!-- Unidata excludes
         <antcall target="p2.build.repo">
              <param name="feature"
                   value="com.raytheon.uf.viz.datadelivery.feature" />
         </antcall>        	
+        <antcall target="p2.build.repo">
+             <param name="feature"
+                  value="com.raytheon.uf.viz.collaboration.feature" />
+        </antcall>
         -->
         <antcall target="p2.build.repo">
              <param name="feature"
@@ -337,10 +341,6 @@
 		</antcall>
         <antcall target="p2.build.repo">
              <param name="feature"
-                  value="com.raytheon.uf.viz.collaboration.feature" />
-        </antcall>
-        <antcall target="p2.build.repo">
-             <param name="feature"
                   value="com.raytheon.uf.viz.gisdatastore.feature" />
         </antcall>
 		<antcall target="p2.build.repo">
@@ -348,7 +348,7 @@
 			  value="com.raytheon.uf.viz.d2d.ui.awips.feature" />
 		</antcall>
 
-		<antcall target="cleanup.features" />
+	<antcall target="cleanup.features" />
 	</target>
 
 	<target name="wa-build" depends="p2.build" description="Builds work assignment specific features after the main build">
