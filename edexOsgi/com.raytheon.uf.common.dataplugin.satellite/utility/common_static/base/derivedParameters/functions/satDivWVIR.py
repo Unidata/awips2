@@ -49,5 +49,6 @@ def execute(Imager_6pp7hh6pp5_micron_IR_ooWVcc, Imager_11_micron_IR):
     uIR = Imager_11_micron_IR.astype(numpy.uint8)
     IR = numpy.where(uIR < 180, numpy.uint8(0), uIR)
     result = IR
-    result[IR == 0] = WV
+    mask = (IR == 0)
+    result[mask] = WV[mask]
     return result.astype(numpy.int8)
