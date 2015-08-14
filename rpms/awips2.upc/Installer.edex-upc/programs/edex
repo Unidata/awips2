@@ -223,14 +223,14 @@ edex_ipexit() { # abandon ip editing, post msg to guide manual edits
 edex_setup() { # setup IP subnet and domains for EDEX, prompt user for confirm
 	echo ''
 	# run services on system startup
-	#chkconfig edex_postgres --add
-	#chkconfig httpd-pypies --add
-	#chkconfig qpidd --add
-	#chkconfig edex_camel --add
-	#chkconfig edex_postgres on --level 235
-	#chkconfig httpd-pypies on --level 235
-	#chkconfig qpidd on --level 235
-	#chkconfig edex_camel on --level 235
+	chkconfig edex_postgres --add
+	chkconfig httpd-pypies --add
+	chkconfig qpidd --add
+	chkconfig edex_camel --add
+	chkconfig edex_postgres on --level 235
+	chkconfig httpd-pypies on --level 235
+	chkconfig qpidd on --level 235
+	chkconfig edex_camel on --level 235
 	echo '[edex] EDEX IP and Hostname Setup'
 	# check files exist
 	continue=true
