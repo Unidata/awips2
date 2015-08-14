@@ -24,8 +24,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -39,10 +37,6 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
-import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEServerException;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
@@ -54,17 +48,19 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * 08/20/09      1995       lvenable    Initial port
- * 10/24/2008   1287        rferrel     Made dialog non-blocking.
- * 12/28/2012   DR15587     jzeng       Query weather elements from fcst DB 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Aug 20, 2009  1995      lvenable     Initial port
+ * Oct 24. 2008  1287      rferrel      Made dialog non-blocking.
+ * Dec 28, 2012  DR15587   jzeng        Query weather elements from fcst DB
+ * Aug 14, 2015  4750      dgilling     Remove broken query.
  * 
  * </pre>
  * 
  * @author bphillip
- * @version 1
+ * @version 1.0
  */
+
 public class ISCRequestReplyDlg extends CaveSWTDialog {
     private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ISCRequestReplyDlg.class);
@@ -230,26 +226,7 @@ public class ISCRequestReplyDlg extends CaveSWTDialog {
         this.xml = (String) response[0];
         this.weList = (List<String>) response[1];
         Collections.sort(this.weList);
-        
-        /*
-         * If the weList is empty, get it from database
-         */
-        if (this.weList.isEmpty() ){
-            String query = "Select distinct (parmname) from awips.gfe";
-            List<Object[]> list = null;
-            try {
-            	list = DirectDbQuery.executeQuery(query, "metadata",
-                    QueryLanguage.SQL);
-            	for (Object[] we : list){
-                    weList.add(we[0].toString());
-            	}
-            } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error querying database", e);
-            }
-        }
 
-        
         domainDict = (Map<String, Map<String, List<Map<String, String>>>>) response[2];
         serverDictT2S = (Map<String, Map<String, String>>) response[4];
 
@@ -266,12 +243,7 @@ public class ISCRequestReplyDlg extends CaveSWTDialog {
             }
 
         }
-        Activator
-                .getDefault()
-                .getLog()
-                .log(new Status(IStatus.INFO, Activator.PLUGIN_ID,
-                        "DomainDict servers:" + s));
-
+        statusHandler.info("DomainDict servers:" + s);
     }
 
     private void populateDomainList() {

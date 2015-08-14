@@ -53,6 +53,7 @@ LocalizationLevel = LocalizationContext.LocalizationLevel
 #    01/22/14/       2504          randerso       Added hostname to log path
 #    04/10/2014      17241         David Gillingham (code checked in by zhao)
 #    Apr 25, 2015    4952          njensen        Updated for new JEP API
+#    08/14/15        4750          dgilling       Stop pickling ISC domainDicts.
 #
 #
 
@@ -212,23 +213,7 @@ def createDomainDict(xml):
         retVal['serverDictS2T'] = serverDictS2T
         retVal['serverDictT2S'] = serverDictT2S
         retVal['domains'] = domains
-
-        tempfile.tempdir = "/tmp/"
-        fname = tempfile.mktemp(".bin")
-        FILE = open(fname, "w")
-        pickle.dump(retVal, FILE)
-        FILE.close()
-
-        FILE = open(fname, "r")
-        lines = FILE.readlines()
-        FILE.close()
-        os.remove(fname)
-
-        pickledFile = ""
-        for line in lines:
-            pickledFile += line
-
-        return pickledFile
+        return retVal
 
 def unPickle(str):
     import pickle, tempfile, os, JUtil

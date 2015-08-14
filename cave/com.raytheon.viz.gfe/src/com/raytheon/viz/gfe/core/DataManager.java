@@ -19,15 +19,12 @@
  **/
 package com.raytheon.viz.gfe.core;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import jep.JepException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -39,13 +36,7 @@ import com.raytheon.uf.common.activetable.ActiveTableRecord;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetIscSendStatusRequest.IscSendStatus;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
-import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.message.WsId;
-import com.raytheon.uf.common.python.PyUtil;
-import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -106,6 +97,7 @@ import com.raytheon.viz.gfe.textformatter.TextProductManager;
  * 07/23/2015    4263      dgilling    Refactor to support initialization of script 
  *                                     controllers off main thread.
  * Aug 13, 2015  4749      njensen     Improved dispose(), parmEvictor can cancel                                    
+ * 08/14/2015    4750      dgilling    Remove use of PythonScript in doIscRequestQuery.
  * 
  * </pre>
  * 
@@ -609,7 +601,7 @@ public class DataManager {
 
         try {
             ServerResponse<List<Object>> sResponse = client.iscRequestQuery();
-            if (!sResponse.getMessages().isEmpty()) {
+            if (!sResponse.isOkay()) {
                 return null;
             }
             List<Object> response = sResponse.getPayload();
@@ -619,35 +611,17 @@ public class DataManager {
                 parmsWanted.add(p.replace("_SFC", ""));
             }
 
-            IPathManager pathMgr = PathManagerFactory.getPathManager();
-            PythonScript script = new PythonScript(pathMgr
-                    .getLocalizationFile(
-                            pathMgr.getContext(LocalizationType.COMMON_STATIC,
-                                    LocalizationLevel.BASE),
-                            "isc" + File.separator + "requestScript.py")
-                    .getFile().getPath(), PyUtil.buildJepIncludePath(pathMgr
-                    .getFile(
-                            pathMgr.getContext(LocalizationType.COMMON_STATIC,
-                                    LocalizationLevel.BASE), "python")
-                    .getPath()), this.getClass().getClassLoader());
-            Map<String, Object> args = new HashMap<String, Object>();
-            args.put("str", response.get(1));
-            Map<String, ?> obj = (Map<String, ?>) script.execute("unPickle",
-                    args);
+            Map<String, Object> obj = (Map<String, Object>) response.get(1);
             domainDict = (Map<String, Map<String, List<Map<String, String>>>>) obj
                     .get("domains");
             serverDictS2T = (Map<String, String>) obj.get("serverDictS2T");
             serverDictT2S = (Map<String, Map<String, String>>) obj
                     .get("serverDictT2S");
-
         } catch (GFEServerException e) {
             statusHandler
                     .handle(Priority.PROBLEM,
                             "Server Problem: Unable to get server info from iscRequestQuery",
                             e);
-        } catch (JepException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error getting domain dictionary!", e);
         }
 
         return new Object[] { xml, parmsWanted, domainDict, serverDictS2T,

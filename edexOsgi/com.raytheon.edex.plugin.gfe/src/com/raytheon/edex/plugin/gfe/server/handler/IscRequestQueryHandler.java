@@ -20,16 +20,12 @@
 
 package com.raytheon.edex.plugin.gfe.server.handler;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import jep.JepException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
@@ -45,6 +41,9 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * Port of the requestQuery from AWIPS I
@@ -58,6 +57,8 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * 07/06/09      1995       bphillip    Initial port
  * 09/22/09      3058       rjpeter     Converted to IRequestHandler
  * 09/05/13      2307       dgilling    Use better PythonScript constructor.
+ * 08/14/15      4750       dgilling    Send domainDicts back as Maps, not
+ *                                      python pickled strings.
  * </pre>
  * 
  * @author bphillip
@@ -65,7 +66,15 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  */
 public class IscRequestQueryHandler implements
         IRequestHandler<IscRequestQueryRequest> {
-    protected final transient Log logger = LogFactory.getLog(getClass());
+
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(getClass());
+
+    private static final String ISC_UTIL = "gfe" + IPathManager.SEPARATOR
+            + "isc" + IPathManager.SEPARATOR + "iscUtil.py";
+
+    private static final String IRT_SERVER = "gfe" + IPathManager.SEPARATOR
+            + "isc" + IPathManager.SEPARATOR + "IrtServer.py";
 
     @Override
     public ServerResponse<List<Object>> handleRequest(
@@ -81,8 +90,8 @@ public class IscRequestQueryHandler implements
             return response;
         }
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Request:  requestor="
+        if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+            statusHandler.debug("Request:  requestor="
                     + request.getWorkstationID().toString());
         }
 
@@ -118,71 +127,33 @@ public class IscRequestQueryHandler implements
         }
 
         // calculate XML
-        List<String> domains = new ArrayList<String>();
+        List<String> domains = new ArrayList<String>(config.requestedISCsites());
 
-        List<String> iscWfosWanted = config.requestedISCsites();
-
-        domains.addAll(iscWfosWanted);
-
-        PythonScript script = null;
         String xml = null;
         Object domainDict = null;
-        List<Object> responseList = new ArrayList<Object>();
-        try {
-            IPathManager pathMgr = PathManagerFactory.getPathManager();
-            LocalizationContext cx = pathMgr.getContext(
-                    LocalizationType.EDEX_STATIC, LocalizationLevel.BASE);
 
-            String scriptFile = pathMgr
-                    .getLocalizationFile(cx,
-                            "gfe/isc" + File.separator + "IrtServer.py")
-                    .getFile().getPath();
-            String includePath = PyUtil.buildJepIncludePath(
-                    GfePyIncludeUtil.getCommonPythonIncludePath(),
-                    GfePyIncludeUtil.getIscScriptsIncludePath(),
-                    GfePyIncludeUtil.getGfeConfigIncludePath(siteID));
-            script = new PythonScript(scriptFile, includePath, this.getClass()
-                    .getClassLoader());
+        try (PythonScript script = new PythonScript(getScriptPath(IRT_SERVER),
+                getIncludePath(siteID), getClass().getClassLoader())) {
             Map<String, Object> args = new HashMap<String, Object>();
             args.put("ancfURL", ancf);
             args.put("bncfURL", bncf);
-            args.put("iscWfosWanted", iscWfosWanted);
+            args.put("iscWfosWanted", domains);
             xml = (String) script.execute("irtGetServers", args);
 
         } catch (JepException e) {
-            logger.error("Error occurred running IscRequestQuery", e);
-        } finally {
-            if (script != null) {
-                script.dispose();
-            }
+            statusHandler.error("Error occurred running IscRequestQuery", e);
         }
 
-        try {
-            IPathManager pathMgr = PathManagerFactory.getPathManager();
-            LocalizationContext cx = pathMgr.getContext(
-                    LocalizationType.EDEX_STATIC, LocalizationLevel.BASE);
-
-            String scriptFile = pathMgr
-                    .getLocalizationFile(cx,
-                            "gfe/isc" + File.separator + "iscUtil.py")
-                    .getFile().getPath();
-            String includePath = PyUtil.buildJepIncludePath(
-                    GfePyIncludeUtil.getCommonPythonIncludePath(),
-                    GfePyIncludeUtil.getIscScriptsIncludePath(),
-                    GfePyIncludeUtil.getGfeConfigIncludePath(siteID));
-            script = new PythonScript(scriptFile, includePath, this.getClass()
-                    .getClassLoader());
+        try (PythonScript script = new PythonScript(getScriptPath(ISC_UTIL),
+                getIncludePath(siteID), getClass().getClassLoader())) {
             Map<String, Object> args = new HashMap<String, Object>();
             args.put("xml", xml);
             domainDict = script.execute("createDomainDict", args);
-
         } catch (JepException e) {
-            logger.error("Error occurred creating Isc Domain Dict", e);
-        } finally {
-            if (script != null) {
-                script.dispose();
-            }
+            statusHandler.error("Error occurred creating Isc Domain Dict", e);
         }
+
+        List<Object> responseList = new ArrayList<Object>();
         responseList.add(xml);
         responseList.add(domainDict);
         responseList.add(config.requestedISCparms());
@@ -190,4 +161,20 @@ public class IscRequestQueryHandler implements
         return response;
     }
 
+    private static String getScriptPath(String locPath) {
+        IPathManager pathMgr = PathManagerFactory.getPathManager();
+        LocalizationContext cx = pathMgr.getContext(
+                LocalizationType.EDEX_STATIC, LocalizationLevel.BASE);
+        String scriptFile = pathMgr.getLocalizationFile(cx, locPath).getFile()
+                .getPath();
+        return scriptFile;
+    }
+
+    private static String getIncludePath(String siteID) {
+        String includePath = PyUtil.buildJepIncludePath(
+                GfePyIncludeUtil.getCommonPythonIncludePath(),
+                GfePyIncludeUtil.getIscScriptsIncludePath(),
+                GfePyIncludeUtil.getGfeConfigIncludePath(siteID));
+        return includePath;
+    }
 }
