@@ -33,10 +33,14 @@
 #    Apr 23, 2015    4259          njensen        Updated for new JEP API 
 #    08/06/2015      4718          dgilling       Prevent numpy 1.9 from wasting memory by
 #                                                 upcasting scalars too high when using where.
+#    Aug 13, 2015    4704          randerso       Added NumpyJavaEnforcer support for smartInits
+#                                                 additional code cleanup
 # 
 ##
 import string, sys, re, time, types, getopt, fnmatch, LogStream, DatabaseID, JUtil, AbsTime, TimeRange
 import SmartInitParams
+import NumpyJavaEnforcer
+
 from numpy import *
 pytime = time
 
@@ -356,9 +360,23 @@ class Forecaster(GridUtilities):
 #            self.__stopo = self.__topo
         
         self._editAreas = self._client.getEditAreaNames()
-        self._empty = self.__topo * 0
-        self._minus = self._empty - 1
+        
+        self.__gridShape = topo.shape
+        self._empty = self.empty();
+        self._minus = self.newGrid(-1)
+        
+    def getGridShape(self):
+        """Return a tuple containing the grid shape"""
+        return self.__gridShape
 
+    def empty(self, dtype=float32):
+        """Return a grid filled with 0"""
+        return zeros(self.getGridShape(), dtype)
+    
+    def newGrid(self, initialValue, dtype=float32):
+        """Return a grid filled with initialValue"""
+        return full(self.getGridShape(), initialValue, dtype)
+    
     #--------------------------------------------------------------------------
     #  Returns a string that corresponds to the specified time range.
     #--------------------------------------------------------------------------
@@ -448,7 +466,7 @@ class Forecaster(GridUtilities):
     def getAreas(self, pbot, tbot, ptop, ttop):
         maxm = maximum(tbot, ttop)
         minm = minimum(tbot, ttop)
-        freeze = self._empty + 273.15
+        freeze = self.newGrid(273.15)
         crosses = logical_and(less(minm, freeze), greater(maxm, freeze))
         crossp = self.linear(pbot, ptop, tbot, ttop, freeze)
         crosst = freeze
@@ -1302,26 +1320,19 @@ class IFPIO:
         wrongType = None
         saved = False
         if type(grid) is ndarray:
-            if grid.dtype != dtype('float32'):
-                grid = grid.astype('float32')
+            grid = NumpyJavaEnforcer.checkdTypes(grid, float32)
             # scalar save
             newwe.setItemScalar(newwe.getTimeRange(tr[0]), grid)
             saved = True
         elif (type(grid) is list or type(grid) is tuple) and len(grid) == 2:
             if type(grid[0]) is ndarray and type(grid[1]) is ndarray:
-                magGrid = grid[0]
-                dirGrid = grid[1]
-                if magGrid.dtype != dtype('float32'):
-                    magGrid = magGrid.astype('float32')
-                if dirGrid.dtype != dtype('float32'):
-                    dirGrid = dirGrid.astype('float32')
+                magGrid = NumpyJavaEnforcer.checkdTypes(grid[0], float32)
+                dirGrid = NumpyJavaEnforcer.checkdTypes(grid[1], float32)
                 # vector save
                 newwe.setItemVector(newwe.getTimeRange(tr[0]), magGrid, dirGrid)
                 saved = True                                                    
             elif type(grid[0]) is ndarray and type(grid[1]) is list:
-                bgrid = grid[0]
-                if bgrid.dtype != dtype('byte'):
-                    bgrid = bgrid.astype('byte')
+                bgrid = NumpyJavaEnforcer.checkdTypes(grid[0], int8)
                     
                 if gridType == "DISCRETE":
                     newwe.setItemDiscrete(newwe.getTimeRange(tr[0]), bgrid, str(grid[1]))
