@@ -21,7 +21,7 @@ for table in ${tables[@]} ; do
 		for col in ${cols[@]} ; do
 			echo "INFO: Update ${table}'s ${col}"
 			echo ${PSQL} -U awips -d metadata -c "DELETE from ${table} where ${col} is NULL ;"
-			echo updateNotNullCol ${table} ${col}
+			updateNotNullCol ${table} ${col}
 		done
 		echo "INFO: ${table} dataURI columns updated successfully"
 	else

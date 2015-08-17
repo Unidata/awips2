@@ -1,21 +1,45 @@
 #!/bin/bash 
-# DR #4360 - this update script will alter the dataURI columns from modelsounding, obs, profiler,
-#            sfcobs, svrwx, tcg, tcsq
+# DR #4360 - this update script will alter the dataURI columns from tables with embedded SurfaceObsLocation.
 
 PSQL="/awips2/psql/bin/psql"
 
 cmdDir=`dirname $0`
 
 source ${cmdDir}/commonFunctions.sh
-table=bufrascat
 
-# table and constraint names from AScatObs.
+# DataURI Embedded SurfaceObsLocation that are non-nullable
+embStrCols=("stationid")
+embFloatCols=("latitude" "longitude")
+embClass="SurfaceObsLocation"
+
+function updateEmbCols {
+	table=${1}
+	echo "INFO: Update embedded ${embClass} in table ${table}."
+	for col in ${embStrCols[@]} ; do
+		${PSQL} -U awips -d metadata -c "UPDATE ${table} SET ${col}='null' where ${col} is NULL ; "
+		updateNotNullCol ${table} ${col}
+	done
+	for col in ${embFloatCols[@]} ; do
+		${PSQL} -U awips -d metadata -c "UPDATE ${table} SET ${col}='NaN' where ${col} is NULL ; "
+		updateNotNullCol ${table} ${col}
+	done
+	echo "INFO: Finish update of embedded ${embClass} in table ${table}."
+}
+
+# table and constraint names from ACARSSoundingRecord
+table=acarssounding
 echo "INFO: Start update of ${table} dataURI columns."
+updateEmbCols ${table}
+
+# table and constraint names from AScatObs
+table=bufrascat
+echo "INFO: Start update of ${table} dataURI columns."
+updateEmbCols ${table}
+echo "INFO: ${table} dataURI columns updated successfully"
 
 col=windSpd
 echo "INFO: Update ${table}'s ${col}"
 
-# Default value from BUFRPointDataAdapter.
 ${PSQL} -U awips -d metadata -c "UPDATE ${table} SET ${col}=-9999.0 where ${col} is NULL ; "
 updateNotNullCol ${table} ${col}
 
@@ -26,10 +50,10 @@ updateNotNullCol ${table} ${col}
 
 echo "INFO: ${table} dataURI columns updated successfully"
 
+# table and constraint names from BufrHDWObs
 table=bufrhdw
-
-# table and constraint names from .BufrHDWObs
 echo "INFO: Start update of ${table} dataURI columns."
+updateEmbCols ${table}
 
 col=pressure
 echo "INFO: Update ${table}'s ${col}"
@@ -43,10 +67,11 @@ updateNotNullCol ${table} ${col}
 
 echo "INFO: ${table} dataURI columns updated successfully"
 
-table=bufrmthdw
-
 # table and constraint names from BufrMTHDWObs.
+table=bufrmthdw
 echo "INFO: Start update of ${table} dataURI columns."
+updateEmbCols ${table}
+echo "INFO: ${table} dataURI columns updated successfully"
 
 col=pressure
 echo "INFO: Update ${table}'s ${col}"
@@ -61,13 +86,22 @@ updateNotNullCol ${table} ${col}
 
 echo "INFO: ${table} dataURI columns updated successfully"
 
-# No column updates only dataURI in @UniqueConstraint
-#table=bufrquikscat
-
-table=bufrssmi
-
-# table and constraint names from BufrMTHDWObs.
+# table and constraint names from BUFRncwf
+table=bufrncwf
 echo "INFO: Start update of ${table} dataURI columns."
+updateEmbCols ${table}
+echo "INFO: ${table} dataURI columns updated successfully"
+
+# table and constraint names from QUIKScatObs
+table=bufrquikscat
+echo "INFO: Start update of ${table} dataURI columns."
+updateEmbCols ${table}
+echo "INFO: ${table} dataURI columns updated successfully"
+
+# table and constraint names from SSMIScanData
+table=bufrssmi
+echo "INFO: Start update of ${table} dataURI columns."
+updateEmbCols ${table}
 
 col=satid
 echo "INFO: Update ${table}'s ${col}"
@@ -77,16 +111,40 @@ updateNotNullCol ${table} ${col}
 
 echo "INFO: ${table} dataURI columns updated successfully"
 
-# No column updates only dataURI in @UniqueConstraint
-#table=bufrua
-#table=fssobs
-#table=ldad_manual
-#table=ldadhydro
+# table and constraint names from UAObs
+table=bufrua
+echo "INFO: Start update of ${table} dataURI columns."
+updateEmbCols ${table}
+echo "INFO: ${table} dataURI columns updated successfully"
 
-table=ldadmesonet
+# table and constraint names from FSSObsRecord
+table=fssobs
+echo "INFO: Start update of ${table} dataURI columns."
+updateEmbCols ${table}
+echo "INFO: ${table} dataURI columns updated successfully"
+
+# table and constraint names from GOESSounding
+table=goessounding
+echo "INFO: Start update of ${table} dataURI columns."
+updateEmbCols ${table}
+echo "INFO: ${table} dataURI columns updated successfully"
+
+# table and constraint names from  ManualLdadRecord
+table=ldad_manual
+echo "INFO: Start update of ${table} dataURI columns."
+updateEmbCols ${table}
+echo "INFO: ${table} dataURI columns updated successfully"
+
+# table and constraint names from HydroLdadRecord
+table=ldadhydro
+echo "INFO: Start update of ${table} dataURI columns."
+updateEmbCols ${table}
+echo "INFO: ${table} dataURI columns updated successfully"
 
 # table and constraint names from MesonetLdadRecord.
+table=ldadmesonet
 echo "INFO: Start update of ${table} dataURI columns."
+updateEmbCols ${table}
 
 col=reportType
 echo "INFO: Update ${table}'s ${col}"
@@ -101,23 +159,25 @@ updateNotNullCol ${table} ${col}
 
 echo "INFO: ${table} dataURI columns updated successfully"
 
-# No column updates only dataURI in @UniqueConstraint
-#table=ldadprofiler
-
-table=lsr
+# table and constraint names from ProfilerLdadObs.
+table=ldadprofiler
+echo "INFO: Start update of ${table} dataURI columns."
+updateEmbCols ${table}
 
 # table and constraint names form LocalStormReport.
+table=lsr
 echo "INFO: Start update of ${table} dataURI columns."
+updateEmbCols ${table}
 col=eventtype
 echo "Info Update ${table}'s ${col}"
 ${PSQL} -U awips -d metadata -c "DELETE from  ${table} where ${col} is NULL ; "
 updateNotNullCol ${table} ${col}
 echo "INFO: ${table} dataURI columns updated successfully"
 
-table=madis
-
 # table and constraint names from MadisRecord.
+table=madis
 echo "INFO: Start update of ${table} dataURI columns."
+updateEmbCols ${table}
 col=provider
 echo "Info Update ${table}'s ${col}"
 ${PSQL} -U awips -d metadata -c "DELETE from  ${table} where ${col} is NULL ; "
@@ -135,28 +195,59 @@ updateNotNullCol ${table} ${col}
 
 echo "INFO: ${table} dataURI columns updated successfully"
 
-table=modelsounding
 
 # table and constraint names from SoundingSite.
+table=modelsounding
 echo "INFO: Start update of ${table} dataURI columns."
+updateEmbCols ${table}
 col=reportType
 echo "INFO: Update ${table}'s ${col}"
 ${PSQL} -U awips -d metadata -c "DELETE from  ${table} where ${col} is NULL ; "
 updateNotNullCol ${table} ${col}
 echo "INFO: ${table} dataURI columns updated successfully"
 
-table=profiler
+# table and constraint names from MetarRecord.
+table=obs
+echo "INFO: Start update of ${table} dataURI columns."
+updateEmbCols ${table}
+col=reporttype
+echo "INFO: Update ${table}'s ${col}"
+${PSQL} -U awips -d metadata -c "UPDATE  ${table} SET ${col}='null' where ${col} is NULL ; "
+updateNotNullCol ${table} ${col}
+col=correction
+echo "INFO: Update ${table}'s ${col}"
+${PSQL} -U awips -d metadata -c "UPDATE  ${table} SET ${col}='null' where ${col} is NULL ; "
+updateNotNullCol ${table} ${col}
+echo "INFO: ${table} dataURI columns updated successfully"
+
+# table and constraint names from POESSounding.
+table=poessounding
+echo "INFO: Start update of ${table} dataURI columns."
+updateEmbCols ${table}
+echo "INFO: ${table} dataURI columns updated successfully"
+
 # table and constraint names from ProfilerObs.
+table=profiler
 echo "INFO: Start update of ${table} dataURI columns."
+updateEmbCols ${table}
 col=reportType
 echo "INFO: Update ${table}'s ${col}"
 ${PSQL} -U awips -d metadata -c "DELETE from  ${table} where ${col} is NULL ; "
 updateNotNullCol ${table} ${col}
 echo "INFO: ${table} dataURI columns updated successfully"
 
-table=sfcobs
-# table and constraint names from ObsCommon
+# table and constraint names from QCRecord.
+table=qc
 echo "INFO: Start update of ${table} dataURI columns."
+updateEmbCols ${table}
+# Column already non-null
+#col=qcType
+echo "INFO: ${table} dataURI columns updated successfully"
+
+# table and constraint names from ObsCommon
+table=sfcobs
+echo "INFO: Start update of ${table} dataURI columns."
+updateEmbCols ${table}
 col=reportType
 echo "INFO: Update ${table}'s ${col}"
 ${PSQL} -U awips -d metadata -c "DELETE from  ${table} where ${col} is NULL ; "
@@ -168,18 +259,20 @@ ${PSQL} -U awips -d metadata -c "UPDATE  ${table} SET ${col}='' where ${col} is 
 updateNotNullCol ${table} ${col}
 echo "INFO: ${table} dataURI columns updated successfully"
 
-table=svrwx
 # table and constraint names from SvrWxRecord.
+table=svrwx
 echo "INFO: Start update of ${table} dataURI columns."
+updateEmbCols ${table}
 col=reportType
 echo "INFO: Update ${table}'s ${col}"
 ${PSQL} -U awips -d metadata -c "DELETE from  ${table} where ${col} is NULL ; "
 updateNotNullCol ${table} ${col}
 echo "INFO: ${table} dataURI columns updated successfully"
 
-table=tcg
 # table and constraint names from TropicalCycloneGuidance.
+table=tcg
 echo "INFO: Start update of ${table} dataURI columns."
+updateEmbCols ${table}
 col=producttype
 echo "INFO: Update ${table}'s ${col}"
 ${PSQL} -U awips -d metadata -c "DELETE from  ${table} where ${col} is NULL ; "
@@ -190,39 +283,21 @@ ${PSQL} -U awips -d metadata -c "DELETE from  ${table} where ${col} is NULL ; "
 updateNotNullCol ${table} ${col}
 echo "INFO: ${table} dataURI columns updated successfully"
 
-table=tcs
 # table and constraint names from TropicalCycloneSummary.
+table=tcs
 echo "INFO: Start update of ${table} dataURI columns."
+updateEmbCols ${table}
 col=producttype
 echo "INFO: Update ${table}'s ${col}"
 ${PSQL} -U awips -d metadata -c "DELETE from  ${table} where ${col} is NULL ; "
 updateNotNullCol ${table} ${col}
 echo "INFO: ${table} dataURI columns updated successfully"
 
-table=obs
-# table and constraint names from MetarRecord.
-echo "INFO: Start update of ${table} dataURI columns."
-col=reporttype
-echo "INFO: Update ${table}'s ${col}"
-${PSQL} -U awips -d metadata -c "UPDATE  ${table} SET ${col}='null' where ${col} is NULL ; "
-updateNotNullCol ${table} ${col}
-col=correction
-echo "INFO: Update ${table}'s ${col}"
-${PSQL} -U awips -d metadata -c "UPDATE  ${table} SET ${col}='null' where ${col} is NULL ; "
-updateNotNullCol ${table} ${col}
-echo "INFO: ${table} dataURI columns updated successfully"
-
-# No column updates only dataURI in @UniqueConstraint
-#table=poessounding
-
-#table=qc
-# Columan already non-null
-#col=qcType
-
-table=vaa
 
 # table and constraint names from VAARecord.
+table=vaa
 echo "INFO: Start update of ${table} dataURI columns."
+updateEmbCols ${table}
 
 col=advisorynumber
 echo "INFO: Update ${table}'s ${col}"
@@ -232,25 +307,17 @@ updateNotNullCol ${table} ${col}
 
 echo "INFO: ${table} dataURI columns updated successfully"
 
-# Tables with embedded SurfaceObsLocation
-tables=("acarssounding" "bufrascat" "bufrhdw" "bufrmthdw" "bufrncwf" "bufrquikscat" "bufrssmi"
-"bufrua" "fssobs" "goessounding" "ldad_manual" "ldadhydro" "ldadmesonet" "ldadprofiler" "lsr"
-"madis" "modelsounding" "obs" "poessounding" "profiler" "qc" "sfcobs" "svrwx" "tcg" "tcs" "vaa")
+# NCEP tables only need embedded SurfaceObsLocation updated.
+tables=("ncpafm" "ncscd" "nctaf" "ncuair")
 
-# DataURI Embedded SurfaceObsLocation that are non-nullable
-strCols=("stationId")
-floatCols=("latitude" "longitude")
-
-echo "INFO: Start update embedded SurfaceObsLocation's non-nullable columns"
 for table in ${tables[@]} ; do
-	echo "INFO: Updating ${table}"
-	for col in ${strCols[@]} ; do
-		${PSQL} -U awips -d metadata -c "UPDATE ${table} SET ${col}='null' where ${col} is NULL ; "
-		updateNotNullCol ${table} ${col}
-	done
-	for col in ${floatCols[@]} ; do
-		${PSQL} -U awips -d metadata -c "UPDATE ${table} SET ${col}='NaN' where ${col} is NULL ; "
-		updateNotNullCol ${table} ${col}
-	done
+	if tableExists ${table} ; then
+		echo "INFO: Start update of ${table} dataURI columns."
+		updateEmbCols ${table}
+		echo "INFO: ${table} dataURI columns updated successfully"
+	else 
+		echo "WARN: Table ${table} does not exist."
+	fi
 done
+
 echo "INFO: Finish update embedded SurfaceObsLocation's non-nullable columns"
