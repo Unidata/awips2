@@ -30,7 +30,6 @@ import javax.persistence.Transient;
 
 import com.raytheon.uf.common.dataplugin.ffmp.collections.ArrayBackedMap;
 import com.raytheon.uf.common.dataplugin.ffmp.collections.BasinMapFactory;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -51,6 +50,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Apr 26, 2013 1954        bsteffen    Minor code cleanup throughout FFMP.
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * Jul 31, 2013 2242        bsteffen    Optimize FFMP NavigableMap memory.
+ * Aug 08, 2015 4722        dhladky     Dynamic serialize imp not needed.
  * 
  * </pre>
  * 
@@ -58,7 +58,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1
  */
 @DynamicSerialize
-public class FFMPBasin implements ISerializableObject, Cloneable {
+public class FFMPBasin implements Cloneable {
 
     /** pfafstetter id(key) in GIS **/
     @DynamicSerializeElement

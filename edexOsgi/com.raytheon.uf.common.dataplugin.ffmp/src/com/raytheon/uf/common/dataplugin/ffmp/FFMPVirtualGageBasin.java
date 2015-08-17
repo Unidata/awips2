@@ -23,7 +23,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.TreeMap;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -37,6 +36,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ---------- ----------- --------------------------
  * 02may10      3937       dhladky     Setup
  * 01/27/13     1478       dhladky     Removed un-needed XML annotations
+ * Aug 08, 2015 4722        dhladky     Dynamic serialize imp not needed.
  * 
  * </pre>
  * 
@@ -44,8 +44,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @DynamicSerialize
-public class FFMPVirtualGageBasin extends FFMPBasin implements
-        ISerializableObject {
+public class FFMPVirtualGageBasin extends FFMPBasin {
 
     public FFMPVirtualGageBasin() {
 

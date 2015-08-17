@@ -38,6 +38,7 @@ import java.util.Set;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.referencing.GeodeticCalculator;
 
+import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
@@ -52,6 +53,7 @@ import com.raytheon.uf.common.geospatial.ISpatialQuery;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.SpatialException;
 import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.hydro.spatial.HRAPCoordinates;
 import com.raytheon.uf.common.hydro.spatial.HRAPSubGrid;
 import com.raytheon.uf.common.message.response.ResponseMessageGeneric;
@@ -94,6 +96,7 @@ import com.vividsolutions.jts.io.WKTWriter;
  * Apr 22, 2014  2984       njensen     Remove dependency on edex/CoreDao
  * Nov 18, 2014  3831       dhladky     StatusHandler logging. Proper list sizing.
  * Jul 13, 2015  4500       rjpeter     Fix SQL Injection concerns.
+ * Aug 08, 2015  4722       dhladky     Added Grid coverage and parsing methods.
  * </pre>
  * 
  * @author dhladky
@@ -118,7 +121,7 @@ public class FFMPUtils {
     public static float MISSING = -99999.0f;
 
     private static NumberFormat formatter = new DecimalFormat("#.##");
-
+    
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(FFMPUtils.class);
 
@@ -366,7 +369,7 @@ public class FFMPUtils {
      * @return
      */
     public static Object[] getBasins(String cwa, double buffer,
-            String radarExtents, String mode) {
+            String extents, String mode) {
         String lowestSimplificationLevel = ScanUtils
                 .getHighResolutionLevel("ffmp_basins");
         String highestSimplificationLevel = ScanUtils
@@ -389,7 +392,7 @@ public class FFMPUtils {
             sql.append(" ST_SetSRID(ST_Point(x_centroid, y_centroid), 4326), "
                     + extent + ")");
             sql.append(" and ST_Contains(ST_GeomFromText('");
-            sql.append(radarExtents);
+            sql.append(extents);
             sql.append("', 4326), " + lowestSimplificationLevel + ")"
                     + " order by pfaf_id asc");
 
@@ -1412,6 +1415,62 @@ public class FFMPUtils {
         }
 
         return unmappedResults.toArray(new Object[0]);
+    }
+    
+    /**
+     * For Grid FFMP types used as primary sources, request the coverage record
+     * for use in domain creation.
+     * 
+     * @param dataPath
+     * @return
+     */
+
+    public static GridCoverage getGridCoverageRecord(String dataPath)
+            throws Exception {
+
+        String[] splitURI = parseGridDataPath(dataPath);
+        statusHandler.info("Parsing FFMP Grid <dataPath> " + dataPath);
+
+        // In the case of Grid Records, we only care about the dataSetID
+        String datasetID = splitURI[3];
+
+        statusHandler.info("Results of <dataPath> parse: DataSetID = "
+                + datasetID);
+
+        GridCoverage coverage = null;
+
+        DbQueryRequest query = new DbQueryRequest();
+        query.setDatabase(META_DB);
+        query.setEntityClass(GridRecord.class.getName());
+        query.setLimit(1); // only need one response
+        query.addConstraint(GridConstants.DATASET_ID, new RequestConstraint(
+                datasetID));
+        query.setOrderByField("inserttime", OrderMode.DESC);
+
+        DbQueryResponse resp = (DbQueryResponse) RequestRouter.route(query);
+
+        if (resp != null) {
+            for (Map<String, Object> map : resp.getResults()) {
+                GridRecord record = (GridRecord) map.get(null);
+                coverage = record.getLocation();
+            }
+        } else {
+            statusHandler.error("Query for Grid Coverage returned no results: DataSetID = "
+                    + datasetID);
+        }
+
+        return coverage;
+    }
+
+    /**
+     * Parse the <dataPath> FFMPSourceConfig tag for it's URI components.
+     * 
+     * @param dataPath
+     * @return
+     */
+    private static String[] parseGridDataPath(String dataPath) {
+        // parse the path given as the URI match in the source config
+        return dataPath.split(DataURI.SEPARATOR);
     }
 
 }

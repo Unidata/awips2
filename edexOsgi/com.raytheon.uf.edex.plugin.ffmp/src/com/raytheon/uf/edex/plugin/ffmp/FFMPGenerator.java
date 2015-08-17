@@ -138,6 +138,7 @@ import com.raytheon.uf.edex.plugin.ffmp.common.FFTIRatioDiff;
  * Apr 24, 2014 2940       dhladky     Prevent storage of bad records.
  * Jul 10, 2014 2914       garmendariz Remove EnvProperties
  * Aug 26, 2014 3503       bclement    removed constructDataURI() call
+ * Aug 08, 2015 4722       dhladky     Generalized the processing of FFMP data types.
  * </pre>
  * 
  * @author dhladky
@@ -393,7 +394,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
             DomainXML domain = runner.getPrimaryDomain();
             try {
                 tmp.add(new FFMPURIFilter(getSiteString(runner) + ":"
-                        + getRFCString(runner) + ":" + domain.getCwa()));
+                        + getGuidanceComparedString(runner) + ":" + domain.getCwa()));
 
                 statusHandler.handle(Priority.INFO, "Created FFMP Filter.."
                         + " primary Domain: " + domain.getCwa());
@@ -429,13 +430,15 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                             synchronized (filter) {
 
                                 if (filter.isMatched(messages)) {
+                                    // does this filter use RFC FFG?
+                                    if (filter.rfc != null) {
+                                        if (!ffgCheck) {
 
-                                    if (!ffgCheck) {
-
-                                        filter = getFFG(filter);
-                                        filter.setValidTime(filter
-                                                .getCurrentTime());
-                                        ffgCheck = true;
+                                            filter = getFFG(filter);
+                                            filter.setValidTime(filter
+                                                    .getCurrentTime());
+                                            ffgCheck = true;
+                                        }
                                     }
 
                                     dispatch(filter);
@@ -613,7 +616,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
             // process all of the dataKeys for this source
             for (String dataKey : dataHash.keySet()) {
-
+                
                 ArrayList<String> sites = new ArrayList<String>();
 
                 // is it a mosaic?
@@ -689,7 +692,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
                 // Go over all of the sites, if mosaic source, can be many.
                 for (String siteKey : sites) {
-
+                    
                     FFMPRecord ffmpRec = new FFMPRecord();
                     ffmpRec.setSourceName(ffmpProduct.getSourceName());
                     ffmpRec.setDataKey(dataKey);
@@ -886,12 +889,12 @@ public class FFMPGenerator extends CompositeProductGenerator implements
     }
 
     /**
-     * Gets the string buffer for the RFC's
+     * Gets the string buffer for the Guidance sources you wish to compare in FFMP
      * 
      * @param run
      * @return
      */
-    private String getRFCString(FFMPRunXML run) {
+    private String getGuidanceComparedString(FFMPRunXML run) {
         StringBuffer buf = new StringBuffer();
 
         for (SourceIngestConfigXML ingest : run.getSourceIngests()) {
@@ -901,7 +904,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                 int i = 0;
                 for (String dataKey : ingest.getDataKey()) {
                     if (i < (ingest.getDataKey().size() - 1)) {
-                        buf.append(dataKey + ",");
+                        buf.append(dataKey).append(",");
                     } else {
                         buf.append(dataKey);
                     }
@@ -909,12 +912,13 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                 }
                 break;
             }
+            // TODO:  Implement other types when available
         }
         return buf.toString();
     }
 
     /**
-     * Gets the string buffer for the sites, specific to RADAR type data
+     * Gets the string buffer for the domain site definition.
      * 
      * @param run
      * @return
@@ -925,8 +929,9 @@ public class FFMPGenerator extends CompositeProductGenerator implements
         for (ProductRunXML product : run.getProducts()) {
             SourceXML source = getSourceConfig().getSource(
                     product.getProductName());
-            if (source.getDataType().equals(DATA_TYPE.RADAR.getDataType())) {
-                buf.append(product.getProductKey() + ",");
+            // XMRG types have a different ingest route for FFMP
+            if (!source.getDataType().equals(DATA_TYPE.XMRG.getDataType())) {
+                buf.append(product.getProductKey()).append(",");
             }
         }
         sites = buf.toString();

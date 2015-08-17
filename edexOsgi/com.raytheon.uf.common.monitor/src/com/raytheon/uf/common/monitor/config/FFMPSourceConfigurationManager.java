@@ -55,6 +55,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Apr 26, 2013 1954       bsteffen    Minor code cleanup throughout FFMP.
  * Aug 18, 2013  1742      dhladky     Concurrent mod exception on update fixed
  * Oct 02, 2013  2361      njensen     Use JAXBManager for XML
+ * Aug 15, 2015  4722      dhladky     Added new types to be used for new Guidance sources, etc
  * 
  * </pre>
  * 
@@ -140,7 +141,7 @@ public class FFMPSourceConfigurationManager implements
             configXml = configXmltmp;
 
         } catch (Exception e) {
-            System.err.println("No SITE FFMP Source configuration file found");
+            statusHandler.error("No SITE FFMP Source configuration file found");
 
             // fall back to BASE
             LocalizationContext lc = pm.getContext(
@@ -329,14 +330,14 @@ public class FFMPSourceConfigurationManager implements
 
     /**
      * 
-     * Enumeration of the types of processible data
+     * Enumeration of the types of FFMP can process
      * 
      * @author dhladky
      * @version 1.0
      */
     public enum DATA_TYPE {
 
-        RADAR("RADAR"), XMRG("XMRG"), GRID("GRID"), PDO("PDO"), DB("DB");
+        RADAR("RADAR"), XMRG("XMRG"), GRID("GRID"), PDO("PDO"), DB("DB"), NETCDF("NETCDF");
 
         private final String dataType;
 
@@ -395,29 +396,29 @@ public class FFMPSourceConfigurationManager implements
 
     /**
      * 
-     * Enumeration of the guidance of data types
+     * Enumeration of Guidance data types
      * 
      * @author dhladky
      * @version 1.0
      */
     public enum GUIDANCE_TYPE {
 
-        RFC("RFC");
+        RFC("RFC"), ARCHIVE("ARCHIVE");
 
-        private final String rfc;
+        private final String gtype;
 
         private GUIDANCE_TYPE(String name) {
-            rfc = name;
+            gtype = name;
         }
 
         public String getGuidanceType() {
-            return rfc;
+            return gtype;
         }
     };
 
     /**
      * 
-     * Enumeration of the types of data processable
+     * Enumeration of the types of data FFMP can process
      * 
      * @author dhladky
      * @version 1.0
@@ -434,6 +435,8 @@ public class FFMPSourceConfigurationManager implements
             return DATA_TYPE.PDO;
         } else if (type.equals(DATA_TYPE.DB.getDataType())) {
             return DATA_TYPE.DB;
+        } else if (type.equals(DATA_TYPE.NETCDF.getDataType())) {
+            return DATA_TYPE.NETCDF;
         }
         return null;
     }

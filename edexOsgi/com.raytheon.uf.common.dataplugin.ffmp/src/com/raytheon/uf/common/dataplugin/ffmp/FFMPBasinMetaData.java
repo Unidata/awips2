@@ -21,7 +21,6 @@ package com.raytheon.uf.common.dataplugin.ffmp;
 
 import java.util.ArrayList;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -34,6 +33,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 05Aug09      2521       dhladky     Setup
+ * Aug 08, 2015 4722        dhladky     Dynamic serialize imp not needed.
  * 
  * </pre>
  * 
@@ -42,7 +42,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 
 @DynamicSerialize
-public class FFMPBasinMetaData implements ISerializableObject {
+public class FFMPBasinMetaData {
 
     /** default display name for basin **/
     @DynamicSerializeElement

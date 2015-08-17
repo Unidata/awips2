@@ -36,7 +36,6 @@ import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.SOURCE_TYPE;
 import com.raytheon.uf.common.monitor.xml.SourceXML;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -58,6 +57,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * 07/16/13      2197       njensen     Added hasAnyBasins() and moved getBasins() calls out of loops
  * Jul 31, 2013  2242       bsteffen    Optimize FFMP NavigableMap memory.
+ * Aug 08, 2015 4722        dhladky     Dynamic serialize imp not needed.
  * 
  * 
  * </pre>
@@ -66,7 +66,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1
  */
 @DynamicSerialize
-public class FFMPBasinData implements ISerializableObject {
+public class FFMPBasinData {
 
     public static final double GUIDANCE_MISSING = -999999.0;
 

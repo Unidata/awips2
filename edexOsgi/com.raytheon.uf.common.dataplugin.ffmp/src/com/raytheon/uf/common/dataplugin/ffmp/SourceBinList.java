@@ -21,7 +21,6 @@ package com.raytheon.uf.common.dataplugin.ffmp;
 
 import java.util.HashMap;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -37,6 +36,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 10/22/10      6581       D. Hladky   Initial release
  * 01/27/13     1478        D. Hladky   Removed un needed XML annotations
+ * Aug 08, 2015 4722        dhladky     Dynamic serialize imp not needed.
  * 
  * </pre>
  * 
@@ -44,7 +44,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1
  */
 @DynamicSerialize
-public class SourceBinList implements ISerializableObject {
+public class SourceBinList {
     
     /** sourceName and dataKey **/
     @DynamicSerializeElement
