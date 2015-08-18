@@ -901,13 +901,13 @@ class Procedure (SmartScript.SmartScript):
 
         ringMask = logical_and(less(mag, upper), greater(mag, lower))
 
-        avgGrid = where(ringMask, backMag, 0.0)
+        avgGrid = where(ringMask, backMag, float32(0.0))
 
         # a nearly calm grid means no blending required
         if lower < 1.0:
             return windGrid
 
-        wtGrid = where(greater(mag, upper), 1.0, 0.0)
+        wtGrid = greater(mag, upper).astype(float32)
         ringMask = logical_and(less(mag, upper), greater(mag, lower))
         wtGrid = where(ringMask, (mag - lower) / (upper - lower), wtGrid)
         wtGrid[less(mag, lower)]= 0.0
@@ -1107,12 +1107,12 @@ class Procedure (SmartScript.SmartScript):
                 else:  # outside RMW
                     grid = where(mask, inSpeed * power((inRadius / distanceGrid), exponent),
                              grid)
-                    grid = clip(grid, 0.0, 200.0)
+                    grid.clip(0.0, 200.0, grid)
 
         dirGrid = self.makeDirectionGrid(latGrid, lonGrid, center[0], center[1])
 
         # clip values between zero and maxWind
-        grid = clip(grid, 0.0, maxWind)
+        grid.clip(0.0, maxWind, grid)
         # apply the wind reduction over land
         fraction = 1.0 - (self.lessOverLand / 100.0)
         grid = self.decreaseWindOverLand(grid, fraction, self.elevation)

@@ -364,28 +364,23 @@ class Tool (SmartScript.SmartScript):
                 #print attstring
         
         # Initialize the Wx values and keys
-        wxValues = array(PoP.shape, int8)
+        wxValues = empty_like(PoP, int8)
         keys = []
 
         if qualifiertype == "Prob":
-
-            wxValues = where(less(PoP, SChc_min_PoP_threshold), self.getByteValue("", type, intensity, thunder, attstring, keys, alt_probcov, alt_catpop_probcov, alt_thunder_probcov), \
-                       where(less(PoP, 24.5), self.getByteValue("SChc", type, intensity, thunder, attstring, keys, alt_probcov, alt_catpop_probcov, alt_thunder_probcov), \
-                       where(less(PoP, 54.5), self.getByteValue("Chc", type, intensity, thunder, attstring, keys, alt_probcov, alt_catpop_probcov, alt_thunder_probcov), \
-                       where(less(PoP, 74.5),self.getByteValue("Lkly", type, intensity, thunder, attstring, keys, alt_probcov, alt_catpop_probcov, alt_thunder_probcov), \
-                       where(less_equal(PoP, 100),self.getByteValue("Def", type, intensity, thunder, attstring, keys, alt_probcov, alt_catpop_probcov, alt_thunder_probcov), \
-                           self.getByteValue("", type, intensity, thunder, attstring, keys, alt_probcov, alt_catpop_probcov, alt_thunder_probcov))))))
+            wxValues[less_equal(PoP, 100)] = self.getByteValue("Def", type, intensity, thunder, attstring, keys, alt_probcov, alt_catpop_probcov, alt_thunder_probcov)
+            wxValues[less(PoP, 74.5)] = self.getByteValue("Lkly", type, intensity, thunder, attstring, keys, alt_probcov, alt_catpop_probcov, alt_thunder_probcov)
+            wxValues[less(PoP, 54.5)] = self.getByteValue("Chc", type, intensity, thunder, attstring, keys, alt_probcov, alt_catpop_probcov, alt_thunder_probcov)
+            wxValues[less(PoP, 24.5)] = self.getByteValue("SChc", type, intensity, thunder, attstring, keys, alt_probcov, alt_catpop_probcov, alt_thunder_probcov)
+            wxValues[less(PoP, SChc_min_PoP_threshold)] = self.getByteValue("", type, intensity, thunder, attstring, keys, alt_probcov, alt_catpop_probcov, alt_thunder_probcov)
 
         if qualifiertype == "Cov":
+            wxValues[less_equal(PoP, 100)] = self.getByteValue("Wide", type, intensity, thunder, attstring, keys, alt_probcov, alt_catpop_probcov, alt_thunder_probcov)
+            wxValues[less(PoP, 74.5)] = self.getByteValue("Num", type, intensity, thunder, attstring, keys, alt_probcov, alt_catpop_probcov, alt_thunder_probcov)
+            wxValues[less(PoP, 54.5)] = self.getByteValue("Sct", type, intensity, thunder, attstring, keys, alt_probcov, alt_catpop_probcov, alt_thunder_probcov)
+            wxValues[less(PoP, 24.5)] = self.getByteValue("Iso", type, intensity, thunder, attstring, keys, alt_probcov, alt_catpop_probcov, alt_thunder_probcov)
+            wxValues[less(PoP, SChc_min_PoP_threshold)] = self.getByteValue("", type, intensity, thunder, attstring, keys, alt_probcov, alt_catpop_probcov, alt_thunder_probcov)
 
-            wxValues = where(less(PoP, SChc_min_PoP_threshold), self.getByteValue("", type, intensity, thunder, attstring, keys, alt_probcov, alt_catpop_probcov, alt_thunder_probcov), \
-                       where(less(PoP, 24.5), self.getByteValue("Iso", type, intensity, thunder, attstring, keys, alt_probcov, alt_catpop_probcov, alt_thunder_probcov), \
-                       where(less(PoP, 54.5), self.getByteValue("Sct", type, intensity, thunder, attstring, keys, alt_probcov, alt_catpop_probcov, alt_thunder_probcov), \
-                       where(less(PoP, 74.5),self.getByteValue("Num", type, intensity, thunder, attstring, keys, alt_probcov, alt_catpop_probcov, alt_thunder_probcov), \
-                       where(less_equal(PoP, 100),self.getByteValue("Wide", type, intensity, thunder, attstring, keys, alt_probcov, alt_catpop_probcov, alt_thunder_probcov), \
-                           self.getByteValue("", type, intensity, thunder, attstring, keys, alt_probcov, alt_catpop_probcov, alt_thunder_probcov))))))
-        
-        wxValues = wxValues.astype(int8)
         print "keys = ", keys  
         return (wxValues, keys)
 

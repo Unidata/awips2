@@ -313,7 +313,7 @@ class Procedure (SmartScript.SmartScript):
             # See if the storm os outside the GFE domain.  If it is, just update
             # the adjustedWindMax and the stormMaxWindValue
             if xPos is None or yPos is None:
-                adjustedWindMax = where(greater(ws, adjustedWindMax), ws, adjustedWindMax)
+                adjustedWindMax = maximum(ws, adjustedWindMax)
                 gridWindMax = max(ws.flat)  # max value over the whole grid
                 stormMaxWindValue = max(gridWindMax, stormMaxWindValue)  # update the overall max
                 continue
@@ -495,7 +495,7 @@ class Procedure (SmartScript.SmartScript):
         extremeIndex = self.getIndex("Extreme", keys)
 
         # initialize the threat grid
-        threatGrid = self._empty  # a grid of zeros
+        threatGrid = self.empty()  # a grid of zeros
 
 
         # Attempt to get the grid from the server.
@@ -517,11 +517,11 @@ class Procedure (SmartScript.SmartScript):
 
         if allWind:
 
-            threatGrid = where(windMax < windDict["Elevated"], 0, threatGrid)
-            threatGrid = where(windMax >= windDict["Elevated"], lowIndex, threatGrid)
-            threatGrid = where(windMax >= windDict["Mod"], modIndex, threatGrid)
-            threatGrid = where(windMax >= windDict["High1"], highIndex, threatGrid)
-            threatGrid = where(windMax >= windDict["Extreme"], extremeIndex, threatGrid)                 
+            threatGrid[windMax < windDict["Elevated"]] = 0
+            threatGrid[windMax >= windDict["Elevated"]] = lowIndex
+            threatGrid[windMax >= windDict["Mod"]] = modIndex
+            threatGrid[windMax >= windDict["High1"]] = highIndex
+            threatGrid[windMax >= windDict["Extreme"]] = extremeIndex
 
         else:
 
@@ -533,37 +533,37 @@ class Procedure (SmartScript.SmartScript):
             #self.createGrid("Fcst", "Prob50", "SCALAR", prob50Grid, timeRange)
             #self.createGrid("Fcst", "Prob64", "SCALAR", prob64Grid, timeRange)
             #print "MAXWIND IS: ", maxWindValue
-            threatGrid = zeros(prob64Grid.shape)
-            threatGrid = where(prob34Grid < t34TS1, 0, threatGrid)
-            threatGrid = where(prob34Grid >= t34TS1, lowIndex, threatGrid)
-            threatGrid = where(prob50Grid >= t50TS2, modIndex, threatGrid)
-            threatGrid = where(prob64Grid >= t64Cat1, highIndex, threatGrid)
+            threatGrid = zeros_like(prob64Grid)
+            threatGrid[prob34Grid < t34TS1] = 0
+            threatGrid[prob34Grid >= t34TS1] = lowIndex
+            threatGrid[prob50Grid >= t50TS2] = modIndex
+            threatGrid[prob64Grid >= t64Cat1] = highIndex
             if maxWindValue >= windDict['High2']:
-                threatGrid = where(prob64Grid >= t64Cat3, extremeIndex, threatGrid)
+                threatGrid[prob64Grid >= t64Cat3] = extremeIndex
             if maxWindValue >= windDict['Extreme']:
-                threatGrid = where(prob64Grid >= t64Cat2, extremeIndex, threatGrid)
+                threatGrid[prob64Grid >= t64Cat2] = extremeIndex
 
             # Upgrade windThreat based on windMax grid
 ##                  
             # upgrade None to Elevated 
             windMask = (windMax >= windDict['Elevated']) & (windMax < windDict['Mod'])
             threatMask = threatGrid < lowIndex
-            threatGrid = where(windMask & threatMask, lowIndex, threatGrid)
+            threatGrid[windMask & threatMask] = lowIndex
 
             # upgrade Elevated to Med
             windMask = (windMax >= windDict['Mod']) & (windMax < windDict['High1'])
             threatMask = threatGrid < modIndex
-            threatGrid = where(windMask & threatMask, modIndex, threatGrid)
+            threatGrid[windMask & threatMask] = modIndex
 
             # upgrade Med to High
             windMask = (windMax >= windDict['High1']) & (windMax < windDict['Extreme'])
             threatMask = threatGrid < highIndex
-            threatGrid = where(windMask & threatMask, highIndex, threatGrid)
+            threatGrid[windMask & threatMask] = highIndex
 
             # upgrade High to Extreme
             windMask = windMax >= windDict['Extreme']
             threatMask = threatGrid < extremeIndex
-            threatGrid = where(windMask & threatMask, extremeIndex, threatGrid)
+            threatGrid[windMask & threatMask] = extremeIndex
 
         # Remove previous version of grid.
         dbTimes = self.makeDBTimeRange()

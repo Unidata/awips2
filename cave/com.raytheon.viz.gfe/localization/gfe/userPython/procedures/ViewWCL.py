@@ -359,7 +359,7 @@ class Procedure (SmartScript.SmartScript):
                 zoneArea = self.getEditArea(each[0])
                 zoneMask = self.encodeEditArea(zoneArea)
                 mask = logical_or(mask, zoneMask)
-            grid = where(mask, watchIndex, grid)
+            grid[mask] = watchIndex
 
 
         #remove any existing grid

@@ -225,7 +225,7 @@ class Procedure (SmartScript.SmartScript):
 
         # increment the category.  This code assumes that the categories are
         # defined in increaing order of severity.
-        tornadoThreat = where(mask, tornadoThreat + 1, tornadoThreat)
+        tornadoThreat[mask] += 1
 
         return tornadoThreat
         
@@ -258,11 +258,11 @@ class Procedure (SmartScript.SmartScript):
             #print "THRESH IS: ", thresh
             keyIndex = self.getIndex(threshDict[key], threatKeys)
             # make a temp grid where the thresholds are exceeded
-            tempGrid = where(greater_equal(D2DGrid, thresh), keyIndex, 0)
+            tempGrid = where(greater_equal(D2DGrid, thresh), int32(keyIndex), int32(0))
             # calculate areas where this temp grid exceeds the threatGrid
             mask = greater(tempGrid, tornadoThreat)
             # update the threatGrid for these areas only
-            tornadoThreat = where(mask, keyIndex, tornadoThreat)
+            tornadoThreat[mask] = keyIndex
 
         return tornadoThreat
                     

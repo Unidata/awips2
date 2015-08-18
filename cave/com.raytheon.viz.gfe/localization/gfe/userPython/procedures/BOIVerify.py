@@ -5751,7 +5751,7 @@ class Procedure (SmartScript.SmartScript):
       histoData=add.reduce(d1,-1)
       self.VU.logMsg("done with histoData reduce")
       #hitCount=add.reduce(where(d1,verif,0),-1)
-      a=where(d1,verif,0)
+      a=where(d1,verif,float32(0))
       hitCount=add.reduce(a,-1)
       self.VU.logMsg("done with hitCount reduce")
       histoData[-2]+=histoData[-1]

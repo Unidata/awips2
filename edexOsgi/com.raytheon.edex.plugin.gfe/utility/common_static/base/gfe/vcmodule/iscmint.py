@@ -57,7 +57,7 @@ class VCParm:
             return MinT_ISC[0][1]
         #max value for this parm
         maxV = self.getWEInfo()[0][4]
-        rval = where(MinT_ISC[0][2], MinT_ISC[0][1], maxV)
+        rval = where(MinT_ISC[0][2], MinT_ISC[0][1], float32(maxV))
         for i in MinT_ISC:
             rval = where(i[2], minimum(i[1], rval), rval)
         return rval

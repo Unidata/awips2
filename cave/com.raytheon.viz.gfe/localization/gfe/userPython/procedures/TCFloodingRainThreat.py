@@ -491,7 +491,7 @@ class Procedure (SmartScript.SmartScript):
         #print "Getting FFG Grid Now: "
         ffgGrid = self.getRFCFlashFloodGrid(productList,varDict)
         #print "GOT FFG Grid"
-        ffgGrid = where(less(ffgGrid, 0.0), 0.0, ffgGrid)
+        ffgGrid[less(ffgGrid, 0.0)] = 0.0
         
         # get the ERP grids and stuff them in six hour time blocks to match
         # the cummulative QPF grids will create later
@@ -515,9 +515,9 @@ class Procedure (SmartScript.SmartScript):
                                   str(tr), "S")
                 continue
 
-            tempffgGrid = where(equal(ffgGrid, 0.0), 1000.0, ffgGrid)
+            tempffgGrid = where(equal(ffgGrid, 0.0), float32(1000.0), ffgGrid)
             ratioGrid = qpfGrid / tempffgGrid
-            ratioGrid = where(equal(ffgGrid, 0.0), 0.0, ratioGrid)
+            ratioGrid[equal(ffgGrid, 0.0)] = 0.0
             self.createGrid("Fcst", "ERP", "SCALAR", erpGrid, tr,
                             minAllowedValue = -1, maxAllowedValue=100,
                             precision=2)
@@ -528,7 +528,7 @@ class Procedure (SmartScript.SmartScript):
                             ratioGrid, tr, precision=2,
                             minAllowedValue = 0, maxAllowedValue=1000)
 
-            floodThreat = zeros(self.getTopo().shape)
+            floodThreat = self.empty()
             
             for e in range(len(erps) - 1):
                 for r in range(len(ratios) - 1):
@@ -542,7 +542,7 @@ class Procedure (SmartScript.SmartScript):
                                           less(erpGrid, eMax))
                     mask = logical_and(ratioMask, erpMask)
                     keyIndex = self.getIndex(threatMatrix[r][e], threatKeys)
-                    floodThreat = where(mask, keyIndex, floodThreat)
+                    floodThreat[mask] = keyIndex
 
             self.createGrid("Fcst", "FloodThreat", "DISCRETE",
                         (floodThreat, threatKeys), tr,
@@ -551,7 +551,7 @@ class Procedure (SmartScript.SmartScript):
                         discreteAuxDataLength=2,
                         defaultColorTable="gHLS_new")        
             
-            maxFloodThreat = where(floodThreat > maxFloodThreat, floodThreat, maxFloodThreat)
+            maxFloodThreat = maximum(floodThreat, maxFloodThreat)
 
         # make a 6 hour TimeRange
         # startTime = trList[0].startTime()

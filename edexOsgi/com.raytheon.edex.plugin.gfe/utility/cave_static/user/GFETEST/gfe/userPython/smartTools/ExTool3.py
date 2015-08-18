@@ -48,6 +48,6 @@ class Tool (SmartScript.SmartScript):
         SnowAmt = where(less(T, 20), QPF * 18,
                                where(less(T, 25), QPF * 14,
                                QPF * 10))
-        SnowAmt = where(less(Topo, elevation), 0, QPF)
+        SnowAmt = where(less(Topo, elevation), float32(0), QPF)
         # Return the new value
         return SnowAmt

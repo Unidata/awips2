@@ -73,7 +73,7 @@ class Tool (SmartScript.SmartScript):
     ##    var2 = varDict["Variable name2"]
 
         # Determine new value
-        Wetflag = where(greater(QPF, 0.10), 1, 0)
+        Wetflag = greater(QPF, 0.10).astype(float32)
         # Return the new value
         return Wetflag
 

@@ -302,7 +302,7 @@ class Procedure (SmartScript.SmartScript):
             #  in the training period...start cutting back correction amount
             #  until getting back to zero regressed amount at (2*fuzz)% beyond.
             #
-            multiplier=self._empty+1.0
+            multiplier=self.newGrid(1)
             fuzzGrid=maximum((maxFcst-minFcst)*fuzz,0.01) # dont have zero
             max1=maxFcst+fuzzGrid
             multiplier=where(greater(inputGrid,max1),1.0-((inputGrid-max1)/fuzzGrid),multiplier)
@@ -315,8 +315,8 @@ class Procedure (SmartScript.SmartScript):
             del maxFcst
             del fuzzGrid
             if self.VU.getDebug>=1:
-               count=add.reduce(add.reduce(less(multiplier,0.98)))
-               count2=add.reduce(add.reduce(less(multiplier,0.02)))
+               count=count_nonzero(less(multiplier,0.98))
+               count2=count_nonzero(less(multiplier,0.02))
                if count>0:
                   self.VU.logMsg("    %d fcst points are outliers and regression was reduced"%count,1)
                   if count2>0:
@@ -359,8 +359,8 @@ class Procedure (SmartScript.SmartScript):
          if maxtgrid is not None:
             maxoftgrid=self.getGrids(mutableModel,"T","SFC",newtr,mode="Max",noDataError=0,cache=0)
             if maxoftgrid is not None:
-               maxt=where(greater(maxoftgrid,maxtgrid),maxoftgrid,maxtgrid)
-               changed=add.reduce(add.reduce(greater(maxt,maxtgrid)))
+               maxt=maximum(maxoftgrid,maxtgrid)
+               changed=count_nonzero(greater(maxt,maxtgrid))
                if changed>0:
                   fhr=int((newtr.startTime().unixTime()-modeltime)/3600.0)
                   self.VU.logMsg("Had to update MaxT at %d-hrs to match hourly T grids at %d points"%(fhr,changed))
@@ -377,8 +377,8 @@ class Procedure (SmartScript.SmartScript):
          if mintgrid is not None:
             minoftgrid=self.getGrids(mutableModel,"T","SFC",newtr,mode="Min",noDataError=0,cache=0)
             if minoftgrid is not None:
-               mint=where(less(minoftgrid,mintgrid),minoftgrid,mintgrid)
-               changed=add.reduce(add.reduce(less(mint,mintgrid)))
+               mint=minimum(minoftgrid,mintgrid)
+               changed=count_nonzero(less(mint,mintgrid))
                if changed>0:
                   fhr=int((newtr.startTime().unixTime()-modeltime)/3600.0)
                   self.VU.logMsg("Had to update MinT at %d-hrs to match hourly T grids at %d points"%(fhr,changed))
@@ -395,8 +395,8 @@ class Procedure (SmartScript.SmartScript):
          if maxrhgrid is not None:
             maxofrhgrid=self.getGrids(mutableModel,"RH","SFC",newtr,mode="Max",noDataError=0,cache=0)
             if maxofrhgrid is not None:
-               maxrh=where(greater(maxofrhgrid,maxrhgrid),maxofrhgrid,maxrhgrid)
-               changed=add.reduce(add.reduce(greater(maxrh,maxrhgrid)))
+               maxrh=maximum(maxofrhgrid,maxrhgrid)
+               changed=count_nonzero(greater(maxrh,maxrhgrid))
                if changed>0:
                   fhr=int((newtr.startTime().unixTime()-modeltime)/3600.0)
                   self.VU.logMsg("Had to update MaxRH at %d-hrs to match hourly RH grids at %d points"%(fhr,changed))
@@ -413,8 +413,8 @@ class Procedure (SmartScript.SmartScript):
          if minrhgrid is not None:
             minofrhgrid=self.getGrids(mutableModel,"RH","SFC",newtr,mode="Min",noDataError=0,cache=0)
             if minofrhgrid is not None:
-               minrh=where(less(minofrhgrid,minrhgrid),minofrhgrid,minrhgrid)
-               changed=add.reduce(add.reduce(less(minrh,minrhgrid)))
+               minrh=minimum(minofrhgrid,minrhgrid)
+               changed=count_nonzero(less(minrh,minrhgrid))
                if changed>0:
                   fhr=int((newtr.startTime().unixTime()-modeltime)/3600.0)
                   self.VU.logMsg("Had to update MinRH at %d-hrs to match hourly RH grids at %d points"%(fhr,changed))
