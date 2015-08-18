@@ -289,8 +289,10 @@ public class SaveBestEstimate {
 
         }
         File qpePolyFile = PolygonEditManager.getHourlyEditFile(bestEstField, editDate);
-        if(qpePolyFile.exists()){
-            qpePolyFile.delete();
+        if (bestEstField.getFieldName().equals(DisplayFieldData.Xmrg.getFieldName())){
+            if (qpePolyFile.exists()){
+                qpePolyFile.delete();
+            }
         }
         MPEDisplayManager.getCurrent().setSavedData(true);
     }
