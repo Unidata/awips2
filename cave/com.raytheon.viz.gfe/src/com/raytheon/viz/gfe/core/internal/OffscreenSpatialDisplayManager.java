@@ -34,6 +34,8 @@ import com.raytheon.viz.gfe.core.DataManager;
  * ------------ ---------- ----------- --------------------------
  * Mar 30, 2009            njensen     Initial creation
  * Apr 09, 2009 1288       rjpeter     Added new method stubs for ISpatialDisplayManager.
+ * Aug 13, 2015  4749      njensen     Implemented dispose()
+ * 
  * </pre>
  * 
  * @author njensen
@@ -54,6 +56,11 @@ public class OffscreenSpatialDisplayManager extends
     @Override
     protected IDescriptor[] getDescriptors() {
         return new IDescriptor[] { display.getDescriptor() };
+    }
+
+    @Override
+    public void dispose() {
+        //
     }
 
 }

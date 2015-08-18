@@ -51,6 +51,7 @@ import com.raytheon.viz.gfe.core.parm.vcparm.VCModuleJobPool;
  * 06/25/2012    #766      dgilling    Added getVCModulePool().
  * 08/20/2012    #1082     randerso    Moved calcStepTimes to AbstractParmManager for
  *                                     use in PngWriter
+ * Aug 13, 2015  4749      njensen     Extends DisposableManager                                    
  * 
  * </pre>
  * 
@@ -58,16 +59,11 @@ import com.raytheon.viz.gfe.core.parm.vcparm.VCModuleJobPool;
  * @version 1.0
  */
 public interface IParmManager extends IParmInventoryChangedListener,
-        ILockTableChangedListener, IParmIDChangedListener {
+        ILockTableChangedListener, IParmIDChangedListener, DisposableManager {
 
     public static enum TRMode {
         LT, ZULU, DBID, LST
-    };
-
-    /**
-     * Called to dispose the parm manager
-     */
-    public void dispose();
+    }
 
     /**
      * This function creates a new parm - of type database or virtual

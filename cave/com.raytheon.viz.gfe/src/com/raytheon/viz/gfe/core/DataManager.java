@@ -105,6 +105,7 @@ import com.raytheon.viz.gfe.textformatter.TextProductManager;
  * 04/20/2015    4027      randerso    Let TextProductManager know we are not running in a GUI
  * 07/23/2015    4263      dgilling    Refactor to support initialization of script 
  *                                     controllers off main thread.
+ * Aug 13, 2015  4749      njensen     Improved dispose(), parmEvictor can cancel                                    
  * 
  * </pre>
  * 
@@ -211,6 +212,8 @@ public class DataManager {
 
     private final AtomicBoolean textProductsInitialized;
 
+    private final ParmEvictor parmEvictorJob;
+
     public IISCDataAccess getIscDataAccess() {
         return iscDataAccess;
     }
@@ -292,7 +295,7 @@ public class DataManager {
 
         this.autoSaveJob = new AutoSaveJob(this);
 
-        new ParmEvictor();
+        this.parmEvictorJob = new ParmEvictor();
     }
 
     /**
@@ -311,6 +314,7 @@ public class DataManager {
         selectTimeRangeManager.dispose();
         refManager.dispose();
         parmManager.dispose();
+        weGroupManager.dispose();
         autoSaveJob.dispose();
         autoSaveJob = null;
 
@@ -343,6 +347,8 @@ public class DataManager {
         Thread killPoolsThread = new Thread(killJobPools, "shutdown-gfe-pools");
         killPoolsThread.setDaemon(false);
         killPoolsThread.start();
+
+        parmEvictorJob.cancel();
 
         NotificationManagerJob.removeObserver("edex.alerts.gfe", router);
     }
@@ -511,7 +517,10 @@ public class DataManager {
                         "Error occured while evicting grids", e);
             }
 
-            this.schedule(1000L * PARM_EVICTOR_SCHEDULE);
+            if (!monitor.isCanceled()) {
+                this.schedule(1000L * PARM_EVICTOR_SCHEDULE);
+            }
+
             return Status.OK_STATUS;
         }
     }

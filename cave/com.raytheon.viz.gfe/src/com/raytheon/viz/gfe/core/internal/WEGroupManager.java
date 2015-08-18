@@ -62,10 +62,11 @@ import com.raytheon.viz.gfe.core.IWEGroupManager;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Jun 5, 2008              chammack    Initial creation
- * Sep 30, 2013 2361        njensen     Use JAXBManager for XML
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Jun 05, 2008             chammack    Initial creation
+ * Sep 30, 2013  2361       njensen     Use JAXBManager for XML
+ * Aug 13, 2015  4749       njensen     Implemented dispose()     
  * 
  * </pre>
  * 
@@ -214,6 +215,7 @@ public class WEGroupManager implements IWEGroupManager,
      * com.raytheon.viz.gfe.core.internal.IWEGroupManager#remove(java.lang.String
      * )
      */
+    @Override
     public boolean remove(String name) {
         return this.delete(name);
     }
@@ -225,6 +227,7 @@ public class WEGroupManager implements IWEGroupManager,
      * com.raytheon.viz.gfe.core.internal.IWEGroupManager#getParmIDs(java.lang
      * .String, com.raytheon.edex.plugin.gfe.db.objects.ParmID[])
      */
+    @Override
     public ParmID[] getParmIDs(String name, ParmID[] availableParmIDs) {
         LocalizationFile file = this.getLocalizationFile(name);
         if (file == null || !file.exists()) {
@@ -254,6 +257,7 @@ public class WEGroupManager implements IWEGroupManager,
      * .edex.plugin.gfe.weatherElement.WEGroup,
      * com.raytheon.edex.plugin.gfe.db.objects.ParmID[])
      */
+    @Override
     public ParmID[] getParmIDs(final WEGroup bundle,
             final ParmID[] availableParmIDs) {
 
@@ -412,6 +416,7 @@ public class WEGroupManager implements IWEGroupManager,
      * 
      * @return user inventory
      */
+    @Override
     public List<String> getUserInventory() {
         List<String> completeList = new ArrayList<String>();
         Set<String> userInv = this.inventory.get(LocalizationLevel.USER);
@@ -431,6 +436,11 @@ public class WEGroupManager implements IWEGroupManager,
     @Override
     public void fileUpdated(FileUpdatedMessage message) {
         loadGroups();
+    }
+
+    @Override
+    public void dispose() {
+        weGroupDir.removeFileUpdatedObserver(this);
     }
 
 }

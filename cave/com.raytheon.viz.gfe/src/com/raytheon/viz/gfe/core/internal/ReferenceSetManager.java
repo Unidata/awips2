@@ -100,17 +100,18 @@ import com.vividsolutions.jts.geom.Envelope;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Apr 1, 2008		#1053	randerso	Initial creation
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Apr 1, 2008       #1053  randerso    Initial creation
  * 02/14/2013        #1506  mnash       Move QueryScript to use new Python concurrency implementation
  * 02/12/2013        #1597  randerso    Improved error message for exceptions evaluating queries
  * 02/26/2013        #1708  randerso    Removed no longer needed near duplicate methods
- * 06/21/2013       14983   ryu         Added method for synchronous evaluation of query.
+ * 06/21/2013        14983  ryu         Added method for synchronous evaluation of query.
  * 08/06/2013         1561  njensen     Use pm.listFiles() instead of pm.listStaticFiles()
  * 09/30/2013         2361  njensen     Use JAXBManager for XML
  * 09/08/2014        #3592  randerso    Changed to use new pm listStaticFiles()
  * 09/29/2014         2975  njensen     Only lookup COMMON_STATIC for editAreas
+ * Aug 13, 2015       4749  njensen     Shut down coordinator on dispose()
  * 
  * </pre>
  * 
@@ -669,6 +670,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
         this.dataManager.getSpatialDisplayManager()
                 .removeSpatialEditorTimeChangedListener(this);
         Message.unregisterInterest(this, GridDataChangedMsg.class);
+        coordinator.shutdown();
     }
 
     /*

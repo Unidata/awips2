@@ -23,15 +23,16 @@ import com.raytheon.uf.common.dataplugin.gfe.time.SelectTimeRange;
 import com.raytheon.uf.common.dataplugin.gfe.time.SelectTimeRange.Mode;
 
 /**
- * TODO Add Description
+ * Interface for managing SelectTimeRanges
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 3, 2009            randerso     Initial creation
- * Aug 1, 2012   #965     dgilling     Change location of SelectTimeRange.
+ * Dec 3, 2009             randerso    Initial creation
+ * Aug 1, 2012   #965      dgilling    Change location of SelectTimeRange.
+ * Aug 13, 2015  4749      njensen     Extends DisposableManager
  * 
  * </pre>
  * 
@@ -39,7 +40,7 @@ import com.raytheon.uf.common.dataplugin.gfe.time.SelectTimeRange.Mode;
  * @version 1.0
  */
 
-public interface ISelectTimeRangeManager {
+public interface ISelectTimeRangeManager extends DisposableManager {
 
     /**
      * Get the list of defined SelectTimeRanges
@@ -77,8 +78,4 @@ public interface ISelectTimeRangeManager {
      */
     public void remove(String name);
 
-    /**
-     * Dispose of this instance
-     */
-    public void dispose();
 }
