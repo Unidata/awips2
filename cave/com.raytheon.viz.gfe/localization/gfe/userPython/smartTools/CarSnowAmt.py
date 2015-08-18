@@ -162,9 +162,9 @@ class Tool (SmartScript.SmartScript):
         #cubeShape = (len(tCube) - 1, tCube.shape[1], tCube.shape[2])
         cubeShape = (len(tCube), tCube.shape[1], tCube.shape[2])
         gridShape = (tCube.shape[1], tCube.shape[2])
-        layerSR = zeros(cubeShape, 'int8')
-        pvvAvg = zeros(cubeShape, 'float32')
-        pvvSum = zeros(gridShape, 'float32')
+        layerSR = zeros(cubeShape, int8)
+        pvvAvg = zeros(cubeShape, float32)
+        pvvSum = zeros(gridShape, float32)
 
         for i in range(len(ghCube) - 1):
         #for i in range(len(ghCube)):

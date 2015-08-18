@@ -70,9 +70,9 @@ class GFS40Forecaster(Forecaster):
         return self._calcT(temps, pres, topo, stopo, gh_c, t_c)
 
     def _calcT(self, temps, pres, topo, stopo, gh_c, t_c):
-        p = self._minus
-        tmb = self._minus
-        tms = self._minus
+        p = self.newGrid(-1)
+        tmb = self.newGrid(-1)
+        tms = self.newGrid(-1)
         # go up the column to figure out the surface pressure
         for i in xrange(1, gh_c.shape[0]):
             higher = greater(gh_c[i], topo)  # identify points > topo
@@ -80,37 +80,43 @@ class GFS40Forecaster(Forecaster):
             val = self.linear(gh_c[i], gh_c[i - 1],
                               log(self.pres[i]), log(self.pres[i - 1]), topo)
             val[greater(val, 500)] = 500
-            val = clip(val, -.00001, 10)
-            p = where(logical_and(equal(p, -1), higher),
-                      exp(val), p)
+            val.clip(-.00001, 10, val)
+            
+            m = logical_and(equal(p, -1), higher)
+            p[m]= exp(val)[m]
 
             # interpolate the temperature at true elevation
             tval1 = self.linear(gh_c[i], gh_c[i - 1], t_c[i], t_c[i - 1], topo)
-            tmb = where(logical_and(equal(tmb, -1), higher),
-                        tval1, tmb)
+            
+            m = logical_and(equal(tmb, -1), higher)
+            tmb[m] = tval1[m]
             # interpolate the temperature at model elevation
             tval2 = self.linear(gh_c[i], gh_c[i - 1], t_c[i], t_c[i - 1], stopo)
-            tms = where(logical_and(equal(tms, -1), greater(gh_c[i], stopo)),
-                        tval2, tms)
+            
+            m = logical_and(equal(tms, -1), greater(gh_c[i], stopo))
+            tms[m] = tval2[m]
 
 
         # define the pres. of each of the boundary layers
-        st = self._minus
+        st = self.newGrid(-1)
         # Calculate the lapse rate in units of pressure
         for i in xrange(1, len(pres)):
             val = self.linear(pres[i], pres[i - 1], temps[i], temps[i - 1], p)
             gm = greater(pres[i - 1], p)
             lm = less_equal(pres[i], p)
             mask = logical_and(gm, lm)
-            st = where(logical_and(equal(st, -1), mask),
-                       val, st)            
+            
+            m = logical_and(equal(st, -1), mask)
+            st[m] = val[m]
 
         # where topo level is above highest level in BL fields...use tmb
-        st = where(logical_and(equal(st,-1),less(p, pres[-1])), tmb, st)
+        m = logical_and(equal(st,-1),less(p, pres[-1]))
+        st[m] = tmb[m]
 
         # where topo level is below model surface...use difference
         # of t at pressure of surface and tFHAG2 and subtract from tmb
-        st = where(equal(st, -1), tmb - tms + temps[0], st)
+        m = equal(st, -1)
+        st[m] = (tmb - tms + temps[0])[m]
 
         return self.KtoF(st)
 
@@ -395,7 +401,7 @@ class GFS40Forecaster(Forecaster):
 ####-------------------------------------------------------------------------
     def calcPoP(self, gh_c, rh_c, QPF, topo):
         rhavg = where(less(gh_c, topo), float32(-1), rh_c)
-        rhavg[greater(gh_c, topo + (5000 * 12 * 2.54) / 100)] = -1
+        rhavg[greater(gh_c, topo + 5000 * 0.3048)] = -1
         count = not_equal(rhavg, -1)
         rhavg[equal(rhavg, -1)] = 0
         count = add.reduce(count, 0, dtype=float32)
@@ -431,7 +437,7 @@ class GFS40Forecaster(Forecaster):
         t_c = t_c[:clipindex, :, :]
         rh_c = rh_c[:clipindex, :, :]
 
-        snow = self._minus
+        snow = self.newGrid(-1)
         #
         #  make pressure cube
         #
@@ -470,12 +476,13 @@ class GFS40Forecaster(Forecaster):
                  * (-wetb[i - 1])
            except:
               val = gh_c[i]
-           snow = where(logical_and(equal(snow, -1), less_equal(wetb[i], 0)),
-                      val, snow)
+              
+           m = logical_and(equal(snow, -1), less_equal(wetb[i], 0))
+           snow[m] = val[m]
         #
         #  convert to feet
         #
-        snow = snow * 3.28
+        snow *= 3.28
 
         return snow
 
@@ -488,8 +495,8 @@ class GFS40Forecaster(Forecaster):
 #        m1 = less(T, 9)
 #        m2 = greater_equal(T, 30)
 #        snowr = T * -0.5 + 22.5
-#        snowr = where(m1, float32(20), snowr)
-#        snowr = where(m2, float32(0), snowr)
+#        snowr[m1] = float32(20))
+#        snowr[m2] = float32(0)
 #        # calc. snow amount based on the QPF and the ratio
 #        snowamt = where(less_equal(FzLevel - 1000, topo * 3.28),
 #                        snowr * QPF, float32(0))
@@ -837,7 +844,7 @@ class GFS40Forecaster(Forecaster):
         mask = greater_equal(gh_c, topo) # points where height > topo
         pt = []
         for i in xrange(len(self.pres)):   # for each pres. level
-            p = self._empty + self.pres[i] # get the pres. value in mb
+            p = self.newGrid(self.pres[i]) # get the pres. value in mb
             tmp = self.ptemp(t_c[i], p)    # calculate the pot. temp
             pt = pt + [tmp]                # add to the list
         pt = array(pt)
@@ -845,7 +852,7 @@ class GFS40Forecaster(Forecaster):
         pt[logical_not(mask)] = 0
         avg = add.accumulate(pt, 0)
         count = add.accumulate(mask, 0)
-        mh = self._minus
+        mh = self.newGrid(-1)
         # for each pres. level, calculate a running avg. of pot temp.
         # As soon as the next point deviates from the running avg by
         # more than 3 deg. C, interpolate to get the mixing height.
@@ -855,10 +862,13 @@ class GFS40Forecaster(Forecaster):
             # calc. the interpolated mixing height
             tmh = self.linear(pt[i], pt[i - 1], gh_c[i], gh_c[i - 1], runavg)
             # assign new values if the difference is greater than 3
-            mh = where(logical_and(logical_and(mask[i], equal(mh, -1)),
-                                   greater(diffpt, 3)), tmh, mh)
+            m = logical_and(logical_and(mask[i], equal(mh, -1)),
+                                   greater(diffpt, 3))
+            mh[m] = tmh[m]
 
-        return (mh - topo) * 3.28  # convert to feet
+        mh -= topo
+        mh *= 3.28  # convert to feet
+        return mh
 
 ####-------------------------------------------------------------------------
 ####  Converts the lowest available wind level from m/s to knots
@@ -879,15 +889,18 @@ class GFS40Forecaster(Forecaster):
         # find the points that are above the 3000 foot level
         mask = greater_equal(gh_c, fatopo)
         # initialize the grids into which the value are stored
-        famag = self._minus
-        fadir = self._minus
+        famag = self.newGrid(-1)
+        fadir = self.newGrid(-1)
         # start at the bottom and store the first point we find that's
         # above the topo + 3000 feet level.
         for i in xrange(wind_c[0].shape[0]):
-            famag = where(logical_and(equal(famag, -1), mask[i]), wm[i], famag)
-            fadir = where(logical_and(equal(fadir, -1), mask[i]), wd[i], fadir)
-        fadir = clip(fadir, 0, 360)  # clip the value to 0, 360
-        famag = famag * 1.94    # convert to knots
+            m = logical_and(equal(famag, -1), mask[i])
+            famag[m] = wm[i][m]
+            
+            m = logical_and(equal(fadir, -1), mask[i])
+            fadir[m] = wd[i][m]
+        fadir.clip(0, 360, fadir)  # clip the value to 0, 360
+        famag *= 1.94           # convert to knots
         return (famag, fadir)   # return the tuple of grids
 
 ####-------------------------------------------------------------------------
@@ -913,8 +926,9 @@ class GFS40Forecaster(Forecaster):
         v = where(mask, add.reduce(v) / mmask, float32(0))
         # convert u, v to mag, dir
         tmag, tdir = self._getMD(u, v)
-        tmag = tmag * 1.94   # convert to knots
-        tmag = clip(tmag, 0, 125)  # clip speed to 125 knots
+        #tdir.clip(0, 359.5, tdir)  #should this be added?
+        tmag *= 1.94   # convert to knots
+        tmag.clip(0, 125, tmag)  # clip speed to 125 knots
         return (tmag, tdir)
 
 ####-------------------------------------------------------------------------
@@ -973,7 +987,7 @@ class GFS40Forecaster(Forecaster):
                "Chc:ZR:-:<NoVis>:", 'Chc:IP:-:<NoVis>:',
                'Chc:ZR:-:<NoVis>:^Chc:IP:-:<NoVis>:']
 
-        wx = zeros(self._empty.shape, dtype=int8)
+        wx = self.empty(int8)
         # Case d (snow)
         snowmask = equal(aindex, 0)
         wx[logical_and(snowmask, greater(a1, 0))] = 2
@@ -1055,8 +1069,8 @@ class GFS40Forecaster(Forecaster):
 ####-------------------------------------------------------------------------
     def calcLAL(self, tp_SFC, sli_SFC, rh_c, rh_BL030):
         bli = sli_SFC  # surface lifted index
-        ttp = self._empty + 0.00001   # nearly zero grid
-        lal = ones_like(self._empty)  # initialize the return grid to 1
+        ttp = self.newGrid(0.00001)   # nearly zero grid
+        lal = self.newGrid(1)         # initialize the return grid to 1
         # Add one to lal if QPF > 0.5
         lal[logical_and(greater(ttp, 0), greater(tp_SFC / ttp, 0.5))] += 1
         #  make an average rh field

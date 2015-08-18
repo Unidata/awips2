@@ -201,14 +201,14 @@ class Procedure (SmartScript.SmartScript):
 
             errorsFound = "yes"
             if checkOnly:   # just make a grid
-                self.createGrid(MODEL, "WindGustLessThanWindSpeed", "SCALAR", mask.astype('float32'), tr, minAllowedValue=0.0, maxAllowedValue= 1.0)
+                self.createGrid(MODEL, "WindGustLessThanWindSpeed", "SCALAR", mask.astype(float32), tr, minAllowedValue=0.0, maxAllowedValue= 1.0)
             else: # force WindGust >= WindSpeed
                 if tr in WindGustLocks:
                     msg = "Can't modify WindGust grid at " + str(tInv[i]) + \
                           " locked by another user."
                     self.statusBarMsg(msg, "S")
                     continue
-                editArea = self.decodeEditArea(mask.astype('float32'))
+                editArea = self.decodeEditArea(mask.astype(float32))
                 WindGustGrid = where(mask, WindSpeedGrid, WindGustGrid)
                 self.createGrid(MODEL, "WindGust", "SCALAR", WindGustGrid, tr)
                 WindGustDict[tr] = WindGustGrid   # update the tdDict

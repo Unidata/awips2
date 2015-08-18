@@ -576,7 +576,7 @@ class ITool (ISmartScript.ISmartScript):
                 self.createGrid(model, elementName, elementType, (grid, wxKeys), timeRange)
             elif elementType == "VECTOR":
                 grid[mask] = value[0]
-                dirGrid = numpy.zeros_like(self._empty)
+                dirGrid = self.empty()
                 dirGrid[mask] = self.textToDir(value[1])
                 elementType = self.getDataType(elementName)
                 self.createGrid(model, elementName, elementType, (grid, dirGrid), timeRange)

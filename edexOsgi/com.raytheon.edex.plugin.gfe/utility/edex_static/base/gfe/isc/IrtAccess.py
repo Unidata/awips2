@@ -517,7 +517,7 @@ class IrtAccess():
             try:
                 os.remove(file)
             except OSError:
-                pass
+                self.logException("Error removing file: "+file)
 
     def printServerInfo(self, serverInfo):
         # assembles a string to print out the server information.  serverInfo

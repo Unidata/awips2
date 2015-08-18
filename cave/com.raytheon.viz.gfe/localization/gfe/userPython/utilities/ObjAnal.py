@@ -66,9 +66,7 @@ class ObjAnal(SmartScript.SmartScript):
       #
       #  speed up distance calculations with vectors of I/J coords
       #
-      self.Topo=self.getTopo()
-      self._empty=self.Topo * 0.0
-      gridsize=self._empty.shape
+      gridsize=self.getGridShape()
       ij=np.indices(gridsize,dtype=np.float32)
       i=ij[1]
       self.Irow=i[0,:]
@@ -77,8 +75,8 @@ class ObjAnal(SmartScript.SmartScript):
       #
       #  Size of output grid is based on GFE gridsize
       #
-      self.ymax=self._empty.shape[0]
-      self.xmax=self._empty.shape[1]
+      self.ymax=self.getGridShape()[0]
+      self.xmax=self.getGridShape()[1]
       self.gridres=self.getGridSpacing()
       #
       #  If ActualElev=1...then use the station elevation for elevation
@@ -136,9 +134,9 @@ class ObjAnal(SmartScript.SmartScript):
       self.logtime("Performing %s analysis"%analysisType,1)
       self.logtime("Mem usage at start of ObjectiveAnalysis: %d"%memory(),5)
       if topoGrid is None:
-         topoGrid=self.Topo
+         topoGrid=self.getTopo()
       if landMask is None:
-         landMask=(self.Topo*0.0)+1.0
+         landMask=self.newGrid(True, bool)
       values=self.removeDuplicates(values)
       gridType=type(guessGrid)
       if ((gridType is not types.TupleType)and(gridType is not types.ListType)):
@@ -185,7 +183,7 @@ class ObjAnal(SmartScript.SmartScript):
       hloclist=[]
       zlist=[]
       if landMask is None:
-          newlandMask=(topoGrid*0)+1
+          newlandMask=self.newGrid(True, bool)
       else:
           newLandMask=landMask
       self.logtime("Point values used in analysis:",4)
@@ -304,7 +302,7 @@ class ObjAnal(SmartScript.SmartScript):
          finalGrid=(guessGrid+zval).astype(np.float32)
       else:
          self.logtime("Unknown analysisType:%s"%analysisType)
-         zval=self._empty.copy()
+         zval=self.empty()
          finalGrid=(guessGrid+zval).astype(np.float32)
       self.logtime("Mem usage at end of ObjectiveAnalysisScalar: %d"%memory(),5)
       return finalGrid
@@ -635,8 +633,8 @@ class ObjAnal(SmartScript.SmartScript):
          sortdists=np.sort(dists,0)
          finalDist=sortdists[usePoints]
 
-      totweight=self._empty.copy()
-      totsum=self._empty.copy()
+      totweight=self.empty()
+      totsum=self.empty()
       for k in range(numpts):
          w=1.0/dsquared[k]
          if self.DSquaredMaxPoints>0:

@@ -76,7 +76,7 @@ class Procedure (SmartScript.SmartScript):
         # Create a Hazards grid
         hazKeys = []
         value = self.getIndex("CF.Y^FF.A^HF.W^HI.A^FW.W^TO.A:1234^BZ.W", hazKeys)
-        grid = self._empty + value
+        grid = self.newGrid(value, dtype=int8)
         todayTR = self.getTimeRange("Today")
         self.createGrid("Fcst", "Hazards", "DISCRETE", (grid, hazKeys), todayTR)
 

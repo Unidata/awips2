@@ -80,7 +80,7 @@ class LAPSForecaster(Forecaster):
 ## Uses LAPS weather grids to initialize weather
 ##-------------------------------------------------------------------------
     def calcWx(self, spt_SFC):
-        wx = spt_SFC.astype('int8')
+        wx = spt_SFC.astype(int8)
         outOfAreaMask = logical_or(greater(wx, 7),less(wx, 0))
         wx[outOfAreaMask] = 0
         return (wx, self._getWxKey())

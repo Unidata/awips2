@@ -297,7 +297,7 @@ class DGEXForecaster(Forecaster):
                "Def:ZR:-:<NoVis>:",
                'Def:IP:-:<NoVis>:',
                'Def:ZR:-:<NoVis>:^Def:IP:-:<NoVis>:']
-        wx = zeros(self._empty.shape, dtype=int8)
+        wx = self.empty(int8)
         #
         # Case d - no zero crossings.  All snow or all rain
         #
@@ -359,7 +359,7 @@ class DGEXForecaster(Forecaster):
         #
         #  off the DGEX gridpoints need no weather
         #
-        wxgrid = zeros(self._empty.shape, dtype=int8)
+        wxgrid = self.empty(int8)
         keys = ['<NoCov>:<NoWx>:<NoInten>:<NoVis>:', ]
         wxgrid[less(sli_MB0500, -18.0)] = 0
         #
@@ -969,7 +969,7 @@ class DGEXForecaster(Forecaster):
           wind_BL3060, wind_BL6090, wind_BL90120, wind_BL120150, wind_BL150180,
           p_SFC, stopo, gh_c, t_c, rh_c, wind_c, ctime)
         BLR = self.BLR
-        lal = ones_like(self._empty)
+        lal = sel.newGrid(1)
         #
         #  only thing we have is boundary layer lifted index
         #  set LAL to 2 if LI<0, 3 if LI<-3, 4 if LI<-5
@@ -1306,7 +1306,7 @@ class DGEXForecaster(Forecaster):
     def getAreas(self, hbot, tbot, htop, ttop):
         maxm = maximum(tbot, ttop)
         minm = minimum(tbot, ttop)
-        freeze = self._empty + 273.15
+        freeze = self.newGrid(273.15)
         crosses = logical_and(less(minm, freeze), greater(maxm, freeze))
         crossh = self.linear(tbot, ttop, hbot, htop, freeze)
         crosst = freeze
