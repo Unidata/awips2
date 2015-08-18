@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.damagepath;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -50,8 +49,8 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.LocalizationFileOutputStream;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.util.Pair;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -89,6 +88,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *                                     INFO level, fix geotools CRS warning.
  * Aug 05, 2015  4635      dgilling    Default save location for damage path
  *                                     is now at SITE level.
+ * Aug 18, 2015  3806      njensen     Use SaveableOutputStream to save                                     
  * 
  * </pre>
  * 
@@ -284,21 +284,12 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
     }
 
     protected void saveDamagePath(LocalizationFile file) {
-        LocalizationFileOutputStream fos = null;
-        try {
-            fos = file.openOutputStream();
+        try (SaveableOutputStream sos = file.openOutputStream()) {
             IGeoJsonService json = new SimpleGeoJsonService();
             SimpleFeatureCollection featureCollection = buildFeatureCollection();
-            json.serialize(featureCollection, fos);
-            fos.closeAndSave();
+            json.serialize(featureCollection, sos);
+            sos.save();
         } catch (Throwable t) {
-            if (fos != null) {
-                try {
-                    fos.close();
-                } catch (IOException e) {
-                    // ignore
-                }
-            }
             statusHandler.error(
                     "Error saving damage path file " + file.getName(), t);
         }

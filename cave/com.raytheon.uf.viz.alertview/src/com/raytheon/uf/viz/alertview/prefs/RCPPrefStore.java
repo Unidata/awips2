@@ -52,6 +52,7 @@ import com.raytheon.uf.viz.alertview.AlertViewPrefStore;
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------
  * Jun 17, 2015  4474     bsteffen  Initial creation
+ * Aug 18, 2015  3806     njensen   Renamed config stream methods
  * 
  * </pre>
  * 
@@ -71,7 +72,8 @@ public class RCPPrefStore implements AlertViewPrefStore {
     }
 
     @Override
-    public InputStream readConfigFile(String fileName) throws IOException {
+    public InputStream openConfigInputStream(String fileName)
+            throws IOException {
         IPath userPath = Platform.getStateLocation(bundle).append(fileName);
         File file = userPath.toFile();
         if (file.exists()) {
@@ -82,7 +84,7 @@ public class RCPPrefStore implements AlertViewPrefStore {
     }
 
     @Override
-    public OutputStream writeConfigFile(String fileName)
+    public OutputStream openConfigOutputStream(String fileName)
             throws FileNotFoundException {
         IPath userPath = Platform.getStateLocation(bundle).append(fileName);
         return new NotificationOutputStream(userPath.toFile());

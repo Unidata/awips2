@@ -63,6 +63,7 @@ import com.raytheon.uf.viz.alertview.AlertViewPrefStore.AlertViewPrefListener;
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------
  * Jun 16, 2015  4474     bsteffen  Initial creation
+ * Aug 18, 2015  3806     njensen   Renamed config stream methods
  * 
  * </pre>
  * 
@@ -86,7 +87,7 @@ public class PreferenceFile<P> {
     private final Listener<? super P> listener;
 
     private final AlertViewPrefListener prefStoreListener = new AlertViewPrefListener() {
-        
+
         @Override
         public void prefFileChanged(String fileName) {
             if (fileName.equals(PreferenceFile.this.fileName)) {
@@ -94,7 +95,7 @@ public class PreferenceFile<P> {
             }
         }
     };
-    
+
     private final ServiceListener serviceListener = new ServiceListener() {
 
         @Override
@@ -135,8 +136,8 @@ public class PreferenceFile<P> {
                 .getServiceReference(AlertViewPrefStore.class));
     }
 
-    public void close(){
-        if(serviceReference != null){
+    public void close() {
+        if (serviceReference != null) {
             prefStore.removeListener(prefStoreListener);
             context.ungetService(serviceReference);
         }
@@ -164,7 +165,7 @@ public class PreferenceFile<P> {
     protected P loadFromStore() {
         P preferences = null;
         if (prefStore != null) {
-            try (InputStream in = prefStore.readConfigFile(fileName)) {
+            try (InputStream in = prefStore.openConfigInputStream(fileName)) {
                 if (in != null) {
                     preferences = JAXB.unmarshal(in, type);
                 }
@@ -194,7 +195,6 @@ public class PreferenceFile<P> {
         }
     }
 
-
     protected void add(ServiceReference<AlertViewPrefStore> ref) {
         if (serviceReference == null || ref.compareTo(serviceReference) > 0) {
             if (serviceReference != null) {
@@ -220,7 +220,7 @@ public class PreferenceFile<P> {
 
     public void write(P preferences) {
         if (prefStore != null) {
-            try (OutputStream out = prefStore.writeConfigFile(fileName)) {
+            try (OutputStream out = prefStore.openConfigOutputStream(fileName)) {
                 JAXB.marshal(preferences, out);
             } catch (IOException e) {
                 logger.error("Unable to write {} to {}", type.getSimpleName(),

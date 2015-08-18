@@ -21,9 +21,9 @@ package com.raytheon.uf.common.archive.config;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.FieldPosition;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -59,8 +59,8 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.LocalizationFileOutputStream;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -99,6 +99,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * May 22, 2014 3181       rferrel     Add check for valid array index.
  * Feb 24, 2015 3978       njensen     Changed to use abstract InputStream
  * Jun 29, 2015 4583       rferrel     Log detail error message when archive configuration is invalid.
+ * Aug 18, 2015 3806       njensen     Use SaveableOutputStream to save
  * 
  * </pre>
  * 
@@ -325,8 +326,6 @@ public class ArchiveConfigManager {
      * 
      * @param lFile
      * @param archiveConfig
-     * @throws IOException
-     * @throws LocalizationException
      */
     public void saveArchiveConfig(LocalizationFile lFile,
             ArchiveConfig archiveConfig) {
@@ -340,8 +339,6 @@ public class ArchiveConfigManager {
     /**
      * Clear maps and reloads the maps from the configuration information.
      * 
-     * @throws IOException
-     * @throws LocalizationException
      */
     public void reset() {
         archiveMap.clear();
@@ -438,9 +435,7 @@ public class ArchiveConfigManager {
     /**
      * Get all of the files/directories associated with the display label.
      * 
-     * @param archiveName
-     * @param categoryName
-     * @param displayLabel
+     * @param displayData
      * @return files
      */
     public List<File> getDisplayFiles(DisplayData displayData) {
@@ -897,10 +892,10 @@ public class ArchiveConfigManager {
      */
     private void marshalArchiveConfigToXmlFile(ArchiveConfig archiveConfig,
             LocalizationFile lFile) throws IOException, LocalizationException {
-        LocalizationFileOutputStream stream = null;
-        stream = lFile.openOutputStream();
-        JAXB.marshal(archiveConfig, stream);
-        stream.closeAndSave();
+        try (SaveableOutputStream sos = lFile.openOutputStream()) {
+            JAXB.marshal(archiveConfig, sos);
+            sos.save();
+        }
     }
 
     /**
@@ -916,18 +911,8 @@ public class ArchiveConfigManager {
             LocalizationFile lFile) throws IOException, LocalizationException,
             DataBindingException {
         ArchiveConfig archiveConfig = null;
-        InputStream stream = null;
-        try {
-            stream = lFile.openInputStream();
+        try (InputStream stream = lFile.openInputStream()) {
             archiveConfig = JAXB.unmarshal(stream, ArchiveConfig.class);
-        } finally {
-            if (stream != null) {
-                try {
-                    stream.close();
-                } catch (IOException ex) {
-                    // ignore
-                }
-            }
         }
         return archiveConfig;
     }
@@ -960,9 +945,7 @@ public class ArchiveConfigManager {
         LocalizationFile lFile = pathMgr.getLocalizationFile(siteContext,
                 ARCHIVE_DIR + "/" + fileName);
         if (lFile.exists()) {
-            InputStream stream = null;
-            try {
-                stream = lFile.openInputStream();
+            try (InputStream stream = lFile.openInputStream()) {
                 selections = unmarshallSelectionStream(stream);
             } catch (LocalizationException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
@@ -970,14 +953,6 @@ public class ArchiveConfigManager {
             } catch (IOException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
-            } finally {
-                if (stream != null) {
-                    try {
-                        stream.close();
-                    } catch (IOException ex) {
-                        // Ignore
-                    }
-                }
             }
         }
         return selections;
@@ -1048,23 +1023,14 @@ public class ArchiveConfigManager {
      */
     public void saveSelections(SelectConfig selections, String fileName)
             throws LocalizationException, IOException {
-        LocalizationFileOutputStream stream = null;
         LocalizationContext siteContext = pathMgr.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
         LocalizationFile lFile = pathMgr.getLocalizationFile(siteContext,
                 ARCHIVE_DIR + IPathManager.SEPARATOR + fileName);
 
-        try {
-            stream = lFile.openOutputStream();
-            marshalSelectStream(selections, stream);
-        } finally {
-            if (stream != null) {
-                try {
-                    stream.closeAndSave();
-                } catch (Exception ex) {
-                    // Ignore
-                }
-            }
+        try (SaveableOutputStream sos = lFile.openOutputStream()) {
+            marshalSelectStream(selections, sos);
+            sos.save();
         }
     }
 
@@ -1077,19 +1043,7 @@ public class ArchiveConfigManager {
      */
     private SelectConfig unmarshallSelectionStream(InputStream stream)
             throws IOException {
-        SelectConfig selections = null;
-        try {
-            selections = JAXB.unmarshal(stream, SelectConfig.class);
-        } finally {
-            if (stream != null) {
-                try {
-                    stream.close();
-                } catch (IOException ex) {
-                    // ignore
-                }
-            }
-        }
-        return selections;
+        return JAXB.unmarshal(stream, SelectConfig.class);
     }
 
     /**
@@ -1101,7 +1055,7 @@ public class ArchiveConfigManager {
      * @throws LocalizationException
      */
     private void marshalSelectStream(SelectConfig selections,
-            FileOutputStream stream) throws IOException, LocalizationException {
+            OutputStream stream) throws IOException, LocalizationException {
         JAXB.marshal(selections, stream);
     }
 }
