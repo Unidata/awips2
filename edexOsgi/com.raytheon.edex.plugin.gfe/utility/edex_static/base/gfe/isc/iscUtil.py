@@ -215,26 +215,12 @@ def createDomainDict(xml):
         retVal['domains'] = domains
         return retVal
 
-def unPickle(str):
-    import pickle, tempfile, os, JUtil
-    tempfile.tempdir = "/tmp/"
-    fname = tempfile.mktemp(".bin")
-    FILE = open(fname, "w")
-    FILE.write(str)
-    FILE.close()
-
-    FILE = open(fname, "r")
-    retVal = pickle.load(FILE)
-    FILE.close()
-    return retVal
-
-
 def getRequestXML(xml, selectedServers, selectedWEList):
     irt = IrtAccess.IrtAccess("")
     selectedServers = JUtil.javaStringListToPylist(selectedServers)
     selectedWElist = JUtil.javaStringListToPylist(selectedWEList)
 
-    response = unPickle(createDomainDict(xml))
+    response = createDomainDict(xml)
     serverDictT2S = response['serverDictT2S']
     domainDict = response['domains']
 
