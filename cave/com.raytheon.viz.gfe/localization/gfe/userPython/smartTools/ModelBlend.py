@@ -558,7 +558,7 @@ class Tool (SmartScript.SmartScript):
                     #  add up the weights again, because we cannot count
                     #  weights for grids that cannot be read.
                     #
-                    gsum=self._empty.copy()
+                    gsum=self.empty()
                     totweight=0
                     fcstweight=0
                     oldgrid=self.getGrids(self.dbIds[0],WEname,"SFC",GridTimeRange,noDataError=0,cache=0)
@@ -619,8 +619,8 @@ class Tool (SmartScript.SmartScript):
                     (mag,direc)=oldgrid
                     (uold,vold)=self.MagDirToUV(mag,direc)
                     
-                    usum=self._empty.copy()
-                    vsum=self._empty.copy()
+                    usum=self.empty()
+                    vsum=self.empty()
                     
                     totweight=0
                     fcstweight=0

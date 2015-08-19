@@ -156,7 +156,7 @@ class HRRRForecaster(Forecaster):
                "Chc:ZR:-:<NoVis>:", 'Chc:IP:-:<NoVis>:',
                'Chc:ZR:-:<NoVis>:^Chc:IP:-:<NoVis>:']
 
-        wx = zeros(self._empty.shape, dtype=int8)
+        wx = self.empty(int8)
         wx[logical_and(greater(QPF, 0.02), greater(T, 35))] = 2
         wx[equal(crain_SFC, 1)] = 2
         wx[equal(cfrzr_SFC, 1)] = 4

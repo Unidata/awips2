@@ -73,7 +73,7 @@ class GFS75Forecaster(Forecaster):
     def calcTd(self, gh_c, t_c, rh_BL030, rh_MB850, rh_MB800, rh_MB750, rh_MB700, rh_MB650,
                t_MB1000, t_MB900, t_MB850, t_MB800, t_MB750, t_MB700, t_MB650, topo):
 
-        tmb = self._minus
+        tmb = self.newGrid(-1)
 
         #calc sfc_temp at topo
         for i in xrange(1, gh_c.shape[0]):
@@ -213,7 +213,7 @@ class GFS75Forecaster(Forecaster):
 ##  cubes.  Finds the height at which freezing occurs.
 ##-------------------------------------------------------------------------
     def calcFzLevel(self, gh_c, t_c, topo):
-        fzl = self._minus
+        fzl = self.newGrid(-1)
 
         # for each level in the height cube, find the freezing level
         for i in xrange(gh_c.shape[0]):
@@ -245,7 +245,7 @@ class GFS75Forecaster(Forecaster):
         t_c = t_c[:clipindex, :, :]
         rh_c = rh_c[:clipindex, :, :]
 
-        snow = self._minus
+        snow = self.newGrid(-1)
         #
         #  make pressure cube
         #
@@ -329,7 +329,7 @@ class GFS75Forecaster(Forecaster):
         mask = greater_equal(gh_c, topo) # points where height > topo
         pt = []
         for i in xrange(len(self.pres)):   # for each pres. level
-            p = self._empty + self.pres[i] # get the pres. value in mb
+            p = self.newGrid(self.pres[i]) # get the pres. value in mb
             tmp = self.ptemp(t_c[i], p)    # calculate the pot. temp
             pt = pt + [tmp]                # add to the list
         pt = array(pt)
@@ -338,7 +338,7 @@ class GFS75Forecaster(Forecaster):
 
         avg = add.accumulate(pt, 0)
         count = add.accumulate(mask, 0)
-        mh = self._minus
+        mh = self.newGrid(-1)
         # for each pres. level, calculate a running avg. of pot temp.
         # As soon as the next point deviates from the running avg by
         # more than 3 deg. C, interpolate to get the mixing height.
@@ -396,8 +396,8 @@ class GFS75Forecaster(Forecaster):
         # find the points that are above the 3000 foot level
         mask = greater_equal(gh_c, fatopo)
         # initialize the grids into which the value are stored
-        famag = self._minus
-        fadir = self._minus
+        famag = self.newGrid(-1)
+        fadir = self.newGrid(-1)
         # start at the bottom and store the first point we find that's
         # above the topo + 3000 feet level.
         for i in xrange(wind_c[0].shape[0]):
@@ -466,7 +466,7 @@ class GFS75Forecaster(Forecaster):
                "Lkly:RW:+:<NoVis>:",
                "Ocnl:RW:+:<NoVis>:"]
 
-        wx = zeros(self._empty.shape, dtype=int8)
+        wx = self.empty(int8)
         wx[less_equal(PoP, 14.4)] = 0
 
         hvymask = greater_equal(kindex, 35)
@@ -515,8 +515,8 @@ class GFS75Forecaster(Forecaster):
 ##-------------------------------------------------------------------------
     def calcLAL(self, tp_SFC, sli_SFC, rh_c, rh_BL030):
         bli = sli_SFC  # surface lifted index
-        ttp = full_like(self._empty, 0.00001)   # nearly zero grid
-        lal = ones_like(self._empty)  # initialize the return grid to 1
+        ttp = self.newGrid(0.00001)   # nearly zero grid
+        lal = self.newGrid(1)         # initialize the return grid to 1
         # Add one to lal if QPF > 0.5
         lal[logical_and(greater(ttp, 0), greater(tp_SFC / ttp, 0.5))] += 1
 

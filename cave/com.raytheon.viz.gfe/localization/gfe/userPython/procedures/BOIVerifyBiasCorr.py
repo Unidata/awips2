@@ -68,7 +68,6 @@ class Procedure (SmartScript.SmartScript):
       self.VU=BOIVerifyUtility.BOIVerifyUtility(self._dbss, None)
       self.VU.logMsg("BOIVerifyBiasCorr Procedure Start")
 
-      self._empty = self.VU._empty
       #
       #
       #  BIASCORR_DAYS configuration should hold number of days usually used
@@ -295,7 +294,7 @@ class Procedure (SmartScript.SmartScript):
                del correlation
             else:
                self.VU.logMsg("   %d old obs/fcst grids - used plain bias"%numGrids,2)
-               regErr=self._empty
+               regErr=self.empty()
             #
             #  Make a multiplier for the regressed error.  Normally 1.0...but
             #  when the forecast is more than fuzz% beyond the range of forecasts
@@ -573,7 +572,7 @@ class Procedure (SmartScript.SmartScript):
          #  Get average of non-bad forecast grids
          #
          numgrids=0
-         fcstgrid=self._empty.copy()
+         fcstgrid=self.empty()
          for frec in freclist:
             testgrid=self.VU.readRecord(parm,model,frec)
             if self.badGrid(testgrid,minval,maxval):
@@ -591,7 +590,7 @@ class Procedure (SmartScript.SmartScript):
          #  Get average of non-bad observed grids
          #
          numgrids=0
-         obsgrid=self._empty.copy()
+         obsgrid=self.empty()
          for orec in oreclist:
             testgrid=self.VU.readRecord(obsparm,obsmodel,orec)
             if self.badGrid(testgrid,minval,maxval):
@@ -663,7 +662,8 @@ class Procedure (SmartScript.SmartScript):
    #            returns 1 if bad, 0 if OK.
    #
    def badGrid(self,grid,minvalue,maxvalue):
-      numpts=int(add.reduce(add.reduce(self._empty+1)))
+      gridShape = self.getGridShape()
+      numpts=gridShape[0]*gridShape[1]
       avg=add.reduce(add.reduce(grid))/float(numpts)
       sqr=add.reduce(add.reduce(grid*grid))/float(numpts)
       var=sqr-(avg*avg)

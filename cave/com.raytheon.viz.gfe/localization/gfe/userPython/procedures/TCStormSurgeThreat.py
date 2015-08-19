@@ -500,10 +500,6 @@ class Procedure (SmartScript.SmartScript):
 
         if makeOption == "PHISH":
            
-            #initialize grids to zero
-            surgePctGrid = self._empty
-            surgePctGridNAVD = self._empty
-
             # Now get the psurge
             surgePctGrid = self.getExceedanceHeight(pctStr, "FHAG0")
             surgePctGridNAVD = self.getExceedanceHeight(pctStr, "SFC")

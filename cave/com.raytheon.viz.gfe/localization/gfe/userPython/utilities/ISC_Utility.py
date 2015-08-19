@@ -67,8 +67,6 @@ class ISC_Utility(SmartScript.SmartScript):
         #
         #  Always check to see if BorderPairs are current
         #
-        self.Topo=self.getTopo()
-        self._empty = self.Topo * 0.0
         refresh=7200  # seconds between refresh of borders
         self._debug=0 # set to 1 or 5 or 10 for increasing info
         self.list=""
@@ -79,7 +77,7 @@ class ISC_Utility(SmartScript.SmartScript):
         if self.pairInfo is None:
             if self._debug>=1:
                 self.statusBarMsg("Calculating Pairs","R")
-            self.pairInfo=self._getPairInfo(self.Topo)
+            self.pairInfo=self._getPairInfo(self.getTopo())
             if self._debug>=1:
                 self.statusBarMsg("Calculating Pairs Done","R")
             self._cachePairs("BorderPairs",self.pairInfo,"ISCPairs")
@@ -577,7 +575,7 @@ class ISC_Utility(SmartScript.SmartScript):
         #
         #  Get grid info - return None if no gridInfo
         #
-        diffGrid=self._empty
+        diffGrid=self.empty()
 
         try:
             gridInfoList=self.getGridInfo(self.mutableID(), parmName, "SFC",
@@ -914,13 +912,13 @@ class ISC_Utility(SmartScript.SmartScript):
         #  setup sum/counter for average
         #
         if ((parmName=="MaxT")or(parmName=="PoP")):
-            sum=self._empty-150.0
+            sum=numpy.self.newGrid(-150.0)
         elif (parmName=="MinT"):
-            sum=self._empty+150.0
+            sum=numpy.self.newGrid(150.0)
         else:
-            sum=self._empty
+            sum=self.empty()
             if GridType.VECTOR.equals(wxType):
-                sumv=self._empty
+                sumv=self.empty()
         cnt = self.empty()
         #
         #  foreach time range...get the ISC composite for
@@ -937,20 +935,20 @@ class ISC_Utility(SmartScript.SmartScript):
                 bits,isc=comp
                 #isc=self.getGrids("ISC",parmName,"SFC",tr)
                 if parmName in ["MaxT", "PoP"]:
-                    sum=numpy.where(bits,numpy.maximum(isc,sum),sum)
+                    sum[bits] = numpy.maximum(isc,sum)[bits]
                     cnt[bits] = 1
                 elif parmName=="MinT":
-                    sum=numpy.where(bits,numpy.minimum(isc,sum),sum)
-                    cnt[bits] = 1
+                    sum=[bits] = numpy.minimum(isc,sum)[bits]
+                    cnt=[bits] = 1
                 else:
-                    sum=numpy.where(bits,sum+isc,sum)
+                    sum[bits] += isc[bits]
                     cnt[bits] += 1
             if GridType.VECTOR.equals(wxType):
                 bits,mag,direc = comp
                 #(mag,direc)=self.getGrids("ISC",parmName,"SFC",tr)
                 (u,v)=self.MagDirToUV(mag,direc)
-                sum=numpy.where(bits,sum+u,sum)
-                sumv=numpy.where(bits,sumv+v,sumv)
+                sum[bits] += u[bits]
+                sumv[bits] += v[bits]
                 cnt[bits] += 1
             if GridType.WEATHER.equals(wxType):
                 bits = comp
@@ -965,15 +963,20 @@ class ISC_Utility(SmartScript.SmartScript):
         if GridType.SCALAR.equals(wxType) or GridType.VECTOR.equals(wxType):
             cnt[numpy.less(cnt, 1)] = 1
             if GridType.VECTOR.equals(wxType):
-                sum=numpy.where(noISC,minlimit,sum/cnt)
-                sumv=numpy.where(noISC,minlimit,sumv/cnt)
+                sum /= cnt
+                sum[noISC]= minLimit
+                
+                sumv /= cnt
+                sumv[noISC] = minLimit
+
                 (mag,direc)=self.UVToMagDir(sum,sumv)
                 (baseMag,baseDir)=baseGrid
                 mag[noISC] = baseMag
                 direc[noISC] = baseDir
                 return bits,mag,direc
             else:
-                sum=numpy.where(noISC,baseGrid,sum/cnt)
+                sum /= cnt
+                sum[noISC] = baseGrid
                 return bits,sum
         else:
             return bits,keys,strings

@@ -111,15 +111,18 @@ class NAM12Forecaster(Forecaster):
         #self.printval("temp:",self.BLT,65,65)
         BLH = self.BLH
 
-        st = (stopo * 0.0) - 1.0
+        st = self.newGrid(-1)
         for i in range(1, BLH.shape[0]):
            tval = self.linear(BLH[i], BLH[i - 1], BLT[i], BLT[i - 1], topo)
            #
            # restrict the increase in areas where inversions present
            #
-           tval=where(greater(tval,BLT[0]),BLT[0]+((tval-BLT[0])/2.0),tval)
+           m = greater(tval,BLT[0])
+           tval[m] = (BLT[0]+((tval-BLT[0])/2.0))[m]
+
            between = logical_and(greater_equal(topo, BLH[i - 1]), less(topo, BLH[i]))
-           st=where(logical_and(less(st,0.0),between),tval,st)
+           m = logical_and(less(st,0.0),between)
+           st[m] = tval[m]
         #
         #  restrict the lapse rates below the model surface
         #
@@ -130,7 +133,9 @@ class NAM12Forecaster(Forecaster):
         drylapse = -9.8 / 1000.0
         lapse[less(lapse, drylapse)] = drylapse
         tst = BLT[0] + ((topo - stopo) * lapse)
-        st=where(less(st,0.0),tst,st)
+        
+        m = less(st,0.0)
+        st[m] = tst[m]
         #
         #diff=t_FHAG2-st
         #maxdiff=maximum.reduce(maximum.reduce(diff))
@@ -166,11 +171,13 @@ class NAM12Forecaster(Forecaster):
         #  for real topo above model topo - interpolate dewpoint from the
         #  model dewpoint sounding
         #
-        sd = (stopo * 0.0) - 1.0
+        sd = self.newGrid(-1)
         for i in range(1, BLH.shape[0]):
            dval = self.linear(BLH[i], BLH[i - 1], BLD[i], BLD[i - 1], topo)
            between = logical_and(greater_equal(topo, BLH[i - 1]), less(topo, BLH[i]))
-           sd=where(logical_and(less(sd,0.0),between),dval,sd)
+           
+           m = logical_and(less(sd,0.0),between)
+           sd[m] = dval[m]
 
         #
         #  for real topo below model topo - use model surface mixing ratio
@@ -301,7 +308,7 @@ class NAM12Forecaster(Forecaster):
                'Def:IP:-:<NoVis>:',
                'Def:ZR:-:<NoVis>:^Def:IP:-:<NoVis>:']
 
-        wx = zeros(self._empty.shape, dtype=int8)
+        wx = self.empty(int8)
         #
         # Case d - no zero crossings.  All snow or all rain
         #
@@ -363,7 +370,7 @@ class NAM12Forecaster(Forecaster):
         #
         #  off the grid need no weather
         #
-        wxgrid = zeros(self._empty.shape, dtype=int8)
+        wxgrid = self.empty(int8)
         keys = ['<NoCov>:<NoWx>:<NoInten>:<NoVis>:', ]
         wxgrid[less(bli_BL0180, -18.0)] = 0
         #
@@ -887,11 +894,12 @@ class NAM12Forecaster(Forecaster):
         BLMAG = BLW[0]
         BLDIR = BLW[1]
 
-        smag = (stopo * 0.0) - 1.0
-        sdir = smag
+        smag = self.newGrid(-1)
+        sdir = self.newGrid(-1)
 
-        smag=where(less(topo,BLH[0]),BLMAG[0],smag)
-        sdir=where(less(topo,BLH[0]),BLDIR[0],sdir)
+        m = less(topo,BLH[0])
+        smag[m] = BLMAG[0][m]
+        sdir[m] = BLDIR[0][m]
 
         for i in range(1, BLH.shape[0]):
            mval = self.linear(BLH[i], BLH[i - 1], BLMAG[i], BLMAG[i - 1], topo)
@@ -900,18 +908,20 @@ class NAM12Forecaster(Forecaster):
            #  limit winds to be half as strong as wind in
            #  free atmosphere above the model surface would indicate
            #
-           mval=where(greater(mval,BLMAG[0]),BLMAG[0]+((mval-BLMAG[0])/2.0),
-             mval)
+           m = greater(mval,BLMAG[0])
+           mval[m] = (BLMAG[0]+((mval-BLMAG[0])/2.0))[m]
+           
            between = logical_and(greater_equal(topo, BLH[i - 1]), less(topo, BLH[i]))
-           smag=where(logical_and(less(smag,0.0),between),mval,smag)
-           sdir=where(logical_and(less(sdir,0.0),between),dval,sdir)
+           m = logical_and(less(smag,0.0),between)
+           smag[m] = mval[m]
+           sdir[m] = dval[m]
         #
         #  Change to knots
         #
-        mag = smag * 1.94
-        mag[less(p_SFC/100.0, 500.0)] = 0.0
-        dir = clip(sdir, 0, 359.5)
-        return(mag, dir)
+        smag *= 1.94
+        smag[less(p_SFC/100.0, 500.0)] = 0.0
+        sdir.clip(0, 359.5, sdir)
+        return(smag, sdir)
 
     #========================================================================
     #  MixHgt - the height to which a parcel above a 'fire' would rise
@@ -951,21 +961,24 @@ class NAM12Forecaster(Forecaster):
         #
         #  find height the fireTheta crosses the sounding theta
         #
-        mixhgt = (stopo * 0.0) - 1.0
+        mixhgt = self.newGrid(-1)
         for i in range(1, BLH.shape[0]):
            hcross = self.linear(BLTheta[i], BLTheta[i - 1], BLH[i], BLH[i - 1], fireTheta)
            cross = logical_and(greater(BLTheta[i], fireTheta), less(mixhgt, 0.0))
-           mixhgt=where(cross,hcross,mixhgt)
-        mixhgt=where(less(mixhgt,0.0),BLH[-1],mixhgt)
+           mixhgt[cross] = hcross[m]
+           
+        m = less(mixhgt,0.0)
+        mixhgt[m] = BLH[-1][m]
         #
         #  Change to height above the model topo (in feet)
         #  and smooth a little
         #
-        final = (mixhgt - stopo) * 3.28
-        final[less(pSFCmb, 500)] = -9999.0
-        final = self.smoothpm(final, 2)
-        final = clip(final, 0.0, 50000.0)
-        return final
+        mixhgt -= stopo
+        mixhgt *= 3.28
+        mixhgt[less(pSFCmb, 500)] = -9999.0
+        mixhgt = self.smoothpm(mixhgt, 2)
+        mixhgt.clip(0.0, 50000.0, mixhgt)
+        return mixhgt
 
     #===========================================================================
     #  SnowAmt - simple snow ratio based on surface temperature - multiplied
@@ -1023,7 +1036,7 @@ class NAM12Forecaster(Forecaster):
         #  get wetbulb temperatures above topography
         #
         (BLH, TT) = self.getTopoE(topo, stopo, p_SFC, T, RH, BLH, TT)
-        snowlvl = full_like(stopo, -1.0)
+        snowlvl = self.newGrid(-1)
         #
         #  find the ones below ground
         #
@@ -1035,7 +1048,7 @@ class NAM12Forecaster(Forecaster):
         hcross = self.linear(tk, tmsl, topo, hbot, 273.15)
         hcross[less(hcross, 0.0)] = 0.0
 
-        snowlvl=where(below,hcross,snowlvl)
+        snowlvl[below] = hcross[below]
         #
         #  find the ones above the topo surface
         #
@@ -1045,29 +1058,30 @@ class NAM12Forecaster(Forecaster):
            hcross = self.linear(TT[i], TT[i - 1], BLH[i], BLH[i - 1], 273.15)
            cross = logical_and(less_equal(TT[i], 273.15), greater(TT[i - 1], 273.15))
            add = logical_and(cross, less(snowlvl, -0.5))
-           snowlvl=where(add,hcross,snowlvl)
+           snowlvl[add] = hcross[add]
         #
         #  when still above freezing at the top of the BL layer - just
         #  put in that height (best we can do without more data)
         #
-        snowlvl=where(less(snowlvl,-0.5),BLH[-1],snowlvl)
+        m = less(snowlvl,-0.5)
+        snowlvl[m] = BLH[-1][m]
         #
         #  Change to feet and subtract 500 feet if not using the wetbulb method
         #
-        final = snowlvl * 3.28
+        snowlvl *= 3.28
         if USE_WETBULB != 1:
-           snowlvl = snowlvl - 500.0
+           snowlvl -= 500.0
         #
         #  Take care of any missing data points
         #
         pSFCmb = p_SFC / 100.0
-        final[less(pSFCmb, 500.0)] = -9999.0
+        snowlvl[less(pSFCmb, 500.0)] = -9999.0
         #
         #  Smooth a little to reduce noise
         #
-        final = self.smoothpm(final, 4)
-        final = clip(final, 0.0, 50000.0)
-        return final
+        snowlvl = self.smoothpm(snowlvl, 4)
+        snowlvl.clip(0.0, 50000.0, snowlvl)
+        return snowlvl
 
     #==========================================================================
     #  TransWind - the average winds in the layer between the surface
@@ -1097,29 +1111,29 @@ class NAM12Forecaster(Forecaster):
         for i in range(1, BLH.shape[0]):
            use = less(BLH[i], nmh)
            (u, v) = self._getUV(BLM[i], BLD[i])
-           utot=where(use,utot+u,utot)
-           vtot=where(use,vtot+v,vtot)
+           utot[use] = (utot+u)[m]
+           vtot[use] = (vtot+v)[m]
            numl[use] += 1
 
         #
         #  calculate average
         #
-        u = utot / numl
-        v = vtot / numl
+        utot /= numl
+        vtot /= numl
         #
         #  Smooth a little
         #
-        u[less(pSFCmb, 500.0)] = -9999.0
-        v[less(pSFCmb, 500.0)] = -9999.0
-        u = self.smoothpm(u, 1)
-        v = self.smoothpm(v, 1)
+        utot[less(pSFCmb, 500.0)] = -9999.0
+        vtot[less(pSFCmb, 500.0)] = -9999.0
+        utot = self.smoothpm(utot, 1)
+        vtot = self.smoothpm(vtot, 1)
         #
-        # convert u, v to mag, dir
+        # convert utot, vtot to mag, dir
         #
-        (tmag, tdir) = self._getMD(u, v)
-        tdir = clip(tdir, 0, 359.5)
-        tmag = tmag * 1.94  # convert to knots
-        tmag = clip(tmag, 0, 125)  # clip speed to 125 knots
+        (tmag, tdir) = self._getMD(utot, vtot)
+        tdir.clip(0, 359.5, tdir)
+        tmag *= 1.94             # convert to knots
+        tmag.clip(0, 125, tmag)  # clip speed to 125 knots
         return(tmag, tdir)
 
     #--------------------------------------------------------------------------
@@ -1137,7 +1151,7 @@ class NAM12Forecaster(Forecaster):
           rh_BL120150, wind_FHAG10, wind_BL030, wind_BL3060, wind_BL6090,
           wind_BL90120, wind_BL120150, p_SFC, stopo, gh_c, t_c, rh_c,
           wind_c, ctime)
-        lal = ones_like(self._empty)
+        lal = self.newGrid(1)
         BLR = self.BLR
         #
         #  only thing we have is boundary layer lifted index
@@ -1267,7 +1281,8 @@ class NAM12Forecaster(Forecaster):
        #
        #  if guess temp is 0 - make a more reasonable guess
        #
-       tg=where(less(tg,1),(thte-0.5*teclip**1.05)*(pres/1000.0)**0.2,tg)
+       m = less(tg,1)
+       tg[m] = ((thte-0.5*teclip**1.05)*(pres/1000.0)**0.2)[m]
 
        epsi = 0.01
        tgnu = tg - 273.15
@@ -1280,7 +1295,7 @@ class NAM12Forecaster(Forecaster):
            tenu = self.THTE(pres, tgnu, tgnu)
            tenup = self.THTE(pres, tgnup, tgnup)
            cor = (thte - tenu) / (tenup - tenu)
-           tgnu = tgnu + cor
+           tgnu += cor
            #
            #  get the maximum correction we made this time
            #  and if it is less than epsi - then we are close
@@ -1290,8 +1305,9 @@ class NAM12Forecaster(Forecaster):
            mcor = maximum.reduce(maximum.reduce(maximum.reduce(acor)))
            if (mcor < epsi):
               #print "parcel temp in %d iterations"%i
-              return (tgnu + 273.15)
-       return tgnu + 273.15
+              break
+       tgnu += 273.15
+       return tgnu
 
     #=======================================================================
     #  Calculate Dewpoint (C) based on Temperature (C) and RH (%)
@@ -1524,12 +1540,13 @@ class NAM12Forecaster(Forecaster):
     def getAreas(self, hbot, tbot, htop, ttop):
         maxm = maximum(tbot, ttop)
         minm = minimum(tbot, ttop)
-        freeze = self._empty + 273.15
+        freeze = self.newGrid(273.15)
         crosses = logical_and(less(minm, freeze), greater(maxm, freeze))
         crossh = self.linear(tbot, ttop, hbot, htop, freeze)
         crosst = freeze
-        crossh = where(crosses, crossh, htop)
-        crosst = where(crosses, crosst, ttop)
+        m = logical_not(crosses)
+        crossh[m] = htop[m]
+        crosst[m] = ttop[m]
 
         a1 = self.getArea(hbot, tbot, crossh, crosst)
         a2 = self.getArea(crossh, crosst, htop, ttop)
@@ -1597,17 +1614,20 @@ class NAM12Forecaster(Forecaster):
     #
     def smoothpm(self, array, k):
         if k > 0:
-           a = array * 0.0
-           n = array * 0.0
+           a = zeros_like(array)
+           n = zeros_like(array)
            for x in range(-k, k + 1):
               for y in range(-k, k + 1):
                 array1 = self.offset(array, x, y)
                 ok = greater(array1, -9000)
-                a=where(ok,a+array1,a)
+                a[ok] += array1[ok]
                 n[ok] += 1
-           a=where(less(n,1),array,a)
-           n[less(n,1)] = 1
-           arraysmooth = a / n
+                
+           m = less(n,1)
+           a[m] = array[m]
+           n[m] = 1
+           a /= n
+           arraysmooth = a
         else:
            arraysmooth = array
         return arraysmooth
@@ -1619,7 +1639,7 @@ class NAM12Forecaster(Forecaster):
     def offset(self, a, x, y):
         sy1, sy2 = self.getindicies(y, a.shape[0])
         sx1, sx2 = self.getindicies(x, a.shape[1])
-        b = zeros(a.shape, a.dtype) - 9999.0
+        b = full_like(a, -9999.0)
         b[sy1, sx1] = a[sy2, sx2]
         return b
 
@@ -1642,13 +1662,12 @@ class NAM12Forecaster(Forecaster):
     #   right way" rather than flip back in the opposite direction
     #
     def dirlinear(self, xmax, xmin, ymax, ymin, we):
-        ydif = ymax - ymin
-        ydif=where(less(ydif,0.0),-ydif,ydif)
+        ydif = abs(ymax - ymin)
         rotate = greater(ydif, 180.0)
         upper = greater(ymin, 180.0)
         lower = less(ymin, 180.0)
-        ymax=where(logical_and(rotate,upper),ymax+360.0,ymax)
-        ymax=where(logical_and(rotate,lower),ymax-360.0,ymax)
+        ymax[logical_and(rotate,upper)] += 360.0
+        ymax[logical_and(rotate,lower)] -= 360.0
         slope = (ymax - ymin) / (xmax - xmin + .0000001)
         intercept = ymin - slope * xmin
         value = slope * we + intercept

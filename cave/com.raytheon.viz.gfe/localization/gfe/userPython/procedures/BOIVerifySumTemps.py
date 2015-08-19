@@ -153,7 +153,6 @@ class Procedure (SmartScript.SmartScript):
       self.VU.setVerbose(0)
       self.VU.logMsg("Starting BOIVerifySumTemps")
 
-      self._empty = self.VU._empty
       #
       #
       #
@@ -161,7 +160,6 @@ class Procedure (SmartScript.SmartScript):
       self.eaMask=ravel(self.eaGrid)
       self.numpoints=add.reduce(self.eaMask)
       self.obsModel=OBSMODEL
-      grid=self._empty
       #
       #  See if a time is provided in a /tmp/<siteId>_SumTemps.time file
       #  or otherwise get the current system time

@@ -325,7 +325,7 @@ class Procedure (SmartScript.SmartScript):
     # or basin.
     def getRFCFlashFloodGrid(self, productList, varDict):
 
-        ffgGrid = self._empty
+        ffgGrid = self.empty()
         foundGrids = False
         factor = varDict["Gridded/Text FFG Blending Factor"]
         
@@ -359,7 +359,8 @@ class Procedure (SmartScript.SmartScript):
             rfcMask = self.encodeEditArea(rfcEA)
             
             mask = (tempGrid > 0.0) & rfcMask
-            ffgGrid = where(mask, tempGrid/25.4, ffgGrid)
+            ffgGrid[mask] = tempGrid[mask]
+            ffgGrid[mask] /= 25.4
             foundGrids = True
             
             
@@ -374,7 +375,7 @@ class Procedure (SmartScript.SmartScript):
         # Make another FFG grid from the text guidance
         editAreaList = self.editAreaList()
 
-        ffgTextGrid = self._empty
+        ffgTextGrid = self.empty()
         for prod in productList:
 
             # Uncomment the next line to fetch FFG data from a file
@@ -391,7 +392,7 @@ class Procedure (SmartScript.SmartScript):
                 refArea = self.getEditArea(area)
                 mask = self.encodeEditArea(refArea)
                 value = ffgDict[area]
-                ffgTextGrid = where(mask, value, ffgTextGrid)
+                ffgTextGrid[mask] = value
 
         # Comment this in to see intermediate FFG from text guidance
 ##        tr = self.getTimeRange("Today")
@@ -432,10 +433,10 @@ class Procedure (SmartScript.SmartScript):
         if len(trList) == 0:
             return None
 
-        qpfGrid = self._empty
+        qpfGrid = self.empty()
         for tr in trList:
             grid = self.getGrids("Fcst", "QPF", "SFC", timeRange, mode="First")
-            qpfGrid = qpfGrid + grid
+            qpfGrid += grid
 
         return qpfGrid
 
@@ -484,8 +485,7 @@ class Procedure (SmartScript.SmartScript):
 
         trList = self.makeTimeRangeList(timeRange, 6)
 
-        maxFloodThreat = self._empty
-        cumqpf = self._empty
+        maxFloodThreat = self.empty()
         
         # Fetch the FFG grid either from gridded data or the text product
         #print "Getting FFG Grid Now: "

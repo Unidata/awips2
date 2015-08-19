@@ -115,9 +115,6 @@ class BOIVerifyUtility(SmartScript.SmartScript):
     def __init__(self, dbss, eaMgr, mdMode=None, toolType="numeric"):
         SmartScript.SmartScript.__init__(self, dbss)
 
-        gridLoc = self.getGridLoc()
-        gridSize = (gridLoc.getNx().intValue(), gridLoc.getNy().intValue())
-        self._empty = zeros((gridSize[1], gridSize[0]), float)
         #
         #  Read in Config info.
         #     Each entry in BOIVerifyConfig is put into a self. variable
@@ -1022,7 +1019,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
           datatype=self.getVerParmType(parm)
           if datatype is None:
              return 0       
-       (ypts,xpts)=self._empty.shape
+       (ypts,xpts)=self.getGridShape()
        #
        #  Open the two obs files: the index and the data
        #
@@ -1139,7 +1136,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
           datatype=self.getVerParmType(parm)
           if datatype is None:
              return 0       
-       (ypts,xpts)=self._empty.shape
+       (ypts,xpts)=self.getGridShape()
        #
        #  Open the two fcst files: the index and the data
        #
@@ -1827,7 +1824,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
     #                 compactFiles (which is VERY slow!)
     #
     def deleteRecord(self,parm,model,dellist):
-       (Scale,Addit,Valgrid)=self.packIt(self._empty)
+       (Scale,Addit,Valgrid)=self.packIt(self.empty())
        #
        #
        #
@@ -4381,9 +4378,9 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        #  Loop over grids
        #
        totalWeights=0
-       gridtot=self._empty
-       utot=self._empty
-       vtot=self._empty
+       gridtot=self.empty()
+       utot=self.empty()
+       vtot=self.empty()
        for rec in recList:
           rec = int(rec)
           self.logMsg("reading grid",5)
@@ -4421,8 +4418,8 @@ class BOIVerifyUtility(SmartScript.SmartScript):
                    weight=1.0
                    if mode=="TimeWtAverage":
                       weight=intersectHours
-                   gridtot=gridtot+(grid*weight)
-                   totalWeights=totalWeights+weight
+                   gridtot+=(grid*weight)
+                   totalWeights+=weight
                 else:
                    retVal=grid
              elif mode=="Max":
@@ -4458,8 +4455,8 @@ class BOIVerifyUtility(SmartScript.SmartScript):
                    weight=1.0
                    if mode=="TimeWtAverage":
                       weight=intersectHours
-                   utot=utot+(u*weight)
-                   vtot=vtot+(v*weight)
+                   utot+=(u*weight)
+                   vtot+=(v*weight)
                    totalWeights=totalWeights+weight
                 else:
                    retVal=(mag,direc)
@@ -5057,8 +5054,8 @@ class BOIVerifyUtility(SmartScript.SmartScript):
     #                   the number of points.
     #
     def getGridSpacing(self):
-       xmax=self._empty.shape[1]
-       ymax=self._empty.shape[0]
+       xmax=self.getGridShape()[1]
+       ymax=self.getGridShape()[0]
        (lat1,lon1)=self.getLatLon(0,0)
        (lat2,lon2)=self.getLatLon(xmax-1,ymax-1)
        hypot=math.hypot(xmax-1,ymax-1)

@@ -241,7 +241,7 @@ class Procedure (SmartScript.SmartScript):
     # makes a grid of distance from the specified center
     # which must be expressed as a tuple (x, y)
     def makeDistGrid(self, center):
-        iGrid = indices(self._empty.shape)
+        iGrid = indices(self.getGridShape())
         yDist = center[1] - iGrid[0]
         xDist = center[0] - iGrid[1] 
         distGrid = sqrt(pow(xDist, 2)+ pow(yDist, 2))
@@ -298,7 +298,7 @@ class Procedure (SmartScript.SmartScript):
         adjustedWindMax = maxWindGrid
         stormMaxWindValue = -1
 
-        modifiedMask = zeros(self._empty.shape, 'b')
+        modifiedMask = self.empty(bool)
 
         lastXPos = None
         lastYPos = None
@@ -371,7 +371,7 @@ class Procedure (SmartScript.SmartScript):
                 lessMask = less(adjustedWindMax, windValue)
                 mask = distMask & lessMask # union of dist and less masks
                     
-                adjustedWindMax = where(mask, windValue, adjustedWindMax)
+                adjustedWindMax[mask] = windValue
 
                 modifiedMask = mask | modifiedMask
                 
@@ -495,7 +495,7 @@ class Procedure (SmartScript.SmartScript):
         extremeIndex = self.getIndex("Extreme", keys)
 
         # initialize the threat grid
-        threatGrid = self.empty()  # a grid of zeros
+        threatGrid = self.empty(int8)  # a grid of zeros
 
 
         # Attempt to get the grid from the server.
@@ -533,7 +533,7 @@ class Procedure (SmartScript.SmartScript):
             #self.createGrid("Fcst", "Prob50", "SCALAR", prob50Grid, timeRange)
             #self.createGrid("Fcst", "Prob64", "SCALAR", prob64Grid, timeRange)
             #print "MAXWIND IS: ", maxWindValue
-            threatGrid = zeros_like(prob64Grid)
+            threatGrid = self.empty(int8)
             threatGrid[prob34Grid < t34TS1] = 0
             threatGrid[prob34Grid >= t34TS1] = lowIndex
             threatGrid[prob50Grid >= t50TS2] = modIndex

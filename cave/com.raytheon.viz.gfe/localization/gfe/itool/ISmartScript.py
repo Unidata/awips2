@@ -38,7 +38,6 @@ class ISmartScript(SmartScript.SmartScript):
         SmartScript.SmartScript.__init__(self, dbss)        
         self.__dataMgr = dbss
         self.__parmMgr = self.__dataMgr.getParmManager()       
-        self._empty = self.getTopo() * 0.0 
         
     def executeCmd(self, cmd):
         cmd = re.sub("\s*&\s*\Z", "", cmd)
@@ -143,13 +142,13 @@ class ISmartScript(SmartScript.SmartScript):
 
 
     def _makeMask(self, zoneList):
-        mask = self._empty
+        mask = self.empty(bool)
         eaList = self.editAreaList()
         for z in zoneList:
             if z in eaList:
                 zoneArea = self.getEditArea(z)
                 zoneMask = self.encodeEditArea(zoneArea)
-                mask = numpy.logical_or(mask, zoneMask)
+                mask |= zoneMask
         return mask
     
     # adds the specified hazard to weName over the specified timeRange
