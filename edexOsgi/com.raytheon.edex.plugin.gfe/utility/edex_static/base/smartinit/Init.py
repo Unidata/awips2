@@ -353,15 +353,9 @@ class Forecaster(GridUtilities):
         else:
             self.__stopo = None
         
-        # TODO: this is a work around to keep smart init running 
-        # until we get the staticTopo_Dflt parameter populated       
-#        if self.__stopo is None:
-#            LogStream.logProblem("staticTopo not available, using topo")
-#            self.__stopo = self.__topo
-        
         self._editAreas = self._client.getEditAreaNames()
         
-        self.__gridShape = topo.shape
+        self.__gridShape = self.__topo.shape
         self._empty = self.empty();
         self._minus = self.newGrid(-1)
         
