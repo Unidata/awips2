@@ -19,7 +19,7 @@
 #    04/29/15        #4427         dgilling       Code cleanup.
 #    06/24/15        #16831        bhunder        Copy colormaps directory into localization
 #                                                 directory.
-#    06/30/15        #17443        lshi           Bug in scripts results in rsync_parms.ccc 
+#    08/10/15        #17443        lshi           Bug in scripts results in rsync_parms.ccc 
 #                                                 file not getting used
 ##############################################################################
 
@@ -182,7 +182,7 @@ cp -r GFEconfig/cave_static/site/* ${cave_site_dest}
 cp -r GFEconfig/common_static/site/colormaps ${common_site_dest}
 
 # DR 17443
-cp -a GFEConfig/site/rsync_parms.${SITE_ID_CAPS} ${rsync_parms_dest}
+cp -a GFEConfig/site/rsync_parms.${SITE_ID} ${rsync_parms_dest}
 echo "Files successfully copied!"
 
 echo "Changing ownership of received configuration"
