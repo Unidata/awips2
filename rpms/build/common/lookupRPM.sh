@@ -55,7 +55,7 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-python-matplotlib" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/matplotlib-1.4.3/"
+      export RPM_SPECIFICATION="${installer_dir}/matplotlib-1.2.0/"
       return 0
    fi
    if [ "${1}" = "awips2-python-nose" ]; then
