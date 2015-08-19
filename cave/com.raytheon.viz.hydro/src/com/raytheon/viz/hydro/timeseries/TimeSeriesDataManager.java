@@ -74,6 +74,7 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  * Dec 14, 2014  16388     xwei        updated the insertion of rejecteddata table.
  * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
  * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
+ * Aug 18, 2015 4793       rjpeter     Use Number in blind cast.
  * </pre>
  * 
  * @author dhladky
@@ -948,7 +949,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
                 productID = dr.getProductID();
             }
 
-            Integer qualityCode = (Integer) getDataFromDB(dr, "quality_code");
+            Integer qualityCode = ((Number) getDataFromDB(dr, "quality_code")).intValue();
             if (qualityCode == null) {
                 qualityCode = new Integer(dr.getQualityCode());
             }
