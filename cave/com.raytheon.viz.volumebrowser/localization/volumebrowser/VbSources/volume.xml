@@ -93,4 +93,5 @@
     <vbSource key="UKMET-NorthernHemisphere" category="Volume" />
     <vbSource key="radar" name="Radar" category="Volume" />
     <vbSource key="GEFS" category="Volume" />
+    <vbSource key="NCOM" category="Volume" views="PLANVIEW TIMESERIES" />
 </vbSourceList>

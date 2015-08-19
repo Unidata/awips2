@@ -39,23 +39,23 @@
         key="MaxWind" indentText="false" />
      </contribute>
      <contribute xsi:type="toolbarSubMenu" menuText="Clouds">  
-    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="LowLyr" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="LowLyr" indentText="false" />
         <contribute xsi:type="menuItem" textLookup="LevelMapping" key="MidLyr" indentText="false" />
         <contribute xsi:type="menuItem" textLookup="LevelMapping" key="HiLyr" indentText="false" />
         <contribute xsi:type="menuItem" textLookup="LevelMapping" key="CloudBase"  indentText="false"/>
-    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="LowCloudBase"  indentText="false"/>
-    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="MidCloudBase"  indentText="false"/>
-    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="HighCloudBase"  indentText="false"/>
-    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="CloudCeiling"  indentText="false"/>
-    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="CloudTop"  indentText="false"/>
-    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="ConvCloudTop"  indentText="false"/>
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="LowCloudBase"  indentText="false"/>
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="MidCloudBase"  indentText="false"/>
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="HighCloudBase"  indentText="false"/>
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="CloudCeiling"  indentText="false"/>
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="CloudTop"  indentText="false"/>
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="ConvCloudTop"  indentText="false"/>
      </contribute> 
      <contribute xsi:type="toolbarSubMenu" menuText="PV"> 
-    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="PV5"  indentText="false"/>
-    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="PV10"  indentText="false"/>
-    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="PV15"  indentText="false"/>
-    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="PV20"  indentText="false"/>
-     </contribute>    	 
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="PV5"  indentText="false"/>
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="PV10"  indentText="false"/>
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="PV15"  indentText="false"/>
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="PV20"  indentText="false"/>
+     </contribute>         
     <contribute xsi:type="menuItem" textLookup="LevelMapping"
         key="Surface" indentText="false" />
     <contribute xsi:type="menuItem" textLookup="LevelMapping" 
@@ -63,9 +63,9 @@
     <contribute xsi:type="menuItem" textLookup="LevelMapping"
         key="ML" indentText="false" />
     <contribute xsi:type="menuItem" textLookup="LevelMapping" 
-           key="ML500" indentText="false"/>	
+           key="ML500" indentText="false"/>    
     <contribute xsi:type="menuItem" textLookup="LevelMapping" key="FrzLvl"  indentText="false"/>
-	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="WetBulb0"  indentText="false"/>
+    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="WetBulb0"  indentText="false"/>
     <contribute xsi:type="menuItem" textLookup="LevelMapping" key="LiftCondLvl"  indentText="false"/>
     <contribute xsi:type="menuItem" textLookup="LevelMapping" key="Htfl"  indentText="false"/>
     <contribute xsi:type="menuItem" textLookup="LevelMapping" key="Trop"  indentText="false"/>
@@ -112,6 +112,47 @@
         indentText="false" />
     <contribute xsi:type="menuItem" textLookup="LevelMapping"
         key="0BSS" indentText="false" />
+    <contribute xsi:type="toolbarSubMenu" menuText="Below Sea Surface">  
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="2BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="4BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="6BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="8BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="10BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="12BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="15BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="20BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="25BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="30BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="35BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="40BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="45BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="50BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="60BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="70BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="80BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="90BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="100BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="125BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="150BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="200BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="250BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="300BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="350BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="400BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="500BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="600BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="700BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="800BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="900BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="1000BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="1250BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="1500BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="2000BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="2500BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="3000BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="4000BSS" indentText="false" />
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="5000BSS" indentText="false" />
+     </contribute> 
     <contribute xsi:type="menuItem" textLookup="LevelMapping"
         key="NTAT" indentText="false" />
 </menuTemplate>
