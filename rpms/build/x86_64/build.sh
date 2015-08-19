@@ -123,12 +123,12 @@ if [ "${1}" = "-python" ]; then
    #buildRPM "awips2-python-dynamicserialize"
    #buildRPM "awips2-python-h5py"
    #buildRPM "awips2-python-jimporter"
-   #buildRPM "awips2-python-matplotlib"
+   buildRPM "awips2-python-matplotlib"
    #buildRPM "awips2-python-nose"
    #buildRPM "awips2-python-cython"
    #buildRPM "awips2-python-six"
    #buildRPM "awips2-python-dateutil"
-   buildRPM "awips2-python-numpy"
+   #buildRPM "awips2-python-numpy"
    #buildRPM "awips2-python-pil"
    #buildRPM "awips2-python-pmw"
    #buildRPM "awips2-python-pupynere"
@@ -600,7 +600,7 @@ if [ "${1}" = "-custom" ]; then
 fi
 
 if [ "${1}" = "-qpid" ]; then
-   buildRPM "awips2-python-qpid"
+   #buildRPM "awips2-python-qpid"
    buildQPID
    if [ $? -ne 0 ]; then
       exit 1
