@@ -51,8 +51,8 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.LocalizationFileOutputStream;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -88,6 +88,7 @@ import com.vividsolutions.jts.geom.LineString;
  * 04-02-14     DR 16351   D. Friedman Fix updates to storm track from preferences. (backport from 14.2.2)
  * Jun 03, 2014 3191       njensen     Improved saving/loading storm track data
  * Feb 24, 2015 3978       njensen     Changed to use abstract InputStream
+ * Aug 18, 2015 3806       njensen     Use SaveableOutputStream to save
  * 
  * </pre>
  * 
@@ -253,23 +254,11 @@ public class ToolsDataManager implements ILocalizationFileObserver {
                 userToolsDir.getContext(), userToolsDir.getName()
                         + IPathManager.SEPARATOR + STORM_TRACK_FILE);
         if (f.exists()) {
-            InputStream is = null;
-            try {
-                is = f.openInputStream();
+            try (InputStream is = f.openInputStream()) {
                 stormData = JAXB.unmarshal(is, StormTrackData.class);
             } catch (Exception e) {
                 statusHandler.error("Error loading storm track data", e);
                 stormData = defaultStormTrackData();
-            } finally {
-                if (is != null) {
-                    try {
-                        is.close();
-                    } catch (IOException e) {
-                        statusHandler.handle(Priority.DEBUG,
-                                "Error closing storm track data input stream",
-                                e);
-                    }
-                }
             }
         } else {
             stormData = defaultStormTrackData();
@@ -299,22 +288,13 @@ public class ToolsDataManager implements ILocalizationFileObserver {
             LocalizationFile f = pathMgr.getLocalizationFile(
                     userToolsDir.getContext(), userToolsDir.getName()
                             + IPathManager.SEPARATOR + STORM_TRACK_FILE);
-            LocalizationFileOutputStream os = null;
-            try {
-                os = f.openOutputStream();
-                JAXB.marshal(stormData, os);
-                os.closeAndSave();
+
+            try (SaveableOutputStream sos = f.openOutputStream()) {
+                JAXB.marshal(stormData, sos);
+                sos.save();
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Error saving storm track data", e);
-                try {
-                    if (os != null) {
-                        os.close();
-                    }
-                } catch (IOException e1) {
-                    statusHandler.handle(Priority.DEBUG,
-                            "Error closing storm track data output stream", e1);
-                }
             }
         }
     }

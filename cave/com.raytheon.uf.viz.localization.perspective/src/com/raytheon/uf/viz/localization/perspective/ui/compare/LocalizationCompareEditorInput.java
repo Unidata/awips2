@@ -34,7 +34,7 @@ import org.eclipse.ui.ISaveablesSource;
 import org.eclipse.ui.Saveable;
 
 import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.LocalizationFileOutputStream;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.localization.perspective.editor.LocalizationEditorInput;
@@ -50,6 +50,7 @@ import com.raytheon.uf.viz.localization.perspective.editor.LocalizationEditorInp
  * ------------ ---------- ----------- --------------------------
  * Mar 24, 2011            mschenke    Initial creation
  * Jan 22, 2015  #4108     randerso    Allow editing in the compare editor
+ * Aug 18, 2015  3806      njensen     Use SaveableOutputStream to save
  * 
  * </pre>
  * 
@@ -145,7 +146,7 @@ public class LocalizationCompareEditorInput extends CompareEditorInput
 
             // write node contents to the localization file
             LocalizationFile lf = input.getLocalizationFile();
-            try (LocalizationFileOutputStream os = lf.openOutputStream();
+            try (SaveableOutputStream os = lf.openOutputStream();
                     InputStream is = node.getContents()) {
 
                 byte[] buf = new byte[2048];
@@ -155,7 +156,7 @@ public class LocalizationCompareEditorInput extends CompareEditorInput
                     len = is.read(buf);
                 }
 
-                lf.save();
+                os.save();
 
                 // Force other editors on this file to update
                 input.getFile().refreshLocal(IResource.DEPTH_ZERO, monitor);
@@ -221,9 +222,6 @@ public class LocalizationCompareEditorInput extends CompareEditorInput
 
     }
 
-    /**
-     * @param configuration
-     */
     public LocalizationCompareEditorInput(LocalizationEditorInput left,
             LocalizationEditorInput right) {
         super(new CompareConfiguration());
