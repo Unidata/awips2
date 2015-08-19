@@ -49,6 +49,7 @@ import com.raytheon.uf.common.time.DataTime;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Apr 09, 2014  2947     bsteffen    Initial creation
+ * Aug 04, 2015  4701     njensen     Check time agnosticism in getDataRequest()
  * 
  * </pre>
  * 
@@ -66,7 +67,6 @@ public class SatelliteRequestableLevelNode extends AbstractBaseDataNode {
         this.coverages = coverages;
         this.requestConstraints = requestConstraints;
     }
-
 
     public Map<String, RequestConstraint> getRequestConstraintMap() {
         return requestConstraints;
@@ -101,10 +101,17 @@ public class SatelliteRequestableLevelNode extends AbstractBaseDataNode {
         DbQueryRequest request = getBaseRequest(originalConstraints);
         RequestConstraint timeRc = new RequestConstraint();
         timeRc.setConstraintType(ConstraintType.IN);
+        boolean timeAgnostic = false;
         for (TimeAndSpace time : availability) {
-            timeRc.addToConstraintValueList(time.getTime().toString());
+            if (!time.isTimeAgnostic()) {
+                timeRc.addToConstraintValueList(time.getTime().toString());
+            } else {
+                timeAgnostic = true;
+            }
         }
-        request.addConstraint(PluginDataObject.DATATIME_ID, timeRc);
+        if (!timeAgnostic) {
+            request.addConstraint(PluginDataObject.DATATIME_ID, timeRc);
+        }
         return request;
     }
 
@@ -123,7 +130,6 @@ public class SatelliteRequestableLevelNode extends AbstractBaseDataNode {
         }
         return result;
     }
-
 
     @Override
     public Set<AbstractRequestableData> getData(

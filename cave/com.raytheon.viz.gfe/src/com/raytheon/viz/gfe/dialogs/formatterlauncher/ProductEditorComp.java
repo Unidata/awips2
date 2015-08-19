@@ -170,6 +170,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 07/02/2015  13753       lshi        Update times for products in Product Editor
  * 07/22/2015  13753       lshi        Keeps issue time unchanged
  * 08/06/2015  13753       lshi        removed updateTime flag, undo the change of updateIssueExpireTimes, etc.
+ * 08/10/2015   4721       randerso    Changed getNNNid() to use the productID field (not textdbPil)
  * </pre>
  *
  * @author lvenable
@@ -2718,7 +2719,7 @@ public class ProductEditorComp extends Composite implements
     }
 
     public String getNNNid() {
-        return textdbPil.substring(3, 6);
+        return productId.substring(4, 7);
     }
 
     public String getProductName() {
