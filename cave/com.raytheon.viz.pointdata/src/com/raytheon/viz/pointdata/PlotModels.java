@@ -32,6 +32,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
+import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapping;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
@@ -55,6 +56,7 @@ import com.raytheon.viz.pointdata.util.PointDataInventory;
  * Sep 18, 2013  2391     mpduff      Initial creation
  * Jun 06, 2014  2061     bsteffen    Remove old PlotResource
  * Sep 09, 2014  3356     njensen     Remove CommunicationException
+ * Aug 17, 2015  4717     mapeters    Added null check in getLevels()
  * 
  * </pre>
  * 
@@ -191,12 +193,12 @@ public class PlotModels {
             for (String levelid : possibleLevels) {
                 Level level = LevelFactory.getInstance().getLevel(
                         Long.parseLong(levelid));
-                validLevels
-                        .add(LevelMappingFactory
-                                .getInstance(
-                                        LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
-                                .getLevelMappingForLevel(level)
-                                .getDisplayName());
+                LevelMapping mapping = LevelMappingFactory.getInstance(
+                        LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
+                        .getLevelMappingForLevel(level);
+                if (mapping != null) {
+                    validLevels.add(mapping.getDisplayName());
+                }
             }
         }
         return validLevels.toArray(new String[0]);
