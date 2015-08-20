@@ -29,10 +29,10 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
@@ -43,7 +43,8 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
 
 /**
  * 
- * TODO Add Description
+ * An implementation of {@link URICatalog} which can requery periodically
+ * instead of using JMS for updates.
  * 
  * <pre>
  * 
@@ -52,6 +53,7 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 15, 2011            bsteffen     Initial creation
+ * Aug 18, 2015  4720      bsteffen     Join lists when updating all.
  * 
  * </pre>
  * 
@@ -196,7 +198,13 @@ public class ThinClientURICatalog extends URICatalog implements
         if (enableMenuTimes) {
             Map<Map<String, RequestConstraint>, List<IURIRefreshCallback>> map = new HashMap<Map<String, RequestConstraint>, List<IURIRefreshCallback>>();
             for (DataPair pair : getDataPairs()) {
-                map.put(pair.metadata, pair.data);
+                List<IURIRefreshCallback> prev = map.put(pair.metadata,
+                        pair.data);
+                if (prev != null) {
+                    List<IURIRefreshCallback> joinedList = new ArrayList<>(prev);
+                    joinedList.addAll(pair.data);
+                    map.put(pair.metadata, joinedList);
+                }
             }
             queryMenuTimes(map, null, false);
         }
