@@ -31,6 +31,7 @@ import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.annotations.NullString;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -76,6 +77,7 @@ public class CcfpRecord extends PluginDataObject implements ISpatialEnabled {
     private static final long serialVersionUID = 1L;
 
     @DataURI(position = 1)
+    @NullString
     @Column(length = 8, nullable = false)
     @DynamicSerializeElement
     private String producttype;

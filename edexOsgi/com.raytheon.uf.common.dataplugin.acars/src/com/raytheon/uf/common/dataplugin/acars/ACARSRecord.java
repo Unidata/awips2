@@ -38,6 +38,7 @@ import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.annotations.NullString;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.pointdata.spatial.AircraftObsLocation;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -109,6 +110,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
      */
     @DataURI(position = 1)
     @Column(length = 32, nullable = false)
+    @NullString
     @DynamicSerializeElement
     @XmlElement
     private String tailNumber;

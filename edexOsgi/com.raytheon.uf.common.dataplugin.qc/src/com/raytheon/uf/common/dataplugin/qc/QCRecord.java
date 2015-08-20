@@ -35,6 +35,7 @@ import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.annotations.NullString;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
@@ -129,6 +130,7 @@ public class QCRecord extends PluginDataObject implements ISpatialEnabled {
 
     @Column(nullable = false, length = 20)
     @DataURI(position = 1)
+    @NullString
     @DynamicSerializeElement
     private String qcType;
 

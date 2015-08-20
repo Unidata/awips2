@@ -28,6 +28,8 @@ import javax.persistence.UniqueConstraint;
 import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.annotations.NullFloat;
+import com.raytheon.uf.common.dataplugin.annotations.NullString;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -70,15 +72,18 @@ public class BufrMosDataLocation extends PersistableDataObject {
     @Column(length = 48, nullable = false)
     @Index(name = "mosLocationStationIndex")
     @DataURI(position = 0)
+    @NullString
     @DynamicSerializeElement
     private String stationId;
 
     @DataURI(position = 1)
+    @NullFloat
     @Column(nullable = false)
     @DynamicSerializeElement
     private Double latitude;
 
     @DataURI(position = 2)
+    @NullFloat
     @Column(nullable = false)
     @DynamicSerializeElement
     private Double longitude;

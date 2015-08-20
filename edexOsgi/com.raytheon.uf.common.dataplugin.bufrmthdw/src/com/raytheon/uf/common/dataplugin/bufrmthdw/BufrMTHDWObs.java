@@ -33,6 +33,8 @@ import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.annotations.NullFloat;
+import com.raytheon.uf.common.dataplugin.annotations.NullString;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
@@ -85,11 +87,13 @@ public class BufrMTHDWObs extends PersistablePluginDataObject implements
 
     // The observation time.
     @DataURI(position = 1)
+    @NullString
     @Column(nullable = false)
     @DynamicSerializeElement
     private String satType;
 
     @DataURI(position = 2)
+    @NullFloat
     @Column(nullable = false)
     @DynamicSerializeElement
     private double pressure;

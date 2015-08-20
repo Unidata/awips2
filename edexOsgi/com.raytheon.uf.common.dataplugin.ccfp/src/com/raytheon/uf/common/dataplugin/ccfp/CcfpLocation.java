@@ -27,6 +27,7 @@ import org.hibernate.annotations.Type;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.annotations.NullFloat;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -69,11 +70,13 @@ public class CcfpLocation implements ISpatialObject {
     private Geometry geometry;
 
     @DataURI(position = 0)
+    @NullFloat
     @Column(nullable = false)
     @DynamicSerializeElement
     private double boxLat;
 
     @DataURI(position = 1)
+    @NullFloat
     @Column(nullable = false)
     @DynamicSerializeElement
     private double boxLong;

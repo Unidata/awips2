@@ -36,6 +36,7 @@ import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.annotations.NullString;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -93,6 +94,7 @@ public class VAARecord extends PluginDataObject implements ISpatialEnabled {
     @Column(length = 16, nullable = false)
     @DataURI(position = 2)
     @DynamicSerializeElement
+    @NullString
     private String advisoryNumber;
 
     // Correction indicator from wmo header

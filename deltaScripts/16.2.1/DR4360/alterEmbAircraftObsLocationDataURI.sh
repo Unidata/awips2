@@ -50,7 +50,7 @@ for table in ${tables[@]} ; do
 
 		for col in ${cols[@]} ; do
 					echo "INFO: Update ${table}'s ${col}"
-			${PSQL} -U awips -d metadata -c "UPDATE  ${table} SET ${col}='null' where ${col} is NULL ; "
+			${PSQL} -U awips -d metadata -c "UPDATE  ${table} SET ${col}='' where ${col} is NULL ; "
 			updateNotNullCol ${table} ${col}
 		done
 		echo "INFO: Finish update dataURI columns in table ${table}."

@@ -26,7 +26,7 @@ dropCols=("parameter_abbreviation" "level_id" "location_id")
 echo "INFO: Start update of ${table} dataURI columns."
 for col in ${strCols[@]} ; do
 	echo "INFO: Update ${table}'s ${col}"
-	${PSQL} -U awips -d metadata -c "UPDATE  ${table} SET ${col}='null' where ${col} is NULL ; "
+	${PSQL} -U awips -d metadata -c "UPDATE  ${table} SET ${col}='' where ${col} is NULL ; "
 	updateNotNullCol ${table} ${col}
 done
 for col in ${dropCols[@]} ; do
