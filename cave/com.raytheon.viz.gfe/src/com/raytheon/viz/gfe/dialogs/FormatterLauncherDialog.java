@@ -100,6 +100,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                     components.
  * Feb 12, 2014 2801       randerso    Added prompting if formatter is run against non-normal database
  * Jul 29, 2015 4263       dgilling    Support changes to TextProductManager.
+ * Aug 24, 2015 4749       dgilling    Reorganize dialog close and dispose.
  * 
  * </pre>
  * 
@@ -1016,10 +1017,6 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
         }
     }
 
-    private void dispose() {
-        textProductMgr.dispose();
-    }
-
     class ViewMessagesDialog extends CaveJFACEDialog {
 
         private List messageList;
@@ -1136,7 +1133,7 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
     @Override
     public boolean close() {
         if (doClose) {
-            dispose();
+            closeFormatters();
             return super.close();
         }
 
@@ -1146,7 +1143,7 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
         return false;
     }
 
-    public void closeFormatters() {
+    private void closeFormatters() {
         Set<String> keys = new HashSet<String>();
         keys.addAll(productMap.keySet());
         for (String key : keys) {

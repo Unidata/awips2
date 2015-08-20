@@ -40,6 +40,7 @@ import com.raytheon.viz.gfe.textformatter.TextFormatter;
  * Apr 7, 2011            randerso     Initial creation
  * May 28, 2014  #2841    randerso     Separated product script and formatters into
  *                                     separate schedulers.
+ * Aug 20, 2015  #4749    dgilling     Add shutdown().
  * 
  * 
  * </pre>
@@ -166,5 +167,13 @@ public class TaskManager {
             ITaskStatusChangedListener listener) {
         scriptScheduler.removeTaskStatusChangedListener(listener);
         formatterScheduler.removeTaskStatusChangedListener(listener);
+    }
+
+    /**
+     * Clears all current internal state from the current task schedulers.
+     */
+    public void shutdown() {
+        formatterScheduler.shutdown();
+        scriptScheduler.shutdown();
     }
 }

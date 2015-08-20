@@ -98,6 +98,7 @@ import com.raytheon.viz.gfe.textformatter.TextProductManager;
  *                                     controllers off main thread.
  * Aug 13, 2015  4749      njensen     Improved dispose(), parmEvictor can cancel                                    
  * 08/14/2015    4750      dgilling    Remove use of PythonScript in doIscRequestQuery.
+ * 08/20/2015    4749      dgilling    Ensure TextProductManager is disposed on dispose.
  * 
  * </pre>
  * 
@@ -316,6 +317,10 @@ public class DataManager {
 
         if (procedureInterface != null) {
             procedureInterface.dispose();
+        }
+
+        if (textProductMgr != null) {
+            textProductMgr.dispose();
         }
 
         // by moving the the pools' cancel calls to another thread, we prevent

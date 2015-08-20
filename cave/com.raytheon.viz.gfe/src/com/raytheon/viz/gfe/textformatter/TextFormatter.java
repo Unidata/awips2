@@ -37,7 +37,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData;
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData.ProductStateEnum;
@@ -61,6 +60,7 @@ import com.raytheon.viz.gfe.tasks.AbstractGfeTask;
  * Apr 20, 2015  4027      randerso    Renamed ProductStateEnum with an initial capital
  * Jul 28, 2015  4263      dgilling    Support changes to FormatterScriptFactory,
  *                                     get DataManager instance via constructor.
+ * Aug 20, 2015  #4749     dgilling    Add cleanUp.
  * 
  * </pre>
  * 
@@ -77,13 +77,13 @@ public class TextFormatter extends AbstractGfeTask {
     private final IPerformanceStatusHandler perfLog = PerformanceStatus
             .getHandler("GFE:");
 
-    private final TextProductFinishListener listener;
+    private TextProductFinishListener listener;
 
-    private final Map<String, Object> argMap;
+    private Map<String, Object> argMap;
 
     private ConfigData.ProductStateEnum state;
 
-    private final DataManager dataMgr;
+    private DataManager dataMgr;
 
     /**
      * Constructor
@@ -122,13 +122,8 @@ public class TextFormatter extends AbstractGfeTask {
         FormatterScript script = null;
         String forecast = null;
         try {
-            VizApp.runSyncIfWorkbench(new Runnable() {
-                @Override
-                public void run() {
-                    state = ConfigData.ProductStateEnum.Running;
-                    listener.startProgressBar(state);
-                }
-            });
+            state = ConfigData.ProductStateEnum.Running;
+            listener.startProgressBar(state);
 
             argMap.put("logFile", getLogFile().getAbsolutePath());
             script = new FormatterScriptFactory().createPythonScript();
@@ -161,21 +156,16 @@ public class TextFormatter extends AbstractGfeTask {
         } finally {
             SamplerGridSliceCache.remove(this.getId());
             SamplerGridSliceCache.remove(UI_THREAD_ID);
-            cleanUp(forecast);
+            productFinished(forecast);
             if (script != null) {
                 script.dispose();
             }
         }
     }
 
-    private void cleanUp(final String text) {
-        VizApp.runSyncIfWorkbench(new Runnable() {
-            @Override
-            public void run() {
-                listener.stopProgressBar(state);
-                listener.textProductFinished(text, state);
-            }
-        });
+    private void productFinished(final String text) {
+        listener.stopProgressBar(state);
+        listener.textProductFinished(text, state);
     }
 
     /*
@@ -193,7 +183,7 @@ public class TextFormatter extends AbstractGfeTask {
         if (this.state.equals(ProductStateEnum.Queued)
                 || this.state.equals(ProductStateEnum.New)) {
             state = ConfigData.ProductStateEnum.Failed;
-            cleanUp(null);
+            productFinished(null);
 
             this.finishedTime = SimulatedTime.getSystemTime().getTime();
             this.taskCanceled();
@@ -244,5 +234,12 @@ public class TextFormatter extends AbstractGfeTask {
 
         String varDict = (String) script.execute("getVarDict", map);
         return varDict;
+    }
+
+    @Override
+    public void cleanUp() {
+        super.cleanUp();
+        dataMgr = null;
+        listener = null;
     }
 }

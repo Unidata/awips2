@@ -42,6 +42,7 @@ import com.raytheon.viz.gfe.dialogs.FormatterLauncherDialog;
  * Oct 23, 2012 1287       rferrel      Changes for non-blocking FormatterLauncherDialog.
  * Apr 24, 2013 1936       dgilling     Pass DataManager to 
  *                                      FormatterLauncherDialog via constructor.
+ * Aug 24, 2015 4749       dgilling     Remove closeFormatters.
  * 
  * </pre>
  * 
@@ -77,12 +78,6 @@ public class FormatterlauncherAction extends AbstractHandler {
             }
         }
         return null;
-    }
-
-    public static void closeFormatters() {
-        if (dialog != null && dialog.getShell() != null && !dialog.isDisposed()) {
-            dialog.closeFormatters();
-        }
     }
 
     public static void closeDialog() {
