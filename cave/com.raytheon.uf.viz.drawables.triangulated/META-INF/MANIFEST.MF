@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Triangulated Image Rendering
+Bundle-SymbolicName: com.raytheon.uf.viz.drawables.triangulated;singleton:=true
+Bundle-Version: 1.15.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.15.1",
+ com.raytheon.uf.common.colormap;bundle-version="1.15.0"
+Import-Package: com.vividsolutions.jts.algorithm,
+ com.vividsolutions.jts.geom
+Export-Package: com.raytheon.uf.viz.drawables.triangulated
