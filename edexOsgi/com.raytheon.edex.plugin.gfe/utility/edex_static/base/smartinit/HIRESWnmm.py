@@ -281,7 +281,7 @@ class HIRESWnmmForecaster(Forecaster):
         u[logical_not(mask)] = 0
         v[logical_not(mask)] = 0
 
-        mask = add.reduce(mask) # add up the number of set points vert.
+        mask = add.reduce(mask).astype(float32) # add up the number of set points vert.
         mmask = mask + 0.0001
         # calculate the average value in the mixed layerlayer
         u = where(mask, add.reduce(u) / mmask, float32(0))

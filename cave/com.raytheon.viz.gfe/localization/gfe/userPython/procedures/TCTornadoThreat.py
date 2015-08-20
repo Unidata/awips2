@@ -310,7 +310,7 @@ class Procedure (SmartScript.SmartScript):
                     ]
 
          # make a grid of zeros.  This will be the TornadoThreat grid
-        tornadoThreat = zeros(self.getTopo().shape)
+        tornadoThreat = self.empty()
 
         for var, dayNum, threshDict, xVar, xThreshold in actionList:
             tornadoThreat = self.setTornadoGrid(tornadoThreat, threatKeys,

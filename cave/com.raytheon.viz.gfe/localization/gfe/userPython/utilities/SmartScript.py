@@ -1348,7 +1348,7 @@ class SmartScript(BaseTool.BaseTool):
         # set the mode to replace so the tool always behaves the same
 
         if headlineGrid is None: # make new headline grid components
-            headValues = zeros(fcstGrid.shape, 'int8')
+            headValues = zeros(fcstGrid.shape, int8)
             headKeys = [noneKey]
             self.setCombineMode("Replace") # force a replace in GFE
         else:
@@ -2071,18 +2071,18 @@ class SmartScript(BaseTool.BaseTool):
         #  # Here we want to treat the query as a literal
         #  PoP = where(self.wxMask(wxTuple, ":L:") maximum(5, PoP), PoP)
         #
-        rv = zeros(wx[0].shape)
+        rv = self.empty(bool)
         if not isreg:
             for i in xrange(len(wx[1])):
                 #if fnmatch.fnmatchcase(wx[1][i], query):
                 if string.find(wx[1][i], query) >= 0:
-                    rv = logical_or(rv, equal(wx[0], i))
+                    rv[equal(wx[0], i)] = True
         else:
             r = re.compile(query)
             for i in xrange(len(wx[1])):
                 m = r.search(wx[1][i])
                 if m is not None:
-                    rv = logical_or(rv, equal(wx[0], i))
+                    rv[equal(wx[0], i)] = True
         return rv
 
         # Returns a numeric mask i.e. a grid of 0's and 1's
@@ -2211,7 +2211,7 @@ class SmartScript(BaseTool.BaseTool):
         # Gives an offset grid for array, a, by x and y points
         sy1, sy2 = self.getindicies(y, a.shape[0])
         sx1, sx2 = self.getindicies(x, a.shape[1])        
-        b = zeros(a.shape, a.dtype)
+        b = zeros_like(a)
         b[sy1, sx1] = a[sy2, sx2]
         return b
 
@@ -2233,7 +2233,7 @@ class SmartScript(BaseTool.BaseTool):
         slice1[axis] = slice(2, None)
         slice2[axis] = slice(None, - 2)
         tmp = a[slice1] - a[slice2]
-        rval = zeros(a.shape)
+        rval = zeros_like(a)
         slice3 = [slice(None)] * nd
         slice3[axis] = slice(1, - 1)
         rval[slice3] = tmp

@@ -228,7 +228,7 @@ class NAM95Forecaster(Forecaster):
         #
         #  make pressure cube
         #
-        pmb = ones(gh_c.shape)
+        pmb = ones_like(gh_c)
         for i in xrange(gh_c.shape[0]):
            pmb[i] = self.pres[i]
         pmb = clip(pmb, 1, 1050)
@@ -376,16 +376,17 @@ class NAM95Forecaster(Forecaster):
         # set the points outside the layer to zero
         u[logical_not(mask)] = 0
         v[logical_not(mask)] = 0
-        mask = add.reduce(mask) # add up the number of set points vert.
+        mask = add.reduce(mask).astype(float32) # add up the number of set points vert.
         mmask = mask + 0.00001
         # calculate the average value in the mixed layerlayer
         u = where(mask, add.reduce(u) / mmask, float32(0))
         v = where(mask, add.reduce(v) / mmask, float32(0))
         # convert u, v to mag, dir
         tmag, tdir = self._getMD(u, v)
-        tdir = clip(tdir, 0, 359.5)
-        tmag = tmag * 1.94  # convert to knots
-        tmag = clip(tmag, 0, 125)  # clip speed to 125 knots
+        
+        tdir.clip(0, 359.5, tdir)
+        tmag *= 1.94             # convert to knots
+        tmag.clip(0, 125, tdir)  # clip speed to 125 knots
         return (tmag, tdir)
 
 
@@ -408,10 +409,10 @@ class NAM95Forecaster(Forecaster):
         T = self.FtoK(T)
         p_SFC = p_SFC / 100  # sfc pres. in mb
         pres = self.pres
-        a1 = zeros(topo.shape)
-        a2 = zeros(topo.shape)
-        a3 = zeros(topo.shape)
-        aindex = zeros(topo.shape)
+        a1 = self.empty()
+        a2 = self.empty()
+        a3 = self.empty()
+        aindex = self.empty()
         # Go through the levels to identify each case type 0-3
         for i in xrange(1, gh_c.shape[0] - 1):
             # get the sfc pres. and temp.

@@ -150,7 +150,7 @@ class Tool (SmartScript.SmartScript):
         nonarbEA=self.decodeEditArea(nonarbea)
         arbea=self.taperGrid(nonarbEA,2)*2
 
-        cwa=zeros(Topo.shape)
+        cwa=self.empty(bool)
         ISC=varDict["Include these WFOs:"]
         samps=varDict["Currently displayed CWA sample points:"]
         thin=varDict["Tool thinning-factor:"]
@@ -158,19 +158,19 @@ class Tool (SmartScript.SmartScript):
         
         for WFO in ISC:
             CWA=self.getEditArea(WFO)
-            cwa=self.encodeEditArea(CWA)+cwa
+            cwa |= self.encodeEditArea(CWA)
 
         alltrs=self._getAllHourlyTimeRanges(GridTimeRange)
         if ((WEname=="MaxT")or(WEname=="PoP")):
-            sum=zeros(Topo.shape)-150.0
+            sum=self.newGrid(-150.0)
         elif (WEname=="MinT"):
-            sum=zeros(Topo.shape)+150.0
+            sum=self.newGrid(150.0)
         else:
             if (wxType==2):
-                sum=[zeros(Topo.shape),zeros(Topo.shape)]
+                sum=[self.empty(),self.empty()]
             else:
-                sum=zeros(Topo.shape)
-        cnt=zeros(Topo.shape)
+                sum=self.empty()
+        cnt=self.empty()
 
         for tr in alltrs:
             isc=self.getComposite(WEname,tr,0)
@@ -235,7 +235,7 @@ class Tool (SmartScript.SmartScript):
             if (x+y)%thin!=0:
                 continue
             if (arbea[y,x]<2 and defea[y,x]==0):
-                if (cwa[y,x+1]==1) or (cwa[y,x-1]==1) or (cwa[y+1,x]==1) or (cwa[y-1,x]==1):
+                if (cwa[y,x+1]) or (cwa[y,x-1]) or (cwa[y+1,x]) or (cwa[y-1,x]):
                    if self.elevadjust==1:
                        self.hloclist.append(Topo[y,x])
                    else:

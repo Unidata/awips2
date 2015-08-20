@@ -894,7 +894,7 @@ class Procedure (SmartScript.SmartScript):
         mag = windMag.copy()
 
         # make a weightingGrid
-        lower = sum(sum(backMag)) / sum(sum(ones(backMag.shape)))
+        lower = average(backMag)
         # calculate the average value over the area where blending will occur
 
         upper = lower + 10.0
@@ -918,7 +918,7 @@ class Procedure (SmartScript.SmartScript):
         mag += backMag * (1 - wtGrid)
 
         # calculate direction grid
-        onesGrid = ones(mag.shape)
+        onesGrid = ones_like(mag)
         gridU, gridV = self.MagDirToUV(onesGrid, windGrid[1])
         bgU, bgV = self.MagDirToUV(onesGrid, bgGrid[1])
         gridU *= wtGrid
@@ -997,7 +997,6 @@ class Procedure (SmartScript.SmartScript):
     # wind the wind decreases linearly toward the center
     def makeRankine(self, f, latGrid, lonGrid, pieSlices):
         st = time.time()
-        grid = zeros(latGrid.shape)
         rDict = f['radii']
         validTime = f['validTime']
         center = f['centerLocation']
@@ -1010,7 +1009,7 @@ class Procedure (SmartScript.SmartScript):
         distanceGrid[equal(distanceGrid, 0)] = 0.01
 
         # make a grid into which we will define the wind speeds
-        grid = zeros(latGrid.shape, float)
+        grid = self.empty()
 
         # insert the maxWind radii
         if f.has_key('maxWind'):

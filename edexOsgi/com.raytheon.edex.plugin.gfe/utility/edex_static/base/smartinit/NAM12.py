@@ -270,10 +270,10 @@ class NAM12Forecaster(Forecaster):
         #  calculate number of zero crossings, and areas above/below
         #  freezing of the wetbulb sounding
         #
-        a1 = zeros(topo.shape)
-        a2 = zeros(topo.shape)
-        a3 = zeros(topo.shape)
-        aindex = zeros(topo.shape)
+        a1 = self.empty()
+        a2 = self.empty()
+        a3 = self.empty()
+        aindex = self.empty()
         for i in xrange(1, BLH.shape[0]):
             a11, a22, cross = self.getAreas(BLH[i - 1], TT[i - 1], BLH[i], TT[i])
             topomask = greater(BLH[i], topo)
@@ -965,7 +965,7 @@ class NAM12Forecaster(Forecaster):
         for i in range(1, BLH.shape[0]):
            hcross = self.linear(BLTheta[i], BLTheta[i - 1], BLH[i], BLH[i - 1], fireTheta)
            cross = logical_and(greater(BLTheta[i], fireTheta), less(mixhgt, 0.0))
-           mixhgt[cross] = hcross[m]
+           mixhgt[cross] = hcross[cross]
            
         m = less(mixhgt,0.0)
         mixhgt[m] = BLH[-1][m]
@@ -1106,13 +1106,13 @@ class NAM12Forecaster(Forecaster):
 
         pSFCmb = p_SFC / 100.0
         (utot, vtot) = self._getUV(BLM[0], BLD[0])
-        numl = ones_like(stopo)
+        numl = self.newGrid(1)
 
         for i in range(1, BLH.shape[0]):
            use = less(BLH[i], nmh)
            (u, v) = self._getUV(BLM[i], BLD[i])
-           utot[use] = (utot+u)[m]
-           vtot[use] = (vtot+v)[m]
+           utot[use] += u[use]
+           vtot[use] += v[use]
            numl[use] += 1
 
         #
@@ -1276,7 +1276,7 @@ class NAM12Forecaster(Forecaster):
     #                                  temperature (K)  (must be 3d cubes)
     #
     def TMST(self, thte, pres, tguess):
-       tg = ones(thte.shape) * tguess
+       tg = full_like(thte, tguess)
        teclip = clip(thte - 270.0, 0.0, 5000.0)
        #
        #  if guess temp is 0 - make a more reasonable guess
@@ -1445,7 +1445,7 @@ class NAM12Forecaster(Forecaster):
            for i in range(numplevs):
               usethislev = logical_and(less(found, 0.5), greater(gh_c[i], hbot))
               hlev[usethislev] = gh_c[i][usethislev]
-              plev[usethislev] = elf.pres[i][usethislev]
+              plev[usethislev] = self.pres[i]
               tlev[usethislev] = t_c[i][usethislev]
               mlev[usethislev] = mag_c[i][usethislev]
               dlev[usethislev] = dir_c[i][usethislev]
@@ -1459,7 +1459,7 @@ class NAM12Forecaster(Forecaster):
            if numNotFound > 0:
               notFoundMask = less(found, 0.5)
               hlev[notFoundMask] = gh_c[numplevs-1][notFoundMask]
-              plev[notFoundMask] = self.pres[numplevs-1][notFoundMask]
+              plev[notFoundMask] = self.pres[numplevs-1]
               tlev[notFoundMask] = t_c[numplevs-1][notFoundMask]
               mlev[notFoundMask] = mag_c[numplevs-1][notFoundMask]
               dlev[notFoundMask] = dir_c[numplevs-1][notFoundMask]

@@ -226,7 +226,7 @@ class Procedure (SmartScript.SmartScript):
             msgStr = weName + " does not exist in the VDATUMS model. "
             self.statusBarMsg(msgStr, "S")
 
-        #maxGrid = zeros(self.getTopo().shape)
+        #maxGrid = self.empty()
 
         for tr in trList:
             grid = self.getGrids(dbName, weName, "SFC", tr, mode="First")
@@ -256,7 +256,7 @@ class Procedure (SmartScript.SmartScript):
 #             msgStr = weName + " does not exist in the VDATUMS model. "
 #             self.statusBarMsg(msgStr, "S")
 
-        #maxGrid = zeros(self.getTopo().shape)
+        #maxGrid = self.empty()
 
         for tr in trList:
             grid = self.getGrids(dbName, weName, "SFC", tr, mode="First")
@@ -286,7 +286,7 @@ class Procedure (SmartScript.SmartScript):
             msgStr = weName + " does not exist in the VDATUMS model. "
             self.statusBarMsg(msgStr, "S")
 
-        #maxGrid = zeros(self.getTopo().shape)
+        #maxGrid = self.empty()
 
         for tr in trList:
             grid = self.getGrids(dbName, weName, "SFC", tr, mode="First")
@@ -315,7 +315,7 @@ class Procedure (SmartScript.SmartScript):
 #             msgStr = weName + " does not exist in the VDATUMS model. "
 #             self.statusBarMsg(msgStr, "S")
 
-        #maxGrid = zeros(self.getTopo().shape)
+        #maxGrid = self.empty()
 
         for tr in trList:
             grid = self.getGrids(dbName, weName, "SFC", tr, mode="First")
@@ -345,7 +345,7 @@ class Procedure (SmartScript.SmartScript):
 #             msgStr = weName + " does not exist in the VDATUMS model. "
 #             self.statusBarMsg(msgStr, "S")
 
-        #maxGrid = zeros(self.getTopo().shape)
+        #maxGrid = self.empty()
 
         for tr in trList:
             grid = self.getGrids(dbName, weName, "SFC", tr, mode="First")
@@ -471,7 +471,7 @@ class Procedure (SmartScript.SmartScript):
         trList = self.makeTimingTRs(baseTime)
         
         for tr in trList:
-            timingGrid = np.zeros(self.getGridShape())
+            timingGrid = self.empty()
             gridList.append(timingGrid)
             
         return trList, gridList
@@ -568,7 +568,7 @@ class Procedure (SmartScript.SmartScript):
             timeRange = TimeRange.allTimes()
             self.deleteCmd(["InundationTiming"], timeRange)  
             # make the InundationMax grid
-            surgePctGrid = np.zeros(self.getGridShape())
+            surgePctGrid = self.empty()
             surgePctGrid[modifyMask] = inundationHeight           
             # Make the timing grids
             baseTime = self.baseGuidanceTime()
@@ -643,7 +643,7 @@ class Procedure (SmartScript.SmartScript):
                             timeRange, precision=2)
 
         # make a grid of zeros.  This will be the CoastalThreat grid
-        coastalThreat = np.zeros(self.getTopo().shape)
+        coastalThreat = self.empty()
  
         # Yet another list to define the order in which we set grid values
         # This order must be ranked lowest to highest

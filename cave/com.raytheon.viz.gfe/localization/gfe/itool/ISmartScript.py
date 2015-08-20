@@ -130,8 +130,7 @@ class ISmartScript(SmartScript.SmartScript):
     # This method will create an empty hazards-type grid with the specified
     # name and timeRange
     def _makeEmptyHazardGrid(self, weName, timeRange):
-        gridShape = self.getTopo().shape
-        byteGrid = zeros(gridShape)
+        byteGrid = self.empty(int8)
         hazKeys = self.getDiscreteKeys("Hazards")
         currentKeys = ["<None>"]
         # make the grid

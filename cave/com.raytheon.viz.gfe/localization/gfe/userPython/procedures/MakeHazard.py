@@ -105,8 +105,7 @@ class Procedure (SmartScript.SmartScript):
 
         #  RJM had to modify this next line to point to the hazUtils
         #  for the getGridSize routine.
-        gridSize = self._hazUtils._getGridSize()
-        mask = numpy.zeros(gridSize)
+        mask = self.empty(bool)
         eaList = self.editAreaList()
 
         #  Get the elevation from the GUI input.  We'll do this by clipping
@@ -135,7 +134,7 @@ class Procedure (SmartScript.SmartScript):
                     localEffectMask = self.encodeEditArea(localEffectArea)
                     zoneMask = numpy.logical_and(zoneMask, localEffectMask)
 
-                mask = numpy.logical_or(mask, zoneMask)
+                mask[zoneMask] = True
 #            else:
 #                if z in eaList:
 #                    zoneArea = self.getEditArea(z)

@@ -467,11 +467,11 @@ class Procedure(SmartScript.SmartScript):
                     subKeys = self._hazUtils._getSubKeys(uKey)
                     for subKey in subKeys:
                         # make the mask - find all areas that contain the subKey
-                        mask = numpy.zeros(byteGrid.shape)
+                        mask = self.empty(bool)
                         for haz in hazKey:
                             if string.find(haz, subKey) >= 0:
                                 hazIndex = self.getIndex(haz, hazKey)
-                                mask = numpy.logical_or(numpy.equal(byteGrid, hazIndex), mask)
+                                mask[numpy.equal(byteGrid, hazIndex)] = True
 
                         # make the grid
                         self._hazUtils._addHazard(ELEMENT, tr, subKey, mask)

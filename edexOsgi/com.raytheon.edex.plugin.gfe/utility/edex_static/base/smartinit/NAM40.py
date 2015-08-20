@@ -240,7 +240,7 @@ class NAM40Forecaster(Forecaster):
         #
         #  make pressure cube
         #
-        pmb = ones(gh_c.shape)
+        pmb = ones_like(gh_c)
         for i in xrange(gh_c.shape[0]):
            pmb[i] = self.pres[i]
         pmb = clip(pmb, 1, 1050)
@@ -397,7 +397,7 @@ class NAM40Forecaster(Forecaster):
         # set the points outside the layer to zero
         u[logical_not(mask)] = 0
         v[logical_not(mask)] = 0
-        mask = add.reduce(mask) # add up the number of set points vert.
+        mask = add.reduce(mask).astype(float32) # add up the number of set points vert.
         mmask = mask + 0.0001
         # calculate the average value in the mixed layerlayer
         u = where(mask, add.reduce(u) / mmask, float32(0))

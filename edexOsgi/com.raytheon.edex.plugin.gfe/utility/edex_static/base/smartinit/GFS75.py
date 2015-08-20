@@ -249,7 +249,7 @@ class GFS75Forecaster(Forecaster):
         #
         #  make pressure cube
         #
-        pmb = ones(gh_c.shape)
+        pmb = ones_like(gh_c)
         for i in xrange(gh_c.shape[0]):
            pmb[i] = self.pres[i]
         pmb = clip(pmb, 1, 1050)
@@ -420,23 +420,18 @@ class GFS75Forecaster(Forecaster):
         mask = logical_and(greater_equal(gh_c, topo),
                            less_equal(gh_c, nmh + topo))
         # set the points outside the layer to zero
-        if type(u) is ndarray:
-            u[logical_not(mask)] = 0
-        else:
-            u = where(mask, u, float32(0))
-        if type(v) is ndarray:
-            v[logical_not(mask)] = 0
-        else:
-            v = where(mask, v, float32(0))
-        mask = add.reduce(mask) # add up the number of set points vert.
+        u[logical_not(mask)] = 0
+        v[logical_not(mask)] = 0
+
+        mask = add.reduce(mask).astype(float32) # add up the number of set points vert.
         mmask = mask + 0.0001
         # calculate the average value in the mixed layerlayer
         u = where(mask, add.reduce(u) / mmask, float32(0))
         v = where(mask, add.reduce(v) / mmask, float32(0))
         # convert u, v to mag, dir
         tmag, tdir = self._getMD(u, v)
-        tmag = tmag * 1.94   # convert to knots
-        tmag = clip(tmag, 0, 125)  # clip speed to 125 knots
+        tmag *= 1.94             # convert to knots
+        tmag.clip(0, 125, tmag)  # clip speed to 125 knots
         return (tmag, tdir)
 
 

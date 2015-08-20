@@ -321,7 +321,7 @@ class Procedure (SmartScript.SmartScript):
             gridTR = snowAmtInfoList[snowAmtIndex].gridTime()
             # zeros is from Numeric. It creates an array of all zeros for
             # the given dimensions and numeric type.
-            qpfSum = zeros(snowAmtGrid.shape, float32)
+            qpfSum = self.empty()
             qpfGrids = self.getGrids(
                 'Fcst', 'QPF', 'SFC', gridTR, mode='List', noDataError=0,
                 cache=0)

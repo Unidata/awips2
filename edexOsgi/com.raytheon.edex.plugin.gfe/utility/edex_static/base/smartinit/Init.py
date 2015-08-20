@@ -167,7 +167,7 @@ class GridUtilities:
     #                                  temperature (K)
     #
     def TMST(self, thte, pres, tguess):
-       tg=ones(thte.shape)*tguess
+       tg=full_like(thte, tguess)
        teclip=clip(thte-270.0,0.0,5000.0)
        #
        #  if guess temp is 0 - make a more reasonable guess
@@ -490,18 +490,18 @@ class Forecaster(GridUtilities):
     #
     #--------------------------------------------------------------------------
     def wxMask(self, wx, query, isreg=0):
-        rv = zeros(wx[0].shape)
+        rv = self.empty(bool)
         if not isreg:
             for i in xrange(len(wx[1])):
                 #if fnmatch.fnmatchcase(wx[1][i], query):
-                if string.find(wx[1][i],query) >=0:
-                    rv = logical_or(rv, equal(wx[0], i))
+                if query in wx[1][i]:
+                    rv[equal(wx[0], i)] = True
         else:
             r = re.compile(query)
             for i in xrange(len(wx[1])):
                 m = r.match(wx[1][i])
                 if m is not None:
-                    rv = logical_or(rv, equal(wx[0], i))
+                    rv[equal(wx[0], i)] = True
         return rv
 
     #--------------------------------------------------------------------------
@@ -710,17 +710,17 @@ class Forecaster(GridUtilities):
     #  Returns a mask where points are set when the specified query is true.
     #--------------------------------------------------------------------------
     def _wxMask(self, wx, query, isreg=0):
-        rv = zeros(wx[0].shape)
+        rv = self.empty(bool)
         if not isreg:
             for i in xrange(len(wx[1])):
                 if fnmatch.fnmatchcase(wx[1][i], query):
-                    rv = logical_or(rv, equal(wx[0], i))
+                    rv[equal(wx[0], i)] = True
         else:
             r = re.compile(query)
             for i in xrange(len(wx[1])):
                 m = r.match(wx[1][i])
                 if m is not None:
-                    rv = logical_or(rv, equal(wx[0], i))
+                    rv[equal(wx[0], i)] = True
         return rv
 
     #--------------------------------------------------------------------------

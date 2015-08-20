@@ -441,7 +441,7 @@ class GFS40Forecaster(Forecaster):
         #
         #  make pressure cube
         #
-        pmb = ones(gh_c.shape)
+        pmb = ones_like(gh_c)
         for i in xrange(gh_c.shape[0]):
            pmb[i] = self.pres[i]
         pmb = clip(pmb, 1, 1050)
@@ -533,9 +533,9 @@ class GFS40Forecaster(Forecaster):
         #cubeShape = (len(t_c) - 1, t_c.shape[1], t_c.shape[2])
         cubeShape = (len(t_c), t_c.shape[1], t_c.shape[2])
         gridShape = (t_c.shape[1], t_c.shape[2])
-        layerSR = zeros(cubeShape, dtype = float)
-        pvvAvg = zeros(cubeShape, dtype = float)
-        pvvSum = zeros(gridShape, dtype = float)
+        layerSR = zeros(cubeShape, dtype = float32)
+        pvvAvg = zeros(cubeShape, dtype = float32)
+        pvvSum = zeros(gridShape, dtype = float32)
 
         #print "cubeShape = ", cubeShape
 
@@ -566,7 +566,7 @@ class GFS40Forecaster(Forecaster):
             pvvSum = pvvSum + pvvAvg[i]
 
         # Normalize the layerSnowRatio based on the pvv fraction of the total
-        totalSnowRatio = zeros(gridShape, dtype = float)
+        totalSnowRatio = zeros(gridShape, dtype = float32)
         #tweak the pvvSum grid to avoid division by zero
         pvvSum[less_equal(pvvSum, 0.0)] = .0001
         for i in range(len(layerSR)):
@@ -580,7 +580,7 @@ class GFS40Forecaster(Forecaster):
         mask = sum(mask)  # reduce to single level by adding bits verically
         totalSnowRatio[equal(mask, 0)] = 0.0
 
-        thicknessSnowRatio = zeros(gridShape, dtype = float)
+        thicknessSnowRatio = zeros(gridShape, dtype = float32)
 
 #########################################################
 #  Pick an applicable thickness scheme for your area
@@ -637,10 +637,10 @@ class GFS40Forecaster(Forecaster):
         d = [0.0110, -0.0742, -0.0488, 0.0103, 0.2960, -0.1368, -0.0074, -0.0218, -0.0027]
 
         # Initialize the coeficient grids
-        aGrid = zeros(tGrid.shape) + a[-1]   #last value in list
-        bGrid = zeros(tGrid.shape) + b[-1]
-        cGrid = zeros(tGrid.shape) + c[-1]
-        dGrid = zeros(tGrid.shape) + d[-1]
+        aGrid = self.newGrid(a[-1])   #last value in list
+        bGrid = self.newGrid(b[-1])
+        cGrid = self.newGrid(c[-1])
+        dGrid = self.newGrid(d[-1])
         tDiff = zeros(tGrid.shape, dtype = float)
 
         # define grids of coefficients based on tGrid
@@ -796,10 +796,10 @@ class GFS40Forecaster(Forecaster):
         d = [0.0110, -0.0742, -0.0488, 0.0103, 0.2960, -0.1368, -0.0074, -0.0218, -0.0027]
 
         # Initialize the coeficient grids
-        aGrid = zeros(tGrid.shape) + a[-1]   #last value in list
-        bGrid = zeros(tGrid.shape) + b[-1]
-        cGrid = zeros(tGrid.shape) + c[-1]
-        dGrid = zeros(tGrid.shape) + d[-1]
+        aGrid = self.newGrid(a[-1])   #last value in list
+        bGrid = self.newGrid(b[-1])
+        cGrid = self.newGrid(c[-1])
+        dGrid = self.newGrid(d[-1])
         tDiff = zeros(tGrid.shape, dtype = float)
 
         # define grids of coefficients based on tGrid
@@ -919,7 +919,7 @@ class GFS40Forecaster(Forecaster):
         u[logical_not(mask)] = 0
         v[logical_not(mask)] = 0
 
-        mask = add.reduce(mask) # add up the number of set points vert.
+        mask = add.reduce(mask).astype(float32) # add up the number of set points vert.
         mmask = mask + 0.0001
         # calculate the average value in the mixed layerlayer
         u = where(mask, add.reduce(u) / mmask, float32(0))
@@ -949,10 +949,10 @@ class GFS40Forecaster(Forecaster):
         T = self.FtoK(T)
         p_SFC = p_SFC / 100  # sfc pres. in mb
         pres = self.pres
-        a1 = zeros(topo.shape)
-        a2 = zeros(topo.shape)
-        a3 = zeros(topo.shape)
-        aindex = zeros(topo.shape)
+        a1 = self.empty()
+        a2 = self.empty()
+        a3 = self.empty()
+        aindex = self.empty()
         # Go through the levels to identify each case type 0-3
         for i in xrange(1, gh_c.shape[0] - 1):
             # get the sfc pres. and temp.

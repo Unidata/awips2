@@ -349,7 +349,7 @@ def getDims(file, dimSizes, dimNames):
 def getMaskGrid(client, editAreaName, dbId):
     #make a mask with all bits set (y,x)
     domain = IFPServerConfigManager.getServerConfig(DatabaseID(dbId).getSiteId()).dbDomain()
-    mask = numpy.ones((domain.getNy().intValue(), domain.getNx().intValue()))
+    mask = numpy.ones((domain.getNy().intValue(), domain.getNx().intValue()), dtype=numpy.bool)
 
     if editAreaName == "": 
         return mask
@@ -358,7 +358,7 @@ def getMaskGrid(client, editAreaName, dbId):
     try:
         mask = iscUtil.getEditArea(editAreaName, DatabaseID(dbId).getSiteId())
         mask.setGloc(domain)
-        mask = mask.getGrid().getNDArray()        
+        mask = mask.getGrid().getNDArray().astype(numpy.bool)
     except:
         logProblem("Edit area:", editAreaName, "not found. Storing entire grid.",traceback.format_exc())
 

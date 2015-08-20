@@ -229,7 +229,7 @@ class NAM12Forecaster(Forecaster):
         #
         #  make pressure cube
         #
-        pmb=ones(gh_c.shape)
+        pmb=ones_like(gh_c)
         for i in xrange(gh_c.shape[0]):
            pmb[i]=self.pres[i]
         pmb=clip(pmb,1,1050)
@@ -383,7 +383,7 @@ class NAM12Forecaster(Forecaster):
         # set the points outside the layer to zero
         u[logical_not(mask)] = 0
         v[logical_not(mask)] = 0
-        mask = add.reduce(mask) # add up the number of set points vert.
+        mask = add.reduce(mask).astype(float32) # add up the number of set points vert.
         mmask = mask + 0.00001
         # calculate the average value in the mixed layerlayer
         u = where(mask, add.reduce(u) / mmask, float32(0))
@@ -415,10 +415,10 @@ class NAM12Forecaster(Forecaster):
         T = self.FtoK(T)
         p_SFC = p_SFC / 100  # sfc pres. in mb
         pres = self.pres
-        a1 = zeros(topo.shape)
-        a2 = zeros(topo.shape)
-        a3 = zeros(topo.shape)
-        aindex = zeros(topo.shape)
+        a1 = self.empty()
+        a2 = self.empty()
+        a3 = self.empty()
+        aindex = self.empty()
         # Go through the levels to identify each case type 0-3
         for i in xrange(1, gh_c.shape[0] - 1):
             # get the sfc pres. and temp.
@@ -427,20 +427,27 @@ class NAM12Forecaster(Forecaster):
             # Calculate the area of this layer in Temp/pres coordinates
             a11, a22, cross = self.getAreas(pbot, tbot, pres[i], t_c[i])
             topomask = greater(gh_c[i], topo)
-            a1 = where(logical_and(equal(aindex, 0), topomask),
-                       a1 + a11, a1)
-            a2 = where(logical_and(equal(aindex, 1), topomask),
-                       a2 + a11, a2)
-            a3 = where(logical_and(equal(aindex, 2), topomask),
-                       a3 + a11, a3)
+            
+            m = logical_and(equal(aindex, 0), topomask)
+            a1[m] += a11
+            
+            m = logical_and(equal(aindex, 1), topomask)
+            a2[m] += a11
+            
+            m = logical_and(equal(aindex, 2), topomask)
+            a3[m] += a11
+            
             topomask = logical_and(topomask, cross)
             aindex[topomask] += 1
-            a1 = where(logical_and(equal(aindex, 0), topomask),
-                       a1 + a22, a1)
-            a2 = where(logical_and(equal(aindex, 1), topomask),
-                       a2 + a22, a2)
-            a3 = where(logical_and(equal(aindex, 2), topomask),
-                       a3 + a22, a3)
+            
+            m = logical_and(equal(aindex, 0), topomask)
+            a1[m] += a22
+            
+            m = logical_and(equal(aindex, 1), topomask)
+            a2[m] += a22
+            
+            m = logical_and(equal(aindex, 2), topomask)
+            a3[m] += a22
 
         # Now apply a different algorithm for each type
         key = ['<NoCov>:<NoWx>:<NoInten>:<NoVis>:',

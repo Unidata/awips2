@@ -751,7 +751,7 @@ class IscMosaic:
                         # compute the site mask
 
                         if self.__areaMask is None:
-                            self.__areaMask = self.__computeAreaMask().getGrid().getNDArray()
+                            self.__areaMask = self.__computeAreaMask().getGrid().getNDArray().astype(numpy.bool)
 
                         # create the mergeGrid class
                         mGrid = mergeGrid.MergeGrid(self.__creTime, self.__siteID, inFillV,

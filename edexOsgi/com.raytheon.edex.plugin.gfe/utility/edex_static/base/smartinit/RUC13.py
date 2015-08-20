@@ -69,19 +69,22 @@ class RUC13Forecaster(Forecaster):
             # interpolate the pressure at topo height
             val = self.linear(gh_c[i], gh_c[i - 1],
                               log(self.pres[i]), log(self.pres[i - 1]), topo)
-            val = clip(val, -.00001, 10)
-            p = where(logical_and(equal(p, -1), higher),
-                      exp(val), p)
+            val.clip(-.00001, 10, val)
+            
+            m = logical_and(equal(p, -1), higher)
+            p[m] = exp(val)[m]
             # interpolate the temperature at true elevation
             tval1 = self.linear(gh_c[i], gh_c[i - 1], t_c[i], t_c[i - 1], topo)
-            tmb = where(logical_and(equal(tmb, -1), higher),
-                        tval1, tmb)
+            
+            m = logical_and(equal(tmb, -1), higher)
+            tmb[m] = tval1[m]
             # interpolate the temperature at model elevation
             tval2 = self.linear(gh_c[i], gh_c[i - 1], t_c[i], t_c[i - 1], stopo)
-            tms = where(logical_and(equal(tms, -1), greater(gh_c[i], stopo)),
-                        tval2, tms)
+            
+            m = logical_and(equal(tms, -1), greater(gh_c[i], stopo))
+            tms[m] = tval2[m]
 
-        p_SFC = p_SFC / 100
+        p_SFC /= 100
         # define the pres. of each of the boundary layers
         pres = [p_SFC, p_SFC - 15, p_SFC - 75, p_SFC - 168]
 
@@ -94,15 +97,18 @@ class RUC13Forecaster(Forecaster):
             gm = greater(pres[i - 1], p)
             lm = less_equal(pres[i], p)
             mask = logical_and(gm, lm)
-            st = where(logical_and(equal(st, -1), mask),
-                       val, st)            
+            
+            m = logical_and(equal(st, -1), mask)
+            st[m] = val[m]            
 
         # where topo level is above highest level in BL fields...use tmb
-        st = where(logical_and(equal(st,-1),less(p,p_SFC-135)),tmb,st)
+        m = logical_and(equal(st,-1),less(p,p_SFC-135))
+        st[m] = tmb[m]
 
         # where topo level is below model surface...use difference
         # of t at pressure of surface and tFHAG2 and subtract from tmb
-        st = where(equal(st, -1), tmb - tms + t_FHAG2, st)
+        m = equal(st, -1)
+        st[m] = (tmb - tms + t_FHAG2)[m]
         return self.KtoF(st)
 
 
@@ -122,11 +128,13 @@ class RUC13Forecaster(Forecaster):
         rh = w / ws
         # Finally, calculate the dew point
         tsfcesat = rh * tsfce
-        tsfcesat = clip(tsfcesat, 0.00001, tsfcesat)
+        tsfcesat.clip(0.00001, tsfcesat, tsfcesat)
         b = 26.66082 - log(tsfcesat)
         td = (b - sqrt(b * b - 223.1986)) / 0.0182758048
         td = self.KtoF(td)
-        td = where(w > ws, T, td)
+        
+        m = w > ws
+        td[m] = T[m]
         return td
 
 ##-------------------------------------------------------------------------
@@ -186,7 +194,7 @@ class RUC13Forecaster(Forecaster):
         ## calculate the base PoP
         pop = where(less(QPF, 0.02), QPF * 1000, QPF * 350 + 13)
         pop += dpop   # add the adjustment based on humidity
-        pop = clip(pop, 0, 100)  # clip to 100%
+        pop.clip(0, 100, pop)  # clip to 100%
         return pop
 
 ##-------------------------------------------------------------------------
@@ -194,7 +202,7 @@ class RUC13Forecaster(Forecaster):
 ##  cubes.  Finds the height at which freezing occurs.
 ##-------------------------------------------------------------------------
     def calcFzLevel(self, gh_FRZ):
-        return gh_FRZ * 3.28
+        return gh_FRZ / 0.3048
 
 ##-------------------------------------------------------------------------
 ##  Calculates the Snow level based on wet-bulb zero height.
@@ -215,15 +223,15 @@ class RUC13Forecaster(Forecaster):
         #
         #  make pressure cube
         #
-        pmb = ones(gh_c.shape)
+        pmb = ones_like(gh_c)
         for i in xrange(gh_c.shape[0]):
            pmb[i] = self.pres[i]
-        pmb = clip(pmb, 1, 1050)
+        pmb.clip(1, 1050, pmb)
         #
         #  convert temps to C and limit to reasonable values
         #
         tc = t_c - 273.15
-        tc = clip(tc, -120, 60)
+        tc.clip(-120, 60, tc)
         #
         #  limit RH to reasonable values
         #
@@ -250,12 +258,12 @@ class RUC13Forecaster(Forecaster):
                  * (-wetb[i - 1])
            except:
               val = gh_c[i]
-           snow = where(logical_and(equal(snow, -1), less_equal(wetb[i], 0)),
-                      val, snow)
+           m = logical_and(equal(snow, -1), less_equal(wetb[i], 0))
+           snow[m] = val[m]
         #
         #  convert to feet
         #
-        snow = snow * 3.28
+        snow /= 0.3048
 
         return snow
 
@@ -269,7 +277,7 @@ class RUC13Forecaster(Forecaster):
         snowr[less(T, 9)] = 20
         snowr[greater_equal(T, 30)] = 0
         # calc. snow amount based on the QPF and the ratio
-        snowamt = where(less_equal(FzLevel - 1000, topo * 3.28),
+        snowamt = where(less_equal(FzLevel - 1000, topo / 0.3048),
                         snowr * QPF, float32(0))
         # Only make snow at points where the weather is snow
         snowmask = logical_or(equal(Wx[0], 1), equal(Wx[0], 3))
@@ -311,9 +319,11 @@ class RUC13Forecaster(Forecaster):
             # calc. the interpolated mixing height
             tmh = self.linear(pt[i], pt[i - 1], gh_c[i], gh_c[i - 1], runavg)
             # assign new values if the difference is greater than 3
-            mh = where(logical_and(logical_and(mask[i], equal(mh, -1)),
-                                   greater(diffpt, 3)), tmh, mh)
-        return (mh - topo) * 3.28  # convert to feet
+            m = logical_and(logical_and(mask[i], equal(mh, -1)), greater(diffpt, 3))
+            mh[m] = tmh[m]
+        mh -= topo
+        mh /= 0.3048  # convert to feet
+        return mh
 
 ##-------------------------------------------------------------------------
 ##  Converts the lowest available wind level from m/s to knots
@@ -321,8 +331,8 @@ class RUC13Forecaster(Forecaster):
     def calcWind(self, wind_FHAG10):
         mag = wind_FHAG10[0]  # get the wind grids
         dir = wind_FHAG10[1]
-        mag = mag * 1.94   # convert m/s to knots
-        dir = clip(dir, 0, 359.5)
+        mag += 1.94   # convert m/s to knots
+        dir.clip(0, 359.5, dir)
         return (mag, dir)
 
 ##-------------------------------------------------------------------------
@@ -341,10 +351,14 @@ class RUC13Forecaster(Forecaster):
         # start at the bottom and store the first point we find that's
         # above the topo + 3000 feet level.
         for i in xrange(wind_c[0].shape[0]):
-            famag = where(logical_and(equal(famag, -1), mask[i]), wm[i], famag)
-            fadir = where(logical_and(equal(fadir, -1), mask[i]), wd[i], fadir)
-        fadir = clip(fadir, 0, 359.5)  # clip the value to 0, 360
-        famag = famag * 1.94           # convert to knots
+            m = logical_and(equal(famag, -1), mask[i])
+            famag[m] = wm[i][m]
+            
+            m = logical_and(equal(fadir, -1), mask[i])
+            fadir[m] = wd[i][m]
+            
+        fadir.clip(0, 359.5, fadir)  # clip the value to 0, 360
+        famag *= 1.94           # convert to knots
         return (famag, fadir)          # return the tuple of grids
 
 ##-------------------------------------------------------------------------
@@ -362,16 +376,16 @@ class RUC13Forecaster(Forecaster):
         # set the points outside the layer to zero
         u[logical_not(mask)] = 0
         v[logical_not(mask)] = 0
-        mask = add.reduce(mask)
+        mask = add.reduce(mask).astype(float32)
         mmask = mask + 0.0001
         # calculate the average value in the mixed layerlayer
         u = where(mask, add.reduce(u) / mmask, float32(0))
         v = where(mask, add.reduce(v) / mmask, float32(0))
         # convert u, v to mag, dir
         tmag, tdir = self._getMD(u, v)
-        tdir = clip(tdir, 0, 359.5)
-        tmag = tmag * 1.94  # convert to knots
-        tmag = clip(tmag, 0, 125)  # clip speed to 125 knots
+        tdir.clip(0, 359.5, tdir)
+        tmag *= 1.94             # convert to knots
+        tmag.clip(0, 125, tmag)  # clip speed to 125 knots
         return (tmag, tdir)
 
 ##-------------------------------------------------------------------------
@@ -393,10 +407,10 @@ class RUC13Forecaster(Forecaster):
         T = self.FtoK(T)
         p_SFC = p_SFC / 100  # sfc pres. in mb
         pres = self.pres
-        a1 = zeros(topo.shape)
-        a2 = zeros(topo.shape)
-        a3 = zeros(topo.shape)
-        aindex = zeros(topo.shape)
+        a1 = self.empty()
+        a2 = self.empty()
+        a3 = self.empty()
+        aindex = self.empty()
         # Go through the levels to identify each case type 0-3
         for i in xrange(1, gh_c.shape[0] - 1):
             # get the sfc pres. and temp.
@@ -405,20 +419,27 @@ class RUC13Forecaster(Forecaster):
             # Calculate the area of this layer in Temp/pres coordinates
             a11, a22, cross = self.getAreas(pbot, tbot, pres[i], t_c[i])
             topomask = greater(gh_c[i], topo)
-            a1 = where(logical_and(equal(aindex, 0), topomask),
-                       a1 + a11, a1)
-            a2 = where(logical_and(equal(aindex, 1), topomask),
-                       a2 + a11, a2)
-            a3 = where(logical_and(equal(aindex, 2), topomask),
-                       a3 + a11, a3)
+            
+            m = logical_and(equal(aindex, 0), topomask)
+            a1[m] += a11[m]
+            
+            m = logical_and(equal(aindex, 1), topomask)
+            a2[m] += a11[m]
+            
+            m = logical_and(equal(aindex, 2), topomask)
+            a3[m] += a11[m]
+            
             topomask = logical_and(topomask, cross)
             aindex = where(topomask, aindex + 1, aindex)
-            a1 = where(logical_and(equal(aindex, 0), topomask),
-                       a1 + a22, a1)
-            a2 = where(logical_and(equal(aindex, 1), topomask),
-                       a2 + a22, a2)
-            a3 = where(logical_and(equal(aindex, 2), topomask),
-                       a3 + a22, a3)
+            
+            m = logical_and(equal(aindex, 0), topomask)
+            a1[m] += a22[m]
+            
+            m = logical_and(equal(aindex, 1), topomask)
+            a2[m] += a22[m]
+            
+            m = logical_and(equal(aindex, 2), topomask)
+            a3[m] += a22[m]
 
         # Now apply a different algorithm for each type
         key = ['<NoCov>:<NoWx>:<NoInten>:<NoVis>:',

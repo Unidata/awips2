@@ -173,7 +173,7 @@ class HazardUtils(SmartScript.SmartScript):
     # @raise JepException: when raised by SmartScript methods. 
     def _makeEmptyHazardGrid(self, weName, timeRange):
         gridShape = self.getGridShape()
-        byteGrid = numpy.zeros(gridShape, dtype='int8')
+        byteGrid = numpy.zeros(gridShape, dtype=numpy.int8)
         hazKeys = self.getDiscreteKeys(ELEMENT)
         currentKeys = ["<None>"]
         # make the grid
@@ -244,7 +244,7 @@ class HazardUtils(SmartScript.SmartScript):
     # returns a Numeric mask where each zone in zoneList is set to 1
     def _makeMask(self, zoneList):
         gridSize = self.getGridShape()
-        mask = numpy.zeros(gridSize, dtype='int8')
+        mask = numpy.zeros(gridSize, dtype=numpy.int8)
         eaList = self.editAreaList()
         for z in zoneList:
             if z in eaList:
@@ -256,11 +256,7 @@ class HazardUtils(SmartScript.SmartScript):
 
     # Fetches the gridSize from the GFE and returns it as a tuple.
     def _getGridSize(self):
-        gridLoc = self.getGridLoc()
-        xSize = gridLoc.gridSize().x
-        ySize = gridLoc.gridSize().y
-        gridSize = (ySize, xSize)
-        return gridSize
+        return self.getGridShape()
 
     ##
     # Determine whether temporary weather elements are loaded.
@@ -897,7 +893,7 @@ class HazardUtils(SmartScript.SmartScript):
                     weName = self._makeTempWEName(subKey)
 
                     # make the mask - find all areas that contain the subKey
-                    mask = numpy.zeros(byteGrid.shape, dtype='bool')
+                    mask = numpy.zeros(byteGrid.shape, dtype=numpy.bool)
                     for hazIndex in range(len(hazKey)):
                         if subKey in splitHazKeys[hazIndex]:
                             mask |= (byteGrid==hazIndex)

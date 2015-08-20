@@ -122,15 +122,18 @@ class DGEXForecaster(Forecaster):
         BLT = self.BLT
         BLH = self.BLH
 
-        st = (stopo * 0.0) - 1.0
+        st = self.newGrid(-1)
         for i in range(1, BLH.shape[0]):
            tval = self.linear(BLH[i], BLH[i - 1], BLT[i], BLT[i - 1], topo)
            #
            # restrict the increase in areas where inversions present
            #
-           tval = where(greater(tval, BLT[0]), BLT[0] + ((tval - BLT[0]) / 2.0), tval)
+           m = greater(tval, BLT[0])
+           tval[m] = (BLT[0] + ((tval - BLT[0]) / 2.0))[m]
            between = logical_and(greater_equal(topo, BLH[i - 1]), less(topo, BLH[i]))
-           st=where(logical_and(less(st,0.0),between),tval,st)
+           
+           m = logical_and(less(st,0.0),between)
+           st[m] = tval[m]
         #
         #  restrict the lapse rates below the model surface
         #
@@ -141,7 +144,9 @@ class DGEXForecaster(Forecaster):
         drylapse = -9.8 / 1000.0
         lapse[less(lapse, drylapse)] = drylapse
         tst = BLT[0] + ((topo - stopo) * lapse)
-        st=where(less(st,0.0),tst,st)
+        
+        m = less(st,0.0)
+        st[m] = tst[m]
         #
         #  change to Fahrenheit
         #
@@ -171,11 +176,13 @@ class DGEXForecaster(Forecaster):
         #  for real topo above model topo - interpolate dewpoint from the
         #  model dewpoint sounding
         #
-        sd = (stopo * 0.0) - 1.0
+        sd = self.newGrid(-1)
         for i in range(1, BLH.shape[0]):
            dval = self.linear(BLH[i], BLH[i - 1], BLD[i], BLD[i - 1], topo)
            between = logical_and(greater_equal(topo, BLH[i - 1]), less(topo, BLH[i]))
-           sd=where(logical_and(less(sd,0.0),between),dval,sd)
+           
+           m = logical_and(less(sd,0.0),between)
+           sd[m] = dval[m]
 
         #
         #  for real topo below model topo - use model surface mixing ratio
@@ -193,12 +200,16 @@ class DGEXForecaster(Forecaster):
         tsfcesat = clip(tsfcesat, 0.00001, tsfcesat)
         b = 26.66082 - log(tsfcesat)
         td = (b - sqrt(b * b - 223.1986)) / 0.0182758048
-        sd=where(less(sd,0.0),td,sd)
+        
+        m = less(sd,0.0)
+        sd[m] = td[m]
         #
         #  change to Fahrenheit and make sure it is less than temp
         #
         td = self.KtoF(sd)
-        td=where(greater(td,T),T,td)
+
+        m = greater(td,T)
+        td[m] = T[m]
         return td
 
     #-------------------------------------------------------------------------
@@ -260,27 +271,34 @@ class DGEXForecaster(Forecaster):
         #  calculate number of zero crossings, and areas above/below
         #  freezing of the wetbulb sounding
         #
-        a1 = zeros(topo.shape)
-        a2 = zeros(topo.shape)
-        a3 = zeros(topo.shape)
-        aindex = zeros(topo.shape)
+        a1 = self.empty()
+        a2 = self.empty()
+        a3 = self.empty()
+        aindex = self.empty()
         for i in xrange(1, BLH.shape[0]):
             a11, a22, cross = self.getAreas(BLH[i - 1], TT[i - 1], BLH[i], TT[i])
             topomask = greater(BLH[i], topo)
-            a1 = where(logical_and(equal(aindex, 0), topomask),
-                       a1 + a11, a1)
-            a2 = where(logical_and(equal(aindex, 1), topomask),
-                       a2 + a11, a2)
-            a3 = where(logical_and(equal(aindex, 2), topomask),
-                       a3 + a11, a3)
+            
+            m = logical_and(equal(aindex, 0), topomask)
+            a1[m] += a11[m]
+            
+            m = logical_and(equal(aindex, 1), topomask)
+            a2[m] += a11[m]
+            
+            m = logical_and(equal(aindex, 2), topomask)
+            a3[m] += a11[m]
+            
             topomask = logical_and(topomask, cross)
             aindex[topomask] += 1
-            a1 = where(logical_and(equal(aindex, 0), topomask),
-                       a1 + a22, a1)
-            a2 = where(logical_and(equal(aindex, 1), topomask),
-                       a2 + a22, a2)
-            a3 = where(logical_and(equal(aindex, 2), topomask),
-                       a3 + a22, a3)
+            
+            m = logical_and(equal(aindex, 0), topomask)
+            a1[m] += a22
+            
+            m = logical_and(equal(aindex, 1), topomask)
+            a2[m] += a22
+            
+            m = logical_and(equal(aindex, 2), topomask)
+            a3[m] += a22
         #
         #  The basic types we are choosing between
         #
@@ -425,7 +443,8 @@ class DGEXForecaster(Forecaster):
            some = any(tprob)
            if not some:
               continue
-           needadd = where(tprob, wxgrid, int8(0))
+           needadd = self.empty(int8)
+           needadd[tprob] = wxgrid[tprob]
            numkeys = len(keys)
            for i in range(1, numkeys):
               add = equal(needadd, i)
@@ -550,8 +569,8 @@ class DGEXForecaster(Forecaster):
         dpop = (dpop / rhmax) * (1.0 - factor2) * adjAmount
         #
         pop = (factor * 100.0) + dpop
-        pop = clip(pop, 0, 100)
-        cwr = where(greater(pop, PoP), PoP, pop)
+        pop.clip(0, 100, pop)
+        cwr = minimum(pop, PoP)
         return cwr
 
     #----------------------------------------------------------------
@@ -665,11 +684,12 @@ class DGEXForecaster(Forecaster):
         BLM = BLW[0]
         BLD = BLW[1]
 
-        smag = (stopo * 0.0) - 1.0
+        smag = self.newGrid(-1)
         sdir = smag
 
-        smag=where(less(topo,BLH[0]),BLM[0],smag)
-        sdir=where(less(topo,BLH[0]),BLD[0],sdir)
+        m = less(topo,BLH[0])
+        smag[m] = BLM[0][m]
+        sdir[m] = BLD[0][m]
         for i in range(1, BLH.shape[0]):
            mval = self.linear(BLH[i], BLH[i - 1], BLM[i], BLM[i - 1], topo)
            dval = self.dirlinear(BLH[i], BLH[i - 1], BLD[i], BLD[i - 1], topo)
@@ -677,10 +697,15 @@ class DGEXForecaster(Forecaster):
            #  limit winds to be half as strong as wind in
            #  free atmosphere above the model surface would indicate
            #
-           mval=where(greater(mval,BLM[0]),BLM[0]+((mval-BLM[0])/2.0),mval)
+           m = greater(mval,BLM[0])
+           mval[m] = (BLM[0]+((mval-BLM[0])/2.0))[m]
            between = logical_and(greater_equal(topo, BLH[i - 1]), less(topo, BLH[i]))
-           smag=where(logical_and(less(smag,0.0),between),mval,smag)
-           sdir=where(logical_and(less(sdir,0.0),between),dval,sdir)
+           
+           m = logical_and(less(smag,0.0),between)
+           smag[m] =mval[m]
+           
+           m = logical_and(less(sdir,0.0),between)
+           sdir[m] = dval[m]
         #
         #  Change to knots
         #
@@ -726,21 +751,24 @@ class DGEXForecaster(Forecaster):
         #
         #  find height the fireTheta crosses the sounding theta
         #
-        mixhgt = (stopo * 0.0) - 1.0
+        mixhgt = self.newGrid(-1)
         for i in range(1, BLH.shape[0]):
            hcross = self.linear(BLTheta[i], BLTheta[i - 1], BLH[i], BLH[i - 1], fireTheta)
            cross = logical_and(greater(BLTheta[i], fireTheta), less(mixhgt, 0.0))
-           mixhgt=where(cross,hcross,mixhgt)
-        mixhgt=where(less(mixhgt,0.0),BLH[-1],mixhgt)
+           mixhgt[cross] = hcross[cross]
+           
+        m = less(mixhgt,0.0)
+        mixhgt[m] = BLH[-1][m]
         #
         #  Change to height above the model topo (in feet)
         #  and smooth a little
         #
-        final = (mixhgt - stopo) * 3.28
-        final[less(pSFCmb, 500)] = -9999.0
-        final = self.smoothpm(final, 2)
-        final = clip(final, 0.0, 50000.0)
-        return final
+        mixhgt -= stopo
+        mixhgt *= 3.28
+        mixhgt[less(pSFCmb, 500)] = -9999.0
+        mixhgt = self.smoothpm(mixhgt, 2)
+        mixhgt.clip(0.0, 50000.0, mixhgt)
+        return mixhgt
 
     #=========================================================================
     #  SnowAmt - simple snow ratio based on surface temperature - multiplied
@@ -780,7 +808,7 @@ class DGEXForecaster(Forecaster):
           p_SFC, stopo, gh_c, t_c, rh_c, wind_c, ctime)
         BLT = self.BLT
         BLH = self.BLH
-        fzlvl = (stopo * 0.0) - 1.0
+        fzlvl = self.newGrid(-1)
         #
         #  find the ones above the topo surface
         #
@@ -792,15 +820,16 @@ class DGEXForecaster(Forecaster):
            cross = logical_and(less_equal(BLT[i], 273.15), greater(tbot, 273.15))
            using = greater(BLH[i], topo)
            add = logical_and(logical_and(cross, less(fzlvl, -0.5)), using)
-           fzlvl=where(add,hcross,fzlvl)
-           tbot=where(using,BLT[i],tbot)
-           hbot=where(using,BLH[i],hbot)
+           fzlvl[add] = hcross[add]
+           tbot[using] = BLT[i][using]
+           hbot[using] = BLH[i][using]
 
         #
         #  when still above freezing at the top of the BL layer - just
         #  put in that height (best we can do without more data)
         #
-        fzlvl=where(greater(BLT[-1],273.15),BLH[-1],fzlvl)
+        m = greater(BLT[-1],273.15)
+        fzlvl[m] = BLH[-1][m]
         #
         #  find the ones below ground - where sounding was below
         #  freezing all the way up
@@ -808,20 +837,20 @@ class DGEXForecaster(Forecaster):
         below = logical_and(less(tk, 273.15), less(fzlvl, -0.5))
         lapse = 9.8 / 1000.0
         tmsl = tk + (lapse * topo)
-        hbot = topo * 0.0
+        hbot = self.empty()
         hcross = self.linear(tk, tmsl, topo, hbot, 273.15)
         hcross[less(hcross,0.0)] = 0.0
 
-        fzlvl=where(below,hcross,fzlvl)
+        fzlvl[below] = hcross[below]
         #
         #  Change to feet and smooth a little
         #
-        final = fzlvl * 3.28
+        fzlvl *= 3.28
         pSFCmb = p_SFC / 100.0
-        final[less(pSFCmb, 500.0)] = -9999.0
-        final = self.smoothpm(final, 2)
-        final = clip(final, 0.0, 50000.0)
-        return final
+        fzlvl[less(pSFCmb, 500.0)] = -9999.0
+        fzlvl = self.smoothpm(fzlvl, 2)
+        fzlvl.clip(0.0, 50000.0, fzlvl)
+        return fzlvl
 
     #=========================================================================
     # calcSnowLevel - takes sounding of the wetbulb temperature and finds the
@@ -864,7 +893,7 @@ class DGEXForecaster(Forecaster):
         #  get wetbulb temperatures above topography
         #
         (BLH, BLE) = self.getTopoE(topo, stopo, p_SFC, T, RH, BLH, BLE)
-        snowlvl = (stopo * 0.0) - 1.0
+        snowlvl = self.newGrid(-1)
         #
         #  find the ones below ground
         #
@@ -872,10 +901,10 @@ class DGEXForecaster(Forecaster):
         below = less(tk, 273.15)
         lapse = 9.8 / 1000.0
         tmsl = tk + (lapse * topo)
-        hbot = topo * 0.0
+        hbot = self.empty()
         hcross = self.linear(tk, tmsl, topo, hbot, 273.15)
         hcross[less(hcross, 0.0)] = 0.0
-        snowlvl=where(below,hcross,snowlvl)
+        snowlvl[below] = hcross[below]
         #
         #  find the ones above the topo surface
         #
@@ -885,21 +914,22 @@ class DGEXForecaster(Forecaster):
            hcross = self.linear(BLE[i], BLE[i - 1], BLH[i], BLH[i - 1], 273.15)
            cross = logical_and(less_equal(BLE[i], 273.15), greater(BLE[i - 1], 273.15))
            add = logical_and(cross, less(snowlvl, -0.5))
-           snowlvl=where(add,hcross,snowlvl)
+           snowlvl[add] = hcross[add]
         #
         #  when still above freezing at the top of the BL layer - just
         #  put in that height (best we can do without more data)
         #
-        snowlvl=where(less(snowlvl,-0.5),BLH[-1],snowlvl)
+        m = less(snowlvl,-0.5)
+        snowlvl[m] = BLH[-1][m]
         #
         #  Change to feet and smooth a little
         #
-        final = snowlvl * 3.28
+        snowlvl *= 3.28
         pSFCmb = p_SFC / 100.0
-        final[less(pSFCmb,500.0)] = -9999.0
-        final = self.smoothpm(final, 4)
-        final = clip(final, 0.0, 50000.0)
-        return final
+        snowlvl[less(pSFCmb,500.0)] = -9999.0
+        snowlvl = self.smoothpm(snowlvl, 4)
+        snowlvl.clip(0.0, 50000.0, snowlvl)
+        return snowlvl
 
     #=========================================================================
     #  TransWind - the average winds in the layer between the surface
@@ -928,8 +958,8 @@ class DGEXForecaster(Forecaster):
         for i in range(1, BLH.shape[0]):
            use = less(BLH[i], nmh)
            (u, v) = self._getUV(BLM[i], BLD[i])
-           utot=where(use,utot+u,utot)
-           vtot=where(use,vtot+v,vtot)
+           utot[use] += u[use]
+           vtot[use] += v[use]
            numl[use] += 1
         #
         #  calculate average
@@ -969,7 +999,7 @@ class DGEXForecaster(Forecaster):
           wind_BL3060, wind_BL6090, wind_BL90120, wind_BL120150, wind_BL150180,
           p_SFC, stopo, gh_c, t_c, rh_c, wind_c, ctime)
         BLR = self.BLR
-        lal = sel.newGrid(1)
+        lal = self.newGrid(1)
         #
         #  only thing we have is boundary layer lifted index
         #  set LAL to 2 if LI<0, 3 if LI<-3, 4 if LI<-5
@@ -1051,12 +1081,13 @@ class DGEXForecaster(Forecaster):
     #                                  temperature (K)  (must be 3d cubes)
     #
     def TMST(self, thte, pres, tguess):
-       tg = ones(thte.shape) * tguess
+       tg = full_like(thte, tguess)
        teclip = clip(thte - 270.0, 0.0, 5000.0)
        #
        #  if guess temp is 0 - make a more reasonable guess
        #
-       tg=where(less(tg,1),(thte-0.5*teclip**1.05)*(pres/1000.0)**0.2,tg)
+       m = less(tg,1)
+       tg[m] = ((thte-0.5*teclip**1.05)*(pres/1000.0)**0.2)[m]
        epsi = 0.01
        tgnu = tg - 273.15
        #
@@ -1215,7 +1246,7 @@ class DGEXForecaster(Forecaster):
            for i in range(numplevs):
               usethislev = logical_and(less(found, 0.5), greater(gh_c[i], hbot))
               hlev[usethislev] = gh_c[i][usethislev]
-              plev[usethislev] = elf.pres[i][usethislev]
+              plev[usethislev] = self.pres[i]
               tlev[usethislev] = t_c[i][usethislev]
               mlev[usethislev] = mag_c[i][usethislev]
               dlev[usethislev] = dir_c[i][usethislev]
@@ -1228,7 +1259,7 @@ class DGEXForecaster(Forecaster):
            if numNotFound > 0:
               notFoundMask = less(found, 0.5)
               hlev[notFoundMask] = gh_c[numplevs-1][notFoundMask]
-              plev[notFoundMask] = self.pres[numplevs-1][notFoundMask]
+              plev[notFoundMask] = self.pres[numplevs-1]
               tlev[notFoundMask] = t_c[numplevs-1][notFoundMask]
               mlev[notFoundMask] = mag_c[numplevs-1][notFoundMask]
               dlev[notFoundMask] = dir_c[numplevs-1][notFoundMask]
@@ -1377,11 +1408,14 @@ class DGEXForecaster(Forecaster):
               for y in range(-k, k + 1):
                 array1 = self.offset(array, x, y)
                 ok = greater(array1, -9000)
-                a=where(ok,a+array1,a)
+                a[ok] += array1[ok]
                 n[ok] += 1
-           a=where(less(n,1),array,a)
-           n[less(n, 1)] = 1
-           arraysmooth = a / n
+           
+           m = less(n,1)
+           a[m] = array[m]
+           n[m] = 1
+           a /= n
+           arraysmooth = a
         else:
            arraysmooth = array
         return arraysmooth
@@ -1393,7 +1427,7 @@ class DGEXForecaster(Forecaster):
     def offset(self, a, x, y):
         sy1, sy2 = self.getindicies(y, a.shape[0])
         sx1, sx2 = self.getindicies(x, a.shape[1])
-        b = zeros(a.shape, a.dtype.char) - 9999.0
+        b = full_like(a, -9999.0)
         b[sy1, sx1] = a[sy2, sx2]
         return b
 
@@ -1416,13 +1450,12 @@ class DGEXForecaster(Forecaster):
     #   right way" rather than flip back in the opposite direction.
     #
     def dirlinear(self, xmax, xmin, ymax, ymin, we):
-        ydif = ymax - ymin
-        ydif=where(less(ydif,0.0),-ydif,ydif)
+        ydif = abs(ymax - ymin)
         rotate = greater(ydif, 180.0)
         upper = greater(ymin, 180.0)
         lower = less(ymin, 180.0)
-        ymax=where(logical_and(rotate,upper),ymax+360.0,ymax)
-        ymax=where(logical_and(rotate,lower),ymax-360.0,ymax)
+        ymax[logical_and(rotate,upper)] += 360.0
+        ymax[logical_and(rotate,lower)] -= 360.0
         slope = (ymax - ymin) / (xmax - xmin + .0000001)
         intercept = ymin - slope * xmin
         value = slope * we + intercept

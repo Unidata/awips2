@@ -1803,7 +1803,7 @@ class Procedure (SmartScript.SmartScript):
       #  find max number in any bin in any of the histograms
       #
       histkey1=self.histograms.keys()[0]
-      maxHist=zeros(self.histograms[histkey1].shape)
+      maxHist=zeros_like(self.histograms[histkey1])
       for histkey in self.histograms.keys():
          self.histograms[histkey]/=float(self.numCases[histkey])
          maxHist=maximum(maxHist,self.histograms[histkey])

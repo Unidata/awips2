@@ -338,11 +338,7 @@ class Procedure (SmartScript.SmartScript):
           AbsTime.AbsTime(endTime))
 
         # Create a dummy grid of zeros
-        gridLoc = self.getGridLoc()
-        xSize = gridLoc.gridSize().x
-        ySize = gridLoc.gridSize().y
-        gridSize = (ySize, xSize)
-        grid = zeros(gridSize, int8)
+        grid = self.empty(int8)
 
         # Define the allowed keys
         keys = ['<None>','SV.A','TO.A','sv.a','to.a','to->SV','sv->SV','to->TO','sv->TO']
@@ -354,11 +350,11 @@ class Procedure (SmartScript.SmartScript):
             watchIndex = self.getIndex(each[1], keys)
 
             # Set each edit area found in the WCL to the mask value
-            mask = zeros(gridSize)
+            mask = self.empty(bool)
             if each[0] in eaList:
                 zoneArea = self.getEditArea(each[0])
                 zoneMask = self.encodeEditArea(zoneArea)
-                mask = logical_or(mask, zoneMask)
+                mask[zoneMask] = True
             grid[mask] = watchIndex
 
 
