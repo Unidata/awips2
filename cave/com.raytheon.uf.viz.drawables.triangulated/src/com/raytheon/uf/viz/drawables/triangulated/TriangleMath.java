@@ -58,7 +58,7 @@ public class TriangleMath {
         }
         int orientation2 = CGAlgorithms.orientationIndex(v2, v0, p);
         if (orientation0 != orientation2) {
-            if (orientation1 == 0) {
+            if (orientation2 == 0) {
                 return true;
             } else {
                 return false;

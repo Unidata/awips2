@@ -94,6 +94,9 @@ public class ProductDescription {
     @XmlElement
     private DataTimeDescription dataTime;
 
+    @XmlElement
+    private TriangulationDescription triangulation;
+
     public boolean isDebug() {
         return debug;
     }
@@ -158,8 +161,17 @@ public class ProductDescription {
         this.dataTime = dataTime;
     }
 
+    public TriangulationDescription getTriangulation() {
+        return triangulation;
+    }
+
+    public void setTriangulation(TriangulationDescription triangulation) {
+        this.triangulation = triangulation;
+    }
+
     /**
-     * Extract the the datasetId, parameter, level and datatime from
+     * Extract the the datasetId, parameter, level and datatime from the file
+     * using the attributes contained in this description.
      */
     public PointSetRecord getRecord(NetcdfFile file,
             ParameterLookup parameterLookup, LevelFactory levelFactory)
