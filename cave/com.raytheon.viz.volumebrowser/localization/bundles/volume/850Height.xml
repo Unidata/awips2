@@ -97,7 +97,7 @@
 								<constraint constraintValue="850.0" constraintType="IN" />
 							</mapping>
 							<mapping key="info.datasetId">
-								<constraint constraintValue="NAM-12km"
+								<constraint constraintValue="NAM12"
 									constraintType="EQUALS" />
 							</mapping>
 						</metadataMap>
