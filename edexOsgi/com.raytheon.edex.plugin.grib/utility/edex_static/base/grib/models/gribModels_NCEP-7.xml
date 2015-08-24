@@ -839,7 +839,7 @@
 	</model>
 
 	<model>
-		<name>NAM-12km</name>
+		<name>NAM12</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>218</grid>

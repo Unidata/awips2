@@ -20,7 +20,7 @@
     -->
 <menuContributionFile>
 	<substitute key="GFSmodel" value="GFS 40km" />
-	<substitute key="NAM12model" value="NAM-12km" />
+	<substitute key="NAM12model" value="NAM12" />
 	<substitute key="NAM40model" value="NAM-40km" />
 	<substitute key="ARWmodel1" value="HiResW-ARW-East" />
 	<substitute key="ARWmodel2" value="HiResW-ARW-West" />
