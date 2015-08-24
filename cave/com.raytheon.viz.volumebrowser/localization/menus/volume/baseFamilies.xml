@@ -39,8 +39,8 @@
 			<substitute key="frameCount" value="41"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
-			menuText="NAM 12km" id="NAM-12km" useReferenceTime="true">
-			<substitute key="modelName" value="NAM-12km"/>
+			menuText="NAM 12km" id="NAM12" useReferenceTime="true">
+			<substitute key="modelName" value="NAM12"/>
 			<substitute key="TP" value="TP"/>
 			<substitute key="frameCount" value="41"/>
 		</contribute>
@@ -125,8 +125,8 @@
 			<substitute key="frameCount" value="41"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-			menuText="NAM 12km" id="NAM-12km" useReferenceTime="true">
-			<substitute key="modelName" value="NAM-12km"/>
+			menuText="NAM 12km" id="NAM12" useReferenceTime="true">
+			<substitute key="modelName" value="NAM12"/>
 			<substitute key="TP" value="TP"/>
 			<substitute key="frameCount" value="41"/>
 		</contribute>
