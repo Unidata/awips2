@@ -49,7 +49,7 @@
 		post processor. These models may have some parameters which are incorrectly 
 		labeled Celsius vs. Kelvin. The list of parameters to correct is in temperatureCorrectionParameters.xml -->
 	<postProcessedModel>
-		<modelName>NAM-12km|GFS-40km|GFS213|ETA242|RTOFS-.*</modelName>
+		<modelName>NAM12|GFS-40km|GFS213|ETA242|RTOFS-.*</modelName>
 		<processorName>TemperatureCorrectionPostProcessor</processorName>
 	</postProcessedModel>
 
