@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+from __future__ import absolute_import, print_function
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 #
 #        C:\home\eric\wrk\scipy\weave\examples>python ramp2.py
 #        python (seconds): 2.94499993324
@@ -10,11 +15,19 @@ import time
 from scipy.weave import ext_tools
 from numpy import *
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def Ramp(result, size, start, end):
     step = (end-start)/(size-1)
     for i in xrange(size):
         result[i] = start + step*i
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def build_ramp_ext():
     mod = ext_tools.ext_module('ramp_ext')
 
@@ -35,6 +48,10 @@ def build_ramp_ext():
     mod.add_function(func)
     mod.compile(compiler='gcc')
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def main():
     arr = [0]*10000
     t1 = time.time()
@@ -42,9 +59,15 @@ def main():
         Ramp(arr, 10000, 0.0, 1.0)
     t2 = time.time()
     py_time = t2 - t1
+<<<<<<< HEAD
     print 'python (seconds):', py_time
     print 'arr[500]:', arr[500]
     print
+=======
+    print('python (seconds):', py_time)
+    print('arr[500]:', arr[500])
+    print()
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     try:
         import ramp_ext
@@ -56,8 +79,13 @@ def main():
         ramp_ext.Ramp(arr, 0.0, 1.0)
     t2 = time.time()
     c_time = (t2 - t1)
+<<<<<<< HEAD
     print 'compiled numeric (seconds, speed up):', c_time, (py_time*10000/200.)/ c_time
     print 'arr[500]:', arr[500]
+=======
+    print('compiled numeric (seconds, speed up):', c_time, (py_time*10000/200.) / c_time)
+    print('arr[500]:', arr[500])
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 if __name__ == '__main__':
     main()

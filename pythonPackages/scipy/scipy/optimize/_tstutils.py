@@ -1,9 +1,14 @@
 ''' Parameters used in test and benchmark methods '''
+<<<<<<< HEAD
+=======
+from __future__ import division, print_function, absolute_import
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 from random import random
 
 from scipy.optimize import zeros as cc
 
+<<<<<<< HEAD
 def f1(x) :
     return x*(x-1.)
 
@@ -26,6 +31,42 @@ def f6(x) :
     if   x > 1 : return random()
     elif x < 1 : return -random()
     else : return 0
+=======
+
+def f1(x):
+    return x*(x-1.)
+
+
+def f2(x):
+    return x**2 - 1
+
+
+def f3(x):
+    return x*(x-1.)*(x-2.)*(x-3.)
+
+
+def f4(x):
+    if x > 1:
+        return 1.0 + .1*x
+    if x < 1:
+        return -1.0 + .1*x
+    return 0
+
+
+def f5(x):
+    if x != 1:
+        return 1.0/(1. - x)
+    return 0
+
+
+def f6(x):
+    if x > 1:
+        return random()
+    elif x < 1:
+        return -random()
+    else:
+        return 0
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 description = """
 f2 is a symmetric parabola, x**2 - 1

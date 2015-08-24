@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 .. module:: scipy.stats.mstats
 
 ===================================================================
@@ -79,3 +80,6 @@ is a relatively new package, some API changes are still possible.
    z
    zmap
    zs
+=======
+.. automodule:: scipy.stats.mstats
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

@@ -3,15 +3,28 @@
     Note: std::cout type operations currently crash python...
           Not sure what is up with this...
 """
+<<<<<<< HEAD
+=======
+from __future__ import absolute_import, print_function
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 import scipy.weave as weave
 
 #----------------------------------------------------------------------------
 # get/set attribute and call methods example
 #----------------------------------------------------------------------------
 
+<<<<<<< HEAD
 class Foo(object):
     def __init__(self):
         self.val = 1
+=======
+
+class Foo(object):
+    def __init__(self):
+        self.val = 1
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     def inc(self,amount):
         self.val += amount
         return self.val
@@ -34,7 +47,11 @@ code = """
        return_val = result;
        """
 
+<<<<<<< HEAD
 print 'initial, inc(2), set(5)/get:', weave.inline(code,['obj'])
+=======
+print('initial, inc(2), set(5)/get:', weave.inline(code,['obj']))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 #----------------------------------------------------------------------------
 # indexing of values.
@@ -53,4 +70,8 @@ code = """
            obj[i] = "goodbye";
        """
 weave.inline(code,['obj'])
+<<<<<<< HEAD
 print "obj with new values:", obj
+=======
+print("obj with new values:", obj)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

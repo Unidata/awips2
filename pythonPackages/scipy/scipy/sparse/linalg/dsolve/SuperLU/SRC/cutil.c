@@ -408,8 +408,13 @@ void cinf_norm_error(int nrhs, SuperMatrix *X, complex *xtrue)
       err = xnorm = 0.0;
       for (i = 0; i < X->nrow; i++) {
         c_sub(&temp, &soln_work[i], &xtrue[i]);
+<<<<<<< HEAD
 	err = SUPERLU_MAX(err, slu_c_abs(&temp));
 	xnorm = SUPERLU_MAX(xnorm, slu_c_abs(&soln_work[i]));
+=======
+	err = SUPERLU_MAX(err, c_abs(&temp));
+	xnorm = SUPERLU_MAX(xnorm, c_abs(&soln_work[i]));
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       }
       err = err / xnorm;
       printf("||X - Xtrue||/||X|| = %e\n", err);

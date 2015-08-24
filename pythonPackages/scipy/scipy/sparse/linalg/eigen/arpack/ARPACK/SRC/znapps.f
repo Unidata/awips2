@@ -92,7 +92,11 @@ c     pp 357-385.
 c
 c\Routines called:
 c     ivout   ARPACK utility routine that prints integers.
+<<<<<<< HEAD
 c     second  ARPACK utility routine for timing.
+=======
+c     arscnd  ARPACK utility routine for timing.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c     zmout   ARPACK utility routine that prints matrices
 c     zvout   ARPACK utility routine that prints vectors.
 c     zlacpy  LAPACK matrix copy routine.
@@ -184,7 +188,11 @@ c     | External Subroutines |
 c     %----------------------%
 c
       external   zaxpy, zcopy, zgemv, zscal, zlacpy, zlartg, 
+<<<<<<< HEAD
      &           zvout, zlaset, dlabad, zmout, second, ivout
+=======
+     &           zvout, zlaset, dlabad, zmout, arscnd, ivout
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %--------------------%
 c     | External Functions |
@@ -240,7 +248,11 @@ c     | Initialize timing statistics  |
 c     | & message level for debugging |
 c     %-------------------------------%
 c
+<<<<<<< HEAD
       call second (t0)
+=======
+      call arscnd (t0)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       msglvl = mcapps
 c 
       kplusp = kev + np 
@@ -495,7 +507,11 @@ c
       end if
 c
  9000 continue
+<<<<<<< HEAD
       call second (t1)
+=======
+      call arscnd (t1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       tcapps = tcapps + (t1 - t0)
 c 
       return

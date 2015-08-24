@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 =====================================================
 Optimization and root finding (:mod:`scipy.optimize`)
 =====================================================
@@ -109,3 +110,12 @@ Utility Functions
 
    line_search
    check_grad
+=======
+.. automodule:: scipy.optimize
+
+.. toctree::
+   :hidden:
+   :maxdepth: 1
+
+   optimize.nonlin
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

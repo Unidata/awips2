@@ -53,7 +53,11 @@ case t ## _type:                      \
                                                         _true, _false, _changed)                  \
 case t ## _type:                                                      \
 {                                                                     \
+<<<<<<< HEAD
     maybelong _ii, _oo;                                                 \
+=======
+    npy_intp _ii, _oo;                                                  \
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     int _in = *(_type*)_pi ? 1 : 0;                                     \
     if (_mv) {                                                          \
         if (_center_is_true && _in == false) {                            \
@@ -86,17 +90,29 @@ break
 
 int NI_BinaryErosion(PyArrayObject* input, PyArrayObject* strct,
                 PyArrayObject* mask, PyArrayObject* output, int bdr_value,
+<<<<<<< HEAD
                 maybelong *origins, int invert, int center_is_true, int* changed,
                 NI_CoordinateList **coordinate_list)
 {
     maybelong struct_size = 0, *offsets = NULL, size, *oo, jj;
     maybelong ssize, block_size = 0, *current = NULL, border_flag_value;
+=======
+                     npy_intp *origins, int invert, int center_is_true,
+                     int* changed, NI_CoordinateList **coordinate_list)
+{
+    npy_intp struct_size = 0, *offsets = NULL, size, *oo, jj;
+    npy_intp ssize, block_size = 0, *current = NULL, border_flag_value;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     int kk, true, false, msk_value;
     NI_Iterator ii, io, mi;
     NI_FilterIterator fi;
     Bool *ps, out = 0;
     char *pi, *po, *pm = NULL;
     NI_CoordinateBlock *block = NULL;
+<<<<<<< HEAD
+=======
+    NPY_BEGIN_THREADS_DEF;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     ps = (Bool*)PyArray_DATA(strct);
     ssize = 1;
@@ -124,6 +140,11 @@ int NI_BinaryErosion(PyArrayObject* input, PyArrayObject* strct,
                                                          input->dimensions, origins, &fi))
         goto exit;
 
+<<<<<<< HEAD
+=======
+    NPY_BEGIN_THREADS;
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     /* get data pointers an size: */
     pi = (void *)PyArray_DATA(input);
     po = (void *)PyArray_DATA(output);
@@ -146,9 +167,19 @@ int NI_BinaryErosion(PyArrayObject* input, PyArrayObject* strct,
         if (block_size > size)
             block_size = size;
         *coordinate_list = NI_InitCoordinateList(block_size, input->nd);
+<<<<<<< HEAD
         if (!*coordinate_list)
             goto exit;
     }
+=======
+        if (NI_UNLIKELY(!*coordinate_list)) {
+            NPY_END_THREADS;
+            PyErr_NoMemory();
+            goto exit;
+        }
+    }
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     /* iterator over the elements: */
     oo = offsets;
     *changed = 0;
@@ -156,7 +187,11 @@ int NI_BinaryErosion(PyArrayObject* input, PyArrayObject* strct,
     for(jj = 0; jj < size; jj++) {
         int pchange = 0;
         if (mask) {
+<<<<<<< HEAD
             switch(mask->descr->type_num) {
+=======
+            switch(NI_NormalizeType(mask->descr->type_num)) {
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             CASE_GET_MASK(msk_value, pm, Bool);
             CASE_GET_MASK(msk_value, pm, UInt8);
             CASE_GET_MASK(msk_value, pm, UInt16);
@@ -171,11 +206,19 @@ int NI_BinaryErosion(PyArrayObject* input, PyArrayObject* strct,
             CASE_GET_MASK(msk_value, pm, Float32);
             CASE_GET_MASK(msk_value, pm, Float64);
             default:
+<<<<<<< HEAD
+=======
+                NPY_END_THREADS;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                 PyErr_SetString(PyExc_RuntimeError, "data type not supported");
                 return 0;
             }
         }
+<<<<<<< HEAD
         switch (input->descr->type_num) {
+=======
+        switch (NI_NormalizeType(input->descr->type_num)) {
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         CASE_NI_ERODE_POINT(pi, out, oo, struct_size, Bool, msk_value,
                                                 bdr_value, border_flag_value, center_is_true,
                                                 true, false, pchange);
@@ -212,10 +255,18 @@ int NI_BinaryErosion(PyArrayObject* input, PyArrayObject* strct,
                                                 bdr_value, border_flag_value, center_is_true,
                                                 true, false, pchange);
         default:
+<<<<<<< HEAD
             PyErr_SetString(PyExc_RuntimeError, "data type not supported");
             goto exit;
         }
         switch (output->descr->type_num) {
+=======
+            NPY_END_THREADS;
+            PyErr_SetString(PyExc_RuntimeError, "data type not supported");
+            goto exit;
+        }
+        switch (NI_NormalizeType(output->descr->type_num)) {
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         CASE_OUTPUT(po, out, Bool);
         CASE_OUTPUT(po, out, UInt8);
         CASE_OUTPUT(po, out, UInt16);
@@ -230,6 +281,10 @@ int NI_BinaryErosion(PyArrayObject* input, PyArrayObject* strct,
         CASE_OUTPUT(po, out, Float32);
         CASE_OUTPUT(po, out, Float64);
         default:
+<<<<<<< HEAD
+=======
+            NPY_END_THREADS;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             PyErr_SetString(PyExc_RuntimeError, "data type not supported");
             goto exit;
         }
@@ -238,6 +293,14 @@ int NI_BinaryErosion(PyArrayObject* input, PyArrayObject* strct,
             if (coordinate_list) {
                 if (block == NULL ||  block->size == block_size) {
                     block = NI_CoordinateListAddBlock(*coordinate_list);
+<<<<<<< HEAD
+=======
+                    if (NI_UNLIKELY(block == NULL)) {
+                        NPY_END_THREADS;
+                        PyErr_NoMemory();
+                        goto exit;
+                    }
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                     current = block->coordinates;
                 }
                 for(kk = 0; kk < input->nd; kk++)
@@ -253,8 +316,13 @@ int NI_BinaryErosion(PyArrayObject* input, PyArrayObject* strct,
     }
 
  exit:
+<<<<<<< HEAD
     if (offsets)
         free(offsets);
+=======
+    NPY_END_THREADS;
+    free(offsets);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     if (PyErr_Occurred()) {
         if (coordinate_list) {
             NI_FreeCoordinateList(*coordinate_list);
@@ -274,6 +342,7 @@ int NI_BinaryErosion(PyArrayObject* input, PyArrayObject* strct,
                                                     _mklist)                                     \
 case t ## _type:                                                       \
 {                                                                      \
+<<<<<<< HEAD
     maybelong _hh, _kk;                                                  \
     for(_hh = 0; _hh < _struct_size; _hh++) {                            \
         maybelong _to = _offsets[_oo + _hh];                               \
@@ -282,6 +351,21 @@ case t ## _type:                                                       \
                 maybelong *_tc = &(_coordinate_offsets[(_oo + _hh) * _irank]); \
                 if (_block2 == NULL || _block2->size == _list2->block_size) {  \
                     _block2 = NI_CoordinateListAddBlock(_list2);                 \
+=======
+    npy_intp _hh, _kk;                                                        \
+    for(_hh = 0; _hh < _struct_size; _hh++) {                            \
+        npy_intp _to = _offsets[_oo + _hh];                                   \
+        if (_to != _bf_value && *(_type*)(_pi + _to) == _true) {           \
+            if (_mklist) {                                                   \
+                npy_intp *_tc = &(_coordinate_offsets[(_oo + _hh) * _irank]); \
+                if (_block2 == NULL || _block2->size == _list2->block_size) {  \
+                    _block2 = NI_CoordinateListAddBlock(_list2);                 \
+                    if (NI_UNLIKELY(_block2 == NULL)) {                                    \
+                        NPY_END_THREADS;                                    \
+                        PyErr_NoMemory();                                    \
+                        goto exit;                                              \
+                    }                                                       \
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                     _current_coors2 = _block2->coordinates;                      \
                 }                                                              \
                 for(_kk = 0; _kk < _irank; _kk++)                              \
@@ -295,6 +379,7 @@ case t ## _type:                                                       \
 break
 
 int NI_BinaryErosion2(PyArrayObject* array, PyArrayObject* strct,
+<<<<<<< HEAD
                                             PyArrayObject* mask, int niter, maybelong *origins,
                                             int invert, NI_CoordinateList **iclist)
 {
@@ -302,6 +387,15 @@ int NI_BinaryErosion2(PyArrayObject* array, PyArrayObject* strct,
     maybelong *coordinate_offsets = NULL, size = 0;
     maybelong *current_coordinates1 = NULL, *current_coordinates2 = NULL;
     maybelong kk, border_flag_value, current = 0;
+=======
+                      PyArrayObject* mask, int niter, npy_intp *origins,
+                                            int invert, NI_CoordinateList **iclist)
+{
+    npy_intp struct_size = 0, *offsets = NULL, oo, jj, ssize;
+    npy_intp *coordinate_offsets = NULL, size = 0;
+    npy_intp *current_coordinates1 = NULL, *current_coordinates2 = NULL;
+    npy_intp kk, border_flag_value, current = 0;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     int true, false;
     NI_Iterator ii, mi;
     NI_FilterIterator fi, ci;
@@ -309,6 +403,10 @@ int NI_BinaryErosion2(PyArrayObject* array, PyArrayObject* strct,
     char *pi, *ibase, *pm = NULL;
     NI_CoordinateBlock *block1 = NULL, *block2 = NULL;
     NI_CoordinateList *list1 = NULL, *list2 = NULL;
+<<<<<<< HEAD
+=======
+    NPY_BEGIN_THREADS_DEF;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     ps = (Bool*)PyArray_DATA(strct);
     ssize = 1;
@@ -372,18 +470,37 @@ int NI_BinaryErosion2(PyArrayObject* array, PyArrayObject* strct,
 
     list1 = NI_InitCoordinateList((*iclist)->block_size, (*iclist)->rank);
     list2 = NI_InitCoordinateList((*iclist)->block_size, (*iclist)->rank);
+<<<<<<< HEAD
     if (!list1 || !list2)
         goto exit;
     if (NI_CoordinateListStealBlocks(list2, *iclist))
         goto exit;
+=======
+    if (!list1 || !list2) {
+        PyErr_NoMemory();
+        goto exit;
+    }
+    if (NI_CoordinateListStealBlocks(list2, *iclist))
+        goto exit;
+
+    NPY_BEGIN_THREADS;
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     block2 = list2->blocks;
     jj = 0;
     while(block1 || block2) {
         int mklist = 1;
         if (!block1) {
             if (niter <= 0 || jj < niter) {
+<<<<<<< HEAD
                 if (NI_CoordinateListStealBlocks(list1, list2))
                     goto exit;
+=======
+                NPY_END_THREADS;
+                if (NI_CoordinateListStealBlocks(list1, list2))
+                    goto exit;
+                NPY_BEGIN_THREADS;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                 block1 = list1->blocks;
                 block2 = NULL;
                 current_coordinates1 = block1->coordinates;
@@ -397,7 +514,11 @@ int NI_BinaryErosion2(PyArrayObject* array, PyArrayObject* strct,
         NI_ITERATOR_GOTO(ii, current_coordinates1, ibase, pi);
         NI_FILTER_GOTO(fi, ii, 0, oo);
 
+<<<<<<< HEAD
         switch (array->descr->type_num) {
+=======
+        switch (NI_NormalizeType(array->descr->type_num)) {
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         CASE_ERODE_POINT2(struct_size, offsets, coordinate_offsets, pi,
                                             oo, array->nd, list1, list2, current_coordinates1,
                                             current_coordinates2, block1, block2,
@@ -445,6 +566,10 @@ int NI_BinaryErosion2(PyArrayObject* array, PyArrayObject* strct,
                                             current_coordinates2, block1, block2,
                                             border_flag_value, true, false, Float64, mklist);
         default:
+<<<<<<< HEAD
+=======
+            NPY_END_THREADS;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             PyErr_SetString(PyExc_RuntimeError, "data type not supported");
             goto exit;
         }
@@ -475,6 +600,7 @@ int NI_BinaryErosion2(PyArrayObject* array, PyArrayObject* strct,
     }
 
  exit:
+<<<<<<< HEAD
     if (offsets)
         free(offsets);
     if (coordinate_offsets)
@@ -486,6 +612,13 @@ int NI_BinaryErosion2(PyArrayObject* array, PyArrayObject* strct,
     } else {
         return 1;
     }
+=======
+    NPY_END_THREADS;
+    free(offsets);
+    free(coordinate_offsets);
+    NI_FreeCoordinateList(list1);
+    NI_FreeCoordinateList(list2);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     return PyErr_Occurred() ? 0 : 1;
 }
 
@@ -495,8 +628,13 @@ int NI_BinaryErosion2(PyArrayObject* array, PyArrayObject* strct,
 #define NI_DISTANCE_CHESSBOARD 3
 
 typedef struct {
+<<<<<<< HEAD
     maybelong *coordinates;
     maybelong index;
+=======
+    npy_intp *coordinates;
+    npy_intp index;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     void *next;
 } NI_BorderElement;
 
@@ -505,12 +643,20 @@ int NI_DistanceTransformBruteForce(PyArrayObject* input, int metric,
                                                                      PyArrayObject* distances,
                                                                      PyArrayObject* features)
 {
+<<<<<<< HEAD
     maybelong size, jj, min_index = 0;
+=======
+    npy_intp size, jj, min_index = 0;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     int kk;
     NI_BorderElement *border_elements = NULL, *temp;
     NI_Iterator ii, di, fi;
     char *pi, *pd = NULL, *pf = NULL;
     Float64 *sampling = sampling_arr ? (void *)PyArray_DATA(sampling_arr) : NULL;
+<<<<<<< HEAD
+=======
+    NPY_BEGIN_THREADS_DEF;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     /* check the output arrays: */
     if (distances) {
@@ -535,21 +681,37 @@ int NI_DistanceTransformBruteForce(PyArrayObject* input, int metric,
 
     for(jj = 0; jj < size; jj++) {
         if (*(Int8*)pi < 0) {
+<<<<<<< HEAD
             temp = (NI_BorderElement*)malloc(sizeof(NI_BorderElement));
             if (!temp) {
+=======
+            temp = malloc(sizeof(NI_BorderElement));
+            if (NI_UNLIKELY(!temp)) {
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                 PyErr_NoMemory();
                 goto exit;
             }
             temp->next = border_elements;
             border_elements = temp;
             temp->index = jj;
+<<<<<<< HEAD
             temp->coordinates = (maybelong*)malloc(input->nd * sizeof(maybelong));
             for(kk = 0; kk < input->nd; kk++)
                     temp->coordinates[kk] = ii.coordinates[kk];
+=======
+            temp->coordinates = malloc(input->nd * sizeof(npy_intp));
+            for(kk = 0; kk < input->nd; kk++)
+                temp->coordinates[kk] = ii.coordinates[kk];
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         }
         NI_ITERATOR_NEXT(ii, pi);
     }
 
+<<<<<<< HEAD
+=======
+    NPY_BEGIN_THREADS;
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     NI_ITERATOR_RESET(ii);
     pi = (void *)PyArray_DATA(input);
 
@@ -597,11 +759,19 @@ int NI_DistanceTransformBruteForce(PyArrayObject* input, int metric,
     case NI_DISTANCE_CHESSBOARD:
         for(jj = 0; jj < size; jj++) {
             if (*(Int8*)pi > 0) {
+<<<<<<< HEAD
                 unsigned long distance = ULONG_MAX;
                 temp = border_elements;
                 while(temp) {
                     unsigned int d = 0;
                     maybelong t;
+=======
+                unsigned int distance = UINT_MAX;
+                temp = border_elements;
+                while(temp) {
+                    unsigned int d = 0;
+                    npy_intp t;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                     for(kk = 0; kk < input->nd; kk++) {
                         t = ii.coordinates[kk] - temp->coordinates[kk];
                         if (t < 0)
@@ -640,16 +810,28 @@ int NI_DistanceTransformBruteForce(PyArrayObject* input, int metric,
         }
         break;
     default:
+<<<<<<< HEAD
+=======
+        NPY_END_THREADS;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         PyErr_SetString(PyExc_RuntimeError,  "distance metric not supported");
         goto exit;
     }
 
  exit:
+<<<<<<< HEAD
     while (border_elements) {
         temp = border_elements;
         border_elements = border_elements->next;
         if (temp->coordinates)
             free(temp->coordinates);
+=======
+    NPY_END_THREADS;
+    while (border_elements) {
+        temp = border_elements;
+        border_elements = border_elements->next;
+        free(temp->coordinates);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         free(temp);
     }
     return PyErr_Occurred() ? 0 : 1;
@@ -657,15 +839,28 @@ int NI_DistanceTransformBruteForce(PyArrayObject* input, int metric,
 
 
 int NI_DistanceTransformOnePass(PyArrayObject *strct,
+<<<<<<< HEAD
                                                 PyArrayObject* distances, PyArrayObject *features)
 {
     int kk;
     maybelong jj, ii, ssize, size, filter_size, mask_value, *oo;
     maybelong *foffsets = NULL, *foo = NULL, *offsets = NULL;
+=======
+                                PyArrayObject* distances,
+                                PyArrayObject *features)
+{
+    int kk;
+    npy_intp jj, ii, ssize, size, filter_size, mask_value, *oo;
+    npy_intp *foffsets = NULL, *foo = NULL, *offsets = NULL;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     Bool *ps, *pf = NULL, *footprint = NULL;
     char *pd;
     NI_FilterIterator si, ti;
     NI_Iterator di, fi;
+<<<<<<< HEAD
+=======
+    NPY_BEGIN_THREADS_DEF;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     ssize = 1;
     for(kk = 0; kk < strct->nd; kk++)
@@ -673,7 +868,11 @@ int NI_DistanceTransformOnePass(PyArrayObject *strct,
 
     /* we only use the first half of the structure data, so we make a
          temporary structure for use with the filter functions: */
+<<<<<<< HEAD
     footprint = (Bool*)malloc(ssize * sizeof(Bool));
+=======
+    footprint = malloc(ssize * sizeof(Bool));
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     if (!footprint) {
         PyErr_NoMemory();
         goto exit;
@@ -704,7 +903,11 @@ int NI_DistanceTransformOnePass(PyArrayObject *strct,
         goto exit;
 
     if (features) {
+<<<<<<< HEAD
         maybelong dummy;
+=======
+        npy_intp dummy;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         /* initialize point iterator: */
         pf = (void *)PyArray_DATA(features);
         if (!NI_InitPointIterator(features, &fi))
@@ -718,6 +921,11 @@ int NI_DistanceTransformOnePass(PyArrayObject *strct,
                                                      filter_size, distances->dimensions, NULL, &ti))
             goto exit;
     }
+<<<<<<< HEAD
+=======
+
+    NPY_BEGIN_THREADS;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     /* iterator over the elements: */
     oo = offsets;
     if (features)
@@ -726,10 +934,17 @@ int NI_DistanceTransformOnePass(PyArrayObject *strct,
         Int32 value = *(Int32*)pd;
         if (value != 0) {
             Int32 min = value;
+<<<<<<< HEAD
             maybelong min_offset = 0;
             /* iterate over structuring element: */
             for(ii = 0; ii < filter_size; ii++) {
                 maybelong offset = oo[ii];
+=======
+            npy_intp min_offset = 0;
+            /* iterate over structuring element: */
+            for(ii = 0; ii < filter_size; ii++) {
+                npy_intp offset = oo[ii];
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                 Int32 tt = -1;
                 if (offset < mask_value)
                     tt = *(Int32*)(pd + offset);
@@ -752,6 +967,7 @@ int NI_DistanceTransformOnePass(PyArrayObject *strct,
     }
 
  exit:
+<<<<<<< HEAD
     if (offsets) free(offsets);
     if (foffsets) free(foffsets);
     if (footprint)
@@ -765,6 +981,21 @@ static void _VoronoiFT(char *pf, maybelong len, maybelong *coor, int rank,
 {
     maybelong l = -1, ii, maxl, idx1, idx2;
     int jj;
+=======
+    NPY_END_THREADS;
+    free(offsets);
+    free(foffsets);
+    free(footprint);
+    return PyErr_Occurred() ? 0 : 1;
+}
+
+static void _VoronoiFT(char *pf, npy_intp len, npy_intp *coor, int rank,
+                       int d, npy_intp stride, npy_intp cstride,
+                       npy_intp **f, npy_intp *g, Float64 *sampling)
+{
+    npy_intp l = -1, ii, maxl, idx1, idx2;
+    npy_intp jj;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     for(ii = 0; ii < len; ii++)
         for(jj = 0; jj < rank; jj++)
@@ -847,6 +1078,7 @@ static void _VoronoiFT(char *pf, maybelong len, maybelong *coor, int rank,
 
 
 /* Recursive feature transform */
+<<<<<<< HEAD
 static void _ComputeFT(char *pi, char *pf, maybelong *ishape,
                                              maybelong *istrides, maybelong *fstrides, int rank,
                                              int d, maybelong *coor, maybelong **f, maybelong *g,
@@ -854,6 +1086,20 @@ static void _ComputeFT(char *pi, char *pf, maybelong *ishape,
 {
     int kk;
     maybelong jj;
+=======
+static void _ComputeFT(char *pi, char *pf, npy_intp *ishape,
+                       npy_intp *istrides, npy_intp *fstrides, int rank,
+                       int d, npy_intp *coor, npy_intp **f, npy_intp *g,
+                       PyArrayObject *features, Float64 *sampling,
+                       int recursing)
+{
+    npy_intp kk;
+    npy_intp jj;
+    NPY_BEGIN_THREADS_DEF;
+    if (!recursing) {
+        NPY_BEGIN_THREADS;
+    }
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     if (d == 0) {
         char *tf1 = pf;
@@ -876,13 +1122,21 @@ static void _ComputeFT(char *pi, char *pf, maybelong *ishape,
     } else {
         UInt32 axes = 0;
         char *tf = pf;
+<<<<<<< HEAD
         maybelong size = 1;
+=======
+        npy_intp size = 1;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         NI_Iterator ii;
 
         for(jj = 0; jj < ishape[d]; jj++) {
             coor[d] = jj;
             _ComputeFT(pi, tf, ishape, istrides, fstrides, rank, d - 1, coor, f,
+<<<<<<< HEAD
                                  g, features, sampling);
+=======
+                                 g, features, sampling, 1);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             pi += istrides[d];
             tf += fstrides[d + 1];
         }
@@ -904,6 +1158,12 @@ static void _ComputeFT(char *pi, char *pf, maybelong *ishape,
         for(kk = 0; kk < d; kk++)
             coor[kk] = 0;
     }
+<<<<<<< HEAD
+=======
+    if (!recursing) {
+        NPY_END_THREADS;
+    }
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 }
 
 /* Exact euclidean feature transform, as described in: C. R. Maurer,
@@ -915,8 +1175,13 @@ int NI_EuclideanFeatureTransform(PyArrayObject* input,
                                                                  PyArrayObject* features)
 {
     int ii;
+<<<<<<< HEAD
     maybelong coor[NI_MAXDIM], mx = 0, jj;
     maybelong *tmp = NULL, **f = NULL, *g = NULL;
+=======
+    npy_intp coor[NI_MAXDIM], mx = 0, jj;
+    npy_intp *tmp = NULL, **f = NULL, *g = NULL;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     char *pi, *pf;
     Float64 *sampling = sampling_arr ? ((void *)PyArray_DATA(sampling_arr)) : NULL;
 
@@ -929,9 +1194,15 @@ int NI_EuclideanFeatureTransform(PyArrayObject* input,
     }
 
     /* Some temporaries */
+<<<<<<< HEAD
     f = (maybelong**)malloc(mx * sizeof(maybelong*));
     g = (maybelong*)malloc(mx * sizeof(maybelong));
     tmp = (maybelong*)malloc(mx * input->nd * sizeof(maybelong));
+=======
+    f = malloc(mx * sizeof(npy_intp*));
+    g = malloc(mx * sizeof(npy_intp));
+    tmp = malloc(mx * input->nd * sizeof(npy_intp));
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     if (!f || !g || !tmp) {
         PyErr_NoMemory();
         goto exit;
@@ -941,6 +1212,7 @@ int NI_EuclideanFeatureTransform(PyArrayObject* input,
 
     /* First call of recursive feature transform */
     _ComputeFT(pi, pf, input->dimensions, input->strides, features->strides,
+<<<<<<< HEAD
                          input->nd, input->nd - 1, coor, f, g, features, sampling);
 
  exit:
@@ -950,6 +1222,14 @@ int NI_EuclideanFeatureTransform(PyArrayObject* input,
         free(g);
     if (tmp)
         free(tmp);
+=======
+               input->nd, input->nd - 1, coor, f, g, features, sampling, 0);
+
+ exit:
+    free(f);
+    free(g);
+    free(tmp);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     return PyErr_Occurred() ? 0 : 1;
 }

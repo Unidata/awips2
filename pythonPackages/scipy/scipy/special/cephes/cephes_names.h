@@ -22,7 +22,10 @@
 #define exp1m cephes_exp1m
 #define exp2 cephes_exp2
 #define expn cephes_expn
+<<<<<<< HEAD
 #define fabs cephes_fabs
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 #define fdtrc cephes_fdtrc
 #define fdtr cephes_fdtr
 #define fdtri cephes_fdtri

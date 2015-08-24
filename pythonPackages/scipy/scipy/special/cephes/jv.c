@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*							jv.c
  *
  *	Bessel function of noninteger order
+=======
+/*                                                     jv.c
+ *
+ *     Bessel function of noninteger order
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
  *
  *
  *
@@ -42,9 +48,15 @@
 
 
 /*
+<<<<<<< HEAD
 Cephes Math Library Release 2.8:  June, 2000
 Copyright 1984, 1987, 1989, 1992, 2000 by Stephen L. Moshier
 */
+=======
+ * Cephes Math Library Release 2.8:  June, 2000
+ * Copyright 1984, 1987, 1989, 1992, 2000 by Stephen L. Moshier
+ */
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 #include "mconf.h"
@@ -60,7 +72,12 @@ Copyright 1984, 1987, 1989, 1992, 2000 by Stephen L. Moshier
 #define MAXGAM 171.624376956302725
 #endif
 
+<<<<<<< HEAD
 extern double MAXNUM, MACHEP, MINLOG, MAXLOG;
+=======
+extern double MACHEP, MINLOG, MAXLOG;
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 #define BIG  1.44115188075855872E+17
 
 static double jvs(double n, double x);
@@ -103,6 +120,14 @@ double jv(double n, double x)
 	goto done;
     }
 
+<<<<<<< HEAD
+=======
+    if (x == 0 && n < 0 && !nint) {
+        mtherr("Jv", OVERFLOW);
+        return NPY_INFINITY / gamma(n + 1);
+    }
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     y = fabs(x);
 
     if (y * y < fabs(n + 1) * MACHEP) {
@@ -117,8 +142,13 @@ double jv(double n, double x)
 	return (sign * hankel(n, x));
 
     if (an < 500.0) {
+<<<<<<< HEAD
     /* Note: if x is too large, the continued fraction will fail; but then the
        Hankel expansion can be used. */
+=======
+	/* Note: if x is too large, the continued fraction will fail; but then the
+	 * Hankel expansion can be used. */
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	if (nint != 0) {
 	    k = 0.0;
 	    q = recur(&n, x, &k, 1);
@@ -137,8 +167,13 @@ double jv(double n, double x)
 
 	if ((n >= 0.0) && (n < 20.0)
 	    && (y > 6.0) && (y < 20.0)) {
+<<<<<<< HEAD
             /* Recur backwards from a larger value of n */
 rlarger:
+=======
+	    /* Recur backwards from a larger value of n */
+	  rlarger:
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	    k = n;
 
 	    y = y + an + 1.0;
@@ -152,7 +187,12 @@ rlarger:
 
 	if (k <= 30.0) {
 	    k = 2.0;
+<<<<<<< HEAD
 	} else if (k < 90.0) {
+=======
+	}
+	else if (k < 90.0) {
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	    k = (3 * k) / 4;
 	}
 	if (an > (k + 3.0)) {
@@ -169,18 +209,32 @@ rlarger:
 		k = t;
 	    }
 	    if (q == 0.0) {
+<<<<<<< HEAD
 	      underf:
 		y = 0.0;
 		goto done;
 	    }
 	} else {
+=======
+		y = 0.0;
+		goto done;
+	    }
+	}
+	else {
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	    k = n;
 	    q = 1.0;
 	}
 
+<<<<<<< HEAD
 /* boundary between convergence of
  * power series and Hankel expansion
  */
+=======
+	/* boundary between convergence of
+	 * power series and Hankel expansion
+	 */
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	y = fabs(k);
 	if (y < 26.0)
 	    t = (0.0083 * y + 0.09) * y + 12.9;
@@ -201,10 +255,17 @@ rlarger:
     }
 
     else {
+<<<<<<< HEAD
         /* For large n, use the uniform expansion or the transitional expansion.
            But if x is of the order of n**2, these may blow up, whereas the
            Hankel expansion will then work.
         */
+=======
+	/* For large n, use the uniform expansion or the transitional expansion.
+	 * But if x is of the order of n**2, these may blow up, whereas the
+	 * Hankel expansion will then work.
+	 */
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	if (n < 0.0) {
 	    mtherr("Jv", TLOSS);
 	    y = NPY_NAN;
@@ -228,12 +289,18 @@ rlarger:
 static double recur(double *n, double x, double *newn, int cancel)
 {
     double pkm2, pkm1, pk, qkm2, qkm1;
+<<<<<<< HEAD
 /* double pkp1; */
+=======
+
+    /* double pkp1; */
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     double k, ans, qk, xk, yk, r, t, kf;
     static double big = BIG;
     int nflag, ctr;
     int miniter, maxiter;
 
+<<<<<<< HEAD
 /* Continued fraction for Jn(x)/Jn-1(x)
  * AMS 9.1.73
  *
@@ -249,11 +316,32 @@ static double recur(double *n, double x, double *newn, int cancel)
  * so that no branch in `jv` requires more iterations to converge.
  * The exact maximum number is (500/3.6)^2 - 500 ~ 19000
  */
+=======
+    /* Continued fraction for Jn(x)/Jn-1(x)
+     * AMS 9.1.73
+     *
+     *    x       -x^2      -x^2
+     * ------  ---------  ---------   ...
+     * 2 n +   2(n+1) +   2(n+2) +
+     *
+     * Compute it with the simplest possible algorithm.
+     *
+     * This continued fraction starts to converge when (|n| + m) > |x|.
+     * Hence, at least |x|-|n| iterations are necessary before convergence is
+     * achieved. There is a hard limit set below, m <= 30000, which is chosen
+     * so that no branch in `jv` requires more iterations to converge.
+     * The exact maximum number is (500/3.6)^2 - 500 ~ 19000
+     */
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     maxiter = 22000;
     miniter = fabs(x) - fabs(*n);
     if (miniter < 1)
+<<<<<<< HEAD
         miniter = 1;
+=======
+	miniter = 1;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     if (*n < 0.0)
 	nflag = 1;
@@ -272,7 +360,11 @@ static double recur(double *n, double x, double *newn, int cancel)
     qkm1 = *n + *n;
     xk = -x * x;
     yk = qkm1;
+<<<<<<< HEAD
     ans = 0.0; /* ans=0.0 ensures that t=1.0 in the first iteration */
+=======
+    ans = 0.0;			/* ans=0.0 ensures that t=1.0 in the first iteration */
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     ctr = 0;
     do {
 	yk += 2.0;
@@ -292,7 +384,12 @@ static double recur(double *n, double x, double *newn, int cancel)
 	if (r != 0) {
 	    t = fabs((ans - r) / r);
 	    ans = r;
+<<<<<<< HEAD
 	} else {
+=======
+	}
+	else {
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	    t = 1.0;
 	}
 
@@ -315,7 +412,11 @@ static double recur(double *n, double x, double *newn, int cancel)
 
   done:
     if (ans == 0)
+<<<<<<< HEAD
         ans = 1.0;
+=======
+	ans = 1.0;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 #if CEPHES_DEBUG
     printf("%.6e\n", ans);
@@ -333,11 +434,19 @@ static double recur(double *n, double x, double *newn, int cancel)
 
     kf = *newn;
 
+<<<<<<< HEAD
 /* backward recurrence
  *              2k
  *  J   (x)  =  --- J (x)  -  J   (x)
  *   k-1         x   k         k+1
  */
+=======
+    /* backward recurrence
+     *              2k
+     *  J   (x)  =  --- J (x)  -  J   (x)
+     *   k-1         x   k         k+1
+     */
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     pk = 1.0;
     pkm1 = 1.0 / ans;
@@ -349,6 +458,7 @@ static double recur(double *n, double x, double *newn, int cancel)
 	pk = pkm1;
 	pkm1 = pkm2;
 	r -= 2.0;
+<<<<<<< HEAD
 /*
 	t = fabs(pkp1) + fabs(pk);
 	if( (k > (kf + 2.5)) && (fabs(pkm1) < 0.25*t) )
@@ -362,13 +472,34 @@ static double recur(double *n, double x, double *newn, int cancel)
 		r -= 2.0;
 		}
 */
+=======
+	/*
+	 * t = fabs(pkp1) + fabs(pk);
+	 * if( (k > (kf + 2.5)) && (fabs(pkm1) < 0.25*t) )
+	 * {
+	 * k -= 1.0;
+	 * t = x*x;
+	 * pkm2 = ( (r*(r+2.0)-t)*pk - r*x*pkp1 )/t;
+	 * pkp1 = pk;
+	 * pk = pkm1;
+	 * pkm1 = pkm2;
+	 * r -= 2.0;
+	 * }
+	 */
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	k -= 1.0;
     }
     while (k > (kf + 0.5));
 
+<<<<<<< HEAD
 /* Take the larger of the last two iterates
  * on the theory that it may have less cancellation error.
  */
+=======
+    /* Take the larger of the last two iterates
+     * on the theory that it may have less cancellation error.
+     */
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     if (cancel) {
 	if ((kf >= 0.0) && (fabs(pk) > fabs(pkm1))) {
@@ -389,7 +520,10 @@ static double recur(double *n, double x, double *newn, int cancel)
  * AMS55 #9.1.10.
  */
 
+<<<<<<< HEAD
 extern double PI;
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 extern int sgngam;
 
 static double jvs(double n, double x)
@@ -424,7 +558,12 @@ static double jvs(double n, double x)
 	printf("pow(.5*x, %.4e)/gamma(n+1)=%.5e\n", n, t);
 #endif
 	y *= t;
+<<<<<<< HEAD
     } else {
+=======
+    }
+    else {
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 #if CEPHES_DEBUG
 	z = n * log(0.5 * x);
 	k = lgam(n + 1.0);
@@ -446,7 +585,11 @@ static double jvs(double n, double x)
 	}
 	if (t > MAXLOG) {
 	    mtherr("Jv", OVERFLOW);
+<<<<<<< HEAD
 	    return (MAXNUM);
+=======
+	    return (NPY_INFINITY);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	}
 	y = sgngam * exp(t);
     }
@@ -495,7 +638,11 @@ static double hankel(double n, double x)
 	    pp = p;
 	    flag = 1;
 	}
+<<<<<<< HEAD
 /* stop if the terms start getting larger */
+=======
+	/* stop if the terms start getting larger */
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	if ((flag != 0) && (t > conv)) {
 #if CEPHES_DEBUG
 	    printf("Hankel: convergence to %.4E\n", conv);
@@ -505,8 +652,13 @@ static double hankel(double n, double x)
     }
 
   hank1:
+<<<<<<< HEAD
     u = x - (0.5 * n + 0.25) * PI;
     t = sqrt(2.0 / (PI * x)) * (pp * cos(u) - qq * sin(u));
+=======
+    u = x - (0.5 * n + 0.25) * NPY_PI;
+    t = sqrt(2.0 / (NPY_PI * x)) * (pp * cos(u) - qq * sin(u));
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 #if CEPHES_DEBUG
     printf("hank: %.6e\n", t);
 #endif
@@ -531,6 +683,10 @@ static double lambda[] = {
     4.744515388682643231611949E+2,
     3.207490090890661934704328E+3
 };
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 static double mu[] = {
     1.0,
     -1.458333333333333333333333E-1,
@@ -544,21 +700,37 @@ static double mu[] = {
     -4.923553705236705240352022E+2,
     -3.316218568547972508762102E+3
 };
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 static double P1[] = {
     -2.083333333333333333333333E-1,
     1.250000000000000000000000E-1
 };
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 static double P2[] = {
     3.342013888888888888888889E-1,
     -4.010416666666666666666667E-1,
     7.031250000000000000000000E-2
 };
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 static double P3[] = {
     -1.025812596450617283950617E+0,
     1.846462673611111111111111E+0,
     -8.912109375000000000000000E-1,
     7.324218750000000000000000E-2
 };
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 static double P4[] = {
     4.669584423426247427983539E+0,
     -1.120700261622299382716049E+1,
@@ -566,6 +738,10 @@ static double P4[] = {
     -2.364086914062500000000000E+0,
     1.121520996093750000000000E-1
 };
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 static double P5[] = {
     -2.8212072558200244877E1,
     8.4636217674600734632E1,
@@ -574,6 +750,10 @@ static double P5[] = {
     -7.3687943594796316964E0,
     2.27108001708984375E-1
 };
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 static double P6[] = {
     2.1257013003921712286E2,
     -7.6525246814118164230E2,
@@ -583,6 +763,10 @@ static double P6[] = {
     -2.6491430486951555525E1,
     5.7250142097473144531E-1
 };
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 static double P7[] = {
     -1.9194576623184069963E3,
     8.0617221817373093845E3,
@@ -621,7 +805,12 @@ static double jnx(double n, double x)
 	t = 1.5 * (log((1.0 + sz) / z) - sz);	/* zeta ** 3/2          */
 	zeta = cbrt(t * t);
 	nflg = 1;
+<<<<<<< HEAD
     } else {
+=======
+    }
+    else {
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	sz = sqrt(-zz);
 	t = 1.5 * (sz - acos(1.0 / z));
 	zeta = -cbrt(t * t);
@@ -663,8 +852,13 @@ static double jnx(double n, double x)
     /* flags to stop when terms get larger */
     doa = 1;
     dob = 1;
+<<<<<<< HEAD
     akl = MAXNUM;
     bkl = MAXNUM;
+=======
+    akl = NPY_INFINITY;
+    bkl = NPY_INFINITY;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     for (k = 0; k <= 3; k++) {
 	tk = 2 * k;
@@ -698,7 +892,12 @@ static double jnx(double n, double x)
 	    if (t < akl) {
 		akl = t;
 		pp += ak;
+<<<<<<< HEAD
 	    } else
+=======
+	    }
+	    else
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 		doa = 0;
 	}
 
@@ -709,7 +908,12 @@ static double jnx(double n, double x)
 	    if (t < bkl) {
 		bkl = t;
 		qq += bk;
+<<<<<<< HEAD
 	    } else
+=======
+	    }
+	    else
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 		dob = 0;
 	}
 #if CEPHES_DEBUG
@@ -720,7 +924,11 @@ static double jnx(double n, double x)
 	np /= n * n;
     }
 
+<<<<<<< HEAD
     /* normalizing factor ( 4*zeta/(1 - z**2) )**1/4	*/
+=======
+    /* normalizing factor ( 4*zeta/(1 - z**2) )**1/4    */
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     t = 4.0 * zeta / zz;
     t = sqrt(sqrt(t));
 
@@ -737,26 +945,46 @@ static double PF2[] = {
     -9.0000000000000000000e-2,
     8.5714285714285714286e-2
 };
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 static double PF3[] = {
     1.3671428571428571429e-1,
     -5.4920634920634920635e-2,
     -4.4444444444444444444e-3
 };
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 static double PF4[] = {
     1.3500000000000000000e-3,
     -1.6036054421768707483e-1,
     4.2590187590187590188e-2,
     2.7330447330447330447e-3
 };
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 static double PG1[] = {
     -2.4285714285714285714e-1,
     1.4285714285714285714e-2
 };
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 static double PG2[] = {
     -9.0000000000000000000e-3,
     1.9396825396825396825e-1,
     -1.1746031746031746032e-2
 };
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 static double PG3[] = {
     1.9607142857142857143e-2,
     -1.5983694083694083694e-1,

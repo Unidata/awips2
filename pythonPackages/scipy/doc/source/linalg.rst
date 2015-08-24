@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ====================================
 Linear algebra (:mod:`scipy.linalg`)
 ====================================
@@ -93,3 +94,15 @@ Special Matrices
    tri
    tril
    triu
+=======
+.. automodule:: scipy.linalg
+
+.. toctree::
+   :hidden:
+
+   linalg.blas
+   linalg.lapack
+   linalg.cython_blas
+   linalg.cython_lapack
+   linalg.interpolative
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

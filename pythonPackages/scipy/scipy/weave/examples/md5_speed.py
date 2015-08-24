@@ -27,18 +27,38 @@ their strings.  Yeah, the expected result, but it never hurts
 to check...
 
 """
+<<<<<<< HEAD
 import random, md5, time, cStringIO
+=======
+from __future__ import absolute_import, print_function
+
+import random
+import md5
+import time
+import cStringIO
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 def speed(n,m):
     s = 'a'*n
     t1 = time.time()
     for i in range(m):
+<<<<<<< HEAD
         q= md5.new(s).digest()
     t2 = time.time()
     print (t2 - t1) / m
 
 #speed(50,1e6)
 
+=======
+        q = md5.new(s).digest()
+    t2 = time.time()
+    print((t2 - t1) / m)
+
+#speed(50,1e6)
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def generate_random(avg_length,count):
     all_str = []
     alphabet = 'abcdefghijklmnopqrstuvwxyz'
@@ -51,10 +71,15 @@ def generate_random(avg_length,count):
         all_str.append(new_str.getvalue())
     return all_str
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def md5_dict(lst):
     catalog = {}
     t1 = time.time()
     for s in lst:
+<<<<<<< HEAD
         key= md5.new(s).digest()
         catalog[key] = None
     t2 = time.time()
@@ -66,6 +91,20 @@ def md5_dict(lst):
         val = catalog[key]
     t2 = time.time()
     print 'md5 retrv(len,sec,per):', len(lst), t2 - t1, (t2-t1)/len(lst)
+=======
+        key = md5.new(s).digest()
+        catalog[key] = None
+    t2 = time.time()
+    print('md5 build(len,sec,per):', len(lst), t2 - t1, (t2-t1)/len(lst))
+
+    t1 = time.time()
+    for s in lst:
+        key = md5.new(s).digest()
+        val = catalog[key]
+    t2 = time.time()
+    print('md5 retrv(len,sec,per):', len(lst), t2 - t1, (t2-t1)/len(lst))
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 def std_dict(lst):
     catalog = {}
@@ -73,13 +112,22 @@ def std_dict(lst):
     for s in lst:
         catalog[s] = None
     t2 = time.time()
+<<<<<<< HEAD
     print 'std build(len,sec,per):', len(lst), t2 - t1, (t2-t1)/len(lst)
+=======
+    print('std build(len,sec,per):', len(lst), t2 - t1, (t2-t1)/len(lst))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     t1 = time.time()
     for s in lst:
         val = catalog[s]
     t2 = time.time()
+<<<<<<< HEAD
     print 'std retrv(len,sec,per):', len(lst), t2 - t1, (t2-t1)/len(lst)
+=======
+    print('std retrv(len,sec,per):', len(lst), t2 - t1, (t2-t1)/len(lst))
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 def run(m=200,n=10):
     lst = generate_random(m,n)

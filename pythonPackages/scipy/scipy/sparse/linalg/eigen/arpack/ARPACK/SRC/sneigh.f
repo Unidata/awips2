@@ -63,16 +63,28 @@ c
 c\Routines called:
 c     slaqrb  ARPACK routine to compute the real Schur form of an
 c             upper Hessenberg matrix and last row of the Schur vectors.
+<<<<<<< HEAD
 c     second  ARPACK utility routine for timing.
 c     smout   ARPACK utility routine that prints matrices
 c     svout   ARPACK utility routine that prints vectors.
 c     slacpy  LAPACK matrix copy routine.
 c     slapy2  LAPACK routine to compute sqrt(x**2+y**2) carefully.
+=======
+c     arscnd  ARPACK utility routine for timing.
+c     smout   ARPACK utility routine that prints matrices
+c     svout   ARPACK utility routine that prints vectors.
+c     slacpy  LAPACK matrix copy routine.
+c     wslapy2  LAPACK routine to compute sqrt(x**2+y**2) carefully.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c     strevc  LAPACK routine to compute the eigenvectors of a matrix
 c             in upper quasi-triangular form
 c     sgemv   Level 2 BLAS routine for matrix vector multiplication.
 c     scopy   Level 1 BLAS that copies one vector to another .
+<<<<<<< HEAD
 c     snrm2   Level 1 BLAS that computes the norm of a vector.
+=======
+c     wsnrm2   Level 1 BLAS that computes the norm of a vector.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c     sscal   Level 1 BLAS that scales a vector.
 c     
 c
@@ -144,15 +156,24 @@ c     %----------------------%
 c     | External Subroutines |
 c     %----------------------%
 c
+<<<<<<< HEAD
       external   scopy, slacpy, slaqrb, strevc, svout, second
+=======
+      external   scopy, slacpy, slaqrb, strevc, svout, arscnd
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %--------------------%
 c     | External Functions |
 c     %--------------------%
 c
       Real
+<<<<<<< HEAD
      &           slapy2, snrm2
       external   slapy2, snrm2
+=======
+     &           wslapy2, wsnrm2
+      external   wslapy2, wsnrm2
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %---------------------%
 c     | Intrinsic Functions |
@@ -170,7 +191,11 @@ c     | Initialize timing statistics  |
 c     | & message level for debugging |
 c     %-------------------------------%
 c
+<<<<<<< HEAD
       call second (t0)
+=======
+      call arscnd (t0)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       msglvl = mneigh
 c 
       if (msglvl .gt. 2) then
@@ -228,7 +253,11 @@ c           %----------------------%
 c           | Real eigenvalue case |
 c           %----------------------%
 c    
+<<<<<<< HEAD
             temp = snrm2( n, q(1,i), 1 )
+=======
+            temp = wsnrm2( n, q(1,i), 1 )
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             call sscal ( n, one / temp, q(1,i), 1 )
          else
 c
@@ -241,8 +270,13 @@ c           | square root of two.                       |
 c           %-------------------------------------------%
 c
             if (iconj .eq. 0) then
+<<<<<<< HEAD
                temp = slapy2( snrm2( n, q(1,i), 1 ), 
      &                        snrm2( n, q(1,i+1), 1 ) )
+=======
+               temp = wslapy2( wsnrm2( n, q(1,i), 1 ), 
+     &                        wsnrm2( n, q(1,i+1), 1 ) )
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                call sscal ( n, one / temp, q(1,i), 1 )
                call sscal ( n, one / temp, q(1,i+1), 1 )
                iconj = 1
@@ -283,7 +317,11 @@ c           | of the last components of the two vectors |
 c           %-------------------------------------------%
 c
             if (iconj .eq. 0) then
+<<<<<<< HEAD
                bounds(i) = rnorm * slapy2( workl(i), workl(i+1) )
+=======
+               bounds(i) = rnorm * wslapy2( workl(i), workl(i+1) )
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                bounds(i+1) = bounds(i)
                iconj = 1
             else
@@ -301,7 +339,11 @@ c
      &              '_neigh: Ritz estimates for the eigenvalues of H')
       end if
 c
+<<<<<<< HEAD
       call second (t1)
+=======
+      call arscnd (t1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       tneigh = tneigh + (t1 - t0)
 c
  9000 continue

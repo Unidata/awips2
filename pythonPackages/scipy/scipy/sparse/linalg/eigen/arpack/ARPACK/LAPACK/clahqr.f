@@ -103,9 +103,15 @@
       COMPLEX            V( 2 )
 *     ..
 *     .. External Functions ..
+<<<<<<< HEAD
       REAL               CLANHS, SLAMCH
       COMPLEX            WCLADIV
       EXTERNAL           CLANHS, SLAMCH, WCLADIV
+=======
+      REAL               WCLANHS, wslamch
+      COMPLEX            WCLADIV
+      EXTERNAL           WCLANHS, wslamch, WCLADIV
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 *     ..
 *     .. External Subroutines ..
       EXTERNAL           CCOPY, CLARFG, CSCAL
@@ -138,8 +144,13 @@
 *     Set machine-dependent constants for the stopping criterion.
 *     If norm(H) <= sqrt(OVFL), overflow should not occur.
 *
+<<<<<<< HEAD
       ULP = SLAMCH( 'Precision' )
       SMLNUM = SLAMCH( 'Safe minimum' ) / ULP
+=======
+      ULP = wslamch( 'Precision' )
+      SMLNUM = wslamch( 'Safe minimum' ) / ULP
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 *
 *     I1 and I2 are the indices of the first row and last column of H
 *     to which transformations must be applied. If eigenvalues only are
@@ -177,7 +188,11 @@
          DO 20 K = I, L + 1, -1
             TST1 = CABS1( H( K-1, K-1 ) ) + CABS1( H( K, K ) )
             IF( TST1.EQ.RZERO )
+<<<<<<< HEAD
      $         TST1 = CLANHS( '1', I-L+1, H( L, L ), LDH, RWORK )
+=======
+     $         TST1 = WCLANHS( '1', I-L+1, H( L, L ), LDH, RWORK )
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             IF( ABS( REAL( H( K, K-1 ) ) ).LE.MAX( ULP*TST1, SMLNUM ) )
      $         GO TO 30
    20    CONTINUE

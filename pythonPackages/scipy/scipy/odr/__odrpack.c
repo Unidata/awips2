@@ -47,6 +47,10 @@ void fcn_callback(int *n, int *m, int *np, int *nq, int *ldn, int *ldm,
   PyObject *result;
   PyArrayObject *result_array = NULL;
   PyArrayObject *pyXplusD;
+<<<<<<< HEAD
+=======
+  void *beta_dst;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
   arg01 = PyTuple_New(2);
 
@@ -55,14 +59,22 @@ void fcn_callback(int *n, int *m, int *np, int *nq, int *ldn, int *ldm,
       npy_intp dim2[2];
       dim2[0] = *m;
       dim2[1] = *n;
+<<<<<<< HEAD
       pyXplusD = (PyArrayObject *) PyArray_SimpleNew(2, dim2, PyArray_DOUBLE);
+=======
+      pyXplusD = (PyArrayObject *) PyArray_SimpleNew(2, dim2, NPY_DOUBLE);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       memcpy(pyXplusD->data, (void *)xplusd, (*m) * (*n) * sizeof(double));
     }
   else
     {
       npy_intp dim1[1];
       dim1[0] = *n;
+<<<<<<< HEAD
       pyXplusD = (PyArrayObject *) PyArray_SimpleNew(1, dim1, PyArray_DOUBLE);
+=======
+      pyXplusD = (PyArrayObject *) PyArray_SimpleNew(1, dim1, NPY_DOUBLE);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       memcpy(pyXplusD->data, (void *)xplusd, (*n) * sizeof(double));
     }
 
@@ -83,8 +95,15 @@ void fcn_callback(int *n, int *m, int *np, int *nq, int *ldn, int *ldm,
   Py_DECREF(arg01);
   *istop = 0;
 
+<<<<<<< HEAD
   memcpy(((PyArrayObject *) (odr_global.pyBeta))->data, (void *)beta,
          (*np) * sizeof(double));
+=======
+  beta_dst = ((PyArrayObject *) (odr_global.pyBeta))->data;
+  if (beta != beta_dst) {
+      memcpy(beta_dst, (void *)beta, (*np) * sizeof(double));
+  }
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
   if ((*ideval % 10) >= 1)
     {
@@ -98,8 +117,11 @@ void fcn_callback(int *n, int *m, int *np, int *nq, int *ldn, int *ldm,
 
       if ((result = PyEval_CallObject(odr_global.fcn, arglist)) == NULL)
         {
+<<<<<<< HEAD
           PyObject *tmpobj, *str1;
 
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
           if (PyErr_ExceptionMatches(odr_stop))
             {
               /* stop, don't fail */
@@ -108,6 +130,7 @@ void fcn_callback(int *n, int *m, int *np, int *nq, int *ldn, int *ldm,
               Py_DECREF(arglist);
               return;
             }
+<<<<<<< HEAD
 
           PyErr_Print();
           tmpobj = PyObject_GetAttrString(odr_global.fcn, "func_name");
@@ -125,12 +148,18 @@ void fcn_callback(int *n, int *m, int *np, int *nq, int *ldn, int *ldm,
           PyString_ConcatAndDel(&str1, tmpobj);
           PyErr_SetString(odr_error, PyString_AsString(str1));
           Py_DECREF(str1);
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
           goto fail;
         }
 
       if ((result_array =
            (PyArrayObject *) PyArray_ContiguousFromObject(result,
+<<<<<<< HEAD
                                                           PyArray_DOUBLE, 0,
+=======
+                                                          NPY_DOUBLE, 0,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                                                           2)) == NULL)
         {
           PYERR2(odr_error,
@@ -153,8 +182,11 @@ void fcn_callback(int *n, int *m, int *np, int *nq, int *ldn, int *ldm,
 
       if ((result = PyEval_CallObject(odr_global.fjacb, arglist)) == NULL)
         {
+<<<<<<< HEAD
           PyObject *tmpobj, *str1;
 
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
           if (PyErr_ExceptionMatches(odr_stop))
             {
               /* stop, don't fail */
@@ -163,6 +195,7 @@ void fcn_callback(int *n, int *m, int *np, int *nq, int *ldn, int *ldm,
               Py_DECREF(arglist);
               return;
             }
+<<<<<<< HEAD
 
           PyErr_Print();
           tmpobj = PyObject_GetAttrString(odr_global.fjacb, "func_name");
@@ -180,12 +213,18 @@ void fcn_callback(int *n, int *m, int *np, int *nq, int *ldn, int *ldm,
           PyString_ConcatAndDel(&str1, tmpobj);
           PyErr_SetString(odr_error, PyString_AsString(str1));
           Py_DECREF(str1);
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
           goto fail;
         }
 
       if ((result_array =
            (PyArrayObject *) PyArray_ContiguousFromObject(result,
+<<<<<<< HEAD
                                                           PyArray_DOUBLE, 0,
+=======
+                                                          NPY_DOUBLE, 0,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                                                           2)) == NULL)
         {
           PYERR2(odr_error,
@@ -231,8 +270,11 @@ void fcn_callback(int *n, int *m, int *np, int *nq, int *ldn, int *ldm,
 
       if ((result = PyEval_CallObject(odr_global.fjacd, arglist)) == NULL)
         {
+<<<<<<< HEAD
           PyObject *tmpobj, *str1;
 
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
           if (PyErr_ExceptionMatches(odr_stop))
             {
               /* stop, don't fail */
@@ -241,6 +283,7 @@ void fcn_callback(int *n, int *m, int *np, int *nq, int *ldn, int *ldm,
               Py_DECREF(arglist);
               return;
             }
+<<<<<<< HEAD
 
           PyErr_Print();
           tmpobj = PyObject_GetAttrString(odr_global.fjacd, "func_name");
@@ -258,12 +301,18 @@ void fcn_callback(int *n, int *m, int *np, int *nq, int *ldn, int *ldm,
           PyString_ConcatAndDel(&str1, tmpobj);
           PyErr_SetString(odr_error, PyString_AsString(str1));
           Py_DECREF(str1);
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
           goto fail;
         }
 
       if ((result_array =
            (PyArrayObject *) PyArray_ContiguousFromObject(result,
+<<<<<<< HEAD
                                                           PyArray_DOUBLE, 0,
+=======
+                                                          NPY_DOUBLE, 0,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                                                           2)) == NULL)
         {
           PYERR2(odr_error,
@@ -407,10 +456,17 @@ PyObject *gen_output(int n, int m, int np, int nq, int ldwe, int ld2we,
   wrk7--;
 
   dim1[0] = beta->dimensions[0];
+<<<<<<< HEAD
   sd_beta = (PyArrayObject *) PyArray_SimpleNew(1, dim1, PyArray_DOUBLE);
   dim2[0] = beta->dimensions[0];
   dim2[1] = beta->dimensions[0];
   cov_beta = (PyArrayObject *) PyArray_SimpleNew(2, dim2, PyArray_DOUBLE);
+=======
+  sd_beta = (PyArrayObject *) PyArray_SimpleNew(1, dim1, NPY_DOUBLE);
+  dim2[0] = beta->dimensions[0];
+  dim2[1] = beta->dimensions[0];
+  cov_beta = (PyArrayObject *) PyArray_SimpleNew(2, dim2, NPY_DOUBLE);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
   memcpy(sd_beta->data, (void *)((double *)(work->data) + sd),
          np * sizeof(double));
@@ -436,7 +492,11 @@ PyObject *gen_output(int n, int m, int np, int nq, int ldwe, int ld2we,
 
       work_ind =
         Py_BuildValue
+<<<<<<< HEAD
         ("{s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l,s:l}",
+=======
+        ("{s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i,s:i}",
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          "delta", delta, "eps", eps, "xplus", xplus, "fn", fn, "sd", sd, "sd",
          vcv, "rvar", rvar, "wss", wss, "wssde", wssde, "wssep", wssep,
          "rcond", rcond, "eta", eta, "olmav", olmav, "tau", tau, "alpha",
@@ -453,32 +513,54 @@ PyObject *gen_output(int n, int m, int np, int nq, int ldwe, int ld2we,
         {
           dim1[0] = n;
           deltaA =
+<<<<<<< HEAD
             (PyArrayObject *) PyArray_SimpleNew(1, dim1, PyArray_DOUBLE);
           xplusA =
             (PyArrayObject *) PyArray_SimpleNew(1, dim1, PyArray_DOUBLE);
+=======
+            (PyArrayObject *) PyArray_SimpleNew(1, dim1, NPY_DOUBLE);
+          xplusA =
+            (PyArrayObject *) PyArray_SimpleNew(1, dim1, NPY_DOUBLE);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         }
       else
         {
           dim2[0] = m;
           dim2[1] = n;
           deltaA =
+<<<<<<< HEAD
             (PyArrayObject *) PyArray_SimpleNew(2, dim2, PyArray_DOUBLE);
           xplusA =
             (PyArrayObject *) PyArray_SimpleNew(2, dim2, PyArray_DOUBLE);
+=======
+            (PyArrayObject *) PyArray_SimpleNew(2, dim2, NPY_DOUBLE);
+          xplusA =
+            (PyArrayObject *) PyArray_SimpleNew(2, dim2, NPY_DOUBLE);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         }
 
       if (nq == 1)
         {
           dim1[0] = n;
+<<<<<<< HEAD
           epsA = (PyArrayObject *) PyArray_SimpleNew(1, dim1, PyArray_DOUBLE);
           fnA = (PyArrayObject *) PyArray_SimpleNew(1, dim1, PyArray_DOUBLE);
+=======
+          epsA = (PyArrayObject *) PyArray_SimpleNew(1, dim1, NPY_DOUBLE);
+          fnA = (PyArrayObject *) PyArray_SimpleNew(1, dim1, NPY_DOUBLE);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         }
       else
         {
           dim2[0] = nq;
           dim2[1] = n;
+<<<<<<< HEAD
           epsA = (PyArrayObject *) PyArray_SimpleNew(2, dim2, PyArray_DOUBLE);
           fnA = (PyArrayObject *) PyArray_SimpleNew(2, dim2, PyArray_DOUBLE);
+=======
+          epsA = (PyArrayObject *) PyArray_SimpleNew(2, dim2, NPY_DOUBLE);
+          fnA = (PyArrayObject *) PyArray_SimpleNew(2, dim2, NPY_DOUBLE);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         }
 
       memcpy(deltaA->data, (void *)((double *)(work->data) + delta),
@@ -499,7 +581,11 @@ PyObject *gen_output(int n, int m, int np, int nq, int ldwe, int ld2we,
 
       retobj =
         Py_BuildValue
+<<<<<<< HEAD
         ("OOO{s:O,s:O,s:O,s:O,s:d,s:d,s:d,s:d,s:d,s:d,s:O,s:O,s:O,s:l}",
+=======
+        ("OOO{s:O,s:O,s:O,s:O,s:d,s:d,s:d,s:d,s:d,s:d,s:O,s:O,s:O,s:i}",
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          PyArray_Return(beta), PyArray_Return(sd_beta),
          PyArray_Return(cov_beta), "delta", PyArray_Return(deltaA), "eps",
          PyArray_Return(epsA), "xplus", PyArray_Return(xplusA), "y",
@@ -551,7 +637,11 @@ PyObject *odr(PyObject * self, PyObject * args, PyObject * kwds)
 
   if (kwds == NULL)
     {
+<<<<<<< HEAD
       if (!PyArg_ParseTuple(args, "OOOO|OOOOOOOllz#z#ldddlOOOOOOi:odr",
+=======
+      if (!PyArg_ParseTuple(args, "OOOO|OOOOOOOiiz#z#idddiOOOOOOi:odr",
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                             &fcn, &initbeta, &py, &px, &pwe, &pwd,
                             &fjacb, &fjacd, &extra_args, &pifixb, &pifixx,
                             &job, &iprint, &errfile, &lerrfile, &rptfile,
@@ -565,7 +655,11 @@ PyObject *odr(PyObject * self, PyObject * args, PyObject * kwds)
   else
     {
       if (!PyArg_ParseTupleAndKeywords(args, kwds,
+<<<<<<< HEAD
                                        "OOOO|OOOOOOOllz#z#ldddlOOOOOOi:odr",
+=======
+                                       "OOOO|OOOOOOOiiz#z#idddiOOOOOOi:odr",
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                                        kw_list, &fcn, &initbeta, &py, &px,
                                        &pwe, &pwd, &fjacb, &fjacd,
                                        &extra_args, &pifixb, &pifixx, &job,
@@ -671,7 +765,11 @@ PyObject *odr(PyObject * self, PyObject * args, PyObject * kwds)
   if (!implicit)
     {
       if ((y =
+<<<<<<< HEAD
            (PyArrayObject *) PyArray_CopyFromObject(py, PyArray_DOUBLE, 1,
+=======
+           (PyArrayObject *) PyArray_CopyFromObject(py, NPY_DOUBLE, 1,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                                                     2)) == NULL)
         {
           PYERR(PyExc_ValueError,
@@ -679,7 +777,11 @@ PyObject *odr(PyObject * self, PyObject * args, PyObject * kwds)
         }
       n = y->dimensions[y->nd - 1];     /* pick the last dimension */
       if ((x =
+<<<<<<< HEAD
            (PyArrayObject *) PyArray_CopyFromObject(px, PyArray_DOUBLE, 1,
+=======
+           (PyArrayObject *) PyArray_CopyFromObject(px, NPY_DOUBLE, 1,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                                                     2)) == NULL)
         {
           PYERR(PyExc_ValueError,
@@ -708,10 +810,17 @@ PyObject *odr(PyObject * self, PyObject * args, PyObject * kwds)
       dim1[0] = 1;
 
       /* initialize y to a dummy array; never referenced */
+<<<<<<< HEAD
       y = (PyArrayObject *) PyArray_SimpleNew(1, dim1, PyArray_DOUBLE);
 
       if ((x =
            (PyArrayObject *) PyArray_CopyFromObject(px, PyArray_DOUBLE, 1,
+=======
+      y = (PyArrayObject *) PyArray_SimpleNew(1, dim1, NPY_DOUBLE);
+
+      if ((x =
+           (PyArrayObject *) PyArray_CopyFromObject(px, NPY_DOUBLE, 1,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                                                     2)) == NULL)
         {
           PYERR(PyExc_ValueError,
@@ -732,7 +841,11 @@ PyObject *odr(PyObject * self, PyObject * args, PyObject * kwds)
     }                           /* x, y */
 
   if ((beta =
+<<<<<<< HEAD
        (PyArrayObject *) PyArray_CopyFromObject(initbeta, PyArray_DOUBLE, 1,
+=======
+       (PyArrayObject *) PyArray_CopyFromObject(initbeta, NPY_DOUBLE, 1,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                                                 1)) == NULL)
     {
       PYERR(PyExc_ValueError,
@@ -744,7 +857,11 @@ PyObject *odr(PyObject * self, PyObject * args, PyObject * kwds)
     {
       ldwe = ld2we = 1;
       dim1[0] = n;
+<<<<<<< HEAD
       we = (PyArrayObject *) PyArray_SimpleNew(1, dim1, PyArray_DOUBLE);
+=======
+      we = (PyArrayObject *) PyArray_SimpleNew(1, dim1, NPY_DOUBLE);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       ((double *)(we->data))[0] = -1.0;
     }
   else if (PyNumber_Check(pwe) && !PyArray_Check(pwe))
@@ -762,7 +879,11 @@ PyObject *odr(PyObject * self, PyObject * args, PyObject * kwds)
       dim3[0] = nq;
       dim3[1] = 1;
       dim3[2] = 1;
+<<<<<<< HEAD
       we = (PyArrayObject *) PyArray_SimpleNew(3, dim3, PyArray_DOUBLE);
+=======
+      we = (PyArrayObject *) PyArray_SimpleNew(3, dim3, NPY_DOUBLE);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       if (implicit)
         {
           ((double *)(we->data))[0] = val;
@@ -778,7 +899,11 @@ PyObject *odr(PyObject * self, PyObject * args, PyObject * kwds)
       /* we needs to be turned into an array */
 
       if ((we =
+<<<<<<< HEAD
            (PyArrayObject *) PyArray_CopyFromObject(pwe, PyArray_DOUBLE, 1,
+=======
+           (PyArrayObject *) PyArray_CopyFromObject(pwe, NPY_DOUBLE, 1,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                                                     3)) == NULL)
         {
           PYERR(PyExc_ValueError, "could not convert we to a suitable array");
@@ -841,7 +966,11 @@ PyObject *odr(PyObject * self, PyObject * args, PyObject * kwds)
       ldwd = ld2wd = 1;
 
       dim1[0] = m;
+<<<<<<< HEAD
       wd = (PyArrayObject *) PyArray_SimpleNew(1, dim1, PyArray_DOUBLE);
+=======
+      wd = (PyArrayObject *) PyArray_SimpleNew(1, dim1, NPY_DOUBLE);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       ((double *)(wd->data))[0] = -1.0;
     }
   else if (PyNumber_Check(pwd) && !PyArray_Check(pwd))
@@ -859,7 +988,11 @@ PyObject *odr(PyObject * self, PyObject * args, PyObject * kwds)
       dim3[0] = 1;
       dim3[1] = 1;
       dim3[2] = m;
+<<<<<<< HEAD
       wd = (PyArrayObject *) PyArray_SimpleNew(3, dim3, PyArray_DOUBLE);
+=======
+      wd = (PyArrayObject *) PyArray_SimpleNew(3, dim3, NPY_DOUBLE);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       ((double *)(wd->data))[0] = -val;
       ldwd = ld2wd = 1;
     }
@@ -868,7 +1001,11 @@ PyObject *odr(PyObject * self, PyObject * args, PyObject * kwds)
       /* wd needs to be turned into an array */
 
       if ((wd =
+<<<<<<< HEAD
            (PyArrayObject *) PyArray_CopyFromObject(pwd, PyArray_DOUBLE, 1,
+=======
+           (PyArrayObject *) PyArray_CopyFromObject(pwd, NPY_DOUBLE, 1,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                                                     3)) == NULL)
         {
           PYERR(PyExc_ValueError, "could not convert wd to a suitable array");
@@ -931,7 +1068,11 @@ PyObject *odr(PyObject * self, PyObject * args, PyObject * kwds)
   if (pifixb == NULL)
     {
       dim1[0] = np;
+<<<<<<< HEAD
       ifixb = (PyArrayObject *) PyArray_SimpleNew(1, dim1, PyArray_INT);
+=======
+      ifixb = (PyArrayObject *) PyArray_SimpleNew(1, dim1, NPY_INT);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       *(int *)(ifixb->data) = -1;      /* set first element negative */
     }
   else
@@ -939,7 +1080,11 @@ PyObject *odr(PyObject * self, PyObject * args, PyObject * kwds)
       /* pifixb is a sequence as checked before */
 
       if ((ifixb =
+<<<<<<< HEAD
            (PyArrayObject *) PyArray_CopyFromObject(pifixb, PyArray_INT, 1,
+=======
+           (PyArrayObject *) PyArray_CopyFromObject(pifixb, NPY_INT, 1,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                                                     1)) == NULL)
         {
           PYERR(PyExc_ValueError,
@@ -957,7 +1102,11 @@ PyObject *odr(PyObject * self, PyObject * args, PyObject * kwds)
     {
       dim2[0] = m;
       dim2[1] = 1;
+<<<<<<< HEAD
       ifixx = (PyArrayObject *) PyArray_SimpleNew(2, dim2, PyArray_INT);
+=======
+      ifixx = (PyArrayObject *) PyArray_SimpleNew(2, dim2, NPY_INT);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       *(int *)(ifixx->data) = -1;      /* set first element negative */
       ldifx = 1;
     }
@@ -966,7 +1115,11 @@ PyObject *odr(PyObject * self, PyObject * args, PyObject * kwds)
       /* pifixx is a sequence as checked before */
 
       if ((ifixx =
+<<<<<<< HEAD
            (PyArrayObject *) PyArray_CopyFromObject(pifixx, PyArray_INT, 1,
+=======
+           (PyArrayObject *) PyArray_CopyFromObject(pifixx, NPY_INT, 1,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                                                     2)) == NULL)
         {
           PYERR(PyExc_ValueError,
@@ -1010,13 +1163,21 @@ PyObject *odr(PyObject * self, PyObject * args, PyObject * kwds)
   if (pstpb == NULL)
     {
       dim1[0] = np;
+<<<<<<< HEAD
       stpb = (PyArrayObject *) PyArray_SimpleNew(1, dim1, PyArray_DOUBLE);
+=======
+      stpb = (PyArrayObject *) PyArray_SimpleNew(1, dim1, NPY_DOUBLE);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       *(double *)(stpb->data) = 0.0;
     }
   else                          /* pstpb is a sequence */
     {
       if ((stpb =
+<<<<<<< HEAD
            (PyArrayObject *) PyArray_CopyFromObject(pstpb, PyArray_DOUBLE, 1,
+=======
+           (PyArrayObject *) PyArray_CopyFromObject(pstpb, NPY_DOUBLE, 1,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                                                     1)) == NULL
           || stpb->dimensions[0] != np)
         {
@@ -1029,14 +1190,22 @@ PyObject *odr(PyObject * self, PyObject * args, PyObject * kwds)
     {
       dim2[0] = 1;
       dim2[1] = m;
+<<<<<<< HEAD
       stpd = (PyArrayObject *) PyArray_SimpleNew(2, dim2, PyArray_DOUBLE);
+=======
+      stpd = (PyArrayObject *) PyArray_SimpleNew(2, dim2, NPY_DOUBLE);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       *(double *)(stpd->data) = 0.0;
       ldstpd = 1;
     }
   else
     {
       if ((stpd =
+<<<<<<< HEAD
            (PyArrayObject *) PyArray_CopyFromObject(pstpd, PyArray_DOUBLE, 1,
+=======
+           (PyArrayObject *) PyArray_CopyFromObject(pstpd, NPY_DOUBLE, 1,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                                                     2)) == NULL)
         {
           PYERR(PyExc_ValueError,
@@ -1061,13 +1230,21 @@ PyObject *odr(PyObject * self, PyObject * args, PyObject * kwds)
   if (psclb == NULL)
     {
       dim1[0] = np;
+<<<<<<< HEAD
       sclb = (PyArrayObject *) PyArray_SimpleNew(1, dim1, PyArray_DOUBLE);
+=======
+      sclb = (PyArrayObject *) PyArray_SimpleNew(1, dim1, NPY_DOUBLE);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       *(double *)(sclb->data) = 0.0;
     }
   else                          /* psclb is a sequence */
     {
       if ((sclb =
+<<<<<<< HEAD
            (PyArrayObject *) PyArray_CopyFromObject(psclb, PyArray_DOUBLE, 1,
+=======
+           (PyArrayObject *) PyArray_CopyFromObject(psclb, NPY_DOUBLE, 1,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                                                     1)) == NULL
           || sclb->dimensions[0] != np)
         {
@@ -1080,14 +1257,22 @@ PyObject *odr(PyObject * self, PyObject * args, PyObject * kwds)
     {
       dim2[0] = 1;
       dim2[1] = n;
+<<<<<<< HEAD
       scld = (PyArrayObject *) PyArray_SimpleNew(2, dim2, PyArray_DOUBLE);
+=======
+      scld = (PyArrayObject *) PyArray_SimpleNew(2, dim2, NPY_DOUBLE);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       *(double *)(scld->data) = 0.0;
       ldscld = 1;
     }
   else
     {
       if ((scld =
+<<<<<<< HEAD
            (PyArrayObject *) PyArray_CopyFromObject(pscld, PyArray_DOUBLE, 1,
+=======
+           (PyArrayObject *) PyArray_CopyFromObject(pscld, NPY_DOUBLE, 1,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                                                     2)) == NULL)
         {
           PYERR(PyExc_ValueError,
@@ -1158,7 +1343,11 @@ PyObject *odr(PyObject * self, PyObject * args, PyObject * kwds)
   if (pwork != NULL)
     {
       if ((work =
+<<<<<<< HEAD
            (PyArrayObject *) PyArray_CopyFromObject(pwork, PyArray_DOUBLE, 1,
+=======
+           (PyArrayObject *) PyArray_CopyFromObject(pwork, NPY_DOUBLE, 1,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                                                     1)) == NULL)
         {
           PYERR(PyExc_ValueError,
@@ -1174,13 +1363,21 @@ PyObject *odr(PyObject * self, PyObject * args, PyObject * kwds)
     {
       /* initialize our own work array */
       dim1[0] = lwork;
+<<<<<<< HEAD
       work = (PyArrayObject *) PyArray_SimpleNew(1, dim1, PyArray_DOUBLE);
+=======
+      work = (PyArrayObject *) PyArray_SimpleNew(1, dim1, NPY_DOUBLE);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     }                           /* work */
 
   if (piwork != NULL)
     {
       if ((iwork =
+<<<<<<< HEAD
            (PyArrayObject *) PyArray_CopyFromObject(piwork, PyArray_INT, 1,
+=======
+           (PyArrayObject *) PyArray_CopyFromObject(piwork, NPY_INT, 1,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                                                     1)) == NULL)
         {
           PYERR(PyExc_ValueError,
@@ -1196,7 +1393,11 @@ PyObject *odr(PyObject * self, PyObject * args, PyObject * kwds)
     {
       /* initialize our own iwork array */
       dim1[0] = liwork;
+<<<<<<< HEAD
       iwork = (PyArrayObject *) PyArray_SimpleNew(1, dim1, PyArray_INT);
+=======
+      iwork = (PyArrayObject *) PyArray_SimpleNew(1, dim1, NPY_INT);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     }                           /* iwork */
 
   /* check if what JOB requests can be done with what the user has 
@@ -1307,6 +1508,7 @@ fail:
   return NULL;
 }
 
+<<<<<<< HEAD
 static void check_args(int n, int m, int np, int nq,
                        PyArrayObject * beta,
                        PyArrayObject * y, int ldy,
@@ -1369,3 +1571,56 @@ PyMODINIT_FUNC init__odrpack(void)
   PyDict_SetItemString(d, "odr_error", odr_error);
   PyDict_SetItemString(d, "odr_stop", odr_stop);
 }
+=======
+
+PyObject *set_exceptions(PyObject * self, PyObject * args, PyObject * kwds)
+{
+    PyObject *exc_error, *exc_stop;
+
+    if (!PyArg_ParseTuple(args, "OO", &exc_error, &exc_stop))
+	return NULL;
+
+    Py_INCREF(exc_stop);
+    Py_INCREF(exc_error);
+    odr_stop = exc_stop;
+    odr_error = exc_error;
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyMethodDef methods[] = {
+  {"_set_exceptions", (PyCFunction) set_exceptions, METH_VARARGS, NULL},
+  {"odr", (PyCFunction) odr, METH_VARARGS | METH_KEYWORDS, NULL},
+  {NULL, NULL},
+};
+
+#if PY_VERSION_HEX >= 0x03000000
+static struct PyModuleDef moduledef = {
+    PyModuleDef_HEAD_INIT,
+    "_odrpack",
+    NULL,
+    -1,
+    methods,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+};
+
+PyObject *PyInit___odrpack(void)
+{
+    PyObject *m, *s, *d;
+    import_array();
+    m = PyModule_Create(&moduledef);
+    return m;
+}
+#else
+PyMODINIT_FUNC init__odrpack(void)
+{
+    PyObject *m, *d;
+    import_array();
+    m = Py_InitModule("__odrpack", methods);
+}
+#endif
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

@@ -104,10 +104,18 @@
 *     .. Local Scalars ..
       INTEGER             I, MAXIT, AV, GIV, H, R, S, V, W, Y,
      $                    NEED1, NEED2
+<<<<<<< HEAD
       <_t>  <xdot=sdot,ddot,cdotc,zdotc>
       <_t>  toz
       <rt>    BNRM2, RNORM, TOL,  
      $     <rc=s,d,sc,dz>NRM2,
+=======
+      <_t>  <xdot=wsdot,ddot,wcdotc,wzdotc>
+      <_t>  toz
+      <_t>    TMPVAL
+      <rt>    BNRM2, RNORM, TOL,  
+     $     <rc=ws,d,wsc,dz>NRM2,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      $     <rc>APPROXRES
 
 *
@@ -267,7 +275,12 @@
          RNORM = <rc>NRM2( N, WORK( 1,V ), 1 )
          toz = ONE/RNORM
          CALL <_c>SCAL( N, toz, WORK( 1,V ), 1 )
+<<<<<<< HEAD
          CALL <_c>ELEMVEC( 1, N, RNORM, WORK( 1,S ) )
+=======
+         TMPVAL = RNORM
+         CALL <_c>ELEMVEC( 1, N, TMPVAL, WORK( 1,S ) )
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 *
 *         DO 50 I = 1, RESTRT
          i = 1
@@ -412,9 +425,16 @@
 *
       INTEGER            K
       <rt=real,double precision,real,double precision>    
+<<<<<<< HEAD
      $     <rc=s,d,sc,dz>NRM2, ONE
       PARAMETER        ( ONE = 1.0D+0 )
       <_t>    <xdot=sdot,ddot,cdotc,zdotc>
+=======
+     $     <rc=ws,d,wsc,dz>NRM2, ONE
+      PARAMETER        ( ONE = 1.0D+0 )
+      <_t>    <xdot=wsdot,ddot,wcdotc,wzdotc>
+      <_t>    TMPVAL
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       EXTERNAL         <_c>AXPY, <_c>COPY, <xdot>, <rc>NRM2, <_c>SCAL
 *
       DO 10 K = 1, I
@@ -423,7 +443,12 @@
    10 CONTINUE
       H( I+1 ) = <rc>NRM2( N, W, 1 )
       CALL <_c>COPY( N, W, 1, V( 1,I+1 ), 1 )
+<<<<<<< HEAD
       CALL <_c>SCAL( N, ONE / H( I+1 ), V( 1,I+1 ), 1 )
+=======
+      TMPVAL = ONE / H( I+1 )
+      CALL <_c>SCAL( N, TMPVAL, V( 1,I+1 ), 1 )
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 *
       RETURN
 *
@@ -471,7 +496,11 @@
 *
 *     ===============================================================
       <rt=real,double precision,real,double precision>
+<<<<<<< HEAD
      $     FUNCTION <rc=s,d,sc,dz>APPROXRES( I, H, S, GIVENS, LDG )
+=======
+     $     FUNCTION <rc=ws,d,wsc,dz>APPROXRES( I, H, S, GIVENS, LDG )
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 *
       INTEGER            I, LDG
       <_t>   H( * ), S( * ), GIVENS( LDG,* )

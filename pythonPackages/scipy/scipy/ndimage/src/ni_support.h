@@ -52,9 +52,55 @@ typedef enum {
     NI_EXTEND_DEFAULT = NI_EXTEND_MIRROR
 } NI_ExtendMode;
 
+<<<<<<< HEAD
 /******************************************************************/
 /* Iterators */
 /******************************************************************/
+=======
+/* maximum size of error message buffer */
+#define NI_MAX_ERR_MSG 400
+
+
+/******************************************************************/
+/* Misc */
+/******************************************************************/
+
+/* compile time branch prediction hints */
+#ifdef __GNUC__
+  /* Test for GCC > 2.95 */
+  #if __GNUC__ > 2 || (__GNUC__ == 2 && (__GNUC_MINOR__ > 95))
+    #define NI_LIKELY(x)   __builtin_expect(!!(x), 1)
+    #define NI_UNLIKELY(x) __builtin_expect(!!(x), 0)
+  #else /* __GNUC__ > 2 ... */
+    #define NI_LIKELY(x)   (x)
+    #define NI_UNLIKELY(x) (x)
+  #endif /* __GNUC__ > 2 ... */
+#else /* __GNUC__ */
+  #define NI_LIKELY(x)   (x)
+  #define NI_UNLIKELY(x) (x)
+#endif /* __GNUC__ */
+
+
+/******************************************************************/
+/* Data types */
+/******************************************************************/
+
+/*
+ * Numpy basic types codes correspond to C basic types, but they remain
+ * different even if the corresponding types have the same size.
+ *
+ * Most commonly: int and long, so normalize to long.
+ */
+static NPY_INLINE
+int NI_NormalizeType(int type_num)
+{
+#if NPY_SIZEOF_INT == NPY_SIZEOF_LONG
+    if (type_num == NPY_INT)  type_num = NPY_LONG;
+    if (type_num == NPY_UINT) type_num = NPY_ULONG;
+#endif
+    return type_num;
+}
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 /******************************************************************/
 /* Iterators */
@@ -63,10 +109,17 @@ typedef enum {
 /* the iterator structure: */
 typedef struct {
     int rank_m1;
+<<<<<<< HEAD
     maybelong dimensions[MAXDIM];
     maybelong coordinates[MAXDIM];
     maybelong strides[MAXDIM];
     maybelong backstrides[MAXDIM];
+=======
+    npy_intp dimensions[MAXDIM];
+    npy_intp coordinates[MAXDIM];
+    npy_intp strides[MAXDIM];
+    npy_intp backstrides[MAXDIM];
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 } NI_Iterator;
 
 /* initialize iterations over single array elements: */
@@ -156,8 +209,13 @@ int NI_LineIterator(NI_Iterator*, int);
 /* the linebuffer structure: */
 typedef struct {
     double *buffer_data;
+<<<<<<< HEAD
     maybelong buffer_lines, line_length, line_stride;
     maybelong size1, size2, array_lines, next_line;
+=======
+    npy_intp buffer_lines, line_length, line_stride;
+    npy_intp size1, size2, array_lines, next_line;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     NI_Iterator iterator;
     char* array_data;
     NumarrayType array_type;
@@ -170,6 +228,7 @@ typedef struct {
     ((_buffer).buffer_data + (_line) * ((_buffer).line_length +            \
                                                                             (_buffer).size1 + (_buffer).size2))
 /* Allocate line buffer data */
+<<<<<<< HEAD
 int NI_AllocateLineBuffer(PyArrayObject*, int, maybelong, maybelong,
                                                     maybelong*, maybelong, double**);
 
@@ -185,6 +244,23 @@ int NI_ArrayToLineBuffer(NI_LineBuffer*, maybelong*, int*);
 
 /* Copy a line from a buffer to an array: */
 int NI_LineBufferToArray(NI_LineBuffer*);
+=======
+int NI_AllocateLineBuffer(PyArrayObject*, int, npy_intp, npy_intp,
+                           npy_intp*, npy_intp, double**);
+
+/* Initialize a line buffer */
+int NI_InitLineBuffer(PyArrayObject*, int, npy_intp, npy_intp, npy_intp,
+                                            double*, NI_ExtendMode, double, NI_LineBuffer*);
+
+/* Extend a line in memory to implement boundary conditions: */
+int NI_ExtendLine(double*, npy_intp, npy_intp, npy_intp, NI_ExtendMode, double, char*);
+
+/* Copy a line from an array to a buffer: */
+int NI_ArrayToLineBuffer(NI_LineBuffer*, npy_intp*, int*, char*);
+
+/* Copy a line from a buffer to an array: */
+int NI_LineBufferToArray(NI_LineBuffer*, char*);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 /******************************************************************/
 /* Multi-dimensional filter support functions */
@@ -192,6 +268,7 @@ int NI_LineBufferToArray(NI_LineBuffer*);
 
 /* the filter iterator structure: */
 typedef struct {
+<<<<<<< HEAD
     maybelong strides[MAXDIM], backstrides[MAXDIM];
     maybelong bound1[MAXDIM], bound2[MAXDIM];
 } NI_FilterIterator;
@@ -204,6 +281,21 @@ int NI_InitFilterIterator(int, maybelong*, maybelong, maybelong*,
      the interior of the array: */
 int NI_InitFilterOffsets(PyArrayObject*, Bool*, maybelong*,
                     maybelong*, NI_ExtendMode, maybelong**, maybelong*, maybelong**);
+=======
+    npy_intp strides[MAXDIM], backstrides[MAXDIM];
+    npy_intp bound1[MAXDIM], bound2[MAXDIM];
+} NI_FilterIterator;
+
+/* Initialize a filter iterator: */
+int NI_InitFilterIterator(int, npy_intp*, npy_intp, npy_intp*,
+                          npy_intp*, NI_FilterIterator*);
+
+/* Calculate the offsets to the filter points, for all border regions and
+     the interior of the array: */
+int NI_InitFilterOffsets(PyArrayObject*, Bool*, npy_intp*,
+                         npy_intp*, NI_ExtendMode, npy_intp**, 
+                         npy_intp*, npy_intp**);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 /* Move to the next point in an array, possible changing the filter
      offsets, to adapt to boundary conditions: */
@@ -211,7 +303,11 @@ int NI_InitFilterOffsets(PyArrayObject*, Bool*, maybelong*,
 {                                                                 \
     int _ii;                                                        \
     for(_ii = (iterator1).rank_m1; _ii >= 0; _ii--) {               \
+<<<<<<< HEAD
         maybelong _pp = (iterator1).coordinates[_ii];                 \
+=======
+        npy_intp _pp = (iterator1).coordinates[_ii];              \
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         if (_pp < (iterator1).dimensions[_ii]) {                      \
             if (_pp < (iteratorf).bound1[_ii] ||                        \
                                                                     _pp >= (iteratorf).bound2[_ii]) \
@@ -235,7 +331,11 @@ int NI_InitFilterOffsets(PyArrayObject*, Bool*, maybelong*,
 {                                                           \
     int _ii;                                                  \
     for(_ii = (iterator1).rank_m1; _ii >= 0; _ii--) {         \
+<<<<<<< HEAD
         maybelong _pp = (iterator1).coordinates[_ii];           \
+=======
+        npy_intp _pp = (iterator1).coordinates[_ii];        \
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         if (_pp < (iterator1).dimensions[_ii]) {                \
             if (_pp < (iteratorf).bound1[_ii] ||                  \
                                                         _pp >= (iteratorf).bound2[_ii]) \
@@ -261,7 +361,11 @@ int NI_InitFilterOffsets(PyArrayObject*, Bool*, maybelong*,
 {                                                                    \
     int _ii;                                                           \
     for(_ii = (iterator1).rank_m1; _ii >= 0; _ii--) {                  \
+<<<<<<< HEAD
         maybelong _pp = (iterator1).coordinates[_ii];                    \
+=======
+        npy_intp _pp = (iterator1).coordinates[_ii];                 \
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         if (_pp < (iterator1).dimensions[_ii]) {                         \
             if (_pp < (iteratorf).bound1[_ii] ||                           \
                                                                          _pp >= (iteratorf).bound2[_ii]) \
@@ -286,12 +390,21 @@ int NI_InitFilterOffsets(PyArrayObject*, Bool*, maybelong*,
 #define NI_FILTER_GOTO(iteratorf, iterator, fbase, pointerf) \
 {                                                            \
     int _ii;                                                   \
+<<<<<<< HEAD
     maybelong _jj;                                             \
     pointerf = fbase;                                          \
     for(_ii = iterator.rank_m1; _ii >= 0; _ii--) {             \
         maybelong _pp = iterator.coordinates[_ii];               \
         maybelong b1 = (iteratorf).bound1[_ii];                  \
         maybelong b2 = (iteratorf).bound2[_ii];                  \
+=======
+    npy_intp _jj;                                             \
+    pointerf = fbase;                                          \
+    for(_ii = iterator.rank_m1; _ii >= 0; _ii--) {             \
+        npy_intp _pp = iterator.coordinates[_ii];             \
+        npy_intp b1 = (iteratorf).bound1[_ii];                \
+        npy_intp b2 = (iteratorf).bound2[_ii];                \
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         if (_pp < b1) {                                          \
                 _jj = _pp;                                           \
         } else if (_pp > b2 && b2 >= b1) {                       \
@@ -304,7 +417,11 @@ int NI_InitFilterOffsets(PyArrayObject*, Bool*, maybelong*,
 }
 
 typedef struct {
+<<<<<<< HEAD
         maybelong *coordinates;
+=======
+    npy_intp *coordinates;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         int size;
         void *next;
 } NI_CoordinateBlock;

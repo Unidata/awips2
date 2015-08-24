@@ -4,11 +4,19 @@ converters and the other shows how it can be done without using blitz
 by accessing the numpy array data directly.
 
 """
+<<<<<<< HEAD
+=======
+from __future__ import absolute_import, print_function
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 import scipy.weave as weave
 from scipy.weave import converters
 import numpy
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def create_array():
     """Creates a simple 3D numpy array with unique values at each
     location in the matrix.
@@ -91,6 +99,7 @@ def blitz_inline(arr):
 
 def main():
     arr = create_array()
+<<<<<<< HEAD
     print "numpy:"
     print arr
 
@@ -98,6 +107,15 @@ def main():
     pure_inline(arr)
 
     print "Blitz Inline:"
+=======
+    print("numpy:")
+    print(arr)
+
+    print("Pure Inline:")
+    pure_inline(arr)
+
+    print("Blitz Inline:")
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     blitz_inline(arr)
 
 

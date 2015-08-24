@@ -136,8 +136,13 @@ ilu_zpivotL(
 
     /* Test for singularity */
     if (pivmax < 0.0) {
+<<<<<<< HEAD
 #if SCIPY_SPECIFIC_FIX
         ABORT("[0]: matrix is singular");
+=======
+#if SCIPY_FIX
+	ABORT("[0]: matrix is singular");
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 #else
 	fprintf(stderr, "[0]: jcol=%d, SINGULAR!!!\n", jcol);
 	fflush(stderr);
@@ -155,8 +160,13 @@ ilu_zpivotL(
 	    for (icol = jcol; icol < n; icol++)
 		if (marker[swap[icol]] <= jcol) break;
 	    if (icol >= n) {
+<<<<<<< HEAD
 #if SCIPY_SPECIFIC_FIX
                 ABORT("[1]: matrix is singular");
+=======
+#if SCIPY_FIX
+		ABORT("[1]: matrix is singular");
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 #else
 		fprintf(stderr, "[1]: jcol=%d, SINGULAR!!!\n", jcol);
 		fflush(stderr);

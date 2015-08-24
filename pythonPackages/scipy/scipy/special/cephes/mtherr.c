@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*							mtherr.c
  *
  *	Library common error handling routine
+=======
+/*                                                     mtherr.c
+ *
+ *     Library common error handling routine
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
  *
  *
  *
@@ -49,6 +55,7 @@
  */
 
 /*
+<<<<<<< HEAD
 Cephes Math Library Release 2.0:  April, 1987
 Copyright 1984, 1987 by Stephen L. Moshier
 Direct inquiries to 30 Frost Street, Cambridge, MA 02140
@@ -78,6 +85,31 @@ static char *ermsg[8] = {
 };
 
 
+=======
+ * Cephes Math Library Release 2.0:  April, 1987
+ * Copyright 1984, 1987 by Stephen L. Moshier
+ * Direct inquiries to 30 Frost Street, Cambridge, MA 02140
+ */
+
+#include "mconf.h"
+#include <stdio.h>
+
+#include "sf_error.h"
+
+int merror = 0;
+
+static sf_error_t conv_to_sf[8] = {
+    SF_ERROR_OTHER,
+    SF_ERROR_DOMAIN,
+    SF_ERROR_SINGULAR,
+    SF_ERROR_OVERFLOW,
+    SF_ERROR_UNDERFLOW,
+    SF_ERROR_NO_RESULT,
+    SF_ERROR_LOSS,
+    SF_ERROR_SLOW
+};
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 int mtherr(char *name, int code)
 {
     /* Display string passed by calling program,
@@ -94,9 +126,13 @@ int mtherr(char *name, int code)
     if ((code <= 0) || (code >= 8))
 	code = 0;
 
+<<<<<<< HEAD
     if (scipy_special_print_error_messages) {
         scipy_special_raise_warning("%s: %s error", name, ermsg[code]);
     }
+=======
+    sf_error(name, conv_to_sf[code], NULL);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     /* Return to calling
      * program

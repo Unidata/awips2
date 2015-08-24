@@ -1,10 +1,15 @@
 #ifndef __CSC_H__
 #define __CSC_H__
 
+<<<<<<< HEAD
 
 #include "csr.h"
 
 
+=======
+#include "csr.h"
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 /*
  * Compute Y += A*X for CSC matrix A and dense vectors X,Y
  *
@@ -80,7 +85,11 @@ void csc_matvecs(const I n_row,
     for(I j = 0; j < n_col; j++){
         for(I ii = Ap[j]; ii < Ap[j+1]; ii++){
             const I i = Ai[ii];
+<<<<<<< HEAD
             axpy(n_vecs, Ax[ii], Xx + n_vecs * j, Yx + n_vecs * i);
+=======
+            axpy(n_vecs, Ax[ii], Xx + (npy_intp)n_vecs * j, Yx + (npy_intp)n_vecs * i);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         }
     }
 }
@@ -137,9 +146,56 @@ void csc_matmat_pass2(const I n_row,
       	                    T Cx[])
 { csr_matmat_pass2(n_col, n_row, Bp, Bi, Bx, Ap, Ai, Ax, Cp, Ci, Cx); }
 
+<<<<<<< HEAD
 
 
 
+=======
+template <class I, class T, class T2>
+void csc_ne_csc(const I n_row, const I n_col, 
+                   const I Ap[], const I Ai[], const T Ax[],
+                   const I Bp[], const I Bi[], const T Bx[],
+                         I Cp[],       I Ci[],      T2 Cx[])
+{
+    csr_ne_csr(n_col, n_row, Ap, Ai, Ax, Bp, Bi, Bx, Cp, Ci, Cx);
+}
+
+template <class I, class T, class T2>
+void csc_lt_csc(const I n_row, const I n_col, 
+                   const I Ap[], const I Ai[], const T Ax[],
+                   const I Bp[], const I Bi[], const T Bx[],
+                         I Cp[],       I Ci[],      T2 Cx[])
+{
+    csr_lt_csr(n_col, n_row, Ap, Ai, Ax, Bp, Bi, Bx, Cp, Ci, Cx);
+}
+
+template <class I, class T, class T2>
+void csc_gt_csc(const I n_row, const I n_col, 
+                   const I Ap[], const I Ai[], const T Ax[],
+                   const I Bp[], const I Bi[], const T Bx[],
+                         I Cp[],       I Ci[],      T2 Cx[])
+{
+    csr_gt_csr(n_col, n_row, Ap, Ai, Ax, Bp, Bi, Bx, Cp, Ci, Cx);
+}
+
+template <class I, class T, class T2>
+void csc_le_csc(const I n_row, const I n_col, 
+                   const I Ap[], const I Ai[], const T Ax[],
+                   const I Bp[], const I Bi[], const T Bx[],
+                         I Cp[],       I Ci[],      T2 Cx[])
+{
+    csr_le_csr(n_col, n_row, Ap, Ai, Ax, Bp, Bi, Bx, Cp, Ci, Cx);
+}
+
+template <class I, class T, class T2>
+void csc_ge_csc(const I n_row, const I n_col, 
+                   const I Ap[], const I Ai[], const T Ax[],
+                   const I Bp[], const I Bi[], const T Bx[],
+                         I Cp[],       I Ci[],      T2 Cx[])
+{
+    csr_ge_csr(n_col, n_row, Ap, Ai, Ax, Bp, Bi, Bx, Cp, Ci, Cx);
+}
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 template <class I, class T>
 void csc_elmul_csc(const I n_row, const I n_col, 
@@ -179,5 +235,26 @@ void csc_minus_csc(const I n_row, const I n_col,
 }
 
 
+<<<<<<< HEAD
+=======
+template <class I, class T>
+void csc_maximum_csc(const I n_row, const I n_col, 
+                  const I Ap[], const I Ai[], const T Ax[],
+                  const I Bp[], const I Bi[], const T Bx[],
+                        I Cp[],       I Ci[],       T Cx[])
+{
+    csr_maximum_csr(n_col, n_row, Ap, Ai, Ax, Bp, Bi, Bx, Cp, Ci, Cx);
+}
+
+template <class I, class T>
+void csc_minimum_csc(const I n_row, const I n_col, 
+                   const I Ap[], const I Ai[], const T Ax[],
+                   const I Bp[], const I Bi[], const T Bx[],
+                         I Cp[],       I Ci[],       T Cx[])
+{
+    csr_minimum_csr(n_col, n_row, Ap, Ai, Ax, Bp, Bi, Bx, Cp, Ci, Cx);
+}
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 #endif

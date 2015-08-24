@@ -58,7 +58,11 @@
    ===================================================================== 
 </pre>
 */
+<<<<<<< HEAD
 double slamch_(char *cmach)
+=======
+float slamch_(char *cmach)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 {
 /* >>Start of File<<   
        Initialized data */

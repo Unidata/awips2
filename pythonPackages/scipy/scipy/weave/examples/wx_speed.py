@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+from __future__ import absolute_import, print_function
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 """ Implements a fast replacement for calling DrawLines with an array as an
     argument.  It uses weave, so you'll need that installed.
 
@@ -38,12 +43,20 @@ for (int i = 0; i < bunches; i++)
 Polyline(hdc,(POINT*)p_data,left_over);
 """
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def polyline(dc,line,xoffset=0,yoffset=0):
     #------------------------------------------------------------------------
     # Make sure the array is the correct size/shape
     #------------------------------------------------------------------------
     shp = line.shape
+<<<<<<< HEAD
     assert(len(shp)==2 and shp[1] == 2)
+=======
+    assert(len(shp) == 2 and shp[1] == 2)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     #------------------------------------------------------------------------
     # Offset data if necessary
@@ -63,9 +76,15 @@ def polyline(dc,line,xoffset=0,yoffset=0):
                Polyline(hdc,(POINT*)line,Nline[0]);
                """
     else:
+<<<<<<< HEAD
         if (line.typecode() != uint16 or
             not line.iscontiguous()):
             line = line.astype(uint16)
+=======
+        if (line.typecode() != uint16 or not line.iscontiguous()):
+            line = line.astype(uint16)
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         code = """
                GdkWindow* win = dc->m_window;
                GdkGC* pen = dc->m_penGC;
@@ -73,7 +92,10 @@ def polyline(dc,line,xoffset=0,yoffset=0):
                """
     weave.inline(code,['dc','line'])
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     #------------------------------------------------------------------------
     # Find the maximum and minimum points in the drawing list and add
     # them to the bounding box.
@@ -87,6 +109,11 @@ def polyline(dc,line,xoffset=0,yoffset=0):
 # Define a new version of DrawLines that calls the optimized
 # version for numpy arrays when appropriate.
 #-----------------------------------------------------------------------------
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def NewDrawLines(dc,line):
     """
     """
@@ -107,7 +134,11 @@ if __name__ == '__main__':
     import time
 
     class Canvas(wxWindow):
+<<<<<<< HEAD
         def __init__(self, parent, id = -1, size = wxDefaultSize):
+=======
+        def __init__(self, parent, id=-1, size=wxDefaultSize):
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             wxWindow.__init__(self, parent, id, wxPoint(0, 0), size,
                               wxSUNKEN_BORDER | wxWANTS_CHARS)
             self.calc_points()
@@ -129,7 +160,11 @@ if __name__ == '__main__':
 
         def OnPaint(self,event):
             w,h = self.GetSizeTuple()
+<<<<<<< HEAD
             print len(self.points)
+=======
+            print(len(self.points))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             dc = wxPaintDC(self)
             dc.BeginDrawing()
 
@@ -140,8 +175,13 @@ if __name__ == '__main__':
             t1 = time.clock()
             offset = array((1,0))
             mod = array((w,0))
+<<<<<<< HEAD
             x = pt_copy[:,0];
             ang = 2*pi/w;
+=======
+            x = pt_copy[:,0]
+            ang = 2*pi/w
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
             size = 1
             red_pen = wxPen('red',size)
@@ -163,7 +203,11 @@ if __name__ == '__main__':
                 pt_copy[:,1] = next_y
                 phase += ang
             t2 = time.clock()
+<<<<<<< HEAD
             print 'Weave Polyline:', t2-t1
+=======
+            print('Weave Polyline:', t2-t1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
             t1 = time.clock()
             pt_copy = self.points.copy()
@@ -184,7 +228,11 @@ if __name__ == '__main__':
                 phase += ang
             t2 = time.clock()
             dc.SetPen(red_pen)
+<<<<<<< HEAD
             print 'wxPython DrawLines:', t2-t1
+=======
+            print('wxPython DrawLines:', t2-t1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
             dc.EndDrawing()
 

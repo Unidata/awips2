@@ -91,9 +91,15 @@ c     TR95-13, Department of Computational and Applied Mathematics.
 c
 c\Routines called:
 c     ivout   ARPACK utility routine that prints integers. 
+<<<<<<< HEAD
 c     second  ARPACK utility routine for timing.
 c     svout   ARPACK utility routine that prints vectors.
 c     slamch  LAPACK routine that determines machine constants.
+=======
+c     arscnd  ARPACK utility routine for timing.
+c     svout   ARPACK utility routine that prints vectors.
+c     wslamch  LAPACK routine that determines machine constants.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c     slartg  LAPACK Givens rotation construction routine.
 c     slacpy  LAPACK matrix copy routine.
 c     slaset  LAPACK matrix initialization routine.
@@ -176,15 +182,24 @@ c     | External Subroutines |
 c     %----------------------%
 c
       external   saxpy, scopy, sscal, slacpy, slartg, slaset, svout, 
+<<<<<<< HEAD
      &           ivout, second, sgemv
+=======
+     &           ivout, arscnd, sgemv
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %--------------------%
 c     | External Functions |
 c     %--------------------%
 c
       Real
+<<<<<<< HEAD
      &           slamch
       external   slamch
+=======
+     &           wslamch
+      external   wslamch
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %----------------------%
 c     | Intrinsics Functions |
@@ -203,7 +218,11 @@ c     | Executable Statements |
 c     %-----------------------%
 c
       if (first) then
+<<<<<<< HEAD
          epsmch = slamch('Epsilon-Machine')
+=======
+         epsmch = wslamch('Epsilon-Machine')
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          first = .false.
       end if
       itop = 1
@@ -213,7 +232,11 @@ c     | Initialize timing statistics  |
 c     | & message level for debugging |
 c     %-------------------------------%
 c
+<<<<<<< HEAD
       call second (t0)
+=======
+      call arscnd (t0)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       msglvl = msapps
 c 
       kplusp = kev + np 
@@ -503,7 +526,11 @@ c
          end if
       end if
 c
+<<<<<<< HEAD
       call second (t1)
+=======
+      call arscnd (t1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       tsapps = tsapps + (t1 - t0)
 c 
  9000 continue 

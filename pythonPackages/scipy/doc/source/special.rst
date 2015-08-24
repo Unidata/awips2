@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ========================================
 Special functions (:mod:`scipy.special`)
 ========================================
@@ -510,3 +511,6 @@ Convenience Functions
    expm1
    cosm1
    round
+=======
+.. automodule:: scipy.special
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

@@ -58,7 +58,10 @@ cPivotGrowth(int ncols, SuperMatrix *A, int *perm_c,
     int      i, j, k, oldcol;
     int      *inv_perm_c;
     float   rpg, maxaj, maxuj;
+<<<<<<< HEAD
     extern   double slamch_(char *);
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     float   smlnum;
     complex   *luval;
     complex   temp_comp;
@@ -88,6 +91,7 @@ cPivotGrowth(int ncols, SuperMatrix *A, int *perm_c,
 	    maxaj = 0.;
             oldcol = inv_perm_c[j];
 	    for (i = Astore->colptr[oldcol]; i < Astore->colptr[oldcol+1]; ++i)
+<<<<<<< HEAD
 		maxaj = SUPERLU_MAX( maxaj, slu_c_abs1( &Aval[i]) );
 	
 	    maxuj = 0.;
@@ -97,6 +101,17 @@ cPivotGrowth(int ncols, SuperMatrix *A, int *perm_c,
 	    /* Supernode */
 	    for (i = 0; i < nz_in_U; ++i)
 		maxuj = SUPERLU_MAX( maxuj, slu_c_abs1( &luval[i]) );
+=======
+		maxaj = SUPERLU_MAX( maxaj, c_abs1( &Aval[i]) );
+	
+	    maxuj = 0.;
+	    for (i = Ustore->colptr[j]; i < Ustore->colptr[j+1]; i++)
+		maxuj = SUPERLU_MAX( maxuj, c_abs1( &Uval[i]) );
+	    
+	    /* Supernode */
+	    for (i = 0; i < nz_in_U; ++i)
+		maxuj = SUPERLU_MAX( maxuj, c_abs1( &luval[i]) );
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 	    ++nz_in_U;
 	    luval += nsupr;

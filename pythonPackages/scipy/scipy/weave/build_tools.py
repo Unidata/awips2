@@ -16,17 +16,28 @@
     does this by converting a pythonxx.lib file to a libpythonxx.a file.
     Note that you need write access to the pythonxx/lib directory to do this.
 """
+<<<<<<< HEAD
+=======
+from __future__ import absolute_import, print_function
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 import sys
 import os
 import time
 import tempfile
+<<<<<<< HEAD
 import exceptions
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 import commands
 import subprocess
 import warnings
 
+<<<<<<< HEAD
 import platform_info
+=======
+from . import platform_info
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 # If linker is 'gcc', this will convert it to 'g++'
 # necessary to make sure stdc++ is linked in cross-platform way.
@@ -39,10 +50,18 @@ from numpy.distutils.core import Extension
 
 old_init_posix = distutils.sysconfig._init_posix
 
+<<<<<<< HEAD
 def _init_posix():
     old_init_posix()
     ld = distutils.sysconfig._config_vars['LDSHARED']
     #distutils.sysconfig._config_vars['LDSHARED'] = ld.replace('gcc','g++')
+=======
+
+def _init_posix():
+    old_init_posix()
+    ld = distutils.sysconfig._config_vars['LDSHARED']
+    # distutils.sysconfig._config_vars['LDSHARED'] = ld.replace('gcc','g++')
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     # FreeBSD names gcc as cc, so the above find and replace doesn't work.
     # So, assume first entry in ld is the name of the linker -- gcc or cc or
     # whatever.  This is a sane assumption, correct?
@@ -52,7 +71,10 @@ def _init_posix():
         link_cmds[0] = 'g++'
         ld = ' '.join(link_cmds)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     if (sys.platform == 'darwin'):
         # The Jaguar distributed python 2.2 has -arch i386 in the link line
         # which doesn't seem right.  It omits all kinds of warnings, so
@@ -73,7 +95,11 @@ distutils.sysconfig._init_posix = _init_posix
 # end force g++
 
 
+<<<<<<< HEAD
 class CompileError(exceptions.Exception):
+=======
+class CompileError(Exception):
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     pass
 
 
@@ -121,13 +147,23 @@ def create_extension(module_path, **kw):
     version = sys.version.lower()
     if platform[:5] == 'sunos' and 'gcc' in version:
         extra_link_args = kw.get('extra_link_args',[])
+<<<<<<< HEAD
         kw['extra_link_args'] = ['-mimpure-text'] +  extra_link_args
+=======
+        kw['extra_link_args'] = ['-mimpure-text'] + extra_link_args
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     ext = Extension(module_name, **kw)
     return ext
 
+<<<<<<< HEAD
 def build_extension(module_path,compiler_name = '',build_dir = None,
                     temp_dir = None, verbose = 0, **kw):
+=======
+
+def build_extension(module_path,compiler_name='',build_dir=None,
+                    temp_dir=None, verbose=0, **kw):
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     """ Build the file given by module_path into a Python extension module.
 
         build_extensions uses distutils to build Python extension modules.
@@ -229,14 +265,24 @@ def build_extension(module_path,compiler_name = '',build_dir = None,
 
     # configure temp and build directories
     temp_dir = configure_temp_dir(temp_dir)
+<<<<<<< HEAD
     build_dir = configure_build_dir(module_dir)
+=======
+    build_dir = configure_build_dir(build_dir or module_dir)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     # dag. We keep having to add directories to the path to keep
     # object files separated from each other.  gcc2.x and gcc3.x C++
     # object files are not compatible, so we'll stick them in a sub
+<<<<<<< HEAD
     # dir based on their version.  This will add an md5 check sum
     # of the compiler binary to the directory name to keep objects
     # from different compilers in different locations.
+=======
+    # dir based on their version. This will add a SHA-256 check sum
+    # (truncated to 32 characters) of the compiler binary to the directory
+    # name to keep objects from different compilers in different locations.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     compiler_dir = platform_info.get_compiler_dir(compiler_name)
     temp_dir = os.path.join(temp_dir,compiler_dir)
@@ -249,7 +295,11 @@ def build_extension(module_path,compiler_name = '',build_dir = None,
     # the business end of the function
     try:
         if verbose == 1:
+<<<<<<< HEAD
             print 'Compiling code...'
+=======
+            print('Compiling code...')
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         # set compiler verboseness 2 or more makes it output results
         if verbose > 1:
@@ -265,17 +315,30 @@ def build_extension(module_path,compiler_name = '',build_dir = None,
         old_SysExit = builtin.__dict__['SystemExit']
         builtin.__dict__['SystemExit'] = CompileError
 
+<<<<<<< HEAD
+=======
+        # change current working directory to 'build_dir' so compiler won't
+        # pick up anything by mistake
+        oldcwd = os.path.abspath(os.getcwd())
+        os.chdir(build_dir)
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         # distutils for MSVC messes with the environment, so we save the
         # current state and restore them afterward.
         import copy
         environ = copy.deepcopy(os.environ)
         try:
+<<<<<<< HEAD
             setup(name = module_name, ext_modules = [ext],verbose=verb)
+=======
+            setup(name=module_name, ext_modules=[ext],verbose=verb)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         finally:
             # restore state
             os.environ = environ
             # restore SystemExit
             builtin.__dict__['SystemExit'] = old_SysExit
+<<<<<<< HEAD
         t2 = time.time()
 
         if verbose == 1:
@@ -283,6 +346,17 @@ def build_extension(module_path,compiler_name = '',build_dir = None,
         success = 1
         configure_python_path(build_dir)
     except SyntaxError: #TypeError:
+=======
+            # restore working directory to one before setup
+            os.chdir(oldcwd)
+        t2 = time.time()
+
+        if verbose == 1:
+            print('finished compiling (sec): ', t2 - t1)
+        success = 1
+        configure_python_path(build_dir)
+    except SyntaxError:  # TypeError:
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         success = 0
 
     # restore argv after our trick...
@@ -291,6 +365,11 @@ def build_extension(module_path,compiler_name = '',build_dir = None,
     return success
 
 old_argv = []
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def configure_sys_argv(compiler_name,temp_dir,build_dir):
     # We're gonna play some tricks with argv here to pass info to distutils
     # which is really built for command line use. better way??
@@ -303,6 +382,7 @@ def configure_sys_argv(compiler_name,temp_dir,build_dir):
     elif compiler_name:
         sys.argv.insert(2,'--compiler='+compiler_name)
 
+<<<<<<< HEAD
 def restore_sys_argv():
     sys.argv = old_argv
 
@@ -314,6 +394,22 @@ def configure_python_path(build_dir):
         #      " It has been appended to the path."
         sys.path.append(os.path.abspath(build_dir))
 
+=======
+
+def restore_sys_argv():
+    sys.argv = old_argv
+
+
+def configure_python_path(build_dir):
+    # make sure the module lives in a directory on the python path.
+    python_paths = [os.path.abspath(x) for x in sys.path]
+    if os.path.abspath(build_dir) not in python_paths:
+        # print "warning: build directory was not part of python path."\
+        #      " It has been appended to the path."
+        sys.path.append(os.path.abspath(build_dir))
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def choose_compiler(compiler_name=''):
     """ Try and figure out which compiler is gonna be used on windows.
         On other platforms, it just returns whatever value it is given.
@@ -337,6 +433,10 @@ def choose_compiler(compiler_name=''):
             compiler_name = 'unix'
     return compiler_name
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def gcc_exists(name='gcc'):
     """ Test to make sure gcc is found."""
     result = 0
@@ -359,6 +459,10 @@ def gcc_exists(name='gcc'):
         result = not os.system(" ".join(cmd))
     return result
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def msvc_exists():
     """ Determine whether MSVC is available on the machine.
     """
@@ -367,11 +471,19 @@ def msvc_exists():
         p = subprocess.Popen(['cl'], shell=True, stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT)
         str_result = p.stdout.read()
+<<<<<<< HEAD
         #print str_result
         if 'Microsoft' in str_result:
             result = 1
     except:
         #assume we're ok if devstudio exists
+=======
+        # print str_result
+        if 'Microsoft' in str_result:
+            result = 1
+    except:
+        # assume we're ok if devstudio exists
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         import distutils.msvccompiler
         try:
             cc = distutils.msvccompiler.MSVCCompiler()
@@ -399,6 +511,7 @@ def configure_temp_dir(temp_dir=None):
     if temp_dir is None:
         temp_dir = tempfile.gettempdir()
     elif not os.path.exists(temp_dir) or not os.access(temp_dir,os.W_OK):
+<<<<<<< HEAD
         print "warning: specified temp_dir '%s' does not exist " \
               "or is not writable. Using the default temp directory" % \
               temp_dir
@@ -411,6 +524,21 @@ def configure_temp_dir(temp_dir=None):
         raise ValueError, msg
     return temp_dir
 
+=======
+        print("warning: specified temp_dir '%s' does not exist "
+              "or is not writable. Using the default temp directory" %
+              temp_dir)
+        temp_dir = tempfile.gettempdir()
+
+    # Final check that directories are writable.
+    if not os.access(temp_dir,os.W_OK):
+        msg = "Either the temp or build directory wasn't writable. Check" \
+              " these locations: '%s'" % temp_dir
+        raise ValueError(msg)
+    return temp_dir
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def configure_build_dir(build_dir=None):
     # make sure build_dir exists and is writable
     if build_dir and (not os.path.exists(build_dir) or
@@ -421,6 +549,7 @@ def configure_build_dir(build_dir=None):
         build_dir = None
 
     if build_dir is None:
+<<<<<<< HEAD
         #default to building in the home directory of the given module.
         build_dir = os.curdir
         # if it doesn't work use the current directory.  This should always
@@ -436,6 +565,23 @@ def configure_build_dir(build_dir=None):
         msg = "The build directory wasn't writable. Check" \
               " this location: '%s'" % build_dir
         raise ValueError, msg
+=======
+        # Default to building in the home directory of the given module.
+        build_dir = os.curdir
+        # If it doesn't work use the current directory. This should always
+        # be writable.
+        if not os.access(build_dir,os.W_OK):
+            print("warning:, neither the module's directory nor the "
+                  "current directory are writable.  Using the temporary"
+                  "directory.")
+            build_dir = tempfile.gettempdir()
+
+    # Final check that directories are writable.
+    if not os.access(build_dir,os.W_OK):
+        msg = "The build directory wasn't writable. Check" \
+              " this location: '%s'" % build_dir
+        raise ValueError(msg)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     return os.path.abspath(build_dir)
 
@@ -454,12 +600,20 @@ if sys.platform == 'win32':
 
         compiler_type = 'mingw32'
 
+<<<<<<< HEAD
         def __init__ (self,
+=======
+        def __init__(self,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                       verbose=0,
                       dry_run=0,
                       force=0):
 
+<<<<<<< HEAD
             distutils.cygwinccompiler.CygwinCCompiler.__init__ (self,
+=======
+            distutils.cygwinccompiler.CygwinCCompiler.__init__(self,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                                                        verbose,dry_run, force)
 
             # we need to support 3.2 which doesn't match the standard
@@ -492,7 +646,11 @@ if sys.platform == 'win32':
             # **changes: eric jones 4/11/01
             # 2. increased optimization and turned off all warnings
             # 3. also added --driver-name g++
+<<<<<<< HEAD
             #self.set_executables(compiler='gcc -mno-cygwin -O2 -w',
+=======
+            # self.set_executables(compiler='gcc -mno-cygwin -O2 -w',
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             #                     compiler_so='gcc -mno-cygwin -mdll -O2 -w',
             #                     linker_exe='gcc -mno-cygwin',
             #                     linker_so='%s --driver-name g++ -mno-cygwin -mdll -static %s'
@@ -517,7 +675,11 @@ if sys.platform == 'win32':
             # (-mthreads: Support thread-safe exception handling on `Mingw32')
 
             # no additional libraries needed
+<<<<<<< HEAD
             self.dll_libraries=[]
+=======
+            self.dll_libraries = []
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         # __init__ ()
 
@@ -529,7 +691,11 @@ if sys.platform == 'win32':
                  libraries,
                  library_dirs,
                  runtime_library_dirs,
+<<<<<<< HEAD
                  export_symbols=None, # export_symbols, we do this in our def-file
+=======
+                 export_symbols=None,  # export_symbols, we do this in our def-file
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                  debug=0,
                  extra_preargs=None,
                  extra_postargs=None,
@@ -544,7 +710,11 @@ if sys.platform == 'win32':
                                libraries,
                                library_dirs,
                                runtime_library_dirs,
+<<<<<<< HEAD
                                None, # export_symbols, we do this in our def-file
+=======
+                               None,  # export_symbols, we do this in our def-file
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                                debug,
                                extra_preargs,
                                extra_postargs,
@@ -559,19 +729,31 @@ if sys.platform == 'win32':
                                libraries,
                                library_dirs,
                                runtime_library_dirs,
+<<<<<<< HEAD
                                None, # export_symbols, we do this in our def-file
+=======
+                               None,  # export_symbols, we do this in our def-file
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                                debug,
                                extra_preargs,
                                extra_postargs,
                                build_temp,
                                target_lang)
 
+<<<<<<< HEAD
 
     # On windows platforms, we want to default to mingw32 (gcc)
     # because msvc can't build blitz stuff.
     # We should also check the version of gcc available...
     #distutils.ccompiler._default_compilers['nt'] = 'mingw32'
     #distutils.ccompiler._default_compilers = (('nt', 'mingw32'))
+=======
+    # On windows platforms, we want to default to mingw32 (gcc)
+    # because msvc can't build blitz stuff.
+    # We should also check the version of gcc available...
+    # distutils.ccompiler._default_compilers['nt'] = 'mingw32'
+    # distutils.ccompiler._default_compilers = (('nt', 'mingw32'))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     # reset the Mingw32 compiler in distutils to the one defined above
     distutils.cygwinccompiler.Mingw32CCompiler = Mingw32CCompiler
 
@@ -589,10 +771,17 @@ if sys.platform == 'win32':
         """ Build the import libraries for Mingw32-gcc on Windows
         """
         from numpy.distutils import lib2def
+<<<<<<< HEAD
         #libfile, deffile = parse_cmd()
         #if deffile is None:
         #    deffile = sys.stdout
         #else:
+=======
+        # libfile, deffile = parse_cmd()
+        # if deffile is None:
+        #    deffile = sys.stdout
+        # else:
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         #    deffile = open(deffile, 'w')
         lib_name = "python%d%d.lib" % tuple(sys.version_info[:2])
         lib_file = os.path.join(sys.prefix,'libs',lib_name)
@@ -611,7 +800,12 @@ if sys.platform == 'win32':
         success = not os.system(cmd)
         # for now, fail silently
         if not success:
+<<<<<<< HEAD
             print 'WARNING: failed to build import library for gcc. Linking will fail.'
         #if not success:
+=======
+            print('WARNING: failed to build import library for gcc. Linking will fail.')
+        # if not success:
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         #    msg = "Couldn't find import library, and failed to build it."
         #    raise DistutilsPlatformError, msg

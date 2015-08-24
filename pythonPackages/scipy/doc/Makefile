@@ -1,7 +1,11 @@
 # Makefile for Sphinx documentation
 #
 
+<<<<<<< HEAD
 PYVER =
+=======
+PYVER = 2.7
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 PYTHON = python$(PYVER)
 
 # You can set these variables from the command line.
@@ -9,7 +13,11 @@ SPHINXOPTS    =
 SPHINXBUILD   = LANG=C sphinx-build
 PAPER         =
 
+<<<<<<< HEAD
 NEED_AUTOSUMMARY = $(shell $(PYTHON) -c 'import sphinx; print sphinx.__version__ < "0.7" and "1" or ""')
+=======
+FILES=
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
@@ -24,6 +32,10 @@ ALLSPHINXOPTS   = -d build/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) source
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
 	@echo "  html      to make standalone HTML files"
+<<<<<<< HEAD
+=======
+	@echo "  html-scipyorg  to make standalone HTML files with scipy.org theming"
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	@echo "  pickle    to make pickle files (usable by e.g. sphinx-web)"
 	@echo "  htmlhelp  to make HTML files and a HTML help project"
 	@echo "  latex     to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
@@ -53,6 +65,7 @@ INSTALL_PPH = $(INSTALL_DIR)/lib/python$(PYVER)/site-packages:$(INSTALL_DIR)/loc
 
 DIST_VARS=PYTHON="PYTHONPATH=$(INSTALL_PPH):$$PYTHONPATH python$(PYVER)" SPHINXBUILD="LANG=C PYTHONPATH=$(INSTALL_PPH):$$PYTHONPATH python$(PYVER) `which sphinx-build`"
 
+<<<<<<< HEAD
 UPLOAD_TARGET = $(USER)@docs.scipy.org:/home/docserver/www-root/doc/scipy/
 
 upload:
@@ -70,11 +83,18 @@ dist:
 	make $(DIST_VARS) real-dist
 
 real-dist: dist-build html
+=======
+dist:
+	make $(DIST_VARS) real-dist
+
+real-dist: dist-build html html-scipyorg
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	test -d build/latex || make latex
 	make -C build/latex all-pdf
 	-test -d build/htmlhelp || make htmlhelp-build
 	-rm -rf build/dist
 	mkdir -p build/dist
+<<<<<<< HEAD
 	cp -r build/html build/dist/reference
 	touch build/dist/index.html
 	perl -pi -e 's#^\s*(<li><a href=".*?">SciPy.*?Reference Guide.*?&raquo;</li>)\s*$$#<li><a href="/">Numpy and Scipy Documentation</a> &raquo;</li> $$1#;' build/dist/*.html build/dist/*/*.html build/dist/*/*/*.html
@@ -84,6 +104,16 @@ real-dist: dist-build html
 	cd build/dist && tar czf ../dist.tar.gz *
 	chmod ug=rwX,o=rX -R build/dist
 	find build/dist -type d -print0 | xargs -0r chmod g+s
+=======
+	cp -r build/html-scipyorg build/dist/reference
+	touch build/dist/index.html
+	(cd build/html && zip -9qr ../dist/scipy-html.zip .)
+	cp build/latex/scipy*.pdf build/dist
+	-zip build/dist/scipy-chm.zip build/htmlhelp/scipy.chm
+	chmod ug=rwX,o=rX -R build/dist
+	find build/dist -type d -print0 | xargs -0r chmod g+s
+	cd build/dist && tar czf ../dist.tar.gz *
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 dist-build:
 	rm -f ../dist/*.egg
@@ -96,6 +126,7 @@ dist-build:
 # Basic Sphinx generation rules for different formats
 #------------------------------------------------------------------------------
 
+<<<<<<< HEAD
 generate: build/generate-stamp
 build/generate-stamp: $(wildcard source/*.rst)
 	mkdir -p build
@@ -116,6 +147,23 @@ html: generate
 pickle: generate
 	mkdir -p build/pickle build/doctrees
 	$(SPHINXBUILD) -b pickle $(ALLSPHINXOPTS) build/pickle
+=======
+html:
+	mkdir -p build/html build/doctrees
+	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) build/html $(FILES)
+	@echo
+	@echo "Build finished. The HTML pages are in build/html."
+
+html-scipyorg:
+	mkdir -p build/html build/doctrees
+	$(SPHINXBUILD) -t scipyorg -b html $(ALLSPHINXOPTS) build/html-scipyorg $(FILES)
+	@echo
+	@echo "Build finished. The HTML pages are in build/html-scipyorg."
+
+pickle:
+	mkdir -p build/pickle build/doctrees
+	$(SPHINXBUILD) -b pickle $(ALLSPHINXOPTS) build/pickle $(FILES)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	@echo
 	@echo "Build finished; now you can process the pickle files or run"
 	@echo "  sphinx-web build/pickle"
@@ -123,9 +171,15 @@ pickle: generate
 
 web: pickle
 
+<<<<<<< HEAD
 htmlhelp: generate
 	mkdir -p build/htmlhelp build/doctrees
 	$(SPHINXBUILD) -b htmlhelp $(ALLSPHINXOPTS) build/htmlhelp
+=======
+htmlhelp:
+	mkdir -p build/htmlhelp build/doctrees
+	$(SPHINXBUILD) -b htmlhelp $(ALLSPHINXOPTS) build/htmlhelp $(FILES)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	@echo
 	@echo "Build finished; now you can run HTML Help Workshop with the" \
 	      ".hhp project file in build/htmlhelp."
@@ -134,9 +188,15 @@ htmlhelp-build: htmlhelp build/htmlhelp/scipy.chm
 %.chm: %.hhp
 	-hhc.exe $^
 
+<<<<<<< HEAD
 latex: generate
 	mkdir -p build/latex build/doctrees
 	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) build/latex
+=======
+latex:
+	mkdir -p build/latex build/doctrees
+	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) build/latex $(FILES)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	$(PYTHON) postprocess.py tex build/latex/*.tex
 	perl -pi -e 's/\t(latex.*|pdflatex) (.*)/\t-$$1 -interaction batchmode $$2/' build/latex/Makefile
 	@echo
@@ -146,6 +206,7 @@ latex: generate
 
 coverage: build
 	mkdir -p build/coverage build/doctrees
+<<<<<<< HEAD
 	$(SPHINXBUILD) -b coverage $(ALLSPHINXOPTS) build/coverage
 	@echo "Coverage finished; see c.txt and python.txt in build/coverage"
 
@@ -158,6 +219,20 @@ changes: generate
 linkcheck: generate
 	mkdir -p build/linkcheck build/doctrees
 	$(SPHINXBUILD) -b linkcheck $(ALLSPHINXOPTS) build/linkcheck
+=======
+	$(SPHINXBUILD) -b coverage $(ALLSPHINXOPTS) build/coverage $(FILES)
+	@echo "Coverage finished; see c.txt and python.txt in build/coverage"
+
+changes:
+	mkdir -p build/changes build/doctrees
+	$(SPHINXBUILD) -b changes $(ALLSPHINXOPTS) build/changes $(FILES)
+	@echo
+	@echo "The overview file is in build/changes."
+
+linkcheck:
+	mkdir -p build/linkcheck build/doctrees
+	$(SPHINXBUILD) -b linkcheck $(ALLSPHINXOPTS) build/linkcheck $(FILES)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	@echo
 	@echo "Link check complete; look for any errors in the above output " \
 	      "or in build/linkcheck/output.txt."

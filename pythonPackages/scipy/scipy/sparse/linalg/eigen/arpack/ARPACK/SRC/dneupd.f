@@ -353,7 +353,11 @@ c
      &           mode  , msglvl, outncv, ritzr   ,
      &           ritzi , wri   , wrr   , irr     ,
      &           iri   , ibd   , ishift, numcnv  ,
+<<<<<<< HEAD
      &           np    , jj 
+=======
+     &           np    , jj    , nconv2 
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       logical    reord
       Double precision 
      &           conds  , rnorm, sep  , temp,
@@ -589,7 +593,11 @@ c
      &          workl(ibd+jj-1) .le. tol*temp1) then
                select(jj) = .true.
                numcnv = numcnv + 1
+<<<<<<< HEAD
                if (jj .gt. nev) reord = .true.
+=======
+               if (jj .gt. nconv) reord = .true.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             endif
    11    continue
 c
@@ -661,16 +669,31 @@ c
      &                   workl(iuptri), ldh          , 
      &                   workl(invsub), ldq          , 
      &                   workl(iheigr), workl(iheigi), 
+<<<<<<< HEAD
      &                   nconv        , conds        ,
+=======
+     &                   nconv2       , conds        ,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      &                   sep          , workl(ihbds) , 
      &                   ncv          , iwork        ,
      &                   1            , ierr)
 c
+<<<<<<< HEAD
+=======
+            if (nconv2 .lt. nconv) then
+               nconv = nconv2
+            end if
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             if (ierr .eq. 1) then
                info = 1
                go to 9000
             end if
 c
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             if (msglvl .gt. 2) then
                 call dvout (logfil, ncv, workl(iheigr), ndigit,
      &           '_neupd: Real part of the eigenvalues of H--reordered')

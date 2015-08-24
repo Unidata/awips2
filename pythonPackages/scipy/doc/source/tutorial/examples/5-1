@@ -32,8 +32,14 @@ Optimization Tools
 
   Global Optimizers
 
+<<<<<<< HEAD
    anneal      --  Simulated Annealing
    brute       --  Brute force searching optimizer
+=======
+   basinhopping --  Basin-hopping stochastic optimizer
+   differential_evolution -- Stochastic optimizer
+   brute        --  Brute force searching optimizer
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
   Scalar function minimizers

@@ -8,6 +8,7 @@ accelerate_tools contains the interface for on-the-fly building of
 C++ equivalents to Python functions.
 """
 #**************************************************************************#
+<<<<<<< HEAD
 
 from types import InstanceType, XRangeType
 import inspect
@@ -15,13 +16,30 @@ import scipy.weave.md5_load as md5
 import scipy.weave as weave
 
 from bytecodecompiler import CXXCoder,Type_Descriptor,Function_Descriptor
+=======
+from __future__ import absolute_import, print_function
+
+from types import InstanceType, XRangeType
+import inspect
+from hashlib import sha256
+import scipy.weave as weave
+from numpy.testing import assert_
+
+from .bytecodecompiler import CXXCoder,Type_Descriptor,Function_Descriptor
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 def CStr(s):
     "Hacky way to get legal C string from Python string"
     if s is None:
         return '""'
+<<<<<<< HEAD
     assert isinstance(s, str), "only None and string allowed"
     r = repr('"'+s) # Better for embedded quotes
+=======
+    assert_(isinstance(s, str), msg="only None and string allowed")
+    r = repr('"'+s)  # Better for embedded quotes
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     return '"'+r[2:-1]+'"'
 
 
@@ -32,10 +50,17 @@ class Instance(Type_Descriptor):
     cxxtype = 'PyObject*'
 
     def __init__(self,prototype):
+<<<<<<< HEAD
         self.prototype  = prototype
 
     def check(self,s):
         return "PyInstance_Check(%s)"%s
+=======
+        self.prototype = prototype
+
+    def check(self,s):
+        return "PyInstance_Check(%s)" % s
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     def inbound(self,s):
         return s
@@ -46,25 +71,39 @@ class Instance(Type_Descriptor):
     def get_attribute(self,name):
         proto = getattr(self.prototype,name)
         T = lookup_type(proto)
+<<<<<<< HEAD
         code = 'tempPY = PyObject_GetAttrString(%%(rhs)s,"%s");\n'%name
         convert = T.inbound('tempPY')
         code += '%%(lhsType)s %%(lhs)s = %s;\n'%convert
+=======
+        code = 'tempPY = PyObject_GetAttrString(%%(rhs)s,"%s");\n' % name
+        convert = T.inbound('tempPY')
+        code += '%%(lhsType)s %%(lhs)s = %s;\n' % convert
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         return T,code
 
     def set_attribute(self,name):
         proto = getattr(self.prototype,name)
         T = lookup_type(proto)
         convert,owned = T.outbound('%(rhs)s')
+<<<<<<< HEAD
         code = 'tempPY = %s;'%convert
         if not owned:
             code += ' Py_INCREF(tempPY);'
         code += ' PyObject_SetAttrString(%%(lhs)s,"%s",tempPY);'%name
+=======
+        code = 'tempPY = %s;' % convert
+        if not owned:
+            code += ' Py_INCREF(tempPY);'
+        code += ' PyObject_SetAttrString(%%(lhs)s,"%s",tempPY);' % name
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         code += ' Py_DECREF(tempPY);\n'
         return T,code
 
 ##################################################################
 #                          CLASS BASIC                           #
 ##################################################################
+<<<<<<< HEAD
 class Basic(Type_Descriptor):
     owned = 1
     def check(self,s):
@@ -73,13 +112,37 @@ class Basic(Type_Descriptor):
         return "%s(%s)"%(self.inbounder,s)
     def outbound(self,s):
         return "%s(%s)"%(self.outbounder,s),self.owned
+=======
+
+
+class Basic(Type_Descriptor):
+    owned = 1
+
+    def check(self,s):
+        return "%s(%s)" % (self.checker,s)
+
+    def inbound(self,s):
+        return "%s(%s)" % (self.inbounder,s)
+
+    def outbound(self,s):
+        return "%s(%s)" % (self.outbounder,s),self.owned
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 class Basic_Number(Basic):
     def literalizer(self,s):
         return str(s)
+<<<<<<< HEAD
     def binop(self,symbol,a,b):
         assert symbol in ['+','-','*','/'],symbol
         return '%s %s %s'%(a,symbol,b),self
+=======
+
+    def binop(self,symbol,a,b):
+        assert_(symbol in ['+','-','*','/'], msg=symbol)
+        return '%s %s %s' % (a,symbol,b),self
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 class Integer(Basic_Number):
     cxxtype = "long"
@@ -87,12 +150,20 @@ class Integer(Basic_Number):
     inbounder = "PyInt_AsLong"
     outbounder = "PyInt_FromLong"
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class Double(Basic_Number):
     cxxtype = "double"
     checker = "PyFloat_Check"
     inbounder = "PyFloat_AsDouble"
     outbounder = "PyFloat_FromDouble"
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class String(Basic):
     cxxtype = "char*"
     checker = "PyString_Check"
@@ -111,6 +182,10 @@ String = String()
 
 import numpy as np
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class Vector(Type_Descriptor):
     cxxtype = 'PyArrayObject*'
     refcount = 1
@@ -118,6 +193,7 @@ class Vector(Type_Descriptor):
     module_init_code = 'import_array();\n'
     inbounder = "(PyArrayObject*)"
     outbounder = "(PyObject*)"
+<<<<<<< HEAD
     owned = 0 # Convertion is by casting!
 
     prerequisites = Type_Descriptor.prerequisites+\
@@ -146,31 +222,86 @@ class Vector(Type_Descriptor):
 class matrix(Vector):
     dims = 2
 
+=======
+    owned = 0  # Conversion is by casting!
+
+    prerequisites = Type_Descriptor.prerequisites + \
+                    ['#include "numpy/arrayobject.h"']
+    dims = 1
+
+    def check(self,s):
+        return "PyArray_Check(%s) && ((PyArrayObject*)%s)->nd == %d &&  ((PyArrayObject*)%s)->descr->type_num == %s" % (
+            s,s,self.dims,s,self.typecode)
+
+    def inbound(self,s):
+        return "%s(%s)" % (self.inbounder,s)
+
+    def outbound(self,s):
+        return "%s(%s)" % (self.outbounder,s),self.owned
+
+    def getitem(self,A,v,t):
+        assert_(self.dims == len(v), msg='Expect dimension %d' % self.dims)
+        code = '*((%s*)(%s->data' % (self.cxxbase,A)
+        for i in range(self.dims):
+            # assert that ''t[i]'' is an integer
+            code += '+%s*%s->strides[%d]' % (v[i],A,i)
+        code += '))'
+        return code,self.pybase
+
+    def setitem(self,A,v,t):
+        return self.getitem(A,v,t)
+
+
+class matrix(Vector):
+    dims = 2
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class IntegerVector(Vector):
     typecode = 'PyArray_INT'
     cxxbase = 'int'
     pybase = Integer
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class Integermatrix(matrix):
     typecode = 'PyArray_INT'
     cxxbase = 'int'
     pybase = Integer
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class LongVector(Vector):
     typecode = 'PyArray_LONG'
     cxxbase = 'long'
     pybase = Integer
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class Longmatrix(matrix):
     typecode = 'PyArray_LONG'
     cxxbase = 'long'
     pybase = Integer
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class DoubleVector(Vector):
     typecode = 'PyArray_DOUBLE'
     cxxbase = 'double'
     pybase = Double
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class Doublematrix(matrix):
     typecode = 'PyArray_DOUBLE'
     cxxbase = 'double'
@@ -211,8 +342,13 @@ XRange = XRange()
 
 
 typedefs = {
+<<<<<<< HEAD
     int : Integer,
     float : Double,
+=======
+    int: Integer,
+    float: Double,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     str: String,
     (np.ndarray,1,int): IntegerVector,
     (np.ndarray,2,int): Integermatrix,
@@ -220,7 +356,11 @@ typedefs = {
     (np.ndarray,2,np.long): Longmatrix,
     (np.ndarray,1,float): DoubleVector,
     (np.ndarray,2,float): Doublematrix,
+<<<<<<< HEAD
     XRangeType : XRange,
+=======
+    XRangeType: XRange,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     }
 
 import math
@@ -251,7 +391,10 @@ functiondefs = {
     }
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 ##################################################################
 #                      FUNCTION LOOKUP_TYPE                      #
 ##################################################################
@@ -265,15 +408,28 @@ def lookup_type(x):
         elif issubclass(T, InstanceType):
             return Instance(x)
         else:
+<<<<<<< HEAD
             raise NotImplementedError,T
+=======
+            raise NotImplementedError(T)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 ##################################################################
 #                        class ACCELERATE                        #
 ##################################################################
+<<<<<<< HEAD
 class accelerate(object):
 
     def __init__(self, function, *args, **kw):
         assert inspect.isfunction(function)
+=======
+
+
+class accelerate(object):
+
+    def __init__(self, function, *args, **kw):
+        assert_(inspect.isfunction(function))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         self.function = function
         self.module = inspect.getmodule(function)
         if self.module is None:
@@ -289,7 +445,11 @@ class accelerate(object):
             return self.__cache(*args)
         except TypeError:
             # Figure out type info -- Do as tuple so its hashable
+<<<<<<< HEAD
             signature = tuple( map(lookup_type,args) )
+=======
+            signature = tuple(map(lookup_type,args))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
             # If we know the function, call it
             try:
@@ -302,10 +462,16 @@ class accelerate(object):
 
     def signature(self,*args):
         # Figure out type info -- Do as tuple so its hashable
+<<<<<<< HEAD
         signature = tuple( map(lookup_type,args) )
         return self.singleton(signature)
 
 
+=======
+        signature = tuple(map(lookup_type,args))
+        return self.singleton(signature)
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     def singleton(self,signature):
         identifier = self.identifier(signature)
 
@@ -314,9 +480,15 @@ class accelerate(object):
 
         # See if we have an accelerated version of module
         try:
+<<<<<<< HEAD
             print 'lookup',self.module.__name__+'_weave'
             accelerated_module = __import__(self.module.__name__+'_weave')
             print 'have accelerated',self.module.__name__+'_weave'
+=======
+            print('lookup',self.module.__name__+'_weave')
+            accelerated_module = __import__(self.module.__name__+'_weave')
+            print('have accelerated',self.module.__name__+'_weave')
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             fast = getattr(accelerated_module,identifier)
             return fast
         except ImportError:
@@ -332,7 +504,11 @@ class accelerate(object):
         weave.build_tools.build_extension(self.module.__name__+'_weave.cpp',verbose=2)
 
         if accelerated_module:
+<<<<<<< HEAD
             raise NotImplementedError,'Reload'
+=======
+            raise NotImplementedError('Reload')
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         else:
             accelerated_module = __import__(self.module.__name__+'_weave')
 
@@ -340,6 +516,7 @@ class accelerate(object):
         return fast
 
     def identifier(self,signature):
+<<<<<<< HEAD
         # Build an MD5 checksum
         f = self.function
         co = f.func_code
@@ -349,6 +526,17 @@ class accelerate(object):
                      str(co.co_varnames)+\
                      co.co_code
         return 'F'+md5.md5(identifier).hexdigest()
+=======
+        # Build a (truncated, see gh-3216) SHA-256 checksum
+        f = self.function
+        co = f.func_code
+        identifier = str(signature) + \
+                     str(co.co_argcount) + \
+                     str(co.co_consts) + \
+                     str(co.co_varnames) + \
+                     co.co_code
+        return 'F' + sha256(identifier).hexdigest()[:32]
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     def accelerate(self,signature,identifier):
         P = Python2CXX(self.function,signature,name=identifier)
@@ -356,11 +544,19 @@ class accelerate(object):
 
     def code(self,*args):
         if len(args) != self.function.func_code.co_argcount:
+<<<<<<< HEAD
             raise TypeError,'%s() takes exactly %d arguments (%d given)'%(
                 self.function.__name__,
                 self.function.func_code.co_argcount,
                 len(args))
         signature = tuple( map(lookup_type,args) )
+=======
+            raise TypeError('%s() takes exactly %d arguments (%d given)' %
+                        (self.function.__name__,
+                         self.function.func_code.co_argcount,
+                         len(args)))
+        signature = tuple(map(lookup_type,args))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         ident = self.function.__name__
         return self.accelerate(signature,ident).function_code()
 
@@ -383,12 +579,21 @@ class Python2CXX(CXXCoder):
 
     def __init__(self,f,signature,name=None):
         # Make sure function is a function
+<<<<<<< HEAD
         assert inspect.isfunction(f)
         # and check the input type signature
         assert reduce(lambda x,y: x and y,
                       map(lambda x: isinstance(x,Type_Descriptor),
                           signature),
                       1),'%s not all type objects'%signature
+=======
+        assert_(inspect.isfunction(f))
+        # and check the input type signature
+        assert_(reduce(lambda x,y: x and y,
+                      map(lambda x: isinstance(x,Type_Descriptor),
+                          signature),
+                      1), msg='%s not all type objects' % signature)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         self.arg_specs = []
         self.customize = weave.base_info.custom_info()
 
@@ -404,7 +609,11 @@ class Python2CXX(CXXCoder):
         return code
 
     def python_function_definition_code(self):
+<<<<<<< HEAD
         return '{ "%s", wrapper_%s, METH_VARARGS, %s },\n'%(
+=======
+        return '{ "%s", wrapper_%s, METH_VARARGS, %s },\n' % (
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             self.name,
             self.name,
             CStr(self.function.__doc__))

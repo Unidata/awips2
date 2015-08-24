@@ -108,16 +108,24 @@ if ( jcol == MIN_COL ) {
        Also search for user-specified pivot, and diagonal element. */
     if ( *usepr ) *pivrow = iperm_r[jcol];
     diagind = iperm_c[jcol];
+<<<<<<< HEAD
 #ifdef SCIPY_SPECIFIC_FIX
     pivmax = -1.0;
 #else
     pivmax = 0.0;
 #endif
+=======
+    pivmax = 0.0;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     pivptr = nsupc;
     diag = EMPTY;
     old_pivptr = nsupc;
     for (isub = nsupc; isub < nsupr; ++isub) {
+<<<<<<< HEAD
         rtemp = slu_c_abs1 (&lu_col_ptr[isub]);
+=======
+        rtemp = c_abs1 (&lu_col_ptr[isub]);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	if ( rtemp > pivmax ) {
 	    pivmax = rtemp;
 	    pivptr = isub;
@@ -127,6 +135,7 @@ if ( jcol == MIN_COL ) {
     }
 
     /* Test for singularity */
+<<<<<<< HEAD
 #ifdef SCIPY_SPECIFIC_FIX
     if (pivmax < 0.0) {
         perm_r[diagind] = jcol;
@@ -137,6 +146,20 @@ if ( jcol == MIN_COL ) {
     if ( pivmax == 0.0 ) {
 #if 1
 	*pivrow = lsub_ptr[pivptr];
+=======
+    if ( pivmax == 0.0 ) {
+#if 1
+#if SCIPY_FIX
+	if (pivptr < nsupr) {
+	    *pivrow = lsub_ptr[pivptr];
+	}
+	else {
+	    *pivrow = diagind;
+	}
+#else
+	*pivrow = lsub_ptr[pivptr];
+#endif
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	perm_r[*pivrow] = jcol;
 #else
 	perm_r[diagind] = jcol;
@@ -149,7 +172,11 @@ if ( jcol == MIN_COL ) {
     
     /* Choose appropriate pivotal element by our policy. */
     if ( *usepr ) {
+<<<<<<< HEAD
         rtemp = slu_c_abs1 (&lu_col_ptr[old_pivptr]);
+=======
+        rtemp = c_abs1 (&lu_col_ptr[old_pivptr]);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	if ( rtemp != 0.0 && rtemp >= thresh )
 	    pivptr = old_pivptr;
 	else
@@ -158,7 +185,11 @@ if ( jcol == MIN_COL ) {
     if ( *usepr == 0 ) {
 	/* Use diagonal pivot? */
 	if ( diag >= 0 ) { /* diagonal exists */
+<<<<<<< HEAD
             rtemp = slu_c_abs1 (&lu_col_ptr[diag]);
+=======
+            rtemp = c_abs1 (&lu_col_ptr[diag]);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	    if ( rtemp != 0.0 && rtemp >= thresh ) pivptr = diag;
         }
 	*pivrow = lsub_ptr[pivptr];

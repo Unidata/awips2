@@ -109,10 +109,25 @@ void coo_todense(const I n_row,
                  const I Ai[],
                  const I Aj[],
                  const T Ax[],
+<<<<<<< HEAD
                        T Bx[])
 {
     for(I n = 0; n < nnz; n++){
         Bx[ n_col * Ai[n] + Aj[n] ] += Ax[n];
+=======
+                       T Bx[],
+		 int fortran)
+{
+    if (!fortran) {
+        for(I n = 0; n < nnz; n++){
+            Bx[ (npy_intp)n_col * Ai[n] + Aj[n] ] += Ax[n];
+        }
+    }
+    else {
+        for(I n = 0; n < nnz; n++){
+            Bx[ (npy_intp)n_row * Aj[n] + Ai[n] ] += Ax[n];
+        }
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     }
 }
 

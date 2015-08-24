@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*							pdtr.c
  *
  *	Poisson distribution
+=======
+/*                                                     pdtr.c
+ *
+ *     Poisson distribution
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
  *
  *
  *
@@ -29,7 +35,11 @@
  *
  * y = pdtr( k, m ) = igamc( k+1, m ).
  *
+<<<<<<< HEAD
  * The arguments must both be positive.
+=======
+ * The arguments must both be nonnegative.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
  *
  *
  *
@@ -38,9 +48,15 @@
  * See igamc().
  *
  */
+<<<<<<< HEAD
 /*							pdtrc()
  *
  *	Complemented poisson distribution
+=======
+/*  pdtrc()
+ *
+ *  Complemented poisson distribution
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
  *
  *
  *
@@ -69,7 +85,11 @@
  *
  * y = pdtrc( k, m ) = igam( k+1, m ).
  *
+<<<<<<< HEAD
  * The arguments must both be positive.
+=======
+ * The arguments must both be nonnegative.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
  *
  *
  *
@@ -78,9 +98,15 @@
  * See igam.c.
  *
  */
+<<<<<<< HEAD
 /*							pdtri()
  *
  *	Inverse Poisson distribution
+=======
+/*  pdtri()
+ *
+ *  Inverse Poisson distribution
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
  *
  *
  *
@@ -119,6 +145,7 @@
  *                     k < 0
  *
  */
+<<<<<<< HEAD
 
 /*
 Cephes Math Library Release 2.3:  March, 1995
@@ -174,4 +201,63 @@ if( (k < 0) || (y < 0.0) || (y >= 1.0) )
 v = k+1;
 v = igami( v, y );
 return( v );
+=======
+
+/*
+ * Cephes Math Library Release 2.3:  March, 1995
+ * Copyright 1984, 1987, 1995 by Stephen L. Moshier
+ */
+
+#include "mconf.h"
+
+double pdtrc(k, m)
+int k;
+double m;
+{
+    double v;
+
+    if ((k < 0) || (m < 0.0)) {
+        mtherr("pdtrc", DOMAIN);
+        return (NPY_NAN);
+    }
+    if (m == 0.0) {
+        return 0.0;
+    }
+    v = k + 1;
+    return (igam(v, m));
+}
+
+
+double pdtr(k, m)
+int k;
+double m;
+{
+    double v;
+
+    if ((k < 0) || (m < 0.0)) {
+        mtherr("pdtr", DOMAIN);
+        return (NPY_NAN);
+    }
+    if (m == 0.0) {
+        return 1.0;
+    }
+    v = k + 1;
+    return (igamc(v, m));
+}
+
+
+double pdtri(k, y)
+int k;
+double y;
+{
+    double v;
+
+    if ((k < 0) || (y < 0.0) || (y >= 1.0)) {
+        mtherr("pdtri", DOMAIN);
+        return (NPY_NAN);
+    }
+    v = k + 1;
+    v = igami(v, y);
+    return (v);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 }

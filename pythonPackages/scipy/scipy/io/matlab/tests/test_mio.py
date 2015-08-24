@@ -1,9 +1,14 @@
 #!/usr/bin/env python
+<<<<<<< HEAD
+=======
+# -*- coding: latin-1 -*-
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 ''' Nose test generators
 
 Need function load / save / roundtrip tests
 
 '''
+<<<<<<< HEAD
 from os.path import join as pjoin, dirname
 from glob import glob
 from StringIO import StringIO
@@ -13,11 +18,23 @@ try:
     from functools import partial
 except ImportError:
     from scipy.io.arff.myfunctools import partial
+=======
+from __future__ import division, print_function, absolute_import
+
+import os
+from os.path import join as pjoin, dirname
+from glob import glob
+from io import BytesIO
+from tempfile import mkdtemp
+
+from scipy._lib.six import u, text_type, string_types
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 import warnings
 import shutil
 import gzip
 
+<<<<<<< HEAD
 from numpy.testing import \
      assert_array_equal, \
      assert_array_almost_equal, \
@@ -25,12 +42,18 @@ from numpy.testing import \
      assert_raises
 
 from nose.tools import assert_true
+=======
+from numpy.testing import (assert_array_equal, assert_array_almost_equal,
+                           assert_equal, assert_raises, run_module_suite,
+                           assert_)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 import numpy as np
 from numpy import array
 import scipy.sparse as SP
 
 import scipy.io.matlab.byteordercodes as boc
+<<<<<<< HEAD
 from scipy.io.matlab.miobase import matdims, MatFileReader, \
     MatWriteError
 from scipy.io.matlab.mio import find_mat_file, mat_reader_factory, \
@@ -53,6 +76,20 @@ test_data_path = pjoin(dirname(__file__), 'data')
 def mlarr(*args, **kwargs):
     ''' Convenience function to return matlab-compatible 2D array
     '''
+=======
+from scipy.io.matlab.miobase import matdims, MatWriteError, MatReadError
+from scipy.io.matlab.mio import (mat_reader_factory, loadmat, savemat, whosmat)
+from scipy.io.matlab.mio5 import (MatlabObject, MatFile5Writer, MatFile5Reader,
+                                  MatlabFunction, varmats_from_mat,
+                                  to_writeable, EmptyStructMarker)
+from scipy.io.matlab import mio5_params as mio5p
+
+test_data_path = pjoin(dirname(__file__), 'data')
+
+
+def mlarr(*args, **kwargs):
+    """Convenience function to return matlab-compatible 2D array."""
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     arr = np.array(*args, **kwargs)
     arr.shape = matdims(arr)
     return arr
@@ -61,10 +98,15 @@ def mlarr(*args, **kwargs):
 theta = np.pi/4*np.arange(9,dtype=float).reshape(1,9)
 case_table4 = [
     {'name': 'double',
+<<<<<<< HEAD
+=======
+     'classes': {'testdouble': 'double'},
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      'expected': {'testdouble': theta}
      }]
 case_table4.append(
     {'name': 'string',
+<<<<<<< HEAD
      'expected': {'teststring':
                   array([u'"Do nine men interpret?" "Nine men," I nod.'])},
      })
@@ -77,43 +119,94 @@ A[0] = range(1,6)
 A[:,0] = range(1,4)
 case_table4.append(
     {'name': 'matrix',
+=======
+     'classes': {'teststring': 'char'},
+     'expected': {'teststring':
+                  array([u('"Do nine men interpret?" "Nine men," I nod.')])}
+     })
+case_table4.append(
+    {'name': 'complex',
+     'classes': {'testcomplex': 'double'},
+     'expected': {'testcomplex': np.cos(theta) + 1j*np.sin(theta)}
+     })
+A = np.zeros((3,5))
+A[0] = list(range(1,6))
+A[:,0] = list(range(1,4))
+case_table4.append(
+    {'name': 'matrix',
+     'classes': {'testmatrix': 'double'},
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      'expected': {'testmatrix': A},
      })
 case_table4.append(
     {'name': 'sparse',
+<<<<<<< HEAD
+=======
+     'classes': {'testsparse': 'sparse'},
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      'expected': {'testsparse': SP.coo_matrix(A)},
      })
 B = A.astype(complex)
 B[0,0] += 1j
 case_table4.append(
     {'name': 'sparsecomplex',
+<<<<<<< HEAD
+=======
+     'classes': {'testsparsecomplex': 'sparse'},
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      'expected': {'testsparsecomplex': SP.coo_matrix(B)},
      })
 case_table4.append(
     {'name': 'multi',
+<<<<<<< HEAD
      'expected': {'theta': theta,
                   'a': A},
      })
 case_table4.append(
     {'name': 'minus',
+=======
+     'classes': {'theta': 'double', 'a': 'double'},
+     'expected': {'theta': theta, 'a': A},
+     })
+case_table4.append(
+    {'name': 'minus',
+     'classes': {'testminus': 'double'},
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      'expected': {'testminus': mlarr(-1)},
      })
 case_table4.append(
     {'name': 'onechar',
+<<<<<<< HEAD
      'expected': {'testonechar': array([u'r'])},
      })
 # Cell arrays stored as object arrays
 CA = mlarr(( # tuple for object array creation
+=======
+     'classes': {'testonechar': 'char'},
+     'expected': {'testonechar': array([u('r')])},
+     })
+# Cell arrays stored as object arrays
+CA = mlarr((  # tuple for object array creation
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         [],
         mlarr([1]),
         mlarr([[1,2]]),
         mlarr([[1,2,3]])), dtype=object).reshape(1,-1)
 CA[0,0] = array(
+<<<<<<< HEAD
     [u'This cell contains this string and 3 arrays of increasing length'])
 case_table5 = [
     {'name': 'cell',
      'expected': {'testcell': CA}}]
 CAE = mlarr(( # tuple for object array creation
+=======
+    [u('This cell contains this string and 3 arrays of increasing length')])
+case_table5 = [
+    {'name': 'cell',
+     'classes': {'testcell': 'cell'},
+     'expected': {'testcell': CA}}]
+CAE = mlarr((  # tuple for object array creation
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     mlarr(1),
     mlarr(2),
     mlarr([]),
@@ -123,10 +216,15 @@ objarr = np.empty((1,1),dtype=object)
 objarr[0,0] = mlarr(1)
 case_table5.append(
     {'name': 'scalarcell',
+<<<<<<< HEAD
+=======
+     'classes': {'testscalarcell': 'cell'},
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      'expected': {'testscalarcell': objarr}
      })
 case_table5.append(
     {'name': 'emptycell',
+<<<<<<< HEAD
      'expected': {'testemptycell': CAE}})
 case_table5.append(
     {'name': 'stringarray',
@@ -137,15 +235,38 @@ case_table5.append(
     {'name': '3dmatrix',
      'expected': {
     'test3dmatrix': np.transpose(np.reshape(range(1,25), (4,3,2)))}
+=======
+     'classes': {'testemptycell': 'cell'},
+     'expected': {'testemptycell': CAE}})
+case_table5.append(
+    {'name': 'stringarray',
+     'classes': {'teststringarray': 'char'},
+     'expected': {'teststringarray': array(
+    [u('one  '), u('two  '), u('three')])},
+     })
+case_table5.append(
+    {'name': '3dmatrix',
+     'classes': {'test3dmatrix': 'double'},
+     'expected': {
+    'test3dmatrix': np.transpose(np.reshape(list(range(1,25)), (4,3,2)))}
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      })
 st_sub_arr = array([np.sqrt(2),np.exp(1),np.pi]).reshape(1,3)
 dtype = [(n, object) for n in ['stringfield', 'doublefield', 'complexfield']]
 st1 = np.zeros((1,1), dtype)
+<<<<<<< HEAD
 st1['stringfield'][0,0] = array([u'Rats live on no evil star.'])
+=======
+st1['stringfield'][0,0] = array([u('Rats live on no evil star.')])
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 st1['doublefield'][0,0] = st_sub_arr
 st1['complexfield'][0,0] = st_sub_arr * (1 + 1j)
 case_table5.append(
     {'name': 'struct',
+<<<<<<< HEAD
+=======
+     'classes': {'teststruct': 'struct'},
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      'expected': {'teststruct': st1}
      })
 CN = np.zeros((1,2), dtype=object)
@@ -158,23 +279,42 @@ CN[0,1][0,2][0,0] = mlarr(4, dtype=np.uint8)
 CN[0,1][0,2][0,1] = mlarr(5, dtype=np.uint8)
 case_table5.append(
     {'name': 'cellnest',
+<<<<<<< HEAD
+=======
+     'classes': {'testcellnest': 'cell'},
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      'expected': {'testcellnest': CN},
      })
 st2 = np.empty((1,1), dtype=[(n, object) for n in ['one', 'two']])
 st2[0,0]['one'] = mlarr(1)
 st2[0,0]['two'] = np.empty((1,1), dtype=[('three', object)])
+<<<<<<< HEAD
 st2[0,0]['two'][0,0]['three'] = array([u'number 3'])
 case_table5.append(
     {'name': 'structnest',
+=======
+st2[0,0]['two'][0,0]['three'] = array([u('number 3')])
+case_table5.append(
+    {'name': 'structnest',
+     'classes': {'teststructnest': 'struct'},
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      'expected': {'teststructnest': st2}
      })
 a = np.empty((1,2), dtype=[(n, object) for n in ['one', 'two']])
 a[0,0]['one'] = mlarr(1)
 a[0,0]['two'] = mlarr(2)
+<<<<<<< HEAD
 a[0,1]['one'] = array([u'number 1'])
 a[0,1]['two'] = array([u'number 2'])
 case_table5.append(
     {'name': 'structarr',
+=======
+a[0,1]['one'] = array([u('number 1')])
+a[0,1]['two'] = array([u('number 2')])
+case_table5.append(
+    {'name': 'structarr',
+     'classes': {'teststructarr': 'struct'},
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      'expected': {'teststructarr': a}
      })
 ODT = np.dtype([(n, object) for n in
@@ -182,14 +322,21 @@ ODT = np.dtype([(n, object) for n in
                   'isEmpty', 'numArgs', 'version']])
 MO = MatlabObject(np.zeros((1,1), dtype=ODT), 'inline')
 m0 = MO[0,0]
+<<<<<<< HEAD
 m0['expr'] = array([u'x'])
 m0['inputExpr'] = array([u' x = INLINE_INPUTS_{1};'])
 m0['args'] = array([u'x'])
+=======
+m0['expr'] = array([u('x')])
+m0['inputExpr'] = array([u(' x = INLINE_INPUTS_{1};')])
+m0['args'] = array([u('x')])
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 m0['isEmpty'] = mlarr(0)
 m0['numArgs'] = mlarr(1)
 m0['version'] = mlarr(1)
 case_table5.append(
     {'name': 'object',
+<<<<<<< HEAD
      'expected': {'testobject': MO}
      })
 u_str = file(
@@ -201,25 +348,64 @@ case_table5.append(
     })
 case_table5.append(
     {'name': 'sparse',
+=======
+     'classes': {'testobject': 'object'},
+     'expected': {'testobject': MO}
+     })
+fp_u_str = open(pjoin(test_data_path, 'japanese_utf8.txt'), 'rb')
+u_str = fp_u_str.read().decode('utf-8')
+fp_u_str.close()
+case_table5.append(
+    {'name': 'unicode',
+     'classes': {'testunicode': 'char'},
+    'expected': {'testunicode': array([u_str])}
+     })
+case_table5.append(
+    {'name': 'sparse',
+     'classes': {'testsparse': 'sparse'},
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      'expected': {'testsparse': SP.coo_matrix(A)},
      })
 case_table5.append(
     {'name': 'sparsecomplex',
+<<<<<<< HEAD
      'expected': {'testsparsecomplex': SP.coo_matrix(B)},
      })
+=======
+     'classes': {'testsparsecomplex': 'sparse'},
+     'expected': {'testsparsecomplex': SP.coo_matrix(B)},
+     })
+case_table5.append(
+    {'name': 'bool',
+     'classes': {'testbools': 'logical'},
+     'expected': {'testbools':
+                  array([[True], [False]])},
+     })
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 case_table5_rt = case_table5[:]
 # Inline functions can't be concatenated in matlab, so RT only
 case_table5_rt.append(
     {'name': 'objectarray',
+<<<<<<< HEAD
+=======
+     'classes': {'testobjectarray': 'object'},
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      'expected': {'testobjectarray': np.repeat(MO, 2).reshape(1,2)}})
 
 
 def types_compatible(var1, var2):
+<<<<<<< HEAD
     ''' Check if types are same or compatible
 
     0d numpy scalars are compatible with bare python scalars
     '''
+=======
+    """Check if types are same or compatible.
+
+    0-D numpy scalars are compatible with bare python scalars.
+    """
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     type1 = type(var1)
     type2 = type(var2)
     if type1 is type2:
@@ -233,6 +419,7 @@ def types_compatible(var1, var2):
 
 def _check_level(label, expected, actual):
     """ Check one level of a potentially nested array """
+<<<<<<< HEAD
     if SP.issparse(expected): # allow different types of sparse matrices
         assert_true(SP.issparse(actual))
         assert_array_almost_equal(actual.todense(),
@@ -244,6 +431,19 @@ def _check_level(label, expected, actual):
     assert_true(types_compatible(expected, actual), \
            "Expected type %s, got %s at %s" %
                 (type(expected), type(actual), label))
+=======
+    if SP.issparse(expected):  # allow different types of sparse matrices
+        assert_(SP.issparse(actual))
+        assert_array_almost_equal(actual.todense(),
+                                  expected.todense(),
+                                  err_msg=label,
+                                  decimal=5)
+        return
+    # Check types are as expected
+    assert_(types_compatible(expected, actual),
+            "Expected type %s, got %s at %s" %
+            (type(expected), type(actual), label))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     # A field in a record array may not be an ndarray
     # A scalar from a record array will be type np.void
     if not isinstance(expected,
@@ -251,6 +451,7 @@ def _check_level(label, expected, actual):
         assert_equal(expected, actual)
         return
     # This is an ndarray-like thing
+<<<<<<< HEAD
     assert_true(expected.shape == actual.shape,
                 msg='Expected shape %s, got %s at %s' % (expected.shape,
                                                          actual.shape,
@@ -258,20 +459,38 @@ def _check_level(label, expected, actual):
                 )
     ex_dtype = expected.dtype
     if ex_dtype.hasobject: # array of objects
+=======
+    assert_(expected.shape == actual.shape,
+            msg='Expected shape %s, got %s at %s' % (expected.shape,
+                                                     actual.shape,
+                                                     label))
+    ex_dtype = expected.dtype
+    if ex_dtype.hasobject:  # array of objects
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         if isinstance(expected, MatlabObject):
             assert_equal(expected.classname, actual.classname)
         for i, ev in enumerate(expected):
             level_label = "%s, [%d], " % (label, i)
             _check_level(level_label, ev, actual[i])
         return
+<<<<<<< HEAD
     if ex_dtype.fields: # probably recarray
+=======
+    if ex_dtype.fields:  # probably recarray
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         for fn in ex_dtype.fields:
             level_label = "%s, field %s, " % (label, fn)
             _check_level(level_label,
                          expected[fn], actual[fn])
         return
+<<<<<<< HEAD
     if ex_dtype.type in (np.unicode, # string
                          np.unicode_):
+=======
+    if ex_dtype.type in (text_type,  # string or bool
+                         np.unicode_,
+                         np.bool_):
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         assert_equal(actual, expected, err_msg=label)
         return
     # Something numeric
@@ -284,6 +503,7 @@ def _load_check_case(name, files, case):
         label = "test %s; file %s" % (name, file_name)
         for k, expected in case.items():
             k_label = "%s, variable %s" % (label, k)
+<<<<<<< HEAD
             assert_true(k in matdict, "Missing key at %s" % k_label)
             _check_level(k_label, expected, matdict[k])
 
@@ -292,6 +512,33 @@ def _load_check_case(name, files, case):
 def _rt_check_case(name, expected, format):
     mat_stream = StringIO()
     savemat_future(mat_stream, expected, format=format)
+=======
+            assert_(k in matdict, "Missing key at %s" % k_label)
+            _check_level(k_label, expected, matdict[k])
+
+
+def _whos_check_case(name, files, case, classes):
+    for file_name in files:
+        label = "test %s; file %s" % (name, file_name)
+
+        whos = whosmat(file_name)
+
+        expected_whos = []
+        for k, expected in case.items():
+            expected_whos.append((k, expected.shape, classes[k]))
+
+        whos.sort()
+        expected_whos.sort()
+        assert_equal(whos, expected_whos,
+                     "%s: %r != %r" % (label, whos, expected_whos)
+                     )
+
+
+# Round trip tests
+def _rt_check_case(name, expected, format):
+    mat_stream = BytesIO()
+    savemat(mat_stream, expected, format=format)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     mat_stream.seek(0)
     _load_check_case(name, [mat_stream], expected)
 
@@ -303,6 +550,7 @@ def test_load():
         expected = case['expected']
         filt = pjoin(test_data_path, 'test%s_*.mat' % name)
         files = glob(filt)
+<<<<<<< HEAD
         assert_true(len(files) > 0,
                     "No files for test %s using filter %s" % (name, filt))
         yield _load_check_case, name, files, expected
@@ -315,39 +563,119 @@ def test_round_trip():
         expected = case['expected']
         format = case in case_table4 and '4' or '5'
         yield _rt_check_case, name, expected, format
+=======
+        assert_(len(files) > 0,
+                "No files for test %s using filter %s" % (name, filt))
+        yield _load_check_case, name, files, expected
+
+
+# generator for whos tests
+def test_whos():
+    for case in case_table4 + case_table5:
+        name = case['name']
+        expected = case['expected']
+        classes = case['classes']
+        filt = pjoin(test_data_path, 'test%s_*.mat' % name)
+        files = glob(filt)
+        assert_(len(files) > 0,
+                "No files for test %s using filter %s" % (name, filt))
+        yield _whos_check_case, name, files, expected, classes
+
+
+# generator for round trip tests
+def test_round_trip():
+    for case in case_table4 + case_table5_rt:
+        case_table4_names = [case['name'] for case in case_table4]
+        name = case['name'] + '_round_trip'
+        expected = case['expected']
+        for format in (['4', '5'] if case['name'] in case_table4_names else ['5']):
+            yield _rt_check_case, name, expected, format
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 def test_gzip_simple():
     xdense = np.zeros((20,20))
+<<<<<<< HEAD
     xdense[2,3]=2.3
     xdense[4,5]=4.5
+=======
+    xdense[2,3] = 2.3
+    xdense[4,5] = 4.5
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     x = SP.csc_matrix(xdense)
 
     name = 'gzip_test'
     expected = {'x':x}
+<<<<<<< HEAD
     format='4'
+=======
+    format = '4'
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     tmpdir = mkdtemp()
     try:
         fname = pjoin(tmpdir,name)
+<<<<<<< HEAD
         mat_stream = gzip.open( fname,mode='wb')
         savemat_future(mat_stream, expected, format=format)
         mat_stream.close()
 
         mat_stream = gzip.open( fname,mode='rb')
+=======
+        mat_stream = gzip.open(fname,mode='wb')
+        savemat(mat_stream, expected, format=format)
+        mat_stream.close()
+
+        mat_stream = gzip.open(fname,mode='rb')
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         actual = loadmat(mat_stream, struct_as_record=True)
         mat_stream.close()
     finally:
         shutil.rmtree(tmpdir)
 
     assert_array_almost_equal(actual['x'].todense(),
+<<<<<<< HEAD
                               expected['x'].todense())
+=======
+                              expected['x'].todense(),
+                              err_msg=repr(actual))
+
+
+def test_multiple_open():
+    # Ticket #1039, on Windows: check that files are not left open
+    tmpdir = mkdtemp()
+    try:
+        x = dict(x=np.zeros((2, 2)))
+
+        fname = pjoin(tmpdir, "a.mat")
+
+        # Check that file is not left open
+        savemat(fname, x)
+        os.unlink(fname)
+        savemat(fname, x)
+        loadmat(fname)
+        os.unlink(fname)
+
+        # Check that stream is left open
+        f = open(fname, 'wb')
+        savemat(f, x)
+        f.seek(0)
+        f.close()
+
+        f = open(fname, 'rb')
+        loadmat(f)
+        f.seek(0)
+        f.close()
+    finally:
+        shutil.rmtree(tmpdir)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 def test_mat73():
     # Check any hdf5 files raise an error
     filenames = glob(
         pjoin(test_data_path, 'testhdf5*.mat'))
+<<<<<<< HEAD
     assert_true(len(filenames)>0)
     for filename in filenames:
         assert_raises(NotImplementedError,
@@ -371,6 +699,41 @@ def test_warnings():
 def test_regression_653():
     """Regression test for #653."""
     assert_raises(TypeError, savemat_future, StringIO(), {'d':{1:2}}, format='5')
+=======
+    assert_(len(filenames) > 0)
+    for filename in filenames:
+        fp = open(filename, 'rb')
+        assert_raises(NotImplementedError,
+                      loadmat,
+                      fp,
+                      struct_as_record=True)
+        fp.close()
+
+
+def test_warnings():
+    # This test is an echo of the previous behavior, which was to raise a
+    # warning if the user triggered a search for mat files on the Python system
+    # path.  We can remove the test in the next version after upcoming (0.13)
+    fname = pjoin(test_data_path, 'testdouble_7.1_GLNX86.mat')
+    with warnings.catch_warnings():
+        warnings.simplefilter('error')
+        # This should not generate a warning
+        mres = loadmat(fname, struct_as_record=True)
+        # This neither
+        mres = loadmat(fname, struct_as_record=False)
+
+
+def test_regression_653():
+    # Saving a dictionary with only invalid keys used to raise an error. Now we
+    # save this as an empty struct in matlab space.
+    sio = BytesIO()
+    savemat(sio, {'d':{1:2}}, format='5')
+    back = loadmat(sio)['d']
+    # Check we got an empty struct equivalent
+    assert_equal(back.shape, (1,1))
+    assert_equal(back.dtype, np.dtype(object))
+    assert_(back[0,0] is None)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 def test_structname_len():
@@ -378,18 +741,29 @@ def test_structname_len():
     lim = 31
     fldname = 'a' * lim
     st1 = np.zeros((1,1), dtype=[(fldname, object)])
+<<<<<<< HEAD
     mat_stream = StringIO()
     savemat_future(StringIO(), {'longstruct': st1}, format='5')
     fldname = 'a' * (lim+1)
     st1 = np.zeros((1,1), dtype=[(fldname, object)])
     assert_raises(ValueError, savemat_future, StringIO(),
+=======
+    savemat(BytesIO(), {'longstruct': st1}, format='5')
+    fldname = 'a' * (lim+1)
+    st1 = np.zeros((1,1), dtype=[(fldname, object)])
+    assert_raises(ValueError, savemat, BytesIO(),
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                   {'longstruct': st1}, format='5')
 
 
 def test_4_and_long_field_names_incompatible():
     # Long field names option not supported in 4
     my_struct = np.zeros((1,1),dtype=[('my_fieldname',object)])
+<<<<<<< HEAD
     assert_raises(ValueError, savemat_future, StringIO(),
+=======
+    assert_raises(ValueError, savemat, BytesIO(),
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                   {'my_struct':my_struct}, format='4', long_field_names=True)
 
 
@@ -398,11 +772,18 @@ def test_long_field_names():
     lim = 63
     fldname = 'a' * lim
     st1 = np.zeros((1,1), dtype=[(fldname, object)])
+<<<<<<< HEAD
     mat_stream = StringIO()
     savemat_future(StringIO(), {'longstruct': st1}, format='5',long_field_names=True)
     fldname = 'a' * (lim+1)
     st1 = np.zeros((1,1), dtype=[(fldname, object)])
     assert_raises(ValueError, savemat_future, StringIO(),
+=======
+    savemat(BytesIO(), {'longstruct': st1}, format='5',long_field_names=True)
+    fldname = 'a' * (lim+1)
+    st1 = np.zeros((1,1), dtype=[(fldname, object)])
+    assert_raises(ValueError, savemat, BytesIO(),
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                   {'longstruct': st1}, format='5',long_field_names=True)
 
 
@@ -413,6 +794,7 @@ def test_long_field_names_in_struct():
     fldname = 'a' * lim
     cell = np.ndarray((1,2),dtype=object)
     st1 = np.zeros((1,1), dtype=[(fldname, object)])
+<<<<<<< HEAD
     cell[0,0]=st1
     cell[0,1]=st1
     mat_stream = StringIO()
@@ -421,6 +803,15 @@ def test_long_field_names_in_struct():
     # Check to make sure it fails with long field names off
     #
     assert_raises(ValueError, savemat_future, StringIO(),
+=======
+    cell[0,0] = st1
+    cell[0,1] = st1
+    savemat(BytesIO(), {'longstruct': cell}, format='5',long_field_names=True)
+    #
+    # Check to make sure it fails with long field names off
+    #
+    assert_raises(ValueError, savemat, BytesIO(),
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                   {'longstruct': cell}, format='5', long_field_names=False)
 
 
@@ -429,6 +820,7 @@ def test_cell_with_one_thing_in_it():
     # strings in it.  It works. Make a cell array that's 1 x 1 and put
     # a string in it. It should work but, in the old days, it didn't.
     cells = np.ndarray((1,2),dtype=object)
+<<<<<<< HEAD
     cells[0,0]='Hello'
     cells[0,1]='World'
     mat_stream = StringIO()
@@ -438,11 +830,24 @@ def test_cell_with_one_thing_in_it():
     cells[0,0]='Hello, world'
     mat_stream = StringIO()
     savemat_future(StringIO(), {'x': cells}, format='5')
+=======
+    cells[0,0] = 'Hello'
+    cells[0,1] = 'World'
+    savemat(BytesIO(), {'x': cells}, format='5')
+
+    cells = np.ndarray((1,1),dtype=object)
+    cells[0,0] = 'Hello, world'
+    savemat(BytesIO(), {'x': cells}, format='5')
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 def test_writer_properties():
     # Tests getting, setting of properties of matrix writer
+<<<<<<< HEAD
     mfw = MatFile5Writer(StringIO(), oned_as='row')
+=======
+    mfw = MatFile5Writer(BytesIO())
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     yield assert_equal, mfw.global_vars, []
     mfw.global_vars = ['avar']
     yield assert_equal, mfw.global_vars, ['avar']
@@ -456,6 +861,7 @@ def test_writer_properties():
 
 def test_use_small_element():
     # Test whether we're using small data element or not
+<<<<<<< HEAD
     sio = StringIO()
     wtr = MatFile5Writer(sio, oned_as='column')
     # First check size for no sde for name
@@ -470,10 +876,29 @@ def test_use_small_element():
     sio.truncate(0)
     wtr.put_variables({'aaaaaa': arr})
     yield assert_true, sio.len - w_sz < 4
+=======
+    sio = BytesIO()
+    wtr = MatFile5Writer(sio)
+    # First check size for no sde for name
+    arr = np.zeros(10)
+    wtr.put_variables({'aaaaa': arr})
+    w_sz = len(sio.getvalue())
+    # Check small name results in largish difference in size
+    sio.truncate(0)
+    sio.seek(0)
+    wtr.put_variables({'aaaa': arr})
+    yield assert_, w_sz - len(sio.getvalue()) > 4
+    # Whereas increasing name size makes less difference
+    sio.truncate(0)
+    sio.seek(0)
+    wtr.put_variables({'aaaaaa': arr})
+    yield assert_, len(sio.getvalue()) - w_sz < 4
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 def test_save_dict():
     # Test that dict can be saved (as recarray), loaded as matstruct
+<<<<<<< HEAD
     d = {'a':1, 'b':2}
     stream = StringIO()
     savemat_future(stream, {'dict':d})
@@ -498,24 +923,74 @@ def test_1d_shape():
     for format in ('4', '5'):
         # can be explicitly 'column' for oned_as
         stream = StringIO()
+=======
+    dict_types = ((dict, False),)
+    try:
+        from collections import OrderedDict
+    except ImportError:
+        pass
+    else:
+        dict_types += ((OrderedDict, True),)
+    ab_exp = np.array([[(1, 2)]], dtype=[('a', object), ('b', object)])
+    ba_exp = np.array([[(2, 1)]], dtype=[('b', object), ('a', object)])
+    for dict_type, is_ordered in dict_types:
+        # Initialize with tuples to keep order for OrderedDict
+        d = dict_type([('a', 1), ('b', 2)])
+        stream = BytesIO()
+        savemat(stream, {'dict': d})
+        stream.seek(0)
+        vals = loadmat(stream)['dict']
+        assert_equal(set(vals.dtype.names), set(['a', 'b']))
+        if is_ordered:  # Input was ordered, output in ab order
+            assert_array_equal(vals, ab_exp)
+        else:  # Not ordered input, either order output
+            if vals.dtype.names[0] == 'a':
+                assert_array_equal(vals, ab_exp)
+            else:
+                assert_array_equal(vals, ba_exp)
+
+
+def test_1d_shape():
+    # New 5 behavior is 1D -> row vector
+    arr = np.arange(5)
+    for format in ('4', '5'):
+        # Column is the default
+        stream = BytesIO()
+        savemat(stream, {'oned': arr}, format=format)
+        vals = loadmat(stream)
+        assert_equal(vals['oned'].shape, (1, 5))
+        # can be explicitly 'column' for oned_as
+        stream = BytesIO()
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         savemat(stream, {'oned':arr},
                 format=format,
                 oned_as='column')
         vals = loadmat(stream)
+<<<<<<< HEAD
         yield assert_equal, vals['oned'].shape, (5,1)
         # but different from 'row'
         stream = StringIO()
+=======
+        assert_equal(vals['oned'].shape, (5,1))
+        # but different from 'row'
+        stream = BytesIO()
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         savemat(stream, {'oned':arr},
                 format=format,
                 oned_as='row')
         vals = loadmat(stream)
+<<<<<<< HEAD
         yield assert_equal, vals['oned'].shape, (1,5)
     warnings.resetwarnings()
+=======
+        assert_equal(vals['oned'].shape, (1,5))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 def test_compression():
     arr = np.zeros(100).reshape((5,20))
     arr[2,10] = 1
+<<<<<<< HEAD
     stream = StringIO()
     savemat_future(stream, {'arr':arr})
     raw_len = len(stream.getvalue())
@@ -536,13 +1011,40 @@ def test_compression():
     yield assert_array_equal, vals['arr2'], arr2
     stream = StringIO()
     savemat_future(stream, {'arr':arr, 'arr2':arr2}, do_compression=True)
+=======
+    stream = BytesIO()
+    savemat(stream, {'arr':arr})
+    raw_len = len(stream.getvalue())
+    vals = loadmat(stream)
+    yield assert_array_equal, vals['arr'], arr
+    stream = BytesIO()
+    savemat(stream, {'arr':arr}, do_compression=True)
+    compressed_len = len(stream.getvalue())
+    vals = loadmat(stream)
+    yield assert_array_equal, vals['arr'], arr
+    yield assert_, raw_len > compressed_len
+    # Concatenate, test later
+    arr2 = arr.copy()
+    arr2[0,0] = 1
+    stream = BytesIO()
+    savemat(stream, {'arr':arr, 'arr2':arr2}, do_compression=False)
+    vals = loadmat(stream)
+    yield assert_array_equal, vals['arr2'], arr2
+    stream = BytesIO()
+    savemat(stream, {'arr':arr, 'arr2':arr2}, do_compression=True)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     vals = loadmat(stream)
     yield assert_array_equal, vals['arr2'], arr2
 
 
 def test_single_object():
+<<<<<<< HEAD
     stream = StringIO()
     savemat_future(stream, {'A':np.array(1, dtype=object)})
+=======
+    stream = BytesIO()
+    savemat(stream, {'A':np.array(1, dtype=object)})
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 def test_skip_variable():
@@ -561,8 +1063,13 @@ def test_skip_variable():
     # Prove that it loads with loadmat
     #
     d = loadmat(filename, struct_as_record=True)
+<<<<<<< HEAD
     yield assert_true, d.has_key('first')
     yield assert_true, d.has_key('second')
+=======
+    yield assert_, 'first' in d
+    yield assert_, 'second' in d
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     #
     # Make the factory
     #
@@ -571,7 +1078,12 @@ def test_skip_variable():
     # This is where the factory breaks with an error in MatMatrixGetter.to_next
     #
     d = factory.get_variables('second')
+<<<<<<< HEAD
     yield assert_true, d.has_key('second')
+=======
+    yield assert_, 'second' in d
+    factory.mat_stream.close()
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 def test_empty_struct():
@@ -581,6 +1093,7 @@ def test_empty_struct():
     # type
     d = loadmat(filename, struct_as_record=True)
     a = d['a']
+<<<<<<< HEAD
     yield assert_equal, a.shape, (1,1)
     yield assert_equal, a.dtype, np.dtype(np.object)
     yield assert_true, a[0,0] is None
@@ -591,6 +1104,103 @@ def test_empty_struct():
     d = loadmat(stream)
     a2 = d['arr']
     yield assert_array_equal, a2, arr
+=======
+    assert_equal(a.shape, (1,1))
+    assert_equal(a.dtype, np.dtype(object))
+    assert_(a[0,0] is None)
+    stream = BytesIO()
+    arr = np.array((), dtype='U')
+    # before ticket fix, this used to give data type not understood
+    savemat(stream, {'arr':arr})
+    d = loadmat(stream)
+    a2 = d['arr']
+    assert_array_equal(a2, arr)
+
+
+def test_save_empty_dict():
+    # saving empty dict also gives empty struct
+    stream = BytesIO()
+    savemat(stream, {'arr': {}})
+    d = loadmat(stream)
+    a = d['arr']
+    assert_equal(a.shape, (1,1))
+    assert_equal(a.dtype, np.dtype(object))
+    assert_(a[0,0] is None)
+
+
+def assert_any_equal(output, alternatives):
+    """ Assert `output` is equal to at least one element in `alternatives`
+    """
+    one_equal = False
+    for expected in alternatives:
+        if np.all(output == expected):
+            one_equal = True
+            break
+    assert_(one_equal)
+
+
+def test_to_writeable():
+    # Test to_writeable function
+    res = to_writeable(np.array([1]))  # pass through ndarrays
+    assert_equal(res.shape, (1,))
+    assert_array_equal(res, 1)
+    # Dict fields can be written in any order
+    expected1 = np.array([(1, 2)], dtype=[('a', '|O8'), ('b', '|O8')])
+    expected2 = np.array([(2, 1)], dtype=[('b', '|O8'), ('a', '|O8')])
+    alternatives = (expected1, expected2)
+    assert_any_equal(to_writeable({'a':1,'b':2}), alternatives)
+    # Fields with underscores discarded
+    assert_any_equal(to_writeable({'a':1,'b':2, '_c':3}), alternatives)
+    # Not-string fields discarded
+    assert_any_equal(to_writeable({'a':1,'b':2, 100:3}), alternatives)
+    # String fields that are valid Python identifiers discarded
+    assert_any_equal(to_writeable({'a':1,'b':2, '99':3}), alternatives)
+    # Object with field names is equivalent
+
+    class klass(object):
+        pass
+
+    c = klass
+    c.a = 1
+    c.b = 2
+    assert_any_equal(to_writeable(c), alternatives)
+    # empty list and tuple go to empty array
+    res = to_writeable([])
+    assert_equal(res.shape, (0,))
+    assert_equal(res.dtype.type, np.float64)
+    res = to_writeable(())
+    assert_equal(res.shape, (0,))
+    assert_equal(res.dtype.type, np.float64)
+    # None -> None
+    assert_(to_writeable(None) is None)
+    # String to strings
+    assert_equal(to_writeable('a string').dtype.type, np.str_)
+    # Scalars to numpy to numpy scalars
+    res = to_writeable(1)
+    assert_equal(res.shape, ())
+    assert_equal(res.dtype.type, np.array(1).dtype.type)
+    assert_array_equal(res, 1)
+    # Empty dict returns EmptyStructMarker
+    assert_(to_writeable({}) is EmptyStructMarker)
+    # Object does not have (even empty) __dict__
+    assert_(to_writeable(object()) is None)
+    # Custom object does have empty __dict__, returns EmptyStructMarker
+
+    class C(object):
+        pass
+
+    assert_(to_writeable(c()) is EmptyStructMarker)
+    # dict keys with legal characters are convertible
+    res = to_writeable({'a': 1})['a']
+    assert_equal(res.shape, (1,))
+    assert_equal(res.dtype.type, np.object_)
+    # Only fields with illegal characters, falls back to EmptyStruct
+    assert_(to_writeable({'1':1}) is EmptyStructMarker)
+    assert_(to_writeable({'_a':1}) is EmptyStructMarker)
+    # Unless there are valid fields, in which case structured array
+    assert_equal(to_writeable({'1':1, 'f': 2}),
+                 np.array([(2,)], dtype=[('f', '|O8')]))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 def test_recarray():
@@ -602,8 +1212,13 @@ def test_recarray():
     arr[0]['f2'] = 'python'
     arr[1]['f1'] = 99
     arr[1]['f2'] = 'not perl'
+<<<<<<< HEAD
     stream = StringIO()
     savemat_future(stream, {'arr': arr})
+=======
+    stream = BytesIO()
+    savemat(stream, {'arr': arr})
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     d = loadmat(stream, struct_as_record=False)
     a20 = d['arr'][0,0]
     yield assert_equal, a20.f1, 0.5
@@ -621,6 +1236,7 @@ def test_recarray():
 
 
 def test_save_object():
+<<<<<<< HEAD
     class C(object): pass
     c = C()
     c.field1 = 1
@@ -635,12 +1251,30 @@ def test_save_object():
     c2 = d['c'][0,0]
     yield assert_equal, c2['field1'], 1
     yield assert_equal, c2['field2'], 'a string'
+=======
+    class C(object):
+        pass
+    c = C()
+    c.field1 = 1
+    c.field2 = 'a string'
+    stream = BytesIO()
+    savemat(stream, {'c': c})
+    d = loadmat(stream, struct_as_record=False)
+    c2 = d['c'][0,0]
+    assert_equal(c2.field1, 1)
+    assert_equal(c2.field2, 'a string')
+    d = loadmat(stream, struct_as_record=True)
+    c2 = d['c'][0,0]
+    assert_equal(c2['field1'], 1)
+    assert_equal(c2['field2'], 'a string')
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 def test_read_opts():
     # tests if read is seeing option sets, at initialization and after
     # initialization
     arr = np.arange(6).reshape(1,6)
+<<<<<<< HEAD
     stream = StringIO()
     savemat_future(stream, {'a': arr})
     rdr = MatFile5Reader_future(stream)
@@ -669,19 +1303,59 @@ def test_read_opts():
     yield assert_array_equal, rdr.get_variables()['a'], carr
     rdr.chars_as_strings=True
     yield assert_array_equal, rdr.get_variables()['a'], arr
+=======
+    stream = BytesIO()
+    savemat(stream, {'a': arr})
+    rdr = MatFile5Reader(stream)
+    back_dict = rdr.get_variables()
+    rarr = back_dict['a']
+    assert_array_equal(rarr, arr)
+    rdr = MatFile5Reader(stream, squeeze_me=True)
+    assert_array_equal(rdr.get_variables()['a'], arr.reshape((6,)))
+    rdr.squeeze_me = False
+    assert_array_equal(rarr, arr)
+    rdr = MatFile5Reader(stream, byte_order=boc.native_code)
+    assert_array_equal(rdr.get_variables()['a'], arr)
+    # inverted byte code leads to error on read because of swapped
+    # header etc
+    rdr = MatFile5Reader(stream, byte_order=boc.swapped_code)
+    assert_raises(Exception, rdr.get_variables)
+    rdr.byte_order = boc.native_code
+    assert_array_equal(rdr.get_variables()['a'], arr)
+    arr = np.array(['a string'])
+    stream.truncate(0)
+    stream.seek(0)
+    savemat(stream, {'a': arr})
+    rdr = MatFile5Reader(stream)
+    assert_array_equal(rdr.get_variables()['a'], arr)
+    rdr = MatFile5Reader(stream, chars_as_strings=False)
+    carr = np.atleast_2d(np.array(list(arr.item()), dtype='U1'))
+    assert_array_equal(rdr.get_variables()['a'], carr)
+    rdr.chars_as_strings = True
+    assert_array_equal(rdr.get_variables()['a'], arr)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 def test_empty_string():
     # make sure reading empty string does not raise error
     estring_fname = pjoin(test_data_path, 'single_empty_string.mat')
+<<<<<<< HEAD
     rdr = MatFile5Reader_future(file(estring_fname, 'rb'))
     d = rdr.get_variables()
     yield assert_array_equal, d['a'], np.array([], dtype='U1')
+=======
+    fp = open(estring_fname, 'rb')
+    rdr = MatFile5Reader(fp)
+    d = rdr.get_variables()
+    fp.close()
+    assert_array_equal(d['a'], np.array([], dtype='U1'))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     # empty string round trip.  Matlab cannot distiguish
     # between a string array that is empty, and a string array
     # containing a single empty string, because it stores strings as
     # arrays of char.  There is no way of having an array of char that
     # is not empty, but contains an empty string.
+<<<<<<< HEAD
     stream = StringIO()
     savemat_future(stream, {'a': np.array([''])})
     rdr = MatFile5Reader_future(stream)
@@ -692,10 +1366,102 @@ def test_empty_string():
     rdr = MatFile5Reader_future(stream)
     d = rdr.get_variables()
     yield assert_array_equal, d['a'], np.array([], dtype='U1')
+=======
+    stream = BytesIO()
+    savemat(stream, {'a': np.array([''])})
+    rdr = MatFile5Reader(stream)
+    d = rdr.get_variables()
+    assert_array_equal(d['a'], np.array([], dtype='U1'))
+    stream.truncate(0)
+    stream.seek(0)
+    savemat(stream, {'a': np.array([], dtype='U1')})
+    rdr = MatFile5Reader(stream)
+    d = rdr.get_variables()
+    assert_array_equal(d['a'], np.array([], dtype='U1'))
+    stream.close()
+
+
+def test_corrupted_data():
+    import zlib
+    for exc, fname in [(ValueError, 'corrupted_zlib_data.mat'),
+                       (zlib.error, 'corrupted_zlib_checksum.mat')]:
+        with open(pjoin(test_data_path, fname), 'rb') as fp:
+            rdr = MatFile5Reader(fp)
+            assert_raises(exc, rdr.get_variables)
+
+
+def test_corrupted_data_check_can_be_disabled():
+    with open(pjoin(test_data_path, 'corrupted_zlib_data.mat'), 'rb') as fp:
+        rdr = MatFile5Reader(fp, verify_compressed_data_integrity=False)
+        rdr.get_variables()
+
+
+def test_read_both_endian():
+    # make sure big- and little- endian data is read correctly
+    for fname in ('big_endian.mat', 'little_endian.mat'):
+        fp = open(pjoin(test_data_path, fname), 'rb')
+        rdr = MatFile5Reader(fp)
+        d = rdr.get_variables()
+        fp.close()
+        assert_array_equal(d['strings'],
+                           np.array([['hello'],
+                                     ['world']], dtype=object))
+        assert_array_equal(d['floats'],
+                           np.array([[2., 3.],
+                                     [3., 4.]], dtype=np.float32))
+
+
+def test_write_opposite_endian():
+    # We don't support writing opposite endian .mat files, but we need to behave
+    # correctly if the user supplies an other-endian numpy array to write out
+    float_arr = np.array([[2., 3.],
+                          [3., 4.]])
+    int_arr = np.arange(6).reshape((2, 3))
+    uni_arr = np.array(['hello', 'world'], dtype='U')
+    stream = BytesIO()
+    savemat(stream, {'floats': float_arr.byteswap().newbyteorder(),
+                            'ints': int_arr.byteswap().newbyteorder(),
+                            'uni_arr': uni_arr.byteswap().newbyteorder()})
+    rdr = MatFile5Reader(stream)
+    d = rdr.get_variables()
+    assert_array_equal(d['floats'], float_arr)
+    assert_array_equal(d['ints'], int_arr)
+    assert_array_equal(d['uni_arr'], uni_arr)
+    stream.close()
+
+
+def test_logical_array():
+    # The roundtrip test doesn't verify that we load the data up with the
+    # correct (bool) dtype
+    with open(pjoin(test_data_path, 'testbool_8_WIN64.mat'), 'rb') as fobj:
+        rdr = MatFile5Reader(fobj, mat_dtype=True)
+        d = rdr.get_variables()
+    x = np.array([[True], [False]], dtype=np.bool_)
+    assert_array_equal(d['testbools'], x)
+    assert_equal(d['testbools'].dtype, x.dtype)
+
+
+def test_logical_out_type():
+    # Confirm that bool type written as uint8, uint8 class
+    # See gh-4022
+    stream = BytesIO()
+    barr = np.array([False, True, False])
+    savemat(stream, {'barray': barr})
+    stream.seek(0)
+    reader = MatFile5Reader(stream)
+    reader.initialize_read()
+    reader.read_file_header()
+    hdr, _ = reader.read_var_header()
+    assert_equal(hdr.mclass, mio5p.mxUINT8_CLASS)
+    assert_equal(hdr.is_logical, True)
+    var = reader.read_var_array(hdr, False)
+    assert_equal(var.dtype.type, np.uint8)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 def test_mat4_3d():
     # test behavior when writing 3D arrays to matlab 4 files
+<<<<<<< HEAD
     stream = StringIO()
     arr = np.arange(24).reshape((2,3,4))
     warnings.simplefilter('error')
@@ -708,25 +1474,54 @@ def test_mat4_3d():
     warnings.resetwarnings()
     d = loadmat(stream)
     yield assert_array_equal, d['a'], arr.reshape((6,4))
+=======
+    stream = BytesIO()
+    arr = np.arange(24).reshape((2,3,4))
+    assert_raises(ValueError, savemat, stream, {'a': arr}, True, '4')
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 def test_func_read():
     func_eg = pjoin(test_data_path, 'testfunc_7.4_GLNX86.mat')
+<<<<<<< HEAD
     rdr = MatFile5Reader_future(file(func_eg, 'rb'))
     d = rdr.get_variables()
     yield assert_true, isinstance(d['testfunc'], MatlabFunction)
     stream = StringIO()
     wtr = MatFile5Writer(stream, oned_as='row')
     yield assert_raises, MatWriteError, wtr.put_variables, d
+=======
+    fp = open(func_eg, 'rb')
+    rdr = MatFile5Reader(fp)
+    d = rdr.get_variables()
+    fp.close()
+    assert_(isinstance(d['testfunc'], MatlabFunction))
+    stream = BytesIO()
+    wtr = MatFile5Writer(stream)
+    assert_raises(MatWriteError, wtr.put_variables, d)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 def test_mat_dtype():
     double_eg = pjoin(test_data_path, 'testmatrix_6.1_SOL2.mat')
+<<<<<<< HEAD
     rdr = MatFile5Reader_future(file(double_eg, 'rb'), mat_dtype=False)
     d = rdr.get_variables()
     yield assert_equal, d['testmatrix'].dtype.kind, 'u'
     rdr = MatFile5Reader_future(file(double_eg, 'rb'), mat_dtype=True)
     d = rdr.get_variables()
+=======
+    fp = open(double_eg, 'rb')
+    rdr = MatFile5Reader(fp, mat_dtype=False)
+    d = rdr.get_variables()
+    fp.close()
+    yield assert_equal, d['testmatrix'].dtype.kind, 'u'
+
+    fp = open(double_eg, 'rb')
+    rdr = MatFile5Reader(fp, mat_dtype=True)
+    d = rdr.get_variables()
+    fp.close()
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     yield assert_equal, d['testmatrix'].dtype.kind, 'f'
 
 
@@ -734,16 +1529,27 @@ def test_sparse_in_struct():
     # reproduces bug found by DC where Cython code was insisting on
     # ndarray return type, but getting sparse matrix
     st = {'sparsefield': SP.coo_matrix(np.eye(4))}
+<<<<<<< HEAD
     stream = StringIO()
     savemat_future(stream, {'a':st})
+=======
+    stream = BytesIO()
+    savemat(stream, {'a':st})
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     d = loadmat(stream, struct_as_record=True)
     yield assert_array_equal, d['a'][0,0]['sparsefield'].todense(), np.eye(4)
 
 
 def test_mat_struct_squeeze():
+<<<<<<< HEAD
     stream = StringIO()
     in_d = {'st':{'one':1, 'two':2}}
     savemat_future(stream, in_d)
+=======
+    stream = BytesIO()
+    in_d = {'st':{'one':1, 'two':2}}
+    savemat(stream, in_d)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     # no error without squeeze
     out_d = loadmat(stream, struct_as_record=False)
     # previous error was with squeeze, with mat_struct
@@ -753,6 +1559,7 @@ def test_mat_struct_squeeze():
                     )
 
 
+<<<<<<< HEAD
 def test_str_round():
     # from report by Angus McMorland on mailing list 3 May 2010
     stream = StringIO()
@@ -763,12 +1570,36 @@ def test_str_round():
     # resulted in [u'HloolFoa', u'elWrdobr']
     yield assert_array_equal, res['a'], out_arr
     stream.truncate(0)
+=======
+def test_scalar_squeeze():
+    stream = BytesIO()
+    in_d = {'scalar': [[0.1]], 'string': 'my name', 'st':{'one':1, 'two':2}}
+    savemat(stream, in_d)
+    out_d = loadmat(stream, squeeze_me=True)
+    assert_(isinstance(out_d['scalar'], float))
+    assert_(isinstance(out_d['string'], string_types))
+    assert_(isinstance(out_d['st'], np.ndarray))
+
+
+def test_str_round():
+    # from report by Angus McMorland on mailing list 3 May 2010
+    stream = BytesIO()
+    in_arr = np.array(['Hello', 'Foob'])
+    out_arr = np.array(['Hello', 'Foob '])
+    savemat(stream, dict(a=in_arr))
+    res = loadmat(stream)
+    # resulted in ['HloolFoa', 'elWrdobr']
+    assert_array_equal(res['a'], out_arr)
+    stream.truncate(0)
+    stream.seek(0)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     # Make Fortran ordered version of string
     in_str = in_arr.tostring(order='F')
     in_from_str = np.ndarray(shape=a.shape,
                              dtype=in_arr.dtype,
                              order='F',
                              buffer=in_str)
+<<<<<<< HEAD
     savemat_future(stream, dict(a=in_from_str))
     yield assert_array_equal, res['a'], out_arr
     # unicode save did lead to buffer too small error
@@ -779,3 +1610,193 @@ def test_str_round():
     res = loadmat(stream)
     yield assert_array_equal, res['a'], out_arr_u
 
+=======
+    savemat(stream, dict(a=in_from_str))
+    assert_array_equal(res['a'], out_arr)
+    # unicode save did lead to buffer too small error
+    stream.truncate(0)
+    stream.seek(0)
+    in_arr_u = in_arr.astype('U')
+    out_arr_u = out_arr.astype('U')
+    savemat(stream, {'a': in_arr_u})
+    res = loadmat(stream)
+    assert_array_equal(res['a'], out_arr_u)
+
+
+def test_fieldnames():
+    # Check that field names are as expected
+    stream = BytesIO()
+    savemat(stream, {'a': {'a':1, 'b':2}})
+    res = loadmat(stream)
+    field_names = res['a'].dtype.names
+    assert_equal(set(field_names), set(('a', 'b')))
+
+
+def test_loadmat_varnames():
+    # Test that we can get just one variable from a mat file using loadmat
+    mat5_sys_names = ['__globals__',
+                      '__header__',
+                      '__version__']
+    for eg_file, sys_v_names in (
+        (pjoin(test_data_path, 'testmulti_4.2c_SOL2.mat'), []), (pjoin(
+            test_data_path, 'testmulti_7.4_GLNX86.mat'), mat5_sys_names)):
+        vars = loadmat(eg_file)
+        assert_equal(set(vars.keys()), set(['a', 'theta'] + sys_v_names))
+        vars = loadmat(eg_file, variable_names='a')
+        assert_equal(set(vars.keys()), set(['a'] + sys_v_names))
+        vars = loadmat(eg_file, variable_names=['a'])
+        assert_equal(set(vars.keys()), set(['a'] + sys_v_names))
+        vars = loadmat(eg_file, variable_names=['theta'])
+        assert_equal(set(vars.keys()), set(['theta'] + sys_v_names))
+        vars = loadmat(eg_file, variable_names=('theta',))
+        assert_equal(set(vars.keys()), set(['theta'] + sys_v_names))
+        vars = loadmat(eg_file, variable_names=[])
+        assert_equal(set(vars.keys()), set(sys_v_names))
+        vnames = ['theta']
+        vars = loadmat(eg_file, variable_names=vnames)
+        assert_equal(vnames, ['theta'])
+
+
+def test_round_types():
+    # Check that saving, loading preserves dtype in most cases
+    arr = np.arange(10)
+    stream = BytesIO()
+    for dts in ('f8','f4','i8','i4','i2','i1',
+                'u8','u4','u2','u1','c16','c8'):
+        stream.truncate(0)
+        stream.seek(0)  # needed for BytesIO in python 3
+        savemat(stream, {'arr': arr.astype(dts)})
+        vars = loadmat(stream)
+        assert_equal(np.dtype(dts), vars['arr'].dtype)
+
+
+def test_varmats_from_mat():
+    # Make a mat file with several variables, write it, read it back
+    names_vars = (('arr', mlarr(np.arange(10))),
+                  ('mystr', mlarr('a string')),
+                  ('mynum', mlarr(10)))
+
+    # Dict like thing to give variables in defined order
+    class C(object):
+        def items(self):
+            return names_vars
+    stream = BytesIO()
+    savemat(stream, C())
+    varmats = varmats_from_mat(stream)
+    assert_equal(len(varmats), 3)
+    for i in range(3):
+        name, var_stream = varmats[i]
+        exp_name, exp_res = names_vars[i]
+        assert_equal(name, exp_name)
+        res = loadmat(var_stream)
+        assert_array_equal(res[name], exp_res)
+
+
+def test_one_by_zero():
+    # Test 1x0 chars get read correctly
+    func_eg = pjoin(test_data_path, 'one_by_zero_char.mat')
+    fp = open(func_eg, 'rb')
+    rdr = MatFile5Reader(fp)
+    d = rdr.get_variables()
+    fp.close()
+    assert_equal(d['var'].shape, (0,))
+
+
+def test_load_mat4_le():
+    # We were getting byte order wrong when reading little-endian floa64 dense
+    # matrices on big-endian platforms
+    mat4_fname = pjoin(test_data_path, 'test_mat4_le_floats.mat')
+    vars = loadmat(mat4_fname)
+    assert_array_equal(vars['a'], [[0.1, 1.2]])
+
+
+def test_unicode_mat4():
+    # Mat4 should save unicode as latin1
+    bio = BytesIO()
+    var = {'second_cat': u('Schrödinger')}
+    savemat(bio, var, format='4')
+    var_back = loadmat(bio)
+    assert_equal(var_back['second_cat'], var['second_cat'])
+
+
+def test_logical_sparse():
+    # Test we can read logical sparse stored in mat file as bytes.
+    # See https://github.com/scipy/scipy/issues/3539.
+    # In some files saved by MATLAB, the sparse data elements (Real Part
+    # Subelement in MATLAB speak) are stored with apparent type double
+    # (miDOUBLE) but are in fact single bytes.
+    filename = pjoin(test_data_path,'logical_sparse.mat')
+    # Before fix, this would crash with:
+    # ValueError: indices and data should have the same size
+    d = loadmat(filename, struct_as_record=True)
+    log_sp = d['sp_log_5_4']
+    assert_(isinstance(log_sp, SP.csc_matrix))
+    assert_equal(log_sp.dtype.type, np.bool_)
+    assert_array_equal(log_sp.toarray(),
+                       [[True, True, True, False],
+                        [False, False, True, False],
+                        [False, False, True, False],
+                        [False, False, False, False],
+                        [False, False, False, False]])
+
+
+def test_empty_sparse():
+    # Can we read empty sparse matrices?
+    sio = BytesIO()
+    import scipy.sparse
+    empty_sparse = scipy.sparse.csr_matrix([[0,0],[0,0]])
+    savemat(sio, dict(x=empty_sparse))
+    sio.seek(0)
+    res = loadmat(sio)
+    assert_array_equal(res['x'].shape, empty_sparse.shape)
+    assert_array_equal(res['x'].todense(), 0)
+    # Do empty sparse matrices get written with max nnz 1?
+    # See https://github.com/scipy/scipy/issues/4208
+    sio.seek(0)
+    reader = MatFile5Reader(sio)
+    reader.initialize_read()
+    reader.read_file_header()
+    hdr, _ = reader.read_var_header()
+    assert_equal(hdr.nzmax, 1)
+
+
+def test_empty_mat_error():
+    # Test we get a specific warning for an empty mat file
+    sio = BytesIO()
+    assert_raises(MatReadError, loadmat, sio)
+
+
+def test_miuint32_compromise():
+    # Reader should accept miUINT32 for miINT32, but check signs
+    # mat file with miUINT32 for miINT32, but OK values
+    filename = pjoin(test_data_path, 'miuint32_for_miint32.mat')
+    res = loadmat(filename)
+    assert_equal(res['an_array'], np.arange(10)[None, :])
+    # mat file with miUINT32 for miINT32, with negative value
+    filename = pjoin(test_data_path, 'bad_miuint32.mat')
+    with warnings.catch_warnings(record=True):  # Py3k ResourceWarning
+        assert_raises(ValueError, loadmat, filename)
+
+
+def test_miutf8_for_miint8_compromise():
+    # Check reader accepts ascii as miUTF8 for array names
+    filename = pjoin(test_data_path, 'miutf8_array_name.mat')
+    res = loadmat(filename)
+    assert_equal(res['array_name'], [[1]])
+    # mat file with non-ascii utf8 name raises error
+    filename = pjoin(test_data_path, 'bad_miutf8_array_name.mat')
+    with warnings.catch_warnings(record=True):  # Py3k ResourceWarning
+        assert_raises(ValueError, loadmat, filename)
+
+
+def test_bad_utf8():
+    # Check that reader reads bad UTF with 'replace' option
+    filename = pjoin(test_data_path,'broken_utf8.mat')
+    res = loadmat(filename)
+    assert_equal(res['bad_string'],
+                 b'\x80 am broken'.decode('utf8', 'replace'))
+
+
+if __name__ == "__main__":
+    run_module_suite()
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

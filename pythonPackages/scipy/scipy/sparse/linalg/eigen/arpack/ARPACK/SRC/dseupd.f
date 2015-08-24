@@ -501,7 +501,11 @@ c
      &          workl(ibd+jj-1) .le. tol*temp1) then
                select(jj) = .true.
                numcnv = numcnv + 1
+<<<<<<< HEAD
                if (jj .gt. nev) reord = .true.
+=======
+               if (jj .gt. nconv) reord = .true.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             endif
    11    continue
 c
@@ -609,9 +613,15 @@ c
 c
             if (leftptr .lt. rghtptr) go to 20
 c
+<<<<<<< HEAD
  30      end if
 c
          if (msglvl .gt. 2) then
+=======
+          end if
+c
+  30      if (msglvl .gt. 2) then
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
              call dvout  (logfil, ncv, workl(ihd), ndigit,
      &       '_seupd: The eigenvalues of H--reordered')
          end if
@@ -760,6 +770,19 @@ c
      &                ldq   , workl(iw+ncv), workl(ihb),
      &                ncv   , temp         , ierr)
 c
+<<<<<<< HEAD
+=======
+c        %-----------------------------------------------------%
+c        | Make a copy of the last row into                    |
+c        | workl(iw+ncv:iw+2*ncv), as it is needed again in    |
+c        | the Ritz vector purification step below             |
+c        %-----------------------------------------------------%
+c
+         do 67 j = 1, nconv
+            workl(iw+ncv+j-1) = workl(ihb+j-1)
+ 67      continue
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       else if (rvec .and. howmny .eq. 'S') then
 c
 c     Not yet implemented. See remark 2 above.
@@ -830,14 +853,22 @@ c
       if (rvec .and. (type .eq. 'SHIFTI' .or. type .eq. 'CAYLEY')) then
 c
          do 110 k=0, nconv-1
+<<<<<<< HEAD
             workl(iw+k) = workl(iq+k*ldq+ncv-1)
+=======
+            workl(iw+k) = workl(iw+ncv+k)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      &                  / workl(iw+k)
  110     continue
 c
       else if (rvec .and. type .eq. 'BUCKLE') then
 c
          do 120 k=0, nconv-1
+<<<<<<< HEAD
             workl(iw+k) = workl(iq+k*ldq+ncv-1)
+=======
+            workl(iw+k) = workl(iw+ncv+k)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      &                  / (workl(iw+k)-one)
  120     continue
 c
