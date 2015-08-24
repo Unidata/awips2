@@ -34,8 +34,13 @@ c
 c\BeginLib
 c
 c\Routines called:
+<<<<<<< HEAD
 c     second  ARPACK utility routine for timing.
 c     slamch  LAPACK routine that determines machine constants. 
+=======
+c     arscnd  ARPACK utility routine for timing.
+c     wslamch  LAPACK routine that determines machine constants. 
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c\Author
 c     Danny Sorensen               Phuong Vu
@@ -93,8 +98,13 @@ c     | External routines |
 c     %-------------------%
 c
       Real
+<<<<<<< HEAD
      &           slamch
       external   slamch
+=======
+     &           wslamch
+      external   wslamch
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 c     %---------------------%
 c     | Intrinsic Functions |
@@ -106,9 +116,15 @@ c     %-----------------------%
 c     | Executable Statements |
 c     %-----------------------%
 c
+<<<<<<< HEAD
       call second (t0)
 c
       eps23 = slamch('Epsilon-Machine') 
+=======
+      call arscnd (t0)
+c
+      eps23 = wslamch('Epsilon-Machine') 
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       eps23 = eps23**(2.0E+0 / 3.0E+0)
 c
       nconv  = 0
@@ -126,7 +142,11 @@ c
 c
    10 continue
 c 
+<<<<<<< HEAD
       call second (t1)
+=======
+      call arscnd (t1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       tsconv = tsconv + (t1 - t0)
 c 
       return

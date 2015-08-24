@@ -33,23 +33,44 @@
 """Some more special functions which may be useful for multivariate statistical
 analysis."""
 
+<<<<<<< HEAD
 import numpy as np
 from scipy.special import gammaln as loggam
 
 def multigammaln(a, d):
     """returns the log of multivariate gamma, also sometimes called the
+=======
+from __future__ import division, print_function, absolute_import
+
+import numpy as np
+from scipy.special import gammaln as loggam
+
+
+__all__ = ['multigammaln']
+
+
+def multigammaln(a, d):
+    """Returns the log of multivariate gamma, also sometimes called the
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     generalized gamma.
 
     Parameters
     ----------
     a : ndarray
+<<<<<<< HEAD
         the multivariate gamma is computed for each item of a
     d : int
         the dimension of the space of integration.
+=======
+        The multivariate gamma is computed for each item of `a`.
+    d : int
+        The dimension of the space of integration.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     Returns
     -------
     res : ndarray
+<<<<<<< HEAD
         the values of the log multivariate gamma at the given points a.
 
     Note
@@ -74,10 +95,37 @@ def multigammaln(a, d):
 
     R. J. Muirhead, Aspects of multivariate statistical theory (Wiley Series in
     probability and mathematical statistics). """
+=======
+        The values of the log multivariate gamma at the given points `a`.
+
+    Notes
+    -----
+    The formal definition of the multivariate gamma of dimension d for a real a
+    is::
+
+        \Gamma_d(a) = \int_{A>0}{e^{-tr(A)\cdot{|A|}^{a - (m+1)/2}dA}}
+
+    with the condition ``a > (d-1)/2``, and ``A > 0`` being the set of all the
+    positive definite matrices of dimension s.  Note that a is a scalar: the
+    integrand only is multivariate, the argument is not (the function is
+    defined over a subset of the real set).
+
+    This can be proven to be equal to the much friendlier equation::
+
+        \Gamma_d(a) = \pi^{d(d-1)/4}\prod_{i=1}^{d}{\Gamma(a - (i-1)/2)}.
+
+    References
+    ----------
+    R. J. Muirhead, Aspects of multivariate statistical theory (Wiley Series in
+    probability and mathematical statistics).
+
+    """
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     a = np.asarray(a)
     if not np.isscalar(d) or (np.floor(d) != d):
         raise ValueError("d should be a positive integer (dimension)")
     if np.any(a <= 0.5 * (d - 1)):
+<<<<<<< HEAD
         raise ValueError("condition a (%f) > 0.5 * (d-1) (%f) not met" \
                          % (a, 0.5 * (d-1)))
 
@@ -87,4 +135,11 @@ def multigammaln(a, d):
     else:
         axis = 0
     res += np.sum(loggam([(a - (j - 1.)/2) for j in range(1, d+1)]), axis)
+=======
+        raise ValueError("condition a (%f) > 0.5 * (d-1) (%f) not met"
+                         % (a, 0.5 * (d-1)))
+
+    res = (d * (d-1) * 0.25) * np.log(np.pi)
+    res += np.sum(loggam([(a - (j - 1.)/2) for j in range(1, d+1)]), axis=0)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     return res

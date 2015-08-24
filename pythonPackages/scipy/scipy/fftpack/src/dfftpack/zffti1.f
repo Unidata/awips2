@@ -10,7 +10,11 @@
       GO TO 103
   102 NTRY = NTRYH(J)
       GO TO 104
+<<<<<<< HEAD
   103 NTRY = NTRY+2
+=======
+  103 NTRY = NTRYH(4)+2*(J-4)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
   104 NQ = NL/NTRY
       NR = NL-NTRY*NQ
       IF (NR.eq.0) GO TO 105

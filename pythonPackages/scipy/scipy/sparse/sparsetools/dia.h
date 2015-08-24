@@ -39,6 +39,7 @@ void dia_matvec(const I n_row,
     for(I i = 0; i < n_diags; i++){
         const I k = offsets[i];  //diagonal offset
 
+<<<<<<< HEAD
         const I i_start = std::max(0,-k);
         const I j_start = std::max(0, k);
         const I j_end   = std::min(std::min(n_row + k, n_col),L);
@@ -46,6 +47,15 @@ void dia_matvec(const I n_row,
         const I N = j_end - j_start;  //number of elements to process
 
         const T * diag = diags + i*L + j_start;
+=======
+        const I i_start = std::max<I>(0,-k);
+        const I j_start = std::max<I>(0, k);
+        const I j_end   = std::min<I>(std::min<I>(n_row + k, n_col),L);
+
+        const I N = j_end - j_start;  //number of elements to process
+
+        const T * diag = diags + (npy_intp)i*L + j_start;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         const T * x = Xx + j_start;
               T * y = Yx + i_start;
 

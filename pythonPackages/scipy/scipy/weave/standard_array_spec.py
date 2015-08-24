@@ -1,5 +1,12 @@
+<<<<<<< HEAD
 from c_spec import common_base_converter
 from c_spec import num_to_c_types
+=======
+from __future__ import absolute_import, print_function
+
+from .c_spec import common_base_converter
+from .c_spec import num_to_c_types
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 import numpy
 
 num_typecode = {}
@@ -127,6 +134,10 @@ import_array();
 PyImport_ImportModule("numpy");
 """
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class array_converter(common_base_converter):
 
     def init_info(self):
@@ -154,7 +165,11 @@ class array_converter(common_base_converter):
         res['cap_name'] = self.name.upper()
         return res
 
+<<<<<<< HEAD
     def declaration_code(self,templatize = 0,inline=0):
+=======
+    def declaration_code(self,templatize=0,inline=0):
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         res = self.template_vars(inline=inline)
         cap_name = self.name.upper()
         res['cap_name'] = cap_name
@@ -174,7 +189,11 @@ class array_converter(common_base_converter):
                'int D%(name)s = %(array_name)s->nd;\n' \
                '%(num_type)s* %(name)s = (%(num_type)s*) %(array_name)s->data;\n'
         code = code % res
+<<<<<<< HEAD
         self.__doundef=1
+=======
+        self.__doundef = 1
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         return code
 
     def cleanup_code(self):

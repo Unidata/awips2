@@ -2,7 +2,11 @@
       integer min_lwork,max_lwork,n,lo,hi
       character prefix
 c
+<<<<<<< HEAD
 c     Returned maxwrk is acctually optimal lwork.
+=======
+c     Returned maxwrk is actually optimal lwork.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 cf2py intent(out,out=minwrk) :: min_lwork
 cf2py intent(out,out=maxwrk) :: max_lwork

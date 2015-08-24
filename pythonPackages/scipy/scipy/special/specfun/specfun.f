@@ -1,18 +1,44 @@
 C       COMPUTATION OF SPECIAL FUNCTIONS
+<<<<<<< HEAD
 C 
 C          Shanjie Zhang and Jianming Jin
 C
 C       Copyrighted but permission granted to use code in programs. 
+=======
+C
+C          Shanjie Zhang and Jianming Jin
+C
+C       Copyrighted but permission granted to use code in programs.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       Buy their book "Computation of Special Functions", 1996, John Wiley & Sons, Inc.
 C
 C
 C      Compiled into a single source file and changed REAL To DBLE throughout.
 C
 C      Changed according to ERRATA also.
+<<<<<<< HEAD
 C      
 C      Changed GAMMA to GAMMA2 and PSI to PSI_SPEC to avoid potential conflicts.
 C
 
+=======
+C
+C      Changed GAMMA to GAMMA2 and PSI to PSI_SPEC to avoid potential conflicts.
+C
+
+        FUNCTION DNAN()
+        DOUBLE PRECISION DNAN
+        DNAN = 0.0D0
+        DNAN = 0.0D0/DNAN
+        END
+
+        FUNCTION DINF()
+        DOUBLE PRECISION DINF
+        DINF = 1.0D300
+        DINF = DINF*DINF
+        END
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         SUBROUTINE CPDSA(N,Z,CDN)
 C
 C       ===========================================================
@@ -40,7 +66,11 @@ C
               ELSE
                  CALL GAIH(VA0,GA0)
                  PD=DSQRT(PI)/(2.0D0**(-.5D0*N)*GA0)
+<<<<<<< HEAD
                  CDN=CMPLX(PD,0.0D0)
+=======
+                 CDN = DCMPLX(PD, 0.0D0)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
               ENDIF
            ELSE
               XN=-N
@@ -48,7 +78,11 @@ C
               CB0=2.0D0**(-0.5D0*N-1.0D0)*CA0/G1
               VT=-.5D0*N
               CALL GAIH(VT,G0)
+<<<<<<< HEAD
               CDN=CMPLX(G0,0.0D0)
+=======
+              CDN = DCMPLX(G0, 0.0D0)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
               CR=(1.0D0,0.0D0)
               DO 10 M=1,250
                  VM=.5D0*(M-N)
@@ -65,7 +99,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE CFS(Z,ZF,ZD)
@@ -135,7 +173,11 @@ C
 C       ==========================================================
 C       Purpose: Compute the associated Legendre functions of the
 C                second kind, Qmn(x) and Qmn'(x)
+<<<<<<< HEAD
 C       Input :  x  --- Argument of Qmn(x) 
+=======
+C       Input :  x  --- Argument of Qmn(x)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C                m  --- Order of Qmn(x)  ( m = 0,1,2,… )
 C                n  --- Degree of Qmn(x) ( n = 0,1,2,… )
 C                mm --- Physical dimension of QM and QD
@@ -162,7 +204,11 @@ C
            QM(0,0)=Q0
            QM(0,1)=X*Q0-1.0D0
            QM(1,0)=-1.0D0/XQ
+<<<<<<< HEAD
            QM(1,1)=-XQ*(Q0+X/(1.0D0-X*X))
+=======
+           QM(1,1)=-LS*XQ*(Q0+X/(1.0D0-X*X))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
            DO 15 I=0,1
            DO 15 J=2,N
               QM(I,J)=((2.0D0*J-1.0D0)*X*QM(I,J-1)
@@ -221,6 +267,7 @@ C
 
 C       **********************************
 
+<<<<<<< HEAD
         SUBROUTINE CLPMN(MM,M,N,X,Y,CPM,CPD)
 C
 C       =========================================================
@@ -232,14 +279,35 @@ C                y  --- Imaginary part of z
 C                m  --- Order of Pmn(z),  m = 0,1,2,...,n
 C                n  --- Degree of Pmn(z), n = 0,1,2,...,N
 C                mm --- Physical dimension of CPM and CPD
+=======
+        SUBROUTINE CLPMN(MM,M,N,X,Y,NTYPE,CPM,CPD)
+C
+C       =========================================================
+C       Purpose: Compute the associated Legendre functions Pmn(z)
+C                and their derivatives Pmn'(z) for a complex
+C                argument
+C       Input :  x     --- Real part of z
+C                y     --- Imaginary part of z
+C                m     --- Order of Pmn(z),  m = 0,1,2,...,n
+C                n     --- Degree of Pmn(z), n = 0,1,2,...,N
+C                mm    --- Physical dimension of CPM and CPD
+C                ntype --- type of cut, either 2 or 3
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       Output:  CPM(m,n) --- Pmn(z)
 C                CPD(m,n) --- Pmn'(z)
 C       =========================================================
 C
+<<<<<<< HEAD
         IMPLICIT DOUBLE PRECISION (X,Y)
         IMPLICIT COMPLEX*16 (C,Z)
         DIMENSION CPM(0:MM,0:N),CPD(0:MM,0:N)
         Z=CMPLX(X,Y)
+=======
+        IMPLICIT DOUBLE PRECISION (D,X,Y)
+        IMPLICIT COMPLEX*16 (C,Z)
+        DIMENSION CPM(0:MM,0:N),CPD(0:MM,0:N)
+        Z = DCMPLX(X, Y)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         DO 10 I=0,N
         DO 10 J=0,M
            CPM(J,I)=(0.0D0,0.0D0)
@@ -253,13 +321,18 @@ C
            DO 20 J=1,N
            DO 20 I=1,M
               IF (I.EQ.1) THEN
+<<<<<<< HEAD
                  CPD(I,J)=(1.0D+300,0.0D0)
+=======
+                 CPD(I,J)=DINF()
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
               ELSE IF (I.EQ.2) THEN
                  CPD(I,J)=-0.25D0*(J+2)*(J+1)*J*(J-1)*X**(J+1)
               ENDIF
 20         CONTINUE
            RETURN
         ENDIF
+<<<<<<< HEAD
         LS=1
         IF (CDABS(Z).GT.1.0D0) LS=-1
         ZQ=CDSQRT(LS*(1.0D0-Z*Z))
@@ -270,16 +343,52 @@ C
 30         CPM(I,I+1)=(2.0D0*I+1.0D0)*Z*CPM(I,I)
         DO 35 I=0,M
         DO 35 J=I+2,N
+=======
+        if (NTYPE.EQ.2) THEN
+C       sqrt(1 - z^2) with branch cut on |x|>1
+           ZS=(1.0D0-Z*Z)
+           ZQ=-CDSQRT(ZS)
+           LS=-1
+        ELSE
+C       sqrt(z^2 - 1) with branch cut between [-1, 1]
+           ZS=(Z*Z-1.0D0)
+           ZQ=CDSQRT(ZS)
+           IF (X.LT.0D0) THEN
+              ZQ=-ZQ
+           END IF
+           LS=1
+        END IF
+        DO 25 I=1,M
+C       DLMF 14.7.15
+25         CPM(I,I)=(2.0D0*I-1.0D0)*ZQ*CPM(I-1,I-1)
+        DO 30 I=0,MIN(M,N-1)
+C       DLMF 14.10.7
+30         CPM(I,I+1)=(2.0D0*I+1.0D0)*Z*CPM(I,I)
+        DO 35 I=0,M
+        DO 35 J=I+2,N
+C       DLMF 14.10.3
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
            CPM(I,J)=((2.0D0*J-1.0D0)*Z*CPM(I,J-1)-(I+J-
      &              1.0D0)*CPM(I,J-2))/(J-I)
 35      CONTINUE
         CPD(0,0)=(0.0D0,0.0D0)
         DO 40 J=1,N
+<<<<<<< HEAD
 40         CPD(0,J)=LS*J*(CPM(0,J-1)-Z*CPM(0,J))/ZS
         DO 45 I=1,M
         DO 45 J=I,N
            CPD(I,J)=LS*I*Z*CPM(I,J)/ZS+(J+I)*(J-I+1.0D0)
      &              /ZQ*CPM(I-1,J)
+=======
+C       DLMF 14.10.5
+40         CPD(0,J)=LS*J*(Z*CPM(0,J)-CPM(0,J-1))/ZS
+        DO 45 I=1,M
+        DO 45 J=I,N
+C       derivative of DLMF 14.7.11 & DLMF 14.10.6 for type 3
+C       derivative of DLMF 14.7.8 & DLMF 14.10.1 for type 2
+           CPD(I,J)=LS*(-I*Z*CPM(I,J)/ZS+(J+I)*(J-I+1.0D0)
+     &                  /ZQ*CPM(I-1,J))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 45      CONTINUE
         RETURN
         END
@@ -336,7 +445,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 C       SciPy: Changed P from a character array to an integer array.
         SUBROUTINE JDZO(NT,N,M,P,ZO)
@@ -357,9 +470,15 @@ C                            zeros of Jn(x) and Jn'(x) )
 C                P(L)  --- 0 (TM) or 1 (TE), a code for designating the
 C                          zeros of Jn(x)  or Jn'(x).
 C                          In the waveguide applications, the zeros
+<<<<<<< HEAD
 C                          of Jn(x) correspond to TM modes and 
 C                          those of Jn'(x) correspond to TE modes
 C       Routine called:    BJNDD for computing Jn(x), Jn'(x) and  
+=======
+C                          of Jn(x) correspond to TM modes and
+C                          those of Jn'(x) correspond to TE modes
+C       Routine called:    BJNDD for computing Jn(x), Jn'(x) and
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C                          Jn''(x)
 C       =============================================================
 C
@@ -367,6 +486,11 @@ C
         INTEGER P(1400), P1(70)
         DIMENSION N(1400),M(1400),ZO(0:1400),N1(70),M1(70),
      &            ZOC(0:70),BJ(101),DJ(101),FJ(101)
+<<<<<<< HEAD
+=======
+        X = 0
+        ZOC(0) = 0
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         IF (NT.LT.600) THEN
            XM=-1.0+2.248485*NT**0.5-.0159382*NT+3.208775E-4
      &        *NT**1.5
@@ -449,7 +573,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE CBK(M,N,C,CV,QT,CK,BK)
@@ -519,13 +647,21 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE CJY01(Z,CBJ0,CDJ0,CBJ1,CDJ1,CBY0,CDY0,CBY1,CDY1)
 C
 C       =======================================================
+<<<<<<< HEAD
 C       Purpose: Compute Bessel functions J0(z), J1(z), Y0(z), 
+=======
+C       Purpose: Compute Bessel functions J0(z), J1(z), Y0(z),
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C                Y1(z), and their derivatives for a complex
 C                argument
 C       Input :  z --- Complex argument
@@ -670,9 +806,15 @@ C       Purpose: Compute prolate spheroidal radial function
 C                of the second kind with a small argument
 C       Routines called:
 C            (1) LPMNS for computing the associated Legendre
+<<<<<<< HEAD
 C                functions of the first kind    
 C            (2) LQMNS for computing the associated Legendre
 C                functions of the second kind  
+=======
+C                functions of the first kind
+C            (2) LQMNS for computing the associated Legendre
+C                functions of the second kind
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C            (3) KMN for computing expansion coefficients
 C                and joining factors
 C       ======================================================
@@ -767,7 +909,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE BERNOB(N,BN)
@@ -780,7 +926,11 @@ C       ======================================
 C
         IMPLICIT DOUBLE PRECISION (A-H,O-Z)
         DIMENSION BN(0:N)
+<<<<<<< HEAD
         TPI=6.283185307179586D0 
+=======
+        TPI=6.283185307179586D0
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         BN(0)=1.0D0
         BN(1)=-0.5D0
         BN(2)=1.0D0/6.0D0
@@ -847,7 +997,11 @@ C
 10               SK=SK+CK(K+1)*CK(L-K+1)
 15            S=S+SK*AP(I-L+1)
 20      AP(I+1)=-R*S
+<<<<<<< HEAD
         QS0=AP(M+1)     
+=======
+        QS0=AP(M+1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         DO 30 L=1,M
            R=1.0D0
            DO 25 K=1,L
@@ -859,7 +1013,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE CV0(KD,M,Q,A0)
@@ -1026,7 +1184,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE CVQM(M,Q,A0)
@@ -1083,7 +1245,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE CSPHJY(N,Z,NM,CSJ,CDJ,CSY,CDY)
@@ -1169,12 +1335,21 @@ C
         INTEGER FUNCTION MSTA1(X,MP)
 C
 C       ===================================================
+<<<<<<< HEAD
 C       Purpose: Determine the starting point for backward  
 C                recurrence such that the magnitude of    
 C                Jn(x) at that point is about 10^(-MP)
 C       Input :  x     --- Argument of Jn(x)
 C                MP    --- Value of magnitude
 C       Output:  MSTA1 --- Starting point   
+=======
+C       Purpose: Determine the starting point for backward
+C                recurrence such that the magnitude of
+C                Jn(x) at that point is about 10^(-MP)
+C       Input :  x     --- Argument of Jn(x)
+C                MP    --- Value of magnitude
+C       Output:  MSTA1 --- Starting point
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       ===================================================
 C
         IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -1183,8 +1358,13 @@ C
         F0=ENVJ(N0,A0)-MP
         N1=N0+5
         F1=ENVJ(N1,A0)-MP
+<<<<<<< HEAD
         DO 10 IT=1,20             
            NN=N1-(N1-N0)/(1.0D0-F0/F1)                  
+=======
+        DO 10 IT=1,20
+           NN=N1-(N1-N0)/(1.0D0-F0/F1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
            F=ENVJ(NN,A0)-MP
            IF(ABS(NN-N1).LT.1) GO TO 20
            N0=N1
@@ -1442,7 +1622,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE RMN2L(M,N,C,X,DF,KD,R2F,R2D,ID)
@@ -1453,7 +1637,11 @@ C                functions of the second kind for given m, n,
 C                c and a large cx
 C       Routine called:
 C                SPHY for computing the spherical Bessel
+<<<<<<< HEAD
 C                functions of the second kind      
+=======
+C                functions of the second kind
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       ========================================================
 C
         IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -1471,7 +1659,11 @@ C
         R0=REG
         DO 10 J=1,2*M+IP
 10         R0=R0*J
+<<<<<<< HEAD
         R=R0    
+=======
+        R=R0
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         SUC=R*DF(1)
         SW=0.0D0
         DO 15 K=2,NM
@@ -1503,7 +1695,11 @@ C
            ID=10
            RETURN
         ENDIF
+<<<<<<< HEAD
         B0=KD*M/X**3.0D0/(1.0-KD/(X*X))*R2F                
+=======
+        B0=KD*M/X**3.0D0/(1.0-KD/(X*X))*R2F
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         SUD=0.0D0
         EPS2=0.0D0
         DO 60 K=1,NM
@@ -1520,14 +1716,22 @@ C
            EPS2=DABS(SUD-SW)
            IF (K.GT.NM1.AND.EPS2.LT.DABS(SUD)*EPS) GO TO 65
 60         SW=SUD
+<<<<<<< HEAD
 65      R2D=B0+A0*C*SUD       
+=======
+65      R2D=B0+A0*C*SUD
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         ID2=INT(LOG10(EPS2/DABS(SUD)+EPS))
         ID=MAX(ID1,ID2)
         RETURN
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE PSI_SPEC(X,PS)
@@ -1609,7 +1813,12 @@ C
         IMPLICIT DOUBLE PRECISION (A-H,O-Z)
         IF (M.LE.12.OR.Q.LE.3.0*M.OR.Q.GT.M*M) THEN
             CALL CV0(KD,M,Q,A)
+<<<<<<< HEAD
             IF (Q.NE.0.0D0) CALL REFINE(KD,M,Q,A)
+=======
+            IF (Q.NE.0.0D0.AND.M.NE.2) CALL REFINE(KD,M,Q,A)
+            IF (Q.GT.2.0D-3.AND.M.EQ.2) CALL REFINE(KD,M,Q,A)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         ELSE
            NDIV=10
            DELTA=(M-3.0)*M/NDIV
@@ -1667,7 +1876,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE LPMNS(M,N,X,PM,PD)
@@ -1719,7 +1932,11 @@ C
            PM(K)=PM2
            PMK=PM1
 25         PM1=PM2
+<<<<<<< HEAD
         PD(0)=((1.0D0-M)*PM(1)-X*PM(0))/(X*X-1.0)  
+=======
+        PD(0)=((1.0D0-M)*PM(1)-X*PM(0))/(X*X-1.0)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         DO 30 K=1,N
 30         PD(K)=(K*X*PM(K)-(K+M)*PM(K-1))/(X*X-1.0D0)
         DO 35 K=1,N
@@ -1793,7 +2010,11 @@ C       ==========================================================
 35            W2=EI2
 40         ERI=EI1+C0*EI2
         ENDIF
+<<<<<<< HEAD
         CER=CMPLX(ERR,ERI)
+=======
+        CER = DCMPLX(ERR, ERI)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         CDER=2.0D0/DSQRT(PI)*CDEXP(-Z*Z)
         RETURN
         END
@@ -1822,11 +2043,19 @@ C                R2D --- Derivative of the radial function of
 C                        the second kind
 C       Routines called:
 C            (1) SDMN for computing expansion coefficients dk
+<<<<<<< HEAD
 C            (2) RMN1 for computing prolate and oblate radial 
 C                functions of the first kind
 C            (3) RMN2L for computing prolate and oblate radial
 C                functions of the second kind for a large argument
 C            (4) RMN2SP for computing the prolate radial function 
+=======
+C            (2) RMN1 for computing prolate and oblate radial
+C                functions of the first kind
+C            (3) RMN2L for computing prolate and oblate radial
+C                functions of the second kind for a large argument
+C            (4) RMN2SP for computing the prolate radial function
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C                of the second kind for a small argument
 C       ==============================================================
 C
@@ -1847,14 +2076,22 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE JYNDD(N,X,BJN,DJN,FJN,BYN,DYN,FYN)
 C
 C       ===========================================================
 C       Purpose: Compute Bessel functions Jn(x) and Yn(x), and
+<<<<<<< HEAD
 C                their first and second derivatives 
+=======
+C                their first and second derivatives
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       Input:   x   ---  Argument of Jn(x) and Yn(x) ( x > 0 )
 C                n   ---  Order of Jn(x) and Yn(x)
 C       Output:  BJN ---  Jn(x)
@@ -2012,7 +2249,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE CISIA(X,CI,SI)
@@ -2211,7 +2452,11 @@ C
         IMPLICIT DOUBLE PRECISION (X,Y)
         IMPLICIT COMPLEX*16 (C,Z)
         DIMENSION CQN(0:N),CQD(0:N)
+<<<<<<< HEAD
         Z=CMPLX(X,Y)
+=======
+        Z = DCMPLX(X, Y)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         IF (Z.EQ.1.0D0) THEN
            DO 10 K=0,N
               CQN(K)=(1.0D+300,0.0D0)
@@ -2314,7 +2559,11 @@ C                KF    --- Function code
 C                          KF=1 for Ai(x) and Ai'(x)
 C                          KF=2 for Bi(x) and Bi'(x)
 C       Output:  XA(m) --- a, the m-th zero of Ai(x) or
+<<<<<<< HEAD
 C                          b, the m-th zero of Bi(x) 
+=======
+C                          b, the m-th zero of Bi(x)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C                XB(m) --- a', the m-th zero of Ai'(x) or
 C                          b', the m-th zero of Bi'(x)
 C                XC(m) --- Ai(a') or Bi(b')
@@ -2327,6 +2576,7 @@ C
         IMPLICIT DOUBLE PRECISION (A-H,O-Z)
         DIMENSION XA(NT),XB(NT),XC(NT),XD(NT)
         PI=3.141592653589793D0
+<<<<<<< HEAD
         RT0=0.0D0
         RT=0.0D0
         DO 15 I=1,NT
@@ -2345,20 +2595,55 @@ C
      &               -.138889)*U1+.10416667)*U1+1.0)
               ENDIF
            ENDIF
+=======
+        RT=0.0D0
+        DO 15 I=1,NT
+           RT0=0D0
+           IF (KF.EQ.1) THEN
+              U=3.0D0*PI*(4.0D0*I-1)/8.0D0
+              U1=1/(U*U)
+           ELSE IF (KF.EQ.2) THEN
+              IF (I.EQ.1) THEN
+                 RT0=-1.17371D0
+              ELSE
+                 U=3.0D0*PI*(4.0D0*I-3.0D0)/8.0D0
+                 U1=1/(U*U)
+              ENDIF
+           ENDIF
+           IF (RT0.EQ.0) THEN
+C             DLMF 9.9.18
+              RT0=-(U*U)**(1.0D0/3.0D0)*(
+     &            + 1D0
+     &            + U1*(5D0/48D0
+     &            + U1*(-5D0/36D0
+     &            + U1*(77125D0/82944D0
+     &            + U1*(-108056875D0/6967296D0)))))
+           ENDIF
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 10         X=RT0
            CALL AIRYB(X,AI,BI,AD,BD)
            IF (KF.EQ.1) RT=RT0-AI/AD
            IF (KF.EQ.2) RT=RT0-BI/BD
+<<<<<<< HEAD
            IF (DABS((RT-RT0)/RT).GT.1.D-9) THEN
+=======
+           ERR=DABS((RT-RT0)/RT)
+           IF (ERR.GT.1.D-12) THEN
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
               RT0=RT
               GOTO 10
            ELSE
               XA(I)=RT
+<<<<<<< HEAD
+=======
+              IF (ERR.GT.1D-14) CALL AIRYB(RT,AI,BI,AD,BD)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
               IF (KF.EQ.1) XD(I)=AD
               IF (KF.EQ.2) XD(I)=BD
            ENDIF
 15      CONTINUE
         DO 25 I=1,NT
+<<<<<<< HEAD
            IF (KF.EQ.1) THEN
               IF (I.EQ.1) THEN
                  RT0=-1.01879
@@ -2378,15 +2663,51 @@ C
      &               *U1+.121528)*U1-.145833)*U1+1.0)
               ENDIF
            ENDIF
+=======
+           RT0=0D0
+           IF (KF.EQ.1) THEN
+              IF (I.EQ.1) THEN
+                 RT0=-1.01879D0
+              ELSE
+                 U=3.0D0*PI*(4.0D0*I-3.0D0)/8.0D0
+                 U1=1/(U*U)
+              ENDIF
+           ELSE IF (KF.EQ.2) THEN
+              IF (I.EQ.1) THEN
+                 RT0=-2.29444D0
+              ELSE
+                 U=3.0D0*PI*(4.0D0*I-1.0D0)/8.0D0
+                 U1=1/(U*U)
+              ENDIF
+           ENDIF
+           IF (RT0.EQ.0) THEN
+C             DLMF 9.9.19
+              RT0=-(U*U)**(1.0D0/3.0D0)*(
+     &            + 1D0
+     &            + U1*(-7D0/48D0
+     &            + U1*(+35D0/288D0
+     &            + U1*(-181223D0/207360D0
+     &            + U1*(18683371D0/1244160D0)))))
+           END IF
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 20         X=RT0
            CALL AIRYB(X,AI,BI,AD,BD)
            IF (KF.EQ.1) RT=RT0-AD/(AI*X)
            IF (KF.EQ.2) RT=RT0-BD/(BI*X)
+<<<<<<< HEAD
            IF (DABS((RT-RT0)/RT).GT.1.0D-9) THEN
+=======
+           ERR=DABS((RT-RT0)/RT)
+           IF (ERR.GT.1.0D-12) THEN
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
               RT0=RT
               GOTO 20
            ELSE
               XB(I)=RT
+<<<<<<< HEAD
+=======
+              IF (ERR.GT.1D-14) CALL AIRYB(RT,AI,BI,AD,BD)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
               IF (KF.EQ.1) XC(I)=AI
               IF (KF.EQ.2) XC(I)=BI
            ENDIF
@@ -2395,7 +2716,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE ERROR(X,ERR)
@@ -2473,8 +2798,13 @@ C
               IF (CDABS(CR/CS).LT.1.0D-15) GO TO 15
 10         CONTINUE
 15         CER=2.0D0*C0*CS/DSQRT(PI)
+<<<<<<< HEAD
         ELSE                              
            CL=1.0D0/Z1              
+=======
+        ELSE
+           CL=1.0D0/Z1
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
            CR=CL
 C
 C          Asymptotic series; maximum K must be at most ~ R^2.
@@ -2535,7 +2865,11 @@ C       **********************************
 C
 C       ============================================================
 C       Purpose: Compute a sequence of characteristic values of
+<<<<<<< HEAD
 C                Mathieu functions 
+=======
+C                Mathieu functions
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       Input :  M  --- Maximum order of Mathieu functions
 C                q  --- Parameter of Mathieu functions
 C                KD --- Case code
@@ -2778,10 +3112,17 @@ C       **********************************
 C
 C       ========================================================
 C       Purpose: Compute the expansion coefficients for the
+<<<<<<< HEAD
 C                asymptotic expansion of Bessel functions 
 C                with large orders
 C       Input :  Km   --- Maximum k
 C       Output:  A(L) --- Cj(k) where j and k are related to L 
+=======
+C                asymptotic expansion of Bessel functions
+C                with large orders
+C       Input :  Km   --- Maximum k
+C       Output:  A(L) --- Cj(k) where j and k are related to L
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C                         by L=j+1+[k*(k+1)]/2; j,k=0,1,...,Km
 C       ========================================================
 C
@@ -2887,12 +3228,21 @@ C       =========================================================
 C       Purpose: Compute lambda function with arbitrary order v,
 C                and their derivative
 C       Input :  x --- Argument of lambda function
+<<<<<<< HEAD
 C                v --- Order of lambda function 
 C       Output:  VL(n) --- Lambda function of order n+v0
 C                DL(n) --- Derivative of lambda function 
 C                VM --- Highest order computed
 C       Routines called:
 C            (1) MSTA1 and MSTA2 for computing the starting 
+=======
+C                v --- Order of lambda function
+C       Output:  VL(n) --- Lambda function of order n+v0
+C                DL(n) --- Derivative of lambda function
+C                VM --- Highest order computed
+C       Routines called:
+C            (1) MSTA1 and MSTA2 for computing the starting
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C                point for backward recurrence
 C            (2) GAM0 for computing gamma function (|x| ≤ 1)
 C       =========================================================
@@ -3014,7 +3364,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE CHGUIT(A,B,X,HU,ID)
@@ -3062,7 +3416,12 @@ C
      &          .152746185967848D-01, .126781664768159D-01,
      &          .100475571822880D-01, .738993116334531D-02,
      &          .471272992695363D-02, .202681196887362D-02/
+<<<<<<< HEAD
         ID=7
+=======
+        ID=9
+C       DLMF 13.4.4, integration up to C=12/X
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         A1=A-1.0D0
         B1=B-A-1.0D0
         C=12.0D0/X
@@ -3083,11 +3442,20 @@ C
               HU1=HU1+S*G
               D=D+2.0D0*G
 15         CONTINUE
+<<<<<<< HEAD
            IF (DABS(1.0D0-HU0/HU1).LT.1.0D-7) GO TO 25
+=======
+           IF (DABS(1.0D0-HU0/HU1).LT.1.0D-9) GO TO 25
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
            HU0=HU1
 20      CONTINUE
 25      CALL GAMMA2(A,GA)
         HU1=HU1/GA
+<<<<<<< HEAD
+=======
+C       DLMF 13.4.4 with substitution t=C/(1-u)
+C       integration u from 0 to 1, i.e. t from C=12/X to infinity
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         DO 40 M=2,10,2
            HU2=0.0D0
            G=0.5D0/M
@@ -3106,7 +3474,11 @@ C
               HU2=HU2+S*G
               D=D+2.0D0*G
 35         CONTINUE
+<<<<<<< HEAD
            IF (DABS(1.0D0-HU0/HU2).LT.1.0D-7) GO TO 45
+=======
+           IF (DABS(1.0D0-HU0/HU2).LT.1.0D-9) GO TO 45
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
            HU0=HU2
 40      CONTINUE
 45      CALL GAMMA2(A,GA)
@@ -3116,7 +3488,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE KMN(M,N,C,CV,KD,DF,DN,CK1,CK2)
@@ -3136,7 +3512,11 @@ C
         IP=1
         IF (N-M.EQ.2*INT((N-M)/2)) IP=0
         K=0
+<<<<<<< HEAD
         DO 10 I=1,NN+3     
+=======
+        DO 10 I=1,NN+3
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
            IF (IP.EQ.0) K=-2*(I-1)
            IF (IP.EQ.1) K=-(2*I-3)
            GK0=2.0D0*M+K
@@ -3204,7 +3584,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE LAGZO(N,X,W)
@@ -3298,13 +3682,21 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE CJYVA(V,Z,VM,CBJ,CDJ,CBY,CDY)
 C
 C       ===========================================================
+<<<<<<< HEAD
 C       Purpose: Compute Bessel functions Jv(z), Yv(z) and their 
+=======
+C       Purpose: Compute Bessel functions Jv(z), Yv(z) and their
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C                derivatives for a complex argument
 C       Input :  z --- Complex argument
 C                v --- Order of Jv(z) and Yv(z)
@@ -3345,7 +3737,11 @@ C
            ELSE
               CDJ(0)=(1.0D+300,0.0D0)
            ENDIF
+<<<<<<< HEAD
            VM=V                     
+=======
+           VM=V
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
            RETURN
         ENDIF
         LB0=0.0D0
@@ -3554,13 +3950,21 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE CJYVB(V,Z,VM,CBJ,CDJ,CBY,CDY)
 C
 C       ===========================================================
+<<<<<<< HEAD
 C       Purpose: Compute Bessel functions Jv(z), Yv(z) and their 
+=======
+C       Purpose: Compute Bessel functions Jv(z), Yv(z) and their
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C                derivatives for a complex argument
 C       Input :  z --- Complex argument
 C                v --- Order of Jv(z) and Yv(z)
@@ -3716,7 +4120,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE JY01A(X,BJ0,DJ0,BJ1,DJ1,BY0,DY0,BY1,DY1)
@@ -3852,7 +4260,11 @@ C       ===================================================
 C       Purpose: Compute the incomplete gamma function
 C                r(a,x), Г(a,x) and P(a,x)
 C       Input :  a   --- Parameter ( a ≤ 170 )
+<<<<<<< HEAD
 C                x   --- Argument 
+=======
+C                x   --- Argument
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       Output:  GIN --- r(a,x)
 C                GIM --- Г(a,x)
 C                GIP --- P(a,x)
@@ -3895,7 +4307,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE ITIKB(X,TI,TK)
@@ -4075,7 +4491,11 @@ C
            ELSE
               DJ(0)=1.0D+300
            ENDIF
+<<<<<<< HEAD
            VM=V  
+=======
+           VM=V
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
            RETURN
         ENDIF
         BJV0=0.0D0
@@ -4225,7 +4645,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE JYNB(N,X,NM,BJ,DJ,BY,DY)
@@ -4253,7 +4677,11 @@ C       Compute derivatives by differentiation formulas
               DJ(K) = 0.0D0
  10           DY(K) = 1.0D+300
            DJ(1)=0.5D0
+<<<<<<< HEAD
         ELSE   
+=======
+        ELSE
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
            DJ(0)=-BJ(1)
            DO 40 K=1,NM
  40           DJ(K)=BJ(K-1)-K/X*BJ(K)
@@ -4278,7 +4706,11 @@ C       Output:  BJ(n-NMIN) --- Jn(x)   ; if indexing starts at 0
 C                BY(n-NMIN) --- Yn(x)   ; if indexing starts at 0
 C                NM --- Highest order computed
 C       Routines called:
+<<<<<<< HEAD
 C                MSTA1 and MSTA2 to calculate the starting 
+=======
+C                MSTA1 and MSTA2 to calculate the starting
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C                point for backward recurrence
 C       =====================================================
 C
@@ -4544,7 +4976,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE JYNA(N,X,NM,BJ,DJ,BY,DY)
@@ -4561,7 +4997,11 @@ C                DY(n) --- Yn'(x)
 C                NM --- Highest order computed
 C       Routines called:
 C            (1) JY01B to calculate J0(x), J1(x), Y0(x) & Y1(x)
+<<<<<<< HEAD
 C            (2) MSTA1 and MSTA2 to calculate the starting 
+=======
+C            (2) MSTA1 and MSTA2 to calculate the starting
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C                point for backward recurrence
 C       =========================================================
 C
@@ -4632,7 +5072,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE PBDV(V,X,DV,DP,PDF,PDD)
@@ -4644,7 +5088,11 @@ C       Input:   x --- Argument of Dv(x)
 C                v --- Order of Dv(x)
 C       Output:  DV(na) --- Dn+v0(x)
 C                DP(na) --- Dn+v0'(x)
+<<<<<<< HEAD
 C                ( na = |n|, v0 = v-n, |v0| < 1, 
+=======
+C                ( na = |n|, v0 = v-n, |v0| < 1,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C                  n = 0,±1,±2,… )
 C                PDF --- Dv(x)
 C                PDD --- Dv'(x)
@@ -4748,7 +5196,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE ITSH0(X,TH0)
@@ -4763,7 +5215,11 @@ C
         IMPLICIT DOUBLE PRECISION (A-H,O-Z)
         DIMENSION A(25)
         PI=3.141592653589793D0
+<<<<<<< HEAD
         R=1.0D0            
+=======
+        R=1.0D0
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         IF (X.LE.30.0) THEN
            S=0.5D0
            DO 10 K=1,100
@@ -4831,7 +5287,11 @@ C
            PV=PI*DSQRT(2.0D0*NR-0.25D0)
            PX=0.5*PU-0.5*DLOG(PV)/PU
            PY=0.5*PU+0.5*DLOG(PV)/PU
+<<<<<<< HEAD
            Z=CMPLX(PX,PY)
+=======
+           Z = DCMPLX(PX, PY)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
            IT=0
 15         IT=IT+1
            CALL CERF(Z,ZF,ZD)
@@ -4857,7 +5317,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE GAMMA2(X,GA)
@@ -4950,20 +5414,32 @@ C
         IF (B.NE.INT(B)) THEN
            CALL CHGUS(A,B,X,HU,ID1)
            MD=1
+<<<<<<< HEAD
            IF (ID1.GE.6) RETURN
+=======
+           IF (ID1.GE.9) RETURN
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
            HU1=HU
         ENDIF
         IF (IL1.OR.IL2.OR.IL3) THEN
            CALL CHGUL(A,B,X,HU,ID)
            MD=2
+<<<<<<< HEAD
            IF (ID.GE.6) RETURN
+=======
+           IF (ID.GE.9) RETURN
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
            IF (ID1.GT.ID) THEN
               MD=1
               ID=ID1
               HU=HU1
            ENDIF
         ENDIF
+<<<<<<< HEAD
         IF (A.GE.0.0) THEN
+=======
+        IF (A.GE.1.0) THEN
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
            IF (BN.AND.(BL1.OR.BL2.OR.BL3)) THEN
               CALL CHGUBI(A,B,X,HU,ID)
               MD=3
@@ -4992,7 +5468,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE LAMN(N,X,NM,BL,DL)
@@ -5042,7 +5522,11 @@ C
 35         DL(N)=-0.5D0*X/(N+1.0D0)*UK
            RETURN
         ENDIF
+<<<<<<< HEAD
         IF (N.EQ.0) NM=1          
+=======
+        IF (N.EQ.0) NM=1
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         M=MSTA1(X,200)
         IF (M.LT.NM) THEN
            NM=M
@@ -5150,7 +5634,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE CVF(KD,M,Q,A,MJ,F)
@@ -5181,7 +5669,11 @@ C
         IF (M.LE.2) THEN
            T2=0.0D0
            IF (KD.EQ.1.AND.M.EQ.0) T1=T1+T1
+<<<<<<< HEAD
            IF (KD.EQ.1.AND.M.EQ.2) T1=-2.0*Q*Q/(4.0-B+T1)-4.0
+=======
+           IF (KD.EQ.1.AND.M.EQ.2) T1=-2.0D0*Q*Q/(4.0D0-B+T1)-4.0D0
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
            IF (KD.EQ.2.AND.M.EQ.1) T1=T1+Q
            IF (KD.EQ.3.AND.M.EQ.1) T1=T1-Q
         ELSE
@@ -5199,7 +5691,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE CLPN(N,X,Y,CPN,CPD)
@@ -5218,7 +5714,11 @@ C
         IMPLICIT DOUBLE PRECISION (X,Y)
         IMPLICIT COMPLEX *16 (C,Z)
         DIMENSION CPN(0:N),CPD(0:N)
+<<<<<<< HEAD
         Z=CMPLX(X,Y)
+=======
+        Z = DCMPLX(X, Y)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         CPN(0)=(1.0D0,0.0D0)
         CPN(1)=Z
         CPD(0)=(0.0D0,0.0D0)
@@ -5412,7 +5912,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE ELIT(HK,PHI,FE,EE)
@@ -5569,9 +6073,26 @@ C       Output:  EI --- Ei(x)
 C       ============================================
 C
         IMPLICIT NONE
+<<<<<<< HEAD
         DOUBLE COMPLEX Z, CEI
         CALL E1Z(-Z, CEI)
         CEI = -CEI + (CDLOG(Z) - CDLOG(1D0/Z))/2D0 - CDLOG(-Z)
+=======
+        DOUBLE COMPLEX Z, CEI, IMF
+        DOUBLE PRECISION PI
+        PI=3.141592653589793D0
+        CALL E1Z(-Z, CEI)
+        CEI = -CEI
+        IF (DIMAG(Z).GT.0) THEN
+           CEI = CEI + (0d0,1d0)*PI
+        ELSE IF (DIMAG(Z).LT.0) THEN
+           CEI = CEI - (0d0,1d0)*PI
+        ELSE IF (DIMAG(Z).EQ.0) THEN
+           IF (DBLE(Z).GT.0) THEN
+              CEI = CEI - (0d0,1d0)*PI
+           ENDIF
+        ENDIF
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         RETURN
         END
 
@@ -5621,10 +6142,18 @@ C       Input  : a  --- Parameter
 C                b  --- Parameter ( b <> 0,-1,-2,... )
 C                x  --- Argument
 C       Output:  HG --- M(a,b,x)
+<<<<<<< HEAD
 C       Routine called: GAMMA2 for computing Г(x)
 C       ===================================================
 C
         IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+=======
+C       Routine called: CGAMA for computing complex ln[Г(x)]
+C       ===================================================
+C
+        IMPLICIT DOUBLE PRECISION (A-B,D-H,O-Z)
+        IMPLICIT COMPLEX*16 (C)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         PI=3.141592653589793D0
         A0=A
         A1=A
@@ -5673,6 +6202,7 @@ C
               DO 15 J=1,500
                  RG=RG*(A+J-1.0D0)/(J*(B+J-1.0D0))*X
                  HG=HG+RG
+<<<<<<< HEAD
                  IF (DABS(RG/HG).LT.1.0D-15) GO TO 25
 15            CONTINUE
            ELSE
@@ -5680,6 +6210,21 @@ C
               CALL GAMMA2(B,TB)
               XG=B-A
               CALL GAMMA2(XG,TBA)
+=======
+                 IF (HG.NE.0D0.AND.DABS(RG/HG).LT.1.0D-15) GO TO 25
+15            CONTINUE
+           ELSE
+              Y=0.0D0
+              CALL CGAMA(A,Y,0,TAR,TAI)
+              CTA = DCMPLX(TAR, TAI)
+              Y=0.0D0
+              CALL CGAMA(B,Y,0,TBR,TBI)
+              CTB = DCMPLX(TBR, TBI)
+              XG=B-A
+              Y=0.0D0
+              CALL CGAMA(XG,Y,0,TBAR,TBAI)
+              CTBA = DCMPLX(TBAR, TBAI)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
               SUM1=1.0D0
               SUM2=1.0D0
               R1=1.0D0
@@ -5689,8 +6234,13 @@ C
                  R2=-R2*(B-A+I-1.0D0)*(A-I)/(X*I)
                  SUM1=SUM1+R1
 20               SUM2=SUM2+R2
+<<<<<<< HEAD
               HG1=TB/TBA*X**(-A)*DCOS(PI*A)*SUM1
               HG2=TB/TA*DEXP(X)*X**(A-B)*SUM2
+=======
+              HG1=DBLE(CDEXP(CTB-CTBA))*X**(-A)*DCOS(PI*A)*SUM1
+              HG2=DBLE(CDEXP(CTB-CTA+X))*X**(A-B)*SUM2
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
               HG=HG1+HG2
            ENDIF
 25         IF (N.EQ.0) Y0=HG
@@ -5710,7 +6260,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE STVH0(X,SH0)
@@ -5952,7 +6506,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE CCHG(A,B,Z,CHG)
@@ -5965,7 +6523,11 @@ C       Input :  a --- Parameter
 C                b --- Parameter
 C                z --- Complex argument
 C       Output:  CHG --- M(a,b,z)
+<<<<<<< HEAD
 C       Routine called: GAMMA2 for computing gamma function
+=======
+C       Routine called: CGAMA for computing complex ln[Г(x)]
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       ===================================================
 C
         IMPLICIT DOUBLE PRECISION (A,B,D-H,O-Y)
@@ -6021,10 +6583,23 @@ C
                     CHW=CHG
 15               CONTINUE
               ELSE
+<<<<<<< HEAD
                  CALL GAMMA2(A,G1)
                  CALL GAMMA2(B,G2)
                  BA=B-A
                  CALL GAMMA2(BA,G3)
+=======
+                 Y=0.0D0
+                 CALL CGAMA(A,Y,0,G1R,G1I)
+                 CG1 = DCMPLX(G1R, G1I)
+                 Y=0.0D0
+                 CALL CGAMA(B,Y,0,G2R,G2I)
+                 CG2 = DCMPLX(G2R,G2I)
+                 BA=B-A
+                 Y=0.0D0
+                 CALL CGAMA(BA,Y,0,G3R,G3I)
+                 CG3 = DCMPLX(G3R, G3I)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                  CS1=(1.0D0,0.0D0)
                  CS2=(1.0D0,0.0D0)
                  CR1=(1.0D0,0.0D0)
@@ -6047,8 +6622,13 @@ C
                  IF (PHI.GT.-1.5*PI.AND.PHI.LE.-0.5*PI) NS=-1
                  CFAC=CDEXP(NS*CI*PI*A)
                  IF (Y.EQ.0.0D0) CFAC=DCOS(PI*A)
+<<<<<<< HEAD
                  CHG1=G2/G3*Z**(-A)*CFAC*CS1
                  CHG2=G2/G1*CDEXP(Z)*Z**(A-B)*CS2
+=======
+                 CHG1=CDEXP(CG2-CG3)*Z**(-A)*CFAC*CS1
+                 CHG2=CDEXP(CG2-CG1+Z)*Z**(A-B)*CS2
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                  CHG=CHG1+CHG2
               ENDIF
 25            IF (N.EQ.0) CY0=CHG
@@ -6069,13 +6649,21 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE HYGFZ(A,B,C,Z,ZHF)
 C
 C       ======================================================
+<<<<<<< HEAD
 C       Purpose: Compute the hypergeometric function for a 
+=======
+C       Purpose: Compute the hypergeometric function for a
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C                complex argument, F(a,b,c,z)
 C       Input :  a --- Parameter
 C                b --- Parameter
@@ -6146,7 +6734,11 @@ C           WRITE(*,*)'The hypergeometric series is divergent'
         ELSE IF (A0.LE.1.0D0) THEN
            IF (X.LT.0.0D0) THEN
               Z1=Z/(Z-1.0D0)
+<<<<<<< HEAD
               IF (C.GT.A.AND.B.LT.A.AND.B.GT.0.0) THEN  
+=======
+              IF (C.GT.A.AND.B.LT.A.AND.B.GT.0.0) THEN
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                  A=BB
                  B=AA
               ENDIF
@@ -6360,7 +6952,11 @@ C           WRITE(*,*)'The hypergeometric series is divergent'
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE ITAIRY(X,APT,BPT,ANT,BNT)
@@ -6481,7 +7077,11 @@ C                DK(n) --- Kn'(x)
 C                NM --- Highest order computed
 C       Routines called:
 C            (1) IK01A for computing I0(x),I1(x),K0(x) & K1(x)
+<<<<<<< HEAD
 C            (2) MSTA1 and MSTA2 for computing the starting 
+=======
+C            (2) MSTA1 and MSTA2 for computing the starting
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C                point for backward recurrence
 C       ========================================================
 C
@@ -6549,7 +7149,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE CJYNA(N,Z,NM,CBJ,CDJ,CBY,CDY)
@@ -6566,7 +7170,11 @@ C                CDY(n) --- Yn'(z)
 C                NM --- Highest order computed
 C       Rouitines called:
 C            (1) CJY01 to calculate J0(z), J1(z), Y0(z), Y1(z)
+<<<<<<< HEAD
 C            (2) MSTA1 and MSTA2 to calculate the starting 
+=======
+C            (2) MSTA1 and MSTA2 to calculate the starting
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C                point for backward recurrence
 C       =======================================================
 C
@@ -6635,7 +7243,11 @@ C
         CG1=CBY1
         DO 90 K=2,NM
            CYK=2.0D0*(K-1.0D0)/Z*CG1-CG0
+<<<<<<< HEAD
            IF (CDABS(CYK).GT.1.0D+290) GO TO 90            
+=======
+           IF (CDABS(CYK).GT.1.0D+290) GO TO 90
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
            YAK=CDABS(CYK)
            YA1=CDABS(CG0)
            IF (YAK.LT.YA0.AND.YAK.LT.YA1) LB=K
@@ -6696,7 +7308,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE CJYNB(N,Z,NM,CBJ,CDJ,CBY,CDY)
@@ -6833,7 +7449,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE IKNB(N,X,NM,BI,DI,BK,DK)
@@ -6849,7 +7469,11 @@ C                BK(n) --- Kn(x)
 C                DK(n) --- Kn'(x)
 C                NM --- Highest order computed
 C       Routines called:
+<<<<<<< HEAD
 C                MSTA1 and MSTA2 for computing the starting point 
+=======
+C                MSTA1 and MSTA2 for computing the starting point
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C                for backward recurrence
 C       ===========================================================
 C
@@ -6931,8 +7555,14 @@ C       **********************************
         SUBROUTINE LPMN(MM,M,N,X,PM,PD)
 C
 C       =====================================================
+<<<<<<< HEAD
 C       Purpose: Compute the associated Legendre functions 
 C                Pmn(x) and their derivatives Pmn'(x)
+=======
+C       Purpose: Compute the associated Legendre functions
+C                Pmn(x) and their derivatives Pmn'(x) for
+C                real argument
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       Input :  x  --- Argument of Pmn(x)
 C                m  --- Order of Pmn(x),  m = 0,1,2,...,n
 C                n  --- Degree of Pmn(x), n = 0,1,2,...,N
@@ -6941,7 +7571,11 @@ C       Output:  PM(m,n) --- Pmn(x)
 C                PD(m,n) --- Pmn'(x)
 C       =====================================================
 C
+<<<<<<< HEAD
         IMPLICIT DOUBLE PRECISION (P,X)
+=======
+        IMPLICIT DOUBLE PRECISION (D,P,X)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         DIMENSION PM(0:MM,0:N),PD(0:MM,0:N)
         INTRINSIC MIN
         DO 10 I=0,N
@@ -6957,7 +7591,11 @@ C
            DO 20 J=1,N
            DO 20 I=1,M
               IF (I.EQ.1) THEN
+<<<<<<< HEAD
                  PD(I,J)=1.0D+300
+=======
+                 PD(I,J)=DINF()
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
               ELSE IF (I.EQ.2) THEN
                  PD(I,J)=-0.25D0*(J+2)*(J+1)*J*(J-1)*X**(J+1)
               ENDIF
@@ -6967,6 +7605,11 @@ C
         LS=1
         IF (DABS(X).GT.1.0D0) LS=-1
         XQ=DSQRT(LS*(1.0D0-X*X))
+<<<<<<< HEAD
+=======
+C       Ensure connection to the complex-valued function for |x| > 1
+        IF (X.LT.-1D0) XQ=-XQ
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         XS=LS*(1.0D0-X*X)
         DO 30 I=1,M
 30         PM(I,I)=-LS*(2.0D0*I-1.0D0)*XQ*PM(I-1,I-1)
@@ -7022,6 +7665,14 @@ C
            QM=17.0+3.1*SQRT(Q)-.126*Q+.0037*SQRT(Q)*Q
         ENDIF
         KM=INT(QM+0.5*M)
+<<<<<<< HEAD
+=======
+        IF(KM.GT.251) THEN
+           CSF=DNAN()
+           CSD=DNAN()
+           RETURN
+        END IF
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         CALL FCOEF(KD,M,Q,A,FG)
         IC=INT(M/2)+1
         RD=1.74532925199433D-2
@@ -7056,7 +7707,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE CY01(KF,Z,ZF,ZD)
@@ -7207,7 +7862,11 @@ C       **********************************
         SUBROUTINE FFK(KS,X,FR,FI,FM,FA,GR,GI,GM,GA)
 C
 C       =======================================================
+<<<<<<< HEAD
 C       Purpose: Compute modified Fresnel integrals F±(x) 
+=======
+C       Purpose: Compute modified Fresnel integrals F±(x)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C                and K±(x)
 C       Input :  x   --- Argument of F±(x) and K±(x)
 C                KS  --- Sign code
@@ -7378,7 +8037,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE AIRYB(X,AI,BI,AD,BD)
@@ -7393,7 +8056,11 @@ C                BD --- Bi'(x)
 C       =======================================================
 C
         IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+<<<<<<< HEAD
         DIMENSION CK(41),DK(41)
+=======
+        DIMENSION CK(51),DK(51)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         EPS=1.0D-15
         PI=3.141592653589793D0
         C1=0.355028053887817D0
@@ -7444,20 +8111,47 @@ C
 45         AD=C1*DF-C2*DG
            BD=SR3*(C1*DF+C2*DG)
         ELSE
+<<<<<<< HEAD
+=======
+           KM=INT(24.5-XA)
+           IF (XA.LT.6.0) KM=14
+           IF (XA.GT.15.0) KM=10
+           IF (X.GT.0.0D0) THEN
+              KMAX=KM
+           ELSE
+C             Choose cutoffs so that the remainder term in asymptotic
+C             expansion is epsilon size. The X<0 branch needs to be fast
+C             in order to make AIRYZO efficient
+              IF (XA.GT.70.0) KM=3
+              IF (XA.GT.500.0) KM=2
+              IF (XA.GT.1000.0) KM=1
+              KM2=KM
+              IF (XA.GT.150.0) KM2=1
+              IF (XA.GT.3000.0) KM2=0
+              KMAX=2*KM+1
+           ENDIF
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
            XE=XA*XQ/1.5D0
            XR1=1.0D0/XE
            XAR=1.0D0/XQ
            XF=DSQRT(XAR)
            RP=0.5641895835477563D0
            R=1.0D0
+<<<<<<< HEAD
            DO 50 K=1,40
+=======
+           DO 50 K=1,KMAX
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
               R=R*(6.0D0*K-1.0D0)/216.0D0*(6.0D0*K-3.0D0)
      &          /K*(6.0D0*K-5.0D0)/(2.0D0*K-1.0D0)
               CK(K)=R
 50            DK(K)=-(6.0D0*K+1.0D0)/(6.0D0*K-1.0D0)*CK(K)
+<<<<<<< HEAD
            KM=INT(24.5-XA)
            IF (XA.LT.6.0) KM=14
            IF (XA.GT.15.0) KM=10
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
            IF (X.GT.0.0D0) THEN
               SAI=1.0D0
               SAD=1.0D0
@@ -7492,7 +8186,11 @@ C
               SSB=CK(1)*XR1
               SDB=DK(1)*XR1
               R=XR1
+<<<<<<< HEAD
               DO 70 K=1,KM
+=======
+              DO 70 K=1,KM2
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                  R=-R*XR2
                  SSB=SSB+CK(2*K+1)*R
 70               SDB=SDB+DK(2*K+1)*R
@@ -7599,7 +8297,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE SCKB(M,N,C,DF,CK)
@@ -7649,10 +8351,17 @@ C
 30            R1=R1*I
 35         CK(K+1)=FAC*SUM/R1
         RETURN
+<<<<<<< HEAD
         END 
 
 
         
+=======
+        END
+
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE CPDLA(N,Z,CDN)
@@ -7680,7 +8389,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE FCSZO(KF,NT,ZO)
@@ -7692,7 +8405,11 @@ C       Input :  KF  --- Function code
 C                        KF=1 for C(z) or KF=2 for S(z)
 C                NT  --- Total number of zeros
 C       Output:  ZO(L) --- L-th zero of C(z) or S(z)
+<<<<<<< HEAD
 C       Routines called: 
+=======
+C       Routines called:
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C            (1) CFC for computing Fresnel integral C(z)
 C            (2) CFS for computing Fresnel integral S(z)
 C       ==============================================================
@@ -7708,7 +8425,11 @@ C
            IF (KF.EQ.2) PSQ=2.0D0*NR**(0.5)
            PX=PSQ-DLOG(PI*PSQ)/(PI*PI*PSQ**3.0)
            PY=DLOG(PI*PSQ)/(PI*PSQ)
+<<<<<<< HEAD
            Z=CMPLX(PX,PY)
+=======
+           Z = DCMPLX(PX, PY)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
            IF (KF.EQ.2) THEN
               IF (NR.EQ.2) Z=(2.8334,0.2443)
               IF (NR.EQ.3) Z=(3.4674,0.2185)
@@ -7740,14 +8461,22 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE E1XA(X,E1)
 C
 C       ============================================
 C       Purpose: Compute exponential integral E1(x)
+<<<<<<< HEAD
 C       Input :  x  --- Argument of E1(x) 
+=======
+C       Input :  x  --- Argument of E1(x)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       Output:  E1 --- E1(x) ( x > 0 )
 C       ============================================
 C
@@ -7769,11 +8498,19 @@ C
 
 C       **********************************
 
+<<<<<<< HEAD
         SUBROUTINE LPMV(V,M,X,PMV)
 C
 C       =======================================================
 C       Purpose: Compute the associated Legendre function
 C                Pmv(x) with an integer order and an arbitrary 
+=======
+        SUBROUTINE LPMV0(V,M,X,PMV)
+C
+C       =======================================================
+C       Purpose: Compute the associated Legendre function
+C                Pmv(x) with an integer order and an arbitrary
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C                nonnegative degree v
 C       Input :  x   --- Argument of Pm(x)  ( -1 ≤ x ≤ 1 )
 C                m   --- Order of Pmv(x)
@@ -7864,8 +8601,72 @@ C
         RETURN
         END
 
+<<<<<<< HEAD
 
         
+=======
+C       **********************************
+
+        SUBROUTINE LPMV(V,M,X,PMV)
+C
+C       =======================================================
+C       Purpose: Compute the associated Legendre function
+C                Pmv(x) with an integer order and an arbitrary
+C                degree v, using recursion for large degrees
+C       Input :  x   --- Argument of Pm(x)  ( -1 ≤ x ≤ 1 )
+C                m   --- Order of Pmv(x)
+C                v   --- Degree of Pmv(x)
+C       Output:  PMV --- Pmv(x)
+C       Routine called:  LPMV0
+C       =======================================================
+C
+        IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+        IF (X.EQ.-1.0D0.AND.V.NE.INT(V)) THEN
+           IF (M.EQ.0) PMV=-DINF()
+           IF (M.NE.0) PMV=DINF()
+           RETURN
+        ENDIF
+        VX=V
+        MX=M
+        IF (V.LT.0) THEN
+           VX=-VX-1
+        ENDIF
+        NEG_M=0
+        IF (M.LT.0) THEN
+           IF ((VX+M+1).GT.0D0.OR.VX.NE.INT(VX)) THEN
+              NEG_M=1
+              MX=-M
+           ELSE
+C             We don't handle cases where DLMF 14.9.3 doesn't help
+              PMV=DNAN()
+              RETURN
+           END IF
+        ENDIF
+        NV=INT(VX)
+        V0=VX-NV
+        IF (NV.GT.2.AND.NV.GT.MX) THEN
+C          Up-recursion on degree, AMS 8.5.3
+           CALL LPMV0(V0+MX, MX, X, P0)
+           CALL LPMV0(V0+MX+1, MX, X, P1)
+           PMV = P1
+           DO 10 J=MX+2,NV
+              PMV = ((2*(V0+J)-1)*X*P1 - (V0+J-1+MX)*P0) / (V0+J-MX)
+              P0 = P1
+              P1 = PMV
+10         CONTINUE
+        ELSE
+           CALL LPMV0(VX, MX, X, PMV)
+        ENDIF
+        IF (NEG_M.NE.0.AND.ABS(PMV).LT.1.0D+300) THEN
+C          DLMF 14.9.3
+           CALL GAMMA2(VX-MX+1, G1)
+           CALL GAMMA2(VX+MX+1, G2)
+           PMV = PMV*G1/G2 * (-1)**MX
+        ENDIF
+        END
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE CGAMA(X,Y,KF,GR,GI)
@@ -7998,7 +8799,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE CHGUS(A,B,X,HU,ID)
@@ -8014,6 +8819,12 @@ C                ID --- Estimated number of significant digits
 C       Routine called: GAMMA2 for computing gamma function
 C       ======================================================
 C
+<<<<<<< HEAD
+=======
+C       DLMF 13.2.42 with prefactors rewritten according to
+C       DLMF 5.5.3, M(a, b, x) with DLMF 13.2.2
+C
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         IMPLICIT DOUBLE PRECISION (A-H,O-Z)
         ID=-100
         PI=3.141592653589793D0
@@ -8047,7 +8858,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE ITTH0(X,TTH)
@@ -8185,7 +9000,11 @@ C             (2) GAMMA2 for computing Г(x)
 C       ====================================================
 C
         IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+<<<<<<< HEAD
         PI=3.141592653589793D0           
+=======
+        PI=3.141592653589793D0
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         EPS=1.0D-12
         EP=DEXP(-.25*X*X)
         A0=DABS(X)**VA*EP
@@ -8207,7 +9026,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE IK01A(X,BI0,DI0,BI1,DI1,BK0,DK0,BK1,DK1)
@@ -8322,7 +9145,11 @@ C       **********************************
         SUBROUTINE CPBDN(N,Z,CPB,CPD)
 C
 C       ==================================================
+<<<<<<< HEAD
 C       Purpose: Compute the parabolic cylinder functions 
+=======
+C       Purpose: Compute the parabolic cylinder functions
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C                 Dn(z) and Dn'(z) for a complex argument
 C       Input:   z --- Complex argument of Dn(z)
 C                n --- Order of Dn(z)  ( n=0,±1,±2,… )
@@ -8410,7 +9237,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE IK01B(X,BI0,DI0,BI1,DI1,BK0,DK0,BK1,DK1)
@@ -8508,7 +9339,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE LPN(N,X,PN,PD)
@@ -8572,12 +9407,59 @@ C
         DIMENSION FC(251)
         DO 5 I=1,251
 5          FC(I)=0.0D0
+<<<<<<< HEAD
         IF (Q.LE.1.0D0) THEN
+=======
+        IF (DABS(Q).LE.1.0D-7) THEN
+C          Expansion up to order Q^1 (Abramowitz & Stegun 20.2.27-28)
+           IF (KD.EQ.1) THEN
+              JM=M/2 + 1
+           ELSE IF (KD.EQ.2.OR.KD.EQ.3) THEN
+              JM=(M-1)/2+1
+           ELSE IF (KD.EQ.4) THEN
+              JM=M/2
+           END IF
+C          Check for overflow
+           IF (JM+1.GT.251) GOTO 6
+C          Proceed using the simplest expansion
+           IF (KD.EQ.1.OR.KD.EQ.2) THEN
+              IF (M.EQ.0) THEN
+                 FC(1) = 1/SQRT(2.0D0)
+                 FC(2) = -Q/2.0D0/SQRT(2.0D0)
+              ELSE IF (M.EQ.1) THEN
+                 FC(1) = 1.0D0
+                 FC(2) = -Q/8.0D0
+              ELSE IF (M.EQ.2) THEN
+                 FC(1) = Q/4.0D0
+                 FC(2) = 1.0D0
+                 FC(3) = -Q/12.0D0
+              ELSE
+                 FC(JM) = 1.0D0
+                 FC(JM+1) = -Q/(4.0D0 * (M + 1))
+                 FC(JM-1) =  Q/(4.0D0 * (M - 1))
+              END IF
+           ELSE IF (KD.EQ.3.OR.KD.EQ.4) THEN
+              IF (M.EQ.1) THEN
+                 FC(1) = 1.0D0
+                 FC(2) = -Q/8.0D0
+              ELSE IF (M.EQ.2) THEN
+                 FC(1) = 1.0D0
+                 FC(2) = -Q/12.0D0
+              ELSE
+                 FC(JM) = 1.0D0
+                 FC(JM+1) = -Q/(4.0D0 * (M + 1))
+                 FC(JM-1) =  Q/(4.0D0 * (M - 1))
+              END IF
+           ENDIF
+           RETURN
+        ELSE IF (Q.LE.1.0D0) THEN
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
            QM=7.5+56.1*SQRT(Q)-134.7*Q+90.7*SQRT(Q)*Q
         ELSE
            QM=17.0+3.1*SQRT(Q)-.126*Q+.0037*SQRT(Q)*Q
         ENDIF
         KM=INT(QM+0.5*M)
+<<<<<<< HEAD
         IF (Q.EQ.0.0D0) THEN
            DO 10 K=1,KM
 10            FC(K)=0.0D0
@@ -8589,6 +9471,13 @@ C
            ELSE
               FC((M+1)/2)=1.0D0
            ENDIF
+=======
+        IF (KM.GT.251) THEN
+C          Overflow, generate NaNs
+ 6         FNAN=DNAN()
+           DO 7 I=1,251
+ 7            FC(I)=FNAN
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
            RETURN
         ENDIF
         KB=0
@@ -8730,13 +9619,21 @@ C
         ENDIF
 85      IF (FC(1).LT.0.0D0) THEN
            DO 90 J=1,KM
+<<<<<<< HEAD
 90            FC(J)=-FC(J)             
+=======
+90            FC(J)=-FC(J)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         ENDIF
         RETURN
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE SPHI(N,X,NM,SI,DI)
@@ -8892,7 +9789,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE RMN1(M,N,C,X,DF,KD,R1F,R1D)
@@ -8904,7 +9805,11 @@ C                c and x
 C       Routines called:
 C            (1) SCKB for computing expansion coefficients c2k
 C            (2) SPHJ for computing the spherical Bessel
+<<<<<<< HEAD
 C                functions of the first kind     
+=======
+C                functions of the first kind
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       =======================================================
 C
         IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -8919,7 +9824,11 @@ C
         R0=REG
         DO 10 J=1,2*M+IP
 10         R0=R0*J
+<<<<<<< HEAD
         R=R0    
+=======
+        R=R0
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         SUC=R*DF(1)
         SW=0.0D0
         DO 15 K=2,NM
@@ -8958,7 +9867,11 @@ C
         CX=C*X
         NM2=2*NM+M
         CALL SPHJ(NM2,CX,NM2,SJ,DJ)
+<<<<<<< HEAD
         A0=(1.0D0-KD/(X*X))**(0.5D0*M)/SUC  
+=======
+        A0=(1.0D0-KD/(X*X))**(0.5D0*M)/SUC
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         R1F=0.0D0
         SW=0.0D0
         LG=0
@@ -8976,7 +9889,11 @@ C
            IF (K.GT.NM1.AND.DABS(R1F-SW).LT.DABS(R1F)*EPS) GO TO 55
 50         SW=R1F
 55      R1F=R1F*A0
+<<<<<<< HEAD
         B0=KD*M/X**3.0D0/(1.0-KD/(X*X))*R1F    
+=======
+        B0=KD*M/X**3.0D0/(1.0-KD/(X*X))*R1F
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         SUD=0.0D0
         SW=0.0D0
         DO 60 K=1,NM
@@ -8997,7 +9914,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE DVSA(VA,X,PD)
@@ -9049,7 +9970,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE E1Z(Z,CE1)
@@ -9066,16 +9991,30 @@ C
         EL=0.5772156649015328D0
         X=DBLE(Z)
         A0=CDABS(Z)
+<<<<<<< HEAD
         IF (A0.EQ.0.0D0) THEN
            CE1=(1.0D+300,0.0D0)
         ELSE IF (A0.LE.10.0.OR.X.LT.0.0.AND.A0.LT.20.0) THEN
            CE1=(1.0D0,0.0D0)
            CR=(1.0D0,0.0D0)
            DO 10 K=1,150
+=======
+C       Continued fraction converges slowly near negative real axis,
+C       so use power series in a wedge around it until radius 40.0
+        XT=-2*DABS(DIMAG(Z))
+        IF (A0.EQ.0.0D0) THEN
+           CE1=(1.0D+300,0.0D0)
+        ELSE IF (A0.LE.5.0.OR.X.LT.XT.AND.A0.LT.40.0) THEN
+C          Power series
+           CE1=(1.0D0,0.0D0)
+           CR=(1.0D0,0.0D0)
+           DO 10 K=1,500
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
               CR=-CR*K*Z/(K+1.0D0)**2
               CE1=CE1+CR
               IF (CDABS(CR).LE.CDABS(CE1)*1.0D-15) GO TO 15
 10         CONTINUE
+<<<<<<< HEAD
 15         CE1=-EL-CDLOG(Z)+Z*CE1
         ELSE
            CT0=(0.0D0,0.0D0)
@@ -9084,6 +10023,37 @@ C
 20         CONTINUE
            CT=1.0D0/(Z+CT0)
            CE1=CDEXP(-Z)*CT
+=======
+15         CONTINUE
+           IF (X.LE.0.0.AND.DIMAG(Z).EQ.0.0) THEN
+C             Careful on the branch cut -- avoid signed zeros
+              CE1=-EL-CDLOG(-Z)+Z*CE1-PI*(0.0D0,1.0D0)
+           ELSE
+              CE1=-EL-CDLOG(Z)+Z*CE1
+           ENDIF
+        ELSE
+C          Continued fraction http://dlmf.nist.gov/6.9
+C
+C                           1     1     1     2     2     3     3
+C          E1 = exp(-z) * ----- ----- ----- ----- ----- ----- ----- ...
+C                         Z +   1 +   Z +   1 +   Z +   1 +   Z +
+           ZC=0D0
+           ZD=1/Z
+           ZDC=1*ZD
+           ZC=ZC + ZDC
+           DO 20 K=1,500
+              ZD=1/(ZD*K + 1)
+              ZDC=(1*ZD - 1)*ZDC
+              ZC=ZC + ZDC
+
+              ZD=1/(ZD*K + Z)
+              ZDC=(Z*ZD - 1)*ZDC
+              ZC=ZC + ZDC
+
+              IF (CDABS(ZDC).LE.CDABS(ZC)*1.0D-15.AND.K.GT.20) GO TO 25
+20         CONTINUE
+25         CE1=CDEXP(-Z)*ZC
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
            IF (X.LE.0.0.AND.DIMAG(Z).EQ.0.0) CE1=CE1-PI*(0.0D0,1.0D0)
         ENDIF
         RETURN
@@ -9168,6 +10138,11 @@ C
         NM=0
         IF (IL1) NM=ABS(A)
         IF (IL2) NM=ABS(AA)
+<<<<<<< HEAD
+=======
+C       IL1: DLMF 13.2.7 with k=-s-a
+C       IL2: DLMF 13.2.8
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         IF (IL1.OR.IL2) THEN
            HU=1.0D0
            R=1.0D0
@@ -9178,6 +10153,10 @@ C
            HU=X**(-A)*HU
            ID=10
         ELSE
+<<<<<<< HEAD
+=======
+C       DLMF 13.7.3
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
            HU=1.0D0
            R=1.0D0
            DO 15 K=1,25
@@ -9193,7 +10172,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE GMN(M,N,C,X,BK,GF,GD)
@@ -9232,7 +10215,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE ITJYA(X,TJ,TY)
@@ -9388,7 +10375,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE RCTY(N,X,NM,RY,DY)
@@ -9751,14 +10742,22 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE CYZO(NT,KF,KC,ZO,ZV)
 C
 C       ===========================================================
 C       Purpose : Compute the complex zeros of Y0(z), Y1(z) and
+<<<<<<< HEAD
 C                 Y1'(z), and their associated values at the zeros 
+=======
+C                 Y1'(z), and their associated values at the zeros
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C                 using the modified Newton's iteration method
 C       Input:    NT --- Total number of zeros/roots
 C                 KF --- Function choice code
@@ -9791,7 +10790,11 @@ C       ===========================================================
         ENDIF
         IF (KF.EQ.1) X=-0.503
         IF (KF.EQ.2) X=0.577
+<<<<<<< HEAD
         ZERO=CMPLX(X,Y)
+=======
+        ZERO = DCMPLX(X, Y)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         Z=ZERO
         W=0.0D0
         DO 35 NR=1,NT
@@ -9833,7 +10836,11 @@ C       ===========================================================
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE KLVNB(X,BER,BEI,GER,GEI,DER,DEI,HER,HEI)
@@ -10009,7 +11016,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE CSPHIK(N,Z,NM,CSI,CDI,CSK,CDK)
@@ -10033,7 +11044,11 @@ C
         DOUBLE PRECISION A0,PI
         DIMENSION CSI(0:N),CDI(0:N),CSK(0:N),CDK(0:N)
         PI=3.141592653589793D0
+<<<<<<< HEAD
         A0=CDABS(Z)            
+=======
+        A0=CDABS(Z)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         NM=N
         IF (A0.LT.1.0D-60) THEN
            DO 10 K=0,N
@@ -10045,7 +11060,11 @@ C
            CDI(1)=0.3333333333333333D0
            RETURN
         ENDIF
+<<<<<<< HEAD
         CI=CMPLX(0.0D0,1.0D0)
+=======
+        CI = DCMPLX(0.0D0, 1.0D0)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         CSINH=CDSIN(CI*Z)/CI
         CCOSH=CDCOS(CI*Z)
         CSI0=CSINH/Z
@@ -10199,7 +11218,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE OTHPL(KF,N,X,PL,DPL)
@@ -10323,7 +11346,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE RSWFO(M,N,C,X,CV,KF,R1F,R1D,R2F,R2D)
@@ -10376,7 +11403,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE CH12N(N,Z,NM,CHF1,CHD1,CHF2,CHD2)
@@ -10441,7 +11472,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE JYZO(N,NT,RJ0,RJ1,RY0,RY1)
@@ -10480,15 +11515,28 @@ C       2) iterate
         IF (X-X0.GT.1) X=X0+1
         IF (DABS(X-X0).GT.1.0D-11) GO TO 10
 C       3) initial guess for j_{N,L+1}
+<<<<<<< HEAD
         IF (L.GE.1 .AND. X.LE.RJ0(L)+0.5) THEN
            X=XGUESS+PI
            XGUESS=X
            GO TO 10
+=======
+        IF (L.GE.1)THEN
+           IF (X.LE.RJ0(L)+0.5) THEN
+              X=XGUESS+PI
+              XGUESS=X
+              GO TO 10
+           ENDIF
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         END IF
         L=L+1
         RJ0(L)=X
 C       XXX: should have a better initial guess for large N ~> 100 here
+<<<<<<< HEAD
         X=X+PI+MAX((0.0972+0.0679*N-0.000354*N**2)/L, 0d0)
+=======
+        X=X+PI+MAX((0.0972d0+0.0679*N-0.000354*N**2)/L, 0d0)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         IF (L.LT.NT) GO TO 10
 C       -- Newton method for j_{N,L}'
         IF (N.LE.20) THEN
@@ -10505,22 +11553,39 @@ C       -- Newton method for j_{N,L}'
         IF (X-X0.LT.-1) X=X0-1
         IF (X-X0.GT.1) X=X0+1
         IF (DABS(X-X0).GT.1.0D-11) GO TO 15
+<<<<<<< HEAD
         IF (L.GE.1 .AND. X.LE.RJ1(L)+0.5) THEN
            X=XGUESS+PI
            XGUESS=X
            GO TO 15
+=======
+        IF (L.GE.1)THEN
+           IF (X.LE.RJ1(L)+0.5) THEN
+              X=XGUESS+PI
+              XGUESS=X
+              GO TO 15
+           ENDIF
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         END IF
         L=L+1
         RJ1(L)=X
 C       XXX: should have a better initial guess for large N ~> 100 here
+<<<<<<< HEAD
         X=X+PI+MAX((0.4955+0.0915*N-0.000435*N**2)/L,0d0)
+=======
+        X=X+PI+MAX((0.4955d0+0.0915*N-0.000435*N**2)/L, 0d0)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         IF (L.LT.NT) GO TO 15
 C       -- Newton method for y_{N,L}
         IF (N.LE.20) THEN
            X=1.19477+1.08933*N
         ELSE
            X=N+0.93158*N**0.33333+0.26035/N**0.33333
+<<<<<<< HEAD
         ENDIF           
+=======
+        ENDIF
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         L=0
         XGUESS=X
 20      X0=X
@@ -10529,43 +11594,77 @@ C       -- Newton method for y_{N,L}
         IF (X-X0.LT.-1) X=X0-1
         IF (X-X0.GT.1) X=X0+1
         IF (DABS(X-X0).GT.1.0D-11) GO TO 20
+<<<<<<< HEAD
         IF (L.GE.1 .AND. X.LE.RY0(L)+0.5) THEN
            X=XGUESS+PI
            XGUESS=X
            GO TO 20
+=======
+        IF (L.GE.1)THEN
+           IF (X.LE.RY0(L)+0.5) THEN
+              X=XGUESS+PI
+              XGUESS=X
+              GO TO 20
+           END IF
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         END IF
         L=L+1
         RY0(L)=X
 C       XXX: should have a better initial guess for large N ~> 100 here
+<<<<<<< HEAD
         X=X+PI+MAX((0.312+0.0852*N-0.000403*N**2)/L,0d0)
+=======
+        X=X+PI+MAX((0.312d0+0.0852*N-0.000403*N**2)/L,0d0)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         IF (L.LT.NT) GO TO 20
 C       -- Newton method for y_{N,L}'
         IF (N.LE.20) THEN
            X=2.67257+1.16099*N
         ELSE
            X=N+1.8211*N**0.33333+0.94001/N**0.33333
+<<<<<<< HEAD
         ENDIF  
+=======
+        ENDIF
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         L=0
         XGUESS=X
 25      X0=X
         CALL JYNDD(N,X,BJN,DJN,FJN,BYN,DYN,FYN)
         X=X-DYN/FYN
         IF (DABS(X-X0).GT.1.0D-11) GO TO 25
+<<<<<<< HEAD
         IF (L.GE.1 .AND. X.LE.RY1(L)+0.5) THEN
            X=XGUESS+PI
            XGUESS=X
            GO TO 25
+=======
+        IF (L.GE.1) THEN
+           IF (X.LE.RY1(L)+0.5) THEN
+              X=XGUESS+PI
+              XGUESS=X
+              GO TO 25
+           END IF
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         END IF
         L=L+1
         RY1(L)=X
 C       XXX: should have a better initial guess for large N ~> 100 here
+<<<<<<< HEAD
         X=X+PI+MAX((0.197+0.0643*N-0.000286*N**2)/L,0d0)
+=======
+        X=X+PI+MAX((0.197d0+0.0643*N-0.000286*N**2)/L,0d0)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         IF (L.LT.NT) GO TO 25
         RETURN
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE IKV(V,X,VM,BI,DI,BK,DK)
@@ -10714,7 +11813,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE SDMN(M,N,C,CV,KD,DF)
@@ -10742,7 +11845,11 @@ C
 5             DF(I)=0D0
            DF((N-M)/2+1)=1.0D0
            RETURN
+<<<<<<< HEAD
         ENDIF   
+=======
+        ENDIF
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         CS=C*C*KD
         IP=1
         K=0
@@ -10776,7 +11883,11 @@ C
 12                  DF(K1)=DF(K1)*1.0D-100
                  F1=F1*1.0D-100
                  F0=F0*1.0D-100
+<<<<<<< HEAD
               ENDIF  
+=======
+              ENDIF
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
            ELSE
               KB=K
               FL=DF(K+1)
@@ -10788,7 +11899,11 @@ C
               ELSE IF (KB.EQ.2) THEN
                  DF(2)=F2
                  FS=-((D(2)-CV)*F2+G(2)*F1)/A(2)
+<<<<<<< HEAD
               ELSE 
+=======
+              ELSE
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                  DF(2)=F2
                  DO 20 J=3,KB+1
                     F=-((D(J-1)-CV)*F2+G(J-1)*F1)/A(J-1)
@@ -10798,7 +11913,11 @@ C
 15                        DF(K1)=DF(K1)*1.0D-100
                        F=F*1.0D-100
                        F2=F2*1.0D-100
+<<<<<<< HEAD
                     ENDIF  
+=======
+                    ENDIF
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                     F1=F2
 20                  F2=F
                  FS=F
@@ -10837,7 +11956,11 @@ C
 
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE AJYIK(X,VJ1,VJ2,VY1,VY2,VI1,VI2,VK1,VK2)
@@ -11168,7 +12291,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE CIKVA(V,Z,VM,CBI,CDI,CBK,CDK)
@@ -11187,7 +12314,11 @@ C                CDK(n) --- Kn+v0'(z)
 C                VM --- Highest order computed
 C       Routines called:
 C            (1) GAMMA2 for computing the gamma function
+<<<<<<< HEAD
 C            (2) MSTA1 and MSTA2 for computing the starting 
+=======
+C            (2) MSTA1 and MSTA2 for computing the starting
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C                point for backward recurrence
 C       ============================================================
 C
@@ -11336,7 +12467,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE CFC(Z,ZF,ZD)
@@ -11399,7 +12534,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE FCS(X,C,S)
@@ -11808,7 +12947,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE GAIH(X,GA)
@@ -11958,7 +13101,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE CLQMN(MM,M,N,X,Y,CQM,CQD)
@@ -11979,7 +13126,11 @@ C
         IMPLICIT DOUBLE PRECISION (X,Y)
         IMPLICIT COMPLEX*16 (C,Z)
         DIMENSION CQM(0:MM,0:N),CQD(0:MM,0:N)
+<<<<<<< HEAD
         Z=CMPLX(X,Y)
+=======
+        Z = DCMPLX(X, Y)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         IF (DABS(X).EQ.1.0D0.AND.Y.EQ.0.0D0) THEN
            DO 10 I=0,M
            DO 10 J=0,N
@@ -12081,7 +13232,11 @@ C
            DO 5 I=1,N-M+1
 5             EG(I)=(I+M)*(I+M-1.0D0)
            GO TO 70
+<<<<<<< HEAD
         ENDIF                                           
+=======
+        ENDIF
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         ICM=(N-M+2)/2
         NM=10+INT(0.5*(N-M)+C)
         CS=C*C*KD
@@ -12123,7 +13278,13 @@ C
                     GO TO 35
                  ENDIF
 30            CONTINUE
+<<<<<<< HEAD
 35            IF (K.NE.1.AND.H(K).LT.H(K-1)) H(K)=H(K-1)
+=======
+35            IF (K.NE.1) THEN
+                 IF(H(K).LT.H(K-1)) H(K)=H(K-1)
+              ENDIF
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 40            X1=(B(K)+H(K))/2.0D0
               CV0(K)=X1
               IF (DABS((B(K)-H(K))/X1).LT.1.0D-14) GO TO 50
@@ -12339,7 +13500,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE MTU12(KF,KC,M,Q,X,F1R,D1R,F2R,D2R)
@@ -12385,7 +13550,18 @@ C
         ELSE
            QM=17.0+3.1*SQRT(Q)-.126*Q+.0037*SQRT(Q)*Q
         ENDIF
+<<<<<<< HEAD
         KM=INT(QM+0.5*M)              
+=======
+        KM=INT(QM+0.5*M)
+        IF(KM.GE.251) THEN
+           F1R=DNAN()
+           D1R=DNAN()
+           F2R=DNAN()
+           D2R=DNAN()
+           RETURN
+        END IF
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         CALL FCOEF(KD,M,Q,A,FG)
         IC=INT(M/2)+1
         IF (KD.EQ.4) IC=M/2
@@ -12393,8 +13569,13 @@ C
         C2=DEXP(X)
         U1=DSQRT(Q)*C1
         U2=DSQRT(Q)*C2
+<<<<<<< HEAD
         CALL JYNB(KM,U1,NM,BJ1,DJ1,BY1,DY1)
         CALL JYNB(KM,U2,NM,BJ2,DJ2,BY2,DY2)
+=======
+        CALL JYNB(KM+1,U1,NM,BJ1,DJ1,BY1,DY1)
+        CALL JYNB(KM+1,U2,NM,BJ2,DJ2,BY2,DY2)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         W1=0.0D0
         W2=0.0D0
         IF (KC.EQ.2) GO TO 50
@@ -12465,14 +13646,23 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE CIK01(Z,CBI0,CDI0,CBI1,CDI1,CBK0,CDK0,CBK1,CDK1)
 C
 C       ==========================================================
+<<<<<<< HEAD
 C       Purpose: Compute modified Bessel functions I0(z), I1(z), 
 C                K0(z), K1(z), and their derivatives for a 
+=======
+C       Purpose: Compute modified Bessel functions I0(z), I1(z),
+C                K0(z), K1(z), and their derivatives for a
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C                complex argument
 C       Input :  z --- Complex argument
 C       Output:  CBI0 --- I0(z)
@@ -12682,7 +13872,11 @@ C
         SY(0)=-DCOS(X)/X
         F0=SY(0)
         DY(0)=(DSIN(X)+DCOS(X)/X)/X
+<<<<<<< HEAD
         IF (N.LT.1) THEN 
+=======
+        IF (N.LT.1) THEN
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
            RETURN
         ENDIF
         SY(1)=(SY(0)-DSIN(X))/X
@@ -12690,7 +13884,11 @@ C
         DO 15 K=2,N
            F=(2.0D0*K-1.0D0)*F1/X-F0
            SY(K)=F
+<<<<<<< HEAD
            IF (DABS(F).GE.1.0D+300) GO TO 20              
+=======
+           IF (DABS(F).GE.1.0D+300) GO TO 20
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
            F0=F1
 15         F1=F
 20      NM=K-1
@@ -12700,7 +13898,11 @@ C
         END
 
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C       **********************************
 
         SUBROUTINE JELP(U,HK,ESN,ECN,EDN,EPH)
@@ -12862,7 +14064,11 @@ C                Compute J_(|v|-N) (Abm & Stg 9.2.5)
                  BJ0=SR*(PU0*DCOS(T0)-QU0*DSIN(T0))
                  BJ1=SR*(PU1*DCOS(T1)-QU1*DSIN(T1))
 C                Forward recurrence for J_|v| (Abm & Stg 9.1.27)
+<<<<<<< HEAD
 C                It's OK for the limited range -8.0 ≤ v ≤ 12.5, 
+=======
+C                It's OK for the limited range -8.0 ≤ v ≤ 12.5,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C                since x >= 20 here; but would be unstable for v <~ -20
                  BF0=BJ0
                  BF1=BJ1

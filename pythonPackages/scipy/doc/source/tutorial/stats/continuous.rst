@@ -35,26 +35,39 @@ skewness, kurtosis                      :math:`\gamma_{1}=\frac{\mu_{3}}{\left(\
 ======================================  ==============================================================================================================================  =========================================================================================================================================
 
 
+<<<<<<< HEAD
 
 
 
 
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 Moments
 -------
 
 Non-central moments are defined using the PDF
 
 .. math::
+<<<<<<< HEAD
    :nowrap:
 
     \[ \mu_{n}^{\prime}=\int_{-\infty}^{\infty}x^{n}f\left(x\right)dx.\]
+=======
+
+   \mu_{n}^{\prime}=\int_{-\infty}^{\infty}x^{n}f\left(x\right)dx.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 Note, that these can always be computed using the PPF. Substitute :math:`x=G\left(q\right)` in the above equation and get
 
 .. math::
+<<<<<<< HEAD
    :nowrap:
 
     \[ \mu_{n}^{\prime}=\int_{0}^{1}G^{n}\left(q\right)dq\]
+=======
+
+   \mu_{n}^{\prime}=\int_{0}^{1}G^{n}\left(q\right)dq
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 which may be easier to compute numerically. Note that :math:`q=F\left(x\right)` so that :math:`dq=f\left(x\right)dx.` Central moments are computed similarly :math:`\mu=\mu_{1}^{\prime}`
 
@@ -73,16 +86,26 @@ In particular
 Skewness is defined as
 
 .. math::
+<<<<<<< HEAD
    :nowrap:
 
     \[ \gamma_{1}=\sqrt{\beta_{1}}=\frac{\mu_{3}}{\mu_{2}^{3/2}}\]
+=======
+
+     \gamma_{1}=\sqrt{\beta_{1}}=\frac{\mu_{3}}{\mu_{2}^{3/2}}
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 while (Fisher) kurtosis is
 
 .. math::
+<<<<<<< HEAD
    :nowrap:
 
     \[ \gamma_{2}=\frac{\mu_{4}}{\mu_{2}^{2}}-3,\]
+=======
+
+     \gamma_{2}=\frac{\mu_{4}}{\mu_{2}^{2}}-3,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 so that a normal distribution has a kurtosis of zero.
 
@@ -94,19 +117,29 @@ The median, :math:`m_{n}` is defined as the point at which half of the density i
 and half on the other. In other words, :math:`F\left(m_{n}\right)=\frac{1}{2}` so that
 
 .. math::
+<<<<<<< HEAD
    :nowrap:
 
     \[ m_{n}=G\left(\frac{1}{2}\right).\]
+=======
+
+     m_{n}=G\left(\frac{1}{2}\right).
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 In addition, the mode, :math:`m_{d}` , is defined as the value for which the probability density function
 reaches it's peak
 
 .. math::
+<<<<<<< HEAD
    :nowrap:
 
     \[ m_{d}=\arg\max_{x}f\left(x\right).\]
 
 
+=======
+
+     m_{d}=\arg\max_{x}f\left(x\right).
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 Fitting data
@@ -121,9 +154,14 @@ If :math:`f\left(x;\boldsymbol{\theta}\right)` is the PDF of a random-variable w
 random vector :math:`\mathbf{x}` is
 
 .. math::
+<<<<<<< HEAD
    :nowrap:
 
     \[ f\left(\mathbf{x};\boldsymbol{\theta}\right)=\prod_{i=1}^{N}f\left(x_{i};\boldsymbol{\theta}\right).\]
+=======
+
+     f\left(\mathbf{x};\boldsymbol{\theta}\right)=\prod_{i=1}^{N}f\left(x_{i};\boldsymbol{\theta}\right).
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 The maximum likelihood estimate of the parameters :math:`\boldsymbol{\theta}` are the parameters which maximize this function with :math:`\mathbf{x}` fixed and given by the data:
 
@@ -163,14 +201,18 @@ where :math:`\mu` and :math:`\mu_{2}` are assumed known as the mean and variance
     \begin{eqnarray*} \hat{\mu} & = & \frac{1}{N}\sum_{i=1}^{N}x_{i}=\bar{\mathbf{x}}\\ \hat{\mu}_{2} & = & \frac{1}{N-1}\sum_{i=1}^{N}\left(x_{i}-\hat{\mu}\right)^{2}=\frac{N}{N-1}\overline{\left(\mathbf{x}-\bar{\mathbf{x}}\right)^{2}}\end{eqnarray*}
 
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 Standard notation for mean
 --------------------------
 
 We will use
 
 .. math::
+<<<<<<< HEAD
    :nowrap:
 
     \[ \overline{y\left(\mathbf{x}\right)}=\frac{1}{N}\sum_{i=1}^{N}y\left(x_{i}\right)\]
@@ -2562,3 +2604,117 @@ For :math:`x\in\left[0,2\pi\right]` :math:`c\in\left(0,1\right)`
    :nowrap:
 
     \[ h\left[X\right]=\log\left(2\pi\left(1-c^{2}\right)\right).\]
+=======
+
+    \overline{y\left(\mathbf{x}\right)}=\frac{1}{N}\sum_{i=1}^{N}y\left(x_{i}\right)
+
+where :math:`N` should be clear from context as the number of samples :math:`x_{i}`
+
+References
+----------
+
+-  Documentation for ranlib, rv2, cdflib
+
+-  Eric Weisstein~s world of mathematics http://mathworld.wolfram.com/,
+   http://mathworld.wolfram.com/topics/StatisticalDistributions.html
+
+-  Documentation to Regress+ by Michael McLaughlin item Engineering and
+   Statistics Handbook (NIST),
+   http://www.itl.nist.gov/div898/handbook/index.htm
+
+-  Documentation for DATAPLOT from NIST,
+   http://www.itl.nist.gov/div898/software/dataplot/distribu.htm
+
+-  Norman Johnson, Samuel Kotz, and N. Balakrishnan Continuous
+   Univariate Distributions, second edition, Volumes I and II, Wiley &
+   Sons, 1994.
+
+
+
+Continuous Distributions in `scipy.stats`
+-----------------------------------------
+.. toctree::
+   :maxdepth: 1
+
+   continuous_alpha
+   continuous_anglit
+   continuous_arcsine
+   continuous_beta
+   continuous_betaprime
+   continuous_bradford
+   continuous_burr
+   continuous_cauchy
+   continuous_chi
+   continuous_chi2
+   continuous_cosine
+   continuous_dgamma
+   continuous_dweibull
+   continuous_erlang
+   continuous_expon
+   continuous_exponweib
+   continuous_exponpow
+   continuous_fatiguelife
+   continuous_fisk
+   continuous_foldcauchy
+   continuous_foldnorm
+   continuous_f
+   continuous_frechet_r
+   continuous_frechet_l
+   continuous_gamma
+   continuous_genlogistic
+   continuous_genpareto
+   continuous_genexpon
+   continuous_genextreme
+   continuous_gengamma
+   continuous_genhalflogistic
+   continuous_gilbrat
+   continuous_gompertz
+   continuous_gumbel_r
+   continuous_gumbel_l
+   continuous_halfcauchy
+   continuous_halfnorm
+   continuous_halflogistic
+   continuous_hypsecant
+   continuous_gausshyper
+   continuous_invgamma
+   continuous_invgauss
+   continuous_invweibull
+   continuous_johnsonsb
+   continuous_johnsonsu
+   continuous_ksone
+   continuous_kstwobign
+   continuous_laplace
+   continuous_levy_l
+   continuous_levy
+   continuous_logistic
+   continuous_loglaplace
+   continuous_loggamma
+   continuous_lognorm
+   continuous_maxwell
+   continuous_mielke
+   continuous_nakagami
+   continuous_ncx2
+   continuous_ncf
+   continuous_nct
+   continuous_norm
+   continuous_pareto
+   continuous_lomax
+   continuous_powerlognorm
+   continuous_powernorm
+   continuous_powerlaw
+   continuous_rdist
+   continuous_rayleigh
+   continuous_rice
+   continuous_reciprocal
+   continuous_recipinvgauss
+   continuous_semicircular
+   continuous_t
+   continuous_triang
+   continuous_truncexpon
+   continuous_truncnorm
+   continuous_tukeylambda
+   continuous_uniform
+   continuous_vonmises
+   continuous_wald
+   continuous_wrapcauchy
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

@@ -4,15 +4,24 @@
 #include <stdio.h>
 #include <math.h>
 
+<<<<<<< HEAD
+=======
+#include "sf_error.h"
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 #include "../cephes.h"
 #undef fabs
 #include "misc.h"
 
 /* Limits after which to issue warnings about non-convergence */
 #define ALLOWED_ATOL (1e-306)
+<<<<<<< HEAD
 #define ALLOWED_RTOL (1e-9)
 
 void scipy_special_raise_warning(char *fmt, ...);
+=======
+#define ALLOWED_RTOL (1e-6)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 /*
   Inverse of the (regularised) incomplete Gamma integral.
@@ -64,9 +73,15 @@ gammaincinv(double a, double y)
                        &best_x, &best_f, &errest);
     if (!(r == FSOLVE_CONVERGED || r == FSOLVE_EXACT) &&
             errest > ALLOWED_ATOL + ALLOWED_RTOL*fabs(best_x)) {
+<<<<<<< HEAD
         scipy_special_raise_warning(
             "gammaincinv: failed to converge at (a, y) = (%.20g, %.20g): got %g +- %g, code %d\n",
             a, y, best_x, errest, r);
+=======
+        sf_error("gammaincinv", SF_ERROR_NO_RESULT,
+                 "failed to converge at (a, y) = (%.20g, %.20g): got %g +- %g, code %d\n",
+                 a, y, best_x, errest, r);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         best_x = NPY_NAN;
     }
     return best_x;

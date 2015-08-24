@@ -3,6 +3,7 @@
 /* Modified to not depend on Python everywhere by Travis Oliphant.
  */
 
+<<<<<<< HEAD
 
 #ifndef ZEROS_H
 #define ZEROS_H
@@ -19,6 +20,17 @@ static double dminarg1,dminarg2;
 
 #define SIGN(a)   ((a) > 0.0 ? 1.0 : -1.0)
 #define ERROR(params,num,val) (params)->error_num=(num); return (val)
+=======
+#ifndef ZEROS_H
+#define ZEROS_H
+
+typedef struct {
+    int funcalls;
+    int iterations;
+    int error_num;
+} default_parameters;
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 #define SIGNERR -1
 #define CONVERR -2
 
@@ -30,8 +42,11 @@ extern double ridder(callback_type f, double xa, double xb, double xtol, double 
 extern double brenth(callback_type f, double xa, double xb, double xtol, double rtol, int iter, default_parameters *params);
 extern double brentq(callback_type f, double xa, double xb, double xtol, double rtol, int iter, default_parameters *params);
 
+<<<<<<< HEAD
 
 extern double fabs(double);
 extern double sqrt(double);
 
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 #endif

@@ -1,10 +1,17 @@
 C------------------------------------------------------------------------ 
 C
       SUBROUTINE COBYLA (CALCFC, N,M,X,RHOBEG,RHOEND,IPRINT,MAXFUN,
+<<<<<<< HEAD
      & W,IACT)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       EXTERNAL CALCFC
       DIMENSION X(*),W(*),IACT(*)
+=======
+     & W,IACT, DINFO)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      EXTERNAL CALCFC
+      DIMENSION X(*),W(*),IACT(*), DINFO(*)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C
 C     This subroutine minimizes an objective function F(X) subject to M
 C     inequality constraints on X, where X is a vector of variables that has
@@ -74,15 +81,26 @@ C
       IWORK=IDX+N
       CALL COBYLB (CALCFC,N,M,MPP,X,RHOBEG,RHOEND,IPRINT,MAXFUN,W(ICON),
      1  W(ISIM),W(ISIMI),W(IDATM),W(IA),W(IVSIG),W(IVETA),W(ISIGB),
+<<<<<<< HEAD
      2  W(IDX),W(IWORK),IACT)
+=======
+     2  W(IDX),W(IWORK),IACT,DINFO)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       RETURN
       END
 C------------------------------------------------------------------------------
       SUBROUTINE COBYLB (CALCFC,N,M,MPP,X,RHOBEG,RHOEND,IPRINT,MAXFUN,
+<<<<<<< HEAD
      1  CON,SIM,SIMI,DATMAT,A,VSIG,VETA,SIGBAR,DX,W,IACT)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION X(*),CON(*),SIM(N,*),SIMI(N,*),DATMAT(MPP,*),
      1  A(N,*),VSIG(*),VETA(*),SIGBAR(*),DX(*),W(*),IACT(*)
+=======
+     1  CON,SIM,SIMI,DATMAT,A,VSIG,VETA,SIGBAR,DX,W,IACT,DINFO)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      DIMENSION X(*),CON(*),SIM(N,*),SIMI(N,*),DATMAT(MPP,*),
+     1  A(N,*),VSIG(*),VETA(*),SIGBAR(*),DX(*),W(*),IACT(*),DINFO(*)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       EXTERNAL CALCFC
 C
 C     Set the initial values of some parameters. The last column of SIM holds
@@ -102,6 +120,12 @@ C
       DELTA=1.1d0
       RHO=RHOBEG
       PARMU=0.0d0
+<<<<<<< HEAD
+=======
+C     Set the STATUS value of DINFO to 1.0 to start.
+C     IF an error occurs it will get set to 0.0
+      DINFO(1)=1.0d0
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 C     Fix compiler warnings
       IFLAG=1
@@ -135,6 +159,10 @@ C
          IF (IPRINT .GE. 1) PRINT 50
    50      FORMAT (/3X,'Return from subroutine COBYLA because the ',
      1        'MAXFUN limit has been reached.')
+<<<<<<< HEAD
+=======
+         DINFO(1)=2.0d0
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          GOTO 600
       END IF
       NFVALS=NFVALS+1
@@ -248,6 +276,10 @@ C
           IF (IPRINT .GE. 1) PRINT 210
   210     FORMAT (/3X,'Return from subroutine COBYLA because ',
      1      'rounding errors are becoming damaging.')
+<<<<<<< HEAD
+=======
+          DINFO(1)=3.0d0
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
           GOTO 600
       END IF
 C
@@ -551,5 +583,14 @@ C
           IF (IPTEM .LT. N) PRINT 80, (X(I),I=IPTEMP,N)
       END IF
       MAXFUN=NFVALS
+<<<<<<< HEAD
       RETURN
       END
+=======
+      DINFO(2)=DBLE(NFVALS)
+      DINFO(3)=DBLE(F)
+      DINFO(4)=DBLE(RESMAX)
+      RETURN
+      END
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

@@ -120,6 +120,7 @@
 *     .. Local Scalars ..
       INTEGER          R, D, P, PTLD, Q, S, V, VTLD, W, WTLD, Y, YTLD,
      $                 Z, ZTLD, MAXIT, NEED1, NEED2
+<<<<<<< HEAD
       <rt>   TOL, BNRM2, RHOTOL, BETATOL, GAMMATOL, DELTATOL, 
      $       EPSTOL, XITOL,
      $       <sdsd=s,d,s,d>GETBREAK, 
@@ -129,6 +130,18 @@
       <_t>   BETA, GAMMA, GAMMA1, DELTA, EPS, ETA, XI, 
      $       RHO, RHO1, THETA, THETA1, C1,
      $     <xdot=sdot,ddot,cdotc,zdotc>,
+=======
+      <rt>   TOL, BNRM2, RHOTOL, BETATOL,
+     $       GAMMATOL, DELTATOL,
+     $       EPSTOL, XITOL,
+     $       <sdsd=s,d,s,d>GETBREAK, 
+     $       <rc=ws,d,wsc,dz>NRM2
+
+
+      <_t>   BETA, GAMMA, GAMMA1, DELTA, EPS, ETA, XI, 
+     $       RHO, RHO1, THETA, THETA1, C1, TMPVAL,
+     $     <xdot=wsdot,ddot,wcdotc,wzdotc>,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      $     toz
 *
 *     indicates where to resume from. Only valid when IJOB = 2!
@@ -347,12 +360,23 @@
      $      GO TO 25
 *
          CALL <_c>COPY( N, WORK(1,VTLD), 1, WORK(1,V), 1 )
+<<<<<<< HEAD
          CALL <_c>SCAL( N, ONE / RHO, WORK(1,V), 1 )
          CALL <_c>SCAL( N, ONE / RHO, WORK(1,Y), 1 )
 *
          CALL <_c>COPY( N, WORK(1,WTLD), 1, WORK(1,W), 1 )
          CALL <_c>SCAL( N, ONE / XI, WORK(1,W), 1 )
          CALL <_c>SCAL( N, ONE / XI, WORK(1,Z), 1 )
+=======
+         TMPVAL = ONE / RHO
+         CALL <_c>SCAL( N, TMPVAL, WORK(1,V), 1 )
+         CALL <_c>SCAL( N, TMPVAL, WORK(1,Y), 1 )
+*
+         TMPVAL = ONE / XI
+         CALL <_c>COPY( N, WORK(1,WTLD), 1, WORK(1,W), 1 )
+         CALL <_c>SCAL( N, TMPVAL, WORK(1,W), 1 )
+         CALL <_c>SCAL( N, TMPVAL, WORK(1,Z), 1 )
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 *
          DELTA = <xdot>( N, WORK(1,Z), 1, WORK(1,Y), 1 )
          IF ( ABS( DELTA ).LT.DELTATOL ) GO TO 25
@@ -482,7 +506,12 @@
 *
 *        Compute current solution vector x.
 *
+<<<<<<< HEAD
          CALL <_c>AXPY( N, ONE, WORK(1,D), 1, X, 1 )
+=======
+         TMPVAL = ONE
+         CALL <_c>AXPY( N, TMPVAL, WORK(1,D), 1, X, 1 )
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 *
 *        Compute residual vector rk, find norm,
 *        then check for tolerance.

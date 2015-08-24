@@ -6,9 +6,16 @@
 
     array_info -- for building functions that use scipy arrays
 """
+<<<<<<< HEAD
 
 import base_info
 import standard_array_spec
+=======
+from __future__ import absolute_import, print_function
+
+from . import base_info
+from . import standard_array_spec
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 import os
 
 blitz_support_code =  \
@@ -19,7 +26,11 @@ blitz_support_code =  \
 // declare them.
 
 int _beg = blitz::fromStart;
+<<<<<<< HEAD
 int _end = blitz::toEnd;
+=======
+const int _end = blitz::toEnd;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 blitz::Range _all = blitz::Range::all();
 
 template<class T, int N>
@@ -56,8 +67,12 @@ static blitz::Array<T,N> py_to_blitz(PyArrayObject* arr_obj,const char* name)
 }
 """
 
+<<<<<<< HEAD
 import blitz_spec
 local_dir,junk = os.path.split(os.path.abspath(blitz_spec.__file__))
+=======
+local_dir,junk = os.path.split(os.path.abspath(__file__))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 blitz_dir = os.path.join(local_dir,'blitz')
 
 # The need to warn about compilers made the info_object method in
@@ -65,6 +80,10 @@ blitz_dir = os.path.join(local_dir,'blitz')
 # The spec/info unification needs to continue so that this can
 # incorporated into the spec somehow.
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class array_info(base_info.custom_info):
     # throw error if trying to use msvc compiler
 
@@ -101,7 +120,11 @@ class array_converter(standard_array_spec.array_converter):
         if new_spec.dims > 11:
             msg = "Error converting variable '" + name + "'.  " \
                   "blitz only supports arrays up to 11 dimensions."
+<<<<<<< HEAD
             raise ValueError, msg
+=======
+            raise ValueError(msg)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         return new_spec
 
     def template_vars(self,inline=0):
@@ -110,7 +133,11 @@ class array_converter(standard_array_spec.array_converter):
             res['dims'] = self.dims
         return res
 
+<<<<<<< HEAD
     def declaration_code(self,templatize = 0,inline=0):
+=======
+    def declaration_code(self,templatize=0,inline=0):
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         code = '%(py_var)s = %(var_lookup)s;\n'   \
                '%(c_type)s %(array_name)s = %(var_convert)s;\n'  \
                'conversion_numpy_check_type(%(array_name)s,%(num_typecode)s,"%(name)s");\n' \
@@ -123,7 +150,14 @@ class array_converter(standard_array_spec.array_converter):
 
     def __cmp__(self,other):
         #only works for equal
+<<<<<<< HEAD
         return ( cmp(self.name,other.name) or
                  cmp(self.var_type,other.var_type) or
                  cmp(self.dims, other.dims) or
                  cmp(self.__class__, other.__class__) )
+=======
+        return (cmp(self.name,other.name) or
+                 cmp(self.var_type,other.var_type) or
+                 cmp(self.dims, other.dims) or
+                 cmp(self.__class__, other.__class__))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

@@ -41,8 +41,12 @@ C                Search range: [1e-100, 1E10]
 C                    DOUBLE PRECISION DF
 C
 C     PNONC <--> Noncentrality parameter of the noncentral t-distributio
+<<<<<<< HEAD
 C                Input range: [-infinity , +infinity).
 C                Search range: [-1e4, 1E4]
+=======
+C                Input range: [-1e6, 1E6].
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C
 C     STATUS <-- 0 if calculation completed correctly
 C               -I if input parameter number I is out of range
@@ -74,8 +78,13 @@ C     monotinicity of P with the other parameter.
 C
 C***********************************************************************
 C     .. Parameters ..
+<<<<<<< HEAD
       DOUBLE PRECISION tent4
       PARAMETER (tent4=1.0D4)
+=======
+      DOUBLE PRECISION tent6
+      PARAMETER (tent6=1.0D6)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       DOUBLE PRECISION tol
       PARAMETER (tol=1.0D-8)
       DOUBLE PRECISION atol
@@ -94,6 +103,35 @@ C     ..
 C     .. External Subroutines ..
       EXTERNAL cumtnc,dinvr,dstinv
 C     ..
+<<<<<<< HEAD
+=======
+      IF (t.GT.inf) THEN
+          t = inf
+      ELSE IF (t.LT.-inf) THEN
+          t = -inf
+      ENDIF
+      IF (df.GT.1.0D10) THEN
+          df = 1.0D10
+      ENDIF
+
+      IF (t.ne.t) THEN
+          status = -4
+          RETURN
+      ENDIF
+
+      IF (which.NE.4) THEN
+          IF (.NOT. (pnonc.GE.-tent6)) THEN
+              status = -6
+              bound = -tent6
+              RETURN
+          ELSE IF (.NOT. (pnonc.LE.tent6)) THEN
+              status = -6
+              bound = tent6
+              RETURN
+          ENDIF
+      ENDIF
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       IF (.NOT. ((which.LT.1).OR. (which.GT.4))) GO TO 30
       IF (.NOT. (which.LT.1)) GO TO 10
       bound = 1.0D0
@@ -115,7 +153,11 @@ C     ..
 
    60 CONTINUE
    70 IF (which.EQ.3) GO TO 90
+<<<<<<< HEAD
       IF (.NOT. (df.LE.0.0D0)) GO TO 80
+=======
+      IF (df.GT.0.0D0) GO TO 80
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       bound = 0.0D0
       status = -5
       RETURN
@@ -150,7 +192,11 @@ C     ..
 
       ELSE IF ((3).EQ. (which)) THEN
           df = 5.0D0
+<<<<<<< HEAD
           CALL dstinv(zero,tent4,0.5D0,0.5D0,5.0D0,atol,tol)
+=======
+          CALL dstinv(zero,tent6,0.5D0,0.5D0,5.0D0,atol,tol)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
           status = 0
           CALL dinvr(status,df,fx,qleft,qhi)
   160     IF (.NOT. (status.EQ.1)) GO TO 170
@@ -172,7 +218,11 @@ C     ..
 
       ELSE IF ((4).EQ. (which)) THEN
           pnonc = 5.0D0
+<<<<<<< HEAD
           CALL dstinv(-tent4,tent4,0.5D0,0.5D0,5.0D0,atol,tol)
+=======
+          CALL dstinv(-tent6,tent6,0.5D0,0.5D0,5.0D0,atol,tol)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
           status = 0
           CALL dinvr(status,pnonc,fx,qleft,qhi)
   210     IF (.NOT. (status.EQ.1)) GO TO 220
@@ -188,7 +238,11 @@ C     ..
           GO TO 240
 
   230     status = 2
+<<<<<<< HEAD
           bound = tent4
+=======
+          bound = tent6
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
   240     CONTINUE
   250 END IF
 

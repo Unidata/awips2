@@ -114,16 +114,28 @@ ilu_cpivotL(
 	switch (milu) {
 	    case SMILU_1:
                 c_add(&temp, &lu_col_ptr[isub], &drop_sum);
+<<<<<<< HEAD
 		rtemp = slu_c_abs1(&temp);
+=======
+		rtemp = c_abs1(&temp);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 		break;
 	    case SMILU_2:
 	    case SMILU_3:
                 /* In this case, drop_sum contains the sum of the abs. value */
+<<<<<<< HEAD
 		rtemp = slu_c_abs1(&lu_col_ptr[isub]);
 		break;
 	    case SILU:
 	    default:
 		rtemp = slu_c_abs1(&lu_col_ptr[isub]);
+=======
+		rtemp = c_abs1(&lu_col_ptr[isub]);
+		break;
+	    case SILU:
+	    default:
+		rtemp = c_abs1(&lu_col_ptr[isub]);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 		break;
 	}
 	if (rtemp > pivmax) { pivmax = rtemp; pivptr = isub; }
@@ -136,8 +148,13 @@ ilu_cpivotL(
 
     /* Test for singularity */
     if (pivmax < 0.0) {
+<<<<<<< HEAD
 #if SCIPY_SPECIFIC_FIX
         ABORT("[0]: matrix is singular");
+=======
+#if SCIPY_FIX
+	ABORT("[0]: matrix is singular");
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 #else
 	fprintf(stderr, "[0]: jcol=%d, SINGULAR!!!\n", jcol);
 	fflush(stderr);
@@ -155,8 +172,13 @@ ilu_cpivotL(
 	    for (icol = jcol; icol < n; icol++)
 		if (marker[swap[icol]] <= jcol) break;
 	    if (icol >= n) {
+<<<<<<< HEAD
 #if SCIPY_SPECIFIC_FIX
                 ABORT("[1]: matrix is singular");
+=======
+#if SCIPY_FIX
+		ABORT("[1]: matrix is singular");
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 #else
 		fprintf(stderr, "[1]: jcol=%d, SINGULAR!!!\n", jcol);
 		fflush(stderr);
@@ -188,6 +210,7 @@ ilu_cpivotL(
 	    switch (milu) {
 		case SMILU_1:
                     c_add(&temp, &lu_col_ptr[old_pivptr], &drop_sum);
+<<<<<<< HEAD
 		    rtemp = slu_c_abs1(&temp);
 		    break;
 		case SMILU_2:
@@ -197,6 +220,17 @@ ilu_cpivotL(
 		case SILU:
 		default:
 		    rtemp = slu_c_abs1(&lu_col_ptr[old_pivptr]);
+=======
+		    rtemp = c_abs1(&temp);
+		    break;
+		case SMILU_2:
+		case SMILU_3:
+		    rtemp = c_abs1(&lu_col_ptr[old_pivptr]) + drop_sum.r;
+		    break;
+		case SILU:
+		default:
+		    rtemp = c_abs1(&lu_col_ptr[old_pivptr]);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 		    break;
 	    }
 	    if ( rtemp != 0.0 && rtemp >= thresh ) pivptr = old_pivptr;
@@ -208,6 +242,7 @@ ilu_cpivotL(
 		switch (milu) {
 		    case SMILU_1:
                         c_add(&temp, &lu_col_ptr[diag], &drop_sum);
+<<<<<<< HEAD
          	        rtemp = slu_c_abs1(&temp);
 			break;
 		    case SMILU_2:
@@ -217,6 +252,17 @@ ilu_cpivotL(
 		    case SILU:
 		    default:
 			rtemp = slu_c_abs1(&lu_col_ptr[diag]);
+=======
+         	        rtemp = c_abs1(&temp);
+			break;
+		    case SMILU_2:
+		    case SMILU_3:
+			rtemp = c_abs1(&lu_col_ptr[diag]) + drop_sum.r;
+			break;
+		    case SILU:
+		    default:
+			rtemp = c_abs1(&lu_col_ptr[diag]);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 			break;
 		}
 		if ( rtemp != 0.0 && rtemp >= thresh ) pivptr = diag;

@@ -41,6 +41,7 @@ double SuperLU_timer_()
 #ifndef NO_TIMER
 #include <sys/types.h>
 #include <sys/times.h>
+<<<<<<< HEAD
 #include <time.h>
 #include <sys/time.h>
 #endif
@@ -50,12 +51,22 @@ double SuperLU_timer_()
 #endif
 /*! \brief Timer function
  */ 
+=======
+#include <sys/time.h>
+#include <unistd.h>
+#endif
+
+/*! \brief Timer function
+ */ 
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 double SuperLU_timer_()
 {
 #ifdef NO_TIMER
     /* no sys/times.h on WIN32 */
     double tmp;
     tmp = 0.0;
+<<<<<<< HEAD
 #else
     struct tms use;
     double tmp;
@@ -64,6 +75,20 @@ double SuperLU_timer_()
     tmp += use.tms_stime;
 #endif
     return (double)(tmp) / CLK_TCK;
+=======
+    /* return (double)(tmp) / CLK_TCK;*/
+    return 0.0;
+#else
+    struct tms use;
+    double tmp;
+    int clocks_per_sec = sysconf(_SC_CLK_TCK);
+
+    times ( &use );
+    tmp = use.tms_utime;
+    tmp += use.tms_stime;
+    return (double)(tmp) / clocks_per_sec;
+#endif
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 }
 
 #endif

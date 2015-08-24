@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 .. module:: scipy.stats
 
 ==========================================
@@ -282,3 +283,11 @@ Univariate and multivariate kernel density estimation (:mod:`scipy.stats.kde`)
 
 For many more stat related functions install the software R and the
 interface package rpy.
+=======
+.. automodule:: scipy.stats
+
+.. toctree::
+   :hidden:
+   
+   scipy.stats.mstats
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

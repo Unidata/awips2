@@ -69,7 +69,11 @@ C     .. External Subroutines ..
       EXTERNAL bratio,cumnor,cumt
 C     ..
 C     .. Intrinsic Functions ..
+<<<<<<< HEAD
       INTRINSIC abs,exp,int,log,max,min
+=======
+      INTRINSIC abs,exp,aint,log,max,min
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C     ..
 
 C     Case pnonc essentially zero
@@ -111,7 +115,11 @@ C     Case pnonc essentially zero
 
 C     ******************** Case i = lambda
 
+<<<<<<< HEAD
       cent = int(lambda)
+=======
+      cent = aint(lambda)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
       IF (cent.LT.one) cent = one
 

@@ -1,7 +1,13 @@
 
+<<<<<<< HEAD
 /*							btdtr.c
  *
  *	Beta distribution
+=======
+/*                                                     btdtr.c
+ *
+ *     Beta distribution
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
  *
  *
  *
@@ -42,6 +48,7 @@
  *
  */
 
+<<<<<<< HEAD
 /*								btdtr()	*/
 
 
@@ -57,4 +64,21 @@ double a, b, x;
 {
 
 return( incbet( a, b, x ) );
+=======
+/*                                                             btdtr() */
+
+
+/*
+ * Cephes Math Library Release 2.0:  April, 1987
+ * Copyright 1984, 1987, 1995 by Stephen L. Moshier
+ */
+
+#include "mconf.h"
+
+double btdtr(a, b, x)
+double a, b, x;
+{
+
+    return (incbet(a, b, x));
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 }

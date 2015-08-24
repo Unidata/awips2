@@ -1,6 +1,10 @@
 # Offers example of inline C for binary search algorithm.
 # Borrowed from Kalle Svensson in the Python Cookbook.
+<<<<<<< HEAD
 # The results are nearly in the "not worth it" catagory.
+=======
+# The results are nearly in the "not worth it" category.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 #
 # C:\home\ej\wrk\scipy\compiler\examples>python binary_search.py
 # Binary search for 3000 items in 100000 length list of integers:
@@ -14,18 +18,34 @@
 # Note -- really need to differentiate between conversion errors and
 # run time errors.  This would reduce useless compiles and provide a
 # more intelligent control of things.
+<<<<<<< HEAD
 
 import sys
 sys.path.insert(0,'..')
 #from compiler import inline_tools
+=======
+from __future__ import absolute_import, print_function
+
+import sys
+sys.path.insert(0,'..')
+# from compiler import inline_tools
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 import scipy.weave.inline_tools as inline_tools
 from bisect import bisect_left as bisect
 import types
 
+<<<<<<< HEAD
 def c_int_search(seq,t,chk=1):
     # do partial type checking in Python.
     # checking that list items are ints should happen in py_to_scalar<int>
     #if chk:
+=======
+
+def c_int_search(seq,t,chk=1):
+    # do partial type checking in Python.
+    # checking that list items are ints should happen in py_to_scalar<int>
+    # if chk:
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     #    assert(type(t) is int)
     #    assert(type(seq) is list)
     code = """
@@ -56,8 +76,14 @@ def c_int_search(seq,t,chk=1):
                }
            }
            """
+<<<<<<< HEAD
     #return inline_tools.inline(code,['seq','t'],compiler='msvc')
     return inline_tools.inline(code,['seq','t'],verbose = 2)
+=======
+    # return inline_tools.inline(code,['seq','t'],compiler='msvc')
+    return inline_tools.inline(code,['seq','t'],verbose=2)
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 def c_int_search_scxx(seq,t,chk=1):
     # do partial type checking in Python.
@@ -89,11 +115,20 @@ def c_int_search_scxx(seq,t,chk=1):
                }
            }
            """
+<<<<<<< HEAD
     #return inline_tools.inline(code,['seq','t'],compiler='msvc')
     return inline_tools.inline(code,['seq','t'],verbose = 2)
 
 try:
     from numpy import *
+=======
+    # return inline_tools.inline(code,['seq','t'],compiler='msvc')
+    return inline_tools.inline(code,['seq','t'],verbose=2)
+
+try:
+    from numpy import *
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     def c_array_int_search(seq,t):
         code = """
                #line 62 "binary_search.py"
@@ -120,14 +155,26 @@ try:
                    }
                }
                """
+<<<<<<< HEAD
         #return inline_tools.inline(code,['seq','t'],compiler='msvc')
         return inline_tools.inline(code,['seq','t'],verbose = 2,
+=======
+        # return inline_tools.inline(code,['seq','t'],compiler='msvc')
+        return inline_tools.inline(code,['seq','t'],verbose=2,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                                    extra_compile_args=['-O2','-G6'])
 except:
     pass
 
+<<<<<<< HEAD
 def py_int_search(seq, t):
     min = 0; max = len(seq) - 1
+=======
+
+def py_int_search(seq, t):
+    min = 0
+    max = len(seq) - 1
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     while 1:
         if max < min:
             return -1
@@ -141,23 +188,39 @@ def py_int_search(seq, t):
 
 import time
 
+<<<<<<< HEAD
 def search_compare(a,n):
     print 'Binary search for %d items in %d length list of integers:'%(n,m)
+=======
+
+def search_compare(a,n):
+    print('Binary search for %d items in %d length list of integers:' % (n,m))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     t1 = time.time()
     for i in range(n):
         py_int_search(a,i)
     t2 = time.time()
     py = (t2-t1)
+<<<<<<< HEAD
     print ' speed in python:', (t2 - t1)
+=======
+    print(' speed in python:', (t2 - t1))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     # bisect
     t1 = time.time()
     for i in range(n):
         bisect(a,i)
     t2 = time.time()
+<<<<<<< HEAD
     bi = (t2-t1) +1e-20 # protect against div by zero
     print ' speed of bisect:', bi
     print ' speed up: %3.2f' % (py/bi)
+=======
+    bi = (t2-t1) + 1e-20  # protect against div by zero
+    print(' speed of bisect:', bi)
+    print(' speed up: %3.2f' % (py/bi))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     # get it in cache
     c_int_search(a,i)
@@ -165,9 +228,15 @@ def search_compare(a,n):
     for i in range(n):
         c_int_search(a,i,chk=1)
     t2 = time.time()
+<<<<<<< HEAD
     sp = (t2-t1)+1e-20 # protect against div by zero
     print ' speed in c:',sp
     print ' speed up: %3.2f' % (py/sp)
+=======
+    sp = (t2-t1)+1e-20  # protect against div by zero
+    print(' speed in c:',sp)
+    print(' speed up: %3.2f' % (py/sp))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     # get it in cache
     c_int_search(a,i)
@@ -175,9 +244,15 @@ def search_compare(a,n):
     for i in range(n):
         c_int_search(a,i,chk=0)
     t2 = time.time()
+<<<<<<< HEAD
     sp = (t2-t1)+1e-20 # protect against div by zero
     print ' speed in c(no asserts):',sp
     print ' speed up: %3.2f' % (py/sp)
+=======
+    sp = (t2-t1)+1e-20  # protect against div by zero
+    print(' speed in c(no asserts):',sp)
+    print(' speed up: %3.2f' % (py/sp))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     # get it in cache
     c_int_search_scxx(a,i)
@@ -185,9 +260,15 @@ def search_compare(a,n):
     for i in range(n):
         c_int_search_scxx(a,i,chk=1)
     t2 = time.time()
+<<<<<<< HEAD
     sp = (t2-t1)+1e-20 # protect against div by zero
     print ' speed for scxx:',sp
     print ' speed up: %3.2f' % (py/sp)
+=======
+    sp = (t2-t1)+1e-20  # protect against div by zero
+    print(' speed for scxx:',sp)
+    print(' speed up: %3.2f' % (py/sp))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     # get it in cache
     c_int_search_scxx(a,i)
@@ -195,9 +276,15 @@ def search_compare(a,n):
     for i in range(n):
         c_int_search_scxx(a,i,chk=0)
     t2 = time.time()
+<<<<<<< HEAD
     sp = (t2-t1)+1e-20 # protect against div by zero
     print ' speed for scxx(no asserts):',sp
     print ' speed up: %3.2f' % (py/sp)
+=======
+    sp = (t2-t1)+1e-20  # protect against div by zero
+    print(' speed for scxx(no asserts):',sp)
+    print(' speed up: %3.2f' % (py/sp))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     # get it in cache
     a = array(a)
@@ -208,14 +295,21 @@ def search_compare(a,n):
         for i in range(n):
             c_array_int_search(a,i)
         t2 = time.time()
+<<<<<<< HEAD
         sp = (t2-t1)+1e-20 # protect against div by zero
         print ' speed in c(numpy arrays):',sp
         print ' speed up: %3.2f' % (py/sp)
+=======
+        sp = (t2-t1)+1e-20  # protect against div by zero
+        print(' speed in c(numpy arrays):',sp)
+        print(' speed up: %3.2f' % (py/sp))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     except:
         pass
 
 if __name__ == "__main__":
     # note bisect returns index+1 compared to other algorithms
+<<<<<<< HEAD
     m= 100000
     a = range(m)
     n = 50000
@@ -223,3 +317,12 @@ if __name__ == "__main__":
     print 'search(a,3450)', c_int_search(a,3450), py_int_search(a,3450), bisect(a,3450)
     print 'search(a,-1)', c_int_search(a,-1), py_int_search(a,-1), bisect(a,-1)
     print 'search(a,10001)', c_int_search(a,10001), py_int_search(a,10001),bisect(a,10001)
+=======
+    m = 100000
+    a = range(m)
+    n = 50000
+    search_compare(a,n)
+    print('search(a,3450)', c_int_search(a,3450), py_int_search(a,3450), bisect(a,3450))
+    print('search(a,-1)', c_int_search(a,-1), py_int_search(a,-1), bisect(a,-1))
+    print('search(a,10001)', c_int_search(a,10001), py_int_search(a,10001),bisect(a,10001))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

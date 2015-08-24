@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*							bdtr.c
  *
  *	Binomial distribution
+=======
+/*                                                     bdtr.c
+ *
+ *     Binomial distribution
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
  *
  *
  *
@@ -138,6 +144,7 @@
  *                  x < 0, x > 1
  */
 
+<<<<<<< HEAD
 /*								bdtr() */
 
 
@@ -182,10 +189,54 @@ else
 	dk = incbet( dk, dn, p );
 	}
 return( dk );
+=======
+/*                                                             bdtr() */
+
+
+/*
+ * Cephes Math Library Release 2.3:  March, 1995
+ * Copyright 1984, 1987, 1995 by Stephen L. Moshier
+ */
+
+#include "mconf.h"
+
+double bdtrc(k, n, p)
+int k, n;
+double p;
+{
+    double dk, dn;
+
+    if ((p < 0.0) || (p > 1.0))
+	goto domerr;
+    if (k < 0)
+	return (1.0);
+
+    if (n < k) {
+      domerr:
+	mtherr("bdtrc", DOMAIN);
+	return (NPY_NAN);
+    }
+
+    if (k == n)
+	return (0.0);
+    dn = n - k;
+    if (k == 0) {
+	if (p < .01)
+	    dk = -expm1(dn * log1p(-p));
+	else
+	    dk = 1.0 - pow(1.0 - p, dn);
+    }
+    else {
+	dk = k + 1;
+	dk = incbet(dk, dn, p);
+    }
+    return (dk);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 }
 
 
 
+<<<<<<< HEAD
 double bdtr( k, n, p )
 int k, n;
 double p;
@@ -251,4 +302,65 @@ else
 		p = 1.0 - incbi( dn, dk, y );
 	}
 return( p );
+=======
+double bdtr(k, n, p)
+int k, n;
+double p;
+{
+    double dk, dn;
+
+    if ((p < 0.0) || (p > 1.0))
+	goto domerr;
+    if ((k < 0) || (n < k)) {
+      domerr:
+	mtherr("bdtr", DOMAIN);
+	return (NPY_NAN);
+    }
+
+    if (k == n)
+	return (1.0);
+
+    dn = n - k;
+    if (k == 0) {
+	dk = pow(1.0 - p, dn);
+    }
+    else {
+	dk = k + 1;
+	dk = incbet(dn, dk, 1.0 - p);
+    }
+    return (dk);
+}
+
+
+double bdtri(k, n, y)
+int k, n;
+double y;
+{
+    double dk, dn, p;
+
+    if ((y < 0.0) || (y > 1.0))
+	goto domerr;
+    if ((k < 0) || (n <= k)) {
+      domerr:
+	mtherr("bdtri", DOMAIN);
+	return (NPY_NAN);
+    }
+
+    dn = n - k;
+    if (k == 0) {
+	if (y > 0.8)
+	    p = -expm1(log1p(y - 1.0) / dn);
+	else
+	    p = 1.0 - pow(y, 1.0 / dn);
+    }
+    else {
+	dk = k + 1;
+	p = incbet(dn, dk, 0.5);
+	if (p > 0.5)
+	    p = incbi(dk, dn, 1.0 - y);
+	else
+	    p = 1.0 - incbi(dn, dk, y);
+    }
+    return (p);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 }

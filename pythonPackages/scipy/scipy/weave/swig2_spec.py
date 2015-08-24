@@ -74,10 +74,18 @@ to consider when using the swig2_converter.
 
 Prabhu Ramachandran <prabhu_r@users.sf.net>
 """
+<<<<<<< HEAD
 
 import sys
 from c_spec import common_base_converter
 import swigptr2
+=======
+from __future__ import absolute_import, print_function
+
+import sys
+from .c_spec import common_base_converter
+from . import swigptr2
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 #----------------------------------------------------------------------
@@ -157,6 +165,10 @@ PyObject* %(type_name)s_to_py(void *obj)
 }
 """
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class swig2_converter(common_base_converter):
     """ A converter for SWIG >= 1.3 wrapped objects."""
     def __init__(self, class_name="undefined", pycobj=0, runtime_version=None):
@@ -175,7 +187,11 @@ class swig2_converter(common_base_converter):
           If `pycobj` is 0 then code is generated to deal with string
           representations of the SWIG wrapped pointer.  If it is 1,
           then code is generated to deal with a PyCObject.  If it is 2
+<<<<<<< HEAD
           then code is generated to deal with with PySwigObject.
+=======
+          then code is generated to deal with a PySwigObject.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         - runtime_version : `int`
 
@@ -187,7 +203,11 @@ class swig2_converter(common_base_converter):
 
         """
         self.class_name = class_name
+<<<<<<< HEAD
         self.pycobj = pycobj # This is on if a PyCObject has been used.
+=======
+        self.pycobj = pycobj  # This is on if a PyCObject has been used.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         self.runtime_version = runtime_version
         common_base_converter.__init__(self)
 
@@ -197,7 +217,11 @@ class swig2_converter(common_base_converter):
         will not work properly.
         """
         versions = []
+<<<<<<< HEAD
         for key in sys.modules.keys():
+=======
+        for key in sys.modules:
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             idx = key.find('swig_runtime_data')
             if idx > -1:
                 ver = int(key[idx+17:])
@@ -209,8 +233,13 @@ class swig2_converter(common_base_converter):
         elif nver == 1:
             return versions[0]
         else:
+<<<<<<< HEAD
             print "WARNING: Multiple SWIG versions detected.  No version was"
             print "explicitly specified.  Using the highest possible version."
+=======
+            print("WARNING: Multiple SWIG versions detected.  No version was")
+            print("explicitly specified.  Using the highest possible version.")
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             return max(versions)
 
     def init_info(self, runtime=0):
@@ -239,8 +268,13 @@ class swig2_converter(common_base_converter):
         self.type_name = self.class_name
         self.c_type = self.class_name + "*"
         self.return_type = self.class_name + "*"
+<<<<<<< HEAD
         self.to_c_return = None # not used
         self.check_func = None # not used
+=======
+        self.to_c_return = None  # not used
+        self.check_func = None  # not used
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         if self.pycobj == 1:
             self.define_macros.append(("SWIG_COBJECT_TYPES", None))
@@ -248,7 +282,10 @@ class swig2_converter(common_base_converter):
         elif self.pycobj == 2:
             self.define_macros.append(("SWIG_COBJECT_TYPES", None))
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         if self.runtime_version is None:
             self.runtime_version = self._get_swig_runtime_version()
 
@@ -266,7 +303,11 @@ class swig2_converter(common_base_converter):
         elif rv == 3:
             self.support_code.append(swigptr2.swigptr2_code_v3)
         else:
+<<<<<<< HEAD
             raise AssertionError, "Unsupported version of the SWIG runtime:", rv
+=======
+            raise AssertionError("Unsupported version of the SWIG runtime: %s" % rv)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         self.support_code.append(swig2_common_code)
 
@@ -315,7 +356,11 @@ class swig2_converter(common_base_converter):
         else:
             # if there isn't a class_name, we don't want the
             # support_code to be included
+<<<<<<< HEAD
             import base_info
+=======
+            from . import base_info
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             res = base_info.base_info()
         return res
 
@@ -339,7 +384,11 @@ class swig2_converter(common_base_converter):
         elif swig_ob_type == 'pyswig':
             pycobj = 2
         else:
+<<<<<<< HEAD
             raise AssertionError, "Does not look like a SWIG object: %s"%value
+=======
+            raise AssertionError("Does not look like a SWIG object: %s" % value)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         if pycobj:
             class_name = value.__class__.__name__
@@ -351,7 +400,11 @@ class swig2_converter(common_base_converter):
         return new_spec
 
     def __cmp__(self,other):
+<<<<<<< HEAD
         #only works for equal
+=======
+        # only works for equal
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         res = -1
         try:
             res = cmp(self.name,other.name) or \
@@ -366,4 +419,8 @@ class swig2_converter(common_base_converter):
 # Uncomment the next line if you want this to be a default converter
 # that is magically invoked by inline.
 #----------------------------------------------------------------------
+<<<<<<< HEAD
 #converters.default.insert(0, swig2_converter())
+=======
+# converters.default.insert(0, swig2_converter())
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

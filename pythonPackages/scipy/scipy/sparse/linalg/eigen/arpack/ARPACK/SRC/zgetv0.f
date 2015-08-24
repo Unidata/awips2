@@ -89,7 +89,11 @@ c     a k-Step Arnoldi Method", SIAM J. Matr. Anal. Apps., 13 (1992),
 c     pp 357-385.
 c
 c\Routines called:
+<<<<<<< HEAD
 c     second  ARPACK utility routine for timing.
+=======
+c     arscnd  ARPACK utility routine for timing.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c     zvout   ARPACK utility routine that prints vectors.
 c     zlarnv  LAPACK routine for generating a random vector. 
 c     zgemv   Level 2 BLAS routine for matrix vector multiplication.
@@ -168,7 +172,11 @@ c     %----------------------%
 c     | External Subroutines |
 c     %----------------------%
 c
+<<<<<<< HEAD
       external   zcopy, zgemv, zlarnv, zvout, second
+=======
+      external   zcopy, zgemv, zlarnv, zvout, arscnd
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %--------------------%
 c     | External Functions |
@@ -211,7 +219,11 @@ c        | Initialize timing statistics  |
 c        | & message level for debugging |
 c        %-------------------------------%
 c
+<<<<<<< HEAD
          call second (t0)
+=======
+         call arscnd (t0)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          msglvl = mgetv0
 c 
          ierr   = 0
@@ -238,7 +250,11 @@ c        | Force the starting vector into the range of OP to handle |
 c        | the generalized problem when B is possibly (singular).   |
 c        %----------------------------------------------------------%
 c
+<<<<<<< HEAD
          call second (t2)
+=======
+         call arscnd (t2)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          if (bmat .eq. 'G') then
             nopx = nopx + 1
             ipntr(1) = 1
@@ -261,7 +277,11 @@ c     %-----------------------------------------------%
 c
       if (orth)  go to 40
 c 
+<<<<<<< HEAD
       call second (t3)
+=======
+      call arscnd (t3)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       tmvopx = tmvopx + (t3 - t2)
 c 
 c     %------------------------------------------------------%
@@ -269,7 +289,11 @@ c     | Starting vector is now in the range of OP; r = OP*r; |
 c     | Compute B-norm of starting vector.                   |
 c     %------------------------------------------------------%
 c
+<<<<<<< HEAD
       call second (t2)
+=======
+      call arscnd (t2)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       first = .TRUE.
       if (bmat .eq. 'G') then
          nbx = nbx + 1
@@ -285,7 +309,11 @@ c
    20 continue
 c
       if (bmat .eq. 'G') then
+<<<<<<< HEAD
          call second (t3)
+=======
+         call arscnd (t3)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          tmvbx = tmvbx + (t3 - t2)
       end if
 c 
@@ -328,7 +356,11 @@ c     %----------------------------------------------------------%
 c     | Compute the B-norm of the orthogonalized starting vector |
 c     %----------------------------------------------------------%
 c
+<<<<<<< HEAD
       call second (t2)
+=======
+      call arscnd (t2)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       if (bmat .eq. 'G') then
          nbx = nbx + 1
          call zcopy (n, resid, 1, workd(n+1), 1)
@@ -343,7 +375,11 @@ c
    40 continue
 c
       if (bmat .eq. 'G') then
+<<<<<<< HEAD
          call second (t3)
+=======
+         call arscnd (t3)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          tmvbx = tmvbx + (t3 - t2)
       end if
 c 
@@ -401,7 +437,11 @@ c
       end if
       ido = 99
 c 
+<<<<<<< HEAD
       call second (t1)
+=======
+      call arscnd (t1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       tgetv0 = tgetv0 + (t1 - t0)
 c 
  9000 continue

@@ -3,10 +3,17 @@
  * \brief Header file for real operations
  * 
  * <pre> 
+<<<<<<< HEAD
  * -- SuperLU routine (version 4.0) --
  * Univ. of California Berkeley, Xerox Palo Alto Research Center,
  * and Lawrence Berkeley National Lab.
  * June 30, 2009
+=======
+ * -- SuperLU routine (version 4.1) --
+ * Univ. of California Berkeley, Xerox Palo Alto Research Center,
+ * and Lawrence Berkeley National Lab.
+ * November, 2010
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
  * 
  * Global data structures used in LU factorization -
  * 
@@ -204,13 +211,21 @@ extern int     ilu_zcolumn_dfs (const int, const int, int *, int *, int *,
 				GlobalLU_t *);
 extern int     ilu_zcopy_to_ucol (int, int, int *, int *, int *,
                                   doublecomplex *, int, milu_t, double, int,
+<<<<<<< HEAD
                                   doublecomplex *, int *, GlobalLU_t *, int *);
+=======
+                                  doublecomplex *, int *, GlobalLU_t *, double *);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 extern int     ilu_zpivotL (const int, const double, int *, int *, int, int *,
 			    int *, int *, int *, double, milu_t,
                             doublecomplex, GlobalLU_t *, SuperLUStat_t*);
 extern int     ilu_zdrop_row (superlu_options_t *, int, int, double,
                               int, int *, double *, GlobalLU_t *, 
+<<<<<<< HEAD
                               double *, int *, int);
+=======
+                              double *, double *, int);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 /*! \brief Driver related */
@@ -265,6 +280,11 @@ extern void    zfill (doublecomplex *, int, doublecomplex);
 extern void    zinf_norm_error (int, SuperMatrix *, doublecomplex *);
 extern void    PrintPerf (SuperMatrix *, SuperMatrix *, mem_usage_t *,
 			 doublecomplex, doublecomplex, doublecomplex *, doublecomplex *, char *);
+<<<<<<< HEAD
+=======
+extern double  dqselect(int, double *, int);
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 /*! \brief Routines for debugging */
 extern void    zPrint_CompCol_Matrix(char *, SuperMatrix *);

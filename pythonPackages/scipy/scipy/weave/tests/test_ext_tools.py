@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import nose
 from numpy.testing import *
 
@@ -20,6 +21,34 @@ class TestExtModule(TestCase):
         mod = ext_tools.ext_module('simple_ext_module')
         mod.compile(location = build_dir)
         import simple_ext_module
+=======
+from __future__ import absolute_import, print_function
+
+import types
+
+from numpy import arange, float32, float64
+from numpy.testing import TestCase, assert_equal, assert_, run_module_suite
+
+from scipy.weave import ext_tools, c_spec
+from scipy.weave.standard_array_spec import array_converter
+from weave_test_utils import empty_temp_dir, dec
+
+
+build_dir = empty_temp_dir()
+
+
+class TestExtModule(TestCase):
+
+    # should really do some testing of where modules end up
+
+    @dec.slow
+    def test_simple(self):
+        # Simplest possible module
+        mod = ext_tools.ext_module('simple_ext_module')
+        mod.compile(location=build_dir)
+        import simple_ext_module
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_multi_functions(self):
         mod = ext_tools.ext_module('module_multi_function')
@@ -29,6 +58,7 @@ class TestExtModule(TestCase):
         mod.add_function(test)
         test2 = ext_tools.ext_function_from_specs('test2',code,var_specs)
         mod.add_function(test2)
+<<<<<<< HEAD
         mod.compile(location = build_dir)
         import module_multi_function
         module_multi_function.test()
@@ -37,6 +67,17 @@ class TestExtModule(TestCase):
     def test_with_include(self):
         # decalaring variables
         a = 2.;
+=======
+        mod.compile(location=build_dir)
+        import module_multi_function
+        module_multi_function.test()
+        module_multi_function.test2()
+
+    @dec.slow
+    def test_with_include(self):
+        # decalaring variables
+        a = 2.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         # declare module
         mod = ext_tools.ext_module('ext_module_with_include')
@@ -53,14 +94,23 @@ class TestExtModule(TestCase):
         test = ext_tools.ext_function_from_specs('test',code,var_specs)
         mod.add_function(test)
         # build module
+<<<<<<< HEAD
         mod.compile(location = build_dir)
+=======
+        mod.compile(location=build_dir)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         import ext_module_with_include
         ext_module_with_include.test(a)
 
     @dec.slow
     def test_string_and_int(self):
         # decalaring variables
+<<<<<<< HEAD
         a = 2;b = 'string'
+=======
+        a = 2
+        b = 'string'
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         # declare module
         mod = ext_tools.ext_module('ext_string_and_int')
         code = """
@@ -69,10 +119,17 @@ class TestExtModule(TestCase):
                """
         test = ext_tools.ext_function('test',code,['a','b'])
         mod.add_function(test)
+<<<<<<< HEAD
         mod.compile(location = build_dir)
         import ext_string_and_int
         c = ext_string_and_int.test(a,b)
         assert(c == len(b))
+=======
+        mod.compile(location=build_dir)
+        import ext_string_and_int
+        c = ext_string_and_int.test(a,b)
+        assert_(c == len(b))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     @dec.slow
     def test_return_tuple(self):
@@ -91,6 +148,7 @@ class TestExtModule(TestCase):
                """
         test = ext_tools.ext_function('test',code,['a'])
         mod.add_function(test)
+<<<<<<< HEAD
         mod.compile(location = build_dir)
         import ext_return_tuple
         c,d = ext_return_tuple.test(a)
@@ -101,11 +159,26 @@ class TestExtFunction(TestCase):
     @dec.slow
     def test_simple(self):
         """ Simplest possible function """
+=======
+        mod.compile(location=build_dir)
+        import ext_return_tuple
+        c,d = ext_return_tuple.test(a)
+        assert_(c == a and d == a+1)
+
+
+class TestExtFunction(TestCase):
+    # TODO: should really do some testing of where modules end up
+
+    @dec.slow
+    def test_simple(self):
+        # Simplest possible function
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         mod = ext_tools.ext_module('simple_ext_function')
         var_specs = []
         code = ""
         test = ext_tools.ext_function_from_specs('test',code,var_specs)
         mod.add_function(test)
+<<<<<<< HEAD
         mod.compile(location = build_dir)
         import simple_ext_function
         simple_ext_function.test()
@@ -130,12 +203,38 @@ class TestAssignVariableTypes(TestCase):
         ad.name, ad.var_type, ad.dims = 'a', Float32, 1
         bd = array_converter()
         bd.name, bd.var_type, bd.dims = 'b', Float64, 1
+=======
+        mod.compile(location=build_dir)
+        import simple_ext_function
+        simple_ext_function.test()
+
+
+class TestAssignVariableTypes(TestCase):
+
+    def test_assign_variable_types(self):
+        a = arange(10, dtype=float32)
+        b = arange(5, dtype=float64)
+        c = 5
+        arg_list = ['a','b','c']
+        actual = ext_tools.assign_variable_types(arg_list,locals())
+
+        ad = array_converter()
+        ad.name, ad.var_type, ad.dims = 'a', float32, 1
+        bd = array_converter()
+        bd.name, bd.var_type, bd.dims = 'b', float64, 1
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         cd = c_spec.int_converter()
         cd.name, cd.var_type = 'c', types.IntType
         desired = [ad,bd,cd]
         assert_equal(actual,desired)
 
+<<<<<<< HEAD
 if __name__ == "__main__":
     import nose
     nose.run(argv=['', __file__])
+=======
+
+if __name__ == "__main__":
+    run_module_suite()
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

@@ -76,8 +76,13 @@ c     xxxxxx  real
 c
 c\Routines called:
 c     slabad  LAPACK routine that computes machine constants.
+<<<<<<< HEAD
 c     slamch  LAPACK routine that determines machine constants.
 c     slanhs  LAPACK routine that computes various norms of a matrix.
+=======
+c     wslamch  LAPACK routine that determines machine constants.
+c     wslanhs  LAPACK routine that computes various norms of a matrix.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c     slanv2  LAPACK routine that computes the Schur factorization of
 c             2 by 2 nonsymmetric matrix in standard form.
 c     slarfg  LAPACK Householder reflection construction routine.
@@ -151,8 +156,13 @@ c     | External Functions |
 c     %--------------------%
 c
       Real
+<<<<<<< HEAD
      &           slamch, slanhs
       external   slamch, slanhs
+=======
+     &           wslamch, wslanhs
+      external   wslamch, wslanhs
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %----------------------%
 c     | External Subroutines |
@@ -195,10 +205,17 @@ c     | Set machine-dependent constants for the stopping criterion. |
 c     | If norm(H) <= sqrt(OVFL), overflow should not occur.        |
 c     %-------------------------------------------------------------%
 c
+<<<<<<< HEAD
       unfl = slamch( 'safe minimum' )
       ovfl = one / unfl
       call slabad( unfl, ovfl )
       ulp = slamch( 'precision' )
+=======
+      unfl = wslamch( 'safe minimum' )
+      ovfl = one / unfl
+      call slabad( unfl, ovfl )
+      ulp = wslamch( 'precision' )
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       smlnum = unfl*( nh / ulp )
 c
 c     %---------------------------------------------------------------%
@@ -256,7 +273,11 @@ c
          do 20 k = i, l + 1, -1
             tst1 = abs( h( k-1, k-1 ) ) + abs( h( k, k ) )
             if( tst1.eq.zero )
+<<<<<<< HEAD
      &         tst1 = slanhs( '1', i-l+1, h( l, l ), ldh, work )
+=======
+     &         tst1 = wslanhs( '1', i-l+1, h( l, l ), ldh, work )
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             if( abs( h( k, k-1 ) ).le.max( ulp*tst1, smlnum ) )
      &         go to 30
    20    continue

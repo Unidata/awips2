@@ -1,6 +1,17 @@
 !    -*- f90 -*-
 ! Author: Pearu Peterson <pearu@cens.ioc.ee>
 !
+<<<<<<< HEAD
+=======
+! All Fortran functions are marked as thread safe.
+! They do not contain any DATA, SAVE, COMMON or EQUIVALENCE statements
+! and do not allocate any local arrays larger than 160 bytes.
+! In current versions of gfortran, local variables smaller than 32768 bytes
+! are allocated on the stack by default.
+! This limit can be overridden with -fmax-stack-var-size, or -frecursive can
+! be used to force all local arrays to be allocated on the stack.
+!
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 python module dfitpack ! in
 
   usercode '''
@@ -64,7 +75,22 @@ static int calc_surfit_lwrk2(int m, int kx, int ky, int nxest, int nyest) {
  return u*v*(b2+1)+b2;
 }
 
+<<<<<<< HEAD
 static int calc_regrid_lwrk(int mx, int my, int kx, int ky, 
+=======
+static int calc_spherfit_lwrk1(int m, int ntest, int npest) {
+ int u = ntest-7;
+ int v = npest-7;
+ return 185+52*v+10*u+14*u*v+8*(u-1)*v*v+8*m;
+}
+static int calc_spherfit_lwrk2(int ntest, int npest) {
+ int u = ntest-7;
+ int v = npest-7;
+ return 48+21*v+7*u*v+4*(u-1)*v*v;
+}
+
+static int calc_regrid_lwrk(int mx, int my, int kx, int ky,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                             int nxest, int nyest) {
  int u = MAX(my, nxest);
  return 4+nxest*(my+2*kx+5)+nyest*(2*ky+5)+mx*(kx+1)+my*(ky+1)+u;
@@ -73,10 +99,28 @@ static int calc_regrid_lwrk(int mx, int my, int kx, int ky,
 
   interface
 
+<<<<<<< HEAD
      !!!!!!!!!! Univariate spline !!!!!!!!!!!
 
      subroutine splev(t,n,c,k,x,y,m,ier)
        ! y = splev(t,c,k,x)
+=======
+     subroutine fpchec(x,m,t,n,k,ier)
+       threadsafe
+       real*8 dimension(m),intent(in) :: x
+       integer intent(hide),depend(x) :: m=len(x)
+       real*8 dimension(n),intent(in) :: t
+       integer intent(hide),depend(t) :: n=len(t)
+       integer :: k
+       integer intent(out) :: ier
+     end subroutine fpchec
+
+     !!!!!!!!!! Univariate spline !!!!!!!!!!!
+
+     subroutine splev(t,n,c,k,x,y,m,e,ier)
+       ! y = splev(t,c,k,x,[e])
+       threadsafe
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
        real*8 dimension(n),intent(in) :: t
        integer intent(hide),depend(t) :: n=len(t)
        real*8 dimension(n),depend(n,k),check(len(c)==n),intent(in) :: c
@@ -84,11 +128,21 @@ static int calc_regrid_lwrk(int mx, int my, int kx, int ky,
        real*8 dimension(m),intent(in) :: x
        real*8 dimension(m),depend(m),intent(out) :: y
        integer intent(hide),depend(x) :: m=len(x)
+<<<<<<< HEAD
        integer intent(hide) :: ier
      end subroutine splev
 
      subroutine splder(t,n,c,k,nu,x,y,m,wrk,ier)
        ! dy = splder(t,c,k,x,[nu])
+=======
+       integer check(0<=e && e<=2) :: e=0
+       integer intent(hide) :: ier
+     end subroutine splev
+
+     subroutine splder(t,n,c,k,nu,x,y,m,e,wrk,ier)
+       ! dy = splder(t,c,k,x,[nu],[e])
+       threadsafe
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
        real*8 dimension(n) :: t
        integer depend(t),intent(hide) :: n=len(t)
        real*8 dimension(n),depend(n,k),check(len(c)==n),intent(in) :: c
@@ -97,12 +151,20 @@ static int calc_regrid_lwrk(int mx, int my, int kx, int ky,
        real*8 dimension(m) :: x
        real*8 dimension(m),depend(m),intent(out) :: y
        integer depend(x),intent(hide) :: m=len(x)
+<<<<<<< HEAD
+=======
+       integer check(0<=e && e<=2) :: e=0
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
        real*8 dimension(n),depend(n),intent(cache,hide) :: wrk
        integer intent(hide) :: ier
      end subroutine splder
 
      function splint(t,n,c,k,a,b,wrk)
        ! iy = splint(t,c,k,a,b)
+<<<<<<< HEAD
+=======
+       threadsafe
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
        real*8 dimension(n),intent(in) :: t
        integer intent(hide),depend(t) :: n=len(t)
        real*8 dimension(n),depend(n),check(len(c)==n) :: c
@@ -115,6 +177,10 @@ static int calc_regrid_lwrk(int mx, int my, int kx, int ky,
 
      subroutine sproot(t,n,c,zero,mest,m,ier)
        ! zero,m,ier = sproot(t,c[,mest])
+<<<<<<< HEAD
+=======
+       threadsafe
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
        real*8 dimension(n),intent(in) :: t
        integer intent(hide),depend(t),check(n>=8) :: n=len(t)
        real*8 dimension(n),depend(n),check(len(c)==n) :: c
@@ -127,6 +193,10 @@ static int calc_regrid_lwrk(int mx, int my, int kx, int ky,
      subroutine spalde(t,n,c,k,x,d,ier)
        ! d,ier = spalde(t,c,k,x)
 
+<<<<<<< HEAD
+=======
+       threadsafe
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
        callprotoargument double*,int*,double*,int*,double*,double*,int*
        callstatement {int k1=k+1; (*f2py_func)(t,&n,c,&k1,&x,d,&ier); }
 
@@ -141,6 +211,10 @@ static int calc_regrid_lwrk(int mx, int my, int kx, int ky,
 
      subroutine curfit(iopt,m,x,y,w,xb,xe,k,s,nest,n,t,c,fp,wrk,lwrk,iwrk,ier)
        ! in  curfit.f
+<<<<<<< HEAD
+=======
+       threadsafe
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
        integer :: iopt
        integer intent(hide),depend(x),check(m>k),depend(k) :: m=len(x)
        real*8 dimension(m) :: x
@@ -161,8 +235,14 @@ static int calc_regrid_lwrk(int mx, int my, int kx, int ky,
        integer intent(out) :: ier
      end subroutine curfit
 
+<<<<<<< HEAD
      subroutine percur(iopt,m,x,y,w,k,s,nest,n,t,c,fp,wrk,lwrk,iwrk,ier) 
        ! in percur.f
+=======
+     subroutine percur(iopt,m,x,y,w,k,s,nest,n,t,c,fp,wrk,lwrk,iwrk,ier)
+       ! in percur.f
+       threadsafe
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
        integer :: iopt
        integer intent(hide),depend(x),check(m>k),depend(k) :: m=len(x)
        real*8 dimension(m) :: x
@@ -180,10 +260,18 @@ static int calc_regrid_lwrk(int mx, int my, int kx, int ky,
        integer dimension(nest),intent(inout) :: iwrk
        integer intent(out) :: ier
      end subroutine percur
+<<<<<<< HEAD
      
 
      subroutine parcur(iopt,ipar,idim,m,u,mx,x,w,ub,ue,k,s,nest,n,t,nc,c,fp,wrk,lwrk,iwrk,ier) 
        ! in parcur.f
+=======
+
+
+     subroutine parcur(iopt,ipar,idim,m,u,mx,x,w,ub,ue,k,s,nest,n,t,nc,c,fp,wrk,lwrk,iwrk,ier)
+       ! in parcur.f
+       threadsafe
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
        integer check(iopt>=-1 && iopt <= 1):: iopt
        integer check(ipar == 1 || ipar == 0) :: ipar
        integer check(idim > 0 && idim < 11) :: idim
@@ -214,6 +302,10 @@ static int calc_regrid_lwrk(int mx, int my, int kx, int ky,
        !   fpcurf0(x,y,k,[w,xb,xe,s,nest])
 
        fortranname fpcurf
+<<<<<<< HEAD
+=======
+       threadsafe
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
        callprotoargument int*,double*,double*,double*,int*,double*,double*,int*,double*,int*,double*,int*,int*,int*,int*,double*,double*,double*,double*,double*,double*,double*,double*,double*,int*,int*
        callstatement (*f2py_func)(&iopt,x,y,w,&m,&xb,&xe,&k,&s,&nest,&tol,&maxit,&k1,&k2,&n,t,c,&fp,fpint,wrk,wrk+nest,wrk+nest*k2,wrk+nest*2*k2,wrk+nest*3*k2,nrdata,&ier)
 
@@ -246,6 +338,10 @@ static int calc_regrid_lwrk(int mx, int my, int kx, int ky,
        !   fpcurf1(x,y,w,xb,xe,k,s,n,t,c,fp,fpint,nrdata,ier)
 
        fortranname fpcurf
+<<<<<<< HEAD
+=======
+       threadsafe
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
        callprotoargument int*,double*,double*,double*,int*,double*,double*,int*,double*,int*,double*,int*,int*,int*,int*,double*,double*,double*,double*,double*,double*,double*,double*,double*,int*,int*
        callstatement (*f2py_func)(&iopt,x,y,w,&m,&xb,&xe,&k,&s,&nest,&tol,&maxit,&k1,&k2,&n,t,c,&fp,fpint,wrk,wrk+nest,wrk+nest*k2,wrk+nest*2*k2,wrk+nest*3*k2,nrdata,&ier)
 
@@ -278,6 +374,10 @@ static int calc_regrid_lwrk(int mx, int my, int kx, int ky,
        !   fpcurfm1(x,y,k,t,[w,xb,xe])
 
        fortranname fpcurf
+<<<<<<< HEAD
+=======
+       threadsafe
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
        callprotoargument int*,double*,double*,double*,int*,double*,double*,int*,double*,int*,double*,int*,int*,int*,int*,double*,double*,double*,double*,double*,double*,double*,double*,double*,int*,int*
        callstatement (*f2py_func)(&iopt,x,y,w,&m,&xb,&xe,&k,&s,&nest,&tol,&maxit,&k1,&k2,&n,t,c,&fp,fpint,wrk,wrk+nest,wrk+nest*k2,wrk+nest*2*k2,wrk+nest*3*k2,nrdata,&ier)
 
@@ -309,6 +409,10 @@ static int calc_regrid_lwrk(int mx, int my, int kx, int ky,
 
      subroutine bispev(tx,nx,ty,ny,c,kx,ky,x,mx,y,my,z,wrk,lwrk,iwrk,kwrk,ier)
        ! z,ier = bispev(tx,ty,c,kx,ky,x,y)
+<<<<<<< HEAD
+=======
+       threadsafe
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
        real*8 dimension(nx),intent(in) :: tx
        integer intent(hide),depend(tx) :: nx=len(tx)
        real*8 dimension(ny),intent(in) :: ty
@@ -329,8 +433,39 @@ static int calc_regrid_lwrk(int mx, int my, int kx, int ky,
        integer intent(out) :: ier
      end subroutine bispev
 
+<<<<<<< HEAD
      subroutine bispeu(tx,nx,ty,ny,c,kx,ky,x,y,z,m,wrk,lwrk,ier)
        ! z,ier = bispeu(tx,ty,c,kx,ky,x,y)
+=======
+     subroutine parder(tx,nx,ty,ny,c,kx,ky,nux,nuy,x,mx,y,my,z,wrk,lwrk,iwrk,kwrk,ier)
+       ! z,ier = parder(tx,ty,c,kx,ky,nux,nuy,x,y)
+       threadsafe
+       real*8 dimension(nx),intent(in) :: tx
+       integer intent(hide),depend(tx) :: nx=len(tx)
+       real*8 dimension(ny),intent(in) :: ty
+       integer intent(hide),depend(ty) :: ny=len(ty)
+       real*8 intent(in),dimension((nx-kx-1)*(ny-ky-1)),depend(nx,ny,kx,ky),&
+            check(len(c)==(nx-kx-1)*(ny-ky-1)):: c
+       integer :: kx
+       integer :: ky
+       integer :: nux
+       integer :: nuy
+       real*8 intent(in),dimension(mx) :: x
+       integer intent(hide),depend(x) :: mx=len(x)
+       real*8 intent(in),dimension(my) :: y
+       integer intent(hide),depend(y) :: my=len(y)
+       real*8 dimension(mx,my),depend(mx,my),intent(out,c) :: z
+       real*8 dimension(lwrk),depend(lwrk),intent(hide,cache) :: wrk
+       integer intent(hide),depend(mx,kx,my,ky,nx,ny) :: lwrk=(nx*ny)+(kx+1)*mx+(ky+1)*my
+       integer dimension(kwrk),depend(kwrk),intent(hide,cache) :: iwrk
+       integer intent(hide),depend(mx,my) :: kwrk=mx+my
+       integer intent(out) :: ier
+     end subroutine parder
+
+     subroutine bispeu(tx,nx,ty,ny,c,kx,ky,x,y,z,m,wrk,lwrk,ier)
+       ! z,ier = bispeu(tx,ty,c,kx,ky,x,y)
+       threadsafe
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
        real*8 dimension(nx),intent(in) :: tx
        integer intent(hide),depend(tx) :: nx=len(tx)
        real*8 dimension(ny),intent(in) :: ty
@@ -348,12 +483,43 @@ static int calc_regrid_lwrk(int mx, int my, int kx, int ky,
        integer intent(out) :: ier
      end subroutine bispeu
 
+<<<<<<< HEAD
+=======
+     subroutine pardeu(tx,nx,ty,ny,c,kx,ky,nux,nuy,x,y,z,m,wrk,lwrk,iwrk,kwrk,ier)
+       ! z,ier = pardeu(tx,ty,c,kx,ky,nux,nuy,x,y)
+       threadsafe
+       real*8 dimension(nx),intent(in) :: tx
+       integer intent(hide),depend(tx) :: nx=len(tx)
+       real*8 dimension(ny),intent(in) :: ty
+       integer intent(hide),depend(ty) :: ny=len(ty)
+       real*8 intent(in),dimension((nx-kx-1)*(ny-ky-1)),depend(nx,ny,kx,ky),&
+            check(len(c)==(nx-kx-1)*(ny-ky-1)):: c
+       integer :: kx
+       integer :: ky
+       integer :: nux
+       integer :: nuy
+       real*8 intent(in),dimension(m) :: x
+       real*8 intent(in),dimension(m) :: y
+       real*8 dimension(m),depend(m),intent(out,c) :: z
+       integer intent(hide),depend(x) :: m=len(x)
+       real*8 dimension(lwrk),depend(lwrk),intent(hide,cache) :: wrk
+       integer intent(hide),depend(m,kx,ky,nx,ny) :: lwrk=(nx*ny)+(kx+1)*m+(ky+1)*m
+       integer dimension(kwrk),depend(kwrk),intent(hide,cache) :: iwrk
+       integer intent(hide),depend(m) :: kwrk=m+m
+       integer intent(out) :: ier
+     end subroutine pardeu
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      subroutine surfit_smth(iopt,m,x,y,z,w,xb,xe,yb,ye,kx,ky,s,nxest,nyest,&
           nmax,eps,nx,tx,ny,ty,c,fp,wrk1,lwrk1,wrk2,lwrk2,&
           iwrk,kwrk,ier)
        !  nx,tx,ny,ty,c,fp,ier = surfit_smth(x,y,z,[w,xb,xe,yb,ye,kx,ky,s,eps,lwrk2])
 
        fortranname surfit
+<<<<<<< HEAD
+=======
+       threadsafe
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
        integer intent(hide) :: iopt=0
        integer intent(hide),depend(x,kx,ky),check(m>=(kx+1)*(ky+1)) &
@@ -400,6 +566,10 @@ static int calc_regrid_lwrk(int mx, int my, int kx, int ky,
        ! tx,ty,c,fp,ier = surfit_lsq(x,y,z,tx,ty,[w,xb,xe,yb,ye,kx,ky,eps,lwrk2])
 
        fortranname surfit
+<<<<<<< HEAD
+=======
+       threadsafe
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
        integer intent(hide) :: iopt=-1
        integer intent(hide),depend(x,kx,ky),check(m>=(kx+1)*(ky+1)) &
@@ -436,17 +606,100 @@ static int calc_regrid_lwrk(int mx, int my, int kx, int ky,
             :: kwrk=m+(nx-2*kx-1)*(ny-2*ky-1)
        integer intent(out) :: ier
      end subroutine surfit_lsq
+<<<<<<< HEAD
     
+=======
+
+     subroutine spherfit_smth(iopt,m,teta,phi,r,w,s,ntest,npest,eps,nt,tt,np,&
+          tp,c,fp,wrk1,lwrk1,wrk2,lwrk2,iwrk,kwrk,ier)
+       !  tt,tp,c,fp,ier = spherfit_smth(teta,phi,r,[w,s,eps])
+
+       fortranname sphere
+       threadsafe
+
+       integer intent(hide) :: iopt=0
+       integer intent(hide),depend(teta),check(m>=2) :: m=len(teta)
+       real*8 dimension(m) :: teta
+       real*8 dimension(m),depend(m),check(len(phi)==m) :: phi
+       real*8 dimension(m),depend(m),check(len(r)==m) :: r
+       real*8 optional,dimension(m),depend(m),check(len(w)==m) :: w = 1.0
+       real*8 optional,check(0.0<=s) :: s = m
+       integer intent(hide),depend(m),check(ntest>=8) :: ntest = 8+sqrt(m/2)
+       integer intent(hide),depend(m),check(npest>=8) :: npest = 8+sqrt(m/2)
+       real*8 optional,check(0.0<eps && eps<1.0) :: eps = 1e-16
+       integer intent(out) :: nt
+       real*8 dimension(ntest),intent(out),depend(ntest) :: tt
+       integer intent(out) :: np
+       real*8 dimension(npest),intent(out),depend(npest) :: tp
+       real*8 dimension((ntest-4)*(npest-4)), &
+            depend(ntest,npest),intent(out) :: c
+       real*8 intent(out) :: fp
+       real*8 dimension(lwrk1),intent(cache,hide),depend(lwrk1) :: wrk1
+       integer intent(hide),depend(m,ntest,npest) &
+            :: lwrk1=calc_spherfit_lwrk1(m,ntest,npest)
+       real*8 dimension(lwrk2),intent(cache,hide),depend(lwrk2) :: wrk2
+       integer intent(hide),depend(ntest,npest) &
+            :: lwrk2=calc_spherfit_lwrk2(ntest,npest)
+       integer dimension(kwrk),depend(kwrk),intent(cache,hide) :: iwrk
+       integer intent(hide),depend(m,ntest,npest) &
+            :: kwrk=m+(ntest-7)*(npest-7)
+       integer intent(out) :: ier
+     end subroutine spherfit_smth
+
+     subroutine spherfit_lsq(iopt,m,teta,phi,r,w,s,ntest,npest,eps,nt,tt,np,&
+          tp,c,fp,wrk1,lwrk1,wrk2,lwrk2,iwrk,kwrk,ier)
+       !  tt,tp,c,fp,ier = spherfit_lsq(teta,phi,r,tt,tp,[w,eps])
+
+       fortranname sphere
+       threadsafe
+
+       integer intent(hide) :: iopt=-1
+       integer intent(hide),depend(teta),check(m>=2) :: m=len(teta)
+       real*8 dimension(m) :: teta
+       real*8 dimension(m),depend(m),check(len(phi)==m) :: phi
+       real*8 dimension(m),depend(m),check(len(r)==m) :: r
+       real*8 optional,dimension(m),depend(m),check(len(w)==m) :: w = 1.0
+       real*8 intent(hide) :: s = 0.0
+       integer intent(hide),depend(tt) :: ntest = len(tt)
+       integer intent(hide),depend(tp),check(npest>=9) :: npest = len(tp)
+       real*8 optional,check(0.0<eps && eps<1.0) :: eps = 1e-16
+       integer intent(hide),depend(ntest) :: nt = ntest
+       real*8 dimension(ntest),intent(in,out,overwrite) :: tt
+       integer intent(hide),depend(npest) :: np = npest
+       real*8 dimension(npest),intent(in,out,overwrite) :: tp
+       real*8 dimension((nt-4)*(np-4)),intent(out),depend(nt,np) :: c
+       real*8 intent(out) :: fp
+       real*8 dimension(lwrk1),intent(cache,hide),depend(lwrk1) :: wrk1
+       integer intent(hide),depend(m,ntest,npest) &
+            :: lwrk1=calc_spherfit_lwrk1(m,ntest,npest)
+       real*8 dimension(lwrk2),intent(cache,hide),depend(lwrk2) :: wrk2
+       integer intent(hide),depend(ntest,npest) &
+            :: lwrk2=calc_spherfit_lwrk2(ntest,npest)
+       integer dimension(kwrk),depend(kwrk),intent(cache,hide) :: iwrk
+       integer intent(hide),depend(m,ntest,npest) &
+            :: kwrk=m+(ntest-7)*(npest-7)
+       integer intent(out) :: ier
+     end subroutine spherfit_lsq
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      subroutine regrid_smth(iopt,mx,x,my,y,z,xb,xe,yb,ye,kx,ky,s,&
         nxest,nyest,nx,tx,ny,ty,c,fp,wrk,lwrk,iwrk,kwrk,ier)
        !  nx,tx,ny,ty,c,fp,ier = regrid_smth(x,y,z,[xb,xe,yb,ye,kx,ky,s])
 
        fortranname regrid
+<<<<<<< HEAD
+=======
+       threadsafe
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
        integer intent(hide) :: iopt=0
        integer intent(hide),depend(x,kx),check(mx>kx) :: mx=len(x)
        real*8 dimension(mx) :: x
+<<<<<<< HEAD
        integer intent(hide),depend(y,ky),check(my>ky) :: my=len(y) 
+=======
+       integer intent(hide),depend(y,ky),check(my>ky) :: my=len(y)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
        real*8 dimension(my) :: y
        real*8 dimension(mx*my),depend(mx,my),check(len(z)==mx*my) :: z
        real*8 optional,depend(x,mx) :: xb=dmin(x,mx)
@@ -475,9 +728,53 @@ static int calc_regrid_lwrk(int mx, int my, int kx, int ky,
             :: kwrk=3+mx+my+nxest+nyest
        integer intent(out) :: ier
      end subroutine regrid_smth
+<<<<<<< HEAD
      
      function dblint(tx,nx,ty,ny,c,kx,ky,xb,xe,yb,ye,wrk)
        ! iy = dblint(tx,ty,c,kx,ky,xb,xe,yb,ye)
+=======
+ 
+     subroutine regrid_smth_spher(iopt,ider,mu,u,mv,v,r,r0,r1,s,nuest,nvest,&
+        nu,tu,nv,tv,c,fp,wrk,lwrk,iwrk,kwrk,ier)
+       !  nu,tu,nv,tv,c,fp,ier = regrid_smth_spher(u,v,r,[r0,r1,s])
+
+       fortranname spgrid
+       threadsafe
+
+       integer dimension(3) :: iopt
+       integer dimension(4) :: ider
+       integer intent(hide) :: mu=len(u)
+       real*8 dimension(mu) :: u
+       integer intent(hide) :: mv=len(v)
+       real*8 dimension(mv) :: v
+       real*8 dimension(mu*mv),depend(mu,mv),check(len(r)==mu*mv) :: r
+       real*8 optional :: r0
+       real*8 optional :: r1
+       real*8 optional,check(0.0<=s) :: s = 0.0
+       integer intent(hide),depend(mu),check(nuest>=8) &
+            :: nuest = mu+6
+       integer intent(hide),depend(mv),check(nvest>=8) &
+            :: nvest = mv+7
+       integer intent(out) :: nu
+       real*8 dimension(nuest),intent(out),depend(nuest) :: tu
+       integer intent(out) :: nv
+       real*8 dimension(nvest),intent(out),depend(nvest) :: tv
+       real*8 dimension((nuest-4)*(nvest-4)), &
+            depend(nuest,nvest),intent(out) :: c
+       real*8 intent(out) :: fp
+       real*8 dimension(lwrk),intent(cache,hide),depend(lwrk) :: wrk
+       integer intent(hide),depend(mu,mv,nuest,nvest) &
+            :: lwrk=12+nuest*(mv+nvest+3)+nvest*24+4*mu+8*mv+max(mv+nvest,nuest)
+       integer dimension(kwrk),intent(cache,hide),depend(kwrk) :: iwrk
+       integer intent(hide),depend(mu,mv,nuest,nvest) &
+            :: kwrk=5+mu+mv+nuest+nvest
+       integer intent(out) :: ier
+     end subroutine regrid_smth_spher
+
+     function dblint(tx,nx,ty,ny,c,kx,ky,xb,xe,yb,ye,wrk)
+       ! iy = dblint(tx,ty,c,kx,ky,xb,xe,yb,ye)
+       threadsafe
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
        real*8 dimension(nx),intent(in) :: tx
        integer intent(hide),depend(tx) :: nx=len(tx)
        real*8 dimension(ny),intent(in) :: ty

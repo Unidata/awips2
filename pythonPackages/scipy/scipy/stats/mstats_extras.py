@@ -1,4 +1,5 @@
 """
+<<<<<<< HEAD
 Additional statistics functions, with support to MA.
 
 :author: Pierre GF Gerard-Marchant
@@ -8,6 +9,16 @@ Additional statistics functions, with support to MA.
 """
 __author__ = "Pierre GF Gerard-Marchant"
 __docformat__ = "restructuredtext en"
+=======
+Additional statistics functions with support for masked arrays.
+
+"""
+
+# Original author (2007): Pierre GF Gerard-Marchant
+
+
+from __future__ import division, print_function, absolute_import
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 __all__ = ['compare_medians_ms',
@@ -17,17 +28,26 @@ __all__ = ['compare_medians_ms',
            'rsh',
            'trimmed_mean_ci',]
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 import numpy as np
 from numpy import float_, int_, ndarray
 
 import numpy.ma as ma
 from numpy.ma import MaskedArray
 
+<<<<<<< HEAD
 import mstats_basic as mstats
+=======
+from . import mstats_basic as mstats
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 from scipy.stats.distributions import norm, beta, t, binom
 
 
+<<<<<<< HEAD
 #####--------------------------------------------------------------------------
 #---- --- Quantiles ---
 #####--------------------------------------------------------------------------
@@ -54,6 +74,33 @@ Returns
 Notes
 -----
     The function is restricted to 2D arrays.
+=======
+def hdquantiles(data, prob=list([.25,.5,.75]), axis=None, var=False,):
+    """
+    Computes quantile estimates with the Harrell-Davis method.
+
+    The quantile estimates are calculated as a weighted linear combination
+    of order statistics.
+
+    Parameters
+    ----------
+    data : array_like
+        Data array.
+    prob : sequence, optional
+        Sequence of quantiles to compute.
+    axis : int or None, optional
+        Axis along which to compute the quantiles. If None, use a flattened
+        array.
+    var : bool, optional
+        Whether to return the variance of the estimate.
+
+    Returns
+    -------
+    hdquantiles : MaskedArray
+        A (p,) array of quantiles (if `var` is False), or a (2,p) array of
+        quantiles and variances (if `var` is True), where ``p`` is the
+        number of quantiles.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     """
     def _hd_1D(data,prob,var):
@@ -61,14 +108,22 @@ Notes
         xsorted = np.squeeze(np.sort(data.compressed().view(ndarray)))
         # Don't use length here, in case we have a numpy scalar
         n = xsorted.size
+<<<<<<< HEAD
         #.........
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         hd = np.empty((2,len(prob)), float_)
         if n < 2:
             hd.flat = np.nan
             if var:
                 return hd
             return hd[0]
+<<<<<<< HEAD
         #.........
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         v = np.arange(n+1) / float(n)
         betacdf = beta.cdf
         for (i,p) in enumerate(prob):
@@ -85,13 +140,18 @@ Notes
             hd[1, prob == 0] = hd[1, prob == 1] = np.nan
             return hd
         return hd[0]
+<<<<<<< HEAD
     # Initialization & checks ---------
+=======
+    # Initialization & checks
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     data = ma.array(data, copy=False, dtype=float_)
     p = np.array(prob, copy=False, ndmin=1)
     # Computes quantiles along axis (or globally)
     if (axis is None) or (data.ndim == 1):
         result = _hd_1D(data, p, var)
     else:
+<<<<<<< HEAD
         assert data.ndim <= 2, "Array should be 2D at most !"
         result = ma.apply_along_axis(_hd_1D, axis, data, p, var)
     #
@@ -108,6 +168,28 @@ Parameters
     axis : int
         Axis along which to compute the quantiles. If None, use a flattened array.
     var : boolean
+=======
+        if data.ndim > 2:
+            raise ValueError("Array 'data' must be at most two dimensional, "
+                             "but got data.ndim = %d" % data.ndim)
+        result = ma.apply_along_axis(_hd_1D, axis, data, p, var)
+
+    return ma.fix_invalid(result, copy=False)
+
+
+def hdmedian(data, axis=-1, var=False):
+    """
+    Returns the Harrell-Davis estimate of the median along the given axis.
+
+    Parameters
+    ----------
+    data : ndarray
+        Data array.
+    axis : int, optional
+        Axis along which to compute the quantiles. If None, use a flattened
+        array.
+    var : bool, optional
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         Whether to return the variance of the estimate.
 
     """
@@ -115,6 +197,7 @@ Parameters
     return result.squeeze()
 
 
+<<<<<<< HEAD
 #..............................................................................
 def hdquantiles_sd(data, prob=list([.25,.5,.75]), axis=None):
     """Computes the standard error of the Harrell-Davis quantile estimates by jackknife.
@@ -132,6 +215,26 @@ Parameters
 Notes
 -----
     The function is restricted to 2D arrays.
+=======
+def hdquantiles_sd(data, prob=list([.25,.5,.75]), axis=None):
+    """
+    The standard error of the Harrell-Davis quantile estimates by jackknife.
+
+    Parameters
+    ----------
+    data : array_like
+        Data array.
+    prob : sequence, optional
+        Sequence of quantiles to compute.
+    axis : int, optional
+        Axis along which to compute the quantiles. If None, use a flattened
+        array.
+
+    Returns
+    -------
+    hdquantiles_sd : MaskedArray
+        Standard error of the Harrell-Davis quantile estimates.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     """
     def _hdsd_1D(data,prob):
@@ -142,6 +245,7 @@ Notes
         hdsd = np.empty(len(prob), float_)
         if n < 2:
             hdsd.flat = np.nan
+<<<<<<< HEAD
         #.........
         vv = np.arange(n) / float(n-1)
         betacdf = beta.cdf
@@ -151,17 +255,33 @@ Notes
             w = _w[1:] - _w[:-1]
             mx_ = np.fromiter([np.dot(w,xsorted[np.r_[range(0,k),
                                                       range(k+1,n)].astype(int_)])
+=======
+
+        vv = np.arange(n) / float(n-1)
+        betacdf = beta.cdf
+
+        for (i,p) in enumerate(prob):
+            _w = betacdf(vv, (n+1)*p, (n+1)*(1-p))
+            w = _w[1:] - _w[:-1]
+            mx_ = np.fromiter([np.dot(w,xsorted[np.r_[list(range(0,k)),
+                                                      list(range(k+1,n))].astype(int_)])
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                                   for k in range(n)], dtype=float_)
             mx_var = np.array(mx_.var(), copy=False, ndmin=1) * n / float(n-1)
             hdsd[i] = float(n-1) * np.sqrt(np.diag(mx_var).diagonal() / float(n))
         return hdsd
+<<<<<<< HEAD
     # Initialization & checks ---------
+=======
+    # Initialization & checks
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     data = ma.array(data, copy=False, dtype=float_)
     p = np.array(prob, copy=False, ndmin=1)
     # Computes quantiles along axis (or globally)
     if (axis is None):
         result = _hdsd_1D(data, p)
     else:
+<<<<<<< HEAD
         assert data.ndim <= 2, "Array should be 2D at most !"
         result = ma.apply_along_axis(_hdsd_1D, axis, data, p)
     #
@@ -193,6 +313,56 @@ Parameters
         on each side should be rounded (True) or truncated (False).
     axis : int
         Axis along which to cut. If None, uses a flattened version of the input.
+=======
+        if data.ndim > 2:
+            raise ValueError("Array 'data' must be at most two dimensional, "
+                             "but got data.ndim = %d" % data.ndim)
+        result = ma.apply_along_axis(_hdsd_1D, axis, data, p)
+
+    return ma.fix_invalid(result, copy=False).ravel()
+
+
+def trimmed_mean_ci(data, limits=(0.2,0.2), inclusive=(True,True),
+                    alpha=0.05, axis=None):
+    """
+    Selected confidence interval of the trimmed mean along the given axis.
+
+    Parameters
+    ----------
+    data : array_like
+        Input data.
+    limits : {None, tuple}, optional
+        None or a two item tuple.
+        Tuple of the percentages to cut on each side of the array, with respect
+        to the number of unmasked data, as floats between 0. and 1. If ``n``
+        is the number of unmasked data before trimming, then
+        (``n * limits[0]``)th smallest data and (``n * limits[1]``)th
+        largest data are masked.  The total number of unmasked data after
+        trimming is ``n * (1. - sum(limits))``.
+        The value of one limit can be set to None to indicate an open interval.
+
+        Defaults to (0.2, 0.2).
+    inclusive : (2,) tuple of boolean, optional
+        If relative==False, tuple indicating whether values exactly equal to
+        the absolute limits are allowed.
+        If relative==True, tuple indicating whether the number of data being
+        masked on each side should be rounded (True) or truncated (False).
+
+        Defaults to (True, True).
+    alpha : float, optional
+        Confidence level of the intervals.
+
+        Defaults to 0.05.
+    axis : int, optional
+        Axis along which to cut. If None, uses a flattened version of `data`.
+
+        Defaults to None.
+
+    Returns
+    -------
+    trimmed_mean_ci : (2,) ndarray
+        The lower and upper confidence intervals of the trimmed data.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     """
     data = ma.array(data, copy=False)
@@ -203,6 +373,7 @@ Parameters
     tppf = t.ppf(1-alpha/2.,df)
     return np.array((tmean - tppf*tstde, tmean+tppf*tstde))
 
+<<<<<<< HEAD
 #..............................................................................
 def mjci(data, prob=[0.25,0.5,0.75], axis=None):
     """Returns the Maritz-Jarrett estimators of the standard error of selected
@@ -216,6 +387,23 @@ Parameters
         Sequence of quantiles to compute.
     axis : int
         Axis along which to compute the quantiles. If None, use a flattened array.
+=======
+
+def mjci(data, prob=[0.25,0.5,0.75], axis=None):
+    """
+    Returns the Maritz-Jarrett estimators of the standard error of selected
+    experimental quantiles of the data.
+
+    Parameters
+    ----------
+    data : ndarray
+        Data array.
+    prob : sequence, optional
+        Sequence of quantiles to compute.
+    axis : int or None, optional
+        Axis along which to compute the quantiles. If None, use a flattened
+        array.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     """
     def _mjci_1D(data, p):
@@ -223,20 +411,36 @@ Parameters
         n = data.size
         prob = (np.array(p) * n + 0.5).astype(int_)
         betacdf = beta.cdf
+<<<<<<< HEAD
         #
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         mj = np.empty(len(prob), float_)
         x = np.arange(1,n+1, dtype=float_) / n
         y = x - 1./n
         for (i,m) in enumerate(prob):
+<<<<<<< HEAD
             (m1,m2) = (m-1, n-m)
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             W = betacdf(x,m-1,n-m) - betacdf(y,m-1,n-m)
             C1 = np.dot(W,data)
             C2 = np.dot(W,data**2)
             mj[i] = np.sqrt(C2 - C1**2)
         return mj
+<<<<<<< HEAD
     #
     data = ma.array(data, copy=False)
     assert data.ndim <= 2, "Array should be 2D at most !"
+=======
+
+    data = ma.array(data, copy=False)
+    if data.ndim > 2:
+        raise ValueError("Array 'data' must be at most two dimensional, "
+                         "but got data.ndim = %d" % data.ndim)
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     p = np.array(prob, copy=False, ndmin=1)
     # Computes quantiles along axis (or globally)
     if (axis is None):
@@ -244,7 +448,11 @@ Parameters
     else:
         return ma.apply_along_axis(_mjci_1D, axis, data, p)
 
+<<<<<<< HEAD
 #..............................................................................
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def mquantiles_cimj(data, prob=[0.25,0.50,0.75], alpha=0.05, axis=None):
     """
     Computes the alpha confidence interval for the selected quantiles of the
@@ -252,6 +460,7 @@ def mquantiles_cimj(data, prob=[0.25,0.50,0.75], alpha=0.05, axis=None):
 
     Parameters
     ----------
+<<<<<<< HEAD
     data: ndarray
         Data array.
     prob: sequence
@@ -259,6 +468,15 @@ def mquantiles_cimj(data, prob=[0.25,0.50,0.75], alpha=0.05, axis=None):
     alpha : float
         Confidence level of the intervals.
     axis : integer
+=======
+    data : ndarray
+        Data array.
+    prob : sequence, optional
+        Sequence of quantiles to compute.
+    alpha : float, optional
+        Confidence level of the intervals.
+    axis : int or None, optional
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         Axis along which to compute the quantiles.
         If None, use a flattened array.
 
@@ -270,6 +488,7 @@ def mquantiles_cimj(data, prob=[0.25,0.50,0.75], alpha=0.05, axis=None):
     return (xq - z * smj, xq + z * smj)
 
 
+<<<<<<< HEAD
 #.............................................................................
 def median_cihs(data, alpha=0.05, axis=None):
     """Computes the alpha-level confidence interval for the median of the data,
@@ -284,6 +503,30 @@ Parameters
         Confidence level of the intervals.
     axis : integer
         Axis along which to compute the quantiles. If None, use a flattened array.
+=======
+def median_cihs(data, alpha=0.05, axis=None):
+    """
+    Computes the alpha-level confidence interval for the median of the data.
+
+    Uses the Hettmasperger-Sheather method.
+
+    Parameters
+    ----------
+    data : array_like
+        Input data. Masked values are discarded. The input should be 1D only,
+        or `axis` should be set to None.
+    alpha : float, optional
+        Confidence level of the intervals.
+    axis : int or None, optional
+        Axis along which to compute the quantiles. If None, use a flattened
+        array.
+
+    Returns
+    -------
+    median_cihs :
+        Alpha level confidence interval.
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     """
     def _cihs_1D(data, alpha):
         data = np.sort(data.compressed())
@@ -305,6 +548,7 @@ Parameters
     if (axis is None):
         result = _cihs_1D(data.compressed(), alpha)
     else:
+<<<<<<< HEAD
         assert data.ndim <= 2, "Array should be 2D at most !"
         result = ma.apply_along_axis(_cihs_1D, axis, data, alpha)
     #
@@ -329,6 +573,40 @@ Parameters
 Returns
 -------
     A (p,) array of comparison values.
+=======
+        if data.ndim > 2:
+            raise ValueError("Array 'data' must be at most two dimensional, "
+                             "but got data.ndim = %d" % data.ndim)
+        result = ma.apply_along_axis(_cihs_1D, axis, data, alpha)
+
+    return result
+
+
+def compare_medians_ms(group_1, group_2, axis=None):
+    """
+    Compares the medians from two independent groups along the given axis.
+
+    The comparison is performed using the McKean-Schrader estimate of the
+    standard error of the medians.
+
+    Parameters
+    ----------
+    group_1 : array_like
+        First dataset.
+    group_2 : array_like
+        Second dataset.
+    axis : int, optional
+        Axis along which the medians are estimated. If None, the arrays are
+        flattened.  If `axis` is not None, then `group_1` and `group_2`
+        should have the same shape.
+
+    Returns
+    -------
+    compare_medians_ms : {float, ndarray}
+        If `axis` is None, then returns a float, otherwise returns a 1-D
+        ndarray of floats with a length equal to the length of `group_1`
+        along `axis`.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     """
     (med_1, med_2) = (ma.median(group_1,axis=axis), ma.median(group_2,axis=axis))
@@ -339,8 +617,31 @@ Returns
 
 
 def idealfourths(data, axis=None):
+<<<<<<< HEAD
     """Returns an estimate of the lower and upper quartiles of the data along
     the given axis, as computed with the ideal fourths.
+=======
+    """
+    Returns an estimate of the lower and upper quartiles.
+
+    Uses the ideal fourths algorithm.
+
+    Parameters
+    ----------
+    data : array_like
+        Input array.
+    axis : int, optional
+        Axis along which the quartiles are estimated. If None, the arrays are
+        flattened.
+
+    Returns
+    -------
+    idealfourths : {list of floats, masked array}
+        Returns the two internal values that divide `data` into four parts
+        using the ideal fourths algorithm either along the flattened array
+        (if `axis` is None) or along `axis` of `data`.
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     """
     def _idf(data):
         x = data.compressed()
@@ -348,6 +649,10 @@ def idealfourths(data, axis=None):
         if n < 3:
             return [np.nan,np.nan]
         (j,h) = divmod(n/4. + 5/12.,1)
+<<<<<<< HEAD
+=======
+        j = int(j)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         qlo = (1-h)*x[j-1] + h*x[j]
         k = n - j
         qup = (1-h)*x[k] + h*x[k-1]
@@ -360,6 +665,7 @@ def idealfourths(data, axis=None):
 
 
 def rsh(data, points=None):
+<<<<<<< HEAD
     """Evaluates Rosenblatt's shifted histogram estimators for each point
 on the dataset 'data'.
 
@@ -369,20 +675,44 @@ Parameters
     points : sequence
         Sequence of points where to evaluate Rosenblatt shifted histogram.
         If None, use the data.
+=======
+    """
+    Evaluates Rosenblatt's shifted histogram estimators for each point
+    on the dataset 'data'.
+
+    Parameters
+    ----------
+    data : sequence
+        Input data. Masked values are ignored.
+    points : sequence or None, optional
+        Sequence of points where to evaluate Rosenblatt shifted histogram.
+        If None, use the data.
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     """
     data = ma.array(data, copy=False)
     if points is None:
         points = data
     else:
         points = np.array(points, copy=False, ndmin=1)
+<<<<<<< HEAD
     if data.ndim != 1:
         raise AttributeError("The input array should be 1D only !")
+=======
+
+    if data.ndim != 1:
+        raise AttributeError("The input array should be 1D only !")
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     n = data.count()
     r = idealfourths(data, axis=None)
     h = 1.2 * (r[-1]-r[0]) / n**(1./5)
     nhi = (data[:,None] <= points[None,:] + h).sum(0)
     nlo = (data[:,None] < points[None,:] - h).sum(0)
     return (nhi-nlo) / (2.*n*h)
+<<<<<<< HEAD
 
 
 ###############################################################################
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

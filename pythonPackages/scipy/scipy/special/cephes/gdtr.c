@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*							gdtr.c
  *
  *	Gamma distribution function
+=======
+/*                                                     gdtr.c
+ *
+ *     Gamma distribution function
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
  *
  *
  *
@@ -87,6 +93,7 @@
  *
  */
 
+<<<<<<< HEAD
 /*							gdtr()  */
 
 
@@ -135,4 +142,51 @@ if ((y < 0.0) || (y > 1.0) || (a <= 0.0) || (b < 0.0))
   }
 
 return ( igami (b, 1.0-y) / a);
+=======
+/*                                                     gdtr()  */
+
+
+/*
+ * Cephes Math Library Release 2.3:  March,1995
+ * Copyright 1984, 1987, 1995 by Stephen L. Moshier
+ */
+
+#include "mconf.h"
+double gdtri(double, double, double);
+
+double gdtr(a, b, x)
+double a, b, x;
+{
+
+    if (x < 0.0) {
+	mtherr("gdtr", DOMAIN);
+	return (NPY_NAN);
+    }
+    return (igam(b, a * x));
+}
+
+
+double gdtrc(a, b, x)
+double a, b, x;
+{
+
+    if (x < 0.0) {
+	mtherr("gdtrc", DOMAIN);
+	return (NPY_NAN);
+    }
+    return (igamc(b, a * x));
+}
+
+
+double gdtri(a, b, y)
+double a, b, y;
+{
+
+    if ((y < 0.0) || (y > 1.0) || (a <= 0.0) || (b < 0.0)) {
+	mtherr("gdtri", DOMAIN);
+	return (NPY_NAN);
+    }
+
+    return (igami(b, 1.0 - y) / a);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 }

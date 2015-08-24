@@ -1,4 +1,11 @@
+<<<<<<< HEAD
 from ast_tools import token, symbol, ast_to_string, match, atom_list
+=======
+from __future__ import absolute_import, print_function
+
+from .ast_tools import token, symbol, ast_to_string, match, atom_list
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 def slice_ast_to_dict(ast_seq):
     sl_vars = {}
@@ -10,21 +17,36 @@ def slice_ast_to_dict(ast_seq):
                            'end':'_end',
                            'step':'_stp',
                            'single_index':'_index'}
+<<<<<<< HEAD
                 for key in data.keys():
                     data[key] = ast_to_string(data[key])
                 sl_vars.update(data)
                 break;
     return sl_vars
 
+=======
+                for key in data:
+                    data[key] = ast_to_string(data[key])
+                sl_vars.update(data)
+                break
+    return sl_vars
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def build_slice_atom(slice_vars, position):
     # Note: This produces slices that are incorrect for Python
     # evaluation because of slicing being exclusive in Python
     # and inclusive for blitz on the top end of the range.
     # This difference should really be handle in a blitz specific transform,
     # but I've put it here for convenience. This doesn't cause any
+<<<<<<< HEAD
     # problems in code, its just a maintance hassle (I'll forget I did it here)
     # and inelegant.  *FIX ME*.
 
+=======
+    # problems in code, its just a maintenance hassle
+    # (I'll forget I did it here) and inelegant.  *FIX ME*.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     ###########################################################################
     #                        Handling negative indices.
@@ -52,7 +74,11 @@ def build_slice_atom(slice_vars, position):
     else:
         begin = slice_vars['begin'].strip()
         if begin[0] == '-':
+<<<<<<< HEAD
             slice_vars['begin'] = 'N' + slice_vars['var']+`position`+begin;
+=======
+            slice_vars['begin'] = 'N' + slice_vars['var']+repr(position)+begin
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         end = slice_vars['end'].strip()
         if end != '_end' and end[0] != '-':
@@ -68,9 +94,16 @@ def build_slice_atom(slice_vars, position):
             expr = 'slice(%(begin)s,%(end)s)' % slice_vars
         else:
             expr = 'slice(%(begin)s,%(end)s,%(step)s)' % slice_vars
+<<<<<<< HEAD
     val =  atom_list(expr)
     return val
 
+=======
+    val = atom_list(expr)
+    return val
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def transform_subscript_list(subscript_dict):
     # this is gonna edit the ast_list...
     subscript_list = subscript_dict['subscript_list']
@@ -89,6 +122,10 @@ def transform_subscript_list(subscript_dict):
             # place of the x:y:z atom in the tree.
             subscript_list[i] = build_slice_atom(slice_vars, slice_position)
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def harvest_subscript_dicts(ast_list):
     """ Needs Tests!
     """
@@ -104,6 +141,10 @@ def harvest_subscript_dicts(ast_list):
                 subscript_lists.extend(harvest_subscript_dicts(item))
     return subscript_lists
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def transform_slices(ast_list):
     """ Walk through an ast_list converting all x:y:z subscripts
         to slice(x,y,z) subscripts.
@@ -114,6 +155,7 @@ def transform_slices(ast_list):
 
 slice_patterns = []
 CLN = (token.COLON,':')
+<<<<<<< HEAD
 CLN2= (symbol.sliceop, (token.COLON, ':'))
 CLN2_STEP = (symbol.sliceop, (token.COLON, ':'),['step'])
 # [begin:end:step]
@@ -138,6 +180,32 @@ slice_patterns.append((symbol.subscript, ['begin'],CLN,['end']))
 slice_patterns.append((symbol.subscript,           CLN,['end']))
 slice_patterns.append((symbol.subscript, ['begin'],CLN))
 slice_patterns.append((symbol.subscript,           CLN))
+=======
+CLN2 = (symbol.sliceop, (token.COLON, ':'))
+CLN2_STEP = (symbol.sliceop, (token.COLON, ':'),['step'])
+# [begin:end:step]
+slice_patterns.append((symbol.subscript, ['begin'],CLN,['end'], CLN2_STEP))
+# [:end:step]
+slice_patterns.append((symbol.subscript, CLN,['end'], CLN2_STEP))
+# [begin::step]
+slice_patterns.append((symbol.subscript, ['begin'],CLN, CLN2_STEP))
+# [begin:end:]
+slice_patterns.append((symbol.subscript, ['begin'],CLN,['end'], CLN2))
+# [begin::]
+slice_patterns.append((symbol.subscript, ['begin'],CLN, CLN2))
+# [:end:]
+slice_patterns.append((symbol.subscript, CLN,['end'], CLN2,))
+# [::step]
+slice_patterns.append((symbol.subscript, CLN, CLN2_STEP))
+# [::]
+slice_patterns.append((symbol.subscript, CLN, CLN2))
+
+# begin:end variants
+slice_patterns.append((symbol.subscript, ['begin'],CLN,['end']))
+slice_patterns.append((symbol.subscript, CLN,['end']))
+slice_patterns.append((symbol.subscript, ['begin'],CLN))
+slice_patterns.append((symbol.subscript, CLN))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 # a[0] variant -- can't believe I left this out...
 slice_patterns.append((symbol.subscript,['single_index']))
@@ -149,5 +217,10 @@ indexed_array_pattern = \
                 (token.LSQB, '['),
                    ['subscript_list'],
                 (token.RSQB, ']')
+<<<<<<< HEAD
              )
            )
+=======
+              )
+            )
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

@@ -1017,9 +1017,15 @@ C  DVNORM    computes the weighted r.m.s. norm of a vector.
 C  DVSRCO    is a user-callable routine to save and restore
 C            the contents of the internal COMMON blocks.
 C  DACOPY    is a routine to copy one two-dimensional array to another.
+<<<<<<< HEAD
 C  DGEFA and DGESL   are routines from LINPACK for solving full
 C            systems of linear algebraic equations.
 C  DGBFA and DGBSL   are routines from LINPACK for solving banded
+=======
+C  DGETRF and DGETRS   are routines from LAPACK for solving full
+C            systems of linear algebraic equations.
+C  DGBTRF and DGBTRS   are routines from LAPACK for solving banded
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C            linear systems.
 C  DAXPY, DSCAL, and DCOPY are basic linear algebra modules (BLAS).
 C  D1MACH    sets the unit roundoff of the machine.
@@ -2981,7 +2987,11 @@ C     /DVOD01/  CCMXJ, DRC, H, RL1, TN, UROUND, ICF, JCUR, LOCJS,
 C               MITER, MSBJ, N, NSLJ
 C     /DVOD02/  NFE, NST, NJE, NLU
 C
+<<<<<<< HEAD
 C Subroutines called by DVJAC.. F, JAC, DACOPY, DCOPY, DGBFA, DGEFA,
+=======
+C Subroutines called by DVJAC.. F, JAC, DACOPY, DCOPY, DGBTRF, DGETRF,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C                              DSCAL
 C Function routines called by DVJAC.. DVNORM
 C-----------------------------------------------------------------------
@@ -2996,7 +3006,11 @@ C considered acceptable, then P is constructed from the saved J.
 C J is stored in wm and replaced by P.  If MITER .ne. 3, P is then
 C subjected to LU decomposition in preparation for later solution
 C of linear systems with P as coefficient matrix. This is done
+<<<<<<< HEAD
 C by DGEFA if MITER = 1 or 2, and by DGBFA if MITER = 4 or 5.
+=======
+C by DGETRF if MITER = 1 or 2, and by DGBTRF if MITER = 4 or 5.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C
 C Communication with DVJAC is done with the following variables.  (For
 C more details, please see the comments in the driver subroutine.)
@@ -3138,7 +3152,13 @@ C Multiply Jacobian by scalar, add identity, and do LU decomposition. --
         WM(J) = WM(J) + ONE
  250    J = J + NP1
       NLU = NLU + 1
+<<<<<<< HEAD
       CALL DGEFA (WM(3), N, N, IWM(31), IER)
+=======
+c     Replaced LINPACK dgefa with LAPACK dgetrf
+c      CALL DGEFA (WM(3), N, N, IWM(31), IER)
+      CALL DGETRF (N, N, WM(3), N, IWM(31), IER)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       IF (IER .NE. 0) IERPJ = 1
       RETURN
       ENDIF
@@ -3235,7 +3255,13 @@ C Multiply Jacobian by scalar, add identity, and do LU decomposition.
         WM(II) = WM(II) + ONE
  580    II = II + MEBAND
       NLU = NLU + 1
+<<<<<<< HEAD
       CALL DGBFA (WM(3), MEBAND, N, ML, MU, IWM(31), IER)
+=======
+c     Replaced LINPACK dgbfa with LAPACK dgbtrf
+c      CALL DGBFA (WM(3), MEBAND, N, ML, MU, IWM(31), IER)
+      CALL DGBTRF (N, N, ML, MU, WM(3), MEBAND, IWM(31), IER)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       IF (IER .NE. 0) IERPJ = 1
       RETURN
 C End of code block for MITER = 4 or 5. --------------------------------
@@ -3279,15 +3305,26 @@ C Call sequence output -- X, IERSL
 C COMMON block variables accessed..
 C     /DVOD01/ -- H, RL1, MITER, N
 C
+<<<<<<< HEAD
 C Subroutines called by DVSOL.. DGESL, DGBSL
+=======
+C Subroutines called by DVSOL.. DGETRS, DGBTRS
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C Function routines called by DVSOL.. None
 C-----------------------------------------------------------------------
 C This routine manages the solution of the linear system arising from
 C a chord iteration.  It is called if MITER .ne. 0.
+<<<<<<< HEAD
 C If MITER is 1 or 2, it calls DGESL to accomplish this.
 C If MITER = 3 it updates the coefficient H*RL1 in the diagonal
 C matrix, and then computes the solution.
 C If MITER is 4 or 5, it calls DGBSL.
+=======
+C If MITER is 1 or 2, it calls DGETRS to accomplish this.
+C If MITER = 3 it updates the coefficient H*RL1 in the diagonal
+C matrix, and then computes the solution.
+C If MITER is 4 or 5, it calls DGBTRS.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 C Communication with DVSOL uses the following variables..
 C WM    = Real work space containing the inverse diagonal matrix if
 C         MITER = 3 and the LU decomposition of the matrix otherwise.
@@ -3338,7 +3375,13 @@ C
 C
       IERSL = 0
       GO TO (100, 100, 300, 400, 400), MITER
+<<<<<<< HEAD
  100  CALL DGESL (WM(3), N, N, IWM(31), X, 0)
+=======
+c     Replaced LINPACK dgesl with LAPACK dgetrs
+c 100  CALL DGESL (WM(3), N, N, IWM(31), X, 0)
+ 100  CALL DGETRS ('N', N, 1, WM(3), N, IWM(31), X, N, IER)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       RETURN
 C
  300  PHRL1 = WM(2)
@@ -3360,7 +3403,13 @@ C
  400  ML = IWM(1)
       MU = IWM(2)
       MEBAND = 2*ML + MU + 1
+<<<<<<< HEAD
       CALL DGBSL (WM(3), MEBAND, N, ML, MU, IWM(31), X, 0)
+=======
+c     Replaced LINPACK dgbsl with LAPACK dgbtrs
+c      CALL DGBSL (WM(3), MEBAND, N, ML, MU, IWM(31), X, 0)
+      CALL DGBTRS ('N', N, ML, MU, 1, WM(3), MEBAND, IWM(31), X, N, IER)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       RETURN
 C----------------------- End of Subroutine DVSOL -----------------------
       END

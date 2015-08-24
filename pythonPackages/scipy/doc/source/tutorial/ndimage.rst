@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 Multi-dimensional image processing (:mod:`ndimage`)
 ===================================================
+=======
+Multidimensional image processing (`scipy.ndimage`)
+====================================================
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 .. moduleauthor:: Peter Verveer <verveer@users.sourceforge.net>
 
@@ -15,7 +20,11 @@ two-dimensional arrays of values. There are however a number of
 fields where images of higher dimensionality must be analyzed. Good
 examples of these are medical imaging and biological imaging.
 :mod:`numpy` is suited very well for this type of applications due
+<<<<<<< HEAD
 its inherent multi-dimensional nature. The :mod:`scipy.ndimage`
+=======
+its inherent multidimensional nature. The :mod:`scipy.ndimage`
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 packages provides a number of general image processing and analysis
 functions that are designed to operate with arrays of arbitrary
 dimensionality. The packages currently includes functions for
@@ -45,12 +54,19 @@ desired `numpy` type object to the output argument. For example:
 
 ::
 
+<<<<<<< HEAD
     >>> print correlate(arange(10), [1, 2.5])
     [ 0  2  6  9 13 16 20 23 27 30]
     >>> print correlate(arange(10), [1, 2.5], output = Float64)
     [  0.    2.5   6.    9.5  13.   16.5  20.   23.5  27.   30.5]
 
 .. note:: In previous versions of :mod:`scipy.ndimage`, some functions accepted the *output_type* argument to achieve the same effect. This argument is still supported, but its use will generate an deprecation warning. In a future version all instances of this argument will be removed. The preferred way to specify an output type, is by using the *output* argument, either by specifying an output array of the desired type, or by specifying the type of the output that is to be returned.
+=======
+    >>> correlate(np.arange(10), [1, 2.5])
+    array([ 0,  2,  6,  9, 13, 16, 20, 23, 27, 30])
+    >>> correlate(np.arange(10), [1, 2.5], output=np.float64)
+    array([  0. ,   2.5,   6. ,   9.5,  13. ,  16.5,  20. ,  23.5,  27. ,  30.5])
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 .. _ndimage-filter-functions:
 
@@ -59,7 +75,14 @@ Filter functions
 
 .. currentmodule:: scipy.ndimage.filters
 
+<<<<<<< HEAD
 The functions described in this section all perform some type of spatial filtering of the the input array: the elements in the output are some function of the values in the neighborhood of the corresponding input element. We refer to this neighborhood of elements as the filter kernel, which is often
+=======
+The functions described in this section all perform some type of spatial
+filtering of the input array: the elements in the output are some function
+of the values in the neighborhood of the corresponding input element. We refer
+to this neighborhood of elements as the filter kernel, which is often
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 rectangular in shape but may also have an arbitrary footprint. Many
 of the functions described below allow you to define the footprint
 of the kernel, by passing a mask through the *footprint* parameter.
@@ -68,10 +91,17 @@ For example a cross shaped kernel can be defined as follows:
 ::
 
     >>> footprint = array([[0,1,0],[1,1,1],[0,1,0]])
+<<<<<<< HEAD
     >>> print footprint
     [[0 1 0]
      [1 1 1]
      [0 1 0]]
+=======
+    >>> footprint
+    array([[0, 1, 0],
+           [1, 1, 1],
+           [0, 1, 0]])
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 Usually the origin of the kernel is at the center calculated by
 dividing the dimensions of the kernel shape by two. For instance,
@@ -84,7 +114,11 @@ ones:
 
     >>> a = [0, 0, 0, 1, 0, 0, 0]
     >>> correlate1d(a, [1, 1, 1])
+<<<<<<< HEAD
     [0 0 1 1 1 0 0]
+=======
+    array([0, 0, 1, 1, 1, 0, 0])
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 Sometimes it is convenient to choose a different origin for the
 kernel. For this reason most functions support the *origin*
@@ -94,8 +128,13 @@ center. For example:
 ::
 
     >>> a = [0, 0, 0, 1, 0, 0, 0]
+<<<<<<< HEAD
     >>> print correlate1d(a, [1, 1, 1], origin = -1)
     [0 1 1 1 0 0 0]
+=======
+    >>> correlate1d(a, [1, 1, 1], origin = -1)
+    array([0 1 1 1 0 0 0])
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 The effect is a shift of the result towards the left. This feature
 will not be needed very often, but it may be useful especially for
@@ -105,20 +144,35 @@ of backward and forward differences:
 ::
 
     >>> a = [0, 0, 1, 1, 1, 0, 0]
+<<<<<<< HEAD
     >>> print correlate1d(a, [-1, 1])              ## backward difference
     [ 0  0  1  0  0 -1  0]
     >>> print correlate1d(a, [-1, 1], origin = -1) ## forward difference
     [ 0  1  0  0 -1  0  0]
+=======
+    >>> correlate1d(a, [-1, 1])               # backward difference
+    array([ 0  0  1  0  0 -1  0])
+    >>> correlate1d(a, [-1, 1], origin = -1)  # forward difference
+    array([ 0  1  0  0 -1  0  0])
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 We could also have calculated the forward difference as follows:
 
 ::
 
+<<<<<<< HEAD
     >>> print correlate1d(a, [0, -1, 1])
     [ 0  1  0  0 -1  0  0]
 
 however, using the origin parameter instead of a larger kernel is
 more efficient. For multi-dimensional kernels *origin* can be a
+=======
+    >>> correlate1d(a, [0, -1, 1])
+    array([ 0  1  0  0 -1  0  0])
+
+However, using the origin parameter instead of a larger kernel is
+more efficient. For multidimensional kernels *origin* can be a
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 number, in which case the origin is assumed to be equal along all
 axes, or a sequence giving the origin along each axis.
 
@@ -153,7 +207,11 @@ Correlation and convolution
     must be a one-dimensional sequences of numbers.
 
 
+<<<<<<< HEAD
     The function :func:`correlate` implements multi-dimensional correlation
+=======
+    The function :func:`correlate` implements multidimensional correlation
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     of the input array with a given kernel.
 
 
@@ -164,7 +222,11 @@ Correlation and convolution
 
     .. note:: A convolution is essentially a correlation after mirroring the kernel. As a result, the *origin* parameter behaves differently than in the case of a correlation: the result is shifted in the opposite directions.
 
+<<<<<<< HEAD
     The function :func:`convolve` implements multi-dimensional convolution of
+=======
+    The function :func:`convolve` implements multidimensional convolution of
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     the input array with a given kernel.
 
     .. note:: A convolution is essentially a correlation after mirroring the kernel. As a result, the *origin* parameter behaves differently than in the case of a correlation: the results is shifted in the opposite direction.
@@ -184,7 +246,11 @@ Smoothing filters
     implemented.
 
 
+<<<<<<< HEAD
     The :func:`gaussian_filter` function implements a multi-dimensional
+=======
+    The :func:`gaussian_filter` function implements a multidimensional
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     Gaussian filter. The standard-deviations of the Gaussian filter
     along each axis are passed through the parameter *sigma* as a
     sequence or numbers. If *sigma* is not a sequence but a single
@@ -197,20 +263,32 @@ Smoothing filters
     number, to specify the same order for all axes, or a sequence of
     numbers to specify a different order for each axis.
 
+<<<<<<< HEAD
     .. note:: The multi-dimensional filter is implemented as a sequence of one-dimensional Gaussian filters. The intermediate arrays are stored in  the same data type as the output.  Therefore, for output types with a lower precision, the results may be imprecise because intermediate results may be stored with insufficient precision. This can be prevented by specifying a more precise output type.
+=======
+    .. note:: The multidimensional filter is implemented as a sequence of one-dimensional Gaussian filters. The intermediate arrays are stored in  the same data type as the output.  Therefore, for output types with a lower precision, the results may be imprecise because intermediate results may be stored with insufficient precision. This can be prevented by specifying a more precise output type.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
     The :func:`uniform_filter1d` function calculates a one-dimensional
     uniform filter of the given *size* along the given axis.
 
 
+<<<<<<< HEAD
     The :func:`uniform_filter` implements a multi-dimensional uniform
+=======
+    The :func:`uniform_filter` implements a multidimensional uniform
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     filter. The sizes of the uniform filter are given for each axis as
     a sequence of integers by the *size* parameter. If *size* is not a
     sequence, but a single number, the sizes along all axis are assumed
     to be equal.
 
+<<<<<<< HEAD
     .. note:: The multi-dimensional filter is implemented as a sequence of one-dimensional uniform filters. The intermediate arrays are stored in the same data type as the output. Therefore, for output types with a lower precision, the results may be imprecise because intermediate results may be stored with insufficient precision. This can be prevented by specifying a more precise output type.
+=======
+    .. note:: The multidimensional filter is implemented as a sequence of one-dimensional uniform filters. The intermediate arrays are stored in the same data type as the output. Therefore, for output types with a lower precision, the results may be imprecise because intermediate results may be stored with insufficient precision. This can be prevented by specifying a more precise output type.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 Filters based on order statistics
@@ -224,7 +302,11 @@ Filters based on order statistics
     maximum filter of given *size* along the given axis.
 
 
+<<<<<<< HEAD
     The :func:`minimum_filter` function calculates a multi-dimensional
+=======
+    The :func:`minimum_filter` function calculates a multidimensional
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     minimum filter. Either the sizes of a rectangular kernel or the
     footprint of the kernel must be provided. The *size* parameter, if
     provided, must be a sequence of sizes or a single number in which
@@ -233,7 +315,11 @@ Filters based on order statistics
     shape of the kernel by its non-zero elements.
 
 
+<<<<<<< HEAD
     The :func:`maximum_filter` function calculates a multi-dimensional
+=======
+    The :func:`maximum_filter` function calculates a multidimensional
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     maximum filter. Either the sizes of a rectangular kernel or the
     footprint of the kernel must be provided. The *size* parameter, if
     provided, must be a sequence of sizes or a single number in which
@@ -242,7 +328,11 @@ Filters based on order statistics
     shape of the kernel by its non-zero elements.
 
 
+<<<<<<< HEAD
     The :func:`rank_filter` function calculates a multi-dimensional rank
+=======
+    The :func:`rank_filter` function calculates a multidimensional rank
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     filter. The *rank* may be less then zero, i.e., *rank* = -1 indicates
     the largest element. Either the sizes of a rectangular kernel or
     the footprint of the kernel must be provided. The *size* parameter,
@@ -252,7 +342,11 @@ Filters based on order statistics
     the shape of the kernel by its non-zero elements.
 
 
+<<<<<<< HEAD
     The :func:`percentile_filter` function calculates a multi-dimensional
+=======
+    The :func:`percentile_filter` function calculates a multidimensional
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     percentile filter. The *percentile* may be less then zero, i.e.,
     *percentile* = -20 equals *percentile* = 80. Either the sizes of a
     rectangular kernel or the footprint of the kernel must be provided.
@@ -263,7 +357,11 @@ Filters based on order statistics
     elements.
 
 
+<<<<<<< HEAD
     The :func:`median_filter` function calculates a multi-dimensional median
+=======
+    The :func:`median_filter` function calculates a multidimensional median
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     filter. Either the sizes of a rectangular kernel or the footprint
     of the kernel must be provided. The *size* parameter, if provided,
     must be a sequence of sizes or a single number in which case the
@@ -276,7 +374,11 @@ Derivatives
 ^^^^^^^^^^^
 
 Derivative filters can be constructed in several ways. The function
+<<<<<<< HEAD
 :func:`gaussian_filter1d` described in  
+=======
+:func:`gaussian_filter1d` described in
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 :ref:`ndimage-filter-functions-smoothing` can be used to calculate
 derivatives along a given axis using the *order* parameter. Other
 derivative filters are the Prewitt and Sobel filters:
@@ -299,6 +401,7 @@ construct the Laplace filter:
     The function :func:`generic_laplace` calculates a laplace filter using
     the function passed through :func:`derivative2` to calculate second
     derivatives. The function :func:`derivative2` should have the following
+<<<<<<< HEAD
     signature:
 
     ::
@@ -306,6 +409,11 @@ construct the Laplace filter:
          derivative2(input, axis, output, mode, cval, *extra_arguments, **extra_keywords)
          
     
+=======
+    signature::
+
+         derivative2(input, axis, output, mode, cval, *extra_arguments, **extra_keywords)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     It should calculate the second derivative along the dimension
     *axis*. If *output* is not None it should use that for the output
@@ -316,6 +424,7 @@ construct the Laplace filter:
     to pass a tuple of extra arguments and a dictionary of named
     arguments that are passed to :func:`derivative2` at each call.
 
+<<<<<<< HEAD
     For example:
 
     ::
@@ -359,6 +468,45 @@ construct the Laplace filter:
          [ 0  1 -4  1  0]
          [ 0  0  1  0  0]
          [ 0  0  0  0  0]]
+=======
+    For example::
+
+        >>> def d2(input, axis, output, mode, cval):
+        ...     return correlate1d(input, [1, -2, 1], axis, output, mode, cval, 0)
+        ...
+        >>> a = zeros((5, 5))
+        >>> a[2, 2] = 1
+        >>> generic_laplace(a, d2)
+        array([[ 0.,  0.,  0.,  0.,  0.],
+               [ 0.,  0.,  1.,  0.,  0.],
+               [ 0.,  1., -4.,  1.,  0.],
+               [ 0.,  0.,  1.,  0.,  0.],
+               [ 0.,  0.,  0.,  0.,  0.]])
+
+    To demonstrate the use of the *extra_arguments* argument we could
+    do::
+
+        >>> def d2(input, axis, output, mode, cval, weights):
+        ...     return correlate1d(input, weights, axis, output, mode, cval, 0,)
+        ...
+        >>> a = zeros((5, 5))
+        >>> a[2, 2] = 1
+        >>> generic_laplace(a, d2, extra_arguments = ([1, -2, 1],))
+        array([[ 0.,  0.,  0.,  0.,  0.],
+               [ 0.,  0.,  1.,  0.,  0.],
+               [ 0.,  1., -4.,  1.,  0.],
+               [ 0.,  0.,  1.,  0.,  0.],
+               [ 0.,  0.,  0.,  0.,  0.]])
+
+    or::
+
+        >>> generic_laplace(a, d2, extra_keywords = {'weights': [1, -2, 1]})
+        array([[ 0.,  0.,  0.,  0.,  0.],
+               [ 0.,  0.,  1.,  0.,  0.],
+               [ 0.,  1., -4.,  1.,  0.],
+               [ 0.,  0.,  1.,  0.,  0.],
+               [ 0.,  0.,  0.,  0.,  0.]])
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 The following two functions are implemented using
@@ -386,6 +534,7 @@ function that calculated the gradient magnitude of an array:
     The function :func:`generic_gradient_magnitude` calculates a gradient
     magnitude using the function passed through :func:`derivative` to
     calculate first derivatives. The function :func:`derivative` should have
+<<<<<<< HEAD
     the following signature:
 
     ::
@@ -393,6 +542,13 @@ function that calculated the gradient magnitude of an array:
         derivative(input, axis, output, mode, cval, *extra_arguments, **extra_keywords)
         
     
+=======
+    the following signature::
+
+        derivative(input, axis, output, mode, cval, *extra_arguments, **extra_keywords)
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     It should calculate the derivative along the dimension *axis*. If
     *output* is not None it should use that for the output and return
     None, otherwise it should return the result. *mode*, *cval* have
@@ -402,6 +558,7 @@ function that calculated the gradient magnitude of an array:
     to pass a tuple of extra arguments and a dictionary of named
     arguments that are passed to *derivative* at each call.
 
+<<<<<<< HEAD
     For example, the :func:`sobel` function fits the required signature:
 
     ::
@@ -414,6 +571,18 @@ function that calculated the gradient magnitude of an array:
          [0 2 0 2 0]
          [0 1 2 1 0]
          [0 0 0 0 0]]
+=======
+    For example, the :func:`sobel` function fits the required signature::
+
+        >>> a = zeros((5, 5))
+        >>> a[2, 2] = 1
+        >>> generic_gradient_magnitude(a, sobel)
+        array([[ 0.        ,  0.        ,  0.        ,  0.        ,  0.        ],
+               [ 0.        ,  1.41421356,  2.        ,  1.41421356,  0.        ],
+               [ 0.        ,  2.        ,  0.        ,  2.        ,  0.        ],
+               [ 0.        ,  1.41421356,  2.        ,  1.41421356,  0.        ],
+               [ 0.        ,  0.        ,  0.        ,  0.        ,  0.        ]])
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     See the documentation of :func:`generic_laplace` for examples of using
     the *extra_arguments* and *extra_keywords* arguments.
@@ -437,8 +606,13 @@ Gaussian derivatives:
 Generic filter functions
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
+<<<<<<< HEAD
 To implement filter functions, generic functions can be used that accept a 
 callable object that implements the filtering operation. The iteration over the 
+=======
+To implement filter functions, generic functions can be used that accept a
+callable object that implements the filtering operation. The iteration over the
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 input and output arrays is handled by these generic functions, along with such
 details as the implementation of the boundary conditions. Only a
 callable object implementing a callback function that does the
@@ -456,6 +630,7 @@ also be written in C and passed using a :ctype:`PyCObject` (see
     It is extended at the beginning end the end, according to the
     *filter_size* and *origin* arguments. The second array should be
     modified in-place to provide the output values of the line. For
+<<<<<<< HEAD
     example consider a correlation along one dimension:
 
     ::
@@ -478,6 +653,26 @@ also be written in C and passed using a :ctype:`PyCObject` (see
         [[ 3  8 14 17]
          [27 32 38 41]
          [51 56 62 65]]
+=======
+    example consider a correlation along one dimension::
+
+        >>> a = arange(12).reshape(3,4)
+        >>> correlate1d(a, [1, 2, 3])
+        array([[ 3,  8, 14, 17],
+               [27, 32, 38, 41],
+               [51, 56, 62, 65]])
+
+    The same operation can be implemented using :func:`generic_filter1d` as
+    follows::
+
+        >>> def fnc(iline, oline):
+        ...     oline[...] = iline[:-2] + 2 * iline[1:-1] + 3 * iline[2:]
+        ...
+        >>> generic_filter1d(a, fnc, 3)
+        array([[ 3,  8, 14, 17],
+               [27, 32, 38, 41],
+               [51, 56, 62, 65]])
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     Here the origin of the kernel was (by default) assumed to be in the
     middle of the filter of length 3. Therefore, each input line was
@@ -488,6 +683,7 @@ also be written in C and passed using a :ctype:`PyCObject` (see
     function. The *extra_arguments* and *extra_keywords* arguments
     can be used to pass a tuple of extra arguments and/or a dictionary
     of named arguments that are passed to derivative at each call. For
+<<<<<<< HEAD
     example, we can pass the parameters of our filter as an argument:
 
     ::
@@ -509,6 +705,24 @@ also be written in C and passed using a :ctype:`PyCObject` (see
          [27 32 38 41]
          [51 56 62 65]]
 
+=======
+    example, we can pass the parameters of our filter as an argument::
+
+        >>> def fnc(iline, oline, a, b):
+        ...     oline[...] = iline[:-2] + a * iline[1:-1] + b * iline[2:]
+        ...
+        >>> generic_filter1d(a, fnc, 3, extra_arguments = (2, 3))
+        array([[ 3,  8, 14, 17],
+               [27, 32, 38, 41],
+               [51, 56, 62, 65]])
+
+    or::
+
+        >>> generic_filter1d(a, fnc, 3, extra_keywords = {'a':2, 'b':3})
+        array([[ 3,  8, 14, 17],
+               [27, 32, 38, 41],
+               [51, 56, 62, 65]])
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     The :func:`generic_filter` function implements a generic filter
     function, where the actual filtering operation must be supplied as
@@ -518,6 +732,7 @@ also be written in C and passed using a :ctype:`PyCObject` (see
     the :ctype:`tFloat64` type, that contains the values around the current
     element that are within the footprint of the filter. The function
     should return a single value that can be converted to a double
+<<<<<<< HEAD
     precision number. For example consider a correlation:
 
     ::
@@ -540,6 +755,26 @@ also be written in C and passed using a :ctype:`PyCObject` (see
         [[ 0  3  7 11]
          [12 15 19 23]
          [28 31 35 39]]
+=======
+    precision number. For example consider a correlation::
+
+        >>> a = arange(12).reshape(3,4)
+        >>> correlate(a, [[1, 0], [0, 3]])
+        array([[ 0,  3,  7, 11],
+               [12, 15, 19, 23],
+               [28, 31, 35, 39]])
+
+    The same operation can be implemented using *generic_filter* as
+    follows::
+
+        >>> def fnc(buffer):
+        ...     return (buffer * array([1, 3])).sum()
+        ...
+        >>> generic_filter(a, fnc, footprint = [[1, 0], [0, 1]])
+        array([[ 0  3  7 11],
+               [12 15 19 23],
+               [28 31 35 39]])
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     Here a kernel footprint was specified that contains only two
     elements. Therefore the filter function receives a buffer of length
@@ -557,6 +792,7 @@ also be written in C and passed using a :ctype:`PyCObject` (see
     function. The *extra_arguments* and *extra_keywords* arguments
     can be used to pass a tuple of extra arguments and/or a dictionary
     of named arguments that are passed to derivative at each call. For
+<<<<<<< HEAD
     example, we can pass the parameters of our filter as an argument:
 
     ::
@@ -578,6 +814,25 @@ also be written in C and passed using a :ctype:`PyCObject` (see
         [[ 0  3  7 11]
          [12 15 19 23]
          [28 31 35 39]]
+=======
+    example, we can pass the parameters of our filter as an argument::
+
+        >>> def fnc(buffer, weights):
+        ...     weights = asarray(weights)
+        ...     return (buffer * weights).sum()
+        ...
+        >>> generic_filter(a, fnc, footprint = [[1, 0], [0, 1]], extra_arguments = ([1, 3],))
+        array([[ 0,  3,  7, 11],
+               [12, 15, 19, 23],
+               [28, 31, 35, 39]])
+
+    or::
+
+        >>> generic_filter(a, fnc, footprint = [[1, 0], [0, 1]], extra_keywords= {'weights': [1, 3]})
+        array([[ 0,  3,  7, 11],
+               [12, 15, 19, 23],
+               [28, 31, 35, 39]])
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 These functions iterate over the lines or elements starting at the
@@ -591,15 +846,24 @@ additionally prints the current coordinates:
 
 ::
 
+<<<<<<< HEAD
     >>> a = arange(12, shape = (3,4))
     >>> 
+=======
+    >>> a = arange(12).reshape(3,4)
+    >>>
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     >>> class fnc_class:
     ...     def __init__(self, shape):
     ...         # store the shape:
     ...         self.shape = shape
     ...         # initialize the coordinates:
     ...         self.coordinates = [0] * len(shape)
+<<<<<<< HEAD
     ...         
+=======
+    ...
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     ...     def filter(self, buffer):
     ...         result = (buffer * array([1, 3])).sum()
     ...         print self.coordinates
@@ -613,9 +877,15 @@ additionally prints the current coordinates:
     ...             else:
     ...                 self.coordinates[jj] = 0
     ...         return result
+<<<<<<< HEAD
     ... 
     >>> fnc = fnc_class(shape = (3,4))
     >>> print generic_filter(a, fnc.filter, footprint = [[1, 0], [0, 1]]) 
+=======
+    ...
+    >>> fnc = fnc_class(shape = (3,4))
+    >>> generic_filter(a, fnc.filter, footprint = [[1, 0], [0, 1]])
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     [0, 0]
     [0, 1]
     [0, 2]
@@ -628,9 +898,15 @@ additionally prints the current coordinates:
     [2, 1]
     [2, 2]
     [2, 3]
+<<<<<<< HEAD
     [[ 0  3  7 11]
      [12 15 19 23]
      [28 31 35 39]]
+=======
+    array([[ 0,  3,  7, 11],
+           [12, 15, 19, 23],
+           [28, 31, 35, 39]])
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 For the :func:`generic_filter1d` function the same approach works,
 except that this function does not iterate over the axis that is
@@ -639,8 +915,13 @@ this:
 
 ::
 
+<<<<<<< HEAD
     >>> a = arange(12, shape = (3,4))
     >>> 
+=======
+    >>> a = arange(12).reshape(3,4)
+    >>>
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     >>> class fnc1d_class:
     ...     def __init__(self, shape, axis = -1):
     ...         # store the filter axis:
@@ -649,7 +930,11 @@ this:
     ...         self.shape = shape
     ...         # initialize the coordinates:
     ...         self.coordinates = [0] * len(shape)
+<<<<<<< HEAD
     ...         
+=======
+    ...
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     ...     def filter(self, iline, oline):
     ...         oline[...] = iline[:-2] + 2 * iline[1:-1] + 3 * iline[2:]
     ...         print self.coordinates
@@ -664,6 +949,7 @@ this:
     ...                 break
     ...             else:
     ...                 self.coordinates[jj] = 0
+<<<<<<< HEAD
     ... 
     >>> fnc = fnc1d_class(shape = (3,4))
     >>> print generic_filter1d(a, fnc.filter, 3)
@@ -673,6 +959,17 @@ this:
     [[ 3  8 14 17]
      [27 32 38 41]
      [51 56 62 65]]
+=======
+    ...
+    >>> fnc = fnc1d_class(shape = (3,4))
+    >>> generic_filter1d(a, fnc.filter, 3)
+    [0, 0]
+    [1, 0]
+    [2, 0]
+    array([[ 3,  8, 14, 17],
+           [27, 32, 38, 41],
+           [51, 56, 62, 65]])
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 Fourier domain filters
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -694,26 +991,42 @@ transform. The parameter *axis* can be used to indicate along which
 axis the real transform was executed.
 
     The :func:`fourier_shift` function multiplies the input array with the
+<<<<<<< HEAD
     multi-dimensional Fourier transform of a shift operation for the
+=======
+    multidimensional Fourier transform of a shift operation for the
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     given shift. The *shift* parameter is a sequences of shifts for
     each dimension, or a single value for all dimensions.
 
 
     The :func:`fourier_gaussian` function multiplies the input array with
+<<<<<<< HEAD
     the multi-dimensional Fourier transform of a Gaussian filter with
+=======
+    the multidimensional Fourier transform of a Gaussian filter with
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     given standard-deviations *sigma*. The *sigma* parameter is a
     sequences of values for each dimension, or a single value for all
     dimensions.
 
 
     The :func:`fourier_uniform` function multiplies the input array with the
+<<<<<<< HEAD
     multi-dimensional Fourier transform of a uniform filter with given
+=======
+    multidimensional Fourier transform of a uniform filter with given
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     sizes *size*. The *size* parameter is a sequences of values for
     each dimension, or a single value for all dimensions.
 
 
     The :func:`fourier_ellipsoid` function multiplies the input array with
+<<<<<<< HEAD
     the multi-dimensional Fourier transform of a elliptically shaped
+=======
+    the multidimensional Fourier transform of a elliptically shaped
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     filter with given sizes *size*. The *size* parameter is a sequences
     of values for each dimension, or a single value for all dimensions.
     This function is only implemented for dimensions 1, 2, and 3.
@@ -731,7 +1044,11 @@ This section describes various interpolation functions that are
 based on B-spline theory. A good introduction to B-splines can be
 found in: M. Unser, "Splines: A Perfect Fit for Signal and Image
 Processing," IEEE Signal Processing Magazine, vol. 16, no. 6, pp.
+<<<<<<< HEAD
 22-38, November 1999. 
+=======
+22-38, November 1999.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 Spline pre-filters
 ^^^^^^^^^^^^^^^^^^
@@ -754,15 +1071,23 @@ pre-filtering:
     than 6.
 
 
+<<<<<<< HEAD
     The :func:`spline_filter` function calculates a multi-dimensional spline
     filter.
 
     .. note:: The multi-dimensional filter is implemented as a sequence of one-dimensional spline filters. The intermediate arrays are stored in the same data type as the output. Therefore, if an output with a limited precision is requested, the results may be imprecise because intermediate results may be stored with insufficient precision. This can be prevented by specifying a output type of high precision.
+=======
+    The :func:`spline_filter` function calculates a multidimensional spline
+    filter.
+
+    .. note:: The multidimensional filter is implemented as a sequence of one-dimensional spline filters. The intermediate arrays are stored in the same data type as the output. Therefore, if an output with a limited precision is requested, the results may be imprecise because intermediate results may be stored with insufficient precision. This can be prevented by specifying a output type of high precision.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 Interpolation functions
 ^^^^^^^^^^^^^^^^^^^^^^^
 
+<<<<<<< HEAD
 Following functions all employ spline interpolation to effect some type of 
 geometric transformation of the input array. This requires a mapping of the 
 output coordinates to the input coordinates, and therefore the possibility 
@@ -770,6 +1095,15 @@ arises that input values outside the boundaries are needed. This problem is
 solved in the same way as described in :ref:`ndimage-filter-functions` 
 for the multi-dimensional filter functions. Therefore these functions all 
 support a *mode* parameter that determines how the boundaries are handled, and 
+=======
+Following functions all employ spline interpolation to effect some type of
+geometric transformation of the input array. This requires a mapping of the
+output coordinates to the input coordinates, and therefore the possibility
+arises that input values outside the boundaries are needed. This problem is
+solved in the same way as described in :ref:`ndimage-filter-functions`
+for the multidimensional filter functions. Therefore these functions all
+support a *mode* parameter that determines how the boundaries are handled, and
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 a *cval* parameter that gives a constant value in case that the 'constant'
 mode is used.
 
@@ -783,6 +1117,7 @@ mode is used.
     be provided. If not given they are equal to the input shape and
     type.
 
+<<<<<<< HEAD
     For example:
 
     ::
@@ -796,11 +1131,25 @@ mode is used.
          [ 0.      1.3625  2.7375]
          [ 0.      4.8125  6.1875]
          [ 0.      8.2625  9.6375]]  
+=======
+    For example::
+
+        >>> a = arange(12).reshape(4,3).astype(np.float64)
+        >>> def shift_func(output_coordinates):
+        ...     return (output_coordinates[0] - 0.5, output_coordinates[1] - 0.5)
+        ...
+        >>> geometric_transform(a, shift_func)
+        array([[ 0.    ,  0.    ,  0.    ],
+               [ 0.    ,  1.3625,  2.7375],
+               [ 0.    ,  4.8125,  6.1875],
+               [ 0.    ,  8.2625,  9.6375]])
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     Optionally extra arguments can be defined and passed to the filter
     function. The *extra_arguments* and *extra_keywords* arguments
     can be used to pass a tuple of extra arguments and/or a dictionary
     of named arguments that are passed to derivative at each call. For
+<<<<<<< HEAD
     example, we can pass the shifts in our example as arguments:
 
     ::
@@ -823,6 +1172,26 @@ mode is used.
          [ 0.      1.3625  2.7375]
          [ 0.      4.8125  6.1875]
          [ 0.      8.2625  9.6375]]  
+=======
+    example, we can pass the shifts in our example as arguments::
+
+        >>> def shift_func(output_coordinates, s0, s1):
+        ...     return (output_coordinates[0] - s0, output_coordinates[1] - s1)
+        ...
+        >>> geometric_transform(a, shift_func, extra_arguments = (0.5, 0.5))
+        array([[ 0.    ,  0.    ,  0.    ],
+               [ 0.    ,  1.3625,  2.7375],
+               [ 0.    ,  4.8125,  6.1875],
+               [ 0.    ,  8.2625,  9.6375]])
+
+    or::
+
+        >>> geometric_transform(a, shift_func, extra_keywords = {'s0': 0.5, 's1': 0.5})
+        array([[ 0.    ,  0.    ,  0.    ],
+               [ 0.    ,  1.3625,  2.7375],
+               [ 0.    ,  4.8125,  6.1875],
+               [ 0.    ,  8.2625,  9.6375]])
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     .. note:: The mapping function can also be written in C and passed using a :ctype:`PyCObject`. See :ref:`ndimage-ccallbacks` for more information.
 
@@ -838,6 +1207,7 @@ mode is used.
     coordinates may be non- integer coordinates, the value of the input
     at these coordinates is determined by spline interpolation of the
     requested order. Here is an example that interpolates a 2D array at
+<<<<<<< HEAD
     (0.5, 0.5) and (1, 2):
 
     ::
@@ -851,6 +1221,18 @@ mode is used.
         >>> print map_coordinates(a, [[0.5, 2], [0.5, 1]])
         [ 1.3625  7.    ]
 
+=======
+    (0.5, 0.5) and (1, 2)::
+
+        >>> a = arange(12).reshape(4,3).astype(np.float64)
+        >>> a
+        array([[  0.,   1.,   2.],
+               [  3.,   4.,   5.],
+               [  6.,   7.,   8.],
+               [  9.,  10.,  11.]])
+        >>> map_coordinates(a, [[0.5, 2], [0.5, 1]])
+        array([ 1.3625  7.    ])
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     The :func:`affine_transform` function applies an affine transformation
     to the input array. The given transformation *matrix* and *offset*
@@ -865,6 +1247,7 @@ mode is used.
     optionally be provided. If not given they are equal to the input
     shape and type.
 
+<<<<<<< HEAD
 
     The :func:`shift` function returns a shifted version of the input, using
     spline interpolation of the requested *order*.
@@ -874,6 +1257,14 @@ mode is used.
     spline interpolation of the requested *order*.
 
 
+=======
+    The :func:`shift` function returns a shifted version of the input, using
+    spline interpolation of the requested *order*.
+
+    The :func:`zoom` function returns a rescaled version of the input, using
+    spline interpolation of the requested *order*.
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     The :func:`rotate` function returns the input array rotated in the plane
     defined by the two axes given by the parameter *axes*, using spline
     interpolation of the requested *order*. The angle must be given in
@@ -902,6 +1293,7 @@ Binary morphology (need something to put here).
     each element is equal to one if the square of the Euclidean
     distance from the element to the center is less or equal to
     *connectivity*. For instance, two dimensional 4-connected and
+<<<<<<< HEAD
     8-connected structures are generated as follows:
 
     ::
@@ -915,6 +1307,18 @@ Binary morphology (need something to put here).
          [1 1 1]
          [1 1 1]]
 
+=======
+    8-connected structures are generated as follows::
+
+        >>> generate_binary_structure(2, 1)
+        array([[False,  True, False],
+               [ True,  True,  True],
+               [False,  True, False]], dtype=bool)
+        >>> generate_binary_structure(2, 2)
+        array([[ True,  True,  True],
+               [ True,  True,  True],
+               [ True,  True,  True]], dtype=bool)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 Most binary morphology functions can be expressed in terms of the
 basic operations erosion and dilation:
@@ -932,7 +1336,10 @@ basic operations erosion and dilation:
     those elements with a true value at the corresponding mask element
     are modified at each iteration.
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     The :func:`binary_dilation` function implements binary dilation of
     arrays of arbitrary rank with the given structuring element. The
     origin parameter controls the placement of the structuring element
@@ -948,6 +1355,7 @@ basic operations erosion and dilation:
 
     Here is an example of using :func:`binary_dilation` to find all elements
     that touch the border, by repeatedly dilating an empty array from
+<<<<<<< HEAD
     the border using the data array as the mask:
 
     ::
@@ -964,6 +1372,22 @@ basic operations erosion and dilation:
          [1 1 0 0 0]
          [0 0 0 0 0]
          [0 0 0 0 0]]
+=======
+    the border using the data array as the mask::
+
+        >>> struct = array([[0, 1, 0], [1, 1, 1], [0, 1, 0]])
+        >>> a = array([[1,0,0,0,0], [1,1,0,1,0], [0,0,1,1,0], [0,0,0,0,0]])
+        >>> a
+        array([[1, 0, 0, 0, 0],
+               [1, 1, 0, 1, 0],
+               [0, 0, 1, 1, 0],
+               [0, 0, 0, 0, 0]])
+        >>> binary_dilation(zeros(a.shape), struct, -1, a, border_value=1)
+        array([[ True, False, False, False, False],
+               [ True,  True, False, False, False],
+               [False, False, False, False, False],
+               [False, False, False, False, False]], dtype=bool)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 The :func:`binary_erosion` and :func:`binary_dilation` functions both have an
@@ -976,6 +1400,7 @@ that is dilated a number of times with itself:
 
     The :func:`iterate_structure` function returns a structure by dilation
     of the input structure *iteration* - 1 times with itself. For
+<<<<<<< HEAD
     instance:
 
     ::
@@ -991,6 +1416,21 @@ that is dilated a number of times with itself:
          [1 1 1 1 1]
          [0 1 1 1 0]
          [0 0 1 0 0]]
+=======
+    instance::
+
+        >>> struct = generate_binary_structure(2, 1)
+        >>> struct
+        array([[False,  True, False],
+               [ True,  True,  True],
+               [False,  True, False]], dtype=bool)
+        >>> iterate_structure(struct, 2)
+        array([[False, False,  True, False, False],
+               [False,  True,  True,  True, False],
+               [ True,  True,  True,  True,  True],
+               [False,  True,  True,  True, False],
+               [False, False,  True, False, False]], dtype=bool)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     If the origin of the original structure is equal to 0, then it is
     also equal to 0 for the iterated structure. If not, the origin must
@@ -998,6 +1438,7 @@ that is dilated a number of times with itself:
     dilations must be achieved with the iterated structure. The adapted
     origin is simply obtained by multiplying with the number of
     iterations. For convenience the :func:`iterate_structure` also returns
+<<<<<<< HEAD
     the adapted origin if the *origin* parameter is not None:
 
     ::
@@ -1008,6 +1449,16 @@ that is dilated a number of times with itself:
                [1, 1, 1, 1, 1],
                [0, 1, 1, 1, 0],
                [0, 0, 1, 0, 0]], type=Bool), [-2, -2])
+=======
+    the adapted origin if the *origin* parameter is not None::
+
+        >>> iterate_structure(struct, 2, -1)
+        (array([[False, False,  True, False, False],
+               [False,  True,  True,  True, False],
+               [ True,  True,  True,  True,  True],
+               [False,  True,  True,  True, False],
+               [False, False,  True, False, False]], dtype=bool), [-2, -2])
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 Other morphology operations can be defined in terms of erosion and
@@ -1041,7 +1492,11 @@ for convenience:
     The :func:`binary_fill_holes` function is used to close holes in
     objects in a binary image, where the structure defines the
     connectivity of the holes. The origin parameter controls the
+<<<<<<< HEAD
     placement of the structuring element as described in 
+=======
+    placement of the structuring element as described in
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     :ref:`ndimage-filter-functions`. If no structuring element is
     provided, an element with connectivity equal to one is generated
     using :func:`generate_binary_structure`.
@@ -1073,7 +1528,11 @@ Grey-scale morphology operations are the equivalents of binary
 morphology operations that operate on arrays with arbitrary values.
 Below we describe the grey-scale equivalents of erosion, dilation,
 opening and closing. These operations are implemented in a similar
+<<<<<<< HEAD
 fashion as the filters described in 
+=======
+fashion as the filters described in
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 :ref:`ndimage-filter-functions`, and we refer to this section for the
 description of filter kernels and footprints, and the handling of
 array borders. The grey-scale morphology operations optionally take
@@ -1096,11 +1555,19 @@ elements.
 Similar to binary erosion and dilation there are operations for
 grey-scale erosion and dilation:
 
+<<<<<<< HEAD
     The :func:`grey_erosion` function calculates a multi-dimensional grey-
     scale erosion.
 
 
     The :func:`grey_dilation` function calculates a multi-dimensional grey-
+=======
+    The :func:`grey_erosion` function calculates a multidimensional grey-
+    scale erosion.
+
+
+    The :func:`grey_dilation` function calculates a multidimensional grey-
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     scale dilation.
 
 
@@ -1241,19 +1708,31 @@ Segmentation and labeling
 
 Segmentation is the process of separating objects of interest from
 the background. The most simple approach is probably intensity
+<<<<<<< HEAD
 thresholding, which is easily done with :mod:`numpy` functions:
 
 ::
+=======
+thresholding, which is easily done with :mod:`numpy` functions::
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     >>> a = array([[1,2,2,1,1,0],
     ...            [0,2,3,1,2,0],
     ...            [1,1,1,3,3,2],
     ...            [1,1,1,1,2,1]])
+<<<<<<< HEAD
     >>> print where(a > 1, 1, 0)
     [[0 1 1 0 0 0]
      [0 1 1 0 1 0]
      [0 0 0 1 1 1]
      [0 0 0 0 1 0]]
+=======
+    >>> where(a > 1, 1, 0)
+    array([[0, 1, 1, 0, 0, 0],
+           [0, 1, 1, 0, 1, 0],
+           [0, 0, 0, 1, 1, 1],
+           [0, 0, 0, 0, 1, 0]])
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 The result is a binary image, in which the individual objects still
 need to be identified and labeled. The function :func:`label` generates
@@ -1265,6 +1744,7 @@ an array where each object is assigned a unique number:
     found, unless the *output* parameter is given, in which case only
     the number of objects is returned. The connectivity of the objects
     is defined by a structuring element. For instance, in two
+<<<<<<< HEAD
     dimensions using a four-connected structuring element gives:
 
     ::
@@ -1272,6 +1752,13 @@ an array where each object is assigned a unique number:
         >>> a = array([[0,1,1,0,0,0],[0,1,1,0,1,0],[0,0,0,1,1,1],[0,0,0,0,1,0]])
         >>> s = [[0, 1, 0], [1,1,1], [0,1,0]]
         >>> print label(a, s)
+=======
+    dimensions using a four-connected structuring element gives::
+
+        >>> a = array([[0,1,1,0,0,0],[0,1,1,0,1,0],[0,0,0,1,1,1],[0,0,0,0,1,0]])
+        >>> s = [[0, 1, 0], [1,1,1], [0,1,0]]
+        >>> label(a, s)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         (array([[0, 1, 1, 0, 0, 0],
                [0, 1, 1, 0, 2, 0],
                [0, 0, 0, 2, 2, 2],
@@ -1280,6 +1767,7 @@ an array where each object is assigned a unique number:
     These two objects are not connected because there is no way in
     which we can place the structuring element such that it overlaps
     with both objects. However, an 8-connected structuring element
+<<<<<<< HEAD
     results in only a single object:
 
     ::
@@ -1294,12 +1782,27 @@ an array where each object is assigned a unique number:
 
     If no structuring element is provided, one is generated by calling
     :func:`generate_binary_structure` (see 
+=======
+    results in only a single object::
+
+        >>> a = array([[0,1,1,0,0,0],[0,1,1,0,1,0],[0,0,0,1,1,1],[0,0,0,0,1,0]])
+        >>> s = [[1,1,1], [1,1,1], [1,1,1]]
+        >>> label(a, s)[0]
+        array([[0, 1, 1, 0, 0, 0],
+               [0, 1, 1, 0, 1, 0],
+               [0, 0, 0, 1, 1, 1],
+               [0, 0, 0, 0, 1, 0]])
+
+    If no structuring element is provided, one is generated by calling
+    :func:`generate_binary_structure` (see
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     :ref:`ndimage-binary-morphology`)
     using a connectivity of one (which in 2D is the 4-connected
     structure of the first example). The input can be of any type, any
     value not equal to zero is taken to be part of an object. This is
     useful if you need to 're-label' an array of object indices, for
     instance after removing unwanted objects. Just apply the label
+<<<<<<< HEAD
     function again to the index array. For instance:
 
     ::
@@ -1312,6 +1815,18 @@ an array where each object is assigned a unique number:
         [1 0 0 0 3]
         >>> print label(l)[0]
         [1 0 0 0 2]
+=======
+    function again to the index array. For instance::
+
+        >>> l, n = label([1, 0, 1, 0, 1])
+        >>> l
+        array([1 0 2 0 3])
+        >>> l = where(l != 2, l, 0)
+        >>> l
+        array([1 0 0 0 3])
+        >>> label(l)[0]
+        array([1 0 0 0 2])
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     .. note:: The structuring element used by :func:`label` is assumed to be symmetric.
 
@@ -1333,9 +1848,13 @@ containing initial markers for the objects:
 
     The inputs of this function are the array to which the transform is
     applied, and an array of markers that designate the objects by a
+<<<<<<< HEAD
     unique label, where any non-zero value is a marker. For instance:
 
     ::
+=======
+    unique label, where any non-zero value is a marker. For instance::
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         >>> input = array([[0, 0, 0, 0, 0, 0, 0],
         ...                [0, 1, 1, 1, 1, 1, 0],
@@ -1343,13 +1862,18 @@ containing initial markers for the objects:
         ...                [0, 1, 0, 0, 0, 1, 0],
         ...                [0, 1, 0, 0, 0, 1, 0],
         ...                [0, 1, 1, 1, 1, 1, 0],
+<<<<<<< HEAD
         ...                [0, 0, 0, 0, 0, 0, 0]], numarray.UInt8)
+=======
+        ...                [0, 0, 0, 0, 0, 0, 0]], np.uint8)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         >>> markers = array([[1, 0, 0, 0, 0, 0, 0],
         ...                  [0, 0, 0, 0, 0, 0, 0],
         ...                  [0, 0, 0, 0, 0, 0, 0],
         ...                  [0, 0, 0, 2, 0, 0, 0],
         ...                  [0, 0, 0, 0, 0, 0, 0],
         ...                  [0, 0, 0, 0, 0, 0, 0],
+<<<<<<< HEAD
         ...                  [0, 0, 0, 0, 0, 0, 0]], numarray.Int8)
         >>> print watershed_ift(input, markers)
         [[1 1 1 1 1 1 1]
@@ -1359,13 +1883,28 @@ containing initial markers for the objects:
          [1 2 2 2 2 2 1]
          [1 1 2 2 2 1 1]
          [1 1 1 1 1 1 1]]
+=======
+        ...                  [0, 0, 0, 0, 0, 0, 0]], np.int8)
+        >>> watershed_ift(input, markers)
+        array([[1, 1, 1, 1, 1, 1, 1],
+               [1, 1, 2, 2, 2, 1, 1],
+               [1, 2, 2, 2, 2, 2, 1],
+               [1, 2, 2, 2, 2, 2, 1],
+               [1, 2, 2, 2, 2, 2, 1],
+               [1, 1, 2, 2, 2, 1, 1],
+               [1, 1, 1, 1, 1, 1, 1]], dtype=int8)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     Here two markers were used to designate an object (*marker* = 2) and
     the background (*marker* = 1). The order in which these are processed
     is arbitrary: moving the marker for the background to the lower
+<<<<<<< HEAD
     right corner of the array yields a different result:
 
     ::
+=======
+    right corner of the array yields a different result::
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         >>> markers = array([[0, 0, 0, 0, 0, 0, 0],
         ...                  [0, 0, 0, 0, 0, 0, 0],
@@ -1373,6 +1912,7 @@ containing initial markers for the objects:
         ...                  [0, 0, 0, 2, 0, 0, 0],
         ...                  [0, 0, 0, 0, 0, 0, 0],
         ...                  [0, 0, 0, 0, 0, 0, 0],
+<<<<<<< HEAD
         ...                  [0, 0, 0, 0, 0, 0, 1]], numarray.Int8)
         >>> print watershed_ift(input, markers)
         [[1 1 1 1 1 1 1]
@@ -1382,6 +1922,17 @@ containing initial markers for the objects:
          [1 1 2 2 2 1 1]
          [1 1 1 1 1 1 1]
          [1 1 1 1 1 1 1]]
+=======
+        ...                  [0, 0, 0, 0, 0, 0, 1]], np.int8)
+        >>> watershed_ift(input, markers)
+        array([[1, 1, 1, 1, 1, 1, 1],
+               [1, 1, 1, 1, 1, 1, 1],
+               [1, 1, 2, 2, 2, 1, 1],
+               [1, 1, 2, 2, 2, 1, 1],
+               [1, 1, 2, 2, 2, 1, 1],
+               [1, 1, 1, 1, 1, 1, 1],
+               [1, 1, 1, 1, 1, 1, 1]], dtype=int8)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     The result is that the object (*marker* = 2) is smaller because the
     second marker was processed earlier. This may not be the desired
@@ -1389,9 +1940,13 @@ containing initial markers for the objects:
     object. Therefore :func:`watershed_ift` treats markers with a negative
     value explicitly as background markers and processes them after the
     normal markers. For instance, replacing the first marker by a
+<<<<<<< HEAD
     negative marker gives a result similar to the first example:
 
     ::
+=======
+    negative marker gives a result similar to the first example::
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         >>> markers = array([[0, 0, 0, 0, 0, 0, 0],
         ...                  [0, 0, 0, 0, 0, 0, 0],
@@ -1399,6 +1954,7 @@ containing initial markers for the objects:
         ...                  [0, 0, 0, 2, 0, 0, 0],
         ...                  [0, 0, 0, 0, 0, 0, 0],
         ...                  [0, 0, 0, 0, 0, 0, 0],
+<<<<<<< HEAD
         ...                  [0, 0, 0, 0, 0, 0, -1]], numarray.Int8)
         >>> print watershed_ift(input, markers)
         [[-1 -1 -1 -1 -1 -1 -1]
@@ -1408,10 +1964,22 @@ containing initial markers for the objects:
          [-1  2  2  2  2  2 -1]
          [-1 -1  2  2  2 -1 -1]
          [-1 -1 -1 -1 -1 -1 -1]]
+=======
+        ...                  [0, 0, 0, 0, 0, 0, -1]], np.int8)
+        >>> watershed_ift(input, markers)
+        array([[-1, -1, -1, -1, -1, -1, -1],
+               [-1, -1,  2,  2,  2, -1, -1],
+               [-1,  2,  2,  2,  2,  2, -1],
+               [-1,  2,  2,  2,  2,  2, -1],
+               [-1,  2,  2,  2,  2,  2, -1],
+               [-1, -1,  2,  2,  2, -1, -1],
+               [-1, -1, -1, -1, -1, -1, -1]], dtype=int8)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     The connectivity of the objects is defined by a structuring
     element. If no structuring element is provided, one is generated by
     calling :func:`generate_binary_structure` (see
+<<<<<<< HEAD
     :ref:`ndimage-binary-morphology`) using a connectivity of one 
     (which in 2D is a 4-connected structure.) For example, using 
     an 8-connected structure with the last example yields a different object:
@@ -1427,6 +1995,21 @@ containing initial markers for the objects:
          [-1  2  2  2  2  2 -1]
          [-1  2  2  2  2  2 -1]
          [-1 -1 -1 -1 -1 -1 -1]]
+=======
+    :ref:`ndimage-binary-morphology`) using a connectivity of one
+    (which in 2D is a 4-connected structure.) For example, using
+    an 8-connected structure with the last example yields a different object::
+
+        >>> watershed_ift(input, markers,
+        ...               structure = [[1,1,1], [1,1,1], [1,1,1]])
+        array([[-1, -1, -1, -1, -1, -1, -1],
+               [-1,  2,  2,  2,  2,  2, -1],
+               [-1,  2,  2,  2,  2,  2, -1],
+               [-1,  2,  2,  2,  2,  2, -1],
+               [-1,  2,  2,  2,  2,  2, -1],
+               [-1,  2,  2,  2,  2,  2, -1],
+               [-1, -1, -1, -1, -1, -1, -1]], dtype=int8)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     .. note:: The implementation of :func:`watershed_ift` limits the data types of the input to :ctype:`UInt8` and :ctype:`UInt16`.
 
@@ -1445,13 +2028,18 @@ smallest sub-array that fully contains the object:
 
     The :func:`find_objects` function finds all objects in a labeled array and
     returns a list of slices that correspond to the smallest regions in
+<<<<<<< HEAD
     the array that contains the object. For instance:
 
     ::
+=======
+    the array that contains the object. For instance::
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         >>> a = array([[0,1,1,0,0,0],[0,1,1,0,1,0],[0,0,0,1,1,1],[0,0,0,0,1,0]])
         >>> l, n = label(a)
         >>> f = find_objects(l)
+<<<<<<< HEAD
         >>> print a[f[0]]
         [[1 1]
          [1 1]]
@@ -1459,43 +2047,71 @@ smallest sub-array that fully contains the object:
         [[0 1 0]
          [1 1 1]
          [0 1 0]]
+=======
+        >>> a[f[0]]
+        array([[1 1],
+               [1 1]])
+        >>> a[f[1]]
+        array([[0, 1, 0],
+               [1, 1, 1],
+               [0, 1, 0]])
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     :func:`find_objects` returns slices for all objects, unless the
     *max_label* parameter is larger then zero, in which case only the
     first *max_label* objects are returned. If an index is missing in
     the *label* array, None is return instead of a slice. For
+<<<<<<< HEAD
     example:
 
     ::
 
         >>> print find_objects([1, 0, 3, 4], max_label = 3)
+=======
+    example::
+
+        >>> find_objects([1, 0, 3, 4], max_label = 3)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         [(slice(0, 1, None),), None, (slice(2, 3, None),)]
 
 
 The list of slices generated by :func:`find_objects` is useful to find
 the position and dimensions of the objects in the array, but can
 also be used to perform measurements on the individual objects. Say
+<<<<<<< HEAD
 we want to find the sum of the intensities of an object in image:
 
 ::
 
     >>> image = arange(4*6,shape=(4,6))
+=======
+we want to find the sum of the intensities of an object in image::
+
+    >>> image = arange(4 * 6).reshape(4, 6)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     >>> mask = array([[0,1,1,0,0,0],[0,1,1,0,1,0],[0,0,0,1,1,1],[0,0,0,0,1,0]])
     >>> labels = label(mask)[0]
     >>> slices = find_objects(labels)
 
 Then we can calculate the sum of the elements in the second
+<<<<<<< HEAD
 object:
 
 ::
 
     >>> print where(labels[slices[1]] == 2, image[slices[1]], 0).sum()
+=======
+object::
+
+    >>> where(labels[slices[1]] == 2, image[slices[1]], 0).sum()
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     80
 
 That is however not particularly efficient, and may also be more
 complicated for other types of measurements. Therefore a few
 measurements functions are defined that accept the array of object
 labels and the index of the object to be measured. For instance
+<<<<<<< HEAD
 calculating the sum of the intensities can be done by:
 
 ::
@@ -1510,16 +2126,35 @@ measurement functions after slicing the array:
 
     >>> print sum(image[slices[1]], labels[slices[1]], 2)
     80.0
+=======
+calculating the sum of the intensities can be done by::
+
+    >>> sum(image, labels, 2)
+    80
+
+For large arrays and small objects it is more efficient to call the
+measurement functions after slicing the array::
+
+    >>> sum(image[slices[1]], labels[slices[1]], 2)
+    80
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 Alternatively, we can do the measurements for a number of labels
 with a single function call, returning a list of results. For
 instance, to measure the sum of the values of the background and
+<<<<<<< HEAD
 the second object in our example we give a list of labels:
 
 ::
 
     >>> print sum(image, labels, [0, 2])
     [178.0, 80.0]
+=======
+the second object in our example we give a list of labels::
+
+    >>> sum(image, labels, [0, 2])
+    array([178.0, 80.0])
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 The measurement functions described below all support the *index*
 parameter to indicate which object(s) should be measured. The
@@ -1630,9 +2265,15 @@ Extending :mod:`ndimage` in C
 
 .. highlight:: c
 
+<<<<<<< HEAD
 A few functions in the :mod:`scipy.ndimage` take a call-back 
 argument. This can be a python function, but also a :ctype:`PyCObject`
 containing a pointer to a C function. To use this feature, you must 
+=======
+A few functions in the :mod:`scipy.ndimage` take a call-back
+argument. This can be a python function, but also a :ctype:`PyCObject`
+containing a pointer to a C function. To use this feature, you must
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 write your own C extension that defines the function, and define a Python function that returns a :ctype:`PyCObject` containing a pointer to this function.
 
 An example of a function that supports this is
@@ -1648,7 +2289,11 @@ following function:
 
 ::
 
+<<<<<<< HEAD
     static int 
+=======
+    static int
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     _shift_function(int *output_coordinates, double* input_coordinates,
                     int output_rank, int input_rank, void *callback_data)
     {
@@ -1720,7 +2365,11 @@ To use these functions, an extension module is built:
       {"shift_function", (PyCFunction)py_shift_function, METH_VARARGS, ""},
       {NULL, NULL, 0, NULL}
     };
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     void
     initexample(void)
     {
@@ -1734,6 +2383,7 @@ This extension can then be used in Python, for example:
 ::
 
     >>> import example
+<<<<<<< HEAD
     >>> array = arange(12, shape=(4,3), type = Float64)
     >>> fnc = example.shift_function(0.5)
     >>> print geometric_transform(array, fnc)
@@ -1741,6 +2391,15 @@ This extension can then be used in Python, for example:
      [ 0.      1.3625  2.7375]
      [ 0.      4.8125  6.1875]
      [ 0.      8.2625  9.6375]]
+=======
+    >>> array = arange(12).reshape=(4, 3).astype(np.float64)
+    >>> fnc = example.shift_function(0.5)
+    >>> geometric_transform(array, fnc)
+    array([[ 0.      0.      0.    ],
+           [ 0.      1.3625  2.7375],
+           [ 0.      4.8125  6.1875],
+           [ 0.      8.2625  9.6375]])
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 C callback functions for use with :mod:`ndimage` functions must all
 be written according to this scheme. The next section lists the
@@ -1756,10 +2415,17 @@ provided to these functions must match exactly that what they
 expect. Therefore we give here the prototypes of the callback
 functions. All these callback functions accept a void
 *callback_data* pointer that must be wrapped in a :ctype:`PyCObject` using
+<<<<<<< HEAD
 the Python :cfunc:`PyCObject_FromVoidPtrAndDesc` function, which can also
 accept a pointer to a destructor function to free any memory
 allocated for *callback_data*. If *callback_data* is not needed,
 :cfunc:`PyCObject_FromVoidPtr` may be used instead. The callback
+=======
+the Python :c:func:`PyCObject_FromVoidPtrAndDesc` function, which can also
+accept a pointer to a destructor function to free any memory
+allocated for *callback_data*. If *callback_data* is not needed,
+:c:func:`PyCObject_FromVoidPtr` may be used instead. The callback
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 functions must return an integer error status that is equal to zero
 if something went wrong, or 1 otherwise. If an error occurs, you
 should normally set the python error status with an informative
@@ -1803,6 +2469,9 @@ prototype:
     coordinates at which the input must be interpolated in
     *input_coordinates*. The rank of the input and output arrays are
     given by *input_rank* and *output_rank* respectively.
+<<<<<<< HEAD
 
 
 
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
