@@ -40,7 +40,7 @@
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultStdEnv.xml"
 			menuText="NAM 12km" id="nam12stdenv" useReferenceTime="true">
-			<substitute key="modelName" value="NAM-12km"/>
+			<substitute key="modelName" value="NAM12"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultStdEnv.xml"
 			menuText="NAM 40km" id="nam40stdenv" useReferenceTime="true">

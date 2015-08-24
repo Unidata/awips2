@@ -39,7 +39,7 @@
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFourPanel.xml"
 			menuText="NAM 12km" id="nam124panel" useReferenceTime="true">
-			<substitute key="modelName" value="NAM-12km"/>
+			<substitute key="modelName" value="NAM12"/>
 			<substitute key="TP" value="TP3hr"/>
 			<substitute key="frameCount" value="29"/>
 		</contribute>

@@ -58,7 +58,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
 				    menuText="NAM 12km" id="nam12" useReferenceTime="true">
-				<substitute key="modelName" value="NAM-12km"/>
+				<substitute key="modelName" value="NAM12"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="29"/>
 			</contribute>
@@ -145,7 +145,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
 				    menuText="NAM 12km" id="nam12" useReferenceTime="true">
-				<substitute key="modelName" value="NAM-12km"/>
+				<substitute key="modelName" value="NAM12"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="29"/>
 			</contribute>
@@ -231,7 +231,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
 				    menuText="NAM 12km" id="nam12" useReferenceTime="true">
-				<substitute key="modelName" value="NAM-12km"/>
+				<substitute key="modelName" value="NAM12"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="29"/>
 			</contribute>
@@ -318,7 +318,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyU.xml"
 				    menuText="NAM 12km" id="nam12" useReferenceTime="true">
-				<substitute key="modelName" value="NAM-12km"/>
+				<substitute key="modelName" value="NAM12"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="29"/>
 			</contribute>
@@ -406,7 +406,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyA.xml"
 				    menuText="NAM 12km" id="nam12" useReferenceTime="true">
-				<substitute key="modelName" value="NAM-12km"/>
+				<substitute key="modelName" value="NAM12"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="29"/>
 			</contribute>
@@ -494,7 +494,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyB.xml"
 				    menuText="NAM 12km" id="nam12" useReferenceTime="true">
-				<substitute key="modelName" value="NAM-12km"/>
+				<substitute key="modelName" value="NAM12"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="29"/>
 			</contribute>
@@ -582,7 +582,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyC.xml"
 				    menuText="NAM 12km" id="nam12" useReferenceTime="true">
-				<substitute key="modelName" value="NAM-12km"/>
+				<substitute key="modelName" value="NAM12"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="29"/>
 			</contribute>
@@ -670,7 +670,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyYY.xml"
 				    menuText="NAM 12km" id="nam12" useReferenceTime="true">
-				<substitute key="modelName" value="NAM-12km"/>
+				<substitute key="modelName" value="NAM12"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="29"/>
 			</contribute>
@@ -758,7 +758,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyX.xml"
 				    menuText="NAM 12km" id="nam12" useReferenceTime="true">
-				<substitute key="modelName" value="NAM-12km"/>
+				<substitute key="modelName" value="NAM12"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="29"/>
 			</contribute>
@@ -846,7 +846,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyH.xml"
 				    menuText="NAM 12km" id="nam12" useReferenceTime="true">
-				<substitute key="modelName" value="NAM-12km"/>
+				<substitute key="modelName" value="NAM12"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="29"/>
 			</contribute>
@@ -934,7 +934,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyE.xml"
 				    menuText="NAM 12km" id="nam12" useReferenceTime="true">
-				<substitute key="modelName" value="NAM-12km"/>
+				<substitute key="modelName" value="NAM12"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="29"/>
 			</contribute>
@@ -1022,7 +1022,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyF.xml"
 				    menuText="NAM 12km" id="nam12" useReferenceTime="true">
-				<substitute key="modelName" value="NAM-12km"/>
+				<substitute key="modelName" value="NAM12"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="29"/>
 			</contribute>
@@ -1110,7 +1110,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyI.xml"
 				    menuText="NAM 12km" id="nam12" useReferenceTime="true">
-				<substitute key="modelName" value="NAM-12km"/>
+				<substitute key="modelName" value="NAM12"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="29"/>
 			</contribute>
@@ -1198,7 +1198,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyJ.xml"
 				    menuText="NAM 12km" id="nam12" useReferenceTime="true">
-				<substitute key="modelName" value="NAM-12km"/>
+				<substitute key="modelName" value="NAM12"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="29"/>
 			</contribute>
@@ -1286,7 +1286,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyL.xml"
 				    menuText="NAM 12km" id="nam12" useReferenceTime="true">
-				<substitute key="modelName" value="NAM-12km"/>
+				<substitute key="modelName" value="NAM12"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="29"/>
 			</contribute>
@@ -1374,7 +1374,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyV.xml"
 				    menuText="NAM 12km" id="nam12" useReferenceTime="true">
-				<substitute key="modelName" value="NAM-12km"/>
+				<substitute key="modelName" value="NAM12"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="29"/>
 			</contribute>
@@ -1462,7 +1462,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyW.xml"
 				    menuText="NAM 12km" id="nam12" useReferenceTime="true">
-				<substitute key="modelName" value="NAM-12km"/>
+				<substitute key="modelName" value="NAM12"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="29"/>
 			</contribute>
@@ -1550,7 +1550,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyY.xml"
 				    menuText="NAM 12km" id="nam12" useReferenceTime="true">
-				<substitute key="modelName" value="NAM-12km"/>
+				<substitute key="modelName" value="NAM12"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="29"/>
 			</contribute>
@@ -1638,7 +1638,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyD.xml"
 				    menuText="NAM 12km" id="nam12" useReferenceTime="true">
-				<substitute key="modelName" value="NAM-12km"/>
+				<substitute key="modelName" value="NAM12"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="29"/>
 			</contribute>
@@ -1726,7 +1726,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyM.xml"
 				    menuText="NAM 12km" id="nam12" useReferenceTime="true">
-				<substitute key="modelName" value="NAM-12km"/>
+				<substitute key="modelName" value="NAM12"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="29"/>
 			</contribute>

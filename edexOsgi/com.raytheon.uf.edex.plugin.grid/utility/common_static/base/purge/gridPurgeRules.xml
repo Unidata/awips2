@@ -172,7 +172,7 @@
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>NAM-12km</keyValue>
+		<keyValue>NAM12</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
