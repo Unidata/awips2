@@ -971,12 +971,12 @@ class ISC_Utility(SmartScript.SmartScript):
 
                 (mag,direc)=self.UVToMagDir(sum,sumv)
                 (baseMag,baseDir)=baseGrid
-                mag[noISC] = baseMag
-                direc[noISC] = baseDir
+                mag[noISC] = baseMag[noISC]
+                direc[noISC] = baseDir[noISC]
                 return bits,mag,direc
             else:
                 sum /= cnt
-                sum[noISC] = baseGrid
+                sum[noISC] = baseGrid[noISC]
                 return bits,sum
         else:
             return bits,keys,strings
