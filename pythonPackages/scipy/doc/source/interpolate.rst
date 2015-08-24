@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ========================================
 Interpolation (:mod:`scipy.interpolate`)
 ========================================
@@ -98,3 +99,6 @@ Additional tools
 
    lagrange
    approximate_taylor_polynomial
+=======
+.. automodule:: scipy.interpolate
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

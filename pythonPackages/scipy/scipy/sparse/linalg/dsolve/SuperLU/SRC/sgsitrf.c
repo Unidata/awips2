@@ -1,4 +1,5 @@
 
+<<<<<<< HEAD
 /*! @file sgsitf.c
  * \brief Computes an ILU factorization of a general sparse matrix
  *
@@ -6,6 +7,16 @@
  * -- SuperLU routine (version 4.0) --
  * Lawrence Berkeley National Laboratory.
  * June 30, 2009
+=======
+/*! @file sgsitrf.c
+ * \brief Computes an ILU factorization of a general sparse matrix
+ *
+ * <pre>
+ * -- SuperLU routine (version 4.1) --
+ * Lawrence Berkeley National Laboratory.
+ * June 30, 2009
+ *
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
  * </pre>
  */
 
@@ -191,8 +202,14 @@ sgsitrf(superlu_options_t *options, SuperMatrix *A, int relax, int panel_size,
     int       nzlumax;
     float    *amax; 
     float    drop_sum;
+<<<<<<< HEAD
     static GlobalLU_t Glu; /* persistent to facilitate multiple factors. */
     int       *iwork2;	   /* used by the second dropping rule */
+=======
+    float alpha, omega;  /* used in MILU, mimicing DRIC */
+    static GlobalLU_t Glu; /* persistent to facilitate multiple factors. */
+    float    *swork2;	   /* used by the second dropping rule */
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     /* Local scalars */
     fact_t    fact = options->Fact;
@@ -223,6 +240,10 @@ sgsitrf(superlu_options_t *options, SuperMatrix *A, int relax, int panel_size,
     int       nnzLj, nnzUj;
     double    tol_L = drop_tol, tol_U = drop_tol;
     float zero = 0.0;
+<<<<<<< HEAD
+=======
+    float one = 1.0;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     /* Executable */	   
     iinfo    = 0;
@@ -266,14 +287,25 @@ sgsitrf(superlu_options_t *options, SuperMatrix *A, int relax, int panel_size,
     for (k = 0; k < n; k++) iswap[k] = perm_c[k];
     amax = (float *) floatMalloc(panel_size);
     if (drop_rule & DROP_SECONDARY)
+<<<<<<< HEAD
 	iwork2 = (int *)intMalloc(n);
     else
 	iwork2 = NULL;
+=======
+	swork2 = (float *)floatMalloc(n);
+    else
+	swork2 = NULL;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     nnzAj = 0;
     nnzLj = 0;
     nnzUj = 0;
+<<<<<<< HEAD
     last_drop = SUPERLU_MAX(min_mn - 2 * sp_ienv(3), (int)(min_mn * 0.95));
+=======
+    last_drop = SUPERLU_MAX(min_mn - 2 * sp_ienv(7), (int)(min_mn * 0.95));
+    alpha = pow((double)n, -1.0 / options->ILU_MILU_Dim);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     /* Identify relaxed snodes */
     relax_end = (int *) intMalloc(n);
@@ -333,7 +365,11 @@ sgsitrf(superlu_options_t *options, SuperMatrix *A, int relax, int panel_size,
 
 		/* Drop small rows */
 		i = ilu_sdrop_row(options, first, last, tol_L, quota, &nnzLj,
+<<<<<<< HEAD
 				  &fill_tol, &Glu, tempv, iwork2, 0);
+=======
+				  &fill_tol, &Glu, tempv, swork2, 0);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 		/* Reset the parameters */
 		if (drop_rule & DROP_DYNAMIC) {
 		    if (gamma * nnzAj * (1.0 - 0.5 * (last + 1.0) / m)
@@ -494,7 +530,11 @@ sgsitrf(superlu_options_t *options, SuperMatrix *A, int relax, int panel_size,
 					       perm_r, &dense[k], drop_rule,
 					       milu, amax[jj - jcol] * tol_U,
 					       quota, &drop_sum, &nnzUj, &Glu,
+<<<<<<< HEAD
 					       iwork2)) != 0)
+=======
+					       swork2)) != 0)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 		    return;
 
 		/* Reset the dropping threshold if required */
@@ -505,7 +545,20 @@ sgsitrf(superlu_options_t *options, SuperMatrix *A, int relax, int panel_size,
 			tol_U = SUPERLU_MAX(drop_tol, tol_U * 0.5);
 		}
 
+<<<<<<< HEAD
                 drop_sum *= MILU_ALPHA;
+=======
+		if (drop_sum != zero)
+		{
+		    if (drop_sum > zero)
+			omega = SUPERLU_MIN(2.0 * (1.0 - alpha)
+				* amax[jj - jcol] / drop_sum, one);
+		    else
+			omega = SUPERLU_MAX(2.0 * (1.0 - alpha)
+				* amax[jj - jcol] / drop_sum, -one);
+		    drop_sum *= omega;
+                }
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 		if (usepr) pivrow = iperm_r[jj];
 		fill_tol = pow(fill_ini, 1.0 - (double)jj / (double)min_mn);
 		if ( (*info = ilu_spivotL(jj, diag_pivot_thresh, &usepr, perm_r,
@@ -547,7 +600,11 @@ sgsitrf(superlu_options_t *options, SuperMatrix *A, int relax, int panel_size,
 
 		    /* Drop small rows */
 		    i = ilu_sdrop_row(options, first, last, tol_L, quota,
+<<<<<<< HEAD
 				      &nnzLj, &fill_tol, &Glu, tempv, iwork2,
+=======
+				      &nnzLj, &fill_tol, &Glu, tempv, swork2,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 				      1);
 
 		    /* Reset the parameters */
@@ -612,6 +669,10 @@ sgsitrf(superlu_options_t *options, SuperMatrix *A, int relax, int panel_size,
     }
 
     ops[FACT] += ops[TRSV] + ops[GEMV];
+<<<<<<< HEAD
+=======
+    stat->expansions = --(Glu.num_expansions);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     if ( iperm_r_allocated ) SUPERLU_FREE (iperm_r);
     SUPERLU_FREE (iperm_c);
@@ -620,6 +681,10 @@ sgsitrf(superlu_options_t *options, SuperMatrix *A, int relax, int panel_size,
     SUPERLU_FREE (iswap);
     SUPERLU_FREE (relax_fsupc);
     SUPERLU_FREE (amax);
+<<<<<<< HEAD
     if ( iwork2 ) SUPERLU_FREE (iwork2);
+=======
+    if ( swork2 ) SUPERLU_FREE (swork2);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 }

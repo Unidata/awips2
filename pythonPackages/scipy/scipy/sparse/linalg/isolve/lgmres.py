@@ -1,6 +1,7 @@
 # Copyright (C) 2009, Pauli Virtanen <pav@iki.fi>
 # Distributed under the same license as Scipy.
 
+<<<<<<< HEAD
 import numpy as np
 import scipy.lib.blas as blas
 from iterative import set_docstring
@@ -13,23 +14,50 @@ def norm2(q):
     nrm2, = blas.get_blas_funcs(['nrm2'], [q])
     return nrm2(q)
 
+=======
+from __future__ import division, print_function, absolute_import
+
+import numpy as np
+from scipy._lib.six import xrange
+from scipy.linalg import get_blas_funcs
+from .utils import make_system
+
+__all__ = ['lgmres']
+
+
+def norm2(q):
+    q = np.asarray(q)
+    nrm2 = get_blas_funcs('nrm2', dtype=q.dtype)
+    return nrm2(q)
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def lgmres(A, b, x0=None, tol=1e-5, maxiter=1000, M=None, callback=None,
            inner_m=30, outer_k=3, outer_v=None, store_outer_Av=True):
     """
     Solve a matrix equation using the LGMRES algorithm.
 
+<<<<<<< HEAD
     The LGMRES algorithm [BJM]_ [BPh]_ is designed to avoid some problems
+=======
+    The LGMRES algorithm [1]_ [2]_ is designed to avoid some problems
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     in the convergence in restarted GMRES, and often converges in fewer
     iterations.
 
     Parameters
     ----------
     A : {sparse matrix, dense matrix, LinearOperator}
+<<<<<<< HEAD
         The N-by-N matrix of the linear system.
+=======
+        The real or complex N-by-N matrix of the linear system.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     b : {array, matrix}
         Right hand side of the linear system. Has shape (N,) or (N,1).
     x0  : {array, matrix}
         Starting guess for the solution.
+<<<<<<< HEAD
     tol : float
         Tolerance to achieve. The algorithm terminates when either the relative
         or the absolute residual is below `tol`.
@@ -37,21 +65,40 @@ def lgmres(A, b, x0=None, tol=1e-5, maxiter=1000, M=None, callback=None,
         Maximum number of iterations.  Iteration will stop after maxiter
         steps even if the specified tolerance has not been achieved.
     M : {sparse matrix, dense matrix, LinearOperator}
+=======
+    tol : float, optional
+        Tolerance to achieve. The algorithm terminates when either the relative
+        or the absolute residual is below `tol`.
+    maxiter : int, optional
+        Maximum number of iterations.  Iteration will stop after maxiter
+        steps even if the specified tolerance has not been achieved.
+    M : {sparse matrix, dense matrix, LinearOperator}, optional
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         Preconditioner for A.  The preconditioner should approximate the
         inverse of A.  Effective preconditioning dramatically improves the
         rate of convergence, which implies that fewer iterations are needed
         to reach a given error tolerance.
+<<<<<<< HEAD
     callback : function
         User-supplied function to call after each iteration.  It is called
         as callback(xk), where xk is the current solution vector.
 
     Additional parameters
     ---------------------
+=======
+    callback : function, optional
+        User-supplied function to call after each iteration.  It is called
+        as callback(xk), where xk is the current solution vector.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     inner_m : int, optional
         Number of inner GMRES iterations per each outer iteration.
     outer_k : int, optional
         Number of vectors to carry between inner GMRES iterations.
+<<<<<<< HEAD
         According to [BJM]_, good values are in the range of 1...3.
+=======
+        According to [1]_, good values are in the range of 1...3.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         However, note that if you want to use the additional vectors to
         accelerate solving multiple similar problems, larger values may
         be beneficial.
@@ -71,6 +118,7 @@ def lgmres(A, b, x0=None, tol=1e-5, maxiter=1000, M=None, callback=None,
     -------
     x : array or matrix
         The converged solution.
+<<<<<<< HEAD
     info : integer
         Provides convergence information:
             0  : successful exit
@@ -80,6 +128,18 @@ def lgmres(A, b, x0=None, tol=1e-5, maxiter=1000, M=None, callback=None,
     Notes
     -----
     The LGMRES algorithm [BJM]_ [BPh]_ is designed to avoid the
+=======
+    info : int
+        Provides convergence information:
+
+            - 0  : successful exit
+            - >0 : convergence to tolerance not achieved, number of iterations
+            - <0 : illegal input or breakdown
+
+    Notes
+    -----
+    The LGMRES algorithm [1]_ [2]_ is designed to avoid the
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     slowing of convergence in restarted GMRES, due to alternating
     residual vectors. Typically, it often outperforms GMRES(m) of
     comparable memory requirements by some measure, or at least is not
@@ -95,9 +155,15 @@ def lgmres(A, b, x0=None, tol=1e-5, maxiter=1000, M=None, callback=None,
 
     References
     ----------
+<<<<<<< HEAD
     .. [BJM] A.H. Baker and E.R. Jessup and T. Manteuffel,
              SIAM J. Matrix Anal. Appl. 26, 962 (2005).
     .. [BPh] A.H. Baker, PhD thesis, University of Colorado (2003).
+=======
+    .. [1] A.H. Baker and E.R. Jessup and T. Manteuffel,
+             SIAM J. Matrix Anal. Appl. 26, 962 (2005).
+    .. [2] A.H. Baker, PhD thesis, University of Colorado (2003).
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
              http://amath.colorado.edu/activities/thesis/allisonb/Thesis.ps
 
     """
@@ -113,7 +179,11 @@ def lgmres(A, b, x0=None, tol=1e-5, maxiter=1000, M=None, callback=None,
     if outer_v is None:
         outer_v = []
 
+<<<<<<< HEAD
     axpy, dotc, scal = None, None, None
+=======
+    axpy, dot, scal = None, None, None
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     b_norm = norm2(b)
     if b_norm == 0:
@@ -130,8 +200,13 @@ def lgmres(A, b, x0=None, tol=1e-5, maxiter=1000, M=None, callback=None,
         if axpy is None:
             if np.iscomplexobj(r_outer) and not np.iscomplexobj(x):
                 x = x.astype(r_outer.dtype)
+<<<<<<< HEAD
             axpy, dotc, scal = blas.get_blas_funcs(['axpy', 'dotc', 'scal'],
                                                    (x, r_outer))
+=======
+            axpy, dot, scal = get_blas_funcs(['axpy', 'dot', 'scal'],
+                                              (x, r_outer))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         # -- check stopping condition
         r_norm = norm2(r_outer)
@@ -208,9 +283,15 @@ def lgmres(A, b, x0=None, tol=1e-5, maxiter=1000, M=None, callback=None,
             #     ++ orthogonalize
             hcur = []
             for v in vs:
+<<<<<<< HEAD
                 alpha = dotc(v, v_new)
                 hcur.append(alpha)
                 v_new = axpy(v, v_new, v.shape[0], -alpha) # v_new -= alpha*v
+=======
+                alpha = dot(v, v_new)
+                hcur.append(alpha)
+                v_new = axpy(v, v_new, v.shape[0], -alpha)  # v_new -= alpha*v
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             hcur.append(norm2(v_new))
 
             if hcur[-1] == 0:
@@ -235,8 +316,13 @@ def lgmres(A, b, x0=None, tol=1e-5, maxiter=1000, M=None, callback=None,
                 continue
 
             # -- GMRES optimization problem
+<<<<<<< HEAD
             hess  = np.zeros((j+1, j), x.dtype)
             e1    = np.zeros((j+1,), x.dtype)
+=======
+            hess = np.zeros((j+1, j), x.dtype)
+            e1 = np.zeros((j+1,), x.dtype)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             e1[0] = inner_res_0
             for q in xrange(j):
                 hess[:(q+2),q] = hs[q]
@@ -251,7 +337,11 @@ def lgmres(A, b, x0=None, tol=1e-5, maxiter=1000, M=None, callback=None,
         # -- GMRES terminated: eval solution
         dx = ws[0]*y[0]
         for w, yc in zip(ws[1:], y[1:]):
+<<<<<<< HEAD
             dx = axpy(w, dx, dx.shape[0], yc) # dx += w*yc
+=======
+            dx = axpy(w, dx, dx.shape[0], yc)  # dx += w*yc
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         # -- Store LGMRES augmentation vectors
         nx = norm2(dx)

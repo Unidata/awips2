@@ -8,9 +8,20 @@
 #ifndef __SUPERLU_OBJECT
 #define __SUPERLU_OBJECT
 
+<<<<<<< HEAD
 #include "Python.h"
 #include "SuperLU/SRC/slu_zdefs.h"
 #define PY_ARRAY_UNIQUE_SYMBOL _scipy_sparse_superlu_ARRAY_API
+=======
+#include <Python.h>
+
+/* Undef a macro from Python which conflicts with superlu */
+#ifdef c_abs
+#undef c_abs
+#endif
+
+#include "SuperLU/SRC/slu_zdefs.h"
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 #include "numpy/arrayobject.h"
 #include "SuperLU/SRC/slu_util.h"
 #include "SuperLU/SRC/slu_dcomplex.h"
@@ -19,16 +30,31 @@
 
 #define _CHECK_INTEGER(x) (PyArray_ISINTEGER(x) && (x)->descr->elsize == sizeof(int))
 
+<<<<<<< HEAD
+=======
+/* PyArray_IS_C_CONTIGUOUS was introduced in numpy 1.6.0 */
+#if NPY_API_VERSION < 0x00000006
+    #define NPY_ARRAY_C_CONTIGUOUS    0x0001
+    #define PyArray_IS_C_CONTIGUOUS(m) PyArray_CHKFLAGS(m, NPY_ARRAY_C_CONTIGUOUS)
+#endif
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 /*
  * SuperLUObject definition
  */
 typedef struct {
+<<<<<<< HEAD
     PyObject_VAR_HEAD
     npy_intp m,n;
+=======
+    PyObject_HEAD
+    npy_intp m, n;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     SuperMatrix L;
     SuperMatrix U;
     int *perm_r;
     int *perm_c;
+<<<<<<< HEAD
     int type;
 } SciPyLUObject;
 
@@ -44,6 +70,33 @@ PyObject *newSciPyLUObject(SuperMatrix *, PyObject*, int, int);
 int set_superlu_options_from_dict(superlu_options_t *options,
                                   int ilu, PyObject *option_dict,
                                   int *panel_size, int *relax);
+=======
+    PyObject *cached_U;
+    PyObject *cached_L;
+    int type;
+} SuperLUObject;
+
+extern PyTypeObject SuperLUType;
+
+int DenseSuper_from_Numeric(SuperMatrix *, PyObject *);
+int NRFormat_from_spMatrix(SuperMatrix *, int, int, int, PyArrayObject *,
+			   PyArrayObject *, PyArrayObject *, int);
+int NCFormat_from_spMatrix(SuperMatrix *, int, int, int, PyArrayObject *,
+			   PyArrayObject *, PyArrayObject *, int);
+int LU_to_csc_matrix(SuperMatrix *L, SuperMatrix *U,
+                     PyObject **L_csc, PyObject **U_csc);
+colperm_t superlu_module_getpermc(int);
+PyObject *newSuperLUObject(SuperMatrix *, PyObject *, int, int);
+int set_superlu_options_from_dict(superlu_options_t * options,
+				  int ilu, PyObject * option_dict,
+				  int *panel_size, int *relax);
+
+void XDestroy_SuperMatrix_Store(SuperMatrix *);
+void XDestroy_SuperNode_Matrix(SuperMatrix *);
+void XDestroy_CompCol_Matrix(SuperMatrix *);
+void XDestroy_CompCol_Permuted(SuperMatrix *);
+void XStatFree(SuperLUStat_t *);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 /*
  * Definitions for other SuperLU data types than Z,
@@ -124,4 +177,8 @@ TYPE_GENERIC_FUNC(Create_Dense_Matrix, void);
 TYPE_GENERIC_FUNC(Create_CompRow_Matrix, void);
 TYPE_GENERIC_FUNC(Create_CompCol_Matrix, void);
 
+<<<<<<< HEAD
 #endif  /* __SUPERLU_OBJECT */
+=======
+#endif				/* __SUPERLU_OBJECT */
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

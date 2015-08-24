@@ -107,7 +107,11 @@
 *  ==============================================================
 *
 *     .. Parameters ..
+<<<<<<< HEAD
       DOUBLE PRECISION   ZERO, ONE
+=======
+      <rt>             ZERO, ONE
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       PARAMETER        ( ZERO = 0.0D+0, ONE = 1.0D+0 )
 *     ..
 *     .. Local Scalars ..
@@ -115,9 +119,15 @@
      $                   NEED1, NEED2
       <rt>   TOL, BNRM2, 
      $     RHOTOL, OMEGATOL, <sdsd=s,d,s,d>GETBREAK, 
+<<<<<<< HEAD
      $     <rc=s,d,sc,dz>NRM2
       <_t>   ALPHA, BETA, RHO, RHO1, OMEGA,
      $     <xdot=sdot,ddot,cdotc,zdotc>
+=======
+     $     <rc=ws,d,wsc,dz>NRM2
+      <_t>   ALPHA, BETA, RHO, RHO1, OMEGA, TMPVAL,
+     $     <xdot=wsdot,ddot,wcdotc,wzdotc>
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 *     indicates where to resume from. Only valid when IJOB = 2!
       INTEGER RLBL
 *
@@ -274,7 +284,12 @@
          BETA = ( RHO / RHO1 ) * ( ALPHA / OMEGA )
          CALL <_c>AXPY( N, -OMEGA, WORK(1,V), 1, WORK(1,P), 1 )
          CALL <_c>SCAL( N, BETA, WORK(1,P), 1 )
+<<<<<<< HEAD
          CALL <_c>AXPY( N, ONE, WORK(1,R), 1, WORK(1,P), 1 )
+=======
+         TMPVAL = ONE
+         CALL <_c>AXPY( N, TMPVAL, WORK(1,R), 1, WORK(1,P), 1 )
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       ELSE
          CALL <_c>COPY( N, WORK(1,R), 1, WORK(1,P), 1 )
       ENDIF

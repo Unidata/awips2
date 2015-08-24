@@ -1,5 +1,6 @@
 """ Test refcounting and behavior of SCXX.
 """
+<<<<<<< HEAD
 
 import sys
 
@@ -8,12 +9,30 @@ from numpy.testing import *
 
 from scipy.weave import inline_tools
 
+=======
+from __future__ import absolute_import, print_function
+
+import sys
+from UserList import UserList
+
+from numpy.testing import (TestCase, assert_equal, assert_, assert_raises,
+                           run_module_suite)
+
+from scipy.weave import inline_tools
+
+from weave_test_utils import debug_print, dec
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 class TestObjectConstruct(TestCase):
     #------------------------------------------------------------------------
     # Check that construction from basic types is allowed and have correct
     # reference counts
     #------------------------------------------------------------------------
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_int(self):
         # strange int value used to try and make sure refcount is 2.
@@ -24,6 +43,10 @@ class TestObjectConstruct(TestCase):
         res = inline_tools.inline(code)
         assert_equal(sys.getrefcount(res),2)
         assert_equal(res,1001)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_float(self):
         code = """
@@ -33,6 +56,10 @@ class TestObjectConstruct(TestCase):
         res = inline_tools.inline(code)
         assert_equal(sys.getrefcount(res),2)
         assert_equal(res,1.0)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_double(self):
         code = """
@@ -42,6 +69,10 @@ class TestObjectConstruct(TestCase):
         res = inline_tools.inline(code)
         assert_equal(sys.getrefcount(res),2)
         assert_equal(res,1.0)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_complex(self):
         code = """
@@ -52,6 +83,10 @@ class TestObjectConstruct(TestCase):
         res = inline_tools.inline(code)
         assert_equal(sys.getrefcount(res),2)
         assert_equal(res,1.0+1.0j)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_string(self):
         code = """
@@ -73,10 +108,18 @@ class TestObjectConstruct(TestCase):
         assert_equal(sys.getrefcount(res),2)
         assert_equal(res,"hello")
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class TestObjectPrint(TestCase):
     #------------------------------------------------------------------------
     # Check the object print protocol.
     #------------------------------------------------------------------------
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_stringio(self):
         import cStringIO
@@ -86,7 +129,11 @@ class TestObjectPrint(TestCase):
                val.print(file_imposter);
                """
         res = inline_tools.inline(code,['file_imposter'])
+<<<<<<< HEAD
         print file_imposter.getvalue()
+=======
+        debug_print(file_imposter.getvalue())
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         assert_equal(file_imposter.getvalue(),"'how now brown cow'")
 
 ##    @dec.slow
@@ -104,6 +151,10 @@ class TestObjectPrint(TestCase):
 
 
 class TestObjectCast(TestCase):
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_int_cast(self):
         code = """
@@ -111,6 +162,10 @@ class TestObjectCast(TestCase):
                int raw_val __attribute__ ((unused)) = val;
                """
         inline_tools.inline(code)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_double_cast(self):
         code = """
@@ -118,6 +173,10 @@ class TestObjectCast(TestCase):
                double raw_val __attribute__ ((unused)) = val;
                """
         inline_tools.inline(code)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_float_cast(self):
         code = """
@@ -125,6 +184,10 @@ class TestObjectCast(TestCase):
                float raw_val __attribute__ ((unused)) = val;
                """
         inline_tools.inline(code)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_complex_cast(self):
         code = """
@@ -133,6 +196,10 @@ class TestObjectCast(TestCase):
                std::complex<double> raw_val __attribute__ ((unused)) = val;
                """
         inline_tools.inline(code)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_string_cast(self):
         code = """
@@ -141,10 +208,15 @@ class TestObjectCast(TestCase):
                """
         inline_tools.inline(code)
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 # test class used for testing python class access from C++.
 class Foo:
     def bar(self):
         return "bar results"
+<<<<<<< HEAD
     def bar2(self,val1,val2):
         return val1, val2
     def bar3(self,val1,val2,val3=1):
@@ -155,6 +227,22 @@ class Foo:
 #        return "b"
 
 class TestObjectHasattr(TestCase):
+=======
+
+    def bar2(self,val1,val2):
+        return val1, val2
+
+    def bar3(self,val1,val2,val3=1):
+        return val1, val2, val3
+
+# class StrObj:
+#    def __str__(self):
+#        return "b"
+
+
+class TestObjectHasattr(TestCase):
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_string(self):
         a = Foo()
@@ -163,7 +251,12 @@ class TestObjectHasattr(TestCase):
                return_val = a.hasattr("b");
                """
         res = inline_tools.inline(code,['a'])
+<<<<<<< HEAD
         assert res
+=======
+        assert_(res)
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_std_string(self):
         a = Foo()
@@ -173,7 +266,12 @@ class TestObjectHasattr(TestCase):
                return_val = a.hasattr(attr_name);
                """
         res = inline_tools.inline(code,['a','attr_name'])
+<<<<<<< HEAD
         assert res
+=======
+        assert_(res)
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_string_fail(self):
         a = Foo()
@@ -182,11 +280,19 @@ class TestObjectHasattr(TestCase):
                return_val = a.hasattr("c");
                """
         res = inline_tools.inline(code,['a'])
+<<<<<<< HEAD
         assert not res
     @dec.slow
     def test_inline(self):
         """ THIS NEEDS TO MOVE TO THE INLINE TEST SUITE
         """
+=======
+        assert_(not res)
+
+    @dec.slow
+    def test_inline(self):
+        #TODO: THIS NEEDS TO MOVE TO THE INLINE TEST SUITE
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         a = Foo()
         a.b = 12345
         code = """
@@ -194,6 +300,7 @@ class TestObjectHasattr(TestCase):
                """
         try:
             before = sys.getrefcount(a)
+<<<<<<< HEAD
             res = inline_tools.inline(code,['a'])
         except AttributeError:
             after = sys.getrefcount(a)
@@ -204,6 +311,18 @@ class TestObjectHasattr(TestCase):
             print "after and after2 should be equal in the following"
             print 'before, after, after2:', before, after, after2
             pass
+=======
+            inline_tools.inline(code,['a'])
+        except AttributeError:
+            after = sys.getrefcount(a)
+            try:
+                inline_tools.inline(code,['a'])
+            except:
+                after2 = sys.getrefcount(a)
+
+            debug_print("after and after2 should be equal in the following")
+            debug_print('before, after, after2:', before, after, after2)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     @dec.slow
     def test_func(self):
@@ -213,7 +332,12 @@ class TestObjectHasattr(TestCase):
                return_val = a.hasattr("bar");
                """
         res = inline_tools.inline(code,['a'])
+<<<<<<< HEAD
         assert res
+=======
+        assert_(res)
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 class TestObjectAttr(TestCase):
 
@@ -234,10 +358,14 @@ class TestObjectAttr(TestCase):
 
     @dec.slow
     def test_char_fail(self):
+<<<<<<< HEAD
         try:
             self.generic_attr('return_val = a.attr("c");')
         except AttributeError:
             pass
+=======
+        assert_raises(AttributeError, self.generic_attr, 'return_val = a.attr("c");')
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     @dec.slow
     def test_string(self):
@@ -245,10 +373,14 @@ class TestObjectAttr(TestCase):
 
     @dec.slow
     def test_string_fail(self):
+<<<<<<< HEAD
         try:
             self.generic_attr('return_val = a.attr(std::string("c"));')
         except AttributeError:
             pass
+=======
+        assert_raises(AttributeError, self.generic_attr, 'return_val = a.attr(std::string("c"));')
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     @dec.slow
     def test_obj(self):
@@ -260,6 +392,7 @@ class TestObjectAttr(TestCase):
 
     @dec.slow
     def test_obj_fail(self):
+<<<<<<< HEAD
         try:
             code = """
                    py::object name = "c";
@@ -268,6 +401,13 @@ class TestObjectAttr(TestCase):
             self.generic_attr(code,['a'])
         except AttributeError:
             pass
+=======
+        code = """
+               py::object name = "c";
+               return_val = a.attr(name);
+               """
+        assert_raises(AttributeError, self.generic_attr, code, ['a'])
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     @dec.slow
     def test_attr_call(self):
@@ -280,24 +420,37 @@ class TestObjectAttr(TestCase):
         assert_equal(res,"bar results")
         assert_equal(first,second)
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class TestObjectSetAttr(TestCase):
 
     def generic_existing(self, code, desired):
         args = ['a']
         a = Foo()
         a.b = 12345
+<<<<<<< HEAD
         res = inline_tools.inline(code,args)
+=======
+        inline_tools.inline(code,args)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         assert_equal(a.b,desired)
 
     def generic_new(self, code, desired):
         args = ['a']
         a = Foo()
+<<<<<<< HEAD
         res = inline_tools.inline(code,args)
+=======
+        inline_tools.inline(code,args)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         assert_equal(a.b,desired)
 
     @dec.slow
     def test_existing_char(self):
         self.generic_existing('a.set_attr("b","hello");',"hello")
+<<<<<<< HEAD
     @dec.slow
     def test_new_char(self):
         self.generic_new('a.set_attr("b","hello");',"hello")
@@ -307,6 +460,21 @@ class TestObjectSetAttr(TestCase):
     @dec.slow
     def test_new_string(self):
         self.generic_new('a.set_attr("b",std::string("hello"));',"hello")
+=======
+
+    @dec.slow
+    def test_new_char(self):
+        self.generic_new('a.set_attr("b","hello");',"hello")
+
+    @dec.slow
+    def test_existing_string(self):
+        self.generic_existing('a.set_attr("b",std::string("hello"));',"hello")
+
+    @dec.slow
+    def test_new_string(self):
+        self.generic_new('a.set_attr("b",std::string("hello"));',"hello")
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_existing_object(self):
         code = """
@@ -314,6 +482,10 @@ class TestObjectSetAttr(TestCase):
                a.set_attr("b",obj);
                """
         self.generic_existing(code,"hello")
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_new_object(self):
         code = """
@@ -321,6 +493,10 @@ class TestObjectSetAttr(TestCase):
                a.set_attr("b",obj);
                """
         self.generic_new(code,"hello")
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_new_fail(self):
         try:
@@ -335,9 +511,17 @@ class TestObjectSetAttr(TestCase):
     @dec.slow
     def test_existing_int(self):
         self.generic_existing('a.set_attr("b",1);',1)
+<<<<<<< HEAD
     @dec.slow
     def test_existing_double(self):
         self.generic_existing('a.set_attr("b",1.0);',1.0)
+=======
+
+    @dec.slow
+    def test_existing_double(self):
+        self.generic_existing('a.set_attr("b",1.0);',1.0)
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_existing_complex(self):
         code = """
@@ -345,9 +529,17 @@ class TestObjectSetAttr(TestCase):
                a.set_attr("b",obj);
                """
         self.generic_existing(code,1+1j)
+<<<<<<< HEAD
     @dec.slow
     def test_existing_char1(self):
         self.generic_existing('a.set_attr("b","hello");',"hello")
+=======
+
+    @dec.slow
+    def test_existing_char1(self):
+        self.generic_existing('a.set_attr("b","hello");',"hello")
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_existing_string1(self):
         code = """
@@ -356,17 +548,32 @@ class TestObjectSetAttr(TestCase):
                """
         self.generic_existing(code,"hello")
 
+<<<<<<< HEAD
 class TestObjectDel(TestCase):
+=======
+
+class TestObjectDel(TestCase):
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     def generic(self, code):
         args = ['a']
         a = Foo()
         a.b = 12345
+<<<<<<< HEAD
         res = inline_tools.inline(code,args)
         assert not hasattr(a,"b")
+=======
+        inline_tools.inline(code,args)
+        assert_(not hasattr(a,"b"))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     @dec.slow
     def test_char(self):
         self.generic('a.del("b");')
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_string(self):
         code = """
@@ -374,6 +581,10 @@ class TestObjectDel(TestCase):
                a.del(name);
                """
         self.generic(code)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_object(self):
         code = """
@@ -382,72 +593,133 @@ class TestObjectDel(TestCase):
                """
         self.generic(code)
 
+<<<<<<< HEAD
 class TestObjectCmp(TestCase):
+=======
+
+class TestObjectCmp(TestCase):
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_equal(self):
         a,b = 1,1
         res = inline_tools.inline('return_val = (a == b);',['a','b'])
         assert_equal(res,(a == b))
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_equal_objects(self):
         class Foo:
             def __init__(self,x):
                 self.x = x
+<<<<<<< HEAD
             def __cmp__(self,other):
                 return cmp(self.x,other.x)
         a,b = Foo(1),Foo(2)
         res = inline_tools.inline('return_val = (a == b);',['a','b'])
         assert_equal(res,(a == b))
+=======
+
+            def __cmp__(self,other):
+                return cmp(self.x,other.x)
+
+        a,b = Foo(1),Foo(2)
+        res = inline_tools.inline('return_val = (a == b);',['a','b'])
+        assert_equal(res,(a == b))
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_lt(self):
         a,b = 1,2
         res = inline_tools.inline('return_val = (a < b);',['a','b'])
         assert_equal(res,(a < b))
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_gt(self):
         a,b = 1,2
         res = inline_tools.inline('return_val = (a > b);',['a','b'])
         assert_equal(res,(a > b))
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_gte(self):
         a,b = 1,2
         res = inline_tools.inline('return_val = (a >= b);',['a','b'])
         assert_equal(res,(a >= b))
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_lte(self):
         a,b = 1,2
         res = inline_tools.inline('return_val = (a <= b);',['a','b'])
         assert_equal(res,(a <= b))
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_not_equal(self):
         a,b = 1,2
         res = inline_tools.inline('return_val = (a != b);',['a','b'])
         assert_equal(res,(a != b))
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_int(self):
         a = 1
         res = inline_tools.inline('return_val = (a == 1);',['a'])
         assert_equal(res,(a == 1))
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_int2(self):
         a = 1
         res = inline_tools.inline('return_val = (1 == a);',['a'])
         assert_equal(res,(a == 1))
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_unsigned_long(self):
         a = 1
         res = inline_tools.inline('return_val = (a == (unsigned long)1);',['a'])
         assert_equal(res,(a == 1))
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_double(self):
         a = 1
         res = inline_tools.inline('return_val = (a == 1.0);',['a'])
         assert_equal(res,(a == 1.0))
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_char(self):
         a = "hello"
         res = inline_tools.inline('return_val = (a == "hello");',['a'])
         assert_equal(res,(a == "hello"))
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_std_string(self):
         a = "hello"
@@ -458,12 +730,22 @@ class TestObjectCmp(TestCase):
         res = inline_tools.inline(code,['a'])
         assert_equal(res,(a == "hello"))
 
+<<<<<<< HEAD
 class TestObjectRepr(TestCase):
+=======
+
+class TestObjectRepr(TestCase):
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_repr(self):
         class Foo:
             def __str__(self):
                 return "str return"
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             def __repr__(self):
                 return "repr return"
         a = Foo()
@@ -475,12 +757,22 @@ class TestObjectRepr(TestCase):
         assert_equal(first,second)
         assert_equal(res,"repr return")
 
+<<<<<<< HEAD
 class TestObjectStr(TestCase):
+=======
+
+class TestObjectStr(TestCase):
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_str(self):
         class Foo:
             def __str__(self):
                 return "str return"
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             def __repr__(self):
                 return "repr return"
         a = Foo()
@@ -490,6 +782,7 @@ class TestObjectStr(TestCase):
         res = inline_tools.inline('return_val = a.str();',['a'])
         second = sys.getrefcount(res)
         assert_equal(first,second)
+<<<<<<< HEAD
         print res
         assert_equal(res,"str return")
 
@@ -503,6 +796,25 @@ class TestObjectUnicode(TestCase):
             def __str__(self):
                 return "unicode"
         a= Foo()
+=======
+        assert_equal(res,"str return")
+
+
+class TestObjectUnicode(TestCase):
+
+    # This ain't going to win awards for test of the year...
+
+    @dec.slow
+    def test_unicode(self):
+        class Foo:
+
+            def __repr__(self):
+                return "repr return"
+
+            def __str__(self):
+                return "unicode"
+        a = Foo()
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         res = inline_tools.inline('return_val = a.unicode();',['a'])
         first = sys.getrefcount(res)
         del res
@@ -511,35 +823,69 @@ class TestObjectUnicode(TestCase):
         assert_equal(first,second)
         assert_equal(res,"unicode")
 
+<<<<<<< HEAD
 class TestObjectIsCallable(TestCase):
+=======
+
+class TestObjectIsCallable(TestCase):
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_true(self):
         class Foo:
             def __call__(self):
                 return 0
+<<<<<<< HEAD
         a= Foo()
         res = inline_tools.inline('return_val = a.is_callable();',['a'])
         assert res
+=======
+
+        a = Foo()
+        res = inline_tools.inline('return_val = a.is_callable();',['a'])
+        assert_(res)
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_false(self):
         class Foo:
             pass
+<<<<<<< HEAD
         a= Foo()
         res = inline_tools.inline('return_val = a.is_callable();',['a'])
         assert not res
 
 class TestObjectCall(TestCase):
+=======
+
+        a = Foo()
+        res = inline_tools.inline('return_val = a.is_callable();',['a'])
+        assert_(not res)
+
+
+class TestObjectCall(TestCase):
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_noargs(self):
         def Foo():
             return (1,2,3)
         res = inline_tools.inline('return_val = Foo.call();',['Foo'])
         assert_equal(res,(1,2,3))
+<<<<<<< HEAD
         assert_equal(sys.getrefcount(res),3) # should be 2?
+=======
+        assert_equal(sys.getrefcount(res),3)  # should be 2?
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_args(self):
         def Foo(val1,val2):
             return (val1,val2)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         code = """
                py::tuple args(2);
                args[0] = 1;
@@ -549,10 +895,18 @@ class TestObjectCall(TestCase):
         res = inline_tools.inline(code,['Foo'])
         assert_equal(res,(1,"hello"))
         assert_equal(sys.getrefcount(res),2)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_args_kw(self):
         def Foo(val1,val2,val3=1):
             return (val1,val2,val3)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         code = """
                py::tuple args(2);
                args[0] = 1;
@@ -564,12 +918,24 @@ class TestObjectCall(TestCase):
         res = inline_tools.inline(code,['Foo'])
         assert_equal(res,(1,"hello",3))
         assert_equal(sys.getrefcount(res),2)
+<<<<<<< HEAD
     @dec.slow
     def test_noargs_with_args(self):
         # calling a function that does take args with args
         # should fail.
         def Foo():
             return "blah"
+=======
+
+    @dec.slow
+    def test_noargs_with_args_not_instantiated(self):
+        # calling a function that doesn't take args with args should fail.
+        # Note: difference between this test add ``test_noargs_with_args``
+        # below is that here Foo is not instantiated.
+        def Foo():
+            return "blah"
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         code = """
                py::tuple args(2);
                args[0] = 1;
@@ -578,6 +944,7 @@ class TestObjectCall(TestCase):
                """
         try:
             first = sys.getrefcount(Foo)
+<<<<<<< HEAD
             res = inline_tools.inline(code,['Foo'])
         except TypeError:
             second = sys.getrefcount(Foo)
@@ -589,6 +956,22 @@ class TestObjectCall(TestCase):
         assert_equal(second,third)
 
 class TestObjectMcall(TestCase):
+=======
+            inline_tools.inline(code,['Foo'])
+        except TypeError:
+            second = sys.getrefcount(Foo)
+            try:
+                inline_tools.inline(code,['Foo'])
+            except TypeError:
+                third = sys.getrefcount(Foo)
+
+        # first should == second, but the weird refcount error
+        assert_equal(second,third)
+
+
+class TestObjectMcall(TestCase):
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_noargs(self):
         a = Foo()
@@ -600,6 +983,10 @@ class TestObjectMcall(TestCase):
         assert_equal(res,"bar results")
         second = sys.getrefcount(res)
         assert_equal(first,second)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_args(self):
         a = Foo()
@@ -612,6 +999,10 @@ class TestObjectMcall(TestCase):
         res = inline_tools.inline(code,['a'])
         assert_equal(res,(1,"hello"))
         assert_equal(sys.getrefcount(res),2)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_args_kw(self):
         a = Foo()
@@ -626,6 +1017,10 @@ class TestObjectMcall(TestCase):
         res = inline_tools.inline(code,['a'])
         assert_equal(res,(1,"hello",3))
         assert_equal(sys.getrefcount(res),2)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_std_noargs(self):
         a = Foo()
@@ -638,6 +1033,10 @@ class TestObjectMcall(TestCase):
         assert_equal(res,"bar results")
         second = sys.getrefcount(res)
         assert_equal(first,second)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_std_args(self):
         a = Foo()
@@ -651,6 +1050,10 @@ class TestObjectMcall(TestCase):
         res = inline_tools.inline(code,['a','method'])
         assert_equal(res,(1,"hello"))
         assert_equal(sys.getrefcount(res),2)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_std_args_kw(self):
         a = Foo()
@@ -666,10 +1069,17 @@ class TestObjectMcall(TestCase):
         res = inline_tools.inline(code,['a','method'])
         assert_equal(res,(1,"hello",3))
         assert_equal(sys.getrefcount(res),2)
+<<<<<<< HEAD
     @dec.slow
     def test_noargs_with_args(self):
         # calling a function that does take args with args
         # should fail.
+=======
+
+    @dec.slow
+    def test_noargs_with_args(self):
+        # calling a function that doesn't take args with args should fail.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         a = Foo()
         code = """
                py::tuple args(2);
@@ -679,6 +1089,7 @@ class TestObjectMcall(TestCase):
                """
         try:
             first = sys.getrefcount(a)
+<<<<<<< HEAD
             res = inline_tools.inline(code,['a'])
         except TypeError:
             second = sys.getrefcount(a)
@@ -690,21 +1101,50 @@ class TestObjectMcall(TestCase):
         assert_equal(second,third)
 
 class TestObjectHash(TestCase):
+=======
+            inline_tools.inline(code,['a'])
+        except TypeError:
+            second = sys.getrefcount(a)
+            try:
+                inline_tools.inline(code,['a'])
+            except TypeError:
+                third = sys.getrefcount(a)
+
+        # first should == second, but the weird refcount error
+        assert_equal(second,third)
+
+
+class TestObjectHash(TestCase):
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_hash(self):
         class Foo:
             def __hash__(self):
                 return 123
+<<<<<<< HEAD
         a= Foo()
         res = inline_tools.inline('return_val = a.hash(); ',['a'])
         print 'hash:', res
         assert_equal(res,123)
 
 class TestObjectIsTrue(TestCase):
+=======
+
+        a = Foo()
+        res = inline_tools.inline('return_val = a.hash(); ',['a'])
+        debug_print('hash:', res)
+        assert_equal(res,123)
+
+
+class TestObjectIsTrue(TestCase):
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_true(self):
         class Foo:
             pass
+<<<<<<< HEAD
         a= Foo()
         res = inline_tools.inline('return_val = a.is_true();',['a'])
         assert_equal(res,1)
@@ -715,42 +1155,96 @@ class TestObjectIsTrue(TestCase):
         assert_equal(res,0)
 
 class TestObjectType(TestCase):
+=======
+
+        a = Foo()
+        res = inline_tools.inline('return_val = a.is_true();',['a'])
+        assert_equal(res,1)
+
+    @dec.slow
+    def test_false(self):
+        a = None
+        res = inline_tools.inline('return_val = a.is_true();',['a'])
+        assert_equal(res,0)
+
+
+class TestObjectType(TestCase):
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_type(self):
         class Foo:
             pass
+<<<<<<< HEAD
         a= Foo()
         res = inline_tools.inline('return_val = a.type();',['a'])
         assert_equal(res,type(a))
 
 class TestObjectSize(TestCase):
+=======
+
+        a = Foo()
+        res = inline_tools.inline('return_val = a.type();',['a'])
+        assert_equal(res,type(a))
+
+
+class TestObjectSize(TestCase):
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_size(self):
         class Foo:
             def __len__(self):
                 return 10
+<<<<<<< HEAD
         a= Foo()
         res = inline_tools.inline('return_val = a.size();',['a'])
         assert_equal(res,len(a))
+=======
+
+        a = Foo()
+        res = inline_tools.inline('return_val = a.size();',['a'])
+        assert_equal(res,len(a))
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_len(self):
         class Foo:
             def __len__(self):
                 return 10
+<<<<<<< HEAD
         a= Foo()
         res = inline_tools.inline('return_val = a.len();',['a'])
         assert_equal(res,len(a))
+=======
+
+        a = Foo()
+        res = inline_tools.inline('return_val = a.len();',['a'])
+        assert_equal(res,len(a))
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_length(self):
         class Foo:
             def __len__(self):
                 return 10
+<<<<<<< HEAD
         a= Foo()
         res = inline_tools.inline('return_val = a.length();',['a'])
         assert_equal(res,len(a))
 
 from UserList import UserList
 class TestObjectSetItemOpIndex(TestCase):
+=======
+
+        a = Foo()
+        res = inline_tools.inline('return_val = a.length();',['a'])
+        assert_equal(res,len(a))
+
+
+class TestObjectSetItemOpIndex(TestCase):
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_list_refcount(self):
         a = UserList([1,2,3])
@@ -759,43 +1253,80 @@ class TestObjectSetItemOpIndex(TestCase):
         before1 = sys.getrefcount(a)
         after1 = sys.getrefcount(a)
         assert_equal(after1,before1)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_set_int(self):
         a = UserList([1,2,3])
         inline_tools.inline("a[1] = 1234;",['a'])
         assert_equal(sys.getrefcount(a[1]),2)
         assert_equal(a[1],1234)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_set_double(self):
         a = UserList([1,2,3])
         inline_tools.inline("a[1] = 123.0;",['a'])
         assert_equal(sys.getrefcount(a[1]),2)
         assert_equal(a[1],123.0)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_set_char(self):
         a = UserList([1,2,3])
         inline_tools.inline('a[1] = "bubba";',['a'])
         assert_equal(sys.getrefcount(a[1]),2)
         assert_equal(a[1],'bubba')
+<<<<<<< HEAD
     @dec.slow
     def test_set_string(self):
+=======
+
+    @dec.slow
+    def test_set_string1(self):
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         a = UserList([1,2,3])
         inline_tools.inline('a[1] = std::string("sissy");',['a'])
         assert_equal(sys.getrefcount(a[1]),2)
         assert_equal(a[1],'sissy')
+<<<<<<< HEAD
     @dec.slow
     def test_set_string(self):
+=======
+
+    @dec.slow
+    def test_set_string2(self):
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         a = UserList([1,2,3])
         inline_tools.inline('a[1] = std::complex<double>(1,1);',['a'])
         assert_equal(sys.getrefcount(a[1]),2)
         assert_equal(a[1],1+1j)
 
+<<<<<<< HEAD
 from UserDict import UserDict
 class TestObjectSetItemOpKey(TestCase):
     @dec.slow
     def test_key_refcount(self):
         a = UserDict()
         code =  """
+=======
+
+from UserDict import UserDict
+
+
+class TestObjectSetItemOpKey(TestCase):
+
+    @dec.slow
+    def test_key_refcount(self):
+        a = UserDict()
+        code = """
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                 py::object one = 1;
                 py::object two = 2;
                 py::tuple ref_counts(3);
@@ -841,22 +1372,40 @@ class TestObjectSetItemOpKey(TestCase):
         assert_equal(sys.getrefcount(key),5)
         assert_equal(sys.getrefcount(a[key]),2)
         assert_equal(a[key],123.0)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_set_double_new(self):
         a = UserDict()
         key = 1.0
         inline_tools.inline('a[key] = 123.0;',['a','key'])
+<<<<<<< HEAD
         assert_equal(sys.getrefcount(key),4) # should be 3
         assert_equal(sys.getrefcount(a[key]),2)
         assert_equal(a[key],123.0)
+=======
+        assert_equal(sys.getrefcount(key),4)  # should be 3
+        assert_equal(sys.getrefcount(a[key]),2)
+        assert_equal(a[key],123.0)
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_set_complex(self):
         a = UserDict()
         key = 1+1j
         inline_tools.inline("a[key] = 1234;",['a','key'])
+<<<<<<< HEAD
         assert_equal(sys.getrefcount(key),4) # should be 3
         assert_equal(sys.getrefcount(a[key]),2)
         assert_equal(a[key],1234)
+=======
+        assert_equal(sys.getrefcount(key),4)  # should be 3
+        assert_equal(sys.getrefcount(a[key]),2)
+        assert_equal(a[key],1234)
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_set_char(self):
         a = UserDict()
@@ -867,11 +1416,22 @@ class TestObjectSetItemOpKey(TestCase):
     @dec.slow
     def test_set_class(self):
         a = UserDict()
+<<<<<<< HEAD
         class Foo:
             def __init__(self,val):
                 self.val = val
             def __hash__(self):
                 return self.val
+=======
+
+        class Foo:
+            def __init__(self,val):
+                self.val = val
+
+            def __hash__(self):
+                return self.val
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         key = Foo(4)
         inline_tools.inline('a[key] = "bubba";',['a','key'])
         first = sys.getrefcount(key)
@@ -883,6 +1443,10 @@ class TestObjectSetItemOpKey(TestCase):
         assert_equal(sys.getrefcount(key),4)
         assert_equal(sys.getrefcount(a[key]),2)
         assert_equal(a[key],'bubba')
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @dec.slow
     def test_set_from_member(self):
         a = UserDict()
@@ -891,6 +1455,12 @@ class TestObjectSetItemOpKey(TestCase):
         inline_tools.inline('a["first"] = a["second"];',['a'])
         assert_equal(a['first'],a['second'])
 
+<<<<<<< HEAD
 if __name__ == "__main__":
     import nose
     nose.run(argv=['', __file__])
+=======
+
+if __name__ == "__main__":
+    run_module_suite()
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

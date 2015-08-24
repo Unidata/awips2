@@ -91,7 +91,11 @@ c     TR95-13, Department of Computational and Applied Mathematics.
 c
 c\Routines called:
 c     ivout   ARPACK utility routine that prints integers. 
+<<<<<<< HEAD
 c     second  ARPACK utility routine for timing.
+=======
+c     arscnd  ARPACK utility routine for timing.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c     dvout   ARPACK utility routine that prints vectors.
 c     dlamch  LAPACK routine that determines machine constants.
 c     dlartg  LAPACK Givens rotation construction routine.
@@ -176,7 +180,11 @@ c     | External Subroutines |
 c     %----------------------%
 c
       external   daxpy, dcopy, dscal, dlacpy, dlartg, dlaset, dvout, 
+<<<<<<< HEAD
      &           ivout, second, dgemv
+=======
+     &           ivout, arscnd, dgemv
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %--------------------%
 c     | External Functions |
@@ -213,7 +221,11 @@ c     | Initialize timing statistics  |
 c     | & message level for debugging |
 c     %-------------------------------%
 c
+<<<<<<< HEAD
       call second (t0)
+=======
+      call arscnd (t0)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       msglvl = msapps
 c 
       kplusp = kev + np 
@@ -503,7 +515,11 @@ c
          end if
       end if
 c
+<<<<<<< HEAD
       call second (t1)
+=======
+      call arscnd (t1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       tsapps = tsapps + (t1 - t0)
 c 
  9000 continue 

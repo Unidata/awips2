@@ -1,8 +1,16 @@
+<<<<<<< HEAD
 .. sectionauthor:: Eric Jones eric@enthought.com
 
 *****
 Weave
 *****
+=======
+*********************
+Weave (`scipy.weave`)
+*********************
+
+.. sectionauthor:: Eric Jones eric@enthought.com
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 =======
 Outline
@@ -73,11 +81,18 @@ etc.
 .. note::
 
   ``weave`` is actually part of the `SciPy`_ package. However, it
+<<<<<<< HEAD
   also works fine as a standalone package (you can check out the sources using
   ``svn co http://svn.scipy.org/svn/scipy/trunk/Lib/weave weave`` and install as
   python setup.py install). The examples here are given as if it is used as a
   stand alone package. If you are using from within scipy, you can use `` from
   scipy import weave`` and the examples will work identically.
+=======
+  also works fine as a standalone package (you can install from scipy/weave
+  with ``python setup.py install``). The examples here are given as if it is
+  used as a stand alone package. If you are using from within scipy, you can
+  use ``from scipy import weave`` and the examples will work identically.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 ==============
@@ -307,8 +322,13 @@ inline, it is still less efficient for simple code snippets than using
 equivalent Python code. The simple ``printf`` example is actually slower by
 30% or so than using Python ``print`` statement. And, it is not difficult to
 create code fragments that are 8-10 times slower using inline than equivalent
+<<<<<<< HEAD
 Python. However, for more complicated algorithms, the speed up can be worth
 while -- anywhwere from 1.5- 30 times faster. Algorithms that have to
+=======
+Python. However, for more complicated algorithms, the speedup can be
+worthwhile -- anywhere from 1.5-30 times faster. Algorithms that have to
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 manipulate Python objects (sorting a list) usually only see a factor of 2 or
 so improvement. Algorithms that are highly computational or manipulate NumPy
 arrays can see much larger improvements. The examples/vq.py file shows a
@@ -320,7 +340,11 @@ More with printf
 ================
 
 MSVC users will actually see a bit of compiler output that distutils does not
+<<<<<<< HEAD
 supress the first time the code executes::
+=======
+suppress the first time the code executes::
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         >>> weave.inline(r'printf("%d\n",a);',['a'])
         sc_e013937dbc8c647ac62438874e5795131.cpp
@@ -332,7 +356,11 @@ supress the first time the code executes::
 Nothing bad is happening, its just a bit annoying. * Anyone know how to turn
 this off?*
 
+<<<<<<< HEAD
 This example also demonstrates using 'raw strings'. The ``r`` preceeding the
+=======
+This example also demonstrates using 'raw strings'. The ``r`` preceding the
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 code string in the last example denotes that this is a 'raw string'. In raw
 strings, the backslash character is not interpreted as an escape character,
 and so it isn't necessary to use a double backslash to indicate that the '\n'
@@ -439,7 +467,11 @@ This Python version works for arbitrary Python data types. The C version
 below is specialized to handle integer values. There is a little type
 checking done in Python to assure that we're working with the correct data
 types before heading into C. The variables ``seq`` and ``t`` don't need to be
+<<<<<<< HEAD
 declared beacuse ``weave`` handles converting and declaring them in the C
+=======
+declared because ``weave`` handles converting and declaring them in the C
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 code. All other temporary variables such as ``min, max``, etc. must be
 declared -- it is C after all. Here's the new mixed Python/C function::
 
@@ -484,7 +516,11 @@ CXX library can be found at its `website`_. The basics are that the CXX
 provides C++ class equivalents for Python objects that simplify, or at least
 object orientify, working with Python objects in C/C++. For example,
 ``seq.length()`` returns the length of the list. A little more about CXX and
+<<<<<<< HEAD
 its class methods, etc. is in the ** type conversions ** section.
+=======
+its class methods, etc. is in the `Type Conversions` section.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 .. note::
   CXX uses templates and therefore may be a little less portable than
@@ -661,7 +697,11 @@ And the following is a inline C version of the same function::
 
 
 This example uses blitz++ arrays instead of the standard representation of
+<<<<<<< HEAD
 NumPy arrays so that indexing is simplier to write. This is accomplished by
+=======
+NumPy arrays so that indexing is simpler to write. This is accomplished by
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 passing in the blitz++ "type factories" to override the standard Python to
 C++ type conversions. Blitz++ arrays allow you to write clean, fast code, but
 they also are sloooow to compile (20 seconds or more for this snippet). This
@@ -884,6 +924,7 @@ Microsoft VC++ installed.
 
 
 When ``inline`` is first run, you'll notice that pause and some trash printed
+<<<<<<< HEAD
 to the screen. The "trash" is acutually part of the compilers output that
 distutils does not supress. The name of the extension file,
 ``sc_bighonkingnumber.cpp``, is generated from the md5 check sum of the C/C++
@@ -891,6 +932,15 @@ code fragment. On Unix or windows machines with only gcc installed, the trash
 will not appear. On the second call, the code fragment is not compiled since
 it already exists, and only the answer is returned. Now kill the interpreter
 and restart, and run the same code with a different string.
+=======
+to the screen. The "trash" is actually part of the compiler's output that
+distutils does not supress. The name of the extension file,
+``sc_bighonkingnumber.cpp``, is generated from the SHA-256 check sum of the
+C/C++ code fragment. On Unix or windows machines with only gcc installed, the
+trash will not appear. On the second call, the code fragment is not compiled
+since it already exists, and only the answer is returned. Now kill the
+interpreter and restart, and run the same code with a different string.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 ::
 
@@ -925,7 +975,11 @@ example from above::
         21
 
 
+<<<<<<< HEAD
 Everytime, the ``code`` is changed, ``inline`` does a recompile. However,
+=======
+Every time the ``code`` is changed, ``inline`` does a recompile. However,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 changing any of the other options in inline does not force a recompile. The
 ``force`` option was added so that one could force a recompile when tinkering
 with other variables. In practice, it is just as easy to change the ``code``
@@ -1142,7 +1196,11 @@ confirm or correct this? Another thing I'd like to know is whether there is a
 way to write to the local namespace of another stack frame from C/C++. If so,
 it would be possible to have some clean up code in compiled functions that
 wrote final values of variables in C++ back to the correct Python stack
+<<<<<<< HEAD
 frame. I think this goes a long way toward making ``inline`` truely live up
+=======
+frame. I think this goes a long way toward making ``inline`` truly live up
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 to its name. I don't think we'll get to the point of creating variables in
 Python for variables created in C -- although I suppose with a C/C++ parser
 you could do that also.
@@ -1152,8 +1210,13 @@ A quick look at the code
 ------------------------
 
 ``weave`` generates a C++ file holding an extension function for each
+<<<<<<< HEAD
 ``inline`` code snippet. These file names are generated using from the md5
 signature of the code snippet and saved to a location specified by the
+=======
+``inline`` code snippet. These file names are generated using from the
+SHA-256 signature of the code snippet and saved to a location specified by the
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 PYTHONCOMPILED environment variable (discussed later). The cpp files are
 generally about 200-400 lines long and include quite a few functions to
 support type conversions, etc. However, the actual compiled function is
@@ -1255,7 +1318,11 @@ TypeError.
             if(PyCallable_Check(py_obj) && PyInstance_Check(py_obj)) return "callable";
             if(PyInstance_Check(py_obj)) return "instance";
             if(PyCallable_Check(py_obj)) return "callable";
+<<<<<<< HEAD
             return "unkown type";
+=======
+            return "unknown type";
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         }
 
 Since the ``inline`` is also executed within the ``try/catch`` block, you can
@@ -1270,7 +1337,11 @@ this, either uses exceptions or set ``return_val`` to NULL and use
 Technical Details
 =================
 
+<<<<<<< HEAD
 There are several main steps to using C/C++ code withing Python:
+=======
+There are several main steps to using C/C++ code within Python:
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 1.  Type conversion
 2.  Generating C/C++ code
@@ -1344,10 +1415,17 @@ This is actually the exact code that is generated by calling
 
 
 The ``/* inline code */`` section is filled with the code passed to the
+<<<<<<< HEAD
 ``inline()`` function call. The ``/*argument convserion code*/`` and ``/*
 cleanup code */`` sections are filled with code that handles conversion from
 Python to C++ types and code that deallocates memory or manipulates reference
 counts before the function returns. The following sections demostrate how
+=======
+``inline()`` function call. The ``/*argument conversion code*/`` and ``/*
+cleanup code */`` sections are filled with code that handles conversion from
+Python to C++ types and code that deallocates memory or manipulates reference
+counts before the function returns. The following sections demonstrate how
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 these two areas are filled in by the default conversion methods. * Note: I'm
 not sure I have reference counting correct on a few of these. The only thing
 I increase/decrease the ref count on is NumPy arrays. If you see an issue,
@@ -1418,7 +1496,11 @@ The argument conversion code inserted for ``a`` is::
 
 
 ``get_variable()`` reads the variable ``a`` from the local and global
+<<<<<<< HEAD
 namespaces. ``py_to_list()`` and its friends has the following form::
+=======
+namespaces. ``py_to_list()`` and its friends have the following form::
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         static Py::List py_to_list(PyObject* py_obj,char* name)
         {
@@ -1544,8 +1626,13 @@ really is::
 
 PythonWin has reassigned ``sys.stdout`` to a special object that implements
 the Python file interface. This works great in Python, but since the special
+<<<<<<< HEAD
 object doesn't have a FILE* pointer underlying it, fprintf doesn't know what
 to do with it (well this will be the problem when instance conversion is
+=======
+object doesn't have a FILE* pointer underlying it, ``fprintf`` doesn't know
+what to do with it (well this will be the problem when instance conversion is
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 implemented...).
 
 Callable, Instance, and Module Conversion
@@ -1564,7 +1651,11 @@ Callable, Instance, and Module Conversion
 
 
 Callable and instance variables are converted to PyObject*. Nothing is done
+<<<<<<< HEAD
 to there reference counts.
+=======
+to their reference counts.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 ::
 
@@ -1597,12 +1688,21 @@ There is no cleanup code for callables, modules, or instances.
 Customizing Conversions
 -----------------------
 
+<<<<<<< HEAD
 Converting from Python to C++ types is handled by xxx_specification classes.
 A type specification class actually serve in two related but different roles.
 The first is in determining whether a Python variable that needs to be
 converted should be represented by the given class. The second is as a code
 generator that generate C++ code needed to convert from Python to C++ types
 for a specific variable.
+=======
+Converting from Python to C++ types is handled by ``xxx_specification``
+classes.  A type specification class actually serve in two related but
+different roles.  The first is in determining whether a Python variable that
+needs to be converted should be represented by the given class. The second is
+as a code generator that generates C++ code needed to convert from Python to
+C++ types for a specific variable.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 When
 
@@ -1643,12 +1743,20 @@ The Catalog
 
 ``catalog.py`` has a class called ``catalog`` that helps keep track of
 previously compiled functions. This prevents ``inline()`` and related
+<<<<<<< HEAD
 functions from having to compile functions everytime they are called.
+=======
+functions from having to compile functions every time they are called.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 Instead, catalog will check an in memory cache to see if the function has
 already been loaded into python. If it hasn't, then it starts searching
 through persisent catalogs on disk to see if it finds an entry for the given
 function. By saving information about compiled functions to disk, it isn't
+<<<<<<< HEAD
 necessary to re-compile functions everytime you stop and restart the
+=======
+necessary to re-compile functions every time you stop and restart the
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 interpreter. Functions are compiled once and stored for future use.
 
 When ``inline(cpp_code)`` is called the following things happen:
@@ -1691,7 +1799,11 @@ code string and the value is either a single function (as in the "level 1"
 cache) or a list of functions (as in the main catalog cache). On disk
 catalogs are stored in the same manor using standard Python shelves.
 
+<<<<<<< HEAD
 Early on, there was a question as to whether md5 check sums of the C++ code
+=======
+Early on, there was a question as to whether md5 checksums of the C++ code
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 strings should be used instead of the actual code strings. I think this is
 the route inline Perl took. Some (admittedly quick) tests of the md5 vs. the
 entire string showed that using the entire string was at least a factor of 3
@@ -1703,7 +1815,11 @@ dictionary. Look at the examples/md5_speed.py file for the test run.
 Catalog search paths and the PYTHONCOMPILED variable
 ----------------------------------------------------
 
+<<<<<<< HEAD
 The default location for catalog files on Unix is is ~/.pythonXX_compiled
+=======
+The default location for catalog files on Unix is ~/.pythonXX_compiled
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 where XX is version of Python being used. If this directory doesn't exist, it
 is created the first time a catalog is used. The directory must be writable.
 If, for any reason it isn't, then the catalog attempts to create a directory
@@ -1713,7 +1829,11 @@ you're out of luck. I don't think either of these should ever fail though. On
 Windows, a directory called pythonXX_compiled is created in the user's
 temporary directory.
 
+<<<<<<< HEAD
 The actual catalog file that lives in this directory is a Python shelve with
+=======
+The actual catalog file that lives in this directory is a Python shelf with
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 a platform specific name such as "nt21compiled_catalog" so that multiple OSes
 can share the same file systems without trampling on each other. Along with
 the catalog file, the .cpp and .so or .pyd files created by inline will live
@@ -1809,10 +1929,18 @@ quotes around it and then use ``weave.blitz``::
 
 
 The first time ``weave.blitz`` is run for a given expression and set of
+<<<<<<< HEAD
 arguements, C++ code that accomplishes the exact same task as the Python
 expression is generated and compiled to an extension module. This can take up
 to a couple of minutes depending on the complexity of the function.
 Subsequent calls to the function are very fast. Futher, the generated module
+=======
+arguments, C++ code that accomplishes the exact same task as the Python
+expression is generated and compiled to an extension module. This can take up
+to a couple of minutes depending on the complexity of the function.
+Subsequent calls to the function are very fast.
+Furthermore, the generated module
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 is saved between program executions so that the compilation is only done once
 for a given expression and associated set of array types. If the given
 expression is executed with a new set of array types, the code most be
@@ -1851,7 +1979,11 @@ get the most use.
 Limitations
 ===========
 
+<<<<<<< HEAD
 1.  Currently, ``weave.blitz`` handles all standard mathematic operators
+=======
+1.  Currently, ``weave.blitz`` handles all standard mathematical operators
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     except for the ** power operator. The built-in trigonmetric, log,
     floor/ceil, and fabs functions might work (but haven't been tested). It
     also handles all types of array indexing supported by the NumPy module.
@@ -1879,7 +2011,11 @@ Limitations
 
 3.  ``weave.blitz`` works best when algorithms can be expressed in a
     "vectorized" form. Algorithms that have a large number of if/thens and
+<<<<<<< HEAD
     other conditions are better hand written in C or Fortran. Further, the
+=======
+    other conditions are better hand-written in C or Fortran. Further, the
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     restrictions imposed by requiring vectorized expressions sometimes
     preclude the use of more efficient data structures or algorithms. For
     maximum speed in these cases, hand-coded C or Fortran code is the only
@@ -1977,6 +2113,7 @@ need for a temporary array. This provides a significant speed improvement
 over the above example (write me and tell me what you get).
 
 So, converting NumPy expressions into C/C++ loops that fuse the loops and
+<<<<<<< HEAD
 eliminate temporary arrays can provide big gains. The goal then,is to convert
 NumPy expression to C/C++ loops, compile them in an extension module, and
 then call the compiled extension function. The good news is that there is an
@@ -1984,6 +2121,15 @@ obvious correspondence between the NumPy expression above and the C loop. The
 bad news is that NumPy is generally much more powerful than this simple
 example illustrates and handling all possible indexing possibilities results
 in loops that are less than straight forward to write. (take a peak in NumPy
+=======
+eliminate temporary arrays can provide big gains. The goal, then, is to
+convert NumPy expression to C/C++ loops, compile them in an extension module,
+and then call the compiled extension function. The good news is that there is
+an obvious correspondence between the NumPy expression above and the C loop.
+The bad news is that NumPy is generally much more powerful than this simple
+example illustrates and handling all possible indexing possibilities results
+in loops that are less than straightforward to write. (Take a peek at NumPy
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 for confirmation). Luckily, there are several available tools that simplify
 the process.
 
@@ -1997,7 +2143,11 @@ Oliphant's NumPy module. On the compiled language side, Todd Veldhuizen's
 blitz++ array library, written in C++ (shhhh. don't tell David Beazley), does
 the heavy lifting. Don't assume that, because it's C++, it's much slower than
 C or Fortran. Blitz++ uses a jaw dropping array of template techniques
+<<<<<<< HEAD
 (metaprogramming, template expression, etc) to convert innocent looking and
+=======
+(metaprogramming, template expression, etc) to convert innocent-looking and
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 readable C++ expressions into to code that usually executes within a few
 percentage points of Fortran code for the same problem. This is good.
 Unfortunately all the template raz-ma-taz is very expensive to compile, so
@@ -2065,7 +2215,11 @@ list representation of the tree.
          ['ENDMARKER', '']]
 
 
+<<<<<<< HEAD
 Despite its looks, with some tools developed by Jermey H., its possible to
+=======
+Despite its looks, with some tools developed by Jermey H., it's possible to
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 search these trees for specific patterns (sub-trees), extract the sub-tree,
 manipulate them converting python specific code fragments to blitz code
 fragments, and then re-insert it in the parse tree. The parser module
@@ -2101,12 +2255,21 @@ In Blitz it is as follows::
 
 Here the range object works exactly like Python slice objects with the
 exception that the top index (3) is inclusive where as Python's (4) is
+<<<<<<< HEAD
 exclusive. Other differences include the type declaraions in C++ and
 parentheses instead of brackets for indexing arrays. Currently,
 ``weave.blitz`` handles the inclusive/exclusive issue by subtracting one from
 upper indices during the translation. An alternative that is likely more
 robust/maintainable in the long run, is to write a PyRange class that behaves
 like Python's range. This is likely very easy.
+=======
+exclusive. Other differences include the type declarations in C++ and
+parentheses instead of brackets for indexing arrays. Currently,
+``weave.blitz`` handles the inclusive/exclusive issue by subtracting one from
+upper indices during the translation. An alternative that is likely more
+robust/maintainable in the long run is to write a ``PyRange`` class that
+behaves like Python's ``range``. This is likely very easy.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 The stock blitz also doesn't handle negative indices in ranges. The current
 implementation of the ``blitz()`` has a partial solution to this problem. It
@@ -2120,7 +2283,11 @@ maximum index in the array so that::
 
 This approach fails, however, when the top index is calculated from other
 values. In the following scenario, if ``i+j`` evaluates to a negative value,
+<<<<<<< HEAD
 the compiled code will produce incorrect results and could even core- dump.
+=======
+the compiled code will produce incorrect results and could even core-dump.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 Right now, all calculated indices are assumed to be positive.
 
 ::
@@ -2163,8 +2330,13 @@ expression with the following translations::
 
 ``_all`` is defined in the compiled function as ``blitz::Range.all()``. These
 translations could of course happen directly in the syntax tree. But the
+<<<<<<< HEAD
 string replacement is slightly easier. Note that name spaces are maintained
 in the C++ code to lessen the likelyhood of name clashes. Currently no effort
+=======
+string replacement is slightly easier. Note that namespaces are maintained
+in the C++ code to lessen the likelihood of name clashes. Currently no effort
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 is made to detect name clashes. A good rule of thumb is don't use values that
 start with '_' or 'py\_' in compiled expressions and you'll be fine.
 
@@ -2250,7 +2422,11 @@ However, expressions like::
 
 
 are not so trivial. Since slicing is involved, the size of the slices, not
+<<<<<<< HEAD
 the input arrays must be checked. Broadcasting complicates things further
+=======
+the input arrays, must be checked. Broadcasting complicates things further
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 because arrays and slices with different dimensions and shapes may be
 compatible for math operations (broadcasting isn't yet supported by
 ``weave.blitz``). Reductions have a similar effect as their results are
@@ -2271,7 +2447,11 @@ traces the changing array sizes through all operations and fails if
 incompatible array sizes are ever found.
 
 The machinery for this is housed in ``weave.size_check``. It basically
+<<<<<<< HEAD
 involves writing a new class (dummy array) and overloading it math operators
+=======
+involves writing a new class (dummy array) and overloading its math operators
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 to calculate the new sizes correctly. All the code is in Python and there is
 a fair amount of logic (mainly to handle indexing and slicing) so the
 operation does impose some overhead. For large arrays (ie. 50x50x50), the
@@ -2358,7 +2538,11 @@ creates an ``ext_module`` instance that is ready to have ``ext_function``
 instances added to it. ``ext_function`` instances are created much with a
 calling convention similar to ``weave.inline()``. The most common call
 includes a C/C++ code snippet and a list of the arguments for the function.
+<<<<<<< HEAD
 The following
+=======
+The following::
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
             ext_code = "return_val = Py::new_reference_to(Py::Int(a+1));"
             func = ext_tools.ext_function('increment',ext_code,['a'])
@@ -2384,9 +2568,15 @@ the current working directory. This example is available in the
 the bottom of the file in the module's "main" program, an attempt to import
 ``increment_ext`` without building it is made. If this fails (the module
 doesn't exist in the PYTHONPATH), the module is built by calling
+<<<<<<< HEAD
 ``build_increment_ext()``. This approach only takes the time consuming ( a
 few seconds for this example) process of building the module if it hasn't
 been built before.
+=======
+``build_increment_ext()``. This approach only takes the time-consuming (a few
+seconds for this example) process of building the module if it hasn't been
+built before.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 ::
 
@@ -2402,10 +2592,17 @@ been built before.
 
 .. note::
   If we were willing to always pay the penalty of building the C++
+<<<<<<< HEAD
   code for a module, we could store the md5 checksum of the C++ code
   along with some information about the compiler, platform, etc. Then,
   ``ext_module.compile()`` could try importing the module before it
   actually compiles it, check the md5 checksum and other meta-data in
+=======
+  code for a module, we could store the SHA-256 checksum of the C++ code
+  along with some information about the compiler, platform, etc. Then,
+  ``ext_module.compile()`` could try importing the module before it
+  actually compiles it, check the SHA-256 checksum and other meta-data in
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
   the imported module with the meta-data of the code it just produced
   and only compile the code if the module didn't exist or the
   meta-data didn't match. This would reduce the above code to::

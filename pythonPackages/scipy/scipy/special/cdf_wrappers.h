@@ -9,9 +9,16 @@
 #define _CDF_WRAPPERS_H
 #ifndef _AMOS_WRAPPERS_H
 #include "Python.h"
+<<<<<<< HEAD
 #include "cephes/mconf.h"
 #endif
 
+=======
+#endif
+
+#include "sf_error.h"
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 #include <numpy/npy_math.h>
 
 extern double cdfbet3_wrap(double p, double x, double b);

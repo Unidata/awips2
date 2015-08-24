@@ -110,6 +110,7 @@ c          'SR' -> want the NEV eigenvalues of smallest real part.
 c          'LI' -> want the NEV eigenvalues of largest imaginary part.
 c          'SI' -> want the NEV eigenvalues of smallest imaginary part.
 c
+<<<<<<< HEAD
 c  NEV     Integer.  (INPUT/OUTPUT)
 c          Number of eigenvalues of OP to be computed. 0 < NEV < N-1.
 c
@@ -121,6 +122,19 @@ c          DEFAULT = SLAMCH('EPS')  (machine precision as computed
 c                    by the LAPACK auxiliary subroutine SLAMCH).
 c
 c  RESID   Real array of length N.  (INPUT/OUTPUT)
+=======
+c  NEV     Integer.  (INPUT)
+c          Number of eigenvalues of OP to be computed. 0 < NEV < N-1.
+c
+c  TOL     Real  scalar.  (INPUT)
+c          Stopping criterion: the relative accuracy of the Ritz value 
+c          is considered acceptable if BOUNDS(I) .LE. TOL*ABS(RITZ(I))
+c          where ABS(RITZ(I)) is the magnitude when RITZ(I) is complex.
+c          DEFAULT = wslamch('EPS')  (machine precision as computed
+c                    by the LAPACK auxiliary subroutine wslamch).
+c
+c  RESID   Real  array of length N.  (INPUT/OUTPUT)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c          On INPUT: 
 c          If INFO .EQ. 0, a random initial residual vector is used.
 c          If INFO .NE. 0, RESID contains the initial residual vector,
@@ -140,7 +154,11 @@ c          in the matrix-vector operation OP*x.
 c          NOTE: 2 <= NCV-NEV in order that complex conjugate pairs of Ritz 
 c          values are kept together. (See remark 4 below)
 c
+<<<<<<< HEAD
 c  V       Real array N by NCV.  (OUTPUT)
+=======
+c  V       Real  array N by NCV.  (OUTPUT)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c          Contains the final set of Arnoldi basis vectors. 
 c
 c  LDV     Integer.  (INPUT)
@@ -231,7 +249,11 @@ c                     of the upper Hessenberg matrix H. Only referenced by
 c                     sneupd if RVEC = .TRUE. See Remark 2 below.
 c          -------------------------------------------------------------
 c          
+<<<<<<< HEAD
 c  WORKD   Real work array of length 3*N.  (REVERSE COMMUNICATION)
+=======
+c  WORKD   Real  work array of length 3*N.  (REVERSE COMMUNICATION)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c          Distributed array to be used in the basic Arnoldi iteration
 c          for reverse communication.  The user should not use WORKD 
 c          as temporary workspace during the iteration. Upon termination
@@ -240,7 +262,11 @@ c          associated with the converged Ritz values is desired, see remark
 c          2 below, subroutine sneupd uses this output.
 c          See Data Distribution Note below.  
 c
+<<<<<<< HEAD
 c  WORKL   Real work array of length LWORKL.  (OUTPUT/WORKSPACE)
+=======
+c  WORKL   Real  work array of length LWORKL.  (OUTPUT/WORKSPACE)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c          Private (replicated) array on each PE or array allocated on
 c          the front end.  See Data Distribution Note below.
 c
@@ -334,7 +360,11 @@ c\Data Distribution Note:
 c
 c  Fortran-D syntax:
 c  ================
+<<<<<<< HEAD
 c  Real resid(n), v(ldv,ncv), workd(3*n), workl(lworkl)
+=======
+c  Real  resid(n), v(ldv,ncv), workd(3*n), workl(lworkl)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c  decompose  d1(n), d2(n,ncv)
 c  align      resid(i) with d1(i)
 c  align      v(i,j)   with d2(i,j)
@@ -346,7 +376,11 @@ c  replicated workl(lworkl)
 c
 c  Cray MPP syntax:
 c  ===============
+<<<<<<< HEAD
 c  Real  resid(n), v(ldv,ncv), workd(n,3), workl(lworkl)
+=======
+c  Real   resid(n), v(ldv,ncv), workd(n,3), workl(lworkl)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c  shared     resid(block), v(block,:), workd(block,:)
 c  replicated workl(lworkl)
 c  
@@ -379,9 +413,15 @@ c\Routines called:
 c     snaup2  ARPACK routine that implements the Implicitly Restarted
 c             Arnoldi Iteration.
 c     ivout   ARPACK utility routine that prints integers.
+<<<<<<< HEAD
 c     second  ARPACK utility routine for timing.
 c     svout   ARPACK utility routine that prints vectors.
 c     slamch  LAPACK routine that determines machine constants.
+=======
+c     arscnd  ARPACK utility routine for timing.
+c     svout   ARPACK utility routine that prints vectors.
+c     wslamch  LAPACK routine that determines machine constants.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c\Author
 c     Danny Sorensen               Phuong Vu
@@ -395,7 +435,11 @@ c\Revision history:
 c     12/16/93: Version '1.1'
 c
 c\SCCS Information: @(#) 
+<<<<<<< HEAD
 c FILE: naupd.F   SID: 2.10   DATE OF SID: 08/23/02   RELEASE: 2
+=======
+c FILE: naupd.F   SID: 2.8   DATE OF SID: 04/10/01   RELEASE: 2
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c\Remarks
 c
@@ -420,7 +464,11 @@ c     %------------------%
 c
       character  bmat*1, which*2
       integer    ido, info, ldv, lworkl, n, ncv, nev
+<<<<<<< HEAD
       Real
+=======
+      Real 
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      &           tol
 c
 c     %-----------------%
@@ -428,16 +476,26 @@ c     | Array Arguments |
 c     %-----------------%
 c
       integer    iparam(11), ipntr(14)
+<<<<<<< HEAD
       Real
+=======
+      Real 
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      &           resid(n), v(ldv,ncv), workd(3*n), workl(lworkl)
 c
 c     %------------%
 c     | Parameters |
 c     %------------%
 c
+<<<<<<< HEAD
       Real
      &           one, zero
       parameter (one = 1.0E+0, zero = 0.0E+0)
+=======
+      Real 
+     &           one, zero
+      parameter (one = 1.0E+0 , zero = 0.0E+0 )
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %---------------%
 c     | Local Scalars |
@@ -454,15 +512,25 @@ c     %----------------------%
 c     | External Subroutines |
 c     %----------------------%
 c
+<<<<<<< HEAD
       external   snaup2, svout, ivout, second, sstatn
+=======
+      external   snaup2, svout, ivout, arscnd, sstatn
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %--------------------%
 c     | External Functions |
 c     %--------------------%
 c
+<<<<<<< HEAD
       Real
      &           slamch
       external   slamch
+=======
+      Real 
+     &           wslamch
+      external   wslamch
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %-----------------------%
 c     | Executable Statements |
@@ -476,7 +544,11 @@ c        | & message level for debugging |
 c        %-------------------------------%
 c
          call sstatn
+<<<<<<< HEAD
          call second (t0)
+=======
+         call arscnd (t0)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          msglvl = mnaupd
 c
 c        %----------------%
@@ -498,6 +570,7 @@ c
          mode   = iparam(7)
 c
          if (n .le. 0) then
+<<<<<<< HEAD
             ierr = -1
          else if (nev .le. 0) then
             ierr = -2
@@ -505,6 +578,15 @@ c
             ierr = -3
          else if (mxiter .le.          0) then
             ierr = 4
+=======
+             ierr = -1
+         else if (nev .le. 0) then
+             ierr = -2
+         else if (ncv .le. nev+1 .or.  ncv .gt. n) then
+             ierr = -3
+         else if (mxiter .le. 0) then
+             ierr = -4
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          else if (which .ne. 'LM' .and.
      &       which .ne. 'SM' .and.
      &       which .ne. 'LR' .and.
@@ -517,11 +599,19 @@ c
          else if (lworkl .lt. 3*ncv**2 + 6*ncv) then
             ierr = -7
          else if (mode .lt. 1 .or. mode .gt. 4) then
+<<<<<<< HEAD
             ierr = -10
          else if (mode .eq. 1 .and. bmat .eq. 'G') then
             ierr = -11
          else if (ishift .lt. 0 .or. ishift .gt. 1) then
             ierr = -12
+=======
+                                                ierr = -10
+         else if (mode .eq. 1 .and. bmat .eq. 'G') then
+                                                ierr = -11
+         else if (ishift .lt. 0 .or. ishift .gt. 1) then
+                                                ierr = -12
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          end if
 c 
 c        %------------%
@@ -539,7 +629,11 @@ c        | Set default parameters |
 c        %------------------------%
 c
          if (nb .le. 0)				nb = 1
+<<<<<<< HEAD
          if (tol .le. zero)			tol = slamch('EpsMach')
+=======
+         if (tol .le. zero)			tol = wslamch('EpsMach')
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c        %----------------------------------------------%
 c        | NP is the number of additional steps to      |
@@ -640,7 +734,11 @@ c
      &               '_naupd: Associated Ritz estimates')
       end if
 c
+<<<<<<< HEAD
       call second (t1)
+=======
+      call arscnd (t1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       tnaupd = t1 - t0
 c
       if (msglvl .gt. 0) then
@@ -656,8 +754,13 @@ c
  1000    format (//,
      &      5x, '=============================================',/
      &      5x, '= Nonsymmetric implicit Arnoldi update code =',/
+<<<<<<< HEAD
      &      5x, '= Version Number: ', ' 2.4', 21x, ' =',/
      &      5x, '= Version Date:   ', ' 07/31/96', 16x,   ' =',/
+=======
+     &      5x, '= Version Number: ', ' 2.4' , 21x, ' =',/
+     &      5x, '= Version Date:   ', ' 07/31/96' , 16x,   ' =',/
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      &      5x, '=============================================',/
      &      5x, '= Summary of timing statistics              =',/
      &      5x, '=============================================',//)

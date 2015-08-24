@@ -157,7 +157,11 @@ dgsrfs(trans_t trans, SuperMatrix *A, SuperMatrix *L, SuperMatrix *U,
     double   *work;
     double   *rwork;
     int      *iwork;
+<<<<<<< HEAD
     extern double dlamch_(char *);
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     extern int dlacon_(int *, double *, double *, int *, double *, int *);
 #ifdef _CRAY
     extern int SCOPY(int *, double *, int *, double *, int *);

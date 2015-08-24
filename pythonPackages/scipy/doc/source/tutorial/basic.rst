@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 Basic functions in Numpy (and top-level scipy)
 ==============================================
+=======
+Basic functions
+===============
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 .. sectionauthor:: Travis E. Oliphant
 
@@ -8,6 +13,7 @@ Basic functions in Numpy (and top-level scipy)
 .. contents::
 
 Interaction with Numpy
+<<<<<<< HEAD
 ------------------------
 
 To begin with, all of the Numpy functions have been subsumed into the
@@ -77,12 +83,37 @@ way to get a scalar of a certain type::
 
     >>> sp.cast['f'](sp.pi)
     array(3.1415927410125732, dtype=float32)
+=======
+----------------------
+
+Scipy builds on Numpy, and for all basic array handling needs you can
+use Numpy functions:
+
+    >>> import numpy as np
+    >>> np.some_function()
+
+Rather than giving a detailed description of each of these functions
+(which is available in the Numpy Reference Guide or by using the
+:func:`help`, :func:`info` and :func:`source` commands), this tutorial
+will discuss some of the more useful commands which require a little
+introduction to use to their full potential.
+
+To use functions from some of the Scipy modules, you can do:
+
+    >>> from scipy import some_module
+    >>> some_module.some_function()
+
+The top level of :mod:`scipy` also contains functions from
+:mod:`numpy` and :mod:`numpy.lib.scimath`. However, it is better to
+use them directly from the :mod:`numpy` module instead.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 Index Tricks
 ^^^^^^^^^^^^
 
 There are some class instances that make special use of the slicing
 functionality to provide efficient means for array construction. This
+<<<<<<< HEAD
 part will discuss the operation of :obj:`sp.mgrid` , :obj:`sp.ogrid` ,
 :obj:`sp.r_` , and :obj:`sp.c_` for quickly constructing arrays.
 
@@ -96,6 +127,16 @@ something like the following
     >>> concatenate(([3],[0]*5,arange(-1,1.002,2/9.0)))
 
 With the :obj:`r_` command one can enter this as
+=======
+part will discuss the operation of :obj:`np.mgrid` , :obj:`np.ogrid` ,
+:obj:`np.r_` , and :obj:`np.c_` for quickly constructing arrays.
+
+For example, rather than writing something like the following
+
+    >>> concatenate(([3],[0]*5,arange(-1,1.002,2/9.0)))
+
+with the :obj:`r_` command one can enter this as
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     >>> r_[3,[0]*5,-1:1:10j]
 
@@ -153,7 +194,11 @@ Having meshed arrays like this is sometimes very useful. However, it
 is not always needed just to evaluate some N-dimensional function over
 a grid due to the array-broadcasting rules of Numpy and SciPy. If this
 is the only purpose for generating a meshgrid, you should instead use
+<<<<<<< HEAD
 the function :obj:`ogrid` which generates an "open "grid using NewAxis
+=======
+the function :obj:`ogrid` which generates an "open" grid using :obj:`newaxis`
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 judiciously to create N, N-d arrays where only one dimension in each
 array has length greater than 1. This will save memory and create the
 same result if the only purpose for the meshgrid is to generate sample
@@ -231,14 +276,57 @@ result:
     array([1, 6, 1, 2])
 
 This particular function could have been written in vector form
+<<<<<<< HEAD
 without the use of :obj:`vectorize` . But, what if the function you have written is the result of some
 optimization or integration routine. Such functions can likely only be
 vectorized using ``vectorize.``
+=======
+without the use of :obj:`vectorize` . But, what if the function you
+have written is the result of some optimization or integration
+routine. Such functions can likely only be vectorized using
+``vectorize.``
+
+Type handling
+^^^^^^^^^^^^^
+
+Note the difference between :func:`np.iscomplex`/:func:`np.isreal` and
+:func:`np.iscomplexobj`/:func:`np.isrealobj`. The former command is
+array based and returns byte arrays of ones and zeros providing the
+result of the element-wise test. The latter command is object based
+and returns a scalar describing the result of the test on the entire
+object.
+
+Often it is required to get just the real and/or imaginary part of a
+complex number. While complex numbers and arrays have attributes that
+return those values, if one is not sure whether or not the object will
+be complex-valued, it is better to use the functional forms
+:func:`np.real` and :func:`np.imag` . These functions succeed for anything
+that can be turned into a Numpy array. Consider also the function
+:func:`np.real_if_close` which transforms a complex-valued number with
+tiny imaginary part into a real number.
+
+Occasionally the need to check whether or not a number is a scalar
+(Python (long)int, Python float, Python complex, or rank-0 array)
+occurs in coding. This functionality is provided in the convenient
+function :func:`np.isscalar` which returns a 1 or a 0.
+
+Finally, ensuring that objects are a certain Numpy type occurs often
+enough that it has been given a convenient interface in SciPy through
+the use of the :obj:`np.cast` dictionary. The dictionary is keyed by the
+type it is desired to cast to and the dictionary stores functions to
+perform the casting. Thus, ``np.cast['f'](d)`` returns an array
+of :class:`np.float32` from *d*. This function is also useful as an easy
+way to get a scalar of a certain type::
+
+    >>> np.cast['f'](np.pi)
+    array(3.1415927410125732, dtype=float32)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 Other useful functions
 ^^^^^^^^^^^^^^^^^^^^^^
 
+<<<<<<< HEAD
 There are several other functions in the scipy_base package including
 most of the other functions that are also in the Numpy package. The
 reason for duplicating these functions is to allow SciPy to
@@ -259,6 +347,18 @@ function :obj:`select` which extends the functionality of :obj:`where` to
 include multiple conditions and multiple choices. The calling
 convention is ``select(condlist,choicelist,default=0).`` :obj:`select` is
 a vectorized form of the multiple if-statement. It allows rapid
+=======
+There are also several other useful functions which should be
+mentioned. For doing phase processing, the functions :func:`angle`,
+and :obj:`unwrap` are useful. Also, the :obj:`linspace` and
+:obj:`logspace` functions return equally spaced samples in a linear or
+log scale.  Finally, it's useful to be aware of the indexing
+capabilities of Numpy. Mention should be made of the function
+:obj:`select` which extends the functionality of :obj:`where` to
+include multiple conditions and multiple choices. The calling
+convention is ``select(condlist,choicelist,default=0).`` :obj:`select`
+is a vectorized form of the multiple if-statement. It allows rapid
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 construction of a function which returns an array of results based on
 a list of conditions. Each element of the return array is taken from
 the array in a ``choicelist`` corresponding to the first condition in
@@ -267,6 +367,7 @@ the array in a ``choicelist`` corresponding to the first condition in
     >>> x = r_[-2:3]
     >>> x
     array([-2, -1,  0,  1,  2])
+<<<<<<< HEAD
     >>> select([x > 3, x >= 0],[0,x+2])
     array([0, 0, 2, 3, 4])
 
@@ -287,6 +388,17 @@ are convenience functions for the interactive use: :obj:`disp`
 (similar to print), and :obj:`who` (returns a list of defined
 variables and memory consumption--upper bounded). Another function
 returns a common image used in image processing: :obj:`lena`.
+=======
+    >>> np.select([x > 3, x >= 0],[0,x+2])
+    array([0, 0, 2, 3, 4])
+
+Some additional useful functions can also be found in the module
+:mod:`scipy.misc`. For example the :obj:`factorial` and :obj:`comb`
+functions compute :math:`n!` and :math:`n!/k!(n-k)!` using either
+exact integer arithmetic (thanks to Python's Long integer object), or
+by using floating-point precision and the gamma function. Another
+function returns a common image used in image processing: :obj:`lena`.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 Finally, two functions are provided that are useful for approximating
 derivatives of functions using discrete-differences. The function

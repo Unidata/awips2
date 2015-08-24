@@ -33,9 +33,15 @@
 #define NI_MORPHOLOGY_H
 
 int NI_BinaryErosion(PyArrayObject*, PyArrayObject*, PyArrayObject*, 
+<<<<<<< HEAD
          PyArrayObject*, int, maybelong*, int, int, int*, NI_CoordinateList**);
 int NI_BinaryErosion2(PyArrayObject*, PyArrayObject*, PyArrayObject*,
                                             int, maybelong*, int, NI_CoordinateList**);
+=======
+         PyArrayObject*, int, npy_intp*, int, int, int*, NI_CoordinateList**);
+int NI_BinaryErosion2(PyArrayObject*, PyArrayObject*, PyArrayObject*,
+                      int, npy_intp*, int, NI_CoordinateList**);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 int NI_DistanceTransformBruteForce(PyArrayObject*, int, PyArrayObject*,
                                                                      PyArrayObject*, PyArrayObject*);
 int NI_DistanceTransformOnePass(PyArrayObject*, PyArrayObject *,

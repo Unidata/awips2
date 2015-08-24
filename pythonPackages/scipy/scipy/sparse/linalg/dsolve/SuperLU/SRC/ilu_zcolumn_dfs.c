@@ -85,7 +85,11 @@ ilu_zcolumn_dfs(
     nzlmax  = Glu->nzlmax;
 
     if ( first ) {
+<<<<<<< HEAD
 	maxsuper = sp_ienv(3);
+=======
+	maxsuper = sp_ienv(7);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	first = 0;
     }
     jcolp1  = jcol + 1;

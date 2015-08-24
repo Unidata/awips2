@@ -3,10 +3,17 @@
  * \brief Drop small rows from L
  *
  * <pre>
+<<<<<<< HEAD
  * -- SuperLU routine (version 4.0) --
  * Lawrence Berkeley National Laboratory.
  * June 30, 2009
  * <\pre>
+=======
+ * -- SuperLU routine (version 4.1) --
+ * Lawrence Berkeley National Laboratory.
+ * June 30, 2009
+ * </pre>
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
  */
 
 #include <math.h>
@@ -15,6 +22,14 @@
 
 extern void dswap_(int *, double [], int *, double [], int *);
 extern void daxpy_(int *, double *, double [], int *, double [], int *);
+<<<<<<< HEAD
+=======
+extern void dcopy_(int *, double [], int *, double [], int *);
+extern double dasum_(int *, double *, int *);
+extern double dnrm2_(int *, double *, int *);
+extern double dnrm2_(int *, double [], int *);
+extern int idamax_(int *, double [], int *);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 static double *A;  /* used in _compare_ only */
 static int _compare_(const void *a, const void *b)
@@ -43,9 +58,17 @@ int ilu_ddrop_row(
 	double *fill_tol,   /* in/out - on exit, fill_tol=-num_zero_pivots,
 			     * does not change if options->ILU_MILU != SMILU1 */
 	GlobalLU_t *Glu,    /* modified */
+<<<<<<< HEAD
 	double dwork[],     /* working space with minimum size last-first+1 */
 	int    iwork[],     /* working space with minimum size m - n,
 			     * used by the second dropping rule */
+=======
+	double dwork[],   /* working space
+	                     * the length of dwork[] should be no less than
+			     * the number of rows in the supernode */
+	double dwork2[], /* working space with the same size as dwork[],
+			     * used only by the second dropping rule */
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	int    lastc	    /* if lastc == 0, there is nothing after the
 			     * working supernode [first:last];
 			     * if lastc == 1, there is one more column after
@@ -68,8 +91,15 @@ int ilu_ddrop_row(
     double zero = 0.0;
     double one = 1.0;
     double none = -1.0;
+<<<<<<< HEAD
     int inc_diag; /* inc_diag = m + 1 */
     int nzp = 0;  /* number of zero pivots */
+=======
+    int i_1 = 1;
+    int inc_diag; /* inc_diag = m + 1 */
+    int nzp = 0;  /* number of zero pivots */
+    double alpha = pow((double)(Glu->n), -1.0 / options->ILU_MILU_Dim);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     xlusup_first = xlusup[first];
     xlsub_first = xlsub[first];
@@ -170,13 +200,27 @@ int ilu_ddrop_row(
 		d_max = 1.0 / d_max; d_min = 1.0 / d_min;
 		tol = 1.0 / (d_max + (d_min - d_max) * quota / (m - n - r));
 	    }
+<<<<<<< HEAD
 	    else /* by quick sort */
 	    {
+=======
+	    else /* by quick select */
+	    {
+		int len = m1 - n + 1;
+		dcopy_(&len, dwork, &i_1, dwork2, &i_1);
+		tol = dqselect(len, dwork2, quota - n);
+#if 0
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 		register int *itemp = iwork - n;
 		A = temp;
 		for (i = n; i <= m1; i++) itemp[i] = i;
 		qsort(iwork, m1 - n + 1, sizeof(int), _compare_);
+<<<<<<< HEAD
 		tol = temp[iwork[quota]];
+=======
+		tol = temp[itemp[quota]];
+#endif
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	    }
 	}
 
@@ -244,9 +288,23 @@ int ilu_ddrop_row(
     {
 	register int j;
 	double t;
+<<<<<<< HEAD
 	for (j = 0; j < n; j++)
 	{
 	    t = lusup[xlusup_first + (m - 1) + j * m] * MILU_ALPHA;
+=======
+	double omega;
+	for (j = 0; j < n; j++)
+	{
+	    t = lusup[xlusup_first + (m - 1) + j * m];
+            if (t == zero) continue;
+	    if (t > zero)
+		omega = SUPERLU_MIN(2.0 * (1.0 - alpha) / t, 1.0);
+	    else
+		omega = SUPERLU_MAX(2.0 * (1.0 - alpha) / t, -1.0);
+	    t *= omega;
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
  	    switch (milu)
 	    {
 		case SMILU_1:

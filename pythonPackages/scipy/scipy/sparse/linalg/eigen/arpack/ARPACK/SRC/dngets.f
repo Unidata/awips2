@@ -135,7 +135,11 @@ c     %----------------------%
 c     | External Subroutines |
 c     %----------------------%
 c
+<<<<<<< HEAD
       external   dcopy, dsortc, second
+=======
+      external   dcopy, dsortc, arscnd
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %----------------------%
 c     | Intrinsics Functions |
@@ -152,7 +156,11 @@ c     | Initialize timing statistics  |
 c     | & message level for debugging |
 c     %-------------------------------%
 c 
+<<<<<<< HEAD
       call second (t0)
+=======
+      call arscnd (t0)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       msglvl = mngets
 c 
 c     %----------------------------------------------------%
@@ -208,7 +216,11 @@ c
          call dsortc ( 'SR', .true., np, bounds, ritzr, ritzi )
       end if
 c     
+<<<<<<< HEAD
       call second (t1)
+=======
+      call arscnd (t1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       tngets = tngets + (t1 - t0)
 c
       if (msglvl .gt. 0) then

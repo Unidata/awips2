@@ -157,7 +157,11 @@ sgsrfs(trans_t trans, SuperMatrix *A, SuperMatrix *L, SuperMatrix *U,
     float   *work;
     float   *rwork;
     int      *iwork;
+<<<<<<< HEAD
     extern double slamch_(char *);
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     extern int slacon_(int *, float *, float *, int *, float *, int *);
 #ifdef _CRAY
     extern int SCOPY(int *, float *, int *, float *, int *);

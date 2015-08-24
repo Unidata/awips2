@@ -38,6 +38,7 @@
  *           SCHOOL OF INFORMATION TECHNOLOGY & ENGINEERING
  *           GEORGE MASON UNIVERSITY
  *           FAIRFAX, VA 22030
+<<<<<<< HEAD
  */
 
 /* $Jeannot: tnc.h,v 1.55 2005/01/28 18:27:31 js Exp $ */
@@ -47,6 +48,16 @@
 
 #define TNC_VERSION "1.3"
 
+=======
+ *
+ * The SciPy version was derived from TNC 1.3:
+ * $Jeannot: tnc.h,v 1.55 2005/01/28 18:27:31 js Exp $
+ */
+
+#ifndef _TNC_
+#define _TNC_
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -58,11 +69,17 @@ typedef enum {
   TNC_MSG_NONE = 0, /* No messages */
   TNC_MSG_ITER = 1, /* One line per iteration */
   TNC_MSG_INFO = 2, /* Informational messages */
+<<<<<<< HEAD
   TNC_MSG_VERS = 4, /* Version info */
   TNC_MSG_EXIT = 8, /* Exit reasons */
 
   TNC_MSG_ALL = TNC_MSG_ITER | TNC_MSG_INFO
     | TNC_MSG_VERS | TNC_MSG_EXIT /* All messages */
+=======
+  TNC_MSG_EXIT = 8, /* Exit reasons */
+
+  TNC_MSG_ALL = TNC_MSG_ITER | TNC_MSG_INFO | TNC_MSG_EXIT /* All messages */
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 } tnc_message;
 
 /*
@@ -90,7 +107,11 @@ typedef enum
  * return code rc.
  */
 
+<<<<<<< HEAD
 extern char *tnc_rc_string[11];
+=======
+extern const char *const tnc_rc_string[11];
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 /*
  * A function as required by tnc
@@ -107,6 +128,15 @@ extern char *tnc_rc_string[11];
 typedef int tnc_function(double x[], double *f, double g[], void *state);
 
 /*
+<<<<<<< HEAD
+=======
+ * A callback function accepting x as input parameter along with the state
+ * pointer.
+ */
+typedef void tnc_callback(double x[], void *state);
+
+/*
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
  * tnc : minimize a function with variables subject to bounds, using
  *       gradient information.
  *
@@ -165,7 +195,11 @@ extern int tnc(int n, double x[], double *f, double g[],
   double low[], double up[], double scale[], double offset[],
   int messages, int maxCGit, int maxnfeval, double eta, double stepmx,
   double accuracy, double fmin, double ftol, double xtol, double pgtol,
+<<<<<<< HEAD
   double rescale, int *nfeval);
+=======
+  double rescale, int *nfeval, int *niter, tnc_callback *callback);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 #ifdef __cplusplus
 }

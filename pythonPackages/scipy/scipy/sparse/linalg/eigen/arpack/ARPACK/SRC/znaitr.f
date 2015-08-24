@@ -131,7 +131,11 @@ c
 c\Routines called:
 c     zgetv0  ARPACK routine to generate the initial vector.
 c     ivout   ARPACK utility routine that prints integers.
+<<<<<<< HEAD
 c     second  ARPACK utility routine for timing.
+=======
+c     arscnd  ARPACK utility routine for timing.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c     zmout   ARPACK utility routine that prints matrices
 c     zvout   ARPACK utility routine that prints vectors.
 c     zlanhs  LAPACK routine that computes various norms of a matrix.
@@ -273,7 +277,11 @@ c     | External Subroutines |
 c     %----------------------%
 c
       external   zaxpy, zcopy, zscal, zdscal, zgemv, zgetv0, 
+<<<<<<< HEAD
      &           dlabad, zvout, zmout, ivout, second
+=======
+     &           dlabad, zvout, zmout, ivout, arscnd
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %--------------------%
 c     | External Functions |
@@ -326,7 +334,11 @@ c        | Initialize timing statistics  |
 c        | & message level for debugging |
 c        %-------------------------------%
 c
+<<<<<<< HEAD
          call second (t0)
+=======
+         call arscnd (t0)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          msglvl = mcaitr
 c 
 c        %------------------------------%
@@ -437,7 +449,11 @@ c              | which spans OP and exit.                       |
 c              %------------------------------------------------%
 c
                info = j - 1
+<<<<<<< HEAD
                call second (t1)
+=======
+               call arscnd (t1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                tcaitr = tcaitr + (t1 - t0)
                ido = 99
                go to 9000
@@ -477,7 +493,11 @@ c        %------------------------------------------------------%
 c
          step3 = .true.
          nopx  = nopx + 1
+<<<<<<< HEAD
          call second (t2)
+=======
+         call arscnd (t2)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          call zcopy (n, v(1,j), 1, workd(ivj), 1)
          ipntr(1) = ivj
          ipntr(2) = irj
@@ -497,7 +517,11 @@ c        | WORKD(IRJ:IRJ+N-1) := OP*v_{j}   |
 c        | if step3 = .true.                |
 c        %----------------------------------%
 c
+<<<<<<< HEAD
          call second (t3)
+=======
+         call arscnd (t3)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          tmvopx = tmvopx + (t3 - t2)
  
          step3 = .false.
@@ -513,7 +537,11 @@ c        | STEP 4:  Finish extending the Arnoldi |
 c        |          factorization to length j.   |
 c        %---------------------------------------%
 c
+<<<<<<< HEAD
          call second (t2)
+=======
+         call arscnd (t2)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          if (bmat .eq. 'G') then
             nbx = nbx + 1
             step4 = .true.
@@ -538,7 +566,11 @@ c        | if step4 = .true.                |
 c        %----------------------------------%
 c
          if (bmat .eq. 'G') then
+<<<<<<< HEAD
             call second (t3)
+=======
+            call arscnd (t3)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             tmvbx = tmvbx + (t3 - t2)
          end if
 c 
@@ -583,11 +615,19 @@ c
 c
          if (j .gt. 1) h(j,j-1) = dcmplx(betaj, rzero)
 c
+<<<<<<< HEAD
          call second (t4)
 c 
          orth1 = .true.
 c 
          call second (t2)
+=======
+         call arscnd (t4)
+c 
+         orth1 = .true.
+c 
+         call arscnd (t2)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          if (bmat .eq. 'G') then
             nbx = nbx + 1
             call zcopy (n, resid, 1, workd(irj), 1)
@@ -611,7 +651,11 @@ c        | WORKD(IPJ:IPJ+N-1) := B*r_{j}.                    |
 c        %---------------------------------------------------%
 c
          if (bmat .eq. 'G') then
+<<<<<<< HEAD
             call second (t3)
+=======
+            call arscnd (t3)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             tmvbx = tmvbx + (t3 - t2)
          end if
 c 
@@ -689,7 +733,11 @@ c
          call zaxpy (j, one, workd(irj), 1, h(1,j), 1)
 c 
          orth2 = .true.
+<<<<<<< HEAD
          call second (t2)
+=======
+         call arscnd (t2)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          if (bmat .eq. 'G') then
             nbx = nbx + 1
             call zcopy (n, resid, 1, workd(irj), 1)
@@ -713,7 +761,11 @@ c        | Back from reverse communication if ORTH2 = .true. |
 c        %---------------------------------------------------%
 c
          if (bmat .eq. 'G') then
+<<<<<<< HEAD
             call second (t3)
+=======
+            call arscnd (t3)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             tmvbx = tmvbx + (t3 - t2)
          end if 
 c
@@ -791,7 +843,11 @@ c
          rstart = .false.
          orth2  = .false.
 c 
+<<<<<<< HEAD
          call second (t5)
+=======
+         call arscnd (t5)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          titref = titref + (t5 - t4)
 c 
 c        %------------------------------------%
@@ -800,7 +856,11 @@ c        %------------------------------------%
 c
          j = j + 1
          if (j .gt. k+np) then
+<<<<<<< HEAD
             call second (t1)
+=======
+            call arscnd (t1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             tcaitr = tcaitr + (t1 - t0)
             ido = 99
             do 110 i = max(1,k), k+np-1

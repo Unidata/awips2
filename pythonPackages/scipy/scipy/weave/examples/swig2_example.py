@@ -23,6 +23,10 @@ Copyright (c) 2004, Prabhu Ramachandran
 License: BSD Style.
 
 """
+<<<<<<< HEAD
+=======
+from __future__ import absolute_import, print_function
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 # Import our SWIG2 wrapped library
 import swig2_ext
@@ -34,6 +38,10 @@ from scipy.weave import swig2_spec, converters
 # swig2 converter to the default list of converters.
 converters.default.insert(0, swig2_spec.swig2_converter())
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def test():
     """Instantiate the SWIG wrapped object and then call its method
     from C++ using weave.inline
@@ -41,7 +49,11 @@ def test():
     """
     a = swig2_ext.A()
     b = swig2_ext.foo()  # This will be an APtr instance.
+<<<<<<< HEAD
     b.thisown = 1 # Prevent memory leaks.
+=======
+    b.thisown = 1  # Prevent memory leaks.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     code = """a->f();
               b->f();
               """

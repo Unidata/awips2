@@ -31,6 +31,13 @@ enum type {
         DCT_II = 2,
         DCT_III = 3,
         DCT_IV = 4,
+<<<<<<< HEAD
+=======
+        DST_I = 5,
+        DST_II = 6,
+        DST_III = 7,
+	    DST_IV = 8,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 };
 
 int gen(int type, int sz)
@@ -50,10 +57,13 @@ int gen(int type, int sz)
                 exit(EXIT_FAILURE);
         }
 
+<<<<<<< HEAD
         for(i=0; i < sz; ++i) {
                 a[i] = i;
         }
 
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         switch(type) {
                 case DCT_I:
                         tp = FFTW_REDFT00;
@@ -67,11 +77,52 @@ int gen(int type, int sz)
                 case DCT_IV:
                         tp = FFTW_REDFT11;
                         break;
+<<<<<<< HEAD
+=======
+                case DST_I:
+                        tp = FFTW_RODFT00;
+                        break;
+                case DST_II:
+                        tp = FFTW_RODFT10;
+                        break;
+                case DST_III:
+                        tp = FFTW_RODFT01;
+                        break;
+                case DST_IV:
+                        tp = FFTW_RODFT11;
+                        break;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                 default:
                         fprintf(stderr, "unknown type\n");
                         exit(EXIT_FAILURE);
         }
 
+<<<<<<< HEAD
+=======
+        switch(type) {
+            case DCT_I:
+            case DCT_II:
+            case DCT_III:
+            case DCT_IV:
+                for(i=0; i < sz; ++i) {
+                    a[i] = i;
+                }
+                break;
+            case DST_I:
+            case DST_II:
+            case DST_III:
+            case DST_IV:
+/*                TODO: what should we do for dst's?*/
+                for(i=0; i < sz; ++i) {
+                    a[i] = i;
+                }
+                break;
+            default:
+                fprintf(stderr, "unknown type\n");
+                exit(EXIT_FAILURE);
+        }
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         p = FFTW_PLAN_CREATE(sz, a, b, tp, FFTW_ESTIMATE);
         FFTW_EXECUTE(p);
         FFTW_DESTROY_PLAN(p);

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Fourier transforms (:mod:`scipy.fftpack`)
 =========================================
 
@@ -75,3 +76,6 @@ Other (:mod:`scipy.fftpack._fftpack`)
    destroy_drfft_cache
    destroy_zfft_cache
    destroy_zfftnd_cache
+=======
+.. automodule:: scipy.fftpack
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

@@ -31,6 +31,23 @@ the result tuple when the full_output argument is non-zero.
 #include "Python.h"
 #include "numpy/arrayobject.h"
 
+<<<<<<< HEAD
+=======
+#if PY_VERSION_HEX >= 0x03000000
+    #define PyInt_AsLong PyLong_AsLong
+
+    /* Return True only if the long fits in a C long */
+    static NPY_INLINE int PyInt_Check(PyObject *op) {
+        int overflow = 0;
+        if (!PyLong_Check(op)) {
+            return 0;
+        }
+        PyLong_AsLongAndOverflow(op, &overflow);
+        return (overflow == 0);
+    }
+#endif
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 #define PYERR(errobj,message) {PyErr_SetString(errobj,message); goto fail;}
 #define PYERR2(errobj,message) {PyErr_Print(); PyErr_SetString(errobj, message); goto fail;}
 #define ISCONTIGUOUS(m) ((m)->flags & CONTIGUOUS)
@@ -83,13 +100,21 @@ the result tuple when the full_output argument is non-zero.
 
 #define SET_DIAG(ap_diag,o_diag,mode) { /* Set the diag vector from input */ \
   if (o_diag == NULL || o_diag == Py_None) { \
+<<<<<<< HEAD
     ap_diag = (PyArrayObject *)PyArray_SimpleNew(1,&n,PyArray_DOUBLE); \
+=======
+    ap_diag = (PyArrayObject *)PyArray_SimpleNew(1,&n,NPY_DOUBLE); \
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     if (ap_diag == NULL) goto fail; \
     diag = (double *)ap_diag -> data; \
     mode = 1; \
   } \
   else { \
+<<<<<<< HEAD
     ap_diag = (PyArrayObject *)PyArray_ContiguousFromObject(o_diag, PyArray_DOUBLE, 1, 1); \
+=======
+    ap_diag = (PyArrayObject *)PyArray_ContiguousFromObject(o_diag, NPY_DOUBLE, 1, 1); \
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     if (ap_diag == NULL) goto fail; \
     diag = (double *)ap_diag -> data; \
     mode = 2; } }
@@ -106,6 +131,7 @@ static PyObject *multipack_extra_arguments=NULL;
 static int multipack_jac_transpose=1;
 */
 
+<<<<<<< HEAD
 static PyArrayObject * my_make_numpy_array(PyObject *y0, int type, int mindim, int maxdim)
      /* This is just like PyArray_ContiguousFromObject except it handles
       * single numeric datatypes as 1-element, rank-1 arrays instead of as
@@ -131,6 +157,12 @@ static PyArrayObject * my_make_numpy_array(PyObject *y0, int type, int mindim, i
 }
 
 static PyObject *call_python_function(PyObject *func, npy_intp n, double *x, PyObject *args, int dim, PyObject *error_obj)
+=======
+
+static PyObject *call_python_function(PyObject *func, npy_intp n, double *x,
+                                      PyObject *args, int dim,
+                                      PyObject *error_obj)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 {
   /*
     This is a generic function to call a python function that takes a 1-D
@@ -146,13 +178,21 @@ static PyObject *call_python_function(PyObject *func, npy_intp n, double *x, PyO
   */
 
   PyArrayObject *sequence = NULL;
+<<<<<<< HEAD
   PyObject *arglist = NULL, *tmpobj = NULL;
+=======
+  PyObject *arglist = NULL;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
   PyObject *arg1 = NULL, *str1 = NULL;
   PyObject *result = NULL;
   PyArrayObject *result_array = NULL;
 
   /* Build sequence argument from inputs */
+<<<<<<< HEAD
   sequence = (PyArrayObject *)PyArray_SimpleNewFromData(1, &n, PyArray_DOUBLE, (char *)x);
+=======
+  sequence = (PyArrayObject *)PyArray_SimpleNewFromData(1, &n, NPY_DOUBLE, (char *)x);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
   if (sequence == NULL) PYERR2(error_obj,"Internal failure to make an array of doubles out of first\n                 argument to function call.");
 
   /* Build argument list */
@@ -172,6 +212,7 @@ static PyObject *call_python_function(PyObject *func, npy_intp n, double *x, PyO
           arguments are in another passed variable.
    */
   if ((result = PyEval_CallObject(func, arglist))==NULL) {
+<<<<<<< HEAD
     PyErr_Print();
     tmpobj = PyObject_GetAttrString(func, "func_name");
     if (tmpobj == NULL) goto fail;
@@ -184,6 +225,12 @@ static PyObject *call_python_function(PyObject *func, npy_intp n, double *x, PyO
   }
 
   if ((result_array = (PyArrayObject *)PyArray_ContiguousFromObject(result, PyArray_DOUBLE, dim-1, dim))==NULL) 
+=======
+    goto fail;
+  }
+
+  if ((result_array = (PyArrayObject *)PyArray_ContiguousFromObject(result, NPY_DOUBLE, dim-1, dim))==NULL) 
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     PYERR2(error_obj,"Result from function call is not a proper array of floats.");
 
   Py_DECREF(result);
@@ -197,6 +244,7 @@ static PyObject *call_python_function(PyObject *func, npy_intp n, double *x, PyO
   return NULL;
 }
 
+<<<<<<< HEAD
 
 
 
@@ -209,3 +257,5 @@ static PyObject *call_python_function(PyObject *func, npy_intp n, double *x, PyO
 
 
 
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

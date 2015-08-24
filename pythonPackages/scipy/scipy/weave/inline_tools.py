@@ -1,14 +1,25 @@
 # should re-write compiled functions to take a local and global dict
 # as input.
+<<<<<<< HEAD
 import sys
 import os
 import ext_tools
 import catalog
 import common_info
+=======
+from __future__ import absolute_import, print_function
+
+import sys
+import os
+from . import ext_tools
+from . import catalog
+from . import common_info
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 from numpy.core.multiarray import _get_ndarray_c_version
 ndarray_api_version = '/* NDARRAY API VERSION %x */' % (_get_ndarray_c_version(),)
 
+<<<<<<< HEAD
 # not an easy way for the user_path_list to come in here.
 # the PYTHONCOMPILED environment variable offers the most hope.
 
@@ -18,6 +29,23 @@ class inline_ext_function(ext_tools.ext_function):
     # Some specialization is needed for inline extension functions
     def function_declaration_code(self):
         code  = 'static PyObject* %s(PyObject*self, PyObject* args)\n{\n'
+=======
+
+# not an easy way for the user_path_list to come in here.
+# the PYTHONCOMPILED environment variable offers the most hope.
+# If the user sets ``os.environ['PYTHONCOMPILED']``, that path will
+# be used to compile the extension in.  Note that .cpp and .so files
+# will remain in that directory.  See the docstring of ``catalog.catalog``
+# for more details.
+
+function_catalog = catalog.catalog()
+
+
+class inline_ext_function(ext_tools.ext_function):
+    # Some specialization is needed for inline extension functions
+    def function_declaration_code(self):
+        code = 'static PyObject* %s(PyObject*self, PyObject* args)\n{\n'
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         return code % self.name
 
     def template_declaration_code(self):
@@ -32,13 +60,21 @@ class inline_ext_function(ext_tools.ext_function):
             This code got a lot uglier when I added local_dict...
         """
         declare_return = 'py::object return_val;\n'    \
+<<<<<<< HEAD
                          'int exception_occured = 0;\n'    \
+=======
+                         'int exception_occurred = 0;\n'    \
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                          'PyObject *py__locals = NULL;\n' \
                          'PyObject *py__globals = NULL;\n'
 
         py_objects = ', '.join(self.arg_specs.py_pointers())
         if py_objects:
+<<<<<<< HEAD
             declare_py_objects = 'PyObject ' + py_objects +';\n'
+=======
+            declare_py_objects = 'PyObject ' + py_objects + ';\n'
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         else:
             declare_py_objects = ''
 
@@ -53,7 +89,11 @@ class inline_ext_function(ext_tools.ext_function):
                                            '&py__globals))\n'\
                       '    return NULL;\n'
 
+<<<<<<< HEAD
         return   declare_return + declare_py_objects + \
+=======
+        return declare_return + declare_py_objects + \
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                  init_values + parse_tuple
 
     def arg_declaration_code(self):
@@ -73,11 +113,19 @@ class inline_ext_function(ext_tools.ext_function):
         return "".join(arg_strings)
 
     def function_code(self):
+<<<<<<< HEAD
         from ext_tools import indent
         decl_code = indent(self.arg_declaration_code(),4)
         cleanup_code = indent(self.arg_cleanup_code(),4)
         function_code = indent(self.code_block,4)
         #local_dict_code = indent(self.arg_local_dict_code(),4)
+=======
+        from .ext_tools import indent
+        decl_code = indent(self.arg_declaration_code(),4)
+        cleanup_code = indent(self.arg_cleanup_code(),4)
+        function_code = indent(self.code_block,4)
+        # local_dict_code = indent(self.arg_local_dict_code(),4)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         try_code = \
             '    try                              \n' \
@@ -92,11 +140,16 @@ class inline_ext_function(ext_tools.ext_function):
             '        raw_locals = py_to_raw_dict(py__locals,"_locals");\n'  \
             '        raw_globals = py_to_raw_dict(py__globals,"_globals");\n' \
             '        /* argument conversion code */     \n' \
+<<<<<<< HEAD
                      + decl_code  + \
+=======
+                     + decl_code + \
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             '        /* inline code */                   \n' \
                      + function_code + \
             '        /*I would like to fill in changed locals and globals here...*/   \n'   \
             '    }\n'
+<<<<<<< HEAD
         catch_code =  "catch(...)                        \n"   \
                       "{                                 \n" + \
                       "    return_val =  py::object();   \n"   \
@@ -105,16 +158,33 @@ class inline_ext_function(ext_tools.ext_function):
         return_code = "    /* cleanup code */                   \n" + \
                            cleanup_code                             + \
                       "    if(!(PyObject*)return_val && !exception_occured)\n"   \
+=======
+        catch_code = "catch(...)                        \n"   \
+                      "{                                 \n" + \
+                      "    return_val =  py::object();   \n"   \
+                      "    exception_occurred = 1;        \n"   \
+                      "}                                 \n"
+        return_code = "    /* cleanup code */                   \n" + \
+                           cleanup_code + \
+                      "    if(!(PyObject*)return_val && !exception_occurred)\n"   \
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                       "    {\n                                  \n"   \
                       "        return_val = Py_None;            \n"   \
                       "    }\n                                  \n"   \
                       "    return return_val.disown();          \n"           \
                       "}                                \n"
 
+<<<<<<< HEAD
         all_code = self.function_declaration_code()         + \
                        indent(self.parse_tuple_code(),4)    + \
                        try_code                             + \
                        indent(catch_code,4)                 + \
+=======
+        all_code = self.function_declaration_code() + \
+                       indent(self.parse_tuple_code(),4) + \
+                       try_code + \
+                       indent(catch_code,4) + \
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                        return_code
 
         return all_code
@@ -124,12 +194,17 @@ class inline_ext_function(ext_tools.ext_function):
         function_decls = '{"%s",(PyCFunction)%s , METH_VARARGS},\n' % args
         return function_decls
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class inline_ext_module(ext_tools.ext_module):
     def __init__(self,name,compiler=''):
         ext_tools.ext_module.__init__(self,name,compiler)
         self._build_information.append(common_info.inline_info())
 
 function_cache = {}
+<<<<<<< HEAD
 def inline(code,arg_names=[],local_dict = None, global_dict = None,
            force = 0,
            compiler='',
@@ -138,6 +213,18 @@ def inline(code,arg_names=[],local_dict = None, global_dict = None,
            headers = [],
            customize=None,
            type_converters = None,
+=======
+
+
+def inline(code,arg_names=[],local_dict=None, global_dict=None,
+           force=0,
+           compiler='',
+           verbose=0,
+           support_code=None,
+           headers=[],
+           customize=None,
+           type_converters=None,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
            auto_downcast=1,
            newarr_converter=0,
            **kw):
@@ -191,13 +278,21 @@ def inline(code,arg_names=[],local_dict = None, global_dict = None,
         On Unix, it'll probably use the same compiler that was used when
         compiling Python. Cygwin's behavior should be similar.
     verbose : {0,1,2}, optional
+<<<<<<< HEAD
         Speficies how much much information is printed during the compile
+=======
+        Specifies how much information is printed during the compile
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         phase of inlining code.  0 is silent (except on windows with msvc
         where it still prints some garbage). 1 informs you when compiling
         starts, finishes, and how long it took.  2 prints out the command
         lines for the compilation process and can be useful if your having
         problems getting code to work.  Its handy for finding the name of
+<<<<<<< HEAD
         the .cpp file if you need to examine it.  verbose has no affect if
+=======
+        the .cpp file if you need to examine it.  verbose has no effect if
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         the compilation isn't necessary.
     support_code : str, optional
         A string of valid C++ code declaring extra code that might be
@@ -222,7 +317,11 @@ def inline(code,arg_names=[],local_dict = None, global_dict = None,
         variables.  Setting this to 1 will cause all floating point values
         to be cast as float instead of double if all the Numeric arrays
         are of type float.  If even one of the arrays has type double or
+<<<<<<< HEAD
         double complex, all variables maintain there standard
+=======
+        double complex, all variables maintain their standard
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         types.
     newarr_converter : int, optional
         Unused.
@@ -233,15 +332,22 @@ def inline(code,arg_names=[],local_dict = None, global_dict = None,
     :class:`distutils.extension.Extension` class for convenience:
 
     sources : [string]
+<<<<<<< HEAD
         list of source filenames, relative to the distribution root
         (where the setup script lives), in Unix form (slash-separated)
         for portability.    Source files may be C, C++, SWIG (.i),
+=======
+        List of source filenames, relative to the distribution root
+        (where the setup script lives), in Unix form (slash-separated)
+        for portability.  Source files may be C, C++, SWIG (.i),
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         platform-specific resource files, or whatever else is recognized
         by the "build_ext" command as source for a Python extension.
 
         .. note:: The `module_path` file is always appended to the front of
            this list
     include_dirs : [string]
+<<<<<<< HEAD
         list of directories to search for C/C++ header files (in Unix
         form for portability)
     define_macros : [(name : string, value : string|None)]
@@ -265,26 +371,69 @@ def inline(code,arg_names=[],local_dict = None, global_dict = None,
     extra_compile_args : [string]
         any extra platform- and compiler-specific information to use
         when compiling the source files in 'sources'.    For platforms and
+=======
+        List of directories to search for C/C++ header files (in Unix
+        form for portability).
+    define_macros : [(name : string, value : string|None)]
+        List of macros to define; each macro is defined using a 2-tuple,
+        where 'value' is either the string to define it to or None to
+        define it without a particular value (equivalent of "#define
+        FOO" in source or -DFOO on Unix C compiler command line).
+    undef_macros : [string]
+        List of macros to undefine explicitly.
+    library_dirs : [string]
+        List of directories to search for C/C++ libraries at link time.
+    libraries : [string]
+        List of library names (not filenames or paths) to link against.
+    runtime_library_dirs : [string]
+        List of directories to search for C/C++ libraries at run time
+        (for shared extensions, this is when the extension is loaded).
+    extra_objects : [string]
+        List of extra files to link with (e.g. object files not implied
+        by 'sources', static libraries that must be explicitly specified,
+        binary resource files, etc.)
+    extra_compile_args : [string]
+        Any extra platform- and compiler-specific information to use
+        when compiling the source files in 'sources'.  For platforms and
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         compilers where "command line" makes sense, this is typically a
         list of command-line arguments, but for other platforms it could
         be anything.
     extra_link_args : [string]
+<<<<<<< HEAD
         any extra platform- and compiler-specific information to use
         when linking object files together to create the extension (or
         to create a new static Python interpreter).    Similar
         interpretation as for 'extra_compile_args'.
     export_symbols : [string]
         list of symbols to be exported from a shared extension.    Not
+=======
+        Any extra platform- and compiler-specific information to use
+        when linking object files together to create the extension (or
+        to create a new static Python interpreter).  Similar
+        interpretation as for 'extra_compile_args'.
+    export_symbols : [string]
+        List of symbols to be exported from a shared extension.  Not
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         used on all platforms, and not generally necessary for Python
         extensions, which typically export exactly one symbol: "init" +
         extension_name.
     swig_opts : [string]
+<<<<<<< HEAD
         any extra options to pass to SWIG if a source file has the .i
         extension.
     depends : [string]
         list of files that the extension depends on
     language : string
         extension language (i.e. "c", "c++", "objc"). Will be detected
+=======
+        Any extra options to pass to SWIG if a source file has the .i
+        extension.
+    depends : [string]
+        List of files that the extension depends on.
+    language : string
+        Extension language (i.e. "c", "c++", "objc").  Will be detected
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         from the source extensions if not provided.
 
     See Also
@@ -308,11 +457,19 @@ def inline(code,arg_names=[],local_dict = None, global_dict = None,
                                 global_dict,module_dir,
                                 compiler=compiler,
                                 verbose=verbose,
+<<<<<<< HEAD
                                 support_code = support_code,
                                 headers = headers,
                                 customize=customize,
                                 type_converters = type_converters,
                                 auto_downcast = auto_downcast,
+=======
+                                support_code=support_code,
+                                headers=headers,
+                                customize=customize,
+                                type_converters=type_converters,
+                                auto_downcast=auto_downcast,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                                 **kw)
 
         function_catalog.add_function(code,func,module_dir)
@@ -322,18 +479,31 @@ def inline(code,arg_names=[],local_dict = None, global_dict = None,
         try:
             results = apply(function_cache[code],(local_dict,global_dict))
             return results
+<<<<<<< HEAD
         except TypeError, msg:
+=======
+        except TypeError as msg:
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             msg = str(msg).strip()
             if msg[:16] == "Conversion Error":
                 pass
             else:
+<<<<<<< HEAD
                 raise TypeError, msg
         except NameError, msg:
+=======
+                raise TypeError(msg)
+        except NameError as msg:
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             msg = str(msg).strip()
             if msg[:16] == "Conversion Error":
                 pass
             else:
+<<<<<<< HEAD
                 raise NameError, msg
+=======
+                raise NameError(msg)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         except KeyError:
             pass
         # 2. try function catalog
@@ -347,17 +517,29 @@ def inline(code,arg_names=[],local_dict = None, global_dict = None,
                                     global_dict,module_dir,
                                     compiler=compiler,
                                     verbose=verbose,
+<<<<<<< HEAD
                                     support_code = support_code,
                                     headers = headers,
                                     customize=customize,
                                     type_converters = type_converters,
                                     auto_downcast = auto_downcast,
+=======
+                                    support_code=support_code,
+                                    headers=headers,
+                                    customize=customize,
+                                    type_converters=type_converters,
+                                    auto_downcast=auto_downcast,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                                     **kw)
 
             function_catalog.add_function(code,func,module_dir)
             results = attempt_function_call(code,local_dict,global_dict)
     return results
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def attempt_function_call(code,local_dict,global_dict):
     # we try 3 levels here -- a local cache first, then the
     # catalog cache, and then persistent catalog.
@@ -367,18 +549,31 @@ def attempt_function_call(code,local_dict,global_dict):
     try:
         results = apply(function_cache[code],(local_dict,global_dict))
         return results
+<<<<<<< HEAD
     except TypeError, msg:
+=======
+    except TypeError as msg:
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         msg = str(msg).strip()
         if msg[:16] == "Conversion Error":
             pass
         else:
+<<<<<<< HEAD
             raise TypeError, msg
     except NameError, msg:
+=======
+            raise TypeError(msg)
+    except NameError as msg:
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         msg = str(msg).strip()
         if msg[:16] == "Conversion Error":
             pass
         else:
+<<<<<<< HEAD
             raise NameError, msg
+=======
+            raise NameError(msg)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     except KeyError:
         pass
     # 2. try catalog cache.
@@ -389,7 +584,11 @@ def attempt_function_call(code,local_dict,global_dict):
             function_catalog.fast_cache(code,func)
             function_cache[code] = func
             return results
+<<<<<<< HEAD
         except TypeError, msg: # should specify argument types here.
+=======
+        except TypeError as msg:  # should specify argument types here.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             # This should really have its own error type, instead of
             # checking the beginning of the message, but I don't know
             # how to define that yet.
@@ -397,13 +596,22 @@ def attempt_function_call(code,local_dict,global_dict):
             if msg[:16] == "Conversion Error":
                 pass
             else:
+<<<<<<< HEAD
                 raise TypeError, msg
         except NameError, msg:
+=======
+                raise TypeError(msg)
+        except NameError as msg:
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             msg = str(msg).strip()
             if msg[:16] == "Conversion Error":
                 pass
             else:
+<<<<<<< HEAD
                 raise NameError, msg
+=======
+                raise NameError(msg)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     # 3. try persistent catalog
     module_dir = global_dict.get('__file__',None)
     function_list = function_catalog.get_functions(code,module_dir)
@@ -413,6 +621,7 @@ def attempt_function_call(code,local_dict,global_dict):
             function_catalog.fast_cache(code,func)
             function_cache[code] = func
             return results
+<<<<<<< HEAD
         except: # should specify argument types here.
             pass
     # if we get here, the function wasn't found
@@ -420,6 +629,16 @@ def attempt_function_call(code,local_dict,global_dict):
 
 def inline_function_code(code,arg_names,local_dict=None,
                          global_dict=None,auto_downcast = 1,
+=======
+        except:  # should specify argument types here.
+            pass
+    # if we get here, the function wasn't found
+    raise ValueError('function with correct signature not found')
+
+
+def inline_function_code(code,arg_names,local_dict=None,
+                         global_dict=None,auto_downcast=1,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                          type_converters=None,compiler=''):
     call_frame = sys._getframe().f_back
     if local_dict is None:
@@ -428,12 +647,18 @@ def inline_function_code(code,arg_names,local_dict=None,
         global_dict = call_frame.f_globals
     ext_func = inline_ext_function('compiled_func',code,arg_names,
                                    local_dict,global_dict,auto_downcast,
+<<<<<<< HEAD
                                    type_converters = type_converters)
     import build_tools
+=======
+                                   type_converters=type_converters)
+    from . import build_tools
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     compiler = build_tools.choose_compiler(compiler)
     ext_func.set_compiler(compiler)
     return ext_func.function_code()
 
+<<<<<<< HEAD
 def compile_function(code,arg_names,local_dict,global_dict,
                      module_dir,
                      compiler='',
@@ -442,11 +667,26 @@ def compile_function(code,arg_names,local_dict,global_dict,
                      headers = [],
                      customize = None,
                      type_converters = None,
+=======
+
+def compile_function(code,arg_names,local_dict,global_dict,
+                     module_dir,
+                     compiler='',
+                     verbose=1,
+                     support_code=None,
+                     headers=[],
+                     customize=None,
+                     type_converters=None,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                      auto_downcast=1,
                      **kw):
     # figure out where to store and what to name the extension module
     # that will contain the function.
+<<<<<<< HEAD
     #storage_dir = catalog.intermediate_dir()
+=======
+    # storage_dir = catalog.intermediate_dir()
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     code = ndarray_api_version + '\n' + code
     module_path = function_catalog.unique_module_name(code, module_dir)
     storage_dir, module_name = os.path.split(module_path)
@@ -456,7 +696,11 @@ def compile_function(code,arg_names,local_dict,global_dict,
     # type factories setting
     ext_func = inline_ext_function('compiled_func',code,arg_names,
                                    local_dict,global_dict,auto_downcast,
+<<<<<<< HEAD
                                    type_converters = type_converters)
+=======
+                                   type_converters=type_converters)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     mod.add_function(ext_func)
 
     # if customize (a custom_info object), then set the module customization.
@@ -474,7 +718,11 @@ def compile_function(code,arg_names,local_dict,global_dict,
     # it's nice to let the users know when anything gets compiled, as the
     # slowdown is very noticeable.
     if verbose > 0:
+<<<<<<< HEAD
         print '<weave: compiling>'
+=======
+        print('<weave: compiling>')
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     # compile code in correct location, with the given compiler and verbosity
     # setting.  All input keywords are passed through to distutils
@@ -485,7 +733,11 @@ def compile_function(code,arg_names,local_dict,global_dict,
     # the directory where it lives is in the python path.
     try:
         sys.path.insert(0,storage_dir)
+<<<<<<< HEAD
         exec 'import ' + module_name
+=======
+        exec('import ' + module_name)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         func = eval(module_name+'.compiled_func')
     finally:
         del sys.path[0]

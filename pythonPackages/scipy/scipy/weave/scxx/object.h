@@ -617,7 +617,11 @@ public:
     object method = attr(nm);
     PyObject* result = PyEval_CallObjectWithKeywords(method,NULL,NULL);
     if (!result)
+<<<<<<< HEAD
       throw 1; // signal exception has occured.
+=======
+      throw 1; // signal exception has occurred.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     return object(lose_ref(result));
   }
   
@@ -625,7 +629,11 @@ public:
     object method = attr(nm);
     PyObject* result = PyEval_CallObjectWithKeywords(method,args_tup,NULL);
     if (!result)
+<<<<<<< HEAD
       throw 1; // signal exception has occured.
+=======
+      throw 1; // signal exception has occurred.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     return object(lose_ref(result));
   }
   
@@ -633,7 +641,11 @@ public:
     object method = attr(nm);
     PyObject* result = PyEval_CallObjectWithKeywords(method,args_tup,kw_dict);
     if (!result)
+<<<<<<< HEAD
       throw 1; // signal exception has occured.
+=======
+      throw 1; // signal exception has occurred.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     return object(lose_ref(result));
   }
 

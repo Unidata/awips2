@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*							nbdtr.c
  *
  *	Negative binomial distribution
+=======
+/*                                                     nbdtr.c
+ *
+ *     Negative binomial distribution
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
  *
  *
  *
@@ -83,9 +89,15 @@
  * See also incbet.c.
  */
 
+<<<<<<< HEAD
 /*							nbdtrc
  *
  *	Complemented negative binomial distribution
+=======
+/*                                                     nbdtrc
+ *
+ *     Complemented negative binomial distribution
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
  *
  *
  *
@@ -146,6 +158,7 @@
  */
 
 /*
+<<<<<<< HEAD
 Cephes Math Library Release 2.3:  March, 1995
 Copyright 1984, 1987, 1995 by Stephen L. Moshier
 */
@@ -170,10 +183,36 @@ domerr:
 dk = k+1;
 dn = n;
 return( incbet( dk, dn, 1.0 - p ) );
+=======
+ * Cephes Math Library Release 2.3:  March, 1995
+ * Copyright 1984, 1987, 1995 by Stephen L. Moshier
+ */
+
+#include "mconf.h"
+
+double nbdtrc(k, n, p)
+int k, n;
+double p;
+{
+    double dk, dn;
+
+    if ((p < 0.0) || (p > 1.0))
+	goto domerr;
+    if (k < 0) {
+      domerr:
+	mtherr("nbdtr", DOMAIN);
+	return (NPY_NAN);
+    }
+
+    dk = k + 1;
+    dn = n;
+    return (incbet(dk, dn, 1.0 - p));
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 }
 
 
 
+<<<<<<< HEAD
 double nbdtr( k, n, p )
 int k, n;
 double p;
@@ -191,10 +230,29 @@ domerr:
 dk = k+1;
 dn = n;
 return( incbet( dn, dk, p ) );
+=======
+double nbdtr(k, n, p)
+int k, n;
+double p;
+{
+    double dk, dn;
+
+    if ((p < 0.0) || (p > 1.0))
+	goto domerr;
+    if (k < 0) {
+      domerr:
+	mtherr("nbdtr", DOMAIN);
+	return (NPY_NAN);
+    }
+    dk = k + 1;
+    dn = n;
+    return (incbet(dn, dk, p));
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 }
 
 
 
+<<<<<<< HEAD
 double nbdtri( k, n, p )
 int k, n;
 double p;
@@ -213,4 +271,23 @@ dk = k+1;
 dn = n;
 w = incbi( dn, dk, p );
 return( w );
+=======
+double nbdtri(k, n, p)
+int k, n;
+double p;
+{
+    double dk, dn, w;
+
+    if ((p < 0.0) || (p > 1.0))
+	goto domerr;
+    if (k < 0) {
+      domerr:
+	mtherr("nbdtri", DOMAIN);
+	return (NPY_NAN);
+    }
+    dk = k + 1;
+    dn = n;
+    w = incbi(dn, dk, p);
+    return (w);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 }

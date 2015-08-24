@@ -345,7 +345,11 @@ c  we update the sum of squared residuals.
  390    do 395 j=1,mvv
           sq = sq+right(j)**2
  395    continue
+<<<<<<< HEAD
  400    if(nrold.eq.number) go to 420
+=======
+        if(nrold.eq.number) go to 420
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
  410    nrold = n1
         n1 = n1+1
         go to 250

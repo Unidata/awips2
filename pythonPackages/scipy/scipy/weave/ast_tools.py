@@ -1,10 +1,23 @@
+<<<<<<< HEAD
+=======
+from __future__ import absolute_import, print_function
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 import token
 import symbol
 import parser
 
+<<<<<<< HEAD
 def issequence(t):
     return isinstance(t, (list, tuple))
 
+=======
+
+def issequence(t):
+    return isinstance(t, (list, tuple))
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def int_to_symbol(i):
     """ Convert numeric symbol or token to a desriptive name.
     """
@@ -13,6 +26,10 @@ def int_to_symbol(i):
     except KeyError:
         return token.tok_name[i]
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def translate_symbols(ast_tuple):
     """ Translate numeric grammar symbols in an ast_tuple descriptive names.
 
@@ -32,6 +49,10 @@ def translate_symbols(ast_tuple):
     else:
         return new_list
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def ast_to_string(ast_seq):
     """* Traverse an ast tree sequence, printing out all leaf nodes.
 
@@ -48,6 +69,10 @@ def ast_to_string(ast_seq):
             output = output + ast_to_string(item)
     return output
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def build_atom(expr_string):
     """ Build an ast for an atom from the given expr string.
 
@@ -63,6 +88,7 @@ def build_atom(expr_string):
     if isinstance(expr_string, str):
         ast = parser.expr(expr_string).totuple()[1][1]
     else:
+<<<<<<< HEAD
         ast = parser.expr(`expr_string`).totuple()[1][1]
     return ast
 
@@ -74,6 +100,22 @@ def atom_list(expr_string):
 
 def find_first_pattern(ast_tuple,pattern_list):
     """* Find the first occurence of a pattern one of a list of patterns
+=======
+        ast = parser.expr(repr(expr_string)).totuple()[1][1]
+    return ast
+
+
+def atom_tuple(expr_string):
+    return build_atom(expr_string)
+
+
+def atom_list(expr_string):
+    return tuples_to_lists(build_atom(expr_string))
+
+
+def find_first_pattern(ast_tuple,pattern_list):
+    """* Find the first occurrence of a pattern one of a list of patterns
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         in ast_tuple.
 
         Used for testing at the moment.
@@ -111,6 +153,10 @@ def find_first_pattern(ast_tuple,pattern_list):
 
 name_pattern = (token.NAME, ['var'])
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def remove_duplicates(lst):
     output = []
     for item in lst:
@@ -120,6 +166,10 @@ def remove_duplicates(lst):
 
 reserved_names = ['sin']
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def remove_reserved_names(lst):
     """ These are functions names -- don't create variables for them
         There is a more reobust approach, but this ought to work pretty
@@ -131,8 +181,14 @@ def remove_reserved_names(lst):
             output.append(item)
     return output
 
+<<<<<<< HEAD
 def harvest_variables(ast_list):
     """ Retreive all the variables that need to be defined.
+=======
+
+def harvest_variables(ast_list):
+    """ Retrieve all the variables that need to be defined.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     """
     variables = []
     if issequence(ast_list):
@@ -146,6 +202,10 @@ def harvest_variables(ast_list):
     variables = remove_reserved_names(variables)
     return variables
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def match(pattern, data, vars=None):
     """match `data' to `pattern', with variable extraction.
 
@@ -180,7 +240,11 @@ def match(pattern, data, vars=None):
         return (pattern == data), vars
     if len(data) != len(pattern):
         return 0, vars
+<<<<<<< HEAD
     for pattern, data in map(None, pattern, data):
+=======
+    for pattern, data in zip(pattern, data):
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         same, vars = match(pattern, data, vars)
         if not same:
             break

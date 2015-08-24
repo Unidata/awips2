@@ -1,10 +1,16 @@
 """LInked List sparse matrix class
 """
 
+<<<<<<< HEAD
+=======
+from __future__ import division, print_function, absolute_import
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 __docformat__ = "restructuredtext en"
 
 __all__ = ['lil_matrix','isspmatrix_lil']
 
+<<<<<<< HEAD
 from bisect import bisect_left
 
 import numpy as np
@@ -17,21 +23,67 @@ class lil_matrix(spmatrix):
 
     This is an efficient structure for constructing sparse
     matrices incrementally.
+=======
+import numpy as np
+
+from .base import spmatrix, isspmatrix
+from .sputils import (getdtype, isshape, isscalarlike, IndexMixin,
+                      upcast_scalar, get_index_dtype)
+
+from . import _csparsetools
+
+
+class lil_matrix(spmatrix, IndexMixin):
+    """Row-based linked list sparse matrix
+
+    This is a structure for constructing sparse matrices incrementally.
+    Note that inserting a single item can take linear time in the worst case;
+    to construct a matrix efficiently, make sure the items are pre-sorted by
+    index, per row.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     This can be instantiated in several ways:
         lil_matrix(D)
             with a dense matrix or rank-2 ndarray D
 
         lil_matrix(S)
+<<<<<<< HEAD
             with another sparse matrix S (equivalent to S.tocsc())
+=======
+            with another sparse matrix S (equivalent to S.tolil())
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         lil_matrix((M, N), [dtype])
             to construct an empty matrix with shape (M, N)
             dtype is optional, defaulting to dtype='d'.
 
+<<<<<<< HEAD
     Notes
     -----
 
+=======
+    Attributes
+    ----------
+    dtype : dtype
+        Data type of the matrix
+    shape : 2-tuple
+        Shape of the matrix
+    ndim : int
+        Number of dimensions (this is always 2)
+    nnz
+        Number of nonzero elements
+    data
+        LIL format data array of the matrix
+    rows
+        LIL format row index array of the matrix
+
+    Notes
+    -----
+
+    Sparse matrices can be used in arithmetic operations: they support
+    addition, subtraction, multiplication, division, and matrix power.
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     Advantages of the LIL format
         - supports flexible slicing
         - changes to the matrix sparsity structure are efficient
@@ -72,8 +124,13 @@ class lil_matrix(spmatrix):
 
             self.shape = A.shape
             self.dtype = A.dtype
+<<<<<<< HEAD
             self.rows  = A.rows
             self.data  = A.data
+=======
+            self.rows = A.rows
+            self.data = A.data
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         elif isinstance(arg1,tuple):
             if isshape(arg1):
                 if shape is not None:
@@ -88,19 +145,56 @@ class lil_matrix(spmatrix):
             else:
                 raise TypeError('unrecognized lil_matrix constructor usage')
         else:
+<<<<<<< HEAD
             #assume A is dense
+=======
+            # assume A is dense
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             try:
                 A = np.asmatrix(arg1)
             except TypeError:
                 raise TypeError('unsupported matrix type')
             else:
+<<<<<<< HEAD
                 from csr import csr_matrix
+=======
+                from .csr import csr_matrix
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                 A = csr_matrix(A, dtype=dtype).tolil()
 
                 self.shape = A.shape
                 self.dtype = A.dtype
+<<<<<<< HEAD
                 self.rows  = A.rows
                 self.data  = A.data
+=======
+                self.rows = A.rows
+                self.data = A.data
+
+    def set_shape(self,shape):
+        shape = tuple(shape)
+
+        if len(shape) != 2:
+            raise ValueError("Only two-dimensional sparse arrays "
+                                     "are supported.")
+        try:
+            shape = int(shape[0]),int(shape[1])  # floats, other weirdness
+        except:
+            raise TypeError('invalid shape')
+
+        if not (shape[0] >= 0 and shape[1] >= 0):
+            raise ValueError('invalid shape')
+
+        if (self._shape != shape) and (self._shape is not None):
+            try:
+                self = self.reshape(shape)
+            except NotImplementedError:
+                raise NotImplementedError("Reshaping not implemented for %s." %
+                                          self.__class__.__name__)
+        self._shape = shape
+
+    shape = property(fget=spmatrix.get_shape, fset=set_shape)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     def __iadd__(self,other):
         self[:,:] = self + other
@@ -115,20 +209,53 @@ class lil_matrix(spmatrix):
             self[:,:] = self * other
             return self
         else:
+<<<<<<< HEAD
             raise NotImplementedError
+=======
+            return NotImplemented
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     def __itruediv__(self,other):
         if isscalarlike(other):
             self[:,:] = self / other
             return self
         else:
+<<<<<<< HEAD
             raise NotImplementedError
+=======
+            return NotImplemented
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     # Whenever the dimensions change, empty lists should be created for each
     # row
 
+<<<<<<< HEAD
     def getnnz(self):
         return sum([len(rowvals) for rowvals in self.data])
+=======
+    def getnnz(self, axis=None):
+        """Get the count of explicitly-stored values (nonzeros)
+
+        Parameters
+        ----------
+        axis : None, 0, or 1
+            Select between the number of values across the whole matrix, in
+            each column, or in each row.
+        """
+        if axis is None:
+            return sum([len(rowvals) for rowvals in self.data])
+        if axis < 0:
+            axis += 2
+        if axis == 0:
+            out = np.zeros(self.shape[1])
+            for row in self.rows:
+                out[row] += 1
+            return out
+        elif axis == 1:
+            return np.array([len(rowvals) for rowvals in self.data])
+        else:
+            raise ValueError('axis out of bounds')
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     nnz = property(fget=getnnz)
 
     def __str__(self):
@@ -154,6 +281,7 @@ class lil_matrix(spmatrix):
         new.data[0] = self.data[i][:]
         return new
 
+<<<<<<< HEAD
     def _get1(self, i, j):
 
         if i < 0:
@@ -192,11 +320,14 @@ class lil_matrix(spmatrix):
         return j
 
 
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     def __getitem__(self, index):
         """Return the element(s) index=(i, j), where j may be a slice.
         This always returns a copy for consistency, since slices into
         Python lists return copies.
         """
+<<<<<<< HEAD
         try:
             i, j = index
         except (AssertionError, TypeError):
@@ -333,28 +464,130 @@ class lil_matrix(spmatrix):
                 self._setitem_setrow(row, data, j, xrow, xdata, xrows)
         else:
             raise IndexError('invalid index')
+=======
+
+        # Scalar fast path first
+        if isinstance(index, tuple) and len(index) == 2:
+            i, j = index
+            # Use isinstance checks for common index types; this is
+            # ~25-50% faster than isscalarlike. Other types are
+            # handled below.
+            if ((isinstance(i, int) or isinstance(i, np.integer)) and
+                    (isinstance(j, int) or isinstance(j, np.integer))):
+                v = _csparsetools.lil_get1(self.shape[0], self.shape[1],
+                                           self.rows, self.data,
+                                           i, j)
+                return self.dtype.type(v)
+
+        # Utilities found in IndexMixin
+        i, j = self._unpack_index(index)
+
+        # Proper check for other scalar index types
+        if isscalarlike(i) and isscalarlike(j):
+            v = _csparsetools.lil_get1(self.shape[0], self.shape[1],
+                                       self.rows, self.data,
+                                       i, j)
+            return self.dtype.type(v)
+
+        i, j = self._index_to_arrays(i, j)
+        if i.size == 0:
+            return lil_matrix(i.shape, dtype=self.dtype)
+
+        new = lil_matrix(i.shape, dtype=self.dtype)
+
+        i, j = _prepare_index_for_memoryview(i, j)
+        _csparsetools.lil_fancy_get(self.shape[0], self.shape[1],
+                                    self.rows, self.data,
+                                    new.rows, new.data,
+                                    i, j)
+        return new
+
+    def __setitem__(self, index, x):
+        # Scalar fast path first
+        if isinstance(index, tuple) and len(index) == 2:
+            i, j = index
+            # Use isinstance checks for common index types; this is
+            # ~25-50% faster than isscalarlike. Scalar index
+            # assignment for other types is handled below together
+            # with fancy indexing.
+            if ((isinstance(i, int) or isinstance(i, np.integer)) and
+                    (isinstance(j, int) or isinstance(j, np.integer))):
+                x = self.dtype.type(x)
+                if x.size > 1:
+                    # Triggered if input was an ndarray
+                    raise ValueError("Trying to assign a sequence to an item")
+                _csparsetools.lil_insert(self.shape[0], self.shape[1],
+                                         self.rows, self.data, i, j, x)
+                return
+
+        # General indexing
+        i, j = self._unpack_index(index)
+
+        # shortcut for common case of full matrix assign:
+        if (isspmatrix(x) and isinstance(i, slice) and i == slice(None) and
+                isinstance(j, slice) and j == slice(None)
+                and x.shape == self.shape):
+            x = lil_matrix(x, dtype=self.dtype)
+            self.rows = x.rows
+            self.data = x.data
+            return
+
+        i, j = self._index_to_arrays(i, j)
+
+        if isspmatrix(x):
+            x = x.toarray()
+
+        # Make x and i into the same shape
+        x = np.asarray(x, dtype=self.dtype)
+        x, _ = np.broadcast_arrays(x, i)
+
+        if x.shape != i.shape:
+            raise ValueError("shape mismatch in assignment")
+
+        # Set values
+        i, j, x = _prepare_index_for_memoryview(i, j, x)
+        _csparsetools.lil_fancy_set(self.shape[0], self.shape[1],
+                                    self.rows, self.data,
+                                    i, j, x)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     def _mul_scalar(self, other):
         if other == 0:
             # Multiply by zero: return the zero matrix
             new = lil_matrix(self.shape, dtype=self.dtype)
         else:
+<<<<<<< HEAD
             new = self.copy()
             # Multiply this scalar by every element.
             new.data = np.array([[val*other for val in rowvals] for
                                   rowvals in new.data], dtype=object)
+=======
+            res_dtype = upcast_scalar(self.dtype, other)
+
+            new = self.copy()
+            new = new.astype(res_dtype)
+            # Multiply this scalar by every element.
+            for j, rowvals in enumerate(new.data):
+                new.data[j] = [val*other for val in rowvals]
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         return new
 
     def __truediv__(self, other):           # self / other
         if isscalarlike(other):
             new = self.copy()
             # Divide every element by this scalar
+<<<<<<< HEAD
             new.data = np.array([[val/other for val in rowvals] for
                                   rowvals in new.data], dtype=object)
+=======
+            for j, rowvals in enumerate(new.data):
+                new.data[j] = [val/other for val in rowvals]
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             return new
         else:
             return self.tocsr() / other
 
+<<<<<<< HEAD
 ## This code doesn't work with complex matrices
 #    def multiply(self, other):
 #        """Point-wise multiplication by another lil_matrix.
@@ -388,6 +621,8 @@ class lil_matrix(spmatrix):
 #            raise ValueError("Point-wise multiplication only allowed "
 #                             "with another lil_matrix.")
 
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     def copy(self):
         from copy import deepcopy
         new = lil_matrix(self.shape, dtype=self.dtype)
@@ -404,8 +639,14 @@ class lil_matrix(spmatrix):
                 new[new_r,new_c] = self[i,j]
         return new
 
+<<<<<<< HEAD
     def toarray(self):
         d = np.zeros(self.shape, dtype=self.dtype)
+=======
+    def toarray(self, order=None, out=None):
+        """See the docstring for `spmatrix.toarray`."""
+        d = self._process_toarray_args(order, out)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         for i, row in enumerate(self.rows):
             for pos, j in enumerate(row):
                 d[i, j] = self.data[i][pos]
@@ -424,22 +665,38 @@ class lil_matrix(spmatrix):
         """ Return Compressed Sparse Row format arrays for this matrix.
         """
 
+<<<<<<< HEAD
         indptr = np.asarray([len(x) for x in self.rows], dtype=np.intc)
         indptr = np.concatenate( (np.array([0], dtype=np.intc), np.cumsum(indptr)) )
 
         nnz = indptr[-1]
+=======
+        lst = [len(x) for x in self.rows]
+        idx_dtype = get_index_dtype(maxval=max(self.shape[1], sum(lst)))
+        indptr = np.asarray(lst, dtype=idx_dtype)
+        indptr = np.concatenate((np.array([0], dtype=idx_dtype),
+                                 np.cumsum(indptr, dtype=idx_dtype)))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         indices = []
         for x in self.rows:
             indices.extend(x)
+<<<<<<< HEAD
         indices = np.asarray(indices, dtype=np.intc)
+=======
+        indices = np.asarray(indices, dtype=idx_dtype)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         data = []
         for x in self.data:
             data.extend(x)
         data = np.asarray(data, dtype=self.dtype)
 
+<<<<<<< HEAD
         from csr import csr_matrix
+=======
+        from .csr import csr_matrix
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         return csr_matrix((data, indices, indptr), shape=self.shape)
 
     def tocsc(self):
@@ -448,7 +705,53 @@ class lil_matrix(spmatrix):
         return self.tocsr().tocsc()
 
 
+<<<<<<< HEAD
 from sputils import _isinstance
 
 def isspmatrix_lil( x ):
     return _isinstance(x, lil_matrix)
+=======
+def _prepare_index_for_memoryview(i, j, x=None):
+    """
+    Convert index and data arrays to form suitable for passing to the
+    Cython fancy getset routines.
+
+    The conversions are necessary since to (i) ensure the integer
+    index arrays are in one of the accepted types, and (ii) to ensure
+    the arrays are writable so that Cython memoryview support doesn't
+    choke on them.
+
+    Parameters
+    ----------
+    i, j
+        Index arrays
+    x : optional
+        Data arrays
+
+    Returns
+    -------
+    i, j, x
+        Re-formatted arrays (x is omitted, if input was None)
+
+    """
+    if i.dtype > j.dtype:
+        j = j.astype(i.dtype)
+    elif i.dtype < j.dtype:
+        i = i.astype(j.dtype)
+
+    if not i.flags.writeable or i.dtype not in (np.int32, np.int64):
+        i = i.astype(np.intp)
+    if not j.flags.writeable or j.dtype not in (np.int32, np.int64):
+        j = j.astype(np.intp)
+
+    if x is not None:
+        if not x.flags.writeable:
+            x = x.copy()
+        return i, j, x
+    else:
+        return i, j
+
+
+def isspmatrix_lil(x):
+    return isinstance(x, lil_matrix)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
