@@ -1,7 +1,15 @@
 #!/usr/bin/env python
+<<<<<<< HEAD
 
 from os.path import join
 
+=======
+from __future__ import division, print_function, absolute_import
+
+from os.path import join
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def configuration(parent_package='', top_path=None):
     import warnings
     from numpy.distutils.misc_util import Configuration
@@ -19,8 +27,14 @@ def configuration(parent_package='', top_path=None):
         warnings.warn(BlasNotFoundError.__doc__)
         libodr_files.append('d_lpkbls.f')
 
+<<<<<<< HEAD
     libodr = [join('odrpack', x) for x in libodr_files]
     config.add_library('odrpack', sources=libodr)
+=======
+    odrpack_src = [join('odrpack', x) for x in libodr_files]
+    config.add_library('odrpack', sources=odrpack_src)
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     sources = ['__odrpack.c']
     libraries = ['odrpack'] + blas_info.pop('libraries', [])
     include_dirs = ['.'] + blas_info.pop('include_dirs', [])
@@ -28,7 +42,11 @@ def configuration(parent_package='', top_path=None):
         sources=sources,
         libraries=libraries,
         include_dirs=include_dirs,
+<<<<<<< HEAD
         depends=['odrpack.h'],
+=======
+        depends=(['odrpack.h'] + odrpack_src),
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         **blas_info
     )
 

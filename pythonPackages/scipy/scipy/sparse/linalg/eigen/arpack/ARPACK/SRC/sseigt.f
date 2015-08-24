@@ -59,7 +59,11 @@ c\Routines called:
 c     sstqrb  ARPACK routine that computes the eigenvalues and the
 c             last components of the eigenvectors of a symmetric
 c             and tridiagonal matrix.
+<<<<<<< HEAD
 c     second  ARPACK utility routine for timing.
+=======
+c     arscnd  ARPACK utility routine for timing.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c     svout   ARPACK utility routine that prints vectors.
 c     scopy   Level 1 BLAS that copies one vector to another.
 c
@@ -127,7 +131,11 @@ c     %----------------------%
 c     | External Subroutines |
 c     %----------------------%
 c
+<<<<<<< HEAD
       external   scopy, sstqrb, svout, second
+=======
+      external   scopy, sstqrb, svout, arscnd
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %-----------------------%
 c     | Executable Statements |
@@ -138,7 +146,11 @@ c     | Initialize timing statistics  |
 c     | & message level for debugging |
 c     %-------------------------------% 
 c
+<<<<<<< HEAD
       call second (t0)
+=======
+      call arscnd (t0)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       msglvl = mseigt
 c
       if (msglvl .gt. 0) then
@@ -168,7 +180,11 @@ c
          bounds(k) = rnorm*abs(bounds(k))
    30 continue
 c 
+<<<<<<< HEAD
       call second (t1)
+=======
+      call arscnd (t1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       tseigt = tseigt + (t1 - t0)
 c
  9000 continue

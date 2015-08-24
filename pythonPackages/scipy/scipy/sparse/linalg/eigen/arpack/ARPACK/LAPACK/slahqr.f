@@ -108,8 +108,13 @@
       REAL               V( 3 ), WORK( 1 )
 *     ..
 *     .. External Functions ..
+<<<<<<< HEAD
       REAL               SLAMCH, SLANHS
       EXTERNAL           SLAMCH, SLANHS
+=======
+      REAL               wslamch, WSLANHS
+      EXTERNAL           wslamch, WSLANHS
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 *     ..
 *     .. External Subroutines ..
       EXTERNAL           SCOPY, SLABAD, SLANV2, SLARFG, SROT
@@ -137,10 +142,17 @@
 *     Set machine-dependent constants for the stopping criterion.
 *     If norm(H) <= sqrt(OVFL), overflow should not occur.
 *
+<<<<<<< HEAD
       UNFL = SLAMCH( 'Safe minimum' )
       OVFL = ONE / UNFL
       CALL SLABAD( UNFL, OVFL )
       ULP = SLAMCH( 'Precision' )
+=======
+      UNFL = wslamch( 'Safe minimum' )
+      OVFL = ONE / UNFL
+      CALL SLABAD( UNFL, OVFL )
+      ULP = wslamch( 'Precision' )
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       SMLNUM = UNFL*( NH / ULP )
 *
 *     I1 and I2 are the indices of the first row and last column of H
@@ -179,7 +191,11 @@
          DO 20 K = I, L + 1, -1
             TST1 = ABS( H( K-1, K-1 ) ) + ABS( H( K, K ) )
             IF( TST1.EQ.ZERO )
+<<<<<<< HEAD
      $         TST1 = SLANHS( '1', I-L+1, H( L, L ), LDH, WORK )
+=======
+     $         TST1 = WSLANHS( '1', I-L+1, H( L, L ), LDH, WORK )
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             IF( ABS( H( K, K-1 ) ).LE.MAX( ULP*TST1, SMLNUM ) )
      $         GO TO 30
    20    CONTINUE

@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*							chdtr.c
  *
  *	Chi-square distribution
+=======
+/*                                                     chdtr.c
+ *
+ *     Chi-square distribution
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
  *
  *
  *
@@ -32,7 +38,11 @@
  * The incomplete Gamma integral is used, according to the
  * formula
  *
+<<<<<<< HEAD
  *	y = chdtr( v, x ) = igam( v/2.0, x/2.0 ).
+=======
+ *     y = chdtr( v, x ) = igam( v/2.0, x/2.0 ).
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
  *
  *
  * The arguments must both be positive.
@@ -139,6 +149,7 @@
  *
  */
 
+<<<<<<< HEAD
 /*								chdtr() */
 
 
@@ -156,10 +167,31 @@ double df, x;
 
 if (x < 0.0) return 1.0;   /* modified by T. Oliphant */
 return( igamc( df/2.0, x/2.0 ) );
+=======
+/*                                                             chdtr() */
+
+
+/*
+ * Cephes Math Library Release 2.0:  April, 1987
+ * Copyright 1984, 1987 by Stephen L. Moshier
+ * Direct inquiries to 30 Frost Street, Cambridge, MA 02140
+ */
+
+#include "mconf.h"
+
+double chdtrc(df, x)
+double df, x;
+{
+
+    if (x < 0.0)
+	return 1.0;		/* modified by T. Oliphant */
+    return (igamc(df / 2.0, x / 2.0));
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 }
 
 
 
+<<<<<<< HEAD
 double chdtr(df,x)
 double df, x;
 {
@@ -170,10 +202,22 @@ if( (x < 0.0))  /* || (df < 1.0) ) */
 	return(NPY_NAN);
 	}
 return( igam( df/2.0, x/2.0 ) );
+=======
+double chdtr(df, x)
+double df, x;
+{
+
+    if ((x < 0.0)) {		/* || (df < 1.0) ) */
+	mtherr("chdtr", DOMAIN);
+	return (NPY_NAN);
+    }
+    return (igam(df / 2.0, x / 2.0));
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 }
 
 
 
+<<<<<<< HEAD
 double chdtri( df, y )
 double df, y;
 {
@@ -187,4 +231,18 @@ if( (y < 0.0) || (y > 1.0)) /* || (df < 1.0) ) */
 
 x = igami( 0.5 * df, y );
 return( 2.0 * x );
+=======
+double chdtri(df, y)
+double df, y;
+{
+    double x;
+
+    if ((y < 0.0) || (y > 1.0)) {	/* || (df < 1.0) ) */
+	mtherr("chdtri", DOMAIN);
+	return (NPY_NAN);
+    }
+
+    x = igami(0.5 * df, y);
+    return (2.0 * x);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 }

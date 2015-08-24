@@ -131,6 +131,7 @@ c
 c\Routines called:
 c     cgetv0  ARPACK routine to generate the initial vector.
 c     ivout   ARPACK utility routine that prints integers.
+<<<<<<< HEAD
 c     second  ARPACK utility routine for timing.
 c     cmout   ARPACK utility routine that prints matrices
 c     cvout   ARPACK utility routine that prints vectors.
@@ -140,13 +141,28 @@ c     slabad  LAPACK routine for defining the underflow and overflow
 c             limits.
 c     slamch  LAPACK routine that determines machine constants.
 c     slapy2  LAPACK routine to compute sqrt(x**2+y**2) carefully.
+=======
+c     arscnd  ARPACK utility routine for timing.
+c     cmout   ARPACK utility routine that prints matrices
+c     cvout   ARPACK utility routine that prints vectors.
+c     wclanhs  LAPACK routine that computes various norms of a matrix.
+c     clascl  LAPACK routine for careful scaling of a matrix.
+c     slabad  LAPACK routine for defining the underflow and overflow
+c             limits.
+c     wslamch  LAPACK routine that determines machine constants.
+c     wslapy2  LAPACK routine to compute sqrt(x**2+y**2) carefully.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c     cgemv   Level 2 BLAS routine for matrix vector multiplication.
 c     caxpy   Level 1 BLAS that computes a vector triad.
 c     ccopy   Level 1 BLAS that copies one vector to another .
 c     wcdotc   Level 1 BLAS that computes the scalar product of two vectors. 
 c     cscal   Level 1 BLAS that scales a vector.
 c     csscal  Level 1 BLAS that scales a complex vector by a real number. 
+<<<<<<< HEAD
 c     scnrm2  Level 1 BLAS that computes the norm of a vector.
+=======
+c     wscnrm2  Level 1 BLAS that computes the norm of a vector.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c\Author
 c     Danny Sorensen               Phuong Vu
@@ -273,7 +289,11 @@ c     | External Subroutines |
 c     %----------------------%
 c
       external   caxpy, ccopy, cscal, csscal, cgemv, cgetv0, 
+<<<<<<< HEAD
      &           slabad, cvout, cmout, ivout, second
+=======
+     &           slabad, cvout, cmout, ivout, arscnd
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %--------------------%
 c     | External Functions |
@@ -282,8 +302,13 @@ c
       Complex
      &           wcdotc 
       Real            
+<<<<<<< HEAD
      &           slamch,  scnrm2, clanhs, slapy2
       external   wcdotc, scnrm2, clanhs, slamch, slapy2
+=======
+     &           wslamch,  wscnrm2, wclanhs, wslapy2
+      external   wcdotc, wscnrm2, wclanhs, wslamch, wslapy2
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %---------------------%
 c     | Intrinsic Functions |
@@ -311,10 +336,17 @@ c        | overflow should not occur.              |
 c        | REFERENCE: LAPACK subroutine clahqr     |
 c        %-----------------------------------------%
 c
+<<<<<<< HEAD
          unfl = slamch( 'safe minimum' )
          ovfl = real(one / unfl)
          call slabad( unfl, ovfl )
          ulp = slamch( 'precision' )
+=======
+         unfl = wslamch( 'safe minimum' )
+         ovfl = real(one / unfl)
+         call slabad( unfl, ovfl )
+         ulp = wslamch( 'precision' )
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          smlnum = unfl*( n / ulp )
          first = .false.
       end if
@@ -326,7 +358,11 @@ c        | Initialize timing statistics  |
 c        | & message level for debugging |
 c        %-------------------------------%
 c
+<<<<<<< HEAD
          call second (t0)
+=======
+         call arscnd (t0)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          msglvl = mcaitr
 c 
 c        %------------------------------%
@@ -437,7 +473,11 @@ c              | which spans OP and exit.                       |
 c              %------------------------------------------------%
 c
                info = j - 1
+<<<<<<< HEAD
                call second (t1)
+=======
+               call arscnd (t1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                tcaitr = tcaitr + (t1 - t0)
                ido = 99
                go to 9000
@@ -477,7 +517,11 @@ c        %------------------------------------------------------%
 c
          step3 = .true.
          nopx  = nopx + 1
+<<<<<<< HEAD
          call second (t2)
+=======
+         call arscnd (t2)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          call ccopy (n, v(1,j), 1, workd(ivj), 1)
          ipntr(1) = ivj
          ipntr(2) = irj
@@ -497,7 +541,11 @@ c        | WORKD(IRJ:IRJ+N-1) := OP*v_{j}   |
 c        | if step3 = .true.                |
 c        %----------------------------------%
 c
+<<<<<<< HEAD
          call second (t3)
+=======
+         call arscnd (t3)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          tmvopx = tmvopx + (t3 - t2)
  
          step3 = .false.
@@ -513,7 +561,11 @@ c        | STEP 4:  Finish extending the Arnoldi |
 c        |          factorization to length j.   |
 c        %---------------------------------------%
 c
+<<<<<<< HEAD
          call second (t2)
+=======
+         call arscnd (t2)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          if (bmat .eq. 'G') then
             nbx = nbx + 1
             step4 = .true.
@@ -538,7 +590,11 @@ c        | if step4 = .true.                |
 c        %----------------------------------%
 c
          if (bmat .eq. 'G') then
+<<<<<<< HEAD
             call second (t3)
+=======
+            call arscnd (t3)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             tmvbx = tmvbx + (t3 - t2)
          end if
 c 
@@ -551,9 +607,15 @@ c        %-------------------------------------%
 c
          if (bmat .eq. 'G') then  
              cnorm = wcdotc (n, resid, 1, workd(ipj), 1)
+<<<<<<< HEAD
              wnorm = sqrt( slapy2(real(cnorm),aimag(cnorm)) )
          else if (bmat .eq. 'I') then
              wnorm = scnrm2(n, resid, 1)
+=======
+             wnorm = sqrt( wslapy2(real(cnorm),aimag(cnorm)) )
+         else if (bmat .eq. 'I') then
+             wnorm = wscnrm2(n, resid, 1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          end if
 c
 c        %-----------------------------------------%
@@ -583,11 +645,19 @@ c
 c
          if (j .gt. 1) h(j,j-1) = cmplx(betaj, rzero)
 c
+<<<<<<< HEAD
          call second (t4)
 c 
          orth1 = .true.
 c 
          call second (t2)
+=======
+         call arscnd (t4)
+c 
+         orth1 = .true.
+c 
+         call arscnd (t2)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          if (bmat .eq. 'G') then
             nbx = nbx + 1
             call ccopy (n, resid, 1, workd(irj), 1)
@@ -611,7 +681,11 @@ c        | WORKD(IPJ:IPJ+N-1) := B*r_{j}.                    |
 c        %---------------------------------------------------%
 c
          if (bmat .eq. 'G') then
+<<<<<<< HEAD
             call second (t3)
+=======
+            call arscnd (t3)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             tmvbx = tmvbx + (t3 - t2)
          end if
 c 
@@ -623,9 +697,15 @@ c        %------------------------------%
 c
          if (bmat .eq. 'G') then         
             cnorm = wcdotc (n, resid, 1, workd(ipj), 1)
+<<<<<<< HEAD
             rnorm = sqrt( slapy2(real(cnorm),aimag(cnorm)) )
          else if (bmat .eq. 'I') then
             rnorm = scnrm2(n, resid, 1)
+=======
+            rnorm = sqrt( wslapy2(real(cnorm),aimag(cnorm)) )
+         else if (bmat .eq. 'I') then
+            rnorm = wscnrm2(n, resid, 1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          end if
 c 
 c        %-----------------------------------------------------------%
@@ -689,7 +769,11 @@ c
          call caxpy (j, one, workd(irj), 1, h(1,j), 1)
 c 
          orth2 = .true.
+<<<<<<< HEAD
          call second (t2)
+=======
+         call arscnd (t2)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          if (bmat .eq. 'G') then
             nbx = nbx + 1
             call ccopy (n, resid, 1, workd(irj), 1)
@@ -713,7 +797,11 @@ c        | Back from reverse communication if ORTH2 = .true. |
 c        %---------------------------------------------------%
 c
          if (bmat .eq. 'G') then
+<<<<<<< HEAD
             call second (t3)
+=======
+            call arscnd (t3)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             tmvbx = tmvbx + (t3 - t2)
          end if 
 c
@@ -723,9 +811,15 @@ c        %-----------------------------------------------------%
 c 
          if (bmat .eq. 'G') then         
              cnorm  = wcdotc (n, resid, 1, workd(ipj), 1)
+<<<<<<< HEAD
              rnorm1 = sqrt( slapy2(real(cnorm),aimag(cnorm)) )
          else if (bmat .eq. 'I') then
              rnorm1 = scnrm2(n, resid, 1)
+=======
+             rnorm1 = sqrt( wslapy2(real(cnorm),aimag(cnorm)) )
+         else if (bmat .eq. 'I') then
+             rnorm1 = wscnrm2(n, resid, 1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          end if
 c 
          if (msglvl .gt. 0 .and. iter .gt. 0 ) then
@@ -791,7 +885,11 @@ c
          rstart = .false.
          orth2  = .false.
 c 
+<<<<<<< HEAD
          call second (t5)
+=======
+         call arscnd (t5)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          titref = titref + (t5 - t4)
 c 
 c        %------------------------------------%
@@ -800,7 +898,11 @@ c        %------------------------------------%
 c
          j = j + 1
          if (j .gt. k+np) then
+<<<<<<< HEAD
             call second (t1)
+=======
+            call arscnd (t1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             tcaitr = tcaitr + (t1 - t0)
             ido = 99
             do 110 i = max(1,k), k+np-1
@@ -811,11 +913,19 @@ c              | Use a standard test as in the QR algorithm |
 c              | REFERENCE: LAPACK subroutine clahqr        |
 c              %--------------------------------------------%
 c     
+<<<<<<< HEAD
                tst1 = slapy2(real(h(i,i)),aimag(h(i,i)))
      &              + slapy2(real(h(i+1,i+1)), aimag(h(i+1,i+1)))
                if( tst1.eq.real(zero) )
      &              tst1 = clanhs( '1', k+np, h, ldh, workd(n+1) )
                if( slapy2(real(h(i+1,i)),aimag(h(i+1,i))) .le. 
+=======
+               tst1 = wslapy2(real(h(i,i)),aimag(h(i,i)))
+     &              + wslapy2(real(h(i+1,i+1)), aimag(h(i+1,i+1)))
+               if( tst1.eq.real(zero) )
+     &              tst1 = wclanhs( '1', k+np, h, ldh, workd(n+1) )
+               if( wslapy2(real(h(i+1,i)),aimag(h(i+1,i))) .le. 
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      &                    max( ulp*tst1, smlnum ) ) 
      &             h(i+1,i) = zero
  110        continue

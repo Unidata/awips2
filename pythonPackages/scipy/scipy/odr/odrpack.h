@@ -1,6 +1,11 @@
 #include "Python.h"
 #include "numpy/arrayobject.h"
 
+<<<<<<< HEAD
+=======
+#include "numpy/npy_3kcompat.h"
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 #if defined(NO_APPEND_FORTRAN)
 #if defined(UPPERCASE_FORTRAN)
 #define F_FUNC(f,F) F
@@ -53,6 +58,7 @@ PyObject *odr(PyObject *self, PyObject *args, PyObject *kwds);
 (m)->descr->type_num, 0,0)))
 #define D(dbg) printf("we're here: %i\n", dbg)
 #define EXIST(name,obj) if (obj==NULL){printf("%s\n",name);}
+<<<<<<< HEAD
 static void check_args(int n, int m, int np, int nq, 
 		       PyArrayObject *beta,
 		       PyArrayObject *y, int ldy, 
@@ -67,3 +73,5 @@ static void check_args(int n, int m, int np, int nq,
 		       PyArrayObject *work, int lwork, 
 		       PyArrayObject *iwork, int liwork,
 		       int info);
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

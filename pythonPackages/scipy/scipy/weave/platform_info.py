@@ -4,8 +4,16 @@
     keep the object files and shared libaries straight when
     multiple platforms share the same file system.
 """
+<<<<<<< HEAD
 
 import os, sys, subprocess
+=======
+from __future__ import absolute_import, print_function
+
+import os
+import sys
+import subprocess
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 import distutils
 from distutils.sysconfig import customize_compiler
@@ -18,6 +26,10 @@ import distutils.bcppcompiler
 
 #from numpy.distutils import mingw32_support
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def dummy_dist():
     # create a dummy distribution.  It will look at any site configuration files
     # and parse the command line to pick up any user configured stuff.  The
@@ -28,6 +40,10 @@ def dummy_dist():
     distutils.core._setup_stop_after = None
     return dist
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def create_compiler_instance(dist):
     # build_ext is in charge of building C/C++ files.
     # We are using it and dist to parse config files, and command line
@@ -53,6 +69,10 @@ def create_compiler_instance(dist):
     customize_compiler(compiler)
     return compiler
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def compiler_exe_name(compiler):
     exe_name = ''
     # this is really ugly...  Why aren't the attribute names
@@ -66,6 +86,10 @@ def compiler_exe_name(compiler):
         exe_name = 'brcc32'
     return exe_name
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def compiler_exe_path(exe_name):
     exe_path = None
     if os.path.exists(exe_name):
@@ -87,15 +111,27 @@ def compiler_exe_path(exe_name):
                 break
     return exe_path
 
+<<<<<<< HEAD
 def check_sum(file):
     import scipy.weave.md5_load as md5
+=======
+
+def check_sum(file):
+    from hashlib import sha256
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     try:
         f = open(file,'r')
         bytes = f.read(-1)
     except IOError:
         bytes = ''
+<<<<<<< HEAD
     chk_sum = md5.md5(bytes)
     return chk_sum.hexdigest()
+=======
+    chk_sum = sha256(bytes)
+    return chk_sum.hexdigest()[:32]  # truncation needed, see gh-3216
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 def get_compiler_dir(compiler_name):
     """ Try to figure out the compiler directory based on the
@@ -113,7 +149,11 @@ def get_compiler_dir(compiler_name):
     exe_name = compiler_exe_name(compiler_obj)
     exe_path = compiler_exe_path(exe_name)
     if not exe_path:
+<<<<<<< HEAD
         raise ValueError, "The '%s' compiler was not found." % compiler_name
+=======
+        raise ValueError("The '%s' compiler was not found." % compiler_name)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     chk_sum = check_sum(exe_path)
     restore_sys_argv()
 
@@ -123,6 +163,10 @@ def get_compiler_dir(compiler_name):
 # Not needed -- used for testing.
 #----------------------------------------------------------------------------
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def choose_compiler(compiler_name=''):
     """ Try and figure out which compiler is gonna be used on windows.
         On other platforms, it just returns whatever value it is given.
@@ -150,10 +194,16 @@ def choose_compiler(compiler_name=''):
     return compiler_name
 
 old_argv = []
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def configure_sys_argv(compiler_name):
     # We're gonna play some tricks with argv here to pass info to distutils
     # which is really built for command line use. better way??
     global old_argv
+<<<<<<< HEAD
     old_argv = sys.argv[:]
     sys.argv = ['','build_ext','--compiler='+compiler_name]
 
@@ -161,6 +211,20 @@ def restore_sys_argv():
     sys.argv = old_argv
 
 def gcc_exists(name = 'gcc'):
+=======
+    try:
+        old_argv = sys.argv[:]
+    except AttributeError:
+        pass
+    sys.argv = ['','build_ext','--compiler='+compiler_name]
+
+
+def restore_sys_argv():
+    sys.argv = old_argv
+
+
+def gcc_exists(name='gcc'):
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     """ Test to make sure gcc is found
 
         Does this return correct value on win98???
@@ -181,6 +245,10 @@ def gcc_exists(name = 'gcc'):
         result = not os.system(cmd)
     return result
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def msvc_exists():
     """ Determine whether MSVC is available on the machine.
     """
@@ -227,10 +295,18 @@ if __name__ == "__main__":
     print
     """
     path = get_compiler_dir('gcc')
+<<<<<<< HEAD
     print 'gcc path:', path
     print
     try:
         path = get_compiler_dir('msvc')
         print 'gcc path:', path
+=======
+    print('gcc path:', path)
+    print()
+    try:
+        path = get_compiler_dir('msvc')
+        print('gcc path:', path)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     except ValueError:
         pass

@@ -4,9 +4,15 @@
  * and drop some small entries
  *
  * <pre>
+<<<<<<< HEAD
  * -- SuperLU routine (version 4.0) --
  * Lawrence Berkeley National Laboratory
  * June 30, 2009
+=======
+ * -- SuperLU routine (version 4.1) --
+ * Lawrence Berkeley National Laboratory
+ * November, 2010
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
  * </pre>
  */
 
@@ -16,16 +22,33 @@
 int num_drop_U;
 #endif
 
+<<<<<<< HEAD
+=======
+extern void ccopy_(int *, complex [], int *, complex [], int *);
+#if SCIPY_FIX
+extern double dlamch_(char *);
+#endif
+
+#if 0
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 static complex *A;  /* used in _compare_ only */
 static int _compare_(const void *a, const void *b)
 {
     register int *x = (int *)a, *y = (int *)b;
+<<<<<<< HEAD
     register float xx = slu_c_abs1(&A[*x]), yy = slu_c_abs1(&A[*y]);
+=======
+    register float xx = c_abs1(&A[*x]), yy = c_abs1(&A[*y]);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     if (xx > yy) return -1;
     else if (xx < yy) return 1;
     else return 0;
 }
+<<<<<<< HEAD
 
+=======
+#endif
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 int
 ilu_ccopy_to_ucol(
@@ -42,7 +65,11 @@ ilu_ccopy_to_ucol(
 	      complex	 *sum,	   /* out - the sum of dropped entries */
 	      int	 *nnzUj,   /* in - out */
 	      GlobalLU_t *Glu,	   /* modified */
+<<<<<<< HEAD
 	      int	 *work	   /* working space with minimum size n,
+=======
+	      float	 *work	   /* working space with minimum size n,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 				    * used by the second dropping rule */
 	      )
 {
@@ -63,6 +90,10 @@ ilu_ccopy_to_ucol(
     register float d_max = 0.0, d_min = 1.0 / dlamch_("Safe minimum");
     register double tmp;
     complex zero = {0.0, 0.0};
+<<<<<<< HEAD
+=======
+    int i_1 = 1;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     xsup    = Glu->xsup;
     supno   = Glu->supno;
@@ -108,7 +139,11 @@ ilu_ccopy_to_ucol(
 
 		for (i = 0; i < segsze; i++) {
 		    irow = lsub[isub++];
+<<<<<<< HEAD
          	    tmp = slu_c_abs1(&dense[irow]);
+=======
+         	    tmp = c_abs1(&dense[irow]);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 		    /* first dropping rule */
 		    if (quota > 0 && tmp >= drop_tol) {
@@ -157,14 +192,29 @@ ilu_ccopy_to_ucol(
 		d_max = 1.0 / d_max; d_min = 1.0 / d_min;
 		tol = 1.0 / (d_max + (d_min - d_max) * quota / m);
 	    } else {
+<<<<<<< HEAD
+=======
+                i_1 = xusub[jcol];
+                for (i = 0; i < m; ++i, ++i_1) work[i] = c_abs1(&ucol[i_1]);
+		tol = sqselect(m, work, quota);
+#if 0
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 		A = &ucol[xusub[jcol]];
 		for (i = 0; i < m; i++) work[i] = i;
 		qsort(work, m, sizeof(int), _compare_);
 		tol = fabs(usub[xusub[jcol] + work[quota]]);
+<<<<<<< HEAD
 	    }
 	}
 	for (i = xusub[jcol]; i <= m0; ) {
 	    if (slu_c_abs1(&ucol[i]) <= tol) {
+=======
+#endif
+	    }
+	}
+	for (i = xusub[jcol]; i <= m0; ) {
+	    if (c_abs1(&ucol[i]) <= tol) {
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 		switch (milu) {
 		    case SMILU_1:
 		    case SMILU_2:
@@ -192,7 +242,11 @@ ilu_ccopy_to_ucol(
     }
 
     if (milu == SMILU_2) {
+<<<<<<< HEAD
         sum->r = slu_c_abs1(sum); sum->i = 0.0;
+=======
+        sum->r = c_abs1(sum); sum->i = 0.0;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     }
     if (milu == SMILU_3) sum->i = 0.0;
 

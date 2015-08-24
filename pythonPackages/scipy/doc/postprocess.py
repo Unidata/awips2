@@ -39,6 +39,7 @@ def process_html(fn, lines):
 
 def process_tex(lines):
     """
+<<<<<<< HEAD
     Remove unnecessary section titles from the LaTeX file,
     and convert UTF-8 non-breaking spaces to Latex nbsps.
 
@@ -46,6 +47,20 @@ def process_tex(lines):
     new_lines = []
     for line in lines:
         if re.match(r'^\\(section|subsection|subsubsection|paragraph|subparagraph){(numpy|scipy)\.', line):
+=======
+    Remove unnecessary section titles from the LaTeX file.
+    """
+    new_lines = []
+    for line in lines:
+        line = re.sub(r'^\s*\\strong{See Also:}\s*$', r'\paragraph{See Also}', line)
+
+        if (line.startswith(r'\section{scipy.')
+            or line.startswith(r'\subsection{scipy.')
+            or line.startswith(r'\subsubsection{scipy.')
+            or line.startswith(r'\paragraph{scipy.')
+            or line.startswith(r'\subparagraph{scipy.')
+            ):
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             pass # skip!
         else:
             new_lines.append(line)

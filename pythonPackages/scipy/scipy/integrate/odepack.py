@@ -1,4 +1,5 @@
 # Author: Travis Oliphant
+<<<<<<< HEAD
 
 __all__ = ['odeint']
 
@@ -6,6 +7,21 @@ import _odepack
 from copy import copy
 
 _msgs = {2: "Integration successful.",
+=======
+from __future__ import division, print_function, absolute_import
+
+__all__ = ['odeint']
+
+from . import _odepack
+from copy import copy
+import warnings
+
+class ODEintWarning(Warning):
+    pass
+
+_msgs = {2: "Integration successful.",
+         1: "Nothing was done; the integration time was 0.",
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          -1: "Excess work done on this call (perhaps wrong Dfun type).",
          -2: "Excess accuracy requested (tolerances too small).",
          -3: "Illegal input detected (internal error).",
@@ -15,6 +31,10 @@ _msgs = {2: "Integration successful.",
          -7: "Internal workspace insufficient to finish (internal error)."
          }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def odeint(func, y0, t, args=(), Dfun=None, col_deriv=0, full_output=0,
            ml=None, mu=None, rtol=None, atol=None, tcrit=None, h0=0.0,
            hmax=0.0, hmin=0.0, ixpr=0, mxstep=0, mxhnil=0, mxordn=12,
@@ -41,6 +61,7 @@ def odeint(func, y0, t, args=(), Dfun=None, col_deriv=0, full_output=0,
     t : array
         A sequence of time points for which to solve for y.  The initial
         value point should be the first element of this sequence.
+<<<<<<< HEAD
     args : tuple
         Extra arguments to pass to function.
     Dfun : callable(y, t0, ...)
@@ -51,14 +72,32 @@ def odeint(func, y0, t, args=(), Dfun=None, col_deriv=0, full_output=0,
     full_output : boolean
         True if to return a dictionary of optional outputs as the second output
     printmessg : boolean
+=======
+    args : tuple, optional
+        Extra arguments to pass to function.
+    Dfun : callable(y, t0, ...)
+        Gradient (Jacobian) of `func`.
+    col_deriv : bool, optional
+        True if `Dfun` defines derivatives down columns (faster),
+        otherwise `Dfun` should define derivatives across rows.
+    full_output : bool, optional
+        True if to return a dictionary of optional outputs as the second output
+    printmessg : bool, optional
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         Whether to print the convergence message
 
     Returns
     -------
+<<<<<<< HEAD
     y : array, shape (len(y0), len(t))
         Array containing the value of y for each desired time in t,
         with the initial value y0 in the first row.
 
+=======
+    y : array, shape (len(t), len(y0))
+        Array containing the value of y for each desired time in t,
+        with the initial value `y0` in the first row.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     infodict : dict, only returned if full_output == True
         Dictionary containing additional output information
 
@@ -87,6 +126,7 @@ def odeint(func, y0, t, args=(), Dfun=None, col_deriv=0, full_output=0,
 
     Other Parameters
     ----------------
+<<<<<<< HEAD
     ml, mu : integer
         If either of these are not-None or non-negative, then the
         Jacobian is assumed to be banded.  These give the number of
@@ -123,30 +163,91 @@ def odeint(func, y0, t, args=(), Dfun=None, col_deriv=0, full_output=0,
     mxordn : integer, (0: solver-determined)
         Maximum order to be allowed for the nonstiff (Adams) method.
     mxords : integer, (0: solver-determined)
+=======
+    ml, mu : int, optional
+        If either of these are not None or non-negative, then the
+        Jacobian is assumed to be banded.  These give the number of
+        lower and upper non-zero diagonals in this banded matrix.
+        For the banded case, `Dfun` should return a matrix whose
+        rows contain the non-zero bands (starting with the lowest diagonal).
+        Thus, the return matrix `jac` from `Dfun` should have shape
+        ``(ml + mu + 1, len(y0))`` when ``ml >=0`` or ``mu >=0``.
+        The data in `jac` must be stored such that ``jac[i - j + mu, j]``
+        holds the derivative of the `i`th equation with respect to the `j`th
+        state variable.  If `col_deriv` is True, the transpose of this
+        `jac` must be returned.
+    rtol, atol : float, optional
+        The input parameters `rtol` and `atol` determine the error
+        control performed by the solver.  The solver will control the
+        vector, e, of estimated local errors in y, according to an
+        inequality of the form ``max-norm of (e / ewt) <= 1``,
+        where ewt is a vector of positive error weights computed as
+        ``ewt = rtol * abs(y) + atol``.
+        rtol and atol can be either vectors the same length as y or scalars.
+        Defaults to 1.49012e-8.
+    tcrit : ndarray, optional
+        Vector of critical points (e.g. singularities) where integration
+        care should be taken.
+    h0 : float, (0: solver-determined), optional
+        The step size to be attempted on the first step.
+    hmax : float, (0: solver-determined), optional
+        The maximum absolute step size allowed.
+    hmin : float, (0: solver-determined), optional
+        The minimum absolute step size allowed.
+    ixpr : bool, optional
+        Whether to generate extra printing at method switches.
+    mxstep : int, (0: solver-determined), optional
+        Maximum number of (internally defined) steps allowed for each
+        integration point in t.
+    mxhnil : int, (0: solver-determined), optional
+        Maximum number of messages printed.
+    mxordn : int, (0: solver-determined), optional
+        Maximum order to be allowed for the non-stiff (Adams) method.
+    mxords : int, (0: solver-determined), optional
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         Maximum order to be allowed for the stiff (BDF) method.
 
     See Also
     --------
+<<<<<<< HEAD
     ode : a more object-oriented integrator based on VODE
     quad : for finding the area under a curve
+=======
+    ode : a more object-oriented integrator based on VODE.
+    quad : for finding the area under a curve.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     """
 
     if ml is None:
+<<<<<<< HEAD
         ml = -1 # changed to zero inside function call
     if mu is None:
         mu = -1 # changed to zero inside function call
+=======
+        ml = -1  # changed to zero inside function call
+    if mu is None:
+        mu = -1  # changed to zero inside function call
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     t = copy(t)
     y0 = copy(y0)
     output = _odepack.odeint(func, y0, t, args, Dfun, col_deriv, ml, mu,
                              full_output, rtol, atol, tcrit, h0, hmax, hmin,
                              ixpr, mxstep, mxhnil, mxordn, mxords)
     if output[-1] < 0:
+<<<<<<< HEAD
         print _msgs[output[-1]]
         print "Run with full_output = 1 to get quantitative information."
     else:
         if printmessg:
             print _msgs[output[-1]]
+=======
+        warning_msg = _msgs[output[-1]] + " Run with full_output = 1 to get quantitative information."
+        warnings.warn(warning_msg, ODEintWarning)
+    elif printmessg:
+        warning_msg = _msgs[output[-1]]
+        warnings.warn(warning_msg, ODEintWarning)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     if full_output:
         output[1]['message'] = _msgs[output[-1]]

@@ -1,7 +1,15 @@
 #!/usr/bin/env python
+<<<<<<< HEAD
 
 from os.path import join
 
+=======
+from __future__ import absolute_import, print_function
+
+from os.path import join
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def configuration(parent_package='',top_path=None):
     from numpy.distutils.misc_util import Configuration
     config = Configuration('weave',parent_package,top_path)
@@ -14,6 +22,7 @@ def configuration(parent_package='',top_path=None):
 
 if __name__ == '__main__':
     from numpy.distutils.core import setup
+<<<<<<< HEAD
     from weave_version import weave_version
     setup(version = weave_version,
           description = "Tools for inlining C/C++ in Python",
@@ -21,4 +30,13 @@ if __name__ == '__main__':
           author_email = "eric@enthought.com",
           licence = "SciPy License (BSD Style)",
           url = 'http://www.scipy.org',
+=======
+    from .weave_version import weave_version
+    setup(version=weave_version,
+          description="Tools for inlining C/C++ in Python",
+          author="Eric Jones",
+          author_email="eric@enthought.com",
+          licence="SciPy License (BSD Style)",
+          url='http://www.scipy.org',
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
           **configuration(top_path='').todict())

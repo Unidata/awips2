@@ -6,6 +6,10 @@ http://www.mathworks.com/access/helpdesk/help/pdf_doc/matlab/matfile_format.pdf
 
 (as of December 5 2008)
 '''
+<<<<<<< HEAD
+=======
+from __future__ import division, print_function, absolute_import
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 '''
 =================================
@@ -75,6 +79,7 @@ import os
 import time
 import sys
 import zlib
+<<<<<<< HEAD
 from cStringIO import StringIO
 import warnings
 
@@ -222,18 +227,57 @@ def convert_codecs(template, byte_order):
             codec += postfix
         codecs[k] = codec
     return codecs.copy()
+=======
+
+from io import BytesIO
+
+import warnings
+
+import numpy as np
+from numpy.compat import asbytes, asstr
+
+import scipy.sparse
+
+from scipy._lib.six import string_types
+
+from .byteordercodes import native_code, swapped_code
+
+from .miobase import (MatFileReader, docfiller, matdims, read_dtype,
+                      arr_to_chars, arr_dtype_number, MatWriteError,
+                      MatReadError, MatReadWarning)
+
+# Reader object for matlab 5 format variables
+from .mio5_utils import VarReader5
+
+# Constants and helper objects
+from .mio5_params import (MatlabObject, MatlabFunction, MDTYPES, NP_TO_MTYPES,
+                          NP_TO_MXTYPES, miCOMPRESSED, miMATRIX, miINT8,
+                          miUTF8, miUINT32, mxCELL_CLASS, mxSTRUCT_CLASS,
+                          mxOBJECT_CLASS, mxCHAR_CLASS, mxSPARSE_CLASS,
+                          mxDOUBLE_CLASS, mclass_info)
+
+from .streams import ZlibInputStream
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 class MatFile5Reader(MatFileReader):
     ''' Reader for Mat 5 mat files
     Adds the following attribute to base class
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     uint16_codec - char codec to use for uint16 char arrays
         (defaults to system default codec)
 
     Uses variable reader that has the following stardard interface (see
     abstract class in ``miobase``::
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
        __init__(self, file_reader)
        read_header(self)
        array_from_header(self)
@@ -242,7 +286,11 @@ class MatFile5Reader(MatFileReader):
 
        set_stream(self, stream)
        read_full_tag(self)
+<<<<<<< HEAD
        
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     '''
     @docfiller
     def __init__(self,
@@ -253,6 +301,10 @@ class MatFile5Reader(MatFileReader):
                  chars_as_strings=True,
                  matlab_compatible=False,
                  struct_as_record=True,
+<<<<<<< HEAD
+=======
+                 verify_compressed_data_integrity=True,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                  uint16_codec=None
                  ):
         '''Initializer for matlab 5 file format reader
@@ -271,16 +323,24 @@ class MatFile5Reader(MatFileReader):
             squeeze_me,
             chars_as_strings,
             matlab_compatible,
+<<<<<<< HEAD
             struct_as_record
+=======
+            struct_as_record,
+            verify_compressed_data_integrity
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             )
         # Set uint16 codec
         if not uint16_codec:
             uint16_codec = sys.getdefaultencoding()
         self.uint16_codec = uint16_codec
+<<<<<<< HEAD
         # placeholders for dtypes, codecs - see initialize_read
         self.dtypes = None
         self.class_dtypes = None
         self.codecs = None
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         # placeholders for readers - see initialize_read method
         self._file_reader = None
         self._matrix_reader = None
@@ -291,13 +351,23 @@ class MatFile5Reader(MatFileReader):
         self.mat_stream.seek(126)
         mi = self.mat_stream.read(2)
         self.mat_stream.seek(0)
+<<<<<<< HEAD
         return mi == 'IM' and '<' or '>'
+=======
+        return mi == b'IM' and '<' or '>'
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     def read_file_header(self):
         ''' Read in mat 5 file header '''
         hdict = {}
+<<<<<<< HEAD
         hdr = read_dtype(self.mat_stream, self.dtypes['file_header'])
         hdict['__header__'] = hdr['description'].item().strip(' \t\n\000')
+=======
+        hdr_dtype = MDTYPES[self.byte_order]['dtypes']['file_header']
+        hdr = read_dtype(self.mat_stream, hdr_dtype)
+        hdict['__header__'] = hdr['description'].item().strip(b' \t\n\000')
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         v_major = hdr['version'] >> 8
         v_minor = hdr['version'] & 0xFF
         hdict['__version__'] = '%d.%d' % (v_major, v_minor)
@@ -308,6 +378,7 @@ class MatFile5Reader(MatFileReader):
 
         Sets up readers from parameters in `self`
         '''
+<<<<<<< HEAD
         self.dtypes = convert_dtypes(mdtypes_template, self.byte_order)
         self.class_dtypes = convert_dtypes(mclass_dtypes_template,
                                            self.byte_order)
@@ -317,11 +388,17 @@ class MatFile5Reader(MatFileReader):
         self.codecs['uint16_len'] = len("  ".encode(uint16_codec)) \
                                - len(" ".encode(uint16_codec))
         self.codecs['uint16_codec'] = uint16_codec
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         # reader for top level stream.  We need this extra top-level
         # reader because we use the matrix_reader object to contain
         # compressed matrices (so they have their own stream)
         self._file_reader = VarReader5(self)
+<<<<<<< HEAD
         # reader for matrix streams 
+=======
+        # reader for matrix streams
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         self._matrix_reader = VarReader5(self)
 
     def read_var_header(self):
@@ -342,6 +419,7 @@ class MatFile5Reader(MatFileReader):
            position in stream of next variable
         '''
         mdtype, byte_count = self._file_reader.read_full_tag()
+<<<<<<< HEAD
         assert byte_count > 0
         next_pos = self.mat_stream.tell() + byte_count
         if mdtype == miCOMPRESSED:
@@ -367,6 +445,25 @@ class MatFile5Reader(MatFileReader):
         header = self._matrix_reader.read_header()
         return header, next_pos
             
+=======
+        if not byte_count > 0:
+            raise ValueError("Did not read any bytes")
+        next_pos = self.mat_stream.tell() + byte_count
+        if mdtype == miCOMPRESSED:
+            # Make new stream from compressed data
+            stream = ZlibInputStream(self.mat_stream, byte_count)
+            self._matrix_reader.set_stream(stream)
+            check_stream_limit = self.verify_compressed_data_integrity
+            mdtype, byte_count = self._matrix_reader.read_full_tag()
+        else:
+            check_stream_limit = False
+            self._matrix_reader.set_stream(self.mat_stream)
+        if not mdtype == miMATRIX:
+            raise TypeError('Expecting miMATRIX type here, got %d' % mdtype)
+        header = self._matrix_reader.read_header(check_stream_limit)
+        return header, next_pos
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     def read_var_array(self, header, process=True):
         ''' Read array, given `header`
 
@@ -376,13 +473,22 @@ class MatFile5Reader(MatFileReader):
            object with fields defining variable header
         process : {True, False} bool, optional
            If True, apply recursive post-processing during loading of
+<<<<<<< HEAD
            array. 
         
+=======
+           array.
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         Returns
         -------
         arr : array
            array with post-processing applied or not according to
+<<<<<<< HEAD
            `process`. 
+=======
+           `process`.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         '''
         return self._matrix_reader.array_from_header(header, process)
 
@@ -393,8 +499,16 @@ class MatFile5Reader(MatFileReader):
 
         If variable_names is None, then get all variables in file
         '''
+<<<<<<< HEAD
         if isinstance(variable_names, basestring):
             variable_names = [variable_names]
+=======
+        if isinstance(variable_names, string_types):
+            variable_names = [variable_names]
+        elif variable_names is not None:
+            variable_names = list(variable_names)
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         self.mat_stream.seek(0)
         # Here we pass all the parameters in self to the reading objects
         self.initialize_read()
@@ -402,7 +516,17 @@ class MatFile5Reader(MatFileReader):
         mdict['__globals__'] = []
         while not self.end_of_stream():
             hdr, next_position = self.read_var_header()
+<<<<<<< HEAD
             name = hdr.name
+=======
+            name = asstr(hdr.name)
+            if name in mdict:
+                warnings.warn('Duplicate variable name "%s" in stream'
+                              ' - replacing previous with new\n'
+                              'Consider mio5.varmats_from_mat to split '
+                              'file into single variable files' % name,
+                              MatReadWarning, stacklevel=2)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             if name == '':
                 # can only be a matlab 7 function workspace
                 name = '__function_workspace__'
@@ -411,14 +535,24 @@ class MatFile5Reader(MatFileReader):
                 process = False
             else:
                 process = True
+<<<<<<< HEAD
             if variable_names and name not in variable_names:
+=======
+            if variable_names is not None and name not in variable_names:
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                 self.mat_stream.seek(next_position)
                 continue
             try:
                 res = self.read_var_array(hdr, process)
+<<<<<<< HEAD
             except MatReadError, err:
                 warnings.warn(
                     'Unreadable variable "%s", because "%s"' % \
+=======
+            except MatReadError as err:
+                warnings.warn(
+                    'Unreadable variable "%s", because "%s"' %
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                     (name, err),
                     Warning, stacklevel=2)
                 res = "Read error: %s" % err
@@ -426,12 +560,17 @@ class MatFile5Reader(MatFileReader):
             mdict[name] = res
             if hdr.is_global:
                 mdict['__globals__'].append(name)
+<<<<<<< HEAD
             if variable_names:
+=======
+            if variable_names is not None:
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                 variable_names.remove(name)
                 if len(variable_names) == 0:
                     break
         return mdict
 
+<<<<<<< HEAD
     
 def to_writeable(source):
     ''' Convert input object ``source`` to something we can write
@@ -490,11 +629,126 @@ def to_writeable(source):
     True
     >>> to_writeable({'_a':1}) is None
     True
+=======
+    def list_variables(self):
+        ''' list variables from stream '''
+        self.mat_stream.seek(0)
+        # Here we pass all the parameters in self to the reading objects
+        self.initialize_read()
+        self.read_file_header()
+        vars = []
+        while not self.end_of_stream():
+            hdr, next_position = self.read_var_header()
+            name = asstr(hdr.name)
+            if name == '':
+                # can only be a matlab 7 function workspace
+                name = '__function_workspace__'
+
+            shape = self._matrix_reader.shape_from_header(hdr)
+            if hdr.is_logical:
+                info = 'logical'
+            else:
+                info = mclass_info.get(hdr.mclass, 'unknown')
+            vars.append((name, shape, info))
+
+            self.mat_stream.seek(next_position)
+        return vars
+
+
+def varmats_from_mat(file_obj):
+    """ Pull variables out of mat 5 file as a sequence of mat file objects
+
+    This can be useful with a difficult mat file, containing unreadable
+    variables.  This routine pulls the variables out in raw form and puts them,
+    unread, back into a file stream for saving or reading.  Another use is the
+    pathological case where there is more than one variable of the same name in
+    the file; this routine returns the duplicates, whereas the standard reader
+    will overwrite duplicates in the returned dictionary.
+
+    The file pointer in `file_obj` will be undefined.  File pointers for the
+    returned file-like objects are set at 0.
+
+    Parameters
+    ----------
+    file_obj : file-like
+        file object containing mat file
+
+    Returns
+    -------
+    named_mats : list
+        list contains tuples of (name, BytesIO) where BytesIO is a file-like
+        object containing mat file contents as for a single variable.  The
+        BytesIO contains a string with the original header and a single var. If
+        ``var_file_obj`` is an individual BytesIO instance, then save as a mat
+        file with something like ``open('test.mat',
+        'wb').write(var_file_obj.read())``
+
+    Examples
+    --------
+    >>> import scipy.io
+
+    BytesIO is from the ``io`` module in python 3, and is ``cStringIO`` for
+    python < 3.
+
+    >>> mat_fileobj = BytesIO()
+    >>> scipy.io.savemat(mat_fileobj, {'b': np.arange(10), 'a': 'a string'})
+    >>> varmats = varmats_from_mat(mat_fileobj)
+    >>> sorted([name for name, str_obj in varmats])
+    ['a', 'b']
+    """
+    rdr = MatFile5Reader(file_obj)
+    file_obj.seek(0)
+    # Raw read of top-level file header
+    hdr_len = MDTYPES[native_code]['dtypes']['file_header'].itemsize
+    raw_hdr = file_obj.read(hdr_len)
+    # Initialize variable reading
+    file_obj.seek(0)
+    rdr.initialize_read()
+    mdict = rdr.read_file_header()
+    next_position = file_obj.tell()
+    named_mats = []
+    while not rdr.end_of_stream():
+        start_position = next_position
+        hdr, next_position = rdr.read_var_header()
+        name = asstr(hdr.name)
+        # Read raw variable string
+        file_obj.seek(start_position)
+        byte_count = next_position - start_position
+        var_str = file_obj.read(byte_count)
+        # write to stringio object
+        out_obj = BytesIO()
+        out_obj.write(raw_hdr)
+        out_obj.write(var_str)
+        out_obj.seek(0)
+        named_mats.append((name, out_obj))
+    return named_mats
+
+
+class EmptyStructMarker(object):
+    """ Class to indicate presence of empty matlab struct on output """
+
+
+def to_writeable(source):
+    ''' Convert input object ``source`` to something we can write
+
+    Parameters
+    ----------
+    source : object
+
+    Returns
+    -------
+    arr : None or ndarray or EmptyStructMarker
+        If `source` cannot be converted to something we can write to a matfile,
+        return None.  If `source` is equivalent to an empty dictionary, return
+        ``EmptyStructMarker``.  Otherwise return `source` converted to an
+        ndarray with contents for writing to matfile.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     '''
     if isinstance(source, np.ndarray):
         return source
     if source is None:
         return None
+<<<<<<< HEAD
     # Objects that have dicts
     if hasattr(source, '__dict__'):
         source = dict((key, value) for key, value in source.__dict__.items()
@@ -515,21 +769,64 @@ def to_writeable(source):
     # Next try and convert to an array
     narr = np.asanyarray(source)
     if narr.dtype.type in (np.object, np.object_) and \
+=======
+    # Objects that implement mappings
+    is_mapping = (hasattr(source, 'keys') and hasattr(source, 'values') and
+                  hasattr(source, 'items'))
+    # Objects that don't implement mappings, but do have dicts
+    if not is_mapping and hasattr(source, '__dict__'):
+        source = dict((key, value) for key, value in source.__dict__.items()
+                      if not key.startswith('_'))
+        is_mapping = True
+    if is_mapping:
+        dtype = []
+        values = []
+        for field, value in source.items():
+            if (isinstance(field, string_types) and
+                    field[0] not in '_0123456789'):
+                dtype.append((field, object))
+                values.append(value)
+        if dtype:
+            return np.array([tuple(values)], dtype)
+        else:
+            return EmptyStructMarker
+    # Next try and convert to an array
+    narr = np.asanyarray(source)
+    if narr.dtype.type in (object, np.object_) and \
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
        narr.shape == () and narr == source:
         # No interesting conversion possible
         return None
     return narr
 
 
+<<<<<<< HEAD
 class VarWriter5(object):
     ''' Generic matlab matrix writing class '''
     mat_tag = np.zeros((), mdtypes_template['tag_full'])
+=======
+# Native byte ordered dtypes for convenience for writers
+NDT_FILE_HDR = MDTYPES[native_code]['dtypes']['file_header']
+NDT_TAG_FULL = MDTYPES[native_code]['dtypes']['tag_full']
+NDT_TAG_SMALL = MDTYPES[native_code]['dtypes']['tag_smalldata']
+NDT_ARRAY_FLAGS = MDTYPES[native_code]['dtypes']['array_flags']
+
+
+class VarWriter5(object):
+    ''' Generic matlab matrix writing class '''
+    mat_tag = np.zeros((), NDT_TAG_FULL)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     mat_tag['mdtype'] = miMATRIX
 
     def __init__(self, file_writer):
         self.file_stream = file_writer.file_stream
+<<<<<<< HEAD
         self.unicode_strings=file_writer.unicode_strings
         self.long_field_names=file_writer.long_field_names
+=======
+        self.unicode_strings = file_writer.unicode_strings
+        self.long_field_names = file_writer.long_field_names
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         self.oned_as = file_writer.oned_as
         # These are used for top level writes, and unset after
         self._var_name = None
@@ -544,7 +841,14 @@ class VarWriter5(object):
     def write_element(self, arr, mdtype=None):
         ''' write tag and data '''
         if mdtype is None:
+<<<<<<< HEAD
             mdtype = np_to_mtypes[arr.dtype.str[1:]]
+=======
+            mdtype = NP_TO_MTYPES[arr.dtype.str[1:]]
+        # Array needs to be in native byte order
+        if arr.dtype.byteorder == swapped_code:
+            arr = arr.byteswap().newbyteorder()
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         byte_count = arr.size*arr.itemsize
         if byte_count <= 4:
             self.write_smalldata_element(arr, mdtype, byte_count)
@@ -553,7 +857,11 @@ class VarWriter5(object):
 
     def write_smalldata_element(self, arr, mdtype, byte_count):
         # write tag with embedded data
+<<<<<<< HEAD
         tag = np.zeros((), mdtypes_template['tag_smalldata'])
+=======
+        tag = np.zeros((), NDT_TAG_SMALL)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         tag['byte_count_mdtype'] = (byte_count << 16) + mdtype
         # if arr.tostring is < 4, the element will be zero-padded as needed.
         tag['data'] = arr.tostring(order='F')
@@ -561,7 +869,11 @@ class VarWriter5(object):
 
     def write_regular_element(self, arr, mdtype, byte_count):
         # write tag, data
+<<<<<<< HEAD
         tag = np.zeros((), mdtypes_template['tag_full'])
+=======
+        tag = np.zeros((), NDT_TAG_FULL)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         tag['mdtype'] = mdtype
         tag['byte_count'] = byte_count
         self.write_bytes(tag)
@@ -569,10 +881,17 @@ class VarWriter5(object):
         # pad to next 64-bit boundary
         bc_mod_8 = byte_count % 8
         if bc_mod_8:
+<<<<<<< HEAD
             self.file_stream.write('\x00' * (8-bc_mod_8))
 
     def write_header(self,
                      shape, 
+=======
+            self.file_stream.write(b'\x00' * (8-bc_mod_8))
+
+    def write_header(self,
+                     shape,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                      mclass,
                      is_complex=False,
                      is_logical=False,
@@ -595,7 +914,11 @@ class VarWriter5(object):
         self._mat_tag_pos = self.file_stream.tell()
         self.write_bytes(self.mat_tag)
         # write array flags (complex, global, logical, class, nzmax)
+<<<<<<< HEAD
         af = np.zeros((), mdtypes_template['array_flags'])
+=======
+        af = np.zeros((), NDT_ARRAY_FLAGS)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         af['data_type'] = miUINT32
         af['byte_count'] = 8
         flags = is_complex << 3 | is_global << 2 | is_logical << 1
@@ -606,32 +929,59 @@ class VarWriter5(object):
         self.write_element(np.array(shape, dtype='i4'))
         # write name
         name = np.asarray(name)
+<<<<<<< HEAD
         if name == '': # empty string zero-terminated
+=======
+        if name == '':  # empty string zero-terminated
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             self.write_smalldata_element(name, miINT8, 0)
         else:
             self.write_element(name, miINT8)
         # reset the one-shot store to defaults
         self._var_name = ''
         self._var_is_global = False
+<<<<<<< HEAD
         
     def update_matrix_tag(self, start_pos):
         curr_pos = self.file_stream.tell()
         self.file_stream.seek(start_pos)
         self.mat_tag['byte_count'] = curr_pos - start_pos - 8
+=======
+
+    def update_matrix_tag(self, start_pos):
+        curr_pos = self.file_stream.tell()
+        self.file_stream.seek(start_pos)
+        byte_count = curr_pos - start_pos - 8
+        if byte_count >= 2**32:
+            raise MatWriteError("Matrix too large to save with Matlab "
+                                "5 format")
+        self.mat_tag['byte_count'] = byte_count
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         self.write_bytes(self.mat_tag)
         self.file_stream.seek(curr_pos)
 
     def write_top(self, arr, name, is_global):
         """ Write variable at top level of mat file
+<<<<<<< HEAD
         
         Parameters
         ----------
         arr : array-like
+=======
+
+        Parameters
+        ----------
+        arr : array_like
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             array-like object to create writer for
         name : str, optional
             name as it will appear in matlab workspace
             default is empty string
+<<<<<<< HEAD
         is_global : {False, True} optional
+=======
+        is_global : {False, True}, optional
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             whether variable will be global on load into matlab
         """
         # these are set before the top-level header write, and unset at
@@ -640,13 +990,21 @@ class VarWriter5(object):
         self._var_name = name
         # write the header and data
         self.write(arr)
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     def write(self, arr):
         ''' Write `arr` to stream at top and sub levels
 
         Parameters
         ----------
+<<<<<<< HEAD
         arr : array-like
+=======
+        arr : array_like
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             array-like object to create writer for
         '''
         # store position, so we can update the matrix tag
@@ -665,6 +1023,7 @@ class VarWriter5(object):
             self.write_object(narr)
         elif isinstance(narr, MatlabFunction):
             raise MatWriteError('Cannot write matlab functions')
+<<<<<<< HEAD
         elif narr.dtype.fields: # struct array
             self.write_struct(narr)
         elif narr.dtype.hasobject: # cell array
@@ -672,6 +1031,17 @@ class VarWriter5(object):
         elif narr.dtype.kind in ('U', 'S'):
             if self.unicode_strings:
                 codec='UTF8'
+=======
+        elif narr is EmptyStructMarker:  # empty struct array
+            self.write_empty_struct()
+        elif narr.dtype.fields:  # struct array
+            self.write_struct(narr)
+        elif narr.dtype.hasobject:  # cell array
+            self.write_cells(narr)
+        elif narr.dtype.kind in ('U', 'S'):
+            if self.unicode_strings:
+                codec = 'UTF8'
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             else:
                 codec = 'ascii'
             self.write_char(narr, codec)
@@ -681,17 +1051,35 @@ class VarWriter5(object):
 
     def write_numeric(self, arr):
         imagf = arr.dtype.kind == 'c'
+<<<<<<< HEAD
         try:
             mclass = np_to_mxtypes[arr.dtype.str[1:]]
         except KeyError:
             if imagf:
                 arr = arr.astype('c128')
+=======
+        logif = arr.dtype.kind == 'b'
+        try:
+            mclass = NP_TO_MXTYPES[arr.dtype.str[1:]]
+        except KeyError:
+            # No matching matlab type, probably complex256 / float128 / float96
+            # Cast data to complex128 / float64.
+            if imagf:
+                arr = arr.astype('c128')
+            elif logif:
+                arr = arr.astype('i1')  # Should only contain 0/1
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             else:
                 arr = arr.astype('f8')
             mclass = mxDOUBLE_CLASS
         self.write_header(matdims(arr, self.oned_as),
                           mclass,
+<<<<<<< HEAD
                           is_complex=imagf)
+=======
+                          is_complex=imagf,
+                          is_logical=logif)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         if imagf:
             self.write_element(arr.real)
             self.write_element(arr.imag)
@@ -732,7 +1120,11 @@ class VarWriter5(object):
             n_chars = np.product(shape)
             st_arr = np.ndarray(shape=(),
                                 dtype=arr_dtype_number(arr, n_chars),
+<<<<<<< HEAD
                                 buffer=arr.T.copy()) # Fortran order
+=======
+                                buffer=arr.T.copy())  # Fortran order
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             # Recode with codec to give byte string
             st = st_arr.item().encode(codec)
             # Reconstruct as one-dimensional byte array
@@ -744,14 +1136,27 @@ class VarWriter5(object):
     def write_sparse(self, arr):
         ''' Sparse matrices are 2D
         '''
+<<<<<<< HEAD
         A = arr.tocsc() # convert to sparse CSC format
         A.sort_indices()     # MATLAB expects sorted row indices
         is_complex = (A.dtype.kind == 'c')
+=======
+        A = arr.tocsc()  # convert to sparse CSC format
+        A.sort_indices()     # MATLAB expects sorted row indices
+        is_complex = (A.dtype.kind == 'c')
+        is_logical = (A.dtype.kind == 'b')
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         nz = A.nnz
         self.write_header(matdims(arr, self.oned_as),
                           mxSPARSE_CLASS,
                           is_complex=is_complex,
+<<<<<<< HEAD
                           nzmax=nz)
+=======
+                          is_logical=is_logical,
+                          # matlab won't load file with 0 nzmax
+                          nzmax=1 if nz == 0 else nz)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         self.write_element(A.indices.astype('i4'))
         self.write_element(A.indptr.astype('i4'))
         self.write_element(A.data.real)
@@ -766,6 +1171,16 @@ class VarWriter5(object):
         for el in A:
             self.write(el)
 
+<<<<<<< HEAD
+=======
+    def write_empty_struct(self):
+        self.write_header((1, 1), mxSTRUCT_CLASS)
+        # max field name length set to 1 in an example matlab struct
+        self.write_element(np.array(1, dtype=np.int32))
+        # Field names element is empty
+        self.write_element(np.array([], dtype=np.int8))
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     def write_struct(self, arr):
         self.write_header(matdims(arr, self.oned_as),
                           mxSTRUCT_CLASS)
@@ -777,12 +1192,20 @@ class VarWriter5(object):
         length = max([len(fieldname) for fieldname in fieldnames])+1
         max_length = (self.long_field_names and 64) or 32
         if length > max_length:
+<<<<<<< HEAD
             raise ValueError(
                 "Field names are restricted to %d characters"
                  % (max_length-1))
         self.write_element(np.array([length], dtype='i4'))
         self.write_element(
             np.array(fieldnames, dtype='S%d'%(length)),
+=======
+            raise ValueError("Field names are restricted to %d characters" %
+                             (max_length-1))
+        self.write_element(np.array([length], dtype='i4'))
+        self.write_element(
+            np.array(fieldnames, dtype='S%d' % (length)),
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             mdtype=miINT8)
         A = np.atleast_2d(arr).flatten('F')
         for el in A:
@@ -802,14 +1225,23 @@ class VarWriter5(object):
 
 class MatFile5Writer(object):
     ''' Class for writing mat5 files '''
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     @docfiller
     def __init__(self, file_stream,
                  do_compression=False,
                  unicode_strings=False,
                  global_vars=None,
                  long_field_names=False,
+<<<<<<< HEAD
                  oned_as=None):
         ''' Initialize writer for matlab 5 format files 
+=======
+                 oned_as='row'):
+        ''' Initialize writer for matlab 5 format files
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         Parameters
         ----------
@@ -828,22 +1260,33 @@ class MatFile5Writer(object):
         else:
             self.global_vars = []
         self.long_field_names = long_field_names
+<<<<<<< HEAD
         # deal with deprecations
         if oned_as is None:
             warnings.warn("Using oned_as default value ('column')" +
                           " This will change to 'row' in future versions",
                           FutureWarning, stacklevel=2)
             oned_as = 'column'
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         self.oned_as = oned_as
         self._matrix_writer = None
 
     def write_file_header(self):
         # write header
+<<<<<<< HEAD
         hdr =  np.zeros((), mdtypes_template['file_header'])
         hdr['description']='MATLAB 5.0 MAT-file Platform: %s, Created on: %s' \
             % (os.name,time.asctime())
         hdr['version']= 0x0100
         hdr['endian_test']=np.ndarray(shape=(),
+=======
+        hdr = np.zeros((), NDT_FILE_HDR)
+        hdr['description'] = 'MATLAB 5.0 MAT-file Platform: %s, Created on: %s' \
+            % (os.name,time.asctime())
+        hdr['version'] = 0x0100
+        hdr['endian_test'] = np.ndarray(shape=(),
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                                       dtype='S2',
                                       buffer=np.uint16(0x4d49))
         self.file_stream.write(hdr.tostring())
@@ -854,11 +1297,19 @@ class MatFile5Writer(object):
         Parameters
         ----------
         mdict : mapping
+<<<<<<< HEAD
            mapping with method ``items`` return name, contents pairs
            where ``name`` which will appeak in the matlab workspace in
            file load, and ``contents`` is something writeable to a
            matlab file, such as a numpy array.
         write_header : {None, True, False}
+=======
+           mapping with method ``items`` returns name, contents pairs where
+           ``name`` which will appear in the matlab workspace in file load, and
+           ``contents`` is something writeable to a matlab file, such as a numpy
+           array.
+        write_header : {None, True, False}, optional
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
            If True, then write the matlab file header before writing the
            variables.  If None (the default) then write the file header
            if we are at position 0 in the stream.  By setting False
@@ -876,6 +1327,7 @@ class MatFile5Writer(object):
                 continue
             is_global = name in self.global_vars
             if self.do_compression:
+<<<<<<< HEAD
                 stream = StringIO()
                 self._matrix_writer.file_stream = stream
                 self._matrix_writer.write_top(var, name, is_global)
@@ -886,3 +1338,16 @@ class MatFile5Writer(object):
                 self.file_stream.write(tag.tostring() + out_str)
             else: # not compressing
                 self._matrix_writer.write_top(var, name, is_global)
+=======
+                stream = BytesIO()
+                self._matrix_writer.file_stream = stream
+                self._matrix_writer.write_top(var, asbytes(name), is_global)
+                out_str = zlib.compress(stream.getvalue())
+                tag = np.empty((), NDT_TAG_FULL)
+                tag['mdtype'] = miCOMPRESSED
+                tag['byte_count'] = len(out_str)
+                self.file_stream.write(tag.tostring())
+                self.file_stream.write(out_str)
+            else:  # not compressing
+                self._matrix_writer.write_top(var, asbytes(name), is_global)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

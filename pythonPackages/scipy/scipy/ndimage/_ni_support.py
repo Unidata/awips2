@@ -28,9 +28,19 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+<<<<<<< HEAD
 import types
 import numpy
 
+=======
+from __future__ import division, print_function, absolute_import
+
+import numpy
+
+from scipy._lib.six import integer_types, string_types
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def _extend_mode_to_code(mode):
     """Convert an extension mode to the corresponding integer code.
     """
@@ -45,20 +55,32 @@ def _extend_mode_to_code(mode):
     elif mode == 'constant':
         return 4
     else:
+<<<<<<< HEAD
         raise RuntimeError, 'boundary mode not supported'
 
 def _normalize_sequence(input, rank, array_type = None):
+=======
+        raise RuntimeError('boundary mode not supported')
+
+
+def _normalize_sequence(input, rank, array_type=None):
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     """If input is a scalar, create a sequence of length equal to the
     rank by duplicating the input. If input is a sequence,
     check if its length is equal to the length of array.
     """
+<<<<<<< HEAD
     if (isinstance(input, (types.IntType, types.LongType,
                            types.FloatType))):
+=======
+    if isinstance(input, integer_types + (float,)):
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         normalized = [input] * rank
     else:
         normalized = list(input)
         if len(normalized) != rank:
             err = "sequence argument must have length equal to input rank"
+<<<<<<< HEAD
             raise RuntimeError, err
     return normalized
 
@@ -92,9 +114,39 @@ def _get_output(output, input, output_type = None, shape = None):
         return_value = None
     return output, return_value
 
+=======
+            raise RuntimeError(err)
+    return normalized
+
+
+def _get_output(output, input, shape=None):
+    if shape is None:
+        shape = input.shape
+    if output is None:
+        output = numpy.zeros(shape, dtype=input.dtype.name)
+        return_value = output
+    elif type(output) in [type(type), type(numpy.zeros((4,)).dtype)]:
+        output = numpy.zeros(shape, dtype=output)
+        return_value = output
+    elif type(output) in string_types:
+        output = numpy.typeDict[output]
+        output = numpy.zeros(shape, dtype=output)
+        return_value = output
+    else:
+        if output.shape != shape:
+            raise RuntimeError("output shape not correct")
+        return_value = None
+    return output, return_value
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def _check_axis(axis, rank):
     if axis < 0:
         axis += rank
     if axis < 0 or axis >= rank:
+<<<<<<< HEAD
         raise ValueError, 'invalid axis'
+=======
+        raise ValueError('invalid axis')
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     return axis

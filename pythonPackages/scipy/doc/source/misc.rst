@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ==========================================
 Miscellaneous routines (:mod:`scipy.misc`)
 ==========================================
@@ -8,3 +9,6 @@ Miscellaneous routines (:mod:`scipy.misc`)
 
 .. automodule:: scipy.misc
    :members:
+=======
+.. automodule:: scipy.misc
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

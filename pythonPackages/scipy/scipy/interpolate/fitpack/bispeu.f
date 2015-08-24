@@ -41,13 +41,21 @@ c  other subroutines required:
 c    fpbisp,fpbspl
 c
 c  ..scalar arguments..
+<<<<<<< HEAD
       integer nx,ny,kx,ky,m,lwrk,kwrk,ier
+=======
+      integer nx,ny,kx,ky,m,lwrk,ier
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c  ..array arguments..
       real*8 tx(nx),ty(ny),c((nx-kx-1)*(ny-ky-1)),x(m),y(m),z(m),
      *     wrk(lwrk)
 c  ..local scalars..
       integer iwrk(2)
+<<<<<<< HEAD
       integer i,iw,lwest
+=======
+      integer i, lwest
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c  ..
 c  before starting computations a data check is made. if the input data
 c  are invalid control is immediately repassed to the calling program.

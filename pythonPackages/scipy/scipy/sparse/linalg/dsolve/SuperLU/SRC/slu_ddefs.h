@@ -3,10 +3,17 @@
  * \brief Header file for real operations
  * 
  * <pre> 
+<<<<<<< HEAD
  * -- SuperLU routine (version 4.0) --
  * Univ. of California Berkeley, Xerox Palo Alto Research Center,
  * and Lawrence Berkeley National Lab.
  * June 30, 2009
+=======
+ * -- SuperLU routine (version 4.1) --
+ * Univ. of California Berkeley, Xerox Palo Alto Research Center,
+ * and Lawrence Berkeley National Lab.
+ * November, 2010
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
  * 
  * Global data structures used in LU factorization -
  * 
@@ -203,13 +210,21 @@ extern int     ilu_dcolumn_dfs (const int, const int, int *, int *, int *,
 				GlobalLU_t *);
 extern int     ilu_dcopy_to_ucol (int, int, int *, int *, int *,
                                   double *, int, milu_t, double, int,
+<<<<<<< HEAD
                                   double *, int *, GlobalLU_t *, int *);
+=======
+                                  double *, int *, GlobalLU_t *, double *);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 extern int     ilu_dpivotL (const int, const double, int *, int *, int, int *,
 			    int *, int *, int *, double, milu_t,
                             double, GlobalLU_t *, SuperLUStat_t*);
 extern int     ilu_ddrop_row (superlu_options_t *, int, int, double,
                               int, int *, double *, GlobalLU_t *, 
+<<<<<<< HEAD
                               double *, int *, int);
+=======
+                              double *, double *, int);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 /*! \brief Driver related */
@@ -262,6 +277,11 @@ extern void    dfill (double *, int, double);
 extern void    dinf_norm_error (int, SuperMatrix *, double *);
 extern void    PrintPerf (SuperMatrix *, SuperMatrix *, mem_usage_t *,
 			 double, double, double *, double *, char *);
+<<<<<<< HEAD
+=======
+extern double  dqselect(int, double *, int);
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 /*! \brief Routines for debugging */
 extern void    dPrint_CompCol_Matrix(char *, SuperMatrix *);

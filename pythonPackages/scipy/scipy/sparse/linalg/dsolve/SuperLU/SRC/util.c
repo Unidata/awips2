@@ -2,10 +2,17 @@
  * \brief Utility functions
  * 
  * <pre>
+<<<<<<< HEAD
  * -- SuperLU routine (version 3.0) --
  * Univ. of California Berkeley, Xerox Palo Alto Research Center,
  * and Lawrence Berkeley National Lab.
  * October 15, 2003
+=======
+ * -- SuperLU routine (version 4.1) --
+ * Univ. of California Berkeley, Xerox Palo Alto Research Center,
+ * and Lawrence Berkeley National Lab.
+ * November, 2010
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
  *
  * Copyright (c) 1994 by Xerox Corporation.  All rights reserved.
  *
@@ -40,9 +47,15 @@ void set_default_options(superlu_options_t *options)
     options->Fact = DOFACT;
     options->Equil = YES;
     options->ColPerm = COLAMD;
+<<<<<<< HEAD
     options->DiagPivotThresh = 1.0;
     options->Trans = NOTRANS;
     options->IterRefine = NOREFINE;
+=======
+    options->Trans = NOTRANS;
+    options->IterRefine = NOREFINE;
+    options->DiagPivotThresh = 1.0;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     options->SymmetricMode = NO;
     options->PivotGrowth = NO;
     options->ConditionNumber = NO;
@@ -58,12 +71,21 @@ void ilu_set_default_options(superlu_options_t *options)
     /* further options for incomplete factorization */
     options->DiagPivotThresh = 0.1;
     options->RowPerm = LargeDiag;
+<<<<<<< HEAD
     options->DiagPivotThresh = 0.1;
     options->ILU_FillFactor = 10.0;
     options->ILU_DropTol = 1e-4;
     options->ILU_DropRule = DROP_BASIC | DROP_AREA;
     options->ILU_Norm = INF_NORM;
     options->ILU_MILU = SMILU_2;   /* SILU */
+=======
+    options->ILU_DropRule = DROP_BASIC | DROP_AREA;
+    options->ILU_DropTol = 1e-4;
+    options->ILU_FillFactor = 10.0;
+    options->ILU_Norm = INF_NORM;
+    options->ILU_MILU = SILU;
+    options->ILU_MILU_Dim = 3.0; /* -log(n)/log(h) is perfect */
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     options->ILU_FillTol = 1e-2;
 }
 
@@ -312,6 +334,20 @@ StatInit(SuperLUStat_t *stat)
     stat->TinyPivots = 0;
     stat->RefineSteps = 0;
     stat->expansions = 0;
+<<<<<<< HEAD
+=======
+#if ( PRNTlevel >= 1 )
+    printf(".. parameters in sp_ienv():\n");
+    printf("\t 1: panel size \t %4d \n"
+           "\t 2: relax      \t %4d \n"
+           "\t 3: max. super \t %4d \n"
+           "\t 4: row-dim 2D \t %4d \n"
+           "\t 5: col-dim 2D \t %4d \n"
+           "\t 6: fill ratio \t %4d \n",
+	   sp_ienv(1), sp_ienv(2), sp_ienv(3), 
+	   sp_ienv(4), sp_ienv(5), sp_ienv(6));
+#endif
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 }
 
 
@@ -469,7 +505,11 @@ int print_int_vec(char *what, int n, int *vec)
 
 int slu_PrintInt10(char *name, int len, int *x)
 {
+<<<<<<< HEAD
     register i;
+=======
+    register int i;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     
     printf("%10s:", name);
     for (i = 0; i < len; ++i)

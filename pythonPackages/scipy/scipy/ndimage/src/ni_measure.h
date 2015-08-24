@@ -39,6 +39,7 @@ typedef struct {
     int start[NI_MAXDIM], end[NI_MAXDIM];
 } NI_ObjectRegion;
 
+<<<<<<< HEAD
 int NI_Label(PyArrayObject*, PyArrayObject*, maybelong*, PyArrayObject*);
 
 int NI_FindObjects(PyArrayObject*, maybelong, maybelong*);
@@ -52,6 +53,20 @@ int NI_Histogram(PyArrayObject*, PyArrayObject*, maybelong, maybelong,
 int NI_Statistics(PyArrayObject*, PyArrayObject*, maybelong, maybelong,
                                     maybelong*, maybelong, double*, maybelong*, double*, 
                                     double*, double*, maybelong*, maybelong*);
+=======
+int NI_FindObjects(PyArrayObject*, npy_intp, npy_intp*);
+
+int NI_CenterOfMass(PyArrayObject*, PyArrayObject*, npy_intp, npy_intp,
+                    npy_intp*, npy_intp, double*);
+
+int NI_Histogram(PyArrayObject*, PyArrayObject*, npy_intp, npy_intp,
+                 npy_intp*, npy_intp, PyArrayObject**, double, double,
+                 npy_intp);
+
+int NI_Statistics(PyArrayObject*, PyArrayObject*, npy_intp, npy_intp,
+                  npy_intp*, npy_intp, double*, npy_intp*, double*,
+                  double*, double*, npy_intp*, npy_intp*);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 int NI_WatershedIFT(PyArrayObject*, PyArrayObject*, PyArrayObject*, 
                                         PyArrayObject*);

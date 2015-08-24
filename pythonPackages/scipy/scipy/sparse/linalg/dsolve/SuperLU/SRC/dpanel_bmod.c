@@ -114,7 +114,11 @@ dpanel_bmod (
     xlusup  = Glu->xlusup;
     
     if ( first ) {
+<<<<<<< HEAD
 	maxsuper = sp_ienv(3);
+=======
+	maxsuper = SUPERLU_MAX( sp_ienv(3), sp_ienv(7) );
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	rowblk   = sp_ienv(4);
 	colblk   = sp_ienv(5);
 	first = 0;

@@ -124,8 +124,13 @@ c  TOL     Real  scalar.  (INPUT)
 c          Stopping criterion: the relative accuracy of the Ritz value 
 c          is considered acceptable if BOUNDS(I) .LE. TOL*ABS(RITZ(I)).
 c          If TOL .LE. 0. is passed a default is set:
+<<<<<<< HEAD
 c          DEFAULT = SLAMCH('EPS')  (machine precision as computed
 c                    by the LAPACK auxiliary subroutine SLAMCH).
+=======
+c          DEFAULT = wslamch('EPS')  (machine precision as computed
+c                    by the LAPACK auxiliary subroutine wslamch).
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c  RESID   Real  array of length N.  (INPUT/OUTPUT)
 c          On INPUT: 
@@ -380,9 +385,15 @@ c             Arnoldi Iteration.
 c     sstats  ARPACK routine that initialize timing and other statistics
 c             variables.
 c     ivout   ARPACK utility routine that prints integers.
+<<<<<<< HEAD
 c     second  ARPACK utility routine for timing.
 c     svout   ARPACK utility routine that prints vectors.
 c     slamch  LAPACK routine that determines machine constants.
+=======
+c     arscnd  ARPACK utility routine for timing.
+c     svout   ARPACK utility routine that prints vectors.
+c     wslamch  LAPACK routine that determines machine constants.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c\Authors
 c     Danny Sorensen               Phuong Vu
@@ -456,15 +467,24 @@ c     %----------------------%
 c     | External Subroutines |
 c     %----------------------%
 c
+<<<<<<< HEAD
       external   ssaup2,  svout, ivout, second, sstats
+=======
+      external   ssaup2,  svout, ivout, arscnd, sstats
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %--------------------%
 c     | External Functions |
 c     %--------------------%
 c
       Real 
+<<<<<<< HEAD
      &           slamch
       external   slamch
+=======
+     &           wslamch
+      external   wslamch
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %-----------------------%
 c     | Executable Statements |
@@ -478,7 +498,11 @@ c        | & message level for debugging |
 c        %-------------------------------%
 c
          call sstats
+<<<<<<< HEAD
          call second (t0)
+=======
+         call arscnd (t0)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          msglvl = msaupd
 c
          ierr   = 0
@@ -547,7 +571,11 @@ c        | Set default parameters |
 c        %------------------------%
 c
          if (nb .le. 0)                         nb = 1
+<<<<<<< HEAD
          if (tol .le. zero)                     tol = slamch('EpsMach')
+=======
+         if (tol .le. zero)                     tol = wslamch('EpsMach')
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c        %----------------------------------------------%
 c        | NP is the number of additional steps to      |
@@ -638,7 +666,11 @@ c
      &               '_saupd: corresponding error bounds')
       end if 
 c
+<<<<<<< HEAD
       call second (t1)
+=======
+      call arscnd (t1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       tsaupd = t1 - t0
 c 
       if (msglvl .gt. 0) then

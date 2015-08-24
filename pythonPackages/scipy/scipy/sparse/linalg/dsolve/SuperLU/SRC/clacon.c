@@ -85,7 +85,11 @@ clacon_(int *n, complex *v, complex *x, float *est, int *kase)
     static int i, j;
     float temp;
     float safmin;
+<<<<<<< HEAD
     extern double slamch_(char *);
+=======
+    extern float slamch_(char *);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     extern int icmax1_(int *, complex *, int *);
     extern double scsum1_(int *, complex *, int *);
 
@@ -113,14 +117,22 @@ clacon_(int *n, complex *v, complex *x, float *est, int *kase)
   L20:
     if (*n == 1) {
 	v[0] = x[0];
+<<<<<<< HEAD
 	*est = slu_c_abs(&v[0]);
+=======
+	*est = c_abs(&v[0]);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	/*        ... QUIT */
 	goto L150;
     }
     *est = scsum1_(n, x, &c__1);
 
     for (i = 0; i < *n; ++i) {
+<<<<<<< HEAD
 	d__1 = slu_c_abs(&x[i]);
+=======
+	d__1 = c_abs(&x[i]);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	if (d__1 > safmin) {
 	    d__1 = 1 / d__1;
 	    x[i].r *= d__1;
@@ -165,7 +177,11 @@ L90:
     if (*est <= estold) goto L120;
 
     for (i = 0; i < *n; ++i) {
+<<<<<<< HEAD
 	d__1 = slu_c_abs(&x[i]);
+=======
+	d__1 = c_abs(&x[i]);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	if (d__1 > safmin) {
 	    d__1 = 1 / d__1;
 	    x[i].r *= d__1;

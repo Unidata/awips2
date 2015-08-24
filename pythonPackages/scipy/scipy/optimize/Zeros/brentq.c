@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 /* Written by Charles Harris charles.harris@sdl.usu.edu */
 
@@ -6,6 +7,16 @@
 
 /*
 
+=======
+/* Written by Charles Harris charles.harris@sdl.usu.edu */
+
+#include <math.h>
+#include "zeros.h"
+
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+
+/*
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
   At the top of the loop the situation is the following:
 
     1. the root is bracketed between xa and xb
@@ -34,21 +45,45 @@
 */
 
 double
+<<<<<<< HEAD
 brentq(callback_type f, double xa, double xb, double xtol, double rtol, int iter, default_parameters *params)
 {
     double xpre = xa, xcur = xb;
     double xblk = 0.0, fpre, fcur, fblk = 0.0, spre = 0.0, scur = 0.0, sbis, tol;
+=======
+brentq(callback_type f, double xa, double xb, double xtol, double rtol,
+       int iter, default_parameters *params)
+{
+    double xpre = xa, xcur = xb;
+    double xblk = 0., fpre, fcur, fblk = 0., spre = 0., scur = 0., sbis, tol;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     double stry, dpre, dblk;
     int i;
 
     fpre = (*f)(xpre, params);
     fcur = (*f)(xcur, params);
     params->funcalls = 2;
+<<<<<<< HEAD
     if (fpre*fcur > 0) {ERROR(params,SIGNERR,0.0);}
     if (fpre == 0) return xpre;
     if (fcur == 0) return xcur;
     params->iterations = 0;
     for(i = 0; i < iter; i++) {
+=======
+    if (fpre*fcur > 0) {
+        params->error_num = SIGNERR;
+        return 0.;
+    }
+    if (fpre == 0) {
+        return xpre;
+    }
+    if (fcur == 0) {
+        return xcur;
+    }
+
+    params->iterations = 0;
+    for (i = 0; i < iter; i++) {
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         params->iterations++;
         if (fpre*fcur < 0) {
             xblk = xpre;
@@ -56,14 +91,30 @@ brentq(callback_type f, double xa, double xb, double xtol, double rtol, int iter
             spre = scur = xcur - xpre;
         }
         if (fabs(fblk) < fabs(fcur)) {
+<<<<<<< HEAD
             xpre = xcur; xcur = xblk; xblk = xpre;
             fpre = fcur; fcur = fblk; fblk = fpre;
+=======
+            xpre = xcur;
+            xcur = xblk;
+            xblk = xpre;
+
+            fpre = fcur;
+            fcur = fblk;
+            fblk = fpre;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         }
 
         tol = xtol + rtol*fabs(xcur);
         sbis = (xblk - xcur)/2;
+<<<<<<< HEAD
         if (fcur == 0 || fabs(sbis) < tol)
             return xcur;
+=======
+        if (fcur == 0 || fabs(sbis) < tol) {
+            return xcur;
+        }
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         if (fabs(spre) > tol && fabs(fcur) < fabs(fpre)) {
             if (xpre == xblk) {
@@ -77,16 +128,28 @@ brentq(callback_type f, double xa, double xb, double xtol, double rtol, int iter
                 stry = -fcur*(fblk*dblk - fpre*dpre)
                     /(dblk*dpre*(fblk - fpre));
             }
+<<<<<<< HEAD
             if (2*fabs(stry) < DMIN(fabs(spre), 3*fabs(sbis) - tol)) {
                 /* good short step */
                 spre = scur; scur = stry;
             } else {
                 /* bisect */
                 spre = sbis; scur = sbis;
+=======
+            if (2*fabs(stry) < MIN(fabs(spre), 3*fabs(sbis) - tol)) {
+                /* good short step */
+                spre = scur;
+                scur = stry;
+            } else {
+                /* bisect */
+                spre = sbis;
+                scur = sbis;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             }
         }
         else {
             /* bisect */
+<<<<<<< HEAD
             spre = sbis; scur = sbis;
         }
 
@@ -95,9 +158,27 @@ brentq(callback_type f, double xa, double xb, double xtol, double rtol, int iter
             xcur += scur;
         else
             xcur += (sbis > 0 ? tol : -tol);
+=======
+            spre = sbis;
+            scur = sbis;
+        }
+
+        xpre = xcur; fpre = fcur;
+        if (fabs(scur) > tol) {
+            xcur += scur;
+        }
+        else {
+            xcur += (sbis > 0 ? tol : -tol);
+        }
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         fcur = (*f)(xcur, params);
         params->funcalls++;
     }
+<<<<<<< HEAD
     ERROR(params,CONVERR, xcur);
+=======
+    params->error_num = CONVERR;
+    return xcur;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 }

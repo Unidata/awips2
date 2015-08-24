@@ -93,8 +93,13 @@ c     | External Functions |
 c     %--------------------%
 c
       Real     
+<<<<<<< HEAD
      &           slapy2
       external   slapy2
+=======
+     &           wslapy2
+      external   wslapy2
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %-----------------------%
 c     | Executable Statements |
@@ -117,8 +122,13 @@ c
 c
             if (j.lt.0) go to 30
 c
+<<<<<<< HEAD
             temp1 = slapy2(xreal(j),ximag(j))
             temp2 = slapy2(xreal(j+igap),ximag(j+igap))
+=======
+            temp1 = wslapy2(xreal(j),ximag(j))
+            temp2 = wslapy2(xreal(j+igap),ximag(j+igap))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
             if (temp1.gt.temp2) then
                 temp = xreal(j)
@@ -158,8 +168,13 @@ c
 c
             if (j .lt. 0) go to 60
 c
+<<<<<<< HEAD
             temp1 = slapy2(xreal(j),ximag(j))
             temp2 = slapy2(xreal(j+igap),ximag(j+igap))
+=======
+            temp1 = wslapy2(xreal(j),ximag(j))
+            temp2 = wslapy2(xreal(j+igap),ximag(j+igap))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
             if (temp1.lt.temp2) then
                temp = xreal(j)

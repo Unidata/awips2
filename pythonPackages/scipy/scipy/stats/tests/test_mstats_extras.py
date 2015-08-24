@@ -4,6 +4,11 @@
 :author: Pierre Gerard-Marchant
 :contact: pierregm_at_uga_dot_edu
 """
+<<<<<<< HEAD
+=======
+from __future__ import division, print_function, absolute_import
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 __author__ = "Pierre GF Gerard-Marchant ($Author: backtopop $)"
 
 import numpy as np
@@ -13,6 +18,7 @@ import numpy.ma as ma
 import scipy.stats.mstats as ms
 #import scipy.stats.mmorestats as mms
 
+<<<<<<< HEAD
 from numpy.testing import *
 
 
@@ -27,6 +33,23 @@ class TestMisc(TestCase):
                           296,299,306,376,428,515,666,1310,2611])
         assert_almost_equal(ms.mjci(data),[55.76819,45.84028,198.87875],5)
     #
+=======
+from numpy.testing import TestCase, run_module_suite, assert_equal, \
+    assert_almost_equal, assert_
+
+
+class TestMisc(TestCase):
+
+    def __init__(self, *args, **kwargs):
+        TestCase.__init__(self, *args, **kwargs)
+
+    def test_mjci(self):
+        "Tests the Marits-Jarrett estimator"
+        data = ma.array([77, 87, 88,114,151,210,219,246,253,262,
+                          296,299,306,376,428,515,666,1310,2611])
+        assert_almost_equal(ms.mjci(data),[55.76819,45.84028,198.87875],5)
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     def test_trimmedmeanci(self):
         "Tests the confidence intervals of the trimmed mean."
         data = ma.array([545,555,558,572,575,576,578,580,
@@ -34,7 +57,11 @@ class TestMisc(TestCase):
         assert_almost_equal(ms.trimmed_mean(data,0.2), 596.2, 1)
         assert_equal(np.round(ms.trimmed_mean_ci(data,(0.2,0.2)),1),
                      [561.8, 630.6])
+<<<<<<< HEAD
     #
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     def test_idealfourths(self):
         "Tests ideal-fourths"
         test = np.arange(100)
@@ -48,6 +75,7 @@ class TestMisc(TestCase):
                             test.repeat(2).reshape(-1,2))
         test = [0,0]
         _result = ms.idealfourths(test)
+<<<<<<< HEAD
         assert(np.isnan(_result).all())
 
 #..............................................................................
@@ -56,6 +84,18 @@ class TestQuantiles(TestCase):
     def __init__(self, *args, **kwargs):
         TestCase.__init__(self, *args, **kwargs)
     #
+=======
+        assert_(np.isnan(_result).all())
+
+#..............................................................................
+
+
+class TestQuantiles(TestCase):
+
+    def __init__(self, *args, **kwargs):
+        TestCase.__init__(self, *args, **kwargs)
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     def test_hdquantiles(self):
         data = [0.706560797,0.727229578,0.990399276,0.927065621,0.158953014,
             0.887764025,0.239407086,0.349638551,0.972791145,0.149789972,

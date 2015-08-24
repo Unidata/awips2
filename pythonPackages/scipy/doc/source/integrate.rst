@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 =============================================
 Integration and ODEs (:mod:`scipy.integrate`)
 =============================================
@@ -42,3 +43,6 @@ Integrators of ODE systems
 
    odeint
    ode
+=======
+.. automodule:: scipy.integrate
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

@@ -1,10 +1,16 @@
 """Compressed Sparse Row matrix format"""
 
+<<<<<<< HEAD
+=======
+from __future__ import division, print_function, absolute_import
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 __docformat__ = "restructuredtext en"
 
 __all__ = ['csr_matrix', 'isspmatrix_csr']
 
 
+<<<<<<< HEAD
 from warnings import warn
 
 import numpy as np
@@ -17,6 +23,19 @@ from sputils import upcast, isintlike
 from compressed import _cs_matrix
 
 class csr_matrix(_cs_matrix):
+=======
+import numpy as np
+from scipy._lib.six import xrange
+
+from ._sparsetools import csr_tocsc, csr_tobsr, csr_count_blocks, \
+        get_csr_submatrix, csr_sample_values
+from .sputils import upcast, isintlike, IndexMixin, issequence, get_index_dtype
+
+from .compressed import _cs_matrix
+
+
+class csr_matrix(_cs_matrix, IndexMixin):
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     """
     Compressed Sparse Row matrix
 
@@ -31,6 +50,7 @@ class csr_matrix(_cs_matrix):
             to construct an empty matrix with shape (M, N)
             dtype is optional, defaulting to dtype='d'.
 
+<<<<<<< HEAD
         csr_matrix((data, ij), [shape=(M, N)])
             where ``data`` and ``ij`` satisfy the relationship
             ``a[ij[0, k], ij[1, k]] = data[k]``
@@ -38,12 +58,49 @@ class csr_matrix(_cs_matrix):
         csr_matrix((data, indices, indptr), [shape=(M, N)])
             is the standard CSR representation where the column indices for
             row i are stored in ``indices[indptr[i]:indices[i+1]]`` and their
+=======
+        csr_matrix((data, (row_ind, col_ind)), [shape=(M, N)])
+            where ``data``, ``row_ind`` and ``col_ind`` satisfy the
+            relationship ``a[row_ind[k], col_ind[k]] = data[k]``.
+
+        csr_matrix((data, indices, indptr), [shape=(M, N)])
+            is the standard CSR representation where the column indices for
+            row i are stored in ``indices[indptr[i]:indptr[i+1]]`` and their
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             corresponding values are stored in ``data[indptr[i]:indptr[i+1]]``.
             If the shape parameter is not supplied, the matrix dimensions
             are inferred from the index arrays.
 
+<<<<<<< HEAD
     Notes
     -----
+=======
+    Attributes
+    ----------
+    dtype : dtype
+        Data type of the matrix
+    shape : 2-tuple
+        Shape of the matrix
+    ndim : int
+        Number of dimensions (this is always 2)
+    nnz
+        Number of nonzero elements
+    data
+        CSR format data array of the matrix
+    indices
+        CSR format index array of the matrix
+    indptr
+        CSR format index pointer array of the matrix
+    has_sorted_indices
+        Whether indices are sorted
+
+    Notes
+    -----
+
+    Sparse matrices can be used in arithmetic operations: they support
+    addition, subtraction, multiplication, division, and matrix power.
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     Advantages of the CSR format
       - efficient arithmetic operations CSR + CSR, CSR * CSR, etc.
       - efficient row slicing
@@ -56,6 +113,7 @@ class csr_matrix(_cs_matrix):
     Examples
     --------
 
+<<<<<<< HEAD
     >>> from scipy.sparse import *
     >>> from scipy import *
     >>> csr_matrix( (3,4), dtype=int8 ).todense()
@@ -114,6 +172,69 @@ class csr_matrix(_cs_matrix):
         for n in xrange(self.shape[0]):
             start = ptr[n]
             end   = ptr[n+1]
+=======
+    >>> import numpy as np
+    >>> from scipy.sparse import csr_matrix
+    >>> csr_matrix((3, 4), dtype=np.int8).toarray()
+    array([[0, 0, 0, 0],
+           [0, 0, 0, 0],
+           [0, 0, 0, 0]], dtype=int8)
+
+    >>> row = np.array([0, 0, 1, 2, 2, 2])
+    >>> col = np.array([0, 2, 2, 0, 1, 2])
+    >>> data = np.array([1, 2, 3, 4, 5, 6])
+    >>> csr_matrix((data, (row, col)), shape=(3, 3)).toarray()
+    array([[1, 0, 2],
+           [0, 0, 3],
+           [4, 5, 6]])
+
+    >>> indptr = np.array([0, 2, 3, 6])
+    >>> indices = np.array([0, 2, 2, 0, 1, 2])
+    >>> data = np.array([1, 2, 3, 4, 5, 6])
+    >>> csr_matrix((data, indices, indptr), shape=(3, 3)).toarray()
+    array([[1, 0, 2],
+           [0, 0, 3],
+           [4, 5, 6]])
+
+    As an example of how to construct a CSR matrix incrementally,
+    the following snippet builds a term-document matrix from texts:
+
+    >>> docs = [["hello", "world", "hello"], ["goodbye", "cruel", "world"]]
+    >>> indptr = [0]
+    >>> indices = []
+    >>> data = []
+    >>> vocabulary = {}
+    >>> for d in docs:
+    ...     for term in d:
+    ...         index = vocabulary.setdefault(term, len(vocabulary))
+    ...         indices.append(index)
+    ...         data.append(1)
+    ...     indptr.append(len(indices))
+    ...
+    >>> csr_matrix((data, indices, indptr), dtype=int).toarray()
+    array([[2, 1, 0, 0],
+           [0, 1, 1, 1]])
+
+    """
+
+    def transpose(self, copy=False):
+        from .csc import csc_matrix
+        M,N = self.shape
+        return csc_matrix((self.data,self.indices,self.indptr), shape=(N,M), copy=copy)
+
+    def tolil(self):
+        from .lil import lil_matrix
+        lil = lil_matrix(self.shape,dtype=self.dtype)
+
+        self.sort_indices()  # lil_matrix needs sorted column indices
+
+        ptr,ind,dat = self.indptr,self.indices,self.data
+        rows, data = lil.rows, lil.data
+
+        for n in xrange(self.shape[0]):
+            start = ptr[n]
+            end = ptr[n+1]
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             rows[n] = ind[start:end].tolist()
             data[n] = dat[start:end].tolist()
 
@@ -126,6 +247,7 @@ class csr_matrix(_cs_matrix):
             return self
 
     def tocsc(self):
+<<<<<<< HEAD
         indptr  = np.empty(self.shape[1] + 1, dtype=np.intc)
         indices = np.empty(self.nnz, dtype=np.intc)
         data    = np.empty(self.nnz, dtype=upcast(self.dtype))
@@ -135,20 +257,48 @@ class csr_matrix(_cs_matrix):
                   indptr, indices, data)
 
         from csc import csc_matrix
+=======
+        idx_dtype = get_index_dtype((self.indptr, self.indices),
+                                    maxval=max(self.nnz, self.shape[0]))
+        indptr = np.empty(self.shape[1] + 1, dtype=idx_dtype)
+        indices = np.empty(self.nnz, dtype=idx_dtype)
+        data = np.empty(self.nnz, dtype=upcast(self.dtype))
+
+        csr_tocsc(self.shape[0], self.shape[1],
+                  self.indptr.astype(idx_dtype),
+                  self.indices.astype(idx_dtype),
+                  self.data,
+                  indptr,
+                  indices,
+                  data)
+
+        from .csc import csc_matrix
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         A = csc_matrix((data, indices, indptr), shape=self.shape)
         A.has_sorted_indices = True
         return A
 
     def tobsr(self, blocksize=None, copy=True):
+<<<<<<< HEAD
         from bsr import bsr_matrix
 
         if blocksize is None:
             from spfuncs import estimate_blocksize
+=======
+        from .bsr import bsr_matrix
+
+        if blocksize is None:
+            from .spfuncs import estimate_blocksize
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             return self.tobsr(blocksize=estimate_blocksize(self))
 
         elif blocksize == (1,1):
             arg1 = (self.data.reshape(-1,1,1),self.indices,self.indptr)
+<<<<<<< HEAD
             return bsr_matrix(arg1, shape=self.shape, copy=copy )
+=======
+            return bsr_matrix(arg1, shape=self.shape, copy=copy)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         else:
             R,C = blocksize
@@ -159,12 +309,26 @@ class csr_matrix(_cs_matrix):
 
             blks = csr_count_blocks(M,N,R,C,self.indptr,self.indices)
 
+<<<<<<< HEAD
             indptr  = np.empty(M/R + 1,    dtype=np.intc)
             indices = np.empty(blks,       dtype=np.intc)
             data    = np.zeros((blks,R,C), dtype=self.dtype)
 
             csr_tobsr(M, N, R, C, self.indptr, self.indices, self.data, \
                     indptr, indices, data.ravel() )
+=======
+            idx_dtype = get_index_dtype((self.indptr, self.indices),
+                                        maxval=max(N//C, blks))
+            indptr = np.empty(M//R+1, dtype=idx_dtype)
+            indices = np.empty(blks, dtype=idx_dtype)
+            data = np.zeros((blks,R,C), dtype=self.dtype)
+
+            csr_tobsr(M, N, R, C,
+                      self.indptr.astype(idx_dtype),
+                      self.indices.astype(idx_dtype),
+                      self.data,
+                      indptr, indices, data.ravel())
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
             return bsr_matrix((data,indices,indptr), shape=self.shape)
 
@@ -175,16 +339,36 @@ class csr_matrix(_cs_matrix):
         """
         return (x[0],x[1])
 
+<<<<<<< HEAD
 
     def __getitem__(self, key):
         def asindices(x):
             try:
                 x = np.asarray(x, dtype=np.intc)
+=======
+    def __getitem__(self, key):
+        def asindices(x):
+            try:
+                x = np.asarray(x)
+
+                # Check index contents, to avoid creating 64-bit arrays needlessly
+                idx_dtype = get_index_dtype((x,), check_contents=True)
+                if idx_dtype != x.dtype:
+                    x = x.astype(idx_dtype)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             except:
                 raise IndexError('invalid index')
             else:
                 return x
+<<<<<<< HEAD
         def check_bounds(indices,N):
+=======
+
+        def check_bounds(indices, N):
+            if indices.size == 0:
+                return (0, 0)
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             max_indx = indices.max()
             if max_indx >= N:
                 raise IndexError('index (%d) out of range' % max_indx)
@@ -200,13 +384,18 @@ class csr_matrix(_cs_matrix):
             slicing of the form self[[1,2,3],:]
             """
             indices = asindices(indices)
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             (min_indx,max_indx) = check_bounds(indices,N)
 
             if min_indx < 0:
                 indices = indices.copy()
                 indices[indices < 0] += N
 
+<<<<<<< HEAD
             indptr  = np.arange(len(indices) + 1, dtype=np.intc)
             data    = np.ones(len(indices), dtype=self.dtype)
             shape   = (len(indices),N)
@@ -302,6 +491,91 @@ class csr_matrix(_cs_matrix):
             return self.data[start:end][indxs[0]]
         else:
             raise ValueError('nonzero entry (%d,%d) occurs more than once' % (row,col) )
+=======
+            indptr = np.arange(len(indices)+1, dtype=indices.dtype)
+            data = np.ones(len(indices), dtype=self.dtype)
+            shape = (len(indices),N)
+
+            return csr_matrix((data,indices,indptr), shape=shape)
+
+        row, col = self._unpack_index(key)
+
+        # First attempt to use original row optimized methods
+        # [1, ?]
+        if isintlike(row):
+            # [i, j]
+            if isintlike(col):
+                return self._get_single_element(row, col)
+            # [i, 1:2]
+            elif isinstance(col, slice):
+                return self._get_row_slice(row, col)
+            # [i, [1, 2]]
+            elif issequence(col):
+                P = extractor(col,self.shape[1]).T
+                return self[row, :] * P
+        elif isinstance(row, slice):
+            # [1:2,??]
+            if ((isintlike(col) and row.step in (1, None)) or
+                    (isinstance(col, slice) and
+                     col.step in (1, None) and
+                     row.step in (1, None))):
+                # col is int or slice with step 1, row is slice with step 1.
+                return self._get_submatrix(row, col)
+            elif issequence(col):
+                # row is slice, col is sequence.
+                P = extractor(col,self.shape[1]).T        # [1:2,[1,2]]
+                sliced = self
+                if row != slice(None, None, None):
+                    sliced = sliced[row,:]
+                return sliced * P
+
+        elif issequence(row):
+            # [[1,2],??]
+            if isintlike(col) or isinstance(col,slice):
+                P = extractor(row, self.shape[0])     # [[1,2],j] or [[1,2],1:2]
+                extracted = P * self
+                if col == slice(None, None, None):
+                    return extracted
+                else:
+                    return extracted[:,col]
+
+        if not (issequence(col) and issequence(row)):
+            # Sample elementwise
+            row, col = self._index_to_arrays(row, col)
+
+        row = asindices(row)
+        col = asindices(col)
+        if row.shape != col.shape:
+            raise IndexError('number of row and column indices differ')
+        assert row.ndim <= 2
+
+        num_samples = np.size(row)
+        if num_samples == 0:
+            return csr_matrix(np.atleast_2d(row).shape, dtype=self.dtype)
+        check_bounds(row, self.shape[0])
+        check_bounds(col, self.shape[1])
+
+        val = np.empty(num_samples, dtype=self.dtype)
+        csr_sample_values(self.shape[0], self.shape[1],
+                          self.indptr, self.indices, self.data,
+                          num_samples, row.ravel(), col.ravel(), val)
+        if row.ndim == 1:
+            # row and col are 1d
+            return np.asmatrix(val)
+        return self.__class__(val.reshape(row.shape))
+
+    def getrow(self, i):
+        """Returns a copy of row i of the matrix, as a (1 x n)
+        CSR matrix (row vector).
+        """
+        return self._get_submatrix(i, slice(None))
+
+    def getcol(self, i):
+        """Returns a copy of column i of the matrix, as a (m x 1)
+        CSR matrix (column vector).
+        """
+        return self._get_submatrix(slice(None), i)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     def _get_row_slice(self, i, cslice):
         """Returns a copy of row self[i, cslice]
@@ -310,6 +584,7 @@ class csr_matrix(_cs_matrix):
             i += self.shape[0]
 
         if i < 0 or i >= self.shape[0]:
+<<<<<<< HEAD
             raise IndexError('index (%d) out of range' % i )
 
         start, stop, stride = cslice.indices(self.shape[1])
@@ -334,12 +609,58 @@ class csr_matrix(_cs_matrix):
         return csr_matrix( (data, index, indptr), shape=(1, stop-start) )
 
     def _get_submatrix( self, row_slice, col_slice ):
+=======
+            raise IndexError('index (%d) out of range' % i)
+
+        start, stop, stride = cslice.indices(self.shape[1])
+
+        if stride == 1:
+            # for stride == 1, _get_submatrix is ~30% faster than below
+            row_slice = self._get_submatrix(i, cslice)
+
+        else:
+            # other strides need new code
+            row_indices = self.indices[self.indptr[i]:self.indptr[i + 1]]
+            row_data = self.data[self.indptr[i]:self.indptr[i + 1]]
+
+            if stride > 0:
+                ind = (row_indices >= start) & (row_indices < stop)
+            elif stride < 0:
+                ind = (row_indices <= start) & (row_indices > stop)
+
+            if abs(stride) > 1:
+                ind = ind & ((row_indices - start) % stride == 0)
+
+            row_indices = (row_indices[ind] - start) // stride
+            row_data = row_data[ind]
+            row_indptr = np.array([0, len(row_indices)])
+
+            if stride < 0:
+                row_data = row_data[::-1]
+                row_indices = abs(row_indices[::-1])
+
+            shape = (1, int(np.ceil(float(stop - start) / stride)))
+
+            row_slice = csr_matrix((row_data, row_indices, row_indptr),
+                                   shape=shape)
+
+        return row_slice
+
+    def _get_submatrix(self, row_slice, col_slice):
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         """Return a submatrix of this matrix (new matrix is created)."""
 
         M,N = self.shape
 
+<<<<<<< HEAD
         def process_slice( sl, num ):
             if isinstance( sl, slice ):
+=======
+        def process_slice(sl, num):
+            if isinstance(sl, slice):
+                if sl.step not in (1, None):
+                    raise ValueError('slicing with step != 1 not supported')
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                 i0, i1 = sl.start, sl.stop
                 if i0 is None:
                     i0 = 0
@@ -350,6 +671,7 @@ class csr_matrix(_cs_matrix):
                     i1 = num
                 elif i1 < 0:
                     i1 = num + i1
+<<<<<<< HEAD
 
                 return i0, i1
 
@@ -387,3 +709,35 @@ from sputils import _isinstance
 
 def isspmatrix_csr(x):
     return _isinstance(x, csr_matrix)
+=======
+                return i0, i1
+
+            elif isintlike(sl):
+                if sl < 0:
+                    sl += num
+                return sl, sl + 1
+            else:
+                raise TypeError('expected slice or scalar')
+
+        def check_bounds(i0, i1, num):
+            if not (0 <= i0 <= num) or not (0 <= i1 <= num) or not (i0 <= i1):
+                raise IndexError(
+                      "index out of bounds: 0 <= %d <= %d, 0 <= %d <= %d,"
+                      " %d <= %d" % (i0, num, i1, num, i0, i1))
+
+        i0, i1 = process_slice(row_slice, M)
+        j0, j1 = process_slice(col_slice, N)
+        check_bounds(i0, i1, M)
+        check_bounds(j0, j1, N)
+
+        indptr, indices, data = get_csr_submatrix(M, N,
+                self.indptr, self.indices, self.data,
+                int(i0), int(i1), int(j0), int(j1))
+
+        shape = (i1 - i0, j1 - j0)
+
+        return self.__class__((data,indices,indptr), shape=shape)
+
+def isspmatrix_csr(x):
+    return isinstance(x, csr_matrix)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

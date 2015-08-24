@@ -5,9 +5,16 @@
     class ft_converter(cpp_namespace_converter):
         namespace = 'ft::'
 """
+<<<<<<< HEAD
 
 from weave import common_info
 from weave import  base_info
+=======
+from __future__ import absolute_import, print_function
+
+from weave import common_info
+from weave import base_info
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 from weave.base_spec import base_converter
 
 cpp_support_template = \
@@ -51,11 +58,21 @@ std::string %(cpp_clean_struct)s_to_py( %(cpp_struct)s* cpp_ptr)
 
 """
 
+<<<<<<< HEAD
 class cpp_namespace_converter(base_converter):
     _build_information = [common_info.swig_info()]
     def __init__(self,class_name=None):
         self.type_name = 'unkown cpp_object'
         self.name =  'no name'
+=======
+
+class cpp_namespace_converter(base_converter):
+    _build_information = [common_info.swig_info()]
+
+    def __init__(self,class_name=None):
+        self.type_name = 'unknown cpp_object'
+        self.name = 'no name'
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         if class_name:
             # customize support_code for whatever type I was handed.
             clean_name = class_name.replace('::','_')
@@ -66,7 +83,11 @@ class cpp_namespace_converter(base_converter):
             str_len = len(clean_name) + 20
             vals = {'cpp_struct': class_name,
                     'cpp_clean_struct': clean_name,
+<<<<<<< HEAD
                     'ptr_string_len': str_len }
+=======
+                    'ptr_string_len': str_len}
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             specialized_support = cpp_support_template % vals
             custom = base_info.base_info()
             custom._support_code = [specialized_support]
@@ -76,7 +97,11 @@ class cpp_namespace_converter(base_converter):
     def type_match(self,value):
         try:
             cpp_ident = value.split('_')[2]
+<<<<<<< HEAD
             if self.namespace in cpp.ident:
+=======
+            if self.namespace in cpp_ident:
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                 return 1
         except:
             pass
@@ -103,6 +128,10 @@ class cpp_namespace_converter(base_converter):
     def __repr__(self):
         msg = "(%s:: name: %s)" % (self.type_name,self.name)
         return msg
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     def __cmp__(self,other):
         #only works for equal
         return cmp(self.name,other.name) or \

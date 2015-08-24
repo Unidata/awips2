@@ -1,6 +1,14 @@
+<<<<<<< HEAD
 import types
 from base_spec import base_converter
 import base_info
+=======
+from __future__ import absolute_import, print_function
+
+import types
+from .base_spec import base_converter
+from . import base_info
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 #----------------------------------------------------------------------------
 # C++ code template for converting code from python objects to C++ objects
@@ -68,6 +76,10 @@ PyObject* %(type_name)s_to_py(PyObject* obj)
 
 """
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class common_base_converter(base_converter):
 
     def __init__(self):
@@ -161,7 +173,11 @@ class common_base_converter(base_converter):
     def c_to_py_code(self):
         return simple_c_to_py_template % self.template_vars()
 
+<<<<<<< HEAD
     def declaration_code(self,templatize = 0,inline=0):
+=======
+    def declaration_code(self,templatize=0,inline=0):
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         code = '%(py_var)s = %(var_lookup)s;\n'   \
                '%(c_type)s %(name)s = %(var_convert)s;\n' %  \
                self.template_vars(inline=inline)
@@ -169,8 +185,13 @@ class common_base_converter(base_converter):
 
     def cleanup_code(self):
         if self.use_ref_count:
+<<<<<<< HEAD
             code =  'Py_XDECREF(%(py_var)s);\n' % self.template_vars()
             #code += 'printf("cleaning up %(py_var)s\\n");\n' % self.template_vars()
+=======
+            code = 'Py_XDECREF(%(py_var)s);\n' % self.template_vars()
+            # code += 'printf("cleaning up %(py_var)s\\n");\n' % self.template_vars()
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         else:
             code = ""
         return code
@@ -178,8 +199,14 @@ class common_base_converter(base_converter):
     def __repr__(self):
         msg = "(file:: name: %s)" % self.name
         return msg
+<<<<<<< HEAD
     def __cmp__(self,other):
         #only works for equal
+=======
+
+    def __cmp__(self,other):
+        # only works for equal
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         result = -1
         try:
             result = cmp(self.name,other.name) or \
@@ -191,6 +218,11 @@ class common_base_converter(base_converter):
 #----------------------------------------------------------------------------
 # Module Converter
 #----------------------------------------------------------------------------
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class module_converter(common_base_converter):
     def init_info(self):
         common_base_converter.init_info(self)
@@ -202,6 +234,11 @@ class module_converter(common_base_converter):
 #----------------------------------------------------------------------------
 # String Converter
 #----------------------------------------------------------------------------
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class string_converter(common_base_converter):
     def init_info(self):
         common_base_converter.init_info(self)
@@ -212,6 +249,10 @@ class string_converter(common_base_converter):
         self.to_c_return = "std::string(PyString_AsString(py_obj))"
         self.matching_types = [types.StringType]
         self.headers.append('<string>')
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     def c_to_py_code(self):
         # !! Need to dedent returned code.
         code = """
@@ -225,21 +266,37 @@ class string_converter(common_base_converter):
 #----------------------------------------------------------------------------
 # Unicode Converter
 #----------------------------------------------------------------------------
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class unicode_converter(common_base_converter):
     def init_info(self):
         common_base_converter.init_info(self)
         self.type_name = 'unicode'
         self.check_func = 'PyUnicode_Check'
         # This isn't supported by gcc 2.95.3 -- MSVC works fine with it.
+<<<<<<< HEAD
         #self.c_type = 'std::wstring'
         #self.to_c_return = "std::wstring(PyUnicode_AS_UNICODE(py_obj))"
+=======
+        # self.c_type = 'std::wstring'
+        # self.to_c_return = "std::wstring(PyUnicode_AS_UNICODE(py_obj))"
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         self.c_type = 'Py_UNICODE*'
         self.return_type = self.c_type
         self.to_c_return = "PyUnicode_AS_UNICODE(py_obj)"
         self.matching_types = [types.UnicodeType]
+<<<<<<< HEAD
         #self.headers.append('<string>')
 
     def declaration_code(self,templatize = 0,inline=0):
+=======
+        # self.headers.append('<string>')
+
+    def declaration_code(self,templatize=0,inline=0):
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         # since wstring doesn't seem to work everywhere, we need to provide
         # the length variable Nxxx for the unicode string xxx.
         code = '%(py_var)s = %(var_lookup)s;\n'                     \
@@ -247,11 +304,19 @@ class unicode_converter(common_base_converter):
                'int N%(name)s = PyUnicode_GET_SIZE(%(py_var)s);\n'  \
                % self.template_vars(inline=inline)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         return code
 #----------------------------------------------------------------------------
 # File Converter
 #----------------------------------------------------------------------------
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class file_converter(common_base_converter):
     def init_info(self):
         common_base_converter.init_info(self)
@@ -290,16 +355,28 @@ class file_converter(common_base_converter):
 # Standard Python numeric --> C type maps
 #----------------------------------------------------------------------------
 num_to_c_types = {}
+<<<<<<< HEAD
 num_to_c_types[type(1)]  = 'long'
 num_to_c_types[type(1.)] = 'double'
 num_to_c_types[type(1.+1.j)] = 'std::complex<double> '
 # !! hmmm. The following is likely unsafe...
 num_to_c_types[type(1L)]  = 'npy_longlong'
+=======
+num_to_c_types[type(1)] = 'long'
+num_to_c_types[type(1.)] = 'double'
+num_to_c_types[type(1.+1.j)] = 'std::complex<double> '
+# !! hmmm. The following is likely unsafe...
+num_to_c_types[long] = 'npy_longlong'
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 #----------------------------------------------------------------------------
 # Numeric array Python numeric --> C type maps
 #----------------------------------------------------------------------------
+<<<<<<< HEAD
 num_to_c_types['T'] = 'T' # for templates
+=======
+num_to_c_types['T'] = 'T'  # for templates
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 num_to_c_types['G'] = 'std::complex<longdouble> '
 num_to_c_types['F'] = 'std::complex<float> '
 num_to_c_types['D'] = 'std::complex<double> '
@@ -320,6 +397,10 @@ num_to_c_types['L'] = 'npy_ulong'
 num_to_c_types['q'] = 'npy_longlong'
 num_to_c_types['Q'] = 'npy_ulonglong'
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class scalar_converter(common_base_converter):
     def init_info(self):
         common_base_converter.init_info(self)
@@ -328,6 +409,11 @@ class scalar_converter(common_base_converter):
         self.use_ref_count = 0
 
 # This has to be int for SCXX to work.
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class int_converter(scalar_converter):
     def init_info(self):
         scalar_converter.init_info(self)
@@ -338,6 +424,10 @@ class int_converter(scalar_converter):
         self.to_c_return = "(int) PyInt_AsLong(py_obj)"
         self.matching_types = [types.IntType]
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class long_converter(scalar_converter):
     def init_info(self):
         scalar_converter.init_info(self)
@@ -349,6 +439,10 @@ class long_converter(scalar_converter):
         self.to_c_return = "(longlong) PyLong_AsLongLong(py_obj)"
         self.matching_types = [types.LongType]
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class float_converter(scalar_converter):
     def init_info(self):
         scalar_converter.init_info(self)
@@ -360,6 +454,10 @@ class float_converter(scalar_converter):
         self.to_c_return = "PyFloat_AsDouble(py_obj)"
         self.matching_types = [types.FloatType]
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class complex_converter(scalar_converter):
     def init_info(self):
         scalar_converter.init_info(self)
@@ -377,10 +475,18 @@ class complex_converter(scalar_converter):
 #
 # Based on SCXX by Gordon McMillan
 #----------------------------------------------------------------------------
+<<<<<<< HEAD
 import os, c_spec # yes, I import myself to find out my __file__ location.
 local_dir,junk = os.path.split(os.path.abspath(c_spec.__file__))
 scxx_dir = os.path.join(local_dir,'scxx')
 
+=======
+import os
+local_dir,junk = os.path.split(os.path.abspath(__file__))
+scxx_dir = os.path.join(local_dir,'scxx')
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class scxx_converter(common_base_converter):
     def init_info(self):
         common_base_converter.init_info(self)
@@ -389,6 +495,10 @@ class scxx_converter(common_base_converter):
         self.include_dirs = [local_dir,scxx_dir]
         self.sources = [os.path.join(scxx_dir,'weave_imp.cpp'),]
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class list_converter(scxx_converter):
     def init_info(self):
         scxx_converter.init_info(self)
@@ -401,6 +511,10 @@ class list_converter(scxx_converter):
         # ref counting handled by py::list
         self.use_ref_count = 0
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class tuple_converter(scxx_converter):
     def init_info(self):
         scxx_converter.init_info(self)
@@ -413,6 +527,10 @@ class tuple_converter(scxx_converter):
         # ref counting handled by py::tuple
         self.use_ref_count = 0
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class dict_converter(scxx_converter):
     def init_info(self):
         scxx_converter.init_info(self)
@@ -428,6 +546,11 @@ class dict_converter(scxx_converter):
 #----------------------------------------------------------------------------
 # Instance Converter
 #----------------------------------------------------------------------------
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class instance_converter(scxx_converter):
     def init_info(self):
         scxx_converter.init_info(self)
@@ -445,6 +568,11 @@ class instance_converter(scxx_converter):
 #
 # catch all now handles callable objects
 #----------------------------------------------------------------------------
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class catchall_converter(scxx_converter):
     def init_info(self):
         scxx_converter.init_info(self)
@@ -455,11 +583,16 @@ class catchall_converter(scxx_converter):
         self.to_c_return = 'py::object(py_obj)'
         # ref counting handled by py::object
         self.use_ref_count = 0
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     def type_match(self,value):
         return 1
 
 if __name__ == "__main__":
     x = list_converter().type_spec("x",1)
+<<<<<<< HEAD
     print x.py_to_c_code()
     print
     print x.c_to_py_code()
@@ -467,3 +600,12 @@ if __name__ == "__main__":
     print x.declaration_code(inline=1)
     print
     print x.cleanup_code()
+=======
+    print(x.py_to_c_code())
+    print()
+    print(x.c_to_py_code())
+    print()
+    print(x.declaration_code(inline=1))
+    print()
+    print(x.cleanup_code())
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

@@ -38,9 +38,15 @@ c\Local variables:
 c     xxxxxx  real
 c
 c\Routines called:
+<<<<<<< HEAD
 c     second  ARPACK utility routine for timing.
 c     slamch  LAPACK routine that determines machine constants.
 c     slapy2  LAPACK routine to compute sqrt(x**2+y**2) carefully.
+=======
+c     arscnd  ARPACK utility routine for timing.
+c     wslamch  LAPACK routine that determines machine constants.
+c     wslapy2  LAPACK routine to compute sqrt(x**2+y**2) carefully.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c\Author
 c     Danny Sorensen               Phuong Vu
@@ -100,8 +106,13 @@ c     | External Functions |
 c     %--------------------%
 c
       Real
+<<<<<<< HEAD
      &           slapy2, slamch
       external   slapy2, slamch
+=======
+     &           wslapy2, wslamch
+      external   wslapy2, wslamch
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 c     %-----------------------%
 c     | Executable Statements |
@@ -119,22 +130,38 @@ c     |                                                             |
 c     | for some appropriate choice of norm.                        |
 c     %-------------------------------------------------------------%
 c
+<<<<<<< HEAD
       call second (t0)
+=======
+      call arscnd (t0)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %---------------------------------%
 c     | Get machine dependent constant. |
 c     %---------------------------------%
 c
+<<<<<<< HEAD
       eps23 = slamch('Epsilon-Machine')
+=======
+      eps23 = wslamch('Epsilon-Machine')
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       eps23 = eps23**(2.0E+0 / 3.0E+0)
 c
       nconv  = 0
       do 20 i = 1, n
+<<<<<<< HEAD
          temp = max( eps23, slapy2( ritzr(i), ritzi(i) ) )
          if (bounds(i) .le. tol*temp)   nconv = nconv + 1
    20 continue
 c 
       call second (t1)
+=======
+         temp = max( eps23, wslapy2( ritzr(i), ritzi(i) ) )
+         if (bounds(i) .le. tol*temp)   nconv = nconv + 1
+   20 continue
+c 
+      call arscnd (t1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       tnconv = tnconv + (t1 - t0)
 c 
       return

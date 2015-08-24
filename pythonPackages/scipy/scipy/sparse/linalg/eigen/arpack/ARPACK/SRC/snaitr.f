@@ -132,6 +132,7 @@ c
 c\Routines called:
 c     sgetv0  ARPACK routine to generate the initial vector.
 c     ivout   ARPACK utility routine that prints integers.
+<<<<<<< HEAD
 c     second  ARPACK utility routine for timing.
 c     smout   ARPACK utility routine that prints matrices
 c     svout   ARPACK utility routine that prints vectors.
@@ -139,12 +140,26 @@ c     slabad  LAPACK routine that computes machine constants.
 c     slamch  LAPACK routine that determines machine constants.
 c     slascl  LAPACK routine for careful scaling of a matrix.
 c     slanhs  LAPACK routine that computes various norms of a matrix.
+=======
+c     arscnd  ARPACK utility routine for timing.
+c     smout   ARPACK utility routine that prints matrices
+c     svout   ARPACK utility routine that prints vectors.
+c     slabad  LAPACK routine that computes machine constants.
+c     wslamch  LAPACK routine that determines machine constants.
+c     slascl  LAPACK routine for careful scaling of a matrix.
+c     wslanhs  LAPACK routine that computes various norms of a matrix.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c     sgemv   Level 2 BLAS routine for matrix vector multiplication.
 c     saxpy   Level 1 BLAS that computes a vector triad.
 c     sscal   Level 1 BLAS that scales a vector.
 c     scopy   Level 1 BLAS that copies one vector to another .
+<<<<<<< HEAD
 c     sdot    Level 1 BLAS that computes the scalar product of two vectors. 
 c     snrm2   Level 1 BLAS that computes the norm of a vector.
+=======
+c     wsdot    Level 1 BLAS that computes the scalar product of two vectors. 
+c     wsnrm2   Level 1 BLAS that computes the norm of a vector.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c\Author
 c     Danny Sorensen               Phuong Vu
@@ -268,15 +283,24 @@ c     | External Subroutines |
 c     %----------------------%
 c
       external   saxpy, scopy, sscal, sgemv, sgetv0, slabad, 
+<<<<<<< HEAD
      &           svout, smout, ivout, second
+=======
+     &           svout, smout, ivout, arscnd
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %--------------------%
 c     | External Functions |
 c     %--------------------%
 c
       Real
+<<<<<<< HEAD
      &           sdot, snrm2, slanhs, slamch
       external   sdot, snrm2, slanhs, slamch
+=======
+     &           wsdot, wsnrm2, wslanhs, wslamch
+      external   wsdot, wsnrm2, wslanhs, wslamch
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %---------------------%
 c     | Intrinsic Functions |
@@ -304,10 +328,17 @@ c        | overflow should not occur.              |
 c        | REFERENCE: LAPACK subroutine slahqr     |
 c        %-----------------------------------------%
 c
+<<<<<<< HEAD
          unfl = slamch( 'safe minimum' )
          ovfl = one / unfl
          call slabad( unfl, ovfl )
          ulp = slamch( 'precision' )
+=======
+         unfl = wslamch( 'safe minimum' )
+         ovfl = one / unfl
+         call slabad( unfl, ovfl )
+         ulp = wslamch( 'precision' )
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          smlnum = unfl*( n / ulp )
          first = .false.
       end if
@@ -319,7 +350,11 @@ c        | Initialize timing statistics  |
 c        | & message level for debugging |
 c        %-------------------------------%
 c
+<<<<<<< HEAD
          call second (t0)
+=======
+         call arscnd (t0)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          msglvl = mnaitr
 c 
 c        %------------------------------%
@@ -430,7 +465,11 @@ c              | which spans OP and exit.                       |
 c              %------------------------------------------------%
 c
                info = j - 1
+<<<<<<< HEAD
                call second (t1)
+=======
+               call arscnd (t1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                tnaitr = tnaitr + (t1 - t0)
                ido = 99
                go to 9000
@@ -470,7 +509,11 @@ c        %------------------------------------------------------%
 c
          step3 = .true.
          nopx  = nopx + 1
+<<<<<<< HEAD
          call second (t2)
+=======
+         call arscnd (t2)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          call scopy (n, v(1,j), 1, workd(ivj), 1)
          ipntr(1) = ivj
          ipntr(2) = irj
@@ -490,7 +533,11 @@ c        | WORKD(IRJ:IRJ+N-1) := OP*v_{j}   |
 c        | if step3 = .true.                |
 c        %----------------------------------%
 c
+<<<<<<< HEAD
          call second (t3)
+=======
+         call arscnd (t3)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          tmvopx = tmvopx + (t3 - t2)
  
          step3 = .false.
@@ -506,7 +553,11 @@ c        | STEP 4:  Finish extending the Arnoldi |
 c        |          factorization to length j.   |
 c        %---------------------------------------%
 c
+<<<<<<< HEAD
          call second (t2)
+=======
+         call arscnd (t2)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          if (bmat .eq. 'G') then
             nbx = nbx + 1
             step4 = .true.
@@ -531,7 +582,11 @@ c        | if step4 = .true.                |
 c        %----------------------------------%
 c
          if (bmat .eq. 'G') then
+<<<<<<< HEAD
             call second (t3)
+=======
+            call arscnd (t3)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             tmvbx = tmvbx + (t3 - t2)
          end if
 c 
@@ -543,10 +598,17 @@ c        | Compute the B-norm of OP*v_{j}.     |
 c        %-------------------------------------%
 c
          if (bmat .eq. 'G') then  
+<<<<<<< HEAD
              wnorm = sdot (n, resid, 1, workd(ipj), 1)
              wnorm = sqrt(abs(wnorm))
          else if (bmat .eq. 'I') then
             wnorm = snrm2(n, resid, 1)
+=======
+             wnorm = wsdot (n, resid, 1, workd(ipj), 1)
+             wnorm = sqrt(abs(wnorm))
+         else if (bmat .eq. 'I') then
+            wnorm = wsnrm2(n, resid, 1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          end if
 c
 c        %-----------------------------------------%
@@ -576,11 +638,19 @@ c
 c
          if (j .gt. 1) h(j,j-1) = betaj
 c
+<<<<<<< HEAD
          call second (t4)
 c 
          orth1 = .true.
 c
          call second (t2)
+=======
+         call arscnd (t4)
+c 
+         orth1 = .true.
+c
+         call arscnd (t2)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          if (bmat .eq. 'G') then
             nbx = nbx + 1
             call scopy (n, resid, 1, workd(irj), 1)
@@ -604,7 +674,11 @@ c        | WORKD(IPJ:IPJ+N-1) := B*r_{j}.                    |
 c        %---------------------------------------------------%
 c
          if (bmat .eq. 'G') then
+<<<<<<< HEAD
             call second (t3)
+=======
+            call arscnd (t3)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             tmvbx = tmvbx + (t3 - t2)
          end if
 c 
@@ -615,10 +689,17 @@ c        | Compute the B-norm of r_{j}. |
 c        %------------------------------%
 c
          if (bmat .eq. 'G') then         
+<<<<<<< HEAD
             rnorm = sdot (n, resid, 1, workd(ipj), 1)
             rnorm = sqrt(abs(rnorm))
          else if (bmat .eq. 'I') then
             rnorm = snrm2(n, resid, 1)
+=======
+            rnorm = wsdot (n, resid, 1, workd(ipj), 1)
+            rnorm = sqrt(abs(rnorm))
+         else if (bmat .eq. 'I') then
+            rnorm = wsnrm2(n, resid, 1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          end if
 c 
 c        %-----------------------------------------------------------%
@@ -681,7 +762,11 @@ c
          call saxpy (j, one, workd(irj), 1, h(1,j), 1)
 c 
          orth2 = .true.
+<<<<<<< HEAD
          call second (t2)
+=======
+         call arscnd (t2)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          if (bmat .eq. 'G') then
             nbx = nbx + 1
             call scopy (n, resid, 1, workd(irj), 1)
@@ -705,7 +790,11 @@ c        | Back from reverse communication if ORTH2 = .true. |
 c        %---------------------------------------------------%
 c
          if (bmat .eq. 'G') then
+<<<<<<< HEAD
             call second (t3)
+=======
+            call arscnd (t3)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             tmvbx = tmvbx + (t3 - t2)
          end if
 c
@@ -714,10 +803,17 @@ c        | Compute the B-norm of the corrected residual r_{j}. |
 c        %-----------------------------------------------------%
 c 
          if (bmat .eq. 'G') then         
+<<<<<<< HEAD
              rnorm1 = sdot (n, resid, 1, workd(ipj), 1)
              rnorm1 = sqrt(abs(rnorm1))
          else if (bmat .eq. 'I') then
              rnorm1 = snrm2(n, resid, 1)
+=======
+             rnorm1 = wsdot (n, resid, 1, workd(ipj), 1)
+             rnorm1 = sqrt(abs(rnorm1))
+         else if (bmat .eq. 'I') then
+             rnorm1 = wsnrm2(n, resid, 1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          end if
 c
          if (msglvl .gt. 0 .and. iter .gt. 0) then
@@ -783,7 +879,11 @@ c
          rstart = .false.
          orth2  = .false.
 c 
+<<<<<<< HEAD
          call second (t5)
+=======
+         call arscnd (t5)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          titref = titref + (t5 - t4)
 c 
 c        %------------------------------------%
@@ -792,7 +892,11 @@ c        %------------------------------------%
 c
          j = j + 1
          if (j .gt. k+np) then
+<<<<<<< HEAD
             call second (t1)
+=======
+            call arscnd (t1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             tnaitr = tnaitr + (t1 - t0)
             ido = 99
             do 110 i = max(1,k), k+np-1
@@ -805,7 +909,11 @@ c              %--------------------------------------------%
 c     
                tst1 = abs( h( i, i ) ) + abs( h( i+1, i+1 ) )
                if( tst1.eq.zero )
+<<<<<<< HEAD
      &              tst1 = slanhs( '1', k+np, h, ldh, workd(n+1) )
+=======
+     &              tst1 = wslanhs( '1', k+np, h, ldh, workd(n+1) )
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                if( abs( h( i+1,i ) ).le.max( ulp*tst1, smlnum ) ) 
      &              h(i+1,i) = zero
  110        continue

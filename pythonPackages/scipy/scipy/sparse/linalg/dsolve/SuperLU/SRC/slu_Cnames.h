@@ -25,6 +25,7 @@
 #define ADD__      1
 #define NOCHANGE   2
 #define UPCASE     3
+<<<<<<< HEAD
 #define C_CALL     4
 
 #ifdef UpCase
@@ -41,11 +42,38 @@
 
 #ifdef Add__
 #define F77_CALL_C ADD__
+=======
+#define OLD_CRAY   4
+#define C_CALL     5
+
+#ifdef UpCase
+#define F77_CALL_C  UPCASE
+#endif
+
+#ifdef NoChange
+#define F77_CALL_C  NOCHANGE
+#endif
+
+#ifdef Add_
+#define F77_CALL_C  ADD_
+#endif
+
+#ifdef Add__
+#define F77_CALL_C  ADD__
+#endif
+
+#ifdef _CRAY
+#define F77_CALL_C  OLD_CRAY
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 #endif
 
 /* Default */
 #ifndef F77_CALL_C
+<<<<<<< HEAD
 #define F77_CALL_C ADD_
+=======
+#define F77_CALL_C  ADD_
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 #endif
 
 
@@ -99,7 +127,10 @@
 #define dnrm2_    dnrm2__
 #define dsymv_    dsymv__
 #define ddot_     ddot__
+<<<<<<< HEAD
 #define daxpy_    daxpy__
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 #define dsyr2_    dsyr2__
 #define drot_     drot__
 #define dgemv_    dgemv__
@@ -190,21 +221,22 @@
 
 #define dswap_    DSWAP
 #define daxpy_    DAXPY
-#define dasum_    SASUM
-#define idamax_   ISAMAX
-#define dcopy_    SCOPY
-#define dscal_    SSCAL
-#define dger_     SGER
-#define dnrm2_    SNRM2
-#define dsymv_    SSYMV
-#define ddot_     SDOT
-#define daxpy_    SAXPY
-#define dsyr2_    SSYR2
-#define drot_     SROT
-#define dgemv_    SGEMV
-#define dtrsv_    STRSV
-#define dgemm_    SGEMM
-#define dtrsm_    STRSM
+<<<<<<< HEAD
+=======
+#define dasum_    DASUM
+#define idamax_   IDAMAX
+#define dcopy_    DCOPY
+#define dscal_    DSCAL
+#define dger_     DGER
+#define dnrm2_    DNRM2
+#define dsymv_    DSYMV
+#define ddot_     DDOT
+#define dsyr2_    DSYR2
+#define drot_     DROT
+#define dgemv_    DGEMV
+#define dtrsv_    DTRSV
+#define dgemm_    DGEMM
+#define dtrsm_    DTRSM
 
 #define cswap_    CSWAP
 #define caxpy_    CAXPY
@@ -213,7 +245,6 @@
 #define ccopy_    CCOPY
 #define cscal_    CSCAL
 #define scnrm2_   SCNRM2
-#define caxpy_    CAXPY
 #define cgemv_    CGEMV
 #define ctrsv_    CTRSV
 #define cgemm_    CGEMM
@@ -229,7 +260,6 @@
 #define zcopy_    ZCOPY
 #define zscal_    ZSCAL
 #define dznrm2_   DZNRM2
-#define zaxpy_    ZAXPY
 #define zgemv_    ZGEMV
 #define ztrsv_    ZTRSV
 #define zgemm_    ZGEMM
@@ -260,6 +290,116 @@
 #define c_fortran_zgssv_ C_FORTRAN_ZGSSV
 #endif
 
+
+#if (F77_CALL_C == OLD_CRAY)
+/*
+ * These defines set up the naming scheme required to have a fortran 77
+ * routine call a C routine 
+ * following Fortran to C interface:
+ *           FORTRAN CALL               C DECLARATION
+ *           call dgemm(...)           void SGEMM(...)
+ */
+/* BLAS */
+#define sswap_    SSWAP
+#define saxpy_    SAXPY
+#define sasum_    SASUM
+#define isamax_   ISAMAX
+#define scopy_    SCOPY
+#define sscal_    SSCAL
+#define sger_     SGER
+#define snrm2_    SNRM2
+#define ssymv_    SSYMV
+#define sdot_     SDOT
+#define ssyr2_    SSYR2
+#define srot_     SROT
+#define sgemv_    SGEMV
+#define strsv_    STRSV
+#define sgemm_    SGEMM
+#define strsm_    STRSM
+
+#define dswap_    SSWAP
+#define daxpy_    SAXPY
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
+#define dasum_    SASUM
+#define idamax_   ISAMAX
+#define dcopy_    SCOPY
+#define dscal_    SSCAL
+#define dger_     SGER
+#define dnrm2_    SNRM2
+#define dsymv_    SSYMV
+#define ddot_     SDOT
+<<<<<<< HEAD
+#define daxpy_    SAXPY
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
+#define dsyr2_    SSYR2
+#define drot_     SROT
+#define dgemv_    SGEMV
+#define dtrsv_    STRSV
+#define dgemm_    SGEMM
+#define dtrsm_    STRSM
+
+#define cswap_    CSWAP
+#define caxpy_    CAXPY
+#define scasum_   SCASUM
+#define icamax_   ICAMAX
+#define ccopy_    CCOPY
+#define cscal_    CSCAL
+#define scnrm2_   SCNRM2
+#define caxpy_    CAXPY
+#define cgemv_    CGEMV
+#define ctrsv_    CTRSV
+#define cgemm_    CGEMM
+#define ctrsm_    CTRSM
+#define cgerc_    CGERC
+#define chemv_    CHEMV
+#define cher2_    CHER2
+
+#define zswap_    ZSWAP
+#define zaxpy_    ZAXPY
+#define dzasum_   DZASUM
+#define izamax_   IZAMAX
+#define zcopy_    ZCOPY
+#define zscal_    ZSCAL
+#define dznrm2_   DZNRM2
+<<<<<<< HEAD
+#define zaxpy_    ZAXPY
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
+#define zgemv_    ZGEMV
+#define ztrsv_    ZTRSV
+#define zgemm_    ZGEMM
+#define ztrsm_    ZTRSM
+#define zgerc_    ZGERC
+#define zhemv_    ZHEMV
+#define zher2_    ZHER2
+
+/* LAPACK */
+#define dlamch_   DLAMCH
+#define slamch_   SLAMCH
+#define xerbla_   XERBLA
+#define lsame_    LSAME
+#define dlacon_   DLACON
+#define slacon_   SLACON
+#define icmax1_   ICMAX1
+#define scsum1_   SCSUM1
+#define clacon_   CLACON
+#define dzsum1_   DZSUM1
+#define izmax1_   IZMAX1
+#define zlacon_   ZLACON
+
+/* Fortran interface */
+#define c_bridge_dgssv_ C_BRIDGE_DGSSV
+#define c_fortran_sgssv_ C_FORTRAN_SGSSV
+#define c_fortran_dgssv_ C_FORTRAN_DGSSV
+#define c_fortran_cgssv_ C_FORTRAN_CGSSV
+#define c_fortran_zgssv_ C_FORTRAN_ZGSSV
+#endif
+
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 #if (F77_CALL_C == NOCHANGE)
 /*
  * These defines set up the naming scheme required to have a fortran 77
@@ -297,7 +437,10 @@
 #define dnrm2_    dnrm2
 #define dsymv_    dsymv
 #define ddot_     ddot
+<<<<<<< HEAD
 #define daxpy_    daxpy
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 #define dsyr2_    dsyr2
 #define drot_     drot
 #define dgemv_    dgemv
@@ -312,7 +455,10 @@
 #define ccopy_    ccopy
 #define cscal_    cscal
 #define scnrm2_   scnrm2
+<<<<<<< HEAD
 #define caxpy_    caxpy
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 #define cgemv_    cgemv
 #define ctrsv_    ctrsv
 #define cgemm_    cgemm
@@ -328,7 +474,10 @@
 #define zcopy_    zcopy
 #define zscal_    zscal
 #define dznrm2_   dznrm2
+<<<<<<< HEAD
 #define zaxpy_    zaxpy
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 #define zgemv_    zgemv
 #define ztrsv_    ztrsv
 #define zgemm_    zgemm
@@ -359,4 +508,8 @@
 #define c_fortran_zgssv_ c_fortran_zgssv
 #endif
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 #endif /* __SUPERLU_CNAMES */

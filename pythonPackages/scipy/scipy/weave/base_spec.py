@@ -1,3 +1,9 @@
+<<<<<<< HEAD
+=======
+from __future__ import absolute_import, print_function
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class base_converter(object):
     """
         Properties:
@@ -29,6 +35,7 @@ class base_converter(object):
 
     def set_compiler(self,compiler):
         self.compiler = compiler
+<<<<<<< HEAD
     def type_match(self,value):
         raise NotImplementedError, "You must override method in derived class"
     def build_information(self):
@@ -41,6 +48,27 @@ class base_converter(object):
         return ""
     def cleanup_code(self):
         return ""
+=======
+
+    def type_match(self,value):
+        raise NotImplementedError("You must override method in derived class")
+
+    def build_information(self):
+        return self._build_information
+
+    def type_spec(self,name,value):
+        pass
+
+    def declaration_code(self,templatize=0):
+        return ""
+
+    def local_dict_code(self):
+        return ""
+
+    def cleanup_code(self):
+        return ""
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     def retrieve_py_variable(self,inline=0):
         # this needs a little coordination in name choices with the
         # ext_inline_function class.
@@ -52,6 +80,7 @@ class base_converter(object):
 
     def py_reference(self):
         return "&py_" + self.name
+<<<<<<< HEAD
     def py_pointer(self):
         return "*py_" + self.name
     def py_variable(self):
@@ -60,16 +89,40 @@ class base_converter(object):
         return "&" + self.name
     def pointer(self):
         return "*" + self.name
+=======
+
+    def py_pointer(self):
+        return "*py_" + self.name
+
+    def py_variable(self):
+        return "py_" + self.name
+
+    def reference(self):
+        return "&" + self.name
+
+    def pointer(self):
+        return "*" + self.name
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     def init_flag(self):
         return self.name + "_used"
 
     def variable(self):
         return self.name
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     def variable_as_string(self):
         return '"' + self.name + '"'
 
 import UserList
+<<<<<<< HEAD
 import base_info
+=======
+from . import base_info
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 class arg_spec_list(UserList.UserList):
     def build_information(self):
@@ -80,18 +133,38 @@ class arg_spec_list(UserList.UserList):
 
     def py_references(self):
         return map(lambda x: x.py_reference(),self)
+<<<<<<< HEAD
     def py_pointers(self):
         return map(lambda x: x.py_pointer(),self)
+=======
+
+    def py_pointers(self):
+        return map(lambda x: x.py_pointer(),self)
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     def py_variables(self):
         return map(lambda x: x.py_variable(),self)
 
     def references(self):
         return map(lambda x: x.py_reference(),self)
+<<<<<<< HEAD
     def pointers(self):
         return map(lambda x: x.pointer(),self)
     def variables(self):
         return map(lambda x: x.variable(),self)
     def init_flags(self):
         return map(lambda x: x.init_flag(),self)
+=======
+
+    def pointers(self):
+        return map(lambda x: x.pointer(),self)
+
+    def variables(self):
+        return map(lambda x: x.variable(),self)
+
+    def init_flags(self):
+        return map(lambda x: x.init_flag(),self)
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     def variable_as_strings(self):
         return map(lambda x: x.variable_as_string(),self)

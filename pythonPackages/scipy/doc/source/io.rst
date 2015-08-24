@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ==================================
 Input and output (:mod:`scipy.io`)
 ==================================
@@ -65,3 +66,11 @@ Netcdf (:mod:`scipy.io.netcdf`)
 
    netcdf_file
    netcdf_variable
+=======
+.. automodule:: scipy.io
+
+.. toctree::
+   :hidden:
+
+   scipy.io.arff
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

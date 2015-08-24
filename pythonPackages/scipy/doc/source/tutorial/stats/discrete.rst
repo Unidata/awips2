@@ -14,7 +14,11 @@ parameter: :math:`L.` The relationship between the general distribution
 .. math::
    :nowrap:
 
+<<<<<<< HEAD
     \[ p\left(x\right)=p_{0}\left(x-L\right)\]
+=======
+    p\left(x\right) = p_{0}\left(x-L\right)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 which allows for shifting of the input. When a distribution generator
 is initialized, the discrete distribution can either specify the
@@ -23,7 +27,11 @@ beginning and ending (integer) values :math:`a` and :math:`b` which must be such
 .. math::
    :nowrap:
 
+<<<<<<< HEAD
     \[ p_{0}\left(x\right)=0\quad x<a\textrm{ or }x>b\]
+=======
+    p_{0}\left(x\right) = 0\quad x < a \textrm{ or } x > b
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 in which case, it is assumed that the pdf function is specified on the
 integers :math:`a+mk\leq b` where :math:`k` is a non-negative integer ( :math:`0,1,2,\ldots` ) and :math:`m` is a positive integer multiplier. Alternatively, the two lists :math:`x_{k}` and :math:`p\left(x_{k}\right)` can be provided directly in which case a dictionary is set up
@@ -39,7 +47,11 @@ probability that the random variable takes on a particular value.
 .. math::
    :nowrap:
 
+<<<<<<< HEAD
     \[ p\left(x_{k}\right)=P\left[X=x_{k}\right]\]
+=======
+    p\left(x_{k}\right)=P\left[X=x_{k}\right]
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 This is also sometimes called the probability density function,
 although technically
@@ -47,18 +59,28 @@ although technically
 .. math::
    :nowrap:
 
+<<<<<<< HEAD
     \[ f\left(x\right)=\sum_{k}p\left(x_{k}\right)\delta\left(x-x_{k}\right)\]
 
 is the probability density function for a discrete distribution [#]_ .
 
 
 
+=======
+    f\left(x\right)=\sum_{k}p\left(x_{k}\right)\delta\left(x-x_{k}\right)
+
+is the probability density function for a discrete distribution [#]_ .
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 .. [#]
     XXX: Unknown layout Plain Layout: Note that we will be using :math:`p` to represent the probability mass function and a parameter (a
     XXX: probability). The usage should be obvious from context.
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 Cumulative Distribution Function (CDF)
 --------------------------------------
 
@@ -67,16 +89,24 @@ The cumulative distribution function is
 .. math::
    :nowrap:
 
+<<<<<<< HEAD
     \[ F\left(x\right)=P\left[X\leq x\right]=\sum_{x_{k}\leq x}p\left(x_{k}\right)\]
+=======
+    F\left(x\right)=P\left[X\leq x\right]=\sum_{x_{k}\leq x}p\left(x_{k}\right)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 and is also useful to be able to compute. Note that
 
 .. math::
    :nowrap:
 
+<<<<<<< HEAD
     \[ F\left(x_{k}\right)-F\left(x_{k-1}\right)=p\left(x_{k}\right)\]
 
 
+=======
+    F\left(x_{k}\right)-F\left(x_{k-1}\right)=p\left(x_{k}\right)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 Survival Function
@@ -87,10 +117,18 @@ The survival function is just
 .. math::
    :nowrap:
 
+<<<<<<< HEAD
     \[ S\left(x\right)=1-F\left(x\right)=P\left[X>k\right]\]
 
 the probability that the random variable is strictly larger than :math:`k` .
 
+=======
+    S\left(x\right)=1-F\left(x\right)=P\left[X>k\right]
+
+the probability that the random variable is strictly larger than :math:`k` .
+
+.. _discrete-ppf:
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 Percent Point Function (Inverse CDF)
 ------------------------------------
@@ -101,7 +139,11 @@ distribution function and is
 .. math::
    :nowrap:
 
+<<<<<<< HEAD
     \[ G\left(q\right)=F^{-1}\left(q\right)\]
+=======
+    G\left(q\right)=F^{-1}\left(q\right)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 for discrete distributions, this must be modified for cases where
 there is no :math:`x_{k}` such that :math:`F\left(x_{k}\right)=q.` In these cases we choose :math:`G\left(q\right)` to be the smallest value :math:`x_{k}=G\left(q\right)` for which :math:`F\left(x_{k}\right)\geq q` . If :math:`q=0` then we define :math:`G\left(0\right)=a-1` . This definition allows random variates to be defined in the same way
@@ -117,7 +159,11 @@ The inverse survival function is the inverse of the survival function
 .. math::
    :nowrap:
 
+<<<<<<< HEAD
     \[ Z\left(\alpha\right)=S^{-1}\left(\alpha\right)=G\left(1-\alpha\right)\]
+=======
+    Z\left(\alpha\right)=S^{-1}\left(\alpha\right)=G\left(1-\alpha\right)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 and is thus the smallest non-negative integer :math:`k` for which :math:`F\left(k\right)\geq1-\alpha` or the smallest non-negative integer :math:`k` for which :math:`S\left(k\right)\leq\alpha.`
 
@@ -131,16 +177,24 @@ could be defined as
 .. math::
    :nowrap:
 
+<<<<<<< HEAD
     \[ h\left(x_{k}\right)=\frac{p\left(x_{k}\right)}{1-F\left(x_{k}\right)}\]
+=======
+    h\left(x_{k}\right)=\frac{p\left(x_{k}\right)}{1-F\left(x_{k}\right)}
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 and
 
 .. math::
    :nowrap:
 
+<<<<<<< HEAD
     \[ H\left(x\right)=\sum_{x_{k}\leq x}h\left(x_{k}\right)=\sum_{x_{k}\leq x}\frac{F\left(x_{k}\right)-F\left(x_{k-1}\right)}{1-F\left(x_{k}\right)}.\]
 
 
+=======
+    H\left(x\right)=\sum_{x_{k}\leq x}h\left(x_{k}\right)=\sum_{x_{k}\leq x}\frac{F\left(x_{k}\right)-F\left(x_{k-1}\right)}{1-F\left(x_{k}\right)}.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 Moments
@@ -151,7 +205,11 @@ Non-central moments are defined using the PDF
 .. math::
    :nowrap:
 
+<<<<<<< HEAD
     \[ \mu_{m}^{\prime}=E\left[X^{m}\right]=\sum_{k}x_{k}^{m}p\left(x_{k}\right).\]
+=======
+    \mu_{m}^{\prime}=E\left[X^{m}\right]=\sum_{k}x_{k}^{m}p\left(x_{k}\right).
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 Central moments are computed similarly :math:`\mu=\mu_{1}^{\prime}`
 
@@ -165,28 +223,44 @@ The mean is the first moment
 .. math::
    :nowrap:
 
+<<<<<<< HEAD
     \[ \mu=\mu_{1}^{\prime}=E\left[X\right]=\sum_{k}x_{k}p\left(x_{k}\right)\]
+=======
+    \mu=\mu_{1}^{\prime}=E\left[X\right]=\sum_{k}x_{k}p\left(x_{k}\right)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 the variance is the second central moment
 
 .. math::
    :nowrap:
 
+<<<<<<< HEAD
     \[ \mu_{2}=E\left[\left(X-\mu\right)^{2}\right]=\sum_{x_{k}}x_{k}^{2}p\left(x_{k}\right)-\mu^{2}.\]
+=======
+    \mu_{2}=E\left[\left(X-\mu\right)^{2}\right]=\sum_{x_{k}}x_{k}^{2}p\left(x_{k}\right)-\mu^{2}.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 Skewness is defined as
 
 .. math::
    :nowrap:
 
+<<<<<<< HEAD
     \[ \gamma_{1}=\frac{\mu_{3}}{\mu_{2}^{3/2}}\]
+=======
+    \gamma_{1}=\frac{\mu_{3}}{\mu_{2}^{3/2}}
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 while (Fisher) kurtosis is
 
 .. math::
    :nowrap:
 
+<<<<<<< HEAD
     \[ \gamma_{2}=\frac{\mu_{4}}{\mu_{2}^{2}}-3,\]
+=======
+    \gamma_{2}=\frac{\mu_{4}}{\mu_{2}^{2}}-3,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 so that a normal distribution has a kurtosis of zero.
 
@@ -194,12 +268,20 @@ so that a normal distribution has a kurtosis of zero.
 Moment generating function
 --------------------------
 
+<<<<<<< HEAD
 The moment generating funtion is defined as
+=======
+The moment generating function is defined as
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 .. math::
    :nowrap:
 
+<<<<<<< HEAD
     \[ M_{X}\left(t\right)=E\left[e^{Xt}\right]=\sum_{x_{k}}e^{x_{k}t}p\left(x_{k}\right)\]
+=======
+    M_{X}\left(t\right)=E\left[e^{Xt}\right]=\sum_{x_{k}}e^{x_{k}t}p\left(x_{k}\right)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 Moments are found as the derivatives of the moment generating function
 evaluated at :math:`0.`
@@ -219,7 +301,11 @@ random vector :math:`\mathbf{k}` is
 .. math::
    :nowrap:
 
+<<<<<<< HEAD
     \[ f\left(\mathbf{k};\boldsymbol{\theta}\right)=\prod_{i=1}^{N}f_{i}\left(k_{i};\boldsymbol{\theta}\right).\]
+=======
+    f\left(\mathbf{k};\boldsymbol{\theta}\right)=\prod_{i=1}^{N}f_{i}\left(k_{i};\boldsymbol{\theta}\right).
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 The maximum likelihood estimate of the parameters :math:`\boldsymbol{\theta}` are the parameters which maximize this function with :math:`\mathbf{x}` fixed and given by the data:
 
@@ -236,8 +322,11 @@ Where
     \begin{eqnarray*} l_{\mathbf{k}}\left(\boldsymbol{\theta}\right) & = & -\sum_{i=1}^{N}\log f\left(k_{i};\boldsymbol{\theta}\right)\\  & = & -N\overline{\log f\left(k_{i};\boldsymbol{\theta}\right)}\end{eqnarray*}
 
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 Standard notation for mean
 --------------------------
 
@@ -246,7 +335,11 @@ We will use
 .. math::
    :nowrap:
 
+<<<<<<< HEAD
     \[ \overline{y\left(\mathbf{x}\right)}=\frac{1}{N}\sum_{i=1}^{N}y\left(x_{i}\right)\]
+=======
+    \overline{y\left(\mathbf{x}\right)}=\frac{1}{N}\sum_{i=1}^{N}y\left(x_{i}\right)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 where :math:`N` should be clear from context.
 
@@ -259,7 +352,11 @@ Note that
 .. math::
    :nowrap:
 
+<<<<<<< HEAD
     \[ k!=k\cdot\left(k-1\right)\cdot\left(k-2\right)\cdot\cdots\cdot1=\Gamma\left(k+1\right)\]
+=======
+    k!=k\cdot\left(k-1\right)\cdot\left(k-2\right)\cdot\cdots\cdot1=\Gamma\left(k+1\right)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 and has special cases of
 
@@ -273,11 +370,16 @@ and
 .. math::
    :nowrap:
 
+<<<<<<< HEAD
     \[ \left(\begin{array}{c} n\\ k\end{array}\right)=\frac{n!}{\left(n-k\right)!k!}.\]
+=======
+    \left(\begin{array}{c} n\\ k\end{array}\right)=\frac{n!}{\left(n-k\right)!k!}.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 If :math:`n<0` or :math:`k<0` or :math:`k>n` we define :math:`\left(\begin{array}{c} n\\ k\end{array}\right)=0`
 
 
+<<<<<<< HEAD
 Bernoulli
 =========
 
@@ -688,3 +790,23 @@ where :math:`G\left(0\right)\rightarrow\infty` and :math:`G\left(\infty\right)\r
    :nowrap:
 
     \[ G\left(\lambda\right)=\frac{1}{Z\left(\lambda\right)}\sum_{k=-\infty}^{\infty}k^{2}\exp\left[-\lambda\left(k+1\right)\left(k-1\right)\right]\]
+=======
+
+Discrete Distributions in `scipy.stats`
+---------------------------------------
+.. toctree::
+   :maxdepth: 1
+
+   discrete_bernoulli
+   discrete_binom
+   discrete_boltzmann
+   discrete_planck
+   discrete_poisson
+   discrete_geom
+   discrete_nbinom
+   discrete_hypergeom
+   discrete_zipf
+   discrete_logser
+   discrete_randint
+   discrete_dlaplace
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

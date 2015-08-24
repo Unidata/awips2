@@ -92,17 +92,30 @@ c     pp 357-385.
 c
 c\Routines called:
 c     ivout   ARPACK utility routine that prints integers.
+<<<<<<< HEAD
 c     second  ARPACK utility routine for timing.
 c     cmout   ARPACK utility routine that prints matrices
 c     cvout   ARPACK utility routine that prints vectors.
 c     clacpy  LAPACK matrix copy routine.
 c     clanhs  LAPACK routine that computes various norms of a matrix.
+=======
+c     arscnd  ARPACK utility routine for timing.
+c     cmout   ARPACK utility routine that prints matrices
+c     cvout   ARPACK utility routine that prints vectors.
+c     clacpy  LAPACK matrix copy routine.
+c     wclanhs  LAPACK routine that computes various norms of a matrix.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c     clartg  LAPACK Givens rotation construction routine.
 c     claset  LAPACK matrix initialization routine.
 c     slabad  LAPACK routine for defining the underflow and overflow
 c             limits.
+<<<<<<< HEAD
 c     slamch  LAPACK routine that determines machine constants.
 c     slapy2  LAPACK routine to compute sqrt(x**2+y**2) carefully.
+=======
+c     wslamch  LAPACK routine that determines machine constants.
+c     wslapy2  LAPACK routine to compute sqrt(x**2+y**2) carefully.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c     cgemv   Level 2 BLAS routine for matrix vector multiplication.
 c     caxpy   Level 1 BLAS that computes a vector triad.
 c     ccopy   Level 1 BLAS that copies one vector to another.
@@ -184,15 +197,24 @@ c     | External Subroutines |
 c     %----------------------%
 c
       external   caxpy, ccopy, cgemv, cscal, clacpy, clartg, 
+<<<<<<< HEAD
      &           cvout, claset, slabad, cmout, second, ivout
+=======
+     &           cvout, claset, slabad, cmout, arscnd, ivout
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %--------------------%
 c     | External Functions |
 c     %--------------------%
 c
       Real                 
+<<<<<<< HEAD
      &           clanhs, slamch, slapy2
       external   clanhs, slamch, slapy2
+=======
+     &           wclanhs, wslamch, wslapy2
+      external   wclanhs, wslamch, wslapy2
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %----------------------%
 c     | Intrinsics Functions |
@@ -227,10 +249,17 @@ c        | overflow should not occur.                    |
 c        | REFERENCE: LAPACK subroutine clahqr           |
 c        %-----------------------------------------------%
 c
+<<<<<<< HEAD
          unfl = slamch( 'safe minimum' )
          ovfl = real(one / unfl)
          call slabad( unfl, ovfl )
          ulp = slamch( 'precision' )
+=======
+         unfl = wslamch( 'safe minimum' )
+         ovfl = real(one / unfl)
+         call slabad( unfl, ovfl )
+         ulp = wslamch( 'precision' )
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          smlnum = unfl*( n / ulp )
          first = .false.
       end if
@@ -240,7 +269,11 @@ c     | Initialize timing statistics  |
 c     | & message level for debugging |
 c     %-------------------------------%
 c
+<<<<<<< HEAD
       call second (t0)
+=======
+      call arscnd (t0)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       msglvl = mcapps
 c 
       kplusp = kev + np 
@@ -287,7 +320,11 @@ c           %----------------------------------------%
 c
             tst1 = cabs1( h( i, i ) ) + cabs1( h( i+1, i+1 ) )
             if( tst1.eq.rzero )
+<<<<<<< HEAD
      &         tst1 = clanhs( '1', kplusp-jj+1, h, ldh, workl )
+=======
+     &         tst1 = wclanhs( '1', kplusp-jj+1, h, ldh, workl )
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             if ( abs(real(h(i+1,i))) 
      &           .le. max(ulp*tst1, smlnum) )  then
                if (msglvl .gt. 0) then
@@ -406,7 +443,11 @@ c
       do 120 j=1,kev
          if ( real( h(j+1,j) ) .lt. rzero .or.
      &        aimag( h(j+1,j) ) .ne. rzero ) then
+<<<<<<< HEAD
             t = h(j+1,j) / slapy2(real(h(j+1,j)),aimag(h(j+1,j)))
+=======
+            t = h(j+1,j) / wslapy2(real(h(j+1,j)),aimag(h(j+1,j)))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             call cscal( kplusp-j+1, conjg(t), h(j+1,j), ldh )
             call cscal( min(j+2, kplusp), t, h(1,j+1), 1 )
             call cscal( min(j+np+1,kplusp), t, q(1,j+1), 1 )
@@ -427,7 +468,11 @@ c        %--------------------------------------------%
 c
          tst1 = cabs1( h( i, i ) ) + cabs1( h( i+1, i+1 ) )
          if( tst1 .eq. rzero )
+<<<<<<< HEAD
      &       tst1 = clanhs( '1', kev, h, ldh, workl )
+=======
+     &       tst1 = wclanhs( '1', kev, h, ldh, workl )
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          if( real( h( i+1,i ) ) .le. max( ulp*tst1, smlnum ) ) 
      &       h(i+1,i) = zero
  130  continue
@@ -495,7 +540,11 @@ c
       end if
 c
  9000 continue
+<<<<<<< HEAD
       call second (t1)
+=======
+      call arscnd (t1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       tcapps = tcapps + (t1 - t0)
 c 
       return

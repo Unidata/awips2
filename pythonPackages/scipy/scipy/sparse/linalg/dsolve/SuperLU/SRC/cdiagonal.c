@@ -95,7 +95,11 @@ int cdominate(int n, NCformat *Astore)
 	    {
 		if ((rowind_new[j + fill] = rowind[j]) == i) diag = j;
                 nzval_new[j + fill] = nzval[j];
+<<<<<<< HEAD
 		s += slu_c_abs1(&nzval_new[j + fill]);
+=======
+		s += c_abs1(&nzval_new[j + fill]);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	    }
 	    if (diag >= 0) {
 		nzval_new[diag+fill].r = s * 3.0;
@@ -122,7 +126,11 @@ int cdominate(int n, NCformat *Astore)
 	    for (j = colptr[i]; j < colptr[i + 1]; j++)
 	    {
 		if (rowind[j] == i) diag = j;
+<<<<<<< HEAD
 		s += slu_c_abs1(&nzval[j]);
+=======
+		s += c_abs1(&nzval[j]);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	    }
 	    nzval[diag].r = s * 3.0;
 	    nzval[diag].i = 0.0;

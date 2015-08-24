@@ -228,10 +228,18 @@ c
 c           solve the tridiagonal system by means of gaussian
 c           elimination with partial pivoting.
 c
+<<<<<<< HEAD
 c***        call to dgtsl must be replaced by call to
 c***        double precision version of linpack routine sgtsl
 c
       call dgtsl(noequ,d1,d,d2,v(4),iers)
+=======
+c***        call to dgtsl has been replaced by call to
+c***        lapack routine dgtsv
+c
+c      call dgtsl(noequ,d1,d,d2,v(4),iers)
+      call dgtsv(noequ,1,d1(2),d,d2,v(4),noequ,iers)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       go to 50
 c
 c           compute the chebyshev moments by means of forward
@@ -285,10 +293,18 @@ c
 c           solve the tridiagonal system by means of gaussian
 c           elimination with partial pivoting.
 c
+<<<<<<< HEAD
 c***        call to dgtsl must be replaced by call to
 c***        double precision version of linpack routine sgtsl
 c
       call dgtsl(noequ,d1,d,d2,v(3),iers)
+=======
+c***        call to dgtsl has been replaced by call to
+c***        lapack routine dgtsv
+c
+c      call dgtsl(noequ,d1,d,d2,v(3),iers)
+      call dgtsv(noequ,1,d1(2),d,d2,v(3),noequ,iers)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       go to 100
 c
 c           compute the chebyshev moments by means of forward recursion.

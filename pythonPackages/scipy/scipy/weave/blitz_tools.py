@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import parser
 import sys
 import ast_tools
@@ -13,6 +14,32 @@ from inline_tools import attempt_function_call
 function_catalog = inline_tools.function_catalog
 function_cache = inline_tools.function_cache
 
+=======
+from __future__ import absolute_import, print_function
+
+import parser
+import sys
+import warnings
+import copy
+
+import numpy
+
+from . import ast_tools
+from . import slice_handler
+from . import size_check
+from . import converters
+from . import inline_tools
+from .inline_tools import attempt_function_call
+function_catalog = inline_tools.function_catalog
+function_cache = inline_tools.function_cache
+
+
+class BlitzWarning(UserWarning):
+    """Warns about compilation failures etc."""
+    pass
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def blitz(expr,local_dict=None, global_dict=None,check_size=1,verbose=0,**kw):
     # this could call inline, but making a copy of the
     # code here is more efficient for several reasons.
@@ -32,10 +59,14 @@ def blitz(expr,local_dict=None, global_dict=None,check_size=1,verbose=0,**kw):
     #    of time.  It also can cause core-dumps if the sizes of the inputs
     #    aren't compatible.
     if check_size and not size_check.check_expr(expr,local_dict,global_dict):
+<<<<<<< HEAD
         if sys.version_info < (2, 6):
             raise "inputs failed to pass size check."
         else:
             raise ValueError("inputs failed to pass size check.")
+=======
+        raise ValueError("inputs failed to pass size check.")
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     # 2. try local cache
     try:
@@ -54,6 +85,7 @@ def blitz(expr,local_dict=None, global_dict=None,check_size=1,verbose=0,**kw):
         expr_code = ast_to_blitz_expr(ast_list)
         arg_names = ast_tools.harvest_variables(ast_list)
         module_dir = global_dict.get('__file__',None)
+<<<<<<< HEAD
         #func = inline_tools.compile_function(expr_code,arg_names,
         #                                    local_dict,global_dict,
         #                                    module_dir,auto_downcast = 1)
@@ -62,11 +94,19 @@ def blitz(expr,local_dict=None, global_dict=None,check_size=1,verbose=0,**kw):
                                              compiler='gcc',auto_downcast=1,
                                              verbose = verbose,
                                              type_converters = converters.blitz,
+=======
+        func = inline_tools.compile_function(expr_code,arg_names,local_dict,
+                                             global_dict,module_dir,
+                                             compiler='gcc',auto_downcast=1,
+                                             verbose=verbose,
+                                             type_converters=converters.blitz,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                                              **kw)
         function_catalog.add_function(expr,func,module_dir)
         try:
             results = attempt_function_call(expr,local_dict,global_dict)
         except ValueError:
+<<<<<<< HEAD
             print 'warning: compilation failed. Executing as python code'
             exec expr in global_dict, local_dict
 
@@ -74,6 +114,15 @@ def ast_to_blitz_expr(ast_seq):
     """ Convert an ast_sequence to a blitz expression.
     """
 
+=======
+            warnings.warn('compilation failed. Executing as python code',
+                          BlitzWarning)
+            exec(expr, global_dict, local_dict)
+
+
+def ast_to_blitz_expr(ast_seq):
+    """Convert an ast_sequence to a blitz expression."""
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     # Don't overwrite orignal sequence in call to transform slices.
     ast_seq = copy.deepcopy(ast_seq)
     slice_handler.transform_slices(ast_seq)
@@ -93,11 +142,19 @@ def ast_to_blitz_expr(ast_seq):
     # be included in the generated code.
     # These could all alternatively be done to the ast in
     # build_slice_atom()
+<<<<<<< HEAD
     expr = expr.replace('slice(_beg,_end)', '_all' )
     expr = expr.replace('slice', 'blitz::Range' )
     expr = expr.replace('[','(')
     expr = expr.replace(']', ')' )
     expr = expr.replace('_stp', '1' )
+=======
+    expr = expr.replace('slice(_beg,_end)', '_all')
+    expr = expr.replace('slice', 'blitz::Range')
+    expr = expr.replace('[','(')
+    expr = expr.replace(']', ')')
+    expr = expr.replace('_stp', '1')
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     # Instead of blitz::fromStart and blitz::toEnd.  This requires
     # the following in the generated code.
@@ -107,6 +164,7 @@ def ast_to_blitz_expr(ast_seq):
     #expr = expr.replace('_end', 'blitz::toEnd' )
 
     return expr + ';\n'
+<<<<<<< HEAD
 
 def test_function():
     expr = "ex[:,1:,1:] = k +  ca_x[:,1:,1:] * ex[:,1:,1:]" \
@@ -122,3 +180,5 @@ def test_function():
     hz = numpy.ones((1,1,1),dtype=numpy.float32)
     hy = numpy.ones((1,1,1),dtype=numpy.float32)
     blitz(expr)
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

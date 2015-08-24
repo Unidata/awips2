@@ -39,7 +39,11 @@ c
 c\BeginLib
 c
 c\Routines called:
+<<<<<<< HEAD
 c     slapy2  LAPACK routine to compute sqrt(x**2+y**2) carefully.
+=======
+c     wslapy2  LAPACK routine to compute sqrt(x**2+y**2) carefully.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c\Author
 c     Danny Sorensen               Phuong Vu
@@ -90,7 +94,11 @@ c     | External functions |
 c     %--------------------%
 c
       Real
+<<<<<<< HEAD
      &           slapy2
+=======
+     &           wslapy2
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %--------------------%
 c     | Intrinsic Functions |
@@ -119,8 +127,13 @@ c
 c
             if (j.lt.0) go to 30
 c
+<<<<<<< HEAD
             temp1 = slapy2(real(x(j)),aimag(x(j)))
             temp2 = slapy2(real(x(j+igap)),aimag(x(j+igap)))
+=======
+            temp1 = wslapy2(real(x(j)),aimag(x(j)))
+            temp2 = wslapy2(real(x(j+igap)),aimag(x(j+igap)))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
             if (temp1.gt.temp2) then
                 temp = x(j)
@@ -156,8 +169,13 @@ c
 c
             if (j .lt. 0) go to 60
 c
+<<<<<<< HEAD
             temp1 = slapy2(real(x(j)),aimag(x(j)))
             temp2 = slapy2(real(x(j+igap)),aimag(x(j+igap)))
+=======
+            temp1 = wslapy2(real(x(j)),aimag(x(j)))
+            temp2 = wslapy2(real(x(j+igap)),aimag(x(j+igap)))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
             if (temp1.lt.temp2) then
                temp = x(j)

@@ -4,6 +4,10 @@
 # it has been hand edited for brevity.
 #
 # Prabhu Ramachandran <prabhu_r@users.sf.net>
+<<<<<<< HEAD
+=======
+from __future__ import absolute_import, print_function
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 ######################################################################
 # This is for SWIG-1.3.x where x < 22.
@@ -1454,7 +1458,11 @@ SWIG_Python_MustGetPtr(PyObject *obj, swig_type_info *ty, int argnum, int flags)
   return result;
 }
 
+<<<<<<< HEAD
 /* Convert a packed value value */
+=======
+/* Convert a packed value */
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 SWIGRUNTIME int
 SWIG_Python_ConvertPacked(PyObject *obj, void *ptr, size_t sz, swig_type_info *ty, int flags) {
   swig_type_info *tc;
@@ -2793,7 +2801,11 @@ SWIG_Python_MustGetPtr(PyObject *obj, swig_type_info *ty, int argnum, int flags)
   return result;
 }
 
+<<<<<<< HEAD
 /* Convert a packed value value */
+=======
+/* Convert a packed value */
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 SWIGRUNTIME int
 SWIG_Python_ConvertPacked(PyObject *obj, void *ptr, size_t sz, swig_type_info *ty, int flags) {
   swig_cast_info *tc;
@@ -5031,7 +5043,11 @@ SWIG_Python_ConvertFunctionPtr(PyObject *obj, void **ptr, swig_type_info *ty) {
   }
 }
 
+<<<<<<< HEAD
 /* Convert a packed value value */
+=======
+/* Convert a packed value */
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 SWIGRUNTIME int
 SWIG_Python_ConvertPacked(PyObject *obj, void *ptr, size_t sz, swig_type_info *ty) {

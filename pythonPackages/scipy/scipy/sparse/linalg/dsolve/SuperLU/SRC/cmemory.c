@@ -215,7 +215,11 @@ cLUMemInit(fact_t fact, void *work, int lwork, int m, int n, int annz,
 	}
 	
 #if ( PRNTlevel >= 1 )
+<<<<<<< HEAD
 	printf("cLUMemInit() called: fill_ratio %ld, nzlmax %ld, nzumax %ld\n", 
+=======
+	printf("cLUMemInit() called: fill_ratio %.0f, nzlmax %ld, nzumax %ld\n", 
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	       fill_ratio, nzlmax, nzumax);
 	fflush(stdout);
 #endif	
@@ -332,7 +336,11 @@ cLUWorkInit(int m, int n, int panel_size, int **iworkptr,
 {
     int    isize, dsize, extra;
     complex *old_ptr;
+<<<<<<< HEAD
     int    maxsuper = sp_ienv(3),
+=======
+    int    maxsuper = SUPERLU_MAX( sp_ienv(3), sp_ienv(7) ),
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
            rowblk   = sp_ienv(4);
 
     isize = ( (2 * panel_size + 3 + NO_MARKER ) * m + n ) * sizeof(int);
@@ -381,7 +389,11 @@ cSetRWork(int m, int panel_size, complex *dworkptr,
 {
     complex zero = {0.0, 0.0};
 
+<<<<<<< HEAD
     int maxsuper = sp_ienv(3),
+=======
+    int maxsuper = SUPERLU_MAX( sp_ienv(3), sp_ienv(7) ),
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         rowblk   = sp_ienv(4);
     *dense = dworkptr;
     *tempv = *dense + panel_size*m;

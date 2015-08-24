@@ -262,7 +262,11 @@ c     | External Subroutines |
 c     %----------------------%
 c
       external   daxpy, dcopy, dscal, dgemv, dgetv0, dvout, dmout,
+<<<<<<< HEAD
      &           dlascl, ivout, second
+=======
+     &           dlascl, ivout, arscnd
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %--------------------%
 c     | External Functions |
@@ -300,7 +304,11 @@ c        | Initialize timing statistics  |
 c        | & message level for debugging |
 c        %-------------------------------%
 c
+<<<<<<< HEAD
          call second (t0)
+=======
+         call arscnd (t0)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          msglvl = msaitr
 c 
 c        %------------------------------%
@@ -420,7 +428,11 @@ c              | which spans OP and exit.                       |
 c              %------------------------------------------------%
 c
                info = j - 1
+<<<<<<< HEAD
                call second (t1)
+=======
+               call arscnd (t1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                tsaitr = tsaitr + (t1 - t0)
                ido = 99
                go to 9000
@@ -460,7 +472,11 @@ c        %------------------------------------------------------%
 c
          step3 = .true.
          nopx  = nopx + 1
+<<<<<<< HEAD
          call second (t2)
+=======
+         call arscnd (t2)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          call dcopy (n, v(1,j), 1, workd(ivj), 1)
          ipntr(1) = ivj
          ipntr(2) = irj
@@ -479,7 +495,11 @@ c        | Back from reverse communication;  |
 c        | WORKD(IRJ:IRJ+N-1) := OP*v_{j}.   |
 c        %-----------------------------------%
 c
+<<<<<<< HEAD
          call second (t3)
+=======
+         call arscnd (t3)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          tmvopx = tmvopx + (t3 - t2)
 c 
          step3 = .false.
@@ -500,7 +520,11 @@ c        | assumed to have A*v_{j}.                  |
 c        %-------------------------------------------%
 c
          if (mode .eq. 2) go to 65
+<<<<<<< HEAD
          call second (t2)
+=======
+         call arscnd (t2)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          if (bmat .eq. 'G') then
             nbx = nbx + 1
             step4 = .true.
@@ -524,7 +548,11 @@ c        | WORKD(IPJ:IPJ+N-1) := B*OP*v_{j}. |
 c        %-----------------------------------%
 c
          if (bmat .eq. 'G') then
+<<<<<<< HEAD
             call second (t3)
+=======
+            call arscnd (t3)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             tmvbx = tmvbx + (t3 - t2)
          end if 
 c
@@ -592,12 +620,20 @@ c
          else
             h(j,1) = rnorm
          end if
+<<<<<<< HEAD
          call second (t4)
+=======
+         call arscnd (t4)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c 
          orth1 = .true.
          iter  = 0
 c 
+<<<<<<< HEAD
          call second (t2)
+=======
+         call arscnd (t2)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          if (bmat .eq. 'G') then
             nbx = nbx + 1
             call dcopy (n, resid, 1, workd(irj), 1)
@@ -621,7 +657,11 @@ c        | WORKD(IPJ:IPJ+N-1) := B*r_{j}.                    |
 c        %---------------------------------------------------%
 c
          if (bmat .eq. 'G') then
+<<<<<<< HEAD
             call second (t3)
+=======
+            call arscnd (t3)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             tmvbx = tmvbx + (t3 - t2)
          end if
 c 
@@ -695,7 +735,11 @@ c
          h(j,2) = h(j,2) + workd(irj + j - 1)
 c 
          orth2 = .true.
+<<<<<<< HEAD
          call second (t2)
+=======
+         call arscnd (t2)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          if (bmat .eq. 'G') then
             nbx = nbx + 1
             call dcopy (n, resid, 1, workd(irj), 1)
@@ -719,7 +763,11 @@ c        | Back from reverse communication if ORTH2 = .true. |
 c        %---------------------------------------------------%
 c
          if (bmat .eq. 'G') then
+<<<<<<< HEAD
             call second (t3)
+=======
+            call arscnd (t3)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             tmvbx = tmvbx + (t3 - t2)
          end if
 c
@@ -791,7 +839,11 @@ c
          rstart = .false.
          orth2  = .false.
 c 
+<<<<<<< HEAD
          call second (t5)
+=======
+         call arscnd (t5)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          titref = titref + (t5 - t4)
 c 
 c        %----------------------------------------------------------%
@@ -815,7 +867,11 @@ c        %------------------------------------%
 c
          j = j + 1
          if (j .gt. k+np) then
+<<<<<<< HEAD
             call second (t1)
+=======
+            call arscnd (t1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             tsaitr = tsaitr + (t1 - t0)
             ido = 99
 c

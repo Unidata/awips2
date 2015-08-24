@@ -22,6 +22,17 @@ fsolve_result_t false_position(double *a, double *fa, double *b, double *fb,
 
 double besselpoly(double a, double lambda, double nu);
 double gammaincinv(double a, double x);
+<<<<<<< HEAD
+=======
+double gammasgn(double x);
+double poch(double x, double m);
+
+double struve_h(double v, double x);
+double struve_l(double v, double x);
+double struve_power_series(double v, double x, int is_h, double *err);
+double struve_asymp_large_z(double v, double z, int is_h, double *err);
+double struve_bessel_series(double v, double z, int is_h, double *err);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 #define gammaincinv_doc """gammaincinv(a, y) returns x such that gammainc(a, x) = y."""
 
