@@ -728,6 +728,10 @@ c   restore Lagrange multipliers
           CALL dcopy_ (n3, w(iw+m+n), 1, y(m+n3+1), 1)
 
       ENDIF
+<<<<<<< HEAD
+=======
+      call bound(n, x, xl, xu)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 C   END OF SUBROUTINE LSQ
 
@@ -2110,3 +2114,18 @@ C        CLEAN-UP LOOP
    50 CONTINUE
       RETURN
       END
+<<<<<<< HEAD
+=======
+
+      subroutine bound(n, x, xl, xu)
+      integer n, i
+      double precision x(n), xl(n), xu(n)
+      do i = 1, n
+         if(x(i) < xl(i))then
+            x(i) = xl(i)
+         else if(x(i) > xu(i))then
+            x(i) = xu(i)
+         end if
+      end do
+      end subroutine bound
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

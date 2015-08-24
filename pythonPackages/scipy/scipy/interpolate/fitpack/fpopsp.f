@@ -55,7 +55,11 @@ c  ..array arguments..
      *,
      * wrk(lwrk),step(2)
 c  ..local scalars..
+<<<<<<< HEAD
       real*8 res,sq,sqq,sq0,sq1,step1,step2,three
+=======
+      real*8 sq,sqq,sq0,sq1,step1,step2,three
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       integer i,id0,iop0,iop1,i1,j,l,lau,lav1,lav2,la0,la1,lbu,lbv,lb0,
      * lb1,lc0,lc1,lcs,lq,lri,lsu,lsv,l1,l2,mm,mvnu,number
 c  ..local arrays..

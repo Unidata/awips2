@@ -867,6 +867,10 @@ C ----- COMPUTE PLACE OF II-TH COMPONENT
    5  CONTINUE
       IF (I.EQ.0) THEN
          WRITE (6,*) ' NO DENSE OUTPUT AVAILABLE FOR COMP.',II 
+<<<<<<< HEAD
+=======
+         CONTD8=-1
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          RETURN
       END IF  
       S=(X-XOLD)/H

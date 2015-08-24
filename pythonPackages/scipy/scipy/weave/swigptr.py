@@ -1,4 +1,8 @@
 # swigptr.py
+<<<<<<< HEAD
+=======
+from __future__ import absolute_import, print_function
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 swigptr_code = """
 

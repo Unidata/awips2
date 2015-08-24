@@ -37,6 +37,10 @@ Copyright (c) 2004, Prabhu Ramachandran
 License: BSD Style.
 
 """
+<<<<<<< HEAD
+=======
+from __future__ import absolute_import, print_function
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 import scipy.weave as weave
 import vtk
@@ -60,9 +64,15 @@ def simple_test():
 
     a = vtk.vtkStructuredPoints()
     a.SetOrigin(1.0, 1.0, 1.0)
+<<<<<<< HEAD
     print "sys.getrefcount(a) = ", sys.getrefcount(a)
 
     code=r"""
+=======
+    print("sys.getrefcount(a) = ", sys.getrefcount(a))
+
+    code = r"""
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     printf("a->ClassName() == %s\n", a->GetClassName());
     printf("a->GetReferenceCount() == %d\n", a->GetReferenceCount());
     double *origin = a->GetOrigin();
@@ -70,7 +80,11 @@ def simple_test():
     """
     weave.inline(code, ['a'], include_dirs=inc_dirs, library_dirs=lib_dirs)
 
+<<<<<<< HEAD
     print "sys.getrefcount(a) = ", sys.getrefcount(a)
+=======
+    print("sys.getrefcount(a) = ", sys.getrefcount(a))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 def array_test():
@@ -81,14 +95,22 @@ def array_test():
 
     # Create a large numpy array.
     arr = numpy.arange(0, 10, 0.0001, 'f')
+<<<<<<< HEAD
     print "Number of elements in array = ", arr.shape[0]
+=======
+    print("Number of elements in array = ", arr.shape[0])
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     # Copy it into a vtkFloatArray and time the process.
     v_arr = vtk.vtkFloatArray()
     ts = time.clock()
     for i in range(arr.shape[0]):
         v_arr.InsertNextValue(arr[i])
+<<<<<<< HEAD
     print "Time taken to do it in pure Python =", time.clock() - ts
+=======
+    print("Time taken to do it in pure Python =", time.clock() - ts)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     # Now do the same thing using weave.inline
     v_arr = vtk.vtkFloatArray()
@@ -101,6 +123,7 @@ def array_test():
     # Note the use of the include_dirs and library_dirs.
     weave.inline(code, ['arr', 'v_arr'], include_dirs=inc_dirs,
                  library_dirs=lib_dirs)
+<<<<<<< HEAD
     print "Time taken to do it using Weave =", time.clock() - ts
 
     # Test the data to make certain that we have done it right.
@@ -109,6 +132,16 @@ def array_test():
         val = (v_arr.GetValue(i) -arr[i] )
         assert (val < 1e-6), "i = %d, val= %f"%(i, val)
     print "OK."
+=======
+    print("Time taken to do it using Weave =", time.clock() - ts)
+
+    # Test the data to make certain that we have done it right.
+    print("Checking data.")
+    for i in range(v_arr.GetNumberOfTuples()):
+        val = (v_arr.GetValue(i) - arr[i])
+        assert (val < 1e-6), "i = %d, val= %f" % (i, val)
+    print("OK.")
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 if __name__ == "__main__":

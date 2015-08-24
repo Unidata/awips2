@@ -4,9 +4,15 @@
  * and drop some small entries
  *
  * <pre>
+<<<<<<< HEAD
  * -- SuperLU routine (version 4.0) --
  * Lawrence Berkeley National Laboratory
  * June 30, 2009
+=======
+ * -- SuperLU routine (version 4.1) --
+ * Lawrence Berkeley National Laboratory
+ * November, 2010
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
  * </pre>
  */
 
@@ -16,6 +22,12 @@
 int num_drop_U;
 #endif
 
+<<<<<<< HEAD
+=======
+extern void dcopy_(int *, double [], int *, double [], int *);
+
+#if 0
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 static double *A;  /* used in _compare_ only */
 static int _compare_(const void *a, const void *b)
 {
@@ -25,7 +37,11 @@ static int _compare_(const void *a, const void *b)
     else if (xx < yy) return 1;
     else return 0;
 }
+<<<<<<< HEAD
 
+=======
+#endif
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 int
 ilu_dcopy_to_ucol(
@@ -42,7 +58,11 @@ ilu_dcopy_to_ucol(
 	      double	 *sum,	   /* out - the sum of dropped entries */
 	      int	 *nnzUj,   /* in - out */
 	      GlobalLU_t *Glu,	   /* modified */
+<<<<<<< HEAD
 	      int	 *work	   /* working space with minimum size n,
+=======
+	      double	 *work	   /* working space with minimum size n,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 				    * used by the second dropping rule */
 	      )
 {
@@ -63,6 +83,10 @@ ilu_dcopy_to_ucol(
     register double d_max = 0.0, d_min = 1.0 / dlamch_("Safe minimum");
     register double tmp;
     double zero = 0.0;
+<<<<<<< HEAD
+=======
+    int i_1 = 1;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     xsup    = Glu->xsup;
     supno   = Glu->supno;
@@ -157,10 +181,20 @@ ilu_dcopy_to_ucol(
 		d_max = 1.0 / d_max; d_min = 1.0 / d_min;
 		tol = 1.0 / (d_max + (d_min - d_max) * quota / m);
 	    } else {
+<<<<<<< HEAD
+=======
+		dcopy_(&m, &ucol[xusub[jcol]], &i_1, work, &i_1);
+		tol = dqselect(m, work, quota);
+#if 0
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 		A = &ucol[xusub[jcol]];
 		for (i = 0; i < m; i++) work[i] = i;
 		qsort(work, m, sizeof(int), _compare_);
 		tol = fabs(usub[xusub[jcol] + work[quota]]);
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 	    }
 	}
 	for (i = xusub[jcol]; i <= m0; ) {

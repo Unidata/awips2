@@ -63,7 +63,11 @@ c
 c\Routines called:
 c     dlaqrb  ARPACK routine to compute the real Schur form of an
 c             upper Hessenberg matrix and last row of the Schur vectors.
+<<<<<<< HEAD
 c     second  ARPACK utility routine for timing.
+=======
+c     arscnd  ARPACK utility routine for timing.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c     dmout   ARPACK utility routine that prints matrices
 c     dvout   ARPACK utility routine that prints vectors.
 c     dlacpy  LAPACK matrix copy routine.
@@ -144,7 +148,11 @@ c     %----------------------%
 c     | External Subroutines |
 c     %----------------------%
 c
+<<<<<<< HEAD
       external   dcopy, dlacpy, dlaqrb, dtrevc, dvout, second
+=======
+      external   dcopy, dlacpy, dlaqrb, dtrevc, dvout, arscnd
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %--------------------%
 c     | External Functions |
@@ -170,7 +178,11 @@ c     | Initialize timing statistics  |
 c     | & message level for debugging |
 c     %-------------------------------%
 c
+<<<<<<< HEAD
       call second (t0)
+=======
+      call arscnd (t0)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       msglvl = mneigh
 c 
       if (msglvl .gt. 2) then
@@ -301,7 +313,11 @@ c
      &              '_neigh: Ritz estimates for the eigenvalues of H')
       end if
 c
+<<<<<<< HEAD
       call second (t1)
+=======
+      call arscnd (t1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       tneigh = tneigh + (t1 - t0)
 c
  9000 continue

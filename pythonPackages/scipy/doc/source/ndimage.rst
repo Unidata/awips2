@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 =========================================================
 Multi-dimensional image processing (:mod:`scipy.ndimage`)
 =========================================================
@@ -120,3 +121,6 @@ Morphology :mod:`scipy.ndimage.morphology`
    morphological_gradient
    morphological_laplace
    white_tophat
+=======
+.. automodule:: scipy.ndimage
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

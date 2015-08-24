@@ -64,7 +64,11 @@ c     xxxxxx  Complex*16
 c
 c\Routines called:
 c     ivout   ARPACK utility routine that prints integers.
+<<<<<<< HEAD
 c     second  ARPACK utility routine for timing.
+=======
+c     arscnd  ARPACK utility routine for timing.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c     zmout   ARPACK utility routine that prints matrices
 c     zvout   ARPACK utility routine that prints vectors.
 c     dvout   ARPACK utility routine that prints vectors.
@@ -152,7 +156,11 @@ c     | External Subroutines |
 c     %----------------------%
 c
       external   zlacpy, zlahqr, ztrevc, zcopy, 
+<<<<<<< HEAD
      &           zdscal, zmout, zvout, second
+=======
+     &           zdscal, zmout, zvout, arscnd
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %--------------------%
 c     | External Functions |
@@ -171,7 +179,11 @@ c     | Initialize timing statistics  |
 c     | & message level for debugging |
 c     %-------------------------------%
 c
+<<<<<<< HEAD
       call second (t0)
+=======
+      call arscnd (t0)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       msglvl = mceigh
 c 
       if (msglvl .gt. 2) then
@@ -244,7 +256,11 @@ c
      &              '_neigh: Ritz estimates for the eigenvalues of H')
       end if
 c
+<<<<<<< HEAD
       call second(t1)
+=======
+      call arscnd(t1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       tceigh = tceigh + (t1 - t0)
 c
  9000 continue

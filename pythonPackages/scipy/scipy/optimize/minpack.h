@@ -29,11 +29,23 @@ the result tuple when the full_output argument is non-zero.
 */
 
 #include "Python.h"
+<<<<<<< HEAD
+=======
+#if PY_VERSION_HEX >= 0x03000000
+    #define PyString_FromString PyBytes_FromString
+    #define PyString_Concat PyBytes_Concat
+    #define PyString_AsString PyBytes_AsString
+    #define PyInt_FromLong PyLong_FromLong
+#endif
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 #include "numpy/arrayobject.h"
 
 #define PYERR(errobj,message) {PyErr_SetString(errobj,message); goto fail;}
 #define PYERR2(errobj,message) {PyErr_Print(); PyErr_SetString(errobj, message); goto fail;}
+<<<<<<< HEAD
 #define ISCONTIGUOUS(m) ((m)->flags & NPY_CONTIGUOUS)
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 #define STORE_VARS() PyObject *store_multipack_globals[4]; int store_multipack_globals3;
 
@@ -83,6 +95,7 @@ the result tuple when the full_output argument is non-zero.
 
 #define SET_DIAG(ap_diag,o_diag,mode) { /* Set the diag vector from input */ \
   if (o_diag == NULL || o_diag == Py_None) { \
+<<<<<<< HEAD
     ap_diag = (PyArrayObject *)PyArray_SimpleNew(1,&n,PyArray_DOUBLE); \
     if (ap_diag == NULL) goto fail; \
     diag = (double *)ap_diag -> data; \
@@ -92,6 +105,17 @@ the result tuple when the full_output argument is non-zero.
     ap_diag = (PyArrayObject *)PyArray_ContiguousFromObject(o_diag, PyArray_DOUBLE, 1, 1); \
     if (ap_diag == NULL) goto fail; \
     diag = (double *)ap_diag -> data; \
+=======
+    ap_diag = (PyArrayObject *)PyArray_SimpleNew(1,&n,NPY_DOUBLE); \
+    if (ap_diag == NULL) goto fail; \
+    diag = (double *)PyArray_DATA(ap_diag); \
+    mode = 1; \
+  } \
+  else { \
+    ap_diag = (PyArrayObject *)PyArray_ContiguousFromObject(o_diag, NPY_DOUBLE, 1, 1); \
+    if (ap_diag == NULL) goto fail; \
+    diag = (double *)PyArray_DATA(ap_diag); \
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     mode = 2; } }
 
 #define MATRIXC2F(jac,data,m,n) {double *p1=(double *)(jac), *p2, *p3=(double *)(data);\
@@ -121,13 +145,22 @@ static PyObject *call_python_function(PyObject *func, npy_intp n, double *x, PyO
   */
 
   PyArrayObject *sequence = NULL;
+<<<<<<< HEAD
   PyObject *arglist = NULL, *tmpobj = NULL;
   PyObject *arg1 = NULL, *str1 = NULL;
+=======
+  PyObject *arglist = NULL;
+  PyObject *arg1 = NULL;
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
   PyObject *result = NULL;
   PyArrayObject *result_array = NULL;
 
   /* Build sequence argument from inputs */
+<<<<<<< HEAD
   sequence = (PyArrayObject *)PyArray_SimpleNewFromData(1, &n, PyArray_DOUBLE, (char *)x);
+=======
+  sequence = (PyArrayObject *)PyArray_SimpleNewFromData(1, &n, NPY_DOUBLE, (char *)x);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
   if (sequence == NULL) PYERR2(error_obj,"Internal failure to make an array of doubles out of first\n                 argument to function call.");
 
   /* Build argument list */
@@ -147,6 +180,7 @@ static PyObject *call_python_function(PyObject *func, npy_intp n, double *x, PyO
           arguments are in another passed variable.
    */
   if ((result = PyEval_CallObject(func, arglist))==NULL) {
+<<<<<<< HEAD
     PyErr_Print();
     tmpobj = PyObject_GetAttrString(func, "func_name");
     if (tmpobj == NULL) goto fail;
@@ -159,6 +193,12 @@ static PyObject *call_python_function(PyObject *func, npy_intp n, double *x, PyO
   }
 
   if ((result_array = (PyArrayObject *)PyArray_ContiguousFromObject(result, PyArray_DOUBLE, dim-1, dim))==NULL) 
+=======
+      goto fail;
+  }
+
+  if ((result_array = (PyArrayObject *)PyArray_ContiguousFromObject(result, NPY_DOUBLE, dim-1, dim))==NULL) 
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     PYERR2(error_obj,"Result from function call is not a proper array of floats.");
 
   Py_DECREF(result);
@@ -171,6 +211,7 @@ static PyObject *call_python_function(PyObject *func, npy_intp n, double *x, PyO
   Py_XDECREF(arg1);
   return NULL;
 }
+<<<<<<< HEAD
 
 
 
@@ -184,3 +225,5 @@ static PyObject *call_python_function(PyObject *func, npy_intp n, double *x, PyO
 
 
 
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

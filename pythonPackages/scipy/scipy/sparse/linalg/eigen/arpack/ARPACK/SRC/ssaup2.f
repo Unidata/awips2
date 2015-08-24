@@ -148,12 +148,21 @@ c     sseigt  ARPACK compute Ritz values and error bounds routine.
 c     ssgets  ARPACK reorder Ritz values and error bounds routine.
 c     ssortr  ARPACK sorting routine.
 c     ivout   ARPACK utility routine that prints integers.
+<<<<<<< HEAD
 c     second  ARPACK utility routine for timing.
 c     svout   ARPACK utility routine that prints vectors.
 c     slamch  LAPACK routine that determines machine constants.
 c     scopy   Level 1 BLAS that copies one vector to another.
 c     sdot    Level 1 BLAS that computes the scalar product of two vectors. 
 c     snrm2   Level 1 BLAS that computes the norm of a vector.
+=======
+c     arscnd  ARPACK utility routine for timing.
+c     svout   ARPACK utility routine that prints vectors.
+c     wslamch  LAPACK routine that determines machine constants.
+c     scopy   Level 1 BLAS that copies one vector to another.
+c     wsdot    Level 1 BLAS that computes the scalar product of two vectors. 
+c     wsnrm2   Level 1 BLAS that computes the norm of a vector.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c     sscal   Level 1 BLAS that scales a vector.
 c     sswap   Level 1 BLAS that swaps two vectors.
 c
@@ -235,15 +244,24 @@ c     | External Subroutines |
 c     %----------------------%
 c
       external   scopy, sgetv0, ssaitr, sscal, ssconv, sseigt, ssgets, 
+<<<<<<< HEAD
      &           ssapps, ssortr, svout, ivout, second, sswap
+=======
+     &           ssapps, ssortr, svout, ivout, arscnd, sswap
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %--------------------%
 c     | External Functions |
 c     %--------------------%
 c
       Real
+<<<<<<< HEAD
      &           sdot, snrm2, slamch
       external   sdot, snrm2, slamch
+=======
+     &           wsdot, wsnrm2, wslamch
+      external   wsdot, wsnrm2, wslamch
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %---------------------%
 c     | Intrinsic Functions |
@@ -262,14 +280,22 @@ c        | Initialize timing statistics  |
 c        | & message level for debugging |
 c        %-------------------------------%
 c
+<<<<<<< HEAD
          call second (t0)
+=======
+         call arscnd (t0)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          msglvl = msaup2
 c
 c        %---------------------------------%
 c        | Set machine dependent constant. |
 c        %---------------------------------%
 c
+<<<<<<< HEAD
          eps23 = slamch('Epsilon-Machine')
+=======
+         eps23 = wslamch('Epsilon-Machine')
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          eps23 = eps23**(2.0E+0/3.0E+0)
 c
 c        %-------------------------------------%
@@ -770,7 +796,11 @@ c        | the first step of the next call to ssaitr.  |
 c        %---------------------------------------------%
 c
          cnorm = .true.
+<<<<<<< HEAD
          call second (t2)
+=======
+         call arscnd (t2)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          if (bmat .eq. 'G') then
             nbx = nbx + 1
             call scopy (n, resid, 1, workd(n+1), 1)
@@ -795,15 +825,26 @@ c        | WORKD(1:N) := B*RESID            |
 c        %----------------------------------%
 c
          if (bmat .eq. 'G') then
+<<<<<<< HEAD
             call second (t3)
+=======
+            call arscnd (t3)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             tmvbx = tmvbx + (t3 - t2)
          end if
 c 
          if (bmat .eq. 'G') then         
+<<<<<<< HEAD
             rnorm = sdot (n, resid, 1, workd, 1)
             rnorm = sqrt(abs(rnorm))
          else if (bmat .eq. 'I') then
             rnorm = snrm2(n, resid, 1)
+=======
+            rnorm = wsdot (n, resid, 1, workd, 1)
+            rnorm = sqrt(abs(rnorm))
+         else if (bmat .eq. 'I') then
+            rnorm = wsnrm2(n, resid, 1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          end if
          cnorm = .false.
   130    continue
@@ -837,7 +878,11 @@ c     %------------%
 c     | Error exit |
 c     %------------%
 c
+<<<<<<< HEAD
       call second (t1)
+=======
+      call arscnd (t1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       tsaup2 = t1 - t0
 c 
  9000 continue

@@ -8,10 +8,20 @@
     info_list -- a handy list class for working with multiple
                  info classes at the same time.
 """
+<<<<<<< HEAD
 import UserList
 
 class base_info(object):
     _warnings =[]
+=======
+from __future__ import absolute_import, print_function
+
+import UserList
+
+
+class base_info(object):
+    _warnings = []
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     _headers = []
     _include_dirs = []
     _libraries = []
@@ -24,15 +34,24 @@ class base_info(object):
     _extra_compile_args = []
     _extra_link_args = []
     compiler = ''
+<<<<<<< HEAD
     def set_compiler(self,compiler):
         self.check_compiler(compiler)
         self.compiler = compiler
+=======
+
+    def set_compiler(self,compiler):
+        self.check_compiler(compiler)
+        self.compiler = compiler
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     # it would probably be better to specify what the arguments are
     # to avoid confusion, but I don't think these classes will get
     # very complicated, and I don't really know the variety of things
     # that should be passed in at this point.
     def check_compiler(self,compiler):
         pass
+<<<<<<< HEAD
     def warnings(self):
         return self._warnings
     def headers(self):
@@ -61,6 +80,49 @@ class base_info(object):
 class custom_info(base_info):
     def __init__(self):
         self._warnings =[]
+=======
+
+    def warnings(self):
+        return self._warnings
+
+    def headers(self):
+        return self._headers
+
+    def include_dirs(self):
+        return self._include_dirs
+
+    def libraries(self):
+        return self._libraries
+
+    def library_dirs(self):
+        return self._library_dirs
+
+    def support_code(self):
+        return self._support_code
+
+    def module_init_code(self):
+        return self._module_init_code
+
+    def sources(self):
+        return self._sources
+
+    def define_macros(self):
+        return self._define_macros
+
+    def undefine_macros(self):
+        return self._undefine_macros
+
+    def extra_compile_args(self):
+        return self._extra_compile_args
+
+    def extra_link_args(self):
+        return self._extra_link_args
+
+
+class custom_info(base_info):
+    def __init__(self):
+        self._warnings = []
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         self._headers = []
         self._include_dirs = []
         self._libraries = []
@@ -75,6 +137,7 @@ class custom_info(base_info):
 
     def add_warning(self,warning):
         self._warnings.append(warning)
+<<<<<<< HEAD
     def add_header(self,header):
         self._headers.append(header)
     def add_include_dir(self,include_dir):
@@ -98,6 +161,43 @@ class custom_info(base_info):
     def add_extra_link_arg(self,link_arg):
         return self._extra_link_args.append(link_arg)
 
+=======
+
+    def add_header(self,header):
+        self._headers.append(header)
+
+    def add_include_dir(self,include_dir):
+        self._include_dirs.append(include_dir)
+
+    def add_library(self,library):
+        self._libraries.append(library)
+
+    def add_library_dir(self,library_dir):
+        self._library_dirs.append(library_dir)
+
+    def add_support_code(self,support_code):
+        self._support_code.append(support_code)
+
+    def add_module_init_code(self,module_init_code):
+        self._module_init_code.append(module_init_code)
+
+    def add_source(self,source):
+        self._sources.append(source)
+
+    def add_define_macro(self,define_macro):
+        self._define_macros.append(define_macro)
+
+    def add_undefine_macro(self,undefine_macro):
+        self._undefine_macros.append(undefine_macro)
+
+    def add_extra_compile_arg(self,compile_arg):
+        return self._extra_compile_args.append(compile_arg)
+
+    def add_extra_link_arg(self,link_arg):
+        return self._extra_link_args.append(link_arg)
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class info_list(UserList.UserList):
     def get_unique_values(self,attribute):
         all_values = []
@@ -108,6 +208,7 @@ class info_list(UserList.UserList):
 
     def extra_compile_args(self):
         return self.get_unique_values('extra_compile_args')
+<<<<<<< HEAD
     def extra_link_args(self):
         return self.get_unique_values('extra_link_args')
     def sources(self):
@@ -131,6 +232,40 @@ class info_list(UserList.UserList):
     def module_init_code(self):
         return self.get_unique_values('module_init_code')
 
+=======
+
+    def extra_link_args(self):
+        return self.get_unique_values('extra_link_args')
+
+    def sources(self):
+        return self.get_unique_values('sources')
+
+    def define_macros(self):
+        return self.get_unique_values('define_macros')
+
+    def warnings(self):
+        return self.get_unique_values('warnings')
+
+    def headers(self):
+        return self.get_unique_values('headers')
+
+    def include_dirs(self):
+        return self.get_unique_values('include_dirs')
+
+    def libraries(self):
+        return self.get_unique_values('libraries')
+
+    def library_dirs(self):
+        return self.get_unique_values('library_dirs')
+
+    def support_code(self):
+        return self.get_unique_values('support_code')
+
+    def module_init_code(self):
+        return self.get_unique_values('module_init_code')
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def unique_values(lst):
     all_values = []
     for value in lst:

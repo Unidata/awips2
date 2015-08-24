@@ -14,10 +14,17 @@ void superlu_python_module_free(void *ptr);
 #define USER_MALLOC superlu_python_module_malloc
 #define USER_FREE   superlu_python_module_free
 
+<<<<<<< HEAD
 #define SCIPY_SPECIFIC_FIX 1
 
 /* 
  * Fortran configuration 
+=======
+#define SCIPY_FIX 1
+
+/*
+ * Fortran configuration
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
  */
 #if defined(NO_APPEND_FORTRAN)
 #if defined(UPPERCASE_FORTRAN)

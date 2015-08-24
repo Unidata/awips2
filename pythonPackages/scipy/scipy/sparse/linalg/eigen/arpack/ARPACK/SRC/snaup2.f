@@ -2,13 +2,21 @@ c\BeginDoc
 c
 c\Name: snaup2
 c
+<<<<<<< HEAD
 c\Description: 
+=======
+c\Description:
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c  Intermediate level interface called by snaupd.
 c
 c\Usage:
 c  call snaup2
 c     ( IDO, BMAT, N, WHICH, NEV, NP, TOL, RESID, MODE, IUPD,
+<<<<<<< HEAD
 c       ISHIFT, MXITER, V, LDV, H, LDH, RITZR, RITZI, BOUNDS, 
+=======
+c       ISHIFT, MXITER, V, LDV, H, LDH, RITZR, RITZI, BOUNDS,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c       Q, LDQ, WORKL, IPNTR, WORKD, INFO )
 c
 c\Arguments
@@ -17,28 +25,45 @@ c  IDO, BMAT, N, WHICH, NEV, TOL, RESID: same as defined in snaupd.
 c  MODE, ISHIFT, MXITER: see the definition of IPARAM in snaupd.
 c
 c  NP      Integer.  (INPUT/OUTPUT)
+<<<<<<< HEAD
 c          Contains the number of implicit shifts to apply during 
 c          each Arnoldi iteration.  
 c          If ISHIFT=1, NP is adjusted dynamically at each iteration 
 c          to accelerate convergence and prevent stagnation.
 c          This is also roughly equal to the number of matrix-vector 
+=======
+c          Contains the number of implicit shifts to apply during
+c          each Arnoldi iteration.
+c          If ISHIFT=1, NP is adjusted dynamically at each iteration
+c          to accelerate convergence and prevent stagnation.
+c          This is also roughly equal to the number of matrix-vector
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c          products (involving the operator OP) per Arnoldi iteration.
 c          The logic for adjusting is contained within the current
 c          subroutine.
 c          If ISHIFT=0, NP is the number of shifts the user needs
 c          to provide via reverse comunication. 0 < NP < NCV-NEV.
 c          NP may be less than NCV-NEV for two reasons. The first, is
+<<<<<<< HEAD
 c          to keep complex conjugate pairs of "wanted" Ritz values 
 c          together. The second, is that a leading block of the current
 c          upper Hessenberg matrix has split off and contains "unwanted"
 c          Ritz values.
 c          Upon termination of the IRA iteration, NP contains the number 
+=======
+c          to keep complex conjugate pairs of "wanted" Ritz values
+c          together. The second, is that a leading block of the current
+c          upper Hessenberg matrix has split off and contains "unwanted"
+c          Ritz values.
+c          Upon termination of the IRA iteration, NP contains the number
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c          of "converged" wanted Ritz values.
 c
 c  IUPD    Integer.  (INPUT)
 c          IUPD .EQ. 0: use explicit restart instead implicit update.
 c          IUPD .NE. 0: use implicit update.
 c
+<<<<<<< HEAD
 c  V       Real N by (NEV+NP) array.  (INPUT/OUTPUT)
 c          The Arnoldi basis vectors are returned in the first NEV 
 c          columns of V.
@@ -63,6 +88,32 @@ c          BOUNDS(1:NEV) contain the error bounds corresponding to
 c          the computed Ritz values.
 c          
 c  Q       Real (NEV+NP) by (NEV+NP) array.  (WORKSPACE)
+=======
+c  V       Real  N by (NEV+NP) array.  (INPUT/OUTPUT)
+c          The Arnoldi basis vectors are returned in the first NEV
+c          columns of V.
+c
+c  LDV     Integer.  (INPUT)
+c          Leading dimension of V exactly as declared in the calling
+c          program.
+c
+c  H       Real  (NEV+NP) by (NEV+NP) array.  (OUTPUT)
+c          H is used to store the generated upper Hessenberg matrix
+c
+c  LDH     Integer.  (INPUT)
+c          Leading dimension of H exactly as declared in the calling
+c          program.
+c
+c  RITZR,  Real  arrays of length NEV+NP.  (OUTPUT)
+c  RITZI   RITZR(1:NEV) (resp. RITZI(1:NEV)) contains the real (resp.
+c          imaginary) part of the computed Ritz values of OP.
+c
+c  BOUNDS  Real  array of length NEV+NP.  (OUTPUT)
+c          BOUNDS(1:NEV) contain the error bounds corresponding to
+c          the computed Ritz values.
+c
+c  Q       Real  (NEV+NP) by (NEV+NP) array.  (WORKSPACE)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c          Private (replicated) work array used to accumulate the
 c          rotation in the shift application step.
 c
@@ -70,7 +121,11 @@ c  LDQ     Integer.  (INPUT)
 c          Leading dimension of Q exactly as declared in the calling
 c          program.
 c
+<<<<<<< HEAD
 c  WORKL   Real work array of length at least 
+=======
+c  WORKL   Real  work array of length at least
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c          (NEV+NP)**2 + 3*(NEV+NP).  (INPUT/WORKSPACE)
 c          Private (replicated) array on each PE or array allocated on
 c          the front end.  It is used in shifts calculation, shifts
@@ -82,20 +137,36 @@ c          estimates of the current Hessenberg matrix.  They are
 c          listed in the same order as returned from sneigh.
 c
 c          If ISHIFT .EQ. O and IDO .EQ. 3, the first 2*NP locations
+<<<<<<< HEAD
 c          of WORKL are used in reverse communication to hold the user 
 c          supplied shifts.
 c
 c  IPNTR   Integer array of length 3.  (OUTPUT)
 c          Pointer to mark the starting locations in the WORKD for 
+=======
+c          of WORKL are used in reverse communication to hold the user
+c          supplied shifts.
+c
+c  IPNTR   Integer array of length 3.  (OUTPUT)
+c          Pointer to mark the starting locations in the WORKD for
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c          vectors used by the Arnoldi iteration.
 c          -------------------------------------------------------------
 c          IPNTR(1): pointer to the current operand vector X.
 c          IPNTR(2): pointer to the current result vector Y.
+<<<<<<< HEAD
 c          IPNTR(3): pointer to the vector B * X when used in the 
 c                    shift-and-invert mode.  X is the current operand.
 c          -------------------------------------------------------------
 c          
 c  WORKD   Real work array of length 3*N.  (WORKSPACE)
+=======
+c          IPNTR(3): pointer to the vector B * X when used in the
+c                    shift-and-invert mode.  X is the current operand.
+c          -------------------------------------------------------------
+c
+c  WORKD   Real  work array of length 3*N.  (WORKSPACE)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c          Distributed array to be used in the basic Arnoldi iteration
 c          for reverse communication.  The user should not use WORKD
 c          as temporary workspace during the iteration !!!!!!!!!!
@@ -108,7 +179,11 @@ c                          possibly from a previous run.
 c          Error flag on output.
 c          =     0: Normal return.
 c          =     1: Maximum number of iterations taken.
+<<<<<<< HEAD
 c                   All possible eigenvalues of OP has been found.  
+=======
+c                   All possible eigenvalues of OP has been found.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c                   NP returns the number of converged Ritz values.
 c          =     2: No shifts could be applied.
 c          =    -8: Error return from LAPACK eigenvalue calculation;
@@ -130,12 +205,20 @@ c\References:
 c  1. D.C. Sorensen, "Implicit Application of Polynomial Filters in
 c     a k-Step Arnoldi Method", SIAM J. Matr. Anal. Apps., 13 (1992),
 c     pp 357-385.
+<<<<<<< HEAD
 c  2. R.B. Lehoucq, "Analysis and Implementation of an Implicitly 
+=======
+c  2. R.B. Lehoucq, "Analysis and Implementation of an Implicitly
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c     Restarted Arnoldi Iteration", Rice University Technical Report
 c     TR95-13, Department of Computational and Applied Mathematics.
 c
 c\Routines called:
+<<<<<<< HEAD
 c     sgetv0  ARPACK initial vector generation routine. 
+=======
+c     sgetv0  ARPACK initial vector generation routine.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c     snaitr  ARPACK Arnoldi factorization routine.
 c     snapps  ARPACK application of implicit shifts routine.
 c     snconv  ARPACK convergence of Ritz values routine.
@@ -143,6 +226,7 @@ c     sneigh  ARPACK compute Ritz values and error bounds routine.
 c     sngets  ARPACK reorder Ritz values and error bounds routine.
 c     ssortc  ARPACK sorting routine.
 c     ivout   ARPACK utility routine that prints integers.
+<<<<<<< HEAD
 c     second  ARPACK utility routine for timing.
 c     smout   ARPACK utility routine that prints matrices
 c     svout   ARPACK utility routine that prints vectors.
@@ -151,10 +235,21 @@ c     slapy2  LAPACK routine to compute sqrt(x**2+y**2) carefully.
 c     scopy   Level 1 BLAS that copies one vector to another .
 c     sdot    Level 1 BLAS that computes the scalar product of two vectors. 
 c     snrm2   Level 1 BLAS that computes the norm of a vector.
+=======
+c     arscnd  ARPACK utility routine for timing.
+c     smout   ARPACK utility routine that prints matrices
+c     svout   ARPACK utility routine that prints vectors.
+c     wslamch  LAPACK routine that determines machine constants.
+c     wslapy2  LAPACK routine to compute sqrt(x**2+y**2) carefully.
+c     scopy   Level 1 BLAS that copies one vector to another .
+c     wsdot    Level 1 BLAS that computes the scalar product of two vectors.
+c     wsnrm2   Level 1 BLAS that computes the norm of a vector.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c     sswap   Level 1 BLAS that swaps two vectors.
 c
 c\Author
 c     Danny Sorensen               Phuong Vu
+<<<<<<< HEAD
 c     Richard Lehoucq              CRPC / Rice University 
 c     Dept. of Computational &     Houston, Texas 
 c     Applied Mathematics
@@ -162,6 +257,15 @@ c     Rice University
 c     Houston, Texas    
 c 
 c\SCCS Information: @(#) 
+=======
+c     Richard Lehoucq              CRPC / Rice University
+c     Dept. of Computational &     Houston, Texas
+c     Applied Mathematics
+c     Rice University
+c     Houston, Texas
+c
+c\SCCS Information: @(#)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c FILE: naup2.F   SID: 2.8   DATE OF SID: 10/17/00   RELEASE: 2
 c
 c\Remarks
@@ -172,8 +276,13 @@ c
 c-----------------------------------------------------------------------
 c
       subroutine snaup2
+<<<<<<< HEAD
      &   ( ido, bmat, n, which, nev, np, tol, resid, mode, iupd, 
      &     ishift, mxiter, v, ldv, h, ldh, ritzr, ritzi, bounds, 
+=======
+     &   ( ido, bmat, n, which, nev, np, tol, resid, mode, iupd,
+     &     ishift, mxiter, v, ldv, h, ldh, ritzr, ritzi, bounds,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      &     q, ldq, workl, ipntr, workd, info )
 c
 c     %----------------------------------------------------%
@@ -200,7 +309,11 @@ c
       integer    ipntr(13)
       Real
      &           bounds(nev+np), h(ldh,nev+np), q(ldq,nev+np), resid(n),
+<<<<<<< HEAD
      &           ritzi(nev+np), ritzr(nev+np), v(ldv,nev+np), 
+=======
+     &           ritzi(nev+np), ritzr(nev+np), v(ldv,nev+np),
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      &           workd(3*n), workl( (nev+np)*(nev+np+3) )
 c
 c     %------------%
@@ -209,7 +322,11 @@ c     %------------%
 c
       Real
      &           one, zero
+<<<<<<< HEAD
       parameter (one = 1.0E+0, zero = 0.0E+0)
+=======
+      parameter (one = 1.0E+0 , zero = 0.0E+0 )
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %---------------%
 c     | Local Scalars |
@@ -217,12 +334,20 @@ c     %---------------%
 c
       character  wprime*2
       logical    cnorm , getv0, initv, update, ushift
+<<<<<<< HEAD
       integer    ierr  , iter , j    , kplusp, msglvl, nconv, 
+=======
+      integer    ierr  , iter , j    , kplusp, msglvl, nconv,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      &           nevbef, nev0 , np0  , nptemp, numcnv
       Real
      &           rnorm , temp , eps23
       save       cnorm , getv0, initv, update, ushift,
+<<<<<<< HEAD
      &           rnorm , iter , eps23, kplusp, msglvl, nconv , 
+=======
+     &           rnorm , iter , eps23, kplusp, msglvl, nconv ,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      &           nevbef, nev0 , np0  , numcnv
 c
 c     %-----------------------%
@@ -235,16 +360,26 @@ c     %----------------------%
 c     | External Subroutines |
 c     %----------------------%
 c
+<<<<<<< HEAD
       external   scopy , sgetv0, snaitr, snconv, sneigh, 
      &           sngets, snapps, svout , ivout , second
+=======
+      external   scopy , sgetv0, snaitr, snconv, sneigh,
+     &           sngets, snapps, svout , ivout , arscnd
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %--------------------%
 c     | External Functions |
 c     %--------------------%
 c
       Real
+<<<<<<< HEAD
      &           sdot, snrm2, slapy2, slamch
       external   sdot, snrm2, slapy2, slamch
+=======
+     &           wsdot, wsnrm2, wslapy2, wslamch
+      external   wsdot, wsnrm2, wslapy2, wslamch
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
 c     %---------------------%
 c     | Intrinsic Functions |
@@ -257,17 +392,30 @@ c     | Executable Statements |
 c     %-----------------------%
 c
       if (ido .eq. 0) then
+<<<<<<< HEAD
 c 
          call second (t0)
 c 
          msglvl = mnaup2
 c 
+=======
+c
+         call arscnd (t0)
+c
+         msglvl = mnaup2
+c
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c        %-------------------------------------%
 c        | Get the machine dependent constant. |
 c        %-------------------------------------%
 c
+<<<<<<< HEAD
          eps23 = slamch('Epsilon-Machine')
          eps23 = eps23**(2.0E+0 / 3.0E+0)
+=======
+         eps23 = wslamch('Epsilon-Machine')
+         eps23 = eps23**(2.0E+0  / 3.0E+0 )
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c
          nev0   = nev
          np0    = np
@@ -284,7 +432,11 @@ c
          kplusp = nev + np
          nconv  = 0
          iter   = 0
+<<<<<<< HEAD
 c 
+=======
+c
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c        %---------------------------------------%
 c        | Set flags for computing the first NEV |
 c        | steps of the Arnoldi factorization.   |
@@ -307,7 +459,11 @@ c
             initv = .false.
          end if
       end if
+<<<<<<< HEAD
 c 
+=======
+c
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c     %---------------------------------------------%
 c     | Get a possibly random starting vector and   |
 c     | force it into the range of the operator OP. |
@@ -324,7 +480,11 @@ c
          if (rnorm .eq. zero) then
 c
 c           %-----------------------------------------%
+<<<<<<< HEAD
 c           | The initial vector is zero. Error exit. | 
+=======
+c           | The initial vector is zero. Error exit. |
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c           %-----------------------------------------%
 c
             info = -9
@@ -333,7 +493,11 @@ c
          getv0 = .false.
          ido  = 0
       end if
+<<<<<<< HEAD
 c 
+=======
+c
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c     %-----------------------------------%
 c     | Back from reverse communication : |
 c     | continue with update step         |
@@ -353,14 +517,24 @@ c     | at the end of the current iteration |
 c     %-------------------------------------%
 c
       if (cnorm)  go to 100
+<<<<<<< HEAD
 c 
+=======
+c
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c     %----------------------------------------------------------%
 c     | Compute the first NEV steps of the Arnoldi factorization |
 c     %----------------------------------------------------------%
 c
+<<<<<<< HEAD
       call snaitr (ido, bmat, n, 0, nev, mode, resid, rnorm, v, ldv, 
      &             h, ldh, ipntr, workd, info)
 c 
+=======
+      call snaitr (ido, bmat, n, 0, nev, mode, resid, rnorm, v, ldv,
+     &             h, ldh, ipntr, workd, info)
+c
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c     %---------------------------------------------------%
 c     | ido .ne. 99 implies use of reverse communication  |
 c     | to compute operations involving OP and possibly B |
@@ -374,7 +548,11 @@ c
          info = -9999
          go to 1200
       end if
+<<<<<<< HEAD
 c 
+=======
+c
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c     %--------------------------------------------------------------%
 c     |                                                              |
 c     |           M A I N  ARNOLDI  I T E R A T I O N  L O O P       |
@@ -382,16 +560,27 @@ c     |           Each iteration implicitly restarts the Arnoldi     |
 c     |           factorization in place.                            |
 c     |                                                              |
 c     %--------------------------------------------------------------%
+<<<<<<< HEAD
 c 
+=======
+c
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
  1000 continue
 c
          iter = iter + 1
 c
          if (msglvl .gt. 0) then
+<<<<<<< HEAD
             call ivout (logfil, 1, iter, ndigit, 
      &           '_naup2: **** Start of major iteration number ****')
          end if
 c 
+=======
+            call ivout (logfil, 1, iter, ndigit,
+     &           '_naup2: **** Start of major iteration number ****')
+         end if
+c
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c        %-----------------------------------------------------------%
 c        | Compute NP additional steps of the Arnoldi factorization. |
 c        | Adjust NP since NEV might have been updated by last call  |
@@ -401,9 +590,15 @@ c
          np  = kplusp - nev
 c
          if (msglvl .gt. 1) then
+<<<<<<< HEAD
             call ivout (logfil, 1, nev, ndigit, 
      &     '_naup2: The length of the current Arnoldi factorization')
             call ivout (logfil, 1, np, ndigit, 
+=======
+            call ivout (logfil, 1, nev, ndigit,
+     &     '_naup2: The length of the current Arnoldi factorization')
+            call ivout (logfil, 1, np, ndigit,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      &           '_naup2: Extend the Arnoldi factorization by')
          end if
 c
@@ -415,10 +610,17 @@ c
    20    continue
          update = .true.
 c
+<<<<<<< HEAD
          call snaitr (ido  , bmat, n  , nev, np , mode , resid, 
      &                rnorm, v   , ldv, h  , ldh, ipntr, workd,
      &                info)
 c 
+=======
+         call snaitr (ido  , bmat, n  , nev, np , mode , resid,
+     &                rnorm, v   , ldv, h  , ldh, ipntr, workd,
+     &                info)
+c
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c        %---------------------------------------------------%
 c        | ido .ne. 99 implies use of reverse communication  |
 c        | to compute operations involving OP and possibly B |
@@ -435,10 +637,17 @@ c
          update = .false.
 c
          if (msglvl .gt. 1) then
+<<<<<<< HEAD
             call svout (logfil, 1, rnorm, ndigit, 
      &           '_naup2: Corresponding B-norm of the residual')
          end if
 c 
+=======
+            call svout (logfil, 1, rnorm, ndigit,
+     &           '_naup2: Corresponding B-norm of the residual')
+         end if
+c
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c        %--------------------------------------------------------%
 c        | Compute the eigenvalues and corresponding error bounds |
 c        | of the current upper Hessenberg matrix.                |
@@ -477,6 +686,7 @@ c
          nev = nev0
          np = np0
          numcnv = nev
+<<<<<<< HEAD
          call sngets (ishift, which, nev, np, ritzr, ritzi, 
      &                bounds, workl, workl(np+1))
          if (nev .eq. nev0+1) numcnv = nev0+1
@@ -489,18 +699,40 @@ c
          call snconv (nev, ritzr(np+1), ritzi(np+1), workl(2*np+1), 
      &        tol, nconv)
 c 
+=======
+         call sngets (ishift, which, nev, np, ritzr, ritzi,
+     &                bounds, workl, workl(np+1))
+         if (nev .eq. nev0+1) numcnv = nev0+1
+c
+c        %-------------------%
+c        | Convergence test. |
+c        %-------------------%
+c
+         call scopy (nev, bounds(np+1), 1, workl(2*np+1), 1)
+         call snconv (nev, ritzr(np+1), ritzi(np+1), workl(2*np+1),
+     &        tol, nconv)
+c
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          if (msglvl .gt. 2) then
             kp(1) = nev
             kp(2) = np
             kp(3) = numcnv
             kp(4) = nconv
+<<<<<<< HEAD
             call ivout (logfil, 4, kp, ndigit, 
+=======
+            call ivout (logfil, 4, kp, ndigit,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      &                  '_naup2: NEV, NP, NUMCNV, NCONV are')
             call svout (logfil, kplusp, ritzr, ndigit,
      &           '_naup2: Real part of the eigenvalues of H')
             call svout (logfil, kplusp, ritzi, ndigit,
      &           '_naup2: Imaginary part of the eigenvalues of H')
+<<<<<<< HEAD
             call svout (logfil, kplusp, bounds, ndigit, 
+=======
+            call svout (logfil, kplusp, bounds, ndigit,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      &          '_naup2: Ritz estimates of the current NCV Ritz values')
          end if
 c
@@ -521,8 +753,13 @@ c
                nev = nev + 1
             end if
  30      continue
+<<<<<<< HEAD
 c     
          if ( (nconv .ge. numcnv) .or. 
+=======
+c
+         if ( (nconv .ge. numcnv) .or.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      &        (iter .gt. mxiter) .or.
      &        (np .eq. 0) ) then
 c
@@ -536,7 +773,11 @@ c
      &                     ndigit,
      &             '_naup2: Ritz eistmates computed by _neigh:')
             end if
+<<<<<<< HEAD
 c     
+=======
+c
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c           %------------------------------------------------%
 c           | Prepare to exit. Put the converged Ritz values |
 c           | and corresponding bounds in RITZ(1:NCONV) and  |
@@ -591,7 +832,11 @@ c           | by 1 / max(eps23,magnitude of the Ritz value).   |
 c           %--------------------------------------------------%
 c
             do 35 j = 1, numcnv
+<<<<<<< HEAD
                 temp = max(eps23,slapy2(ritzr(j),
+=======
+                temp = max(eps23,wslapy2(ritzr(j),
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      &                                   ritzi(j)))
                 bounds(j) = bounds(j)/temp
  35         continue
@@ -612,7 +857,11 @@ c           | value.                                       |
 c           %----------------------------------------------%
 c
             do 40 j = 1, numcnv
+<<<<<<< HEAD
                 temp = max(eps23, slapy2(ritzr(j),
+=======
+                temp = max(eps23, wslapy2(ritzr(j),
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      &                                   ritzi(j)))
                 bounds(j) = bounds(j)*temp
  40         continue
@@ -635,13 +884,21 @@ c
             end if
 c
 c           %------------------------------------%
+<<<<<<< HEAD
 c           | Max iterations have been exceeded. | 
+=======
+c           | Max iterations have been exceeded. |
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c           %------------------------------------%
 c
             if (iter .gt. mxiter .and. nconv .lt. numcnv) info = 1
 c
 c           %---------------------%
+<<<<<<< HEAD
 c           | No shifts to apply. | 
+=======
+c           | No shifts to apply. |
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c           %---------------------%
 c
             if (np .eq. 0 .and. nconv .lt. numcnv) info = 2
@@ -650,7 +907,11 @@ c
             go to 1100
 c
          else if ( (nconv .lt. numcnv) .and. (ishift .eq. 1) ) then
+<<<<<<< HEAD
 c     
+=======
+c
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c           %-------------------------------------------------%
 c           | Do not have all the requested eigenvalues yet.  |
 c           | To prevent possible stagnation, adjust the size |
@@ -664,12 +925,30 @@ c
             else if (nev .eq. 1 .and. kplusp .gt. 3) then
                nev = 2
             end if
+<<<<<<< HEAD
             np = kplusp - nev
 c     
+=======
+c           %---- Scipy fix ------------------------------------------------
+c           | We must keep nev below this value, as otherwise we can get
+c           | np == 0 (note that sngets below can bump nev by 1). If np == 0,
+c           | the next call to `snaitr` will write out-of-bounds.
+c           |
+            if (nev .gt. kplusp - 2) then
+               nev = kplusp - 2
+            end if
+c           |
+c           %---- Scipy fix end --------------------------------------------
+
+c
+            np = kplusp - nev
+c
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c           %---------------------------------------%
 c           | If the size of NEV was just increased |
 c           | resort the eigenvalues.               |
 c           %---------------------------------------%
+<<<<<<< HEAD
 c     
             if (nevbef .lt. nev) 
      &         call sngets (ishift, which, nev, np, ritzr, ritzi, 
@@ -679,11 +958,26 @@ c
 c     
          if (msglvl .gt. 0) then
             call ivout (logfil, 1, nconv, ndigit, 
+=======
+c
+            if (nevbef .lt. nev)
+     &         call sngets (ishift, which, nev, np, ritzr, ritzi,
+     &              bounds, workl, workl(np+1))
+c
+         end if
+c
+         if (msglvl .gt. 0) then
+            call ivout (logfil, 1, nconv, ndigit,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      &           '_naup2: no. of "converged" Ritz values at this iter.')
             if (msglvl .gt. 1) then
                kp(1) = nev
                kp(2) = np
+<<<<<<< HEAD
                call ivout (logfil, 2, kp, ndigit, 
+=======
+               call ivout (logfil, 2, kp, ndigit,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      &              '_naup2: NEV and NP are')
                call svout (logfil, nev, ritzr(np+1), ndigit,
      &              '_naup2: "wanted" Ritz values -- real part')
@@ -706,7 +1000,11 @@ c
             ido = 3
             go to 9000
          end if
+<<<<<<< HEAD
 c 
+=======
+c
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
    50    continue
 c
 c        %------------------------------------%
@@ -718,7 +1016,11 @@ c
          ushift = .false.
 c
          if ( ishift .eq. 0 ) then
+<<<<<<< HEAD
 c 
+=======
+c
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c            %----------------------------------%
 c            | Move the NP shifts from WORKL to |
 c            | RITZR, RITZI to free up WORKL    |
@@ -729,14 +1031,23 @@ c
              call scopy (np, workl(np+1), 1, ritzi, 1)
          end if
 c
+<<<<<<< HEAD
          if (msglvl .gt. 2) then 
             call ivout (logfil, 1, np, ndigit, 
+=======
+         if (msglvl .gt. 2) then
+            call ivout (logfil, 1, np, ndigit,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      &                  '_naup2: The number of shifts to apply ')
             call svout (logfil, np, ritzr, ndigit,
      &                  '_naup2: Real part of the shifts')
             call svout (logfil, np, ritzi, ndigit,
      &                  '_naup2: Imaginary part of the shifts')
+<<<<<<< HEAD
             if ( ishift .eq. 1 ) 
+=======
+            if ( ishift .eq. 1 )
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      &          call svout (logfil, np, bounds, ndigit,
      &                  '_naup2: Ritz estimates of the shifts')
          end if
@@ -748,7 +1059,11 @@ c        | matrix H.                                               |
 c        | The first 2*N locations of WORKD are used as workspace. |
 c        %---------------------------------------------------------%
 c
+<<<<<<< HEAD
          call snapps (n, nev, np, ritzr, ritzi, v, ldv, 
+=======
+         call snapps (n, nev, np, ritzr, ritzi, v, ldv,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      &                h, ldh, resid, q, ldq, workl, workd)
 c
 c        %---------------------------------------------%
@@ -758,31 +1073,50 @@ c        | the first step of the next call to snaitr.  |
 c        %---------------------------------------------%
 c
          cnorm = .true.
+<<<<<<< HEAD
          call second (t2)
+=======
+         call arscnd (t2)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          if (bmat .eq. 'G') then
             nbx = nbx + 1
             call scopy (n, resid, 1, workd(n+1), 1)
             ipntr(1) = n + 1
             ipntr(2) = 1
             ido = 2
+<<<<<<< HEAD
 c 
 c           %----------------------------------%
 c           | Exit in order to compute B*RESID |
 c           %----------------------------------%
 c 
+=======
+c
+c           %----------------------------------%
+c           | Exit in order to compute B*RESID |
+c           %----------------------------------%
+c
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             go to 9000
          else if (bmat .eq. 'I') then
             call scopy (n, resid, 1, workd, 1)
          end if
+<<<<<<< HEAD
 c 
   100    continue
 c 
+=======
+c
+  100    continue
+c
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 c        %----------------------------------%
 c        | Back from reverse communication; |
 c        | WORKD(1:N) := B*RESID            |
 c        %----------------------------------%
 c
          if (bmat .eq. 'G') then
+<<<<<<< HEAD
             call second (t3)
             tmvbx = tmvbx + (t3 - t2)
          end if
@@ -792,16 +1126,35 @@ c
             rnorm = sqrt(abs(rnorm))
          else if (bmat .eq. 'I') then
             rnorm = snrm2(n, resid, 1)
+=======
+            call arscnd (t3)
+            tmvbx = tmvbx + (t3 - t2)
+         end if
+c
+         if (bmat .eq. 'G') then
+            rnorm = wsdot (n, resid, 1, workd, 1)
+            rnorm = sqrt(abs(rnorm))
+         else if (bmat .eq. 'I') then
+            rnorm = wsnrm2(n, resid, 1)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
          end if
          cnorm = .false.
 c
          if (msglvl .gt. 2) then
+<<<<<<< HEAD
             call svout (logfil, 1, rnorm, ndigit, 
+=======
+            call svout (logfil, 1, rnorm, ndigit,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
      &      '_naup2: B-norm of residual for compressed factorization')
             call smout (logfil, nev, nev, h, ldh, ndigit,
      &        '_naup2: Compressed upper Hessenberg matrix H')
          end if
+<<<<<<< HEAD
 c 
+=======
+c
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
       go to 1000
 c
 c     %---------------------------------------------------------------%
@@ -814,7 +1167,11 @@ c
 c
       mxiter = iter
       nev = numcnv
+<<<<<<< HEAD
 c     
+=======
+c
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
  1200 continue
       ido = 99
 c
@@ -822,9 +1179,15 @@ c     %------------%
 c     | Error Exit |
 c     %------------%
 c
+<<<<<<< HEAD
       call second (t1)
       tnaup2 = t1 - t0
 c     
+=======
+      call arscnd (t1)
+      tnaup2 = t1 - t0
+c
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
  9000 continue
 c
 c     %---------------%

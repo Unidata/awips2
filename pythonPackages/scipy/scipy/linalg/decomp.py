@@ -11,11 +11,18 @@
 # April 2010: Functions for LU, QR, SVD, Schur and Cholesky decompositions were
 # moved to their own files.  Still in this file are functions for eigenstuff
 # and for the Hessenberg form.
+<<<<<<< HEAD
  
+=======
+
+from __future__ import division, print_function, absolute_import
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 __all__ = ['eig','eigh','eig_banded','eigvals','eigvalsh', 'eigvals_banded',
            'hessenberg']
 
 import numpy
+<<<<<<< HEAD
 from numpy import array, asarray_chkfinite, asarray, diag, zeros, ones, \
         isfinite, inexact, nonzero, iscomplexobj, cast
 
@@ -24,10 +31,22 @@ from scipy.linalg import calc_lwork
 from misc import LinAlgError, _datanotshared
 from lapack import get_lapack_funcs
 from blas import get_blas_funcs
+=======
+import numpy as np
+from numpy import array, asarray_chkfinite, asarray, diag, zeros, ones, \
+        isfinite, inexact, nonzero, iscomplexobj, cast, flatnonzero, conj
+# Local imports
+from scipy._lib.six import xrange
+from scipy._lib._util import _asarray_validated
+from .misc import LinAlgError, _datacopied, norm
+from .lapack import get_lapack_funcs
+from .blas import get_blas_funcs
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 
 _I = cast['F'](1j)
 
+<<<<<<< HEAD
 def _make_complex_eigvecs(w, vin, cmplx_tcode):
     v = numpy.array(vin, dtype=cmplx_tcode)
     #ind = numpy.flatnonzero(numpy.not_equal(w.imag,0.0))
@@ -56,6 +75,29 @@ def _geneig(a1, b, left, right, overwrite_a, overwrite_b):
     res = ggev(a1, b1, lwork=-1)
     lwork = res[-2][0]
     if ggev.prefix in 'cz':
+=======
+
+def _make_complex_eigvecs(w, vin, dtype):
+    """
+    Produce complex-valued eigenvectors from LAPACK DGGEV real-valued output
+    """
+    # - see LAPACK man page DGGEV at ALPHAI
+    v = numpy.array(vin, dtype=dtype)
+    m = (w.imag > 0)
+    m[:-1] |= (w.imag[1:] < 0)  # workaround for LAPACK bug, cf. ticket #709
+    for i in flatnonzero(m):
+        v.imag[:,i] = vin[:,i+1]
+        conj(v[:,i], v[:,i+1])
+    return v
+
+
+def _geneig(a1, b1, left, right, overwrite_a, overwrite_b):
+    ggev, = get_lapack_funcs(('ggev',), (a1, b1))
+    cvl, cvr = left, right
+    res = ggev(a1, b1, lwork=-1)
+    lwork = res[-2][0].real.astype(numpy.int)
+    if ggev.typecode in 'cz':
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         alpha, beta, vl, vr, work, info = ggev(a1, b1, cvl, cvr, lwork,
                                                     overwrite_a, overwrite_b)
         w = alpha / beta
@@ -71,12 +113,27 @@ def _geneig(a1, b, left, right, overwrite_a, overwrite_b):
                                                                     % info)
 
     only_real = numpy.logical_and.reduce(numpy.equal(w.imag, 0.0))
+<<<<<<< HEAD
     if not (ggev.prefix in 'cz' or only_real):
+=======
+    if not (ggev.typecode in 'cz' or only_real):
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         t = w.dtype.char
         if left:
             vl = _make_complex_eigvecs(w, vl, t)
         if right:
             vr = _make_complex_eigvecs(w, vr, t)
+<<<<<<< HEAD
+=======
+
+    # the eigenvectors returned by the lapack function are NOT normalized
+    for i in xrange(vr.shape[0]):
+        if right:
+            vr[:, i] /= norm(vr[:, i])
+        if left:
+            vl[:, i] /= norm(vl[:, i])
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     if not (left or right):
         return w
     if left:
@@ -85,14 +142,23 @@ def _geneig(a1, b, left, right, overwrite_a, overwrite_b):
         return w, vl
     return w, vr
 
+<<<<<<< HEAD
 def eig(a, b=None, left=False, right=True, overwrite_a=False, overwrite_b=False):
     """Solve an ordinary or generalized eigenvalue problem of a square matrix.
+=======
+
+def eig(a, b=None, left=False, right=True, overwrite_a=False,
+        overwrite_b=False, check_finite=True):
+    """
+    Solve an ordinary or generalized eigenvalue problem of a square matrix.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     Find eigenvalues w and right or left eigenvectors of a general matrix::
 
         a   vr[:,i] = w[i]        b   vr[:,i]
         a.H vl[:,i] = w[i].conj() b.H vl[:,i]
 
+<<<<<<< HEAD
     where .H is the Hermitean conjugation.
 
     Parameters
@@ -174,6 +240,88 @@ def eig(a, b=None, left=False, right=True, overwrite_a=False, overwrite_b=False)
                                         overwrite_a=overwrite_a)
             t = {'f':'F','d':'D'}[wr.dtype.char]
             w = wr + _I * wi
+=======
+    where ``.H`` is the Hermitian conjugation.
+
+    Parameters
+    ----------
+    a : (M, M) array_like
+        A complex or real matrix whose eigenvalues and eigenvectors
+        will be computed.
+    b : (M, M) array_like, optional
+        Right-hand side matrix in a generalized eigenvalue problem.
+        Default is None, identity matrix is assumed.
+    left : bool, optional
+        Whether to calculate and return left eigenvectors.  Default is False.
+    right : bool, optional
+        Whether to calculate and return right eigenvectors.  Default is True.
+    overwrite_a : bool, optional
+        Whether to overwrite `a`; may improve performance.  Default is False.
+    overwrite_b : bool, optional
+        Whether to overwrite `b`; may improve performance.  Default is False.
+    check_finite : bool, optional
+        Whether to check that the input matrices contain only finite numbers.
+        Disabling may give a performance gain, but may result in problems
+        (crashes, non-termination) if the inputs do contain infinities or NaNs.
+
+    Returns
+    -------
+    w : (M,) double or complex ndarray
+        The eigenvalues, each repeated according to its multiplicity.
+    vl : (M, M) double or complex ndarray
+        The normalized left eigenvector corresponding to the eigenvalue
+        ``w[i]`` is the column vl[:,i]. Only returned if ``left=True``.
+    vr : (M, M) double or complex ndarray
+        The normalized right eigenvector corresponding to the eigenvalue
+        ``w[i]`` is the column ``vr[:,i]``.  Only returned if ``right=True``.
+
+    Raises
+    ------
+    LinAlgError
+        If eigenvalue computation does not converge.
+
+    See Also
+    --------
+    eigh : Eigenvalues and right eigenvectors for symmetric/Hermitian arrays.
+
+    """
+    a1 = _asarray_validated(a, check_finite=check_finite)
+    if len(a1.shape) != 2 or a1.shape[0] != a1.shape[1]:
+        raise ValueError('expected square matrix')
+    overwrite_a = overwrite_a or (_datacopied(a1, a))
+    if b is not None:
+        b1 = _asarray_validated(b, check_finite=check_finite)
+        overwrite_b = overwrite_b or _datacopied(b1, b)
+        if len(b1.shape) != 2 or b1.shape[0] != b1.shape[1]:
+            raise ValueError('expected square matrix')
+        if b1.shape != a1.shape:
+            raise ValueError('a and b must have the same shape')
+        return _geneig(a1, b1, left, right, overwrite_a, overwrite_b)
+
+    geev, geev_lwork = get_lapack_funcs(('geev', 'geev_lwork'), (a1,))
+    compute_vl, compute_vr = left, right
+
+    lwork, info = geev_lwork(a1.shape[0],
+                             compute_vl=compute_vl,
+                             compute_vr=compute_vr)
+    if info != 0:
+        raise LinAlgError("internal *geev work array calculation failed: %d" % (info,))
+    lwork = int(lwork.real)
+
+    if geev.typecode in 'cz':
+        w, vl, vr, info = geev(a1, lwork=lwork,
+                               compute_vl=compute_vl,
+                               compute_vr=compute_vr,
+                               overwrite_a=overwrite_a)
+    else:
+        wr, wi, vl, vr, info = geev(a1, lwork=lwork,
+                                    compute_vl=compute_vl,
+                                    compute_vr=compute_vr,
+                                    overwrite_a=overwrite_a)
+        t = {'f':'F','d':'D'}[wr.dtype.char]
+        w = wr + _I * wi
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     if info < 0:
         raise ValueError('illegal value in %d-th argument of internal geev'
                                                                     % -info)
@@ -182,7 +330,11 @@ def eig(a, b=None, left=False, right=True, overwrite_a=False, overwrite_b=False)
                             "with order >= %d have converged)" % info)
 
     only_real = numpy.logical_and.reduce(numpy.equal(w.imag, 0.0))
+<<<<<<< HEAD
     if not (geev.prefix in 'cz' or only_real):
+=======
+    if not (geev.typecode in 'cz' or only_real):
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         t = w.dtype.char
         if left:
             vl = _make_complex_eigvecs(w, vl, t)
@@ -196,6 +348,7 @@ def eig(a, b=None, left=False, right=True, overwrite_a=False, overwrite_b=False)
         return w, vl
     return w, vr
 
+<<<<<<< HEAD
 def eigh(a, b=None, lower=True, eigvals_only=False, overwrite_a=False,
          overwrite_b=False, turbo=True, eigvals=None, type=1):
     """Solve an ordinary or generalized eigenvalue problem for a complex
@@ -203,11 +356,24 @@ def eigh(a, b=None, lower=True, eigvals_only=False, overwrite_a=False,
 
     Find eigenvalues w and optionally eigenvectors v of matrix a, where
     b is positive definite::
+=======
+
+def eigh(a, b=None, lower=True, eigvals_only=False, overwrite_a=False,
+         overwrite_b=False, turbo=True, eigvals=None, type=1,
+         check_finite=True):
+    """
+    Solve an ordinary or generalized eigenvalue problem for a complex
+    Hermitian or real symmetric matrix.
+
+    Find eigenvalues w and optionally eigenvectors v of matrix `a`, where
+    `b` is positive definite::
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
                       a v[:,i] = w[i] b v[:,i]
         v[i,:].conj() a v[:,i] = w[i]
         v[i,:].conj() b v[:,i] = 1
 
+<<<<<<< HEAD
 
     Parameters
     ----------
@@ -259,23 +425,103 @@ def eigh(a, b=None, lower=True, eigvals_only=False, overwrite_a=False,
     an error occurred, or b matrix is not definite positive. Note that
     if input matrices are not symmetric or hermitian, no error is reported
     but results will be wrong.
+=======
+    Parameters
+    ----------
+    a : (M, M) array_like
+        A complex Hermitian or real symmetric matrix whose eigenvalues and
+        eigenvectors will be computed.
+    b : (M, M) array_like, optional
+        A complex Hermitian or real symmetric definite positive matrix in.
+        If omitted, identity matrix is assumed.
+    lower : bool, optional
+        Whether the pertinent array data is taken from the lower or upper
+        triangle of `a`. (Default: lower)
+    eigvals_only : bool, optional
+        Whether to calculate only eigenvalues and no eigenvectors.
+        (Default: both are calculated)
+    turbo : bool, optional
+        Use divide and conquer algorithm (faster but expensive in memory,
+        only for generalized eigenvalue problem and if eigvals=None)
+    eigvals : tuple (lo, hi), optional
+        Indexes of the smallest and largest (in ascending order) eigenvalues
+        and corresponding eigenvectors to be returned: 0 <= lo <= hi <= M-1.
+        If omitted, all eigenvalues and eigenvectors are returned.
+    type : int, optional
+        Specifies the problem type to be solved:
+
+           type = 1: a   v[:,i] = w[i] b v[:,i]
+
+           type = 2: a b v[:,i] = w[i]   v[:,i]
+
+           type = 3: b a v[:,i] = w[i]   v[:,i]
+    overwrite_a : bool, optional
+        Whether to overwrite data in `a` (may improve performance)
+    overwrite_b : bool, optional
+        Whether to overwrite data in `b` (may improve performance)
+    check_finite : bool, optional
+        Whether to check that the input matrices contain only finite numbers.
+        Disabling may give a performance gain, but may result in problems
+        (crashes, non-termination) if the inputs do contain infinities or NaNs.
+
+    Returns
+    -------
+    w : (N,) float ndarray
+        The N (1<=N<=M) selected eigenvalues, in ascending order, each
+        repeated according to its multiplicity.
+    v : (M, N) complex ndarray
+        (if eigvals_only == False)
+
+        The normalized selected eigenvector corresponding to the
+        eigenvalue w[i] is the column v[:,i].
+
+        Normalization:
+
+            type 1 and 3: v.conj() a      v  = w
+
+            type 2: inv(v).conj() a  inv(v) = w
+
+            type = 1 or 2: v.conj() b      v  = I
+
+            type = 3: v.conj() inv(b) v  = I
+
+    Raises
+    ------
+    LinAlgError :
+        If eigenvalue computation does not converge,
+        an error occurred, or b matrix is not definite positive. Note that
+        if input matrices are not symmetric or hermitian, no error is reported
+        but results will be wrong.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     See Also
     --------
     eig : eigenvalues and right eigenvectors for non-symmetric arrays
 
     """
+<<<<<<< HEAD
     a1 = asarray_chkfinite(a)
     if len(a1.shape) != 2 or a1.shape[0] != a1.shape[1]:
         raise ValueError('expected square matrix')
     overwrite_a = overwrite_a or (_datanotshared(a1, a))
+=======
+    a1 = _asarray_validated(a, check_finite=check_finite)
+    if len(a1.shape) != 2 or a1.shape[0] != a1.shape[1]:
+        raise ValueError('expected square matrix')
+    overwrite_a = overwrite_a or (_datacopied(a1, a))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     if iscomplexobj(a1):
         cplx = True
     else:
         cplx = False
     if b is not None:
+<<<<<<< HEAD
         b1 = asarray_chkfinite(b)
         overwrite_b = overwrite_b or _datanotshared(b1, b)
+=======
+        b1 = _asarray_validated(b, check_finite=check_finite)
+        overwrite_b = overwrite_b or _datacopied(b1, b)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         if len(b1.shape) != 2 or b1.shape[0] != b1.shape[1]:
             raise ValueError('expected square matrix')
 
@@ -324,7 +570,11 @@ def eigh(a, b=None, lower=True, eigvals_only=False, overwrite_a=False,
             w, v, info = evr(a1, uplo=uplo, jobz=_job, range="A", il=1,
                              iu=a1.shape[0], overwrite_a=overwrite_a)
         else:
+<<<<<<< HEAD
             (lo, hi)= eigvals
+=======
+            (lo, hi) = eigvals
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             w_tot, v, info = evr(a1, uplo=uplo, jobz=_job, range="I",
                                  il=lo, iu=hi, overwrite_a=overwrite_a)
             w = w_tot[0:hi-lo+1]
@@ -349,7 +599,11 @@ def eigh(a, b=None, lower=True, eigvals_only=False, overwrite_a=False,
         # Use '*gv' routine if turbo is off and no eigvals are specified
         else:
             (gv,) = get_lapack_funcs((pfx+'gv',), (a1,b1))
+<<<<<<< HEAD
             v, w, info = gv(a1, b1, uplo=uplo, itype= type, jobz=_job,
+=======
+            v, w, info = gv(a1, b1, uplo=uplo, itype=type, jobz=_job,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                             overwrite_a=overwrite_a,
                             overwrite_b=overwrite_b)
 
@@ -385,15 +639,24 @@ def eigh(a, b=None, lower=True, eigvals_only=False, overwrite_a=False,
                           " and no eigenvalues or eigenvectors were"
                           " computed." % (info-b1.shape[0]))
 
+<<<<<<< HEAD
 def eig_banded(a_band, lower=False, eigvals_only=False, overwrite_a_band=False,
                select='a', select_range=None, max_ev = 0):
     """Solve real symmetric or complex hermitian band matrix eigenvalue problem.
+=======
+
+def eig_banded(a_band, lower=False, eigvals_only=False, overwrite_a_band=False,
+               select='a', select_range=None, max_ev=0, check_finite=True):
+    """
+    Solve real symmetric or complex hermitian band matrix eigenvalue problem.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     Find eigenvalues w and optionally right eigenvectors v of a::
 
         a v[:,i] = w[i] v[:,i]
         v.H v    = identity
 
+<<<<<<< HEAD
     The matrix a is stored in ab either in lower diagonal or upper
     diagonal ordered form:
 
@@ -401,6 +664,17 @@ def eig_banded(a_band, lower=False, eigvals_only=False, overwrite_a_band=False,
         ab[    i - j, j] == a[i,j]        (if lower form; i >= j)
 
     Example of ab (shape of a is (6,6), u=2)::
+=======
+    The matrix a is stored in a_band either in lower diagonal or upper
+    diagonal ordered form:
+
+        a_band[u + i - j, j] == a[i,j]        (if upper form; i <= j)
+        a_band[    i - j, j] == a[i,j]        (if lower form; i >= j)
+
+    where u is the number of bands above the diagonal.
+
+    Example of a_band (shape of a is (6,6), u=2)::
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         upper form:
         *   *   a02 a13 a24 a35
@@ -416,6 +690,7 @@ def eig_banded(a_band, lower=False, eigvals_only=False, overwrite_a_band=False,
 
     Parameters
     ----------
+<<<<<<< HEAD
     a_band : array, shape (M, u+1)
         Banded matrix whose eigenvalues to calculate
     lower : boolean
@@ -426,6 +701,18 @@ def eig_banded(a_band, lower=False, eigvals_only=False, overwrite_a_band=False,
     overwrite_a_band:
         Discard data in a_band (may enhance performance)
     select: {'a', 'v', 'i'}
+=======
+    a_band : (u+1, M) array_like
+        The bands of the M by M matrix a.
+    lower : bool, optional
+        Is the matrix in the lower form. (Default is upper form)
+    eigvals_only : bool, optional
+        Compute only the eigenvalues and no eigenvectors.
+        (Default: calculate also eigenvectors)
+    overwrite_a_band : bool, optional
+        Discard data in a_band (may enhance performance)
+    select : {'a', 'v', 'i'}, optional
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         Which eigenvalues to calculate
 
         ======  ========================================
@@ -435,14 +722,21 @@ def eig_banded(a_band, lower=False, eigvals_only=False, overwrite_a_band=False,
         'v'     Eigenvalues in the interval (min, max]
         'i'     Eigenvalues with indices min <= i <= max
         ======  ========================================
+<<<<<<< HEAD
     select_range : (min, max)
         Range of selected eigenvalues
     max_ev : integer
+=======
+    select_range : (min, max), optional
+        Range of selected eigenvalues
+    max_ev : int, optional
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         For select=='v', maximum number of eigenvalues expected.
         For other values of select, has no meaning.
 
         In doubt, leave this parameter untouched.
 
+<<<<<<< HEAD
     Returns
     -------
     w : array, shape (M,)
@@ -450,6 +744,19 @@ def eig_banded(a_band, lower=False, eigvals_only=False, overwrite_a_band=False,
         multiplicity.
 
     v : double or complex double array, shape (M, M)
+=======
+    check_finite : bool, optional
+        Whether to check that the input matrix contains only finite numbers.
+        Disabling may give a performance gain, but may result in problems
+        (crashes, non-termination) if the inputs do contain infinities or NaNs.
+
+    Returns
+    -------
+    w : (M,) ndarray
+        The eigenvalues, in ascending order, each repeated according to its
+        multiplicity.
+    v : (M, M) float or complex ndarray
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         The normalized eigenvector corresponding to the eigenvalue w[i] is
         the column v[:,i].
 
@@ -457,8 +764,13 @@ def eig_banded(a_band, lower=False, eigvals_only=False, overwrite_a_band=False,
 
     """
     if eigvals_only or overwrite_a_band:
+<<<<<<< HEAD
         a1 = asarray_chkfinite(a_band)
         overwrite_a_band = overwrite_a_band or (_datanotshared(a1, a_band))
+=======
+        a1 = _asarray_validated(a_band, check_finite=check_finite)
+        overwrite_a_band = overwrite_a_band or (_datacopied(a1, a_band))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     else:
         a1 = array(a_band)
         if issubclass(a1.dtype.type, inexact) and not isfinite(a1).all():
@@ -475,6 +787,7 @@ def eig_banded(a_band, lower=False, eigvals_only=False, overwrite_a_band=False,
             # FIXME: implement this somewhen, for now go with builtin values
             # FIXME: calc optimal lwork by calling ?hbevd(lwork=-1)
             #        or by using calc_lwork.f ???
+<<<<<<< HEAD
             # lwork = calc_lwork.hbevd(bevd.prefix, a1.shape[0], lower)
             internal_name = 'hbevd'
         else: # a1.dtype.char in 'fd':
@@ -482,6 +795,15 @@ def eig_banded(a_band, lower=False, eigvals_only=False, overwrite_a_band=False,
             # FIXME: implement this somewhen, for now go with builtin values
             #         see above
             # lwork = calc_lwork.sbevd(bevd.prefix, a1.shape[0], lower)
+=======
+            # lwork = calc_lwork.hbevd(bevd.typecode, a1.shape[0], lower)
+            internal_name = 'hbevd'
+        else:  # a1.dtype.char in 'fd':
+            bevd, = get_lapack_funcs(('sbevd',), (a1,))
+            # FIXME: implement this somewhen, for now go with builtin values
+            #         see above
+            # lwork = calc_lwork.sbevd(bevd.typecode, a1.shape[0], lower)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             internal_name = 'sbevd'
         w,v,info = bevd(a1, compute_v=not eigvals_only,
                         lower=lower,
@@ -492,7 +814,11 @@ def eig_banded(a_band, lower=False, eigvals_only=False, overwrite_a_band=False,
             select = 2
             vl, vu, il, iu = 0.0, 0.0, min(select_range), max(select_range)
             if min(il, iu) < 0 or max(il, iu) >= a1.shape[1]:
+<<<<<<< HEAD
                 raise ValueError, 'select_range out of bounds'
+=======
+                raise ValueError('select_range out of bounds')
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             max_ev = iu - il + 1
         else:  # 1, 'v', 'value'
             select = 1
@@ -510,7 +836,11 @@ def eig_banded(a_band, lower=False, eigvals_only=False, overwrite_a_band=False,
         if a1.dtype.char in 'GFD':
             bevx, = get_lapack_funcs(('hbevx',), (a1,))
             internal_name = 'hbevx'
+<<<<<<< HEAD
         else: # a1.dtype.char in 'gfd'
+=======
+        else:  # a1.dtype.char in 'gfd'
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             bevx, = get_lapack_funcs(('sbevx',), (a1,))
             internal_name = 'sbevx'
         # il+1, iu+1: translate python indexing (0 ... N-1) into Fortran
@@ -535,8 +865,15 @@ def eig_banded(a_band, lower=False, eigvals_only=False, overwrite_a_band=False,
         return w
     return w, v
 
+<<<<<<< HEAD
 def eigvals(a, b=None, overwrite_a=False):
     """Compute eigenvalues from an ordinary or generalized eigenvalue problem.
+=======
+
+def eigvals(a, b=None, overwrite_a=False, check_finite=True):
+    """
+    Compute eigenvalues from an ordinary or generalized eigenvalue problem.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     Find eigenvalues of a general matrix::
 
@@ -544,6 +881,7 @@ def eigvals(a, b=None, overwrite_a=False):
 
     Parameters
     ----------
+<<<<<<< HEAD
     a : array, shape (M, M)
         A complex or real matrix whose eigenvalues and eigenvectors
         will be computed.
@@ -573,6 +911,48 @@ def eigvals(a, b=None, overwrite_a=False):
 def eigvalsh(a, b=None, lower=True, overwrite_a=False,
              overwrite_b=False, turbo=True, eigvals=None, type=1):
     """Solve an ordinary or generalized eigenvalue problem for a complex
+=======
+    a : (M, M) array_like
+        A complex or real matrix whose eigenvalues and eigenvectors
+        will be computed.
+    b : (M, M) array_like, optional
+        Right-hand side matrix in a generalized eigenvalue problem.
+        If omitted, identity matrix is assumed.
+    overwrite_a : bool, optional
+        Whether to overwrite data in a (may improve performance)
+    check_finite : bool, optional
+        Whether to check that the input matrices contain only finite numbers.
+        Disabling may give a performance gain, but may result in problems
+        (crashes, non-termination) if the inputs do contain infinities or NaNs.
+
+    Returns
+    -------
+    w : (M,) double or complex ndarray
+        The eigenvalues, each repeated according to its multiplicity,
+        but not in any specific order.
+
+    Raises
+    ------
+    LinAlgError
+        If eigenvalue computation does not converge
+
+    See Also
+    --------
+    eigvalsh : eigenvalues of symmetric or Hermitian arrays,
+    eig : eigenvalues and right eigenvectors of general arrays.
+    eigh : eigenvalues and eigenvectors of symmetric/Hermitian arrays.
+
+    """
+    return eig(a, b=b, left=0, right=0, overwrite_a=overwrite_a,
+                check_finite=check_finite)
+
+
+def eigvalsh(a, b=None, lower=True, overwrite_a=False,
+             overwrite_b=False, turbo=True, eigvals=None, type=1,
+             check_finite=True):
+    """
+    Solve an ordinary or generalized eigenvalue problem for a complex
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     Hermitian or real symmetric matrix.
 
     Find eigenvalues w of matrix a, where b is positive definite::
@@ -584,6 +964,7 @@ def eigvalsh(a, b=None, lower=True, overwrite_a=False,
 
     Parameters
     ----------
+<<<<<<< HEAD
     a : array, shape (M, M)
         A complex Hermitian or real symmetric matrix whose eigenvalues and
         eigenvectors will be computed.
@@ -620,6 +1001,54 @@ def eigvalsh(a, b=None, lower=True, overwrite_a=False,
     an error occurred, or b matrix is not definite positive. Note that
     if input matrices are not symmetric or hermitian, no error is reported
     but results will be wrong.
+=======
+    a : (M, M) array_like
+        A complex Hermitian or real symmetric matrix whose eigenvalues and
+        eigenvectors will be computed.
+    b : (M, M) array_like, optional
+        A complex Hermitian or real symmetric definite positive matrix in.
+        If omitted, identity matrix is assumed.
+    lower : bool, optional
+        Whether the pertinent array data is taken from the lower or upper
+        triangle of `a`. (Default: lower)
+    turbo : bool, optional
+        Use divide and conquer algorithm (faster but expensive in memory,
+        only for generalized eigenvalue problem and if eigvals=None)
+    eigvals : tuple (lo, hi), optional
+        Indexes of the smallest and largest (in ascending order) eigenvalues
+        and corresponding eigenvectors to be returned: 0 <= lo < hi <= M-1.
+        If omitted, all eigenvalues and eigenvectors are returned.
+    type : int, optional
+        Specifies the problem type to be solved:
+
+           type = 1: a   v[:,i] = w[i] b v[:,i]
+
+           type = 2: a b v[:,i] = w[i]   v[:,i]
+
+           type = 3: b a v[:,i] = w[i]   v[:,i]
+    overwrite_a : bool, optional
+        Whether to overwrite data in `a` (may improve performance)
+    overwrite_b : bool, optional
+        Whether to overwrite data in `b` (may improve performance)
+    check_finite : bool, optional
+        Whether to check that the input matrices contain only finite numbers.
+        Disabling may give a performance gain, but may result in problems
+        (crashes, non-termination) if the inputs do contain infinities or NaNs.
+
+    Returns
+    -------
+    w : (N,) float ndarray
+        The N (1<=N<=M) selected eigenvalues, in ascending order, each
+        repeated according to its multiplicity.
+
+    Raises
+    ------
+    LinAlgError :
+        If eigenvalue computation does not converge,
+        an error occurred, or b matrix is not definite positive. Note that
+        if input matrices are not symmetric or hermitian, no error is reported
+        but results will be wrong.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     See Also
     --------
@@ -630,17 +1059,29 @@ def eigvalsh(a, b=None, lower=True, overwrite_a=False,
     """
     return eigh(a, b=b, lower=lower, eigvals_only=True,
                 overwrite_a=overwrite_a, overwrite_b=overwrite_b,
+<<<<<<< HEAD
                 turbo=turbo, eigvals=eigvals, type=type)
 
 def eigvals_banded(a_band, lower=False, overwrite_a_band=False,
                    select='a', select_range=None):
     """Solve real symmetric or complex hermitian band matrix eigenvalue problem.
+=======
+                turbo=turbo, eigvals=eigvals, type=type,
+                check_finite=check_finite)
+
+
+def eigvals_banded(a_band, lower=False, overwrite_a_band=False,
+                   select='a', select_range=None, check_finite=True):
+    """
+    Solve real symmetric or complex hermitian band matrix eigenvalue problem.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     Find eigenvalues w of a::
 
         a v[:,i] = w[i] v[:,i]
         v.H v    = identity
 
+<<<<<<< HEAD
     The matrix a is stored in ab either in lower diagonal or upper
     diagonal ordered form:
 
@@ -648,6 +1089,17 @@ def eigvals_banded(a_band, lower=False, overwrite_a_band=False,
         ab[    i - j, j] == a[i,j]        (if lower form; i >= j)
 
     Example of ab (shape of a is (6,6), u=2)::
+=======
+    The matrix a is stored in a_band either in lower diagonal or upper
+    diagonal ordered form:
+
+        a_band[u + i - j, j] == a[i,j]        (if upper form; i <= j)
+        a_band[    i - j, j] == a[i,j]        (if lower form; i >= j)
+
+    where u is the number of bands above the diagonal.
+
+    Example of a_band (shape of a is (6,6), u=2)::
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         upper form:
         *   *   a02 a13 a24 a35
@@ -663,6 +1115,7 @@ def eigvals_banded(a_band, lower=False, overwrite_a_band=False,
 
     Parameters
     ----------
+<<<<<<< HEAD
     a_band : array, shape (M, u+1)
         Banded matrix whose eigenvalues to calculate
     lower : boolean
@@ -670,6 +1123,15 @@ def eigvals_banded(a_band, lower=False, overwrite_a_band=False,
     overwrite_a_band:
         Discard data in a_band (may enhance performance)
     select: {'a', 'v', 'i'}
+=======
+    a_band : (u+1, M) array_like
+        The bands of the M by M matrix a.
+    lower : bool, optional
+        Is the matrix in the lower form. (Default is upper form)
+    overwrite_a_band : bool, optional
+        Discard data in a_band (may enhance performance)
+    select : {'a', 'v', 'i'}, optional
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         Which eigenvalues to calculate
 
         ======  ========================================
@@ -679,12 +1141,25 @@ def eigvals_banded(a_band, lower=False, overwrite_a_band=False,
         'v'     Eigenvalues in the interval (min, max]
         'i'     Eigenvalues with indices min <= i <= max
         ======  ========================================
+<<<<<<< HEAD
     select_range : (min, max)
         Range of selected eigenvalues
 
     Returns
     -------
     w : array, shape (M,)
+=======
+    select_range : (min, max), optional
+        Range of selected eigenvalues
+    check_finite : bool, optional
+        Whether to check that the input matrix contains only finite numbers.
+        Disabling may give a performance gain, but may result in problems
+        (crashes, non-termination) if the inputs do contain infinities or NaNs.
+
+    Returns
+    -------
+    w : (M,) ndarray
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         The eigenvalues, in ascending order, each repeated according to its
         multiplicity.
 
@@ -692,7 +1167,12 @@ def eigvals_banded(a_band, lower=False, overwrite_a_band=False,
 
     See Also
     --------
+<<<<<<< HEAD
     eig_banded : eigenvalues and right eigenvectors for symmetric/Hermitian band matrices
+=======
+    eig_banded : eigenvalues and right eigenvectors for symmetric/Hermitian
+        band matrices
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     eigvals : eigenvalues of general arrays
     eigh : eigenvalues and right eigenvectors for symmetric/Hermitian arrays
     eig : eigenvalues and right eigenvectors for non-symmetric arrays
@@ -700,11 +1180,16 @@ def eigvals_banded(a_band, lower=False, overwrite_a_band=False,
     """
     return eig_banded(a_band, lower=lower, eigvals_only=1,
                       overwrite_a_band=overwrite_a_band, select=select,
+<<<<<<< HEAD
                       select_range=select_range)
+=======
+                      select_range=select_range, check_finite=check_finite)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 _double_precision = ['i','l','d']
 
 
+<<<<<<< HEAD
 def hessenberg(a, calc_q=False, overwrite_a=False):
     """Compute Hessenberg form of a matrix.
 
@@ -740,15 +1225,75 @@ def hessenberg(a, calc_q=False, overwrite_a=False):
     overwrite_a = overwrite_a or (_datanotshared(a1, a))
     gehrd,gebal = get_lapack_funcs(('gehrd','gebal'), (a1,))
     ba, lo, hi, pivscale, info = gebal(a, permute=1, overwrite_a=overwrite_a)
+=======
+def hessenberg(a, calc_q=False, overwrite_a=False, check_finite=True):
+    """
+    Compute Hessenberg form of a matrix.
+
+    The Hessenberg decomposition is::
+
+        A = Q H Q^H
+
+    where `Q` is unitary/orthogonal and `H` has only zero elements below
+    the first sub-diagonal.
+
+    Parameters
+    ----------
+    a : (M, M) array_like
+        Matrix to bring into Hessenberg form.
+    calc_q : bool, optional
+        Whether to compute the transformation matrix.  Default is False.
+    overwrite_a : bool, optional
+        Whether to overwrite `a`; may improve performance.
+        Default is False.
+    check_finite : bool, optional
+        Whether to check that the input matrix contains only finite numbers.
+        Disabling may give a performance gain, but may result in problems
+        (crashes, non-termination) if the inputs do contain infinities or NaNs.
+
+    Returns
+    -------
+    H : (M, M) ndarray
+        Hessenberg form of `a`.
+    Q : (M, M) ndarray
+        Unitary/orthogonal similarity transformation matrix ``A = Q H Q^H``.
+        Only returned if ``calc_q=True``.
+
+    """
+    a1 = _asarray_validated(a, check_finite=check_finite)
+    if len(a1.shape) != 2 or (a1.shape[0] != a1.shape[1]):
+        raise ValueError('expected square matrix')
+    overwrite_a = overwrite_a or (_datacopied(a1, a))
+
+    # if 2x2 or smaller: already in Hessenberg
+    if a1.shape[0] <= 2:
+        if calc_q:
+            return a1, numpy.eye(a1.shape[0])
+        return a1
+
+    gehrd, gebal, gehrd_lwork = get_lapack_funcs(('gehrd','gebal', 'gehrd_lwork'), (a1,))
+    ba, lo, hi, pivscale, info = gebal(a1, permute=0, overwrite_a=overwrite_a)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     if info < 0:
         raise ValueError('illegal value in %d-th argument of internal gebal '
                                                     '(hessenberg)' % -info)
     n = len(a1)
+<<<<<<< HEAD
     lwork = calc_lwork.gehrd(gehrd.prefix, n, lo, hi)
+=======
+
+    lwork, info = gehrd_lwork(ba.shape[0], lo=lo, hi=hi)
+    if info != 0:
+        raise ValueError('failed to compute internal gehrd work array size. '
+                            'LAPACK info = %d ' % info)
+    lwork = int(lwork.real)
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     hq, tau, info = gehrd(ba, lo=lo, hi=hi, lwork=lwork, overwrite_a=1)
     if info < 0:
         raise ValueError('illegal value in %d-th argument of internal gehrd '
                                         '(hessenberg)' % -info)
+<<<<<<< HEAD
 
     if not calc_q:
         for i in range(lo, hi):
@@ -774,3 +1319,21 @@ def hessenberg(a, calc_q=False, overwrite_a=False):
     if q is None:
         q = diag(ones(n, dtype=typecode))
     return hq, q
+=======
+    h = numpy.triu(hq, -1)
+    if not calc_q:
+        return h
+
+    # use orghr/unghr to compute q
+    orghr, orghr_lwork = get_lapack_funcs(('orghr', 'orghr_lwork'), (a1,))
+    lwork, info = orghr_lwork(n, lo=lo, hi=hi)
+    if info != 0:
+        raise ValueError('failed to compute internal orghr work array size. '
+                            'LAPACK info = %d ' % info)
+    lwork = int(lwork.real)
+    q, info = orghr(a=hq, tau=tau, lo=lo, hi=hi, lwork=lwork, overwrite_a=1)
+    if info < 0:
+        raise ValueError('illegal value in %d-th argument of internal orghr '
+                         '(hessenberg)' % -info)
+    return h, q
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

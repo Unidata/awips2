@@ -11,8 +11,13 @@
 
 #include "slu_cdefs.h"
 
+<<<<<<< HEAD
 extern void mc64id_(int_t*);
 extern void mc64ad_(int_t*, int_t*, int_t*, int_t [], int_t [], double [],
+=======
+extern int_t mc64id_(int_t*);
+extern int_t mc64ad_(int_t*, int_t*, int_t*, int_t [], int_t [], double [],
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 		    int_t*, int_t [], int_t*, int_t[], int_t*, double [],
 		    int_t [], int_t []);
 
@@ -91,7 +96,11 @@ cldperm(int_t job, int_t n, int_t nnz, int_t colptr[], int_t adjncy[],
     double *nzval_d = (double *) SUPERLU_MALLOC(nnz * sizeof(double));
 
 #if ( DEBUGlevel>=1 )
+<<<<<<< HEAD
     CHECK_MALLOC(0, "Enter cldperm()");
+=======
+    CHECK_MALLOC("Enter cldperm()");
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 #endif
     liw = 5*n;
     if ( job == 3 ) liw = 10*n + nnz;
@@ -132,7 +141,11 @@ cldperm(int_t job, int_t n, int_t nnz, int_t colptr[], int_t adjncy[],
     icntl[1] = -1;
 #endif
 
+<<<<<<< HEAD
     for (i = 0; i < nnz; ++i) nzval_d[i] = slu_c_abs1(&nzval[i]);
+=======
+    for (i = 0; i < nnz; ++i) nzval_d[i] = c_abs1(&nzval[i]);
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     mc64ad_(&job, &n, &nnz, colptr, adjncy, nzval_d, &num, perm,
 	    &liw, iw, &ldw, dw, icntl, info);
 
@@ -161,7 +174,11 @@ cldperm(int_t job, int_t n, int_t nnz, int_t colptr[], int_t adjncy[],
     SUPERLU_FREE(nzval_d);
 
 #if ( DEBUGlevel>=1 )
+<<<<<<< HEAD
     CHECK_MALLOC(0, "Exit cldperm()");
+=======
+    CHECK_MALLOC("Exit cldperm()");
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 #endif
 
     return info[0];

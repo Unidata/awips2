@@ -5,6 +5,10 @@ native byte order and swapped byte order to explicit numpy endian
 codes - one of '<' (little endian) or '>' (big endian)
 
 '''
+<<<<<<< HEAD
+=======
+from __future__ import division, print_function, absolute_import
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 import sys
 
@@ -17,6 +21,10 @@ aliases = {'little': ('little', '<', 'l', 'le'),
            'native': ('native', '='),
            'swapped': ('swapped', 'S')}
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 def to_numpy_code(code):
     """
     Convert various order codings to numpy format.

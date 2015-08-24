@@ -1,7 +1,17 @@
+<<<<<<< HEAD
 # Scipy imports.
 import numpy as np
 from numpy import pi
 from numpy.testing import *
+=======
+from __future__ import division, print_function, absolute_import
+
+# Scipy imports.
+import numpy as np
+from numpy import pi
+from numpy.testing import (assert_array_almost_equal, TestCase,
+                           run_module_suite, assert_equal)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 from scipy.odr import Data, Model, ODR, RealData, odr_stop
 
 
@@ -39,15 +49,24 @@ class TestODR(TestCase):
         explicit_odr = ODR(explicit_dat, explicit_mod, beta0=[1500.0, -50.0, -0.1],
                        ifixx=[0,0,1,1,1,1,1,1,1,1,1,0])
         explicit_odr.set_job(deriv=2)
+<<<<<<< HEAD
+=======
+        explicit_odr.set_iprint(init=0, iter=0, final=0)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         out = explicit_odr.run()
         assert_array_almost_equal(
             out.beta,
+<<<<<<< HEAD
             np.array([  1.2646548050648876e+03,  -5.4018409956678255e+01,
+=======
+            np.array([1.2646548050648876e+03, -5.4018409956678255e+01,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                 -8.7849712165253724e-02]),
         )
         assert_array_almost_equal(
             out.sd_beta,
+<<<<<<< HEAD
             np.array([ 1.0349270280543437,  1.583997785262061 ,  0.0063321988657267]),
         )
         assert_array_almost_equal(
@@ -61,6 +80,20 @@ class TestODR(TestCase):
         )
 
 
+=======
+            np.array([1.0349270280543437, 1.583997785262061, 0.0063321988657267]),
+        )
+        assert_array_almost_equal(
+            out.cov_beta,
+            np.array([[4.4949592379003039e-01, -3.7421976890364739e-01,
+                 -8.0978217468468912e-04],
+               [-3.7421976890364739e-01, 1.0529686462751804e+00,
+                 -1.9453521827942002e-03],
+               [-8.0978217468468912e-04, -1.9453521827942002e-03,
+                  1.6827336938454476e-05]]),
+        )
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     # Implicit Example
 
     def implicit_fcn(self, B, x):
@@ -88,6 +121,7 @@ class TestODR(TestCase):
         out = implicit_odr.run()
         assert_array_almost_equal(
             out.beta,
+<<<<<<< HEAD
             np.array([-0.9993809167281279, -2.9310484652026476,  0.0875730502693354,
                 0.0162299708984738,  0.0797537982976416]),
         )
@@ -116,6 +150,35 @@ class TestODR(TestCase):
         )
 
 
+=======
+            np.array([-0.9993809167281279, -2.9310484652026476, 0.0875730502693354,
+                0.0162299708984738, 0.0797537982976416]),
+        )
+        assert_array_almost_equal(
+            out.sd_beta,
+            np.array([0.1113840353364371, 0.1097673310686467, 0.0041060738314314,
+                0.0027500347539902, 0.0034962501532468]),
+        )
+        assert_array_almost_equal(
+            out.cov_beta,
+            np.array([[2.1089274602333052e+00, -1.9437686411979040e+00,
+                  7.0263550868344446e-02, -4.7175267373474862e-02,
+                  5.2515575927380355e-02],
+               [-1.9437686411979040e+00, 2.0481509222414456e+00,
+                 -6.1600515853057307e-02, 4.6268827806232933e-02,
+                 -5.8822307501391467e-02],
+               [7.0263550868344446e-02, -6.1600515853057307e-02,
+                  2.8659542561579308e-03, -1.4628662260014491e-03,
+                  1.4528860663055824e-03],
+               [-4.7175267373474862e-02, 4.6268827806232933e-02,
+                 -1.4628662260014491e-03, 1.2855592885514335e-03,
+                 -1.2692942951415293e-03],
+               [5.2515575927380355e-02, -5.8822307501391467e-02,
+                  1.4528860663055824e-03, -1.2692942951415293e-03,
+                  2.0778813389755596e-03]]),
+        )
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     # Multi-variable Example
 
     def multi_fcn(self, B, x):
@@ -163,7 +226,11 @@ class TestODR(TestCase):
             if multi_x[i] < 100.0:
                 multi_ifixx[i] = 0
             elif multi_x[i] <= 150.0:
+<<<<<<< HEAD
                 pass # defaults are fine
+=======
+                pass  # defaults are fine
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             elif multi_x[i] <= 1000.0:
                 multi_delta[i] = 25.0
             elif multi_x[i] <= 10000.0:
@@ -184,6 +251,7 @@ class TestODR(TestCase):
         out = multi_odr.run()
         assert_array_almost_equal(
             out.beta,
+<<<<<<< HEAD
             np.array([ 4.3799880305938963,  2.4333057577497703,  8.0028845899503978,
                 0.5101147161764654,  0.5173902330489161]),
         )
@@ -207,6 +275,30 @@ class TestODR(TestCase):
         )
 
 
+=======
+            np.array([4.3799880305938963, 2.4333057577497703, 8.0028845899503978,
+                0.5101147161764654, 0.5173902330489161]),
+        )
+        assert_array_almost_equal(
+            out.sd_beta,
+            np.array([0.0130625231081944, 0.0130499785273277, 0.1167085962217757,
+                0.0132642749596149, 0.0288529201353984]),
+        )
+        assert_array_almost_equal(
+            out.cov_beta,
+            np.array([[0.0064918418231375, 0.0036159705923791, 0.0438637051470406,
+                -0.0058700836512467, 0.011281212888768],
+               [0.0036159705923791, 0.0064793789429006, 0.0517610978353126,
+                -0.0051181304940204, 0.0130726943624117],
+               [0.0438637051470406, 0.0517610978353126, 0.5182263323095322,
+                -0.0563083340093696, 0.1269490939468611],
+               [-0.0058700836512467, -0.0051181304940204, -0.0563083340093696,
+                 0.0066939246261263, -0.0140184391377962],
+               [0.011281212888768, 0.0130726943624117, 0.1269490939468611,
+                -0.0140184391377962, 0.0316733013820852]]),
+        )
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     # Pearson's Data
     # K. Pearson, Philosophical Magazine, 2, 559 (1901)
 
@@ -232,6 +324,7 @@ class TestODR(TestCase):
         out = p_odr.run()
         assert_array_almost_equal(
             out.beta,
+<<<<<<< HEAD
             np.array([ 5.4767400299231674, -0.4796082367610305]),
         )
         assert_array_almost_equal(
@@ -242,11 +335,24 @@ class TestODR(TestCase):
             out.cov_beta,
             np.array([[ 0.0854275622946333, -0.0161807025443155],
                [-0.0161807025443155,  0.003306337993922 ]]),
+=======
+            np.array([5.4767400299231674, -0.4796082367610305]),
+        )
+        assert_array_almost_equal(
+            out.sd_beta,
+            np.array([0.3590121690702467, 0.0706291186037444]),
+        )
+        assert_array_almost_equal(
+            out.cov_beta,
+            np.array([[0.0854275622946333, -0.0161807025443155],
+               [-0.0161807025443155, 0.003306337993922]]),
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         )
 
         rout = pr_odr.run()
         assert_array_almost_equal(
             rout.beta,
+<<<<<<< HEAD
             np.array([ 11.4192022410781231,  -2.0850374506165474]),
         )
         assert_array_almost_equal(
@@ -257,6 +363,18 @@ class TestODR(TestCase):
             rout.cov_beta,
             np.array([[ 0.6391799462548782, -0.1955657291119177],
                [-0.1955657291119177,  0.0624888159223392]]),
+=======
+            np.array([11.4192022410781231, -2.0850374506165474]),
+        )
+        assert_array_almost_equal(
+            rout.sd_beta,
+            np.array([0.9820231665657161, 0.3070515616198911]),
+        )
+        assert_array_almost_equal(
+            rout.cov_beta,
+            np.array([[0.6391799462548782, -0.1955657291119177],
+               [-0.1955657291119177, 0.0624888159223392]]),
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         )
 
     # Lorentz Peak
@@ -288,16 +406,25 @@ class TestODR(TestCase):
         out = l_odr.run()
         assert_array_almost_equal(
             out.beta,
+<<<<<<< HEAD
             np.array([  1.4306780846149925e+03,   1.3390509034538309e-01,
+=======
+            np.array([1.4306780846149925e+03, 1.3390509034538309e-01,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                  3.7798193600109009e+00]),
         )
         assert_array_almost_equal(
             out.sd_beta,
+<<<<<<< HEAD
             np.array([  7.3621186811330963e-01,   3.5068899941471650e-04,
+=======
+            np.array([7.3621186811330963e-01, 3.5068899941471650e-04,
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                  2.4451209281408992e-04]),
         )
         assert_array_almost_equal(
             out.cov_beta,
+<<<<<<< HEAD
             np.array([[  2.4714409064597873e-01,  -6.9067261911110836e-05,
                  -3.1236953270424990e-05],
                [ -6.9067261911110836e-05,   5.6077531517333009e-08,
@@ -310,3 +437,30 @@ class TestODR(TestCase):
 if __name__ == "__main__":
     run_module_suite()
 #### EOF #######################################################################
+=======
+            np.array([[2.4714409064597873e-01, -6.9067261911110836e-05,
+                 -3.1236953270424990e-05],
+               [-6.9067261911110836e-05, 5.6077531517333009e-08,
+                  3.6133261832722601e-08],
+               [-3.1236953270424990e-05, 3.6133261832722601e-08,
+                  2.7261220025171730e-08]]),
+        )
+
+    def test_ticket_1253(self):
+        def linear(c, x):
+            return c[0]*x+c[1]
+
+        c = [2.0, 3.0]
+        x = np.linspace(0, 10)
+        y = linear(c, x)
+
+        model = Model(linear)
+        data = Data(x, y, wd=1.0, we=1.0)
+        job = ODR(data, model, beta0=[1.0, 1.0])
+        result = job.run()
+        assert_equal(result.info, 2)
+
+
+if __name__ == "__main__":
+    run_module_suite()
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b

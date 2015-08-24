@@ -6,28 +6,57 @@
 #**************************************************************************#
 #*  *#
 #**************************************************************************#
+<<<<<<< HEAD
 import sys
 import inspect
 import accelerate_tools
+=======
+from __future__ import absolute_import, print_function
+
+import sys
+import inspect
+from . import accelerate_tools
+
+from numpy.testing import assert_
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
 ##################################################################
 #                       CLASS __DESCRIPTOR                       #
 ##################################################################
+<<<<<<< HEAD
 class __Descriptor(object):
     prerequisites = []
     refcount = 0
+=======
+
+
+class __Descriptor(object):
+    prerequisites = []
+    refcount = 0
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     def __repr__(self):
         return self.__module__+'.'+self.__class__.__name__
 
 ##################################################################
 #                     CLASS TYPE_DESCRIPTOR                      #
 ##################################################################
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class Type_Descriptor(__Descriptor):
     module_init_code = ''
 
 ##################################################################
 #                   CLASS FUNCTION_DESCRIPTOR                    #
 ##################################################################
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class Function_Descriptor(__Descriptor):
     def __init__(self,code,return_type,support=''):
         self.code = code
@@ -36,9 +65,13 @@ class Function_Descriptor(__Descriptor):
         return
 
 
+<<<<<<< HEAD
 
 
 haveArgument = 90 # Opcodes greater-equal to this have argument
+=======
+haveArgument = 90  # Opcodes greater-equal to this have argument
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 byName = {
     'STOP_CODE': 0,
     'POP_TOP': 1,
@@ -147,7 +180,11 @@ byName = {
 # Build one in the reverse sense
 # -----------------------------------------------
 byOpcode = {}
+<<<<<<< HEAD
 for name,op in map(None, byName.keys(), byName.values()):
+=======
+for name, op in byName.items():
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     byOpcode[op] = name
     del name
     del op
@@ -174,13 +211,20 @@ def opcodize(s):
     return answer
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 ##################################################################
 #                         FUNCTION LIST                          #
 ##################################################################
 def listing(f):
     "Pretty print the internals of your function"
+<<<<<<< HEAD
     assert inspect.isfunction(f)
+=======
+    assert_(inspect.isfunction(f))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     filename = f.func_code.co_filename
     try:
         lines = open(filename).readlines()
@@ -195,13 +239,23 @@ def listing(f):
             while lastLine and lastLine < arg-1:
                 nonEmittingSource = lines[lastLine][:-1]
                 lastLine += 1
+<<<<<<< HEAD
                 s += '%3s  %20s %5s : %s\n'%(
+=======
+                s += '%3s  %20s %5s : %s\n' % (
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                     '','','',nonEmittingSource)
             lastLine = arg
         else:
             source = ''
+<<<<<<< HEAD
         if arg is None: arg = ''
         s += '%3d] %20s %5s : %s\n'%(pc,name,arg,source)
+=======
+        if arg is None:
+            arg = ''
+        s += '%3d] %20s %5s : %s\n' % (pc,name,arg,source)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         if op >= haveArgument:
             pc += 3
         else:
@@ -211,6 +265,11 @@ def listing(f):
 ##################################################################
 #                     CLASS BYTECODEMEANING                      #
 ##################################################################
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 class ByteCodeMeaning(object):
     def fetch(self, pc,code):
         opcode = ord(code[pc])
@@ -234,6 +293,7 @@ class ByteCodeMeaning(object):
         next, opcode,argument = self.fetch(pc,code)
         goto = self.execute(next,opcode,argument)
         if goto == -1:
+<<<<<<< HEAD
             return None # Must be done
         elif goto is None:
             return next # Normal
@@ -248,12 +308,30 @@ class ByteCodeMeaning(object):
                 8: 'is', 9: 'is not', 10: 'exe match',
                 11 : 'bad',
                 }
+=======
+            return None  # Must be done
+        elif goto is None:
+            return next  # Normal
+        else:
+            raise ValueError("Executing code failed.")
+
+    symbols = {0: 'less', 1: 'lesseq', 2: 'equal', 3: 'notequal',
+                4: 'greater', 5: 'greatereq', 6: 'in', 7: 'not in',
+                8: 'is', 9: 'is not', 10: 'exe match',
+                11: 'bad',
+               }
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     def cmp_op(self,opname):
         return self.symbols[opname]
 
     def STOP_CODE(self,pc):
         "Indicates end-of-code to the compiler, not used by the interpreter."
         raise NotImplementedError
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     def POP_TOP(self,pc):
         "Removes the top-of-stack (TOS) item."
         raise NotImplementedError
@@ -296,7 +374,11 @@ class ByteCodeMeaning(object):
         "Implements TOS = ~TOS."
         raise NotImplementedError
 
+<<<<<<< HEAD
     #Binary operations remove the top of the stack (TOS) and the second top-most stack item (TOS1) from the stack. They perform the operation, and put the result back on the stack.
+=======
+    # Binary operations remove the top of the stack (TOS) and the second top-most stack item (TOS1) from the stack. They perform the operation, and put the result back on the stack.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     def BINARY_POWER(self,pc):
         "Implements TOS = TOS1 ** TOS."
@@ -346,7 +428,11 @@ class ByteCodeMeaning(object):
         "Implements TOS = TOS1 | TOS."
         raise NotImplementedError
 
+<<<<<<< HEAD
     #In-place operations are like binary operations, in that they remove TOS and TOS1, and push the result back on the stack, but the operation is done in-place when TOS1 supports it, and the resulting TOS may be (but does not have to be) the original TOS1.
+=======
+    # In-place operations are like binary operations, in that they remove TOS and TOS1, and push the result back on the stack, but the operation is done in-place when TOS1 supports it, and the resulting TOS may be (but does not have to be) the original TOS1.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     def INPLACE_POWER(self,pc):
         "Implements in-place TOS = TOS1 ** TOS."
@@ -392,7 +478,11 @@ class ByteCodeMeaning(object):
         "Implements in-place TOS = TOS1 | TOS."
         raise NotImplementedError
 
+<<<<<<< HEAD
     #The slice opcodes take up to three parameters.
+=======
+    # The slice opcodes take up to three parameters.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     def SLICE_0(self,pc):
         "Implements TOS = TOS[:]."
@@ -410,7 +500,11 @@ class ByteCodeMeaning(object):
         "Implements TOS = TOS2[TOS1:TOS]."
         raise NotImplementedError
 
+<<<<<<< HEAD
     #Slice assignment needs even an additional parameter. As any statement, they put nothing on the stack.
+=======
+    # Slice assignment needs even an additional parameter. As any statement, they put nothing on the stack.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     def STORE_SLICE_0(self,pc):
         "Implements TOS[:] = TOS1."
@@ -504,7 +598,11 @@ class ByteCodeMeaning(object):
         "Creates a new class object. TOS is the methods dictionary, TOS1 the tuple of the names of the base classes, and TOS2 the class name."
         raise NotImplementedError
 
+<<<<<<< HEAD
     #All of the following opcodes expect arguments. An argument is two bytes, with the more significant byte last.
+=======
+    # All of the following opcodes expect arguments. An argument is two bytes, with the more significant byte last.
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     def STORE_NAME(self,pc,namei):
         "Implements name = TOS. namei is the index of name in the attribute co_names of the code object. The compiler tries to use STORE_LOCAL or STORE_GLOBAL if possible."
@@ -675,7 +773,10 @@ class ByteCodeMeaning(object):
         raise NotImplementedError
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 ##################################################################
 #                         CLASS CXXCODER                         #
 ##################################################################
@@ -685,20 +786,36 @@ class CXXCoder(ByteCodeMeaning):
     #                    MEMBER TYPEDEF_BY_VALUE                     #
     ##################################################################
     def typedef_by_value(self,v):
+<<<<<<< HEAD
         raise NotImplementedError # VIRTUAL
+=======
+        raise NotImplementedError  # VIRTUAL
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     ##################################################################
     #                        MEMBER __INIT__                         #
     ##################################################################
     def __init__(self,function,signature,name=None):
+<<<<<<< HEAD
         assert inspect.isfunction(function)
         assert not function.func_defaults ,"Function cannot have default args (yet)"
         if name is None: name = function.func_name
+=======
+        assert_(inspect.isfunction(function))
+        assert_(not function.func_defaults,
+                msg="Function cannot have default args (yet)")
+        if name is None:
+            name = function.__name__
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         self.name = name
         self.function = function
         self.signature = signature
         self.codeobject = function.func_code
+<<<<<<< HEAD
         self.__uid = 0 # Builds temps
+=======
+        self.__uid = 0  # Builds temps
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         self.__indent = 1
         return
 
@@ -717,9 +834,15 @@ class CXXCoder(ByteCodeMeaning):
     #                        MEMBER GENERATE                         #
     ##################################################################
     def generate(self):
+<<<<<<< HEAD
         self.forwards = {} # Actions on forward interprets
         self.__body = '' # Body will be built
         self.helpers = [] # headers and stuff
+=======
+        self.forwards = {}  # Actions on forward interprets
+        self.__body = ''  # Body will be built
+        self.helpers = []  # headers and stuff
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         # -----------------------------------------------
         # OK, crack open the function object and build
@@ -733,7 +856,12 @@ class CXXCoder(ByteCodeMeaning):
         self.types = list(self.signature)+[None]*(nlocals-arglen)
         self.used = []
         for T in self.types:
+<<<<<<< HEAD
             if T not in self.used: self.used.append(T)
+=======
+            if T not in self.used:
+                self.used.append(T)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         # -----------------------------------------------
         # One pass through the byte codes to generate
@@ -779,6 +907,7 @@ class CXXCoder(ByteCodeMeaning):
         # Real body
         # -----------------------------------------------
         code += '\n'
+<<<<<<< HEAD
         code += '\nstatic %s %s('%(rtype,self.name)
         for i in range(len(self.signature)):
             if i != 0: code += ', '
@@ -789,12 +918,28 @@ class CXXCoder(ByteCodeMeaning):
         code += ' PyObject* tempPY= 0;\n'
 
 
+=======
+        code += '\nstatic %s %s(' % (rtype,self.name)
+        for i in range(len(self.signature)):
+            if i != 0:
+                code += ', '
+            n = self.stack[i]
+            t = self.types[i]
+            code += '%s %s' % (t.cxxtype,n)
+        code += ') {\n'
+        code += ' PyObject* tempPY= 0;\n'
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         # Add in non-argument temporaries
         # Assuming first argcount locals are positional args
         for i in range(self.codeobject.co_argcount,
                        self.codeobject.co_nlocals):
             t = self.types[i]
+<<<<<<< HEAD
             code += '%s %s;\n'%(
+=======
+            code += '%s %s;\n' % (
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                 t.cxxtype,
                 self.codeobject.co_varnames[i],
                 )
@@ -804,7 +949,10 @@ class CXXCoder(ByteCodeMeaning):
         code += '}\n\n'
         return code
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     ##################################################################
     #                      MEMBER WRAPPED_CODE                       #
     ##################################################################
@@ -814,16 +962,24 @@ class CXXCoder(ByteCodeMeaning):
         # -----------------------------------------------
         # Wrapper
         # -----------------------------------------------
+<<<<<<< HEAD
         code += 'static PyObject* wrapper_%s(PyObject*,PyObject* args) {\n'%self.name
         code += '  // Length check\n'
         code += '  if ( PyTuple_Size(args) != %d ) {\n'%len(self.signature)
         code += '     PyErr_SetString(PyExc_TypeError,"Expected %d arguments");\n'%len(self.signature)
+=======
+        code += 'static PyObject* wrapper_%s(PyObject*,PyObject* args) {\n' % self.name
+        code += '  // Length check\n'
+        code += '  if ( PyTuple_Size(args) != %d ) {\n' % len(self.signature)
+        code += '     PyErr_SetString(PyExc_TypeError,"Expected %d arguments");\n' % len(self.signature)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         code += '     return 0;\n'
         code += '  }\n'
 
         code += '\n  // Load Py versions of args\n'
         for i in range(len(self.signature)):
             T = self.signature[i]
+<<<<<<< HEAD
             code += '  PyObject* py_%s = PyTuple_GET_ITEM(args,%d);\n'%(
                 self.codeobject.co_varnames[i],i
                 )
@@ -833,6 +989,17 @@ class CXXCoder(ByteCodeMeaning):
             #code += '    PyObject_Print(py_A,stdout,0); puts("");\n'
             #code += '    printf("nd=%d typecode=%d\\n",((PyArrayObject*)py_A)->nd,((PyArrayObject*)py_A)->descr->type_num);\n'
             code += '    PyErr_SetString(PyExc_TypeError,"Bad type for arg %d (expected %s)");\n'%(
+=======
+            code += '  PyObject* py_%s = PyTuple_GET_ITEM(args,%d);\n' % (
+                self.codeobject.co_varnames[i],i
+                )
+
+            code += '  if ( !(%s) ) {\n' % \
+                    T.check('py_'+self.codeobject.co_varnames[i])
+            # code += '    PyObject_Print(py_A,stdout,0); puts("");\n'
+            # code += '    printf("nd=%d typecode=%d\\n",((PyArrayObject*)py_A)->nd,((PyArrayObject*)py_A)->descr->type_num);\n'
+            code += '    PyErr_SetString(PyExc_TypeError,"Bad type for arg %d (expected %s)");\n' % (
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                 i+1,
                 T.__class__.__name__)
             code += '    return 0;\n'
@@ -843,7 +1010,11 @@ class CXXCoder(ByteCodeMeaning):
         for i in range(len(self.signature)):
             T = self.signature[i]
 
+<<<<<<< HEAD
             code += '  %s %s=%s;\n'%(
+=======
+            code += '  %s %s=%s;\n' % (
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                 T.cxxtype,
                 self.codeobject.co_varnames[i],
                 T.inbound('py_'+self.codeobject.co_varnames[i]),
@@ -853,17 +1024,28 @@ class CXXCoder(ByteCodeMeaning):
 
         code += '\n  // Compute result\n'
         if self.rtype is not None:
+<<<<<<< HEAD
             code += '  %s _result = '%(
+=======
+            code += '  %s _result = ' % (
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
                 self.rtype.cxxtype,
                 )
         else:
             code += '  '
+<<<<<<< HEAD
         code += '%s(%s);\n'%(
+=======
+        code += '%s(%s);\n' % (
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             self.name,
             ','.join(argnames),
             )
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         code += '\n  // Pack return\n'
         if self.rtype is None:
             code += '  Py_INCREF(Py_None);\n'
@@ -872,7 +1054,11 @@ class CXXCoder(ByteCodeMeaning):
             result,owned = self.rtype.outbound('_result')
             if not owned:
                 code += '  Py_INCREF(_result);\n'
+<<<<<<< HEAD
             code += '  return %s;\n'%result
+=======
+            code += '  return %s;\n' % result
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         code += '}\n'
         return code
 
@@ -906,10 +1092,17 @@ class CXXCoder(ByteCodeMeaning):
     ##################################################################
     def pop(self):
         v = self.stack[-1]
+<<<<<<< HEAD
         assert isinstance(v, tuple)
         del self.stack[-1]
         t = self.types[-1]
         assert isinstance(t, tuple)
+=======
+        assert_(isinstance(v, tuple))
+        del self.stack[-1]
+        t = self.types[-1]
+        assert_(isinstance(t, tuple))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         del self.types[-1]
         return v,t
 
@@ -917,6 +1110,7 @@ class CXXCoder(ByteCodeMeaning):
     #                        MEMBER PUSHTUPLE                        #
     ##################################################################
     def pushTuple(self,V,T):
+<<<<<<< HEAD
         assert isinstance(V, tuple)
         self.stack.append(V)
         assert isinstance(T, tuple)
@@ -924,17 +1118,35 @@ class CXXCoder(ByteCodeMeaning):
         return
 
 
+=======
+        assert_(isinstance(V, tuple))
+        self.stack.append(V)
+        assert_(isinstance(T, tuple))
+        self.types.append(T)
+        return
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     ##################################################################
     #                        MEMBER POPTUPLE                         #
     ##################################################################
     def popTuple(self):
         v = self.stack[-1]
+<<<<<<< HEAD
         assert isinstance(v, tuple)
         del self.stack[-1]
         t = self.types[-1]
         assert isinstance(t, tuple)
         del self.types[-1]
         return v,t
+=======
+        assert_(isinstance(v, tuple))
+        del self.stack[-1]
+        t = self.types[-1]
+        assert_(isinstance(t, tuple))
+        del self.types[-1]
+        return v,t
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     ##################################################################
     #                        MEMBER MULTIARG                         #
     ##################################################################
@@ -946,7 +1158,11 @@ class CXXCoder(ByteCodeMeaning):
     ##################################################################
     def unique(self):
         self.__uid += 1
+<<<<<<< HEAD
         return 't%d'%self.__uid
+=======
+        return 't%d' % self.__uid
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     ##################################################################
     #                          MEMBER POST                           #
@@ -966,7 +1182,11 @@ class CXXCoder(ByteCodeMeaning):
         # Convert representation to CXX rhs
         rhs = descriptor.literalizer(v)
         lhs = self.unique()
+<<<<<<< HEAD
         self.emit('%s %s = %s;'%(
+=======
+        self.emit('%s %s = %s;' % (
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             descriptor.cxxtype,
             lhs,
             rhs))
@@ -982,20 +1202,31 @@ class CXXCoder(ByteCodeMeaning):
 
         # First, figure out who owns this global
         myHash = id(self.function.func_globals)
+<<<<<<< HEAD
         for module_name in sys.modules.keys():
+=======
+        for module_name in sys.modules:
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             module = sys.modules[module_name]
             if module and id(module.__dict__) == myHash:
                 break
         else:
+<<<<<<< HEAD
             raise ValueError,'Cannot locate module owning %s'%var_name
         return module_name,var_name
 
 
+=======
+            raise ValueError('Cannot locate module owning %s' % var_name)
+        return module_name,var_name
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     ##################################################################
     #                         MEMBER CODEUP                          #
     ##################################################################
     def codeup(self, rhs, rhs_type):
         lhs = self.unique()
+<<<<<<< HEAD
         self.emit('%s %s = %s;\n'%(
             rhs_type.cxxtype,
             lhs,
@@ -1005,6 +1236,16 @@ class CXXCoder(ByteCodeMeaning):
         return
 
 
+=======
+        self.emit('%s %s = %s;\n' % (
+            rhs_type.cxxtype,
+            lhs,
+            rhs))
+        print(self.__body)
+        self.push(lhs,rhs_type)
+        return
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     ##################################################################
     #                          MEMBER BINOP                          #
     ##################################################################
@@ -1025,6 +1266,7 @@ class CXXCoder(ByteCodeMeaning):
     ##################################################################
     def BINARY_ADD(self,pc):
         return self.binop(pc,'+')
+<<<<<<< HEAD
     def BINARY_SUBTRACT(self,pc):
         return self.binop(pc,'-')
     def BINARY_MULTIPLY(self,pc):
@@ -1034,6 +1276,22 @@ class CXXCoder(ByteCodeMeaning):
         return self.binop(pc,'/')
     def BINARY_MODULO(self,pc):
         return self.binop(pc,'%')
+=======
+
+    def BINARY_SUBTRACT(self,pc):
+        return self.binop(pc,'-')
+
+    def BINARY_MULTIPLY(self,pc):
+        print('MULTIPLY',self.stack[-2],self.types[-2],'*',self.stack[-1],self.types[-1])
+        return self.binop(pc,'*')
+
+    def BINARY_DIVIDE(self,pc):
+        return self.binop(pc,'/')
+
+    def BINARY_MODULO(self,pc):
+        return self.binop(pc,'%')
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     def BINARY_SUBSCR(self,pc):
         if self.multiarg():
             v2,t2 = self.popTuple()
@@ -1057,6 +1315,7 @@ class CXXCoder(ByteCodeMeaning):
         v0,t0 = self.pop()
 
         rhs,rhs_type = t1.setitem(v1,v2,t2)
+<<<<<<< HEAD
         assert rhs_type == t0,"Store the right thing"
         self.emit('%s = %s;'%(rhs,v0))
         return
@@ -1066,6 +1325,16 @@ class CXXCoder(ByteCodeMeaning):
         return self.binop(pc,symbol)
 
 
+=======
+        assert_(rhs_type == t0,"Store the right thing")
+        self.emit('%s = %s;' % (rhs,v0))
+        return
+
+    def COMPARE_OP(self,pc,opname):
+        symbol = self.cmp_op(opname)  # convert numeric to name
+        return self.binop(pc,symbol)
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     ##################################################################
     #                       MEMBER PRINT_ITEM                        #
     ##################################################################
@@ -1073,12 +1342,18 @@ class CXXCoder(ByteCodeMeaning):
         # Printing correctly is tricky... best to let Python
         # do the real work here
         w = self.unique()
+<<<<<<< HEAD
         self.emit('PyObject* %s = PySys_GetObject("stdout");'%w)
         self.emit('if (PyFile_SoftSpace(%s,1)) PyFile_WriteString(" ",%s);'%(w,w))
+=======
+        self.emit('PyObject* %s = PySys_GetObject("stdout");' % w)
+        self.emit('if (PyFile_SoftSpace(%s,1)) PyFile_WriteString(" ",%s);' % (w,w))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         v,t = self.pop()
 
         py = self.unique()
         code,owned = t.outbound(v)
+<<<<<<< HEAD
         self.emit('PyObject* %s = %s;'%(py, code))
         self.emit('PyFile_WriteObject(%s,%s,Py_PRINT_RAW);'%(
             py,w))
@@ -1087,6 +1362,15 @@ class CXXCoder(ByteCodeMeaning):
         return
 
 
+=======
+        self.emit('PyObject* %s = %s;' % (py, code))
+        self.emit('PyFile_WriteObject(%s,%s,Py_PRINT_RAW);' % (
+            py,w))
+        if owned:
+            self.emit('Py_XDECREF(%s);' % py)
+        return
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     ##################################################################
     #                      MEMBER PRINT_NEWLINE                      #
     ##################################################################
@@ -1094,16 +1378,26 @@ class CXXCoder(ByteCodeMeaning):
         # Printing correctly is tricky... best to let Python
         # do the real work here
         w = self.unique()
+<<<<<<< HEAD
         self.emit('PyObject* %s = PySys_GetObject("stdout");'%w)
         self.emit('PyFile_WriteString("\\n",%s);'%w);
         self.emit('PyFile_SoftSpace(%s,0);'%w);
+=======
+        self.emit('PyObject* %s = PySys_GetObject("stdout");' % w)
+        self.emit('PyFile_WriteString("\\n",%s);' % w)
+        self.emit('PyFile_SoftSpace(%s,0);' % w)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         return
 
     ##################################################################
     #                       MEMBER SET_LINENO                        #
     ##################################################################
     def SET_LINENO(self,pc,lineno):
+<<<<<<< HEAD
         self.emit('// %s:%d'%(self.codeobject.co_filename,lineno))
+=======
+        self.emit('// %s:%d' % (self.codeobject.co_filename,lineno))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         return
 
     ##################################################################
@@ -1120,7 +1414,11 @@ class CXXCoder(ByteCodeMeaning):
         # Fetch the constant
         k = self.consts[consti]
         t = type(k)
+<<<<<<< HEAD
         print 'LOAD_CONST',repr(k),t
+=======
+        print('LOAD_CONST',repr(k),t)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         # Fetch a None is just skipped
         if t is None:
@@ -1130,7 +1428,10 @@ class CXXCoder(ByteCodeMeaning):
         self.emit_value(k)
         return
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     ##################################################################
     #                       MEMBER BUILD_TUPLE                       #
     ##################################################################
@@ -1153,6 +1454,7 @@ class CXXCoder(ByteCodeMeaning):
     def LOAD_FAST(self,pc,var_num):
         v = self.stack[var_num]
         t = self.types[var_num]
+<<<<<<< HEAD
         print 'LOADFAST',var_num,v,t
         for VV,TT in map(None, self.stack, self.types):
             print VV,':',TT
@@ -1164,12 +1466,25 @@ class CXXCoder(ByteCodeMeaning):
         return
 
 
+=======
+        print('LOADFAST',var_num,v,t)
+        for VV, TT in zip(self.stack, self.types):
+            print(VV,':',TT)
+        if t is None:
+            raise TypeError('%s used before set?' % v)
+            print(self.__body)
+            print('PC',pc)
+        self.push(v,t)
+        return
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     ##################################################################
     #                        MEMBER LOAD_ATTR                        #
     ##################################################################
     def LOAD_ATTR(self,pc,namei):
         v,t = self.pop()
         attr_name = self.codeobject.co_names[namei]
+<<<<<<< HEAD
         print 'LOAD_ATTR',namei,v,t,attr_name
         aType,aCode = t.get_attribute(attr_name)
         print 'ATTR',aType
@@ -1182,12 +1497,26 @@ class CXXCoder(ByteCodeMeaning):
         return
 
 
+=======
+        print('LOAD_ATTR',namei,v,t,attr_name)
+        aType,aCode = t.get_attribute(attr_name)
+        print('ATTR',aType)
+        print(aCode)
+        lhs = self.unique()
+        rhs = v
+        lhsType = aType.cxxtype
+        self.emit(aCode % locals())
+        self.push(lhs,aType)
+        return
+
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     ##################################################################
     #                       MEMBER STORE_ATTR                        #
     ##################################################################
     def STORE_ATTR(self,pc,namei):
         v,t = self.pop()
         attr_name = self.codeobject.co_names[namei]
+<<<<<<< HEAD
         print 'STORE_ATTR',namei,v,t,attr_name
         v2,t2 = self.pop()
         print 'SA value',v2,t2
@@ -1198,6 +1527,18 @@ class CXXCoder(ByteCodeMeaning):
         rhs = v2
         lhs = v
         self.emit(aCode%locals())
+=======
+        print('STORE_ATTR',namei,v,t,attr_name)
+        v2,t2 = self.pop()
+        print('SA value',v2,t2)
+        aType,aCode = t.set_attribute(attr_name)
+        print('ATTR',aType)
+        print(aCode)
+        assert_(t2 is aType)
+        rhs = v2
+        lhs = v
+        self.emit(aCode % locals())
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         return
 
     ##################################################################
@@ -1229,6 +1570,7 @@ class CXXCoder(ByteCodeMeaning):
         mod = self.unique()
 
         self.emit('')
+<<<<<<< HEAD
         self.emit('PyObject* %s = PyImport_ImportModule("%s");'%(
             mod,module_name))
         self.emit('PyObject* %s = PyObject_GetAttrString(%s,"%s");'%(
@@ -1237,6 +1579,16 @@ class CXXCoder(ByteCodeMeaning):
             descriptor.cxxtype,
             native,
             descriptor.inbound%py))
+=======
+        self.emit('PyObject* %s = PyImport_ImportModule("%s");' % (
+            mod,module_name))
+        self.emit('PyObject* %s = PyObject_GetAttrString(%s,"%s");' % (
+            py,mod,var_name))
+        self.emit('%s %s = %s;' % (
+            descriptor.cxxtype,
+            native,
+            descriptor.inbound % py))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         self.push(native,t)
         return
@@ -1250,7 +1602,11 @@ class CXXCoder(ByteCodeMeaning):
         # Pull off control variable and range info
         v2,t2 = self.pop()
         v1,t1 = self.pop()
+<<<<<<< HEAD
         self.emit('for(%s=%s.low; %s<%s.high; %s += %s.step) {'%(
+=======
+        self.emit('for(%s=%s.low; %s<%s.high; %s += %s.step) {' % (
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             v2,v1,v2,v1,v2,v1))
 
         # Put range back on for assignment
@@ -1266,14 +1622,21 @@ class CXXCoder(ByteCodeMeaning):
         "Removes one block from the block stack. Per frame, there is a stack of blocks, denoting nested loops, try statements, and such."
         return
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     ##################################################################
     #                       MEMBER STORE_FAST                        #
     ##################################################################
     def STORE_FAST(self,pc,var_num):
 
         v,t = self.pop()
+<<<<<<< HEAD
         print 'STORE FAST',var_num,v,t
+=======
+        print('STORE FAST',var_num,v,t)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         save = self.stack[var_num]
         saveT = self.types[var_num]
@@ -1282,6 +1645,7 @@ class CXXCoder(ByteCodeMeaning):
         # Note that None means no assignment made yet
         if saveT is None or t == saveT:
             if t.refcount:
+<<<<<<< HEAD
                 self.emit('Py_XINCREF(%s);'%v)
                 self.emit('Py_XDECREF(%s);'%save)
             self.emit('%s = %s;\n'%(save,v))
@@ -1289,6 +1653,15 @@ class CXXCoder(ByteCodeMeaning):
             return
 
         raise TypeError,(t,saveT)
+=======
+                self.emit('Py_XINCREF(%s);' % v)
+                self.emit('Py_XDECREF(%s);' % save)
+            self.emit('%s = %s;\n' % (save,v))
+            self.types[var_num] = t
+            return
+
+        raise TypeError((t,saveT))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     ##################################################################
     #                      MEMBER STORE_GLOBAL                       #
@@ -1305,6 +1678,7 @@ class CXXCoder(ByteCodeMeaning):
         descriptor = accelerate_tools.typedefs[t]
         py = self.unique()
         code,owned = descriptor.outbound(v)
+<<<<<<< HEAD
         self.emit('PyObject* %s = %s;'%(py,code))
         if not owned:
             self.emit('Py_INCREF(%s);'%py)
@@ -1314,6 +1688,17 @@ class CXXCoder(ByteCodeMeaning):
         self.emit('PyObject_SetAttrString(%s,"%s",%s);'%(
             mod,var_name,py))
         self.emit('Py_DECREF(%s);'%py)
+=======
+        self.emit('PyObject* %s = %s;' % (py,code))
+        if not owned:
+            self.emit('Py_INCREF(%s);' % py)
+        mod = self.unique()
+        self.emit('PyObject* %s = PyImport_ImportModule("%s");' % (
+            mod,module_name))
+        self.emit('PyObject_SetAttrString(%s,"%s",%s);' % (
+            mod,var_name,py))
+        self.emit('Py_DECREF(%s);' % py)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         return
 
     ##################################################################
@@ -1332,14 +1717,22 @@ class CXXCoder(ByteCodeMeaning):
         f,t = self.pop()
         signature = (f,tuple(types))
         descriptor = self.function_by_signature(signature)
+<<<<<<< HEAD
         #self.prerequisites += descriptor['prerequisite']+'\n'
+=======
+        # self.prerequisites += descriptor['prerequisite']+'\n'
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
         # Build a rhs
         rhs = descriptor.code % ','.join(args)
 
         # Build a statement
         temp = self.unique()
+<<<<<<< HEAD
         self.emit('%s %s = %s;\n'%(
+=======
+        self.emit('%s %s = %s;\n' % (
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
             descriptor.return_type.cxxtype,
             temp,
             rhs))
@@ -1347,7 +1740,10 @@ class CXXCoder(ByteCodeMeaning):
         self.push(temp,descriptor.return_type)
         return
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
     ##################################################################
     #                      MEMBER JUMP_IF_FALSE                      #
     ##################################################################
@@ -1364,9 +1760,14 @@ class CXXCoder(ByteCodeMeaning):
             )
         self.post(pc+delta,action)
         if not isinstance(t, int):
+<<<<<<< HEAD
             raise TypeError, 'Invalid comparison type %s'%t
         self.emit('if (%s) {\n'%v)
 
+=======
+            raise TypeError('Invalid comparison type %s' % t)
+        self.emit('if (%s) {\n' % v)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
 
     ##################################################################
     #                      MEMBER JUMP_FORWARD                       #
@@ -1385,11 +1786,21 @@ class CXXCoder(ByteCodeMeaning):
         v,t = self.pop()
         if hasattr(self,'rtype'):
             if t is None:
+<<<<<<< HEAD
                 return # just the extra return
             raise ValueError,'multiple returns: (v=%s, t=%s)' % (v, t)
+=======
+                return  # just the extra return
+            raise ValueError('multiple returns: (v=%s, t=%s)' % (v, t))
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
         self.rtype = t
         if t is None:
             self.emit('return;')
         else:
+<<<<<<< HEAD
             self.emit('return %s;'%v)
         print 'return with',v
+=======
+            self.emit('return %s;' % v)
+        print('return with',v)
+>>>>>>> 85b42d3bbdcef5cbe0fe2390bba8b3ff1608040b
