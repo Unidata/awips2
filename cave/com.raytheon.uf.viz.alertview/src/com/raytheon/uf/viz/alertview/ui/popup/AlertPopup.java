@@ -61,6 +61,7 @@ import com.raytheon.uf.viz.alertview.ui.view.OpenAlertViewHandler;
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------
  * Jun 17, 2015  4474     bsteffen  Initial creation
+ * Aug 20, 2015  4717     mapeters  Added null check on Alert's message
  * 
  * </pre>
  * 
@@ -205,7 +206,7 @@ public class AlertPopup implements AlertDestination,
             if (blockingState.get() != UNBLOCK) {
                 return;
             } else {
-                /* Reset count to prevent wrap-around.*/
+                /* Reset count to prevent wrap-around. */
                 nextDelayUnblockKey = 2;
             }
             this.displayedAlert = this.alert;
@@ -290,7 +291,8 @@ public class AlertPopup implements AlertDestination,
                 label.setForeground(styles.getForegroundColor(display,
                         displayedAlert));
                 label.setFont(styles.getFont(display, displayedAlert));
-                label.setText(displayedAlert.getMessage());
+                label.setText(displayedAlert.getMessage() == null ? "null"
+                        : displayedAlert.getMessage());
                 timer.schedule(new ClosePopupTask(displayedAlert),
                         prefs.getDuration());
             }
@@ -343,8 +345,7 @@ public class AlertPopup implements AlertDestination,
      * Change the cursor and color when the mouse is over the popup. Also
      * prevents the popup from changing when the mouse is over it.
      */
-    private class MouseTracker implements
-            MouseTrackListener {
+    private class MouseTracker implements MouseTrackListener {
 
         private final Label label;
 
