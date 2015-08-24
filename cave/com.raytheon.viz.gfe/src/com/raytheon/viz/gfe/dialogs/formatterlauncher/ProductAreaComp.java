@@ -35,6 +35,7 @@ import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.TabFolder;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.FormatterLauncherDialog;
@@ -68,6 +69,8 @@ import com.raytheon.viz.gfe.textformatter.TextProductManager;
  *                                     Passed dataMgr instance to FormatterUtil.runFormatterScript
  * 12 FEB 2014  2801       randerso    Added prompting if formatter is run against non-normal database
  * 20 APR 2015  4027       randerso    Fixes for GFE formatter auto tests to support mixed case WA
+ * 24 AUG 2015  4749       dgilling    Ensure TextProductFinishListener callbacks execute on UI thread,
+ *                                     override dispose to aid perspective shutdown.
  * 
  * </pre>
  * 
@@ -655,52 +658,69 @@ public class ProductAreaComp extends Composite implements
     }
 
     @Override
-    public void textProductFinished(String productText,
-            ConfigData.ProductStateEnum state) {
-
-        if (isTabClosed == true) {
+    public void textProductFinished(final String productText,
+            final ConfigData.ProductStateEnum state) {
+        if (isTabClosed) {
             return;
         }
 
-        abortFormatterBtn.setEnabled(false);
-        runFormatterBtn.setEnabled(true);
-        // closeTabBtn.setEnabled(true);
-        outputLogBtn.setEnabled(true);
-        if (state == ConfigData.ProductStateEnum.Finished) {
-            if (productText != null) {
-                productEditorComp.retrieveActiveVTEC();
-                productEditorComp.setProductText(productText);
+        VizApp.runSyncIfWorkbench(new Runnable() {
 
-                // handle autoWrite and autoStore...
-                productEditorComp.doAutoStuff();
+            @Override
+            public void run() {
+                abortFormatterBtn.setEnabled(false);
+                runFormatterBtn.setEnabled(true);
+                // closeTabBtn.setEnabled(true);
+                outputLogBtn.setEnabled(true);
+                if (state == ConfigData.ProductStateEnum.Finished) {
+                    if (productText != null) {
+                        productEditorComp.retrieveActiveVTEC();
+                        productEditorComp.setProductText(productText);
+
+                        // handle autoWrite and autoStore...
+                        productEditorComp.doAutoStuff();
+                    }
+
+                    productEditorBtn.setSelection(true);
+                    productEditorBtnSelected();
+                } else if (state == ConfigData.ProductStateEnum.Failed) {
+                    outputLogBtn.setSelection(true);
+                    outputLogBtnSelected();
+                }
             }
-
-            productEditorBtn.setSelection(true);
-            productEditorBtnSelected();
-        } else if (state == ConfigData.ProductStateEnum.Failed) {
-            outputLogBtn.setSelection(true);
-            outputLogBtnSelected();
-        }
+        });
     }
 
     @Override
-    public void startProgressBar(ConfigData.ProductStateEnum state) {
-        if (isTabClosed == true) {
+    public void startProgressBar(final ConfigData.ProductStateEnum state) {
+        if (isTabClosed) {
             return;
         }
 
-        progressBar.setVisible(true);
-        productTabCB.setTabState(state, productName);
+        VizApp.runSyncIfWorkbench(new Runnable() {
+
+            @Override
+            public void run() {
+                progressBar.setVisible(true);
+                productTabCB.setTabState(state, productName);
+            }
+        });
     }
 
     @Override
-    public void stopProgressBar(ConfigData.ProductStateEnum state) {
-        if (isTabClosed == true) {
+    public void stopProgressBar(final ConfigData.ProductStateEnum state) {
+        if (isTabClosed) {
             return;
         }
 
-        progressBar.setVisible(false);
-        productTabCB.setTabState(state, productName);
+        VizApp.runSyncIfWorkbench(new Runnable() {
+
+            @Override
+            public void run() {
+                progressBar.setVisible(false);
+                productTabCB.setTabState(state, productName);
+            }
+        });
     }
 
     @Override
@@ -708,4 +728,9 @@ public class ProductAreaComp extends Composite implements
         productTabCB.setTabState(state, productName);
     }
 
+    @Override
+    public void dispose() {
+        isTabClosed = true;
+        super.dispose();
+    }
 }

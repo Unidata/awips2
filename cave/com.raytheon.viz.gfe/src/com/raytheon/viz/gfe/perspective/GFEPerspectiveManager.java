@@ -62,11 +62,11 @@ import com.raytheon.viz.gfe.core.ISpatialDisplayManager;
 import com.raytheon.viz.gfe.core.internal.GFESpatialDisplayManager;
 import com.raytheon.viz.gfe.rsc.GFELegendResourceData;
 import com.raytheon.viz.gfe.statusline.ISCSendEnable;
+import com.raytheon.viz.gfe.tasks.TaskManager;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.cmenu.ZoomMenuAction;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.perspectives.AbstractCAVEPerspectiveManager;
-import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 
 /**
  * Manages the life cycle of the GFE Perspectives
@@ -76,9 +76,9 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
+ * Date         Ticket#     Engineer    Description
  * ------------	----------	-----------	--------------------------
- * Jul 17, 2008		#1223	randerso	Initial creation
+ * Jul 17, 2008     #1223   randerso    Initial creation
  * Oct 6, 2008      #1433   chammack    Removed gfe status bars
  * Apr 9, 2009       1288   rjpeter     Added saving of the renderable display.
  * Jun 11, 2009     #1947   rjpeter     Moved parm save hook to GridManagerView.
@@ -89,6 +89,7 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  * Dec 09, 2013  #2367      dgilling    Remove shutdown of ProcedureJob and
  *                                      SmartToolJob.
  * Jan 14, 2014      2594   bclement    added low memory notification
+ * Aug 24, 2015      4749   dgilling    Shutdown TaskManager on perspective close.
  * </pre>
  * 
  * @author randerso
@@ -237,16 +238,8 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager {
         DataManagerUIFactory.dispose(perspectiveWindow);
 
         FormatterlauncherAction.closeDialog();
-    }
 
-    @Override
-    public void deactivate() {
-        super.deactivate();
-        if (IWorkbenchPage.CHANGE_RESET.equals(VizPerspectiveListener
-                .getInstance().getPerspectiveChangeId(
-                        GFEPerspective.ID_PERSPECTIVE))) {
-            FormatterlauncherAction.closeFormatters();
-        }
+        TaskManager.getInstance().shutdown();
     }
 
     @Override

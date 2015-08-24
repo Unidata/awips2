@@ -21,6 +21,7 @@ package com.raytheon.viz.gfe.tasks;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -48,6 +49,7 @@ import com.raytheon.viz.gfe.tasks.AbstractGfeTask.TaskStatus;
  * Mar 03, 2012  #346      dgilling    Use identity-based ListenerLists.
  * May 28, 2014  #2841     randerso    Made scheduler generic so multiple instances
  *                                     can be created to process different script types
+ * Aug 20, 2015  #4749     dgilling    Add shutdown().
  * 
  * </pre>
  * 
@@ -167,6 +169,7 @@ public class TaskScheduler<TaskType extends AbstractGfeTask> extends Job {
                 logFile.delete();
             }
         }
+        task.cleanUp();
         finishedTasks.add(task);
 
         this.schedule();
@@ -191,5 +194,33 @@ public class TaskScheduler<TaskType extends AbstractGfeTask> extends Job {
     protected void removeTaskStatusChangedListener(
             ITaskStatusChangedListener listener) {
         listeners.remove(listener);
+    }
+
+    /**
+     * Empties the work queue of all pending scripts and waits for all running
+     * tasks to complete.
+     */
+    protected void shutdown() {
+        Collection<AbstractGfeTask> tasksToCancel = new ArrayList<>();
+        pendingTasks.drainTo(tasksToCancel);
+        for (AbstractGfeTask task : tasksToCancel) {
+            cancelTask((TaskType) task);
+        }
+
+        while (runningTasks > 0) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                /*
+                 * We're shutting down anyway, so no need to log the exception.
+                 * Just finish the shutdown process.
+                 */
+                break;
+            }
+        }
+
+        finishedTasks.clear();
+        allTasks.clear();
+        listeners.clear();
     }
 }

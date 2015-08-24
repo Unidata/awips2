@@ -46,6 +46,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * ------------ ---------- ----------- --------------------------
  * Apr 11, 2011            randerso    Initial creation
  * May 28, 2014  #2841     randerso    Made TaskScheduler generic
+ * Aug 20, 2015  #4749     dgilling    Add cleanUp.
  * 
  * </pre>
  * 
@@ -229,5 +230,14 @@ public abstract class AbstractGfeTask extends Thread implements
 
     public final void taskCompleted() {
         this.scheduler.taskCompleted(this);
+    }
+
+    /**
+     * Called when a task is completed. At this point the task should release
+     * any object references not needed for the Process Monitor dialog to aid in
+     * garbage collection.
+     */
+    public void cleanUp() {
+        scheduler = null;
     }
 }
