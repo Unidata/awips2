@@ -145,7 +145,7 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-python-shapely" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/shapely-1.5.9/"
+      export RPM_SPECIFICATION="${installer_dir}/shapely-1.4.4/"
       return 0
    fi
 

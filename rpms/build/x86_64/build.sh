@@ -123,7 +123,7 @@ if [ "${1}" = "-python" ]; then
    #buildRPM "awips2-python-dynamicserialize"
    #buildRPM "awips2-python-h5py"
    #buildRPM "awips2-python-jimporter"
-   buildRPM "awips2-python-matplotlib"
+   #buildRPM "awips2-python-matplotlib"
    #buildRPM "awips2-python-nose"
    #buildRPM "awips2-python-cython"
    #buildRPM "awips2-python-six"
@@ -145,7 +145,7 @@ if [ "${1}" = "-python" ]; then
    #buildRPM "awips2-python-werkzeug"
    #buildRPM "awips2-python-pygtk"
    #buildRPM "awips2-python-pycairo"
-   #buildRPM "awips2-python-shapely"
+   buildRPM "awips2-python-shapely"
    #buildRPM "awips2-notification"
 
    exit 0
