@@ -16,7 +16,7 @@ function updateEmbCols {
 	table=${1}
 	echo "INFO: Update embedded ${embClass} in table ${table}."
 	for col in ${embStrCols[@]} ; do
-		${PSQL} -U awips -d metadata -c "UPDATE ${table} SET ${col}='null' where ${col} is NULL ; "
+		${PSQL} -U awips -d metadata -c "UPDATE ${table} SET ${col}='' where ${col} is NULL ; "
 		updateNotNullCol ${table} ${col}
 	done
 	for col in ${embFloatCols[@]} ; do
@@ -212,11 +212,11 @@ echo "INFO: Start update of ${table} dataURI columns."
 updateEmbCols ${table}
 col=reporttype
 echo "INFO: Update ${table}'s ${col}"
-${PSQL} -U awips -d metadata -c "UPDATE  ${table} SET ${col}='null' where ${col} is NULL ; "
+${PSQL} -U awips -d metadata -c "UPDATE  ${table} SET ${col}='' where ${col} is NULL ; "
 updateNotNullCol ${table} ${col}
 col=correction
 echo "INFO: Update ${table}'s ${col}"
-${PSQL} -U awips -d metadata -c "UPDATE  ${table} SET ${col}='null' where ${col} is NULL ; "
+${PSQL} -U awips -d metadata -c "UPDATE  ${table} SET ${col}='' where ${col} is NULL ; "
 updateNotNullCol ${table} ${col}
 echo "INFO: ${table} dataURI columns updated successfully"
 
@@ -302,7 +302,7 @@ updateEmbCols ${table}
 col=advisorynumber
 echo "INFO: Update ${table}'s ${col}"
 # Value from VAAParser.
-${PSQL} -U awips -d metadata -c "UPDATE ${table} SET ${col}='null' where ${col} is NULL ; "
+${PSQL} -U awips -d metadata -c "UPDATE ${table} SET ${col}='' where ${col} is NULL ; "
 updateNotNullCol ${table} ${col}
 
 echo "INFO: ${table} dataURI columns updated successfully"

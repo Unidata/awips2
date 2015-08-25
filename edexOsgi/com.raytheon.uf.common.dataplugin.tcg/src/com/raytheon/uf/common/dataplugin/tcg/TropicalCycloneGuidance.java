@@ -35,6 +35,7 @@ import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.annotations.NullString;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.pointdata.IPointData;
@@ -97,11 +98,13 @@ public class TropicalCycloneGuidance extends PersistablePluginDataObject
 
     @DynamicSerializeElement
     @DataURI(position = 1)
+    @NullString
     @Column(nullable = false)
     protected String productType = "";
 
     @DynamicSerializeElement
     @DataURI(position = 2)
+    @NullString(value = "NONE")
     @Column(nullable = false)
     protected String modelName = "NONE";
 

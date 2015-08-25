@@ -38,6 +38,7 @@ import org.hibernate.annotations.Type;
 import com.raytheon.uf.common.dataplugin.NullUtil;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.annotations.NullString;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Geometry;
@@ -76,16 +77,19 @@ public abstract class AbstractWarningRecord extends PluginDataObject {
     private static final long serialVersionUID = 1L;
 
     @DataURI(position = 1)
+    @NullString
     @Column(length = 32, nullable = false)
     @DynamicSerializeElement
     private String wmoid = NullUtil.NULL_STRING;
 
     @DataURI(position = 2)
+    @NullString
     @Column(length = 4, nullable = false)
     @DynamicSerializeElement
     private String pil = NullUtil.NULL_STRING;
 
     @DataURI(position = 3)
+    @NullString
     @Column(length = 4, nullable = false)
     @DynamicSerializeElement
     private String xxxid = NullUtil.NULL_STRING;
@@ -110,6 +114,7 @@ public abstract class AbstractWarningRecord extends PluginDataObject {
     private String productClass;
 
     @DataURI(position = 4)
+    @NullString
     @Column(length = 4, nullable = false)
     @DynamicSerializeElement
     private String act = NullUtil.NULL_STRING;
@@ -127,6 +132,7 @@ public abstract class AbstractWarningRecord extends PluginDataObject {
     private String sig;
 
     @DataURI(position = 5)
+    @NullString
     @Column(length = 4, nullable = false)
     @DynamicSerializeElement
     private String etn = NullUtil.NULL_STRING;
@@ -178,11 +184,13 @@ public abstract class AbstractWarningRecord extends PluginDataObject {
     private String rawmessage;
 
     @DataURI(position = 6)
+    @NullString
     @Column(nullable = false)
     @DynamicSerializeElement
     private int seg;
 
     @DataURI(position = 7)
+    @NullString
     @Column(length = 4, nullable = false)
     @DynamicSerializeElement
     private String phensig = NullUtil.NULL_STRING;

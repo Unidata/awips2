@@ -33,6 +33,7 @@ import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.annotations.NullString;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
@@ -90,6 +91,7 @@ public class AScatObs extends PersistablePluginDataObject implements
     private PointDataView pointDataView;
 
     @DataURI(position = 1)
+    @NullString
     @DynamicSerializeElement
     @Column(nullable = false)
     private int satId;
@@ -118,6 +120,7 @@ public class AScatObs extends PersistablePluginDataObject implements
     private Double windDir;
 
     @DataURI(position = 3)
+    @NullString
     @Column(nullable = false)
     @DynamicSerializeElement
     private float windSpd;

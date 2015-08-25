@@ -83,6 +83,7 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * Dec 06, 2013  2170     rjpeter     Update to pass PluginDataObject[] to notification.
  * Apr 21, 2014  2060     njensen     Remove dependency on grid dataURI column
  * Jul 21, 2014  3373     bclement    JAXB manager api changes
+ * Aug 18, 2014  4360     rferrel     Set secondaryId in {@link #createAssembledRecord(GridRecord, CompositeModel)}
  * </pre>
  * 
  * @author bphillip
@@ -241,6 +242,7 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
         newRecord.setLevel(record.getLevel());
         newRecord.setParameter(record.getParameter());
         newRecord.setEnsembleId(record.getEnsembleId());
+        newRecord.setSecondaryId(record.getSecondaryId());
         newRecord.setDataTime(record.getDataTime());
         newRecord.setDataURI(null);
         newRecord.setInsertTime(Calendar.getInstance());

@@ -36,6 +36,7 @@ import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.annotations.NullString;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.pointdata.IPointData;
@@ -96,6 +97,7 @@ public class TropicalCycloneSummary extends PersistablePluginDataObject
     @DynamicSerializeElement
     @Column(nullable = false)
     @DataURI(position = 1)
+    @NullString
     protected String productType = "";
 
     @Embedded

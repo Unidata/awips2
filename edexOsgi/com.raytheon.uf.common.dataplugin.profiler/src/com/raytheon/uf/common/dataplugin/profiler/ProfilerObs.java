@@ -42,6 +42,7 @@ import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.annotations.NullString;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
@@ -117,6 +118,7 @@ public class ProfilerObs extends PersistablePluginDataObject implements
     private Integer levelId;
 
     @DataURI(position = 1)
+    @NullString
     @XmlAttribute
     @Column(nullable = false)
     @DynamicSerializeElement

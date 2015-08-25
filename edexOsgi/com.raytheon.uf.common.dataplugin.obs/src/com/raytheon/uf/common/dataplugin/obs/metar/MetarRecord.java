@@ -47,6 +47,7 @@ import org.hibernate.annotations.Index;
 import com.raytheon.uf.common.dataplugin.NullUtil;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.annotations.NullString;
 import com.raytheon.uf.common.dataplugin.obs.metar.util.SkyCover;
 import com.raytheon.uf.common.dataplugin.obs.metar.util.WeatherCondition;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
@@ -149,6 +150,7 @@ public class MetarRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     @Column(nullable = false)
     @DataURI(position = 1)
+    @NullString
     protected String reportType = NullUtil.NULL_STRING;
 
     /** A string denoting if this report is a correction */
@@ -156,6 +158,7 @@ public class MetarRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     @Column(nullable = false)
     @DataURI(position = 2)
+    @NullString
     private String correction = NullUtil.NULL_STRING;
 
     @Embedded

@@ -48,6 +48,7 @@ import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.annotations.NullString;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.pointdata.IPointData;
@@ -103,12 +104,14 @@ public class MadisRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     @Column(nullable = false)
     @DataURI(position = 1)
+    @NullString
     private String provider;
 
     /** A string denoting the sub provider */
     @DynamicSerializeElement
     @Column(nullable = false)
     @DataURI(position = 2)
+    @NullString
     private String subProvider;
 
     @Embedded

@@ -32,6 +32,7 @@ import javax.persistence.UniqueConstraint;
 
 import com.raytheon.uf.common.dataplugin.NullUtil;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.annotations.NullString;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
@@ -58,6 +59,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Apr 15, 2014  2060     njensen     Added unique constraint annotation
  * Aug 03, 2016  4360     rferrel     Add name to unique constraint.
  *                                     Made datasetId, secondaryId, ensembleId, non-nullable.
+ *                                     Now use EMPTY_STRING for null values and created static nullValue_ methods
  * 
  * </pre>
  * 
@@ -82,6 +84,7 @@ public class GridInfoRecord extends PersistableDataObject<Integer> {
 
     @Column(nullable = false)
     @DataURI(position = 0)
+    @NullString
     @DynamicSerializeElement
     private String datasetId = NullUtil.NULL_STRING;
 
@@ -92,12 +95,14 @@ public class GridInfoRecord extends PersistableDataObject<Integer> {
      */
     @Column(nullable = false)
     @DataURI(position = 1)
+    @NullString
     @DynamicSerializeElement
     private String secondaryId = NullUtil.NULL_STRING;
 
     @Column(nullable = false)
     @DynamicSerializeElement
     @DataURI(position = 2)
+    @NullString
     private String ensembleId = NullUtil.NULL_STRING;
 
     /** The spatial information */

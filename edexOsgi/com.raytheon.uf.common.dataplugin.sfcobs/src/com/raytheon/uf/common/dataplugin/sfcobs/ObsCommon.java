@@ -43,6 +43,7 @@ import org.hibernate.annotations.Index;
 import com.raytheon.uf.common.dataplugin.NullUtil;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.annotations.NullString;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.pointdata.IPointData;
@@ -94,6 +95,7 @@ public class ObsCommon extends PersistablePluginDataObject implements
 
     //
     @DataURI(position = 1)
+    @NullString
     @Column(nullable = false)
     @XmlAttribute
     @DynamicSerializeElement
@@ -102,10 +104,11 @@ public class ObsCommon extends PersistablePluginDataObject implements
 
     // Correction indicator from wmo header
     @DataURI(position = 2)
+    @NullString
     @Column(nullable = false, length = 1)
     @XmlElement
     @DynamicSerializeElement
-    private String corIndicator = NullUtil.EMPTY_STRING;
+    private String corIndicator = NullUtil.NULL_STRING;
 
     @Embedded
     @DataURI(position = 3, embedded = true)
@@ -452,7 +455,7 @@ public class ObsCommon extends PersistablePluginDataObject implements
      * @return the corIndicator
      */
     public String getCorIndicator() {
-        return NullUtil.convertEmptyToNull(this.corIndicator);
+        return NullUtil.convertNullStringToNull(this.corIndicator);
     }
 
     /**
@@ -460,7 +463,7 @@ public class ObsCommon extends PersistablePluginDataObject implements
      *            the corIndicator to set
      */
     public void setCorIndicator(String corIndicator) {
-        this.corIndicator = NullUtil.converNullToEmpty(corIndicator);
+        this.corIndicator = NullUtil.convertNullToNullString(corIndicator);
     }
 
     /**
