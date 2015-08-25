@@ -37,10 +37,11 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.viz.core.localization.CAVELocalizationAdapter;
+import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
 
 /**
- * TODO Add Description
+ * A {@link BooleanFieldEditor} which adds a button that can be used to
+ * synchronize localization files with the server.
  * 
  * <pre>
  * 
@@ -48,7 +49,8 @@ import com.raytheon.uf.viz.core.localization.CAVELocalizationAdapter;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 22, 2011            bsteffen     Initial creation
+ * Nov 22, 2011            bsteffen    Initial creation
+ * May 29, 2015 4532       bsteffen    Notify the preference store when sync is running.
  * 
  * </pre>
  * 
@@ -75,8 +77,9 @@ public class SyncLocalizationEditor extends BooleanFieldEditor {
 
             @Override
             protected IStatus run(IProgressMonitor monitor) {
-                IPathManager pathManager = PathManagerFactory
-                        .getPathManager(new CAVELocalizationAdapter());
+                getPreferenceStore().firePropertyChangeEvent(ThinClientPreferenceConstants.P_SYNC_REMOTE_LOCALIZATION,
+                        false, true);
+                IPathManager pathManager = PathManagerFactory.getPathManager();
                 LocalizationType[] types = { LocalizationType.CAVE_CONFIG,
                         LocalizationType.CAVE_STATIC,
                         LocalizationType.COMMON_STATIC };
@@ -105,6 +108,8 @@ public class SyncLocalizationEditor extends BooleanFieldEditor {
                     System.out.println("Time to download " + type + ": "
                             + (endTime - startTime) + "ms");
                 }
+                getPreferenceStore().firePropertyChangeEvent(ThinClientPreferenceConstants.P_SYNC_REMOTE_LOCALIZATION,
+                        true, false);
                 monitor.done();
                 return Status.OK_STATUS;
             }

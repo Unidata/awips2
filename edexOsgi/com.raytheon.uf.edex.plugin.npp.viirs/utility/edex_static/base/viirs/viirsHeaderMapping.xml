@@ -36,6 +36,11 @@
   <regionInfo id="TIPQ">
     <region>Puerto Rico</region>
   </regionInfo>
+  
+  <!-- Global region -->
+  <regionInfo id="TIPG">
+    <region>Global</region>
+  </regionInfo>
 
 	<!-- I1 -->
 	<channelInfo id="01">
@@ -130,10 +135,11 @@
 		<resolution>750.0</resolution>
 	</channelInfo>
 	
-	<!-- DNB replace id when known -->
-	<channelInfo id="??">
-		<channelType>Moderate</channelType>
-		<wavelength>0.7</wavelength>
-		<resolution>750.0</resolution>
-	</channelInfo>
+    <!-- DNB/NCC -->
+    <channelInfo id="10">
+        <channelType>Moderate</channelType>
+        <wavelength>0.7</wavelength>
+        <channel>10</channel>
+        <resolution>750.0</resolution>
+    </channelInfo>
 </viirsHeaderMapping>

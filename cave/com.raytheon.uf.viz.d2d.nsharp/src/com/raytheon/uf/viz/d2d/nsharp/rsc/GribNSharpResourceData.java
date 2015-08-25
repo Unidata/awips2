@@ -22,8 +22,10 @@ package com.raytheon.uf.viz.d2d.nsharp.rsc;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingCube;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingProfile;
+import gov.noaa.nws.ncep.ui.nsharp.NsharpConfigManager;
+import gov.noaa.nws.ncep.ui.nsharp.NsharpConfigStore;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpStationInfo;
-import gov.noaa.nws.ncep.viz.common.soundingQuery.NcSoundingQuery;
+import gov.noaa.nws.ncep.viz.soundingrequest.NcSoundingQuery;
 
 import java.util.List;
 
@@ -49,6 +51,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Jul 26, 2011            bsteffen     Initial creation
  * Feb 15, 2013 1638       mschenke    Got rid of viz/edex topo classes 
  *                                     and moved into common
+ * 04/27/2015   RM#6674&7787 Chin Chen   support model sounding query data interpolation and nearest point option                       
+ *
  * 
  * </pre>
  * 
@@ -82,9 +86,18 @@ public class GribNSharpResourceData extends D2DNSharpResourceData {
         float[][] latLon = { { (float) coordinate.y, (float) coordinate.x } };
         String refTimeStr = formatTimestamp(stnInfo.getReftime());
         String validTimeStr = formatTimestamp(stnInfo.getRangestarttime());
+      //RM#6674                         
+        NsharpConfigManager mgr =NsharpConfigManager.getInstance();
+        NsharpConfigStore configStore = mgr.retrieveNsharpConfigStoreFromFs();
+        boolean gridInterpolation;
+		if(configStore != null){
+			gridInterpolation = configStore.getGraphProperty().isGridInterpolation();
+		}
+		else
+			gridInterpolation = true; //by default
         NcSoundingCube cube = NcSoundingQuery.mdlSoundingQueryByLatLon(
                 refTimeStr, validTimeStr, latLon, "grid", getSoundingType(),
-                false, "-1");
+                false, "-1", gridInterpolation);
         if ((cube != null) && !cube.getSoundingProfileList().isEmpty()) {
             NcSoundingProfile profileList = cube.getSoundingProfileList()
                     .get(0);

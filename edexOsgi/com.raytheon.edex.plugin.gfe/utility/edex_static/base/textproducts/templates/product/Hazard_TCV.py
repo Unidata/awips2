@@ -1516,12 +1516,11 @@ class SectionCommon():
             pass
 
         #  If this is the "default" case
-        if self._tr == "default" and len(statements) > 0:
-
-            if elementName in ["Wind", "Storm Surge"]:
-                if statements[0].find("If realized, ") == -1:
-                   statements[0] = "If realized, " + statements[0] + \
-                                   statements[0][1:]
+        #if self._tr == "default" and len(statements) > 0:
+        #
+        #    if elementName in ["Wind", "Storm Surge"]:
+        #        if statements[0].find("If realized, ") == -1:
+        #           statements[0] = "If realized, " + statements[0][0].lower() + statements[0][1:]
 
         return statements 
     
