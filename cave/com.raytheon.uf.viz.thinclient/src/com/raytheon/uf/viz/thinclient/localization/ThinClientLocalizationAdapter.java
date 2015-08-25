@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -53,6 +54,7 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  * Aug 9, 2011             njensen     Initial creation
  * Aug 13, 2013       2033 mschenke    Changed to search all plugins when 
  *                                     CAVE_STATIC BASE context searched
+ * May 29, 2015       4532 bsteffen    Always use super when sync job is running.
  * 
  * </pre>
  * 
@@ -62,6 +64,12 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
 
 public class ThinClientLocalizationAdapter extends CAVELocalizationAdapter
         implements IPropertyChangeListener {
+
+    /**
+     * Whenever there is a sync job running, always call super to allow it to go
+     * to the server.
+     */
+    private final AtomicInteger syncJobsRunning = new AtomicInteger(0);
 
     private boolean useRemoteFiles = true;
 
@@ -83,6 +91,10 @@ public class ThinClientLocalizationAdapter extends CAVELocalizationAdapter
     @Override
     public void retrieve(LocalizationFile file)
             throws LocalizationOpFailedException {
+        if (syncJobsRunning.get() > 0) {
+            super.retrieve(file);
+            return;
+        }
         try {
             File localFile = file.getFile(false);
             if (localFile.exists() == false || localFile.length() == 0) {
@@ -91,8 +103,15 @@ public class ThinClientLocalizationAdapter extends CAVELocalizationAdapter
         } catch (LocalizationOpFailedException e) {
             throw e;
         } catch (LocalizationException e) {
-            // Ignore exception
-            e.printStackTrace();
+            /*
+             * At the time of this writing, nothing will actually throw any
+             * LocalizationException other than LocalizationOpFailedException.
+             * However since LocalizationFile.getFile(boolean) has a method
+             * signature indicating it could throw any LocalizationException
+             * this code should be able to handle any LocalizationException in
+             * case the implementation of getFile changes in the future.
+             */
+            throw new LocalizationOpFailedException(e);
         }
     }
 
@@ -108,7 +127,7 @@ public class ThinClientLocalizationAdapter extends CAVELocalizationAdapter
     public ListResponse[] listDirectory(LocalizationContext[] contexts,
             String path, boolean recursive, boolean filesOnly)
             throws LocalizationOpFailedException {
-        if (useRemoteFiles) {
+        if (shouldUseRemoteFiles()) {
             return super.listDirectory(contexts, path, recursive, filesOnly);
         } else {
 
@@ -164,7 +183,7 @@ public class ThinClientLocalizationAdapter extends CAVELocalizationAdapter
     public ListResponse[] getLocalizationMetadata(
             LocalizationContext[] context, String fileName)
             throws LocalizationOpFailedException {
-        if (useRemoteFiles) {
+        if (shouldUseRemoteFiles()) {
             return super.getLocalizationMetadata(context, fileName);
         } else {
             List<ListResponse> responses = new ArrayList<ListResponse>(
@@ -193,11 +212,15 @@ public class ThinClientLocalizationAdapter extends CAVELocalizationAdapter
 
     @Override
     public boolean exists(LocalizationFile file) {
-        if (useRemoteFiles) {
+        if (shouldUseRemoteFiles()) {
             return super.exists(file);
         } else {
             return file.getFile().exists();
         }
+    }
+
+    private boolean shouldUseRemoteFiles() {
+        return useRemoteFiles || syncJobsRunning.get() > 0;
     }
 
     @Override
@@ -206,6 +229,13 @@ public class ThinClientLocalizationAdapter extends CAVELocalizationAdapter
                 .equals(event.getProperty())) {
             useRemoteFiles = !Boolean.valueOf(String.valueOf(event
                     .getNewValue()));
+        } else if (ThinClientPreferenceConstants.P_SYNC_REMOTE_LOCALIZATION.equals(event.getProperty())) {
+            boolean sync = Boolean.valueOf(String.valueOf(event.getNewValue()));
+            if (sync) {
+                syncJobsRunning.incrementAndGet();
+            } else {
+                syncJobsRunning.decrementAndGet();
+            }
         }
     }
 

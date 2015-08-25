@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.thinclient.preferences;
 
+import org.eclipse.jface.preference.IPreferenceStore;
+
 /**
  * Preference constants for the thin client mode
  * 
@@ -32,6 +34,8 @@ package com.raytheon.uf.viz.thinclient.preferences;
  * Jan 14, 2013 1469       bkowal       The hdf5 data directory is no longer a preference constant.
  * Feb 04, 2014 2704       njensen      Consolidate services and pypies proxy addresses
  * Jun 24, 2014 3236       njensen      Added proxy address options
+ * May 29, 2015 4532       bsteffen     Add sync localization option.
+ * 
  * 
  * </pre>
  * 
@@ -60,6 +64,19 @@ public class ThinClientPreferenceConstants {
     public static String P_CACHE_LOCALIZATION = "cacheLocalization";
 
     public static String P_DISABLE_REMOTE_LOCALIZATION = "disableRemoteLocalization";
+
+    /**
+     * This preference is not stored but is used to send notification through
+     * the preference store that the {@link #P_CACHE_LOCALIZATION} and
+     * {@link #P_DISABLE_REMOTE_LOCALIZATION} should be temporarily ignored so
+     * that the localization files can be synchronized with the server. Before
+     * performing synchronization, an event should be fired using
+     * {@link IPreferenceStore#firePropertyChangeEvent(String, Object, Object)}
+     * with the preference name as {@link #P_SYNC_REMOTE_LOCALIZATION} and a
+     * newValue of true. When synchronization has completed another event should
+     * be fired with a newValue of false.
+     */
+    public static String P_SYNC_REMOTE_LOCALIZATION = "syncRemoteFiles";
 
     public static String P_DISABLE_MENU_TIMES = "disableMenuTimes";
 
