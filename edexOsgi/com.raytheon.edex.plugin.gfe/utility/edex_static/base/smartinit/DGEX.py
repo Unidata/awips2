@@ -292,13 +292,13 @@ class DGEXForecaster(Forecaster):
             aindex[topomask] += 1
             
             m = logical_and(equal(aindex, 0), topomask)
-            a1[m] += a22
+            a1[m] += a22[m]
             
             m = logical_and(equal(aindex, 1), topomask)
-            a2[m] += a22
+            a2[m] += a22[m]
             
             m = logical_and(equal(aindex, 2), topomask)
-            a3[m] += a22
+            a3[m] += a22[m]
         #
         #  The basic types we are choosing between
         #
