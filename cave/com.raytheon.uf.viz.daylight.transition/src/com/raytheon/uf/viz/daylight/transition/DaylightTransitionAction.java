@@ -69,10 +69,10 @@ public class DaylightTransitionAction extends AbstractRightClickAction {
         for (ResourcePair pair : resource.getResourceList()) {
             if (!(pair.getResource() instanceof SatResource)
                     && !(pair.getResource() instanceof SatBlendedResource)) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     private DaylightTransitionBlendedResourceData getResourceData() {
