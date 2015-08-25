@@ -139,6 +139,7 @@ import com.raytheon.uf.viz.localization.service.ILocalizationService;
  * Sep 18, 2014  3531      bclement    fixed file delete/add refresh issue when paths share string prefixes
  * Feb 06, 2015  4028      mapeters    fixed file selection issue when reopening CAVE with files open
  * Apr 02, 2015  4288      randerso    Fix Widget is disposed error
+ * Aug 24, 2015  4393      njensen     Updates for observer changes
  * 
  * </pre>
  * 
@@ -154,11 +155,6 @@ public class FileTreeView extends ViewPart implements IPartListener2,
     private static class FileTreeFileComparator implements
             Comparator<LocalizationFile> {
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-         */
         @Override
         public int compare(LocalizationFile o1, LocalizationFile o2) {
             if (o1.isDirectory() && (o2.isDirectory() == false)) {
@@ -300,11 +296,6 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         return viewer.getTree();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.part.ViewPart#init(org.eclipse.ui.IViewSite)
-     */
     @Override
     public void init(IViewSite site) throws PartInitException {
         super.init(site);
@@ -319,8 +310,8 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         waitCursor = display.getSystemCursor(SWT.CURSOR_WAIT);
 
         site.getPage().addPartListener(this);
-        LocalizationNotificationObserver.getInstance()
-                .addGlobalFileChangeObserver(this);
+        ((LocalizationNotificationObserver) PathManagerFactory.getPathManager()
+                .getObserver()).addGlobalFileChangeObserver(this);
 
         ResourcesPlugin.getWorkspace().addResourceChangeListener(this,
                 IResourceChangeEvent.POST_CHANGE);
@@ -329,11 +320,6 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         showSet.addAll(Arrays.asList(LocalizationLevel.values()));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.part.WorkbenchPart#dispose()
-     */
     @Override
     public void dispose() {
         super.dispose();
@@ -352,19 +338,12 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         }
 
         getSite().getPage().removePartListener(this);
-        LocalizationNotificationObserver.getInstance()
-                .removeGlobalFileChangeObserver(this);
+        ((LocalizationNotificationObserver) PathManagerFactory.getPathManager()
+                .getObserver()).removeGlobalFileChangeObserver(this);
 
         ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.ui.part.WorkbenchPart#createPartControl(org.eclipse.swt.widgets
-     * .Composite)
-     */
     @Override
     public void createPartControl(Composite parent) {
         // construct tree
@@ -1542,13 +1521,6 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         getSite().getShell().setCursor(null);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.core.resources.IResourceChangeListener#resourceChanged(org
-     * .eclipse.core.resources.IResourceChangeEvent)
-     */
     @Override
     public void resourceChanged(IResourceChangeEvent event) {
         for (IEditorReference ref : getSite().getPage().getEditorReferences()) {
@@ -1582,13 +1554,6 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.localization.ILocalizationFileObserver#fileUpdated
-     * (com.raytheon.uf.common.localization.FileUpdatedMessage)
-     */
     @Override
     public void fileUpdated(FileUpdatedMessage message) {
         if (getTree().isDisposed()) {
@@ -1622,22 +1587,11 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.part.WorkbenchPart#setFocus()
-     */
     @Override
     public void setFocus() {
         getTree().setFocus();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.IPartListener2#partActivated(org.eclipse.ui.
-     * IWorkbenchPartReference)
-     */
     @Override
     public void partActivated(IWorkbenchPartReference partRef) {
         if (partRef instanceof IEditorReference) {
@@ -1645,12 +1599,6 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.IPartListener2#partBroughtToTop(org.eclipse.ui.
-     * IWorkbenchPartReference)
-     */
     @Override
     public void partBroughtToTop(IWorkbenchPartReference partRef) {
         if (partRef instanceof IEditorReference) {
@@ -1658,12 +1606,6 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.IPartListener2#partOpened(org.eclipse.ui.
-     * IWorkbenchPartReference)
-     */
     @Override
     public void partOpened(IWorkbenchPartReference partRef) {
         if (partRef instanceof IEditorReference) {
@@ -1671,62 +1613,31 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.IPartListener2#partClosed(org.eclipse.ui.
-     * IWorkbenchPartReference)
-     */
     @Override
     public void partClosed(IWorkbenchPartReference partRef) {
-
+        //
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.IPartListener2#partDeactivated(org.eclipse.ui.
-     * IWorkbenchPartReference)
-     */
     @Override
     public void partDeactivated(IWorkbenchPartReference partRef) {
+        //
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.IPartListener2#partHidden(org.eclipse.ui.
-     * IWorkbenchPartReference)
-     */
     @Override
     public void partHidden(IWorkbenchPartReference partRef) {
+        //
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.IPartListener2#partVisible(org.eclipse.ui.
-     * IWorkbenchPartReference)
-     */
     @Override
     public void partVisible(IWorkbenchPartReference partRef) {
+        //
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.IPartListener2#partInputChanged(org.eclipse.ui.
-     * IWorkbenchPartReference)
-     */
     @Override
     public void partInputChanged(IWorkbenchPartReference partRef) {
+        //
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.part.WorkbenchPart#getAdapter(java.lang.Class)
-     */
     @SuppressWarnings("rawtypes")
     @Override
     public Object getAdapter(Class adapter) {
@@ -1736,13 +1647,6 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         return super.getAdapter(adapter);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.localization.service.ILocalizationService#selectFile
-     * (com.raytheon.uf.common.localization.LocalizationFile)
-     */
     @Override
     public void selectFile(LocalizationFile file) {
         TreeItem item = find(file, true, false);
@@ -1751,12 +1655,6 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.localization.service.ILocalizationService#
-     * refresh(com.raytheon.uf.common.localization.LocalizationFile)
-     */
     @Override
     public void refresh(LocalizationFile file) {
         if (file != null) {
@@ -1767,12 +1665,6 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.localization.service.ILocalizationService#
-     * openFile(com.raytheon.uf.common.localization.LocalizationFile)
-     */
     @Override
     public void openFile(LocalizationFile file) {
         boolean fileOpened = false;
@@ -1807,13 +1699,6 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.localization.service.ILocalizationService#activateEditor
-     * (org.eclipse.ui.IEditorPart)
-     */
     @Override
     public void activateEditor(IEditorPart editor) {
         selectItem((IEditorReference) (getSite().getPage().getReference(editor)));
