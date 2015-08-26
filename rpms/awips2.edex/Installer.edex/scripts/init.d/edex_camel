@@ -3,7 +3,7 @@
 # edex_camel  This shell script takes care of starting and stopping
 #                the AWIPS EDEX Camel instance.
 #
-# chkconfig: - 99 10
+# chkconfig: 35 99 10
 # description: Camel ESB System, which is the instance \
 #              used by AWIPS EDEX.
 # processname: start.sh
