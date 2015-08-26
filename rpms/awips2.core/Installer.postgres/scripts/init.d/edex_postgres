@@ -3,7 +3,7 @@
 # edex_postgres  This shell script takes care of starting and stopping
 #                the AWIPS EDEX postgreSQL instance.
 #
-# chkconfig: - 99 10
+# chkconfig: 35 98 13
 # description: PostgreSQL database, which is the instance \
 #              used by AWIPS EDEX.
 # processname: postmaster
