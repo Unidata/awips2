@@ -1190,9 +1190,6 @@ public class WarngenDialog extends CaveSWTDialog implements
                     long t0 = System.currentTimeMillis();
                     try {
                         monitor.beginTask("Generating product", 1);
-                        statusHandler.debug("using startTime " + startTime.getTime()
-                                + " endTime " + endTime.getTime());
-                        long t0 = System.currentTimeMillis();
                         String result = TemplateRunner.runTemplate(
                                 warngenLayer, startTime.getTime(),
                                 endTime.getTime(), selectedBullets,
