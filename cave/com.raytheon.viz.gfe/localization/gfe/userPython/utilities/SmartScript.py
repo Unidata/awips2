@@ -69,6 +69,7 @@
 #    Jul 17, 2015    4575          njensen        callSmartTool() and callProcedure() send HashMap for varDict
 #    Aug 13, 2015    4704          randerso       Added NumpyJavaEnforcer support in createGrids and decodeEditArea
 #                                                 additional code cleanup
+#    Aug 26, 2015    4809          randerso       Added option group parameter to editAreaList()
 ########################################################################
 import types, string, time, sys
 from math import *
@@ -157,13 +158,22 @@ class SmartScript(BaseTool.BaseTool):
         # So a procedure can override this by using this method.
         self.__toolType = toolType
 
-    def editAreaList(self):
-        # Returns list of all known edit areas, as a list of strings.
-        eans = self.__refSetMgr.getAvailableSets()
+    def editAreaList(self, eaGroup=None):
+        """ 
+        Returns a list of strings containing all edit areas in eaGroup.
+        If eaGroup is None, all known edit areas are returned.
+        """
         eaList = []
-        size = eans.size()
-        for i in range(size):
-            eaList.append(eans.get(i).getName())
+        if eaGroup is not None:
+            eans = self.__refSetMgr.getGroupData(eaGroup)
+            size = eans.size()
+            for i in range(size):
+                eaList.append(str(eans.get(i)))
+        else:
+            eans = self.__refSetMgr.getAvailableSets()
+            size = eans.size()
+            for i in range(size):
+                eaList.append(eans.get(i).getName())
         return eaList
 
     def getSite4ID(self, id3):
