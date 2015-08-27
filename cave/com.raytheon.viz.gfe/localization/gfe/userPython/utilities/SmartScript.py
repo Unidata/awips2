@@ -71,6 +71,7 @@
 #                                                 additional code cleanup
 #    Aug 26, 2015    4809          randerso       Added option group parameter to editAreaList()
 #    Aug 26, 2015    4804          dgilling       Added callTextFormatter().
+#    Aug 27, 2015    4805          dgilling       Added saveCombinationsFile().
 ########################################################################
 import types, string, time, sys
 from math import *
@@ -102,10 +103,12 @@ from com.raytheon.uf.common.dataplugin.gfe.db.objects import TimeConstraints
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import GridParmInfo
 GridType = GridParmInfo.GridType
 from com.raytheon.uf.common.dataplugin.gfe.server.request import SendISCRequest
+from com.raytheon.viz.gfe.textformatter import CombinationsFileUtil
 from com.raytheon.viz.gfe.dialogs.formatterlauncher import ConfigData
 ProductStateEnum = ConfigData.ProductStateEnum
 from com.raytheon.viz.gfe.textformatter import FormatterUtil
 from com.raytheon.viz.gfe.textformatter import TextProductFinishWaiter
+
 
 class SmartScript(BaseTool.BaseTool):
 
@@ -2637,3 +2640,28 @@ class SmartScript(BaseTool.BaseTool):
             raise RuntimeError(msg)
         return product
 
+    
+    def saveCombinationsFile(self, name, combinations):
+        """
+        Save the specified zone combinations to the localization data store.
+
+        Args: 
+                name: Name for the combinations file. The ".py" extension will
+                      automatically be appended to the final file name.
+                combinations: The zone combinations. This data structure should
+                      be a list of list of zone names 
+                      (e.g. [["OAX", "GID", "LBF"], ["DMX"], ["FSD", "ABR"]]
+
+        Throws:
+                TypeError: If combinations is not in the proper format.
+        """
+        # Validate that we were passed a collection of collections, we'll convert
+        # to list of lists to satisfy the Java type checker.
+        try:
+            for item in iter(combinations):
+                iter(item)
+        except TypeError:
+            raise TypeError("combinations must be a list of list of zone names.")
+        
+        combo_list = JUtil.pyValToJavaObj([[str(zone) for zone in group] for group in combinations])
+        CombinationsFileUtil.generateAutoCombinationsFile(combo_list, str(name))
