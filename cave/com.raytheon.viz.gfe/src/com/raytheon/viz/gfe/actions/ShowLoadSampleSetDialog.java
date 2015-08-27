@@ -19,17 +19,12 @@
  **/
 package com.raytheon.viz.gfe.actions;
 
-import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.viz.gfe.core.DataManager;
-import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.dialogs.LoadSampleSetDialog;
+import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
  * Action to launch sampele set dialog.
@@ -38,51 +33,20 @@ import com.raytheon.viz.gfe.dialogs.LoadSampleSetDialog;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 7, 2008             Eric Babin  Initial Creation
- * Apr 9, 2009  1288       rjpeter     Removed explicit refresh of SpatialDisplayManager.
- * Oct 24, 2012 1287       rferrel     Changes for non-blocking SampleSetDialog.
- * Sep 15, 2014 3592       randerso    Move logic into dialog code.
+ * Mar 07, 2008            Eric Babin  Initial Creation
+ * Apr 09, 2009  1288      rjpeter     Removed explicit refresh of SpatialDisplayManager.
+ * Oct 24, 2012  1287      rferrel     Changes for non-blocking SampleSetDialog.
+ * Sep 15, 2014  3592      randerso    Move logic into dialog code.
+ * Aug 27, 2015  4749      njensen     Now extends GfeShowDialogHandler
  * 
  * </pre>
  * 
- * @author ebabin
- * @version 1.0
  */
+public class ShowLoadSampleSetDialog extends GfeShowDialogHandler {
 
-public class ShowLoadSampleSetDialog extends AbstractHandler {
-    private final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(ShowSaveDeleteSampleSetDialog.class);
-
-    private LoadSampleSetDialog dialog;
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
-     * .ExecutionEvent)
-     */
     @Override
-    public Object execute(ExecutionEvent event) throws ExecutionException {
-        DataManager dm = DataManagerUIFactory.getCurrentInstance();
-        if (dm == null) {
-            return null;
-        }
-
-        if ((dialog == null) || (dialog.getShell() == null)
-                || dialog.isDisposed()) {
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
-
-            dialog = new LoadSampleSetDialog(dm.getSampleSetManager(), shell);
-
-            dialog.setBlockOnOpen(false);
-            dialog.open();
-        } else {
-            dialog.bringToTop();
-        }
-
-        return null;
+    protected CaveJFACEDialog createDialog(Shell shell, DataManager dm,
+            ExecutionEvent event) {
+        return new LoadSampleSetDialog(dm.getSampleSetManager(), shell);
     }
-
 }

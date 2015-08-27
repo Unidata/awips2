@@ -85,6 +85,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                     Code cleanup
  * Apr 21, 2014      #2998 randerso    Changed to use attribute type (not type of attribute value 
  *                                     which may be null) to determine alignment of column.
+ * Aug 31, 2015       4749 njensen     Changed setCloseCallback to addCloseCallback                                    
  * 
  * </pre>
  * 
@@ -550,7 +551,7 @@ public class AttributeViewer extends CaveJFACEDialog implements RemoveListener,
             selectDlg = new ColumnSelectDialog(getShell(), names,
                     selectedColumns);
             selectDlg.setBlockOnOpen(false);
-            selectDlg.setCloseCallback(new ICloseCallback() {
+            selectDlg.addCloseCallback(new ICloseCallback() {
                 @Override
                 public void dialogClosed(Object returnValue) {
                     int returnCode = (Integer) returnValue;
@@ -602,7 +603,7 @@ public class AttributeViewer extends CaveJFACEDialog implements RemoveListener,
             sortDlg = new SortOrderDialog(getShell(), names,
                     comparator.getSortOrder());
             sortDlg.setBlockOnOpen(false);
-            sortDlg.setCloseCallback(new ICloseCallback() {
+            sortDlg.addCloseCallback(new ICloseCallback() {
                 @Override
                 public void dialogClosed(Object returnValue) {
                     int returnCode = (Integer) returnValue;

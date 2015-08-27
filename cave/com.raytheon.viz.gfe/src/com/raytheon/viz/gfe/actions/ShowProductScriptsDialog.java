@@ -19,14 +19,12 @@
  **/
 package com.raytheon.viz.gfe.actions;
 
-import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.ProductScriptsDialog;
+import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
  * Action to launch product generation script dialog.
@@ -35,44 +33,19 @@ import com.raytheon.viz.gfe.dialogs.ProductScriptsDialog;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 	Mar 6, 2008					Eric Babin Initial Creation
+ * Mar 06, 2008            Eric Babin  Initial Creation
  * Oct 25, 2012 12878      rferrel     Changes for non-blocking ProductScriptsDialog.
+ * Aug 27, 2015 4749       njensen     Now extends GfeShowDialogHandler
  * 
  * </pre>
  * 
- * @author ebabin
- * @version 1.0
  */
 
-public class ShowProductScriptsDialog extends AbstractHandler {
-    private ProductScriptsDialog dialog;
+public class ShowProductScriptsDialog extends GfeShowDialogHandler {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
-     * .ExecutionEvent)
-     */
     @Override
-    public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        DataManager dm = DataManager.getCurrentInstance();
-        if (dm == null) {
-            return null;
-        }
-
-        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
-
-            dialog = new ProductScriptsDialog(shell, dm);
-            dialog.setBlockOnOpen(false);
-            dialog.open();
-        } else {
-            dialog.bringToTop();
-        }
-
-        return null;
+    protected CaveJFACEDialog createDialog(Shell shell, DataManager dm,
+            ExecutionEvent event) {
+        return new ProductScriptsDialog(shell, dm);
     }
-
 }

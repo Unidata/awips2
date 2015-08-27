@@ -19,16 +19,12 @@
  **/
 package com.raytheon.viz.gfe.actions;
 
-import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.CopyGridsDialog;
+import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
  * Action for launching CopyGrids dialog.
@@ -37,68 +33,29 @@ import com.raytheon.viz.gfe.dialogs.CopyGridsDialog;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 	Feb 27, 2008					Eric Babin Initial Creation
+ * Feb 27, 2008            Eric Babin  Initial Creation
  * Oct 23, 2012 1287       rferrel     Changes for non-blocking CopyGridsDialog.
+ * Aug 27, 2015 4749       njensen     Now extends GfeShowDialogHandler
  * 
  * </pre>
- * 
- * @author ebabin
- * @version 1.0
  */
+public class ShowCopyGridsDialog extends GfeShowDialogHandler {
 
-public class ShowCopyGridsDialog extends AbstractHandler {
-
-    private IUFStatusHandler statusHandler = UFStatus
-            .getHandler(ShowCopyGridsDialog.class);
-
-    /**
-     * The active dialog. This assumes the dialog is modal. If the dialog is not
-     * modal then the current logic will bring the active dialog back to the top
-     * no matter which option is selected.
-     */
-    private CopyGridsDialog dialog;
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
-     * .ExecutionEvent)
-     */
     @Override
-    public Object execute(ExecutionEvent event) throws ExecutionException {
-        DataManager dm = DataManager.getCurrentInstance();
-        if (dm == null) {
-            return null;
-        }
-
-        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
-
-            boolean isSelected;
-            String selectedOrAll = event.getParameter("selectedOrAll");
-            if ("selected".equalsIgnoreCase(selectedOrAll)) {
-                isSelected = true;
-            } else if ("all".equalsIgnoreCase(selectedOrAll)) {
-                isSelected = false;
-            } else {
-                statusHandler
-                        .error("Invalid parmeter \""
-                                + selectedOrAll
-                                + "\" in ShowCopyGridsDialog. Value must be \"selected\" or \"all\".");
-                dialog = null;
-                return null;
-            }
-
-            dialog = new CopyGridsDialog(shell, dm, isSelected);
-            dialog.setBlockOnOpen(false);
-            dialog.open();
+    protected CaveJFACEDialog createDialog(Shell shell, DataManager dm,
+            ExecutionEvent event) {
+        boolean isSelected;
+        String selectedOrAll = event.getParameter("selectedOrAll");
+        if ("selected".equalsIgnoreCase(selectedOrAll)) {
+            isSelected = true;
+        } else if ("all".equalsIgnoreCase(selectedOrAll)) {
+            isSelected = false;
         } else {
-            dialog.bringToTop();
+            throw new IllegalArgumentException(
+                    "Invalid parmeter \""
+                            + selectedOrAll
+                            + "\" in ShowCopyGridsDialog. Value must be \"selected\" or \"all\".");
         }
-
-        return null;
+        return new CopyGridsDialog(shell, dm, isSelected);
     }
-
 }

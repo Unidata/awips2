@@ -79,7 +79,7 @@ public class ChangeColorMapRangeAction extends AbstractRightClickAction {
             colorMapDlg = new ColormapDialog(shell, "Set Color Table Range",
                     cap, parm.getGridInfo().getPrecision());
             colorMapDlg.setBlockOnOpen(false);
-            colorMapDlg.setCloseCallback(new ICloseCallback() {
+            colorMapDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
