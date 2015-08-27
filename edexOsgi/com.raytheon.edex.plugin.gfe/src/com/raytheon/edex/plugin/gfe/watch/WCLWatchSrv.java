@@ -64,6 +64,7 @@ import com.raytheon.uf.edex.core.EdexException;
  * Jun 13, 2014  #3278     dgilling     Ensure temporary files get deleted.
  * Sep 25, 2014  #3661     randerso     Update WCLWatchSrv to use localization correctly
  * Sep 25, 2014, #3670     randerso     Send notification directly to AlertViz
+ * Aug 26, 2015  #17647    yteng        Correct end time of grid from ViewWCL procedure
  * 
  * </pre>
  * 
@@ -289,6 +290,7 @@ public class WCLWatchSrv {
                 cal.set(Calendar.DAY_OF_MONTH, day);
                 cal.set(Calendar.HOUR_OF_DAY, hour);
                 cal.set(Calendar.MINUTE, minute);
+                cal.set(Calendar.SECOND, 0);
                 cal.set(Calendar.MILLISECOND, 0);
                 // Guess whether end time crossed a month boundary.
                 if (day < (dom - 7)) {
