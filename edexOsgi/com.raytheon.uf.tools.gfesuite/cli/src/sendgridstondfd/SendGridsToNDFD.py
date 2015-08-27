@@ -30,7 +30,8 @@
 #    ??/??/??                      ????????       Initial Creation.
 #    04/05/13         1761         dgilling       Rewrite based on 
 #                                                 ExportGridsRequest. 
-#    
+#    08/27/2015       4812         randerso       Changed to expect JobProgress object to be
+#                                                 returned from the ExportGridsRequest
 # 
 #
 
@@ -52,10 +53,12 @@ class SendGridsToNDFD:
         ndfdRequest.setSite(site)
         ndfdRequest.setMode("GRIB2")
         
-        serverResponse = thriftClient.sendRequest(ndfdRequest)
-        if (not serverResponse.isOkay()):
-            print "Errors occurred during sendGridsToNDFD processing: ", serverResponse.message()
-            sys.exit(1)
+        status = str(thriftClient.sendRequest(ndfdRequest))
+        if (status == "SUCCESS"):
+            return 0
+        else:
+            print "sendGridsToNDFD returned status:", status,"\n   See edex-request logs for details."
+            return 1
         
 
 def processArgs():
@@ -79,7 +82,7 @@ def processArgs():
 def main():
     options = processArgs()    
     sender = SendGridsToNDFD()
-    sender.send(options.site, options.host, options.port)
+    return sender.send(options.site, options.host, options.port)
 
 if __name__ == "__main__":
     main()
