@@ -442,7 +442,7 @@ class ITool (ISmartScript.ISmartScript):
         # thread has its own interpreter....     
         # however, running the other way has issue with sampler caches not getting dumped between runs
         waiter = TextProductFinishWaiter()
-        FormatterUtil.runFormatterScript(productType, vtecMode, database, cmdLineVars, "PRACTICE", drtTime, 0, waiter)
+        FormatterUtil.runFormatterScript(productType, vtecMode, database, cmdLineVars, "PRACTICE", drtTime, 0, waiter, self._dataMgr)
         fcst = waiter.waitAndGetProduct()
         state = waiter.getState()
             

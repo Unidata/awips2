@@ -70,6 +70,7 @@
 #    Aug 13, 2015    4704          randerso       Added NumpyJavaEnforcer support in createGrids and decodeEditArea
 #                                                 additional code cleanup
 #    Aug 26, 2015    4809          randerso       Added option group parameter to editAreaList()
+#    Aug 26, 2015    4804          dgilling       Added callTextFormatter().
 ########################################################################
 import types, string, time, sys
 from math import *
@@ -101,6 +102,10 @@ from com.raytheon.uf.common.dataplugin.gfe.db.objects import TimeConstraints
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import GridParmInfo
 GridType = GridParmInfo.GridType
 from com.raytheon.uf.common.dataplugin.gfe.server.request import SendISCRequest
+from com.raytheon.viz.gfe.dialogs.formatterlauncher import ConfigData
+ProductStateEnum = ConfigData.ProductStateEnum
+from com.raytheon.viz.gfe.textformatter import FormatterUtil
+from com.raytheon.viz.gfe.textformatter import TextProductFinishWaiter
 
 class SmartScript(BaseTool.BaseTool):
 
@@ -2599,4 +2604,36 @@ class SmartScript(BaseTool.BaseTool):
         textList =  fullText.splitlines(True)
         return textList
 
+    def callTextFormatter(self, productName, dbId, varDict={}, vtecMode=None):
+        """
+        Execute the requested text product formatter.
+
+        Args: 
+                productName: the display name of the formatter to run.
+                dbId: string form of the DatabaseID to use as data source.
+                varDict: optional, product varDict, use an empty dict instead
+                         of None to signify a null varDict.
+                vtecMode: optional, for VTEC products specify VTEC mode (one of
+                          'O', 'T', 'E' or 'X').
+
+        Returns:
+                The output of the formatter--the content of the requested product.
+
+        Throws:
+                TypeError: If varDict is not a dict.
+                RuntimeError: If the formatter fails during execution. 
+        """
+        if type(varDict) is not dict:
+            raise TypeError("Argument varDict must be a dict.")
+        varDict = str(varDict)
+        
+        listener = TextProductFinishWaiter()
+        FormatterUtil.callFromSmartScript(productName, dbId, varDict, vtecMode, self.__dataMgr, listener)
+        product = listener.waitAndGetProduct()
+        state = listener.getState()
+        if not state.equals(ProductStateEnum.Finished):
+            msg = "Formatter " + productName + " terminated before completion with state: " + state.name() + \
+            ". Check formatter logs from Process Monitor for more information."
+            raise RuntimeError(msg)
+        return product
 
