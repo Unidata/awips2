@@ -105,6 +105,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * 03 April 2014 2940       dhladky     Better error message for bad configurations.
  * Apr 15, 2014  3026       mpduff      Set the xmrg filename into the metadata column.
  * Aug 08, 2015  4722       dhladky     Simplified processing by data type.
+ * Aug 26, 2015  4777       dhladky     Fixed bug in DPR accumulations.
  * </pre>
  * @author dhladky
  * @version 1
@@ -1168,7 +1169,6 @@ public class FFMPProcessor {
                     val += fval * areas[j];
                 }
 
-                val += fval * areas[j];
                 area += areas[j];
             }
         }
