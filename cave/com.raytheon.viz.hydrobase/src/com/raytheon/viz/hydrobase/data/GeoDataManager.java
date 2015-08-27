@@ -40,9 +40,9 @@ import com.raytheon.viz.hydrocommon.datamanager.HydroDataManager;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 12, 2009 2772       mpduff     Initial creation
+ * Sep 12, 2009 2772       mpduff      Initial creation
  * 30 June 2015 17360      xwei        Fixed : basins.dat import failed if the first line does not have Lat Lon
- * 
+ * Aug 18, 2015 4763       rjpeter     Use Number in blind cast.
  * </pre>
  * 
  * @author mpduff
@@ -257,7 +257,7 @@ public class GeoDataManager extends HydroDataManager {
             query.append("select count(*) from linesegs ");
             query.append(where.toString());
             ArrayList<Object[]> rs = runQuery(query.toString());
-            count = (Long) (rs.get(0)[0]);
+            count = ((Number) (rs.get(0)[0])).longValue();
             if (count == 0) {
                 // insert the record
                 query.setLength(0);

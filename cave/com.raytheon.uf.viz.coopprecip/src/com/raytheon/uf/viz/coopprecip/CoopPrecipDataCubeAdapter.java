@@ -65,7 +65,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Aug 14,2012   #1055    dgilling     Fix getData regression from
  *                                     fxatext schema changes.
  * Sep  9, 2013  #2277    mschenke     Got rid of ScriptCreator references
- * 
+ * Aug 18, 2015 4763       rjpeter     Use Number in blind cast.
  * </pre>
  * 
  * @author bsteffen
@@ -190,7 +190,7 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
         List<Long> times = new ArrayList<Long>(queryResult.size());
         List<String> products = new ArrayList<String>(queryResult.size());
         for (Object[] objArr : queryResult) {
-            times.add((Long) objArr[0]);
+            times.add(((Number) objArr[0]).longValue());
             products.add((String) objArr[1]);
         }
         if (FFG.equals(nnnid)) {

@@ -231,6 +231,11 @@
         <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.GetTopoDataRequest"/>
         <constructor-arg ref="getTopoDataHandler"/>
     </bean>
+    <bean id="rsyncGridsToCWFHandler" class="com.raytheon.edex.plugin.gfe.server.handler.RsyncGridsToCWFHandler"/>
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.RsyncGridsToCWFRequest"/>
+        <constructor-arg ref="rsyncGridsToCWFHandler"/>
+    </bean>
     <bean id="ClearGfeOrphanedLocks" class="com.raytheon.edex.plugin.gfe.server.lock.ClearGfeOrphanedLocks">
         <property name="provider" ref="brokerConnectionsProvider" />
     </bean>

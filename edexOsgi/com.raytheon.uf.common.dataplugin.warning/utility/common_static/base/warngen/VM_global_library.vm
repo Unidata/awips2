@@ -19,6 +19,7 @@
 #####    Evan Bookbinder    3-30-2015  Fixed wording for Independent Cities not in VA
 #####                                  Fixed dupCounties.vm not working due a variable switch in HeadlineLocList and ZoneHeadlineLocList
 #####    Evan Bookbinder  3-23/24-2015 Changes for mixed case (including new capitalize function)
+#####         D. Friedman   08-11-2015 ASM #17841.  Handle possibly duplicate second time zone time.
 ####################################################################################################
 #*
 Mile Marker Test Code                                     
@@ -249,11 +250,9 @@ ${currTime}##
 ########END MACRO
 
 #macro(until $endTime $timeFormat $secondtimezone $watch)
-until ${dateUtil.formatUseNoonMidnight(${endTime}, ${timeFormat.clock}, 15, ${localtimezone})}##
-#if(${secondtimezone})
-/${dateUtil.formatUseNoonMidnight(${watch.getEndTime()}, ${timeFormat.clock}, 15, ${secondtimezone})}/##
-#end
- for ##
+#set($time1 = ${dateUtil.formatUseNoonMidnight(${endTime}, ${timeFormat.clock}, 15, ${localtimezone})})
+#set($time2 = ${dateUtil.formatUseNoonMidnight(${watch.getEndTime()}, ${timeFormat.clock}, 15, ${secondtimezone})})
+until #formatTwoTimes($time1, $time2) for ##
 #end
 
 #macro(insertsvrwatches $watches $list $secondtimezone $dateUtil $timeFormat)
@@ -1248,17 +1247,16 @@ ${partOfArea}${area.name}...
 ######### MACRO TO GENERATE SECOND BULLET (* Until XXXX AMPM TZ [DAY]) IN WARNINGS ##########
 #macro(secondBullet $dateUtil $expire $timeFormat $localtimezone $secondtimezone $duration)
 #if(${duration} >= 360)
-Until ${dateUtil.formatUseNoonMidnight(${expire}, ${timeFormat.plain}, 15, ${localtimezone})}##
+#set($time1 = ${dateUtil.formatUseNoonMidnight(${expire}, ${timeFormat.plain}, 15, ${localtimezone})})
 #else
-Until ${dateUtil.formatUseNoonMidnight(${expire}, ${timeFormat.clock}, 15, ${localtimezone})}##
+#set($time1 = ${dateUtil.formatUseNoonMidnight(${expire}, ${timeFormat.clock}, 15, ${localtimezone})})
 #end
-#if(${secondtimezone})
 #if(${duration} >= 360)
-/${dateUtil.formatUseNoonMidnight(${expire}, ${timeFormat.plain}, 15, ${secondtimezone})}/##
+#set($time2 = ${dateUtil.formatUseNoonMidnight(${expire}, ${timeFormat.plain}, 15, ${secondtimezone})})
 #else
-/${dateUtil.formatUseNoonMidnight(${expire}, ${timeFormat.clock}, 15, ${secondtimezone})}/##
+#set($time2 = ${dateUtil.formatUseNoonMidnight(${expire}, ${timeFormat.clock}, 15, ${secondtimezone})})
 #end
-#end
+Until #formatTwoTimes($time1, $time2)##
 #end
 ########END MACRO
 
@@ -1297,10 +1295,9 @@ Until ${dateUtil.formatUseNoonMidnight(${expire}, ${timeFormat.clock}, 15, ${loc
 ####overload eventTime with global corEventTime variable
 ###set($time = ${corEventTime})
 ###end
-At ${dateUtil.format(${time}, ${timeFormat.clock}, ${localtimezone})}##
-#if(${secondtimezone})
- /${dateUtil.format(${time}, ${timeFormat.clock}, ${secondtimezone})}/##
-#end
+#set($time1=${dateUtil.format(${time}, ${timeFormat.clock}, ${localtimezone})})
+#set($time2=${dateUtil.format(${time}, ${timeFormat.clock}, ${secondtimezone})})
+At #formatTwoTimes($time1 $time2)##
 #end
 ########END MACRO
 
@@ -1627,5 +1624,14 @@ ${location}.
 #end
 #end
 #end
+#end
+#end
+
+## formatTwoTimes - If one non-null string is given, output that string.  If
+## two distinct non-null strings are given, output time1/time2/.
+#macro(formatTwoTimes $time1 $time2)
+${time1}##
+#if($time2 && $time1 != $time2)
+/${time2}/##
 #end
 #end
