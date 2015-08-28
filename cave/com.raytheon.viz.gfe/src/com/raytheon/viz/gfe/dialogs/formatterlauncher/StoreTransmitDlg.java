@@ -19,11 +19,9 @@
  **/
 package com.raytheon.viz.gfe.dialogs.formatterlauncher;
 
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
@@ -40,23 +38,15 @@ import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.raytheon.uf.common.activetable.SendPracticeProductRequest;
 import com.raytheon.uf.common.activetable.response.GetNextEtnResponse;
-import com.raytheon.uf.common.dissemination.OUPRequest;
-import com.raytheon.uf.common.dissemination.OUPResponse;
-import com.raytheon.uf.common.dissemination.OfficialUserProduct;
-import com.raytheon.uf.common.serialization.comm.IServerRequest;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.gfe.product.TextDBUtil;
+import com.raytheon.viz.gfe.textformatter.TextProductTransmitter;
 import com.raytheon.viz.gfe.vtec.GFEVtecUtil;
 import com.raytheon.viz.texteditor.util.VtecObject;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
@@ -89,6 +79,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Feb 26, 2015  4126      randerso    Ensure transmit/store is properly cancelled if dialog is closed
  *                                     Code cleanup
  * Apr 20, 2015  4027      randerso    Renamed ProductStateEnum with an initial capital
+ * Aug 28, 2015  4806      dgilling    Extract code for product transmission into
+ *                                     its own class.
  * 
  * </pre>
  * 
@@ -101,8 +93,6 @@ public class StoreTransmitDlg extends CaveSWTDialog {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(StoreTransmitDlg.class);
-
-    private static int SEQ_NUMBER = 0;
 
     /**
      * Product ID text control.
@@ -529,93 +519,14 @@ public class StoreTransmitDlg extends CaveSWTDialog {
      *            true if we are transmitting a practice product
      */
     private void transmitProduct(boolean practice) {
-        IServerRequest req = null;
-        if (practice) {
-            SendPracticeProductRequest practiceReq = new SendPracticeProductRequest();
-            practiceReq.setNotifyGFE(true);
-            practiceReq.setProductText(productText);
-
-            if (!SimulatedTime.getSystemTime().isRealTime()) {
-                SimpleDateFormat dateFormatter = new SimpleDateFormat(
-                        "yyyyMMdd_HHmm");
-                dateFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
-                practiceReq.setDrtString(dateFormatter.format(SimulatedTime
-                        .getSystemTime().getTime()));
-            }
-            req = practiceReq;
-        } else {
-            OUPRequest oupReq = new OUPRequest();
-            OfficialUserProduct oup = new OfficialUserProduct();
-            // make sure the awipsWanPil is exactly 10 characters space-padded
-            // long
-            String awipsWanPil = String.format("%-10s", productIdText.getText()
-                    .trim());
-            oup.setAwipsWanPil(awipsWanPil);
-            oup.setProductText(productText);
-
-            String tempName = awipsWanPil + "-" + SEQ_NUMBER + "-"
-                    + (System.currentTimeMillis() / TimeUtil.MILLIS_PER_SECOND);
-            oup.setFilename(tempName);
-
-            String type = parentEditor.getProductType();
-            if (!type.equals("rou") && !type.equals("res")) {
-                oup.setWmoType(type);
-            }
-            // oup.setAddress(parentEditor.getAutoSendAddress());
-            oup.setNeedsWmoHeader(false);
-            oup.setSource("GFE");
-            oupReq.setProduct(oup);
-            oupReq.setUser(UserController.getUserObject());
-
-            req = oupReq;
-        }
-
         try {
-            Object response = ThriftClient.sendRequest(req);
-            // TODO need a response on the other one?
-            // it's going async....
-            if (response instanceof OUPResponse) {
-                OUPResponse resp = (OUPResponse) response;
-                Priority p = null;
-                if (!resp.hasFailure()) {
-                    p = Priority.EVENTA;
-                    sendTransmissionStatus(ConfigData.ProductStateEnum.Transmitted);
-                } else {
-                    // determine the failure type and priority
-                    ConfigData.ProductStateEnum state = null;
-                    if (resp.isSendLocalSuccess()) {
-                        state = ConfigData.ProductStateEnum.Transmitted;
-                    } else {
-                        state = ConfigData.ProductStateEnum.Failed;
-                    }
-                    p = Priority.EVENTA;
-                    if (!resp.isAttempted()) {
-                        // if was never attempted to send or store even locally
-                        p = Priority.CRITICAL;
-                    } else if (!resp.isSendLocalSuccess()) {
-                        // if send/store locally failed
-                        p = Priority.CRITICAL;
-                    } else if (!resp.isSendWANSuccess()) {
-                        // if send to WAN failed
-                        if (resp.getNeedAcknowledgment()) {
-                            // if ack was needed, if it never sent then no ack
-                            // was recieved
-                            p = Priority.CRITICAL;
-                        } else {
-                            // if no ack was needed
-                            p = Priority.EVENTA;
-                        }
-                    } else if (resp.getNeedAcknowledgment()
-                            && !resp.isAcknowledged()) {
-                        // if sent but not acknowledged when acknowledgment is
-                        // needed
-                        p = Priority.CRITICAL;
-                    }
-                    sendTransmissionStatus(state);
-                }
-                statusHandler.handle(p, resp.getMessage());
-            }
+            TextProductTransmitter transmitter = new TextProductTransmitter(
+                    productText, productIdText.getText(),
+                    parentEditor.getProductType());
+            ConfigData.ProductStateEnum state = transmitter
+                    .transmitProduct(practice);
 
+            sendTransmissionStatus(state);
             this.parentEditor.setProductText(productText, false);
             this.parentEditor.brain();
         } catch (VizException e) {
@@ -623,8 +534,6 @@ public class StoreTransmitDlg extends CaveSWTDialog {
             sendTransmissionStatus(ConfigData.ProductStateEnum.Failed);
             this.parentEditor.revive();
         }
-
-        SEQ_NUMBER++;
     }
 
     private void sendTransmissionStatus(ConfigData.ProductStateEnum status) {
