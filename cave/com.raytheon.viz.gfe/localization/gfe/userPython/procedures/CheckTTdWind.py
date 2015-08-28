@@ -29,7 +29,7 @@
 # Version Date: 4 January 2006
 # Version: 6.5
 #
-# 8/26/2015    yteng    Call CheckTandTd and CheckWindGust for processing
+# 8/28/2015    yteng    Call CheckTandTd and CheckWindGust for processing 
 # ----------------------------------------------------------------------------
 
 # The MenuItems list defines the GFE menu item(s) under which the
@@ -42,6 +42,9 @@ VariableList = [("Check or Force:" , "Check Only", "radio",
                 ]
 
 import SmartScript
+import TimeRange
+
+DAY_IN_SECS = 24 * 3600
 
 
 class Procedure (SmartScript.SmartScript):
@@ -56,12 +59,12 @@ class Procedure (SmartScript.SmartScript):
     # temperature grids are modified.
     # @type varDict: Python dictionary of strings to strings 
     def execute(self, timeRange, varDict):
-        if timeRange is None:
-            yesterday = self._gmtime() - (2 * DAY_IN_SECS) # two days ago
-            later = self._gmtime() + 10 * DAY_IN_SECS  # 10 days from now
-            timeRange = TimeRange.TimeRange(yesterday, later)
-        if isinstance(timeRange, JavaWrapperClass):
-            timeRange = timeRange.toJavaObj()
+        if timeRange is None or not timeRange.isValid():
+            start = self._gmtime() - (2 * DAY_IN_SECS) # two days ago
+            end = self._gmtime() + 10 * DAY_IN_SECS  # 10 days from now
+            timeRange = TimeRange.TimeRange(start, end)
 
         self.callProcedure("CheckTandTd", timeRange=timeRange, varDict=varDict)
         self.callProcedure("CheckWindGust", timeRange=timeRange, varDict=varDict)
+
+
