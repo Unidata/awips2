@@ -72,6 +72,7 @@
 #    Aug 26, 2015    4809          randerso       Added option group parameter to editAreaList()
 #    Aug 26, 2015    4804          dgilling       Added callTextFormatter().
 #    Aug 27, 2015    4805          dgilling       Added saveCombinationsFile().
+#    Aug 27, 2015    4806          dgilling       Added transmitTextProduct().
 ########################################################################
 import types, string, time, sys
 from math import *
@@ -108,6 +109,7 @@ from com.raytheon.viz.gfe.dialogs.formatterlauncher import ConfigData
 ProductStateEnum = ConfigData.ProductStateEnum
 from com.raytheon.viz.gfe.textformatter import FormatterUtil
 from com.raytheon.viz.gfe.textformatter import TextProductFinishWaiter
+from com.raytheon.viz.gfe.textformatter import TextProductTransmitter
 
 
 class SmartScript(BaseTool.BaseTool):
@@ -2639,7 +2641,6 @@ class SmartScript(BaseTool.BaseTool):
             ". Check formatter logs from Process Monitor for more information."
             raise RuntimeError(msg)
         return product
-
     
     def saveCombinationsFile(self, name, combinations):
         """
@@ -2665,3 +2666,27 @@ class SmartScript(BaseTool.BaseTool):
         
         combo_list = JUtil.pyValToJavaObj([[str(zone) for zone in group] for group in combinations])
         CombinationsFileUtil.generateAutoCombinationsFile(combo_list, str(name))
+
+    def transmitTextProduct(self, product, wanPil, wmoType):
+        """
+        Transmit the specified product. Will automatically detect if GFE is 
+        operating in OPERATIONAL or PRACTICE mode and send using the appropriate
+        route.
+
+        Args: 
+                product: the text or body of the product to transmit.
+                wanPil: the AWIPS WAN PIL for the product
+                wmoType: The WMO type of the product.
+
+        Returns:
+                The status of the transmission request as a ProductStateEnum.
+        """
+        wanPil = str(wanPil)
+        product = str(product)
+        wmoType = str(wmoType)
+        
+        transmitter = TextProductTransmitter(product, wanPil, wmoType)
+        practice = self.gfeOperatingMode()=="PRACTICE"
+        status = transmitter.transmitProduct(practice)
+        return status
+
