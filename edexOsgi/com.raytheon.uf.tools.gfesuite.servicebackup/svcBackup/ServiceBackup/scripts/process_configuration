@@ -182,7 +182,7 @@ cp -r GFEconfig/cave_static/site/* ${cave_site_dest}
 cp -r GFEconfig/common_static/site/colormaps ${common_site_dest}
 
 # DR 17443
-cp -a GFEConfig/site/rsync_parms.${SITE_ID} ${rsync_parms_dest}
+cp -a GFEconfig/site/rsync_parms.${SITE_ID} ${rsync_parms_dest}
 echo "Files successfully copied!"
 
 echo "Changing ownership of received configuration"
