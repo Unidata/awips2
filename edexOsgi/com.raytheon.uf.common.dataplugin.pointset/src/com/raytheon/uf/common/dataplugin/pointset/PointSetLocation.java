@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -32,6 +33,7 @@ import com.raytheon.uf.common.datastorage.IDataStore.StoreOp;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
 
 /**
  * 
@@ -67,9 +69,13 @@ public class PointSetLocation {
 
     private static final String LONGITUDE = "longitude";
 
+    private static final String TRIANGLES = "triangle_indices";
+
     private final FloatBuffer longitudes;
 
     private final FloatBuffer latitudes;
+
+    private IntBuffer triangles;
 
     private final String id;
 
@@ -109,9 +115,13 @@ public class PointSetLocation {
         }
     }
 
-    protected PointSetLocation(float[] longitudes, float[] latitudes, String id) {
+    protected PointSetLocation(float[] longitudes, float[] latitudes,
+            int[] triangles, String id) {
         this.longitudes = FloatBuffer.wrap(longitudes);
         this.latitudes = FloatBuffer.wrap(latitudes);
+        if (triangles != null) {
+            this.triangles = IntBuffer.wrap(triangles);
+        }
         this.id = id;
     }
 
@@ -134,6 +144,14 @@ public class PointSetLocation {
         return latitudes;
     }
 
+    public IntBuffer getTriangles() {
+        return triangles;
+    }
+
+    public void setTriangles(IntBuffer triangles) {
+        this.triangles = triangles;
+    }
+
     /**
      * Save to an {@link IDataStore}. The provided file will be used to get the
      * IDataStore and is not an actual file on the local system.
@@ -150,6 +168,10 @@ public class PointSetLocation {
                 longitudes.array()));
         store.addDataRecord(new FloatDataRecord(LATITUDE, getGroup(id),
                 latitudes.array()));
+        if (triangles != null) {
+            store.addDataRecord(new IntegerDataRecord(TRIANGLES, getGroup(id),
+                    triangles.array()));
+        }
         store.store(StoreOp.REPLACE);
     }
 
@@ -163,12 +185,15 @@ public class PointSetLocation {
         IDataRecord[] datasets = store.retrieve(getGroup(id));
         float[] latitudes = null;
         float[] longitudes = null;
+        int[] triangles = null;
 
         for(IDataRecord record : datasets){
             if (record.getName().equals(LATITUDE)) {
                 latitudes = (float[]) record.getDataObject();
             } else if (record.getName().equals(LONGITUDE)) {
                 longitudes = (float[]) record.getDataObject();
+            } else if (record.getName().equals(TRIANGLES)) {
+                triangles = (int[]) record.getDataObject();
             }
         }
         if (longitudes == null || latitudes == null) {
@@ -176,7 +201,7 @@ public class PointSetLocation {
                     "Unable to determine location information for " + id
                             + " from " + file.getName());
         }
-        return new PointSetLocation(longitudes, latitudes, id);
+        return new PointSetLocation(longitudes, latitudes, triangles, id);
     }
 
     protected static String getGroup(String id) {
