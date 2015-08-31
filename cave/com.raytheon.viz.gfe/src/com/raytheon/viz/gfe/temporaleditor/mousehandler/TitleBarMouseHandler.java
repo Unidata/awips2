@@ -47,9 +47,10 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer      Description
  * ------------ ---------- ------------- --------------------------
- * May 28, 2009 #2159      Richard Peter Initial Creation.
+ * May 28, 2009 #2159      rjpeter       Initial Creation.
  * Nov 14, 2012 #1298      rferrel       Changes for non-blocking DisplayAttributesDialog.
  *                                        Changes for non-blocking MoveWeatherElementDialog.
+ * Aug 31, 2015  4749      njensen       Changed setCloseCallback to addCloseCallback                                       
  * </pre>
  * 
  * @author rjpeter
@@ -131,7 +132,7 @@ public class TitleBarMouseHandler extends MouseHandler {
                         DisplayAttributesDialog dialog = new DisplayAttributesDialog(
                                 shell, teBar, parm);
                         dialog.setBlockOnOpen(false);
-                        dialog.setCloseCallback(new ICloseCallback() {
+                        dialog.addCloseCallback(new ICloseCallback() {
 
                             @Override
                             public void dialogClosed(Object returnValue) {

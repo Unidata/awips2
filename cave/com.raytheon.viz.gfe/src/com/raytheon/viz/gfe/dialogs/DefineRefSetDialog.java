@@ -95,7 +95,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 11, 2008		       Eric Babin  Initial Creation
+ * Mar 11, 2008            Eric Babin  Initial Creation
  * Jul 15, 2008            njensen     Hooked into backend/fixes
  * Oct 24, 2012 1287       rferrel     Code clean up for non-blocking dialog.
  * Oct 24, 2012 1287       rferrel     Changes for non-blocking SaveDeleteRefDialog.
@@ -105,7 +105,8 @@ import com.vividsolutions.jts.geom.MultiPolygon;
  *                                      Changes for non-blocking DiscreteDialog. 
  * Feb 14, 2013            mnash       Move QueryScript to use new Python concurrency implementation
  * Jan 13, 2015 3955       randerso    Improve handling of Topo parm for Standard Terrain editing
- * Jun 24, 2015 14401      yteng       Check whether activeDisplay is disposed before update 
+ * Jun 24, 2015 14401      yteng       Check whether activeDisplay is disposed before update
+ * Aug 27, 2015 4749       njensen     Reused reference to PythonJobCoordinator instance 
  * 
  * </pre>
  * 
@@ -595,7 +596,7 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
                 || menuModalDlg.isDisposed()) {
             menuModalDlg = new MaskDialog(this.getShell(), parm);
             menuModalDlg.setBlockOnOpen(false);
-            menuModalDlg.setCloseCallback(new ICloseCallback() {
+            menuModalDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
@@ -649,7 +650,7 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
                     || menuModalDlg.isDisposed()) {
                 menuModalDlg = new WeatherDialog(this.getShell(), parm);
                 menuModalDlg.setBlockOnOpen(false);
-                menuModalDlg.setCloseCallback(new ICloseCallback() {
+                menuModalDlg.addCloseCallback(new ICloseCallback() {
 
                     @Override
                     public void dialogClosed(Object returnValue) {
@@ -674,7 +675,7 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
                     || menuModalDlg.isDisposed()) {
                 menuModalDlg = new DiscreteDialog(this.getShell(), parm);
                 menuModalDlg.setBlockOnOpen(false);
-                menuModalDlg.setCloseCallback(new ICloseCallback() {
+                menuModalDlg.addCloseCallback(new ICloseCallback() {
 
                     @Override
                     public void dialogClosed(Object returnValue) {
@@ -856,7 +857,7 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
         AbstractPythonScriptFactory<QueryScript> factory = new QueryScriptFactory(
                 DataManagerUIFactory.getCurrentInstance());
         PythonJobCoordinator<QueryScript> coordinator = PythonJobCoordinator
-                .newInstance(factory);
+                .getInstance(factory.getName());
         Map<String, Object> argMap = new HashMap<String, Object>();
         argMap.put("expression", s);
         IPythonExecutor<QueryScript, ReferenceData> executor = new QueryScriptExecutor(
@@ -878,10 +879,11 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
                             refSetMgr.incomingRefSet(result,
                                     RefSetMode.USE_CURRENT);
                             addToHistory(s);
-                            
-                            if (activeDisplay != null || !activeDisplay.isDisposed())
+
+                            if (activeDisplay != null
+                                    || !activeDisplay.isDisposed())
                                 activeDisplay.setText(s);
-                            
+
                             if (queryField != null && !queryField.isDisposed())
                                 queryField.setText("");
                         }

@@ -17,84 +17,62 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-
 package com.raytheon.viz.gfe.actions;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.DataManagerUIFactory;
-import com.raytheon.viz.gfe.dialogs.AutoSaveIntervalDialog;
-import com.raytheon.viz.gfe.jobs.AutoSaveJob;
+import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
- * Action for launching auto save dialog
+ * An abstract handler for showing GFE dialogs. Handlers that extend this will
+ * have automatic benefits of non-blocking behavior and automatic cleanup of the
+ * dialog reference.
+ * 
  * 
  * <pre>
+ *
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Jan 23, 2008             Eric Babin  Initial Creation
- * Jul  8, 2008             randerso    reworked
- * Oct 23, 2012 1287        rferrel     Changes for non-blocking AutoSaveIntervalDialog.
- * Aug 27, 2013 2302        randerso    Code clean up for AutoSaveJob changes
- * 
+ *
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Aug 27, 2015  4749      njensen     Initial creation
+ *
  * </pre>
  * 
- * @author ebabin
+ * @author njensen
  * @version 1.0
  */
-public class ShowAutoSaveIntervalDialog extends AbstractHandler {
-    final private Map<IWorkbenchWindow, AutoSaveIntervalDialog> dialogMap = new HashMap<IWorkbenchWindow, AutoSaveIntervalDialog>();
 
-    /**
-     * 
-     */
-    public ShowAutoSaveIntervalDialog() {
+public abstract class GfeShowDialogHandler extends AbstractHandler {
 
-    }
+    protected CaveJFACEDialog dialog;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
-     * .ExecutionEvent)
-     */
     @Override
-    public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        final IWorkbenchWindow window = PlatformUI.getWorkbench()
-                .getActiveWorkbenchWindow();
-        DataManager dm = DataManagerUIFactory.findInstance(window);
+    public Object execute(ExecutionEvent event) throws ExecutionException {
+        DataManager dm = DataManagerUIFactory.getCurrentInstance();
         if (dm == null) {
             return null;
         }
 
-        AutoSaveIntervalDialog dialog = dialogMap.get(window);
-
         if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
 
-            AutoSaveJob autoSaveJob = dm.getAutoSaveJob();
-
-            Shell shell = window.getShell();
-            dialog = new AutoSaveIntervalDialog(shell, autoSaveJob);
-            dialogMap.put(window, dialog);
+            dialog = createDialog(shell, dm, event);
             dialog.setBlockOnOpen(false);
             dialog.addCloseCallback(new ICloseCallback() {
-
                 @Override
                 public void dialogClosed(Object returnValue) {
-                    dialogMap.remove(window);
+                    dialog = null;
                 }
+
             });
             dialog.open();
         } else {
@@ -102,5 +80,16 @@ public class ShowAutoSaveIntervalDialog extends AbstractHandler {
         }
         return null;
     }
+
+    /**
+     * Creates a dialog based on the class and using the args passed in.
+     * 
+     * @param shell
+     * @param dm
+     * @param event
+     * @return
+     */
+    protected abstract CaveJFACEDialog createDialog(Shell shell,
+            DataManager dm, ExecutionEvent event);
 
 }

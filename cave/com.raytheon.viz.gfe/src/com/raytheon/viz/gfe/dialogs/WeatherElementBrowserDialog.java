@@ -208,7 +208,7 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
         final WeatherElementGroupDialog dialog = new WeatherElementGroupDialog(
                 getShell(), dataManager, true);
         dialog.setBlockOnOpen(false);
-        dialog.setCloseCallback(new ICloseCallback() {
+        dialog.addCloseCallback(new ICloseCallback() {
 
             @Override
             public void dialogClosed(Object returnValue) {
@@ -259,7 +259,7 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
         final WeatherElementGroupDialog dialog = new WeatherElementGroupDialog(
                 getShell(), this.dataManager, false);
         dialog.setBlockOnOpen(false);
-        dialog.setCloseCallback(new ICloseCallback() {
+        dialog.addCloseCallback(new ICloseCallback() {
 
             @Override
             public void dialogClosed(Object returnValue) {

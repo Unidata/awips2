@@ -19,13 +19,12 @@
  **/
 package com.raytheon.viz.gfe.actions;
 
-import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.RefSetAppearanceDialog;
+import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
  * Opens the RefSetAreaAppearance dialog
@@ -35,8 +34,9 @@ import com.raytheon.viz.gfe.dialogs.RefSetAppearanceDialog;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 24, 2009      #2948 randerso     Initial creation
+ * Aug 24, 2009 #2948      randerso    Initial creation
  * Oct 25, 2012 #1287      rferrel     Changes for non-blocking RefSetAppearanceDialog.
+ * Aug 27, 2015 #4749      njensen     Now extends GfeShowDialogHandler
  * 
  * </pre>
  * 
@@ -44,28 +44,11 @@ import com.raytheon.viz.gfe.dialogs.RefSetAppearanceDialog;
  * @version 1.0
  */
 
-public class ShowRefSetAreaAppearance extends AbstractHandler {
-    private RefSetAppearanceDialog dialog;
+public class ShowRefSetAreaAppearance extends GfeShowDialogHandler {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.core.commands.IHandler#execute(org.eclipse.core.commands.
-     * ExecutionEvent)
-     */
     @Override
-    public Object execute(ExecutionEvent event) throws ExecutionException {
-        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
-            dialog = new RefSetAppearanceDialog(shell);
-            dialog.setBlockOnOpen(false);
-            dialog.open();
-        } else {
-            dialog.bringToTop();
-        }
-        return null;
+    protected CaveJFACEDialog createDialog(Shell shell, DataManager dm,
+            ExecutionEvent event) {
+        return new RefSetAppearanceDialog(shell);
     }
-
 }

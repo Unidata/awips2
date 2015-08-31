@@ -19,13 +19,12 @@
  **/
 package com.raytheon.viz.gfe.actions;
 
-import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.EditActionsDialog;
+import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
  * Action for showing edit actions dialog.
@@ -37,6 +36,7 @@ import com.raytheon.viz.gfe.dialogs.EditActionsDialog;
  * Feb 19, 2007            njensen     Initial creation	
  * Aug 05, 2010 6112       mpduff      One, and only one, dialog open
  * Oct 25, 2012 1287       rferrel     Changes for non-blocking EditActionsDialog.
+ * Aug 27, 2015 4749       njensen     Now extends GfeShowDialogHandler
  * 
  * </pre>
  * 
@@ -44,32 +44,11 @@ import com.raytheon.viz.gfe.dialogs.EditActionsDialog;
  * @version 1.0
  */
 
-public class ShowEditActionsDialog extends AbstractHandler {
-    private EditActionsDialog dialog = null;
+public class ShowEditActionsDialog extends GfeShowDialogHandler {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
-     * .ExecutionEvent)
-     */
     @Override
-    public Object execute(ExecutionEvent arg0) throws ExecutionException {
-
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
-
-        // If the dialog doesn't exist, create one, otherwise call its open
-        // method
-        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
-            dialog = new EditActionsDialog(shell);
-            dialog.setBlockOnOpen(false);
-            dialog.open();
-        } else {
-            dialog.bringToTop();
-        }
-
-        return null;
+    protected CaveJFACEDialog createDialog(Shell shell, DataManager dm,
+            ExecutionEvent event) {
+        return new EditActionsDialog(shell);
     }
 }

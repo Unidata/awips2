@@ -19,59 +19,33 @@
  **/
 package com.raytheon.viz.gfe.actions;
 
-import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.DefineRefSetDialog;
+import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
- * Action for launching editarea and query dialog (the ? mark in GFE).
+ * Action for launching edit area and query dialog (the ? toolbar button in
+ * GFE).
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 	Mar 11, 2008					Eric Babin Initial Creation
+ * Mar 11, 2008            Eric Babin  Initial Creation
  * Oct 24, 2012 1287       rferrel     Changes for non-blocking DefineRefSetDialog.
+ * Aug 27, 2015 4749       njensen     Now extends GfeShowDialogHandler
  * 
  * </pre>
  * 
- * @author ebabin
- * @version 1.0
  */
+public class ShowDefineRefSetDialog extends GfeShowDialogHandler {
 
-public class ShowDefineRefSetDialog extends AbstractHandler {
-    private volatile DefineRefSetDialog dialog = null;
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
-     * .ExecutionEvent)
-     */
     @Override
-    public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
-
-        DataManager dm = DataManager.getCurrentInstance();
-        if (dm == null) {
-            return null;
-        }
-
-        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
-            dialog = new DefineRefSetDialog(shell, dm);
-            dialog.setBlockOnOpen(false);
-            dialog.open();
-        } else {
-            dialog.bringToTop();
-        }
-        return null;
+    protected CaveJFACEDialog createDialog(Shell shell, DataManager dm,
+            ExecutionEvent event) {
+        return new DefineRefSetDialog(shell, dm);
     }
-
 }

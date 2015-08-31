@@ -26,7 +26,7 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
-import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.core.parm.Parm.InterpState;
 import com.raytheon.viz.gfe.core.parm.ParmState.InterpMode;
 import com.raytheon.viz.gfe.dialogs.GridsInterpolateDialog;
@@ -50,15 +50,9 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  */
 
 public class ShowGridsInterpolationDialog extends AbstractHandler {
+
     private GridsInterpolateDialog dialog;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
-     * .ExecutionEvent)
-     */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
         if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
@@ -67,7 +61,7 @@ public class ShowGridsInterpolationDialog extends AbstractHandler {
 
             dialog = new GridsInterpolateDialog(shell);
             dialog.setBlockOnOpen(false);
-            dialog.setCloseCallback(new ICloseCallback() {
+            dialog.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
@@ -78,7 +72,7 @@ public class ShowGridsInterpolationDialog extends AbstractHandler {
                             int interval = dialog.getInterval() * 3600;
                             int duration = dialog.getDuration() * 3600;
 
-                            DataManager
+                            DataManagerUIFactory
                                     .getCurrentInstance()
                                     .getParmOp()
                                     .interpolateSelected(interpMode,
