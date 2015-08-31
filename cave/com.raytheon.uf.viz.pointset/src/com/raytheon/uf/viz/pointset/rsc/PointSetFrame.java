@@ -85,7 +85,13 @@ public class PointSetFrame {
     }
 
     public String inspect(double x, double y) {
-        return image.getDataValue(x, y) + record.getParameter().getUnitString();
+        double data_value = image.getDataValue(x, y);
+        if (Double.isNaN(data_value)) {
+            return "No Data";
+        } else {
+            return String.format("%4.2f %s", image.getDataValue(x, y), record
+                    .getParameter().getUnitString());
+        }
     }
 
     public boolean paint(PaintProperties paintProps, IGraphicsTarget target)
