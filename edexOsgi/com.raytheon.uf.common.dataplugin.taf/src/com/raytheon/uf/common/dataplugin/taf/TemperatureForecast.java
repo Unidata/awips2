@@ -48,6 +48,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  *   6/21/2007      180         bphillip    Updated for use with plugin persistence pattern
  *   Nov 01, 2013   2361        njensen     Remove XML annotations
  *   May 15, 2014   3002        bgonzale    Moved to com.raytheon.uf.common.dataplugin.taf.
+ *   Aug 31, 2015   4360        rferrel     Removed parentId from equal and hashcode methods.
  * </pre>
  * 
  * @author bphillip
@@ -145,10 +146,6 @@ public class TemperatureForecast extends PersistableDataObject {
         if (obj instanceof TemperatureForecast) {
             TemperatureForecast forecast = (TemperatureForecast) obj;
 
-            if (this.parentID != forecast.parentID) {
-                return false;
-            }
-
             if (!(this.valid_time == null ? forecast.getValid_time() == null
                     : this.valid_time.equals(forecast.getValid_time()))) {
                 return false;
@@ -170,8 +167,8 @@ public class TemperatureForecast extends PersistableDataObject {
     @Override
     public int hashCode() {
 
-        return new HashCodeBuilder(17, 37).append(parentID).append(
-                this.valid_time).append(this.sfc_temp_c).toHashCode();
+        return new HashCodeBuilder(17, 37).append(this.valid_time)
+                .append(this.sfc_temp_c).toHashCode();
     }
 
     public int getId() {
