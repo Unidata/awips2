@@ -57,7 +57,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * 07/16/13      2197       njensen     Added hasAnyBasins() and moved getBasins() calls out of loops
  * Jul 31, 2013  2242       bsteffen    Optimize FFMP NavigableMap memory.
- * Aug 08, 2015 4722        dhladky     Dynamic serialize imp not needed.
+ * Aug 08, 2015  4722       dhladky     Dynamic serialize imp not needed.
+ * Aug 31, 2015  4780       dhladky     Corrected guidance basin mosaic averaging logic.
  * 
  * 
  * </pre>
@@ -880,11 +881,13 @@ public class FFMPBasinData {
         protected void applyValue(FFMPBasin basin, float value) {
             if (basin.contains(date)) {
                 float curval = basin.getValue(date);
+                // These are QPF and QPE so, 0.0 is a valid amount
                 if (curval >= 0.0f && value >= 0.0f) {
                     basin.setValue(date, (curval + value) / 2);
                 } else if (value >= 0.0f) {
                     basin.setValue(date, value);
-                } // do not overwrite original value
+                } 
+                // do not overwrite original value
             } else {
                 // no value at time exists, write regardless
                 basin.setValue(date, value);
@@ -907,19 +910,22 @@ public class FFMPBasinData {
 
         @Override
         protected void applyValue(FFMPBasin basin, float value) {
+            
             FFMPGuidanceBasin gBasin = (FFMPGuidanceBasin) basin;
-
             Float curval = gBasin.getValue(date, sourceName);
 
-            if (curval != FFMPUtils.MISSING || !curval.isNaN()) {
-
-                if (curval >= 0.0f && value >= 0.0f) {
+            if (curval != FFMPUtils.MISSING && !curval.isNaN()) {
+                // average of original and new value
+                if (curval > 0.0f && value > 0.0f) {
                     gBasin.setValue(sourceName, date, (curval + value) / 2);
-                } else if (value >= 0.0f) {
-                    gBasin.setValue(sourceName, date, value);
+                } else {
+                    // curval zero, overwrite original value 
+                    if (curval == 0.0f) {
+                        gBasin.setValue(sourceName, date, value);
+                    }
                 }
-                // do not overwrite original value
             } else {
+                // curval NaN or MISSING, Overwrite original value 
                 gBasin.setValue(sourceName, date, value);
             }
         }
