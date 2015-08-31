@@ -23,6 +23,7 @@
     <paramLevelMatches>
       <creatingEntity>RADARSAT-2</creatingEntity>
       <creatingEntity>SENTINEL-1A</creatingEntity>
+      <creatingEntity>AMSR2</creatingEntity>
       <parameter>WS</parameter>
     </paramLevelMatches>
     <imageStyle>

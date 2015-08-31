@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.pointset.image;
 
 import java.io.FileNotFoundException;
+import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 
 import com.raytheon.uf.common.colormap.image.ColorMapData;
@@ -65,9 +66,19 @@ public class PointSetDataCallback implements
         try {
             IDataRecord record = store.retrieve(this.record.getDataURI(),
                     DataStoreFactory.DEF_DATASET_NAME, Request.ALL);
-            float[] data = (float[]) record.getDataObject();
-            return new ColorMapData(FloatBuffer.wrap(data),
-                    new int[] { data.length });
+            Object data = record.getDataObject();
+            if (data instanceof float[]) {
+                float[] fdata = (float[]) data;
+                return new ColorMapData(FloatBuffer.wrap(fdata),
+                        new int[] { fdata.length });
+            } else if (data instanceof double[]) {
+                double[] fdata = (double[]) data;
+                return new ColorMapData(DoubleBuffer.wrap(fdata),
+                        new int[] { fdata.length });
+            } else {
+                throw new VizException("Unsupported data of type "
+                        + data.getClass().getSimpleName());
+            }
         } catch (StorageException | FileNotFoundException e) {
             throw new VizException(e);
         }

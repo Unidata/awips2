@@ -134,6 +134,9 @@ public class PointSetResource extends
                 float max = Float.NEGATIVE_INFINITY;
                 while (buffer.hasRemaining()) {
                     float val = extractVal(type, buffer);
+                    if (Float.isNaN(val)) {
+                        continue;
+                    }
                     if (val < min) {
                         min = val;
                     }

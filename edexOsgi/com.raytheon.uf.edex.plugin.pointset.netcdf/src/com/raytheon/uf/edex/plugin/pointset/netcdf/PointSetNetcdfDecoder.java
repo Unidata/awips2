@@ -254,9 +254,22 @@ public class PointSetNetcdfDecoder {
         }
         Buffer numericData = null;
         DataType dataType = dataVariable.getDataType();
+        Number fillValue = null;
+        Attribute fillAttribute = dataVariable.findAttribute("_FillValue");
+        if (fillAttribute != null) {
+            fillValue = fillAttribute.getNumericValue();
+        }
         switch (dataType) {
         case FLOAT:
             float[] fdata = (float[]) dataVariable.read().copyTo1DJavaArray();
+            if (fillValue != null) {
+                float ffill = fillValue.floatValue();
+                for (int i = 0; i < fdata.length; i += 1) {
+                    if (fdata[i] == ffill) {
+                        fdata[i] = Float.NaN;
+                    }
+                }
+            }
             numericData = FloatBuffer.wrap(fdata);
             break;
         case BYTE:
@@ -269,6 +282,14 @@ public class PointSetNetcdfDecoder {
             break;
         case DOUBLE:
             double[] ddata = (double[]) dataVariable.read().copyTo1DJavaArray();
+            if (fillValue != null) {
+                double dfill = fillValue.doubleValue();
+                for (int i = 0; i < ddata.length; i += 1) {
+                    if (ddata[i] == dfill) {
+                        ddata[i] = Double.NaN;
+                    }
+                }
+            }
             numericData = DoubleBuffer.wrap(ddata);
             break;
         case INT:
