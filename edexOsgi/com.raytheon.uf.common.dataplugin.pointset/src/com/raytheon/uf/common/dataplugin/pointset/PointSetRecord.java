@@ -144,7 +144,7 @@ public class PointSetRecord extends PersistablePluginDataObject {
 
     @Override
     public String getPluginName() {
-        return "pointset";
+        return PointSetConstants.POINTSET;
     }
 
 }
