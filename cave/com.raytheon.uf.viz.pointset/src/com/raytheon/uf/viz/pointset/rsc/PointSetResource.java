@@ -47,6 +47,7 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.pointset.PointSetRecord;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.numeric.UnsignedNumbers;
+import com.raytheon.uf.common.style.AbstractStylePreferences;
 import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
 import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.style.StyleManager;
@@ -88,6 +89,8 @@ public class PointSetResource extends
 
     private final PointSetStageJob stageJob = new PointSetStageJob();
 
+    private StyleRule styleRule;
+
     private Map<DataTime, PointSetFrame> frames = new HashMap<>();
 
     protected PointSetResource(PointSetResourceData resourceData,
@@ -116,7 +119,7 @@ public class PointSetResource extends
         matchCriteria.setCreatingEntityNames(Arrays.asList(record
                 .getDatasetId()));
         try {
-            StyleRule styleRule = StyleManager.getInstance().getStyleRule(
+            styleRule = StyleManager.getInstance().getStyleRule(
                     StyleType.IMAGERY, matchCriteria);
             if (styleRule != null) {
                 return ColorMapParameterFactory.build(styleRule, record
@@ -251,17 +254,34 @@ public class PointSetResource extends
         } else {
             PointSetRecord record = frame.getRecord();
             String unitStr = record.getParameter().getUnitString();
-            ColorMapParameters parameters = getCapability(
-                    ColorMapCapability.class).getColorMapParameters();
-            if (parameters != null) {
-                Unit<?> unit = parameters.getDisplayUnit();
-                if (unit != null) {
-                    unitStr = UnitFormat.getUCUMInstance().format(unit);
+            boolean includeLevel = true;
+            if (styleRule != null) {
+                AbstractStylePreferences prefs = styleRule.getPreferences();
+                includeLevel = !prefs.getDisplayFlags()
+                        .hasFlag("NoPlane");
+                String prefsUnitStr = prefs.getDisplayUnitLabel();
+                if (prefsUnitStr != null) {
+                    unitStr = prefs.getDisplayUnitLabel();
+                }
+            } else {
+                ColorMapParameters parameters = getCapability(
+                        ColorMapCapability.class).getColorMapParameters();
+                if (parameters != null) {
+                    Unit<?> unit = parameters.getDisplayUnit();
+                    if (unit != null) {
+                        unitStr = UnitFormat.getUCUMInstance().format(unit);
+                    }
                 }
             }
-            return frame.getRecord().getDatasetId() + " " + record.getLevel()
-                    + " " + record.getParameter().getName() + " (" + unitStr
+            String datasetIdPart = frame.getRecord().getDatasetId();
+            String levelPart = "";
+            if (includeLevel) {
+                levelPart = " " + record.getLevel();
+            }
+            String paramPart = " " + record.getParameter().getName() + " ("
+                    + unitStr
                     + ")";
+            return datasetIdPart + levelPart + paramPart;
         }
     }
 
