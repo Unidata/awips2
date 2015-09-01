@@ -31,5 +31,6 @@
         <include>eventbus-common.xml</include>
         <include>edex-security.xml</include>
         <include>geo-common.xml</include>
+        <include>utility-request.xml</include>
     </mode>
 </edexModes>
