@@ -46,6 +46,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 6/21/2007                bphillip    Updated for use with plugin persistance pattern
  * Nov 01, 2013 2361        njensen     Remove XML annotations
  * May 15, 2014 3002        bgonzale    Moved to com.raytheon.uf.common.dataplugin.taf.
+ * Aug 31, 2015 4360        rferrel     Removed parentId from equal and hashcode methods.
  * </pre>
  * 
  * @author bphillip
@@ -153,10 +154,6 @@ public class TurbulenceLayer extends PersistableDataObject {
         if (obj instanceof TurbulenceLayer) {
             TurbulenceLayer layer = (TurbulenceLayer) obj;
 
-            if (this.parentID != layer.parentID) {
-                return false;
-            }
-
             if (!(this.turbulence_intensity == null ? layer
                     .getTurbulence_intensity() == null
                     : this.turbulence_intensity.equals(layer
@@ -189,10 +186,9 @@ public class TurbulenceLayer extends PersistableDataObject {
     @Override
     public int hashCode() {
 
-        return new HashCodeBuilder(17, 37).append(parentID).append(
-                this.turbulence_intensity).append(
-                this.turbulence_min_alt_ft_agl).append(
-                this.turbulence_max_alt_ft_agl).toHashCode();
+        return new HashCodeBuilder(17, 37).append(this.turbulence_intensity)
+                .append(this.turbulence_min_alt_ft_agl)
+                .append(this.turbulence_max_alt_ft_agl).toHashCode();
     }
 
     public int getId() {
