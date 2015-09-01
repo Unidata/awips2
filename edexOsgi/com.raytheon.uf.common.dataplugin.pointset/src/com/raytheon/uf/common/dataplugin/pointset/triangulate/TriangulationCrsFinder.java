@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.pointset.traingulate;
+package com.raytheon.uf.common.dataplugin.pointset.triangulate;
 
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.DirectPosition3D;

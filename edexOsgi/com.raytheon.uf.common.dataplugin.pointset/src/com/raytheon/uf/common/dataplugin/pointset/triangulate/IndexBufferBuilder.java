@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.pointset.traingulate;
+package com.raytheon.uf.common.dataplugin.pointset.triangulate;
 
 import com.vividsolutions.jts.triangulate.quadedge.QuadEdge;
 import com.vividsolutions.jts.triangulate.quadedge.Vertex;
@@ -63,7 +63,7 @@ public class IndexBufferBuilder extends AbstractIndexBufferBuilder {
         Vertex b = triEdges[1].orig();
         Vertex c = triEdges[2].orig();
         double circumRadius = 0.0;
-        if (maxRadius > 0) {
+        if (!Double.isInfinite(maxRadius)) {
             Vertex center = a.circleCenter(b, c);
             circumRadius = a.getCoordinate().distance(center.getCoordinate());
         }

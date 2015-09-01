@@ -29,7 +29,7 @@ import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.pointset.PointSetLocation;
 import com.raytheon.uf.common.dataplugin.pointset.PointSetRecord;
-import com.raytheon.uf.common.dataplugin.pointset.traingulate.DelauneyTriangulator;
+import com.raytheon.uf.common.dataplugin.pointset.triangulate.DelauneyTriangulator;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;

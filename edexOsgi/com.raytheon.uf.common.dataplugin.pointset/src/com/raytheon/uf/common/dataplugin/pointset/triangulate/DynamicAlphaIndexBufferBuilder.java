@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.pointset.traingulate;
+package com.raytheon.uf.common.dataplugin.pointset.triangulate;
 
 import java.nio.IntBuffer;
 import java.util.Arrays;
@@ -71,11 +71,16 @@ public class DynamicAlphaIndexBufferBuilder extends AbstractIndexBufferBuilder {
     public DynamicAlphaIndexBufferBuilder(int size) {
         super(size);
         maxRadiusHeapSize = Math.max(1, size / 10);
-        maxRadiusHeap = new PriorityQueue<>(maxRadiusHeapSize);
+        maxRadiusHeap = new PriorityQueue<>(maxRadiusHeapSize + 1);
     }
 
     @Override
     public IntBuffer getBuffer() {
+        /*
+         * Multipliers between 1.5 and 25 produce the same result on all data
+         * that has been tested so there is alot of flexibility if future
+         * testing reveals a need for a different number.
+         */
         double radiusThreshold = maxRadiusHeap.poll().radius * 4;
         while (!maxRadiusHeap.isEmpty()
                 && maxRadiusHeap.peek().radius < radiusThreshold) {
@@ -110,10 +115,10 @@ public class DynamicAlphaIndexBufferBuilder extends AbstractIndexBufferBuilder {
         Vertex center = a.circleCenter(b, c);
         double circumRadius = a.getCoordinate()
                 .distance(center.getCoordinate());
-        if (maxRadiusHeap.size() >= maxRadiusHeapSize) {
+        maxRadiusHeap.add(new RadiusIndexPair(buffer.position(), circumRadius));
+        if (maxRadiusHeap.size() > maxRadiusHeapSize) {
             maxRadiusHeap.poll();
         }
-        maxRadiusHeap.add(new RadiusIndexPair(buffer.position(), circumRadius));
         addTriangle((int) a.getZ(), (int) b.getZ(), (int) c.getZ());
     }
 
