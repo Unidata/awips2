@@ -70,6 +70,7 @@ import com.raytheon.viz.ui.input.EditableManager;
  *                                       adjustAngle to protected.
  * Mar 15, 2013  15693    mgamazaychikov Added magnification to display state.
  * Jun 10, 2014  3263     bsteffen       Synchronize dataTimes
+ * Jul 30, 2015  17761    D. Friedman    Fix time matching.
  * 
  * </pre>
  * 
@@ -123,7 +124,7 @@ public abstract class AbstractStormTrackResource extends
     }
 
     @Override
-    public DataTime[] getDataTimes() {
+    public DataTime[] getMatchedDataTimes(DataTime[] timeSteps) {
         synchronized (this.dataTimes) {
 
             if (timeMatchBasis) {
@@ -142,12 +143,11 @@ public abstract class AbstractStormTrackResource extends
                     this.fillDataTimeArray(earliestTime, variance);
                 }
             } else {
-                FramesInfo info = descriptor.getFramesInfo();
                 dataTimes.clear();
                 this.maximumFrameCount = this.descriptor.getNumberOfFrames();
                 // First time called
-                if (info.getFrameTimes() != null) {
-                    for (DataTime dt : info.getFrameTimes()) {
+                if (timeSteps != null) {
+                    for (DataTime dt : timeSteps) {
                         dataTimes.add(dt);
                     }
                 }
@@ -258,10 +258,6 @@ public abstract class AbstractStormTrackResource extends
 
     @Override
     public String getName() {
-        DataTime[] frameTimes = descriptor.getFramesInfo().getFrameTimes();
-        if (frameTimes != null) {
-            descriptor.getTimeMatchingMap().put(this, frameTimes);
-        }
         return getResourceName();
     }
 
