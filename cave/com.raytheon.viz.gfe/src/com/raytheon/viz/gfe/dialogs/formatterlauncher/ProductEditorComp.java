@@ -113,7 +113,6 @@ import com.raytheon.uf.viz.spellchecker.dialogs.SpellCheckDlg;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEPreference;
-import com.raytheon.viz.gfe.constants.StatusConstants;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData.ProductStateEnum;
 import com.raytheon.viz.gfe.product.ProductFileUtil;
@@ -849,9 +848,8 @@ public class ProductEditorComp extends Composite implements
             @Override
             public void widgetSelected(SelectionEvent event) {
                 SpellCheckDlg spellCheckDlg = new SpellCheckDlg(parent
-                        .getShell(), ProductEditorComp.this.getTextEditorST(),
-                        StatusConstants.CATEGORY_GFE,
-                        StatusConstants.SUBCATEGORY_TEXTFORMATTER);
+                        .getShell(), getTextEditorST(), MixedCaseProductSupport
+                        .isMixedCase(getNNNid()));
                 spellCheckDlg.open();
             }
         });
