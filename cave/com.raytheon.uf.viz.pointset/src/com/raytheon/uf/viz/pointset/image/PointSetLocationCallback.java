@@ -23,6 +23,8 @@ import java.io.FileNotFoundException;
 import java.lang.ref.SoftReference;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
@@ -31,6 +33,7 @@ import com.raytheon.uf.common.dataplugin.pointset.PointSetLocation;
 import com.raytheon.uf.common.dataplugin.pointset.PointSetRecord;
 import com.raytheon.uf.common.dataplugin.pointset.triangulate.DelauneyTriangulator;
 import com.raytheon.uf.common.datastorage.StorageException;
+import com.raytheon.uf.common.geospatial.util.WorldWrapChecker;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -113,6 +116,44 @@ public class PointSetLocationCallback implements
         PointSetLocation location = getLocation();
         IntBuffer triangles = location.getTriangles();
         if (triangles != null) {
+            WorldWrapChecker wwc = new WorldWrapChecker(descriptor
+                    .getGridGeometry().getEnvelope());
+            if (wwc.needsChecking()) {
+                List<Integer> invalidTriangles = new ArrayList<>();
+                FloatBuffer longitude = location.getLongitudes().duplicate();
+                triangles = triangles.duplicate();
+                triangles.rewind();
+                while (triangles.hasRemaining()) {
+                    float l0 = longitude.get(triangles.get());
+                    float l1 = longitude.get(triangles.get());
+                    float l2 = longitude.get(triangles.get());
+
+                    if (wwc.check(l0, l1) || wwc.check(l1, l2)
+                            || wwc.check(l2, l0)) {
+                        invalidTriangles.add(triangles.position() - 3);
+                    }
+                }
+                if (!invalidTriangles.isEmpty()) {
+                    IntBuffer goodTriangles = IntBuffer.allocate(triangles
+                            .capacity() - invalidTriangles.size() * 3);
+                    triangles.rewind();
+                    for (Integer invalidTriangle : invalidTriangles) {
+                        if (invalidTriangle.intValue() == triangles.position()) {
+                            triangles.position(triangles.position() + 3);
+                        } else {
+                            triangles.limit(invalidTriangle.intValue());
+                            goodTriangles.put(triangles);
+                            triangles.limit(triangles.capacity());
+                            triangles.position(triangles.position() + 3);
+                        }
+                    }
+                    if (triangles.hasRemaining()) {
+                        goodTriangles.put(triangles);
+                    }
+
+                    triangles = goodTriangles;
+                }
+            }
             return triangles.array();
         }
         try {
