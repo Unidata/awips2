@@ -75,7 +75,7 @@ echo "Preparing configuration files for export..."
 edexDest=${OUTPUT_DIR}/GFEconfig/edex_static
 commonDest=${OUTPUT_DIR}/GFEconfig/common_static
 caveDest=${OUTPUT_DIR}/GFEconfig/cave_static 
-rsyncParmsDest=${OUTPUT_DIR}/GFEConfig/site    # DR 16464/17443
+rsyncParmsDest=${OUTPUT_DIR}/GFEconfig/site    # DR 16464/17443
 
 echo "Making temporary edex configuration directories..."
 mkdir -p $edexDest/site
@@ -154,9 +154,9 @@ do
         sed -i "s/$ORIG_SITEID/$NEW_SITEID/" ${config}
         
         # rename rsync_parms to use sub-domain site ID
-        if [ -f ${site_dir}/GFEConfig/site/rsync_parms.${SITE} ]
+        if [ -f ${site_dir}/GFEconfig/site/rsync_parms.${SITE} ]
         then
-            mv ${site_dir}/GFEConfig/site/rsync_parms.${SITE} ${site_dir}/GFEConfig/site/rsync_parms.${siteid_lc}
+            mv ${site_dir}/GFEconfig/site/rsync_parms.${SITE} ${site_dir}/GFEconfig/site/rsync_parms.${siteid_lc}
         fi
     fi
     
