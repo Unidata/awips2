@@ -13,6 +13,7 @@
 #  Apr 09,2012 436        randerso     Merged RNK's MakeHazards_Elevation procedure
 #  Feb 12,2014 17058      ryu          Extend converter for Collections$EmptyList objects.
 #  Apr 23, 2015 4259      njensen      Updated for new JEP API
+#  Jul 29,2015 17770      lshi         Added TY.A TY.W to tropicalHaz
 #
 # Author: randerso
 # ----------------------------------------------------------------------------
@@ -38,7 +39,7 @@ class Procedure (SmartScript.SmartScript):
         self._dataManager = dbss
         self._afterInit = 0  #flag indicating init is done.
 
-        self._tropicalHaz = ['HU.W','HU.A','HU.S','TR.W','TR.A']
+        self._tropicalHaz = ['HU.W','HU.A','HU.S','TR.W','TR.A','TY.W','TY.A']
         self._natlBaseETN = 1001
 
 

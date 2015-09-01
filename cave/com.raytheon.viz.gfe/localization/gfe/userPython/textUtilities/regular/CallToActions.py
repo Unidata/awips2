@@ -34,6 +34,7 @@
 # Updated 3/27/09 Shannon for tropical and AF.W
 # Updated 3/29/10 Shannon for tropical
 # Updated 1/12/11 Shannon to remove HI/TI hazards and fix typos
+# Updated 7/28/15 yteng to change Red Flag Warning CTA language for DR 17777
 # ----------------------------------------------------------------------------
 
 class CallToActions:
@@ -377,7 +378,7 @@ Listen to NOAA Weather Radio or local media for further information.""",
 
     def ctaFWW(self):
         return [
- """A Red Flag Warning means that critical fire weather conditions are either occurring now....or will shortly.""",
+ """A Red Flag Warning means that critical fire weather conditions are either occurring now....or will shortly. A combination of strong winds...low relative humidity...and warm temperatures can contribute to extreme fire behavior.""",
         ]
 
     def ctaFZA(self):
