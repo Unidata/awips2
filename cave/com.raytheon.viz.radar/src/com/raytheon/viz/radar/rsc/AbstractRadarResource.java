@@ -55,7 +55,6 @@ import com.raytheon.uf.viz.core.rsc.capabilities.BlendableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.BlendedCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
-import com.raytheon.uf.viz.d2d.core.map.IDataScaleResource;
 import com.raytheon.uf.viz.d2d.core.sampling.ID2DSamplingResource;
 import com.raytheon.uf.viz.d2d.core.time.D2DTimeMatcher;
 import com.raytheon.uf.viz.d2d.core.time.ID2DTimeMatchingExtension;
@@ -84,6 +83,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * May  5, 2014  17201    D. Friedman Enable same-radar time matching.
  * Jun 11, 2014  2061     bsteffen    Move rangeable methods to radial resource
  * May 13, 2015  4461     bsteffen    Add sails frame coordinator.
+ * Sep 03, 2015  4779     njensen     Removed IDataScale
  * 
  * </pre>
  * 
@@ -93,15 +93,21 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class AbstractRadarResource<D extends IDescriptor> extends
         AbstractVizResource<RadarResourceData, D> implements
-        IResourceDataChanged, IDataScaleResource,
-        IRadarTextGeneratingResource, ICacheObjectCallback<RadarRecord>,
-        ID2DTimeMatchingExtension {
+        IResourceDataChanged, IRadarTextGeneratingResource,
+        ICacheObjectCallback<RadarRecord>, ID2DTimeMatchingExtension {
+
+    /*
+     * TODO This is dumb that a class with a name starting with Abstract is not
+     * actually abstract. Either rename this class or actually apply the
+     * abstract modifier.
+     */
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractRadarResource.class);
 
     public enum InspectLabels {
         Mnemonic, Value, Angle, Shear, MSL, AGL, Azimuth, Range, ICAO
-    };
+    }
 
     private static final List<InspectLabels> defaultInspectLabels = Arrays
             .asList(InspectLabels.Value, InspectLabels.Shear,
@@ -136,7 +142,7 @@ public class AbstractRadarResource<D extends IDescriptor> extends
 
     protected Map<DataTime, String[]> upperTextMap = new HashMap<DataTime, String[]>();
 
-    protected Coordinate centerLocation = null;
+    protected Coordinate radarLocation = null;
 
     protected static final RadarInfoDict infoDict;
 
@@ -172,24 +178,12 @@ public class AbstractRadarResource<D extends IDescriptor> extends
         icao = "";
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#initInternal(com.raytheon
-     * .uf.viz.core.IGraphicsTarget)
-     */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         SailsFrameCoordinator.addToDescriptor(descriptor);
         RadarTextResourceData.addRadarTextResource(descriptor);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#disposeInternal()
-     */
     @Override
     protected void disposeInternal() {
         radarRecords.clear();
@@ -212,8 +206,8 @@ public class AbstractRadarResource<D extends IDescriptor> extends
         radarRecord.setAddSpatial(!resourceData.latest);
         icao = radarRecord.getIcao();
         if (radarRecord.getLatitude() != null
-                && radarRecord.getLongitude() != null) {
-            centerLocation = new Coordinate(radarRecord.getLongitude(),
+                && radarRecord.getLongitude() != null && radarLocation == null) {
+            radarLocation = new Coordinate(radarRecord.getLongitude(),
                     radarRecord.getLatitude());
         }
         DataTime d = radarRecord.getDataTime();
@@ -267,27 +261,15 @@ public class AbstractRadarResource<D extends IDescriptor> extends
         return new DefaultVizRadarRecord(radarRecord);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#paintInternal(com.raytheon
-     * .uf.viz.core.IGraphicsTarget,
-     * com.raytheon.uf.viz.core.drawables.PaintProperties)
-     */
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
+        /*
+         * TODO if this class actually goes abstract, this method should be
+         * deleted and force subclasses to implement it
+         */
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.IResourceDataChanged#resourceChanged(com
-     * .raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType,
-     * java.lang.Object)
-     */
     @Override
     public void resourceChanged(ChangeType type, Object object) {
         if (type == ChangeType.DATA_UPDATE) {
@@ -299,13 +281,6 @@ public class AbstractRadarResource<D extends IDescriptor> extends
         issueRefresh();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.rsc.capabilities.IInspectableResource#inspect(com
-     * .vividsolutions.jts.geom.Coordinate)
-     */
     @Override
     public String inspect(ReferencedCoordinate latLon) throws VizException {
         Map<String, String> dataMap;
@@ -422,27 +397,20 @@ public class AbstractRadarResource<D extends IDescriptor> extends
             displayedData.append("@" + dataMap.get("Azimuth"));
         }
 
-        if (!"DMD".equalsIgnoreCase(dataMap.get("Mnemonic")))
-        {
+        if (!"DMD".equalsIgnoreCase(dataMap.get("Mnemonic"))) {
             if (labels.contains(InspectLabels.ICAO)) {
                 displayedData.append(' ').append(dataMap.get("ICAO"));
             }
         }
 
-        if (displayedData.toString().contains("null") || displayedData.toString().isEmpty()) {
+        if (displayedData.toString().contains("null")
+                || displayedData.toString().isEmpty()) {
             displayedData.replace(0, displayedData.length(), "NO DATA");
         }
 
         return displayedData.toString();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#interrogate(com.raytheon
-     * .uf.viz.core.geospatial.ReferencedCoordinate)
-     */
     @Override
     public Map<String, Object> interrogate(ReferencedCoordinate coord)
             throws VizException {
@@ -523,15 +491,8 @@ public class AbstractRadarResource<D extends IDescriptor> extends
         return radarRecords;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.d2d.core.map.IDataScaleResource#getCenterLocation()
-     */
-    @Override
-    public Coordinate getCenterLocation() {
-        return centerLocation;
+    public Coordinate getRadarLocation() {
+        return radarLocation;
     }
 
     @Override
@@ -543,13 +504,6 @@ public class AbstractRadarResource<D extends IDescriptor> extends
         upperTextMap.remove(dataTime);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.cache.GeneralCacheObject.ICacheObjectCallback
-     * #objectArrived(java.lang.Object)
-     */
     @Override
     public void objectArrived(RadarRecord object) {
         issueRefresh();
@@ -558,16 +512,20 @@ public class AbstractRadarResource<D extends IDescriptor> extends
     @Override
     public void modifyTimeMatching(D2DTimeMatcher d2dTimeMatcher,
             AbstractVizResource<?, ?> rsc, TimeMatcher timeMatcher) {
-        /* Intended to be equivalent to A1 radar-specific part of
+        /*
+         * Intended to be equivalent to A1 radar-specific part of
          * TimeMatchingFunctions.C:setRadarOnRadar.
          */
         AbstractVizResource<?, ?> tmb = d2dTimeMatcher.getTimeMatchBasis();
         if (tmb instanceof AbstractRadarResource) {
             AbstractRadarResource<?> tmbRadarRsc = (AbstractRadarResource<?>) tmb;
             AbstractResourceData tmbResData = tmbRadarRsc.getResourceData();
-            RequestConstraint icaoRC = getResourceData().getMetadataMap().get("icao");
-            if (icaoRC != null && tmbResData instanceof RadarResourceData &&
-                    icaoRC.equals(((RadarResourceData) tmbResData).getMetadataMap().get("icao"))) {
+            RequestConstraint icaoRC = getResourceData().getMetadataMap().get(
+                    "icao");
+            if (icaoRC != null
+                    && tmbResData instanceof RadarResourceData
+                    && icaoRC.equals(((RadarResourceData) tmbResData)
+                            .getMetadataMap().get("icao"))) {
                 timeMatcher.setRadarOnRadar(true);
             }
         }

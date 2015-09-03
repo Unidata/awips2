@@ -30,7 +30,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
@@ -38,6 +37,7 @@ import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
@@ -50,7 +50,6 @@ import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
-import com.raytheon.uf.viz.d2d.core.map.IDataScaleResource;
 import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.viz.core.rsc.ICombinedResourceData;
 import com.raytheon.viz.grid.inv.GribDataCubeAlertMessageParser;
@@ -58,6 +57,7 @@ import com.raytheon.viz.grid.inv.GridInventory;
 import com.raytheon.viz.grid.rsc.general.D2DGridResource;
 import com.raytheon.viz.grid.rsc.general.DifferenceGridResourceData;
 import com.raytheon.viz.grid.util.TiltRequest;
+import com.raytheon.viz.radar.rsc.AbstractRadarResource;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -71,6 +71,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Feb 12, 2009            njensen     Initial creation
  * Jun 17, 2013 2107       bsteffen    Enable sampling by default for several
  *                                     display types.
+ * Sep 03, 2015 4779       njensen     Removed DataScale references                                    
  * 
  * </pre>
  * 
@@ -386,8 +387,8 @@ public class GridResourceData extends AbstractRequestableResourceData implements
         for (ResourcePair rp : resourceList) {
             AbstractResourceData resourceData = rp.getResourceData();
             AbstractVizResource<?, ?> resource = rp.getResource();
-            if (resource instanceof IDataScaleResource) {
-                return ((IDataScaleResource) resource).getCenterLocation();
+            if (resource instanceof AbstractRadarResource) {
+                return ((AbstractRadarResource<?>) resource).getRadarLocation();
             }
             if (resourceData instanceof IResourceGroup) {
                 Coordinate tiltLoc = findTiltLocation(((IResourceGroup) resourceData)

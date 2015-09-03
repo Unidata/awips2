@@ -63,10 +63,11 @@ import com.raytheon.viz.core.imagery.ImageCombiner;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 9, 2009             njensen     Initial creation
+ * Feb 09, 2009            njensen     Initial creation
  * Mar 21, 2013       1638 mschenke    Made map scales not tied to d2d
  * Mar 22, 2013       1638 mschenke    Moved map scale code to MapScaleRenderableDisplay
  * Apr 06, 2015 ASM #17215 D. Friedman Implement clear to avoid removing time match basis
+ * Sep 03, 2015       4779 njensen     Removed DataScale references
  * 
  * </pre>
  * 
@@ -88,8 +89,6 @@ public class D2DMapRenderableDisplay extends MapScaleRenderableDisplay
     @XmlAttribute
     protected double density = ((Double) VizGlobalsManager.getCurrentInstance()
             .getPropery(VizConstants.DENSITY_ID)).doubleValue();
-
-    protected DataScaleListener scaleListener = null;
 
     protected ImageCombiner combinerListener = null;
 
@@ -272,10 +271,12 @@ public class D2DMapRenderableDisplay extends MapScaleRenderableDisplay
         this.scaleOnNextPaint = scale;
     }
 
+    @Override
     public long getBlinkInterval() {
         return super.getBlinkInterval();
     }
 
+    @Override
     public void setBlinkInterval(long blinkInterval) {
         super.setBlinkInterval(blinkInterval);
     }
@@ -297,22 +298,6 @@ public class D2DMapRenderableDisplay extends MapScaleRenderableDisplay
 
         // Add the image combiner
         resourceList.addPostAddListener(getImageCombinerListener());
-
-        // Add scale listeners
-        resourceList.addPostAddListener(getScaleListener());
-        resourceList.addPostRemoveListener(getScaleListener());
-    }
-
-    /**
-     * Get the data scale listener, instantiates if null
-     * 
-     * @return
-     */
-    private DataScaleListener getScaleListener() {
-        if (scaleListener == null) {
-            scaleListener = new DataScaleListener(this);
-        }
-        return scaleListener;
     }
 
     /**
@@ -327,9 +312,11 @@ public class D2DMapRenderableDisplay extends MapScaleRenderableDisplay
         return combinerListener;
     }
 
-    /** Like MapScaleRenderableDisplayer.clear, but avoids removing the time match
-     * basis until other resources are removed.  This reduces time matching churn
-     * and reduces the chances of lockups.
+    /**
+     * Like MapScaleRenderableDisplayer.clear, but avoids removing the time
+     * match basis until other resources are removed. This reduces time matching
+     * churn and reduces the chances of lockups.
+     * 
      * @see com.raytheon.uf.viz.core.maps.scales.MapScaleRenderableDisplay#clear()
      */
     @Override
