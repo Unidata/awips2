@@ -48,10 +48,9 @@ import com.raytheon.uf.common.wmo.WMOHeader;
  * ------------ ---------- ----------- --------------------------
  * Oct 20, 2008       1515 jkorman     Initial implementation to
  *                                     add 30 Hour tafs.
- * Nov 12, 2013 2546       bclement    added check for legacy valid time
- * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
- * May 15, 2014 3002       bgonzale    Moved common taf code to com.raytheon.uf.common.dataplugin.taf.
- * Apr 01, 2015 3722       rjpeter     Updated amd/corindicator to boolean flags.
+ * Nov 12, 2013 2546        bclement    added check for legacy valid time
+ * May 14, 2014 2536        bclement    moved WMO Header to common, removed TimeTools usage
+ * May 15, 2014 3002        bgonzale    Moved common taf code to com.raytheon.uf.common.dataplugin.taf.
  * </pre>
  * 
  * @author jkorman
@@ -108,9 +107,9 @@ public class TAFChangeGroupFactory {
 
     private String stationId = null;
 
-    private final boolean isCOR = false;
+    private boolean isCOR = false;
 
-    private final boolean isAMD = false;
+    private boolean isAMD = false;
 
     /**
      * 
@@ -164,7 +163,8 @@ public class TAFChangeGroupFactory {
             stopPos = locations.get(0);
         }
         String firstChunk = tafData.substring(startPos, stopPos);
-        Matcher m = PAT_VALID_TIME.matcher(firstChunk);
+        Matcher m = PAT_VALID_TIME
+                .matcher(firstChunk);
         if (m.find()) {
             startPos = m.start();
             stopPos = m.end();
@@ -174,7 +174,7 @@ public class TAFChangeGroupFactory {
 
         return locations;
     }
-
+    
     /**
      * 
      * @param tafData
@@ -291,7 +291,7 @@ public class TAFChangeGroupFactory {
             throws DecoderException {
 
         List<TAFSubGroup> groups = null;
-
+        
         tafData = checkForLegacyFormat(wmo, tafData);
 
         List<Integer> locations = findPositions(new StringBuilder(tafData));
@@ -313,7 +313,7 @@ public class TAFChangeGroupFactory {
             group.setChangeGroupHeader(tafData.substring(0, stop));
 
             int lastStop = stop;
-            for (int i = 2; i < (locations.size() - 1); i += 2) {
+            for (int i = 2; i < locations.size() - 1; i += 2) {
                 start = locations.get(i);
 
                 if (lastStop > 0) {
@@ -332,7 +332,7 @@ public class TAFChangeGroupFactory {
         }
         return groups;
     }
-
+    
     /**
      * Convert from legacy TAF format for valid times (DDHHHH) to the current
      * extended format for valid times (DDHH/DDHH) if needed.
@@ -374,7 +374,8 @@ public class TAFChangeGroupFactory {
             // +1 to include preceding white space
             rval.append(tafData.substring(last, m.start() + 1));
             rval.append(String
-                    .format("%02d%02d/%02d%02d", day1, hr1, day2, hr2));
+                    .format("%02d%02d/%02d%02d", day1, hr1, day2,
+                    hr2));
             // -1 to include following white space
             last = m.end() - 1;
         } while (m.find());
@@ -457,6 +458,21 @@ public class TAFChangeGroupFactory {
             // No issue time found, so we'll have to create one from
             // the WMOHeader data.
             issueTime = wmoHeader.getHeaderDate();
+            
+//            issueTime = TimeTools.getSystemCalendar(wmoHeader.getYear(),
+//                    wmoHeader.getMonth(), wmoHeader.getDay());
+//            issueTime.add(Calendar.DAY_OF_MONTH, -1);
+//            for (int i = 0; i < 3; i++) {
+//                int sDay = issueTime.get(Calendar.DAY_OF_MONTH);
+//                if (sDay == iDay) {
+//                    issueTime.set(Calendar.HOUR_OF_DAY, iHour);
+//                    issueTime.set(Calendar.MINUTE, iMin);
+//                    issueTime.set(Calendar.SECOND, 0);
+//                    issueTime.set(Calendar.MILLISECOND, 0);
+//                    success = true;
+//                    break;
+//                }
+//            }
         }
 
         return success;
@@ -544,11 +560,11 @@ public class TAFChangeGroupFactory {
 
             if (isCOR
                     || (tafParts.getTafHeader().indexOf(TafConstants.COR_IND) >= 0)) {
-                record.setCorIndicator(true);
+                record.setCorIndicator("COR");
             }
             if (isAMD
                     || (tafParts.getTafHeader().indexOf(TafConstants.AMD_IND) >= 0)) {
-                record.setAmdIndicator(true);
+                record.setAmdIndicator("AMD");
             }
 
             if (cGroups.size() > 1) {
@@ -558,7 +574,7 @@ public class TAFChangeGroupFactory {
                 TafPeriod period1 = null;
                 TafPeriod period2 = null;
                 // Ensure that the change group end time is set for each group.
-                for (int i = 0; i < (cGroups.size() - 1); i++) {
+                for (int i = 0; i < cGroups.size() - 1; i++) {
                     group1 = cGroups.get(i);
                     group2 = cGroups.get(i + 1);
 
@@ -575,8 +591,8 @@ public class TAFChangeGroupFactory {
             }
 
             record.setIssue_time(issueTime.getTime());
-            if (issueTimeString == null) {
-                issueTimeString = String.format("%1$td%1$tH%1$tMZ", issueTime);
+            if(issueTimeString == null) {
+                issueTimeString = String.format("%1$td%1$tH%1$tMZ",issueTime);
             }
             record.setIssue_timeString(issueTimeString);
             record.setDataTime(new DataTime(issueTime.getTime().getTime(),
