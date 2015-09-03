@@ -27,6 +27,7 @@ import java.nio.ShortBuffer;
 import java.util.Arrays;
 
 import com.raytheon.uf.common.colormap.image.ColorMapData;
+import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -142,7 +143,8 @@ public class TriangleFlattener implements IColorMapDataRetrievalCallback {
                 }
             }
         }
-        return new ColorMapData(FloatBuffer.wrap(grid), dimensions);
+        return new ColorMapData(FloatBuffer.wrap(grid), dimensions,
+                ColorMapDataType.FLOAT, data.getDataUnit());
     }
 
     public double extractDataValue(ColorMapData data, int index) {

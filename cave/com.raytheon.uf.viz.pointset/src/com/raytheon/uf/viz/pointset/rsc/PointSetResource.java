@@ -249,6 +249,27 @@ public class PointSetResource extends
         }
     }
 
+    protected String getDisplayUnitString(PointSetRecord record) {
+        String unitStr = record.getParameter().getUnitString();
+        if (styleRule != null) {
+            AbstractStylePreferences prefs = styleRule.getPreferences();
+            String prefsUnitStr = prefs.getDisplayUnitLabel();
+            if (prefsUnitStr != null) {
+                unitStr = prefs.getDisplayUnitLabel();
+            }
+        } else {
+            ColorMapParameters parameters = getCapability(
+                    ColorMapCapability.class).getColorMapParameters();
+            if (parameters != null) {
+                Unit<?> unit = parameters.getDisplayUnit();
+                if (unit != null) {
+                    unitStr = UnitFormat.getUCUMInstance().format(unit);
+                }
+            }
+        }
+        return unitStr;
+    }
+
     @Override
     public String getName() {
         PointSetFrame frame = frames.get(descriptor.getTimeForResource(this));
@@ -256,25 +277,11 @@ public class PointSetResource extends
             return "Point Set Data";
         } else {
             PointSetRecord record = frame.getRecord();
-            String unitStr = record.getParameter().getUnitString();
             boolean includeLevel = true;
             if (styleRule != null) {
                 AbstractStylePreferences prefs = styleRule.getPreferences();
                 includeLevel = !prefs.getDisplayFlags()
                         .hasFlag("NoPlane");
-                String prefsUnitStr = prefs.getDisplayUnitLabel();
-                if (prefsUnitStr != null) {
-                    unitStr = prefs.getDisplayUnitLabel();
-                }
-            } else {
-                ColorMapParameters parameters = getCapability(
-                        ColorMapCapability.class).getColorMapParameters();
-                if (parameters != null) {
-                    Unit<?> unit = parameters.getDisplayUnit();
-                    if (unit != null) {
-                        unitStr = UnitFormat.getUCUMInstance().format(unit);
-                    }
-                }
             }
             String datasetIdPart = frame.getRecord().getDatasetId();
             String levelPart = "";
@@ -282,7 +289,7 @@ public class PointSetResource extends
                 levelPart = " " + record.getLevel();
             }
             String paramPart = " " + record.getParameter().getName() + " ("
-                    + unitStr
+                    + getDisplayUnitString(record)
                     + ")";
             return datasetIdPart + levelPart + paramPart;
         }
@@ -298,7 +305,13 @@ public class PointSetResource extends
                 Coordinate ll = coord.asLatLon();
                 double[] pix = descriptor.worldToPixel(new double[] { ll.x,
                         ll.y });
-                return frame.inspect(pix[0], pix[1]);
+                double dataValue = frame.inspect(pix[0], pix[1]);
+                if (Double.isNaN(dataValue)) {
+                    return "No Data";
+                } else {
+                    return String.format("%4.2f %s", dataValue,
+                            getDisplayUnitString(frame.getRecord()));
+                }
             } catch (FactoryException | TransformException e) {
                 throw new VizException(e);
             }

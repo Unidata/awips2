@@ -39,4 +39,36 @@
       </colorbarLabeling>
     </imageStyle>
   </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <creatingEntity>AMSR2</creatingEntity>
+      <parameter>BT10.7H</parameter>
+      <parameter>BT10.7V</parameter>
+      <parameter>BT18.7H</parameter>
+      <parameter>BT18.7V</parameter>
+      <parameter>BT23.8H</parameter>
+      <parameter>BT23.8V</parameter>
+      <parameter>BT36.5H</parameter>
+      <parameter>BT36.5V</parameter>
+      <parameter>BT6.9H</parameter>
+      <parameter>BT6.9V</parameter>
+      <parameter>BT7.3H</parameter>
+      <parameter>BT7.3V</parameter>
+      <parameter>BT89.0AH</parameter>
+      <parameter>BT89.0AV</parameter>
+      <parameter>BT89.0BH</parameter>
+      <parameter>BT89.0BV</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>C</displayUnits>
+      <range scale="LINEAR">
+        <minValue>-210</minValue>
+        <maxValue>0</maxValue>
+      </range>
+      <defaultColormap>Grid/gridded data</defaultColormap>
+      <colorbarLabeling>
+        <increment>50</increment>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
 </styleRuleset>

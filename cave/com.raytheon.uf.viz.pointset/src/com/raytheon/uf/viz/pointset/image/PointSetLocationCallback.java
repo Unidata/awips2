@@ -61,7 +61,7 @@ public class PointSetLocationCallback implements
     private final PointSetRecord record;
 
     /*
-     * Kept as soft reference becasue both methods from the interface need the
+     * Kept as soft reference because both methods from the interface need the
      * location but after they are both called we probably won't need it again
      * so let it get reclaimed when the memory is needed.
      */
@@ -116,7 +116,7 @@ public class PointSetLocationCallback implements
             return triangles.array();
         }
         try {
-            triangles = new DelauneyTriangulator(true)
+            triangles = new DelauneyTriangulator(descriptor.getCRS(), true)
                     .triangulate(location);
             return triangles.array();
         } catch (TransformException | FactoryException e) {

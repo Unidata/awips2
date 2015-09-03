@@ -24,6 +24,7 @@ import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 
 import com.raytheon.uf.common.colormap.image.ColorMapData;
+import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
 import com.raytheon.uf.common.dataplugin.pointset.PointSetRecord;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
@@ -70,11 +71,13 @@ public class PointSetDataCallback implements
             if (data instanceof float[]) {
                 float[] fdata = (float[]) data;
                 return new ColorMapData(FloatBuffer.wrap(fdata),
-                        new int[] { fdata.length });
+                        new int[] { fdata.length }, ColorMapDataType.FLOAT,
+                        this.record.getParameter().getUnit());
             } else if (data instanceof double[]) {
                 double[] fdata = (double[]) data;
                 return new ColorMapData(DoubleBuffer.wrap(fdata),
-                        new int[] { fdata.length });
+                        new int[] { fdata.length }, ColorMapDataType.DOUBLE,
+                        this.record.getParameter().getUnit());
             } else {
                 throw new VizException("Unsupported data of type "
                         + data.getClass().getSimpleName());

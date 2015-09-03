@@ -24,6 +24,7 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
+import javax.measure.unit.Unit;
 import javax.media.opengl.GL;
 
 import com.raytheon.uf.common.colormap.image.ColorMapData;
@@ -33,16 +34,18 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.drawables.triangulated.ITriangleLocationCallback;
 import com.raytheon.uf.viz.drawables.triangulated.ITriangulatedImage;
+import com.raytheon.uf.viz.drawables.triangulated.TriangleMath;
 import com.raytheon.viz.core.gl.IGLTarget;
 import com.raytheon.viz.core.gl.dataformat.AbstractGLColorMapDataFormat;
 import com.raytheon.viz.core.gl.dataformat.GLBufferColorMapData;
 import com.raytheon.viz.core.gl.dataformat.GLColorMapDataFormatFactory;
+import com.raytheon.viz.core.gl.ext.imaging.GLDataMappingFactory;
 import com.raytheon.viz.core.gl.ext.imaging.GLDataMappingFactory.GLDataMapping;
 import com.raytheon.viz.core.gl.glsl.GLSLFactory;
 import com.raytheon.viz.core.gl.glsl.GLSLStructFactory;
 import com.raytheon.viz.core.gl.glsl.GLShaderProgram;
+import com.raytheon.viz.core.gl.images.GLCMTextureData;
 import com.raytheon.viz.core.gl.objects.GLTextureObject;
-import com.vividsolutions.jts.algorithm.CGAlgorithms;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Triangle;
@@ -146,7 +149,7 @@ public class GLTriangulatedImage implements ITriangulatedImage {
             triEnv.expandToInclude(p2);
             if (triEnv.contains(x, y)) {
                 Coordinate p = new Coordinate(x, y);
-                if (isInTriangle(p, p0, p1, p2)) {
+                if (TriangleMath.isInTriangle(p, p0, p1, p2)) {
                     p0.z = attribBuffer.getValue(i0, 0).doubleValue();
                     p1.z = attribBuffer.getValue(i1, 0).doubleValue();
                     p2.z = attribBuffer.getValue(i2, 0).doubleValue();
@@ -158,35 +161,12 @@ public class GLTriangulatedImage implements ITriangulatedImage {
         return Double.NaN;
     }
 
-    protected boolean isInTriangle(Coordinate p, Coordinate v0, Coordinate v1,
-            Coordinate v2) {
-        int orientation0 = CGAlgorithms.orientationIndex(v0, v1, p);
-        if (orientation0 == 0) {
-            return true;
-        }
-        int orientation1 = CGAlgorithms.orientationIndex(v1, v2, p);
-        if (orientation0 != orientation1) {
-            if (orientation1 == 0) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-        int orientation2 = CGAlgorithms.orientationIndex(v2, v0, p);
-        if (orientation0 != orientation2) {
-            if (orientation1 == 0) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-        return true;
-    }
-
     @Override
     public void dispose() {
-        dataMapping.dispose();
-
+        if (dataMapping != null) {
+            dataMapping.dispose();
+            dataMapping = null;
+        }
     }
 
     @Override
@@ -238,12 +218,18 @@ public class GLTriangulatedImage implements ITriangulatedImage {
                 gl.glTexParameteri(GL.GL_TEXTURE_1D, GL.GL_TEXTURE_MAG_FILTER,
                         GL.GL_NEAREST);
             }
+
+            setupDataMapping(gl, GL.GL_TEXTURE3, GL.GL_TEXTURE4);
+
             GLShaderProgram program = GLSLFactory.getInstance()
                     .getShaderProgram(gl, "copyValueVertexShader",
                             "colormapVarying");
             program.startShader();
 
             int numMappingValues = 0;
+            if (dataMapping != null && dataMapping.isValid()) {
+                numMappingValues = dataMapping.getNumMappingValues();
+            }
             GLSLStructFactory.createDataMapping(program, "dataMapping", 3, 4,
                     numMappingValues);
 
@@ -273,6 +259,43 @@ public class GLTriangulatedImage implements ITriangulatedImage {
             target.popGLState();
         }
 
+    }
+
+    protected void setupDataMapping(GL gl,
+            int dataMappedTexBinding, int colorMappedTexBinding)
+            throws VizException {
+        if (dataMapping == null && colorMapParameters.getColorMap() != null) {
+            Unit<?> colorMapUnit = colorMapParameters.getColorMapUnit();
+            Unit<?> dataUnit = attribBuffer.getDataUnit();
+            int colorMapSize = colorMapParameters.getColorMap().getSize();
+            float colorMapMin = colorMapParameters.getColorMapMin();
+            float colorMapMax = colorMapParameters.getColorMapMax();
+            dataMapping = GLDataMappingFactory.constructGLDataMapping(gl,
+                    dataUnit, colorMapUnit, colorMapMin, colorMapMax,
+                    colorMapSize);
+        }
+
+        if (dataMapping != null && dataMapping.isValid()) {
+            GLCMTextureData glDataMapping = dataMapping.getDataMapping();
+            gl.glActiveTexture(dataMappedTexBinding);
+            if (glDataMapping.isLoaded() == false) {
+                glDataMapping.loadTexture(gl);
+            }
+            if (glDataMapping.isLoaded()) {
+                gl.glBindTexture(glDataMapping.getTextureStorageType(),
+                        glDataMapping.getTexId());
+            }
+
+            GLCMTextureData glColorMapping = dataMapping.getColorMapping();
+            gl.glActiveTexture(colorMappedTexBinding);
+            if (glColorMapping.isLoaded() == false) {
+                glColorMapping.loadTexture(gl);
+            }
+            if (glColorMapping.isLoaded()) {
+                gl.glBindTexture(glColorMapping.getTextureStorageType(),
+                        glColorMapping.getTexId());
+            }
+        }
     }
 
 }

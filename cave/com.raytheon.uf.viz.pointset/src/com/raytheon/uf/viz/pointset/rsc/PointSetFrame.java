@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.viz.pointset.rsc;
 
+import javax.measure.converter.UnitConverter;
+import javax.measure.unit.Unit;
+
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.pointset.PointSetRecord;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -84,14 +87,22 @@ public class PointSetFrame {
         staged = false;
     }
 
-    public String inspect(double x, double y) {
-        double data_value = image.getDataValue(x, y);
-        if (Double.isNaN(data_value)) {
-            return "No Data";
-        } else {
-            return String.format("%4.2f %s", image.getDataValue(x, y), record
-                    .getParameter().getUnitString());
+    public double inspect(double x, double y) {
+        ITriangulatedImage image = this.image;
+        if (image == null) {
+            return Double.NaN;
         }
+        ColorMapParameters colorMapParameters = resource.getCapability(
+                ColorMapCapability.class).getColorMapParameters();
+        Unit<?> displayUnit = colorMapParameters.getDisplayUnit();
+
+        double dataValue = image.getDataValue(x, y);
+        if (displayUnit != null) {
+            UnitConverter converter = record.getParameter().getUnit()
+                    .getConverterTo(displayUnit);
+            dataValue = converter.convert(dataValue);
+        }
+        return dataValue;
     }
 
     public boolean paint(PaintProperties paintProps, IGraphicsTarget target)
