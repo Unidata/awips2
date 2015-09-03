@@ -42,7 +42,7 @@
 
 		<!-- Begin Radar routes -->
 		<route id="radarIngestRoute">
-			<from uri="jms-durable:queue:Ingest.Radar"/>
+			<from uri="jms-durable:queue:Ingest.Radar?concurrentConsumers=4"/>
  			<setHeader headerName="dataType">
  				<constant>radar-sbn</constant>
 			</setHeader>

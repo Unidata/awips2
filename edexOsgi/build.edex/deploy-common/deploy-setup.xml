@@ -4,150 +4,128 @@
 		<property file="${basedir}/edex/common.properties" />
 		<property file="${basedir}/edex/developer.properties" />
 		<condition property="wa.enabled">
-			<not>
-				<equals arg1="${wa.to.deploy}" arg2="" />
-			</not>
+			<not><equals arg1="${wa.to.deploy}" arg2="" /></not>
 		</condition>
-
+	
 		<dirname property="antfile.dir" file="${ant.file}" />
-		<echo message="ANT FILE DIR:${antfile.dir}" />
+		<echo message="ANT FILE DIR:${antfile.dir}"/>
 		<dirname property="base.dir" file="${antfile.dir}" />
-		<echo message="BASE DIR:${base.dir}" />
-		<basename property="base.name" file="${base.dir}" />
-		<echo message="BASE NAME:${base.name}" />
+		<echo message="BASE DIR:${base.dir}"/>
+		<basename property="base.name" file="${base.dir}"/>
+		<echo message="BASE NAME:${base.name}"/>
 		<if>
 			<equals arg1="${base.name}" arg2="edexOsgi" />
 			<then>
 				<!-- we are in the distributed development environment -->
-				<echo message="BUILDING: in distributed development environment" />
+				<echo message="BUILDING: in distributed development environment"/>
 				<dirname property="awips.baseline.directory" file="${base.dir}" />
 				<dirname property="git.directory" file="${awips.baseline.directory}" />
-				<echo message="GIT.DIRECTORY:${git.directory}" />
-				<var name="repository.directories" value="${awips.baseline.directory}" />
+				<echo message="GIT.DIRECTORY:${git.directory}"/>
+				<var name="repository.directories"
+					value="${awips.baseline.directory}" />
 				<for list="${core.repositories}" param="repo.directory">
 					<sequential>
-						<var name="repository.directories" value="${repository.directories},${git.directory}${file.separator}@{repo.directory}" />
+						<var name="repository.directories"
+							value="${repository.directories},${git.directory}${file.separator}@{repo.directory}" />
 					</sequential>
 				</for>
-
-				<echo message="${optional.repositories}"/>
-				<for list="${optional.repositories}" param="repo.directory">
-					<sequential>
-						<if>
-							<isset property="optional.directories" />
-							<then>
-								<var name="optional.directories" value="${optional.directories},${git.directory}${file.separator}@{repo.directory}" />
-							</then>
-							<else>
-								<var name="optional.directories" value="${git.directory}${file.separator}@{repo.directory}" />
-							</else>
-						</if>
-					</sequential>
-				</for>
-
-				<property name="tab" value="    " />
-				<echo level="info" message=" " />
-				<echo level="info" message="Deploy checks the following directories for source:" />
-				<echo level="info" message=" " />
-				<for list="${repository.directories}" param="repository.directory">
-					<sequential>
-						<echo level="info" message="${tab}@{repository.directory}" />
-						<if>
-							<not>
-								<available file="@{repository.directory}" type="dir" />
-							</not>
-							<then>
-								<echo level="error" message="${tab}@{repository.directory} does not exist!" />
-								<property name="missingDir" value="true" />
-							</then>
-						</if>
-					</sequential>
-				</for>
-				<if>
-					<isset property="missingDir" />
-					<then>
-						<echo level="error" message=" " />
-						<echo level="error" message="Edit core.repositories=${core.repositories} in common.properties, rename source directories or create a symlink!" />
-						<echo level="error" message=" " />
-						<fail message="Unable to locate source directories." />
-					</then>
-				</if>
-				<echo level="info" message=" " />
+				<property name="tab" value="    "/>
+	            <echo level="info" message=" "/>
+	                <echo level="info" message="Deploy checks the following directories for source:"/>
+	                <echo level="info" message=" "/>
+	                <for list="${repository.directories}" param="repository.directory">
+	                    <sequential>
+	                        <echo level="info" message="${tab}@{repository.directory}" />
+	                        <if>
+	                            <not>
+	                                <available file="@{repository.directory}" type="dir" />
+	                            </not>
+	                            <then>
+	                                <echo level="error" message="${tab}@{repository.directory} does not exist!"/>
+	                                <property name="missingDir"
+	                                  value="true" />
+	                            </then>
+	                        </if>
+	                    </sequential>
+	                </for>
+	                <if>
+	                    <isset property="missingDir" />
+	                    <then>
+	                        <echo level="error" message=" "/>
+	                        <echo level="error" message="Edit core.repositories=${core.repositories} in common.properties, rename source directories or create a symlink!"/>
+	                        <echo level="error" message=" "/>
+	                        <fail message="Unable to locate source directories."/>
+	                    </then>
+	                </if>
+	                <echo level="info" message=" "/>
 			</then>
 			<else>
 				<!-- all of the projects are in the workspace or one single directory -->
-				<echo message="BUILDING: in workspace or flattened directory structure" />
-				<var name="awips.baseline.directory" value="${base.dir}" />
-				<var name="repository.directories" value="${base.dir}" />
+				<echo message="BUILDING: in workspace or flattened directory structure"/>
+				<var name="awips.baseline.directory"
+					value="${base.dir}" />
+				<var name="repository.directories"
+					value="${base.dir}" />
 			</else>
 		</if>
 
-		<echo message="AWIPS.BASELINE.DIRECTORY:${awips.baseline.directory}" />
-		<echo message="REPOSITORY.DIRECTORIES:${repository.directories}" />
+		<echo message="AWIPS.BASELINE.DIRECTORY:${awips.baseline.directory}"/>
+		<echo message="REPOSITORY.DIRECTORIES:${repository.directories}"/>
 
 		<!-- construct the list of "basedirectories" -->
-		<propertyselector property="baseline.variables" delimiter="${path.separator}" match="dir.([0-9][0-9])" select="\1" casesensitive="true" />
-
-		<var name="basedirectories" value="${awips.baseline.directory}" />
-
-		<for list="${baseline.variables}" param="index" delimiter="${path.separator}">
-			<sequential>
-				<propertycopy property="variable.name" override="true" from="dir.@{index}" />
-				<for list="${repository.directories}" param="repo.directory">
-					<sequential>
-						<var name="base.directory" value="@{repo.directory}/${variable.name}" />
-						<if>
-							<available file="${base.directory}" type="dir" />
-							<then>
-								<echo message="BASE.DIRECTORY:${base.directory}" />
-								<var name="basedirectories" value="${base.directory};${basedirectories}" />
-							</then>
-						</if>
-					</sequential>
-				</for>
-
-				<for list="${optional.directories}" param="repo.directory">
-					<sequential>
-						<var name="optional.directory" value="@{repo.directory}/${variable.name}" />
-						<if>
-							<available file="${optional.directory}" type="dir" />
-							<then>
-								<echo message="OPTIONAL.DIRECTORY:${optional.directory}" />
-								<if>
-									<isset property="optionaldirectories"/>
-									<then>
-										<var name="optionaldirectories" value="${optional.directory};${optionaldirectories}" />
-									</then>
-									<else>
-										<var name="optionaldirectories" value="${optional.directory}" />
-									</else>
-
-								</if>
-							</then>
-						</if>
-					</sequential>
-				</for>
-
-
-				<!-- Loop through the WA directories, if they exist. -->
-				<if>
-					<isset property="wa.enabled" />
-					<then>
-						<for list="${wa.to.deploy}" param="wa" delimiter="${path.separator}">
-							<sequential>
-								<var name="wa.base.directory" value="@{wa}/${variable.name}" />
-
-								<if>
-									<available file="${wa.base.directory}" type="dir" />
-									<then>
-										<var name="basedirectories" value="${wa.base.directory};${basedirectories}" />
-									</then>
-								</if>
-							</sequential>
-						</for>
-					</then>
-				</if>
-			</sequential>
-		</for>
+ 		<propertyselector property="baseline.variables"
+ 			delimiter="${path.separator}"
+ 			match="dir.([0-9][0-9])"
+ 			select="\1"
+ 			casesensitive="true" />
+		
+		<var name="basedirectories" 
+			value="${awips.baseline.directory}" />
+ 		
+  		<for list="${baseline.variables}" param="index"
+ 		delimiter="${path.separator}">
+ 			<sequential>
+ 				<propertycopy property="variable.name"
+ 					override="true"
+ 					from="dir.@{index}" />
+ 				<for list="${repository.directories}" param="repo.directory">
+ 		 		    <sequential>
+ 				       <var name="base.directory"
+ 					      value="@{repo.directory}/${variable.name}" />
+ 				       <if>
+ 					       <available file="${base.directory}" type="dir" />
+ 					       <then>
+ 	 	  			           <echo message="BASE.DIRECTORY:${base.directory}"/>
+ 						       <var name="basedirectories"
+ 							       value="${base.directory};${basedirectories}" />
+ 					       </then>
+ 				       </if>
+				   </sequential>
+ 				</for>
+ 				
+ 				<!-- Loop through the WA directories, if they exist. -->
+ 				<if>
+ 					<isset property="wa.enabled" />
+ 					<then>
+ 						<for list="${wa.to.deploy}" param="wa"
+ 						delimiter="${path.separator}">
+ 							<sequential>
+								<var name="wa.base.directory"
+									value="@{wa}/${variable.name}" /> 						
+ 						
+ 								<if>
+ 									<available file="${wa.base.directory}" 
+ 										type="dir" />	
+ 									<then>
+ 	 									<var name="basedirectories"
+ 	 										value="${wa.base.directory};${basedirectories}" /> 							
+ 									</then>
+ 								</if>
+ 							</sequential>
+ 						</for>
+ 					</then>
+ 				</if>
+ 			</sequential>
+ 		</for>
 	</target>
 </project>

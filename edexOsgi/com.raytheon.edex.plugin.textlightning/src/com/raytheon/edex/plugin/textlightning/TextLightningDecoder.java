@@ -45,8 +45,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Feb 12, 2014 2655       njensen     Set source
  * Jun 05, 2014 3226       bclement    LightningStikePoint refactor
  * Jun 10, 2014 3226       bclement    fixed source
- * May 8, 2015  DR17252    MPorricelli Removed setting of source. 
- *                                     Source set in TextLightningParser.
+ * Jun 22, 2015            mjames@ucar Muted setSource
  * 
  * </pre>
  * 
@@ -58,6 +57,12 @@ public class TextLightningDecoder extends AbstractDecoder implements
         IBinaryDecoder {
 
     private String traceId = null;
+
+    /*
+     * inferred from Wufeng Zhou comment in BinLightningDecoderUtil, stands for
+     * World Wide Lightning Location Network
+     */
+    private static final String SOURCE = "WWLLN";
 
     /**
      * Construct a TextLightning decoder. Calling hasNext() after construction
@@ -98,6 +103,8 @@ public class TextLightningDecoder extends AbstractDecoder implements
         report.setInsertTime(c);
 
         report.setTraceId(traceId);
+
+        //report.setSource(SOURCE);
 
         return new PluginDataObject[] { report };
     }

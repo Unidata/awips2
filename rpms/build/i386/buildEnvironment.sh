@@ -6,6 +6,6 @@ export AWIPSII_RELEASE="20120223"
 
 export AWIPSII_TOP_DIR="/home/bkowal/rpmbuild"
 export WORKSPACE="/common/bkowal/git/thunder/baseline"
-export UFRAME_ECLIPSE="/opt/uframe-eclipse"
+export UFRAME_ECLIPSE="/awips2/eclipse"
 export AWIPSCM_SHARE="/awipscm"
 export AWIPSII_BUILD_ROOT="/tmp/${USER}/awips-component"

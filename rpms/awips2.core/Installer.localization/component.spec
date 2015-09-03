@@ -52,9 +52,24 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-# Copy the localization.
+# Copy the localization files
 cp -rv %{_baseline_workspace}/%{_localization_directory}/utility/* \
    ${RPM_BUILD_ROOT}/awips2/edex/data/utility
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+# Copy the shapefiles (too large to include in git repo)
+cp -rv /awips2/jenkins/buildspace/workspace/awipscm/awips2-static/shapefiles/ \
+   ${RPM_BUILD_ROOT}/awips2/edex/data/utility/edex_static/site/%{_localization_site}/
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+#./localization/localization.OAX/utility/edex_static/site/OAX/config/gfe/siteConfig.py
+# Copy the GFE files
+cp -rv %{_baseline_workspace}/%{_localization_directory}/utility/edex_static/site/OAX/config/gfe/ \
+   ${RPM_BUILD_ROOT}/awips2/edex/data/utility/edex_static/site/%{_localization_site}/config/
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -156,11 +171,13 @@ function importShapefiles()
 {   
    local site_directory="${edex_utility}/edex_static/site/%{_localization_site}"
    
-   # determine if we include ffmp shapefiles
+   # determine if we include shapefiles
    local ffmp_shp_directory="${site_directory}/shapefiles/FFMP"
+   local wg_shp_directory="${site_directory}/shapefiles/warngen"
    
    # if we do not, halt
    if [ ! -d ${ffmp_shp_directory} ]; then
+      echo "${ffmp_shp_directory} does not exist, returning ..." >> ${log_file}   
       return 0
    fi
    
@@ -172,9 +189,17 @@ function importShapefiles()
    if [ ! -f ${ffmp_shp_directory}/FFMP_aggr_basins.shp ] ||
       [ ! -f ${ffmp_shp_directory}/FFMP_ref_sl.shp ]; then
       # if they are not, exit
+      echo "ffmp_shp_directory files do not exist, returning ..." >> ${log_file}   
       return 0
    fi
-   
+  
+   # verify the warngen location shapefile exists
+   if [ ! -f ${wg_shp_directory}/wg23fe15.shp ]; then
+      # if it does not, exit
+      echo "warngenloc files do not exist, returning ..." >> ${log_file}   
+      return 0
+   fi
+ 
    # verify that the files the streams and basins shapefile depend on
    # are present.
    if [ ! -f ${ffmp_shp_directory}/FFMP_aggr_basins.dbf ] ||
@@ -182,12 +207,13 @@ function importShapefiles()
       [ ! -f ${ffmp_shp_directory}/FFMP_ref_sl.dbf ] ||
       [ ! -f ${ffmp_shp_directory}/FFMP_ref_sl.shx ]; then
       # if they are not, exit
+      echo "ffmp basin files do not exist, returning ..." >> ${log_file}   
       return 0
    fi
    
    local a2_shp_script="/awips2/database/sqlScripts/share/sql/maps/importShapeFile.sh"
    
-   echo "Importing the FFMP Shapefiles ... Please Wait."
+   echo "Importing the FFMP and WarnGen Shapefiles ... Please Wait."
    /bin/date >> ${log_file}
    echo "Preparing to import the FFMP shapefiles ..." >> ${log_file}   
    
@@ -213,9 +239,18 @@ function importShapefiles()
       echo "FATAL: failed to import the FFMP streams." >> ${log_file}
       return 0
    fi
+
+    # import the warngen boundaries for OAX
+   /bin/bash ${a2_shp_script} \
+      ${wg_shp_directory}/wg23fe15.shp mapdata warngenloc >> ${log_file} 2>&1 
+   if [ $? -ne 0 ]; then
+      echo "FATAL: failed to import the WarnGen locations." >> ${log_file}
+      return 0
+   fi
+
    
    # indicate success
-   echo "INFO: The FFMP shapefiles were successfully imported." >> ${log_file}
+   echo "INFO: The FFMP and WarnGen shapefiles were successfully imported." >> ${log_file}
    return 0
 }
 

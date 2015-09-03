@@ -70,7 +70,7 @@ public class DeleteAWIPSProcedure extends AbstractHandler {
     public Object execute(ExecutionEvent event) throws ExecutionException {
         if (listDlg == null || listDlg.getShell() == null
                 || listDlg.isDisposed()) {
-            listDlg = new ProcedureListDlg("Delete Procedure",
+            listDlg = new ProcedureListDlg("Delete Bundle",
                     HandlerUtil.getActiveShell(event), Mode.DELETE);
             listDlg.setCloseCallback(new ICloseCallback() {
 
@@ -83,7 +83,7 @@ public class DeleteAWIPSProcedure extends AbstractHandler {
                         } catch (LocalizationOpFailedException e) {
                             statusHandler.handle(
                                     Priority.PROBLEM,
-                                    "Error deleting procedure: "
+                                    "Error deleting bundle: "
                                             + selectedFile.getName());
                         }
                     }

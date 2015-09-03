@@ -29,5 +29,4 @@
     <include installTo="menu:upperAir?before=AircraftMenuEnd"
         fileName="menus/upperair/baseAviation.xml" />
     <include installTo="menu:upperAir?after=RAOB" fileName="menus/upperair/baseRAOB.xml" />
-    <include installTo="menu:upperAir?before=RAOBMenuMiddle" fileName="menus/upperair/baseAddedFeatures.xml" />
 </menuContributionFile>

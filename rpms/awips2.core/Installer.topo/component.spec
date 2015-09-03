@@ -60,15 +60,7 @@ function copyLegal()
    rm -f %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar    
 }
 
-# Determine which version of the topo we should use.
-RPM_COMMON_DIR="%{_baseline_workspace}/rpms/common/static.versions"
-
-if [ ! -f ${RPM_COMMON_DIR}/LATEST.topo ]; then
-   file ${RPM_COMMON_DIR}/LATEST.topo
-   exit 1
-fi
-VERSION_DIR=`cat ${RPM_COMMON_DIR}/LATEST.topo`
-TOPO_SRC_DIR="awips2-static/topo/${VERSION_DIR}"
+TOPO_SRC_DIR="awips2-static/topo/"
 if [ ! -d %{_awipscm_share}/${TOPO_SRC_DIR} ]; then
    file %{_awipscm_share}/${TOPO_SRC_DIR}
    exit 1
@@ -76,19 +68,33 @@ fi
 
 TOPO_TO_COPY=\
 (\
-   'gtopo30.h5'\
-   'srtm30.h5'\
-   'srtm30_plus.h5'\
-   'defaultTopo.h5' \
    'akTopo.dat.gz' \
    'caribTopo.dat.gz' \
    'modelStaticTopo.h5' \
    'pacTopo.dat.gz' \
+   'srtm30.h5'\
+   'defaultTopo.h5'\
    'staticTopo.h5' \
    'usTopo.dat.gz' \
    'worldTopo.dat.gz' \
-   'gmted2010.h5' \
 )
+# Some of these not provided in source code repos
+#
+#TOPO_TO_COPY=\
+#(\
+#   'gtopo30.h5'\
+#   'srtm30.h5'\
+#   'srtm30_plus.h5'\
+#   'defaultTopo.h5' \
+#   'akTopo.dat.gz' \
+#   'caribTopo.dat.gz' \
+#   'modelStaticTopo.h5' \
+#   'pacTopo.dat.gz' \
+#   'staticTopo.h5' \
+#   'usTopo.dat.gz' \
+#   'worldTopo.dat.gz' \
+#   'gmted2010.h5' \
+#)
 # !!!!! WARNING - THIS WILL TAKE A LONG TIME !!!!!
 
 for topoFile in ${TOPO_TO_COPY[*]};

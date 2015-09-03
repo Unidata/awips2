@@ -85,6 +85,8 @@ import com.raytheon.viz.satellite.tileset.SatDataRetriever;
 import com.raytheon.viz.satellite.tileset.SatTileSetRenderable;
 import com.vividsolutions.jts.geom.Coordinate;
 
+//import gov.noaa.nws.ncep.viz.common.area.AreaName.AreaSource;
+//import gov.noaa.nws.ncep.viz.common.area.IAreaProviderCapable;
 /**
  * Provides satellite raster rendering support
  * 
@@ -125,7 +127,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  Aug 21, 2014  DR 17313  jgerth      Set no data value if no data mapping
  *  Oct 15, 2014  3681      bsteffen    create renderable in interrogate if necessary.
  *  Feb 17, 2015  4135      bsteffen    Set no data value for derived products.
- * 
+ *  Jun 24, 2015            mjames@ucar Mute interrogating raw data error.
  * 
  * </pre>
  * 
@@ -136,6 +138,7 @@ public class SatResource extends
         AbstractPluginDataObjectResource<SatResourceData, IMapDescriptor>
         implements ImageProvider, Interrogatable {
 
+	protected SatResourceData satRscData;
     /**
      * String id to look for satellite-provided data values
      * 
@@ -241,6 +244,7 @@ public class SatResource extends
                 }
                 if (tileSet == null) {
                     tileSet = new SatTileSetRenderable(SatResource.this, record);
+                    // this is where getGridGeometry is called from D2D SAT
                     tileSet.project(descriptor.getGridGeometry());
                     tileMap.put(record.getCoverage(), tileSet);
                 }
@@ -293,6 +297,7 @@ public class SatResource extends
      */
     public SatResource(SatResourceData data, LoadProperties props) {
         super(data, props);
+        satRscData = data;
         addDataObject(data.getRecords());
     }
 
@@ -449,7 +454,7 @@ public class SatResource extends
                             .getRecord().getCoverage());
                 }
             } catch (Exception e) {
-                throw new VizException("Error interrogating raw data", e);
+                //throw new VizException("Error interrogating raw data", e);
             }
         }
 
@@ -661,5 +666,15 @@ public class SatResource extends
 
         return result;
     }
+    
+//    @Override
+//    public AreaSource getSourceProvider() {
+//        return satRscData.getSourceProvider();
+//    }
+//
+//    @Override
+//    public String getAreaName() {
+//        return satRscData.getAreaName();
+//    }
 
 }

@@ -20,8 +20,8 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
-			menuText="GFS40" id="gfs40surface" useReferenceTime="true">
-			<substitute key="modelName" value="GFS212"/>
+			menuText="GFS" id="gfssurface" useReferenceTime="true">
+			<substitute key="modelName" value="GFS"/>
 			<substitute key="TP" value="TP"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
@@ -47,27 +47,23 @@
 		<contribute xsi:type="bundleItem" file="bundles/volume/HRRR.xml"
 			menuText="HRRR" id="hrrrsurface" useReferenceTime="true">
 			<substitute key="modelName" value="HRRR"/>
-			<substitute key="TP" value="TP"/>
+			<substitute key="TP" value="TP1hr"/>
 			<substitute key="frameCount" value="16"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
-			menuText="NAM12" id="nam12surface" useReferenceTime="true">
-			<substitute key="modelName" value="${NAM12model}"/>
+			menuText="NAM 12km" id="nam12surface" useReferenceTime="true">
+			<substitute key="modelName" value="NAM12"/>
 			<substitute key="TP" value="TP3hr"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
-			menuText="NAM40" id="nam40surface" useReferenceTime="true">
-			<substitute key="modelName" value="${NAM40model}"/>
+			menuText="NAM 40km" id="nam40surface" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-40km"/>
 			<substitute key="TP" value="TP3hr"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
-			menuText="RAP13" id="rap13surface" useReferenceTime="true">
-			<substitute key="modelName" value="${RAP13model}"/>
+			menuText="RAP 13km" id="rap13surface" useReferenceTime="true">
+			<substitute key="modelName" value="RAP-13km"/>
 			<substitute key="TP" value="TP3hr"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
-			menuText="RAP" id="rapsurface" useReferenceTime="true">
-			<substitute key="modelName" value="${RAPmodel}"/>
-			<substitute key="TP" value="TP3hr"/>
-		</contribute>
+
 </menuTemplate>

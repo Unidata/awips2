@@ -24,4 +24,19 @@
 		<contribute xsi:type="titleItem" id="SoundingsTitle" titleText="------ Soundings ------"/>
 		<contribute xsi:type="separator" id="Soundings" visible="false"/>
 	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsImagery.xml"
+		menuText="VIIRS AK - Band 1 (0.64u)" id="Img0.64">
+		<substitute key="parameter" value="0.64Ref"/>
+		<substitute key="region" value="Alaska"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsImagery.xml"
+		menuText="VIIRS AK - Band 4 (3.74u)" id="Img3.74">
+		<substitute key="parameter" value="3.74BT"/>
+		<substitute key="region" value="Alaska"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsImagery.xml"
+		menuText="VIIRS AK - Band 5 (11.45u)" id="Img11.45">
+		<substitute key="parameter" value="11.45BT"/>
+		<substitute key="region" value="Alaska"/>
+	</contribute>
 </menuTemplate>

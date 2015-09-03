@@ -20,4 +20,5 @@
     -->
 <requestPatterns xmlns:ns2="group">
     <regex>^S[AP].*</regex>
+    <regex>.*sao.*</regex>
 </requestPatterns>
