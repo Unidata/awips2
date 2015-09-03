@@ -15,7 +15,7 @@ Require-Bundle: com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
  com.raytheon.uf.common.dataquery;bundle-version="1.0.0",
  com.raytheon.uf.common.datastorage;bundle-version="1.12.1174",
  org.hibernate;bundle-version="1.0.0",
- com.raytheon.uf.common.numeric;bundle-version="1.14.0"
+ com.raytheon.uf.common.numeric;bundle-version="1.0.0"
 Export-Package: com.raytheon.uf.common.dataplugin.satellite,
  com.raytheon.uf.common.dataplugin.satellite.units,
  com.raytheon.uf.common.dataplugin.satellite.units.counts,

@@ -24,11 +24,14 @@
     <regex>^[EHLMOYZ][A-Z]{3}\d{2}</regex>
     <!-- Exclude Data Delivery specific patterns -->
     <regexExclude>^LZ[ABC][ABC]9[123] KWBC</regexExclude>
-
+    <!-- This to match Unidata IDD CONDUIT feed products without standard headers -->
+    <regex>.*grib.*</regex>
+    <regex>^US058.*</regex>
+    <regex>^CMC_reg.*</regex>
     <!-- ECMWF decrypted -->
     <regex>ecmwf_decrypted</regex>
 
     <!-- NWPS pattern -->
-    <regex>\p{Alpha}{3}_nwps_CG1</regex>
-    <regex>\p{Alpha}{3}_nwps_CG0_Trkng</regex>
+    <regex>xxx_nwps_CG1*</regex>
+    <regex>xxx_nwps_CG0_Trkng*</regex>
 </requestPatterns>

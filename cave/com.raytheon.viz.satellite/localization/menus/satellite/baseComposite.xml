@@ -28,5 +28,7 @@
     	<substitute key="blendedTimeMatchMode" value="ALL_IMAGES"/>
     </contribute>
 	<contribute xsi:type="separator" id="baseCompositeSeparator"/>
-    <contribute xsi:type="subinclude" fileName="menus/satellite/basePOESImagery.xml" />
+    <!--
+    <contribute xsi:type="subinclude" fileName="menus/satellite/basePOESImagery.xml" /> 
+    -->
 </menuTemplate>

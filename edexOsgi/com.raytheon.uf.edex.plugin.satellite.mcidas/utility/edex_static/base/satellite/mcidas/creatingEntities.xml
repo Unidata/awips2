@@ -21,7 +21,36 @@
 <!-- Source: http://www.ssec.wisc.edu/mcidas/doc/users_guide/current/app_c-1.html -->
 <creatingEntities>
 	<map>
-		<entry><key>84</key><value>MTSAT-1R</value></entry>	
-		<entry><key>85</key><value>MTSAT-2</value></entry>
+	  <entry><key>9</key><value>COMP</value></entry>
+	  <entry><key>10</key><value>SOUNDER</value></entry>
+	  <entry><key>12</key><value>GMS</value></entry>
+	  <entry><key>13</key><value>GMS</value></entry>
+	  <entry><key>30</key><value>GOES6</value></entry>
+	  <entry><key>31</key><value>GOES6</value></entry>
+	  <entry><key>32</key><value>GOES7</value></entry>
+	  <entry><key>33</key><value>GOES7</value></entry>
+	  <entry><key>35</key><value>FYC</value></entry>
+	  <entry><key>36</key><value>FYC</value></entry>
+	  <entry><key>51</key><value>METEOSAT8</value></entry>
+	  <entry><key>52</key><value>METEOSAT9</value></entry>
+	  <entry><key>53</key><value>METEOSAT10</value></entry>
+	  <entry><key>54</key><value>METEOSAT3</value></entry>
+	  <entry><key>56</key><value>METEOSAT5</value></entry>
+	  <entry><key>57</key><value>METEOSAT6</value></entry>
+	  <entry><key>58</key><value>METEOSAT7</value></entry>
+	  <entry><key>70</key><value>GOES8</value></entry>
+	  <entry><key>71</key><value>SOUNDER</value></entry>
+	  <entry><key>74</key><value>GOES10</value></entry>
+	  <entry><key>76</key><value>GOES11</value></entry>
+	  <entry><key>77</key><value>DPD</value></entry>
+	  <entry><key>78</key><value>GOES12</value></entry>
+	  <entry><key>83</key><value>GMS</value></entry>
+	  <entry><key>84</key><value>MTS</value></entry>
+	  <entry><key>85</key><value>MTSAT2</value></entry>
+	  <entry><key>180</key><value>GOES13</value></entry>
+	  <entry><key>184</key><value>GOES15</value></entry>
+	  <entry><key>185</key><value>SOUNDER</value></entry>
+	  <entry><key>401</key><value>COMP</value></entry>
+	  <entry><key>72</key><value>COMP</value></entry>
 	</map>
 </creatingEntities>

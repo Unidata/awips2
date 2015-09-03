@@ -62,6 +62,7 @@ public class RaobMenuUtil extends AbstractMenuUtil {
      */
     @Override
     public void createMenus() {
+    	/*
         statusHandler.info("Creating raob menus...");
         List<CommonAbstractMenuContribution> contributions = new ArrayList<CommonAbstractMenuContribution>();
         RaobSitesInUseUtil.setParsed(false);
@@ -92,9 +93,11 @@ public class RaobMenuUtil extends AbstractMenuUtil {
             menuTemplate.contributions[0].id = "upperAirPlaceholder";
             ((CommonPlaceholderMenuContribution) menuTemplate.contributions[0]).menuText = "Not Configured";
         }
+        
         toXml(menuTemplate, "menus" + File.separator + "upperair"
                 + File.separator + "baseRAOB.xml");
         statusHandler.info("Finished processing raob menus.");
+        */
     }
 
     /**

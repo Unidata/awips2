@@ -49,7 +49,7 @@
 		<sequential>			
 			<var name="plugin.path" value="" />
 			<!-- first we need to find the plugin -->
-	 		<for list="@{plugin.directories}" param="directory"
+	 		<for list="${basedirectories}" param="directory"
 	 		delimiter=";">
 	 			<sequential>
 	 				<if>

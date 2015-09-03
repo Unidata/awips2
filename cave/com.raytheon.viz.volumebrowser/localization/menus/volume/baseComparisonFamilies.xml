@@ -21,8 +21,17 @@
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<contribute xsi:type="titleItem" titleText="------ Comparison Families ------"
 		id="ComparisonFamiliesLine" />
+	<contribute xsi:type="bundleItem" file="bundles/volume/850Height.xml"
+		menuText="850 Height" id="850hgt" useReferenceTime="true">
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/volume/700Height.xml"
+		menuText="700 Height" id="700hgt" useReferenceTime="true">
+	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/volume/500Height.xml"
 		menuText="500 Height" id="500hgt" useReferenceTime="true">
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/volume/250Height.xml"
+		menuText="250 Height" id="250hgt" useReferenceTime="true">
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/volume/MSLPress.xml"
 		menuText="MSL Press" id="mslPress" useReferenceTime="true">

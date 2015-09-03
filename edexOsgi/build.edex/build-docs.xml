@@ -20,7 +20,7 @@
 			</fileset>
 			
 			<!-- ECLIPSE RCP libraries -->
-			<fileset dir="${projects.dir}/uframe-eclipse/plugins">
+			<fileset dir="${projects.dir}/eclipse/plugins">
 				<include name="**/*.jar/" />
 			</fileset>
 		</path>

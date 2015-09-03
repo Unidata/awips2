@@ -19,6 +19,8 @@
         further_licensing_information.
     -->
 <menuContributionFile>
+	<include installTo="menu:obs?after=USPLNPLACEHOLDER" 
+             fileName="menus/lightning/usplnMenuItems.xml"/>
     <include installTo="menu:obs?after=LIGHTNINGPLACEHOLDER" 
              fileName="menus/lightning/lightningMenuItems.xml" 
              subMenu="Lightning"/>

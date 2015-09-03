@@ -106,14 +106,6 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-# text-workstation autostart script.
-CAVE_SCRIPTS_DIR="%{_baseline_workspace}/rpms/awips2.cave/Installer.cave/scripts"
-TEXTWS_AUTO_SCRIPT="${CAVE_SCRIPTS_DIR}/autostart/awips2-textws.desktop"
-cp -v ${TEXTWS_AUTO_SCRIPT} ${RPM_BUILD_ROOT}/etc/xdg/autostart
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-
 %pre
 if [ "${1}" = "2" ]; then
    # During an upgrade, we need to copy CAVE components that should not
@@ -180,12 +172,6 @@ if [ -d /awips2/cave ]; then
 fi
 
 %post
-# Remove the text-workstation autostart script if we have not been installed
-# on an xt workstation
-if [ ! "`hostname | cut -b 1-2`" = "xt" ]; then
-   rm -f /etc/xdg/autostart/awips2-textws.desktop
-fi
-
 MACHINE_BIT=`uname -i`
 if [ "${MACHINE_BIT}" = "i386" ]
 then
@@ -369,4 +355,3 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/cave/lib%{_build_bits}
 /awips2/cave/lib%{_build_bits}/*
 
-%attr(644,root,root) /etc/xdg/autostart/awips2-textws.desktop

@@ -22,32 +22,40 @@
 	<contribute xsi:type="titleItem" titleText="------ Std Env Data Package ------"
 		id="StdEnvPackageLine" />
 	<contribute xsi:type="subMenu" menuText="Std Env Data Package">
-	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultStdEnv.xml"
-		menuText="LAPS" id="lapsstdenv" useReferenceTime="true">
-		<substitute key="modelName" value="LAPS"/>
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultStdEnv.xml"
-		menuText="NAM40" id="nam40stdenv" useReferenceTime="true">
-		<substitute key="modelName" value="${NAM40model}"/>
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultStdEnv.xml"
-		menuText="RAP40" id="rap40stdenv" useReferenceTime="true">
-		<substitute key="modelName" value="${RAPmodel}"/>
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultStdEnv.xml"
-		menuText="NAM12" id="nam12stdenv" useReferenceTime="true">
-		<substitute key="modelName" value="${NAM12model}"/>
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultStdEnv.xml"
-		menuText="GFS40" id="gfs40stdenv" useReferenceTime="true">
-		<substitute key="modelName" value="GFS212"/>
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultStdEnv.xml"
-		menuText="RAP13" id="rap13stdenv" useReferenceTime="true">
-		<substitute key="modelName" value="${RAP13model}"/>
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/volume/RaobStdEnv.xml"
-		menuText="RaobOA" id="raoboastdenv" useReferenceTime="true">
-	</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultStdEnv.xml"
+			menuText="GFS" id="gfsstdenv" useReferenceTime="true">
+			<substitute key="modelName" value="GFS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultStdEnv.xml"
+			menuText="GFS 40km" id="gfs40stdenv" useReferenceTime="true">
+			<substitute key="modelName" value="GFS-40km"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultStdEnv.xml"
+			menuText="DGEX" id="dgexstdenv" useReferenceTime="true">
+			<substitute key="modelName" value="DGEX"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultStdEnv.xml"
+			menuText="HRRR" id="hrrrstdenv" useReferenceTime="true">
+			<substitute key="modelName" value="HRRR"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultStdEnv.xml"
+			menuText="NAM 12km" id="nam12stdenv" useReferenceTime="true">
+			<substitute key="modelName" value="NAM12"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultStdEnv.xml"
+			menuText="NAM 40km" id="nam40stdenv" useReferenceTime="true">
+			<substitute key="modelName" value="NAM-40km"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultStdEnv.xml"
+			menuText="NamDNG" id="namDngstdenv" useReferenceTime="true">
+			<substitute key="modelName" value="NamDNG"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultStdEnv.xml"
+			menuText="RAP 13km" id="rap13stdenv" useReferenceTime="true">
+			<substitute key="modelName" value="RAP-13km"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/RaobStdEnv.xml"
+			menuText="RaobOA" id="raoboastdenv" useReferenceTime="true">
+		</contribute>
 	</contribute>
 </menuTemplate>

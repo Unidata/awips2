@@ -31,4 +31,5 @@
     Cell: (301) 787-9925
      -->
     <regex>TI[CGT]... ....</regex>
+    <regex>.*NEXRCOMP.*</regex>
 </requestPatterns>
