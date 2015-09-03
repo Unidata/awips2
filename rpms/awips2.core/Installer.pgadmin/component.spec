@@ -9,7 +9,7 @@
 Name: awips2-pgadmin3
 Summary: AWIPS II pgadmin3 Distribution
 Version: %{_pgadmin3_version}
-Release: %{_component_version}.%{_component_release}%{?dist}
+Release: 2
 Group: AWIPSII
 BuildRoot: %{_build_root}
 BuildArch: %{_build_arch}
@@ -20,16 +20,16 @@ Vendor: Raytheon
 Packager: Bryan Kowal
 
 AutoReq: no
-BuildRequires: awips2-postgresql = 9.2.3-1.el6
-BuildRequires: postgresql >= 8.4.13-1.el6_3
-BuildRequires: postgresql-devel >= 8.4.13-1.el6_3
-BuildRequires: postgresql-libs >= 8.4.13-1.el6_3
-BuildRequires: wxGTK >= 2.8.12-1
-BuildRequires: wxGTK-devel >= 2.8.12-1
+BuildRequires: awips2-postgresql
+BuildRequires: postgresql 
+BuildRequires: postgresql-devel
+BuildRequires: postgresql-libs
+BuildRequires: wxGTK 
+BuildRequires: wxGTK-devel
 
 provides: awips2-pgadmin3
-requires: awips2-psql = 9.2.3-1
-requires: wxGTK >= 2.8.12-1
+requires: awips2-psql
+requires: wxGTK
 
 %description
 AWIPS II pgadmin3 Distribution - A custom compilation of the pgadmin3 client compatible with

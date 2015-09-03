@@ -43,7 +43,7 @@
                                 <constraint constraintValue="grid" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.datasetId">
-                                <constraint constraintValue="GFS212" constraintType="EQUALS"/>
+                                <constraint constraintValue="GFS" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.level.masterLevel.name">
                                 <constraint constraintValue="SFC" constraintType="EQUALS"/>
@@ -75,7 +75,7 @@
                                 <constraint constraintValue="grid" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.datasetId">
-                                <constraint constraintValue="ECMWF-HiRes" constraintType="EQUALS"/>
+                                <constraint constraintValue="NAM12" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.level.masterLevel.name">
                                 <constraint constraintValue="SFC" constraintType="EQUALS"/>
@@ -107,7 +107,7 @@
                                 <constraint constraintValue="grid" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.datasetId">
-                                <constraint constraintValue="ECMF-NorthernHemisphere" constraintType="EQUALS"/>
+                                <constraint constraintValue="NamDNG" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.level.masterLevel.name">
                                 <constraint constraintValue="SFC" constraintType="EQUALS"/>
@@ -136,13 +136,8 @@
                                 <constraint constraintValue="msl-P" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.datasetId">
-                                <constraint constraintValue="GFS229" constraintType="EQUALS"/>
+                                <constraint constraintValue="NAVGEM" constraintType="EQUALS"/>
                             </mapping>
-                            <!--  Replaced by the above GFS229 mapping.
-                            <mapping key="info.datasetId">
-                                <constraint constraintValue="GFS213" constraintType="EQUALS"/>
-                            </mapping>
-                            -->
                             <mapping key="pluginName">
                                 <constraint constraintValue="grid" constraintType="EQUALS"/>
                             </mapping>
@@ -173,42 +168,10 @@
                                 <constraint constraintValue="msl-P" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.datasetId">
-                                <constraint constraintValue="UKMET-NorthernHemisphere" constraintType="EQUALS"/>
+                                <constraint constraintValue="HRRR" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="pluginName">
                                 <constraint constraintValue="grid" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.masterLevel.name">
-                                <constraint constraintValue="SFC" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.levelonevalue">
-                                <constraint constraintValue="0.0" constraintType="EQUALS"/>
-                            </mapping>
-                        </metadataMap>
-                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
-                    </resourceData>
-                </resource>
-                <resource>
-                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-                        <capabilities>
-                            
-                            <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-                        </capabilities>
-                        <resourceType>PLAN_VIEW</resourceType>
-                    </loadProperties>
-                    <properties renderingOrderId="CONTOUR" isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-                    </properties>
-                    <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-                        <metadataMap>
-                            <mapping key="info.parameter.abbreviation">
-                                <constraint constraintValue="msl-P" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="pluginName">
-                                <constraint constraintValue="grid" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.datasetId">
-                                <constraint constraintValue="ETA218" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.level.masterLevel.name">
                                 <constraint constraintValue="SFC" constraintType="EQUALS"/>
@@ -240,7 +203,7 @@
                                 <constraint constraintValue="grid" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.datasetId">
-                                <constraint constraintValue="HiResW-ARW-East" constraintType="EQUALS"/>
+                                <constraint constraintValue="RAP-13km" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.level.masterLevel.name">
                                 <constraint constraintValue="SFC" constraintType="EQUALS"/>
@@ -272,7 +235,7 @@
                                 <constraint constraintValue="grid" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.datasetId">
-                                <constraint constraintValue="HiResW-ARW-West" constraintType="EQUALS"/>
+                                <constraint constraintValue="CMC" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.level.masterLevel.name">
                                 <constraint constraintValue="SFC" constraintType="EQUALS"/>
@@ -304,101 +267,7 @@
                                 <constraint constraintValue="grid" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.datasetId">
-                                <constraint constraintValue="HiResW-NMM-East" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.masterLevel.name">
-                                <constraint constraintValue="SFC" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.levelonevalue">
-                                <constraint constraintValue="0.0" constraintType="EQUALS"/>
-                            </mapping>
-                        </metadataMap>
-                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
-                    </resourceData>
-                </resource>
-                <resource>
-                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-                        <capabilities>
-                            
-                            <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-                        </capabilities>
-                        <resourceType>PLAN_VIEW</resourceType>
-                    </loadProperties>
-                    <properties renderingOrderId="CONTOUR" isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-                    </properties>
-                    <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-                        <metadataMap>
-                            <mapping key="info.parameter.abbreviation">
-                                <constraint constraintValue="msl-P" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="pluginName">
-                                <constraint constraintValue="grid" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.datasetId">
-                                <constraint constraintValue="HiResW-NMM-West" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.masterLevel.name">
-                                <constraint constraintValue="SFC" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.levelonevalue">
-                                <constraint constraintValue="0.0" constraintType="EQUALS"/>
-                            </mapping>
-                        </metadataMap>
-                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
-                    </resourceData>
-                </resource>
-                <resource>
-                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-                        <capabilities>
-                            
-                        </capabilities>
-                        <resourceType>PLAN_VIEW</resourceType>
-                    </loadProperties>
-                    <properties renderingOrderId="CONTOUR" isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-                    </properties>
-                    <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-                        <metadataMap>
-                            <mapping key="info.parameter.abbreviation">
-                                <constraint constraintValue="msl-P" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="pluginName">
-                                <constraint constraintValue="grid" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.datasetId">
-                                <constraint constraintValue="RUC" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.masterLevel.name">
-                                <constraint constraintValue="SFC" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.level.levelonevalue">
-                                <constraint constraintValue="0.0" constraintType="EQUALS"/>
-                            </mapping>
-                        </metadataMap>
-                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
-                    </resourceData>
-                </resource>
-                <resource>
-                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
-                        <capabilities>
-                            
-                        </capabilities>
-                        <resourceType>PLAN_VIEW</resourceType>
-                    </loadProperties>
-                    <properties renderingOrderId="CONTOUR" isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
-                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
-                    </properties>
-                    <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-                        <metadataMap>
-                            <mapping key="info.parameter.abbreviation">
-                                <constraint constraintValue="msl-P" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="pluginName">
-                                <constraint constraintValue="grid" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="info.datasetId">
-                                <constraint constraintValue="ETA" constraintType="EQUALS"/>
+                                <constraint constraintValue="RTMA" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.level.masterLevel.name">
                                 <constraint constraintValue="SFC" constraintType="EQUALS"/>

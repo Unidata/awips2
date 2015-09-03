@@ -22,30 +22,6 @@
       </encoder> 
    </appender>
 
-   <!-- activeTableChange log --> 
-   <!-- When migrating this change to 15.1.1 it will need to be split up properly.
-        See Roger Ferrel for instruction 
-    -->
-   <appender name="activeTableChangeLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-activeTableChange-%d{yyyyMMdd}.log</fileNamePattern>
-         <maxHistory>30</maxHistory>
-      </rollingPolicy> 
-
-      <encoder> 
-         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
-      </encoder>
-   </appender> 
-   
-   <appender name="activeTableChangeLogAsync" class="ch.qos.logback.classic.AsyncAppender">            
-      <appender-ref ref="activeTableChangeLog" />
-   </appender> 
-
-   <logger name="ActiveTableChange" additivity="false">
-      <level value="DEBUG"/>
-      <appender-ref ref="activeTableChangeLogAsync" />
-   </logger>
-      
    <!-- ProductSrvRequest log --> 
    <appender name="ProductSrvRequestLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
       <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">

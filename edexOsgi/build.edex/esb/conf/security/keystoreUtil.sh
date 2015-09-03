@@ -14,7 +14,6 @@ truststore=truststore.jks
 
 keystorePw=
 keyPw=
-cn=
 encryptionKey=encrypt
 truststorePw=password
 
@@ -97,36 +96,21 @@ do
 	fi
 done
 
-while [ -z $cn ];
-do
-	echo -n "Enter canonical name/IP or blank for default [$(hostname)]: "
-	read cn
-	if [ -z $cn ];
-	then
-		echo "Canonical Name defaulting to [$(hostname)];"
-		cn=$(hostname)
-	fi
-done
+cn=$(hostname)
 
 echo "Generating keystore..."
-# get rid of an existing key with same name
-echo "Check to see if a key with this alias exists.....[$keyAlias]!"
-keytool -delete -alias $keyAlias -keystore $securityDir/$keystore
-# create and add key
-keytool -genkeypair -alias $keyAlias -keypass $keyPw -keystore $keystore -storepass $keystorePw -validity 360 -dname "CN=$cn, OU=AWIPS, O=Raytheon, L=Silver Spring, ST=MD, C=US" -keyalg RSA 
+keytool -genkeypair -alias $keyAlias -keypass $keyPw -keystore $keystore -storepass $keystorePw -validity 360 -dname "CN=$cn, OU=AWIPS, O=Raytheon, L=Omaha, ST=NE, C=US" -keyalg RSA 
 echo -n "Exporting public key..."
 exportOutput=`keytool -exportcert -alias $keyAlias -keystore $keystore -file $keyAlias$publicKeyFile -storepass $keystorePw 2>&1`
 echo "Done!"
 obfuscatedKeystorePassword=`$JAVA_BIN -cp /awips2/edex/lib/dependencies/org.apache.commons.codec/commons-codec-1.4.jar:/awips2/edex/lib/plugins/com.raytheon.uf.common.security.jar com.raytheon.uf.common.security.encryption.AESEncryptor encrypt $encryptionKey $keystorePw 2>&1`
 echo "Generating trust store..."
 
-echo "Check to see if a trusted CA with this alias exists.....[$keyAlias]!"
-keytool -delete -alias $keyAlias -keystore $securityDir/$truststore
 keytool -genkey -alias tmp -keypass tempPass -dname CN=foo -keystore $truststore -storepass $truststorePw
 keytool -delete -alias tmp -keystore $truststore -storepass $truststorePw
 keytool -import -trustcacerts -file $keyAlias$publicKeyFile -alias $keyAlias -keystore $truststore -storepass $truststorePw
 
-jettyObscuredPassword=`$JAVA_BIN -cp /awips2/edex/lib/dependencies/org.eclipse.jetty/jetty-http-8.1.15.v20140411.jar:/awips2/edex/lib/dependencies/org.eclipse.jetty/jetty-util-8.1.15.v20140411.jar org.eclipse.jetty.util.security.Password $keystorePw 2>&1 | grep OBF`
+jettyObscuredPassword=`$JAVA_BIN -cp /awips2/edex/lib/dependencies/org.eclipse.jetty/jetty-http-7.6.14.v20131031.jar:/awips2/edex/lib/dependencies/org.eclipse.jetty/jetty-util-7.6.14.v20131031.jar org.eclipse.jetty.util.security.Password $keystorePw 2>&1 | grep OBF`
 
 obfuscatedTruststorePassword=`$JAVA_BIN -cp /awips2/edex/lib/dependencies/org.apache.commons.codec/commons-codec-1.4.jar:/awips2/edex/lib/plugins/com.raytheon.uf.common.security.jar com.raytheon.uf.common.security.encryption.AESEncryptor encrypt $encryptionKey $truststorePw 2>&1`
 
@@ -183,11 +167,6 @@ do
 		echo "Alias cannot be empty!"
 	fi
 done
-
-# delete any existing cert in the truststore for this alias
-echo "Check to see if a certificate with this alias exists.....[$userAlias]!"
-keytool -delete -alias $userAlias -keystore $securityDir/$truststore
-# add the cert as a Self Signed CA to truststore 
 keytool -import -trustcacerts -file $keyfile -alias $userAlias -keystore $securityDir/$truststore
 
 }

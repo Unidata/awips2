@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+                menuText="Central AK (CENA2)" id="profCentral_AK"
+                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+        <substitute key="wmoid" value="70197"/>
+       	<substitute key="productURI" value="/profiler/%/3000/70197/%"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+                menuText="Glennallen AK (GNAA2)" id="profGlennallen_AK"
+                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+        <substitute key="wmoid" value="70268"/>
+       	<substitute key="productURI" value="/profiler/%/3000/70268/%"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+                menuText="Talkeetna AK (TLKA2)" id="profTalkeetna_AK"
+                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+        <substitute key="wmoid" value="70252"/>
+       	<substitute key="productURI" value="/profiler/%/3000/70252/%"/>
+    </contribute>
+ 		<contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="Bloomfield MO (BLMM7)" id="profBloomfield MO"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74662"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74662/%"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="Blue River WI (BLRW3)" id="profBlueRiver_WI"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74357"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74357/%"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="Conway MO (CNWM7)" id="profConway_MO"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74550"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74550/%"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="DeQueen AR (DQUA4)" id="profDeQueen_AR"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74752"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74752/%"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="Fairbury NE (FBYN1)" id="profFairbury_NE"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74440"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74440/%"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="Haskell OK (HKL02)" id="profHaskell_OK"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74648"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74648/%"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="Lamont OK (LMNO2)" id="profLamont_OK"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74647"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74647/%"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="Lathrop MO (LTHM7)" id="profLathrop_MO"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74551"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74551/%"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="Ledbetter TX (LDBT2)" id="profLedbetter_TX"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="72246"/>
+        	<substitute key="productURI" value="/profiler/%/3000/72246/%"/>
+	    </contribute>
+	   	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="Neodesha KS (NDSK1)" id="profNeodesha_KS"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74542"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74542/%"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="Okolona MS (OKOM6)" id="profOkolona MS"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74769"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74769/%"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="Palestine TX (PATT2)" id="profPalestine_TX"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74750"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74750/%"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="Slater IA (SLAI4)" id="profSlater_IA"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74449"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74449/%"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="Syracuse NY (SYCN6)" id="profSyracuse_NY"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74379"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74379/%"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="Winchester IL (WNCI2)" id="profWinchester_IL"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74556"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74556/%"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="Winfield LA (WNFL1)" id="profWinfield_LA"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74753"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74753/%"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="Wolcott IN (WLCI3)" id="profWolcott_IN"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74466"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74466/%"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="Wood Lake MN (WDLM5)" id="profWoodLake_MN"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74341"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74341/%"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="Aztec NM (AZCN5)" id="profAztec_NM"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74630"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74630/%"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="Granada CO (GDAC2)" id="profGranada_CO"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74530"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74530/%"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="Haviland KS (HVLK1)" id="profHaviland_KS"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74541"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74541/%"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="Hillsboro KS (HBRK1)" id="profHillsboro_KS"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74546"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74546/%"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="Jayton TX (JTNT2)" id="profJayton_TX"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74735"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74735/%"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="McCook NE (RWDN1)" id="profMcCook_NE"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74433"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74433/%"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="Medicine Bow WY (MBWW4)" id="profMedicineBow_WY"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74431"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74431/%"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="Merriman NE (MRRN1)" id="profMerriman_NE"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74437"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74437/%"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="Neligh NE (NLGN1)" id="profNeligh_NE"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74445"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74445/%"/>
+	    </contribute>
+	   	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="Platteville CO (PLTC2)" id="profPlatteville_CO"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74533"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74533/%"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="Purcell OK (PRCO2)" id="profPurcell_OK"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74649"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74649/%"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="Tucumcari NM (TCUN5)" id="profTucumcari_NM"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74731"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74731/%"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="Vandenberg CA (VBGC1)" id="profVandenberg_CA"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74604"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74604/%"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="Vici OK (VCIO2)" id="profVici_OK"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74640"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74640/%"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
+	                menuText="White Sands NM (WSMN5)" id="profWhiteSands_NM"
+	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+	        <substitute key="wmoid" value="74629"/>
+        	<substitute key="productURI" value="/profiler/%/3000/74629/%"/>
+	    </contribute>
+</menuTemplate>

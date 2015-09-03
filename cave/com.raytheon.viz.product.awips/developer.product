@@ -14,7 +14,7 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-data @user.home/caveData -user @user.home/caveData -clean -consoleLog -alertviz</programArgs>
+      <programArgs>-data @user.home/caveData -user @user.home/caveData -clean -consoleLog -alertviz -component thinclient</programArgs>
       <vmArgs>-Xmx1536M
 -XX:+UseG1GC
 -Dosgi.instance.area.readOnly=true
@@ -53,11 +53,9 @@
       </win>
    </launcher>
 
-
    <vm>
       <windows include="true">jdk1.6.0</windows>
    </vm>
-
 
    <plugins>
    </plugins>

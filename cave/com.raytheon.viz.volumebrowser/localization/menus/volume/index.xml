@@ -19,35 +19,27 @@
         further_licensing_information.
     -->
 <menuContributionFile>
-	<substitute key="DGEXmodel" value="DGEX185" />
-    <substitute key="GFSmodel" value="GFS229" />
-    <!--  Replaced by the above GFS229 substitute.
-    	<substitute key="GFSmodel" value="GFS213" />
-    -->
-	<substitute key="NAM12model" value="ETA218" />
-	<substitute key="NAM40model" value="mesoEta212" />
+	<substitute key="GFSmodel" value="GFS 40km" />
+	<substitute key="NAM12model" value="NAM12" />
+	<substitute key="NAM40model" value="NAM-40km" />
 	<substitute key="ARWmodel1" value="HiResW-ARW-East" />
 	<substitute key="ARWmodel2" value="HiResW-ARW-West" />
 	<substitute key="MMMmodel1" value="HiResW-NMM-East" />
 	<substitute key="MMMmodel2" value="HiResW-NMM-West" />
-	<substitute key="RAP13model" value="RUC130" />
-	<substitute key="RAPmodel" value="RUC236" />
-    <include installTo="menu:volume?after=VolumeBundles" 
-             fileName="menus/volume/baseFamilies.xml">
-    </include>
-    <include installTo="menu:volume?before=VolumeBundles" 
+	<substitute key="HRRRmodel" value="HRRR" />
+	<substitute key="RAP13model" value="RAP-13km" />
+	<substitute key="RAPmodel" value="RAP-40km" />
+	<substitute key="RAP20model" value="RAP-20km" />
+    <include installTo="menu:models" 
              fileName="menus/volume/ModelFamilies.xml">
     </include>
-    <include subMenu="4-Panel Families" installTo="menu:volume?before=ComparisonFamilies" 
+    <include subMenu="4-Panel 500MB Height / Vorticity / Omega" installTo="menu:models" 
              fileName="menus/volume/baseFourPanelFamilies.xml">
     </include>
-    <include installTo="menu:volume?after=ComparisonFamilies" 
+    <include installTo="menu:models" 
              fileName="menus/volume/baseComparisonFamilies.xml">
     </include>
-    <include subMenu="Surface Families" installTo="menu:volume?after=SurfaceFamilies" 
-             fileName="menus/volume/baseSurfaceFamilies.xml">
-    </include>
-    <include installTo="menu:volume?after=StdEnvDataPackageFamilies" 
+    <include installTo="menu:models" 
              fileName="menus/volume/baseStdEnvPackage.xml">
     </include>
 </menuContributionFile>

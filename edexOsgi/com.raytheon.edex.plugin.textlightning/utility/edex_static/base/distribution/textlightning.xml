@@ -21,4 +21,7 @@
 <requestPatterns xmlns:ns2="group">
     <regex>FAA_</regex>
     <regex>WWLLN_</regex>
+    <regex>^USPLN1EX.*</regex>
+    <regex>.*uspln</regex>
+    <regex>.*nldn</regex>
 </requestPatterns>

@@ -10,8 +10,8 @@ BuildRoot: %{_build_root}
 URL: N/A
 License: N/A
 Distribution: N/A
-Vendor: Raytheon
-Packager: Bryan Kowal
+Vendor: Unidata
+Packager: Michael James
 
 provides: awips2-edex
 provides: awips2-base-component
@@ -167,6 +167,8 @@ if [ -d $UTILITY ] && [ -f $UTIL_FILENAME ]; then
 fi
 
 
+chmod 775 /awips2/edex/data/manual
+
 %preun
 if [ "${1}" = "1" ]; then
    exit 0
@@ -194,6 +196,7 @@ rm -rf ${RPM_BUILD_ROOT}
 /awips2/edex/lib/*
 %dir /awips2/edex/logs
 %dir /awips2/edex/webapps
+
 
 %defattr(755,awips,fxalpha,755)
 %dir /awips2/edex/bin

@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="8A1F2DCB-5527-4D32-BC7A-E4295EA72942" Name="AWIPS II CAVE x64"
+  Language="1033" Version="$(var.ProductVersion)" Manufacturer="Raytheon"
+  UpgradeCode="8924277C-5B6A-4EEB-AE9F-5471481F92A5">
+    <Package Manufacturer="Raytheon" InstallerVersion="200" 
+    Compressed="yes" InstallScope="perMachine" />
+
+    <Property Id="MSIFASTINSTALL" Value="3" /> 
+    
+    <Media Id="1" Cabinet="product.cab" EmbedCab="yes" />
+
+    <Property Id="RUNTIMEENVIRONMENT">
+      <RegistrySearch Id="RuntimeEnvironment"
+                      Root="HKLM"
+                      Key="Software\Raytheon\Runtime Environment" 
+                      Type="raw"  
+                      Name="Name"  
+                      Win64="yes" />
+    </Property>
+
+    <Condition Message="The AWIPS II Runtime Environment (x64) must be installed before AWIPS II CAVE can be installed.">
+      <![CDATA[Installed OR RUNTIMEENVIRONMENT]]>
+    </Condition>
+    
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder" Name="PFiles">
+        <Directory Id="INSTALLDIR" Name="Raytheon">
+          <Directory Id="AwipsII" Name="AWIPS II">
+            <Directory Id="CaveDir" Name="CAVE">
+              <Component Id="caveBatch" Guid="8924277C-5B6A-4EEB-AE9F-5471481F92A6" Win64="yes">
+                <File Id="caveBAT" Name="cave.bat"
+                  DiskId="1" Source="SourceDir\CAVE\cave.bat" />
+                <Shortcut Id="caveDesktopShortcut" Directory="DesktopFolder" Name="CAVE"
+                  WorkingDirectory="CaveDir" Advertise="yes" Icon="cave.exe" IconIndex="0" 
+                  Arguments="-component thinclient" />
+                <Shortcut Id="caveStartMenu" Directory="ProgramMenuDir" Name="CAVE"
+                  WorkingDirectory="CaveDir" Advertise="yes" Icon="cave.exe" IconIndex="0"
+                  Arguments="-component thinclient" />
+              </Component>
+            </Directory>
+            <Directory Id="AlertvizDir" Name="AlertViz">
+              <Component Id="alertvizBatch" Guid="8924277C-5B6A-4EEB-AE9F-5471481F92B4" Win64="yes">
+                <File Id="alertvizBAT" Name="alertviz.bat"
+                  DiskId="1" Source="SourceDir\AlertViz\alertviz.bat" />
+                <Shortcut Id="alertvizDesktopShortcut" Directory="DesktopFolder" Name="AlertViz"
+                  WorkingDirectory="AlertvizDir" Advertise="yes" Icon="alertviz.exe" IconIndex="0" 
+                  Arguments="-component thinalertviz" />
+                <Shortcut Id="alertvizStartMenu" Directory="ProgramMenuDir" Name="AlertViz"
+                  WorkingDirectory="AlertvizDir" Advertise="yes" Icon="alertviz.exe" IconIndex="0"
+                  Arguments="-component thinalertviz" />
+              </Component>              
+            </Directory>
+          </Directory>
+        </Directory>
+
+        <Directory Id="ProgramMenuFolder" Name="Programs">
+          <Directory Id="ProgramMenuDir" Name="AWIPS II">
+            <Component Id="ProgramMenuDir" Guid="62D7CF96-A3A5-4DCE-86A5-751D698B5CA3">
+              <RemoveFolder Id="ProgramMenuDir" On="uninstall" />
+              <RegistryValue Root="HKCU" Key="Software\[Manufacturer]\[ProductName]"
+              Type="string" Value="" KeyPath="yes" />
+
+              <Shortcut Id="UninstallProduct" Name="Uninstall CAVE" Description="Uninstalls AWIPS II CAVE"
+                Target="[SystemFolder]msiexec.exe" Arguments="/x [ProductCode]" />
+            </Component>
+          </Directory>
+        </Directory>
+      </Directory>
+
+      <Directory Id="DesktopFolder" Name="Desktop" />
+    </Directory>
+
+    <Feature Id="AWIPS_II_CAVE" Title="AWIPS II CAVE" Level="1"
+    Display="expand" Description="AWIPS II Common AWIPS Visualization Environment (CAVE)"
+    ConfigurableDirectory="INSTALLDIR">
+      <ComponentRef Id="caveBatch" />
+      <ComponentRef Id="ProgramMenuDir" />
+      
+      <ComponentGroupRef Id="AWIPSII_CAVE" />
+    </Feature>
+
+    <Feature Id="AWIPS_II_ALERTVIZ" Title="AWIPS II AlertViz" Level="1"
+    Display="expand" Description="AWIPS II AlertViz"
+    ConfigurableDirectory="INSTALLDIR">
+      <ComponentRef Id="alertvizBatch" />
+      
+      <ComponentGroupRef Id="AWIPSII_ALERTVIZ" />
+    </Feature>
+
+    <UIRef Id="WixUI_FeatureTree" />
+    <UIRef Id="WixUI_ErrorProgressText" />
+
+    <Icon Id="cave.exe" SourceFile="SourceDir\CAVE\cave.exe" />
+    <Icon Id="alertviz.exe" SourceFile="SourceDir\AlertViz\alertviz.exe" />
+
+  </Product>
+</Wix>

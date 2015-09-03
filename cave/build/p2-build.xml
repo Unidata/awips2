@@ -2,7 +2,7 @@
 
 	<!-- TODO: Verify These Properties References An Actual Directory. -->
 	<property name="eclipse.dir" 
-		value="/opt/uframe-eclipse" />
+		value="/awips2/eclipse" />
 	<property name="build.version"
 		value="1.0.0" />
 	<property name="build.os"
@@ -10,7 +10,7 @@
 	<property name="build.ws"
 		value="gtk" />
 	<property name="build.arch"
-		value="x86" />
+		value="x86_64" />
 	<property name="workspace.dir" value="${basedir}/../" />
 	
 	<property name="pde.build.script"
@@ -223,12 +223,16 @@
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature"
+				value="gov.noaa.gsd.viz.ensemble.feature" />
+		</antcall>
+		<antcall target="p2.build.repo">
+			<param name="feature"
 				value="com.raytheon.viz.grib.feature" />
 		</antcall>
-        	<antcall target="p2.build.repo">
-                     <param name="feature"
-                                value="com.raytheon.uf.viz.kml.export.feature" />
-                </antcall>
+		<antcall target="p2.build.repo">
+			<param name="feature"
+				value="com.raytheon.uf.viz.kml.export.feature" />
+		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature"
 				value="com.raytheon.viz.gfe.feature" />
@@ -289,25 +293,29 @@
 		     <param name="feature"
 		          value="com.raytheon.uf.viz.thinclient.feature" />
 		</antcall>
+		<!--
 		<antcall target="p2.build.repo">
-		             <param name="feature"
-		                  value="com.raytheon.uf.viz.useradmin.feature" />
+	             <param name="feature"
+	                  value="com.raytheon.uf.viz.useradmin.feature" />
 		</antcall>
+		-->
         <antcall target="p2.build.repo">
              <param name="feature"
                   value="com.raytheon.uf.viz.registry.feature" />
         </antcall>
+        <!-- Unidata excludes
         <antcall target="p2.build.repo">
              <param name="feature"
                   value="com.raytheon.uf.viz.datadelivery.feature" />
         </antcall>        	
         <antcall target="p2.build.repo">
              <param name="feature"
-                  value="com.raytheon.uf.viz.npp.feature" />
+                  value="com.raytheon.uf.viz.collaboration.feature" />
         </antcall>
+        -->
         <antcall target="p2.build.repo">
              <param name="feature"
-                  value="com.raytheon.uf.viz.ncep.npp.feature" />
+                  value="com.raytheon.uf.viz.npp.feature" />
         </antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature"
@@ -335,10 +343,6 @@
 		</antcall>
         <antcall target="p2.build.repo">
              <param name="feature"
-                  value="com.raytheon.uf.viz.collaboration.feature" />
-        </antcall>
-        <antcall target="p2.build.repo">
-             <param name="feature"
                   value="com.raytheon.uf.viz.gisdatastore.feature" />
         </antcall>
 		<antcall target="p2.build.repo">
@@ -346,7 +350,7 @@
 			  value="com.raytheon.uf.viz.d2d.ui.awips.feature" />
 		</antcall>
 
-		<antcall target="cleanup.features" />
+	<antcall target="cleanup.features" />
 	</target>
 
 	<target name="wa-build" depends="p2.build" description="Builds work assignment specific features after the main build">

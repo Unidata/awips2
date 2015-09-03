@@ -70,6 +70,10 @@
          version="0.0.0"/>
 
    <includes
+         id="gov.noaa.gsd.viz.ensemble.feature"
+         version="0.0.0"/>
+         
+   <includes
          id="com.raytheon.viz.grib.feature"
          version="0.0.0"/>
 
@@ -130,10 +134,6 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.viz.useradmin.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.uf.viz.kml.export.feature"
          version="0.0.0"/>
 
@@ -164,11 +164,15 @@
    <includes
          id="com.raytheon.uf.viz.d2d.gfe.feature"
          version="0.0.0"/>
-
+	<!--
    <includes
          id="com.raytheon.uf.viz.collaboration.feature"
          version="0.0.0"/>
-
+		 
+	<includes
+         id="com.raytheon.uf.viz.useradmin.feature"
+         version="0.0.0"/>
+	-->
    <includes
          id="com.raytheon.uf.viz.gisdatastore.feature"
          version="0.0.0"/>
@@ -191,10 +195,6 @@
 
    <includes
          id="edu.wisc.ssec.cimss.viz.convectprob.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.ncep.npp.feature"
          version="0.0.0"/>
 
    <requires>

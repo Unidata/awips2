@@ -25,6 +25,7 @@
 	<contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseRadarBestResZV.xml" />
 	<contribute xsi:type="separator" id="${icao}4PanelZSRM_ZDRV_KDP_HC_CCSW" />
 	<contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseRadarFourPanel.xml" />
+	<contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseRadarTwoPanel.xml" />
 	<contribute xsi:type="separator" id="${icao}BestResBase" />
 	<contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseRadarBestResBase.xml" />
 	<contribute xsi:type="separator" id="${icao}RadarPrecip" />
