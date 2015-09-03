@@ -34,4 +34,7 @@
     <contribute xsi:type="bundleItem" file="bundles/LightningSeq.xml" 
                 menuText="1min Lgtng Seq Plot" id="1MinLightningFlashSeq">
     </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/LightningCloudSeq.xml" 
+                menuText="1min Cloud Flash Seq Plot" id="1MinLightningCloudFlashSeq">
+    </contribute>
 </menuTemplate>

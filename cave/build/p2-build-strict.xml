@@ -13,7 +13,7 @@
 
 	<!-- TODO: Verify These Properties References An Actual Directory. -->
 	<property name="eclipse.dir" 
-		value="/opt/uframe-eclipse" />
+		value="/awips2/eclipse" />
 	<property name="build.version"
 		value="1.0.0" />
 	<property name="workspace.dir" value="${basedir}/../" />

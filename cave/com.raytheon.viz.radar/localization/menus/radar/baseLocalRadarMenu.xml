@@ -25,6 +25,7 @@
 	<contribute xsi:type="subinclude" subMenu="${icao} 1 Deg Azimuth 8-bit Prods" fileName="menus/radar/base1DegAzimuth8BitProds.xml" />
 	<contribute xsi:type="subinclude" fileName="menus/radar/baseReflectivityMotion.xml" />
 	<contribute xsi:type="subinclude" subMenu="${icao} four panel" fileName="menus/radar/baseRadar4Panel.xml" />
+	<contribute xsi:type="subinclude" subMenu="${icao} two panel" fileName="menus/radar/baseRadar2Panel.xml" />
 	<contribute xsi:type="subinclude" fileName="menus/radar/baseRadarBestRes.xml" />
 	<contribute xsi:type="subinclude" subMenu="${icao} Precip" fileName="menus/radar/baseRadarPrecip.xml" />
 	<contribute xsi:type="subinclude" subMenu="${icao} Derived" fileName="menus/radar/baseRadarDerived.xml"/>

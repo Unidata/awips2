@@ -1,15 +1,15 @@
-#!/bin/bash
+#!/bin/bash -v
 # This script will build the AWIPS II Viz RPMs.
 
 # Build Variables:
 # -----------------------------------------------------------------------------
-VAR_AWIPSII_TOP_DIR="/home/bkowal/rpmbuild"
-VAR_WORKSPACE="/common/bkowal/git/thunder/baseline"
+VAR_AWIPSII_TOP_DIR="/home/mjames/rpmbuild"
+VAR_WORKSPACE="/awips2/jenkins/buildspace/workspace"
 VAR_AWIPSII_BUILD_ROOT="/tmp/awips-component"
 VAR_AWIPSII_VERSION=""
 VAR_AWIPSII_RELEASE=""
-VAR_UFRAME_ECLIPSE="/opt/uframe-eclipse"
-VAR_AWIPSCM_SHARE="/awipscm"
+VAR_UFRAME_ECLIPSE="/awips2/eclipse"
+VAR_AWIPSCM_SHARE="/awips2/jenkins/buildspace/workspace/awipscm"
 # -----------------------------------------------------------------------------
 
 if [ "${AWIPSII_TOP_DIR}" = "" ] &&
@@ -22,7 +22,9 @@ fi
 function prepareBuildEnvironment()
 {
    if [ "${AWIPSII_TOP_DIR}" = "" ]; then
-      export AWIPSII_TOP_DIR="${VAR_AWIPSII_TOP_DIR}"
+      # /awips2/jenkins/buildspace/workspace/tmp/rpms_built_dir/
+      #export AWIPSII_TOP_DIR="${VAR_AWIPSII_TOP_DIR}"
+      export AWIPSII_TOP_DIR="${VAR_WORKSPACE}/tmp/rpms_built_dir"
    fi
 
    if [ "${WORKSPACE}" = "" ]; then
@@ -71,10 +73,10 @@ function setTargetArchitecture()
 }
 
 export TARGET_BUILD_ARCH=
-# If the architecture has not been specified, default to 32-bit.
+# If the architecture has not been specified, default to 64-bit.
 if [ "${CAVE_BUILD_ARCH}" = "" ]; then
-   export CAVE_BUILD_ARCH="x86"
-   echo "The Build Architecture was not specified ... defaulting to x86."
+   export CAVE_BUILD_ARCH="x86_64"
+   echo "The Build Architecture was not specified ... defaulting to x86_64."
 else
    echo "Building for architecture ... ${CAVE_BUILD_ARCH}."
 fi

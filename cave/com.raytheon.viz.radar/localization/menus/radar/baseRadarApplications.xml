@@ -22,6 +22,7 @@
 	<contribute xsi:type="separator" id="${icao}applicationsSeparator"/>
 	<contribute xsi:type="titleItem" titleText="------ Applications ------"
 		id="${icao}Applications" />
+		<!-- 
 	<contribute xsi:type="command"
 		commandId="com.raytheon.uf.viz.radarapps.alertreq.alertRequest"	
 		menuText="Alert Request..." id="${icao}AlertRequest" />
@@ -37,16 +38,18 @@
 	<contribute xsi:type="command"
 		commandId="com.raytheon.uf.viz.radarapps.rps.rpsListEditor" menuText="RPS List Editor..."
 		id="${icao}RPSListEditor" />
-	<contribute xsi:type="subMenu" menuText="Radar Tools">
+		-->
 		<contribute xsi:type="command" commandId="com.raytheon.viz.awipstools.estimatedactualvelocity" menuText="Estimated Actual Velocity" 
 			id="${icao}EstimatedActualVelocity" />
 		<contribute xsi:type="command"
 			commandId="com.raytheon.viz.ui.viz.radarapps.fsi.startFSI" menuText="4-D Storm Investigator (FSI)"
 			id="${icao}4DStormInvestigatorFSI" />
+			
+		<!-- 
 		<contribute xsi:type="command"
 			commandId="com.raytheon.viz.radar.ui.RadarDisplayControls" menuText="Radar Display Controls..."
 			id="${icao}ApplicationsRadarDisplayControls" />
+			-->
 		<contribute xsi:type="command" commandId="com.raytheon.viz.awipstools.vrshear" menuText="VR - Shear"
 			id="${icao}VRShear" />
-	</contribute>
 </menuTemplate> 

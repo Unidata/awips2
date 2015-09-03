@@ -90,22 +90,24 @@ public class RadarMenuUtil extends AbstractMenuUtil implements
         // retrieve the local radars from
         // radarsInUse.txt
         RadarsInUseUtil.setParsed(false);
-        List<String> radars = RadarsInUseUtil.getSite(getSite(),
-                RadarsInUseUtil.LOCAL_CONSTANT);
-
+        VariableSubstitution[] vars = null;
+        // loop through all the radars
+        Map<String, List<Double>> map = TerminalRadarUtils
+                .parseTerminalRadarFile();
         String path = "menus" + File.separator + "radar" + File.separator;
         CommonMenuContributionFile menuContributionFile = new CommonMenuContributionFile();
         CommonIncludeMenuItem includeMenuItem = null;
-        VariableSubstitution[] vars = null;
+        /* Unidata comment out localized radars from menus
+        List<String> radars = RadarsInUseUtil.getSite(getSite(),
+                RadarsInUseUtil.LOCAL_CONSTANT);
+
         if (radars.size() == 0) {
             menuContributionFile.contribution = new CommonIncludeMenuItem[1];
         } else {
             menuContributionFile.contribution = new CommonIncludeMenuItem[radars
                     .size()];
         }
-        // loop through all the radars
-        Map<String, List<Double>> map = TerminalRadarUtils
-                .parseTerminalRadarFile();
+        
         if (radars.size() > 0) {
             for (int i = radars.size() - 1; i >= 0; i--) {
                 includeMenuItem = new CommonIncludeMenuItem();
@@ -166,10 +168,10 @@ public class RadarMenuUtil extends AbstractMenuUtil implements
 
         toXml(menuContributionFile, "menus" + File.separator + "radar"
                 + File.separator + "index.xml");
-
+        */
         // now on to dial radars
-        radars = RadarsInUseUtil.getSite(getSite(),
-                RadarsInUseUtil.DIAL_CONSTANT);
+        List<String> radars = RadarsInUseUtil.getSite(getSite(),
+                RadarsInUseUtil.MOSAIC_CONSTANT);
 
         // create MenuTemplateFile for the dialRadars.xml
         MenuTemplateFile menuTemplateFile = new MenuTemplateFile();
@@ -177,6 +179,120 @@ public class RadarMenuUtil extends AbstractMenuUtil implements
                 .size()];
 
         CommonIncludeMenuContribution includeMenuContribution = null;
+        for (int i = radars.size() - 1; i >= 0; i--) {
+            includeMenuContribution = new CommonIncludeMenuContribution();
+            includeMenuContribution.substitutions = vars;
+
+            boolean terminal = TerminalRadarUtils.isTerminalRadar(radars.get(i)
+                    .toLowerCase());
+            if (terminal) {
+                List<Double> elevations = map.get(radars.get(i));
+                includeMenuContribution.fileName = new File(path + "dualPol"
+                        + File.separator + File.separator
+                        + "baseTerminalLocalRadarMenu.xml");
+                vars = new VariableSubstitution[(elevations.size() + 1)
+                        + NUM_POSSIBLE_RADARS + 1];
+                vars[0] = new VariableSubstitution();
+                vars[0].key = "icao";
+                vars[0].value = radars.get(i);
+                for (int j = 1; j <= elevations.size(); j++) {
+                    vars[j] = new VariableSubstitution();
+                    vars[j].key = "elev" + (j - 1);
+                    vars[j].value = String.valueOf(elevations.get(j - 1));
+                }
+                for (int j = 1; j <= elevations.size(); j++) {
+                    vars[j + elevations.size()] = new VariableSubstitution();
+                    vars[j + elevations.size()].key = "suppressErrors"
+                            + (j - 1);
+                    vars[j + elevations.size()].value = "false";
+                }
+                for (int j = elevations.size() + 1; j <= NUM_POSSIBLE_RADARS; j++) {
+                    vars[j + elevations.size()] = new VariableSubstitution();
+                    vars[j + elevations.size()].key = "suppressErrors"
+                            + (j - 1);
+                    vars[j + elevations.size()].value = "true";
+                }
+                includeMenuContribution.substitutions = vars;
+                terminal = true;
+            } else {
+                if (SsssRadarUtil.isSsssRadar(radars.get(i).toLowerCase())) {
+                    String ssssRadar = radars.get(i).toLowerCase();
+                    includeMenuContribution.fileName = new File(path
+                            + ssssRadar + File.separator
+                            + "baseLocalRadarMenu.xml");
+                } else {
+                    includeMenuContribution.fileName = new File(path
+                            + "dualPol" + File.separator
+                            + "baseLocalRadarMenu.xml");
+                }
+                vars = new VariableSubstitution[1];
+                vars[0] = new VariableSubstitution();
+                vars[0].key = "icao";
+                vars[0].value = radars.get(i);
+                includeMenuContribution.substitutions = vars;
+            }
+            menuTemplateFile.contributions[radars.size() - 1 - i] = includeMenuContribution;
+        }
+
+        Arrays.sort(menuTemplateFile.contributions);
+        // only want 18 radars in the dial radar menu, otherwise put it in
+        // submenus
+        if (menuTemplateFile.contributions.length > 18) {
+            double numMenus = Math
+                    .ceil(((double) menuTemplateFile.contributions.length) / 18);
+            int perMenu = (int) (menuTemplateFile.contributions.length
+                    / numMenus + 1);
+            statusHandler.info("For " + menuTemplateFile.contributions.length
+                    + " dial radars, menus have increased to " + (int) numMenus
+                    + " with an average of " + perMenu + " per menu");
+            List<CommonAbstractMenuContribution> list = Arrays
+                    .asList(menuTemplateFile.contributions);
+            menuTemplateFile.contributions = new CommonSubmenuContribution[(int) numMenus];
+
+            int count = 0;
+            for (int i = 0; i < numMenus; i++) {
+                menuTemplateFile.contributions[i] = new CommonSubmenuContribution();
+                int numCount = 0;
+                if (list.size() - count < perMenu) {
+                    numCount = list.size() - count;
+                    ((CommonSubmenuContribution) menuTemplateFile.contributions[i]).contributions = new CommonIncludeMenuContribution[list
+                            .size() - count];
+                    ((CommonSubmenuContribution) menuTemplateFile.contributions[i]).menuText = ((CommonIncludeMenuContribution) list
+                            .get(count)).substitutions[0].value
+                            + "-"
+                            + ((CommonIncludeMenuContribution) list.get(perMenu
+                                    * i + list.size() - count - 1)).substitutions[0].value;
+                } else {
+                    numCount = perMenu;
+                    ((CommonSubmenuContribution) menuTemplateFile.contributions[i]).contributions = new CommonIncludeMenuContribution[perMenu];
+                    ((CommonSubmenuContribution) menuTemplateFile.contributions[i]).menuText = ((CommonIncludeMenuContribution) list
+                            .get(count)).substitutions[0].value
+                            + "-"
+                            + ((CommonIncludeMenuContribution) list.get(perMenu
+                                    * (i + 1) - 1)).substitutions[0].value;
+                }
+                for (int j = 0; j < numCount; j++) {
+                    ((CommonSubmenuContribution) menuTemplateFile.contributions[i]).contributions[j] = list
+                            .get(count);
+                    count++;
+                }
+            }
+        }
+
+        toXml(menuTemplateFile, "menus" + File.separator + "radar"
+                + File.separator + "dialRadars.xml");
+
+        
+     // now on to TDWR radars
+        radars = RadarsInUseUtil.getSite(getSite(),
+                RadarsInUseUtil.TDWR_CONSTANT);
+
+        // create MenuTemplateFile for the dialRadars.xml
+        menuTemplateFile = new MenuTemplateFile();
+        menuTemplateFile.contributions = new CommonIncludeMenuContribution[radars
+                .size()];
+
+        includeMenuContribution = null;
         for (int i = radars.size() - 1; i >= 0; i--) {
             includeMenuContribution = new CommonIncludeMenuContribution();
             includeMenuContribution.substitutions = vars;
@@ -278,11 +394,13 @@ public class RadarMenuUtil extends AbstractMenuUtil implements
         }
 
         toXml(menuTemplateFile, "menus" + File.separator + "radar"
-                + File.separator + "dialRadars.xml");
+                + File.separator + "tdwrRadars.xml");
 
+        
+        /*  // Unidata comment out
         CommonSubmenuContribution submenuContribution = new CommonSubmenuContribution();
         List<CommonAbstractMenuContribution> contributions = new ArrayList<CommonAbstractMenuContribution>();
-
+        
         // now on to asr radars
         radars = RadarsInUseUtil.getSite(getSite(),
                 RadarsInUseUtil.ASR_CONSTANT);
@@ -334,13 +452,16 @@ public class RadarMenuUtil extends AbstractMenuUtil implements
             separatorCont.id = "emptyAirportRadarId";
             contributions.add(separatorCont);
         }
+        
         menuTemplateFile.contributions = contributions
                 .toArray(new CommonAbstractMenuContribution[contributions
                         .size()]);
 
         toXml(menuTemplateFile, "menus" + File.separator + "radar"
                 + File.separator + "airportRadars.xml");
-
+        */
+        
+        // NEXRAD Menu Creation
         menuContributionFile = new CommonMenuContributionFile();
 
         menuContributionFile.contribution = new CommonIncludeMenuItem[1];
@@ -361,7 +482,6 @@ public class RadarMenuUtil extends AbstractMenuUtil implements
         toXml(menuContributionFile, "menus" + File.separator + "radar"
                 + File.separator + "radarindex.xml");
 
-        statusHandler.info("Finished processing radar menus.");
     }
 
     public void setSkipParse(boolean rebuild) {

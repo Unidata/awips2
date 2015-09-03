@@ -71,7 +71,7 @@ public class ChangeD2DLayoutAction extends AbstractHandler {
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
         String sideViews = event.getParameter("sideViews");
-        if (sideViews != null) {
+        //if (sideViews != null) {
             int numViews = Integer.parseInt(sideViews);
             IWorkbenchWindow window = PlatformUI.getWorkbench()
                     .getActiveWorkbenchWindow();
@@ -91,7 +91,7 @@ public class ChangeD2DLayoutAction extends AbstractHandler {
                 }
             }
 
-        }
+        //}
 
         // get current map editor, if non existent create one.
         IDisplayPaneContainer part = EditorUtil.getActiveVizContainer();

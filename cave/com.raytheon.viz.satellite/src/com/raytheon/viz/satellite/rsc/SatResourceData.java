@@ -19,8 +19,13 @@
  **/
 package com.raytheon.viz.satellite.rsc;
 
+//import gov.noaa.nws.ncep.viz.common.area.IAreaProviderCapable;
+//import gov.noaa.nws.ncep.viz.common.area.AreaName.AreaSource;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -30,6 +35,8 @@ import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+
+import org.eclipse.core.runtime.CoreException;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
@@ -66,7 +73,8 @@ import com.raytheon.viz.satellite.inventory.SatelliteDataCubeAdapter;
  */
 
 @XmlAccessorType(XmlAccessType.NONE)
-public class SatResourceData extends AbstractRequestableResourceData {
+public class SatResourceData extends AbstractRequestableResourceData{
+	
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SatResourceData.class);
 
@@ -199,5 +207,15 @@ public class SatResourceData extends AbstractRequestableResourceData {
         }
         return super.equals(obj);
     }
+
+
+//	public AreaSource getSourceProvider() {
+//		return 	AreaSource.getAreaSource("GINI_SECTOR_ID");
+//	}
+//
+//	public String getAreaName() {
+//		//return metadataMap.get("creatingEntity").getConstraintValue()+"/"+metadataMap.get("sectorID").getConstraintValue();
+//		return "SAT/"+metadataMap.get("sectorID").getConstraintValue();
+//	}
 
 }
