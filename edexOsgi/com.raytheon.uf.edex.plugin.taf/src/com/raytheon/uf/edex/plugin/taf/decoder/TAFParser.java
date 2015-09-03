@@ -60,7 +60,6 @@ import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
  * May 14, 2014 2536        bclement    moved WMO Header to common, removed TimeTools usage
  * May 15, 2014 3002        bgonzale    Moved common taf code to com.raytheon.uf.common.dataplugin.taf.
  *                                      Refactored Strings to Patterns in TafConstants.
- * Apr 01, 2015 3722        rjpeter     Updated amd/corindicator to boolean flags.
  * </pre>
  * 
  * @author jkorman
@@ -75,7 +74,8 @@ public class TAFParser {
     // AMD hhmm
     // 01234567
     private static final String AMD_COR_TIME = "(" + TafConstants.AMD_IND + "|"
-            + TafConstants.COR_IND + ") \\d{4}";
+            + TafConstants.COR_IND
+            + ") \\d{4}";
 
     private static final int HOUR_START = 4;
 
@@ -178,7 +178,7 @@ public class TAFParser {
 
                         TafPeriod period1 = null;
                         TafPeriod period2 = null;
-                        for (int i = 0; i < (cGroups.size() - 1); i++) {
+                        for (int i = 0; i < cGroups.size() - 1; i++) {
                             group1 = cGroups.get(i);
                             group2 = cGroups.get(i + 1);
 
@@ -209,10 +209,10 @@ public class TAFParser {
             record.setWmoHeader(header.getWmoHeader());
 
             if (isAMD) {
-                record.setAmdIndicator(true);
+                record.setAmdIndicator(TafConstants.AMD_IND);
             }
             if (isCOR) {
-                record.setCorIndicator(true);
+                record.setCorIndicator(TafConstants.COR_IND);
             }
 
             ObStation location = null;
@@ -241,6 +241,7 @@ public class TAFParser {
     private void parseHeader(WMOHeader header) {
 
         record = new TafRecord();
+
 
         Matcher matcher = TafConstants.REPORT_HEADER.matcher(tafParts
                 .getTafHeader());
@@ -448,7 +449,7 @@ public class TAFParser {
         sb.append(" ");
 
         String indent = "";
-        for (int i = 0; i < (positions.size() - 1); i++) {
+        for (int i = 0; i < positions.size() - 1; i++) {
 
             int start = positions.get(i);
             int end = positions.get(i + 1);
