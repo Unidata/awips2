@@ -25,37 +25,33 @@ import org.eclipse.core.commands.ExecutionException;
 
 import com.raytheon.viz.ui.tools.AbstractTool;
 
-
-
 /**
  * Dummy action
+ * 
+ * FIXME Delete me and my whole plugin!
  * 
  * <pre>
  *
  * SOFTWARE HISTORY
  *
- * Date       	Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
  * 7/1/06                   chammack    Initial Creation.
+ * Sep 02, 2015  4749       njensen     Deprecated
  * 
  * </pre>
- *
+ * 
  * @author chammack
  * @version 1
  */
+@Deprecated
 public class NullTool extends AbstractTool {
 
-	/*
-	 * (non-Javadoc)
-	 * @see com.raytheon.viz.ui.tools.AbstractTool#runTool()
-	 */
-	@Override
-	public Object execute(ExecutionEvent arg0) throws ExecutionException {
-		super.execute(arg0);
-		// do nothing
-		return null;
-	}
+    @Override
+    public Object execute(ExecutionEvent arg0) throws ExecutionException {
+        super.execute(arg0);
+        // do nothing
+        return null;
+    }
 
-
-	
 }

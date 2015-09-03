@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: GFE Plug-in
 Bundle-SymbolicName: com.raytheon.viz.gfe;singleton:=true
-Bundle-Version: 1.15.0.qualifier
+Bundle-Version: 1.15.1.qualifier
 Bundle-Activator: com.raytheon.viz.gfe.Activator
 Bundle-Vendor: Raytheon
 Require-Bundle: org.eclipse.ui,
@@ -67,7 +67,6 @@ Import-Package: com.raytheon.uf.common.dissemination,
  com.raytheon.uf.viz.python.swt.widgets,
  com.raytheon.uf.viz.ui.menus.widgets.tearoff,
  com.raytheon.viz.texteditor.util,
- com.raytheon.viz.ui.tools.map,
  org.apache.commons.logging,
  org.eclipse.jdt.ui;resolution:=optional,
  org.eclipse.jface.text;resolution:=optional,
