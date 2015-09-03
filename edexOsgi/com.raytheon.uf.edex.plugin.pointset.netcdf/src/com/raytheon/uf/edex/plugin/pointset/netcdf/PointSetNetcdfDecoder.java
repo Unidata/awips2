@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
-import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
@@ -260,8 +259,18 @@ public class PointSetNetcdfDecoder {
             fillValue = fillAttribute.getNumericValue();
         }
         switch (dataType) {
+        case DOUBLE:
+            /*
+             * At this point in time(2015) there are no known cases of data
+             * being sent as a double and actually needing the extra precision,
+             * also not all pieces of CAVE currently support doubles so the
+             * precision would not be needed anyway. AMSR-2 derived surface wind
+             * speed is being needlessly sent as doubles. Because of all this,
+             * just convert doubles to floats.
+             */
         case FLOAT:
-            float[] fdata = (float[]) dataVariable.read().copyTo1DJavaArray();
+            float[] fdata = (float[]) dataVariable.read().get1DJavaArray(
+                    float.class);
             if (fillValue != null) {
                 float ffill = fillValue.floatValue();
                 for (int i = 0; i < fdata.length; i += 1) {
@@ -273,31 +282,22 @@ public class PointSetNetcdfDecoder {
             numericData = FloatBuffer.wrap(fdata);
             break;
         case BYTE:
-            byte[] bdata = (byte[]) dataVariable.read().copyTo1DJavaArray();
+            byte[] bdata = (byte[]) dataVariable.read().get1DJavaArray(
+                    byte.class);
             numericData = ByteBuffer.wrap(bdata);
             break;
         case SHORT:
-            short[] sdata = (short[]) dataVariable.read().copyTo1DJavaArray();
+            short[] sdata = (short[]) dataVariable.read().get1DJavaArray(
+                    short.class);
             numericData = ShortBuffer.wrap(sdata);
             break;
-        case DOUBLE:
-            double[] ddata = (double[]) dataVariable.read().copyTo1DJavaArray();
-            if (fillValue != null) {
-                double dfill = fillValue.doubleValue();
-                for (int i = 0; i < ddata.length; i += 1) {
-                    if (ddata[i] == dfill) {
-                        ddata[i] = Double.NaN;
-                    }
-                }
-            }
-            numericData = DoubleBuffer.wrap(ddata);
-            break;
         case INT:
-            int[] idata = (int[]) dataVariable.read().copyTo1DJavaArray();
+            int[] idata = (int[]) dataVariable.read().get1DJavaArray(int.class);
             numericData = IntBuffer.wrap(idata);
             break;
         case LONG:
-            long[] ldata = (long[]) dataVariable.read().copyTo1DJavaArray();
+            long[] ldata = (long[]) dataVariable.read().get1DJavaArray(
+                    long.class);
             numericData = LongBuffer.wrap(ldata);
             break;
         default:
