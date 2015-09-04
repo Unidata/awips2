@@ -50,6 +50,7 @@ import com.raytheon.viz.hydrocommon.HydroDataCache;
  * 13Oct2008    1580       askripsky   Refactored
  * 21 Feb 2010  2915       mpduff      Fixed Time Zone problem.
  * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
+ * Sep 03, 2015 4845       rjpeter     Fix NPE.
  * </pre>
  * 
  * @author ebabin
@@ -252,7 +253,7 @@ public class StationReportingDataManager {
                             srd.setValue((Double) oa[6]);
                             srd.setRevision(((Number) oa[7]).shortValue());
                             srd.setShefQualCode((String) oa[8]);
-                            srd.setQualityCode(((Number) oa[9]).intValue());
+                            srd.setQualityCode((Number) oa[9]);
                             srd.setProductId((String) oa[10]);
                             srd.setProducttime(currentTimeFormat
                                     .format((Date) oa[11]));
@@ -303,7 +304,7 @@ public class StationReportingDataManager {
         retVal.setShefQualCode(dataRow[7].toString());
 
         if (dataRow[8] != null) {
-            retVal.setQualityCode(((Number) dataRow[8]).intValue());
+            retVal.setQualityCode((Number) dataRow[8]);
         }
 
         if (dataRow[9] != null) {
