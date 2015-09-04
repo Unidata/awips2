@@ -74,12 +74,10 @@
 			<param name="feature"
 				value="com.raytheon.uf.edex.radar.feature" />
 		</antcall>
-		<!--
 		<antcall target="build">
 			<param name="feature"
 				value="com.raytheon.uf.edex.dat.feature" />
 		</antcall>
-		-->
 		<antcall target="build">
 			<param name="feature"
 				value="com.raytheon.uf.edex.ncep.feature" />
