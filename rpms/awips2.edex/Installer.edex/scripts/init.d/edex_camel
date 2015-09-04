@@ -60,15 +60,13 @@ export DATA_ARCHIVE_ROOT=/tmp/sbn
 # what to do to get pids of an EDEX instance
 # $1 == instance token
 getCamelAndWrapperPids() {
-   _camel_pid=`pgrep -f "java.*-Dedex.run.mode=${1} "`
+   _camel_pid=`pgrep -f  -u $EDEXUSER "java -Dedex.run.mode=${1} "`
    if [ "$_camel_pid" != "" ]; then
-      # grab wrapper pid from edex process, run throw awk to throw away leading white space
+      # occasionally will get more than one running, grab parent for first one only
+      _camel_pid="${_camel_pid%% *}"
+
+      # grab wrapper pid from edex process, run through awk to throw away leading white space
       _wrapper_pid=`ps --no-headers -p $_camel_pid -o ppid | awk '{print $1}'`
-      # if wrapper died, camel's parent will be 1, don't report that as the wrapper
-      if [ "$_wrapper_pid" == "1" ]
-      then
-          _wrapper_pid=""
-      fi
    else
       # camel not up, double check wrapper pid file
       pidfile=${EDEX_INSTALL}/bin/${1}.pid
@@ -92,7 +90,7 @@ getCamelAndWrapperPids() {
 # $1 == instance token
 startEDEX() {
    getCamelAndWrapperPids ${1}
-   if [ "$_wrapper_pid" != "" ]; then
+   if [ "$_wrapper_pid" != "" -o "$_camel_pid" != "" ]; then
       echo "WARNING: EDEX ${1} instance already running, not starting another instance"
       return 1
    fi
@@ -144,18 +142,25 @@ stopEDEX() {
    while [ "${_wrapper_pid}${_camel_pid}" != "" ]; do
       if [ "$_wrapper_pid" != "$savepid" ]; then
          # only display warning when other wrapper starts (not if wrapper died)
-         if [ -n "$_wrapper_pid" ]
-         then
-            echo "WARNING: EDEX ${1} instance running under new pid, started by another user?"
+         if [ "$_wrapper_pid" != "" ]; then
+            kill $_wrapper_pid
+            savepid=$_wrapper_pid
          fi
-         return 1
       fi
 
       let cnt+=1
+      let mod10=cnt%10
 
-      if [ $cnt -eq 10 ]; then
+      if [ $cnt -ge 300 ]; then
+         echo "Force killing EDEX ${1}"
+         if [ "$_camel_pid" != "" ]; then
+            kill -9 $_camel_pid
+         fi
+         if [ "$_wrapper_pid" != "" ]; then
+            kill -9 $_wrapper_pid
+         fi
+      elif [ $mod10 -eq 0 ]; then
          echo "Waiting for EDEX ${1} to shutdown"
-         cnt=0;
       fi
 
       sleep 1
