@@ -345,7 +345,7 @@ shef_out : OFF
 
 #===================== WHFS Applications Tokens ================================
 
-whfs_base_dir          : $(apps_dir)/whfs    # top of the WHFS tree
+whfs_base_dir          : /awips2/edex/data/share/hydroapps/whfs    # top of the WHFS tree
 whfs_local_dir         : $(whfs_base_dir)/local       # top of WHFS local tree
 whfs_local_data_dir    : $(whfs_local_dir)/data       # top of WHFS local data tree
 whfs_local_grid_dir    : $(whfs_local_data_dir)/grid  # top of WHFS grids tree
