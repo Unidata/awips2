@@ -77,16 +77,18 @@ function buildQPID()
       return 1
    fi
 
-   #build
+   #build 
    export AWIPS_II_TOP_DIR
-   cd ${WORKSPACE}/installers/RPMs/qpid-java-broker
+   cd ${WORKSPACE}/installers/RPMs/qpid-java-broker/
    if [ $? -ne 0 ]; then
       echo "ERROR: Failed to build Qpid Broker"
+      echo "could not cd to ${WORKSPACE}/installers/RPMs/qpid-java-broker/"
       return 1
    fi
    /bin/bash build.sh
    if [ $? -ne 0 ]; then
       echo "ERROR: Failed to build Qpid Broker"
+      echo "build.sh failed"
       return 1
    fi
 
