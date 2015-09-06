@@ -111,7 +111,6 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-_QPID_VERSION="0.30"
 RPM_PROJECT="%{_baseline_workspace}/rpms"
 POSTGRES_INITD="${RPM_PROJECT}/awips2.core/Installer.postgres/scripts/init.d/edex_postgres"
 QPID_INITD="%{_baseline_workspace}/foss/qpid-java-broker/src/patch/qpid-java-broker/wrapper/qpidd"
