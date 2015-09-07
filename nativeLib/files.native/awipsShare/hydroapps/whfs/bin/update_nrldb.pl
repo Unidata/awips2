@@ -42,7 +42,7 @@ $config->define('help',{ ALIAS => 'h',ARGCOUNT => ARGCOUNT_NONE, ARGS => '!',DEF
 $config->define('man',{ ALIAS => 'm',ARGCOUNT => ARGCOUNT_NONE, ARGS => '!',DEFAULT => 0});
 $config->define('DBengine',{ VALIDATE => '[\w]+',DEFAULT => "Pg"});
 $config->define('DBname',{ VALIDATE => '[\w]+',DEFAULT => "hd_ob8xxx"});
-$config->define('DBhost',{ VALIDATE => '[-\w]+',DEFAULT => "dx1f"});
+$config->define('DBhost',{ VALIDATE => '[-\w]+',DEFAULT => "localhost"});
 $config->define('DBport',{ ARGS => '=i',DEFAULT => 5432});
 $config->define('master',{ VALIDATE => '[.\w]+',DEFAULT => "HGstation"});
 $config->define('basedir',{ VALIDATE => '[- /.\w]+',DEFAULT => $ENV{HYDROGENHOME} . "/bin"});
