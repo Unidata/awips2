@@ -4,7 +4,7 @@
 	of adding sites to subscribe to in the feed -->
 <siteConfigInformation>
 	<!-- hosts must be added, these will show up in the login dialog -->
-	<server hostname="dx1-oma.oma.us.ray.com" prettyName="Omaha Cluster"></server>
+	<server hostname="localhost" prettyName="Omaha Cluster"></server>
 	<!--  <server hostname="dx3-oma.oma.us.ray.com" prettyName="Omaha Secondary Cluster"></server>-->
 	<config site="OAX">
 		<subscribedSites>OAX</subscribedSites>

@@ -113,12 +113,10 @@ def serverBoxText(server):
     #returns text based on the server dictionary that should be placed
     #into the dialog
     hostport = None
-    if server['host'][0:3] in ['dx4', 'px3'] and server['port'] in \
-      ['98000000', '98000001']:
-        if server['port'] == "98000000":
-            hostport = server['host'] + "-primary"
-        elif server['port'] == "98000001":
-            hostport = server['host'] + "-svcbu"
+    if server['port'] == "98000000":
+        hostport = server['host'] + "-primary"
+    elif server['port'] == "98000001":
+        hostport = server['host'] + "-svcbu"
 
     if hostport is None:
         hostport = server['host'] + "/" + server['port']
@@ -142,21 +140,13 @@ def sortServers(a, b):
         return 1
     #both are same sites, check for host next
     else:
-        regHostA = (a['host'][0:3] in ['dx4', 'px3'])
-        regHostB = (b['host'][0:3] in ['dx4', 'px3'])
-        if regHostA and not regHostB:
+        regPortA = (a['port'] == "98000000")
+        regPortB = (b['port'] == "98000000")
+        if regPortA and not regPortB:
             return -1
-        elif not regHostA and regHostB:
+        elif not regPortA and regPortB:
             return 1
-        # same host, but not preferred host
-        else:
-            regPortA = (a['port'] == "98000000")
-            regPortB = (b['port'] == "98000000")
-            if regPortA and not regPortB:
-                return -1
-            elif not regPortA and regPortB:
-                return 1
-            return 1   #must be non-standard, put at end of list
+        return 1   #must be non-standard, put at end of list
 
 def createDomainDict(xml):
         irt = IrtAccess.IrtAccess("")

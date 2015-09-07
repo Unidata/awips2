@@ -115,7 +115,9 @@ for PARM in $PARMS
 do
      # NOTE: cannot run ifpIMAGE on dx3/dx4 - must ssh to a px
      echo "Creating ${PARM} image..." >> $LOG_FILE
-     ssh -x px2f "unset DISPLAY; ${GFEBINdir}/ifpIMAGE -site ${SITE} -c ${PARM} -o ${PRODUCTdir}"
+     #ssh -x px2f "unset DISPLAY; ${GFEBINdir}/ifpIMAGE -site ${SITE} -c ${PARM} -o ${PRODUCTdir}"
+     # 2015-09-07  mjames@ucar - remove px2f for standalone installation
+     unset DISPLAY; ${GFEBINdir}/ifpIMAGE -site ${SITE} -c ${PARM} -o ${PRODUCTdir}
      convert ${PRODUCTdir}/${SITE}${PARM}.png -resize 104x148 ${PRODUCTdir}/${SITE}${PARM}_sm.png
 done
     
@@ -123,7 +125,9 @@ rm -f ${PRODUCTdir}/*.info
     
 # Generate KML automatically via runProcedure
 echo "Running KML procedure." >> $LOG_FILE
-ssh -x px2f "unset DISPLAY; ${GFEBINdir}/runProcedure -site ${SITE} -n TCImpactGraphics_KML -c gfeConfig"
+#ssh -x px2f "unset DISPLAY; ${GFEBINdir}/runProcedure -site ${SITE} -n TCImpactGraphics_KML -c gfeConfig"
+# 2015-09-07  mjames@ucar 
+unset DISPLAY; ${GFEBINdir}/runProcedure -site ${SITE} -n TCImpactGraphics_KML -c gfeConfig
 
 # Create legends for KML
 ${HTI_HOME}/bin/kml_legend.sh

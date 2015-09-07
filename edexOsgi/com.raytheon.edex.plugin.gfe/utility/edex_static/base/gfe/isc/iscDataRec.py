@@ -121,7 +121,7 @@ def execIscDataRec(MSGID,SUBJECT,FILES):
             iscE = Element('isc')
             destinationsE = SubElement(iscE, 'destinations')
             for x in xrange(98000000, 98000002):
-                for shost in ['dx4f','px3f']:
+                for shost in ['localhost']:
                     addressE = SubElement(destinationsE, 'address')
                     serverE = SubElement(addressE, 'server')
                     serverE.text = shost
