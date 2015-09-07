@@ -171,10 +171,10 @@ PprocSrv.purge_mpe_files                       : ON
 PprocSrv.purge_hpe_file                        : ON
 MpeFieldGenSrv.run_mpe_fieldgen                : ON
 WhfsSrv.run_pdc_pp                             : ON
-WhfsSrv.run_alarm_whfs                         : ON
-WhfsSrv.run_alarm_whfs.run_roc_checker         : ON
-WhfsSrv.run_alarm_whfs.run_report_alarm        : ON
-WhfsSrv.run_alarm_whfs.run_report_alarm.textdb : ON
+WhfsSrv.run_alarm_whfs                         : OFF
+WhfsSrv.run_alarm_whfs.run_roc_checker         : OFF
+WhfsSrv.run_alarm_whfs.run_report_alarm        : OFF
+WhfsSrv.run_alarm_whfs.run_report_alarm.textdb : OFF
 ArealQpeGenSrv                                 : ON
 DqcPreProcSrv                                  : ON
 DqcPreProcSrv.run_dqc_preprocessor             : ON
