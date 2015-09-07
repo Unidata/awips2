@@ -316,7 +316,7 @@ function restoreHydroDb()
    # update pg_hba.conf
    
    local default_damcat="dc_ob7oax"
-   local default_ihfs="hd_ob83oax"
+   local default_ihfs="hd_ob92oax"
    local pg_hba_conf="/awips2/data/pg_hba.conf"
    
    # update the entry for the damcat database
