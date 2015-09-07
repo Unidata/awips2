@@ -6,7 +6,7 @@
 
 # --------TOKENS THAT SHOULD BE AT ALL SITES-----------
 #  database selection tokens
-db_name           : hd_ob83oax   # ihfs database name
+db_name           : hd_ob92oax   # ihfs database name
 damcat_db_name    : dc_ob7oax	# Dam Catalog database name
 
 # ===========================================================================
