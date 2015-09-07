@@ -15,7 +15,8 @@ Vendor: Unidata
 Packager: Michael James
 
 AutoReq: no
-Requires: awips2-tools, awips2-edex-configuration, awips2-database-standalone-configuration, ksh
+Requires: awips2-tools, awips2-edex-configuration, awips2-database-standalone-configuration
+Requires: ksh, libstdc++-4.4.7-16.el6.i686, libgfortran-4.4.7-16.el6.i686
 provides: awips2-edex-upc
 
 %description
