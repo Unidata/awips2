@@ -79,9 +79,10 @@ public class ConfigureTextProductsHandler implements
     public Object handleRequest(ConfigureTextProductsRequest request)
             throws Exception {
         String site = request.getSite();
-        Configurator configurator = new Configurator(site);
-        configurator.execute();
-        log.info(String.format("configureTextProducts ran for site %s", site));
+//        Configurator configurator = new Configurator(site);
+//        configurator.execute();
+//        log.info(String.format("configureTextProducts ran for site %s", site));
+      log.info(String.format("configureTextProducts skipped for site %s", site));
 
         return null;
     }

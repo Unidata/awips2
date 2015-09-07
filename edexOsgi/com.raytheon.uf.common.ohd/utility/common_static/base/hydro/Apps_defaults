@@ -247,7 +247,7 @@ pghost             : localhost     # The machine PostGres is running on
 pguser             : awips         # The user allowed to access PostGres
 pgport             : 5432          # The PostGres Server port
 adb_name           : adb_ob7xxx    # RFC archive database name
-rax_pghost         : ax            # The machine PostGres is running on for the adb
+rax_pghost         : localhost     # The machine PostGres is running on for the adb
 
 # vacuum log dir token.
 vacuum_log_dir     : $(whfs_log_dir)/vacuum
