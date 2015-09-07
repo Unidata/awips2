@@ -779,7 +779,7 @@ void ShowShefdecoderDS ( Widget w )
          fprintf ( stderr , "\nIn routine ShowShefdecodeDS:\n"
                    "Could not retrieve the value of the shefdecode_host\n"
                    "token.  A default value of 'ds' is being used.\n" ) ;
-         strcpy ( shefdecode_hostname , "dx1f" ) ;
+         strcpy ( shefdecode_hostname , "localhost" ) ;
       }
       else
       {

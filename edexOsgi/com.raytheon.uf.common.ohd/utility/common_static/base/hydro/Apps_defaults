@@ -239,15 +239,15 @@ mpe_display_maps   : statesCounties
 #################################################################################
 
 #  database selection tokens
-server_name        : ONLINE      # Informix database server name
-db_name            : hd_ob92lwx # IHFS database name
-damcat_db_name     : dc_ob5xxx   # Dam Catalog database name
+server_name        : ONLINE        # Informix database server name
+db_name            : hd_ob92lwx    # IHFS database name
+damcat_db_name     : dc_ob5xxx     # Dam Catalog database name
 hdb_db_name        : ob81_histdata # Historical database. 
-pghost             : dx1f         # The machine PostGres is running on
-pguser             : awips      # The user allowed to access PostGres
-pgport             : 5432        # The PostGres Server port
-adb_name           : adb_ob7xxx  # RFC archive database name
-rax_pghost         : ax          # The machine PostGres is running on for the adb
+pghost             : localhost     # The machine PostGres is running on
+pguser             : awips         # The user allowed to access PostGres
+pgport             : 5432          # The PostGres Server port
+adb_name           : adb_ob7xxx    # RFC archive database name
+rax_pghost         : ax            # The machine PostGres is running on for the adb
 
 # vacuum log dir token.
 vacuum_log_dir     : $(whfs_log_dir)/vacuum
@@ -281,11 +281,11 @@ damcrest_res_dir        : $(whfs_config_dir)/damcrest
 #===================== SHEFDECODE Application Tokens ================================
 
 shefdecode_userid  : oper                     # controlling UNIX user
-shefdecode_host    : dx1f                     # controlling UNIX system.
+shefdecode_host    : localhost                # controlling UNIX system.
 shefdecode_dir     : $(apps_dir)/shefdecode   # main directory location
 shefdecode_bin     : $(shefdecode_dir)/bin    # executable programs location
 shefdecode_input   : $(shefdecode_dir)/input  # SHEF parameter file location
-shef_data_dir      : /awips2/edex/data/shef    # input products location
+shef_data_dir      : /awips2/edex/data/shef   # input products location
 
 shefdecode_log     : $(shefdecode_dir)/logs/decoder  # daily log files location
 shef_error_dir     : $(shefdecode_dir)/logs/product  # product log files location
@@ -397,7 +397,7 @@ sws_home_dir           : $(whfs_bin_dir)/pa   # SWS dir
 # -----------------------------------------------------------------
 
 gage_pp_userid     : oper                     # controlling UNIX user
-gage_pp_host       : dx                       # controlling UNIX system
+gage_pp_host       : localhost                # controlling UNIX system
 gage_pp_data       : $(pproc_local_data)/gpp_input  # input data files location 
 gage_pp_log        : $(pproc_log)/gage_pp     # daily log files location
 gage_pp_sleep	   : 10	  # sleep duration in seconds in between queries

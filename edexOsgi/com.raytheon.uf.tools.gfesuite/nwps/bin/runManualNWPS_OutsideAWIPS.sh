@@ -41,8 +41,8 @@ DIR="/data/ldad/nwps/input"
 
 Program="/awips2/GFESuite/bin/ifpnetCDF"
 DB="${SITEID}_GRID__Fcst_00000000_0000"
-GFESERVER="ec"
-RUNSERVER="px"
+GFESERVER="localhost"
+RUNSERVER="localhost"
 WRKSWN="${NWPSLOCAL}/SUAWRKNWP.dat"
 
 Output_Dir="${NWPSLOCAL}/input"

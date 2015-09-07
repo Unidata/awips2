@@ -59,7 +59,7 @@ export FXA_BIN_DIR=$FXA_HOME/bin
 # The following variables provide a JDBC URL or pieces thereof for
 # SSHP and any other java programs that access the IHFS database
 # The final form of the url is something like  
-# jdbc:postgresql://dx1:5432/hd_ob6abc?user=oper
+# jdbc:postgresql://localhost:5432/hd_ob6abc?user=oper
 
 export PGHOST=$(get_apps_defaults pghost)
 export PGPORT=$(get_apps_defaults pgport)

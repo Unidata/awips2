@@ -577,8 +577,10 @@ class IrtAccess():
     
             # server search list in priority.  The px3 entries are used for
             # dual domain for AFC.
-            hp = [('dx4','98000000'),('px3', '98000000'), ('dx4','98000001'),
-              ('px3', '98000001')]
+            #hp = [('dx4','98000000'),('px3', '98000000'), ('dx4','98000001'),
+            #  ('px3', '98000001')]
+	    # 2015-09-07 mjames@ucar
+            hp = [('localhost','98000000'),('localhost','98000001')]
     
             # choose one server from this domain, find first dx4, 98000000
             # try to use one with the same mhsidDest as the site, which
