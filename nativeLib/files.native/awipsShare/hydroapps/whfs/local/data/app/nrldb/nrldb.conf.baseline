@@ -1,4 +1,4 @@
-dbhost = "dx1f"
+dbhost = "localhost"
 dbuser = "awips"
 dbpass = ""
 nrldb_host = "165.92.28.1"
