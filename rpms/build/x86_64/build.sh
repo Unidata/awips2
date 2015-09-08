@@ -277,13 +277,13 @@ if [ "${1}" = "-httpd" ]; then
    exit 0
 fi
 if [ "${1}" = "-postgres" ]; then
-#   buildRPM "awips2-postgres"
-#   buildRPM "awips2-database-server-configuration"
-#   buildRPM "awips2-database-standalone-configuration"
-#   buildRPM "awips2-database"
+   buildRPM "awips2-postgres"
+   buildRPM "awips2-database-server-configuration"
+   buildRPM "awips2-database-standalone-configuration"
+   buildRPM "awips2-database"
 #   buildRPM "awips2-maps-database"
 #   buildRPM "awips2-ncep-database"
-   buildRPM "awips2-pgadmin3"
+#   buildRPM "awips2-pgadmin3"
 
    exit 0
 fi
@@ -518,19 +518,19 @@ if [ "${1}" = "-cave" ]; then
 fi
 
 if [ "${1}" = "-other" ]; then
-   buildRPM "awips2-yajsw"
+   #buildRPM "awips2-yajsw"
    buildRPM "awips2-hydroapps-shared"
-   buildRPM "awips2-tools"
-   buildRPM "awips2-pypies"
-   buildRPM "awips2-adapt-native"
-   buildRPM "awips2-aviation-shared"
+   #buildRPM "awips2-tools"
+   #buildRPM "awips2-pypies"
+   #buildRPM "awips2-adapt-native"
+   #buildRPM "awips2-aviation-shared"
    ##buildRPM "awips2-edex-environment"
-   buildRPM "awips2-cli"
-   buildRPM "awips2-data.gfe"
-   buildRPM "awips2-data.hdf5-topo"
-   buildRPM "awips2-gfesuite-client"
-   buildRPM "awips2-gfesuite-server"
-   buildRPM "awips2-groovy"
+   #buildRPM "awips2-cli"
+   #buildRPM "awips2-data.gfe"
+   #buildRPM "awips2-data.hdf5-topo"
+   #buildRPM "awips2-gfesuite-client"
+   #buildRPM "awips2-gfesuite-server"
+   #buildRPM "awips2-groovy"
 fi
 
 if [ "${1}" = "-viz" ]; then
