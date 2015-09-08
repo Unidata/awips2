@@ -44,7 +44,7 @@
                     <setHeader headerName="dequeueTime">
                         <method bean="acarsSounding" method="getQueueTime" />
                     </setHeader>
-                    <to uri="jms-generic:queue:acarsSounding" />
+                    <to uri="jms-durable:queue:acarssounding" />
                  </pipeline>
                  <doCatch>
                     <exception>java.lang.Throwable</exception>
@@ -55,7 +55,7 @@
         </route>
         
         <route id="acarsSoundingProcessing">
-           <from uri="jms-generic:queue:acarsSounding" />
+           <from uri="jms-durable:queue:acarssounding" />
            <doTry>
               <pipeline>
                  <bean ref="acarsSounding" method="processSounding" />
