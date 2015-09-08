@@ -20,74 +20,6 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-    <contribute xsi:type="titleItem" titleText="--- UNIWISC Imagery ---" id="UniwiscImagery" />
-    <contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
-        menuText="GOES Sounder - Ozone" id="GOES-Sounder-Ozone">
-        <substitute key="element" value="Sounder Based Total Column Ozone"/>
-        <substitute key="entity" value="SOUNDER" /> 
-        <substitute key="sector" value="GOES-Sounder" />     
-        <substitute key="colormap" value="Sat/Ozone/Ozone"/>
-    </contribute>
-    <contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
-        menuText="Arctic - VIS" id="Arctic-Vis">
-        <substitute key="element" value="Imager Visible"/>
-        <substitute key="entity" value="COMP" /> 
-        <substitute key="sector" value="Arctic" />     
-        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
-    </contribute>
-    <contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
-        menuText="Arctic - 11 micron IR" id="Arctic-IR1">
-        <substitute key="element" value="Imager 11 micron IR"/>
-        <substitute key="entity" value="COMP" /> 
-        <substitute key="sector" value="Arctic" />     
-        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-    </contribute>
-    <contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
-        menuText="Arctic - 12 micron IR" id="Arctic-IR2">
-        <substitute key="element" value="Imager 12 micron IR"/>
-        <substitute key="entity" value="COMP" /> 
-        <substitute key="sector" value="Arctic" />     
-        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-    </contribute>
-    <contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
-        menuText="Arctic - WV" id="Arctic-WV">
-        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
-        <substitute key="entity" value="COMP" /> 
-        <substitute key="sector" value="Arctic" />     
-        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
-    </contribute>
-    <contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
-        menuText="Arctic - 3.5-4.0 micro IR (Fog)" id="Arctic-Fog">
-        <substitute key="element" value="Imager 3.5-4.0 micro IR (Fog)"/>
-        <substitute key="entity" value="COMP" /> 
-        <substitute key="sector" value="Arctic" />     
-        <substitute key="colormap" value="Sat/IR/Fog"/>
-    </contribute>
-    
-    
-    
-    <contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
-        menuText="Antarctica - VIS" id="Arctic-Vis">
-        <substitute key="element" value="Imager Visible"/>
-        <substitute key="entity" value="COMP" /> 
-        <substitute key="sector" value="Antarctic" />     
-        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
-    </contribute>
-    <contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
-        menuText="Antarctica - IR" id="Arctic-IR1">
-        <substitute key="element" value="Imager 12 micron IR"/>
-        <substitute key="entity" value="COMP" /> 
-        <substitute key="sector" value="Antarctic" />     
-        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-    </contribute>
-    <contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
-        menuText="Antarctica - WV" id="Arctic-WV">
-        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
-        <substitute key="entity" value="COMP" /> 
-        <substitute key="sector" value="Antarctica" />     
-        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
-    </contribute>
-
     <contribute xsi:type="satBundleItem" file="bundles/DefaultCompositeSatellite.xml" 
                 menuText="IR Window" id="irWindow">
         <substitute key="timeMatchMode" value="${blendedTimeMatchMode;ALL_IMAGES}"/>
@@ -139,5 +71,67 @@
 		<substitute key="element1" value="Imager 13 micron (IR)"/>
 		<substitute key="element2" value="Imager Visible"/>
 		<substitute key="element3" value="Imager 6.7-6.5 micron IR (WV)"/>
+	</contribute>
+
+	<contribute xsi:type="subMenu" menuText="Arctic Composites">
+	    <contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
+	        menuText="Arctic - VIS" id="Arctic-Vis">
+	        <substitute key="element" value="Imager Visible"/>
+	        <substitute key="entity" value="COMP" /> 
+	        <substitute key="sector" value="Arctic" />     
+	        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+	    </contribute>
+	    <contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
+	        menuText="Arctic - 11 micron IR" id="Arctic-IR1">
+	        <substitute key="element" value="Imager 11 micron IR"/>
+	        <substitute key="entity" value="COMP" /> 
+	        <substitute key="sector" value="Arctic" />     
+	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+	    </contribute>
+	    <contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
+	        menuText="Arctic - 12 micron IR" id="Arctic-IR2">
+	        <substitute key="element" value="Imager 12 micron IR"/>
+	        <substitute key="entity" value="COMP" /> 
+	        <substitute key="sector" value="Arctic" />     
+	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+	    </contribute>
+	    <contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
+	        menuText="Arctic - WV" id="Arctic-WV">
+	        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+	        <substitute key="entity" value="COMP" /> 
+	        <substitute key="sector" value="Arctic" />     
+	        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
+	    </contribute>
+	    <contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
+	        menuText="Arctic - 3.5-4.0 micro IR (Fog)" id="Arctic-Fog">
+	        <substitute key="element" value="Imager 3.5-4.0 micro IR (Fog)"/>
+	        <substitute key="entity" value="COMP" /> 
+	        <substitute key="sector" value="Arctic" />     
+	        <substitute key="colormap" value="Sat/IR/Fog"/>
+	    </contribute>
+	</contribute>
+	
+    <contribute xsi:type="subMenu" menuText="Antarctica Composites">
+	    <contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
+	        menuText="Antarctica - VIS" id="Arctic-Vis">
+	        <substitute key="element" value="Imager Visible"/>
+	        <substitute key="entity" value="COMP" /> 
+	        <substitute key="sector" value="Antarctic" />     
+	        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+	    </contribute>
+	    <contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
+	        menuText="Antarctica - IR" id="Arctic-IR1">
+	        <substitute key="element" value="Imager 12 micron IR"/>
+	        <substitute key="entity" value="COMP" /> 
+	        <substitute key="sector" value="Antarctic" />     
+	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+	    </contribute>
+	    <contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
+	        menuText="Antarctica - WV" id="Arctic-WV">
+	        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+	        <substitute key="entity" value="COMP" /> 
+	        <substitute key="sector" value="Antarctica" />     
+	        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
+	    </contribute>
 	</contribute>
 </menuTemplate>
