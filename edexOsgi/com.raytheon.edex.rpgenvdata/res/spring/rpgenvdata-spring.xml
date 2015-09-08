@@ -36,6 +36,18 @@
         <constructor-arg value="cronOTRs.xml" />
         <constructor-arg ref="radarServerNdmListener" />
     </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="elevationLists.txt" />
+        <constructor-arg ref="radarServerNdmListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="tdwrElevations.txt" />
+        <constructor-arg ref="radarServerNdmListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="ssssElevationLists.txt" />
+        <constructor-arg ref="radarServerNdmListener" />
+    </bean>
 
     <camelContext id="rpgenvdata-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
 

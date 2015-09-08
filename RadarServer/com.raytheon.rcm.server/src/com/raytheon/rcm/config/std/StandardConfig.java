@@ -38,6 +38,7 @@ import com.raytheon.rcm.config.MutableConfiguration;
 import com.raytheon.rcm.config.ProductDistributionInfo;
 import com.raytheon.rcm.config.RadarConfig;
 import com.raytheon.rcm.config.RadarType;
+import com.raytheon.rcm.config.RcmResourceProvider;
 import com.raytheon.rcm.config.RcmUtil;
 import com.raytheon.rcm.config.StandardProductDistInfoDB;
 import com.raytheon.rcm.config.awips1.Awips1RpsListUtil;
@@ -65,6 +66,7 @@ import com.raytheon.uf.common.serialization.SerializationException;
  * 2014-02-03   DR 14762   D. Friedman Handle updated NDM config files.
  *                                     Send configuration events.
  * 2015-06-10   4498       nabowle     Switch to JAXBManager. Rename Util->RcmUtil.
+ * 2015-09-08   DR 17944   D. Friedman Handle elevation list file updates.
  * </pre>
  *
  */
@@ -506,6 +508,28 @@ public class StandardConfig implements Configuration, MutableConfiguration {
     public void setConfigurationEventTarget(
             RadarEventListener configurationEventTarget) {
         this.configurationEventTarget = configurationEventTarget;
+    }
+
+    private class StandardRcmResourceProvider extends RcmResourceProvider {
+        @Override
+        public InputStream getResourceAsStream(String resource) {
+            try {
+                return getDropInData(resource);
+            } catch (IOException e) {
+                Log.errorf("Could not open resource/NDM file %s: %s", resource, e);
+                return null;
+            }
+        }
+        protected void notifyResourceChanged(String resource) {
+            super.notifyResourceChanged(resource);
+        }
+    };
+    StandardRcmResourceProvider rcmResourceProvider = new StandardRcmResourceProvider();
+
+    public RcmResourceProvider getRcmResourceProvider() { return rcmResourceProvider; }
+
+    /*package*/ void notifyResourceChanged(String name) {
+        rcmResourceProvider.notifyResourceChanged(name);
     }
 
 }

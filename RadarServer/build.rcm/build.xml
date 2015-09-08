@@ -259,6 +259,14 @@
                 <exclude name="**/config.xml"/>
             </fileset>
         </copy>
+        <copy todir="${deploy.dir}/data/config/drop-ins" verbose="true">
+            <filterset refid="installer.filter.set" />
+            <fileset dir="${edexsrc.dir}/com.raytheon.edex.plugin.radar/utility/common_static/base/radar">
+                <include name="elevationLists.txt"/>
+                <include name="tdwrElevations.txt"/>
+                <include name="ssssElevationLists.txt"/>
+            </fileset>
+        </copy>
         <!-- this is required because config.xml contains an '@' in a url -->
         <copy todir="${deploy.dir}" verbose="false">
             <filterset refid="config.xml.filter.set"/>

@@ -36,6 +36,7 @@ import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 
 /**
@@ -76,7 +77,7 @@ public class TerminalRadarUtils {
         if (radarElevations == null) {
             radarElevations = new HashMap<String, List<Double>>();
         }
-        File file = getElevationsFile();
+        File file = getElevationsFile().getFile();
         radarElevations = new HashMap<String, List<Double>>();
         String line = "";
         BufferedReader reader = null;
@@ -131,12 +132,12 @@ public class TerminalRadarUtils {
         return radarElevations;
     }
 
-    public static File getElevationsFile() {
+    public static LocalizationFile getElevationsFile() {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext context = pathMgr.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
         return pathMgr.getLocalizationFile(context,
-                "radar" + File.separator + "tdwrElevations.txt").getFile();
+                "radar" + File.separator + "tdwrElevations.txt");
     }
 
     public static Map<Double, Double> getPrimarysMap(String site) {

@@ -25,7 +25,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Scanner;
+
+import com.raytheon.rcm.config.RcmResourceProvider;
 
 /**
  * TODO Add Description
@@ -46,14 +49,38 @@ import java.util.Scanner;
 public class ElevationInfo {
 	// TODO: check all handling of -1/null vcp
 	
-	private static ElevationInfo instance;
-	public static ElevationInfo getInstance() {
-		synchronized (ElevationInfo.class) {
-			if (instance == null)
-				instance = new ElevationInfo();
-		}
-		return instance;
-	}
+    public static final List<String> ELEVATION_LIST_RESOURCE_NAMES = Arrays.asList(
+            "elevationLists.txt", "tdwrElevations.txt",
+            "ssssElevationLists.txt");
+    private static volatile ElevationInfo instance;
+    private static volatile Runnable invalidateInstance;
+    public static ElevationInfo getInstance() {
+        ElevationInfo result = instance;
+        if (result == null) {
+            synchronized (ElevationInfo.class) {
+                result = instance;
+                if (result == null) {
+                    if (invalidateInstance == null) {
+                        invalidateInstance = new Runnable() {
+
+                            @Override
+                            public void run() {
+                                synchronized (ElevationInfo.class) {
+                                    instance = null;
+                                }
+                            }
+                        };
+                        RcmResourceProvider provider = RcmResourceProvider.getInstance();
+                        for (String resource : ELEVATION_LIST_RESOURCE_NAMES) {
+                            provider.addResourceChangeListener(resource, invalidateInstance);
+                        }
+                    }
+                    instance = result = new ElevationInfo();
+                }
+            }
+        }
+        return result;
+    }
 	
 	/* want to be private, but needed by Loader */
 	static class Sel {
@@ -97,7 +124,7 @@ public class ElevationInfo {
 		Scanner fs;
 		InputStream s;
 		
-		s = ElevationInfo.class.getResourceAsStream("elevationLists.txt");
+		s = RcmResourceProvider.getInstance().getResourceAsStream("elevationLists.txt");
 		fs = new Scanner(s);
 		try {
 			Loader.loadElevationInfo(fs, staticInfo, vcpInfo);
@@ -106,7 +133,7 @@ public class ElevationInfo {
 		}
 
 		// Load SSSS radar elevation lists
-		s = ElevationInfo.class.getResourceAsStream("ssssElevationLists.txt");
+		s = RcmResourceProvider.getInstance().getResourceAsStream("ssssElevationLists.txt");
 		fs = new Scanner(s);
 		try {
 			Loader.loadSsssElevationInfo(fs, staticInfo);
@@ -114,7 +141,7 @@ public class ElevationInfo {
 			fs.close();
 		}
 		
-		s = ElevationInfo.class.getResourceAsStream("tdwrElevations.txt");
+		s = RcmResourceProvider.getInstance().getResourceAsStream("tdwrElevations.txt");
 		fs = new Scanner(s);
 		try {
 			Loader.loadTdwrElevationInfo(fs, staticInfo);
