@@ -69,6 +69,10 @@
 #    Jul 17, 2015    4575          njensen        callSmartTool() and callProcedure() send HashMap for varDict
 #    Aug 13, 2015    4704          randerso       Added NumpyJavaEnforcer support in createGrids and decodeEditArea
 #                                                 additional code cleanup
+#    Aug 26, 2015    4809          randerso       Added option group parameter to editAreaList()
+#    Aug 26, 2015    4804          dgilling       Added callTextFormatter().
+#    Aug 27, 2015    4805          dgilling       Added saveCombinationsFile().
+#    Aug 27, 2015    4806          dgilling       Added transmitTextProduct().
 ########################################################################
 import types, string, time, sys
 from math import *
@@ -100,6 +104,13 @@ from com.raytheon.uf.common.dataplugin.gfe.db.objects import TimeConstraints
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import GridParmInfo
 GridType = GridParmInfo.GridType
 from com.raytheon.uf.common.dataplugin.gfe.server.request import SendISCRequest
+from com.raytheon.viz.gfe.textformatter import CombinationsFileUtil
+from com.raytheon.viz.gfe.dialogs.formatterlauncher import ConfigData
+ProductStateEnum = ConfigData.ProductStateEnum
+from com.raytheon.viz.gfe.textformatter import FormatterUtil
+from com.raytheon.viz.gfe.textformatter import TextProductFinishWaiter
+from com.raytheon.viz.gfe.textformatter import TextProductTransmitter
+
 
 class SmartScript(BaseTool.BaseTool):
 
@@ -157,13 +168,22 @@ class SmartScript(BaseTool.BaseTool):
         # So a procedure can override this by using this method.
         self.__toolType = toolType
 
-    def editAreaList(self):
-        # Returns list of all known edit areas, as a list of strings.
-        eans = self.__refSetMgr.getAvailableSets()
+    def editAreaList(self, eaGroup=None):
+        """ 
+        Returns a list of strings containing all edit areas in eaGroup.
+        If eaGroup is None, all known edit areas are returned.
+        """
         eaList = []
-        size = eans.size()
-        for i in range(size):
-            eaList.append(eans.get(i).getName())
+        if eaGroup is not None:
+            eans = self.__refSetMgr.getGroupData(eaGroup)
+            size = eans.size()
+            for i in range(size):
+                eaList.append(str(eans.get(i)))
+        else:
+            eans = self.__refSetMgr.getAvailableSets()
+            size = eans.size()
+            for i in range(size):
+                eaList.append(eans.get(i).getName())
         return eaList
 
     def getSite4ID(self, id3):
@@ -2589,4 +2609,84 @@ class SmartScript(BaseTool.BaseTool):
         textList =  fullText.splitlines(True)
         return textList
 
+    def callTextFormatter(self, productName, dbId, varDict={}, vtecMode=None):
+        """
+        Execute the requested text product formatter.
+
+        Args: 
+                productName: the display name of the formatter to run.
+                dbId: string form of the DatabaseID to use as data source.
+                varDict: optional, product varDict, use an empty dict instead
+                         of None to signify a null varDict.
+                vtecMode: optional, for VTEC products specify VTEC mode (one of
+                          'O', 'T', 'E' or 'X').
+
+        Returns:
+                The output of the formatter--the content of the requested product.
+
+        Throws:
+                TypeError: If varDict is not a dict.
+                RuntimeError: If the formatter fails during execution. 
+        """
+        if type(varDict) is not dict:
+            raise TypeError("Argument varDict must be a dict.")
+        varDict = str(varDict)
+        
+        listener = TextProductFinishWaiter()
+        FormatterUtil.callFromSmartScript(productName, dbId, varDict, vtecMode, self.__dataMgr, listener)
+        product = listener.waitAndGetProduct()
+        state = listener.getState()
+        if not state.equals(ProductStateEnum.Finished):
+            msg = "Formatter " + productName + " terminated before completion with state: " + state.name() + \
+            ". Check formatter logs from Process Monitor for more information."
+            raise RuntimeError(msg)
+        return product
+    
+    def saveCombinationsFile(self, name, combinations):
+        """
+        Save the specified zone combinations to the localization data store.
+
+        Args: 
+                name: Name for the combinations file. The ".py" extension will
+                      automatically be appended to the final file name.
+                combinations: The zone combinations. This data structure should
+                      be a list of list of zone names 
+                      (e.g. [["OAX", "GID", "LBF"], ["DMX"], ["FSD", "ABR"]]
+
+        Throws:
+                TypeError: If combinations is not in the proper format.
+        """
+        # Validate that we were passed a collection of collections, we'll convert
+        # to list of lists to satisfy the Java type checker.
+        try:
+            for item in iter(combinations):
+                iter(item)
+        except TypeError:
+            raise TypeError("combinations must be a list of list of zone names.")
+        
+        combo_list = JUtil.pyValToJavaObj([[str(zone) for zone in group] for group in combinations])
+        CombinationsFileUtil.generateAutoCombinationsFile(combo_list, str(name))
+
+    def transmitTextProduct(self, product, wanPil, wmoType):
+        """
+        Transmit the specified product. Will automatically detect if GFE is 
+        operating in OPERATIONAL or PRACTICE mode and send using the appropriate
+        route.
+
+        Args: 
+                product: the text or body of the product to transmit.
+                wanPil: the AWIPS WAN PIL for the product
+                wmoType: The WMO type of the product.
+
+        Returns:
+                The status of the transmission request as a ProductStateEnum.
+        """
+        wanPil = str(wanPil)
+        product = str(product)
+        wmoType = str(wmoType)
+        
+        transmitter = TextProductTransmitter(product, wanPil, wmoType)
+        practice = self.gfeOperatingMode()=="PRACTICE"
+        status = transmitter.transmitProduct(practice)
+        return status
 

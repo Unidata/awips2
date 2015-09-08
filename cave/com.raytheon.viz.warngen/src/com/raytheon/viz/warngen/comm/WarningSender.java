@@ -63,6 +63,7 @@ import com.raytheon.viz.texteditor.util.SiteAbbreviationUtil;
  * 04Oct2010    7193       cjeanbap    Add time-to-live value to MessageProducer.
  * Sep 13, 2013 2368       rjpeter     Set delivery mode to PERSISTENT.
  * May  7, 2015 ASM #17438 D. Friedman Clean up debug and performance logging.
+ * Sep 03, 2015 4784       rjpeter     Set notifySubscriptions on sendToTextDatabase.
  * </pre>
  * 
  * @author mschenke
@@ -263,8 +264,10 @@ public class WarningSender implements IWarngenObserver {
 
         // Generate StdTextProduct and insert into db
         long t0 = System.currentTimeMillis();
-        ThriftClient.sendRequest(new InsertStdTextProductRequest(id, warning,
-                operationalMode));
+        InsertStdTextProductRequest request = new InsertStdTextProductRequest(id, warning,
+                operationalMode);
+        request.setNotifySubscriptions(true);
+        ThriftClient.sendRequest(request);
 
         perfLog.logDuration(id + " save to textdb",
                 System.currentTimeMillis() - t0);

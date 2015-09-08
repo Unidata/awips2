@@ -226,11 +226,6 @@
                    style="toggle">
              </command>
              <command
-                   commandId="com.raytheon.uf.viz.d2d.ui.actions.dataScaleAction"
-                   label="Data Scale"
-                   style="toggle">
-             </command>
-             <command
                    commandId="com.raytheon.uf.viz.d2d.ui.actions.imageCombination"
                    label="Image Combination"
                    style="toggle">
@@ -1181,11 +1176,7 @@
        </extension>
          
          
- <extension point="org.eclipse.ui.handlers">
-         <handler
-               class="com.raytheon.uf.viz.d2d.ui.actions.DataScaleAction"
-               commandId="com.raytheon.uf.viz.d2d.ui.actions.dataScaleAction">
-         </handler>
+ <extension point="org.eclipse.ui.handlers">         
          <handler
                class="com.raytheon.uf.viz.d2d.ui.actions.ChangeLegendModeHandler"
                commandId="com.raytheon.uf.viz.d2d.ui.actions.changeLegendMode">
@@ -1679,13 +1670,7 @@
             <parameter id="direction" value="1"></parameter>
             <parameter id="startIndex" value="2"></parameter>
             <parameter id="hideIndex" value="0"></parameter>
-      </key>
-      <key
-            contextId="com.raytheon.uf.viz.d2d.ui"
-            commandId="com.raytheon.uf.viz.d2d.ui.actions.dataScaleAction"
-            schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="M1+S">
-      </key>
+      </key>      
       <key
             contextId="com.raytheon.uf.viz.d2d.ui"
             commandId="com.raytheon.uf.viz.d2d.ui.actions.imageCombination"
@@ -1742,12 +1727,6 @@
          </commandParameter>
       </command>
       <command
-            id="com.raytheon.uf.viz.d2d.ui.actions.dataScaleAction"
-            categoryId="com.raytheon.uf.viz.d2d.ui"
-            description="Toggle the data scale enabled option"
-            name="Toggle Data Scale">
-      </command>
-      <command
             id="com.raytheon.uf.viz.d2d.ui.actions.changeLegendMode"
             categoryId="com.raytheon.uf.viz.d2d.ui"
             description="Change the mode of the legend"
@@ -1789,10 +1768,6 @@
             categoryId="com.raytheon.uf.viz.d2d.ui"
             description="Open time options dialog"
             name="Time Options">
-      </command>
-      <command
-            id="com.raytheon.viz.ui.actions.notImplemented"
-            name="Data Scale">
       </command>
       <command
             id="com.raytheon.uf.viz.d2d.ui.actions.locateCursorAction"

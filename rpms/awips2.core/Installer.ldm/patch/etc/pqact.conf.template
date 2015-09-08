@@ -40,6 +40,7 @@
 #20150121            4014 dgilling    Add pattern for ETSS.
 #20150202            4066 rferrel     Add pattern form Earth Networks Total Lightning: SFPA42
 #20150507            4434 skorolev    Add pattern for GFS20
+#20150827            4687 skorolev    Add pattern for ECMWF station-based MOS text bulletins
 #***************************************************************
 # AWIPS 1 PATTERN GRAPHIC	^[PQ].*				/redbook/Raw
 # PGNA00 KWNS 010001 !redbook 1_1/NMCGPHMCD/MCDSUM/PXSF001CN/20110201 0001
@@ -840,3 +841,20 @@ ANY	^(NWUS64) KWNS (..)(..)(..)
 
 EXP	(.*wcl_decrypted.*)
 	FILE	-overwrite -log -close -edex	\1
+
+# === Encrypted ECMWF station-based MOS text bulletins
+# FOUS39 KWNO 050000 /pMETWC1
+# FEAK48 KWNO 041200 /pMEXAFC
+# FOAK57 PAJK 120035 /pPFMAJK
+
+ANY	^(FEAK[45][7-9]|FOAK5[7-9]|FECN[35]0|FOCN30|FEPA[45]0|FOPA50|FEUS5[1-6]|F[EO]US3[4-9]) (.{4}) (..)(..)(..) /p(.{6})
+	PIPE	-close	/usr/local/ldm/decoders/decrypt_file
+	/data_store/ecmwf-mos-text/ecmwf_mos_decrypted_(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+
+EXP	(.*ecmwf_mos_decrypted.*)
+	FILE	-overwrite -log -close -edex	\1
+
+
+
+
+

@@ -38,6 +38,8 @@ import java.util.regex.Pattern;
 
 import javax.xml.bind.JAXB;
 
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +51,8 @@ import ucar.nc2.Variable;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.pointset.PointSetLocation;
 import com.raytheon.uf.common.dataplugin.pointset.PointSetRecord;
+import com.raytheon.uf.common.dataplugin.pointset.triangulate.DelauneyTriangulator;
+import com.raytheon.uf.common.dataplugin.pointset.triangulate.GridTriangulator;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationFile;
@@ -56,6 +60,8 @@ import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.parameter.lookup.ParameterLookup;
 import com.raytheon.uf.edex.plugin.pointset.netcdf.description.PointSetProductDescriptions;
 import com.raytheon.uf.edex.plugin.pointset.netcdf.description.ProductDescription;
+import com.raytheon.uf.edex.plugin.pointset.netcdf.description.TriangulationDescription;
+import com.raytheon.uf.edex.plugin.pointset.netcdf.description.TriangulationDescription.TriangulationType;
 import com.raytheon.uf.edex.plugin.pointset.netcdf.description.VariableDescription;
 
 /**
@@ -86,8 +92,7 @@ public class PointSetNetcdfDecoder {
             .compile("LON", Pattern.CASE_INSENSITIVE);
 
     private static final Pattern LATITUDE_COORDINATE_PATTERN = Pattern.compile(
-            "LAT",
-            Pattern.CASE_INSENSITIVE);
+            "LAT", Pattern.CASE_INSENSITIVE);
 
     private static final PointSetRecord[] EMPTY_POINTSET_ARRAY = new PointSetRecord[0];
 
@@ -249,9 +254,22 @@ public class PointSetNetcdfDecoder {
         }
         Buffer numericData = null;
         DataType dataType = dataVariable.getDataType();
+        Number fillValue = null;
+        Attribute fillAttribute = dataVariable.findAttribute("_FillValue");
+        if (fillAttribute != null) {
+            fillValue = fillAttribute.getNumericValue();
+        }
         switch (dataType) {
         case FLOAT:
             float[] fdata = (float[]) dataVariable.read().copyTo1DJavaArray();
+            if (fillValue != null) {
+                float ffill = fillValue.floatValue();
+                for (int i = 0; i < fdata.length; i += 1) {
+                    if (fdata[i] == ffill) {
+                        fdata[i] = Float.NaN;
+                    }
+                }
+            }
             numericData = FloatBuffer.wrap(fdata);
             break;
         case BYTE:
@@ -264,6 +282,14 @@ public class PointSetNetcdfDecoder {
             break;
         case DOUBLE:
             double[] ddata = (double[]) dataVariable.read().copyTo1DJavaArray();
+            if (fillValue != null) {
+                double dfill = fillValue.doubleValue();
+                for (int i = 0; i < ddata.length; i += 1) {
+                    if (ddata[i] == dfill) {
+                        ddata[i] = Double.NaN;
+                    }
+                }
+            }
             numericData = DoubleBuffer.wrap(ddata);
             break;
         case INT:
@@ -295,6 +321,30 @@ public class PointSetNetcdfDecoder {
             float[] latVals = (float[]) latVariable.read().get1DJavaArray(
                     float.class);
             PointSetLocation location = new PointSetLocation(lonVals, latVals);
+            TriangulationDescription triangulation = description
+                    .getTriangulation();
+            if (triangulation != null) {
+                TriangulationType type = triangulation.getType();
+                if (type == TriangulationType.GRID) {
+                    int[] shape = lonVariable.getShape();
+                    if (shape.length != 2) {
+                        logger.warn(
+                                "Grid triangulation for {} failed because data is not 2 dimensional",
+                                dataVarName);
+                    }
+                    location.setTriangles(new GridTriangulator().triangulate(
+                            shape[1], shape[0]));
+                } else if (type == TriangulationType.DELAUNEY) {
+                    try {
+                        location.setTriangles(new DelauneyTriangulator()
+                                .triangulate(location));
+                    } catch (FactoryException | TransformException e) {
+                        logger.error(
+                                "Delauney triangulation for {} failed because data is not 2 dimensional",
+                                dataVarName, e);
+                    }
+                }
+            }
             record.setLocationId(location.getId());
             location.save(record.getStoragePath().toFile());
         }

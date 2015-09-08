@@ -37,6 +37,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData;
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData.ProductStateEnum;
@@ -61,6 +62,8 @@ import com.raytheon.viz.gfe.tasks.AbstractGfeTask;
  * Jul 28, 2015  4263      dgilling    Support changes to FormatterScriptFactory,
  *                                     get DataManager instance via constructor.
  * Aug 20, 2015  #4749     dgilling    Add cleanUp.
+ * Aug 26, 2015  #4804     dgilling    Support ability to run TextFormatters 
+ *                                     from SmartScript.
  * 
  * </pre>
  * 
@@ -87,13 +90,63 @@ public class TextFormatter extends AbstractGfeTask {
 
     /**
      * Constructor
+     * 
+     * @param productName
+     *            Name of the python module to execute.
+     * @param vtecMode
+     *            Single character code for VTEC mode--Operational,
+     *            eXperimental, Test, etc.
+     * @param databaseID
+     *            String form of the {@code DatabaseID} of the source database.
+     * @param vtecActiveTable
+     *            Name of the active table to use for hazard information.
+     * @param drtTime
+     *            DRT time to use in YYYYMMDD_HHmm format.
+     * @param testMode
+     *            Whether or not to execute in test VTEC mode.
+     * @param finish
+     *            Listener to send status updates to.
+     * @param dataMgr
+     *            the {@code DataManager} instance to use.
      */
     public TextFormatter(String productName, String vtecMode,
             String databaseID, String vtecActiveTable, String drtTime,
             int testMode, TextProductFinishListener finish, DataManager dataMgr) {
-        super(productName);
-        String addr = null;
+        this(productName, vtecMode, databaseID, null, vtecActiveTable, drtTime,
+                testMode, finish, dataMgr);
+    }
 
+    /**
+     * Constructor that allows the varDict to be pre-supplied. Useful for
+     * executing formatters where no GUI popups are desired.
+     * 
+     * @param productName
+     *            Name of the python module to execute.
+     * @param vtecMode
+     *            Single character code for VTEC mode--Operational,
+     *            eXperimental, Test, etc.
+     * @param databaseID
+     *            String form of the {@code DatabaseID} of the source database.
+     * @param varDict
+     *            String form of the formatter's variable dictionary.
+     * @param vtecActiveTable
+     *            Name of the active table to use for hazard information.
+     * @param drtTime
+     *            DRT time to use in YYYYMMDD_HHmm format.
+     * @param testMode
+     *            Whether or not to execute in test VTEC mode.
+     * @param finish
+     *            Listener to send status updates to.
+     * @param dataMgr
+     *            the {@code DataManager} instance to use.
+     */
+    public TextFormatter(String productName, String vtecMode,
+            String databaseID, String varDict, String vtecActiveTable,
+            String drtTime, int testMode, TextProductFinishListener finish,
+            DataManager dataMgr) {
+        super(productName);
+
+        String addr = null;
         try {
             addr = InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e) {
@@ -110,9 +163,12 @@ public class TextFormatter extends AbstractGfeTask {
         argMap.put("username", System.getProperty("user.name") + ":" + addr);
         argMap.put("dataMgr", this.dataMgr);
         argMap.put(ArgDictConstants.VTEC_MODE, vtecMode);
-
         argMap.put(ArgDictConstants.VTEC_ACTIVE_TABLE, vtecActiveTable);
         argMap.put("drtTime", drtTime);
+        if (!StringUtil.isEmptyString(varDict)) {
+            argMap.put(ArgDictConstants.CMDLINE_VARDICT, varDict);
+        }
+
         listener = finish;
         this.state = ConfigData.ProductStateEnum.Queued;
     }
@@ -132,12 +188,16 @@ public class TextFormatter extends AbstractGfeTask {
                     .get(ArgDictConstants.FORECAST_LIST);
             String issuedBy = dataMgr.getTextProductMgr().getIssuedBy();
             String dbId = (String) argMap.get(ArgDictConstants.DATABASE_ID);
-            String varDict = getVarDict(productName, dataMgr, dbId, issuedBy,
-                    script);
 
-            if (varDict != null) {
+            if (!argMap.containsKey(ArgDictConstants.CMDLINE_VARDICT)) {
+                String varDict = getVarDict(productName, dataMgr, dbId,
+                        issuedBy, script);
                 argMap.put(ArgDictConstants.CMDLINE_VARDICT, varDict);
+            }
 
+            String varDict = (String) argMap
+                    .get(ArgDictConstants.CMDLINE_VARDICT);
+            if (varDict != null) {
                 ITimer timer = TimeUtil.getTimer();
                 timer.start();
                 forecast = (String) script.execute(argMap);

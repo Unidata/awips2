@@ -19,14 +19,12 @@
  **/
 package com.raytheon.viz.gfe.actions;
 
-import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.WeatherElementBrowserDialog;
+import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
  * Action to launch weather element browser dialog.
@@ -39,39 +37,17 @@ import com.raytheon.viz.gfe.dialogs.WeatherElementBrowserDialog;
  * 04/09/2009   1288       rjpeter     Removed explicit refresh of SpatialDisplayManager.
  * 04/30/2009   2282       rjpeter     Moved dialog handling to the dialog.
  * 10/30/2012   1229       rferrel     Changed for non-blocking WeatherElementBrowserDialog.
+ * Aug 27, 2015 4749       njensen     Now extends GfeShowDialogHandler
+ * 
  * </pre>
  * 
- * @author ebabin
- * @version 1.0
  */
 
-public class ShowWeatherElementBrowserDialog extends AbstractHandler {
-    private WeatherElementBrowserDialog dialog;
+public class ShowWeatherElementBrowserDialog extends GfeShowDialogHandler {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
-     * .ExecutionEvent)
-     */
     @Override
-    public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        DataManager dm = DataManager.getCurrentInstance();
-        if (dm == null) {
-            return null;
-        }
-
-        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
-            dialog = new WeatherElementBrowserDialog(shell, dm);
-            dialog.setBlockOnOpen(false);
-            dialog.open();
-        } else {
-            dialog.bringToTop();
-        }
-
-        return null;
+    protected CaveJFACEDialog createDialog(Shell shell, DataManager dm,
+            ExecutionEvent event) {
+        return new WeatherElementBrowserDialog(shell, dm);
     }
 }

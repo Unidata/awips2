@@ -19,7 +19,7 @@
         further_licensing_information.
     -->
 <requestPatterns>
-    <regex>^[ACFNRUW][A-Z].*</regex>
+    <regex>^[ACFNRUW][A-Z][A-Z0-9]{4} [A-Z0-9]{4}</regex>
     <regex>^S[A-CEG-Z].*</regex>
     <!-- Only have AFOS mapping for T[BCX] -->
     <regex>^T[BCX].*</regex>
@@ -36,6 +36,7 @@
     <regex>^N.*</regex>
     <regex>^F[EHIJKLMQVWX].*</regex>
     <regex>wcl_decrypted</regex>
+    <regex>ecmwf_mos_decrypted</regex>
     
     <!-- AWIPS I pattern
     TextDBPatterns.txt

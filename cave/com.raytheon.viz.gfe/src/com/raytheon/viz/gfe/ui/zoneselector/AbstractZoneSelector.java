@@ -75,6 +75,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * Aug 23, 2011            randerso    Initial creation
  * May 30, 2013 #2028      randerso    Fixed date line issue with map display
  * Jan 07, 2014 #2662      randerso    Fixed limitZones (subDomainUGCs) support
+ * Aug 31, 2015  4749      njensen     Set selectCB to null on dispose
  * 
  * </pre>
  * 
@@ -145,6 +146,7 @@ public abstract class AbstractZoneSelector extends PaneManager {
 
             @Override
             public void widgetDisposed(DisposeEvent e) {
+                AbstractZoneSelector.this.selectCB = null;
                 dispose();
             }
         });

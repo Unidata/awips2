@@ -20,7 +20,7 @@
     -->
 <pointSetProductDescriptions>
   <description>
-    <data variable="wspd" />
+    <data variable="WSPD" />
     <dataTime>
       <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
     </dataTime>
@@ -30,9 +30,10 @@
       <masterLevel value="EA" />
       <levelOneValue value="0.0" />
     </level>
+    <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_10.7GHzH" />
+    <data variable="Brightness_Temperature_10_GHzH" />
     <dataTime>
       <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
     </dataTime>
@@ -42,9 +43,10 @@
       <masterLevel value="EA" />
       <levelOneValue value="0.0" />
     </level>
+    <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_10.7GHzV" />
+    <data variable="Brightness_Temperature_10_GHzV" />
     <dataTime>
       <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
     </dataTime>
@@ -54,9 +56,10 @@
       <masterLevel value="EA" />
       <levelOneValue value="0.0" />
     </level>
+    <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_18.7GHzH" />
+    <data variable="Brightness_Temperature_18_GHzH" />
     <dataTime>
       <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
     </dataTime>
@@ -66,9 +69,10 @@
       <masterLevel value="EA" />
       <levelOneValue value="0.0" />
     </level>
+    <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_18.7GHzV" />
+    <data variable="Brightness_Temperature_18_GHzV" />
     <dataTime>
       <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
     </dataTime>
@@ -78,9 +82,10 @@
       <masterLevel value="EA" />
       <levelOneValue value="0.0" />
     </level>
+    <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_23.8GHzH" />
+    <data variable="Brightness_Temperature_23_GHzH" />
     <dataTime>
       <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
     </dataTime>
@@ -90,9 +95,10 @@
       <masterLevel value="EA" />
       <levelOneValue value="0.0" />
     </level>
+    <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_23.8GHzV" />
+    <data variable="Brightness_Temperature_23_GHzV" />
     <dataTime>
       <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
     </dataTime>
@@ -102,9 +108,10 @@
       <masterLevel value="EA" />
       <levelOneValue value="0.0" />
     </level>
+    <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_36.5GHzH" />
+    <data variable="Brightness_Temperature_36_GHzH" />
     <dataTime>
       <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
     </dataTime>
@@ -114,9 +121,10 @@
       <masterLevel value="EA" />
       <levelOneValue value="0.0" />
     </level>
+    <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_36.5GHzV" />
+    <data variable="Brightness_Temperature_36_GHzV" />
     <dataTime>
       <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
     </dataTime>
@@ -126,9 +134,10 @@
       <masterLevel value="EA" />
       <levelOneValue value="0.0" />
     </level>
+    <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_6.9GHzH" />
+    <data variable="Brightness_Temperature_6_GHzH" />
     <dataTime>
       <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
     </dataTime>
@@ -138,9 +147,10 @@
       <masterLevel value="EA" />
       <levelOneValue value="0.0" />
     </level>
+    <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_6.9GHzV" />
+    <data variable="Brightness_Temperature_6_GHzV" />
     <dataTime>
       <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
     </dataTime>
@@ -150,9 +160,10 @@
       <masterLevel value="EA" />
       <levelOneValue value="0.0" />
     </level>
+    <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_7.3GHzH" />
+    <data variable="Brightness_Temperature_7_GHzH" />
     <dataTime>
       <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
     </dataTime>
@@ -162,9 +173,10 @@
       <masterLevel value="EA" />
       <levelOneValue value="0.0" />
     </level>
+    <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_7.3GHzV" />
+    <data variable="Brightness_Temperature_7_GHzV" />
     <dataTime>
       <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
     </dataTime>
@@ -174,9 +186,10 @@
       <masterLevel value="EA" />
       <levelOneValue value="0.0" />
     </level>
+    <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_89.0GHzAH" />
+    <data variable="Brightness_Temperature_89_GHz_AH" />
     <dataTime>
       <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
     </dataTime>
@@ -186,9 +199,10 @@
       <masterLevel value="EA" />
       <levelOneValue value="0.0" />
     </level>
+    <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_89.0GHzAV" />
+    <data variable="Brightness_Temperature_89_GHz_AV" />
     <dataTime>
       <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
     </dataTime>
@@ -198,9 +212,10 @@
       <masterLevel value="EA" />
       <levelOneValue value="0.0" />
     </level>
+    <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_89.0GHzBH" />
+    <data variable="Brightness_Temperature_89_GHz_BH" />
     <dataTime>
       <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
     </dataTime>
@@ -210,9 +225,10 @@
       <masterLevel value="EA" />
       <levelOneValue value="0.0" />
     </level>
+    <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_89.0GHzBV" />
+    <data variable="Brightness_Temperature_89_GHz_BV" />
     <dataTime>
       <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
     </dataTime>
@@ -222,5 +238,6 @@
       <masterLevel value="EA" />
       <levelOneValue value="0.0" />
     </level>
+    <triangulation type="grid" />
   </description>
 </pointSetProductDescriptions>

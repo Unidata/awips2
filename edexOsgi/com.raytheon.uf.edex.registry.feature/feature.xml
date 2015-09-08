@@ -17,6 +17,10 @@
       [Enter License Description here.]
    </license>
 
+   <requires>
+      <import feature="com.raytheon.uf.edex.registry.request.feature" version="1.0.0.qualifier"/>
+   </requires>
+
    <plugin
          id="com.raytheon.uf.common.registry.schemas.iso19115"
          download-size="0"
@@ -30,5 +34,11 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.edex.registry.request"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
 
 </feature>

@@ -349,6 +349,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 6Apr2015    RM14968   mgamazaychikov Fix formatting for pathcast section
  * 15Jun2015   4441         randerso    Unconditionally convert text to upper case for QC
  * 8Jul2015    DR 15044     dhuffman    Implemented tabbing and tabs to spaces.
+ * Aug 31, 2015   4749      njensen     Changed setCloseCallback to addCloseCallback
  * 
  * </pre>
  * 
@@ -4947,8 +4948,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             int startIndex = "Attachment:".length() + 1;
             sb.append(statusBarLabel.getText().substring(startIndex));
             sb.append(") will be transmitted with this message.");
-            int response = TextWSMessageBox.open(shell, "Notice", sb.toString(),
-                    SWT.OK | SWT.CANCEL);
+            int response = TextWSMessageBox.open(shell, "Notice",
+                    sb.toString(), SWT.OK | SWT.CANCEL);
             if (SWT.OK != response) {
                 return;
             }
@@ -6136,7 +6137,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         final boolean validExecuteCmd = validExecuteCommand;
                         final String attachedFN = attachedFilename;
                         browser = new WmoBrowserDlg(getShell(), this, prodList);
-                        browser.setCloseCallback(new ICloseCallback() {
+                        browser.addCloseCallback(new ICloseCallback() {
 
                             @Override
                             public void dialogClosed(Object returnValue) {
@@ -6156,7 +6157,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         final String attachedFN = attachedFilename;
                         browser = new AwipsBrowserDlg(getShell(), this,
                                 prodList);
-                        browser.setCloseCallback(new ICloseCallback() {
+                        browser.addCloseCallback(new ICloseCallback() {
 
                             @Override
                             public void dialogClosed(Object returnValue) {
@@ -6407,7 +6408,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                             + "ms to show dialog");
                     enterEditor();
 
-                    if (autoWrapMenuItem != null && !autoWrapMenuItem.isDisposed()) {
+                    if (autoWrapMenuItem != null
+                            && !autoWrapMenuItem.isDisposed()) {
                         Menu menu = autoWrapMenuItem.getMenu();
                         for (MenuItem item : menu.getItems()) {
                             if (item.getSelection()) {

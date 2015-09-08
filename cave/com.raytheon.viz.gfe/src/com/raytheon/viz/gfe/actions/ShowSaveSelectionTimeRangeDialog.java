@@ -20,14 +20,12 @@
 
 package com.raytheon.viz.gfe.actions;
 
-import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.SaveDeleteSelectTRDialog;
+import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
  * Action to show save select time range dialog.
@@ -36,47 +34,19 @@ import com.raytheon.viz.gfe.dialogs.SaveDeleteSelectTRDialog;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 	Jan 23, 2008					   Eric Babin Initial Creation
- *  Nov 11, 2008 1213      wdougherty  Use SelectTimeRangeContainer
- *  Oct 25, 2012 1287      rferrel     Code changes for non-blocking SaveDeleteSelectTRDialog.
+ * Jan 23, 2008            Eric Babin  Initial Creation
+ * Nov 11, 2008 1213       wdougherty  Use SelectTimeRangeContainer
+ * Oct 25, 2012 1287       rferrel     Code changes for non-blocking SaveDeleteSelectTRDialog.
+ * Aug 27, 2015 4749       njensen     Now extends GfeShowDialogHandler
  * 
  * </pre>
  * 
- * @author ebabin
- * @version 1.0
  */
+public class ShowSaveSelectionTimeRangeDialog extends GfeShowDialogHandler {
 
-public class ShowSaveSelectionTimeRangeDialog extends AbstractHandler {
-    private SaveDeleteSelectTRDialog dialog;
-
-    public ShowSaveSelectionTimeRangeDialog() {
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
-     * .ExecutionEvent)
-     */
     @Override
-    public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        DataManager dataManager = DataManager.getCurrentInstance();
-        if (dataManager == null) {
-            return null;
-        }
-
-        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
-
-            dialog = new SaveDeleteSelectTRDialog(shell, dataManager, "Save");
-            dialog.setBlockOnOpen(false);
-            dialog.open();
-        } else {
-            dialog.bringToTop();
-        }
-
-        return null;
+    protected CaveJFACEDialog createDialog(Shell shell, DataManager dm,
+            ExecutionEvent event) {
+        return new SaveDeleteSelectTRDialog(shell, dm, "Save");
     }
 }

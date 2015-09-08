@@ -47,6 +47,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 4/16/2008    934         grichard    Added toString overridden method.
  * Nov 01, 2013 2361        njensen     Remove XML annotations
  * May 15, 2014 3002        bgonzale    Moved to com.raytheon.uf.common.dataplugin.taf.
+ * Aug 31, 2015 4360        rferrel     Removed parentId from equal and hashcode methods.
  * 
  * </pre>
  * 
@@ -175,10 +176,6 @@ public class TafSkyCover extends PersistableDataObject {
         if (obj instanceof TafSkyCover) {
             TafSkyCover sky = (TafSkyCover) obj;
 
-            if (parentID != sky.parentID) {
-                return false;
-            }
-
             if (!(this.height == null ? sky.getHeight() == null : this.height
                     .equals(sky.getHeight()))) {
                 return false;
@@ -200,8 +197,8 @@ public class TafSkyCover extends PersistableDataObject {
     @Override
     public int hashCode() {
 
-        return new HashCodeBuilder(17, 37).append(parentID).append(height)
-                .append(type).toHashCode();
+        return new HashCodeBuilder(17, 37).append(height).append(type)
+                .toHashCode();
     }
 
     /**

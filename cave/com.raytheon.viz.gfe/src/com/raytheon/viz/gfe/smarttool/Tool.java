@@ -70,10 +70,11 @@ import com.raytheon.viz.gfe.smarttool.script.SmartToolRunnerController;
  * Feb 27, 2007            njensen     Initial creation
  * Jan 08, 2013  1486      dgilling    Support changes to BaseGfePyController.
  * 02/14/2013              mnash       Change QueryScript to use new Python concurrency
- * 02/20/2013        #1597 randerso    Added logging to support GFE Performance metrics
+ * 02/20/2013    1597      randerso    Added logging to support GFE Performance metrics
  * 04/10/2013    16028     ryu         Check for null seTime in execute()
  * Jul 17, 2015  4575      njensen     Changed varDict from String to Map
  * Jul 23, 2015  4263      dgilling    Support SmartToolMetadataManager.
+ * Aug 27, 2015  4749      njensen     Call shutdown() on PythonJobCoordinator
  * 
  * </pre>
  * 
@@ -683,6 +684,7 @@ public class Tool {
             }
         }
         parmMgr.deleteTemporaryParms();
+        coordinator.shutdown();
 
         // Report Skipped or Created Grids
         String msg = "Tool: " + toolname + " -- ";

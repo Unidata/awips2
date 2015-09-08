@@ -61,13 +61,14 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * <pre>
  * 
- *  SOFTWARE HISTORY
+ * SOFTWARE HISTORY
  * 
- *  Date         Ticket#     Engineer    Description
- *  ------------ ----------  ----------- --------------------------
- *  October-2010              epolster    Initial Creation.
- *  Jul 31, 2012 #875         rferrel    Implements groups, hidden and
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * October-2010             epolster    Initial Creation.
+ * Jul 31, 2012 #875        rferrel     Implements groups, hidden and
  *                                        assign color.
+ * Aug 31, 2015  4749       njensen     Changed setCloseCallback to addCloseCallback                                      
  * 
  * </pre>
  * 
@@ -153,7 +154,7 @@ public class PointEditDialog extends CaveJFACEDialog {
         PointEditDialog dlg = new PointEditDialog(shell, layer,
                 EditOptions.CREATE_FROM_SCRATCH, defaultPoint);
         dlg.setBlockOnOpen(false);
-        dlg.setCloseCallback(new ICloseCallback() {
+        dlg.addCloseCallback(new ICloseCallback() {
 
             @Override
             public void dialogClosed(Object returnValue) {
@@ -171,12 +172,13 @@ public class PointEditDialog extends CaveJFACEDialog {
 
     /**
      * Generates a non-blocking Point Edit dialog for editing an existing point.
-     *When the dialog is closed by the OK button
-     * the returnValue is a point with the values from the dialog otherwise
-     * returnValue is null. 
+     * When the dialog is closed by the OK button the returnValue is a point
+     * with the values from the dialog otherwise returnValue is null.
+     * 
      * @param layer
      * @param point
-     * @param cb - Closed callback called when dialog is closed
+     * @param cb
+     *            - Closed callback called when dialog is closed
      */
     static public void editPointViaDialog(PointsToolLayer layer, Point point,
             final ICloseCallback cb) {
@@ -185,7 +187,7 @@ public class PointEditDialog extends CaveJFACEDialog {
         PointEditDialog dlg = new PointEditDialog(shell, layer,
                 EditOptions.EDIT, point);
         dlg.setBlockOnOpen(false);
-        dlg.setCloseCallback(new ICloseCallback() {
+        dlg.addCloseCallback(new ICloseCallback() {
 
             @Override
             public void dialogClosed(Object returnValue) {

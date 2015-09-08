@@ -30,5 +30,6 @@
       <masterLevel value="EA" />
       <levelOneValue value="0.0" />
     </level>
+    <triangulation type="grid" />
   </description>
 </pointSetProductDescriptions>

@@ -74,6 +74,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 10/11/2007   482         grichard    Reformatted file.
  * 09/20/2012   1196        rferrel     Changing dialogs being called to not block.
  * 09/09/2014   3580        mapeters    Removed IQueryTransport usage (no longer exists).
+ * Aug 31, 2015 4749        njensen     Changed setCloseCallback to addCloseCallback
  * 
  * </pre>
  * 
@@ -286,6 +287,7 @@ public class RemoteSiteRequestDlg extends CaveSWTDialog implements
         enterBtn.setLayoutData(new GridData(GridData.FILL_BOTH));
         enterBtn.setText("Enter");
         enterBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 if (createReturnValue(false))
                     shell.dispose();
@@ -297,6 +299,7 @@ public class RemoteSiteRequestDlg extends CaveSWTDialog implements
         cancelBtn.setLayoutData(new GridData(GridData.FILL_BOTH));
         cancelBtn.setText("Cancel");
         cancelBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 setReturnValue(null);
                 shell.dispose();
@@ -447,6 +450,7 @@ public class RemoteSiteRequestDlg extends CaveSWTDialog implements
     private void textFieldModifyListener(final StyledText tf,
             final StyledText nextTF, final boolean limitCheck) {
         tf.addModifyListener(new ModifyListener() {
+            @Override
             public void modifyText(ModifyEvent event) {
                 if (!limitCheck || tf.getCharCount() == tf.getTextLimit()) {
                     if (wmoIdSelectionDialog == null) {
@@ -516,7 +520,7 @@ public class RemoteSiteRequestDlg extends CaveSWTDialog implements
                             wmoIdSelectionDialog = new WmoIdSelectionDialog(
                                     shell, this, ttaaiiIds, ccccIds);
                             wmoIdSelectionDialog
-                                    .setCloseCallback(new ICloseCallback() {
+                                    .addCloseCallback(new ICloseCallback() {
 
                                         @Override
                                         public void dialogClosed(

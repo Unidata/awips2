@@ -19,15 +19,13 @@
  **/
 package com.raytheon.viz.gfe.actions;
 
-import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.ISelectTimeRangeManager;
 import com.raytheon.viz.gfe.dialogs.TimeScalePeriodsDialog;
+import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
  * Action class to display the Time Scale Periods dialog.
@@ -37,8 +35,9 @@ import com.raytheon.viz.gfe.dialogs.TimeScalePeriodsDialog;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 23, 2009            randerso     Initial creation
+ * Apr 23, 2009            randerso    Initial creation
  * Oct 29, 2012 1287       rferrel     Changes for non-blocking TimeScalePeriodsDialog.
+ * Aug 27, 2015 4749       njensen     Now extends GfeShowDialogHandler
  * 
  * </pre>
  * 
@@ -46,39 +45,12 @@ import com.raytheon.viz.gfe.dialogs.TimeScalePeriodsDialog;
  * @version 1.0
  */
 
-public class ShowTimeScalePeriodsDialog extends AbstractHandler {
-    private TimeScalePeriodsDialog dialog;
+public class ShowTimeScalePeriodsDialog extends GfeShowDialogHandler {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.core.commands.IHandler#execute(org.eclipse.core.commands.
-     * ExecutionEvent)
-     */
     @Override
-    public Object execute(ExecutionEvent event) throws ExecutionException {
-        DataManager dataManager = DataManager.getCurrentInstance();
-        if (dataManager == null) {
-            return null;
-        }
-
-        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
-
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
-
-            ISelectTimeRangeManager selectTRmgr = dataManager
-                    .getSelectTimeRangeManager();
-
-            dialog = new TimeScalePeriodsDialog(shell, selectTRmgr);
-            dialog.setBlockOnOpen(false);
-            dialog.open();
-        } else {
-            dialog.bringToTop();
-        }
-
-        return null;
+    protected CaveJFACEDialog createDialog(Shell shell, DataManager dm,
+            ExecutionEvent event) {
+        ISelectTimeRangeManager selectTRmgr = dm.getSelectTimeRangeManager();
+        return new TimeScalePeriodsDialog(shell, selectTRmgr);
     }
-
 }

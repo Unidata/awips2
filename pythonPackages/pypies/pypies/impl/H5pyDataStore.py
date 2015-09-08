@@ -821,7 +821,9 @@ class H5pyDataStore(IDataStore.IDataStore):
             if outDir is None:
                 os.remove(filepath)
                 os.rename(repackedFullPath, filepath)
-                os.chmod(filepath, stat.S_IWUSR | stat.S_IWGRP | stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+                self.__doMakeReadable(filepath)
+            else :
+                self.__doMakeReadable(repackedFullPath)
         else:
             # remove failed new file if there was one
             if os.path.exists(repackedFullPath):
@@ -830,6 +832,7 @@ class H5pyDataStore(IDataStore.IDataStore):
                 # repack failed, but they wanted the data in a different
                 # directory, so just copy the original data without the repack
                 shutil.copy(filepath, repackedFullPath)
+                self.__doMakeReadable(repackedFullPath)
         t1=time.time()
         if timeMap.has_key('repack'):
             timeMap['repack']+=t1-t0

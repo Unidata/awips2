@@ -122,7 +122,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Composite containing the product editor controls.
- *
+ * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -171,11 +171,14 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 07/22/2015  13753       lshi        Keeps issue time unchanged
  * 07/28/2015   4263       dgilling    Support changes to TextProductManager.                                
  * 08/06/2015  13753       lshi        removed updateTime flag, undo the change of updateIssueExpireTimes, etc.
+ * 08/10/2015   4721       randerso    Changed getNNNid() to use the productID field (not textdbPil)
+ * Aug 31, 2015 4749       njensen     Changed setCloseCallback to addCloseCallback
+ * 
  * </pre>
- *
+ * 
  * @author lvenable
  * @version 1.0
- *
+ * 
  */
 public class ProductEditorComp extends Composite implements
         INotificationObserver {
@@ -378,10 +381,9 @@ public class ProductEditorComp extends Composite implements
 
     private final Listener visibilityListener;
 
-
     /**
      * Enumeration of product types.
-     *
+     * 
      * @author lvenable
      */
     public enum productTypeEnum {
@@ -428,7 +430,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Constructor.
-     *
+     * 
      * @param parent
      *            Parent composite.
      */
@@ -894,7 +896,7 @@ public class ProductEditorComp extends Composite implements
                         getShell());
                 wrapLengthDialog.setWrapLength(wrapColumn);
                 wrapLengthDialog.setBlockOnOpen(false);
-                wrapLengthDialog.setCloseCallback(new ICloseCallback() {
+                wrapLengthDialog.addCloseCallback(new ICloseCallback() {
 
                     @Override
                     public void dialogClosed(Object returnValue) {
@@ -1080,7 +1082,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Store or Transmit text product.
-     *
+     * 
      * @param action
      *            STORE: show the Store dialog TRANSMITT: shows the Transmit
      *            dialog. AUTOSTORE: implement autoStore
@@ -1536,7 +1538,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Decodes the start and end times of VTEC, return null if all zeros.
-     *
+     * 
      * @param vt
      *            The VTEC date string in "yyMMdd'T'HHmm'Z'" format
      * @return Date object that corresponds to the specified VTEC time or null
@@ -1865,7 +1867,7 @@ public class ProductEditorComp extends Composite implements
     /**
      * Returns a Date from an encoded YYMMDD and hhmm string. Function name is a
      * misnomer, but kept from porting AWIPS1 equivalent function.
-     *
+     * 
      * @param day
      *            The "calendar day" of the time in Java's "yyMMdd" format.
      * @param time
@@ -1889,7 +1891,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Convert time string in DDHHMM format to a Date.
-     *
+     * 
      * @param dtgString
      *            time string in DDHHMM format
      * @return time converted from input string
@@ -1947,7 +1949,7 @@ public class ProductEditorComp extends Composite implements
         this.expireDate = cal.getTime();
         dateTimeLbl.setText(expireLabelFmt.format(expireDate));
 
-        if (!dead) { //&& !editorCorrectionMode) { // && !spellDialog) {
+        if (!dead) { // && !editorCorrectionMode) { // && !spellDialog) {
             changeTimes();
         }
     }
@@ -1983,8 +1985,7 @@ public class ProductEditorComp extends Composite implements
                 // Update MND time
                 TextIndexPoints tip = pds.getMndMap().get("nwstime");
                 if (tip != null) {
-                    SimpleDateFormat fmt = new SimpleDateFormat(
-                            longLocalFmtStr);
+                    SimpleDateFormat fmt = new SimpleDateFormat(longLocalFmtStr);
                     fmt.setTimeZone(localTimeZone);
                     String issueTime = fmt.format(now).toUpperCase();
 
@@ -2014,7 +2015,6 @@ public class ProductEditorComp extends Composite implements
                     SimpleDateFormat fmt = new SimpleDateFormat(longLocalFmtStr);
                     fmt.setTimeZone(localTimeZone);
                     String officeIssueTime = fmt.format(now).toUpperCase();
-
 
                     for (int i = 0; i < numSegments; i++) {
                         textComp.startUpdate();
@@ -2084,14 +2084,14 @@ public class ProductEditorComp extends Composite implements
      * returns the appropriate expiration time. Expiration time is the earliest
      * of the specified expiration time, 1 hr if a CAN code is detected, or the
      * ending time of ongoing events (CON, EXT, EXB, NEW).
-     *
+     * 
      * @param issTime
      *            issue time
      * @param expTime
      *            expire time
      * @param vtecStr
      *            vtec string
-     *
+     * 
      * @return expire time
      */
     public Date getExpireTime(Date issTime, Date expTime, String vtecStr) {
@@ -2360,7 +2360,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Get the directory.
-     *
+     * 
      * @return The directory
      */
     private String getDir() {
@@ -2498,7 +2498,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Display the Find or Find & Replace dialog.
-     *
+     * 
      * @param findAndReplace
      *            If true show the Find & Replace dialog, false shows the Find
      *            dialog.
@@ -2605,7 +2605,7 @@ public class ProductEditorComp extends Composite implements
             ctaDialog = new CallToActionsDlg(parent.getShell(),
                     callToActionType, Sig, this);
             ctaDialog.setBlockOnOpen(false);
-            ctaDialog.setCloseCallback(new ICloseCallback() {
+            ctaDialog.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
@@ -2719,7 +2719,7 @@ public class ProductEditorComp extends Composite implements
     }
 
     public String getNNNid() {
-        return textdbPil.substring(3, 6);
+        return productId.substring(4, 7);
     }
 
     public String getProductName() {
@@ -2740,7 +2740,7 @@ public class ProductEditorComp extends Composite implements
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @seecom.raytheon.uf.common.jms.notification.INotificationObserver#
      * notificationArrived
      * (com.raytheon.uf.common.jms.notification.NotificationMessage[])
@@ -2922,7 +2922,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Word-wrap the text selected by the user.
-     *
+     * 
      */
     private void doWrapSelection() {
         StyledText styledText = textComp.getTextEditorST();
@@ -2998,7 +2998,7 @@ public class ProductEditorComp extends Composite implements
 
         /*
          * (non-Javadoc)
-         *
+         * 
          * @see org.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime.
          * IProgressMonitor)
          */

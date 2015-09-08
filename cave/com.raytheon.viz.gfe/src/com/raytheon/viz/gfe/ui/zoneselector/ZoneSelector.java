@@ -52,7 +52,8 @@ import com.raytheon.viz.ui.input.InputAdapter;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 11, 2011            randerso     Initial creation
+ * Aug 11, 2011            randerso    Initial creation
+ * Aug 31, 2015  4749      njensen     Overrode dispose()
  * 
  * </pre>
  * 
@@ -237,6 +238,12 @@ public class ZoneSelector extends AbstractZoneSelector {
                 "ZoneCombiner_backgroundColor", "gray40"));
 
         registerMouseHandler(theMouseListener);
+    }
+
+    @Override
+    public void dispose() {
+        lclFmtrDialog = null;
+        super.dispose();
     }
 
     // command to set the state of include all zones. If it has changed,

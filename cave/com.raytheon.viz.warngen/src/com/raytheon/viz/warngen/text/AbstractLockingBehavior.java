@@ -59,6 +59,7 @@ import com.raytheon.viz.warngen.gis.AffectedAreas;
  * May 13, 2014  DR 17177  Qinglu Lin   Updated secondBullet().
  * May 29, 2015    4442    randerso     Fixed WarnGen text locking to work with mixed case
  * Jul 10, 2015  DR 17314  Qinglu Lin   Updated firstBullet().
+ * Jul 15, 2015 DR17716 mgamazaychikov  Remove all nulls from the affectedAreas to avoid TimSort NPE in initialize.
  * Jul 17, 2015  DR 17314  D. Friedman  Fix string replacement in firstBullet().
  * Aug  5, 2015  DR 17865  Qinglu Lin   Updated firstBullet() for issue brought in by mixed case DCS.
  * 
@@ -348,6 +349,8 @@ abstract public class AbstractLockingBehavior {
         if (canceledAreas != null) {
             this.affectedAreas.addAll(Arrays.asList(canceledAreas));
         }
+        // remove all nulls from the collection to avoid TimSort NPE
+        this.affectedAreas.removeAll(Collections.singleton(null));
         Collections.sort(this.affectedAreas, comparator);
     }
 

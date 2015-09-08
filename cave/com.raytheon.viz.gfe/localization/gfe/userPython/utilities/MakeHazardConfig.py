@@ -10,6 +10,7 @@
 # ------------ ---------- -----------  --------------------------
 #  Jul 10,2012 436        randerso     Separated configuration data from the 
 #                                      MakeHazard procedure
+# Jul 29, 2015 17770      lshi         Add tcmList template for WP basin
 #
 # Author: randerso
 # ----------------------------------------------------------------------------
@@ -143,6 +144,9 @@ tcmList = []  # Comment out for HLS sites
 
 # Uncomment line below for CPac basin sites 
 #tcmList = ["TCMCP1", "TCMCP2", "TCMCP3", "TCMCP4", "TCMCP5"]
+
+# Uncomment line below for WPac basin sites
+#tcmList = ["TCPPQ1", "TCPPQ2", "TCPPQ3", "TCPPQ4", "TCPPQ5"]
 
 # Dictionary mapping Hazard Types to applicable local effect areas 
 #    that can be intersected with the zone edit areas. 

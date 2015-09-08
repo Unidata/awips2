@@ -85,6 +85,9 @@ import com.raytheon.uf.viz.d2d.core.D2DLoadProperties;
  *                                    FrameCoordinator.
  * Jul 14, 2015  DR 13900 D. Friedman Validate descriptor of time match basis
  *                                    before time matching it.
+ * Jul 30, 2015  17761    D. Friedman Allow resources to return data times based
+ *                                    on base frame times.
+ * 
  * 
  * </pre>
  * 
@@ -352,7 +355,7 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
                     config = config.clone();
                     if ((config.getDataTimes() == null)
                             || (config.getDataTimes().length < 1)) {
-                        config.setDataTimes(getLatestTimes(rsc));
+                        config.setDataTimes(getLatestTimes(rsc, timeSteps));
                     }
                     populateConfiguration(config);
                     TimeMatcher tm = new TimeMatcher();
@@ -514,7 +517,7 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
                 rsc.getLoadProperties()).clone();
         if ((config.getDataTimes() == null)
                 || (config.getDataTimes().length < 1)) {
-            config.setDataTimes(getLatestTimes(rsc));
+            config.setDataTimes(getLatestTimes(rsc, null));
             if ((config.getDataTimes() == null)
                     || (config.getDataTimes().length < 1)) {
                 return null;
@@ -635,10 +638,11 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
      * product times.
      * 
      * @param rsc
+     * @param timeSteps
      * @return
      * @throws VizException
      */
-    protected DataTime[] getLatestTimes(AbstractVizResource<?, ?> rsc)
+    protected DataTime[] getLatestTimes(AbstractVizResource<?, ?> rsc, DataTime[] timeSteps)
             throws VizException {
         DataTime[] availableTimes = null;
 
@@ -655,7 +659,7 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
         }
 
         if (availableTimes == null) {
-            availableTimes = rsc.getDataTimes();
+            availableTimes = rsc.getMatchedDataTimes(timeSteps);
             Arrays.sort(availableTimes);
         }
 

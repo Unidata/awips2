@@ -48,6 +48,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 20081106     1515       jkorman     Changed length of &quot;other&quot; attribute.
  * Nov 01, 2013 2361       njensen     Remove XML annotations
  * May 15, 2014 3002       bgonzale    Moved to com.raytheon.uf.common.dataplugin.taf.
+ * Aug 31, 2015 4360       rferrel     Removed parentId from equal and hashcode methods.
  * </pre>
  * 
  * @author bphillip
@@ -304,10 +305,6 @@ public class TafWeatherCondition extends PersistableDataObject {
                 return false;
             }
 
-            if (parentID != cond.getParentID()) {
-                return false;
-            }
-
             if (!(this.intensityProximity == null ? cond
                     .getIntensityProximity() == null : this.intensityProximity
                     .equals(cond.getIntensityProximity()))) {
@@ -335,8 +332,8 @@ public class TafWeatherCondition extends PersistableDataObject {
     @Override
     public int hashCode() {
 
-        return new HashCodeBuilder(17, 37).append(precipitation).append(
-                obscuration).append(parentID).append(intensityProximity)
+        return new HashCodeBuilder(17, 37).append(precipitation)
+                .append(obscuration).append(intensityProximity)
                 .append(descriptor).append(other).toHashCode();
     }
 

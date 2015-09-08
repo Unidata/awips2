@@ -114,6 +114,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * Aug 13, 2015       4749  njensen     Shut down coordinator on dispose()
  * Aug 26, 2015       4807  randerso    Change refDataCache so it will release unused edit areas
  *                                      Clean up deprecations and old style logging.
+ * Aug 27, 2015       4947  njensen     Fixed removeReferenceSetIDChangedListener()                                     
  * 
  * </pre>
  * 
@@ -1460,7 +1461,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
     @Override
     public void removeReferenceSetIDChangedListener(
             IReferenceSetIDChangedListener listener) {
-        refSetChangedListeners.remove(listener);
+        refSetChangedIDListeners.remove(listener);
     }
 
     /*
