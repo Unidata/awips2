@@ -33,7 +33,7 @@ import java.util.TimeZone;
  * ------------ ---------- ----------- --------------------------
  * OCT 8, 2007  1580       askripsky   Initial creation.
  * 21 Feb 2010  2915       mpduff      Fixed Time Zone problem.
- * 
+ * Sep 03, 2015 4845       rjpeter     Fix NPE.
  * </pre>
  * 
  * @author askripsky
@@ -245,8 +245,8 @@ public class StationReportingData implements Comparable<StationReportingData> {
         return qualityCode;
     }
 
-    public void setQualityCode(Integer qualityCode) {
-        this.qualityCode = (qualityCode != null) ? qualityCode : 0;
+    public void setQualityCode(Number qualityCode) {
+        this.qualityCode = (qualityCode != null) ? qualityCode.intValue() : 0;
     }
 
     public String getProductId() {

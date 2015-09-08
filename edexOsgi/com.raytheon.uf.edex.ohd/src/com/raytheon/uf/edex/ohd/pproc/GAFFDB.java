@@ -21,7 +21,6 @@ package com.raytheon.uf.edex.ohd.pproc;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -50,6 +49,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Mar 28, 2014   2952     mpduff      Changed to use UFStatus for logging.
  * Apr 21, 2014   2060     njensen     Remove dependency on grid dataURI column
  * Jul 09, 2015 4500       rjpeter     Fix SQL Injection concern.
+ * Sep 08, 2015 4846       rjpeter     Fixed paramMap data types.
  * </pre>
  * 
  * @author mpduff
@@ -204,14 +204,11 @@ public class GAFFDB {
     public void writeContingency(String areaId, long validTimeMillis,
             int duration, double avgVal) throws DataAccessLayerException {
         // validtime = timestamp from selected gridded FFG file
-        Calendar validTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        validTime.setTimeInMillis(validTimeMillis);
+        Calendar validDate = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        validDate.setTimeInMillis(validTimeMillis);
+        Calendar postDate = Calendar.getInstance(
+                TimeZone.getTimeZone("GMT"));
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String postDate = sdf.format(Calendar.getInstance(
-                TimeZone.getTimeZone("GMT")).getTime());
-        String validDate = sdf.format(validTime.getTime());
-        String basisTime = validDate;
 
         // duration in units of hours, possible values = 1,3,6,12,24
         short dur = 0;
@@ -229,42 +226,38 @@ public class GAFFDB {
 
         // Do we insert or update here
         String countSql = "select count(*) from contingencyvalue where "
-                + "lid = '" + areaId + "' and pe = 'PP' and dur = " + dur
+                + "lid = :areaId and pe = 'PP' and dur = :dur"
                 + " and ts = 'CP' and extremum = 'Z' and probability = -1.0 "
-                + " and validtime = '" + validDate + "' and basistime = '"
-                + basisTime + "'";
+                + " and validtime = :validDate and basistime = :validDate";
+        Map<String, Object> paramMap = new HashMap<>(8, 1);
+        paramMap.put("areaId", areaId);
+        paramMap.put("dur", dur);
+        paramMap.put("validDate", validDate);
 
         CoreDao dao = null;
         dao = new CoreDao(DaoConfig.forDatabase(IHFS));
 
-        Object[] rs = dao.executeSQLQuery(countSql);
+        Object[] rs = dao.executeSQLQuery(countSql, paramMap);
         BigInteger count = new BigInteger("0");
 
         if ((rs != null) && (rs.length > 0)) {
             count = (BigInteger) rs[0];
         }
 
-        if (count == BigInteger.ZERO) {
+        paramMap.put("avgVal", avgVal);
+        paramMap.put("qc", DEFAULT_QC_VALUE);
+        paramMap.put("postDate", postDate);
 
+        if (count == BigInteger.ZERO) {
             // Write data to the table
             String sql = "insert into contingencyvalue (lid, pe, dur, ts, "
                     + "extremum, probability, validtime, basistime, value, "
                     + "shef_qual_code, quality_code, revision, product_id, "
                     + "producttime, postingtime) values (:areaId, 'PP', "
-                    + ":dur, 'CP', 'Z', -1.0, :validDate, :basisTime, :avgVal, "
+                    + ":dur, 'CP', 'Z', -1.0, :validDate, :validDate, :avgVal, "
                     + "'Z', :qc, 0, 'GRIDFFG', :validDate, :postDate)";
 
             log.debug(sql);
-            Map<String, Object> paramMap = new HashMap<>(8, 1);
-            paramMap.put("areaId", areaId);
-            paramMap.put("dur", dur);
-            paramMap.put("validDate", validDate);
-            paramMap.put("basisTime", basisTime);
-            paramMap.put("avgVal", avgVal);
-            paramMap.put("qc", DEFAULT_QC_VALUE);
-            paramMap.put("validDate", validDate);
-            paramMap.put("postDate", postDate);
-
             dao.executeSQLUpdate(sql, paramMap);
         } else {
             // Need to do an update to the row
@@ -273,18 +266,7 @@ public class GAFFDB {
                     + "product_id = 'GRIDFFG', producttime = :validDate, "
                     + "postingtime = :postDate where lid = :areaId and pe = 'PP' "
                     + "and dur = :dur and ts = 'CP' and extremum = 'Z' and probability = -1.0 "
-                    + " and validtime = :validDate and basistime = :basisTime";
-
-            Map<String, Object> paramMap = new HashMap<>(8, 1);
-            paramMap.put("avgVal", avgVal);
-            paramMap.put("qc", DEFAULT_QC_VALUE);
-            paramMap.put("validDate", validDate);
-            paramMap.put("postDate", postDate);
-            paramMap.put("areaId", areaId);
-            paramMap.put("dur", dur);
-            paramMap.put("validDate", validDate);
-            paramMap.put("basisTime", basisTime);
-
+                    + " and validtime = :validDate and basistime = :validDate";
             dao.executeSQLUpdate(updateSql, paramMap);
         }
     }
