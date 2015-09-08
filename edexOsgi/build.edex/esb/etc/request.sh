@@ -20,7 +20,7 @@
 ##
 export INIT_MEM=128 # in Meg
 if [ "$EDEX_ARCH" == "64-bit" ]; then
-    export MAX_MEM=2144 # in Meg
+    export MAX_MEM=4096 # in Meg
 else
     export MAX_MEM=1376 # in Meg
 fi
