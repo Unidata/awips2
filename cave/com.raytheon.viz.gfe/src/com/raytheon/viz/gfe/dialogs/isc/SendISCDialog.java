@@ -44,6 +44,8 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.SendISCRequest;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.PythonPreferenceStore;
@@ -52,6 +54,7 @@ import com.raytheon.viz.gfe.core.IParmManager;
 import com.raytheon.viz.gfe.core.ISelectTimeRangeManager;
 import com.raytheon.viz.gfe.core.parm.ParmOp;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeProhibitedOpException;
 import com.raytheon.viz.ui.widgets.ToggleSelectList;
 
 /**
@@ -66,6 +69,7 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  * 08/20/09      1995       lvenable    Initial creation
  * 09/02/09          #1370  randerso    Make the same as PublishDialog
  * 10/26/2012   1287        rferrel    Code cleanup for non-blocking dialog.
+ * 09/15/2015   4858        dgilling   Handle exception from ParmOp.sendISC.
  * 
  * </pre>
  * 
@@ -73,6 +77,9 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  * @version 1
  */
 public class SendISCDialog extends CaveJFACEDialog {
+
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(getClass());
 
     private final int MAX_LIST_HEIGHT = 10;
 
@@ -438,7 +445,11 @@ public class SendISCDialog extends CaveJFACEDialog {
         // LogStream.logUse("Send ISC: ", requests);
 
         // send the data by calling the parm op command
-        parmOp.sendISC(requests);
+        try {
+            parmOp.sendISC(requests);
+        } catch (SimulatedTimeProhibitedOpException e) {
+            statusHandler.error(e.getLocalizedMessage(), e);
+        }
     }
 
     protected TimeRange getTR(ParmID parm) {
