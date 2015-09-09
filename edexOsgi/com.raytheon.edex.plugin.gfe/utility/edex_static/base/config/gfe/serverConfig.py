@@ -68,6 +68,7 @@
 #    05/29/2015          17496     ryu            Changed parm definitions for Wave1-10 and Period1-10.
 #
 #    05/29/2015          #17144    bhunder        Added weather Params for URMA25 and OCONUS RTMA 
+#    09/02/2015          #4819     rferrel        Added HWRF.
 ####################################################################################################
 
 #----------------------------------------------------------------------------
@@ -1106,7 +1107,7 @@ GlobalWave  = ('GlobalWave',   GRID,   '', NO,  NO,  2, 0)
 GLWM        = ('GLWM',         GRID,   '', NO,  NO,  2, 0)##########DCS3499
 HIRESWarw   = ('HIRESWarw',    GRID,   '', NO,  NO,  2, 0)##########DCS3501
 HIRESWnmm   = ('HIRESWnmm',    GRID,   '', NO,  NO,  2, 0)
-HRRR        = ("HRRR",         GRID,   '', NO,  NO,  3, 0)
+HRRR        = ('HRRR',         GRID,   '', NO,  NO,  3, 0)
 #### SPC         = ('SPC',          GRID,   '', NO,  NO,  2, 0)###DR20634
 WCwave10    = ('WCwave10',     GRID,   '', NO,  NO,  2, 0)
 WCwave4     = ('WCwave4',      GRID,   '', NO,  NO,  2, 0)
@@ -1280,7 +1281,8 @@ elif SID in CONUS_EAST_SITES:
     D2DMODELS = [('GFS212', 'GFS40'),
                  ('AVN211', 'GFS80'),
                  ('ETA', 'NAM80'),
-                 ('HRRR', 'HRRR'),
+                 'HRRR',
+                 'HWRF',
                  ('NGM', 'NGM80'),
                  ('MRF', 'gfsLR'),
                  ('RUC130', 'RUC13'),
@@ -1288,7 +1290,7 @@ elif SID in CONUS_EAST_SITES:
                  ('mesoEta212', 'NAM40'),
                  ('mesoEta215', 'NAM20'),
                  'MSAS',
-                 ('LAPS', 'LAPS'),
+                 'LAPS',
                  'GWW233',
                  ('HPCqpf', 'HPCQPF'),
                  ('HPCqpfNDFD', 'HPCERP'),
@@ -1365,12 +1367,13 @@ else:   #######DCS3501 WEST_CONUS
                  ('mesoEta212', 'NAM40'),
                  ('mesoEta215', 'NAM20'),
                  'MSAS',
-                 ('LAPS', 'LAPS'),
+                 'LAPS',
                  'GWW233',
                  ('HPCqpf', 'HPCQPF'),
                  ('HPCqpfNDFD', 'HPCERP'),
                  ('RFCqpf', 'RFCQPF'),
-                 ('HRRR', 'HRRR'),
+                 'HRRR',
+                 'HWRF',
 #DR3511                 'HPCdelta',
                  'WNAWAVE238',
                  'TPCSurgeProb',
@@ -1675,6 +1678,7 @@ else:
         "NamDNG5" : ["NamDNG5"],
         "SREF" : ["SREF"],
         "HRRR" : ['HRRR'],
+        "HRWF" : ['HRWF'],
 #########DCS3501
         "GLWM" : ["GLWM"],
         "HIRESWarw" : ["HIRESWarw"],
@@ -1716,6 +1720,7 @@ D2DAccumulativeElements= {
     "GFS75": ["tp", "cp"],
     "GFS190": ["tp", "cp"],
     "HRRR": ["tp", "crain", "csnow", "cfrzr", "cicep"],
+    "HWRF":  ["tp", "cp"],
     "NAM95": ["tp", "cp"],
     "NAM80": ["tp", "cp"],
     "NAM40": ["tp", "cp"],

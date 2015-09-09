@@ -77,6 +77,7 @@ import com.raytheon.uf.edex.plugin.grid.PartialGrid;
  * Mar 27, 2013  1821     bsteffen    Speed up GridInfoCache.   
  * Mar 20, 2013  2910     bsteffen    Clear dataURI after loading cached info.
  * Jul 09, 2015  4500     rjpeter     Fix SQL Injection concern.
+ * Sep 15, 2015  4819     rferrel     Made {@link #validateDataset(GridRecord)} public.
  * </pre>
  * 
  * @author bphillip
@@ -248,7 +249,7 @@ public class GridDao extends PluginDao {
         return toPersist.toArray(new GridRecord[toPersist.size()]);
     }
 
-    private boolean validateDataset(GridRecord record) {
+    public boolean validateDataset(GridRecord record) {
         if (!validateParameter(record)) {
             return false;
         }

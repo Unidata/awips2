@@ -123,6 +123,19 @@
 	    <modelName>GFS215|GFS217|GFS20-*</modelName>
 	    <processorName>gov.noaa.nws.crh.edex.grib.decoderpostprocessor.GFS20PostProcessor</processorName>
 	</postProcessedModel>
+ 
+    <!-- Post processor definition for the HWRF model -->
+    <!-- This breaks GFE and volume browser. The post processing
+         creates models based on a storm's moving grid. Currently
+         the GFE and volume browser do not handle dynamic names
+         this post processing produces.
+    -->
+    <!-- 
+    <postProcessedModel>
+        <modelName>HWRF</modelName>
+        <processorName>HWRFPostProcessor</processorName>
+    </postProcessedModel>
+    -->
 
 </postProcessedModels>
 
