@@ -168,6 +168,7 @@ fi
 
 
 chmod 775 /awips2/edex/data/manual
+chmod 775 /awips2/edex/logs
 
 %preun
 if [ "${1}" = "1" ]; then
