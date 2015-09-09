@@ -39,7 +39,6 @@ while ( $CNT <= $#argv )
 end
 
 cat | /bin/gunzip -c >>! $FILE
-#sleep 1
-#/awips2/fxa/bin/qpidNotify $FILE
+/awips2/fxa/bin/qpidNotify $FILE
 
 exit(0)
