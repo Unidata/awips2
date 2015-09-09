@@ -19,7 +19,7 @@
 # further licensing information.
 ##
 export INIT_MEM=128 # in Meg
-export MAX_MEM=544 # in Meg
+export MAX_MEM=768 # in Meg
 
 export METADATA_POOL_MAX=10
 export EDEX_DEBUG_PORT=5007
