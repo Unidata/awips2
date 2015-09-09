@@ -1,0 +1,45 @@
+#!/bin/csh -f
+# Copyright (c)2003 UCAR/Unidata
+#
+# Permission to use, copy, modify, and distribute this software and its
+# documentation for any purpose without fee is hereby granted, provided
+# that the above copyright notice appear in all copies, that both that
+# copyright notice and this permission notice appear in supporting
+# documentation, and that the name of UCAR/Unidata not be used in
+# advertising or publicity pertaining to distribution of the software
+# without specific, written prior permission.  UCAR makes no
+# representations about the suitability of this software for any purpose.
+# It is provided "as is" without express or implied warranty.  It is
+# provided with no support and without obligation on the part of UCAR or
+# Unidata, to assist in its use, correction, modification, or enhancement.
+#
+# Steve Chiswell	10/24/2003
+# Michael James		09/08/2015	Updated for EDEX 14.4.1 use with MRMS
+#
+#setenv PATH ~ldm/util:~ldm/decoders:${PATH}
+
+set TESTARG=`echo $argv | grep -c -- '-f'`
+if ( ! $TESTARG ) set TESTARG=`echo $argv | grep -c -- '-h'`
+
+# process args
+
+@ CNT = 1
+while ( $CNT <= $#argv )
+   set USAGE=`echo $argv[${CNT}] | grep -c -- '-h'`
+   if ( $USAGE ) then
+      echo Usage: ${0:t} '( [-f filename] | pipe_command )'
+      exit(0)
+   endif
+   set FILE=`echo $argv[${CNT}] | grep -c -- '-f'`
+   if ( $FILE ) then
+      shift argv
+      set FILE=$argv[${CNT}]
+   endif
+   @ CNT = $CNT + 1
+end
+
+cat | /bin/gunzip -c >>! $FILE
+#sleep 1
+#/awips2/fxa/bin/qpidNotify $FILE
+
+exit(0)
