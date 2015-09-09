@@ -48,6 +48,8 @@ import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.ISimulatedTimeChangeListener;
+import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -75,6 +77,8 @@ import com.raytheon.viz.gfe.smarttool.script.SmartToolFactory;
 import com.raytheon.viz.gfe.smarttool.script.SmartToolJobPool;
 import com.raytheon.viz.gfe.smarttool.script.SmartToolUIController;
 import com.raytheon.viz.gfe.textformatter.TextProductManager;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeProhibitedOpException;
 
 /**
  * DataManager is the central singleton in GFE upon which other managers are
@@ -104,6 +108,7 @@ import com.raytheon.viz.gfe.textformatter.TextProductManager;
  * 09/09/2014    3592      randerso    Added call to SampleSetManager.dispose()
  * 10/30/2014    3775      randerso    Added parmCacheInit to initStatus
  * 04/20/2015    4027      randerso    Let TextProductManager know we are not running in a GUI
+ * 09/15/2015    4858      dgilling    Disable ISC when DRT mode is enabled.
  * 
  * </pre>
  * 
@@ -111,7 +116,7 @@ import com.raytheon.viz.gfe.textformatter.TextProductManager;
  * @version 1.0
  */
 
-public class DataManager {
+public class DataManager implements ISimulatedTimeChangeListener {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DataManager.class);
@@ -204,6 +209,8 @@ public class DataManager {
 
     private final SmartToolJobPool toolJobPool;
 
+    private boolean previousIscSendState;
+
     public IISCDataAccess getIscDataAccess() {
         return iscDataAccess;
     }
@@ -270,8 +277,14 @@ public class DataManager {
 
         // set the ISC send state, which initially sends the message
         new ISCSendStatusChangedMsg(false).send(); // initial state
-        if (CAVEMode.getMode().equals(CAVEMode.OPERATIONAL)) {
-            enableISCsend(true);
+        if (CAVEMode.getMode().equals(CAVEMode.OPERATIONAL)
+                && ((SimulatedTime.getSystemTime().isRealTime()))
+                || (SimulatedTimeOperations.isTransmitAllowedinSimulatedTime())) {
+            try {
+                enableISCsend(true);
+            } catch (SimulatedTimeProhibitedOpException e) {
+                statusHandler.error(e.getLocalizedMessage(), e);
+            }
         }
         // this.queryString = "siteID='" + this.getSiteID() + "'";
         this.router.start();
@@ -282,6 +295,11 @@ public class DataManager {
         this.autoSaveJob = new AutoSaveJob(this);
 
         new ParmEvictor();
+
+        if (CAVEMode.getMode() == CAVEMode.OPERATIONAL) {
+            SimulatedTime.getSystemTime().addSimulatedTimeChangeListener(this);
+        }
+        this.previousIscSendState = clientISCSendStatus();
     }
 
     /**
@@ -332,6 +350,11 @@ public class DataManager {
         Thread killPoolsThread = new Thread(killJobPools, "shutdown-gfe-pools");
         killPoolsThread.setDaemon(false);
         killPoolsThread.start();
+
+        if (CAVEMode.getMode() == CAVEMode.OPERATIONAL) {
+            SimulatedTime.getSystemTime().removeSimulatedTimeChangeListener(
+                    this);
+        }
 
         NotificationManagerJob.removeObserver("edex.alerts.gfe", router);
     }
@@ -684,8 +707,15 @@ public class DataManager {
      * Sets the overall isc send capability for this user.
      * 
      * @param state
+     * @throws SimulatedTimeProhibitedOperationException
      */
-    public void enableISCsend(boolean state) {
+    public void enableISCsend(boolean state)
+            throws SimulatedTimeProhibitedOpException {
+        if (state && !SimulatedTimeOperations.isTransmitAllowed()) {
+            throw SimulatedTimeOperations
+                    .constructProhibitedOpException("ISC Send");
+        }
+
         if (state == iscSendState) {
             return; // do nothing
         }
@@ -720,5 +750,35 @@ public class DataManager {
 
     public SmartToolJobPool getSmartToolJobPool() {
         return toolJobPool;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.time.ISimulatedTimeChangeListener#timechanged()
+     */
+    @Override
+    public void timechanged() {
+        boolean tryToEnable = SimulatedTimeOperations.isTransmitAllowed();
+        boolean newState;
+        if (tryToEnable) {
+            newState = previousIscSendState;
+        } else {
+            newState = false;
+            previousIscSendState = clientISCSendStatus();
+        }
+
+        try {
+            enableISCsend(newState);
+        } catch (SimulatedTimeProhibitedOpException e) {
+            /*
+             * We should never hit this state...but better to log something just
+             * in case.
+             */
+            statusHandler.handle(Priority.WARN,
+                    "ISC send status got into an invalid state trying to change state to "
+                            + newState, e);
+        }
     }
 }

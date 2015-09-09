@@ -149,6 +149,12 @@
 		<command id="com.raytheon.viz.gfe.actions.ShowLoadSampleSetDialog"
 			name="ShowLoadSampleSetDialog">
 		</command>
+		<command id="com.raytheon.viz.gfe.actions.ShowSendIsc"
+			name="ShowSendIscGridsDialog">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.ShowIscRequestReply"
+			name="ShowIscRequestReplyDialog">
+		</command>
 		<command id="com.raytheon.viz.gfe.actions.ShowSaveDeleteSampleSetDialog"
 			name="ShowSaveDeleteSampleSetDialog">
      <commandParameter
@@ -998,6 +1004,24 @@
         </reference>
      </activeWhen>
   </handler>
+    <handler
+         class="com.raytheon.viz.gfe.actions.ShowSendIscGridsDialog"
+         commandId="com.raytheon.viz.gfe.actions.ShowSendIsc">
+     <activeWhen>
+        <reference
+              definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+        </reference>
+     </activeWhen>
+  </handler>
+    <handler
+         class="com.raytheon.viz.gfe.actions.ShowIscRequestReplyDialog"
+         commandId="com.raytheon.viz.gfe.actions.ShowIscRequestReply">
+     <activeWhen>
+        <reference
+              definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+        </reference>
+     </activeWhen>
+  </handler>
 	</extension>
 	<extension point="com.raytheon.uf.viz.core.resource">
 		<resource class="com.raytheon.viz.gfe.rsc.GFEResource" name="GFEResource"
@@ -1303,7 +1327,15 @@
           name="com.raytheon.viz.gfe.separator2"
           visible="true">
     </separator>
-    			<dynamic class="com.raytheon.viz.gfe.menu.ISCMenuEnabler" id="com.raytheon.viz.gfe.menu.ISCMenuEnabler"/>
+    <command
+          commandId="com.raytheon.viz.gfe.actions.ShowSendIsc"
+          label="Send Intersite Grids" />
+    <command
+          commandId="com.raytheon.viz.gfe.actions.ShowIscRequestReply"
+          label="ISC Request/Reply" />
+	<command
+          commandId="com.raytheon.viz.gfe.iscSendEnable"
+          label="ISC Send Enable" style="toggle" />
 			</menu>
 			<menu label="Products" mnemonic="P">
 				<visibleWhen>
