@@ -1,0 +1,64 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+  <bean id="nosPathManager" class="com.raytheon.uf.common.localization.PathManagerFactory"
+    factory-method="getPathManager" />
+
+  <bean id="pgblendedHdf4Decoder" class="com.raytheon.uf.edex.plugin.nos.pgblended.hdf4.PGBlendedHdf4Decoder">
+    <constructor-arg value="nos/netcdf/pgblended.xml" />
+    <property name="pathManager" ref="nosPathManager" />
+  </bean>
+  
+  <bean id="ncomNetcdfDecoder" class="com.raytheon.uf.edex.plugin.nos.ncom.netcdf.NcomNetcdfDecoder">
+    <constructor-arg value="nos/netcdf/ncom.xml" />
+    <property name="pathManager" ref="nosPathManager" />
+  </bean>
+
+  <bean id="nosDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg value="nos" />
+        <constructor-arg value="jms-durable:queue:Ingest.NOS" />
+    </bean>
+
+  <camelContext id="nos-camel" xmlns="http://camel.apache.org/schema/spring"
+    errorHandlerRef="errorHandler">
+
+    <route id="NOSIngestRoute">
+      <from uri="jms-durable:queue:Ingest.NOS" />
+      <doTry>
+        <pipeline>
+          <bean ref="stringToFile" />
+          <choice>
+            <when>
+                <simple>${in.header.header} regex '^sst_geo-polar-blended.*'</simple>
+                <bean ref="pgblendedHdf4Decoder" method="decode" />
+                <to uri="direct-vm:persistIndexAlert" />
+            </when>
+            <otherwise>
+                <split streaming="true">
+                    <method bean="ncomNetcdfDecoder" method="split"/>
+                    <doTry>
+                        <pipeline>
+                            <bean ref="ncomNetcdfDecoder" method="decode" />
+                            <to uri="direct-vm:persistIndexAlert" />
+                        </pipeline>
+                        <doCatch>
+                            <exception>java.lang.Throwable</exception>
+                            <to uri="direct-vm:logFailedData" />
+                        </doCatch>
+                    </doTry>
+                </split>
+            </otherwise>
+          </choice>
+        </pipeline>
+        <doCatch>
+          <exception>java.lang.Throwable</exception>
+          <to uri="direct-vm:logFailedData" />
+        </doCatch>
+      </doTry>
+    </route>
+  </camelContext>
+
+</beans>
