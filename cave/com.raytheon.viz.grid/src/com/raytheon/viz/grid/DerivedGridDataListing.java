@@ -40,7 +40,7 @@ import com.raytheon.viz.grid.inv.GridInventory;
 
 /**
  * 
- * An extension of the {@link GridDataListing} that queryies the
+ * An extension of the {@link GridDataListing} that queries the
  * {@link GridInventory} to list all available derived data in addition to data
  * from the database.
  * 
@@ -48,10 +48,10 @@ import com.raytheon.viz.grid.inv.GridInventory;
  * 
  * SOFTWARE HISTORY
  * 
- * SOFTWARE HISTORY
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------
  * Jun 09, 2015  4153     bsteffen  Initial creation
+ * Sep 08, 2015  4717     mapeters  Make all lists modifiable in getValues()
  * 
  * </pre>
  * 
@@ -73,7 +73,8 @@ public class DerivedGridDataListing extends GridDataListing {
     }
 
     @Override
-    public Collection<String> getValues(String key, Map<String, String> keyVals) throws Exception {
+    public Collection<String> getValues(String key, Map<String, String> keyVals)
+            throws Exception {
         Collection<String> sources = null;
         Collection<String> params = null;
         Collection<Level> levels = null;
@@ -81,12 +82,13 @@ public class DerivedGridDataListing extends GridDataListing {
             String mapKey = queryParam.getKey();
             String value = queryParam.getValue();
             if (mapKey.equals(GridInventory.MODEL_NAME_QUERY)) {
-                sources = Arrays.asList(value);
+                sources = new ArrayList<String>(Arrays.asList(value));
             } else if (mapKey.equals(GridInventory.PARAMETER_QUERY)) {
-                params = Arrays.asList(value);
+                params = new ArrayList<String>(Arrays.asList(value));
             } else if (mapKey.equals(GridInventory.MASTER_LEVEL_QUERY)) {
                 if (levels == null) {
-                    levels = new ArrayList<Level>(LevelFactory.getInstance().getAllLevels());
+                    levels = new ArrayList<Level>(LevelFactory.getInstance()
+                            .getAllLevels());
                 }
                 Iterator<Level> iter = levels.iterator();
                 while (iter.hasNext()) {
@@ -98,8 +100,11 @@ public class DerivedGridDataListing extends GridDataListing {
             } else if (mapKey.equals(GridInventory.LEVEL_ONE_QUERY)) {
                 double doubleValue = Double.parseDouble(value);
                 if (levels == null) {
-                    levels = new ArrayList<Level>(LevelMappingFactory.getInstance(
-                            LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE).getAllLevels());
+                    levels = new ArrayList<Level>(
+                            LevelMappingFactory
+                                    .getInstance(
+                                            LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
+                                    .getAllLevels());
                 }
                 Iterator<Level> iter = levels.iterator();
                 while (iter.hasNext()) {
@@ -110,8 +115,11 @@ public class DerivedGridDataListing extends GridDataListing {
             } else if (mapKey.equals(GridInventory.LEVEL_TWO_QUERY)) {
                 double doubleValue = Double.parseDouble(value);
                 if (levels == null) {
-                    levels = new ArrayList<Level>(LevelMappingFactory.getInstance(
-                            LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE).getAllLevels());
+                    levels = new ArrayList<Level>(
+                            LevelMappingFactory
+                                    .getInstance(
+                                            LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
+                                    .getAllLevels());
                 }
                 Iterator<Level> iter = levels.iterator();
                 while (iter.hasNext()) {
@@ -120,20 +128,23 @@ public class DerivedGridDataListing extends GridDataListing {
                     }
                 }
             } else if (mapKey.equals(GridInventory.LEVEL_ID_QUERY)) {
-                levels = Arrays.asList(LevelFactory.getInstance().getLevel(value));
+                levels = new ArrayList<Level>(Arrays.asList(LevelFactory
+                        .getInstance().getLevel(value)));
             }
         }
 
         BlockingQueue<String> returnQueue = new LinkedBlockingQueue<String>();
-        GridInventory inventory = (GridInventory) DataCubeContainer.getInventory(GridConstants.GRID);
+        GridInventory inventory = (GridInventory) DataCubeContainer
+                .getInventory(GridConstants.GRID);
         if (key.equals(GridInventory.MODEL_NAME_QUERY)) {
             inventory.checkSources(sources, params, levels, returnQueue);
             return returnQueue;
         } else if (key.equals(GridInventory.PARAMETER_QUERY)) {
-                inventory.checkParameters(sources, params, levels, false, returnQueue);
+            inventory.checkParameters(sources, params, levels, false,
+                    returnQueue);
             return returnQueue;
         } else if (key.equals(GridInventory.MASTER_LEVEL_QUERY)) {
-                inventory.checkLevels(sources, params, levels, returnQueue);
+            inventory.checkLevels(sources, params, levels, returnQueue);
             Set<String> masterlevels = new HashSet<String>();
             LevelFactory lf = LevelFactory.getInstance();
             for (String levelid : returnQueue) {
@@ -142,7 +153,7 @@ public class DerivedGridDataListing extends GridDataListing {
             }
             return masterlevels;
         } else if (key.equals(GridInventory.LEVEL_ID_QUERY)) {
-                inventory.checkLevels(sources, params, levels, returnQueue);
+            inventory.checkLevels(sources, params, levels, returnQueue);
             return returnQueue;
         } else {
             return super.getValues(key, keyVals);
