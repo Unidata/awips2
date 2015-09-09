@@ -48,7 +48,7 @@
 		</antcall>
 		<antcall target="build">
 			<param name="feature"
-				value="com.raytheon.uf.edex.grib.feature" />
+				value="com.raytheon.uf.edex.grid.feature" />
 		</antcall>
         <antcall target="build">
             <param name="feature"
