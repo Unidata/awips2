@@ -57,6 +57,7 @@ import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.hydro.spatial.HRAPCoordinates;
 import com.raytheon.uf.common.hydro.spatial.HRAPSubGrid;
 import com.raytheon.uf.common.message.response.ResponseMessageGeneric;
+import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.GUIDANCE_TYPE;
 import com.raytheon.uf.common.monitor.scan.ScanUtils;
 import com.raytheon.uf.common.mpe.util.XmrgFile;
 import com.raytheon.uf.common.serialization.comm.RequestRouter;
@@ -963,19 +964,26 @@ public class FFMPUtils {
     }
 
     /**
-     * Gets the datauri for this partiular FFG
+     * Gets the datauri for this particular FFG
      * 
      * @param id
      * @return
      */
-    public static String getFFGDataURI(String rfc, String parameter,
+    public static String getFFGDataURI(GUIDANCE_TYPE type, String datasetid, String parameter,
             String plugin) {
         DbQueryRequest request = new DbQueryRequest();
         request.setEntityClass(GridRecord.class.getName());
         request.addConstraint(GridConstants.PARAMETER_ABBREVIATION,
                 new RequestConstraint(parameter));
-        request.addConstraint(GridConstants.DATASET_ID, new RequestConstraint(
-                "FFG-" + rfc.substring(1)));
+        
+        if (type == GUIDANCE_TYPE.RFC) {
+            request.addConstraint(GridConstants.DATASET_ID, new RequestConstraint(
+                    "FFG-" + datasetid.substring(1)));
+        } else {
+            request.addConstraint(GridConstants.DATASET_ID, new RequestConstraint(
+                    datasetid));
+        }
+
         request.setOrderByField("dataTime.refTime", OrderMode.DESC);
         try {
             DbQueryResponse response = (DbQueryResponse) RequestRouter
@@ -1468,7 +1476,7 @@ public class FFMPUtils {
      * @param dataPath
      * @return
      */
-    private static String[] parseGridDataPath(String dataPath) {
+    public static String[] parseGridDataPath(String dataPath) {
         // parse the path given as the URI match in the source config
         return dataPath.split(DataURI.SEPARATOR);
     }

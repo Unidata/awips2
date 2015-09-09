@@ -69,6 +69,7 @@ import com.raytheon.uf.common.localization.exception.LocalizationOpFailedExcepti
 import com.raytheon.uf.common.monitor.config.FFMPRunConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.DATA_TYPE;
+import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.GUIDANCE_TYPE;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.SOURCE_TYPE;
 import com.raytheon.uf.common.monitor.config.FFMPTemplateConfigurationManager;
 import com.raytheon.uf.common.monitor.events.MonitorConfigEvent;
@@ -139,6 +140,7 @@ import com.raytheon.uf.edex.plugin.ffmp.common.FFTIRatioDiff;
  * Jul 10, 2014 2914       garmendariz Remove EnvProperties
  * Aug 26, 2014 3503       bclement    removed constructDataURI() call
  * Aug 08, 2015 4722       dhladky     Generalized the processing of FFMP data types.
+ * Sep 09, 2015 4756       dhladky     Further generalization of FFG processing.
  * </pre>
  * 
  * @author dhladky
@@ -1050,7 +1052,8 @@ public class FFMPGenerator extends CompositeProductGenerator implements
     }
 
     /**
-     * Do pull strategy on FFG data
+     * Do pull strategy on FFG data, currently works with
+     * Gridded FFG sources only.  (There are only gridded sources so far)
      * 
      * @param filter
      * @return
@@ -1059,48 +1062,78 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
         ArrayList<String> uris = new ArrayList<String>();
 
+        // Check RFC types
         for (String rfc : filter.getRFC()) {
             // get a hash of the sources and their grib ids
             Set<String> sources = FFMPUtils.getFFGParameters(rfc);
-            if (sources != null) {
-                if (sources.size() > 0) {
-                    for (String source : sources) {
+            if (sources != null && sources.size() > 0) {
+                for (String source : sources) {
 
-                        SourceXML sourceXml = getSourceConfig().getSource(
-                                source);
+                    SourceXML sourceXml = getSourceConfig().getSource(source);
 
-                        if (sourceXml != null) {
+                    if (sourceXml != null) {
 
-                            String plugin = getSourceConfig().getSource(source)
-                                    .getPlugin();
-                            uris.add(FFMPUtils.getFFGDataURI(rfc, source,
-                                    plugin));
-                        }
+                        String plugin = getSourceConfig().getSource(source)
+                                .getPlugin();
+                        uris.add(FFMPUtils.getFFGDataURI(GUIDANCE_TYPE.RFC, rfc, source, plugin));
                     }
                 }
             }
         }
+
+        // Check for ARCHIVE types
+        ArrayList<String> guidSources = getSourceConfig().getGuidances();
+        if (guidSources != null && guidSources.size() > 0) {
+            for (String guidSource : guidSources) {
+
+                SourceXML sourceXml = getSourceConfig().getSource(guidSource);
+
+                if (sourceXml != null
+                        && sourceXml.getGuidanceType().equals(
+                                GUIDANCE_TYPE.ARCHIVE.getGuidanceType())) {
+                    String plugin = getSourceConfig().getSource(guidSource)
+                            .getPlugin();
+                    String[] uriComps = FFMPUtils.parseGridDataPath(sourceXml
+                            .getDataPath());
+                    /*
+                     * datasetid is UriComp[3], parameter abbreviation is
+                     * UriComp[7]
+                     */
+                    uris.add(FFMPUtils.getFFGDataURI(GUIDANCE_TYPE.ARCHIVE,
+                            uriComps[3], uriComps[7], plugin));
+                }
+            }
+        }
+
         // treat it like a regular uri in the filter.
         if (uris.size() > 0) {
             for (String dataUri : uris) {
                 // add your pattern checks to the key
                 for (Pattern pattern : filter.getMatchURIs().keySet()) {
-                    statusHandler.handle(Priority.DEBUG,
-                            "Pattern: " + pattern.toString() + " Key: "
-                                    + dataUri);
-                    try {
-                        if (pattern.matcher(dataUri).find()) {
-                            // matches one of them, which one?
-                            String matchKey = filter.getPatternName(pattern);
-                            // put the sourceName:dataPath key into the sources
-                            // array list
-                            filter.getSources().put(matchKey, dataUri);
+                    /*
+                     * Safety, eliminates chance of unattached source config
+                     * uri's coming in that have no pattern attached to them.
+                     */
+                    if (dataUri != null && pattern != null) {
+                        statusHandler.handle(Priority.INFO, "Pattern: "
+                                + pattern.toString() + " Key: " + dataUri);
+                        try {
+                            if (pattern.matcher(dataUri).find()) {
+                                // matches one of them, which one?
+                                String matchKey = filter
+                                        .getPatternName(pattern);
+                                /*
+                                 * put the sourceName:dataPath key into the
+                                 * sources array list.
+                                 */
+                                filter.getSources().put(matchKey, dataUri);
+                            }
+                        } catch (Exception e) {
+                            statusHandler.handle(
+                                    Priority.ERROR,
+                                    "Unable to locate new FFG file. "
+                                            + dataUri, e);
                         }
-                    } catch (Exception e) {
-                        statusHandler.handle(
-                                Priority.ERROR,
-                                "Unable to locate new FFG file. "
-                                        + pattern.toString(), e);
                     }
                 }
             }
@@ -1528,7 +1561,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                         // write it, allowing, and in fact encouraging replacing
                         // the last one
                         dataStore.addDataRecord(rec, sp);
-                        dataStore.store(StoreOp.OVERWRITE);
+                        dataStore.store(StoreOp.REPLACE);
 
                     } catch (Exception e) {
                         statusHandler.handle(
