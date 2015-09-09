@@ -12,7 +12,7 @@
 
 	<!-- SUBCENTER 0 -->
 	<model>
-		<name>MRMS</name>
+		<name>MRMS_1000</name>
 		<center>161</center>
 		<subcenter>0</subcenter>
 		<grid>10000</grid>
@@ -22,7 +22,7 @@
 	</model>
 	
 	<model>
-		<name>MRMS</name>
+		<name>MRMS_0500</name>
 		<center>161</center>
 		<subcenter>0</subcenter>
 		<grid>10001</grid>
