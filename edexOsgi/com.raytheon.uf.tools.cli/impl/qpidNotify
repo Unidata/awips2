@@ -33,6 +33,7 @@
 #    10/09/12        DR 13901      D. Friedman    Add logging
 #    02/20/13        DR 15836      D. Friedman    Append to log
 #    09/08/15                      mjames@ucar    Put log file in /awips2/edex/logs
+#    09/09/15                      mjames@ucar    Remove logging for use by LDM
 ##############################################################################
 
 # this allows you to run this script from outside of ./bin
@@ -51,9 +52,6 @@ export PYTHONPATH=${RUN_FROM_DIR}/src:$PYTHONPATH
 # execute the Python module
 _PYTHON="${PYTHON_INSTALL}/bin/python"
 _MODULE="${RUN_FROM_DIR}/src/qpidNotify/qpidNotify.py"
-
-log_file=${EDEX_INSTALL}/logs/qpidNotify-$(date -u +%Y%m%d).log
-exec >>"$log_file" 2>&1
 
 # quoting of '$@' is used to prevent command line interpretation 
 $_PYTHON $_MODULE "$@"
