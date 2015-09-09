@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<subGridDef>
-   <modelNames>MRMS_0500</modelNames>
-   <referenceGrid>10001</referenceGrid>
-   <nx>1600</nx>
-   <ny>1200</ny>
-</subGridDef>
