@@ -600,7 +600,7 @@ if [ "${1}" = "-custom" ]; then
 fi
 
 if [ "${1}" = "-qpid" ]; then
-   #buildRPM "awips2-python-qpid"
+   buildRPM "awips2-python-qpid"
    buildQPID
    if [ $? -ne 0 ]; then
       exit 1
