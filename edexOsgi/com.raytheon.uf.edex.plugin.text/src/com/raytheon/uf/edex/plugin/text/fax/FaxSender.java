@@ -121,7 +121,7 @@ public class FaxSender {
         faxWriter.write("\n");
         faxWriter.close();
         StringBuilder faxDataCommand = new StringBuilder();
-        faxDataCommand.append("scp ");
+        faxDataCommand.append("scp -q ");
         faxDataCommand.append(faxDataFilename);
         faxDataCommand.append(" ldad@ls1:");
         faxDataCommand.append(ldadDataFilename);
@@ -136,7 +136,7 @@ public class FaxSender {
             return retval;
         }
         StringBuilder ldadDataCommand = new StringBuilder();
-        ldadDataCommand.append("scp ");
+        ldadDataCommand.append("scp -q ");
         ldadDataCommand.append(faxScriptFilename);
         ldadDataCommand.append(" ldad@ls1:");
         ldadDataCommand.append(ldadScriptFilename);
@@ -156,7 +156,7 @@ public class FaxSender {
          * DR4550 - the sshCommand should be:
          * ssh -n ls1 -l ldad $LDAD_EXTERNAL_HOME/bin/faxSender.csh filename
          */
-        sshCommand.append("ssh -n ls1 -l ldad ");
+        sshCommand.append("ssh -q -n ls1 -l ldad ");
         sshCommand.append(System.getenv("LDAD_EXTERNAL_HOME"));
         sshCommand.append("/bin/faxSender.csh ");
         sshCommand.append(ldadScriptFilename);
