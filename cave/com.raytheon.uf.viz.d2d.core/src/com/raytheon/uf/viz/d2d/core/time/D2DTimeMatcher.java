@@ -87,7 +87,7 @@ import com.raytheon.uf.viz.d2d.core.D2DLoadProperties;
  *                                    before time matching it.
  * Jul 30, 2015  17761    D. Friedman Allow resources to return data times based
  *                                    on base frame times.
- * 
+ * Sep 10, 2015  4856     njensen     Removed unnecessary code
  * 
  * </pre>
  * 
@@ -143,6 +143,11 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
 
     }
 
+    /**
+     * the rsc that determines the frame times to be displayed, i.e. other
+     * resources on the same descriptor will time match against the
+     * timeMatchBasis
+     */
     protected transient AbstractVizResource<?, ?> timeMatchBasis;
 
     private final IDisposeListener timeMatchBasisDisposeListener = new IDisposeListener() {
@@ -235,11 +240,6 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
         return false;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.ITimeMatcher#redoTimeMatching()
-     */
     @Override
     public void redoTimeMatching(IDescriptor descriptor) throws VizException {
         synchronized (this) {
@@ -554,20 +554,13 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
             }
         } else {
             pruneUnusedData(rsc, timeSteps);
-
             updateResourceWithLatest(timeSteps, rsc);
-
-        }
-
-        if (timeSteps == null) {
-            timeSteps = rsc.getDataTimes();
-            Arrays.sort(timeSteps);
         }
     }
 
     /**
-     * Find the Time Matching Configuration for this resource or if one can't be
-     * found return an empty configuration
+     * Find the Time Matching Configuration for this resource. If one can't be
+     * found, return an empty configuration.
      * 
      * @param properties
      * @return
@@ -600,7 +593,7 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
     }
 
     /**
-     * populates all unset fields of the configuration with defaults except
+     * Populates all unset fields of the configuration with defaults except
      * dataTimes, dataTimes should be set before calling this function.
      * 
      * @param config
@@ -634,7 +627,7 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
     /**
      * Retrieves the latest times from a time sequence resource
      * 
-     * If the resource is also requestable, we check catalog for the latest
+     * If the resource is also requestable, we check the catalog for the latest
      * product times.
      * 
      * @param rsc
@@ -642,8 +635,8 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
      * @return
      * @throws VizException
      */
-    protected DataTime[] getLatestTimes(AbstractVizResource<?, ?> rsc, DataTime[] timeSteps)
-            throws VizException {
+    protected DataTime[] getLatestTimes(AbstractVizResource<?, ?> rsc,
+            DataTime[] timeSteps) throws VizException {
         DataTime[] availableTimes = null;
 
         // If resource is handling requests itself, just return the datatimes
@@ -666,21 +659,26 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
         return availableTimes;
     }
 
+    /**
+     * Prunes data that is no longer used by calling
+     * AbstractVizResource.remove(DataTime).
+     * 
+     * @param rsc
+     *            the resource to prune
+     * @param times
+     *            the times that are still used and therefore should NOT be
+     *            pruned
+     */
     protected void pruneUnusedData(
             AbstractVizResource<? extends AbstractResourceData, ? extends IDescriptor> rsc,
             DataTime[] times) {
-
-        DataTime[] rscTimes = rsc.getDataTimes();
-        Arrays.sort(rscTimes);
-
-        // If resource is handling requests itself, quit
-        AbstractResourceData resourceData = rsc.getResourceData();
-
         if (times == null) {
             return;
         }
-        for (DataTime dt : rscTimes) {
+        DataTime[] rscTimes = rsc.getDataTimes();
+        AbstractResourceData resourceData = rsc.getResourceData();
 
+        for (DataTime dt : rscTimes) {
             if (dt == null) {
                 continue;
             }
@@ -693,17 +691,18 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
             }
 
             if (!found) {
-                // If resource has resource data (SHOULD) fire listener
                 if (resourceData != null) {
+                    /*
+                     * If resource has resource data, let the resource data
+                     * handle the removal
+                     */
                     resourceData
                             .fireChangeListeners(ChangeType.DATA_REMOVE, dt);
                 } else {
                     // otherwise just remove it
                     rsc.remove(dt);
                 }
-
             }
-
         }
     }
 
@@ -773,15 +772,6 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
         this.loadMode = loadMode;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.AbstractTimeMatcher#initialLoad(com.raytheon
-     * .uf.viz.core.comm.LoadProperties,
-     * com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData,
-     * com.raytheon.uf.viz.core.drawables.IDescriptor)
-     */
     @Override
     public DataTime[] initialLoad(LoadProperties loadProps,
             DataTime[] availableTimes, IDescriptor descriptor)
@@ -933,13 +923,6 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
         return configFactory;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.AbstractTimeMatcher#getDisplayLoadOrder(java
-     * .util.List)
-     */
     @Override
     public List<AbstractRenderableDisplay> getDisplayLoadOrder(
             List<AbstractRenderableDisplay> displays) {
@@ -961,13 +944,6 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
         return super.getDisplayLoadOrder(displays);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.AbstractTimeMatcher#getResourceLoadOrder(java
-     * .util.List)
-     */
     @Override
     public List<ResourcePair> getResourceLoadOrder(List<ResourcePair> resources) {
         // if any of the resources are set as the time match basis then load it
@@ -1063,10 +1039,7 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
         return false;
     }
 
-    boolean rocket = true;
     private boolean validateDescriptor(IDescriptor descriptor) {
-        if (! rocket)
-            return true;
         IRenderableDisplay display = descriptor.getRenderableDisplay();
         IDisplayPaneContainer container = display != null ? display
                 .getContainer() : null;

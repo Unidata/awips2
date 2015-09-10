@@ -69,36 +69,30 @@ import com.raytheon.viz.lightning.cache.LightningFrameRetriever;
  * 
  * <pre>
  * 
- *    SOFTWARE HISTORY
+ * SOFTWARE HISTORY
  *   
- *    Date         Ticket#     Engineer    Description
- *    ------------ ----------  ----------- --------------------------
- *    Aug 6, 2007              chammack    Initial Creation.
- *    Feb 18, 2009             chammack    Refactored to new resource model
- *    June 22, 2010 #4286      bkowal      The resource now uses the magnification
- *                                         capability. The resource also implements
- *                                         IResourceDataChanged now so that it will
- *                                         know when the magnification level has been
- *                                         altered by the user. The size of the &quot;+&quot; and
- *                                         &quot;-&quot; symbols as well as the font size of the
- *                                         text will be updated when the user changes
- *                                         the magnification level now.
- *    Sep 4, 2012  15335       kshresth    Will now display lightning/wind 
- *                                         fields when magnification set to 0
- *    Feb 27, 2013 DCS 152     jgerth/elau Support for WWLLN and multiple sources
- *    Jan 21, 2014  2667       bclement    renamed record's lightSource field to source
- *    Jun 05, 2014  3226       bclement    reference datarecords by LightningConstants
- *    Jun 06, 2014  DR 17367   D. Friedman Fix cache object usage.
- *    Jun 19, 2014  3214       bclement    added pulse and cloud flash support
- *    Jul 07, 2014  3333       bclement    removed lightSource field
- *    Jul 10, 2014  3333       bclement    moved cache object inner classes to own package
- *                                          moved name formatting to static method
- *    Aug 04, 2014  3488       bclement    added sanity check for record bin range
- *    Aug 19, 2014  3542       bclement    fixed strike count clipping issue
- *    Mar 05, 2015  4233       bsteffen    include source in cache key.
- *    Apr 09, 2015  4386       bclement    added updateLightningFrames()
- *    Jul 01, 2015  4592       bclement    cloud flashes are now points instead of circles
- *    Jul 01, 2015  4597       bclement    reworked resource name using DisplayType
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Aug 6, 2007              chammack    Initial Creation.
+ * Feb 18, 2009             chammack    Refactored to new resource model
+ * June 22, 2010 #4286      bkowal      Add support for magnification capability
+ * Sep 4, 2012  15335       kshresth    Will now display lightning/wind 
+ *                                       fields when magnification set to 0
+ * Feb 27, 2013 DCS 152     jgerth/elau Support for WWLLN and multiple sources
+ * Jan 21, 2014  2667       bclement    renamed record's lightSource field to source
+ * Jun 05, 2014  3226       bclement    reference datarecords by LightningConstants
+ * Jun 06, 2014  DR 17367   D. Friedman Fix cache object usage.
+ * Jun 19, 2014  3214       bclement    added pulse and cloud flash support
+ * Jul 07, 2014  3333       bclement    removed lightSource field
+ * Jul 10, 2014  3333       bclement    moved cache object inner classes to own package
+ *                                       moved name formatting to static method
+ * Aug 04, 2014  3488       bclement    added sanity check for record bin range
+ * Aug 19, 2014  3542       bclement    fixed strike count clipping issue
+ * Mar 05, 2015  4233       bsteffen    include source in cache key.
+ * Apr 09, 2015  4386       bclement    added updateLightningFrames()
+ * Jul 01, 2015  4592       bclement    cloud flashes are now points instead of circles
+ * Jul 01, 2015  4597       bclement    reworked resource name using DisplayType
+ * Sep 10, 2015  4856       njensen     synchronize in remove(DataTime)
  * 
  * </pre>
  * 
@@ -141,11 +135,6 @@ public class LightningResource extends
         this.posAdj = pa;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#dispose()
-     */
     @Override
     protected void disposeInternal() {
         cacheObjectMap.clear();
@@ -155,23 +144,11 @@ public class LightningResource extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#getName()
-     */
     @Override
     public String getName() {
         return this.resourceName;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#init(com.raytheon.uf
-     * .viz.core.IGraphicsTarget)
-     */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         font = target.initializeFont(Font.MONOSPACED, 11,
@@ -245,14 +222,6 @@ public class LightningResource extends
         return timeString;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.drawables.IRenderable#paint(com.raytheon.uf.
-     * viz.core.IGraphicsTarget,
-     * com.raytheon.uf.viz.core.drawables.PaintProperties)
-     */
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
@@ -426,37 +395,33 @@ public class LightningResource extends
         return rval;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#remove(com.raytheon.
-     * uf.common.time.DataTime)
-     */
     @Override
     public void remove(DataTime dataTime) {
-        /*
-         * Workaround for time matching which does not know about records at the
-         * end of a time period that may contain data for the next period. If we
-         * are asked to remove the latest data time and there is only one record
-         * we know about, return without removing the time.
-         */
-        if (dataTimes.indexOf(dataTime) == dataTimes.size() - 1) {
-            CacheObject<LightningFrameMetadata, LightningFrame> co = cacheObjectMap
-                    .get(dataTime);
-            if (co != null) {
-                LightningFrameMetadata metadata = co.getMetadata();
-                synchronized (metadata) {
-                    if (metadata.getNewRecords().size()
-                            + metadata.getProcessed().size() < 2) {
-                        return;
+        synchronized (cacheObjectMap) {
+            /*
+             * Workaround for time matching which does not know about records at
+             * the end of a time period that may contain data for the next
+             * period. If we are asked to remove the latest data time and there
+             * is only one record we know about, return without removing the
+             * time.
+             */
+            if (dataTimes.indexOf(dataTime) == dataTimes.size() - 1) {
+                CacheObject<LightningFrameMetadata, LightningFrame> co = cacheObjectMap
+                        .get(dataTime);
+                if (co != null) {
+                    LightningFrameMetadata metadata = co.getMetadata();
+                    synchronized (metadata) {
+                        if (metadata.getNewRecords().size()
+                                + metadata.getProcessed().size() < 2) {
+                            return;
+                        }
                     }
                 }
             }
-        }
 
-        dataTimes.remove(dataTime);
-        cacheObjectMap.remove(dataTime);
+            dataTimes.remove(dataTime);
+            cacheObjectMap.remove(dataTime);
+        }
     }
 
     protected void addRecords(List<BinLightningRecord> objs) {
