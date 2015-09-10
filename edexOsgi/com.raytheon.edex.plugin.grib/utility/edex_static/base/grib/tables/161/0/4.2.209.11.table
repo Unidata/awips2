@@ -1,0 +1,4 @@
+#Product Discipline 209 - Multi-Radar/Multi-Sensor, Parameter Category 11: Merged Reflectivity Products
+0:0:Mosaic Base Reflectivity (optimal method):dBZ:MergedBaseReflectivityQC
+1:1:Composite Reflectivity Mosaic (max ref) (No QC):dBZ:MergedReflectivityComposite
+2:2:Composite Reflectivity Mosaic (max ref):dBZ:MergedReflectivityQComposite
