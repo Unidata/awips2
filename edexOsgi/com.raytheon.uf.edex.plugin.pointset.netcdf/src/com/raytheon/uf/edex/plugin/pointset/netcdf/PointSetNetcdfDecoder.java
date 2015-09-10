@@ -28,7 +28,6 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -58,11 +57,12 @@ import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.parameter.lookup.ParameterLookup;
+import com.raytheon.uf.edex.netcdf.description.VariableDescription;
+import com.raytheon.uf.edex.netcdf.description.exception.InvalidDescriptionException;
 import com.raytheon.uf.edex.plugin.pointset.netcdf.description.PointSetProductDescriptions;
 import com.raytheon.uf.edex.plugin.pointset.netcdf.description.ProductDescription;
 import com.raytheon.uf.edex.plugin.pointset.netcdf.description.TriangulationDescription;
 import com.raytheon.uf.edex.plugin.pointset.netcdf.description.TriangulationDescription.TriangulationType;
-import com.raytheon.uf.edex.plugin.pointset.netcdf.description.VariableDescription;
 
 /**
  * 
@@ -131,7 +131,7 @@ public class PointSetNetcdfDecoder {
             } else {
                 return records.toArray(EMPTY_POINTSET_ARRAY);
             }
-        } catch (ParseException | IOException | StorageException e) {
+        } catch (InvalidDescriptionException | IOException | StorageException e) {
             logger.error("Unable to decode pointset from file: {}",
                     file.getName(), e);
         }
@@ -140,7 +140,7 @@ public class PointSetNetcdfDecoder {
 
     private PointSetRecord processDescription(NetcdfFile file,
             ProductDescription description, Map<String, String> locationCache)
-            throws ParseException, IOException, StorageException {
+            throws InvalidDescriptionException, IOException, StorageException {
         String dataVarName = description.getDataVariable();
         boolean debug = description.isDebug();
         Variable dataVariable = file.findVariable(NetcdfFile
@@ -414,9 +414,9 @@ public class PointSetNetcdfDecoder {
                     "Discarding data description from {} because no data element is present.",
                     fileName);
             return false;
-        } else if (data.getVariable() == null) {
+        } else if (data.getName() == null) {
             logger.warn(
-                    "Discarding data description from {} because data element has no variable.",
+                    "Discarding data description from {} because data element has no name.",
                     fileName);
             return false;
         }

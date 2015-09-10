@@ -20,14 +20,16 @@
     -->
 <pointSetProductDescriptions>
   <description>
-    <data variable="sar_wind" />
+    <data name="sar_wind" />
     <dataTime>
-      <refTime attribute="answrs:acquistion_time" dateFormat="yyyy-MM-dd HH:mm:ss z" />
+      <formattedRefTime dateFormat="yyyy-MM-dd HH:mm:ss z">
+        <attribute name="answrs:acquistion_time" />
+      </formattedRefTime>
     </dataTime>
-    <datasetId attribute="answrs:platform_name" />
-    <parameter value="WS" />
+    <datasetIdAttribute name="answrs:platform_name" />
+    <parameterValue value="WS" />
     <level>
-      <masterLevel value="EA" />
+      <masterLevelValue value="EA" />
       <levelOneValue value="0.0" />
     </level>
     <triangulation type="grid" />

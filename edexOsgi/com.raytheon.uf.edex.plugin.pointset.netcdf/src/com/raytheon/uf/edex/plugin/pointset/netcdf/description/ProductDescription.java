@@ -19,12 +19,11 @@
  **/
 package com.raytheon.uf.edex.plugin.pointset.netcdf.description;
 
-import java.text.ParseException;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
 
 import ucar.nc2.NetcdfFile;
 
@@ -33,6 +32,13 @@ import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.pointset.PointSetRecord;
 import com.raytheon.uf.common.parameter.lookup.ParameterLookup;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.edex.netcdf.description.AbstractFieldDescription;
+import com.raytheon.uf.edex.netcdf.description.AttributeDescription;
+import com.raytheon.uf.edex.netcdf.description.LevelDescription;
+import com.raytheon.uf.edex.netcdf.description.ValueDescription;
+import com.raytheon.uf.edex.netcdf.description.VariableDescription;
+import com.raytheon.uf.edex.netcdf.description.date.DataTimeDescription;
+import com.raytheon.uf.edex.netcdf.description.exception.InvalidDescriptionException;
 import com.raytheon.uf.edex.plugin.pointset.netcdf.PointSetNetcdfDecoder;
 
 /**
@@ -63,7 +69,7 @@ public class ProductDescription {
     @XmlAttribute
     private boolean debug;
 
-    @XmlElement
+    @XmlElement(required = true)
     private VariableDescription data;
 
     /**
@@ -82,11 +88,15 @@ public class ProductDescription {
     @XmlElement
     private VariableDescription latitude;
 
-    @XmlElement
-    private AttributeValue datasetId;
+    @XmlElements({
+            @XmlElement(name = "datasetIdValue", type = ValueDescription.class),
+            @XmlElement(name = "datasetIdAttribute", type = AttributeDescription.class) })
+    private AbstractFieldDescription datasetId;
 
-    @XmlElement
-    private AttributeValue parameter;
+    @XmlElements({
+            @XmlElement(name = "parameterValue", type = ValueDescription.class),
+            @XmlElement(name = "parameterAttribute", type = AttributeDescription.class) })
+    private AbstractFieldDescription parameter;
 
     @XmlElement
     private LevelDescription level;
@@ -129,19 +139,19 @@ public class ProductDescription {
         this.latitude = latitude;
     }
 
-    public AttributeValue getDatasetId() {
+    public AbstractFieldDescription getDatasetId() {
         return datasetId;
     }
 
-    public void setDatasetId(AttributeValue datasetId) {
+    public void setDatasetId(AbstractFieldDescription datasetId) {
         this.datasetId = datasetId;
     }
 
-    public AttributeValue getParameter() {
+    public AbstractFieldDescription getParameter() {
         return parameter;
     }
 
-    public void setParameter(AttributeValue parameter) {
+    public void setParameter(AbstractFieldDescription parameter) {
         this.parameter = parameter;
     }
 
@@ -175,12 +185,12 @@ public class ProductDescription {
      */
     public PointSetRecord getRecord(NetcdfFile file,
             ParameterLookup parameterLookup, LevelFactory levelFactory)
-            throws ParseException {
-        String datasetId = this.datasetId.getStringValue(file);
+            throws InvalidDescriptionException {
+        String datasetId = this.datasetId.getString(file);
         if (datasetId == null) {
             return null;
         }
-        String parameter = this.parameter.getStringValue(file);
+        String parameter = this.parameter.getString(file);
         if (parameter == null) {
             return null;
         }
@@ -204,21 +214,21 @@ public class ProductDescription {
         if (data == null) {
             return null;
         }
-        return data.getVariable();
+        return data.getName();
     }
 
     public String getLongitudeVariable() {
         if (longitude == null) {
             return null;
         }
-        return longitude.getVariable();
+        return longitude.getName();
     }
 
     public String getLatitudeVariable() {
         if (latitude == null) {
             return null;
         }
-        return latitude.getVariable();
+        return latitude.getName();
     }
 
 
