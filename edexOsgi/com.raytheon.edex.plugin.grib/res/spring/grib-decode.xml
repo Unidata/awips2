@@ -1,80 +1,90 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
-  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-	<bean id="gribDecoder" class="com.raytheon.edex.plugin.grib.GribDecoder" />
+    <bean id="gribDecoder" class="com.raytheon.edex.plugin.grib.GribDecoder" />
 
-	<bean id="gribGridPointLock" class="com.raytheon.edex.plugin.grib.GribGridPointLock">
-		<constructor-arg value="${grib-decode.count.gridpoints}"/>
-		<constructor-arg value="${grib-decode.count.threads}"/>
-	</bean>
+    <bean id="gribGridPointLock" class="com.raytheon.edex.plugin.grib.GribGridPointLock">
+        <constructor-arg value="${grib-decode.count.gridpoints}"/>
+        <constructor-arg value="${grib-decode.count.threads}"/>
+    </bean>
 
-	<bean id="gribSplitter" class="com.raytheon.edex.plugin.grib.GribSplitter" />
-	
-	<bean id="useLatestAggregationStrategy" class="org.apache.camel.processor.aggregate.UseLatestAggregationStrategy" />
+    <bean id="gribSplitter" class="com.raytheon.edex.plugin.grib.GribSplitter" />
+    
+    <bean id="useLatestAggregationStrategy" class="org.apache.camel.processor.aggregate.UseLatestAggregationStrategy" />
 
-	<bean id="gribPostProcessor"
-		class="com.raytheon.edex.plugin.grib.decoderpostprocessors.GribPostProcessor"
-		factory-method="getInstance" />
-		
-	<bean id="gribTableLookup" class="com.raytheon.edex.util.grib.GribTableLookup"
-		factory-method="getInstance" depends-on="gridRegistered, queryDataRegistered, levelFactoryInitialized" />
-  	
+    <bean id="gribPostProcessor"
+        class="com.raytheon.edex.plugin.grib.decoderpostprocessors.GribPostProcessor"
+        factory-method="getInstance" />
+
+    <bean id="gribTableLookup" class="com.raytheon.edex.util.grib.GribTableLookup"
+        factory-method="getInstance" depends-on="gridRegistered, queryDataRegistered, levelFactoryInitialized" />
+
     <bean id="gribModelLookup"
-		class="com.raytheon.edex.plugin.grib.util.GribModelLookup"
-		factory-method="getInstance" /> 
-		
+        class="com.raytheon.edex.plugin.grib.util.GribModelLookup"
+        factory-method="getInstance" /> 
+
     <bean id="gribSpatialCache"
-		class="com.raytheon.edex.plugin.grib.spatial.GribSpatialCache"
-		factory-method="getInstance" depends-on="gridcoveragelookup"/>
+        class="com.raytheon.edex.plugin.grib.spatial.GribSpatialCache"
+        factory-method="getInstance" depends-on="gridcoveragelookup"/>
 
-	<camelContext id="grib-decode" xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler">
-		
-		<endpoint id="gribSplitJmsEndpoint" uri="jms-durable:queue:Ingest.GribSplit?concurrentConsumers=${grib-split.count.threads}"/>
-		<endpoint id="gribDecodeJmsEndpoint" uri="jms-durable:queue:Ingest.GribDecode?concurrentConsumers=${grib-decode.count.threads}"/>
-	
-		<!-- Begin Grib Decode Route -->
-		<route id="gribSplitIngestRoute">
-			<from ref="gribSplitJmsEndpoint" />
-			<doTry>
-				<pipeline>
-					<setHeader headerName="pluginName">
-						<constant>grid</constant>
-					</setHeader>
-					<bean ref="stringToFile" />
-					<split streaming="true">
-						<method bean="gribSplitter" method="split" />
-						<to uri="jms-durable:queue:Ingest.GribDecode" />
-					</split>
-				</pipeline>
-				<doCatch>
-					<exception>java.lang.Throwable</exception>
-					<to uri="log:grib?level=ERROR"/>
-				</doCatch>
-			</doTry>
-		</route>
+    <bean id="gridAssembler" class="com.raytheon.edex.plugin.grib.decoderpostprocessors.EnsembleGridAssembler">
+        <property name="numAssemblerThreads" value="${grib-assembler.count.threads}"/>
+        <property name="maxPointsInMemory" value="${grib-assembler.count.gridspoints}"/>
+    </bean>
 
-		<route id="gribDecodeIngestRoute">
-			<from ref="gribDecodeJmsEndpoint" />
-			<doTry>
-				<pipeline>
-					<bean ref="gribGridPointLock" method="reserve"/>
-					<bean ref="gribDecoder" />
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="grib-decode"/>
+        <constructor-arg ref="gridAssembler"/>
+    </bean>
+
+    <camelContext id="grib-decode" xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+
+        <endpoint id="gribSplitJmsEndpoint" uri="jms-durable:queue:Ingest.GribSplit?concurrentConsumers=${grib-split.count.threads}"/>
+        <endpoint id="gribDecodeJmsEndpoint" uri="jms-durable:queue:Ingest.GribDecode?concurrentConsumers=${grib-decode.count.threads}"/>
+
+        <!-- Begin Grib Decode Route -->
+        <route id="gribSplitIngestRoute">
+            <from ref="gribSplitJmsEndpoint" />
+            <doTry>
+                <pipeline>
+                    <setHeader headerName="pluginName">
+                        <constant>grid</constant>
+                    </setHeader>
+                    <bean ref="stringToFile" />
+                    <split streaming="true">
+                        <method bean="gribSplitter" method="split" />
+                        <to uri="jms-durable:queue:Ingest.GribDecode" />
+                    </split>
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:grib?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+        <route id="gribDecodeIngestRoute">
+            <from ref="gribDecodeJmsEndpoint" />
+            <doTry>
+                <pipeline>
+                    <bean ref="gribGridPointLock" method="reserve"/>
+                    <bean ref="gribDecoder" />
 
                     <!-- send for processing -->
-					<bean ref="gribPostProcessor" method="process" />
-					<to uri="direct-vm:persistIndexAlert" />
-				</pipeline>
-				<doCatch>
-					<exception>java.lang.Throwable</exception>
-					<to uri="log:grib?level=ERROR"/>
-				</doCatch>
-				<doFinally>
-					<bean ref="gribGridPointLock" method="release"/>
-				</doFinally>
-			</doTry>
-		</route>
-	</camelContext>
+                    <bean ref="gribPostProcessor" method="process" />
+                    <to uri="direct-vm:persistIndexAlert" />
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:grib?level=ERROR"/>
+                </doCatch>
+                <doFinally>
+                    <bean ref="gribGridPointLock" method="release"/>
+                </doFinally>
+            </doTry>
+        </route>
+    </camelContext>
 </beans>
