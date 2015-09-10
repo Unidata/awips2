@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.edex.plugin.pointset.netcdf;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.Buffer;
@@ -104,7 +105,7 @@ public class PointSetNetcdfDecoder {
 
     private ParameterLookup parameterLookup;
 
-    public PointSetRecord[] decode(String name, byte[] data) {
+    public PointSetRecord[] decode(File file) {
         if (levelFactory == null) {
             levelFactory = LevelFactory.getInstance();
         }
@@ -112,25 +113,27 @@ public class PointSetNetcdfDecoder {
             parameterLookup = ParameterLookup.getInstance();
         }
         try {
-            NetcdfFile file = NetcdfFile.openInMemory(name, data);
+            NetcdfFile netcdfFile = NetcdfFile.open(file.getAbsolutePath());
             Map<String, String> locationCache = new HashMap<String, String>();
             List<PointSetRecord> records = new ArrayList<>();
             for (ProductDescription description : descriptions
                     .getDescriptions()) {
-                PointSetRecord record = processDescription(file, description,
-                        locationCache);
+                PointSetRecord record = processDescription(netcdfFile,
+                        description, locationCache);
                 if (record != null) {
                     records.add(record);
                 }
             }
             if (records.isEmpty()) {
-                logger.warn("No valid pointsets were found in file: {}", name);
+                logger.warn("No valid pointsets were found in file: {}",
+                        file.getName());
                 return EMPTY_POINTSET_ARRAY;
             } else {
                 return records.toArray(EMPTY_POINTSET_ARRAY);
             }
         } catch (ParseException | IOException | StorageException e) {
-            logger.error("Unable to decode pointset from file: {}", name, e);
+            logger.error("Unable to decode pointset from file: {}",
+                    file.getName(), e);
         }
         return EMPTY_POINTSET_ARRAY;
     }

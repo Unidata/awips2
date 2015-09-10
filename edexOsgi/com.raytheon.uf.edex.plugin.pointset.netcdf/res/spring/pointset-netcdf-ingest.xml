@@ -31,8 +31,8 @@
       <doTry>
         <pipeline>
           <bean ref="stringToFile" />
-          <bean ref="extractWMOHeader" method="remove" />
-          <bean ref="pointsetNetcdfDecoder" method="decode(${header.ingestFileName}, ${body})" />
+          <bean ref="getFileWithoutWmoHeader" />
+          <bean ref="pointsetNetcdfDecoder" method="decode" />
           <to uri="direct-vm:persistIndexAlert" />
         </pipeline>
         <doCatch>
