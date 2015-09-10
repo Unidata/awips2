@@ -59,6 +59,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * 06/30/2009   2521       dhladky     Initial Creation.
  * Apr 24, 2014  2060      njensen     Removed unnecessary catch
  * Aug 08, 2015  4722      dhladky     Simplified source map additions, config.
+ * Sep.09, 2015  4756      dhladky     Further simplified configuration.
  * 
  * </pre>
  * 
@@ -337,17 +338,17 @@ public class FFMPConfig {
                         sourceKey = keys[1];
                     } else {
                         checkSourceName = dataKey;
-                    }
+                    }  
 
                     if (checkSourceName.equals(sourceName)) {
 
                         String dataUri = sourceMap.get(dataKey);
                         Object dataObject = null;
-
+        
                         if (source.getDataType().equals(
                                 FFMPSourceConfigurationManager.DATA_TYPE.XMRG
                                         .getDataType())) {
-                            dataObject = getXMRGFile(dataUri);
+                             dataObject = getXMRGFile(dataUri);
                         } else if (source.getDataType().equals(
                                 FFMPSourceConfigurationManager.DATA_TYPE.PDO
                                         .getDataType())) {
@@ -361,47 +362,8 @@ public class FFMPConfig {
                                         .getDataType())) {
                             dataObject = getGrib(dataUri);
                         }
-                        if (dataObject != null) {
-                            // process as a VGB too
-                            ProductXML product = sourceConfig.getProduct(source
-                                    .getSourceName());
-
-                            if (product != null) {
-                                // This indicates a primary source and QPE source
-                                for (ProductRunXML productRun : ffmpgen
-                                        .getRunConfig().getRunner(getCWA())
-                                        .getProducts()) {
-                                    if (productRun.getProductName().equals(
-                                            product.getPrimarySource())) {
-                                        sourceKey = productRun.getProductKey();
-                                    }
-                                }
-
-                                HashMap<String, Object> virtSourceHash = new HashMap<String, Object>();
-                                virtSourceHash.put(sourceKey, dataObject);
-                                sources.put(product.getVirtual(),
-                                        virtSourceHash);
-                            } else {
-                                // NON-Primary sources and non-RFCFFG
-                                if (!source.isRfc()) {
-                                    String primarySource = ffmpgen
-                                            .getSourceConfig()
-                                            .getPrimarySource(source);
-
-                                    for (ProductRunXML productRun : ffmpgen
-                                            .getRunConfig().getRunner(getCWA())
-                                            .getProducts()) {
-                                        if (productRun.getProductName().equals(
-                                                primarySource)) {
-                                            sourceKey = productRun
-                                                    .getProductKey();
-                                        }
-                                    }
-                                }
-                            }
-
-                            sourceHash.put(sourceKey, dataObject);
-                        }
+                        
+                        sourceHash = processSource(sourceHash, dataObject, source, sourceKey);
                     }
                 }
 
@@ -417,6 +379,7 @@ public class FFMPConfig {
                             e);
         }
     }
+  
 
     /**
      * Grab the XMRG file for use
@@ -468,6 +431,68 @@ public class FFMPConfig {
      */
     public HashMap<String, Object> getSourceData(String sourceName) {
         return sources.get(sourceName);
+    }
+    
+    /**
+     * Process the sources from the URIfilter and ready them for processing.
+     * @param sourceHash
+     * @param dataObject
+     * @param source
+     * @param sourceKey
+     * @return sourceHash
+     */
+    private HashMap<String, Object> processSource(HashMap<String, Object> sourceHash, Object dataObject, SourceXML source, String sourceKey) {
+        
+        if (dataObject != null) {
+            // Is this a primary source?
+            ProductXML product = ffmpgen.getSourceConfig().getProduct(
+                    source.getSourceName());
+            // Check for a primary source
+            if (product != null) {
+                /*
+                 * Some primary sources derive the sourceKey from their Run
+                 * Config product name.
+                 */
+                if (source.getDataType().equals(
+                        FFMPSourceConfigurationManager.DATA_TYPE.XMRG
+                                .getDataType())
+                        || sourceKey == null) {
+                    for (ProductRunXML productRun : ffmpgen.getRunConfig()
+                            .getRunner(getCWA()).getProducts()) {
+                        if (productRun.getProductName().equals(
+                                product.getPrimarySource())) {
+                            sourceKey = productRun.getProductKey();
+                            break;
+                        }
+                    }
+                }
+
+                // If primary, create a virtual too.
+                HashMap<String, Object> virtSourceHash = new HashMap<String, Object>();
+                virtSourceHash.put(sourceKey, dataObject);
+                sources.put(product.getVirtual(), virtSourceHash);
+            } else {
+                // NON Primary sources, find the primary.
+                String primarySource = ffmpgen
+                        .getSourceConfig()
+                        .getPrimarySource(source);
+                // Find the sourceKey to run against.
+                for (ProductRunXML productRun : ffmpgen
+                        .getRunConfig().getRunner(getCWA())
+                        .getProducts()) {
+                    if (productRun.getProductName().equals(
+                            primarySource)) {
+                        sourceKey = productRun
+                                .getProductKey();
+                        break;
+                    }
+                }
+            }
+            // Add to hash of sources to be processed.
+            sourceHash.put(sourceKey, dataObject);
+        }
+        
+        return sourceHash;
     }
 
 }
