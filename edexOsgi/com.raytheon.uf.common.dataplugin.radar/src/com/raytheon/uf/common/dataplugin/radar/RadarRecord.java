@@ -138,6 +138,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
  * Nov 06, 2014  16776    zwang       Handle AMDA product
  * Mar 25, 2015  4319     bsteffen    Add volume scan number.
+ * Sep 09, 2015  17568    wkwock      Fix incorrect 8-bit SW display
  * 
  * </pre>
  * 
@@ -913,7 +914,7 @@ public class RadarRecord extends PersistablePluginDataObject implements
             }
             double[] pix = { 256 - nLevels, 255 };
             if (getProductCode() == 155) {
-                pix = new double[] { 129, 149 };
+                pix = new double[] { 129, 171 };
             } else if(getProductCode() == 32) {
                 pix = new double[]{ 2, 256 };
             }
