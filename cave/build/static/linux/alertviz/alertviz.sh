@@ -109,6 +109,39 @@ fi
 
 SWITCHES=()
 
+# Delete old Eclipse configuration directories that are no longer in use
+function deleteOldEclipseConfigurationDirs()
+{
+    local tmp_dir=$1
+    local tmp_dir_pat=$(echo "$tmp_dir" | sed -e 's/|/\\|/g')
+    save_IFS=$IFS
+    IFS=$'\n'
+    # Find directories that are owned by the user and  older than one hour
+    local old_dirs=( $(find "$tmp_dir" -mindepth 1 -maxdepth 1 -type d -user "$USER" -mmin +60) )
+    IFS=$save_IFS
+    if (( ${#old_dirs[@]} < 1 )); then
+        return
+    fi
+    # Determine which of those directories are in use.
+    local lsof_args=()
+    for d in "${old_dirs[@]}"; do
+        lsof_args+=('+D')
+        lsof_args+=("$d")
+    done
+    IFS=$'\n'
+    # Run lsof, producing machine readable output, filter the out process IDs,
+    # the leading 'n' of any path, and any subpath under a configuration
+    # directory.  Then filter for uniq values.
+    in_use_dirs=$(lsof -w -n -l -P -S 10 -F pn "${lsof_args[@]}" | grep -v ^p | \
+        sed -r -e 's|^n('"$tmp_dir_pat"'/[^/]*).*$|\1|' | uniq)
+    IFS=$save_IFS
+    for p in "${old_dirs[@]}"; do
+        if ! echo "$in_use_dirs" | grep -qxF "$p"; then
+            rm -rf "$p"
+        fi
+    done
+}
+
 function deleteEclipseConfigurationDir()
 {
     if [[ -n $eclipseConfigurationDir ]]; then
@@ -124,6 +157,7 @@ function createEclipseConfigurationDir()
         if [[ $d == $HOME/* ]]; then
             mkdir -p "$d" || continue
         fi
+        deleteOldEclipseConfigurationDirs "$d"
         if dir=$(mktemp -d --tmpdir="$d" "${id}-XXXX"); then
             eclipseConfigurationDir=$dir
             trap deleteEclipseConfigurationDir EXIT
