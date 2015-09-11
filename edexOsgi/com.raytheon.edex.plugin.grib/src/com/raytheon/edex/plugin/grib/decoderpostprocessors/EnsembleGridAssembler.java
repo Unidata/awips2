@@ -104,13 +104,15 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor,
 
     private static final Map<GridRecord, List<GridRecord>> pendingRecords = new LinkedHashMap<>();
 
-    private static long maxPointsInMemory = 0;
+    private static long maxBytesInMemory = 0;
 
-    private static long pointsInMemory = 0;
+    private static long bytesInMemory = 0;
 
     private static GridAssembler[] assemblerThreads = null;
 
     private static int numAssemblerThreads = 1;
+
+    private static volatile boolean running = true;
 
     static {
         loadThinnedModels();
@@ -153,8 +155,8 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor,
         }
     }
 
-    public void setMaxPointsInMemory(int maxPoints) {
-        maxPointsInMemory = maxPoints;
+    public void setMaxGridsInMB(int maxInMB) {
+        maxBytesInMemory = maxInMB * 1024 * 1024;
     }
 
     public void setNumAssemblerThreads(int numThreads) {
@@ -170,53 +172,29 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor,
     @Override
     public GridRecord[] process(GridRecord rec) throws GribException {
         CompositeModel compositeModel = getCompositeModel(rec.getDatasetId());
+        GridRecord assembledRecord = createAssembledRecord(rec, compositeModel);
+
         if (compositeModel != null) {
-            GridRecord assembledRecord = createAssembledRecord(rec,
-                    compositeModel);
-            GridCoverage coverage = rec.getLocation();
-            long pointsInGrid = coverage.getNx() * coverage.getNy();
+            if (!addPendingRecord(rec, assembledRecord)) {
+                // in shutdown scenaro, store immeidately
+                String lockName = assembledRecord.getDataURI();
+                ClusterTask ct = null;
+                try {
+                    do {
+                        ct = ClusterLockUtils.lock(CLUSTER_TASK_NAME, lockName,
+                                120000, true);
+                    } while (!LockState.SUCCESSFUL.equals(ct.getLockState()));
 
-            synchronized (pendingRecords) {
-                if (assemblerThreads == null) {
-                    /*
-                     * Start assembler threads if they haven't been started yet
-                     */
-                    assemblerThreads = new GridAssembler[numAssemblerThreads];
-                    for (int i = 0; i < assemblerThreads.length; i++) {
-                        assemblerThreads[i] = new GridAssembler(
-                                "GridAssembler-" + (i + 1));
-                        assemblerThreads[i].start();
+                    processGrids(assembledRecord, Arrays.asList(rec));
+                } catch (Exception e) {
+                    throw new GribException("Error processing assembled grid",
+                            e);
+                } finally {
+                    if (ct != null) {
+                        ClusterLockUtils.deleteLock(ct.getId().getName(), ct
+                                .getId().getDetails());
                     }
                 }
-
-                boolean logMessage = true;
-
-                pointsInMemory += pointsInGrid;
-                List<GridRecord> pendingList = pendingRecords
-                        .get(assembledRecord);
-                if (pendingList == null) {
-                    pendingList = new ArrayList<>(4);
-                    pendingRecords.put(assembledRecord, pendingList);
-                }
-
-                pendingList.add(rec);
-                pendingRecords.notifyAll();
-
-                while (pointsInMemory > maxPointsInMemory) {
-                    if (logMessage) {
-                        statusHandler.info("MaxPoints in "
-                                + getClass().getName()
-                                + " exceeded.  Waiting for grids to process");
-                        logMessage = false;
-                    }
-
-                    try {
-                        pendingRecords.wait();
-                    } catch (InterruptedException e) {
-                        // ignore
-                    }
-                }
-
             }
 
             // grid was assembled in to a larger grid, discard original
@@ -256,6 +234,156 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor,
         return newRecord;
     }
 
+    /**
+     * Adds a record to the queue to be assembled by the grid assembler threads.
+     * Returns true if the grid was added to the queue, false if the add failed
+     * and the grid should be assembled by the caller.
+     * 
+     * @param pendingRecord
+     * @param assembledRecord
+     * @return
+     */
+    private boolean addPendingRecord(GridRecord pendingRecord,
+            GridRecord assembledRecord) {
+        GridCoverage coverage = pendingRecord.getLocation();
+        long pointsInGrid = coverage.getNx() * coverage.getNy();
+
+        synchronized (pendingRecords) {
+            /* shutting down, record should be stored by calling thread */
+            if (!running) {
+                return false;
+            }
+
+            if (assemblerThreads == null) {
+                /*
+                 * Start assembler threads if they haven't been started yet
+                 */
+                assemblerThreads = new GridAssembler[numAssemblerThreads];
+                for (int i = 0; i < assemblerThreads.length; i++) {
+                    assemblerThreads[i] = new GridAssembler("GridAssembler-"
+                            + (i + 1));
+                    assemblerThreads[i].start();
+                }
+            }
+
+            boolean logMessage = true;
+
+            bytesInMemory += pointsInGrid * 4;
+            List<GridRecord> pendingList = pendingRecords.get(assembledRecord);
+            if (pendingList == null) {
+                pendingList = new ArrayList<>(4);
+                pendingRecords.put(assembledRecord, pendingList);
+            }
+
+            pendingList.add(pendingRecord);
+            pendingRecords.notifyAll();
+
+            while (bytesInMemory > maxBytesInMemory) {
+                if (logMessage) {
+                    statusHandler.info("Max Grids in " + getClass().getName()
+                            + " exceeded.  Waiting for grids to process");
+                    logMessage = false;
+                }
+
+                try {
+                    pendingRecords.wait();
+                } catch (InterruptedException e) {
+                    // ignore
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Processes a single GridRecord
+     * 
+     * @param record
+     *            The GridRecord to process
+     * @param thinned
+     *            The composite model for which the GridRecord is a part of
+     * @return The new grib record
+     * @throws Exception
+     */
+    private void processGrids(GridRecord assembledRecord,
+            List<GridRecord> recordsToAssemble) throws Exception {
+        boolean exists = DataURIDatabaseUtil.existingDataURI(assembledRecord);
+        GridDao dao = (GridDao) PluginFactory.getInstance().getPluginDao(
+                GridConstants.GRID);
+
+        if (!exists) {
+            GridCoverage coverage = assembledRecord.getLocation();
+            float[] data = new float[coverage.getNx() * coverage.getNy()];
+            Arrays.fill(data, GridUtil.GRID_FILL_VALUE);
+            assembledRecord.setMessageData(data);
+        } else {
+            FloatDataRecord rec = (FloatDataRecord) dao.getHDF5Data(
+                    assembledRecord, -1)[0];
+            assembledRecord.setMessageData(rec.getFloatData());
+        }
+
+        mergeData(assembledRecord, recordsToAssemble);
+        assembledRecord.setOverwriteAllowed(true);
+        assembledRecord.setInsertTime(TimeUtil.newGmtCalendar());
+        dao.persistRecords(assembledRecord);
+        EDEXUtil.getMessageProducer().sendSync("notificationAggregation",
+                new PluginDataObject[] { assembledRecord });
+    }
+
+    /**
+     * Merges the data from a GridRecord into the composite GridRecord
+     * 
+     * @param record
+     *            The GridRecord containing the data to add
+     * @param assembledRecord
+     *            The composite GridRecord
+     * @param thinned
+     *            The composite model definition
+     * @throws GribException
+     */
+    private void mergeData(GridRecord assembledRecord,
+            List<GridRecord> recordsToAssemble) throws GribException {
+        CompositeModel thinned = thinnedModels.get(assembledRecord
+                .getDatasetId());
+        GridCoverage assembledCoverage = assembledRecord.getLocation();
+        float[][] assembledData = Util.resizeDataTo2D(
+                (float[]) assembledRecord.getMessageData(),
+                assembledCoverage.getNx(), assembledCoverage.getNy());
+
+        for (GridRecord record : recordsToAssemble) {
+            String modelName = record.getDatasetId();
+            GridCoverage coverage = record.getLocation();
+
+            int nx = coverage.getNx();
+            int ny = coverage.getNy();
+
+            List<String> compModels = thinned.getModelList();
+
+            int modIndex = compModels.indexOf(modelName);
+            if (modIndex == -1) {
+                /*
+                 * Shouldn't be possible since was how it was found in the first
+                 * place
+                 */
+                throw new GribException(
+                        "Error assembling grids.  Thinned grid definition does not contain "
+                                + modelName);
+            }
+
+            /*
+             * TODO: This should map the UL corner of record to assembledRecord
+             * instead of relying on index in list
+             */
+            Util.insertSubgrid(assembledData, Util.resizeDataTo2D(
+                    (float[]) record.getMessageData(), coverage.getNx(),
+                    coverage.getNy()), (nx * modIndex) - modIndex, 0, nx, ny);
+        }
+
+        assembledRecord.setMessageData(Util.resizeDataTo1D(assembledData,
+                assembledCoverage.getNy(), assembledCoverage.getNx()));
+    }
+
     @Override
     public void preStart() {
         // null op
@@ -268,20 +396,9 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor,
 
     @Override
     public void preStop() {
-        // null op
-    }
+        running = false;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.edex.core.IContextStateProcessor#postStop()
-     */
-    @Override
-    public void postStop() {
         if (assemblerThreads != null) {
-            for (GridAssembler assembler : assemblerThreads) {
-                assembler.running = false;
-            }
 
             synchronized (pendingRecords) {
                 pendingRecords.notifyAll();
@@ -301,12 +418,19 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor,
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.edex.core.IContextStateProcessor#postStop()
+     */
+    @Override
+    public void postStop() {
+    }
+
     /**
      * Thread to assemble sectorized grids into the overall parent grid.
      */
-    private static class GridAssembler extends Thread {
-        protected volatile boolean running = true;
-
+    private class GridAssembler extends Thread {
         public GridAssembler(String name) {
             super(name);
         }
@@ -323,52 +447,25 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor,
                 try {
                     int index = 0;
                     do {
-                        synchronized (pendingRecords) {
-                            // avoid holding lock for extended period
-                            while (pendingRecords.isEmpty() && running) {
-                                try {
-                                    pendingRecords.wait();
-                                } catch (InterruptedException e) {
-                                    // ignore
-                                }
-                            }
+                        compositeRecord = getNextRecord(index);
 
-                            if (pendingRecords.size() > 0) {
-                                Iterator<GridRecord> iter = pendingRecords
-                                        .keySet().iterator();
-                                if (index >= pendingRecords.size()) {
-                                    index = 0;
-                                }
-
-                                // skip previously checked entries
-                                for (int i = 0; i < index; i++) {
-                                    iter.next();
-                                }
-
-                                compositeRecord = iter.next();
-                            }
-                        }
-
+                        /*
+                         * check compositeRecord in case a shutdown was
+                         * triggered
+                         */
                         if (compositeRecord != null) {
-                            /*
-                             * check compositeRecord in case a shutdown was
-                             * triggered
-                             */
                             String lockName = compositeRecord.getDataURI();
                             ct = ClusterLockUtils.lock(CLUSTER_TASK_NAME,
                                     lockName, 120000, false);
 
                             if (!LockState.SUCCESSFUL.equals(ct.getLockState())) {
-                                compositeRecord = null;
-                                ct = null;
                                 index++;
+                                continue;
                             }
 
-                            if (compositeRecord != null) {
-                                synchronized (pendingRecords) {
-                                    recordsToAssemble = pendingRecords
-                                            .remove(compositeRecord);
-                                }
+                            synchronized (pendingRecords) {
+                                recordsToAssemble = pendingRecords
+                                        .remove(compositeRecord);
                             }
                         }
                     } while ((recordsToAssemble == null) && running);
@@ -401,7 +498,7 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor,
                         int remaining = 0;
 
                         synchronized (pendingRecords) {
-                            pointsInMemory -= points;
+                            bytesInMemory -= points * 4;
                             pendingRecords.notifyAll();
                             remaining = pendingRecords.size();
                         }
@@ -428,94 +525,42 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor,
         }
 
         /**
-         * Processes a single GridRecord
+         * Returns the next record to be assembled. Index allows for skipping of
+         * records in case the lock is being held by other threads/processes.
          * 
-         * @param record
-         *            The GridRecord to process
-         * @param thinned
-         *            The composite model for which the GridRecord is a part of
-         * @return The new grib record
-         * @throws Exception
+         * @param index
+         * @return
          */
-        private void processGrids(GridRecord assembledRecord,
-                List<GridRecord> recordsToAssemble) throws Exception {
-            GridDao dao = (GridDao) PluginFactory.getInstance().getPluginDao(
-                    GridConstants.GRID);
-            boolean exists = DataURIDatabaseUtil
-                    .existingDataURI(assembledRecord);
+        private GridRecord getNextRecord(int index) {
+            GridRecord rval = null;
 
-            if (!exists) {
-                GridCoverage coverage = assembledRecord.getLocation();
-                float[] data = new float[coverage.getNx() * coverage.getNy()];
-                Arrays.fill(data, GridUtil.GRID_FILL_VALUE);
-                assembledRecord.setMessageData(data);
-            } else {
-                FloatDataRecord rec = (FloatDataRecord) dao.getHDF5Data(
-                        assembledRecord, -1)[0];
-                assembledRecord.setMessageData(rec.getFloatData());
-            }
-
-            mergeData(assembledRecord, recordsToAssemble);
-            assembledRecord.setOverwriteAllowed(true);
-            assembledRecord.setInsertTime(TimeUtil.newGmtCalendar());
-            dao.persistRecords(assembledRecord);
-            EDEXUtil.getMessageProducer().sendAsync("notificationAggregation",
-                    new PluginDataObject[] { assembledRecord });
-        }
-
-        /**
-         * Merges the data from a GridRecord into the composite GridRecord
-         * 
-         * @param record
-         *            The GridRecord containing the data to add
-         * @param assembledRecord
-         *            The composite GridRecord
-         * @param thinned
-         *            The composite model definition
-         * @throws GribException
-         */
-        private void mergeData(GridRecord assembledRecord,
-                List<GridRecord> recordsToAssemble) throws GribException {
-            CompositeModel thinned = thinnedModels.get(assembledRecord
-                    .getDatasetId());
-            GridCoverage assembledCoverage = assembledRecord.getLocation();
-            float[][] assembledData = Util.resizeDataTo2D(
-                    (float[]) assembledRecord.getMessageData(),
-                    assembledCoverage.getNx(), assembledCoverage.getNy());
-
-            for (GridRecord record : recordsToAssemble) {
-                String modelName = record.getDatasetId();
-                GridCoverage coverage = record.getLocation();
-
-                int nx = coverage.getNx();
-                int ny = coverage.getNy();
-
-                List<String> compModels = thinned.getModelList();
-
-                int modIndex = compModels.indexOf(modelName);
-                if (modIndex == -1) {
-                    /*
-                     * Shouldn't be possible since was how it was found in the
-                     * first place
-                     */
-                    throw new GribException(
-                            "Error assembling grids.  Thinned grid definition does not contain "
-                                    + modelName);
+            synchronized (pendingRecords) {
+                // avoid holding lock for extended period
+                while (pendingRecords.isEmpty() && running) {
+                    try {
+                        pendingRecords.wait();
+                    } catch (InterruptedException e) {
+                        // ignore
+                    }
                 }
 
-                /*
-                 * TODO: This should map the UL corner of record to
-                 * assembledRecord instead of relying on index in list
-                 */
-                Util.insertSubgrid(assembledData, Util.resizeDataTo2D(
-                        (float[]) record.getMessageData(), coverage.getNx(),
-                        coverage.getNy()), (nx * modIndex) - modIndex, 0, nx,
-                        ny);
+                if (pendingRecords.size() > 0) {
+                    Iterator<GridRecord> iter = pendingRecords.keySet()
+                            .iterator();
+                    index %= pendingRecords.size();
+
+                    // skip previously checked entries
+                    for (int i = 0; i < index; i++) {
+                        iter.next();
+                    }
+
+                    rval = iter.next();
+                }
             }
 
-            assembledRecord.setMessageData(Util.resizeDataTo1D(assembledData,
-                    assembledCoverage.getNy(), assembledCoverage.getNx()));
+            return rval;
         }
+
     }
 
 }

@@ -31,7 +31,7 @@
 
     <bean id="gridAssembler" class="com.raytheon.edex.plugin.grib.decoderpostprocessors.EnsembleGridAssembler">
         <property name="numAssemblerThreads" value="${grib-assembler.count.threads}"/>
-        <property name="maxPointsInMemory" value="${grib-assembler.count.gridspoints}"/>
+        <property name="maxGridsInMB" value="${grib-assembler.count.mb}"/>
     </bean>
 
     <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
