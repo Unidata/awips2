@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -66,11 +66,11 @@ import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * Base class for encapsulating grid spatial information
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Apr 07, 2009  1994     bphillip    Initial Creation
@@ -84,8 +84,9 @@ import com.vividsolutions.jts.geom.Geometry;
  * Apr 11, 2014  2947     bsteffen    Implement IGridGeometryProvider.
  * Oct 16, 2014  3454     bphillip    Upgrading to Hibernate 4
  * Mar 04, 2015  3959     rjpeter     Update for grid based subgridding.
+ * Sep 16, 2015  4696     nabowle     Implement cloneable and add clone().
  * </pre>
- * 
+ *
  * @author bphillip
  * @version 1
  */
@@ -99,7 +100,7 @@ import com.vividsolutions.jts.geom.Geometry;
         StereographicGridCoverage.class })
 @DynamicSerialize
 public abstract class GridCoverage extends PersistableDataObject<Integer>
-        implements ISpatialObject, IGridGeometryProvider {
+        implements ISpatialObject, IGridGeometryProvider, Cloneable {
 
     private static final long serialVersionUID = -1355232934065074837L;
 
@@ -243,7 +244,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
     /**
      * Generates a hash code based on selected fields in the grid coverage
      * object. The fields used will vary among different projections.
-     * 
+     *
      * @return The hash code generated from selected fields in the object
      */
     public int generateHash() {
@@ -263,7 +264,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
     /**
      * Initializes the grid coverage object. Initialization should entail
      * creation of the crs and geometry object as well as assigning the id field
-     * 
+     *
      * @throws GridCoverageException
      *             If problems occur while creating the crs, geometry, or the id
      */
@@ -272,7 +273,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
     /**
      * Gets the name of the projection. The projection type is specified by each
      * subclass and accessed through this method.
-     * 
+     *
      * @return The name/type of the projection
      */
     public abstract String getProjectionType();
@@ -281,7 +282,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
      * Trim this GridCoverage to a sub grid. Nx/Ny are given priority when the
      * subGrid is outside the bounds of the originating grid, causing the
      * subGrid to shift instead of being the intersection.
-     * 
+     *
      * @param subGrid
      * @return trimmed coverage
      */
@@ -375,7 +376,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
     /**
      * Convenience method for returning if this grid world wraps. Note: Coverage
      * must be initialized before calling this.
-     * 
+     *
      * @return
      */
     public int getWorldWrapCount() {
@@ -395,7 +396,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
     /**
      * Create a clone of this coverage setting any crs parameters based on the
      * defined subgrid.
-     * 
+     *
      * @param subGrid
      * @return
      */
@@ -425,7 +426,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
     /**
      * Create a clone of this coverage setting any implementation specific crs
      * parameters.
-     * 
+     *
      * @param subGrid
      * @return
      */
@@ -451,7 +452,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
 
     /**
      * Gets the id
-     * 
+     *
      * @return The id
      */
     public Integer getId() {
@@ -460,7 +461,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
 
     /**
      * Sets the id
-     * 
+     *
      * @param id
      *            The id
      */
@@ -470,7 +471,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
 
     /**
      * Gets the name
-     * 
+     *
      * @return The name
      */
     public String getName() {
@@ -479,7 +480,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
 
     /**
      * Sets the name
-     * 
+     *
      * @param name
      *            The name
      */
@@ -489,7 +490,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
 
     /**
      * Sets the geometry
-     * 
+     *
      * @param geometry
      *            The geometry
      */
@@ -499,7 +500,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
 
     /**
      * Sets the CRS object
-     * 
+     *
      * @param crs
      *            The crs object
      */
@@ -509,7 +510,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
 
     /**
      * Gets the CRS WKT object
-     * 
+     *
      * @return The CRS WKT object
      */
     public String getCrsWKT() {
@@ -518,7 +519,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
 
     /**
      * Sets the CRS WKT object
-     * 
+     *
      * @param crsWKT
      */
     public void setCrsWKT(String crsWKT) {
@@ -528,7 +529,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
 
     /**
      * Gets the description
-     * 
+     *
      * @return The description
      */
     public String getDescription() {
@@ -537,7 +538,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
 
     /**
      * Sets the description
-     * 
+     *
      * @param description
      *            The description
      */
@@ -663,7 +664,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
     }
 
     /**
-     * 
+     *
      */
     protected void generateLowerLeft() throws GridCoverageException {
         try {
@@ -863,7 +864,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
     /**
      * Compare coverages to see if they are equivelant within a certain
      * tolerance
-     * 
+     *
      * @param other
      * @return true to indicate the coverages should be treated as equals, false
      *         if they are too different.
@@ -911,7 +912,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
 
     /**
      * Unique key containing the spatial attributes of this coverage.
-     * 
+     *
      * @return
      */
     public String spatialKey() {
@@ -953,6 +954,19 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
         this.scanMode = coverage.scanMode;
         this.resolution = coverage.resolution;
         this.includePole = coverage.includePole;
+    }
+
+    /**
+     * Clone this GridCoverage.
+     */
+    public GridCoverage clone() throws CloneNotSupportedException {
+        GridCoverage clone = (GridCoverage) super.clone();
+
+        if (this.geometry != null) {
+            clone.setGeometry((Geometry) this.geometry.clone());
+        }
+
+        return clone;
     }
 
 }

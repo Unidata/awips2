@@ -53,7 +53,7 @@
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.edex.plugin.nos"
+         id="com.raytheon.uf.edex.plugin.grid.netcdf"
          download-size="0"
          install-size="0"
          version="0.0.0"

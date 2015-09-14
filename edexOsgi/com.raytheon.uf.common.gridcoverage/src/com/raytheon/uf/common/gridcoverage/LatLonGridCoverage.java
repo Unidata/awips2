@@ -1,24 +1,26 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 
 package com.raytheon.uf.common.gridcoverage;
+
+import java.util.Arrays;
 
 import javax.persistence.Entity;
 import javax.persistence.Transient;
@@ -35,19 +37,20 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 /**
  * Defines a Lat/Lon grid coverage. This class is generally used to describe
  * grids described by GDS Template 0 as specified in Table 3.1
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 4/7/09       1994        bphillip    Initial Creation
  * 09/10/2012   DR 15270    D. Friedman Fix subgrid model name handling.
  * Jan 17, 2014 2125        rjpeter     Removed invalid @Table annotation.
  * Mar 04, 2015 3959        rjpeter     Update for grid based subgridding.
+ * Sep 17, 2015 4696        nabowle     Add clone().
  * </pre>
- * 
+ *
  * @author bphillip
  * @version 1
  */
@@ -146,7 +149,7 @@ public class LatLonGridCoverage extends GridCoverage {
 
     /**
      * Gets la2
-     * 
+     *
      * @return The la2 latitude value
      */
     public double getLa2() {
@@ -155,7 +158,7 @@ public class LatLonGridCoverage extends GridCoverage {
 
     /**
      * Sets la2
-     * 
+     *
      * @param la2
      *            The la2 latitude value
      */
@@ -165,7 +168,7 @@ public class LatLonGridCoverage extends GridCoverage {
 
     /**
      * Gets lo2
-     * 
+     *
      * @return The lo2 latitude value
      */
     public double getLo2() {
@@ -174,7 +177,7 @@ public class LatLonGridCoverage extends GridCoverage {
 
     /**
      * Sets lo2
-     * 
+     *
      * @param lo2
      *            The lo2 longitude value
      */
@@ -208,5 +211,16 @@ public class LatLonGridCoverage extends GridCoverage {
         this.lo2 = coverage.lo2;
         this.isThin = coverage.isThin;
         this.parallels = coverage.parallels;
+    }
+
+    public LatLonGridCoverage clone() throws CloneNotSupportedException {
+        LatLonGridCoverage clone = (LatLonGridCoverage) super.clone();
+
+        if (this.parallels != null) {
+            clone.setParallels(Arrays.copyOf(this.parallels,
+                    this.parallels.length));
+        }
+
+        return clone;
     }
 }

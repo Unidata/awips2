@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Netcdf Grid
+Bundle-SymbolicName: com.raytheon.uf.edex.plugin.grid.netcdf
+Bundle-Version: 1.15.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: com.raytheon.uf.edex.plugin.grid.netcdf,
+ com.raytheon.uf.edex.plugin.grid.netcdf.description.coverage,
+ com.raytheon.uf.edex.plugin.grid.netcdf.description.product
+Require-Bundle: ucar.nc2;bundle-version="4.2.0",
+ com.raytheon.uf.common.dataplugin;bundle-version="1.14.0",
+ org.slf4j;bundle-version="1.7.5",
+ com.raytheon.uf.common.dataplugin.grid;bundle-version="1.14.0",
+ javax.measure;bundle-version="1.0.0",
+ com.raytheon.uf.edex.netcdf;bundle-version="1.15.0",
+ com.raytheon.uf.common.localization;bundle-version="1.14.1",
+ com.raytheon.uf.common.geospatial;bundle-version="1.15.0",
+ com.raytheon.uf.common.serialization;bundle-version="1.15.1"

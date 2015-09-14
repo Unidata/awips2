@@ -70,7 +70,7 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.viz.grib.feature"
+         id="com.raytheon.uf.viz.grid.feature"
          version="0.0.0"/>
 
    <includes

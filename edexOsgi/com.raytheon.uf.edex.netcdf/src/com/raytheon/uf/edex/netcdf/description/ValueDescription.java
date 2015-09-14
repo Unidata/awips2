@@ -42,6 +42,7 @@ import com.raytheon.uf.edex.netcdf.description.exception.InvalidDescriptionExcep
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------
  * Aug 26, 2015  4699     nabowle   Initial creation
+ * Sep 09, 2015  4696     nabowle   Add indexed retrieval and getLength().
  *
  * </pre>
  *
@@ -69,11 +70,26 @@ public class ValueDescription extends AbstractFieldDescription {
         return null;
     }
 
+    public String getString(NetcdfFile file, int index)
+            throws InvalidDescriptionException {
+        return getString(file);
+    }
+
     public Number getNumber(NetcdfFile file)
             throws InvalidDescriptionException {
         if (value != null) {
             return Double.parseDouble(value);
         }
         return null;
+    }
+
+    public Number getNumber(NetcdfFile file, int index)
+            throws InvalidDescriptionException {
+        return getNumber(file);
+    }
+
+    @Override
+    public long getLength(NetcdfFile file) {
+        return value == null ? 0 : 1;
     }
 }

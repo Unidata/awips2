@@ -23,6 +23,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -34,20 +35,22 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.netcdf.description.exception.InvalidDescriptionException;
 
 /**
- *
+ * 
  * Contains the information necessary to extract a {@link Date} from a
  * {@link NetcdfFile} where the value is an offset from the configured epoch.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------
  * Aug 25, 2015  4699     nabowle   Initial creation
- *
+ * Sep 09, 2015  4696     nabowle   Switch TimeUnits. Rename offsetType for 
+ *                                  consistency.
+ * 
  * </pre>
- *
+ * 
  * @author nabowle
  */
 @XmlAccessorType(XmlAccessType.NONE)
@@ -57,7 +60,7 @@ public class EpochOffsetDateValue extends AbstractDateValue{
     private String epoch;
 
     @XmlAttribute(required = true)
-    private TimeUnit offsetType;
+    private TimeUnit units;
 
     private transient SimpleDateFormat sdf = new SimpleDateFormat(
             "yyyy-MM-dd HH:mm:ss");
@@ -72,12 +75,12 @@ public class EpochOffsetDateValue extends AbstractDateValue{
         this.epoch = epoch;
     }
 
-    public TimeUnit getOffsetType() {
-        return offsetType;
+    public TimeUnit getUnits() {
+        return units;
     }
 
-    public void setOffsetType(TimeUnit offsetType) {
-        this.offsetType = offsetType;
+    public void setUnits(TimeUnit units) {
+        this.units = units;
     }
 
     @Override
@@ -101,7 +104,7 @@ public class EpochOffsetDateValue extends AbstractDateValue{
         Calendar cal = (Calendar) epochCal.clone();
 
         int field;
-        switch (this.offsetType) {
+        switch (this.units) {
         case DAYS:
             field = Calendar.DAY_OF_YEAR;
             break;
@@ -116,7 +119,7 @@ public class EpochOffsetDateValue extends AbstractDateValue{
             break;
         default:
             throw new InvalidDescriptionException("Unsupported offset type: "
-                    + offsetType);
+                    + units);
         }
         cal.add(field, offsetN.intValue());
         return cal.getTime();

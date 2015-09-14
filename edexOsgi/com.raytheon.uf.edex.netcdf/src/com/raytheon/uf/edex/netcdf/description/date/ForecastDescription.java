@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.edex.netcdf.description.date;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -27,7 +29,6 @@ import javax.xml.bind.annotation.XmlElements;
 
 import ucar.nc2.NetcdfFile;
 
-import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.netcdf.description.AbstractFieldDescription;
 import com.raytheon.uf.edex.netcdf.description.AttributeDescription;
 import com.raytheon.uf.edex.netcdf.description.ValueDescription;
@@ -44,6 +45,7 @@ import com.raytheon.uf.edex.netcdf.description.exception.InvalidDescriptionExcep
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 8, 2015  4469       nabowle     Initial creation
+ * Sep 9, 2015  4469       nabowle     Switch TimeUnits.
  * 
  * </pre>
  * 
@@ -78,23 +80,7 @@ public class ForecastDescription {
      */
     public int getForecast(NetcdfFile file) throws InvalidDescriptionException {
         int forecast = this.forecastField.getNumber(file).intValue();
-
-        switch (this.units) {
-        case DAYS:
-            forecast *= TimeUtil.SECONDS_PER_DAY;
-            break;
-        case HOURS:
-            forecast *= TimeUtil.SECONDS_PER_HOUR;
-            break;
-        case SECONDS:
-            // No-op.
-            break;
-        case MILLISECONDS:
-            forecast = (int) (forecast / (double) TimeUtil.MILLIS_PER_SECOND);
-            break;
-        default:
-            throw new InvalidDescriptionException("Unsupported units: " + units);
-        }
+        forecast = Long.valueOf(this.units.toSeconds(forecast)).intValue();
         return forecast;
     }
 
