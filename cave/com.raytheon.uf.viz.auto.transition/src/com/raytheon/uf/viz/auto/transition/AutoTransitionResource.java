@@ -24,6 +24,7 @@ import com.raytheon.uf.viz.auto.transition.AverageValueCalculator.CalculatorList
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.PaintStatus;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
@@ -43,6 +44,7 @@ import com.raytheon.viz.core.rsc.BlendedResource;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jul 09, 2015  4633     bsteffen    Initial creation
+ * Sep 10, 2015  4803     bsteffen    Set all resources visible after painting.
  * 
  * </pre>
  * 
@@ -88,6 +90,20 @@ public class AutoTransitionResource extends BlendedResource implements
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
         if (resourceData.isAutomaticSelection()) {
+            /*
+             * When a user sets a resource to be invisible then exit auto
+             * transition mode. There is currently no way to detect this action
+             * so must check every paint.
+             */
+            for (ResourcePair rp : getResourceList()) {
+                if (!rp.getProperties().isVisible()) {
+                    resourceData.setAutomaticSelection(false);
+                    break;
+                }
+            }
+        }
+        if (resourceData.isAutomaticSelection()) {
+
             int controlIndex = resourceData.getControlIndex();
             AbstractVizResource<?, ?> controller = getResourceList().get(
                     controlIndex).getResource();
@@ -108,6 +124,17 @@ public class AutoTransitionResource extends BlendedResource implements
             }
         }
         super.paintInternal(target, paintProps);
+        if (resourceData.isAutomaticSelection()) {
+            /*
+             * All resources must be visible, even if they did not paint,
+             * otherwise the frame coordinator will not change to a frame with
+             * no data and the automatic transition will not be used on that
+             * frame.
+             */
+            for (ResourcePair rp : getResourceList()) {
+                rp.getProperties().setVisible(true);
+            }
+        }
     }
 
     @Override
