@@ -27,7 +27,9 @@ import org.apache.camel.Processor;
 import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.status.IPerformanceStatusHandler;
+import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.PerformanceStatus;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
 
@@ -45,6 +47,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  *                                    added status to process.
  * Oct 07, 2013  2402     bsteffen    Decode GribDecodeMessage instead of
  *                                    files.
+ * Sep 14, 2015  4868     rjpeter     Added logging of file being decoded.
  * </pre>
  * 
  * @author njensen
@@ -56,6 +59,9 @@ public class GribDecoder implements Processor {
     private final IPerformanceStatusHandler perfLog = PerformanceStatus
             .getHandler("");
 
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(GribDecoder.class);
+
     /**
      * @see org.apache.camel.Processor.process(Exchange)
      */
@@ -66,45 +72,47 @@ public class GribDecoder implements Processor {
                 .getBody();
         byte gribEdition = inMessage.getGribEdition();
         exchange.getIn().setHeader("dataType", "grib" + gribEdition);
+        statusHandler.info("Decoding file: " + inMessage.getFileName());
 
-            ITimer timer = TimeUtil.getTimer();
-            GridRecord[] records = null;
-            timer.start();
-            switch (gribEdition) {
-            case 1:
-                records = new Grib1Decoder().decode(inMessage);
-                break;
-            case 2:
-                records = new Grib2Decoder().decode(inMessage);
-                break;
-            default:
-                throw new GribException("Unknown grib version detected ["
+        ITimer timer = TimeUtil.getTimer();
+        GridRecord[] records = null;
+        timer.start();
+        switch (gribEdition) {
+        case 1:
+            records = new Grib1Decoder().decode(inMessage);
+            break;
+        case 2:
+            records = new Grib2Decoder().decode(inMessage);
+            break;
+        default:
+            throw new GribException("Unknown grib version detected ["
                     + gribEdition + "] in file: [" + inMessage.getFileName()
                     + "]");
-            }
+        }
 
-            String datasetId = (String) headers.get("datasetid");
-            String secondaryId = (String) headers.get("secondaryid");
-            String ensembleId = (String) headers.get("ensembleid");
+        String datasetId = (String) headers.get("datasetid");
+        String secondaryId = (String) headers.get("secondaryid");
+        String ensembleId = (String) headers.get("ensembleid");
 
-            if (secondaryId != null || datasetId != null || ensembleId != null) {
-                for (GridRecord record : records) {
-                    if (datasetId != null) {
-                        record.setDatasetId(datasetId);
-                    }
-                    if (secondaryId != null) {
-                        record.setSecondaryId(secondaryId);
-                    }
-                    if (ensembleId != null) {
-                        record.setEnsembleId(ensembleId);
-                    }
-                    record.setDataURI(null);
+        if ((secondaryId != null) || (datasetId != null)
+                || (ensembleId != null)) {
+            for (GridRecord record : records) {
+                if (datasetId != null) {
+                    record.setDatasetId(datasetId);
                 }
+                if (secondaryId != null) {
+                    record.setSecondaryId(secondaryId);
+                }
+                if (ensembleId != null) {
+                    record.setEnsembleId(ensembleId);
+                }
+                record.setDataURI(null);
             }
-            timer.stop();
-            perfLog.logDuration("Grib" + gribEdition + ": Time to Decode",
-                    timer.getElapsedTime());
-            exchange.getIn().setBody(records);
+        }
+        timer.stop();
+        perfLog.logDuration("Grib" + gribEdition + ": Time to Decode",
+                timer.getElapsedTime());
+        exchange.getIn().setBody(records);
 
     }
 

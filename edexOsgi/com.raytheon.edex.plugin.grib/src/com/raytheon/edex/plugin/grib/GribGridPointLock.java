@@ -38,7 +38,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 /**
  * Object for tracking the number of grid points currently being processed by
  * the grib decode route. Grid points is used as an approximate measure of the
- * amount of memory needed to decode the file, limiting the totla number of grid
+ * amount of memory needed to decode the file, limiting the total number of grid
  * points keeps memory usage more consistent. Before a file can be decoded the
  * message should pass through reserve to ensure the grib decoder has enough
  * free points. After decode the points should be released.
@@ -50,7 +50,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Oct 09, 2013  2402     bsteffen    Initial creation
- * 
+ * Sep 14, 2015  4868     rjpeter     Fix comment spelling.
  * </pre>
  * 
  * @author bsteffen
@@ -73,10 +73,9 @@ public class GribGridPointLock {
 
     private final AtomicLong currentPoints = new AtomicLong();
 
-    private Queue<Object> waiters = new ConcurrentLinkedQueue<Object>();
+    private final Queue<Object> waiters = new ConcurrentLinkedQueue<Object>();
 
-    public GribGridPointLock(long maxConcurrentGridPoints,
-            int decodeThreadCount) {
+    public GribGridPointLock(long maxConcurrentGridPoints, int decodeThreadCount) {
         this.maxConcurrentGridPoints = maxConcurrentGridPoints;
         this.fairConcurrentGridPoints = maxConcurrentGridPoints
                 / decodeThreadCount;
@@ -138,7 +137,7 @@ public class GribGridPointLock {
             Object waiter = new Object();
             synchronized (waiter) {
                 waiters.offer(waiter);
-                while (waiters.peek() != waiter
+                while ((waiters.peek() != waiter)
                         || !fastReserve(gridPoints, true)) {
                     try {
                         waiter.wait(15000);
@@ -159,7 +158,7 @@ public class GribGridPointLock {
         long oldPoints = currentPoints.get();
         long newPoints = oldPoints + gridPoints;
         while ((ignoreWaiters || waiters.isEmpty())
-                && newPoints <= maxConcurrentGridPoints) {
+                && (newPoints <= maxConcurrentGridPoints)) {
             if (currentPoints.compareAndSet(oldPoints, newPoints)) {
                 return true;
             }
