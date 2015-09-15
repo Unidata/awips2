@@ -41,25 +41,19 @@ class PirepTurbDelegate(PlotDelegate):
         
     def isValid(self, rec):
         # DCS10257
-        # need some turbulence data
-        # only show non-severe
+        # need turbulence severity data
+        # only show severe
         if rec.isValidParameter("turbInten"):
             turbInten = rec.getString("turbInten")
+            if (turbInten == "SEV") or (turbInten == "EXTRM"):
+                # high severity
+                return True
+            else:
+                # low or empty severity
+                return False
         else:
-            turbInten = ""
-        if rec.isValidParameter("turbFreq"):
-            turbFreq = rec.getString("turbFreq")
-        else:
-            turbFreq = ""
-        if (turbInten == "") and (turbFreq == ""):
-            # no turbulence data present
+            # no turbulence severity data, so cannot have high turbulence severity
             return False
-        elif (turbInten == "SEV") or (turbInten == "EXTRM"):
-            # turbulence data present, but not correct severity
-            return False
-        else:
-            # turbulence data present, and if severity is present it is not high
-            return True
 
 plotDelegate = PirepTurbDelegate()
 

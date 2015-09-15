@@ -23,6 +23,7 @@
 		<displays xsi:type="d2DMapRenderableDisplay"
 			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 			<descriptor xsi:type="mapDescriptor">
+			<!-- Not High severity -->
 				<resource>
                     <loadProperties>
 						<capabilities>
@@ -69,6 +70,53 @@
 						</resource>
 					</resourceData>
 				</resource>
+				<!-- High severity -->
+				<resource>
+                    <loadProperties>
+                        <capabilities>
+                        </capabilities>
+                    </loadProperties>
+                    <resourceData xsi:type="plotBlendedResourceData">   
+                        <resource>
+                            <loadProperties loadWithoutData="true"/>        
+                            <properties isSystemResource="false" isBlinking="false"
+                                isMapLayer="false" isHoverOn="false"
+                                isVisible="true" />
+                            <resourceData xsi:type="plotResourceData" plotSource="${legend} Sev"
+                                plotModelFile="${svg2}"
+                                retrieveData="false" isUpdatingOnMetadataOnly="false">
+                                <binOffset posOffset="1800" negOffset="1800" virtualOffset="0"/>
+                                <metadataMap>
+                                    <mapping key="pluginName">
+                                        <constraint constraintValue="pirep" constraintType="EQUALS" />
+                                    </mapping>
+                                    <mapping key="location.flightLevel">
+                                        <constraint constraintValue="${between}" constraintType="BETWEEN" />
+                                    </mapping>
+                                </metadataMap>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="true"/>        
+                            <properties isSystemResource="false" isBlinking="false"
+                                isMapLayer="false" isHoverOn="false"
+                                isVisible="true" />
+                            <resourceData xsi:type="plotResourceData" plotSource="${legend} Sev"
+                                plotModelFile="${svg3}" 
+                                retrieveData="false" isUpdatingOnMetadataOnly="false">
+                                <binOffset posOffset="1800" negOffset="1800" virtualOffset="0"/>
+                                <metadataMap>
+                                    <mapping key="pluginName">
+                                        <constraint constraintValue="airep" constraintType="EQUALS" />
+                                    </mapping>
+                                    <mapping key="location.flightLevel">
+                                        <constraint constraintValue="${between}" constraintType="BETWEEN" />
+                                    </mapping>
+                                </metadataMap>
+                            </resourceData>
+                        </resource>
+                    </resourceData>
+                </resource>
 			</descriptor>
 		</displays>
 	</displayList>

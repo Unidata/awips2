@@ -8,7 +8,7 @@ xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
 <script type="text/python" plotDelegate="plotDelegate">
 import time
 
-class PirepTurbDelegate(PlotDelegate):
+class PirepIcingDelegate(PlotDelegate):
     def __init__(self):
         PlotDelegate.__init__(self)
 
@@ -22,46 +22,40 @@ class PirepTurbDelegate(PlotDelegate):
         sampleString += " F%d" % (rec.getInt("flightLevel")/100)
         
         try:
-            turbFreq = rec.getString("turbFreq")
+            iceInten = rec.getString("iceInten")
         except ValueError:
-            turbFreq = ""
+            iceInten = ""
         try:
-            turbInten = rec.getString("turbInten")
+            iceType = rec.getString("iceType")
         except ValueError:
-            turbInten = ""
-        if turbInten != ""  or turbFreq != "":
-            sampleString += " TB"
-            if turbInten != "":
+            icetype = ""
+        if iceInten != ""  or iceType != "":
+            sampleString += " IC"
+            if iceInten != "":
                 sampleString += " "
-                sampleString += turbInten
-            if turbFreq != "":
+                sampleString += iceInten
+            if iceType != "":
                 sampleString += " "
-                sampleString += turbFreq
+                sampleString += iceType
         return sampleString
         
     def isValid(self, rec):
         # DCS10257
-        # need some turbulence data
-        # only show non-severe
-        if rec.isValidParameter("turbInten"):
-            turbInten = rec.getString("turbInten")
+        # need icing severity data
+        # only show severe
+        if rec.isValidParameter("iceInten"):
+            iceInten = rec.getString("iceInten")
+            if (iceInten == "SEV") or (iceInten == "EXTRM"):
+                # high severity
+                return True
+            else:
+                # low or empty severity
+                return False
         else:
-            turbInten = ""
-        if rec.isValidParameter("turbFreq"):
-            turbFreq = rec.getString("turbFreq")
-        else:
-            turbFreq = ""
-        if (turbInten == "") and (turbFreq == ""):
-            # no turbulence data present
+            # no severity data
             return False
-        elif (turbInten == "SEV") or (turbInten == "EXTRM"):
-            # turbulence data present, but not correct severity
-            return False
-        else:
-            # turbulence data present, and if severity is present it is not high
-            return True
 
-plotDelegate = PirepTurbDelegate()
+plotDelegate = PirepIcingDelegate()
 
 </script>
 <style type="text/css">
@@ -95,9 +89,9 @@ plotDelegate = PirepTurbDelegate()
 </style>
 <symbol overflow="visible" id="plotData" class="info">
   <text id="sampleText" plotMode="sample" plotParam="obsText"> </text> 
-  <text id="turbInensity" plotMode="table" class="weather" plotLookupTable="turb_intens_trans.txt" plotParam="turbInten" x="0" y="0">0</text>
+  <text id="iceInensity" plotMode="table" class="weather" plotLookupTable="icing_intens_trans.txt" plotParam="iceInten" x="0" y="0">0</text>
   <text id="fltLvlText" plotMode="text" plotParam="flightLevel" plotFormat="%3.0f" plotUnit="hft" style="text-anchor: end;" x="-15px" y="0px">75</text>
-  <text id="turbFreq" plotMode="table" class="weather" plotLookupTable="turb_freq_trans.txt" plotParam="turbFreq" style="text-anchor: end" x="0" y="-10">0</text>
+  <text id="iceType" plotMode="table" class="weather" plotLookupTable="icing_type_trans.txt" plotParam="iceType" style="text-anchor: end" x="0" y="-10">0</text>
 </symbol>
 
 </defs>
