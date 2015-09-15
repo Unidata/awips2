@@ -64,13 +64,6 @@ import h5py
 import itertools
 import ClimateProcessLogger
 
-#TopDir = os.environ['TOP_DIR']
-#sys.path = sys.path[1:]
-#sys.path.extend([os.path.join(TopDir, dir) for dir in \
-#    ['sitepy', 'py', 'toolpy']])
-#import Startup
-
-#_Logger = logging.getLogger(__name__)
 _Logger = logging.getLogger(ClimateProcessLogger.CLIMATE_CATEGORY)
 
 # Change this to the path to your climate directory

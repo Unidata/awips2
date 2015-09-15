@@ -160,7 +160,7 @@ def metargen(siteObjs, all, header, decoded, size=1):
         return metar
     
     def __showDecoded(data, addTages):
-        formatted = MetarViewer.Viewer._format(d['dcd'], addTages)
+        formatted = MetarViewer._format(d['dcd'], addTages)
         formatted = __highlightFltCat(d, formatted)
         return formatted
     
