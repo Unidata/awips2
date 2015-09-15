@@ -33,6 +33,7 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -187,6 +188,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Oct 31, 2013 #2508      randerso    Change to use DiscreteGridSlice.getKeys()
  * Jun 30, 2014 #3332      randerso    Kept local reference to lock table to avoid 
  *                                     race conditions with asynchronous updates
+ * Sep 10, 2015 #4782      randerso    Converted inParmEdit to ReentrantLock to force 
+ *                                     updates to be run consecutively.
+ *                                     Cleaned up TODOs, FIXMEs and deprecations.
  * 
  * </pre>
  * 
@@ -215,9 +219,7 @@ public abstract class Parm implements Comparable<Parm> {
 
     protected GridParmInfo gridInfo;
 
-    protected boolean inParmEdit;
-
-    protected boolean inTSEdit;
+    protected ReentrantLock inParmEdit = new ReentrantLock();
 
     protected ParmDisplayAttributes displayAttributes;
 
@@ -417,8 +419,6 @@ public abstract class Parm implements Comparable<Parm> {
 
     /**
      * Set the grid mutable/immutable
-     * 
-     * TODO: this really shouldn't be done, but is here for legacy reasons.
      * 
      * @param isMutable
      *            the mutable flag
@@ -719,7 +719,7 @@ public abstract class Parm implements Comparable<Parm> {
      * @return true if save successful
      */
     public boolean saveParameter(boolean all) {
-        if (inParmEdit) {
+        if (inParmEdit.isLocked()) {
             return false;
         } else {
             List<TimeRange> myLocks = lockTable.lockedByMe();
@@ -742,7 +742,7 @@ public abstract class Parm implements Comparable<Parm> {
      * @return true if save successful
      */
     public boolean saveParameter(List<TimeRange> times) {
-        if (inParmEdit) {
+        if (inParmEdit.isLocked()) {
             return false;
         } else {
             ParmSaveStatus status = this.saveJob.requestSave(times);
@@ -1006,16 +1006,13 @@ public abstract class Parm implements Comparable<Parm> {
     // grids are available for edit. If it is okay to continue editing,
     // the undo buffer is initialized or extended, and the point-to-area
     // converter disabled.
-    //
-    // The point-area converter and network notifications are only
-    // suspended if "first" is true.
     // ---------------------------------------------------------------------------
     private IGridData[] setupParmEdit(final Date[] absTimes, boolean first)
             throws GFEOperationFailedException {
-        if (this.inParmEdit && first) {
+        if (this.inParmEdit.isHeldByCurrentThread() && first) {
             throw new GFEOperationFailedException(
                     "startParmEdit() called when already in an edit");
-        } else if (!this.inParmEdit && !first) {
+        } else if (!this.inParmEdit.isHeldByCurrentThread() && !first) {
             throw new GFEOperationFailedException(
                     "extendParmEdit() called without calling startParmEdit() first");
         }
@@ -1049,11 +1046,9 @@ public abstract class Parm implements Comparable<Parm> {
         // Save the current grids in the undo buffer
         saveUndo(saveUndoTimes.toArray(new TimeRange[saveUndoTimes.size()]),
                 first); // clear
-        // if the first parm edit set the in edit flag, suspend notifications
+        // if the first parm edit set the in edit flag
         if (first) {
-            inParmEdit = true;
-            // TODO!!!
-            // _dataMgr.networkMgr().suspendNotifications();
+            inParmEdit.lock();
         }
 
         // since inventory may have changed, go back and get a new
@@ -1089,9 +1084,8 @@ public abstract class Parm implements Comparable<Parm> {
      */
     private boolean startParmEditInternal(final TimeRange timeRange) {
         // Checks if it is okay to edit this. Saves a copy of the data to
-        // be edited using saveUndo(). Tells the network manager to
-        // suspend notifications.
-        if (inParmEdit || inTSEdit) {
+        // be edited using saveUndo().
+        if (inParmEdit.isHeldByCurrentThread()) {
             throw new IllegalStateException(
                     "startParmEdit called while editing already started");
         }
@@ -1102,10 +1096,7 @@ public abstract class Parm implements Comparable<Parm> {
 
         saveUndo(new TimeRange[] { timeRange }, true);
 
-        // TODO: Fix this
-        // _dataMgr.networkMgr().suspendNotifications();
-
-        inParmEdit = true;
+        inParmEdit.lock();
         return true;
 
     }
@@ -1120,12 +1111,11 @@ public abstract class Parm implements Comparable<Parm> {
         // Checks the lock status for each undo buffer time range. We request a
         // lock if we don't already have one. If we cannot get a lock, then we
         // call forceUndo() to roll back the changes we just made.
-        // Resumes notifications.
         //
         // If any of the required locks fail, then the entire operation is
         // undone.
 
-        if (!inParmEdit || inTSEdit) {
+        if (!inParmEdit.isHeldByCurrentThread()) {
             throw new IllegalStateException(
                     "endParmEdit() called when not in a parm edit");
         }
@@ -1159,13 +1149,7 @@ public abstract class Parm implements Comparable<Parm> {
         }
         timesBeingEdited.clear();
 
-        inParmEdit = false;
-
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // TODO: FIXME
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-        // dataMgr.networkMgr().resumeNotifications();
+        inParmEdit.unlock();
 
         return returnVal;
     }
@@ -1843,7 +1827,17 @@ public abstract class Parm implements Comparable<Parm> {
      * @param gridData
      */
     public void gridHistoryChanged(IGridData gridData) {
-        // TODO: Implement
+        this.grids.acquireReadLock();
+        try {
+            if (!this.grids.contains(gridData)) {
+                return;
+            }
+        } finally {
+            this.grids.releaseReadLock();
+        }
+
+        this.parmListeners.fireGridHistoryUpdatedListener(gridData.getParm(),
+                gridData.getGridTime());
     }
 
     protected IGridData makeEmptyGrid() {
@@ -2290,8 +2284,6 @@ public abstract class Parm implements Comparable<Parm> {
         GridParmInfo gpi = this.gridInfo.clone();
         gpi.resetParmID(pid);
 
-        // FIXME: LOCKING
-        // LockTable lt(pid, SeqOf<Lock>(), dataMgr().myWsId());
         updateDiscreteVParmKeys(getParmID(), pid);
         Parm newParm = this.dataManager.getParmManager().createVirtualParm(pid,
                 gpi, new IGridSlice[] { gridSlice }, true, false);
@@ -2863,7 +2855,6 @@ public abstract class Parm implements Comparable<Parm> {
         }
 
         // Start the edit operation
-        this.inParmEdit = false;
         if (!this.startParmEditInternal(affectedTR)) {
             statusHandler.handle(Priority.SIGNIFICANT,
                     "Unable to copy grids into " + getParmID().getShortParmId()
@@ -3461,9 +3452,7 @@ public abstract class Parm implements Comparable<Parm> {
                 this.getParmID(), "MIN", "TMP");
         GridParmInfo gpi = this.gridInfo.clone();
         gpi.resetParmID(pid);
-        // TODO
-        // LockTable lt = new LockTable(pid, SeqOf<Lock>(),
-        // this.dataManager.getWsId());
+
         updateDiscreteVParmKeys(getParmID(), pid);
         Parm newParm = this.dataManager.getParmManager().createVirtualParm(pid,
                 gpi, new IGridSlice[] { gridSlice }, true, false);
@@ -3524,9 +3513,7 @@ public abstract class Parm implements Comparable<Parm> {
                 this.getParmID(), "MAX", "TMP");
         GridParmInfo gpi = this.gridInfo.clone();
         gpi.resetParmID(pid);
-        // TODO
-        // LockTable lt = new LockTable(pid, SeqOf<Lock>(),
-        // this.dataManager.getWsId());
+
         updateDiscreteVParmKeys(getParmID(), pid);
         Parm newParm = this.dataManager.getParmManager().createVirtualParm(pid,
                 gpi, new IGridSlice[] { gridSlice }, true, false);
@@ -3586,9 +3573,7 @@ public abstract class Parm implements Comparable<Parm> {
                 this.getParmID(), "SUM", "TMP");
         GridParmInfo gpi = this.gridInfo.clone();
         gpi.resetParmID(pid);
-        // TODO
-        // LockTable lt = new LockTable(pid, SeqOf<Lock>(),
-        // this.dataManager.getWsId());
+
         updateDiscreteVParmKeys(getParmID(), pid);
         Parm newParm = this.dataManager.getParmManager().createVirtualParm(pid,
                 gpi, new IGridSlice[] { gridSlice }, true, false);
@@ -3823,9 +3808,7 @@ public abstract class Parm implements Comparable<Parm> {
                 this.getParmID(), "AVG", "TMP");
         GridParmInfo gpi = this.gridInfo.clone();
         gpi.resetParmID(pid);
-        // TODO
-        // LockTable lt = new LockTable(pid, SeqOf<Lock>(),
-        // this.dataManager.getWsId());
+
         updateDiscreteVParmKeys(getParmID(), pid);
         Parm newParm = this.dataManager.getParmManager().createVirtualParm(pid,
                 gpi, new IGridSlice[] { gridSlice }, true, false);
@@ -4400,41 +4383,44 @@ public abstract class Parm implements Comparable<Parm> {
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
     @Override
-    public int compareTo(Parm o) {
+    public int compareTo(Parm other) {
 
         int cmp = 0;
         for (char sortChar : ParmSortPreference.getParmSortAlgorithm()) {
             switch (sortChar) {
             case 'm': // mutable/immutable
-                if (this.mutable && !o.mutable) {
+                if (this.mutable && !other.mutable) {
                     cmp = -1;
-                } else if (!this.mutable && o.mutable) {
+                } else if (!this.mutable && other.mutable) {
                     cmp = 1;
                 }
                 break;
             case 'M': // model
                 String model1 = this.getParmID().getDbId().getModelName();
-                String model2 = o.getParmID().getDbId().getModelName();
+                String model2 = other.getParmID().getDbId().getModelName();
                 cmp = model1.compareTo(model2);
                 break;
             case 'N': // name
-                cmp = compareName(o);
+                cmp = compareName(other);
                 break;
             case 't': // time
-                cmp = getParmID()
-                        .getDbId()
-                        .getModelTimeAsDate()
-                        .compareTo(o.getParmID().getDbId().getModelTimeAsDate());
+                Date thisDate = this.getParmID().getDbId().getModelDate();
+                Date otherDate = other.getParmID().getDbId().getModelDate();
 
+                long thisTime = (thisDate == null ? 0 : thisDate.getTime());
+                long otherTime = (otherDate == null ? 0 : otherDate.getTime());
+
+                cmp = (thisTime < otherTime ? 1 : (thisTime == otherTime ? 0
+                        : -1));
                 break;
             case 'o': // "other"- type
                 String type1 = getParmID().getDbId().getDbType();
-                String type2 = o.getParmID().getDbId().getDbType();
+                String type2 = other.getParmID().getDbId().getDbType();
                 cmp = type1.compareTo(type2);
                 break;
             case 'l':
                 String level1 = this.getParmID().getParmLevel();
-                String level2 = o.getParmID().getParmLevel();
+                String level2 = other.getParmID().getParmLevel();
                 cmp = level1.compareTo(level2);
                 break;
             default:
