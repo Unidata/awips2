@@ -42,6 +42,7 @@
 #                                                 and make copied files world-readable
 #    Jul 27, 2015       4402       njensen        Set fill_time_never on write if fill value is None 
 #    Jul 30, 2015       1574       nabowle        Add deleteOrphanFiles()
+#    Aug 20, 2015   DR 17726      mgamazaychikov Remove __doMakeReadable method 
 #
 
 import h5py, os, numpy, pypies, re, logging, shutil, time, types, traceback
@@ -762,16 +763,9 @@ class H5pyDataStore(IDataStore.IDataStore):
 
     def __doCopy(self, filepath, basePath, outputDir, compression):
         shutil.copy(filepath, outputDir)
-        fileName = os.path.join(outputDir, os.path.basename(filepath))
-        success = os.path.isfile(fileName)
-        if success:
-           self.__doMakeReadable(fileName)
-        return success
+        success = (os.path.isfile(os.path.join(outputDir, os.path.basename(filepath))))
 
     __doCopy.__display_name__ = 'copy'
-
-    def __doMakeReadable(self, fileName):
-        os.chmod(fileName,0644)
 
     def repack(self, request):
         resp = FileActionResponse()

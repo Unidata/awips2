@@ -359,9 +359,9 @@ def getIssueTime(kind, bbb, t=None):
 
 def getMinutesBeforeForecastTime():
     try:
-        f = Avn.PATH_MGR.getStaticFile(Avn.ConfigDir)
+        fname = os.path.join(Avn.ConfigDir, 'default_issue_time.cfg')
+        f = Avn.PATH_MGR.getStaticFile(fname)
         fname = f.getPath()
-        fname = os.path.join(fname, 'default_issue_time.cfg')
         if not (os.path.exists(fname)):
             return None
         cp = ConfigParser.RawConfigParser()
