@@ -54,7 +54,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.viz.aviation.climatology.ClimateMenuDlg;
-import com.raytheon.viz.aviation.model.ForecastModel;
 import com.raytheon.viz.aviation.observer.TafMonitorDlg;
 import com.raytheon.viz.aviation.resource.ResourceConfigMgr;
 import com.raytheon.viz.aviation.utility.IBackupRestart;
@@ -96,13 +95,12 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 10/09/2012   1229        rferrel     Changes for non-blocking TafMonitorDlg.
  * 04/10/2013   1735        rferrel     Changes for taf monitor speed up.
  * 08/09/2013   2033        mschenke    Switched File.separator to IPathManager.SEPARATOR
- * 12 Aug 2013  #2256      lvenable     Removed unnecessary font code and other code clean up.
+ * 12 Aug 2013  2256        lvenable    Removed unnecessary font code and other code clean up.
  * 06 May 2014  3091        rferrel     Use OUP authorization to bring up send dialog.
+ * 15 Sep 2015  4880        njensen     Removed ForecastModel reference
  * 
  * </pre>
  * 
- * @author grichard
- * @version 1.0
  */
 public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -171,24 +169,14 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
                 | CAVE.INDEPENDENT_SHELL | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS Menu");
 
-        ForecastModel.getInstance().setBackupRestartUtility(this);
+        BackupRestart.setBackupRestartUtility(this);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
-     */
     @Override
     protected Layout constructShellLayout() {
         return new GridLayout(1, false);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
-     */
     @Override
     protected void disposed() {
         for (Font f : fontList) {
@@ -208,13 +196,6 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
-     * .eclipse.swt.widgets.Shell)
-     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -491,13 +472,6 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
         displayTafMonitorDialog();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.aviation.utility.IBackupRestart#backupTafMonitor(java
-     * .lang.String)
-     */
     @Override
     public void backupTafMonitor(java.util.List<String> productDisplayList,
             Map<String, java.util.List<String>> stationMap) {

@@ -24,8 +24,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * Contains static information used to generate the Climate Data FTP scripts.
  * 
@@ -36,6 +34,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 19, 2011 #4864      rferrel     Initial creation
+ * Sep 15, 2015  4880      njensen     Removed ISerializableObject
  * 
  * </pre>
  * 
@@ -44,7 +43,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  */
 @XmlRootElement(name = "ClimateDataFTPArgs")
 @XmlAccessorType(XmlAccessType.NONE)
-public class ClimateDataFTPArgs implements ISerializableObject {
+public class ClimateDataFTPArgs {
 
     @XmlElement(name = "Site")
     private String site;

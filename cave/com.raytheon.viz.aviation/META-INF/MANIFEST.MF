@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Aviation Plug-in
 Bundle-SymbolicName: com.raytheon.viz.aviation;singleton:=true
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.15.0.qualifier
 Bundle-Activator: com.raytheon.viz.aviation.activator.Activator
 Bundle-Vendor: Raytheon
 Require-Bundle: org.eclipse.ui,
@@ -34,7 +34,6 @@ Export-Package: com.raytheon.viz.aviation,
  com.raytheon.viz.aviation.climatology,
  com.raytheon.viz.aviation.editor,
  com.raytheon.viz.aviation.guidance,
- com.raytheon.viz.aviation.model,
  com.raytheon.viz.aviation.observer,
  com.raytheon.viz.aviation.resource,
  com.raytheon.viz.aviation.utility,
