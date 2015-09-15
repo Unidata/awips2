@@ -27,8 +27,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * 
  * Class containing code for the Array of ViewerTabConfig data read in from XML.
@@ -39,45 +37,45 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 3, 2009            lvenable     Initial creation
+ * Aug 3, 2009             lvenable    Initial creation
+ * Sep 15, 2015 4880       njensen     Removed ISerializableObject
  *
  * </pre>
- *
+ * 
  * @author lvenable
  * @version 1.0
  */
 @XmlRootElement(name = "TafViewerEditorConfig")
 @XmlAccessorType(XmlAccessType.NONE)
-public class TafViewerEditorConfig implements ISerializableObject
-{
+public class TafViewerEditorConfig {
     /**
      * Array of ViewerTabConfig data.
      */
-    @XmlElements( { @XmlElement(name = "ViewerTabConfig", type = ViewerTabConfig.class) })
+    @XmlElements({ @XmlElement(name = "ViewerTabConfig", type = ViewerTabConfig.class) })
     private ArrayList<ViewerTabConfig> viewerTabs;
-    
+
     /**
      * Constructor.
      */
-    public TafViewerEditorConfig()
-    {        
+    public TafViewerEditorConfig() {
     }
 
     /**
      * Get the viewer tab configuration data.
+     * 
      * @return Return an array of ViewerTabConfig data.
      */
-    public ArrayList<ViewerTabConfig> getViewerTabs()
-    {
+    public ArrayList<ViewerTabConfig> getViewerTabs() {
         return viewerTabs;
     }
 
     /**
      * Set the viewer tab configuration data array.
-     * @param viewerTabs An array of ViewerTabConfig data.
+     * 
+     * @param viewerTabs
+     *            An array of ViewerTabConfig data.
      */
-    public void setViewerTabs(ArrayList<ViewerTabConfig> viewerTabs)
-    {
+    public void setViewerTabs(ArrayList<ViewerTabConfig> viewerTabs) {
         this.viewerTabs = viewerTabs;
     }
 }

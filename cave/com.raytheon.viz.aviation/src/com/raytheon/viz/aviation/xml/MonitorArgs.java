@@ -23,8 +23,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * This class contains the option arguments for the monitor.
  * 
@@ -34,68 +32,69 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 7, 2009  2537      lvenable     Initial creation
+ * Aug 7, 2009  2537       lvenable    Initial creation
+ * Sep 15, 2015 4880       njensen     Removed ISerializableObject
  *
  * </pre>
- *
+ * 
  * @author lvenable
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class MonitorArgs implements ISerializableObject
-{
+public class MonitorArgs {
     /**
      * Argument name.
      */
     @XmlAttribute(name = "name")
     private String name;
-    
+
     /**
      * Argument value.
      */
     @XmlAttribute(name = "value")
     private String value;
-    
+
     /**
      * Constructor.
      */
-    public MonitorArgs()
-    {        
+    public MonitorArgs() {
     }
 
     /**
      * Get the argument name.
+     * 
      * @return The argument name.
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
     /**
      * Set the argument name.
-     * @param name The argument name.
+     * 
+     * @param name
+     *            The argument name.
      */
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
     /**
      * Get the argument value.
+     * 
      * @return The argument value.
      */
-    public String getValue()
-    {
+    public String getValue() {
         return value;
     }
 
     /**
      * Set the argument value.
-     * @param value The argument value.
+     * 
+     * @param value
+     *            The argument value.
      */
-    public void setValue(String value)
-    {
+    public void setValue(String value) {
         this.value = value;
     }
 }

@@ -34,7 +34,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.site.SiteMap;
@@ -71,6 +70,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 10/09/2012   1229        rferrel     Changes for non-blocking MetarDisplayDialog.
  * 10/09/2012   1229        rferrel     Changes for non-blocking CigVisTrendDlg.
  * 10/15/2012   1229        rferrel     Changes for non-blocking HelpUsageDlg.
+ * Sep 15, 2015 4880        njensen     Removed dead code
  * 
  * </pre>
  * 
@@ -216,18 +216,6 @@ public class ClimateMenuDlg extends CaveSWTDialog {
         // Create the Help menu item with a Help "dropdown" menu
         Menu helpMenu = new Menu(menuBar);
         helpMenuItem.setMenu(helpMenu);
-
-        // --------------------------------------------------
-        // Create About menu item
-        // --------------------------------------------------
-        MenuItem aboutMenuItem = new MenuItem(helpMenu, SWT.NONE);
-        aboutMenuItem.setText("About...");
-        aboutMenuItem.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                notImplementedYet("About...");
-            }
-        });
 
         // --------------------------------------------------
         // Create Usage menu item
@@ -380,14 +368,4 @@ public class ClimateMenuDlg extends CaveSWTDialog {
         }
     }
 
-    // TODO - remove this when needed...
-    // this is a convenience method to show a dialog
-    // when functionality has not been implemented...
-    //
-    private void notImplementedYet(String information) {
-        MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-        mb.setText("Notice");
-        mb.setMessage("Functionality not implemented yet:\n\n" + information);
-        mb.open();
-    }
 }

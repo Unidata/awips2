@@ -26,8 +26,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * Aviation Forecaster Configuration
  * 
@@ -38,6 +36,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  *    Date         Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
  *    2/7/2008     817         grichard    Initial Creation.
+ *    Sep 15, 2015 4880        njensen     Removed ISerializableObject
  * 
  * </pre>
  * 
@@ -46,7 +45,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  */
 @XmlRootElement(name = "aviationForecasterConfig")
 @XmlAccessorType(XmlAccessType.NONE)
-public class AviationForecasterConfig implements ISerializableObject {
+public class AviationForecasterConfig {
 
     /**
      * The aviation forecaster configuration.
