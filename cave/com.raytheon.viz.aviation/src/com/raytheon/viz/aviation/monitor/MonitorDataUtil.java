@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingRecord;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.dataplugin.ccfp.CcfpRecord;
@@ -38,6 +37,7 @@ import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -56,6 +56,7 @@ import com.raytheon.uf.viz.datacube.DataCubeContainer;
  * ------------ ---------- ----------- --------------------------
  * Sep 10, 2009            njensen     Initial creation
  * Apr 10, 2013 1735       rferrel     Convert to ThinClient and DbQueryRequests.
+ * Sep 15, 2015 4880       njensen     Don't request CCFP data if there are no times
  * 
  * </pre>
  * 
@@ -64,6 +65,7 @@ import com.raytheon.uf.viz.datacube.DataCubeContainer;
  */
 
 public class MonitorDataUtil {
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(MonitorDataUtil.class);
 
@@ -120,9 +122,14 @@ public class MonitorDataUtil {
             TimeQueryRequest tqRequest = new TimeQueryRequest();
             tqRequest.setPluginName("ccfp");
             tqRequest.setQueryTerms(map);
-
             List<DataTime> dtList = (List<DataTime>) ThriftClient
                     .sendRequest(tqRequest);
+
+            // don't bother requesting data if there's no times
+            if (dtList.isEmpty()) {
+                return new CcfpRecord[0];
+            }
+
             String[] dts = new String[dtList.size()];
             for (int index = 0; index < dts.length; ++index) {
                 dts[index] = dtList.get(index).toString();
@@ -133,7 +140,6 @@ public class MonitorDataUtil {
             if (dts.length > 3) {
                 dts = Arrays.copyOf(dts, 3);
             }
-
             map.remove("dataTime.refTime");
 
             DbQueryRequest request = new DbQueryRequest();
@@ -189,7 +195,8 @@ public class MonitorDataUtil {
                     .getEntityObjects(RadarRecord.class);
             return records;
         } catch (VizException e) {
-            statusHandler.handle(Priority.ERROR,
+            statusHandler
+                    .handle(Priority.ERROR,
                             "Error making server request for radar vertical wind profile data",
                             e);
         } catch (DataCubeException e) {
@@ -237,7 +244,8 @@ public class MonitorDataUtil {
                     .getEntityObjects(ACARSSoundingRecord.class);
             return records;
         } catch (VizException e) {
-            statusHandler.handle(Priority.ERROR,
+            statusHandler
+                    .handle(Priority.ERROR,
                             "Error making server request for Acars Sounding Records data",
                             e);
         } catch (DataCubeException e) {
