@@ -89,6 +89,10 @@
         <available file="${basedir}/../build.edex/lib/ant/ant-contrib-1.0b3.jar" />
     </condition>
 
+    <condition property="edexsrc.dir" value="${basedir}/.." else="${basedir}/../../edexOsgi" >
+	   <available file="${basedir}/../com.raytheon.edex.plugin.radar/utility/common_static/base/radar/elevationLists.txt" />
+	</condition>
+
     <!-- Only check for directories on development workstation-->
     <if>
         <equals arg1="${top.dir}" arg2="${basedir}/../../.." />
@@ -124,8 +128,6 @@
         </then>
     </if>
 
-
-    <property name="edexsrc.dir" value="${basedir}/../../edexOsgi"/>
 
     <!-- Set default EDEX install location for copy filter -->
     <property name="def.edex.install.dir" value="/awips" />
@@ -259,7 +261,7 @@
                 <exclude name="**/config.xml"/>
             </fileset>
         </copy>
-        <copy todir="${deploy.dir}/data/config/drop-ins" verbose="true">
+        <copy todir="${deploy.dir}/data/config/drop-ins" verbose="false">
             <filterset refid="installer.filter.set" />
             <fileset dir="${edexsrc.dir}/com.raytheon.edex.plugin.radar/utility/common_static/base/radar">
                 <include name="elevationLists.txt"/>
