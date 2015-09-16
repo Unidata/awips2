@@ -29,14 +29,15 @@
         class="com.raytheon.edex.plugin.grib.spatial.GribSpatialCache"
         factory-method="getInstance" depends-on="gridcoveragelookup"/>
 
-    <bean id="gridAssembler" class="com.raytheon.edex.plugin.grib.decoderpostprocessors.EnsembleGridAssembler">
-        <property name="numAssemblerThreads" value="${grib-assembler.count.threads}"/>
-        <property name="maxGridsInMB" value="${grib-assembler.count.mb}"/>
+    <bean id="gribPersister" class="com.raytheon.edex.plugin.grib.GribPersister">
+        <constructor-arg value="grid"/>
+        <constructor-arg value="${grib-persister.count.threads}"/>
+        <constructor-arg value="${grib-persister.count.mb}"/>
     </bean>
 
     <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
         <constructor-arg ref="grib-decode"/>
-        <constructor-arg ref="gridAssembler"/>
+        <constructor-arg ref="gribPersister"/>
     </bean>
 
     <camelContext id="grib-decode" xmlns="http://camel.apache.org/schema/spring"
@@ -75,7 +76,7 @@
 
                     <!-- send for processing -->
                     <bean ref="gribPostProcessor" method="process" />
-                    <to uri="direct-vm:persistIndexAlert" />
+                    <bean ref="gribPersister" method="persist"/>
                 </pipeline>
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
@@ -85,6 +86,28 @@
                     <bean ref="gribGridPointLock" method="release"/>
                 </doFinally>
             </doTry>
+        </route>
+
+        <!--
+           Copy of persist route with a callback to GribPersister for logging.
+         -->
+        <route id="gribPersistIndexAlert">
+            <from uri="direct-vm:gribPersistIndexAlert"/>
+            <bean ref="persist" method="persist"/>
+            <multicast>
+                <pipeline>
+                    <!-- Separate index and logging as index needs to
+                         elimnate duplicates for the case of stitched grids -->
+                    <bean ref="gribPersister" method="eliminateDuplicates"/>
+                    <bean ref="index" method="index"/>
+                    <to uri="direct-vm:stageNotification"/> 
+                </pipeline>
+                <split>
+                    <simple>${body}</simple>
+                    <bean ref="gribPersister" method="updateLogHeader"/>
+                    <bean ref="processUtil" method="log"/>
+                </split>
+            </multicast>
         </route>
     </camelContext>
 </beans>

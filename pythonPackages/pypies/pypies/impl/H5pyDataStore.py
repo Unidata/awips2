@@ -43,6 +43,8 @@
 #    Jul 27, 2015       4402       njensen        Set fill_time_never on write if fill value is None 
 #    Jul 30, 2015       1574       nabowle        Add deleteOrphanFiles()
 #    Aug 20, 2015   DR 17726      mgamazaychikov Remove __doMakeReadable method 
+#    Sep 14, 2015       4868       rjpeter        Updated writePartialHDFData to create the dataset if
+#                                                 it doesn't exist.
 #
 
 import h5py, os, numpy, pypies, re, logging, shutil, time, types, traceback
@@ -140,8 +142,9 @@ class H5pyDataStore(IDataStore.IDataStore):
         rootNode=f['/']
         group = self.__getNode(rootNode, record.getGroup(), None, create=True)
         if record.getMinIndex() is not None and len(record.getMinIndex()):
-            ss = self.__writePartialHDFDataset(f, data, record.getDimension(), record.getSizes(),
-                                               group[record.getName()], props, record.getMinIndex())
+            ss = self.__writePartialHDFDataset(f, data, record.getDimension(), record.getSizes(), record.getName(),
+                                               group, props, self.__getHdf5Datatype(record), record.getMinIndex(),
+                                               record.getMaxSizes(), record.getFillValue())
         else:
             ss = self.__writeHDFDataset(f, data, record.getDimension(), record.getSizes(), record.getName(),
                                    group, props, self.__getHdf5Datatype(record), storeOp, record)
@@ -167,7 +170,7 @@ class H5pyDataStore(IDataStore.IDataStore):
             data = data.reshape(szDims1)
 
         ss = {}
-        if dataset in group.keys():
+        if dataset in group:
             ds = group[dataset]
             if storeOp == 'STORE_ONLY':
                 raise StorageException('Dataset ' + str(dataset) + ' already exists in group ' + str(group))
@@ -217,6 +220,12 @@ class H5pyDataStore(IDataStore.IDataStore):
             #dtype.set_strpad(h5t.STR_NULLTERM)
         return dtype
 
+    # Common use case of arrays are passed in x/y and orientation of data is y/x
+    def __reverseDimensions(self, dims):
+        revDims = [None, ] * len(dims)
+        for i in range(len(dims)):
+            revDims[i] = dims[len(dims) - i - 1]
+        return revDims
 
     def __calculateChunk(self, nDims, dataType, storeOp, maxDims):
         if nDims == 1:
@@ -253,6 +262,12 @@ class H5pyDataStore(IDataStore.IDataStore):
         else:
             raise NotImplementedException("Storage of " + str(nDims) + " dimensional " + \
                                    "data with mode " + storeOp + " not supported yet")
+
+        # ensure chunk is not bigger than dimensions
+        if maxDims is not None:
+            for i in range(nDims):
+                chunk[i] = chunk[i] if maxDims[i] is None else min(chunk[i], maxDims[i])
+
         chunk = tuple(chunk)
         return chunk
 
@@ -262,28 +277,38 @@ class H5pyDataStore(IDataStore.IDataStore):
             for key in attrs:
                 dataset.attrs[key] = attrs[key]
 
-    def __writePartialHDFDataset(self, f, data, dims, szDims, ds, props,
-                                                minIndex):
-        # reverse sizes for hdf5
-        szDims1 = [None, ] * len(szDims)
-        for i in range(len(szDims)):
-            szDims1[i] = szDims[len(szDims) - i - 1]
-        offset = [None, ] * len(minIndex)
-        for i in range(len(minIndex)):
-            offset[i] = minIndex[len(minIndex) - i - 1]
+    def __writePartialHDFDataset(self, f, data, dims, szDims, dataset, group, props, dataType,
+                                                minIndex, maxSizes, fillValue):
+        # Change dimensions to be Y/X
+        szDims1 = self.__reverseDimensions(szDims)
+        offset = self.__reverseDimensions(minIndex)
 
-        # process chunking
-#        chunkSize = None
-#        if data.dtype != numpy._string and data.dtype != numpy._object:
-#            chunkSize = DEFAULT_CHUNK_SIZE
-#        else:
-#            chunkSize = 1
-#        chunk = [chunkSize] * len(szDims)
         data = data.reshape(szDims1)
+
+        ss = {}
+        if dataset in group:
+            ds=group[dataset]
+            ss['op'] = 'REPLACE'
+        else:
+            if maxSizes is None:
+                raise StorageException('Dataset ' + dataset + ' does not exist for partial write.  MaxSizes not specified to create initial dataset')
+
+            maxDims = self.__reverseDimensions(maxSizes)
+            nDims = len(maxDims)
+            chunk = self.__calculateChunk(nDims, dataType, 'STORE_ONLY', maxDims)
+            compression = None
+            if props:
+                compression = props.getCompression()
+            ds = self.__createDatasetInternal(group, dataset, dataType, maxDims, None, chunk, compression, fillValue)
+            ss['op'] = 'STORE_ONLY'
+
+        if ds.shape[0] < data.shape[0] or ds.shape[1] < data.shape[1]:
+            raise StorageException('Partial write larger than original dataset.  Original shape [' + str(ds.shape) + '], partial ')
 
         endIndex = [offset[0] + szDims1[0], offset[1] + szDims1[1]]
         ds[offset[0]:endIndex[0], offset[1]:endIndex[1]] = data
-        return {'op':'REPLACE'}
+
+        return ss
 
 
     def delete(self, request):
@@ -349,7 +374,7 @@ class H5pyDataStore(IDataStore.IDataStore):
 
     # recursively looks for data sets
     def __hasDataSet(self, group):
-        for key in group.keys():
+        for key in group:
             child=group[key]
             if type(child) == h5py.highlevel.Dataset:
                 return True
@@ -509,9 +534,7 @@ class H5pyDataStore(IDataStore.IDataStore):
 
             # reverse sizes for hdf5
             szDims = rec.getSizes()
-            szDims1 = [None, ] * len(szDims)
-            for i in range(len(szDims)):
-                szDims1[i] = szDims[len(szDims) - i - 1]
+            szDims1 = self.__reverseDimensions(szDims)
             szDims = tuple(szDims1)
 
             chunks = None

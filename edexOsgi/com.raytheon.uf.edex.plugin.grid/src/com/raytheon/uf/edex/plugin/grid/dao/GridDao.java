@@ -55,11 +55,13 @@ import com.raytheon.uf.common.gridcoverage.lookup.GridCoverageLookup;
 import com.raytheon.uf.common.parameter.Parameter;
 import com.raytheon.uf.common.parameter.lookup.ParameterLookup;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.GridUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
+import com.raytheon.uf.edex.plugin.grid.PartialGrid;
 
 /**
  * Data access object for accessing Grid records from the database
@@ -112,8 +114,23 @@ public class GridDao extends PluginDao {
                 group = "/" + location.getId();
                 datasetName = abbrev;
             }
-            AbstractStorageRecord storageRecord = new FloatDataRecord(
-                    datasetName, group, (float[]) messageData, 2, sizes);
+            AbstractStorageRecord storageRecord = null;
+            Object partialGrid = gridRec.getExtraAttribute(PartialGrid.KEY);
+            if ((partialGrid != null) && (partialGrid instanceof PartialGrid)) {
+                /* Check if dataset needs to be created */
+                PartialGrid pGrid = (PartialGrid) partialGrid;
+                long[] pGridSize = new long[] { pGrid.getNx(), pGrid.getNy() };
+                long[] pGridOffset = new long[] { pGrid.getxOffset(),
+                        pGrid.getyOffset() };
+                storageRecord = new FloatDataRecord(datasetName, group,
+                        (float[]) messageData, 2, pGridSize);
+                storageRecord.setMinIndex(pGridOffset);
+                storageRecord.setMaxSizes(sizes);
+                storageRecord.setFillValue(GridUtil.GRID_FILL_VALUE);
+            } else {
+                storageRecord = new FloatDataRecord(datasetName, group,
+                        (float[]) messageData, 2, sizes);
+            }
 
             storageRecord.setCorrelationObject(gridRec);
             StorageProperties sp = new StorageProperties();
