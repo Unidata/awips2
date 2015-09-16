@@ -1,4 +1,4 @@
-# Version 2015.7.23-0
+# Version 2015.8.05-0
 
 import GenericHazards
 import JsonSupport
@@ -1775,9 +1775,11 @@ class StormSurgeSection(SectionCommon):
     def _peakSurge(self, segmentDict, productSegmentGroup, productSegment):
         self._textProduct.debug_print("_peakSurge _inundationMax = %s" % (self._stats._inundationMax), 1)
         
+        # DR 17727: To make the output consistent, max threat should be calculated here
+        self._stats._maxThreat = "None"
+        
         if self._stats._inundationMax is not None and self._stats._inundationMax >= 1:
             max = round(self._stats._inundationMax)
-            self._stats._maxThreat = "None"
             if max > 10:
                 maxRange = 4
                 self._stats._maxThreat = "Extreme"
