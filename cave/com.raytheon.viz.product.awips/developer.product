@@ -35,7 +35,8 @@
 -XX:G1MixedGCCountTarget=16
 -XX:G1MixedGCLiveThresholdPercent=25
 -XX:G1OldCSetRegionThresholdPercent=25
--XX:G1HeapWastePercent=5</vmArgs>
+-XX:G1HeapWastePercent=5
+-DvizVersion=DEVELOPMENT</vmArgs>
       <vmArgsWin>-Dfile.encoding=UTF-8</vmArgsWin>
    </launcherArgs>
 
