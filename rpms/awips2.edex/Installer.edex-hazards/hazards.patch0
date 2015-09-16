@@ -1,0 +1,81 @@
+*** Installer.edex-component/component.spec	2015-08-25 15:19:06.962255321 -0500
+--- Installer.edex-hazards/component.spec	2015-09-17 12:02:05.144994525 -0500
+***************
+*** 1,5 ****
+  #
+! # AWIPS II Edex "component" spec file
+  #
+  %define __prelink_undo_cmd %{nil}
+  # Turn off the brp-python-bytecompile script
+--- 1,5 ----
+  #
+! # AWIPS II EDEX Hazard Services spec file
+  #
+  %define __prelink_undo_cmd %{nil}
+  # Turn off the brp-python-bytecompile script
+***************
+*** 16,22 ****
+  License: N/A
+  Distribution: N/A
+  Vendor: Raytheon
+- Packager: Bryan Kowal
+  
+  provides: awips2-%{_component_name}
+  requires: awips2
+--- 16,21 ----
+***************
+*** 55,60 ****
+--- 54,96 ----
+     exit 1
+  fi
+  
++ #create the edex scripts dir
++ EDEX_SCRIPTS_DIR=%{_build_root}/awips2/edex/scripts/
++ if [ ! -d $EDEX_SCRIPTS_DIR ]; then
++ mkdir -p $EDEX_SCRIPTS_DIR
++ fi
++ 
++ if [ $? -ne 0 ]; then
++    exit 1
++ fi
++ 
++ # verify HazardServices directory exists and copy in files 
++ HS_NAME=HazardServices
++ TOOLS_HS_DIR=%{_baseline_workspace}/tools/$HS_NAME
++ if [ -d $TOOLS_HS_DIR ]; then
++    cp -Rv $TOOLS_HS_DIR $EDEX_SCRIPTS_DIR
++ fi
++ 
++ # HazardServices dir may not be available, as tools/HazardServices may not exist
++ # if not available, create the directory for other scripts
++ if [ ! -d $EDEX_SCRIPTS_DIR/$HS_NAME ]; then
++    mkdir -p $EDEX_SCRIPTS_DIR/$HS_NAME
++ fi
++ 
++ if [ $? -ne 0 ]; then
++    exit 1
++ fi
++ 
++ #copy in specific files for HS
++ if [ -d $EDEX_SCRIPTS_DIR/$HS_NAME ]; then 
++    cp -v %{_baseline_workspace}/tools/parseWarngenTemplate.py $EDEX_SCRIPTS_DIR/$HS_NAME
++    cp -v %{_baseline_workspace}/tools/ingestshapefiles.sh $EDEX_SCRIPTS_DIR/$HS_NAME
++ fi
++ 
++ if [ $? -ne 0 ]; then
++    exit 1
++ fi
++ 
+  #create a list of all files packaged for /awips2/edex/data/utility
+  UTILITY=/awips2/edex/data/utility
+  if [ -d %{_build_root}/$UTILITY ]; then
+***************
+*** 87,90 ****
+--- 123,129 ----
+  %defattr(644,awips,fxalpha,755)
+  %dir /awips2
+  %dir /awips2/edex
++ %dir /awips2/edex/conf
+  /awips2/edex/*
++ %defattr(755,awips,fxalpha,-)
++ /awips2/edex/scripts/*
