@@ -314,7 +314,7 @@ Flood waters are moving down !**NAME OF CHANNEL**! from !**LOCATION**! to !**LOC
 #end
 ##
 #if(${ctaSelected} == "YES") 
-Precautionary/Preparedness actions...
+PRECAUTIONARY/PREPAREDNESS ACTIONS...
 
 #end
 ##
