@@ -24,7 +24,6 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Bryan Kowal
 
 AutoReq: no
 provides: %{_component_name}
@@ -58,28 +57,6 @@ CONST_BANNER_LENGTH=47
 AWIPS_PRODUCT_JAR=
 EDEX_BANNER_TXT=
 
-# This function exists for upgrading from
-# 11.6.X builds.
-function updateCAVEVersionLegacy()
-{
-   local TMP_PRODUCTS_DIR="/awips2/${AWIPS_PRODUCT}/.tmp/products"
-
-   cd ${TMP_PRODUCTS_DIR}
-   # update plugin.xml
-   sed '/aboutText/{n;s/\".*\"/\"%caveAboutText\"/;}' \
-      -i plugin.xml
-   
-   # update the manifest.
-   touch manifestUpdate
-   echo "Bundle-Localization: plugin" > manifestUpdate
-   
-   # merge the updated plugin.xml and manifest into the jar.
-   /awips2/java/bin/jar umf manifestUpdate ${AWIPS_PRODUCT_JAR}
-   /awips2/java/bin/jar uf ${AWIPS_PRODUCT_JAR} plugin.xml
-   
-   rm -f manifestUpdate
-}
-
 function padEdexBannerLine()
 {
 	local _output="${1}"
@@ -100,7 +77,7 @@ function padEdexBannerLine()
 	return 0
 }
 
-function updateVersion()
+function updateAlertVizVersion()
 {
    local TMP_PRODUCTS_DIR="/awips2/${AWIPS_PRODUCT}/.tmp/products"
 
@@ -118,11 +95,7 @@ function updateVersion()
    # Update the version information.
    cd ${TMP_PRODUCTS_DIR}
    unzip -qq ${AWIPS_PRODUCT_JAR}
-   if [ ! -f plugin.properties ]; then
-      updateCAVEVersionLegacy
-   else
-      rm -f plugin.properties
-   fi
+   rm -f plugin.properties
    
    ARCH="x86"
    # Determine the architecture.
@@ -178,30 +151,32 @@ function updateEDEXVersion()
       >> ${EDEX_BANNER_TXT}
 }
 
-AWIPS_PRODUCT_WILDCARD="/awips2/cave/plugins/com.raytheon.viz.product.awips_*.jar"
-# Get the actual name of the product jar.
-if [ -d /awips2/cave/plugins ]; then
-   AWIPS_PRODUCT_JAR=`ls -1 ${AWIPS_PRODUCT_WILDCARD}`
-   RC=$?
-   if [ ${RC} -eq 0 ]; then
-      # does the jar exist?
-      if [ -f ${AWIPS_PRODUCT_JAR} ]; then
-         AWIPS_PRODUCT="cave"
-         updateVersion
-      fi
-   fi
+function updateCaveVersion() {
+   # Note: the system properties echoed to the versions script are based on
+   # about.mappings in the com.raytheon.viz.product.awips plugin.
+   AWIPS_VERSION_TXT=/awips2/cave/awipsVersion.txt
+
+   echo "--launcher.appendVmargs" > ${AWIPS_VERSION_TXT}
+   echo "-vmargs" >> ${AWIPS_VERSION_TXT}
+   echo "-DvizVersion=%{_component_version}-%{_component_release}" >> ${AWIPS_VERSION_TXT}
+   echo "-DbuildDate=%{_component_build_date}" >> ${AWIPS_VERSION_TXT}
+   echo "-DbuildTime=%{_component_build_time}" >> ${AWIPS_VERSION_TXT}
+   echo "-DbuildSystem=%{_component_build_system}" >> ${AWIPS_VERSION_TXT}
+}
+
+if [ -d /awips2/cave ]; then
+   updateCaveVersion
 fi
 
 AWIPS_PRODUCT_WILDCARD="/awips2/alertviz/plugins/com.raytheon.uf.viz.product.alertviz_*.jar"
 # Get the actual name of the product jar.
 if [ -d /awips2/alertviz/plugins ]; then
    AWIPS_PRODUCT_JAR=`ls -1 ${AWIPS_PRODUCT_WILDCARD}`
-   RC=$?
-   if [ ${RC} -eq 0 ]; then
+   if [ $? -eq 0 ]; then
       # does the jar exist?
       if [ -f ${AWIPS_PRODUCT_JAR} ]; then
          AWIPS_PRODUCT="alertviz"
-         updateVersion
+         updateAlertVizVersion
       fi
    fi
 fi
