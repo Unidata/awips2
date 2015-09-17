@@ -50,12 +50,13 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 2 Dec 2008              wkwock      Initial creation.
+ *  2 Dec 2008             wkwock      Initial creation.
  * 16 Jan 2009  1883       Venable &amp;   Updated database calls and query methods. 
  *                         Duff
  * 10 Feb 2009             wkwock      Added functions and clean up.
  * 12 Aug 2014  3049       bkowal      Close the BufferedReader when finished.
  * 21 May 2015  4501       skorolev    Changed a way of database connection. Got rid of Vector.
+ * 17 Sep 2015  4886       skorolev    Corrected updateRejecteddata.
  * 
  * </pre>
  * 
@@ -743,7 +744,7 @@ public class XdatDB {
                 + userid + "')";
 
         try {
-            DirectDbQuery.executeQuery(query, IHFS, QueryLanguage.SQL);
+            DirectDbQuery.executeStatement(query, IHFS, QueryLanguage.SQL);
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error to update the rejected data table.", e);
