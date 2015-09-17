@@ -37,6 +37,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.alertviz.AlertVizPreferences;
 import com.raytheon.uf.viz.alertviz.AlertvizJob;
+import com.raytheon.uf.viz.alertviz.AlertvizJob.AlertVizJobListener;
 import com.raytheon.uf.viz.alertviz.Container;
 import com.raytheon.uf.viz.alertviz.ReceiverConnChecker;
 import com.raytheon.uf.viz.alertviz.SystemStatusHandler;
@@ -63,6 +64,7 @@ import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
  * May 08, 2013 1939       rjpeter     Updated to start NotificationManagerJob.
  * Aug 26, 2014 3356       njensen     Explicitly set localization adapter
  * Jun 04, 2015 4473       njensen     Defer launching of UI to Activator and OSGi services
+ * Sep 17, 2015 4822       njensen     Block application exit until receiver disconnects
  * 
  * </pre>
  * 
@@ -71,16 +73,29 @@ import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
  */
 @SuppressWarnings("restriction")
 public class AlertVizApplication implements IStandaloneComponent {
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AlertVizApplication.class, "GDN_ADMIN", "GDN_ADMIN");
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.application.component.IStandaloneComponent#startComponent
-     * (java.lang.String)
+    /**
+     * Private class used to verify we do not exit the application before the
+     * job has been properly shut down.
      */
+    private static class ConnectedListener implements AlertVizJobListener {
+        private boolean connected;
+
+        @Override
+        public void receiverConnected() {
+            connected = true;
+        }
+
+        @Override
+        public void receiverDisconnected() {
+            connected = false;
+        }
+
+    }
+
     @Override
     public Object startComponent(String componentName) throws Exception {
         Display display = PlatformUI.createDisplay();
@@ -140,6 +155,8 @@ public class AlertVizApplication implements IStandaloneComponent {
             return IApplication.EXIT_OK;
         }
         AlertvizJob.getInstance().setEmbedded(false);
+        ConnectedListener listener = new ConnectedListener();
+        AlertvizJob.getInstance().addAlertVizJobListener(listener);
         AlertvizJob.getInstance().start(port);
 
         // open JMS connection to allow alerts to be received
@@ -171,6 +188,21 @@ public class AlertVizApplication implements IStandaloneComponent {
                 // Killed because of error, set exit status to non zero value
                 return IApplication.EXIT_RELAUNCH;
             }
+
+            /*
+             * don't let the application exit until it is properly disconnected
+             */
+            int stopTries = 0;
+            while (listener.connected && stopTries < 5) {
+                /*
+                 * if the job is successfully canceled, the receiverDisconnect()
+                 * will be triggered
+                 */
+                AlertvizJob.getInstance().cancel();
+                Thread.sleep(5);
+                stopTries++;
+            }
+            AlertvizJob.getInstance().removeAlertVizJobListener(listener);
         }
 
         return AlertvizJob.getInstance().getExitStatus();
