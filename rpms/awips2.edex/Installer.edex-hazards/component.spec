@@ -57,38 +57,49 @@ fi
 #create the edex scripts dir
 EDEX_SCRIPTS_DIR=%{_build_root}/awips2/edex/scripts/
 if [ ! -d $EDEX_SCRIPTS_DIR ]; then
-mkdir -p $EDEX_SCRIPTS_DIR
+   mkdir -p $EDEX_SCRIPTS_DIR
+
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
 fi
 
-if [ $? -ne 0 ]; then
-   exit 1
-fi
 
 # verify HazardServices directory exists and copy in files 
 HS_NAME=HazardServices
 TOOLS_HS_DIR=%{_baseline_workspace}/tools/$HS_NAME
 if [ -d $TOOLS_HS_DIR ]; then
+
    cp -Rv $TOOLS_HS_DIR $EDEX_SCRIPTS_DIR
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+
 fi
 
 # HazardServices dir may not be available, as tools/HazardServices may not exist
 # if not available, create the directory for other scripts
 if [ ! -d $EDEX_SCRIPTS_DIR/$HS_NAME ]; then
    mkdir -p $EDEX_SCRIPTS_DIR/$HS_NAME
-fi
 
-if [ $? -ne 0 ]; then
-   exit 1
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
 fi
 
 #copy in specific files for HS
 if [ -d $EDEX_SCRIPTS_DIR/$HS_NAME ]; then 
-   cp -v %{_baseline_workspace}/tools/parseWarngenTemplate.py $EDEX_SCRIPTS_DIR/$HS_NAME
-   cp -v %{_baseline_workspace}/tools/ingestshapefiles.sh $EDEX_SCRIPTS_DIR/$HS_NAME
-fi
 
-if [ $? -ne 0 ]; then
-   exit 1
+   cp -v %{_baseline_workspace}/tools/parseWarngenTemplate.py $EDEX_SCRIPTS_DIR/$HS_NAME
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+
+   cp -v %{_baseline_workspace}/tools/ingestshapefiles.sh $EDEX_SCRIPTS_DIR/$HS_NAME
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+
 fi
 
 #create a list of all files packaged for /awips2/edex/data/utility
