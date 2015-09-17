@@ -44,6 +44,7 @@ import com.raytheon.viz.gfe.smarttool.PreviewInfo;
  * Dec 09, 2013  #2367     dgilling    Use new ProcedureJobPool.
  * Jul 17, 2015  4575      njensen     Changed varDict from String to Map
  * Jul 27, 2015  4263      dgilling    Support ProcedureMetadataManager.
+ * Sep 16, 2015  4871      randerso    Return modified varDict from Procedure
  * 
  * </pre>
  * 
@@ -72,7 +73,7 @@ public class ProcedureUtil {
         return pi;
     }
 
-    public static Object callFromSmartScript(final DataManager dm,
+    public static Object[] callFromSmartScript(final DataManager dm,
             final String procName, ReferenceData editArea, TimeRange timeRange,
             Map<String, Object> varDict) {
         PreviewInfo pi = dm.getEditActionProcessor().prepareExecute(
@@ -92,7 +93,7 @@ public class ProcedureUtil {
                 public void run() {
                     List<FieldDefinition> varList = dm.getProcedureInterface()
                             .getVarDictWidgets(procName);
-                    if (varList != null && varList.size() > 0) {
+                    if ((varList != null) && (varList.size() > 0)) {
                         // make the gui, let it handle running the procedure
                         ProcedureSelectionBlockingDlg sd = new ProcedureSelectionBlockingDlg(
                                 PlatformUI.getWorkbench()
@@ -111,6 +112,6 @@ public class ProcedureUtil {
         }
 
         dm.getProcedureJobPool().schedule(req);
-        return req.getResult();
+        return new Object[] { req.getResult(), req.getVarDict() };
     }
 }
