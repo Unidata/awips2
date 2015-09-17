@@ -22,7 +22,7 @@
 	<contribute xsi:type="toolbarSubMenu" menuText="6hr">
 		<contribute xsi:type="menuItem" menuText="6hr Prob Total Precip > 0.01 inches" key="ProbTP0p01in6hr" indentText="false" />
 		<contribute xsi:type="menuItem" menuText="6hr Prob Total Precip > 0.10 inches" key="ProbTP0p10in6hr" indentText="false" />
-		<contribute xsi:type="menuItem" menuText="6hr Prob Total Precip > 0.25 inches" key="ProbTP0p25in6h" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="6hr Prob Total Precip > 0.25 inches" key="ProbTP0p25in6hr" indentText="false" />
 		<contribute xsi:type="menuItem" menuText="6hr Prob Total Precip > 0.50 inches" key="ProbTP0p50in6hr" indentText="false" />
 		<contribute xsi:type="menuItem" menuText="6hr Prob Total Precip > 0.75 inches" key="ProbTP0p75in6hr" indentText="false" />
 		<contribute xsi:type="menuItem" menuText="6hr Prob Total Precip > 1.00 inch" key="ProbTP1p00in6hr" indentText="false" />
