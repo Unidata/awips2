@@ -73,6 +73,8 @@
 #    Aug 26, 2015    4804          dgilling       Added callTextFormatter().
 #    Aug 27, 2015    4805          dgilling       Added saveCombinationsFile().
 #    Aug 27, 2015    4806          dgilling       Added transmitTextProduct().
+#    Sep 16, 2015    4871          randerso       Return modified varDict from called Tool/Procedure
+#
 ########################################################################
 import types, string, time, sys
 from math import *
@@ -1043,7 +1045,7 @@ class SmartScript(BaseTool.BaseTool):
         else:
             emptyEditAreaFlag = False
         if varDict is not None:
-            varDict = JUtil.pyValToJavaObj(varDict)
+            javaDict = JUtil.pyValToJavaObj(varDict)
 
         parm = self.getParm(self.__mutableID, elementName, "SFC")
         if timeRange is None:
@@ -1054,10 +1056,15 @@ class SmartScript(BaseTool.BaseTool):
 
         from com.raytheon.viz.gfe.smarttool import SmartUtil
 
-        result = SmartUtil.callFromSmartScript(self.__dataMgr, toolName, elementName, editArea,
-                                            timeRange, varDict, emptyEditAreaFlag,
+        result, returnedDict = SmartUtil.callFromSmartScript(self.__dataMgr, toolName, elementName, editArea,
+                                            timeRange, javaDict, emptyEditAreaFlag,
                                             JUtil.pylistToJavaStringList(passErrors),
                                             missingDataMode, parm)
+
+        if returnedDict:
+            returnedDict = JUtil.javaObjToPyVal(returnedDict)
+            varDict.clear()
+            varDict.update(returnedDict)
 
         if result:
             raise Exceptions.EditActionError(errorType="Error", errorInfo=str(result))
@@ -1077,9 +1084,14 @@ class SmartScript(BaseTool.BaseTool):
 
         from com.raytheon.viz.gfe.procedures import ProcedureUtil
         if varDict is not None:
-            varDict = JUtil.pyValToJavaObj(varDict)
+            javaDict = JUtil.pyValToJavaObj(varDict)
 
-        result = ProcedureUtil.callFromSmartScript(self.__dataMgr, name, editArea, timeRange, varDict)
+        result, returnedDict = ProcedureUtil.callFromSmartScript(self.__dataMgr, name, editArea, timeRange, javaDict)
+        
+        if returnedDict:
+            returnedDict = JUtil.javaObjToPyVal(returnedDict)
+            varDict.clear()
+            varDict.update(returnedDict)
 
         # callSmartTool raises the exception put here it is returned.
         if result:
