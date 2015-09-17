@@ -19,23 +19,22 @@
  **/
 package com.raytheon.viz.aviation.monitor;
 
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.taf.TafRecord;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest.OrderMode;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.datacube.DataCubeContainer;
+import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 
 /**
  * Utility functions related to TAFs
@@ -53,7 +52,8 @@ import com.raytheon.uf.viz.datacube.DataCubeContainer;
  * Sep 11, 2013 2277       mschenke    Got rid of ScriptCreator references
  * Feb 24, 2014 2830       njensen     Sort dataTimes in getLatestTafs()
  *                                       so it works correctly
- * May 15, 2014 3002       bgonzale    Moved common taf code to com.raytheon.uf.common.dataplugin.taf.
+ * May 15, 2014 3002       bgonzale    Moved common taf code to com.raytheon.uf.common.dataplugin.taf
+ * Sep 16, 2015 4880       njensen     Optimized getLatestTafs()
  * 
  * </pre>
  * 
@@ -96,52 +96,20 @@ public class TafUtil {
     public static TafRecord[] getLatestTafs(String siteID, int numberOfTafs) {
         try {
             Map<String, RequestConstraint> map = new HashMap<String, RequestConstraint>();
-            map.put(TafRecord.PLUGIN_NAME_ID, new RequestConstraint(
+            map.put(PluginDataObject.PLUGIN_NAME_ID, new RequestConstraint(
                     TafRecord.PLUGIN_NAME));
             map.put("stationId", new RequestConstraint(siteID));
 
-            /*
-             * even if only requesting one, cannot pass in true because that
-             * will return a DataTime with only refTime set and tafs need to
-             * have fcstTime, validPeriod, etc set
-             */
-            DataTime[] dt = DataCubeContainer.performTimeQuery(map, false);
-            if (dt.length == 0) {
-                return null;
-            }
-            int size = numberOfTafs;
-            if (size > dt.length) {
-                size = dt.length;
-            }
-            Arrays.sort(dt);
-            DataTime[] requestedTimes = new DataTime[size];
-            int k = 0;
-            for (int i = dt.length - 1; i > -1; i--) {
-                requestedTimes[k] = dt[i];
-                k++;
-                if (k >= size) {
-                    break;
-                }
-            }
-
-            PluginDataObject[] pdos = DataCubeContainer.getData(map,
-                    requestedTimes);
-            TafRecord[] tafs = new TafRecord[pdos.length];
-            for (int i = 0; i < pdos.length; ++i) {
-                tafs[i] = (TafRecord) pdos[i];
-            }
-            // Sort newest first based on issue time
-            Arrays.sort(tafs,
-                    Collections.reverseOrder(new Comparator<TafRecord>() {
-                        @Override
-                        public int compare(TafRecord o1, TafRecord o2) {
-                            return o1.getIssue_time().compareTo(
-                                    o2.getIssue_time());
-                        }
-                    }));
-
+            DbQueryRequest req = new DbQueryRequest();
+            req.setEntityClass(TafRecord.class);
+            req.setConstraints(map);
+            req.setLimit(numberOfTafs);
+            req.setOrderByField("issue_time", OrderMode.DESC);
+            DbQueryResponse response = (DbQueryResponse) ThriftClient
+                    .sendRequest(req);
+            TafRecord[] tafs = response.getEntityObjects(TafRecord.class);
             return tafs;
-        } catch (DataCubeException e) {
+        } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM, "Error retrieving TAFs", e);
         }
         return null;

@@ -20,7 +20,6 @@
 package com.raytheon.viz.aviation.monitor;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -33,18 +32,18 @@ import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.dataplugin.ccfp.CcfpRecord;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest.OrderMode;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.DataTimeComparator;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
-import com.raytheon.uf.viz.datacube.DataCubeContainer;
 
 /**
  * Utility functions for data requesting.
@@ -56,7 +55,7 @@ import com.raytheon.uf.viz.datacube.DataCubeContainer;
  * ------------ ---------- ----------- --------------------------
  * Sep 10, 2009            njensen     Initial creation
  * Apr 10, 2013 1735       rferrel     Convert to ThinClient and DbQueryRequests.
- * Sep 15, 2015 4880       njensen     Don't request CCFP data if there are no times
+ * Sep 16, 2015 4880       njensen     Optimized requests for data
  * 
  * </pre>
  * 
@@ -118,6 +117,13 @@ public class MonitorDataUtil {
         map.put("dataTime.refTime",
                 new RequestConstraint(SDF.format(new Date(time)),
                         RequestConstraint.ConstraintType.GREATER_THAN_EQUALS));
+
+        /*
+         * CCFPs are issued on a periodic basis and for each issue time there
+         * can be multiple CCFPs covering different areas. Following the
+         * original AvnFPS implementation, we need to get all the CCFPs of the
+         * three most recent periods.
+         */
         try {
             TimeQueryRequest tqRequest = new TimeQueryRequest();
             tqRequest.setPluginName("ccfp");
@@ -130,18 +136,17 @@ public class MonitorDataUtil {
                 return new CcfpRecord[0];
             }
 
+            // filter so only the three most recent periods are included
+            Collections.sort(dtList,
+                    Collections.reverseOrder(new DataTimeComparator()));
+            dtList = dtList.subList(0, 3);
             String[] dts = new String[dtList.size()];
             for (int index = 0; index < dts.length; ++index) {
                 dts[index] = dtList.get(index).toString();
             }
+
             map.put("pluginName", new RequestConstraint("ccfp"));
-            Arrays.sort(dts, Collections.reverseOrder());
-
-            if (dts.length > 3) {
-                dts = Arrays.copyOf(dts, 3);
-            }
             map.remove("dataTime.refTime");
-
             DbQueryRequest request = new DbQueryRequest();
             request.setEntityClass(CcfpRecord.class);
             request.setLimit(999);
@@ -178,32 +183,21 @@ public class MonitorDataUtil {
         map.put("icao", new RequestConstraint(radar.toLowerCase()));
         map.put("mnemonic", new RequestConstraint("VWP"));
 
-        DbQueryRequest request = new DbQueryRequest();
-        request.setEntityClass(RadarRecord.class);
-
         try {
-            DataTime[] dt = DataCubeContainer.performTimeQuery(map, true);
-            map.remove("dataTime.refTime");
+            DbQueryRequest request = new DbQueryRequest();
+            request.setEntityClass(RadarRecord.class);
+            request.setOrderByField("dataTime.refTime", OrderMode.DESC);
+            request.setLimit(1);
             request.setConstraints(map);
-            if (dt.length > 0) {
-                request.addConstraint("dataTime",
-                        new RequestConstraint(SDF.format(dt[0].getRefTime())));
-            }
+
             DbQueryResponse response = (DbQueryResponse) ThriftClient
                     .sendRequest(request);
             RadarRecord[] records = response
                     .getEntityObjects(RadarRecord.class);
             return records;
         } catch (VizException e) {
-            statusHandler
-                    .handle(Priority.ERROR,
-                            "Error making server request for radar vertical wind profile data",
-                            e);
-        } catch (DataCubeException e) {
-            statusHandler
-                    .handle(Priority.ERROR,
-                            "Error performing time query for radar vertical wind profile data",
-                            e);
+            statusHandler.handle(Priority.ERROR,
+                    "Error requesting radar vertical wind profile data", e);
         }
         return null;
     }
@@ -226,33 +220,20 @@ public class MonitorDataUtil {
         map.put("location.stationId",
                 new RequestConstraint(stationId.substring(1)));
 
-        DbQueryRequest request = new DbQueryRequest();
-        request.setEntityClass(ACARSSoundingRecord.class);
-
         try {
-            DataTime[] dt = DataCubeContainer.performTimeQuery(map, true);
-            map.remove("dataTime.refTime");
+            DbQueryRequest request = new DbQueryRequest();
+            request.setEntityClass(ACARSSoundingRecord.class);
+            request.setLimit(1);
+            request.setOrderByField("dataTime.refTime", OrderMode.DESC);
             request.setConstraints(map);
-
-            if (dt.length > 0) {
-                request.addConstraint("dataTime",
-                        new RequestConstraint(SDF.format(dt[0].getRefTime())));
-            }
             DbQueryResponse response = (DbQueryResponse) ThriftClient
                     .sendRequest(request);
             ACARSSoundingRecord[] records = response
                     .getEntityObjects(ACARSSoundingRecord.class);
             return records;
         } catch (VizException e) {
-            statusHandler
-                    .handle(Priority.ERROR,
-                            "Error making server request for Acars Sounding Records data",
-                            e);
-        } catch (DataCubeException e) {
-            statusHandler
-                    .handle(Priority.ERROR,
-                            "Error performing time query for Acars Sounding Records data",
-                            e);
+            statusHandler.handle(Priority.ERROR,
+                    "Error requesting acarssounding data", e);
         }
         return null;
     }
