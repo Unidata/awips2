@@ -67,6 +67,7 @@ import com.raytheon.viz.mpe.util.DailyQcUtils;
  * Sep 11, 2013 #2353      lvenable    Fixed cursor memory leak.
  * Mar 10, 2015 14575      snaples     Added additional status flag.
  * Jul 9, 2015  14618      snaples     Cleaned up code issues.
+ * Sep 11, 2015 17988      snaples     Fixed issue with wait cursor not showing when Rendering Grids.
  * </pre>
  * 
  * @author snaples
@@ -489,7 +490,7 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
             }
         });
 
-        Composite renderComp = new Composite(dataOptionsGroup, SWT.NONE);
+        final Composite renderComp = new Composite(dataOptionsGroup, SWT.NONE);
         GridLayout renderCompLayout = new GridLayout(2, false);
         renderCompLayout.marginHeight = 0;
         renderCompLayout.marginWidth = 0;
@@ -507,10 +508,10 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         renderGridsBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.setCursor(waitCursor);
+                renderComp.setCursor(waitCursor);
                 opo.render_options(0);
-                shell.setCursor(prevCursor);
                 renderGridsBtn.setEnabled(false);
+                renderComp.setCursor(prevCursor);
             }
         });
 
