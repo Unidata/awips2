@@ -656,8 +656,13 @@
 	</rule>
 	<!-- Purge rules for MRMS -->
 	<rule>
-		<keyValue>MRMS</keyValue>
+		<keyValue>MRMS_1000</keyValue>
 		<versionsToKeep>120</versionsToKeep>
 		<period>03-00:00:00</period>
 	</rule>
+        <rule>
+                <keyValue>MRMS_0500</keyValue>
+                <versionsToKeep>120</versionsToKeep>
+                <period>03-00:00:00</period>
+        </rule>
 </purgeRuleSet>
