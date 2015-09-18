@@ -1,3 +1,9 @@
 #Product Discipline 209 - Multi-Radar/Multi-Sensor, Parameter Category 10: Composite Products 
 0:0:Composite Reflectivity:dBZ:MergedReflectivityQCComposite
 1:1:Composite Reflectivity Height:m:HeightCompositeReflectivity
+2:2:Low-Level Composite Reflectivity Mosaic (0-4km):dBZ:LowLevelCompositeReflectivity
+3:3:Height of Low-Level Composite Reflectivity Mosaic (0-4km):m MSL:HeightLowLevelCompositeReflectivity
+4:4:Layer Composite Reflectivity Mosaic 0-24kft (low altitude):dBZ:LayerCompositeReflectivity_Low
+5:5:Layer Composite Reflectivity Mosaic 24-60 kft (highest altitude):dBZ:LayerCompositeReflectivity_High
+6:6:Layer Composite Reflectivity Mosaic 33-60 kft (super high altitude):dBZ:LayerCompositeReflectivity_Super
+7:7:Composite Reflectivity Hourly Maximum:dBZ:ReflectivityCompositeHourlyMax
