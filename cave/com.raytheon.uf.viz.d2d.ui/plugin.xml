@@ -413,6 +413,17 @@
                     </reference>
                   </visibleWhen>
                </command>
+               <command
+                     commandId="com.raytheon.viz.ui.imageProperties"
+                     icon="icons/adjust.png"
+                     label="Image Properties"
+                     style="push">
+                  <visibleWhen>
+                     <reference
+                           definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                     </reference>
+                  </visibleWhen>
+               </command>
             </toolbar>
             <toolbar
                   id="d2d-1">
