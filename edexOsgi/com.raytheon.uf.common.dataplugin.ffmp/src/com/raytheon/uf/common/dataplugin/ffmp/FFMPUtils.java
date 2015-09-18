@@ -98,6 +98,7 @@ import com.vividsolutions.jts.io.WKTWriter;
  * Nov 18, 2014  3831       dhladky     StatusHandler logging. Proper list sizing.
  * Jul 13, 2015  4500       rjpeter     Fix SQL Injection concerns.
  * Aug 08, 2015  4722       dhladky     Added Grid coverage and parsing methods.
+ * Sep 17, 2015  4756       dhladky     Multiple guidance source bugs.
  * </pre>
  * 
  * @author dhladky
@@ -988,7 +989,13 @@ public class FFMPUtils {
         try {
             DbQueryResponse response = (DbQueryResponse) RequestRouter
                     .route(request);
-            return response.getEntityObjects(GridRecord.class)[0].getDataURI();
+            GridRecord[] grids = response.getEntityObjects(GridRecord.class);
+            if (grids != null && grids.length > 0) {
+                return grids[0].getDataURI();
+            } else {
+                statusHandler.warn(
+                        "No data available for this FFG Request: " + request.toString());
+            }
         } catch (Exception e) {
             statusHandler.error(
                     "Error querying FFG Data URIS: " + request.toString(), e);
