@@ -25,6 +25,24 @@
 			menuText="Moving Maritime" id="MovingMaritime"/>
     <contribute xsi:type="bundleItem" file="bundles/maritimeMAROB.xml" 
 			menuText="MAROB" id="MAROB"/>
+	<!-- 
+	<contribute xsi:type="bundleItem" file="bundles/Scatterometer_quikscat.xml" 
+           menuText="QuikSCAT Winds 12.5 km" id="QuikSCAT">
+        <substitute key="legend" value="QUIKSCAT"/>
+        <substitute key="svg" value="quikScatPlotDesign.svg"/>
+        <substitute key="plugin" value="bufrquikscat"/>
+        <substitute key="posOffset" value="0"/>
+        <substitute key="negOffset" value="5400"/>
+    </contribute>
+    -->
+    <contribute xsi:type="bundleItem" file="bundles/Scatterometer.xml" 
+           menuText="ASCAT Winds 25 km" id="ASCATWinds">
+        <substitute key="legend" value="ASCAT"/>
+        <substitute key="svg" value="ascatPlotDesign.svg"/>
+        <substitute key="plugin" value="bufrascat"/>
+        <substitute key="posOffset" value="0"/>
+        <substitute key="negOffset" value="5400"/>
+    </contribute>
 	<contribute xsi:type="subMenu" menuText="Other Maritime Plots">
 		<contribute xsi:type="bundleItem" file="bundles/SeaStatePlot.xml" 
                menuText="Fixed Sea State" id="FixedSeaState">
@@ -56,25 +74,5 @@
 	        <substitute key="legend" value="MAROB Clouds and Visibility"/>
 	        <substitute key="reportType" value="1007"/>
 	    </contribute>	
-		<contribute xsi:type="subMenu" menuText="Scatterometer Winds">
-			<!-- 
-			<contribute xsi:type="bundleItem" file="bundles/Scatterometer_quikscat.xml" 
-	               menuText="QuikSCAT Winds 12.5 km" id="QuikSCAT">
-		        <substitute key="legend" value="QUIKSCAT"/>
-		        <substitute key="svg" value="quikScatPlotDesign.svg"/>
-		        <substitute key="plugin" value="bufrquikscat"/>
-		        <substitute key="posOffset" value="0"/>
-		        <substitute key="negOffset" value="5400"/>
-		    </contribute>
-		    -->
-		    <contribute xsi:type="bundleItem" file="bundles/Scatterometer.xml" 
-	               menuText="ASCAT Winds 25 km" id="ASCATWinds">
-		        <substitute key="legend" value="ASCAT"/>
-		        <substitute key="svg" value="ascatPlotDesign.svg"/>
-		        <substitute key="plugin" value="bufrascat"/>
-		        <substitute key="posOffset" value="0"/>
-		        <substitute key="negOffset" value="5400"/>
-		    </contribute>
-        </contribute>   
     </contribute>
 </menuTemplate>

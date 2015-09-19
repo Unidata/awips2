@@ -53,13 +53,6 @@
                       visible="false">
                 </separator>
                 <command commandId="com.raytheon.viz.ui.actions.titleAction"
-                    label="------ Local data ------">
-                </command>
-                <separator name="LocalData" visible="false">
-                </separator>
-                <separator name="EndOfLocalData" visible="true">
-                </separator>
-                <command commandId="com.raytheon.viz.ui.actions.titleAction"
                     label="------ Maritime ------" id="MARITIME">
                 </command>
                 <separator name="EndOfMaritime" visible="true">
