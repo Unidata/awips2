@@ -52,9 +52,6 @@
 							<mapping key="phensig">
 								<constraint constraintValue="MA.W" constraintType="EQUALS" />
 							</mapping>
-							<mapping key="officeid">
-								<constraint constraintValue="${site},${sites}" constraintType="IN" />
-							</mapping>
 						</metadataMap>
 					</resourceData>
 				</resource>

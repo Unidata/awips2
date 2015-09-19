@@ -20,7 +20,7 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<contribute xsi:type="bundleItem" file="bundles/StationPlot.xml"
-			menuText="Station Plot" id="StationPlot">		
+			menuText="Metar Plot" id="StationPlot">
     </contribute> 
 	<contribute xsi:type="subMenu" menuText="Other Plots">
 		<contribute xsi:type="bundleItem" file="bundles/15minSurfacePlot.xml"

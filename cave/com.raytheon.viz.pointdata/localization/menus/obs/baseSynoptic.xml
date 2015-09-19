@@ -20,7 +20,7 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <contribute xsi:type="bundleItem" file="bundles/SynSurfacePlot.xml" 
-			menuText="Station Plot" id="SynSurfacePlot">
+			menuText="Synoptic Plot" id="SynSurfacePlot">
 		<substitute key="svg" value="stdSynDesign.svg"/>
 		<substitute key="legend" value="Synoptic Data Plot"/>
 		<substitute key="posOffset" value="19800"/>
