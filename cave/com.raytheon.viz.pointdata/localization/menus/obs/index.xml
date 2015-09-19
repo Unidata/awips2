@@ -25,8 +25,10 @@
              fileName="menus/obs/baseMetar.xml"/>
     <include installTo="menu:obs?after=SYNOPTIC" 
              fileName="menus/obs/baseSynoptic.xml"/>
+			 <!--
     <include installTo="menu:obs?after=LocalData" 
              fileName="menus/obs/baseLocalData.xml"/>
+			 -->
     <include installTo="menu:obs?after=MARITIME" 
              fileName="menus/obs/baseMaritime.xml"/>
 </menuContributionFile>
