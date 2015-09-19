@@ -104,10 +104,6 @@
                    name="xyx"
                    visible="true">
              </separator>
-             <command 
-                   commandId="com.raytheon.viz.ui.actions.titleAction"
-                   label="------ Local Analyses/Statistical Guidance ------">
-             </command>
           </menu>
 	</menuContribution>
 </extension>
