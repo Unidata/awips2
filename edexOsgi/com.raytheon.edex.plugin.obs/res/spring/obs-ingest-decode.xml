@@ -20,6 +20,7 @@
                     <bean ref="metarPointData" method="toPointData" />
                     <multicast>
                         <to uri="direct-vm:persistIndexAlert" />
+                        <to uri="direct-vm:metarToShef" />
                         <to uri="direct-vm:metarToHMDB" />
                     </multicast>
                 </pipeline>
