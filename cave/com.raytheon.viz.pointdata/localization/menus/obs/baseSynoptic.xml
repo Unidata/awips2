@@ -40,4 +40,7 @@
 		<substitute key="posOffset" value="0"/>
 	    <substitute key="negOffset" value="43200"/> 
 	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/CoopPrecip.xml" 
+        	menuText="Coop Precip" id="localCoopPrecip">
+	</contribute>
 </menuTemplate>
