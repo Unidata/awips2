@@ -40,9 +40,6 @@
 							<mapping key="pluginName">
 								<constraint constraintValue="lsr" constraintType="EQUALS" />
 							</mapping>
-							<mapping key="officeid">
-								<constraint constraintValue="${site}" constraintType="IN" />
-							</mapping>
 						</metadataMap>
 					</resourceData>
 				</resource>

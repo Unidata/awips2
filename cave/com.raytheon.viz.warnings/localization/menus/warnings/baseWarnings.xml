@@ -19,49 +19,24 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<!-- 
-	<contribute xsi:type="bundleItem" file="bundles/LocalCWASPS.xml" 
-              menuText="Local CWA SPS" id="localCWASPS">
+	<contribute xsi:type="bundleItem" file="bundles/Warnings.xml" 
+          menuText="Warnings" id="warnings">
     </contribute>
-    -->
-	<contribute xsi:type="bundleItem" file="bundles/LocalCWAWarnings.xml" 
-              menuText="Local CWA Warnings" id="localCWAWarnings">
-    </contribute>
-    <contribute xsi:type="bundleItem" file="bundles/LocalCWAFloodWarnings.xml" 
-              menuText="Local CWA Flood Warnings" id="localCWAFloodWarnings">
+	<contribute xsi:type="bundleItem" file="bundles/FloodWarnings.xml" 
+          menuText="Flood Warnings" id="FloodWarnings">
     </contribute>
 	<contribute xsi:type="bundleItem" file="bundles/MarineWarning.xml" 
               menuText="Marine Warnings" id="marineWarnings">
     </contribute>
-			
-	<contribute xsi:type="subMenu" menuText="Other Warning Displays">
-		<contribute xsi:type="bundleItem" file="bundles/LocalRegionalWarnings.xml" 
-              menuText="Local and Regional Warnings" id="localRegionalWarnings">
-	    </contribute> 
-		<contribute xsi:type="bundleItem" file="bundles/LocalRegionalFloodWarnings.xml" 
-              menuText="Local and Regional Flood Warnings" id="localRegionalFloodWarnings">
-	    </contribute>   
-		<contribute xsi:type="bundleItem" file="bundles/AllLocalWarnings.xml" 
-              menuText="All Local Warnings" id="allLocalWarnings">
-	    </contribute>    
-	    <contribute xsi:type="bundleItem" file="bundles/AllRegionalWarnings.xml" 
-              menuText="All Regional Warnings" id="allRegionalWarnings">
-	    </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/StormReports.xml"
+		menuText="Storm Reports" id="stormreports" >
+    	<substitute key="title" value="Storm Reports"/>
     </contribute>
-    <!--  There is no support in the backend for these reports -->
-    <contribute xsi:type="subMenu" menuText="Local Storm Reports">
-	    <contribute xsi:type="bundleItem" file="bundles/LocalStormReportsOffice.xml"
-			menuText="Office" id="office" >
-	    	<substitute key="title" value="Local Storm Reports"/>
-	    </contribute>
-		<contribute xsi:type="bundleItem" file="bundles/LocalStormReportsLocal.xml"
-			menuText="Local" id="local" >
-	    	<substitute key="title" value="Local Storm Reports"/>
-		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/LocalStormReportsRegion.xml"
-			menuText="Region" id="region" >
-	    	<substitute key="title" value="Local Storm Reports"/>
-		</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/SPS.xml" 
+              menuText="SPS" id="SPS">
+    </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/AllWarnings.xml" 
+          menuText="All Warnings" id="AllWarnings">
+    </contribute>
 
-    </contribute>
 </menuTemplate>

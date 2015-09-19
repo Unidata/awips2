@@ -17,7 +17,7 @@
 					<resourceData xsi:type="cwaspsResourceData" 						
 						isUpdatingOnMetadataOnly="false"
 						retrieveData="true"
-						isRequeryNecessaryOnTimeMatch="false" name="Local Sig Wx Advisories (SPS)"
+						isRequeryNecessaryOnTimeMatch="false" name="Sig Wx Advisories (SPS)"
 						hideSampling="true">
 						<metadataMap>							
 							<mapping key="pil">
@@ -25,9 +25,6 @@
 							</mapping>
 							<mapping key="pluginName">
 								<constraint constraintValue="warning" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="officeid">
-								<constraint constraintValue="${site}" constraintType="EQUALS" />
 							</mapping>
 						</metadataMap>
 					</resourceData>
