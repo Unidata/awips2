@@ -26,6 +26,7 @@
     <regexExclude>^LZ[ABC][ABC]9[123] KWBC</regexExclude>
     <!-- This to match Unidata IDD CONDUIT feed products without standard headers -->
     <regex>.*grib.*</regex>
+    <regex>.*grb</regex>
     <regex>^US058.*</regex>
     <regex>^CMC_reg.*</regex>
     <!-- ECMWF decrypted -->
