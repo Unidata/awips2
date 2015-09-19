@@ -689,8 +689,7 @@
          </menuContribution>
          <menuContribution
                locationURI="menu:com.raytheon.viz.ui.actions.frames">
-            <command
-                  commandId="com.raytheon.viz.ui.actions.setframes">
+            <command commandId="com.raytheon.viz.ui.actions.setframes">
                <parameter
                      name="frameCount"
                      value="1">
@@ -703,8 +702,7 @@
                      value="2">
                </parameter>
             </command>
-            <command
-                  commandId="com.raytheon.viz.ui.actions.setframes">
+            <command commandId="com.raytheon.viz.ui.actions.setframes">
                <parameter
                      name="frameCount"
                      value="3">
@@ -717,8 +715,7 @@
                      value="4">
                </parameter>
             </command>
-            <command
-                  commandId="com.raytheon.viz.ui.actions.setframes">
+            <command commandId="com.raytheon.viz.ui.actions.setframes">
                <parameter
                      name="frameCount"
                      value="5">
@@ -731,92 +728,61 @@
                      value="10">
                </parameter>
             </command>
-            <command
-                  commandId="com.raytheon.viz.ui.actions.setframes">
+            <command commandId="com.raytheon.viz.ui.actions.setframes">
                <parameter
                      name="frameCount"
                      value="20">
                </parameter>
             </command>
-            <command
-                  commandId="com.raytheon.viz.ui.actions.setframes">
+            <command commandId="com.raytheon.viz.ui.actions.setframes">
                <parameter
                      name="frameCount"
                      value="30">
                </parameter>
             </command>
-               <command
-                     commandId="com.raytheon.viz.ui.actions.setframes">
+               <command commandId="com.raytheon.viz.ui.actions.setframes">
                   <parameter
                         name="frameCount"
                         value="40">
                   </parameter>
                </command>
-               <command
-                     commandId="com.raytheon.viz.ui.actions.setframes">
+               <command commandId="com.raytheon.viz.ui.actions.setframes">
                   <parameter
                         name="frameCount"
                         value="50">
                   </parameter>
                </command>
-               <command
-                     commandId="com.raytheon.viz.ui.actions.setframes">
+               <command commandId="com.raytheon.viz.ui.actions.setframes">
                   <parameter
                         name="frameCount"
                         value="100">
                   </parameter>
                </command>
-               <command
-                     commandId="com.raytheon.viz.ui.actions.setframes">
+               <command commandId="com.raytheon.viz.ui.actions.setframes">
                   <parameter
                         name="frameCount"
                         value="150">
                   </parameter>
                </command>
-               <command
-                     commandId="com.raytheon.viz.ui.actions.setframes">
+               <command commandId="com.raytheon.viz.ui.actions.setframes">
                   <parameter
                         name="frameCount"
                         value="200">
                   </parameter>
                </command>
-               <command
-                     commandId="com.raytheon.viz.ui.actions.setframes">
+               <command commandId="com.raytheon.viz.ui.actions.setframes">
                   <parameter
                         name="frameCount"
                         value="250">
                   </parameter>
                </command>
-                              <command
-                     commandId="com.raytheon.viz.ui.actions.setframes">
+               <command commandId="com.raytheon.viz.ui.actions.setframes">
                   <parameter
                         name="frameCount"
-                        value="100">
+                        value="300">
                   </parameter>
                </command>
-                               <command
-                     commandId="com.raytheon.viz.ui.actions.setframes">
-                  <parameter
-                        name="frameCount"
-                        value="150">
-                  </parameter>
-               </command>
-                              <command
-                     commandId="com.raytheon.viz.ui.actions.setframes">
-                  <parameter
-                        name="frameCount"
-                        value="200">
-                  </parameter>
-               </command>
-                               <command
-                     commandId="com.raytheon.viz.ui.actions.setframes">
-                  <parameter
-                        name="frameCount"
-                        value="250">
-                  </parameter>
-               </command>
-                              <command
-                     commandId="com.raytheon.viz.ui.actions.setframes">
+               <command commandId="com.raytheon.viz.ui.actions.setframes">
                   <parameter
                         name="frameCount"
                         value="400">
