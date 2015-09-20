@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<contribute xsi:type="subMenu" menuText="Precipitation"
+	<contribute xsi:type="subMenu" menuText="HPC Precip Products"
 		id="ncepHydro.hpc.precipitation">
 		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml"
 			menuText="Instantaneous Precip" id="instantaneousPrecip">
@@ -129,7 +129,7 @@
 		</contribute>
 	</contribute>
 
-	<contribute xsi:type="subMenu" menuText="Temps &amp;&amp; Weather"
+	<contribute xsi:type="subMenu" menuText="HPC Temp &amp;&amp; Wx Products"
 		id="ncepHydro.hpc.tempsAndWeather">
 		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml"
 			menuText="1-5 Day Max Temp Anomaly" id="fiveDayMaxTempAnomaly">
