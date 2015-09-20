@@ -23,85 +23,85 @@
 		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
 			menuText="GFS" id="GFS" useReferenceTime="true">
 			<substitute key="modelName" value="GFS"/> 
-			<substitute key="TP" value="TP"/>
+			<substitute key="TP" value="TPrun"/>
 			<substitute key="frameCount" value="41"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
 			menuText="GFS 40km" id="gfs40" useReferenceTime="true">
 			<substitute key="modelName" value="GFS-40km"/> 
-			<substitute key="TP" value="TP"/>
+			<substitute key="TP" value="TPrun"/>
 			<substitute key="frameCount" value="41"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
 			menuText="DGEX" id="DGEX" useReferenceTime="true">
 			<substitute key="modelName" value="DGEX"/>
-			<substitute key="TP" value="TP"/>
+			<substitute key="TP" value="TPrun"/>
 			<substitute key="frameCount" value="41"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
 			menuText="NAM 12km" id="NAM12" useReferenceTime="true">
 			<substitute key="modelName" value="NAM12"/>
-			<substitute key="TP" value="TP"/>
+			<substitute key="TP" value="TPrun"/>
 			<substitute key="frameCount" value="41"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
 			menuText="NAM 40km" id="NAM-40km" useReferenceTime="true">
 			<substitute key="modelName" value="NAM-40km"/>
-			<substitute key="TP" value="TP"/>
+			<substitute key="TP" value="TPrun"/>
 			<substitute key="frameCount" value="41"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
 			menuText="NamDNG" id="NamDNG" useReferenceTime="true">
 				<substitute key="modelName" value="NamDNG"/>
-			<substitute key="TP" value="TP"/>
+			<substitute key="TP" value="TPrun"/>
 			<substitute key="frameCount" value="41"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
 			menuText="RAP 13km" id="RAP-13km" useReferenceTime="true">
 			<substitute key="modelName" value="RAP-13km"/>
-			<substitute key="TP" value="TP1hr"/>
+			<substitute key="TP" value="TPrun"/>
 			<substitute key="frameCount" value="16"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
 			menuText="HRRR" id="HRRR" useReferenceTime="true">
 			<substitute key="modelName" value="HRRR"/>
-			<substitute key="TP" value="TP1hr"/>
+			<substitute key="TP" value="TPrun"/>
 			<substitute key="frameCount" value="16"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
 			menuText="NAVGEM" id="NAVGEM" useReferenceTime="true">
 			<substitute key="modelName" value="NAVGEM"/> 
-			<substitute key="TP" value="TP"/>
+			<substitute key="TP" value="TPrun"/>
 			<substitute key="frameCount" value="41"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
 	        menuText="CMC" id="CMC" useReferenceTime="true">
 			<substitute key="modelName" value="CMC"/>
-			<substitute key="TP" value="TP"/>
+			<substitute key="TP" value="TPrun"/>
 			<substitute key="frameCount" value="12"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
 			menuText="RTMA" id="RTMA" useReferenceTime="true">
 			<substitute key="modelName" value="RTMA"/> 
-			<substitute key="TP" value="TP1hr"/>
+			<substitute key="TP" value="TPrun"/>
 			<substitute key="frameCount" value="16"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
                         menuText="URMA" id="URMA" useReferenceTime="true">
                         <substitute key="modelName" value="URMA25"/>
-                        <substitute key="TP" value="TP1hr"/>
+                        <substitute key="TP" value="TPrun"/>
                         <substitute key="frameCount" value="16"/>
                 </contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
 			menuText="NDFD" id="NDFD" useReferenceTime="true">
 			<substitute key="modelName" value="NDFD"/> 
-			<substitute key="TP" value="TP"/>
+			<substitute key="TP" value="TPrun"/>
 			<substitute key="frameCount" value="41"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/PrecipMSLP.xml"
 			menuText="COAMPS-EU" id="COAMPS-EU" useReferenceTime="true">
 			<substitute key="modelName" value="COAMPS-EU"/> 
-			<substitute key="TP" value="TP"/>
+			<substitute key="TP" value="TPrun"/>
 			<substitute key="frameCount" value="17"/>
 		</contribute>
 	</contribute>

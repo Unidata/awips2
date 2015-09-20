@@ -19,6 +19,12 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="bundleItem" file="bundles/npp/soundingAvailability.xml"
+			menuText="NUCAPS Soundings" id="NUCAPSAvailability">
+			<substitute key="name" value="NUCAPS"/>
+			<substitute key="pluginName" value="nucaps"/>
+			<substitute key="soundingResourceData" value="com.raytheon.uf.viz.npp.nucaps.NucapsNSharpResourceData"/>
+	</contribute>
     <contribute xsi:type="subMenu" id="UAplots" menuText="UA plots">
         <contribute xsi:type="titleItem" titleText="------ NCEP ------" />
         <contribute xsi:type="separator" id="NCEPEnd"

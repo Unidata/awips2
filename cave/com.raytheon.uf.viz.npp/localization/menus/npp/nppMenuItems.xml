@@ -19,10 +19,14 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="bundleItem" file="bundles/npp/soundingAvailability.xml"
+			menuText="NUCAPS Soundings" id="NUCAPSAvailability">
+			<substitute key="name" value="NUCAPS"/>
+			<substitute key="pluginName" value="nucaps"/>
+			<substitute key="soundingResourceData" value="com.raytheon.uf.viz.npp.nucaps.NucapsNSharpResourceData"/>
+	</contribute>
 	<contribute xsi:type="subMenu" id="NPPProducts" menuText="NPP Products">
 		<contribute xsi:type="separator" id="Imagery" visible="false"/>
-		<contribute xsi:type="titleItem" id="SoundingsTitle" titleText="------ Soundings ------"/>
-		<contribute xsi:type="separator" id="Soundings" visible="false"/>
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsImagery.xml"
 		menuText="VIIRS AK - Band 1 (0.64u)" id="Img0.64">

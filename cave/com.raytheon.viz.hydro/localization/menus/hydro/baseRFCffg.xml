@@ -20,19 +20,19 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   	<contribute xsi:type="bundleItem" file="bundles/hydro/FFGLmosaic.xml"
-		menuText="1hr FFG Mosaic" id="1hrFFG">
+		menuText="RFC 1hr FFG Mosaic" id="1hrFFG">
 		<substitute key="timespan" value="FFG0124hr"/>
 	    <substitute key="type" value="FFG-"/>
 	    <substitute key="name" value="RFC 1hr FFG Mosaic"/>
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/hydro/FFGLmosaic.xml"
-		menuText="3hr FFG Mosaic" id="3hrFFG">
+		menuText="RFC 3hr FFG Mosaic" id="3hrFFG">
 		<substitute key="timespan" value="FFG0324hr"/>
 	    <substitute key="type" value="FFG-"/>
 	    <substitute key="name" value="RFC 3hr FFG Mosaic"/>
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/hydro/FFGLmosaic.xml"
-		menuText="6hr FFG Mosaic" id="6hrFFG">
+		menuText="RFC 6hr FFG Mosaic" id="6hrFFG">
 		<substitute key="timespan" value="FFG0624hr"/>
 	    <substitute key="type" value="FFG-"/>
 	    <substitute key="name" value="RFC 6hr FFG Mosaic"/>
@@ -259,6 +259,9 @@
 	    		<substitute key="model" value="FFG-FWR"/>
 			</contribute>
 		</contribute>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/FFG.xml"
+		menuText="All FFG" id="AllFFG">
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/FFGCounty.xml"
 		menuText="County FFG" id="CntyFFG">

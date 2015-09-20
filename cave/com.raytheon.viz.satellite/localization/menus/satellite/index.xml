@@ -22,7 +22,7 @@
 	<include installTo="menu:satellite?after=GROUP1"
 		fileName="menus/satellite/baseComposite.xml">
 	</include>
-    <include installTo="menu:satellite?before=GROUP3" 
+    <include installTo="menu:satellite?before=GROUP2" 
              fileName="menus/satellite/baseSounderImagery.xml">
     	<substitute key="sector0" value="West CONUS"/>
     	<substitute key="sector1" value="East CONUS"/>
@@ -34,9 +34,10 @@
              fileName="menus/satellite/baseDerivedProductsImagery.xml">
     	<substitute key="sector" value="Supernational"/>
     </include>
-    <include subMenu="Derived Products Plots" installTo="menu:satellite?after=GROUP4" 
+    <include installTo="menu:satellite?before=GROUP3" 
              fileName="menus/satellite/baseDerivedProductPlots.xml"/>
-    <include installTo="menu:satellite?after=GROUP5" 
+	<!--
+    <include installTo="menu:satellite?before=GROUP4" 
              fileName="menus/satellite/baseNHemisphere.xml">
     	<substitute key="sector0" value="West CONUS"/>
     	<substitute key="sector1" value="East CONUS"/>
@@ -44,7 +45,8 @@
     	<substitute key="sector3" value="Northern Hemisphere Composite"/>
     	<substitute key="entity" value="GOES%"/>
     </include>
-    <include installTo="menu:satellite?after=GROUP6" 
+	-->
+    <include installTo="menu:satellite?before=GROUP5" 
              fileName="menus/satellite/baseFourSatComposite.xml">
     	<substitute key="sector" value="NH Composite - Meteosat-GOES E-GOES W-GMS"/>
     	<substitute key="entity" value="Composite"/>
