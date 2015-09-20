@@ -19,18 +19,18 @@
         further_licensing_information.
     -->
 <menuContributionFile>
-	<include installTo="menu:ncepHydro?after=SPC" 
+	<include installTo="menu:ncepHydro?before=SPC" 
              fileName="menus/ncepHydro/spc/baseSPC.xml"/>
-    <include installTo="menu:ncepHydro?after=TPC" 
+    <include installTo="menu:ncepHydro?before=TPC" 
     		 fileName="menus/ncepHydro/tpc/baseTPC.xml"/>
-    <include installTo="menu:ncepHydro?after=NCO" 
+    <include installTo="menu:ncepHydro?before=NCO" 
              fileName="menus/ncepHydro/nco/baseNCO.xml"/>
-    <include installTo="menu:ncepHydro?after=HPC" 
+    <include installTo="menu:ncepHydro?before=HPC" 
              fileName="menus/ncepHydro/hpc/baseHPC.xml"/>
-    <include installTo="menu:ncepHydro?after=MPC" 
+    <include installTo="menu:ncepHydro?before=OPC" 
              fileName="menus/ncepHydro/mpc/baseMPC.xml"/>
-    <include installTo="menu:ncepHydro?after=CPC" 
+    <include installTo="menu:ncepHydro?before=CPC" 
              fileName="menus/ncepHydro/cpc/baseCPC.xml"/>
-    <include installTo="menu:ncepHydro?after=AWC" 
+    <include installTo="menu:ncepHydro?before=AWC" 
              fileName="menus/ncepHydro/awc/baseAWC.xml"/>
 </menuContributionFile>

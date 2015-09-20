@@ -23,6 +23,18 @@
  	<contribute xsi:type="bundleItem" file="bundles/ncepHydro/hpc/HPC6hrQPF.xml" 
               menuText="HPC QPF 6hr (Grid)" id="HPCQPF6hr">
     </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/BufrMosPlot.xml" 
+		 menuText="HPC MaxT/MinT" id="HPCmaxTminT" >
+        	<substitute key="model" value="HPC"/>
+    		<substitute key="plotModel" value="bufrmos/maxmin.svg"/>
+    		<substitute key="title" value="HPC MaxT/MinT ( F )"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/BufrMosPlot.xml" 
+		 menuText="HPC POP 24hr" id="HPCpop24hr" >
+        	<substitute key="model" value="HPC"/>
+    		<substitute key="plotModel" value="bufrmos/pop24hr.svg"/>
+    		<substitute key="title" value="HPC POP 24hr"/>
+    </contribute>
 
     <contribute xsi:type="subinclude" fileName="menus/ncepHydro/hpc/hpcMenus.xml"/>
 
