@@ -1,9 +1,9 @@
 ####### Added by config_pqact ######### 
 NNEXRAD	^(SDUS[234578].|NXUS6.) (K|P|T)(ABR|CYS|DMX|GLD|GID|EAX|ARX|MPX|LBF|OAX|DVN|UNR|FSD|TOP|TLX|LOT) (..)(..)(..) /p(...)(...)
-	FILE	-overwrite -log -close -edex	/data_store/radar/\2\8/\7/\1_\5\6_\2\8_\7_(seq).rad
+	FILE	-overwrite -log -close -edex	/data_store/radar/(\4:yyyy)(\4:mm)\4/\5/\2\8/\7/\1_\5\6_\2\8_\7_(seq).rad
 
 ANY	^([YZ]EI.98) (KKRF|KMKC|KMSR|KMSP) (..)(..)(..) .*!(grib|grib2)/.*/(.*)/#(...)/(............)/(F...)/(.*)/
-	FILE	-overwrite -log -close -edex	/data_store/\6/GRID\8/\7/\9/\(10)-\(11)_\1_\2_\3\4\5_(seq).\6
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/GRID\8/\7/\9/\(10)-\(11)_\1_\2_\3\4\5_(seq).\6
 
 #
 # NamDNG25
@@ -12,15 +12,15 @@ ANY	^([LM][ADEHKRSTUVZ]I.[0-9][0-9]) (KWBE) (..)(..)(..)
 #
 # 2.5km GMOS
 NGRID	^(Y.U.[0-9][0-9]) (KWBQ) (..)(..)(..)
- 		FILE	-overwrite -log -close -edex	/data_store/grib2/(\3:yyyy)(\3:mm)\3/\4/GMOS/GRID184/\1_\2_\3\4\5_(seq).grib2.%Y%m%d%H
+	FILE	-overwrite -log -close -edex	/data_store/grib2/(\3:yyyy)(\3:mm)\3/\4/GMOS/GRID184/\1_\2_\3\4\5_(seq).grib2.%Y%m%d%H
 #
-IDS|DDPLUS	^(FGUS53.) (KKRF) (..)(..)(..)	FILE	-overwrite -log -close -edex	/data_store/shef/\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d
+IDS|DDPLUS	^(FGUS53.) (KKRF) (..)(..)(..)	FILE	-overwrite -log -close -edex	/data_store/shef/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d
 
 # HADS
 IDS|DDPLUS	^(SXUS[4-5].) (KGID|KOAX|KLBF|KWOH|KDMX|KFSD) (..)(..)(..)	
 	FILE	-overwrite -log -close -edex	/data_store/shef/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
 # NUCAP Soundings
-HDS	^(IUTN0[6-9] (....) (..)(..)(..)
+HDS	^(IUTN0[6-9]) (....) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/nucaps/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).hdf.%Y%m%d%H
 #
