@@ -118,7 +118,7 @@ Alaska end -->
  <!-- The following are examples on how to include site specific dams in your template
        You can choose to do this by editing the template and listing each dam in the
        template or listing the dams in a separate file and using the include command -->
- <include file="damInfoBullet.xml"/>
+ <!-- include file="damInfoBullet.xml"/>  -->
  <!-- <damInfoBullets>
 <damInfoBullet bulletGroup="dam" bulletText="Big Rock Dam (Fairfield County)" bulletName="BigRockDam"  parseString="BIG ROCK" showString="BIG ROCK DAM" coords="LAT...LON 4109 7338 4116 7311 4116 7320"/>
 <damInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BigRockhighfast"  parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
@@ -165,7 +165,7 @@ Alaska end -->
  <!-- The following are examples on how to include site specific dams in your template
        You can choose to do this by editing the template and listing each dam in the
        template or listing the dams in a separate file and using the include command -->
- <include file="damInfoBullet.xml"/>
+ <!-- include file="damInfoBullet.xml"/>  -->
  <!-- <damInfoBullets>
 <damInfoBullet bulletGroup="dam" bulletText="Big Rock Dam (Fairfield County)" bulletName="BigRockDam"  parseString="BIG ROCK" showString="BIG ROCK DAM" coords="LAT...LON 4109 7338 4116 7311 4116 7320"/>
 <damInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BigRockhighfast"  parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
@@ -254,7 +254,7 @@ Alaska end -->
  <!-- The following are examples on how to include site specific dams in your template
        You can choose to do this by editing the template and listing each dam in the
        template or listing the dams in a separate file and using the include command -->
- <include file="damInfoBullet.xml"/>
+ <!-- include file="damInfoBullet.xml"/>  -->
 <!-- <damInfoBullets>
 <damInfoBullet bulletGroup="dam" bulletText="Big Rock Dam (Fairfield County)" bulletName="BigRockDam"  parseString="BIG ROCK" showString="BIG ROCK DAM" coords="LAT...LON 4109 7338 4116 7311 4116 7320"/>
 <damInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BigRockhighfast"  parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
@@ -345,7 +345,7 @@ Alaska end -->
  <!-- The following are examples on how to include site specific dams in your template
        You can choose to do this by editing the template and listing each dam in the
        template or listing the dams in a separate file and using the include command -->
- <include file="damInfoBullet.xml"/>
+ <!-- include file="damInfoBullet.xml"/>  -->
  <!-- <damInfoBullets>
 <damInfoBullet bulletGroup="dam" bulletText="Big Rock Dam (Fairfield County)" bulletName="BigRockDam"  parseString="BIG ROCK" showString="BIG ROCK DAM" coords="LAT...LON 4109 7338 4116 7311 4116 7320"/>
 <damInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BigRockhighfast"  parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
