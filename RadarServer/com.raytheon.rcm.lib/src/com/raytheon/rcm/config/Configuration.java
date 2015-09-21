@@ -34,9 +34,19 @@ import com.raytheon.rcm.request.RpsList;
  * types to WMO headings.
  * 
  * <p>
- * TODO: Make observable. 
+ *
+ * Constructs (and potentially updates) a StandardConfig based on
+ * various configuration files.
+ *
+ * <pre>
+ *
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * ...
+ * 2015-09-08   DR 17944   D. Friedman Add RcmResourceProvider
+ * </pre>
  */
-
 public interface Configuration {
 	public Collection<String> getConfiguredRadarList();
 	public RadarConfig getConfigForRadar(String radarID);
@@ -86,4 +96,6 @@ public interface Configuration {
 	public InputStream getDropInData(String name) throws IOException;
 	
 	public void setLocalRpsList(String radarID, RpsList list) throws IOException;
+
+	public RcmResourceProvider getRcmResourceProvider();
 }
