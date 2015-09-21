@@ -26,6 +26,10 @@
  	<contribute xsi:type="bundleItem" file="bundles/ncepHydro/SvrWxPlot.xml" 
                menuText="SPC Svr Wx Plot" id="spcWxPlot">
 	</contribute>
-	
 	<contribute xsi:type="subinclude" fileName="menus/ncepHydro/spc/hazardMenus.xml"/>
+	<contribute xsi:type="bundleItem" file="bundles/hydro/zeroToThreeHourRadarQPF.xml"
+		menuText="0-3hr Prob CG Lightning" id="probCGLightning">
+		<substitute key="param" value="PVORT3hr"/>
+		<substitute key="customLegend" value="3hr. CG Lightning Probability"/>
+	</contribute>
 </menuTemplate>

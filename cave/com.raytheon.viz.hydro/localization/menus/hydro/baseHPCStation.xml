@@ -45,10 +45,5 @@
 			<substitute key="param" value="SCQP3hr"/>
 <substitute key="customLegend" value="0-3hr. Rainfall Amount"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/hydro/zeroToThreeHourRadarQPF.xml"
-			menuText="0-3hr Prob CG Lightning" id="probCGLightning">
-			<substitute key="param" value="PVORT3hr"/>
-			<substitute key="customLegend" value="0-3hr. CG Lightning Probability"/>
-		</contribute>
 	</contribute>
 </menuTemplate>
