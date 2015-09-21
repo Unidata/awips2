@@ -63,6 +63,7 @@ import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
  * May 08, 2013 1939       rjpeter     Updated to start NotificationManagerJob.
  * Aug 26, 2014 3356       njensen     Explicitly set localization adapter
  * Jun 04, 2015 4473       njensen     Defer launching of UI to Activator and OSGi services
+ * Sep 21, 2015 4654       njensen     Setup extra localization levels
  * 
  * </pre>
  * 
@@ -188,6 +189,7 @@ public class AlertVizApplication implements IStandaloneComponent {
     protected void initializeLocalization() throws Exception {
         PathManagerFactory.setAdapter(new CAVELocalizationAdapter());
         new LocalizationInitializer(true, false).run();
+        AlertVizLocalizationConfigurer.registerExtraLevels();
     }
 
 }
