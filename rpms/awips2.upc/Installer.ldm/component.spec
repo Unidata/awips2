@@ -324,6 +324,7 @@ rm -rf /tmp/ldm
 if [ $? -ne 0 ]; then
    exit 1
 fi
+# TODO: change both of these to use regutil
 sed -i 's/EDEX_HOSTNAME/'${_myHost}'/' ${_ldm_dir}/etc/ldmd.conf
 sed -i 's/<size>500M<\/size>/<size>1500M<\/size>/' ${_ldm_dir}/etc/registry.xml
 
