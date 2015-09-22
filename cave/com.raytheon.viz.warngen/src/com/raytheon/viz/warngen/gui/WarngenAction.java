@@ -19,6 +19,11 @@
  **/
 package com.raytheon.viz.warngen.gui;
 
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
+
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
@@ -27,6 +32,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 import com.raytheon.uf.viz.core.rsc.tools.action.AbstractGenericToolAction;
 import com.raytheon.viz.ui.input.EditableManager;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
 
 /**
  * Simple action for loading the warngen layer
@@ -40,6 +46,7 @@ import com.raytheon.viz.ui.input.EditableManager;
  * Oct 10, 2010  6990      Qinglu Lin   Used D. Friedman short solution,
  *                                      with minor changes.
  * Aug 15, 2013  DR 16418  D. Friedman  Always show the dialog.
+ * Sep 22, 2015  4859      dgilling     Prevent dialog from showing in DRT mode.
  * 
  * </pre>
  * 
@@ -77,5 +84,18 @@ public class WarngenAction extends AbstractGenericToolAction<WarngenLayer> {
         WarngenLayer layer = super.getResource(loadProperties, descriptor);
         layer.showDialog(true);
         return layer;
+    }
+
+    @Override
+    public Object execute(ExecutionEvent arg0) throws ExecutionException {
+        if (!SimulatedTimeOperations.isTransmitAllowed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            SimulatedTimeOperations
+                    .displayFeatureLevelWarning(shell, "WarnGen");
+            return null;
+        }
+
+        return super.execute(arg0);
     }
 }
