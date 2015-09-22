@@ -1,5 +1,5 @@
-*** Installer.edex-component/component.spec	2015-04-08 09:08:06.552124581 -0400
---- Installer.edex-datadelivery/component.spec	2015-04-08 09:24:36.369123969 -0400
+*** Installer.edex-component/component.spec	2015-08-25 15:19:06.962255321 -0500
+--- Installer.edex-datadelivery/component.spec	2015-09-15 15:57:16.669506673 -0500
 ***************
 *** 6,13 ****
   %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')

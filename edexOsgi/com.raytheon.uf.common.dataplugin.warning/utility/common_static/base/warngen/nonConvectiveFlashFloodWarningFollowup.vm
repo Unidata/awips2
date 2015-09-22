@@ -321,7 +321,7 @@ THIS IS A TEST MESSAGE. ##
 ## #parse("mileMarkers.vm")
 
 #if(${list.contains(${bullets}, "floodMoving")})
-FLOOD WATERS ARE MOVING DOWN !**name of channel**! FROM !**location**! TO !**location**!. THE FLOOD CREST IS EXPECTED TO REACH !**location(s)**! BY !**time(s)**!.
+Flood waters are moving down !**NAME OF CHANNEL**! from !**LOCATION**! to !**LOCATION**!. The flood crest is expected to reach !**LOCATION(S)**! by !**TIME(S)**!.
 
 #end
 
