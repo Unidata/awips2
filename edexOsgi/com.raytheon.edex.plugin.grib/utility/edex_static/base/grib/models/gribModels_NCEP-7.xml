@@ -33,6 +33,16 @@
 			<id>83</id>
 		</process>
 	</model>
+ 
+    <!-- Uses moving grid therefore no grid element. -->
+    <model>
+        <name>HWRF</name>
+        <center>7</center>
+        <subcenter>0</subcenter>
+        <process>
+            <id>89</id> 
+        </process>
+    </model>
 
 	<model>
 		<name>ETA</name>
