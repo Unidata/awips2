@@ -95,6 +95,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *      Aug 25, 2014     3467       mapeters    Removed changing of editability from swapPanes().
  *      Mar 02, 2015     4204       njensen     Support for swapping part names
  *      Apr 02, 2015     4204       njensen     Fix 4-panel swap of renamed parts
+ *      Sep 18, 2015   DR 17996     D. Friedman Clear editor pane's renderable display before swap
  * 
  * </pre>
  * 
@@ -396,8 +397,10 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
                         removePane(viewPanes[i]);
                     }
                     for (int i = 0; i < editorPaneCount; ++i) {
-                        viewPanes[i].setRenderableDisplay(editorPanes[i]
-                                .getRenderableDisplay());
+                        IRenderableDisplay display = editorPanes[i]
+                                .getRenderableDisplay();
+                        editorPanes[i].setRenderableDisplay(null);
+                        viewPanes[i].setRenderableDisplay(display);
                         if (editorHiddenDisplays.contains(editorPanes[i]
                                 .getRenderableDisplay()) == false
                                 && viewPanes[i].isVisible() == false) {
@@ -409,6 +412,7 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
                         IRenderableDisplay display = editorPanes[i]
                                 .getRenderableDisplay();
                         boolean hide = editorHiddenDisplays.contains(display);
+                        editorPanes[i].setRenderableDisplay(null);
                         if (i < viewPaneCount) {
                             viewPanes[i].setRenderableDisplay(display);
                             if (hide) {
