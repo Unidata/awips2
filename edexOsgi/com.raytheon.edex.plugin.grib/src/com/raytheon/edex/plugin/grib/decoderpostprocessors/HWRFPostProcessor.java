@@ -173,6 +173,11 @@ public class HWRFPostProcessor implements IDecoderPostProcessor {
 
         for (GridInfoRecord gi : giList) {
             Geometry resultGeo = gi.getLocation().getGeometry();
+            /*
+             * TODO It is possible a storm might be over the dataline, I would
+             * expect this approach of intersecting to fail horribly if a
+             * hurricane approached and then crossed the dateline.
+             */
             double intersect = geo.intersection(resultGeo).getArea();
             if ((intersect / area) > 0.95) {
                 return gi.getDatasetId();
