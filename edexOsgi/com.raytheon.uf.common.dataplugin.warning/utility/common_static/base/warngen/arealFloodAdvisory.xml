@@ -145,7 +145,7 @@ Must be paired with proper vm code (which are commented out in arealFloodAdvisor
   <bullet bulletText="****** CALL TO ACTIONS (choose 1 or more) ******" bulletType="title"/>
   <bullet bulletName="dontdrownCTA" bulletText="Turn around...dont drown" parseString="MOST FLOOD DEATHS OCCUR IN AUTOMOBILES"/>
   <bullet bulletName="urbanCTA" bulletText="Urban flooding" parseString="&quot;URBAN AREAS&quot;,&quot;HIGHWAYS&quot;,&quot;STREETS AND UNDERPASSES&quot;"/>
-  <bullet bulletName="ruralCTA" bulletText="Rural flooding/small streams" parseString="FLOODING OF SMALL CREEKS AND STREAMS...AS WELL AS FARM AND COUNTRY ROADS"/>
+  <bullet bulletName="ruralCTA" bulletText="Rural flooding/small streams" parseString="FLOODING OF SMALL CREEKS AND STREAMS, AS WELL AS FARM AND COUNTRY ROADS"/>
   <bullet bulletName="donotdriveCTA" bulletText="Do not drive into water" parseString="DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY"/>
   <bullet bulletName="lowspotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
   <bullet bulletName="powerCTA" bulletText="Power of flood waters/vehicles" parseString="DO NOT UNDERESTIMATE THE POWER OF FLOOD WATERS"/>
@@ -199,7 +199,7 @@ Must be paired with proper vm code (which are commented out in arealFloodAdvisor
   <bullet bulletText="****** CALL TO ACTIONS (choose 1 or more) ******" bulletType="title"/>
   <bullet bulletName="dontdrownCTA" bulletText="Turn around...dont drown" parseString="MOST FLOOD DEATHS OCCUR IN AUTOMOBILES"/>
   <bullet bulletName="urbanCTA" bulletText="Urban flooding" parseString="&quot;URBAN AREAS&quot;,&quot;HIGHWAYS&quot;,&quot;STREETS AND UNDERPASSES&quot;"/>
-  <bullet bulletName="ruralCTA" bulletText="Rural flooding/small streams" parseString="FLOODING OF SMALL CREEKS AND STREAMS...AS WELL AS FARM AND COUNTRY ROADS"/>
+  <bullet bulletName="ruralCTA" bulletText="Rural flooding/small streams" parseString="FLOODING OF SMALL CREEKS AND STREAMS, AS WELL AS FARM AND COUNTRY ROADS"/>
   <bullet bulletName="donotdriveCTA" bulletText="Do not drive into water" parseString="DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY"/>
   <bullet bulletName="lowspotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
   <bullet bulletName="powerCTA" bulletText="Power of flood waters/vehicles" parseString="DO NOT UNDERESTIMATE THE POWER OF FLOOD WATERS"/>
@@ -253,7 +253,7 @@ Must be paired with proper vm code (which are commented out in arealFloodAdvisor
   <bullet bulletText="****** CALL TO ACTIONS (choose 1 or more) ******" bulletType="title"/>
   <bullet bulletName="dontdrownCTA" bulletText="Turn around...dont drown" parseString="MOST FLOOD DEATHS OCCUR IN AUTOMOBILES"/>
   <bullet bulletName="urbanCTA" bulletText="Urban flooding" parseString="&quot;URBAN AREAS&quot;,&quot;HIGHWAYS&quot;,&quot;STREETS AND UNDERPASSES&quot;"/>
-  <bullet bulletName="ruralCTA" bulletText="Rural flooding/small streams" parseString="FLOODING OF SMALL CREEKS AND STREAMS...AS WELL AS FARM AND COUNTRY ROADS"/>
+  <bullet bulletName="ruralCTA" bulletText="Rural flooding/small streams" parseString="FLOODING OF SMALL CREEKS AND STREAMS, AS WELL AS FARM AND COUNTRY ROADS"/>
   <bullet bulletName="donotdriveCTA" bulletText="Do not drive into water" parseString="DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY"/>
   <bullet bulletName="lowspotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
   <bullet bulletName="powerCTA" bulletText="Power of flood waters/vehicles" parseString="DO NOT UNDERESTIMATE THE POWER OF FLOOD WATERS"/>

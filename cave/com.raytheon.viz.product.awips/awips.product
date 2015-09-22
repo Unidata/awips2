@@ -19,6 +19,7 @@
       <vmArgs>-XX:+UseG1GC
 -Dosgi.instance.area.readOnly=true 
 -Dorg.eclipse.update.reconcile=false
+-Dorg.eclipse.swt.internal.gtk.cairoGraphics=false
 -XX:MaxPermSize=128m
 -Dorg.eclipse.ui/KEY_CONFIGURATION_ID=com.raytheon.viz.ui.awips.scheme
 -Dqpid.dest_syntax=BURL

@@ -29,6 +29,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.concurrent.AbstractPythonScriptFactory;
+import com.raytheon.uf.common.python.PythonIncludePathUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.viz.gfe.python.GfeCavePyIncludeUtil;
 
@@ -43,6 +44,7 @@ import com.raytheon.viz.gfe.python.GfeCavePyIncludeUtil;
  * Apr 20, 2015  4027      randerso    Remove unused TextProductsTemplates path and added 
  *                                     Tests path for GFE formatter auto tests
  * Jul 28, 2015  4263      dgilling    Refactor based on AbstractPythonScriptFactory.
+ * Aug 21, 2015  4509      dgilling    Added time and dataaccess to include path.
  * 
  * </pre>
  * 
@@ -72,16 +74,17 @@ public class FormatterScriptFactory extends
     }
 
     private static String buildIncludePath() {
-        String include = PyUtil.buildJepIncludePath(true,
-                GfePyIncludeUtil.getCommonPythonIncludePath(),
-                GfePyIncludeUtil.getVtecIncludePath(),
-                GfePyIncludeUtil.getCommonGfeIncludePath(),
-                GfePyIncludeUtil.getHeadlineIncludePath(),
-                GfePyIncludeUtil.getTextUtilitiesIncludePath(),
-                GfePyIncludeUtil.getTextProductsIncludePath(),
-                GfePyIncludeUtil.getUtilitiesIncludePath(),
-                GfePyIncludeUtil.getCombinationsIncludePath(),
-                GfeCavePyIncludeUtil.getTestsIncludePath());
+        String include = PyUtil.buildJepIncludePath(true, PythonIncludePathUtil
+                .getCommonPythonIncludePath("time", "dataaccess"),
+                GfePyIncludeUtil.getCommonPythonIncludePath(), GfePyIncludeUtil
+                        .getVtecIncludePath(), GfePyIncludeUtil
+                        .getCommonGfeIncludePath(), GfePyIncludeUtil
+                        .getHeadlineIncludePath(), GfePyIncludeUtil
+                        .getTextUtilitiesIncludePath(), GfePyIncludeUtil
+                        .getTextProductsIncludePath(), GfePyIncludeUtil
+                        .getUtilitiesIncludePath(), GfePyIncludeUtil
+                        .getCombinationsIncludePath(), GfeCavePyIncludeUtil
+                        .getTestsIncludePath());
         return include;
     }
 

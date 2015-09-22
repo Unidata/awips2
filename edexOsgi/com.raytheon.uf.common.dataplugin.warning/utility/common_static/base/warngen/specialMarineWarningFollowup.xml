@@ -173,10 +173,10 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText=" ****** CALLS TO ACTION (CHOOSE 1 OR MORE) ****** " bulletType="title"/>
-  <bullet bulletName="genericCTA" bulletText="As thunderstorms move over the water.." parseString="OVER THE WATER...BOATERS CAN EXPECT"/>
-  <bullet bulletName="gustyWindsCTA" bulletText="Mariners can expect gusty winds.." parseString="MARINERS CAN EXPECT GUSTY WINDS...HIGH WAVES..."/>
+  <bullet bulletName="genericCTA" bulletText="As thunderstorms move over the water.." parseString="OVER THE WATER, BOATERS CAN EXPECT"/>
+  <bullet bulletName="gustyWindsCTA" bulletText="Mariners can expect gusty winds.." parseString="MARINERS CAN EXPECT GUSTY WINDS, HIGH WAVES"/>
   <bullet bulletName="hailWindsCTA" bulletText="Mariners can expect cta with hail/wind speeds" parseString="MARINERS CAN EXPECT WIND GUSTS "/>
-  <bullet bulletName="nonThunderstormCTA" bulletText="Non thunderstorm winds - mariners can expect gusty winds.." parseString="MARINERS CAN EXPECT GUSTY WINDS...AND INCREASING WAVES"/>
+  <bullet bulletName="nonThunderstormCTA" bulletText="Non thunderstorm winds - mariners can expect gusty winds.." parseString="MARINERS CAN EXPECT GUSTY WINDS AND INCREASING WAVES"/>
   <bullet bulletName="waterspoutCTA" bulletText="Thunderstorms can produce waterspouts" parseString="THUNDERSTORMS CAN PRODUCE SUDDEN WATERSPOUTS"/>
   <bullet bulletName="lightningCTA" bulletText="Frequent lightning" parseString="FREQUENT LIGHTNING IS OCCURRING WITH THIS STORM"/>
   <bullet bulletName="reportCTA" bulletText="Report severe wx" parseString="REPORT SEVERE WEATHER TO THE COAST GUARD OR NEAREST LAW ENFORCEMENT AGENCY"/>
@@ -226,10 +226,10 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText=" ****** CALLS TO ACTION (CHOOSE 1 OR MORE) ****** " bulletType="title"/>
-  <bullet bulletName="genericCTA" bulletText="As thunderstorms move over the water.." parseString="OVER THE WATER...BOATERS CAN EXPECT"/>
-  <bullet bulletName="gustyWindsCTA" bulletText="Mariners can expect gusty winds.." parseString="MARINERS CAN EXPECT GUSTY WINDS...HIGH WAVES..."/>
+  <bullet bulletName="genericCTA" bulletText="As thunderstorms move over the water.." parseString="OVER THE WATER, BOATERS CAN EXPECT"/>
+  <bullet bulletName="gustyWindsCTA" bulletText="Mariners can expect gusty winds.." parseString="MARINERS CAN EXPECT GUSTY WINDS, HIGH WAVES"/>
   <bullet bulletName="hailWindsCTA" bulletText="Mariners can expect cta with hail/wind speeds" parseString="MARINERS CAN EXPECT WIND GUSTS "/>
-  <bullet bulletName="nonThunderstormCTA" bulletText="Non thunderstorm winds - mariners can expect gusty winds.." parseString="MARINERS CAN EXPECT GUSTY WINDS...AND INCREASING WAVES"/>
+  <bullet bulletName="nonThunderstormCTA" bulletText="Non thunderstorm winds - mariners can expect gusty winds.." parseString="MARINERS CAN EXPECT GUSTY WINDS AND INCREASING WAVES"/>
   <bullet bulletName="waterspoutCTA" bulletText="Thunderstorms can produce waterspouts" parseString="THUNDERSTORMS CAN PRODUCE SUDDEN WATERSPOUTS"/>
   <bullet bulletName="lightningCTA" bulletText="Frequent lightning" parseString="FREQUENT LIGHTNING IS OCCURRING WITH THIS STORM"/>
   <bullet bulletName="reportCTA" bulletText="Report severe wx" parseString="REPORT SEVERE WEATHER TO THE COAST GUARD OR NEAREST LAW ENFORCEMENT AGENCY"/>

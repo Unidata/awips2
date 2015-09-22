@@ -19,6 +19,9 @@
  **/
 package com.raytheon.viz.warngen.gui;
 
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
@@ -26,6 +29,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 import com.raytheon.uf.viz.core.rsc.tools.action.AbstractGenericToolAction;
+import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.ui.input.EditableManager;
 
 /**
@@ -40,6 +44,7 @@ import com.raytheon.viz.ui.input.EditableManager;
  * Oct 10, 2010  6990      Qinglu Lin   Used D. Friedman short solution,
  *                                      with minor changes.
  * Aug 15, 2013  DR 16418  D. Friedman  Always show the dialog.
+ * Sep  3, 2015  DR 17886  Qinglu Lin   Updated for popping up alertViz when switching to DRT.
  * 
  * </pre>
  * 
@@ -64,6 +69,14 @@ public class WarngenAction extends AbstractGenericToolAction<WarngenLayer> {
     protected WarngenLayer getResource(LoadProperties loadProperties,
             IDescriptor descriptor) throws VizException {
 
+        if (CAVEMode.getMode().equals(CAVEMode.OPERATIONAL) &&
+                !SimulatedTime.getSystemTime().isRealTime() &&
+                !CAVEMode.getFlagInDRT()) {
+            UFStatus.getHandler().handle(Priority.WARN,
+                    "WarnGen cannot be launched while " +
+                    "CAVE in OPERATIONAL mode and the CAVE clock is not set to real-time.");
+            return null;
+        }
         for (IDisplayPane pane : getSelectedPanes()) {
             for (ResourcePair rp : pane.getDescriptor().getResourceList()) {
                 if (rp.getResource() instanceof WarngenLayer) {

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -44,6 +44,7 @@ import org.eclipse.ui.keys.IBindingService;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.RGBColors;
@@ -52,6 +53,7 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.maps.MapManager;
+import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.PythonPreferenceStore;
 import com.raytheon.viz.gfe.actions.FormatterlauncherAction;
@@ -70,14 +72,14 @@ import com.raytheon.viz.ui.perspectives.AbstractCAVEPerspectiveManager;
 
 /**
  * Manages the life cycle of the GFE Perspectives
- * 
+ *
  * Installs a perspective watcher that handles the transitions in and out of the
  * GFE perspectives.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#     Engineer    Description
- * ------------	----------	-----------	--------------------------
+ * ------------ ----------  ----------- --------------------------
  * Jul 17, 2008     #1223   randerso    Initial creation
  * Oct 6, 2008      #1433   chammack    Removed gfe status bars
  * Apr 9, 2009       1288   rjpeter     Added saving of the renderable display.
@@ -85,11 +87,12 @@ import com.raytheon.viz.ui.perspectives.AbstractCAVEPerspectiveManager;
  * Apr 27, 2010             mschenke    refactor for common perspective switching
  * Jul 7, 2011      #9897   ryu         close formatters on perspective close/reset
  * Aug 20,2012      #1077   randerso    Added support for bgColor setting
- * Oct 23, 2012  #1287      rferrel     Changes for non-blocking FormattrLauncherDialog.
- * Dec 09, 2013  #2367      dgilling    Remove shutdown of ProcedureJob and
+ * Oct 23, 2012     #1287   rferrel     Changes for non-blocking FormattrLauncherDialog.
+ * Dec 09, 2013     #2367   dgilling    Remove shutdown of ProcedureJob and
  *                                      SmartToolJob.
  * Jan 14, 2014      2594   bclement    added low memory notification
  * Aug 24, 2015      4749   dgilling    Shutdown TaskManager on perspective close.
+ * Aug 31, 2015    #17970   yteng       Notify user to close GFE if not in real-time
  * </pre>
  * 
  * @author randerso
@@ -181,6 +184,15 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager {
 
     @Override
     public void activate() {
+
+        if (CAVEMode.getMode().equals(CAVEMode.OPERATIONAL) &&
+                !SimulatedTime.getSystemTime().isRealTime()
+                && !CAVEMode.getFlagInDRT()) {
+            UFStatus.getHandler().handle(
+                    Priority.WARN,
+                    "CAVE in OPERATIONAL mode and CAVE clock is not set to real-time. Please close all GFE sessions, if any.");
+        }
+
         super.activate();
 
         // Hack to disable editor closing

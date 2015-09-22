@@ -52,6 +52,7 @@ import com.raytheon.uf.edex.core.IContextStateProcessor;
  * Jul 17, 2013 2161       bkowal      Initial creation.
  * Mar 11, 2014 2726       rjpeter     Graceful shutdown, don't forward empty pdo lists.
  * Feb 09, 2015 4101       rjpeter     Added MAX_CONTAINER_SIZE and changed store order to always store container with most entries first.
+ * Aug 21, 2015 4762       rjpeter     Updated sizeSet comparator to use key if size equal.
  * </pre>
  * 
  * @author bkowal
@@ -88,7 +89,13 @@ public class ModelSoundingPersistenceManager implements IContextStateProcessor {
                             public int compare(
                                     ModelSoundingStorageContainer o1,
                                     ModelSoundingStorageContainer o2) {
-                                return Integer.compare(o1.size(), o2.size());
+                                int rval = Integer.compare(o1.size(), o2.size());
+
+                                if (rval == 0) {
+                                    rval = o1.getKey().compareTo(o2.getKey());
+                                }
+
+                                return rval;
                             }
                         }));
     }
