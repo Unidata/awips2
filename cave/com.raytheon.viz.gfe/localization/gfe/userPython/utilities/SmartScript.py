@@ -1044,6 +1044,8 @@ class SmartScript(BaseTool.BaseTool):
             emptyEditAreaFlag = True
         else:
             emptyEditAreaFlag = False
+            
+        javaDict = None
         if varDict is not None:
             javaDict = JUtil.pyValToJavaObj(varDict)
 
@@ -1055,13 +1057,12 @@ class SmartScript(BaseTool.BaseTool):
             timeRange = timeRange.toJavaObj()
 
         from com.raytheon.viz.gfe.smarttool import SmartUtil
-
         result, returnedDict = SmartUtil.callFromSmartScript(self.__dataMgr, toolName, elementName, editArea,
                                             timeRange, javaDict, emptyEditAreaFlag,
                                             JUtil.pylistToJavaStringList(passErrors),
                                             missingDataMode, parm)
 
-        if returnedDict:
+        if varDict is not None and returnedDict:
             returnedDict = JUtil.javaObjToPyVal(returnedDict)
             varDict.clear()
             varDict.update(returnedDict)
@@ -1082,13 +1083,14 @@ class SmartScript(BaseTool.BaseTool):
         else:
             timeRange = timeRange.toJavaObj()
 
-        from com.raytheon.viz.gfe.procedures import ProcedureUtil
+        javaDict=None
         if varDict is not None:
             javaDict = JUtil.pyValToJavaObj(varDict)
 
+        from com.raytheon.viz.gfe.procedures import ProcedureUtil
         result, returnedDict = ProcedureUtil.callFromSmartScript(self.__dataMgr, name, editArea, timeRange, javaDict)
         
-        if returnedDict:
+        if varDict is not None and returnedDict:
             returnedDict = JUtil.javaObjToPyVal(returnedDict)
             varDict.clear()
             varDict.update(returnedDict)
