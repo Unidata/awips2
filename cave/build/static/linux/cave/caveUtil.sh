@@ -39,6 +39,7 @@
 # Oct 13, 2014  #3675     bclement    logExitStatus() waits for child to start and renames log with child PID 
 # Jul 23, 2015  ASM#13849 D. Friedman Use a unique Eclipse configuration directory
 # Aug 03, 2015  #4694     dlovely     Fixed path for log file cleanup
+# Sep 16, 2015  #18041    lshi        Purge CAVE logs after 30 days instead of 7
 
 source /awips2/cave/iniLookup.sh
 RC=$?
@@ -383,10 +384,10 @@ function deleteOldCaveLogs()
     local mybox=$(hostname)
 
     echo -e "Cleaning consoleLogs: "
-    echo -e "find $HOME/$BASE_LOGDIR -type f -name "*.log" -mtime +7 -exec rm {} \;"
+    echo -e "find $HOME/$BASE_LOGDIR -type f -name "*.log" -mtime +30 -exec rm {} \;"
 
 
-    find "$HOME/$BASE_LOGDIR" -type f -name "*.log" -mtime +7 -exec rm {} \;
+    find "$HOME/$BASE_LOGDIR" -type f -name "*.log" -mtime +30 -exec rm {} \;
 
     exit 0
 

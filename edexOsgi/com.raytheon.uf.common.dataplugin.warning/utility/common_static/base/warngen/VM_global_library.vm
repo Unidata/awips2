@@ -20,6 +20,7 @@
 #####                                  Fixed dupCounties.vm not working due a variable switch in HeadlineLocList and ZoneHeadlineLocList
 #####    Evan Bookbinder  3-23/24-2015 Changes for mixed case (including new capitalize function)
 #####         D. Friedman   08-11-2015 ASM #17841.  Handle possibly duplicate second time zone time.
+#####         Qinglu Lin    09-11-2015 ASM #17890.  Updated headlineExpire.
 ####################################################################################################
 #*
 Mile Marker Test Code                                     
@@ -1264,21 +1265,17 @@ Until #formatTwoTimes($time1, $time2)##
 ######### STATEMENTS. THIS WILL BE ALL CAPS ##########
 #macro(headlineExpire $dateUtil $expire $timeFormat $localtimezone $secondtimezone $duration)
 #if(${duration} >= 360)
-#set($timevar = ${dateUtil.formatUseNoonMidnight(${expire}, ${timeFormat.plain}, 15, ${localtimezone})})
-#capitalize(${timevar} "ALL")##
+#set($timevar1 = ${dateUtil.formatUseNoonMidnight(${expire}, ${timeFormat.plain}, 15, ${localtimezone})})
 #else
-#set($timevar = ${dateUtil.formatUseNoonMidnight(${expire}, ${timeFormat.clock}, 15, ${localtimezone})})
-#capitalize(${timevar} "ALL")## 
+#set($timevar1 = ${dateUtil.formatUseNoonMidnight(${expire}, ${timeFormat.clock}, 15, ${localtimezone})})
 #end
-#if(${secondtimezone})
 #if(${duration} >= 360)
-#set($timevar = ${dateUtil.formatUseNoonMidnight(${expire}, ${timeFormat.plain}, 15, ${secondtimezone})})
- /#capitalize(${timevar} "ALL")/##
+#set($timevar2 = ${dateUtil.formatUseNoonMidnight(${expire}, ${timeFormat.plain}, 15, ${secondtimezone})})
 #else
-#set($timevar = ${dateUtil.formatUseNoonMidnight(${expire}, ${timeFormat.clock}, 15, ${secondtimezone})})
- /#capitalize(${timevar} "ALL")/##
+#set($timevar2 = ${dateUtil.formatUseNoonMidnight(${expire}, ${timeFormat.clock}, 15, ${secondtimezone})})
 #end
-#end
+#set($timevar = "#formatTwoTimes($timevar1 $timevar2)")
+#capitalize(${timevar} "ALL")##
 #end
 ########END MACRO
 
