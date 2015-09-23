@@ -23,7 +23,7 @@
 		<paramLevelMatches>
 			<parameter>ProbTP0p01in6hr</parameter>
 			<parameter>ProbTP0p10in6hr</parameter>
-			<parameter>ProbTP0p25in6h</parameter>
+			<parameter>ProbTP0p25in6hr</parameter>
 			<parameter>ProbTP0p50in6hr</parameter>
 			<parameter>ProbTP0p75in6hr</parameter>
 			<parameter>ProbTP1p00in6hr</parameter>
