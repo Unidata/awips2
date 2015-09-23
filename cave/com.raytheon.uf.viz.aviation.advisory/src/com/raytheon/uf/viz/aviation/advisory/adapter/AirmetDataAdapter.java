@@ -154,7 +154,7 @@ public class AirmetDataAdapter extends AbstractAdvisoryDataAdapter {
         String inspectString = String.format(INSPECT_FORMAT, day, hour, min,
                 segment);
         String hazType = report.getHazardType();
-        ;
+        
         String label;
 
         if (hazType.equalsIgnoreCase(IFR_TYPE)) {
