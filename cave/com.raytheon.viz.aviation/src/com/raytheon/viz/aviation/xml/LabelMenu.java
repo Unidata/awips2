@@ -23,8 +23,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * 
  * This class contains the label menu information.
@@ -35,68 +33,69 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 7, 2009  2537       lvenable     Initial creation
+ * Aug 7, 2009  2537       lvenable    Initial creation
+ * Sep 15, 2015 4880       njensen     Removed ISerializableObject
  *
  * </pre>
- *
+ * 
  * @author lvenable
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class LabelMenu implements ISerializableObject
-{
+public class LabelMenu {
     /**
      * Menu name.
      */
     @XmlAttribute(name = "menuName")
     private String menuName;
-    
+
     /**
      * Value.
      */
     @XmlAttribute(name = "value")
     private String value;
-    
+
     /**
      * Constructor.
      */
-    public LabelMenu()
-    {        
+    public LabelMenu() {
     }
 
     /**
      * Get the menu name.
+     * 
      * @return The menu name.
      */
-    public String getMenuName()
-    {
+    public String getMenuName() {
         return menuName;
     }
 
     /**
      * Set the menu name.
-     * @param menuName The menu name.
+     * 
+     * @param menuName
+     *            The menu name.
      */
-    public void setMenuName(String menuName)
-    {
+    public void setMenuName(String menuName) {
         this.menuName = menuName;
     }
 
     /**
      * Get the value.
+     * 
      * @return The value.
      */
-    public String getValue()
-    {
+    public String getValue() {
         return value;
     }
 
     /**
      * Set the value.
-     * @param value The value.
+     * 
+     * @param value
+     *            The value.
      */
-    public void setValue(String value)
-    {
+    public void setValue(String value) {
         this.value = value;
     }
 }

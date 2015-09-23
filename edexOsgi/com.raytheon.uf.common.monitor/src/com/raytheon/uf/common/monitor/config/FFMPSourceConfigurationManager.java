@@ -56,6 +56,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Aug 18, 2013  1742      dhladky     Concurrent mod exception on update fixed
  * Oct 02, 2013  2361      njensen     Use JAXBManager for XML
  * Aug 15, 2015  4722      dhladky     Added new types to be used for new Guidance sources, etc
+ * Sep 17, 2015  4756      dhladky     Fixed bugs for multiple guidance sources.
  * 
  * </pre>
  * 
@@ -230,10 +231,11 @@ public class FFMPSourceConfigurationManager implements
     public List<String> getVirtuals() {
         if (virtuals == null) {
             virtuals = new ArrayList<String>();
-        }
-        for (SourceXML xml : configXml.getSource()) {
-            if (xml.getSourceType().equals(SOURCE_TYPE.GAGE.getSourceType())) {
-                virtuals.add(xml.getSourceName());
+
+            for (SourceXML xml : configXml.getSource()) {
+                if (xml.getSourceType().equals(SOURCE_TYPE.GAGE.getSourceType())) {
+                    virtuals.add(xml.getSourceName());
+                }
             }
         }
         return virtuals;
@@ -247,11 +249,12 @@ public class FFMPSourceConfigurationManager implements
     public ArrayList<String> getGuidances() {
         if (guidances == null) {
             guidances = new ArrayList<String>();
-        }
-        for (SourceXML xml : configXml.getSource()) {
-            if (xml.getSourceType()
-                    .equals(SOURCE_TYPE.GUIDANCE.getSourceType())) {
-                guidances.add(xml.getSourceName());
+
+            for (SourceXML xml : configXml.getSource()) {
+                if (xml.getSourceType().equals(
+                        SOURCE_TYPE.GUIDANCE.getSourceType())) {
+                    guidances.add(xml.getSourceName());
+                }
             }
         }
         return guidances;
@@ -285,30 +288,33 @@ public class FFMPSourceConfigurationManager implements
     public List<String> getQPESources() {
         if (accumulators == null) {
             accumulators = new ArrayList<String>();
-        }
-        for (SourceXML xml : configXml.getSource()) {
-            if (xml.getSourceType().equals(SOURCE_TYPE.QPE.getSourceType())) {
-                accumulators.add(xml.getSourceName());
+
+            for (SourceXML xml : configXml.getSource()) {
+                if (xml.getSourceType().equals(SOURCE_TYPE.QPE.getSourceType())) {
+                    accumulators.add(xml.getSourceName());
+                }
             }
         }
         return accumulators;
     }
 
     /**
-     * Get the QPE sources
+     * Get the Rate sources
      * 
      * @return
      */
     public List<String> getRates() {
         if (rates == null) {
             rates = new ArrayList<String>();
-        }
-        for (SourceXML xml : configXml.getSource()) {
-            if (xml.getSourceType().equals(SOURCE_TYPE.RATE.getSourceType())) {
-                rates.add(xml.getSourceName());
+
+            for (SourceXML xml : configXml.getSource()) {
+                if (xml.getSourceType()
+                        .equals(SOURCE_TYPE.RATE.getSourceType())) {
+                    rates.add(xml.getSourceName());
+                }
             }
         }
-        return accumulators;
+        return rates;
     }
 
     /**
@@ -319,10 +325,11 @@ public class FFMPSourceConfigurationManager implements
     public ArrayList<String> getQPFSources() {
         if (forecasts == null) {
             forecasts = new ArrayList<String>();
-        }
-        for (SourceXML xml : configXml.getSource()) {
-            if (xml.getSourceType().equals(SOURCE_TYPE.QPF.getSourceType())) {
-                forecasts.add(xml.getSourceName());
+
+            for (SourceXML xml : configXml.getSource()) {
+                if (xml.getSourceType().equals(SOURCE_TYPE.QPF.getSourceType())) {
+                    forecasts.add(xml.getSourceName());
+                }
             }
         }
         return forecasts;
@@ -337,7 +344,8 @@ public class FFMPSourceConfigurationManager implements
      */
     public enum DATA_TYPE {
 
-        RADAR("RADAR"), XMRG("XMRG"), GRID("GRID"), PDO("PDO"), DB("DB"), NETCDF("NETCDF");
+        RADAR("RADAR"), XMRG("XMRG"), GRID("GRID"), PDO("PDO"), DB("DB"), NETCDF(
+                "NETCDF");
 
         private final String dataType;
 

@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Grid
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.grid
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.inventory.tree,
  com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.dataplugin.persist,
@@ -17,9 +17,9 @@ Import-Package: com.raytheon.uf.common.inventory.tree,
  com.raytheon.uf.edex.database.cluster,
  com.raytheon.uf.edex.database.dao,
  com.raytheon.uf.edex.database.plugin,
- com.raytheon.uf.edex.database.query,
- org.apache.commons.logging
-Export-Package: com.raytheon.uf.edex.plugin.grid.dao,
+ com.raytheon.uf.edex.database.query
+Export-Package: com.raytheon.uf.edex.plugin.grid,
+ com.raytheon.uf.edex.plugin.grid.dao,
  com.raytheon.uf.edex.plugin.grid.handler
 Require-Bundle: com.raytheon.uf.common.parameter;bundle-version="1.0.0",
  com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",

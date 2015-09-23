@@ -833,26 +833,3 @@ class TafGen:
                                                          self.tafDuration))
         return taf
 
-def main():
-    model = sys.argv[1]
-    site = sys.argv[2]
-    year = sys.argv[3]
-    mon = sys.argv[4]
-    day = sys.argv[5]
-    run = sys.argv[6]
-    cycle = '%s%s%s_%s00'%tuple(sys.argv[3:7])
-    import Startup
-    os.chdir(os.environ['TOP_DIR'])
-    data_file = '%s%02d%02d%s00.data'%(year[2:],int(mon),int(day),run)
-    fcst = cPickle.load(file("data/%s/%s/%s" %(model,site,data_file)))
-    if model == 'gfslamp':
-        dt = 3*3600
-    else:
-        dt = 6*3600
-    tc = TafGen(model,fcst,'RR',fcst['itime']['value'] + dt)
-    taf = tc.createTaf(0)
-    for t in taf:
-        print t
-
-if __name__=="__main__":
-   main()

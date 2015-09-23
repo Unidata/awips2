@@ -27,8 +27,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * Class contains information for the TAF monitor.
  * 
@@ -38,116 +36,119 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 7, 2009  2537       lvenable     Initial creation
+ * Aug 7, 2009  2537       lvenable    Initial creation
+ * Sep 15, 2015 4880       njensen     Removed ISerializableObject
  *
  * </pre>
- *
+ * 
  * @author lvenable
  * @version 1.0
  */
 @XmlRootElement(name = "Monitor")
 @XmlAccessorType(XmlAccessType.NONE)
-public class MonitorCfg implements ISerializableObject
-{
+public class MonitorCfg {
     /**
      * Name for the label.
      */
     @XmlElement(name = "LabelName")
     private String labelName;
-    
+
     /**
      * Package and class name of the object to be created.
      */
     @XmlElement(name = "ClassName")
     private String className;
-    
+
     /**
      * A single string containing a comma separated list of monitor labels.
      */
     @XmlElement(name = "MonitorLabels")
     private String monitorLabels;
-    
+
     /**
      * A single string containing a comma separated list of monitor items.
      */
     @XmlElement(name = "MonitorItems")
     private String monitorItems;
-    
+
     /**
-     * Array of label menus.  Used for pop-up menus.
+     * Array of label menus. Used for pop-up menus.
      */
-    @XmlElements( { @XmlElement(name = "LabelMenu", type = LabelMenu.class) })
+    @XmlElements({ @XmlElement(name = "LabelMenu", type = LabelMenu.class) })
     private ArrayList<LabelMenu> labelMenus;
-    
+
     /**
      * Array of additional arguments that may be needed.
      */
-    @XmlElements( { @XmlElement(name = "Args", type = MonitorArgs.class) })
+    @XmlElements({ @XmlElement(name = "Args", type = MonitorArgs.class) })
     private ArrayList<MonitorArgs> argsArray;
-    
+
     /**
      * Constructor.
      */
-    public MonitorCfg()
-    {        
+    public MonitorCfg() {
     }
 
     /**
      * Get the label name.
+     * 
      * @return The label name.
      */
-    public String getLabelName()
-    {
+    public String getLabelName() {
         return labelName;
     }
 
     /**
      * Set the label name.
-     * @param labelName The label name.
+     * 
+     * @param labelName
+     *            The label name.
      */
-    public void setLabelName(String labelName)
-    {
+    public void setLabelName(String labelName) {
         this.labelName = labelName;
     }
 
     /**
      * Get the class name.
+     * 
      * @return The class name.
      */
-    public String getClassName()
-    {
+    public String getClassName() {
         return className;
     }
 
     /**
      * Set the class name.
-     * @param className The class name.
+     * 
+     * @param className
+     *            The class name.
      */
-    public void setClassName(String className)
-    {
+    public void setClassName(String className) {
         this.className = className;
     }
 
     /**
      * Get the monitor labels.
+     * 
      * @return The monitor labels.
      */
-    public String getMonitorLabels()
-    {
+    public String getMonitorLabels() {
         return monitorLabels;
     }
 
     /**
      * Set the monitor labels.
-     * @param monitorLabels The monitor labels.
+     * 
+     * @param monitorLabels
+     *            The monitor labels.
      */
-    public void setMonitorLabels(String monitorLabels)
-    {
+    public void setMonitorLabels(String monitorLabels) {
         this.monitorLabels = monitorLabels;
     }
 
     /**
      * Get the monitor items.
+     * 
      * @return The monitor items.
      */
     public String getMonitorItems() {
@@ -156,7 +157,9 @@ public class MonitorCfg implements ISerializableObject
 
     /**
      * Set the monitor items.
-     * @param monitorItems The monitor items.
+     * 
+     * @param monitorItems
+     *            The monitor items.
      */
     public void setMonitorItems(String monitorItems) {
         this.monitorItems = monitorItems;
@@ -164,53 +167,51 @@ public class MonitorCfg implements ISerializableObject
 
     /**
      * Get an array of arguments (arguments are optional).
+     * 
      * @return An array of arguments.
      */
-    public ArrayList<MonitorArgs> getArgsArray()
-    {
-        for (MonitorArgs mArgs : argsArray)
-        {
-            if (mArgs.getName() == null && mArgs.getValue() == null)
-            {
+    public ArrayList<MonitorArgs> getArgsArray() {
+        for (MonitorArgs mArgs : argsArray) {
+            if (mArgs.getName() == null && mArgs.getValue() == null) {
                 return null;
             }
         }
-        
+
         return argsArray;
     }
 
     /**
      * Set the array of arguments.
-     * @param argsArray Array of arguments.
+     * 
+     * @param argsArray
+     *            Array of arguments.
      */
-    public void setArgsArray(ArrayList<MonitorArgs> argsArray)
-    {
+    public void setArgsArray(ArrayList<MonitorArgs> argsArray) {
         this.argsArray = argsArray;
     }
 
     /**
      * Get the label menus (label menus are optional).
+     * 
      * @return An array of label menus.
      */
-    public ArrayList<LabelMenu> getLabelMenus()
-    {        
-        for (LabelMenu lm : labelMenus)
-        {
-            if (lm.getMenuName() == null && lm.getValue() == null)
-            {
+    public ArrayList<LabelMenu> getLabelMenus() {
+        for (LabelMenu lm : labelMenus) {
+            if (lm.getMenuName() == null && lm.getValue() == null) {
                 return null;
             }
         }
-        
+
         return labelMenus;
     }
 
     /**
      * Set the label menus.
-     * @param labelMenus An array of label menus.
+     * 
+     * @param labelMenus
+     *            An array of label menus.
      */
-    public void setLabelMenus(ArrayList<LabelMenu> labelMenus)
-    {
+    public void setLabelMenus(ArrayList<LabelMenu> labelMenus) {
         this.labelMenus = labelMenus;
     }
 }

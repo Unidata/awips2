@@ -96,18 +96,44 @@ public class LevelDescription {
 
     public Level getLevel(NetcdfFile file, LevelFactory factory)
             throws InvalidDescriptionException {
-        String masterLevel = this.masterLevel.getString(file);
+        return getLevel(file, factory, 0);
+    }
+
+    /**
+     *
+     * 
+     * @param file
+     * @param factory
+     * @param levelIndex
+     *            The index for each level component (master level,level one,
+     *            level two), it is expected that each component at this index
+     *            is associated, or the component is scalar and valid for all
+     *            indices of every other non-scalar component.
+     * @return
+     * @throws InvalidDescriptionException
+     */
+    public Level getLevel(NetcdfFile file, LevelFactory factory, int levelIndex)
+            throws InvalidDescriptionException {
+        if (levelIndex < 0) {
+            throw new InvalidDescriptionException(
+                    new ArrayIndexOutOfBoundsException(levelIndex));
+        }
+
+        String masterLevel = this.masterLevel.getString(file, levelIndex);
         if (masterLevel == null) {
             return null;
         }
-        Number levelOneValue = this.levelOneValue.getNumber(file);
+
+        Number levelOneValue = this.levelOneValue.getNumber(file, levelIndex);
         if (levelOneValue == null) {
             return null;
         }
+
         if (this.levelTwoValue == null) {
             return factory.getLevel(masterLevel, levelOneValue.doubleValue());
         }
-        Number levelTwoValue = this.levelTwoValue.getNumber(file);
+
+        Number levelTwoValue = this.levelTwoValue.getNumber(file, levelIndex);
         if (levelTwoValue == null) {
             return null;
         }

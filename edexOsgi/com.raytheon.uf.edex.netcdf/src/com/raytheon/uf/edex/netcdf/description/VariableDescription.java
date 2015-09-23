@@ -24,6 +24,7 @@ import java.io.IOException;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
+import ucar.ma2.Array;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
@@ -42,6 +43,7 @@ import com.raytheon.uf.edex.netcdf.description.exception.InvalidDescriptionExcep
  * Aug 11, 2015  4709     bsteffen  Initial creation
  * Aug 25, 2015  4699     nabowle   Extracted from Pointset netcdf plugin and
  *                                  refactored.
+ * Sep 09, 2015  4696     nabowle   Add indexed retrieval and getLength().
  *
  * </pre>
  *
@@ -64,6 +66,30 @@ public class VariableDescription extends AbstractFieldDescription {
                     throw new InvalidDescriptionException(
                             "Cannot read a scalar string from " + name, e);
                 }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public String getString(NetcdfFile file, int index)
+            throws InvalidDescriptionException {
+        if (name != null) {
+            Variable var = file.findVariable(name);
+            if (var == null) {
+                return null;
+            }
+
+            if (var.getSize() == 1) {
+                index = 0;
+            }
+
+            try {
+                return var.read().getObject(index).toString();
+            } catch (IOException e) {
+                throw new InvalidDescriptionException(
+                        "Cannot read a string at index " + index + " from "
+                                + name, e);
             }
         }
         return null;
@@ -94,8 +120,7 @@ public class VariableDescription extends AbstractFieldDescription {
                     default:
                         throw new InvalidDescriptionException(
                                 "Cannot read a scalar number from " + name
-                                        + " with of data type "
-                                        + var.getDataType());
+                                        + " of data type " + var.getDataType());
                     }
                 } catch (IOException e) {
                     throw new InvalidDescriptionException(
@@ -104,6 +129,59 @@ public class VariableDescription extends AbstractFieldDescription {
             }
         }
         return null;
+    }
+
+    @Override
+    public Number getNumber(NetcdfFile file, int index)
+            throws InvalidDescriptionException {
+        if (name != null) {
+            Variable var = file.findVariable(name);
+            if (var == null) {
+                return null;
+            }
+            if (var.getSize() == 1) {
+                index = 0;
+            }
+            try {
+                Array array = var.read();
+                switch (var.getDataType()) {
+                case BYTE:
+                    return array.getByte(index);
+                case SHORT:
+                    return array.getShort(index);
+                case INT:
+                    return array.getInt(index);
+                case LONG:
+                    return array.getLong(index);
+                case FLOAT:
+                    return array.getFloat(index);
+                case DOUBLE:
+                    return array.getDouble(index);
+                default:
+                    throw new InvalidDescriptionException(
+                            "Cannot read a number at index " + index + " from "
+                                    + name + " of data type "
+                                    + var.getDataType());
+                }
+            } catch (IOException e) {
+                throw new InvalidDescriptionException(
+                        "Error reading a number at index " + index + " from "
+                                + name, e);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public long getLength(NetcdfFile file) {
+        if (name != null) {
+            Variable var = file.findVariable(name);
+            if (var == null) {
+                return 0;
+            }
+            return var.getSize();
+        }
+        return 0;
     }
 
 }

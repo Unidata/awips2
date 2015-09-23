@@ -5622,4 +5622,60 @@
             <defaultColormap>Grid/gridded data</defaultColormap>
         </imageStyle>
     </styleRule>
+    
+<!-- * geoWM, wSp, wSp_avg, WGS kts|1.944| 0.0 | 4 | | |..|8000F0FF| | 0 | 10 -->
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>geoWM</parameter>
+            <parameter>wSp</parameter>
+            <parameter>wSp_avg</parameter>
+            <parameter>WGS</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>kts</displayUnits>
+        </imageStyle>
+    </styleRule>
+    <!-- * geoWM, wSp, wSp_avg, 1050MB > 500MB kts|1.944| 0.0 | 4 | | |..|8000F0FF| | 0 | 10 -->
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>geoWM</parameter>
+            <parameter>wSp</parameter>
+            <parameter>wSp_avg</parameter>
+            <rangeLevel units="MB">
+                <upper>1050</upper>
+                <lower>500</lower>
+            </rangeLevel>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>kts</displayUnits>
+        </imageStyle>
+    </styleRule>
+
+<!-- * geoWM, wSp, WGS, wSp_avg, Surface, BLyr > 150agl kts|1.944| 0.0 | 4 | | |..|8000F0FF| | 0 | 5 -->
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>geoWM</parameter>
+            <parameter>wSp</parameter>
+            <parameter>WGS</parameter>
+            <parameter>wSp_avg</parameter>
+            <singleLevel units="SURFACE" />
+            <rangeLevel units="BL">
+                <upper>180150</upper>
+                <lower> 30000</lower>
+            </rangeLevel>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>kts</displayUnits>
+        </imageStyle>
+    </styleRule>
+
+<!-- * ageoWM kts|1.944| 0.0 | 4 | | |..|8000F0FF| | 0 | 2 -->
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>ageoWM</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>kts</displayUnits>
+        </imageStyle>
+    </styleRule>
 </styleRuleset>

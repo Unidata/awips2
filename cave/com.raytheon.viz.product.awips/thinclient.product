@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="CAVE" id="com.raytheon.viz.product.awips.CAVE" application="com.raytheon.uf.viz.application.application" useFeatures="true" includeLaunchers="true">
+<product name="CAVE" id="com.raytheon.viz.product.awips.CAVE" application="com.raytheon.uf.viz.application.application" useFeatures="true" includeLaunchers="false">
 
    <aboutInfo>
       <image path="/com.raytheon.viz.product.awips/icons/ipr.gif"/>
@@ -81,7 +81,7 @@
       <feature id="com.raytheon.uf.viz.d2d.core.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.viz.radar.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.viz.text.feature" version="1.0.0.qualifier"/>
-      <feature id="com.raytheon.viz.grib.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.grid.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.kml.export.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.nwsauth.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.viz.gfe.feature" version="1.0.0.qualifier"/>

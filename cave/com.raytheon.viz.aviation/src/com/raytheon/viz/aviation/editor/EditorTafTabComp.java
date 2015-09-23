@@ -19,8 +19,12 @@
  **/
 package com.raytheon.viz.aviation.editor;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ExtendedModifyEvent;
@@ -52,8 +56,8 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.viz.aviation.editor.TafViewerEditorDlg.TafSettings;
-import com.raytheon.viz.aviation.model.ForecastModel;
 import com.raytheon.viz.aviation.resource.ResourceConfigMgr;
 import com.raytheon.viz.aviation.resource.ResourceConfigMgr.ResourceTag;
 
@@ -75,6 +79,7 @@ import com.raytheon.viz.aviation.resource.ResourceConfigMgr.ResourceTag;
  * 3/18/2011    7888        rferrel     Added getLargeTF method. 
  * 02/19/2014   16980       zhao        added getter and setter for the Alt flag
  * 06/27/2015   4588        skorolev    Removed unnecessary insert toggle.
+ * Sep 15, 2015 4880        njensen     Moved getTimeNow... methods here from ForecastModel
  * 
  * </pre>
  * 
@@ -186,7 +191,7 @@ public class EditorTafTabComp extends Composite {
     // Enumeration for amendment type of report
     public static enum AmendmentType {
         RTN, AMD, RTD, COR
-    };
+    }
 
     /**
      * Constructor.
@@ -1015,7 +1020,8 @@ public class EditorTafTabComp extends Composite {
     /**
      * Set routine radio button selection.
      * 
-     * @param -- the selection predicate
+     * @param select
+     *            the selection predicate
      */
     public void setRtnRdo(boolean select) {
         rtnRdo.setSelection(select);
@@ -1033,7 +1039,8 @@ public class EditorTafTabComp extends Composite {
     /**
      * set amended radio button selection.
      * 
-     * @param -- the selection predicate
+     * @param select
+     *            the selection predicate
      */
     public void setAmdRdo(boolean select) {
         amdRdo.setSelection(select);
@@ -1051,7 +1058,8 @@ public class EditorTafTabComp extends Composite {
     /**
      * Set routine delay radio button selection.
      * 
-     * @param -- the selection predicate
+     * @param select
+     *            the selection predicate
      */
     public void setRtdRdo(boolean select) {
         rtdRdo.setSelection(select);
@@ -1069,7 +1077,8 @@ public class EditorTafTabComp extends Composite {
     /**
      * Set correction radio button selection.
      * 
-     * @param -- the selection predicate
+     * @param select
+     *            the selection predicate
      */
     public void setCorRdo(boolean select) {
         corRdo.setSelection(select);
@@ -1078,7 +1087,8 @@ public class EditorTafTabComp extends Composite {
     /**
      * Set WMO ID Label
      * 
-     * @param -- the text to put in the label
+     * @param s
+     *            the text to put in the label
      * 
      */
     public void setWmoIdLbl(String s) {
@@ -1088,7 +1098,8 @@ public class EditorTafTabComp extends Composite {
     /**
      * Set WMO Site Label
      * 
-     * @param -- the text to put in the label
+     * @param s
+     *            the text to put in the label
      * 
      */
     public void setWmoSiteLbl(String s) {
@@ -1098,7 +1109,8 @@ public class EditorTafTabComp extends Composite {
     /**
      * Set large text control
      * 
-     * @param -- the text to put in the control
+     * @param s
+     *            the text to put in the control
      * 
      */
     public void setLargeTF(String s) {
@@ -1108,7 +1120,8 @@ public class EditorTafTabComp extends Composite {
     /**
      * Set small text control
      * 
-     * @param -- the text to put in the control
+     * @param s
+     *            the text to put in the control
      * 
      */
     public void setSmallTF(String s) {
@@ -1169,8 +1182,7 @@ public class EditorTafTabComp extends Composite {
     public void updateTimes() {
         tafEditorTxt.setText(tafEditorTxt.getText().replaceAll(
                 ISSUE_TIME,
-                ForecastModel.getInstance().getTimeNowInDdHhMmFormat(0) + "Z "
-                        + ForecastModel.getInstance().getTimeNowInDdHhFormat(0)
+                getTimeNowInDdHhMmFormat(0) + "Z " + getTimeNowInDdHhFormat(0)
                         + "/"));
     }
 
@@ -1361,4 +1373,35 @@ public class EditorTafTabComp extends Composite {
     public void setAlt(boolean b) {
         alt = b;
     }
+
+    /**
+     * Method gets the time now of a forecast.
+     * 
+     * @return String representing the time now in DDHH format
+     */
+    public String getTimeNowInDdHhFormat(int deltaHours) {
+        Date now = SimulatedTime.getSystemTime().getTime();
+        SimpleDateFormat formatter = new SimpleDateFormat("ddHH");
+        formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        cal.setTime(now);
+        cal.add(Calendar.HOUR_OF_DAY, deltaHours);
+        return (formatter.format(cal.getTime()));
+    }
+
+    /**
+     * Method gets the time now of a forecast.
+     * 
+     * @return String representing the time now in DDHHMM format
+     */
+    public String getTimeNowInDdHhMmFormat(int deltaHours) {
+        Date now = SimulatedTime.getSystemTime().getTime();
+        SimpleDateFormat formatter = new SimpleDateFormat("ddHHmm");
+        formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        cal.setTime(now);
+        cal.add(Calendar.HOUR_OF_DAY, deltaHours);
+        return (formatter.format(cal.getTime()));
+    }
+
 }

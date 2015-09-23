@@ -52,6 +52,7 @@ import com.raytheon.viz.gfe.ui.runtimeui.SelectionDlg;
  * Jun 05, 2015  4259      njensen     Removed LD_PRELOAD check
  * Jul 17, 2015  4575      njensen     Changed varDict from String to Map
  * Jul 23, 2015  4263      dgilling    Support SmartToolMetadataManager.
+ * Sep 16, 2015  4871      randerso    Return modified varDict from Tool
  * 
  * </pre>
  * 
@@ -73,7 +74,7 @@ public class SmartUtil {
         DataManager dm = DataManagerUIFactory.getCurrentInstance();
         List<FieldDefinition> varList = dm.getSmartToolInterface()
                 .getVarDictWidgets(toolName);
-        if (varList == null || varList.size() == 0) {
+        if ((varList == null) || (varList.size() == 0)) {
             runToolNoVarDict(dm, toolName);
         } else {
             // The SmartToolSelectionDlg changes based on the procedure.
@@ -112,7 +113,7 @@ public class SmartUtil {
         return pi;
     }
 
-    public static Object callFromSmartScript(final DataManager dm,
+    public static Object[] callFromSmartScript(final DataManager dm,
             final String toolName, final String elementName,
             ReferenceData editArea, TimeRange timeRange,
             Map<String, Object> varDict, boolean emptyEditAreaFlag,
@@ -132,7 +133,7 @@ public class SmartUtil {
                 public void run() {
                     List<FieldDefinition> varList = dm.getSmartToolInterface()
                             .getVarDictWidgets(toolName);
-                    if (varList != null && varList.size() > 0) {
+                    if ((varList != null) && (varList.size() > 0)) {
                         // The SmartToolBlockingSelectionDlg changes based
                         // on the procedure. Since it is non-modal several
                         // dialogs may be displayed. This mimics the AWIPS 1
@@ -162,6 +163,6 @@ public class SmartUtil {
         }
 
         dm.getSmartToolJobPool().schedule(req);
-        return req.getResult();
+        return new Object[] { req.getResult(), req.getVarDict() };
     }
 }

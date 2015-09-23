@@ -29,6 +29,7 @@
 # Jun 17, 2015  #4148     rferrel     Logback needs fewer environment variables.
 # Jul 23, 2015  ASM#13849 D. Friedman Use a unique Eclipse configuration directory
 # Aug 03, 2015  #4694     dlovely     Logback will now add user.home to LOGDIR
+# Sep 17, 2015  #4869     bkowal      Read dynamic AlertViz version information at startup.
 #
 
 user=`/usr/bin/whoami`
@@ -153,6 +154,16 @@ function cleanExit()
 
 trap 'cleanExit $pid' SIGHUP SIGINT SIGQUIT SIGTERM
 
+VERSION_ARGS=()
+if [ -f ${dir}/awipsVersion.txt ]; then
+   prevIFS=${IFS}
+   IFS=$'\n'
+   for line in `cat ${dir}/awipsVersion.txt`; do
+      VERSION_ARGS+=(${line})
+   done
+   IFS=${prevIFS}
+fi
+
 #run a loop for alertviz
 count=0
 while [ $exitVal -ne 0 -a $count -lt 10 ]
@@ -164,9 +175,9 @@ do
    exitVal=0
   else
     if [ -w $FULL_LOGDIR ] ; then
-        ${dir}/alertviz "${SWITCHES[@]}" $* > /dev/null 2>&1 &
+        ${dir}/alertviz "${SWITCHES[@]}" "${VERSION_ARGS[@]}" $* > /dev/null 2>&1 &
     else
-        ${dir}/alertviz "${SWITCHES[@]}" $* &
+        ${dir}/alertviz "${SWITCHES[@]}" "${VERSION_ARGS[@]}" $* &
     fi
   pid=$!
   wait $pid

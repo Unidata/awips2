@@ -36,7 +36,9 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.viz.aviation.model.ForecastModel;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.viz.aviation.BackupRestart;
 import com.raytheon.viz.aviation.resource.ResourceConfigMgr;
 import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
@@ -55,7 +57,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                      in initializeComponents.
  * 10/06/2010   6009        rferrel     Use product to get initial selected item.
  * 3/14/2011    8588        rferrel     Allow selection of multiple products.
- * 20121010     1229        jkorman     Added DO_NOT_BLOCK so dialog does not block on open.     
+ * 20121010     1229        jkorman     Added DO_NOT_BLOCK so dialog does not block on open.
+ * Sep 15, 2015 4880        njensen     Removed reference to ForecastModel
+ *      
  * </pre>
  * 
  * @author lvenable
@@ -63,6 +67,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  */
 public class BackupDialog extends CaveSWTDialog {
+
+    private static final transient IUFStatusHandler logger = UFStatus
+            .getHandler(BackupDialog.class);
 
     /**
      * List control containing backup sites.
@@ -83,12 +90,13 @@ public class BackupDialog extends CaveSWTDialog {
      * 
      * @param parent
      *            - Parent shell.
-     * @param product
+     * @param productDisplayList
      *            - Current product whose sites are displayed in the monitor
      */
     public BackupDialog(Shell parent, java.util.List<String> productDisplayList) {
         super(parent, SWT.DIALOG_TRIM | SWT.RESIZE,
-                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.MODE_INDEPENDENT | CAVE.DO_NOT_BLOCK);
+                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.MODE_INDEPENDENT
+                        | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS Backup");
         this.productDisplayList = productDisplayList;
     }
@@ -214,14 +222,14 @@ public class BackupDialog extends CaveSWTDialog {
                     }
 
                     // int index = backupList.getSelectionIndex();
-                    IBackupRestart brs = ForecastModel.getInstance()
+                    IBackupRestart brs = BackupRestart
                             .getBackupRestartUtility();
 
                     try {
                         brs.backupTafMonitor(productList, TafSiteConfigFactory
                                 .getInstance().getAllProducts());
-                    } catch (ConfigurationException e) {
-                    } catch (FileNotFoundException e) {
+                    } catch (Exception e) {
+                        logger.error("Error loading backup configuration", e);
                     }
                     setReturnValue(true);
                     shell.dispose();

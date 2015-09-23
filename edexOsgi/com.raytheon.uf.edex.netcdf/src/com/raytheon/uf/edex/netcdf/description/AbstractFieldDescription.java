@@ -38,6 +38,8 @@ import com.raytheon.uf.edex.netcdf.description.exception.InvalidDescriptionExcep
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 26, 2015 4699       nabowle     Initial creation
+ * Sep 09, 2015 4696       nabowle     Add retrieval at different indices and
+ *                                     getLength().
  *
  * </pre>
  *
@@ -60,10 +62,37 @@ public abstract class AbstractFieldDescription {
         this.name = name;
     }
 
+    /**
+     * Gets a String from a scalar field.
+     */
     public abstract String getString(NetcdfFile file)
             throws InvalidDescriptionException;
 
+    /**
+     * Gets the String at the supplied index from an n-dimensional field viewed
+     * as a 1 dimensional array. Scalar fields will always return the same
+     * String for any index.
+     */
+    public abstract String getString(NetcdfFile file, int index)
+            throws InvalidDescriptionException;
+
+    /**
+     * Gets a Number value, if possible, from a scalar field.
+     */
     public abstract Number getNumber(NetcdfFile file)
             throws InvalidDescriptionException;
+
+    /**
+     * Gets the Number at the supplied index from an n-dimensional field viewed
+     * as a 1 dimensional array. Scalar fields will always return the same
+     * Number for any index.
+     */
+    public abstract Number getNumber(NetcdfFile file, int n)
+            throws InvalidDescriptionException;
+
+    /**
+     * Get the total number of elements for a field.
+     */
+    public abstract long getLength(NetcdfFile file);
 
 }

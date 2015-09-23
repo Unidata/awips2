@@ -61,11 +61,6 @@ public class DataTimeDescription {
     @XmlElement
     private ForecastDescription forecast;
 
-    /*
-     * Eventually this should include the information necessary to pull out
-     * forecast information and/or time ranges.
-     */
-
     public AbstractDateValue getRefTime() {
         return refTime;
     }

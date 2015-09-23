@@ -44,6 +44,7 @@ import com.raytheon.uf.edex.netcdf.description.exception.InvalidDescriptionExcep
  * Aug 11, 2015  4709     bsteffen  Initial creation
  * Aug 25, 2015  4699     nabowle   Extracted from Pointset netcdf plugin,
  *                                  renamed, and refactored.
+ * Sep 09, 2015  4696     nabowle   Override new methods.
  *
  * </pre>
  *
@@ -53,8 +54,7 @@ import com.raytheon.uf.edex.netcdf.description.exception.InvalidDescriptionExcep
 public class AttributeDescription extends AbstractFieldDescription {
 
     @Override
-    public String getString(NetcdfFile file)
-            throws InvalidDescriptionException {
+    public String getString(NetcdfFile file) throws InvalidDescriptionException {
         if (name != null) {
             Attribute attribute = file.findGlobalAttribute(this.name);
             if (attribute == null) {
@@ -67,8 +67,23 @@ public class AttributeDescription extends AbstractFieldDescription {
     }
 
     @Override
-    public Number getNumber(NetcdfFile file)
+    public String getString(NetcdfFile file, int index)
             throws InvalidDescriptionException {
+        if (name != null) {
+            Attribute attribute = file.findGlobalAttribute(this.name);
+            if (attribute == null) {
+                return null;
+            } else if (attribute.isArray()) {
+                return attribute.getStringValue(index);
+            } else {
+                return attribute.getStringValue();
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Number getNumber(NetcdfFile file) throws InvalidDescriptionException {
         if (name != null) {
             Attribute attribute = file.findGlobalAttribute(this.name);
             if (attribute == null) {
@@ -80,4 +95,32 @@ public class AttributeDescription extends AbstractFieldDescription {
         return null;
     }
 
+    @Override
+    public Number getNumber(NetcdfFile file, int index)
+            throws InvalidDescriptionException {
+        if (name != null) {
+            Attribute attribute = file.findGlobalAttribute(this.name);
+            if (attribute == null) {
+                return null;
+            } else if (attribute.isArray()) {
+                return attribute.getNumericValue(index);
+            } else {
+                return attribute.getNumericValue();
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public long getLength(NetcdfFile file) {
+        if (name != null) {
+            Attribute attribute = file.findGlobalAttribute(this.name);
+            if (attribute == null) {
+                return 0;
+            } else {
+                return attribute.getLength();
+            }
+        }
+        return 0;
+    }
 }

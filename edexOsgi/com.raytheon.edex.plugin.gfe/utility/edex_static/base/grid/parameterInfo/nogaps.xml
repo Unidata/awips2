@@ -29,7 +29,7 @@
     <uiname>Pvv</uiname>
     <valid_range>-2.5</valid_range>
     <valid_range>2.5</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>3</n3D>
     <levelsDesc>MB 850 700 500</levelsDesc>
     <levels>
@@ -46,7 +46,7 @@
     <uiname>iceConcen</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>250.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>MSL</levelsDesc>
     <levels>
@@ -57,7 +57,7 @@
     <short_name>staticSpacing</short_name>
     <long_name>Grid spacing</long_name>
     <units>meters</units>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>vw</short_name>
@@ -67,7 +67,7 @@
     <uiname>vWind</uiname>
     <valid_range>-150.0</valid_range>
     <valid_range>150.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>7</n3D>
     <levelsDesc>FHAG 10 MB 850 700 500 400 300 250 200 MAXW</levelsDesc>
     <levels>
@@ -90,7 +90,7 @@
     <uiname>geoPotHt</uiname>
     <valid_range>-2000.0</valid_range>
     <valid_range>20000.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>8</n3D>
     <levelsDesc>SFC MB 1000 850 700 500 400 300 250 200 FRZ</levelsDesc>
     <levels>
@@ -114,7 +114,7 @@
     <uiname>totPrecip</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>1000.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -125,7 +125,7 @@
     <short_name>staticCoriolis</short_name>
     <long_name>Coriolis parameter</long_name>
     <units>/s</units>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>rh</short_name>
@@ -135,7 +135,7 @@
     <uiname>rh</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>5</n3D>
     <levelsDesc>BL 0&gt;30  MB 850 700 500 400 300 FRZ</levelsDesc>
     <levels>
@@ -156,7 +156,7 @@
     <uiname>secondryWaveDir</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>360.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -167,7 +167,7 @@
     <short_name>staticTopo</short_name>
     <long_name>Topography</long_name>
     <units>meters</units>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>pmsl</short_name>
@@ -177,7 +177,7 @@
     <uiname>PMSL</uiname>
     <valid_range>80000.0</valid_range>
     <valid_range>110000.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>MSL</levelsDesc>
     <levels>
@@ -192,7 +192,7 @@
     <uiname>uWind</uiname>
     <valid_range>-150.0</valid_range>
     <valid_range>150.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>7</n3D>
     <levelsDesc>FHAG 10 MB 850 700 500 400 300 250 200 MAXW</levelsDesc>
     <levels>
@@ -215,7 +215,7 @@
     <uiname>atmP</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>110000.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>FRZ MAXW TROP</levelsDesc>
     <levels>
@@ -232,7 +232,7 @@
     <uiname>T</uiname>
     <valid_range>180.0</valid_range>
     <valid_range>330.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>8</n3D>
     <levelsDesc>FHAG 2  MB 1000 850 700 500 400 300 250 200 TROP</levelsDesc>
     <levels>
@@ -256,7 +256,7 @@
     <uiname>heightWindWaves</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>50.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>

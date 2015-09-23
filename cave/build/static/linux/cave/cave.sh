@@ -37,6 +37,7 @@
 # Jun 17, 2015  #4148     rferrel     Logback needs fewer environment variables.
 # Jul 23, 2015  ASM#13849 D. Friedman Use a unique Eclipse configuration directory
 # Aug 03, 2015  #4694     dlovely     Logback will now add user.home to LOGDIR
+# Sep 16, 2015  #4869     bkowal      Read dynamic CAVE version information at startup.
 #
 
 
@@ -115,6 +116,16 @@ if [ -x ${TESTCHECK} ]; then
 else
     MODE="UNKNOWN"
     echo "getTestMode() not found - going to use defaults"
+fi
+
+VERSION_ARGS=()
+if [ -f ${CAVE_INSTALL}/awipsVersion.txt ]; then
+   prevIFS=${IFS}
+   IFS=$'\n'
+   for line in `cat ${CAVE_INSTALL}/awipsVersion.txt`; do
+      VERSION_ARGS+=(${line})
+   done
+   IFS=${prevIFS}
 fi
 
 export TEXTWS=`hostname | sed -e 's/lx/xt/g'`
@@ -252,14 +263,14 @@ createEclipseConfigurationDir
   fi
 
   echo "Launching cave application using the following command: " >> ${LOGFILE_STARTUP_SHUTDOWN}
-  echo "${CAVE_INSTALL}/cave ${CAVE_INI_ARG} ${SWITCHES[@]} ${USER_ARGS[@]}" >> ${LOGFILE_STARTUP_SHUTDOWN}
+  echo "${CAVE_INSTALL}/cave ${CAVE_INI_ARG} ${SWITCHES[@]} ${USER_ARGS[@]} ${VERSION_ARGS[@]}" >> ${LOGFILE_STARTUP_SHUTDOWN}
 
   if [[ "${redirect}" == "true" ]] ; then
      # send output to /dev/null because the logback CaveConsoleAppender will capture that output 
-    exec ${CAVE_INSTALL}/cave ${CAVE_INI_ARG} "${SWITCHES[@]}" "${USER_ARGS[@]}" >> /dev/null 2>&1
+    exec ${CAVE_INSTALL}/cave ${CAVE_INI_ARG} "${SWITCHES[@]}" "${USER_ARGS[@]}" "${VERSION_ARGS[@]}" >> /dev/null 2>&1
   else
     # allow output to print to the console/terminal that launched CAVE
-    exec ${CAVE_INSTALL}/cave ${CAVE_INI_ARG} "${SWITCHES[@]}" "${USER_ARGS[@]}" 2>&1
+    exec ${CAVE_INSTALL}/cave ${CAVE_INI_ARG} "${SWITCHES[@]}" "${USER_ARGS[@]}" "${VERSION_ARGS[@]}" 2>&1
   fi
 ) &
 

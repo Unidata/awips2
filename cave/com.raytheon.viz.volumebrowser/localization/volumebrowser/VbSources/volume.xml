@@ -93,5 +93,9 @@
     <vbSource key="UKMET-NorthernHemisphere" category="Volume" />
     <vbSource key="radar" name="Radar" category="Volume" />
     <vbSource key="GEFS" category="Volume" />
-    <vbSource key="NCOM" category="Volume" views="PLANVIEW TIMESERIES" />
+    <vbSource key="NCOM-ALASKA" category="Volume/NCOM" views="PLANVIEW TIMESERIES" />
+    <vbSource key="NCOM-AMSEAS" category="Volume/NCOM" views="PLANVIEW TIMESERIES" />
+    <vbSource key="NCOM-HAWAII" category="Volume/NCOM" views="PLANVIEW TIMESERIES" />
+    <vbSource key="NCOM-SOCAL" category="Volume/NCOM" views="PLANVIEW TIMESERIES" />
+    <vbSource key="NCOM-USEAST" category="Volume/NCOM" views="PLANVIEW TIMESERIES" />
 </vbSourceList>

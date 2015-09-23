@@ -53,6 +53,7 @@ import com.raytheon.viz.gfe.smarttool.Tool;
  * ------------ ---------- ----------- --------------------------
  * Dec 09, 2013  #2367    dgilling     Initial creation
  * Jul 23, 2015  #4263    dgilling     Support SmartToolRunnerController.
+ * Sep 16, 2015  #4871    randerso     Return modified varDict from Tool
  * 
  * </pre>
  * 
@@ -357,15 +358,19 @@ public class SmartToolJobPool {
                     dataMgr.getParmOp().clearUndoParmList();
                 }
                 Tool tool = new Tool(dataMgr.getParmManager(), request
-                        .getPreview().getParm(), ea.getItemName(), python);
+                        .getPreview().getParm(), ea.getItemName(), controller);
                 tool.execute(ea.getItemName(), request.getPreview().getParm(),
                         ea.getRefSet(), ea.getTimeRange(),
                         request.getVarDict(), ea.getMissingDataMode(), monitor);
+                request.setVarDict(controller.getVarDict());
                 pjStatus = Status.OK_STATUS;
             } catch (SmartToolException e) {
                 pjStatus = new Status(IStatus.WARNING, Activator.PLUGIN_ID,
                         "Error in smart tool " + toolName, e);
                 throw e;
+            } catch (JepException e) {
+                pjStatus = new Status(IStatus.WARNING, Activator.PLUGIN_ID,
+                        "Unable to retrieve varDict from " + toolName, e);
             } finally {
                 controller.garbageCollect();
                 progressJob.done(pjStatus);

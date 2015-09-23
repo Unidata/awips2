@@ -75,6 +75,7 @@ import com.raytheon.viz.gfe.smarttool.script.SmartToolRunnerController;
  * Jul 17, 2015  4575      njensen     Changed varDict from String to Map
  * Jul 23, 2015  4263      dgilling    Support SmartToolMetadataManager.
  * Aug 27, 2015  4749      njensen     Call shutdown() on PythonJobCoordinator
+ * Sep 16, 2015  4871      randerso    Return modified varDict from Tool
  * 
  * </pre>
  * 
@@ -299,8 +300,8 @@ public class Tool {
             result = resultA[0];
         }
         if (result == null) {
-            if (dataMode == MissingDataMode.SKIP
-                    || dataMode == MissingDataMode.CREATE) {
+            if ((dataMode == MissingDataMode.SKIP)
+                    || (dataMode == MissingDataMode.CREATE)) {
                 String msg = "Skipped grid " + arg;
                 throw new SmartToolException(msg, ErrorType.SKIPPED_GRID);
             } else {
@@ -427,7 +428,7 @@ public class Tool {
         String weToEdit = DataManagerUIFactory.getCurrentInstance()
                 .getSmartToolInterface().getWeatherElementEdited(toolName);
         Parm parmToEdit = null;
-        if (weToEdit != null && !weToEdit.equals("None")) {
+        if ((weToEdit != null) && !weToEdit.equals("None")) {
             parmToEdit = this.inputParm;
         }
 
@@ -438,28 +439,31 @@ public class Tool {
 
         // Check the tool modes to make sure they make sense
 
-        // Get the gridInventory for the timeRange
-        IGridData[] grids = this.inputParm.getGridInventory(timeRange);
-        if (grids.length == 0) {
-            String message = "Smart Tool " + toolName
-                    + ": No Grids To Edit for " + inputParm.expressionName();
-            statusHandler.handle(Priority.EVENTA, message);
-            return;
-        }
-        int numberOfGrids = grids.length;
-
-        // Make sure parm is mutable
-        if (parmToEdit != null) {
-            saveMutableFlag = this.inputParm.isMutable();
-            this.inputParm.setMutable(true);
-        }
-
-        // Clear missing grids
-        GridCycler.getInstance().clearMissingData();
         boolean saveParams = false;
+        int numberOfGrids = 0;
 
         try {
             tool.setVarDict(varDict);
+
+            // Get the gridInventory for the timeRange
+            IGridData[] grids = this.inputParm.getGridInventory(timeRange);
+            if (grids.length == 0) {
+                String message = "Smart Tool " + toolName
+                        + ": No Grids To Edit for "
+                        + inputParm.expressionName();
+                statusHandler.handle(Priority.EVENTA, message);
+                return;
+            }
+            numberOfGrids = grids.length;
+
+            // Make sure parm is mutable
+            if (parmToEdit != null) {
+                saveMutableFlag = this.inputParm.isMutable();
+                this.inputParm.setMutable(true);
+            }
+
+            // Clear missing grids
+            GridCycler.getInstance().clearMissingData();
             // # PreProcess Tool
             handlePreAndPostProcess("preProcessTool", null, timeRange,
                     editArea, dataMode);
@@ -479,7 +483,7 @@ public class Tool {
                 // percent = (index+1)/numberOfGrids * 100.0
                 // AFPS.ProgressBarMsg_send_mh(self.__msgHand, "SmartTool",
                 // percent)
-                if (!grid.isOkToEdit() && parmToEdit != null) {
+                if (!grid.isOkToEdit() && (parmToEdit != null)) {
                     String message = "Smart Tool " + toolName
                             + ": Encountered locked grid. ";
                     message += "Grid skipped.";
@@ -489,7 +493,7 @@ public class Tool {
                 final Date timeInfluence;
                 Date seTime = DataManagerUIFactory.getCurrentInstance()
                         .getSpatialDisplayManager().getSpatialEditorTime();
-                if (seTime != null && grids.length == 1
+                if ((seTime != null) && (grids.length == 1)
                         && grid.getGridTime().contains(seTime)) {
                     timeInfluence = seTime;
                 } else {
