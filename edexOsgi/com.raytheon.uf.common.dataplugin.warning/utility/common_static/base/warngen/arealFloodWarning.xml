@@ -146,7 +146,8 @@ Must be paired with proper vm code (also commented out in arealFloodWarning.vm)!
   <bullet bulletName="warningMeansCTA" bulletText="A Flood Warning means" parseString="A FLOOD WARNING MEANS THAT FLOODING IS IMMINENT"/>
   <bullet bulletName="dontdrownCTA" bulletText="Turn around...dont drown" parseString="MOST FLOOD DEATHS OCCUR IN AUTOMOBILES"/>
   <bullet bulletName="urbanCTA" bulletText="Urban flooding" parseString="URBAN AREAS, HIGHWAYS, STREETS"/>
-  <bullet bulletName="ruralCTA" bulletText="Rural flooding/small streams" parseString="&quot;SMALL CREEKS AND STREAMS&quot;,&quot;FARM AND COUNTRY ROADS&quot;"/>  <bullet bulletName="USS_CTA" bulletText="Flooding of rural and urban areas" parseString="FLOODING OF SMALL CREEKS AND STREAMS, HIGHWAYS AND UNDERPASSES"/>
+  <bullet bulletName="ruralCTA" bulletText="Rural flooding/small streams" parseString="FLOODING OF SMALL CREEKS AND STREAMS, AS WELL AS FARM AND COUNTRY ROADS"/>  
+  <bullet bulletName="USS_CTA" bulletText="Flooding of rural and urban areas" parseString="FLOODING OF SMALL CREEKS AND STREAMS, HIGHWAYS AND UNDERPASSES"/>
   <bullet bulletName="nightCTA" bulletText="Nighttime flooding" parseString="BE ESPECIALLY CAUTIOUS AT NIGHT"/>
   <bullet bulletName="donotdriveCTA" bulletText="Do not drive into water" parseString="DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY"/>
   <bullet bulletName="camperCTA" bulletText="Camper safety" parseString="CAMPERS AND HIKERS SHOULD AVOID STREAMS OR CREEKS"/>
@@ -204,7 +205,7 @@ Must be paired with proper vm code (also commented out in arealFloodWarning.vm)!
   <bullet bulletName="warningMeansCTA" bulletText="A Flood Warning means" parseString="A FLOOD WARNING MEANS THAT FLOODING IS IMMINENT"/>
   <bullet bulletName="dontdrownCTA" bulletText="Turn around...dont drown" parseString="MOST FLOOD DEATHS OCCUR IN AUTOMOBILES"/>
   <bullet bulletName="urbanCTA" bulletText="Urban flooding" parseString="URBAN AREAS, HIGHWAYS, STREETS"/>
-  <bullet bulletName="ruralCTA" bulletText="Rural flooding/small streams" parseString="&quot;SMALL CREEKS AND STREAMS&quot;,&quot;FARM AND COUNTRY ROADS&quot;"/>  
+  <bullet bulletName="ruralCTA" bulletText="Rural flooding/small streams" parseString="FLOODING OF SMALL CREEKS AND STREAMS, AS WELL AS FARM AND COUNTRY ROADS"/>  
   <bullet bulletName="USS_CTA" bulletText="Flooding of rural and urban areas" parseString="FLOODING OF SMALL CREEKS AND STREAMS, HIGHWAYS AND UNDERPASSES"/>
   <bullet bulletName="nightCTA" bulletText="Nighttime flooding" parseString="BE ESPECIALLY CAUTIOUS AT NIGHT"/>
   <bullet bulletName="donotdriveCTA" bulletText="Do not drive into water" parseString="DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY"/>
@@ -263,7 +264,7 @@ Must be paired with proper vm code (also commented out in arealFloodWarning.vm)!
   <bullet bulletName="warningMeansCTA" bulletText="A Flood Warning means" parseString="A FLOOD WARNING MEANS THAT FLOODING IS IMMINENT"/>
   <bullet bulletName="dontdrownCTA" bulletText="Turn around...dont drown" parseString="MOST FLOOD DEATHS OCCUR IN AUTOMOBILES"/>
   <bullet bulletName="urbanCTA" bulletText="Urban flooding" parseString="URBAN AREAS, HIGHWAYS, STREETS"/>
-  <bullet bulletName="ruralCTA" bulletText="Rural flooding/small streams" parseString="&quot;SMALL CREEKS AND STREAMS&quot;,&quot;FARM AND COUNTRY ROADS&quot;"/>
+  <bullet bulletName="ruralCTA" bulletText="Rural flooding/small streams" parseString="FLOODING OF SMALL CREEKS AND STREAMS, AS WELL AS FARM AND COUNTRY ROADS"/>
   <bullet bulletName="USS_CTA" bulletText="Flooding of rural and urban areas" parseString="FLOODING OF SMALL CREEKS AND STREAMS, HIGHWAYS AND UNDERPASSES"/>
   <bullet bulletName="nightCTA" bulletText="Nighttime flooding" parseString="BE ESPECIALLY CAUTIOUS AT NIGHT"/>
   <bullet bulletName="donotdriveCTA" bulletText="Do not drive into water" parseString="DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY"/>

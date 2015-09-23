@@ -38,7 +38,7 @@
 #### CREATE BASIS WORDING ###################################
 #############################################################
 #if(${list.contains(${bullets}, "doppler")})
-  #set($report = "doppler radar indicated ${reportType1}")
+  #set($report = "Doppler radar indicated ${reportType1}")
   #set($reportAuthSVR = "capable of producing")
   #set($source = "Radar indicated.")
 #end

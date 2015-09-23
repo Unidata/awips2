@@ -305,27 +305,27 @@ THIS IS A TEST MESSAGE. ##
 #end
 #if(${list.contains(${bullets}, "marineSpotter")})
   #set($source = "Marine weather spotter.")
-##  #set($report = "Marine weather spotters reported ${stormline}...${capable}producing ${threat}...") 
+##  #set($report = "marine weather spotters reported ${stormline}...${capable}producing ${threat}...") 
 #end
 #if(${list.contains(${bullets}, "mariner")})
   #set($source = "Mariner.")
-##  #set($report = "A mariner reported ${stormline}...${capable}producing ${threat}...") 
+##  #set($report = "a mariner reported ${stormline}...${capable}producing ${threat}...") 
 #end
 #if(${list.contains(${bullets}, "public")})
   #set($source = "Public.")
-##  #set($report = "The public reported ${stormline}...${capable}producing ${threat}...") 
+##  #set($report = "the public reported ${stormline}...${capable}producing ${threat}...") 
 #end
 #if(${list.contains(${bullets}, "pilot")})
   #set($source = "Pilot.")
-##  #set($report = "A pilot reported ${stormline}...${capable}producing ${threat}...") 
+##  #set($report = "a pilot reported ${stormline}...${capable}producing ${threat}...") 
 #end
 #if(${list.contains(${bullets}, "satellite")})
   #set($source = "Satellite imagery indicated.")
   #set($capable = "capable of ")
-##  #set($report = "Satellite imagery indicated ${stormline}...${capable}producing ${threat}...")
+##  #set($report = "satellite imagery indicated ${stormline}...${capable}producing ${threat}...")
 #end
 #if(${list.contains(${bullets}, "satellite")} && ${list.contains(${bullets}, "sightedSpout")})
-##  #set($report = "Satellite imagery indicated ${stormline}...producing ${threat}...")
+##  #set($report = "satellite imagery indicated ${stormline}...producing ${threat}...")
 #end
 ## If waterspouts are observed override the capable wording
 #if(${list.contains(${bullets}, "sightedSpout")})

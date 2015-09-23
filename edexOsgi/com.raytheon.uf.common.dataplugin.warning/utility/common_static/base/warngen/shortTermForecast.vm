@@ -159,7 +159,7 @@ THIS IS A TEST MESSAGE. ##
   #set($report = "local law enforcement reported ${eventType} ") 
 #end
 #if(${list.contains(${bullets}, "public")})
-  #set($report = "The public reported ${eventType} ") 
+  #set($report = "the public reported ${eventType} ") 
 #end
 #if(${list.contains(${bullets}, "satellite")})
   #set($report = "satellite imagery indicated ${eventType} ")

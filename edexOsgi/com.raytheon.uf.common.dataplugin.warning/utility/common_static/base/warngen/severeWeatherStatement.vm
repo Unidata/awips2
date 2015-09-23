@@ -424,19 +424,19 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
  #set($reportType = "National Weather Service Doppler radar and storm spotters were tracking a large and extremely dangerous tornado")
  #set($preAmble = "To repeat, a large, extremely dangerous and potentially deadly tornado is on the ground. To protect your life, take cover now! ")
 #elseif(${list.contains(${bullets}, "spotterTOR")})
- #set($reportType = "Trained weather spotters reported a ${reportType1}")
+ #set($reportType = "trained weather spotters reported a ${reportType1}")
  #set($preAmble = "To repeat, a tornado has been sighted. To protect your life, take cover now! ")
 #elseif(${list.contains(${bullets}, "lawEnforcementTOR")})
- #set($reportType = "Local law enforcement reported a ${reportType1}")
+ #set($reportType = "local law enforcement reported a ${reportType1}")
  #set($preAmble = "To repeat, a tornado has been sighted. To protect your life, take cover now! ")
 #elseif(${list.contains(${bullets}, "emergencyManagementTOR")})
- #set($reportType = "Emergency management reported a ${reportType1}")
+ #set($reportType = "emergency management reported a ${reportType1}")
  #set($preAmble = "To repeat, a tornado has been sighted. To protect your life, take cover now! ")
 #elseif(${list.contains(${bullets}, "publicTOR")})
- #set($reportType = "The public reported a ${reportType1}")
+ #set($reportType = "the public reported a ${reportType1}")
  #set($preAmble = "To repeat, a tornado has been sighted. To protect your life, take cover now! ")
 #elseif(${list.contains(${bullets}, "spotterFunnelCloud")})
- #set($reportType = "Trained weather spotters reported a funnel cloud")
+ #set($reportType = "trained weather spotters reported a funnel cloud")
   #if(${stormType} == "line")
     #set($reportType2 = "A tornado may develop at any time. These dangerous storms were")
     #set($pathcastLead = "These dangerous storms") 
@@ -885,7 +885,7 @@ Intense thunderstorm lines can occasionally produce brief tornadoes and widespre
 #end
 ##
 #if(${list.contains(${bullets}, "superCellsCTA")})
-This is a supercell thunderstorm. Due to the rotating nature of these storms, they are capable of producing all types of severe weather, including extremely large hail, destructive straight line winds, and possibly tornadoes. Move quickly to a safe shelter, preferably into a basement, or an interior room such as a bathroom or closet.
+This is a supercell thunderstorm. Due to the rotating nature of these storms, they are capable of producing all types of severe weather including extremely large hail, destructive straight line winds, and possibly tornadoes. Move quickly to a safe shelter, preferably into a basement, or an interior room such as a bathroom or closet.
 
 #end
 ##
