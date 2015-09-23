@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -22,6 +22,7 @@ package com.raytheon.viz.gfe.procedures;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
@@ -30,6 +31,7 @@ import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.smartscript.FieldDefinition;
 import com.raytheon.viz.gfe.smarttool.PreviewInfo;
+import com.raytheon.viz.gfe.ui.runtimeui.SelectionDlg;
 
 /**
  * Utilities for GFE procedures
@@ -85,8 +87,10 @@ public class ProcedureUtil {
         req.setRefSet(pi.getEditAction().getRefSet());
         req.setTimeRange(pi.getEditAction().getTimeRange());
 
+        final int[] returnCode = new int[1];
         if (varDict != null) {
             req.setVarDict(varDict);
+            returnCode[0] = IDialogConstants.OK_ID;
         } else {
             VizApp.runSync(new Runnable() {
                 @Override
@@ -94,24 +98,32 @@ public class ProcedureUtil {
                     List<FieldDefinition> varList = dm.getProcedureInterface()
                             .getVarDictWidgets(procName);
                     if ((varList != null) && (varList.size() > 0)) {
-                        // make the gui, let it handle running the procedure
-                        ProcedureSelectionBlockingDlg sd = new ProcedureSelectionBlockingDlg(
-                                PlatformUI.getWorkbench()
-                                        .getActiveWorkbenchWindow().getShell(),
-                                procName, dm, varList);
+                        /*
+                         * The SelectionDlg changes based on the procedure.
+                         * Since it is non-modal several dialogs may be
+                         * displayed. This mimics the AWIPS 1 behavior.
+                         */
+                        SelectionDlg sd = new SelectionDlg(PlatformUI
+                                .getWorkbench().getActiveWorkbenchWindow()
+                                .getShell(), procName, dm, varList, true);
+
+                        /*
+                         * must block because this method needs the results to
+                         * determine what to return.
+                         */
+                        sd.setBlockOnOpen(true);
                         sd.open();
-                        Map<String, Object> resultMap = sd.getVarDictResult();
-                        if (resultMap != null) {
-                            req.setVarDict(resultMap);
-                        }
-                    } else {
-                        req.setVarDict(null);
+                        returnCode[0] = sd.getReturnCode();
+                        req.setVarDict(sd.getValues());
                     }
                 }
             });
         }
 
-        dm.getProcedureJobPool().schedule(req);
-        return new Object[] { req.getResult(), req.getVarDict() };
+        if (returnCode[0] == IDialogConstants.OK_ID) {
+            dm.getProcedureJobPool().schedule(req);
+            return new Object[] { req.getResult(), req.getVarDict() };
+        }
+        return new Object[] { null, null };
     }
 }

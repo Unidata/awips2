@@ -40,6 +40,7 @@ import com.raytheon.viz.gfe.ui.runtimeui.SelectionDlg;
  * Feb 09, 2010            njensen     Initial creation
  * Dec 09, 2013  #2367     dgilling    Use new ProcedureJobPool.
  * Jul 17, 2015  4575      njensen     Changed varDict from String to Map
+ * Sep 23, 2015  4871      randerso    Code clean up
  * 
  * </pre>
  * 
@@ -49,18 +50,25 @@ import com.raytheon.viz.gfe.ui.runtimeui.SelectionDlg;
 
 public class ProcedureSelectionDlg extends SelectionDlg {
 
-    public ProcedureSelectionDlg(Shell parent, String title,
-            DataManager dataMgr, List<FieldDefinition> varList) {
-        super(parent, title, dataMgr, varList);
+    /**
+     * Constructor
+     * 
+     * @param parent
+     *            parent shell
+     * @param name
+     *            name of smartTool/procedure
+     * @param dataMgr
+     *            DataManager instance to use
+     * @param fieldDefs
+     *            field definitions for dialog
+     */
+    public ProcedureSelectionDlg(Shell parent, String name,
+            DataManager dataMgr, List<FieldDefinition> fieldDefs) {
+        super(parent, name, dataMgr, fieldDefs, false);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.ui.runtimeui.SelectionDlg#run()
-     */
     @Override
-    public void run() {
+    protected void run() {
         PreviewInfo pi = ProcedureUtil.checkAndBuildPreview(dataMgr, name);
         if (pi != null) {
             ProcedureRequest req = ProcedureUtil.buildProcedureRequest(name,
