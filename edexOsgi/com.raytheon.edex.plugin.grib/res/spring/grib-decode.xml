@@ -6,8 +6,8 @@
     <bean id="gribDecoder" class="com.raytheon.edex.plugin.grib.GribDecoder" />
 
     <bean id="gribGridPointLock" class="com.raytheon.edex.plugin.grib.GribGridPointLock">
-        <constructor-arg value="${grib-decode.count.gridpoints}"/>
-        <constructor-arg value="${grib-decode.count.threads}"/>
+        <constructor-arg value="${GRIB_MAX_GRID_POINTS}"/>
+        <constructor-arg value="${GRIB_DECODE_THREADS}"/>
     </bean>
 
     <bean id="gribSplitter" class="com.raytheon.edex.plugin.grib.GribSplitter" />
@@ -31,8 +31,8 @@
 
     <bean id="gribPersister" class="com.raytheon.edex.plugin.grib.GribPersister">
         <constructor-arg value="grid"/>
-        <constructor-arg value="${grib-persister.count.threads}"/>
-        <constructor-arg value="${grib-persister.count.mb}"/>
+        <constructor-arg value="${GRIB_PERSIST_THREADS}"/>
+        <constructor-arg value="${GRIB_MAX_PERSIST_MEMORY_IN_MB}"/>
     </bean>
 
     <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
@@ -43,8 +43,8 @@
     <camelContext id="grib-decode" xmlns="http://camel.apache.org/schema/spring"
         errorHandlerRef="errorHandler">
 
-        <endpoint id="gribSplitJmsEndpoint" uri="jms-durable:queue:Ingest.GribSplit?concurrentConsumers=${grib-split.count.threads}"/>
-        <endpoint id="gribDecodeJmsEndpoint" uri="jms-durable:queue:Ingest.GribDecode?concurrentConsumers=${grib-decode.count.threads}"/>
+        <endpoint id="gribSplitJmsEndpoint" uri="jms-durable:queue:Ingest.GribSplit?concurrentConsumers=${GRIB_SPLIT_THREADS}"/>
+        <endpoint id="gribDecodeJmsEndpoint" uri="jms-durable:queue:Ingest.GribDecode?concurrentConsumers=${GRIB_DECODE_THREADS}"/>
 
         <!-- Begin Grib Decode Route -->
         <route id="gribSplitIngestRoute">
