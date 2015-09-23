@@ -433,8 +433,8 @@ public class SatelliteDao extends PluginDao {
              * record not fully committed.
              */
             String sqlCmd = "DELETE FROM satellite_spatial WHERE"
-                    + "gid NOT IN (SELECT DISTINCT coverage_gid FROM satellite)"
-                    + "AND gid < (SELECT max(gid)-25 FROM satellite_spatial) ;";
+                    + " gid NOT IN (SELECT DISTINCT coverage_gid FROM satellite)"
+                    + " AND gid < (SELECT max(gid)-25 FROM satellite_spatial) ;";
             this.executeSQLUpdate(sqlCmd);
         } catch (Exception e) {
             logger.error("Error purging orphaned satellite_spatial entries", e);
