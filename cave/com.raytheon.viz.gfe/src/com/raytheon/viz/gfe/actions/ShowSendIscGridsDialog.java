@@ -19,68 +19,67 @@
  **/
 package com.raytheon.viz.gfe.actions;
 
-import java.util.Map;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.commands.IElementUpdater;
-import org.eclipse.ui.menus.UIElement;
 
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.DataManagerUIFactory;
-import com.raytheon.viz.gfe.core.msgs.ISCSendStatusChangedMsg;
-import com.raytheon.viz.gfe.core.msgs.Message;
+import com.raytheon.viz.gfe.dialogs.isc.SendISCDialog;
 import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
-import com.raytheon.viz.ui.simulatedtime.SimulatedTimeProhibitedOpException;
 
 /**
- * Menu handler for enabling and disabling send of ISC grids from GFE client.
+ * Action to launch Send ISC grids dialog.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 25, 2010            randerso     Initial creation
- * Sep 15, 2015  #4858     dgilling     Add isEnabled.
+ * Sep 15, 2015  #4858     dgilling     Initial creation
  * 
  * </pre>
  * 
- * @author randerso
+ * @author dgilling
  * @version 1.0
  */
 
-public class IscSendEnableHandler extends AbstractHandler implements
-        IElementUpdater {
+public class ShowSendIscGridsDialog extends AbstractHandler {
 
-    private final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(getClass());
+    private SendISCDialog dialog;
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.core.commands.IHandler#execute(org.eclipse.core.commands.
+     * ExecutionEvent)
+     */
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                 .getShell();
         if (!SimulatedTimeOperations.isTransmitAllowed()) {
             SimulatedTimeOperations.displayFeatureLevelWarning(shell,
-                    "ISC Send Enable");
+                    "Send ISC grids");
             return null;
         }
 
         DataManager dm = DataManagerUIFactory.getCurrentInstance();
-        if (dm != null) {
-            boolean newState = !Message.inquireLastMessage(
-                    ISCSendStatusChangedMsg.class).isEnabled();
-            try {
-                dm.enableISCsend(newState);
-            } catch (SimulatedTimeProhibitedOpException e) {
-                statusHandler.error(e.getLocalizedMessage(), e);
-            }
+        if (dm == null) {
+            return null;
+        }
+
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
+            dialog = new SendISCDialog(shell, dm);
+            dialog.setBlockOnOpen(false);
+            dialog.open();
+        } else {
+            dialog.bringToTop();
         }
 
         return null;
@@ -89,13 +88,12 @@ public class IscSendEnableHandler extends AbstractHandler implements
     @Override
     public boolean isEnabled() {
         DataManager dm = DataManagerUIFactory.getCurrentInstance();
-        return (dm != null) ? CAVEMode.getMode().equals(CAVEMode.OPERATIONAL)
-                && dm.requestISC() : false;
-    }
+        if (dm != null) {
+            return (!dm.sendIscOnSave() || !dm.sendIscOnPublish())
+                    && CAVEMode.getMode().equals(CAVEMode.OPERATIONAL)
+                    && dm.requestISC();
+        }
 
-    @Override
-    public void updateElement(UIElement element, Map parameters) {
-        element.setChecked(Message.inquireLastMessage(
-                ISCSendStatusChangedMsg.class).isEnabled());
+        return false;
     }
 }

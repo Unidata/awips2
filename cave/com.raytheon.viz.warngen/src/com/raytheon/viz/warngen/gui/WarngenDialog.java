@@ -72,6 +72,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.ISimulatedTimeChangeListener;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -88,6 +89,7 @@ import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.input.EditableManager;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
 import com.raytheon.viz.warngen.Activator;
 import com.raytheon.viz.warngen.WarngenConstants;
 import com.raytheon.viz.warngen.comm.WarningSender;
@@ -167,13 +169,14 @@ import com.vividsolutions.jts.geom.Polygon;
  *                                       chance for that to occur is trivial.
  *  May  7, 2015 ASM #17438  D. Friedman Clean up debug and performance logging.
  *  Jun 05, 2015 DR 17428    D. Friedman Fixed duration-related user interface issues.  Added duration logging.
+ *  Sep 22, 2015 4859        dgilling    Prevent product generation in DRT mode.
  * </pre>
  * 
  * @author chammack
  * @version 1
  */
 public class WarngenDialog extends CaveSWTDialog implements
-        IWarningsArrivedListener {
+        IWarningsArrivedListener, ISimulatedTimeChangeListener {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(WarngenDialog.class);
 
@@ -334,10 +337,13 @@ public class WarngenDialog extends CaveSWTDialog implements
         warngenLayer = layer;
         CurrentWarnings.addListener(this);
         new TemplateRunnerInitJob().schedule();
+        SimulatedTime.getSystemTime().addSimulatedTimeChangeListener(this);
     }
 
     @Override
     protected void disposed() {
+        SimulatedTime.getSystemTime().removeSimulatedTimeChangeListener(this);
+
         if (bulletListFont != null) {
             bulletListFont.dispose();
         }
@@ -876,6 +882,13 @@ public class WarngenDialog extends CaveSWTDialog implements
         okButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
+                if (!SimulatedTimeOperations.isTransmitAllowed()) {
+                    Shell shell = getShell();
+                    SimulatedTimeOperations.displayFeatureLevelWarning(shell,
+                            "Create WarnGen product");
+                    return;
+                }
+
                 okPressed();
             }
 
@@ -1109,8 +1122,9 @@ public class WarngenDialog extends CaveSWTDialog implements
             durList.add(data.displayString);
         }
         // Add the default duration to the list if what was missing
-        if (! isDefaultDurationInList && defaultDuration != null) {
-            durationList.setData(defaultDuration.displayString, defaultDuration);
+        if (!isDefaultDurationInList && defaultDuration != null) {
+            durationList
+                    .setData(defaultDuration.displayString, defaultDuration);
             durList.add(0, defaultDuration.displayString);
         }
 
@@ -1190,8 +1204,9 @@ public class WarngenDialog extends CaveSWTDialog implements
                     long t0 = System.currentTimeMillis();
                     try {
                         monitor.beginTask("Generating product", 1);
-                        statusHandler.debug("using startTime " + startTime.getTime()
-                                + " endTime " + endTime.getTime());
+                        statusHandler.debug("using startTime "
+                                + startTime.getTime() + " endTime "
+                                + endTime.getTime());
                         String result = TemplateRunner.runTemplate(
                                 warngenLayer, startTime.getTime(),
                                 endTime.getTime(), selectedBullets,
@@ -1224,8 +1239,7 @@ public class WarngenDialog extends CaveSWTDialog implements
             new Job("Transmitting Warning") {
                 @Override
                 protected IStatus run(IProgressMonitor monitor) {
-                    statusHandler.debug(
-                            ": Transmitting Warning Job Running");
+                    statusHandler.debug(": Transmitting Warning Job Running");
 
                     // Launch the text editor display as the warngen editor
                     // dialog using the result aka the warngen text product.
@@ -1694,10 +1708,12 @@ public class WarngenDialog extends CaveSWTDialog implements
                 .equalsIgnoreCase(lastAreaSource);
         boolean snapHatchedAreaToPolygon = isDifferentAreaSources;
         boolean preservedSelection = !isDifferentAreaSources;
-        if (isDifferentAreaSources || !warngenLayer.getConfiguration()
-                .getHatchedAreaSource().getAreaSource().toLowerCase().equals("marinezones")) {
+        if (isDifferentAreaSources
+                || !warngenLayer.getConfiguration().getHatchedAreaSource()
+                        .getAreaSource().toLowerCase().equals("marinezones")) {
             // If template has a different hatched area source from the previous
-            // template, then the warned area would be based on the polygon and not
+            // template, then the warned area would be based on the polygon and
+            // not
             // preserved.
             try {
                 warngenLayer.updateWarnedAreas(snapHatchedAreaToPolygon,
@@ -1776,7 +1792,8 @@ public class WarngenDialog extends CaveSWTDialog implements
             FollowupData data = (FollowupData) updateListCbo
                     .getData(updateListCbo.getItem(updateListCbo
                             .getSelectionIndex()));
-            statusHandler.debug("updateListSelected: " + (data != null ? data.getDisplayString() : "(null)"));
+            statusHandler.debug("updateListSelected: "
+                    + (data != null ? data.getDisplayString() : "(null)"));
             Mode currMode = warngenLayer.getStormTrackState().mode;
             if (data != null) {
                 // does not refesh if user selected already highlighted option
@@ -1928,7 +1945,8 @@ public class WarngenDialog extends CaveSWTDialog implements
                 @Override
                 public void dialogClosed(Object returnValue) {
                     int duration = (Integer) returnValue;
-                    statusHandler.debug("changeSelected.dialogClosed: " + duration);
+                    statusHandler.debug("changeSelected.dialogClosed: "
+                            + duration);
                     if (duration != -1) {
                         durationList.setEnabled(false);
                         endTime.add(Calendar.MINUTE, duration);
@@ -2643,13 +2661,13 @@ public class WarngenDialog extends CaveSWTDialog implements
     }
 
     private void restoreDuration(int duration) {
-        warngenLayer.getStormTrackState().duration =
-                warngenLayer.getStormTrackState().newDuration = duration;
+        warngenLayer.getStormTrackState().duration = warngenLayer
+                .getStormTrackState().newDuration = duration;
         warngenLayer.getStormTrackState().geomChanged = true;
     }
 
     private int getSelectedDuration() {
-        Exception excToReport= null;
+        Exception excToReport = null;
         DurationData data = null;
         try {
             data = (DurationData) durationList.getData(durationList
@@ -2669,12 +2687,28 @@ public class WarngenDialog extends CaveSWTDialog implements
                 }
                 duration = 30;
             }
-            statusHandler.handle(Priority.WARN,
-                    "Unable to determine duration from selection in WarnGen dialog.  Using default of "
-                            + duration + " minutes.", excToReport);
+            statusHandler
+                    .handle(Priority.WARN,
+                            "Unable to determine duration from selection in WarnGen dialog.  Using default of "
+                                    + duration + " minutes.", excToReport);
         }
         statusHandler.debug("selected duration is " + duration);
         return duration;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.time.ISimulatedTimeChangeListener#timechanged()
+     */
+    @Override
+    public void timechanged() {
+        if ((getShell().isVisible())
+                && (!SimulatedTimeOperations.isTransmitAllowed())) {
+            SimulatedTimeOperations.displayFeatureLevelWarning(getShell(),
+                    "WarnGen");
+        }
     }
 
 }

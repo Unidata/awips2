@@ -19,6 +19,7 @@
  **/
 package com.raytheon.viz.gfe.perspective;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.commands.Command;
@@ -44,6 +45,7 @@ import org.eclipse.ui.keys.IBindingService;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.ISimulatedTimeChangeListener;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
@@ -53,7 +55,6 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.maps.MapManager;
-import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.PythonPreferenceStore;
 import com.raytheon.viz.gfe.actions.FormatterlauncherAction;
@@ -69,13 +70,14 @@ import com.raytheon.viz.ui.cmenu.ZoomMenuAction;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.perspectives.AbstractCAVEPerspectiveManager;
 import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
 
 /**
  * Manages the life cycle of the GFE Perspectives
- *
+ * 
  * Installs a perspective watcher that handles the transitions in and out of the
  * GFE perspectives.
- *
+ * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#     Engineer    Description
@@ -91,16 +93,25 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  * Dec 09, 2013     #2367   dgilling    Remove shutdown of ProcedureJob and
  *                                      SmartToolJob.
  * Jan 14, 2014      2594   bclement    added low memory notification
- * Aug 31, 2015    #17970   yteng       Notify user to close GFE if not in real-time
+ * Sep 21, 2015      4858   dgilling    Display warning message when DRT mode is enabled.
  * </pre>
  * 
  * @author randerso
  * @version 1.0
  */
 
-public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager {
+public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager
+        implements ISimulatedTimeChangeListener {
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GFEPerspectiveManager.class);
+
+    private static final String PERSPECTIVE_NAME = "GFE";
+
+    private static final List<String> FEATURES_DISABLED_IN_SIM_TIME = Arrays
+            .asList("ISC send", "Publishing grids",
+                    "Running text formatters and/or transmitting products",
+                    "Running scripts from the Product Scripts Dialog");
 
     /** The GFE Perspective Class */
     public static final String GFE_PERSPECTIVE = "com.raytheon.viz.ui.GFEPerspective";
@@ -179,20 +190,15 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager {
                         + GFESpatialDisplayManager.class.getName());
             }
         }
+
+        SimulatedTime.getSystemTime().addSimulatedTimeChangeListener(this);
     }
 
     @Override
     public void activate() {
-
-        if (CAVEMode.getMode().equals(CAVEMode.OPERATIONAL) &&
-                !SimulatedTime.getSystemTime().isRealTime()
-                && !CAVEMode.getFlagInDRT()) {
-            UFStatus.getHandler().handle(
-                    Priority.WARN,
-                    "CAVE in OPERATIONAL mode and CAVE clock is not set to real-time. Please close all GFE sessions, if any.");
-        }
-
         super.activate();
+
+        displaySimulatedTimeWarning();
 
         // Hack to disable editor closing
         IWorkbenchPage activePage = perspectiveWindow.getActivePage();
@@ -226,6 +232,8 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager {
     @Override
     public void close() {
         super.close();
+
+        SimulatedTime.getSystemTime().removeSimulatedTimeChangeListener(this);
 
         try {
             DataManager dm = DataManagerUIFactory
@@ -423,4 +431,21 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager {
                 + "\n\nConsider saving Fcst grids to free up memory.";
     }
 
+    @Override
+    public void timechanged() {
+        String activePerspective = PlatformUI.getWorkbench()
+                .getActiveWorkbenchWindow().getActivePage().getPerspective()
+                .getId();
+        if (GFE_PERSPECTIVE.equals(activePerspective)) {
+            displaySimulatedTimeWarning();
+        }
+    }
+
+    private void displaySimulatedTimeWarning() {
+        if (!SimulatedTimeOperations.isTransmitAllowed()) {
+            SimulatedTimeOperations.displayPerspectiveLevelWarning(
+                    perspectiveWindow.getShell(), PERSPECTIVE_NAME,
+                    FEATURES_DISABLED_IN_SIM_TIME);
+        }
+    }
 }
