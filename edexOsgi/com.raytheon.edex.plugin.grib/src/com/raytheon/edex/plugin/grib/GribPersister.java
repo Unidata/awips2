@@ -69,6 +69,8 @@ public class GribPersister implements IContextStateProcessor {
 
     private final Map<Thread, String> inProcessFiles = new HashMap<>(4, 1);
 
+    private final Object waitLock = new Object();
+
     private volatile boolean running = true;
 
     public IHDFFilePathProvider pathProvider;
@@ -83,38 +85,24 @@ public class GribPersister implements IContextStateProcessor {
 
     private final GribPersistThread[] persistThreads;
 
-    public GribPersister(String pluginName, String numThreads,
-            String maxGridsInMb) {
+    public GribPersister(String pluginName, int numThreads, int maxGridsInMb) {
         pathProvider = PluginFactory.getInstance().getPathProvider(pluginName);
-        int numPersistThreads = 0;
-        try {
-            numPersistThreads = Integer.parseInt(numThreads);
-        } catch (NumberFormatException e) {
-            // ignore
-        }
 
-        if (numPersistThreads <= 0) {
-            numPersistThreads = 4;
+        if (numThreads <= 0) {
             statusHandler.warn("Invalid numThreads [" + numThreads
-                    + "], using default of [" + numPersistThreads + "]");
+                    + "], using default of [" + 4 + "]");
+            numThreads = 4;
         }
 
-        int maxInMb = 0;
-        try {
-            maxInMb = Integer.parseInt(maxGridsInMb);
-        } catch (NumberFormatException e) {
-            // ignore
-        }
-
-        if (maxInMb <= 0) {
-            maxInMb = 100;
+        if (maxGridsInMb <= 0) {
             statusHandler.warn("Invalid maxGridInMb [" + maxGridsInMb
-                    + "], using default of [" + maxInMb + "]");
+                    + "], using default of [" + 100 + "]");
+            maxGridsInMb = 100;
         }
 
-        maxBytesInMemory = maxInMb * 1024l * 1024l;
+        maxBytesInMemory = maxGridsInMb * 1024L * 1024L;
 
-        persistThreads = new GribPersistThread[numPersistThreads];
+        persistThreads = new GribPersistThread[numThreads];
         for (int i = 0; i < persistThreads.length; i++) {
             persistThreads[i] = new GribPersistThread();
             persistThreads[i].setName("GribPersist-" + (i + 1));
@@ -153,65 +141,74 @@ public class GribPersister implements IContextStateProcessor {
     private boolean addPendingRecords(@Headers Map<String, Object> headers,
             GridRecord[] records) {
         if (records != null) {
-            StringBuilder path = new StringBuilder();
+            StringBuilder pathBuilder = new StringBuilder();
+            String[] paths = new String[records.length];
+            long bytesForRecords = 0;
+
+            for (int i = 0; i < records.length; i++) {
+                pathBuilder.setLength(0);
+                GridRecord record = records[i];
+                String plugin = record.getPluginName();
+                pathBuilder.append(pathProvider.getHDFPath(plugin, record))
+                        .append(File.separatorChar)
+                        .append(pathProvider.getHDFFileName(plugin, record));
+                paths[i] = pathBuilder.toString();
+
+                // set processing time to this point
+                Long dequeueTime = (Long) headers.get("dequeueTime");
+                if (dequeueTime != null) {
+                    long processingTime = System.currentTimeMillis()
+                            - dequeueTime;
+                    headers.put("processingTime", processingTime);
+                }
+
+                /*
+                 * since grids will be bulk stored by file, track the original
+                 * headers for purposes of logging and stats
+                 */
+                record.addExtraAttribute(HEADERS_ATTRIBUTE, headers);
+
+                bytesForRecords += ((float[]) record.getMessageData()).length * 4;
+            }
+
             synchronized (gridsByFile) {
                 if (!running) {
                     return false;
                 }
 
-                for (GridRecord record : records) {
-                    String plugin = record.getPluginName();
-                    path.setLength(0);
-                    path.append(pathProvider.getHDFPath(plugin, record))
-                            .append(File.separatorChar)
-                            .append(pathProvider.getHDFFileName(plugin, record));
-                    String filePath = path.toString();
-                    List<GridRecord> recs = gridsByFile.get(filePath);
+                for (int i = 0; i < records.length; i++) {
+                    String path = paths[i];
+                    List<GridRecord> recs = gridsByFile.get(path);
 
                     if (recs == null) {
                         recs = new LinkedList<>();
-                        gridsByFile.put(filePath, recs);
+                        gridsByFile.put(path, recs);
                     }
 
-                    recs.add(record);
-
-                    // set processing time to this point
-                    Long dequeueTime = (Long) headers.get("dequeueTime");
-                    if (dequeueTime != null) {
-                        long processingTime = System.currentTimeMillis()
-                                - dequeueTime;
-                        headers.put("processingTime", processingTime);
-                    }
-
-                    /*
-                     * since grids will be bulk stored by file, track the
-                     * original headers for purposes of logging and stats
-                     */
-                    record.addExtraAttribute(HEADERS_ATTRIBUTE, headers);
-
-                    // update bytesInMemory
-                    bytesInMemory += ((float[]) record.getMessageData()).length * 4;
+                    recs.add(records[i]);
                 }
 
+                // wake up a sleeping persist thread
+                gridsByFile.notify();
                 gridsPending += records.length;
 
-                // wake up any sleeping persist threads
-                gridsByFile.notifyAll();
-                boolean logMessage = true;
+                // update bytesInMemory
+                bytesInMemory += bytesForRecords;
+                if (bytesInMemory > maxBytesInMemory) {
+                    statusHandler.info("Max Grids in memory for "
+                            + getClass().getSimpleName()
+                            + " exceeded.  Waiting for grids to process.");
 
-                while (bytesInMemory > maxBytesInMemory) {
-                    if (logMessage) {
-                        statusHandler.info("Max Grids in memory for "
-                                + getClass().getName()
-                                + " exceeded.  Waiting for grids to process");
-                        logMessage = false;
+                    synchronized (waitLock) {
+                        try {
+                            waitLock.wait();
+                        } catch (InterruptedException e) {
+                            // ignore
+                        }
                     }
 
-                    try {
-                        gridsByFile.wait();
-                    } catch (InterruptedException e) {
-                        // ignore
-                    }
+                    statusHandler
+                            .info("Max Grid lock released.  Resuming processing.");
                 }
             }
 
@@ -278,7 +275,7 @@ public class GribPersister implements IContextStateProcessor {
     private class GribPersistThread extends Thread {
         @Override
         public void run() {
-            String logMsg = "Processed %d grid%s to %s in %s. %d grid%s pending, %d grid%s in process on other threads, %s in memory";
+            String logMsg = "Processed %d grid(s) to %s in %s. %d grid(s) pending, %d grid(s) in process on other threads, %s in memory";
             String file = null;
             List<GridRecord> recordsToStore = null;
             long timeToStore = System.currentTimeMillis();
@@ -375,20 +372,26 @@ public class GribPersister implements IContextStateProcessor {
 
                         synchronized (gridsByFile) {
                             inProcessFiles.remove(this);
-                            bytesInMemory -= bytesFree;
-                            bytesUsedByGrids = bytesInMemory;
                             gridsInProcess -= numRecords;
                             gridsStoringOnOtherThreads = gridsInProcess;
                             gridsLeft = gridsPending;
-                            gridsByFile.notifyAll();
+
+                            long oldBytes = bytesInMemory;
+                            bytesInMemory -= bytesFree;
+                            bytesUsedByGrids = bytesInMemory;
+
+                            if ((oldBytes > maxBytesInMemory)
+                                    && (bytesInMemory < maxBytesInMemory)) {
+                                // wake any pending decode threads
+                                synchronized (waitLock) {
+                                    waitLock.notifyAll();
+                                }
+                            }
                         }
 
                         statusHandler.info(String.format(logMsg, numRecords,
-                                (numRecords == 1 ? "" : "s"), file,
-                                TimeUtil.prettyDuration(timeToStore),
-                                gridsLeft, (gridsLeft == 1 ? "" : "s"),
-                                gridsStoringOnOtherThreads,
-                                (gridsStoringOnOtherThreads == 1 ? "" : "s"),
+                                file, TimeUtil.prettyDuration(timeToStore),
+                                gridsLeft, gridsStoringOnOtherThreads,
                                 SizeUtil.prettyByteSize(bytesUsedByGrids)));
                     }
                 }
@@ -411,11 +414,12 @@ public class GribPersister implements IContextStateProcessor {
         running = false;
 
         synchronized (gridsByFile) {
-            gridsByFile.notifyAll();
             if (gridsByFile.size() > 0) {
                 statusHandler.info("Waiting for " + gridsByFile.size()
                         + " hdf5 files to be persisted");
             }
+
+            gridsByFile.notifyAll();
         }
 
         for (GribPersistThread thread : persistThreads) {
