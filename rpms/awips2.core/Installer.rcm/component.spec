@@ -129,6 +129,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/rcm
 %dir /awips2/rcm/data
 /awips2/rcm/data/*
+%config(noreplace) /awips2/rcm/data/config/drop-ins/elevationLists.txt
+%config(noreplace) /awips2/rcm/data/config/drop-ins/tdwrElevations.txt
+%config(noreplace) /awips2/rcm/data/config/drop-ins/ssssElevationLists.txt
 
 %docdir /awips2/rcm/licenses
 %dir /awips2/rcm/licenses

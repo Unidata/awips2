@@ -19,15 +19,12 @@
  **/
 package com.raytheon.edex.plugin.radar.util;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,6 +33,13 @@ import java.util.Map;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarsInUseUtil;
 import com.raytheon.uf.common.dataplugin.radar.util.SsssRadarUtil;
 import com.raytheon.uf.common.dataplugin.radar.util.TerminalRadarUtils;
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.menus.xml.CommonAbstractMenuContribution;
 import com.raytheon.uf.common.menus.xml.CommonIncludeMenuContribution;
 import com.raytheon.uf.common.menus.xml.CommonIncludeMenuItem;
@@ -47,6 +51,7 @@ import com.raytheon.uf.common.menus.xml.VariableSubstitution;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.menus.AbstractMenuUtil;
 import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
 
@@ -62,6 +67,7 @@ import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
  * Feb 25, 2013 DR14418    zwang       Change radar menu to dual pol style
  * 03/07/2013   DR15495    zwang       Handle additional elevation for ssss radars
  * Mar 06, 2014   2876      mpduff     New NDM plugin.
+ * Sep 08, 2015 ASM #17944 D. Friedman Handle other elevation list files.
  * 
  * </pre>
  * 
@@ -374,31 +380,40 @@ public class RadarMenuUtil extends AbstractMenuUtil implements
             saveFile(file, TerminalRadarUtils.getElevationsFile());
             setSkipParse(false);
             createMenus();
+        } else if ("elevationLists.txt".equals(fileName) ||
+                "ssssElevationLists.txt".equals(fileName)) {
+            saveFile(file, getRadarElevationLocalizationFile(fileName));
         }
         statusHandler.handle(Priority.INFO,
                 "Successfully processed " + file.getAbsolutePath());
     }
 
-    private void saveFile(File file, File outFile) {
+    private LocalizationFile getRadarElevationLocalizationFile(String fileName) {
+        IPathManager pathMgr = PathManagerFactory.getPathManager();
+        LocalizationContext context = pathMgr.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
+        return pathMgr.getLocalizationFile(context,
+                "radar" + File.separator + fileName);
+    }
+
+    private void saveFile(File file, LocalizationFile outFile) {
         if ((file != null) && file.exists()) {
-            BufferedReader fis = null;
-            BufferedWriter fos = null;
+            InputStream fis = null;
+            OutputStream fos = null;
             try {
-                fis = new BufferedReader(new InputStreamReader(
-                        new FileInputStream(file)));
-                fos = new BufferedWriter(new OutputStreamWriter(
-                        new FileOutputStream(outFile)));
-                String line = null;
+                fis = new FileInputStream(file);
+                fos = outFile.openOutputStream();
                 try {
-                    while ((line = fis.readLine()) != null) {
-                        fos.write(line);
-                        fos.newLine();
-                    }
+                    FileUtil.copy(fis, fos);
                 } catch (IOException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Could not read file: " + file.getName(), e);
 
                 }
+            } catch (LocalizationException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Failed to open localization file for output: "
+                        + outFile, e);
             } catch (FileNotFoundException e) {
                 statusHandler.handle(Priority.PROBLEM, "Failed to find file: "
                         + file.getName(), e);

@@ -3872,7 +3872,9 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         tafViewerStTxt.setText("");
         int n = Integer.valueOf(numTafsCbo.getItem(numTafsCbo
                 .getSelectionIndex()));
-        tafsInViewer = TafUtil.getLatestTafs(stationName, n);
+        if (stationName != null) {
+            tafsInViewer = TafUtil.getLatestTafs(stationName, n);
+        }
         StringBuilder sb = new StringBuilder();
         boolean showHeaders = showHeadersChk.getSelection();
         if (tafsInViewer != null) {

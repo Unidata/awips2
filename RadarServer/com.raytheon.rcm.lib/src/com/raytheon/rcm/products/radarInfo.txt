@@ -160,4 +160,3 @@
 196|  0 | 0 | 0.0  |  50 | MBA | Microburst AMDA (MBA)         | Generic |   |   |   |   |   |   |   |   |   |28 |     |
 500|  8 | 0 | 0.463| 463 | Z   | Reflectivity (Z)              | Radial  |   |   |   |   |   |   |   |   |   |64 |     |
 550|  8 | 0 | 0.926| 111 | Z   | Reflectivity (Z)              | Radial  |   |   |   |   |   |   |   |   |   |64 |     |
->>>>>>> master_15.1.1

@@ -146,7 +146,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="******** SPECIAL CASE CALLS TO ACTION **********" bulletType="title"/>
   <bullet bulletName="gustFrontOutflowCTA" bulletText="(B) Preceding svr gust front/outflow...no rain/thunder expected" parseString="WILL OCCUR BEFORE ANY RAIN OR LIGHTNING"/>
   <bullet bulletName="squallLineCTA" bulletText="(E) Thunderstorm lines can produce tornadoes (can use w/TOR...POSSIBLE tag)" parseString="TORNADOES AND WIDESPREAD SIGNIFICANT WIND DAMAGE"/>
-  <bullet bulletName="superCellsCTA" bulletText="(E) Supercells can produce all types of svr...includes tornado" parseString="ALL TYPES OF SEVERE WEATHER...INCLUDING"/>
+  <bullet bulletName="superCellsCTA" bulletText="(E) Supercells can produce all types of svr...includes tornado" parseString="ALL TYPES OF SEVERE WEATHER INCLUDING"/>
   <bullet bulletText="******** MISCELLANEOUS CALLS TO ACTION **********" bulletType="title"/>
   <bullet bulletName="lightningCTA" bulletText="Lightning in addition to hail/winds" parseString="CONTINUOUS CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
   <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET AWAY FROM THE WATER AND MOVE INDOORS"/>
@@ -211,7 +211,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="******** SPECIAL CASE CALLS TO ACTION **********" bulletType="title"/>
   <bullet bulletName="gustFrontOutflowCTA" bulletText="(B) Preceding svr gust front/outflow...no rain/thunder expected" parseString="WILL OCCUR BEFORE ANY RAIN OR LIGHTNING"/>
   <bullet bulletName="squallLineCTA" bulletText="(E) Thunderstorm lines can produce tornadoes (can use w/TOR...POSSIBLE tag)" parseString="TORNADOES AND WIDESPREAD SIGNIFICANT WIND DAMAGE"/>
-  <bullet bulletName="superCellsCTA" bulletText="(E) Supercells can produce all types of svr...includes tornado" parseString="ALL TYPES OF SEVERE WEATHER...INCLUDING"/>
+  <bullet bulletName="superCellsCTA" bulletText="(E) Supercells can produce all types of svr...includes tornado" parseString="ALL TYPES OF SEVERE WEATHER INCLUDING"/>
   <bullet bulletText="******** MISCELLANEOUS CALLS TO ACTION **********" bulletType="title"/>
   <bullet bulletName="lightningCTA" bulletText="Lightning in addition to hail/winds" parseString="CONTINUOUS CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
   <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET AWAY FROM THE WATER AND MOVE INDOORS"/>

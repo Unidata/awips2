@@ -23,7 +23,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.regex.Pattern;
@@ -42,6 +44,7 @@ import com.raytheon.rcm.config.StandardProductDistInfoDB;
 import com.raytheon.rcm.config.awips1.Awips1ConfigProvider;
 import com.raytheon.rcm.event.ConfigEvent;
 import com.raytheon.rcm.event.RadarEventListener;
+import com.raytheon.rcm.products.ElevationInfo;
 import com.raytheon.rcm.server.Log;
 
 
@@ -57,15 +60,16 @@ import com.raytheon.rcm.server.Log;
  * ...
  * 2014-02-03   DR 14762   D. Friedman Handle updated NDM config files.
  * 2015-02-11   DR 17092   D. Friedman Handle NDM cronOTRs.xml updates.
+ * 2015-09-08   DR 17944   D. Friedman Handle elevation list file updates.
  * </pre>
  *
  */
 public class StandardConfigProvider implements ConfigurationProvider {
 		
-    private static String WSR_88D_PROD_LIST_NAME = "prodList.txt";
-    private static String TDWR__PROD_LIST_NAME = "tdwrProdList.txt";
-    private static String WMO_SITE_INFO_NAME = "wmoSiteInfo.txt";
-    private static String CRON_OTRS_NAME = "cronOTRs.xml";
+    private static final String WSR_88D_PROD_LIST_NAME = "prodList.txt";
+    private static final String TDWR__PROD_LIST_NAME = "tdwrProdList.txt";
+    private static final String WMO_SITE_INFO_NAME = "wmoSiteInfo.txt";
+    private static final String CRON_OTRS_NAME = "cronOTRs.xml";
 
 	private static JAXBContext jaxbContext;
 	private static Unmarshaller u;
@@ -271,17 +275,24 @@ public class StandardConfigProvider implements ConfigurationProvider {
         } else if (WMO_SITE_INFO_NAME.equals(name)) {
             updateRegionCode();
         } else if (CRON_OTRS_NAME.equals(name)) {
-            RadarEventListener target = config.getConfigurationEventTarget();
-            if (target != null) {
-                ConfigEvent ev = new ConfigEvent(ConfigEvent.Category.CRON_OTRS);
-                target.handleConfigEvent(ev);
-            }
+            sendConfigEvent(ConfigEvent.Category.CRON_OTRS);
         } else if (Pattern.matches("^rps-.*OP.*$", name)) {
             config.notifyNationalRpsLists();
+        } else if (ElevationInfo.ELEVATION_LIST_RESOURCE_NAMES.contains(name)) {
+            config.notifyResourceChanged(name);
+            sendConfigEvent(ConfigEvent.Category.ELEVATION_LISTS);
         } else {
             Log.warnf("No action taken for new %s.  You may need to restart for changes to take affect.", name);
         }
 
         return true;
+    }
+
+    private void sendConfigEvent(ConfigEvent.Category category) {
+        RadarEventListener target = config.getConfigurationEventTarget();
+        if (target != null) {
+            ConfigEvent ev = new ConfigEvent(category);
+            target.handleConfigEvent(ev);
+        }
     }
 }

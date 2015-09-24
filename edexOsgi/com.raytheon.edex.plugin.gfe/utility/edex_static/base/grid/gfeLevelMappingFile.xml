@@ -290,8 +290,32 @@
     <Level key="MAXW">
         <DatabaseLevel levelName="MAXW" levelOneValue="0.0"/>
     </Level>
+    <Level key="MB2">
+        <DatabaseLevel levelName="MB" levelOneValue="2.0" unit="hPa"/>
+    </Level>
+    <Level key="MB5">
+        <DatabaseLevel levelName="MB" levelOneValue="5.0" unit="hPa"/>
+    </Level>
+    <Level key="MB7">
+        <DatabaseLevel levelName="MB" levelOneValue="7.0" unit="hPa"/>
+    </Level>
+    <Level key="MB10">
+        <DatabaseLevel levelName="MB" levelOneValue="10.0" unit="hPa"/>
+    </Level>
+    <Level key="MB20">
+        <DatabaseLevel levelName="MB" levelOneValue="20.0" unit="hPa"/>
+    </Level>
+    <Level key="MB30">
+        <DatabaseLevel levelName="MB" levelOneValue="30.0" unit="hPa"/>
+    </Level>
     <Level key="MB50">
         <DatabaseLevel levelName="MB" levelOneValue="50.0" unit="hPa"/>
+    </Level>
+    <Level key="MB70">
+        <DatabaseLevel levelName="MB" levelOneValue="70.0" unit="hPa"/>
+    </Level>
+    <Level key="MB75">
+        <DatabaseLevel levelName="MB" levelOneValue="75.0" unit="hPa"/>
     </Level>
     <Level key="MB100">
         <DatabaseLevel levelName="MB" levelOneValue="100.0" unit="hPa"/>

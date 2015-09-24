@@ -39,10 +39,13 @@
 			<to uri="jms-durable:queue:Ingest.Radar" />
 		</route>
 		-->
+        <endpoint id="radarJmsEndpoint" uri="jms-durable:queue:Ingest.Radar?concurrentConsumers=${radar-decode.sbn.threads}"/>
+
+        <endpoint id="radarRadarServerJmsEndpoint" uri="jms-durable:queue:Ingest.RadarRadarServer?concurrentConsumers=${radar-decode.local.threads}"/>
 
 		<!-- Begin Radar routes -->
 		<route id="radarIngestRoute">
-			<from uri="jms-durable:queue:Ingest.Radar"/>
+			<from ref="radarJmsEndpoint"/>
  			<setHeader headerName="dataType">
  				<constant>radar-sbn</constant>
 			</setHeader>
@@ -50,7 +53,7 @@
 		</route>
 		
 		<route id="radarRadarServerIngestRoute">
-			<from uri="jms-durable:queue:Ingest.RadarRadarServer"/>
+			<from ref="radarRadarServerJmsEndpoint"/>
 			<setHeader headerName="dataType">
 				<constant>radar-local</constant>
 			</setHeader>
@@ -93,7 +96,15 @@
     <bean id="import88dLocations" class="com.raytheon.edex.plugin.radar.util.Import88DLocationsUtil"/>
 	
     <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="elevationLists.txt" />
+        <constructor-arg ref="radarMenuCreator" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
         <constructor-arg value="tdwrElevations.txt" />
+        <constructor-arg ref="radarMenuCreator" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="ssssElevationLists.txt" />
         <constructor-arg ref="radarMenuCreator" />
     </bean>
     <bean factory-bean="ndmProc" factory-method="registerListener">

@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.widgets.Shell;
@@ -55,7 +56,8 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  * Sep 8, 2008  1433       chammack    Initial creation
  * Oct 18, 2010 5849       cjeanbap    NullPointerExceptin thrown if category is null
  * Jun 03, 2013 2026       randerso    Fixed typo
- * Jul 27, 2015 4654       skorolev    Added a localization level filtration.
+ * Jul 27, 2015 4654       skorolev    Added a localization level filtration
+ * Sep 21, 2015 4654       njensen     Made filter logic strict instead of eager
  * 
  * </pre>
  * 
@@ -147,15 +149,21 @@ public class Container implements IConfigurationChangedListener {
         if (message.getFilters() != null && !message.getFilters().isEmpty()) {
             Map<String, String> filters = message.getFilters();
             LocalizationLevel[] lvls = LocalizationLevel.values();
+            boolean matchFound = false;
             for (int i = 0; i < lvls.length; i++) {
                 String lvl = LocalizationManager.getContextName(lvls[i]);
                 String key = lvls[i].name();
                 if (filters.containsKey(key)) {
                     String value = filters.get(key);
-                    if (value != null && !value.equals(lvl)) {
-                        return;
+                    if (value != null && value.equalsIgnoreCase(lvl)) {
+                        matchFound = true;
+                        break;
                     }
                 }
+            }
+
+            if (!matchFound) {
+                return;
             }
         }
 
@@ -310,7 +318,7 @@ public class Container implements IConfigurationChangedListener {
                 ErrorDialog.openError(new Shell(),
                         "Error saving to internal database",
                         "Serious internal error occurred", new Status(
-                                Status.ERROR, Activator.PLUGIN_ID,
+                                IStatus.ERROR, Activator.PLUGIN_ID,
                                 "Saved failed", new Exception(tmp.toString())));
             }
         }

@@ -27,6 +27,7 @@ import com.raytheon.rcm.coll.RequestScheduler;
 import com.raytheon.rcm.config.Configuration;
 import com.raytheon.rcm.config.ConfigurationProvider;
 import com.raytheon.rcm.config.MutableConfiguration;
+import com.raytheon.rcm.config.RcmResourceProvider;
 import com.raytheon.rcm.event.ConfigEvent;
 import com.raytheon.rcm.event.NotificationEvent;
 import com.raytheon.rcm.event.RadarEvent;
@@ -48,6 +49,7 @@ import com.raytheon.rcm.rpsmgr.RPSListManager;
  * ...
  * 2014-02-03   DR 14762   D. Friedman Connect configuration's event target to
  *                                     the RadarServer instance.
+ * 2015-09-08   DR 17944   D. Friedman Set RcmResourceProvider.
  * </pre>
  */
 public class RadarServer implements RadarEventListener {
@@ -93,10 +95,11 @@ public class RadarServer implements RadarEventListener {
         /* (ConfigurationProvider) Class.forName(args[0]) */
         /* lookup a *factory* class and pass relevate args */
 
-        return new RadarServer(provider.getConfiguration());
+        return createServer(provider.getConfiguration());
     }
 
     public static RadarServer createServer(Configuration configuration) {
+        RcmResourceProvider.setInstance(configuration.getRcmResourceProvider());
         return new RadarServer(configuration);
     }
 
