@@ -22,14 +22,11 @@ package com.raytheon.uf.edex.plugin.taf.decoder;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.raytheon.edex.exception.DecoderException;
-import com.raytheon.uf.common.dataplugin.taf.ChangeGroup;
 import com.raytheon.uf.common.dataplugin.taf.TAFParts;
 import com.raytheon.uf.common.dataplugin.taf.TafConstants;
 import com.raytheon.uf.common.dataplugin.taf.TafPeriod;
@@ -52,6 +49,7 @@ import com.raytheon.uf.common.wmo.WMOHeader;
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
  * May 15, 2014 3002       bgonzale    Moved common taf code to com.raytheon.uf.common.dataplugin.taf.
  * Apr 01, 2015 3722       rjpeter     Updated amd/corindicator to boolean flags.
+ * Sep 21, 2015 4890       rferrel     Removal of Change Group from TafRecord and clean up.
  * </pre>
  * 
  * @author jkorman
@@ -107,10 +105,6 @@ public class TAFChangeGroupFactory {
     private TafPeriod validPeriod = null;
 
     private String stationId = null;
-
-    private final boolean isCOR = false;
-
-    private final boolean isAMD = false;
 
     /**
      * 
@@ -464,16 +458,6 @@ public class TAFChangeGroupFactory {
 
     /**
      * 
-     * @param c
-     * @return
-     */
-    public static String fmtTime(Calendar c) {
-        String fmt = "%1$tY%<tm%<te%<tH%<tM%<tS";
-        return String.format(fmt, c);
-    }
-
-    /**
-     * 
      * @return
      */
     public TafRecord getTafRecord(WMOHeader wmoHeader, TAFParts tafParts)
@@ -486,30 +470,25 @@ public class TAFChangeGroupFactory {
 
         List<TAFSubGroup> groups = parse30HourTaf(wmoHeader, testData);
         if (groups != null) {
-            List<ChangeGroup> changeGroups = null;
-
-            Set<ChangeGroup> groupSet = new HashSet<ChangeGroup>();
             TafPeriod period = new TafPeriod();
             for (TAFSubGroup group : groups) {
                 if ("INITIAL".equals(group.getChangeGroupHeader())) {
-                    // need to handle this group separately so we can
-                    // set the TAF valid period.
+                    /*
+                     * need to handle this group separately so we can set the
+                     * TAF valid period.
+                     */
                     if (!processTafHeader(group, wmoHeader)) {
-                        System.out.println("processHeader failed");
                         break;
                     }
                     period.setStartDate(issueTime);
-                    ChangeGroup c = group.toChangeGroup(period);
 
-                    changeGroups = new ArrayList<ChangeGroup>();
-                    changeGroups.add(c);
-                    // groupSet.add(c);
-                    validPeriod = TafPeriod.copy(c.getTafChangePeriod());
+                    validPeriod = TafPeriod.copy(group.createPeriod(period));
                     break;
                 }
             }
             if (validPeriod == null) {
-                throw new DecoderException("No TAF validPeriod found");
+                throw new DecoderException("No TAF validPeriod found for TAF: "
+                        + testData);
             }
 
             record = new TafRecord();
@@ -519,59 +498,14 @@ public class TAFChangeGroupFactory {
             DataTime tafPeriod = new DataTime(startDate, range);
 
             record.setDataTime(tafPeriod);
-            int currGroup = 0;
-            ArrayList<ChangeGroup> cGroups = new ArrayList<ChangeGroup>();
-            if (changeGroups != null) {
-                for (TAFSubGroup group : groups) {
-                    ChangeGroup c = group.toChangeGroup(period);
-                    changeGroups.add(c);
-                    c.setSequenceId(currGroup++);
-                    groupSet.add(c);
-                    // only add BECMG, FM, and the INITIAL group to the change
-                    // group
-                    // list.
-                    if (TAFParser.isChangeGroup(c.getChange_indicator())) {
-                        cGroups.add(c);
-                    }
-                }
-            }
-            // ensure that all group parentIDs are set.
-            for (ChangeGroup c : groupSet) {
-                c.setParentID(record);
-            }
 
             record.setStationId(stationId);
 
-            if (isCOR
-                    || (tafParts.getTafHeader().indexOf(TafConstants.COR_IND) >= 0)) {
+            if (tafParts.getTafHeader().indexOf(TafConstants.COR_IND) >= 0) {
                 record.setCorIndicator(true);
             }
-            if (isAMD
-                    || (tafParts.getTafHeader().indexOf(TafConstants.AMD_IND) >= 0)) {
+            if (tafParts.getTafHeader().indexOf(TafConstants.AMD_IND) >= 0) {
                 record.setAmdIndicator(true);
-            }
-
-            if (cGroups.size() > 1) {
-                ChangeGroup group1 = null;
-                ChangeGroup group2 = null;
-
-                TafPeriod period1 = null;
-                TafPeriod period2 = null;
-                // Ensure that the change group end time is set for each group.
-                for (int i = 0; i < (cGroups.size() - 1); i++) {
-                    group1 = cGroups.get(i);
-                    group2 = cGroups.get(i + 1);
-
-                    period1 = group1.getTafChangePeriod();
-                    period2 = group2.getTafChangePeriod();
-
-                    period1.setEndDate(TimeUtil.newCalendar(period2
-                            .getStartDate()));
-
-                }
-                // The last group gets the TAF end datetime.
-                period2.setEndDate(TimeUtil.newCalendar(validPeriod
-                        .getEndDate()));
             }
 
             record.setIssue_time(issueTime.getTime());
@@ -581,7 +515,10 @@ public class TAFChangeGroupFactory {
             record.setIssue_timeString(issueTimeString);
             record.setDataTime(new DataTime(issueTime.getTime().getTime(),
                     record.getDataTime().getValidPeriod()));
-            record.setChangeGroups(groupSet);
+        }
+
+        if (record == null) {
+            throw new DecoderException("Unable to parse TAF: " + testData);
         }
 
         return record;
