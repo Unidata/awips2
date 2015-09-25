@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.monitor.ffmp.ui.rsc;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -81,8 +82,10 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfigData;
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * Jul 16, 2013    2197   njensen     Use FFMPBasinData.hasAnyBasins() for efficiency
  * May 19, 2014   DR16096 gzhang	  Fix QPFSCAN not showing M issue for different radar source.
+ * Sep 24, 2015    4756   dhladky     Preserve ordering of data hash for guidance types.
  * 
  * </pre>
+ * 
  * @author dhladky
  * @version 1.0
  */
@@ -117,11 +120,11 @@ public class FFMPDataGenerator {
 
     protected FFMPBasinData rateBasin = null;
 
-    protected Map<String, FFMPBasinData> guidBasins = null;
+    protected LinkedHashMap<String, FFMPBasinData> guidBasins = null;
 
     protected FFMPBasinData virtualBasin = null;
 
-    protected Map<String, FFMPRecord> guidRecords = null;
+    protected LinkedHashMap<String, FFMPRecord> guidRecords = null;
 
     protected FFMPRecord baseRec = null;
 
@@ -182,14 +185,15 @@ public class FFMPDataGenerator {
             }
 
             List<DomainXML> domains = resource.getDomains();
-            List<List<Long>> huclistsAll = getOtherSiteQpfBasins(siteKey,FFMPRecord.ALL, domains);// DR 16096
+            List<List<Long>> huclistsAll = getOtherSiteQpfBasins(siteKey,
+                    FFMPRecord.ALL, domains);// DR 16096
             if ((centeredAggregationKey == null) || huc.equals(FFMPRecord.ALL)) {
 
                 if (huc.equals(FFMPRecord.ALL)) {
 
                     FFMPBasinData fbd = baseRec.getBasinData();
                     tData = new FFMPTableData(fbd.getBasins().size());
- 
+
                     for (Long key : fbd.getBasins().keySet()) {
 
                         FFMPBasinMetaData fmdb = ft.getBasin(siteKey, key);
@@ -199,7 +203,8 @@ public class FFMPDataGenerator {
                             continue;
 
                         }
-                        this.filterOtherSiteHucs(huclistsAll, key, false);// DR 16096 
+                        this.filterOtherSiteHucs(huclistsAll, key, false);// DR
+                                                                          // 16096
                         for (DomainXML domain : domains) {
 
                             String cwa = domain.getCwa();
@@ -249,7 +254,8 @@ public class FFMPDataGenerator {
                     List<Long> keyList = ft
                             .getHucKeyList(siteKey, huc, domains);
                     tData = new FFMPTableData(keyList.size());
-                    List<List<Long>> huclists = getOtherSiteQpfBasins(siteKey,huc, domains);// DR 16096
+                    List<List<Long>> huclists = getOtherSiteQpfBasins(siteKey,
+                            huc, domains);// DR 16096
                     for (Long key : keyList) {
 
                         List<Long> pfafs = ft.getAggregatePfafs(key, siteKey,
@@ -269,7 +275,8 @@ public class FFMPDataGenerator {
                             if (fmdb != null) {
 
                                 try {
-                                	this.filterOtherSiteHucs(huclists, key, true);// DR 16096
+                                    this.filterOtherSiteHucs(huclists, key,
+                                            true);// DR 16096
                                     FFMPBasin basin = new FFMPBasin(key, true);
                                     setFFMPRow(basin, tData, isVGB, null);
 
@@ -298,13 +305,15 @@ public class FFMPDataGenerator {
 
                     FFMPBasinMetaData fmdb = ft.getBasin(siteKey, key);
 
-                    if (fmdb != null) {		
-                    	checkCenteredAggregationKey();// DR 16096 aggregation_county-huc_click
+                    if (fmdb != null) {
+                        checkCenteredAggregationKey();// DR 16096
+                                                      // aggregation_county-huc_click
                         for (DomainXML domain : domains) {
                             if ((domain.getCwa().equals(fmdb.getCwa()))
                                     || (domain.isPrimary() && fmdb
                                             .isPrimaryCwa())) {
-                            	this.filterOtherSiteHucs(huclistsAll, key,false);
+                                this.filterOtherSiteHucs(huclistsAll, key,
+                                        false);
                                 setFFMPRow(fbd.get(key), tData, false, null);
 
                                 if (virtualBasin != null) {
@@ -431,11 +440,11 @@ public class FFMPDataGenerator {
                 }
             }
             if (qpfRecord != null) {
-                qpfBasin = qpfRecord.getBasinData();	
+                qpfBasin = qpfRecord.getBasinData();
                 qpfBasinClone = qpfRecord.getBasinData();// DR 16096
             }
             if (guidRecords != null) {
-                guidBasins = new HashMap<String, FFMPBasinData>();
+                guidBasins = new LinkedHashMap<String, FFMPBasinData>();
                 for (String type : guidRecords.keySet()) {
                     if (guidRecords.get(type) != null) {
                         guidBasins.put(type, guidRecords.get(type)
@@ -467,49 +476,55 @@ public class FFMPDataGenerator {
 
         return field;
     }
-    
-    /** ---------------------------------------------------------- Below is for DR 16096
-     * use FfmpTableConfigData.setQpfType() to find the QPF type,
-     * only one at a time with Radio Button on a Basin Table.
-     *
-     * see getBaseField() for qpfsource/qpftyp
-     * and FfmpTableConfigData.setQpfType()
-     *
-     * update code one step at a time. correct first; performance,hard-coding second.
-     *
-     * @return  Map<QPFSCAN type, ArrayList<datakey>> i.e.: <QPFSCANkccx, [kccx] list> / <QPFSCAN, [kakq,klwx] list>
+
+    /**
+     * ---------------------------------------------------------- Below is for
+     * DR 16096 use FfmpTableConfigData.setQpfType() to find the QPF type, only
+     * one at a time with Radio Button on a Basin Table.
+     * 
+     * see getBaseField() for qpfsource/qpftyp and
+     * FfmpTableConfigData.setQpfType()
+     * 
+     * update code one step at a time. correct first; performance,hard-coding
+     * second.
+     * 
+     * @return Map<QPFSCAN type, ArrayList<datakey>> i.e.: <QPFSCANkccx, [kccx]
+     *         list> / <QPFSCAN, [kakq,klwx] list>
      */
-    public Map<String,java.util.ArrayList<String>> getQpfDataKeyMap(){
+    public Map<String, java.util.ArrayList<String>> getQpfDataKeyMap() {
 
-        Map<String, java.util.ArrayList<String>> map = new HashMap<String,java.util.ArrayList<String>>();
+        Map<String, java.util.ArrayList<String>> map = new HashMap<String, java.util.ArrayList<String>>();
 
-        java.util.ArrayList<com.raytheon.uf.common.monitor.xml.FFMPRunXML> runlist = FFMPRunConfigurationManager.getInstance().getFFMPRunners();
+        java.util.ArrayList<com.raytheon.uf.common.monitor.xml.FFMPRunXML> runlist = FFMPRunConfigurationManager
+                .getInstance().getFFMPRunners();
         java.util.ArrayList<String> qpflist = getQpfTypes();
 
-        for(com.raytheon.uf.common.monitor.xml.FFMPRunXML rxml : runlist){
-                java.util.ArrayList<com.raytheon.uf.common.monitor.xml.SourceIngestConfigXML>  sicList = rxml.getSourceIngests();
-                for(com.raytheon.uf.common.monitor.xml.SourceIngestConfigXML sic : sicList){
-                        String sname = sic.getSourceName();
+        for (com.raytheon.uf.common.monitor.xml.FFMPRunXML rxml : runlist) {
+            java.util.ArrayList<com.raytheon.uf.common.monitor.xml.SourceIngestConfigXML> sicList = rxml
+                    .getSourceIngests();
+            for (com.raytheon.uf.common.monitor.xml.SourceIngestConfigXML sic : sicList) {
+                String sname = sic.getSourceName();
 
-                        for(String qpf : qpflist){
-                                if(qpf.equalsIgnoreCase(sname))
-                                        map.put(sname, sic.getDataKey());
-                        }
+                for (String qpf : qpflist) {
+                    if (qpf.equalsIgnoreCase(sname))
+                        map.put(sname, sic.getDataKey());
                 }
+            }
         }
         return map;
     }
 
     /**
-     * Based on AttributesDlg.createAttributeControls(),
-     * used for adding a QPF column.
-     * Only qpfs in table column are of interest
+     * Based on AttributesDlg.createAttributeControls(), used for adding a QPF
+     * column. Only qpfs in table column are of interest
+     * 
      * @return
      */
-    public java.util.ArrayList<String> getQpfTypes(){
+    public java.util.ArrayList<String> getQpfTypes() {
 
         ProductXML prodXml = monitor.getProductXML(resource.getPrimarySource());
-        FFMPRunConfigurationManager runManager = FFMPRunConfigurationManager.getInstance();
+        FFMPRunConfigurationManager runManager = FFMPRunConfigurationManager
+                .getInstance();
         ProductRunXML productRun = runManager.getProduct(resource.getSiteKey());
         java.util.ArrayList<String> qpfTypes = productRun.getQpfTypes(prodXml);
 
@@ -517,167 +532,181 @@ public class FFMPDataGenerator {
     }
 
     /**
-     * get displaying dataKeys of the displaying QPFSCAN
-     * 2014-01-01
+     * get displaying dataKeys of the displaying QPFSCAN 2014-01-01
      */
-    public java.util.ArrayList<String> getDisplayingQpfDataKeys(String dqpf){
-        Map<String,java.util.ArrayList<String>> map = getQpfDataKeyMap();
+    public java.util.ArrayList<String> getDisplayingQpfDataKeys(String dqpf) {
+        Map<String, java.util.ArrayList<String>> map = getQpfDataKeyMap();
         java.util.ArrayList<String> list = map.get(dqpf);
-        
-        return list==null ? new java.util.ArrayList<String>() : list;
+
+        return list == null ? new java.util.ArrayList<String>() : list;
     }
 
     /**
-     * filtering non-QPFSCAN basins/hucs
-     * 2014-01-01
-     * parameter sitekey same as resource.siteKey used for comparing.
+     * filtering non-QPFSCAN basins/hucs 2014-01-01 parameter sitekey same as
+     * resource.siteKey used for comparing.
      */
-    public List<List<Long>> getOtherSiteQpfBasins(String siteKey, String huc, List<DomainXML> domains){
+    public List<List<Long>> getOtherSiteQpfBasins(String siteKey, String huc,
+            List<DomainXML> domains) {
         String dqpf = getQpfType();
         List<List<Long>> huclist = new java.util.ArrayList<List<Long>>();
 
-        //if(siteKey.equalsIgnoreCase(dqpf))//Basin Table same as QPFSCAN's datakey
-        //        return huclist;
-        //System.out.println("@541----------- qpf: "+dqpf);//checking qpf type
-        
+        // if(siteKey.equalsIgnoreCase(dqpf))//Basin Table same as QPFSCAN's
+        // datakey
+        // return huclist;
+        // System.out.println("@541----------- qpf: "+dqpf);//checking qpf type
 
-        java.util.ArrayList<String> dataKeys = this.getDisplayingQpfDataKeys(dqpf);//more than one datakey for mosaic QPFSCAN
-        for(String site : dataKeys){//System.out.println("@545----------- qpf-site: "+site);
-                huclist.add(ft.getHucKeyList(site, huc, domains));
+        java.util.ArrayList<String> dataKeys = this
+                .getDisplayingQpfDataKeys(dqpf);// more than one datakey for
+                                                // mosaic QPFSCAN
+        for (String site : dataKeys) {// System.out.println("@545----------- qpf-site: "+site);
+            huclist.add(ft.getHucKeyList(site, huc, domains));
         }
-        
+
         return huclist;
     }
 
     private FFMPBasinData qpfBasinClone = null;// DR 16096 initialized @435
 
-    public void filterOtherSiteHucs(List<List<Long>> huclists, Long key, boolean isAggregate){
-    	if( huclists==null || huclists.size()==0) // QPFSCAN column is not on 2014-01-09
-    		return;
+    public void filterOtherSiteHucs(List<List<Long>> huclists, Long key,
+            boolean isAggregate) {
+        if (huclists == null || huclists.size() == 0) // QPFSCAN column is not
+                                                      // on 2014-01-09
+            return;
         boolean isInOtherSite = false;
-/*
-        for(List<Long> list : huclists){
-        	if(list.contains(key)){
-        		isInOtherSite = true;
-                break;
-            }
+        /*
+         * for(List<Long> list : huclists){ if(list.contains(key)){
+         * isInOtherSite = true; break; } } if(isInOtherSite) this.qpfBasin =
+         * this.qpfBasinClone; else{ setQPFMissing();
+         * setMList(this.siteKey,this.huc, key); }// so in FFMPRowGenerator, qpf
+         * value will be Float.NaN
+         */
+        if (isAggregate) {
+            this.setHucLevelQpf(key);
+            return;// FFMPResource.getBasin(,QPF,,) not for aggregate
         }
-        if(isInOtherSite)
-        	this.qpfBasin = this.qpfBasinClone;
-        else{	
-        	setQPFMissing();
-        	setMList(this.siteKey,this.huc, key);
-        }// so in FFMPRowGenerator, qpf value will be Float.NaN
-*/        
-        if(isAggregate){
-        	this.setHucLevelQpf(key);
-        	return;//FFMPResource.getBasin(,QPF,,) not for aggregate
-        }
-        
-        //Only for non-aggregates; fix NO DATA shows 0.0
-        try{
-	        if( Float.isNaN(resource.getBasin(key, FFMPRecord.FIELDS.QPF, this.paintRefTime, false).getValue()))
-	        	setQPFMissing();	
-	        else
-	        	this.qpfBasin = this.qpfBasinClone;
-        }catch(Exception e){
-        	statusHandler.info("FFMPResource.getBasin Exception: "+e.getMessage());
+
+        // Only for non-aggregates; fix NO DATA shows 0.0
+        try {
+            if (Float.isNaN(resource.getBasin(key, FFMPRecord.FIELDS.QPF,
+                    this.paintRefTime, false).getValue()))
+                setQPFMissing();
+            else
+                this.qpfBasin = this.qpfBasinClone;
+        } catch (Exception e) {
+            statusHandler.info("FFMPResource.getBasin Exception: "
+                    + e.getMessage());
         }
 
     }
 
     /**
-     * based on FFMPConfig.isSplit() and AttributesDlg.createAttributeControls() @176/178
-     * since Only using AttrData causing all "M" when QPFSCAN column already on.
+     * based on FFMPConfig.isSplit() and AttributesDlg.createAttributeControls()
+     * @176/178 since Only using AttrData causing all "M" when QPFSCAN column
+     * already on.
      */
-    public String getQpfType(){
+    public String getQpfType() {
         String qCname = "";
         boolean qpfColOn = false;
 
-        try{
-                qCname=this.ffmpTableCfgData.getTableColumnAttr(ffmpTableCfgData.getTableColumnKeys()[3]).getOriginalName().split("::")[0];//AttributesDlg @176/178
-        }catch(Exception e){	
-        	e.printStackTrace();
+        try {
+            qCname = this.ffmpTableCfgData
+                    .getTableColumnAttr(
+                            ffmpTableCfgData.getTableColumnKeys()[3])
+                    .getOriginalName().split("::")[0];// AttributesDlg @176/178
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        for (com.raytheon.uf.viz.monitor.ffmp.xml.FFMPTableColumnXML tcXML : monitor.getConfig().getFFMPConfigData().getTableColumnData()) {
+        for (com.raytheon.uf.viz.monitor.ffmp.xml.FFMPTableColumnXML tcXML : monitor
+                .getConfig().getFFMPConfigData().getTableColumnData()) {
             if (tcXML.getColumnName().compareTo(FIELDS.QPF.name()) == 0) {
                 qpfColOn = tcXML.getDisplayedInTable();
             }
         }
 
-        return qpfColOn ? qCname : monitor.getConfig().getAttrData().getQpfType();
+        return qpfColOn ? qCname : monitor.getConfig().getAttrData()
+                .getQpfType();
     }
-    
-    // An example for below: <kccx,<county,Arrays.asList("NE,Cadar","NE,Dodge")>> so if a county/HUC is M then its basins are all M     
-    private static final Map<String, HashMap<String,java.util.ArrayList<Long>>> M_LIST = new HashMap<String, HashMap<String,java.util.ArrayList<Long>>>();
+
+    // An example for below:
+    // <kccx,<county,Arrays.asList("NE,Cadar","NE,Dodge")>> so if a county/HUC
+    // is M then its basins are all M
+    private static final Map<String, HashMap<String, java.util.ArrayList<Long>>> M_LIST = new HashMap<String, HashMap<String, java.util.ArrayList<Long>>>();
 
     /**
-    * Usage: if a County/HUC (aggregation) is M with the QPFSCAN, then its pfaf is cached in the M_LIST 
-    * so when it is clicked, all the basins under it get M as well without having to redo matching.
-    * 
-    * @param site
-    * @param huc
-    * @param key
-    */
-    private static void setMList(String site, String huc, Long key){
-        	
-        	HashMap<String,java.util.ArrayList<Long>> map = FFMPDataGenerator.M_LIST.get(site);    	
-        	if(map==null){
-        		map = new HashMap<String, java.util.ArrayList<Long>>();    		    		
-        		M_LIST.put(site,map);
-        	}
-        	
-        	java.util.ArrayList<Long> list = map.get(huc);
-        	if(list==null){
-        		list = new java.util.ArrayList<Long>();
-        		map.put(huc, list);
-        	}
-        	
-        	list.add(key); 	    		
-        	
+     * Usage: if a County/HUC (aggregation) is M with the QPFSCAN, then its pfaf
+     * is cached in the M_LIST so when it is clicked, all the basins under it
+     * get M as well without having to redo matching.
+     * 
+     * @param site
+     * @param huc
+     * @param key
+     */
+    private static void setMList(String site, String huc, Long key) {
+
+        HashMap<String, java.util.ArrayList<Long>> map = FFMPDataGenerator.M_LIST
+                .get(site);
+        if (map == null) {
+            map = new HashMap<String, java.util.ArrayList<Long>>();
+            M_LIST.put(site, map);
+        }
+
+        java.util.ArrayList<Long> list = map.get(huc);
+        if (list == null) {
+            list = new java.util.ArrayList<Long>();
+            map.put(huc, list);
+        }
+
+        list.add(key);
+
     }
 
-        
-    // fix for County/HUC M but post_click 0.0 issue    
-    private void checkCenteredAggregationKey(){
-    	if( ! (this.centeredAggregationKey instanceof Long) ) return;
-    			
-    	HashMap<String,java.util.ArrayList<Long>> map = FFMPDataGenerator.M_LIST.get(this.siteKey);
-    	if(map==null) return;
-    	
-    	java.util.ArrayList<Long> list = map.get(this.huc);
-    	if(list==null) return;
-    	
-    	if(list.contains((Long)this.centeredAggregationKey))
-    		this.setQPFMissing();
+    // fix for County/HUC M but post_click 0.0 issue
+    private void checkCenteredAggregationKey() {
+        if (!(this.centeredAggregationKey instanceof Long))
+            return;
+
+        HashMap<String, java.util.ArrayList<Long>> map = FFMPDataGenerator.M_LIST
+                .get(this.siteKey);
+        if (map == null)
+            return;
+
+        java.util.ArrayList<Long> list = map.get(this.huc);
+        if (list == null)
+            return;
+
+        if (list.contains((Long) this.centeredAggregationKey))
+            this.setQPFMissing();
     }
-    
-    //Utilize the fact FFMPRowGenerator set QPFSCAN M if qpfBasin null
-    private void setQPFMissing(){
-    	this.qpfBasin = null;
-    }  
-    
-    //Loop through the HUC's basins to check if there are values not NaN
-    //then set qpf; otherwise set the HUC level M.
-    //centeredAggregationKey NULL: not a specific huc (COUNTY,HUC0,etc) clicked
-    
-    private void setHucLevelQpf(Long key){
-    	
-    	List<Long> list = this.monitor.getTemplates(this.siteKey).getAggregatePfafs(key, this.siteKey, this.huc);
-    	boolean hasValue = false;
-    	
-    	for(Long bkey : list){
-    		try {
-				if( ! Float.isNaN(resource.getBasin(bkey, FFMPRecord.FIELDS.QPF, this.paintRefTime, false).getValue())){ 
-					hasValue = true;
-					break; // one is enough
-				}
-			} catch (VizException e) {
-				statusHandler.info("FFMPResource.getBasin Exception: "+e.getMessage());
-			}
-    	}
-    	
-    	qpfBasin = hasValue ? this.qpfBasinClone : null;
+
+    // Utilize the fact FFMPRowGenerator set QPFSCAN M if qpfBasin null
+    private void setQPFMissing() {
+        this.qpfBasin = null;
+    }
+
+    // Loop through the HUC's basins to check if there are values not NaN
+    // then set qpf; otherwise set the HUC level M.
+    // centeredAggregationKey NULL: not a specific huc (COUNTY,HUC0,etc) clicked
+
+    private void setHucLevelQpf(Long key) {
+
+        List<Long> list = this.monitor.getTemplates(this.siteKey)
+                .getAggregatePfafs(key, this.siteKey, this.huc);
+        boolean hasValue = false;
+
+        for (Long bkey : list) {
+            try {
+                if (!Float.isNaN(resource.getBasin(bkey, FFMPRecord.FIELDS.QPF,
+                        this.paintRefTime, false).getValue())) {
+                    hasValue = true;
+                    break; // one is enough
+                }
+            } catch (VizException e) {
+                statusHandler.info("FFMPResource.getBasin Exception: "
+                        + e.getMessage());
+            }
+        }
+
+        qpfBasin = hasValue ? this.qpfBasinClone : null;
     }
 
 }

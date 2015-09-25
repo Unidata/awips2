@@ -55,6 +55,15 @@ public class ARIPostProcessor implements IDecoderPostProcessor {
     /** 1 hr record identifier **/
     private static final String REFZI = "REFZI";
     
+    /** 3 hr record identifier **/
+    private static final String RETOP = "RETOP";
+    
+    /** 6 hr record identifier **/
+    private static final String REFD = "REFD";
+    
+    /** 12 hr record identifier **/
+    private static final String REFC = "REFC";
+    
     /** Year **/
     private static final String YR = "YR";
     
@@ -66,6 +75,15 @@ public class ARIPostProcessor implements IDecoderPostProcessor {
     
     /** 1 hour comparison time **/
     private static final String HOUR1 = "1";
+    
+    /** 3 hour comparison time **/
+    private static final String HOUR3 = "3";
+    
+    /** 6 hour comparison time **/
+    private static final String HOUR6 = "6";
+    
+    /** 12 hour comparison time **/
+    private static final String HOUR12 = "12";
     
     /** ARI is precip in mm **/
     private static final String UNIT = "mm";
@@ -129,6 +147,15 @@ public class ARIPostProcessor implements IDecoderPostProcessor {
         } else if (REFZI.equals(paramAbbrev)) {
             sb.append(HOUR1);
             sb2.append("1 hour precip");
+        } else if (RETOP.equals(paramAbbrev)) {
+            sb.append(HOUR3);
+            sb2.append("3 hour precip");
+        } else if (REFD.equals(paramAbbrev)) {
+            sb.append(HOUR6);
+            sb2.append("6 hour precip");
+        } else if (REFC.equals(paramAbbrev)) {
+            sb.append(HOUR12);
+            sb2.append("12 hour precip");
         } else {
             throw new IllegalArgumentException("ARI paramName " + paramAbbrev
                     + " is not a valid param for ARI postprocessing");
