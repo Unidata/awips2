@@ -26,7 +26,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.dialogs.ProductScriptsDialog;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
 
 /**
  * Action to launch product generation script dialog.
@@ -35,8 +37,9 @@ import com.raytheon.viz.gfe.dialogs.ProductScriptsDialog;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 	Mar 6, 2008					Eric Babin Initial Creation
+ * Mar 6, 2008             Eric Babin  Initial Creation
  * Oct 25, 2012 12878      rferrel     Changes for non-blocking ProductScriptsDialog.
+ * Sep 21, 2015 4858       dgilling    Disable in DRT mode.
  * 
  * </pre>
  * 
@@ -56,15 +59,20 @@ public class ShowProductScriptsDialog extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        DataManager dm = DataManager.getCurrentInstance();
+        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                .getShell();
+        if (!SimulatedTimeOperations.isTransmitAllowed()) {
+            SimulatedTimeOperations.displayFeatureLevelWarning(shell,
+                    "Product Scripts dialog");
+            return null;
+        }
+
+        DataManager dm = DataManagerUIFactory.getCurrentInstance();
         if (dm == null) {
             return null;
         }
 
         if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
-
             dialog = new ProductScriptsDialog(shell, dm);
             dialog.setBlockOnOpen(false);
             dialog.open();
