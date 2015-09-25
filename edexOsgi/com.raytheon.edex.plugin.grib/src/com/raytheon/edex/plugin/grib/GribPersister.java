@@ -69,8 +69,6 @@ public class GribPersister implements IContextStateProcessor {
 
     private final Map<Thread, String> inProcessFiles = new HashMap<>(4, 1);
 
-    private final Object waitLock = new Object();
-
     private volatile boolean running = true;
 
     public IHDFFilePathProvider pathProvider;
@@ -189,19 +187,20 @@ public class GribPersister implements IContextStateProcessor {
                 }
 
                 // wake up a sleeping persist thread
-                gridsByFile.notify();
+                gridsByFile.notifyAll();
                 gridsPending += records.length;
 
                 // update bytesInMemory
                 bytesInMemory += bytesForRecords;
+
                 if (bytesInMemory > maxBytesInMemory) {
                     statusHandler.info("Max Grids in memory for "
                             + getClass().getSimpleName()
                             + " exceeded.  Waiting for grids to process.");
 
-                    synchronized (waitLock) {
+                    while (bytesInMemory > maxBytesInMemory) {
                         try {
-                            waitLock.wait();
+                            gridsByFile.wait();
                         } catch (InterruptedException e) {
                             // ignore
                         }
@@ -383,9 +382,7 @@ public class GribPersister implements IContextStateProcessor {
                             if ((oldBytes > maxBytesInMemory)
                                     && (bytesInMemory < maxBytesInMemory)) {
                                 // wake any pending decode threads
-                                synchronized (waitLock) {
-                                    waitLock.notifyAll();
-                                }
+                                gridsByFile.notifyAll();
                             }
                         }
 
