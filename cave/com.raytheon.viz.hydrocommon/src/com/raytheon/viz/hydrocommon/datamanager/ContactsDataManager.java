@@ -35,8 +35,8 @@ import com.raytheon.viz.hydrocommon.data.ContactsData;
  *
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 20 Nov 2008             lvenable    Initial creation
- * 
+ * 20 Nov 2008              lvenable    Initial creation
+ * Sep 03, 2015 4846        rjpeter     List out columns in select.
  * </pre>
  *
  * @author lvenable
@@ -52,7 +52,7 @@ public class ContactsDataManager extends HydroDataManager
     /**
      * Select statement.
      */
-    private final String SELECT_STATEMENT = "SELECT * FROM contacts";
+    private final String SELECT_STATEMENT = "SELECT lid, contact, phone, email, remark, priority FROM contacts";
     
     /**
      * Insert statement.

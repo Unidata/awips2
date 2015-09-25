@@ -49,7 +49,7 @@ import com.raytheon.viz.hydrocommon.data.LocationData;
  * 									   the database.
  * Apr 18, 2013 1790       rferrel     Cleanup method interfaces; 
  *                                      part of non-blocking dialogs.
- * 
+ * Sep 04, 2015 4846       rjpeter     Fix query.
  * </pre>
  * 
  * @author askripsky
@@ -200,7 +200,7 @@ public class AddModifyLocationDataManager extends HydroDataManager {
     public List<String> getHSAsForFilter() throws VizException {
         List<String> rval = new ArrayList<String>();
 
-        String query = "Select distinct(hsa) from location order by hsa";
+        String query = "Select distinct hsa from location order by hsa";
 
         QueryResult data = HydroDBDataManager.getInstance().runMappedQuery(
                 query);

@@ -58,6 +58,7 @@ import com.raytheon.viz.hydrocommon.data.RiverDataPoint;
  * 14 feb 2011  #4383      lbousaidi   changed getRiverDataPoint: added crestQuery, 
  * 									   set riverName using locationquery instead of 
  * 									   riverInfoQuery, added rb field in locationQuery
+ * Sep 03, 2015 4845       rjpeter     Remove use of duplicate alias.
  * </pre>
  * 
  * @author dhladky
@@ -109,7 +110,7 @@ public class RiverDataManager {
 			+ "rmg.group_name, "
 			+ "r.stream, r.mile, r.zd AS zero, r.tide, r.bf AS bankfull, r.wstg AS action_stage, r.fs AS flood_stage, r.fq AS flood_flow, r.action_flow, r.primary_pe, "
 			+ "d.proximity, d.reach, "
-			+ "f.minor_stage AS minor, f.moderate_stage AS moderate, f.major_stage AS major, f.minor_flow AS minor, f.moderate_flow AS moderate, f.major_flow AS major "
+			+ "f.minor_stage, f.moderate_stage, f.major_stage, f.minor_flow, f.moderate_flow, f.major_flow "
 			+ "FROM location l "
 			+ "LEFT JOIN floodcat f ON l.lid::text = f.lid::text "
 			+ "LEFT JOIN descrip d ON l.lid::text = d.lid::text, riverstat r, rivermonlocation rml "

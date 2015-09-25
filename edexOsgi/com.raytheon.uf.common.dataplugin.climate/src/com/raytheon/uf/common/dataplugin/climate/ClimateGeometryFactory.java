@@ -48,6 +48,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * ------------- -------- ----------- --------------------------
  * May 14, 2015  4409     mapeters    Initial creation.
  * May 21, 2015  4409     mapeters    Extract query results correctly in getTimeColumnNames()
+ * Aug 21, 2015  4409     mapeters    Alias columns that are automatically retrieved when
+ *                                    getting geometry data
  * 
  * </pre>
  * 
@@ -88,6 +90,14 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
     private static final String CLI_STA_SETUP = "cli_sta_setup";
 
     private static final String RPT = "rpt";
+
+    private static final String CLI_STA_SETUP_LON = "longitude_e";
+
+    private static final String LOCATION_COLUMN_ALIAS_PREFIX = "location_column_";
+
+    private static final String TIME_COLUMN_ALIAS_PREFIX = "time_column_";
+
+    private static final String GEOM_COLUMN_ALIAS_PREFIX = "geom_column_";
 
     public ClimateGeometryFactory() {
         super(HMDB_DATABASE, new String[] { TABLE },
@@ -423,6 +433,15 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
         boolean hasStationCode = locationColumnName.equals(STATION_CODE);
         // Build SELECT statement
         StringBuilder sqlQuery = new StringBuilder("select ");
+
+        /*
+         * We must alias all columns making up the geometry. If a
+         * location/lat/lon/time column is also requested as a parameter, this
+         * makes them differentiable.
+         */
+        String locColumnAsAlias;
+        String latColumnAsAlias;
+        String lonColumnAsAlias;
         /*
          * rpt table is used to get location names and coordinates for tables
          * with station_code location column (or rpt table itself). Other tables
@@ -430,9 +449,15 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
          * cli_sta_setup table to get location name and coordinates.
          */
         if (hasStationCode || isRpt) {
-            sqlQuery.append(RPT).append(".").append(ICAO_LOC_ID).append(", ")
-                    .append(RPT).append(".lat, ").append(RPT).append(".lon");
+            locColumnAsAlias = buildAlias(RPT, ICAO_LOC_ID,
+                    LOCATION_COLUMN_ALIAS_PREFIX);
+            latColumnAsAlias = buildAlias(RPT, "lat", GEOM_COLUMN_ALIAS_PREFIX);
+            lonColumnAsAlias = buildAlias(RPT, "lon", GEOM_COLUMN_ALIAS_PREFIX);
         } else {
+            locColumnAsAlias = buildAlias(CLI_STA_SETUP, STATION_CODE,
+                    LOCATION_COLUMN_ALIAS_PREFIX);
+            latColumnAsAlias = buildAlias(CLI_STA_SETUP, "latitude_n",
+                    GEOM_COLUMN_ALIAS_PREFIX);
             /*
              * TODO: The longitude values in cli_sta_setup are all positive when
              * they should all be negative. This problem is inherited from A1,
@@ -440,14 +465,18 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
              * covered. Changing the longitude sign works for now, but potential
              * future stations in different hemispheres may cause problems here.
              */
-            sqlQuery.append(CLI_STA_SETUP).append(".").append(STATION_CODE)
-                    .append(", ").append(CLI_STA_SETUP).append(".latitude_n, ")
-                    .append(CLI_STA_SETUP).append(".longitude_e * -1");
+            lonColumnAsAlias = new StringBuilder(CLI_STA_SETUP).append(".")
+                    .append(CLI_STA_SETUP_LON).append(" * -1 as ")
+                    .append(GEOM_COLUMN_ALIAS_PREFIX).append(CLI_STA_SETUP_LON)
+                    .toString();
         }
+        sqlQuery.append(locColumnAsAlias).append(", ").append(latColumnAsAlias)
+                .append(", ").append(lonColumnAsAlias);
 
         for (String timeColumnName : timeColumnNames) {
-            sqlQuery.append(", ").append(tableName).append(".")
-                    .append(timeColumnName);
+            sqlQuery.append(", ").append(
+                    buildAlias(tableName, timeColumnName,
+                            TIME_COLUMN_ALIAS_PREFIX));
         }
 
         String[] params = request.getParameters();
@@ -505,6 +534,21 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
         sqlQuery.append(";");
 
         return sqlQuery.toString();
+    }
+
+    /**
+     * Alias the given column by prepending the aliasPrefix to it, to be used in
+     * a select statement.
+     * 
+     * @param table
+     * @param column
+     * @param aliasPrefix
+     * @return the aliased column, in the format: "table.column as alias"
+     */
+    private static String buildAlias(String table, String column,
+            String aliasPrefix) {
+        return new StringBuilder(table).append(".").append(column)
+                .append(" as ").append(aliasPrefix).append(column).toString();
     }
 
     private static String buildLocationNameConstraint(String[] locationNames,

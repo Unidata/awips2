@@ -62,6 +62,7 @@
     	<include>purge-logs.xml</include>
         <exclude>fssobs-ingest.xml</exclude>
         <exclude>fssobs-common.xml</exclude>
+        <include>ndm-ingest.xml</include>
     </mode>
     <mode name="requestHydro">
         <include>ohd-common-database.xml</include>
@@ -89,5 +90,7 @@
     	<include>event-common.xml</include>
     	<include>eventbus-common.xml</include>
     	<include>edex-request.xml</include>
+    	<include>request-service.xml</include>
+    	<include>request-service-common.xml</include>
     </mode>
 </edexModes>
