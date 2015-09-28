@@ -54,9 +54,6 @@ public class SubGridDef {
     private List<String> modelNames;
 
     @XmlElement
-    private String referenceModel;
-
-    @XmlElement
     private String referenceGrid;
 
     @XmlElement(required = true)
@@ -104,26 +101,6 @@ public class SubGridDef {
 
     public void setShiftWest(Boolean shiftWest) {
         this.shiftWest = shiftWest;
-    }
-
-    /**
-     * a model may have more than one grid so use reference grid instead.
-     * 
-     * @return
-     */
-    @Deprecated
-    public String getReferenceModel() {
-        return referenceModel;
-    }
-
-    /**
-     * a model may have more than one grid so use reference grid instead.
-     * 
-     * @param referenceModel
-     */
-    @Deprecated
-    public void setReferenceModel(String referenceModel) {
-        this.referenceModel = referenceModel;
     }
 
     public String getReferenceGrid() {

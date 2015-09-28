@@ -59,13 +59,13 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * @version 1.0
  */
 
-public class GribPersister implements IContextStateProcessor {
+public class GridPersister implements IContextStateProcessor {
     private static final String HEADERS_ATTRIBUTE = "HEADERS";
 
     private final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(GribPersister.class);
+            .getHandler(GridPersister.class);
 
-    private final Map<String, List<GridRecord>> gridsByFile = new LinkedHashMap<>();
+    private final Map<String, LinkedList<GridPersistSet>> gridsByFile = new LinkedHashMap<>();
 
     private final Map<Thread, String> inProcessFiles = new HashMap<>(4, 1);
 
@@ -73,7 +73,11 @@ public class GribPersister implements IContextStateProcessor {
 
     public IHDFFilePathProvider pathProvider;
 
-    private long maxBytesInMemory = 0;
+    private final long maxBytesInMemory;
+
+    private final long maxBytesPerStore;
+
+    private final int maxGridsPerStore;
 
     private long bytesInMemory = 0;
 
@@ -81,9 +85,10 @@ public class GribPersister implements IContextStateProcessor {
 
     private int gridsInProcess = 0;
 
-    private final GribPersistThread[] persistThreads;
+    private final GridPersistThread[] persistThreads;
 
-    public GribPersister(String pluginName, int numThreads, int maxGridsInMb) {
+    public GridPersister(String pluginName, int numThreads, int maxGridsInMb,
+            int maxGridsPerStore, int maxBytesInMbPerStore) {
         pathProvider = PluginFactory.getInstance().getPathProvider(pluginName);
 
         if (numThreads <= 0) {
@@ -92,17 +97,30 @@ public class GribPersister implements IContextStateProcessor {
             numThreads = 4;
         }
 
-        if (maxGridsInMb <= 0) {
-            statusHandler.warn("Invalid maxGridInMb [" + maxGridsInMb
-                    + "], using default of [" + 100 + "]");
-            maxGridsInMb = 100;
+        if (maxGridsInMb > 0) {
+            maxBytesInMemory = maxGridsInMb * 1024L * 1024L;
+        } else {
+            // no limit
+            maxBytesInMemory = Long.MAX_VALUE;
         }
 
-        maxBytesInMemory = maxGridsInMb * 1024L * 1024L;
+        if (maxGridsPerStore > 0) {
+            this.maxGridsPerStore = maxGridsPerStore;
+        } else {
+            // no limit
+            this.maxGridsPerStore = Integer.MAX_VALUE;
+        }
 
-        persistThreads = new GribPersistThread[numThreads];
+        if (maxBytesInMbPerStore > 0) {
+            this.maxBytesPerStore = maxBytesInMbPerStore * 1024L * 1024L;
+        } else {
+            // no limit
+            this.maxBytesPerStore = Long.MAX_VALUE;
+        }
+
+        persistThreads = new GridPersistThread[numThreads];
         for (int i = 0; i < persistThreads.length; i++) {
-            persistThreads[i] = new GribPersistThread();
+            persistThreads[i] = new GridPersistThread();
             persistThreads[i].setName("GribPersist-" + (i + 1));
             persistThreads[i].start();
         }
@@ -176,14 +194,20 @@ public class GribPersister implements IContextStateProcessor {
 
                 for (int i = 0; i < records.length; i++) {
                     String path = paths[i];
-                    List<GridRecord> recs = gridsByFile.get(path);
+                    LinkedList<GridPersistSet> gridsForFile = gridsByFile
+                            .get(path);
 
-                    if (recs == null) {
-                        recs = new LinkedList<>();
-                        gridsByFile.put(path, recs);
+                    if (gridsForFile == null) {
+                        gridsForFile = new LinkedList<>();
+                        gridsForFile.add(new GridPersistSet());
+                        gridsByFile.put(path, gridsForFile);
                     }
 
-                    recs.add(records[i]);
+                    if (!gridsForFile.getLast().addGrid(records[i])) {
+                        GridPersistSet persistSet = new GridPersistSet();
+                        persistSet.addGrid(records[i]);
+                        gridsForFile.add(persistSet);
+                    }
                 }
 
                 // wake up a sleeping persist thread
@@ -271,17 +295,44 @@ public class GribPersister implements IContextStateProcessor {
 
     }
 
-    private class GribPersistThread extends Thread {
+    private class GridPersistSet {
+        private final List<GridRecord> records = new LinkedList<>();
+
+        private int sizeInBytes;
+
+        public boolean addGrid(GridRecord record) {
+
+            if ((records.size() < maxGridsPerStore)
+                    && (sizeInBytes < maxBytesPerStore)) {
+                sizeInBytes += ((float[]) record.getMessageData()).length * 4;
+                records.add(record);
+                return true;
+            }
+
+            return false;
+        }
+
+        public int getSizeInBytes() {
+            return sizeInBytes;
+        }
+
+        public List<GridRecord> getRecords() {
+            return records;
+        }
+    }
+
+    private class GridPersistThread extends Thread {
         @Override
         public void run() {
             String logMsg = "Processed %d grid(s) to %s in %s. %d grid(s) pending, %d grid(s) in process on other threads, %s in memory";
             String file = null;
-            List<GridRecord> recordsToStore = null;
+            GridPersistSet persistSet = null;
             long timeToStore = System.currentTimeMillis();
+            boolean gridsLeftToProcess = false;
 
-            while (running) {
+            while (running || gridsLeftToProcess) {
                 file = null;
-                recordsToStore = null;
+                persistSet = null;
 
                 try {
                     synchronized (gridsByFile) {
@@ -293,7 +344,9 @@ public class GribPersister implements IContextStateProcessor {
                             }
                         }
 
-                        if (!gridsByFile.isEmpty()) {
+                        gridsLeftToProcess = !gridsByFile.isEmpty();
+
+                        if (gridsLeftToProcess) {
                             Iterator<String> iter = gridsByFile.keySet()
                                     .iterator();
                             Collection<String> fileBeingStored = inProcessFiles
@@ -317,15 +370,24 @@ public class GribPersister implements IContextStateProcessor {
                             }
 
                             inProcessFiles.put(this, file);
-                            recordsToStore = gridsByFile.remove(file);
-                            gridsPending -= recordsToStore.size();
-                            gridsInProcess += recordsToStore.size();
+                            LinkedList<GridPersistSet> gridsForFile = gridsByFile
+                                    .get(file);
+                            persistSet = gridsForFile.pop();
+
+                            if (gridsForFile.isEmpty()) {
+                                gridsByFile.remove(file);
+                            }
+
+                            int numRecords = persistSet.getRecords().size();
+                            gridsPending -= numRecords;
+                            gridsInProcess += numRecords;
                         }
                     }
 
-                    if (recordsToStore != null) {
+                    if (persistSet != null) {
                         timeToStore = System.currentTimeMillis();
-
+                        List<GridRecord> recordsToStore = persistSet
+                                .getRecords();
                         /*
                          * update dequeueTime to ignore time spent in persist
                          * queue, which is accounted for in latency
@@ -343,7 +405,7 @@ public class GribPersister implements IContextStateProcessor {
 
                         try {
                             sendToEndpoint(
-                                    "gribPersistIndexAlert",
+                                    "gridPersistIndexAlert",
                                     recordsToStore
                                             .toArray(new PluginDataObject[recordsToStore
                                                     .size()]));
@@ -356,15 +418,10 @@ public class GribPersister implements IContextStateProcessor {
                     statusHandler.error(
                             "Unhandled error occurred persist grids", e);
                 } finally {
-                    if (recordsToStore != null) {
+                    if (persistSet != null) {
                         timeToStore = System.currentTimeMillis() - timeToStore;
-                        int numRecords = recordsToStore.size();
-
-                        long bytesFree = 0;
-                        for (GridRecord rec : recordsToStore) {
-                            bytesFree += ((float[]) rec.getMessageData()).length * 4;
-                        }
-
+                        int numRecords = persistSet.getRecords().size();
+                        long bytesFree = persistSet.getSizeInBytes();
                         int gridsLeft = 0;
                         int gridsStoringOnOtherThreads = 0;
                         long bytesUsedByGrids = 0;
@@ -384,6 +441,8 @@ public class GribPersister implements IContextStateProcessor {
                                 // wake any pending decode threads
                                 gridsByFile.notifyAll();
                             }
+
+                            gridsLeftToProcess = !gridsByFile.isEmpty();
                         }
 
                         statusHandler.info(String.format(logMsg, numRecords,
@@ -419,7 +478,7 @@ public class GribPersister implements IContextStateProcessor {
             gridsByFile.notifyAll();
         }
 
-        for (GribPersistThread thread : persistThreads) {
+        for (GridPersistThread thread : persistThreads) {
             try {
                 thread.join();
             } catch (InterruptedException e) {

@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<subGridDef>
+  <!--
+      Default clip for grid 198.  To customize overwrite with a site level file.
+      Can be further customized by creating model specific files and filling out
+      the modelNames field with a space delimited list.
+  -->
+  <modelNames></modelNames>
+  <referenceGrid>198</referenceGrid>
+  <nx>300</nx>
+  <ny>300</ny>
+  <!--
+  <centerLatitude>36.5</centerLatitude>
+  <centerLongitude>-81</centerLongitude>
+  -->
+</subGridDef>
