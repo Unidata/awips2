@@ -350,6 +350,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 8Jul2015    DR 15044     dhuffman    Implemented tabbing and tabs to spaces.
  * Aug 31, 2015   4749      njensen     Changed setCloseCallback to addCloseCallback
  * Sep 02, 2015   4781      dgilling    Used different constructor for SpellCheckDlg.
+ * Sep 30, 2015   4860      skorolev    Corrected misspelling.
  * 
  * </pre>
  * 
@@ -5370,30 +5371,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         storedProduct.setProduct(productText.trim());
 
-        /*
-         * if (storedProduct == null) { tdmInst.setStdTextProduct(token,
-         * currentWmoId, currentSiteId, currentWsfoId, currentProdCategory,
-         * currentProdDesignator, currentDate, currentBbbId,
-         * System.currentTimeMillis(), "HELLO AWIPS!"); storedProduct =
-         * tdmInst.getStdTextProduct(token); } else {
-         * tdmInst.setStdTextProduct(token, currentWmoId, currentSiteId,
-         * currentWsfoId, currentProdCategory, currentProdDesignator,
-         * currentDate, currentBbbId, storedProduct.getCreatetime(),
-         * storedProduct .getProduct()); storedProduct =
-         * tdmInst.getStdTextProduct(token); }
-         * 
-         * tmpProd = new StdTextProduct(storedProduct);
-         * tmpProd.setProduct(currentText); } else { if (storedProduct == null)
-         * { tmpProd = new StdTextProduct(currentWmoId, currentSiteId,
-         * currentWsfoId, "TEX", "T0" + token, currentDate, currentBbbId,
-         * System.currentTimeMillis(), currentHeader + "\n" + tmpStr + "@@TEXT0"
-         * + token + "@@" + currentProdCategory + currentProdDesignator); } else
-         * { tmpProd = new StdTextProduct(currentWmoId, currentSiteId,
-         * currentWsfoId, "TEX", "T0" + token, currentDate, currentBbbId,
-         * storedProduct.getCreatetime(), currentHeader + "\n" + tmpStr +
-         * "@@TEXT0" + token + "@@" + currentProdCategory +
-         * currentProdDesignator); } }
-         */
         if (isAutoSave) {
             autoSave.saveProduct(storedProduct);
         } else if (isOperationalSend || resend) {
@@ -5592,7 +5569,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         CAVEMode mode = CAVEMode.getMode();
         boolean result = (CAVEMode.OPERATIONAL.equals(mode)
                 || CAVEMode.TEST.equals(mode) ? true : false);
-        request.setOpertionalFlag(result);
+        request.setOperationalFlag(result);
 
         return request;
     }
