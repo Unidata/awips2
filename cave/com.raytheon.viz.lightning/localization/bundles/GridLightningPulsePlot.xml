@@ -34,6 +34,7 @@
                         handlingPulses="true" handlingCloudFlashes="false"
                         kmResolution="${resolution}">
                         <binOffset posOffset="0" negOffset="${negOffset}" virtualOffset="0"/>
+                        <binRepeatCount>${binRepeatCount;1}</binRepeatCount>
                         <metadataMap>
                             <mapping key="pluginName">
                                 <constraint constraintValue="binlightning" constraintType="EQUALS" />

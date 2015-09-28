@@ -20,11 +20,16 @@
 package com.raytheon.viz.lightning;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
@@ -32,8 +37,13 @@ import com.raytheon.uf.common.dataplugin.binlightning.LightningConstants;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.viz.core.alerts.AlertMessage;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 
 /**
@@ -50,6 +60,9 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * Jul 07, 2014 3333       bclement     removed plotLightSource field
  * Mar 05, 2015 4233       bsteffen     include source in cache key.
  * Jul 01, 2015 4597       bclement     added DisplayType
+ * Jul 02, 2015 4605       bclement     don't show current bin as available
+ * Sep 25, 2015 4605       bsteffen     repeat binning
+ * 
  * </pre>
  * 
  * @author chammack
@@ -89,6 +102,24 @@ public class LightningResourceData extends AbstractRequestableResourceData {
     @XmlAttribute
     private int countPosition = 0;
 
+    /**
+     * This field controls whether the frame for the current time is displayed.
+     * 
+     * When it is true then all data is displayed including the current frame,
+     * since the current frame may not be fully populated this frame may be more
+     * sparse than others.
+     * 
+     * When this is false then the frame for the current time is not displayed.
+     */
+    @XmlAttribute
+    private boolean liveDisplay = false;
+
+    /**
+     * @See {@link RepeatingBinOffset}
+     */
+    @XmlElement
+    private int binRepeatCount = 1;
+
     @Override
     protected AbstractVizResource<?, ?> constructResource(
             LoadProperties loadProperties, PluginDataObject[] objects) {
@@ -108,6 +139,53 @@ public class LightningResourceData extends AbstractRequestableResourceData {
         rsc.addRecords(records);
 
         return rsc;
+    }
+
+    @Override
+    public DataTime[] getAvailableTimes() throws VizException {
+        DataTime[] rval;
+        DataTime[] allTimes = super.getAvailableTimes();
+
+        if (liveDisplay || allTimes == null || allTimes.length < 1) {
+            rval = allTimes;
+        } else {
+            SimulatedTime systemTime = SimulatedTime.getSystemTime();
+            DataTime currentBin = binOffset.getNormalizedTime(new DataTime(
+                    systemTime.getTime()));
+            List<DataTime> pastTimes = new ArrayList<>(Arrays.asList(allTimes));
+            /* remove current bin which may not be fully populated yet */
+            pastTimes.remove(currentBin);
+            rval = pastTimes.toArray(new DataTime[0]);
+        }
+        return rval;
+    }
+
+    @Override
+    protected void update(AlertMessage... messages) {
+        for (AlertMessage message : messages) {
+            Object timeObj = message.decodedAlert.get("dataTime");
+            fireChangeListeners(ChangeType.DATA_REMOVE, timeObj);
+        }
+        invalidateAvailableTimesCache();
+    }
+
+    @Override
+    protected PluginDataObject[] requestPluginDataObjects(
+            Collection<DataTime> loadSet) throws VizException {
+        if (binOffset == null || binRepeatCount <= 1) {
+            return super.requestPluginDataObjects(loadSet);
+        } else {
+            Set<DataTime> newLoadSet = new HashSet<>();
+            RepeatingBinOffset binRepeater = getRepeatingBinOffset();
+            for (DataTime loadTime : loadSet) {
+                newLoadSet.addAll(binRepeater.getBinsToRequest(loadTime));
+            }
+            return super.requestPluginDataObjects(newLoadSet);
+        }
+    }
+
+    public RepeatingBinOffset getRepeatingBinOffset() {
+        return new RepeatingBinOffset(binOffset, binRepeatCount);
     }
 
     @Override
@@ -247,28 +325,36 @@ public class LightningResourceData extends AbstractRequestableResourceData {
         return rval;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
+    public boolean isLiveDisplay() {
+        return liveDisplay;
+    }
+
+    public void setLiveDisplay(boolean liveDisplay) {
+        this.liveDisplay = liveDisplay;
+    }
+
+    public int getBinRepeatCount() {
+        return binRepeatCount;
+    }
+
+    public void setBinRepeatCount(int binRepeatCount) {
+        this.binRepeatCount = binRepeatCount;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
+        result = prime * result + binRepeatCount;
         result = prime * result + countPosition;
         result = prime * result + (handlingCloudFlashes ? 1231 : 1237);
         result = prime * result + (handlingNegativeStrikes ? 1231 : 1237);
         result = prime * result + (handlingPositiveStrikes ? 1231 : 1237);
         result = prime * result + (handlingPulses ? 1231 : 1237);
+        result = prime * result + (liveDisplay ? 1231 : 1237);
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -278,6 +364,8 @@ public class LightningResourceData extends AbstractRequestableResourceData {
         if (getClass() != obj.getClass())
             return false;
         LightningResourceData other = (LightningResourceData) obj;
+        if (binRepeatCount != other.binRepeatCount)
+            return false;
         if (countPosition != other.countPosition)
             return false;
         if (handlingCloudFlashes != other.handlingCloudFlashes)
@@ -287,6 +375,8 @@ public class LightningResourceData extends AbstractRequestableResourceData {
         if (handlingPositiveStrikes != other.handlingPositiveStrikes)
             return false;
         if (handlingPulses != other.handlingPulses)
+            return false;
+        if (liveDisplay != other.liveDisplay)
             return false;
         return true;
     }

@@ -21,6 +21,7 @@ package com.raytheon.viz.lightning;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +56,6 @@ import com.raytheon.uf.common.style.image.DataScale;
 import com.raytheon.uf.common.style.image.ImagePreferences;
 import com.raytheon.uf.common.style.level.Level.LevelType;
 import com.raytheon.uf.common.style.level.SingleLevel;
-import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.cache.CacheObject;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -82,6 +82,7 @@ import com.raytheon.viz.lightning.cache.LightningFrameRetriever;
  * Jul 29, 2014 3463       bclement     uses sparse data source
  * Mar 05, 2015 4233       bsteffen     include source in cache key.
  * Jul 02, 2015 4606       bclement     added getDisplayParameterName()
+ * Sep 25, 2015 4605       bsteffen     repeat binning
  * 
  * </pre>
  * 
@@ -99,7 +100,15 @@ public class GridLightningResource extends
 
     private static final String TIME_PARAM_LABEL = "min";
 
-    private final Map<DataTime, CacheObject<LightningFrameMetadata, LightningFrame>> cacheObjectMap = new ConcurrentHashMap<>();
+    protected final Map<DataTime, CacheObject<LightningFrameMetadata, LightningFrame>> cacheObjectMap = new ConcurrentHashMap<>();
+
+    /**
+     * This serves the same purpose as {@link AbstractGridResource#pdoMap} but
+     * this only contains lightning records and also takes into account
+     * {@link RepeatingBinOffset}. Since pdoMap is not publicly accessible it is
+     * necessary to have this.
+     */
+    private Map<DataTime, List<BinLightningRecord>> recordMap = new ConcurrentHashMap<DataTime, List<BinLightningRecord>>();
 
     /**
      * @param resourceData
@@ -122,7 +131,7 @@ public class GridLightningResource extends
         GridLightningResourceData resourceData = getResourceData();
 
         DisplayType type = resourceData.getDisplayType();
-        BinOffset offset = resourceData.getBinOffset();
+        RepeatingBinOffset offset = resourceData.getRepeatingBinOffset();
         String param = getDisplayParameterName(type, offset);
         /* cave gets angry if there is ever more than one parameter here */
         rval.setParameterName(Arrays.asList(param));
@@ -135,7 +144,7 @@ public class GridLightningResource extends
     }
 
     private static String getDisplayParameterName(DisplayType type,
-            BinOffset offset) {
+            RepeatingBinOffset offset) {
         String rval;
         if (!type.equals(DisplayType.UNDEFINED)) {
             StringBuilder sb = new StringBuilder();
@@ -228,6 +237,7 @@ public class GridLightningResource extends
      */
     @Override
     public void remove(DataTime dataTime) {
+        recordMap.remove(dataTime);
         cacheObjectMap.remove(dataTime);
         super.remove(dataTime);
     }
@@ -260,7 +270,7 @@ public class GridLightningResource extends
          * strikes
          */
         SparseArray<short[]> data = new SparseShortArray(nx, ny);
-        LightningFrame frame = getFrame(time, pdos);
+        LightningFrame frame = getFrame(time);
 
         List<Iterator<double[]>> iterators = new ArrayList<>(4);
         if (resourceData.isHandlingPositiveStrikes()) {
@@ -307,7 +317,7 @@ public class GridLightningResource extends
      * @param pdos
      * @return
      */
-    private LightningFrame getFrame(DataTime time, List<PluginDataObject> pdos) {
+    private LightningFrame getFrame(DataTime time) {
         LightningFrameRetriever retriever = LightningFrameRetriever
                 .getInstance();
         CacheObject<LightningFrameMetadata, LightningFrame> co;
@@ -320,27 +330,17 @@ public class GridLightningResource extends
                  */
                 LightningFrameMetadata key = new LightningFrameMetadata(
                         resourceData.getSource(), time,
-                        resourceData.getBinOffset());
+                        resourceData.getRepeatingBinOffset());
                 co = CacheObject.newCacheObject(key, retriever);
                 cacheObjectMap.put(time, co);
             }
         }
 
-        return retriever.updateAndGet(ensurePdoType(pdos), co);
-    }
-
-    /**
-     * @param pdos
-     * @return list of all BinLightningRecords in pdos
-     */
-    private List<BinLightningRecord> ensurePdoType(List<PluginDataObject> pdos) {
-        List<BinLightningRecord> rval = new ArrayList<>(pdos.size());
-        for (PluginDataObject pdo : pdos) {
-            if (pdo instanceof BinLightningRecord) {
-                rval.add((BinLightningRecord) pdo);
-            }
+        List<BinLightningRecord> pdos = recordMap.get(time);
+        if (pdos == null) {
+            pdos = Collections.emptyList();
         }
-        return rval;
+        return retriever.updateAndGet(pdos, co);
     }
 
     /**
@@ -423,6 +423,34 @@ public class GridLightningResource extends
     public void project(CoordinateReferenceSystem crs) throws VizException {
         clearRequestedData();
         super.project(crs);
+    }
+
+    @Override
+    protected void addDataObject(PluginDataObject pdo) {
+        /*
+         * This method is overridden because the method in super does not take
+         * into account the repeating bin offset.
+         */
+        BinLightningRecord record = (BinLightningRecord) pdo;
+        for (DataTime time : resourceData.getRepeatingBinOffset()
+                .getNormalizedTimes(pdo.getDataTime().getValidPeriod())) {
+            List<BinLightningRecord> pdos = this.recordMap.get(time);
+            if (pdos == null) {
+                pdos = new ArrayList<BinLightningRecord>();
+                this.recordMap.put(time, pdos);
+            }
+            if (!pdos.contains(pdo)) {
+                pdos.add(record);
+                /* Must remove to clear all previously requested data. */
+                super.remove(time);
+                dataTimes.add(time);
+            }
+        }
+    }
+
+    @Override
+    protected List<PluginDataObject> getPluginDataObjects(DataTime time) {
+        return new ArrayList<PluginDataObject>(recordMap.get(time));
     }
 
 }
