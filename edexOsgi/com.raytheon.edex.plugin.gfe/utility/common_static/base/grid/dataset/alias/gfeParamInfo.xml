@@ -233,4 +233,9 @@
     <alias base="FFG-TUA">RFCFFG_ParameterInfo</alias>
     <alias base="PGBlended">PGBlended</alias>
     <alias base="PGBlended-Night">PGBlended</alias>
+    <alias base="NCOM-USEAST">ncom</alias>
+    <alias base="NCOM-AMSEAS">ncom</alias>
+    <alias base="NCOM-SOCAL">ncom</alias>
+    <alias base="NCOM-ALASKA">ncom</alias>
+    <alias base="NCOM-HAWAII">ncom</alias>
 </aliasList>

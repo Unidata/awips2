@@ -1203,6 +1203,7 @@ if SID in ALASKA_SITES:
                  ('ETSS-AK', 'ETSS'),
                  'PGBlended',
                  'PGBlended-Night',
+                 ('NCOM-ALASKA', 'NCOM'),
                ]
 
 # Hawaii OCONUS
@@ -1232,6 +1233,7 @@ elif SID == "HFO":
                  ('GFS20-PAC', 'GFS20'),
                  'PGBlended',
                  'PGBlended-Night',
+                 ('NCOM-HAWAII', 'NCOM'),
                ]
 
 # San Juan OCONUS
@@ -1265,6 +1267,7 @@ elif SID == "SJU":
                  ('GFS20-PRICO', 'GFS20'),
                  'PGBlended',
                  'PGBlended-Night',
+                 ('NCOM-AMSEAS', 'NCOMAMSEAS'),
                ]
 
 # Guam OCONUS
@@ -1363,6 +1366,8 @@ elif SID in CONUS_EAST_SITES:
                  ('FFG-TUA', 'FFGTUA'),
                  'PGBlended',
                  'PGBlended-Night',
+                 ('NCOM-USEAST', 'NCOMUSEAST'),
+                 ('NCOM-AMSEAS', 'NCOMAMSEAS'),
                ]
 
 else:   #######DCS3501 WEST_CONUS
@@ -1445,6 +1450,9 @@ else:   #######DCS3501 WEST_CONUS
                  ('FFG-TUA', 'FFGTUA'),
                  'PGBlended',
                  'PGBlended-Night',
+                 ('NCOM-SOCAL', 'NCOMSOCAL'),
+                 ('NCOM-AMSEAS', 'NCOMAMSEAS'),
+                 ('NCOM-ALASKA', 'NCOMALASKA'),
                ]
 
 if SID in GreatLake_SITES:
