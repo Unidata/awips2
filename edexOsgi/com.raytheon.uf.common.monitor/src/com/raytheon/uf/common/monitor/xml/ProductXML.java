@@ -26,7 +26,8 @@ package com.raytheon.uf.common.monitor.xml;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 1 Apr, 2010 3915         dhladky     Initial creation
+ * 1  Apr,  2010  3915       dhladky     Initial creation
+ * 21 Sep,  2015   4756      dhladky     Sort guidance types.
  * </pre>
  * 
  * @author dhladky
@@ -34,6 +35,7 @@ package com.raytheon.uf.common.monitor.xml;
  */
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -188,6 +190,8 @@ public class ProductXML {
                 }
             }
         }
+        
+        Collections.sort(guidanceTypes);
 
         return guidanceTypes;
 

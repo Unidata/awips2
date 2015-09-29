@@ -6,17 +6,45 @@
     <bean id="gribDecoder" class="com.raytheon.edex.plugin.grib.GribDecoder" />
 
     <bean id="gribGridPointLock" class="com.raytheon.edex.plugin.grib.GribGridPointLock">
-        <constructor-arg value="${grib-decode.count.gridpoints}"/>
-        <constructor-arg value="${grib-decode.count.threads}"/>
+        <constructor-arg value="${GRIB_MAX_GRID_POINTS}"/>
+        <constructor-arg value="${GRIB_DECODE_THREADS}"/>
     </bean>
 
     <bean id="gribSplitter" class="com.raytheon.edex.plugin.grib.GribSplitter" />
-    
+
     <bean id="useLatestAggregationStrategy" class="org.apache.camel.processor.aggregate.UseLatestAggregationStrategy" />
 
     <bean id="gribPostProcessor"
         class="com.raytheon.edex.plugin.grib.decoderpostprocessors.GribPostProcessor"
         factory-method="getInstance" />
+
+    <bean id="postProcessorsRegistered" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetObject" ref="gribPostProcessor"/>
+        <property name="targetMethod" value="register"/>
+        <property name="arguments">
+            <list>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.ARIPostProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.CPCoutlookGribPostProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.CanadianNHPostProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.CanadianRegPostProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.ECMWFHiResProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.EnsembleGridAssembler</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.FFGGribPostProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.GFSProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.HPCqpfPostProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.HWRFPostProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.LapsPostProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.LiftedIndexPostProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.MSASPostProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.Nam80PostProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.OverwriteGribPostProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.RTMAGribPostProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.RUC130GribPostProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.RUC236GribPostProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.TemperatureCorrectionPostProcessor</value>
+            </list>
+        </property>
+    </bean>
 
     <bean id="gribTableLookup" class="com.raytheon.edex.util.grib.GribTableLookup"
         factory-method="getInstance" depends-on="gridRegistered, queryDataRegistered, levelFactoryInitialized" />
@@ -31,8 +59,8 @@
 
     <bean id="gribPersister" class="com.raytheon.edex.plugin.grib.GribPersister">
         <constructor-arg value="grid"/>
-        <constructor-arg value="${grib-persister.count.threads}"/>
-        <constructor-arg value="${grib-persister.count.mb}"/>
+        <constructor-arg value="${GRIB_PERSIST_THREADS}"/>
+        <constructor-arg value="${GRIB_MAX_PERSIST_MEMORY_IN_MB}"/>
     </bean>
 
     <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
@@ -43,8 +71,8 @@
     <camelContext id="grib-decode" xmlns="http://camel.apache.org/schema/spring"
         errorHandlerRef="errorHandler">
 
-        <endpoint id="gribSplitJmsEndpoint" uri="jms-durable:queue:Ingest.GribSplit?concurrentConsumers=${grib-split.count.threads}"/>
-        <endpoint id="gribDecodeJmsEndpoint" uri="jms-durable:queue:Ingest.GribDecode?concurrentConsumers=${grib-decode.count.threads}"/>
+        <endpoint id="gribSplitJmsEndpoint" uri="jms-durable:queue:Ingest.GribSplit?concurrentConsumers=${GRIB_SPLIT_THREADS}"/>
+        <endpoint id="gribDecodeJmsEndpoint" uri="jms-durable:queue:Ingest.GribDecode?concurrentConsumers=${GRIB_DECODE_THREADS}"/>
 
         <!-- Begin Grib Decode Route -->
         <route id="gribSplitIngestRoute">

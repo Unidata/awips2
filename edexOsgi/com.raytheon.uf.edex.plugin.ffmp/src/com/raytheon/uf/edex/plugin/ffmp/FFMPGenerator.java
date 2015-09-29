@@ -141,6 +141,7 @@ import com.raytheon.uf.edex.plugin.ffmp.common.FFTIRatioDiff;
  * Aug 26, 2014 3503       bclement    removed constructDataURI() call
  * Aug 08, 2015 4722       dhladky     Generalized the processing of FFMP data types.
  * Sep 09, 2015 4756       dhladky     Further generalization of FFG processing.
+ * Sep 21, 2015 4756       dhladky     Allow ARCHIVE types to not be purged out.
  * </pre>
  * 
  * @author dhladky
@@ -763,8 +764,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                             String sourceSiteDataKey = getSourceSiteDataKey(
                                     source, dataKey, ffmpRec);
                             ffmpData.remove(sourceSiteDataKey);
-                            statusHandler.info("Removing from memory: "
-                                    + sourceSiteDataKey);
                         }
                     }
                 }
@@ -1270,9 +1269,24 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                     SOURCE_TYPE.GUIDANCE.getSourceType())) {
                 sourceName = source.getDisplayName();
                 sourceSiteDataKey = sourceName;
-                // FFG is so infrequent go back a day
-                backDate = new Date(config.getDate().getTime()
-                        - (TimeUtil.MILLIS_PER_HOUR * FFG_SOURCE_CACHE_TIME));
+                /**
+                 * Some FFG is ARCHIVE, don't purge, backdate == refTime The
+                 * reset (RFCFFG) set to refTime - 1 day.
+                 */
+                if (source.getGuidanceType().equals(
+                        GUIDANCE_TYPE.ARCHIVE.getGuidanceType())) {
+                    /** ARCHIVE types have the refTime of when it was loaded.
+                     * This will have it look back 1 day previous to the reftime 
+                     * and purge anything older than that.
+                     */
+                    backDate = new Date(
+                            ffmpRec.getDataTime().getRefTime().getTime()
+                                    - (TimeUtil.MILLIS_PER_HOUR * FFG_SOURCE_CACHE_TIME));
+                } else {
+                    backDate = new Date(
+                            config.getDate().getTime()
+                                    - (TimeUtil.MILLIS_PER_HOUR * FFG_SOURCE_CACHE_TIME));
+                }
             } else {
                 sourceName = ffmpRec.getSourceName();
                 sourceSiteDataKey = sourceName + "-" + ffmpRec.getSiteKey()
@@ -1435,11 +1449,12 @@ public class FFMPGenerator extends CompositeProductGenerator implements
             fdc.setAggregateData(record);
         }
 
-        // sometimes a record will sit around for a long time and it will have
-        // data going back to the last precip event
-        // this can be an enormous amount of time. Want to get the data dumped
-        // from memory ASAP.
-        if (fdc != null) {
+        /**
+         * sometimes a record will sit around for a long time and it will have
+         * data going back to the last precip event this can be an enormous
+         * amount of time. Want to get the data dumped from memory ASAP.
+         */
+        if (fdc != null && backDate != null) {
             fdc.purge(backDate);
         }
 
@@ -1866,7 +1881,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
             }
 
             ffmpData.remove(siteDataKey);
-            statusHandler.info("Removing from memory: " + siteDataKey);
             accumulator.setReset(false);
             writeFFTIData(siteDataKey, accumulator);
         }
@@ -2020,7 +2034,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
             // replace or insert it
             ffmpData.remove(qpeSiteSourceDataKey);
-            statusHandler.info("Removing from memory: " + qpeSiteSourceDataKey);
             values.setReset(false);
             writeFFTIData(siteDataKey, values);
         }

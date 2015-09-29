@@ -19,7 +19,7 @@
         further_licensing_information.
     -->
 <subGridDef>
-   <modelNames>MOSGuide</modelNames>
+   <modelNames>HPCGuide</modelNames>
    <referenceGrid>184</referenceGrid>
    <nx>500</nx>
    <ny>500</ny>

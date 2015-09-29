@@ -397,6 +397,10 @@ class GribDecoder():
         record.addExtraAttribute("backGenprocess", Integer(gribDict['backGenprocess']))
         record.addExtraAttribute("pdsTemplate", Integer(gribDict['ipdtnum']))
         record.addExtraAttribute("gridid", gridCoverage.getName())
+        if "forecastInterval" in gribDict:
+            record.addExtraAttribute("forecastInterval", gribDict['forecastInterval'])
+        if "forecastIntervalUnit" in gribDict:
+            record.addExtraAttribute("forecastIntervalUnit", gribDict['forecastIntervalUnit'])
         if "numForecasts" in gribDict:
             record.addExtraAttribute("numForecasts", gribDict['numForecasts'])
               
@@ -477,9 +481,12 @@ class GribDecoder():
 
             if levelName is None or len(levelName) == 0:
                 levelName = LevelFactory.UNKNOWN_LEVEL
-
+                
             # Convert the forecast time to seconds
             gribDict['forecastTime'] = self._convertToSeconds(pdsTemplate[8], pdsTemplate[7])
+            # harvest forecast interval for longer term models to post process
+            gribDict['forecastInterval'] = Integer(int(pdsTemplate[8]))
+            gribDict['forecastIntervalUnit'] = Integer(int(pdsTemplate[7]))
             
             # Scale the level one value if necessary
             if pdsTemplate[10] == 0 or pdsTemplate[11] == 0:
@@ -1150,7 +1157,7 @@ class GribDecoder():
     # @param value: The value to convert to seconds
     # @param fromUnit: The value from Table 4.4 to convert from
     # @return: The number of seconds of the provided value 
-    # @rtype: long
+    # @rtype: int
     ##
     def _convertToSeconds(self, value, fromUnit):
         
@@ -1201,7 +1208,7 @@ class GribDecoder():
             retVal = value * 12 * SECONDS_PER_HOUR
             
         return int(retVal)
-
+   
     def _getGridModel(self, gribDict, grid):
         center = gribDict['center']
         subcenter = gribDict['subcenter']

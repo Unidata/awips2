@@ -22,15 +22,14 @@ package com.raytheon.uf.edex.plugin.taf.decoder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.raytheon.uf.common.dataplugin.taf.ChangeGroup;
 import com.raytheon.uf.common.dataplugin.taf.TafConstants;
 import com.raytheon.uf.common.dataplugin.taf.TafPeriod;
 
 /**
- * TODO Add Description
+ * A TAF's subgroup header and body information.
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -39,6 +38,7 @@ import com.raytheon.uf.common.dataplugin.taf.TafPeriod;
  * Oct 20, 2008       1515 jkorman     Initial implementation to
  *                                     add 30 Hour tafs.
  * May 15, 2014       3002 bgonzale    Moved common taf code to com.raytheon.uf.common.dataplugin.taf.
+ * Sep 24, 2015       4890 rferrel     Remove ChangeGroup and code cleanup.
  * </pre>
  * 
  * @author jkorman
@@ -46,9 +46,6 @@ import com.raytheon.uf.common.dataplugin.taf.TafPeriod;
  */
 
 class TAFSubGroup {
-
-    private static final Pattern PAT_VALID_TIME = Pattern
-            .compile(TAFChangeGroupFactory.VALID_TIME);
 
     private static final Pattern PAT_PROB = Pattern
             .compile(TAFChangeGroupFactory.PROB);
@@ -62,12 +59,10 @@ class TAFSubGroup {
     private static final Pattern PAT_BECMG = Pattern
             .compile(TAFChangeGroupFactory.BECMG);
 
-    private final Log logger = LogFactory.getLog(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final Pattern PAT_FM = Pattern
             .compile(TAFChangeGroupFactory.FM);
-
-    private Integer prob = null;
 
     private Integer startDay = null;
 
@@ -78,8 +73,6 @@ class TAFSubGroup {
     private Integer stopDay = null;
 
     private Integer stopHour = null;
-
-    private String changeGroupData = null;
 
     private String changeGroupHeader;
 
@@ -100,13 +93,10 @@ class TAFSubGroup {
      *            the changeGroupHeader to set
      */
     public void setChangeGroupHeader(String changeGroupHdr) {
-        changeGroupData = changeGroupHdr;
 
         Matcher m = PAT_PROBTEMPO.matcher(changeGroupHdr);
         if (m.find()) {
             changeGroupHeader = TafConstants.CG_PROB_TEMPO;
-
-            prob = Integer.decode(changeGroupHdr.substring(4, 5));
 
             startDay = TAFParser.cvtInt(changeGroupHdr.substring(13, 15));
             startHour = TAFParser.cvtInt(changeGroupHdr.substring(15, 17));
@@ -118,8 +108,6 @@ class TAFSubGroup {
         m = PAT_PROB.matcher(changeGroupHdr);
         if (m.find()) {
             changeGroupHeader = TafConstants.CG_PROB;
-
-            prob = Integer.decode(changeGroupHdr.substring(4, 5));
 
             startDay = TAFParser.cvtInt(changeGroupHdr.substring(7, 9));
             startHour = TAFParser.cvtInt(changeGroupHdr.substring(9, 11));
@@ -202,51 +190,41 @@ class TAFSubGroup {
     }
 
     /**
-     * Convert this SubGroup instance into a TAF ChangeGroup.
+     * Determine the period for the subgroup.
      * 
      * @param issueTime
-     *            The time that the enclosing TAF was issued.
-     * @return
+     *            - - Use to determine period's month and year
+     * @return period - null when unable to determine the type of change group
+     *         header.
      */
-    public ChangeGroup toChangeGroup(TafPeriod issueTime) {
-
-        ChangeGroup chgGroup = null;
-
+    public TafPeriod createPeriod(TafPeriod issueTime) {
         TafPeriod period = null;
-        if (TafConstants.CG_FM.equals(changeGroupHeader)) {
-            period = TafPeriod.determineChangeGroupPeriodDDhhmm(startDay
-                    .intValue(), startHour.intValue(), startMin.intValue(),
-                    issueTime);
-        } else if (TafConstants.CG_BECMG.equals(changeGroupHeader)) {
-            period = TafPeriod.determineChangeGroupPeriodDDhhDDhh(startDay
-                    .intValue(), startHour.intValue(), stopDay.intValue(),
-                    stopHour.intValue(), issueTime, true);
-        } else if (TafConstants.CG_PROB.equals(changeGroupHeader)) {
-            period = TafPeriod.determineChangeGroupPeriodDDhhDDhh(startDay
-                    .intValue(), startHour.intValue(), stopDay.intValue(),
-                    stopHour.intValue(), issueTime, false);
-        } else if (TafConstants.CG_PROB_TEMPO.equals(changeGroupHeader)) {
-            period = TafPeriod.determineChangeGroupPeriodDDhhDDhh(startDay
-                    .intValue(), startHour.intValue(), stopDay.intValue(),
-                    stopHour.intValue(), issueTime, false);
-        } else if (TafConstants.CG_TEMPO.equals(changeGroupHeader)) {
-            period = TafPeriod.determineChangeGroupPeriodDDhhDDhh(startDay
-                    .intValue(), startHour.intValue(), stopDay.intValue(),
-                    stopHour.intValue(), issueTime, false);
-        } else if ("INITIAL".equals(changeGroupHeader)) {
-            period = TafPeriod.determineChangeGroupPeriodDDhhDDhh(startDay
-                    .intValue(), startHour.intValue(), stopDay.intValue(),
-                    stopHour.intValue(), issueTime, false);
-        } else {
+
+        switch (changeGroupHeader) {
+        case TafConstants.CG_FM:
+            period = TafPeriod.determineChangeGroupPeriodDDhhmm(
+                    startDay.intValue(), startHour.intValue(),
+                    startMin.intValue(), issueTime);
+            break;
+        case TafConstants.CG_BECMG:
+            period = TafPeriod.determineChangeGroupPeriodDDhhDDhh(
+                    startDay.intValue(), startHour.intValue(),
+                    stopDay.intValue(), stopHour.intValue(), issueTime, true);
+            break;
+
+        // Same period determination.
+        case TafConstants.CG_PROB:
+        case TafConstants.CG_PROB_TEMPO:
+        case TafConstants.CG_TEMPO:
+        case "INITIAL":
+            period = TafPeriod.determineChangeGroupPeriodDDhhDDhh(
+                    startDay.intValue(), startHour.intValue(),
+                    stopDay.intValue(), stopHour.intValue(), issueTime, false);
+            break;
+        default:
             logger.error("Unknown SubGroup value " + changeGroupHeader);
         }
-        if (period != null) {
-            chgGroup = new ChangeGroup(changeGroupHeader, changeGroupBody,
-                    period, period);
-            chgGroup.setChangeGroup(changeGroupData + changeGroupBody);
-            chgGroup.setProbability(prob);
-        }
-        return chgGroup;
-    }
 
+        return period;
+    }
 }

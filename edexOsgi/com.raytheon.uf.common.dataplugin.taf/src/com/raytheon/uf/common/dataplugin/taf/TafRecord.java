@@ -21,15 +21,10 @@
 package com.raytheon.uf.common.dataplugin.taf;
 
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -68,6 +63,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * May 15, 2014 3002        bgonzale    Moved to com.raytheon.uf.common.dataplugin.taf.
  * Oct 10, 2014 3722        mapeters    Removed dataURI column.
  * Apr 01, 2015 3722        rjpeter     Made dataURI fields required, changed amd and corIndicator to boolean.
+ * Sep 21, 2015 4890        rferrel     Removal of Change Group.
  * </pre>
  * 
  * @author bphillip
@@ -133,11 +129,6 @@ public class TafRecord extends PluginDataObject implements ISpatialEnabled {
     @DynamicSerializeElement
     @Column
     private String remarks;
-
-    /** List of change groups (FM, BECMG, etc.) */
-    @DynamicSerializeElement
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "parentID", fetch = FetchType.EAGER)
-    private Set<ChangeGroup> changeGroups = new HashSet<ChangeGroup>();
 
     @ManyToOne
     @PrimaryKeyJoinColumn
@@ -262,26 +253,6 @@ public class TafRecord extends PluginDataObject implements ISpatialEnabled {
      */
     public void setBulletin_time(Date bulletin_time) {
         this.bulletin_time = bulletin_time;
-    }
-
-    /**
-     * @return the changeGroups
-     */
-    public Set<ChangeGroup> getChangeGroups() {
-        return changeGroups;
-    }
-
-    /**
-     * @param changeGroups
-     *            the changeGroups to set
-     */
-    public void setChangeGroups(Set<ChangeGroup> changeGroups) {
-        this.changeGroups = changeGroups;
-        if ((changeGroups != null) && (changeGroups.size() > 0)) {
-            for (ChangeGroup changeGroup : changeGroups) {
-                changeGroup.setParentID(this);
-            }
-        }
     }
 
     /**

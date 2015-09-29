@@ -137,5 +137,11 @@
     </postProcessedModel>
     -->
 
+	<!-- Post Processor for ARI grids (FFG source for FFMP) -->
+	<postProcessedModel>
+		<modelName>ARI</modelName>
+		<processorName>ARIPostProcessor</processorName>
+	</postProcessedModel>
+
 </postProcessedModels>
 

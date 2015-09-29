@@ -19,7 +19,7 @@
  **/
 package com.raytheon.viz.aviation.xml;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -37,6 +37,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  *    ------------ ----------  ----------- --------------------------
  *    2/7/2008     817         grichard    Initial Creation.
  *    Sep 15, 2015 4880        njensen     Removed ISerializableObject
+ *    Sep 25, 2015 4918        rferrel     forecasterConfig is now a List.
  * 
  * </pre>
  * 
@@ -51,14 +52,14 @@ public class AviationForecasterConfig {
      * The aviation forecaster configuration.
      */
     @XmlElement(name = "forecaster")
-    private ArrayList<ForecasterConfig> forecasterConfig;
+    private List<ForecasterConfig> forecasterConfig;
 
     /**
      * Method that gets the aviation forecaster configuration
      * 
      * @return forecasterConfig
      */
-    public ArrayList<ForecasterConfig> getForecasterConfig() {
+    public List<ForecasterConfig> getForecasterConfig() {
         return forecasterConfig;
     }
 
@@ -68,7 +69,7 @@ public class AviationForecasterConfig {
      * @param forecasterConfig
      *            -- the aviation forecaster configuration
      */
-    public void setForecasterConfig(ArrayList<ForecasterConfig> forecasterConfig) {
+    public void setForecasterConfig(List<ForecasterConfig> forecasterConfig) {
         this.forecasterConfig = forecasterConfig;
     }
 }
