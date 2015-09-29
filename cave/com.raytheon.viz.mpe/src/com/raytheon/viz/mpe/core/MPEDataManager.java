@@ -81,6 +81,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Dec 15 2013  DCS 167    cgobs       DualPol capabilities
  * Jul 29, 2015  17471     snaples     Added logging for Radar Bias results table query.
  * Aug 11, 2015 4500       rjpeter     Fix type casts.
+ * Sep 29, 2015 17975      snaples     Fixed an issue with getDateMap query sometimes throwing errors.
+ * 
  * </pre>
  * 
  * @author randerso
@@ -728,18 +730,20 @@ public class MPEDataManager {
 
     private void getDates(boolean update) {
         String starttime = "";
+        String endtime = "";
         if (update && latestAvailableDate != null) {
             starttime = sdf.format(latestAvailableDate);
         } else {
             dateMap = new HashMap<Date, MPEDateInfo>();
             starttime = sdf.format(getEarliestDate());
         }
+        endtime = sdf.format(getLatestDate());
         String sqlQuery = "select obstime,last_save_time,last_exec_time,auto_save from rwresult where rfc='"
                 + RFC
                 + "' and obstime between '"
                 + starttime
                 + "' and '"
-                + sdf.format(getLatestDate()) + "'";
+                + endtime + "'";
 
         try {
             List<Object[]> results = DirectDbQuery.executeQuery(sqlQuery,
