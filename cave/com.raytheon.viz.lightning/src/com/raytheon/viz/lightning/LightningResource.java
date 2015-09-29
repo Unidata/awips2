@@ -21,6 +21,7 @@ package com.raytheon.viz.lightning;
 
 import java.awt.Font;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -93,6 +94,7 @@ import com.raytheon.viz.lightning.cache.LightningFrameRetriever;
  * Jul 01, 2015  4592       bclement    cloud flashes are now points instead of circles
  * Jul 01, 2015  4597       bclement    reworked resource name using DisplayType
  * Sep 10, 2015  4856       njensen     synchronize in remove(DataTime)
+ * Sep 25, 2015  4605       bsteffen    repeat binning
  * 
  * </pre>
  * 
@@ -178,7 +180,7 @@ public class LightningResource extends
      */
     public static String formatResourceName(LightningResourceData resourceData) {
         String rval = "";
-        int absTimeInterval = Math.abs(resourceData.getBinOffset()
+        int absTimeInterval = Math.abs(resourceData.getRepeatingBinOffset()
                 .getInterval());
 
         // If a virtual offset is provided, it is aged lightning, so use
@@ -428,33 +430,21 @@ public class LightningResource extends
         final Map<DataTime, List<BinLightningRecord>> recordMap = new HashMap<DataTime, List<BinLightningRecord>>();
 
         for (BinLightningRecord obj : objs) {
-            long duration = obj.getDataTime().getValidPeriod().getDuration();
-            if (duration > MAX_RECORD_BIN_MILLIS) {
+            TimeRange validPeriod = obj.getDataTime().getValidPeriod();
+            if (validPeriod.getDuration() > MAX_RECORD_BIN_MILLIS) {
                 statusHandler.error("Record bin time larger than maximum "
                         + "supported period. Skipping record: " + obj);
                 continue;
             }
-            DataTime time = new DataTime(obj.getStartTime());
-            DataTime end = new DataTime(obj.getStopTime());
-            time = this.getResourceData().getBinOffset()
-                    .getNormalizedTime(time);
-            end = this.getResourceData().getBinOffset().getNormalizedTime(end);
-
-            // check for frames in the middle
-            // get interval ( in seconds ) between frames
-            int interval = this.getResourceData().getBinOffset().getInterval();
-            while (end.greaterThan(time) || end.equals(time)) {
+            Collection<DataTime> times = resourceData.getRepeatingBinOffset()
+                    .getNormalizedTimes(validPeriod);
+            for (DataTime time : times) {
                 List<BinLightningRecord> records = recordMap.get(time);
                 if (records == null) {
                     records = new ArrayList<BinLightningRecord>();
                     recordMap.put(time, records);
                 }
                 records.add(obj);
-
-                // increment to the next time
-                long newTime = time.getRefTime().getTime() + (interval * 1000);
-                TimeRange range = new TimeRange(newTime, newTime);
-                time = new DataTime(newTime, range);
             }
         }
 
@@ -516,7 +506,7 @@ public class LightningResource extends
                  */
                 LightningFrameMetadata key = new LightningFrameMetadata(
                         resourceData.getSource(), dt,
-                        resourceData.getBinOffset());
+                        resourceData.getRepeatingBinOffset());
                 co = CacheObject.newCacheObject(key, retriever);
                 cacheObjectMap.put(dt, co);
                 dataTimes.add(dt);
