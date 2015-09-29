@@ -810,7 +810,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
   #set($pdssvr = "")
   #set($svrimpact = "")
   #if(${windSpeed} >= 58 && ${hailSize} >= 1)
-    #set($hazard = "${torHazard}, ${hailHazard} and ${windHazard}.")
+    #set($hazard = "${torHazard}, ${hailHazard}, and ${windHazard}.")
   #elseif(${windSpeed} >= 58 && ${hailSize} < 1)
     #set($hazard = "${torHazard} and ${windHazard}.") 
   #elseif(${windSpeed} < 58 && ${hailSize} >= 1)
@@ -894,9 +894,9 @@ ${reportType} located ##
 
 ${pdstor}${pdssvr}
 
-#wrapText("HAZARD...${hazard}" 0 9)
+#wrapText("HAZARD...#capitalize(${hazard} 'FIRST')" 0 9)
 
-#wrapText("SOURCE...${source}${extraSource}" 0 9)
+#wrapText("SOURCE...#capitalize(${source}${extraSource} 'FIRST')" 0 9)
 
 #wrapText("IMPACT...${svrimpact}${torimpact}" 0 9)
 

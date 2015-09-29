@@ -424,7 +424,7 @@ This is a test message. ##
 ## and make sure hail is at least 1 inch
 ##########################################################
 #if(${windSpeed} >= 58 && ${hailSize} >= 1)
-  #set($hazard = "${torHazard}...${hailHazard} and ${windHazard}.")
+  #set($hazard = "${torHazard}, ${hailHazard}, and ${windHazard}.")
 #elseif(${windSpeed} >= 58 && ${hailSize} < 1)
   #set($hazard = "${torHazard} and ${windHazard}.") 
 #elseif(${windSpeed} < 58 && ${hailSize} >= 1)
@@ -474,9 +474,9 @@ This is a test message. ##
 
 #wrapText("${pdstor}" 2 2)
 
-#wrapText("HAZARD...${hazard}" 2 11)
+#wrapText("HAZARD...#capitalize(${hazard} 'FIRST')" 2 11)
 
-#wrapText("SOURCE...${source}${extraSource}" 2 11)
+#wrapText("SOURCE...#capitalize(${source}${extraSource} 'FIRST')" 2 11)
 
 #wrapText("IMPACT...${torimpact}" 2 11)
 
