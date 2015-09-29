@@ -231,4 +231,6 @@
     <alias base="FFG-TAR">RFCFFG_ParameterInfo</alias>
     <alias base="FFG-TIR">RFCFFG_ParameterInfo</alias>
     <alias base="FFG-TUA">RFCFFG_ParameterInfo</alias>
+    <alias base="PGBlended">PGBlended</alias>
+    <alias base="PGBlended-Night">PGBlended</alias>
 </aliasList>

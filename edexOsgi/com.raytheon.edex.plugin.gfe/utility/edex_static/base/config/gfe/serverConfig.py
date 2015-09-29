@@ -1201,6 +1201,8 @@ if SID in ALASKA_SITES:
                  'GLOBHwave',
                  ('GFS217', 'GFS20'),
                  ('ETSS-AK', 'ETSS'),
+                 'PGBlended',
+                 'PGBlended-Night',
                ]
 
 # Hawaii OCONUS
@@ -1228,6 +1230,8 @@ elif SID == "HFO":
                  ('nwpsCG1', 'nwpsCG1'),
                  ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
                  ('GFS20-PAC', 'GFS20'),
+                 'PGBlended',
+                 'PGBlended-Night',
                ]
 
 # San Juan OCONUS
@@ -1259,6 +1263,8 @@ elif SID == "SJU":
                  ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
                  'GLOBHwave',
                  ('GFS20-PRICO', 'GFS20'),
+                 'PGBlended',
+                 'PGBlended-Night',
                ]
 
 # Guam OCONUS
@@ -1274,6 +1280,8 @@ elif SID == "GUM":
                  ('GFS20-PAC', 'GFS20'),
                  # DCS #17288
                  ('Guam-RTMA', 'RTMA'),
+                 'PGBlended',
+                 'PGBlended-Night',
                ]
 
 #CONUS sites
@@ -1353,6 +1361,8 @@ elif SID in CONUS_EAST_SITES:
                  ('FFG-TAR', 'FFGTAR'),
                  ('FFG-TIR', 'FFGTIR'),
                  ('FFG-TUA', 'FFGTUA'),
+                 'PGBlended',
+                 'PGBlended-Night',
                ]
 
 else:   #######DCS3501 WEST_CONUS
@@ -1433,6 +1443,8 @@ else:   #######DCS3501 WEST_CONUS
                  ('FFG-TAR', 'FFGTAR'),
                  ('FFG-TIR', 'FFGTIR'),
                  ('FFG-TUA', 'FFGTUA'),
+                 'PGBlended',
+                 'PGBlended-Night',
                ]
 
 if SID in GreatLake_SITES:
