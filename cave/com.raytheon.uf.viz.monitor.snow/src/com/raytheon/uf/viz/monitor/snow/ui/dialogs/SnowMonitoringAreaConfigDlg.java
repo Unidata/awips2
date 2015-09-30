@@ -19,15 +19,19 @@
  **/
 package com.raytheon.uf.viz.monitor.snow.ui.dialogs;
 
+import java.io.IOException;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.viz.monitor.events.IMonitorConfigurationEvent;
 import com.raytheon.uf.viz.monitor.snow.SnowMonitor;
 import com.raytheon.uf.viz.monitor.snow.threshold.SnowThresholdMgr;
@@ -51,6 +55,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Sep 19, 2014 2757       skorolev    Updated handlers for dialog buttons.
  * Oct 27, 2014 3667       skorolev    Cleaned code.
  * Feb 10, 2015 3886       skorolev     Changed confirmation message.
+ * Aug 17, 2015 3841       skorolev     Corrected handleOkBtnSelection.
  * </pre>
  * 
  * @author mpduff
@@ -79,15 +84,15 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
      * handleApplyBtnSelection()
      */
     @Override
-    protected void handleOkBtnSelection() {
+    protected void handleOkBtnSelection() throws LocalizationException,
+            SerializationException, IOException {
         if (dataIsChanged()) {
             int choice = showMessage(shell, SWT.YES | SWT.NO,
-                    "Confirm Cofiguration Changes", "Save changes?");
+                    "SNOW Monitor Confirm Changes", "Save changes?");
             if (choice == SWT.YES) {
                 // Save the config xml file.
-                resetAndSave();
+                saveConfigs();
                 SnowThresholdMgr.reInitialize();
-                fireConfigUpdateEvent();
                 // Open Threshold Dialog if zones/stations are added.
                 if ((!configMgr.getAddedZones().isEmpty())
                         || (!configMgr.getAddedStations().isEmpty())) {
@@ -102,19 +107,15 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
 
                             @Override
                             public void dialogClosed(Object returnValue) {
-                                // Clean added zones and stations. Close dialog.
-                                configMgr.getAddedZones().clear();
-                                configMgr.getAddedStations().clear();
                                 setReturnValue(true);
                                 close();
                             }
                         });
                         snowMonitorDlg.open();
                     }
-                    // Clean added zones and stations.
-                    configMgr.getAddedZones().clear();
-                    configMgr.getAddedStations().clear();
                 }
+                fireConfigUpdateEvent();
+                resetStatus();
             } else { // Return back to continue edit.
                 return;
             }
@@ -135,8 +136,8 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
     @Override
     protected FSSObsMonitorConfigurationManager getInstance() {
         if (configMgr == null) {
-            configMgr = new FSSObsMonitorConfigurationManager(
-                    MonName.snow.name());
+            configMgr = FSSObsMonitorConfigurationManager
+                    .getInstance(MonName.snow);
         }
         return configMgr;
     }

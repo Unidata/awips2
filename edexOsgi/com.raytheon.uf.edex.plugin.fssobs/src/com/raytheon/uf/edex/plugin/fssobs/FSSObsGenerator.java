@@ -51,6 +51,7 @@ import com.raytheon.uf.edex.plugin.fssobs.common.FSSObsConfig;
  * May 23, 2014 3086       skorolev     Cleaned code.
  * Aug 18, 2014 3530       bclement     removed constructDataURI() call
  * Sep 04, 2014 3220       skorolev     Replaced 3 URI filters with one.
+ * Sep 03, 2015 3841       skorolev     Corrected getInstance.
  * 
  * </pre>
  * 
@@ -141,7 +142,7 @@ public class FSSObsGenerator extends CompositeProductGenerator implements
         allStations = new HashSet<String>();
 
         for (MonName mname : MonName.values()) {
-            currManager = new FSSObsMonitorConfigurationManager(mname.name());
+            currManager = FSSObsMonitorConfigurationManager.getInstance(mname);
             currManager.addListener(this);
             allStations.addAll(currManager.getStations());
             currManager = null;
