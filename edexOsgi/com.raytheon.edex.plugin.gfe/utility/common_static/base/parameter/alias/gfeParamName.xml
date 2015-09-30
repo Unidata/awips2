@@ -64,6 +64,7 @@
     <alias base="PW">pw</alias>
     <alias base="RETOP">retop</alias>
     <alias base="RH">rh</alias>
+    <alias base="SALIN">salin</alias>
     <alias base="SCP">scp</alias>
     <alias base="SHF">shf</alias>
     <alias base="SH">sh</alias>
@@ -90,6 +91,7 @@
     <alias base="T">t</alias>
     <alias base="Terranl">terranl</alias>
     <alias base="USTM">ustm</alias>
+    <alias base="UOGRD">uogrd</alias>
     <alias base="uW">uw</alias>
     <alias base="VAPP">vapp</alias>
     <alias base="Vis">vis</alias>
@@ -97,6 +99,7 @@
     <alias base="VPT">vpt</alias>
     <alias base="VSTM">vstm</alias>
     <alias base="vW">vw</alias>
+    <alias base="VOGRD">vogrd</alias>
     <alias base="WD">wd</alias>
     <alias base="WDerranl">wderranl</alias>
     <alias base="WEASD">weasd</alias>
