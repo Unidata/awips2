@@ -696,6 +696,11 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                 // Go over all of the sites, if mosaic source, can be many.
                 for (String siteKey : sites) {
                     
+                    // No dataKey hash?, dataKey comes from primary source (siteKey)
+                    if (dataKey == null) {
+                        dataKey = siteKey;
+                    }
+                    
                     FFMPRecord ffmpRec = new FFMPRecord();
                     ffmpRec.setSourceName(ffmpProduct.getSourceName());
                     ffmpRec.setDataKey(dataKey);
@@ -1068,13 +1073,21 @@ public class FFMPGenerator extends CompositeProductGenerator implements
             if (sources != null && sources.size() > 0) {
                 for (String source : sources) {
 
-                    SourceXML sourceXml = getSourceConfig().getSource(source);
+                    try {
+                        SourceXML sourceXml = getSourceConfig().getSource(
+                                source);
 
-                    if (sourceXml != null) {
+                        if (sourceXml != null) {
 
-                        String plugin = getSourceConfig().getSource(source)
-                                .getPlugin();
-                        uris.add(FFMPUtils.getFFGDataURI(GUIDANCE_TYPE.RFC, rfc, source, plugin));
+                            String plugin = getSourceConfig().getSource(source)
+                                    .getPlugin();
+                            uris.add(FFMPUtils.getFFGDataURI(GUIDANCE_TYPE.RFC,
+                                    rfc, source, plugin));
+                        }
+                    } catch (Exception e) {
+                        statusHandler.error(
+                                "Problem with extracting guidance source URI's. source="
+                                        + source, e);
                     }
                 }
             }
@@ -1085,21 +1098,25 @@ public class FFMPGenerator extends CompositeProductGenerator implements
         if (guidSources != null && guidSources.size() > 0) {
             for (String guidSource : guidSources) {
 
-                SourceXML sourceXml = getSourceConfig().getSource(guidSource);
+                try {
+                    SourceXML sourceXml = getSourceConfig().getSource(
+                            guidSource);
 
-                if (sourceXml != null
-                        && sourceXml.getGuidanceType().equals(
-                                GUIDANCE_TYPE.ARCHIVE.getGuidanceType())) {
-                    String plugin = getSourceConfig().getSource(guidSource)
-                            .getPlugin();
-                    String[] uriComps = FFMPUtils.parseGridDataPath(sourceXml
-                            .getDataPath());
-                    /*
-                     * datasetid is UriComp[3], parameter abbreviation is
-                     * UriComp[7]
-                     */
-                    uris.add(FFMPUtils.getFFGDataURI(GUIDANCE_TYPE.ARCHIVE,
-                            uriComps[3], uriComps[7], plugin));
+                    if (sourceXml != null
+                            && sourceXml.getGuidanceType().equals(
+                                    GUIDANCE_TYPE.ARCHIVE.getGuidanceType())) {
+                        String plugin = sourceXml.getPlugin();
+                        String[] uriComps = FFMPUtils
+                                .parseGridDataPath(sourceXml.getDataPath());
+                        /*
+                         * datasetid is UriComp[3], parameter abbreviation is
+                         * UriComp[7]
+                         */
+                        uris.add(FFMPUtils.getFFGDataURI(GUIDANCE_TYPE.ARCHIVE,
+                                uriComps[3], uriComps[7], plugin));
+                    }
+                } catch (Exception e) {
+                    statusHandler.error("Problem with extracting guidance source URI's. source="+guidSource, e);
                 }
             }
         }

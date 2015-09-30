@@ -21,6 +21,8 @@ package com.raytheon.uf.edex.plugin.ffmp;
  **/
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -39,11 +41,15 @@ import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.monitor.config.FFMPRunConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.GUIDANCE_TYPE;
 import com.raytheon.uf.common.monitor.xml.DomainXML;
+import com.raytheon.uf.common.monitor.xml.SourceXML;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
+import com.raytheon.uf.edex.database.purge.PurgeRuleSet;
 
 /**
  * FFMP specified data access object.
@@ -54,6 +60,7 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * ------------ ----------  ----------- --------------------------
  * 07/01/09     2521        dhladky    Initial Creation
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
+ * Oct 1,  2015 4756        dhladky    Custom purging for FFMP.
  * 
  * </pre>
  * 
@@ -211,4 +218,35 @@ public class FFMPDao extends PluginDao {
         }
         return retVal;
     }
+
+    /**
+     * Purge by Guidance Type in FFMP
+     */
+    protected RuleResult purgeExpiredKey(PurgeRuleSet ruleSet,
+            String[] sourceName) throws DataAccessLayerException {
+
+        // We assume the String array only contains 1 sourceName,
+        // so we only take sourcName[0] from string array.
+        SourceXML source = FFMPSourceConfigurationManager.getInstance()
+                .getSource(sourceName[0]);
+
+        if (source != null) {
+            if (source.getGuidanceType() != null
+                    && source.getGuidanceType().equals(
+                            GUIDANCE_TYPE.ARCHIVE.getGuidanceType())) {
+                // don't purge ARCHIVE types, return empty sets, 0.
+                return new RuleResult(new HashSet<Date>(), new HashSet<Date>(),
+                        0);
+            } else {
+                // All other types follow general FFMP rules for purge. default
+                return super.purgeExpiredKey(ruleSet, sourceName);
+            }
+        } else {
+            statusHandler.warn("Encounterd a non-recognized source key: key: "
+                    + sourceName +"  Can not be purged!");
+            // since it's an unknown source, it can't be purged, so return blank
+            return new RuleResult(new HashSet<Date>(), new HashSet<Date>(), 0);
+        }
+    }
+
 }

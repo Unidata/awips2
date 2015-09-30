@@ -114,6 +114,7 @@
         <conversion>0.03937</conversion>
         <mosaic>true</mosaic>
         <guidanceType>RFC</guidanceType>
+        <sourceFamily>RFCFFG</sourceFamily>
     </source>
     <source>
         <SourceName>FFG0324hr</SourceName>
@@ -130,6 +131,7 @@
         <conversion>0.03937</conversion>
         <mosaic>true</mosaic>
         <guidanceType>RFC</guidanceType>
+        <sourceFamily>RFCFFG</sourceFamily>
     </source>
     <source>
         <SourceName>FFG0624hr</SourceName>
@@ -145,11 +147,862 @@
         <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
         <conversion>0.03937</conversion>
         <mosaic>true</mosaic>
-        <guidanceType>RFC</guidanceType>
+        <sourceFamily>RFCFFG</sourceFamily>
+    </source>
+    <!-- ARI sources -->
+    <source>
+        <SourceName>ARI1YR1</SourceName>
+        <DisplayName>ARIFFG1</DisplayName>
+        <DurationHour>1.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI1YR1/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI1YR3</SourceName>
+        <DisplayName>ARIFFG1</DisplayName>
+        <DurationHour>3.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI1YR3/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI1YR6</SourceName>
+        <DisplayName>ARIFFG1</DisplayName>
+        <DurationHour>6.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI1YR6/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI1YR12</SourceName>
+        <DisplayName>ARIFFG1</DisplayName>
+        <DurationHour>12.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI1YR12/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI1YR30</SourceName>
+        <DisplayName>ARIFFG1</DisplayName>
+        <DurationHour>0.5</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI1YR30/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+   <source>
+        <SourceName>ARI2YR1</SourceName>
+        <DisplayName>ARIFFG2</DisplayName>
+        <DurationHour>1.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI2YR1/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI2YR3</SourceName>
+        <DisplayName>ARIFFG2</DisplayName>
+        <DurationHour>3.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI2YR3/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI2YR6</SourceName>
+        <DisplayName>ARIFFG2</DisplayName>
+        <DurationHour>6.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI2YR6/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI2YR12</SourceName>
+        <DisplayName>ARIFFG2</DisplayName>
+        <DurationHour>12.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI1YR12/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI2YR30</SourceName>
+        <DisplayName>ARIFFG2</DisplayName>
+        <DurationHour>0.5</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI2YR30/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI5YR1</SourceName>
+        <DisplayName>ARIFFG5</DisplayName>
+        <DurationHour>1.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI5YR1/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI5YR3</SourceName>
+        <DisplayName>ARIFFG5</DisplayName>
+        <DurationHour>3.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI5YR3/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI5YR6</SourceName>
+        <DisplayName>ARIFFG5</DisplayName>
+        <DurationHour>6.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI5YR6/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI5YR12</SourceName>
+        <DisplayName>ARIFFG5</DisplayName>
+        <DurationHour>12.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI5YR12/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI5YR30</SourceName>
+        <DisplayName>ARIFFG5</DisplayName>
+        <DurationHour>0.5</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI5YR30/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+     <source>
+        <SourceName>ARI10YR1</SourceName>
+        <DisplayName>ARIFFG10</DisplayName>
+        <DurationHour>1.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI10YR1/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI10YR3</SourceName>
+        <DisplayName>ARIFFG10</DisplayName>
+        <DurationHour>3.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI10YR3/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI10YR6</SourceName>
+        <DisplayName>ARIFFG10</DisplayName>
+        <DurationHour>6.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI10YR6/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI10YR12</SourceName>
+        <DisplayName>ARIFFG10</DisplayName>
+        <DurationHour>12.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI10YR12/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI10YR30</SourceName>
+        <DisplayName>ARIFFG10</DisplayName>
+        <DurationHour>0.5</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI10YR30/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI25YR1</SourceName>
+        <DisplayName>ARIFFG25</DisplayName>
+        <DurationHour>1.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI25YR1/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI25YR3</SourceName>
+        <DisplayName>ARIFFG25</DisplayName>
+        <DurationHour>3.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI25YR3/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI25YR6</SourceName>
+        <DisplayName>ARIFFG25</DisplayName>
+        <DurationHour>6.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI25YR6/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI25YR12</SourceName>
+        <DisplayName>ARIFFG25</DisplayName>
+        <DurationHour>12.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI1YR12/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI25YR30</SourceName>
+        <DisplayName>ARIFFG25</DisplayName>
+        <DurationHour>0.5</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI25YR30/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI50YR1</SourceName>
+        <DisplayName>ARIFFG50</DisplayName>
+        <DurationHour>1.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI50YR1/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI50YR3</SourceName>
+        <DisplayName>ARIFFG50</DisplayName>
+        <DurationHour>3.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI50YR3/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI50YR6</SourceName>
+        <DisplayName>ARIFFG50</DisplayName>
+        <DurationHour>6.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI50YR6/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI50YR12</SourceName>
+        <DisplayName>ARIFFG50</DisplayName>
+        <DurationHour>12.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI50YR12/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI50YR30</SourceName>
+        <DisplayName>ARIFFG50</DisplayName>
+        <DurationHour>0.5</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI50YR30/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI100YR1</SourceName>
+        <DisplayName>ARIFFG100</DisplayName>
+        <DurationHour>1.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI100YR1/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI100YR3</SourceName>
+        <DisplayName>ARIFFG100</DisplayName>
+        <DurationHour>3.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI100YR3/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI100YR6</SourceName>
+        <DisplayName>ARIFFG100</DisplayName>
+        <DurationHour>6.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI100YR6/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI100YR12</SourceName>
+        <DisplayName>ARIFFG100</DisplayName>
+        <DurationHour>12.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI100YR12/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI100YR30</SourceName>
+        <DisplayName>ARIFFG100</DisplayName>
+        <DurationHour>0.5</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI100YR30/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI200YR1</SourceName>
+        <DisplayName>ARIFFG200</DisplayName>
+        <DurationHour>1.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI200YR1/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI200YR3</SourceName>
+        <DisplayName>ARIFFG200</DisplayName>
+        <DurationHour>3.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI200YR3/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI200YR6</SourceName>
+        <DisplayName>ARIFFG200</DisplayName>
+        <DurationHour>6.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI200YR6/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI200YR12</SourceName>
+        <DisplayName>ARIFFG200</DisplayName>
+        <DurationHour>12.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI200YR12/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI200YR30</SourceName>
+        <DisplayName>ARIFFG200</DisplayName>
+        <DurationHour>0.5</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI200YR30/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI500YR1</SourceName>
+        <DisplayName>ARIFFG500</DisplayName>
+        <DurationHour>1.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI500YR1/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI500YR3</SourceName>
+        <DisplayName>ARIFFG500</DisplayName>
+        <DurationHour>3.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI500YR3/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI500YR6</SourceName>
+        <DisplayName>ARIFFG500</DisplayName>
+        <DurationHour>6.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI500YR6/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI500YR12</SourceName>
+        <DisplayName>ARIFFG500</DisplayName>
+        <DurationHour>12.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI500YR12/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI500YR30</SourceName>
+        <DisplayName>ARIFFG500</DisplayName>
+        <DurationHour>0.5</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI500YR30/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+        <source>
+        <SourceName>ARI1000YR1</SourceName>
+        <DisplayName>ARIFFG1000</DisplayName>
+        <DurationHour>1.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI1000YR1/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI1000YR3</SourceName>
+        <DisplayName>ARIFFG1000</DisplayName>
+        <DurationHour>3.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI1000YR3/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI1000YR6</SourceName>
+        <DisplayName>ARIFFG1000</DisplayName>
+        <DurationHour>6.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI1000YR6/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI1000YR12</SourceName>
+        <DisplayName>ARIFFG1000</DisplayName>
+        <DurationHour>12.0</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI1000YR12/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
+    </source>
+    <source>
+        <SourceName>ARI1000YR30</SourceName>
+        <DisplayName>ARIFFG1000</DisplayName>
+        <DurationHour>0.5</DurationHour>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI1000YR30/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>GUIDANCE</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>2080</expirationMinutes>
+        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
+        <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
+        <guidanceType>ARCHIVE</guidanceType>
+        <sourceFamily>ARIFFG</sourceFamily>
     </source>
     <source>
         <SourceName>MRMS</SourceName>
-        <DisplayName>MRMS-1000</DisplayName>
+        <DisplayName>MRMS-QPE</DisplayName>
         <DurationHour>0.0</DurationHour>
         <dataPath>/grid/%/MRMS_1000/.*/.*/.*/PrecipRate/FH/0.0/-999999.0/</dataPath>
         <plugin>grid</plugin>
@@ -184,6 +1037,19 @@
         <expirationMinutes>5</expirationMinutes>
         <conversion>0.03937</conversion>
         <mosaic>false</mosaic>
+    </source>
+    <source>
+        <SourceName>HRRRQPF</SourceName>
+        <DisplayName>HRRRQPF</DisplayName>
+        <DurationHour>1.0</DurationHour>
+        <dataPath>/grid/%/HRRR/.*/.*/.*/TP1hr/SFC/0.0/-999999.0/</dataPath>
+        <plugin>grid</plugin>
+        <dataType>GRID</dataType>
+        <sourceType>QPF</sourceType>
+        <rateOrAccum>accum</rateOrAccum>
+        <expirationMinutes>75</expirationMinutes>
+        <conversion>0.03937</conversion>
+        <mosaic>true</mosaic>
     </source>
     <source>
         <SourceName>VGBBIASHPE</SourceName>
@@ -241,7 +1107,21 @@
         <qpf>PRTM</qpf>
         <qpf>BPRTM</qpf>
         <qpf>QPFSCAN</qpf>
+        <!--  
+        <qpf>HRRRQPF</qpf>
+        <qpf>MRMSQPF</qpf>
+                -->
         <guidance>FFG0124hr, FFG0324hr, FFG0624hr</guidance>
+        <guidance>ARI1YR30, ARI1YR1, ARI1YR3, ARI1YR6, ARI1YR12</guidance>
+        <guidance>ARI2YR30, ARI1YR1, ARI2YR3, ARI2YR6, ARI2YR12</guidance>
+        <guidance>ARI5YR30, ARI5YR1, ARI5YR3, ARI5YR6, ARI5YR12</guidance>
+        <guidance>ARI10YR30, ARI10YR1, ARI10YR3, ARI10YR6, ARI10YR12</guidance>
+        <guidance>ARI25YR30, ARI25YR1, ARI25YR3, ARI25YR6, ARI25YR12</guidance>
+        <guidance>ARI50YR30, ARI50YR1, ARI50YR3, ARI50YR6, ARI50YR12</guidance>
+        <guidance>ARI100YR30, ARI100YR1, ARI100YR3, ARI100YR6, ARI100YR12</guidance>
+        <guidance>ARI200YR30, ARI200YR1, ARI200YR3, ARI200YR6, ARI200YR12</guidance>
+        <guidance>ARI500YR30, ARI500YR1, ARI500YR3, ARI500YR6, ARI500YR12</guidance>
+        <guidance>ARI1000YR30, ARI1000YR1, ARI1000YR3, ARI1000YR6, ARI1000YR12</guidance>
         <virtual>VGBHPE</virtual>
     </product>
     <product primarySource="BDHRMOSAIC">
@@ -250,7 +1130,21 @@
         <qpf>BPRTM</qpf>
         <qpf>PRTM</qpf>
         <qpf>QPFSCAN</qpf>
+        <!--  
+        <qpf>HRRRQPF</qpf>
+        <qpf>MRMSQPF</qpf>
+        -->
         <guidance>FFG0124hr, FFG0324hr, FFG0624hr</guidance>
+        <guidance>ARI1YR30, ARI1YR1, ARI1YR3, ARI1YR6, ARI1YR12</guidance>
+        <guidance>ARI2YR30, ARI1YR1, ARI2YR3, ARI2YR6, ARI2YR12</guidance>
+        <guidance>ARI5YR30, ARI5YR1, ARI5YR3, ARI5YR6, ARI5YR12</guidance>
+        <guidance>ARI10YR30, ARI10YR1, ARI10YR3, ARI10YR6, ARI10YR12</guidance>
+        <guidance>ARI25YR30, ARI25YR1, ARI25YR3, ARI25YR6, ARI25YR12</guidance>
+        <guidance>ARI50YR30, ARI50YR1, ARI50YR3, ARI50YR6, ARI50YR12</guidance>
+        <guidance>ARI100YR30, ARI100YR1, ARI100YR3, ARI100YR6, ARI100YR12</guidance>
+        <guidance>ARI200YR30, ARI200YR1, ARI200YR3, ARI200YR6, ARI200YR12</guidance>
+        <guidance>ARI500YR30, ARI500YR1, ARI500YR3, ARI500YR6, ARI500YR12</guidance>
+        <guidance>ARI1000YR30, ARI1000YR1, ARI1000YR3, ARI1000YR6, ARI1000YR12</guidance>
         <virtual>VGBBIASHPE</virtual>
     </product>
     <product primarySource="DHR">
@@ -259,7 +1153,19 @@
         <qpf>QPFSCAN</qpf>
         <qpf>PRTM</qpf>
         <qpf>BPRTM</qpf>
+        <qpf>HRRRQPF</qpf>
+        <qpf>MRMSQPF</qpf>
         <guidance>FFG0124hr, FFG0324hr, FFG0624hr</guidance>
+        <guidance>ARI1YR30, ARI1YR1, ARI1YR3, ARI1YR6, ARI1YR12</guidance>
+        <guidance>ARI2YR30, ARI1YR1, ARI2YR3, ARI2YR6, ARI2YR12</guidance>
+        <guidance>ARI5YR30, ARI5YR1, ARI5YR3, ARI5YR6, ARI5YR12</guidance>
+        <guidance>ARI10YR30, ARI10YR1, ARI10YR3, ARI10YR6, ARI10YR12</guidance>
+        <guidance>ARI25YR30, ARI25YR1, ARI25YR3, ARI25YR6, ARI25YR12</guidance>
+        <guidance>ARI50YR30, ARI50YR1, ARI50YR3, ARI50YR6, ARI50YR12</guidance>
+        <guidance>ARI100YR30, ARI100YR1, ARI100YR3, ARI100YR6, ARI100YR12</guidance>
+        <guidance>ARI200YR30, ARI200YR1, ARI200YR3, ARI200YR6, ARI200YR12</guidance>
+        <guidance>ARI500YR30, ARI500YR1, ARI500YR3, ARI500YR6, ARI500YR12</guidance>
+        <guidance>ARI1000YR30, ARI1000YR1, ARI1000YR3, ARI1000YR6, ARI1000YR12</guidance>
         <virtual>VGBDHR</virtual>
     </product>
     <product primarySource="DPR">
@@ -268,7 +1174,19 @@
         <qpf>QPFSCAN</qpf>
         <qpf>BPRTM</qpf>
         <qpf>PRTM</qpf>
+        <qpf>HRRRQPF</qpf>
+        <qpf>MRMSQPF</qpf>
         <guidance>FFG0124hr, FFG0324hr, FFG0624hr</guidance>
+        <guidance>ARI1YR30, ARI1YR1, ARI1YR3, ARI1YR6, ARI1YR12</guidance>
+        <guidance>ARI2YR30, ARI1YR1, ARI2YR3, ARI2YR6, ARI2YR12</guidance>
+        <guidance>ARI5YR30, ARI5YR1, ARI5YR3, ARI5YR6, ARI5YR12</guidance>
+        <guidance>ARI10YR30, ARI10YR1, ARI10YR3, ARI10YR6, ARI10YR12</guidance>
+        <guidance>ARI25YR30, ARI25YR1, ARI25YR3, ARI25YR6, ARI25YR12</guidance>
+        <guidance>ARI50YR30, ARI50YR1, ARI50YR3, ARI50YR6, ARI50YR12</guidance>
+        <guidance>ARI100YR30, ARI100YR1, ARI100YR3, ARI100YR6, ARI100YR12</guidance>
+        <guidance>ARI200YR30, ARI200YR1, ARI200YR3, ARI200YR6, ARI200YR12</guidance>
+        <guidance>ARI500YR30, ARI500YR1, ARI500YR3, ARI500YR6, ARI500YR12</guidance>
+        <guidance>ARI1000YR30, ARI1000YR1, ARI1000YR3, ARI1000YR6, ARI1000YR12</guidance>
         <virtual>VGBDPR</virtual>
     </product>
     <product primarySource="MRMS">
@@ -278,7 +1196,19 @@
         <qpf>BPRTM</qpf>
         <qpf>PRTM</qpf>
         <qpf>MRMSQPF</qpf>
+        <qpf>HRRRQPF</qpf>
         <guidance>FFG0124hr, FFG0324hr, FFG0624hr</guidance>
+        <guidance>ARI1YR30, ARI1YR1, ARI1YR3, ARI1YR6, ARI1YR12</guidance>
+        <guidance>ARI2YR30, ARI1YR1, ARI2YR3, ARI2YR6, ARI2YR12</guidance>
+        <guidance>ARI5YR30, ARI5YR1, ARI5YR3, ARI5YR6, ARI5YR12</guidance>
+        <guidance>ARI10YR30, ARI10YR1, ARI10YR3, ARI10YR6, ARI10YR12</guidance>
+        <guidance>ARI25YR30, ARI25YR1, ARI25YR3, ARI25YR6, ARI25YR12</guidance>
+        <guidance>ARI50YR30, ARI50YR1, ARI50YR3, ARI50YR6, ARI50YR12</guidance>
+        <guidance>ARI100YR30, ARI100YR1, ARI100YR3, ARI100YR6, ARI100YR12</guidance>
+        <guidance>ARI200YR30, ARI200YR1, ARI200YR3, ARI200YR6, ARI200YR12</guidance>
+        <guidance>ARI500YR30, ARI500YR1, ARI500YR3, ARI500YR6, ARI500YR12</guidance>
+        <guidance>ARI1000YR30, ARI1000YR1, ARI1000YR3, ARI1000YR6, ARI1000YR12</guidance>
         <virtual>MRMSVGB</virtual>
     </product>
+
 </FFMPSourceConfig>
