@@ -23,14 +23,14 @@ import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
 import com.raytheon.uf.common.activetable.ActiveTableMode;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData;
 import com.raytheon.viz.gfe.tasks.TaskManager;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeProhibitedOpException;
 
 /**
  * Utilities for text formatter
@@ -46,6 +46,7 @@ import com.raytheon.viz.gfe.tasks.TaskManager;
  *                                     Removed call to TextProductManager.reloadModule
  * Apr 20, 2015  4027      randerso    Renamed ProductStateEnum with an initial capital
  *                                     Fixed hard coded active table mode in runFormatterScript
+ * Sep 15, 2015  4858      dgilling    Prevent formatters from being run in DRT mode.
  * 
  * </pre>
  * 
@@ -54,11 +55,10 @@ import com.raytheon.viz.gfe.tasks.TaskManager;
  */
 
 public class FormatterUtil {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(FormatterUtil.class);
 
-    public static String[] VTEC_MODES = { "Normal: NoVTEC", "Normal: O-Vtec",
-            "Normal: E-Vtec", "Normal: X-Vtec", "Test: NoVTEC", "Test: T-Vtec" };
+    public static final String[] VTEC_MODES = { "Normal: NoVTEC",
+            "Normal: O-Vtec", "Normal: E-Vtec", "Normal: X-Vtec",
+            "Test: NoVTEC", "Test: T-Vtec" };
 
     /**
      * Runs a text formatter script for a given product
@@ -76,10 +76,12 @@ public class FormatterUtil {
      *            VTEC mode
      * @param finish
      *            listener to fire when formatter finishes generating product
+     * @throws SimulatedTimeProhibitedOperationException
      */
     public static void runFormatterScript(DataManager dataMgr,
             TextProductManager productMgr, String productName, String dbId,
-            String vtecMode, TextProductFinishListener finish) {
+            String vtecMode, TextProductFinishListener finish)
+            throws SimulatedTimeProhibitedOpException {
 
         int testMode = 0;
         ActiveTableMode atMode = ActiveTableMode.OPERATIONAL;
@@ -129,11 +131,15 @@ public class FormatterUtil {
 
     public static void runFormatterScript(String name, String vtecMode,
             String databaseID, String varDict, String vtecActiveTable,
-            String drtTime, int testMode, TextProductFinishListener finish) {
+            String drtTime, int testMode, TextProductFinishListener finish)
+            throws SimulatedTimeProhibitedOpException {
+        if (!SimulatedTimeOperations.isTransmitAllowed()) {
+            throw SimulatedTimeOperations
+                    .constructProhibitedOpException("GFE Text formatters");
+        }
+
         TextFormatter formatter = new TextFormatter(name, vtecMode, databaseID,
                 varDict, vtecActiveTable, drtTime, testMode, finish);
-        // Thread thread = new Thread(formatter);
-        // thread.start();
         finish.textProductQueued(ConfigData.ProductStateEnum.Queued);
         TaskManager.getInstance().queueFormatter(formatter);
     }
