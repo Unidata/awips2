@@ -21,9 +21,13 @@ package com.raytheon.viz.radar.frame;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
+import java.util.NavigableSet;
+import java.util.TreeSet;
 
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -32,6 +36,11 @@ import com.raytheon.uf.viz.core.drawables.FrameCoordinator;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.IFrameChangedListener;
 import com.raytheon.uf.viz.core.drawables.IFrameCoordinator;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
+import com.raytheon.viz.radar.rsc.AbstractRadarResource;
 import com.raytheon.viz.radar.ui.RadarDisplayManager;
 
 /**
@@ -61,6 +70,7 @@ import com.raytheon.viz.radar.ui.RadarDisplayManager;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * May 13, 2015  4461     bsteffen    Initial creation
+ * Sep 30, 2015  4902     bsteffen    Better determination of best frame.
  * 
  * </pre>
  * 
@@ -68,19 +78,20 @@ import com.raytheon.viz.radar.ui.RadarDisplayManager;
  * @version 1.0
  */
 public class SailsFrameCoordinator extends FrameCoordinator implements
-        IFrameChangedListener {
+        IFrameChangedListener, RemoveListener {
 
     private final RadarFrameCache cache;
 
     private final RadarDisplayManager displayManager;
 
-    public SailsFrameCoordinator(IDescriptor descriptor) {
+    public SailsFrameCoordinator(final IDescriptor descriptor) {
         super(descriptor);
         cache = new RadarFrameCache();
         descriptor.addFrameChangedListener(this);
         this.displayManager = RadarDisplayManager.getInstance();
         IFrameCoordinator existing = descriptor.getFrameCoordinator();
         currentAnimationMode = existing.getAnimationMode();
+        descriptor.getResourceList().addPostRemoveListener(this);
     }
 
     protected boolean isEnabled() {
@@ -92,11 +103,11 @@ public class SailsFrameCoordinator extends FrameCoordinator implements
             IFrameValidator validator) {
         if (isEnabled()) {
             List<RadarDataTime> volumeScan = getVolumeScan(frames, dataIndex);
-            Collections.sort(volumeScan, new ElevationAngleComparator<>());
-            Collections.reverse(volumeScan);
+            Collections.sort(volumeScan,
+                    Collections.reverseOrder(ELEVATION_ANGLE_COMPARATOR));
             for (RadarDataTime time : volumeScan) {
                 if (validator.isValid(time)) {
-                    return getBestFrameIndex(frames, time, validator);
+                    return getBestFrameIndex(frames, dataIndex, time, validator);
                 }
             }
         }
@@ -108,10 +119,10 @@ public class SailsFrameCoordinator extends FrameCoordinator implements
             IFrameValidator validator) {
         if (isEnabled()) {
             List<RadarDataTime> volumeScan = getVolumeScan(frames, dataIndex);
-            Collections.sort(volumeScan, new ElevationAngleComparator<>());
+            Collections.sort(volumeScan, ELEVATION_ANGLE_COMPARATOR);
             for (RadarDataTime time : volumeScan) {
                 if (validator.isValid(time)) {
-                    return getBestFrameIndex(frames, time, validator);
+                    return getBestFrameIndex(frames, dataIndex, time, validator);
                 }
             }
         }
@@ -125,7 +136,7 @@ public class SailsFrameCoordinator extends FrameCoordinator implements
             if (op == FrameChangeOperation.NEXT) {
                 List<RadarDataTime> volumeScan = getVolumeScan(frames,
                         dataIndex);
-                Collections.sort(volumeScan, new ElevationAngleComparator<>());
+                Collections.sort(volumeScan, ELEVATION_ANGLE_COMPARATOR);
                 int startIdx = volumeScan.indexOf(frames[dataIndex]);
                 double currentLevel = volumeScan.get(startIdx).getLevelValue();
                 int idx = (startIdx + 1) % volumeScan.size();
@@ -133,14 +144,15 @@ public class SailsFrameCoordinator extends FrameCoordinator implements
                     RadarDataTime time = volumeScan.get(idx);
                     if (validator.isValid(time)
                             && time.getLevelValue() != currentLevel) {
-                        return getBestFrameIndex(frames, time, validator);
+                        return getBestFrameIndex(frames, dataIndex, time,
+                                validator);
                     }
                     idx = (idx + 1) % volumeScan.size();
                 }
             } else if (op == FrameChangeOperation.PREVIOUS) {
                 List<RadarDataTime> volumeScan = getVolumeScan(frames,
                         dataIndex);
-                Collections.sort(volumeScan, new ElevationAngleComparator<>());
+                Collections.sort(volumeScan, ELEVATION_ANGLE_COMPARATOR);
                 int startIdx = volumeScan.indexOf(frames[dataIndex]);
                 double currentLevel = volumeScan.get(startIdx).getLevelValue();
                 int idx = (startIdx + volumeScan.size() - 1)
@@ -149,7 +161,8 @@ public class SailsFrameCoordinator extends FrameCoordinator implements
                     RadarDataTime time = volumeScan.get(idx);
                     if (validator.isValid(time)
                             && time.getLevelValue() != currentLevel) {
-                        return getBestFrameIndex(frames, time, validator);
+                        return getBestFrameIndex(frames, dataIndex, time,
+                                validator);
                     }
                     idx = (idx + volumeScan.size() - 1) % volumeScan.size();
                 }
@@ -164,8 +177,8 @@ public class SailsFrameCoordinator extends FrameCoordinator implements
         int idx = super.getLastDataTimeIndex(frames, dataIndex, validator);
         if (isEnabled()) {
             List<RadarDataTime> volumeScan = getVolumeScan(frames, idx);
-            Collections.sort(volumeScan, new ElevationNumberComparator());
-            Collections.reverse(volumeScan);
+            Collections.sort(volumeScan,
+                    Collections.reverseOrder(ELEVATION_NUMBER_COMPARATOR));
             for (RadarDataTime time : volumeScan) {
                 if (validator.isValid(time)) {
                     return Arrays.asList(frames).indexOf(time);
@@ -181,7 +194,7 @@ public class SailsFrameCoordinator extends FrameCoordinator implements
         int idx = super.getFirstDataTimeIndex(frames, dataIndex, validator);
         if (isEnabled()) {
             List<RadarDataTime> volumeScan = getVolumeScan(frames, idx);
-            Collections.sort(volumeScan, new ElevationNumberComparator());
+            Collections.sort(volumeScan, ELEVATION_NUMBER_COMPARATOR);
             for (RadarDataTime time : volumeScan) {
                 if (validator.isValid(time)) {
                     return Arrays.asList(frames).indexOf(time);
@@ -193,20 +206,130 @@ public class SailsFrameCoordinator extends FrameCoordinator implements
 
     /**
      * Given an example time, find the best time in the frames that has the same
-     * volume scan number and primary elevation angle. This is done by
-     * consulting the cache to see if there is a previously viewed frame that
-     * can be used.
+     * volume scan number and primary elevation angle. This attempts to maintain
+     * the same time as the previously displayed time.
+     * 
+     * @param frames
+     *            the frames that can be displayed
+     * @param previousIndex
+     *            the index of the previously displayed frame
+     * @param example
+     *            the RadarDataTime that was chosen from frames by one of the
+     *            other methods based off of the frame change action. This
+     *            method might return the index of this time or might select a
+     *            better time with the same elevation angle and volume scan
+     *            number.
+     * @param validator
+     *            object to use to ensure no invalid frames are returned.
+     * @return the index of the frame that should displayed.
      */
-    private int getBestFrameIndex(DataTime[] frames, RadarDataTime example,
-            IFrameValidator validator) {
+    private int getBestFrameIndex(DataTime[] frames, int previousIndex,
+            RadarDataTime example, IFrameValidator validator) {
         List<DataTime> framesList = Arrays.asList(frames);
-        DataTime cached = cache.getLastFrameTime(example);
-        int index = framesList.indexOf(cached);
-        if (index >= 0 && validator.isValid(frames[index])) {
-            return index;
-        } else {
-            return framesList.indexOf(example);
+        RadarDataTime previousDataTime = (RadarDataTime) frames[previousIndex];
+
+        List<RadarDataTime> volumeScan = getVolumeScan(frames, previousIndex);
+
+        NavigableSet<RadarDataTime> previousByLevel = filterByLevel(volumeScan,
+                previousDataTime.getLevelValue());
+        NavigableSet<RadarDataTime> nextByLevel = filterByLevel(volumeScan,
+                example.getLevelValue());
+        Iterator<RadarDataTime> validatingIterator = nextByLevel.iterator();
+        while (validatingIterator.hasNext()) {
+            if (!validator.isValid(validatingIterator.next())) {
+                validatingIterator.remove();
+            }
+
         }
+
+        /*
+         * If the previous elevation had multiple times available then ideally
+         * the next elevation should choose a time between the previous time and
+         * the next time at that same elevation.
+         */
+        RadarDataTime endRange = previousByLevel.higher(previousDataTime);
+        NavigableSet<RadarDataTime> nextSet = null;
+        if (endRange == null) {
+            nextSet = nextByLevel.tailSet(previousDataTime, true);
+        } else {
+            nextSet = nextByLevel.subSet(previousDataTime, true, endRange,
+                    false);
+        }
+        if (nextSet.isEmpty()) {
+            if (endRange != null) {
+                /*
+                 * If there are no times within range then try getting all times
+                 * after the previous time.
+                 */
+                nextSet = nextByLevel.tailSet(previousDataTime, true);
+            }
+            if (nextSet.isEmpty()) {
+                /*
+                 * If there is still nothing then all times at the new elevation
+                 * can be considered.
+                 */
+                nextSet = nextByLevel;
+            }
+        }
+        if (nextSet.isEmpty()) {
+            /*
+             * This is hopefully impossible, nextSet should at least contain
+             * example.
+             */
+            return framesList.indexOf(example);
+        } else if (nextSet.size() == 1) {
+            /*
+             * This should be very common for the case where elevations have the
+             * same times or where the next elevation has fewer times than the
+             * previous elevation.
+             */
+            return framesList.indexOf(nextSet.iterator().next());
+        } else {
+            /*
+             * This is the case when the next elevation has more times then the
+             * previous elevation.
+             * 
+             * Load the most recently viewed frame or if there are none then the
+             * latest.
+             */
+            RadarDataTime time = cache.getLastFrameTime(nextSet);
+            if (time == null) {
+                return framesList.indexOf(nextSet.last());
+            } else {
+                return framesList.indexOf(time);
+            }
+        }
+    }
+
+    @Override
+    public void frameChanged(IDescriptor descriptor, DataTime oldTime,
+            DataTime newTime) {
+        cache.setLastFrameTime(newTime);
+    }
+
+    @Override
+    public void notifyRemove(ResourcePair rp) throws VizException {
+        List<AbstractVizResource<?, ?>> radarResources = descriptor
+                .getResourceList().getResourcesByType(
+                        AbstractRadarResource.class);
+        if (radarResources.isEmpty()) {
+            cache.clear();
+        }
+    }
+
+    /**
+     * Get a set of times sorted by reftime that all have the level value
+     * provided.
+     */
+    private static <T extends DataTime> NavigableSet<T> filterByLevel(
+            Collection<T> times, double level) {
+        NavigableSet<T> filtered = new TreeSet<T>(REF_TIME_COMPARATOR);
+        for (T time : times) {
+            if (time.getLevelValue().doubleValue() == level) {
+                filtered.add(time);
+            }
+        }
+        return filtered;
     }
 
     /**
@@ -253,21 +376,19 @@ public class SailsFrameCoordinator extends FrameCoordinator implements
     /**
      * Used for sorting times based off elevation angle.
      */
-    private static class ElevationAngleComparator<T extends DataTime>
-            implements Comparator<T> {
+    private static Comparator<DataTime> ELEVATION_ANGLE_COMPARATOR = new Comparator<DataTime>() {
 
         @Override
-        public int compare(T time1, T time2) {
+        public int compare(DataTime time1, DataTime time2) {
             return Double.compare(time1.getLevelValue(), time2.getLevelValue());
         }
 
-    }
+    };
 
     /**
      * Used for sorting times based off elevation number.
      */
-    private static class ElevationNumberComparator implements
-            Comparator<RadarDataTime> {
+    private static Comparator<RadarDataTime> ELEVATION_NUMBER_COMPARATOR = new Comparator<RadarDataTime>() {
 
         @Override
         public int compare(RadarDataTime time1, RadarDataTime time2) {
@@ -275,12 +396,15 @@ public class SailsFrameCoordinator extends FrameCoordinator implements
                     time2.getElevationNumber());
         }
 
-    }
+    };
 
-    @Override
-    public void frameChanged(IDescriptor descriptor, DataTime oldTime,
-            DataTime newTime) {
-        cache.setLastFrameTime(newTime);
-    }
+    private static Comparator<DataTime> REF_TIME_COMPARATOR = new Comparator<DataTime>() {
+
+        @Override
+        public int compare(DataTime time1, DataTime time2) {
+            return time1.getRefTime().compareTo(time2.getRefTime());
+        }
+
+    };
 
 }
