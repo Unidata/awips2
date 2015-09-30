@@ -2704,11 +2704,16 @@ public class WarngenDialog extends CaveSWTDialog implements
      */
     @Override
     public void timechanged() {
-        if ((getShell().isVisible())
-                && (!SimulatedTimeOperations.isTransmitAllowed())) {
-            SimulatedTimeOperations.displayFeatureLevelWarning(getShell(),
-                    "WarnGen");
-        }
-    }
+        VizApp.runAsync(new Runnable() {
 
+            @Override
+            public void run() {
+                if ((getShell().isVisible())
+                        && (!SimulatedTimeOperations.isTransmitAllowed())) {
+                    SimulatedTimeOperations.displayFeatureLevelWarning(
+                            getShell(), "WarnGen");
+                }
+            }
+        });
+    }
 }

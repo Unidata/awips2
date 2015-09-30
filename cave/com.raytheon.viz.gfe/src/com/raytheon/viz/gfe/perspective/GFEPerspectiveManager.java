@@ -50,6 +50,7 @@ import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.RGBColors;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -433,12 +434,22 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager
 
     @Override
     public void timechanged() {
-        String activePerspective = PlatformUI.getWorkbench()
-                .getActiveWorkbenchWindow().getActivePage().getPerspective()
-                .getId();
-        if (GFE_PERSPECTIVE.equals(activePerspective)) {
-            displaySimulatedTimeWarning();
-        }
+        /*
+         * Have to jump to the UI thread or else getActiveWorkbenchWindow will
+         * fail.
+         */
+        VizApp.runAsync(new Runnable() {
+
+            @Override
+            public void run() {
+                String activePerspective = PlatformUI.getWorkbench()
+                        .getActiveWorkbenchWindow().getActivePage()
+                        .getPerspective().getId();
+                if (GFE_PERSPECTIVE.equals(activePerspective)) {
+                    displaySimulatedTimeWarning();
+                }
+            }
+        });
     }
 
     private void displaySimulatedTimeWarning() {
