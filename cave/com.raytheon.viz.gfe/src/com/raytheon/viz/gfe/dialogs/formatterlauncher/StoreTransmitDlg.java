@@ -539,12 +539,16 @@ public class StoreTransmitDlg extends CaveSWTDialog {
                     .transmitProduct(practice);
 
             sendTransmissionStatus(state);
-            this.parentEditor.setProductText(productText, false);
-            this.parentEditor.brain();
+            parentEditor.setProductText(productText, false);
+            parentEditor.brain();
         } catch (VizException e) {
             statusHandler.handle(Priority.CRITICAL, "Error sending product", e);
             sendTransmissionStatus(ConfigData.ProductStateEnum.Failed);
             parentEditor.revive();
+        } catch (SimulatedTimeProhibitedOpException e) {
+            statusHandler.error(e.getLocalizedMessage(), e);
+            sendTransmissionStatus(ConfigData.ProductStateEnum.Failed);
+            parentEditor.brain();
         }
     }
 
