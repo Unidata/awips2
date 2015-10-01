@@ -28,6 +28,7 @@ import org.eclipse.ui.PlatformUI;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.dialogs.FormatterLauncherDialog;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
 
 /**
  * Displays Formatter Launcher dialog.
@@ -43,6 +44,8 @@ import com.raytheon.viz.gfe.dialogs.FormatterLauncherDialog;
  * Apr 24, 2013 1936       dgilling     Pass DataManager to 
  *                                      FormatterLauncherDialog via constructor.
  * Aug 24, 2015 4749       dgilling     Remove closeFormatters.
+ * Sep 15, 2015 4858       dgilling     Prevent dialog from being launched in DRT
+ *                                      mode.
  * 
  * </pre>
  * 
@@ -63,10 +66,16 @@ public class FormatterlauncherAction extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
+        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                .getShell();
+
+        if (!SimulatedTimeOperations.isTransmitAllowed()) {
+            SimulatedTimeOperations.displayFeatureLevelWarning(shell,
+                    "Formatter Launcher");
+            return null;
+        }
 
         if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
             DataManager dm = DataManagerUIFactory.getCurrentInstance();
             dialog = new FormatterLauncherDialog(shell, dm);
             dialog.setBlockOnOpen(false);

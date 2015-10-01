@@ -26,6 +26,7 @@ import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.dialogs.PublishDialog;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
 
 /**
  * Action to launch publish to official dialog.
@@ -37,9 +38,12 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Mar 06, 2008            Eric Babin  Initial Creation
  * Oct 25, 2012 1287       rferrel     Changes for non-blocking PublishDialog.
  * Aug 27, 2015 4749       njensen     Now extends GfeShowDialogHandler
+ * Sep 09, 2015 4858       dgilling    Don't allow publishing when 
+ *                                     SimulatedTime is enabled.
  * 
  * </pre>
  * 
+
  */
 public class ShowPublishDialog extends GfeShowDialogHandler {
 
@@ -56,10 +60,15 @@ public class ShowPublishDialog extends GfeShowDialogHandler {
         }
         return false;
     }
-
     @Override
     protected CaveJFACEDialog createDialog(Shell shell, DataManager dm,
             ExecutionEvent event) {
+        if (!SimulatedTimeOperations.isTransmitAllowed()) {
+            SimulatedTimeOperations.displayFeatureLevelWarning(shell,
+                    "Publish Grids to Official");
+            return null;
+        }
+
         return new PublishDialog(shell, dm);
     }
 }

@@ -36,6 +36,8 @@ import org.eclipse.swt.widgets.TabFolder;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.FormatterLauncherDialog;
@@ -45,6 +47,7 @@ import com.raytheon.viz.gfe.tasks.TaskManager;
 import com.raytheon.viz.gfe.textformatter.FormatterUtil;
 import com.raytheon.viz.gfe.textformatter.TextProductFinishListener;
 import com.raytheon.viz.gfe.textformatter.TextProductManager;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeProhibitedOpException;
 
 /**
  * Composite containing the product area and its controls.
@@ -71,7 +74,8 @@ import com.raytheon.viz.gfe.textformatter.TextProductManager;
  * 20 APR 2015  4027       randerso    Fixes for GFE formatter auto tests to support mixed case WA
  * 24 AUG 2015  4749       dgilling    Ensure TextProductFinishListener callbacks execute on UI thread,
  *                                     override dispose to aid perspective shutdown.
- * 
+ * 15 SEP 2015  4858       dgilling    Handle exception from runFormatterScript. 
+ *
  * </pre>
  * 
  * @author lvenable
@@ -80,6 +84,10 @@ import com.raytheon.viz.gfe.textformatter.TextProductManager;
  */
 public class ProductAreaComp extends Composite implements
         TextProductFinishListener, ITransmissionState {
+
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(getClass());
+
     /**
      * Zone combiner image.
      */
@@ -407,10 +415,14 @@ public class ProductAreaComp extends Composite implements
 
                             // Get the source database
                             zoneCombiner.applyZoneCombo();
-                            FormatterUtil.runFormatterScript(dataMgr,
-                                    textProductMgr, productName,
-                                    dbId.toString(), vtecMode,
-                                    ProductAreaComp.this);
+                            try {
+                                FormatterUtil.runFormatterScript(dataMgr,
+                                        textProductMgr, productName,
+                                        dbId.toString(), vtecMode,
+                                        ProductAreaComp.this);
+                            } catch (SimulatedTimeProhibitedOpException e) {
+                                statusHandler.error(e.getLocalizedMessage(), e);
+                            }
                         }
                     }
                 }
