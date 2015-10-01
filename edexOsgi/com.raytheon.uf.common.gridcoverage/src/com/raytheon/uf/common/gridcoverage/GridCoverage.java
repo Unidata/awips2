@@ -66,11 +66,11 @@ import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * Base class for encapsulating grid spatial information
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Apr 07, 2009  1994     bphillip    Initial Creation
@@ -85,8 +85,10 @@ import com.vividsolutions.jts.geom.Geometry;
  * Oct 16, 2014  3454     bphillip    Upgrading to Hibernate 4
  * Mar 04, 2015  3959     rjpeter     Update for grid based subgridding.
  * Sep 16, 2015  4696     nabowle     Implement cloneable and add clone().
+ * Oct 01, 2015  4868     rjpeter     Reject subGrids that don't meet minimum
+ *                                    coverage percent.
  * </pre>
- *
+ * 
  * @author bphillip
  * @version 1
  */
@@ -244,7 +246,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
     /**
      * Generates a hash code based on selected fields in the grid coverage
      * object. The fields used will vary among different projections.
-     *
+     * 
      * @return The hash code generated from selected fields in the object
      */
     public int generateHash() {
@@ -264,7 +266,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
     /**
      * Initializes the grid coverage object. Initialization should entail
      * creation of the crs and geometry object as well as assigning the id field
-     *
+     * 
      * @throws GridCoverageException
      *             If problems occur while creating the crs, geometry, or the id
      */
@@ -273,16 +275,16 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
     /**
      * Gets the name of the projection. The projection type is specified by each
      * subclass and accessed through this method.
-     *
+     * 
      * @return The name/type of the projection
      */
     public abstract String getProjectionType();
 
     /**
-     * Trim this GridCoverage to a sub grid. Nx/Ny are given priority when the
-     * subGrid is outside the bounds of the originating grid, causing the
-     * subGrid to shift instead of being the intersection.
-     *
+     * Trim this GridCoverage to a sub grid. Intersection returned instead of
+     * shifting grid. This allows grids to be discarded that do not intersect
+     * CWA, such as CONUS grids for Alaska sites.
+     * 
      * @param subGrid
      * @return trimmed coverage
      */
@@ -320,48 +322,35 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
         } else {
             /* Check western boundary */
             if (sgUlx < 0) {
+                sgNx -= sgUlx;
                 sgUlx = 0;
             }
 
-            if (sgUlx + sgNx > nx) {
+            if ((sgNx > 0) && ((sgUlx + sgNx) > nx)) {
                 /*
-                 * subgrid extending beyond eastern boundary of grid, back up
-                 * sgUlx by the difference
+                 * subgrid extending beyond eastern boundary of grid
                  */
-                sgUlx = nx - sgNx;
-
-                if (sgUlx < 0) {
-                    /*
-                     * moved start beyond western boundary, reduce sgNx to
-                     * compensate
-                     */
-                    sgNx += sgUlx;
-                    sgUlx = 0;
-                }
+                sgNx = nx - sgUlx;
             }
         }
 
         /* Check northern boundary */
         if (sgUly < 0) {
+            sgNy -= sgUly;
             sgUly = 0;
         }
 
         /* validate sgUly and sgNy */
-        if (sgUly + sgNy > ny) {
-            /*
-             * subgrid extending beyond southern boundary of grid, back up sgUly
-             * by the difference
-             */
-            sgUly = ny - sgNy;
+        if ((sgNy > 0) && ((sgUly + sgNy) > ny)) {
+            sgNy = ny - sgUly;
+        }
 
-            if (sgUly < 0) {
-                /*
-                 * moved subgrid beyond northern boundary, reduce sgNy to
-                 * compensate
-                 */
-                sgNy += sgUly;
-                sgUly = 0;
-            }
+        if (sgNx < 0) {
+            sgNx = 0;
+        }
+
+        if (sgNy < 0) {
+            sgNy = 0;
         }
 
         subGrid.setUpperLeftX(sgUlx);
@@ -376,7 +365,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
     /**
      * Convenience method for returning if this grid world wraps. Note: Coverage
      * must be initialized before calling this.
-     *
+     * 
      * @return
      */
     public int getWorldWrapCount() {
@@ -396,7 +385,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
     /**
      * Create a clone of this coverage setting any crs parameters based on the
      * defined subgrid.
-     *
+     * 
      * @param subGrid
      * @return
      */
@@ -411,7 +400,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
 
         /* grid space is 0,0 for upper left */
         Coordinate lowerLeft = new Coordinate(subGrid.getUpperLeftX(),
-                subGrid.getUpperLeftY() + subGrid.getNY() - 1);
+                (subGrid.getUpperLeftY() + subGrid.getNY()) - 1);
         lowerLeft = MapUtil.gridCoordinateToLatLon(lowerLeft,
                 PixelOrientation.CENTER, this);
 
@@ -426,7 +415,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
     /**
      * Create a clone of this coverage setting any implementation specific crs
      * parameters.
-     *
+     * 
      * @param subGrid
      * @return
      */
@@ -452,7 +441,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
 
     /**
      * Gets the id
-     *
+     * 
      * @return The id
      */
     public Integer getId() {
@@ -461,7 +450,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
 
     /**
      * Sets the id
-     *
+     * 
      * @param id
      *            The id
      */
@@ -471,7 +460,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
 
     /**
      * Gets the name
-     *
+     * 
      * @return The name
      */
     public String getName() {
@@ -480,7 +469,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
 
     /**
      * Sets the name
-     *
+     * 
      * @param name
      *            The name
      */
@@ -490,7 +479,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
 
     /**
      * Sets the geometry
-     *
+     * 
      * @param geometry
      *            The geometry
      */
@@ -500,7 +489,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
 
     /**
      * Sets the CRS object
-     *
+     * 
      * @param crs
      *            The crs object
      */
@@ -510,7 +499,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
 
     /**
      * Gets the CRS WKT object
-     *
+     * 
      * @return The CRS WKT object
      */
     public String getCrsWKT() {
@@ -519,7 +508,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
 
     /**
      * Sets the CRS WKT object
-     *
+     * 
      * @param crsWKT
      */
     public void setCrsWKT(String crsWKT) {
@@ -529,7 +518,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
 
     /**
      * Gets the description
-     *
+     * 
      * @return The description
      */
     public String getDescription() {
@@ -538,7 +527,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
 
     /**
      * Sets the description
-     *
+     * 
      * @param description
      *            The description
      */
@@ -676,18 +665,18 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
                     break;
                 }
                 case UpperLeft: {
-                    lowerLeftLat = la1 - dy * (ny - 1);
+                    lowerLeftLat = la1 - (dy * (ny - 1));
                     lowerLeftLon = lo1;
                     break;
                 }
                 case UpperRight: {
-                    lowerLeftLat = la1 - dy * (ny - 1);
-                    lowerLeftLon = lo1 - dx * (nx - 1);
+                    lowerLeftLat = la1 - (dy * (ny - 1));
+                    lowerLeftLon = lo1 - (dx * (nx - 1));
                     break;
                 }
                 case LowerRight: {
                     lowerLeftLat = la1;
-                    lowerLeftLon = lo1 - dx * (nx - 1);
+                    lowerLeftLon = lo1 - (dx * (nx - 1));
                     break;
                 }
                 }
@@ -752,18 +741,18 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
     protected void generateGeometry() throws GridCoverageException {
         if ("degree".equals(spacingUnit)) {
             // lower left is cell center, we want cell corners.
-            double minLat = getLowerLeftLat() - dy / 2;
-            double maxLat = minLat + dy * ny;
-            double minLon = getLowerLeftLon() - dx / 2;
-            if (dx * nx <= 360) {
+            double minLat = getLowerLeftLat() - (dy / 2);
+            double maxLat = minLat + (dy * ny);
+            double minLon = getLowerLeftLon() - (dx / 2);
+            if ((dx * nx) <= 360) {
                 // Do not correct lon if larger than worldwide, most notably the
                 // grid range for ECMWF-LowRes goes from -181.25 to 181.25 but
                 // if you correct you end up at 178.75 to 538.75 which doesn't
                 // work very well
                 minLon = MapUtil.correctLon(minLon);
             }
-            double maxLon = minLon + dx * nx;
-            if (dx * nx == 360) {
+            double maxLon = minLon + (dx * nx);
+            if ((dx * nx) == 360) {
                 // Grids that wrap around the world need to be shrunk slightly
                 // to account for inaccuracies when converting between degrees
                 // and radians which can result in an invalid envelope.
@@ -775,12 +764,12 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
             // within +/-360 degree as much as possible. For example the
             // Canadian-NH model gets calculated as 179.7 to 540.3 but it
             // works better to use -180.3 to 180.3.
-            while (minLon > 0 && maxLon > 360) {
+            while ((minLon > 0) && (maxLon > 360)) {
                 minLon -= 360;
                 maxLon -= 360;
             }
             // Normalize the low end.
-            while (minLon < -360 && maxLon < 0) {
+            while ((minLon < -360) && (maxLon < 0)) {
                 minLon += 360;
                 maxLon += 360;
             }
@@ -864,7 +853,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
     /**
      * Compare coverages to see if they are equivelant within a certain
      * tolerance
-     *
+     * 
      * @param other
      * @return true to indicate the coverages should be treated as equals, false
      *         if they are too different.
@@ -912,7 +901,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
 
     /**
      * Unique key containing the spatial attributes of this coverage.
-     *
+     * 
      * @return
      */
     public String spatialKey() {
@@ -959,6 +948,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
     /**
      * Clone this GridCoverage.
      */
+    @Override
     public GridCoverage clone() throws CloneNotSupportedException {
         GridCoverage clone = (GridCoverage) super.clone();
 

@@ -25,6 +25,7 @@
 # ???                                 Initial creation
 # Jul 07, 2014 3344       rferrel     Change GRID_FILL_VALUE to new plugin location.
 # Mar 05, 2015 3959       rjpeter     Fix subgrid across seam of world wide grid.
+# Oct 01, 2015 4868       rjpeter     Discard invalid subgrids.
 # 
 
 import grib2
@@ -337,14 +338,21 @@ class GribDecoder():
 
         if subCoverage is not None:
             subGrid = spatialCache.getSubGrid(modelName, gridCoverage)
-            # resize the data array
-            numpyDataArray = numpy.reshape(numpyDataArray, (ny, nx))
+
             startx = subGrid.getUpperLeftX()
             starty = subGrid.getUpperLeftY()
             subnx = subGrid.getNX()
             subny = subGrid.getNY()
             endY = starty + subny
             endX = startx + subnx
+
+            if subnx <= 0 or subny <=0:
+                # sub grid did not intersect main grid
+                self.log.info("Discarding model [" + modelName + "], sub grid does not meet minimum coverage area")
+                return None
+
+            # resize the data array
+            numpyDataArray = numpy.reshape(numpyDataArray, (ny, nx))
 
             # handle world wide grid wrap
             if (endX > nx):

@@ -79,9 +79,11 @@ public class GridPersister implements IContextStateProcessor {
 
     private final int maxGridsPerStore;
 
-    private long bytesInMemory = 0;
+    private long bytesPending = 0;
 
     private int gridsPending = 0;
+
+    private long bytesInProcess = 0;
 
     private int gridsInProcess = 0;
 
@@ -100,21 +102,28 @@ public class GridPersister implements IContextStateProcessor {
         if (maxGridsInMb > 0) {
             maxBytesInMemory = maxGridsInMb * 1024L * 1024L;
         } else {
-            // no limit
+            statusHandler.warn("maxGridsInMb [" + maxGridsInMb
+                    + "] is not greater than 0.  No max bytes limit set");
             maxBytesInMemory = Long.MAX_VALUE;
         }
 
         if (maxGridsPerStore > 0) {
             this.maxGridsPerStore = maxGridsPerStore;
         } else {
-            // no limit
+            statusHandler
+                    .warn("maxGridsPerStore ["
+                            + maxGridsPerStore
+                            + "] is not greater than 0.  No max grids per store limit set");
             this.maxGridsPerStore = Integer.MAX_VALUE;
         }
 
         if (maxBytesInMbPerStore > 0) {
             this.maxBytesPerStore = maxBytesInMbPerStore * 1024L * 1024L;
         } else {
-            // no limit
+            statusHandler
+                    .warn("maxBytesInMbPerStore ["
+                            + maxBytesInMbPerStore
+                            + "] is not greater than 0.  No max bytes per store limit set");
             this.maxBytesPerStore = Long.MAX_VALUE;
         }
 
@@ -215,14 +224,14 @@ public class GridPersister implements IContextStateProcessor {
                 gridsPending += records.length;
 
                 // update bytesInMemory
-                bytesInMemory += bytesForRecords;
+                bytesPending += bytesForRecords;
 
-                if (bytesInMemory > maxBytesInMemory) {
+                if ((bytesPending + bytesInProcess) > maxBytesInMemory) {
                     statusHandler.info("Max Grids in memory for "
                             + getClass().getSimpleName()
                             + " exceeded.  Waiting for grids to process.");
 
-                    while (bytesInMemory > maxBytesInMemory) {
+                    while ((bytesPending + bytesInProcess) > maxBytesInMemory) {
                         try {
                             gridsByFile.wait();
                         } catch (InterruptedException e) {
@@ -324,7 +333,7 @@ public class GridPersister implements IContextStateProcessor {
     private class GridPersistThread extends Thread {
         @Override
         public void run() {
-            String logMsg = "Processed %d grid(s) to %s in %s. %d grid(s) pending, %d grid(s) in process on other threads, %s in memory";
+            String logMsg = "Processed: [%d/%s/%s] to %s, in process on other threads: [%d/%s], pending: [%d/%s]";
             String file = null;
             GridPersistSet persistSet = null;
             long timeToStore = System.currentTimeMillis();
@@ -379,8 +388,11 @@ public class GridPersister implements IContextStateProcessor {
                             }
 
                             int numRecords = persistSet.getRecords().size();
+                            int bytes = persistSet.getSizeInBytes();
                             gridsPending -= numRecords;
                             gridsInProcess += numRecords;
+                            bytesPending -= bytes;
+                            bytesInProcess += bytes;
                         }
                     }
 
@@ -422,22 +434,24 @@ public class GridPersister implements IContextStateProcessor {
                         timeToStore = System.currentTimeMillis() - timeToStore;
                         int numRecords = persistSet.getRecords().size();
                         long bytesFree = persistSet.getSizeInBytes();
-                        int gridsLeft = 0;
-                        int gridsStoringOnOtherThreads = 0;
-                        long bytesUsedByGrids = 0;
+                        int localGridsPending = 0;
+                        int localGridsInProcess = 0;
+                        long localBytesPending = 0;
+                        long localBytesInProcess = 0;
 
                         synchronized (gridsByFile) {
                             inProcessFiles.remove(this);
                             gridsInProcess -= numRecords;
-                            gridsStoringOnOtherThreads = gridsInProcess;
-                            gridsLeft = gridsPending;
+                            localGridsInProcess = gridsInProcess;
+                            localGridsPending = gridsPending;
 
-                            long oldBytes = bytesInMemory;
-                            bytesInMemory -= bytesFree;
-                            bytesUsedByGrids = bytesInMemory;
+                            long oldBytes = bytesInProcess;
+                            bytesInProcess -= bytesFree;
+                            localBytesPending = bytesPending;
+                            localBytesInProcess = bytesInProcess;
 
-                            if ((oldBytes > maxBytesInMemory)
-                                    && (bytesInMemory < maxBytesInMemory)) {
+                            if (((oldBytes + bytesPending) > maxBytesInMemory)
+                                    && ((bytesInProcess + bytesPending) < maxBytesInMemory)) {
                                 // wake any pending decode threads
                                 gridsByFile.notifyAll();
                             }
@@ -446,9 +460,13 @@ public class GridPersister implements IContextStateProcessor {
                         }
 
                         statusHandler.info(String.format(logMsg, numRecords,
-                                file, TimeUtil.prettyDuration(timeToStore),
-                                gridsLeft, gridsStoringOnOtherThreads,
-                                SizeUtil.prettyByteSize(bytesUsedByGrids)));
+                                SizeUtil.prettyByteSize(persistSet
+                                        .getSizeInBytes()), TimeUtil
+                                        .prettyDuration(timeToStore), file,
+                                localGridsInProcess, SizeUtil
+                                        .prettyByteSize(localBytesInProcess),
+                                localGridsPending, SizeUtil
+                                        .prettyByteSize(localBytesPending)));
                     }
                 }
             }
