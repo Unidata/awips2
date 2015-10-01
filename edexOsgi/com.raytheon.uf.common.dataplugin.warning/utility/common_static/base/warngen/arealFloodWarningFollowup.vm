@@ -19,7 +19,7 @@
 #parse("config.vm")
 #set($hycType = "")
 #set($floodReason = "")
-#set($floodType = "FLOODING")
+#set($floodType = "flooding")
 #if(${ic} == "SM")
     #set($hycType = "SNOWMELT")
     #set($floodReason = " Rapid snowmelt is occurring and will continue to cause ${floodType}.")

@@ -126,7 +126,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="safetyCTA" bulletText="Safety...by foot or motorist" parseString="DO NOT ENTER OR CROSS FLOWING WATER"/>
   <bullet bulletName="turnAroundCTA" bulletText="Turn around...dont drown" parseString="TURN AROUND, DON'T DROWN"/>
   <bullet bulletName="stayAwayCTA" bulletText="Stay away or be swept away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
-  <bullet bulletName="arroyosCTA" bulletText="Arroyos..." parseString="ARROYOS...STREAMS AND RIVERS CAN BECOME RAGING KILLER CURRENTS"/>
+  <bullet bulletName="arroyosCTA" bulletText="Arroyos..." parseString="ARROYOS, STREAMS, AND RIVERS CAN BECOME RAGING KILLER CURRENTS"/>
   <bullet bulletName="burnAreasCTA" bulletText="Burn Areas..." parseString="MOVE AWAY FROM RECENTLY BURNED AREAS"/>
   <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to local law enforcement" parseString="PLEASE REPORT TO YOUR LOCAL LAW ENFORCEMENT AGENCY WHEN YOU CAN"/>
   <bullet bulletText="************************************************************" bulletType="title"/>
@@ -180,7 +180,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="safetyCTA" bulletText="Safety...by foot or motorist" parseString="DO NOT ENTER OR CROSS FLOWING WATER"/>
   <bullet bulletName="turnAroundCTA" bulletText="Turn around...dont drown" parseString="TURN AROUND, DON'T DROWN"/>
   <bullet bulletName="stayAwayCTA" bulletText="Stay away or be swept away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
-  <bullet bulletName="arroyosCTA" bulletText="Arroyos..." parseString="ARROYOS...STREAMS AND RIVERS CAN BECOME RAGING KILLER CURRENTS"/>
+  <bullet bulletName="arroyosCTA" bulletText="Arroyos..." parseString="ARROYOS, STREAMS, AND RIVERS CAN BECOME RAGING KILLER CURRENTS"/>
   <bullet bulletName="burnAreasCTA" bulletText="Burn Areas..." parseString="MOVE AWAY FROM RECENTLY BURNED AREAS"/>
   <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to local law enforcement" parseString="PLEASE REPORT TO YOUR LOCAL LAW ENFORCEMENT AGENCY WHEN YOU CAN"/>
   <bullet bulletText="************************************************************" bulletType="title"/>
@@ -239,7 +239,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="safetyCTA" bulletText="Safety...by foot or motorist" parseString="DO NOT ENTER OR CROSS FLOWING WATER"/>
   <bullet bulletName="turnAroundCTA" bulletText="Turn around...dont drown" parseString="TURN AROUND, DON'T DROWN"/>
   <bullet bulletName="stayAwayCTA" bulletText="Stay away or be swept away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
-  <bullet bulletName="arroyosCTA" bulletText="Arroyos..." parseString="ARROYOS...STREAMS AND RIVERS CAN BECOME RAGING KILLER CURRENTS"/>
+  <bullet bulletName="arroyosCTA" bulletText="Arroyos..." parseString="ARROYOS, STREAMS, AND RIVERS CAN BECOME RAGING KILLER CURRENTS"/>
   <bullet bulletName="burnAreasCTA" bulletText="Burn Areas..." parseString="MOVE AWAY FROM RECENTLY BURNED AREAS"/>
   <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to local law enforcement" parseString="PLEASE REPORT TO YOUR LOCAL LAW ENFORCEMENT AGENCY WHEN YOU CAN"/>
   <bullet bulletText="************************************************************" bulletType="title"/>

@@ -508,7 +508,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #elseif(${list.contains(${bullets}, "publicSVR")})
   #set($reportType = "${reportType1}")
   #set($reportAuthSVR = "producing")
-  #set($source = "public.")
+  #set($source = "Public.")
 #end
 
 ############################################################################
@@ -549,7 +549,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
   #set($pdstor = "TORNADO EMERGENCY for !** EDIT LOCATION(S) **!. Take cover now! This is a PARTICULARLY DANGEROUS SITUATION.")
   #if(${stormType} == "line")
     #set($pathcastLead = "These tornadic storms")
-    #set($moveLead = " doppler radar showed these tornadic storms moving")
+    #set($moveLead = " Doppler radar showed these tornadic storms moving")
   #else
     #set($pathcastLead = "The tornado")
     #set($moveLead = " Doppler radar showed this tornado moving")
@@ -585,9 +585,9 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
   #set($windSpeed = 80) 
   #set($windTag = "80MPH")
   #if(${stormType} == "line")
-  #set($pdssvr = "these are very dangerous storms.")
+  #set($pdssvr = "These are very dangerous storms.")
   #else
-  #set($pdssvr = "this is a very dangerous storm.")
+  #set($pdssvr = "This is a very dangerous storm.")
   #end
 #end
 #if(${list.contains(${bullets}, "90mphWind")})
@@ -596,9 +596,9 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
   #set($windSpeed = 90)
   #set($windTag = "90MPH")
   #if(${stormType} == "line")
-  #set($pdssvr = "these are very dangerous storms.")
+  #set($pdssvr = "These are very dangerous storms.")
   #else
-  #set($pdssvr = "this is a very dangerous storm.")
+  #set($pdssvr = "This is a very dangerous storm.")
   #end
 #end
 #if(${list.contains(${bullets}, "100mphWind")})
@@ -607,9 +607,9 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
   #set($windSpeed = 100)
   #set($windTag = "100MPH")
   #if(${stormType} == "line")
-  #set($pdssvr = "these are very dangerous storms.")
+  #set($pdssvr = "These are very dangerous storms.")
   #else
-  #set($pdssvr = "this is a very dangerous storm.")
+  #set($pdssvr = "This is a very dangerous storm.")
   #end
 #end
 ###################################################
@@ -693,9 +693,9 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
   #set($hailSize = 2.75)  
   #set($hailTag = "2.75IN")
   #if(${stormType} == "line")
-  #set($pdssvr = "these are very dangerous storms.")
+  #set($pdssvr = "These are very dangerous storms.")
   #else
-  #set($pdssvr = "this is a very dangerous storm.")
+  #set($pdssvr = "This is a very dangerous storm.")
   #end
 #end
 #if(${list.contains(${bullets}, "threeinchHail")})
@@ -706,9 +706,9 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
   #set($hailSize = 3.00)  
   #set($hailTag = "3.00IN")
   #if(${stormType} == "line")
-  #set($pdssvr = "these are very dangerous storms.")
+  #set($pdssvr = "These are very dangerous storms.")
   #else
-  #set($pdssvr = "this is a very dangerous storm.")
+  #set($pdssvr = "This is a very dangerous storm.")
   #end
 #end
 #if(${list.contains(${bullets}, "grapefruitHail")})
@@ -719,9 +719,9 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
   #set($hailSize = 4.00)  
   #set($hailTag = "4.00IN")
   #if(${stormType} == "line")
-  #set($pdssvr = "these are very dangerous storms.")
+  #set($pdssvr = "These are very dangerous storms.")
   #else
-  #set($pdssvr = "this is a very dangerous storm.")
+  #set($pdssvr = "This is a very dangerous storm.")
   #end
 #end
 #if(${list.contains(${bullets}, "softballHail")})
@@ -732,9 +732,9 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
   #set($hailSize = 4.25)  
   #set($hailTag = "4.25IN")
   #if(${stormType} == "line")
-  #set($pdssvr = "these are very dangerous storms.")
+  #set($pdssvr = "These are very dangerous storms.")
   #else
-  #set($pdssvr = "this is a very dangerous storm.")
+  #set($pdssvr = "This is a very dangerous storm.")
   #end
 #end
 ##################################################################
@@ -810,7 +810,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
   #set($pdssvr = "")
   #set($svrimpact = "")
   #if(${windSpeed} >= 58 && ${hailSize} >= 1)
-    #set($hazard = "${torHazard}, ${hailHazard} and ${windHazard}.")
+    #set($hazard = "${torHazard}, ${hailHazard}, and ${windHazard}.")
   #elseif(${windSpeed} >= 58 && ${hailSize} < 1)
     #set($hazard = "${torHazard} and ${windHazard}.") 
   #elseif(${windSpeed} < 58 && ${hailSize} >= 1)
@@ -894,9 +894,9 @@ ${reportType} located ##
 
 ${pdstor}${pdssvr}
 
-#wrapText("HAZARD...${hazard}" 0 9)
+#wrapText("HAZARD...#capitalize(${hazard} 'FIRST')" 0 9)
 
-#wrapText("SOURCE...${source}${extraSource}" 0 9)
+#wrapText("SOURCE...#capitalize(${source}${extraSource} 'FIRST')" 0 9)
 
 #wrapText("IMPACT...${svrimpact}${torimpact}" 0 9)
 
@@ -983,7 +983,7 @@ To repeat, a large, extremely dangerous, and potentially deadly tornado is on th
   #set($dummy='dummy')
 #else
 #if(${list.contains(${bullets}, "defaultMobileCTA")})
-${preAmbleTOR}take cover now! Move to a basement or an interior room on the lowest floor of a sturdy building. Avoid windows. If you are outdoors, in a mobile home or in a vehicle, move to the closest substantial shelter and protect yourself from flying debris.
+${preAmbleTOR}take cover now! Move to a basement or an interior room on the lowest floor of a sturdy building. Avoid windows. If you are outdoors, in a mobile home, or in a vehicle, move to the closest substantial shelter and protect yourself from flying debris.
 
 #end
 #if(${list.contains(${bullets}, "defaultUrbanCTA")})
@@ -1160,10 +1160,10 @@ Intense thunderstorm lines can produce brief tornadoes and widespread significan
 ##
 #if(${list.contains(${bullets}, "superCellsCTA")})
 #if(${stormType} == "line")
-These thunderstorms are capable of producing all types of severe weather, including extremely large hail, destructive straight line winds and tornadoes. Move quickly to a safe shelter, such as an interior room, a bathroom or closet or basement.
+These thunderstorms are capable of producing all types of severe weather including extremely large hail, destructive straight line winds and tornadoes. Move quickly to a safe shelter, such as an interior room, a bathroom or closet or basement.
 
 #else
-This thunderstorm is capable of producing all types of severe weather, including extremely large hail, destructive straight line winds and tornadoes. Move quickly to a safe shelter, such as an interior room, a bathroom or closet or basement.
+This thunderstorm is capable of producing all types of severe weather including extremely large hail, destructive straight line winds and tornadoes. Move quickly to a safe shelter, such as an interior room, a bathroom or closet or basement.
 
 #end
 #end
