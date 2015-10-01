@@ -47,6 +47,7 @@ import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
  * Oct.31  2012  1297       skorolev   Cleaned code.
  * Sep 04  2014  3220       skorolev   Added updateZones method.
  * Mar 17  2015  3888       dhladky    check for nulls
+ * Sep 03, 2015  3841       skorolev   Made final appName, hourReports and thresholdMgr.
  * 
  * </pre>
  * 
@@ -61,19 +62,19 @@ public class ObHourReports {
     /**
      * the nominal time of this ObHourReports object
      */
-    private Date nominalTime;
+    private final Date nominalTime;
 
     /**
      * application name (SNOW, FOG, SAFESEAS)
      */
-    private CommonConfig.AppName appName;
+    private final CommonConfig.AppName appName;
 
     /**
      * key is zone id, value is ObZoneHourReports object
      */
-    private Map<String, ObZoneHourReports> hourReports;
+    private final Map<String, ObZoneHourReports> hourReports;
 
-    private AbstractThresholdMgr thresholdMgr;
+    private final AbstractThresholdMgr thresholdMgr;
 
     /**
      * constructor

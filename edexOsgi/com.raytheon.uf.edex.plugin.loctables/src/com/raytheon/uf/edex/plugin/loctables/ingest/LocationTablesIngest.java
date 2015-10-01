@@ -56,6 +56,7 @@ import com.raytheon.uf.edex.plugin.loctables.util.store.ObStationStoreStrategy;
  * Mar 06, 2014   2876     mpduff      New NDM plugin.
  * Apr 28, 2014   3086     skorolev    Updated setupLocalFiles method
  * Sep 04, 2014   3220     skorolev    Removed parameter currentSite from FSSObs configuration managers.
+ * Sep 03, 2015   3841     skorolev    Corrected getInstance for FSSObs monitors.
  * 
  * </pre>
  * 
@@ -128,12 +129,10 @@ public class LocationTablesIngest implements INationalDatasetSubscriber {
     private void setupLocalFiles() {
         List<FSSObsMonitorConfigurationManager> monitors = new ArrayList<FSSObsMonitorConfigurationManager>();
 
-        monitors.add(FSSObsMonitorConfigurationManager.getInstance(MonName.fog
-                .name()));
-        monitors.add(FSSObsMonitorConfigurationManager.getInstance(MonName.ss
-                .name()));
-        monitors.add(FSSObsMonitorConfigurationManager.getInstance(MonName.snow
-                .name()));
+        monitors.add(FSSObsMonitorConfigurationManager.getInstance(MonName.fog));
+        monitors.add(FSSObsMonitorConfigurationManager.getInstance(MonName.ss));
+        monitors.add(FSSObsMonitorConfigurationManager
+                .getInstance(MonName.snow));
     }
 
     /**
