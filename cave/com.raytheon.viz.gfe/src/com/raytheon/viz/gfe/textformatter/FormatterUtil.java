@@ -51,6 +51,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeProhibitedOpException;
  *                                     varDict through.
  * Aug 26, 2015  4804      dgilling    Add methods so SmartScript can run formatters.
  * Sep 15, 2015  4858      dgilling    Disable store/transmit in DRT mode.
+ * Oct 01, 2015  4888      dgilling    Fix javadoc for exceptions.
  * 
  * </pre>
  * 
@@ -119,9 +120,6 @@ public class FormatterUtil {
      * @param listener
      *            listener to fire when formatter finishes generating product
      * @throws SimulatedTimeProhibitedOpException
-     * @throws InterruptedException
-     *             If something interrupts this thread before the formatter has
-     *             completed.
      */
     public static void callFromSmartScript(String productName, String dbId,
             String varDict, String vtecMode, DataManager dataMgr,

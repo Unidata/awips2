@@ -40,6 +40,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData;
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData.ProductStateEnum;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeProhibitedOpException;
 
 /**
  * Handles product transmission for GFE text products, using handleOUP for
@@ -53,6 +55,7 @@ import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData.ProductStateEnu
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 28, 2015  #4806     dgilling     Initial creation
+ * Oct 01, 2015  #4888     dgilling     Prevent transmission in DRT mode.
  * 
  * </pre>
  * 
@@ -100,9 +103,16 @@ public final class TextProductTransmitter {
      * @throws VizException
      *             If the transmission request threw an exception during
      *             server-side processing.
+     * @throws SimulatedTimeProhibitedOpException
+     *             If transmit is prohibited because GFE is running in DRT mode.
      */
     public ProductStateEnum transmitProduct(boolean practice)
-            throws VizException {
+            throws VizException, SimulatedTimeProhibitedOpException {
+        if (SimulatedTimeOperations.isTransmitAllowed()) {
+            throw SimulatedTimeOperations
+                    .constructProhibitedOpException("Transmit GFE text products.");
+        }
+
         IServerRequest req = (!practice) ? constructOperationalRequest()
                 : constructPracticeRequest();
         Object response = ThriftClient.sendRequest(req);

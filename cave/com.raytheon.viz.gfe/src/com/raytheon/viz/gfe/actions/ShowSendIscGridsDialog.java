@@ -19,16 +19,14 @@
  **/
 package com.raytheon.viz.gfe.actions;
 
-import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.dialogs.isc.SendISCDialog;
+import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
 
 /**
@@ -41,6 +39,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 15, 2015  #4858     dgilling     Initial creation
+ * Oct 01, 2015  #4888     dgilling     Refactor based on GfeShowDialogHandler.
  * 
  * </pre>
  * 
@@ -48,41 +47,18 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * @version 1.0
  */
 
-public class ShowSendIscGridsDialog extends AbstractHandler {
+public class ShowSendIscGridsDialog extends GfeShowDialogHandler {
 
-    private SendISCDialog dialog;
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.core.commands.IHandler#execute(org.eclipse.core.commands.
-     * ExecutionEvent)
-     */
     @Override
-    public Object execute(ExecutionEvent event) throws ExecutionException {
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
+    protected CaveJFACEDialog createDialog(Shell shell, DataManager dm,
+            ExecutionEvent event) {
         if (!SimulatedTimeOperations.isTransmitAllowed()) {
             SimulatedTimeOperations.displayFeatureLevelWarning(shell,
                     "Send ISC grids");
             return null;
         }
 
-        DataManager dm = DataManagerUIFactory.getCurrentInstance();
-        if (dm == null) {
-            return null;
-        }
-
-        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
-            dialog = new SendISCDialog(shell, dm);
-            dialog.setBlockOnOpen(false);
-            dialog.open();
-        } else {
-            dialog.bringToTop();
-        }
-
-        return null;
+        return new SendISCDialog(shell, dm);
     }
 
     @Override
