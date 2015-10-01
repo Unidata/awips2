@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -35,19 +34,16 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.fog.FogRecord.FOG_THREAT;
-import com.raytheon.uf.common.geospatial.SpatialException;
+import com.raytheon.uf.common.jms.notification.NotificationMessage;
 import com.raytheon.uf.common.monitor.MonitorAreaUtils;
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
-import com.raytheon.uf.common.monitor.data.AdjacentWfoMgr;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
-import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.monitor.IMonitor;
 import com.raytheon.uf.viz.monitor.Monitor;
 import com.raytheon.uf.viz.monitor.ObsMonitor;
@@ -91,6 +87,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Sep 04, 2014 3220       skorolev    Updated configUpdate method and added updateMonitoringArea.
  * Sep 23, 2014 3356       njensen     Remove unnecessary import
  * Mar 09, 2014 3888       dhladky     Stopped processing when dialogs are null or disposed.
+ * Sep 18, 2015 3873       skorolev    Removed common definitions. Replaced deprecated NotificationMessage.
  * 
  * 
  * </pre>
@@ -139,33 +136,19 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
     private final TableData stationTableData = new TableData(
             CommonConfig.AppName.FOG);
 
-    /** All FOG's datauri start with this **/
-    private final String OBS = "fssobs";
-
     /** List of fogAlg listeners **/
     private final List<IFogResourceListener> fogResources = new ArrayList<IFogResourceListener>();
-
-    /** regex wild card filter **/
-    private final String wildCard = "[\\w\\(\\)\\-_:.]+";
-
-    /** Geometry of adjacent areas **/
-    private Geometry geoAdjAreas = null;
-
-    /** Data URI pattern for fog **/
-    private final Pattern fogPattern = Pattern.compile(DataURI.SEPARATOR + OBS
-            + DataURI.SEPARATOR + wildCard + DataURI.SEPARATOR + wildCard
-            + DataURI.SEPARATOR + wildCard + DataURI.SEPARATOR + wildCard
-            + DataURI.SEPARATOR + wildCard);
 
     /**
      * Private constructor, singleton
      */
     private FogMonitor() {
-        pluginPatterns.add(fogPattern);
-        fogConfig = new FSSObsMonitorConfigurationManager(MonName.fog.name());
+        pluginPatterns.add(fssPattern);
+        fogConfig = FSSObsMonitorConfigurationManager.getInstance(MonName.fog);
         updateMonitoringArea();
         initObserver(OBS, this);
-        obData = new ObMultiHrsReports(CommonConfig.AppName.FOG);
+        createDataStructures();
+        processProductAtStartup();
         obData.setThresholdMgr(FogThresholdMgr.getInstance());
         obData.getZoneTableData();
         readTableConfig(MonitorThresholdConfiguration.FOG_THRESHOLD_CONFIG);
@@ -180,12 +163,8 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
         if (monitor == null) {
             monitor = new FogMonitor();
             // Pre-populate dialog with an observations from DB
-            monitor.createDataStructures();
-            monitor.getAdjAreas();
-            monitor.processProductAtStartup(MonName.fog.name());
             monitor.fireMonitorEvent(monitor);
         }
-
         return monitor;
     }
 
@@ -209,10 +188,8 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
         // [Jan 21, 2010, zhao]
         obData = new ObMultiHrsReports(CommonConfig.AppName.FOG);
         obData.setThresholdMgr(FogThresholdMgr.getInstance());
-
         obsData = new ObsData();
         algorithmData = new TreeMap<Date, Map<String, FOG_THREAT>>();
-
         for (String zone : MonitoringArea.getPlatformMap().keySet()) {
             obsData.addArea(zone, MonitoringArea.getPlatformMap().get(zone));
         }
@@ -251,7 +228,7 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
      */
     @Override
     public void processProductMessage(final AlertMessage filtered) {
-        if (fogPattern.matcher(filtered.dataURI).matches()) {
+        if (fssPattern.matcher(filtered.dataURI).matches()) {
             processURI(filtered.dataURI, filtered);
         }
     }
@@ -264,7 +241,6 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
      *            -- the xml configuration filename
      */
     public void readTableConfig(String file) {
-        // TODO update for Maritime
         Map<String, List<String>> zones = new HashMap<String, List<String>>();
         // create zones and stations list
         try {
@@ -594,35 +570,6 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
         return null;
     }
 
-    /**
-     * Gets adjacent areas.
-     */
-    public void getAdjAreas() {
-        try {
-            this.geoAdjAreas = AdjacentWfoMgr.getAdjacentAreas(cwa);
-        } catch (SpatialException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        }
-    }
-
-    /**
-     * Gets geometry of adjacent areas.
-     * 
-     * @return the geoAdjAreas
-     */
-    public Geometry getGeoAdjAreas() {
-        return geoAdjAreas;
-    }
-
-    /**
-     * Sets the geoAdjAreas
-     * 
-     * @param geoAdjAreas
-     */
-    public void setGeoAdjAreas(Geometry geoAdjAreas) {
-        this.geoAdjAreas = geoAdjAreas;
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -633,9 +580,6 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
     @Override
     protected void processAtStartup(ObReport report) {
         obData.addReport(report);
-        String zone = findZone(report.getPlatformId());
-        getTableData().getArea(zone).addReport(report.getObservationTime(),
-                report);
     }
 
     /**
@@ -663,5 +607,4 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
         }
         MonitoringArea.setPlatformMap(zones);
     }
-
 }

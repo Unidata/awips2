@@ -25,26 +25,22 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.fog.FogRecord;
 import com.raytheon.uf.common.dataplugin.fog.FogRecord.FOG_THREAT;
-import com.raytheon.uf.common.geospatial.SpatialException;
+import com.raytheon.uf.common.jms.notification.NotificationMessage;
 import com.raytheon.uf.common.monitor.MonitorAreaUtils;
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
-import com.raytheon.uf.common.monitor.data.AdjacentWfoMgr;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
-import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.monitor.IMonitor;
 import com.raytheon.uf.viz.monitor.Monitor;
 import com.raytheon.uf.viz.monitor.ObsMonitor;
@@ -87,6 +83,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Feb 15, 2013 1638       mschenke    Changed code to reference DataURI.SEPARATOR instead of URIFilter
  * Apr 28, 2014 3086       skorolev    Removed local getMonitorAreaConfig method.
  * Sep 04, 2014 3220       skorolev    Updated configUpdate method and added updateMonitoringArea.
+ * Sep 18, 2015 3873       skorolev    Removed common definitions. Replaced deprecated NotificationMessage.
  * 
  * </pre>
  * 
@@ -126,12 +123,6 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
     private final TableData stationTableData = new TableData(
             CommonConfig.AppName.SAFESEAS);
 
-    /** All SafeSeas datauri start with this */
-    private final String OBS = "fssobs";
-
-    /** regex wild card filter */
-    private final String wildCard = "[\\w\\(\\)-_:.]+";
-
     /** List of SAFESEAS resource listeners **/
     private final List<ISSResourceListener> safeSeasResources = new ArrayList<ISSResourceListener>();
 
@@ -144,31 +135,21 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
     /** data holder for FOG data **/
     private Map<Date, Map<String, FOG_THREAT>> algorithmData = null;
 
-    /** Adjacent areas for current cwa **/
-    private Geometry geoAdjAreas;
-
     /** List of fogAlg listeners **/
     private final List<ISSResourceListener> fogResources = new ArrayList<ISSResourceListener>();
-
-    /** Pattern for SAFESEAS **/
-    private final Pattern ssPattern = Pattern.compile(DataURI.SEPARATOR + OBS
-            + DataURI.SEPARATOR + wildCard + DataURI.SEPARATOR + wildCard
-            + DataURI.SEPARATOR + wildCard + DataURI.SEPARATOR + wildCard
-            + DataURI.SEPARATOR + wildCard);
 
     /**
      * Private constructor, singleton
      */
     private SafeSeasMonitor() {
-        pluginPatterns.add(ssPattern);
-        ssAreaConfig = new FSSObsMonitorConfigurationManager(MonName.ss.name());
+        pluginPatterns.add(fssPattern);
+        ssAreaConfig = FSSObsMonitorConfigurationManager
+                .getInstance(MonName.ss);
         updateMonitoringArea();
         initObserver(OBS, this);
-        obData = new ObMultiHrsReports(CommonConfig.AppName.SAFESEAS);
-        obData.setThresholdMgr(SSThresholdMgr.getInstance());
-        obData.getZoneTableData();
+        createDataStructures();
+        processProductAtStartup();
         readTableConfig(MonitorThresholdConfiguration.SAFESEAS_THRESHOLD_CONFIG);
-
     }
 
     /**
@@ -177,10 +158,6 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
     public static synchronized SafeSeasMonitor getInstance() {
         if (monitor == null) {
             monitor = new SafeSeasMonitor();
-            // Pre-populate dialog with an observation (METAR) for KOMA
-            monitor.createDataStructures();
-            monitor.getAdjAreas();
-            monitor.processProductAtStartup("ss");
             monitor.fireMonitorEvent(monitor);
         }
         return monitor;
@@ -205,6 +182,7 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
     private void createDataStructures() {
         obData = new ObMultiHrsReports(CommonConfig.AppName.SAFESEAS);
         obData.setThresholdMgr(SSThresholdMgr.getInstance());
+        obData.getZoneTableData();
         algorithmData = new HashMap<Date, Map<String, FOG_THREAT>>();
     }
 
@@ -273,7 +251,7 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
      */
     @Override
     public void processProductMessage(final AlertMessage filtered) {
-        if (ssPattern.matcher(filtered.dataURI).matches()) {
+        if (fssPattern.matcher(filtered.dataURI).matches()) {
             processURI(filtered.dataURI, filtered);
         }
     }
@@ -594,36 +572,6 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
         return zoneDialog;
     }
 
-    /**
-     * Gets adjacent areas
-     */
-    public void getAdjAreas() {
-        try {
-            this.setGeoAdjAreas(AdjacentWfoMgr.getAdjacentAreas(cwa));
-        } catch (SpatialException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        }
-    }
-
-    /**
-     * Sets geometry of adjacent areas
-     * 
-     * @param geoAdjAreas
-     *            the geoAdjAreas to set
-     */
-    public void setGeoAdjAreas(Geometry geoAdjAreas) {
-        this.geoAdjAreas = geoAdjAreas;
-    }
-
-    /**
-     * Gets geometry of adjacent areas
-     * 
-     * @return the geoAdjAreas
-     */
-    public Geometry getGeoAdjAreas() {
-        return geoAdjAreas;
-    }
-
     /*
      * Updates data of Fog monitor
      * 
@@ -685,5 +633,4 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
         }
         MonitoringArea.setPlatformMap(zones);
     }
-
 }

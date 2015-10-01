@@ -19,9 +19,17 @@
  **/
 package com.raytheon.uf.edex.plugin.fssobs;
 
+import gov.noaa.nws.ncep.edex.common.metparameters.Amount;
+import gov.noaa.nws.ncep.edex.common.metparameters.parameterconversion.PRLibrary;
+import gov.noaa.nws.ncep.edex.common.metparameters.parameterconversion.PRLibrary.InvalidValueException;
+
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
+
+import javax.measure.converter.UnitConverter;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
 
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
@@ -29,6 +37,7 @@ import com.raytheon.uf.common.dataplugin.fssobs.FSSObsRecord;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.geospatial.ISpatialQuery;
 import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
+import com.raytheon.uf.common.monitor.data.ObConst;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -36,7 +45,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.pointdata.PointDataQuery;
 
 /**
- * Get METAR and Maritime data records
+ * Utilities for FSSObs data records.
  * 
  * <pre>
  * 
@@ -52,6 +61,7 @@ import com.raytheon.uf.edex.pointdata.PointDataQuery;
  * Jan 06, 2014 2653       skorolev    Corrected decoding of snincrHourly and snincrTotal.
  * Apr 28, 2014 3086       skorolev    Updated getStations method.
  * Sep 04, 2014 3220       skorolev    Removed getStations method.
+ * Sep 18, 2015 3873       skorolev    Removed identical constant definitions.
  * 
  * </pre>
  * 
@@ -63,23 +73,32 @@ public class FSSObsUtils {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(FSSObsUtils.class);
 
-    /** Centigrade -> Kelvin */
-    public static final float TMCK = 273.15f;
+    /** FAHRENHEIT -> CELSIUS */
+    private static final UnitConverter fToC = NonSI.FAHRENHEIT
+            .getConverterTo(SI.CELSIUS);
 
-    /**
-     * Value of missed data.
-     */
-    public static final float MISSING = -9999.0f;
+    /** CELSIUS --> KELVIN */
+    private static final UnitConverter cToK = SI.CELSIUS
+            .getConverterTo(SI.KELVIN);
 
-    /**
-     * The constant representing the sky condition for sky clear
-     */
-    private static final int SKC_SKY_CONDITION = 9999999;
+    /** Knots --> kilometers per hour */
+    private static final UnitConverter knotToKph = NonSI.KNOT
+            .getConverterTo(NonSI.KILOMETERS_PER_HOUR);
 
-    /**
-     * The constant representing the sky condition for clear sky
-     */
-    private static final int CLR_SKY_CONDITION = 8888888;
+    private static final float defaultCeiling = 1e20f;
+
+    // ----------- Constants required for Frostbite time calculation.---------
+
+    // Temperature must be lower than -4.8C (23F) to avoid a calculation error
+    private static final float frostbiteTempMax = -4.8f;
+
+    private static final float f1 = -24.5f;
+
+    private static final float f2 = 0.667f;
+
+    private static final float f3 = 2111f;
+
+    private static final float f4 = -1.668f;
 
     /** Plug-in name **/
     private enum Plgn {
@@ -95,8 +114,14 @@ public class FSSObsUtils {
     /** Database **/
     private static String db = "metadata";
 
-    /** SQL expression **/
-    private static String sqlexp = "select name from common_obs_spatial where ( catalogtype=1 or catalogtype=33 or catalogtype = 32 or catalogtype = 1000) and stationid = '";
+    /**
+     * SQL expression METAR CAT_TYPE_ICAO = 1; Known ship identifications -
+     * Mobile no lat/lon CAT_TYPE_SHIP_MOB = 30 Drifting buoy locations
+     * CAT_TYPE_BUOY_MOB = 31; Moored (Fixed) buoy locations CAT_TYPE_BUOY_FXD =
+     * 32; Coastal Marine (CMAN) locations CAT_TYPE_CMAN = 33; CAT_TYPE_MESONET
+     * = 1000; MESONET_NWSFAA = 1001;
+     */
+    private static String sqlexp = "select name from common_obs_spatial where ( catalogtype=1 or catalogtype=30 or catalogtype=31 or catalogtype=32 or catalogtype = 33 or catalogtype = 1000 or catalogtype = 1001) and stationid = '";
 
     /**
      * Constructor
@@ -133,7 +158,7 @@ public class FSSObsUtils {
     }
 
     /**
-     * Gets station name from database.
+     * Gets descriptive station name from database.
      * 
      * @param stnId
      * @return station name
@@ -147,7 +172,8 @@ public class FSSObsUtils {
             Object[] results = sq.dbRequest(sql, db);
             retVal = (String) results[0];
         } catch (Exception e) {
-            statusHandler.handle(Priority.ERROR, e.getMessage());
+            statusHandler.handle(Priority.ERROR,
+                    "Could not to get a station name: " + e.getMessage());
         }
         return retVal;
     }
@@ -228,18 +254,18 @@ public class FSSObsUtils {
      * @return -- time in minutes
      */
     public static float calcFrostbiteTime(float windspeedKPH, float temperatureC) {
-        float fbMinutes = MISSING;
+        float fbMinutes = ObConst.MISSING;
 
         // Temperature must be lower than -4.8C (23F) to avoid a calculation
         // error (a negative number to -1.668 power is NAN)
-        if (temperatureC < -4.8)
-            fbMinutes = ((-24.5f * ((0.667f * windspeedKPH) + 4.8f)) + 2111f)
-                    * (float) Math.pow((-4.8 - temperatureC), -1.668);
+        if (temperatureC < frostbiteTempMax)
+            fbMinutes = ((f1 * ((f2 * windspeedKPH) + frostbiteTempMax)) + f3)
+                    * (float) Math.pow((frostbiteTempMax - temperatureC), f4);
         else
-            return MISSING;
+            return ObConst.MISSING;
         // Check for frost bite boundaries
         if (!(fbMinutes <= 30 && windspeedKPH > 25.0 && windspeedKPH <= 80.5))
-            fbMinutes = MISSING;
+            fbMinutes = ObConst.MISSING;
         return fbMinutes;
     }
 
@@ -253,29 +279,27 @@ public class FSSObsUtils {
      * @return -- wind chill in degrees Celsius
      */
     public static float calcWindChill(float temp, float windSpd) {
-        float spd;
-        /* arbitrarily do the calculation only for temps at or below 60F */
-        if (temp > 16.)
-            return 1e37f;
-        /* no chilling if speed < 4 mph = 6.44km/h */
-        if (windSpd < 6.4)
-            return temp;
-        /* peg speed at 80 mph (= 128.75 km/h) */
-        if (windSpd > 128.75)
-            spd = 128.75f;
-        else
-            spd = windSpd;
-        spd = (float) Math.pow(spd, 0.16);
-        float windChillTemp = 13.12f + 0.6215f * temp - 11.37f * spd + 0.3965f
-                * temp * spd;
-        return windChillTemp;
+        float retVal = ObConst.MISSING;
+        Amount t = new Amount(temp, SI.CELSIUS);
+        Amount s = new Amount(windSpd, NonSI.KNOT);
+        try {
+            Amount wcht = PRLibrary.prWcht(t, s);
+            retVal = (float) wcht.doubleValue();
+        } catch (NullPointerException | InvalidValueException e) {
+            statusHandler.handle(
+                    Priority.PROBLEM,
+                    "Could not get a WindChill temperature: "
+                            + e.getLocalizedMessage(), e);
+        }
+        return retVal;
     }
 
     /**
      * This method calculates a floating point number representing the ceiling.
      * By definition, the ceiling is the lowest overcast or broken cloud layer,
      * so the method looks for the lowest layer that matches a BKN or OVC
-     * condition, and returns that layer.
+     * condition, and returns that
+     * layer(http://www.srh.noaa.gov/srh/dad/sfc/chapter5.pdf).
      * 
      * @param skyCov
      *            -- the set of sky coverage data
@@ -283,29 +307,29 @@ public class FSSObsUtils {
      */
     public static float findMetarCeilingFromLayers(String[] skyCov,
             Number[] levels) {
-        float ceiling = 1e20f;
-        // Find a ceiling in a METAR report.
-        try {
-            for (int i = 0; i < skyCov.length; i++) {
-                String sc = skyCov[i];
-                // SCT ???
-                if (sc.equals("CLR")) {
-                    ceiling = CLR_SKY_CONDITION;
-                    break;
-                } else if (sc.equals("SKC")) {
-                    ceiling = SKC_SKY_CONDITION;
-                    break;
-                } else if ((sc.equals("BKN")) || (sc.equals("OVC"))) {
-                    if (levels[i] != null) {
-                        ceiling = levels[i].floatValue() / 100f;
-                        break;
-                    }
+        float ceiling = defaultCeiling;
+        for (int i = 0; i < skyCov.length; i++) {
+            String sc = skyCov[i];
+            // SCT = scattered ???
+            switch (sc) {
+            case "CLR":
+                ceiling = ObConst.CLR_SKY_CONDITION;
+                break;
+            case "SKC":
+                ceiling = ObConst.SKC_SKY_CONDITION;
+                break;
+            case "BKN":
+            case "OVC":
+                if (levels[i] != null) {
+                    ceiling = levels[i].floatValue() / 100f;
                 }
+                break;
+            default:
+                statusHandler.error("Get unkown sky cover " + sc);
+                break;
             }
-        } catch (RuntimeException e) {
-            // ignore cloud cover that is null
         }
-        return ceiling >= 1e20f ? MISSING : ceiling;
+        return ceiling >= defaultCeiling ? ObConst.MISSING : ceiling;
     }
 
     /**
@@ -319,20 +343,18 @@ public class FSSObsUtils {
      * @return -- calculated Relative Humidity in %
      */
     public static Float getRH(float dewpoint, float temperature) {
-        float retVal = MISSING;
-        // From http://www.hpc.ncep.noaa.gov/html/dewrh.shtml
-        // to Celsius
-        if (dewpoint != MISSING && temperature != MISSING) {
-            float temp = (100f / (212f - 32f)) * (temperature - 32f);
-            float dwpt = (100f / (212f - 32f)) * (dewpoint - 32f);
-            // saturation vapor pressure
-            float c = (float) (6.11 * Math.pow(10,
-                    ((7.5 * temp / (237.7 + temp)))));
-            // actual vapor pressure
-            float d = (float) (6.11 * Math.pow(10,
-                    ((7.5 * dwpt / (237.7 + dwpt)))));
-            // relative humidity
-            retVal = (d / c) * 100;
+        float retVal = ObConst.MISSING;
+        Amount t = new Amount(fToC.convert(temperature), SI.CELSIUS);
+        Amount d = new Amount(fToC.convert(dewpoint), SI.CELSIUS);
+        Amount rh;
+        try {
+            rh = PRLibrary.prRelh(t, d);
+            retVal = (float) rh.doubleValue();
+        } catch (NullPointerException | InvalidValueException e) {
+            statusHandler.handle(
+                    Priority.PROBLEM,
+                    "Error to get Relative Humidity: "
+                            + e.getLocalizedMessage(), e);
         }
         return retVal;
     }
@@ -351,7 +373,7 @@ public class FSSObsUtils {
         // is set at 40F and wind speed between 14 and 43 knts) :
         float[] retVal = new float[5];
         for (int i = 0; i < 5; i++) {
-            retVal[i] = MISSING;
+            retVal[i] = ObConst.MISSING;
         }
         float temp = tableRow.getTemperature();
         float windspd = tableRow.getWindSpeed();
@@ -381,36 +403,13 @@ public class FSSObsUtils {
             }
         }
         sc.close();
-        if ((temp != MISSING) && (temp < 4.4f)
-                // 277.6 K = 40 F = 4.44444 C
-                && (windspd != MISSING)
-                && (windspd <= 43.0f && windspd >= 14.0f)) {
-            float speedKPH = windspd * 1.6f;
+        if (temp != ObConst.MISSING && windspd != ObConst.MISSING) {
+            float speedKPH = (float) knotToKph.convert(windspd);
             // in Kelvin
-            retVal[3] = calcWindChill(temp, speedKPH) + TMCK;
+            retVal[3] = (float) cToK.convert(calcWindChill(
+                    (float) fToC.convert(temp), speedKPH));
             // in minutes
-            retVal[4] = calcFrostbiteTime(speedKPH, temp);
-        }
-        return retVal;
-    }
-
-    /**
-     * Routine to calculate dewpoint depression from temperature and relative
-     * humidity.
-     * 
-     * @param TK
-     *            - temperature in K
-     * @param RH
-     *            - relative humidity in %
-     * @return dewpoint depression in C
-     */
-    public static float getDpDepression(float TK, float RH) {
-        float retVal = MISSING;
-        if (RH != MISSING && TK != MISSING) {
-            float rhqc = Math.min(100.0f, Math.max(1.0f, RH));
-            float b = (float) (0.0091379024f * TK + 6106.396f / TK - Math
-                    .log(rhqc / 100.0f));
-            retVal = (float) (TK - (b - Math.sqrt((b * b - 223.1986)) / 0.0182758048f));
+            retVal[4] = calcFrostbiteTime(speedKPH, (float) fToC.convert(temp));
         }
         return retVal;
     }

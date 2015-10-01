@@ -21,16 +21,24 @@ package com.raytheon.uf.viz.monitor.data;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Set;
 
+import com.raytheon.uf.common.geospatial.SpatialException;
+import com.raytheon.uf.common.monitor.MonitorAreaUtils;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
+import com.raytheon.uf.common.monitor.data.ObConst.ReportType;
+import com.raytheon.uf.common.monitor.xml.StationIdXML;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig.CellType;
 import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
+import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * This class is a container of ObZoneHourReports objects for a caller-specified
@@ -40,13 +48,14 @@ import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
+ * Date           Ticket#    Engineer   Description
  * ------------ ---------- ----------- --------------------------
  * Dec. 1, 2009  3424       zhao       Initial creation.
  * Oct.29, 2012  1297       skorolev   Changed HashMap to Map
  * Oct.31  2012  1297       skorolev   Cleaned code.
  * Sep 04  2014  3220       skorolev   Added updateZones method.
  * Mar 17  2015  3888       dhladky    check for nulls
+ * Sep 25  2015  3873       skorolev   Corrected addReport for moving platforms.
  * 
  * </pre>
  * 
@@ -73,7 +82,14 @@ public class ObHourReports {
      */
     private Map<String, ObZoneHourReports> hourReports;
 
+    /**
+     * current threshold manager
+     */
     private AbstractThresholdMgr thresholdMgr;
+
+    private Set<String> zones = new HashSet<String>();
+
+    private FSSObsMonitorConfigurationManager configMgr;
 
     /**
      * constructor
@@ -85,10 +101,12 @@ public class ObHourReports {
         this.nominalTime = nominalTime;
         this.appName = appName;
         this.thresholdMgr = thresholdMgr;
+        configMgr = this.thresholdMgr.getCfgMgr();
+
         hourReports = new HashMap<String, ObZoneHourReports>();
-        Map<String, List<String>> zoneStationMap = MonitoringArea
-                .getPlatformMap();
-        for (String zone : zoneStationMap.keySet()) {
+        zones.clear();
+        zones.addAll(configMgr.getAreaList());
+        for (String zone : zones) {
             hourReports.put(zone, new ObZoneHourReports(nominalTime, zone,
                     appName, thresholdMgr));
         }
@@ -101,28 +119,80 @@ public class ObHourReports {
      */
     public void addReport(ObReport report) {
         String station = report.getPlatformId();
-        List<String> zones = MonitoringArea.getZoneIds(station);
-        if (zones.size() == 0) {
-            statusHandler
-                    .error("Error: station: "
-                            + station
-                            + " is not associated with any zone in the monitoring area");
-            return;
+        List<String> stationZones = configMgr.getAreaByStationId(station);
+        // If station has no associated zone:
+        if (stationZones.isEmpty()) {
+            if (appName.equals(AppName.FOG) || appName.equals(AppName.SAFESEAS)) {
+                // Associate moving platform with monitoring zones
+                double shipDist = configMgr.getShipDistance();
+                stationZones.addAll(findZoneForShip(report, shipDist));
+            } else {
+                statusHandler
+                        .warn("Error: station: "
+                                + station
+                                + " is not associated with any zone in the monitoring area");
+                return;
+            }
         }
-        boolean hasZone = false;
-        for (String zone : zones) {
+        // Add station report to all associated zones.
+        for (String zone : stationZones) {
             if (hourReports.containsKey(zone)) {
-                hasZone = true;
                 hourReports.get(zone).addReport(report);
             }
         }
-        if (hasZone == false) {
-            statusHandler
-                    .error("Error in addreport() of ObHourReports: unable to add obs report to data archive");
-        }
+        return;
     }
 
     /**
+     * Find zones to include a moving platform.
+     * 
+     * @param report
+     *            from moving platform
+     * @param shipDist
+     *            distance from area configuration file
+     */
+    private Set<String> findZoneForShip(ObReport report, double shipDist) {
+
+        double latShip = report.getLatitude();
+        double lonShip = report.getLongitude();
+        Set<String> shipZones = new HashSet<String>();
+
+        for (String zone : zones) {
+            try {
+                // use only marine zones
+                if (zone.charAt(2) == 'Z') {
+                    Coordinate zcoor = MonitorAreaUtils.getZoneCenter(zone);
+                    double shipToZone = distance(latShip, lonShip, zcoor.y,
+                            zcoor.x);
+                    if (shipToZone <= shipDist) {
+                        // associate moving platform with monitoring zone.
+                        shipZones.add(zone);
+                        statusHandler.handle(Priority.DEBUG,
+                                "<<<======>>>" + zone + "\tplatform = "
+                                        + report.getPlatformId() + "\tdist = "
+                                        + shipToZone + "\t shipDist = "
+                                        + shipDist);
+                        StationIdXML stnXML = new StationIdXML();
+                        stnXML.setName(report.getPlatformId());
+                        stnXML.setType(ReportType.MARITIME.name());
+                        configMgr.getAreaXml(zone).addStationIdXml(stnXML);
+                    }
+                } else {
+                    continue;
+                }
+            } catch (SpatialException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
+        }
+        // Update configuration file.
+        configMgr.saveConfigXml();
+        return shipZones;
+    }
+
+    /**
+     * Gets HourReports
+     * 
      * @return hourReports
      */
     public Map<String, ObZoneHourReports> getHourReports() {
@@ -186,8 +256,8 @@ public class ObHourReports {
     }
 
     /**
-     * Returns the ObZoneHourReports object of a caller-specified zone. If such
-     * object not available, returns null.
+     * Gets ObZoneHourReports Returns the ObZoneHourReports object of a
+     * caller-specified zone. If such object not available, returns null.
      * 
      * @param zone
      * @return hour reports
@@ -200,6 +270,8 @@ public class ObHourReports {
     }
 
     /**
+     * Gets NominalTime
+     * 
      * @return nominalTime
      */
     public Date getNominalTime() {
@@ -207,6 +279,8 @@ public class ObHourReports {
     }
 
     /**
+     * Gets AppName
+     * 
      * @return appName
      */
     public CommonConfig.AppName getAppName() {
@@ -215,51 +289,79 @@ public class ObHourReports {
 
     /**
      * Updates zones in the Hour Reports
+     * 
+     * @param configMgr
      */
     public void updateZones() {
-        Map<String, List<String>> zoneStationMap = MonitoringArea
-                .getPlatformMap();
-        // remove zones or stations
-        List<String> hourZones = new CopyOnWriteArrayList<String>(
-                hourReports.keySet());
-        for (String zone : hourZones) {
-            if (hourReports.keySet().contains(zone)) {
-                List<String> stations = new CopyOnWriteArrayList<String>(
-                        hourReports.get(zone).getZoneHourReports().keySet());
-                for (String stn : stations) {
-                    if (zoneStationMap.get(zone) != null) {
-                        if (!zoneStationMap.get(zone).contains(stn)) {
-                            hourReports.get(zone).getZoneHourReports()
-                                    .remove(stn);
-                        }
-                    }
-                }
-                if (!zoneStationMap.keySet().contains(zone)) {
-                    hourReports.remove(zone);
-                }
-            }
-        }
+        // Updated list of zones
+        List<String> updtZones = configMgr.getAreaList();
+        // remove zones
+        hourReports.keySet().retainAll(updtZones);
         // add zones
-        for (String zone : zoneStationMap.keySet()) {
-            List<String> stations = new CopyOnWriteArrayList<String>(
-                    zoneStationMap.get(zone));
-            for (String stn : stations) {
-                if (hourReports.get(zone) != null) {
-                    if (!hourReports.get(zone).getZoneHourReports()
-                            .containsKey(stn)) {
-                        hourReports
-                                .get(zone)
-                                .getZoneHourReports()
-                                .put(stn,
-                                        new ObStnHourReports(nominalTime, zone,
-                                                stn, appName, thresholdMgr));
-                    }
-                }
-            }
-            if (!hourReports.containsKey(zone)) {
+        for (String zone : updtZones) {
+            if (!hourReports.keySet().contains(zone)) {
                 hourReports.put(zone, new ObZoneHourReports(nominalTime, zone,
                         appName, thresholdMgr));
             }
         }
+        // add and(or) remove stations
+        for (String zone : updtZones) {
+            // Updated list of stations in this zone
+            List<String> updtStns = configMgr.getAreaStations(zone);
+            // remove stations
+            hourReports.get(zone).getZoneHourReports().keySet()
+                    .retainAll(updtStns);
+            // add stations
+            for (String stn : updtStns) {
+                if (!hourReports.get(zone).getZoneHourReports()
+                        .containsKey(stn)) {
+                    hourReports
+                            .get(zone)
+                            .getZoneHourReports()
+                            .put(stn,
+                                    new ObStnHourReports(nominalTime, zone,
+                                            stn, appName, thresholdMgr));
+                }
+            }
+            // update hourReports for current zone
+            hourReports.get(zone).getZoneHourReports();
+        }
+    }
+
+    /**
+     * Distance between two coordinates.
+     * 
+     * @param lat1
+     * @param lon1
+     * @param lat2
+     * @param lon2
+     * @return distance in km
+     */
+    public static double distance(double lat1, double lon1, double lat2,
+            double lon2) {
+
+        // Earth's radius of 6378.137 kilometers
+        float EarthRadius = 6378.137f;
+
+        double dLat = toRad(lat2 - lat1);
+        double dLon = toRad(lon2 - lon1);
+        lat1 = toRad(lat1);
+        lat2 = toRad(lat2);
+
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.sin(dLon / 2)
+                * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return EarthRadius * c;
+    }
+
+    /**
+     * From grad to radian.
+     * 
+     * @param value
+     * @return
+     */
+    private static double toRad(double value) {
+        return value * Math.PI / 180;
     }
 }

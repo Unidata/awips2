@@ -8,7 +8,8 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: com.raytheon.uf.edex.cpgsrv;bundle-version="1.12.1153",
  com.raytheon.edex.common;bundle-version="1.12.1153",
  com.raytheon.uf.common.dataplugin.fssobs;bundle-version="1.0.0",
- com.raytheon.uf.edex.decodertools
+ com.raytheon.uf.edex.decodertools,
+ com.raytheon.uf.common.monitor
 Export-Package: com.raytheon.uf.edex.plugin.fssobs,
  com.raytheon.uf.edex.plugin.fssobs.common
 Import-Package: com.raytheon.uf.common.monitor.config,
@@ -21,4 +22,8 @@ Import-Package: com.raytheon.uf.common.monitor.config,
  com.raytheon.uf.edex.menus,
  com.raytheon.uf.edex.plugin.fssobs,
  com.raytheon.uf.edex.pointdata,
+ gov.noaa.nws.ncep.edex.common.metparameters,
+ gov.noaa.nws.ncep.edex.common.metparameters.parameterconversion,
+ javax.measure.converter,
+ javax.measure.unit,
  org.apache.commons.logging
