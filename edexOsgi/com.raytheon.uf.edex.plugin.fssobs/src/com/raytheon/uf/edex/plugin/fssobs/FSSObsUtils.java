@@ -19,10 +19,7 @@
  **/
 package com.raytheon.uf.edex.plugin.fssobs;
 
-import gov.noaa.nws.ncep.edex.common.metparameters.Amount;
-import gov.noaa.nws.ncep.edex.common.metparameters.parameterconversion.PRLibrary;
-import gov.noaa.nws.ncep.edex.common.metparameters.parameterconversion.PRLibrary.InvalidValueException;
-
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
@@ -35,13 +32,14 @@ import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
 import com.raytheon.uf.common.dataplugin.fssobs.FSSObsRecord;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.geospatial.ISpatialQuery;
-import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
 import com.raytheon.uf.common.monitor.data.ObConst;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.wxmath.CalcRH;
+import com.raytheon.uf.edex.database.dao.CoreDao;
+import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.pointdata.PointDataQuery;
 
 /**
@@ -87,7 +85,7 @@ public class FSSObsUtils {
 
     private static final float defaultCeiling = 1e20f;
 
-    // ----------- Constants required for Frostbite time calculation.---------
+    // ----------- Constants required for Frostbite time calculation.---------:
 
     // Temperature must be lower than -4.8C (23F) to avoid a calculation error
     private static final float frostbiteTempMax = -4.8f;
@@ -100,28 +98,43 @@ public class FSSObsUtils {
 
     private static final float f4 = -1.668f;
 
-    /** Plug-in name **/
-    private enum Plgn {
-        obs, sfcobs, ldadmesonet
-    };
+    // ----------- Constants required for Wind Chill -------------:
+
+    private static float wctMax = 16.0f;
+
+    private static float defaultWct = 1e37f;
+
+    private static float windSpdMin = 6.4f;
+
+    private static float windSpdMax = 128.75f;
+
+    private static float wc1 = 0.16f;
+
+    private static float wc2 = 13.12f;
+
+    private static float wc3 = 0.6215f;
+
+    private static float wc4 = 11.37f;
+
+    private static float wc5 = 0.3965f;
+
+    /** plug-in for METAR data */
+    private static final String OBS = "obs";
+
+    /** plug-in for MARITIME data */
+    private static final String SFCOBS = "sfcobs";
+
+    /** plug-in for MESONET data */
+    private static final String LDADMESONET = "ldadmesonet";
 
     /** Selected column in database **/
-    private static String slct = "dataURI";
+    private static final String SLCT = "dataURI";
 
     /** Equal sign **/
-    private static String equ = "=";
+    private static final String EQU = "=";
 
     /** Database **/
-    private static String db = "metadata";
-
-    /**
-     * SQL expression METAR CAT_TYPE_ICAO = 1; Known ship identifications -
-     * Mobile no lat/lon CAT_TYPE_SHIP_MOB = 30 Drifting buoy locations
-     * CAT_TYPE_BUOY_MOB = 31; Moored (Fixed) buoy locations CAT_TYPE_BUOY_FXD =
-     * 32; Coastal Marine (CMAN) locations CAT_TYPE_CMAN = 33; CAT_TYPE_MESONET
-     * = 1000; MESONET_NWSFAA = 1001;
-     */
-    private static String sqlexp = "select name from common_obs_spatial where ( catalogtype=1 or catalogtype=30 or catalogtype=31 or catalogtype=32 or catalogtype = 33 or catalogtype = 1000 or catalogtype = 1001) and stationid = '";
+    private static final String METADATA = "metadata";
 
     /**
      * Constructor
@@ -143,9 +156,9 @@ public class FSSObsUtils {
         PointDataQuery request = null;
         PointDataContainer result = null;
         try {
-            request = new PointDataQuery(Plgn.obs.toString());
+            request = new PointDataQuery(OBS);
             request.requestAllLevels();
-            request.addParameter(slct, uri, equ);
+            request.addParameter(SLCT, uri, EQU);
             request.setParameters(FSSObsDataTransform.OBS_PARAMS_LIST);
             result = request.execute();
             if (result != null) {
@@ -164,12 +177,22 @@ public class FSSObsUtils {
      * @return station name
      */
     public static String getStationName(String stnId) {
+        CoreDao dao = null;
+        dao = new CoreDao(DaoConfig.forDatabase(METADATA));
         String retVal = null;
-        ISpatialQuery sq = null;
-        String sql = sqlexp + stnId + "'";
+        /**
+         * SQL expression METAR CAT_TYPE_ICAO = 1; Known ship identifications -
+         * Mobile no lat/lon CAT_TYPE_SHIP_MOB = 30 Drifting buoy locations
+         * CAT_TYPE_BUOY_MOB = 31; Moored (Fixed) buoy locations
+         * CAT_TYPE_BUOY_FXD = 32; Coastal Marine (CMAN) locations CAT_TYPE_CMAN
+         * = 33; CAT_TYPE_MESONET = 1000; MESONET_NWSFAA = 1001?;
+         */
+        String sql = "select name from common_obs_spatial where catalogtype in (1, 30, 31, 32, 33, 1000) and stationid = :stationid";
+
         try {
-            sq = SpatialQueryFactory.create();
-            Object[] results = sq.dbRequest(sql, db);
+            Map<String, Object> paramMap = new HashMap<>(1, 1);
+            paramMap.put("stationid", stnId);
+            Object[] results = dao.executeSQLQuery(sql, paramMap);
             retVal = (String) results[0];
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR,
@@ -191,8 +214,8 @@ public class FSSObsUtils {
         PointDataQuery request = null;
         PointDataContainer result = null;
         try {
-            request = new PointDataQuery(Plgn.sfcobs.toString());
-            request.addParameter(slct, uri, equ);
+            request = new PointDataQuery(SFCOBS);
+            request.addParameter(SLCT, uri, EQU);
             request.setParameters(FSSObsDataTransform.SFCOBS_PARAMS_LIST);
             result = request.execute();
             if (result != null) {
@@ -221,9 +244,10 @@ public class FSSObsUtils {
         try {
             Map<String, RequestConstraint> rcMap = RequestConstraint
                     .toConstraintMapping(DataURIUtil.createDataURIMap(uri));
-            // Not actually in db
+            // TODO: There is no uri field in ldadmesonet table. Should be
+            // corrected. URIs are required to generate CompositeProduct.
             rcMap.remove("pluginName");
-            request = new PointDataQuery(Plgn.ldadmesonet.toString());
+            request = new PointDataQuery(LDADMESONET);
             for (Entry<String, RequestConstraint> entry : rcMap.entrySet()) {
                 RequestConstraint rc = entry.getValue();
                 String value = rc.getConstraintValue();
@@ -235,7 +259,6 @@ public class FSSObsUtils {
             if (result != null) {
                 recFromMesowest = FSSObsDataTransform
                         .fromLdadmesowestRecord(result);
-
             }
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
@@ -279,19 +302,21 @@ public class FSSObsUtils {
      * @return -- wind chill in degrees Celsius
      */
     public static float calcWindChill(float temp, float windSpd) {
-        float retVal = ObConst.MISSING;
-        Amount t = new Amount(temp, SI.CELSIUS);
-        Amount s = new Amount(windSpd, NonSI.KNOT);
-        try {
-            Amount wcht = PRLibrary.prWcht(t, s);
-            retVal = (float) wcht.doubleValue();
-        } catch (NullPointerException | InvalidValueException e) {
-            statusHandler.handle(
-                    Priority.PROBLEM,
-                    "Could not get a WindChill temperature: "
-                            + e.getLocalizedMessage(), e);
-        }
-        return retVal;
+        float spd;
+        /* arbitrarily do the calculation only for temps at or below 60F */
+        if (temp > wctMax)
+            return defaultWct;
+        /* no chilling if speed < 4 mph = 6.44km/h */
+        if (windSpd < windSpdMin)
+            return temp;
+        /* peg speed at 80 mph (= 128.75 km/h) */
+        if (windSpd > windSpdMax)
+            spd = 128.75f;
+        else
+            spd = windSpd;
+        spd = (float) Math.pow(spd, wc1);
+        float windChillTemp = wc2 + wc3 * temp - wc4 * spd + wc5 * temp * spd;
+        return windChillTemp;
     }
 
     /**
@@ -337,24 +362,18 @@ public class FSSObsUtils {
      * Fahrenheit.
      * 
      * @param dewpoint
-     *            in F
+     *            in Farenheit
      * @param temperature
-     *            in F
+     *            in Farenheit
      * @return -- calculated Relative Humidity in %
      */
     public static Float getRH(float dewpoint, float temperature) {
         float retVal = ObConst.MISSING;
-        Amount t = new Amount(fToC.convert(temperature), SI.CELSIUS);
-        Amount d = new Amount(fToC.convert(dewpoint), SI.CELSIUS);
-        Amount rh;
-        try {
-            rh = PRLibrary.prRelh(t, d);
-            retVal = (float) rh.doubleValue();
-        } catch (NullPointerException | InvalidValueException e) {
-            statusHandler.handle(
-                    Priority.PROBLEM,
-                    "Error to get Relative Humidity: "
-                            + e.getLocalizedMessage(), e);
+        if (dewpoint != ObConst.MISSING && temperature != ObConst.MISSING) {
+            // convert to Celsius:
+            float temp = (float) fToC.convert(temperature);
+            float dwpt = (float) fToC.convert(dewpoint);
+            retVal = CalcRH.calcrh(temp, dwpt);
         }
         return retVal;
     }
