@@ -240,6 +240,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 06/23/2015   2282        skorolev    Corrected "CLEAR" case in updateSettings.
  * 06/26/2015   4588        skorolev    Fixed Insert/Overwrite issue.
  * Sep 15, 2015 4880        njensen     Removed dead code
+ * Oct 05, 2015 4855        skorolev    Fixed an unhandled event loop exception in createErrorStyleRange.
  * 
  * </pre>
  * 
@@ -3376,14 +3377,19 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
 
         setSyntaxErrorLevel(errorLevel);
         StyledText st = editorTafTabComp.getTextEditorControl();
-        int start = st.getOffsetAtLine(currentLineNo + range[frLineIndex] - 1)
-                + range[frColIndex];
-        int end = st.getOffsetAtLine(currentLineNo + range[toLineIndex] - 1)
-                + range[toColIndex];
-        StyleRange sr = new StyleRange(start, end - start, null, color);
+        if (st.getContent().getLineCount() > currentLineNo + range[frLineIndex]
+                - 1) {
+            int start = st.getOffsetAtLine(currentLineNo + range[frLineIndex]
+                    - 1)
+                    + range[frColIndex];
+            int end = st
+                    .getOffsetAtLine(currentLineNo + range[toLineIndex] - 1)
+                    + range[toColIndex];
+            StyleRange sr = new StyleRange(start, end - start, null, color);
 
-        if (syntaxMap != null) {
-            syntaxMap.put(sr, msg);
+            if (syntaxMap != null) {
+                syntaxMap.put(sr, msg);
+            }
         }
 
         if (doLogMessage) {
