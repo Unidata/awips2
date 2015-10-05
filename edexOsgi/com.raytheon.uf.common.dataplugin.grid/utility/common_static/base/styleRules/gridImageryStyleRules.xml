@@ -959,49 +959,6 @@
 		</imageStyle>
 	</styleRule>
 	<!--
-		* wSp, wSp_avg, 250MB > 50MB, baseline_A, point_A
-		kt | 1.944 | 0.0 | 0 | 200 | | | 29 | 0 | 20
-	-->
-	<styleRule>
-		<paramLevelMatches>
-			<parameter>DISABLED-for-resourceType-wSp</parameter>
-			<parameter>DISABLED-for-resourceType-wSp_avg</parameter>
-			<rangeLevel units="MB">
-				<upper>250</upper>
-				<lower>50</lower>
-			</rangeLevel>
-			<!-- <resourceType>CROSS_SECTION</resourceType> -->
-			<!-- <resourceType>TIME_HEIGHT</resourceType> -->
-		</paramLevelMatches>
-		<imageStyle>
-			<displayUnits>kts</displayUnits>
-			<range scale="LINEAR">
-				<minValue>0</minValue>
-				<maxValue>200</maxValue>
-			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
-			<colorbarLabeling>
-				<increment>20</increment>
-			</colorbarLabeling>
-		</imageStyle>
-	</styleRule>
-	<!--
-		* Into, Along, IntoA, AlongA
-		kt | 1.944 | 0.0 | 0  | 1  | |m| 29 | -1 | 10
-	-->
-	<styleRule>
-		<paramLevelMatches>
-			<parameter>Into</parameter>
-			<parameter>Along</parameter>
-			<parameter>IntoA</parameter>
-			<parameter>AlongA</parameter>
-		</paramLevelMatches>
-		<imageStyle>
-			<displayUnits>kts</displayUnits>
-			<defaultColormap>Grid/gridded data</defaultColormap>
-		</imageStyle>
-	</styleRule>
-	<!--
 		* uFX
 		m/s |  1.0  | 0.0 | -100 | 100 | | | 29 | 0 | 40
 	-->
@@ -2155,58 +2112,6 @@
 			</colorbarLabeling>
 		</imageStyle>
 	</styleRule>
-	<!--
-		* RR, CXR, LLR, radar, baseline_A, point_A
-		dBZ | 1 | 0 |  0  | 80  | | | 80 | 0 | 5
-	-->
-	<!-- DISABLED for resourceType
-	<styleRule>
-		<paramLevelMatches>
-			<parameter>RR</parameter>
-			<parameter>CXR</parameter>
-			<parameter>LLR</parameter>
-			<creatingEntity>radar</creatingEntity>
-			<!- - <resourceType>CROSS_SECTION</resourceType> - ->
-			<!- - <resourceType>TIME_HEIGHT</resourceType> - ->
-		</paramLevelMatches>
-		<imageStyle>
-			<displayUnits>dBZ</displayUnits>
-			<range scale="LINEAR">
-				<minValue>0</minValue>
-				<maxValue>80</maxValue>
-			</range>
-			<defaultColormap>Radar/Storm Total Precip</defaultColormap>
-			<colorbarLabeling>
-				<increment>5</increment>
-			</colorbarLabeling>
-		</imageStyle>
-	</styleRule>
-	-->
-	<!--
-		* RRV, radar, baseline_A, point_A
-		kts | 1.0 | 0 | -128  | 125  | | | 70 | 0 | 20
-	-->
-	<!-- DISABLED for resourceType
-	<styleRule>
-		<paramLevelMatches>
-			<parameter>RRV</parameter>
-			<creatingEntity>radar</creatingEntity>
-			<!- - <resourceType>CROSS_SECTION</resourceType> - ->
-			<!- - <resourceType>TIME_HEIGHT</resourceType> - ->
-		</paramLevelMatches>
-		<imageStyle>
-			<displayUnits>kts</displayUnits>
-			<range scale="LINEAR">
-				<minValue>-128</minValue>
-				<maxValue>125</maxValue>
-			</range>
-			<defaultColormap>Radar/GSD/8 bit Vel</defaultColormap>
-			<colorbarLabeling>
-				<increment>20</increment>
-			</colorbarLabeling>
-		</imageStyle>
-	</styleRule>
-	-->
 	<!--
 		* g2gsh
 		kt | 1.944 | 0.0 | 0  | 1  | | | 29 | -1 | 5
