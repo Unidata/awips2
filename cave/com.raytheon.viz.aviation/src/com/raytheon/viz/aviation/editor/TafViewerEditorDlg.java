@@ -104,6 +104,7 @@ import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.ISimulatedTimeChangeListener;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.VizApp;
@@ -133,10 +134,12 @@ import com.raytheon.viz.avnconfig.ITafSiteConfig;
 import com.raytheon.viz.avnconfig.MessageStatusComp;
 import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
 import com.raytheon.viz.avnconfig.TafSiteData;
+import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.texteditor.TextDisplayModel;
 import com.raytheon.viz.texteditor.msgs.IAviationObserver;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
 
 /**
  * This class displays the TAF Viewer and Editor dialog.
@@ -241,7 +244,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * May 15, 2014 3002        bgonzale    Moved common taf code to com.raytheon.uf.common.dataplugin.taf.
  * 08/13/2014   3497        njensen     Refactored syntax checking to prevent potential infinite loop
  * 12/02/2014   #15007      zhao        Added restoreFrom() for the "Restore From..." menu option
- * 04/07/2015   17332       zhao        Added code to handle case of "Cancel" in "Restore From..." 
+ * 04/07/2015   17332       zhao        Added code to handle case of "Cancel" in "Restore From..."
+ * Sep 28, 2015 4898        rferrel     Disable sending of TAF when CAVE not in real time.
  * 
  * </pre>
  * 
@@ -250,9 +254,15 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 
  */
 public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
-        IEditActions {
+        ISimulatedTimeChangeListener, IEditActions {
     private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(TafViewerEditorDlg.class);
+
+    /**
+     * Developer can use this for debug purposes by making it true. This can go
+     * away once AlertViz respects the Priorty setting of the status handler.
+     */
+    private static final boolean trace = false;
 
     private final String SPLIT_REGEX = "=+[\\s\n]*|\n{2,}|\n$";
 
@@ -559,6 +569,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         this.stationList = stationList;
 
         setText("AvnFPS TAF Editor");
+        SimulatedTime.getSystemTime().addSimulatedTimeChangeListener(this);
     }
 
     /**
@@ -672,6 +683,18 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
             // Select the editor tab on the tab folder.
             tabFolder.setSelection(editorTab);
 
+            /*
+             * Queue the validation so that this dialog will be displayed prior
+             * to the validation. This allows any validate warning to be
+             * displayed over this dialog.
+             */
+            VizApp.runAsync(new Runnable() {
+
+                @Override
+                public void run() {
+                    validateTime();
+                }
+            });
             // Do not set editorTafTabComp radial buttons here it can corrupt a
             // populated selected tab.
             // Any changes must be done after a open tab is found and populated.
@@ -973,6 +996,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
     @Override
     public void disposeDialog() {
         disposeDialog = true;
+        SimulatedTime.getSystemTime().removeSimulatedTimeChangeListener(this);
         AvnSmartToolJob.shutdown();
         for (ViewerTab viewerTab : modelsTabs) {
             viewerTab.dispose();
@@ -1590,6 +1614,16 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
 
         // Make the editor tab the default selection on the tab folder.
         tabFolder.setSelection(editorTab);
+        tabFolder.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                super.widgetSelected(e);
+                if (e.item == editorTab) {
+                    validateTime();
+                }
+            }
+        });
     }
 
     /**
@@ -1813,81 +1847,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         sendBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (!SendDialog.isAuthorized()) {
-                    return;
-                }
-                // Assume editorTafTabComp is for the active tab.
-                if (editorTafTabComp.isTafSent()) {
-                    putMessageToForecaster("Cannot send forecast: Forecast already sent");
-                    return;
-                } else if (editorTafTabComp.isSyntaxChecked()) {
-                    if (disallowSend.equals("always")) {
-                        putMessageToForecaster("Cannot send forecast: Send is disabled");
-                        return;
-                    }
-                    // Flag to allow sending if the syntax error threshold is
-                    // met.
-                    boolean okToSend = true;
-                    if (editorTafTabComp.isErrorsInBulletin()) {
-                        if (disallowSend.equals("warning")
-                                && (editorTafTabComp.getErrorLevel() >= 1)) {
-                            okToSend = false;
-                        } else if (disallowSend.equals("error")
-                                && (editorTafTabComp.getErrorLevel() >= 2)) {
-                            okToSend = false;
-                        } else if (disallowSend.equals("fatal")
-                                && (editorTafTabComp.getErrorLevel() >= 3)) {
-                            okToSend = false;
-                        }
-                    }
-
-                    if (okToSend) {
-                        if (confirmSend) {
-                            String bbb = editorTafTabComp.getBBB();
-
-                            if (bbb.startsWith("AA") || bbb.startsWith("CC")) {
-                                MessageBox mb = new MessageBox(shell,
-                                        SWT.ICON_QUESTION | SWT.OK | SWT.CANCEL);
-                                mb.setMessage("Attempting to send an AMD or COR TAF, please confirm.");
-                                if (mb.open() == SWT.CANCEL) {
-                                    return;
-                                }
-                            }
-                        }
-                    } else {
-                        putMessageToForecaster("Cannot send forecast: Bulletin has errors"
-                                + "\n"
-                                + "Use Clear Errors to send it without changes");
-                        return;
-                    }
-
-                    if (autoPrintMI.getSelection()) {
-                        printForecast(editorTafTabComp.getTextEditorControl()
-                                .getText());
-                    }
-
-                    if (mustCreate(sendDlg)) {
-                        sendDlg = new SendDialog(shell, editorTafTabComp,
-                                msgStatComp, sendCollectMI.getSelection());
-                        sendDlg.setCloseCallback(new ICloseCallback() {
-
-                            @Override
-                            public void dialogClosed(Object returnValue) {
-                                // sendDlg sets the "taf sent" field only
-                                if (editorTafTabComp.isTafSent()) {
-                                    editorTafTabComp.updateTafSent(true);
-                                }
-                                sendDlg = null;
-                            }
-                        });
-                        sendDlg.open();
-                    } else {
-                        sendDlg.bringToTop();
-                    }
-
-                } else {
-                    putMessageToForecaster("Cannot send forecast: Press Syntax before transmission");
-                }
+                sendAction();
             }
         });
 
@@ -2096,7 +2056,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         return editorComp;
     }
 
-    /**  
+    /**
      * Check if there is an extra '=' sign in a TAF
      * 
      * @param doLogMessage
@@ -2113,7 +2073,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         st = editorTafTabComp.getTextEditorControl();
 
         in = in.toUpperCase().replaceAll("TAF", "\n\nTAF").trim();
-        while ( in.contains("\n\n\n") ) {
+        while (in.contains("\n\n\n")) {
             in = in.replace("\n\n\n", "\n\n");
         }
 
@@ -2153,33 +2113,119 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         String msg = "Syntax error: There is an extra '=' sign or 'TAF' is missing at beginning of TAF";
         String[] tafs = in.split("\n\n");
         int tafStartIndex = 0;
-        for ( String taf : tafs ) {
+        for (String taf : tafs) {
             int firstEqualSignIndex = taf.indexOf('=');
-            if ( firstEqualSignIndex == -1 ) {
+            if (firstEqualSignIndex == -1) {
                 tafStartIndex += taf.length() + 2;
                 continue;
             }
-            int secondEqualSignIndex = taf.indexOf('=', firstEqualSignIndex+1);
-            if ( secondEqualSignIndex == -1 ) {
+            int secondEqualSignIndex = taf
+                    .indexOf('=', firstEqualSignIndex + 1);
+            if (secondEqualSignIndex == -1) {
                 tafStartIndex += taf.length() + 2;
                 continue;
             }
-            while ( secondEqualSignIndex > -1 ) {
-                int secondEqualSignIndexInEditorText = tafStartIndex + secondEqualSignIndex;
-                StyleRange sr = new StyleRange(secondEqualSignIndexInEditorText, 1, null, qcColors[3]);
+            while (secondEqualSignIndex > -1) {
+                int secondEqualSignIndexInEditorText = tafStartIndex
+                        + secondEqualSignIndex;
+                StyleRange sr = new StyleRange(
+                        secondEqualSignIndexInEditorText, 1, null, qcColors[3]);
                 syntaxMap.put(sr, msg);
                 st.setStyleRange(sr);
-                secondEqualSignIndex = taf.indexOf('=', secondEqualSignIndex+1);
+                secondEqualSignIndex = taf.indexOf('=',
+                        secondEqualSignIndex + 1);
             }
             errorFound = true;
             tafStartIndex += taf.length() + 2;
         }
 
-        if ( doLogMessage ) {
+        if (doLogMessage) {
             msgStatComp.setMessageText(msg, qcColors[3].getRGB());
         }
 
         return errorFound;
+    }
+
+    private void sendAction() {
+        if (!SendDialog.isAuthorized()) {
+            putMessageToForecaster("Not authorized to send TAF.");
+            return;
+        }
+
+        if (!validateTime()) {
+            return;
+        }
+        // Assume editorTafTabComp is for the active tab.
+        if (editorTafTabComp.isTafSent()) {
+            putMessageToForecaster("Cannot send forecast: Forecast already sent");
+            return;
+        } else if (editorTafTabComp.isSyntaxChecked()) {
+            if (disallowSend.equals("always")) {
+                putMessageToForecaster("Cannot send forecast: Send is disabled");
+                return;
+            }
+            // Flag to allow sending if the syntax error threshold is
+            // met.
+            boolean okToSend = true;
+            if (editorTafTabComp.isErrorsInBulletin()) {
+                if (disallowSend.equals("warning")
+                        && (editorTafTabComp.getErrorLevel() >= 1)) {
+                    okToSend = false;
+                } else if (disallowSend.equals("error")
+                        && (editorTafTabComp.getErrorLevel() >= 2)) {
+                    okToSend = false;
+                } else if (disallowSend.equals("fatal")
+                        && (editorTafTabComp.getErrorLevel() >= 3)) {
+                    okToSend = false;
+                }
+            }
+
+            if (okToSend) {
+                if (confirmSend) {
+                    String bbb = editorTafTabComp.getBBB();
+
+                    if (bbb.startsWith("AA") || bbb.startsWith("CC")) {
+                        MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION
+                                | SWT.OK | SWT.CANCEL);
+                        mb.setMessage("Attempting to send an AMD or COR TAF, please confirm.");
+                        if (mb.open() == SWT.CANCEL) {
+                            return;
+                        }
+                    }
+                }
+            } else {
+                putMessageToForecaster("Cannot send forecast: Bulletin has errors"
+                        + "\n" + "Use Clear Errors to send it without changes");
+                return;
+            }
+
+            if (autoPrintMI.getSelection()) {
+                printForecast(editorTafTabComp.getTextEditorControl().getText());
+            }
+
+            if (mustCreate(sendDlg)) {
+                sendDlg = new SendDialog(shell, editorTafTabComp, msgStatComp,
+                        sendCollectMI.getSelection());
+                sendDlg.setCloseCallback(new ICloseCallback() {
+
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        // sendDlg sets the "taf sent" field only
+                        if (editorTafTabComp.isTafSent()) {
+                            editorTafTabComp.updateTafSent(true);
+                        }
+                        sendDlg = null;
+                    }
+                });
+                sendDlg.open();
+            } else {
+                sendDlg.bringToTop();
+            }
+
+        } else {
+            putMessageToForecaster("Cannot send forecast: Press Syntax before transmission");
+        }
+
     }
 
     private void syntaxCheck() {
@@ -2344,7 +2390,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         guidanceViewerFolder = new TabFolder(guidanceViewerComp, SWT.NONE);
         guidanceViewerFolder.setLayoutData(gd);
-        guidanceViewerFolder.addSelectionListener(new SelectionListener() {
+        guidanceViewerFolder.addSelectionListener(new SelectionAdapter() {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -2365,12 +2411,6 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                     currentTab.generateGuidance(site);
                     currentTab.markTextAsUpdating();
                 }
-            }
-
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-                // TODO Auto-generated method stub
-                System.out.println("default selection listener event: " + e);
             }
         });
 
@@ -2503,24 +2543,25 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
             }
         }
     }
-    
+
     /**
      * restore from a file a user selects
      */
     private void restoreFrom() {
-        
-        if ( tabFolder.getSelectionIndex() == VIEWER_TAB_SELECTED ) {
+
+        if (tabFolder.getSelectionIndex() == VIEWER_TAB_SELECTED) {
             tabFolder.setSelection(editorTab);
         }
-        
+
         String tempTafPath = "aviation/tmp/";
         IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationContext context = pm.getContext(LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
+        LocalizationContext context = pm.getContext(
+                LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
         String path = pm.getFile(context, tempTafPath).getAbsolutePath();
         FileDialog dlg = new FileDialog(shell, SWT.OPEN);
         dlg.setFilterPath(path);
         String filepath = dlg.open();
-        if ( filepath == null ) { // if "Cancel"; do nothing
+        if (filepath == null) { // if "Cancel"; do nothing
             return;
         }
 
@@ -2582,7 +2623,8 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         } catch (FileNotFoundException e) {
             setMessageStatusError("File " + filepath + " not found.");
         } catch (IOException e) {
-            setMessageStatusError("An IOException occured while opening file " + filepath);
+            setMessageStatusError("An IOException occured while opening file "
+                    + filepath);
         } finally {
             if (errorMsg != null) {
                 setMessageStatusError("File " + filepath + ": " + errorMsg);
@@ -2756,8 +2798,9 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                         .getText());
                 setMessageStatusOK("Temporary WRKTAF Stored in DB");
             } catch (Exception e) {
-                String msg = e.toString();
-                System.out.println(msg);
+                statusHandler
+                        .error("Problem storing temporary WRKTAF in text product database.",
+                                e);
             }
         }
     }
@@ -3026,7 +3069,6 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         st.setStyleRange(null);
         syntaxMap.clear();
 
-
         /*
          * TODO Refactor all of this to be smarter. Right now it's kind of dumb
          * in that the python syntax check can potentially alter the datetime of
@@ -3175,12 +3217,16 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
             // The keys are: index, fatal, ident, amd, itime, vtime, group, and
             // bbb
             for (String k : parsedText.keySet()) {
-                // System.out.println("The outer key is " + k);
+                if (traceEnabled()) {
+                    statusHandler.debug("The outer key is " + k);
+                }
                 if ((!k.equals("group")) && (!k.equals("bbb"))) {
                     HashMap<String, java.util.List<String>> m = (HashMap<String, java.util.List<String>>) parsedText
                             .get(k);
                     for (String k2 : m.keySet()) {
-                        // System.out.println("The inner key is " + k2);
+                        if (traceEnabled()) {
+                            statusHandler.debug("The inner key is " + k2);
+                        }
                         if (k2.equals("warning") || k2.equals("error")
                                 || k2.equals("fatal") || k2.equals("index")) {
                             results = m.get(k2);
@@ -3212,29 +3258,43 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                     }
                 } else if (k.equals("group")) {
                     Object o1 = parsedText.get(k);
-                    // System.out.println(o1.getClass().getName());
-                    java.util.ArrayList<HashMap> lm1 = (java.util.ArrayList) o1;
-                    for (HashMap<String, Object> m1 : lm1) {
+                    if (traceEnabled()) {
+                        statusHandler.debug(o1.getClass().getName());
+                    }
+                    java.util.List<Map<String, Object>> lm1 = (List<Map<String, Object>>) o1;
+                    for (Map<String, Object> m1 : lm1) {
                         for (String k2 : m1.keySet()) {
-                            // System.out.println("The next inner key is " +
-                            // k2);
+                            if (traceEnabled()) {
+                                statusHandler.debug("The next inner key is "
+                                        + k2);
+                            }
                             Object o2 = m1.get(k2);
-                            // System.out.println(o2.getClass().getName());
-                            HashMap<String, Object> m2 = (HashMap) o2;
+                            if (traceEnabled()) {
+                                statusHandler.debug(o2.getClass().getName());
+                            }
+                            Map<String, Object> m2 = (Map<String, Object>) o2;
                             for (String k3 : m2.keySet()) {
-                                // System.out.println("The next next inner key is "
-                                // + k3);
+                                if (traceEnabled()) {
+                                    statusHandler
+                                            .debug("The next next inner key is "
+                                                    + k3);
+                                }
                                 Object o3 = m2.get(k3);
-                                // System.out.println(o3.getClass().getName());
-                                if (o3.getClass().getName()
-                                        .equals("java.util.HashMap")) {
-                                    HashMap<String, Object> m3 = (HashMap) o3;
+                                if (traceEnabled()) {
+                                    statusHandler
+                                            .debug(o3.getClass().getName());
+                                }
+                                if (o3 instanceof Map) {
+                                    Map<String, Object> m3 = (Map<String, Object>) o3;
                                     for (String k4 : m3.keySet()) {
-                                        // System.out
-                                        // .println("The next next next inner key is "
-                                        // + k4);
-                                        // Object o4 = m3.get(k4);
-                                        // System.out.println(o4.getClass().getName());
+                                        if (traceEnabled()) {
+                                            statusHandler
+                                                    .debug("The next next next inner key is "
+                                                            + k4);
+                                            Object o4 = m3.get(k4);
+                                            statusHandler.debug(o4.getClass()
+                                                    .getName());
+                                        }
                                         if (k4.equals("warning")
                                                 || k4.equals("error")
                                                 || k4.equals("fatal")
@@ -3245,23 +3305,21 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                                                 if (k4.equals("index")) {
                                                     getRange(range, results);
                                                 } else {
-                                                    // System.out
-                                                    // .print("The result is: ");
                                                     for (String s : results) {
                                                         errorMsg.append(s);
                                                     }
-                                                    // System.out.println("At line "
-                                                    // + range[frLineIndex]
-                                                    // + " in column "
-                                                    // + range[frColIndex] +
-                                                    // "...");
-                                                    // System.out.println(errorMsg
-                                                    // .toString());
-                                                    // st.setCaretOffset(st
-                                                    // .getOffsetAtLine(currentLineNo
-                                                    // + range[frLineIndex]
-                                                    // - 1)
-                                                    // + range[frColIndex]);
+                                                    if (traceEnabled()) {
+                                                        StringBuilder sb = new StringBuilder();
+                                                        sb.append(
+                                                                "The result is: At line ")
+                                                                .append(range[frLineIndex])
+                                                                .append(" in column ")
+                                                                .append(range[frColIndex])
+                                                                .append("...\n")
+                                                                .append(errorMsg);
+                                                        statusHandler.debug(sb
+                                                                .toString());
+                                                    }
                                                     errorLevel = createErrorStyleRange(
                                                             "'"
                                                                     + errorMsg
@@ -3287,9 +3345,9 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
 
                         }
                     }
-                } else if (k.equals("bbb")) {
-                    // Object o = parsedText.get(k);
-                    // System.out.println(o.getClass().getName());
+                } else if (k.equals("bbb") && traceEnabled()) {
+                    Object o = parsedText.get(k);
+                    statusHandler.debug(o.getClass().getName());
                 }
             }
         }
@@ -3758,7 +3816,6 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                 if (endIndex == -1) {
                     endIndex = in.length();
                 }
-                boolean isWrapping = false;
                 String thisSite = "";
                 String lastLine = "";
                 String line = in.substring(beginIndex, endIndex);
@@ -3804,7 +3861,6 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
 
                             if (lineNumber == keyLineNum) {
                                 if (!isWrappingLine(line, thisSite)) {
-                                    isWrapping = false;
                                     text = result.get("text").toString() + "\n";
                                     level = Integer.parseInt(result
                                             .get("level").toString());
@@ -3818,7 +3874,6 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                                     break;
                                 } else {
                                     // a PROB30 group is wrapped in two lines
-                                    isWrapping = true;
                                     text = result.get("text").toString() + "\n";
                                     level = Integer.parseInt(result
                                             .get("level").toString());
@@ -3932,8 +3987,6 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
             File path = pm.getStaticFile("aviation" + fs + "config" + fs
                     + "gui" + fs + "SyntaxMonitorCfg.xml");
 
-            System.out.println("path = " + path);
-
             syntaxMonCfg = JAXB.unmarshal(path, SyntaxMonitorCfg.class);
 
         } catch (Exception e) {
@@ -4010,7 +4063,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                 sb.append(TafUtil.safeFormatTaf(t, showHeaders));
                 sb.append("\n");
             }
-        }// System.out.println("TEMPO "+sb.toString().indexOf("TEMPO")+"/"+sb.toString().indexOf("\n",72));
+        }
 
         tafViewerStTxt.setText(sb.toString());
         hightlightTAF();
@@ -4068,27 +4121,27 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                     .getCurrentTempoMap(stationName);// 20120711
             if (tempoMap != null) {
                 int tempoStart = taf.indexOf(TEMPO_TXT);
-                int tempoEnd = taf.indexOf(TafUtil.LINE_BREAK, tempoStart);// end
-                                                                           // of
-                                                                           // the
-                                                                           // TEMPO
-                                                                           // line
+                // end of the TEMPO line
+                int tempoEnd = taf.indexOf(TafUtil.LINE_BREAK, tempoStart);
 
                 StringBuilder str = new StringBuilder(" ");
 
                 for (String alertKey : tempoMap.keySet()) {
-                    // System.out.println("2___alertKey: "+ alertKey);
+                    if (traceEnabled()) {
+                        statusHandler.debug("2___alertKey: " + alertKey);
+                    }
                     for (String value : tempoMap.get(alertKey)) {
-                        // System.out.println("3___value: "+ value);
+                        if (traceEnabled()) {
+                            statusHandler.debug("3___value: " + value);
+                        }
                         str.setLength(1);
                         str.append(value);
                         int len = str.length();
                         str.append(" ");
 
+                        // for tempo only
                         int startIndex = taf
-                                .indexOf(str.toString(), tempoStart);// for
-                                                                     // tempo
-                                                                     // only
+                                .indexOf(str.toString(), tempoStart);
 
                         if (startIndex < 0) {
                             str.setLength(len);
@@ -4358,7 +4411,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
             font.dispose();
             printer.dispose();
         } else {
-            System.out.println("No default printer set.");
+            putMessageToForecaster("Auto Print failed. No default printer set.");
         }
     }
 
@@ -4375,12 +4428,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                 // Only load the latest TAF, and assume it is the first one in
                 // the Viewer.
                 sb.append(TafUtil.safeFormatTaf(tafsInViewer[0], false));
-                String originalBbb = "";
                 String[] header = tafsInViewer[0].getWmoHeader().split(" ");
-
-                if (header.length > 3) {
-                    originalBbb = header[3];
-                }
 
                 ITafSiteConfig config = TafSiteConfigFactory.getInstance();
                 TafSiteData siteData = config.getSite(site);
@@ -4556,6 +4604,45 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         if (shell == null) {
             open();
         }
+    }
+
+    /**
+     * Validate CAVE can send a TAF.
+     * 
+     * @return true when in real time.
+     */
+    private boolean validateTime() {
+        if ((shell != null) && !shell.isDisposed() && shell.isVisible()) {
+            /*
+             * Currently practice mode not supported.
+             */
+            if (CAVEMode.getMode() == CAVEMode.PRACTICE) {
+                putMessageToForecaster("Not allowed to send TAF when in practice mode.");
+                return false;
+            } else if (!SimulatedTimeOperations.isTransmitAllowed()) {
+                SimulatedTimeOperations.displayFeatureLevelWarning(shell,
+                        "Send TAF");
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public void timechanged() {
+        validateTime();
+    }
+
+    /**
+     * 
+     * @return
+     */
+    private boolean traceEnabled() {
+        /*
+         * TODO When alertviz respects Prioirty change this to use the
+         * statusHander priority debug enabled.
+         */
+        return trace;
     }
 
     /**
