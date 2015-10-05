@@ -56,11 +56,17 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
+import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.volumebrowser.datacatalog.DataCatalogManager;
+import com.raytheon.viz.volumebrowser.datacatalog.IDataCatalog;
 import com.raytheon.viz.volumebrowser.datacatalog.IDataCatalogEntry;
+import com.raytheon.viz.volumebrowser.loader.ProductCreator;
+import com.raytheon.viz.volumebrowser.loader.ProductCreatorManager;
 import com.raytheon.viz.volumebrowser.loader.ProductLoader;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 
@@ -931,7 +937,25 @@ public class ProductTableComp extends Composite {
         }
     }
 
+    protected boolean hasProductCreator(IDataCatalogEntry entry) {
+        IDataCatalog catalog = DataCatalogManager.getDataCatalogManager()
+                .getDataCatalog(entry.getSelectedData());
+        ResourceType resourceType = entry.getDialogSettings()
+                .getViewSelection().getResourceType();
+        HashMap<String, RequestConstraint> metadataMap = catalog
+                .getProductParameters(entry);
+        String pluginName = metadataMap.get(PluginDataObject.PLUGIN_NAME_ID)
+                .getConstraintValue();
+        ProductCreator creator = ProductCreatorManager.getInstance()
+                .getCreator(pluginName, resourceType);
+        return creator != null;
+    }
+
     protected void addProduct(final ProductTableData tblData) {
+        if (!hasProductCreator(tblData.getCatalogEntry())) {
+            return;
+        }
+        
         synchronized (productKeySet) {
             String uniqueKey = tblData.getSelectedData().getUniqueKey();
             if (!productKeySet.contains(uniqueKey)) {
