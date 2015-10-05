@@ -30,6 +30,7 @@
 # Jul 23, 2015  ASM#13849 D. Friedman Use a unique Eclipse configuration directory
 # Aug 03, 2015  #4694     dlovely     Logback will now add user.home to LOGDIR
 # Sep 17, 2015  #4869     bkowal      Read dynamic AlertViz version information at startup.
+# Oct 05, 2015  #4869     bkowal      Fix AlertViz argument ordering
 #
 
 user=`/usr/bin/whoami`
@@ -208,10 +209,12 @@ do
    echo "Display is not available."
    exitVal=0
   else
+    # VERSION_ARGS includes jvm arguments so it must always be at the end of the argument
+    # sequence passed to AlertViz.
     if [ -w $FULL_LOGDIR ] ; then
-        ${dir}/alertviz "${SWITCHES[@]}" "${VERSION_ARGS[@]}" $* > /dev/null 2>&1 &
+        ${dir}/alertviz "${SWITCHES[@]}" $* "${VERSION_ARGS[@]}" > /dev/null 2>&1 &
     else
-        ${dir}/alertviz "${SWITCHES[@]}" "${VERSION_ARGS[@]}" $* &
+        ${dir}/alertviz "${SWITCHES[@]}" $* "${VERSION_ARGS[@]}" &
     fi
   pid=$!
   wait $pid
