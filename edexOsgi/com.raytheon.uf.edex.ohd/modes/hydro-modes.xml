@@ -24,21 +24,15 @@
 --> 
 <edexModes>
     <!-- this file is specifically for ALR/SJU -->
-    <mode name="ingest">
-        <exclude>obs-ingest-metarshef.xml</exclude>
-    </mode>
     <mode name="ingestHydro">
     	<include>distribution-spring.xml</include>
     	<include>manualIngest-common.xml</include>
     	<include>manualIngest-spring.xml</include>
-    	<include>shef-ingest.xml</include>
     	<include>persist-ingest.xml</include>
     	<include>obs-common.xml</include>
     	<include>obs-ingest.xml</include>
-        <include>obs-ingest-metarshef.xml</include>
         <include>metartohmdb-plugin.xml</include>
         <include>pointdata-common.xml</include>
-    	<include>shef-common.xml</include>
         <include>ohd-common-database.xml</include>
     	<include>ohd-common.xml</include>
     	<include>alarmWhfs-spring.xml</include>
