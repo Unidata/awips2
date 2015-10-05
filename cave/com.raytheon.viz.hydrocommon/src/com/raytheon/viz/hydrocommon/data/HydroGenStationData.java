@@ -28,11 +28,11 @@ import com.raytheon.uf.common.dataquery.db.QueryResultRow;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Dec 29, 2008	1802		askripsky	Initial creation
- * Aug 23, 2011 10482		fixed order priority in the query
- * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Dec 29, 2008 1802        askripsky   Initial creation
+ * Aug 23, 2011 10482                   Fixed order priority in the query
+ * Oct 01, 2015 4943        rjpeter     Fixed mapped query columns.
  * </pre>
  * 
  * @author askripsky
@@ -191,7 +191,7 @@ public class HydroGenStationData extends HydroDBData implements IHydroDBData {
 
     @Override
     public String getSelectStatement() {
-        return "SELECT " + dbTable + ".lid, pe, ts, fcstts, hsa FROM "
+        return "SELECT " + dbTable + ".lid as lid, pe, ts, fcstts, hsa FROM "
                 + dbTable + ", location WHERE location.lid=" + dbTable
                 + ".lid ORDER BY hsa,lid, pe, ts";
     }
