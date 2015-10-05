@@ -27,7 +27,6 @@ import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.viz.core.catalog.DbQuery;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.volumebrowser.datacatalog.IDataCatalogEntry;
-import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 
 /**
  * 
@@ -50,7 +49,7 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 public class VwpDataCatalog extends PointDataCatalog {
 
     @Override
-    protected String[] getPlugins(ViewMenu setting) {
+    protected String[] getPlugins() {
         return new String[] { "radar" };
     }
 

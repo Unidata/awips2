@@ -1,5 +1,7 @@
 package com.raytheon.viz.volumebrowser.xml;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -28,6 +30,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.menus.xml.CommonAbstractMenuContribution;
 import com.raytheon.uf.common.menus.xml.CommonMenuContribution;
 import com.raytheon.uf.common.menus.xml.CommonTitleImgContribution;
@@ -57,6 +60,7 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
  *                                    different localization levels instead of overriding.
  * Jul 07, 2015  4641     mapeters    Fix/improve comparators for VbSource sorting.
  * Jul 10, 2015  4641     mapeters    Added check for sources with null key/category fields.
+ * Oct 05, 2015  3861     bsteffen    Remove deprecated method call on LocalizationFile
  * 
  * </pre>
  * 
@@ -358,8 +362,16 @@ public class VbSourceList {
             for (int i = levels.length - 1; i >= 0; i--) {
                 LocalizationFile locFile = localizationFilesMap.get(levels[i]);
                 if (locFile != null) {
-                    List<VbSource> sources = JAXB.unmarshal(locFile.getFile(),
-                            VbSourceList.class).getEntries();
+                    List<VbSource> sources = null;
+                    try (InputStream is = locFile.openInputStream()) {
+                        sources = JAXB.unmarshal(is, VbSourceList.class)
+                                .getEntries();
+                    } catch (IOException | LocalizationException e) {
+                        statusHandler
+                                .handle(Priority.ERROR,
+                                        locFile.getName()
+                                                + " was excluded from sources menu due to error reading file.");
+                    }
                     if (sources != null) {
                         Iterator<VbSource> itr = sources.iterator();
                         while (itr.hasNext()) {

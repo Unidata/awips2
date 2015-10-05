@@ -73,6 +73,8 @@ public class ProductLoader {
 
     private List<AbstractRenderableDisplay> displaysToLoad = new ArrayList<>();
 
+
+
     public void addProduct(IDataCatalogEntry catalogEntry,
             DisplayType displayType) {
         IDataCatalog catalog = DataCatalogManager.getDataCatalogManager()
@@ -84,7 +86,7 @@ public class ProductLoader {
         String pluginName = metadataMap.get(PluginDataObject.PLUGIN_NAME_ID)
                 .getConstraintValue();
         ProductCreator loader = ProductCreatorManager.getInstance().getCreator(
-                pluginName, resourceType.toString().toLowerCase());
+                pluginName, resourceType);
         if (loader == null) {
             throw new RuntimeException("Unable to load product for plugin "
                     + pluginName + " of type " + resourceType);
