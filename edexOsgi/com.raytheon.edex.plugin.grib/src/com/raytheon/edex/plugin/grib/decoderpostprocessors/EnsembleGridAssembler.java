@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -51,11 +51,11 @@ import com.raytheon.uf.edex.plugin.grid.PartialGrid;
  * The EnsembleGridAssembler class is part of the ingest process for grib data.
  * Some grib model come in as octants. This class will combine those octants
  * into a single grid
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Apr 09, 2010  4638     bphillip    Initial Creation
@@ -70,12 +70,13 @@ import com.raytheon.uf.edex.plugin.grid.PartialGrid;
  * Jul 21, 2014  3373     bclement    JAXB manager api changes
  * Aug 18, 2014  4360     rferrel     Set secondaryId in {@link #createAssembledRecord(GridRecord, CompositeModel)}
  * Sep 09, 2015  4868     rjpeter     Updated to be stored in partial grids as part of normal route.
+ * Oct 07, 2015  3756     nabowle     Extends DecoderPostProcessor.
  * </pre>
- * 
+ *
  * @author bphillip
  * @version 1
  */
-public class EnsembleGridAssembler implements IDecoderPostProcessor {
+public class EnsembleGridAssembler extends DecoderPostProcessor {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(EnsembleGridAssembler.class);
 
@@ -145,7 +146,7 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
 
     /**
      * Gets the composite model for the provided model name0
-     * 
+     *
      * @param modelName
      *            The model name to determine the composite model name for
      * @return The composite model. Null if not found
@@ -175,7 +176,7 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
 
     /**
      * Merges the data from a GridRecord into the composite GridRecord
-     * 
+     *
      * @param record
      *            The GridRecord containing the data to add
      * @param assembledRecord
@@ -216,7 +217,7 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
         pGrid.setxOffset((nx * modIndex) - modIndex);
         pGrid.setyOffset(0);
         assembledRecord.addExtraAttribute(PartialGrid.KEY, pGrid);
-        assembledRecord.setMessageData(recordToAssemble.getMessageData());
+        assembledRecord.setMessageData(getMessageData(recordToAssemble));
 
         return checkWorldWrap(assembledRecord);
     }
@@ -225,7 +226,7 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
      * Checks if assembledRecord's partial grid has extra columns that wrap
      * around. This is due to partial grids having 1 column of overlap between
      * each partial grid.
-     * 
+     *
      * @param assembledRecord
      * @return
      */
@@ -278,5 +279,4 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
 
         return Util.resizeDataTo1D(rval, ny, nx);
     }
-
 }

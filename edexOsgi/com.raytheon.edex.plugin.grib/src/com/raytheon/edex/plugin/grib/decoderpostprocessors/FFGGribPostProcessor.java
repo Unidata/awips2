@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -43,13 +43,14 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * Mar 26, 2013  1821     bsteffen    Optimize FFG version query.
  * Oct 15, 2013  2473     bsteffen    Remove deprecated method calls.
  * Apr 25, 2014  2060     njensen     Remove dependency on grid dataURI column
+ * Oct 07, 2015  3756     nabowle     Extends DecoderPostProcessor.
  * 
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-public class FFGGribPostProcessor implements IDecoderPostProcessor {
+public class FFGGribPostProcessor extends DecoderPostProcessor {
 
     @Override
     public GridRecord[] process(GridRecord record) throws GribException {
