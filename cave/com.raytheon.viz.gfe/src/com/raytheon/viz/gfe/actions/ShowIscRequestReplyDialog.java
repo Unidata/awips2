@@ -25,16 +25,15 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.DataManagerUIFactory;
-import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
+import com.raytheon.viz.gfe.dialogs.isc.ISCRequestReplyDlg;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
 
 /**
- * An abstract handler for showing GFE dialogs. Handlers that extend this will
- * have automatic benefits of non-blocking behavior and automatic cleanup of the
- * dialog reference.
- * 
+ * Action to launch ISC request/reply dialog.
  * 
  * <pre>
  * 
@@ -42,57 +41,56 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 27, 2015  4749      njensen     Initial creation
- * Oct 01, 2015  4888      dgilling    Check return value from createDialog.
+ * Sep 15, 2015  #4858     dgilling     Initial creation
  * 
  * </pre>
  * 
- * @author njensen
+ * @author dgilling
  * @version 1.0
  */
 
-public abstract class GfeShowDialogHandler extends AbstractHandler {
+public class ShowIscRequestReplyDialog extends AbstractHandler {
 
-    protected CaveJFACEDialog dialog;
+    private ISCRequestReplyDlg iscRequestDlg;
 
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        DataManager dm = DataManagerUIFactory.getCurrentInstance();
-        if (dm == null) {
+        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                .getShell();
+        if (!SimulatedTimeOperations.isTransmitAllowed()) {
+            SimulatedTimeOperations.displayFeatureLevelWarning(shell,
+                    "ISC Request/Reply");
             return null;
         }
 
-        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
+        if (iscRequestDlg == null || iscRequestDlg.getShell() == null
+                || iscRequestDlg.isDisposed()) {
+            iscRequestDlg = new ISCRequestReplyDlg(shell);
+            iscRequestDlg.setCloseCallback(new ICloseCallback() {
 
-            dialog = createDialog(shell, dm, event);
-            if (dialog != null) {
-                dialog.setBlockOnOpen(false);
-                dialog.addCloseCallback(new ICloseCallback() {
-                    @Override
-                    public void dialogClosed(Object returnValue) {
-                        dialog = null;
-                    }
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    iscRequestDlg = null;
 
-                });
-                dialog.open();
-            }
+                }
+            });
+            iscRequestDlg.open();
         } else {
-            dialog.bringToTop();
+            iscRequestDlg.bringToTop();
         }
+
         return null;
     }
 
-    /**
-     * Creates a dialog based on the class and using the args passed in.
-     * 
-     * @param shell
-     * @param dm
-     * @param event
-     * @return
-     */
-    protected abstract CaveJFACEDialog createDialog(Shell shell,
-            DataManager dm, ExecutionEvent event);
+    @Override
+    public boolean isEnabled() {
+        DataManager dm = DataManagerUIFactory.getCurrentInstance();
+        if (dm != null) {
+            return (!dm.sendIscOnSave() || !dm.sendIscOnPublish())
+                    && CAVEMode.getMode().equals(CAVEMode.OPERATIONAL)
+                    && dm.requestISC();
+        }
 
+        return false;
+    }
 }

@@ -30,6 +30,8 @@ import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData;
 import com.raytheon.viz.gfe.tasks.TaskManager;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeProhibitedOpException;
 
 /**
  * Utilities for text formatter
@@ -48,6 +50,8 @@ import com.raytheon.viz.gfe.tasks.TaskManager;
  * Jul 30, 2015  4263      dgilling    Pass DataManager instance to TextFormatter, stop passing
  *                                     varDict through.
  * Aug 26, 2015  4804      dgilling    Add methods so SmartScript can run formatters.
+ * Sep 15, 2015  4858      dgilling    Disable store/transmit in DRT mode.
+ * Oct 01, 2015  4888      dgilling    Fix javadoc for exceptions.
  * 
  * </pre>
  * 
@@ -81,10 +85,12 @@ public class FormatterUtil {
      *            VTEC mode
      * @param finish
      *            listener to fire when formatter finishes generating product
+     * @throws SimulatedTimeProhibitedOperationException
      */
     public static void runFormatterScript(DataManager dataMgr,
             TextProductManager productMgr, String productName, String dbId,
-            String vtecMode, TextProductFinishListener finish) {
+            String vtecMode, TextProductFinishListener finish)
+            throws SimulatedTimeProhibitedOpException {
         String activeTable = getActiveTableName(dataMgr);
         int testMode = getTestMode(dataMgr, vtecMode);
         String shortVtec = getVTECModeCode(vtecMode);
@@ -113,13 +119,12 @@ public class FormatterUtil {
      *            the {@code DataManager} instance to use.
      * @param listener
      *            listener to fire when formatter finishes generating product
-     * @throws InterruptedException
-     *             If something interrupts this thread before the formatter has
-     *             completed.
+     * @throws SimulatedTimeProhibitedOpException
      */
     public static void callFromSmartScript(String productName, String dbId,
             String varDict, String vtecMode, DataManager dataMgr,
-            TextProductFinishListener listener) {
+            TextProductFinishListener listener)
+            throws SimulatedTimeProhibitedOpException {
         String activeTable = getActiveTableName(dataMgr);
         int testMode = getTestMode(dataMgr, vtecMode);
         String shortVtec = getVTECModeCode(vtecMode);
@@ -131,7 +136,8 @@ public class FormatterUtil {
 
     public static void runFormatterScript(String name, String vtecMode,
             String databaseID, String vtecActiveTable, String drtTime,
-            int testMode, TextProductFinishListener finish, DataManager dataMgr) {
+            int testMode, TextProductFinishListener finish, DataManager dataMgr)
+            throws SimulatedTimeProhibitedOpException {
         runFormatterScript(name, vtecMode, databaseID, null, vtecActiveTable,
                 drtTime, testMode, finish, dataMgr);
     }
@@ -139,7 +145,12 @@ public class FormatterUtil {
     public static void runFormatterScript(String name, String vtecMode,
             String databaseID, String varDict, String vtecActiveTable,
             String drtTime, int testMode, TextProductFinishListener finish,
-            DataManager dataMgr) {
+            DataManager dataMgr) throws SimulatedTimeProhibitedOpException {
+        if (!SimulatedTimeOperations.isTransmitAllowed()) {
+            throw SimulatedTimeOperations
+                    .constructProhibitedOpException("GFE Text formatters");
+        }
+
         TextFormatter formatter = new TextFormatter(name, vtecMode, databaseID,
                 varDict, vtecActiveTable, drtTime, testMode, finish, dataMgr);
         finish.textProductQueued(ConfigData.ProductStateEnum.Queued);

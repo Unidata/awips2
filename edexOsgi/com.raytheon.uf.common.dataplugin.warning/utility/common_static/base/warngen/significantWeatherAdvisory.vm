@@ -13,11 +13,11 @@
 ##SET SOME INITIAL VARIABLES
 #parse("config.vm")
 #if(${stormType} == "line")
-  #set($report = "A line of strong thunderstorms were reported")
+  #set($report = "a line of strong thunderstorms were reported")
   #set($reportType1 = "line of strong thunderstorms")
   #set($reportType2 = "these storms were")
 #else
-  #set($report = "A strong thunderstorm was reported")
+  #set($report = "a strong thunderstorm was reported")
   #set($reportType1 = "strong thunderstorm")
   #set($reportType2 = "this storm was")
 #end
@@ -190,7 +190,7 @@ ${hailThreat}${hailTrail} will be possible with these storms.
 #end
 #else
 #if(${hailThreat} != "" && ${windThreat} != "")
-${hailThreat}${hailTrail} and ${windThreat} will be possible with this storm.
+${hailThreat}${hailTrail} and #capitalize(${windThreat} "NONE") will be possible with this storm.
 #elseif(${hailThreat}=="" && ${windThreat}!="")
 ${windThreat} will be possible with this storm.
 #elseif(${hailThreat}!="" && ${windThreat}=="")

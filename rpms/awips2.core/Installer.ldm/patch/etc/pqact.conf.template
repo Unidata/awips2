@@ -42,6 +42,7 @@
 #20150507            4434 skorolev    Add pattern for GFS20
 #20150820        DR 17915 mporricelli Add pattern for GFS229 (1 deg GFS)
 #20150827            4687 skorolev    Add pattern for ECMWF station-based MOS text bulletins
+#20150930            4930 rferrel     Corrected patterns for intlsigmets.
 #***************************************************************
 # AWIPS 1 PATTERN GRAPHIC	^[PQ].*				/redbook/Raw
 # PGNA00 KWNS 010001 !redbook 1_1/NMCGPHMCD/MCDSUM/PXSF001CN/20110201 0001
@@ -643,14 +644,14 @@ IDS|DDPLUS	^(W[ACSV]US[04][1-6]) (.{4}) (..)(..)(..)
 IDS|DDPLUS	^(WAUS4[1-6]) (.{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/airmet/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 # intlsigmets
-IDS|DDPLUS	^(W[CSV]PA((0[1-9])|(1[1-3]))) (PHFO) (..)(..)(..)
+IDS|DDPLUS	^(W[CSV]PA((0[1-9])|(1[0-3]))) (PHFO) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/intlsigmet/(\6:yyyy)(\6:mm)\6/\7/\1_\5_\6\7\8_(seq).%Y%m%d%H
-IDS|DDPLUS	^(W[CSV]NT((0[1-9])|(1[1-3]))) (KKCI) (..)(..)(..)
+IDS|DDPLUS	^(W[CSV]NT((0[1-9])|(1[0-3]))) (KKCI) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/intlsigmet/(\6:yyyy)(\6:mm)\6/\7/\1_\5_\6\7\8_(seq).%Y%m%d%H
 IDS|DDPLUS	^(WAAK4[789]) (PAWU) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/intlsigmet/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
-IDS|DDPLUS	^(W[CSV]PN0[1-6]) (KKCI) (..)(..)(..)
-	FILE	-overwrite -log -close -edex	/data_store/intlsigmet/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+IDS|DDPLUS	^(W[CSV]PN((0[1-9])|(1[0-3]))) (KKCI) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/intlsigmet/(\6:yyyy)(\6:mm)\6/\7/\1_\5_\6\7\8_(seq).%Y%m%d%H
 
 # already included in text pattern
 #IDS|DDPLUS	^(S[IMN]V[DCE]..|SSV[DX]..) (....) (..)(..)(..)

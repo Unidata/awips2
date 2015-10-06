@@ -93,6 +93,8 @@ public class GribSpatialCache {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GribSpatialCache.class);
 
+    private static final float MIN_SUBGRID_COVERAGE;
+
     /** The singleton instance */
     private static GribSpatialCache instance;
 
@@ -130,6 +132,25 @@ public class GribSpatialCache {
     private long fileScanTime = 0;
 
     boolean shiftSubGridWest = false;
+
+    static {
+        float minCoveragePercent = 20;
+        try {
+            minCoveragePercent = Float.parseFloat(System.getProperty(
+                    "SUB_GRID_COVERAGE_PERCENT", "20"));
+            if (minCoveragePercent < 0) {
+                minCoveragePercent = 0;
+            } else if (minCoveragePercent > 100) {
+                minCoveragePercent = 100;
+            }
+        } catch (Exception e) {
+            statusHandler
+                    .error("SUB_GRID_COVERAGE_PERCENT must be a value from 0-100.  Defaulting to 20",
+                            e);
+        }
+
+        MIN_SUBGRID_COVERAGE = minCoveragePercent / 100;
+    }
 
     /**
      * Gets the singleton instance of GribSpatialCache
@@ -322,15 +343,16 @@ public class GribSpatialCache {
                 int upperY = (int) (yCenterPoint - yDistance);
 
                 /*
-                 * TODO: Reject sub gridded models who do not contain center
-                 * point.
-                 * 
-                 * Trim will handle all validation of the subgrid as well as any
-                 * shifting to get within boundary, this includes world wrap
-                 * checking.
+                 * Trim will handle all validation of the subgrid, this includes
+                 * world wrap checking.
                  */
                 SubGrid subGrid = new SubGrid(leftX, upperY, nx, ny);
                 GridCoverage subGridCoverage = referenceCoverage.trim(subGrid);
+                if (((subGrid.getNX() * subGrid.getNY()) / (nx * ny)) < MIN_SUBGRID_COVERAGE) {
+                    /* minimum subGrid coverage not available, set nx/ny to 0 */
+                    subGrid.setNX(0);
+                    subGrid.setNY(0);
+                }
 
                 if (!referenceCoverage.equals(coverage)) {
                     /*

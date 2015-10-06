@@ -141,7 +141,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="genericCTA" bulletText="Generic CTA" parseString="MOVE TO SAFE HARBOR UNTIL HAZARDOUS WEATHER PASSES"/>
   <bullet bulletName="gustyWindsCTA" bulletText="Gusty Winds CTA" parseString="MOVE TO SAFE HARBOR IMMEDIATELY AS GUSTY WINDS AND HIGH WAVES ARE EXPECTED"/>
   <bullet bulletName="hailWindsCTA" bulletText="Wind/Hail cta with hail/wind speeds" parseString="DANGEROUS LIGHTNING, AND HEAVY RAIN ARE POSSIBLE"/>
-  <bullet bulletName="nonThunderstormCTA" bulletText="Non thunderstorm winds - mariners can expect gusty winds.." parseString="MARINERS CAN EXPECT GUSTY WINDS...AND INCREASING WAVES"/>
+  <bullet bulletName="nonThunderstormCTA" bulletText="Non thunderstorm winds - mariners can expect gusty winds.." parseString="MARINERS CAN EXPECT GUSTY WINDS AND INCREASING WAVES"/>
   <bullet bulletName="waterspoutCTA" bulletText="Waterspout CTA" parseString="CREATE LOCALLY HAZARDOUS SEAS. SEEK SAFE HARBOR IMMEDIATELY"/>
   <bullet bulletName="lightningCTA" bulletText="Frequent lightning CTA" parseString="FREQUENT LIGHTNING IS OCCURRING WITH"/>
   <bullet bulletName="reportCTA" bulletText="Report severe wx" parseString="REPORT SEVERE WEATHER TO THE NATIONAL WEATHER SERVICE"/>

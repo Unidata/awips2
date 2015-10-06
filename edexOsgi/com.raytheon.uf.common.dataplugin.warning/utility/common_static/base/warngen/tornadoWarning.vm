@@ -222,7 +222,7 @@ This is a test message. ##
   #set($preAmble = "To repeat, a large and extremely dangerous tornado has been sighted. Take cover now! ")
 #end
 #if(${list.contains(${bullets}, "spotter")})
-  #set($reportType = "Trained weather spotters reported a tornado")
+  #set($reportType = "trained weather spotters reported a tornado")
   #if(${stormType} == "line")
     #set($pathcastLead = "These tornadic storms")
     #set($moveLead = ". Doppler radar showed these tornadic storms moving")
@@ -233,7 +233,7 @@ This is a test message. ##
   #set($preAmble = "To repeat, a tornado has been confirmed by storm spotters. Take cover now! ")
 #end
 #if(${list.contains(${bullets}, "lawEnforcement")})
-  #set($reportType = "Local law enforcement reported a tornado")
+  #set($reportType = "local law enforcement reported a tornado")
   #if(${stormType} == "line")
     #set($pathcastLead = "These tornadic storms")
     #set($moveLead = ". Doppler radar showed these tornadic storms moving")
@@ -244,7 +244,7 @@ This is a test message. ##
   #set($preAmble = "To repeat, a tornado has been confirmed by local law enforcement. Take cover now! ") 
 #end
 #if(${list.contains(${bullets}, "emergencyManagement")})
-  #set($reportType = "Emergency Management reported a tornado")
+  #set($reportType = "emergency management reported a tornado")
   #if(${stormType} == "line")
     #set($pathcastLead = "These tornadic storms")
     #set($moveLead = ". Doppler radar showed these tornadic storms moving")
@@ -255,7 +255,7 @@ This is a test message. ##
   #set($preAmble = "To repeat, a tornado has been confirmed by emergency management officials. Take cover now! ") 
 #end
 #if(${list.contains(${bullets}, "public")})
-  #set($reportType = "The public reported a tornado") 
+  #set($reportType = "the public reported a tornado") 
   #if(${stormType} == "line")
     #set($pathcastLead = "These tornadic storms")
     #set($moveLead = ". Doppler radar showed these tornadic storms moving")
@@ -266,7 +266,7 @@ This is a test message. ##
   #set($preAmble = "To repeat, a tornado has been sighted. Take cover now! ")
 #end
 #if(${list.contains(${bullets}, "spotterFunnelCloud")})
-  #set($reportType = "Trained weather spotters reported a funnel cloud")
+  #set($reportType = "trained weather spotters reported a funnel cloud")
   #if(${stormType} == "line")
     #set($pathcastLead = "These dangerous storms")
     #set($moveLead = ". A tornado may develop at any time. Doppler radar showed these dangerous storms moving")

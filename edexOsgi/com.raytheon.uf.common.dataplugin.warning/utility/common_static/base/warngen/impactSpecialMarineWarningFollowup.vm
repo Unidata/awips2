@@ -680,7 +680,7 @@ Boaters should seek safe harbor immediately until this storm passes. ${windCTA}$
 #end
 #end
 #if(${list.contains(${bullets}, "nonThunderstormCTA")})
-Seek safe shelter...mariners can expect gusty winds...and increasing waves.
+Seek safe shelter...mariners can expect gusty winds and increasing waves.
 
 #end
 #if(${list.contains(${bullets}, "waterspoutCTA")})

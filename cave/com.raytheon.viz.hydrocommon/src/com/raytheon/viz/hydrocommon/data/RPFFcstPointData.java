@@ -33,13 +33,13 @@ import com.raytheon.viz.hydrocommon.datamanager.HydroDBDataManager;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Dec 19, 2008	1787		askripsky	Initial creation
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Dec 19, 2008 1787        askripsky   Initial creation
  * Mar 08, 2012 14600       wkwock      Delete one lid instead of one group
- * 18 APR 2013  1790       rferrel     Cleanup method interfaces; 
+ * Apr 18, 2013 1790        rferrel     Cleanup method interfaces; 
  *                                      part of non-blocking dialogs.
- * 
+ * Oct 01, 2015 4943        rjpeter     Fixed mapped query columns.
  * </pre>
  * 
  * @author askripsky
@@ -373,7 +373,7 @@ public class RPFFcstPointData extends HydroDBData implements IHydroDBData {
 
     @Override
     public String getSelectStatement() {
-        String columns = "l.lid, group_id, ordinal, chg_threshold, rec_type, primary_back, secondary_back, backhrs, forwardhrs, adjustendhrs, l.name";
+        String columns = "l.lid as lid, group_id, ordinal, chg_threshold, rec_type, primary_back, secondary_back, backhrs, forwardhrs, adjustendhrs, l.name as name";
         return "SELECT "
                 + columns
                 + " FROM rpffcstpoint, location l WHERE l.lid=rpffcstpoint.lid ORDER BY ordinal, lid";
@@ -401,7 +401,7 @@ public class RPFFcstPointData extends HydroDBData implements IHydroDBData {
 
     @Override
     public String getConstrainedSelectStatement() {
-        String columns = "l.lid, group_id, ordinal, chg_threshold, rec_type, primary_back, secondary_back, backhrs, forwardhrs, adjustendhrs, l.name";
+        String columns = "l.lid as lid, group_id, ordinal, chg_threshold, rec_type, primary_back, secondary_back, backhrs, forwardhrs, adjustendhrs, l.name as name";
         return "SELECT "
                 + columns
                 + " FROM rpffcstpoint, location l WHERE l.lid=rpffcstpoint.lid AND rpffcstpoint.lid='"

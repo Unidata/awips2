@@ -234,35 +234,35 @@ $zonecombo
 #end
 #end
 #if(${list.contains(${bullets}, "marineSpotter")})
-  #set($report = "Marine weather spotters reported a ${stormline}, ${capable}producing ${threatType}${hailType}.") 
+  #set($report = "marine weather spotters reported a ${stormline}, ${capable}producing ${threatType}${hailType}.") 
 #if(${list.contains(${bullets}, "fog")})
-  #set($report = "Marine weather spotters reported an area of ${stormline}, ${capable}reducing visibilities to below ${visibility}.")
+  #set($report = "marine weather spotters reported an area of ${stormline}, ${capable}reducing visibilities to below ${visibility}.")
 #end
 #end
 #if(${list.contains(${bullets}, "mariner")})
-  #set($report = "A mariner reported a ${stormline}, ${capable}producing ${threatType}${hailType}.") 
+  #set($report = "a mariner reported a ${stormline}, ${capable}producing ${threatType}${hailType}.") 
 #if(${list.contains(${bullets}, "fog")})
-  #set($report = "A mariner reported an area of ${stormline}, ${capable}reducing visibilities to below ${visibility}.")
+  #set($report = "a mariner reported an area of ${stormline}, ${capable}reducing visibilities to below ${visibility}.")
 #end
 #end
 #if(${list.contains(${bullets}, "public")})
-  #set($report = "The public reported a ${stormline}, ${capable}producing ${threatType}${hailType}.") 
+  #set($report = "the public reported a ${stormline}, ${capable}producing ${threatType}${hailType}.") 
 #if(${list.contains(${bullets}, "fog")})
-  #set($report = "The public reported an area of ${stormline}, ${capable}reducing visibilities to below ${visibility}.")
+  #set($report = "the public reported an area of ${stormline}, ${capable}reducing visibilities to below ${visibility}.")
 #end
 #end
 #if(${list.contains(${bullets}, "satellite")})
   #set($capable = "capable of ")
-  #set($report = "Satellite imagery indicated a ${stormline}, ${capable}producing ${threatType}${hailType}.")
+  #set($report = "satellite imagery indicated a ${stormline}, ${capable}producing ${threatType}${hailType}.")
 #if(${list.contains(${bullets}, "fog")})
   #set($capable = "capable of ")
-  #set($report = "Satellite imagery indicated an area of ${stormline}, ${capable}reducing visibilities to below ${visibility}.")
+  #set($report = "satellite imagery indicated an area of ${stormline}, ${capable}reducing visibilities to below ${visibility}.")
 #end
 #end
 #if(${list.contains(${bullets}, "pilot")})
-  #set($report = "A pilot reported a ${stormline}, ${capable}producing ${threatType}${hailType}.") 
+  #set($report = "a pilot reported a ${stormline}, ${capable}producing ${threatType}${hailType}.") 
 #if(${list.contains(${bullets}, "fog")})
-  #set($report = "A pilot reported an area of ${stormline}, ${capable}reducing visibilities to below ${visibility}.")
+  #set($report = "a pilot reported an area of ${stormline}, ${capable}reducing visibilities to below ${visibility}.")
 #end
 #end
 ## Storm current location description

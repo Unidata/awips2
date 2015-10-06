@@ -516,7 +516,7 @@ If you encounter flooded roads, Turn Around, Don't Drown! Most flood deaths occu
 
 #end
 #if(${list.contains(${bullets}, "arroyosCTA")})
-Remain alert for flooding even in locations not receiving rain. Arroyos, streams and rivers can become raging killer currents in a matter of minutes, even from distant rainfall.
+Remain alert for flooding even in locations not receiving rain. Arroyos, streams, and rivers can become raging killer currents in a matter of minutes, even from distant rainfall.
 
 #end
 #if(${list.contains(${bullets}, "burnAreasCTA")})

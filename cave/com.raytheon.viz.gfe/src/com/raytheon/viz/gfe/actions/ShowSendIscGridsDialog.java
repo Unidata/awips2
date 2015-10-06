@@ -22,53 +22,54 @@ package com.raytheon.viz.gfe.actions;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.DataManagerUIFactory;
-import com.raytheon.viz.gfe.dialogs.PublishDialog;
+import com.raytheon.viz.gfe.dialogs.isc.SendISCDialog;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
 
 /**
- * Action to launch publish to official dialog.
+ * Action to launch Send ISC grids dialog.
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 06, 2008            Eric Babin  Initial Creation
- * Oct 25, 2012 1287       rferrel     Changes for non-blocking PublishDialog.
- * Aug 27, 2015 4749       njensen     Now extends GfeShowDialogHandler
- * Sep 09, 2015 4858       dgilling    Don't allow publishing when 
- *                                     SimulatedTime is enabled.
+ * Sep 15, 2015  #4858     dgilling     Initial creation
+ * Oct 01, 2015  #4888     dgilling     Refactor based on GfeShowDialogHandler.
  * 
  * </pre>
  * 
-
+ * @author dgilling
+ * @version 1.0
  */
-public class ShowPublishDialog extends GfeShowDialogHandler {
 
-    @Override
-    public boolean isEnabled() {
-        if (!super.isEnabled()) {
-            return false;
-        }
+public class ShowSendIscGridsDialog extends GfeShowDialogHandler {
 
-        DataManager dm = DataManagerUIFactory.getCurrentInstance();
-        if (dm != null) {
-            return !dm.getParmManager().getMutableDatabase()
-                    .equals(dm.getParmManager().getProductDB());
-        }
-        return false;
-    }
     @Override
     protected CaveJFACEDialog createDialog(Shell shell, DataManager dm,
             ExecutionEvent event) {
         if (!SimulatedTimeOperations.isTransmitAllowed()) {
             SimulatedTimeOperations.displayFeatureLevelWarning(shell,
-                    "Publish Grids to Official");
+                    "Send ISC grids");
             return null;
         }
 
-        return new PublishDialog(shell, dm);
+        return new SendISCDialog(shell, dm);
+    }
+
+    @Override
+    public boolean isEnabled() {
+        DataManager dm = DataManagerUIFactory.getCurrentInstance();
+        if (dm != null) {
+            return (!dm.sendIscOnSave() || !dm.sendIscOnPublish())
+                    && CAVEMode.getMode().equals(CAVEMode.OPERATIONAL)
+                    && dm.requestISC();
+        }
+
+        return false;
     }
 }

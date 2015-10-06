@@ -50,6 +50,8 @@ import com.raytheon.viz.gfe.textformatter.TextProductTransmitter;
 import com.raytheon.viz.gfe.vtec.GFEVtecUtil;
 import com.raytheon.viz.texteditor.util.VtecObject;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeProhibitedOpException;
 
 /**
  * Display the Store/Transmit dialog.
@@ -81,6 +83,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Apr 20, 2015  4027      randerso    Renamed ProductStateEnum with an initial capital
  * Aug 28, 2015  4806      dgilling    Extract code for product transmission into
  *                                     its own class.
+ * Sep 15, 2015  4858      dgilling    Disable store/transmit in DRT mode.
  * 
  * </pre>
  * 
@@ -422,6 +425,11 @@ public class StoreTransmitDlg extends CaveSWTDialog {
                         transmitProduct(true);
                     }
                 } else {
+                    if (!SimulatedTimeOperations.isTransmitAllowed()) {
+                        throw SimulatedTimeOperations
+                                .constructProhibitedOpException("Store/Transmit GFE text products");
+                    }
+
                     if (isStoreDialog) {
                         TextDBUtil.storeProduct(pid, productText,
                                 parentEditor.isTestVTEC());
@@ -433,7 +441,11 @@ public class StoreTransmitDlg extends CaveSWTDialog {
                 statusHandler.handle(Priority.CRITICAL,
                         "Error preparing product for transmission.", e);
                 sendTransmissionStatus(ConfigData.ProductStateEnum.Failed);
-                StoreTransmitDlg.this.parentEditor.revive();
+                parentEditor.revive();
+            } catch (SimulatedTimeProhibitedOpException e) {
+                statusHandler.error(e.getLocalizedMessage(), e);
+                sendTransmissionStatus(ConfigData.ProductStateEnum.Failed);
+                parentEditor.brain();
             }
         }
 
@@ -527,12 +539,16 @@ public class StoreTransmitDlg extends CaveSWTDialog {
                     .transmitProduct(practice);
 
             sendTransmissionStatus(state);
-            this.parentEditor.setProductText(productText, false);
-            this.parentEditor.brain();
+            parentEditor.setProductText(productText, false);
+            parentEditor.brain();
         } catch (VizException e) {
             statusHandler.handle(Priority.CRITICAL, "Error sending product", e);
             sendTransmissionStatus(ConfigData.ProductStateEnum.Failed);
-            this.parentEditor.revive();
+            parentEditor.revive();
+        } catch (SimulatedTimeProhibitedOpException e) {
+            statusHandler.error(e.getLocalizedMessage(), e);
+            sendTransmissionStatus(ConfigData.ProductStateEnum.Failed);
+            parentEditor.brain();
         }
     }
 
