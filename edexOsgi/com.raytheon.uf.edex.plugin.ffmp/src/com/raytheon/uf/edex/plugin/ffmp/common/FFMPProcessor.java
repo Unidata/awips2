@@ -61,6 +61,7 @@ import com.raytheon.uf.common.geospatial.ReferencedObject.Type;
 import com.raytheon.uf.common.hydro.spatial.HRAPCoordinates;
 import com.raytheon.uf.common.hydro.spatial.HRAPSubGrid;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.DATA_TYPE;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.SOURCE_TYPE;
 import com.raytheon.uf.common.monitor.processing.IMonitorProcessing;
 import com.raytheon.uf.common.monitor.scan.ScanUtils;
@@ -106,6 +107,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Apr 15, 2014  3026       mpduff      Set the xmrg filename into the metadata column.
  * Aug 08, 2015  4722       dhladky     Simplified processing by data type.
  * Aug 26, 2015  4777       dhladky     Fixed bug in DPR accumulations.
+ * Sep 28, 2015  4756       dhladky     Multiple Guidance upgrades.
  * </pre>
  * @author dhladky
  * @version 1
@@ -360,7 +362,7 @@ public class FFMPProcessor {
                             // use
                             // when
                             // running
-                            this.sourceId = source.getSourceName() + "-"
+                            this.sourceId = getSourceBinNaming(source) + "-"
                                     + domain.getCwa() + "-" + dataKey;
 
                             if (sourceId != null) {
@@ -382,7 +384,7 @@ public class FFMPProcessor {
                                                             map.keySet(),
                                                             cwaGeometries, radarRec));
                                         } catch (Exception e) {
-                                            statusHandler.handle(Priority.WARN, "caught an Exception while generating Source Bin List");
+                                            statusHandler.handle(Priority.WARN, "Caught an Exception while generating Source Bin List");
                                             if (!checkLockStatus()) {
                                                 ClusterLockUtils.unlock(sourceBinTaskName, sourceId);
                                             }
@@ -431,7 +433,7 @@ public class FFMPProcessor {
                             // use
                             // when
                             // running
-                            this.sourceId = source.getSourceName() + "-"
+                            this.sourceId = getSourceBinNaming(source) + "-"
                                     + domain.getCwa() + "-" + dataKey;
 
                             if (sourceId != null) {
@@ -456,7 +458,7 @@ public class FFMPProcessor {
                             // use
                             // when
                             // running
-                            this.sourceId = source.getSourceName() + "-"
+                            this.sourceId = getSourceBinNaming(source) + "-"
                                     + domain.getCwa() + "-" + dataKey;
 
                             if (sourceId != null) {
@@ -1867,5 +1869,35 @@ public class FFMPProcessor {
         }
 
         return xmrgData;
+    }
+    
+    /**
+     * Gets the name used for the source bins produced by all sources. Some
+     * sources have identical Grid/RADAR bins/etc So, It's more efficient to
+     * name the bins the same so that we don't create identical one's for every
+     * single source that uses that bin schema.
+     * 
+     * @param source
+     * @return
+     */
+    private String getSourceBinNaming(SourceXML source) {
+
+        if (source.getSourceFamily() != null) {
+            /**
+             * ARI brought this forward because there are 6 different ARI
+             * sources that all use the same grid. Was pointless to have
+             * different source bins for each of them when they are identical.
+             */
+            return source.getSourceFamily();
+        } else if (source.getDataType().equals(DATA_TYPE.XMRG.getDataType())) {
+            // HPE/BHPE use this type exclusively
+            return DATA_TYPE.XMRG.getDataType();
+        } else {
+            if (source.getSourceName().equals(source.getDisplayName())) {
+                return source.getDisplayName();
+            } else {
+                return source.getSourceName();
+            }
+        }
     }
 }

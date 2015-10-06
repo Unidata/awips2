@@ -334,6 +334,24 @@ public class FFMPSourceConfigurationManager implements
         }
         return forecasts;
     }
+    
+    /**
+     * Get sources with the same family, used for source bins in FFMPGenerator
+     * 
+     * @return
+     */
+    public ArrayList<String> getFamilySources(String family) {
+
+        ArrayList<String> familySources = new ArrayList<String>();
+        for (SourceXML xml : configXml.getSource()) {
+            if (xml.getSourceFamily() != null
+                    && xml.getSourceFamily().equals(family)) {
+                familySources.add(xml.getSourceName());
+            }
+        }
+
+        return familySources;
+    }
 
     /**
      * 

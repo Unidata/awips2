@@ -200,6 +200,7 @@ import com.vividsolutions.jts.geom.Point;
  * Nov 10, 2014 3026        dhladky     HPE BIAS displays.
  * Dec 16, 2014   3026      mpduff      Change location of text.
  * Feb 13, 2015   4121      mpduff      Change label caching.
+ * Sep 28, 2015   4756      dhladky     Multiple guidance sources.
  * </pre>
  * 
  * @author dhladky
@@ -1670,8 +1671,17 @@ public class FFMPResource extends
      */
     private FFMPColorUtils getColorUtil() throws VizException {
         if (colorUtil == null) {
-            colorUtil = new FFMPColorUtils(getField(), getTime(),
-                    getResourceData().tableLoad);
+
+            boolean tableLoad = getResourceData().tableLoad;
+            String ffg = getFFGName();
+            if (!tableLoad) {
+                SourceXML source = FFMPSourceConfigurationManager.getInstance()
+                        .getSource(ffg);
+                ffg = source.getDisplayName();
+            }
+
+            colorUtil = new FFMPColorUtils(getField(), getTime(), ffg,
+                    tableLoad);
         }
         return colorUtil;
     }

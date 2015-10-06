@@ -32,6 +32,8 @@ import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord.FIELDS;
 import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
 import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.style.StyleManager;
@@ -55,6 +57,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Apr 26, 2013 1954        bsteffen    Minor code cleanup throughout FFMP.
  * Jun 10, 2013 2075        njensen     Improved init time
  * Sep 5, 2013  2051        mnash       Moved style rule instantiation so that we don't get NPEs
+ * Sep 28, 2015 4756        dhladky     Multiple guidance style rules for FFMP.
  * </pre>
  * 
  * @author dhladky
@@ -62,14 +65,24 @@ import com.raytheon.uf.viz.core.exception.VizException;
  */
 
 public class FFMPColorUtils {
+    
+    /** Status handler */
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(FFMPColorUtils.class);
 
     private ColorMapParameters colormapparams = null;
 
+    /** FFMP field to be drawn **/
     private FIELDS field = null;
 
+    /** is this a table load instance? **/
     private boolean tableLoad = false;
 
+    /** time to be drawn **/
     private double time = 0.0;
+
+    /** name of FFG to be used **/
+    private String ffgName;
 
     private TreeMap<Double, String> hourColorMapMap = new TreeMap<Double, String>();
 
@@ -89,17 +102,26 @@ public class FFMPColorUtils {
      * @param time
      * @param tableLoad
      */
-    public FFMPColorUtils(FIELDS field, double time, boolean tableLoad) {
+    public FFMPColorUtils(FIELDS field, double time, String ffgName, boolean tableLoad) {
 
         this.field = field;
         this.time = time;
+        this.ffgName = ffgName;
         this.tableLoad = tableLoad;
         this.colormapparams = null;
 
-        // StyleRule sr = null;// DR 14833 replaced by a instance field
         try {
             sr = StyleManager.getInstance().getStyleRule(
                     StyleManager.StyleType.IMAGERY, getMatchCriteria());
+            // Different style rules for different guidance sources selected
+            if (sr == null && ffgName.startsWith(FFMPRecord.FIELDS.GUIDANCE.getFieldName())) {
+                // Could be a new source, load the default guidance map.
+                statusHandler.warn("No style rule matching "+ffgName+" in ffmpImageryStyleRules.xml, loading default!");
+                this.ffgName = ""; // append a blank
+                // try again
+                sr = StyleManager.getInstance().getStyleRule(
+                        StyleManager.StyleType.IMAGERY, getMatchCriteria());
+            }
 
             String colormapfile = ((ImagePreferences) sr.getPreferences())
                     .getDefaultColormap();
@@ -109,7 +131,9 @@ public class FFMPColorUtils {
             try {
                 cxml = ColorMapLoader.loadColorMap(colormapfile);
             } catch (VizException e) {
-                e.printStackTrace();
+                statusHandler.error("Error loading ColorMap file: field: " + field
+                        + " time: " + time + " ffgName: " + ffgName
+                        + " TableLoad: " + tableLoad, e);
             }
 
             if (cxml == null)
@@ -125,7 +149,9 @@ public class FFMPColorUtils {
             colormapparams.setColorMapMin(0);
             colormapparams.setColorMapMax(255);
         } catch (StyleException e) {
-            e.printStackTrace();
+            statusHandler.error("Error loading ColorMap params: field: " + field
+                    + " time: " + time + " ffgName: " + ffgName
+                    + " TableLoad: " + tableLoad, e);
         }
     }
 
@@ -223,7 +249,7 @@ public class FFMPColorUtils {
                 paramList.add(qpeName);
             } else {
                 if (field == FIELDS.GUIDANCE) {
-                    paramList.add(FIELDS.GUIDANCE.getFieldName());
+                    paramList.add(FIELDS.GUIDANCE.getFieldName() + ffgName);
                 } else {
                     paramList.add(FIELDS.QPE.getFieldName());
                 }
@@ -250,7 +276,7 @@ public class FFMPColorUtils {
 
         return qpeHourToUse;
     }
-
+    
     private void parseFileNames(List<String> fileArray) {
         double hour = 0.0;
         for (String fn : fileArray) {
@@ -376,18 +402,7 @@ public class FFMPColorUtils {
             }
 
         }
-        /*
-         * if(sr == null){ //get the MatchCriteria ParamLevelMatchCriteria match
-         * = new ParamLevelMatchCriteria(); ArrayList<String> paramList = new
-         * ArrayList<String>(); paramList.add(
-         * FIELDS.QPE.getFieldName()+cmapHour );
-         * match.setParameterName(paramList);
-         * 
-         * //get the StyleRule try {
-         * sr=StyleManager.getInstance().getStyleRule(StyleManager
-         * .StyleType.IMAGERY, match); } catch (StyleException e) {
-         * e.printStackTrace(); } }
-         */
+    
         // get the colormapfile name
         String colormapfile = ((ImagePreferences) sr.getPreferences())
                 .getDefaultColormap();
