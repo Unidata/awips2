@@ -2,7 +2,7 @@
 <cave-memory-settings>
 	<!-- The version should be incremented whenever
 		 the file layout changes. -->
-	<file-version>4.0</file-version>
+	<file-version>5.0</file-version>
 	
 	<!-- Example Entry ... See Below. -->
 	<!--
@@ -29,122 +29,16 @@
 	
 	<default-memory-setting>
 		<default-max-memory>
-			<jvm-arg>Xmx</jvm-arg>
-			<value>2048M</value>
+			<jvm-arg>-Xmx</jvm-arg>
+			<value>2560M</value>
 		</default-max-memory>
 		
 		<default-max-perm>
-			<jvm-arg>XX:MaxPermSize=</jvm-arg>
-			<value>128m</value>
+			<jvm-arg>-XX:MaxPermSize=</jvm-arg>
+			<value>256m</value>
 		</default-max-perm>
 	</default-memory-setting>
-
-	<arch.x86>
-		<memory-setting>
-			<command-line-args>
-				<first-arg>-perspective</first-arg>
-				<second-arg>GFE</second-arg>
-			</command-line-args>
-		
-			<ini-substitutions>
-				<max-memory>
-					<value>1536M</value>
-				</max-memory>
-			
-				<max-perm>
-					<value>DEFAULT</value>
-				</max-perm>
-			</ini-substitutions>
-		</memory-setting>
 	
-		<memory-setting>
-			<command-line-args>
-				<first-arg>-component</first-arg>
-				<second-arg>textws</second-arg>
-			</command-line-args>
-		
-			<ini-substitutions>
-				<max-memory>
-					<value>128M</value>
-				</max-memory>
-			
-				<max-perm>
-					<value>64m</value>
-				</max-perm>
-			</ini-substitutions>
-		</memory-setting>
-	
-		<memory-setting>
-			<command-line-args>
-				<first-arg>-component</first-arg>
-				<second-arg>avnmenu</second-arg>
-			</command-line-args>
-		
-			<ini-substitutions>
-				<max-memory>
-					<value>128M</value>
-				</max-memory>
-			
-				<max-perm>
-					<value>64m</value>
-				</max-perm>
-			</ini-substitutions>
-		</memory-setting>
-
-                <memory-setting>
-                        <command-line-args>
-                                <first-arg>-component</first-arg>
-                                <second-arg>gfeclient</second-arg>
-                        </command-line-args>
-
-                        <ini-substitutions>
-                                <max-memory>
-                                        <value>1536M</value>
-                                </max-memory>
-
-                                <max-perm>
-                                        <value>DEFAULT</value>
-                                </max-perm>
-                        </ini-substitutions>
-                </memory-setting>
-	
-		<memory-setting>
-			<command-line-args>
-				<first-arg>-component</first-arg>
-				<second-arg>servicebackup</second-arg>
-			</command-line-args>
-		
-			<ini-substitutions>
-				<max-memory>
-					<value>256M</value>
-				</max-memory>
-			
-				<max-perm>
-					<value>128m</value>
-				</max-perm>
-			</ini-substitutions>
-		</memory-setting>
-
-		<memory-setting>
-			<command-line-args>
-				<first-arg>-perspective</first-arg>
-				<second-arg>NCP</second-arg>
-			</command-line-args>
-		
-			<ini-substitutions>
-				<max-memory>
-					<value>1536M</value>
-				</max-memory>
-			
-				<max-perm>
-					<value>DEFAULT</value>
-				</max-perm>
-			</ini-substitutions>
-		</memory-setting>
-
-	</arch.x86>
-	
-	<arch.x86_64>
 		<!-- 
 			Since this may be increased for GFE in the future,
 			the following memory setting will remain even though
@@ -458,7 +352,5 @@
 				</max-perm>
 			</ini-substitutions>
         </site-type-override>
-
-	</arch.x86_64>
 	
 </cave-memory-settings>
