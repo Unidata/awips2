@@ -21,6 +21,7 @@ package com.raytheon.viz.gfe.textformatter;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -44,6 +45,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.python.PyUtil;
@@ -73,8 +75,9 @@ import com.raytheon.viz.gfe.textformatter.CombinationsFileUtil.ComboData.Entry;
  * Feb 05, 2014     #2591  randerso    Forced retrieval of combinations file
  *                                     Implemented retry on error
  * Aug 27, 2014     #3561  randerso    Yet another attempt to fix combinations file updating
- * Sep 08, 2104     #3592  randerso    Changed to use only list site level files as all 
+ * Sep 08, 2014     #3592  randerso    Changed to use only list site level files as all 
  *                                     combo files are saved to the site level
+ * Oct 07, 2015     #4695  dgilling    Code cleanup to remove compile warnings.
  * 
  * </pre>
  * 
@@ -166,12 +169,13 @@ public class CombinationsFileUtil {
     }
 
     public static void saveComboData(String id, Map<String, Integer> combos)
-            throws LocalizationException, SerializationException {
+            throws LocalizationException, SerializationException, IOException {
         LocalizationFile lf = idToFile(id);
-        File file = lf.getFile(false);
-        ComboData comboData = new ComboData(combos);
-        jaxb.marshalToXmlFile(comboData, file.getPath());
-        lf.save();
+        try (SaveableOutputStream out = lf.openOutputStream()) {
+            ComboData comboData = new ComboData(combos);
+            jaxb.marshalToStream(comboData, out);
+            out.save();
+        }
     }
 
     public static void deleteComboData(String id)
@@ -205,18 +209,19 @@ public class CombinationsFileUtil {
     }
 
     public static Map<String, Integer> loadComboData(String id)
-            throws SerializationException {
+            throws SerializationException, IOException, LocalizationException {
         LocalizationFile lf = idToFile(id);
-        File file = lf.getFile();
-        ComboData comboData = jaxb.unmarshalFromXmlFile(file);
+        try (InputStream in = lf.openInputStream()) {
+            ComboData comboData = (ComboData) jaxb.unmarshalFromInputStream(in);
 
-        Map<String, Integer> comboDict = new HashMap<String, Integer>(
-                comboData.combos.size());
-        for (Entry entry : comboData.combos) {
-            comboDict.put(entry.zone, entry.group);
+            Map<String, Integer> comboDict = new HashMap<String, Integer>(
+                    comboData.combos.size());
+            for (Entry entry : comboData.combos) {
+                comboDict.put(entry.zone, entry.group);
+            }
+
+            return comboDict;
         }
-
-        return comboDict;
     }
 
     @SuppressWarnings("unchecked")
@@ -262,15 +267,12 @@ public class CombinationsFileUtil {
         List<List<String>> combos = null;
         HashMap<String, Object> map = new HashMap<String, Object>();
         map.put("comboName", comboName);
-        PythonScript python = null;
         for (int retryCount = 0; retryCount < MAX_TRIES; retryCount++) {
-            try {
-                python = new PythonScript(scriptPath,
-                        PyUtil.buildJepIncludePath(
-                                GfePyIncludeUtil.getCombinationsIncludePath(),
-                                GfePyIncludeUtil.getCommonPythonIncludePath()),
-                        CombinationsFileUtil.class.getClassLoader());
-
+            try (PythonScript python = new PythonScript(scriptPath,
+                    PyUtil.buildJepIncludePath(
+                            GfePyIncludeUtil.getCombinationsIncludePath(),
+                            GfePyIncludeUtil.getCommonPythonIncludePath()),
+                    CombinationsFileUtil.class.getClassLoader())) {
                 Object com = python.execute("getCombinations", map);
                 combos = (List<List<String>>) com;
 
@@ -291,10 +293,6 @@ public class CombinationsFileUtil {
                 else {
                     throw new GfeException("Error loading combinations file: "
                             + comboName, e);
-                }
-            } finally {
-                if (python != null) {
-                    python.dispose();
                 }
             }
         }
