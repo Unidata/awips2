@@ -83,7 +83,7 @@ def main():
     siteDictFile = os.path.join(CAVE_STATIC_SITE_LEVEL_PATH, siteID, NEW_DICT_PATH)
     log.info("Writing SITE-level spelling dictionary [%s].", siteDictFile)
     try:
-        createDir(os.path.dirname(siteDictFile))
+        createDir(siteDictFile)
         with open(siteDictFile, 'w') as f:
             f.writelines(sorted(combinedDict))
     except OSError:
@@ -137,7 +137,7 @@ def main():
         gfeSiteFile = os.path.join(CAVE_STATIC_SITE_LEVEL_PATH, site, NEW_DICT_PATH)
         log.info("Writing SITE-level spelling dictionary [%s].", gfeSiteFile)
         try:
-            createDir(os.path.dirname(gfeSiteFile))
+            createDir(gfeSiteFile)
             shutil.copy(siteDictFile, gfeSiteFile)
         except OSError:
             log.exception("Could not create SITE directory for spelling dictionary.")
