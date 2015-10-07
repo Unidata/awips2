@@ -24,6 +24,7 @@
 #-----------------------------------------------------------------------#
 # ChangeLog                                                             #
 # 07/2011 M.James/Unidata       Created                                 #
+# 10/2015 M.James/Unidata       Log files fixed; purge check added      #
 #-----------------------------------------------------------------------#
 
 # directories definitions
@@ -39,7 +40,7 @@ EDEX_ENV_FILE=$EDEX_PATH'bin/setup.env'
 LDMD_CONF=/usr/local/ldm/etc/ldmd.conf
 
 # valid options
-options=( 'status' 'start' 'stop' 'log' 'setup' 'test' )
+options=( 'status' 'start' 'stop' 'log' 'setup' 'test' 'purge')
 nopts=${options[@]}
 
 # main program
@@ -62,7 +63,7 @@ editFiles=($PG_FILE $EDEX_ENV_FILE $LDMD_CONF)
 boolFiles=(true true true)
 editFuncs=(edit_pg edit_edex edit_ldm)
 
-YMD=`date '+%Y%m%d%H%M%S'`
+YMD=`date '+%Y%m%d'`
 
 args=("$@")
 
@@ -129,7 +130,7 @@ tail_log() {
 	if [ -e $LOG_FILE ]; then
 		echo ' :: Viewing '${LOG_FILE}'. Press CTRL+C to exit'
 		echo ''
-		su -c "tail --follow=name ${LOG_FILE} | grep INFO | grep Ingest | sed 's/INFO  //g' | sed 's/\[genericThreadPool-[0-9][0-9]\] //g' | sed 's/2012-07-12 //g' | sed 's/,[0-9][0-9][0-9] / /g' | sed 's/Ingest\: EDEX\: Ingest - //g'"	
+		su -c "tail --follow=name ${LOG_FILE}"
 	else 
 		echo ' :: '$LOG_FILE' not found'
 		echo ' :: Check '$LOG_PATH
@@ -146,14 +147,30 @@ edex_log() { # display todays log, default to ingest
 		tail_log
 		exit;
 	fi
-
 	# EDEX ingestGrib log
 	if [ "${args[1]}" == 'grib' ]; then
                 LOG_FILE=${LOG_PATH}edex-ingestGrib-${YMD}.log
 		tail_log
 		exit;
         fi
-
+        # Radar
+        if [ "${args[1]}" == 'radar' ]; then
+                LOG_FILE=${LOG_PATH}edex-ingest-radar-${YMD}.log
+                tail_log
+                exit;
+        fi
+        # Satellite
+        if [ "${args[1]}" == 'satellite' ]; then
+                LOG_FILE=${LOG_PATH}edex-ingest-satellite-${YMD}.log
+                tail_log
+                exit;
+        fi
+        # Text
+        if [ "${args[1]}" == 'text' ]; then
+                LOG_FILE=${LOG_PATH}edex-ingest-text-${YMD}.log
+                tail_log
+                exit;
+        fi
 	# EDEX ingest log (default)
 	LOG_FILE=${LOG_PATH}edex-ingest-${YMD}.log
 	if [ "${args[1]}" == 'ingest' ]; then
@@ -329,9 +346,23 @@ edex_stop() { # stop all edex services
 	edex_status;
 }
 
+edex_purge() {
+        if [ "${args[1]}" == 'reset' ]; then
+                su awips -c 'psql metadata -c "update purgejobs set failedcount = 0;"' >& /dev/null
+                echo ' EDEX purge has been reset'
+                exit;
+        else
+		purgeCheck=`su awips -c 'psql metadata -c "select plugin from purgejobs where failedcount = 3;"'`
+                if [[ ${#purgeCheck} > 26 ]]; then
+                    su awips -c 'psql metadata -c "select plugin from purgejobs where failedcount = 3;"'
+                fi
+                exit;
+        fi
+}
+
 edex_options() { # print out options for this programs
 	echo ''
-	echo '     edex (status|start|stop|setup|log)'
+	echo '     edex (status|start|stop|setup|log|purge)'
 	echo ''
 }
 
