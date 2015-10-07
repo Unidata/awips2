@@ -123,6 +123,14 @@ edex_status() { # report back edex server on/off status
 		echo ' EDEXrequest :: running :: pid '$edex_request_pid''
 	fi
 
+	ldmd_ps=`ps aux | grep ldmd | awk '{ print $15 }'`
+        if [ -z $ldmd_ps ]; then
+                echo ' ldmadmin    :: not running'
+        else
+                ldmd_pid=`ps aux | grep ldmd | awk '{ print $2 }' | head -1`
+                echo ' ldmadmin    :: running :: pid '$ldmd_pid''
+        fi
+
 	echo ''
 }
 
@@ -326,6 +334,7 @@ edex_start() { # start all edex services
 	su -c "service httpd-pypies start"
 	su -c "service qpidd start"
 	su -c "service edex_camel start"
+	su -c "service edex_ldm start"
 }
 
 edex_stop() { # stop all edex services
@@ -333,6 +342,7 @@ edex_stop() { # stop all edex services
 	su -c "service qpidd stop"
 	su -c "service httpd-pypies stop"
 	su -c "service edex_postgres stop"
+	su -c "service edex_ldm stop"
 	edex_status;
 }
 
