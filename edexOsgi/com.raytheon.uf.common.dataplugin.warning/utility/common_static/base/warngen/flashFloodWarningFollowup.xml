@@ -134,7 +134,7 @@ Must be paired with proper vm code (also commented out in flashFloodWarningFollo
   <bullet bulletText="**** CALL TO ACTIONS (CHOOSE 1 OR MORE) ****" bulletType="title"/>
 <!-- end all call to action bullets with "CTA" ex: "obviousNameCTA" -->
   <bullet bulletName="ffwEmergencyCTA" bulletText="**FLASH FLOOD EMERGENCY CTA**" parseString="FLASH FLOOD EMERGENCY"/>
-  <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly..." parseString="HIGHER GROUND NOW. ACT QUICKLY TO PROTECT YOUR LIFE."/>
+  <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly..." parseString="HIGHER GROUND NOW! ACT QUICKLY TO PROTECT YOUR LIFE."/>
   <bullet bulletName="childSafetyCTA" bulletText="Child Safety..." parseString="KEEP CHILDREN AWAY FROM STORM DRAINS"/>
   <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding..." parseString="BE ESPECIALLY CAUTIOUS AT NIGHT WHEN"/>
   <bullet bulletName="safetyCTA" bulletText="Safety...by foot or motorist" parseString="DO NOT ENTER OR CROSS FLOWING WATER"/>
@@ -186,7 +186,7 @@ Must be paired with proper vm code (also commented out in flashFloodWarningFollo
   <bullet bulletText="**** CALL TO ACTIONS (CHOOSE 1 OR MORE) ****" bulletType="title"/>
 <!-- end all call to action bullets with "CTA" ex: "obviousNameCTA" -->
   <bullet bulletName="ffwEmergencyCTA" bulletText="**FLASH FLOOD EMERGENCY CTA**" parseString="FLASH FLOOD EMERGENCY"/>
-  <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly..." parseString="HIGHER GROUND NOW. ACT QUICKLY TO PROTECT YOUR LIFE."/>
+  <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly..." parseString="HIGHER GROUND NOW! ACT QUICKLY TO PROTECT YOUR LIFE."/>
   <bullet bulletName="childSafetyCTA" bulletText="Child Safety..." parseString="KEEP CHILDREN AWAY FROM STORM DRAINS"/>
   <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding..." parseString="BE ESPECIALLY CAUTIOUS AT NIGHT WHEN"/>
   <bullet bulletName="safetyCTA" bulletText="Safety...by foot or motorist" parseString="DO NOT ENTER OR CROSS FLOWING WATER"/>
