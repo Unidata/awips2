@@ -32,6 +32,7 @@ import org.eclipse.core.runtime.Platform;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.rsc.ResourceType;
 
 /**
  * 
@@ -104,6 +105,11 @@ public class ProductCreatorManager {
         synchronized (creators) {
             return creators.get(key);
         }
+    }
+
+    public ProductCreator getCreator(String pluginName,
+            ResourceType resourceType) {
+        return getCreator(pluginName, resourceType.toString().toLowerCase());
     }
 
     public static ProductCreatorManager getInstance() {

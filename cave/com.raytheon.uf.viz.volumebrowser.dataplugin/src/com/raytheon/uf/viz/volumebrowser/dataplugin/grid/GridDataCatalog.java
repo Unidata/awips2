@@ -245,7 +245,7 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
      * ()
      */
     @Override
-    protected String[] getPlugins(ViewMenu setting) {
+    protected String[] getPlugins() {
         return new String[] { GridInventory.PLUGIN_NAME };
     }
 

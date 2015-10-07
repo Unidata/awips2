@@ -44,10 +44,12 @@ import com.raytheon.uf.common.derivparam.inv.AbstractInventory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.viz.volumebrowser.datacatalog.AbstractDataCatalog;
 import com.raytheon.viz.volumebrowser.datacatalog.AvailableDataRequest;
 import com.raytheon.viz.volumebrowser.datacatalog.IDataCatalog;
+import com.raytheon.viz.volumebrowser.loader.ProductCreatorManager;
 import com.raytheon.viz.volumebrowser.util.PointLineUtil;
 import com.raytheon.viz.volumebrowser.vbui.DataListsProdTableComp.DataSelection;
 import com.raytheon.viz.volumebrowser.vbui.MenuItemManager;
@@ -92,6 +94,19 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
 
     @Override
     public void getAvailableData(AvailableDataRequest request) {
+        ResourceType resourceType = VolumeBrowserAction.getVolumeBrowserDlg()
+                .getDialogSettings().getViewSelection().getResourceType();
+        boolean load = false;
+        for (String pluginName : getPlugins()) {
+            if (ProductCreatorManager.getInstance().getCreator(pluginName,
+                    resourceType) != null) {
+                load = true;
+                break;
+            }
+        }
+        if (!load) {
+            return;
+        }
         String[] selectedSources = request.getSelectedSources();
         String[] selectedFields = request.getSelectedFields();
         String[] selectedPlanes = request.getSelectedPlanes();

@@ -81,16 +81,16 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
 
     /**
      * 
-     * @return a list of plugin Names used for the given setting
+     * @return a list of plugin Names this catalog supports
      */
-    protected abstract String[] getPlugins(ViewMenu setting);
+    protected abstract String[] getPlugins();
 
     /**
      * 
      * @return the default plugin to use in any case
      */
     protected String getDefaultPlugin() {
-        return getPlugins(null)[0];
+        return getPlugins()[0];
     }
 
     /*

@@ -267,14 +267,6 @@ function lookupRPM()
       export RPM_SPECIFICATION="${awips2_ade_dir}/Installer.eclipse"
       return 0
    fi
-   if [ "${1}" = "awips2-openfire" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.xmpp"
-      return 0
-   fi
-   if [ "${1}" = "awips2-collab-dataserver" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.collab-dataserver"
-      return 0
-   fi
    if [ "${1}" = "awips2-yajsw" ]; then
       export RPM_SPECIFICATION="${installer_dir}/yajsw-11.11"
       return 0

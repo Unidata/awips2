@@ -29,6 +29,7 @@ package com.raytheon.uf.common.monitor.xml;
  * 29 Jan, 2010 3915         dhladky     Initial creation
  * 18 Apr. 2012 DR 14619	 dhladky     Replace isOverride()
  * 28 Nov. 2012 DR 14412	 gzhang		 makes unit internal to this class
+ * 28 Sep  2015  4756        dhladky     Multiple Guidance upgrades.
  * </pre>
  * @author dhladky
  * @version 1.0
@@ -85,6 +86,9 @@ public class SourceXML {
 
     @XmlElement(name = "interpolatedGuidanceTransition")
     protected boolean interpolatedGuidanceTransition;
+    
+    @XmlElement(name = "sourceFamily")
+    protected String sourceFamily;
 
     // @XmlElement(name = "unit") // DR 14412
     protected String unit;
@@ -449,5 +453,24 @@ public class SourceXML {
         }
 
         return false;
+    }
+
+    /**
+     * Sources that have common backing grids can set this so that 
+     * the source bins used for processing only have to be produced once.
+     * This saves time and CPU/memory
+     * 
+     * @return
+     */
+    public String getSourceFamily() {
+        return sourceFamily;
+    }
+
+    /**
+     * Set the sourceFamily
+     * @param sourceFamily
+     */
+    public void setSourceFamily(String sourceFamily) {
+        this.sourceFamily = sourceFamily;
     }
 }

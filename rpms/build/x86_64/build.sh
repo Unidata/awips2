@@ -99,7 +99,7 @@ fi
 
 if [ "${1}" = "-buildRPM" -a -n "${2}" ]; then
    echo "Building RPM: ${2}"
-   # also allow buildJava, buildOpenfire... buildRPM args
+   # also allow buildJava, buildRPM args
    buildName=`echo ${2} | cut -c1-5`
    if [ ${#2} -gt 5 -a "$buildName" = "build" ]; then
       ${2}
@@ -201,7 +201,6 @@ if [ "${1}" = "-rh6" ]; then
       exit 1
    fi
    buildRPM "awips2-httpd-pypies"
-   buildRPM "awips2-collab-dataserver"
    buildQPID
    if [ $? -ne 0 ]; then
       exit 1
@@ -235,8 +234,6 @@ if [ "${1}" = "-rh6" ]; then
    buildRPM "awips2-data.hdf5-topo"
    buildRPM "awips2"
    buildRPM "awips2-yajsw"
-   buildOpenfire
-
    exit 0
 fi
 

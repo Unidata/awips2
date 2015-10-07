@@ -6,7 +6,7 @@
 	<property name="build.ws"
 		value="gtk" />
 	<property name="build.arch"
-		value="x86" />
+		value="x86_64" />
         <property name="build.product"
                 value="awips.product" />
 	<!-- Copy the zip file that is produced to this location. -->

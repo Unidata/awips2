@@ -34,7 +34,6 @@ import com.raytheon.viz.volumebrowser.datacatalog.DataCatalogEntry;
 import com.raytheon.viz.volumebrowser.datacatalog.IDataCatalogEntry;
 import com.raytheon.viz.volumebrowser.util.PointLineUtil;
 import com.raytheon.viz.volumebrowser.vbui.SelectedData;
-import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 
 /**
  * 
@@ -46,8 +45,8 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 3, 2015            bsteffen     Initial javadoc
- * 
+ * Aug 03, 2015            bsteffen     Initial javadoc
+ * Oct 05, 2015  3861      bsteffen     Remove argument from getPlugins
  * </pre>
  * 
  * @author bsteffen
@@ -76,7 +75,7 @@ public class DmdDataCatalog extends AbstractDataCatalog {
     }
 
     @Override
-    protected String[] getPlugins(ViewMenu setting) {
+    protected String[] getPlugins() {
         return new String[] { "radar" };
     }
 

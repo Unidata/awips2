@@ -70,26 +70,7 @@ if [ ! -f /awips2/cave/cave ]; then
    exit 1
 fi
 
-CAVE_BACKUP="/awips2/cave.bak"
-
-# Remove any existing backups.
-if [ -d ${CAVE_BACKUP} ]; then
-   rm -rf ${CAVE_BACKUP}
-fi
-
-# Create a backup of CAVE as it is.
-LOG_TIMESTAMP=`date`
-echo "backup STARTED: ${LOG_TIMESTAMP}"
-cp -r /awips2/cave ${CAVE_BACKUP}
-LOG_TIMESTAMP=`date`
-echo "backup COMPLETE: ${LOG_TIMESTAMP}"
-RC=$?
-if [ ${RC} -ne 0 ]; then
-   exit 1
-fi
-
 %post
-CAVE_BACKUP="/awips2/cave.bak"
 function cleanupUnzip()
 {
    if [ -f /awips2/cave/.repository/artifacts.xml ]; then
@@ -107,18 +88,6 @@ function cleanupUnzip()
    if [ -d /awips2/cave/.repository/plugins ]; then
       rm -rf /awips2/cave/.repository/plugins
    fi
-}
-
-function restoreCAVEAndFail()
-{
-   rm -rf /awips2/cave
-   LOG_TIMESTAMP=`date`
-   echo "restoring backup STARTED: ${LOG_TIMESTAMP}"
-   mv -f ${CAVE_BACKUP} /awips2/cave
-   LOG_TIMESTAMP=`date`
-   echo "restoring backup COMPLETE: ${LOG_TIMESTAMP}"
-   cleanupUnzip
-   exit 1
 }
 
 # Set all paths required by CAVE before installing.
@@ -171,25 +140,21 @@ unzip %{_component_zip_file_name} > /dev/null 2>&1
 RC=$?
 if [ ${RC} -ne 0 ]; then
    echo "ERROR: Unzip of repository FAILED."
-   restoreCAVEAndFail
+   exit 1
 fi
 
 # Install the component.
 LOG_TIMESTAMP=`date`
 echo "installation STARTED: ${LOG_TIMESTAMP}"
 ${INSTALL_CMD}
-RC=$?
-if [ ${RC} -ne 0 ]; then
-   restoreCAVEAndFail
+if [ $? -ne 0 ]; then
+   exit 1
 fi
 LOG_TIMESTAMP=`date`
 echo "installation COMPLETE: ${LOG_TIMESTAMP}" 
 
 # Cleanup the unzip
 cleanupUnzip
-
-# Remove the backup.
-rm -rf /awips2/cave.bak
 
 # move localization files in unpacked plugins to the
 # cave etc directory.

@@ -137,7 +137,7 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
         if (availableStations.containsKey(sourceKey)) {
             return availableStations.get(sourceKey);
         }
-        if (!Arrays.asList(getPlugins(null)).contains(getPlugin(sourceKey))) {
+        if (!Arrays.asList(getPlugins()).contains(getPlugin(sourceKey))) {
             availableStations.put(sourceKey, null);
             return null;
         }
@@ -318,7 +318,7 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
     }
 
     @Override
-    protected String[] getPlugins(ViewMenu setting) {
+    protected String[] getPlugins() {
         return new String[] { "goessounding", "poessounding", "profiler",
                 "bufrua", "obs", "bufrmosLAMP" };
         // njensen removed bufrmosAVN, bufrmosETA, bufrmosGFS, bufrmosHPC,
@@ -357,7 +357,7 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
     }
 
     protected String getPlugin(String sourceKey) {
-        for (String plugin : getPlugins(null)) {
+        for (String plugin : getPlugins()) {
             if (sourceKey.startsWith(plugin)) {
                 return plugin;
             }
