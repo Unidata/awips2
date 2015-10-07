@@ -28,32 +28,22 @@
 #-----------------------------------------------------------------------#
 
 # directories definitions
-AWIPS_HOME="/awips2/"
-EDEX_PATH=$AWIPS_HOME'edex/'
-DATA_PATH=$AWIPS_HOME'data/'
-LOG_PATH=$EDEX_PATH'logs/'
+AWIPS_HOME=/awips2
+EDEX_PATH=${AWIPS_HOME}/edex
+DATA_PATH=${AWIPS_HOME}/data
+LOG_PATH=${EDEX_PATH}/logs
 
 
 # files
-PG_FILE=$DATA_PATH'pg_hba.conf'
-EDEX_ENV_FILE=$EDEX_PATH'bin/setup.env'
-LDMD_CONF=/usr/local/ldm/etc/ldmd.conf
+PG_FILE=${DATA_PATH}/pg_hba.conf
+EDEX_ENV_FILE=${EDEX_PATH}/bin/setup.env
+LDMD_CONF=${AWIPS_HOME}/ldm/etc/ldmd.conf
 
 # valid options
 options=( 'status' 'start' 'stop' 'log' 'setup' 'test' 'purge')
 nopts=${options[@]}
 
-# main program
-
-# Construct IP subnet
-# OS X
-#IP=`ifconfig  | grep -E 'inet.[0-9]' | grep -v '127.0.0.1' | awk '{ print $2}'`
-
-# Linux
-# Simple solution
-#IP=`hostname -I`
-
-# better solution: find interface for routeable IPs
+# find interface for routeable IPs
 usedev=`netstat -rn | egrep "^0.0.0.0" | awk '{print $8}'`
 IP=`/sbin/ifconfig $usedev | grep "inet addr" |  awk '{ print $2 }' | cut -d: -f2`
 
@@ -123,11 +113,11 @@ edex_status() { # report back edex server on/off status
 		echo ' EDEXrequest :: running :: pid '$edex_request_pid''
 	fi
 
-	ldmd_ps=`ps aux | grep ldmd | awk '{ print $15 }'`
+	ldmd_ps=`ps aux | grep ldmd | head -1 | awk '{ print $15 }'`
         if [ -z $ldmd_ps ]; then
                 echo ' ldmadmin    :: not running'
         else
-                ldmd_pid=`ps aux | grep ldmd | awk '{ print $2 }' | head -1`
+                ldmd_pid=`ps aux | grep ldmd | head -1 | awk '{ print $2 }'`
                 echo ' ldmadmin    :: running :: pid '$ldmd_pid''
         fi
 
@@ -149,6 +139,12 @@ tail_log() {
 edex_log() { # display todays log, default to ingest
 	echo '[edex] EDEX Log Viewer'
 	echo ''
+        # LDM log
+        if [ "${args[1]}" == 'ldm' ]; then
+                LOG_FILE=${AWIPS_HOME}/ldm/logs/ldmd.log
+                tail_log
+                exit;
+        fi
 	# EDEX request log
 	if [ "${args[1]}" == 'request' ]; then	
 		LOG_FILE=${LOG_PATH}edex-request-${YMD}.log
