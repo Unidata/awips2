@@ -244,8 +244,6 @@ public class FSSObsUtils {
         try {
             Map<String, RequestConstraint> rcMap = RequestConstraint
                     .toConstraintMapping(DataURIUtil.createDataURIMap(uri));
-            // TODO: There is no uri field in ldadmesonet table. Should be
-            // corrected. URIs are required to generate CompositeProduct.
             rcMap.remove("pluginName");
             request = new PointDataQuery(LDADMESONET);
             for (Entry<String, RequestConstraint> entry : rcMap.entrySet()) {
