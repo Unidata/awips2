@@ -196,8 +196,9 @@ edit_pg() { # edex pg_hba.conf
 	echo '       File backed up to '$PG_FILE'.setup_'$YMD
 }
 
-edit_ldm() { # edex pg_hba.conf
+edit_ldm() { # edex ldmd.conf and registry.xml
 	sed -i.setup_$YMD 's/EDEX_HOSTNAME/'$HOSTNAME'/g' $LDMD_CONF
+	regutil -s "1500" /queue/size
 	echo '[edit] Hostname '$HOSTNAME' added to '$LDMD_CONF
 }
 
@@ -285,17 +286,6 @@ edex_setup() { # setup IP subnet and domains for EDEX, prompt user for confirm
 	else 
 		echo '      ** Missing '$HOSTNAME
 		continue=true
-	fi
-
-	# LDM
-	ldmGrep=`grep EDEX_HOSTNAME $LDMD_CONF | head -1`
-	echo -n ' Checking '$LDMD_CONF
-	if [[ ! -z ${ldmGrep} ]]; then
-		echo -e '\n      ** Missing '$HOSTNAME
-		continue=true
-	else
-		echo ' [OK]'
-		boolFiles[2]=false
 	fi
 
 	echo ''
