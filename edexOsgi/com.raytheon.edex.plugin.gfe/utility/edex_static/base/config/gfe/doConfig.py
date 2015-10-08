@@ -35,10 +35,9 @@
 #    11/18/2014          #4953     randerso       Added check for empty unit string
 #    04/09/2015          #4383     dgilling       Added support for FireWx ISC.       
 #    Apr 23, 2015    4259          njensen        Updated for new JEP API       
-#    09/01/2015          16287     amoore         Additional validation of user input      
 #
 ########################################################################
-import types,re,configProps
+import types
 
 from java.util import ArrayList,LinkedHashMap
 from java.lang import Integer,Float
@@ -432,7 +431,7 @@ def parseSat(satdata):
             raise SyntaxError, "Invalid syntax for SATDATA" + `satdata`
     return rval
 
-def otherParse(validSites, serverhost, mhsid, port,  
+def otherParse(serverhost, mhsid, port,  
   initmodules, accumElem,
   initskips, d2ddbver, logfilepurge, prddir, home,
   extraWEPrec, vtecRequestTime, autoConfigureNotifyTextProd,
@@ -490,9 +489,6 @@ def otherParse(validSites, serverhost, mhsid, port,
             if type(r) != str:
                 raise TypeError, "REQUESTED_ISC_SITES not list of strings: " + \
                   `requestedISCsites`
-                #Verify requested ISC site is of desired pattern
-            elif r not in validSites:
-                raise ValueError, "Requested ISC site: " + str(r) + " could not be found in serverConfig.py."
             else:
                 reqISCsites.add(r);
 
@@ -505,38 +501,15 @@ def otherParse(validSites, serverhost, mhsid, port,
             if type(r) != str:
                 raise TypeError, "REQUESTED_ISC_PARMS not list of strings: " + \
                   `requestedISCparms`
-                  #Verify requested ISC parm is of desired pattern
-            elif not re.match(configProps.ISC_PARM_PATTERN, str(r)):
-                raise ValueError, "Requested ISC parm: " + str(r) + " does not match desired pattern: " + configProps.ISC_PARM_PATTERN
             else:
                 reqISCparms.add(r)
 
-    if type(requestISC) != bool:
-        #If the type is boolean, it is already a valid value
-        #If the type is not boolean, and is not int, then it is not valid
-        if type(requestISC) != int:
-            raise TypeError, "REQUEST_ISC not an int or boolean: " + `requestISC`
-        #Verify request ISC is of valid value
-        elif not ((requestISC == 0) or (requestISC == 1)):
-            raise ValueError, "REQUEST_ISC is: " + `requestISC` + ", but expected True, False, 0 or 1"
-    
-    if type(sendiscOnSave) != bool:
-        #If the type is boolean, it is already a valid value
-        #If the type is not boolean, and is not int, then it is not valid
-        if type(sendiscOnSave) != int:
-            raise TypeError, "SEND_ISC_ON_SAVE not an int or boolean: " + `sendiscOnSave`
-        #Verify send ISC on save is of valid value
-        elif not ((sendiscOnSave == 0) or (sendiscOnSave == 1)):
-            raise ValueError, "SEND_ISC_ON_SAVE is: " + `sendiscOnSave` + ", but expected True, False, 0 or 1"
-    
-    if type(sendiscOnPublish) != bool:
-        #If the type is boolean, it is already a valid value
-        #If the type is not boolean, and is not int, then it is not valid
-        if type(sendiscOnPublish) != int:
-            raise TypeError, "SEND_ISC_ON_PUBLISH not an int or boolean: " + `sendiscOnPublish`
-        #Verify send ISC on publish is of valid value
-        elif not ((sendiscOnPublish == 0) or (sendiscOnPublish == 1)):
-            raise ValueError, "SEND_ISC_ON_PUBLISH is: " + `sendiscOnPublish` + ", but expected True, False, 0 or 1"
+    if type(requestISC) != int:
+        raise TypeError, "REQUEST_ISC not an int: " + `requestISC`
+    if type(sendiscOnSave) != int:
+        raise TypeError, "SEND_ISC_ON_SAVE not an int: " + `sendiscOnSave`
+    if type(sendiscOnPublish) != int:
+        raise TypeError, "SEND_ISC_ON_PUBLISH not an int: " + `sendiscOnPublish`
 
     if type(transmitScript) not in [str, types.NoneType]:
         raise TypeError, "TRANSMIT_SCRIPT not None or str: " + `transmitScript`
