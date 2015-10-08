@@ -42,7 +42,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * 05Nov2008    ---          dhladky     Initial Creation
  * 14Mar2012    1790       rferrel      Fix Comparable to remove eclipse warnings.
- * 
+ * 05Oct2015    17978      lbousaidi    Added getParamCode(), getShefDurCode(), convertDur(), 
+ *                                      getDataFormat().    
  * </pre>
  * 
  * @author dhladky
@@ -909,7 +910,7 @@ public class GageData implements Comparable<GageData> {
         return retVal;
     }
 
-    /*
+    /**
      * (non-Javadoc)
      * 
      * @see java.lang.Object#toString()
@@ -917,5 +918,170 @@ public class GageData implements Comparable<GageData> {
     @Override
     public String toString() {
         return this.getLid();
+    }
+    
+    /**
+     * Get Parameter Code
+     * 
+     * @return String Parameter Code
+     * 
+     */												
+    public String getParamCode(){
+   	 return getPe() + getShefDurCode()+ getTs() + getExtremum();
+    }
+    
+    /**
+     * Get Shef Duration Code
+     * 
+     * @return String Shef Duration Code
+     * 
+     */												
+    public String getShefDurCode(){
+    	
+        String shefDurCode;
+    	if ( getPe().equalsIgnoreCase("PC") ) {
+        
+    		// PC is always "I", but sometimes the duration might have been
+    		// screwed up
+         
+    		shefDurCode = "I";
+    	} else {
+    		shefDurCode = convertDur((int) getDur());
+    		if (shefDurCode == null) {
+    			shefDurCode = "?";
+    		}
+    	}
+    	return shefDurCode;
+    	
+    }
+    
+    /**
+     * Convert duration int to String character.
+     * 
+     * @param dur
+     *            The duration value
+     * @return The single character duration value
+     */                                               
+    public static String convertDur(int dur) {
+        String value = null;
+
+        switch (dur) {
+        case 0:
+            value = "I";
+            break;
+        case 1:
+            value = "U";
+            break;
+        case 5:
+            value = "E";
+            break;
+        case 10:
+            value = "G";
+            break;
+        case 15:
+            value = "C";
+            break;
+        case 30:
+            value = "J";
+            break;
+        case 1001:
+            value = "H";
+            break;
+        case 1002:
+            value = "B";
+            break;
+        case 1003:
+            value = "T";
+            break;
+        case 1004:
+            value = "F";
+            break;
+        case 1006:
+            value = "Q";
+            break;
+        case 1008:
+            value = "A";
+            break;
+        case 1012:
+            value = "K";
+            break;
+        case 1018:
+            value = "L";
+            break;
+        case 2001:
+            value = "D";
+            break;
+        case 2007:
+            value = "W";
+            break;
+        case 3001:
+            value = "M";
+            break;
+        case 4001:
+            value = "Y";
+            break;
+        case 5004:
+            value = "P";
+            break;       
+        case 5001:
+            value = "S";
+            break;
+        case 5002:
+            value = "R";
+            break;
+        case 5005:
+            value = "X";
+            break;
+        }
+
+        return value;
+    }
+    
+    /**
+     * Get data format
+     * 
+     * @param pe - element type 
+     *            
+     * @return String - format string
+     */                                               
+     public static String getDataFormat(String pe) {
+        String format = "6.2f";
+
+        if (pe.toUpperCase().startsWith("H")) {
+            /* Height data */
+            format = "%6.2f";
+        } else if (pe.toUpperCase().startsWith("P")) {
+            /* Precip/Pressure data */
+            format = "%6.2f";
+        } else if (pe.toUpperCase().startsWith("T")) {
+            /* Temperature data */
+            format = "%6.0f";
+        } else if (pe.toUpperCase().startsWith("S")) {
+            /* Snow data */
+            if (pe.equalsIgnoreCase("SL")) {
+                format = "%6.2f";
+            } else {
+                format = "%6.1f";
+            }
+        } else if (pe.toUpperCase().startsWith("U")) {
+            /* Wind data */
+            if (pe.equalsIgnoreCase("UQ")) {
+                format = "%8.4f";
+            } else {
+                format = "%6.0f";
+            }
+        } else if (pe.toUpperCase().startsWith("X")) {
+            /* Weather data */
+            format = "%5.0f";
+        } else if (pe.toUpperCase().startsWith("Q")) {
+            /* Flow/Runoff data */
+            if (!pe.equalsIgnoreCase("QB")) {
+                format = "%6.0f";
+            } else {
+                format = "%6.2f";
+            }
+        }
+
+        return format;
     }
 }

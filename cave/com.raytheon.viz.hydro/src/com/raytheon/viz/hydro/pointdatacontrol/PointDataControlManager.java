@@ -80,7 +80,9 @@ import com.raytheon.viz.hydrocommon.util.HydroDialogStatus;
  * Jan 27, 2011 #5274      bkowal      Using the swt job class to request data
  *                                     asynchronously and display a progress
  *                                     indicator on the main interface.
- * Feb 11, 2014 #15829     lbousaidi   check for Missing before processing River Threat.                                    
+ * Feb 11, 2014 #15829     lbousaidi   check for Missing before processing River Threat.     
+ * Oct 05, 2015 #17978     lbousaidi   updated addStationEntry() to use StationEntryDetails.getPeDTsE() 
+ *                                
  * </pre>
  * 
  * @author mpduff
@@ -1079,7 +1081,7 @@ public class PointDataControlManager extends Job {
      *            the StationEntryDetails object to add
      */
     public void addStationEntry(StationEntryDetails sed) {
-        stationEntryMap.put(sed.getLid(), sed);
+        stationEntryMap.put(sed.getPeDTsE(), sed);       
     }
 
     /**
