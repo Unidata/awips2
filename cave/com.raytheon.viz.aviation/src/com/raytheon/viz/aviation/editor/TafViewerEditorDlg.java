@@ -31,7 +31,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -103,18 +102,15 @@ import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.viz.aviation.AviationDialog;
-import com.raytheon.viz.aviation.editor.EditorTafTabComp.AmendmentType;
 import com.raytheon.viz.aviation.editor.tools.AvnSmartToolFinishedListener;
 import com.raytheon.viz.aviation.editor.tools.AvnSmartToolJob;
 import com.raytheon.viz.aviation.editor.tools.AvnSmartToolRequest;
 import com.raytheon.viz.aviation.guidance.MetarViewer;
 import com.raytheon.viz.aviation.guidance.ViewerTab;
-import com.raytheon.viz.aviation.model.ForecastModel;
 import com.raytheon.viz.aviation.monitor.AvnPyUtil;
 import com.raytheon.viz.aviation.monitor.TafUtil;
 import com.raytheon.viz.aviation.observer.SendDialog;
@@ -243,6 +239,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 04/07/2015   17332       zhao        Added code to handle case of "Cancel" in "Restore From..."
  * 06/23/2015   2282        skorolev    Corrected "CLEAR" case in updateSettings.
  * 06/26/2015   4588        skorolev    Fixed Insert/Overwrite issue.
+ * Sep 15, 2015 4880        njensen     Removed dead code
+ * Oct 05, 2015 4855        skorolev    Fixed an unhandled event loop exception in createErrorStyleRange.
  * 
  * </pre>
  * 
@@ -656,36 +654,6 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
 
             // Mark the tabs as not current so they get updated.
             markTabsAsNotCurrent();
-
-            break;
-
-        case OPEN_RTN:
-            // Select the editor tab on the tab folder.
-            tabFolder.setSelection(editorTab);
-            // Find an open tab item to use to load the requested taf(s).
-            if (findEditOpenTab() == false) {
-                break;
-            }
-            // Update the contents of the open tab item with the first
-            // selected site.
-            ti.setText(stationName);
-            editorTafTabComp.setRtnRdo(true);
-            editorTafTabComp.setAmdRdo(false);
-            editorTafTabComp.setRtdRdo(false);
-            editorTafTabComp.setCorRdo(false);
-            try {
-                editorTafTabComp.setWmoIdLbl(getWmoId());
-                editorTafTabComp.setWmoSiteLbl(getSiteId());
-                editorTafTabComp.setLargeTF(getCurrentDate());
-                editorTafTabComp.setSmallTF("");
-            } catch (RuntimeException e) {
-                // e.printStackTrace();
-            }
-            TafRecord taf = TafUtil.getLatestTaf(stationName);
-            editorTafTabComp.getTextEditorControl().setText(
-                    TafUtil.safeFormatTaf(taf, false));
-
-            editorTafTabComp.amendTaf(AmendmentType.RTN);
             break;
 
         case OPEN_AMD:
@@ -808,46 +776,6 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         qcColors[1] = new Color(display, syntaxWarningRGB);
         qcColors[2] = new Color(display, syntaxErrorRGB);
         qcColors[3] = new Color(display, syntaxFatalRGB);
-    }
-
-    /**
-     * Get the WFO's WMO ID
-     * 
-     * @return the WMO identifier of the WFO
-     */
-    private String getWmoId() {
-        String[] wmoHeadings = (ForecastModel
-                .getInstance()
-                .getAvnForecast(stationName)
-                .get(ForecastModel.getInstance().getAvnForecast(stationName)
-                        .firstKey()).getWmoHeader()).split(" ");
-        return wmoHeadings[0];
-    }
-
-    /**
-     * Get the WFO's Site ID
-     * 
-     * @return the site identifier of the WFO
-     */
-    private String getSiteId() {
-        String[] wmoHeadings = (ForecastModel
-                .getInstance()
-                .getAvnForecast(stationName)
-                .get(ForecastModel.getInstance().getAvnForecast(stationName)
-                        .firstKey()).getWmoHeader()).split(" ");
-        return wmoHeadings[1];
-    }
-
-    /**
-     * Get the current date in the ddHHmm format used for weather data
-     * 
-     * @return the current date in ddHHmm format as a String
-     */
-    private String getCurrentDate() {
-        Date now = SimulatedTime.getSystemTime().getTime();
-        SimpleDateFormat formatter = new SimpleDateFormat("ddHHmm");
-        formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return (formatter.format(now));
     }
 
     /**
@@ -3318,7 +3246,8 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                 return;
             } finally {
                 if (python != null) {
-                    python.dispose();
+                    python.close();
+                    python = null;
                 }
             }
 
@@ -3448,14 +3377,19 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
 
         setSyntaxErrorLevel(errorLevel);
         StyledText st = editorTafTabComp.getTextEditorControl();
-        int start = st.getOffsetAtLine(currentLineNo + range[frLineIndex] - 1)
-                + range[frColIndex];
-        int end = st.getOffsetAtLine(currentLineNo + range[toLineIndex] - 1)
-                + range[toColIndex];
-        StyleRange sr = new StyleRange(start, end - start, null, color);
+        if (st.getContent().getLineCount() > currentLineNo + range[frLineIndex]
+                - 1) {
+            int start = st.getOffsetAtLine(currentLineNo + range[frLineIndex]
+                    - 1)
+                    + range[frColIndex];
+            int end = st
+                    .getOffsetAtLine(currentLineNo + range[toLineIndex] - 1)
+                    + range[toColIndex];
+            StyleRange sr = new StyleRange(start, end - start, null, color);
 
-        if (syntaxMap != null) {
-            syntaxMap.put(sr, msg);
+            if (syntaxMap != null) {
+                syntaxMap.put(sr, msg);
+            }
         }
 
         if (doLogMessage) {
@@ -3934,7 +3868,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         } finally {
             if (python != null) {
                 // Always dispose the script!
-                python.dispose();
+                python.close();
                 python = null;
             }
         }
@@ -3944,7 +3878,9 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         tafViewerStTxt.setText("");
         int n = Integer.valueOf(numTafsCbo.getItem(numTafsCbo
                 .getSelectionIndex()));
-        tafsInViewer = TafUtil.getLatestTafs(stationName, n);
+        if (stationName != null) {
+            tafsInViewer = TafUtil.getLatestTafs(stationName, n);
+        }
         StringBuilder sb = new StringBuilder();
         boolean showHeaders = showHeadersChk.getSelection();
         if (tafsInViewer != null) {

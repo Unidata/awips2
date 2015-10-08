@@ -61,6 +61,8 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
+ * Aug 14, 2015 17801      bhunderm    Fixed logic to choose the parm with lesser
+ *                                     duration when have multiple grids for same fcsthr. 
  * </pre>
  * 
  * @author randerso
@@ -239,10 +241,10 @@ public class GFED2DDao extends GridDao {
                     dur = Integer.parseInt(matcher.group(1));
                 }
 
-                for (int j = i; j < firstTry.size(); j++) {
-                    Object[] nextRow = firstTry.get(j);
+                while (i < firstTry.size()) {
+                    Object[] nextRow = firstTry.get(i);
                     if (fcstHr.equals(nextRow[0])) {
-                        i = j;
+                        i++;
                         String nextParam = (String) nextRow[2];
                         Matcher nextMatcher = pattern.matcher(nextParam);
                         int nextDur = Integer.MAX_VALUE;

@@ -62,6 +62,7 @@ import com.raytheon.uf.viz.core.cache.CacheObject.IObjectRetrieverAndDisposer;
  * Jul 09, 2014 3333       bclement     moved from LightningResource
  * Jul 22, 2014 3214       bclement     fixed typos in populatePulseData() and updateAndGet()
  * Sep 11, 2014 3608       bclement     index records by group and dataset name for better error handling
+ * Sep 25, 2015 4605       bsteffen     repeat binning
  * 
  * </pre>
  * 
@@ -273,7 +274,13 @@ public class LightningFrameRetriever implements
                     for (int i = 0; i < numRecords; i++) {
 
                         DataTime dt = new DataTime(new Date(timeData[i]));
-                        dt = frame.getOffset().getNormalizedTime(dt);
+                        if (!frame.contains(dt)) {
+                            /*
+                             * only add the strike to the list if the data time
+                             * of the strike matches the data time of the frame
+                             */
+                            continue;
+                        }
                         List<double[]> list;
                         LtgStrikeType type = LtgStrikeType.getById(typeData[i]);
                         switch (type) {
@@ -292,12 +299,8 @@ public class LightningFrameRetriever implements
                         double[] latLon = new double[] { longitudeData[i],
                                 latitudeData[i] };
 
-                        // only add the strike to the list if the data time
-                        // of the strike matches the data time of the frame
-                        if (dt.equals(bundle.getFrameTime())) {
-                            list.add(latLon);
-                            strikeCount++;
-                        }
+                        list.add(latLon);
+                        strikeCount++;
 
                     }
                 }

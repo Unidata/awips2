@@ -68,6 +68,7 @@
 #    05/29/2015          17496     ryu            Changed parm definitions for Wave1-10 and Period1-10.
 #
 #    05/29/2015          #17144    bhunder        Added weather Params for URMA25 and OCONUS RTMA 
+#    09/02/2015          #4819     rferrel        Added HWRF.
 ####################################################################################################
 
 #----------------------------------------------------------------------------
@@ -1106,7 +1107,7 @@ GlobalWave  = ('GlobalWave',   GRID,   '', NO,  NO,  2, 0)
 GLWM        = ('GLWM',         GRID,   '', NO,  NO,  2, 0)##########DCS3499
 HIRESWarw   = ('HIRESWarw',    GRID,   '', NO,  NO,  2, 0)##########DCS3501
 HIRESWnmm   = ('HIRESWnmm',    GRID,   '', NO,  NO,  2, 0)
-HRRR        = ("HRRR",         GRID,   '', NO,  NO,  3, 0)
+HRRR        = ('HRRR',         GRID,   '', NO,  NO,  3, 0)
 #### SPC         = ('SPC',          GRID,   '', NO,  NO,  2, 0)###DR20634
 WCwave10    = ('WCwave10',     GRID,   '', NO,  NO,  2, 0)
 WCwave4     = ('WCwave4',      GRID,   '', NO,  NO,  2, 0)
@@ -1200,6 +1201,9 @@ if SID in ALASKA_SITES:
                  'GLOBHwave',
                  ('GFS217', 'GFS20'),
                  ('ETSS-AK', 'ETSS'),
+                 'PGBlended',
+                 'PGBlended-Night',
+                 ('NCOM-ALASKA', 'NCOM'),
                ]
 
 # Hawaii OCONUS
@@ -1227,6 +1231,9 @@ elif SID == "HFO":
                  ('nwpsCG1', 'nwpsCG1'),
                  ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
                  ('GFS20-PAC', 'GFS20'),
+                 'PGBlended',
+                 'PGBlended-Night',
+                 ('NCOM-HAWAII', 'NCOM'),
                ]
 
 # San Juan OCONUS
@@ -1258,6 +1265,9 @@ elif SID == "SJU":
                  ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
                  'GLOBHwave',
                  ('GFS20-PRICO', 'GFS20'),
+                 'PGBlended',
+                 'PGBlended-Night',
+                 ('NCOM-AMSEAS', 'NCOMAMSEAS'),
                ]
 
 # Guam OCONUS
@@ -1273,6 +1283,8 @@ elif SID == "GUM":
                  ('GFS20-PAC', 'GFS20'),
                  # DCS #17288
                  ('Guam-RTMA', 'RTMA'),
+                 'PGBlended',
+                 'PGBlended-Night',
                ]
 
 #CONUS sites
@@ -1280,7 +1292,8 @@ elif SID in CONUS_EAST_SITES:
     D2DMODELS = [('GFS212', 'GFS40'),
                  ('AVN211', 'GFS80'),
                  ('ETA', 'NAM80'),
-                 ('HRRR', 'HRRR'),
+                 'HRRR',
+                 'HWRF',
                  ('NGM', 'NGM80'),
                  ('MRF', 'gfsLR'),
                  ('RUC130', 'RUC13'),
@@ -1288,7 +1301,7 @@ elif SID in CONUS_EAST_SITES:
                  ('mesoEta212', 'NAM40'),
                  ('mesoEta215', 'NAM20'),
                  'MSAS',
-                 ('LAPS', 'LAPS'),
+                 'LAPS',
                  'GWW233',
                  ('HPCqpf', 'HPCQPF'),
                  ('HPCqpfNDFD', 'HPCERP'),
@@ -1351,6 +1364,10 @@ elif SID in CONUS_EAST_SITES:
                  ('FFG-TAR', 'FFGTAR'),
                  ('FFG-TIR', 'FFGTIR'),
                  ('FFG-TUA', 'FFGTUA'),
+                 'PGBlended',
+                 'PGBlended-Night',
+                 ('NCOM-USEAST', 'NCOMUSEAST'),
+                 ('NCOM-AMSEAS', 'NCOMAMSEAS'),
                ]
 
 else:   #######DCS3501 WEST_CONUS
@@ -1365,12 +1382,13 @@ else:   #######DCS3501 WEST_CONUS
                  ('mesoEta212', 'NAM40'),
                  ('mesoEta215', 'NAM20'),
                  'MSAS',
-                 ('LAPS', 'LAPS'),
+                 'LAPS',
                  'GWW233',
                  ('HPCqpf', 'HPCQPF'),
                  ('HPCqpfNDFD', 'HPCERP'),
                  ('RFCqpf', 'RFCQPF'),
-                 ('HRRR', 'HRRR'),
+                 'HRRR',
+                 'HWRF',
 #DR3511                 'HPCdelta',
                  'WNAWAVE238',
                  'TPCSurgeProb',
@@ -1430,6 +1448,11 @@ else:   #######DCS3501 WEST_CONUS
                  ('FFG-TAR', 'FFGTAR'),
                  ('FFG-TIR', 'FFGTIR'),
                  ('FFG-TUA', 'FFGTUA'),
+                 'PGBlended',
+                 'PGBlended-Night',
+                 ('NCOM-SOCAL', 'NCOMSOCAL'),
+                 ('NCOM-AMSEAS', 'NCOMAMSEAS'),
+                 ('NCOM-ALASKA', 'NCOMALASKA'),
                ]
 
 if SID in GreatLake_SITES:
@@ -1675,6 +1698,7 @@ else:
         "NamDNG5" : ["NamDNG5"],
         "SREF" : ["SREF"],
         "HRRR" : ['HRRR'],
+        "HRWF" : ['HRWF'],
 #########DCS3501
         "GLWM" : ["GLWM"],
         "HIRESWarw" : ["HIRESWarw"],
@@ -1716,6 +1740,7 @@ D2DAccumulativeElements= {
     "GFS75": ["tp", "cp"],
     "GFS190": ["tp", "cp"],
     "HRRR": ["tp", "crain", "csnow", "cfrzr", "cicep"],
+    "HWRF":  ["tp", "cp"],
     "NAM95": ["tp", "cp"],
     "NAM80": ["tp", "cp"],
     "NAM40": ["tp", "cp"],

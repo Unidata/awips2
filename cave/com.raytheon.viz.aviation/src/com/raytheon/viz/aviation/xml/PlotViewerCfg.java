@@ -23,8 +23,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * 
  * Contains information for the initializing the plot viewer check box controls.
@@ -35,8 +33,9 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 11, 2009            lvenable     Initial creation
- * Nov 18, 2010 6701       rferrel      Created enum of valid class names.
+ * Aug 11, 2009            lvenable    Initial creation
+ * Nov 18, 2010 6701       rferrel     Created enum of valid class names.
+ * Sep 15, 2015 4880       njensen     Removed ISerializableObject
  * 
  * </pre>
  * 
@@ -44,7 +43,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class PlotViewerCfg implements ISerializableObject {
+public class PlotViewerCfg {
 
     /**
      * The Xml configuration ClassName's tags valid values.

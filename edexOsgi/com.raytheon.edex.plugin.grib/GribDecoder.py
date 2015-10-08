@@ -25,6 +25,7 @@
 # ???                                 Initial creation
 # Jul 07, 2014 3344       rferrel     Change GRID_FILL_VALUE to new plugin location.
 # Mar 05, 2015 3959       rjpeter     Fix subgrid across seam of world wide grid.
+# Oct 01, 2015 4868       rjpeter     Discard invalid subgrids.
 # 
 
 import grib2
@@ -337,14 +338,21 @@ class GribDecoder():
 
         if subCoverage is not None:
             subGrid = spatialCache.getSubGrid(modelName, gridCoverage)
-            # resize the data array
-            numpyDataArray = numpy.reshape(numpyDataArray, (ny, nx))
+
             startx = subGrid.getUpperLeftX()
             starty = subGrid.getUpperLeftY()
             subnx = subGrid.getNX()
             subny = subGrid.getNY()
             endY = starty + subny
             endX = startx + subnx
+
+            if subnx <= 0 or subny <=0:
+                # sub grid did not intersect main grid
+                self.log.info("Discarding model [" + modelName + "], sub grid does not meet minimum coverage area")
+                return None
+
+            # resize the data array
+            numpyDataArray = numpy.reshape(numpyDataArray, (ny, nx))
 
             # handle world wide grid wrap
             if (endX > nx):
@@ -397,6 +405,10 @@ class GribDecoder():
         record.addExtraAttribute("backGenprocess", Integer(gribDict['backGenprocess']))
         record.addExtraAttribute("pdsTemplate", Integer(gribDict['ipdtnum']))
         record.addExtraAttribute("gridid", gridCoverage.getName())
+        if "forecastInterval" in gribDict:
+            record.addExtraAttribute("forecastInterval", gribDict['forecastInterval'])
+        if "forecastIntervalUnit" in gribDict:
+            record.addExtraAttribute("forecastIntervalUnit", gribDict['forecastIntervalUnit'])
         if "numForecasts" in gribDict:
             record.addExtraAttribute("numForecasts", gribDict['numForecasts'])
               
@@ -477,9 +489,12 @@ class GribDecoder():
 
             if levelName is None or len(levelName) == 0:
                 levelName = LevelFactory.UNKNOWN_LEVEL
-
+                
             # Convert the forecast time to seconds
             gribDict['forecastTime'] = self._convertToSeconds(pdsTemplate[8], pdsTemplate[7])
+            # harvest forecast interval for longer term models to post process
+            gribDict['forecastInterval'] = Integer(int(pdsTemplate[8]))
+            gribDict['forecastIntervalUnit'] = Integer(int(pdsTemplate[7]))
             
             # Scale the level one value if necessary
             if pdsTemplate[10] == 0 or pdsTemplate[11] == 0:
@@ -1150,7 +1165,7 @@ class GribDecoder():
     # @param value: The value to convert to seconds
     # @param fromUnit: The value from Table 4.4 to convert from
     # @return: The number of seconds of the provided value 
-    # @rtype: long
+    # @rtype: int
     ##
     def _convertToSeconds(self, value, fromUnit):
         
@@ -1201,7 +1216,7 @@ class GribDecoder():
             retVal = value * 12 * SECONDS_PER_HOUR
             
         return int(retVal)
-
+   
     def _getGridModel(self, gribDict, grid):
         center = gribDict['center']
         subcenter = gribDict['subcenter']

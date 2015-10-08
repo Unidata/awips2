@@ -142,11 +142,11 @@
   </gridParameterInfo>
     
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>ProbTP0p25in6h</short_name>
+    <short_name>ProbTP0p25in6hr</short_name>
     <long_name>Probability of Total Precipitation > 0.25 inches</long_name>
     <units>%</units>
     <udunits>percent</udunits>
-    <uiname>ProbTP0p25in6h</uiname>
+    <uiname>ProbTP0p25in6hr</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>100.0</valid_range>
     <fillValue>-99999.0</fillValue>

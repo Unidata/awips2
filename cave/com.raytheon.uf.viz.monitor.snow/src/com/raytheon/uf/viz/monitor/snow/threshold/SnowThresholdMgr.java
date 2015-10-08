@@ -42,6 +42,7 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants.SnowMonitor;
  * Feb 03, 2014 #2757      skorolev     Fixed reInitialize()
  * May 21, 2014  3086      skorolev     Cleaned code.
  * Sep 04, 2014  3220      skorolev     Removed "site".
+ * Sep 03, 2015  3841      skorolev     Corrected getInstance for FSSObsMonitorConfigurationManager.
  * 
  * </pre>
  * 
@@ -59,8 +60,8 @@ public class SnowThresholdMgr extends AbstractThresholdMgr {
                 "DefaultSnowMonitorThresholds.xml", AppName.SNOW.name()
                         .toLowerCase());
 
-        areaConfigMgr = new FSSObsMonitorConfigurationManager(
-                MonName.snow.name());
+        areaConfigMgr = FSSObsMonitorConfigurationManager
+                .getInstance(MonName.snow);
         init();
     }
 
@@ -124,8 +125,8 @@ public class SnowThresholdMgr extends AbstractThresholdMgr {
     @Override
     protected FSSObsMonitorConfigurationManager getMonitorAreaConfigInstance() {
         if (areaConfigMgr == null) {
-            areaConfigMgr = new FSSObsMonitorConfigurationManager(
-                    MonName.snow.name());
+            areaConfigMgr = FSSObsMonitorConfigurationManager
+                    .getInstance(MonName.snow);
         }
         return areaConfigMgr;
     }

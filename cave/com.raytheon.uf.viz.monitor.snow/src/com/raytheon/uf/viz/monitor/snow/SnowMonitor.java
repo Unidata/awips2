@@ -74,6 +74,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Feb 15, 2013 1638       mschenke    Changed code to reference DataURI.SEPARATOR instead of URIFilter
  * Apr 28, 2014 3086       skorolev    Removed local getMonitorAreaConfig method.
  * Sep 04, 2014 3220       skorolev    Updated configUpdate method and added updateMonitoringArea.
+ * Sep 03, 2015 3841       skorolev    Corrected getInstance for FSSObsMonitorConfigurationManager.
  * 
  * </pre>
  * 
@@ -103,7 +104,7 @@ public class SnowMonitor extends ObsMonitor implements ISnowResourceListener {
      * This object contains all observation data necessary for the table dialogs
      * and trending plots
      */
-    private ObMultiHrsReports obData;
+    private final ObMultiHrsReports obData;
 
     /** All SNOW datauri start with this */
     private final String OBS = "fssobs";
@@ -128,7 +129,8 @@ public class SnowMonitor extends ObsMonitor implements ISnowResourceListener {
      */
     private SnowMonitor() {
         pluginPatterns.add(snowPattern);
-        snowConfig = new FSSObsMonitorConfigurationManager(MonName.snow.name());
+        snowConfig = FSSObsMonitorConfigurationManager
+                .getInstance(MonName.snow);
         updateMonitoringArea();
         initObserver(OBS, this);
         obData = new ObMultiHrsReports(CommonConfig.AppName.SNOW);
@@ -382,6 +384,7 @@ public class SnowMonitor extends ObsMonitor implements ISnowResourceListener {
      * 
      * @param dialogTime
      */
+    @Override
     public void updateDialogTime(Date dialogTime) {
         this.dialogTime = dialogTime;
         fireMonitorEvent(this);

@@ -68,8 +68,7 @@ public class WarngenAction extends AbstractGenericToolAction<WarngenLayer> {
             for (ResourcePair rp : pane.getDescriptor().getResourceList()) {
                 if (rp.getResource() instanceof WarngenLayer) {
                     EditableManager.makeEditable(rp.getResource(), true);
-                    ((WarngenLayer) rp.getResource())
-                                .showDialog(true);
+                    ((WarngenLayer) rp.getResource()).showDialog(true);
                     return (WarngenLayer) rp.getResource();
                 }
             }

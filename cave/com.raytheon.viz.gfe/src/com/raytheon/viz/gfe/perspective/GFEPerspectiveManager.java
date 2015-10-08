@@ -1,24 +1,25 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 package com.raytheon.viz.gfe.perspective;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.commands.Command;
@@ -44,9 +45,12 @@ import org.eclipse.ui.keys.IBindingService;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.ISimulatedTimeChangeListener;
+import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.RGBColors;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -67,6 +71,7 @@ import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.cmenu.ZoomMenuAction;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.perspectives.AbstractCAVEPerspectiveManager;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
 
 /**
  * Manages the life cycle of the GFE Perspectives
@@ -77,7 +82,7 @@ import com.raytheon.viz.ui.perspectives.AbstractCAVEPerspectiveManager;
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#     Engineer    Description
- * ------------	----------	-----------	--------------------------
+ * ------------ ----------  ----------- --------------------------
  * Jul 17, 2008     #1223   randerso    Initial creation
  * Oct 6, 2008      #1433   chammack    Removed gfe status bars
  * Apr 9, 2009       1288   rjpeter     Added saving of the renderable display.
@@ -85,20 +90,30 @@ import com.raytheon.viz.ui.perspectives.AbstractCAVEPerspectiveManager;
  * Apr 27, 2010             mschenke    refactor for common perspective switching
  * Jul 7, 2011      #9897   ryu         close formatters on perspective close/reset
  * Aug 20,2012      #1077   randerso    Added support for bgColor setting
- * Oct 23, 2012  #1287      rferrel     Changes for non-blocking FormattrLauncherDialog.
- * Dec 09, 2013  #2367      dgilling    Remove shutdown of ProcedureJob and
+ * Oct 23, 2012     #1287   rferrel     Changes for non-blocking FormattrLauncherDialog.
+ * Dec 09, 2013     #2367   dgilling    Remove shutdown of ProcedureJob and
  *                                      SmartToolJob.
  * Jan 14, 2014      2594   bclement    added low memory notification
  * Aug 24, 2015      4749   dgilling    Shutdown TaskManager on perspective close.
+ * Sep 21, 2015      4858   dgilling    Display warning message when DRT mode is enabled.
  * </pre>
  * 
  * @author randerso
  * @version 1.0
  */
 
-public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager {
+public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager
+        implements ISimulatedTimeChangeListener {
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GFEPerspectiveManager.class);
+
+    private static final String PERSPECTIVE_NAME = "GFE";
+
+    private static final List<String> FEATURES_DISABLED_IN_SIM_TIME = Arrays
+            .asList("ISC send", "Publishing grids",
+                    "Running text formatters and/or transmitting products",
+                    "Running scripts from the Product Scripts Dialog");
 
     /** The GFE Perspective Class */
     public static final String GFE_PERSPECTIVE = "com.raytheon.viz.ui.GFEPerspective";
@@ -177,11 +192,15 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager {
                         + GFESpatialDisplayManager.class.getName());
             }
         }
+
+        SimulatedTime.getSystemTime().addSimulatedTimeChangeListener(this);
     }
 
     @Override
     public void activate() {
         super.activate();
+
+        displaySimulatedTimeWarning();
 
         // Hack to disable editor closing
         IWorkbenchPage activePage = perspectiveWindow.getActivePage();
@@ -215,6 +234,8 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager {
     @Override
     public void close() {
         super.close();
+
+        SimulatedTime.getSystemTime().removeSimulatedTimeChangeListener(this);
 
         try {
             DataManager dm = DataManagerUIFactory
@@ -404,4 +425,31 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager {
                 + "\n\nConsider saving Fcst grids to free up memory.";
     }
 
+    @Override
+    public void timechanged() {
+        /*
+         * Have to jump to the UI thread or else getActiveWorkbenchWindow will
+         * fail.
+         */
+        VizApp.runAsync(new Runnable() {
+
+            @Override
+            public void run() {
+                String activePerspective = PlatformUI.getWorkbench()
+                        .getActiveWorkbenchWindow().getActivePage()
+                        .getPerspective().getId();
+                if (GFE_PERSPECTIVE.equals(activePerspective)) {
+                    displaySimulatedTimeWarning();
+                }
+            }
+        });
+    }
+
+    private void displaySimulatedTimeWarning() {
+        if (!SimulatedTimeOperations.isTransmitAllowed()) {
+            SimulatedTimeOperations.displayPerspectiveLevelWarning(
+                    perspectiveWindow.getShell(), PERSPECTIVE_NAME,
+                    FEATURES_DISABLED_IN_SIM_TIME);
+        }
+    }
 }

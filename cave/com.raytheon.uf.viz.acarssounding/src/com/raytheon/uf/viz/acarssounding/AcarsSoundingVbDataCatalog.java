@@ -20,7 +20,6 @@
 package com.raytheon.uf.viz.acarssounding;
 
 import com.raytheon.uf.viz.volumebrowser.dataplugin.point.PointDataCatalog;
-import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 
 /**
  * Volume browser catalog which enables acars sounding data to work.
@@ -44,7 +43,7 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 public class AcarsSoundingVbDataCatalog extends PointDataCatalog {
 
     @Override
-    protected String[] getPlugins(ViewMenu setting) {
+    protected String[] getPlugins() {
         return new String[] { "acarssounding" };
     }
 

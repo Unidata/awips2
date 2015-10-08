@@ -41,9 +41,11 @@
 </areaSource>
 
  <!-- Add in secondary areaSource object to generate zone-based information. 
-      Not sure why a FIPS product would need zone info, but it's here as a 
-      placeholder -->
- <areaSource variable="affectedZones">
+      Not sure why a FIPS product would need zone info, but it's here as a placeholder.
+      
+      Uncomment the following section only if needed as it can impact performance -->
+ 
+  <!-- areaSource variable="affectedZones">
    <areaSource>Zone</areaSource>
    <type>INTERSECT</type>
    <inclusionPercent>0</inclusionPercent>
@@ -66,8 +68,7 @@
  		</mapping>
   </pointFilter>
   <includedWatchAreaBuffer>0</includedWatchAreaBuffer>
-</areaSource>
- 
+</areaSource -->
 
 <!-- CREATE pointSource OBJECT TO GENERATE LIST OF CLOSEST POINTS TO DOT (3RD BULLET) -->
 <!-- type = AREA allows us to use multi-polygonal shapefiles despite the pointSource misnomer -->

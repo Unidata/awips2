@@ -24,8 +24,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * Contains static information used by the Climate Menu Dialogs.
  * 
@@ -36,6 +34,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 1, 2011  8896       rferrel     Initial creation
+ * Sep 15, 2015 4880       njensen     Removed ISerializableObject
  * 
  * </pre>
  * 
@@ -44,7 +43,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  */
 @XmlRootElement(name = "ClimateTimeouts")
 @XmlAccessorType(XmlAccessType.NONE)
-public class ClimateTimeouts implements ISerializableObject {
+public class ClimateTimeouts {
     @XmlElement(name = "ClimateMetarTimeout")
     private int climateMetarTimeout;
 

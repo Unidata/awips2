@@ -32,6 +32,7 @@ import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
+import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.texteditor.msgs.IAviationObserver;
 
 /**
@@ -39,15 +40,15 @@ import com.raytheon.viz.texteditor.msgs.IAviationObserver;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * May 15, 2008	1119		grichard	Initial creation.
+ * Date         Ticket#     Engineer    Description
+ * -----------  -------  ---------   --------------------------
+ * May 15, 2008	1119        grichard    Initial creation.
  * 07/28/2009   2610        rjpeter     Moved error handling to alert viz.
- * 04/14/2010   4734        mhuang      Corrected StdTextProduct import 
- *                                       dependency
- * 05/10/2010   2187        cjeanbap    Added StdTextProductFactory 
- *                                       functionality.
+ * 04/14/2010   4734        mhuang      Corrected StdTextProduct import dependency
+ * 05/10/2010   2187        cjeanbap    Added StdTextProductFactory functionality.
  * 09/11/2013   2277        mschenke    Removed unused function
+ * Sep 28, 2015 4860        skorolev    Added CAVE mode.
+ * 
  * </pre>
  * 
  * @author grichard
@@ -83,7 +84,6 @@ public class AviationTextUtility implements IAviationObserver {
         String siteWmoId = "FTUS43";
         String currentHeader = getHeaderTextField(siteWmoId, siteName,
                 currentDate, "\n", "WRK" + "TAF");
-        // System.out.println("Current header: " + currentHeader);
 
         StdTextProductServerRequest request = new StdTextProductServerRequest();
         request.setWmoid(siteWmoId);
@@ -95,7 +95,7 @@ public class AviationTextUtility implements IAviationObserver {
         request.setBbbid("NOR");
         request.setCreatetime(System.currentTimeMillis());
         request.setProduct(currentHeader + "\n" + tmpStr);
-
+        request.setOperationalFlag(CAVEMode.getMode() != CAVEMode.PRACTICE);
         try {
             ThriftClient.sendRequest(request);
         } catch (VizException e1) {

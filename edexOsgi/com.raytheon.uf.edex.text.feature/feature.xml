@@ -18,7 +18,7 @@
    </license>
 
    <requires>
-      <import feature="com.raytheon.uf.edex.grib.feature" version="1.0.0.qualifier"/>
+      <import feature="com.raytheon.uf.edex.grid.feature" version="1.0.0.qualifier"/>
       <import feature="com.raytheon.uf.edex.archive.feature" version="1.0.0.qualifier"/>
    </requires>
 

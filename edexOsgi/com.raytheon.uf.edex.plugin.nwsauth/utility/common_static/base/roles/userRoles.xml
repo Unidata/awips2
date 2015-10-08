@@ -82,6 +82,9 @@
 
    <permission id="com.raytheon.localization.site/cave_static/aviation/avnwatch">
    </permission>
+   
+   <permission id="com.raytheon.localization.site/cave_static/spellchecker">
+   </permission>
 
    <permission id="com.raytheon.localization.site/common_static/radar/rmr/rmrAvailableRequests.xml">
    </permission>
@@ -157,6 +160,7 @@
       <userPermission>com.raytheon.localization.site/common_static/python/events/productgen/formats</userPermission>
       <userPermission>com.raytheon.localization.site/common_static/python/events/recommenders</userPermission>
       <userPermission>com.raytheon.localization.site/common_static/python/textUtilities</userPermission>
+      <userPermission>com.raytheon.localization.site/cave_static/spellchecker</userPermission>
    </user>
 </nwsRoleData>
 

@@ -20,222 +20,256 @@
     -->
 <pointSetProductDescriptions>
   <description>
-    <data variable="WSPD" />
+    <data name="WSPD" />
     <dataTime>
-      <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
+      <formattedRefTime dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'">
+        <attribute name="time_coverage_start" />
+      </formattedRefTime>
     </dataTime>
-    <datasetId attribute="instrument_name" />
-    <parameter value="WS" />
+    <datasetIdAttribute name="instrument_name" />
+    <parameterValue value="WS" />
     <level>
-      <masterLevel value="EA" />
+      <masterLevelValue value="EA" />
       <levelOneValue value="0.0" />
     </level>
     <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_10_GHzH" />
+    <data name="Brightness_Temperature_10_GHzH" />
     <dataTime>
-      <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
+      <formattedRefTime dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'">
+        <attribute name="time_coverage_start" />
+      </formattedRefTime>
     </dataTime>
-    <datasetId attribute="instrument_name" />
-    <parameter value="BT10.7H" />
+    <datasetIdAttribute name="instrument_name" />
+    <parameterValue value="BT10.7H" />
     <level>
-      <masterLevel value="EA" />
+      <masterLevelValue value="EA" />
       <levelOneValue value="0.0" />
     </level>
     <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_10_GHzV" />
+    <data name="Brightness_Temperature_10_GHzV" />
     <dataTime>
-      <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
+      <formattedRefTime dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'">
+        <attribute name="time_coverage_start" />
+      </formattedRefTime>
     </dataTime>
-    <datasetId attribute="instrument_name" />
-    <parameter value="BT10.7V" />
+    <datasetIdAttribute name="instrument_name" />
+    <parameterValue value="BT10.7V" />
     <level>
-      <masterLevel value="EA" />
+      <masterLevelValue value="EA" />
       <levelOneValue value="0.0" />
     </level>
     <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_18_GHzH" />
+    <data name="Brightness_Temperature_18_GHzH" />
     <dataTime>
-      <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
+      <formattedRefTime dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'">
+        <attribute name="time_coverage_start" />
+      </formattedRefTime>
     </dataTime>
-    <datasetId attribute="instrument_name" />
-    <parameter value="BT18.7H" />
+    <datasetIdAttribute name="instrument_name" />
+    <parameterValue value="BT18.7H" />
     <level>
-      <masterLevel value="EA" />
+      <masterLevelValue value="EA" />
       <levelOneValue value="0.0" />
     </level>
     <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_18_GHzV" />
+    <data name="Brightness_Temperature_18_GHzV" />
     <dataTime>
-      <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
+      <formattedRefTime dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'">
+        <attribute name="time_coverage_start" />
+      </formattedRefTime>
     </dataTime>
-    <datasetId attribute="instrument_name" />
-    <parameter value="BT18.7V" />
+    <datasetIdAttribute name="instrument_name" />
+    <parameterValue value="BT18.7V" />
     <level>
-      <masterLevel value="EA" />
+      <masterLevelValue value="EA" />
       <levelOneValue value="0.0" />
     </level>
     <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_23_GHzH" />
+    <data name="Brightness_Temperature_23_GHzH" />
     <dataTime>
-      <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
+      <formattedRefTime dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'">
+        <attribute name="time_coverage_start" />
+      </formattedRefTime>
     </dataTime>
-    <datasetId attribute="instrument_name" />
-    <parameter value="BT23.8H" />
+    <datasetIdAttribute name="instrument_name" />
+    <parameterValue value="BT23.8H" />
     <level>
-      <masterLevel value="EA" />
+      <masterLevelValue value="EA" />
       <levelOneValue value="0.0" />
     </level>
     <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_23_GHzV" />
+    <data name="Brightness_Temperature_23_GHzV" />
     <dataTime>
-      <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
+      <formattedRefTime dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'">
+        <attribute name="time_coverage_start" />
+      </formattedRefTime>
     </dataTime>
-    <datasetId attribute="instrument_name" />
-    <parameter value="BT23.8V" />
+    <datasetIdAttribute name="instrument_name" />
+    <parameterValue value="BT23.8V" />
     <level>
-      <masterLevel value="EA" />
+      <masterLevelValue value="EA" />
       <levelOneValue value="0.0" />
     </level>
     <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_36_GHzH" />
+    <data name="Brightness_Temperature_36_GHzH" />
     <dataTime>
-      <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
+      <formattedRefTime dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'">
+        <attribute name="time_coverage_start" />
+      </formattedRefTime>
     </dataTime>
-    <datasetId attribute="instrument_name" />
-    <parameter value="BT36.5H" />
+    <datasetIdAttribute name="instrument_name" />
+    <parameterValue value="BT36.5H" />
     <level>
-      <masterLevel value="EA" />
+      <masterLevelValue value="EA" />
       <levelOneValue value="0.0" />
     </level>
     <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_36_GHzV" />
+    <data name="Brightness_Temperature_36_GHzV" />
     <dataTime>
-      <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
+      <formattedRefTime dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'">
+        <attribute name="time_coverage_start" />
+      </formattedRefTime>
     </dataTime>
-    <datasetId attribute="instrument_name" />
-    <parameter value="BT36.5V" />
+    <datasetIdAttribute name="instrument_name" />
+    <parameterValue value="BT36.5V" />
     <level>
-      <masterLevel value="EA" />
+      <masterLevelValue value="EA" />
       <levelOneValue value="0.0" />
     </level>
     <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_6_GHzH" />
+    <data name="Brightness_Temperature_6_GHzH" />
     <dataTime>
-      <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
+      <formattedRefTime dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'">
+        <attribute name="time_coverage_start" />
+      </formattedRefTime>
     </dataTime>
-    <datasetId attribute="instrument_name" />
-    <parameter value="BT6.9H" />
+    <datasetIdAttribute name="instrument_name" />
+    <parameterValue value="BT6.9H" />
     <level>
-      <masterLevel value="EA" />
+      <masterLevelValue value="EA" />
       <levelOneValue value="0.0" />
     </level>
     <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_6_GHzV" />
+    <data name="Brightness_Temperature_6_GHzV" />
     <dataTime>
-      <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
+      <formattedRefTime dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'">
+        <attribute name="time_coverage_start" />
+      </formattedRefTime>
     </dataTime>
-    <datasetId attribute="instrument_name" />
-    <parameter value="BT6.9V" />
+    <datasetIdAttribute name="instrument_name" />
+    <parameterValue value="BT6.9V" />
     <level>
-      <masterLevel value="EA" />
+      <masterLevelValue value="EA" />
       <levelOneValue value="0.0" />
     </level>
     <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_7_GHzH" />
+    <data name="Brightness_Temperature_7_GHzH" />
     <dataTime>
-      <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
+      <formattedRefTime dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'">
+        <attribute name="time_coverage_start" />
+      </formattedRefTime>
     </dataTime>
-    <datasetId attribute="instrument_name" />
-    <parameter value="BT7.3H" />
+    <datasetIdAttribute name="instrument_name" />
+    <parameterValue value="BT7.3H" />
     <level>
-      <masterLevel value="EA" />
+      <masterLevelValue value="EA" />
       <levelOneValue value="0.0" />
     </level>
     <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_7_GHzV" />
+    <data name="Brightness_Temperature_7_GHzV" />
     <dataTime>
-      <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
+      <formattedRefTime dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'">
+        <attribute name="time_coverage_start" />
+      </formattedRefTime>
     </dataTime>
-    <datasetId attribute="instrument_name" />
-    <parameter value="BT7.3V" />
+    <datasetIdAttribute name="instrument_name" />
+    <parameterValue value="BT7.3V" />
     <level>
-      <masterLevel value="EA" />
+      <masterLevelValue value="EA" />
       <levelOneValue value="0.0" />
     </level>
     <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_89_GHz_AH" />
+    <data name="Brightness_Temperature_89_GHz_AH" />
     <dataTime>
-      <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
+      <formattedRefTime dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'">
+        <attribute name="time_coverage_start" />
+      </formattedRefTime>
     </dataTime>
-    <datasetId attribute="instrument_name" />
-    <parameter value="BT89.0AH" />
+    <datasetIdAttribute name="instrument_name" />
+    <parameterValue value="BT89.0AH" />
     <level>
-      <masterLevel value="EA" />
+      <masterLevelValue value="EA" />
       <levelOneValue value="0.0" />
     </level>
     <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_89_GHz_AV" />
+    <data name="Brightness_Temperature_89_GHz_AV" />
     <dataTime>
-      <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
+      <formattedRefTime dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'">
+        <attribute name="time_coverage_start" />
+      </formattedRefTime>
     </dataTime>
-    <datasetId attribute="instrument_name" />
-    <parameter value="BT89.0AV" />
+    <datasetIdAttribute name="instrument_name" />
+    <parameterValue value="BT89.0AV" />
     <level>
-      <masterLevel value="EA" />
+      <masterLevelValue value="EA" />
       <levelOneValue value="0.0" />
     </level>
     <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_89_GHz_BH" />
+    <data name="Brightness_Temperature_89_GHz_BH" />
     <dataTime>
-      <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
+      <formattedRefTime dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'">
+        <attribute name="time_coverage_start" />
+      </formattedRefTime>
     </dataTime>
-    <datasetId attribute="instrument_name" />
-    <parameter value="BT89.0BH" />
+    <datasetIdAttribute name="instrument_name" />
+    <parameterValue value="BT89.0BH" />
     <level>
-      <masterLevel value="EA" />
+      <masterLevelValue value="EA" />
       <levelOneValue value="0.0" />
     </level>
     <triangulation type="grid" />
   </description>
   <description>
-    <data variable="Brightness_Temperature_89_GHz_BV" />
+    <data name="Brightness_Temperature_89_GHz_BV" />
     <dataTime>
-      <refTime attribute="time_coverage_start" dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'" />
+      <formattedRefTime dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'">
+        <attribute name="time_coverage_start" />
+      </formattedRefTime>
     </dataTime>
-    <datasetId attribute="instrument_name" />
-    <parameter value="BT89.0BV" />
+    <datasetIdAttribute name="instrument_name" />
+    <parameterValue value="BT89.0BV" />
     <level>
-      <masterLevel value="EA" />
+      <masterLevelValue value="EA" />
       <levelOneValue value="0.0" />
     </level>
     <triangulation type="grid" />

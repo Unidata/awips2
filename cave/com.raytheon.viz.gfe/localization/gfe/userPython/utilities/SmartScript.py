@@ -73,6 +73,9 @@
 #    Aug 26, 2015    4804          dgilling       Added callTextFormatter().
 #    Aug 27, 2015    4805          dgilling       Added saveCombinationsFile().
 #    Aug 27, 2015    4806          dgilling       Added transmitTextProduct().
+#    Sep 16, 2015    4871          randerso       Return modified varDict from called Tool/Procedure
+#
+#    Sep 11, 2015    4858          dgilling       Remove notification processing from publishElements.
 ########################################################################
 import types, string, time, sys
 from math import *
@@ -1042,8 +1045,10 @@ class SmartScript(BaseTool.BaseTool):
             emptyEditAreaFlag = True
         else:
             emptyEditAreaFlag = False
+            
+        javaDict = None
         if varDict is not None:
-            varDict = JUtil.pyValToJavaObj(varDict)
+            javaDict = JUtil.pyValToJavaObj(varDict)
 
         parm = self.getParm(self.__mutableID, elementName, "SFC")
         if timeRange is None:
@@ -1053,11 +1058,15 @@ class SmartScript(BaseTool.BaseTool):
             timeRange = timeRange.toJavaObj()
 
         from com.raytheon.viz.gfe.smarttool import SmartUtil
-
-        result = SmartUtil.callFromSmartScript(self.__dataMgr, toolName, elementName, editArea,
-                                            timeRange, varDict, emptyEditAreaFlag,
+        result, returnedDict = SmartUtil.callFromSmartScript(self.__dataMgr, toolName, elementName, editArea,
+                                            timeRange, javaDict, emptyEditAreaFlag,
                                             JUtil.pylistToJavaStringList(passErrors),
                                             missingDataMode, parm)
+
+        if varDict is not None and returnedDict:
+            returnedDict = JUtil.javaObjToPyVal(returnedDict)
+            varDict.clear()
+            varDict.update(returnedDict)
 
         if result:
             raise Exceptions.EditActionError(errorType="Error", errorInfo=str(result))
@@ -1075,11 +1084,17 @@ class SmartScript(BaseTool.BaseTool):
         else:
             timeRange = timeRange.toJavaObj()
 
-        from com.raytheon.viz.gfe.procedures import ProcedureUtil
+        javaDict=None
         if varDict is not None:
-            varDict = JUtil.pyValToJavaObj(varDict)
+            javaDict = JUtil.pyValToJavaObj(varDict)
 
-        result = ProcedureUtil.callFromSmartScript(self.__dataMgr, name, editArea, timeRange, varDict)
+        from com.raytheon.viz.gfe.procedures import ProcedureUtil
+        result, returnedDict = ProcedureUtil.callFromSmartScript(self.__dataMgr, name, editArea, timeRange, javaDict)
+        
+        if varDict is not None and returnedDict:
+            returnedDict = JUtil.javaObjToPyVal(returnedDict)
+            varDict.clear()
+            varDict.update(returnedDict)
 
         # callSmartTool raises the exception put here it is returned.
         if result:
@@ -1940,16 +1955,7 @@ class SmartScript(BaseTool.BaseTool):
 
             cgr = CommitGridRequest(parm.getParmID(), publishTimeRange.toJavaObj())
             requests.add(cgr)
-        resp = self.__dataMgr.getClient().commitGrid(requests)
-        r = resp.getPayload()
-        size = r.size()
-        for x in range(size):
-            notify = r.get(x)
-            pid = notify.getParmId()
-            p = self.__parmMgr.getParm(pid)
-            if not p:
-                p = self.__parmMgr.addParm(pid, False, False)
-            p.inventoryArrived(notify.getReplacementTimeRange(), notify.getHistories())
+            self.__parmOp.publish(requests)
 
     def combineMode(self):
         from com.raytheon.viz.gfe.core.parm import ParmState

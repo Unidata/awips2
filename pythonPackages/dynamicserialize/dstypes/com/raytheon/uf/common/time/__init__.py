@@ -22,9 +22,11 @@
 
 __all__ = [
             'DataTime',
-            'TimeRange'
+            'TimeRange',
+            'FormattedDate'
           ]
 
 from DataTime import DataTime
 from TimeRange import TimeRange
+from FormattedDate import FormattedDate
 

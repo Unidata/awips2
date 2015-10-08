@@ -39,7 +39,6 @@ import com.raytheon.viz.pointdata.StaticPlotInfoPV.SPIEntry;
 import com.raytheon.viz.volumebrowser.datacatalog.AvailableDataRequest;
 import com.raytheon.viz.volumebrowser.datacatalog.DelegateAvailableRequest;
 import com.raytheon.viz.volumebrowser.vbui.SelectedData;
-import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 import com.raytheon.viz.volumebrowser.xml.VbSource;
 import com.raytheon.viz.volumebrowser.xml.VbSourceList;
 
@@ -101,15 +100,8 @@ public class ModelSoundingCatalog extends PointDataCatalog {
         return new ArrayList<String>(getTypeMap().keySet());
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.volumebrowser.datacatalog.PointDataCatalog#getPlugins
-     * (com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu)
-     */
     @Override
-    protected String[] getPlugins(ViewMenu setting) {
+    protected String[] getPlugins() {
         return new String[] { pluginName };
     }
 
@@ -245,7 +237,7 @@ public class ModelSoundingCatalog extends PointDataCatalog {
         if (availableStations.containsKey(sourceKey)) {
             return availableStations.get(sourceKey);
         }
-        if (!Arrays.asList(getPlugins(null)).contains(getPlugin(sourceKey))) {
+        if (!Arrays.asList(getPlugins()).contains(getPlugin(sourceKey))) {
             availableStations.put(sourceKey, null);
             return null;
         }

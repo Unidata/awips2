@@ -38,7 +38,7 @@
 #### CREATE BASIS WORDING ###################################
 #############################################################
 #if(${list.contains(${bullets}, "doppler")})
-  #set($report = "doppler radar indicated ${reportType1}")
+  #set($report = "Doppler radar indicated ${reportType1}")
   #set($reportAuthSVR = "capable of producing")
   #set($source = "Radar indicated.")
 #end
@@ -257,7 +257,7 @@
 		#set($hazard = "${windHazard} and ${hailHazard}.")
 		#*
 		#if(${list.contains(${bullets}, "svrTorTag")})
-          #set($hazard = "${windHazard}, ${hailHazard} and possible tornado.")
+          #set($hazard = "${windHazard}, ${hailHazard}, and possible tornado.")
         #end
         *#
     #elseif(${windSpeed} >= 80 || (${windSpeed} >= 70 && ${hailSize} <= 1.5) || (${windSpeed} >= 58 && ${hailSize} <= 1.25))
@@ -265,7 +265,7 @@
         #set($hazard = "${windHazard} and ${hailHazard}.")
         #*
         #if(${list.contains(${bullets}, "svrTorTag")})
-          #set($hazard = "${windHazard}, ${hailHazard} and possible tornado.")
+          #set($hazard = "${windHazard}, ${hailHazard}, and possible tornado.")
         #end
         *#    
 	#else
@@ -273,7 +273,7 @@
   		#set($hazard = "${hailHazard} and ${windHazard}.")
   		#*
   		#if(${list.contains(${bullets}, "svrTorTag")})
-          #set($hazard = "${hailHazard}, ${windHazard} and possible tornado.")
+          #set($hazard = "${hailHazard}, ${windHazard}, and possible tornado.")
         #end
         *#
 	#end
@@ -385,9 +385,9 @@ THIS IS A TEST MESSAGE. ##
 
 #wrapText("${pdssvr}" 2 2)
 
-#wrapText("HAZARD...${hazard}" 2 11)
+#wrapText("HAZARD...#capitalize(${hazard} 'FIRST')" 2 11)
 
-#wrapText("SOURCE...${source}${extraSource}" 2 11)
+#wrapText("SOURCE...#capitalize(${source}${extraSource} 'FIRST')" 2 11)
 
 #wrapText("IMPACT...${svrimpact}" 2 11)
 

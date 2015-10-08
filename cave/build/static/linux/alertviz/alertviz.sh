@@ -29,6 +29,8 @@
 # Jun 17, 2015  #4148     rferrel     Logback needs fewer environment variables.
 # Jul 23, 2015  ASM#13849 D. Friedman Use a unique Eclipse configuration directory
 # Aug 03, 2015  #4694     dlovely     Logback will now add user.home to LOGDIR
+# Sep 17, 2015  #4869     bkowal      Read dynamic AlertViz version information at startup.
+# Oct 05, 2015  #4869     bkowal      Fix AlertViz argument ordering
 #
 
 user=`/usr/bin/whoami`
@@ -109,6 +111,39 @@ fi
 
 SWITCHES=()
 
+# Delete old Eclipse configuration directories that are no longer in use
+function deleteOldEclipseConfigurationDirs()
+{
+    local tmp_dir=$1
+    local tmp_dir_pat=$(echo "$tmp_dir" | sed -e 's/|/\\|/g')
+    save_IFS=$IFS
+    IFS=$'\n'
+    # Find directories that are owned by the user and  older than one hour
+    local old_dirs=( $(find "$tmp_dir" -mindepth 1 -maxdepth 1 -type d -user "$USER" -mmin +60) )
+    IFS=$save_IFS
+    if (( ${#old_dirs[@]} < 1 )); then
+        return
+    fi
+    # Determine which of those directories are in use.
+    local lsof_args=()
+    for d in "${old_dirs[@]}"; do
+        lsof_args+=('+D')
+        lsof_args+=("$d")
+    done
+    IFS=$'\n'
+    # Run lsof, producing machine readable output, filter the out process IDs,
+    # the leading 'n' of any path, and any subpath under a configuration
+    # directory.  Then filter for uniq values.
+    in_use_dirs=$(lsof -w -n -l -P -S 10 -F pn "${lsof_args[@]}" | grep -v ^p | \
+        sed -r -e 's|^n('"$tmp_dir_pat"'/[^/]*).*$|\1|' | uniq)
+    IFS=$save_IFS
+    for p in "${old_dirs[@]}"; do
+        if ! echo "$in_use_dirs" | grep -qxF "$p"; then
+            rm -rf "$p"
+        fi
+    done
+}
+
 function deleteEclipseConfigurationDir()
 {
     if [[ -n $eclipseConfigurationDir ]]; then
@@ -124,6 +159,7 @@ function createEclipseConfigurationDir()
         if [[ $d == $HOME/* ]]; then
             mkdir -p "$d" || continue
         fi
+        deleteOldEclipseConfigurationDirs "$d"
         if dir=$(mktemp -d --tmpdir="$d" "${id}-XXXX"); then
             eclipseConfigurationDir=$dir
             trap deleteEclipseConfigurationDir EXIT
@@ -153,6 +189,16 @@ function cleanExit()
 
 trap 'cleanExit $pid' SIGHUP SIGINT SIGQUIT SIGTERM
 
+VERSION_ARGS=()
+if [ -f ${dir}/awipsVersion.txt ]; then
+   prevIFS=${IFS}
+   IFS=$'\n'
+   for line in `cat ${dir}/awipsVersion.txt`; do
+      VERSION_ARGS+=(${line})
+   done
+   IFS=${prevIFS}
+fi
+
 #run a loop for alertviz
 count=0
 while [ $exitVal -ne 0 -a $count -lt 10 ]
@@ -163,10 +209,12 @@ do
    echo "Display is not available."
    exitVal=0
   else
+    # VERSION_ARGS includes jvm arguments so it must always be at the end of the argument
+    # sequence passed to AlertViz.
     if [ -w $FULL_LOGDIR ] ; then
-        ${dir}/alertviz "${SWITCHES[@]}" $* > /dev/null 2>&1 &
+        ${dir}/alertviz "${SWITCHES[@]}" $* "${VERSION_ARGS[@]}" > /dev/null 2>&1 &
     else
-        ${dir}/alertviz "${SWITCHES[@]}" $* &
+        ${dir}/alertviz "${SWITCHES[@]}" $* "${VERSION_ARGS[@]}" &
     fi
   pid=$!
   wait $pid

@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
@@ -51,7 +51,8 @@ import com.raytheon.uf.edex.plugin.taf.TafDecoder;
  * May 14, 2014 2536        bclement    moved WMO Header to common
  * May 15, 2014 3002        bgonzale    Moved common taf code to com.raytheon.uf.common.dataplugin.taf.
  * July 6, 2015 DR17108     MPorricelli Clean control chars from header string.
- *                                       
+ * Sep 24, 2015 4890        rferrel     Change logger to slf4j.
+ * 
  * 
  * </pre>
  * 
@@ -61,7 +62,7 @@ import com.raytheon.uf.edex.plugin.taf.TafDecoder;
 
 public class TafSeparator extends AbstractRecordSeparator {
 
-    private final Log logger = LogFactory.getLog(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final Pattern TEMPO_EXC = Pattern
             .compile("EMPO (\\d{4}/\\d{4})");
@@ -306,13 +307,12 @@ public class TafSeparator extends AbstractRecordSeparator {
     public void setTraceId(String traceId) {
         this.traceId = traceId;
     }
-    
 
     /**
-    * Get rid of control characters
-    * 
-    */
-    
+     * Get rid of control characters
+     * 
+     */
+
     private String cleanMessage(String message) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < message.length(); i++) {
@@ -324,6 +324,6 @@ public class TafSeparator extends AbstractRecordSeparator {
             }
         }
         return sb.toString();
-    }    
+    }
 
 }

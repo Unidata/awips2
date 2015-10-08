@@ -22,7 +22,7 @@
       <import feature="com.raytheon.uf.viz.common.core.feature" version="1.0.0.qualifier"/>
       <import feature="com.raytheon.viz.radar.feature" version="1.0.0.qualifier"/>
       <import feature="com.raytheon.uf.viz.dataplugins.feature" version="1.0.0.qualifier"/>
-      <import feature="com.raytheon.viz.grib.feature" version="1.0.0.qualifier"/>
+      <import feature="com.raytheon.uf.viz.grid.feature" version="1.0.0.qualifier"/>
       <import feature="com.raytheon.uf.viz.dataplugin.obs.feature" version="1.0.0.qualifier"/>
       <import feature="com.raytheon.viz.text.feature" version="1.0.0.qualifier"/>
       <import feature="com.raytheon.viz.hydro.feature" version="1.0.0.qualifier"/>

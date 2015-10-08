@@ -69,6 +69,7 @@ import com.raytheon.uf.common.localization.exception.LocalizationOpFailedExcepti
 import com.raytheon.uf.common.monitor.config.FFMPRunConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.DATA_TYPE;
+import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.GUIDANCE_TYPE;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.SOURCE_TYPE;
 import com.raytheon.uf.common.monitor.config.FFMPTemplateConfigurationManager;
 import com.raytheon.uf.common.monitor.events.MonitorConfigEvent;
@@ -139,6 +140,8 @@ import com.raytheon.uf.edex.plugin.ffmp.common.FFTIRatioDiff;
  * Jul 10, 2014 2914       garmendariz Remove EnvProperties
  * Aug 26, 2014 3503       bclement    removed constructDataURI() call
  * Aug 08, 2015 4722       dhladky     Generalized the processing of FFMP data types.
+ * Sep 09, 2015 4756       dhladky     Further generalization of FFG processing.
+ * Sep 21, 2015 4756       dhladky     Allow ARCHIVE types to not be purged out.
  * </pre>
  * 
  * @author dhladky
@@ -693,6 +696,11 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                 // Go over all of the sites, if mosaic source, can be many.
                 for (String siteKey : sites) {
                     
+                    // No dataKey hash?, dataKey comes from primary source (siteKey)
+                    if (dataKey == null) {
+                        dataKey = siteKey;
+                    }
+                    
                     FFMPRecord ffmpRec = new FFMPRecord();
                     ffmpRec.setSourceName(ffmpProduct.getSourceName());
                     ffmpRec.setDataKey(dataKey);
@@ -761,8 +769,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                             String sourceSiteDataKey = getSourceSiteDataKey(
                                     source, dataKey, ffmpRec);
                             ffmpData.remove(sourceSiteDataKey);
-                            statusHandler.info("Removing from memory: "
-                                    + sourceSiteDataKey);
                         }
                     }
                 }
@@ -1050,7 +1056,8 @@ public class FFMPGenerator extends CompositeProductGenerator implements
     }
 
     /**
-     * Do pull strategy on FFG data
+     * Do pull strategy on FFG data, currently works with
+     * Gridded FFG sources only.  (There are only gridded sources so far)
      * 
      * @param filter
      * @return
@@ -1059,13 +1066,14 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
         ArrayList<String> uris = new ArrayList<String>();
 
+        // Check RFC types
         for (String rfc : filter.getRFC()) {
             // get a hash of the sources and their grib ids
             Set<String> sources = FFMPUtils.getFFGParameters(rfc);
-            if (sources != null) {
-                if (sources.size() > 0) {
-                    for (String source : sources) {
+            if (sources != null && sources.size() > 0) {
+                for (String source : sources) {
 
+                    try {
                         SourceXML sourceXml = getSourceConfig().getSource(
                                 source);
 
@@ -1073,34 +1081,75 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
                             String plugin = getSourceConfig().getSource(source)
                                     .getPlugin();
-                            uris.add(FFMPUtils.getFFGDataURI(rfc, source,
-                                    plugin));
+                            uris.add(FFMPUtils.getFFGDataURI(GUIDANCE_TYPE.RFC,
+                                    rfc, source, plugin));
                         }
+                    } catch (Exception e) {
+                        statusHandler.error(
+                                "Problem with extracting guidance source URI's. source="
+                                        + source, e);
                     }
                 }
             }
         }
+
+        // Check for ARCHIVE types
+        ArrayList<String> guidSources = getSourceConfig().getGuidances();
+        if (guidSources != null && guidSources.size() > 0) {
+            for (String guidSource : guidSources) {
+
+                try {
+                    SourceXML sourceXml = getSourceConfig().getSource(
+                            guidSource);
+
+                    if (sourceXml != null
+                            && sourceXml.getGuidanceType().equals(
+                                    GUIDANCE_TYPE.ARCHIVE.getGuidanceType())) {
+                        String plugin = sourceXml.getPlugin();
+                        String[] uriComps = FFMPUtils
+                                .parseGridDataPath(sourceXml.getDataPath());
+                        /*
+                         * datasetid is UriComp[3], parameter abbreviation is
+                         * UriComp[7]
+                         */
+                        uris.add(FFMPUtils.getFFGDataURI(GUIDANCE_TYPE.ARCHIVE,
+                                uriComps[3], uriComps[7], plugin));
+                    }
+                } catch (Exception e) {
+                    statusHandler.error("Problem with extracting guidance source URI's. source="+guidSource, e);
+                }
+            }
+        }
+
         // treat it like a regular uri in the filter.
         if (uris.size() > 0) {
             for (String dataUri : uris) {
                 // add your pattern checks to the key
                 for (Pattern pattern : filter.getMatchURIs().keySet()) {
-                    statusHandler.handle(Priority.DEBUG,
-                            "Pattern: " + pattern.toString() + " Key: "
-                                    + dataUri);
-                    try {
-                        if (pattern.matcher(dataUri).find()) {
-                            // matches one of them, which one?
-                            String matchKey = filter.getPatternName(pattern);
-                            // put the sourceName:dataPath key into the sources
-                            // array list
-                            filter.getSources().put(matchKey, dataUri);
+                    /*
+                     * Safety, eliminates chance of unattached source config
+                     * uri's coming in that have no pattern attached to them.
+                     */
+                    if (dataUri != null && pattern != null) {
+                        statusHandler.handle(Priority.INFO, "Pattern: "
+                                + pattern.toString() + " Key: " + dataUri);
+                        try {
+                            if (pattern.matcher(dataUri).find()) {
+                                // matches one of them, which one?
+                                String matchKey = filter
+                                        .getPatternName(pattern);
+                                /*
+                                 * put the sourceName:dataPath key into the
+                                 * sources array list.
+                                 */
+                                filter.getSources().put(matchKey, dataUri);
+                            }
+                        } catch (Exception e) {
+                            statusHandler.handle(
+                                    Priority.ERROR,
+                                    "Unable to locate new FFG file. "
+                                            + dataUri, e);
                         }
-                    } catch (Exception e) {
-                        statusHandler.handle(
-                                Priority.ERROR,
-                                "Unable to locate new FFG file. "
-                                        + pattern.toString(), e);
                     }
                 }
             }
@@ -1237,9 +1286,24 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                     SOURCE_TYPE.GUIDANCE.getSourceType())) {
                 sourceName = source.getDisplayName();
                 sourceSiteDataKey = sourceName;
-                // FFG is so infrequent go back a day
-                backDate = new Date(config.getDate().getTime()
-                        - (TimeUtil.MILLIS_PER_HOUR * FFG_SOURCE_CACHE_TIME));
+                /**
+                 * Some FFG is ARCHIVE, don't purge, backdate == refTime The
+                 * reset (RFCFFG) set to refTime - 1 day.
+                 */
+                if (source.getGuidanceType().equals(
+                        GUIDANCE_TYPE.ARCHIVE.getGuidanceType())) {
+                    /** ARCHIVE types have the refTime of when it was loaded.
+                     * This will have it look back 1 day previous to the reftime 
+                     * and purge anything older than that.
+                     */
+                    backDate = new Date(
+                            ffmpRec.getDataTime().getRefTime().getTime()
+                                    - (TimeUtil.MILLIS_PER_HOUR * FFG_SOURCE_CACHE_TIME));
+                } else {
+                    backDate = new Date(
+                            config.getDate().getTime()
+                                    - (TimeUtil.MILLIS_PER_HOUR * FFG_SOURCE_CACHE_TIME));
+                }
             } else {
                 sourceName = ffmpRec.getSourceName();
                 sourceSiteDataKey = sourceName + "-" + ffmpRec.getSiteKey()
@@ -1402,11 +1466,12 @@ public class FFMPGenerator extends CompositeProductGenerator implements
             fdc.setAggregateData(record);
         }
 
-        // sometimes a record will sit around for a long time and it will have
-        // data going back to the last precip event
-        // this can be an enormous amount of time. Want to get the data dumped
-        // from memory ASAP.
-        if (fdc != null) {
+        /**
+         * sometimes a record will sit around for a long time and it will have
+         * data going back to the last precip event this can be an enormous
+         * amount of time. Want to get the data dumped from memory ASAP.
+         */
+        if (fdc != null && backDate != null) {
             fdc.purge(backDate);
         }
 
@@ -1528,7 +1593,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                         // write it, allowing, and in fact encouraging replacing
                         // the last one
                         dataStore.addDataRecord(rec, sp);
-                        dataStore.store(StoreOp.OVERWRITE);
+                        dataStore.store(StoreOp.REPLACE);
 
                     } catch (Exception e) {
                         statusHandler.handle(
@@ -1833,7 +1898,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
             }
 
             ffmpData.remove(siteDataKey);
-            statusHandler.info("Removing from memory: " + siteDataKey);
             accumulator.setReset(false);
             writeFFTIData(siteDataKey, accumulator);
         }
@@ -1987,7 +2051,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
             // replace or insert it
             ffmpData.remove(qpeSiteSourceDataKey);
-            statusHandler.info("Removing from memory: " + qpeSiteSourceDataKey);
             values.setReset(false);
             writeFFTIData(siteDataKey, values);
         }

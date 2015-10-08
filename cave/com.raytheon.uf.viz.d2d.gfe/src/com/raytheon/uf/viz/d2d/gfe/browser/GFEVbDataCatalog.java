@@ -49,7 +49,6 @@ import com.raytheon.viz.volumebrowser.datacatalog.AvailableDataRequest;
 import com.raytheon.viz.volumebrowser.datacatalog.DataCatalogEntry;
 import com.raytheon.viz.volumebrowser.datacatalog.IDataCatalogEntry;
 import com.raytheon.viz.volumebrowser.vbui.SelectedData;
-import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 
 /**
  * 
@@ -234,7 +233,7 @@ public class GFEVbDataCatalog extends AbstractDataCatalog {
     }
 
     @Override
-    protected String[] getPlugins(ViewMenu setting) {
+    protected String[] getPlugins() {
         return new String[] { "gfe" };
     }
 

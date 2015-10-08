@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,7 +34,6 @@ import javax.xml.bind.JAXBException;
 import org.opengis.metadata.spatial.PixelOrientation;
 
 import com.raytheon.edex.plugin.grib.exception.GribException;
-import com.raytheon.edex.plugin.grib.util.GribModelLookup;
 import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.awipstools.GetWfoCenterPoint;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -52,6 +52,8 @@ import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.util.CollectionUtil;
+import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.edex.awipstools.GetWfoCenterHandler;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
@@ -79,6 +81,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Oct 15, 2013  2473     bsteffen     Rewrite deprecated code.
  * Jul 21, 2014  3373     bclement     JAXB managers only live during initializeGrids()
  * Mar 04, 2015  3959     rjpeter      Update for grid based subgridding.
+ * Sep 28, 2015  4868     rjpeter      Allow subgrids to be defined per coverage.
  * </pre>
  * 
  * @author bphillip
@@ -89,6 +92,8 @@ public class GribSpatialCache {
     /** The logger */
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GribSpatialCache.class);
+
+    private static final float MIN_SUBGRID_COVERAGE;
 
     /** The singleton instance */
     private static GribSpatialCache instance;
@@ -120,17 +125,32 @@ public class GribSpatialCache {
      */
     private final Map<String, SubGrid> definedSubGridMap;
 
-    /**
-     * Map containing the subGrid definition based on a model name and the base
-     * coverage name
-     */
-    private Map<String, SubGridDef> subGridDefMap;
+    private SubGridMapping subGridDefMap;
 
     private FileDataList fileDataList;
 
     private long fileScanTime = 0;
 
     boolean shiftSubGridWest = false;
+
+    static {
+        float minCoveragePercent = 20;
+        try {
+            minCoveragePercent = Float.parseFloat(System.getProperty(
+                    "SUB_GRID_COVERAGE_PERCENT", "20"));
+            if (minCoveragePercent < 0) {
+                minCoveragePercent = 0;
+            } else if (minCoveragePercent > 100) {
+                minCoveragePercent = 100;
+            }
+        } catch (Exception e) {
+            statusHandler
+                    .error("SUB_GRID_COVERAGE_PERCENT must be a value from 0-100.  Defaulting to 20",
+                            e);
+        }
+
+        MIN_SUBGRID_COVERAGE = minCoveragePercent / 100;
+    }
 
     /**
      * Gets the singleton instance of GribSpatialCache
@@ -152,7 +172,7 @@ public class GribSpatialCache {
         spatialNameMap = new HashMap<String, GridCoverage>();
         definedSubGridMap = new HashMap<String, SubGrid>();
         subGridCoverageMap = new HashMap<String, GridCoverage>();
-        subGridDefMap = new HashMap<String, SubGridDef>();
+        subGridDefMap = new SubGridMapping();
         scanFiles();
     }
 
@@ -179,10 +199,10 @@ public class GribSpatialCache {
     }
 
     /**
-     * Get a grib by name, first all grid files are searched to find one with a
-     * matching name, if none is found the database is checked. The returned
-     * coverage may not have the name you are looking for but it will be
-     * spatially equivalent to that named grid.
+     * Get a grid coverage by name, first all grid files are searched to find
+     * one with a matching name, if none is found the database is checked. The
+     * returned coverage may not have the name you are looking for but it will
+     * be spatially equivalent to that named grid.
      * 
      * @param name
      * @return
@@ -198,7 +218,7 @@ public class GribSpatialCache {
     }
 
     /**
-     * This method provides a way to get the names from the definiton files for
+     * This method provides a way to get the names from the definition files for
      * looking up a grib model. It will return all the names of any coverages
      * defined in the grid definition files that are spatially equivalent to the
      * passed in coverage. This is useful when there are multiple grid
@@ -267,31 +287,21 @@ public class GribSpatialCache {
     /**
      * If a sub grid area is defined for this model than this will process that
      * definition and populate the subGridCoverageMap and definedSubGridMap.
+     * Also checks for grids larger than the world and automatically defines a
+     * subgrid to remove overlap data.
      * 
      * @param modelName
      * @param coverage
      * @return true if this model is subgridded, false otherwise
      */
     private boolean loadSubGrid(String modelName, GridCoverage coverage) {
-        SubGridDef subGridDef = subGridDefMap.get(modelName);
-        try {
+        SubGridDef subGridDef = subGridDefMap
+                .getSubGridDef(modelName, coverage);
 
+        try {
             if (subGridDef != null) {
                 String referenceGrid = subGridDef.getReferenceGrid();
-                if (referenceGrid == null) {
-                    referenceGrid = GribModelLookup.getInstance()
-                            .getModelByName(subGridDef.getReferenceModel())
-                            .getGrid();
-                    if (referenceGrid == null) {
-                        statusHandler
-                                .error("Failed to generate sub grid, Unable to determine coverage for referenceModel ["
-                                        + subGridDef.getReferenceModel() + "]");
-                        return false;
-                    }
-                }
-
-                GridCoverage referenceCoverage = getGridByName(referenceGrid
-                        .toString());
+                GridCoverage referenceCoverage = getGridByName(referenceGrid);
                 if (referenceCoverage == null) {
                     statusHandler
                             .error("Failed to generate sub grid, Unable to determine coverage for referenceGrid ["
@@ -333,12 +343,16 @@ public class GribSpatialCache {
                 int upperY = (int) (yCenterPoint - yDistance);
 
                 /*
-                 * trim will handle all validation of the subgrid as well as any
-                 * shifting to get within boundary, this includes world wrap
-                 * checking.
+                 * Trim will handle all validation of the subgrid, this includes
+                 * world wrap checking.
                  */
                 SubGrid subGrid = new SubGrid(leftX, upperY, nx, ny);
                 GridCoverage subGridCoverage = referenceCoverage.trim(subGrid);
+                if (((subGrid.getNX() * subGrid.getNY()) / (nx * ny)) < MIN_SUBGRID_COVERAGE) {
+                    /* minimum subGrid coverage not available, set nx/ny to 0 */
+                    subGrid.setNX(0);
+                    subGrid.setNY(0);
+                }
 
                 if (!referenceCoverage.equals(coverage)) {
                     /*
@@ -381,8 +395,8 @@ public class GribSpatialCache {
                     int rightX = (int) Math.floor(xCoords[2]);
                     int lowerY = (int) Math.floor(yCoords[2]);
                     /* Add 1 for inclusive */
-                    nx = rightX - leftX + 1;
-                    ny = lowerY - upperY + 1;
+                    nx = (rightX - leftX) + 1;
+                    ny = (lowerY - upperY) + 1;
                     subGrid = new SubGrid(leftX, upperY, nx, ny);
                     subGridCoverage = coverage.trim(subGrid);
                 }
@@ -454,10 +468,9 @@ public class GribSpatialCache {
         if (f.length() > 0) {
             try {
                 rval = subGridDefJaxb.unmarshalFromXmlFile(f);
-                if ((rval.getReferenceModel() == null && rval
-                        .getReferenceGrid() == null)
-                        || (rval.getModelNames() == null)
-                        || (rval.getModelNames().size() == 0)) {
+                boolean noGrid = StringUtil.isEmptyString(rval
+                        .getReferenceGrid());
+                if (noGrid) {
                     // sub grid didn't have required definitions
                     rval = null;
                 } else {
@@ -492,7 +505,7 @@ public class GribSpatialCache {
      * @return
      */
     private synchronized void scanFiles() {
-        if (fileScanTime + 60000 > System.currentTimeMillis()) {
+        if ((fileScanTime + 60000) > System.currentTimeMillis()) {
             return;
         }
         FileDataList currentFDL = generateFileDataList();
@@ -511,7 +524,7 @@ public class GribSpatialCache {
         ClusterTask ct = null;
         Map<Integer, Set<String>> gridNameMap = new HashMap<Integer, Set<String>>();
         Map<String, GridCoverage> spatialNameMap = new HashMap<String, GridCoverage>();
-        Map<String, SubGridDef> subGridDefMap = new HashMap<String, SubGridDef>();
+        SubGridMapping subGridDefMap = new SubGridMapping();
 
         SingleTypeJAXBManager<GridCoverage> gridCovJaxb;
         SingleTypeJAXBManager<SubGridDef> subGridDefJaxb;
@@ -562,12 +575,12 @@ public class GribSpatialCache {
                 try {
                     SubGridDef subGridDef = loadSubGridDef(subGridDefJaxb,
                             fd.getFilePath(), defaultCenterPoint);
+
                     if (subGridDef == null) {
                         continue;
                     }
-                    for (String modelName : subGridDef.getModelNames()) {
-                        subGridDefMap.put(modelName, subGridDef);
-                    }
+
+                    subGridDefMap.addSubGridDef(subGridDef);
                 } catch (Exception e) {
                     // Log error but do not throw exception
                     statusHandler.error("Unable to read default grids file: "
@@ -698,4 +711,82 @@ public class GribSpatialCache {
         }
     }
 
+    private class SubGridMapping {
+        Map<String, SubGridDef> subGridsByCoverageName = new HashMap<>();
+
+        Map<String, SubGridModelEntry> subGridsByModel = new HashMap<>();
+
+        public void addSubGridDef(SubGridDef def) {
+            String coverageName = def.getReferenceGrid();
+
+            List<String> models = def.getModelNames();
+            if (CollectionUtil.isNullOrEmpty(models)) {
+                subGridsByCoverageName.put(coverageName, def);
+            } else {
+                for (String model : models) {
+                    SubGridModelEntry modelEntry = subGridsByModel.get(model);
+                    if (modelEntry == null) {
+                        modelEntry = new SubGridModelEntry();
+                        subGridsByModel.put(model, modelEntry);
+                    }
+
+                    modelEntry.addSubGridDef(def);
+                }
+            }
+        }
+
+        public SubGridDef getSubGridDef(String modelName, GridCoverage coverage) {
+            SubGridDef rval = null;
+            SubGridModelEntry modelSubgrids = subGridsByModel.get(modelName);
+
+            if (modelSubgrids != null) {
+                rval = modelSubgrids.getSubGridDef(coverage);
+            }
+
+            if (rval == null) {
+                rval = subGridsByCoverageName.get(coverage.getName());
+
+                if (rval == null) {
+                    for (String coverageName : GribSpatialCache.this
+                            .getGribCoverageNames(coverage)) {
+                        rval = subGridsByCoverageName.get(coverageName);
+
+                        if (rval != null) {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return rval;
+        }
+    }
+
+    private class SubGridModelEntry {
+        /**
+         * Map of sub grid definitions by coverage name.
+         */
+        private final Map<String, SubGridDef> subGridsByCoverage = new HashMap<>();
+
+        public void addSubGridDef(SubGridDef def) {
+            subGridsByCoverage.put(def.getReferenceGrid(), def);
+        }
+
+        public SubGridDef getSubGridDef(GridCoverage coverage) {
+            SubGridDef rval = subGridsByCoverage.get(coverage.getName());
+
+            if (rval == null) {
+                for (String coverageName : GribSpatialCache.this
+                        .getGribCoverageNames(coverage)) {
+                    rval = subGridsByCoverage.get(coverageName);
+
+                    if (rval != null) {
+                        break;
+                    }
+                }
+            }
+
+            return rval;
+        }
+    }
 }

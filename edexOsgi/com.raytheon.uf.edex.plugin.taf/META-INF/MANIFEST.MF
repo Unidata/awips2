@@ -2,14 +2,14 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Taf Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.taf
-Bundle-Version: 1.14.0
+Bundle-Version: 1.15.0
 Bundle-Vendor: RAYTHEON
 Export-Package: com.raytheon.uf.edex.plugin.taf,
  com.raytheon.uf.edex.plugin.taf.decoder
 Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.edex.pointdata,
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
- com.raytheon.uf.common.dataplugin.taf
+ com.raytheon.uf.common.dataplugin.taf,
+ org.slf4j;bundle-version="1.7.5"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: com.raytheon.uf.common.wmo,
- org.apache.commons.logging
+Import-Package: com.raytheon.uf.common.wmo

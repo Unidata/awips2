@@ -182,7 +182,7 @@
 			<param name="feature" value="com.raytheon.viz.warngen.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
-			<param name="feature" value="com.raytheon.viz.grib.feature" />
+			<param name="feature" value="com.raytheon.uf.viz.grid.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.kml.export.feature" />
@@ -268,9 +268,6 @@
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.d2d.gfe.feature" />
 		</antcall>
-		<antcall target="p2.build.repo">
-			<param name="feature" value="com.raytheon.uf.viz.collaboration.feature" />
-        </antcall>
         <antcall target="p2.build.repo">
             <param name="feature" value="com.raytheon.uf.viz.d2d.damagepath.feature" />
 		</antcall>

@@ -45,6 +45,7 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jul 09, 2015  4633     bsteffen    Initial creation
+ * Sep 10, 2015  4803     bsteffen    Set all resources visible when enabled.
  * 
  * </pre>
  * 
@@ -99,6 +100,9 @@ public class AutoTransitionAction extends AbstractRightClickAction {
         AutoTransitionResourceData data = getResourceData();
         if (data != null) {
             data.setAutomaticSelection(!data.isAutomaticSelection());
+            for (ResourcePair rp : data.getResourceList()) {
+                rp.getProperties().setVisible(true);
+            }
             return;
         }
         ProcedureXmlManager jaxb = ProcedureXmlManager.getInstance();

@@ -19,7 +19,7 @@
 #parse("config.vm")
 #set($hycType = "")
 #set($floodReason = "")
-#set($floodType = "FLOODING")
+#set($floodType = "flooding")
 #if(${ic} == "SM")
     #set($hycType = "SNOWMELT")
     #set($floodReason = " Rapid snowmelt is occurring and will continue to cause ${floodType}.")
@@ -377,7 +377,7 @@ Additional rainfall amounts of !** EDIT AMOUNT **! are possible in the warned ar
 
 #end
 #if(${list.contains(${bullets}, "specificStream")})
-Flood waters are moving down !**name of channel**! from !**location**! to !**location**!. The flood crest is expected to reach !**location(s)**! by !**time(s)**!.
+Flood waters are moving down !**NAME OF CHANNEL**! from !**LOCATION**! to !**LOCATION**!. The flood crest is expected to reach !**LOCATION(S)**! by !**TIME(S)**!.
 
 #end
 #if(${list.contains(${bullets}, "drainages")})

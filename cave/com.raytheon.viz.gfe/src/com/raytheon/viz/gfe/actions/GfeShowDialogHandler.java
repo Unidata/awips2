@@ -37,13 +37,14 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 27, 2015  4749      njensen     Initial creation
- *
+ * Oct 01, 2015  4888      dgilling    Check return value from createDialog.
+ * 
  * </pre>
  * 
  * @author njensen
@@ -66,15 +67,17 @@ public abstract class GfeShowDialogHandler extends AbstractHandler {
                     .getShell();
 
             dialog = createDialog(shell, dm, event);
-            dialog.setBlockOnOpen(false);
-            dialog.addCloseCallback(new ICloseCallback() {
-                @Override
-                public void dialogClosed(Object returnValue) {
-                    dialog = null;
-                }
+            if (dialog != null) {
+                dialog.setBlockOnOpen(false);
+                dialog.addCloseCallback(new ICloseCallback() {
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        dialog = null;
+                    }
 
-            });
-            dialog.open();
+                });
+                dialog.open();
+            }
         } else {
             dialog.bringToTop();
         }

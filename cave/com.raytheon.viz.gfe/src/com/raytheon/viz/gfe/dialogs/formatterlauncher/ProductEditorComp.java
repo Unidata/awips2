@@ -113,12 +113,12 @@ import com.raytheon.uf.viz.spellchecker.dialogs.SpellCheckDlg;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEPreference;
-import com.raytheon.viz.gfe.constants.StatusConstants;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData.ProductStateEnum;
 import com.raytheon.viz.gfe.product.ProductFileUtil;
 import com.raytheon.viz.gfe.product.TextDBUtil;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
 
 /**
  * Composite containing the product editor controls.
@@ -145,7 +145,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                     Changes for non-blocking FindReplaceDlg.
  *                                     Changes for non-blocking StoreTransmitDlg.
  *                                     Changes for non-blocking WrapLengthDialog.
- * 08 Feb 2013 12851   	   jzeng       Add menuToAddTo in create*Menu
+ * 08 Feb 2013 12851       jzeng       Add menuToAddTo in create*Menu
  *                                     Create createEditorPopupMenu()
  *                                     Add mouselistener in createTextControl() for StyledText
  * 28 Feb 2013 15889       ryu         Removed detachAttributionPhrase and getVTECActionCodes
@@ -173,6 +173,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 08/06/2015  13753       lshi        removed updateTime flag, undo the change of updateIssueExpireTimes, etc.
  * 08/10/2015   4721       randerso    Changed getNNNid() to use the productID field (not textdbPil)
  * Aug 31, 2015 4749       njensen     Changed setCloseCallback to addCloseCallback
+ * 09/15/2015   4858       dgilling    Disable store/transmit in DRT mode.
  * 
  * </pre>
  * 
@@ -849,9 +850,8 @@ public class ProductEditorComp extends Composite implements
             @Override
             public void widgetSelected(SelectionEvent event) {
                 SpellCheckDlg spellCheckDlg = new SpellCheckDlg(parent
-                        .getShell(), ProductEditorComp.this.getTextEditorST(),
-                        StatusConstants.CATEGORY_GFE,
-                        StatusConstants.SUBCATEGORY_TEXTFORMATTER);
+                        .getShell(), getTextEditorST(), MixedCaseProductSupport
+                        .isMixedCase(getNNNid()));
                 spellCheckDlg.open();
             }
         });
@@ -1088,9 +1088,14 @@ public class ProductEditorComp extends Composite implements
      *            dialog. AUTOSTORE: implement autoStore
      */
     private void storeTransmit(Action action) {
+        if (!SimulatedTimeOperations.isTransmitAllowed()) {
+            SimulatedTimeOperations.displayFeatureLevelWarning(getShell(),
+                    "Text Product Store/Transmit");
+            brain();
+            return;
+        }
 
         ProductDataStruct pds = textComp.getProductDataStruct();
-
         if (pds == null) {
             String msg = "There is no product to transmit.\n\nAction cancelled.";
             MessageBox mb = new MessageBox(getShell(), SWT.OK

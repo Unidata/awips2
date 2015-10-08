@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +45,7 @@ import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.monitor.config.FFFGDataMgr;
 import com.raytheon.uf.common.monitor.config.FFMPRunConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.GUIDANCE_TYPE;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.SOURCE_TYPE;
 import com.raytheon.uf.common.monitor.xml.DomainXML;
 import com.raytheon.uf.common.monitor.xml.FFMPRunXML;
@@ -101,6 +103,7 @@ import com.raytheon.uf.viz.monitor.listeners.IMonitorListener;
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * Jul 16, 2013 2197        njensen     Use FFMPBasinData.hasAnyBasins() for efficiency
  * Nov 10, 2014 3026        dhladky     HPE BIAS displays.
+ * Sep 21, 2015 4756        dhladky     Allow loading of ARCHIVE type Guidance.
  * 
  * </pre>
  * 
@@ -629,6 +632,7 @@ public class FFMPMonitor extends ResourceMonitor {
             Date earliestTime = time;
 
             SourceXML source = getSourceConfig().getSource(sourceName);
+            boolean isTimeConstraint = true;
 
             if (source.getSourceType().equals(
                     SOURCE_TYPE.GUIDANCE.getSourceType())) {
@@ -637,9 +641,14 @@ public class FFMPMonitor extends ResourceMonitor {
                 // times, prevents mosaic brittleness from occurring.
                 retrieveNew = true;
 
-                long timeOffset = source.getExpirationMinutes(siteKey)
-                        * TimeUtil.MILLIS_PER_MINUTE;
-                earliestTime = new Date(time.getTime() - timeOffset);
+                if (source.getGuidanceType().equals(
+                        GUIDANCE_TYPE.ARCHIVE.getGuidanceType())) {
+                    isTimeConstraint = false;
+                } else {
+                    long timeOffset = source.getExpirationMinutes(siteKey)
+                            * TimeUtil.MILLIS_PER_MINUTE;
+                    earliestTime = new Date(time.getTime() - timeOffset);
+                }
             }
 
             if (retrieveNew
@@ -660,21 +669,24 @@ public class FFMPMonitor extends ResourceMonitor {
 
                 }
 
-                String earliestTimeString = datePattern.get().format(
-                        earliestTime);
+                // ARCHIVE sources don't have a time constraint
+                if (isTimeConstraint) {
+                    String earliestTimeString = datePattern.get().format(
+                            earliestTime);
 
-                if (!retrieveNew && (previousQueryTime != null)) {
-                    String latestTimeString = datePattern.get().format(
-                            previousQueryTime);
-                    RequestConstraint timeRC = new RequestConstraint(null,
-                            ConstraintType.BETWEEN);
-                    timeRC.setBetweenValueList(new String[] {
-                            earliestTimeString, latestTimeString });
-                    request.addConstraint("dataTime.refTime", timeRC);
-                } else {
-                    request.addConstraint("dataTime.refTime",
-                            new RequestConstraint(earliestTimeString,
-                                    ConstraintType.GREATER_THAN_EQUALS));
+                    if (!retrieveNew && (previousQueryTime != null)) {
+                        String latestTimeString = datePattern.get().format(
+                                previousQueryTime);
+                        RequestConstraint timeRC = new RequestConstraint(null,
+                                ConstraintType.BETWEEN);
+                        timeRC.setBetweenValueList(new String[] {
+                                earliestTimeString, latestTimeString });
+                        request.addConstraint("dataTime.refTime", timeRC);
+                    } else {
+                        request.addConstraint("dataTime.refTime",
+                                new RequestConstraint(earliestTimeString,
+                                        ConstraintType.GREATER_THAN_EQUALS));
+                    }
                 }
 
                 try {
@@ -1232,10 +1244,10 @@ public class FFMPMonitor extends ResourceMonitor {
      * @param retrieveNew
      * @return
      */
-    public Map<String, FFMPRecord> getGuidanceRecords(ProductXML product,
+    public LinkedHashMap<String, FFMPRecord> getGuidanceRecords(ProductXML product,
             String siteKey, Date date, boolean retrieveNew) {
 
-        Map<String, FFMPRecord> guidRecs = new HashMap<String, FFMPRecord>();
+        LinkedHashMap<String, FFMPRecord> guidRecs = new LinkedHashMap<String, FFMPRecord>();
         ProductRunXML productRun = FFMPRunConfigurationManager.getInstance()
                 .getProduct(siteKey);
         List<String> guidTypes = productRun.getGuidanceTypes(product);
@@ -1528,7 +1540,11 @@ public class FFMPMonitor extends ResourceMonitor {
                 for (String type : productRun.getGuidanceTypes(fproduct)) {
                     for (SourceXML guidSource : productRun.getGuidanceSources(
                             fproduct, type)) {
-                        if (guidSource != null) {
+                        // Don't purge archive guidance!
+                        if (guidSource != null
+                                && !guidSource.getGuidanceType()
+                                        .equals(GUIDANCE_TYPE.ARCHIVE
+                                                .getGuidanceType())) {
                             purgeSources.add(guidSource.getSourceName());
                         }
                     }

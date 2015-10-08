@@ -29,6 +29,7 @@ import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasin;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasinData;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasinMetaData;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPGuidanceBasin;
+import com.raytheon.uf.common.dataplugin.ffmp.FFMPGuidanceInterpolation;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord.FIELDS;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPTemplates;
@@ -924,6 +925,85 @@ public class FFMPRowGenerator implements Runnable {
                 if (guidance < 0.0f) {
                     guidance = Float.NaN;
                 }
+            }
+        } else {
+            
+            float value1 = 0.0f;
+            float value2 = 0.0f;
+            FFMPGuidanceInterpolation interpolate = resource.getGuidanceInterpolators().get(guidType);
+            String source1 = interpolate.getSource1();
+            String source2 = interpolate.getSource2();
+            double ratioOffset = interpolate.getInterpolationOffset();
+            Float adjValue1 = 0.0f;
+            Float adjValue2 = 0.0f;
+           
+            // interpolate from zero to first guidance
+            if (source1.equals(source2)) {
+                if ((ratioOffset == Double.NaN) || (ratioOffset == 0.0)) {
+                    adjValue2 = Float.NaN;
+                }
+               
+                FFFGDataMgr dman = FFFGDataMgr.getInstance();
+                if (dman.isExpired() == false) {
+                    adjValue2 = dman.adjustValue(adjValue2, source2, cBasinPfaf, 0l);
+                }
+                
+                if (!adjValue2.isNaN()) {
+                    value2 = adjValue2.floatValue();
+                }
+
+                // straight from awips1 code ( FFMPdataUtils.C )
+                // We have an extrapolation to zero (the low side).
+                // The formula below yields:
+                // coeff = 0.62 for 0.25 time frame (endpoints.second)
+                // coeff = 0.75 for 0.50 time frame (endpoints.second)
+                // coeff = 0.88 for 0.75 time frame (endpoints.second)
+                // coeff = 0.95 for 0.90 time frame (endpoints.second)
+                // float mid, frac;
+                // mid = endpoints.second / 2.0;
+                // frac = 1.0 - ( ( duration - mid ) / mid );
+                // coeff = ( duration / endpoints.second ) + (0.25 * frac);
+
+                if ((interpolate.getHour(source1) == 0)
+                        || (source1.equals(source2) && (interpolate
+                                .getHour(source2) == 1))) {
+                    Double ratio = new Double(ratioOffset);
+                    if (ratio.equals(.25)) {
+                        guidance = (float) (.62 * value2);
+                    } else if (ratio.equals(.5)) {
+                        guidance = (float) (.75 * value2);
+                    } else if (ratio.equals(.75)) {
+                        guidance = (float) (.88 * value2);
+                    } else if (ratio.equals(.9)) {
+                        guidance = (float) (.95 * value2);
+                    }
+                }
+
+                // otherwise interpolate linearly I guess
+
+            } else {
+                // check if values at the source do not exist
+                FFFGDataMgr dman = FFFGDataMgr.getInstance();
+                if (dman.isExpired() == false) {
+                    adjValue1 = dman.adjustValue(adjValue1, source1, cBasinPfaf, 0l);
+                }
+
+                if (!adjValue1.isNaN()) {
+                    value1 = adjValue1.floatValue();
+                }
+                if (dman.isExpired() == false) {
+                    adjValue2 = dman.adjustValue(adjValue2, source2, cBasinPfaf, 0l);
+                }
+
+                if (!adjValue2.isNaN()) {
+                    value2 = adjValue2.floatValue();
+                }
+                
+                if ((value1 == Float.NaN) || (value2 == Float.NaN)) {
+                    guidance = Float.NaN;
+                }
+
+                guidance = (float)(value1 + ((value2 - value1) * ratioOffset));
             }
         }
 

@@ -31,6 +31,7 @@ import com.raytheon.rcm.config.EndpointConfig;
 import com.raytheon.rcm.config.ProductDistInfoDB;
 import com.raytheon.rcm.config.ProductDistributionInfo;
 import com.raytheon.rcm.config.RadarConfig;
+import com.raytheon.rcm.config.RcmResourceProvider;
 import com.raytheon.rcm.message.GraphicProduct.PDB;
 import com.raytheon.rcm.request.RpsList;
 import com.raytheon.rcm.server.Log;
@@ -216,4 +217,17 @@ public class Awips1Config implements Configuration {
         throw new IOException(new UnsupportedOperationException(msg));
     }
 
+    private RcmResourceProvider rcmResourceProvider = new RcmResourceProvider() {
+        @Override
+        public InputStream getResourceAsStream(String resource) {
+            try {
+                return getDropInData(resource);
+            } catch (IOException e) {
+                Log.errorf("Could not open resource/NDM file %s: %s", resource, e);
+                return null;
+            }
+        }
+    };
+
+    public RcmResourceProvider getRcmResourceProvider() { return rcmResourceProvider; }
 }

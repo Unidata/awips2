@@ -20,11 +20,13 @@
 
 package com.raytheon.uf.edex.plugin.taf;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.raytheon.edex.exception.DecoderException;
-import com.raytheon.edex.plugin.AbstractDecoder;
-import com.raytheon.uf.common.dataplugin.taf.TafRecord;
-import com.raytheon.uf.common.dataplugin.taf.TAFParts;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.taf.TAFParts;
+import com.raytheon.uf.common.dataplugin.taf.TafRecord;
 import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.plugin.taf.decoder.TAFParser;
 
@@ -50,7 +52,10 @@ import com.raytheon.uf.edex.plugin.taf.decoder.TAFParser;
  * @version 1
  */
 
-public class TafDecoder extends AbstractDecoder {
+public class TafDecoder {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     // Name of the plugin controlling this decoder.
     public static final String PLUGIN_NAME = "TAF";
 

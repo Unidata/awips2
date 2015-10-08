@@ -60,6 +60,7 @@ import com.raytheon.viz.gfe.jobs.AsyncProgressJob;
  * Dec 09, 2013  #2367     dgilling    Initial creation
  * Apr 16, 2015   4259     njensen     Removed unreachable catch
  * Jul 27, 2015  #4263     dgilling    Use new ProcedureRunnerController.
+ * Sep 16, 2015  4871      randerso    Return modified varDict from Procedure
  * 
  * </pre>
  * 
@@ -379,6 +380,8 @@ public class ProcedureJobPool {
                         request.getRefSet(), request.getTimeRange());
                 controller.setVarDict(request.getVarDict());
                 controller.executeProcedure(procedureName, argMap);
+                Map<String, Object> javaDict = controller.getVarDict();
+                request.setVarDict(javaDict);
                 pjStatus = Status.OK_STATUS;
             } catch (Exception e) {
                 pjStatus = new Status(IStatus.WARNING, Activator.PLUGIN_ID,

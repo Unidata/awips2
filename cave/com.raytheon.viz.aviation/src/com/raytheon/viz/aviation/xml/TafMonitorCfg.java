@@ -29,8 +29,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * 
  * The class contains the TAF monitor configuration data.
@@ -41,8 +39,9 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 7, 2009  2537       lvenable     Initial creation
- * Oct 11, 2011 11239      rferrel      Added unmarshal method.
+ * Aug 07, 2009  2537      lvenable    Initial creation
+ * Oct 11, 2011 11239      rferrel     Added unmarshal method.
+ * Sep 15, 2015 4880       njensen     Removed ISerializableObject
  * 
  * </pre>
  * 
@@ -51,7 +50,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  */
 @XmlRootElement(name = "TafMonitorConfig")
 @XmlAccessorType(XmlAccessType.NONE)
-public class TafMonitorCfg implements ISerializableObject {
+public class TafMonitorCfg {
     /**
      * Array of monitor configuration data.
      */

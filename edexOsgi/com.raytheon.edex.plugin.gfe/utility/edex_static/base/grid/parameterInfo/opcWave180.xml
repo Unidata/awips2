@@ -9,7 +9,7 @@
     <short_name>staticTopo</short_name>
     <long_name>Topography</long_name>
     <units>meters</units>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>htsgw</short_name>
@@ -19,7 +19,7 @@
     <uiname>heightWindWaves</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>50.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -30,12 +30,12 @@
     <short_name>staticCoriolis</short_name>
     <long_name>Coriolis parameter</long_name>
     <units>/s</units>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>staticSpacing</short_name>
     <long_name>Grid spacing</long_name>
     <units>meters</units>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
   </gridParameterInfo>
 </gridParamInfo>

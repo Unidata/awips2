@@ -36,7 +36,7 @@ import com.raytheon.viz.hydrocommon.data.ProximityData;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 02 Dec 2008              lvenable    Initial creation
- * 
+ * Sep 03, 2015 4846        rjpeter     List out columns in select.
  * </pre>
  *
  * @author lvenable
@@ -52,7 +52,7 @@ public class ProximityDataManager extends HydroDataManager
     /**
      * Select statement.
      */
-    private final String SELECT_STATEMENT = "SELECT * FROM proximity";
+    private final String SELECT_STATEMENT = "SELECT proximity FROM proximity";
     
     /**
      * Private constructor.

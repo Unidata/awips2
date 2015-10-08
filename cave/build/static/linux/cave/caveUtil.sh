@@ -39,6 +39,7 @@
 # Oct 13, 2014  #3675     bclement    logExitStatus() waits for child to start and renames log with child PID 
 # Jul 23, 2015  ASM#13849 D. Friedman Use a unique Eclipse configuration directory
 # Aug 03, 2015  #4694     dlovely     Fixed path for log file cleanup
+# Sep 16, 2015  #18041    lshi        Purge CAVE logs after 30 days instead of 7
 
 source /awips2/cave/iniLookup.sh
 RC=$?
@@ -383,13 +384,46 @@ function deleteOldCaveLogs()
     local mybox=$(hostname)
 
     echo -e "Cleaning consoleLogs: "
-    echo -e "find $HOME/$BASE_LOGDIR -type f -name "*.log" -mtime +7 -exec rm {} \;"
+    echo -e "find $HOME/$BASE_LOGDIR -type f -name "*.log" -mtime +30 -exec rm {} \;"
 
 
-    find "$HOME/$BASE_LOGDIR" -type f -name "*.log" -mtime +7 -exec rm {} \;
+    find "$HOME/$BASE_LOGDIR" -type f -name "*.log" -mtime +30 -exec rm {} \;
 
     exit 0
 
+}
+
+# Delete old Eclipse configuration directories that are no longer in use
+function deleteOldEclipseConfigurationDirs()
+{
+    local tmp_dir=$1
+    local tmp_dir_pat=$(echo "$tmp_dir" | sed -e 's/|/\\|/g')
+    save_IFS=$IFS
+    IFS=$'\n'
+    # Find directories that are owned by the user and  older than one hour
+    local old_dirs=( $(find "$tmp_dir" -mindepth 1 -maxdepth 1 -type d -user "$USER" -mmin +60) )
+    IFS=$save_IFS
+    if (( ${#old_dirs[@]} < 1 )); then
+        return
+    fi
+    # Determine which of those directories are in use.
+    local lsof_args=()
+    for d in "${old_dirs[@]}"; do
+        lsof_args+=('+D')
+        lsof_args+=("$d")
+    done
+    IFS=$'\n'
+    # Run lsof, producing machine readable output, filter the out process IDs,
+    # the leading 'n' of any path, and any subpath under a configuration
+    # directory.  Then filter for uniq values.
+    in_use_dirs=$(lsof -w -n -l -P -S 10 -F pn "${lsof_args[@]}" | grep -v ^p | \
+        sed -r -e 's|^n('"$tmp_dir_pat"'/[^/]*).*$|\1|' | uniq)
+    IFS=$save_IFS
+    for p in "${old_dirs[@]}"; do
+        if ! echo "$in_use_dirs" | grep -qxF "$p"; then
+            rm -rf "$p"
+        fi
+    done
 }
 
 function deleteEclipseConfigurationDir()
@@ -406,6 +440,7 @@ function createEclipseConfigurationDir()
         if [[ $d == $HOME/* ]]; then
             mkdir -p "$d" || continue
         fi
+        deleteOldEclipseConfigurationDirs "$d"
         if dir=$(mktemp -d --tmpdir="$d" "${id}-XXXX"); then
             eclipseConfigurationDir=$dir
             trap deleteEclipseConfigurationDir EXIT

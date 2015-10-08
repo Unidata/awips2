@@ -14,11 +14,11 @@
 #parse("config.vm")
 ##SET SOME INITIAL VARIABLES
 #if(${stormType} == "line")
-  #set($report = "A line of severe thunderstorms was reported")
+  #set($report = "a line of severe thunderstorms was reported")
   #set($reportType1 = "line of severe thunderstorms")
   #set($reportType2 = "These storms were")
 #else
-  #set($report = "A severe thunderstorm was reported")
+  #set($report = "a severe thunderstorm was reported")
   #set($reportType1 = "severe thunderstorm")
   #set($reportType2 = "This storm was")
 #end
@@ -426,7 +426,7 @@ Intense thunderstorm lines can occasionally produce brief tornadoes and widespre
 #end
 ##
 #if(${list.contains(${bullets}, "superCellsCTA")})
-This is a supercell thunderstorm. Due to the rotating nature of these storms, they are capable of producing all types of severe weather, including extremely large hail, destructive straight line winds, and possibly tornadoes. Move quickly to a safe shelter, preferably into a basement, or an interior room such as a bathroom or closet.
+This is a supercell thunderstorm. Due to the rotating nature of these storms, they are capable of producing all types of severe weather including extremely large hail, destructive straight line winds, and possibly tornadoes. Move quickly to a safe shelter, preferably into a basement, or an interior room such as a bathroom or closet.
 
 #end
 ##

@@ -27,8 +27,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * 
  * Contains information for the initializing the plot viewer.
@@ -39,7 +37,8 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 11, 2009            lvenable     Initial creation
+ * Aug 11, 2009            lvenable    Initial creation
+ * Sep 15, 2015 4880       njensen     Removed ISerializableObject
  * 
  * </pre>
  * 
@@ -48,7 +47,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  */
 @XmlRootElement(name = "WxPlotConfig")
 @XmlAccessorType(XmlAccessType.NONE)
-public class WxPlotCfg implements ISerializableObject {
+public class WxPlotCfg {
     /**
      * Number of hours back from current time.
      */

@@ -53,6 +53,7 @@ import com.raytheon.viz.gfe.smartscript.FieldDefinition;
  * Feb 05, 2015  4089      njensen     Replaced previous hardening with ensureResultType()
  * Apr 23, 2015  4259      njensen     Updated for new JEP API
  * Jul 17, 2015  4575      njensen     Changed varDict from String to Map
+ * Sep 16, 2015  4871      randerso    Return modified varDict from Tool/Procedure
  * 
  * </pre>
  * 
@@ -133,6 +134,19 @@ public abstract class BaseGfePyController extends PythonScriptController {
             jep.eval("import JUtil");
             jep.eval("varDict = JUtil.javaObjToPyVal(varDict)");
         }
+    }
+
+    /**
+     * Gets a module's varDict (variable list inputs)
+     * 
+     * @return the varDict
+     * @throws JepException
+     */
+    public Map<String, Object> getVarDict() throws JepException {
+        @SuppressWarnings("unchecked")
+        Map<String, Object> javaDict = (Map<String, Object>) jep
+                .getValue("varDict");
+        return javaDict;
     }
 
     /**

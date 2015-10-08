@@ -19,16 +19,15 @@
  **/
 package com.raytheon.uf.edex.plugin.pointset.netcdf;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
-import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -58,11 +57,12 @@ import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.parameter.lookup.ParameterLookup;
+import com.raytheon.uf.edex.netcdf.description.VariableDescription;
+import com.raytheon.uf.edex.netcdf.description.exception.InvalidDescriptionException;
 import com.raytheon.uf.edex.plugin.pointset.netcdf.description.PointSetProductDescriptions;
 import com.raytheon.uf.edex.plugin.pointset.netcdf.description.ProductDescription;
 import com.raytheon.uf.edex.plugin.pointset.netcdf.description.TriangulationDescription;
 import com.raytheon.uf.edex.plugin.pointset.netcdf.description.TriangulationDescription.TriangulationType;
-import com.raytheon.uf.edex.plugin.pointset.netcdf.description.VariableDescription;
 
 /**
  * 
@@ -105,7 +105,7 @@ public class PointSetNetcdfDecoder {
 
     private ParameterLookup parameterLookup;
 
-    public PointSetRecord[] decode(String name, byte[] data) {
+    public PointSetRecord[] decode(File file) {
         if (levelFactory == null) {
             levelFactory = LevelFactory.getInstance();
         }
@@ -113,32 +113,34 @@ public class PointSetNetcdfDecoder {
             parameterLookup = ParameterLookup.getInstance();
         }
         try {
-            NetcdfFile file = NetcdfFile.openInMemory(name, data);
+            NetcdfFile netcdfFile = NetcdfFile.open(file.getAbsolutePath());
             Map<String, String> locationCache = new HashMap<String, String>();
             List<PointSetRecord> records = new ArrayList<>();
             for (ProductDescription description : descriptions
                     .getDescriptions()) {
-                PointSetRecord record = processDescription(file, description,
-                        locationCache);
+                PointSetRecord record = processDescription(netcdfFile,
+                        description, locationCache);
                 if (record != null) {
                     records.add(record);
                 }
             }
             if (records.isEmpty()) {
-                logger.warn("No valid pointsets were found in file: {}", name);
+                logger.warn("No valid pointsets were found in file: {}",
+                        file.getName());
                 return EMPTY_POINTSET_ARRAY;
             } else {
                 return records.toArray(EMPTY_POINTSET_ARRAY);
             }
-        } catch (ParseException | IOException | StorageException e) {
-            logger.error("Unable to decode pointset from file: {}", name, e);
+        } catch (InvalidDescriptionException | IOException | StorageException e) {
+            logger.error("Unable to decode pointset from file: {}",
+                    file.getName(), e);
         }
         return EMPTY_POINTSET_ARRAY;
     }
 
     private PointSetRecord processDescription(NetcdfFile file,
             ProductDescription description, Map<String, String> locationCache)
-            throws ParseException, IOException, StorageException {
+            throws InvalidDescriptionException, IOException, StorageException {
         String dataVarName = description.getDataVariable();
         boolean debug = description.isDebug();
         Variable dataVariable = file.findVariable(NetcdfFile
@@ -260,8 +262,18 @@ public class PointSetNetcdfDecoder {
             fillValue = fillAttribute.getNumericValue();
         }
         switch (dataType) {
+        case DOUBLE:
+            /*
+             * At this point in time(2015) there are no known cases of data
+             * being sent as a double and actually needing the extra precision,
+             * also not all pieces of CAVE currently support doubles so the
+             * precision would not be needed anyway. AMSR-2 derived surface wind
+             * speed is being needlessly sent as doubles. Because of all this,
+             * just convert doubles to floats.
+             */
         case FLOAT:
-            float[] fdata = (float[]) dataVariable.read().copyTo1DJavaArray();
+            float[] fdata = (float[]) dataVariable.read().get1DJavaArray(
+                    float.class);
             if (fillValue != null) {
                 float ffill = fillValue.floatValue();
                 for (int i = 0; i < fdata.length; i += 1) {
@@ -273,31 +285,22 @@ public class PointSetNetcdfDecoder {
             numericData = FloatBuffer.wrap(fdata);
             break;
         case BYTE:
-            byte[] bdata = (byte[]) dataVariable.read().copyTo1DJavaArray();
+            byte[] bdata = (byte[]) dataVariable.read().get1DJavaArray(
+                    byte.class);
             numericData = ByteBuffer.wrap(bdata);
             break;
         case SHORT:
-            short[] sdata = (short[]) dataVariable.read().copyTo1DJavaArray();
+            short[] sdata = (short[]) dataVariable.read().get1DJavaArray(
+                    short.class);
             numericData = ShortBuffer.wrap(sdata);
             break;
-        case DOUBLE:
-            double[] ddata = (double[]) dataVariable.read().copyTo1DJavaArray();
-            if (fillValue != null) {
-                double dfill = fillValue.doubleValue();
-                for (int i = 0; i < ddata.length; i += 1) {
-                    if (ddata[i] == dfill) {
-                        ddata[i] = Double.NaN;
-                    }
-                }
-            }
-            numericData = DoubleBuffer.wrap(ddata);
-            break;
         case INT:
-            int[] idata = (int[]) dataVariable.read().copyTo1DJavaArray();
+            int[] idata = (int[]) dataVariable.read().get1DJavaArray(int.class);
             numericData = IntBuffer.wrap(idata);
             break;
         case LONG:
-            long[] ldata = (long[]) dataVariable.read().copyTo1DJavaArray();
+            long[] ldata = (long[]) dataVariable.read().get1DJavaArray(
+                    long.class);
             numericData = LongBuffer.wrap(ldata);
             break;
         default:
@@ -411,9 +414,9 @@ public class PointSetNetcdfDecoder {
                     "Discarding data description from {} because no data element is present.",
                     fileName);
             return false;
-        } else if (data.getVariable() == null) {
+        } else if (data.getName() == null) {
             logger.warn(
-                    "Discarding data description from {} because data element has no variable.",
+                    "Discarding data description from {} because data element has no name.",
                     fileName);
             return false;
         }

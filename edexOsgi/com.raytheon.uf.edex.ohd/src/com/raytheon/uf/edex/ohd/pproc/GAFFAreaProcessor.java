@@ -35,6 +35,8 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * ------------ ---------- ----------- --------------------------
  * Jan 08, 2011            mpduff      Initial creation
  * Mar 28, 2014   2952     mpduff      Changed to use UFStatus for logging.
+ * Aug 14, 2015  17357       xwei      1) Added casting for percentValid calculation
+ *                                     2) Set goodAvgValue to true at the beginning of computeAvgFfg() method
  * 
  * </pre>
  * 
@@ -182,7 +184,8 @@ public class GAFFAreaProcessor {
      */
     private void computeAvgFfg(String areaId, int numRows, int[] rows,
             int[] begCol, int[] endCol) {
-        /* compute average FFG value for basin and areal coverage */
+        
+    	/* compute average FFG value for basin and areal coverage */
         int missCnt = 0;
         int totalCnt = 0;
         int valCnt = 0;
@@ -191,6 +194,8 @@ public class GAFFAreaProcessor {
         double sum = 0.0;
         double rawVal;
 
+        goodAvgValue = true;
+        
         for (int i = 0; i < numRows; i++) {
             totalCnt += endCol[i] - begCol[i];
 
@@ -250,7 +255,7 @@ public class GAFFAreaProcessor {
         if (totalCnt <= 0) {
             percentValid = 0;
         } else {
-            percentValid = valCnt / totalCnt;
+            percentValid = (double) valCnt / (double) totalCnt;
         }
 
         if (valCnt > 0) {

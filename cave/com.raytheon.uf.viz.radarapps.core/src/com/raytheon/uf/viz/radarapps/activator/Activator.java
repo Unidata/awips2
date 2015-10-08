@@ -23,7 +23,9 @@ import org.eclipse.jface.preference.IPersistentPreferenceStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import com.raytheon.rcm.config.RcmResourceProvider;
 import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
+import com.raytheon.uf.viz.radarapps.core.LocalizationRcmResourceProvider;
 
 /**
  * The activator class controls the plug-in life cycle.
@@ -36,6 +38,7 @@ import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
  * ------------ ---------- ----------- --------------------------
  * Apr 21, 2009            mfegan      Initial creation
  * Mar  3, 2014 2861       mschenke    Create preference store immediately
+ * Sep  8, 2015 ASM# 17944 D. Friedman Set RcmResourceProvider
  * 
  * </pre>
  * 
@@ -71,6 +74,7 @@ public class Activator extends AbstractUIPlugin {
     public void start(BundleContext context) throws Exception {
         super.start(context);
         plugin = this;
+        RcmResourceProvider.setInstance(new LocalizationRcmResourceProvider());
     }
 
     public void stop(BundleContext context) throws Exception {

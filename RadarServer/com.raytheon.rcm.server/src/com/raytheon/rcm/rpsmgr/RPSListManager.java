@@ -72,6 +72,7 @@ import com.raytheon.rcm.server.StatusManager.RadarStatus;
  * 2013-01-31   DR 15458   D. Friedman Explicitly handle UNSPECIFIED_VCP.
  * 2014-02-03   DR 14762   D. Friedman Handle updated national RPS lists.
  * 2015-06-10   4498       nabowle     Rename Util->RcmUtil
+ * 2015-09-08   DR 17944   D. Friedman Handle elevation list file updates.
  * </pre>
  *
  */
@@ -583,11 +584,13 @@ public class RPSListManager extends RadarEventAdapter {
                             .isCollectionEnabled())) {
                 resetRpsListForRadar(newCfg);
             }
-        } else if (event.getCategory() == Category.NATIONAL_RPS_LISTS) {
+        } else if (event.getCategory() == Category.NATIONAL_RPS_LISTS
+                || event.getCategory() == Category.ELEVATION_LISTS) {
+            boolean all = event.getCategory() == Category.ELEVATION_LISTS;
             Configuration config = radarServer.getConfiguration();
             for (String radarID : config.getConfiguredRadarList()) {
                 RadarConfig rc = config.getConfigForRadar(radarID);
-                if (rc.isCollectionEnabled()) {
+                if (all || rc.isCollectionEnabled()) {
                     resetRpsListForRadar(rc);
                 }
             }

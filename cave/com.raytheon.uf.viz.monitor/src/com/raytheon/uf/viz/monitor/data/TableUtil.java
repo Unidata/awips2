@@ -25,10 +25,13 @@ import java.util.Date;
 import com.raytheon.uf.common.geospatial.ISpatialQuery;
 import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
 import com.raytheon.uf.common.monitor.MonitorAreaUtils;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
+import com.raytheon.uf.common.monitor.xml.AreaIdXML;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig.CellType;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig.ObsHistType;
@@ -50,6 +53,7 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
  * May 23, 2012  14410      zhao       Modified getCellTypeForBlizWarn and getCellTypeForHsnowWarn modules
  * Feb 28, 2013  14410      zhao       Modified getCellTypeForBlizWarn
  * May 23, 2014  3086       skorolev   Corrected ObsHistType. Cleaned code.
+ * Aug 17, 2015  3841       skorolev   Added coordinates in the hover text for a newly added zones.
  * 
  * </pre>
  * 
@@ -112,7 +116,11 @@ public final class TableUtil {
 
         String hoverText = null;
         if (isZone) {
-            hoverText = getZoneHoverText(areaId);
+            AreaIdXML zoneXML = FSSObsMonitorConfigurationManager
+                    .getObsManager(MonName.fog).getAreaXml(zone);
+            if (zoneXML != null) {
+                hoverText = getZoneHoverText(zoneXML);
+            }
         } else {
             hoverText = getStationHoverText(areaId);
         }
@@ -320,7 +328,8 @@ public final class TableUtil {
      *            dialog)
      * @param zone
      * @param report
-     * @param tm Abstract Threshold Manager
+     * @param tm
+     *            Abstract Threshold Manager
      * @param fogCellType
      * @return
      */
@@ -338,7 +347,11 @@ public final class TableUtil {
 
         String hoverText = null;
         if (isZone) {
-            hoverText = getZoneHoverText(areaId);
+            AreaIdXML zoneXML = FSSObsMonitorConfigurationManager
+                    .getObsManager(MonName.ss).getAreaXml(zone);
+            if (zoneXML != null) {
+                hoverText = getZoneHoverText(zoneXML);
+            }
         } else {
             hoverText = getStationHoverText(areaId);
         }
@@ -639,7 +652,11 @@ public final class TableUtil {
 
         String hoverText = null;
         if (isZone) {
-            hoverText = getZoneHoverText(areaId);
+            AreaIdXML zoneXML = FSSObsMonitorConfigurationManager
+                    .getObsManager(MonName.snow).getAreaXml(zone);
+            if (zoneXML != null) {
+                hoverText = getZoneHoverText(zoneXML);
+            }
         } else {
             hoverText = getStationHoverText(areaId);
         }
@@ -881,11 +898,12 @@ public final class TableUtil {
     /**
      * Gets Zone Hover Text.
      * 
-     * @param zone
+     * @param zoneXML
      * @return
      */
-    private static String getZoneHoverText(String zone) {
+    private static String getZoneHoverText(AreaIdXML zoneXML) {
 
+        String zone = zoneXML.getAreaId();
         ISpatialQuery sq = null;
         String sql = null;
         String hoverText = zone.substring(0, 2) + ", ";
@@ -908,11 +926,13 @@ public final class TableUtil {
             sq = SpatialQueryFactory.create();
             Object[] results = sq.dbRequest(sql, "maps");
             if (results.length > 0) {
-                if (results[0] instanceof Object[]) {
-                    Object[] res = (Object[]) results[0];
-                    hoverText += (String) res[0];
-                } else {
-                    hoverText += (String) results[0].toString();
+                if (results[0] instanceof String) {
+                    hoverText += (String) results[0];
+                }
+            } else {
+                if (zoneXML.getCLat() != null) {
+                    hoverText += "(" + zoneXML.getCLat() + ", "
+                            + zoneXML.getCLon() + ")";
                 }
             }
         } catch (Exception e) {
@@ -976,7 +996,7 @@ public final class TableUtil {
      */
     public static CellType getCellTypeForSCA(String zone, ObReport report,
             AbstractThresholdMgr tm) {
-        // TODO:
+
         float windSpd = report.getWindSpeed();
         float windGust = report.getWindGust();
         float waveHgt = report.getHighResWaveHeight();
@@ -1027,7 +1047,7 @@ public final class TableUtil {
      */
     public static CellType getCellTypeForGaleWarn(String zone, ObReport report,
             AbstractThresholdMgr tm) {
-        // TODO:
+
         CellType type = CellType.NotAvailable;
         CellType windSpeedType = tm
                 .getThresholdValueCellType(
@@ -1064,7 +1084,7 @@ public final class TableUtil {
      */
     public static CellType getCellTypeForStormWarn(String zone,
             ObReport report, AbstractThresholdMgr tm) {
-        // TODO:
+
         CellType type = CellType.NotAvailable;
         CellType windSpeedType = tm
                 .getThresholdValueCellType(
@@ -1101,7 +1121,7 @@ public final class TableUtil {
      */
     public static CellType getCellTypeForHFWW(String zone, ObReport report,
             AbstractThresholdMgr tm) {
-        // TODO:
+
         CellType type = CellType.NotAvailable;
         CellType windSpeedType = tm
                 .getThresholdValueCellType(
@@ -1138,7 +1158,7 @@ public final class TableUtil {
      */
     public static CellType getCellTypeForFog(String zone, ObReport report,
             AbstractThresholdMgr tm) {
-        // TODO:
+
         float visValue = report.getVisibility();// in miles
         if (visValue == ObConst.MISSING) {
             return CellType.NotAvailable;

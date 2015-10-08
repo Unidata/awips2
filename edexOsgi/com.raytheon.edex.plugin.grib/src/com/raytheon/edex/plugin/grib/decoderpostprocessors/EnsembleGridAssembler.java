@@ -22,8 +22,6 @@ package com.raytheon.edex.plugin.grib.decoderpostprocessors;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.Arrays;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,13 +32,7 @@ import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.edex.plugin.grib.spatial.GribSpatialCache;
 import com.raytheon.edex.util.Util;
 import com.raytheon.edex.util.grib.CompositeModel;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
-import com.raytheon.uf.common.datastorage.StorageException;
-import com.raytheon.uf.common.datastorage.StorageStatus;
-import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -52,15 +44,8 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.uf.common.util.GridUtil;
 import com.raytheon.uf.common.util.file.FilenameFilters;
-import com.raytheon.uf.edex.core.EDEXUtil;
-import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
-import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
-import com.raytheon.uf.edex.database.cluster.ClusterTask;
-import com.raytheon.uf.edex.database.plugin.DataURIDatabaseUtil;
-import com.raytheon.uf.edex.database.plugin.PluginFactory;
-import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
+import com.raytheon.uf.edex.plugin.grid.PartialGrid;
 
 /**
  * The EnsembleGridAssembler class is part of the ingest process for grib data.
@@ -84,6 +69,7 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * Apr 21, 2014  2060     njensen     Remove dependency on grid dataURI column
  * Jul 21, 2014  3373     bclement    JAXB manager api changes
  * Aug 18, 2014  4360     rferrel     Set secondaryId in {@link #createAssembledRecord(GridRecord, CompositeModel)}
+ * Sep 09, 2015  4868     rjpeter     Updated to be stored in partial grids as part of normal route.
  * </pre>
  * 
  * @author bphillip
@@ -94,24 +80,16 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
             .getHandler(EnsembleGridAssembler.class);
 
     /** The map of the models that come in sections */
-    private static Map<String, CompositeModel> thinnedModels;
+    private static final Map<String, CompositeModel> thinnedModels = new HashMap<>();;
 
-    private static final String CLUSTER_TASK_NAME = "EnsembleGrid";
-
-    /**
-     * Creates a new GridAssemble instance
-     */
-    public EnsembleGridAssembler() {
-        if (thinnedModels == null) {
-            loadThinnedModels();
-        }
+    static {
+        loadThinnedModels();
     }
 
     /**
      * Loads the models from the localization store and stores them in memory
      */
-    private void loadThinnedModels() {
-        thinnedModels = new HashMap<String, CompositeModel>();
+    private static void loadThinnedModels() {
         IPathManager pm = PathManagerFactory.getPathManager();
         File commonPath = pm.getFile(pm.getContext(
                 LocalizationType.EDEX_STATIC, LocalizationLevel.BASE),
@@ -133,6 +111,7 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
                     "Unable to load thinned model files.", e);
             return;
         }
+
         for (File file : thinnedModelFiles) {
             try {
                 CompositeModel model = jaxbManager.unmarshalFromXmlFile(file);
@@ -146,146 +125,52 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
 
     @Override
     public GridRecord[] process(GridRecord rec) throws GribException {
-        String compositeModel = getCompositeModel(rec.getDatasetId());
-        if (compositeModel != null) {
-            String lockName = compositeModel + "_"
-                    + rec.getParameter().getAbbreviation() + "_"
-                    + rec.getLevel().toString();
-            ClusterTask ct = ClusterLockUtils.lock(CLUSTER_TASK_NAME, lockName,
-                    120000, true);
-            boolean clearTime = false;
+        CompositeModel compositeModel = getCompositeModel(rec.getDatasetId());
 
-            try {
-                while (!LockState.SUCCESSFUL.equals(ct.getLockState())) {
-                    if (LockState.FAILED.equals(ct.getLockState())) {
-                        throw new GribException(
-                                "Failed to get cluster lock to process ensemble grids");
-                    }
-                    ct = ClusterLockUtils.lock(CLUSTER_TASK_NAME, lockName,
-                            120000, true);
-                }
-                processGrid(rec, getCompositeModelObject(compositeModel));
-            } catch (Exception e) {
-                clearTime = true;
-                throw new GribException("Error processing ensemble grid", e);
-            } finally {
-                ClusterLockUtils.unlock(ct, clearTime);
+        if (compositeModel != null) {
+            GridRecord assembledRecord = createAssembledRecord(rec,
+                    compositeModel);
+            GridRecord wrapRecord = setPartialGrid(compositeModel,
+                    assembledRecord, rec);
+            if (wrapRecord == null) {
+                return new GridRecord[] { assembledRecord };
             }
 
-            return new GridRecord[] { rec };
+            return new GridRecord[] { assembledRecord, wrapRecord };
         }
+
+        // wasn't a grid to be assembled
         return new GridRecord[] { rec };
     }
 
     /**
-     * Gets the composite model name for which the provided model name is a part
-     * of
+     * Gets the composite model for the provided model name0
      * 
      * @param modelName
      *            The model name to determine the composite model name for
-     * @return The composite model name. Null if not found
+     * @return The composite model. Null if not found
      */
-    private String getCompositeModel(String modelName) {
+    private CompositeModel getCompositeModel(String modelName) {
         for (CompositeModel mod : thinnedModels.values()) {
             if (mod.getModelList().contains(modelName)) {
-                return mod.getModelName();
+                return mod;
             }
         }
         return null;
     }
 
-    /**
-     * Gets the composite model object
-     * 
-     * @param modelName
-     *            The model name to get the composite model object for
-     * @return The composite model object
-     */
-    private CompositeModel getCompositeModelObject(String modelName) {
-        return thinnedModels.get(modelName);
-    }
-
-    /**
-     * Processes a single GridRecord
-     * 
-     * @param record
-     *            The GridRecord to process
-     * @param thinned
-     *            The composite model for which the GridRecord is a part of
-     * @return The new grib record
-     * @throws Exception
-     */
-    private void processGrid(GridRecord record, CompositeModel thinned)
-            throws Exception {
-        GridDao dao = (GridDao) PluginFactory.getInstance().getPluginDao(
-                GridConstants.GRID);
-        GridRecord assembledRecord = createAssembledRecord(record, thinned);
-        boolean exists = DataURIDatabaseUtil.existingDataURI(assembledRecord);
-        if (!exists) {
-            persistNewRecord(record, assembledRecord, thinned, dao);
-        } else {
-            updateExistingRecord(record, assembledRecord, thinned, dao);
-        }
-        EDEXUtil.getMessageProducer().sendAsync("notificationAggregation",
-                new PluginDataObject[] { assembledRecord });
-    }
-
     private GridRecord createAssembledRecord(GridRecord record,
             CompositeModel thinned) {
-        GridRecord newRecord = new GridRecord();
+        GridRecord newRecord = new GridRecord(record);
 
         GridCoverage coverage = GribSpatialCache.getInstance().getGridByName(
                 thinned.getGrid());
 
         newRecord.setLocation(coverage);
         newRecord.setDatasetId(thinned.getModelName());
-        newRecord.setLevel(record.getLevel());
-        newRecord.setParameter(record.getParameter());
-        newRecord.setEnsembleId(record.getEnsembleId());
-        newRecord.setSecondaryId(record.getSecondaryId());
-        newRecord.setDataTime(record.getDataTime());
-        newRecord.setDataURI(null);
-        newRecord.setInsertTime(Calendar.getInstance());
+        newRecord.setOverwriteAllowed(true);
 
         return newRecord;
-    }
-
-    private void persistNewRecord(GridRecord record,
-            GridRecord assembledRecord, CompositeModel thinned, GridDao dao)
-            throws GribException {
-        GridCoverage coverage = assembledRecord.getLocation();
-        float[] data = new float[coverage.getNx() * coverage.getNy()];
-        Arrays.fill(data, GridUtil.GRID_FILL_VALUE);
-        assembledRecord.setMessageData(data);
-        mergeData(record, assembledRecord, thinned);
-        try {
-            StorageStatus ss = dao.persistToHDF5(assembledRecord);
-            StorageException[] exceptions = ss.getExceptions();
-            // Only one record is stored, so logically there should only be one
-            // possible exception in the exception array
-            if (exceptions.length > 0) {
-                throw new GribException("Error storing new record to HDF5",
-                        exceptions[0]);
-            }
-            dao.persistToDatabase(assembledRecord);
-        } catch (PluginException e) {
-            throw new GribException("Error storing new record to HDF5", e);
-        }
-    }
-
-    private void updateExistingRecord(GridRecord record,
-            GridRecord assembledRecord, CompositeModel thinned, GridDao dao)
-            throws GribException {
-        try {
-            FloatDataRecord rec = (FloatDataRecord) dao.getHDF5Data(
-                    assembledRecord, -1)[0];
-            assembledRecord.setMessageData(rec.getFloatData());
-            mergeData(record, assembledRecord, thinned);
-            assembledRecord.setOverwriteAllowed(true);
-            dao.persistRecords(assembledRecord);
-        } catch (PluginException e) {
-            throw new GribException("Error storing assembled grid to HDF5", e);
-        }
     }
 
     /**
@@ -299,38 +184,99 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
      *            The composite model definition
      * @throws GribException
      */
-    private void mergeData(GridRecord record, GridRecord assembledRecord,
-            CompositeModel thinned) throws GribException {
-        String modelName = record.getDatasetId();
-        GridCoverage coverage = record.getLocation();
-        GridCoverage assembledCoverage = assembledRecord.getLocation();
+    private GridRecord setPartialGrid(CompositeModel thinned,
+            GridRecord assembledRecord, GridRecord recordToAssemble)
+            throws GribException {
+        PartialGrid pGrid = new PartialGrid();
 
-        float[][] assembledData = Util.resizeDataTo2D(
-                (float[]) assembledRecord.getMessageData(),
-                assembledCoverage.getNx(), assembledCoverage.getNy());
+        String modelName = recordToAssemble.getDatasetId();
+        GridCoverage coverage = recordToAssemble.getLocation();
 
         int nx = coverage.getNx();
         int ny = coverage.getNy();
+        pGrid.setNx(nx);
+        pGrid.setNy(ny);
 
+        /*
+         * TODO: This should map the UL corner of recordToAssemble to
+         * assembledRecord instead of relying on index in list
+         */
         List<String> compModels = thinned.getModelList();
-
         int modIndex = compModels.indexOf(modelName);
         if (modIndex == -1) {
+            /*
+             * Shouldn't be possible since was how it was found in the first
+             * place
+             */
             throw new GribException(
                     "Error assembling grids.  Thinned grid definition does not contain "
                             + modelName);
         }
-        if (modIndex == 0) {
-            Util.insertSubgrid(assembledData, Util.resizeDataTo2D(
-                    (float[]) record.getMessageData(), coverage.getNx(),
-                    coverage.getNy()), nx * modIndex, 0, nx, ny);
-        } else {
-            Util.insertSubgrid(assembledData, Util.resizeDataTo2D(
-                    (float[]) record.getMessageData(), coverage.getNx(),
-                    coverage.getNy()), (nx * modIndex) - modIndex, 0, nx, ny);
+
+        pGrid.setxOffset((nx * modIndex) - modIndex);
+        pGrid.setyOffset(0);
+        assembledRecord.addExtraAttribute(PartialGrid.KEY, pGrid);
+        assembledRecord.setMessageData(recordToAssemble.getMessageData());
+
+        return checkWorldWrap(assembledRecord);
+    }
+
+    /**
+     * Checks if assembledRecord's partial grid has extra columns that wrap
+     * around. This is due to partial grids having 1 column of overlap between
+     * each partial grid.
+     * 
+     * @param assembledRecord
+     * @return
+     */
+    private GridRecord checkWorldWrap(GridRecord assembledRecord) {
+        GridCoverage assembledCoverage = assembledRecord.getLocation();
+        int assembledNx = assembledCoverage.getNx();
+        PartialGrid pGrid = (PartialGrid) assembledRecord
+                .getExtraAttribute(PartialGrid.KEY);
+        int xOffset = pGrid.getxOffset();
+        int nx = pGrid.getNx();
+        int ny = pGrid.getNy();
+
+        // check world wrap due to overlapping columns
+        if ((xOffset + nx) > assembledNx) {
+            float[] messageData = (float[]) assembledRecord.getMessageData();
+            float[][] data2D = Util.resizeDataTo2D(messageData, nx, ny);
+
+            // cut off extra data from assembledRecord
+            int newNx = assembledNx - xOffset;
+            pGrid.setNx(newNx);
+            assembledRecord.setMessageData(trimGridAndMake1D(data2D, 0, 0,
+                    newNx, ny));
+
+            // make a secondary record for the wrap amount
+            GridRecord wrappedRecord = new GridRecord(assembledRecord);
+            PartialGrid wrappedPartial = new PartialGrid();
+            wrappedPartial.setxOffset(0);
+            wrappedPartial.setyOffset(0);
+            wrappedPartial.setNx(nx - newNx);
+            wrappedPartial.setNy(ny);
+            wrappedRecord.addExtraAttribute(PartialGrid.KEY, wrappedPartial);
+            wrappedRecord.setMessageData(trimGridAndMake1D(data2D, newNx, 0,
+                    wrappedPartial.getNx(), ny));
+            wrappedRecord.setOverwriteAllowed(true);
+            return wrappedRecord;
         }
 
-        assembledRecord.setMessageData(Util.resizeDataTo1D(assembledData,
-                assembledCoverage.getNy(), assembledCoverage.getNx()));
+        return null;
     }
+
+    private float[] trimGridAndMake1D(float[][] data, int xOffset, int yOffset,
+            int nx, int ny) {
+        float[][] rval = new float[ny][nx];
+
+        for (int row = 0; row < ny; row++) {
+            for (int col = 0; col < nx; col++) {
+                rval[row][col] = data[yOffset + row][xOffset + col];
+            }
+        }
+
+        return Util.resizeDataTo1D(rval, ny, nx);
+    }
+
 }

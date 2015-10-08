@@ -113,34 +113,7 @@ fi
 function buildRPM()
 {
    local COMPONENT_DIR=${1}
-   # if we are building a 64-bit version of CAVE, create a temporary
-   # component.spec.64 file for the build.
-   if [ ! "${TARGET_BUILD_ARCH}" = "x86_64" ]; then
-      local COMPONENT_SPECS=${COMPONENT_DIR}/component.spec
-   else
-      # Create an alternate component.spec file.
-      cp -v ${COMPONENT_DIR}/component.spec ${COMPONENT_DIR}/component.spec.64
-      if [ $? -ne 0 ]; then
-         exit 1
-      fi
-      # libraries to substitute: { libMrm.so.4, libXp.so.6, libg2c.so.0 }
-      perl -p -i -e "s/requires: libMrm.so.4/requires: libMrm.so.4()(64bit)/g" \
-         ${COMPONENT_DIR}/component.spec.64
-      if [ $? -ne 0 ]; then
-         exit 1
-      fi
-      perl -p -i -e "s/requires: libXp.so.6/requires: libXp.so.6()(64bit)/g" \
-         ${COMPONENT_DIR}/component.spec.64
-      if [ $? -ne 0 ]; then
-         exit 1
-      fi
-      perl -p -i -e "s/requires: libg2c.so.0/requires: libg2c.so.0()(64bit)/g" \
-         ${COMPONENT_DIR}/component.spec.64
-      if [ $? -ne 0 ]; then
-         exit 1
-      fi
-      local COMPONENT_SPECS=${COMPONENT_DIR}/component.spec.64
-   fi
+   local COMPONENT_SPECS=${COMPONENT_DIR}/component.spec
 
    if [ -d ${BUILDROOT_DIR} ]; then
       rm -rf ${BUILDROOT_DIR}
@@ -156,12 +129,7 @@ function buildRPM()
       --define '_build_bits %(echo ${CAVE_BUILD_BITS})' \
       --buildroot ${AWIPSII_BUILD_ROOT} ${COMPONENT_SPECS}
    # If We Are Unable To Build An RPM, Fail The Build:
-   RC="$?"
-
-   if [ -f ${COMPONENT_DIR}/component.spec.64 ]; then
-      rm -fv ${COMPONENT_DIR}/component.spec.64
-   fi
-   if [ ! "${RC}" = "0" ]; then
+   if [ $? -ne 0 ]; then
       exit 1
    fi
 }
@@ -269,4 +237,5 @@ cd ../
 
 # Only Build The RPMs That May Have Changed - AWIPS II-Specific Components.
 buildRPM "Installer.cave"
+buildRPM "Installer.cave-wrapper"
 buildFeatureRPMs

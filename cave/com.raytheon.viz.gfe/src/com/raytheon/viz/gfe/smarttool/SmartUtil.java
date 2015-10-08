@@ -19,10 +19,10 @@
  **/
 package com.raytheon.viz.gfe.smarttool;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
@@ -32,7 +32,6 @@ import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.smartscript.FieldDefinition;
-import com.raytheon.viz.gfe.smarttool.script.SmartToolBlockingSelectionDlg;
 import com.raytheon.viz.gfe.smarttool.script.SmartToolRequest;
 import com.raytheon.viz.gfe.smarttool.script.SmartToolSelectionDlg;
 import com.raytheon.viz.gfe.ui.runtimeui.SelectionDlg;
@@ -46,12 +45,13 @@ import com.raytheon.viz.gfe.ui.runtimeui.SelectionDlg;
  * ------------ ---------- ----------- --------------------------
  * Feb 21, 2008            njensen     Initial creation
  * Dec 1,  2009  1426      ryu         Add time range warning
- * Nov 15, 2012  1298      rferrel     Changes for non-blocking prcedures.
+ * Nov 15, 2012  1298      rferrel     Changes for non-blocking procedures.
  * Jun 25, 2013  16065     ryu         Passing outerLevel to smart tool job.
  * Dec 10, 2013  2367      dgilling    Use new SmartToolJobPool.
  * Jun 05, 2015  4259      njensen     Removed LD_PRELOAD check
  * Jul 17, 2015  4575      njensen     Changed varDict from String to Map
  * Jul 23, 2015  4263      dgilling    Support SmartToolMetadataManager.
+ * Sep 16, 2015  4871      randerso    Return modified varDict from Tool
  * 
  * </pre>
  * 
@@ -73,7 +73,7 @@ public class SmartUtil {
         DataManager dm = DataManagerUIFactory.getCurrentInstance();
         List<FieldDefinition> varList = dm.getSmartToolInterface()
                 .getVarDictWidgets(toolName);
-        if (varList == null || varList.size() == 0) {
+        if ((varList == null) || (varList.size() == 0)) {
             runToolNoVarDict(dm, toolName);
         } else {
             // The SmartToolSelectionDlg changes based on the procedure.
@@ -112,7 +112,7 @@ public class SmartUtil {
         return pi;
     }
 
-    public static Object callFromSmartScript(final DataManager dm,
+    public static Object[] callFromSmartScript(final DataManager dataMgr,
             final String toolName, final String elementName,
             ReferenceData editArea, TimeRange timeRange,
             Map<String, Object> varDict, boolean emptyEditAreaFlag,
@@ -121,47 +121,47 @@ public class SmartUtil {
                 timeRange, editArea, emptyEditAreaFlag,
                 MissingDataMode.valueFrom(missingDataMode));
         PreviewInfo pi = new PreviewInfo(editAction, passErrors, parm);
-        final SmartToolRequest req = SmartUtil.buildSmartToolRequest(dm, pi,
-                false);
+        final SmartToolRequest req = SmartUtil.buildSmartToolRequest(dataMgr,
+                pi, false);
 
+        final int[] returnCode = new int[1];
         if (varDict != null) {
             req.setVarDict(varDict);
+            returnCode[0] = IDialogConstants.OK_ID;
         } else {
             VizApp.runSync(new Runnable() {
                 @Override
                 public void run() {
-                    List<FieldDefinition> varList = dm.getSmartToolInterface()
+                    List<FieldDefinition> varList = dataMgr
+                            .getSmartToolInterface()
                             .getVarDictWidgets(toolName);
-                    if (varList != null && varList.size() > 0) {
-                        // The SmartToolBlockingSelectionDlg changes based
-                        // on the procedure. Since it is non-modal several
-                        // dialogs may be displayed. This mimics the AWIPS 1
-                        // behavior.
+                    if ((varList != null) && (varList.size() > 0)) {
+                        /*
+                         * The SelectionDlg changes based on the procedure.
+                         * Since it is non-modal several dialogs may be
+                         * displayed. This mimics the AWIPS 1 behavior.
+                         */
+                        SelectionDlg sd = new SelectionDlg(PlatformUI
+                                .getWorkbench().getActiveWorkbenchWindow()
+                                .getShell(), toolName, dataMgr, varList, true);
 
-                        // make the gui, let it handle running the procedure
-                        SmartToolBlockingSelectionDlg sd = new SmartToolBlockingSelectionDlg(
-                                PlatformUI.getWorkbench()
-                                        .getActiveWorkbenchWindow().getShell(),
-                                toolName, dm, varList);
-
-                        // must block because this method needs the results
-                        // to determine what to return.
+                        /*
+                         * must block because this method needs the results to
+                         * determine what to return.
+                         */
                         sd.setBlockOnOpen(true);
                         sd.open();
-                        Map<String, Object> resultMap = sd.getVarDictResult();
-                        if (resultMap != null) {
-                            req.setVarDict(resultMap);
-                        }
-                    } else {
-                        // set it to something so we don't trigger the null
-                        // == user cancelled below
-                        req.setVarDict(Collections.<String, Object> emptyMap());
+                        returnCode[0] = sd.getReturnCode();
+                        req.setVarDict(sd.getValues());
                     }
                 }
             });
         }
 
-        dm.getSmartToolJobPool().schedule(req);
-        return req.getResult();
+        if (returnCode[0] == IDialogConstants.OK_ID) {
+            dataMgr.getSmartToolJobPool().schedule(req);
+            return new Object[] { req.getResult(), req.getVarDict() };
+        }
+        return new Object[] { null, null };
     }
 }

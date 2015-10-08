@@ -172,40 +172,30 @@
         <!-- Steps to do after  running assemble. -->
         <!-- ===================================================================== -->
         <target name="postAssemble">
-        	<!-- Update the 32-bit linux CAVE zip with static files -->
-        	<zip destfile="${buildDirectory}/${buildLabel}/${buildId}-linux.gtk.x86.zip"
-        		update="true">
-        		
-        		<fileset dir="${buildDirectory}/../../static/linux"
-        			excludes="alertviz/**" />
-        		<fileset dir="${buildDirectory}/../../static/linux.x86" />
+        	<taskdef resource="net/sf/antcontrib/antlib.xml" 
+        		classpath="${builder}/../lib/ant/ant-contrib-1.0b3.jar" />       	
         	
-        	</zip>
-        	<!-- Update the 64-bit linux CAVE zip with static files -->
-        	<zip destfile="${buildDirectory}/${buildLabel}/${buildId}-linux.gtk.x86_64.zip"
-        		update="true">
+        	<!-- TODO: Is this still necessary? -->
+        	<if>
+        		<available file="${buildDirectory}/${buildLabel}/${buildId}-win32.win32.x86_64.zip" />
+        		<then>
+        			<!-- Temp zip file including all the license files -->
+        			<zip destfile="/tmp/cave/FOSS_licenses.zip">
+        				<fileset dir="${buildDirectory}/../../../rpms/legal/FOSS_licenses"/>
+        			</zip>
 
-        		<fileset dir="${buildDirectory}/../../static/linux"
-        			excludes="alertviz/**" />
-        		<fileset dir="${buildDirectory}/../../static/linux.x86_64" />        		
-        		
-        	</zip>        	
-
-        	<!-- Temp zip file including all the license files -->
-        	<zip destfile="/tmp/cave/FOSS_licenses.zip">
-        		<fileset dir="${buildDirectory}/../../../rpms/legal/FOSS_licenses"/>
-        	</zip>
-
-        	<!-- Update the 64-bit (amd64) win32 CAVE zip with static and license files -->
-        	<zip destfile="${buildDirectory}/${buildLabel}/${buildId}-win32.win32.x86_64.zip"
-        		update="true">
+        			<!-- Update the 64-bit (amd64) win32 CAVE zip with static and license files -->
+        			<zip destfile="${buildDirectory}/${buildLabel}/${buildId}-win32.win32.x86_64.zip"
+        				update="true">
         	
-        		<fileset dir="${buildDirectory}/../../static/win32.amd64" 
-        			excludes="alertviz/**" />
-        		<zipfileset dir="${buildDirectory}/../../../rpms/legal" 
-        			includes="Master_Rights_File.pdf" prefix="cave"/>
-        		<zipfileset dir="/tmp/cave" includes="FOSS_licenses.zip" prefix="cave"/> 
-        	</zip>
+        				<fileset dir="${buildDirectory}/../../static/win32.amd64" 
+        					excludes="alertviz/**" />
+        				<zipfileset dir="${buildDirectory}/../../../rpms/legal" 
+        					includes="Master_Rights_File.pdf" prefix="cave"/>
+        				<zipfileset dir="/tmp/cave" includes="FOSS_licenses.zip" prefix="cave"/> 
+        			</zip>
+        		</then>
+        	</if>
 
         </target>
 
@@ -224,10 +214,11 @@
         <!-- ===================================================================== -->
         <!-- Steps to do after the build is done. -->
         <!-- ===================================================================== -->
-        <target name="postBuild">
+        <target name="postBuild">   
         	<taskdef resource="net/sf/antcontrib/antlib.xml" 
-        		classpath="${builder}/../lib/ant/ant-contrib-1.0b3.jar" />   
+        		classpath="${builder}/../lib/ant/ant-contrib-1.0b3.jar" />        	
         	
+        	<!-- TODO: cleanup unused tasks + libs; next changeset -->
 		<taskdef name="xmltask"
             	classname="com.oopsconsultancy.xmltask.ant.XmlTask">
 			<classpath>
@@ -235,32 +226,6 @@
 				<pathelement path="${builder}/../lib/ant/xalan-2.7.2.jar"/>
 			</classpath>
 		</taskdef>
-        	
-            <!-- Generate the 32-bit CAVE ini files -->
-        	<var name="cave.arch" value="arch.x86" />
-        	<extractCAVEini
-        		zip.file="${buildDirectory}/${buildLabel}/${buildId}-linux.gtk.x86.zip" />
-                <!-- add the Xss jvm parameter to the 32-bit CAVE -->
-                <echo file="/tmp/cave/cave.ini" append="true" message="-Xss512k" />
-        	<antcall target="generateDynamicCAVE" />
-        	<!-- Update the 32-bit CAVE zip file -->
-        	<zip destfile="${buildDirectory}/${buildLabel}/${buildId}-linux.gtk.x86.zip" 
-         	 	 basedir="/tmp"
-        		 includes="cave/*.ini, cave/*.sh"
-        		 update="true" />
-            	
-            <!-- Generate the 64-bit CAVE ini files -->
-        	<var name="cave.arch" value="arch.x86_64" />
-        	<extractCAVEini
-        		zip.file="${buildDirectory}/${buildLabel}/${buildId}-linux.gtk.x86_64.zip" />
-        	<antcall target="generateDynamicCAVE" />
-        	<!-- Update the 64-bit cave.ini file -->
-        	<antcall target="update64BitINI" />
-            <!-- Update the 64-bit CAVE zip file -->
-            <zip destfile="${buildDirectory}/${buildLabel}/${buildId}-linux.gtk.x86_64.zip" 
-             	basedir="/tmp"
-            	includes="cave/*.ini, cave/*.sh"
-            	update="true" />
         </target>
 	
 		<macrodef name="extractCAVEini">
@@ -449,27 +414,6 @@
 			<echo message="}"
 				file="${iniLookupScript}" 
 				append="true" />
-		</target>
-	
-		<!-- Used to update cave.ini for the x86_64 cave. -->
-		<target name="update64BitINI">
-			<xmlproperty file="${builder}/memorySettings.xml" 
-				collapseAttributes="true"/>
-			
-			<property name="caveXmx" value="2560M" />
-			<property name="caveMaxPermSize" value="256m" />
-			
-			<update.ini
-				ini.file="cave.ini" 
-				jvm.arg="${cave-memory-settings.default-memory-setting.default-max-memory.jvm-arg}" 
-				current.value="${cave-memory-settings.default-memory-setting.default-max-memory.value}" 
-				new.value="${caveXmx}" />
-			
-			<update.ini 
-				ini.file="cave.ini" 
-				jvm.arg="${cave-memory-settings.default-memory-setting.default-max-perm.jvm-arg}" 
-				current.value="${cave-memory-settings.default-memory-setting.default-max-perm.value}"
-				new.value="${caveMaxPermSize}" />
 		</target>
 	
 		<macrodef name="update.ini">

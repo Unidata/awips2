@@ -23,8 +23,10 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.dialogs.ProductScriptsDialog;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
 
 /**
  * Action to launch product generation script dialog.
@@ -36,6 +38,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Mar 06, 2008            Eric Babin  Initial Creation
  * Oct 25, 2012 12878      rferrel     Changes for non-blocking ProductScriptsDialog.
  * Aug 27, 2015 4749       njensen     Now extends GfeShowDialogHandler
+ * Sep 21, 2015 4858       dgilling    Disable in DRT mode.
  * 
  * </pre>
  * 
@@ -46,6 +49,12 @@ public class ShowProductScriptsDialog extends GfeShowDialogHandler {
     @Override
     protected CaveJFACEDialog createDialog(Shell shell, DataManager dm,
             ExecutionEvent event) {
+        if (!SimulatedTimeOperations.isTransmitAllowed()) {
+            SimulatedTimeOperations.displayFeatureLevelWarning(shell,
+                    "Product Scripts dialog");
+            return null;
+        }
+
         return new ProductScriptsDialog(shell, dm);
     }
 }

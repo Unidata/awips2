@@ -50,6 +50,7 @@ import com.raytheon.uf.edex.plugin.text.dbsrv.impl.AlarmAlertUtil;
  * 02Aug2010    2187       cjeanbap    Move AlarmAlertUtil.sendProductAlarmAlert() 
  *                                     outside of if-statement.
  * May 12, 2014 2536       bclement    removed unused import
+ * Sep 30, 2015 4860       skorolev    Corrected misspelling.
  * 
  * </pre>
  * 
@@ -59,11 +60,12 @@ import com.raytheon.uf.edex.plugin.text.dbsrv.impl.AlarmAlertUtil;
 
 public class StdTextProductRequestHandler implements
         IRequestHandler<StdTextProductServerRequest> {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(StdTextProductRequestHandler.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(StdTextProductRequestHandler.class);
 
     private static final String WATCH_WARN_QUEUE = "ldadWatchWarnDirect";
 
-    private TextDB dao;
+    private final TextDB dao;
 
     public StdTextProductRequestHandler() {
         dao = new TextDB();
@@ -82,7 +84,7 @@ public class StdTextProductRequestHandler implements
         String bbbid = request.getBbbid();
         Long createtime = request.getCreatetime();
         String product = request.getProduct();
-        boolean operationalFlag = request.isOpertionalFlag();
+        boolean operationalFlag = request.isOperationalFlag();
 
         StdTextProduct text = (operationalFlag ? new OperationalStdTextProduct()
                 : new PracticeStdTextProduct());
@@ -127,7 +129,7 @@ public class StdTextProductRequestHandler implements
             EDEXUtil.getMessageProducer().sendAsync(queue, message);
         } catch (EdexException e) {
             statusHandler.handle(Priority.PROBLEM, "Unable to send product '"
-                            + message + "' to queue '" + queue + "'", e);
+                    + message + "' to queue '" + queue + "'", e);
         }
     }
 }

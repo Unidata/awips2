@@ -54,6 +54,7 @@ import com.raytheon.viz.gfe.smartscript.FieldDefinition.FieldType;
 import com.raytheon.viz.gfe.tasks.TaskManager;
 import com.raytheon.viz.gfe.ui.runtimeui.ValuesDialog;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
 import com.raytheon.viz.ui.widgets.ToggleSelectList;
 
 /**
@@ -63,18 +64,19 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar  7, 2008			   Eric Babin  Initial Creation
+ * Mar  7, 2008            Eric Babin  Initial Creation
  * Oct 27, 2012 1287       rferrel     Code cleanup for non-blocking dialog.
  * Oct 25, 2012 1287       rferrel     Code changes for non-blocking PublishDialog.
  * Nov 30, 2012 15575      ryu         Added variable replacement for SelectedStart,
  *                                     SelectedEnd, and home
  * Nov 13, 2012 1298       rferrel     Code changes for non-blocking UserEntryDialog.
- * Jan  9, 2013	15635	   jdynina	   Allowed to mix and match entry dialogs. Changed order
- * 									   of dialogs to match A1 displaying entry fields first.
+ * Jan  9, 2013 15635      jdynina     Allowed to mix and match entry dialogs. Changed order
+ *                                     of dialogs to match A1 displaying entry fields first.
  * Mar 29, 2013 1790       rferrel     Bug fix for non-blocking dialogs.
- * Oct 23, 2013	DR16203    equintin    Restore the "-c" argument when the command
+ * Oct 23, 2013 DR16203    equintin    Restore the "-c" argument when the command
  *                                     for Png Images... is rebuilt after
  *                                     return from the dialog.
+ * Sep 15, 2015 4858       dgilling    Disable all features in DRT mode.
  * 
  * </pre>
  * 
@@ -87,7 +89,7 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
 
     private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ProductScriptsDialog.class);
-    
+
     private final int RUN_ID = IDialogConstants.CLIENT_ID + 1;
 
     private String[] scripts;
@@ -146,7 +148,12 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
     @Override
     protected void buttonPressed(int buttonId) {
         if (buttonId != IDialogConstants.CANCEL_ID) {
-            runScripts();
+            if (SimulatedTimeOperations.isTransmitAllowed()) {
+                runScripts();
+            } else {
+                SimulatedTimeOperations.displayFeatureLevelWarning(getShell(),
+                        "Run Product Scripts");
+            }
         }
         super.buttonPressed(buttonId);
     }
@@ -209,7 +216,7 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
                 cmd = cmd.replace("{ztime}", curGMTTime);
                 cmd = cmd.replace("{home}", gfeHome);
                 cmd = cmd.replace("{prddir}", prddir);
-                
+
                 // The user is prompted to enter the value with which to replace
                 // the
                 // following variables:
@@ -228,7 +235,7 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
                 int entryIdx = cmd.indexOf("{entry:");
                 if (entryIdx >= 0) {
                     run = true;
-                    
+
                     int endEntryIdx = cmd.indexOf("}", entryIdx);
                     String[] entry = cmd.substring(entryIdx + 1, endEntryIdx)
                             .split(":");
@@ -240,12 +247,11 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
 
                     // Keep this a blocking dialog so the loop will only display
                     // one dialog at a time.
-                    fieldDefs.add(new FieldDefinition((Object) entry[1],
-                            entry[1], FieldType.ALPHANUMERIC,
-                            (Object) entry[2], Arrays.asList(Arrays.asList(
-                                    configFile).toArray(
-                                    new Object[configFile.length])),
-                            (float) 1.0, (int) 3));
+                    fieldDefs.add(new FieldDefinition(entry[1], entry[1],
+                            FieldType.ALPHANUMERIC, entry[2], Arrays
+                                    .asList(Arrays.asList(configFile).toArray(
+                                            new Object[configFile.length])),
+                            (float) 1.0, 3));
 
                     if (start == 0) {
                         start = entryIdx;
@@ -253,8 +259,9 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
                         start = entryIdx;
                     }
 
-                    if (entry[1].equals("ConfigFile")) {	//DR 16203 eeq 10/23/2013
-                    	endIdx = endEntryIdx;
+                    if (entry[1].equals("ConfigFile")) { // DR 16203 eeq
+                                                         // 10/23/2013
+                        endIdx = endEntryIdx;
                     }
                 }
 
@@ -277,15 +284,15 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
 
                             fieldDefs
                                     .add(new FieldDefinition(
-                                            (Object) entry[1],
+                                            entry[1],
                                             entry[1],
                                             FieldType.RADIO,
-                                            (Object) fields[0],
+                                            fields[0],
                                             Arrays.asList(Arrays
                                                     .asList(fields)
                                                     .toArray(
                                                             new Object[fields.length])),
-                                            (float) 1.0, (int) 3));
+                                            (float) 1.0, 3));
                             if (start == 0) {
                                 start = entryIdx;
                             } else if ((start > 0) && (start > entryIdx)
@@ -318,7 +325,7 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
 
                             fieldDefs
                                     .add(new FieldDefinition(
-                                            (Object) entry[1],
+                                            entry[1],
                                             entry[1],
                                             FieldType.CHECK,
                                             (Object) null,
@@ -326,7 +333,7 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
                                                     .asList(fields)
                                                     .toArray(
                                                             new Object[fields.length])),
-                                            (float) 1.0, (int) 3));
+                                            (float) 1.0, 3));
                             if (start == 0) {
                                 start = entryIdx;
                             } else if ((start > 0) && (start > entryIdx)
@@ -356,16 +363,17 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
 
                     if (dlgOpen <= 0) {
                         Map<Object, Object> map = scriptDlg.getValues();
-                        
+
                         String returnMsg = "";
-                        
+
                         for (Map.Entry<Object, Object> entry : map.entrySet()) {
                             returnMsg = returnMsg + entry.getValue().toString()
                                     + " ";
                         }
-                        
+
                         if (endIdx > 0) {
-                            cmd = cmd.replace(cmd.substring(start, endIdx+2), returnMsg);
+                            cmd = cmd.replace(cmd.substring(start, endIdx + 2),
+                                    returnMsg);
                         } else {
                             start = start - 3;
                             cmd = cmd.substring(0, start) + returnMsg;
@@ -374,7 +382,7 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
                 }
 
                 TaskManager.getInstance().createScriptTask(name, cmd);
-                
+
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
@@ -403,7 +411,12 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
         publishToOfficialButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                launchPublishToOfficial();
+                if (SimulatedTimeOperations.isTransmitAllowed()) {
+                    launchPublishToOfficial();
+                } else {
+                    SimulatedTimeOperations.displayFeatureLevelWarning(
+                            getShell(), "Publish Grids to Official");
+                }
             }
         });
 

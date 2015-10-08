@@ -47,6 +47,7 @@
 # Mar 24, 2015  4320     dgilling       Fix NullPointerException in StdWarningDecoder.__init__()
 #                                       when decoding product not from a file.
 # Mar 26, 2015  4324     dgilling       Improve handling of all 0s time values in HVTEC strings.
+# Sep 23, 2015  4848     nabowle        Handle UGC-like lines in the text segment.
 #
 #
 # @author rferrel
@@ -511,7 +512,11 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
                         ugc = string.join(self._lines[count:count+nxt+1],
                           sep="")
                         break
-                    
+
+                    # if we hit the end, break out and let the len(ugc) check fail
+                    if count+nxt == len(self._lines):
+                        break;
+
                     #after incrementing check if the next line is not a 
                     #continuation of the ugc because it is a vtec string
                     #print "checking for non-ugc"
@@ -577,13 +582,18 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
                           self._lines[textFirst:count+nxt])
                         break
 
-                    # found a UGC line, terminate the segment
+                    # found a probable UGC line, terminate the segment
+                    # if a DDMMHH or VTEC can be found
                     elif re.search(r'^[A-Z][A-Z][CZ][0-9][0-9][0-9].*',
                       self._lines[count+nxt]):
-                        segmentText = self._prepSegmentText(\
-                          self._lines[textFirst:count+nxt])
-                        nxt = nxt - 1  #back up one line to redo UGC outer loop
-                        break
+                        toCheck = count+nxt
+                        falsePositive = self.checkForFalseUGCLine(toCheck)
+
+                        if not falsePositive:
+                            segmentText = self._prepSegmentText(\
+                              self._lines[textFirst:count+nxt])
+                            nxt = nxt - 1  #back up one line to redo UGC outer loop
+                            break
 
                     # end of file, terminate the segment
                     elif count+nxt+1 == len(self._lines):
@@ -618,6 +628,31 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
         for e in ugcList:
             LogStream.logVerbose("UGC/VTEC found: ", e[0], e[1])
         return ugcList
+
+    def checkForFalseUGCLine(self, toCheck):
+        # tries to determine if an apparent UGC line encountered in a text
+        # segment is an actual UGC line, or is a UGC-like line in the free-text
+        # such as:
+        #THE AFFECTED AREAS WERE...
+        #GMZ074-GMZ054-
+        #STRAITS OF FLORIDA FROM WEST END OF SEVEN MILE BRIDGE TO HALFMOON
+        #SHOAL OUT 60 NM...
+        falsePositive = True
+        while toCheck < len(self._lines):
+            # look for the end date or vtec line before "$$" or the end of the
+            # file
+            if re.search(r'.*[0-9][0-9][0-9][0-9][0-9][0-9]-',
+                         self._lines[toCheck]) or \
+                         re.search(self._vtecRE, self._lines[toCheck]):
+                falsePositive = False
+                break;
+
+            if re.search(self._endSegmentRE, self._lines[toCheck]):
+                break;
+
+            toCheck = toCheck + 1
+
+        return falsePositive
 
     def _expandUGC(self, ugcString):
         #expand a UGC string into its individual UGC codes, returns the list.

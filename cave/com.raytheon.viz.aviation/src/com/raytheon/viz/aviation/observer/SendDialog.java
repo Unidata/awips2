@@ -21,16 +21,20 @@ package com.raytheon.viz.aviation.observer;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.bind.JAXB;
 
+import org.apache.commons.collections.ListUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -79,6 +83,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 0yJUN2013    1981       mpduff      Set user on the request.
  * 06May2014    3091       rferrel     Use OUP authorization to bring up send dialog.
  * 20May2015    4510       rferrel     Added {@link #getForecasterId()}.
+ * Sep 25, 2015 4918       rferrel     Allow selection of forecaster to send a TAF.
  * 
  * </pre>
  * 
@@ -142,6 +147,11 @@ public class SendDialog extends CaveSWTDialog {
      */
     private Composite mainComp;
 
+    /*
+     * Available forecasters.
+     */
+    private org.eclipse.swt.widgets.List forecasterList;
+
     /**
      * Send the TAFs individually or as a collective.
      */
@@ -199,6 +209,8 @@ public class SendDialog extends CaveSWTDialog {
         GridLayout gl = new GridLayout(1, false);
         mainComp = new Composite(shell, SWT.NONE);
         mainComp.setLayout(gl);
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
+        mainComp.setLayoutData(gd);
 
         // Initialize all of the controls and layouts
         ResourceConfigMgr configMgr = ResourceConfigMgr.getInstance();
@@ -213,7 +225,7 @@ public class SendDialog extends CaveSWTDialog {
      * Create the time controls.
      */
     private void createTimeControls(ResourceConfigMgr configMgr) {
-        GridData gd = new GridData(SWT.FILL, SWT.NONE, true, false);
+        GridData gd = new GridData(SWT.CENTER, SWT.NONE, true, false);
         Group timeGroup = new Group(mainComp, SWT.NONE);
         timeGroup.setText(" Transmit at: ");
         GridLayout gl = new GridLayout(6, false);
@@ -308,22 +320,92 @@ public class SendDialog extends CaveSWTDialog {
      */
     private void createPersonListControl(ResourceConfigMgr configMgr) {
         Composite listComp = new Composite(mainComp, SWT.NONE);
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, true);
         listComp.setLayout(new GridLayout(1, false));
         listComp.setLayoutData(gd);
         configMgr.setDefaultColors(listComp);
 
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd = new GridData(SWT.CENTER, SWT.DEFAULT, false, false);
         Label repsonsibleLbl = new Label(listComp, SWT.CENTER);
         repsonsibleLbl.setText("Responsible for this forecast:");
         repsonsibleLbl.setLayoutData(gd);
         configMgr.setDefaultFontAndColors(repsonsibleLbl);
 
-        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        List<ForecasterConfig> forecasters = getForecasters();
+        String forecaster = AviationDialog.getForecaster();
+        gd = new GridData(SWT.CENTER, SWT.DEFAULT, false, false);
+        gd.minimumWidth = 100;
         forecasterLabel = new Label(listComp, SWT.CENTER);
-        forecasterLabel.setText(AviationDialog.getForecaster());
         forecasterLabel.setLayoutData(gd);
+        if (forecasters.isEmpty()) {
+            forecasterLabel.setText("NO FORECASTERS FOUND");
+        } else {
+            forecasterLabel.setText(forecaster);
+        }
         configMgr.setListBoxFont(forecasterLabel);
+
+        forecasterList = new org.eclipse.swt.widgets.List(listComp, SWT.SINGLE
+                | SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
+        gd = new GridData(SWT.CENTER, SWT.FILL, true, true);
+        forecasterList.setLayoutData(gd);
+        Font monoFont = new Font(shell.getDisplay(), "Monospace", 10,
+                SWT.NORMAL);
+        forecasterList.setFont(monoFont);
+        forecasterList.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                int i = forecasterList.getSelectionIndex();
+                if (i >= 0) {
+                    String sel = forecasterList.getItem(i);
+                    String name = sel.substring(0, sel.indexOf(" "));
+                    forecasterLabel.setText(name);
+                }
+            }
+
+        });
+
+        /*
+         * Using the mono-space font and the format allows the ids to line up.
+         */
+        String[] fcEntries = new String[forecasters.size()];
+        for (int i = 0; i < fcEntries.length; ++i) {
+            ForecasterConfig fc = forecasters.get(i);
+            fcEntries[i] = String.format("%-20s %s", fc.getName(),
+                    fc.getFormattedId());
+        }
+
+        /*
+         * Order by forecaster name then id.
+         */
+        Arrays.sort(fcEntries, String.CASE_INSENSITIVE_ORDER);
+        int selIndex = -1;
+        String entryHead = forecaster + " ";
+
+        /*
+         * Generate list get the index for the forecaster's entry.
+         */
+        for (String entry : fcEntries) {
+            if (entry.startsWith(entryHead)) {
+                selIndex = forecasterList.getItemCount();
+            }
+            forecasterList.add(entry);
+        }
+
+        monoFont.dispose();
+
+        /*
+         * Forecaster not in the send list. Just select the first entry.
+         */
+        if ((selIndex < 0) && (forecasterList.getItemCount() > 0)) {
+            selIndex = 0;
+            String sel = forecasterList.getItem(selIndex);
+            String name = sel.substring(0, sel.indexOf(" "));
+            forecasterLabel.setText(name);
+        }
+
+        forecasterList.select(selIndex);
+        forecasterList.showSelection();
     }
 
     /**
@@ -360,9 +442,13 @@ public class SendDialog extends CaveSWTDialog {
 
     @SuppressWarnings("unchecked")
     private void sendAction() {
-        // Forecaster ID
-        String forecasterId = getForecasterId();
-        if (forecasterId == null) {
+        String forecasterId = null;
+
+        try {
+            String selString = forecasterList.getItem(forecasterList
+                    .getSelectionIndex());
+            forecasterId = selString.split("\\s+")[1];
+        } catch (IllegalArgumentException ex) {
             return;
         }
 
@@ -525,48 +611,28 @@ public class SendDialog extends CaveSWTDialog {
         return type + "A";
     }
 
-    /**
-     * Determine forcaster's id for the user. When none found return the
-     * {@link #DEFAULT_ID}. This string will be in the VFT product.
-     * 
-     * @return forecasterId - padded to 3 character so an id of 1 will return
-     *         001
-     */
-    private String getForecasterId() {
-        File f = AvnConfigFileUtil.getStaticFile(FORECAST_CONFIG_FILE);
-        ArrayList<ForecasterConfig> fcList = null;
-        String forecasterName = AviationDialog.getForecaster();
+    @SuppressWarnings("unchecked")
+    private List<ForecasterConfig> getForecasters() {
+        List<ForecasterConfig> forecasters = null;
 
+        File f = AvnConfigFileUtil.getStaticFile(FORECAST_CONFIG_FILE);
         if (f == null) {
             statusHandler.handle(Priority.PROBLEM,
                     "Cannot send the TAF. Unable to load, "
                             + FORECAST_CONFIG_FILE
                             + ", unable to obtain forecaster's ID. ");
-            return null;
+            return ListUtils.EMPTY_LIST;
         }
-
         try {
-            fcList = JAXB.unmarshal(f, AviationForecasterConfig.class)
+            forecasters = JAXB.unmarshal(f, AviationForecasterConfig.class)
                     .getForecasterConfig();
         } catch (RuntimeException ex) {
             statusHandler.handle(Priority.PROBLEM,
                     "Cannot send the TAF. Unable to parse, "
                             + FORECAST_CONFIG_FILE
                             + ", unable to obtain forecaster's ID. ", ex);
-            return null;
+            return ListUtils.EMPTY_LIST;
         }
-
-        if ((fcList != null) && !fcList.isEmpty()) {
-            for (ForecasterConfig fc : fcList) {
-                if (forecasterName.equals(fc.getName())) {
-                    return fc.getFormattedId();
-                }
-            }
-        }
-
-        statusHandler.handle(Priority.PROBLEM,
-                "Cannot send the TAF. No forecaster ID for " + forecasterName
-                        + " in " + FORECAST_CONFIG_FILE + ".");
-        return null;
+        return forecasters;
     }
 }

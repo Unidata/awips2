@@ -65,7 +65,7 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.edex.grib.feature"
+         id="com.raytheon.uf.edex.grid.feature"
          version="0.0.0"/>
 
    <includes
