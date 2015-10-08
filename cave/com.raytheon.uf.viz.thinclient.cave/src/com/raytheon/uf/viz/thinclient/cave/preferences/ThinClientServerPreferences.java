@@ -54,6 +54,7 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  * Aug 02, 2013 2202       bsteffen    Add edex specific connectivity checking.
  * Feb 04, 2014 2704       njensen     Only one field for proxy server
  * Jun 26, 2014 3236       njensen     Proxy server can now be text or combo field
+ * Oct 08, 2015 4891       njensen     Added tooltip to useProxies
  * 
  * </pre>
  * 
@@ -90,8 +91,12 @@ public class ThinClientServerPreferences extends FieldEditorPreferencePage {
         useProxies = new BooleanFieldEditor(
                 ThinClientPreferenceConstants.P_USE_PROXIES,
                 "&Use Proxy Servers", getFieldEditorParent());
-
+        useProxies
+                .getDescriptionControl(getFieldEditorParent())
+                .setToolTipText(
+                        "Connect to a remote proxy server configured to support thin clients");
         addField(useProxies);
+
         proxyServer = new TextOrComboEditor(getFieldEditorParent(),
                 this.getPreferenceStore(),
                 ThinClientPreferenceConstants.P_PROXY_ADDRESS,
@@ -104,7 +109,7 @@ public class ThinClientServerPreferences extends FieldEditorPreferencePage {
             }
         });
 
-        proxyServer.setErrorMessage("Cannot connect to Proxy server");
+        proxyServer.setErrorMessage("Cannot connect to proxy server");
         addField(proxyServer);
 
         addConnectivityButton();

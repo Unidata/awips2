@@ -36,7 +36,8 @@ import com.raytheon.uf.viz.thinclient.Activator;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 21, 2011            mschenke     Initial creation
+ * Oct 21, 2011            mschenke    Initial creation
+ * Oct 08, 2015  4891      njensen     Default data update interval to 5
  * 
  * </pre>
  * 
@@ -46,12 +47,6 @@ import com.raytheon.uf.viz.thinclient.Activator;
 
 public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer#
-     * initializeDefaultPreferences()
-     */
     @Override
     public void initializeDefaultPreferences() {
         IPreferenceStore store = Activator.getDefault().getPreferenceStore();
@@ -82,7 +77,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
         // Default data refresh rate
         store.setDefault(ThinClientPreferenceConstants.P_DATA_REFRESH_INTERVAL,
-                30);
+                5);
 
         // By default, no proxy used
         store.setDefault(ThinClientPreferenceConstants.P_USE_PROXIES, false);
