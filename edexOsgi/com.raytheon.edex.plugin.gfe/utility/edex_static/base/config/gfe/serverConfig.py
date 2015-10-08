@@ -68,7 +68,6 @@
 #    05/29/2015          17496     ryu            Changed parm definitions for Wave1-10 and Period1-10.
 #
 #    05/29/2015          #17144    bhunder        Added weather Params for URMA25 and OCONUS RTMA 
-#    09/09/2015          16287     amoore         Additional validation of user input
 ####################################################################################################
 
 #----------------------------------------------------------------------------
@@ -970,15 +969,6 @@ SITES = {
     'NHA' : ([1833,1241], (41.5,5.0), (54.0,40.5), 'EST5EDT', Grid211, "nc"),
 }
 
-# Get list of valid office types, for validation.
-VALID_OFFICE_TYPES = []
-# List of all values of all sites.
-for siteValues in SITES.values():
-    # Office type is the 5th element of each site's values
-    officeType = siteValues[5]
-    if officeType not in VALID_OFFICE_TYPES:
-        # A new office type
-        VALID_OFFICE_TYPES.append(officeType)
 
 #---------------------------------------------------------------------------
 #
@@ -2219,17 +2209,11 @@ for wes, tc in (OFFICIALDBS + localISCParms):
 for wes, officeType in (EXTRA_ISC_PARMS + localISCExtraParms):
     if myOfficeType == officeType:
         continue
-    if type(officeType) != str:
-        raise TypeError, "Office type not a str: " + `officeType`
-    else:
-        if officeType not in VALID_OFFICE_TYPES:
-            raise ValueError, "Office type: " + str(officeType) + " does not match any of the following: [" + (', '.join(VALID_OFFICE_TYPES)) + "]"
     for we in wes:
         wecopy = list(we)
         wecopy[0] = wecopy[0] + officeType  #rename the weather element
         wecopy = tuple(wecopy)
         ISCPARMS.append(([wecopy], TC1))
-    
         
 # Restore database parameter groupings (based on OFFICIALDBS, but TC1)
 RESTOREPARMS = []
@@ -2315,7 +2299,7 @@ def doIt():
     sendiscOnSave, sendiscOnPublish, \
     requestedISCparms, \
     transmitScript) \
-       = doConfig.otherParse(SITES.keys(), \
+       = doConfig.otherParse(\
       GFESUITE_SERVER, GFESUITE_MHSID, \
       GFESUITE_PORT, INITMODULES,
       D2DAccumulativeElements,
