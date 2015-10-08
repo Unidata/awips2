@@ -80,20 +80,20 @@ else
    echo "Building for architecture ... ${EDEX_BUILD_ARCH}."
 fi
 
-function patchDDSpecification()
+function patchSpecification()
 {
    # copy the standard rpm feature specification into the
-   # data delivery rpm project directory
+   # component's project directory
    cp -v Installer.edex-component/component.spec \
-      Installer.edex-datadelivery/component.spec
+      Installer.${COMPONENT_NAME}/component.spec
    if [ $? -ne 0 ]; then
       exit 1
    fi   
 
    # apply the specification patch
    pushd . > /dev/null 2>&1
-   cd Installer.edex-datadelivery
-   patch -p1 -i datadelivery.patch0
+   cd Installer.${COMPONENT_NAME}
+   patch -p1 -i *.patch0
    if [ $? -ne 0 ]; then
       exit 1
    fi
@@ -155,23 +155,32 @@ cd ../
 
 buildRPM "Installer.edex"
 buildRPM "Installer.edex-configuration"
-buildRPM "Installer.edex-shapefiles"
-# build the edex-datadelivery rpm
-export COMPONENT_NAME="edex-datadelivery"
-patchDDSpecification
-buildRPM "Installer.edex-datadelivery"
+
+# build the edex-hazards component
+export COMPONENT_NAME="edex-hazards"
+patchSpecification
+buildRPM "Installer.edex-hazards"
 unset COMPONENT_NAME
 
 DIST="${WORKSPACE}/build.edex/edex/dist"
 for edex_zip in `cd ${DIST}; ls -1;`;
 do
    edex_component=`python -c "zipFile='${edex_zip}'; componentName=zipFile.replace('.zip',''); print componentName;"`
-   # do not build edex-datadelivery since it is now built differently from the other edex feature rpms
-   # since this is currently the only case, the exclusion will be hard-coded
-   
+  
+   #Data Delivery and Hazard Services components are built separately
    if [ ! "${edex_component}" = "edex-datadelivery" ] &&
-      [ ! "${edex_component}" = "common-base" ]; then
+      [ ! "${edex_component}" = "common-base" ] &&
+      [ ! "${edex_component}" = "edex-hazards" ]; then
       export COMPONENT_NAME="${edex_component}"
       buildRPM "Installer.edex-component"
    fi
 done
+
+# build the edex-datadelivery rpm
+export COMPONENT_NAME="edex-datadelivery"
+patchSpecification
+buildRPM "Installer.edex-datadelivery"
+unset COMPONENT_NAME
+
+#build shapefiles RPM last
+buildRPM "Installer.edex-shapefiles"

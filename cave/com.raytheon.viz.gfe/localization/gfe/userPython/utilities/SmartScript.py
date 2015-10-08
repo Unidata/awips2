@@ -67,6 +67,7 @@
 #                                                 Fixed createGrid to accept a DatabaseID for model
 #    Apr 23, 2015    4259          njensen        Updated for new JEP API
 #    Jul 07, 2015    14739         ryu            Modified callSmartTool to return with updated varDict.
+#    Sep 11, 2015    4858          dgilling       Remove notification processing from publishElements.
 ########################################################################
 import types, string, time, sys
 from math import *
@@ -1920,16 +1921,7 @@ class SmartScript(BaseTool.BaseTool):
 
             cgr = CommitGridRequest(parm.getParmID(), publishTimeRange.toJavaObj())
             requests.add(cgr)
-        resp = self.__dataMgr.getClient().commitGrid(requests)
-        r = resp.getPayload()
-        size = r.size()
-        for x in range(size):
-            notify = r.get(x)
-            pid = notify.getParmId()
-            p = self.__parmMgr.getParm(pid)
-            if not p:
-                p = self.__parmMgr.addParm(pid, False, False)
-            p.inventoryArrived(notify.getReplacementTimeRange(), notify.getHistories())
+            self.__parmOp.publish(requests)
 
     def combineMode(self):
         from com.raytheon.viz.gfe.core.parm import ParmState

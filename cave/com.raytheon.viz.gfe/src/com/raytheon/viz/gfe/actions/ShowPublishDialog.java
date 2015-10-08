@@ -26,7 +26,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.dialogs.PublishDialog;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
 
 /**
  * Action to launch publish to official dialog.
@@ -35,8 +37,10 @@ import com.raytheon.viz.gfe.dialogs.PublishDialog;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 	Mar 6, 2008					Eric Babin Initial Creation
+ * Mar 6, 2008             Eric Babin  Initial Creation
  * Oct 25, 2012 1287       rferrel     Changes for non-blocking PublishDialog.
+ * Sep 09, 2015 4858       dgilling    Don't allow publishing when 
+ *                                     SimulatedTime is enabled.
  * 
  * </pre>
  * 
@@ -45,6 +49,7 @@ import com.raytheon.viz.gfe.dialogs.PublishDialog;
  */
 
 public class ShowPublishDialog extends AbstractHandler {
+
     private PublishDialog dialog;
 
     /*
@@ -56,17 +61,21 @@ public class ShowPublishDialog extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        DataManager dm = DataManager.getCurrentInstance();
+        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                .getShell();
+        if (!SimulatedTimeOperations.isTransmitAllowed()) {
+            SimulatedTimeOperations.displayFeatureLevelWarning(shell,
+                    "Publish Grids to Official");
+            return null;
+        }
 
+        DataManager dm = DataManagerUIFactory.getCurrentInstance();
         if (dm == null) {
             return null;
         }
 
         if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
-
-            PublishDialog dialog = new PublishDialog(shell, dm);
+            dialog = new PublishDialog(shell, dm);
             dialog.setBlockOnOpen(false);
             dialog.open();
         } else {
@@ -87,12 +96,11 @@ public class ShowPublishDialog extends AbstractHandler {
             return false;
         }
 
-        DataManager dm = DataManager.getCurrentInstance();
+        DataManager dm = DataManagerUIFactory.getCurrentInstance();
         if (dm != null) {
             return !dm.getParmManager().getMutableDatabase()
                     .equals(dm.getParmManager().getProductDB());
         }
         return false;
     }
-
 }

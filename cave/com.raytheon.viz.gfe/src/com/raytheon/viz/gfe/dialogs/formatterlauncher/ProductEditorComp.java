@@ -119,6 +119,7 @@ import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData.ProductStateEnu
 import com.raytheon.viz.gfe.product.ProductFileUtil;
 import com.raytheon.viz.gfe.product.TextDBUtil;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
 
 /**
  * Composite containing the product editor controls.
@@ -171,6 +172,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 07/22/2015  13753       lshi        Keeps issue time unchanged
  * 08/06/2015  13753       lshi        removed updateTime flag, undo the change of updateIssueExpireTimes, etc.
  * 08/10/2015   4721       randerso    Changed getNNNid() to use the productID field (not textdbPil)
+ * 09/15/2015   4858       dgilling    Disable store/transmit in DRT mode.
  * </pre>
  *
  * @author lvenable
@@ -1086,9 +1088,14 @@ public class ProductEditorComp extends Composite implements
      *            dialog. AUTOSTORE: implement autoStore
      */
     private void storeTransmit(Action action) {
+        if (!SimulatedTimeOperations.isTransmitAllowed()) {
+            SimulatedTimeOperations.displayFeatureLevelWarning(getShell(),
+                    "Text Product Store/Transmit");
+            brain();
+            return;
+        }
 
         ProductDataStruct pds = textComp.getProductDataStruct();
-
         if (pds == null) {
             String msg = "There is no product to transmit.\n\nAction cancelled.";
             MessageBox mb = new MessageBox(getShell(), SWT.OK
