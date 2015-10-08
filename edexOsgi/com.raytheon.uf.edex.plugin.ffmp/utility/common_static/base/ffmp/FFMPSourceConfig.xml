@@ -545,7 +545,7 @@
         <SourceName>ARI25YR12</SourceName>
         <DisplayName>ARIFFG25</DisplayName>
         <DurationHour>12.0</DurationHour>
-        <dataPath>/grid/%/ARI/.*/.*/.*/ARI1YR12/SFC/0.0/-999999.0/</dataPath>
+        <dataPath>/grid/%/ARI/.*/.*/.*/ARI25YR12/SFC/0.0/-999999.0/</dataPath>
         <plugin>grid</plugin>
         <dataType>GRID</dataType>
         <sourceType>GUIDANCE</sourceType>
