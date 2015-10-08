@@ -1107,4 +1107,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             ('FW.W', allActions, 'FireWx'),       # RED FLAG WARNING
             ('FW.A', allActions, 'FireWx1'),       # FIRE WEATHER WATCH           
             ('LO.Y', marineActions, 'LowWater'),   # LOW WATER ADVISORY
+            ('TS.W', allActions, 'Tsunami'),      # TSUNAMI WARNING
+            ('TS.Y', allActions, 'Tsunami'),      # TSUNAMI ADVISORY
+            ('TS.A', allActions, 'Tsunami'),      # TSUNAMI WATCH                        
             ]
