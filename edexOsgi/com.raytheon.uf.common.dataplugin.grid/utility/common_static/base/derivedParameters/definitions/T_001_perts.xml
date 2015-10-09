@@ -15,7 +15,7 @@
 	
 	NEW FILE - T_001_perts.xml
  -->
-<DerivedParameter name="Prob of Temp Lstn 0C Perturbations" abbreviation="T_001_perts" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+<DerivedParameter name="Prob of Temp Lstn 0C Perturbations" abbreviation="T_001_perts" internal="true" >
     <Method name="Gather">
         <Field abbreviation="T_001_bin"/>
     </Method>
