@@ -171,7 +171,7 @@ public class FSSObsUtils {
     }
 
     /**
-     * Gets descriptive station name from database.
+     * Gets descriptive station name from database. Returns Null if not found.
      * 
      * @param stnId
      * @return station name
@@ -193,10 +193,12 @@ public class FSSObsUtils {
             Map<String, Object> paramMap = new HashMap<>(1, 1);
             paramMap.put("stationid", stnId);
             Object[] results = dao.executeSQLQuery(sql, paramMap);
-            retVal = (String) results[0];
+            if (results.length > 0) {
+                retVal = (String) results[0];
+            }
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR,
-                    "Could not to get a station name: " + e.getMessage());
+                    "Could not get station name for station id: " + stnId, e);
         }
         return retVal;
     }
@@ -347,8 +349,10 @@ public class FSSObsUtils {
                     ceiling = levels[i].floatValue() / 100f;
                 }
                 break;
+            case "":
+                break;
             default:
-                statusHandler.error("Get unkown sky cover " + sc);
+                statusHandler.error("Get unknown sky cover " + sc);
                 break;
             }
         }

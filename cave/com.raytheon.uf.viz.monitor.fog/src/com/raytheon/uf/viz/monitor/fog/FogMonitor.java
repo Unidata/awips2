@@ -149,7 +149,6 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
         initObserver(OBS, this);
         createDataStructures();
         processProductAtStartup();
-        obData.setThresholdMgr(FogThresholdMgr.getInstance());
         obData.getZoneTableData();
         readTableConfig(MonitorThresholdConfiguration.FOG_THRESHOLD_CONFIG);
     }

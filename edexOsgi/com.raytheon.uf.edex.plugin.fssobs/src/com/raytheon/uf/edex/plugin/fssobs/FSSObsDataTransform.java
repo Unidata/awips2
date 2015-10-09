@@ -492,7 +492,8 @@ public class FSSObsDataTransform {
         if (stFullName != null) {
             fssr.setStnName(stFullName);
         } else {
-            stFullName = fssr.getPlatformId();
+            //Descriptive name for moving platform.
+            fssr.setStnName(fssr.getPlatformId());
         }
         fssr.setRawMessage(pdv.getString(RAW_REPORT));
         fssr.setDataTime(new DataTime(pdv.getDate(TIME_OBS)));

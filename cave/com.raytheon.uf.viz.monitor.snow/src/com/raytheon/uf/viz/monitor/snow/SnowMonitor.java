@@ -120,8 +120,10 @@ public class SnowMonitor extends ObsMonitor implements ISnowResourceListener {
         updateMonitoringArea();
         initObserver(OBS, this);
         obData = new ObMultiHrsReports(CommonConfig.AppName.SNOW);
-        processProductAtStartup();
+        // Set up thresholds.
         obData.setThresholdMgr(SnowThresholdMgr.getInstance());
+        // Retrieve existing data.
+        processProductAtStartup();
         obData.getZoneTableData();
     }
 
