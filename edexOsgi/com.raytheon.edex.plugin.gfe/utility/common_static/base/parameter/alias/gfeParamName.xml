@@ -11,8 +11,10 @@
   Feb 24, 2015  DR 16671   byin        Added HPBL for RUC13
   May 21, 2015  DR 17515   bhunder     Added parameters for URMA25
   Jun 29, 2015    #4537    rferrel     Added parameters for HRRR.
+  Oct 08, 2015    #4958    dgilling    Added parameters for NationalBlend.
  -->
 <aliasList caseSensitive="true" namespace="gfeParamName">
+    <alias base="APTMP">aptmp</alias>
     <alias base="AV">av</alias>
     <alias base="CAPE">cape</alias>
     <alias base="CFRZR">cfrzr</alias>
