@@ -73,6 +73,7 @@ import com.raytheon.viz.gfe.smarttool.script.SmartToolController;
  * 02/20/2013        #1597 randerso    Added logging to support GFE Performance metrics
  * 04/10/2013    16028     ryu         Check for null seTime in execute()
  * 07/07/2015    14739     ryu         Modified execute() to return with updated varDict.
+ * 10/08/2015    18125     bhunder     Modified CANCEL_MSG_START to work with Jep updates
  *
  * </pre>
  *
@@ -87,7 +88,7 @@ public class Tool {
     private final IPerformanceStatusHandler perfLog = PerformanceStatus
             .getHandler("GFE:");
 
-    private static final String CANCEL_MSG_START = "jep.JepException: <type 'exceptions.RuntimeError'>: Cancel: Cancel >>>";
+    private static final String CANCEL_MSG_START = "jep.JepException: <type 'exceptions.RuntimeError'>: Cancel: Cancel";
 
     private final IParmManager parmMgr;
 
