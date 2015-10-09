@@ -51,7 +51,7 @@ fi
 %install
 
 # create the ldm directory
-/bin/mkdir -p %{_build_root}/usr/local/ldm/SOURCES
+/bin/mkdir -p %{_build_root}/awips2/ldm/SOURCES
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -72,21 +72,18 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-
-_ldm_destination=%{_build_root}/usr/local/ldm
+_ldm_destination=%{_build_root}/awips2/ldm
 _ldm_destination_source=${_ldm_destination}/SOURCES
-
 _NATIVELIB_PROJECTS=( 'edexBridge' 'decrypt_file' )
 _RPM_directory=%{_baseline_workspace}/rpms
 _Installer_ldm=${_RPM_directory}/awips2.upc/Installer.ldm
 
-# copy the ldm source to the ldm destination directory.
+# copy the ldm source to the destination directory.
 /bin/cp ${_Installer_ldm}/src/%{_ldm_src_tar} ${_ldm_destination_source}
 if [ $? -ne 0 ]; then
    exit 1
 fi
 # package nativelib projects
-pushd . > /dev/null 2>&1
 cd %{_baseline_workspace}
 if [ $? -ne 0 ]; then
    exit 1
@@ -105,10 +102,8 @@ do
       exit 1
    fi
 done
-popd > /dev/null 2>&1
 
-# copy ldm "patches" to SOURCES for post-installation
-# unpacking.
+# Create patch tar files
 cd ${_Installer_ldm}/patch
 if [ $? -ne 0 ]; then
    exit 1
@@ -132,35 +127,33 @@ done
 if [ $? -ne 0 ]; then
    exit 1
 fi
-
 /bin/cp ld.so.conf.d/* %{_build_root}/etc/ld.so.conf.d
 if [ $? -ne 0 ]; then
    exit 1
 fi
-
 /bin/cp logrotate.d/* %{_build_root}/etc/logrotate.d
 if [ $? -ne 0 ]; then
    exit 1
 fi
 
 %pre
+# Preserve the user etc directory before upgrading
 if [ -d /tmp/ldm ]; then
    rm -rf /tmp/ldm
 fi
 mkdir -p /tmp/ldm
-for dir in etc .ssh;
+for dir in etc;
 do
-   if [ -d /usr/local/ldm/${dir} ]; then
-      scp -qrp /usr/local/ldm/${dir} /tmp/ldm
+   if [ -d /awips2/ldm/${dir} ]; then
+      scp -qrp /awips2/ldm/${dir} /tmp/ldm
    fi
 done
 
 %post
-_ldm_dir=/usr/local/ldm
+_ldm_dir=/awips2/ldm
 _ldm_root_dir=${_ldm_dir}/ldm-%{_ldm_version}
 _myHost=`hostname`
 _myHost=`echo ${_myHost} | cut -f1 -d'-'`
-pushd . > /dev/null 2>&1
 cd ${_ldm_dir}/SOURCES
 # unpack the ldm source
 /bin/tar -xf %{_ldm_src_tar} \
@@ -172,53 +165,36 @@ rm -f %{_ldm_src_tar}
 if [ $? -ne 0 ]; then
    exit 1
 fi
-chown -R ldm:fxalpha ${_ldm_dir}
 
-# create .bash_profile
-if [ ! -f /usr/local/ldm/.bash_profile ]; then
-   echo 'umask 002' > \
-      /usr/local/ldm/.bash_profile
-   echo 'export PATH=$HOME/decoders:$HOME/util:$HOME/bin:$PATH' >> \
-      /usr/local/ldm/.bash_profile
-   echo 'export MANPATH=$HOME/share/man:/usr/share/man' >> \
-      /usr/local/ldm/.bash_profile
-   /bin/chown ldm:fxalpha /usr/local/ldm/.bash_profile
-fi
-
-pushd . > /dev/null 2>&1
 # build ldm
-rm -f ~ldm/runtime
+rm -f /awips2/ldm/runtime
 cd ${_ldm_root_dir}/src
 if [ $? -ne 0 ]; then
    exit 1
 fi
-export _current_dir=`pwd`
-su ldm -lc "cd ${_current_dir}; ./configure --disable-max-size --with-noaaport --disable-root-actions --prefix=${_ldm_root_dir} CFLAGS='-g -O0'" \
-   > configure.log 2>&1
+./configure --disable-max-size --with-noaaport --disable-root-actions --prefix=${_ldm_root_dir} CFLAGS='-g -O0' > configure.log 2>&1
 if [ $? -ne 0 ]; then
    echo "FATAL: ldm configure has failed!"
    exit 1
 fi
 # Fix libtool incompatibility in source tar ball
-su ldm -lc "cd ${_current_dir}; rm -f libtool; ln -s /usr/bin/libtool libtool"
-export _current_dir=`pwd`
-su ldm -lc "cd ${_current_dir}; make install" > install.log 2>&1
+rm -f libtool
+ln -s /usr/bin/libtool libtool
+cd ${_ldm_root_dir}/src
+#export LDMHOME=/awips2/ldm
+make LDMHOME=/awips2/ldm > make.log 2>&1
+make install LDMHOME=/awips2/ldm > install.log 2>&1
 if [ $? -ne 0 ]; then
    echo "FATAL: make install has failed!"
    exit 1
 fi
-
-popd > /dev/null 2>&1
-pushd . > /dev/null 2>&1
-cd ${_ldm_root_dir}/src
-make root-actions > root-actions.log 2>&1
+make root-actions LDMHOME=/awips2/ldm > root-actions.log 2>&1
 if [ $? -ne 0 ]; then
    echo "FATAL: root-actions has failed!"
    exit 1
 fi
-popd > /dev/null 2>&1
-
-# unpack bin, decoders, and etc.
+# Unpack patch tar files
+cd ${_ldm_dir}/SOURCES
 _PATCH_DIRS=( 'bin' 'decoders' 'etc' )
 for patchDir in ${_PATCH_DIRS[*]};
 do
@@ -232,22 +208,9 @@ do
    fi
 done
 /bin/chmod a+x ${_ldm_dir}/bin/*
-/bin/chown ldm:fxalpha ${_ldm_root_dir}/bin
-/bin/chown -R ldm:fxalpha ${_ldm_dir}/etc ${_ldm_dir}/decoders
-popd > /dev/null 2>&1
-
-# construct pqact
-pushd . > /dev/null 2>&1
-cd ${_ldm_dir}/etc
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-popd > /dev/null 2>&1
 
 # build decrypt_file & edexBridge
-pushd . > /dev/null 2>&1
 cd ${_ldm_dir}/SOURCES
-
 /bin/tar -xf decrypt_file.tar
 if [ $? -ne 0 ]; then
    echo "FATAL: failed to untar decrypt_file.tar!"
@@ -263,18 +226,11 @@ if [ $? -ne 0 ]; then
    echo "FATAL: failed to remove edexBridge.tar and decrypt_file.tar!"
    exit 1
 fi
-/bin/chown -R ldm:fxalpha ${_ldm_dir}/SOURCES
-if [ $? -ne 0 ]; then
-   echo "FATAL: failed to change owner of ldm SOURCES directory."
-   exit 1
-fi
 cd decrypt_file
 if [ $? -ne 0 ]; then
    exit 1
 fi
-export _current_dir=`pwd`
-su ldm -lc "cd ${_current_dir}; gcc -D_GNU_SOURCE -o decrypt_file decrypt_file.c" > \
-   decrypt_file.log 2>&1
+gcc -D_GNU_SOURCE -o decrypt_file decrypt_file.c
 if [ $? -ne 0 ]; then
    echo "FATAL: failed to build decrypt_file!"
    exit 1
@@ -288,15 +244,13 @@ cd ../edexBridge
 if [ $? -ne 0 ]; then
    exit 1
 fi
-export _current_dir=`pwd`
-su ldm -lc "cd ${_current_dir}; g++ edexBridge.cpp -I${_ldm_root_dir}/src/pqact \
+g++ edexBridge.cpp -I${_ldm_root_dir}/src/pqact \
    -I${_ldm_root_dir}/include \
    -I${_ldm_root_dir}/src \
    -I/awips2/qpid/include \
    -L${_ldm_root_dir}/lib \
    -L/awips2/qpid/lib \
-   -l ldm -l xml2 -l qpidclient -l qpidmessaging -l qpidcommon -l qpidtypes -o edexBridge" > \
-   edexBridge.log 2>&1
+   -l ldm -l xml2 -l qpidclient -l qpidmessaging -l qpidcommon -l qpidtypes -o edexBridge
 if [ $? -ne 0 ]; then
    echo "FATAL: failed to build edexBridge!"
    exit 1
@@ -308,25 +262,28 @@ if [ $? -ne 0 ]; then
 fi
 cd ..
 
-popd > /dev/null 2>&1
-
-if [ ! -d .ssh ] && 
-   [ -d /tmp/ldm/.ssh ]; then
-   scp -qrp /tmp/ldm/.ssh /usr/local/ldm
-fi
-
 /sbin/ldconfig
 
-rm -rf /tmp/ldm
-
-# remove the ldm SOURCES directory
 /bin/rm -rf ${_ldm_dir}/SOURCES
 if [ $? -ne 0 ]; then
    exit 1
 fi
 # TODO: change both of these to use regutil
 sed -i 's/EDEX_HOSTNAME/'${_myHost}'/' ${_ldm_dir}/etc/ldmd.conf
-sed -i 's/<size>500M<\/size>/<size>1500M<\/size>/' ${_ldm_dir}/etc/registry.xml
+#sed -i 's/<size>500M<\/size>/<size>1500M<\/size>/' ${_ldm_dir}/etc/registry.xml
+#regutil -s "1500M" /queue/size
+ln -s /awips2/ldm/var/logs /awips2/ldm/logs
+ln -s /awips2/ldm/var/data /awips2/ldm/data
+if getent passwd awips &>/dev/null; then
+  /bin/chown -R awips:fxalpha ${_ldm_dir}
+  cd /awips2/ldm/src/
+  make install_setuids
+else
+  echo "--- Warning: group fxalpha does not exist"
+  echo "--- you will need to check owner/group/permissions for /awips2/ldm"
+  echo "tried to run 'chown -R awips:fxalpha /awips2/ldm; cd /awips2/ldm/src/; make install_setuids'"
+  echo ""
+fi
 
 %preun
 %postun
@@ -336,11 +293,10 @@ sed -i 's/<size>500M<\/size>/<size>1500M<\/size>/' ${_ldm_dir}/etc/registry.xml
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(-,ldm,fxalpha,-)
-%dir /usr/local/ldm
-%dir /usr/local/ldm/SOURCES
-/usr/local/ldm/SOURCES/*
-
+%defattr(-,awips,fxalpha,-)
+%dir /awips2/ldm
+%dir /awips2/ldm/SOURCES
+/awips2/ldm/SOURCES/*
 %attr(755,root,root) /etc/profile.d/awipsLDM.csh
 %attr(755,root,root) /etc/profile.d/awipsLDM.sh
 %attr(755,root,root) /etc/ld.so.conf.d/awips2-ldm.conf

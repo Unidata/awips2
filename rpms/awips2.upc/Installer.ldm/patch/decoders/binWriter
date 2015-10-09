@@ -35,7 +35,7 @@ chdir( "$datadir" ) ;
 
 $debug = 0;
 
-open( LOG, ">/usr/local/ldm/output.log" ) if($debug);
+open( LOG, ">/awips2/ldm/output.log" ) if($debug);
 
 # Now begin parsing file and decoding observations breaking on cntrl C
 $/ = "\067\067\067\067\015\015\012\003";
