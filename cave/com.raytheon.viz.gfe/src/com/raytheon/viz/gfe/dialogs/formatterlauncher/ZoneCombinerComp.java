@@ -28,6 +28,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.regex.Matcher;
 
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -57,7 +63,6 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
-import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.CombinationsFileChangedNotification;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -106,6 +111,7 @@ import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector;
  *                                     Changed to use CombinationsFileChangedNotification instead of
  *                                     FileUpdatedMessage so we can ignore our own changes
  *                                     Moved retrieval of combinations file to CombinationsFileUtil.init
+ * Oct 07, 2015  #4695     dgilling    Move loading of combinations file off UI thread.
  * 
  * </pre>
  * 
@@ -233,6 +239,8 @@ public class ZoneCombinerComp extends Composite implements IZoneCombiner {
 
     private AbstractGFENotificationObserver<CombinationsFileChangedNotification> comboChangeListener;
 
+    private final ExecutorService asyncExecutor;
+
     private void initPreferences() {
         IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
 
@@ -276,6 +284,8 @@ public class ZoneCombinerComp extends Composite implements IZoneCombiner {
             mapRequired = false;
         }
 
+        this.asyncExecutor = Executors.newCachedThreadPool();
+
         initPreferences();
         init();
 
@@ -303,6 +313,7 @@ public class ZoneCombinerComp extends Composite implements IZoneCombiner {
                 ZoneCombinerComp.this.dataManager.getNotificationRouter()
                         .removeObserver(
                                 ZoneCombinerComp.this.comboChangeListener);
+                ZoneCombinerComp.this.asyncExecutor.shutdown();
             }
         });
 
@@ -954,23 +965,41 @@ public class ZoneCombinerComp extends Composite implements IZoneCombiner {
         zoneSelector.updateCombos(comboDict);
     }
 
-    public Map<String, Integer> loadCombinationsFile(String comboName) {
-        Map<String, Integer> dict = new HashMap<String, Integer>();
+    private Map<String, Integer> loadCombinationsFile(final String comboName) {
+        List<List<String>> combolist = Collections.emptyList();
         try {
-            List<List<String>> combolist = CombinationsFileUtil.init(comboName);
+            Callable<List<List<String>>> loadTask = new Callable<List<List<String>>>() {
 
-            // reformat combinations into combo dictionary
-            int group = 1;
-            for (List<String> zonelist : combolist) {
-                for (String z : zonelist) {
-                    dict.put(z, group);
+                @Override
+                public List<List<String>> call() throws Exception {
+                    return CombinationsFileUtil.init(comboName);
                 }
-                group += 1;
+            };
+
+            Future<List<List<String>>> taskResult = asyncExecutor
+                    .submit(loadTask);
+            combolist = taskResult.get();
+        } catch (ExecutionException e) {
+            statusHandler.handle(Priority.SIGNIFICANT,
+                    "Could not load combinations file " + comboName, e);
+            return Collections.emptyMap();
+        } catch (InterruptedException | RejectedExecutionException e) {
+            /*
+             * We should only ever fall into this block if the Composite is
+             * disposing and the ExecutorService has been shutdown. Probably not
+             * worth logging.
+             */
+            return Collections.emptyMap();
+        }
+
+        Map<String, Integer> dict = new HashMap<String, Integer>();
+        // reformat combinations into combo dictionary
+        int group = 1;
+        for (List<String> zonelist : combolist) {
+            for (String z : zonelist) {
+                dict.put(z, group);
             }
-        } catch (GfeException e) {
-            statusHandler.handle(Priority.SIGNIFICANT, e.getLocalizedMessage(),
-                    e);
-            return new HashMap<String, Integer>();
+            group += 1;
         }
 
         currentComboFile = comboName;
