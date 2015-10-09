@@ -60,6 +60,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  *                                         for county based products.
  *    Jan 13, 2015  3996       ccody       Correct NPE caused by calculating portions of Geometry objects with multiple sub Geometry objects
  *                                         This is a Jim Ramer fix
+ *    Oct  9, 2015 #18154      Qinglu Lin  Updated calculateLocationPortion().
  * </pre>
  * 
  * @author chammack
@@ -353,12 +354,6 @@ public class GisUtil {
     public static EnumSet<Direction> calculateLocationPortion(
             Geometry locationGeom, Geometry reference, boolean useExtreme,
             boolean notUseShapefileCentroid) {
-        CountyUserData cud = (CountyUserData) locationGeom.getUserData();
-        Map<String, Object> atts = cud.entry.attributes;
-        Number lonNumber = (Number) atts.get("LON");
-        double lonDouble = lonNumber.doubleValue();
-        Number latNumber = (Number) atts.get("LAT");
-        double latDouble = latNumber.doubleValue();
         for (int i = 0; i < locationGeom.getNumGeometries(); i++) {
             Geometry geom = locationGeom.getGeometryN(i);
             if (geom.intersects(reference)) {
@@ -368,9 +363,10 @@ public class GisUtil {
                     geomCentroid = geom.getEnvelope().getCentroid()
                             .getCoordinate();
                 } else {
+                    Map<String, Object> atts = ((CountyUserData) locationGeom.getUserData()).entry.attributes;
                     geomCentroid = new Coordinate();
-                    geomCentroid.x = lonDouble;
-                    geomCentroid.y = latDouble;
+                    geomCentroid.x = ((Number) atts.get("LON")).doubleValue();
+                    geomCentroid.y = ((Number) atts.get("LAT")).doubleValue();
                 }
                 Coordinate refCentroid = reference.getCentroid()
                         .getCoordinate();
