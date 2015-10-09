@@ -1,6 +1,5 @@
 # This build.properties file is used exclusively by the cave pde p2 builds.
 
-topLevelElementType=feature
 buildType=I
 buildId=CAVE
 buildLabel=${buildType}.${buildId}

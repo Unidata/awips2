@@ -34,6 +34,7 @@ import java.nio.file.Paths;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 30, 2015 4759       bkowal      Initial creation
+ * Oct 06, 2015 4759       bkowal      Added toString.
  * 
  * </pre>
  * 
@@ -115,5 +116,10 @@ public class BuildPlugin {
 
     public Set<BuildFeature> getContainingFeatures() {
         return this.containingFeatures;
+    }
+
+    @Override
+    public String toString() {
+        return this.id;
     }
 }
