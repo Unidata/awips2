@@ -237,7 +237,7 @@ NGRID	^(Y.UZ9[0-9]) (KWB.) (..)(..)(..)
 # The noaaportIngester does not yet read a grib2 SBN file with more than one message.
 # Commented out by default since the domain is limited to Hawaii. Sites wishing to
 # ingest these data will need to 
-# 1. add the two lines below to dx1:/usr/local/ldm/etc/pqact.conf.xyz
+# 1. add the two lines below to dx1:/awips2/ldm/etc/pqact.conf.xyz
 # 2. On dx1 as root, run /data/fxa/sdc/config_awips2.sh ldm XYZ
 #NGRID	^(L[B-HRUW]S.[0-9][0-9]) (KWBQ) (..)(..)(..)
 #	FILE	-overwrite -log -close -edex	/data_store/grib2/(\3:yyyy)(\3:mm)\3/\4/GMOS/GRID255/\1_\2_\3\4\5_(seq).grib2.%Y%m%d%H
@@ -329,7 +329,7 @@ NGRID	^(LAMA98) (KNES) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0
 # LRZY40 KWBX 020000
 
 HDS	^([LM].Z.{1,3}) KWBX (..)(..)(..)
-	PIPE	-close /usr/local/ldm/decoders/decrypt_file
+	PIPE	-close /awips2/ldm/decoders/decrypt_file
 	/data_store/grib2/(\2:yyyy)(\2:mm)\2/\3/ECMWF_HiRes/ecmwf_decrypted_\1_KWBX_\2\3\4_(seq).grib2.%Y%m%d%H
 
 
@@ -681,7 +681,7 @@ ANY	^(IUAX0[12]) (....) (..)(..)(..)
 	FILE	-overwrite -log -close /data_store/acars/acars_encrypted/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).acars.%Y%m%d%H
 
 ANY	^(IUAX0[12]) (....) (..)(..)(..)
-	PIPE	-close /usr/local/ldm/decoders/decrypt_file
+	PIPE	-close /awips2/ldm/decoders/decrypt_file
 	/data_store/acars/acars_decrypted/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).acars.%Y%m%d%H
 
 EXP	^/data_store/acars/acars_decrypted/(.*)

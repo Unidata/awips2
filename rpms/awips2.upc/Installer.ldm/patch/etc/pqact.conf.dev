@@ -2,7 +2,7 @@
 #	FILE	-overwrite -close -edex /awips/edex/data/sbn/text/\1_\2_\3_(seq).txt
 
 #IDS|DDPLUS	^(S[AP]....) (....) (..)(....)
-#	PIPE	/usr/local/ldm/decoders/textWriter /awips/edex/data/sbn/text (\3:mm)(\3:yyyy)
+#	PIPE	/awips2/ldm/decoders/textWriter /awips/edex/data/sbn/text (\3:mm)(\3:yyyy)
 
 ################
 # Valley NEXRAD Configuration
@@ -294,10 +294,10 @@ HRS	^([LM][EKV])(M)([A-TZ][089][068]) (KWBE) (..)(..)(..).*!(grib|grib2)
 #	FILE	-overwrite -close -edex /awips/edex/data/sbn/grib/\1_\2.grd
 
 #NGRID	^(......) (KWBX)
-#	FILE	-overwrite -close -edex /usr/local/ldm/ecmwf/\1_\2.grd
+#	FILE	-overwrite -close -edex /awips2/ldm/ecmwf/\1_\2.grd
 
 #ANY	^...... KWBX ..(..)..
-#	PIPE	-close	/usr/local/ldm/decoders/decrypt_file
+#	PIPE	-close	/awips2/ldm/decoders/decrypt_file
 #	/data_store/grib/grib2/ecmwf/\1/ecmwf
 
 
@@ -528,7 +528,7 @@ HRS	^([LM][EKV])(M)([A-TZ][089][068]) (KWBE) (..)(..)(..).*!(grib|grib2)
 #	FILE	-overwrite -close -edex /data_store/acars/\4/\1_\2_\3\4\5_(seq).bufr
 
 #ANY	^IUAX02 KARP ..(..)..
-#	PIPE	-close	/usr/local/ldm/decoders/decrypt_file
+#	PIPE	-close	/awips2/ldm/decoders/decrypt_file
 #	/data_store/acars/decrypted/\1/acars
 
 ANY	^(ISXA..) (....) (..)(..)(..)
