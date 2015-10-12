@@ -19,45 +19,34 @@
  **/
 package com.raytheon.uf.edex.plugin.loctables.util.handlers;
 
-import java.io.File;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.uf.common.pointdata.spatial.ObStation;
-import com.raytheon.uf.edex.plugin.loctables.util.TableHandler;
 import com.raytheon.uf.edex.plugin.loctables.util.store.ObStationRow;
-import com.raytheon.uf.edex.plugin.loctables.util.store.PrintStreamStoreStrategy;
-import com.raytheon.uf.edex.plugin.loctables.util.store.RowStoreStrategy;
 
 /**
- * TODO Add Description
+ * Parses station data from the pirep station file.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 8, 2010            jkorman     Initial creation
- *
+ * Apr 8, 2010             jkorman     Initial creation
+ * Oct 12, 2015 4911       rjpeter     Refactored.
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public class PirepTableHandler extends AbstractTableHandler {
-
-    private Log logger = LogFactory.getLog(getClass());
-    
     /**
      * 
      */
-    public PirepTableHandler(RowStoreStrategy storeStrategy) {
-        super("PirepTable", storeStrategy);
+    public PirepTableHandler() {
+        super("PirepTable");
     }
-    
+
     /**
      * 
      * @param data
@@ -65,51 +54,45 @@ public class PirepTableHandler extends AbstractTableHandler {
      */
     @Override
     public ObStationRow parseLine(String data) {
-        //           1111111111222222222233333333334444444444555555555566666666667777777777
-        // 01234567890123456789012345678901234567890123456789012345678901234567890123456789    
-        // AAO           0 WICHITA                          KS US  3775  -9722     0  0
+        /**
+         * <pre>
+         *           1111111111222222222233333333334444444444555555555566666666667777777777
+         * 01234567890123456789012345678901234567890123456789012345678901234567890123456789
+         * AAO 0 WICHITA KS US 3775 -9722 0 0
+         * </pre>
+         */
         ObStationRow row = null;
 
-        if((data != null)&&(data.length() > 67)) {
-            String s = data.substring(0,9).trim();
-            if(s.length() > 0) {
+        if ((data != null) && (data.length() > 67)) {
+            String s = data.substring(0, 9).trim();
+            if (!s.isEmpty()) {
                 row = new ObStationRow(ObStation.CAT_TYPE_ACFT_PIREP);
                 row.setStationId(s);
 
-                s = data.substring(16,48).trim();
-                if(s.length() > 0) {
+                s = data.substring(16, 48).trim();
+                if (!s.isEmpty()) {
                     row.setName(s);
                 }
 
-                s = data.substring(49,51).trim();
-                if(s.length() > 0) {
+                s = data.substring(49, 51).trim();
+                if (!s.isEmpty()) {
                     row.setState(s);
                 }
-                
-                s = data.substring(52,54).trim();
-                if(s.length() > 0) {
+
+                s = data.substring(52, 54).trim();
+                if (!s.isEmpty()) {
                     row.setCountry(s);
                 }
-                
-                s = data.substring(55,60).trim();
+
+                s = data.substring(55, 60).trim();
                 double lat = Double.parseDouble(s) / 100;
 
-                s = data.substring(60,67).trim();
+                s = data.substring(60, 67).trim();
                 double lon = Double.parseDouble(s) / 100;
-                
+
                 row.setLocation(ObStationRow.getPoint(lat, lon));
             }
         }
         return row;
-    }
-    
-    
-    public static final void main(String [] args) {
-        
-        TableHandler handler = new PirepTableHandler(new PrintStreamStoreStrategy(System.out));
-        
-        File file = new File("./utility/edex_static/base/spatialTables/pirepsTable.txt");
-        
-        handler.processFile(file);
     }
 }

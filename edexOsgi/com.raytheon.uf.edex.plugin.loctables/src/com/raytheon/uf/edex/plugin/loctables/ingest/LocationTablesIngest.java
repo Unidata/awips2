@@ -20,28 +20,34 @@
 package com.raytheon.uf.edex.plugin.loctables.ingest;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
+import com.raytheon.uf.common.pointdata.spatial.ObStation;
+import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.edex.database.query.DatabaseQuery;
 import com.raytheon.uf.edex.ndm.ingest.IDataSetIngester;
 import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
-import com.raytheon.uf.edex.plugin.loctables.util.CommonObsSpatialBuilder;
 import com.raytheon.uf.edex.plugin.loctables.util.TableHandler;
-import com.raytheon.uf.edex.plugin.loctables.util.handlers.DefaultHandler;
-import com.raytheon.uf.edex.plugin.loctables.util.handlers.MaritimeTableHandler;
-import com.raytheon.uf.edex.plugin.loctables.util.handlers.MesonetTableHandler;
-import com.raytheon.uf.edex.plugin.loctables.util.handlers.MetarTableHandler;
-import com.raytheon.uf.edex.plugin.loctables.util.handlers.PirepTableHandler;
-import com.raytheon.uf.edex.plugin.loctables.util.handlers.RAOBTableHandler;
-import com.raytheon.uf.edex.plugin.loctables.util.handlers.SynopticLandTableHandler;
-import com.raytheon.uf.edex.plugin.loctables.util.store.ObStationStoreStrategy;
+import com.raytheon.uf.edex.plugin.loctables.util.store.ObStationRow;
+import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
 
 /**
  * Location Tables NDM subscriber
@@ -57,7 +63,7 @@ import com.raytheon.uf.edex.plugin.loctables.util.store.ObStationStoreStrategy;
  * Apr 28, 2014   3086     skorolev    Updated setupLocalFiles method
  * Sep 04, 2014   3220     skorolev    Removed parameter currentSite from FSSObs configuration managers.
  * Sep 03, 2015   3841     skorolev    Corrected getInstance for FSSObs monitors.
- * 
+ * Oct 12, 2015   4911     rjpeter     Updated to reload all location data and diff table as a whole.
  * </pre>
  * 
  * @author jkorman
@@ -66,17 +72,13 @@ import com.raytheon.uf.edex.plugin.loctables.util.store.ObStationStoreStrategy;
 
 public class LocationTablesIngest implements INationalDatasetSubscriber {
 
-    private static final TableHandler DEFAULT_HANDLER = new DefaultHandler();
+    private static final String NDM_LOC_DIR = "spatialTables" + File.separator;
 
-    private HashMap<String, TableHandler> handlers = null;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private IDataSetIngester ingester = null;
+    private final Map<String, TableHandler> handlers;
 
-    private final Log logger = LogFactory.getLog(getClass());
-
-    @SuppressWarnings("unused")
-    private LocationTablesIngest() {
-    }
+    private final IDataSetIngester ndmIngester;
 
     /**
      * Location Tables Ingest.
@@ -84,55 +86,17 @@ public class LocationTablesIngest implements INationalDatasetSubscriber {
      * @param pluginName
      * @param ingester
      */
-    public LocationTablesIngest(String pluginName, IDataSetIngester ingester) {
-        this.ingester = ingester;
+    public LocationTablesIngest(IDataSetIngester ingester) {
+        ndmIngester = ingester;
 
-        setupHandlers();
-
-        setupLocalFiles();
+        // always want to process in same order
+        handlers = new LinkedHashMap<String, TableHandler>();
     }
 
-    /**
-     * Setup Handlers.
-     */
-    private void setupHandlers() {
-
-        logger.info("Creating handlers");
-        handlers = new HashMap<String, TableHandler>();
-
-        handlers.put("pirepsTable.txt", new PirepTableHandler(
-                new ObStationStoreStrategy()));
-        handlers.put("maritimeStationInfo.txt", new MaritimeTableHandler(
-                new ObStationStoreStrategy()));
-        handlers.put("metarStationInfo.txt", new MetarTableHandler(
-                new ObStationStoreStrategy()));
-        handlers.put("synopticStationTable.txt", new SynopticLandTableHandler(
-                new ObStationStoreStrategy()));
-        handlers.put("raobStationInfo.txt", new RAOBTableHandler(
-                new ObStationStoreStrategy()));
-        handlers.put("mesonetStationInfo.txt", new MesonetTableHandler(
-                new ObStationStoreStrategy()));
-
-        handlers.put("CMANStationInfo.txt", new MaritimeTableHandler(
-                new ObStationStoreStrategy()));
-        handlers.put("common_obs_spatial.txt",
-                new CommonObsSpatialBuilder(this));
-
-        for (String fileName : handlers.keySet()) {
-            ingester.registerListener(fileName, this);
-        }
-    }
-
-    /**
-     * Setup local FSSObs managers.
-     */
-    private void setupLocalFiles() {
-        List<FSSObsMonitorConfigurationManager> monitors = new ArrayList<FSSObsMonitorConfigurationManager>();
-
-        monitors.add(FSSObsMonitorConfigurationManager.getInstance(MonName.fog));
-        monitors.add(FSSObsMonitorConfigurationManager.getInstance(MonName.ss));
-        monitors.add(FSSObsMonitorConfigurationManager
-                .getInstance(MonName.snow));
+    public INationalDatasetSubscriber registerHandler(String fileName,
+            TableHandler handler) {
+        handlers.put(fileName, handler);
+        return ndmIngester.registerListener(fileName, this);
     }
 
     /**
@@ -140,47 +104,175 @@ public class LocationTablesIngest implements INationalDatasetSubscriber {
      */
     @Override
     public void notify(String fileName, File file) {
-        processFile(file);
-    }
-
-    /**
-     * 
-     * @param file
-     * @return
-     */
-    public void processFile(File file) {
-        getHandler(file).processFile(file);
-    }
-
-    /**
-     * Gets Handler.
-     * 
-     * @param file
-     * @return
-     */
-    private TableHandler getHandler(File file) {
-        TableHandler handler = null;
-        if (file != null) {
-            if (handlers != null) {
-                handler = handlers.get(file.getName());
-                if (handler == null) {
-                    handler = DEFAULT_HANDLER;
-                }
-            } else {
-                handler = DEFAULT_HANDLER;
-            }
+        if (handlers.containsKey(fileName)) {
+            processFile(file);
         } else {
-            handler = DEFAULT_HANDLER;
+            logger.warn("No handler exists for file [" + fileName + "]");
         }
-        return handler;
+
     }
 
     /**
-     * Gets Handlers.
      * 
-     * @return handlers
+     * @param file
+     * @return
      */
-    public Map<String, TableHandler> getHandlers() {
-        return handlers;
+    public synchronized void processFile(File file) {
+        try {
+            storeNdmFile(file);
+        } catch (Exception e) {
+            logger.error(
+                    "Update of common_obs_spatial cancelled.  Failed to store "
+                            + file.getPath() + " to localization", e);
+            return;
+        }
+
+        try {
+            Map<String, ObStationRow> gidMap = new HashMap<String, ObStationRow>();
+
+            for (Map.Entry<String, TableHandler> entry : handlers.entrySet()) {
+                LocalizationFile locFile = getSpatialFile(entry.getKey());
+                List<ObStationRow> stations = entry.getValue().process(locFile);
+                if (stations != null) {
+                    addStations(gidMap, stations);
+                }
+            }
+
+            checkICAOs(gidMap);
+
+            // persist the gidMap
+            ObStationDao dao = new ObStationDao();
+            LocationTablesProcessor proc = new LocationTablesProcessor(dao,
+                    gidMap);
+            DatabaseQuery query = new DatabaseQuery(ObStation.class);
+            dao.processByCriteria(query, proc);
+            logger.info(String
+                    .format("Processing of file [%s] Complete.  Stations Added/Updated/Deleted: [%d/%d/%d]",
+                            file.getName(), proc.getStationsAdded(),
+                            proc.getStationsUpdated(),
+                            proc.getStationsDeleted()));
+        } catch (Exception e) {
+            logger.error("Error occurred processing file: " + file.getName(), e);
+        }
+    }
+
+    protected void addStations(Map<String, ObStationRow> gidMap,
+            List<ObStationRow> stations) {
+        for (ObStationRow station : stations) {
+            if (station != null) {
+                String key = station.getGid();
+                if (!gidMap.containsKey(key)) {
+                    gidMap.put(key, station);
+                }
+
+                if (ObStation.CAT_TYPE_SFC_RAOB
+                        .equals(station.getCatalogType())) {
+                    // check for fixed land for this raob
+                    key = ObStation.createGID(ObStation.CAT_TYPE_SFC_FXD,
+                            station.getStationId());
+                    if (gidMap.containsKey(key)) {
+                        ObStationRow aggregate = gidMap.get(key);
+                        aggregate.setUpperAirElevation(station
+                                .getUpperAirElevation());
+                        aggregate.setUpperAirGeometry(station
+                                .getUpperAirGeometry());
+                        if (aggregate.getIcao() == null) {
+                            aggregate.setIcao(station.getIcao());
+                        }
+                    }
+                } else if (ObStation.CAT_TYPE_SFC_FXD.equals(station
+                        .getCatalogType())) {
+                    // check for raob for this fixed land
+                    key = ObStation.createGID(ObStation.CAT_TYPE_SFC_RAOB,
+                            station.getStationId());
+                    if (gidMap.containsKey(key)) {
+                        ObStationRow aggregate = gidMap.get(key);
+                        station.setUpperAirElevation(aggregate
+                                .getUpperAirElevation());
+                        station.setUpperAirGeometry(aggregate
+                                .getUpperAirGeometry());
+                        if (station.getIcao() == null) {
+                            station.setIcao(aggregate.getIcao());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Post process all fixed station types and add an associated ICAO entry if
+     * it doesn't exist.
+     */
+    private void checkICAOs(Map<String, ObStationRow> gidMap) {
+        List<ObStationRow> newStations = new ArrayList<>();
+
+        for (ObStationRow row : gidMap.values()) {
+            if (ObStation.CAT_TYPE_SFC_FXD.equals(row.getCatalogType())) {
+                // This synoptic has an associated ICAO, check to see if it is
+                // in the ICAOs
+                String icao = row.getIcao();
+                if (icao != null) {
+                    String key = ObStation.createGID(ObStation.CAT_TYPE_ICAO,
+                            icao);
+                    if (!gidMap.containsKey(key)) {
+                        ObStationRow icaoRow = new ObStationRow(
+                                ObStation.CAT_TYPE_ICAO);
+                        icaoRow.setIcao(icao);
+                        icaoRow.setStationId(icao);
+                        icaoRow.setWmoIndex(row.getWmoIndex());
+                        icaoRow.setWmoRegion(row.getWmoRegion());
+
+                        icaoRow.setCountry(row.getCountry());
+                        icaoRow.setState(row.getState());
+
+                        icaoRow.setElevation(row.getElevation());
+                        icaoRow.setLocation(row.getLocation());
+
+                        newStations.add(icaoRow);
+                    }
+                }
+            }
+        }
+
+        for (ObStationRow newStation : newStations) {
+            gidMap.put(newStation.getGid(), newStation);
+        }
+    }
+
+    /**
+     * Store the given ndm file in the localization directory.
+     * 
+     * @param file
+     * @throws IOException
+     * @throws LocalizationException
+     */
+    protected void storeNdmFile(File file) throws IOException,
+            LocalizationException {
+        IPathManager pm = PathManagerFactory.getPathManager();
+        LocalizationContext context = PathManagerFactory.getPathManager()
+                .getContext(LocalizationType.EDEX_STATIC,
+                        LocalizationLevel.CONFIGURED);
+        LocalizationFile locFile = pm.getLocalizationFile(context, NDM_LOC_DIR
+                + file.getName());
+
+        try (SaveableOutputStream out = locFile.openOutputStream();
+                InputStream in = new FileInputStream(file)) {
+            FileUtil.copy(in, out);
+            out.save();
+        }
+    }
+
+    /**
+     * Get a list of the lines of the given file.
+     * 
+     * @param fileName
+     * @return a list of the lines of the file
+     */
+    protected LocalizationFile getSpatialFile(String fileName) {
+        IPathManager pm = PathManagerFactory.getPathManager();
+        LocalizationFile file = pm.getStaticLocalizationFile(
+                LocalizationType.EDEX_STATIC, NDM_LOC_DIR + fileName);
+        return file;
     }
 }
