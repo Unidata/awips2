@@ -18,9 +18,13 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
-export INIT_MEM=128 # in Meg
 export MAX_MEM=2144 # in Meg
 
+if [ $HIGH_MEM == "on" ]; then
+    export MAX_MEM=3072
+fi
+
+export MAX_GC_PAUSE=100
 export SERIALIZE_POOL_MAX_SIZE=24
 export SERIALIZE_STREAM_INIT_SIZE_MB=2
 export SERIALIZE_STREAM_MAX_SIZE_MB=8

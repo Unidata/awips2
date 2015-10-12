@@ -20,6 +20,12 @@
 ##
 export INIT_MEM=512 # in Meg
 export MAX_MEM=1300 # in Meg
+
+if [ $HIGH_MEM == "on" ]; then
+    export MAX_MEM=2560
+fi
+
+export MAX_GC_PAUSE=200
 export MAX_PERM_SIZE=128m
 export EDEX_JMX_PORT=1616
 export EDEX_DEBUG_PORT=5005

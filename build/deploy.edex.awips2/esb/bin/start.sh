@@ -100,6 +100,16 @@ export ALLOW_ARCHIVE_DATA="false"
 # setup environment for HPE
 export AMQP_SPEC=$awips_home/python/share/amqp/amqp.0-10.xml
 
+
+# get total memory on system in bytes
+MEM_IN_MEG=( `free -b | grep "Mem:"` )
+export MEM_IN_MEG=${MEM_IN_MEG[1]}
+HIGH_MEM=off
+
+if [ $MEM_IN_MEG > 12288 ]; then
+    HIGH_MEM=on
+fi
+
 #-------------------------------------------------------------------------
 #read and interpret the command line arguments
 #-------------------------------------------------------------------------
@@ -112,9 +122,10 @@ RUN_MODE=
 for arg in $@
 do
   case $arg in
-    -b|-d|--debug|-db|-bd) DEBUG_FLAG=on;;
-    -p|--profiler) PROFILE_FLAG=on;;
-    -h|--highmem) ;;  # does nothing, only here to prevent issues if someone still uses -h
+    -b|-d|-debug|-db|-bd) DEBUG_FLAG=on;;
+    -p|-profiler) PROFILE_FLAG=on;;
+    -h|-highmem) HIGH_MEM=on;;
+    -noHighmem) HIGH_MEM=off;;
     -noConsole) CONSOLE_FLAG=off;;
     *) RUN_MODE=$arg;;
   esac
@@ -123,10 +134,12 @@ done
 export EDEX_RUN_MODE=$RUN_MODE
 
 if [ $CONSOLE_FLAG == "off" ]; then
-	CONSOLE_LOGLEVEL=NONE
+    CONSOLE_LOGLEVEL=NONE
 fi
 
 export CONSOLE_LOGLEVEL
+
+
 
 # source environment files
 . $EDEX_HOME/etc/default.sh
@@ -157,5 +170,7 @@ if [ ${RC} -ne 0 ]; then
    echo "Unable To Continue ... Terminating."
    exit 1
 fi
+
+export TODAY=`/bin/date +%Y%m%d`
 
 java -Xmx32m -XX:MaxPermSize=12m -XX:ReservedCodeCacheSize=4m -jar ${YAJSW_HOME}/wrapper.jar -c ${EDEX_HOME}/conf/${CONF_FILE} ${WRAPPER_ARGS}
