@@ -19,7 +19,7 @@
 	
 	AWIPS II NEW FILE - wSp_001_perts.xml
  -->
-<DerivedParameter name="Prob of Wind Grtn 40kts Perts" abbreviation="wSp_001_perts" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+<DerivedParameter name="Prob of Wind Grtn 40kts Perts" abbreviation="wSp_001_perts" internal="true" >
     <Method name="Gather">
         <Field abbreviation="wSp_001_bin"/>
     </Method>

@@ -18,7 +18,7 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter abbreviation="RH_perts" name="Rel Humidity Perturbations" unit="%">
+<DerivedParameter abbreviation="RH_perts" name="Rel Humidity Perturbations" unit="%" internal="true" >
     <Method name="Gather">
         <Field abbreviation="RH"/>
     </Method>

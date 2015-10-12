@@ -19,7 +19,7 @@
 	
 	AWIPS II NEW FILE - RH_001_perts.xml
  -->
-<DerivedParameter name="Prob of RH Grtn 70 percent Perts" abbreviation="RH_001_perts" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+<DerivedParameter name="Prob of RH Grtn 70 percent Perts" abbreviation="RH_001_perts" internal="true" ">
     <Method name="Gather">
         <Field abbreviation="RH_001_bin"/>
     </Method>
