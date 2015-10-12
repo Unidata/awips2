@@ -27,8 +27,8 @@
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    01/14/13                      njensen       Initial Creation.
-#    
+#    01/14/2013       #1497        njensen        Initial Creation.
+#    10/12/2015       #4967        randerso       Updated for new JEP API
 # 
 #
 
@@ -67,6 +67,8 @@ def __getMaskIndiciesForJava(mask):
     return xcoords, ycoords
     
     
+# Originally added for use by BOX SmartInitUtils.SIU_fillEditArea() to speed up their smartInits
+# Should be used by other smartInits that need similar functionality
 def fillEditArea(grid, fillMask, borderMask):    
     editPointsX, editPointsY  = __getMaskIndiciesForJava(fillMask)
     borderPointsX, borderPointsY = __getMaskIndiciesForJava(borderMask)
@@ -74,7 +76,7 @@ def fillEditArea(grid, fillMask, borderMask):
     gridObj = JavaSmartUtils.fillEditArea(grid, grid.shape[1], grid.shape[0], \
                                               editPointsY, editPointsX, borderPointsY, borderPointsX)  
                           
-    retObj = gridObj.__numpy__[0]
+    retObj = gridObj.getNDArray()
     return retObj
 
 
