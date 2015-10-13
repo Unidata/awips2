@@ -33,13 +33,13 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.interp.IInterpolation;
 import com.raytheon.uf.viz.core.interp.InterpolationRequest;
+import com.raytheon.uf.viz.d2d.xy.tools.DmdTools;
 import com.raytheon.uf.viz.xy.InterpUtils;
 import com.raytheon.uf.viz.xy.crosssection.adapter.AbstractCrossSectionAdapter;
 import com.raytheon.uf.viz.xy.crosssection.graph.CrossSectionGraph;
 import com.raytheon.viz.core.graphing.util.MeteolibInterpolation;
 import com.raytheon.viz.core.slice.request.HeightScale;
 import com.raytheon.viz.core.slice.request.HeightScale.ScaleType;
-import com.raytheon.viz.radar.util.DmdTools;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineSegment;
 import com.vividsolutions.jts.geom.LineString;
@@ -54,6 +54,8 @@ import com.vividsolutions.jts.geom.LineString;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 30, 2009            bsteffen     Initial creation
+ * Oct 13, 2015 4897       bkowal       Relocated {@link DmdTools} to a plugin
+ *                                      that actually uses it.
  * 
  * </pre>
  * 

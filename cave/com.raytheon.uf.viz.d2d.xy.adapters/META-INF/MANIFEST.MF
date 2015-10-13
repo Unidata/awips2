@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: D2D Graph Adapters
 Bundle-SymbolicName: com.raytheon.uf.viz.d2d.xy.adapters;singleton:=true
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
@@ -18,14 +18,15 @@ Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.14.0",
  com.raytheon.uf.common.pointdata;bundle-version="1.13.0",
  com.raytheon.uf.viz.objectiveanalysis,
  com.raytheon.viz.grid,
- com.raytheon.viz.radar,
  com.raytheon.uf.common.datastorage,
  com.raytheon.uf.common.time,
  com.raytheon.uf.common.style,
  com.raytheon.uf.common.comm,
  javax.measure,
  org.eclipse.swt;bundle-version="3.8.0",
- com.raytheon.uf.viz.datacube;bundle-version="1.14.0"
+ com.raytheon.uf.viz.datacube;bundle-version="1.14.0",
+ com.raytheon.uf.common.dataplugin.radar;bundle-version="1.14.1",
+ com.raytheon.uf.common.wxmath;bundle-version="1.0.0"
 Import-Package: com.raytheon.uf.common.inventory.exception,
  com.raytheon.uf.viz.datacube,
  com.raytheon.viz.core.map

@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.radar.util;
+package com.raytheon.uf.viz.d2d.xy.tools;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -53,6 +53,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * ------------ ---------- ----------- --------------------------
  * ??? ??, ????            xxxxxxxx     Initial creation
  * Aug 14, 2013  #2262     dgilling     Use new wxmath method for ztopsa.
+ * Oct 13, 2015  #4759     bkowal       Relocated to the viz xy adapters plugin.
  * 
  * </pre>
  * 
