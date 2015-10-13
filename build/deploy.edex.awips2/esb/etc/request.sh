@@ -24,7 +24,6 @@ if [ $HIGH_MEM == "on" ]; then
     export MAX_MEM=3072
 fi
 
-export MAX_GC_PAUSE=100
 export SERIALIZE_POOL_MAX_SIZE=24
 export SERIALIZE_STREAM_INIT_SIZE_MB=2
 export SERIALIZE_STREAM_MAX_SIZE_MB=8
