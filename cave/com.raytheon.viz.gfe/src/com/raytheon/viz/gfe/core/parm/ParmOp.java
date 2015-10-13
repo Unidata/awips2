@@ -69,6 +69,8 @@ import com.raytheon.viz.gfe.core.internal.IFPClient;
 import com.raytheon.viz.gfe.core.parm.Parm.InterpState;
 import com.raytheon.viz.gfe.core.parm.ParmState.InterpMode;
 import com.raytheon.viz.gfe.core.wxvalue.WxValue;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeProhibitedOpException;
 
 /**
  * A ParmOp provides global functions to affect all parms.
@@ -89,6 +91,8 @@ import com.raytheon.viz.gfe.core.wxvalue.WxValue;
  *                                     overlapping grids since this is now done on 
  *                                     the server side
  * 08/20/2014   #1664      randerso    Fixed invalid thread access
+ * 09/15/2015   #4858      dgilling    Disable publish and ISC send when DRT
+ *                                     mode is enabled.
  * 
  * </pre>
  * 
@@ -478,9 +482,17 @@ public class ParmOp {
      * Publish
      * 
      * @param req
+     * @throws SimulatedTimeProhibitedOperationException
      */
-    public void publish(List<CommitGridRequest> req) {
+    public void publish(List<CommitGridRequest> req)
+            throws SimulatedTimeProhibitedOpException {
         CAVEMode mode = CAVEMode.getMode();
+
+        if (!SimulatedTimeOperations.isTransmitAllowed()) {
+            throw SimulatedTimeOperations
+                    .constructProhibitedOpException("Publish GFE grids");
+        }
+
         if (mode.equals(CAVEMode.PRACTICE) || mode.equals(CAVEMode.TEST)) {
             statusHandler.handle(Priority.EVENTA, "PUBLISH Simulated. ");
             return;
@@ -1057,9 +1069,16 @@ public class ParmOp {
      * This function is called to send grids.
      * 
      * @param req
+     * @throws SimulatedTimeProhibitedOperationException
      */
-    public void sendISC(List<SendISCRequest> req) {
+    public void sendISC(List<SendISCRequest> req)
+            throws SimulatedTimeProhibitedOpException {
         CAVEMode mode = CAVEMode.getMode();
+
+        if (!SimulatedTimeOperations.isTransmitAllowed()) {
+            throw SimulatedTimeOperations
+                    .constructProhibitedOpException("Send ISC grids");
+        }
 
         if (mode.equals(CAVEMode.PRACTICE) || mode.equals(CAVEMode.TEST)) {
             statusHandler.handle(Priority.EVENTA, "SEND ISC Simulated. ");

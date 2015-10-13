@@ -35,6 +35,8 @@ import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.TabFolder;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.FormatterLauncherDialog;
@@ -44,6 +46,7 @@ import com.raytheon.viz.gfe.tasks.TaskManager;
 import com.raytheon.viz.gfe.textformatter.FormatterUtil;
 import com.raytheon.viz.gfe.textformatter.TextProductFinishListener;
 import com.raytheon.viz.gfe.textformatter.TextProductManager;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeProhibitedOpException;
 
 /**
  * Composite containing the product area and its controls.
@@ -58,7 +61,7 @@ import com.raytheon.viz.gfe.textformatter.TextProductManager;
  *  2 SEP 2011 10654       gzhou       Delete running/pending task and close tab.
  * 23 MAY 2012 14859       ryu         Select VTEC formatting in practice mode
  *                                     based on VTECMessageType setting.
- * 10 AUG 2012 15178  	   mli		   Add autoWrite and autoStore capability
+ * 10 AUG 2012 15178       mli         Add autoWrite and autoStore capability
  * 26 SEP 2012 15423       ryu         Fix product correction in practice mode
  * 15 MAY 2013  1842       dgilling    Change constructor signature to accept a
  *                                     DataManager instance.
@@ -68,6 +71,7 @@ import com.raytheon.viz.gfe.textformatter.TextProductManager;
  *                                     Passed dataMgr instance to FormatterUtil.runFormatterScript
  * 12 FEB 2014  2801       randerso    Added prompting if formatter is run against non-normal database
  * 20 APR 2015  4027       randerso    Fixes for GFE formatter auto tests to support mixed case WA
+ * 15 SEP 2015  4858       dgilling    Handle exception from runFormatterScript.
  * 
  * </pre>
  * 
@@ -77,6 +81,10 @@ import com.raytheon.viz.gfe.textformatter.TextProductManager;
  */
 public class ProductAreaComp extends Composite implements
         TextProductFinishListener, ITransmissionState {
+
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(getClass());
+
     /**
      * Zone combiner image.
      */
@@ -404,10 +412,14 @@ public class ProductAreaComp extends Composite implements
 
                             // Get the source database
                             zoneCombiner.applyZoneCombo();
-                            FormatterUtil.runFormatterScript(dataMgr,
-                                    textProductMgr, productName,
-                                    dbId.toString(), vtecMode,
-                                    ProductAreaComp.this);
+                            try {
+                                FormatterUtil.runFormatterScript(dataMgr,
+                                        textProductMgr, productName,
+                                        dbId.toString(), vtecMode,
+                                        ProductAreaComp.this);
+                            } catch (SimulatedTimeProhibitedOpException e) {
+                                statusHandler.error(e.getLocalizedMessage(), e);
+                            }
                         }
                     }
                 }
