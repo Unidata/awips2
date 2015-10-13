@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import com.raytheon.edex.plugin.grib.decoderpostprocessors.IDecoderPostProcessor;
+import com.raytheon.edex.plugin.grib.decoderpostprocessors.DecoderPostProcessor;
 import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
@@ -16,23 +16,24 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
 
 /**
  * Abstract class to generate 1-hour precip grids
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date          Ticket#  Engineer      Description
  * ------------- -------- ------------- --------------------------
  * Sep 05, 2014           M. Foster     Initial creation
- *
+ * Oct 07, 2015  3756     nabowle       Extends DecoderPostProcessor.
+ * 
  * </pre>
- *
+ * 
  * @author matthew.foster
  * @version 1.0
- *
+ * 
  */
 
-public abstract class OneHrPrecipGridProcessor implements IDecoderPostProcessor {
+public abstract class OneHrPrecipGridProcessor extends DecoderPostProcessor {
     /** The number of seconds in 1 hour */
     protected static final int SECONDS_IN_1_HR = 3600;
 

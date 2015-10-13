@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -46,21 +46,22 @@ import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * HWRF post processor implementation.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * Sep 10, 2015 4819        rferrel    Initial Creation
- * 
+ * Sep 10, 2015 4819        rferrel     Initial Creation
+ * Oct 07, 2015 3756        nabowle     Extends DecoderPostProcessor.
+ *
  * </pre>
- * 
+ *
  * @author rferrel
  * @version 1
  */
-public class HWRFPostProcessor implements IDecoderPostProcessor {
+public class HWRFPostProcessor extends DecoderPostProcessor {
 
     /**
      * Format for datasetId prefix <model>-<dx><spacingUnit>-.
@@ -131,7 +132,7 @@ public class HWRFPostProcessor implements IDecoderPostProcessor {
 
     /**
      * Add the count in ct's extrainfo to the dataset name prefix.
-     * 
+     *
      * @param ct
      * @param datasetIdPrefix
      * @return datasetId
@@ -156,7 +157,7 @@ public class HWRFPostProcessor implements IDecoderPostProcessor {
 
     /**
      * Find datasetId a result grid that has > 95% intersection with the record.
-     * 
+     *
      * @param record
      * @param result
      * @return datasetId or null when > 95% intersection not found
@@ -189,7 +190,7 @@ public class HWRFPostProcessor implements IDecoderPostProcessor {
     /**
      * While locked get datasetId for the record's grid info and update the grid
      * info list associated with dsIdPrefix.
-     * 
+     *
      * @param record
      * @param datasetIdPrefix
      */
