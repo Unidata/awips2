@@ -102,11 +102,11 @@ export AMQP_SPEC=$awips_home/python/share/amqp/amqp.0-10.xml
 
 
 # get total memory on system in bytes
-MEM_IN_MEG=( `free -b | grep "Mem:"` )
+MEM_IN_MEG=( `free -m | grep "Mem:"` )
 export MEM_IN_MEG=${MEM_IN_MEG[1]}
 HIGH_MEM=off
 
-if [ $MEM_IN_MEG > 12288 ]; then
+if [ $MEM_IN_MEG -gt 12288 ]; then
     HIGH_MEM=on
 fi
 
