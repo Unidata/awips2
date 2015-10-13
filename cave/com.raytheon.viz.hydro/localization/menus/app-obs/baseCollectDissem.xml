@@ -18,7 +18,10 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<menuContributionFile>
- <include installTo="menu:obs?before=CollectionDissemSep"   
-             fileName="menus/mping/baseMPing.xml"/>
-</menuContributionFile>
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <contribute xsi:type="command" 
+                menuText="Collection/Dissemination..." id="CollectionDissemination"
+                commandId="com.raytheon.uf.viz.app.launcher.appLauncherHandler">
+        <parameter key="bundleLocation" value="bundles/run-ldadScheduler.xml"/>
+    </contribute>
+</menuTemplate>
