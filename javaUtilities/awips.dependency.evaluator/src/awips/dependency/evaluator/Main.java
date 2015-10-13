@@ -20,6 +20,7 @@
 package awips.dependency.evaluator;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -71,6 +72,7 @@ import org.eclipse.pde.internal.core.product.ProductModel;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 29, 2015 4759       bkowal      Initial creation
+ * Oct 09, 2015 4759       bkowal      Added an exclude features parameter.
  * 
  * </pre>
  * 
@@ -115,6 +117,8 @@ public class Main {
      */
     private static final String BUILD_FEATURES_ARG = "buildFeatures";
 
+    private static final String EXCLUDE_FEATURES_ARG = "excludeFeatures";
+
     /*
      * Argument specifying the product that will need to be prepared for
      * building. The existence of all features specified in the product will be
@@ -138,6 +142,8 @@ public class Main {
     private Path outputPath;
 
     private String buildFeatures;
+
+    private String excludeFeatures;
 
     private String buildProduct;
 
@@ -206,6 +212,7 @@ public class Main {
                     + " has not been specified.");
         }
         this.buildFeatures = System.getProperty(BUILD_FEATURES_ARG);
+        this.excludeFeatures = System.getProperty(EXCLUDE_FEATURES_ARG);
         this.buildProduct = System.getProperty(BUILD_PRODUCT_ARG);
         /*
          * At least one must be specified.
@@ -350,8 +357,6 @@ public class Main {
 
             if (ALL_FEATURES.equals(this.buildFeatures)) {
                 featuresToBuild.addAll(this.buildFeaturesMap.values());
-                productModel.getProduct().removeFeatures(
-                        productModel.getProduct().getFeatures());
                 allFeatures = true;
             } else {
                 for (IProductFeature feature : productModel.getProduct()
@@ -365,6 +370,8 @@ public class Main {
                     featuresToBuild.add(buildFeature);
                 }
             }
+            productModel.getProduct().removeFeatures(
+                    productModel.getProduct().getFeatures());
         }
 
         // Ensure all dependencies are present for the features that need to be
@@ -536,7 +543,8 @@ public class Main {
                     for (BuildFeature dependencyFeature : buildPluginDependency
                             .getContainingFeatures()) {
                         dependencyFeature.addDependentFeatures(
-                                buildPlugin.getContainingFeatures(), pluginId);
+                                buildPlugin.getContainingFeatures(),
+                                requiredBundle, pluginId);
                         for (BuildFeature containingFeature : buildPlugin
                                 .getContainingFeatures()) {
                             containingFeature
@@ -598,7 +606,7 @@ public class Main {
                                 .getContainingFeatures()) {
                             dependencyFeature.addDependentFeatures(
                                     buildPlugin.getContainingFeatures(),
-                                    pluginId);
+                                    importedPackage, pluginId);
                             for (BuildFeature containingFeature : buildPlugin
                                     .getContainingFeatures()) {
                                 containingFeature
@@ -616,12 +624,30 @@ public class Main {
      * the staging directory.
      */
     private List<BuildFeature> findFeatures() {
+        /*
+         * Determine if there are any features that should be excluded ...
+         */
+        final List<String> excludedFeaturesList;
+        if (this.excludeFeatures != null
+                && this.excludeFeatures.isEmpty() == false) {
+            excludedFeaturesList = new ArrayList<>();
+            for (String excludedFeature : this.excludeFeatures
+                    .split(CSV_SEPARATOR)) {
+                excludedFeaturesList.add(excludedFeature);
+            }
+        } else {
+            excludedFeaturesList = Collections.emptyList();
+        }
+
         final List<BuildFeature> stagedFeatures = new ArrayList<>();
         this.stagingPath.toFile().list(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
                 if ((name.contains(FEATURE) && name.contains(VIZ))
                         || COMMON_BASE_FEATURE.equals(name)) {
+                    if (excludedFeaturesList.contains(name)) {
+                        return false;
+                    }
                     final Path featurePath = stagingPath.resolve(name).resolve(
                             BuildFeature.FILENAME);
                     /*
