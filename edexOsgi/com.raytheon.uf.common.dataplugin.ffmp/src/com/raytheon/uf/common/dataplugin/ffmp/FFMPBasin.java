@@ -51,6 +51,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * Jul 31, 2013 2242        bsteffen    Optimize FFMP NavigableMap memory.
  * Aug 08, 2015 4722        dhladky     Dynamic serialize imp not needed.
+ * Oct 10, 2015 4756        dhladky     Prevent null values from being inserted.
  * 
  * </pre>
  * 
@@ -322,6 +323,12 @@ public class FFMPBasin implements Cloneable {
      * @param value
      */
     public void setValue(Date date, Float dvalue) {
+        
+        // Do not allow null values to be added! 
+        if (dvalue == null) {
+            return;
+        }
+        
         synchronized (valuesSynchronization) {
             values.put(date, dvalue);
         }

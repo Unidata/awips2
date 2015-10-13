@@ -709,7 +709,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                     FFMPProcessor ffmp = new FFMPProcessor(config, generator,
                             ffmpRec, template);
                     ffmpRec = ffmp.processFFMP(ffmpProduct);
-
+   
                     if (ffmpRec != null) {
 
                         persistRecord(ffmpRec);

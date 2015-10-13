@@ -3189,14 +3189,11 @@ public class FFMPResource extends
         ITimer timer = TimeUtil.getTimer();
         timer.start();
         FfmpTableConfig tableConfig = FfmpTableConfig.getInstance();
-        String ffgGraphType = tableConfig.getTableConfigData(getSiteKey())
-                .getFfgGraphType();
+        String ffgGraphType = tableConfig.getTableConfigData(getSiteKey()).getFfgGraphType();
         Long basinPfaf = null;
         Long dataId = null;
         FFMPVirtualGageBasinMetaData fvgbmd = null;
         FFMPBasin basin = null;
-
-        // System.out.println("*************************************************");
 
         try {
             basinPfaf = Long.parseLong(pfafString);
@@ -3210,12 +3207,7 @@ public class FFMPResource extends
         }
 
         FFMPBasinMetaData mBasin = monitor.getTemplates(getSiteKey()).getBasin(
-                getSiteKey(), basinPfaf); /*
-                                           * TODO: mBasin is never used so it is
-                                           * not clear if this should be
-                                           * basinPfaf or dataId
-                                           */
-
+                getSiteKey(), basinPfaf); 
         FFMPGraphData fgd = null;
         // VGB
         if (fvgbmd != null) {
@@ -3237,8 +3229,8 @@ public class FFMPResource extends
         Date oldestRefTime = getOldestTime();
         Date mostRecentRefTime = getPaintTime().getRefTime();
 
-        Date barrierTime = getTableTime();// DR 16148
-        Date minUriTime = getTimeOrderedKeys().get(0);// DR 16148
+        Date barrierTime = getTableTime();
+        Date minUriTime = getTimeOrderedKeys().get(0);
 
         // grabs the basins we need
         try {
@@ -3267,7 +3259,7 @@ public class FFMPResource extends
 
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
-                    "FFMPMonitor: getGraphData(): missing RATE dataset.");
+                    "FFMPMonitor: getGraphData(): missing RATE dataset.", e);
         }
         try {
             qpeBasin = monitor.getGraphQPEBasin(getProduct(), getSiteKey(),
@@ -3300,7 +3292,7 @@ public class FFMPResource extends
 
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
-                    "FFMPMonitor: getGraphData(): missing QPE dataset.");
+                    "FFMPMonitor: getGraphData(): missing QPE dataset.", e);
         }
 
         try {
@@ -3324,25 +3316,15 @@ public class FFMPResource extends
                     double dtime = FFMPGuiUtils.getTimeDiff(mostRecentRefTime,
                             date);
 
-                    // TODO - START
-                    // Float qpf =
-                    // monitor.getq.get(qpfBasin.getPfaf()).getValue(
-                    // monitor.getQpfWindow().getBeforeTime(),
-                    // monitor.getQpfWindow().getAfterTime());
-
-                    // TODO - END
-
                     fgd.setQpf(dtime, (double) qpfBasin.getValue(date));
                     qpfTimes.add(dtime);
-                    // System.out.println("Have a time for QPF: " + dtime
-                    // + " value: " + (double) qpfBasin.getValue(date));
                 }
             }
 
             fgd.setQpfTimes(qpfTimes);
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
-                    "FFMPMonitor: getGraphData(): missing QPF dataset.");
+                    "FFMPMonitor: getGraphData(): missing QPF dataset.", e);
         }
 
         FFMPGuidanceInterpolation guidanceInterpolator = new FFMPGuidanceInterpolation(
@@ -3354,7 +3336,7 @@ public class FFMPResource extends
         try {
 
             guidBasin = (FFMPGuidanceBasin) monitor.getGraphGuidanceBasin(
-                    getProduct(), getSiteKey(), getDataKey(), null,
+                    getProduct(), ffgGraphType, getSiteKey(), getDataKey(), null,
                     oldestRefTime, FFMPRecord.ALL, basinPfaf);
             ArrayList<Double> guidTimes = new ArrayList<Double>();
             for (SourceXML ffgSource : getProduct().getGuidanceSourcesByType(
@@ -3377,7 +3359,7 @@ public class FFMPResource extends
             guid = true;
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
-                    "FFMPMonitor: getGraphData(): missing GUIDANCE dataset.");
+                    "FFMPMonitor: getGraphData(): missing GUIDANCE dataset.", e);
         }
 
         if (fvgbmd != null) {
@@ -3389,10 +3371,6 @@ public class FFMPResource extends
                         mostRecentRefTime);
 
                 if (virtualBasin != null) {
-                    // System.out.println("VGB DATA EXISTS!     " + pfaf +
-                    // "    "
-                    // + lid);
-
                     SortedSet<Date> vgbTimes = new TreeSet<Date>(virtualBasin
                             .getValues().descendingKeySet());
 
@@ -3409,7 +3387,7 @@ public class FFMPResource extends
             } catch (Exception e) {
                 statusHandler
                         .handle(Priority.PROBLEM,
-                                "FFMPMonitor: getGraphData(): missing VIRTUAL dataset.");
+                                "FFMPMonitor: getGraphData(): missing VIRTUAL dataset.", e);
             }
         }
 
@@ -3451,14 +3429,6 @@ public class FFMPResource extends
                         diff = FFMPUtils.getDiffValue(qpev, guidancev);
                         ratio = FFMPUtils.getRatioValue(qpev, guidancev);
                     }
-
-                    // System.out.println("----------------------------------");
-                    // System.out.println("guid is: " + guid);
-                    // System.out.println(">>> graphTime: = " + fgdQpeTime);
-                    // System.out.println(">>> qpev = " + qpev);
-                    // System.out.println(">>> guidancev = " + guidancev);
-                    // System.out.println(">>> diff = " + diff);
-                    // System.out.println(">>> ratio = " + ratio);
 
                     fgd.setRatio(fgdQpeTime, ratio);
                     fgd.setDiff(fgdQpeTime, diff);

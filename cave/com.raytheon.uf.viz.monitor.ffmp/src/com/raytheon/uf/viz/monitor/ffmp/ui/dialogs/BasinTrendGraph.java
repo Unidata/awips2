@@ -65,6 +65,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPGraphData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 30, 2009            lvenable     Initial creation
+ * Oct 10, 2015  4756      dhladky      Dynamic bounding of Y axis.
  * 
  * </pre>
  * 
@@ -272,6 +273,12 @@ public class BasinTrendGraph {
      * Time duration.
      */
     private TimeDuration timeDur = TimeDuration.ALL;
+    
+    
+    /**
+     * Basin Trend Graph Bounds.
+     */
+    private BasinTrendGraphBounds graphBounds;
 
     /**
      * Data to graph.
@@ -400,6 +407,8 @@ public class BasinTrendGraph {
      * Initialize method.
      */
     private void init() {
+
+        determineGraphBounds();
         display = parentComp.getDisplay();
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 
@@ -807,35 +816,47 @@ public class BasinTrendGraph {
 
         double yCoord = 0.0;
         String inchLbl;
-        double inchDbl = timeDur.getYCoordHours();
+        double inchDbl = graphBounds.getYCoordValues();
+        int skip = graphBounds.getSkipValue();
+        int count = 0;
 
         while (yCoord < graphImageHeight) {
-            if (inchDbl == timeDur.getYCoordHours()) {
-                gc.drawLine(leftIncCanvasWidth, doubleToInt(yCoord + 1.0),
-                        leftIncCanvasWidth - dashLength,
-                        doubleToInt(yCoord + 5.0));
 
-                inchLbl = String.format("%1.1f", inchDbl);
-                gc.drawString(inchLbl, leftIncCanvasWidth - dashLength - 3
-                        - (inchLbl.length() * fontWidth),
-                        doubleToInt(yCoord + 5.0), true);
-            } else {
-                if (inchDbl != 0.0) {
+            // When counter == skip, allow graph to draw a label.
+            if (count == skip) {
+                // resets the counter
+                if (yCoord > 1.0) {
+                    count = 0;
+                }
+
+                if (inchDbl == graphBounds.getYCoordValues()) {
                     gc.drawLine(leftIncCanvasWidth, doubleToInt(yCoord + 1.0),
                             leftIncCanvasWidth - dashLength,
-                            doubleToInt(yCoord + 1.0));
+                            doubleToInt(yCoord + 5.0));
+                    inchLbl = String.format("%1.1f", inchDbl);
+                    gc.drawString(inchLbl, leftIncCanvasWidth - dashLength - 3
+                            - (inchLbl.length() * fontWidth),
+                            doubleToInt(yCoord + 5.0), true);
+
+                } else {
+                    if (inchDbl != 0.0) {
+                        gc.drawLine(leftIncCanvasWidth,
+                                doubleToInt(yCoord + 1.0), leftIncCanvasWidth
+                                        - dashLength, doubleToInt(yCoord + 1.0));
+                    }
+                }
+
+                if (inchDbl != 0.0 && inchDbl != graphBounds.getYCoordValues()) {
+                    inchLbl = String.format("%1.1f", inchDbl);
+                    gc.drawString(inchLbl, leftIncCanvasWidth - dashLength - 3
+                            - (inchLbl.length() * fontWidth),
+                            doubleToInt(yCoord - aveFontHeight), true);
                 }
             }
-
-            if (inchDbl != 0.0 && inchDbl != timeDur.getYCoordHours()) {
-                inchLbl = String.format("%1.1f", inchDbl);
-                gc.drawString(inchLbl, leftIncCanvasWidth - dashLength - 3
-                        - (inchLbl.length() * fontWidth), doubleToInt(yCoord
-                        - aveFontHeight), true);
-            }
-
+               
             yCoord += pixPerInc_YCoord;
             inchDbl -= 1.0;
+            count++;
         }
 
         gc.drawLine(leftIncCanvasWidth, graphImageHeight + 1,
@@ -877,30 +898,42 @@ public class BasinTrendGraph {
 
         double yCoord = 0.0;
         String inchLbl;
-        double inchDbl = timeDur.getYCoordHours();
+        double inchDbl = graphBounds.getYCoordValues();
+        int skip = graphBounds.getSkipValue();
+        int count = 0;
 
         while (yCoord < graphImageHeight) {
-            if (inchDbl == timeDur.getYCoordHours()) {
-                gc.drawLine(0, doubleToInt(yCoord + 1.0), dashLength,
-                        doubleToInt(yCoord + 5.0));
 
-                inchLbl = String.format("%1.1f", inchDbl);
-                gc.drawString(inchLbl, 10, doubleToInt(yCoord + 5.0), true);
-            } else {
-                if (inchDbl != 0.0) {
-                    gc.drawLine(0, doubleToInt(yCoord + 1.0), dashLength,
-                            doubleToInt(yCoord + 1.0));
+            // When counter == skip, allow graph to draw a label.
+            if (count == skip) {
+                // resets the counter
+                if (yCoord > 1.0) {
+                    count = 0;
                 }
-            }
 
-            if (inchDbl != 0.0 && inchDbl != timeDur.getYCoordHours()) {
-                inchLbl = String.format("%1.1f", inchDbl);
-                gc.drawString(inchLbl, 10, doubleToInt(yCoord - aveFontHeight),
-                        true);
+                if (inchDbl == graphBounds.getYCoordValues()) {
+                    gc.drawLine(0, doubleToInt(yCoord + 1.0), dashLength,
+                            doubleToInt(yCoord + 5.0));
+                    inchLbl = String.format("%1.1f", inchDbl);
+                    gc.drawString(inchLbl, 10, doubleToInt(yCoord + 5.0), true);
+
+                } else {
+                    if (inchDbl != 0.0) {
+                        gc.drawLine(0, doubleToInt(yCoord + 1.0), dashLength,
+                                doubleToInt(yCoord + 1.0));
+                    }
+                }
+
+                if (inchDbl != 0.0 && inchDbl != graphBounds.getYCoordValues()) {
+                    inchLbl = String.format("%1.1f", inchDbl);
+                    gc.drawString(inchLbl, 10, doubleToInt(yCoord
+                            - aveFontHeight), true);
+                }
             }
 
             yCoord += pixPerInc_YCoord;
             inchDbl -= 1.0;
+            count++;
         }
 
         gc.drawLine(0, graphImageHeight + 1, dashLength, graphImageHeight - 5);
@@ -986,7 +1019,7 @@ public class BasinTrendGraph {
          * Draw horizontal black & grey grid lines.
          */
         double yCoord = 0.0;
-        int hours = timeDur.getYCoordHours();
+        int hours = graphBounds.getYCoordValues();
 
         for (int i = 0; i < hours; i++) {
             gc.setForeground(display.getSystemColor(SWT.COLOR_GRAY));
@@ -1225,7 +1258,7 @@ public class BasinTrendGraph {
         /*
          * Loop and draw the remaining hour labels.
          */
-        for (int i = 0; i <= timeDur.getHours(); i += pixelMultiplier) {
+        for (int i = 0; i <= graphBounds.getHours(); i += pixelMultiplier) {
             if (graphQPF == true && counter == 1) {
                 transparent = false;
                 gc.drawLine(newXCoord, 0, newXCoord, 6);
@@ -2117,7 +2150,7 @@ public class BasinTrendGraph {
         int x = 0;
         int y = 0;
 
-        Double guid = this.getGuidForHour(timeDur.getHours());
+        Double guid = this.getGuidForHour(graphBounds.getHours());
 
         ArrayList<Double> timesArray = new ArrayList<Double>(getQPEGraphTimes());
         double offset = getQPEValueNearStartTimeOffset();
@@ -2284,7 +2317,7 @@ public class BasinTrendGraph {
         int x = 0;
         int y = 0;
 
-        Double guid = this.getGuidForHour(timeDur.getHours());
+        Double guid = this.getGuidForHour(graphBounds.getHours());
 
         ArrayList<Double> timesArray = new ArrayList<Double>(getQPEGraphTimes());
         double offset = getQPEValueNearStartTimeOffset();
@@ -2423,8 +2456,8 @@ public class BasinTrendGraph {
 
         double maxGuid = Double.MIN_VALUE;
 
-        if (timesArray.contains((double) timeDur.getHours()) == true) {
-            maxGuid = graphData.getGuid((double) timeDur.getHours());
+        if (timesArray.contains((double) graphBounds.getHours()) == true) {
+            maxGuid = graphData.getGuid((double) graphBounds.getHours());
 
             if (Double.isNaN(maxGuid) == true || maxGuid < 0.0) {
                 return;
@@ -2492,7 +2525,7 @@ public class BasinTrendGraph {
      * @return Array of QPE graph times.
      */
     private ArrayList<Double> getQPEGraphTimes() {
-        int hrs = timeDur.getHours();
+        int hrs = graphBounds.getHours();
 
         /*
          * If qpf is selected then adjust the hours. For example: hour = 24 then
@@ -2523,7 +2556,7 @@ public class BasinTrendGraph {
      * @return Array of QPE graph times.
      */
     private ArrayList<Double> getRateGraphTimes() {
-        int hrs = timeDur.getHours();
+        int hrs = graphBounds.getHours();
 
         /*
          * If qpf is selected then adjust the hours. For example: hour = 24 then
@@ -2598,8 +2631,8 @@ public class BasinTrendGraph {
             graphImageHeight = graphViewHeight;
         }
 
-        pixPerInc_XCoord = graphImageWidth / (double) timeDur.getHours();
-        pixPerInc_YCoord = graphImageHeight / (double) timeDur.getYCoordHours();
+        pixPerInc_XCoord = graphImageWidth / (double) graphBounds.getHours();
+        pixPerInc_YCoord = graphImageHeight / (double) graphBounds.getYCoordValues();
     }
 
     /**
@@ -2609,17 +2642,6 @@ public class BasinTrendGraph {
         // System.out.println("in redrawGraphCanvas()");
         createGraphImage();
         graphCanvas.redraw();
-    }
-
-    /**
-     * Redraw the left side canvas.
-     */
-    private void redrawLeftRightIncCanvases() {
-        this.createLeftIncImage();
-        leftIncCanvas.redraw();
-
-        this.createRightIncImage();
-        rightIncCanvas.redraw();
     }
 
     /**
@@ -2734,17 +2756,11 @@ public class BasinTrendGraph {
      */
     public void setGraphData(FFMPGraphData graphData) {
 
-        // System.out.println("in BasinTrendGraph.setGraphData");
         this.graphData = graphData;
-
-        redrawGraphCanvas();
-
-        // This should correctly update the increment labels when new data comes
-        // in.
-        redrawLeftRightIncCanvases();
-
-        // Update the bottom time canvas.
-        redrawBottomIncCanvas();
+        determineGraphBounds();
+        recalcPixelsIncrements();
+        regenerateImages();
+        redrawAllCanvases();
     }
 
     /**
@@ -2788,5 +2804,20 @@ public class BasinTrendGraph {
 
         redrawGraphCanvas();
         redrawBottomIncCanvas();
+    }
+    
+    /**
+     * Set the X and Y bounds of the graph.
+     */
+    private void determineGraphBounds() {
+        
+        graphBounds = new BasinTrendGraphBounds();
+        // maximum data value
+        double max = graphData.getMaximumValue();
+        int yMaxHeight = (int) Math.round(max+1);
+        graphBounds.setYCoordValues(yMaxHeight);
+        graphBounds.setHours(this.timeDur.getHours());
+        graphBounds.setTimeDurName(this.timeDur.getTimeDurName());
+        
     }
 }
