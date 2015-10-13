@@ -50,9 +50,9 @@ import com.raytheon.uf.viz.monitor.scan.data.ScanDataGenerator;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 2, 2010            mnash     Initial creation
- * 
- * 03/15/2012	13939	   Mike Duff    For a SCAN Alarms issue
- * Apr 18, 2013   1926    njensen      Update for Long keys
+ * 03/15/2012   13939     Mike Duff For a SCAN Alarms issue
+ * Apr 18, 2013 1926      njensen   Update for Long keys
+ * Oct 12, 2015 4929      rferrel   Ingore unset alarm values in calculateScanCells.
  * 
  * </pre>
  * 
@@ -75,6 +75,11 @@ public class SCANAlarmAlertManager {
             return this.name;
         }
     }
+
+    /**
+     * Value to use to indicate no alarm for the AlarmTypes.
+     */
+    public static final int NO_ALARM_VALUE = -999;
 
     private static SCANAlarmAlertManager instance = null;
 
@@ -171,7 +176,7 @@ public class SCANAlarmAlertManager {
         for (ScheduledAlarms alarm : scheduledAlarmsMap.get(site)
                 .get(tableType)) {
             int index = config.getColumnIndex(tableType, alarm.colName);
-            if (index == -1) {
+            if ((alarm.value == NO_ALARM_VALUE) || (index == -1)) {
                 continue;
             }
             int row = 0;
@@ -215,21 +220,18 @@ public class SCANAlarmAlertManager {
                         Set<Long> cellData = monitor.cellData.get(site)
                                 .keySet();
                         Date previous = null;
-                        if (!cellData.isEmpty()) {
+                        if (!cellData.isEmpty() && (cellData.size() > 1)) {
                             Date[] times = new Date[cellData.size()];
                             Iterator<Long> itr = cellData.iterator();
                             for (int i = 0; i < times.length; i++) {
                                 times[i] = new Date(itr.next());
                             }
-                            if (times.length > 1) {
-                                Arrays.sort(times);
-                                previous = times[times.length - 2];
-                                ScanTableData<?> tableDataPrev = monitor
-                                        .getTableData(tableType, site, previous);
-                                getScanTableDiff(data, tableDataPrev,
-                                        tableType, colLength, sdg, alarm,
-                                        config, latestTime);
-                            }
+                            Arrays.sort(times);
+                            previous = times[times.length - 2];
+                            ScanTableData<?> tableDataPrev = monitor
+                                    .getTableData(tableType, site, previous);
+                            getScanTableDiff(data, tableDataPrev, tableType,
+                                    colLength, sdg, alarm, config, latestTime);
                         }
                     }
                 }
