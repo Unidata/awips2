@@ -19,29 +19,21 @@
  **/
 package com.raytheon.uf.edex.plugin.loctables.util.handlers;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.uf.common.pointdata.spatial.ObStation;
-import com.raytheon.uf.edex.plugin.loctables.util.TableHandler;
 import com.raytheon.uf.edex.plugin.loctables.util.store.ObStationRow;
-import com.raytheon.uf.edex.plugin.loctables.util.store.PrintStreamStoreStrategy;
-import com.raytheon.uf.edex.plugin.loctables.util.store.RowStoreStrategy;
 
 /**
- * TODO Add Description
+ * Parses station data from maritime and CMAN station files.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 8, 2010            jkorman     Initial creation
- * 
+ * Apr 8, 2010             jkorman     Initial creation
+ * Oct 12, 2015 4911       rjpeter     Refactored.
  * </pre>
  * 
  * @author jkorman
@@ -49,68 +41,67 @@ import com.raytheon.uf.edex.plugin.loctables.util.store.RowStoreStrategy;
  */
 
 public class MaritimeTableHandler extends AbstractTableHandler {
+    private final Pattern NUMERIC = Pattern.compile("\\d{5}");
 
-    private Log logger = LogFactory.getLog(getClass());
-
-    private Pattern NUMERIC = Pattern.compile("\\d{5}");
-    
     /**
      * 
      */
-    public MaritimeTableHandler(RowStoreStrategy storeStrategy) {
-        super("MaritimeTable", storeStrategy);
+    public MaritimeTableHandler() {
+        super("MaritimeTable");
     }
-    
+
     /**
      * @see com.raytheon.uf.edex.plugin.loctables.util.TableHandler#parseLine(java.lang.String)
      */
     @Override
     public ObStationRow parseLine(String data) {
-        //           11111111112222222222333333333344444444445555555555666666666677777777778888888888
-        // 012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
-        // 0000000000|41001| 34.679| -72.637|    0|6N13 /D E HATTERAS                  |US|BOY
-        // 0000000000|41002| 32.281| -75.202|    0|6N35 /D S HATTERAS                  |US|BOY
+        /**
+         * <pre>
+         *           11111111112222222222333333333344444444445555555555666666666677777777778888888888
+         * 012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+         * 0000000000|41001| 34.679| -72.637|    0|6N13 /D E HATTERAS                  |US|BOY
+         * 0000000000|41002| 32.281| -75.202|    0|6N35 /D S HATTERAS                  |US|BOY
+         * </pre>
+         */
         ObStationRow row = null;
 
-        if((data != null)&&(data.length() > 79)) {
-            String s = data.substring(11,16).trim();
+        if ((data != null) && (data.length() > 79)) {
+            String s = data.substring(11, 16).trim();
             String t = data.substring(80).trim();
-            if((s.length() > 0)&&(t.length() > 0)) {
-                if("BOY".equals(t)) {
+            if ((s.length() > 0) && (t.length() > 0)) {
+                if ("BOY".equals(t)) {
                     row = new ObStationRow(ObStation.CAT_TYPE_BUOY_FXD);
-                    if(NUMERIC.matcher(s).matches()) {
+                    if (NUMERIC.matcher(s).matches()) {
                         row.setWmoIndex(new Integer(s));
                     }
-                } else if("CMAN".equals(t)) {
+                } else if ("CMAN".equals(t)) {
                     row = new ObStationRow(ObStation.CAT_TYPE_CMAN);
                 }
                 row.setStationId(s);
-                if(row != null) {
-                    s = data.substring(17,24).trim();
+                if (row != null) {
+                    s = data.substring(17, 24).trim();
                     double lat = Double.parseDouble(s);
 
-                    s = data.substring(25,33).trim();
+                    s = data.substring(25, 33).trim();
                     double lon = Double.parseDouble(s);
-                    
+
                     row.setLocation(ObStationRow.getPoint(lat, lon));
-                    
-                    s = data.substring(34,39).trim();
-                    if("-0".equals(s)) {
+
+                    s = data.substring(34, 39).trim();
+                    if ("-0".equals(s)) {
                         // Unknown station height. we'll deal with this later.
-                    } else {
-                        if(s.length() > 0) {
-                            Integer elev = new Integer(s);
-                            row.setElevation(elev);
-                        }
+                    } else if (!s.isEmpty()) {
+                        Integer elev = new Integer(s);
+                        row.setElevation(elev);
                     }
-                    
-                    s = data.substring(40,76).trim();
-                    if(s.length() > 0) {
+
+                    s = data.substring(40, 76).trim();
+                    if (!s.isEmpty()) {
                         row.setName(s);
                     }
-                    
-                    s = data.substring(77,79).trim();
-                    if(s.length() > 0) {
+
+                    s = data.substring(77, 79).trim();
+                    if (!s.isEmpty()) {
                         row.setCountry(s);
                     }
                 }
@@ -118,31 +109,4 @@ public class MaritimeTableHandler extends AbstractTableHandler {
         }
         return row;
     }
-
-    public static final void main(String [] args) {
-        
-        File file = new File("./utility/edex_static/base/spatialTables/CMANStationInfo.txt");
-        File fout = new File("./utility/edex_static/base/spatialTables");
-        
-        RowStoreStrategy out = null;
-        try {
-            out = new PrintStreamStoreStrategy(fout,"common_obs_spatial","sql",4000);
-            
-            TableHandler handler = new MaritimeTableHandler(out);
-
-            handler.processFile(file);
-
-        } catch(Exception e) {
-            
-        } finally {
-            if(out != null) {
-                try {
-                    out.close();
-                } catch(IOException ioe) {
-                    
-                }
-            }
-        }
-    }
-
 }

@@ -20,25 +20,29 @@
 package com.raytheon.uf.edex.plugin.loctables.util.handlers;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintStream;
-import java.util.Calendar;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.plugin.loctables.util.TableHandler;
 import com.raytheon.uf.edex.plugin.loctables.util.store.ObStationRow;
-import com.raytheon.uf.edex.plugin.loctables.util.store.RowStoreStrategy;
 
 /**
- * TODO Add Description
+ * Handles parsing of station files. Specific implementation override parseLine
+ * to handle transformation.
  * 
  * <pre>
  * 
@@ -48,7 +52,7 @@ import com.raytheon.uf.edex.plugin.loctables.util.store.RowStoreStrategy;
  * ------------ ---------- ----------- --------------------------
  * Apr 16, 2010            jkorman     Initial creation
  * Sep 18, 2014 #3627      mapeters    Updated deprecated {@link TimeTools} usage.
- * 
+ * Oct 12, 2015 4911       rjpeter     Refactored.
  * </pre>
  * 
  * @author jkorman
@@ -58,232 +62,127 @@ import com.raytheon.uf.edex.plugin.loctables.util.store.RowStoreStrategy;
 public abstract class AbstractTableHandler implements TableHandler {
 
     public static final int STA_NORMAL = 0;
-    
+
     public static final int ERR_RES_DISPOSED = -100;
 
     public static final String DIRECTIVE_STATUS_DIR = "#!!STATUS_DIR=";
-    
-    private static Pattern LATLON = Pattern.compile("(\\d{1,3})(( +\\d{2})( +\\d{2})?)?([NESW])");
-    
+
+    private static Pattern LATLON = Pattern
+            .compile("(\\d{1,3})(( +\\d{2})( +\\d{2})?)?([NESW])");
+
     public static final String COMMENT = "#";
-    
-    public static final String DIRECTIVE = "#!!";
-    
-    Log logger = LogFactory.getLog(getClass());
-    
-    private int status = STA_NORMAL;
-    
-    private int errorPos = -1;
 
-    private String statusMessage = null;
-    
-    private RowStoreStrategy storeStrategy;
+    protected static final LocalizationContext LOC_CONTEXT = PathManagerFactory
+            .getPathManager().getContext(LocalizationType.EDEX_STATIC,
+                    LocalizationLevel.CONFIGURED);
 
-    private PrintStream statusFile = null;
-    
-    private File processFile = null;
-    
+    protected Logger logger = LoggerFactory.getLogger(getClass());
+
     final String handlerName;
-    
+
     /**
      * 
      * @param name
      * @param storeStrategy
      */
-    AbstractTableHandler (String name, RowStoreStrategy storeStrategy) {
+    AbstractTableHandler(String name) {
         handlerName = name;
-        this.storeStrategy = storeStrategy;
-        if(storeStrategy != null) {
-            storeStrategy.setParent(this);
-        }
     }
-    
+
     /**
+     * Parse a line of data and return an ObStationRow.
      * 
-     * @param file
-     */
-    @Override
-    public void processFile(File file) {
-        
-        if(file != null) {
-            logger.info(handlerName + "Handler [" + file.getName() + "]");
-
-            BufferedReader reader = null;
-            try {
-                processFile = file;
-                reader = new BufferedReader(new FileReader(file));
-                String line = null;
-                while((line = reader.readLine()) != null) {
-                    clearStatus();
-                    try {
-                        // If a directive was found a null reference is returned.
-                        if(findDirective(line) != null) {
-                            ObStationRow row = parseLine(line);
-                            if(!processObStationRow(row)) {
-                                String msg = null;
-                                if(statusMessage != null) {
-                                    if(errorPos >= 0) {
-                                        msg = statusMessage + " at position " + errorPos;
-                                    } else {
-                                        msg = statusMessage;
-                                    }
-                                } else {
-                                    msg = "Error processing [" + line + "]";
-                                }
-                                writeStatus(msg);
-                            } else {
-                                if(statusMessage != null) {
-                                    writeStatus(statusMessage);
-                                }
-                            }
-                        }
-                    } catch(Exception e) {
-                        writeStatus("Error processing [" + line + "]", e);
-                    }
-                }
-            } catch(IOException ioe) {
-                logger.error("Error processing " + handlerName + " data", ioe);
-            } finally {
-                if(reader != null) {
-                    try {
-                        reader.close();
-                    } catch(IOException ioe) {
-                        logger.error("Error closing " + handlerName + " file",ioe);
-                    }
-                }
-                if(statusFile != null) {
-                    statusFile.close();
-                    if(statusFile.checkError()) {
-                        logger.error("Error closing status file");
-                    }
-                }
-            }
-        } else {
-            logger.error("Cannot process null file reference.");
-        }
-    }
-
-    /**
-     * Determine if the specified data is either a directive or comment
-     * line. Directive data is passed to a specified directive strategy.
-     * Directive and Comment lines are set to null and returned. 
-     * @param data A potential directive or comment line.
-     * @return The original data if not a directive or comment, null otherwise.
-     */
-    public String findDirective(String data) {
-        if(data != null) {
-            if(data.startsWith(DIRECTIVE)) {
-                handleDirective(data);
-                data = null;
-            } else if(data.startsWith(COMMENT)) {
-                data = null;
-            } else if(data.length() == 0) {
-                data = null;
-            }
-        }
-        return data;
-    }
-
-    /**
-     * Handle any directives
-     * @param data A line of data containing a directive. 
-     */
-    @Override
-    public void handleDirective(String data) {
-        if(data != null) {
-            if(data.startsWith(DIRECTIVE_STATUS_DIR)) {
-                
-                String fs = data.substring(DIRECTIVE_STATUS_DIR.length()).trim();
-                
-                Calendar c = TimeUtil.newGmtCalendar();
-                fs = String.format("%s.%2$tY%<te%<td%<tH%<tM%<tS.jnl", fs, c);
-                try {
-                    statusFile = new PrintStream(fs);
-                } catch(IOException ioe) {
-                    logger.error("Could not create statusFile " + fs);
-                    statusFile = null;
-                }
-            }
-        }
-    }
-    
-    /**
-     * 
-     * @param row
+     * @param data
      * @return
      */
-    public boolean processObStationRow(ObStationRow row) {
-        boolean success = false;
-        if(storeStrategy != null) {
-            success = storeStrategy.store(row);
+    abstract protected ObStationRow parseLine(String data);
+
+    @Override
+    public List<ObStationRow> process(LocalizationFile locFile)
+            throws IOException, LocalizationException {
+
+        if (locFile == null) {
+            logger.error("Cannot process null file reference.");
+            return null;
         }
-        return success;
+
+        List<ObStationRow> rval = new ArrayList<>(5000);
+        logger.info(handlerName + "Handler [" + locFile + "]");
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                locFile.openInputStream()))) {
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                if (checkLine(line)) {
+                    ObStationRow row = parseLine(line);
+
+                    if (row != null) {
+                        rval.add(row);
+                    }
+                }
+            }
+        }
+
+        return rval;
     }
 
     /**
-     * Set a status to this handler.
-     * @param status Current status.
+     * Determine if the specified data is a valid line. Skips empty and
+     * commented lines.
+     * 
+     * @param data
+     *            A line from file
+     * @return True if line should be parsed, false otherwise.
      */
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-    
-    
-    /**
-     * Set the position of the last error encountered.
-     * @param pos Position of the last error.
-     */
-    public void setErrorPos(Integer pos) {
-        errorPos = pos;
+    public boolean checkLine(String data) {
+        boolean rval = true;
+        if ((data == null) || data.trim().startsWith(COMMENT)
+                || (data.trim().isEmpty())) {
+            rval = false;
+        }
+        return rval;
     }
 
-    /**
-     * Set the error message for the last error encountered.
-     * @param errorMsg The error message to be displayed.
-     */
-    public void setStatusMsg(String statusMsg) {
-        statusMessage = statusMsg;
-    }
-    
     /**
      * Convert a latitude or longitude value in degrees, minutes, seconds (EWNS)
      * to a double value.
+     * 
      * @param value
      * @return
      */
     public final Double cvtLatLon(String value) {
         Double latlon = null;
-        if(value != null) {
+        if (value != null) {
             Matcher m = LATLON.matcher(value);
-            if(m.find()) {
+            if (m.find()) {
                 double lalo = -9999;
                 String s = m.group(1);
                 lalo = Double.parseDouble(s);
-                 s = m.group(3);
-                 if(s != null) {
-                     double mm = Double.parseDouble(s);
-                     lalo += (mm / 60);
-                     s = m.group(4);
-                     if(s != null) {
-                         mm = Double.parseDouble(s);
-                         lalo += (mm / 3600);
-                     }
-                 }
-                 s = m.group(5);
-                 if("N".equals(s)) {
-                     latlon = lalo;
-                 } else if("E".equals(s)) {
-                     latlon = lalo;
-                 } else if("S".equals(s)) {
-                     latlon = lalo * -1;
-                 } else if("W".equals(s)) {
-                     latlon = lalo * -1;
-                 }
+                s = m.group(3);
+                if (s != null) {
+                    double mm = Double.parseDouble(s);
+                    lalo += (mm / 60);
+                    s = m.group(4);
+                    if (s != null) {
+                        mm = Double.parseDouble(s);
+                        lalo += (mm / 3600);
+                    }
+                }
+                s = m.group(5);
+                if ("N".equals(s)) {
+                    latlon = lalo;
+                } else if ("E".equals(s)) {
+                    latlon = lalo;
+                } else if ("S".equals(s)) {
+                    latlon = lalo * -1;
+                } else if ("W".equals(s)) {
+                    latlon = lalo * -1;
+                }
             }
         }
         return latlon;
     }
-    
+
     /**
      * 
      * @param value
@@ -293,7 +192,7 @@ public abstract class AbstractTableHandler implements TableHandler {
         Integer retValue = null;
         try {
             retValue = new Integer(value);
-        } catch(NumberFormatException nfe) {
+        } catch (NumberFormatException nfe) {
             // Nothing - return null
         }
         return retValue;
@@ -307,7 +206,7 @@ public abstract class AbstractTableHandler implements TableHandler {
      */
     public static final Integer getInt(String value, Integer defaultValue) {
         Integer retValue = getInt(value);
-        if(retValue == null) {
+        if (retValue == null) {
             retValue = defaultValue;
         }
         return retValue;
@@ -322,12 +221,12 @@ public abstract class AbstractTableHandler implements TableHandler {
         Double retValue = null;
         try {
             retValue = new Double(value);
-        } catch(NumberFormatException nfe) {
+        } catch (NumberFormatException nfe) {
             // Nothing - return null
         }
         return retValue;
     }
-    
+
     /**
      * 
      * @param value
@@ -335,51 +234,9 @@ public abstract class AbstractTableHandler implements TableHandler {
      */
     public static final Double getDouble(String value, Double defaultValue) {
         Double retValue = getDouble(value);
-        if(retValue == null) {
+        if (retValue == null) {
             retValue = defaultValue;
         }
         return retValue;
     }
-
-    /**
-     * Write a status message to the status file only if the status file
-     * has been opened.
-     * @param message A status message to write.
-     */
-    private void writeStatus(String message) {
-        if(status < STA_NORMAL) {
-            logger.error(message);
-        } else {
-            logger.info(message);
-        }
-        if(statusFile != null) {
-            statusFile.println(message);
-        }
-    }
-
-    /**
-     * Write a status message to the status file only if the status file
-     * has been opened.
-     * @param message A status message to write.
-     */
-    private void writeStatus(String message, Throwable t) {
-        if(status < STA_NORMAL) {
-            logger.error(message, t);
-        } else {
-            logger.info(message, t);
-        }
-        if(statusFile != null) {
-            statusFile.println(message + " " + t);
-        }
-    }
-    
-    /**
-     * Reset the status to normal.
-     */
-    public void clearStatus() {
-        status = STA_NORMAL;
-        statusMessage = null;
-        errorPos = -1;
-    }
-
 }

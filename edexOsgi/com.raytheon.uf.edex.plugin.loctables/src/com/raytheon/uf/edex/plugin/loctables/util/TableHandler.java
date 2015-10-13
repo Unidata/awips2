@@ -19,78 +19,39 @@
  **/
 package com.raytheon.uf.edex.plugin.loctables.util;
 
-import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.edex.plugin.loctables.util.store.ObStationRow;
 
 /**
- * TODO Add Description
+ * Interface for parsing a station file.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 8, 2010            jkorman     Initial creation
- *
+ * Apr 8, 2010             jkorman     Initial creation
+ * Oct 12, 2015 4911       rjpeter     Refactored.
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public interface TableHandler {
-
     /**
+     * Process a LocalizationFile for all ObStationRow entries.
      * 
-     * @param file
-     */
-    void processFile(File file);
-    
-    /**
-     * 
-     * @param data
+     * @param locFile
      * @return
+     * @throws IOException
+     * @throws LocalizationException
      */
-    ObStationRow parseLine(String data);
-
-    /**
-     * 
-     * @param row
-     * @return
-     */
-    boolean processObStationRow(ObStationRow row);
-    
-    /**
-     * 
-     * @param data
-     * @return
-     */
-    String findDirective(String data);
-    
-    /**
-     * 
-     * @param data
-     * @return
-     */
-    void handleDirective(String data);
-    
-    /**
-     * Set a status to this handler.
-     * @param status Current status.
-     */
-    void setStatus(Integer status);
-    
-    /**
-     * Set the position of the last error encountered.
-     * @param pos Position of the last error.
-     */
-    void setErrorPos(Integer pos);
-
-    /**
-     * Set a status message for this handler.
-     * @param errorMsg The status message to be displayed.
-     */
-    void setStatusMsg(String statusMsg);
+    List<ObStationRow> process(LocalizationFile locFile) throws IOException,
+            LocalizationException;
 }
