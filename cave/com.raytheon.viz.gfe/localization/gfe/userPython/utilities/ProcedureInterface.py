@@ -106,8 +106,7 @@ class ProcedureInterface(RollbackMasterInterface.RollbackMasterInterface):
         except Exceptions.EditActionError, e:
             if "Cancel" == e.errorType() and "Cancel" == e.errorInfo():
                 return None
-            msg = moduleName + ":" + e.errorType() + ": " + e.errorInfo()
-            raise RuntimeError(msg)
+            raise
 
     def getMenuName(self, name):
         return getattr(sys.modules[name], "MenuItems", [])
