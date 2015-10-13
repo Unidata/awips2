@@ -19,6 +19,6 @@
         further_licensing_information.
     -->
 <menuContributionFile>
- <include installTo="menu:obs?before=CollectionDissemSep"   
-             fileName="menus/mping/baseMPing.xml"/>
+ <include installTo="menu:obs?after=CollectionDissemSep"   
+             fileName="menus/app-obs/baseCollectDissem.xml"/>
 </menuContributionFile>

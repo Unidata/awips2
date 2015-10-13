@@ -114,9 +114,4 @@
 	        <substitute key="negOffset" value="150"/> 
 		</contribute>
     </contribute>
-    <contribute xsi:type="command" 
-                menuText="Collection/Dissemination..." id="CollectionDissemination"
-                commandId="com.raytheon.uf.viz.app.launcher.appLauncherHandler">
-        <parameter key="bundleLocation" value="bundles/run-ldadScheduler.xml"/>
-    </contribute>
 </menuTemplate>
