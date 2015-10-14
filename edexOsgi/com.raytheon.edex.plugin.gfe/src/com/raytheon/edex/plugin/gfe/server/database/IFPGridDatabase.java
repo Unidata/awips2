@@ -117,6 +117,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * 05/29/2014   #3071      randerso    Fix NPE in getCachedParmID
  * 09/21/2014   #3648      randerso    Changed deleteDatabase to handle database already being deleted by other JVM
  * 01/13/2015   #3955      randerso    Changed a few private methods to protected to allow TopoDatabase to subclass IFPGridDatabase
+ * 10/13/2015   16938      ryu         Remove existing HDF5 data before calling saveGridsToHdf5 when storage type changed
  * 
  * </pre>
  * 
@@ -501,6 +502,10 @@ public class IFPGridDatabase extends GridDatabase {
 
         if (!updatedRecords.isEmpty()) {
             try {
+                // storage data type has changed - remove existing data first
+                if (!newPSI.getStorageType().equals(oldPSI.getStorageType())) {
+                    this.removeFromHDF5(updatedRecords);
+                }
                 this.saveGridsToHdf5(updatedRecords, newPSI);
             } catch (Exception e) {
                 statusHandler
@@ -2086,6 +2091,22 @@ public class IFPGridDatabase extends GridDatabase {
             statusHandler.handle(Priority.PROBLEM,
                     "Error deleting hdf5 record " + record.toString(), e);
         }
+    }
+
+    /**
+     * Removes records of a single parm from the HDF5 repository. If the records
+     * do not exist in the HDF5, the operation is ignored.
+     *
+     * @param records
+     *            The records to be removed
+     */
+    private void removeFromHDF5(List<GFERecord> records) {
+        List<TimeRange> times = new ArrayList<TimeRange>(records.size());
+        for (GFERecord record: records) {
+            times.add(record.getTimeRange());
+        }
+
+        removeFromHDF5(records.get(0).getParmId(), times);
     }
 
     /**
