@@ -94,6 +94,7 @@ import com.vividsolutions.jts.precision.SimpleGeometryPrecisionReducer;
  * 04/29/2015  DR 17310   D. Friedman  Use Geometry.buffer() to fix self-intersections.  Fix bug in alterVertexes.
  * 05/07/2015  DR 17438   D. Friedman  Clean up debug and performance logging.
  * 05/08/2015  DR 17310   D. Friedman  Prevent reducePoints from generating invalid polygons.
+ * 09/22/2015  DR 18033   Qinglu Lin   Updated removeOverlaidLinesegments(), removed one computeSlope().
  * </pre>
  * 
  * @author mschenke
@@ -1554,7 +1555,7 @@ public class PolygonUtil {
                     slope1 = slope;
                     count += 1;
                 } else {
-                    if (Math.abs(Math.abs(slope) - Math.abs(slope1)) <= min) {
+                    if (Math.abs(slope - slope1) <= min) {
                         count += 1;
                     } else {
                         count = 0;
@@ -1877,16 +1878,6 @@ public class PolygonUtil {
         } else {
             return 1;
         }
-    }
-
-    static public double computeSlope(Coordinate[] coords, int i, int j) {
-        double min = 1.0E-08;
-        double dx = coords[i].x - coords[j].x;
-        double slope = 0.0;
-        if (Math.abs(dx) > min) {
-            slope = (coords[i].y - coords[j].y) / dx;
-        }
-        return slope;
     }
 
     /**

@@ -25,18 +25,16 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.jms.notification.NotificationMessage;
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
-import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.monitor.IMonitor;
 import com.raytheon.uf.viz.monitor.Monitor;
 import com.raytheon.uf.viz.monitor.ObsMonitor;
@@ -74,6 +72,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Feb 15, 2013 1638       mschenke    Changed code to reference DataURI.SEPARATOR instead of URIFilter
  * Apr 28, 2014 3086       skorolev    Removed local getMonitorAreaConfig method.
  * Sep 04, 2014 3220       skorolev    Updated configUpdate method and added updateMonitoringArea.
+ * Sep 18, 2015 3873       skorolev    Removed common definitions. Replaced deprecated NotificationMessage.
  * 
  * </pre>
  * 
@@ -105,34 +104,26 @@ public class SnowMonitor extends ObsMonitor implements ISnowResourceListener {
      */
     private ObMultiHrsReports obData;
 
-    /** All SNOW datauri start with this */
-    private final String OBS = "fssobs";
-
-    /** regex wild card filter */
-    private final String wildCard = "[\\w\\(\\)-_:.]+";
-
     /** Time which Zone/County dialog shows. **/
     private Date dialogTime = null;
 
     /** Array of snow listeners **/
     private final List<ISnowResourceListener> snowResources = new ArrayList<ISnowResourceListener>();
 
-    /** Pattern for SNOW **/
-    private final Pattern snowPattern = Pattern.compile(DataURI.SEPARATOR + OBS
-            + DataURI.SEPARATOR + wildCard + DataURI.SEPARATOR + wildCard
-            + DataURI.SEPARATOR + wildCard + DataURI.SEPARATOR + wildCard
-            + DataURI.SEPARATOR + wildCard);
-
     /**
      * Private constructor, singleton
      */
     private SnowMonitor() {
-        pluginPatterns.add(snowPattern);
-        snowConfig = new FSSObsMonitorConfigurationManager(MonName.snow.name());
+        pluginPatterns.add(fssPattern);
+        snowConfig = FSSObsMonitorConfigurationManager
+                .getInstance(MonName.snow);
         updateMonitoringArea();
         initObserver(OBS, this);
         obData = new ObMultiHrsReports(CommonConfig.AppName.SNOW);
+        // Set up thresholds.
         obData.setThresholdMgr(SnowThresholdMgr.getInstance());
+        // Retrieve existing data.
+        processProductAtStartup();
         obData.getZoneTableData();
     }
 
@@ -144,7 +135,6 @@ public class SnowMonitor extends ObsMonitor implements ISnowResourceListener {
     public static synchronized SnowMonitor getInstance() {
         if (monitor == null) {
             monitor = new SnowMonitor();
-            monitor.processProductAtStartup("snow");
             monitor.fireMonitorEvent(monitor);
         }
         return monitor;
@@ -236,7 +226,7 @@ public class SnowMonitor extends ObsMonitor implements ISnowResourceListener {
      */
     @Override
     public void processProductMessage(final AlertMessage filtered) {
-        if (snowPattern.matcher(filtered.dataURI).matches()) {
+        if (fssPattern.matcher(filtered.dataURI).matches()) {
             processURI(filtered.dataURI, filtered);
         }
     }

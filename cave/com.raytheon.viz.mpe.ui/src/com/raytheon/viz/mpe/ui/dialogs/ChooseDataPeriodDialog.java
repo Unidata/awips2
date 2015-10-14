@@ -26,6 +26,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.TimeZone;
 
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -51,6 +53,7 @@ import com.raytheon.viz.mpe.core.MPEDataManager.MPEDateInfo;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.TransmitBestEstimateQPEProvider;
 import com.raytheon.viz.mpe.ui.TransmitRFCBiasProvider;
+import com.raytheon.viz.mpe.ui.actions.ClearMPEData;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.raytheon.viz.ui.editor.IMultiPaneEditor;
@@ -71,6 +74,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  *                                      if hour is greater than 18Z. 
  * Jan 05, 2015   14246   lbousaidi    enable Transmit Best Estimate QPE.
  * Jul 8, 2015   16790    snaples       Updated call to setCurrentEditDate to pass force variable.
+ * Sep 29, 2015  17975    snaples      Fixed issue with Hydro date not following the CAVE time when changed.
  * 
  * </pre>
  * 
@@ -161,26 +165,18 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
 
         displayMgr = MPEDisplayManager.getInstance(pane);
         dataMgr = MPEDataManager.getInstance();
-        dateMap = dataMgr.getDateMap(true);
+        dateMap = dataMgr.getDateMap(false);
         qcEnable = MPEDisplayManager.isMpeQcOptionEnabled();
         cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         hydroCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         prevDate = displayMgr.getCurrentEditDate();
         cal.setTime(prevDate);
-        
-        if( prevHydDate == null ){
-            prevHydDate = displayMgr.getCurrentEditDate();
             
-            hydroCal.setTime(prevHydDate);
+        hydroCal.setTime(displayMgr.getCurrentEditDate());
             
-            if ( cal.get(Calendar.HOUR_OF_DAY) >= 18 ){
-                hydroCal.add(Calendar.DATE, 1);
-            }
-        }else{
-             
-            hydroCal.setTime(prevHydDate);
+        if ( hydroCal.get(Calendar.HOUR_OF_DAY) >= 18 ){
+            hydroCal.add(Calendar.DATE, 1);
         }
-        
     }
 
     /*
@@ -551,20 +547,13 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
         }
         
         Calendar aCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        aCal.setTime(dataMgr.getLatestDate());
+        aCal.setTime(displayMgr.getCurrentEditDate());
         
-        if ( cal.get(Calendar.HOUR_OF_DAY) >= 18 ){
+        if ( aCal.get(Calendar.HOUR_OF_DAY) >= 18 ){
             aCal.add(Calendar.DATE, 1);
         }
         
-        if (hydroCal.getTime().before(dataMgr.getEarliestDate())
-                || hydroCal.getTime().after(aCal.getTime())) {
-            hydroCal.setTime(prevHydDate);
-        }
-        
         prevDate = cal.getTime();
-        prevHydDate = hydroCal.getTime();
-
         yearText.setText(Integer.toString(cal.get(Calendar.YEAR)));
         monthText.setText(Integer.toString(cal.get(Calendar.MONTH) + 1));
         daySpinner.setSelection(cal.get(Calendar.DAY_OF_MONTH));

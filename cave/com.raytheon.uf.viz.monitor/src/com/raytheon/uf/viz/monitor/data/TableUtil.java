@@ -29,6 +29,7 @@ import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
+import com.raytheon.uf.common.monitor.xml.AreaIdXML;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig.CellType;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig.ObsHistType;
@@ -50,6 +51,7 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
  * May 23, 2012  14410      zhao       Modified getCellTypeForBlizWarn and getCellTypeForHsnowWarn modules
  * Feb 28, 2013  14410      zhao       Modified getCellTypeForBlizWarn
  * May 23, 2014  3086       skorolev   Corrected ObsHistType. Cleaned code.
+ * Sep 18, 2015  3873       skorolev   Added coordinates in the hover text for a newly added zones.Corrected code for Fog and SNOW table data.
  * 
  * </pre>
  * 
@@ -110,13 +112,23 @@ public final class TableUtil {
             isZone = true;
         }
 
-        String hoverText = null;
+        DataUsageKey dataUsageKey;
+        if (tm.getDataUsageKey() != null) {
+            dataUsageKey = tm.getDataUsageKey();
+        } else {
+            dataUsageKey = DataUsageKey.DISPLAY;
+        }
+
+        String hoverText = "";
         if (isZone) {
-            hoverText = getZoneHoverText(areaId);
+            AreaIdXML zoneXML = tm.areaConfigMgr.getAreaXml(zone);
+            if (zoneXML != null) {
+                hoverText = getZoneHoverText(zoneXML);
+            }
         } else {
             hoverText = getStationHoverText(areaId);
         }
-
+        // zone or station ID
         tblRowData.setTableCellData(0, new TableCellData(areaId, hoverText,
                 CellType.AreaId, false));
 
@@ -131,14 +143,18 @@ public final class TableUtil {
             visValue = visValue * 16.0f; // vis in units of "miles/16"; this is
                                          // used to compare with Red/Yellow
                                          // threshold values
+            String mccVIS = "";
+            if (dataUsageKey == DataUsageKey.DISPLAY) {
+                mccVIS = MonitorConfigConstants.FogDisplay.FOG_DISP_METEO_VIS
+                        .getXmlKey();
+            } else {
+                mccVIS = MonitorConfigConstants.FogMonitor.FOG_MONITOR_METEO_VIS
+                        .getXmlKey();
+            }
 
-            TableCellData visCellData = new TableCellData(
-                    visString,
-                    tm.getThresholdValueCellType(
-                            DataUsageKey.DISPLAY,
-                            zone,
-                            MonitorConfigConstants.FogDisplay.FOG_DISP_METEO_VIS
-                                    .getXmlKey(), visValue), true);
+            TableCellData visCellData = new TableCellData(visString,
+                    tm.getThresholdValueCellType(dataUsageKey, zone, mccVIS,
+                            visValue), true);
 
             visCellData.setValue(visValue); // visValue, instead of visString,
                                             // will be used for sorting
@@ -320,7 +336,8 @@ public final class TableUtil {
      *            dialog)
      * @param zone
      * @param report
-     * @param tm Abstract Threshold Manager
+     * @param tm
+     *            Abstract Threshold Manager
      * @param fogCellType
      * @return
      */
@@ -336,9 +353,19 @@ public final class TableUtil {
             isZone = true;
         }
 
-        String hoverText = null;
+        DataUsageKey dataUsageKey;
+        if (tm.getDataUsageKey() != null) {
+            dataUsageKey = tm.getDataUsageKey();
+        } else {
+            dataUsageKey = DataUsageKey.DISPLAY;
+        }
+
+        String hoverText = "";
         if (isZone) {
-            hoverText = getZoneHoverText(areaId);
+            AreaIdXML zoneXML = tm.areaConfigMgr.getAreaXml(zone);
+            if (zoneXML != null) {
+                hoverText = getZoneHoverText(zoneXML);
+            }
         } else {
             hoverText = getStationHoverText(areaId);
         }
@@ -390,42 +417,52 @@ public final class TableUtil {
                                                     .getXmlKey(), report
                                                     .getWindDir()), true));
         }
+        String mccWind;
+        // wind speed
+        if (dataUsageKey == DataUsageKey.DISPLAY) {
+            mccWind = MonitorConfigConstants.SafeSeasDisplay.SS_DISP_WIND_WIND_SPEED
+                    .getXmlKey();
+        } else {
+            mccWind = MonitorConfigConstants.SafeSeasMonitor.SS_MON_METEO_WIND_SPEED
+                    .getXmlKey();
+        }
+        tblRowData.setTableCellData(
+                6,
+                new TableCellData(Math.round(new Float(report.getWindSpeed())),
+                        tm.getThresholdValueCellType(dataUsageKey, zone,
+                                mccWind, report.getWindSpeed()), true));
 
-        tblRowData
-                .setTableCellData(
-                        6,
-                        new TableCellData(
-                                Math.round(new Float(report.getWindSpeed())),
-                                tm.getThresholdValueCellType(
-                                        DataUsageKey.DISPLAY,
-                                        zone,
-                                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_WIND_WIND_SPEED
-                                                .getXmlKey(), report
-                                                .getWindSpeed()), true));
+        // peak wind
+        String mccPeakWind;
+        if (dataUsageKey == DataUsageKey.DISPLAY) {
+            mccPeakWind = MonitorConfigConstants.SafeSeasDisplay.SS_DISP_WIND_PEAK_WIND
+                    .getXmlKey();
+        } else {
+            mccPeakWind = MonitorConfigConstants.SafeSeasMonitor.SS_MON_METEO_PEAK_WIND
+                    .getXmlKey();
+        }
+        tblRowData.setTableCellData(
+                7,
+                new TableCellData(
+                        Math.round(new Float(report.getMaxWindSpeed())), tm
+                                .getThresholdValueCellType(dataUsageKey, zone,
+                                        mccPeakWind, report.getMaxWindSpeed()),
+                        true));
+        // wind gust
+        String mccWindGust;
+        if (dataUsageKey == DataUsageKey.DISPLAY) {
+            mccWindGust = MonitorConfigConstants.SafeSeasDisplay.SS_DISP_WIND_GUST_SPEED
+                    .getXmlKey();
+        } else {
+            mccWindGust = MonitorConfigConstants.SafeSeasMonitor.SS_MON_METEO_GUST_SPEED
+                    .getXmlKey();
+        }
 
-        tblRowData
-                .setTableCellData(
-                        7,
-                        new TableCellData(
-                                Math.round(new Float(report.getMaxWindSpeed())),
-                                tm.getThresholdValueCellType(
-                                        DataUsageKey.DISPLAY,
-                                        zone,
-                                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_WIND_PEAK_WIND
-                                                .getXmlKey(), report
-                                                .getMaxWindSpeed()), true));
-
-        tblRowData
-                .setTableCellData(
-                        8,
-                        new TableCellData(
-                                Math.round(new Float(report.getWindGust())),
-                                tm.getThresholdValueCellType(
-                                        DataUsageKey.DISPLAY,
-                                        zone,
-                                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_WIND_GUST_SPEED
-                                                .getXmlKey(), report
-                                                .getWindGust()), true));
+        tblRowData.setTableCellData(
+                8,
+                new TableCellData(Math.round(new Float(report.getWindGust())),
+                        tm.getThresholdValueCellType(dataUsageKey, zone,
+                                mccWindGust, report.getWindGust()), true));
 
         // visibility
         float visValue = report.getVisibility(); // vis value in miles (statute
@@ -443,20 +480,25 @@ public final class TableUtil {
                                          // to compare with Red/Yellow threshold
                                          // values
 
-            TableCellData visCellData = new TableCellData(
-                    visString,
-                    tm.getThresholdValueCellType(
-                            DataUsageKey.DISPLAY,
-                            zone,
-                            MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_VIS
-                                    .getXmlKey(), visValue), true);
+            String mccVis;
+            if (dataUsageKey == DataUsageKey.DISPLAY) {
+                mccVis = MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_VIS
+                        .getXmlKey();
+            } else {
+                mccVis = MonitorConfigConstants.SafeSeasMonitor.SS_MON_METEO_VIS
+                        .getXmlKey();
+            }
+
+            TableCellData visCellData = new TableCellData(visString,
+                    tm.getThresholdValueCellType(dataUsageKey, zone, mccVis,
+                            visValue), true);
 
             visCellData.setValue(visValue); // visValue, instead of visString,
                                             // will be used for sorting
 
             tblRowData.setTableCellData(9, visCellData);
         }
-
+        // temperature
         tblRowData
                 .setTableCellData(
                         10,
@@ -468,7 +510,7 @@ public final class TableUtil {
                                         MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_TEMP
                                                 .getXmlKey(), report
                                                 .getTemperature()), true));
-
+        // dewpoint
         tblRowData
                 .setTableCellData(
                         11,
@@ -480,7 +522,7 @@ public final class TableUtil {
                                         MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_DEWPT
                                                 .getXmlKey(), report
                                                 .getDewpoint()), true));
-
+        // SLP
         tblRowData
                 .setTableCellData(
                         12,
@@ -492,7 +534,7 @@ public final class TableUtil {
                                         MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_SLP
                                                 .getXmlKey(), report
                                                 .getSeaLevelPress()), true));
-
+        // SST
         tblRowData
                 .setTableCellData(
                         13,
@@ -504,7 +546,7 @@ public final class TableUtil {
                                         MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_SST
                                                 .getXmlKey(), report
                                                 .getSeaSurfaceTemp()), true));
-
+        // wave height
         tblRowData
                 .setTableCellData(
                         14,
@@ -517,7 +559,7 @@ public final class TableUtil {
                                         MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_WAVE_HT
                                                 .getXmlKey(), report
                                                 .getHighResWaveHeight()), true));
-
+        // wave steep
         tblRowData
                 .setTableCellData(
                         15,
@@ -529,79 +571,102 @@ public final class TableUtil {
                                         MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_WAVE_STEEP
                                                 .getXmlKey(), report
                                                 .getWaveSteepness()), true));
-
-        tblRowData
-                .setTableCellData(
-                        16,
-                        new TableCellData(
-                                Math.round(new Float(report.getPSwellHeight())),
-                                tm.getThresholdValueCellType(
-                                        DataUsageKey.DISPLAY,
-                                        zone,
-                                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_PRIM_HT
-                                                .getXmlKey(), report
-                                                .getPSwellHeight()), true));
-
-        tblRowData
-                .setTableCellData(
-                        17,
-                        new TableCellData(
-                                Math.round(new Float(report.getPSwellPeriod())),
-                                tm.getThresholdValueCellType(
-                                        DataUsageKey.DISPLAY,
-                                        zone,
-                                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_PRIM_PD
-                                                .getXmlKey(), report
-                                                .getPSwellPeriod()), true));
-
-        tblRowData
-                .setTableCellData(
-                        18,
-                        new TableCellData(
-                                Math.round(new Float(report.getPSwellDir())),
-                                tm.getThresholdValueCellType(
-                                        DataUsageKey.DISPLAY,
-                                        zone,
-                                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_PRIM_DIR_FROM
-                                                .getXmlKey(), report
-                                                .getPSwellDir()), true));
-
-        tblRowData
-                .setTableCellData(
-                        19,
-                        new TableCellData(
-                                Math.round(new Float(report.getSSwellHeight())),
-                                tm.getThresholdValueCellType(
-                                        DataUsageKey.DISPLAY,
-                                        zone,
-                                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_SEC_HT
-                                                .getXmlKey(), report
-                                                .getSSwellHeight()), true));
-
-        tblRowData
-                .setTableCellData(
-                        20,
-                        new TableCellData(
-                                Math.round(new Float(report.getSSwellPeriod())),
-                                tm.getThresholdValueCellType(
-                                        DataUsageKey.DISPLAY,
-                                        zone,
-                                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_SEC_PD
-                                                .getXmlKey(), report
-                                                .getSSwellPeriod()), true));
-
+        // swell height
+        String mccSwell;
+        if (dataUsageKey == DataUsageKey.DISPLAY) {
+            mccSwell = MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_PRIM_HT
+                    .getXmlKey();
+        } else {
+            mccSwell = MonitorConfigConstants.SafeSeasMonitor.SS_MON_SWELL_PRIM_HT
+                    .getXmlKey();
+        }
+        tblRowData.setTableCellData(
+                16,
+                new TableCellData(
+                        Math.round(new Float(report.getPSwellHeight())), tm
+                                .getThresholdValueCellType(dataUsageKey, zone,
+                                        mccSwell, report.getPSwellHeight()),
+                        true));
+        // swell period
+        String mccSwellPD;
+        if (dataUsageKey == DataUsageKey.DISPLAY) {
+            mccSwellPD = MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_PRIM_PD
+                    .getXmlKey();
+        } else {
+            mccSwellPD = MonitorConfigConstants.SafeSeasMonitor.SS_MON_SWELL_PRIM_PD
+                    .getXmlKey();
+        }
+        tblRowData.setTableCellData(
+                17,
+                new TableCellData(
+                        Math.round(new Float(report.getPSwellPeriod())), tm
+                                .getThresholdValueCellType(dataUsageKey, zone,
+                                        mccSwellPD, report.getPSwellPeriod()),
+                        true));
+        // swell dir TODO: from only
+        String mccSwellDirFrom;
+        if (dataUsageKey == DataUsageKey.DISPLAY) {
+            mccSwellDirFrom = MonitorConfigConstants.SafeSeasDisplay.SS_DISP_WIND_DIR_FROM
+                    .getXmlKey();
+        } else {
+            mccSwellDirFrom = MonitorConfigConstants.SafeSeasMonitor.SS_MON_SWELL_PRIM_DIR_FROM
+                    .getXmlKey();
+        }
+        tblRowData.setTableCellData(
+                18,
+                new TableCellData(Math.round(new Float(report.getPSwellDir())),
+                        tm.getThresholdValueCellType(dataUsageKey, zone,
+                                mccSwellDirFrom, report.getPSwellDir()), true));
+        // swell2 height
+        String mccSwell2HT;
+        if (dataUsageKey == DataUsageKey.DISPLAY) {
+            mccSwell2HT = MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_SEC_HT
+                    .getXmlKey();
+        } else {
+            mccSwell2HT = MonitorConfigConstants.SafeSeasMonitor.SS_MON_SWELL_SEC_HT
+                    .getXmlKey();
+        }
+        tblRowData.setTableCellData(
+                19,
+                new TableCellData(
+                        Math.round(new Float(report.getSSwellPeriod())), tm
+                                .getThresholdValueCellType(dataUsageKey, zone,
+                                        mccSwell2HT, report.getSSwellPeriod()),
+                        true));
+        // swell2 period
+        String mccSwell2PD;
+        if (dataUsageKey == DataUsageKey.DISPLAY) {
+            mccSwell2PD = MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_SEC_PD
+                    .getXmlKey();
+        } else {
+            mccSwell2PD = MonitorConfigConstants.SafeSeasMonitor.SS_MON_SWELL_SEC_PD
+                    .getXmlKey();
+        }
+        tblRowData.setTableCellData(
+                20,
+                new TableCellData(
+                        Math.round(new Float(report.getSSwellPeriod())), tm
+                                .getThresholdValueCellType(dataUsageKey, zone,
+                                        mccSwell2PD, report.getSSwellPeriod()),
+                        true));
+        // swell2 dir TODO: only from
+        String mccSwell2DirFrom;
+        if (dataUsageKey == DataUsageKey.DISPLAY) {
+            mccSwell2DirFrom = MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_SEC_DIR_FROM
+                    .getXmlKey();
+        } else {
+            mccSwell2DirFrom = MonitorConfigConstants.SafeSeasMonitor.SS_MON_SWELL_SEC_DIR_FROM
+                    .getXmlKey();
+        }
         tblRowData
                 .setTableCellData(
                         21,
-                        new TableCellData(
-                                Math.round(new Float(report.getPSwellDir())),
-                                tm.getThresholdValueCellType(
-                                        DataUsageKey.DISPLAY,
-                                        zone,
-                                        MonitorConfigConstants.SafeSeasDisplay.SS_DISP_SWELL_SEC_DIR_FROM
-                                                .getXmlKey(), report
-                                                .getSSwellDir()), true));
-
+                        new TableCellData(Math.round(new Float(report
+                                .getPSwellDir())),
+                                tm.getThresholdValueCellType(dataUsageKey,
+                                        zone, mccSwell2DirFrom,
+                                        report.getSSwellDir()), true));
+        // fog
         if (isZone) {
             // zone table: fog monitored at zone level
             tblRowData.setTableCellData(22, new TableCellData("", fogCellType,
@@ -637,9 +702,19 @@ public final class TableUtil {
             isZone = true;
         }
 
-        String hoverText = null;
+        DataUsageKey dataUsageKey;
+        if (tm.getDataUsageKey() != null) {
+            dataUsageKey = tm.getDataUsageKey();
+        } else {
+            dataUsageKey = DataUsageKey.DISPLAY;
+        }
+
+        String hoverText = "";
         if (isZone) {
-            hoverText = getZoneHoverText(areaId);
+            AreaIdXML zoneXML = tm.areaConfigMgr.getAreaXml(zone);
+            if (zoneXML != null) {
+                hoverText = getZoneHoverText(zoneXML);
+            }
         } else {
             hoverText = getStationHoverText(areaId);
         }
@@ -704,54 +779,64 @@ public final class TableUtil {
                                                     .getXmlKey(), report
                                                     .getWindDir()), true));
         }
-
-        tblRowData
-                .setTableCellData(
-                        6,
-                        new TableCellData(
-                                Math.round(new Float(report.getWindSpeed())),
-                                tm.getThresholdValueCellType(
-                                        DataUsageKey.DISPLAY,
-                                        zone,
-                                        MonitorConfigConstants.SnowDisplay.SNOW_DISP_WIND_WIND_SPEED
-                                                .getXmlKey(), report
-                                                .getWindSpeed()), true));
-
-        tblRowData
-                .setTableCellData(
-                        7,
-                        new TableCellData(
-                                Math.round(new Float(report.getMaxWindSpeed())),
-                                tm.getThresholdValueCellType(
-                                        DataUsageKey.DISPLAY,
-                                        zone,
-                                        MonitorConfigConstants.SnowDisplay.SNOW_DISP_WIND_PEAK_WIND
-                                                .getXmlKey(), report
-                                                .getMaxWindSpeed()), true));
-
-        tblRowData
-                .setTableCellData(
-                        8,
-                        new TableCellData(
-                                Math.round(new Float(report.getWindGust())),
-                                tm.getThresholdValueCellType(
-                                        DataUsageKey.DISPLAY,
-                                        zone,
-                                        MonitorConfigConstants.SnowDisplay.SNOW_DISP_WIND_GUST_SPEED
-                                                .getXmlKey(), report
-                                                .getWindGust()), true));
-
-        tblRowData
-                .setTableCellData(
-                        9,
-                        new TableCellData(
-                                Math.round(new Float(report.getTemperature())),
-                                tm.getThresholdValueCellType(
-                                        DataUsageKey.DISPLAY,
-                                        zone,
-                                        MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_TEMP
-                                                .getXmlKey(), report
-                                                .getTemperature()), true));
+        // wind speed
+        String wsk;
+        if (dataUsageKey == DataUsageKey.DISPLAY) {
+            wsk = MonitorConfigConstants.SnowDisplay.SNOW_DISP_WIND_WIND_SPEED
+                    .getXmlKey();
+        } else {
+            wsk = MonitorConfigConstants.SnowMonitor.SNOW_MON_METEO_WIND_SPEED
+                    .getXmlKey();
+        }
+        tblRowData.setTableCellData(
+                6,
+                new TableCellData(Math.round(new Float(report.getWindSpeed())),
+                        tm.getThresholdValueCellType(dataUsageKey, zone, wsk,
+                                report.getWindSpeed()), true));
+        // wind peak
+        String wpk;
+        if (dataUsageKey == DataUsageKey.DISPLAY) {
+            wpk = MonitorConfigConstants.SnowDisplay.SNOW_DISP_WIND_PEAK_WIND
+                    .getXmlKey();
+        } else {
+            wpk = MonitorConfigConstants.SnowMonitor.SNOW_MON_METEO_PEAK_WIND
+                    .getXmlKey();
+        }
+        tblRowData.setTableCellData(
+                7,
+                new TableCellData(
+                        Math.round(new Float(report.getMaxWindSpeed())), tm
+                                .getThresholdValueCellType(dataUsageKey, zone,
+                                        wpk, report.getMaxWindSpeed()), true));
+        // wind gust
+        String wgk;
+        if (dataUsageKey == DataUsageKey.DISPLAY) {
+            wgk = MonitorConfigConstants.SnowDisplay.SNOW_DISP_WIND_GUST_SPEED
+                    .getXmlKey();
+        } else {
+            wgk = MonitorConfigConstants.SnowMonitor.SNOW_MON_METEO_GUST_SPEED
+                    .getXmlKey();
+        }
+        tblRowData.setTableCellData(
+                8,
+                new TableCellData(Math.round(new Float(report.getWindGust())),
+                        tm.getThresholdValueCellType(dataUsageKey, zone, wgk,
+                                report.getWindGust()), true));
+        // temperature
+        String tmprk;
+        if (dataUsageKey == DataUsageKey.DISPLAY) {
+            tmprk = MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_TEMP
+                    .getXmlKey();
+        } else {
+            tmprk = MonitorConfigConstants.SnowMonitor.SNOW_MON_METEO_TEMP
+                    .getXmlKey();
+        }
+        tblRowData.setTableCellData(
+                9,
+                new TableCellData(
+                        Math.round(new Float(report.getTemperature())), tm
+                                .getThresholdValueCellType(dataUsageKey, zone,
+                                        tmprk, report.getTemperature()), true));
 
         tblRowData
                 .setTableCellData(
@@ -777,13 +862,17 @@ public final class TableUtil {
                                          // used to compare with Red/Yellow
                                          // threshold values
 
-            TableCellData visCellData = new TableCellData(
-                    visString,
-                    tm.getThresholdValueCellType(
-                            DataUsageKey.DISPLAY,
-                            zone,
-                            MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_VIS
-                                    .getXmlKey(), visValue), true);
+            String visKey;
+            if (dataUsageKey == DataUsageKey.DISPLAY) {
+                visKey = MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_VIS
+                        .getXmlKey();
+            } else {
+                visKey = MonitorConfigConstants.SnowMonitor.SNOW_MON_METEO_VIS
+                        .getXmlKey();
+            }
+            TableCellData visCellData = new TableCellData(visString,
+                    tm.getThresholdValueCellType(dataUsageKey, zone, visKey,
+                            visValue), true);
 
             visCellData.setValue(visValue); // visValue, instead of visString,
                                             // will be used for sorting
@@ -802,14 +891,14 @@ public final class TableUtil {
                                         MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_SLP
                                                 .getXmlKey(), report
                                                 .getSeaLevelPress()), true));
-
+        // wind chill
         tblRowData
                 .setTableCellData(
                         13,
                         new TableCellData(
                                 Math.round(new Float(report.getWindChill())),
                                 tm.getThresholdValueCellType(
-                                        DataUsageKey.DISPLAY,
+                                        dataUsageKey,
                                         zone,
                                         MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_WIND_CHILL
                                                 .getXmlKey(), report
@@ -838,14 +927,14 @@ public final class TableUtil {
                                         MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_HOURLY_PRECIP
                                                 .getXmlKey(), report
                                                 .getHourlyPrecip()), true));
-
+        // snow depth
         tblRowData
                 .setTableCellData(
                         16,
                         new TableCellData(
                                 Math.round(new Float(report.getSnowDepth())),
                                 tm.getThresholdValueCellType(
-                                        DataUsageKey.DISPLAY,
+                                        dataUsageKey,
                                         zone,
                                         MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_SNOW_DEPTH
                                                 .getXmlKey(), report
@@ -884,8 +973,9 @@ public final class TableUtil {
      * @param zone
      * @return
      */
-    private static String getZoneHoverText(String zone) {
+    private static String getZoneHoverText(AreaIdXML zoneXML) {
 
+        String zone = zoneXML.getAreaId();
         ISpatialQuery sq = null;
         String sql = null;
         String hoverText = zone.substring(0, 2) + ", ";
@@ -913,6 +1003,11 @@ public final class TableUtil {
                     hoverText += (String) res[0];
                 } else {
                     hoverText += (String) results[0].toString();
+                }
+            } else {
+                if (zoneXML.getCLat() != null) {
+                    hoverText += "(" + zoneXML.getCLat() + ", "
+                            + zoneXML.getCLon() + ")";
                 }
             }
         } catch (Exception e) {
@@ -956,6 +1051,8 @@ public final class TableUtil {
                 } else if (stnType.intValue() == 1000) {
                     hoverText = stnId + "#MESONET -- " + stnName;
                 }
+            } else {
+                    hoverText = stnId;
             }
 
         } catch (Exception e) {
@@ -976,7 +1073,7 @@ public final class TableUtil {
      */
     public static CellType getCellTypeForSCA(String zone, ObReport report,
             AbstractThresholdMgr tm) {
-        // TODO:
+
         float windSpd = report.getWindSpeed();
         float windGust = report.getWindGust();
         float waveHgt = report.getHighResWaveHeight();
@@ -1027,7 +1124,7 @@ public final class TableUtil {
      */
     public static CellType getCellTypeForGaleWarn(String zone, ObReport report,
             AbstractThresholdMgr tm) {
-        // TODO:
+
         CellType type = CellType.NotAvailable;
         CellType windSpeedType = tm
                 .getThresholdValueCellType(
@@ -1064,7 +1161,7 @@ public final class TableUtil {
      */
     public static CellType getCellTypeForStormWarn(String zone,
             ObReport report, AbstractThresholdMgr tm) {
-        // TODO:
+
         CellType type = CellType.NotAvailable;
         CellType windSpeedType = tm
                 .getThresholdValueCellType(
@@ -1101,7 +1198,7 @@ public final class TableUtil {
      */
     public static CellType getCellTypeForHFWW(String zone, ObReport report,
             AbstractThresholdMgr tm) {
-        // TODO:
+
         CellType type = CellType.NotAvailable;
         CellType windSpeedType = tm
                 .getThresholdValueCellType(
@@ -1138,16 +1235,31 @@ public final class TableUtil {
      */
     public static CellType getCellTypeForFog(String zone, ObReport report,
             AbstractThresholdMgr tm) {
-        // TODO:
-        float visValue = report.getVisibility();// in miles
-        if (visValue == ObConst.MISSING) {
-            return CellType.NotAvailable;
-        }
-        visValue = visValue / milesPerNauticalMile; // in nautical miles
-        return tm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone,
-                MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_VIS
-                        .getXmlKey(), visValue);
 
+        CellType retVal = CellType.NotAvailable;
+        DataUsageKey dataUsageKey;
+        if (tm.getDataUsageKey() != null) {
+            dataUsageKey = tm.getDataUsageKey();
+        } else {
+            dataUsageKey = DataUsageKey.DISPLAY;
+        }
+
+        float visValue = report.getVisibility();// in miles
+        if (visValue != ObConst.MISSING) {
+            visValue = visValue / milesPerNauticalMile; // in nautical miles
+            String mccSafeseas;
+            if (dataUsageKey == DataUsageKey.DISPLAY) {
+                mccSafeseas = MonitorConfigConstants.SafeSeasDisplay.SS_DISP_METEO_VIS
+                        .getXmlKey();
+            } else {
+                mccSafeseas = MonitorConfigConstants.SafeSeasMonitor.SS_MON_METEO_VIS
+                        .getXmlKey();
+            }
+
+            retVal = tm.getThresholdValueCellType(dataUsageKey, zone,
+                    mccSafeseas, visValue);
+        }
+        return retVal;
     }
 
     /**
@@ -1332,7 +1444,6 @@ public final class TableUtil {
 
         CellType type = CellType.NotAvailable; // default, assuming no
                                                // observation available
-
         CellType snowDepth = tm
                 .getThresholdValueCellType(
                         DataUsageKey.DISPLAY,
@@ -1670,5 +1781,5 @@ public final class TableUtil {
                         CommonTableConfig.obsHistCols.PTend));
         return tblRowData;
     }
-
+    // TODO: add MESONET data
 }
