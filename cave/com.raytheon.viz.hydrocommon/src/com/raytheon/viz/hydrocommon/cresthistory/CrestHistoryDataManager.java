@@ -32,8 +32,7 @@ package com.raytheon.viz.hydrocommon.cresthistory;
  * Nov 04, 2010   5518	lbousaid	added all/above/bellow flag to
  * 									getRiverCrestData
  * Jan 09, 2015  16698  JingtaoD    Crest History failed validation dialog pops up when OK button clicked
- * April 08 2015  17338 JingtaoD    "Apostrophe" entered into Hydrobase text fields  in dialog window are not 
- *                                  written to the IHFS database
+ * 
  * </pre>
  *
  * @author dhladky
@@ -50,6 +49,7 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.hydrocommon.data.RiverDataPoint;
 import com.raytheon.viz.hydrocommon.datamanager.RiverDataManager;
 import com.raytheon.viz.hydrocommon.datamanager.HydroDBDataManager;
+import com.raytheon.viz.hydrocommon.util.DbUtils;
 
 public class CrestHistoryDataManager {
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -82,12 +82,13 @@ public class CrestHistoryDataManager {
      * @param rdp
      * @return
      */
-    public CrestHistoryData getRiverCrestData(String lid, boolean control, int allFlag) {  
+    public CrestHistoryData getRiverCrestData(String lid, boolean control,
+            int allFlag) {
 
         RiverDataManager rdm = RiverDataManager.getInstance();
         RiverDataPoint rdp = rdm.getRiverDataPoint(lid);
         // get crest data
-        return rdm.getRiverCrests(rdp, allFlag);    
+        return rdm.getRiverCrests(rdp, allFlag);
     }
 
     /**
@@ -96,27 +97,24 @@ public class CrestHistoryDataManager {
      * @param cd
      */
     public void deleteCrest(CrestData cd, String lid) {
-        String deleteCrest = "delete from crest where lid = '" + lid + "' and datcrst = '"
-                + cd.getDateString() + "' and timcrst ='" + cd.getTimeString()
-                + "'";
+        String deleteCrest = "delete from crest where lid = '" + lid
+                + "' and datcrst = '" + cd.getDateString() + "' and timcrst ='"
+                + cd.getTimeString() + "'";
         try {
             AppsDefaults ad = AppsDefaults.getInstance();
-            boolean debug = ad.getBoolean(HydroConstants.DEBUG_HYDRO_DB_TOKEN, false);
+            boolean debug = ad.getBoolean(HydroConstants.DEBUG_HYDRO_DB_TOKEN,
+                    false);
             if (debug) {
-                System.out.println(ad.getToken(HydroConstants.PGHOST) + ":" + 
-                        ad.getToken(HydroConstants.PGPORT) + ":" + 
-                        ad.getToken(HydroConstants.DB_NAME));
+                System.out.println(ad.getToken(HydroConstants.PGHOST) + ":"
+                        + ad.getToken(HydroConstants.PGPORT) + ":"
+                        + ad.getToken(HydroConstants.DB_NAME));
                 System.out.println("Query: " + deleteCrest);
             }
-            
-         // check if dataQuery contains any apostrophe, if does, replace it to two single appostrophe
-            deleteCrest = HydroDBDataManager.getInstance().checkAppostrophe(deleteCrest);
-        
+
             DirectDbQuery.executeStatement(deleteCrest, HydroConstants.IHFS,
                     QueryLanguage.SQL);
         } catch (VizException ve) {
-            statusHandler.error("Error deleting the crest: "
-                    + lid, ve);
+            statusHandler.error("Error deleting the crest: " + lid, ve);
         }
     }
 
@@ -124,42 +122,49 @@ public class CrestHistoryDataManager {
      * Insert/update a crest.
      * 
      * @param cd
-     *      The CrestData object holding data for database
+     *            The CrestData object holding data for database
      * @param lid
-     *      The current lid
+     *            The current lid
      * @param selectedCrest
-     *      The crest data currently in the database
+     *            The crest data currently in the database
      * @param mode
-     *      The mode, 1 = new, 2 = delete, 3 = update
+     *            The mode, 1 = new, 2 = delete, 3 = update
      * @return Error Message, or null if no errors
      * @throws VizException
      */
-    public String insertCrest(CrestData cd, String lid, CrestData selectedCrest, int mode) {
+    public String insertCrest(CrestData cd, String lid,
+            CrestData selectedCrest, int mode) {
         String errMsg = null;
-        
+
+        DbUtils.escapeSpecialCharforData(cd);
+
         if (mode == 3) {
-            
+
             // Did the primary key change?
-            if ((selectedCrest != null) && (cd.getDateString().equals(selectedCrest.getDateString()) 
-                    && cd.getTimeString().equals(selectedCrest.getTimeString()))) {
+            if ((selectedCrest != null)
+                    && (cd.getDateString()
+                            .equals(selectedCrest.getDateString()) && cd
+                            .getTimeString().equals(
+                                    selectedCrest.getTimeString()))) {
                 // The PK is different, delete the record, then insert
-                String query = "delete from crest where lid = '" + lid + 
-                    "' and datcrst = '" + selectedCrest.getDateString() + 
-                    "' and timcrst = '" + selectedCrest.getTimeString() + "'";
-                
+                String query = "delete from crest where lid = '" + lid
+                        + "' and datcrst = '" + selectedCrest.getDateString()
+                        + "' and timcrst = '" + selectedCrest.getTimeString()
+                        + "'";
+
                 try {
                     AppsDefaults ad = AppsDefaults.getInstance();
-                    boolean debug = ad.getBoolean(HydroConstants.DEBUG_HYDRO_DB_TOKEN, false);
+                    boolean debug = ad.getBoolean(
+                            HydroConstants.DEBUG_HYDRO_DB_TOKEN, false);
                     if (debug) {
-                        System.out.println(ad.getToken(HydroConstants.PGHOST) + ":" + 
-                                ad.getToken(HydroConstants.PGPORT) + ":" + 
-                                ad.getToken(HydroConstants.DB_NAME));
+                        System.out.println(ad.getToken(HydroConstants.PGHOST)
+                                + ":" + ad.getToken(HydroConstants.PGPORT)
+                                + ":" + ad.getToken(HydroConstants.DB_NAME));
                         System.out.println("Query: " + query);
                     }
-                    // check if dataQuery contains any apostrophe, if does, replace it to two single appostrophe
-                    query = HydroDBDataManager.getInstance().checkAppostrophe(query);
-                    
-                    DirectDbQuery.executeStatement(query, HydroConstants.IHFS, QueryLanguage.SQL);
+
+                    DirectDbQuery.executeStatement(query, HydroConstants.IHFS,
+                            QueryLanguage.SQL);
                 } catch (VizException e) {
                     e.printStackTrace();
                 }
@@ -176,7 +181,7 @@ public class CrestHistoryDataManager {
             remarks = remarks.replaceAll("\n", "\\n");
             back.append("'" + remarks + "', ");
             front.append("cremark, ");
-//            back.append("'" + cd.getRemarks() + "', ");
+            // back.append("'" + cd.getRemarks() + "', ");
         }
         if (cd.isHighWater()) {
             front.append("hw, ");
@@ -205,45 +210,44 @@ public class CrestHistoryDataManager {
 
         boolean executeUpdate = false;
         AppsDefaults ad = AppsDefaults.getInstance();
-        boolean debug = ad.getBoolean(HydroConstants.DEBUG_HYDRO_DB_TOKEN, false);
+        boolean debug = ad.getBoolean(HydroConstants.DEBUG_HYDRO_DB_TOKEN,
+                false);
         if (debug) {
-            System.out.println(ad.getToken(HydroConstants.PGHOST) + ":" + 
-                    ad.getToken(HydroConstants.PGPORT) + ":" + 
-                    ad.getToken(HydroConstants.DB_NAME));
+            System.out.println(ad.getToken(HydroConstants.PGHOST) + ":"
+                    + ad.getToken(HydroConstants.PGPORT) + ":"
+                    + ad.getToken(HydroConstants.DB_NAME));
             System.out.println("Query: " + insertCrest);
         }
 
         try {
-        	 // check if dataQuery contains any apostrophe, if does, replace it to two single appostrophe
-            insertCrest = HydroDBDataManager.getInstance().checkAppostrophe(insertCrest);
-            
+
             DirectDbQuery.executeStatement(insertCrest, HydroConstants.IHFS,
                     QueryLanguage.SQL);
-        } catch (VizException e) {           
-      
-        	e.printStackTrace();      
-        	         
-        	//exception with duplicate key value is throwed in the 2nd cause
-        	
-        	if (e.getCause().getCause().getMessage().contains("crest_pk")) {
-                executeUpdate = true;                       
+        } catch (VizException e) {
+
+            e.printStackTrace();
+
+            // exception with duplicate key value is throwed in the 2nd cause
+
+            if (e.getCause().getCause().getMessage().contains("crest_pk")) {
+                executeUpdate = true;
             } else {
                 errMsg = "Error inserting data into database.";
-            }                     
+            }
         }
 
         if (executeUpdate) {
             /* execute an update */
             StringBuilder query = new StringBuilder("update crest set ");
-            
-//            query.append("lid = '" + lid + "', ");
-//            query.append("datcrst = '" + cd.getDateString() + "', ");
+
+            // query.append("lid = '" + lid + "', ");
+            // query.append("datcrst = '" + cd.getDateString() + "', ");
 
             if (cd.getRemarks() != null) {
                 String remarks = cd.getRemarks();
                 remarks = remarks.replace("\n", "\\n");
                 query.append("cremark = E'" + remarks + "', ");
-//                query.append("cremark = '" + cd.getRemarks() + "', ");
+                // query.append("cremark = '" + cd.getRemarks() + "', ");
             }
 
             if (cd.isHighWater()) {
@@ -251,19 +255,19 @@ public class CrestHistoryDataManager {
             } else {
                 query.append("hw = '', ");
             }
-            
+
             if (cd.isIce()) {
                 query.append("jam = '" + insertmark + "', ");
             } else {
                 query.append("jam = '', ");
             }
-            
+
             if (cd.isOldDatum()) {
                 query.append("olddatum = '" + insertmark + "', ");
             } else {
                 query.append("olddatum = '', ");
             }
-            
+
             query.append("q = " + cd.getFlow() + ", ");
             query.append("stage = " + cd.getStage() + ", ");
 
@@ -272,29 +276,27 @@ public class CrestHistoryDataManager {
             } else {
                 query.append("suppress = '', ");
             }
-            
+
             query.append("prelim = '" + cd.getPrelim() + "' ");
             query.append(" where lid = '" + lid + "' ");
             query.append("and datcrst = '" + cd.getDateString() + "' ");
             query.append("and timcrst = '" + cd.getTimeString() + "' ");
             try {
                 if (debug) {
-                    System.out.println(ad.getToken(HydroConstants.PGHOST) + ":" + 
-                            ad.getToken(HydroConstants.PGPORT) + ":" + 
-                            ad.getToken(HydroConstants.DB_NAME));
+                    System.out.println(ad.getToken(HydroConstants.PGHOST) + ":"
+                            + ad.getToken(HydroConstants.PGPORT) + ":"
+                            + ad.getToken(HydroConstants.DB_NAME));
                     System.out.println("Query: " + query.toString());
                 }
-                
-                // check if dataQuery contains any apostrophe, if does, replace it to two single appostrophe
-              String newquery = HydroDBDataManager.getInstance().checkAppostrophe(query.toString());
-                
-                DirectDbQuery.executeStatement(newquery, HydroConstants.IHFS, QueryLanguage.SQL);
+
+                DirectDbQuery.executeStatement(query.toString(),
+                        HydroConstants.IHFS, QueryLanguage.SQL);
             } catch (VizException e) {
                 errMsg = "Error updating data in database";
                 e.printStackTrace();
             }
         }
-        
+
         return errMsg;
     }
 }

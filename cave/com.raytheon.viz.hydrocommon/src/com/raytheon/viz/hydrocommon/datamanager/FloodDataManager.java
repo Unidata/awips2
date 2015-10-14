@@ -25,6 +25,7 @@ import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.dataquery.db.QueryResultRow;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.data.FloodData;
+import com.raytheon.viz.hydrocommon.util.DbUtils;
 import com.raytheon.viz.hydrocommon.util.HydroDataUtils;
 
 /**
@@ -93,8 +94,8 @@ public class FloodDataManager extends HydroDataManager {
      * @throws VizException
      */
     public void deleteRecord(FloodData recordToDelete) throws VizException {
-        runStatement(String.format(DELETE_STATEMENT, HydroDataUtils
-                .getPKStatement(recordToDelete)));
+        runStatement(String.format(DELETE_STATEMENT,
+                HydroDataUtils.getPKStatement(recordToDelete)));
     }
 
     /**
@@ -160,14 +161,22 @@ public class FloodDataManager extends HydroDataManager {
     }
 
     private void updateFloodData(FloodData data) throws VizException {
-        runStatement(String.format(UPDATE_STATEMENT, data.getDamage(), data
-                .getDisplayStatement(), HydroDataUtils.getPKStatement(data)));
+
+        DbUtils.escapeSpecialCharforData(data);
+
+        runStatement(String
+                .format(UPDATE_STATEMENT, data.getDamage(),
+                        data.getDisplayStatement(),
+                        HydroDataUtils.getPKStatement(data)));
     }
 
     private void insertFloodData(FloodData currData) throws VizException {
-        runStatement(String.format(INSERT_STATEMENT, currData.getLid(), String
-                .format("%8.2f", currData.getStage()), currData.getDamage(),
-                currData.getDisplayStatement()));
+
+        DbUtils.escapeSpecialCharforData(currData);
+
+        runStatement(String.format(INSERT_STATEMENT, currData.getLid(),
+                String.format("%8.2f", currData.getStage()),
+                currData.getDamage(), currData.getDisplayStatement()));
     }
 
     public void putFloodCategoryData(String lid, double stage, String damage,
