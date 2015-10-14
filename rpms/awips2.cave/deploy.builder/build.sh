@@ -126,7 +126,7 @@ cd ${prepare_dir}
 /awips2/java/bin/java -jar -DbaseLocation=${UFRAME_ECLIPSE} \
     -DbuildDirectory=${pde_build_dir} -DstagingDirectory=${WORKSPACE} -DbuildFeatures=* \
     -DexcludeFeatures=com.raytheon.viz.feature.awips.developer,com.raytheon.uf.viz.feature.alertviz \
-    -DbuildProduct=${awips_product} AwipsDependencyEvaluator.jar
+    AwipsDependencyEvaluator.jar
 if [ $? -ne 0 ]; then
     exit 1
 fi
@@ -142,6 +142,7 @@ _pde_product_xml=${UFRAME_ECLIPSE}/plugins/org.eclipse.pde.build_3.8.2.v20121114
 if [ $? -ne 0 ]; then
     exit 1
 fi
+
 # Copy the CAVE binary to the location expected by the RPM build
 cp ${pde_build_dir}/I.CAVE/CAVE-linux.gtk.x86_64.zip ${WORKSPACE}/rpms/awips2.cave/setup/dist/
 
@@ -152,7 +153,6 @@ pde_base_dir=${pde_base_dir}/p2
 /awips2/java/bin/java -jar -DbaseLocation=${UFRAME_ECLIPSE} \
     -DbuildDirectory=${pde_build_dir} -DstagingDirectory=${WORKSPACE} -DbuildFeatures=* \
     -DexcludeFeatures=com.raytheon.viz.feature.awips.developer,com.raytheon.uf.viz.feature.alertviz \
-    -DoutputFile=${prepare_dir}/repositoriesToBuild.txt \
     AwipsDependencyEvaluator.jar
 if [ $? -ne 0 ]; then
     exit 1
@@ -170,7 +170,7 @@ fi
 mkdir -p ${REPO_DEST}
 
 cp -v ${build_project_dir}/build.properties.p2 ${pde_base_dir}/build.properties
-for feature in `cat ${prepare_dir}/repositoriesToBuild.txt`; do
+for feature in `cat ${build_project_dir}/features.txt`; do
 /awips2/java/bin/java -jar ${_pde_launcher_jar} -application org.eclipse.ant.core.antRunner \
     -buildfile ${_pde_build_xml} -DbaseLocation=${UFRAME_ECLIPSE} \
     -Dbuilder=${pde_base_dir} -DbuildDirectory=${pde_build_dir} \
