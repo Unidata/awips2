@@ -69,6 +69,7 @@ import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.hydrocommon.HydroConstants;
+import com.raytheon.viz.hydrocommon.util.DbUtils;
 import com.raytheon.viz.hydrocommon.util.RatingUtils;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
@@ -1201,6 +1202,8 @@ public class FloodReportDlg extends CaveSWTDialog {
         if (discharge != HydroConstants.RATING_CONVERT_FAILED) {
             sql.append(", q");
         }
+
+        cremark = DbUtils.escapeSpecialCharforStr(cremark);
 
         sql.append(") values('" + data.getLid() + "', ");
         sql.append("'" + dateFormat.format(eventDate) + "', ");

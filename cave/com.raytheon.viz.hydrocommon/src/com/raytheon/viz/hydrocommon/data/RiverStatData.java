@@ -38,7 +38,7 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * Jan 3, 2013  15520       lbousaidi   added a dollar-quoted string to getUpdate and
  *                                      getInsert statements to always write literally
  *                                      the string content.
- * April 8, 2015 17338      jingtaoD   "Apostrophes" entered into HB text fields are not written to IHFS database 
+ * 
  * 
  * </pre>
  * 
@@ -224,32 +224,32 @@ public class RiverStatData extends HydroDBData implements IHydroDBData {
 
         setLid(getDBValue("lid", data, dataMap, ""));
         setPrimaryPE(getDBValue("primary_pe", data, dataMap, ""));
-        setBankFull(getDBValue("bf", data, dataMap, Double
-                .valueOf(HydroConstants.MISSING_VALUE)));
-        setCheckBar(getDBValue("cb", data, dataMap, Double
-                .valueOf(HydroConstants.MISSING_VALUE)));
-        setDrainageArea(getDBValue("da", data, dataMap, Double
-                .valueOf(HydroConstants.MISSING_VALUE)));
-        setResponseTime(getDBValue("response_time", data, dataMap, Double
-                .valueOf(HydroConstants.MISSING_VALUE)));
-        setThresholdRunoff(getDBValue("threshold_runoff", data, dataMap, Double
-                .valueOf(HydroConstants.MISSING_VALUE)));
-        setFloodFlow(getDBValue("fq", data, dataMap, Double
-                .valueOf(HydroConstants.MISSING_VALUE)));
-        setFloodStage(getDBValue("fs", data, dataMap, Double
-                .valueOf(HydroConstants.MISSING_VALUE)));
+        setBankFull(getDBValue("bf", data, dataMap,
+                Double.valueOf(HydroConstants.MISSING_VALUE)));
+        setCheckBar(getDBValue("cb", data, dataMap,
+                Double.valueOf(HydroConstants.MISSING_VALUE)));
+        setDrainageArea(getDBValue("da", data, dataMap,
+                Double.valueOf(HydroConstants.MISSING_VALUE)));
+        setResponseTime(getDBValue("response_time", data, dataMap,
+                Double.valueOf(HydroConstants.MISSING_VALUE)));
+        setThresholdRunoff(getDBValue("threshold_runoff", data, dataMap,
+                Double.valueOf(HydroConstants.MISSING_VALUE)));
+        setFloodFlow(getDBValue("fq", data, dataMap,
+                Double.valueOf(HydroConstants.MISSING_VALUE)));
+        setFloodStage(getDBValue("fs", data, dataMap,
+                Double.valueOf(HydroConstants.MISSING_VALUE)));
         setGageNumber(getDBValue("gsno", data, dataMap, ""));
         setLevel(getDBValue("level", data, dataMap, ""));
-        setRiverMile(getDBValue("mile", data, dataMap, Double
-                .valueOf(HydroConstants.MISSING_VALUE)));
-        setPool(getDBValue("pool", data, dataMap, Double
-                .valueOf(HydroConstants.MISSING_VALUE)));
+        setRiverMile(getDBValue("mile", data, dataMap,
+                Double.valueOf(HydroConstants.MISSING_VALUE)));
+        setPool(getDBValue("pool", data, dataMap,
+                Double.valueOf(HydroConstants.MISSING_VALUE)));
         setPeriodOfRecord(getDBValue("por", data, dataMap, ""));
         setRated(getDBValue("rated", data, dataMap, ""));
-        setLatitude(getDBValue("lat", data, dataMap, Double
-                .valueOf(HydroConstants.MISSING_VALUE)));
-        setLongitude(getDBValue("lon", data, dataMap, Double
-                .valueOf(HydroConstants.MISSING_VALUE)));
+        setLatitude(getDBValue("lat", data, dataMap,
+                Double.valueOf(HydroConstants.MISSING_VALUE)));
+        setLongitude(getDBValue("lon", data, dataMap,
+                Double.valueOf(HydroConstants.MISSING_VALUE)));
         setRemark(getDBValue("remark", data, dataMap, ""));
         setReviseDate(getDBValue("rrevise", data, dataMap, (Date) null));
         setLatLonSource(getDBValue("rsource", data, dataMap, ""));
@@ -257,12 +257,12 @@ public class RiverStatData extends HydroDBData implements IHydroDBData {
         setTidalEffect(getDBValue("tide", data, dataMap, ""));
         setBackWater(getDBValue("backwater", data, dataMap, ""));
         setVerticalDatum(getDBValue("vdatum", data, dataMap, ""));
-        setActionFlow(getDBValue("action_flow", data, dataMap, Double
-                .valueOf(HydroConstants.MISSING_VALUE)));
-        setActionStage(getDBValue("wstg", data, dataMap, Double
-                .valueOf(HydroConstants.MISSING_VALUE)));
-        setZeroDatum(getDBValue("zd", data, dataMap, Double
-                .valueOf(HydroConstants.MISSING_VALUE)));
+        setActionFlow(getDBValue("action_flow", data, dataMap,
+                Double.valueOf(HydroConstants.MISSING_VALUE)));
+        setActionStage(getDBValue("wstg", data, dataMap,
+                Double.valueOf(HydroConstants.MISSING_VALUE)));
+        setZeroDatum(getDBValue("zd", data, dataMap,
+                Double.valueOf(HydroConstants.MISSING_VALUE)));
         setDateOfRating(getDBValue("ratedat", data, dataMap, (Date) null));
         setUsgsRateNumber(getDBValue("usgs_ratenum", data, dataMap, ""));
         setUnitHydrographDuration(getDBValue("uhgdur", data, dataMap,
@@ -769,7 +769,7 @@ public class RiverStatData extends HydroDBData implements IHydroDBData {
 
         String rval = "INSERT INTO riverstat ( " + columns
                 + " ) VALUES ( %s, %s, %s, %s, %s, %s, %s,"
-                + " %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, $$%s$$, %s,"
+                + " %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, '%s', %s,"
                 + " %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )";
 
         rval = String.format(rval, getDBString(lid), getDBString(primaryPE),
@@ -780,12 +780,13 @@ public class RiverStatData extends HydroDBData implements IHydroDBData {
                 getDBString(level), getDBString(riverMile), getDBString(pool),
                 getDBString(periodOfRecord), getDBString(rated),
                 getDBString(latitude), getDBString(longitude),
-                getDBStringNoQuote(remark), getDBString(reviseDate, dateFormat),
-                getDBString(latLonSource), getDBString(stream),
-                getDBString(tidalEffect), getDBString(backWater),
-                getDBString(verticalDatum), getDBString(actionFlow),
-                getDBString(actionStage), getDBString(zeroDatum), getDBString(
-                        dateOfRating, dateFormat), getDBString(usgsRateNumber),
+                getDBStringNoQuote(remark),
+                getDBString(reviseDate, dateFormat), getDBString(latLonSource),
+                getDBString(stream), getDBString(tidalEffect),
+                getDBString(backWater), getDBString(verticalDatum),
+                getDBString(actionFlow), getDBString(actionStage),
+                getDBString(zeroDatum), getDBString(dateOfRating, dateFormat),
+                getDBString(usgsRateNumber),
                 getDBString(unitHydrographDuration),
                 getDBString(useLatestForecast));
 
@@ -813,7 +814,7 @@ public class RiverStatData extends HydroDBData implements IHydroDBData {
     public String getUpdateStatement() {
         // Set the basic update statement
         String rval = "UPDATE riverstat SET lid=%s, primary_pe=%s, bf=%s, cb=%s, da=%s, response_time=%s, threshold_runoff=%s,"
-                + " fq=%s, fs=%s, gsno=%s, level=%s, mile=%s, pool=%s, por=%s, rated=%s, lat=%s, lon=%s, remark=$$%s$$, rrevise=%s,"
+                + " fq=%s, fs=%s, gsno=%s, level=%s, mile=%s, pool=%s, por=%s, rated=%s, lat=%s, lon=%s, remark='%s', rrevise=%s,"
                 + " rsource=%s, stream=%s, tide=%s, backwater=%s, vdatum=%s, action_flow=%s, wstg=%s, zd=%s, ratedat=%s,"
                 + " usgs_ratenum=%s, uhgdur=%s, use_latest_fcst=%s WHERE %s";
 
@@ -826,12 +827,13 @@ public class RiverStatData extends HydroDBData implements IHydroDBData {
                 getDBString(level), getDBString(riverMile), getDBString(pool),
                 getDBString(periodOfRecord), getDBString(rated),
                 getDBString(latitude), getDBString(longitude),
-                getDBStringNoQuote(remark), getDBString(reviseDate, dateFormat),
-                getDBString(latLonSource), getDBString(stream),
-                getDBString(tidalEffect), getDBString(backWater),
-                getDBString(verticalDatum), getDBString(actionFlow),
-                getDBString(actionStage), getDBString(zeroDatum), getDBString(
-                        dateOfRating, dateFormat), getDBString(usgsRateNumber),
+                getDBStringNoQuote(remark),
+                getDBString(reviseDate, dateFormat), getDBString(latLonSource),
+                getDBString(stream), getDBString(tidalEffect),
+                getDBString(backWater), getDBString(verticalDatum),
+                getDBString(actionFlow), getDBString(actionStage),
+                getDBString(zeroDatum), getDBString(dateOfRating, dateFormat),
+                getDBString(usgsRateNumber),
                 getDBString(unitHydrographDuration),
                 getDBString(useLatestForecast), getPKStatement());
 
