@@ -33,4 +33,7 @@ fi
 echo ""
 echo "Done..."
 echo ""
+echo "  to run cave:"
+echo ""
+echo "  /awips2/cave/cave.sh"
 exit
