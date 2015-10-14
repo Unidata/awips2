@@ -140,6 +140,9 @@ import com.raytheon.uf.viz.localization.service.ILocalizationService;
  * Feb 06, 2015  4028      mapeters    fixed file selection issue when reopening CAVE with files open
  * Apr 02, 2015  4288      randerso    Fix Widget is disposed error
  * Aug 24, 2015  4393      njensen     Updates for observer changes
+ * Oct 13, 2015  4410      bsteffen    Allow localization perspective to mix
+ *                                     files for multiple Localization Types.
+ * 
  * 
  * </pre>
  * 
@@ -859,7 +862,6 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
         // Add Copy/Paste/Delete
         if ((fileList.size() == 1) && (selected.length == 1)) {
-            LocalizationFile selectedFile = fileList.get(0);
             mgr.add(new Action("Copy") {
                 @Override
                 public void run() {
@@ -867,7 +869,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
                 }
             });
 
-            mgr.add(new CopyToAction(selectedFile, this));
+            mgr.add(new CopyToAction(fileDataList.get(0), this));
             mgr.add(new DeleteAction(getSite().getPage(), fileList
                     .toArray(new LocalizationFile[fileList.size()])));
 
@@ -919,9 +921,9 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         }
 
         // Add the move to item
-        if ((selected.length == 1) && (fileList.size() == 1)) {
-            mgr.add(new MoveFileAction(getSite().getPage(), fileList.get(0),
-                    this));
+        if ((selected.length == 1) && (fileDataList.size() == 1)) {
+            mgr.add(new MoveFileAction(getSite().getPage(),
+                    fileDataList.get(0), this));
             mgr.add(new Separator());
         }
 
@@ -966,8 +968,9 @@ public class FileTreeView extends ViewPart implements IPartListener2,
                 if (fdata.isDirectory()) {
                     // We can import into true directories, not group datas
                     mgr.add(new Separator());
-                    mgr.add(new ImportFileAction(fdata.getPathData().getType(),
-                            fdata.getPath(), fdata.getPathData().getFilter()));
+                    mgr.add(new ImportFileAction(
+                            fdata.getPathData().getTypes(), fdata.getPath(),
+                            fdata.getPathData().getFilter()));
                 }
             }
         }
@@ -1080,14 +1083,14 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         String path = data.getPath();
         String[] filter = pd.getFilter();
         boolean recursive = pd.isRecursive();
-        LocalizationType type = pd.getType();
+        List<LocalizationType> types = pd.getTypes();
 
         IPathManager pathManager = PathManagerFactory.getPathManager();
 
         boolean success = false;
         List<LocalizationFile> currentList = new ArrayList<LocalizationFile>();
         LocalizationFile[] files = pathManager.listFiles(
-                getTreeSearchContexts(type), path, filter, false, !recursive);
+                getTreeSearchContexts(types), path, filter, false, !recursive);
         if (files == null) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error getting list of files");
@@ -1119,16 +1122,19 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         return success;
     }
 
-    private LocalizationContext[] getTreeSearchContexts(LocalizationType type) {
+    private LocalizationContext[] getTreeSearchContexts(
+            List<LocalizationType> types) {
         IPathManager pathManager = PathManagerFactory.getPathManager();
         // Request for base/site/user
-        LocalizationContext[] searchHierarchy = pathManager
-                .getLocalSearchHierarchy(type);
-        List<LocalizationContext> searchContexts = new ArrayList<LocalizationContext>(
-                searchHierarchy.length);
-        for (LocalizationContext ctx : searchHierarchy) {
-            if (showSet.contains(ctx.getLocalizationLevel())) {
-                searchContexts.add(ctx);
+
+        List<LocalizationContext> searchContexts = new ArrayList<LocalizationContext>();
+        for (LocalizationType type : types) {
+            LocalizationContext[] searchHierarchy = pathManager
+                    .getLocalSearchHierarchy(type);
+            for (LocalizationContext ctx : searchHierarchy) {
+                if (showSet.contains(ctx.getLocalizationLevel())) {
+                    searchContexts.add(ctx);
+                }
             }
         }
 
@@ -1152,11 +1158,12 @@ public class FileTreeView extends ViewPart implements IPartListener2,
                             || ((myContext == null) && (context == null))) {
                         continue;
                     }
-
-                    LocalizationContext ctx = pathManager.getContext(type,
-                            level);
-                    ctx.setContextName(context);
-                    searchContexts.add(ctx);
+                    for (LocalizationType type : types) {
+                        LocalizationContext ctx = pathManager.getContext(type,
+                                level);
+                        ctx.setContextName(context);
+                        searchContexts.add(ctx);
+                    }
                 }
             }
         }
@@ -1217,10 +1224,21 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         fData.clearChildData();
         fData.setRequestedChildren(true);
         PathData pd = fData.getPathData();
+        Set<LocalizationLevel> levels = new HashSet<>();
+        Set<LocalizationLevel> redundantLevels = new HashSet<>();
+        for (LocalizationFile file : files) {
+            LocalizationLevel level = file.getContext().getLocalizationLevel();
+            if (!levels.add(level)) {
+                redundantLevels.add(level);
+            }
+        }
         for (LocalizationFile file : files) {
             FileTreeEntryData treeData = null;
             if (!file.isDirectory()) {
-                treeData = new LocalizationFileEntryData(pd, file);
+                LocalizationLevel level = file.getContext()
+                        .getLocalizationLevel();
+                treeData = new LocalizationFileEntryData(pd, file,
+                        redundantLevels.contains(level));
                 addTreeItem(parentItem, treeData);
                 fData.addChildData((LocalizationFileEntryData) treeData);
             }
@@ -1268,13 +1286,26 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         LocalizationFile file = null;
         int idx = parentItem.getItemCount();
         if (treeData instanceof LocalizationFileEntryData) {
-            file = ((LocalizationFileEntryData) treeData).getFile();
+            LocalizationFileEntryData entryData = (LocalizationFileEntryData) treeData;
+            file = entryData.getFile();
             LocalizationContext ctx = file.getContext();
             LocalizationLevel level = ctx.getLocalizationLevel();
-            name = level.toString();
-            if (level != LocalizationLevel.BASE) {
-                name += " (" + ctx.getContextName() + ")";
+            StringBuilder nameBuilder = new StringBuilder(level.toString());
+            if (entryData.isMultipleTypes() || level != LocalizationLevel.BASE) {
+                nameBuilder.append(" (");
+                if (level != LocalizationLevel.BASE) {
+                    nameBuilder.append(ctx.getContextName());
+                }
+                if (entryData.isMultipleTypes()) {
+                    if (level != LocalizationLevel.BASE) {
+                        nameBuilder.append(" - ");
+                    }
+                    nameBuilder.append(ctx.getLocalizationType().name()
+                            .toLowerCase());
+                }
+                nameBuilder.append(")");
             }
+            name = nameBuilder.toString();
         } else {
             List<TreeItem> applicableItems = new ArrayList<TreeItem>();
             int start = -1;
@@ -1318,9 +1349,10 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         IFolder folder = (IFolder) parentData.getResource();
         IResource rsc = null;
         if (file != null) {
-            rsc = folder.getFile(file.getContext().getLocalizationLevel() + "_"
-                    + file.getContext().getContextName() + "_"
-                    + parentItem.getText());
+            LocalizationContext context = file.getContext();
+            rsc = folder.getFile(context.getLocalizationType() + "_"
+                    + context.getLocalizationLevel() + "_"
+                    + context.getContextName() + "_" + parentItem.getText());
         } else {
             rsc = createFolder(folder, fileItem.getText());
         }
@@ -1465,7 +1497,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
     private TreeItem find(TreeItem item, LocalizationContext ctx,
             java.nio.file.Path path, boolean populateToFind) {
         FileTreeEntryData data = (FileTreeEntryData) item.getData();
-        if (data.getPathData().getType() == ctx.getLocalizationType()) {
+        if (data.getPathData().getTypes().contains(ctx.getLocalizationType())) {
             java.nio.file.Path itemPath = Paths.get(data.getPath());
             if (path.startsWith(itemPath)) {
                 if (path.equals(itemPath)

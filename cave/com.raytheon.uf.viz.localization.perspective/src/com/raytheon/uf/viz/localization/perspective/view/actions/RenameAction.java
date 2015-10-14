@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.viz.localization.perspective.view.actions;
 
+import java.io.InputStream;
 import java.util.regex.Pattern;
 
 import org.eclipse.jface.action.Action;
@@ -36,6 +37,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
@@ -52,7 +54,10 @@ import com.raytheon.viz.ui.VizWorkbenchManager;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 27, 2011            mschenke     Initial creation
+ * Apr 27, 2011            mschenke    Initial creation
+ * Oct 13, 2015 4410       bsteffen    Allow localization perspective to mix
+ *                                     files for multiple Localization Types.
+ * 
  * 
  * </pre>
  * 
@@ -186,8 +191,12 @@ public class RenameAction extends Action {
                             }
                         }
 
-                        FileUtil.copyFile(file.getFile(), newFile.getFile());
-                        newFile.save();
+                        try (InputStream is = file.openInputStream();
+                                SaveableOutputStream os = newFile
+                                        .openOutputStream()) {
+                            FileUtil.copy(is, os);
+                            os.save();
+                        }
                         if (deleteOld) {
                             file.delete();
                         }
