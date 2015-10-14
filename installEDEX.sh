@@ -34,4 +34,5 @@ echo "  to run EDEX:"
 echo ""
 echo "  edex start"
 echo '  su ldm -c "ldmadmin mkqueue" && su ldm -c "ldmadmin start"'
+echo ""
 exit
