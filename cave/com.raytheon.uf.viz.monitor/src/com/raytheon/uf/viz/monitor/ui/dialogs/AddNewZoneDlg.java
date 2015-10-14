@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -49,7 +50,6 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Apr 23, 2014 3054      skorolev     Deleted unnecessary parameter in addArea method.
  * Apr 28, 2014 3086      skorolev     Removed local getAreaConfigMgr method.
  * Feb 10, 2015 3886      skorolev     Added fixed width for dialog.
- * Aug 17, 2015 3841      skorolev     Corrected handleAddNewAction method.
  * 
  * </pre>
  * 
@@ -59,7 +59,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 public class AddNewZoneDlg extends CaveSWTDialog {
 
     /** Application name. */
-    private final AppName appName;
+    private AppName appName;
 
     /** Marine zone radio button. */
     private Button marineZoneRdo;
@@ -77,7 +77,7 @@ public class AddNewZoneDlg extends CaveSWTDialog {
     private Text centroidLonTF;
 
     /** Monitoring Area Configuration Dialog. */
-    private final MonitoringAreaConfigDlg macDlg;
+    private MonitoringAreaConfigDlg macDlg;
 
     /**
      * Constructor.
@@ -144,15 +144,13 @@ public class AddNewZoneDlg extends CaveSWTDialog {
         /*
          * Add the radio controls.
          */
-        if (appName != AppName.SNOW) {
-            Composite radioComp = new Composite(topComp, SWT.NONE);
-            radioComp.setLayout(new GridLayout(1, false));
-            marineZoneRdo = new Button(radioComp, SWT.RADIO);
-            marineZoneRdo.setText("Marine Zone");
-            marineZoneRdo.setSelection(true);
-            countyRdo = new Button(radioComp, SWT.RADIO);
-            countyRdo.setText("County");
-        }
+        Composite radioComp = new Composite(topComp, SWT.NONE);
+        radioComp.setLayout(new GridLayout(1, false));
+        marineZoneRdo = new Button(radioComp, SWT.RADIO);
+        marineZoneRdo.setText("Marine Zone");
+        marineZoneRdo.setSelection(true);
+        countyRdo = new Button(radioComp, SWT.RADIO);
+        countyRdo.setText("County");
     }
 
     /**
@@ -238,13 +236,9 @@ public class AddNewZoneDlg extends CaveSWTDialog {
         addBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                String areaId = idTF.getText().toUpperCase();
-                idTF.setText(areaId);
                 String latString = centroidLatTF.getText();
                 String lonString = centroidLonTF.getText();
-                if (macDlg.formIsValid(areaId, latString, lonString)) {
-                    handleAddNewAction(areaId, latString, lonString);
-                }
+                handleAddNewAction(latString, lonString);
             }
         });
 
@@ -267,35 +261,58 @@ public class AddNewZoneDlg extends CaveSWTDialog {
      * @param latString
      * @param lonString
      */
-    private void handleAddNewAction(String areaId, String latString,
-            String lonString) throws NumberFormatException {
+    private void handleAddNewAction(String latString, String lonString) {
+        String areaId = idTF.getText();
+        if (areaId.equals("") || areaId.length() != 6
+                || (areaId.charAt(2) != 'C' && areaId.charAt(2) != 'Z')) {
+            displayInputErrorMsg("Invalid Area ID = '" + areaId
+                    + "' entered. Please enter a correctly formatted Area ID.");
+            return;
+        }
         if (macDlg.isExistingZone(areaId)) {
-            macDlg.displayInputErrorMsg("The Area ID, "
+            displayInputErrorMsg("The Area ID, "
                     + areaId
                     + ", is already in your Monitoring Area or among your Additional Zones.");
             return;
         }
-        double lat = Double.parseDouble(latString.trim());
-        double lon = Double.parseDouble(lonString.trim());
-        ZoneType type = ZoneType.REGULAR;
-        if (appName != AppName.SNOW) {
-            if (marineZoneRdo.getSelection() || idTF.getText().charAt(2) == 'Z') {
-                type = ZoneType.MARITIME;
-            }
-        } else {
-            // Correct third character for METARs
-            char chr = idTF.getText().charAt(2);
-            if (chr != 'C') {
-                String c = idTF.getText().substring(2).replace(chr, 'C');
-                idTF.setText(idTF.getText().substring(0, 2) + c);
-                areaId = idTF.getText();
-            }
-        }
-        if (lat > 90.0 || lat < -90.0 || lon > 180.0 || lon < -180.0) {
+        if (latString == null || latString.isEmpty() || lonString == null
+                || lonString.isEmpty()) {
             macDlg.latLonErrorMsg(latString, lonString);
             return;
+        } else {
+            try {
+                double lat = Double.parseDouble(latString.trim());
+                double lon = Double.parseDouble(lonString.trim());
+                ZoneType type = ZoneType.REGULAR;
+                if (appName != AppName.SNOW) {
+                    if (marineZoneRdo.getSelection()) {
+                        type = ZoneType.MARITIME;
+                    }
+                }
+                if (lat > 90.0 || lat < -90.0 || lon > 180.0 || lon < -180.0) {
+                    macDlg.latLonErrorMsg(latString, lonString);
+                    return;
+                }
+                macDlg.configMgr.addArea(areaId, lat, lon, type);
+                macDlg.addNewZoneAction(areaId, centroidLatTF.getText(),
+                        centroidLonTF.getText());
+            } catch (NumberFormatException e) {
+                macDlg.latLonErrorMsg(latString, lonString);
+                return;
+            }
         }
-        macDlg.configMgr.addNewArea(areaId, lat, lon, type);
-        macDlg.addZoneToMA(areaId);
+    }
+
+    /**
+     * Displays Input Error Message
+     * 
+     * @param msg
+     */
+    private void displayInputErrorMsg(String msg) {
+        MessageBox messageBox = new MessageBox(shell, SWT.ICON_INFORMATION
+                | SWT.OK);
+        messageBox.setText("Invalid input");
+        messageBox.setMessage(msg);
+        messageBox.open();
     }
 }

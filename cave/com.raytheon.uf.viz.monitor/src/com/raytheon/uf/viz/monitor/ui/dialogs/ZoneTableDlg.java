@@ -96,7 +96,6 @@ import com.vividsolutions.jts.io.ParseException;
  * May 15, 2014 3086      skorolev     Replaced MonitorConfigurationManager with FSSObsMonitorConfigurationManager.
  * Sep 15, 2014 3220      skorolev     Added refreshZoneTableData method.
  * Nov 03, 2014 3741      skorolev     Updated zoom procedures.
- * Aug 26, 2015 3841      skorolev     Corrected zoomToZone procedure.
  * 
  * </pre>
  * 
@@ -226,7 +225,7 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
     protected abstract void shellDisposeAction();
 
     /** List of opened plots. **/
-    private final Map<String, CaveSWTDialog> openedDlgs = new HashMap<String, CaveSWTDialog>();
+    private Map<String, CaveSWTDialog> openedDlgs = new HashMap<String, CaveSWTDialog>();
 
     /** row index in the station table. **/
     public int rowIndex;
@@ -243,7 +242,7 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
     /** current site **/
     protected String site;
 
-    protected FSSObsMonitorConfigurationManager configMgr = null;
+    protected FSSObsMonitorConfigurationManager configMgr;
 
     /**
      * Constructor
@@ -789,7 +788,6 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
     private void zoomToZone(String zone) throws Exception {
         Coordinate zoneCenter = MonitorAreaUtils.getZoneCenter(zone);
         if (zoneCenter == null) { // Test a newly added zone.
-            configMgr = getMonitorAreaConfigInstance();
             AreaIdXML zoneXML = configMgr.getAreaXml(zone);
             if (zoneXML != null // Coordinates do not the null values.
                     && (zoneXML.getCLon() != null || zoneXML.getCLat() != null)) {

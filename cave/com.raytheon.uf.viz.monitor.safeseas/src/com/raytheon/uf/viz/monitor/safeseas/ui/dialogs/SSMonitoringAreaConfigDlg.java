@@ -19,19 +19,15 @@
  **/
 package com.raytheon.uf.viz.monitor.safeseas.ui.dialogs;
 
-import java.io.IOException;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
-import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.viz.monitor.events.IMonitorConfigurationEvent;
 import com.raytheon.uf.viz.monitor.safeseas.SafeSeasMonitor;
 import com.raytheon.uf.viz.monitor.safeseas.threshold.SSThresholdMgr;
@@ -54,8 +50,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Sep 04, 2014 3220       skorolev    Added fireConfigUpdateEvent method. Updated handler.
  * Sep 19, 2014 2757       skorolev    Updated handlers for dialog buttons.
  * Oct 27, 2014 3667       skorolev    Cleaned code.
- * Feb 10, 2015 3886       skorolev    Changed confirmation message.
- * Aug 17, 2015 3841       skorolev    Corrected handleOkBtnSelection.
+ * Feb 10, 2015 3886       skorolev     Changed confirmation message.
  * 
  * 
  * </pre>
@@ -80,18 +75,18 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
     }
 
     @Override
-    protected void handleOkBtnSelection() throws LocalizationException,
-            SerializationException, IOException {
+    protected void handleOkBtnSelection() {
         if (dataIsChanged()) {
             int choice = showMessage(shell, SWT.YES | SWT.NO,
-                    "SAFESEAS Monitor Confirm Changes", "Save changes?");
+                    "Confirm Cofiguration Changes", "Save changes?");
             if (choice == SWT.YES) {
                 // Save the config xml file.
-                saveConfigs();
+                resetAndSave();
                 SSThresholdMgr.reInitialize();
+                fireConfigUpdateEvent();
+                // Open Threshold Dialog if zones/stations are added.
                 if ((!configMgr.getAddedZones().isEmpty())
                         || (!configMgr.getAddedStations().isEmpty())) {
-                    // Open Threshold Dialog if zones/stations are added.
                     if (editDialog() == SWT.YES) {
                         ssMonitorDlg = new SSDispMonThreshDlg(shell,
                                 CommonConfig.AppName.SAFESEAS,
@@ -99,15 +94,19 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                         ssMonitorDlg.setCloseCallback(new ICloseCallback() {
                             @Override
                             public void dialogClosed(Object returnValue) {
+                                // Clean added zones and stations. Close dialog.
+                                configMgr.getAddedZones().clear();
+                                configMgr.getAddedStations().clear();
                                 setReturnValue(true);
                                 close();
                             }
                         });
                         ssMonitorDlg.open();
                     }
+                    // Clean added zones and stations.
+                    configMgr.getAddedZones().clear();
+                    configMgr.getAddedStations().clear();
                 }
-                fireConfigUpdateEvent();
-                resetStatus();
             } else { // Return back to continue edit.
                 return;
             }
@@ -143,8 +142,7 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
     @Override
     public FSSObsMonitorConfigurationManager getInstance() {
         if (configMgr == null) {
-            configMgr = FSSObsMonitorConfigurationManager
-                    .getInstance(MonName.ss);
+            configMgr = new FSSObsMonitorConfigurationManager(MonName.ss.name());
         }
         return configMgr;
     }

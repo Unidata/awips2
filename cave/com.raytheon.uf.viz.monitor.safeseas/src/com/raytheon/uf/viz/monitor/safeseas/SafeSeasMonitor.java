@@ -87,7 +87,6 @@ import com.vividsolutions.jts.geom.Geometry;
  * Feb 15, 2013 1638       mschenke    Changed code to reference DataURI.SEPARATOR instead of URIFilter
  * Apr 28, 2014 3086       skorolev    Removed local getMonitorAreaConfig method.
  * Sep 04, 2014 3220       skorolev    Updated configUpdate method and added updateMonitoringArea.
- * Sep 03, 2015 3841       skorolev    Corrected getInstance for FSSObsMonitorConfigurationManager.
  * 
  * </pre>
  * 
@@ -162,8 +161,7 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
      */
     private SafeSeasMonitor() {
         pluginPatterns.add(ssPattern);
-        ssAreaConfig = FSSObsMonitorConfigurationManager
-                .getInstance(MonName.ss);
+        ssAreaConfig = new FSSObsMonitorConfigurationManager(MonName.ss.name());
         updateMonitoringArea();
         initObserver(OBS, this);
         obData = new ObMultiHrsReports(CommonConfig.AppName.SAFESEAS);

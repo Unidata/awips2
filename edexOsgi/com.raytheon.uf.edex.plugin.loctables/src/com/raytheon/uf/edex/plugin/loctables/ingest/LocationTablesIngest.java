@@ -62,7 +62,6 @@ import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
  * Mar 06, 2014   2876     mpduff      New NDM plugin.
  * Apr 28, 2014   3086     skorolev    Updated setupLocalFiles method
  * Sep 04, 2014   3220     skorolev    Removed parameter currentSite from FSSObs configuration managers.
- * Sep 03, 2015   3841     skorolev    Corrected getInstance for FSSObs monitors.
  * Oct 12, 2015   4911     rjpeter     Updated to reload all location data and diff table as a whole.
  * </pre>
  * 

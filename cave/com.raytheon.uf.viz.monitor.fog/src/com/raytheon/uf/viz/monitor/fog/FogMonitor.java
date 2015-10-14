@@ -91,7 +91,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Sep 04, 2014 3220       skorolev    Updated configUpdate method and added updateMonitoringArea.
  * Sep 23, 2014 3356       njensen     Remove unnecessary import
  * Mar 09, 2014 3888       dhladky     Stopped processing when dialogs are null or disposed.
- * Sep 03, 2015 3841       skorolev    Corrected getInstance for FSSObsMonitorConfigurationManager.
+ * 
  * 
  * </pre>
  * 
@@ -162,7 +162,7 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
      */
     private FogMonitor() {
         pluginPatterns.add(fogPattern);
-        fogConfig = FSSObsMonitorConfigurationManager.getInstance(MonName.fog);
+        fogConfig = new FSSObsMonitorConfigurationManager(MonName.fog.name());
         updateMonitoringArea();
         initObserver(OBS, this);
         obData = new ObMultiHrsReports(CommonConfig.AppName.FOG);

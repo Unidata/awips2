@@ -31,8 +31,7 @@ import javax.xml.bind.annotation.XmlAttribute;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 21, 2009            lvenable    Initial creation
- * Aug 25, 2015 3481       skorolev    Added attribute "added"
+ * Dec 21, 2009            lvenable     Initial creation
  * 
  * </pre>
  * 
@@ -47,9 +46,6 @@ public class StationIdXML {
 
     @XmlAttribute(name = "name")
     private String name;
-
-    @XmlAttribute(name = "added", required = false)
-    private boolean added;
 
     public static final String MARITIME = "MARITIME";
 
@@ -81,14 +77,6 @@ public class StationIdXML {
      */
     public void setName(String name) {
         this.name = name;
-    }
-
-    public boolean isAdded() {
-        return added;
-    }
-
-    public void setAdded(boolean added) {
-        this.added = added;
     }
 
 }
