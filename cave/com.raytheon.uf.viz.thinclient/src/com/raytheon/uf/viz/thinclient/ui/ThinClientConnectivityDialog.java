@@ -68,6 +68,7 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  *                                    but dialog doesn't realize it
  * Jun 03, 2014  3217     bsteffen    Add option to always open startup dialog.
  * Jun 24, 2014  3236     njensen     Add ability to remember multiple servers
+ * Oct 08, 2015  4891     njensen     Added tooltip to useProxyCheck
  * 
  * 
  * 
@@ -185,6 +186,8 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
                 updateProxyEnabled();
             }
         });
+        useProxyCheck
+                .setToolTipText("Connect to a remote proxy server configured to support thin clients");
 
         IPreferenceStore thinPrefs = Activator.getDefault()
                 .getPreferenceStore();

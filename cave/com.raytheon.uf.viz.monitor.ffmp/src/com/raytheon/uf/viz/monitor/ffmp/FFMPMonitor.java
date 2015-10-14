@@ -641,7 +641,7 @@ public class FFMPMonitor extends ResourceMonitor {
                 // times, prevents mosaic brittleness from occurring.
                 retrieveNew = true;
 
-                if (source.getGuidanceType().equals(
+                if (source.getGuidanceType() != null && source.getGuidanceType().equals(
                         GUIDANCE_TYPE.ARCHIVE.getGuidanceType())) {
                     isTimeConstraint = false;
                 } else {
@@ -1542,6 +1542,7 @@ public class FFMPMonitor extends ResourceMonitor {
                             fproduct, type)) {
                         // Don't purge archive guidance!
                         if (guidSource != null
+                                && guidSource.getGuidanceType() != null
                                 && !guidSource.getGuidanceType()
                                         .equals(GUIDANCE_TYPE.ARCHIVE
                                                 .getGuidanceType())) {
@@ -1709,7 +1710,7 @@ public class FFMPMonitor extends ResourceMonitor {
                     }
                 }
             }
-            System.out.println("Time spent initializing templates: "
+            statusHandler.info("Time spent initializing templates: "
                     + (System.currentTimeMillis() - t0));
         }
 
