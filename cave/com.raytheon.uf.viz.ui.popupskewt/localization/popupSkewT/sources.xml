@@ -41,17 +41,6 @@
         </constraints>
 	</source>
 	
-	<source type="grid" displayString="Laps" validTimeInterval="90">
-		<constraints>
-			<mapping key="pluginName">
-				<constraint constraintValue="grid"/>
-			</mapping>
-			<mapping key="info.datasetId">
-                <constraint constraintValue="Laps"/>
-            </mapping>
-        </constraints>
-	</source>
-	
 	<source type="bufrua" displayString="From Raobs" validTimeInterval="1080">
 		<constraints>
 			<mapping key="pluginName">
@@ -59,6 +48,7 @@
 			</mapping>
 		</constraints>
 	</source>
+	
 	<source type="nucaps" displayString="NUCAPS" validTimeInterval="90">
 		<constraints>
 			<mapping key="pluginName">
