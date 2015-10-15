@@ -29,6 +29,8 @@
     <include installTo="menu:obs?after=LocalData" 
              fileName="menus/obs/baseLocalData.xml"/>
 			 -->
+	<include installTo="menu:obs?after=MOS" 
+             fileName="menus/obs/baseTDLSurface.xml"/>
     <include installTo="menu:obs?after=MARITIME" 
              fileName="menus/obs/baseMaritime.xml"/>
 </menuContributionFile>
