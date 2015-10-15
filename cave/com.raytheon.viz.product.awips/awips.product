@@ -88,6 +88,7 @@
       <feature id="com.raytheon.uf.viz.aviation.advisory.feature"/>
       <feature id="com.raytheon.uf.viz.d2d.core.feature"/>
       <feature id="com.raytheon.viz.radar.feature"/>
+      <feature id="com.raytheon.uf.viz.radarapps.feature"/>
       <feature id="com.raytheon.uf.viz.grid.feature"/>
       <feature id="com.raytheon.uf.viz.displays.feature"/>
       <feature id="com.raytheon.viz.hydro.feature"/>
