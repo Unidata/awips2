@@ -45,6 +45,7 @@
 #    Aug 20, 2015   DR 17726      mgamazaychikov Remove __doMakeReadable method 
 #    Sep 14, 2015       4868       rjpeter        Updated writePartialHDFData to create the dataset if
 #                                                 it doesn't exist.
+#    Oct 15, 2015       4982       nabowle        Verify datatypes match when replacing data.
 #
 
 import h5py, os, numpy, pypies, re, logging, shutil, time, types, traceback
@@ -190,6 +191,8 @@ class H5pyDataStore(IDataStore.IDataStore):
                     indices.append(long(0))
                 ss['index'] = indices
             elif storeOp == 'REPLACE' or storeOp == 'OVERWRITE':
+                if ds.dtype != data.dtype:
+                    raise StorageException("Cannot " + storeOp + " data of type " + ds.dtype.name + " with data of type " + data.dtype.name + ".")
                 if ds.shape != data.shape:
                     ds.resize(data.shape)
                 ds[()] = data
@@ -289,6 +292,8 @@ class H5pyDataStore(IDataStore.IDataStore):
         if dataset in group:
             ds=group[dataset]
             ss['op'] = 'REPLACE'
+            if ds.dtype != data.dtype:
+                raise StorageException("Cannot REPLACE data of type " + ds.dtype.name + " with data of type " + data.dtype.name + ".")
         else:
             if maxSizes is None:
                 raise StorageException('Dataset ' + dataset + ' does not exist for partial write.  MaxSizes not specified to create initial dataset')
