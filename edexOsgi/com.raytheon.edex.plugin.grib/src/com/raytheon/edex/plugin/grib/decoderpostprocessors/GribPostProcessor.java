@@ -40,6 +40,9 @@ import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
@@ -66,6 +69,9 @@ import com.raytheon.uf.common.status.UFStatus;
  *                                    require fully qualified names otherwise.
  * Oct 07, 2015  3756     nabowle     Add separate post-processing after the
  *                                    decoded record is persisted.
+ * Oct 14, 2015  4627     nabowle     Load post processor mappings at each
+ *                                    localization level as available, appending
+ *                                    only new processors.
  *
  * </pre>
  *
@@ -282,80 +288,131 @@ public class GribPostProcessor {
     }
 
     /**
-     * Initializes the processor map. As long as the localization file can be
-     * unmarshalled, the map will be swapped with the newly unmarshalled map.
+     * Initializes the processor map. Starting at base working to site, the
+     * localization files will be unmarshalled if present and new processors
+     * will be appended to the list of processors for a model. If a processor
+     * has already been configured for a model, it will not be added again.
      *
      * It's assumed that every processor will have already been registered under
      * its simple name, or is fully qualified.
+     *
+     * Other than the first initialization, the processor map will only be
+     * changed if the new value is not an empty map.
      */
     private synchronized void initProcessorMap() {
-        LocalizationFile processorFile = PathManagerFactory
-                .getPathManager()
-                .getStaticLocalizationFile(
+        IPathManager pathMgr = PathManagerFactory.getPathManager();
+        LocalizationLevel[] levels = new LocalizationLevel[] {
+                LocalizationLevel.BASE, LocalizationLevel.REGION,
+                LocalizationLevel.CONFIGURED, LocalizationLevel.SITE };
+
+        LocalizationFile processorFile;
+        Map<LocalizationLevel, LocalizationFile> files = pathMgr
+                .getTieredLocalizationFile(LocalizationType.EDEX_STATIC,
                         "/grib/postProcessModels/postProcessedModels.xml");
+        PostProcessedModelSet ppModelSet;
+        List<PostProcessedModel> postProcessedModels = new ArrayList<>();
+        Map<String, Integer> idMap = new HashMap<>();
+        for (LocalizationLevel level : levels) {
+            processorFile = files.get(level);
+            if (processorFile == null) {
+                continue;
+            }
 
+            try (InputStream is = processorFile.openInputStream()) {
+                JAXBManager mgr = new JAXBManager(PostProcessedModelSet.class);
+                ppModelSet = (PostProcessedModelSet) mgr
+                        .unmarshalFromInputStream(is);
+                statusHandler.info(String.format(
+                        "Using postProcessorFile [%s]", processorFile));
+
+                for (PostProcessedModel ppModel : ppModelSet.getModels()) {
+                    if (ppModel.getId() == null
+                            || ppModel.getId().trim().isEmpty()) {
+                        // no id - just append in the order found
+                        postProcessedModels.add(ppModel);
+                    } else {
+                        /*
+                         * If the id is previously known, put this ppModel in
+                         * its place in the list, otherwise just add to the end
+                         * and track its index.
+                         */
+                        Integer idx = idMap.get(ppModel.getId());
+                        if (idx == null) {
+                            postProcessedModels.add(ppModel);
+                            idMap.put(ppModel.getId(), postProcessedModels.size() - 1);
+                        } else {
+                            postProcessedModels.remove(idx.intValue());
+                            postProcessedModels.add(idx.intValue(), ppModel);
+                        }
+                    }
+                }
+            } catch (LocalizationException | JAXBException | IOException
+                    | SerializationException e) {
+                statusHandler.fatal(
+                        "Error unmarshalling post processed model list: "
+                                + processorFile, e);
+            }
+        }
+
+        /*
+         * Iterate over post processed models. Determine which models apply to
+         * each post processor if a regex is present
+         */
+        String knownProc;
+        String classToLoad;
+        List<DecoderPostProcessor> processorInstances;
         Set<String> modelNames = GribModelLookup.getInstance().getModelNames();
+        Map<String, List<DecoderPostProcessor>> newMap = new HashMap<>();
+        for (PostProcessedModel ppModel : postProcessedModels) {
+            if (ppModel.getModelName() == null) {
+                continue;
+            }
+            for (String modelName : modelNames) {
+                if (modelName.matches(ppModel.getModelName())) {
+                    processorInstances = newMap.get(modelName);
+                    if (processorInstances == null) {
+                        processorInstances = new ArrayList<DecoderPostProcessor>();
+                        newMap.put(modelName, processorInstances);
+                    }
 
-        try (InputStream is = processorFile.openInputStream()) {
-
-            JAXBManager mgr = new JAXBManager(PostProcessedModelSet.class);
-            PostProcessedModelSet ppModelSet = (PostProcessedModelSet) mgr
-                    .unmarshalFromInputStream(is);
-
-            statusHandler.info(String.format("Using postProcessorFile [%s]",
-                    processorFile));
-
-            Map<String, List<DecoderPostProcessor>> newMap = new HashMap<>();
-
-            /*
-             * Iterate over post processed models. Determine which models apply
-             * to each post processor if a regex is present
-             */
-            String knownProc;
-            String classToLoad;
-            for (PostProcessedModel ppModel : ppModelSet.getModels()) {
-                for (String modelName : modelNames) {
-                    if (modelName.matches(ppModel.getModelName())) {
-                        List<DecoderPostProcessor> processorInstances = newMap
-                                .get(modelName);
-                        if (processorInstances == null) {
-                            processorInstances = new ArrayList<DecoderPostProcessor>();
-                            newMap.put(modelName, processorInstances);
+                    for (String processor : ppModel.getProcessors()) {
+                        knownProc = this.knownProcessors.get(processor);
+                        if (knownProc != null) {
+                            classToLoad = knownProc;
+                        } else {
+                            classToLoad = processor;
                         }
 
-                        for (String processor : ppModel.getProcessors()) {
-                            knownProc = this.knownProcessors.get(processor);
-                            if (knownProc != null) {
-                                classToLoad = knownProc;
-                            } else {
-                                classToLoad = processor;
+                        try {
+                            boolean alreadyConfigured = false;
+                            for (DecoderPostProcessor instance : processorInstances) {
+                                if (classToLoad.equals(instance.getClass()
+                                        .getName())) {
+                                    alreadyConfigured = true;
+                                    statusHandler.debug(classToLoad
+                                            + " is already configured for "
+                                            + modelName + ".");
+                                    break;
+                                }
                             }
-
-                            try {
+                            if (!alreadyConfigured) {
                                 processorInstances
                                         .add((DecoderPostProcessor) Class
                                                 .forName(classToLoad)
                                                 .newInstance());
-                            } catch (Exception e) {
-                                statusHandler.fatal(
-                                        "Error instantiating grib post processor for "
-                                                + processor, e);
                             }
+                        } catch (Exception e) {
+                            statusHandler.fatal(
+                                    "Error instantiating grib post processor for "
+                                            + processor, e);
                         }
                     }
                 }
             }
+        }
 
+        if (this.processorMap == null || !newMap.isEmpty()) {
             this.processorMap = newMap;
-        } catch (LocalizationException | JAXBException | IOException
-                | SerializationException e) {
-            statusHandler.fatal(
-                    "Error unmarshalling post processed model list: "
-                            + processorFile, e);
-
-            if (this.processorMap == null) {
-                this.processorMap = new HashMap<>();
-            }
         }
     }
 }
