@@ -30,6 +30,7 @@ import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.dataquery.db.QueryResultRow;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.data.HydroDBData;
+import com.raytheon.viz.hydrocommon.util.DbUtils;
 
 /**
  * Class for managing database query calls.
@@ -89,6 +90,9 @@ public class HydroDBDataManager extends HydroDataManager {
     public <T extends HydroDBData> void deleteRecord(T recordToDelete)
             throws VizException {
         try {
+
+            DbUtils.escapeSpecialCharforData(recordToDelete);
+
             String deleteQuery = (String) recordToDelete.getClass()
                     .getMethod("getDeleteStatement").invoke(recordToDelete);
 
@@ -215,6 +219,9 @@ public class HydroDBDataManager extends HydroDataManager {
      */
     public <T extends HydroDBData> void updateData(T data) throws VizException {
         try {
+
+            DbUtils.escapeSpecialCharforData(data);
+
             // Get the update statement with the values filled in
             String updateQuery = (String) data.getClass()
                     .getMethod("getUpdateStatement").invoke(data);
@@ -239,9 +246,11 @@ public class HydroDBDataManager extends HydroDataManager {
             throws VizException {
         try {
 
+            DbUtils.escapeSpecialCharforData(newData);
             String updateQuery = (String) newData.getClass()
                     .getMethod("getUpdateStatement").invoke(newData);
 
+            DbUtils.escapeSpecialCharforData(updateData);
             String pkquery = (String) updateData.getClass()
                     .getMethod("getPKStatement").invoke(updateData);
 
@@ -268,6 +277,7 @@ public class HydroDBDataManager extends HydroDataManager {
         String insertQuery = null;
 
         try {
+            DbUtils.escapeSpecialCharforData(currData);
             // if (currData.getClass() == LocationAgencyOfficeData.class) {
             Method getSQLMethod = currData.getClass().getMethod(
                     "getInsertStatement");
