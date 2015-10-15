@@ -8,35 +8,35 @@
 			</constraints>
 		</source>
 	 -->
-	<source type="grid" displayString="NAM" validTimeInterval="540">
+	<source type="grid" displayString="NAM-12km" validTimeInterval="540">
 		<constraints>
 			<mapping key="pluginName">
 				<constraint constraintValue="grid"/>
 			</mapping>
 			<mapping key="info.datasetId">
-                <constraint constraintValue="ETA"/>
+                <constraint constraintValue="NAM-12km"/>
             </mapping>
         </constraints>
 	</source>
 	
-	<source type="grid" displayString="GFS" validTimeInterval="540">
+	<source type="grid" displayString="GFS-40km" validTimeInterval="540">
 		<constraints>
 			<mapping key="pluginName">
 				<constraint constraintValue="grid"/>
 			</mapping>
 			<mapping key="info.datasetId">
-                <constraint constraintValue="GFS212"/>
+                <constraint constraintValue="GFS-40km"/>
             </mapping>
         </constraints>
 	</source>
 	
-	<source type="grid" displayString="RAP" validTimeInterval="90">
+	<source type="grid" displayString="RAP-13km" validTimeInterval="90">
 		<constraints>
 			<mapping key="pluginName">
 				<constraint constraintValue="grid"/>
 			</mapping>
 			<mapping key="info.datasetId">
-                <constraint constraintValue="RUC236"/>
+                <constraint constraintValue="RAP-13km"/>
             </mapping>
         </constraints>
 	</source>
