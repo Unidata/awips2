@@ -367,21 +367,21 @@ ARIFFG100, then the style rule parameter tag will look like this example....
             <displayUnits>in</displayUnits>
             <defaultColormap>Grid/gridded data</defaultColormap>
             <dataMapping>
-                <entry displayValue='5.0' pixelValue='0'/>
-                <entry displayValue='10.0' pixelValue='17'/>
-                <entry displayValue='15.0' pixelValue='35'/>
-                <entry displayValue='20.0' pixelValue='52'/>
-                <entry displayValue='25.0' pixelValue='69'/>
-                <entry displayValue='30.0' pixelValue='86'/>
-                <entry displayValue='35.0' pixelValue='102'/>
-                <entry displayValue='40.0' pixelValue='119'/>
-                <entry displayValue='50.0' pixelValue='136'/>
-                <entry displayValue='60.0' pixelValue='153'/>
-                <entry displayValue='70.0' pixelValue='169'/>
-                <entry displayValue='80.0' pixelValue='186'/>
-                <entry displayValue='90.0' pixelValue='204'/>
-                <entry displayValue='100.0' pixelValue='220'/>
-                <entry displayValue='110.0' pixelValue='255'/>
+                <entry displayValue='0.0' pixelValue='0'/>
+                <entry displayValue='2.0' pixelValue='17'/>
+                <entry displayValue='4.0' pixelValue='35'/>
+                <entry displayValue='6.0' pixelValue='52'/>
+                <entry displayValue='8.0' pixelValue='69'/>
+                <entry displayValue='10.0' pixelValue='86'/>
+                <entry displayValue='12.0' pixelValue='102'/>
+                <entry displayValue='14.0' pixelValue='119'/>
+                <entry displayValue='16.0' pixelValue='136'/>
+                <entry displayValue='18.0' pixelValue='153'/>
+                <entry displayValue='20.0' pixelValue='169'/>
+                <entry displayValue='22.0' pixelValue='186'/>
+                <entry displayValue='24.0' pixelValue='204'/>
+                <entry displayValue='26.0' pixelValue='220'/>
+                <entry displayValue='28.0' pixelValue='255'/>
             </dataMapping>
         </imageStyle>
     </styleRule>
@@ -394,21 +394,21 @@ ARIFFG100, then the style rule parameter tag will look like this example....
             <displayUnits>in</displayUnits>
             <defaultColormap>Grid/gridded data</defaultColormap>
             <dataMapping>
-                <entry displayValue='5.0' pixelValue='0'/>
-                <entry displayValue='10.0' pixelValue='17'/>
-                <entry displayValue='15.0' pixelValue='35'/>
-                <entry displayValue='20.0' pixelValue='52'/>
-                <entry displayValue='25.0' pixelValue='69'/>
-                <entry displayValue='30.0' pixelValue='86'/>
-                <entry displayValue='35.0' pixelValue='102'/>
-                <entry displayValue='40.0' pixelValue='119'/>
-                <entry displayValue='50.0' pixelValue='136'/>
-                <entry displayValue='60.0' pixelValue='153'/>
-                <entry displayValue='70.0' pixelValue='169'/>
-                <entry displayValue='80.0' pixelValue='186'/>
-                <entry displayValue='90.0' pixelValue='204'/>
-                <entry displayValue='100.0' pixelValue='220'/>
-                <entry displayValue='110.0' pixelValue='255'/>
+                <entry displayValue='0.0' pixelValue='0'/>
+                <entry displayValue='2.0' pixelValue='17'/>
+                <entry displayValue='4.0' pixelValue='35'/>
+                <entry displayValue='6.0' pixelValue='52'/>
+                <entry displayValue='8.0' pixelValue='69'/>
+                <entry displayValue='10.0' pixelValue='86'/>
+                <entry displayValue='12.0' pixelValue='102'/>
+                <entry displayValue='14.0' pixelValue='119'/>
+                <entry displayValue='16.0' pixelValue='136'/>
+                <entry displayValue='18.0' pixelValue='153'/>
+                <entry displayValue='20.0' pixelValue='169'/>
+                <entry displayValue='22.0' pixelValue='186'/>
+                <entry displayValue='24.0' pixelValue='204'/>
+                <entry displayValue='26.0' pixelValue='220'/>
+                <entry displayValue='28.0' pixelValue='255'/>
             </dataMapping>
         </imageStyle>
     </styleRule>
@@ -421,22 +421,22 @@ ARIFFG100, then the style rule parameter tag will look like this example....
         <imageStyle>
             <displayUnits>in</displayUnits>
             <defaultColormap>Grid/gridded data</defaultColormap>
-            <dataMapping>
-                <entry displayValue='5.0' pixelValue='0'/>
-                <entry displayValue='10.0' pixelValue='17'/>
-                <entry displayValue='15.0' pixelValue='35'/>
-                <entry displayValue='20.0' pixelValue='52'/>
-                <entry displayValue='25.0' pixelValue='69'/>
-                <entry displayValue='30.0' pixelValue='86'/>
-                <entry displayValue='35.0' pixelValue='102'/>
-                <entry displayValue='40.0' pixelValue='119'/>
-                <entry displayValue='50.0' pixelValue='136'/>
-                <entry displayValue='60.0' pixelValue='153'/>
-                <entry displayValue='70.0' pixelValue='169'/>
-                <entry displayValue='80.0' pixelValue='186'/>
-                <entry displayValue='90.0' pixelValue='204'/>
-                <entry displayValue='100.0' pixelValue='220'/>
-                <entry displayValue='110.0' pixelValue='255'/>
+           <dataMapping>
+                <entry displayValue='0.0' pixelValue='0'/>
+                <entry displayValue='2.0' pixelValue='17'/>
+                <entry displayValue='4.0' pixelValue='35'/>
+                <entry displayValue='6.0' pixelValue='52'/>
+                <entry displayValue='8.0' pixelValue='69'/>
+                <entry displayValue='10.0' pixelValue='86'/>
+                <entry displayValue='12.0' pixelValue='102'/>
+                <entry displayValue='14.0' pixelValue='119'/>
+                <entry displayValue='16.0' pixelValue='136'/>
+                <entry displayValue='18.0' pixelValue='153'/>
+                <entry displayValue='20.0' pixelValue='169'/>
+                <entry displayValue='22.0' pixelValue='186'/>
+                <entry displayValue='24.0' pixelValue='204'/>
+                <entry displayValue='26.0' pixelValue='220'/>
+                <entry displayValue='28.0' pixelValue='255'/>
             </dataMapping>
         </imageStyle>
     </styleRule>
@@ -448,22 +448,22 @@ ARIFFG100, then the style rule parameter tag will look like this example....
         <imageStyle>
             <displayUnits>in</displayUnits>
             <defaultColormap>Grid/gridded data</defaultColormap>
-            <dataMapping>
-                <entry displayValue='70.0' pixelValue='0'/>
-                <entry displayValue='75.0' pixelValue='17'/>
-                <entry displayValue='80.0' pixelValue='35'/>
-                <entry displayValue='85.0' pixelValue='52'/>
-                <entry displayValue='90.0' pixelValue='69'/>
-                <entry displayValue='95.0' pixelValue='86'/>
-                <entry displayValue='100.0' pixelValue='102'/>
-                <entry displayValue='105.0' pixelValue='119'/>
-                <entry displayValue='110.0' pixelValue='136'/>
-                <entry displayValue='115.0' pixelValue='153'/>
-                <entry displayValue='120.0' pixelValue='169'/>
-                <entry displayValue='125.0' pixelValue='186'/>
-                <entry displayValue='130.0' pixelValue='204'/>
-                <entry displayValue='135.0' pixelValue='220'/>
-                <entry displayValue='140.0' pixelValue='255'/>
+           <dataMapping>
+                <entry displayValue='0.0' pixelValue='0'/>
+                <entry displayValue='2.0' pixelValue='17'/>
+                <entry displayValue='4.0' pixelValue='35'/>
+                <entry displayValue='6.0' pixelValue='52'/>
+                <entry displayValue='8.0' pixelValue='69'/>
+                <entry displayValue='10.0' pixelValue='86'/>
+                <entry displayValue='12.0' pixelValue='102'/>
+                <entry displayValue='14.0' pixelValue='119'/>
+                <entry displayValue='16.0' pixelValue='136'/>
+                <entry displayValue='18.0' pixelValue='153'/>
+                <entry displayValue='20.0' pixelValue='169'/>
+                <entry displayValue='22.0' pixelValue='186'/>
+                <entry displayValue='24.0' pixelValue='204'/>
+                <entry displayValue='26.0' pixelValue='220'/>
+                <entry displayValue='28.0' pixelValue='255'/>
             </dataMapping>
         </imageStyle>
     </styleRule>
@@ -476,21 +476,21 @@ ARIFFG100, then the style rule parameter tag will look like this example....
             <displayUnits>in</displayUnits>
             <defaultColormap>Grid/gridded data</defaultColormap>
             <dataMapping>
-                <entry displayValue='80.0' pixelValue='0'/>
-                <entry displayValue='85.0' pixelValue='17'/>
-                <entry displayValue='90.0' pixelValue='35'/>
-                <entry displayValue='95.0' pixelValue='52'/>
-                <entry displayValue='100.0' pixelValue='69'/>
-                <entry displayValue='105.0' pixelValue='86'/>
-                <entry displayValue='110.0' pixelValue='102'/>
-                <entry displayValue='115.0' pixelValue='119'/>
-                <entry displayValue='120.0' pixelValue='136'/>
-                <entry displayValue='125.0' pixelValue='153'/>
-                <entry displayValue='130.0' pixelValue='169'/>
-                <entry displayValue='135.0' pixelValue='186'/>
-                <entry displayValue='150.0' pixelValue='204'/>
-                <entry displayValue='145.0' pixelValue='220'/>
-                <entry displayValue='150.0' pixelValue='255'/>
+                <entry displayValue='0.0' pixelValue='0'/>
+                <entry displayValue='2.0' pixelValue='17'/>
+                <entry displayValue='4.0' pixelValue='35'/>
+                <entry displayValue='6.0' pixelValue='52'/>
+                <entry displayValue='8.0' pixelValue='69'/>
+                <entry displayValue='10.0' pixelValue='86'/>
+                <entry displayValue='12.0' pixelValue='102'/>
+                <entry displayValue='14.0' pixelValue='119'/>
+                <entry displayValue='16.0' pixelValue='136'/>
+                <entry displayValue='18.0' pixelValue='153'/>
+                <entry displayValue='20.0' pixelValue='169'/>
+                <entry displayValue='22.0' pixelValue='186'/>
+                <entry displayValue='24.0' pixelValue='204'/>
+                <entry displayValue='26.0' pixelValue='220'/>
+                <entry displayValue='28.0' pixelValue='255'/>
             </dataMapping>
         </imageStyle>
     </styleRule>
@@ -504,21 +504,21 @@ ARIFFG100, then the style rule parameter tag will look like this example....
             <displayUnits>in</displayUnits>
             <defaultColormap>Grid/gridded data</defaultColormap>
             <dataMapping>
-                <entry displayValue='100.0' pixelValue='0'/>
-                <entry displayValue='105.0' pixelValue='17'/>
-                <entry displayValue='100.0' pixelValue='35'/>
-                <entry displayValue='115.0' pixelValue='52'/>
-                <entry displayValue='120.0' pixelValue='69'/>
-                <entry displayValue='125.0' pixelValue='86'/>
-                <entry displayValue='130.0' pixelValue='102'/>
-                <entry displayValue='135.0' pixelValue='119'/>
-                <entry displayValue='140.0' pixelValue='136'/>
-                <entry displayValue='145.0' pixelValue='153'/>
-                <entry displayValue='150.0' pixelValue='169'/>
-                <entry displayValue='155.0' pixelValue='186'/>
-                <entry displayValue='160.0' pixelValue='204'/>
-                <entry displayValue='165.0' pixelValue='220'/>
-                <entry displayValue='170.0' pixelValue='255'/>
+                <entry displayValue='0.0' pixelValue='0'/>
+                <entry displayValue='2.0' pixelValue='17'/>
+                <entry displayValue='4.0' pixelValue='35'/>
+                <entry displayValue='6.0' pixelValue='52'/>
+                <entry displayValue='8.0' pixelValue='69'/>
+                <entry displayValue='10.0' pixelValue='86'/>
+                <entry displayValue='12.0' pixelValue='102'/>
+                <entry displayValue='14.0' pixelValue='119'/>
+                <entry displayValue='16.0' pixelValue='136'/>
+                <entry displayValue='18.0' pixelValue='153'/>
+                <entry displayValue='20.0' pixelValue='169'/>
+                <entry displayValue='22.0' pixelValue='186'/>
+                <entry displayValue='24.0' pixelValue='204'/>
+                <entry displayValue='26.0' pixelValue='220'/>
+                <entry displayValue='28.0' pixelValue='255'/>
             </dataMapping>
         </imageStyle>
     </styleRule>
@@ -531,21 +531,21 @@ ARIFFG100, then the style rule parameter tag will look like this example....
             <displayUnits>in</displayUnits>
             <defaultColormap>Grid/gridded data</defaultColormap>
             <dataMapping>
-                <entry displayValue='120.0' pixelValue='0'/>
-                <entry displayValue='130.0' pixelValue='17'/>
-                <entry displayValue='140.0' pixelValue='35'/>
-                <entry displayValue='150.0' pixelValue='52'/>
-                <entry displayValue='160.0' pixelValue='69'/>
-                <entry displayValue='170.0' pixelValue='86'/>
-                <entry displayValue='180.0' pixelValue='102'/>
-                <entry displayValue='200.0' pixelValue='119'/>
-                <entry displayValue='210.0' pixelValue='136'/>
-                <entry displayValue='220.0' pixelValue='153'/>
-                <entry displayValue='230.0' pixelValue='169'/>
-                <entry displayValue='240.0' pixelValue='186'/>
-                <entry displayValue='250.0' pixelValue='204'/>
-                <entry displayValue='260.0' pixelValue='220'/>
-                <entry displayValue='270.0' pixelValue='255'/>
+                <entry displayValue='0.0' pixelValue='0'/>
+                <entry displayValue='2.0' pixelValue='17'/>
+                <entry displayValue='4.0' pixelValue='35'/>
+                <entry displayValue='6.0' pixelValue='52'/>
+                <entry displayValue='8.0' pixelValue='69'/>
+                <entry displayValue='10.0' pixelValue='86'/>
+                <entry displayValue='12.0' pixelValue='102'/>
+                <entry displayValue='14.0' pixelValue='119'/>
+                <entry displayValue='16.0' pixelValue='136'/>
+                <entry displayValue='18.0' pixelValue='153'/>
+                <entry displayValue='20.0' pixelValue='169'/>
+                <entry displayValue='22.0' pixelValue='186'/>
+                <entry displayValue='24.0' pixelValue='204'/>
+                <entry displayValue='26.0' pixelValue='220'/>
+                <entry displayValue='28.0' pixelValue='255'/>
             </dataMapping>
         </imageStyle>
     </styleRule>
@@ -558,21 +558,21 @@ ARIFFG100, then the style rule parameter tag will look like this example....
             <displayUnits>in</displayUnits>
             <defaultColormap>Grid/gridded data</defaultColormap>
             <dataMapping>
-                <entry displayValue='150.0' pixelValue='0'/>
-                <entry displayValue='160.0' pixelValue='17'/>
-                <entry displayValue='170.0' pixelValue='35'/>
-                <entry displayValue='180.0' pixelValue='52'/>
-                <entry displayValue='190.0' pixelValue='69'/>
-                <entry displayValue='200.0' pixelValue='86'/>
-                <entry displayValue='210.0' pixelValue='102'/>
-                <entry displayValue='220.0' pixelValue='119'/>
-                <entry displayValue='230.0' pixelValue='136'/>
-                <entry displayValue='240.0' pixelValue='153'/>
-                <entry displayValue='250.0' pixelValue='169'/>
-                <entry displayValue='260.0' pixelValue='186'/>
-                <entry displayValue='270.0' pixelValue='204'/>
-                <entry displayValue='280.0' pixelValue='220'/>
-                <entry displayValue='300.0' pixelValue='255'/>
+                <entry displayValue='0.0' pixelValue='0'/>
+                <entry displayValue='2.0' pixelValue='17'/>
+                <entry displayValue='4.0' pixelValue='35'/>
+                <entry displayValue='6.0' pixelValue='52'/>
+                <entry displayValue='8.0' pixelValue='69'/>
+                <entry displayValue='10.0' pixelValue='86'/>
+                <entry displayValue='12.0' pixelValue='102'/>
+                <entry displayValue='14.0' pixelValue='119'/>
+                <entry displayValue='16.0' pixelValue='136'/>
+                <entry displayValue='18.0' pixelValue='153'/>
+                <entry displayValue='20.0' pixelValue='169'/>
+                <entry displayValue='22.0' pixelValue='186'/>
+                <entry displayValue='24.0' pixelValue='204'/>
+                <entry displayValue='26.0' pixelValue='220'/>
+                <entry displayValue='28.0' pixelValue='255'/>
             </dataMapping>
         </imageStyle>
     </styleRule>
@@ -584,22 +584,22 @@ ARIFFG100, then the style rule parameter tag will look like this example....
         <imageStyle>
             <displayUnits>in</displayUnits>
             <defaultColormap>Grid/gridded data</defaultColormap>
-            <dataMapping>
-                <entry displayValue='180.0' pixelValue='0'/>
-                <entry displayValue='190.0' pixelValue='17'/>
-                <entry displayValue='200.0' pixelValue='35'/>
-                <entry displayValue='210.0' pixelValue='52'/>
-                <entry displayValue='220.0' pixelValue='69'/>
-                <entry displayValue='230.0' pixelValue='86'/>
-                <entry displayValue='240.0' pixelValue='102'/>
-                <entry displayValue='250.0' pixelValue='119'/>
-                <entry displayValue='260.0' pixelValue='136'/>
-                <entry displayValue='270.0' pixelValue='153'/>
-                <entry displayValue='280.0' pixelValue='169'/>
-                <entry displayValue='290.0' pixelValue='186'/>
-                <entry displayValue='300.0' pixelValue='204'/>
-                <entry displayValue='310.0' pixelValue='220'/>
-                <entry displayValue='320.0' pixelValue='255'/>
+           <dataMapping>
+                <entry displayValue='0.0' pixelValue='0'/>
+                <entry displayValue='2.0' pixelValue='17'/>
+                <entry displayValue='4.0' pixelValue='35'/>
+                <entry displayValue='6.0' pixelValue='52'/>
+                <entry displayValue='8.0' pixelValue='69'/>
+                <entry displayValue='10.0' pixelValue='86'/>
+                <entry displayValue='12.0' pixelValue='102'/>
+                <entry displayValue='14.0' pixelValue='119'/>
+                <entry displayValue='16.0' pixelValue='136'/>
+                <entry displayValue='18.0' pixelValue='153'/>
+                <entry displayValue='20.0' pixelValue='169'/>
+                <entry displayValue='22.0' pixelValue='186'/>
+                <entry displayValue='24.0' pixelValue='204'/>
+                <entry displayValue='26.0' pixelValue='220'/>
+                <entry displayValue='28.0' pixelValue='255'/>
             </dataMapping>
         </imageStyle>
     </styleRule>
@@ -612,23 +612,24 @@ ARIFFG100, then the style rule parameter tag will look like this example....
             <displayUnits>in</displayUnits>
             <defaultColormap>Grid/gridded data</defaultColormap>
             <dataMapping>
-                <entry displayValue='200.0' pixelValue='0'/>
-                <entry displayValue='225.0' pixelValue='17'/>
-                <entry displayValue='250.0' pixelValue='35'/>
-                <entry displayValue='275.0' pixelValue='52'/>
-                <entry displayValue='300.0' pixelValue='69'/>
-                <entry displayValue='325.0' pixelValue='86'/>
-                <entry displayValue='350.0' pixelValue='102'/>
-                <entry displayValue='375.0' pixelValue='119'/>
-                <entry displayValue='400.0' pixelValue='136'/>
-                <entry displayValue='425.0' pixelValue='153'/>
-                <entry displayValue='450.0' pixelValue='169'/>
-                <entry displayValue='475.0' pixelValue='186'/>
-                <entry displayValue='500.0' pixelValue='204'/>
-                <entry displayValue='525.0' pixelValue='220'/>
-                <entry displayValue='550.0' pixelValue='255'/>
+                <entry displayValue='0.0' pixelValue='0'/>
+                <entry displayValue='2.0' pixelValue='17'/>
+                <entry displayValue='4.0' pixelValue='35'/>
+                <entry displayValue='6.0' pixelValue='52'/>
+                <entry displayValue='8.0' pixelValue='69'/>
+                <entry displayValue='10.0' pixelValue='86'/>
+                <entry displayValue='12.0' pixelValue='102'/>
+                <entry displayValue='14.0' pixelValue='119'/>
+                <entry displayValue='16.0' pixelValue='136'/>
+                <entry displayValue='18.0' pixelValue='153'/>
+                <entry displayValue='20.0' pixelValue='169'/>
+                <entry displayValue='22.0' pixelValue='186'/>
+                <entry displayValue='24.0' pixelValue='204'/>
+                <entry displayValue='26.0' pixelValue='220'/>
+                <entry displayValue='28.0' pixelValue='255'/>
             </dataMapping>
         </imageStyle>
+        
     </styleRule>
 	
 </styleRuleset>
