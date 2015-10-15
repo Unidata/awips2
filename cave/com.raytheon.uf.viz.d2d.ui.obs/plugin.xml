@@ -40,6 +40,11 @@
                 </separator>
                 <separator name="EndOfSynoptic" visible="true">
                 </separator>
+               	<separator name="MOS" visible="false">
+                </separator>
+				<separator name="EndOfMos" visible="true">
+                </separator>
+                
                 <separator
                       name="WATCHWARN"
                       visible="false">
