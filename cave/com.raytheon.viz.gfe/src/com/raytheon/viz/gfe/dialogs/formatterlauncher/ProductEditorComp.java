@@ -174,6 +174,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * 08/10/2015   4721       randerso    Changed getNNNid() to use the productID field (not textdbPil)
  * Aug 31, 2015 4749       njensen     Changed setCloseCallback to addCloseCallback
  * 09/15/2015   4858       dgilling    Disable store/transmit in DRT mode.
+ * 10/14/2015   4959       dgilling    Support new function signature for wordWrap.
  * 
  * </pre>
  * 
@@ -2961,7 +2962,7 @@ public class ProductEditorComp extends Composite implements
         while ((curLine <= lastLine) && (curLine < styledText.getLineCount())) {
             int lineOff = styledText.getOffsetAtLine(curLine);
             // word wrap a block, and find out how the text length changed.
-            indices = textComp.wordWrap(styledText, lineOff, wrapColumn);
+            indices = textComp.wordWrap(lineOff, wrapColumn);
             int firstIdx = indices[0];
             int lastIdx = indices[1];
             int newLen = indices[2];
