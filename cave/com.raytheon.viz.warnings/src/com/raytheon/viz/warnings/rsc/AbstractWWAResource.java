@@ -88,6 +88,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * Aug 14, 2014   3523   mapeters       Updated deprecated {@link DrawableString#textStyle} 
  *                                      assignments.
  * Dec 5, 2014   DR14944 jgerth         Only set outline width when there is no existing capability
+ * Oct 16, 2015   4971   bsteffen       Do not reverse order of text.
  * 
  * </pre>
  * 
@@ -417,16 +418,9 @@ public abstract class AbstractWWAResource extends
                         emergencyFont = target.getDefaultFont().deriveWithSize(
                                 14);
                     }
-                    // DR14992: reverse the textToPrint array to plot the
-                    // strings in correct order
-                    String[] textToPrintReversed = new String[textToPrint.length];
-                    for (int i = 0; i < textToPrint.length; i++) {
-                        textToPrintReversed[i] = textToPrint[textToPrint.length
-                                - i - 1];
-                    }
 
-                    DrawableString params = new DrawableString(
-                            textToPrintReversed, color);
+                    DrawableString params = new DrawableString(textToPrint,
+                            color);
                     params.font = warningsFont;
                     params.setCoordinates(d[0], d[1]);
                     params.horizontalAlignment = HorizontalAlignment.RIGHT;
@@ -437,9 +431,9 @@ public abstract class AbstractWWAResource extends
                     // Draws the string again to have it appear bolder
                     if (EmergencyType.isEmergency(record.getRawmessage())) {
                         // moves over text to add EMER in a different font
-                        textToPrintReversed[2] = String.format("%1$-23" + "s",
-                                textToPrintReversed[2]);
-                        params.setText(textToPrintReversed, color);
+                        textToPrint[1] = String.format("%1$-23" + "s",
+                                textToPrint[1]);
+                        params.setText(textToPrint, color);
 
                         DrawableString emergencyString = new DrawableString(
                                 params);

@@ -23,7 +23,6 @@ import java.awt.Point;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -76,6 +75,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 08/14/2014     #3523    mapeters    Updated deprecated {@link DrawableString#textStyle} 
  *                                     assignments.
  * 01/13/2015     #3955    randerso    Fix NullPointerException when updateTime is not set
+ * 10/16/2015     #4971    bsteffen    No longer need to reverse grids.
  * </pre>
  * 
  * @author chammack
@@ -277,7 +277,6 @@ public class SamplePainter {
 
         List<GridID> grids = Grids;
 
-        Collections.reverse(grids);
 
         // if list is not defined, then all samples will be painted for
         // all parms
@@ -356,7 +355,6 @@ public class SamplePainter {
             sampleLabels.add(label);
             colors.add(labelColor);
         }
-        Collections.reverse(grids);
     }
 
     /**
