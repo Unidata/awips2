@@ -54,8 +54,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Sep 04, 2014 3220       skorolev    Added fireConfigUpdateEvent method. Updated handler.
  * Sep 19, 2014 2757       skorolev    Updated handlers for dialog buttons.
  * Oct 27, 2014 3667       skorolev    Cleaned code.
- * Feb 10, 2015 3886       skorolev     Changed confirmation message.
- * Aug 17, 2015 3841       skorolev     Corrected handleOkBtnSelection.
+ * Feb 10, 2015 3886       skorolev    Changed confirmation message.
+ * Aug 17, 2015 3841       skorolev    Corrected handleOkBtnSelection.
  * </pre>
  * 
  * @author mpduff

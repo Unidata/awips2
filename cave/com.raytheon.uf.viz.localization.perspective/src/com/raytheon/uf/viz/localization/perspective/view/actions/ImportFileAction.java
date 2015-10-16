@@ -31,11 +31,13 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -51,8 +53,10 @@ import com.raytheon.viz.ui.VizWorkbenchManager;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov  1, 2011            mschenke     Initial creation
- * Jun 11, 2015 4541       skorolev     Added NULL test for lf.
+ * Nov  1, 2011            mschenke    Initial creation
+ * Jun 11, 2015 4541       skorolev    Added NULL test for lf.
+ * Oct 13, 2015 4410       bsteffen    Allow localization perspective to mix
+ *                                     files for multiple Localization Types.
  * 
  * </pre>
  * 
@@ -72,19 +76,21 @@ public class ImportFileAction extends Action {
 
     private final String directoryPath;
 
-    private final LocalizationType contextType;
+    private final List<LocalizationType> contextTypes;
 
     private String[] fileExtensionFilterArr;
 
-    public ImportFileAction(LocalizationType contextType, String directoryPath) {
+    public ImportFileAction(List<LocalizationType> contextTypes,
+            String directoryPath) {
         super("Import File...");
-        this.contextType = contextType;
+        this.contextTypes = contextTypes;
         this.directoryPath = directoryPath;
     }
 
-    public ImportFileAction(LocalizationType contextType, String directoryPath,
+    public ImportFileAction(List<LocalizationType> contextTypes,
+            String directoryPath,
             String[] filter) {
-        this(contextType, directoryPath);
+        this(contextTypes, directoryPath);
         if (filter != null) {
             this.fileExtensionFilterArr = new String[filter.length];
             for (int i = 0; i < filter.length; ++i) {
@@ -114,11 +120,11 @@ public class ImportFileAction extends Action {
         String fileToImport = dialog.open();
         if (fileToImport != null) {
             File importFile = new File(fileToImport);
-            importFile(contextType, directoryPath, new File[] { importFile });
+            importFile(contextTypes, directoryPath, new File[] { importFile });
         }
     }
 
-    public static boolean importFile(LocalizationType contextType,
+    public static boolean importFile(List<LocalizationType> contextTypes,
             String directoryPath, File[] importFiles) {
         List<File> applicable = new ArrayList<File>(importFiles.length);
         for (File importFile : importFiles) {
@@ -127,24 +133,38 @@ public class ImportFileAction extends Action {
                 applicable.add(importFile);
             }
         }
-        List<LocalizationFile> localizationFiles = new ArrayList<LocalizationFile>(
+        List<ILocalizationFile> localizationFiles = new ArrayList<ILocalizationFile>(
                 applicable.size());
-        List<LocalizationFile> existing = new ArrayList<LocalizationFile>(
+        List<ILocalizationFile> existing = new ArrayList<ILocalizationFile>(
                 applicable.size());
 
         for (File importFile : applicable) {
             String name = importFile.getName();
             String newFilePath = directoryPath + IPathManager.SEPARATOR + name;
             IPathManager pm = PathManagerFactory.getPathManager();
-            LocalizationFile lf = pm.getLocalizationFile(
-                    pm.getContext(contextType, LocalizationLevel.USER),
-                    newFilePath);
+            LocalizationFile lf = null;
+            for (LocalizationType contextType : contextTypes) {
+                LocalizationFile testFile = pm.getLocalizationFile(
+                        pm.getContext(contextType, LocalizationLevel.USER),
+                        newFilePath);
+                if (lf == null) {
+                    lf = testFile;
+                } else if (!lf.exists()
+                        && (testFile.exists() || lf.isProtected())) {
+                    /*
+                     * If a file exists we want to overwrite it to avoid 2 files
+                     * at the same level
+                     */
+                    lf = testFile;
+                }
+            }
             if ((lf != null) && !lf.isProtected()) {
                 localizationFiles.add(lf);
                 if (lf.exists()) {
                     existing.add(lf);
                 }
             } else {
+                localizationFiles.add(null);
                 statusHandler
                         .handle(Priority.WARN,
                                 newFilePath
@@ -152,14 +172,14 @@ public class ImportFileAction extends Action {
             }
         }
 
-        List<LocalizationFile> skip = new ArrayList<LocalizationFile>();
+        List<ILocalizationFile> skip = new ArrayList<ILocalizationFile>();
         if (existing.size() > 0) {
             if (existing.size() > 1) {
                 MultiConfirmDialog dialog = new MultiConfirmDialog(existing);
                 dialog.open();
                 existing.removeAll(dialog.getConfirmedFiles());
             } else {
-                LocalizationFile file = existing.get(0);
+                ILocalizationFile file = existing.get(0);
                 if (MessageDialog.openConfirm(VizWorkbenchManager.getInstance()
                         .getCurrentWindow().getShell(), "Confirm Overwrite",
                         String.format(FORMAT_STRING, file.getName(), file
@@ -174,10 +194,11 @@ public class ImportFileAction extends Action {
         for (int i = 0; i < applicable.size(); ++i) {
             File importFile = applicable.get(i);
             if (!localizationFiles.isEmpty()) {
-                LocalizationFile lf = localizationFiles.get(i);
-                if (skip.contains(lf) == false) {
-                    try {
-                        lf.write(FileUtil.file2bytes(importFile));
+                ILocalizationFile lf = localizationFiles.get(i);
+                if (lf != null && skip.contains(lf) == false) {
+                    try (SaveableOutputStream os = lf.openOutputStream()) {
+                        os.write(FileUtil.file2bytes(importFile));
+                        os.save();
                         ++addCount;
                     } catch (Exception e) {
                         statusHandler.handle(Priority.PROBLEM,
@@ -191,9 +212,9 @@ public class ImportFileAction extends Action {
 
     private static class MultiConfirmDialog extends MessageDialog {
 
-        private final List<LocalizationFile> confirmedFiles;
+        private final List<ILocalizationFile> confirmedFiles;
 
-        private final List<LocalizationFile> existingFiles;
+        private final List<ILocalizationFile> existingFiles;
 
         private int curIdx = 0;
 
@@ -206,13 +227,13 @@ public class ImportFileAction extends Action {
          * @param dialogButtonLabels
          * @param defaultIndex
          */
-        public MultiConfirmDialog(List<LocalizationFile> existingFiles) {
+        public MultiConfirmDialog(List<ILocalizationFile> existingFiles) {
             super(VizWorkbenchManager.getInstance().getCurrentWindow()
                     .getShell(), "Confirm Overwrite", null, "",
                     MessageDialog.CONFIRM, new String[] { "Yes To All", "No",
                             "Cancel", "Yes" }, 0);
             this.existingFiles = existingFiles;
-            this.confirmedFiles = new ArrayList<LocalizationFile>(
+            this.confirmedFiles = new ArrayList<ILocalizationFile>(
                     existingFiles.size());
             setShellStyle(getShellStyle() | SWT.SHEET);
         }
@@ -258,13 +279,6 @@ public class ImportFileAction extends Action {
             }
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see
-         * org.eclipse.jface.dialogs.IconAndMessageDialog#createMessageArea(
-         * org.eclipse.swt.widgets.Composite)
-         */
         @Override
         protected Control createMessageArea(Composite composite) {
             Control ctrl = super.createMessageArea(composite);
@@ -273,12 +287,12 @@ public class ImportFileAction extends Action {
         }
 
         private void updateText() {
-            LocalizationFile file = existingFiles.get(curIdx);
+            ILocalizationFile file = existingFiles.get(curIdx);
             messageLabel.setText(String.format(FORMAT_STRING, file.getName(),
                     file.getContext().getLocalizationLevel()));
         }
 
-        public List<LocalizationFile> getConfirmedFiles() {
+        public List<ILocalizationFile> getConfirmedFiles() {
             return confirmedFiles;
         }
     }

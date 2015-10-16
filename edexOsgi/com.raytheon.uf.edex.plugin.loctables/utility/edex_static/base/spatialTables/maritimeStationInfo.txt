@@ -9,12 +9,11 @@
 #  number   ID     lat      lon    elev           station name            country
 #   (10)    (5)  (sn2.3) (sn3.3)    (5)               (36)                  (2)
 0000000000|41001| 34.679| -72.637|    0|6N13 /D E HATTERAS                  |US|BOY
-0000000000|41002| 32.281| -75.202|    0|6N35 /D S HATTERAS                  |US|BOY
+0000000000|41002| 31.862| -74.835|    0|6N35 /D 225 S of CAPE HATTERAS      |US|BOY
 0000000000|41004| 32.500| -79.100|    0|3D09 /D EDISTO                      |US|BOY
 0000000000|41008| 31.402| -80.871|    0|3D52 /D GRAYS REEF                  |US|BOY
 0000000000|41009| 28.519| -80.166|    0|10D11 /D CANAVERAL                  |US|BOY
 0000000000|41010| 28.906| -78.471|    0|6N36 /D CANAVERAL EAST              |US|BOY
-0000000000|41012| 30.00 | -80.60 |    0|3D48 /A 40NM ENE St Augustine, FL   |US|BOY
 0000000000|41013| 33.436| -77.743|    0|3D17 /D Frying Pan Shoals, NC       |US|BOY
 0000000000|41024| 33.83 | -78.48 |   -0|Sunset Bch, NC Nearshore            |US|BOY
 0000000000|41025| 35.15 | -75.29 |    0|Diamond Shoals (Red Buoy), NC       |US|BOY
@@ -24,7 +23,6 @@
 0000000000|41031| 32.28 | -80.41 |   -0|Fripp, SC Nearshore                 |US|BOY
 0000000000|41033| 32.28 | -80.41 |   -0|Caro-COOPS, Fripp Nearshore         |US|BOY
 0000000000|41035| 34.48 | -77.28 |   -0|Onslow Bay, NC                      |US|BOY
-0000000000|41036| 34.21 | -76.95 |   -0|Onslow Bay, NC                      |US|BOY
 0000000000|41037| 33.991| -77.36 |   -0|ILM3,27mi SE of Wrightsville Bch,NC |US|BOY
 0000000000|41038| 34.14 | -77.71 |   -0|ILM2, 5mi SE of Wrightsville Bch,NC |US|BOY
 0000000000|41040| 14.48 | -53.04 |   -0|West Atlantic                       |US|BOY
@@ -35,6 +33,7 @@
 0000000000|41047| 27.47 | -71.49 |    0|NE of Bahamas                       |US|BOY
 0000000000|41048| 31.98 | -69.65 |    0|W of Bermuda                        |US|BOY
 0000000000|41049| 27.5  | -63.0  |    0|Atlantic (South)                    |US|BOY
+0000000000|41108| 33.721| -78.015|    0|Wilmington Harbor NC Scripps        |US|BOY
 0000000000|41110| 34.141| -77.709|   -0|Masonboro Inlet, NC CORMP           |US|BOY
 0000000000|41112| 30.72 | -81.29 |    0|Kings Bay, GA(132)                  |US|BOY
 0000000000|41113| 28.40 | -80.53 |   -0|Cape Canav Nrshore, FL Scripps CDIP |US|BOY
@@ -44,6 +43,7 @@
 0000000000|42002| 25.79 | -93.67 |    0|10D10 /V W GULF                     |US|BOY
 0000000000|42003| 26.044| -85.612|    0|10D09 /V E GULF                     |US|BOY
 0000000000|42007| 30.095| -88.775|    0|10D07 /V OTP                        |US|BOY
+0000000000|42008| 28.7  | -95.3  |   -0|Platform BTA                        |US|BOY
 0000000000|42012| 30.065| -87.555|    0|Orange Beach, AL Buoy               |US|BOY
 0000000000|42013| 27.16 | -82.95 |   -0|USF, COMPS C10                      |US|BOY
 0000000000|42014| 25.25 | -82.21 |   -0|USF, COMPS C17                      |US|BOY
@@ -84,8 +84,12 @@
 0000000000|42362| 27.8  | -90.67 |    0|Brutus - GC158                      |US|BOY
 0000000000|42363| 28.16 | -89.22 |   -0|Mars - MC807                        |US|BOY
 0000000000|42364| 29.06 | -88.09 |   -0|Ram-Powell Viosca Knoll 936         |US|BOY
+0000000000|42365| 28.154| -89.104|   -0|Ursa - Mississippi Canyon           |US|BOY
+0000000000|42369| 27.188| -91.087|   -0|Mad Dog - Green Canyon              |US|BOY
 0000000000|42375| 28.521| -88.289|   -0|Na Kika - Mississippi Canyon 474    |US|BOY
 0000000000|42376| 29.108| -87.944|   -0|Marlin - Viosca Knoll 915           |US|BOY
+0000000000|42390| 26.129| -94.898|   -0|Perdido Host - Alaminos Canyon      |US|BOY
+0000000000|42394| 28.156| -89.236|    0|Olympus - Miss Canyon 807 Shell IEP |US|BOY
 0000000000|42887| 28.191| -88.496|   -0|Thunder Horse, Miss Canyon 778, BP  |US|BOY
 0000000000|44005| 42.896| -68.949|    0|6N07 /D GULF OF MAINE               |US|BOY
 0000000000|44007| 43.531| -70.144|    0|3D50 /D PORTLAND                    |US|BOY
@@ -95,10 +99,11 @@
 0000000000|44013| 42.354| -70.691|    0|3D22 /D BOSTON                      |US|BOY
 0000000000|44014| 36.61 | -74.84 |    0|3D47 /D VIRGINIA BEACH              |US|BOY
 0000000000|44017| 40.700| -72.000|    0|South of MONTAUK POINT              |US|BOY
-0000000000|44018| 41.300| -69.200|    0|Southeast of CAPE COD               |US|BOY
+0000000000|44018| 42.126| -69.630|    0|24 NM East of Provincetown, MA      |US|BOY
 0000000000|44020| 41.443| -70.186|    0|NANTUCKET SOUND                     |US|BOY
 0000000000|44021| 43.783| -69.888|    2|Buoy D New Meadows Riv, Gulf of MEX |US|BOY
 0000000000|44022| 40.88 | -73.73 |    4|Execution Rocks                     |US|BOY
+0000000000|44023| 47.27 | -88.607|  183|Portage Canal Mich Tech Univ        |US|BOY
 0000000000|44024| 42.31 | -65.93 |    0|Buoy N - Northeast Channel          |US|BOY
 0000000000|44025| 40.250| -73.167|    0|3D05 /D LONG ISLAND                 |US|BOY
 0000000000|44027| 44.27 | -67.31 |   -0|Jonesport, Maine                    |US|BOY
@@ -127,9 +132,17 @@
 0000000000|44058| 37.552| -76.251|    0|Stingray Point, VA                  |US|BOY
 0000000000|44059| 36.846| -76.298|    3|Norfolk, VA CBIBS                   |US|BOY
 0000000000|44060| 41.263| -72.067|    0|Eastern Long Island Sound           |US|BOY
+0000000000|44061| 38.788| -77.036|    0|Upper Potomac MD CBIBS              |US|BOY
+0000000000|44062| 38.556| -76.415|    0|Gooses Reef MD CBIBS                |US|BOY
+0000000000|44063| 38.963| -76.448|    0|Annapolis CBIBS                     |US|BOY
+0000000000|44064| 36.974| -76.046|    0|First Landing CBIBS                 |US|BOY
 0000000000|44065| 40.369| -73.703|    0|Entrance to NY Harbor               |US|BOY
-0000000000|44066| 39.583| -72.601|    0|Texas Tower #4                      |US|BOY
-0000000000|44070| 41.38 | -71.01 |    0|Buzzards Bay, MA                    |US|BOY
+0000000000|44066| 39.583| -72.601|    0|TX Tower#4, 75NM E of Long Beach, NJ|US|BOY
+0000000000|44069| 40.693| -73.086|   -0|Great S Bay Stony Brook Univ        |US|BOY
+0000000000|44091| 39.769| -73.770|    0|Barnegat, NJ CDIP Scripps           |US|BOY
+0000000000|44094| 40.585| -73.106|   -0|Fire Island Nearshore NY Scripps    |US|BOY
+0000000000|44095| 35.75 | -75.33 |    0|Oregon Inlet NC Scripps             |US|BOY
+0000000000|44096| 37.023| -75.81 |    0|Cape Charles VA Scripps             |US|BOY
 0000000000|44097| 40.981| -71.117|   -0|Scripps CDIP Block Island, RI       |US|BOY
 0000000000|44098| 42.801| -70.169|   -0|Jeffrey's Ledge, NH (160) U of NH   |US|BOY
 0000000000|44099| 36.908| -75.775|   -0|Cape Henry, VA (147) SCRIPPS        |US|BOY
@@ -152,16 +165,26 @@
 0000000000|45007| 42.672| -87.022|  177|3D35 /D S MICHIGAN                  |US|BOY
 0000000000|45008| 44.283| -82.416|  177|24DV1/V S HURON                     |US|BOY
 0000000000|45012| 43.60 | -77.40 |   75|3D99 /D C ONTARIO                   |US|BOY
-0000000000|45015| 41.714| -87.527|   -0|Calumet Beach, Chicago, IL          |US|BOY
+0000000000|45013| 43.100| -87.850|  177|Milwaukee WI Univ WI/Milwaukee      |US|BOY
+0000000000|45014| 44.8  | -87.76 |  176|Cen Green Bay WI Univ WI/Milwaukee  |US|BOY
+0000000000|45015| 41.714| -87.527|  176|Calumet Beach, Chicago, IL          |US|BOY
 0000000000|45016| 41.783| -87.573|   -0|63rd St Beach, Chicago, IL          |US|BOY
 0000000000|45017| 41.903| -87.622|   -0|Oak St Beach, Chicago, IL           |US|BOY
-0000000000|45018| 41.968| -87.637|   -0|Montrose Ave Beach, Chicago, IL     |US|BOY
+0000000000|45018| 41.968| -87.637|  176|Montrose Ave Beach, Chicago, IL     |US|BOY
 0000000000|45019| 41.979| -87.649|   -0|Foster Ave Beach, Chicago, IL       |US|BOY
+0000000000|45022| 45.403| -85.088|  176|Little Traverse Bay MI Mich Tech U  |US|BOY
+0000000000|45024| 43.977| -86.559|  177|Ludington MI Mich Tech              |US|BOY
+0000000000|45025| 46.969| -88.398|  183|S Entr Keweenaw Waterway Mich Tech U|US|BOY
+0000000000|45026| 41.983| -86.617|  177|St Joseph MI Limno Tech             |US|BOY
+0000000000|45027| 46.86 | -91.93 |  183|North of Duluth Univ of MN/Duluth   |US|BOY
+0000000000|45028| 46.81 | -91.84 |  183|Western Lake Superior Univ MN/Duluth|US|BOY
+0000000000|45029| 42.899| -86.272|  177|Holland MI Limno Tech               |US|BOY
 0000000000|45132| 42.47 | -81.22 |   -0|Port Stanley                        |CN|BOY
 0000000000|45135| 43.79 | -76.87 |   -0|Prince Edward Pt                    |CN|BOY
 0000000000|45136| 48.53 | -86.95 |   -0|SLATE ISLAND                        |CN|BOY
 0000000000|45137| 45.54 | -81.01 |   -0|GEORGIAN BAY                        |CN|BOY
 0000000000|45139| 43.40 | -79.40 |   -0|West Lake Ontario                   |CN|BOY
+0000000000|45142| 42.737| -79.29 |  174|Port Colborne Environment Canada    |CN|BOY
 0000000000|45143| 44.94 | -80.63 |   -0|SOUTH GEORGIAN BAY                  |CN|BOY
 0000000000|45147| 42.43 | -82.68 |   -0|Lake St. Clair                      |CN|BOY
 0000000000|45148| 49.64 | -94.56 |   -0|Lake of the Woods                   |CN|BOY
@@ -169,6 +192,19 @@
 0000000000|45151| 44.50 | -79.37 |   -0|Lake Simcoe                         |CN|BOY
 0000000000|45152| 46.23 | -79.72 |   -0|Lake Nipissing                      |CN|BOY
 0000000000|45154| 46.05 | -82.64 |   -0|North Channel East                  |CN|BOY
+0000000000|45159| 43.767| -78.983|   75|NW Lake Ontario Ajax Environ Canada |CN|BOY
+0000000000|45161| 43.179| -86.361|  177|Muskegon MI GLERL                   |US|BOY
+0000000000|45162| 44.984| -83.269|  176|Alpena MI GLERL                     |US|BOY
+0000000000|45163| 43.985| -83.593|   14|Saginaw Bay MI GLERL                |US|BOY
+0000000000|45165| 41.702| -83.261|  174|Oregon OH Limno Tech                |US|BOY
+0000000000|45166| 45.032| -73.133|   33|Lake Champlain Vermont EPSCOR       |US|BOY
+0000000000|45167| 42.186| -80.137|  174|Erie PA Reg Science Consortium      |US|BOY
+0000000000|45168| 42.396| -86.331|  177|South Haven MI Limno Tech           |US|BOY
+0000000000|45170| 41.755| -86.968|  177|Michigan City, IN                   |US|BOY
+0000000000|45171| 46.724| -87.411|  178|Granite Island Buoy North MI Univ   |US|BOY
+0000000000|45172| 46.741| -85.976|  178|Grand Marais North MI Univ          |US|BOY
+0000000000|45174| 42.135| -87.655|  176|Wilmette, IL                        |US|BOY
+0000000000|45183| 49.538| -65.71 |    0|Mount Louis Environment Canada      |US|BOY
 0000000000|46001| 56.300|-148.179|    0|DN25 /D GULF OF AK                  |US|BOY
 0000000000|46002| 42.527|-130.260|    0|6N04 /D OREGON                      |US|BOY
 0000000000|46004| 50.93 |-136.10 |   -0|Middle Nomad                        |CN|BOY
@@ -273,6 +309,8 @@
 0000000000|46239| 36.338|-122.101|    0|Point Sur, CA (157) SCRIPPS         |US|BOY
 0000000000|46240| 36.626|-121.907|    0|Cabrillo Pt, Monterey Bay,CA SCRIPPS|US|BOY
 0000000000|46241| 33.003|-117.292|    0|San Elijo Nearshore, CA             |US|BOY
+0000000000|46243| 46.216|-124.128|   -0|Clatsop Spit                        |US|BOY
+0000000000|46248| 46.133|-124.667|   -0|Astoria Canyon                      |US|BOY
 0000000000|46401| 46.63 |-170.79 |   -0|D171                                |US|BOY
 0000000000|46402| 50.44 |-165.02 |   -0|D165                                |US|BOY
 0000000000|46403| 52.65 |-156.928|   -0|D157                                |US|BOY
@@ -294,6 +332,7 @@
 0000000000|462L6| 33.96 |-118.460|   -0|Marina Del Rey, CA                  |US|BOY
 0000000000|464L7| 33.87 |-118.410|   -0|Hermosa Beach, CA                   |US|BOY
 0000000000|46L14| 33.71 |-118.280|   -0|Cabrillo Beach, CA                  |US|BOY
+0000000000|51WH0| 22.667|-157.950|   -0|Woods Hole Oc Time Ser 51WH0-WHOTS  |US|BOY
 0000000000|51000| 23.464|-154.0  |    0|Northern Hawaii                     |US|BOY
 0000000000|51001| 23.401|-162.266|    0|6N24 /G NW HAWAII                   |US|BOY
 0000000000|51002| 17.191|-157.828|    0|6N27 /G SW HAWAII                   |US|BOY
@@ -305,510 +344,611 @@
 0000000000|51201| 21.67 |-158.12 |    0|Waimea Bay, HI                      |US|BOY
 0000000000|51202| 21.42 |-157.68 |   -0|Mokapu Point, HI                    |US|BOY
 0000000000|51203| 20.788|-157.01 |   -0|Kaumalapau, HI (146) SCRIPPS        |US|BOY
-0000000000|52200| 13.54 | 144.79 |    0|Ipan, Guam                          |US|BOY
-0000000000|AAMC1| 37.77 |-122.30 |   -0|Alameda, CA                         |US|CMAN
-0000000000|ACMN4| 39.38 | -74.42 |    0|Atlantic City Marina, NJ            |US|CMAN
-0000000000|ACXS1| 32.56 | -80.45 |   -0|ACE Basin NERR, SC                  |US|CMAN
-0000000000|ACYN4| 39.36 | -74.42 |   -0|Atlantic City, NJ                   |US|CMAN
-0000000000|ADKA2| 51.86 |-176.63 |   -0|Adak Island, AK                     |US|CMAN
-0000000000|AGMW3| 44.61 | -87.43 |   -0|Algoma City Marina, WI              |US|CMAN
-0000000000|ALIA2| 56.898|-154.247|    0|Alitak, AK NOS 9457804              |US|CMAN
-0000000000|ALNM4| 45.04 | -83.44 |   -0|Alpena, MI                          |US|CMAN
-0000000000|ALXN6| 44.330| -75.933|    0|Alexandria Bay, NY NOS 8311062      |US|CMAN
-0000000000|AMAA2| 58.92 |-151.95 |   33|East Amatuli Stn Light, AK/A        |US|CMAN
-0000000000|AMRL1| 29.450| -91.338|    0|Amerada Pass, LA NOS 8764227        |US|CMAN
-0000000000|ANCF1| 28.19 | -82.79 |    0|Anclote Gulf Park, FL (USF)         |US|CMAN
-0000000000|ANMF1| 27.54 | -82.74 |   -0|Anna Maria, FL                      |US|CMAN
-0000000000|ANMN6| 42.018| -73.917|   -0|Hudson River NERR, NY               |US|CMAN
-0000000000|ANTA2| 61.24 |-149.89 |   -0|Anchorage, AK                       |US|CMAN
-0000000000|ANVC1| 38.91 |-123.71 |   -0|Arena Cove, CA                      |US|CMAN
-0000000000|APAM2| 38.983| -76.48 |   -0|8575512 Annapolis, MD NOS           |US|CMAN
-0000000000|APCF1| 29.73 | -84.98 |   -0|Apalachicola, FL NOS                |US|CMAN
-0000000000|APNM4| 45.05 | -83.45 |  179|Alpena, MI Water Plant (GLERL)      |US|CMAN
-0000000000|APRP7| 13.442| 144.653|   -0|NWLON Apra Harbor, Guam 1630000     |US|CMAN
-0000000000|APXF1| 29.79 | -84.88 |   -0|Apalachicola NERR, FL               |US|CMAN
-0000000000|AROP4| 18.480| -66.702|    0|Arecibo, PR PRSN/NOS 9757809        |US|CMAN
-0000000000|ARPF1| 28.43 | -82.66 |    0|Aripeka, FL                         |US|CMAN
-0000000000|ASTO3| 46.21 |-123.77 |   -0|Astoria, OR                         |US|CMAN
-0000000000|ATGM1| 44.392| -68.205|    3|8413320 Bar Harbor, ME NOS          |US|CMAN
-0000000000|ATKA2| 52.232|-174.173|    0|Atka, AK NOS 9461710                |US|CMAN
-0000000000|AUDP4| 18.458| -67.164|    0|Aquadilla, PR 9759412 NOS           |US|CMAN
-0000000000|AUGA2| 59.38 |-153.35 |   11|Augustine Is, AK/M                  |US|CMAN
-0000000000|AVAN4| 39.09 | -74.731|    0|Avalon, NJ                          |US|CMAN
-0000000000|BABT2| 27.30 | -97.42 |    0|Baffin Bay, Point of Rocks, TX      |US|CMAN
-0000000000|BATN6| 40.7  | -74.02 |   -0|The Battery, NY                     |US|CMAN
-0000000000|BDRN4| 40.082| -74.872|   -0|NWLON Burlington, Delaware Riv, NJ  |US|CMAN
-0000000000|BDVF1| 25.476| -80.990|    0|Broad River, FL NPS                 |US|CMAN
-0000000000|BEPB6| 32.373| -64.703|   -0|NWLON Bermuda Esso Pier, Bermuda    |US|CMAN
-0000000000|BFTN7| 34.72 | -76.67 |   -0|8656483, Beaufort, NC NOS           |US|CMAN
-0000000000|BGCF1| 26.4  | -81.88 |   -0|Big Carlos Pass, FL                 |US|CMAN
-0000000000|BGNN4| 40.64 | -74.15 |    9|Bergen Pt West Reach, NY            |US|CMAN
-0000000000|BGXN3| 43.059| -70.830|    3|Great Bay NERR, NH                  |US|CMAN
-0000000000|BHBM3| 42.36 | -71.05 |   -0|Boston, MA                          |US|CMAN
-0000000000|BHRC3| 41.18 | -73.19 |    0|Bridgeport Terminal, CT             |US|CMAN
-0000000000|BHRI3| 41.647| -87.147|  180|Burns Harbor, IN GLOS               |US|CMAN
-0000000000|BIGM4| 46.830| -87.730|  186|Big Bay, MI GLOS                    |US|CMAN
-0000000000|BISM2| 38.220| -76.038|   -0|NWLON Bishops Head, MD              |US|CMAN
-0000000000|BLIA2| 60.84 |-146.88 |   16|Bligh Reef Light, AK/V              |US|CMAN
-0000000000|BLTA2| 58.45 |-135.89 |    5|Bartlet Cove, AK                    |US|CMAN
-0000000000|BLTM2| 39.27 | -76.58 |   -0|8574680, Baltimore, MD NOS          |US|CMAN
-0000000000|BLTM3| 41.71 | -71.17 |   -0|Borden Flats Lt, Fall River, MA     |US|CMAN
-0000000000|BNKF1| 25.087| -80.519|    0|Butternut Key, FL NPS               |US|CMAN
-0000000000|BOBF1| 25.024| -80.682|    0|Bob Allen, FL NPS                   |US|CMAN
-0000000000|BRBN4| 39.61 | -74.2  |    0|Brent Beach, NJ                     |US|CMAN
-0000000000|BRHC3| 41.17 | -73.18 |   -0|Bridgeport, CT                      |US|CMAN
-0000000000|BRND1| 38.987| -75.113|   -0|NWLON Brandywine Shoal Light, DE    |US|CMAN
-0000000000|BSBM4| 44.05 | -86.51 |  186|Big Sable Point, MI GLOS            |US|CMAN
-0000000000|BSLM2| 38.781| -76.708|    0|Chesapeake Bay NERR, MD             |US|CMAN
-0000000000|BUFN6| 42.877| -78.89 |  178|Buffalo, NY                         |US|CMAN
-0000000000|BURL1| 28.90 | -89.43 |   12|Southwest Pass, LA/D                |US|CMAN
-0000000000|BUZM3| 41.40 | -71.03 |   17|Buzzards Bay, MA/V                  |US|CMAN
-0000000000|BWSF1| 25.177| -80.438|    0|Blackwater Sound, FL NPS            |US|CMAN
-0000000000|BYGL1| 29.78 | -90.42 |   -0|West Bank, Bayou Gauche, LA NOS     |US|CMAN
-0000000000|BZBM3| 41.52 | -70.67 |   -0|Woods Hole, MA                      |US|CMAN
-0000000000|CAMF1| 27.765| -82.649|    0|COMPS, Campbell Park, FL            |US|CMAN
-0000000000|CAMM2| 38.57 | -76.07 |   -0|8571892, Cambridge, MD NOS          |US|CMAN
-0000000000|CANF1| 25.420| -80.942|    0|Cane Patch, FL NPS                  |US|CMAN
-0000000000|CAPL1| 29.768| -93.343|    0|NOS 8768094, Calcasieu Pass, LA     |US|CMAN
-0000000000|CARO3| 43.34 |-124.38 |   23|Cape Arago, OR/D                    |US|CMAN
-0000000000|CASM1| 43.66 | -70.25 |   -0|Portland, ME                        |US|CMAN
-0000000000|CBBV2| 36.97 | -76.11 |   -0|8638863, Chesap Bay Brdg Tnl, VA NOS|US|CMAN
-0000000000|CBIM2| 38.32 | -76.48 |    0|CBOS, Chesapk Bio Lab, Solomons, MD |US|CMAN
-0000000000|CBLO1| 41.981| -80.555|  177|Conneaut Breakwater Light, OH       |US|CMAN
-0000000000|CBRW3| 45.20 | -87.36 |  180|Chambers Island, WI NWS GLOS        |US|CMAN
-0000000000|CCUF1| 27.663| -82.618|    0|NOS 8726413 C-Cut, FL               |US|CMAN
-0000000000|CDEA2| 56.01 |-134.13 |   -0|Cape Decision, AK                   |US|CMAN
-0000000000|CDRF1| 29.14 | -83.03 |    3|Cedar Key, FL/V                     |US|CMAN
-0000000000|CECC1| 41.75 |-124.18 |   -0|Crescent City, CA                   |US|CMAN
-0000000000|CHAO3| 43.35 |-124.32 |   -0|Charleston, OR                      |US|CMAN
-0000000000|CHAV3| 18.335| -64.92 |   -0|Charlotte Amalie, VI NOS            |US|CMAN
-0000000000|CHCM2| 39.53 | -75.81 |   -0|8573927, Chesapeake City, MD NOS    |US|CMAN
-0000000000|CHDS1| 33.662| -82.200|   89|Strom Thurmond Dam, SC              |US|CMAN
-0000000000|CHII2| 42.00 | -87.50 |  176|Chicago, IL (GLERL)                 |US|CMAN
-0000000000|CHLV2| 36.90 | -75.71 |   23|Chesapeake Light, VA/D              |US|CMAN
-0000000000|CHNO3| 43.345|-124.329|   -0|South Slough NERR, OR               |US|CMAN
-0000000000|CHSV3| 17.748| -64.699|    0|Chr Har, St Croix, VI NOS 9751364   |US|CMAN
-0000000000|CHYV2| 36.930| -76.007|   -0|NWLON Cape Henry, VA                |US|CMAN
-0000000000|CHYW1| 48.86 |-122.76 |   -0|Cherry Point, WA                    |US|CMAN
-0000000000|CLBP4| 18.301| -65.303|    0|Culebra, PR 9752235 NOS             |US|CMAN
-0000000000|CLKN7| 34.62 | -76.52 |   11|Cape Lookout, NC/V                  |US|CMAN
-0000000000|CLLT2| 29.56 | -95.07 |    0|Clear Lake, TX TCOON                |US|CMAN
-0000000000|CLSM4| 42.47 | -82.87 |  175|CR GLOS, St. Clair Shores, MI       |US|CMAN
-0000000000|CMAN4| 38.97 | -74.96 |   10|Cape May, NJ                        |US|CMAN
-0000000000|CMTI2| 41.73 | -87.538|  179|Calumet, IL                         |US|CMAN
-0000000000|CNBF1| 25.700| -81.186|    0|Cannon Bay, FL NPS                  |US|CMAN
-0000000000|CNDO1| 41.540| -81.635|   -0|NWLON Cleveland, OH                 |US|CMAN
-0000000000|COVM2| 38.432| -76.387|   -0|Cove Point, MD 8577018 NOS          |US|CMAN
-0000000000|CPTR1| 41.72 | -71.34 |    5|Conimicut Light, RI                 |US|CMAN
-0000000000|CPXC1| 35.17 |-120.741|   16|Cal Poly Pier, CA                   |US|CMAN
-0000000000|CRVA2| 60.557|-145.755|   13|9454050 Cordova, AK NOS             |US|CMAN
-0000000000|CRYV2| 36.888| -76.338|   -0|NWLON South Craney Island, VA       |US|CMAN
-0000000000|CSBF1| 29.67 | -85.36 |    3|Cape San Blas, FL/V                 |US|CMAN
-0000000000|CSPA2| 58.21 |-136.63 |   -0|Cape Spencer, AK                    |US|CMAN
-0000000000|CTGM1| 44.642| -67.297|    5|8411250 Cutler, ME NOS              |US|CMAN
-0000000000|CWBF1| 27.98 | -82.83 |   -0|Clearwater Bch, FL NOS              |US|CMAN
-0000000000|CYGM4| 45.651| -84.472|  178|NWSCR GLOS, Cheybogan, MI           |US|CMAN
-0000000000|DBLN6| 42.49 | -79.35 |  197|Dunkirk, NY/V                       |US|CMAN
-0000000000|DELD1| 39.582| -75.590|   -0|NWLON Delaware City, DE             |US|CMAN
-0000000000|DESW1| 47.68 |-124.49 |   39|Destruction Is., WA/D               |US|CMAN
-0000000000|DISW3| 47.08 | -90.73 |  211|Devils Island, WI/D                 |US|CMAN
-0000000000|DKCM6| 30.355| -88.567|    0|Dock C, Pascagoula, MS NOS 8741501  |US|CMAN
-0000000000|DKKF1| 25.180| -80.490|    0|Duck Key, FL NPS                    |US|CMAN
-0000000000|DMNO3| 46.226|-123.955|    0|Desdemona Sand Light, OR            |US|CMAN
-0000000000|DOMV2| 36.962| -76.425|   -0|Dominion Term Assoc, VA 8638511 NOS |US|CMAN
-0000000000|DPHA1| 30.251| -88.078|   -0|Dauphin Island Sea Lab, AL          |US|CMAN
-0000000000|DPIA1| 30.25 | -88.07 |    8|Dauphin Island, AL/V                |US|CMAN
-0000000000|DRFA2| 60.55 |-152.14 |   17|Drift River Terminal, AK/M          |US|CMAN
-0000000000|DRSD1| 39.089| -75.437|   -0|Delaware NERR, DE                   |US|CMAN
-0000000000|DSLN7| 35.15 | -75.30 |   22|Diamond Shls Lt., NC/D              |US|CMAN
-0000000000|DTLM4| 45.992| -83.897|  180|De Tour Village, MI                 |US|CMAN
-0000000000|DUCN7| 36.18 | -75.75 |    9|Duck Pier, NC/V                     |US|CMAN
-0000000000|DUKN7| 36.183| -75.747|    0|Duck Pier, NC NOS 8651370           |US|CMAN
-0000000000|DULM5| 46.775| -92.093|  185|Duluth, MN                          |US|CMAN
-0000000000|EBSW1| 47.61 |-122.34 |   -0|Seattle, WA                         |US|CMAN
-0000000000|EGKF1| 27.60 | -82.76 |    0|Egmont Key, FL                      |US|CMAN
-0000000000|ELFA2| 58.193|-136.343|    0|Elfin Cove, AK NOS 9452634          |US|CMAN
-0000000000|ELXC1| 36.815|-121.738|   -0|Elkhorn Slough NERR, CA             |US|CMAN
-0000000000|EPTT2| 29.48 | -94.92 |   -0|Eagle Point, TX NOS                 |US|CMAN
-0000000000|EROA2| 58.97 |-135.22 |   -0|Eldred Rock, AK                     |US|CMAN
-0000000000|ERTF1| 27.917| -82.443|   -0|Berth 223 Met, FL 8726669 NOS       |US|CMAN
-0000000000|ESPP4| 18.094| -65.471|    0|Esperanza, Vieques Is, PR 9752695   |US|CMAN
-0000000000|FAIO1| 41.760| -81.281|    0|Fairport, OH 9063053 NOS            |US|CMAN
-0000000000|FBIS1| 32.68 | -79.89 |    5|Folly Island, SC/D                  |US|CMAN
-0000000000|FBPS1| 32.652| -79.938|   -0|USC, Folly Beach, SC                |US|CMAN
-0000000000|FCGT2| 28.933| -95.300|    0|USCG Freeport, TX NOS 8772447       |US|CMAN
-0000000000|FFIA2| 57.27 |-133.63 |   21|Five Finger, AK/D                   |US|CMAN
-0000000000|FGBL1| 28.118| -93.67 |   -0|High Is Blk, 120mi SSW Cameron, LA  |US|CMAN
-0000000000|FHPF1| 28.15 | -82.80 |    0|Fred Howard Park, FL (USF)          |US|CMAN
-0000000000|FILA2| 59.33 |-151.99 |   18|Flat Island Light, AK/A             |US|CMAN
-0000000000|FMOA1| 30.228| -88.025|    0|Fort Morgan, AL NOS 8734673         |US|CMAN
-0000000000|FMRF1| 26.65 | -81.87 |   -0|Fort Myers, FL NOS                  |US|CMAN
-0000000000|FOXR1| 41.81 | -71.35 |    4|Providence, RI                      |US|CMAN
-0000000000|FPKG1| 32.03 | -80.90 |   -0|8670870, Fort Pulaski, GA NOS       |US|CMAN
-0000000000|FPSN7| 33.49 | -77.59 |   24|Frying Pan Shoals, NC/D             |US|CMAN
-0000000000|FPTM4| 45.619| -86.659|  184|Fairport, MI GLOS                   |US|CMAN
-0000000000|FPTT2| 28.95 | -95.31 |   -0|Freeport, TX NOS                    |US|CMAN
-0000000000|FRDF1| 30.67 | -81.47 |   -0|Fernandina Bch, FL NOS              |US|CMAN
-0000000000|FRDP4| 18.335| -65.631|    0|Fajardo, PR PRSN/NOS 9753216        |US|CMAN
-0000000000|FRDW1| 48.55 |-123.01 |   -0|Friday Harbor, WA                   |US|CMAN
-0000000000|FRPS1| 32.34 | -80.46 |   -0|NWLON 8668498 Fripps Inlet, SC      |US|CMAN
-0000000000|FRVM3| 41.71 | -71.16 |    4|Fall River, MA                      |US|CMAN
-0000000000|FRWL1| 29.555| -92.305|    0|Fresh Water Canal Locks, LA 8766072 |US|CMAN
-0000000000|FSKM2| 39.22 | -76.53 |   -0|8574728, F Scott Key Brdge, MD NOS  |US|CMAN
-0000000000|FSTI2| 41.976| -87.648|   -0|Foster Ave, Wilson Park, Chicago,IL |US|CMAN
-0000000000|FTGM4| 43.001| -82.423|  180|Fort Gratiot, MI                    |US|CMAN
-0000000000|FTPC1| 37.81 |-122.47 |   -0|San Francisco, CA                   |US|CMAN
-0000000000|FWIC3| 41.15 | -73.17 |    0|Fayerweather Island, CT             |US|CMAN
-0000000000|FWYF1| 25.59 | -80.10 |   29|Fowey Rocks, FL/V                   |US|CMAN
-0000000000|GBIF1| 25.376| -81.030|    0|Gunboat Island, FL NPS              |US|CMAN
-0000000000|GBLW3| 44.66 | -87.90 |    0|Green Bay Entrance Light, WI/D      |US|CMAN
-0000000000|GBTF1| 25.170| -80.797|    0|Garfield Bight, FL NPS              |US|CMAN
-0000000000|GDIL1| 29.27 | -89.96 |    9|Grand Isle, LA/V                    |US|CMAN
-0000000000|GDIV2| 37.22 | -76.40 |   -0|Goodwin Island, VA VIMS CBOS        |US|CMAN
-0000000000|GDMM5| 47.748| -90.342|  186|Grand Marais, MN                    |US|CMAN
-0000000000|GDXM6| 30.359| -88.42 |   -0|Grand Bay NERR, MS                  |US|CMAN
-0000000000|GELO1| 41.86 | -80.974|  186|Geneva on the Lake, OH              |US|CMAN
-0000000000|GISL1| 29.263| -89.957|    9|NOS NWLON Grand Isle, LA            |US|CMAN
-0000000000|GLLN6| 43.89 | -76.45 |   77|Galloo Island, NY/V                 |US|CMAN
-0000000000|GLSM4| 44.02 | -83.54 |  180|CR GLOS, Gravelly Shoals Lt. MI     |US|CMAN
-0000000000|GNJT2| 29.36 | -94.73 |   -0|Galveston Bay (North Jetty), TX     |US|CMAN
-0000000000|GPOM6| 30.230| -88.982|    0|Gulfport Outer Range, MS NOS 8744707|US|CMAN
-0000000000|GPST2| 29.29 | -94.79 |    0|Galveston Pleas Pier, Gulf of Mexico|US|CMAN
-0000000000|GRMM4| 46.68 | -85.97 |  186|GLOS, Grand Marais, MI              |US|CMAN
-0000000000|GSJT2| 29.33 | -94.69 |   -0|Galveston Bay South Jetty, TX NOS   |US|CMAN
-0000000000|GSLM4| 44.018| -83.537|  179|Gravelly Shoals Light, MI CR        |US|CMAN
-0000000000|GTBM4| 44.767| -85.606|  176|Grand Traverse Bay Obs Sys Station 2|US|CMAN
-0000000000|GTKF1| 29.662| -84.373|   -0|Air Force Tower N7-K                |US|CMAN
-0000000000|GTLM4| 45.21 | -85.55 |  184|Grand Traverse Light, MI GLOS       |US|CMAN
-0000000000|GTOT2| 29.31 | -94.79 |   -0|Galveston Pier 21, TX NOS           |US|CMAN
-0000000000|GTRM4| 47.179| -88.242|  190|Supr Grand Traverse Bay, MI NWS GLOS|US|CMAN
-0000000000|GTXF1| 29.658| -81.220|   -0|Guana Tolomato Matanzas NERR, FL    |US|CMAN
-0000000000|GWPM6| 30.348| -89.087|    0|Gulfport West Pier, MS NOS 8745651  |US|CMAN
-0000000000|HBCB4| 24.721| -76.825|    4|Highborne Cay, Bahamas              |US|CMAN
-0000000000|HBYC1| 40.77 |-124.22 |   -0|North Spit, CA                      |US|CMAN
-0000000000|HCEF1| 25.254| -80.445|    0|Highway Creek, FL NPS               |US|CMAN
-0000000000|HCGN7| 35.208| -75.703|    2|8654467 Hatteras, NC NOS            |US|CMAN
-0000000000|HHLO1| 41.401| -82.545|  184|Huron Light, OH GLOS                |US|CMAN
-0000000000|HLNM4| 42.768| -86.201|  178|NOS 9087031, Holland, MI            |US|CMAN
-0000000000|HMRA2| 59.601|-151.416|   -0|Kachemak Bay NERR, AK               |US|CMAN
-0000000000|HPLM2| 38.59 | -76.13 |    0|CBOS, Horn Pt Lab, Cambridge, MD    |US|CMAN
-0000000000|HRBM4| 43.847| -82.643|  179|Harbor Beach, MI                    |US|CMAN
-0000000000|HSSF1| 28.77 | -82.71 |    0|Homosassa, FL                       |US|CMAN
-0000000000|ICAC1| 34.01 |-118.50 |   -0|Santa Monica Pier, CA               |US|CMAN
-0000000000|IIWC1| 32.714|-117.175|   -0|USS Midway S Navy Pier, S Diego, CA |US|CMAN
-0000000000|ILDL1| 29.05 | -90.53 |    0|Isle Dernieres, LA CSI05            |US|CMAN
-0000000000|ILOH1| 19.730|-155.055|    0|Hilo, HI NOS 1617760                |US|CMAN
-0000000000|IOSN3| 42.97 | -70.62 |   19|Isle of Shoals, NH/D                |US|CMAN
-0000000000|IRDT2| 27.48 | -97.32 |    0|S Bird Island, TX TCOON             |US|CMAN
-0000000000|JAKI2| 41.781| -87.573|   -0|63rd St, Jackson Park, Chicago, IL  |US|CMAN
-0000000000|JCRN4| 39.535| -74.464|   -0|Jacques Cousteau NERR, NJ           |US|CMAN
-0000000000|JKYF1| 25.050| -80.904|    0|Johnson Key, FL NPS                 |US|CMAN
-0000000000|JMPN7| 34.21 | -77.795|   -0|NWLON Wrightsville Bch, NC Tide Gg  |US|CMAN
-0000000000|JNEA2| 58.298|-134.412|   -0|Juneau Tide Guage, AK NOS  9452210  |US|CMAN
-0000000000|JOXP4| 17.956| -66.239|   -0|Jobos Bay NERR, Puerto Rico         |US|CMAN
-0000000000|KDAA2| 57.730|-152.514|    5|9457292 Kodiak Island, AK NOS       |US|CMAN
-0000000000|KECA2| 55.332|-131.626|   -0|Ketchikan Tide Guage, AK NOS 9450460|US|CMAN
-0000000000|KGCA2| 55.062|-162.327|    0|King Cove, AK NOS 9459881           |US|CMAN
-0000000000|KLIH1| 20.90 |-156.47 |   -0|Kahului, HI                         |US|CMAN
-0000000000|KNOH1| 21.288|-157.865|    0|Kilo Nalu Observatory, HI UHI       |US|CMAN
-0000000000|KNSW3| 42.59 | -87.81 |  176|Kenosha, WI (GLERL)                 |US|CMAN
-0000000000|KPTN6| 40.81 | -73.765|    5|Kings Point, NY                     |US|CMAN
-0000000000|KPTV2| 37.17 | -75.99 |   -0|8632200, Kiptopeke, VA NOS          |US|CMAN
-0000000000|KTNF1| 29.82 | -83.59 |    3|Keaton Beach, FL/M                  |US|CMAN
-0000000000|KWJP8| 08.74 | 167.74 |   -0|Kwajalein, Marshall Islands         |US|CMAN
-0000000000|KWNW3| 44.465| -87.496|   -0|NWLON Kewaunee, WI                  |US|CMAN
-0000000000|KYWF1| 24.55 | -81.81 |   -0|Key West, FL NOS                    |US|CMAN
-0000000000|LABL1| 30.05 | -90.37 |   -0|East Bank, Bayou LaBranche, LA NOS  |US|CMAN
-0000000000|LAPW1| 47.913|-124.637|   -0|NWLON La Push, WA                   |US|CMAN
-0000000000|LBRF1| 25.484| -81.111|    0|Broad River Lower, FL NPS           |US|CMAN
-0000000000|LBSF1| 25.212| -80.433|    0|Little Blackwater, FL NPS           |US|CMAN
-0000000000|LCIY2| 19.699| -80.061|    0|ICON Little Cayman Res Ctr, Cay Is  |US|CMAN
-0000000000|LCLL1| 30.223| -93.222|    2|8767816 NOS Lake Charles, LA        |US|CMAN
-0000000000|LCNA2| 56.057|-132.696|   10|Lincoln Rock, AK                    |US|CMAN
-0000000000|LDLC3| 41.31 | -72.08 |   20|New London Ledge, CT                |US|CMAN
-0000000000|LDTM4| 43.947| -86.442|  179|Ludington, MI                       |US|CMAN
-0000000000|LJAC1| 32.87 |-117.26 |   -0|La Jolla, CA                        |US|CMAN
-0000000000|LJPC1| 32.867|-117.257|   -0|Scripps Pier, La Jolla, CA          |US|CMAN
-0000000000|LKPL1| 30.31 | -90.28 |    0|Western Lake Ponchartrain, LA       |US|CMAN
-0000000000|LKWF1| 26.61 | -80.03 |    6|Lake Worth, FL/M                    |US|CMAN
-0000000000|LMDF1| 25.174| -80.632|    0|Little Madeira, FL NPS              |US|CMAN
-0000000000|LMFS1| 34.11 | -81.27 |  108|Lake Murray, SC WFO Columbia        |US|CMAN
-0000000000|LMRF1| 25.554| -81.169|    0|Lostmans River, FL NPS              |US|CMAN
-0000000000|LMSS1| 33.55 | -80.50 |   25|Lake Marion, SC                     |US|CMAN
-0000000000|LONF1| 24.84 | -80.86 |    6|Long Key, FL/M                      |US|CMAN
-0000000000|LOPW1| 46.108|-122.957|   -0|Longview, WA                        |US|CMAN
-0000000000|LPNM4| 45.06 | -83.43 |  179|Alpena, MI NOS                      |US|CMAN
-0000000000|LPOI1| 48.06 |-116.50 |  627|Lake Pend Oreille, ID/V             |US|CMAN
-0000000000|LPRP4| 17.939| -67.052|    0|ICON, Media Luna, La Parguera, PR   |US|CMAN
-0000000000|LRKF1| 24.980| -80.826|    0|Little Rabbit Key, FL NPS           |US|CMAN
-0000000000|LSCM4| 42.47 | -82.76 |   -0|Lake St Clair, MI                   |US|CMAN
-0000000000|LSNF1| 25.233| -80.458|    0|Long Sound, FL NPS                  |US|CMAN
-0000000000|LTBV3| 17.697| -64.75 |   -0|Lime Tree Bay, VI NOS               |US|CMAN
-0000000000|LTRM4| 46.485| -84.300|   -0|NWLON Little Rapids, MI             |US|CMAN
-0000000000|LUML1| 29.25 | -90.66 |    0|LUMCON Marine Center, LA            |US|CMAN
-0000000000|LWSD1| 38.78 | -75.12 |   12|Lewes, DE                           |US|CMAN
-0000000000|LWTV2| 38.00 | -76.47 |   -0|8635750, Lewisetta, VA NOS          |US|CMAN
-0000000000|MACM4| 45.778| -84.719|  179|9075079 Mackinaw City, MI NOS       |US|CMAN
-0000000000|MAXT2| 28.132| -97.034|    0|Mission-Aransas NERR, TX            |US|CMAN
-0000000000|MBLA1| 30.437| -88.012|   -0|Middle Bay Light, AL                |US|CMAN
-0000000000|MBRM4| 42.975| -82.419|  180|Mouth of Black Riv, MI 9014091 NOS  |US|CMAN
-0000000000|MCGA1| 30.648| -88.058|    0|CG Sector, Mobile, AL NOS 8736897   |US|CMAN
-0000000000|MCGM4| 46.545| -87.378|  188|Marquette C.G., MI                  |US|CMAN
-0000000000|MCYF1| 27.91 | -82.425|   -0|McKay Bay Entrance (Tampa), FL NOS  |US|CMAN
-0000000000|MCYI3| 41.73 | -86.93 |  176|Michigan City, IN (GLERL)           |US|CMAN
-0000000000|MDRM1| 43.97 | -68.13 |   16|Mt Desert Rock, ME/D                |US|CMAN
-0000000000|MEEM4| 44.248| -86.346|  178|NWSCR Manistee Harbor, MI           |US|CMAN
-0000000000|MGIP4| 17.97 | -67.047|   -0|Magueyes Islands, PR NOS            |US|CMAN
-0000000000|MGPT2| 29.68 | -94.99 |   -0|Morgans Point, TX NOS               |US|CMAN
-0000000000|MGZP4| 18.218| -67.159|    0|Mayaguez, PR PRSN/NOS 9759394       |US|CMAN
-0000000000|MHPA1| 30.667| -87.936|   -0|Meaher Park, AL                     |US|CMAN
-0000000000|MISC3| 41.07 | -73.13 |    0|North Middle Sound, CT              |US|CMAN
-0000000000|MISM1| 43.78 | -68.86 |   26|Matinicus Rock, ME/D                |US|CMAN
-0000000000|MISN6| 41.05 | -73.12 |    0|South Middle Sound, NY              |US|CMAN
-0000000000|MISP4| 18.090| -67.939|    0|Mona Island, PR 9759938 NOS         |US|CMAN
-0000000000|MKGM4| 43.23 | -86.34 |  185|Muskegon, MI (GLERL)                |US|CMAN
-0000000000|MLRF1| 25.01 | -80.38 |   11|Molasses Reef, FL/V                 |US|CMAN
-0000000000|MLSC1| 36.81 |-121.79 |   12|Moss Landing, South Harbor, CA      |US|CMAN
-0000000000|MLTO3| 46.214|-123.620|    0|Marsh Island Light, OR              |US|CMAN
-0000000000|MLWW3| 43.05 | -87.88 |  176|Milwaukee, WI (GLERL)               |US|CMAN
-0000000000|MNMM4| 45.09 | -87.59 |  176|NOS NWLON, Menominee, MI            |US|CMAN
-0000000000|MNPV2| 36.78 | -76.30 |   -0|8639348, Money Point, VA NOS        |US|CMAN
-0000000000|MOKH1| 21.432|-157.790|    0|Mokuoloe, HI NOS 1612480            |US|CMAN
-0000000000|MQTT2| 27.58 | -97.22 |   -0|Malaquite Beach, TX NOS             |US|CMAN
-0000000000|MRCP1| 39.812| -75.410|    0|Marcus Hook, PA NOS 8540433         |US|CMAN
-0000000000|MRHO1| 41.545| -82.732|   -0|Marblehead, OH                      |US|CMAN
-0000000000|MRKA2| 61.08 |-146.66 |   11|Middle Rock Light, AK/V             |US|CMAN
-0000000000|MROS1| 33.66 | -78.92 |   -0|Springmaid Pier, NC                 |US|CMAN
-0000000000|MRSL1| 29.44 | -92.06 |    0|Marsh Island, LA CSI03              |US|CMAN
-0000000000|MTBF1| 27.661| -82.594|    0|COMPS, Middle Tampa Bay, FL         |US|CMAN
-0000000000|MTKN6| 41.05 | -71.96 |   -0|Montauk, NY                         |US|CMAN
-0000000000|MTYC1| 36.61 |-121.89 |   -0|Monterey, CA                        |US|CMAN
-0000000000|MUKF1| 25.104| -80.942|    0|Murray Key, FL NPS                  |US|CMAN
-0000000000|MYPF1| 30.397| -81.43 |   -0|Mayport (Bar Pilots Dock), FL NOS   |US|CMAN
-0000000000|NABM4| 46.051| -85.263|  178|Naubinway, MI GLOS                  |US|CMAN
-0000000000|NAXR1| 41.639| -71.339|   13|Narragansett Bay NERR, RI           |US|CMAN
-0000000000|NBLP1| 40.137| -74.752|   -0|NWLON Newbold, PA                   |US|CMAN
-0000000000|NCSC3| 41.10 | -73.15 |    0|North Central Sound, CT             |US|CMAN
-0000000000|NEAW1| 48.37 |-124.62 |   -0|Neah Bay, WA                        |US|CMAN
-0000000000|NFBF1| 25.08 | -81.09 |    0|Northwest Bay, FL                   |US|CMAN
-0000000000|NGLT2| 27.82 | -97.20 |    0|Port Ingleside, TX TCOON            |US|CMAN
-0000000000|NIAN6| 43.077| -79.013|    0|Niagara Intake, NY NOS 9063012      |US|CMAN
-0000000000|NIWS1| 33.349| -79.193|   -0|North Inlet-Winyah Bay NERR, SC     |US|CMAN
-0000000000|NKTA2| 60.68 |-151.40 |   -0|Nikiski, AK                         |US|CMAN
-0000000000|NLNC3| 41.36 | -72.09 |   -0|New London, CT                      |US|CMAN
-0000000000|NMTA2| 64.50 |-165.43 |   -0|Nome, AK                            |US|CMAN
-0000000000|NOSC3| 41.12 | -73.16 |    0|Northern Open Sound, CT             |US|CMAN
-0000000000|NOXN7| 34.155| -77.851|    5|North Carolina NERR, NC             |US|CMAN
-0000000000|NPDW3| 45.29 | -86.98 |    0|Northport Pier, WI/D                |US|CMAN
-0000000000|NPSF1| 26.13 | -81.807|   -0|Naples, FL NOS                      |US|CMAN
-0000000000|NSTP6|-14.280|-170.688|   -0|NWLON Pago Pago, American Samoa     |US|CMAN
-0000000000|NTBC1| 34.408|-119.685|   -0|NWLON Santa Barbara, CA 9411340     |US|CMAN
-0000000000|NTKM3| 41.29 | -70.1  |   -0|Nantucket Island, MA                |US|CMAN
-0000000000|NWCL1| 30.027| -90.113|    0|New Canal, LA NOS 8761927           |US|CMAN
-0000000000|NWHC3| 41.28 | -72.91 |    4|New Haven, CT                       |US|CMAN
-0000000000|NWPO3| 44.61 |-124.07 |   11|Newport, OR/D                       |US|CMAN
-0000000000|NWPR1| 41.51 | -71.33 |    6|Newport, RI                         |US|CMAN
-0000000000|NWWH1| 21.953|-159.355|    0|Nawiliwili, HI NOS 1611400          |US|CMAN
-0000000000|OBGN6| 44.703| -75.495|    0|Ogdensburg, NY NOS 8311030          |US|CMAN
-0000000000|OBLA1| 30.708| -88.043|    0|Mobile State Docks, AL NOS 8737048  |US|CMAN
-0000000000|OCGN4| 40.209| -74.004|    5|Ocean Grove, NJ Stevens             |US|CMAN
-0000000000|OCIM2| 38.328| -75.092|    0|Ocean City Inlet, MD NOS 8570283    |US|CMAN
-0000000000|OCPN7| 33.91 | -78.15 |    0|Ocean Crest Pier, NC CORMP          |US|CMAN
-0000000000|OFPN6| 40.97 | -73.08 |    0|Old Field Island, NY                |US|CMAN
-0000000000|OHBC1| 33.72 |-118.27 |   -0|Los Angeles, CA                     |US|CMAN
-0000000000|OKSI2| 41.912| -87.624|   -0|Oak St, Lincoln Park, Chicago, IL   |US|CMAN
-0000000000|OLCN6| 43.34 | -78.72 |   75|ER GLOS, Olcott Harbor, NY          |US|CMAN
-0000000000|OLSA2| 52.941|-168.871|   -0|9462450 Nokolski, AK NOS            |US|CMAN
-0000000000|OMHC1| 37.800|-122.330|    0|Oakland MidHarbr Met, CA NOS 9414769|US|CMAN
-0000000000|OOUH1| 21.31 |-157.87 |   -0|Honolulu Harbor, HI                 |US|CMAN
-0000000000|OPTF1| 27.858| -82.553|   -0|NWLON Old Port Tampa, FL            |US|CMAN
-0000000000|ORIN7| 35.80 | -75.55 |   -0|8652587, Oregon In Marina, NC NOS   |US|CMAN
-0000000000|OSGN6| 43.463| -76.512|   78|Oswego, NY                          |US|CMAN
-0000000000|OTNM4| 46.874| -89.329|  186|Ontonogan, MI GLOS                  |US|CMAN
-0000000000|OVIA2| 59.440|-151.720|    0|Seldovia, AK NOS 9455500            |US|CMAN
-0000000000|OWXO1| 41.378| -82.508|  175|Old Woman Creek NERR, OH            |US|CMAN
-0000000000|PACF1| 30.152| -85.667|    0|Panama City, FL NOS 8729108         |US|CMAN
-0000000000|PACT2| 27.633| -97.237|    0|Packery Channel, TX NOS 8775792     |US|CMAN
-0000000000|PBFW1| 48.464|-122.468|   -0|Padilla Bay NERR, WA                |US|CMAN
-0000000000|PBPA2| 58.20 |-134.15 |   -0|Point Bishop, AK                    |US|CMAN
-0000000000|PCBF1| 30.21 | -85.88 |   -0|Panama City Beach, FL NOS           |US|CMAN
-0000000000|PCLF1| 30.403| -87.21 |   -0|Pensacola, FL NOS                   |US|CMAN
-0000000000|PCLM4| 47.28 | -88.53 |  198|Portage Canal, MI GLOS              |US|CMAN
-0000000000|PCNT2| 28.45 | -96.40 |    0|Matagorda Bay, Port O'Connor, TX    |US|CMAN
-0000000000|PCOC1| 38.06 |-122.04 |   -0|Port Chicago, CA                    |US|CMAN
-0000000000|PGBP7| 13.428| 144.797|   -0|Pago Bay, Guam 1631428 NOS          |US|CMAN
-0000000000|PHBP1| 39.93 | -75.14 |    6|Philadelphia, PA                    |US|CMAN
-0000000000|PILA2| 59.74 |-149.47 |   32|Pilot Rock, AK/M                    |US|CMAN
-0000000000|PILM4| 48.22 | -88.37 |  210|Passage Island, MI/V                |US|CMAN
-0000000000|PKYF1| 24.917| -80.746|    0|Peterson Key, FL NPS                |US|CMAN
-0000000000|PLSF1| 24.69 | -82.77 |   16|Pulaski Shoal Light, FL/A           |US|CMAN
-0000000000|PLSP4| 17.973| -66.762|    0|Penuelas, PR PRSN/NOS 9758053       |US|CMAN
-0000000000|PLXA2| 56.247|-134.647|    3|NWLON Port Alexander, AK 9451054    |US|CMAN
-0000000000|PMAF1| 27.637| -82.563|   -0|NWLON Port Manatee, FL              |US|CMAN
-0000000000|PMYF1| 26.99 | -80.62 |    3|Port Mayaca, FL/M                   |US|CMAN
-0000000000|PNGW3| 46.792| -91.386|  186|Port Wing, WI GLOS                  |US|CMAN
-0000000000|PNLM4| 45.97 | -85.87 |  179|NOS NWLON, Port Inland, MI          |US|CMAN
-0000000000|PNLM6| 30.358| -88.567|    0|Pascagoula NOAA Lab, MS NOS 8741533 |US|CMAN
-0000000000|PORO3| 42.74 |-124.50 |   -0|9431647 Port Orford, OR             |US|CMAN
-0000000000|PORT2| 29.867| -93.930|    0|Port Arthur, TX NOS 8770475         |US|CMAN
-0000000000|POTA2| 61.06 |-146.70 |    8|Potato Point, AK/V                  |US|CMAN
-0000000000|PPTM2| 38.133| -76.533|   -0|NWLON Piney Point, MD               |US|CMAN
-0000000000|PRDA2| 70.40 |-148.53 |   -0|Prudhoe Bay, AK                     |US|CMAN
-0000000000|PRIM4| 45.356| -83.492|  184|NWSCR Presque Isle Light, MI        |US|CMAN
-0000000000|PRTA2| 58.41 |-134.95 |   -0|Point Retreat, AK                   |US|CMAN
-0000000000|PRYC1| 38.00 |-122.98 |   -0|Point Reyes, CA                     |US|CMAN
-0000000000|PSBM1| 44.9  | -66.99 |    7|Eastport, ME                        |US|CMAN
-0000000000|PSCM4| 43.42 | -82.54 |  190|Port Sanilac, MI NWS GLOS           |US|CMAN
-0000000000|PSLC1| 35.18 |-120.76 |   -0|Port San Luis, CA                   |US|CMAN
-0000000000|PSTL1| 28.932| -89.407|   -0|NWLON Pilots Stat E, SW Pass, LA    |US|CMAN
-0000000000|PSTN6| 42.691| -79.047|  175|Sturgeon Point, NY 9063028 NOS      |US|CMAN
-0000000000|PTAC1| 38.96 |-123.74 |   19|Point Arena, CA/D                   |US|CMAN
-0000000000|PTAT2| 27.83 | -97.05 |    6|Port Aransas, TX/M                  |US|CMAN
-0000000000|PTAW1| 48.13 |-123.44 |   -0|Port Angeles, WA                    |US|CMAN
-0000000000|PTBM6| 30.213| -88.500|    0|PB Is, Pascagoula, MS NOS 8741003   |US|CMAN
-0000000000|PTCR1| 41.64 | -71.34 |   -0|Potter Cove, Prudence Is, RI        |US|CMAN
-0000000000|PTFL1| 29.115| -90.200|    0|Port Fourchon, LA NOS 8762075       |US|CMAN
-0000000000|PTGC1| 34.58 |-120.65 |   34|Point Arguello, CA/M                |US|CMAN
-0000000000|PTIM4| 46.485| -84.632|  186|Point Iroquois, MI                  |US|CMAN
-0000000000|PTIT2| 26.06 | -97.22 |   -0|Port Isabel, TX NOS                 |US|CMAN
-0000000000|PTJN6| 40.95 | -73.07 |    0|Port Jefferson, NY                  |US|CMAN
-0000000000|PTRF1| 28.28 | -82.73 |    0|Port Richey, FL                     |US|CMAN
-0000000000|PTWW1| 48.12 |-122.76 |   -0|Port Townsend, WA                   |US|CMAN
-0000000000|PVGF1| 26.092| -80.109|    0|Port Everglades Chan, FL ICON       |US|CMAN
-0000000000|PWAW3| 43.39 | -87.87 |  180|Port Washington, WI GLOS            |US|CMAN
-0000000000|QPTR1| 41.59 | -71.41 |    3|Quonset Point, RI                   |US|CMAN
-0000000000|RARM6| 30.343| -88.512|    0|RgeA Rr, Pascagoula, MS NOS 8741094 |US|CMAN
-0000000000|RCKM4| 46.265| -84.192|  180|Rock Cut, MI                        |US|CMAN
-0000000000|RCMC1| 37.93 |-122.40 |   -0|Richmond, CA                        |US|CMAN
-0000000000|RCPT2| 28.022| -97.047|    0|Rockport, TX NOS 8774770            |US|CMAN
-0000000000|RCRN6| 43.268| -77.625|   75|Rochester, NY 9052058 NOS           |US|CMAN
-0000000000|RDDA2| 67.577|-164.065|   -0|NWLON Red Dog Dock, AK              |US|CMAN
-0000000000|RDYD1| 39.56 | -75.57 |   -0|Reedy Point, DE                     |US|CMAN
-0000000000|RKXF1| 26.050| -81.701|   -0|Rookery Bay NERR, FL                |US|CMAN
-0000000000|RLOT2| 29.52 | -94.51 |    0|Rollover Pass, TX TCOON             |US|CMAN
-0000000000|ROAM4| 47.87 | -89.31 |  223|Rock of Ages, MI/D                  |US|CMAN
-0000000000|ROBN4| 40.657| -74.065|   -0|Robins Reef, NJ                     |US|CMAN
-0000000000|RPLV2| 37.54 | -76.02 |   -0|8632837, Rappahannock Light, VA NOS |US|CMAN
-0000000000|RPRN6| 43.25 | -77.59 |   75|ER GLOS, Rochester, NY              |US|CMAN
-0000000000|RSJT2| 26.80 | -97.47 |    0|Rincon del S Jose; Pot Lopeno SW,TX |US|CMAN
-0000000000|RTAT2| 27.84 | -97.07 |    0|Port Aransas, TX TCOON              |US|CMAN
-0000000000|RTOT2| 27.76 | -96.98 |    0|RTNS Offshore, TX                   |US|CMAN
-0000000000|RTYC1| 37.51 |-122.21 |   -0|Redwood City, CA                    |US|CMAN
-0000000000|SACV4| 19.174| -96.093|   -0|Sacrifice Island, MX                |US|CMAN
-0000000000|SANF1| 24.46 | -81.88 |    6|Sand Key, FL/M                      |US|CMAN
-0000000000|SAPF1| 27.76 | -82.627|   -0|St. Petersburg, FL NOS              |US|CMAN
-0000000000|SAUF1| 29.86 | -81.26 |    9|St. Augustine, FL/V                 |US|CMAN
-0000000000|SAXG1| 31.418| -81.295|    5|Sapelo Island NERR, GA              |US|CMAN
-0000000000|SBEO3| 44.63 |-124.09 |   -0|South Beach, OR                     |US|CMAN
-0000000000|SBIO1| 41.63 | -82.84 |  178|South Bass Island, OH/M             |US|CMAN
-0000000000|SBLF1| 27.923| -82.445|    0|Seabulk Met, FL 8726673 NOS         |US|CMAN
-0000000000|SBLM4| 43.806| -83.719|  180|Saginaw Bay Light #1, MI CR         |US|CMAN
-0000000000|SBPT2| 29.73 | -93.87 |   -0|Sabine Pass North, TX NOS           |US|CMAN
-0000000000|SCIS1| 32.86 | -79.71 |   -0|NWLON 8664941 S Capers Island, SC   |US|CMAN
-0000000000|SCSN6| 41.02 | -73.11 |    0|South Central Sound, NY             |US|CMAN
-0000000000|SDBC1| 32.71 |-117.17 |   -0|San Diego, CA                       |US|CMAN
-0000000000|SDHN4| 40.47 | -74.01 |    2|Sandy Hook, NJ                      |US|CMAN
-0000000000|SDIA2| 58.277|-134.389|   -0|South Douglas, AK                   |US|CMAN
-0000000000|SDRT2| 28.41 | -96.71 |    0|Seadrift, TX TCOON                  |US|CMAN
-0000000000|SECG1| 30.80 | -80.316|   -0|SABSOON Tower R2 (UNC Chapel Hill)  |US|CMAN
-0000000000|SFXC1| 38.222|-122.026|   -0|San Francisco Bay NERR, CA          |US|CMAN
-0000000000|SGNW3| 43.75 | -87.69 |  189|Sheboygan, WI/D                     |US|CMAN
-0000000000|SGOF1| 29.41 | -84.86 |   20|Tyndall AFB Tower C, FL             |US|CMAN
-0000000000|SGRN4| 40.117| -74.017|   -0|SIT Sea Girt, NJ                    |US|CMAN
-0000000000|SHBL1| 29.868| -89.673|    0|Shell Beach, LA NOS 8761305         |US|CMAN
-0000000000|SHPF1| 30.06 | -84.29 |    0|Shell Point, FL                     |US|CMAN
-0000000000|SIPM6| 30.27 | -89.02 |    0|Ship Island Pass, MS CSI13          |US|CMAN
-0000000000|SISA2| 58.17 |-135.26 |   -0|Sisters Island, AK                  |US|CMAN
-0000000000|SISW1| 48.32 |-122.84 |   18|Smith Island, WA/M                  |US|CMAN
-0000000000|SJNP4| 18.46 | -66.117|   -0|San Juan, PR NOS                    |US|CMAN
-0000000000|SJOM4| 42.09 | -86.49 |  182|CR GLOS, St Joseph, MI              |US|CMAN
-0000000000|SJSN4| 39.305| -75.375|   -0|NWLON Ship John Shoal, NJ           |US|CMAN
-0000000000|SKMG1| 31.533| -80.233|   -0|SABSOON Tower M2/R6 (Skidaway Inst) |US|CMAN
-0000000000|SKTA2| 59.450|-135.327|   -0|Skagway Tide Guage, AK NOS 9452634  |US|CMAN
-0000000000|SLIM2| 38.32 | -76.45 |   -0|8577330, Solomons Island, MD NOS    |US|CMAN
-0000000000|SLPL1| 29.52 | -91.55 |    0|Salt Point, LA CSI14                |US|CMAN
-0000000000|SLVM5| 47.27 | -91.25 |  198|Silver Bay, MN GLOS                 |US|CMAN
-0000000000|SMBS1| 33.655| -78.918|    0|Springmaid Pier, SC                 |US|CMAN
-0000000000|SMKF1| 24.63 | -81.11 |   37|Sombrero Key, FL/M                  |US|CMAN
-0000000000|SNDA2| 55.337|-160.502|    0|Sand Point, AK NOS 9459450          |US|CMAN
-0000000000|SNDP5| 28.21 |-177.36 |   -0|Sand Island, Midway Islands         |US|CMAN
-0000000000|SNSN7| 33.87 | -78.51 |   -0|8659897, Sunset Beach, NC NOS       |US|CMAN
-0000000000|SOSN6| 41.00 | -73.10 |    0|Southern Open Sound, NY             |US|CMAN
-0000000000|SPAG1| 31.38 | -80.57 |    0|Skidaway (Sabsoon Tower R2), GA/V   |US|CMAN
-0000000000|SPAL1| 28.932| -89.407|   -0|LUMCON Pilottown, LA                |US|CMAN
-0000000000|SPGF1| 26.70 | -79.00 |    3|Settlement Point, GBI/M             |US|CMAN
-0000000000|SPLL1| 28.87 | -90.48 |    0|South Pelto Block, LA CSI06         |US|CMAN
-0000000000|SPTM4| 44.713| -83.273|  184|NWSCR GLOS Sturgeon Pt Light, MI    |US|CMAN
-0000000000|SRBV3| 17.784| -64.762|    0|ICON, Salt River Bay, St Croix, VI  |US|CMAN
-0000000000|SRST2| 29.67 | -94.05 |    5|Sabine, TX/M                        |US|CMAN
-0000000000|STDM4| 47.18 | -87.22 |  211|Stannard Rock, MI/D                 |US|CMAN
-0000000000|SUPN6| 44.47 | -75.80 |   79|Superior Shoals, NY/V               |US|CMAN
-0000000000|SVLS1| 31.95 | -80.68 |   -0|Savannah Light, GA/D                |US|CMAN
-0000000000|SVNM4| 42.40 | -86.29 |  176|South Haven, MI (GLERL)             |US|CMAN
-0000000000|SWLA2| 60.120|-149.427|    5|9455090 Seward, AK NOS              |US|CMAN
-0000000000|SWPM4| 46.502| -84.373|  186|S.W. Pier, MI                       |US|CMAN
-0000000000|SWPV2| 36.95 | -76.33 |   -0|8638610, Sewells Point, VA NOS      |US|CMAN
-0000000000|SXHW3| 46.56 | -90.44 |  186|Saxon Harbor, WI GLOS               |US|CMAN
-0000000000|SYWW3| 45.20 | -87.12 |    0|Sister Bay, WI/D                    |US|CMAN
-0000000000|TAML1| 29.19 | -90.67 |    0|Tambour Bay, LA                     |US|CMAN
-0000000000|TARF1| 28.15 | -82.75 |    0|Tarpon Springs, FL                  |US|CMAN
-0000000000|TAWM4| 44.256| -83.443|  172|NWSCR GLOS Tawas City, MI           |US|CMAN
-0000000000|TCBM2| 39.213| -76.25 |   -0|8573364, Tolchester Beach, MD NOS   |US|CMAN
-0000000000|TCMW1| 47.276|-122.418|    0|Tacoma Met, WA NOS 9446482          |US|CMAN
-0000000000|TCNW1| 47.27 |-122.41 |   -0|Tacoma, WA                          |US|CMAN
-0000000000|TCVF1| 25.210| -80.533|    0|Trout Cove, FL NPS                  |US|CMAN
-0000000000|THLO1| 41.826| -83.194|  174|Toledo Light #2, OH GLERL           |US|CMAN
-0000000000|THRO1| 41.693| -83.471|   -0|Toledo Harbor, OH                   |US|CMAN
-0000000000|TIBC1| 37.89 |-122.45 |   -0|SF State U, Tiburon Pier SF Bay, CA |US|CMAN
-0000000000|TIXC1| 32.574|-117.121|   -0|Tijuana River NERR, CA              |US|CMAN
-0000000000|TKEA2| 57.779|-135.219|    0|Tenakee Springs, AK Marine Exchange |US|CMAN
-0000000000|TLBO3| 45.555|-123.912|   -0|NWLON Garibaldi, Tillamook Bay, OR  |US|CMAN
-0000000000|TOKW1| 46.71 |-123.97 |   -0|Toke Point, WA                      |US|CMAN
-0000000000|TPAF1| 27.933| -82.433|    0|TPA Cruise Term 2, FL NOS 8726694   |US|CMAN
-0000000000|TPBN4| 40.012| -75.042|   -0|NWLON Tacony-Palmyra Bridge, NJ     |US|CMAN
-0000000000|TPEF1| 25.408| -80.964|    0|Tarpon Bay East, FL NPS             |US|CMAN
-0000000000|TPLM2| 38.90 | -76.44 |   12|Thomas Point, MD/M                  |US|CMAN
-0000000000|TRBL1| 29.17 | -90.58 |    0|Terrebonne Bay, LA                  |US|CMAN
-0000000000|TRDF1| 28.415| -80.593|   -0|Trident Pier, FL NOS                |US|CMAN
-0000000000|TRRF1| 25.223| -80.653|    0|Taylor River, FL NPS                |US|CMAN
-0000000000|TSHF1| 27.928| -82.425|    0|East Bay Causeway, FL 8726667 NOS   |US|CMAN
-0000000000|TTIW1| 48.39 |-124.74 |   48|Tatoosh Island, WA/D                |US|CMAN
-0000000000|TYBG1| 31.63 | -79.92 |    0|Skidaway (Sabsoon Tower R8), GA/V   |US|CMAN
-0000000000|ULAM6| 30.348| -88.505|    0|Dock E, Pascagoula, MS NOS 8741041  |US|CMAN
-0000000000|UNLA2| 53.879|-166.540|    2|9462620 Unalaska, AK NOS            |US|CMAN
-0000000000|VAKF1| 25.73 | -80.16 |   -0|Virginia Key, FL NOS                |US|CMAN
-0000000000|VCAF1| 24.712| -81.105|   -0|Vaca Key, FL NOS                    |US|CMAN
-0000000000|VDZA2| 61.125|-146.362|    0|Valdez, AK 9454240 NOS              |US|CMAN
-0000000000|VENF1| 27.07 | -82.45 |    5|Venice, FL/V                        |US|CMAN
-0000000000|VERV4| 19.202| -96.113|   -0|Veracruz, MX                        |US|CMAN
-0000000000|VMSV2| 37.25 | -76.50 |   -0|VIMS Pier, VA VIMS CBOS             |US|CMAN
-0000000000|VQSP4| 18.153| -65.444|    0|Is Seg, Vieques,PR PRSN/NOS 9752619 |US|CMAN
-0000000000|WAHV2| 37.61 | -75.69 |   -0|8631044, Wachapreague, VA NOS       |US|CMAN
-0000000000|WAKP8| 19.29 | 166.62 |   -0|Wake Island                         |US|CMAN
-0000000000|WASD2| 38.87 | -77.02 |   -0|8594900, Washington, DC NOS         |US|CMAN
-0000000000|WATS1| 34.335| -80.702|    0|WFO Columbia, Lake Wateree, SC      |US|CMAN
-0000000000|WAVM6| 30.28 | -89.37 |   -0|Waveland, MS NOS                    |US|CMAN
-0000000000|WAXM3| 41.582| -70.525|   10|Waquoit Bay NERR, MA                |US|CMAN
-0000000000|WDEL1| 28.662| -89.551|    0|Shell West Delta 143                |US|CMAN
-0000000000|WDSV2| 36.982| -76.322|    0|NOS 8638614 Willoughby Degaus, VA   |US|CMAN
-0000000000|WELM1| 43.320| -70.563|   -0|NWLON Wells, ME                     |US|CMAN
-0000000000|WEXM1| 43.337| -70.55 |   19|Wells NERR, ME                      |US|CMAN
-0000000000|WFPM4| 46.762| -84.966|  186|NWSCR GLOS Whitefish Point, MI      |US|CMAN
-0000000000|WHRI2| 42.36 | -87.81 |  188|Waukegan Harbor, IL GLOS            |US|CMAN
-0000000000|WIWF1| 25.585| -81.044|    0|Willy Willy, FL NPS                 |US|CMAN
-0000000000|WKXA1| 30.415| -87.826|    0|Weeks Bay NERR, AL                  |US|CMAN
-0000000000|WNEM4| 46.283| -84.205|  177|West Neebish, MI NOS 9076027        |US|CMAN
-0000000000|WPLF1| 25.708| -81.248|    0|Watson Place, FL NPS                |US|CMAN
-0000000000|WPOW1| 47.66 |-122.44 |    9|West Point, WA/V                    |US|CMAN
-0000000000|WPTW1| 46.927|-124.130|    0|Westport, WA NOS 9441102            |US|CMAN
-0000000000|WRBF1| 25.077| -80.728|    0|Whipray Basin, FL NPS               |US|CMAN
-0000000000|WYCM6| 30.326| -89.326|    0|Bay Waveland Y Club, MS NOS 8744737 |US|CMAN
-0000000000|YABP4| 18.055| -65.833|    0|Yabucoa Harbor, PR PRSN/NOS 9754228 |US|CMAN
-0000000000|YATA2| 59.548|-139.733|    7|9453220 Yakutat, AK NOS             |US|CMAN
-0000000000|YGNN6| 43.26 | -79.06 |   74|Niagara Coast Guard Station, NY     |US|CMAN
-0000000000|YKRV2| 37.250| -76.333|   -0|NWLON York Riv E Rear Rge Lt, VA    |US|CMAN
-0000000000|YKTV2| 37.23 | -76.48 |   -0|8637689, Yorktown, VA NOS           |US|CMAN
-0000000000|YRSV2| 37.414| -76.712|   11|Cheasapeake Bay NERR, VA            |US|CMAN
+0000000000|51204| 21.281|-158.124|   -0|Barber's Point #2                   |US|BOY
+0000000000|51205| 21.019|-156.427|   -0|Pauwela, HI (187) SCRIPPS           |US|BOY
+0000000000|52200| 13.354| 144.788|    0|Ipan, Guam                          |US|BOY
+0000000000|0Y2W3| 44.794| -87.313|  179|Sturgeon Bay CG Station, WI MARS    |US|BOY
+0000000000|18CI3| 41.730| -86.910|  176|Michigan City, IN MARS USCG         |US|BOY
+0000000000|20CM4| 42.090| -86.490|  177|St Joseph, MI MARS USCG             |US|BOY
+0000000000|AAMC1| 37.77 |-122.30 |   -0|Alameda, CA                         |US|BOY
+0000000000|ACMN4| 39.38 | -74.42 |    0|Atlantic City Marina, NJ            |US|BOY
+0000000000|ACXS1| 32.56 | -80.45 |   -0|ACE Basin NERR, SC                  |US|BOY
+0000000000|ACYN4| 39.36 | -74.42 |   -0|Atlantic City, NJ                   |US|BOY
+0000000000|ADKA2| 51.86 |-176.63 |   -0|Adak Island, AK                     |US|BOY
+0000000000|AGCM4| 42.621| -82.527|  177|Algonac, MI NOS                     |US|BOY
+0000000000|AGMW3| 44.61 | -87.43 |   -0|Algoma City Marina, WI              |US|BOY
+0000000000|ALIA2| 56.898|-154.247|    0|Alitak, AK NOS 9457804              |US|BOY
+0000000000|ALNM4| 45.04 | -83.44 |   -0|Alpena, MI                          |US|BOY
+0000000000|ALXN6| 44.330| -75.933|    0|Alexandria Bay, NY NOS 8311062      |US|BOY
+0000000000|AMAA2| 58.92 |-151.95 |   33|East Amatuli Stn Light, AK/A        |US|BOY
+0000000000|AMRL1| 29.450| -91.338|    0|Amerada Pass, LA NOS 8764227        |US|BOY
+0000000000|ANCF1| 28.19 | -82.79 |    0|Anclote Gulf Park, FL (USF)         |US|BOY
+0000000000|ANMF1| 27.54 | -82.74 |   -0|Anna Maria, FL                      |US|BOY
+0000000000|ANMN6| 42.018| -73.917|   -0|Hudson River NERR, NY               |US|BOY
+0000000000|ANTA2| 61.24 |-149.89 |   -0|Anchorage, AK                       |US|BOY
+0000000000|ANVC1| 38.91 |-123.71 |   -0|Arena Cove, CA                      |US|BOY
+0000000000|APAM2| 38.983| -76.48 |   -0|8575512 Annapolis, MD NOS           |US|BOY
+0000000000|APCF1| 29.73 | -84.98 |   -0|Apalachicola, FL NOS                |US|BOY
+0000000000|APNM4| 45.05 | -83.45 |  179|Alpena, MI Water Plant (GLERL)      |US|BOY
+0000000000|APRP7| 13.442| 144.653|   -0|NWLON Apra Harbor, Guam 1630000     |US|BOY
+0000000000|APXF1| 29.79 | -84.88 |   -0|Apalachicola NERR, FL               |US|BOY
+0000000000|AROP4| 18.480| -66.702|    0|Arecibo, PR PRSN/NOS 9757809        |US|BOY
+0000000000|ARPF1| 28.43 | -82.66 |    0|Aripeka, FL                         |US|BOY
+0000000000|ASTO3| 46.21 |-123.77 |   -0|Astoria, OR                         |US|BOY
+0000000000|ATGM1| 44.392| -68.205|    3|8413320 Bar Harbor, ME NOS          |US|BOY
+0000000000|ATKA2| 52.232|-174.173|    0|Atka, AK NOS 9461710                |US|BOY
+0000000000|AUDP4| 18.458| -67.164|    0|Aquadilla, PR 9759412 NOS           |US|BOY
+0000000000|AUGA2| 59.38 |-153.35 |   11|Augustine Is, AK/M                  |US|BOY
+0000000000|AVAN4| 39.09 | -74.731|    0|Avalon, NJ                          |US|BOY
+0000000000|AWRT2| 28.228| -96.795|   -0|Aransas Wildlife Refuge, TX	TCOON   |US|BOY
+0000000000|BABT2| 27.30 | -97.42 |    0|Baffin Bay, Point of Rocks, TX      |US|BOY
+0000000000|BARA9| 17.591| -61.821|    0|NWLON Barbuda, Barbuda              |US|BOY
+0000000000|BARN6| 42.346| -79.596|  174|Barcelona Harbor, NY GLOS           |US|BOY
+0000000000|BATN6| 40.7  | -74.02 |   -0|The Battery, NY                     |US|BOY
+0000000000|BDRN4| 40.082| -74.872|   -0|NWLON Burlington, Delaware Riv, NJ  |US|BOY
+0000000000|BDVF1| 25.476| -80.990|    0|Broad River, FL NPS                 |US|BOY
+0000000000|BEPB6| 32.373| -64.703|   -0|NWLON Bermuda Esso Pier, Bermuda    |US|BOY
+0000000000|BFTN7| 34.72 | -76.67 |   -0|8656483, Beaufort, NC NOS           |US|BOY
+0000000000|BGCF1| 26.4  | -81.88 |   -0|Big Carlos Pass, FL                 |US|BOY
+0000000000|BGNN4| 40.64 | -74.15 |    9|Bergen Pt West Reach, NY            |US|BOY
+0000000000|BGXN3| 43.059| -70.830|    3|Great Bay NERR, NH                  |US|BOY
+0000000000|BHBM3| 42.36 | -71.05 |   -0|Boston, MA                          |US|BOY
+0000000000|BHRC3| 41.18 | -73.19 |    0|Bridgeport Terminal, CT             |US|BOY
+0000000000|BHRI3| 41.647| -87.147|  180|Burns Harbor, IN GLOS               |US|BOY
+0000000000|BIGM4| 46.830| -87.730|  186|Big Bay, MI GLOS                    |US|BOY
+0000000000|BISM2| 38.220| -76.038|   -0|NWLON Bishops Head, MD              |US|BOY
+0000000000|BKBF1| 30.192| -87.692|    1|I-295 Bridge St Johns River, FL     |US|BOY
+0000000000|BKTL1| 30.194| -93.296|   -0|Lake Charles Bulk Term, LA NOS WLON |US|BOY
+0000000000|BKYF1| 25.119| -80.834|   -0|Buoy Key, FL ENPWQS                 |US|BOY
+0000000000|BLIA2| 60.84 |-146.88 |   16|Bligh Reef Light, AK/V              |US|BOY
+0000000000|BLIF1| 30.393| -81.523|   -0|Blount Is Cmd, St Johns Rv,FL NOS   |US|BOY
+0000000000|BLTA2| 58.45 |-135.89 |    5|Bartlet Cove, AK                    |US|BOY
+0000000000|BLTM2| 39.27 | -76.58 |   -0|8574680, Baltimore, MD NOS          |US|BOY
+0000000000|BLTM3| 41.71 | -71.17 |   -0|Borden Flats Lt, Fall River, MA     |US|BOY
+0000000000|BNKF1| 25.087| -80.519|    0|Butternut Key, FL NPS               |US|BOY
+0000000000|BOBF1| 25.024| -80.682|    0|Bob Allen, FL NPS                   |US|BOY
+0000000000|BRBN4| 39.61 | -74.2  |    0|Brent Beach, NJ                     |US|BOY
+0000000000|BRHC3| 41.17 | -73.18 |   -0|Bridgeport, CT                      |US|BOY
+0000000000|BRND1| 38.987| -75.113|   -0|NWLON Brandywine Shoal Light, DE    |US|BOY
+0000000000|BSBM4| 44.05 | -86.51 |  186|Big Sable Point, MI GLOS            |US|BOY
+0000000000|BSCA1| 30.329| -87.829|   -0|Bon Secour, AL                      |US|BOY
+0000000000|BSLM2| 38.781| -76.708|    0|Chesapeake Bay NERR, MD             |US|BOY
+0000000000|BTHD1| 38.537| -75.044|    0|Bethany Beach DE                    |US|BOY
+0000000000|BUFN6| 42.877| -78.89 |  178|Buffalo, NY                         |US|BOY
+0000000000|BURL1| 28.90 | -89.43 |   12|Southwest Pass, LA/D                |US|BOY
+0000000000|BUZM3| 41.40 | -71.03 |   17|Buzzards Bay, MA/V                  |US|BOY
+0000000000|BWSF1| 25.177| -80.438|    0|Blackwater Sound, FL NPS            |US|BOY
+0000000000|BYGL1| 29.78 | -90.42 |   -0|West Bank, Bayou Gauche, LA NOS     |US|BOY
+0000000000|BZBM3| 41.52 | -70.67 |   -0|Woods Hole, MA                      |US|BOY
+0000000000|C58W3| 44.146| -87.563|  177|Two Rivers CG Station, WI MARS      |US|BOY
+0000000000|CAMF1| 27.765| -82.649|    0|COMPS, Campbell Park, FL            |US|BOY
+0000000000|CAMM2| 38.57 | -76.07 |   -0|8571892, Cambridge, MD NOS          |US|BOY
+0000000000|CANF1| 25.420| -80.942|    0|Cane Patch, FL NPS                  |US|BOY
+0000000000|CAPL1| 29.768| -93.343|    0|NOS 8768094, Calcasieu Pass, LA     |US|BOY
+0000000000|CARL1| 29.933| -90.136|   -0|Carrollton LA NOS WLON              |US|BOY
+0000000000|CASM1| 43.66 | -70.25 |   -0|Portland, ME                        |US|BOY
+0000000000|CBBV2| 36.97 | -76.11 |   -0|8638863, Chesap Bay Brdg Tnl, VA NOS|US|BOY
+0000000000|CBIM2| 38.32 | -76.48 |    0|CBOS, Chesapk Bio Lab, Solomons, MD |US|BOY
+0000000000|CBLO1| 41.981| -80.555|  177|Conneaut Breakwater Light, OH       |US|BOY
+0000000000|CBRW3| 45.20 | -87.36 |  180|Chambers Island, WI NWS GLOS        |US|BOY
+0000000000|CCUF1| 27.663| -82.618|    0|NOS 8726413 C-Cut, FL               |US|BOY
+0000000000|CDEA2| 56.01 |-134.13 |   -0|Cape Decision, AK                   |US|BOY
+0000000000|CDRF1| 29.14 | -83.03 |    3|Cedar Key, FL/V                     |US|BOY
+0000000000|CECC1| 41.75 |-124.18 |   -0|Crescent City, CA                   |US|BOY
+0000000000|CFWM1| 44.657| -67.210|   -0|NWLON Cutler Farris Wharf, ME       |US|BOY
+0000000000|CGCL1| 28.79 | -89.06 |   -0|Cognac Shell Oil Platform           |US|BOY
+0000000000|CHAO3| 43.35 |-124.32 |   -0|Charleston, OR                      |US|BOY
+0000000000|CHAV3| 18.335| -64.92 |   -0|Charlotte Amalie, VI NOS            |US|BOY
+0000000000|CHCM2| 39.53 | -75.81 |   -0|8573927, Chesapeake City, MD NOS    |US|BOY
+0000000000|CHDS1| 33.662| -82.200|   89|Strom Thurmond Dam, SC              |US|BOY
+0000000000|CHII2| 41.916| -87.572|  176|Chicago, IL (GLERL)                 |US|BOY
+0000000000|CHLV2| 36.90 | -75.71 |   23|Chesapeake Light, VA/D              |US|BOY
+0000000000|CHNO3| 43.345|-124.329|   -0|South Slough NERRS, OR              |US|BOY
+0000000000|CHSV3| 17.748| -64.699|    0|Chr Har, St Croix, VI NOS 9751364   |US|BOY
+0000000000|CHTS1| 32.78 | -79.93 |   -0|Charleston, SC NOS WLOS             |US|BOY
+0000000000|CHYV2| 36.930| -76.007|   -0|NWLON Cape Henry, VA                |US|BOY
+0000000000|CHYW1| 48.86 |-122.76 |   -0|Cherry Point, WA                    |US|BOY
+0000000000|CLBP4| 18.301| -65.303|    0|Culebra, PR 9752235 NOS             |US|BOY
+0000000000|CLKN7| 34.62 | -76.52 |   11|Cape Lookout, NC/V                  |US|BOY
+0000000000|CLLT2| 29.56 | -95.07 |    0|Clear Lake, TX TCOON                |US|BOY
+0000000000|CLSM4| 42.47 | -82.87 |  175|CR GLOS, St. Clair Shores, MI       |US|BOY
+0000000000|CMAN4| 38.97 | -74.96 |   10|Cape May, NJ                        |US|BOY
+0000000000|CMTI2| 41.73 | -87.538|  179|Calumet, IL                         |US|BOY
+0000000000|CNBF1| 25.700| -81.186|    0|Cannon Bay, FL NPS                  |US|BOY
+0000000000|CNDO1| 41.540| -81.635|   -0|NWLON Cleveland, OH                 |US|BOY
+0000000000|CNII2| 41.856| -87.609|  180|Northerly Island, IL GLOS           |US|BOY
+0000000000|COVM2| 38.432| -76.387|   -0|Cove Point, MD 8577018 NOS          |US|BOY
+0000000000|CPNT2| 28.118| -97.022|   -0|NWLON Copano Bay, TX                |US|BOY
+0000000000|CPTR1| 41.72 | -71.34 |    5|Conimicut Light, RI                 |US|BOY
+0000000000|CPXC1| 35.17 |-120.741|   16|Cal Poly Pier, CA                   |US|BOY
+0000000000|CRTA1| 30.308| -88.140|   -0|Cedar Pt, AL                        |US|BOY
+0000000000|CRVA2| 60.557|-145.755|   13|9454050 Cordova, AK NOS             |US|BOY
+0000000000|CRYV2| 36.888| -76.338|   -0|NWLON South Craney Island, VA       |US|BOY
+0000000000|CSBF1| 29.67 | -85.36 |    3|Cape San Blas, FL/V                 |US|BOY
+0000000000|CSPA2| 58.21 |-136.63 |   -0|Cape Spencer, AK                    |US|BOY
+0000000000|CTGM1| 44.642| -67.297|    5|8411250 Cutler, ME NOS              |US|BOY
+0000000000|CWAF1| 25.30 | -81.01 |   -0|Clearwater Pass, FL                 |US|BOY
+0000000000|CWBF1| 27.98 | -82.83 |   -0|Clearwater Bch, FL NOS              |US|BOY
+0000000000|CYGM4| 45.651| -84.472|  178|NWSCR GLOS, Cheybogan, MI           |US|BOY
+0000000000|DBLN6| 42.49 | -79.35 |  197|Dunkirk, NY/V                       |US|BOY
+0000000000|DELD1| 39.582| -75.590|   -0|NWLON Delaware City, DE             |US|BOY
+0000000000|DESW1| 47.68 |-124.49 |   39|Destruction Is., WA/D               |US|BOY
+0000000000|DISW3| 47.08 | -90.73 |  211|Devils Island, WI/D                 |US|BOY
+0000000000|DKCM6| 30.355| -88.567|    0|Dock C, Pascagoula, MS NOS 8741501  |US|BOY
+0000000000|DKKF1| 25.180| -80.490|    0|Duck Key, FL NPS                    |US|BOY
+0000000000|DMNO3| 46.226|-123.955|    0|Desdemona Sand Light, OR            |US|BOY
+0000000000|DMSF1| 30.387| -81.559|    0|Dames POint FL NOS                  |US|BOY
+0000000000|DOMV2| 36.962| -76.425|   -0|Dominion Term Assoc, VA 8638511 NOS |US|BOY
+0000000000|DPHA1| 30.251| -88.078|   -0|Dauphin Island Sea Lab, AL          |US|BOY
+0000000000|DPIA1| 30.25 | -88.07 |    8|Dauphin Island, AL/V                |US|BOY
+0000000000|DPXC1| 38.057|-122.259|   -0|Davis Point, San Pablo Bay, CA      |US|BOY
+0000000000|DRFA2| 60.55 |-152.14 |   17|Drift River Terminal, AK/M          |US|BOY
+0000000000|DRSD1| 39.089| -75.437|   -0|Delaware NERR, DE                   |US|BOY
+0000000000|DSLN7| 35.15 | -75.30 |   22|Diamond Shls Lt., NC/D              |US|BOY
+0000000000|DTLM4| 45.992| -83.897|  180|De Tour Village, MI                 |US|BOY
+0000000000|DUCN7| 36.18 | -75.75 |    9|Duck Pier, NC/V                     |US|BOY
+0000000000|DUKN7| 36.183| -75.747|    0|Duck Pier, NC NOS 8651370           |US|BOY
+0000000000|DULM5| 46.775| -92.093|  185|Duluth, MN                          |US|BOY
+0000000000|EBSW1| 47.61 |-122.34 |   -0|Seattle, WA                         |US|BOY
+0000000000|EGKF1| 27.60 | -82.76 |    0|Egmont Key, FL                      |US|BOY
+0000000000|EINL1| 29.373| -91.384|    6|N of Eugene Island, LA NOS 8764314  |US|BOY
+0000000000|ELFA2| 58.193|-136.343|    0|Elfin Cove, AK NOS 9452634          |US|BOY
+0000000000|ELXC1| 36.815|-121.738|   -0|Elkhorn Slough NERR, CA             |US|BOY
+0000000000|EMAT2| 28.710| -95.914|   -0|East Matagorda, TX TCOON            |US|BOY
+0000000000|EPTT2| 29.48 | -94.92 |   -0|Eagle Point, TX NOS                 |US|BOY
+0000000000|EREP1| 42.154| -80.093|   -0|Erie PA NOS                         |US|BOY
+0000000000|EROA2| 58.97 |-135.22 |   -0|Eldred Rock, AK                     |US|BOY
+0000000000|ERTF1| 27.917| -82.443|   -0|Berth 223 Met, FL 8726669 NOS       |US|BOY
+0000000000|ESPP4| 18.094| -65.471|    0|Esperanza, Vieques Is, PR 9752695   |US|BOY
+0000000000|FAIO1| 41.760| -81.281|    0|Fairport, OH 9063053 NOS            |US|BOY
+0000000000|FBIS1| 32.68 | -79.89 |    5|Folly Island, SC/D                  |US|BOY
+0000000000|FBPS1| 32.652| -79.938|   -0|USC, Folly Beach, SC                |US|BOY
+0000000000|FCGT2| 28.933| -95.300|    0|USCG Freeport, TX NOS 8772447       |US|BOY
+0000000000|FFIA2| 57.27 |-133.63 |   21|Five Finger, AK/D                   |US|BOY
+0000000000|FGBL1| 28.118| -93.67 |   -0|High Is Blk, 120mi SSW Cameron, LA  |US|BOY
+0000000000|FHPF1| 28.15 | -82.80 |    0|Fred Howard Park, FL (USF)          |US|BOY
+0000000000|FILA2| 59.33 |-151.99 |   18|Flat Island Light, AK/A             |US|BOY
+0000000000|FMOA1| 30.228| -88.025|    0|Fort Morgan, AL NOS 8734673         |US|BOY
+0000000000|FMRF1| 26.65 | -81.87 |   -0|Fort Myers, FL NOS                  |US|BOY
+0000000000|FOXR1| 41.81 | -71.35 |    4|Providence, RI                      |US|BOY
+0000000000|FPKG1| 32.03 | -80.90 |   -0|8670870, Fort Pulaski, GA NOS       |US|BOY
+0000000000|FPSN7| 33.49 | -77.59 |   24|Frying Pan Shoals, NC/D             |US|BOY
+0000000000|FPTM4| 45.619| -86.659|  184|Fairport, MI GLOS                   |US|BOY
+0000000000|FPTT2| 28.95 | -95.31 |   -0|Freeport, TX NOS                    |US|BOY
+0000000000|FRDF1| 30.67 | -81.47 |   -0|Fernandina Bch, FL NOS              |US|BOY
+0000000000|FRDP4| 18.335| -65.631|    0|Fajardo, PR PRSN/NOS 9753216        |US|BOY
+0000000000|FRDW1| 48.55 |-123.01 |   -0|Friday Harbor, WA                   |US|BOY
+0000000000|FREL1| 30.106| -90.422|    4|Frenier Landing, LA NOS             |US|BOY
+0000000000|FRFN7| 36.189| -75.739|   -0|USACE-CHL FRFac, Duck, NC USACE     |US|BOY
+0000000000|FRPS1| 32.34 | -80.46 |   -0|NWLON 8668498 Fripps Inlet, SC      |US|BOY
+0000000000|FRVM3| 41.71 | -71.16 |    4|Fall River, MA                      |US|BOY
+0000000000|FRWL1| 29.555| -92.305|    0|Fresh Water Canal Locks, LA 8766072 |US|BOY
+0000000000|FRXM3| 41.696| -71.180|    2|Fall River Vis, MA NOS 8447412      |US|BOY
+0000000000|FSKM2| 39.22 | -76.53 |   -0|8574728, F Scott Key Brdge, MD NOS  |US|BOY
+0000000000|FSTI2| 41.976| -87.648|   -0|Foster Ave, Wilson Park, Chicago,IL |US|BOY
+0000000000|FTGM4| 43.001| -82.423|  180|Fort Gratiot, MI                    |US|BOY
+0000000000|FTPC1| 37.81 |-122.47 |   -0|San Francisco, CA                   |US|BOY
+0000000000|FWIC3| 41.15 | -73.17 |    0|Fayerweather Island, CT             |US|BOY
+0000000000|FWYF1| 25.59 | -80.10 |   29|Fowey Rocks, FL/V                   |US|BOY
+0000000000|GBIF1| 25.376| -81.030|    0|Gunboat Island, FL NPS              |US|BOY
+0000000000|GBLW3| 44.66 | -87.90 |    0|Green Bay Entrance Light, WI/D      |US|BOY
+0000000000|GBTF1| 25.170| -80.797|    0|Garfield Bight, FL NPS              |US|BOY
+0000000000|GCVF1| 29.982| -81.634|    3|Red Bay Point, FL                   |US|BOY
+0000000000|GDIL1| 29.27 | -89.96 |    9|Grand Isle, LA/V                    |US|BOY
+0000000000|GDIV2| 37.22 | -76.40 |   -0|Goodwin Island, VA VIMS CBOS        |US|BOY
+0000000000|GDMM5| 47.748| -90.342|  186|Grand Marais, MN                    |US|BOY
+0000000000|GDXM6| 30.359| -88.42 |   -0|Grand Bay NERR, MS                  |US|BOY
+0000000000|GELO1| 41.86 | -80.974|  186|Geneva on the Lake, OH              |US|BOY
+0000000000|GISL1| 29.263| -89.957|    9|NOS NWLON Grand Isle, LA            |US|BOY
+0000000000|GLLN6| 43.89 | -76.45 |   77|Galloo Island, NY/V                 |US|BOY
+0000000000|GLSM4| 44.02 | -83.54 |  180|CR GLOS, Gravelly Shoals Lt. MI     |US|BOY
+0000000000|GNJT2| 29.36 | -94.73 |   -0|Galveston Bay (North Jetty), TX     |US|BOY
+0000000000|GPOM6| 30.230| -88.982|    0|Gulfport Outer Range, MS NOS 8744707|US|BOY
+0000000000|GPST2| 29.29 | -94.79 |    0|Galveston Pleas Pier, Gulf of Mexico|US|BOY
+0000000000|GRMM4| 46.68 | -85.97 |  186|GLOS, Grand Marais, MI              |US|BOY
+0000000000|GRRT2| 29.30 | -94.897|   -0|Galveston RR Bdge, TX TCOON         |US|BOY
+0000000000|GSJT2| 29.33 | -94.69 |   -0|Galveston Bay South Jetty, TX NOS   |US|BOY
+0000000000|GSLM4| 44.018| -83.537|  179|Gravelly Shoals Light, MI CR        |US|BOY
+0000000000|GTBM4| 44.767| -85.606|  176|Grand Traverse Bay Obs Sys Station 2|US|BOY
+0000000000|GTKF1| 29.662| -84.373|   -0|Air Force Tower N7-K                |US|BOY
+0000000000|GTLM4| 45.21 | -85.55 |  184|Grand Traverse Light, MI GLOS       |US|BOY
+0000000000|GTOT2| 29.31 | -94.79 |   -0|Galveston Pier 21, TX NOS           |US|BOY
+0000000000|GTRM4| 47.179| -88.242|  190|Supr Grand Traverse Bay, MI NWS GLOS|US|BOY
+0000000000|GTXF1| 29.658| -81.220|   -0|Guana Tolomato Matanzas NERR, FL    |US|BOY
+0000000000|GWPM6| 30.348| -89.087|    0|Gulfport West Pier, MS NOS 8745651  |US|BOY
+0000000000|HBCB4| 24.721| -76.825|    4|Highborne Cay, Bahamas              |US|BOY
+0000000000|HBYC1| 40.77 |-124.22 |   -0|North Spit, CA                      |US|BOY
+0000000000|HCEF1| 25.254| -80.445|    0|Highway Creek, FL NPS               |US|BOY
+0000000000|HCGN7| 35.208| -75.703|    2|8654467 Hatteras, NC NOS            |US|BOY
+0000000000|HHLO1| 41.401| -82.545|  184|Huron Light, OH GLOS                |US|BOY
+0000000000|HIST2| 29.595| -94.390|   -0|High Island, TX TCOON               |US|BOY
+0000000000|HLNM4| 42.768| -86.201|  178|NOS 9087031, Holland, MI            |US|BOY
+0000000000|HMDO3| 46.204|-123.951|   -0|Hammond NMFS Pier OR NOS WLON       |US|BOY
+0000000000|HMRA2| 59.601|-151.416|   -0|Kachemak Bay NERR, AK               |US|BOY
+0000000000|HMSA2| 59.602|-151.417|   15|Homer Spit, AK MAREX                |US|BOY
+0000000000|HPLM2| 38.59 | -76.13 |    0|CBOS, Horn Pt Lab, Cambridge, MD    |US|BOY
+0000000000|HRBM4| 43.847| -82.643|  179|Harbor Beach, MI                    |US|BOY
+0000000000|HREF1| 25.424| -81.06 |   -0|Harney River, FL ENPWQS             |US|BOY
+0000000000|HRVC1| 34.468|-120.673|   -0|Harvest Oil Platform NOS WLON       |US|BOY
+0000000000|HSSF1| 28.77 | -82.71 |    0|Homosassa, FL                       |US|BOY
+0000000000|ICAC1| 34.01 |-118.50 |   -0|Santa Monica Pier, CA               |US|BOY
+0000000000|ICYA2| 59.923|-141.359|   10|Icy Bay, AK   MAREX                 |US|BOY
+0000000000|IIWC1| 32.714|-117.175|   -0|USS Midway S Navy Pier, S Diego, CA |US|BOY
+0000000000|ILDL1| 29.05 | -90.53 |    0|Isle Dernieres, LA CSI05            |US|BOY
+0000000000|ILOH1| 19.730|-155.055|    0|Hilo, HI NOS 1617760                |US|BOY
+0000000000|IMGP4| 17.969| -67.044|   15|Isla Magueyes, Lajas, PR            |US|BOY
+0000000000|IOSN3| 42.97 | -70.62 |   19|Isle of Shoals, NH/D                |US|BOY
+0000000000|IRDT2| 27.48 | -97.32 |    0|S Bird Island, TX TCOON             |US|BOY
+0000000000|ITKA2| 57.052|-135.342|   -0|Sitka, AK NOS WLOS Tide Gg          |US|BOY
+0000000000|JAKI2| 41.781| -87.573|   -0|63rd St, Jackson Park, Chicago, IL  |US|BOY
+0000000000|JCRN4| 39.535| -74.464|   -0|Jacques Cousteau NERR, NJ           |US|BOY
+0000000000|JKYF1| 25.050| -80.904|    0|Johnson Key, FL NPS                 |US|BOY
+0000000000|JMLA2| 58.286|-134.39 |   17|Juneau AML Dock MEA                 |US|BOY
+0000000000|JMPN7| 34.21 | -77.795|   -0|NWLON Wrightsville Bch, NC Tide Gg  |US|BOY
+0000000000|JNEA2| 58.298|-134.412|   -0|Juneau Tide Guage, AK NOS  9452210  |US|BOY
+0000000000|JOXP4| 17.956| -66.239|   -0|Jobos Bay NERR, Puerto Rico         |US|BOY
+0000000000|JPRN7| 35.91 | -75.59 |   -0|Jennette's Pier/Nags Hd, NC COE WLON|US|BOY
+0000000000|KATA1| 30.258| -88.213|   -0|Katrina Cut, AL                     |US|BOY
+0000000000|KDAA2| 57.730|-152.514|    5|9457292 Kodiak Island, AK NOS       |US|BOY
+0000000000|KECA2| 55.332|-131.626|   -0|Ketchikan Tide Guage, AK NOS 9450460|US|BOY
+0000000000|KGCA2| 55.062|-162.327|    0|King Cove, AK NOS 9459881           |US|BOY
+0000000000|KLIH1| 20.90 |-156.47 |   -0|Kahului, HI                         |US|BOY
+0000000000|KNOH1| 21.288|-157.865|    0|Kilo Nalu Observatory, HI UHI       |US|BOY
+0000000000|KNSW3| 42.59 | -87.81 |  176|Kenosha, WI (GLERL)                 |US|BOY
+0000000000|KPTN6| 40.81 | -73.765|    5|Kings Point, NY                     |US|BOY
+0000000000|KPTV2| 37.17 | -75.99 |   -0|8632200, Kiptopeke, VA NOS          |US|BOY
+0000000000|KTNF1| 29.82 | -83.59 |    3|Keaton Beach, FL/M                  |US|BOY
+0000000000|KWHH1| 20.04 |-155.83 |   -0|Kawaihae, HI NOS WLOS               |US|BOY
+0000000000|KWJP8| 08.74 | 167.74 |   -0|Kwajalein, Marshall Islands         |US|BOY
+0000000000|KWNW3| 44.465| -87.496|   -0|NWLON Kewaunee, WI                  |US|BOY
+0000000000|KYWF1| 24.55 | -81.81 |   -0|Key West, FL NOS                    |US|BOY
+0000000000|LABL1| 30.05 | -90.37 |   -0|East Bank, Bayou LaBranche, LA NOS  |US|BOY
+0000000000|LAMV3| 18.32 | -64.72 |   -0|Lameshur Bay, St John, VI NOS WLOS  |US|BOY
+0000000000|LAPW1| 47.913|-124.637|   -0|NWLON La Push, WA                   |US|BOY
+0000000000|LBRF1| 25.484| -81.111|    0|Broad River Lower, FL NPS           |US|BOY
+0000000000|LBSF1| 25.212| -80.433|    0|Little Blackwater, FL NPS           |US|BOY
+0000000000|LCIY2| 19.699| -80.061|    0|ICON Little Cayman Res Ctr, Cay Is  |US|BOY
+0000000000|LCLL1| 30.223| -93.222|    2|8767816 NOS Lake Charles, LA        |US|BOY
+0000000000|LCNA2| 56.057|-132.696|   10|Lincoln Rock, AK                    |US|BOY
+0000000000|LDLC3| 41.31 | -72.08 |   20|New London Ledge, CT                |US|BOY
+0000000000|LDTM4| 43.947| -86.442|  179|Ludington, MI                       |US|BOY
+0000000000|LJAC1| 32.87 |-117.26 |   -0|La Jolla, CA                        |US|BOY
+0000000000|LJPC1| 32.867|-117.257|   -0|Scripps Pier, La Jolla, CA          |US|BOY
+0000000000|LKPL1| 30.31 | -90.28 |    0|Western Lake Ponchartrain, LA       |US|BOY
+0000000000|LKWF1| 26.61 | -80.03 |    6|Lake Worth, FL/M                    |US|BOY
+0000000000|LLBP7| 15.16 | 145.77 |   -0|Lao Lao Bay, Saipan, CNMI           |US|BOY
+0000000000|LMBV4| 19.594| -96.379|   -0|La Mancha Beach, MX                 |US|BOY
+0000000000|LMDF1| 25.174| -80.632|    0|Little Madeira, FL NPS              |US|BOY
+0000000000|LMFS1| 34.11 | -81.27 |  108|Lake Murray, SC WFO Columbia        |US|BOY
+0000000000|LMRF1| 25.554| -81.169|    0|Lostmans River, FL NPS              |US|BOY
+0000000000|LMSS1| 33.55 | -80.50 |   25|Lake Marion, SC                     |US|BOY
+0000000000|LNDC1| 37.80 |-122.29 |   -0|Oakland, CA NOS                     |US|BOY
+0000000000|LONF1| 24.84 | -80.86 |    6|Long Key, FL/M                      |US|BOY
+0000000000|LOPL1| 28.885| -90.024|   40|Louisiana Offshore Oil Port, LA     |US|BOY
+0000000000|LOPW1| 46.108|-122.957|   -0|Longview, WA                        |US|BOY
+0000000000|LPNM4| 45.06 | -83.43 |  179|Alpena, MI NOS                      |US|BOY
+0000000000|LPOI1| 48.06 |-116.50 |  627|Lake Pend Oreille, ID/V             |US|BOY
+0000000000|LPRP4| 17.939| -67.052|    0|ICON, Media Luna, La Parguera, PR   |US|BOY
+0000000000|LPWA2| 56.39 |-134.64 |   -0|Little Port Walter, AK NMFS         |US|BOY
+0000000000|LRIF1| 25.28 | -80.89 |   -0|Lane River, FL                      |US|BOY
+0000000000|LRKF1| 24.980| -80.826|    0|Little Rabbit Key, FL NPS           |US|BOY
+0000000000|LSCM4| 42.47 | -82.76 |   -0|Lake St Clair, MI                   |US|BOY
+0000000000|LSNF1| 25.233| -80.458|    0|Long Sound, FL NPS                  |US|BOY
+0000000000|LTBV3| 17.697| -64.75 |   -0|Lime Tree Bay, VI NOS               |US|BOY
+0000000000|LTJF1| 30.379| -81.446|   -0|Little Jetties, St Johns Rv	FL NOS  |US|BOY
+0000000000|LTRM4| 46.485| -84.300|   -0|NWLON Little Rapids, MI             |US|BOY
+0000000000|LUIT2| 29.076| -95.122|   -0|San Luis Pass, TX TCOON             |US|BOY
+0000000000|LUML1| 29.25 | -90.66 |    0|LUMCON Marine Center, LA            |US|BOY
+0000000000|LWSD1| 38.78 | -75.12 |   12|Lewes, DE                           |US|BOY
+0000000000|LWTV2| 38.00 | -76.47 |   -0|8635750, Lewisetta, VA NOS          |US|BOY
+0000000000|LYBT2| 29.765| -95.078|   -0|Lynchburg Landing, TX TCOON         |US|BOY
+0000000000|MACM4| 45.778| -84.719|  179|9075079 Mackinaw City, MI NOS       |US|BOY
+0000000000|MAXT2| 28.132| -97.034|    0|Mission-Aransas NERR, TX            |US|BOY
+0000000000|MBLA1| 30.437| -88.012|   -0|Middle Bay Light, AL                |US|BOY
+0000000000|MBPA1| 30.527| -88.086|    3|Middle Bay Port, AL NOS             |US|BOY
+0000000000|MBRM4| 42.975| -82.419|  180|Mouth of Black Riv, MI 9014091 NOS  |US|BOY
+0000000000|MCGA1| 30.648| -88.058|    0|CG Sector, Mobile, AL NOS 8736897   |US|BOY
+0000000000|MCGM4| 46.545| -87.378|  188|Marquette C.G., MI                  |US|BOY
+0000000000|MCYF1| 27.91 | -82.425|   -0|McKay Bay Entrance (Tampa), FL NOS  |US|BOY
+0000000000|MCYI3| 41.73 | -86.93 |  176|Michigan City, IN (GLERL)           |US|BOY
+0000000000|MDRM1| 43.97 | -68.13 |   16|Mt Desert Rock, ME/D                |US|BOY
+0000000000|MEEM4| 44.248| -86.346|  178|NWSCR Manistee Harbor, MI           |US|BOY
+0000000000|MGIP4| 17.97 | -67.047|   -0|Magueyes Islands, PR NOS            |US|BOY
+0000000000|MGPT2| 29.68 | -94.99 |   -0|Morgans Point, TX NOS               |US|BOY
+0000000000|MGZP4| 18.218| -67.159|    0|Mayaguez, PR PRSN/NOS 9759394       |US|BOY
+0000000000|MHPA1| 30.667| -87.936|   -0|Meaher Park, AL                     |US|BOY
+0000000000|MHRN6| 40.641| -74.162|    4|Mariners Harbor, NY NOS             |US|BOY
+0000000000|MISC3| 41.07 | -73.13 |    0|North Middle Sound, CT              |US|BOY
+0000000000|MISM1| 43.78 | -68.86 |   26|Matinicus Rock, ME/D                |US|BOY
+0000000000|MISN6| 41.05 | -73.12 |    0|South Middle Sound, NY              |US|BOY
+0000000000|MISP4| 18.090| -67.939|    0|Mona Island, PR 9759938 NOS         |US|BOY
+0000000000|MKGM4| 43.23 | -86.34 |  185|Muskegon, MI (GLERL)                |US|BOY
+0000000000|MLRF1| 25.01 | -80.38 |   11|Molasses Reef, FL/V                 |US|BOY
+0000000000|MLSC1| 36.81 |-121.79 |   12|Moss Landing, South Harbor, CA      |US|BOY
+0000000000|MLTO3| 46.214|-123.620|    0|Marsh Island Light, OR              |US|BOY
+0000000000|MLWW3| 43.05 | -87.88 |  176|Milwaukee, WI (GLERL)               |US|BOY
+0000000000|MNMM4| 45.09 | -87.59 |  176|NOS NWLON, Menominee, MI            |US|BOY
+0000000000|MNPV2| 36.78 | -76.30 |   -0|8639348, Money Point, VA NOS        |US|BOY
+0000000000|MOKH1| 21.432|-157.790|    0|Mokuoloe, HI NOS 1612480            |US|BOY
+0000000000|MQTT2| 27.58 | -97.22 |   -0|Malaquite Beach, TX NOS             |US|BOY
+0000000000|MRCP1| 39.812| -75.410|    0|Marcus Hook, PA NOS 8540433         |US|BOY
+0000000000|MRHO1| 41.545| -82.732|   -0|Marblehead, OH                      |US|BOY
+0000000000|MRKA2| 61.08 |-146.66 |   11|Middle Rock Light, AK/V             |US|BOY
+0000000000|MRNA2| 58.198|-134.257|    3|Marmion Island, AK   MAREX          |US|BOY
+0000000000|MROS1| 33.66 | -78.92 |   -0|Springmaid Pier, NC                 |US|BOY
+0000000000|MRSL1| 29.44 | -92.06 |    0|Marsh Island, LA CSI03              |US|BOY
+0000000000|MRYA2| 55.099|-131.182|    4|Mary Island, AK   MAREX             |US|BOY
+0000000000|MTBF1| 27.661| -82.594|    0|COMPS, Middle Tampa Bay, FL         |US|BOY
+0000000000|MTKN6| 41.05 | -71.96 |   -0|Montauk, NY                         |US|BOY
+0000000000|MTYC1| 36.61 |-121.89 |   -0|Monterey, CA                        |US|BOY
+0000000000|MUKF1| 25.104| -80.942|    0|Murray Key, FL NPS                  |US|BOY
+0000000000|MYPF1| 30.397| -81.43 |   -0|Mayport (Bar Pilots Dock), FL NOS   |US|BOY
+0000000000|MZXC1| 38.033|-122.125|   -0|Martinez-Amorco CA                  |US|BOY
+0000000000|NABM4| 46.051| -85.263|  178|Naubinway, MI GLOS                  |US|BOY
+0000000000|NAXR1| 41.639| -71.339|   13|Narragansett Bay NERR, RI           |US|BOY
+0000000000|NBLP1| 40.137| -74.752|   -0|NWLON Newbold, PA                   |US|BOY
+0000000000|NCHT2| 29.726| -95.266|   -0|Manchester, TX                      |US|BOY
+0000000000|NCSC3| 41.10 | -73.15 |    0|North Central Sound, CT             |US|BOY
+0000000000|NEAW1| 48.37 |-124.62 |   -0|Neah Bay, WA                        |US|BOY
+0000000000|NFBF1| 25.08 | -81.09 |    0|Northwest Bay, FL                   |US|BOY
+0000000000|NFDF1| 30.40 | -81.627|   -0|Navy Fuel Depot, St Johns Rv, FL NOS|US|BOY
+0000000000|NGLT2| 27.82 | -97.20 |    0|Port Ingleside, TX TCOON            |US|BOY
+0000000000|NIAN6| 43.077| -79.013|    0|Niagara Intake, NY NOS 9063012      |US|BOY
+0000000000|NIWS1| 33.349| -79.193|   -0|North Inlet-Winyah Bay NERR, SC     |US|BOY
+0000000000|NKLA2| 52.972|-168.855|   -0|Nikolski White Alice, AK MEA        |US|BOY
+0000000000|NKTA2| 60.68 |-151.40 |   -0|Nikiski, AK                         |US|BOY
+0000000000|NLNC3| 41.36 | -72.09 |   -0|New London, CT                      |US|BOY
+0000000000|NMTA2| 64.50 |-165.43 |   -0|Nome, AK                            |US|BOY
+0000000000|NOSC3| 41.12 | -73.16 |    0|Northern Open Sound, CT             |US|BOY
+0000000000|NOXN7| 34.155| -77.851|    5|North Carolina NERR, NC             |US|BOY
+0000000000|NPDW3| 45.29 | -86.98 |    0|Northport Pier, WI/D                |US|BOY
+0000000000|NPSF1| 26.13 | -81.807|   -0|Naples, FL NOS                      |US|BOY
+0000000000|NRRF1| 25.338| -80.911|   -0|North River, FL ENPWQS              |US|BOY
+0000000000|NSTP6|-14.280|-170.688|   -0|NWLON Pago Pago, American Samoa     |US|BOY
+0000000000|NTBC1| 34.408|-119.685|   -0|NWLON Santa Barbara, CA 9411340     |US|BOY
+0000000000|NTKM3| 41.29 | -70.1  |   -0|Nantucket Island, MA                |US|BOY
+0000000000|NUET2| 27.833| -97.486|   -0|Nueces Bay, TX TCOON                |US|BOY
+0000000000|NWCL1| 30.027| -90.113|    0|New Canal, LA NOS 8761927           |US|BOY
+0000000000|NWHC3| 41.28 | -72.91 |    4|New Haven, CT                       |US|BOY
+0000000000|NWPO3| 44.61 |-124.07 |   11|Newport, OR/D                       |US|BOY
+0000000000|NWPR1| 41.51 | -71.33 |    6|Newport, RI                         |US|BOY
+0000000000|NWWH1| 21.953|-159.355|    0|Nawiliwili, HI NOS 1611400          |US|BOY
+0000000000|OBGN6| 44.703| -75.495|    0|Ogdensburg, NY NOS 8311030          |US|BOY
+0000000000|OBLA1| 30.708| -88.043|    0|Mobile State Docks, AL NOS 8737048  |US|BOY
+0000000000|OBXC1| 37.80 |-122.34 |    2|Oakland Berth 38 NOS CMAN           |US|BOY
+0000000000|OCGN4| 40.209| -74.004|    5|Ocean Grove, NJ Stevens             |US|BOY
+0000000000|OCIM2| 38.328| -75.092|    0|Ocean City Inlet, MD NOS 8570283    |US|BOY
+0000000000|OCPN7| 33.91 | -78.15 |    0|Ocean Crest Pier, NC CORMP          |US|BOY
+0000000000|OCSM2| 38.339| -75.07 |    0|Ocean City MD ACE                   |US|BOY
+0000000000|OFPN6| 40.97 | -73.08 |    0|Old Field Island, NY                |US|BOY
+0000000000|OHBC1| 33.72 |-118.27 |   -0|Los Angeles, CA                     |US|BOY
+0000000000|OKSI2| 41.912| -87.624|  179|Oak St, Lincoln Park, Chicago, IL   |US|BOY
+0000000000|OKXC1| 37.811|-122.333|   -0|Oakland (Berth 34), CA              |US|BOY
+0000000000|OLCN6| 43.34 | -78.72 |   75|ER GLOS, Olcott Harbor, NY          |US|BOY
+0000000000|OLSA2| 52.941|-168.871|   -0|9462450 Nokolski, AK NOS            |US|BOY
+0000000000|OMHC1| 37.800|-122.330|    0|Oakland MidHarbr Met, CA NOS 9414769|US|BOY
+0000000000|OOUH1| 21.31 |-157.87 |   -0|Honolulu Harbor, HI                 |US|BOY
+0000000000|OPTF1| 27.858| -82.553|   -0|NWLON Old Port Tampa, FL            |US|BOY
+0000000000|ORIN7| 35.80 | -75.55 |   -0|8652587, Oregon In Marina, NC NOS   |US|BOY
+0000000000|OSGN6| 43.463| -76.512|   78|Oswego, NY                          |US|BOY
+0000000000|OTNM4| 46.874| -89.329|  186|Ontonogan, MI GLOS                  |US|BOY
+0000000000|OVIA2| 59.440|-151.720|    0|Seldovia, AK NOS 9455500            |US|BOY
+0000000000|OWXO1| 41.378| -82.508|  175|Old Woman Creek NERR, OH            |US|BOY
+0000000000|PACF1| 30.152| -85.667|    0|Panama City, FL NOS 8729108         |US|BOY
+0000000000|PACT2| 27.633| -97.237|    0|Packery Channel, TX NOS 8775792     |US|BOY
+0000000000|PBFW1| 48.464|-122.468|   -0|Padilla Bay NERR, WA                |US|BOY
+0000000000|PBPA2| 58.20 |-134.15 |   -0|Point Bishop, AK                    |US|BOY
+0000000000|PCBF1| 30.21 | -85.88 |   -0|Panama City Beach, FL NOS           |US|BOY
+0000000000|PCGT2| 26.077| -97.177|   -0|South Padre Island CGS, TX          |US|BOY
+0000000000|PCLF1| 30.403| -87.21 |   -0|Pensacola, FL NOS                   |US|BOY
+0000000000|PCLM4| 47.28 | -88.53 |  198|Portage Canal, MI GLOS              |US|BOY
+0000000000|PCNT2| 28.45 | -96.40 |    0|Matagorda Bay, Port O'Connor, TX    |US|BOY
+0000000000|PCOC1| 38.06 |-122.04 |   -0|Port Chicago, CA                    |US|BOY
+0000000000|PFXC1| 33.748|-118.268|   -0|Los Angeles Pier F CA NOS WLON      |US|BOY
+0000000000|PGBP7| 13.428| 144.797|   -0|Pago Bay, Guam 1631428 NOS          |US|BOY
+0000000000|PHBP1| 39.93 | -75.14 |    6|Philadelphia, PA                    |US|BOY
+0000000000|PILA2| 59.74 |-149.47 |   32|Pilot Rock, AK/M                    |US|BOY
+0000000000|PILL1| 29.178| -89.258|   -0|NWLON Pilot Town, LA                |US|BOY
+0000000000|PILM4| 48.22 | -88.37 |  210|Passage Island, MI/V                |US|BOY
+0000000000|PKBW3| 46.672| -92.136|  189|Pokegama Bay Lake Super Res WI NERRS|US|BOY
+0000000000|PKYF1| 24.917| -80.746|    0|Peterson Key, FL NPS                |US|BOY
+0000000000|PLSF1| 24.69 | -82.77 |   16|Pulaski Shoal Light, FL/A           |US|BOY
+0000000000|PLSP4| 17.973| -66.762|    0|Penuelas, PR PRSN/NOS 9758053       |US|BOY
+0000000000|PLXA2| 56.247|-134.647|    3|NWLON Port Alexander, AK 9451054    |US|BOY
+0000000000|PMAF1| 27.637| -82.563|   -0|NWLON Port Manatee, FL              |US|BOY
+0000000000|PMNT2| 26.565| -97.430|   -0|Port Mansfield, TX TCOON            |US|BOY
+0000000000|PMOA2| 55.99 |-160.57 |   -0|Port Moeller, AK NOS WLOS           |US|BOY
+0000000000|PMYF1| 26.99 | -80.62 |    3|Port Mayaca, FL/M                   |US|BOY
+0000000000|PNGW3| 46.792| -91.386|  186|Port Wing, WI GLOS                  |US|BOY
+0000000000|PNLM4| 45.97 | -85.87 |  179|NOS NWLON, Port Inland, MI          |US|BOY
+0000000000|PNLM6| 30.358| -88.567|    0|Pascagoula NOAA Lab, MS NOS 8741533 |US|BOY
+0000000000|PORO3| 42.74 |-124.50 |   -0|9431647 Port Orford, OR             |US|BOY
+0000000000|PORT2| 29.867| -93.930|    0|Port Arthur, TX NOS 8770475         |US|BOY
+0000000000|POTA2| 61.06 |-146.70 |    8|Potato Point, AK/V                  |US|BOY
+0000000000|PPTA1| 30.28 | -87.56 |   -0|Perdido Pass, AL                    |US|BOY
+0000000000|PPTM2| 38.133| -76.533|   -0|NWLON Piney Point, MD               |US|BOY
+0000000000|PRDA2| 70.40 |-148.53 |   -0|Prudhoe Bay, AK                     |US|BOY
+0000000000|PRIM4| 45.356| -83.492|  184|NWSCR Presque Isle Light, MI        |US|BOY
+0000000000|PRJC1| 33.733|-118.186|   -0|Long Beach Pier J, CA NOS WLON      |US|BOY
+0000000000|PRTA2| 58.41 |-134.95 |   -0|Point Retreat, AK                   |US|BOY
+0000000000|PPXC1| 37.906|-122.365|   -0|Richmond (Pt Potrero), CA           |US|BOY
+0000000000|PRYC1| 38.00 |-122.98 |   -0|Point Reyes, CA                     |US|BOY
+0000000000|PSBC1| 38.042|-121.887|   -0|Pittsburg (Suisun Bay), CA          |US|BOY
+0000000000|PSBM1| 44.9  | -66.99 |    7|Eastport, ME                        |US|BOY
+0000000000|PSCM4| 43.42 | -82.54 |  190|Port Sanilac, MI NWS GLOS           |US|BOY
+0000000000|PSLC1| 35.18 |-120.76 |   -0|Port San Luis, CA                   |US|BOY
+0000000000|PSTL1| 28.932| -89.407|   -0|NWLON Pilots Stat E, SW Pass, LA    |US|BOY
+0000000000|PSTN6| 42.691| -79.047|  175|Sturgeon Point, NY 9063028 NOS      |US|BOY
+0000000000|PTAC1| 38.96 |-123.74 |   19|Point Arena, CA/D                   |US|BOY
+0000000000|PTAT2| 27.83 | -97.05 |    6|Port Aransas, TX/M                  |US|BOY
+0000000000|PTAW1| 48.13 |-123.44 |   -0|Port Angeles, WA                    |US|BOY
+0000000000|PTBM6| 30.213| -88.500|    0|PB Is, Pascagoula, MS NOS 8741003   |US|BOY
+0000000000|PTCR1| 41.64 | -71.34 |   -0|Potter Cove, Prudence Is, RI        |US|BOY
+0000000000|PTFL1| 29.115| -90.200|    0|Port Fourchon, LA NOS 8762075       |US|BOY
+0000000000|PTGC1| 34.58 |-120.65 |   34|Point Arguello, CA/M                |US|BOY
+0000000000|PTIM4| 46.485| -84.632|  186|Point Iroquois, MI                  |US|BOY
+0000000000|PTIT2| 26.06 | -97.22 |   -0|Port Isabel, TX NOS                 |US|BOY
+0000000000|PTJN6| 40.95 | -73.07 |    0|Port Jefferson, NY                  |US|BOY
+0000000000|PTLA2| 58.346|-134.752|    3|Portland Island, AK MAREX           |US|BOY
+0000000000|PTOA1| 30.671| -88.031|    4|Pinto Island, AL                    |US|BOY
+0000000000|PTRF1| 28.28 | -82.73 |    0|Port Richey, FL                     |US|BOY
+0000000000|PTRP4| 18.367| -67.251|   -0|Puntas Rincon, PR CarlCOOS          |US|BOY
+0000000000|PTWW1| 48.12 |-122.76 |   -0|Port Townsend, WA                   |US|BOY
+0000000000|PVGF1| 26.092| -80.109|    0|Port Everglades Chan, FL ICON       |US|BOY
+0000000000|PWAW3| 43.39 | -87.87 |  180|Port Washington, WI GLOS            |US|BOY
+0000000000|PXOC1| 37.798|-122.393|   -0|San Francisco (Pier 1), CA          |US|BOY
+0000000000|PXSC1| 37.803|-122.397|    2|Pier 17 San Francisco CA NOS        |US|BOY
+0000000000|QPTR1| 41.59 | -71.41 |    3|Quonset Point, RI                   |US|BOY
+0000000000|RARM6| 30.343| -88.512|    0|RgeA Rr, Pascagoula, MS NOS 8741094 |US|BOY
+0000000000|RCKM4| 46.265| -84.192|  180|Rock Cut, MI                        |US|BOY
+0000000000|RCMC1| 37.93 |-122.40 |   -0|Richmond, CA                        |US|BOY
+0000000000|RCPT2| 28.022| -97.047|    0|Rockport, TX NOS 8774770            |US|BOY
+0000000000|RCRN6| 43.268| -77.625|   75|Rochester, NY 9052058 NOS           |US|BOY
+0000000000|RDDA2| 67.577|-164.065|   -0|NWLON Red Dog Dock, AK              |US|BOY
+0000000000|RDYD1| 39.56 | -75.57 |   -0|Reedy Point, DE                     |US|BOY
+0000000000|RKXF1| 26.050| -81.701|   -0|Rookery Bay NERR, FL                |US|BOY
+0000000000|RLIT2| 26.262| -97.285|   -0|Realitos Peninsula, TX TCOON        |US|BOY
+0000000000|RLOT2| 29.52 | -94.51 |    0|Rollover Pass, TX TCOON             |US|BOY
+0000000000|ROAM4| 47.87 | -89.31 |  223|Rock of Ages, MI/D                  |US|BOY
+0000000000|ROBN4| 40.657| -74.065|   -0|Robins Reef, NJ                     |US|BOY
+0000000000|RPLV2| 37.54 | -76.02 |   -0|8632837, Rappahannock Light, VA NOS |US|BOY
+0000000000|RPRN6| 43.25 | -77.59 |   75|ER GLOS, Rochester, NY              |US|BOY
+0000000000|RSJT2| 26.80 | -97.47 |    0|Rincon del S Jose; Pot Lopeno SW,TX |US|BOY
+0000000000|RTAT2| 27.84 | -97.07 |    0|Port Aransas, TX TCOON              |US|BOY
+0000000000|RTOT2| 27.76 | -96.98 |    0|RTNS Offshore, TX                   |US|BOY
+0000000000|RTYC1| 37.51 |-122.21 |   -0|Redwood City, CA                    |US|BOY
+0000000000|SACV4| 19.174| -96.093|   -0|Sacrifice Island, MX                |US|BOY
+0000000000|SANF1| 24.46 | -81.88 |    6|Sand Key, FL/M                      |US|BOY
+0000000000|SAPF1| 27.76 | -82.627|   -0|St. Petersburg, FL NOS              |US|BOY
+0000000000|SAUF1| 29.86 | -81.26 |    9|St. Augustine, FL/V                 |US|BOY
+0000000000|SAXG1| 31.418| -81.295|    5|Sapelo Island NERR, GA              |US|BOY
+0000000000|SBEO3| 44.63 |-124.09 |   -0|South Beach, OR                     |US|BOY
+0000000000|SBIO1| 41.63 | -82.84 |  178|South Bass Island, OH/M             |US|BOY
+0000000000|SBLF1| 27.923| -82.445|    0|Seabulk Met, FL 8726673 NOS         |US|BOY
+0000000000|SBLM4| 43.806| -83.719|  180|Saginaw Bay Light #1, MI CR         |US|BOY
+0000000000|SBPT2| 29.73 | -93.87 |   -0|Sabine Pass North, TX NOS           |US|BOY
+0000000000|SCIS1| 32.86 | -79.71 |   -0|NWLON 8664941 S Capers Island, SC   |US|BOY
+0000000000|SCSN6| 41.02 | -73.11 |    0|South Central Sound, NY             |US|BOY
+0000000000|SDBC1| 32.71 |-117.17 |   -0|San Diego, CA                       |US|BOY
+0000000000|SDHN4| 40.47 | -74.01 |    2|Sandy Hook, NJ                      |US|BOY
+0000000000|SDIA2| 58.277|-134.389|   -0|South Douglas, AK                   |US|BOY
+0000000000|SDRT2| 28.41 | -96.71 |    0|Seadrift, TX TCOON                  |US|BOY
+0000000000|SECG1| 30.80 | -80.316|   -0|SABSOON Tower R2 (UNC Chapel Hill)  |US|BOY
+0000000000|SFXC1| 38.222|-122.026|   -0|San Francisco Bay NERR, CA          |US|BOY
+0000000000|SGNT2| 28.772| -95.617|   -0|Sargent, TX TCOON                   |US|BOY
+0000000000|SGNW3| 43.75 | -87.69 |  189|Sheboygan, WI/D                     |US|BOY
+0000000000|SGOF1| 29.41 | -84.86 |   20|Tyndall AFB Tower C, FL             |US|BOY
+0000000000|SGRN4| 40.117| -74.017|   -0|SIT Sea Girt, NJ                    |US|BOY
+0000000000|SHBL1| 29.868| -89.673|    0|Shell Beach, LA NOS 8761305         |US|BOY
+0000000000|SHPF1| 30.06 | -84.29 |    0|Shell Point, FL                     |US|BOY
+0000000000|SIPF1| 27.862| -80.445|    0|Sebastian Inlet State Park, FL FIT  |US|BOY
+0000000000|SIPM6| 30.27 | -89.02 |    0|Ship Island Pass, MS CSI13          |US|BOY
+0000000000|SISA2| 58.17 |-135.26 |   -0|Sisters Island, AK                  |US|BOY
+0000000000|SISW1| 48.32 |-122.84 |   18|Smith Island, WA/M                  |US|BOY
+0000000000|SJNP4| 18.46 | -66.117|   -0|San Juan, PR NOS                    |US|BOY
+0000000000|SJOM4| 42.09 | -86.49 |  182|CR GLOS, St Joseph, MI              |US|BOY
+0000000000|SJSN4| 39.305| -75.375|   -0|NWLON Ship John Shoal, NJ           |US|BOY
+0000000000|SKMG1| 31.533| -80.233|   -0|SABSOON Tower M2/R6 (Skidaway Inst) |US|BOY
+0000000000|SKTA2| 59.450|-135.327|   -0|Skagway Tide Guage, AK NOS 9452634  |US|BOY
+0000000000|SLIM2| 38.32 | -76.45 |   -0|8577330, Solomons Island, MD NOS    |US|BOY
+0000000000|SLPL1| 29.52 | -91.55 |    0|Salt Point, LA CSI14                |US|BOY
+0000000000|SLVM5| 47.27 | -91.25 |  198|Silver Bay, MN GLOS                 |US|BOY
+0000000000|SMBS1| 33.655| -78.918|    0|Springmaid Pier, SC                 |US|BOY
+0000000000|SMKF1| 24.63 | -81.11 |   37|Sombrero Key, FL/M                  |US|BOY
+0000000000|SNDA2| 55.337|-160.502|    0|Sand Point, AK NOS 9459450          |US|BOY
+0000000000|SNDP5| 28.21 |-177.36 |   -0|Sand Island, Midway Islands         |US|BOY
+0000000000|SNSN7| 33.87 | -78.51 |   -0|8659897, Sunset Beach, NC NOS       |US|BOY
+0000000000|SOSN6| 41.00 | -73.10 |    0|Southern Open Sound, NY             |US|BOY
+0000000000|SPAG1| 31.38 | -80.57 |    0|Skidaway (Sabsoon Tower R2), GA/V   |US|BOY
+0000000000|SPAL1| 28.932| -89.407|   -0|LUMCON Pilottown, LA                |US|BOY
+0000000000|SPGF1| 26.70 | -79.00 |    3|Settlement Point, GBI/M             |US|BOY
+0000000000|SPLL1| 28.87 | -90.48 |    0|South Pelto Block, LA CSI06         |US|BOY
+0000000000|SPTM4| 44.713| -83.273|  184|NWSCR GLOS Sturgeon Pt Light, MI    |US|BOY
+0000000000|SRBV3| 17.784| -64.762|    0|ICON, Salt River Bay, St Croix, VI  |US|BOY
+0000000000|SREF1| 25.352| -81.1  |   -0|Shark River, FL ENPWQS              |US|BOY
+0000000000|SRLM4| 45.773| -84.137|   -0|Spectacle Reef Light, MI GLERL/UofCO|US|BOY
+0000000000|SRST2| 29.67 | -94.05 |    5|Sabine, TX/M                        |US|BOY
+0000000000|SSBN7| 33.84 | -78.48 |   -0|Sunset Bch Nearshore Waves, NC      |US|BOY
+0000000000|STDM4| 47.18 | -87.22 |  211|Stannard Rock, MI/D                 |US|BOY
+0000000000|SUPN6| 44.47 | -75.80 |   79|Superior Shoals, NY/V               |US|BOY
+0000000000|SVLS1| 31.95 | -80.68 |   -0|Savannah Light, GA/D                |US|BOY
+0000000000|SVNM4| 42.40 | -86.29 |  176|South Haven, MI (GLERL)             |US|BOY
+0000000000|SWLA2| 60.120|-149.427|    5|9455090 Seward, AK NOS              |US|BOY
+0000000000|SWPM4| 46.502| -84.373|  186|S.W. Pier, MI                       |US|BOY
+0000000000|SWPV2| 36.95 | -76.33 |   -0|8638610, Sewells Point, VA NOS      |US|BOY
+0000000000|SXHW3| 46.56 | -90.44 |  186|Saxon Harbor, WI GLOS               |US|BOY
+0000000000|SYWW3| 45.20 | -87.12 |    0|Sister Bay, WI/D                    |US|BOY
+0000000000|TAML1| 29.19 | -90.67 |    0|Tambour Bay, LA                     |US|BOY
+0000000000|TAQT2| 27.812| -97.390|   -0|Texas State Aquarium, TX            |US|BOY
+0000000000|TARF1| 28.15 | -82.75 |    0|Tarpon Springs, FL                  |US|BOY
+0000000000|TAWM4| 44.256| -83.443|  172|NWSCR GLOS Tawas City, MI           |US|BOY
+0000000000|TBIM4| 45.04 | -83.19 |  176|Thunder Bay Island, MI GLERL        |US|BOY
+0000000000|TBYF1| 25.155| -80.722|   -0|Terrapin Bay, FL ENPWQS             |US|BOY
+0000000000|TCBM2| 39.213| -76.25 |   -0|8573364, Tolchester Beach, MD NOS   |US|BOY
+0000000000|TCMW1| 47.276|-122.418|    0|Tacoma Met, WA NOS 9446482          |US|BOY
+0000000000|TCNW1| 47.27 |-122.41 |   -0|Tacoma, WA                          |US|BOY
+0000000000|TCVF1| 25.210| -80.533|    0|Trout Cove, FL NPS                  |US|BOY
+0000000000|TESL1| 29.667| -91.237|   -0|Tesoro Marine Terminal, Berwick, LA |US|BOY
+0000000000|THLO1| 41.826| -83.194|  174|Toledo Light #2, OH GLERL           |US|BOY
+0000000000|THRO1| 41.693| -83.471|   -0|Toledo Harbor, OH                   |US|BOY
+0000000000|TIBC1| 37.89 |-122.45 |   -0|SF State U, Tiburon Pier SF Bay, CA |US|BOY
+0000000000|TIXC1| 32.574|-117.121|   -0|Tijuana River NERR, CA              |US|BOY
+0000000000|TKEA2| 57.779|-135.219|    0|Tenakee Springs, AK Marine Exchange |US|BOY
+0000000000|TLBO3| 45.555|-123.912|   -0|NWLON Garibaldi, Tillamook Bay, OR  |US|BOY
+0000000000|TOKW1| 46.71 |-123.97 |   -0|Toke Point, WA                      |US|BOY
+0000000000|TPAF1| 27.933| -82.433|    0|TPA Cruise Term 2, FL NOS 8726694   |US|BOY
+0000000000|TPBN4| 40.012| -75.042|   -0|NWLON Tacony-Palmyra Bridge, NJ     |US|BOY
+0000000000|TPEF1| 25.408| -80.964|    0|Tarpon Bay East, FL NPS             |US|BOY
+0000000000|TPLM2| 38.90 | -76.44 |   12|Thomas Point, MD/M                  |US|BOY
+0000000000|TRBL1| 29.17 | -90.58 |    0|Terrebonne Bay, LA                  |US|BOY
+0000000000|TRDF1| 28.415| -80.593|   -0|Trident Pier, FL NOS                |US|BOY
+0000000000|TRRF1| 25.223| -80.653|    0|Taylor River, FL NPS                |US|BOY
+0000000000|TSHF1| 27.928| -82.425|    0|East Bay Causeway, FL 8726667 NOS   |US|BOY
+0000000000|TTIW1| 48.39 |-124.74 |   48|Tatoosh Island, WA/D                |US|BOY
+0000000000|TXPT2| 29.689| -93.842|   11|Texas Point, TX NOS                 |US|BOY
+0000000000|TYBG1| 31.63 | -79.92 |    0|Skidaway (Sabsoon Tower R8), GA/V   |US|BOY
+0000000000|ULAM6| 30.348| -88.505|    0|Dock E, Pascagoula, MS NOS 8741041  |US|BOY
+0000000000|UNLA2| 53.879|-166.540|    2|9462620 Unalaska, AK NOS            |US|BOY
+0000000000|UPBC1| 38.038|-122.121|   -0|Un Pac RR Bge, Martinez, CA NOS WLON|US|BOY
+0000000000|VAKF1| 25.73 | -80.16 |   -0|Virginia Key, FL NOS                |US|BOY
+0000000000|VCAF1| 24.712| -81.105|   -0|Vaca Key, FL NOS                    |US|BOY
+0000000000|VCAT2| 28.640| -96.595|   -0|Port Lavaca, TX TCOON               |US|BOY
+0000000000|VCVA2| 57.13 |-170.29 |   -0|Village Cove, St Paul, AK NOS WLOS  |US|BOY
+0000000000|VDZA2| 61.125|-146.362|    0|Valdez, AK 9454240 NOS              |US|BOY
+0000000000|VENF1| 27.07 | -82.45 |    5|Venice, FL/V                        |US|BOY
+0000000000|VERV4| 19.202| -96.113|   -0|Veracruz, MX                        |US|BOY
+0000000000|VMSV2| 37.25 | -76.50 |   -0|VIMS Pier, VA VIMS CBOS             |US|BOY
+0000000000|VQSP4| 18.153| -65.444|    0|Is Seg, Vieques,PR PRSN/NOS 9752619 |US|BOY
+0000000000|WAHV2| 37.61 | -75.69 |   -0|8631044, Wachapreague, VA NOS       |US|BOY
+0000000000|WAKP8| 19.29 | 166.62 |   -0|Wake Island                         |US|BOY
+0000000000|WASD2| 38.87 | -77.02 |   -0|8594900, Washington, DC NOS         |US|BOY
+0000000000|WATS1| 34.335| -80.702|    0|WFO Columbia, Lake Wateree, SC      |US|BOY
+0000000000|WAVM6| 30.28 | -89.37 |   -0|Waveland, MS NOS                    |US|BOY
+0000000000|WAXM3| 41.582| -70.525|   10|Waquoit Bay NERR, MA                |US|BOY
+0000000000|WBYA1| 30.417| -87.825|   -0|Weeks Bay, AL NOS WLON              |US|BOY
+0000000000|WDEL1| 28.662| -89.551|    0|Shell West Delta 143                |US|BOY
+0000000000|WDSV2| 36.982| -76.322|    0|NOS 8638614 Willoughby Degaus, VA   |US|BOY
+0000000000|WELM1| 43.320| -70.563|   -0|NWLON Wells, ME                     |US|BOY
+0000000000|WEXM1| 43.337| -70.55 |   19|Wells NERR, ME                      |US|BOY
+0000000000|WFPM4| 46.762| -84.966|  186|NWSCR GLOS Whitefish Point, MI      |US|BOY
+0000000000|WHRI2| 42.361| -87.813|  180|Waukegan Harbor, IL GLOS            |US|BOY
+0000000000|WIWF1| 25.585| -81.044|    0|Willy Willy, FL NPS                 |US|BOY
+0000000000|WKXA1| 30.415| -87.826|    0|Weeks Bay NERR, AL                  |US|BOY
+0000000000|WLON7| 34.23 | -77.95 |   -0|Wilmington, NC NOS WLOS             |US|BOY
+0000000000|WNEM4| 46.283| -84.205|  177|West Neebish, MI NOS 9076027        |US|BOY
+0000000000|WPLF1| 25.708| -81.248|    0|Watson Place, FL NPS                |US|BOY
+0000000000|WPOW1| 47.66 |-122.44 |    9|West Point, WA/V                    |US|BOY
+0000000000|WPTW1| 46.927|-124.130|    0|Westport, WA NOS 9441102            |US|BOY
+0000000000|WRBF1| 25.077| -80.728|    0|Whipray Basin, FL NPS               |US|BOY
+0000000000|WSLM4| 45.842| -85.135|   -0|White Shoal Light MI GLERL/UofCO    |US|BOY
+0000000000|WWEF1| 25.53 | -80.94 |   -0|White Water - West, FL              |US|BOY
+0000000000|WYCM6| 30.326| -89.326|    0|Bay Waveland Y Club, MS NOS 8744737 |US|BOY
+0000000000|YABP4| 18.055| -65.833|    0|Yabucoa Harbor, PR PRSN/NOS 9754228 |US|BOY
+0000000000|YATA2| 59.548|-139.733|    7|9453220 Yakutat, AK NOS             |US|BOY
+0000000000|YGNN6| 43.26 | -79.06 |   74|Niagara Coast Guard Station, NY     |US|BOY
+0000000000|YKRV2| 37.250| -76.333|   -0|NWLON York Riv E Rear Rge Lt, VA    |US|BOY
+0000000000|YKTV2| 37.23 | -76.48 |   -0|8637689, Yorktown, VA NOS           |US|BOY
+0000000000|YRSV2| 37.414| -76.712|   11|Cheasapeake Bay NERR, VA            |US|BOY
 0000000000|91204|  9.90 | 139.70 |    0|Ulithi Is., Caroline/W              |KA|BOY
 0000000000|91222| 18.13 | 145.77 |    0|Pagan Is., Mariana/W                |MY|BOY
 0000000000|91251| 11.43 | 162.35 |    0|Enewetak, Marshall/V                |MH|BOY

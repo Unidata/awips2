@@ -1265,18 +1265,22 @@ public class FFMPMonitor extends ResourceMonitor {
     /**
      * Gets the guidance source types.
      * 
+     * @param product
+     * @param guidSrc
+     * @param siteKey
+     * @param dataKey
+     * @param sourceName
      * @param date
      * @param phuc
      * @param pfaf
      * @return
+     * @throws VizException
      */
-    public FFMPBasin getGraphGuidanceBasin(ProductXML product, String siteKey,
+    public FFMPBasin getGraphGuidanceBasin(ProductXML product, String guidSrc, String siteKey,
             String dataKey, String sourceName, Date date, String phuc, Long pfaf)
             throws VizException {
 
         if (product != null) {
-            String guidSrc = FFMPConfig.getInstance().getFFMPConfigData()
-                    .getGuidSrc();
             SourceXML source = product.getGuidanceSourcesByType(guidSrc).get(0);
             sourceName = source.getDisplayName();
         }

@@ -1,6 +1,7 @@
 
 <WEGroup name="EditTopo">
+    <WEItem parmID="NewTopo_SFC:OAX_GRID_EditTopo_NewTerrain_00000000_0000" relativeCycleNumber="-1"/>
     <WEItem parmID="Topo_SFC:SITE_GRID_EditTopo_Topo_00000000_0000" relativeCycleNumber="-1"/>
-    <WEItem parmID="OldTerrain_SFC:OAX_GRID_EditTopo_NewTerrain_00000000_0000" relativeCycleNumber="-1"/>
-    <WEItem parmID="NewTerrain_SFC:OAX_GRID_EditTopo_NewTerrain_00000000_0000" relativeCycleNumber="-1"/>
+    <WEItem parmID="GMTED_SFC:OAX_GRID_EditTopo_BaseTerrain_00000000_0000" relativeCycleNumber="-1"/>
+    <WEItem parmID="GTOPO_SFC:OAX_GRID_EditTopo_BaseTerrain_00000000_0000" relativeCycleNumber="-1"/>
 </WEGroup>

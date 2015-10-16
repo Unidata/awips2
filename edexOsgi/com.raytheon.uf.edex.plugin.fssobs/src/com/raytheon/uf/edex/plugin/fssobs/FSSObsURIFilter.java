@@ -3,12 +3,15 @@ package com.raytheon.uf.edex.plugin.fssobs;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 import com.raytheon.edex.urifilter.URIFilter;
 import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
+import com.raytheon.uf.common.monitor.data.ObConst;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -23,6 +26,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Dec 5, 2012  #1351      skorolev    Cleaned code
  * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
  * Sep 04, 2014 3220       skorolev    Removed CWA from filter.
+ * Sep 17, 2015 3873       skorolev    Added pattern for moving platforms.
  * 
  * </pre>
  * 
@@ -30,6 +34,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 public class FSSObsURIFilter extends URIFilter {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(URIFilter.class);
 
     /** Station ID **/
     private String stn;
@@ -41,27 +47,25 @@ public class FSSObsURIFilter extends URIFilter {
     private HashMap<String, Pattern> patternKeys = null;
 
     /** METAR Pattern **/
-    private Pattern MetarPattern = null;
+    private Pattern metarPattern = null;
 
     /** Maritime Pattern **/
-    private Pattern MaritimePattern = null;
+    private Pattern maritimePattern = null;
 
     /** Mesowest Pattern **/
-    private Pattern MesowestPattern = null;
+    private Pattern mesowestPattern = null;
+
+    /** Pattern for moving platforms **/
+    private Pattern movingPattern = null;
 
     /** Current data type #METAR, #Maritime or #Mesonet **/
     private String dataType;
 
     /** All filtered stations */
-    private HashSet<String> stations = null;
+    private Set<String> stations = null;
 
     /** Date format **/
     private static String datePattern = "yyyy-MM-dd_HH:mm:ss.S";
-
-    /** Station type **/
-    private enum StnType {
-        METAR, MARITIME, MESONET
-    };
 
     /**
      * Constructor
@@ -72,7 +76,7 @@ public class FSSObsURIFilter extends URIFilter {
      * @param stations
      *            for FSSObs filter
      */
-    public FSSObsURIFilter(String name, HashSet<String> stations) {
+    public FSSObsURIFilter(String name, Set<String> stations) {
         super(name);
         logger.info("FSSObsFilter " + name + " Filter construction...");
         setDataTypes(new String[] { "obs", "sfcobs", "ldadmesonet" });
@@ -96,18 +100,29 @@ public class FSSObsURIFilter extends URIFilter {
             String[] tokens = pat.split(st);
             setStn(tokens[0]);
             setDataType(tokens[1]);
-            if (getDataType().equals(StnType.METAR.name())) {
+            switch (getDataType()) {
+            case ObConst.METAR:
                 setMetarPattern();
                 getMatchURIs().put(getMetarPattern(), 0l);
-            }
-            if (getDataType().equals(StnType.MARITIME.name())) {
+                break;
+            case ObConst.MARITIME:
                 setMaritimePattern();
                 getMatchURIs().put(getMaritimePattern(), 0l);
-            }
-            if (getDataType().equals(StnType.MESONET.name())) {
+                break;
+            case ObConst.MESONET:
                 setMesowestPattern();
                 getMatchURIs().put(getMesowestPattern(), 0l);
+                break;
+            default:
+                statusHandler.error("Get unknown data type " + getDataType());
+                break;
             }
+        }
+        String[] repTyps = { ObConst.SYNOPTIC_SHIP, ObConst.DRIFTING_BUOY,
+                ObConst.SYNOPTIC_MAROB };
+        for (String rt : repTyps) {
+            setMovingPattern(rt);
+            getMatchURIs().put(getMovingPattern(), 0l);
         }
     }
 
@@ -194,7 +209,6 @@ public class FSSObsURIFilter extends URIFilter {
                 return key;
             }
         }
-
         return null;
     }
 
@@ -265,7 +279,7 @@ public class FSSObsURIFilter extends URIFilter {
      * @return MetarPattern
      */
     public Pattern getMetarPattern() {
-        return MetarPattern;
+        return metarPattern;
     }
 
     /**
@@ -273,7 +287,7 @@ public class FSSObsURIFilter extends URIFilter {
      */
     public void setMetarPattern() {
         // "/obs/2010-11-01_14:15:00.0/METAR<SPECI???>/null/K0A9/36.371/-82.173"
-        MetarPattern = Pattern.compile("/obs/" + wildCard + uriSeperator
+        metarPattern = Pattern.compile("/obs/" + wildCard + uriSeperator
                 + wildCard + uriSeperator + "null" + uriSeperator + getStn()
                 + uriSeperator);
     }
@@ -284,15 +298,15 @@ public class FSSObsURIFilter extends URIFilter {
      * @return MaritimePattern
      */
     public Pattern getMaritimePattern() {
-        return MaritimePattern;
+        return maritimePattern;
     }
 
     /**
      * Sets Maritime Pattern
      */
     public void setMaritimePattern() {
-        // /sfcobs/2010-10-28_10:36:00.0/1004/null/BEPB6/32.373/-64.703
-        MaritimePattern = Pattern.compile("/sfcobs/" + wildCard + uriSeperator
+        // /sfcobs/2010-10-28_10:36:00.0/1004[5]/null/BEPB6/32.373/-64.703
+        maritimePattern = Pattern.compile("/sfcobs/" + wildCard + uriSeperator
                 + wildCard + uriSeperator + "null" + uriSeperator + getStn()
                 + uriSeperator);
     }
@@ -303,7 +317,7 @@ public class FSSObsURIFilter extends URIFilter {
      * @return the mesowestPattern
      */
     public Pattern getMesowestPattern() {
-        return MesowestPattern;
+        return mesowestPattern;
     }
 
     /**
@@ -313,10 +327,32 @@ public class FSSObsURIFilter extends URIFilter {
      *            the mesowestPattern to set
      */
     public void setMesowestPattern() {
+        // There is no dataURI for ldadmesonet data
         // /ldadmesonet/2011-06-29_22:10:00.0/mesonet/NWSRAWS/RINN4/41.1181/-74.2403
-        MesowestPattern = Pattern.compile("/ldadmesonet/" + wildCard
+        mesowestPattern = Pattern.compile("/ldadmesonet/" + wildCard
                 + uriSeperator + wildCard + uriSeperator + wildCard
                 + uriSeperator + getStn());
+    }
+
+    /**
+     * Gets pattern for moving platforms and MAROBs
+     * 
+     * @return
+     */
+    public Pattern getMovingPattern() {
+        return movingPattern;
+    }
+
+    /**
+     * Sets pattern for ships "1003", drifting buoys "1006" and MAROBs "1007".
+     * 
+     * @param reportType
+     */
+    public void setMovingPattern(String reportType) {
+        // /sfcobs/2010-10-28_10:36:00.0/1003<6,7>/null/BEPB6/32.373/-64.703
+        this.movingPattern = Pattern.compile("/sfcobs/" + wildCard
+                + uriSeperator + reportType + uriSeperator + wildCard
+                + uriSeperator);
     }
 
     /**

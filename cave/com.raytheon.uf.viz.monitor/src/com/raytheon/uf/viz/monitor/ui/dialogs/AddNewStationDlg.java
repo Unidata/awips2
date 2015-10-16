@@ -34,7 +34,6 @@ import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.geospatial.ISpatialQuery;
 import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
-import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.xml.StationIdXML;
@@ -57,7 +56,6 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Nov 20, 2012 1297      skorolev     Changes for non-blocking dialog.
  * Apr 23, 2014 3054      skorolev     Added MESONET handling.
  * Apr 28, 2014 3086      skorolev     Removed local getAreaConfigMgr method.
- * Aug 17, 2015 3841      skorolev     Corrected handleAddNewStation method.
  * 
  * </pre>
  * 
@@ -69,7 +67,7 @@ public class AddNewStationDlg extends CaveSWTDialog {
             .getHandler(AddNewStationDlg.class);
 
     /** Application name. */
-    private final AppName appName;
+    private AppName appName;
 
     /** METAR radio button. */
     private Button metarRdo;
@@ -87,12 +85,10 @@ public class AddNewStationDlg extends CaveSWTDialog {
     private Text stationTF;
 
     /** Zone */
-    private final String area;
+    private String area;
 
     /** Call back interface */
-    private final MonitoringAreaConfigDlg macDlg;
-
-    private final FSSObsMonitorConfigurationManager cfgMgr;
+    private MonitoringAreaConfigDlg macDlg;
 
     /**
      * Constructor.
@@ -110,7 +106,6 @@ public class AddNewStationDlg extends CaveSWTDialog {
         this.appName = appName;
         this.area = area;
         this.macDlg = macDlg;
-        cfgMgr = macDlg.getInstance();
     }
 
     /*
@@ -265,10 +260,9 @@ public class AddNewStationDlg extends CaveSWTDialog {
                     + "' is already in your Monitoring Area or among your Additional Stations.");
             return;
         }
-
         macDlg.addNewStationAction(stn);
-        cfgMgr.addNewStation(area, stn, type, true);
-        cfgMgr.getStations().add(stn);
+        macDlg.getInstance().addStation(area, stn, type, false);
+        macDlg.getInstance().getStations().add(stn);
     }
 
     /**

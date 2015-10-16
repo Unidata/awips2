@@ -20,8 +20,6 @@
 package com.raytheon.uf.common.monitor.xml;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -38,7 +36,6 @@ import javax.xml.bind.annotation.XmlElements;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 21, 2009            lvenable     Initial creation
- * Sep 03, 2015 3841       skorolev     Added containsStation method
  * 
  * </pre>
  * 
@@ -49,7 +46,7 @@ import javax.xml.bind.annotation.XmlElements;
 public class AreaIdXML {
 
     @XmlElements({ @XmlElement(name = "StationID", type = StationIdXML.class) })
-    private List<StationIdXML> stationIds = new ArrayList<StationIdXML>();
+    private ArrayList<StationIdXML> stationIds = new ArrayList<StationIdXML>();
 
     @XmlAttribute(name = "id")
     private String areaId;
@@ -70,11 +67,11 @@ public class AreaIdXML {
     public AreaIdXML() {
     }
 
-    public List<StationIdXML> getStationIds() {
+    public ArrayList<StationIdXML> getStationIds() {
         return stationIds;
     }
 
-    public void setStationIds(List<StationIdXML> stationIds) {
+    public void setStationIds(ArrayList<StationIdXML> stationIds) {
         this.stationIds = stationIds;
     }
 
@@ -141,21 +138,4 @@ public class AreaIdXML {
     public void setCLon(Double lon) {
         cLon = lon;
     }
-
-    /**
-     * @param station
-     * @return
-     */
-    public boolean containsStation(String station) {
-        if (!stationIds.isEmpty()) {
-            Iterator<StationIdXML> itr = getStationIds().iterator();
-            while (itr.hasNext()) {
-                if (itr.next().getName().equals(station)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
 }

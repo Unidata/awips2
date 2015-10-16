@@ -79,6 +79,12 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
         SafeSeasMonitor.getInstance();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#
+     * handleOkBtnSelection()
+     */
     @Override
     protected void handleOkBtnSelection() throws LocalizationException,
             SerializationException, IOException {

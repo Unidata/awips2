@@ -57,8 +57,8 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
  * Nov 10, 2012 1297       skorolev     Added initiateProdArray
  * Dec 7,  2012 #1351      skorolev     Changes for non-blocking dialogs.
  * Apr 28, 2014 3086       skorolev     Updated getConfigMgr method.
- * Sep 04, 2014  3220      skorolev     Removed "site". Added check on dispose.
- * Aug 26, 2015 3841       skorolev    Corrected getMonitorAreaConfigInstance().
+ * Sep 04, 2014 3220       skorolev     Removed "site". Added check on dispose.
+ * Sep 18, 2015 3873       skorolev     Adjusted to AppName and MonName.
  * 
  * </pre>
  * 
@@ -71,8 +71,7 @@ public class SSZoneTableDlg extends ZoneTableDlg {
     private SSDispMonThreshDlg ssThreshDlg;
 
     /** Swell column names in the zone and station table. **/
-    private final String[] ssSwellCols = { "SSZT_SwellPeriod",
-            "SSZT_Swell2Period" };
+    private String[] ssSwellCols = { "SSZT_SwellPeriod", "SSZT_Swell2Period" };
 
     /**
      * Constructor (Dec 30, 2009, zhao)
@@ -162,8 +161,7 @@ public class SSZoneTableDlg extends ZoneTableDlg {
                 Map<String, FOG_THREAT> fogAlgThreats = monitor
                         .getAlgorithmData(nominalTime);
                 obData.setFogAlgCellType(monitor.getAlgCellTypes(fogAlgThreats));
-                this.updateTableDlg(monitor.getObData().getObHourReports(
-                        nominalTime));
+                this.updateTableDlg(obData.getObHourReports(nominalTime));
             }
         }
     }
@@ -333,7 +331,6 @@ public class SSZoneTableDlg extends ZoneTableDlg {
         if (configMgr == null || configMgr.isPopulated()) {
             configMgr = FSSObsMonitorConfigurationManager
                     .getInstance(MonName.ss);
-            configMgr.setPopulated(false);
         }
         return configMgr;
     }

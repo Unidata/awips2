@@ -25,23 +25,20 @@
             <list>
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.ARIPostProcessor</value>
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.CPCoutlookGribPostProcessor</value>
-                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.CanadianNHPostProcessor</value>
-                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.CanadianRegPostProcessor</value>
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.ECMWFHiResProcessor</value>
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.EnsembleGridAssembler</value>
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.FFGGribPostProcessor</value>
-                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.GFSProcessor</value>
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.HPCqpfPostProcessor</value>
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.HWRFPostProcessor</value>
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.LapsPostProcessor</value>
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.LiftedIndexPostProcessor</value>
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.MSASPostProcessor</value>
-                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.Nam80PostProcessor</value>
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.OverwriteGribPostProcessor</value>
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.RTMAGribPostProcessor</value>
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.RUC130GribPostProcessor</value>
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.RUC236GribPostProcessor</value>
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.TemperatureCorrectionPostProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.precipitation.PrecipAccumPostProcessor</value>
             </list>
         </property>
     </bean>
@@ -75,6 +72,7 @@
 
         <endpoint id="gribSplitJmsEndpoint" uri="jms-durable:queue:Ingest.GribSplit?concurrentConsumers=${GRIB_SPLIT_THREADS}"/>
         <endpoint id="gribDecodeJmsEndpoint" uri="jms-durable:queue:Ingest.GribDecode?concurrentConsumers=${GRIB_DECODE_THREADS}"/>
+        <endpoint id="gridPostProcessesJmsEndpoint" uri="jms-durable:queue:Grid.PostProcess?concurrentConsumers=${GRID_POSTPROCESS_THREADS}"/>
 
         <!-- Begin Grib Decode Route -->
         <route id="gribSplitIngestRoute">
@@ -138,6 +136,26 @@
                     <bean ref="processUtil" method="log"/>
                 </split>
             </multicast>
+        </route>
+
+        <!-- 
+            Does a second round of post processing to generate new records 
+            derived from recently persisted records.
+        -->
+        <route id="gridPostProcessRoute">
+            <from ref="gridPostProcessesJmsEndpoint" />
+            <doTry>
+                <pipeline>
+                    <bean ref="serializationUtil" method="transformFromThrift" />
+                    <!-- send for processing -->
+                    <bean ref="gribPostProcessor" method="processPersisted" />
+                    <bean ref="gridPersister" method="persist"/>
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:grib?level=ERROR"/>
+                </doCatch>
+            </doTry>
         </route>
     </camelContext>
 </beans>

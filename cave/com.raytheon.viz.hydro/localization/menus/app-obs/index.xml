@@ -18,12 +18,7 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<requestPatterns xmlns:ns2="group">
-    <regex>pirepsTable.txt</regex>
-    <regex>maritimeStationInfo.txt</regex>
-    <regex>metarStationInfo.txt</regex>
-    <regex>synopticStationInfo.txt</regex>
-    <regex>raobStationInfo.txt</regex>
-    <regex>mesonetStationInfo.txt</regex>
-    <regex>common_obs_spatial.txt</regex>
-</requestPatterns>
+<menuContributionFile>
+ <include installTo="menu:obs?after=CollectionDissemSep"   
+             fileName="menus/app-obs/baseCollectDissem.xml"/>
+</menuContributionFile>

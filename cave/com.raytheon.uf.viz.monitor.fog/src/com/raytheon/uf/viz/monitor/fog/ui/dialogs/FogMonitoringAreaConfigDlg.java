@@ -110,10 +110,6 @@ public class FogMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                         fogMonitorDlg.open();
                     }
                 }
-                /**
-                 * DR#11279: re-initialize threshold manager and the monitor
-                 * using new monitor area configuration
-                 */
                 fireConfigUpdateEvent();
                 resetStatus();
             } else { // Return back to continue edit.

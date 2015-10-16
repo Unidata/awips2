@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.common.monitor.data;
 
-
 /**
  * Constants for Observations within the Decision Assistance Tool Suite that
  * hark back to the SAFESEAS.H C++ header file.
@@ -33,6 +32,7 @@ package com.raytheon.uf.common.monitor.data;
  * Jan 26, 2010  4268     skorolev    Corrected DisplayVarName according to
  *                                    VarName for SWELL
  * Nov 06, 2013  2493     bsteffen    Remove unused constants.
+ * Sep 18, 2015  3873     skorolev    Added constants for Maritime data
  * 
  * </pre>
  * 
@@ -45,6 +45,12 @@ public final class ObConst {
     // Private constructor -- all contents must be public static
     private ObConst() {
     }
+
+    /**
+     * The maximum number of most recent hours within which observation reports
+     * are to be archived.
+     */
+    public static final int MAX_FRAMES = 64;
 
     // Time Window in units of hours
     public static final int THREAT_INTERVAL_HOURS = 2;
@@ -75,6 +81,24 @@ public final class ObConst {
     public static final int SKC_SKY_INTEGER = 99999;
 
     public static final String SKC_SKY_STRING = "SKC";
+
+    public static final String SYNOPTIC_SHIP = "1003";
+
+    public static final String SYNOPTIC_CMAN = "1004";
+
+    public static final String SYNOPTIC_MOORED_BUOY = "1005";
+
+    public static final String DRIFTING_BUOY = "1006";
+
+    public static final String SYNOPTIC_MAROB = "1007";
+
+    public static final String METAR = "METAR";
+
+    public static final String SPECI = "SPECI";
+
+    public static final String MARITIME = "MARITIME";
+
+    public static final String MESONET = "MESONET";
 
     // Chosen Application Key
     public enum ChosenAppKey {
@@ -107,7 +131,7 @@ public final class ObConst {
 
         SYNOPTIC_MAROB,
 
-        MARINE,
+        MARITIME,
 
         METAR,
 

@@ -33,6 +33,7 @@ import java.util.HashSet;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 29, 2015 4759       bkowal      Initial creation
+ * Oct 09, 2015 4759       bkowal      Build cycles now cause failure.
  * 
  * </pre>
  * 
@@ -79,17 +80,13 @@ public class BuildFeature {
     }
 
     public void addDependentFeatures(Set<BuildFeature> buildFeatures,
-            final String pluginId) {
+            final String resource, String pluginId) {
         for (BuildFeature buildFeature : buildFeatures) {
             if (buildFeature.dependsOn(this)) {
-                /*
-                 * Only a sysout for now because we do have a single build cycle
-                 * in our current baseline.
-                 */
-                System.out.println("Build cycle detected: "
+                throw new IllegalStateException("Build cycle detected: "
                         + buildFeature.getId() + " and " + this.id
-                        + " are dependent on each other! Linked by plugin = "
-                        + pluginId + " ...");
+                        + " are dependent on each other! Linked by resource = "
+                        + resource + " required by plugin " + pluginId + " ...");
             }
             this.addDependentFeature(buildFeature);
         }

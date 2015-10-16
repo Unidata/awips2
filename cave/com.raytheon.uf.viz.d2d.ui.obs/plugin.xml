@@ -51,6 +51,8 @@
                 </command>
                 <separator name="LocalData" visible="false">
                 </separator>
+                <separator name="CollectionDissemSep" visible="false">
+                </separator>
                 <separator name="EndOfLocalData" visible="true">
                 </separator>
                 <command commandId="com.raytheon.viz.ui.actions.titleAction"

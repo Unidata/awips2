@@ -60,7 +60,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg;
  * Dec  7, 2012 1351       skorolev    Changes for non-blocking dialogs.
  * Apr 28, 2014 3086       skorolev    Updated getConfigMgr method.
  * Sep 04, 2014 3220       skorolev    Removed "site". Added check on dispose.
- * Aug 26, 2015 3841       skorolev    Corrected getMonitorAreaConfigInstance().
+ * Sep 18, 2015 3873       skorolev    Adjusted to AppName and MonName.
  * 
  * </pre>
  * 
@@ -164,29 +164,6 @@ public class FogZoneTableDlg extends ZoneTableDlg {
         }
     }
 
-    /**
-     * Jan 25, 2010, #4281, zhao, Modified to pass an ObMultiHrsReports object
-     * to table dialog
-     * 
-     * @Override public void notify(IMonitorEvent me) { if
-     *           (zoneTable.isDisposed()) return;
-     * 
-     *           if (me.getSource() instanceof FogMonitor) { FogMonitor monitor
-     *           = (FogMonitor)me.getSource();
-     *           this.updateTableDlg(monitor.getObData()); }
-     * 
-     *           //if (me.getSource() instanceof FogMonitor) { //
-     *           IMPORTANT!!!!!! For now we just grab the most recent time from
-     *           the OBSTable // When we have the CAVE rendering working we will
-     *           grab it from the CaveResource! // Date date = new Date(); //
-     *           FogMonitor fog = (FogMonitor)me.getSource(); //
-     *           FogDataGenerator fdg = new FogDataGenerator(); // TableData
-     *           tZoneTableData = fdg.generateZoneData(fog.getTableData(),
-     *           fog.getAlgorithmData(), date); //
-     *           updateZoneTable(tZoneTableData, fog.getStationTableData(),
-     *           date); //} }
-     */
-
     /*
      * (non-Javadoc)
      * 
@@ -220,7 +197,6 @@ public class FogZoneTableDlg extends ZoneTableDlg {
     @Override
     public void fireDialogShutdown(IMonitorListener iml) {
         Display.getDefault().asyncExec(new Runnable() {
-            @Override
             public void run() {
                 Iterator<IMonitor> iter = getMonitorControlListeners()
                         .iterator();
@@ -241,7 +217,6 @@ public class FogZoneTableDlg extends ZoneTableDlg {
     @Override
     public void fireKillMonitor() {
         Display.getDefault().asyncExec(new Runnable() {
-            @Override
             public void run() {
                 Iterator<IMonitor> iter = getMonitorControlListeners()
                         .iterator();
@@ -309,7 +284,6 @@ public class FogZoneTableDlg extends ZoneTableDlg {
         if (configMgr == null || configMgr.isPopulated()) {
             configMgr = FSSObsMonitorConfigurationManager
                     .getInstance(MonName.fog);
-            configMgr.setPopulated(false);
         }
         return configMgr;
     }

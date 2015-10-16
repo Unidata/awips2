@@ -67,7 +67,7 @@ import com.raytheon.uf.edex.menus.AbstractMenuUtil;
  *                                   Configuration Manager has not read a
  *                                   FFMPRunConfig.xml file.
  * Sep 04, 2014 3220       skorolev  Updated menu creation for Fog, Safeseas and Snow monitors.
- * Sep 03, 2015 3841       skorolev  Corrected getInstance for Fog, Safeseas and Snow monitors.
+ * Sep 18, 2015 3873       skorolev  Corrected Fog, Safeseas and Snow monitor's names.
  * 
  * </pre>
  * 

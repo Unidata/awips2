@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.viz.monitor.ui.dialogs;
 
-import java.util.ArrayList;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -36,11 +34,9 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.xml.AreaIdXML;
 import com.raytheon.uf.common.monitor.xml.AreaIdXML.ZoneType;
-import com.raytheon.uf.common.monitor.xml.StationIdXML;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -57,7 +53,6 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Apr 23, 2014 3054      skorolev     Fixed issues with removing a new zone from list.
  * Apr 28, 2014 3086      skorolev     Removed local getAreaConfigMgr method.
  * Nov 10, 2014 3741      skorolev     Fixed configXML issue.
- * Aug 17, 2015 3841      skorolev     Made editable a content of ID field.
  * 
  * </pre>
  * 
@@ -67,7 +62,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 public class EditNewZoneDlg extends CaveSWTDialog {
 
     /** Call back interface. */
-    private final MonitoringAreaConfigDlg macDlg;
+    private MonitoringAreaConfigDlg macDlg;
 
     /** Zone list control. */
     private List zoneList;
@@ -90,13 +85,17 @@ public class EditNewZoneDlg extends CaveSWTDialog {
     /** Control font. */
     private Font controlFont;
 
+    /** Marine station radio button. */
+    private Button marineRdo;
+
+    /** None Marine station radio button. */
+    private Button nonMarineRdo;
+
     /** Bottom label */
     private Label bottomLbl;
 
     /** Deleted zone */
-    private boolean delZone = false;
-
-    private final FSSObsMonitorConfigurationManager cfgMgr;
+    private String delZone;
 
     /**
      * Constructor.
@@ -112,7 +111,6 @@ public class EditNewZoneDlg extends CaveSWTDialog {
         super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText(appName.toString() + ": Edit a Newly Added Zone");
         this.macDlg = macDlg;
-        cfgMgr = macDlg.getInstance();
     }
 
     /*
@@ -144,7 +142,7 @@ public class EditNewZoneDlg extends CaveSWTDialog {
         createListAndTextControls();
         createBottomLabel();
         createCloseButton();
-        populate("");
+        populate();
     }
 
     /**
@@ -229,6 +227,21 @@ public class EditNewZoneDlg extends CaveSWTDialog {
         lonTF = new Text(textButtonComp, SWT.BORDER);
         lonTF.setLayoutData(gd);
 
+        gd = new GridData();
+        gd.horizontalSpan = 2;
+        gd.verticalIndent = 15;
+        marineRdo = new Button(textButtonComp, SWT.RADIO);
+        marineRdo.setLayoutData(gd);
+        marineRdo.setSelection(false);
+        marineRdo.setText("Marine Station");
+
+        gd = new GridData();
+        gd.horizontalSpan = 2;
+        nonMarineRdo = new Button(textButtonComp, SWT.RADIO);
+        nonMarineRdo.setLayoutData(gd);
+        nonMarineRdo.setSelection(true);
+        nonMarineRdo.setText("Non-Marine Station");
+
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, false, true);
         gd.widthHint = 80;
         gd.verticalIndent = 5;
@@ -238,17 +251,7 @@ public class EditNewZoneDlg extends CaveSWTDialog {
         saveBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (zoneList.getItemCount() != 0) {
-                    String area = zoneList.getItem(zoneList.getSelectionIndex());
-                    String areaStr = idTF.getText().toUpperCase();
-                    String latStr = latTF.getText();
-                    String lonStr = lonTF.getText();
-                    if (macDlg.formIsValid(areaStr, latStr, lonStr)) {
-                        saveSelected(area, areaStr, latStr, lonStr);
-                    }
-                } else {
-                    bottomLbl.setText("No zones have been edited.");
-                }
+                saveSelected();
             }
         });
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, false, true);
@@ -306,24 +309,9 @@ public class EditNewZoneDlg extends CaveSWTDialog {
     /**
      * Populate list of added zones.
      */
-    private void populate(String selected) {
-        java.util.List<String> newList = new ArrayList<String>();
-        java.util.List<AreaIdXML> maList = cfgMgr.getConfigXml().getAreaIds();
-        for (AreaIdXML maZone : maList) {
-            if (maZone.getCLat() != null) {
-                newList.add(maZone.getAreaId());
-            }
-        }
-        java.util.List<AreaIdXML> adtnlList = cfgMgr.getAdjAreaConfigXml()
-                .getAreaIds();
-        for (AreaIdXML aZone : adtnlList) {
-            if (aZone.getCLat() != null) {
-                newList.add(aZone.getAreaId());
-            }
-        }
-        zoneList.removeAll();
+    private void populate() {
+        java.util.List<String> newList = macDlg.configMgr.getAddedZones();
         zoneList.setItems(newList.toArray(new String[newList.size()]));
-        macDlg.populateLeftLists(selected);
     }
 
     /**
@@ -331,23 +319,27 @@ public class EditNewZoneDlg extends CaveSWTDialog {
      */
     private void handleZoneSelection() {
         String zone = zoneList.getItem(zoneList.getSelectionIndex());
-        AreaIdXML areaXml = cfgMgr.getAreaXml(zone);
-        AreaIdXML adjAreaXml = cfgMgr.getAdjAreaXML(zone);
+        AreaIdXML areaXml = macDlg.configMgr.getAreaXml(zone);
+        // DR #7343: a null areaXml causes an "Unhandled event loop exception"
         if (areaXml != null) {
             idTF.setText(areaXml.getAreaId());
+            idTF.setEnabled(false);
             latTF.setText(String.valueOf(areaXml.getCLat()));
             lonTF.setText(String.valueOf(areaXml.getCLon()));
-        } else if (adjAreaXml != null) {
-            idTF.setText(adjAreaXml.getAreaId());
-            latTF.setText(String.valueOf(adjAreaXml.getCLat()));
-            lonTF.setText(String.valueOf(adjAreaXml.getCLon()));
+            if (areaXml.getType() == ZoneType.REGULAR) {
+                nonMarineRdo.setSelection(true);
+                marineRdo.setSelection(false);
+            } else {
+                nonMarineRdo.setSelection(false);
+                marineRdo.setSelection(true);
+            }
         }
     }
 
     /**
      * Delete selected zones.
      */
-    private Boolean deleteSelected() {
+    private String deleteSelected() {
         if (zoneList.getItemCount() != 0) {
             if (zoneList.getSelectionIndex() == -1) {
                 MessageBox messageBox = new MessageBox(shell,
@@ -356,97 +348,62 @@ public class EditNewZoneDlg extends CaveSWTDialog {
                 messageBox.setMessage("Please select zone to be deleted.");
                 messageBox.open();
                 zoneList.select(0);
-                return false;
+                return null;
             }
             String area = zoneList.getItem(zoneList.getSelectionIndex());
-            AreaIdXML zoneXML = null;
-            if (cfgMgr.getConfigXml().containsArea(area)) {
-                zoneXML = cfgMgr.getAreaXml(area);
-            } else if (cfgMgr.getAdjAreaConfigXml().containsArea(area)) {
-                zoneXML = cfgMgr.getAdjAreaXML(area);
-            }
             zoneList.remove(zoneList.getSelectionIndex());
-            zoneList.select(0);
-            if (zoneList.getItemCount() != 0) {
-                handleZoneSelection();
-            } else {
-                idTF.setText("");
-                latTF.setText("");
-                lonTF.setText("");
-            }
-            if (zoneXML != null && macDlg.getMaZones().contains(area)) {
-                macDlg.getMaZones().remove(area);
-                cfgMgr.removeArea(zoneXML);
-            }
-            if (zoneXML != null && macDlg.getAdditionalZones().contains(area)) {
-                macDlg.getAdditionalZones().remove(area);
-                cfgMgr.removeAdjArea(zoneXML);
-            }
-            macDlg.populateLeftLists("");
-            macDlg.maZonesRemoved = true;
-            return true;
+            macDlg.configMgr.removeArea(area);
+            idTF.setText("");
+            latTF.setText("");
+            lonTF.setText("");
+            return area;
         } else {
             bottomLbl.setText("No zones have been deleted.");
         }
-        return false;
+        return null;
     }
 
     /**
      * Save selected zones.
-     * 
-     * @param area
-     *            Original zone ID
-     * @param areaStr
-     *            New zone ID
-     * @param latStr
-     *            Latitude
-     * @param lonStr
-     *            Longitude
-     * @throws NumberFormatException
      */
-    private void saveSelected(String area, String areaStr, String latStr,
-            String lonStr) throws NumberFormatException {
-        java.util.List<StationIdXML> stationIds;
-        if (macDlg.getMaZones().contains(area)) {
-            stationIds = cfgMgr.getAreaXml(area).getStationIds();
-        } else if (macDlg.getAdditionalZones().contains(area)) {
-            stationIds = cfgMgr.getAdjAreaXML(area).getStationIds();
+    private void saveSelected() {
+
+        if (zoneList.getItemCount() != 0) {
+            String area = zoneList.getItem(zoneList.getSelectionIndex());
+            String latStr = latTF.getText();
+            String lontStr = lonTF.getText();
+            if (latStr == null || latStr.isEmpty() || lontStr == null
+                    || lontStr.isEmpty()) {
+                macDlg.latLonErrorMsg(latStr, lontStr);
+                return;
+            } else {
+                try {
+                    double lat = Double.parseDouble(latStr);
+                    double lon = Double.parseDouble(lontStr);
+                    if (lat > 90.0 || lat < -90.0 || lon > 180.0
+                            || lon < -180.0) {
+                        macDlg.latLonErrorMsg(latStr, lontStr);
+                        return;
+                    }
+                    ZoneType type = ZoneType.REGULAR;
+                    if (marineRdo.getSelection()) {
+                        type = ZoneType.MARITIME;
+                    }
+                    // Replace previously added zone
+                    macDlg.configMgr.removeArea(area);
+                    macDlg.configMgr.removeAddedArea(area);
+                    macDlg.configMgr.addArea(area, lat, lon, type);
+                    populate();
+                    // Return cursor to the top of the list.
+                    zoneList.select(0);
+                } catch (NumberFormatException e) {
+                    macDlg.latLonErrorMsg(latStr, lontStr);
+                    return;
+                }
+            }
         } else {
-            return;
+            bottomLbl.setText("No zones have been edited.");
         }
-        double lat = Double.parseDouble(latStr);
-        double lon = Double.parseDouble(lonStr);
-        if (lat > 90.0 || lat < -90.0 || lon > 180.0 || lon < -180.0) {
-            macDlg.latLonErrorMsg(latStr, lonStr);
-            return;
-        }
-        ZoneType type = ZoneType.REGULAR;
-        if (areaStr.charAt(2) != 'C') {
-            type = (ZoneType.MARITIME);
-        }
-        AreaIdXML areaXML = new AreaIdXML();
-        areaXML.setAreaId(areaStr);
-        areaXML.setCLat(lat);
-        areaXML.setCLon(lon);
-        areaXML.setType(type);
-        areaXML.setStationIds(stationIds);
-        // Replace previously added zone
-        if (cfgMgr.getAreaList().contains(area)) {
-            if (macDlg.getMaZones().contains(area)) {
-                int idx = macDlg.getMaZones().indexOf(area);
-                macDlg.getMaZones().set(idx, areaXML.getAreaId());
-            }
-            cfgMgr.replaceArea(cfgMgr.getAreaXml(area), areaXML);
-        } else if (macDlg.getAdditionalZones().contains(area)) {
-            if (macDlg.getAdditionalZones().contains(area)) {
-                int idx = macDlg.getAdditionalZones().indexOf(area);
-                macDlg.getAdditionalZones().set(idx, areaXML.getAreaId());
-            }
-            cfgMgr.replaceAdjArea(cfgMgr.getAdjAreaXML(area), areaXML);
-        }
-        populate(areaStr);
-        // Return cursor to the list.
-        zoneList.select(zoneList.indexOf(areaStr));
     }
 
     /*

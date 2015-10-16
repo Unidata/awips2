@@ -54,7 +54,10 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
+import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
+import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.monitor.IMonitor;
@@ -96,7 +99,7 @@ import com.vividsolutions.jts.io.ParseException;
  * May 15, 2014 3086      skorolev     Replaced MonitorConfigurationManager with FSSObsMonitorConfigurationManager.
  * Sep 15, 2014 3220      skorolev     Added refreshZoneTableData method.
  * Nov 03, 2014 3741      skorolev     Updated zoom procedures.
- * Aug 26, 2015 3841      skorolev     Corrected zoomToZone procedure.
+ * Sep 25, 2015 3873      skorolev     Added center definition for moving platforms.
  * 
  * </pre>
  * 
@@ -192,6 +195,8 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
     private final DateFormat dFormat = new SimpleDateFormat(
             "E MMM dd HH:mm:ss yyyy");
 
+    public static String datePattern = "yyyy-MM-dd HH:mm:ss";
+
     /** list of variables to plot. **/
     public List<String> prodArray;
 
@@ -226,7 +231,7 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
     protected abstract void shellDisposeAction();
 
     /** List of opened plots. **/
-    private final Map<String, CaveSWTDialog> openedDlgs = new HashMap<String, CaveSWTDialog>();
+    private Map<String, CaveSWTDialog> openedDlgs = new HashMap<String, CaveSWTDialog>();
 
     /** row index in the station table. **/
     public int rowIndex;
@@ -243,7 +248,7 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
     /** current site **/
     protected String site;
 
-    protected FSSObsMonitorConfigurationManager configMgr = null;
+    protected FSSObsMonitorConfigurationManager configMgr;
 
     /**
      * Constructor
@@ -654,6 +659,7 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
         initiateProdArray();
         dlgTitle = getTrendPlotName(prodArray) + " Trend Plot for " + station
                 + "#" + dataSrc;
+
         if (graphType == GraphType.Trend) {
             TrendPlotDlg tpd = (TrendPlotDlg) openedDlgs.get(dlgTitle);
             if (tpd == null) {
@@ -789,7 +795,6 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
     private void zoomToZone(String zone) throws Exception {
         Coordinate zoneCenter = MonitorAreaUtils.getZoneCenter(zone);
         if (zoneCenter == null) { // Test a newly added zone.
-            configMgr = getMonitorAreaConfigInstance();
             AreaIdXML zoneXML = configMgr.getAreaXml(zone);
             if (zoneXML != null // Coordinates do not the null values.
                     && (zoneXML.getCLon() != null || zoneXML.getCLat() != null)) {
@@ -814,11 +819,29 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
         try {
             Coordinate stnCenter = MonitorAreaUtils
                     .getStationCenter(selectedStation);
-            if (stnCenter != null) {
-                zoomAndRecenter(stnCenter, STATION_ZOOM_LEVEL);
+            if (stnCenter == null) {
+                // Center for moving platforms.
+                SimpleDateFormat datef = new SimpleDateFormat(datePattern);
+                datef.setTimeZone(TimeZone.getTimeZone("GMT"));
+                String sql = "select longitude, latitude from fssobs where stationid = '"
+                        + selectedStation + "'";
+                List<Object[]> results = DirectDbQuery.executeQuery(sql,
+                        "metadata", QueryLanguage.SQL);
+                double x;
+                double y;
+                if (!results.isEmpty()) {
+                    x = Double.parseDouble(results.get(0)[0].toString());
+                    y = Double.parseDouble(results.get(0)[1].toString());
+                    stnCenter = new Coordinate();
+                    stnCenter.x = x;
+                    stnCenter.y = y;
+                }
             }
-        } catch (SpatialException | ParseException e) {
-            statusHandler.handle(Priority.ERROR, e.getLocalizedMessage(), e);
+            zoomAndRecenter(stnCenter, STATION_ZOOM_LEVEL);
+        } catch (SpatialException | ParseException | VizException e) {
+            statusHandler.handle(Priority.ERROR,
+                    "Unable to find the station center for station: "
+                            + selectedStation, e);
         }
     }
 
@@ -945,20 +968,30 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
         int stInd = name.indexOf("_");
         if (prod.size() > 1) {
             varName = name.substring(0, stInd);
-            if (varName.equals("SCA")) {
+            switch (varName) {
+            case "SCA":
                 varName = "Small Craft Advisory";
-            } else if (varName.equals("GALE")) {
+                break;
+            case "GALE":
                 varName = "Gale Warning";
-            } else if (varName.equals("STORM")) {
+                break;
+            case "STORM":
                 varName = "Storm Warning";
-            } else if (varName.equals("HURRICANE")) {
+                break;
+            case "HURRICANE":
                 varName = "Hurricane Force Wind Warning";
-            } else if (varName.equals("BLIZ")) {
+                break;
+            case "BLIZ":
                 varName = "Blizzard Warning";
-            } else if (varName.equals("FRZ")) {
+                break;
+            case "FRZ":
                 varName = "Freezing Precipitation";
-            } else if (varName.equals("HSW")) {
+                break;
+            case "HSW":
                 varName = "Heavy Snow Warning";
+                break;
+            default:
+                statusHandler.error("Invalid name for variable " + varName);
             }
         } else {
             varName = name.substring(stInd + 1);

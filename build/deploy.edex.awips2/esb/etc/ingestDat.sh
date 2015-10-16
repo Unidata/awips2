@@ -18,8 +18,11 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
-export INIT_MEM=256 # in Meg
 export MAX_MEM=1856 # in Meg
+
+if [ $HIGH_MEM == "on" ]; then
+    export MAX_MEM=2560
+fi
 
 export METADATA_POOL_MAX=25
 export EDEX_DEBUG_PORT=5008

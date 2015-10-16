@@ -14,7 +14,7 @@ ENAN     010100 ANDOYA/ANDENES(AFB)                 NO  6930   1615    14  046
 9999     010170 GIBOSTAD                            NO  6935  01808  0012  046  
 ENDU     010230 BARDUFOSS_(CIV/MIL)                 NO  6905   1855    79  046  
 ENTC     010250 TROMSO/LANGNES                      NO  6968   1892    10  046  
-9999     010260 TROMSO                              NO  6965   1894   114  046
+9999     010260 TROMSO                              NO  6965   1894   114  046  
 ENBJ     010280 BJORNOYA_ISLAND                     NO  7452   1902    16  046  
 9999     010320 OVERBGYD                            NO  6902  01928  0078  046  
 9999     010330 TORSVAG_(LGT-H)                     NO  7025   1950    24  046  
@@ -232,7 +232,7 @@ ESNG     020490 GALLIVARE_(PRIVATE)                 SN  6715   2083   310  046
 9999     021240 ARJEPLOG                            SN  6605   1787   430  046  
 ESPD     021280 GUNNARN                             SN  6500   1772   273  046  
 9999     021360 STORBERG                            SN  6550  01895  0454  046  
-9999     021410 TJAKAAPE                            SN  6632   1922 -9999  046
+9999     021410 TJAKAAPE                            SN  6632   1922 -9999  046  
 ESNJ     021420 JOKKMOKK                            SN  6663   1963   266  046  
 9999     021440 ABRAUR                              SN  6598   1893   374  046  
 9999     021520 SUDOK                               SN  6630  02042  0174  046  
@@ -241,7 +241,7 @@ ESPE     021540 VIDSEL                              SN  6588   2015   183  046
 9999     021590 FALLFORS                            SN  6512   2077   180  046  
 9999     021610 NATTAVAARA                          SN  6675   2093 -9999  046  
 9999     021640 PALKEM                              SN  6638   2163   263  046  
-9999     021710 BODEN                               SN  6582   2170    16  046
+9999     021710 BODEN                               SN  6582   2170    16  046  
 9999     021720 ALVSBYN                             SN  6568  02097  0050  046  
 9999     021760 PITE-RONNSKAR                       SN  6503   2157 -9999  046  
 9999     021810 SVARTBYN                            SN  6627  02285    62  046  
@@ -327,7 +327,7 @@ ESSQ     024180 KARLSTADT-FLYGPLATS                 SN  5937   1347    50  046
 ESSD     024350 BORLANGE_(SWE-AFB)                  SN  6043   1550   161  046  
 9999     024380 VINGAKER                            SN  5907  01583  0060  046  
 9999     024390 FELLINGSBRO-FINNAKE                 SN  5953  01558  0052  046  
-9999     024400 AMOT                                SN  6097   1643   162  046
+9999     024400 AMOT                                SN  6097   1643   162  046  
 9999     024420 VINTJARN                            SN  6083  01605  0349  046  
 ESSK     024430 GAVLE/SANDVIKEN_AFB                 SN  6060   1695    79  046  
 9999     024440 FOLKARNA                            SN  6017   1632    70  046  
@@ -347,7 +347,7 @@ ESSB     024640 STOCKHOLM/BROMMA                    SN  5937   1790    15  046
 9999     024740 SINGO_ISLAND                        SN  6017   1875    14  046  
 9999     024760 FLODA                               SN  5905   1640    20  046  
 9999     024800 NORRTALJE                           SN  5985  01873  0010  046  
-9999     024840 STOCKHOLM/OBSERVATORIET             SN  5957   1810    44  046
+9999     024840 STOCKHOLM/OBSERVATORIET             SN  5957   1810    44  046  
 9999     024870 STAVSNAS                            SN  5930   1870    18  046  
 9999     024880 ORSKAR                              SN  6053   1838     9  046  
 9999     024890 HARSFJARDEN                         SN  5907   1812     3  046  
@@ -364,7 +364,7 @@ ESSB     024640 STOCKHOLM/BROMMA                    SN  5937   1790    15  046
 9999     025120 GOTEBORG                            SN  5778   1188    16  046  
 9999     025130 GOTEBURG                            SN  5770   1200     5  046  
 9999     025150 GOTEBORG/TORSLANDA                  SN  5772  01178 -9999  046  
-9999     025160 VINGA                               SN  5763  01162  0019  046
+9999     025160 VINGA                               SN  5763  01162  0019  046  
 9999     025170 TRUBADUREN                          SN  5760   1163 -9999  046  
 9999     025180 NIDINGEN_(LGT-H)                    SN  5730   1190     5  046  
 ESIB     025200 SATENAS                             SN  5843   1272    51  046  
@@ -378,10 +378,10 @@ ESGG     025260 GOTEBORG/LANDVETTER                 SN  5767   1230   169  046
 9999     025380 HESTRA                              SN  5740  01353  0285  046  
 9999     025430 FAGRE                               SN  5865  01413  0097  046  
 9999     025440 KARLSBORG                           SN  5852  01453  0102  046  
-9999     025450 AXSTAL                              SN  5857   1457    91  046
+9999     025450 AXSTAL                              SN  5857   1457    91  046  
 ESGJ     025500 JONKOPING/AXAMO                     SN  5775   1408   218  046  
 9999     025550 NASSJO                              SN  5765   1470   305  046  
-ESMV     025560 HAGSHULT                            SN  5730   1413   169  046
+ESMV     025560 HAGSHULT                            SN  5730   1413   169  046  
 9999     025600 ZINKGRUVAN                          SN  5880  01512  0215  046  
 ESCF     025620 LINKOPING/MALMSLAETT                SN  5840   1553    87  046  
 9999     025640 MALEXANDER                          SN  5807   1523   200  046  
@@ -520,7 +520,7 @@ EGPO     030260 STORNOWAY                           UK  5822   -632    13  046
 9999     030360 BROADFORD, SCOTLAND                 UK  5725   -587     8  046  
 9999     030370 SKYE/LUSA                           UK  5725   -580    18  046  
 9999     030380 FORT_WILLIAM                        UK  5683   -510    20  046  
-9999     030390 KILCHOAN                            UK  5670 -00612  0010  046
+9999     030390 KILCHOAN                            UK  5670 -00612  0010  046  
 9999     030400 KILMORY_(AUX)                       UK  5677   -605    45  046  
 9999     030410 AONACH_MOR.(AMOS)                   UK  5682   -497  1130  046  
 9999     030440 ALTNAHARRA                          UK  5828   -443    80  046  
@@ -573,7 +573,7 @@ EGPK     031350 PRESTWICK(CIV/NAVY)                 UK  5550   -458    20  046
 EGPF     031400 GLASGOW_AIRPORT                     UK  5587   -443     8  046  
 9999     031410 CUMBERNAULD                         UK  5597  -0393 -9999  046  
 9999     031440 STRATHALLAN_(AUT)                   UK  5632   -373    35  046  
-9999     031480 GLEN OGLE                           UK  5642   -432   564  046
+9999     031480 GLEN OGLE                           UK  5642   -432   564  046  
 9999     031520 SALSBURGH                           UK  5587   -387   275  046  
 9999     031530 DUNDRENNAN_(AUT)                    UK  5480   -400   114  046  
 9999     031540 DUMFRIES/DRUNGANS                   UK  5505   -365    16  046  
@@ -620,7 +620,7 @@ EGXD     032610 DISHFORTH_RAF                       UK  5413   -142    35  046
 9999     032650 TOPCLIFFE                           UK  5420   -138    25  046  
 EGXU     032660 LINTON-ON-OUSE_RAF                  UK  5405   -125    16  046  
 9999     032710 TEESMOUTH_(AUX)                     UK  5463   -113    12  046  
-9999     032750 LOFTUS SAMOS                        UK  5457    -87    58  046
+9999     032750 LOFTUS SAMOS                        UK  5457    -87    58  046  
 9999     032810 FYLINGDALES                         UK  5437    -67   262  046  
 9999     032820 WHITBY                              UK  5448    -60    60  046  
 9999     032920 BRIDLINGTON_MRSC                    UK  5410    -17    15  046  
@@ -1055,15 +1055,15 @@ EHAM     062400 AMSTERDAM AP SCHIPHO                NL  5229    476    -2  046
 9999     062410 AMSTERDAM/COENHAVEN                 NL  5242  00487  0000  046  
 EHVL     062420 VLIELAND_ISLAND                     NL  5325    492     5  046  
 9999     062440 HOORAN AWS                          NL  5265    504    -1  046  
-9999     062470 BLOEMENDAAL                         NL  5242    455    18  046
-9999     062480 WUDENES                             NL  5263    517     1  046
+9999     062470 BLOEMENDAAL                         NL  5242    455    18  046  
+9999     062480 WUDENES                             NL  5263    517     1  046  
 9999     062490 BERKENHOUT AWS                      NL  5265   0498 -9999  046  
 9999     062500 TERSCHELLING(LGT-H)                 NL  5337    522    27  046  
 9999     062510 TERSCHELLING_HOORN                  NL  5338    535     1  046  
 9999     062520 K13-A                               NL  5322    322    30  046  
-9999     062530 AUK-ALFA                            NL  5640    207    34  046
-9999     062540 MEETPOST NOORDWUK                   NL  5227    430    17  046
-9999     062550 NOORDELUKE ZEERAAF                  NL  6123    115    47  046
+9999     062530 AUK-ALFA                            NL  5640    207    34  046  
+9999     062540 MEETPOST NOORDWUK                   NL  5227    430    17  046  
+9999     062550 NOORDELUKE ZEERAAF                  NL  6123    115    47  046  
 EHDB     062600 DE_BILT                             NL  5210    518     4  046  
 9999     062610 DE BILT AWS                         NL  5210  00518  0002  046  
 EHSB     062650 SOESTERBERG_RNLAFB                  NL  5213    527    13  046  
@@ -1091,8 +1091,8 @@ EHTW     062900 TWENTE_RNLAFB                       NL  5227    690    36  046
 9999     063150 HANSWEERT                           NL  5145    400 -9999  046  
 9999     063160 SCHAAR (AMOS)                       NL  5165  00370  0000  046  
 9999     063190 WESTDORPE                           NL  5123    387     1  046  
-9999     063200 LE GOEREE                           NL  5194    367    19  046
-9999     063210 EURO PLATFORM                       NL  5200    328    18  046
+9999     063200 LE GOEREE                           NL  5194    367    19  046  
+9999     063210 EURO PLATFORM                       NL  5200    328    18  046  
 9999     063230 WILHELMINADORP_AWS                  NL  5153    392     1  046  
 9999     063240 STAVENISSE                          NL  5160    400 -9999  046  
 9999     063250 ZIERIKZEE                           NL  5165  00393  0001  046  
@@ -1225,16 +1225,16 @@ LFOH     070280 LE_HAVRE                            FR  4950      7   103  046
 9999     070290 PORT_EN_BESSIN                      FR  4935    -77    73  046  
 9999     070310 DEAUVILLE                           FR  4937     17   147  046  
 9999     070330 VITTEFLEUR                          FR  4983     65    83  046  
-9999     070340 CARTERET                            FR  4937   -180    61  046
+9999     070340 CARTERET                            FR  4937   -180    61  046  
 LFOP     070370 ROUEN                               FR  4938    118   157  046  
 LFOE     070380 EVREUX                              FR  4902    122   138  046  
-9999     070390 VALOGNES                            FR  4952   -150    61  046
+9999     070390 VALOGNES                            FR  4952   -150    61  046  
 9999     070400 DIEPPE                              FR  4993    110    38  046  
 9999     070410 VALOGNES                            FR  4952   -150    61  046  
 9999     070460 LE_HAVRE-OCTEVILLE                  FR  4953      8    94  046  
 9999     070530 CORMEILLES                          FR  4908    203   100  046  
 LFOB     070550 BEAUVAIS                            FR  4947    212   111  046  
-LFPC     070570 CREIL_FAFB                          FR  4925    252    88  046
+LFPC     070570 CREIL_FAFB                          FR  4925    252    88  046  
 LFOW     070610 SAINT-QUENTIN                       FR  4982    320   101  046  
 LFSR     070700 REIMS                               FR  4930    403    91  046  
 LFQV     070750 CHARLEVILLE                         FR  4978    463   148  046  
@@ -1242,11 +1242,11 @@ LFSF     070900 METZ/FRESCATY                       FR  4908    613   192  046
 LFJL     070930 METZ-NANCY-LORRAINE                 FR  4898    625   264  046  
 9999     071000 OUESSANT                            FR  4848   -505    68  046  
 9999     071030 POINTE_DU_RAZ                       FR  4803   -473    89  046  
-LFRJ     071060 LANDIVISIAU                         FR  4852   -415   106  046
+LFRJ     071060 LANDIVISIAU                         FR  4852   -415   106  046  
 9999     071070 BRIGNOGAN                           FR  4868   -433    28  046  
 LFRL     071090 LANVEOC_POULMIC                     FR  4828   -443    83  046  
 LFRB     071100 BREST                               FR  4845   -442    99  046  
-9999     071160 ILE_DE_BATZ                         FR  4875   -402    27  046
+9999     071160 ILE_DE_BATZ                         FR  4875   -402    27  046  
 9999     071170 PLOUMANCH                           FR  4883   -347    71  046  
 9999     071180 LANNION                             FR  4875   -347    87  046  
 9999     071190 ROSTRENEN                           FR  4823   -330   268  046  
@@ -1255,15 +1255,15 @@ LFRD     071250 DINARD                              FR  4858   -207    59  046
 9999     071270 GROUIN_DE_CANCALE                   FR  4872   -185    46  046  
 9999     071290 FALAISE                             FR  4892    -13   166  046  
 LFRN     071300 RENNES                              FR  4807   -173    43  046  
-9999     071330 POINTE_DU_ROC                       FR  4884   -162    37  046
+9999     071330 POINTE_DU_ROC                       FR  4884   -162    37  046  
 9999     071340 LAVAL                               FR  4803    -73    97  046  
 LFOF     071390 ALENCON                             FR  4843     10   144  046  
 LFOC     071400 CHATEAUDUN                          FR  4807    138   127  046  
 LFOR     071430 CHARTRES                            FR  4847    150   156  046  
 9999     071450 TRAPPES                             FR  4877    200   168  046  
-LFPN     071460 TOUSSUS_LE_NOBLE                    FR  4877    110   164  046
-LFPV     071470 VILLACOUBLAY                        FR  4877    220   177  046
-9999     071480 BRETIGNY                            FR  4860    233    82  046
+LFPN     071460 TOUSSUS_LE_NOBLE                    FR  4877    110   164  046  
+LFPV     071470 VILLACOUBLAY                        FR  4877    220   177  046  
+9999     071480 BRETIGNY                            FR  4860    233    82  046  
 LFPO     071490 PARIS-ORLY                          FR  4872    238    90  046  
 LFPB     071500 LE_BOURGET                          FR  4897    243    51  046  
 LFPM     071530 MELUN                               FR  4862    268    91  046  
@@ -1328,7 +1328,7 @@ LFLM     073850 MACON                               FR  4630    480   217  046
 9999     073900 LONS-LE-SAUNIER                     FR  4668    552   279  046  
 9999     074000 LA COUBRE                           FR  4570   -123     7  046  
 LFBG     074120 COGNAC                              FR  4567    -32    31  046  
-LFBX     074280 PERIGUEUX                           FR  4520     82   100  046
+LFBX     074280 PERIGUEUX                           FR  4520     82   100  046  
 LFBL     074340 LIMOGES                             FR  4587    118   402  046  
 9999     074360 GREZES                              FR  4510    137   361  046  
 LFBV     074380 BRIVE                               FR  4515    147   117  046  
@@ -1345,7 +1345,7 @@ LFLB     074910 CHAMBERY/AIX-LES-BAINS              FR  4563    587   235  046
 9999     074970 BOURG_SAINT-MAURICE                 FR  4562    677   868  046  
 9999     074990 CHAMONIX                            FR  4592    687  1050  046  
 9999     075000 CAP_FERRET                          FR  4463   -125    10  046  
-LFBC     075020 CAZAUX                              FR  4453   -113    25  046
+LFBC     075020 CAZAUX                              FR  4453   -113    25  046  
 9999     075030 BISCAROSSE                          FR  4443   -125    39  046  
 LFBD     075100 BORDEAUX_MERIGNAC                   FR  4483    -68    61  046  
 9999     075170 CAPTIEUX                            FR  4418 -00028  0133  046  
@@ -1354,7 +1354,7 @@ LFBE     075300 BERGERAC                            FR  4482     52    51  046
 9999     075350 GOURDON                             FR  4475    140   264  046  
 9999     075400 MONTAUBAN                           FR  4403    138   108  046  
 LFLW     075490 AURILLAC                            FR  4488    242   640  046  
-LFCR     075520 RODEZ                               FR  4440    248   581  046
+LFCR     075520 RODEZ                               FR  4440    248   581  046  
 9999     075540 MENDE                               FR  4450    353  1022  046  
 9999     075550 CASSAGNES                           FR  4418  00252  1020  046  
 9999     075580 MILLAU                              FR  4412    302   720  046  
@@ -1367,11 +1367,11 @@ LFMO     075790 ORANGE                              FR  4413    483    55  046
 9999     075870 LUS-LA-CROIX-HAUTE                  FR  4468    572    85  046  
 LFMX     075880 ST-AUBAN-SUR-DURANC                 FR  4407    600   461  046  
 9999     075910 EMBRUN                              FR  4457    650   876  046  
-9999     075930 BRIANCON                            FR  4492  00665  1336  046
+9999     075930 BRIANCON                            FR  4492  00665  1336  046  
 9999     076000 SOCOA                               FR  4340    168    25  046  
 LFBZ     076020 BIARRITZ                            FR  4347   -153    71  046  
 LFBY     076030 DAX                                 FR  4368   -107    33  046  
-LFBM     076070 MONT-DE-MARSAN                      FR  4392    -50    62  046
+LFBM     076070 MONT-DE-MARSAN                      FR  4392    -50    62  046  
 LFBP     076100 PAU                                 FR  4338    -42   185  046  
 LFBT     076210 TARBES-OSSUN                        FR  4318    000   363  046  
 LFDH     076220 AUCH                                FR  4368     60   128  046  
@@ -1384,31 +1384,31 @@ LFMK     076350 CARCASSONNE                         FR  4322    232   130  046
 9999     076410 SETE                                FR  4340    368    85  046  
 LFMT     076430 MONTPELLIER                         FR  4358    397     8  046  
 LFME     076450 NIMES-COURBESSAC                    FR  4387    440    62  046  
-LFTW     076460 NIMES/GARONS                        FR  4375    442    94  046
+LFTW     076460 NIMES/GARONS                        FR  4375    442    94  046  
 9999     076470 ISTRES                              FR  4352    493    24  046  
 LFMY     076480 SALON                               FR  4360    510    60  046  
-LFMA     076490 AIX_LES_MILLES                      FR  4350    537   111  046
+LFMA     076490 AIX_LES_MILLES                      FR  4350    537   111  046  
 LFML     076500 MARIGNANE                           FR  4345    523    32  046  
-9999     076530 CAP_COURONNE                        FR  4333    505    27  046
-9999     076560 BEC_DE_L'AIGLE                      FR  4318    558   315  046
+9999     076530 CAP_COURONNE                        FR  4333    505    27  046  
+9999     076560 BEC_DE_L'AIGLE                      FR  4318    558   315  046  
 LFXI     076570 APT                                 FR  4405    550   837  046  
 9999     076580 NIMES_MANDUEL                       FR  4380    450    77  046  
 9999     076600 TOULON                              FR  4310    593    25  046  
 9999     076610 CAP_CEPET                           FR  4308    593   136  046  
 9999     076660 LEUCATE                             FR  4293    305    45  046  
 LFTH     076670 HYERES                              FR  4310    615     4  046  
-9999     076700 PORQUEROLLES                        FR  4300    623   143  046
+9999     076700 PORQUEROLLES                        FR  4300    623   143  046  
 LFMC     076750 LE_LUC                              FR  4338    638    82  046  
-9999     076770 CAP_CAMARAT                         FR  4320    668   110  046
-9999     076780 TOULON/ILE_DU_LEVANT                FR  4303    647   110  046
+9999     076770 CAP_CAMARAT                         FR  4320    668   110  046  
+9999     076780 TOULON/ILE_DU_LEVANT                FR  4303    647   110  046  
 LFTU     076800 SAINT_RAPHAEL                       FR  4342    675     6  046  
 9999     076820 GRASSE                              FR  4375  00692  1269  046  
 LFMD     076840 CANNES                              FR  4355    695     8  046  
-9999     076880 LA_GAROUPE                          FR  4357    713    74  046
+9999     076880 LA_GAROUPE                          FR  4357    713    74  046  
 LFMN     076900 NICE                                FR  4365    720    28  046  
 9999     076950 CAP_FERRAT                          FR  4368    733   144  046  
-9999     077380 LES_ESCALDES                        FR  4248    199  1420  046
-9999     077400 STE_LEOCADIE                        FR  4245    200  1320  046
+9999     077380 LES_ESCALDES                        FR  4248    199  1420  046  
+9999     077400 STE_LEOCADIE                        FR  4245    200  1320  046  
 LFMP     077470 PERPIGNAN                           FR  4273    287    47  046  
 9999     077490 CAP_BEAR                            FR  4252    313    86  046  
 9999     077520 LAPARTA, CORSICA                    FR  4192  00862  0040  046  
@@ -1422,7 +1422,7 @@ LFKS     077650 SOLENZARA                           FR  4192    940    22  046
 LFKF     077800 FIGARI                              FR  4150    910    23  046  
 9999     077850 CAPE_CORSE                          FR  4300    937   111  046  
 LFKB     077900 BASTIA                              FR  4255    948    12  046  
-9999     077910 CAP_SAGRO                           FR  4280    948   111  046
+9999     077910 CAP_SAGRO                           FR  4280    948   111  046  
 9999     080010 LA_CORUNA_CITY                      SP  4337   -842    67  046  
 LECO     080020 LA_CORUNA/ALVEDRO                   SP  4330   -838   103  046  
 9999     080030 MONTEVENTOSO                        SP  4348   -832   240  046  
@@ -2265,11 +2265,11 @@ EPRZ     125800 RZESZOW-JASIONKA                    PL  5010   2205   201  016
 9999     126600 NOWY_SACZ                           PL  4962   2070   295  016  
 9999     126900 LESKO                               PL  4947   2235   422  016  
 9999     126950 PRZEMYSL                            PL  4980   2277   280  016  
-9999     127560 SZECSENY                            HU  4812   1952   152  016
-9999     127660 JOSVAFO                             HU  4848   2053   305  016
+9999     127560 SZECSENY                            HU  4812   1952   152  016  
+9999     127660 JOSVAFO                             HU  4848   2053   305  016  
 9999     127720 MISKOLC                             HU  4810   2078   233  016  
 9999     127780 SAROSPATAK                          HU  4832  02157  0118  016  
-9999     127860 ZAHONY                              HU  4840   2217   103  016
+9999     127860 ZAHONY                              HU  4840   2217   103  016  
 9999     127880 KISVARDA                            HU  4823  02212  0110  016  
 9999     128050 SOPRON                              HU  4768   1660   238  016  
 LHSY     128120 SZOMBATHELY                         HU  4727   1663   221  016  
@@ -2279,17 +2279,17 @@ LHPA     128250 PAPA                                HU  4735   1747   141  016
 9999     128300 VESZPREM                            HU  4708   1792   303  016  
 9999     128310 DOBOGOKO                            HU  4770  01888  0676  016  
 9999     128330 TATABANYA                           HU  4757  01837  0159  016  
-9999     128360 TATA                                HU  4765   1832   128  016
+9999     128360 TATA                                HU  4765   1832   128  016  
 9999     128380 BUDAORS                             HU  4745   1897   132  016  
 LHBP     128390 BUDAPEST/FERIHEGY                   HU  4743   1927   185  016  
 9999     128400 BUDAPEST_MET_CENTER                 HU  4752   1903   129  016  
 9999     128430 BUDAPEST/LORINC                     HU  4743   1918   139  016  
-9999     128440 TOKOL                               HU  4735   1899   100  016
-9999     128460 AGARD                               HU  4718   1862   105  016
+9999     128440 TOKOL                               HU  4735   1899   100  016  
+9999     128460 AGARD                               HU  4718   1862   105  016  
 9999     128510 KEKESTETO_(MOUNT)                   HU  4787   2002  1015  016  
 LHSN     128600 SZOLNOK                             HU  4717   2023    85  016  
 9999     128660 POROSZLO                            HU  4765   2063    92  046  
-9999     128700 EGER                                HU  4790   2038   220  016
+9999     128700 EGER                                HU  4790   2038   220  016  
 9999     128750 TURKEVE                             HU  4710  02075  0088  016  
 LHDC     128820 DEBRECEN_AIRPORT                    HU  4748   2163   112  016  
 9999     128920 NYIREGYHAZA                         HU  4802   2173   106  016  
@@ -2424,7 +2424,7 @@ LYTV     134570 TIVAT                               YG  4240   1873     5  016
 9999     134610 BAR                                 YG  4210   1910     6  016  
 LYTI     134620 TITOGRAD/GOLUBOVCI                  YG  4237   1925    33  016  
 9999     134630 PODGORICA-GRAD                      YG  4243  01928  0050  016  
-9999     134640 ULCINJ                              YG  4192   1922    24  016
+9999     134640 ULCINJ                              YG  4192   1922    24  016  
 9999     134650 KOLASIN                             YG  4283   1953   945  016  
 9999     134730 PEC                                 YG  4267   2030   499  016  
 9999     134770 PRIZREN                             YG  4222   2073   403  016  
@@ -7176,7 +7176,7 @@ WMKM     486650 MALACCA                             MS  0227  10225     9  045
 WSSS     486980 SINGAPORE/CHANGI                    SR  0137  10398    16  045  
 9999     488020 SA PA                               VS  2235  10382  1581  012  
 9999     488030 LAO_CAI                             VS  2250  10397    97  012  
-9999     488060 SON_LA                              VS  2133  10390   676  012
+9999     488060 SON_LA                              VS  2133  10390   676  012  
 9999     488080 CAO_BANG                            VS  2267  10625   243  012  
 9999     488100 BAC_CAN                             VS  2215  10583   176  012  
 VVNB     488200 HANOI                               VS  2102  10580     7  012  
@@ -7207,7 +7207,7 @@ VVTS     489000 HO_CHI_MINH                         VS  1082  10667    10  012
 9999     489100 VINH_LONG                           VS  1025  10595     3  012  
 9999     489130 BA-XUYEN/SOC_TRANG                  VS  0960  10597     5  012  
 9999     489140 CA_MAU                              VS  0918  10517     2  012  
-9999     489160 THO_CHU                             VS   928  10347    24  012
+9999     489160 THO_CHU                             VS   928  10347    24  012  
 9999     489170 PHU_QUOC                            VS  1022  10397     4  012  
 9999     489180 CON_SON                             VS  0868  10660     9  012  
 9999     489190 HUYEN_TRAN                          VS  0802  11062    19  012  
@@ -7932,7 +7932,7 @@ ZSHC     584570 HANGZHOU/JIANQIAO                SH CI  3023  12017    43  012
 9999     585270 JINGDEZHEN                       HK CI  2930  11720    60  012  
 9999     585310 TUNXI                            HK CI  2975  11825    61  012  
 9999     585370 HUA PU                              CI  2902  11833        012  
-9999     585430 CHUN AN                             CI  2962  11902   172  012
+9999     585430 CHUN AN                             CI  2962  11902   172  012  
 9999     585490 JINHUA                           SH CI  2915  11963    35  012  
 9999     585540 I WU                                CI  2935  12002  0091  012  
 9999     585560 SHENGXIAN                        SH CI  2960  12082   108  012  
@@ -8304,7 +8304,7 @@ GOOY     616410 DAKAR/YOFF                          SG  1473  -1750    24  041
 GOOD     616660 DIOURBEL                            SG  1465  -1623     9  041  
 GOOK     616790 KAOLACK                             SG  1413  -1607     7  041  
 GOTT     616870 TAMBACOUNDA                         SG  1377  -1368    50  041  
-GOTS     616893 SIMENTI                             SG  1305  -1330    52  041
+GOTS     616893 SIMENTI                             SG  1305  -1330    52  041  
 GOGG     616950 ZIGUINCHOR                          SG  1255  -1627    23  041  
 GOGS     616970 CAPE_SKIRING                        SG  1240  -1675    13  041  
 GOGK     616980 KOLDA                               SG  1288  -1497    10  041  
@@ -9153,7 +9153,7 @@ FAWM     683450 WELKOM                              ZA -2800   2667  1342  041
 9999     683770 NEWCASTLE                           ZA -2777   2998  1238  041  
 FACL     683800 CAROLINA                            ZA -2607   3012  1700  041  
 9999     683850 PIER_RETIEF                         ZA -2702   3080  1235  041  
-9999     683870 VRYHEID                             ZA -2778   3080  1163  041
+9999     683870 VRYHEID                             ZA -2778   3080  1163  041  
 FDMS     683960 MANZINI/MATSAPA                     SV -2653   3130   641  041  
 9999     683980 SODWANA BAY                         ZA -2755  03268  0000  041  
 9999     684000 MAKATINI                            ZA -2738   3218    63  041  
@@ -9292,7 +9292,7 @@ PAIM     701730 INDIAN_MTN_AFS_AWOS              AK US  6600 -15370   389  044
 PABT     701740 BETTLES_FIELD                    AK US  6692 -15152   196  044  
 PATA     701780 TANANA/CALHOUN_MEM               AK US  6517 -15210    67  044  
 9999     701790 MANLEY HOT SPRINGS               AK US  6500 -15065  0081  044  
-5TK      701920 CHATANIKA/POKER-FLT              AK US  6512 -14748  0197  044
+5TK      701920 CHATANIKA/POKER-FLT              AK US  6512 -14748  0197  044  
 PAFY     701940 FORT_YUKON_(AWOS)                AK US  6657 -14527   131  044  
 9999     701970 CENTRAL                          AK US  6548 -14467   252  044  
 PAOM     702000 NOME                             AK US  6450 -16543     7  044  
@@ -9361,47 +9361,47 @@ PASY     704140 SHMYA/EARECKSON_AFS              AK US  5272  17412    30  044
 PAAD     704540 ADAK_NAS/MITCHELL                AK US  5188 -17665     4  044  
 PAIK     704820 NIKOLSKI_(AMOS)                  AK US  5295 -16885    21  044  
 PADU     704890 DUTCH_HARBOR                     AK US  5390 -16655     4  044  
-CVOW     710010 CALLAGHAN VALLEY SKI JUMP TOP    BC CN  5013 -12312   936  044
-CVOX     710020 CALLAGHAN VALLEY SKI JUMP BTTM   BC CN  5013 -12313   860  044
-CVOY     710030 CALLAGHAN VALLEY BIATHALON       BC CN  5013 -12310   856  044
-CVOZ     710040 CYPRESS BOWL FREESTYLE           BC CN  4938 -12320   958  044
-CPAH     710050 ALBERT HALL AGCM AB              AB CN  5312 -11118   658  044
-CPAA     710060 ALLIANCE AGCM AB                 AB CN  5232 -11178   737  044
-CPBA     710070 BARONS AGCM AB                   AB CN  5003 -11322   967  044
-CPBS     710080 BASSANO AGCM AB                  AB CN  5090 -11247   807  044
-CPBE     710090 BEISEKER AGCM AB                 AB CN  5138 -11335   896  044
-CPBL     710100 BELLSHILL AGCM AB                AB CN  5258 -11147   721  044
-CPBV     710110 BIG VALLEY AGCM AB               AB CN  5211 -11280   870  044
-CPCA     710120 CADOGAN AGCM AB                  AB CN  5233 -11052   690  044
-CPCM     710130 CRAIGMYLE AGCM AB                AB CN  5178 -11225   845  044
-CPDA     710140 DELBURNE AGCM AB                 AB CN  5218 -11318   889  044
-CPRR     710150 MILK RIVER RIDGE RESV AB         AB CN  4928 -11253  1305  044
-CPBH     710160 BULLHORN HEADWATERS AB           AB CN  4915 -11355  1326  044
-CXSE     710170 STEFANSSON ISLAND NU             NU CN  7377 -10930    11  044
-CXRB     710180 RESOLUTE CS NU                   NU CN  7472  -9498    30  044
-CWIY     710190 ST LEONARD CS NB                 NB CN  4715  -6783   245  044
-CXYH     710200 YOHIN NT                         NT CN  5125 -12375   204  044
-CXDK     710210 DEADMEN VALLEY NT                NT CN  6125 -12447   283  044
-CYPR     710220 PRINCE RUPERT, B.C.              BC CN  5428 -13043    35  044
-CWHN     710230 JIMMY LAKE AWOS SK               SK CN  5490 -10997   637  044
-CXFV     710240 FORT VERMILLION AB               AB CN  5823 -11603   289  044
-CXMW     710260 MEDICINE HAT RCS AB              AB CN  5003 -11072   715  044
-CXIB     710270 INGONISH BEACH   NS              NS CN  4667  -6040     8  044 
-CXTL     710280 TATLAYOKO LAKE RCS BC            BC CN  5167 -12440   875  044
-CXGM     710290 HOLMAN CS NT                     NT CN  7077 -11780    30  044
-CXGM     710300 GRAND MANAN SAR CS NB            NB CN  4472  -6680    78  044
+CVOW     710010 CALLAGHAN VALLEY SKI JUMP TOP    BC CN  5013 -12312   936  044  
+CVOX     710020 CALLAGHAN VALLEY SKI JUMP BTTM   BC CN  5013 -12313   860  044  
+CVOY     710030 CALLAGHAN VALLEY BIATHALON       BC CN  5013 -12310   856  044  
+CVOZ     710040 CYPRESS BOWL FREESTYLE           BC CN  4938 -12320   958  044  
+CPAH     710050 ALBERT HALL AGCM AB              AB CN  5312 -11118   658  044  
+CPAA     710060 ALLIANCE AGCM AB                 AB CN  5232 -11178   737  044  
+CPBA     710070 BARONS AGCM AB                   AB CN  5003 -11322   967  044  
+CPBS     710080 BASSANO AGCM AB                  AB CN  5090 -11247   807  044  
+CPBE     710090 BEISEKER AGCM AB                 AB CN  5138 -11335   896  044  
+CPBL     710100 BELLSHILL AGCM AB                AB CN  5258 -11147   721  044  
+CPBV     710110 BIG VALLEY AGCM AB               AB CN  5211 -11280   870  044  
+CPCA     710120 CADOGAN AGCM AB                  AB CN  5233 -11052   690  044  
+CPCM     710130 CRAIGMYLE AGCM AB                AB CN  5178 -11225   845  044  
+CPDA     710140 DELBURNE AGCM AB                 AB CN  5218 -11318   889  044  
+CPRR     710150 MILK RIVER RIDGE RESV AB         AB CN  4928 -11253  1305  044  
+CPBH     710160 BULLHORN HEADWATERS AB           AB CN  4915 -11355  1326  044  
+CXSE     710170 STEFANSSON ISLAND NU             NU CN  7377 -10930    11  044  
+CXRB     710180 RESOLUTE CS NU                   NU CN  7472  -9498    30  044  
+CWIY     710190 ST LEONARD CS NB                 NB CN  4715  -6783   245  044  
+CXYH     710200 YOHIN NT                         NT CN  5125 -12375   204  044  
+CXDK     710210 DEADMEN VALLEY NT                NT CN  6125 -12447   283  044  
+CYPR     710220 PRINCE RUPERT, B.C.              BC CN  5428 -13043    35  044  
+CWHN     710230 JIMMY LAKE AWOS SK               SK CN  5490 -10997   637  044  
+CXFV     710240 FORT VERMILLION AB               AB CN  5823 -11603   289  044  
+CXMW     710260 MEDICINE HAT RCS AB              AB CN  5003 -11072   715  044  
+CXIB     710270 INGONISH BEACH   NS              NS CN  4667  -6040     8  044  
+CXTL     710280 TATLAYOKO LAKE RCS BC            BC CN  5167 -12440   875  044  
+CXGM     710290 HOLMAN CS NT                     NT CN  7077 -11780    30  044  
+CXGM     710300 GRAND MANAN SAR CS NB            NB CN  4472  -6680    78  044  
 CWZV     710310 CAPE_ST_JAMES                    BC CN  5193 -13102    92  044  
 CWPR     710320 PRINCETON,       BC              BC CN  4946 -12051   698  044  
-CPLA     710350 LINDEN AGCM AB                   AB CN  5162 -11365   914  044
-CXCK     710390 CARMACKS CS                      YK CN  6212 -13618   632  044
-CXLT     710400 LA TERRIERE QC                   QC CN  4830  -7113   163  044
-9999     710410 PORT HAWKESBURY                  NS CN  4565  -6137   115  044
-9999     710420 VANCOUVER HILLCREST              BC CN  4923 -12310    84  044
+CPLA     710350 LINDEN AGCM AB                   AB CN  5162 -11365   914  044  
+CXCK     710390 CARMACKS CS                      YK CN  6212 -13618   632  044  
+CXLT     710400 LA TERRIERE QC                   QC CN  4830  -7113   163  044  
+9999     710410 PORT HAWKESBURY                  NS CN  4565  -6137   115  044  
+9999     710420 VANCOUVER HILLCREST              BC CN  4923 -12310    84  044  
 CYVQ     710430 NORMAN WELLS,N.W.T.              NT CN  6528 -12675    95  044  
 CZOC     710440 OLD CROW (AUTO8) CN              YK CN  6756 -13983   251  044  
 CYZW     710450 TESLIN (AUT) Y.T.                YK CN  6016 -13273   705  044  
-CWKM     710460 KOMAKUK BEACH NT                 NT CN  6962 -14020    13  044
-CPMA     710470 MANVILLE AGCM AB                 AB CN  5345 -11125   656  044
+CWKM     710460 KOMAKUK BEACH NT                 NT CN  6962 -14020    13  044  
+CPMA     710470 MANVILLE AGCM AB                 AB CN  5345 -11125   656  044  
 CWFV     710480 VIRGINIA FALLS ,NWT              NT CN  6163 -12579   610  044  
 CWBR     710490 BROWN RIVER     NWT              NT CN  6603  -9183   150  044  
 CWPU     710500 PUNTZI MOUNTAIN B.C.             BC CN  5211 -12413   910  044  
@@ -9409,22 +9409,22 @@ CWSY     710510 SACHS HARBOUR (AUT)              NT CN  7200 -12526    88  044
 9999     710530 CLINTON POINT                    NT CN  6958 -12080  0101  044  
 CWFX     710550 COLVILLE LAKE, NWT               NT CN  6703 -12608   259  044  
 CWCX     710560 CLUT LAKE, NWT   (AU             NT CN  6559 -11776   185  044  
-CPML     710570 MOSSLEIGH AGCM AB                AB CN  5067 -11335   965  044
-CWXR     710590 CROKER RIVER NU                  NU CN  6928 -11922    69  044
+CPML     710570 MOSSLEIGH AGCM AB                AB CN  5067 -11335   965  044  
+CWXR     710590 CROKER RIVER NU                  NU CN  6928 -11922    69  044  
 9999     710600 CAMSELL RIVER,  NET              NT CN  6561 -11811   230  044  
 9999     710610 PORT RADIUM                      NT CN  6608 -11793  0438  044  
 CWHS     710620 BERNARD_HARBOUR                  NT CN  6878 -11483    65  044  
-CXOA     710630 OTTAWA CDA RCS ON                ON CN  4538  -7572    79  044 
-CWPX     710640 CAPE PEEL WEST NU                NU CN  6902 -10782   165  044
-CPMN     710650 MYRNAM AGCM AB                   AB CN  5372 -11112   580  044
+CXOA     710630 OTTAWA CDA RCS ON                ON CN  4538  -7572    79  044  
+CWPX     710640 CAPE PEEL WEST NU                NU CN  6902 -10782   165  044  
+CPMN     710650 MYRNAM AGCM AB                   AB CN  5372 -11112   580  044  
 CYOJ     710660 HIGH LEVEL, A ALTA               AB CN  5861 -11716   338  044  
-CPNS     710670 NEW SEREPTA AGCM AB              AB CN  5327 -11317   765  044
+CPNS     710670 NEW SEREPTA AGCM AB              AB CN  5327 -11317   765  044  
 CYPE     710680 PEACE RIVER, A ALTA              AB CN  5623 -11745   569  044  
 CYZH     710690 SLAVE LAKE     ALTA              AB CN  5528 -11478   581  044  
-CPPL     710700 PAKOWKI LAKE AGCM AB             AB CN  4922 -11113   915  044
+CPPL     710700 PAKOWKI LAKE AGCM AB             AB CN  4922 -11113   915  044  
 CYUQ     710710 JENNY_LIND_ISL_ARPT              NT CN  6865 -10173    18  044  
 CYMD     710720 MOULD BAY      N.W.T             NT CN  7623 -11931    12  044  
-CPQU     710730 QUEENSTOWN AB                    AB CN  5060 -11280   941  044
+CPQU     710730 QUEENSTOWN AB                    AB CN  5060 -11280   941  044  
 CWFL     710730 CLUFF_LAKE                       SA CN  5838 -10950   339  044  
 CWIC     710740 ISACHSEN, NWT  (AUT)             NT CN  7878 -10355    58  044  
 CWWC     710750 COLLINS BAY, SASK.               SA CN  5818 -10370   492  044  
@@ -9436,11 +9436,11 @@ CWUU     710800 MACKAR_INLET                     NT CN  6830  -8567   395  044
 CYUX     710810 HALL BEACH UA, N.W.T             NT CN  6876  -8121     6  044  
 CWLT     710820 ALERT,N.W.T.                     NT CN  8249  -6233    65  044  
 CYRT     710830 RANKIN  INLET  A NWT             NT CN  6281  -9211    32  044  
-CWIL     710840 HAT ISLAND NU                    NU CN  6832 -10008    36  044
+CWIL     710840 HAT ISLAND NU                    NU CN  6832 -10008    36  044  
 CWEV     710850 ELLICE RIVER, NWT  (             NT CN  6771 -10446    42  044  
 CWID     710870 FORT PROVIDENCE, NWT             NT CN  6131 -11759   162  044  
-CWXR     710880 ROWLEY ISLAND NU                 NU CN  6908  -7903    41  044
-CPRS     710890 RIBSTONE SOUTH AGCM AB           AB CN  5258 -11035   644  044
+CWXR     710880 ROWLEY ISLAND NU                 NU CN  6908  -7903    41  044  
+CPRS     710890 RIBSTONE SOUTH AGCM AB           AB CN  5258 -11035   644  044  
 CYCY     710900 CLYDE, N.W.T.   (AUT             NT CN  7048  -6851    26  044  
 CWLX     710910 LONGSTAFF BLUFF,  NW             NT CN  6890  -7513   161  044  
 CWUW     710920 DEWAR LAKES  NWT                 NT CN  6865  -7116   527  044  
@@ -9450,7 +9450,7 @@ CYIO     710950 POND INLET  A N.W.T.             NT CN  7270  -7796    59  044
 CWVD     710960 BROUGHTON IS., NWT               NT CN  6753  -6378   584  044  
 CWOB     710970 BREVOORT IS., N.W.T.             NT CN  6333  -6414   367  044  
 9999     710980 KILLINEK                         NT CN  6042 -06485  0031  044  
-CYER     710990 FORT SEVERN A ON                 ON CN  5602  -8768    16  044
+CYER     710990 FORT SEVERN A ON                 ON CN  5602  -8768    16  044  
 9999     711000 TRIPLE ISLAND, B.C.              BC CN  5429 -13088    21  044  
 CYZP     711010 SANDSPIT  A, BC   (A             BC CN  5324 -13181     6  044  
 CWTC     711020 ETHELDA BAY B.C.                 BC CN  5304 -12968     0  044  
@@ -9467,7 +9467,7 @@ CWZA     711130 AGASSIZ, BC  (AUT)               BC CN  4924 -12176    16  044
 CYHE     711140 HOPE    B.C.     (AU             BC CN  4936 -12148    41  044  
 CWJV     711150 VERNON,      BC  (AU             BC CN  5023 -11919   482  044  
 CWOE     711160 ONEFOUR CDA, ALTA (A             AB CN  4911 -11046   935  044  
-CABF     711180 WAINWRIGHT CFB A21 AB            AB CN  5283 -11110   686  044
+CABF     711180 WAINWRIGHT CFB A21 AB            AB CN  5283 -11110   686  044  
 CWSE     711190 EDMONTON (STONY PLAI             AB CN  5355 -11409   766  044  
 CYOD     711200 COLD LAKE A  ALTA.               AB CN  5439 -11028   541  044  
 CYED     711210 EDMONTON NAMAO  A AL             AB CN  5368 -11346   688  044  
@@ -9493,21 +9493,21 @@ CYBR     711400 BRANDON  A MAN.                  MN CN  4991  -9995   409  044
 CYNE     711410 NORWAY HOUSE A MAN.              MN CN  5395  -9784   223  044  
 CWHH     711420 HUNTERS POINT MARINE             MB CN  5303 -10093   256  044  
 CWBL     711430 BACHELORS ISLAND MAR             MN CN  5175  -9990   256  044  
-CWOJ     711440 OAKPOINT MARINE MB               MB CN  5050  -9803   250  044
+CWOJ     711440 OAKPOINT MARINE MB               MB CN  5050  -9803   250  044  
 CYIV     711450 ISLAND LAKE A  MANIT             MN CN  5384  -9465   237  044  
 9999     711460 CANDLE LAKE, SASK                SK CN  5373 -10526   503  044  
 CWNK     711470 CARMAN U OF M CS, MATOBA         MB CN  4949  -9803   268  044  
 CWPO     711480 PILOT MOUND,MAN.                 MN CN  4919  -9890   470  044  
-CXWB     711490 WAGER BAY AUT NU                 NU CN  6588  -8945    18  944
+CXWB     711490 WAGER BAY AUT NU                 NU CN  6588  -8945    18  944  
 CWUT     711500 SHOAL LAKE A, MAN                MN CN  5045 -10059   561  044  
 CWQG     711510 VALCARTIER,   QUE                QB CN  4690  -7149   168  044  
-CABF     711520 BURGEO NL                        NL CN  4262  -5762    11  044
+CABF     711520 BURGEO NL                        NL CN  4262  -5762    11  044  
 CWFJ     711530 CARDSTON, ALTA   (AU             AB CN  4919 -11328  1136  044  
 CWGM     711540 WATERTON PARK GATE,              AB CN  4913 -11379  1296  044  
-CWXF     711550 COLVILLE LAKE NT                 NT CN  6705 -12608   259  044
-CWCX     711560 CLUT LAKE AUT                    NT CN  6560 -11777   185  044
-CXEC     711570 EDMUNTON MUNICIPAL CR10 AB       AB CN  5356 -11352   671  044
-CWKP     711580 KEATS POINT NT                   NT CN  6967 -12167   330  044
+CWXF     711550 COLVILLE LAKE NT                 NT CN  6705 -12608   259  044  
+CWCX     711560 CLUT LAKE AUT                    NT CN  6560 -11777   185  044  
+CXEC     711570 EDMUNTON MUNICIPAL CR10 AB       AB CN  5356 -11352   671  044  
+CWKP     711580 KEATS POINT NT                   NT CN  6967 -12167   330  044  
 9999     711590 JEAN-MARIE                       NT CN  6235 -12078   227  044  
 CWFZ     711600 FORT_RELIANCE                    NT CN  6272 -10917   168  044  
 CTBO     711610 BROCKVILLE CLIMATE ON            ON CN  4463  -7573   121  044  
@@ -9519,14 +9519,14 @@ CWTE     711660 TROUT LAKE, NWT   (A             NT CN  6043 -12123   498  044
 CWJP     711670 PORTER LAKE, NWT  (A             NT CN  6191 -10843   451  044  
 CPSU     711680 SIOUX FALLS CLIMATE SD           SD US  4373  -9863   482  044  
 CWCM     711700 CARBERRY CS MB                   MB CN  4990  -9935   384  044  
-CXVN     711710 VINELAND STATION RCS ON          ON CN  4318  -7940    79  044
-CXPC     711720 PARRY SOUND CCG ON               ON CN  4535  -8005   176  044
+CXVN     711710 VINELAND STATION RCS ON          ON CN  4318  -7940    79  044  
+CXPC     711720 PARRY SOUND CCG ON               ON CN  4535  -8005   176  044  
 CWKW     711760 CAPE KAKKIVIAK, NFLD             NF CN  5998  -6416   551  044  
-CWYK     711770 CAPE KIGLAPAIT, NF               NF CN  5708  -6148   834  044
-CAVA     711780 BONAVISTA NL                     NF CN  4867  -5312    26  044
-CWTU     711790 TUKIALIK BAY NL                  NF CN  5472  -5835   683  044
+CWYK     711770 CAPE KIGLAPAIT, NF               NF CN  5708  -6148   834  044  
+CAVA     711780 BONAVISTA NL                     NF CN  4867  -5312    26  044  
+CWTU     711790 TUKIALIK BAY NL                  NF CN  5472  -5835   683  044  
 CZDI     711800 CHURCHILL_FALLS                  NF CN  5357  -6410   440  044  
-CXWT     711810 WINTERLAND NL                    NF CN  4708  -5520    29  044
+CXWT     711810 WINTERLAND NL                    NF CN  4708  -5520    29  044  
 CZUM     711820 CHURCHILL FALLS A  N             NF CN  5356  -6409   440  044  
 CWXW     711830 ALEXIS_RIVER_(MAPS)              NF CN  5265  -5687    43  044  
 CWHM     711840 VARENNES,  QUE    (A             QB CN  4571  -7338    19  044  
@@ -9535,51 +9535,51 @@ CWQM     711860 CAP ROUGE, QUE   (AU             QB CN  4838  -7053     7  044
 CYBC     711870 BAIE COMEAU  A  QUE              QB CN  4913  -6819    22  044  
 CYGP     711880 GASPE A  QUE                     QB CN  4878  -6448    33  044  
 CWQV     711890 POINTE CLAVEAU, QUE              QB CN  4826  -7011     4  044  
-CWQD     711900 POINTE DE L'ISLET QC             QC CN  4813  -6972     7  044
+CWQD     711900 POINTE DE L'ISLET QC             QC CN  4813  -6972     7  044  
 9999     711910 HOLYROOD RADAR STN.              NF CN  4733 -05313  0290  044  
-9999     711920 QUESNEL                          BC CN  5302 -12252   545  044
+9999     711920 QUESNEL                          BC CN  5302 -12252   545  044  
 CTMS     711930 TIMMINS CLIMATE ON               ON CN  4855  -8138   294  044  
 CWBD     711940 BURGEO, NFLD    (AUT             NF CN  4761  -5761    12  044  
 9999     711950 ST. ALBANS                       NF CN  4787 -05585  0013  044  
 CWVA     711960 BONAVISTA,NFLD.  (AU             NF CN  4867  -5312    26  044  
 CWZB     711970 PORT-AUX-BASQUES,                NF CN  4756  -5916    40  044  
 9999     711980 LAC ST-PIERRE,  QUE              PQ CN  4618  -7291    16  044  
-CXQH     711990 WATSON LAKE AUT YT               YT CN  6012 -12882   690  044
+CXQH     711990 WATSON LAKE AUT YT               YT CN  6012 -12882   690  044  
 CWLM     712000 VICTORIA GONZALES, B             BC CN  4841 -12331    70  044  
 CWHC     712010 VANCOUVER HARBOUR B.             BC CN  4929 -12311     3  044  
-CWVF     712020 ROSALIND AGCM AB                 AB CN  5276 -11243   712  044
+CWVF     712020 ROSALIND AGCM AB                 AB CN  5276 -11243   712  044  
 CYLW     712030 KELOWNA, BC (AUT)                BC CN  4995 -11938   433  044  
 CYBD     712060 BELLA COOLA  A  BC               BC CN  5238 -12658    35  044  
 CWSK     712070 SQUAMISH, BC   (AUT)             BC CN  4978 -12316    52  044  
 CYPW     712080 POWELL RIVER   A   B             BC CN  4983 -12449   130  044  
-CWVF     712090 SANDHEADS CS BC                  BC CN  4910 -12330     0  044
+CWVF     712090 SANDHEADS CS BC                  BC CN  4910 -12330     0  044  
 CWAS     712110 PAM ROCKS CS      BC             BC CN  4949 -12329    10  044  
-CMFM     712120 FORET MONTMORENCY RCS QC         QC CN  4732  -7115   673  044
-CTXR     712130 EARLTON CLIMATE ON               ON CN  4770  -7985     0  044
-CXBA     712140 BODO AGDM AB                     AB CN  5212 -11010   687  044
+CMFM     712120 FORET MONTMORENCY RCS QC         QC CN  4732  -7115   673  044  
+CTXR     712130 EARLTON CLIMATE ON               ON CN  4770  -7985     0  044  
+CXBA     712140 BODO AGDM AB                     AB CN  5212 -11010   687  044  
 CWYY     712150 OSOYOOS,    BC(AUT)              BC CN  4903 -11943   283  044  
 CWNP     712160 NAKUSP, BC       (AU             BC CN  5026 -11781   524  044  
-CXCP     712170 CHAMPION AGDM AB                 AB CN  5028 -11335  1006  044
+CXCP     712170 CHAMPION AGDM AB                 AB CN  5028 -11335  1006  044  
 CWSL     712180 SALMON ARM, BC   (AU             BC CN  5070 -11928   351  044  
-CWHL     712190 HOLLAND ROCK BC                  BC CN  5417 -13037     5  044
-CWLC     712200 LUCY ISLAND LIGHTST BC           BC CN  5437 -13073    26  044
-CXCD     712210 CLEARDALE AGDM AB                AB CN  5632 -11975   630  044
+CWHL     712190 HOLLAND ROCK BC                  BC CN  5417 -13037     5  044  
+CWLC     712200 LUCY ISLAND LIGHTST BC           BC CN  5437 -13073    26  044  
+CXCD     712210 CLEARDALE AGDM AB                AB CN  5632 -11975   630  044  
 CWKX     712220 DEASE LAKE, BC    (A             BC CN  5841 -13000   816  044  
-CXCS     712230 CONSORT AGDM AB                  AB CN  5193 -11072   772  044
-CXDB     712240 DEL BONITA AGDM AB               AB CN  4905 -11282  1310  044
-CXFM     712250 FOREMOST AGDM AB                 AB CN  4948 -11148   881  044
-CXHP     712260 HIGH PRAIRIE AGDM AB             AB CN  5540 -11648   602  044
-CXHD     712270 HOLDEN AGDM AB                   AB CN  5318 -11225   688  044
-CXKM     712280 KILLAM AGDM AB                   AB CN  5285 -11187   675  044
-CXMG     712290 MANNING AGDM AB                  AB CN  5697 -11745   457  044
+CXCS     712230 CONSORT AGDM AB                  AB CN  5193 -11072   772  044  
+CXDB     712240 DEL BONITA AGDM AB               AB CN  4905 -11282  1310  044  
+CXFM     712250 FOREMOST AGDM AB                 AB CN  4948 -11148   881  044  
+CXHP     712260 HIGH PRAIRIE AGDM AB             AB CN  5540 -11648   602  044  
+CXHD     712270 HOLDEN AGDM AB                   AB CN  5318 -11225   688  044  
+CXKM     712280 KILLAM AGDM AB                   AB CN  5285 -11187   675  044  
+CXMG     712290 MANNING AGDM AB                  AB CN  5697 -11745   457  044  
 CWBM     712300 REAVERLODGE CDA ALTA             AB CN  5519 -11939   745  044  
 CWXL     712310 BOW ISLAND, ALTA   (             AB CN  4961 -11145   838  044  
 CWXA     712320 BOW VALLEY, ALTA (AU             AB CN  5108 -11506  1298  044  
-CWOV     712330 BRETON PLOTS AB                  AB CN  5308 -11443   852  044
+CWOV     712330 BRETON PLOTS AB                  AB CN  5308 -11443   852  044  
 CWDK     712340 CLARESHOLM, ALTA  (A             AB CN  5000 -11363  1012  044  
 CWDU     712350 COP UPPER, ALTA  (AU             AB CN  5108 -11421  1235  044  
 CWRT     712360 CROWSNEST, ALTA   (A             AB CN  4963 -11448  1303  044  
-CWDZ     712370 DRUMHELLER EAST AB               AB CN  5145 -11268   678  044
+CWDZ     712370 DRUMHELLER EAST AB               AB CN  5145 -11268   678  044  
 CWFE     712380 ELK IS. NAT. PARK, A             AB CN  5368 -11286   716  044  
 CPOY     712390 CYPRESS RIVER RCS MB             MB CN  4955  -9901   374  044  
 CWGY     712400 ESTHER,   ALTA                   AB CN  5166 -11019   707  044  
@@ -9598,104 +9598,104 @@ CWWO     712520 WILLOW CREEK,   ALTA             AB CN  5338 -11833  1402  044
 CWGF     712530 GARDEN RIVER, ALTA               AB CN  5868 -11388   241  044  
 CWRV     712540 CAMROSE, ALTA  (AUT)             AB CN  5303 -11281   739  044  
 CWMX     712550 MILDRED LAKE, ALTA               AB CN  5753 -11156   310  044  
-CXZU     712560 WHITECOURT AB                    AB CN  5413 -11578   785  044
-CXMO     712570 MORRIN AGDM AB                   AB CN  5167 -11268   836  044
-CXOL     712580 OLDS AGDM AB                     AB CN  5177 -11408  1046  044
-CXPL     712590 POLLOCKVILLE AGDM AB             AB CN  5113 -11170   750  044
+CXZU     712560 WHITECOURT AB                    AB CN  5413 -11578   785  044  
+CXMO     712570 MORRIN AGDM AB                   AB CN  5167 -11268   836  044  
+CXOL     712580 OLDS AGDM AB                     AB CN  5177 -11408  1046  044  
+CXPL     712590 POLLOCKVILLE AGDM AB             AB CN  5113 -11170   750  044  
 CYAM     712600 SAULT STE MARIE  A O             ON CN  4648  -8451   192  044  
 CWGD     712610 GODERICH(AUT)   ONT              ON CN  4376  -8171   214  044  
 CYHM     712630 HAMILTON A ONT.                  ON CN  4316  -7993   237  044  
-CAAW     712640 SHEARWATER RCS NS                NS CN  4463  -6352    24  044
+CAAW     712640 SHEARWATER RCS NS                NS CN  4463  -6352    24  044  
 CYTZ     712650 TORONTO ISLAND A ONT             ON CN  4363  -7939    77  044  
-CYEL     712680 ELLIOT LAKE A ON                 ON CN  4635  -8257   331  044
-CXSC     712690 SCHULER AGDM AB                  AB CN  5030 -11008   800  044
+CYEL     712680 ELLIOT LAKE A ON                 ON CN  4635  -8257   331  044  
+CXSC     712690 SCHULER AGDM AB                  AB CN  5030 -11008   800  044  
 CWCO     712700 COLLINGWOOD    ONT               ON CN  4449  -8021   180  044  
 CWLQ     712710 NIPISSING  (AUT)  ON             ON CN  4631  -7946   204  044  
 CWPB     712720 BEAUSOLEIL IS, ONT               ON CN  4484  -7986   183  044  
 CWDD     712730 BELLE RIVER, ONT   (             ON CN  4229  -8270   184  044  
-CXSL     712740 SMOKY LAKE AGDM AB               AB CN  5428 -11250   680  044
-CXSP     712750 ST PAUL AGCM AB                  AB CN  5402 -11127   649  044
-CXTH     712760 TWO HILLS AGDM AB                AB CN  5363 -11168   678  044
-CXVW     712770 VALLEYVIEW AGCM AB               AB CN  5510 -11720   698  044
-CXVM     712780 VERMILION AGDM AB                AB CN  5335 -11088   623  044
-CXZV     712790 SEPT-ILES QE                     QE CN  5022  -6625    53  044
+CXSL     712740 SMOKY LAKE AGDM AB               AB CN  5428 -11250   680  044  
+CXSP     712750 ST PAUL AGCM AB                  AB CN  5402 -11127   649  044  
+CXTH     712760 TWO HILLS AGDM AB                AB CN  5363 -11168   678  044  
+CXVW     712770 VALLEYVIEW AGCM AB               AB CN  5510 -11720   698  044  
+CXVM     712780 VERMILION AGDM AB                AB CN  5335 -11088   623  044  
+CXZV     712790 SEPT-ILES QE                     QE CN  5022  -6625    53  044  
 CWGH     712810 GRENADIER IS ,ONT                ON CN  4441  -7584    82  044  
 CWGL     712820 LAGOON CITY, ONT   (             ON CN  4453  -7921   221  044  
 CWDF     712830 OLIPHANT  (AUT)   ON             ON CN  4473  -8128   182  044  
 CWQE     712840 TORONTO HEADLAND (AU             ON CN  4361  -7935    87  044  
-CXAF     712850 ABEE AGDM                        AB CN  5428 -11297   664  044
-CXAG     712860 ANDREW AGDM AB                   AB CN  5392 -11228   625  044
-CXAJ     712870 ALMORE AGDM AB                   AB CN  5478 -11283   574  044
-CXCM     712880 CAMBRIDGE BAY GSN NU             NU CN  6910 -10513    19  044
-CXAK     712890 STETTIER AGDM AB                 AB CN  5235 -11260   795  044
+CXAF     712850 ABEE AGDM                        AB CN  5428 -11297   664  044  
+CXAG     712860 ANDREW AGDM AB                   AB CN  5392 -11228   625  044  
+CXAJ     712870 ALMORE AGDM AB                   AB CN  5478 -11283   574  044  
+CXCM     712880 CAMBRIDGE BAY GSN NU             NU CN  6910 -10513    19  044  
+CXAK     712890 STETTIER AGDM AB                 AB CN  5235 -11260   795  044  
 CWJM     712900 UPPER RIDEAU LAKE, O             ON CN  4470  -7629   125  044  
-CXCA     712910 CAMERON FALLS AUT ON             ON CN  4915  -8835   233  044
-CVOF     712930 CALLAGHAN VALLEY BIATH HI        BC CN  5002 -12312   883  044
-CWRK     712940 BANCROFT AUTO ON                 ON CN  4507  -7788   331  044
-CXEA     712950 EAR FALLS ON                     ON CN  5063  -9322   363  044
-CXET     712960 EGBERT CS ON                     ON CN  4423  -7978   251  044
-CXHM     712970 HAMILTON RBG CS ON               ON CN  4330  -7992   102  044
-CXHA     712980 HARROW CDA AUT ON                ON CN  4203  -8290   191  044
-CXKA     712990 KAPUSKASING CDA ON               ON CN  4940  -8245   218  044
-CXKE     713000 KEMPVILLE CS ON                  ON CN  4500  -7563    99  044
-CXKI     713010 KIRKLAND LAKE CS ON              ON CN  4815  -8000   324  044
-CVXS     713020 PRINCE GEORGE AIRPORT AUTO       BC CN  5388 -12267   680  044
-CXPT     713030 POINT PELEE ON                   ON CN  4195  -8252   177  044
-CXRG     713070 RIDGETOWN RCS ON                 ON CN  4245  -8188   206  044
-CXTD     713080 TRACADIE NS                      NS CN  4562  -6168    67  044 
-CXZC     713090 MOOSONEE RCS ON                  ON CN  5130  -8062     9  044
-CZSP     713100 ST PETERS PEI                    PE CN  4627  -6235    30  044
-CXNP     713110 NAPPAN AUTO                      ON CN  4577  -6423    20  044
-CWBU     713120 NIPAWIN SK                       SK CN  5333 -10400   372  044
+CXCA     712910 CAMERON FALLS AUT ON             ON CN  4915  -8835   233  044  
+CVOF     712930 CALLAGHAN VALLEY BIATH HI        BC CN  5002 -12312   883  044  
+CWRK     712940 BANCROFT AUTO ON                 ON CN  4507  -7788   331  044  
+CXEA     712950 EAR FALLS ON                     ON CN  5063  -9322   363  044  
+CXET     712960 EGBERT CS ON                     ON CN  4423  -7978   251  044  
+CXHM     712970 HAMILTON RBG CS ON               ON CN  4330  -7992   102  044  
+CXHA     712980 HARROW CDA AUT ON                ON CN  4203  -8290   191  044  
+CXKA     712990 KAPUSKASING CDA ON               ON CN  4940  -8245   218  044  
+CXKE     713000 KEMPVILLE CS ON                  ON CN  4500  -7563    99  044  
+CXKI     713010 KIRKLAND LAKE CS ON              ON CN  4815  -8000   324  044  
+CVXS     713020 PRINCE GEORGE AIRPORT AUTO       BC CN  5388 -12267   680  044  
+CXPT     713030 POINT PELEE ON                   ON CN  4195  -8252   177  044  
+CXRG     713070 RIDGETOWN RCS ON                 ON CN  4245  -8188   206  044  
+CXTD     713080 TRACADIE NS                      NS CN  4562  -6168    67  044  
+CXZC     713090 MOOSONEE RCS ON                  ON CN  5130  -8062     9  044  
+CZSP     713100 ST PETERS PEI                    PE CN  4627  -6235    30  044  
+CXNP     713110 NAPPAN AUTO                      ON CN  4577  -6423    20  044  
+CWBU     713120 NIPAWIN SK                       SK CN  5333 -10400   372  044  
 CYGV     713130 HAVRE ST-PIERRE A, Q             QB CN  5028  -6361    38  044  
-CXBI     713140 BARRIE-ORO ON                    ON CN  4448  -7955   289  044
-CZCR     713150 CHARLO AUT NB                    NB CN  4798  -6633    42  044
-CWLB     713160 LAC LA BICHE CLIMATE             AB CN  5477 -11202   567  044
-CZDB     713170 DEBERT NS                        NS CN  4542  -6347    38  044
-CWCT     713180 CORONATION CLIMATE AB            AB CN  5207 -11145   791  044
+CXBI     713140 BARRIE-ORO ON                    ON CN  4448  -7955   289  044  
+CZCR     713150 CHARLO AUT NB                    NB CN  4798  -6633    42  044  
+CWLB     713160 LAC LA BICHE CLIMATE             AB CN  5477 -11202   567  044  
+CZDB     713170 DEBERT NS                        NS CN  4542  -6347    38  044  
+CWCT     713180 CORONATION CLIMATE AB            AB CN  5207 -11145   791  044  
 CWIS     713190 CHARLEVOIX (MRX)                 QB CN  4728 -07063  0719  046  
-CXUX     713200 HALL BEACH CLIMATE NU            NU CN  6878  -8125     8  044
-CXFB     713210 IQALUIT CLIMATE NU               NU CN  6375  -6855    34  044
-CXAR     713220 ARVIAT CLIMATE NU                NU CN  6110  -9407    10  044
+CXUX     713200 HALL BEACH CLIMATE NU            NU CN  6878  -8125     8  044  
+CXFB     713210 IQALUIT CLIMATE NU               NU CN  6375  -6855    34  044  
+CXAR     713220 ARVIAT CLIMATE NU                NU CN  6110  -9407    10  044  
 CWHV     713230 BEAUCEVILLE, QUE  (A             QB CN  4619  -7078   229  044  
-CPIF     713310 ISLAND FALLS SK                  SK CN  5553 -10235   297  044
-CNCO     713320 KUGLUKTUK CLIMATE NU             NU CN  6782 -11513    23  044
-CXBQ     713340 TADOULE LAKE CS MB               MB CN  5872  -9850   262  044
-CWZZ     713350 SAGLEK NF                        NF CN  5833  -6258   501  044
-CWVW     713360 GRATES COVE NF                   NF CN  4817  -5293    46  044
-CWAG     713370 LA SCIE NF                       NF CN  4992  -5567   194  044
-CYVM     713380 QIKIQTARJUAQ A NU                NU CN  6755  -6403     6  044
-CYMH     713390 MARY'S HARBOUR NF                NF CN  5230  -5583    12  044
-CXDP     713400 DAPP AGDM AB                     AB CN  5432 -11395   614  044
-CXBR     713410 BROCKET AGDM AB                  AB CN  4962 -11382  1073  044
-CXOY     713420 OYEN AGDM AB                     AB CN  5138 -11035   767  044
-CXWM     713430 WRENTHAM AGDM AB                 AB CN  4950 -11212   944  044
-CXHR     713440 HUSSAR AGDM AB                   AB CN  5118 -11250   971  044
-CXMN     713450 MASINASIN AGDM AB                AB CN  4913 -11165   948  044
-CXSW     713460 BARNWELL AGDM AB                 AB CN  4980 -11230   824  044
-CXFR     713470 FAIRVIEW AGDM AB                 AB CN  5608 -11843   655  044
-CXPA     713480 PEORIA AGDM AB                   AB CN  5562 -11830   621  044
-CXRL     713490 RICH LAKE AGDM                   AB CN  5450 -11170   585  044
-CAHR     713500 HARRINGTON CDA CD PE             PE CN  4635  -6317    53  044
-CZOL     713510 OLIVER AGDM AB                   AB CN  5398 -11335   665  044
-CYMH     713520 ELORA RCS ON                     ON CN  4365  -8042   376  044
-CZPS     713530 PRENTISS AB                      AB CN  5243 -11360   965  044
-CZMU     713540 MUNDARE AGDM AB                  AB CN  5407 -11230    66  044
-CZLT     713550 ALERT CLIMATE NU                 NU CN  8250  -6233    65  044
-CXBL     713560 BAKER LAKE CLIMATE NU            NU CN  6432  -9600    51  044
-CZVM     713570 QIKIQTARJUAQ CLIMATE NU          NU CN  6755  -6403     6  044
-CZCY     713580 CLYDE RIVER CLIMATE NU           NU CN  7048  -6852    27  044
-CPDB     713590 DEWBERRY AGCM AB                 AB CN  5367 -11058   616  044
-CPEA     713600 EDGERTON AGCM AB                 AB CN  5278 -11043   649  044
-CZHY     713610 HAY RIVER CLIMATE NT             NT CN  6083 -11578   164  044
-CZSM     713620 FORT SMITH CLIMATE NT            NT CN  6003 -11193   203  044
-CZHK     713630 GJOA HAVEN CLIMATE NU            NU CN  6363  -9585    42  044
-CZEV     713640 INUVIK CLIMATE NT                NT CN  6832 -13352   103  044
-CZFS     713650 FORT SIMPSON CLIMATE NT          NT CN  6177 -12123   168  044
-CVOV     713660 CALLAGHAN VALLEY LOW BC          BC CN  5013 -12331   838  044
-CVON     713670 BLACKCOMB BASE SLIDING CENTRE    BC CN  5010 -12295   817  044
+CPIF     713310 ISLAND FALLS SK                  SK CN  5553 -10235   297  044  
+CNCO     713320 KUGLUKTUK CLIMATE NU             NU CN  6782 -11513    23  044  
+CXBQ     713340 TADOULE LAKE CS MB               MB CN  5872  -9850   262  044  
+CWZZ     713350 SAGLEK NF                        NF CN  5833  -6258   501  044  
+CWVW     713360 GRATES COVE NF                   NF CN  4817  -5293    46  044  
+CWAG     713370 LA SCIE NF                       NF CN  4992  -5567   194  044  
+CYVM     713380 QIKIQTARJUAQ A NU                NU CN  6755  -6403     6  044  
+CYMH     713390 MARY'S HARBOUR NF                NF CN  5230  -5583    12  044  
+CXDP     713400 DAPP AGDM AB                     AB CN  5432 -11395   614  044  
+CXBR     713410 BROCKET AGDM AB                  AB CN  4962 -11382  1073  044  
+CXOY     713420 OYEN AGDM AB                     AB CN  5138 -11035   767  044  
+CXWM     713430 WRENTHAM AGDM AB                 AB CN  4950 -11212   944  044  
+CXHR     713440 HUSSAR AGDM AB                   AB CN  5118 -11250   971  044  
+CXMN     713450 MASINASIN AGDM AB                AB CN  4913 -11165   948  044  
+CXSW     713460 BARNWELL AGDM AB                 AB CN  4980 -11230   824  044  
+CXFR     713470 FAIRVIEW AGDM AB                 AB CN  5608 -11843   655  044  
+CXPA     713480 PEORIA AGDM AB                   AB CN  5562 -11830   621  044  
+CXRL     713490 RICH LAKE AGDM                   AB CN  5450 -11170   585  044  
+CAHR     713500 HARRINGTON CDA CD PE             PE CN  4635  -6317    53  044  
+CZOL     713510 OLIVER AGDM AB                   AB CN  5398 -11335   665  044  
+CYMH     713520 ELORA RCS ON                     ON CN  4365  -8042   376  044  
+CZPS     713530 PRENTISS AB                      AB CN  5243 -11360   965  044  
+CZMU     713540 MUNDARE AGDM AB                  AB CN  5407 -11230    66  044  
+CZLT     713550 ALERT CLIMATE NU                 NU CN  8250  -6233    65  044  
+CXBL     713560 BAKER LAKE CLIMATE NU            NU CN  6432  -9600    51  044  
+CZVM     713570 QIKIQTARJUAQ CLIMATE NU          NU CN  6755  -6403     6  044  
+CZCY     713580 CLYDE RIVER CLIMATE NU           NU CN  7048  -6852    27  044  
+CPDB     713590 DEWBERRY AGCM AB                 AB CN  5367 -11058   616  044  
+CPEA     713600 EDGERTON AGCM AB                 AB CN  5278 -11043   649  044  
+CZHY     713610 HAY RIVER CLIMATE NT             NT CN  6083 -11578   164  044  
+CZSM     713620 FORT SMITH CLIMATE NT            NT CN  6003 -11193   203  044  
+CZHK     713630 GJOA HAVEN CLIMATE NU            NU CN  6363  -9585    42  044  
+CZEV     713640 INUVIK CLIMATE NT                NT CN  6832 -13352   103  044  
+CZFS     713650 FORT SIMPSON CLIMATE NT          NT CN  6177 -12123   168  044  
+CVOV     713660 CALLAGHAN VALLEY LOW BC          BC CN  5013 -12331   838  044  
+CVON     713670 BLACKCOMB BASE SLIDING CENTRE    BC CN  5010 -12295   817  044  
 CYKF     713680 WATERLOO-WELLINGTON              ON CN  4346  -8038   317  044  
-CXSH     713700 SHAWNIGAN QC                     QC CN  4657  -7273   110  044
+CXSH     713700 SHAWNIGAN QC                     QC CN  4657  -7273   110  044  
 CYHU     713710 ST HUBERT  A QUE.                QB CN  4551  -7341    25  044  
 CWIZ     713720 L'ACADIE   (AUT) QUE             QB CN  4529  -7335    45  044  
 CWFQ     713730 FRELIGHSBURG,  QUE (             QB CN  4504  -7283   152  044  
@@ -9705,35 +9705,35 @@ CWJT     713760 ST-JOVITE, QUE (AUT)             QB CN  4606  -7453   239  044
 CWVQ     713770 STE-ANNE DE BELLEVUE             QB CN  4543  -7393    39  044  
 CWDQ     713780 LA TUQUE, QUE   (AUT             QB CN  4741  -7279   169  044  
 CWOD     713790 NORMANDIN, QUE   (AU             QB CN  4883  -7255   137  044  
-CPCC     713800 CRESTOMERE AGCM AB               AB CN  5273 -11390   855  044
+CPCC     713800 CRESTOMERE AGCM AB               AB CN  5273 -11390   855  044  
 CWIX     713810 MISTOOK, QUE   (AUT)             QB CN  4859  -7171   113  044  
 CWPD     713820 PARC DES LAURENTIDES             QB CN  4756  -7123   803  044  
 CWKD     713830 BONNARD, QUE    (AUT             QB CN  5073  -7101   497  044  
 CWTN     713840 CAP TOURMENTE, QUE               QB CN  4706  -7079     6  044  
 CWQO     713850 ILE BIQUETTE, QUE                QB CN  4841  -6890     7  044  
-CWZS     713860 AMQUI QC                         QC CN  4847  -6743   166  044
-CWXC     713870 ONATCHIWAY QC                    QC CN  4890  -7103   304  044
-CWUX     713880 LA BAIE QC                       QC CN  4830  -7055   152  044
-CWHQ     713890 DESCHAMBAULT QC                  QC CN  4668  -7197    61  044
-CWIP     713900 POINTE NOIRE QC                  QC CN  5017  -6643    24  044
+CWZS     713860 AMQUI QC                         QC CN  4847  -6743   166  044  
+CWXC     713870 ONATCHIWAY QC                    QC CN  4890  -7103   304  044  
+CWUX     713880 LA BAIE QC                       QC CN  4830  -7055   152  044  
+CWHQ     713890 DESCHAMBAULT QC                  QC CN  4668  -7197    61  044  
+CWIP     713900 POINTE NOIRE QC                  QC CN  5017  -6643    24  044  
 9999     713910 HIGH_FALLS                       QB CN  4583  -7565   190  044  
 CWUI     713920 STE FOY                          QB CN  4730 -07127  0091  046  
-CXWF     713930 CALGARY INTL CS AB               AB CN  5112 -11402  1081  044
+CXWF     713930 CALGARY INTL CS AB               AB CN  5112 -11402  1081  044  
 CYHZ     713950 HALIFAX_INT                      NS CN  4488  -6352   145  044  
 9999     713960 HALIFAX METOC, NS                NS CN  4466  -6358    10  044  
 CYZX     713970 GREENWOOD  A N.S.                NS CN  4498  -6491    28  044  
 CWUR     713980 TRURO, (AUT) N.S.                NS CN  4536  -6326    40  044  
 CPSA     713990 SEDALIA AGCM AB                  AB CN  5158 -11075  0755  044  
 CWDI     714000 BADGER  (AUT) A NFLD             NF CN  4896  -5606   105  044  
-CXWF     714010 WARFIELD RCS BC                  BC CN  4912 -11773   567  044
+CXWF     714010 WARFIELD RCS BC                  BC CN  4912 -11773   567  044  
 CWDO     714020 TWILLINGATE  (AUT)               NF CN  4968  -5479    92  044  
 CWBV     714030 BEAVER ISLAND (AUT)              NS CN  4481  -6233    10  044  
-CXEL     714040 EGG ISLAND AB                    AB CN  5898 -11043   215  044
-CPSH     714050 SHONTS AGCM AB                   AB CN  5333 -11253   679  044
-CWXI     714060 FEROLLE POINT AUT NF             NF CN  5102  -5710     6  044
-CNBB     714070 KUGAARUK CLIMATE NU              NU CN  6853  -8980    17  044
+CXEL     714040 EGG ISLAND AB                    AB CN  5898 -11043   215  044  
+CPSH     714050 SHONTS AGCM AB                   AB CN  5333 -11253   679  044  
+CWXI     714060 FEROLLE POINT AUT NF             NF CN  5102  -5710     6  044  
+CNBB     714070 KUGAARUK CLIMATE NU              NU CN  6853  -8980    17  044  
 CWZN     714080 SAGONA    (AUT)   NF             NF CN  4736  -5579    35  044  
-CPET     714090 ETZICOM AGCM AB                  AB CN  4955 -11105   845  044
+CPET     714090 ETZICOM AGCM AB                  AB CN  4955 -11105   845  044  
 CWAH     714100 AMHERST (AUT)  N.S.              NS CN  4584  -6426    23  044  
 CWWE     714110 WESTERN HEAD (AUT)               NS CN  4398  -6466     9  044  
 CWEP     714120 EAST POINT (AUT) P.E             PE CN  4645  -6196    13  044  
@@ -9772,7 +9772,7 @@ CWWS     714450 GEORGE ISLAND (AUT)              MN CN  5279  -9761   223  044
 CWVC     714460 SWIFT CURRENT CDA SA             SA CN  5026 -10773   825  044  
 CWEI     714470 MELITA,MAN.   (AUT)              MN CN  4928 -10098   446  044  
 CWEA     714480 PINAWA, MAN   (AUT)              MN CN  5018  -9606   268  044  
-CWSU     714490 SPRAGUE MB                       MB CN  4902  -9560   329  044
+CWSU     714490 SPRAGUE MB                       MB CN  4902  -9560   329  044  
 CWOK     714500 ELBOW  (AUT)  SASK               SA CN  5113 -10658   595  044  
 CWJH     714510 SOUTHEND, SASK.  (AU             SA CN  5633 -10328   344  044  
 CWWF     714520 WEYBURN, SASK  (AUT)             SA CN  4970 -10379   589  044  
@@ -9790,10 +9790,10 @@ CWPC     714630 PORT COLBORNE   (AUT             ON CN  4286  -7924   184  044
 CWPS     714640 LONG POINT  (AUT) ON             ON CN  4256  -8004   175  044  
 CWAJ     714650 ERIEAU    (AUT)                  ON CN  4224  -8190   178  044  
 CWNB     714660 SOUTHEAST SHOAL  (AU             ON CN  4183  -8246   195  044  
-CWSY     714670 SACHS HARBOUR CLIMATE NY         NT CN  7200 -12525    88  044
+CWSY     714670 SACHS HARBOUR CLIMATE NY         NT CN  7200 -12525    88  044  
 CWKK     714680 KATATOA ISLAND, ONT              ON CN  4971  -8833   260  044  
 9999     714700 LIARD RIVER                      BC CN  5940 -12615  0141  044  
-CYDQ     714710 DAWSON CREEK A BC                BC CN  5575 -12018   655  044
+CYDQ     714710 DAWSON CREEK A BC                BC CN  5575 -12018   655  044  
 CWQS     714720 KINDAKUN ROCKS(AUT)              BC CN  5331 -13276    14  044  
 CWEZ     714730 SATURNA ISLAND  (AUT             BC CN  4878 -12304    24  044  
 CWCL     714740 CLINTON  (AUT)  B.C.             BC CN  5114 -12149  1057  044  
@@ -9801,7 +9801,7 @@ CWQC     714750 PORT ALBERNI  A   BC             BC CN  4931 -12493    76  044
 CWEK     714760 GREY ISLET     (AUT)             BC CN  5458 -13070     8  044  
 CWRO     714770 ROSE SPIT   BC  (AUT             BC CN  5416 -13166     7  044  
 CWFG     714780 SARTINE ISLAND (AUT)             BC CN  5081 -12890   112  044  
-CWRU     714790 SOLANDER ISLAND   (A             BC CN  5011 -12793    99  044
+CWRU     714790 SOLANDER ISLAND   (A             BC CN  5011 -12793    99  044  
 CNVQ     714800 NORMAN WELLS CLIMATE NT          NT CN  6528 -12675    94  044  
 CWXM     714810 HELMCKEN ISLAND (AUT             BC CN  5039 -12586    19  044  
 CWME     714820 CATHEDRAL POINT (AUT             BC CN  5218 -12746    31  044  
@@ -9811,13 +9811,13 @@ CWLP     714850 HERBERT ISLAND (AUT)             BC CN  5093 -12763    17  044
 CWJW     714860 JASPER-WARDEN   (AUT             AB CN  5293 -11831  1020  044  
 CWJI     714870 ASSINIBOIA AIRPORT,              SA CN  4973 -10593   726  044  
 CYKJ     714880 KEY LAKE, SASK    (A             SA CN  5724 -10559   510  044  
-CWTS     714890 SCOTT CDA SK                     SK CN  5237 -10883   660  044
+CWTS     714890 SCOTT CDA SK                     SK CN  5237 -10883   660  044  
 CWTD     714900 ROBERTSON LAKE (AUT)             NT CN  6509 -10243   244  044  
-CZGH     714910 FORT GOOD HOPE CS NT             NT CN  6625 -12865    82  044
+CZGH     714910 FORT GOOD HOPE CS NT             NT CN  6625 -12865    82  044  
 9999     714920 TUKTUT_NOGAIT                    NT CN  6918 -12235   552  044  
 9999     714930 GARRY ISLAND                     YT CN  6948 -13532  0072  044  
-CMTH     714940 THETFORD MINES RCS QC            QC CN  4605  -7118   430  044
-CNNR     714950 NEIR AGCM AB                     AB CN  5137 -11410  1145  044
+CMTH     714940 THETFORD MINES RCS QC            QC CN  4605  -7118   430  044  
+CNNR     714950 NEIR AGCM AB                     AB CN  5137 -11410  1145  044  
 CWIJ     714960 LUPIN_(MAPS)                     NT CN  6577 -11123   500  044  
 CWJL     714970 FORT LIARD        NW             NT CN  6023 -12346   213  044  
 CWXV     714980 BACK RIVER        NW             NT CN  6608  -9649    28  044  
@@ -9826,90 +9826,90 @@ CWJZ     714990 DUBAWNT LAKE, NWT                NT CN  6323 -10176   237  044
 CWJN     715010 HERSCHEL ISLAND  (AU             YK CN  6956 -13891     1  044  
 CWND     715020 PELLY  ISLAND      N             NT CN  6963 -13543    12  044  
 9999     715030 CAPE BATHURST                    NT CN  7055 -12795  0017  044  
-CPTH     715040 THORSBY AGCM AB                  AB CN  5322 -11390   754  044
+CPTH     715040 THORSBY AGCM AB                  AB CN  5322 -11390   754  044  
 CWHT     715050 HAINES JUNCTION, YUK             YT CN  6076 -13758   599  044  
 CWRR     715060 ROCK RIVER, YUKON  (             YK CN  6698 -13619   720  044  
 CWJY     715070 YATHKYED LAKE   (AUT             NT CN  6270  -9829   148  044  
-CXTO     715080 TORONTO CITY ON                  ON CN  4367  -7940   113  004
-CPQL     715090 LETHBRIDGE AGDM AB               AB CN  4968 -11275   903  044
+CXTO     715080 TORONTO CITY ON                  ON CN  4367  -7940   113  004  
+CPQL     715090 LETHBRIDGE AGDM AB               AB CN  4968 -11275   903  044  
 CWRJ     715100 ROSETOWN EAST, SASK              SA CN  5156 -10791   586  044  
 CWIW     715110 WATROUS EAST (AUT),              SA CN  5166 -10539   526  044  
 CWBT     715120 LONGUE POINTE DE MIN             ON CN  5026  -6423    11  044  
 CWCD     715130 SASKATOON KERNEN FAR                CN  5214 -10655   510  044  
 CWDJ     715140 REGINA UNIVERSITY                SA CN  5041 -10458   573  044  
-CWBD     715150 INDIAN HEAD CDA SK               SK CN  5055 -10365   579  044
+CWBD     715150 INDIAN HEAD CDA SK               SK CN  5055 -10365   579  044  
 CWAQ     715160 CORONACH SPC                        CN  4904 -10548   756  044  
-CPBT     715170 BLOOD TRIBE AGDM AB              AB CN  4957 -11305   980  044
-CPEH     715180 ENCHANT AGDM AB                  AB CN  5018 -11243   801  044
-CPXL     715190 BOW ISLAND IRRIGATION AGDM AB    AB CN  4987 -11273   799  044
+CPBT     715170 BLOOD TRIBE AGDM AB              AB CN  4957 -11305   980  044  
+CPEH     715180 ENCHANT AGDM AB                  AB CN  5018 -11243   801  044  
+CPXL     715190 BOW ISLAND IRRIGATION AGDM AB    AB CN  4987 -11273   799  044  
 CWDE     715200 LAC BENOIT, QUE  (AU             QB CN  5155  -7111   549  044  
 CWDP     715210  MANOUANE-EST, QUE               QB CN  5066  -7053   496  044  
 CWDT     715220 CHUTE DES PASSES, QU             QB CN  4990  -7124   399  044  
 CWEE     715230 CHAMOUCHOUANE, QUE               QB CN  4928  -7335   305  044  
 CWEW     715240 L'ASSOMPTION, QUE  (             QB CN  4581  -7343    21  044  
-CPSV     715250 SEVEN PERSONS AGDM AB            AB CN  4992 -11092   766  044
-CPST     715260 STRATHMORE AGDM AB               AB CN  5103 -11328   967  044 
+CPSV     715250 SEVEN PERSONS AGDM AB            AB CN  4992 -11092   766  044  
+CPST     715260 STRATHMORE AGDM AB               AB CN  5103 -11328   967  044  
 CWSI     715270 SIMCOE (AUT), ONT.               ON CN  4284  -8026   241  044  
-CPIR     715280 IRON SPRINGS AGDM AB             AB CN  4990 -11273   858  044
-CXLU     715290 LITSELK'E CS NT                  NT CN  6242 -11068   179  044
-9999     715320 MUSKOKA, ONT.                    ON CN  4497  -7930   282  044
-CYXR     715330 EARLTON AWOS ON                  ON CN  4770  -7985   243  044
-CYBN     715340 BORDEN AWOS ON                   ON CN  4426  -7992   223  044
-CPFI     715350 FINCASTLE AGDM AB                AB CN  4980 -11203   833  044
-CPRY     715360 RAYMOND AGDM AB                  AB CN  4948 -11268   937  044
-CPRO     715370 ROSEMARY AGDM AB                 AB CN  5083 -11205   714  044
+CPIR     715280 IRON SPRINGS AGDM AB             AB CN  4990 -11273   858  044  
+CXLU     715290 LITSELK'E CS NT                  NT CN  6242 -11068   179  044  
+9999     715320 MUSKOKA, ONT.                    ON CN  4497  -7930   282  044  
+CYXR     715330 EARLTON AWOS ON                  ON CN  4770  -7985   243  044  
+CYBN     715340 BORDEN AWOS ON                   ON CN  4426  -7992   223  044  
+CPFI     715350 FINCASTLE AGDM AB                AB CN  4980 -11203   833  044  
+CPRY     715360 RAYMOND AGDM AB                  AB CN  4948 -11268   937  044  
+CPRO     715370 ROSEMARY AGDM AB                 AB CN  5083 -11205   714  044  
 CYQG     715380 WINDSOR  A ONT.                  ON CN  4226  -8296   190  044  
-CZMJ     715390 MOOSE JAW CS SK                  SK CN  5033 -10555   577  044
-CPHR     715400 HESPERO AGCM AB                  AB CN  5232 -11448   965  044
-CPJT     715410 JEAN COTE AGCM AB                AB CN  5592 -11712   638  044
-CPLC     715420 LA CRETE AGCM AB                 AB CN  5817 -11635   323  044
-CPLG     715430 LA GLACE AGCM AB                 AB CN  5542 -11925   760  044
-CPLF     715440 LEGAL AGCM AB                    AB CN  5400 -11343   680  044
-CPRW     715450 RADWAY AGCM AB                   AB CN  5400 -11288   625  044
-CPRF     715460 RYCROFT AGCM AB                  AB CN  5678 -11867   575  044
-CPSW     715470 SAVANNA AGCM AB                  AB CN  5608 -11935   703  044
-CPSL     715480 ST LINA AGCM AB                  AB CN  5428 -11145   619  044
-CPTA     715490 TAWATINAW AGCM AB                AB CN  5430 -11352   703  044
+CZMJ     715390 MOOSE JAW CS SK                  SK CN  5033 -10555   577  044  
+CPHR     715400 HESPERO AGCM AB                  AB CN  5232 -11448   965  044  
+CPJT     715410 JEAN COTE AGCM AB                AB CN  5592 -11712   638  044  
+CPLC     715420 LA CRETE AGCM AB                 AB CN  5817 -11635   323  044  
+CPLG     715430 LA GLACE AGCM AB                 AB CN  5542 -11925   760  044  
+CPLF     715440 LEGAL AGCM AB                    AB CN  5400 -11343   680  044  
+CPRW     715450 RADWAY AGCM AB                   AB CN  5400 -11288   625  044  
+CPRF     715460 RYCROFT AGCM AB                  AB CN  5678 -11867   575  044  
+CPSW     715470 SAVANNA AGCM AB                  AB CN  5608 -11935   703  044  
+CPSL     715480 ST LINA AGCM AB                  AB CN  5428 -11145   619  044  
+CPTA     715490 TAWATINAW AGCM AB                AB CN  5430 -11352   703  044  
 CWZT     715500 DAUPHIN CS, MAN (AUT             MB CN  5109 -10004   305  044  
 CWYE     715510 OUTLOOK PFRA (AUT) S             SA CN  5148 -10704   541  044  
 CWII     715520 VICTORIA BEACH  (AUT             MB CN  5070  -9656   220  044  
-CWXB     715530 ROBLIN MB                        MB CN  5118 -10237   540  044
-CWYQ     715540 POINT AU PERE (INRS) QC          QC CN  4852  -6847     5  044
-CWXN     715550 STAVELY AAFC AB                  AB CN  5018 -11388  1364  044
-CWXG     715560 LAST MOUNTAIN CS SK              SK CN  5142 -10525   497  044
+CWXB     715530 ROBLIN MB                        MB CN  5118 -10237   540  044  
+CWYQ     715540 POINT AU PERE (INRS) QC          QC CN  4852  -6847     5  044  
+CWXN     715550 STAVELY AAFC AB                  AB CN  5018 -11388  1364  044  
+CWXG     715560 LAST MOUNTAIN CS SK              SK CN  5142 -10525   497  044  
 9999     715570 SHEARWATER                          CN  4463 -06350  0053  046  
 CWDW     715580 ST ANTHONY NL                    NL CN  5138  -5610    29  044  
-CWEX     715600 EMERSON AUT MB                   MB CN  4900  -9723   242  044
-CZUG     715630 DELTA MARSH CS MB                MB CN  5018  -9838   248  044
-CXMD     715640 MORDEN CDA CS MB                 MB CN  4918  -9808   298  044
-CNLD     715650 LEEDALE AGCM AB                  AB CN  5255 -11447   947  044
-CXMD     715660 TOMAHAWK AGDM AB                 AB CN  5343 -11472   814  044
-CNLB     715670 LINDBERGH AGDM AB                AB CN  5395 -11058   630  044
-CXFA     715680 FANNY ISLAND BC                  BC CN  5045 -12598     8  044
-CXBK     715690 BRATT'S LAKE CLIMATE SK          SK CN  5020 -100472  580  044
+CWEX     715600 EMERSON AUT MB                   MB CN  4900  -9723   242  044  
+CZUG     715630 DELTA MARSH CS MB                MB CN  5018  -9838   248  044  
+CXMD     715640 MORDEN CDA CS MB                 MB CN  4918  -9808   298  044  
+CNLD     715650 LEEDALE AGCM AB                  AB CN  5255 -11447   947  044  
+CXMD     715660 TOMAHAWK AGDM AB                 AB CN  5343 -11472   814  044  
+CNLB     715670 LINDBERGH AGDM AB                AB CN  5395 -11058   630  044  
+CXFA     715680 FANNY ISLAND BC                  BC CN  5045 -12598     8  044  
+CXBK     715690 BRATT'S LAKE CLIMATE SK          SK CN  5020 -100472  580  044  
 CPGF     715700 GREAT FALLS CLIMATE MB           MB CN  5052  -9598   253  044  
-CXSR     715710 SPIRIT RIVER AUTO STATION           CN  5570 -11923  1015  046
-CZKD     715720 KELSEY DAM CS MB                 MB CN  5603  -9652   183  044
-CXDI     715730 DELHI CS, ONT                    ON CN  4287  -8055   232  046
-CZBF     715740 BATHHURST A NB                   NB CN  4763  -6545    59  044
-CNCD     715750 CAPE DORSET CLIMATE NU           NU CN  6423  -7653    50  044
-CNDT     715760 POND INLET CS NU                 NU CN  7270  -7795    55  044
-CXGH     715770 GIMLI HARBOUR CS, MAN.           MB CN  5063  -9698   217  046
-CXBO     715780 BEAUPORT CS, QUE.                QB CN  4684  -7120    10  046
-CXWN     715790 WINNIPEG THE FORKS, MAN.         MB CN  4989  -9713   230  046
-CYYH     715800 TALOYOAK A NU                    NU CN  6955  -9358    28  044
-CTNK     715810 ALGONQUIN PK EAST GT ON          ON CN  4553  -7827   397  046
-CYHD     715820 DRYDEN A ON                      ON CN  4983  -9275   413  046
-CXQA     715830 QAVVIK LAKE, N. W. T.            NT CN  6826 -12210   530  046
-CXMM     715850 FORT MCMURRAY CS, ALTA              CN  5665 -11122   369  046
-CXOX     715860 LA RONGE RCS SK                  SK CN  5515 -10527   379  044
-CXSW     715870 ST. JOHN'S WEST CDA CS, NFLD.       CN  4752  -5279   114  046
-CXRH     715880 ROCKY HARBOUR CS, NFLD.             CN  4957  -5789    68  046
-CXTP     715890 TERRA NOVA NATIONAL PARK CS         CN  4856  -5398   107  046
-CERM     715900 EDMUNDSTON NB                    NB CN  4742  -6832   154  046
-CXAT     715920 ARCTIC BAY CS NU                 NU CN  7300  -8502    10  044
-CXPV     715930 PRAIRIE RIVER, ALTA                 CN  5862 -11167   212  046
-CWXS     715980 BAS CARAQUET NB                  NB CN  4780  -6483     5  046
+CXSR     715710 SPIRIT RIVER AUTO STATION           CN  5570 -11923  1015  046  
+CZKD     715720 KELSEY DAM CS MB                 MB CN  5603  -9652   183  044  
+CXDI     715730 DELHI CS, ONT                    ON CN  4287  -8055   232  046  
+CZBF     715740 BATHHURST A NB                   NB CN  4763  -6545    59  044  
+CNCD     715750 CAPE DORSET CLIMATE NU           NU CN  6423  -7653    50  044  
+CNDT     715760 POND INLET CS NU                 NU CN  7270  -7795    55  044  
+CXGH     715770 GIMLI HARBOUR CS, MAN.           MB CN  5063  -9698   217  046  
+CXBO     715780 BEAUPORT CS, QUE.                QB CN  4684  -7120    10  046  
+CXWN     715790 WINNIPEG THE FORKS, MAN.         MB CN  4989  -9713   230  046  
+CYYH     715800 TALOYOAK A NU                    NU CN  6955  -9358    28  044  
+CTNK     715810 ALGONQUIN PK EAST GT ON          ON CN  4553  -7827   397  046  
+CYHD     715820 DRYDEN A ON                      ON CN  4983  -9275   413  046  
+CXQA     715830 QAVVIK LAKE, N. W. T.            NT CN  6826 -12210   530  046  
+CXMM     715850 FORT MCMURRAY CS, ALTA              CN  5665 -11122   369  046  
+CXOX     715860 LA RONGE RCS SK                  SK CN  5515 -10527   379  044  
+CXSW     715870 ST. JOHN'S WEST CDA CS, NFLD.       CN  4752  -5279   114  046  
+CXRH     715880 ROCKY HARBOUR CS, NFLD.             CN  4957  -5789    68  046  
+CXTP     715890 TERRA NOVA NATIONAL PARK CS         CN  4856  -5398   107  046  
+CERM     715900 EDMUNDSTON NB                    NB CN  4742  -6832   154  046  
+CXAT     715920 ARCTIC BAY CS NU                 NU CN  7300  -8502    10  044  
+CXPV     715930 PRAIRIE RIVER, ALTA                 CN  5862 -11167   212  046  
+CWXS     715980 BAS CARAQUET NB                  NB CN  4780  -6483     5  046  
 9999     715990 KEJIMKUJIK,N.S                      CN  4443 -06520  0125  046  
 CWSA     716000 SABLE ISLAND 1  N.S.             NS CN  4393  -6001     4  044  
 CYAW     716010 SHEARWATER  A  N.S.              NS CN  4463  -6349    51  044  
@@ -9929,7 +9929,7 @@ CWHY     716180 MONT ORFORD, QUE  (A             QB CN  4531  -7224   851  044
 CWOC     716190 NEW CARLISLE, QUE                QB CN  4801  -6533    47  044  
 CYGK     716200 KINGSTON  A ONT.                 ON CN  4423  -7659    93  044  
 CYTR     716210 TRENTON  A  ONT.                 ON CN  4411  -7753    86  044  
-CWSN     716220 LONDON CS ON                     ON CN  4303  -8115   278  044
+CWSN     716220 LONDON CS ON                     ON CN  4303  -8115   278  044  
 CYXU     716230 LONDON  A ONT.   (AU             ON CN  4303  -8114   278  044  
 CYYZ     716240 TORONTO PEARSON INT'             ON CN  4368  -7963   173  044  
 CYWA     716250 PETAWAWA  A  ONT.  (             ON CN  4595  -7731   130  044  
@@ -9943,38 +9943,38 @@ CWBI     716320 BRITT (AUT)  ONT.                ON CN  4579  -8053   190  044
 CYVV     716330 WIARTON  A  ONT.                 ON CN  4475  -8109   219  044  
 CYZR     716340 SARNIA    A ONT                  ON CN  4300  -8231   181  044  
 9999     716380 TORONTO AES HQ, ONT              ON CN  4378  -7946   187  044  
-CYKZ     716390 TORONTO BUTTONVILLE A ON         ON CN  4387  -7937   198  044
+CYKZ     716390 TORONTO BUTTONVILLE A ON         ON CN  4387  -7937   198  044  
 KYLD     716420 CHAPLEAU A    ONT                ON CN  4781  -8335   447  044  
-CWFP     716650 NAIN NF                          NF CN  5655  -6168     8  044
-CABT     716660 BUCTOUCHE CDA CS NB              NB CN  4643  -6477    36  044
-CZTB     716670 THUNDER BAY CS ON                ON CN  4837  -8933   199  044
-CAFC     716680 FREDERICTON CDA CS NB            NB CN  4592  -6662    35  044
-CNPK     716690 PEKISKO AB                       AB CN  5037 -11442  1415  044
-CAKC     716700 KOUCHIBOUGUAC CS NB              NB CN  4677  -6500    34  044
-CXKT     716710 KENTVILLE CDA CS NS              NS CN  4504  -6448    49  044
-CTPQ     716720 PETERBOROUGH TRENT U ON          ON CN  4435  -7830   216  044
-CPFA     716730 FERINTOSH AGCM AB                AB CN  5275 -11285   795  044
-CPFO     716740 FORESTBURG AGCM AB               AB CN  5255 -11212   721  044
+CWFP     716650 NAIN NF                          NF CN  5655  -6168     8  044  
+CABT     716660 BUCTOUCHE CDA CS NB              NB CN  4643  -6477    36  044  
+CZTB     716670 THUNDER BAY CS ON                ON CN  4837  -8933   199  044  
+CAFC     716680 FREDERICTON CDA CS NB            NB CN  4592  -6662    35  044  
+CNPK     716690 PEKISKO AB                       AB CN  5037 -11442  1415  044  
+CAKC     716700 KOUCHIBOUGUAC CS NB              NB CN  4677  -6500    34  044  
+CXKT     716710 KENTVILLE CDA CS NS              NS CN  4504  -6448    49  044  
+CTPQ     716720 PETERBOROUGH TRENT U ON          ON CN  4435  -7830   216  044  
+CPFA     716730 FERINTOSH AGCM AB                AB CN  5275 -11285   795  044  
+CPFO     716740 FORESTBURG AGCM AB               AB CN  5255 -11212   721  044  
 CWPQ     716750 MONTREAL-EST, QUE  (             QB CN  4563  -7355    51  044  
-CVSL     716790 OOTSA LAKE/SKINS LAKE CLIMATE    BC CN  5377 -12600   861  044
-CXLC     716800 LOWER CARP LAKE NT               NT CN  6360 -11387   373  044
-CVAS     716810 ASHCROFT                         BC CN  5072 -12128   327  044
-CXLL     716820 LINDBURG LANDING NT              NT CN  6113 -12285   183  044
-CXTV     716830 TRAIL VALLEY NT                  NT CN  6875 -13350    85  044
-CVOA     716840 WHISTLER MT HI LVL BC            BC CN  5008 -12295  1640  044
-CVOH     716850 WHISTLER MT HI LVL R BC          BC CN  5007 -12295  1643  044
-CVOB     716860 WHISTLER MT LO LVL BC            BC CN  5008 -12298   933  044
-CVOC     716870 WHISTLER MT - NESTERS BC         BC CN  5013 -12295   659  044
-CVOD     716880 CALLAGHAN VALLEY BC              BC CN  5015 -12312   884  044
-CVOE     716890 CYPRESS BOWL NORTH BC            BC CN  4940 -12320   953  044
-CPTC     716900 TEEPEE CREEK AGCM AB             AB CN  5535 -11840   670  044
-CWTM     716920 MARTICOT ISLAND NF               NF CN  4733  -5458    22  044
-CVOG     716930 CYPRESS BOWL SOUTH BC            BC CN  4938 -12320   960  044
-CTBT     716940 BEATRICE CLIMATE ON              ON CN  4513  -7940   297  044
-CPQD     716950 THE PAS CLIMATE MB               MB CN  5397 -10110   274  044
-CPYQ     716960 CHURCHILL CLIMATE MB             MB CN  5873  -9407    29  044
-9999     716970 OSHAWA                           ON CN  4392  -7890   140  044
-CWPE     716990 PT LEPREAU CS NB                 NB CN  4507  -6645     6  044
+CVSL     716790 OOTSA LAKE/SKINS LAKE CLIMATE    BC CN  5377 -12600   861  044  
+CXLC     716800 LOWER CARP LAKE NT               NT CN  6360 -11387   373  044  
+CVAS     716810 ASHCROFT                         BC CN  5072 -12128   327  044  
+CXLL     716820 LINDBURG LANDING NT              NT CN  6113 -12285   183  044  
+CXTV     716830 TRAIL VALLEY NT                  NT CN  6875 -13350    85  044  
+CVOA     716840 WHISTLER MT HI LVL BC            BC CN  5008 -12295  1640  044  
+CVOH     716850 WHISTLER MT HI LVL R BC          BC CN  5007 -12295  1643  044  
+CVOB     716860 WHISTLER MT LO LVL BC            BC CN  5008 -12298   933  044  
+CVOC     716870 WHISTLER MT - NESTERS BC         BC CN  5013 -12295   659  044  
+CVOD     716880 CALLAGHAN VALLEY BC              BC CN  5015 -12312   884  044  
+CVOE     716890 CYPRESS BOWL NORTH BC            BC CN  4940 -12320   953  044  
+CPTC     716900 TEEPEE CREEK AGCM AB             AB CN  5535 -11840   670  044  
+CWTM     716920 MARTICOT ISLAND NF               NF CN  4733  -5458    22  044  
+CVOG     716930 CYPRESS BOWL SOUTH BC            BC CN  4938 -12320   960  044  
+CTBT     716940 BEATRICE CLIMATE ON              ON CN  4513  -7940   297  044  
+CPQD     716950 THE PAS CLIMATE MB               MB CN  5397 -10110   274  044  
+CPYQ     716960 CHURCHILL CLIMATE MB             MB CN  5873  -9407    29  044  
+9999     716970 OSHAWA                           ON CN  4392  -7890   140  044  
+CWPE     716990 PT LEPREAU CS NB                 NB CN  4507  -6645     6  044  
 CYFC     717000 FREDERICTON  A  N.B.             NB CN  4586  -6653    20  044  
 CYCX     717010 GAGETOWN  A N.B.                 NB CN  4583  -6643    51  044  
 CYSU     717020 SUMMERSIDE, PEI    (             PE CN  4643  -6383    24  044  
@@ -10005,50 +10005,50 @@ CYBG     717270 BAGOTVILLE  A  QUE.              QB CN  4833  -7100   159  044
 CYRJ     717280 ROBERVAL  A  QUE                 QB CN  4851  -7226   179  044  
 CYSB     717300 SUDBURY  A  ONT                  ON CN  4661  -8078   348  044  
 CYYB     717310 NORTH BAY A  ONT.                ON CN  4636  -7941   371  044  
-CWBA     717320 BARRAGE TEMISCAMINGUE QE         QE CN  4672  -7910   181  044
+CWBA     717320 BARRAGE TEMISCAMINGUE QE         QE CN  4672  -7910   181  044  
 CYZE     717330 GORE BAY  A ONT.                 ON CN  4588  -8256   193  044  
 CWUY     717340 ROUYN, QUE                       QB CN  4824  -7903   318  044  
 CYXR     717350 EARLTON  A  ONT                  ON CN  4770  -7984   243  044  
 CWGQ     717360 ROQUEMAURE, QUE  (AU             ON CN  4863  -7945   269  044  
-CMMY     717370 SAINT-MICHEL-DES-SAINTES QC      QC CN  4682  -7410   390  044
+CMMY     717370 SAINT-MICHEL-DES-SAINTES QC      QC CN  4682  -7410   390  044  
 CYXZ     717380 WAWA   A  ONT.                   ON CN  4796  -8478   287  044  
 CYTS     717390 TIMMINS A ONT                    ON CN  4856  -8138   295  044  
-CZKA     717410 KAMLOOPS AUT BC                  BC CN  5070 -12045   345  044
-CXGD     717420 GANDER AIRPORT CS NL             NL CN  4895  -5458   151  044
-CMRF     717430 RIVIERE AUX FEUILLES QC          QC CN  5792  -7298   171  044
-CACQ     717440 MIRAMICHI RCS NB                 NB CN  4702  -6547    33  044
-CTZR     717460 SARNIA CLIMATE ON                ON CN  4300  -8230   181  944
+CZKA     717410 KAMLOOPS AUT BC                  BC CN  5070 -12045   345  044  
+CXGD     717420 GANDER AIRPORT CS NL             NL CN  4895  -5458   151  044  
+CMRF     717430 RIVIERE AUX FEUILLES QC          QC CN  5792  -7298   171  044  
+CACQ     717440 MIRAMICHI RCS NB                 NB CN  4702  -6547    33  044  
+CTZR     717460 SARNIA CLIMATE ON                ON CN  4300  -8230   181  944  
 9999     717470 ATIKOKAN, ONT    (AU             ON CN  4876  -9163   424  044  
 CWCH     717480 ATIKOKAN_(AUT)                   ON CN  4875  -9162   393  044  
 CYQT     717490 THUNDER BAY  A ONT.              ON CN  4836  -8931   199  044  
 CWCJ     717500 PUKASKWA, ONT    (AU             ON CN  4858  -8629   206  044  
 CWEC     717510 WELCOME IS., ONT (AU             ON CN  4836  -8911   209  044  
-CTWL     717520 WELLAND-PELHAM ON                ON CN  4297  -7933   178  044
-CAOH     717530 UPPER STEWIACKE RCS NS           NS CN  4523  -6305    24  044
-CPQW     717540 NORTH BATTLEFORD RCS SK          SK CN  5277 -10825   548  044
-CZMD     717550 MUSKRAT DAM A ON                 ON CN  5343  -9177   278  044
-CVOI     717560 BLACKCOMB BASE SLDNG CTR BC      BC CN  5010 -12293   937  044
-CBBC     717570 BELLA BELLA A BC                 BC CN  5218 -12815    43  044
-CAQY     717580 SYDNEY CS NS                     NS CN  4617  -6005    63  044
+CTWL     717520 WELLAND-PELHAM ON                ON CN  4297  -7933   178  044  
+CAOH     717530 UPPER STEWIACKE RCS NS           NS CN  4523  -6305    24  044  
+CPQW     717540 NORTH BATTLEFORD RCS SK          SK CN  5277 -10825   548  044  
+CZMD     717550 MUSKRAT DAM A ON                 ON CN  5343  -9177   278  044  
+CVOI     717560 BLACKCOMB BASE SLDNG CTR BC      BC CN  5010 -12293   937  044  
+CBBC     717570 BELLA BELLA A BC                 BC CN  5218 -12815    43  044  
+CAQY     717580 SYDNEY CS NS                     NS CN  4617  -6005    63  044  
 CWBG     717600 BIG CREEK, B.C.  (AU             BC CN  5126 -12309  1670  044  
-CPVI     717610 VILNA AGCM AB                    AB CN  5413 -11192   645  044
+CPVI     717610 VILNA AGCM AB                    AB CN  5413 -11192   645  044  
 CWIO     717620 ISKUT RIVER,  B.C.               BC CN  5673 -13166    15  044  
 CWNX     717630 NECHAKO RIVER, BC                BC CN  5368 -12483   715  044  
-CVLY     717650 LYTTON RCS BC                    BC CN  5022 -12158   225  044
-CVOQ     717660 QUALICUM AIRPORT BC              BC CN  4933 -12440    58  044
-CTTR     717670 TOBERMORY RCS ON                 ON CN  4523  -8163   214  044
+CVLY     717650 LYTTON RCS BC                    BC CN  5022 -12158   225  044  
+CVOQ     717660 QUALICUM AIRPORT BC              BC CN  4933 -12440    58  044  
+CTTR     717670 TOBERMORY RCS ON                 ON CN  4523  -8163   214  044  
 CWUS     717680 SUMMERLAND, BC     (             BC CN  4956 -11965   454  044  
 CWGB     717690 BALLENAS ISLAND,                 BC CN  4935 -12416     5  044  
 CWJR     717700 CRESTON,    BC    (A             BC CN  4909 -11653   646  044  
-CWZL     717710 CUMSHEWA ISLAND BC               BC CN  5303 -13160    17  044
+CWZL     717710 CUMSHEWA ISLAND BC               BC CN  5303 -13160    17  044  
 CWEL     717720 ENTRANCE ISLAND,                 BC CN  4921 -12379     3  044  
-CVXY     717730 WHITEHORSE AUTO YT               YK CN  6073 -13510   707  044
+CVXY     717730 WHITEHORSE AUTO YT               YK CN  6073 -13510   707  044  
 CWKH     717740 MALAHAT,B.C.                     BC CN  4858 -12353   366  044  
 CWMM     717750 PITT MEADOWS,    BC              BC CN  4919 -12268     5  044  
 CWNM     717760 NELSON, BC   (AUT)               BC CN  4949 -11729   535  044  
 CWGP     717770 PEMBERTON,        BC             BC CN  5029 -12273   204  044  
 CWQK     717780 RACE ROCKS,                      BC CN  4829 -12353     3  044  
-CWZD     717790 SCUDDER POINT BC                 BC CN  5245 -13123     5  044
+CWZD     717790 SCUDDER POINT BC                 BC CN  5245 -13123     5  044  
 CWSP     717800 SHERINGHAM POINT  (A             BC CN  4838 -12391    21  044  
 CWGT     717810 SISTERS ISLAND,                  BC CN  4948 -12443     5  044  
 CWGW     717820 SPARWOOD,      BC                BC CN  4975 -11488  1137  044  
@@ -10056,16 +10056,16 @@ CWYJ     717830 VICTORIA UNIV.,  BC              BC CN  4845 -12329    60  044
 CWWA     717840 WEST VANCOUVER,                  BC CN  4933 -12318   178  044  
 CWWK     717850 WHITE ROCK, BC    (A             BC CN  4901 -12276    13  044  
 CWYL     717860 YOHO PARK,     BC                AB CN  5145 -11633  1615  044  
-CAMS     717870 MECHANIC SETTLEMENT NB           NB CN  4570  -6517   403  044
-CPGL     717880 GRASSY LAKE AB                   AB CN  4907 -11173   783  044
-CPFM     717890 FORT MACLEOD AGCM AB             AB CN  4978 -11338   978  044
-CPGE     717910 GILT EDGE NORTH AGCM AB          AB CN  5307 -11062   647  044
-CPHA     717920 HALKIRK AGCM AB                  AB CN  5212 -11217   843  044
-CPHE     717930 HEMARUKA AGDM AB                 AB CN  5178 -11122   780  044
-CPHU     717940 HUGHENDEN AGCM AB                AB CN  5258 -11078   703  044
-CPIA     717950 IRVINE AGCM AB                   AB CN  4998 -11027   795  044
-CPKA     717960 KESSLER AGCM AB                  AB CN  5228 -11112   720  044
-CPKI     717970 KISCOTY AGCM AB                  AB CN  5335 -11042   664  044
+CAMS     717870 MECHANIC SETTLEMENT NB           NB CN  4570  -6517   403  044  
+CPGL     717880 GRASSY LAKE AB                   AB CN  4907 -11173   783  044  
+CPFM     717890 FORT MACLEOD AGCM AB             AB CN  4978 -11338   978  044  
+CPGE     717910 GILT EDGE NORTH AGCM AB          AB CN  5307 -11062   647  044  
+CPHA     717920 HALKIRK AGCM AB                  AB CN  5212 -11217   843  044  
+CPHE     717930 HEMARUKA AGDM AB                 AB CN  5178 -11122   780  044  
+CPHU     717940 HUGHENDEN AGCM AB                AB CN  5258 -11078   703  044  
+CPIA     717950 IRVINE AGCM AB                   AB CN  4998 -11027   795  044  
+CPKA     717960 KESSLER AGCM AB                  AB CN  5228 -11112   720  044  
+CPKI     717970 KISCOTY AGCM AB                  AB CN  5335 -11042   664  044  
 CYYJ     717990 VICTORIA  INT'L A  B             BC CN  4865 -12341    19  044  
 CWRA     718000 CAPE RACE (AUT) NFLD             NF CN  4665  -5306    28  044  
 CYYT     718010 ST JOHN'S  A  NFLD               NF CN  4761  -5275   140  044  
@@ -10079,7 +10079,7 @@ CYBX     718080 BLANC-SABLON A                   QB CN  5145  -5718    37  044
 CYDF     718090 DEER LAKE  A  NFLD.              NF CN  4921  -5738    22  044  
 CWBY     718100 PORT MENIER (AUT)  Q             QB CN  4983  -6429    53  044  
 CYZV     718110 SEPT-ILES  A  QUE.               QB CN  5021  -6624    53  044  
-CYEK     718120 ALERT A NU                       NU CN  6110  -9407    10  044
+CYEK     718120 ALERT A NU                       NU CN  6110  -9407    10  044  
 CYNA     718130 NATASHQUAN  A  QUE               QB CN  5018  -6181    11  044  
 CWDM     718140 CHEVERY (AUT)  QUE               QB CN  5046  -5963     6  044  
 CYJT     718150 STEPHENVILLE  A  NFL             NF CN  4855  -5855    26  044  
@@ -10087,11 +10087,11 @@ CYYR     718160 GOOSE BAY RADAR, NFL             NF CN  5329  -6036    36  044
 CWMH     718170 MARY'S HARBOUR A NFL             NF CN  5229  -5583    11  044  
 CWCA     718180 CARTWRIGHT                       NF CN  5370  -5703    14  044  
 CYAY     718190 ST ANTHONY NFLD                  NF CN  5140  -5608    33  044  
-9999     718200 BARRAGE ANGLIERS                    CN  4755  -7923   266  044
+9999     718200 BARRAGE ANGLIERS                    CN  4755  -7923   266  044  
 CYNM     718210 MATAGAMI, QUE.                   QB CN  4977  -7782   281  044  
 CYMT     718220 CHIBOUGAMAU, QUE  PW             QB CN  4976  -7453   387  044  
 CYAH     718230 LA GRANDE IV, QUE  (             QB CN  5375  -7366   307  044  
-CWUK     718240 CHAPAIS QE                       QE CN  4982  -7488   381  044
+CWUK     718240 CHAPAIS QE                       QE CN  4982  -7488   381  044  
 CYWK     718250 WABUSH LAKE  A NFLD.             NF CN  5293  -6686   551  044  
 CWXP     718260 PANGNIRTUNG  (AUT) N             NT CN  6614  -6571    23  044  
 CYGL     718270 LA GRANDE RIVIERE A              QB CN  5363  -7770   195  044  
@@ -10099,20 +10099,20 @@ CYKL     718280 SCHEFFERVILLE     QU             QB CN  5479  -6679   518  044
 CWFW     718290 BAIE COMEAU CS,  QUE             QB CN  4926  -6814   129  044  
 CYYU     718310 KAPUSKASING  A  ONT.             ON CN  4941  -8246   227  044  
 CWNZ     718320 NAGAGAMI (AUT) ONT.              ON CN  4975  -8416   263  044  
-CTGT     718330 GUELPH TURFGRASS ON              ON CN  4355  -8022   325  044
+CTGT     718330 GUELPH TURFGRASS ON              ON CN  4355  -8022   325  044  
 CYGQ     718340 GERALDTON A,  ONT                ON CN  4978  -8693   349  044  
-CWPL     718350 PICKLE LK ON                     ON CN  5145  -9022   391  044
+CWPL     718350 PICKLE LK ON                     ON CN  5145  -9022   391  044  
 CWZC     718360 MOOSONEE 'A', ONT (A             ON CN  5128  -8059     9  044  
-CPMR     718370 ST MARY RESERVOIR AB             AB CN  4937 -11312  1128  044
-CPBR     718390 BULLHORN COULEE RESERVIOR AB     AB CN  4900 -11337  1115  044
-CXDW     718400 DEERWOOD RCS MB                  MB CN  4940  -9832   341  044
+CPMR     718370 ST MARY RESERVOIR AB             AB CN  4937 -11312  1128  044  
+CPBR     718390 BULLHORN COULEE RESERVIOR AB     AB CN  4900 -11337  1115  044  
+CXDW     718400 DEERWOOD RCS MB                  MB CN  4940  -9832   341  044  
 CWYW     718410 ARMSTRONG (AUT) ONT.             ON CN  5028  -8891   323  044  
 CYXL     718420 SIOUX LOOKOUT,ONT.               ON CN  5009  -9190   390  044  
 9999     718440 BIG TROUT LAKE RDC,              ON CN  5381  -8990   224  044  
 CWPL     718450 PICKLE LAKE, ONT                 ON CN  5146  -9019   391  044  
 CWLF     718460 LANSDOWNE HOUSE, ONT             ON CN  5218  -8779   252  044  
 CYTL     718480 BIG_TROUT_LAKE                   ON CN  5383  -8987   224  044  
-CXWG     718490 WINNIPEG A CS MN                 MN CN  4992  -9725   239  044
+CXWG     718490 WINNIPEG A CS MN                 MN CN  4992  -9725   239  044  
 CYQK     718500 KENORA   A  ONT.                 ON CN  4978  -9436   410  044  
 CYPG     718510 PORTAGE SOUTHPORT, M             MN CN  4990  -9826   273  044  
 CYWG     718520 WINNIPEG INT'L A MAN             MN CN  4991  -9723   239  044  
@@ -10120,10 +10120,10 @@ CWLO     718530 SHILO, MAN.                      MN CN  4978  -9965   373  044
 CYRL     718540 RED LAKE  A ONT.                 ON CN  5106  -9379   383  044  
 CYDN     718550 DAUPHIN  A  MAN.                 MN CN  5109 -10004   305  044  
 CYGM     718560 GIMLI INDUSTRIAL PAR             MN CN  5063  -9704   230  044  
-CPTU     718570 TULLIBY LAKE AGCM AB             AB CN  5367 -11008   596  044
+CPTU     718570 TULLIBY LAKE AGCM AB             AB CN  5367 -11008   596  044  
 CWJD     718580 GRAND RAPIDS (AUT)               MN CN  5318  -9926   223  044  
-CYBV     718590 BERENS RIVER   MAN               MN CN  5236  -9701   221  044
-CYBW     718600 SPRINGBANK A AB                  AB CN  5110 -11437  1201  044
+CYBV     718590 BERENS RIVER   MAN               MN CN  5236  -9701   221  044  
+CYBW     718600 SPRINGBANK A AB                  AB CN  5110 -11437  1201  044  
 CWIK     718610 BROADVIEW, SASK.                 SA CN  5038 -10268   602  044  
 CYEN     718620 ESTEVAN  A SASK.                 SA CN  4921 -10296   581  044  
 CYQR     718630 REGINA  A  SASK.                 SA CN  5043 -10466   577  044  
@@ -10148,7 +10148,7 @@ CYET     718810 EDSON, ALTA   (AUT)              AB CN  5358 -11646   921  044
 CYRV     718820 REVELSTOKE AB                    AB CN  5096 -11818   443  044  
 CYCP     718830 BLUE RIVER (AUT)   B             BC CN  5213 -11929   683  044  
 CYCG     718840 CASTLEGAR  A    B.C.             BC CN  4929 -11763   495  044  
-CPCR     718850 GLENWOOD AB                      AB CN  4933 -11352  1074  944
+CPCR     718850 GLENWOOD AB                      AB CN  4933 -11352  1074  944  
 CYDC     718860 PRINCETON A  B.C.                BC CN  4946 -12051   696  044  
 CYKA     718870 KAMLOOPS A  B.C.                 BC CN  5070 -12045   346  044  
 CWJA     718880 JASPER                           AB CN  5288 -11807  1061  044  
@@ -10159,7 +10159,7 @@ CYVR     718920 VANCOUVER INT'L A BC             BC CN  4918 -12318     2  044
 CYQQ     718930 COMOX  A  B.C.                   BC CN  4971 -12488    24  044  
 CWEB     718940 ESTEVAN POINT (AUT)              BC CN  4938 -12655     7  044  
 9999     718950 BULL HARBOUR                     BC CN  5092 -12795  0014  044  
-CYXS     718960 PRINCE GEORGE BC                 BC CN  5388 -12268   691  044
+CYXS     718960 PRINCE GEORGE BC                 BC CN  5388 -12268   691  044  
 CWMS     718970 MCINNES IS.,B.C.                 BC CN  5226 -12871    26  044  
 CWJU     718990 LANGARA, B.C.                    BC CN  5424 -13304    41  044  
 CWHO     719000 HOPEDALE  (AUT) NFLD             NF CN  5545  -6021    10  044  
@@ -10208,7 +10208,7 @@ CYXJ     719430 FORT ST JOHN A  B.C.             BC CN  5623 -12073   695  044
 CYZY     719440 MACKENZIE  A  B.C.               BC CN  5529 -12313   690  044  
 CYYE     719450 FORT NELSON,B.C.                 BC CN  5883 -12259   378  044  
 CYFS     719460 FORT SIMPSON A N.W.T             NT CN  6175 -12123   169  044  
-CVOJ     719470 MT WASHINGTON BC                 BC CN  4975 -12528  1474  044
+CVOJ     719470 MT WASHINGTON BC                 BC CN  4975 -12528  1474  044  
 CZUE     719480 CAPE PARRY, N.W.T.               NT CN  7009 -12471    87  044  
 CWUM     719490 FARO  (AUT)       YT             YK CN  6223 -13335   717  044  
 CYYD     719500 SMITHERS  A  B.C.                BC CN  5481 -12718   523  044  
@@ -10222,7 +10222,7 @@ CYEV     719570 INUVIK UA   NWT                  NT CN  6831 -13353   103  044
 CWDL     719580 DEASE LAKE, B.C.                 BC CN  5841 -13000   816  044  
 9999     719590 TUKTOYAKTUK                      NT CN  6945 -13300  0018  044  
 CWLI     719600 LIVERPOOL BAY, NWT               NT CN  6959 -13091   102  044  
-CTAG     719620 FORT FRANCES RCS ON              ON CN  4865  -9343   342  044
+CTAG     719620 FORT FRANCES RCS ON              ON CN  4865  -9343   342  044  
 CWQY     719630 HANBURY RIVER, NWT               NT CN  6359 -10513   317  044  
 CYXY     719640 WHITEHORSE,Y.T                   YK CN  6073 -13506   707  044  
 CYMA     719650 MAYO  A   Y.T.                   YK CN  6361 -13586   504  044  
@@ -10230,11 +10230,11 @@ CYDA     719660 DAWSON  A Y.T.  (AUT             YK CN  6404 -13913   370  044
 CWDB     719670 BURWASH, YT (AUT)                YK CN  6136 -13903   807  044  
 CYUA     719680 SHINGLE POINT,  YT               YK CN  6893 -13723    38  044  
 9999     719690 KOMAKUK BEACH                    YT CN  6960 -14017  0008  044  
-CWLJ     719700 MEADOW LAKE SK                   SK CN  5413 -10652   481  844
-CNGC     719710 GRISE FIORD CLIMATE NU           NU CN  7642  -8290    45  044
+CWLJ     719700 MEADOW LAKE SK                   SK CN  5413 -10652   481  844  
+CNGC     719710 GRISE FIORD CLIMATE NU           NU CN  7642  -8290    45  044  
 9999     719720 RESOLUTION ISLAND, NWT              CN  6158  -6465   369  044  
-CWKB     719730 CORNER BROOK NL                  NL CN  4893  -5792   152  044
-CWSQ     719740 AULVIK_NATIONAL_PARK                CN  7413 -11999    32  044
+CWKB     719730 CORNER BROOK NL                  NL CN  4893  -5792   152  044  
+CWSQ     719740 AULVIK_NATIONAL_PARK                CN  7413 -11999    32  044  
 CWYM     719750 CAPE MERCY, NWT   (A             YK CN  6495  -6358   583  044  
 CMIN     719760 PARC NATIONAL DES PINGUALIT      QC CN  6132  -7367   503  044  
 CZOC     719770 MARGARET LAKE, Y.T.              VY CN  6879 -14084   543  044  
@@ -10247,11 +10247,11 @@ CZRP     719830 RAE_POINT_(AUTO8)                NT CN  7537 -10572    12  044
 CZPK     719840 PAULATUK, N.W.T.                 NT CN  6935 -12404     6  044  
 CZUB     719850 TUKTOYAKTUK,  NWT                NT CN  6943 -13301     6  044  
 CWMV     719860 ST. CHARLES CREEK, N             NT CN  6478 -12421   341  044  
-CWNE     719870 NORTH CAPE PE                    PE CN  4705  -6400     8  044
-CWVU     719880 BRIER ISLAND NS                  NS CN  4428  -6635    16  044
+CWNE     719870 NORTH CAPE PE                    PE CN  4705  -6400     8  044  
+CWVU     719880 BRIER ISLAND NS                  NS CN  4428  -6635    16  044  
 9999     719890 MOULD BAY CS NWT                    CN  7623 -11933    12  044  
-CWNV     719900 MACMILLAN PASS NT                NT CN  6325 -13003  1379  044
-CWKF     719990 LILLIOET BC                      BC CN  5068 -12193   235  044
+CWNV     719900 MACMILLAN PASS NT                NT CN  6325 -13003  1379  044  
+CWKF     719990 LILLIOET BC                      BC CN  5068 -12193   235  044  
 KEYW     722010 KEY_WEST_INTL_ARPT               FL US  2455  -8175     6  044  
 KMIA     722020 MIAMI_INTL_AIRPORT               FL US  2582  -8028     4  044  
 KPBI     722030 WEST_PALM_BEACH                  FL US  2668  -8012     6  044  
@@ -10373,7 +10373,7 @@ KABQ     723650 ALBUQUERQUE_INTL                 NM US  3505 -10662  1620  044
 KIGM     723700 KINGMAN_(AMOS)                   AZ US  3527 -11395  1033  044  
 KPGA     723710 PAGE_MUNI_(AMOS)                 AZ US  3693 -11145  1304  044  
 KINW     723740 WINSLOW_(AUT)                    AZ US  3502 -11073  1488  044  
-KFLG     723750 FLAGSTAFF PULLIAM                AZ US  3514 -11167  2138  044
+KFLG     723750 FLAGSTAFF PULLIAM                AZ US  3514 -11167  2138  044  
 9999     723760 FARMINGTON_FOUR_CORNERS_AIRP     NM US  3675 -10823  1677  044  
 9999     723780 GRAND CANYON                     AZ US  3595 -11215  2125  044  
 9999     723800 NEEDLES                          CA US  3477 -11462  0302  044  
@@ -10721,7 +10721,7 @@ KMYR     747910 MYRTLE_BEACH(CIV)                SC US  3368  -7893     8  044
 9999     747940 CAPE CANAVERAL                   FL US  2847 -08055  0003  044  
 KCOF     747950 PATRICK_AFB/COCOA_B              FL US  2823  -8060     3  044  
 9999     747960 AVON PARK GUNNERY RANGE          FL US  2765 -08133  0020  044  
-9999     760400 EJIDO NUEVO LEON BC.                MX  3240 -11518 -9999  014
+9999     760400 EJIDO NUEVO LEON BC.                MX  3240 -11518 -9999  014  
 9999     760500 ENSENADA                            MX  3185 -11663     8  014  
 9999     760550 SAN_FELIPE                          MX  3103 -11485    17  014  
 9999     760610 PUERTO_PENASCO                      MX  3130 -11355    48  014  
@@ -10881,7 +10881,7 @@ MUPR     783150 PINAR_DEL_RIO_NORTE                 CU  2242  -8368    37  014
 9999     783250 CASA_BLANCA                         CU  2317  -8235    50  014  
 9999     783260 MATANZAS, MAT.                      CU  2302 -08152  0046  014  
 9999     783270 UNION_DE_REYES                      CU  2277  -8153    30  014  
-9999     783280 SAN ANTONIO BANAS                   CU  2287  -8252    50  014
+9999     783280 SAN ANTONIO BANAS                   CU  2287  -8252    50  014  
 9999     783290 INDIO_HATUEY                        CU  2282  -8100    19  014  
 9999     783300 JOVELLANOS, MAT.                    CU  2278 -08118  0025  014  
 9999     783310 JAGUEY, MAT.                        CU  2263 -08127  0005  014  
@@ -10959,7 +10959,7 @@ MDBH     784820 BARAHONA                            DR  1822  -7110    26  014
 9999     784840 HERRERA                             DR  1847  -6997    58  014  
 MDSD     784850 CAUCEDO/DE_LAS_AMER                 DR  1843  -6967    18  014  
 9999     784860 SANTO_DOMINGO                       DO  1843  -6988    14  014  
-MDLR     784880 AEROPUERTO INTRNCNL DE LA ROMANA    DR  1845  -6892    94  014
+MDLR     784880 AEROPUERTO INTRNCNL DE LA ROMANA    DR  1845  -6892    94  014  
 MHIC     785010 ISLAS_DEL_CISNE                     HO  1740  -8393    11  044  
 TJBQ     785140 AQUADILLA/BORINQUEN                 PU  1850  -6713    72  044  
 9999     785200 PONCE                               PU  1802 -06657  0009  044  
@@ -11038,7 +11038,7 @@ MPSA     787950 SANTIAGO                            PM  0808  -8095    88  044
 MPHO     788060 HOWARD_AFB                          PM  0892  -7960    16  044  
 9999     788250 CLIPPERTON IS. (AMOS)               CA  1030 -10922  0001  044  
 TQPF     788460 WALL_BLAKE                          VI  1820  -6305    31  044  
-9999     788550 ROSEAU                              DM  1530  -6140    72  044
+9999     788550 ROSEAU                              DM  1530  -6140    72  044  
 9999     788570 BASSETERRE                          AT  1728  -6273     9  044  
 TKPK     788580 GOLDEN_ROCK                         AT  1730  -6268    48  044  
 TKPN     788590 CHARLESTOWN/NEWCAST                 AT  1720  -6258    17  044  
@@ -11750,7 +11750,7 @@ SCTE     857990 PUERTO_MONTT/TEPUAL                 CH -4143  -7310    90  043
 9999     858250 CASTRO                              CH -4248 -07377  0044  043  
 9999     858300 CHAITEN                             CH -4292  -7270     4  043  
 9999     858320 FUTALEUFU                           CH -4320  -7182   350  043  
-9999     858340 ISLA_HUAFO                          CH -4357  -7484   140  043
+9999     858340 ISLA_HUAFO                          CH -4357  -7484   140  043  
 9999     858360 ALTO PALENA                         CH -4363 -07180  0277  043  
 9999     858620 PUERTO AYSEN                        CH -4540  -7267    11  043  
 SCCY     858640 COYHAIQUE/TENIENTE                  CH -4560  -7210   311  043  
@@ -11976,7 +11976,7 @@ SFAL     888910 STANLEY_AIRPORT                     FK -5168  -5777    23  043
 9999     889860 SOUTH_THULE_IL_AUT                  FK -5945  -2732    27  043  
 9999     890010 SANAE_SAF-BASE                      ZA -7030   -235    62  047  
 9999     890020 VON-NEUMAYER_G-BASE                 DL -7067   -825    50  047  
-9999     890040 SANAE AWS                           ZA -7170   -280   815  047
+9999     890040 SANAE AWS                           ZA -7170   -280   815  047  
 9999     890050 KOTTAS                              DL -7420  -0975  1440  047  
 9999     890090 AMUNDSEN-SCOTT                      US -9000    000  2830  047  
 9999     890140 NORDENSKIOLD_BASE                   FI -7305  -1338 -9999  047  
@@ -12150,7 +12150,7 @@ PGRO     912210 ROTA_INTL/ROTA_ISL                  MY  1418  14525   185  045
 PGSN     912320 SAIPAN_INTERNATIONAL_APT            MY  1512  14573    66  045  
 9999     912330 SABANETTAN                          MY  1497  14560  0080  045  
 9999     912340 MAUG AWS,  MARIANA IS.              MY  2005  14522 -9999  045  
-PWAK     912450 WAKE ISLAND AIRFLD                  US  1928  16665     4  045
+PWAK     912450 WAKE ISLAND AIRFLD                  US  1928  16665     4  045  
 9999     912500 ENIWETOK ATOLL                      MH  1135  16235  0005  045  
 9999     912510 ENIWETOK_ATOLL_AWS                  MH  1137  16235     2  045  
 9999     912580 UTIRIK_ATOLL                        MH  1123  16985     2  045  
@@ -12307,7 +12307,7 @@ NFTL     917840 HA'APAI/LIFUKA_ISL                  TO -1980 -17435     3  045
 NFTF     917920 FUA'AMOTU/TONGATAPU                 TO -2123 -17515    41  045  
 NCPY     918000 PENRHYN_ISLAND                      KU -0902 -15807     2  045  
 9999     918010 PENRHYN                             KU -0900 -15805  0001  045  
-9999     918020 PENRHYN AWS                         KU  -903 -15805     1  045
+9999     918020 PENRHYN AWS                         KU  -903 -15805     1  045  
 NCRK     918040 RAKAHANGA_ATOLL                     KU -1005 -16110     5  045  
 9999     918080 MANIHIKI                            KU -1040 -16105  0004  045  
 9999     918090 MANIHIKI AWS                        KU -1043 -16102 -9999  045  
@@ -12320,10 +12320,10 @@ NIUE     918220 NIUE_ISLAND/ALOFI                   KU -1907 -16992    22  045
 NCAI     918300 AMURI/AITUTAKI_ISL                  KU -1883 -15977     6  045  
 9999     918310 AITUTAKI AWS                        KU -1883 -15977 -9999  045  
 NCMK     918400 MAUKE_ISLAND                        KU -2013 -15735     9  045  
-9999     918410 MAUKE AWS                           KU -2017 -15735    25  045
+9999     918410 MAUKE AWS                           KU -2017 -15735    25  045  
 NCRG     918430 AVARUA/RAROTONGA_IL                 KU -2120 -15982     7  045  
 9999     918440 RAROTONGA                           KU -2120 -15978        045  
-9999     918480 MANGAIA AWS                         KU -2192 -15795    41  045
+9999     918480 MANGAIA AWS                         KU -2192 -15795    41  045  
 9999     919010 JARVIS IS.                          LN -0038 -16002  0002  045  
 9999     919020 MALDEN IS.                          LN -0405 -15500  0002  045  
 9999     919030 MALDEN IS.                          LN -0405 -15500  0002  045  
@@ -12823,7 +12823,7 @@ YPGN     944030 GERALDTON_AIRPORT                WE AU -2878  11470    34  045
 9999     944170 MORAWA                           WE AU -2920  11602   272  045  
 9999     944220 MURCHISON_SHIRE                  WE AU -2688  11595   289  045  
 9999     944280 MOUNT_MAGNET                     WE AU -2805  11783   427  045  
-9999     944290 MOUNT_MAGNET_AERO                   AU -2812  11783   409  045
+9999     944290 MOUNT_MAGNET_AERO                   AU -2812  11783   409  045  
 YPMR     944300 MEEKATHARRA_AIRPORT              WE AU -2660  11853   518  045  
 9999     944310 ERRABIDDY                        WE AU -2545  11712  0428  045  
 9999     944390 WILUNA                           WE AU -2658  12022   522  045  
@@ -12862,7 +12862,7 @@ YBCV     945100 CHARLEVILLE_ARPT                 QU AU -2640  14627   304  045
 9999     945200 MUNGINDI                         NW AU -2897  14898   160  045  
 9999     945210 SURAT                            QU AU -2715  14907   246  045  
 9999     945250 TAROOM                           QU AU -2563  14978   200  045  
-9999     945280 BINGARA                             AU -2985  15057  0296  044
+9999     945280 BINGARA                             AU -2985  15057  0296  044  
 9999     945290 MILES                            QU AU -2667  15018   307  045  
 9999     945300 GOONDIWINDI                      QU AU -2853  15030   220  045  
 9999     945410 INVERELL                         NW AU -2978  15112   584  045  
@@ -12884,7 +12884,7 @@ YBOK     945520 OAKEY_(ARMY/CIV)                 QU AU -2742  15173   407  045
 9999     945670 MARYBOROUGH                      QU AU -2553  15267    11  045  
 YBAM     945680 AMBERLEY_(AUS-AFB)               QU AU -2763  15272    31  045  
 9999     945690 MAROOCHYDORE_AWS                 QU AU -2660  15310    17  045  
-9999     945700 TEWANTIN_RSL_PARK                   AU -2638  15303     6  045
+9999     945700 TEWANTIN_RSL_PARK                   AU -2638  15303     6  045  
 9999     945710 GRAFTON                          NW AU -2968  15292     9  045  
 9999     945730 CASINO_AIRPORT_AWS               NW AU -2888  15305    22  045  
 9999     945740 CASINO AIRPORT                      AU -2888  15305    26  046  
@@ -12901,7 +12901,7 @@ YBBN     945780 BRISBANE_INTL_ARPT               QU AU -2738  15310     5  045
 9999     945850 CALOUNDRA                        QU AU -2680  15315    57  045  
 9999     945860 LISMORE                          NW AU -2880  15325    11  045  
 9999     945870 TABULAM                          NW AU -2875  15245   555  045  
-9999     945880 GLEN_INNES_AIRPORT                  AU -2968  15170  1045  045
+9999     945880 GLEN_INNES_AIRPORT                  AU -2968  15170  1045  045  
 9999     945890 YAMBA                            NW AU -2943  15335    30  045  
 YBCG     945920 COOLANGATTA_AWS_AUT              QU AU -2817  15350     6  045  
 9999     945930 NORTH_STRADBROKE_ISLAND          QU AU -2743  15355    50  045  
@@ -12936,7 +12936,7 @@ YPEA     946120 PEARCE_(AUS-AFB)                 WE AU -3167  11602    49  045
 9999     946250 BROOKTON                         WE AU -3237  11700   240  045  
 9999     946260 CUNDERDIN                        WE AU -3165  11723   223  045  
 9999     946270 NARROGIN                         WE AU -3293  11717   350  045  
-9999     946280 NEWDEGATE RES. STATION           WE AU -3312  11884   321  045
+9999     946280 NEWDEGATE RES. STATION           WE AU -3312  11884   321  045  
 9999     946290 KATANNING                        WE AU -3368  11755   311  045  
 9999     946300 MOUNT_BARKER                     WE AU -3462  11765   280  045  
 9999     946310 ROCKY GULLY                      WE AU -3457  11702   251  045  
@@ -13097,7 +13097,7 @@ YPAL     948020 ALBANY_AIRPORT                   WE AU -3493  11780    69  045
 9999     948110 2ND_VALLEY_FOREST                SA AU -3557  13828   351  045  
 9999     948120 ROBE_P._O.                       SA AU -3717  13975     4  045  
 9999     948130 CAPE_JAFFA_AWS                   SA AU -3697  13972    18  045  
-9999     948140 STRATHALBYN RACECOURSE           SA AU -3528  13890    63  045
+9999     948140 STRATHALBYN RACECOURSE           SA AU -3528  13890    63  045  
 9999     948150 VICTOR_HARBOUR_P.O.              SA AU -3555  13862     5  045  
 9999     948160 KEITH_P._O.                      SA AU -3608  14035    31  045  
 9999     948170 COONAWARRA                       SA AU -3730  14082    58  045  
@@ -13118,7 +13118,7 @@ YMMG     948210 MOUNT_GAMBIER_ARPT               SA AU -3773  14078    69  045
 9999     948320 WARRNAMBOOL_AIRPORT              VC AU -3828  14243    68  045  
 9999     948340 ARARAT                           VC AU -3728  14298   296  045  
 9999     948350 LOOKOUT_HILL                     VC AU -3728  14325   965  045  
-9999     948360 STAWELL AERODROME                VC AU -3707  14273   229  045
+9999     948360 STAWELL AERODROME                VC AU -3707  14273   229  045  
 9999     948370 WARRNAMBOOL_AIRPORT_NDB          VC AU -3828  14245    71  045  
 9999     948400 MORTLAKE_AWS_(AUT)               VC AU -3807  14277   131  045  
 9999     948410 WARRACKNABEAL                    VC AU -3625  14240   113  045  
@@ -13152,7 +13152,7 @@ YMMB     948700 MOORABBIN_AIRPORT                VC AU -3798  14510    13  045
 9999     948720 DUNNS_HILL_AWS                   VC AU -3788  14533   561  045  
 9999     948730 MELBOURNE HARBOUR (AMOS)         VC AU -3782  14493  0040  045  
 9999     948740 MANGALORE_AIRPORT                VC AU -3688  14518   142  045  
-9999     948750 SHEPPARTON AIRPORT                  AU -3643  14540   115  045
+9999     948750 SHEPPARTON AIRPORT                  AU -3643  14540   115  045  
 9999     948760 FINLEY_AWS_(AUT)                 NW AU -3572  14562   110  045  
 9999     948770 TOCUMWAL                         NW AU -3582  14557   111  045  
 9999     948780 HUNTERS HILL (AMOS)              VC AU -3622  14753  0981  045  
@@ -13176,7 +13176,7 @@ YMAY     948960 ALBURY_AIRPORT                   NW AU -3608  14695   171  045
 9999     949010 HUME_RESERVOIR                   VC AU -3610  14702   183  045  
 9999     949030 FALLS_CREEK                      VC AU -3685  14727  1510  045  
 9999     949040 MOUNT_BEAUTY                     VC AU -3675  14717   366  045  
-9999     949050 BOGONG                              AU -3680  14723  0732  045
+9999     949050 BOGONG                              AU -3680  14723  0732  045  
 9999     949060 MOUNT_HOTHAM                     VC AU -3698  14713  1750  045  
 YMES     949070 EAST_SALE_(AUS-AFB)              VC AU -3810  14713     8  045  
 9999     949090 BURRINJUCK_DAM                      AU -3500  14860   390  045  
@@ -13193,13 +13193,13 @@ YSWG     949100 WAGGA_WAGGA(CV/MIL)              NW AU -3515  14745   213  045
 9999     949210 BURRINJUCK_DAM                   NW AU -3500  14860   398  045  
 9999     949220 TIDBINBILLA_NATURE_RESERVE       NW AU -3545  14893   743  045  
 YSCM     949230 COOMA                            NW AU -3623  14908   778  045  
-9999     949240 HOLT_(PINE_RIDGE)                   AU -3523  14900   605  045
-9999     949250 TUGGERANONG ISABELLA PLAINS         AU -3542  14910   588  045
+9999     949240 HOLT_(PINE_RIDGE)                   AU -3523  14900   605  045  
+9999     949250 TUGGERANONG ISABELLA PLAINS         AU -3542  14910   588  045  
 YSCB     949260 CANBERRA_(CIV/MIL)               CT AU -3530  14918   577  045  
 9999     949270 BRAIDWOOD_RACECOURSE             NW AU -3543  14978   666  045  
 9999     949280 BOMBALA                          NW AU -3692  14923   705  045  
 9999     949290 BOMBALA_AWS_(AUT)                NW AU -3700  14923   751  045  
-9999     949300 MT NOWA NOWA AWS                    AU -3770  14808 -9999  045
+9999     949300 MT NOWA NOWA AWS                    AU -3770  14808 -9999  045  
 9999     949310 BEGA                             NW AU -3667  14982  0011  045  
 9999     949320 POINT_HICKS_(LGT-H)              VC AU -3780  14927    24  045  
 9999     949330 GABO_ISLAND_(LGT-H)              VC AU -3757  14990    15  045  
@@ -13257,7 +13257,7 @@ YMMQ     949980 MACQUARIE_ISLAND                    AU -5450  15895     8  045
 9999     951810 EDWARD RIVER MISSION             QU AU -1490  14160  0005  045  
 9999     952040 WEST_ROEBUCK                        AU -1790  12232    37  045  
 9999     952050 DERBY AIRPORT (AMOS)             WE AU -1737  12367  0007  045  
-AHWM     952140 WYNDHAM/AIRPORT                     AU -1550  12815  0004  045
+AHWM     952140 WYNDHAM/AIRPORT                     AU -1550  12815  0004  045  
 9999     952150 KIMBERLEY RES. STATION              AU -1565  12872 -9999  046  
 9999     952870 NORMAN REEF                      QU AU -1643  14598  0002  045  
 9999     952880 GREEN_ISLAND                     QU AU -1550  14712     0  045  
@@ -13282,13 +13282,13 @@ AHWM     952140 WYNDHAM/AIRPORT                     AU -1550  12815  0004  045
 9999     953220 RABBIT_FLAT                         AU -2018  13002   339  045  
 9999     953620 SPRINGSURE                       WE AU -2412  14808   326  045  
 9999     953660 TE_KOWAI_EXP_STN                    AU -2117  14912    14  045  
-9999     953670 MACKAY AIRPORT                      AU -2117  14917     6  045
+9999     953670 MACKAY AIRPORT                      AU -2117  14917     6  045  
 9999     954000 THREE_RIVERS                     WE AU -2512  11913   522  045  
 9999     954480 LEINSTER_AERO_AWS                WE AU -2785  12070   498  045  
 9999     954580 COOBER PEDY (AMOS)               SA AU -2903  13472  0226  045  
 9999     954620 ULURU_RANGERS                       AU -2537  13102   530  045  
 9999     954800 MARREE_AERO                         AU -2967  13807    51  045  
-9999     954810 MOOMBA AIRPORT                      AU -2810  14018    44  045
+9999     954810 MOOMBA AIRPORT                      AU -2810  14018    44  045  
 9999     954850 TIBOOBURRA_AIRPORT                  AU -2945  14205   177  045  
 9999     954920 THARGOMINDAH_AIRPORT                AU -2798  14382   132  045  
 9999     955120 BREWARRINA                       NW AU -2997  14685   119  045  
@@ -13318,17 +13318,17 @@ AHWM     952140 WYNDHAM/AIRPORT                     AU -1550  12815  0004  045
 9999     956080 FREMANTLE_EAST                   WE AU -3205  11577    15  045  
 9999     956100 KALAMUNDA                        WE AU -3202  11613  0385  045  
 9999     956110 METTLER                          WE AU -3460  11853   107  045  
-9999     956120 GINGIN AERO                      WE AU -3147  11587    75  045
+9999     956120 GINGIN AERO                      WE AU -3147  11587    75  045  
 9999     956130 PEMBERTON                        WE AU -3445  11603   175  045  
 9999     956140 KARNET                           WE AU -3243  11607   286  045  
 9999     956150 BEVERLEY                         WE AU -3210  11692   199  045  
 9999     956160 PINGELLY                         WE AU -3253  11708   297  045  
-9999     956170 NORTHCLIFFE SHANNON CALM         WE AU -3458  11635   191  045
+9999     956170 NORTHCLIFFE SHANNON CALM         WE AU -3458  11635   191  045  
 9999     956180 WAGIN                            WE AU -3330  11732   256  045  
 9999     956190 KOJUNUP                          WE AU -3383  11715   305  045  
 9999     956220 DONNYBROOK                       WE AU -3357  11582    63  045  
 9999     956240 MERREDIN                         WE AU -3147  11827   315  045  
-9999     956250 CUNDERDIN AIRFIELD               WE AU -3162  11722   217  045
+9999     956250 CUNDERDIN AIRFIELD               WE AU -3162  11722   217  045  
 9999     956260 NAREMBEEN                        WE AU -3207  11840   276  045  
 9999     956270 HYDEN                            WE AU -3247  11888   299  045  
 9999     956280 ONGERUP                          WE AU -3395  11848   288  045  
@@ -13337,8 +13337,8 @@ AHWM     952140 WYNDHAM/AIRPORT                     AU -1550  12815  0004  045
 9999     956310 GOOMALLING                       WE AU -3130  11683   239  045  
 9999     956320 BRIDGETOWN                       WE AU -3398  11613   179  045  
 9999     956330 SOUTHERN CROSS MT WALTON EAST I  WE AU -3038  12015   501  045  
-9999     956340 SOUTHERN CROSS AIRFIELD          WE AU -3123  11935   348  045
-9999     956350 RAVENSTHORPE HOPETOUN AWS        WE AU -3394  12013    27  045
+9999     956340 SOUTHERN CROSS AIRFIELD          WE AU -3123  11935   348  045  
+9999     956350 RAVENSTHORPE HOPETOUN AWS        WE AU -3394  12013    27  045  
 9999     956360 JALUP_AWS                        WE AU -3388  11910   306  045  
 9999     956370 LAKE_GRACE                       WE AU -3310  11847   287  045  
 9999     956380 ESPERANCE                        WE AU -3368  12183   145  045  
@@ -13354,7 +13354,7 @@ AHWM     952140 WYNDHAM/AIRPORT                     AU -1550  12815  0004  045
 9999     956580 OLYMPIC_DAM_AERODROME            SA AU -3048  13688   100  045  
 9999     956600 ANDAMOOKA                        SA AU -3045  13717    76  045  
 9999     956610 PORT_LINCOLN                     SA AU -3460  13588    10  045  
-9999     956620 MINNIPA DPI                      SA AU -3285  13515   166  045
+9999     956620 MINNIPA DPI                      SA AU -3285  13515   166  045  
 9999     956640 WHYALLA                          SA AU -3307  13752    12  045  
 9999     956660 PORT AUGUSTA (AMOS)              SA AU -3248  13773  0019  045  
 9999     956670 CLARE_HI_SCHOOL_AWS              SA AU -3382  13860   396  045  
@@ -13365,10 +13365,10 @@ AHWM     952140 WYNDHAM/AIRPORT                     AU -1550  12815  0004  045
 YPED     956760 EDINBURGH_(AUS-AFB)              SA AU -3470  13862    20  045  
 YPPF     956770 ADELAIDE/PARAFIELD               SA AU -3478  13863    16  045  
 9999     956780 MT._LOFTY_AWS_(AUT)              SA AU -3497  13870   730  045  
-9999     956870 RENMARK AERODROME                   AU -3420  14067    35  045
+9999     956870 RENMARK AERODROME                   AU -3420  14067    35  045  
 9999     956950 WILCANNIA AERODROME                 AU -3152  14338    95  046  
 9999     957030 BOURKE AIRPORT                   NW AU -3005  14595  0108  045  
-9999     957040 GRIFFITH AIRPORT                 NW AU -3425  14607   135  045
+9999     957040 GRIFFITH AIRPORT                 NW AU -3425  14607   135  045  
 9999     957050 YANCO_AGRICULTURAL_INSTITUE      NW AU -3462  14643   164  045  
 9999     957060 NARRANDERA_AIRPORT               NW AU -3470  14650   145  045  
 9999     957070 LAKE_CARGELLIGO                  NW AU -3328  14637   162  045  
@@ -13385,7 +13385,7 @@ YPPF     956770 ADELAIDE/PARAFIELD               SA AU -3478  13863    16  045
 9999     957200 COWRA_RESEARCH_STN               NW AU -3382  14870   386  045  
 9999     957230 YASS                             NW AU -3485  14890   500  045  
 9999     957250 ORANGE_AGRICULTURAL_INSTITUTE    NW AU -3332  14908   922  045  
-9999     957260 ORANGE_AIRPORT                   NW AU -3338  14913   948  045
+9999     957260 ORANGE_AIRPORT                   NW AU -3338  14913   948  045  
 9999     957270 DUNEDOO                          NW AU -3202  14938   388  045  
 9999     957350 OBERON                           NW AU -3373  14987  1190  045  
 9999     957460 QUIRINDI                         NW AU -3150  15067   390  045  
@@ -13396,7 +13396,7 @@ YPPF     956770 ADELAIDE/PARAFIELD               SA AU -3478  13863    16  045
 9999     957620 TAMWORTH_AWS(AUT)                NW AU -3108  15085   396  045  
 9999     957640 RIVERVIEW_OBSERVATORY            NW AU -3383  15115    40  045  
 9999     957650 HOMEBUSH_OLYMPIC_STADIUM         NW AU -3385  15107    28  045  
-9999     957660 SYDNEY HARBOUR WEDDING CAKE WEST NW AU -3384  15127 -9999  045
+9999     957660 SYDNEY HARBOUR WEDDING CAKE WEST NW AU -3384  15127 -9999  045  
 9999     957680 MARYVILLE                        NW AU -3292  15175     8  045  
 9999     957700 NORAH_HEAD_AWS                   NW AU -3327  15157    18  045  
 9999     957710 CESSNOCK_AIRPORT                 NW AU -3278  15133    62  045  
@@ -13406,7 +13406,7 @@ YPPF     956770 ADELAIDE/PARAFIELD               SA AU -3478  13863    16  045
 9999     957750 MAITLAND_VISITORS_CENTRE            AU -3275  15157     5  045  
 9999     957780 FORSTER_BEACH_CARAVAN_PARK          AU -3218  15250 -9999  046  
 9999     957840 TAREE_AIRPORT                       AU -3188  15252     9  045  
-9999     958060 STENHOUSE BAY                       AU -3528  13694    44  045
+9999     958060 STENHOUSE BAY                       AU -3528  13694    44  045  
 9999     958070 KINGSTONE_AERO                   SA AU -3572  13752     6  045  
 9999     958100 MOUNT_CRAWFORD                   SA AU -3470  13893   395  045  
 9999     958120 MURRAY_BRIDGE                    SA AU -3512  13927    15  045  
@@ -13428,7 +13428,7 @@ YPPF     956770 ADELAIDE/PARAFIELD               SA AU -3478  13863    16  045
 9999     958540 ELLINBANK                        VC AU -3825  14593   167  045  
 9999     958550 WEEAPROINAH                      VC AU -3863  14352   492  045  
 9999     958580 POINT LONSDALE LIGHTHOUSE        VC AU -3828  14460  0012  045  
-9999     958670 SCORESBY RESEARCH INSTITUTE      VC AU -3787  14525 -9999  045
+9999     958670 SCORESBY RESEARCH INSTITUTE      VC AU -3787  14525 -9999  045  
 9999     958690 DENILIQUIN_AIRPORT               VC AU -3557  14495    95  045  
 9999     958710 LEMNOS                           VC AU -3637  14547   113  045  
 9999     958720 FAWKNER BEACON (AMOS)            VC AU -3795  14492  0010  045  
@@ -13446,7 +13446,7 @@ YPPF     956770 ADELAIDE/PARAFIELD               SA AU -3478  13863    16  045
 9999     959110 WAGGA_WAGGA_SCS                     AU -3513  14730   213  045  
 9999     959120 CHARLOTTE PASS                   VC AU -3643  14833  1755  045  
 9999     959130 MOUNT_MOORNAPA                   VC AU -3775  14713   486  045  
-9999     959160 CABRAMURRA SMHEA                    AU -3594  14838  1483  045
+9999     959160 CABRAMURRA SMHEA                    AU -3594  14838  1483  045  
 9999     959290 MERIMBULA AIRPORT                   AU -3692  14990     2  045  
 9999     959310 BEGA_AWS                         NW AU -3667  14982    42  045  
 9999     959350 NAMOORA_RVCP                     WE AU -3622  15013    25  045  

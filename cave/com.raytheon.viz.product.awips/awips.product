@@ -1,6 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<?pde version="3.5"?>
-
 <product name="CAVE" id="com.raytheon.viz.product.awips.CAVE" application="com.raytheon.uf.viz.application.application" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
@@ -70,7 +67,55 @@
    </plugins>
 
    <features>
-      <feature id="com.raytheon.viz.feature.awips" version="1.9.0.qualifier"/>
+      <feature id="com.raytheon.uf.common.base.feature"/>
+      <feature id="com.raytheon.uf.viz.dataplugin.obs.feature"/>
+      <feature id="com.raytheon.uf.viz.sounding.feature"/>
+      <feature id="com.raytheon.uf.viz.cots.feature"/>
+      <feature id="com.raytheon.uf.viz.registry.feature"/>
+      <feature id="com.raytheon.uf.viz.common.core.feature"/>
+      <feature id="com.raytheon.uf.viz.dataplugins.feature"/>
+      <feature id="com.raytheon.viz.feature.awips"/>
+      <feature id="com.raytheon.uf.viz.application.feature"/>
+      <feature id="com.raytheon.uf.viz.base.feature"/>
+      <feature id="com.raytheon.uf.viz.nwsauth.feature"/>
+      <feature id="com.raytheon.uf.viz.archive.feature"/>
+      <feature id="com.raytheon.uf.viz.gisdatastore.feature"/>
+      <feature id="com.raytheon.uf.viz.useradmin.feature"/>
+      <feature id="com.raytheon.viz.dataaccess.feature"/>
+      <feature id="com.raytheon.uf.viz.localization.perspective.feature"/>
+      <feature id="com.raytheon.uf.viz.core.feature"/>
+      <feature id="com.raytheon.uf.viz.ncep.core.feature"/>
+      <feature id="com.raytheon.uf.viz.aviation.advisory.feature"/>
+      <feature id="com.raytheon.uf.viz.d2d.core.feature"/>
+      <feature id="com.raytheon.viz.radar.feature"/>
+      <feature id="com.raytheon.uf.viz.grid.feature"/>
+      <feature id="com.raytheon.uf.viz.displays.feature"/>
+      <feature id="com.raytheon.viz.hydro.feature"/>
+      <feature id="com.raytheon.uf.viz.kml.export.feature"/>
+      <feature id="com.raytheon.uf.viz.d2d.damagepath.feature"/>
+      <feature id="com.raytheon.uf.viz.d2d.xy.feature"/>
+      <feature id="com.raytheon.viz.volumebrowser.feature"/>
+      <feature id="com.raytheon.uf.viz.core.maps.feature"/>
+      <feature id="com.raytheon.uf.viz.thinclient.feature"/>
+      <feature id="com.raytheon.uf.viz.npp.feature"/>
+      <feature id="com.raytheon.viz.text.feature"/>
+      <feature id="com.raytheon.viz.warngen.feature"/>
+      <feature id="com.raytheon.viz.gfe.feature"/>
+      <feature id="com.raytheon.uf.viz.dat.feature"/>
+      <feature id="com.raytheon.uf.viz.d2d.ui.awips.feature"/>
+      <feature id="com.raytheon.uf.viz.d2d.gfe.feature"/>
+      <feature id="com.raytheon.uf.viz.ncep.dataplugins.feature"/>
+      <feature id="com.raytheon.uf.viz.alertview.feature"/>
+      <feature id="com.raytheon.viz.satellite.feature"/>
+      <feature id="com.raytheon.uf.viz.ncep.displays.feature"/>
+      <feature id="com.raytheon.uf.viz.ncep.nsharp.feature"/>
+      <feature id="com.raytheon.uf.viz.d2d.nsharp.feature"/>
+      <feature id="com.raytheon.uf.viz.acarssounding.feature"/>
+      <feature id="com.raytheon.viz.avnfps.feature"/>
+      <feature id="com.raytheon.uf.viz.npp.sounding.feature"/>
+      <feature id="com.raytheon.uf.viz.ncep.npp.feature"/>
+      <feature id="com.raytheon.uf.viz.ncep.perspective.feature"/>
+      <feature id="com.raytheon.uf.viz.d2d.skewt.feature"/>
    </features>
 
    <configurations>

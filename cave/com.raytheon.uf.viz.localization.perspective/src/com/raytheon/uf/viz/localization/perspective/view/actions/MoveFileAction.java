@@ -31,7 +31,10 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.localization.filetreeview.LocalizationFileEntryData;
 import com.raytheon.uf.viz.localization.service.ILocalizationService;
 
 /**
@@ -44,7 +47,10 @@ import com.raytheon.uf.viz.localization.service.ILocalizationService;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 25, 2011            mschenke     Initial creation
+ * Mar 25, 2011            mschenke    Initial creation
+ * Oct 13, 2015 4410       bsteffen    Allow localization perspective to mix
+ *                                     files for multiple Localization Types.
+ * 
  * 
  * </pre>
  * 
@@ -53,20 +59,24 @@ import com.raytheon.uf.viz.localization.service.ILocalizationService;
  */
 
 public class MoveFileAction extends CopyToAction {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(MoveFileAction.class);
 
-    private DeleteAction delete;
+    private final DeleteAction delete;
 
-    private IWorkbenchPage page;
+    private final IWorkbenchPage page;
 
     /**
-     * @param file
+     * @param localizationFileEntryData
+     *            .getFile()
      */
-    public MoveFileAction(IWorkbenchPage page, LocalizationFile file,
+    public MoveFileAction(IWorkbenchPage page, LocalizationFileEntryData data,
             ILocalizationService service) {
-        super(file, service);
+        super(data, service);
         setText("Move To");
         this.page = page;
-        delete = new DeleteAction(page, new LocalizationFile[] { file }, false);
+        delete = new DeleteAction(page,
+                new LocalizationFile[] { data.getFile() }, false);
         setEnabled(delete.isEnabled());
     }
 
@@ -104,7 +114,7 @@ public class MoveFileAction extends CopyToAction {
             final LocalizationFile newFile = pm.getLocalizationFile(
                     pm.getContext(file.getContext().getLocalizationType(),
                             level), file.getName());
-
+            removeAlternateTypeFiles(level);
             // Make sure we select the file after the drop
             final ILocalizationFileObserver[] observers = new ILocalizationFileObserver[1];
             ILocalizationFileObserver observer = new ILocalizationFileObserver() {

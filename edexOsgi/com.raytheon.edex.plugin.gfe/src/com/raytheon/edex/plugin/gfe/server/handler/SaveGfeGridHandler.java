@@ -58,6 +58,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * 04/03/2014   #2737      randerso    Changed to send ISC even when no grids are saved
  *                                     (i.e. on grid deletes)
  * 01/13/2015   #3955      randerso    Enabled sending ISC grids for Topo
+ * 10/13/2015   #4961      randerso    Change modelName for NewTopo ISC.
  * </pre>
  * 
  * @author bphillip
@@ -106,7 +107,7 @@ public class SaveGfeGridHandler extends BaseGfeRequestHandler implements
                     // ensure Fcst database or Topo database
                     if ((dbid.getModelName().equals("Fcst") && dbid.getDbType()
                             .isEmpty())
-                            || (dbid.getModelName().equals("Topo") && dbid
+                            || (dbid.getModelName().equals("NewTerrain") && dbid
                                     .getDbType().equals("EditTopo"))) {
                         IscSendRecord sendReq = new IscSendRecord(
                                 save.getParmId(),

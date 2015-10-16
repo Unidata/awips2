@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -37,6 +37,7 @@ import com.raytheon.uf.common.parameter.Parameter;
  * ------------- -------- ----------- --------------------------
  * Aug 18, 2011           bphillip    Initial creation
  * Oct 15, 2013  2473     bsteffen    Remove deprecated method calls.
+ * Oct 07, 2015  3756     nabowle     Extends DecoderPostProcessor.
  * 
  * 
  * </pre>
@@ -45,7 +46,7 @@ import com.raytheon.uf.common.parameter.Parameter;
  * @version 1.0
  */
 
-public class MSASPostProcessor implements IDecoderPostProcessor {
+public class MSASPostProcessor extends DecoderPostProcessor {
 
     private static final String TSLSA = "TSLSA";
 
@@ -65,7 +66,7 @@ public class MSASPostProcessor implements IDecoderPostProcessor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.raytheon.edex.plugin.grib.decoderpostprocessors.IDecoderPostProcessor
      * #process(com.raytheon.uf.common.dataplugin.grib.GridRecord)

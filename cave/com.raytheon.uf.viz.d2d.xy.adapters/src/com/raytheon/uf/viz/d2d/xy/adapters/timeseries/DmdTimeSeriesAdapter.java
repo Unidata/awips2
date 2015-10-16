@@ -30,10 +30,10 @@ import com.raytheon.uf.common.dataplugin.radar.util.RadarRecordUtil;
 import com.raytheon.uf.common.style.level.SingleLevel;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.d2d.xy.tools.DmdTools;
 import com.raytheon.uf.viz.xy.timeseries.adapter.AbstractTimeSeriesAdapter;
 import com.raytheon.viz.core.graphing.xy.XYData;
 import com.raytheon.viz.core.graphing.xy.XYDataList;
-import com.raytheon.viz.radar.util.DmdTools;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -45,6 +45,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 7, 2010            bsteffen     Initial creation
+ * Oct 13, 2015 4897      bkowal       Relocated {@link DmdTools} to a plugin
+ *                                     that actually uses it.
  * 
  * </pre>
  * 
