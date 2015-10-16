@@ -39,6 +39,7 @@ import com.raytheon.viz.avnconfig.IShowableHidable;
  * 3/27/2008    933         grichard    Initial creation.
  * 6/16/2008    937         grichard    Improved viewer/editor interaction.
  * 11/29/2011   11612       rferrel     Added getViewerTabList
+ * Oct 16, 2015 4645        skorolev    Added updateWordWrap
  * 
  * </pre>
  * 
@@ -79,6 +80,13 @@ public interface ITafSettable extends IShowableHidable {
      *            Flag indicating the insert check box should be updated.
      */
     void updateInsert(boolean updateInsertChk);
+
+    /**
+     * Update the WordWrap capability.
+     * 
+     * @param updateWordWrapChk
+     */
+    void updateWordWrap(boolean updateWordWrapChk);
 
     /**
      * Obtain the current station in the viewer.
