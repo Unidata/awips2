@@ -405,8 +405,7 @@ public class FFMPProcessor {
                         } else if (type == FFMPSourceConfigurationManager.DATA_TYPE.XMRG) {
                             // all the HPE sources use an HRAP grid so, create
                             // it only once
-                            this.sourceId = FFMPSourceConfigurationManager.DATA_TYPE.XMRG
-                                    .getDataType()
+                            this.sourceId = getSourceBinNaming(source)
                                     + "-"
                                     + domain.getCwa()
                                     + "-" + dataKey;

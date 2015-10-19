@@ -124,6 +124,8 @@ import com.raytheon.viz.hydrocommon.util.StnClassSyncUtil;
  * 06 Jun 2013 2076        mpduff      Fix station list selection and graph button enabling.
  * 0  Jun 2013 15980       wkwock      Fix selected station not update
  * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
+ * Oct 13, 2015 4933       rferrel     Log error if unable to find group definition file
+ *                                      Fixed formatter resource leaks.
  * </pre>
  * 
  * @author lvenable
@@ -1450,14 +1452,15 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
 
         Iterator<String> iter = lids.iterator();
         StringBuilder sb = new StringBuilder();
-        Formatter formatter = new Formatter(sb, Locale.US);
-        String lid = null;
-        while (iter.hasNext()) {
-            lid = iter.next();
-            formatter.format("%-10s %-25s", lid, stationData.get(lid));
-            topDataList.add(sb.toString());
-            lidList.add(lid);
-            sb.setLength(0);
+        try (Formatter formatter = new Formatter(sb, Locale.US)) {
+            String lid = null;
+            while (iter.hasNext()) {
+                lid = iter.next();
+                formatter.format("%-10s %-25s", lid, stationData.get(lid));
+                topDataList.add(sb.toString());
+                lidList.add(lid);
+                sb.setLength(0);
+            }
         }
 
         if (currentLid != null) {
@@ -1635,8 +1638,11 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
 
         if (file != null) {
             groupConfigFilePath = file.getAbsolutePath();
+            this.readGroupList();
+        } else {
+            statusHandler.error("Unable to load predefined group file: "
+                    + HydroConstants.GROUP_DEFINITION);
         }
-        this.readGroupList();
     }
 
     /**
@@ -1660,9 +1666,8 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         PageInfo pageInfo = null;
         GraphData graphData = null;
 
-        try {
-            BufferedReader in = new BufferedReader(new FileReader(
-                    groupConfigFilePath));
+        try (BufferedReader in = new BufferedReader(new FileReader(
+                groupConfigFilePath))) {
             String str;
             while ((str = in.readLine()) != null) {
                 if (str.startsWith("#")) {
@@ -1816,7 +1821,6 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                 }
 
             }
-            in.close();
         } catch (IOException e) {
             statusHandler.error(
                     "Failed to read group definition configuration.", e);
@@ -1883,13 +1887,14 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         /* Populate the list */
         String lid = null;
         StringBuilder sb = new StringBuilder();
-        Formatter formatter = new Formatter(sb, Locale.US);
-        topDataList.removeAll();
-        for (int i = 0; i < lidList.size(); i++) {
-            lid = lidList.get(i);
-            formatter.format("%-10s %-25s", lid, stationData.get(lid));
-            topDataList.add(sb.toString());
-            sb.setLength(0);
+        try (Formatter formatter = new Formatter(sb, Locale.US)) {
+            topDataList.removeAll();
+            for (int i = 0; i < lidList.size(); i++) {
+                lid = lidList.get(i);
+                formatter.format("%-10s %-25s", lid, stationData.get(lid));
+                topDataList.add(sb.toString());
+                sb.setLength(0);
+            }
         }
     }
 

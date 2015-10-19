@@ -34,38 +34,6 @@
          unpack="false"/>
 
    <plugin
-         id="ohd.hseb.fcstservice"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="ohd.hseb.sshp"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="ohd.hseb.common"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="ohd.hseb.ihfsdb"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="ohd.hseb.monitor"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="com.raytheon.uf.common.hydro"
          download-size="0"
          install-size="0"

@@ -19,6 +19,7 @@ com.raytheon.uf.viz.ncep.core.feature
 com.raytheon.uf.viz.aviation.advisory.feature
 com.raytheon.uf.viz.d2d.core.feature
 com.raytheon.viz.radar.feature
+com.raytheon.uf.viz.radarapps.feature
 com.raytheon.uf.viz.grid.feature
 com.raytheon.uf.viz.displays.feature
 com.raytheon.viz.hydro.feature

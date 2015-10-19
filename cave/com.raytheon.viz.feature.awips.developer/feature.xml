@@ -60,6 +60,10 @@
    <includes
          id="com.raytheon.viz.radar.feature"
          version="0.0.0"/>
+         
+   <includes
+         id="com.raytheon.uf.viz.radarapps.feature"
+         version="0.0.0"/>
 
    <includes
          id="com.raytheon.viz.text.feature"

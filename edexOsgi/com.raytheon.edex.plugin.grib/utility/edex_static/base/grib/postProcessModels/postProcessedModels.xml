@@ -3,7 +3,7 @@
 
     <!-- Post Processor definitions for models containing grids needing to be 
         stitched together -->
-    <postProcessedModel>
+    <postProcessedModel id="Ensemble">
         <modelName>UKMET[0-9]{2}|ECMF[0-9]|ENSEMBLE[0-9]{2}|AVN[0-9]{2}
         </modelName>
         <processorName>EnsembleGridAssembler</processorName>
@@ -12,35 +12,15 @@
     <!-- Post processor definitions for models which disseminate updated grids 
         containing identical metadata. This data is primarily from RFCs. The overwrite 
         post processor is used to prevent updated data from being discarded as duplicates. -->
-    <postProcessedModel>
-        <modelName>HPCqpfNDFD</modelName>
-        <processorName>OverwriteGribPostProcessor</processorName>
-    </postProcessedModel>
-
-    <postProcessedModel>
-        <modelName>RFCqpf</modelName>
-        <processorName>OverwriteGribPostProcessor</processorName>
-    </postProcessedModel>
-
-    <postProcessedModel>
-        <modelName>HPCqpf</modelName>
-        <processorName>OverwriteGribPostProcessor</processorName>
-    </postProcessedModel>
-
-    <postProcessedModel>
-        <modelName>MPE-.*|QPE-.*</modelName>
-        <processorName>OverwriteGribPostProcessor</processorName>
-    </postProcessedModel>
-
-    <postProcessedModel>
-        <modelName>URMA25</modelName>
+    <postProcessedModel id="Overwrite">
+        <modelName>HPCqpfNDFD|RFCqpf|HPCqpf|MPE-.*|QPE-.*|URMA25|</modelName>
         <processorName>OverwriteGribPostProcessor</processorName>
     </postProcessedModel>
 
     <!-- Post processor definition for FFG grids. Similar to the models using 
         the overwrite post processor, FFG gridded data is also updated without changing 
         the associated metadata. In this case, the previous updates need to be retained. -->
-    <postProcessedModel>
+    <postProcessedModel id="FFG">
         <modelName>FFG-[A-Z]{3}</modelName>
         <processorName>FFGGribPostProcessor</processorName>
     </postProcessedModel>
@@ -48,80 +28,79 @@
     <!-- Post processor definitions for models using the temperature correction 
         post processor. These models may have some parameters which are incorrectly 
         labeled Celsius vs. Kelvin. The list of parameters to correct is in temperatureCorrectionParameters.xml -->
-    <postProcessedModel>
+    <postProcessedModel id="TempCorrection">
         <modelName>ETA218|GFS212|GFS213|ETA242|RTOFS-.*</modelName>
         <processorName>TemperatureCorrectionPostProcessor</processorName>
     </postProcessedModel>
 
     <!-- Post processor definition for the RTMA model -->
-    <postProcessedModel>
+    <postProcessedModel id="RTMA">
         <modelName>RTMA</modelName>
         <processorName>RTMAGribPostProcessor</processorName>
     </postProcessedModel>
 
     <!-- Post processor definition for the ECMWF-HiRes model -->
-    <postProcessedModel>
+    <postProcessedModel id="ECMWF-HiRes">
         <modelName>ECMWF-HiRes</modelName>
         <processorName>ECMWFHiResProcessor</processorName>
         <processorName>PrecipAccumPostProcessor</processorName>
     </postProcessedModel>
 
     <!-- Post processor definition for the MSAS model -->
-    <postProcessedModel>
+    <postProcessedModel id="MSAS">
         <modelName>MSAS</modelName>
         <processorName>MSASPostProcessor</processorName>
     </postProcessedModel>
 
     <!-- Post processor definition for the ETA (NAM80) model -->
-    <postProcessedModel>
+    <postProcessedModel id="ETA">
         <modelName>ETA</modelName>
         <processorName>PrecipAccumPostProcessor</processorName>
-        <processorName>OverwriteGribPostProcessor</processorName>
     </postProcessedModel>
 
     <!-- Post processor definition for the RUC236 model -->
-    <postProcessedModel>
+    <postProcessedModel id="RUC236">
         <modelName>RUC236</modelName>
         <processorName>RUC236GribPostProcessor</processorName>
     </postProcessedModel>
 
     <!-- Post processor definition for the CPCoutlook211 model -->
-    <postProcessedModel>
+    <postProcessedModel id="CPCoutlook">
         <modelName>CPCoutlook211</modelName>
         <processorName>CPCoutlookGribPostProcessor</processorName>
     </postProcessedModel>
 
     <!-- Post processor definitions for the Canadian models -->
-    <postProcessedModel>
+    <postProcessedModel id="Canadian-NH">
         <modelName>Canadian-NH</modelName>
         <processorName>PrecipAccumPostProcessor</processorName>
     </postProcessedModel>
 
-    <postProcessedModel>
+    <postProcessedModel id="Canadian-Reg">
         <modelName>Canadian-Reg</modelName>
         <processorName>PrecipAccumPostProcessor</processorName>
     </postProcessedModel>
 
     <!-- Post processor definition for the LAPS model -->
-    <postProcessedModel>
+    <postProcessedModel id="LAPS">
         <modelName>LAPS</modelName>
         <processorName>LapsPostProcessor</processorName>
     </postProcessedModel>
 
     <!-- Post processor definition for the RUC130 model -->
-    <postProcessedModel>
+    <postProcessedModel id="RUC130">
         <modelName>RUC130</modelName>
         <processorName>RUC130GribPostProcessor</processorName>
     </postProcessedModel>
 
     <!-- Post processor definition for HPCqpfNDFD -->
-    <postProcessedModel>
+    <postProcessedModel id="HPCqpfNDFD">
         <modelName>HPCqpfNDFD</modelName>
             <processorName>HPCqpfPostProcessor</processorName>
         </postProcessedModel>
 
     <!-- Post processor definition for the GFS20 model -->
-    <postProcessedModel>
+    <postProcessedModel id="GFS20">
         <modelName>GFS215|GFS217|GFS20-.*</modelName>
         <processorName>PrecipAccumPostProcessor</processorName>
     </postProcessedModel>
@@ -133,14 +112,14 @@
          this post processing produces.
     -->
     <!-- 
-    <postProcessedModel>
+    <postProcessedModel id="HWRF">
         <modelName>HWRF</modelName>
         <processorName>HWRFPostProcessor</processorName>
     </postProcessedModel>
     -->
 
     <!-- Post Processor for ARI grids (FFG source for FFMP) -->
-    <postProcessedModel>
+    <postProcessedModel id="ARI">
         <modelName>ARI</modelName>
         <processorName>ARIPostProcessor</processorName>
     </postProcessedModel>
