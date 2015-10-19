@@ -60,6 +60,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Aug 18, 2014 3530       bclement     removed constructDataURI() call
  * Sep 04, 2014 3220       skorolev     Replaced 3 URI filters with one.
  * Sep 18, 2015 3873       skorolev     Added moving platforms testing.
+ * Oct 19, 2015 3841       skorolev     Corrected isNearZone.
  * 
  * </pre>
  * 
@@ -79,7 +80,7 @@ public class FSSObsGenerator extends CompositeProductGenerator implements
     private static final String productType = "fssobs";
 
     /** Stations to filter */
-    private Set<String> allStations = new HashSet<String>();
+    private final Set<String> allStations = new HashSet<String>();
 
     public FSSObsMonitorConfigurationManager fogmcm = null;
 
@@ -137,7 +138,7 @@ public class FSSObsGenerator extends CompositeProductGenerator implements
         }
 
         if (!fssRecs.isEmpty()) {
-            this.setPluginDataObjects((PluginDataObject[]) fssRecs
+            this.setPluginDataObjects(fssRecs
                     .toArray(new PluginDataObject[fssRecs.size()]));
             statusHandler.handle(Priority.INFO, "===> Successfully generated "
                     + fssRecs.size() + " records.");
@@ -174,9 +175,13 @@ public class FSSObsGenerator extends CompositeProductGenerator implements
             double lonShip = Double.parseDouble(items[7]);
             for (String zone : marineZone) {
                 Coordinate coor = MonitorAreaUtils.getZoneCenter(zone);
-                double shipTozone = distance(latShip, lonShip, coor.y, coor.x);
-                if (shipTozone < configDist) {
-                    retVal = true;
+                // zone should have center coordinates.
+                if (coor != null) {
+                    double shipTozone = distance(latShip, lonShip, coor.y,
+                            coor.x);
+                    if (shipTozone < configDist) {
+                        retVal = true;
+                    }
                 }
             }
         }
