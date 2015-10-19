@@ -34,6 +34,7 @@ import java.util.Set;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 14, 2013  #1842     dgilling     Initial creation
+ * Oct 16, 2015  DR17771   dgilling     Remove sitesIgnoreNationalEtn.
  * 
  * </pre>
  * 
@@ -44,8 +45,6 @@ import java.util.Set;
 public class GFEVtecConfig {
 
     private static final GFEVtecConfig INSTANCE = new GFEVtecConfig();
-
-    private Set<String> sitesIgnoreNationalEtn = Collections.emptySet();
 
     private Set<String> nationalEtnPhensigs = Collections.emptySet();
 
@@ -58,26 +57,15 @@ public class GFEVtecConfig {
         return INSTANCE;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("GFEVtecConfig [sitesIgnoreNationalEtn=");
-        builder.append(sitesIgnoreNationalEtn);
-        builder.append(", nationalEtnPhensigs=");
+        builder.append("GFEVtecConfig [nationalEtnPhensigs=");
         builder.append(nationalEtnPhensigs);
         builder.append(", tropicalEtnPhensigs=");
         builder.append(tropicalEtnPhensigs);
         builder.append("]");
         return builder.toString();
-    }
-
-    public Set<String> getSitesIgnoreNationalEtn() {
-        return sitesIgnoreNationalEtn;
     }
 
     public Set<String> getNationalEtnPhensigs() {
@@ -86,10 +74,6 @@ public class GFEVtecConfig {
 
     public Set<String> getTropicalEtnPhensigs() {
         return tropicalEtnPhensigs;
-    }
-
-    public void setSitesIgnoreNationalEtn(Set<String> sitesIgnoreNationalEtn) {
-        this.sitesIgnoreNationalEtn = sitesIgnoreNationalEtn;
     }
 
     public void setNationalEtnPhensigs(Set<String> nationalEtnPhensigs) {

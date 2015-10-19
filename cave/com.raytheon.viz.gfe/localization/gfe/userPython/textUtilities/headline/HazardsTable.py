@@ -40,6 +40,7 @@
 #    02/05/15        4099          randerso       Fixed exception handling in __getActiveTable
 #    05/07/2015      4027          randerso       Fixed error handling, 
 #                                                 added NOTE about false postives for duplicate ETNs
+#    10/16/2015      17771         dgilling       Remove __sitesIgnoreNatlEtn.
 #
 
 
@@ -107,8 +108,6 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         self.__ncKeys = self.__processJavaCollection(GFEVtecUtil.NATIONAL_PHENSIGS, self.__convertPhensig)
         self.__ufnKeys = [('HU', 'A'), ('HU', 'W'), ('TR', 'A'), ('TR', 'W'),
           ('TY', 'A'), ('TY', 'W'), ('SS', 'A'), ('SS', 'W')]
-
-        self.__sitesIgnoreNatlEtn = self.__processJavaCollection(GFEVtecUtil.IGNORE_NATIONAL_ETN, str)
 
         self.__marineZonesPrefix = ["AM", "GM", "PZ", "PK", "PH", "PM", "AN",
           "PS", "SL"]   #list of zone name prefix that are marine zones
@@ -722,18 +721,18 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         phensig = (phen, sig)
 
         # find the max ETN...
-        # 1. highest ETN period for non-tropical and all GUM products (tpcKeys)
+        # 1. highest ETN period for non-tropical
         # or
         # 2. highest ETN > 1000 for the tropical, non-GUM products (tpcKeys)
         #
         # Local WFOs do not assign these numbers, so they should have
         # numbers < 1000
-        if phensig not in self.__tpcKeys or self.__siteID4 in self.__sitesIgnoreNatlEtn:
+        if phensig not in self.__tpcKeys:
             etn_base = GFEVtecUtil.getNextEtn(self.__siteID4, '.'.join(phensig), False, self.__activeTableMode).getNextEtn() - 1
         else:
-            presentyear = time.gmtime(self.__time)[0]
+            presentyear = time.gmtime(self.__time).tm_year
             for active in activeTable:
-                activeyear = time.gmtime(active['issueTime'])[0]
+                activeyear = time.gmtime(active['issueTime']).tm_year
                 activephensig = (active['phen'], active['sig'])
                 if phensig == activephensig and presentyear == activeyear:
                     # causes failure if tropical hazards are less than 1001
