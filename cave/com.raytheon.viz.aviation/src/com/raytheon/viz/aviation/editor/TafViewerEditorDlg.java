@@ -241,6 +241,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 06/26/2015   4588        skorolev    Fixed Insert/Overwrite issue.
  * Sep 15, 2015 4880        njensen     Removed dead code
  * Oct 05, 2015 4855        skorolev    Fixed an unhandled event loop exception in createErrorStyleRange.
+ * Oct 16, 2015 4645        skorolev    Added updateWordWrap.
  * 
  * </pre>
  * 
@@ -1977,17 +1978,16 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
             }
         }
 
+        // WordWrap checkbox
         wrapChk = new Button(controlsComp, SWT.CHECK);
         wrapChk.setText("Wrap");
         configMgr.setDefaultFontAndColors(wrapChk);
-        String wrapStr = configMgr.getDataAsString(ResourceTag.Wrap);
-
-        if (wrapStr.compareTo("word") == 0) {
-            wrapChk.setSelection(true);
-        } else {
-            wrapChk.setSelection(false);
-        }
-
+        wrapChk.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                updateWordWrap(wrapChk.getSelection());
+            }
+        });
         return editorComp;
     }
 
@@ -2760,6 +2760,8 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         if (tabFolder.getSelectionIndex() != VIEWER_TAB_SELECTED) {
             // Assume editorTafTabComp is for the active tab.
             editorTafTabComp.getTextEditorControl().paste();
+            // Remove popup menu after pasting.
+            editorTafTabComp.getTextEditorControl().redraw();
         }
     }
 
@@ -3399,9 +3401,13 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         return errorLevel;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.aviation.editor.ITafSettable#updateInsert(boolean)
+     */
     @Override
     public void updateInsert(boolean updateInsertChk) {
-
         if (updateInsertChk == true) {
             // Change the state of the insert check
             insertChk.setSelection(!(insertChk.getSelection()));
@@ -3411,6 +3417,22 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
             EditorTafTabComp tafTabComp = (EditorTafTabComp) editTafTabItem
                     .getControl();
             tafTabComp.getTextEditorControl().invokeAction(ST.TOGGLE_OVERWRITE);
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.aviation.editor.ITafSettable#updateWordWrap(boolean)
+     */
+    @Override
+    public void updateWordWrap(boolean wrap) {
+        // Loop and set all of the editors to the update WordWrap state
+        for (TabItem editTafTabItem : editorTafTabs) {
+            EditorTafTabComp tafTabComp = (EditorTafTabComp) editTafTabItem
+                    .getControl();
+            tafTabComp.getTextEditorControl().setWordWrap(wrap);
         }
     }
 
