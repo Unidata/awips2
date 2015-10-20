@@ -19,10 +19,17 @@
  **/
 package com.raytheon.uf.viz.daylight.transition.resource;
 
+import java.util.List;
+
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
+import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.drawables.IRenderable;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.daylight.transition.tileset.DaylightTransitionTileSetRenderable;
 import com.raytheon.viz.satellite.rsc.SatResource;
+import com.raytheon.viz.satellite.tileset.SatRenderable;
 import com.raytheon.viz.satellite.tileset.SatTileSetRenderable;
 
 /**
@@ -38,6 +45,7 @@ import com.raytheon.viz.satellite.tileset.SatTileSetRenderable;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jul 28, 2015  4633     bsteffen    Initial creation
+ * Oct 12, 2015  4937     bsteffen    Move SatRenderable to new class, extend it here.
  * 
  * </pre>
  * 
@@ -54,12 +62,30 @@ public class DaylightTransitionSatResource extends SatResource {
         this.resourceData = data;
     }
 
+
     @Override
-    protected SatTileSetRenderable createTileSet(SatelliteRecord record) {
-        SatTileSetRenderable tileSet = new DaylightTransitionTileSetRenderable(
-                this, record, resourceData.getSunDelta());
-        tileSet.project(descriptor.getGridGeometry());
-        return tileSet;
+    protected IRenderable constructRenderable(DataTime time,
+            List<PluginDataObject> records) throws VizException {
+        SatRenderable renderable = new DaylightTransitionSatRenderable(time);
+        updateRenderable(renderable, records.toArray(new PluginDataObject[0]));
+        renderable.project();
+        return renderable;
+    }
+
+    private class DaylightTransitionSatRenderable extends SatRenderable {
+
+        public DaylightTransitionSatRenderable(DataTime renderableTime) {
+            super(DaylightTransitionSatResource.this, renderableTime);
+        }
+
+        @Override
+        protected SatTileSetRenderable createTileSet(SatelliteRecord record) {
+            SatTileSetRenderable tileSet = new DaylightTransitionTileSetRenderable(
+                    DaylightTransitionSatResource.this, record,
+                    resourceData.getSunDelta());
+            tileSet.project(descriptor.getGridGeometry());
+            return tileSet;
+        }
     }
 
 }

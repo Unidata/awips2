@@ -50,6 +50,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * ------------ ---------- ----------- --------------------------
  * Nov 08, 2012            mschenke    Initial javadoc creation
  * Mar 11, 2014    2858    mpduff      javadoc updates
+ * Oct 15, 2015    4897    bkowal      Made {@link #pm} protected.
  * 
  * </pre>
  * 
@@ -60,7 +61,7 @@ public abstract class AbstractMenuUtil {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractMenuUtil.class);
 
-    private final PathManager pm = (PathManager) PathManagerFactory
+    protected final PathManager pm = (PathManager) PathManagerFactory
             .getPathManager();
 
     protected LocalizationContext caveConfigured = pm.getContext(

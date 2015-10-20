@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.viz.monitor.ui.dialogs;
 
-import java.util.ArrayList;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -37,7 +35,6 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
-import com.raytheon.uf.common.monitor.xml.AreaIdXML;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -53,7 +50,6 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Nov 20, 2012 1297      skorolev     Changes for non-blocking dialog.
  * Apr 23, 2014 3054      skorolev     Fixed issue with deleting a new station.
  * Apr 28, 2014 3086      skorolev     Removed local getAreaConfigMgr method.
- * Aug 17, 2015 3841      skorolev     Corrected deleteSelected method.
  * 
  * </pre>
  * 
@@ -68,12 +64,11 @@ public class DeleteStationDlg extends CaveSWTDialog {
     /** Control font. */
     private Font controlFont;
 
+    /** Area configuration manager. */
+    private FSSObsMonitorConfigurationManager configMgr;
+
     /** Monitoring Area Configuration Dialog */
-    private final MonitoringAreaConfigDlg macDlg;
-
-    private final FSSObsMonitorConfigurationManager cfgMgr;
-
-    private final java.util.List<String> newAddedStns = new ArrayList<String>();
+    private MonitoringAreaConfigDlg macDlg;
 
     /**
      * Constructor.
@@ -82,15 +77,13 @@ public class DeleteStationDlg extends CaveSWTDialog {
      *            Parent shell.
      * @param appName
      *            Application name.
-     * @param area
-     * @param macDlg
      */
     public DeleteStationDlg(Shell parent, AppName appName,
             MonitoringAreaConfigDlg macDlg) {
         super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText(appName.toString() + ": Delete a Newly Entered Station");
         this.macDlg = macDlg;
-        cfgMgr = macDlg.getInstance();
+        configMgr = macDlg.getInstance();
     }
 
     /*
@@ -121,10 +114,6 @@ public class DeleteStationDlg extends CaveSWTDialog {
         controlFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
         createListControl();
         createBottomButtons();
-        java.util.List<AreaIdXML> areaList = cfgMgr.getConfigXml().getAreaIds();
-        newAddedStns.addAll(cfgMgr.getNewlyAddedStations(areaList));
-        areaList = cfgMgr.getAdjAreaConfigXml().getAreaIds();
-        newAddedStns.addAll(cfgMgr.getNewlyAddedStations(areaList));
         populate();
     }
 
@@ -186,7 +175,8 @@ public class DeleteStationDlg extends CaveSWTDialog {
      * Populate list of added stations.
      */
     private void populate() {
-        stationList.setItems(newAddedStns.toArray(new String[newAddedStns
+        java.util.List<String> addedStations = configMgr.getAddedStations();
+        stationList.setItems(addedStations.toArray(new String[addedStations
                 .size()]));
     }
 
@@ -194,20 +184,15 @@ public class DeleteStationDlg extends CaveSWTDialog {
      * Delete stations from the list.
      */
     private String deleteSelected() {
-        String retval = "";
+        String retval = null;
         if (stationList.getItemCount() != 0) {
             if (stationList.getSelectionIndex() != -1) {
                 int idx = stationList.getSelectionIndex();
                 String selection = stationList.getItem(idx);
+                retval = configMgr.getAddedStations().get(idx);
+                configMgr.getAddedStations().remove(idx);
                 stationList.remove(selection);
-                java.util.List<AreaIdXML> areaXmlList = cfgMgr.getConfigXml()
-                        .getAreaIds();
-                cfgMgr.removeStation(selection.split("#")[0], areaXmlList);
-                areaXmlList = cfgMgr.getAdjAreaConfigXml().getAreaIds();
-                cfgMgr.removeStation(selection.split("#")[0], areaXmlList);
-                newAddedStns.remove(selection);
                 populate();
-                macDlg.maStationsRemoved = true;
             } else {
                 MessageBox messageBox = new MessageBox(shell,
                         SWT.ICON_INFORMATION | SWT.NONE);

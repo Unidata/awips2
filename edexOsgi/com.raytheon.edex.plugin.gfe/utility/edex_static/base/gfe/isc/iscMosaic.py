@@ -54,6 +54,7 @@
 #                                                 NumPy 1.9.
 #    10/05/2015      4951          randerso       Fixed siteInDbGrid to retrieve history from the cache so it
 #                                                 sees changes that have not yet been written to the database
+#    10/05/2015      4961          randerso       Fix __calcBlankingTimes to handle persistent grids
 #
 ##
 
@@ -1436,18 +1437,21 @@ class IscMosaic:
 
     def __calcBlankingTimes(self, inTimes):
         out = []
-        for t in range(len(inTimes)):
-            if t == 0 and inTimes[t][0] != 0:
-                out.append((0, inTimes[t][0]))
-            elif t != 0 :
-                tr = (inTimes[t - 1][1], inTimes[t][0])
-                if tr[0] != tr[1]:
-                    out.append(tr)
-        if len(out) == 0:
+        if len(inTimes) == 0:
             out.append((0, 2 ** 30 - 1 + 2 ** 30))
         else:
+            for t in range(len(inTimes)):
+                if t == 0 and inTimes[t][0] != 0:
+                    out.append((0, inTimes[t][0]))
+                elif t != 0 :
+                    tr = (inTimes[t - 1][1], inTimes[t][0])
+                    if tr[0] != tr[1]:
+                        out.append(tr)
+
             endIndex = len(inTimes) - 1
-            out.append((inTimes[endIndex][1], 2 ** 30 - 1 + 2 ** 30))
+            tr = (inTimes[endIndex][1], 2 ** 30 - 1 + 2 ** 30)
+            if tr[0] != tr[1]:
+                out.append(tr)
 
         # now limit to the modProcTime
         outLimit = []

@@ -40,7 +40,8 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 8, 2011            mschenke     Initial creation
+ * Nov 8, 2011             mschenke    Initial creation
+ * Oct 08, 2015  4891      njensen     Added tooltips
  * 
  * </pre>
  * 
@@ -60,7 +61,7 @@ public class ThinClientCachePreferences extends FieldEditorPreferencePage {
         super(GRID);
         setPreferenceStore(Activator.getDefault().getPreferenceStore());
         setTitle("Thin Client Caches");
-        setDescription("Specify Thin Client Cache settings");
+        setDescription("Settings to reduce bandwidth usage by saving data locally");
     }
 
     /*
@@ -87,28 +88,41 @@ public class ThinClientCachePreferences extends FieldEditorPreferencePage {
                 getFieldEditorParent()));
 
         // Add caching options
-        // pypies
-        addField(new BooleanFieldEditor(
-                ThinClientPreferenceConstants.P_CACHE_WEATHER,
-                "Cache &Weather Data", getFieldEditorParent()));
-        // localization files
 
+        // data retrieved directly from pypies
+        BooleanFieldEditor cacheWx = new BooleanFieldEditor(
+                ThinClientPreferenceConstants.P_CACHE_WEATHER,
+                "Cache &Weather Data", getFieldEditorParent());
+        cacheWx.getDescriptionControl(getFieldEditorParent()).setToolTipText(
+                "Save data for swapping and multiple panes");
+        addField(cacheWx);
+
+        // localization files
         cacheLocalization = new BooleanFieldEditor(
                 ThinClientPreferenceConstants.P_CACHE_LOCALIZATION,
                 "Cache &Localization Files", getFieldEditorParent());
-
+        cacheLocalization
+                .getDescriptionControl(getFieldEditorParent())
+                .setToolTipText(
+                        "Only download missing localization files (not updated files)");
         addField(cacheLocalization);
 
+        // avoid the server for localization
         disableRemoteLocalization = new SyncLocalizationEditor(
                 ThinClientPreferenceConstants.P_DISABLE_REMOTE_LOCALIZATION,
                 "Use &Only Cached Localization Files", getFieldEditorParent());
-
+        disableRemoteLocalization.getDescriptionControl(getFieldEditorParent())
+                .setToolTipText(
+                        "Only use previously downloaded localization files");
         addField(disableRemoteLocalization);
 
         // map data
-        addField(new BooleanFieldEditor(
+        BooleanFieldEditor cacheMaps = new BooleanFieldEditor(
                 ThinClientPreferenceConstants.P_CACHE_MAPS, "Cache &Map Data",
-                getFieldEditorParent()));
+                getFieldEditorParent());
+        cacheMaps.getDescriptionControl(getFieldEditorParent()).setToolTipText(
+                "Cache map data such as state/county boundaries");
+        addField(cacheMaps);
 
     }
 

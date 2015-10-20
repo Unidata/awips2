@@ -641,7 +641,7 @@ public class FFMPMonitor extends ResourceMonitor {
                 // times, prevents mosaic brittleness from occurring.
                 retrieveNew = true;
 
-                if (source.getGuidanceType().equals(
+                if (source.getGuidanceType() != null && source.getGuidanceType().equals(
                         GUIDANCE_TYPE.ARCHIVE.getGuidanceType())) {
                     isTimeConstraint = false;
                 } else {
@@ -1265,18 +1265,22 @@ public class FFMPMonitor extends ResourceMonitor {
     /**
      * Gets the guidance source types.
      * 
+     * @param product
+     * @param guidSrc
+     * @param siteKey
+     * @param dataKey
+     * @param sourceName
      * @param date
      * @param phuc
      * @param pfaf
      * @return
+     * @throws VizException
      */
-    public FFMPBasin getGraphGuidanceBasin(ProductXML product, String siteKey,
+    public FFMPBasin getGraphGuidanceBasin(ProductXML product, String guidSrc, String siteKey,
             String dataKey, String sourceName, Date date, String phuc, Long pfaf)
             throws VizException {
 
         if (product != null) {
-            String guidSrc = FFMPConfig.getInstance().getFFMPConfigData()
-                    .getGuidSrc();
             SourceXML source = product.getGuidanceSourcesByType(guidSrc).get(0);
             sourceName = source.getDisplayName();
         }
@@ -1542,6 +1546,7 @@ public class FFMPMonitor extends ResourceMonitor {
                             fproduct, type)) {
                         // Don't purge archive guidance!
                         if (guidSource != null
+                                && guidSource.getGuidanceType() != null
                                 && !guidSource.getGuidanceType()
                                         .equals(GUIDANCE_TYPE.ARCHIVE
                                                 .getGuidanceType())) {
@@ -1709,7 +1714,7 @@ public class FFMPMonitor extends ResourceMonitor {
                     }
                 }
             }
-            System.out.println("Time spent initializing templates: "
+            statusHandler.info("Time spent initializing templates: "
                     + (System.currentTimeMillis() - t0));
         }
 

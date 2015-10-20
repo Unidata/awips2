@@ -139,7 +139,6 @@ AMT           0 WEST UNION                              3886  -8356     0  0
 AMW           0 AMES,IA                                 4203  -9367     0  0
 ANA           0 ANAHEIM,CA                              3383 -11783     0  0
 ANB           0 ANNISTON,AL                             3358  -8585     0  0
-ANC           0 ANCHORAGE                               6115 -15021     0  0
 AND           0 ANDERSON COUNTY                         3450  -8271     0  0
 ANE           0 MINNEAPOLIS,MN                          4513  -9322     0  0
 ANI           0 ANIAK                                   6159 -15960     0  0
@@ -496,7 +495,6 @@ BTL           0 BATTLE CREEK                            4231  -8525     0  0
 BTM           0 BUTTE,MT                                4595 -11250     0  0
 BTN           0 BRITTON                                 4582  -9775     0  0
 BTP           0 BUTLER,PA                               4073  -7992     0  0
-BTR           0 BATON ROUGE                             3049  -9129     0  0
 BTS           0 WOOD RIVER                              5900 -15855     0  0
 BTT           0 BETTLES                                 6691 -15154     0  0
 BTV           0 BURLINGTON                              4440  -7318     0  0
@@ -2428,6 +2426,7 @@ LSN           0 LOS BANOS,CA                            3698 -12088     0  0
 LSO           0 KELSO                                   4616 -12291     0  0
 LSQ           0 NEWARK,NJ                               4070  -7417     0  0
 LST           0 LONE STAR                               3293  -9474     0  0
+LSU           0 FLYING TIGER                            3049  -9129     0  0
 LSV           0 NELLIS AFB,NV                           3625 -11503     0  0
 LSW           0 DETROIT,MI                              4223  -8353     0  0
 LTA           0 LAKE TAHOE,CA -VOR-                     3915 -12023     0  0
@@ -3885,6 +3884,7 @@ TDW           0 TRADEWIND ARPT,TX                       3518 -10182     0  0
 TDZ           0 TOLEDO,OH                               4158  -8380     0  0
 TEB           0 TETERBORO                               4085  -7406     0  0
 TEC           0 TECH                                    3721  -8041     0  0
+TED           0 TED                              AK US  6117 -14996     0  0
 TEL           0 TELL CITY                               3801  -8669     0  0
 TEW           0 MASON                            MI US  4256  -8442     0  0
 TEX           0 TELLURIDE,CO                            3807 -10753     0  0

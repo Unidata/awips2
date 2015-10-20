@@ -30,6 +30,13 @@
 #
 # Author: lefebvre/mathewson
 # ----------------------------------------------------------------------------
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    09/30/15        18141         ryu            Allow processing for TCV issued by CPHC
+########################################################################
 
 # The MenuItems list defines the GFE menu item(s) under which the
 # Procedure is to appear.
@@ -40,6 +47,7 @@ from numpy import *
 import SmartScript
 import AbsTime
 import HazardUtils
+import VTECPartners
 import LogStream, logging
 import UFStatusHandler
 
@@ -89,7 +97,7 @@ class Procedure (SmartScript.SmartScript):
                 continue
 
             # only look at the KNHC records
-            if v['officeid'] != 'KNHC':
+            if v['officeid'] not in VTECPartners.VTEC_TPC_SITE:
                 continue
 
             key = (v['phen'], v['sig'], v['etn'])

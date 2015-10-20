@@ -80,6 +80,7 @@
       <feature id="com.raytheon.uf.viz.dataplugins.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.d2d.core.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.viz.radar.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.radarapps.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.viz.text.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.grid.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.kml.export.feature" version="1.0.0.qualifier"/>

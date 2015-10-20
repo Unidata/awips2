@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -34,7 +34,11 @@ import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
 
 /**
- * Abstract class to generate 3hr records
+ * Abstract class to generate 3hr records.
+ * 
+ * Note: This class has been replaced by PrecipAccumPostProcessor and only
+ * remains for
+ * gov.noaa.nws.crh.edex.grib.decoderpostprocessor.GFS20PostProcessor
  * 
  * 
  * <pre>
@@ -46,14 +50,15 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * Jan 24, 2012  14299    M. Porricelli Initial creation
  * Aug 30, 2013  2298     rjpeter       Make getPluginName abstract
  * Oct 15, 2013  2473     bsteffen      Removed deprecated and unused code.
+ * Oct 07, 2015  3756     nabowle       Extends DecoderPostProcessor.
  * 
  * </pre>
  * 
  * @author porricel
  * @version 1.0
  */
-public abstract class ThreeHrPrecipGridProcessor implements
-        IDecoderPostProcessor {
+public abstract class ThreeHrPrecipGridProcessor extends
+        DecoderPostProcessor {
 
     /** The number of seconds in 3 hours */
     protected static final int SECONDS_IN_3_HRS = 10800;
@@ -78,7 +83,7 @@ public abstract class ThreeHrPrecipGridProcessor implements
 
     /**
      * Generates the 3hr precipitation grid
-     * 
+     *
      * @param record
      *            The current record to clone and modify to produce the new 3hr
      *            grid
@@ -113,7 +118,7 @@ public abstract class ThreeHrPrecipGridProcessor implements
     /**
      * Generates the 3hr precipitation grid from the current grid and the
      * previous grid
-     * 
+     *
      * @param inventoryRecord
      *            The previous grid from the inventory
      * @param currentRecord
@@ -178,7 +183,7 @@ public abstract class ThreeHrPrecipGridProcessor implements
     /**
      * Calculates the new data by subtracting the previous inventory data from
      * the current data
-     * 
+     *
      * @param inventoryData
      *            The data from the previous precipitation record
      * @param newData
@@ -189,7 +194,7 @@ public abstract class ThreeHrPrecipGridProcessor implements
 
     /**
      * Modifies the DataTime of the provided record to include a 3hr time range
-     * 
+     *
      * @param record
      *            The record to modify the datatime for
      */

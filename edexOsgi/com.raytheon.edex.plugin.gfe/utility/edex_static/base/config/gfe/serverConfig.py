@@ -67,8 +67,10 @@
 #    05/12/2015          #17144    bhunder        Added RTMA model
 #    05/29/2015          17496     ryu            Changed parm definitions for Wave1-10 and Period1-10.
 #
-#    05/29/2015          #17144    bhunder        Added weather Params for URMA25 and OCONUS RTMA 
+#    05/29/2015          #17144    bhunder        Added weather Params for URMA25 and OCONUS RTMA
 #    09/02/2015          #4819     rferrel        Added HWRF.
+#    10/07/2015          #4958     dgilling       Added support for NationalBlend D2D data.  
+#    10/13/2015          #4961     randerso       Updated NewTerrain/BaseTerrain database definitions
 ####################################################################################################
 
 #----------------------------------------------------------------------------
@@ -1364,6 +1366,7 @@ elif SID in CONUS_EAST_SITES:
                  ('FFG-TAR', 'FFGTAR'),
                  ('FFG-TIR', 'FFGTIR'),
                  ('FFG-TUA', 'FFGTUA'),
+                 'NationalBlend',
                  'PGBlended',
                  'PGBlended-Night',
                  ('NCOM-USEAST', 'NCOMUSEAST'),
@@ -1448,6 +1451,7 @@ else:   #######DCS3501 WEST_CONUS
                  ('FFG-TAR', 'FFGTAR'),
                  ('FFG-TIR', 'FFGTIR'),
                  ('FFG-TUA', 'FFGTUA'),
+                 'NationalBlend',
                  'PGBlended',
                  'PGBlended-Night',
                  ('NCOM-SOCAL', 'NCOMSOCAL'),
@@ -2248,18 +2252,24 @@ for wes, tc in (OFFICIALDBS + localParms):
 #
 # Add new parameters for NewTerrain
 #
-OldTerrain = ("OldTerrain", SCALAR, "ft", "Old Terrain", 50000.0, -32000.0, 1, NO)
-NewTerrain = ("NewTerrain", SCALAR, "ft", "New Terrain", 50000.0, -32000.0, 1, NO)
-Topo       = ("Topo",       SCALAR, "ft", "Topography",  50000.0, -32000.0, 1, NO)
+NewTopo     = ("NewTopo",     SCALAR, "ft", "New Topo",      50000.0, -32000.0, 1, NO)
+PrevTopo    = ("PrevTopo",    SCALAR, "ft", "Previous Topo", 50000.0, -32000.0, 1, NO)
+GMTED       = ("GMTED",       SCALAR, "ft", "GMTED2010",     50000.0, -32000.0, 1, NO)
+GTOPO       = ("GTOPO",       SCALAR, "ft", "GTOPO30",       50000.0, -32000.0, 1, NO)
+Topo        = ("Topo",        SCALAR, "ft", "Topography",    50000.0, -32000.0, 1, NO)
 
-NewTerrainDB = ("NewTerrain",   GRID, 'EditTopo', YES, NO, 1, 0)
-NewTerrainParms = [([OldTerrain, NewTerrain], TC1)]
+NewTerrainDB  = ("NewTerrain",   GRID, 'EditTopo', YES, NO, 1, 0)
+NewTerrainParms = [([NewTopo], Persistent)]
 DATABASES.append((NewTerrainDB, NewTerrainParms))
 
+BaseTerrainDB = ("BaseTerrain",  GRID, 'EditTopo', YES, NO, 1, 0)
+BaseTerrainParms = [([PrevTopo, GMTED, GTOPO], Persistent)]
+DATABASES.append((BaseTerrainDB, BaseTerrainParms))
+
 # Add Topo to ISC parms for NewTerrain
-if type(REQUESTED_ISC_PARMS) is list and not "Topo" in REQUESTED_ISC_PARMS:
-    REQUESTED_ISC_PARMS.append("Topo")
-ISCPARMS.append(([Topo], Persistent))
+if type(REQUESTED_ISC_PARMS) is list and not "NewTopo" in REQUESTED_ISC_PARMS:
+    REQUESTED_ISC_PARMS.append("NewTopo")
+ISCPARMS.append(([NewTopo], Persistent))
 
 
 # Now add the ISC and Restore databases to the DATABASES groupings

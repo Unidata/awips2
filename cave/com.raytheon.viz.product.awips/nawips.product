@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="CAVE" id="com.raytheon.viz.product.awips.CAVE" application="com.raytheon.uf.viz.application.application" useFeatures="true" includeLaunchers="true">
+
+   <aboutInfo>
+      <image path="icons/ipr.gif"/>
+      <text>
+         %caveAboutText
+      </text>
+   </aboutInfo>
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <programArgs>-data @user.home/caveData -user @user.home/caveData</programArgs>
+      <programArgsLin>-consoleLog</programArgsLin>
+      <vmArgs>-XX:+UseG1GC
+-Dosgi.instance.area.readOnly=true 
+-Dorg.eclipse.update.reconcile=false
+-Dorg.eclipse.swt.internal.gtk.cairoGraphics=false
+-XX:MaxPermSize=128m
+-Dorg.eclipse.ui/KEY_CONFIGURATION_ID=com.raytheon.viz.ui.awips.scheme
+-Dqpid.dest_syntax=BURL
+-Dlogback.configurationFile=logback-viz-core.xml
+-Dlogback.statusListenerClass=com.raytheon.uf.common.logback.UFLogbackInternalStatusListener
+-Dthrift.stream.maxsize=200
+-Dviz.memory.warn.threshold=98
+-Dhttps.certificate.check=false
+-XX:+UnlockExperimentalVMOptions
+-XX:G1HeapRegionSize=4M
+-XX:InitiatingHeapOccupancyPercent=25
+-XX:G1MixedGCCountTarget=16
+-XX:G1MixedGCLiveThresholdPercent=25
+-XX:G1OldCSetRegionThresholdPercent=25
+-XX:G1HeapWastePercent=5</vmArgs>
+      <vmArgsLin>-Xmx3072M -XX:MaxDirectMemorySize=2G
+-XX:OnOutOfMemoryError=&quot;capture -t no -p $pid &amp;&quot;</vmArgsLin>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
+   </launcherArgs>
+
+   <windowImages i16="icons/cave_16x16.png" i32="icons/cave_32x32.png" i48="icons/cave_48x48.png" i64="icons/cave_64x64.png" i128="icons/cave_128x128.png"/>
+
+   <splash
+      location="com.raytheon.viz.ui.personalities.awips"
+      startupProgressRect="3,234,413,13"
+      startupMessageRect="7,252,445,20"
+      startupForegroundColor="000000" />
+   <launcher name="cave">
+      <solaris/>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+      <linux include="true">jdk1.7.0</linux>
+   </vm>
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="com.raytheon.viz.feature.awips" version="1.9.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.application.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.common.base.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.base.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.localization.perspective.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.alertview.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.gisdatastore.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.npp.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.viz.dataaccess.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.nwsauth.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.sounding.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.dataplugin.obs.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.archive.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.cots.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.common.core.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.core.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.d2d.core.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.viz.satellite.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.ncep.core.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.core.maps.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.viz.radar.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.kml.export.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.grid.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.thinclient.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.viz.text.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.d2d.damagepath.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.viz.gfe.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.registry.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.aviation.advisory.feature" version="1.14.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.useradmin.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.ncep.dataplugins.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.dataplugins.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.displays.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.d2d.ui.awips.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.d2d.skewt.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.d2d.xy.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.ncep.displays.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.ncep.perspective.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.ncep.nsharp.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.ncep.npp.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.viz.volumebrowser.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.d2d.nsharp.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.acarssounding.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.npp.sounding.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.d2d.gfe.feature" version="1.0.0.qualifier"/>
+   </features>
+
+   <configurations>
+      <plugin id="com.raytheon.uf.viz.spring.dm" autoStart="true" startLevel="4" />
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
+      <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
+   </configurations>
+
+</product>

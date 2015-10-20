@@ -405,8 +405,7 @@ public class FFMPProcessor {
                         } else if (type == FFMPSourceConfigurationManager.DATA_TYPE.XMRG) {
                             // all the HPE sources use an HRAP grid so, create
                             // it only once
-                            this.sourceId = FFMPSourceConfigurationManager.DATA_TYPE.XMRG
-                                    .getDataType()
+                            this.sourceId = getSourceBinNaming(source)
                                     + "-"
                                     + domain.getCwa()
                                     + "-" + dataKey;
@@ -479,8 +478,12 @@ public class FFMPProcessor {
                                 return;
                             }
                         }
+                        
+                        if (!isSBL && (sbl != null)) {
+                            generator.setSourceBinList(sbl);
+                        }
 
-                        if (sourceId != null) {
+                        if (sourceId != null && !sbl.getSourceMap().isEmpty()) {
                             for (Long key : map.keySet()) {
 
                                 FFMPBasin basin = getBasin(key);
@@ -501,13 +504,16 @@ public class FFMPProcessor {
                                     val = processGrib(key, domain.getCwa());
                                 }
 
-                                basin.setValue(date, val);
-                            }
-
-                            if (!isSBL && (sbl != null)) {
-                                generator.setSourceBinList(sbl);
+                                if (val != null && date != null) {
+                                    basin.setValue(date, val);
+                                }
                             }
                         } else {
+                            statusHandler
+                                    .warn("No data overlap with this source! "
+                                            + source.getSourceName()
+                                            + " site: " + siteKey
+                                            + " dataKey: " + dataKey);
                             ffmpRec = null;
                             return;
                         }
@@ -516,7 +522,7 @@ public class FFMPProcessor {
                         if (ffmpRec != null) {
                             statusHandler.handle(Priority.DEBUG, "Source: "
                                     + ffmpRec.getSourceName() + " sitekey: "
-                                    + siteKey + " domain: " + domain.getCwa()
+           + siteKey + " domain: " + domain.getCwa()
                                     + " : Data outside of domain");
                         }
                     }
@@ -570,7 +576,7 @@ public class FFMPProcessor {
                         // outside my domain?
                         if (map.keySet().size() > 0) {
 
-                            String sourceFamilyName = source.getDisplayName();
+                            String sourceFamilyName = getSourceBinNaming(source);
                             this.sourceId = sourceFamilyName + "-"
                                     + domain.getCwa() + "-" + dataKey + "-"
                                     + siteKey;
@@ -598,27 +604,41 @@ public class FFMPProcessor {
                                 return;
                             }
 
-                            for (Long key : map.keySet()) {
-
-                                FFMPBasin basin = getBasin(key);
-                                float val = 0.0f;
-                                
-                                // Cover other types just in case the 0.1% of non RFCFFG shows up.
-                                if (type == FFMPSourceConfigurationManager.DATA_TYPE.XMRG) {
-                                    val = processXMRG(key, domain.getCwa());
-                                } else if (type == FFMPSourceConfigurationManager.DATA_TYPE.RADAR) {
-                                    val = processRADAR(key, domain.getCwa());
-                                } else if (type == FFMPSourceConfigurationManager.DATA_TYPE.PDO) {
-                                    val = processPDO(key, domain.getCwa());
-                                } else if (type == FFMPSourceConfigurationManager.DATA_TYPE.GRID) {
-                                    val = processGrib(key, domain.getCwa());
-                                }
-
-                                setBasin(basin, val);
-                            }
-
                             if (!isSBL && (sbl != null)) {
                                 generator.setSourceBinList(sbl);
+                            }
+
+                            if (!sbl.getSourceMap().isEmpty()) {
+                                for (Long key : map.keySet()) {
+
+                                    FFMPBasin basin = getBasin(key);
+                                    float val = 0.0f;
+
+                                    // Cover other types just in case the 0.1%
+                                    // of non RFCFFG shows up.
+                                    if (type == FFMPSourceConfigurationManager.DATA_TYPE.XMRG) {
+                                        val = processXMRG(key, domain.getCwa());
+                                    } else if (type == FFMPSourceConfigurationManager.DATA_TYPE.RADAR) {
+                                        val = processRADAR(key, domain.getCwa());
+                                    } else if (type == FFMPSourceConfigurationManager.DATA_TYPE.PDO) {
+                                        val = processPDO(key, domain.getCwa());
+                                    } else if (type == FFMPSourceConfigurationManager.DATA_TYPE.GRID) {
+                                        val = processGrib(key, domain.getCwa());
+                                    }
+
+                                    if (basin != null) {
+                                        setBasin(basin, val);
+                                    }
+                                }
+                            } else {
+                                ffmpRec = null;
+                                statusHandler
+                                        .warn("No data overlap with this source! "
+                                                + source.getSourceName()
+                                                + " site: "
+                                                + siteKey
+                                                + " dataKey: " + dataKey);
+                                return;
                             }
                         } else {
                             statusHandler.handle(Priority.INFO, "Source: "
@@ -804,7 +824,9 @@ public class FFMPProcessor {
                             val = 0.0f;
                         }
 
-                        basin.setValue(date, val);
+                        if (date != null && val != null) {
+                            basin.setValue(date, val);
+                        }
                     }
 
                 } catch (Exception e) {

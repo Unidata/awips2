@@ -21,7 +21,6 @@ package com.raytheon.viz.satellite.rsc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,7 +44,6 @@ import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters.PersistedParameters;
 import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.Request;
@@ -91,8 +89,8 @@ import com.raytheon.viz.awipstools.IToolChangedListener;
 import com.raytheon.viz.satellite.SatelliteConstants;
 import com.raytheon.viz.satellite.inventory.DerivedSatelliteRecord;
 import com.raytheon.viz.satellite.tileset.SatDataRetriever;
-import com.raytheon.viz.satellite.tileset.SatTileSetRenderable;
-import com.vividsolutions.jts.geom.Coordinate;
+import com.raytheon.viz.satellite.tileset.SatRenderable;
+import com.raytheon.viz.satellite.tileset.SatRenderable.InterrogationResult;
 
 /**
  * Provides satellite raster rendering support
@@ -138,6 +136,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  Apr 15, 2014  4388      bsteffen    Use fill value from record.
  *  Jul 28, 2015  4633      bsteffen    Create tileset in resource so it can be
  *                                      overridden for daylight transition.
+ *  Oct 08, 2015  4937      bsteffen    Move SatRenderable to new class.
  * 
  * </pre>
  * 
@@ -168,128 +167,6 @@ public class SatResource extends
     private static final InterrogationKey<GeographicDataSource> DATA_SOURCE_INTERROGATE_KEY = new ClassInterrogationKey<>(
             GeographicDataSource.class);
 
-    private static class InterrogationResult {
-
-        private final SatTileSetRenderable renderable;
-
-        private final double value;
-
-        public InterrogationResult(SatTileSetRenderable renderable, double value) {
-            this.renderable = renderable;
-            this.value = value;
-        }
-
-        public SatelliteRecord getRecord() {
-            return renderable.getSatelliteRecord();
-        }
-
-        public double getValue() {
-            return value;
-        }
-
-        public GeographicDataSource getDataSource() {
-            return renderable.getCurrentLevelDataSource();
-        }
-
-    }
-
-    private class SatRenderable implements IRenderable {
-
-        private Map<SatMapCoverage, SatTileSetRenderable> tileMap = new HashMap<SatMapCoverage, SatTileSetRenderable>();
-
-        private DataTime renderableTime;
-
-        public SatRenderable(DataTime renderableTime) {
-            this.renderableTime = renderableTime;
-        }
-
-        @Override
-        public void paint(IGraphicsTarget target, PaintProperties paintProps)
-                throws VizException {
-            Collection<DrawableImage> images = getImagesToRender(target,
-                    paintProps);
-            if (images.isEmpty() == false) {
-                target.drawRasters(paintProps,
-                        images.toArray(new DrawableImage[0]));
-            }
-        }
-
-        public Collection<DrawableImage> getImagesToRender(
-                IGraphicsTarget target, PaintProperties paintProps)
-                throws VizException {
-            List<DrawableImage> images = new ArrayList<DrawableImage>();
-            synchronized (tileMap) {
-                for (SatTileSetRenderable renderable : tileMap.values()) {
-                    images.addAll(renderable.getImagesToRender(target,
-                            paintProps));
-                }
-            }
-            return images;
-        }
-
-        public void addRecord(SatelliteRecord record) {
-            synchronized (tileMap) {
-                SatTileSetRenderable tileSet = tileMap
-                        .get(record.getCoverage());
-                if (tileSet != null) {
-                    SatelliteRecord existingRecord = tileSet
-                            .getSatelliteRecord();
-                    if (existingRecord.equals(record) == false) {
-                        // Different record, same spatial area for same frame
-                        // Determine if new one is better than existing
-                        long existingTimeMillis = existingRecord.getDataTime()
-                                .getMatchRef();
-                        long newRecordTimeMillis = record.getDataTime()
-                                .getMatchRef();
-                        long normalTimeMillis = renderableTime.getMatchRef();
-                        if (Math.abs(normalTimeMillis - newRecordTimeMillis) < Math
-                                .abs(normalTimeMillis - existingTimeMillis)) {
-                            // New is better since it's data time is closer to
-                            // the normal time than the existing record's time!
-                            tileSet.dispose();
-                            tileSet = null;
-                        }
-                    }
-                }
-                if (tileSet == null) {
-                    tileSet = createTileSet(record);
-                    tileMap.put(record.getCoverage(), tileSet);
-                }
-            }
-        }
-
-        public void project() {
-            synchronized (tileMap) {
-                for (SatTileSetRenderable renderable : tileMap.values()) {
-                    renderable.project(descriptor.getGridGeometry());
-                }
-            }
-        }
-
-        public void dispose() {
-            synchronized (tileMap) {
-                for (SatTileSetRenderable renderable : tileMap.values()) {
-                    renderable.dispose();
-                }
-                tileMap.clear();
-            }
-        }
-
-        public InterrogationResult interrogate(Coordinate latLon,
-                Unit<?> requestUnit) throws VizException {
-            InterrogationResult result = null;
-            synchronized (tileMap) {
-                for (SatTileSetRenderable renderable : tileMap.values()) {
-                    double rValue = renderable.interrogate(latLon, requestUnit);
-                    if (Double.isNaN(rValue) == false) {
-                        result = new InterrogationResult(renderable, rValue);
-                    }
-                }
-            }
-            return result;
-        }
-    }
-
     protected String legend;
 
     protected SamplePreferences sampleRange;
@@ -305,13 +182,6 @@ public class SatResource extends
     public SatResource(SatResourceData data, LoadProperties props) {
         super(data, props);
         addDataObject(data.getRecords());
-    }
-
-    protected SatTileSetRenderable createTileSet(SatelliteRecord record) {
-        SatTileSetRenderable tileSet = new SatTileSetRenderable(
-this, record);
-        tileSet.project(descriptor.getGridGeometry());
-        return tileSet;
     }
 
     @Override
@@ -351,7 +221,6 @@ this, record);
         }
         Unit<?> unit = SatDataRetriever.getRecordUnit(record);
 
-        
         /*
          * TODO default to NaN instead of 0. 0 is the default to support older
          * data(before the gini decoder set a fill value), when all decoders and
@@ -548,7 +417,8 @@ this, record);
         if (dataMapping != null) {
             // if the pixel value matches the data mapping entry use that
             // label instead
-        	String label = dataMapping.getSampleOrLabelValueForDataValue(measuredValue);
+            String label = dataMapping
+                    .getSampleOrLabelValueForDataValue(measuredValue);
             if (label != null) {
                 return label;
             }
@@ -603,37 +473,17 @@ this, record);
         return Collections.emptyList();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.AbstractPluginDataObjectResource#
-     * capabilityChanged(com.raytheon.uf.viz.core.drawables.IRenderable,
-     * com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability)
-     */
     @Override
     protected void capabilityChanged(IRenderable renderable,
             AbstractCapability capability) {
         issueRefresh();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.AbstractPluginDataObjectResource#
-     * disposeRenderable(com.raytheon.uf.viz.core.drawables.IRenderable)
-     */
     @Override
     protected void disposeRenderable(IRenderable renderable) {
         ((SatRenderable) renderable).dispose();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.AbstractPluginDataObjectResource#
-     * projectRenderable(com.raytheon.uf.viz.core.drawables.IRenderable,
-     * org.opengis.referencing.crs.CoordinateReferenceSystem)
-     */
     @Override
     protected boolean projectRenderable(IRenderable renderable,
             CoordinateReferenceSystem crs) throws VizException {
@@ -641,28 +491,15 @@ this, record);
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.AbstractPluginDataObjectResource#
-     * constructRenderable(com.raytheon.uf.common.time.DataTime, java.util.List)
-     */
     @Override
     protected IRenderable constructRenderable(DataTime time,
             List<PluginDataObject> records) throws VizException {
-        SatRenderable renderable = new SatRenderable(time);
+        SatRenderable renderable = new SatRenderable(this, time);
         updateRenderable(renderable, records.toArray(new PluginDataObject[0]));
         renderable.project();
         return renderable;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.AbstractPluginDataObjectResource#
-     * updateRenderable(com.raytheon.uf.viz.core.drawables.IRenderable,
-     * com.raytheon.uf.common.dataplugin.PluginDataObject[])
-     */
     @Override
     protected boolean updateRenderable(IRenderable renderable,
             PluginDataObject... pdos) {
