@@ -80,7 +80,6 @@ import com.raytheon.viz.hydro.timeseries.util.GraphData;
 import com.raytheon.viz.hydro.timeseries.util.GroupInfo;
 import com.raytheon.viz.hydro.timeseries.util.LIDData;
 import com.raytheon.viz.hydro.timeseries.util.PageInfo;
-import com.raytheon.viz.hydro.timeseries.util.PreferredOrderManager;
 import com.raytheon.viz.hydro.timeseries.util.TimeSeriesUtil;
 import com.raytheon.viz.hydro.timeseries.util.TraceData;
 import com.raytheon.viz.hydrocommon.HydroConstants;
@@ -125,8 +124,6 @@ import com.raytheon.viz.hydrocommon.util.StnClassSyncUtil;
  * 06 Jun 2013 2076        mpduff      Fix station list selection and graph button enabling.
  * 0  Jun 2013 15980       wkwock      Fix selected station not update
  * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
- * 14 Sep, 2015 15102      wkwock      Implements preferred order for PE-D-TS-EXT list
- * 
  * </pre>
  * 
  * @author lvenable
@@ -1512,13 +1509,9 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             ArrayList<Object[]> data = (ArrayList<Object[]>) dataManager
                     .getSitePEData(selectedLid);
 
-            PreferredOrderManager pom = PreferredOrderManager.getInstance();
-            Map<String, String[]> peMap = pom.getPreferedOrder(selectedLid);
-
             bottomDataList.removeAll();
 
             /* Get the lists of PE data */
-            LinkedHashMap<String, ArrayList<SiteInfo>> preferredMap = new LinkedHashMap<String, ArrayList<SiteInfo>>();
             LinkedHashMap<String, ArrayList<SiteInfo>> hMap = new LinkedHashMap<String, ArrayList<SiteInfo>>();
             LinkedHashMap<String, ArrayList<SiteInfo>> qMap = new LinkedHashMap<String, ArrayList<SiteInfo>>();
             LinkedHashMap<String, ArrayList<SiteInfo>> pMap = new LinkedHashMap<String, ArrayList<SiteInfo>>();
@@ -1537,30 +1530,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                 si.setExt((String) row[3]);
                 si.setDur(((Number) row[4]).intValue());
 
-                boolean preferredLstFlg = false;
-                if (peMap!=null){
-                    String[] typeSrcLst = peMap.get(si.getPe());
-
-                    if (typeSrcLst != null) {
-                        for (String typesrc : typeSrcLst) {
-                            
-                            if (typesrc.equalsIgnoreCase(si.getTs())) {
-                                preferredLstFlg = true;
-                                break;
-                            }
-                        }
-                    } else if (peMap.containsKey(si.getPe())) {
-                        preferredLstFlg = true;
-                    }
-                }
-                if (preferredLstFlg) {
-                    if (!si.getPe().equals(prevPE)) {
-                        preferredMap.put(si.getPe(), new ArrayList<SiteInfo>());
-                        prevPE = si.getPe();
-                    }
-
-                    preferredMap.get(si.getPe()).add(si);
-                } else if (si.getPe().startsWith("H")) {
+                if (si.getPe().startsWith("H")) {
                     if (!si.getPe().equals(prevPE)) {
                         hMap.put(si.getPe(), new ArrayList<SiteInfo>());
                         prevPE = si.getPe();
@@ -1618,7 +1588,6 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                 tsSelected = false;
             }
 
-            populatePreferredDataInOrder(preferredMap,peMap);
             processDataList(hMap, tsSelected);
             processDataList(qMap, tsSelected);
             processDataList(pMap, tsSelected);
@@ -1629,41 +1598,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             selectedDataLbl.setText(selectedLid);
             bottomDataList.setSelection(0);
         } catch (VizException e) {
-            statusHandler.error("Failed to populate time series list",e);
-        }
-    }
-
-    /**
-     * populate data to bottomDataList base on preferred predefined order
-     * @param preferredMap
-     * @param peMap
-     */
-    private void populatePreferredDataInOrder (LinkedHashMap<String, ArrayList<SiteInfo>>preferredMap, Map<String, String[]> peMap) {
-        if (peMap!=null && preferredMap!=null ){
-            for (String pe:peMap.keySet()){
-                java.util.List<SiteInfo> siList = preferredMap.get(pe);
-                
-                if (siList == null) {
-                    continue;
-                }
-                
-                String[] tsList =  peMap.get(pe);
-                if (tsList==null) { //There's PE but no TS in preffered_order.txt
-                    for(SiteInfo si : siList) {
-                        bottomDataList.add(formatDataLine(si));
-                        siteInfoList.add(si);
-                    }
-                } else { //There's both PE and TS in preferred_order.txt
-                    for (String ts: tsList){
-                        for(SiteInfo si : siList) {
-                            if (ts.equalsIgnoreCase(si.getTs())) {
-                                bottomDataList.add(formatDataLine(si));
-                                siteInfoList.add(si);
-                            }
-                        }
-                    }
-                }
-            }
+            e.printStackTrace();
         }
     }
 

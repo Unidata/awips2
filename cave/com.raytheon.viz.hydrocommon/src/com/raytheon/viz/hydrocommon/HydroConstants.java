@@ -33,7 +33,6 @@ import org.eclipse.swt.graphics.RGB;
  * ------------ ----------  ----------- --------------------------
  * Jun 17, 2008 1194        M. Duff     Initial creation.
  * 11/18/2008   1662        grichard    Added physical element enum type.
- * 14 Sep, 2015 15102       wkwock      Implements preferred order for PE-D-TS-EXT list
  * 
  * </pre>
  * 
@@ -262,8 +261,6 @@ public class HydroConstants {
     public static final String XMRG_DIR_TOKEN = "rfcwide_xmrg_dir";
     
     public static final String RFCMOSAIC_DIR_TOKEN = "gaq_xmrg_1hr_dir";
-
-    public static final String PREFERRED_ORDER = "/hydro/preferred_order.txt";
 
     /**
      * Enumeration used for selection of physical element.
