@@ -113,23 +113,25 @@ fi
 echo -e "\nInstalling A2 gdm PostSession Default script"
 scp /etc/gdm/PostSession/awips2VisualizeUtility.sh /etc/gdm/PostSession/Default
 
-pushd . > /dev/null 2>&1
-cd /awips2/alertviz/plugins
+#pushd . > /dev/null 2>&1
+#cd /awips2/alertviz/plugins
 # Forcefully unzip: org.eclipse.swt.gtk.linux.x86_64_*.jar
 # : if x86_64
-if [ -f org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar ]; then
-   mkdir org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}
-   unzip -qq org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar \
-      -d org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}
-   rm -f org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar
-   mv org.eclipse.swt.gtk.linux.x86_64_%{_swt_version} \
-      org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar
-fi
-
-popd > /dev/null 2>&1
+#if [ -f org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar ]; then
+#   mkdir org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}
+#   unzip -qq org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar \
+#      -d org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}
+#   rm -f org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar
+#   mv org.eclipse.swt.gtk.linux.x86_64_%{_swt_version} \
+#      org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar
+#fi
+#
+#popd > /dev/null 2>&1
 
 %preun
+rm -rf org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar
 %postun
+rm -rf org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
