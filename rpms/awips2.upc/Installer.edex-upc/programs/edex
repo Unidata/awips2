@@ -40,7 +40,7 @@ EDEX_ENV_FILE=${EDEX_PATH}/bin/setup.env
 LDMD_CONF=${AWIPS_HOME}/ldm/etc/ldmd.conf
 
 # valid options
-options=( 'status' 'start' 'stop' 'log' 'setup' 'test' 'purge')
+options=( 'status' 'start' 'stop' 'log' 'setup' 'purge')
 nopts=${options[@]}
 
 # find interface for routeable IPs
@@ -202,7 +202,6 @@ edit_pg() { # edex pg_hba.conf
 
 edit_ldm() { # edex ldmd.conf and registry.xml
 	sed -i.setup_$YMD 's/EDEX_HOSTNAME/'$HOSTNAME'/g' $LDMD_CONF
-	regutil -s "1500" /queue/size
 	echo '[edit] Hostname '$HOSTNAME' added to '$LDMD_CONF
 }
 
@@ -329,6 +328,7 @@ edex_start() { # start all edex services
 	su -c "service edex_postgres start"
 	su -c "service httpd-pypies start"
 	su -c "service qpidd start"
+	edex_purge_reset
 	su -c "service edex_camel start"
 	su -c "service edex_ldm start"
 }
@@ -344,7 +344,7 @@ edex_stop() { # stop all edex services
 
 edex_purge() {
         if [ "${args[1]}" == 'reset' ]; then
-                su awips -c 'psql metadata -c "update purgejobs set failedcount = 0;"' >& /dev/null
+		edex_purge_reset
                 echo ' EDEX purge has been reset'
                 exit;
         else
@@ -354,6 +354,9 @@ edex_purge() {
                 fi
                 exit;
         fi
+}
+edex_purge_reset() {
+        su awips -c 'psql metadata -c "update purgejobs set failedcount = 0;"' >& /dev/null
 }
 
 edex_options() { # print out options for this programs
