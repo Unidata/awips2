@@ -73,6 +73,8 @@ import org.eclipse.pde.internal.core.product.ProductModel;
  * ------------ ---------- ----------- --------------------------
  * Sep 29, 2015 4759       bkowal      Initial creation
  * Oct 09, 2015 4759       bkowal      Added an exclude features parameter.
+ * Oct 20, 2015 4759       bkowal      Handle non-Eclipse features that are
+ *                                     embedded in other features.
  * 
  * </pre>
  * 
@@ -424,6 +426,12 @@ public class Main {
          * all plugins and features in the baseline.
          */
         for (BuildFeature buildFeature : orderedFeatures) {
+            if (buildFeature.isEclipse()) {
+                /*
+                 * Do not copy Eclipse features.
+                 */
+                continue;
+            }
             final Path copyFeaturePath = this.buildFeaturesPath
                     .resolve(buildFeature.getId());
             Files.createDirectories(copyFeaturePath);
@@ -731,11 +739,11 @@ public class Main {
                             + featureChild.getId() + "!");
                 }
                 embeddedBuildFeature = new BuildFeature(resourcePaths.get(0)
-                        .resolve(BuildFeature.FILENAME));
+                        .resolve(BuildFeature.FILENAME), true);
             }
             this.scanFeature(embeddedBuildFeature, containingBuildFeature);
         }
-        this.buildFeaturesMap.put(feature.getId(), containingBuildFeature);
+        this.buildFeaturesMap.put(feature.getId(), buildFeature);
     }
 
     private void scanStagingPlugin(final BuildPlugin buildPlugin)
