@@ -5,16 +5,35 @@
 #
 # 10/15         mjames@ucar.edu         Creation
 #
+
+#
+##  Download awips2.repo from the Unidata web server
+# 
+
 if [ ! -f /etc/yum.repos.d/awips2.repo ]; then
   echo ''
   echo 'Downloading awips2repo yum file to /etc/yum.repos.d/awips2.repo'
   echo ''
   wget -O /etc/yum.repos.d/awips2.repo http://www.unidata.ucar.edu/software/awips2/doc/awips2.repo
+  echo "Running 'yum clean all'"
+  yum clean all
+  echo ''
 fi
-echo ''
-echo "Running 'yum clean all'"
-echo ''
-yum clean all
+
+##
+## If CAVE is not installed them make sure /awips2/cave/
+## and /awips2/alertviz/ are removed before installing.
+##
+
+if [[ $(rpm -qa | grep awips2-cave) ]]; then
+  echo "found CAVE RPMs installed"
+else
+  echo "  CAVE RPMs not installled"
+  echo ""
+  echo "  cleaning up /awips2/cave/, /awips2/alertviz/"
+  rm -rf /awips2/cave/ /awips2/alertviz/
+fi
+
 echo ''
 echo "Running 'yum groupinstall awips2-cave'"
 echo ''
@@ -36,5 +55,4 @@ echo ""
 echo "  to run cave:"
 echo ""
 echo "  /awips2/cave/cave.sh"
-echo ""
 exit
