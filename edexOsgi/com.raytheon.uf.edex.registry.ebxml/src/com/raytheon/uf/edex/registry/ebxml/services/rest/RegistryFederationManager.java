@@ -173,6 +173,7 @@ import com.raytheon.uf.edex.security.SecurityConfiguration;
  * 8/27/2014    3560        bphillip    Added updateRegistryEvents method
  * 5/11/2015    4448        bphillip    Separated EBXML Registry from Data Delivery
  * 5/29/2015    4448        bphillip    Added default user to registry on startup
+ * 10/20/2015   4992        dhladky     Improve error handling.
  * </pre>
  * 
  * @author bphillip
@@ -203,6 +204,19 @@ public class RegistryFederationManager implements IRegistryFederationManager,
 
     /** The mode that EDEX was started in */
     public static final boolean centralRegistry;
+    
+    /** registry user property **/
+    public static final String EDEX_SECURITY_AUTH_USER = "edex.security.auth.user";
+    
+    /** registry user password **/
+    public static final String EDEX_SECURITY_AUTH_PASSWORD = "edex.security.auth.password";
+    
+    /** Local (client) level adminstrator user **/
+    public static final String REGISTRY_LOCAL_ADMIN = "RegistryLocalAdministrator";
+    
+    /** Registry adminstrator (central) **/
+    public static final String REGISTRY_ADMIN = "RegistryAdministrator";
+    
 
     static {
         try {
@@ -395,29 +409,49 @@ public class RegistryFederationManager implements IRegistryFederationManager,
          * in the registry
          */
         try {
-            if (centralRegistry
-                    && !registryUsers.userExists(RegistryUtil.registryUser)) {
-                /*
-                 * The registry super user initially gets the default password
-                 * which *must* be changed immediately
-                 */
-                registryUsers.addUser(RegistryUtil.registryUser, "password",
-                        "RegistryAdministrator");
+            if (centralRegistry) {
+                if (!registryUsers.userExists(RegistryUtil.registryUser)) {
+                    /*
+                     * The registry super user initially gets the default
+                     * password which *must* be changed immediately
+                     */
+                    statusHandler
+                            .info(REGISTRY_ADMIN+" Not present in Central Registry! Adding user: "+REGISTRY_ADMIN);
 
-            } else if (!centralRegistry
-                    && !registryUsers.userExists(securityConfig
-                            .getSecurityProperties().getProperty(
-                                    "edex.security.auth.user"))) {
-                registryUsers.addUser(
-                        securityConfig.getSecurityProperties().getProperty(
-                                "edex.security.auth.user"),
-                        securityConfig.getSecurityProperties().getProperty(
-                                "edex.security.auth.password"),
-                        "RegistryLocalAdministrator");
+                    registryUsers.addUser(RegistryUtil.registryUser,
+                            "password", REGISTRY_ADMIN);
+                } else {
+                    statusHandler
+                            .info(REGISTRY_ADMIN+ " present in Central Registry: "+REGISTRY_ADMIN);
+                }
+
+            } else if (!centralRegistry) {
+
+                if (!registryUsers.userExists(securityConfig
+                        .getSecurityProperties().getProperty(
+                                EDEX_SECURITY_AUTH_USER))) {
+
+                    statusHandler.info(EDEX_SECURITY_AUTH_USER
+                            + " Not present in Registry! Adding user: "
+                            + securityConfig.getSecurityProperties()
+                                    .getProperty(EDEX_SECURITY_AUTH_USER));
+
+                    registryUsers.addUser(
+                            securityConfig.getSecurityProperties().getProperty(
+                                    EDEX_SECURITY_AUTH_USER),
+                            securityConfig.getSecurityProperties().getProperty(
+                                    EDEX_SECURITY_AUTH_PASSWORD),
+                            REGISTRY_LOCAL_ADMIN);
+                } else {
+                    statusHandler.info(EDEX_SECURITY_AUTH_USER
+                            + " Present in Registry: "
+                            + securityConfig.getSecurityProperties()
+                                    .getProperty(EDEX_SECURITY_AUTH_USER));
+                }
             }
         } catch (MsgRegistryException e) {
             throw new EbxmlRegistryException(
-                    "Error adding default registry user!", e);
+                    "Error Checking registry user! ", e);
         }
 
         initialized.set(true);
@@ -468,20 +502,20 @@ public class RegistryFederationManager implements IRegistryFederationManager,
                             .info("Successfully submitted federation registration objects to local registry!");
                 } catch (MsgRegistryException e) {
                     throw new EbxmlRegistryException(
-                            "Error submitting federation objects to registry",
+                            "Error submitting federation objects to local registry",
                             e);
                 }
                 if (!centralRegistry) {
                     statusHandler
-                            .info("Submitting federation registration objects to NCF...");
+                            .info("Submitting federation registration objects to NCF (Central Registry)...");
                     try {
                         soapService.getLifecycleManagerServiceForHost(
                                 ncfAddress).submitObjects(submitObjectsRequest);
                         statusHandler
-                                .info("Successfully submitted federation registration objects to NCF!");
+                                .info("Successfully submitted federation registration objects to NCF (Central Registry)!");
                     } catch (MsgRegistryException e) {
                         throw new EbxmlRegistryException(
-                                "Error submitting federation objects to registry",
+                                "Error submitting federation objects to NCF (Central Registry)!",
                                 e);
                     }
                 }
