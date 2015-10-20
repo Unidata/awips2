@@ -15,6 +15,22 @@ echo ''
 echo "Running 'yum clean all'"
 echo ''
 yum clean all
+
+
+if [[ $(rpm -qa | grep awips2-edex) ]]; then
+  echo "found EDEX RPMs installed"
+else
+  echo "  EDEX RPMs not installled"
+  echo ""
+  echo "  cleaning up /awips2/edex/, /awips2/data/"
+  rm -rf /awips2/edex/ /awips2/data/
+fi
+
+service edex_camel stop
+service qpidd stop
+service httpd-pypies stop
+service edex_postgres stop
+
 echo ''
 echo "Running 'yum groupinstall awips2-server'"
 echo ''
@@ -29,10 +45,5 @@ else
 fi
 echo ""
 echo "Done..."
-echo ""
-echo "  to run EDEX:"
-echo ""
-echo "  edex start"
-echo '  su ldm -c "ldmadmin mkqueue" && su ldm -c "ldmadmin start"'
 echo ""
 exit
