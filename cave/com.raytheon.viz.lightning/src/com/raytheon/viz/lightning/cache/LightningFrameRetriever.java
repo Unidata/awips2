@@ -22,6 +22,7 @@ package com.raytheon.viz.lightning.cache;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +34,10 @@ import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.dataplugin.binlightning.LightningConstants;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LtgStrikeType;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
@@ -42,10 +47,13 @@ import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
 import com.raytheon.uf.common.datastorage.records.LongDataRecord;
+import com.raytheon.uf.common.serialization.comm.RequestRouter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.cache.CacheObject;
 import com.raytheon.uf.viz.core.cache.CacheObject.IObjectRetrieverAndDisposer;
 
@@ -103,21 +111,59 @@ public class LightningFrameRetriever implements
         LightningFrameMetadata metadata = co.getMetadata();
         LightningFrame rval;
         synchronized (metadata) {
-            // Add as new records
-            List<BinLightningRecord> newRecords = metadata.getNewRecords();
-            List<BinLightningRecord> processed = metadata.getProcessed();
-            for (BinLightningRecord record : records) {
-                if (newRecords.contains(record) == false
-                        && processed.contains(record) == false) {
-                    newRecords.add(record);
+            if (metadata.hasRecords()) {
+                /* Add as new records */
+                List<BinLightningRecord> newRecords = metadata.getNewRecords();
+                List<BinLightningRecord> processed = metadata.getProcessed();
+                for (BinLightningRecord record : records) {
+                    if (newRecords.contains(record) == false
+                            && processed.contains(record) == false) {
+                        newRecords.add(record);
+                    }
                 }
-            }
-            rval = co.getObjectSync();
-            if (processed.size() > 0 && newRecords.size() > 0) {
-                // if we've already processed some records, request the
-                // new ones now and merge
-                LightningFrame newBundle = retrieveObject(metadata);
-                rval.merge(newBundle);
+                rval = co.getObjectSync();
+                if (processed.size() > 0 && newRecords.size() > 0) {
+                    /*
+                     * if we've already processed some records, request the new
+                     * ones now and merge
+                     */
+                    LightningFrame newBundle = retrieveObject(metadata);
+                    rval.merge(newBundle);
+                }
+            } else {
+                /*
+                 * Always request data for new frames to ensure nothing is
+                 * missing.
+                 */
+                RequestConstraint sourceRC = new RequestConstraint(
+                        metadata.getSource());
+                TimeRange range = metadata.getOffset().getTimeRange(
+                        metadata.getFrameTime());
+                RequestConstraint startRC = new RequestConstraint(
+                        TimeUtil.formatToSqlTimestamp(range.getEnd()),
+                        ConstraintType.LESS_THAN);
+                RequestConstraint endRC = new RequestConstraint(
+                        TimeUtil.formatToSqlTimestamp(range.getStart()),
+                        ConstraintType.GREATER_THAN);
+
+                DbQueryRequest request = new DbQueryRequest();
+                request.setEntityClass(BinLightningRecord.class);
+                request.addConstraint(LightningConstants.SOURCE, sourceRC);
+                request.addConstraint("dataTime.validPeriod.start",
+                        startRC);
+                request.addConstraint("dataTime.validPeriod.end", endRC);
+                try {
+                    DbQueryResponse response = (DbQueryResponse) RequestRouter
+                            .route(request);
+                    BinLightningRecord[] newRecords = response.getEntityObjects(BinLightningRecord.class);
+                    metadata.getNewRecords().addAll(Arrays.asList(newRecords));
+                } catch (Exception e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Error retriving metadata for time "
+                                    + metadata.getFrameTime()
+                                            .getDisplayString(), e);
+                }
+                rval = co.getObjectSync();
             }
         }
         return rval;

@@ -39,11 +39,9 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.SimulatedTime;
-import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
-import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 
 /**
@@ -161,15 +159,6 @@ public class LightningResourceData extends AbstractRequestableResourceData {
     }
 
     @Override
-    protected void update(AlertMessage... messages) {
-        for (AlertMessage message : messages) {
-            Object timeObj = message.decodedAlert.get("dataTime");
-            fireChangeListeners(ChangeType.DATA_REMOVE, timeObj);
-        }
-        invalidateAvailableTimesCache();
-    }
-
-    @Override
     protected PluginDataObject[] requestPluginDataObjects(
             Collection<DataTime> loadSet) throws VizException {
         if (binOffset == null || binRepeatCount <= 1) {
@@ -186,13 +175,6 @@ public class LightningResourceData extends AbstractRequestableResourceData {
 
     public RepeatingBinOffset getRepeatingBinOffset() {
         return new RepeatingBinOffset(binOffset, binRepeatCount);
-    }
-
-    @Override
-    public boolean isUpdatingOnMetadataOnly() {
-        if (this.isUpdatingOnMetadataOnly == false)
-            return false;
-        return true;
     }
 
     @Override
