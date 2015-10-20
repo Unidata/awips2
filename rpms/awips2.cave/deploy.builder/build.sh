@@ -119,6 +119,8 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+_context_qualifier=`date +"%Y%m%d%H"`
+
 cd ${prepare_dir}
 # Next, stage the plugins and determine what needs to be built.
 # In another scenario that jar utility could be ran again with only the subset of features
@@ -138,6 +140,7 @@ _pde_product_xml=${UFRAME_ECLIPSE}/plugins/org.eclipse.pde.build_3.8.2.v20121114
 /awips2/java/bin/java -jar ${_pde_launcher_jar} -application org.eclipse.ant.core.antRunner \
     -buildfile ${_pde_product_xml} -DbaseLocation=${UFRAME_ECLIPSE} \
     -Dbuilder=${pde_base_dir} -DbuildDirectory=${pde_build_dir} \
+    -DforceContextQualifier=${_context_qualifier} \
     -Dbase=${pde_base_dir} -Dproduct=${WORKSPACE}/${awips_product}
 if [ $? -ne 0 ]; then
     exit 1
@@ -174,7 +177,7 @@ for feature in `cat ${build_project_dir}/features.txt`; do
 /awips2/java/bin/java -jar ${_pde_launcher_jar} -application org.eclipse.ant.core.antRunner \
     -buildfile ${_pde_build_xml} -DbaseLocation=${UFRAME_ECLIPSE} \
     -Dbuilder=${pde_base_dir} -DbuildDirectory=${pde_build_dir} \
-    -DtopLevelElementType=feature \
+    -DtopLevelElementType=feature -DforceContextQualifier=${_context_qualifier} \
     -Dbase=${pde_base_dir} -DtopLevelElementId=${feature} \
     -Dconfigs=linux,gtk,x86_64
     if [ $? -ne 0 ]; then
