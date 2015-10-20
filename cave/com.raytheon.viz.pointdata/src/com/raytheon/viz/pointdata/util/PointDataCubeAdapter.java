@@ -78,7 +78,7 @@ public class PointDataCubeAdapter extends DefaultDataCubeAdapter {
             "goessounding", "bufrascat", "poessounding", "profiler", "bufrua",
             "ldadmesonet", "ldadhydro", "qc", "fssobs", "bufrmosAVN",
             "bufrmosETA", "bufrmosGFS", "bufrmosHPC", "bufrmosLAMP",
-            "bufrmosMRF", "bufrmosNGM", "airep", "pirep", "nctaf" };
+            "bufrmosMRF", "bufrmosNGM", "airep", "pirep" };
 
     protected AbstractPointDataInventory inventory;
 
