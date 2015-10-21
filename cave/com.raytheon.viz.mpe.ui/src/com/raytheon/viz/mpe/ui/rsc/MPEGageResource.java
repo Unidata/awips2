@@ -48,7 +48,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import com.raytheon.uf.common.colormap.Color;
 import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
@@ -73,14 +72,12 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.rsc.GenericResourceData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.GetColorValues;
 import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.NamedColorUseSet;
 import com.raytheon.viz.mpe.MPECommandConstants;
 import com.raytheon.viz.mpe.core.MPEDataManager;
 import com.raytheon.viz.mpe.core.MPEDataManager.MPEGageData;
-import com.raytheon.viz.mpe.core.MPEDataManager.MPERadarLoc;
 import com.raytheon.viz.mpe.ui.Activator;
 import com.raytheon.viz.mpe.ui.DisplayFieldData;
 import com.raytheon.viz.mpe.ui.IDisplayFieldChangedListener;
@@ -113,7 +110,8 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * Apr 19, 2013  1920     mpduff       Fixed gage color contrast, add e to display value of manually edited gages.
  * Dec 12, 2014  15689    cgobs        Fixed problem with mismatched color set for Color by value color scale (RM 15689 = DIM 17541
  * Dec 12, 2014  16748    cgobs        Fixed problem with missing "d" for disagged gages (RM 16748 = DIM 17606).
- *                                     
+ * Oct 16, 2015  4971     bsteffen     Flip gage id and value
+ * 
  * </pre>
  * 
  * @author mschenke
@@ -456,7 +454,7 @@ public class MPEGageResource extends AbstractMPEInputResource implements
                     
                         
                         DrawableString string = new DrawableString(
-                                new String[] { gageValue, gageId, }, gageColor);
+                                new String[] { gageId, gageValue, }, gageColor);
                         string.font = font;
                         string.basics.xOrColors = xor;
                         string.horizontalAlignment = HorizontalAlignment.LEFT;
