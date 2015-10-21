@@ -43,8 +43,9 @@ import com.raytheon.viz.ui.panes.PaneManager;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 08, 2009            mschenke     Initial creation
- * Mar 02, 2015  4204      njensen      Overrode setPartName()
+ * Oct 08, 2009            mschenke    Initial creation
+ * Mar 02, 2015  4204      njensen     Overrode setPartName()
+ * Oct 21, 2015  5023      njensen     Renamed getEditorName() to getDefaultName()
  * 
  * </pre>
  * 
@@ -86,25 +87,11 @@ public class VizXyEditor extends VizMultiPaneEditor implements
         return (XyPaneManager) editorInput.getPaneManager();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.editor.AbstractEditor#getNewPaneManager()
-     */
     @Override
     protected PaneManager getNewPaneManager() {
         return new XyPaneManager();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.IRenderableDisplayChangedListener#
-     * renderableDisplayChanged(com.raytheon.uf.viz.core.IDisplayPane,
-     * com.raytheon.uf.viz.core.drawables.IRenderableDisplay,
-     * com.raytheon.uf.viz
-     * .core.IRenderableDisplayChangedListener.DisplayChangeType)
-     */
     @Override
     public void renderableDisplayChanged(IDisplayPane pane,
             IRenderableDisplay newRenderableDisplay, DisplayChangeType type) {
@@ -131,7 +118,7 @@ public class VizXyEditor extends VizMultiPaneEditor implements
     }
 
     @Override
-    protected String getEditorName() {
+    protected String getDefaultName() {
         if (name == null) {
             IEditorDescriptor desc = PlatformUI.getWorkbench()
                     .getEditorRegistry().findEditor(getSite().getId());
