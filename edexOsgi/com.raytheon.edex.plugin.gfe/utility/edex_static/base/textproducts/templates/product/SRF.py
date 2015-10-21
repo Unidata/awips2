@@ -1950,5 +1950,8 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             ('SU.Y', allActions, 'Marine'),      # HIGH SURF ADVISORY
             ('RP.S', allActions, 'Rip'),         # High Rip Threat
             ('BH.S', allActions, 'BeachHaz'),    # Beach Hazards Statement
+            ('TS.W', allActions, 'Tsunami'),     # TSUNAMI WARNING
+            ('TS.Y', allActions, 'Tsunami'),     # TSUNAMI ADVISORY
+            ('TS.A', allActions, 'Tsunami'),     # TSUNAMI WATCH            
             ]
 

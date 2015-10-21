@@ -31,6 +31,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.hydrocommon.HydroConstants.ArealTypeSelection;
 import com.raytheon.viz.hydrocommon.datamanager.HydroDataManager;
+import com.raytheon.viz.hydrocommon.util.DbUtils;
 
 /**
  * GeoData Data Manager class.
@@ -50,7 +51,8 @@ import com.raytheon.viz.hydrocommon.datamanager.HydroDataManager;
  */
 
 public class GeoDataManager extends HydroDataManager {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(GeoDataManager.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(GeoDataManager.class);
     private static GeoDataManager instance = null;
 
     private GeoDataManager() {
@@ -60,8 +62,7 @@ public class GeoDataManager extends HydroDataManager {
     /**
      * Get an instance of this class
      * 
-     * @return
-     *      The instance
+     * @return The instance
      */
     public static synchronized GeoDataManager getInstance() {
         if (instance == null) {
@@ -75,17 +76,15 @@ public class GeoDataManager extends HydroDataManager {
      * Get the GeoAreas.
      * 
      * @param type
-     *      The type of area looking for
-     * @return
-     *      List of GeoAreaData objects
+     *            The type of area looking for
+     * @return List of GeoAreaData objects
      * @throws VizException
      */
     public ArrayList<GeoAreaData> getGeoArea(ArealTypeSelection type)
             throws VizException {
         ArrayList<GeoAreaData> returnList = new ArrayList<GeoAreaData>();
         StringBuilder query = new StringBuilder();
-        query
-                .append("select area_id, name, boundary_type, interior_lat, interior_lon from geoarea ");
+        query.append("select area_id, name, boundary_type, interior_lat, interior_lon from geoarea ");
         query.append(" where boundary_type = '"
                 + HydroConstants.GEOAREA_DATANAMES[type.ordinal()]
                 + "' order by area_id");
@@ -111,9 +110,8 @@ public class GeoDataManager extends HydroDataManager {
      * Delete data from the linesegs table.
      * 
      * @param type
-     *      The type of data to delete
-     * @return
-     *      The number of lines modified
+     *            The type of data to delete
+     * @return The number of lines modified
      * @throws VizException
      */
     public int deleteLineSegs(String type) throws VizException {
@@ -129,10 +127,10 @@ public class GeoDataManager extends HydroDataManager {
 
     /**
      * Delete data from the geoarea table.
+     * 
      * @param type
-     *      The type of data to delete
-     * @return
-     *      The number of lines modified
+     *            The type of data to delete
+     * @return The number of lines modified
      * @throws VizException
      */
     public int deleteGeoArea(String type) throws VizException {
@@ -149,9 +147,8 @@ public class GeoDataManager extends HydroDataManager {
      * Write the GeoAreaData data to the IHFS
      * 
      * @param data
-     *      The GeoAreaData object to write
-     * @return
-     *      The number of rows modified
+     *            The GeoAreaData object to write
+     * @return The number of rows modified
      * @throws VizException
      */
     public int putGeoArea(GeoAreaData data) throws VizException {
@@ -170,6 +167,8 @@ public class GeoDataManager extends HydroDataManager {
 
             return status;
         }
+
+        DbUtils.escapeSpecialCharforData(data);
 
         /*
          * if the interior lat, lon were provided from the input file, then use
@@ -230,9 +229,9 @@ public class GeoDataManager extends HydroDataManager {
      * Write thte line segments to the linesegs table
      * 
      * @param areaId
-     *      The area id
+     *            The area id
      * @param binList
-     *      The HrapBinList
+     *            The HrapBinList
      */
     public void putLineSegs(String areaId, HrapBinList binList) {
         int status = 0;
@@ -245,7 +244,7 @@ public class GeoDataManager extends HydroDataManager {
             long hrapRow = binList.getRows().get(i);
             long hrapBegCol = binList.getBeginCols().get(i);
             long hrapEndCol = binList.getEndCols().get(i);
-            
+
             where.setLength(0);
             query.setLength(0);
 
@@ -275,13 +274,14 @@ public class GeoDataManager extends HydroDataManager {
                     }
                 } catch (VizException e) {
                     status = -1;
-                    statusHandler.handle(Priority.PROBLEM, 
-                            "Error putting data into LineSegs for area_id:  " + areaId);
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Error putting data into LineSegs for area_id:  "
+                                    + areaId);
                 }
             } else {
                 /* delete the record and insert the new record */
                 String delete = "delete from linesegs " + where.toString();
-                
+
                 try {
                     runStatement(delete);
                     status = DirectDbQuery.executeStatement(query.toString(),
@@ -290,7 +290,7 @@ public class GeoDataManager extends HydroDataManager {
                         throw new VizException();
                     }
                 } catch (VizException e) {
-                    statusHandler.handle(Priority.PROBLEM, 
+                    statusHandler.handle(Priority.PROBLEM,
                             "Error updating LineSegs for area_id:  " + areaId);
                 }
             }

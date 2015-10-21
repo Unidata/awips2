@@ -33,6 +33,7 @@ import com.raytheon.rcm.config.RadarType;
 import com.raytheon.rcm.config.RcmUtil;
 import com.raytheon.rcm.mqsrvr.ReplyObj.ConfigReply;
 import com.raytheon.rcm.mqsrvr.ReqObj;
+import com.raytheon.rcm.products.ElevationInfo;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -132,6 +133,14 @@ public class RadarApps {
             return result;
         }
         return null;
+    }
+
+    /** Obtains an ElevationInfo instance.
+     * <p>
+     * Using this method ensures RcmResourceProvider has been set up correctly.
+     */
+    public static ElevationInfo getElevationInfo() {
+        return ElevationInfo.getInstance();
     }
 
 }

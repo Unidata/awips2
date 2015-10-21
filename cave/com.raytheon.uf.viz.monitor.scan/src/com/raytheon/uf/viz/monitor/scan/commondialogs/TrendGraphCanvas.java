@@ -48,6 +48,7 @@ import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.common.monitor.scan.xml.SCANAttributesXML;
 import com.raytheon.uf.viz.monitor.scan.TrendGraphData;
 import com.raytheon.uf.viz.monitor.scan.config.SCANConfig;
+import com.raytheon.uf.viz.radarapps.core.RadarApps;
 
 /**
  * 
@@ -398,7 +399,7 @@ public class TrendGraphCanvas {
                 scanTable, "rng", ident);
         LinkedHashMap<Date, Double> rngDateMap = tgd.getGraphData();
 
-        ElevationInfo eleInfo = new ElevationInfo();
+        ElevationInfo eleInfo = RadarApps.getElevationInfo();
         int[] elevationAngles = eleInfo.getScanElevations(null, vcp);
         if (elevationAngles == null)
             return;

@@ -64,6 +64,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Nov 24, 2014 16911      xwei        The day of Hydrologic Date is set to the next day 
  *                                     if hour is greater than 18Z.
  * Mar 10, 2015 14575      snaples     Added additional status flags.
+ * Oct 14, 2015 17977      snaples     Fixed loadData to read station
+ *                                     lists when new area, which means it needs to read some tokens also.
  * 
  * </pre>
  * 
@@ -75,7 +77,6 @@ public class DailyQcUtils {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DailyQcUtils.class);
 
-    // private static final int MAX_QC_DAYS = 10;
     private static DailyQcUtils instance;
 
     public double[][][] QPEaccum24hr;
@@ -107,8 +108,6 @@ public class DailyQcUtils {
     boolean newarea = false;
 
     private static AppsDefaults appsDefaults = AppsDefaults.getInstance();
-
-    private String loc_area;
 
     private String station_climo_file;
 
@@ -931,6 +930,7 @@ public class DailyQcUtils {
         if (lastQcArea == "") {
             newarea = true;
             lastQcArea = currentQcArea;
+            firstTok = 1;
         }
         curHrMinSec = getCurrentHrMinSec(currentDate);
         if (curHrMinSec != -1) {
@@ -958,6 +958,7 @@ public class DailyQcUtils {
             Cursor prevCursor = shell.getCursor();
             shell.setCursor(Display.getDefault().getSystemCursor(
                     SWT.CURSOR_WAIT));
+            firstTok = 1;
             int retval = loadDataSet();
             if (retval == 2) {
                 load_gage_data_once = 1;
@@ -1292,7 +1293,6 @@ public class DailyQcUtils {
                     + currentQcArea + "_stddev_";
             temp_bad_file = mpe_bad_temperature_dir + "/temperature_"
                     + currentQcArea + "_bad_";
-            loc_area = appsDefaults.getToken("mpe_site_id").trim();
             mpe_editor_logs_dir = appsDefaults.getToken("mpe_editor_logs_dir");
             /*
              * create mpe_td_details_file to store the details of Time
@@ -1359,21 +1359,12 @@ public class DailyQcUtils {
 
         }
 
-        if (currentQcArea.equals(loc_area)) {
-            master_file = true;
-        }
-
-        // ReadFreezingStationList zl = new ReadFreezingStationList();
-        // ReadPrecipStationList pl = new ReadPrecipStationList();
-        // ReadTemperatureStationList tl = new ReadTemperatureStationList();
-
         if (newarea == true) {
             StationListManager slm = StationListManager.getInstance();
             System.out.println("DQC: Reading Freezing Stations List. ");
-            // zl.read_freezing_station_list(currentQcArea,
-            // master_file);
+            
             try {
-                slm.getStationInfo(currentQcArea, master_file,
+                slm.getStationInfo(currentQcArea, newarea,
                         freezing_stations, temperature_stations,
                         precip_stations);
             } catch (FileNotFoundException e) {
@@ -1387,8 +1378,7 @@ public class DailyQcUtils {
                 return DAILYQC_FAILED;
             }
             System.out.println("DQC: Reading Temperature Stations List. ");
-            // tl.read_temperature_station_list(
-            // currentQcArea, master_file);
+
             if (temperature_stations == null) {
                 statusHandler
                         .handle(Priority.PROBLEM,
@@ -1396,8 +1386,7 @@ public class DailyQcUtils {
                 return DAILYQC_FAILED;
             }
             System.out.println("DQC: Reading Precip Stations List. ");
-            // pl.read_precip_station_list(currentQcArea,
-            // master_file);
+            
             if (precip_stations == null) {
                 statusHandler
                         .handle(Priority.PROBLEM,
@@ -2147,7 +2136,7 @@ public class DailyQcUtils {
      *            the hrap_grid to set
      */
     public void setHrap_grid(Hrap_Grid hrap_grid) {
-        this.hrap_grid = hrap_grid;
+        DailyQcUtils.hrap_grid = hrap_grid;
     }
 
     /**
