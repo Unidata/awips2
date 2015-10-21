@@ -62,7 +62,7 @@ hazardDict = OrderedDict([
           "GL.A", "GL.W", "SE.A", "SE.W", "UP.A", "UP.W", "HF.A", "HF.W", "LO.Y", "SC.Y", "SW.Y", 
           "RB.Y", "SI.Y", "MS.Y", "SR.A", "SR.W"]),
     ('Tropical Cyclone', ["HU.W", "HU.A", "TR.W", "TR.A"]),
-    ('Tsunami', ["TS.A", "TS.W"]),
+    ('Tsunami', ["TS.A", "TS.W", "TS.Y"]),
       
     # ('Local', ["TEST"]),  #example of adding local hazards
     # you can define your own groups of hazards by adding new categories

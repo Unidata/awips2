@@ -59,6 +59,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 7, 2011            snaples     Initial creation
+ * Oct 14, 2015 17977     snaples     Updated readStationLists to recognize 
+ *                                    sub area as a new area and not use masterFileFlag.
  * 
  * </pre>
  * 
@@ -75,7 +77,7 @@ public class StationListManager {
     private final String station_dir = appsDefaults
             .getToken("mpe_station_list_dir");
 
-    private final String sitename = appsDefaults.getToken("mpe_site_id");
+    private final String sitename = "";
 
     private final DailyQcUtils dqc = DailyQcUtils.getInstance();
 
@@ -96,7 +98,7 @@ public class StationListManager {
         return instance;
     }
 
-    public void getStationInfo(String qcArea, boolean masterFileFlag,
+    public void getStationInfo(String qcArea, boolean newarea,
             ArrayList<Station> freezingStationList,
             ArrayList<Station> temperatureStationList,
             ArrayList<Station> precipStationList) throws FileNotFoundException {
@@ -119,8 +121,8 @@ public class StationListManager {
         currentLabelModifiedTime = labelPositionFile.lastModified();
         currentStationsModifiedTime = stationListFile.lastModified();
 
-        if ((currentLabelModifiedTime != previousLabelModifiedTime)
-                || (currentStationsModifiedTime != previousStationsModifiedTime)) {
+        if ((newarea == true) || (((currentLabelModifiedTime != previousLabelModifiedTime)
+                || (currentStationsModifiedTime != previousStationsModifiedTime)))) {
             LabelPositionManager labelPositionManager = new LabelPositionManager();
 
             previousLabelModifiedTime = currentLabelModifiedTime;
@@ -137,7 +139,7 @@ public class StationListManager {
 
                 FileReader stationListFileReader = new FileReader(pathName);
 
-                readStationLists(stationListFileReader, masterFileFlag,
+                readStationLists(stationListFileReader, 
                         labelPositionManager, freezingStationList,
                         temperatureStationList, precipStationList);
 
@@ -165,7 +167,7 @@ public class StationListManager {
      */
 
     private void readStationLists(FileReader stationListFileReader,
-            boolean masterFileFlag, LabelPositionManager labelPositionManager,
+            LabelPositionManager labelPositionManager,
             ArrayList<Station> freezingStationList,
             ArrayList<Station> temperatureStationList,
             ArrayList<Station> precipStationList) throws IOException {
@@ -174,7 +176,6 @@ public class StationListManager {
         String inputLine; // one line of input
         BufferedReader inputReader = new BufferedReader(stationListFileReader);
 
-        if (masterFileFlag) {
             try {
                 String[] commentTokens; // tokens broken into input and comments
                 String[] stationTokens; // tokens from line of input (actual
@@ -281,8 +282,6 @@ public class StationListManager {
 
             } /* finally */
 
-        } /* if (master_file_flag) */
-
     } /* readStationLists */
 
     private String getStationListPath(String qcArea) {
@@ -337,7 +336,7 @@ public class StationListManager {
     public void computeClosestNeighbors(ArrayList<Station> stationList) {
         // String header = "StationListManager.computeClosestNeighbors(): ";
 
-        final int maxNeighborListSize = dqc.mpe_dqc_max_precip_neighbors;
+        final int maxNeighborListSize = DailyQcUtils.mpe_dqc_max_precip_neighbors;
         // System.out.println(header + "max_neighbor_list_size = " +
         // maxNeighborListSize);
 

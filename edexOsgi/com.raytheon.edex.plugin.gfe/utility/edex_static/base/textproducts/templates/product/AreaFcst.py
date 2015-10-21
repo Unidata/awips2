@@ -1516,4 +1516,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             ('LO.Y', allActions, 'Drought'),      # LOW WATER ADVISORY
             ('TO.A', allActions, 'Convective'),   # TORNADO WATCH
             ('SV.A', allActions, 'Convective'),   # SEVERE THUNDERSTORM WATCH
+            ('TS.W', allActions, 'Tsunami'),      # TSUNAMI WARNING
+            ('TS.Y', allActions, 'Tsunami'),      # TSUNAMI ADVISORY
+            ('TS.A', allActions, 'Tsunami'),      # TSUNAMI WATCH            
              ]
