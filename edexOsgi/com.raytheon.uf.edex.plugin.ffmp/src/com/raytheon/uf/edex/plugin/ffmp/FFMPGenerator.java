@@ -1103,6 +1103,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                             guidSource);
 
                     if (sourceXml != null
+                            && sourceXml.getGuidanceType() != null
                             && sourceXml.getGuidanceType().equals(
                                     GUIDANCE_TYPE.ARCHIVE.getGuidanceType())) {
                         String plugin = sourceXml.getPlugin();
@@ -1116,7 +1117,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                                 uriComps[3], uriComps[7], plugin));
                     }
                 } catch (Exception e) {
-                    statusHandler.error("Problem with extracting guidance source URI's. source="+guidSource, e);
+                    statusHandler.error("Problem with extracting guidance source URI's. source: "+guidSource, e);
                 }
             }
         }

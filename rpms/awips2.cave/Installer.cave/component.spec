@@ -1,5 +1,4 @@
 # RPM Metadata
-%define _component_name           awips2-cave
 %define _component_project_dir    awips2.cave/Installer.cave
 %define _component_zip_file_name  CAVE-linux.gtk.%{_build_arch}.zip
 %define _component_desc           "awips2-cave"
@@ -32,7 +31,7 @@ Distribution: N/A
 Vendor: Raytheon
 
 AutoReq: no
-provides: %{_component_name}
+provides: awips2-cave
 provides: awips2-base-component
 provides: awips2-base
 requires: awips2-java

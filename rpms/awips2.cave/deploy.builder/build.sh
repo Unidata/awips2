@@ -75,6 +75,36 @@ function setTargetArchitecture()
    fi
 }
 
+# Arguments
+#   ${1} == The Directory With The Specs File And Possibly Other Custom
+#               Scripts That May Need To Be Merged Into A Component.
+#   ${2} == The name of the CAVE RPM that will be built.
+function buildCAVERPM()
+{
+   local COMPONENT_DIR=${1}
+   local COMPONENT_SPECS=${COMPONENT_DIR}/component.spec
+   export RPM_NAME=${2}
+
+   if [ -d ${BUILDROOT_DIR} ]; then
+      rm -rf ${BUILDROOT_DIR}
+   fi
+
+   # Build The RPM.
+   rpmbuild -ba --target=${TARGET_BUILD_ARCH} \
+      --define '_topdir %(echo ${AWIPSII_TOP_DIR})' \
+      --define '_component_version %(echo ${AWIPSII_VERSION})' \
+      --define '_component_release %(echo ${AWIPSII_RELEASE})' \
+      --define '_baseline_workspace %(echo ${WORKSPACE})' \
+      --define '_build_arch %(echo ${CAVE_BUILD_ARCH})' \
+      --define '_build_bits %(echo ${CAVE_BUILD_BITS})' \
+      --define '_component_name %(echo ${RPM_NAME})' \
+      --buildroot ${AWIPSII_BUILD_ROOT} ${COMPONENT_SPECS}
+   # If We Are Unable To Build An RPM, Fail The Build:
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+}
+
 export TARGET_BUILD_ARCH=
 # If the architecture has not been specified, default to 32-bit.
 if [ "${CAVE_BUILD_ARCH}" = "" ]; then
@@ -101,6 +131,7 @@ pde_base_dir=${build_project_dir}/cave
 pde_build_dir=${pde_base_dir}/tmp
 prepare_dir=${pde_base_dir}/prepare
 awips_product=com.raytheon.viz.product.awips/awips.product
+ncep_product=com.raytheon.viz.product.awips/nawips.product
 
 if [ ${prepare_dir} ]; then
     rm -rf ${prepare_dir}
@@ -108,7 +139,6 @@ fi
 mkdir ${prepare_dir}
 
 # First, we need to build the dependency utility.
-pushd . > /dev/null 2>&1
 cd ${WORKSPACE}/awips.dependency.evaluator
 if [ ! -d bin ]; then
     mkdir bin 
@@ -149,6 +179,41 @@ fi
 # Copy the CAVE binary to the location expected by the RPM build
 cp ${pde_build_dir}/I.CAVE/CAVE-linux.gtk.x86_64.zip ${WORKSPACE}/rpms/awips2.cave/setup/dist/
 
+cd ${WORKSPACE}/rpms/awips2.cave
+buildCAVERPM "Installer.cave" "awips2-cave"
+buildCAVERPM "Installer.cave-wrapper" ""
+
+rm -rf ${pde_build_dir}
+mkdir -p ${pde_build_dir}
+cd ${prepare_dir}
+# Next, stage the plugins and determine what needs to be built.
+# In another scenario that jar utility could be ran again with only the subset of features
+# that need to be built prior to the repository build.
+/awips2/java/bin/java -jar -DbaseLocation=${UFRAME_ECLIPSE} \
+    -DbuildDirectory=${pde_build_dir} -DstagingDirectory=${WORKSPACE} -DbuildFeatures=* \
+    -DexcludeFeatures=com.raytheon.viz.feature.awips.developer,com.raytheon.uf.viz.feature.alertviz \
+    AwipsDependencyEvaluator.jar
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+
+# Complete the nawips CAVE RCP build.
+/awips2/java/bin/java -jar ${_pde_launcher_jar} -application org.eclipse.ant.core.antRunner \
+    -buildfile ${_pde_product_xml} -DbaseLocation=${UFRAME_ECLIPSE} \
+    -Dbuilder=${pde_base_dir} -DbuildDirectory=${pde_build_dir} \
+    -DforceContextQualifier=${_context_qualifier} \
+    -Dbase=${pde_base_dir} -Dproduct=${WORKSPACE}/${ncep_product}
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+
+# Copy the CAVE binary to the location expected by the RPM build
+cp ${pde_build_dir}/I.CAVE/CAVE-linux.gtk.x86_64.zip ${WORKSPACE}/rpms/awips2.cave/setup/dist/
+
+cd ${WORKSPACE}/rpms/awips2.cave
+buildCAVERPM "Installer.cave" "awips2-cave-ncep"
+
+cd ${prepare_dir}
 # Prepare for the CAVE repository build. Need to create more resuse for a single build
 # properties file so that it can be used for both product and feature builds.
 pde_build_dir=${pde_base_dir}/p2
@@ -199,39 +264,3 @@ for feature in `cat ${build_project_dir}/features.txt`; do
         exit 1
     fi
 done
-
-popd > /dev/null 2>&1
-
-# Arguments
-#	${1} == The Directory With The Specs File And Possibly Other Custom
-#               Scripts That May Need To Be Merged Into A Component.
-function buildRPM()
-{
-   local COMPONENT_DIR=${1}
-   local COMPONENT_SPECS=${COMPONENT_DIR}/component.spec
-
-   if [ -d ${BUILDROOT_DIR} ]; then
-      rm -rf ${BUILDROOT_DIR}
-   fi
-
-   # Build The RPM.
-   rpmbuild -ba --target=${TARGET_BUILD_ARCH} \
-      --define '_topdir %(echo ${AWIPSII_TOP_DIR})' \
-      --define '_component_version %(echo ${AWIPSII_VERSION})' \
-      --define '_component_release %(echo ${AWIPSII_RELEASE})' \
-      --define '_baseline_workspace %(echo ${WORKSPACE})' \
-      --define '_build_arch %(echo ${CAVE_BUILD_ARCH})' \
-      --define '_build_bits %(echo ${CAVE_BUILD_BITS})' \
-      --buildroot ${AWIPSII_BUILD_ROOT} ${COMPONENT_SPECS}
-   # If We Are Unable To Build An RPM, Fail The Build:
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-}
-
-# Adjust Our Execution Position.
-cd ../
-
-# Only Build The RPMs That May Have Changed - AWIPS II-Specific Components.
-buildRPM "Installer.cave"
-buildRPM "Installer.cave-wrapper"

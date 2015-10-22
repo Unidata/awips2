@@ -27,12 +27,14 @@ import java.util.Map;
 import java.util.Set;
 
 import com.raytheon.uf.common.geospatial.SpatialException;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.monitor.MonitorAreaUtils;
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst.ReportType;
 import com.raytheon.uf.common.monitor.xml.StationIdXML;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -56,6 +58,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Sep 04  2014  3220       skorolev   Added updateZones method.
  * Mar 17  2015  3888       dhladky    check for nulls
  * Sep 25  2015  3873       skorolev   Corrected addReport for moving platforms.
+ * Oct 19  2015  3841       skorolev   Added try to saveConfigXml
  * 
  * </pre>
  * 
@@ -70,26 +73,26 @@ public class ObHourReports {
     /**
      * the nominal time of this ObHourReports object
      */
-    private Date nominalTime;
+    private final Date nominalTime;
 
     /**
      * application name (SNOW, FOG, SAFESEAS)
      */
-    private CommonConfig.AppName appName;
+    private final CommonConfig.AppName appName;
 
     /**
      * key is zone id, value is ObZoneHourReports object
      */
-    private Map<String, ObZoneHourReports> hourReports;
+    private final Map<String, ObZoneHourReports> hourReports;
 
     /**
      * current threshold manager
      */
-    private AbstractThresholdMgr thresholdMgr;
+    private final AbstractThresholdMgr thresholdMgr;
 
-    private Set<String> zones = new HashSet<String>();
+    private final Set<String> zones = new HashSet<String>();
 
-    private FSSObsMonitorConfigurationManager configMgr;
+    private final FSSObsMonitorConfigurationManager configMgr;
 
     /**
      * constructor
@@ -186,7 +189,12 @@ public class ObHourReports {
             }
         }
         // Update configuration file.
-        configMgr.saveConfigXml();
+        try {
+            configMgr.saveConfigXml();
+        } catch (LocalizationException | SerializationException e) {
+            statusHandler.handle(Priority.PROBLEM, "Unable to save "
+                    + configMgr.getConfigFileName(), e);
+        }
         return shipZones;
     }
 
