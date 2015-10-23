@@ -52,6 +52,7 @@ import com.raytheon.viz.aviation.activator.Activator;
  *                                     methods and method to reset data values.
  * Dec 9, 2010  7380       rferrel     Changed spinner values for text fields.
  * Dec 14, 2010 5782       rferrel     Fixed numTafs combo string array.
+ * Oct 20, 2015 17445      yteng       Add audio alert interval field.
  * 
  * </pre>
  * 
@@ -90,7 +91,8 @@ public class ResourceConfigMgr implements IResourceAction {
                 "alertLevel3"), AlertLevel4("alertLevel4"), AlertLevel5(
                 "alertLevel5"), AlertLevel6("alertLevel6"), NotifyDeiconify(
                 "notifyDeiconify"), NotifyRaise("notifyRaise"), NotifyPlay(
-                "notifyPlay"), PlayFile("playFile"), Blink("blink"), DisallowSend(
+                "notifyPlay"), PlayFile("playFile"), AlertIntervalMinutes(
+                "alertIntervalMinutes"), Blink("blink"), DisallowSend(
                 "disallowSend"), LoadOrder("loadOrder"), AutoSave("autoSave"), UpdateTimes(
                 "updateTimes"), AutoPrint("autoPrint"), Insert("insert"), Wrap(
                 "wrap"), AmdButtons("amdbuttons"), NumTafs("numTafs"), NumHours(
@@ -228,6 +230,8 @@ public class ResourceConfigMgr implements IResourceAction {
                 ResourceType.COMBO, "Alert level to play file"));
         resourceTypeMap.put(ResourceTag.PlayFile, new ResourceInfo(
                 ResourceType.FILE, "Sound to play on TAF alert"));
+        resourceTypeMap.put(ResourceTag.AlertIntervalMinutes, new ResourceInfo(
+                ResourceType.SPINNER, "TAF alert interval in minutes"));
         resourceTypeMap.put(ResourceTag.Blink, new ResourceInfo(
                 ResourceType.CHECK, "Blink on new notification"));
         resourceTypeMap.put(ResourceTag.DisallowSend, new ResourceInfo(
@@ -297,6 +301,9 @@ public class ResourceConfigMgr implements IResourceAction {
         final int htMin = 50;
         final int htMax = 1200;
         final int inc = 50;
+        final int aiMin = 1;
+        final int aiMax = 60;
+        final int aiInc = 1;
 
         if (resourceTag == ResourceTag.TextWidth) {
             return new SpinnerData(wdMin, wdMax, inc);
@@ -312,6 +319,8 @@ public class ResourceConfigMgr implements IResourceAction {
             return new SpinnerData(wdMin, wdMax, inc);
         } else if (resourceTag == ResourceTag.TextViewerHeight) {
             return new SpinnerData(htMin, htMax, inc);
+        } else if (resourceTag == ResourceTag.AlertIntervalMinutes) {
+            return new SpinnerData(aiMin, aiMax, aiInc);
         }
 
         return new SpinnerData(0, 100, 10);
