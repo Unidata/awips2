@@ -603,8 +603,13 @@
                   </reference>
                </visibleWhen>
             </command>
-
-
+			<command
+                  commandId="com.raytheon.uf.viz.productbrowser.productBrowser"
+				  icon="icons/plus.png"
+                  label="Browser"
+				  mode="FORCE_TEXT"
+                  style="push">
+            </command>
          </toolbar>
          </menuContribution>
          <menuContribution

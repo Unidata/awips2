@@ -15,6 +15,10 @@
 		id="RadarMenuTwdrRadarsSubMenu">
 		<contribute xsi:type="subinclude" fileName="menus/radar/tdwrRadars.xml" />
 	</contribute>
+	<contribute xsi:type="subMenu" menuText="MRMS"
+                id="RadarMenuMRMSSubMenu">
+				<contribute xsi:type="subinclude" fileName="menus/mrms/mrmsProducts.xml"/>
+        </contribute>
 	<contribute xsi:type="titleItem" titleText="------ FNEXRAD Composites ------"
 		id="RadarMosaic" />
 	<!--  Unidata Composite -->
