@@ -84,6 +84,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Apr 28, 2014 3086       skorolev    Removed local getMonitorAreaConfig method.
  * Sep 04, 2014 3220       skorolev    Updated configUpdate method and added updateMonitoringArea.
  * Sep 18, 2015 3873       skorolev    Removed common definitions. Replaced deprecated NotificationMessage.
+ * Oct 21, 2015 3873       dhladky     Get Obs load off UI thread.
  * 
  * </pre>
  * 
@@ -351,6 +352,9 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
         monitor.removeMonitorListener(zoneDialog);
         monitor.fogResources.removeAll(getMonitorListeners());
         stopObserver(OBS, this);
+        if (obsJob != null) {
+            obsJob.cancel();
+        }
         monitor = null;
     }
 
@@ -633,4 +637,5 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
         }
         MonitoringArea.setPlatformMap(zones);
     }
+    
 }
