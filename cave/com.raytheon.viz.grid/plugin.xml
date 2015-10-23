@@ -65,8 +65,6 @@
                        definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
                  </reference>
               </visibleWhen>
-
-              <separator name="MRMS_MENU_START" visible="false"/>
            </menu>
         </menuContribution>
      </extension>
