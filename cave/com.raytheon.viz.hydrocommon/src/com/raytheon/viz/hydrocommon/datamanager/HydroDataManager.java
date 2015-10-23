@@ -19,7 +19,6 @@
  **/
 package com.raytheon.viz.hydrocommon.datamanager;
 
-import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,7 +43,7 @@ import com.raytheon.viz.hydrocommon.data.RatingShift;
  * ------------ ---------- ----------- --------------------------
  * Oct 22, 2008 1636       askripsky   Initial Creation
  * Sep 09, 2009 2259       mpduff      Added rating shift data
- * April 8, 2015  17338    jingtaoD    add checkAppostrophe method
+ * 
  * </pre>
  * 
  * @author askripsky
@@ -74,11 +73,12 @@ public abstract class HydroDataManager {
      */
     protected ArrayList<Object[]> runQuery(String dataQuery) {
         AppsDefaults ad = AppsDefaults.getInstance();
-        boolean debug = ad.getBoolean(HydroConstants.DEBUG_HYDRO_DB_TOKEN, false);
+        boolean debug = ad.getBoolean(HydroConstants.DEBUG_HYDRO_DB_TOKEN,
+                false);
         if (debug) {
-            System.out.println(ad.getToken(HydroConstants.PGHOST) + ":" + 
-                    ad.getToken(HydroConstants.PGPORT) + ":" + 
-                    ad.getToken(HydroConstants.DB_NAME));
+            System.out.println(ad.getToken(HydroConstants.PGHOST) + ":"
+                    + ad.getToken(HydroConstants.PGPORT) + ":"
+                    + ad.getToken(HydroConstants.DB_NAME));
             System.out.println("Query: " + dataQuery);
         }
         ArrayList<Object[]> data = null;
@@ -103,18 +103,16 @@ public abstract class HydroDataManager {
      */
     public QueryResult runMappedQuery(String dataQuery) throws VizException {
         AppsDefaults ad = AppsDefaults.getInstance();
-        boolean debug = ad.getBoolean(HydroConstants.DEBUG_HYDRO_DB_TOKEN, false);
+        boolean debug = ad.getBoolean(HydroConstants.DEBUG_HYDRO_DB_TOKEN,
+                false);
         if (debug) {
-            System.out.println(ad.getToken(HydroConstants.PGHOST) + ":" + 
-                    ad.getToken(HydroConstants.PGPORT) + ":" + 
-                    ad.getToken(HydroConstants.DB_NAME));
+            System.out.println(ad.getToken(HydroConstants.PGHOST) + ":"
+                    + ad.getToken(HydroConstants.PGPORT) + ":"
+                    + ad.getToken(HydroConstants.DB_NAME));
             System.out.println("Query: " + dataQuery);
         }
         QueryResult data = null;
-        
-        // check if dataQuery contains any apostrophe, if does, replace it to two single appostrophe
-        dataQuery = checkAppostrophe(dataQuery);
-        
+
         data = DirectDbQuery.executeMappedQuery(dataQuery, HydroConstants.IHFS,
                 QueryLanguage.SQL);
 
@@ -127,120 +125,20 @@ public abstract class HydroDataManager {
      * @throws VizException
      */
     public void runStatement(String dataQuery) throws VizException {
-    	
+
         AppsDefaults ad = AppsDefaults.getInstance();
-        boolean debug = ad.getBoolean(HydroConstants.DEBUG_HYDRO_DB_TOKEN, false);
+        boolean debug = ad.getBoolean(HydroConstants.DEBUG_HYDRO_DB_TOKEN,
+                false);
         if (debug) {
-            System.out.println(ad.getToken(HydroConstants.PGHOST) + ":" + 
-                    ad.getToken(HydroConstants.PGPORT) + ":" + 
-                    ad.getToken(HydroConstants.DB_NAME));
+            System.out.println(ad.getToken(HydroConstants.PGHOST) + ":"
+                    + ad.getToken(HydroConstants.PGPORT) + ":"
+                    + ad.getToken(HydroConstants.DB_NAME));
             System.out.println("Query: " + dataQuery);
         }
-        
-        // check if dataQuery contains any apostrophe, if does, replace it to two single appostrophe
-        dataQuery = checkAppostrophe(dataQuery);
-                    
+
         DirectDbQuery.executeStatement(dataQuery, HydroConstants.IHFS,
-                        QueryLanguage.SQL);
-        
-    }
-    
-    public String checkAppostrophe (String dataQuery) {    	
-    	 /* Check if text fields include single apostrophe, if it does, replace to 
-        two single apostrophe since it is treated as special char in Postgres */                                       	            
-       String newDataQuery = "";
-       String PDCDataStr = "";
-       int PDC_presetStr_begindex = 0;
-       
-       /* special handling for PDC*/
-       if (dataQuery.toLowerCase().contains("preset_string"))
-       {
-    	   PDC_presetStr_begindex = dataQuery.toLowerCase().indexOf("'at=");       
-           if (PDC_presetStr_begindex  > 0)
-           {
-    	      PDCDataStr = dataQuery.substring(PDC_presetStr_begindex);
-    	      dataQuery = dataQuery.substring(0, PDC_presetStr_begindex);
-           }
-       }
-       
-        String[] dataElement = dataQuery.split(", ");
-        for (int j = 0; j < dataElement.length; j++)        
-        {
-        	String elem = dataElement[j];
-        	String newSubData = "";        	        	        	
-        	String[] subdataElement = elem.split("=");
-        	
-        	for (int i = 0; i < subdataElement.length; i++)
-        	{        	 
-        		String subelem = subdataElement[i];
-        		String likeStr="";
-        		
-        		 // handle the where clause contains "like '%'"
-        		if (subelem.toUpperCase().contains("WHERE") &&
-        			subelem.toUpperCase().contains("LIKE"))	
-        		{
-        		   	int likeindex = subelem.toUpperCase().indexOf("LIKE");
-        			likeStr = subelem.substring(likeindex , subelem.length());
-        		   	subelem = subelem.substring(0, likeindex);        		   	
-        		}
-        		
-        	    String endStr = "";
-        	    String beginStr = "";
-        	    String checkStr;
-        	    int startappostraphe, endappostraphe;        	   
-        	   
-        	    if (subelem.contains("'"))
-        	    {
-        	       if (subelem.startsWith("$$") && subelem.endsWith("$$"))
-        	       {
-        	    	   startappostraphe = subelem.indexOf("$$"); 
-        		       endappostraphe = subelem.lastIndexOf("$$");
-        		       checkStr = subelem.substring(startappostraphe+2, endappostraphe);
-        		       if (checkStr.contains("'"))
-             	       { 
-        		    	   checkStr = checkStr.replace("'", "''");        		    
-             		       subelem = "'" + checkStr +"'";
-             	       }
-        	       }
-        	       else 
-        		   {        			   
-        			   startappostraphe = subelem.indexOf("'"); 
-        		       endappostraphe = subelem.lastIndexOf("'");	
-        		       checkStr = subelem.substring(startappostraphe+1, endappostraphe);        		           		          		           		          		 
-        	           if (checkStr.contains("'"))
-        	           {
-        	        	   if (startappostraphe > 0)
-                  			   beginStr = subelem.substring(0, startappostraphe);
-             	    	   if (endappostraphe + 1 < subelem.length())
-                  			   endStr = subelem.substring(endappostraphe + 1, subelem.length());
-             		     
-             	    	   checkStr = checkStr.replace("'", "''");        		    
-             		       subelem = beginStr + "'" + checkStr +"'" + endStr; 
-        	           }        	    	         	    	 
-        	      } 
-        	   }
-        	           	   
-        	   if (i == subdataElement.length -1 )        	   
-        	       newSubData = newSubData + subelem + likeStr;
-        	   else 
-        		   newSubData = newSubData + subelem + "=";
-        	}
-        	if (j == dataElement.length - 1)        	
-        	    newDataQuery = newDataQuery + newSubData;
-        	else
-        		newDataQuery = newDataQuery + newSubData + ", ";        		        	    	
-        }
-        
-        if (PDC_presetStr_begindex  > 0)
-        {
-        	if (newDataQuery.toLowerCase().startsWith("insert"))
-        		newDataQuery = newDataQuery + ", " + PDCDataStr;
-        	else if (newDataQuery.toLowerCase().startsWith("update"))
-        		newDataQuery = newDataQuery + PDCDataStr;
-        	
-        }
-    
-    	return newDataQuery;
+                QueryLanguage.SQL);
+
     }
 
     /**

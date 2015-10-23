@@ -25,59 +25,59 @@ import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.dataquery.db.QueryResultRow;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.data.LocationAreaData;
+import com.raytheon.viz.hydrocommon.util.DbUtils;
 
 /**
  * This class is the data manager for the location area data.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 02 Dec 2008              lvenable    Initial creation
  * Sep 03, 2015 4846        rjpeter     List out columns in select.
  * </pre>
- *
+ * 
  * @author lvenable
  * @version 1.0
  */
-public class LocationAreaManager extends HydroDataManager
-{
+public class LocationAreaManager extends HydroDataManager {
     /**
      * Instance of this class.
      */
     private static LocationAreaManager manager = null;
-    
+
     /**
      * Select statement.
      */
     private final String SELECT_STATEMENT = "SELECT lid, area FROM locarea";
-    
+
     /**
      * Insert statement.
      */
     private final String INSERT_STATEMENT = "INSERT INTO locarea (lid, area) VALUES ('%s', '%s')";
-    
+
     /**
      * Delete statement.
      */
     private final String DELETE_STATEMENT = "DELETE FROM locarea";
-    
+
     /**
      * Update statement.
      */
     private final String UPDATE_STATEMENT = "UPDATE locarea SET area='%s' WHERE lid='%s'";
-    
+
     /**
      * Private constructor.
      */
-    private LocationAreaManager()
-    {        
+    private LocationAreaManager() {
     }
-    
+
     /**
      * Get an instance of this class.
+     * 
      * @return An instance of this class.
      */
     public static synchronized LocationAreaManager getInstance() {
@@ -87,88 +87,103 @@ public class LocationAreaManager extends HydroDataManager
 
         return manager;
     }
-    
+
     /**
      * Get the location area data.
-     * @param lid Location ID.
+     * 
+     * @param lid
+     *            Location ID.
      * @return Array of location area data.
-     * @throws VizException Database exception.
+     * @throws VizException
+     *             Database exception.
      */
-    public ArrayList<LocationAreaData> getLocationAreaData(String lid) throws VizException 
-    {
+    public ArrayList<LocationAreaData> getLocationAreaData(String lid)
+            throws VizException {
         ArrayList<LocationAreaData> rval = new ArrayList<LocationAreaData>();
-        
+
         QueryResult result = runMappedQuery(SELECT_STATEMENT + " WHERE lid='"
                 + lid + "'");
 
         for (QueryResultRow currRow : result.getRows()) {
             rval.add(new LocationAreaData(currRow, result.getColumnNames()));
         }
-        
+
         return rval;
     }
-    
+
     /**
      * Delete an existing location area record.
-     * @param locationID Location ID.
-     * @throws VizException Database exception.
+     * 
+     * @param locationID
+     *            Location ID.
+     * @throws VizException
+     *             Database exception.
      */
-    public void deleteRecord(String locationID) throws VizException
-    {
+    public void deleteRecord(String locationID) throws VizException {
         StringBuilder query = new StringBuilder(DELETE_STATEMENT);
-        String whereClaus = String.format(" WHERE lid = '%s'", 
-                locationID);
+        String whereClaus = String.format(" WHERE lid = '%s'", locationID);
         query.append(whereClaus);
-        
+
         runStatement(query.toString());
     }
-    
+
     /**
      * Insert location area data.
-     * @param data Location area data.
-     * @throws VizException Database exception.
+     * 
+     * @param data
+     *            Location area data.
+     * @throws VizException
+     *             Database exception.
      */
-    public void insertLocationAreaData(LocationAreaData data) throws VizException
-    {
+    public void insertLocationAreaData(LocationAreaData data)
+            throws VizException {
+        DbUtils.escapeSpecialCharforData(data);
+
         String query = String.format(INSERT_STATEMENT, data.getLid(),
                 data.getArea());
-        
+
         runStatement(query);
     }
-    
+
     /**
      * Update existing location area data.
-     * @param data Location area data.
-     * @throws VizException Database exception.
+     * 
+     * @param data
+     *            Location area data.
+     * @throws VizException
+     *             Database exception.
      */
-    public void updateLocationAreaData(LocationAreaData data) throws VizException
-    {        
+    public void updateLocationAreaData(LocationAreaData data)
+            throws VizException {
+        DbUtils.escapeSpecialCharforData(data);
+
         String query = String.format(UPDATE_STATEMENT, data.getArea(),
                 data.getLid());
-        
+
         runStatement(query);
     }
-    
+
     /**
      * Check of a location area record exists.
-     * @param lid Location ID.
+     * 
+     * @param lid
+     *            Location ID.
      * @return True if the record exists, false otherwise.
-     * @throws VizException Database exception.
+     * @throws VizException
+     *             Database exception.
      */
-    public boolean recordExists(String lid) throws VizException
-    {
+    public boolean recordExists(String lid) throws VizException {
         StringBuilder query = new StringBuilder(SELECT_STATEMENT);
         String whereClaus = String.format(" WHERE lid = '%s'", lid);
-        
+
         query.append(whereClaus);
-        
+
         QueryResult result = runMappedQuery(query.toString());
-        
-        if (result.getResultCount() == 0)
-        {
+
+        if (result.getResultCount() == 0) {
             return false;
         }
-        
+
         return true;
     }
 }

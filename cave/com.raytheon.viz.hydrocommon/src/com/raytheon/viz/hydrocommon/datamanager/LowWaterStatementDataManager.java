@@ -25,6 +25,7 @@ import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.dataquery.db.QueryResultRow;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.data.LowWaterStatementData;
+import com.raytheon.viz.hydrocommon.util.DbUtils;
 import com.raytheon.viz.hydrocommon.util.HydroDataUtils;
 
 /**
@@ -94,8 +95,8 @@ public class LowWaterStatementDataManager extends HydroDataManager {
      */
     public void deleteRecord(LowWaterStatementData recordToDelete)
             throws VizException {
-        runStatement(String.format(DELETE_STATEMENT, HydroDataUtils
-                .getPKStatement(recordToDelete)));
+        runStatement(String.format(DELETE_STATEMENT,
+                HydroDataUtils.getPKStatement(recordToDelete)));
     }
 
     /**
@@ -114,9 +115,7 @@ public class LowWaterStatementDataManager extends HydroDataManager {
                 + lid + "' ORDER BY criteria_rank, lower_value ASC");
 
         for (QueryResultRow currRow : result.getRows()) {
-            rval
-                    .add(new LowWaterStatementData(currRow, result
-                            .getColumnNames()));
+            rval.add(new LowWaterStatementData(currRow, result.getColumnNames()));
         }
 
         return rval;
@@ -139,17 +138,23 @@ public class LowWaterStatementDataManager extends HydroDataManager {
 
     private void updateLowWaterStatementData(LowWaterStatementData data)
             throws VizException {
-        runStatement(String.format(UPDATE_STATEMENT, data
-                .getUpperValueDBString(), data.getStatement(), data
-                .getLowWaterCriteria(), data.getLowWaterSource(),
+
+        DbUtils.escapeSpecialCharforData(data);
+
+        runStatement(String.format(UPDATE_STATEMENT,
+                data.getUpperValueDBString(), data.getStatement(),
+                data.getLowWaterCriteria(), data.getLowWaterSource(),
                 HydroDataUtils.getPKStatement(data)));
     }
 
     private void insertLowWaterData(LowWaterStatementData currData)
             throws VizException {
+
+        DbUtils.escapeSpecialCharforData(currData);
+
         runStatement(String.format(INSERT_STATEMENT, currData.getLid(),
-                currData.getPe(), currData.getLowerValue(), currData
-                        .getUpperValueDBString(), currData.getCriteriaRank(),
+                currData.getPe(), currData.getLowerValue(),
+                currData.getUpperValueDBString(), currData.getCriteriaRank(),
                 currData.getStatement(), currData.getLowWaterCriteria(),
                 currData.getLowWaterSource()));
     }

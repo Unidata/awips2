@@ -76,6 +76,7 @@ import com.raytheon.viz.gfe.smarttool.script.SmartToolRunnerController;
  * Jul 23, 2015  4263      dgilling    Support SmartToolMetadataManager.
  * Aug 27, 2015  4749      njensen     Call shutdown() on PythonJobCoordinator
  * Sep 16, 2015  4871      randerso    Return modified varDict from Tool
+ * 10/08/2015    18125     bhunder     Modified CANCEL_MSG_START to work with Jep updates
  * 
  * </pre>
  * 
@@ -90,7 +91,7 @@ public class Tool {
     private final IPerformanceStatusHandler perfLog = PerformanceStatus
             .getHandler("GFE:");
 
-    private static final String CANCEL_MSG_START = "jep.JepException: <type 'exceptions.RuntimeError'>: Cancel: Cancel >>>";
+    private static final String CANCEL_MSG_START = "jep.JepException: <type 'exceptions.RuntimeError'>: Cancel: Cancel";
 
     private final IParmManager parmMgr;
 

@@ -68,7 +68,7 @@
     <vbSource key="HPE" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="MPE-Local" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="MSAS" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-    <vbSource key="NamDNG" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="NamDNG5" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="ETA212" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="NAHwave15" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="NAHwave10" category="SfcGrid" views="PLANVIEW TIMESERIES" />

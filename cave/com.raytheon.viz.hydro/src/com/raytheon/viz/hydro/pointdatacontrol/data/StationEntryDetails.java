@@ -31,6 +31,7 @@ import java.util.Calendar;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 4, 2009            mpduff     Initial creation
+ * Oct 05, 015  17978     lbousaidi  added getPeDTsE() 
  * 
  * </pre>
  * 
@@ -422,5 +423,18 @@ public class StationEntryDetails {
         return sb.toString();
     }
 
+    /** 
+     * Get the ingest filter table primary key value for this data object.
+     *
+     * @return The primary key object
+     */                  
+    public String getPeDTsE() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.lid);
+        sb.append(this.pe);
+        sb.append(this.ts);
+       
+        return sb.toString();
+    }
     
 }
