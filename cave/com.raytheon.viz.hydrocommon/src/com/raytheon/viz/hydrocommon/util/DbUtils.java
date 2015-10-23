@@ -23,8 +23,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.lang.reflect.Field;
 
 import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.viz.hydrocommon.data.HydroDBData;
 
 /**
  * Hydro Database Utilities
@@ -36,7 +38,8 @@ import com.raytheon.uf.common.ohd.AppsDefaults;
  * Jul 9, 2008	1194			mpduff	Initial creation.
  * Mar 7, 2014  16692                   lbousaidi Any Forecast source other than
  *                                      H*,P*,Q*,T* should be handled by fcstother.
- * 
+ * Oct 10, 2015 17935                   special char (e.g apostrophe) can not be saved/updated in Hyrobase
+ *  *
  * </pre>
  * 
  * @author mpduff
@@ -80,8 +83,7 @@ public class DbUtils {
         }
 
         /* if observed data or processed data being treated as observed */
-        if (ts.toUpperCase().startsWith("R")
-                || treatProcessedAsObserverd 
+        if (ts.toUpperCase().startsWith("R") || treatProcessedAsObserverd
                 || ts.toUpperCase().startsWith("XX")) {
 
             Set<String> tableKeys = tableMap.keySet();
@@ -112,8 +114,8 @@ public class DbUtils {
                                                                 * data
                                                                 */
             retVal = fcstTableMap.get(pe.substring(0, 1).toLowerCase());
-            if (retVal==null) {
-            	retVal="Fcstother";
+            if (retVal == null) {
+                retVal = "Fcstother";
             }
             matchFound = true;
         } else { /* if type-source not valid */
@@ -187,5 +189,55 @@ public class DbUtils {
             fcstTableMap.put("q", "Fcstdischarge");
             fcstTableMap.put("t", "Fcsttemperature");
         }
+    }
+
+    /**
+     * replace string fields in table class which contains apostrophe
+     * 
+     * @param curData
+     */
+    public static <T> void escapeSpecialCharforData(T curData) {
+        Class<?> c = curData.getClass();
+
+        Field fields[] = c.getDeclaredFields();
+
+        for (Field f : fields) {
+            try {
+                if (f.getType().isAssignableFrom(String.class)) {
+
+                    f.setAccessible(true);
+                    if (f.get(curData) != null) {
+                        String value = (String) f.get(curData).toString();
+                        if (value != null) {
+                            if (value.contains("'")) {
+                                value = value.replace("'", "''");
+                                f.set(curData, value);
+                            }
+                        }
+                    }
+                }
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    /**
+     * replace apostrophe for string
+     * 
+     * @param strValue
+     * @return
+     */
+    public static String escapeSpecialCharforStr(String strValue) {
+        String rVal;
+
+        if (strValue != null) {
+            if (strValue.contains("'")) {
+                strValue = strValue.replace("'", "''");
+            }
+        }
+        rVal = strValue;
+        return rVal;
     }
 }

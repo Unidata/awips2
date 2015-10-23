@@ -168,6 +168,13 @@ public class RepeatingBinOffset {
         return binOffset.getInterval() * repeatCount;
     }
 
+    public TimeRange getTimeRange(DataTime time) {
+        TimeRange range = binOffset.getTimeRange(time);
+        long end = range.getEnd().getTime();
+        long start = end - getInterval() * 1000;
+        return new TimeRange(start, end);
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;

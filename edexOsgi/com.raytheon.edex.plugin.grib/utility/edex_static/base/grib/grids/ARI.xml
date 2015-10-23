@@ -20,12 +20,12 @@
     -->
 <latLonGridCoverage>
     <name>ARI</name>
-    <description>Archival Recurrence Interval Grids (1-1000yr FFG)</description>
-    <la1>55.005</la1>
-    <lo1>229.994994</lo1>
+    <description>Average Recurrence Interval Grids (1-1000yr FFG)</description>
+    <la1>55</la1>
+    <lo1>230</lo1>
     <firstGridPointCorner>UpperLeft</firstGridPointCorner>
-    <nx>7001</nx>
-    <ny>3501</ny>
+    <nx>7000</nx>
+    <ny>3500</ny>
     <dx>0.01</dx>
     <dy>0.01</dy>
     <spacingUnit>degree</spacingUnit>

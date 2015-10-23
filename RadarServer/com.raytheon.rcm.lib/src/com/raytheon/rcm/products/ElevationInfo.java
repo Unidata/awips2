@@ -120,7 +120,7 @@ public class ElevationInfo {
 	private ArrayList<VCPInfo> vcpInfo = new ArrayList<VCPInfo>(); 
 	private HashMap<Sel, int[]> staticInfo = new HashMap<Sel, int[]>();
 	
-	public ElevationInfo() {
+	/*package*/ ElevationInfo() {
 		Scanner fs;
 		InputStream s;
 		

@@ -84,6 +84,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Apr 28, 2014 3086       skorolev    Removed local getMonitorAreaConfig method.
  * Sep 04, 2014 3220       skorolev    Updated configUpdate method and added updateMonitoringArea.
  * Sep 18, 2015 3873       skorolev    Removed common definitions. Replaced deprecated NotificationMessage.
+ * Oct 19, 2015 3841       skorolev    Corrected constructor.
  * 
  * </pre>
  * 
@@ -149,6 +150,7 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
         initObserver(OBS, this);
         createDataStructures();
         processProductAtStartup();
+        obData.getZoneTableData();
         readTableConfig(MonitorThresholdConfiguration.SAFESEAS_THRESHOLD_CONFIG);
     }
 
@@ -182,7 +184,6 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
     private void createDataStructures() {
         obData = new ObMultiHrsReports(CommonConfig.AppName.SAFESEAS);
         obData.setThresholdMgr(SSThresholdMgr.getInstance());
-        obData.getZoneTableData();
         algorithmData = new HashMap<Date, Map<String, FOG_THREAT>>();
     }
 

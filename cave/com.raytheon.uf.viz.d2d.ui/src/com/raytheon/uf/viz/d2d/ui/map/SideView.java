@@ -95,7 +95,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *      Aug 25, 2014     3467       mapeters    Removed changing of editability from swapPanes().
  *      Mar 02, 2015     4204       njensen     Support for swapping part names
  *      Apr 02, 2015     4204       njensen     Fix 4-panel swap of renamed parts
- *      Sep 18, 2015   DR 17996     D. Friedman Clear editor pane's renderable display before swap
+ *      Sep 18, 2015   DR 17996     D. Friedman Clear editor pane's IRenderableDisplay before swap
  * 
  * </pre>
  * 
@@ -389,6 +389,11 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
             int viewPaneCount = viewPanes.length;
 
             try {
+                boolean isCompatibleEditor = theEditor
+                        .getSite()
+                        .getId()
+                        .equals(DescriptorMap.getEditorId(myRenderables[0]
+                                .getDescriptor().getClass().getName()));
                 // I have my renderables saved off, load editor renderables
                 // to me first
                 if (viewPaneCount > editorPaneCount) {
@@ -399,7 +404,15 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
                     for (int i = 0; i < editorPaneCount; ++i) {
                         IRenderableDisplay display = editorPanes[i]
                                 .getRenderableDisplay();
-                        editorPanes[i].setRenderableDisplay(null);
+                        /*
+                         * TODO: This condition is currently needed because the
+                         * NSHARP input handlers incorrectly retain references
+                         * to VizDisplayPane instances. Should do this
+                         * unconditionally when that is fixed.
+                         */
+                        if (isCompatibleEditor) {
+                            editorPanes[i].setRenderableDisplay(null);
+                        }
                         viewPanes[i].setRenderableDisplay(display);
                         if (editorHiddenDisplays.contains(editorPanes[i]
                                 .getRenderableDisplay()) == false
@@ -412,7 +425,10 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
                         IRenderableDisplay display = editorPanes[i]
                                 .getRenderableDisplay();
                         boolean hide = editorHiddenDisplays.contains(display);
-                        editorPanes[i].setRenderableDisplay(null);
+                        // TODO: See note above for the isCompatibleEditor condition.
+                        if (isCompatibleEditor) {
+                            editorPanes[i].setRenderableDisplay(null);
+                        }
                         if (i < viewPaneCount) {
                             viewPanes[i].setRenderableDisplay(display);
                             if (hide) {
@@ -429,11 +445,7 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
                     }
                 }
 
-                if (theEditor
-                        .getSite()
-                        .getId()
-                        .equals(DescriptorMap.getEditorId(myRenderables[0]
-                                .getDescriptor().getClass().getName()))) {
+                if (isCompatibleEditor) {
 
                     // swap loop properties
                     LoopProperties editorLoopProperties = theEditor

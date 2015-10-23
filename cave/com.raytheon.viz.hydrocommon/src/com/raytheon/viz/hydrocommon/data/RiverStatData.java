@@ -784,7 +784,7 @@ public class RiverStatData extends HydroDBData implements IHydroDBData {
 
         String rval = "INSERT INTO riverstat ( " + columns
                 + " ) VALUES ( %s, %s, %s, %s, %s, %s, %s,"
-                + " %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, $$%s$$, %s,"
+                + " %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, '%s', %s,"
                 + " %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )";
 
         rval = String.format(rval, getDBString(lid), getDBString(primaryPE),
@@ -830,7 +830,7 @@ public class RiverStatData extends HydroDBData implements IHydroDBData {
     public String getUpdateStatement() {
         // Set the basic update statement
         String rval = "UPDATE riverstat SET lid=%s, primary_pe=%s, bf=%s, cb=%s, da=%s, response_time=%s, threshold_runoff=%s,"
-                + " fq=%s, fs=%s, gsno=%s, level=%s, mile=%s, pool=%s, por=%s, rated=%s, lat=%s, lon=%s, remark=$$%s$$, rrevise=%s,"
+                + " fq=%s, fs=%s, gsno=%s, level=%s, mile=%s, pool=%s, por=%s, rated=%s, lat=%s, lon=%s, remark='%s', rrevise=%s,"
                 + " rsource=%s, stream=%s, tide=%s, backwater=%s, vdatum=%s, action_flow=%s, wstg=%s, zd=%s, ratedat=%s,"
                 + " usgs_ratenum=%s, uhgdur=%s, use_latest_fcst=%s, issuestg=%s, issueflow=%s WHERE %s";
 

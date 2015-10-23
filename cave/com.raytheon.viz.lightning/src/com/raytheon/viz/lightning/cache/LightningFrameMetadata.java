@@ -67,6 +67,10 @@ public class LightningFrameMetadata {
         return offset.getNormalizedTimes(time).contains(frameTime);
     }
 
+    public String getSource() {
+        return source;
+    }
+
     /**
      * @return the offset
      */
@@ -86,6 +90,10 @@ public class LightningFrameMetadata {
      */
     public List<BinLightningRecord> getNewRecords() {
         return newRecords;
+    }
+
+    public boolean hasRecords() {
+        return !newRecords.isEmpty() || !processed.isEmpty();
     }
 
     /**
