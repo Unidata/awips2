@@ -19,6 +19,7 @@ package com.raytheon.uf.edex.ogc.common.http;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 31, 2012            bclement     Initial creation
+ * Oct 23, 2015  #5004     dgilling     Add types to interface methods.
  * 
  * </pre>
  * 
@@ -28,9 +29,9 @@ package com.raytheon.uf.edex.ogc.common.http;
 
 public interface IOgcHttpPooler {
 
-    public Object borrowObject(Object key);
+    public OgcHttpHandler borrowObject(Long key);
 
-    public void returnObject(Object key, Object borrowed);
+    public void returnObject(Long key, OgcHttpHandler borrowed);
 
     public void drain();
 

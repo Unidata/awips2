@@ -20,6 +20,8 @@ package com.raytheon.uf.edex.ogc.common.http;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 31, 2012            bclement     Initial creation
+ * Oct 23, 2015  #5004     dgilling     Update function signatures to match 
+ *                                      interface.
  * 
  * </pre>
  * 
@@ -38,25 +40,16 @@ public class SingleHttpPool implements IOgcHttpPooler {
         this.handler = handler;
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.edex.ogc.common.http.OgcHttpPooler#borrowObject(java.lang.Object)
-     */
     @Override
-    public OgcHttpHandler borrowObject(Object key) {
+    public OgcHttpHandler borrowObject(Long key) {
         return handler;
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.edex.ogc.common.http.OgcHttpPooler#returnObject(java.lang.Object, java.lang.Object)
-     */
     @Override
-    public void returnObject(Object key, Object borrowed) {
+    public void returnObject(Long key, OgcHttpHandler borrowed) {
         // nothing to do
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.edex.ogc.common.http.OgcHttpPooler#drain()
-     */
     @Override
     public void drain() {
         // nothing to do
