@@ -25,8 +25,6 @@
       <import feature="com.raytheon.uf.viz.grid.feature" version="1.0.0.qualifier"/>
       <import feature="com.raytheon.uf.viz.dataplugin.obs.feature" version="1.0.0.qualifier"/>
       <import feature="com.raytheon.viz.radar.feature" version="1.0.0.qualifier"/>
-      <import feature="com.raytheon.viz.satellite.feature" version="1.0.0.qualifier"/>
-      <import feature="com.raytheon.uf.viz.d2d.skewt.feature" version="1.0.0.qualifier"/>
       <import feature="com.raytheon.uf.viz.d2d.xy.feature" version="1.0.0.qualifier"/>
       <import feature="com.raytheon.uf.viz.displays.feature" version="1.0.0.qualifier"/>
    </requires>

@@ -30,8 +30,6 @@
       <import feature="com.raytheon.uf.viz.core.feature" version="1.0.0.qualifier"/>
       <import feature="com.raytheon.uf.viz.d2d.core.feature" version="1.0.0.qualifier"/>
       <import feature="com.raytheon.uf.viz.displays.feature" version="1.0.0.qualifier"/>
-      <import feature="com.raytheon.viz.avnfps.feature" version="1.0.0.qualifier"/>
-      <import feature="com.raytheon.viz.satellite.feature" version="1.0.0.qualifier"/>
    </requires>
 
    <plugin
