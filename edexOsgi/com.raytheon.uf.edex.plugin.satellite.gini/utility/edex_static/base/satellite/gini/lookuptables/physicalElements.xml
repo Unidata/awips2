@@ -21,7 +21,7 @@
 <numericLookupTable id="physicalElements">
     <entry index="1" value="Imager Visible" />
     <entry index="2" value="Imager 3.9 micron IR" />
-    <entry index="3" value="Imager 6.7-6.5 micron IR (WV)" />
+    <entry index="3" value="Imager 6.7-6.5 micron WV" />
     <entry index="4" value="Imager 11 micron IR" />
     <entry index="5" value="Imager 12 micron IR" />
     <entry index="6" value="Imager 13 micron (IR)" />

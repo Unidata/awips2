@@ -207,10 +207,11 @@ public class McidasSatelliteDecoder {
         /* int imageHhmmssOrMillis = */buf.getInt();
         /* int imageStartScan = */buf.getInt();
         /* int prefixDocLength = */buf.getInt();
-        /* int prefixCalibrationLength = */buf.getInt();
-        /* int prefixBandListLength = */buf.getInt();
-        buf.getInt(); // source type
-        buf.getInt(); // cal type
+        int prefixCalibrationLength = buf.getInt(); // W50
+        /* int prefixBandListLength = */buf.getInt(); // W51
+        buf.getInt(); // source type	// W52
+        String calType = get4cc(buf); // cal type		// W53
+        
         buf.position(buf.position() + (3 * 4)); // reserved
         /* int originalSourceType = */buf.getInt(); // actually a 4cc?
         /* int units = */buf.getInt(); // also 4cc?

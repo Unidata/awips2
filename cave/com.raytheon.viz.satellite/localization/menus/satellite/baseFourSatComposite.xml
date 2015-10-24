@@ -20,16 +20,14 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<contribute xsi:type="separator" id="MySeparatorId"/>
-	<contribute xsi:type="titleItem" 
-		   titleText="------ 4 Sat Composite ------" id="NHLine"/>
     <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="IR Window" id="irWindow">
-        <substitute key="element" value="Imager 11 micron IR"/>
+        <substitute key="element" value="Imager 13 micron (IR)"/>
         <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Water Vapor" id="waterVapor">
-        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+        <substitute key="element" value="Imager 6.7-6.5 micron WV"/>
         <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 

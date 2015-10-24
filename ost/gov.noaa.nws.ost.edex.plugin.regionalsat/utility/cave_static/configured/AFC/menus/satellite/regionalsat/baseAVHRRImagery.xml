@@ -41,7 +41,7 @@
 					menuText=" 6.50-7.00 micron IRUL " id="GVARch3Line"/>
 			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
 		           		menuText="3ga" id="3gaSector">
-		        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+		        <substitute key="element" value="Imager 6.7-6.5 micron WV"/>
 		        <substitute key="sector" value="AkSec3ga"/>
 		        <substitute key="entity" value="GVAR"/>
 		        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>

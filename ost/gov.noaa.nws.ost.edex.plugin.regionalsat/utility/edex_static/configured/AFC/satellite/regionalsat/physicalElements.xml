@@ -33,7 +33,7 @@
 		<entry><key channel="3 Channel Differencing" satName="FY3C"/><value name="3 Channel Differencing" /></entry>
 		<entry><key channel="Channel 4-5 IR" satName="FY3C"/><value name="Channel 4-5 IR" /></entry>
 		<entry><key channel="AIRS" satName="GOESR-PG"/><value name="Imager Based Derived Precipitable Water (PW)" /></entry>
-		<entry><key channel="ABI" satName="GOESR-PG"/><value name="Imager 6.7-6.5 micron IR (WV)" /></entry>
+		<entry><key channel="ABI" satName="GOESR-PG"/><value name="Imager 6.7-6.5 micron WV" /></entry>
 		<entry><key channel="AVHRR" satName="GOESR-PG"/><value name="Imager Visible" /></entry>
 		<entry><key channel="MIMTPW" satName="Blended2"/><value name="Imager Based Derived Precipitable Water (PW)" /></entry>
 	</map>

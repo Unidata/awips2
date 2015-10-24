@@ -62,7 +62,7 @@
 	</rule>
 	<rule>
 		<keyValue>GVAR</keyValue>
-		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<keyValue>Imager 6.7-6.5 micron WV</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>

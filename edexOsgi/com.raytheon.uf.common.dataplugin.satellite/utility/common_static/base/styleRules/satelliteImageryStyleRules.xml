@@ -1,31 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
-    <!--
-        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
-        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
-        
-        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
-        This_software_product_contains_export-restricted_data_whose
-        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
-        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
-        an_export_license_or_other_authorization.
-        
-        Contractor_Name:________Raytheon_Company
-        Contractor_Address:_____6825_Pine_Street,_Suite_340
-        ________________________Mail_Stop_B8
-        ________________________Omaha,_NE_68106
-        ________________________402.291.0100
-        
-        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
-        further_licensing_information.
-    -->
-<styleRuleset>
 
+<styleRuleset>
 <!-- GOES Satellite Rules -->
 <styleRule>
   <paramLevelMatches>
-     <parameter>Imager 11 micron IR</parameter>
-     <parameter>Imager 12 micron IR</parameter>
-     <parameter>Imager 13 micron (IR)</parameter>
      <parameter>Imager 3.9 micron IR</parameter>
      <parameter>Sounder 11.03 micron imagery</parameter>
      <parameter>Sounder 3.98 micron imagery</parameter>
@@ -48,7 +26,21 @@
 </styleRule>
 <styleRule>
   <paramLevelMatches>
-     <parameter>Imager 6.7-6.5 micron IR (WV)</parameter>
+     <parameter>Imager 11 micron IR</parameter>
+     <parameter>Imager 12 micron IR</parameter>
+     <parameter>Imager 13 micron (IR)</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>255</maxValue>
+     </range>
+     <defaultColormap>Sat/IR/CIRA (IR Default)</defaultColormap>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Imager 6.7-6.5 micron WV</parameter>
      <parameter>Sounder 6.51 micron imagery</parameter>
      <parameter>Sounder 7.02 micron imagery</parameter>
      <parameter>Sounder 7.43 micron imagery</parameter>
@@ -58,7 +50,7 @@
         <minValue>0</minValue>
         <maxValue>255</maxValue>
      </range>
-     <defaultColormap>Sat/WV/Gray Scale Water Vapor</defaultColormap>
+     <defaultColormap>Sat/WV/wv_tpc</defaultColormap>
   </imageStyle>
 </styleRule>
 <styleRule>
@@ -161,6 +153,25 @@
 </styleRule>
 <styleRule>
   <paramLevelMatches>
+     <parameter>CAPE</parameter>
+  </paramLevelMatches>
+    <imageStyle>
+     <displayUnits>J/kg</displayUnits>
+     <dataMapping>
+     <entry pixelValue="1" displayValue="1" label="0" />
+     <entry pixelValue="6" displayValue="5" label="1000" />
+     <entry pixelValue="12" displayValue="12" label="2000" />
+     <entry pixelValue="18" displayValue="18" label="3000" />
+     <entry pixelValue="24" displayValue="24" label="4000" />
+     <entry pixelValue="30" displayValue="30" label="5000" />
+     <entry pixelValue="36" displayValue="36" label="6000" />
+     <entry pixelValue="45" displayValue="45" label="Clouds" />
+     </dataMapping>
+	 <defaultColormap>Grid/gridded data</defaultColormap>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
      <parameter>Sounder Based Derived Lifted Index (LI)</parameter>
   </paramLevelMatches>
   <imageStyle>
@@ -169,31 +180,10 @@
        <minValue>25</minValue>
        <maxValue>-25.8</maxValue>
      </range>
-     <defaultColormap>Sat/Lifted Index/Lifted Index Default</defaultColormap>
+     <defaultColormap>Sat/snd_li</defaultColormap>
      <colorbarLabeling> 
- 	     <values>20 15 10 5 0 -5 -10 -15</values> 
+ 	     <values>20 15 10 5 0 -5 -10 -15</values>
  	  </colorbarLabeling>
-  </imageStyle>
-</styleRule>
-<styleRule>
-  <paramLevelMatches>
-     <parameter>Sounder Based Derived Precipitable Water (PW)</parameter>
-     <creatingEntity>Composite</creatingEntity>
-  </paramLevelMatches>
-  <imageStyle>
-     <displayUnits>in</displayUnits>
-     <range scale="LINEAR">
-       <minValue>0</minValue>
-       <maxValue>3.36</maxValue>
-     </range>
-     <samplePrefs>
-       <minValue>-0.01</minValue>
-       <maxValue>2.64</maxValue>
-     </samplePrefs>
-     <defaultColormap>Sat/Precip Water/Precip Water Default</defaultColormap>
-     <colorbarLabeling>
-        <values>0.4 0.8 1.2 1.6 2.0 2.6</values>
-     </colorbarLabeling>
   </imageStyle>
 </styleRule>
 <styleRule>
@@ -267,55 +257,20 @@
 <styleRule>
   <paramLevelMatches>
      <parameter>Sounder Based Derived Precipitable Water (PW)</parameter>
-     <creatingEntity>DMSP</creatingEntity>
   </paramLevelMatches>
   <imageStyle>
-     <displayUnits>mm</displayUnits>
-     <range scale="LINEAR">
-       <minValue>0</minValue>
-       <maxValue>255</maxValue>
-     </range>
-     <defaultColormap>Sat/Precip Water/Precip Water - Polar</defaultColormap>
-     <colorbarLabeling>
-        <values>0 20 40 70</values>
-     </colorbarLabeling>
-  </imageStyle>
-</styleRule>
-<styleRule>
-  <paramLevelMatches>
-     <parameter>Sounder Based Derived Precipitable Water (PW)</parameter>
-     <creatingEntity>POES-NPOESS</creatingEntity>
-  </paramLevelMatches>
-  <imageStyle>
-     <displayUnits>mm</displayUnits>
-     <range scale="LINEAR">
-       <minValue>0</minValue>
-       <maxValue>255</maxValue>
-     </range>
-     <defaultColormap>Sat/Precip Water/Precip Water - Polar</defaultColormap>
-     <colorbarLabeling>
-        <values>0 20 40 70</values>
-     </colorbarLabeling>
-  </imageStyle>
-</styleRule>
-<styleRule>
-  <paramLevelMatches>
-     <parameter>Sounder Based Derived Precipitable Water (PW)</parameter>
-     <creatingEntity>Miscellaneous</creatingEntity>
-  </paramLevelMatches>
-  <imageStyle>
-     <displayUnits>in</displayUnits>
-     <range scale="LINEAR">
-       <minValue>-7</minValue>
-       <maxValue>3</maxValue>
-     </range>
-     <defaultColormap>Sat/Precip Water/Blended Total Precip Water</defaultColormap>
-     <colorbarLabeling>
-        <values>0 1 2 3</values>
-     </colorbarLabeling>
-     <!-- dataMapping>
-		<entry pixelValue="0" label="NO DATA" />
-     </dataMapping -->
+	<displayUnits>mm</displayUnits>
+     <dataMapping>
+     <entry pixelValue="1" displayValue="1" label="0" />
+     <entry pixelValue="30" displayValue="10" label="10" />
+     <entry pixelValue="60" displayValue="20" label="20" />
+     <entry pixelValue="90" displayValue="30" label="30" />
+     <entry pixelValue="120" displayValue="40" label="40" />
+     <entry pixelValue="150" displayValue="50" label="50" />
+     <entry pixelValue="180" displayValue="60" label="60" />
+     <entry pixelValue="255" displayValue="255" label="-32-53 C" />
+     </dataMapping>
+     <defaultColormap>Sat/Precip Water/CIMSS</defaultColormap>
   </imageStyle>
 </styleRule>
 <styleRule>
@@ -465,7 +420,7 @@
                 <entry displayValue='2' pixelValue='67'/>
                 <entry displayValue='3' pixelValue='100'/>
                 <entry displayValue='5' pixelValue='129'/>
-	                <entry displayValue='8' pixelValue='171'/>
+	            <entry displayValue='8' pixelValue='171'/>
                 <entry displayValue='10' pixelValue='200' />
                 <entry displayValue='20' pixelValue='239' />
                 <entry displayValue='24' pixelValue='255' label='' />
