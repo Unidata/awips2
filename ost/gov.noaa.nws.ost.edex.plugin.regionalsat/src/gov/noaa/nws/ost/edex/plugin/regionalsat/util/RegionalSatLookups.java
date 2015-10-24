@@ -75,7 +75,7 @@ import com.raytheon.uf.common.status.UFStatus;
  *		<entry><key channel="10.0 - 12.0 micron IRUL" satName="DMSP"/><value name="Imager 11 micron IR" units="IRPixel"/></entry>
  *		<entry><key channel="0.55-0.75 micron VISL" satName="GVAR"/><value name="Imager Visible" /></entry>
  *		<entry><key channel="3.80-4.00 micron IRUL" satName="GVAR"/><value name="Imager 3.9 micron IR" units="IRPixel"/></entry>
- *		<entry><key channel="6.50-7.00 micron IRUL" satName="GVAR"/><value name="Imager 6.7-6.5 micron IR (WV)" /></entry>
+ *		<entry><key channel="6.50-7.00 micron IRUL" satName="GVAR"/><value name="Imager 6.7-6.5 micron WV" /></entry>
  *		<entry><key channel="10.20-11.20 micron IRUL" satName="GVAR"/><value name="Imager 11 micron IR" units="IRPixel"/></entry>
  *		<entry><key channel="0.58 - 0.68 micron VISL" satName="FY1C"/><value name="Imager Visible" /></entry>
  *		<entry><key channel="10.5 - 11.5 micron IRUL" satName="FY1C"/><value name="Imager 11 micron IR" units="IRPixel" /></entry>
@@ -86,7 +86,7 @@ import com.raytheon.uf.common.status.UFStatus;
  *		<entry><key channel="3 Channel Differencing" satName="FY3C"/><value name="Imager 3 Channel Diff" /></entry>
  *		<entry><key channel="Channel 4-5 IR" satName="FY3C"/><value name="Imager Channel 4-5 IR" /></entry>
  *		<entry><key channel="AIRS" satName="GOESR-PG"/><value name="Imager Channel 4-5 IR" /></entry>
- *		<entry><key channel="ABI" satName="GOESR-PG"/><value name="Imager 6.7-6.5 micron IR (WV)" /></entry>
+ *		<entry><key channel="ABI" satName="GOESR-PG"/><value name="Imager 6.7-6.5 micron WV" /></entry>
  *		<entry><key channel="AVHRR" satName="GOESR-PG"/><value name="Imager Visible" /></entry>
  *		<entry><key channel="MIMTPW" satName="Blended2"/><value name="Imager Based Derived Precipitable Water (PW)" /></entry>
  *	</map>

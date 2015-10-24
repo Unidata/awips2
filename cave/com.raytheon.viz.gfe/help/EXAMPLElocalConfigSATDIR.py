@@ -27,7 +27,7 @@ import serverConfig
 # by EDEX
 pfix = "NESDIS/GOES-11(L)/"
 serverConfig.SATDATA.append = [(pfix + "West CONUS/Imager Visible", "visibleWest"),
-           (pfix + "East CONUS/Imager 6.7-6.5 micron IR (WV)", "waterVaporWest")]
+           (pfix + "East CONUS/Imager 6.7-6.5 micron WV", "waterVaporWest")]
 
 
 
