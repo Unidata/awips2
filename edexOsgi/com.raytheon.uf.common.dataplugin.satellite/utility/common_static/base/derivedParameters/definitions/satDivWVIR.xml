@@ -20,7 +20,7 @@
     -->
 <DerivedParameter unit="DerivedWV" name="IR in WV Satellite" abbreviation="satDivWVIR" xmlns:ns2="group">
     <Method name="satDivWVIR">
-    	<Field abbreviation="Imager 6.7-6.5 micron IR (WV)"/>
+    	<Field abbreviation="Imager 6.7-6.5 micron WV"/>
         <Field abbreviation="Imager 11 micron IR" unit="IRPixel"/>
     </Method>
 </DerivedParameter>
