@@ -117,7 +117,7 @@ public class SatelliteConstants {
 		LEGEND_MAP.put("Imager 12 micron IR",IMAGER_12U_IR_LEGEND);
 		LEGEND_MAP.put("Imager 13 micron (IR)",IMAGER_13U_IR_LEGEND);
 		LEGEND_MAP.put("Imager 3.9 micron IR",IMAGER_3P9U_IR_LEGEND);
-        LEGEND_MAP.put("Imager 6.7-6.5 micron IR (WV)",IMAGER_6P7_6P5U_IR_WV_LEGEND);
+        LEGEND_MAP.put("Imager 6.7-6.5 micron WV",IMAGER_6P7_6P5U_IR_WV_LEGEND);
         LEGEND_MAP.put("Imager Visible",IMAGER_VISIBLE_LEGEND);
         LEGEND_MAP.put(RAIN,RAIN_FALL_RATE_LEGEND);
         LEGEND_MAP.put("Sounder 11.03 micron imagery",SOUNDER_11U_IMAGER_LEGEND);

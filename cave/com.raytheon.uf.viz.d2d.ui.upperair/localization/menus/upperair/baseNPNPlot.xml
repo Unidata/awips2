@@ -98,7 +98,5 @@
         	<substitute key="legend" value="Sfc Profiler"/>
 	    </contribute>
 	</contribute>
-	<contribute xsi:type="placeholder" 
-		menuText="NPN Perspective" id="npnPerspective"/>
 	<contribute xsi:type="separator" id="MySeparatorId1"/>
 </menuTemplate>
