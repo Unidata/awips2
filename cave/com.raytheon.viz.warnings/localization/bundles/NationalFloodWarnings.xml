@@ -16,11 +16,11 @@
                     </loadProperties>
                     <properties isSystemResource="false"
                         isBlinking="false" isMapLayer="false" isHoverOn="false"
-                        isVisible="true" />
+                        isVisible="false" />
                     <resourceData xsi:type="wwaResourceData"
                         isUpdatingOnMetadataOnly="false" retrieveData="false"
                         isRequeryNecessaryOnTimeMatch="true"
-                        name="Local CWA Flood Warnings" hideSampling="true">
+                        name="National Flood Warnings" hideSampling="true">
                         <metadataMap>
                             <mapping key="act">
                                 <constraint constraintValue="NEW,CON,CAN,EXT,EXP"
@@ -39,8 +39,8 @@
                                     constraintType="EQUALS" />
                             </mapping>
                             <mapping key="officeid">
-                                <constraint constraintValue="${site}"
-                                    constraintType="EQUALS" />
+                                <constraint constraintValue="${ALLsites}"
+                                    constraintType="IN" />
                             </mapping>
                         </metadataMap>
                     </resourceData>
@@ -61,7 +61,7 @@
                     <resourceData xsi:type="wwaResourceData"
                         isUpdatingOnMetadataOnly="false" retrieveData="false"
                         isRequeryNecessaryOnTimeMatch="true"
-                        name="Local Flash Flood Warnings">
+                        name="National Flash Flood Warnings">
                         <metadataMap>
                             <mapping key="act">
                                 <constraint constraintValue="NEW,CON,CAN,EXT,EXP"
@@ -80,8 +80,8 @@
                                     constraintType="EQUALS" />
                             </mapping>
                             <mapping key="officeid">
-                                <constraint constraintValue="${site}"
-                                    constraintType="EQUALS" />
+                                <constraint constraintValue="${ALLsites}"
+                                    constraintType="IN" />
                             </mapping>
                         </metadataMap>
                     </resourceData>
@@ -102,7 +102,7 @@
                     <resourceData xsi:type="wwaResourceData"
                         isUpdatingOnMetadataOnly="false" retrieveData="false"
                         isRequeryNecessaryOnTimeMatch="true"
-                        name="Local Flood Warnings">
+                        name="National Flood Warnings">
                         <metadataMap>
                             <mapping key="act">
                                 <constraint constraintValue="NEW,CON,CAN,EXT,EXP"
@@ -113,16 +113,16 @@
                                     constraintType="IN" />
                             </mapping>
                             <mapping key="phensig">
-                                <constraint constraintValue="FA.W"
-                                    constraintType="EQUALS" />
+                                <constraint constraintValue="FA.W,FL.Y"
+                                    constraintType="IN" />
                             </mapping>
                             <mapping key="pluginName">
                                 <constraint constraintValue="warning"
                                     constraintType="EQUALS" />
                             </mapping>
                             <mapping key="officeid">
-                                <constraint constraintValue="${site}"
-                                    constraintType="EQUALS" />
+                                <constraint constraintValue="${ALLsites}"
+                                    constraintType="IN" />
                             </mapping>
                         </metadataMap>
                     </resourceData>
@@ -143,7 +143,7 @@
                     <resourceData xsi:type="wwaResourceData"
                         isUpdatingOnMetadataOnly="false" retrieveData="false"
                         isRequeryNecessaryOnTimeMatch="true"
-                        name="Local River Flood Warnings">
+                        name="National River Flood Warnings">
                         <metadataMap>
                             <mapping key="act">
                                 <constraint constraintValue="NEW,CON,CAN,EXT,EXP"
@@ -154,16 +154,16 @@
                                     constraintType="IN" />
                             </mapping>
                             <mapping key="phensig">
-                                <constraint constraintValue="FL.W"
-                                    constraintType="EQUALS" />
+                                <constraint constraintValue="FL.W,FL.Y"
+                                    constraintType="IN" />
                             </mapping>
                             <mapping key="pluginName">
                                 <constraint constraintValue="warning"
                                     constraintType="EQUALS" />
                             </mapping>
                             <mapping key="officeid">
-                                <constraint constraintValue="${site}"
-                                    constraintType="EQUALS" />
+                                <constraint constraintValue="${ALLsites}"
+                                    constraintType="IN" />
                             </mapping>
                         </metadataMap>
                     </resourceData>
@@ -184,7 +184,7 @@
                     <resourceData xsi:type="wwaResourceData"
                         isUpdatingOnMetadataOnly="false" retrieveData="false"
                         isRequeryNecessaryOnTimeMatch="true"
-                        name="Local Flood Advisories">
+                        name="National Flood Advisories">
                         <metadataMap>
                             <mapping key="act">
                                 <constraint constraintValue="NEW,CON,CAN,EXT,EXP"
@@ -203,8 +203,8 @@
                                     constraintType="EQUALS" />
                             </mapping>
                             <mapping key="officeid">
-                                <constraint constraintValue="${site}"
-                                    constraintType="EQUALS" />
+                                <constraint constraintValue="${ALLsites}"
+                                    constraintType="IN" />
                             </mapping>
                         </metadataMap>
                     </resourceData>

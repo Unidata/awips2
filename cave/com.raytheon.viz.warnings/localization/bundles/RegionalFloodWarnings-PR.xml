@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <bundle>
     <displayList>
         <displays xsi:type="d2DMapRenderableDisplay"
@@ -16,11 +16,12 @@
                     </loadProperties>
                     <properties isSystemResource="false"
                         isBlinking="false" isMapLayer="false" isHoverOn="false"
-                        isVisible="true" />
+                        isVisible="false" />
                     <resourceData xsi:type="wwaResourceData"
                         isUpdatingOnMetadataOnly="false" retrieveData="false"
                         isRequeryNecessaryOnTimeMatch="true"
-                        name="Local CWA Flood Warnings" hideSampling="true">
+                        name="Pacific Region Flood Warnings"
+                        hideSampling="true">
                         <metadataMap>
                             <mapping key="act">
                                 <constraint constraintValue="NEW,CON,CAN,EXT,EXP"
@@ -39,8 +40,8 @@
                                     constraintType="EQUALS" />
                             </mapping>
                             <mapping key="officeid">
-                                <constraint constraintValue="${site}"
-                                    constraintType="EQUALS" />
+                                <constraint constraintValue="${PRsites}"
+                                    constraintType="IN" />
                             </mapping>
                         </metadataMap>
                     </resourceData>
@@ -61,7 +62,7 @@
                     <resourceData xsi:type="wwaResourceData"
                         isUpdatingOnMetadataOnly="false" retrieveData="false"
                         isRequeryNecessaryOnTimeMatch="true"
-                        name="Local Flash Flood Warnings">
+                        name="Pacific Region Flash Flood Warnings">
                         <metadataMap>
                             <mapping key="act">
                                 <constraint constraintValue="NEW,CON,CAN,EXT,EXP"
@@ -80,8 +81,8 @@
                                     constraintType="EQUALS" />
                             </mapping>
                             <mapping key="officeid">
-                                <constraint constraintValue="${site}"
-                                    constraintType="EQUALS" />
+                                <constraint constraintValue="${PRsites}"
+                                    constraintType="IN" />
                             </mapping>
                         </metadataMap>
                     </resourceData>
@@ -102,7 +103,7 @@
                     <resourceData xsi:type="wwaResourceData"
                         isUpdatingOnMetadataOnly="false" retrieveData="false"
                         isRequeryNecessaryOnTimeMatch="true"
-                        name="Local Flood Warnings">
+                        name="Pacific Region Flood Warnings">
                         <metadataMap>
                             <mapping key="act">
                                 <constraint constraintValue="NEW,CON,CAN,EXT,EXP"
@@ -113,16 +114,16 @@
                                     constraintType="IN" />
                             </mapping>
                             <mapping key="phensig">
-                                <constraint constraintValue="FA.W"
-                                    constraintType="EQUALS" />
+                                <constraint constraintValue="FA.W,FL.Y"
+                                    constraintType="IN" />
                             </mapping>
                             <mapping key="pluginName">
                                 <constraint constraintValue="warning"
                                     constraintType="EQUALS" />
                             </mapping>
                             <mapping key="officeid">
-                                <constraint constraintValue="${site}"
-                                    constraintType="EQUALS" />
+                                <constraint constraintValue="${PRsites}"
+                                    constraintType="IN" />
                             </mapping>
                         </metadataMap>
                     </resourceData>
@@ -143,7 +144,7 @@
                     <resourceData xsi:type="wwaResourceData"
                         isUpdatingOnMetadataOnly="false" retrieveData="false"
                         isRequeryNecessaryOnTimeMatch="true"
-                        name="Local River Flood Warnings">
+                        name="Pacific Region River Flood Warnings">
                         <metadataMap>
                             <mapping key="act">
                                 <constraint constraintValue="NEW,CON,CAN,EXT,EXP"
@@ -154,16 +155,16 @@
                                     constraintType="IN" />
                             </mapping>
                             <mapping key="phensig">
-                                <constraint constraintValue="FL.W"
-                                    constraintType="EQUALS" />
+                                <constraint constraintValue="FL.W,FL.Y"
+                                    constraintType="IN" />
                             </mapping>
                             <mapping key="pluginName">
                                 <constraint constraintValue="warning"
                                     constraintType="EQUALS" />
                             </mapping>
                             <mapping key="officeid">
-                                <constraint constraintValue="${site}"
-                                    constraintType="EQUALS" />
+                                <constraint constraintValue="${PRsites}"
+                                    constraintType="IN" />
                             </mapping>
                         </metadataMap>
                     </resourceData>
@@ -184,7 +185,7 @@
                     <resourceData xsi:type="wwaResourceData"
                         isUpdatingOnMetadataOnly="false" retrieveData="false"
                         isRequeryNecessaryOnTimeMatch="true"
-                        name="Local Flood Advisories">
+                        name="Pacific Region Flood Advisories">
                         <metadataMap>
                             <mapping key="act">
                                 <constraint constraintValue="NEW,CON,CAN,EXT,EXP"
@@ -203,8 +204,8 @@
                                     constraintType="EQUALS" />
                             </mapping>
                             <mapping key="officeid">
-                                <constraint constraintValue="${site}"
-                                    constraintType="EQUALS" />
+                                <constraint constraintValue="${PRsites}"
+                                    constraintType="IN" />
                             </mapping>
                         </metadataMap>
                     </resourceData>

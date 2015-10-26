@@ -20,8 +20,7 @@
                     <resourceData xsi:type="wwaResourceData"
                         isUpdatingOnMetadataOnly="false" retrieveData="false"
                         isRequeryNecessaryOnTimeMatch="true"
-                        name="All Local &amp; Regional Warnings"
-                        hideSampling="true">
+                        name="All Western Region Warnings" hideSampling="true">
                         <metadataMap>
                             <mapping key="act">
                                 <constraint constraintValue="NEW,CON,CAN,EXT,EXP"
@@ -42,7 +41,7 @@
                                     constraintType="EQUALS" />
                             </mapping>
                             <mapping key="officeid">
-                                <constraint constraintValue="${site},${sites}"
+                                <constraint constraintValue="${WRsites}"
                                     constraintType="IN" />
                             </mapping>
                         </metadataMap>
@@ -64,7 +63,7 @@
                     <resourceData xsi:type="wwaResourceData"
                         isUpdatingOnMetadataOnly="false" retrieveData="false"
                         isRequeryNecessaryOnTimeMatch="true"
-                        name="All Local &amp; Regional SVR Warnings">
+                        name="Western Region SVR Warnings">
                         <metadataMap>
                             <mapping key="act">
                                 <constraint constraintValue="NEW,CON,CAN,EXP"
@@ -83,7 +82,7 @@
                                     constraintType="EQUALS" />
                             </mapping>
                             <mapping key="officeid">
-                                <constraint constraintValue="${site},${sites}"
+                                <constraint constraintValue="${WRsites}"
                                     constraintType="IN" />
                             </mapping>
                         </metadataMap>
@@ -105,7 +104,7 @@
                     <resourceData xsi:type="wwaResourceData"
                         isUpdatingOnMetadataOnly="false" retrieveData="false"
                         isRequeryNecessaryOnTimeMatch="true"
-                        name="All Local &amp; Regional TOR Warnings">
+                        name="Western Region TOR Warnings">
                         <metadataMap>
                             <mapping key="act">
                                 <constraint constraintValue="NEW,CON,CAN,EXP"
@@ -124,7 +123,7 @@
                                     constraintType="EQUALS" />
                             </mapping>
                             <mapping key="officeid">
-                                <constraint constraintValue="${site},${sites}"
+                                <constraint constraintValue="${WRsites}"
                                     constraintType="IN" />
                             </mapping>
                         </metadataMap>
@@ -146,7 +145,7 @@
                     <resourceData xsi:type="wwaResourceData"
                         isUpdatingOnMetadataOnly="false" retrieveData="false"
                         isRequeryNecessaryOnTimeMatch="true"
-                        name="All Local &amp; Regional EWW Warnings">
+                        name="Western Region EWW Warnings">
                         <metadataMap>
                             <mapping key="act">
                                 <constraint constraintValue="NEW,CON,CAN,EXP"
@@ -165,7 +164,7 @@
                                     constraintType="EQUALS" />
                             </mapping>
                             <mapping key="officeid">
-                                <constraint constraintValue="${site},${sites}"
+                                <constraint constraintValue="${WRsites}"
                                     constraintType="IN" />
                             </mapping>
                         </metadataMap>
@@ -187,7 +186,7 @@
                     <resourceData xsi:type="wwaResourceData"
                         isUpdatingOnMetadataOnly="false" retrieveData="false"
                         isRequeryNecessaryOnTimeMatch="true"
-                        name="All Local &amp; Regional Marine Warnings">
+                        name="Western Region Marine Warnings">
                         <metadataMap>
                             <mapping key="pluginName">
                                 <constraint constraintValue="warning"
@@ -206,7 +205,7 @@
                                     constraintType="EQUALS" />
                             </mapping>
                             <mapping key="officeid">
-                                <constraint constraintValue="${site},${sites}"
+                                <constraint constraintValue="${WRsites}"
                                     constraintType="IN" />
                             </mapping>
                         </metadataMap>
@@ -228,7 +227,7 @@
                     <resourceData xsi:type="wwaResourceData"
                         isUpdatingOnMetadataOnly="false" retrieveData="false"
                         isRequeryNecessaryOnTimeMatch="true"
-                        name="All Local &amp; Regional Flash Flood Warnings">
+                        name="Western Region Flash Flood Warnings">
                         <metadataMap>
                             <mapping key="act">
                                 <constraint constraintValue="NEW,CON,CAN,EXT,EXP"
@@ -247,7 +246,7 @@
                                     constraintType="EQUALS" />
                             </mapping>
                             <mapping key="officeid">
-                                <constraint constraintValue="${site},${sites}"
+                                <constraint constraintValue="${WRsites}"
                                     constraintType="IN" />
                             </mapping>
                         </metadataMap>
@@ -269,7 +268,7 @@
                     <resourceData xsi:type="wwaResourceData"
                         isUpdatingOnMetadataOnly="false" retrieveData="false"
                         isRequeryNecessaryOnTimeMatch="true"
-                        name="All Local &amp; Regional Flood Warnings">
+                        name="Western Region Flood Warnings">
                         <metadataMap>
                             <mapping key="act">
                                 <constraint constraintValue="NEW,CON,CAN,EXT,EXP"
@@ -288,7 +287,7 @@
                                     constraintType="EQUALS" />
                             </mapping>
                             <mapping key="officeid">
-                                <constraint constraintValue="${site},${sites}"
+                                <constraint constraintValue="${WRsites}"
                                     constraintType="IN" />
                             </mapping>
                         </metadataMap>
@@ -310,7 +309,7 @@
                     <resourceData xsi:type="wwaResourceData"
                         isUpdatingOnMetadataOnly="false" retrieveData="false"
                         isRequeryNecessaryOnTimeMatch="true"
-                        name="All Local &amp; Regional River Flood Warnings">
+                        name="Western Region River Flood Warnings">
                         <metadataMap>
                             <mapping key="act">
                                 <constraint constraintValue="NEW,CON,CAN,EXT,EXP"
@@ -329,7 +328,7 @@
                                     constraintType="EQUALS" />
                             </mapping>
                             <mapping key="officeid">
-                                <constraint constraintValue="${site},${sites}"
+                                <constraint constraintValue="${WRsites}"
                                     constraintType="IN" />
                             </mapping>
                         </metadataMap>
@@ -351,7 +350,7 @@
                     <resourceData xsi:type="wwaResourceData"
                         isUpdatingOnMetadataOnly="false" retrieveData="false"
                         isRequeryNecessaryOnTimeMatch="true"
-                        name="All Local &amp; Regional Flood Advisories">
+                        name="Western Region Flood Advisories">
                         <metadataMap>
                             <mapping key="act">
                                 <constraint constraintValue="NEW,CON,CAN,EXT,EXP"
@@ -370,7 +369,7 @@
                                     constraintType="EQUALS" />
                             </mapping>
                             <mapping key="officeid">
-                                <constraint constraintValue="${site},${sites}"
+                                <constraint constraintValue="${WRsites}"
                                     constraintType="IN" />
                             </mapping>
                         </metadataMap>
