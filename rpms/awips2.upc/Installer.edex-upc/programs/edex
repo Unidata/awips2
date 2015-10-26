@@ -147,31 +147,31 @@ edex_log() { # display todays log, default to ingest
         fi
 	# EDEX request log
 	if [ "${args[1]}" == 'request' ]; then	
-		LOG_FILE=${LOG_PATH}edex-request-${YMD}.log
+		LOG_FILE=${LOG_PATH}/edex-request-${YMD}.log
 		tail_log
 		exit;
 	fi
 	# EDEX ingestGrib log
 	if [ "${args[1]}" == 'grib' ]; then
-                LOG_FILE=${LOG_PATH}edex-ingestGrib-${YMD}.log
+                LOG_FILE=${LOG_PATH}/edex-ingestGrib-${YMD}.log
 		tail_log
 		exit;
         fi
         # Radar
         if [ "${args[1]}" == 'radar' ]; then
-                LOG_FILE=${LOG_PATH}edex-ingest-radar-${YMD}.log
+                LOG_FILE=${LOG_PATH}/edex-ingest-radar-${YMD}.log
                 tail_log
                 exit;
         fi
         # Satellite
         if [ "${args[1]}" == 'satellite' ]; then
-                LOG_FILE=${LOG_PATH}edex-ingest-satellite-${YMD}.log
+                LOG_FILE=${LOG_PATH}/edex-ingest-satellite-${YMD}.log
                 tail_log
                 exit;
         fi
         # Text
         if [ "${args[1]}" == 'text' ]; then
-                LOG_FILE=${LOG_PATH}edex-ingest-text-${YMD}.log
+                LOG_FILE=${LOG_PATH}/edex-ingest-text-${YMD}.log
                 tail_log
                 exit;
         fi
