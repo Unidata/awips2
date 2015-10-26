@@ -173,6 +173,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * 08/06/2015  13753       lshi        removed updateTime flag, undo the change of updateIssueExpireTimes, etc.
  * 08/10/2015   4721       randerso    Changed getNNNid() to use the productID field (not textdbPil)
  * 09/15/2015   4858       dgilling    Disable store/transmit in DRT mode.
+ * 10/26/2015  18244       lshi        fixed NullPointerException (pds, updateIssueExpireTimes)
  * </pre>
  *
  * @author lvenable
@@ -379,7 +380,6 @@ public class ProductEditorComp extends Composite implements
     private ChangeTimesJob timeUpdater;
 
     private final Listener visibilityListener;
-
 
     /**
      * Enumeration of product types.
@@ -1954,7 +1954,7 @@ public class ProductEditorComp extends Composite implements
         this.expireDate = cal.getTime();
         dateTimeLbl.setText(expireLabelFmt.format(expireDate));
 
-        if (!dead) { //&& !editorCorrectionMode) { // && !spellDialog) {
+        if (!dead) {
             changeTimes();
         }
     }
@@ -1977,25 +1977,22 @@ public class ProductEditorComp extends Composite implements
             try {
                 textComp.startUpdate();
                 ProductDataStruct pds = textComp.getProductDataStruct();
-                if (!textComp.isCorMode()) {
-                    if (pds != null) {
+                if (pds != null) {
+                    if (!textComp.isCorMode()) {
                         TextIndexPoints pit = pds.getPIT();
                         if (pit != null) {
                             String time = purgeTimeFmt.format(now);
                             textComp.replaceText(pit, time);
                         }
                     }
-                }
 
-                // Update MND time
-                TextIndexPoints tip = pds.getMndMap().get("nwstime");
-                if (tip != null) {
-                    SimpleDateFormat fmt = new SimpleDateFormat(
-                            longLocalFmtStr);
-                    fmt.setTimeZone(localTimeZone);
-                    String issueTime = fmt.format(now).toUpperCase();
-
+                    // Update MND time
+                    TextIndexPoints tip = pds.getMndMap().get("nwstime");
                     if (tip != null) {
+                        SimpleDateFormat fmt = new SimpleDateFormat(
+                                longLocalFmtStr);
+                        fmt.setTimeZone(localTimeZone);
+                        String issueTime = fmt.format(now).toUpperCase();
                         textComp.replaceText(tip, issueTime);
                     }
                 }
@@ -2021,7 +2018,6 @@ public class ProductEditorComp extends Composite implements
                     SimpleDateFormat fmt = new SimpleDateFormat(longLocalFmtStr);
                     fmt.setTimeZone(localTimeZone);
                     String officeIssueTime = fmt.format(now).toUpperCase();
-
 
                     for (int i = 0; i < numSegments; i++) {
                         textComp.startUpdate();
