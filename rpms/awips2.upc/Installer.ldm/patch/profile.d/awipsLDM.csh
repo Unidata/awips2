@@ -3,7 +3,7 @@ if $?LD_LIBRARY_PATH then
 else
    setenv LD_LIBRARY_PATH /awips2/ldm/lib
 endif
-
+setenv LDMHOME /awips2/ldm
 if $?PATH then
    setenv PATH /awips2/ldm/bin:/awips2/ldm/decoders:/awips2/ldm/util:$PATH
 else
