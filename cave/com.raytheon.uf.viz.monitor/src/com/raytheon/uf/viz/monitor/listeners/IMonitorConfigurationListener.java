@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.viz.monitor.listeners;
 
-import com.raytheon.uf.viz.core.notification.INotificationObserver;
+import com.raytheon.uf.common.jms.notification.INotificationObserver;
 import com.raytheon.uf.viz.monitor.events.IMonitorConfigurationEvent;
 
 /**
@@ -32,6 +32,8 @@ import com.raytheon.uf.viz.monitor.events.IMonitorConfigurationEvent;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 29, 2009            dhladky     Initial creation
+ * Sep 20, 2015 3873       skorolev    Replaced deprecated INotificationObserver
+ * 
  * </pre>
  * 
  * @author dhladky

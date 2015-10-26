@@ -55,6 +55,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg;
  * Dec  7, 2012 1351       skorolev    Changes for non-blocking dialogs
  * Apr 28, 2014 3086       skorolev    Updated getConfigMgr method.
  * Sep 04, 2014 3220       skorolev    Removed "site". Added check on dispose.
+ * Sep 18, 2015 3873       skorolev    Adjusted to AppName and MonName.
  * 
  * </pre>
  * 
@@ -140,7 +141,6 @@ public class SnowZoneTableDlg extends ZoneTableDlg {
         if (zoneTable.isDisposed()) {
             return;
         }
-
         if (me.getSource() instanceof SnowMonitor) {
             SnowMonitor monitor = (SnowMonitor) me.getSource();
             Date date = monitor.getDialogTime();
@@ -265,8 +265,8 @@ public class SnowZoneTableDlg extends ZoneTableDlg {
     @Override
     protected FSSObsMonitorConfigurationManager getMonitorAreaConfigInstance() {
         if (configMgr == null || configMgr.isPopulated()) {
-            configMgr = new FSSObsMonitorConfigurationManager(
-                    MonName.snow.name());
+            configMgr = FSSObsMonitorConfigurationManager
+                    .getInstance(MonName.snow);
         }
         return configMgr;
     }
