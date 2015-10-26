@@ -138,6 +138,18 @@ if [ $? -ne 0 ]; then
 fi
 popd > /dev/null 2>&1
 
+pushd . > /dev/null 2>&1
+cd %{_baseline_workspace}/viz.updater
+if [ ! -d bin ]; then
+   mkdir -p bin
+fi
+/awips2/ant/bin/ant -Ddest.dir=${RPM_BUILD_ROOT}/awips2/cave \
+   -Declipse.dir=%{_uframe_eclipse} -Dbaseline.dir=%{_baseline_workspace} -f build.xml
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+popd > /dev/null 2>&1
+
 %pre
 %post
 # Remove the text-workstation autostart script if we have not been installed
@@ -168,6 +180,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/cave/caveEnvironment
 /awips2/cave/caveEnvironment/*
 /awips2/cave/*.sh
+/awips2/cave/VizUpdater.jar
 # not a noarch RPM due to the presence of the architecture-specific libraries.
 %dir /awips2/cave/lib%{_build_bits}
 /awips2/cave/lib%{_build_bits}/*
