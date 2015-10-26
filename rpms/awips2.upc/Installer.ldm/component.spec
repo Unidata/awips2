@@ -268,10 +268,10 @@ cd ..
 if [ $? -ne 0 ]; then
    exit 1
 fi
-# TODO: change both of these to use regutil
+# TODO: change to use regutil
 sed -i 's/EDEX_HOSTNAME/'${_myHost}'/' ${_ldm_dir}/etc/ldmd.conf
 #sed -i 's/<size>500M<\/size>/<size>1500M<\/size>/' ${_ldm_dir}/etc/registry.xml
-#regutil -s "1500M" /queue/size
+
 ln -s /awips2/ldm/var/logs /awips2/ldm/logs
 ln -s /awips2/ldm/var/data /awips2/ldm/data
 if getent passwd awips &>/dev/null; then
