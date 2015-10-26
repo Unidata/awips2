@@ -4,7 +4,7 @@ if [ "${CHECK_PATH}" = "" ]; then
 else
    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/awips2/ldm/lib
 fi
-
+export LDMHOME=/awips2/ldm
 CHECK_PATH=`echo ${PATH}`
 if [ "${CHECK_PATH}" = "" ]; then
    export PATH=/awips2/ldm/bin:/awips2/ldm/decoders:/awips2/ldm/util
