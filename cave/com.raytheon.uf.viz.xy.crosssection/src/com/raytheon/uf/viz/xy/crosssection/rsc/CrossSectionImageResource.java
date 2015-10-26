@@ -52,6 +52,7 @@ import com.raytheon.uf.common.style.StyleManager;
 import com.raytheon.uf.common.style.StyleManager.StyleType;
 import com.raytheon.uf.common.style.StyleRule;
 import com.raytheon.uf.common.style.image.ColorMapParameterFactory;
+import com.raytheon.uf.common.style.image.ImagePreferences;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -177,12 +178,13 @@ public class CrossSectionImageResource extends AbstractCrossSectionResource {
             float[] floatData = sliceMap.get(time).get(0);
             StyleRule styleRule = loadStyleRule();
             try {
-                if (styleRule == null) {
+                if (styleRule == null
+                        || !(styleRule.getPreferences() instanceof ImagePreferences)) {
                     colorMapParams = ColorMapParameterFactory.build(floatData,
                             resourceData.getParameter(), getUnit(), null);
                 } else {
                     colorMapParams = ColorMapParameterFactory.build(styleRule,
-                            getUnit());
+                            floatData, null, getUnit());
                 }
             } catch (StyleException e) {
                 throw new VizException(
