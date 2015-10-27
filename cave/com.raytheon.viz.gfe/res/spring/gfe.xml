@@ -10,11 +10,6 @@
         </bean>
         
         <bean id="gfeVtecConfig" class="com.raytheon.viz.gfe.vtec.GFEVtecConfig" factory-method="getInstance">
-           <property name="sitesIgnoreNationalEtn">
-              <set>
-                 <value>PGUM</value>
-              </set>
-           </property>
            <property name="nationalEtnPhensigs">
               <set>
                  <value>TO.A</value>

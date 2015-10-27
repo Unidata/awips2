@@ -65,6 +65,7 @@ import com.raytheon.viz.texteditor.util.VtecUtil;
  *                                      getVtecLinesThatNeedEtn().
  * Feb 05, 2014  #2774     dgilling     Additional correction to previous fix.
  * Apr 28, 2015  #4027     randerso     Added getNextEtn parameter to specify ActiveTableMode
+ * Oct 16, 2015  DR17771   dgilling     Removed IGNORE_NATIONAL_ETN.
  * 
  * </pre>
  * 
@@ -79,9 +80,6 @@ public class GFEVtecUtil {
 
     public static final Collection<String> NATIONAL_PHENSIGS = ImmutableSet
             .copyOf(GFEVtecConfig.getInstance().getNationalEtnPhensigs());
-
-    public static final Collection<String> IGNORE_NATIONAL_ETN = ImmutableSet
-            .copyOf(GFEVtecConfig.getInstance().getSitesIgnoreNationalEtn());
 
     private static final Comparator<VtecObject> VTEC_COMPARATOR = new Comparator<VtecObject>() {
 
@@ -299,9 +297,7 @@ public class GFEVtecUtil {
         while (vtecMatcher.find()) {
             VtecObject vtec = new VtecObject(vtecMatcher.group());
             if (("NEW".equals(vtec.getAction()))
-                    && ((!NATIONAL_PHENSIGS.contains(vtec.getPhensig())) || (IGNORE_NATIONAL_ETN
-                            .contains(vtec.getOffice()) && TROPICAL_PHENSIGS
-                            .contains(vtec.getPhensig())))) {
+                    && (!NATIONAL_PHENSIGS.contains(vtec.getPhensig()))) {
                 List<VtecObject> vtecsForPhensig = cache.get(vtec.getPhensig());
                 if (vtecsForPhensig == null) {
                     vtecsForPhensig = new ArrayList<VtecObject>();
@@ -344,13 +340,13 @@ public class GFEVtecUtil {
         StringBuffer finalOutput = new StringBuffer();
         while (vtecMatcher.find()) {
             VtecObject vtec = new VtecObject(vtecMatcher.group());
-            // To best match the ETN assignment logic in HazardsTable.py, it
-            // seems we should assume all ETNs assigned to tropical products are
-            // automatically correct
+            /*
+             * To best match the ETN assignment logic in HazardsTable.py, it
+             * seems we should assume all ETNs assigned to tropical products are
+             * automatically correct
+             */
             if (("NEW".equals(vtec.getAction()))
-                    && ((!NATIONAL_PHENSIGS.contains(vtec.getPhensig())) || (IGNORE_NATIONAL_ETN
-                            .contains(vtec.getOffice()) && TROPICAL_PHENSIGS
-                            .contains(vtec.getPhensig())))) {
+                    && (!NATIONAL_PHENSIGS.contains(vtec.getPhensig()))) {
                 String phensig = vtec.getPhensig();
                 TimeRange validPeriod = new TimeRange(vtec.getStartTime()
                         .getTime(), vtec.getEndTime().getTime());
