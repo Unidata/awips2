@@ -142,6 +142,7 @@ import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.ISimulatedTimeChangeListener;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.wmo.WMOHeader;
@@ -188,6 +189,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.dialogs.SWTMessageBox;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
 
 /**
  * Main Text Editor dialog.
@@ -349,6 +351,9 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 6Apr2015    RM14968   mgamazaychikov Fix formatting for pathcast section
  * 15Jun2015   4441         randerso    Unconditionally convert text to upper case for QC
  * 8Jul2015    DR 15044     dhuffman    Implemented tabbing and tabs to spaces.
+ * Sep 29 2015 4899         rferrel     Do not send product while in operational mode and
+ *                                       simulated time.
+ * 07Oct2015   RM 18132     D. Friedman Exlucde certain phensigs from automatic ETN incrementing.
  * 
  * </pre>
  * 
@@ -357,7 +362,8 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
 public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         IAfosBrowserCallback, IWmoBrowserCallback, IRecoverEditSessionCallback,
         ITextCharWrapCallback, IScriptRunnerObserver, IScriptEditorObserver,
-        INotificationObserver, IProductQueryCallback {
+        INotificationObserver, IProductQueryCallback,
+        ISimulatedTimeChangeListener {
 
     /**
      * Handler used for messges.
@@ -378,6 +384,18 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      */
     private static List<String> gfePils = Arrays.asList("WSW", "NPW", "HLS",
             "CFW", "WCN", "FFA", "MWW", "RFW");
+
+    /**
+     * Default list of VTEC phenomena significance codes for which the ETN
+     * should not be changed when sending a NEW-action product.
+     */
+    private static final List<String> defaultNoETNIncrementPhenSigs = Arrays
+            .asList("HU.A", "HU.S", "HU.W", "TR.A", "TR.W", "SS.A", "SS.W",
+                    "TY.A", "TY.W");
+    /**
+     * Path of ETN rules localization file
+     */
+    private static final String ETN_RULES_FILE = "textws/gui/EtnRules.xml";
 
     /**
      * Auto wrap start range column..
@@ -1466,6 +1484,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         callbackClient = cbClient;
         this.textWorkstationFlag = textWorkstationFlag;
+        SimulatedTime.getSystemTime().addSimulatedTimeChangeListener(this);
     }
 
     private static JAXBManager getJaxbManager() throws JAXBException {
@@ -4186,6 +4205,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * Enter the text editor mode.
      */
     private void enterEditor() {
+        if (!validateTime()) {
+            return;
+        }
+
         initTemplateOverwriteMode();
         StdTextProduct product = TextDisplayModel.getInstance()
                 .getStdTextProduct(token);
@@ -4907,6 +4930,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      *            true if product is to be resent
      */
     synchronized private void sendProduct(final boolean resend) {
+        if (!validateTime()) {
+            return;
+        }
         StdTextProduct prod = getStdTextProduct();
         if (warnGenFlag) {
             QCConfirmationMsg qcMsg = new QCConfirmationMsg();
@@ -5073,8 +5099,13 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                      * this case (isOpertional && ! resend) case,
                      * saveEditedProduct, does not actually save anything.
                      */
-                    prod.setProduct(VtecUtil.getVtec(
-                            removeSoftReturns(prod.getProduct()), true));
+                    if (shouldSetETNtoNextValue(prod)) {
+                        statusHandler.handle(Priority.INFO, "Will increment ETN for this product.");
+                        prod.setProduct(VtecUtil.getVtec(
+                                removeSoftReturns(prod.getProduct()), true));
+                    } else {
+                        statusHandler.handle(Priority.INFO, "Will NOT increment ETN for this product.");
+                    }
                     /*
                      * This silly bit of code updates the ETN of a VTEC in the
                      * text pane to reflect the ETN that was actually used, but
@@ -5105,10 +5136,15 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         } else {
             try {
                 if (!resend) {
-                    body = VtecUtil
-                            .getVtec(removeSoftReturns(MixedCaseProductSupport
-                                    .conditionalToUpper(prod.getNnnid(),
-                                            textEditor.getText())));
+                    if (shouldSetETNtoNextValue(prod)) {
+                        statusHandler.handle(Priority.INFO, "Will increment ETN for this product.");
+                        body = VtecUtil
+                                .getVtec(removeSoftReturns(MixedCaseProductSupport
+                                        .conditionalToUpper(prod.getNnnid(),
+                                                textEditor.getText())));
+                    } else {
+                        statusHandler.handle(Priority.INFO, "Will NOT increment ETN for this product.");
+                    }
                 }
                 updateTextEditor(body);
                 if ((inEditMode || resend)
@@ -5149,6 +5185,34 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             headerTF.setText(header);
             cancelEditor(false);
         }
+    }
+
+    private EtnRules getETNRules() throws Exception {
+        LocalizationFile lf = PathManagerFactory.getPathManager()
+                .getStaticLocalizationFile(ETN_RULES_FILE);
+        if (lf == null) {
+            throw new Exception("ETN rules file (" + ETN_RULES_FILE + ") not found.");
+        }
+        return JAXB.unmarshal(lf.getFile(), EtnRules.class);
+    }
+
+    private boolean shouldSetETNtoNextValue(StdTextProduct prod) {
+        List<String> excludedPhenSigs = null;
+        try {
+            excludedPhenSigs = getETNRules().getExcludePhenSigs();
+        } catch (Exception e) {
+            statusHandler.handle(Priority.WARN,
+                    "Error loading ETN assignment rules.  Will use default rules.",
+                    e);
+            excludedPhenSigs = defaultNoETNIncrementPhenSigs;
+        }
+        boolean result = true;
+        VtecObject vo = VtecUtil.parseMessage(prod.getProduct());
+        if (vo != null && excludedPhenSigs != null
+                && excludedPhenSigs.contains(vo.getPhensig())) {
+            result = false;
+        }
+        return result;
     }
 
     private OUPRequest createOUPRequest(StdTextProduct prod, String text) {
@@ -7817,6 +7881,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             highlightBackgroundClr.dispose();
         }
 
+        SimulatedTime.getSystemTime().removeSimulatedTimeChangeListener(this);
+
         inEditMode = false;
     }
 
@@ -8064,8 +8130,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                                 && (allText.charAt(eol + 1) == '\n')) {
                             deleteLen = 2;
                         } else if (allText.charAt(eol) == '\n') {
-                            if ((allText.charAt(eol - 1) == '.')
-                                    && (allText.charAt(eol - 2) != '.')) {
+                            if (allText.charAt(eol - 1) == '.'
+                                    && allText.charAt(eol - 2) != '.') {
                                 // do not extend this line.
                                 return;
                             } else {
@@ -8735,5 +8801,26 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         header = header + "\n\n" + body + "\n!--not sent--!";
 
         return header;
+    }
+
+    /**
+     * Validate CAVE is in a state to allow sending of text product; and display
+     * a warning when unable to send.
+     * 
+     * @return true when able to send text product
+     */
+    private boolean validateTime() {
+        if ((shell != null) && !shell.isDisposed() && shell.isVisible()
+                && !SimulatedTimeOperations.isTransmitAllowed()) {
+            SimulatedTimeOperations.displayFeatureLevelWarning(shell,
+                    "Send Text Product");
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void timechanged() {
+        validateTime();
     }
 }

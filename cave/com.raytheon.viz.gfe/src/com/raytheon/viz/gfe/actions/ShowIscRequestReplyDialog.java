@@ -86,8 +86,7 @@ public class ShowIscRequestReplyDialog extends AbstractHandler {
     public boolean isEnabled() {
         DataManager dm = DataManagerUIFactory.getCurrentInstance();
         if (dm != null) {
-            return (!dm.sendIscOnSave() || !dm.sendIscOnPublish())
-                    && CAVEMode.getMode().equals(CAVEMode.OPERATIONAL)
+            return CAVEMode.getMode().equals(CAVEMode.OPERATIONAL)
                     && dm.requestISC();
         }
 

@@ -29,6 +29,7 @@ import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.hydrocommon.data.FloodCategoryData;
+import com.raytheon.viz.hydrocommon.util.DbUtils;
 import com.raytheon.viz.hydrocommon.util.HydroDataUtils;
 
 /**
@@ -50,13 +51,12 @@ import com.raytheon.viz.hydrocommon.util.HydroDataUtils;
 public class FloodCategoryDataManager extends HydroDataManager {
     protected static FloodCategoryDataManager manager = null;
 
- 
     private static final String INSERT_STATEMENT = "INSERT INTO floodcat (lid, major_stage, moderate_stage, minor_stage, major_flow, moderate_flow, minor_flow) VALUES ('%s', %s, %s, %s, %s, %s, %s)";
-   
+
     private static final String SELECT_STATEMENT = "SELECT lid, major_stage, moderate_stage, minor_stage, major_flow, moderate_flow, minor_flow FROM floodcat";
 
     private static final String DELETE_STATEMENT = "DELETE from floodcat WHERE %s";
-   
+
     private static final String UPDATE_STATEMENT = "UPDATE floodcat SET major_stage=%s, moderate_stage=%s, minor_stage=%s, major_flow=%s, moderate_flow=%s, minor_flow=%s WHERE %s";
 
     /**
@@ -100,8 +100,8 @@ public class FloodCategoryDataManager extends HydroDataManager {
      */
     public void deleteRecord(FloodCategoryData recordToDelete)
             throws VizException {
-        runStatement(String.format(DELETE_STATEMENT, HydroDataUtils
-                .getPKStatement(recordToDelete)));
+        runStatement(String.format(DELETE_STATEMENT,
+                HydroDataUtils.getPKStatement(recordToDelete)));
     }
 
     /**
@@ -128,8 +128,8 @@ public class FloodCategoryDataManager extends HydroDataManager {
         QueryResult result = runMappedQuery(SELECT_STATEMENT + " WHERE lid='"
                 + lid + "'");
 
-        return (result.getResultCount() > 0) ? new FloodCategoryData(result
-                .getRows()[0], result.getColumnNames())
+        return (result.getResultCount() > 0) ? new FloodCategoryData(
+                result.getRows()[0], result.getColumnNames())
                 : new FloodCategoryData();
     }
 
@@ -149,48 +149,54 @@ public class FloodCategoryDataManager extends HydroDataManager {
 
     private void updateFloodCategoryData(FloodCategoryData data)
             throws VizException {
-    	Double majorS =null, minorS=null, moderateS=null, majorD=null, minorD=null, moderateD=null;    	
-    	
-    	if (data.getMajorStage() != HydroConstants.MISSING_VALUE)
-    		majorS = data.getMajorStage();
-    	if (data.getModerateStage() != HydroConstants.MISSING_VALUE)
-    		moderateS = data.getModerateStage();
-    	if (data.getMinorStage() != HydroConstants.MISSING_VALUE)
-    		minorS = data.getMinorStage();
-    	if (data.getMajorDischarge() != HydroConstants.MISSING_VALUE)
-    		majorD = data.getMajorDischarge();
-    	if (data.getModerateDischarge() != HydroConstants.MISSING_VALUE)
-    		moderateD = data.getModerateDischarge();
-    	if (data.getMinorDischarge() != HydroConstants.MISSING_VALUE)
-    		minorD = data.getMinorDischarge();
-    	    	
-    	    
-    	/*check if any of the stages or flows is missing, then assign null into database;*/
-    	runStatement(String.format(UPDATE_STATEMENT, majorS, moderateS, minorS, majorD, 
-    			     moderateD, minorD, HydroDataUtils.getPKStatement(data)));
+        Double majorS = null, minorS = null, moderateS = null, majorD = null, minorD = null, moderateD = null;
+
+        DbUtils.escapeSpecialCharforData(data);
+
+        if (data.getMajorStage() != HydroConstants.MISSING_VALUE)
+            majorS = data.getMajorStage();
+        if (data.getModerateStage() != HydroConstants.MISSING_VALUE)
+            moderateS = data.getModerateStage();
+        if (data.getMinorStage() != HydroConstants.MISSING_VALUE)
+            minorS = data.getMinorStage();
+        if (data.getMajorDischarge() != HydroConstants.MISSING_VALUE)
+            majorD = data.getMajorDischarge();
+        if (data.getModerateDischarge() != HydroConstants.MISSING_VALUE)
+            moderateD = data.getModerateDischarge();
+        if (data.getMinorDischarge() != HydroConstants.MISSING_VALUE)
+            minorD = data.getMinorDischarge();
+
+        /*
+         * check if any of the stages or flows is missing, then assign null into
+         * database;
+         */
+        runStatement(String.format(UPDATE_STATEMENT, majorS, moderateS, minorS,
+                majorD, moderateD, minorD, HydroDataUtils.getPKStatement(data)));
     }
 
     private void insertFloodData(FloodCategoryData currData)
             throws VizException {
-    	
-     Double majorS =null, minorS=null, moderateS=null, majorD=null, minorD=null, moderateD=null;    	
-    	
-    	if (currData.getMajorStage() != HydroConstants.MISSING_VALUE)
-    		majorS = currData.getMajorStage();
-    	if (currData.getModerateStage() != HydroConstants.MISSING_VALUE)
-    		moderateS = currData.getModerateStage();
-    	if (currData.getMinorStage() != HydroConstants.MISSING_VALUE)
-    		minorS = currData.getMinorStage();
-    	if (currData.getMajorDischarge() != HydroConstants.MISSING_VALUE)
-    		majorD = currData.getMajorDischarge();
-    	if (currData.getModerateDischarge() != HydroConstants.MISSING_VALUE)
-    		moderateD = currData.getModerateDischarge();
-    	if (currData.getMinorDischarge() != HydroConstants.MISSING_VALUE)
-    		minorD = currData.getMinorDischarge();	    	
-    	
-    	/* if any of the stage or flows is missing, the assign null to database */
-    	runStatement(String.format(INSERT_STATEMENT, currData.getLid(),
-                     majorS, moderateS, minorS, majorD, moderateD, minorD));      
+
+        Double majorS = null, minorS = null, moderateS = null, majorD = null, minorD = null, moderateD = null;
+
+        DbUtils.escapeSpecialCharforData(currData);
+
+        if (currData.getMajorStage() != HydroConstants.MISSING_VALUE)
+            majorS = currData.getMajorStage();
+        if (currData.getModerateStage() != HydroConstants.MISSING_VALUE)
+            moderateS = currData.getModerateStage();
+        if (currData.getMinorStage() != HydroConstants.MISSING_VALUE)
+            minorS = currData.getMinorStage();
+        if (currData.getMajorDischarge() != HydroConstants.MISSING_VALUE)
+            majorD = currData.getMajorDischarge();
+        if (currData.getModerateDischarge() != HydroConstants.MISSING_VALUE)
+            moderateD = currData.getModerateDischarge();
+        if (currData.getMinorDischarge() != HydroConstants.MISSING_VALUE)
+            minorD = currData.getMinorDischarge();
+
+        /* if any of the stage or flows is missing, the assign null to database */
+        runStatement(String.format(INSERT_STATEMENT, currData.getLid(), majorS,
+                moderateS, minorS, majorD, moderateD, minorD));
     }
 
     public boolean putFloodCategoryData(String lid, String majorStage,
@@ -198,42 +204,42 @@ public class FloodCategoryDataManager extends HydroDataManager {
             String modDischarge, String minorDischarge, Shell shell)
             throws VizException {
         boolean rval = false;
-        String blankStr="";        
+        String blankStr = "";
 
         FloodCategoryData newData = new FloodCategoryData();
 
         newData.setLid(lid);
 
         try {
-        	 if (majorDischarge.equals(blankStr))
-             	newData.setMajorDischarge((double) HydroConstants.MISSING_VALUE);    
-             else
-             	newData.setMajorDischarge(Double.parseDouble(majorDischarge));
-             
-             if (modDischarge.equals(blankStr))
-             	newData.setModerateDischarge((double) HydroConstants.MISSING_VALUE);
-             else
-                newData.setModerateDischarge(Double.parseDouble(modDischarge));
-             
-             if (minorDischarge.equals(blankStr))
-             	newData.setMinorDischarge((double) HydroConstants.MISSING_VALUE);
-             else
-                 newData.setMinorDischarge(Double.parseDouble(minorDischarge));
+            if (majorDischarge.equals(blankStr))
+                newData.setMajorDischarge((double) HydroConstants.MISSING_VALUE);
+            else
+                newData.setMajorDischarge(Double.parseDouble(majorDischarge));
 
-             if (majorStage.equals(blankStr))
-             	newData.setMajorStage((double) HydroConstants.MISSING_VALUE);
-             else
+            if (modDischarge.equals(blankStr))
+                newData.setModerateDischarge((double) HydroConstants.MISSING_VALUE);
+            else
+                newData.setModerateDischarge(Double.parseDouble(modDischarge));
+
+            if (minorDischarge.equals(blankStr))
+                newData.setMinorDischarge((double) HydroConstants.MISSING_VALUE);
+            else
+                newData.setMinorDischarge(Double.parseDouble(minorDischarge));
+
+            if (majorStage.equals(blankStr))
+                newData.setMajorStage((double) HydroConstants.MISSING_VALUE);
+            else
                 newData.setMajorStage(Double.parseDouble(majorStage));
-            
-             if (modStage.equals(blankStr))
-             	newData.setModerateStage((double) HydroConstants.MISSING_VALUE);
-             else
+
+            if (modStage.equals(blankStr))
+                newData.setModerateStage((double) HydroConstants.MISSING_VALUE);
+            else
                 newData.setModerateStage(Double.parseDouble(modStage));
-             
-             if (minorStage.equals(blankStr))
-             	newData.setMinorStage((double) HydroConstants.MISSING_VALUE);
-             else
-                newData.setMinorStage(Double.parseDouble(minorStage));             
+
+            if (minorStage.equals(blankStr))
+                newData.setMinorStage((double) HydroConstants.MISSING_VALUE);
+            else
+                newData.setMinorStage(Double.parseDouble(minorStage));
         } catch (Exception e) {
             MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
             mb.setText("Invalid Value");

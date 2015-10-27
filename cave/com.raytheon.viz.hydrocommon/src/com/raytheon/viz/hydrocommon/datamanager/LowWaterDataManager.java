@@ -29,6 +29,7 @@ import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.dataquery.db.QueryResultRow;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.data.LowWaterData;
+import com.raytheon.viz.hydrocommon.util.DbUtils;
 import com.raytheon.viz.hydrocommon.util.HydroDataUtils;
 
 /**
@@ -161,6 +162,9 @@ public class LowWaterDataManager extends HydroDataManager {
     }
 
     private void updateLowWaterData(LowWaterData data) throws VizException {
+
+        DbUtils.escapeSpecialCharforData(data);
+
         runStatement(String.format(
                 UPDATE_STATEMENT,
                 (data.getFlow() == LowWaterData.MISSING_VALUE) ? "null" : data
@@ -170,6 +174,9 @@ public class LowWaterDataManager extends HydroDataManager {
     }
 
     private void insertLowWaterData(LowWaterData currData) throws VizException {
+
+        DbUtils.escapeSpecialCharforData(currData);
+
         runStatement(String.format(INSERT_STATEMENT, currData.getLid(),
                 dateFormat.format(currData.getDate()),
                 (currData.getFlow() == LowWaterData.MISSING_VALUE) ? "null"
