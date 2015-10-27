@@ -176,7 +176,7 @@ edex_log() { # display todays log, default to ingest
                 exit;
         fi
 	# EDEX ingest log (default)
-	LOG_FILE=${LOG_PATH}edex-ingest-${YMD}.log
+	LOG_FILE=${LOG_PATH}/edex-ingest-${YMD}.log
 	if [ "${args[1]}" == 'ingest' ]; then
 		tail_log
 		exit;
