@@ -40,6 +40,7 @@
 #    02/05/15        4099          randerso       Fixed exception handling in __getActiveTable
 #    05/07/2015      4027          randerso       Fixed error handling, 
 #                                                 added NOTE about false postives for duplicate ETNs
+#    10/29/2015      17701         yteng          Correct parm selection for Hazards to exclude Hazardsnc
 #
 
 
@@ -1037,10 +1038,8 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
 #        pid = filter(lambda x: str(x).find("Hazards") != -1,
 #           self.__ifpClient.getParmList(self.__databaseID))[0]
         parmList = self.__ifpClient.getParmList(dbid)
-        size = parmList.size()
-        for x in range(size):
-            p = parmList.get(x)
-            if str(p).find("Hazards") != -1:
+        for p in parmList:
+            if p.getParmName() == "Hazards":
                 pid = p
                 break
 
