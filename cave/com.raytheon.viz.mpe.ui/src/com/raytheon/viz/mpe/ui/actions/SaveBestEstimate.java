@@ -74,6 +74,7 @@ import com.raytheon.viz.mpe.ui.dialogs.polygon.PolygonEditManager;
  * Apr29, 2014  16308      lbousaidi    transmit RFC Bias when an hour
  *                                      MPE is saved via the GUI.
  * Mar 10, 2015 14554      snaples      Added check to remove Best Estimate polygons after saving.
+ * Oct 19, 2015 18090      lbousaidi    Added date format when the token st3_date_form token is set to Ymd.
  * </pre>
  * 
  * @author mschenke
@@ -106,6 +107,8 @@ public class SaveBestEstimate {
         if ((date_form == null) || date_form.isEmpty()
                 || date_form.equals("mdY")) {
             ST3_FORMAT_STRING = MPEDateFormatter.MMddyyyyHH;
+        } else if (date_form.equals("Ymd")){
+            ST3_FORMAT_STRING = MPEDateFormatter.yyyyMMddHH; 
         }
         /*----------------------------------------------------------*/
         /* create date in desired format for use in xmrg filename */

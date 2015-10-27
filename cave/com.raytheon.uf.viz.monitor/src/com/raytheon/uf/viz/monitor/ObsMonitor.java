@@ -20,14 +20,13 @@
 package com.raytheon.uf.viz.monitor;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.swt.widgets.Display;
 
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
 import com.raytheon.uf.common.dataplugin.fssobs.FSSObsRecord;
@@ -41,7 +40,6 @@ import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
@@ -66,6 +64,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * May 08, 2014 3086       skorolev    Added current site definition.
  * Sep 04, 2014 3220       skorolev    Removed cwa and monitorUsefrom vals.
  * Sep 18, 2015 3873       skorolev    Included common definitions.
+ * Oct 21, 2015 3873       dhladky     Get Obs load off UI thread.
  * 
  * </pre>
  * 
@@ -78,6 +77,8 @@ public abstract class ObsMonitor extends Monitor {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(ObsMonitor.class);
+    
+    protected ProcessObsJob obsJob = null;
 
     /*
      * (non-Javadoc)
@@ -229,7 +230,7 @@ public abstract class ObsMonitor extends Monitor {
         try {
             Map<String, RequestConstraint> constraints = RequestConstraint
                     .toConstraintMapping(DataURIUtil.createDataURIMap(dataURI));
-            FSSObsRecord[] pdos = requestFSSObs(constraints, null);
+            FSSObsRecord[] pdos = requestFSSObs(constraints);
             if (pdos.length > 0 && pdos[0].getTimeObs() != null) {
                 final FSSObsRecord objectToSend = pdos[0];
                 try {
@@ -272,47 +273,19 @@ public abstract class ObsMonitor extends Monitor {
      */
     public void processProductAtStartup() {
 
-        /**
-         * Assume this number for MaxNumObsTimes is larger enough to cover data
-         * of all observations (at least 24 hours' worth of data) in database
-         * [changed from 10 to 240 on May, 18, 2010 for DR #6015, zhao]
-         */
-        int MaxNumObsTimes = 240;
-        Map<String, RequestConstraint> vals = new HashMap<String, RequestConstraint>();
-        try {
-            vals.put(FSSObsRecord.PLUGIN_NAME_ID, new RequestConstraint(
-                    FSSObsRecord.PLUGIN_NAME));
-
-            DataTime[] dataTimesAvailable = DataCubeContainer.performTimeQuery(
-                    vals, false);
-            DataTime[] selectedTimes = dataTimesAvailable;
-
-            // Ensure that the latest product is retrieved.
-            // [Modified: retrieve at most MaxNumObsTimes data
-            // points, Feb
-            // 19, 2010, zhao]
-            if (dataTimesAvailable.length > 0) {
-                Arrays.sort(dataTimesAvailable);
-                // at most, MaxNumObsTimes observation times are
-                // considered
-                if (dataTimesAvailable.length > MaxNumObsTimes) {
-                    selectedTimes = new DataTime[MaxNumObsTimes];
-                    System.arraycopy(dataTimesAvailable,
-                            dataTimesAvailable.length - MaxNumObsTimes,
-                            selectedTimes, 0, MaxNumObsTimes);
-                }
-
-                FSSObsRecord[] obsRecords = requestFSSObs(vals, selectedTimes);
-                for (FSSObsRecord objectToSend : obsRecords) {
-                    ObReport result = GenerateFSSObReport
-                            .generateObReport(objectToSend);
-                    processAtStartup(result);
-                }
+        final long start = System.currentTimeMillis();
+        obsJob = null;
+        obsJob = new ProcessObsJob(this);
+        obsJob.addJobChangeListener(new JobChangeAdapter() {
+            @Override
+            public void done(IJobChangeEvent event) {
+                // do nothing at this point
+                final long end = System.currentTimeMillis();
+                statusHandler.info("Obs Load took: "+(end-start)+" ms");
+                obsJob = null;
             }
-        } catch (DataCubeException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "No data in database at startup.");
-        }
+        });
+        obsJob.schedule();
     }
 
     /**
@@ -324,17 +297,9 @@ public abstract class ObsMonitor extends Monitor {
      * @throws VizException
      * @throws DataCubeException
      */
-    private FSSObsRecord[] requestFSSObs(
-            Map<String, RequestConstraint> constraints, DataTime[] times)
+    protected FSSObsRecord[] requestFSSObs(
+            Map<String, RequestConstraint> constraints)
             throws DataCubeException {
-        if (times != null) {
-            String[] timeStrs = new String[times.length];
-            for (int i = 0; i < times.length; ++i) {
-                timeStrs[i] = times[i].toString();
-            }
-            constraints.put(PluginDataObject.DATATIME_ID,
-                    new RequestConstraint(timeStrs));
-        }
         PointDataContainer pdc = DataCubeContainer.getPointData(
                 FSSObsRecord.PLUGIN_NAME, FSSObsRecordTransform.FSSOBS_PARAMS,
                 constraints);
