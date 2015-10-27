@@ -138,7 +138,7 @@
      -->
 <archive>
     <name>Raw</name>
-    <rootDir>/data_store/</rootDir>
+    <rootDir>/awips2/data_store/</rootDir>
     <minRetentionHours>168</minRetentionHours>
     <category>
         <name>Local</name>

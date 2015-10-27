@@ -79,7 +79,7 @@ class mhsFileIngest:
         fileCount=0
         errCount=0
         for outfile in args:
-            #Make sure incoming file exists in /data_store/mhs directory 
+            #Make sure incoming file exists in /awips2/data_store/mhs directory 
 #           print "outfle:", outfile
             if os.path.exists(outfile):
                 try:
@@ -89,7 +89,7 @@ class mhsFileIngest:
                     errCount += 1
                 else:
                     firstLine=f.readline()
-		    if grib_regex in outfile: # this comes from /data_store/grib2 or /data_store/mrms
+		    if grib_regex in outfile: # this comes from /awips2/data_store/grib2 or /awips2/data_store/mrms
                         wmoHdr = grib_regex
                     else:
 		        #read first line to get wmo header

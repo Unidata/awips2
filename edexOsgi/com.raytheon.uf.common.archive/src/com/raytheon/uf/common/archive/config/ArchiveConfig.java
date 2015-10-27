@@ -34,7 +34,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * <pre>
  * &lt;archive>
  *   &lt;name>Raw&lt;/name>
- *   &lt;rootDir>/data_store/&lt;/rootDir>
+ *   &lt;rootDir>/awips2/data_store/&lt;/rootDir>
  *   &lt;!-- default retention hours for a category. -->
  *   &lt;minRetentionHours>168&lt;/minRetentionHours>
  *   &lt;category>

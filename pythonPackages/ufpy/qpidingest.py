@@ -41,14 +41,14 @@
 #------------------------------------------------------------------------------
 # import qpidingest
 # #Tell EDEX to ingest a metar file from data_store. The filepath is
-# #/data_store/20100218/metar/00/standard/20100218_005920_SAUS46KSEW.metar
+# #/awips2/data_store/20100218/metar/00/standard/20100218_005920_SAUS46KSEW.metar
 #
 # conn=qpidingest.IngestViaQPID() #defaults to localhost port 5672
 #
 # #If EDEX is not on the local machine you can make the connection as follows
 # #conn=qpidingest.IngestViaQPID(host='<MACHINE NAME>',port=<PORT NUMBER>)
 #
-# conn.sendmessage('/data_store/20100218/metar/18/standard/20100218_185755_SAUS46KLOX.metar','SAUS46 KLOX')
+# conn.sendmessage('/awips2/data_store/20100218/metar/18/standard/20100218_185755_SAUS46KLOX.metar','SAUS46 KLOX')
 # conn.close()
 #-------------------------------------------------------------------------------
 #
