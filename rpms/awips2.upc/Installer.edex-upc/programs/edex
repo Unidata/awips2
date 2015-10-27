@@ -348,15 +348,15 @@ edex_purge() {
                 echo ' EDEX purge has been reset'
                 exit;
         else
-		purgeCheck=`su awips -c 'psql metadata -c "select plugin from purgejobs where failedcount = 3;"'`
+		purgeCheck=`su - awips -c 'psql metadata -c "select plugin from purgejobs where failedcount = 3;"'`
                 if [[ ${#purgeCheck} > 26 ]]; then
-                    su awips -c 'psql metadata -c "select plugin from purgejobs where failedcount = 3;"'
+                    su - awips -c 'psql metadata -c "select plugin from purgejobs where failedcount = 3;"'
                 fi
                 exit;
         fi
 }
 edex_purge_reset() {
-        su awips -c 'psql metadata -c "update purgejobs set failedcount = 0;"' >& /dev/null
+        su - awips -c 'psql metadata -c "update purgejobs set failedcount = 0;"' >& /dev/null
 }
 
 edex_options() { # print out options for this programs
