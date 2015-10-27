@@ -42,6 +42,7 @@ import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.HydroConstants;
+import com.raytheon.viz.mpe.MPEDateFormatter;
 import com.raytheon.viz.mpe.core.MPEDataManager;
 import com.raytheon.viz.mpe.core.MPEDataManager.MPEGageData;
 import com.raytheon.viz.mpe.ui.DisplayFieldData;
@@ -60,9 +61,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jan 28, 2010 4415       mpduff      Fixed problem with column 
  *                                       header creation.
  * May 20, 2013 15962      lbousaidi   Added a new routine getRadarIdsTrue()
- *                                     for Radar Sites dialog.                                    
+ *                                     for Radar Sites dialog.
  * Mar 05, 2014 17114      lbousaidi   display PC data in gage table. 
  * Sep 04, 2014 16699      cgobs       Fixed 14.3.1 issue with reading MPE field data.
+ * Oct 19, 2015 18090      lbousaidi   fixed best estimate qpe display.
  * </pre>
  * 
  * @author mpduff
@@ -1135,11 +1137,28 @@ public class GageTableDataManager {
                 .getInstance();
         MPEDisplayManager displayManager = MPEDisplayManager.getCurrent();
         double returnValue = -999.0;
+        String ST3_FORMAT_STRING = MPEDateFormatter.yyyyMMddHH;
+        String date_form = appsDefaults.getToken("st3_date_form");// non need just change format of sdf
+        if ((date_form == null) || date_form.isEmpty()
+                || date_form.equals("mdY")) {
+            ST3_FORMAT_STRING = MPEDateFormatter.MMddyyyyHH;
+        } else if (date_form.equals("Ymd")){
+            ST3_FORMAT_STRING = MPEDateFormatter.yyyyMMddHH; 
+        }
 
         try {
             String dirname = appsDefaults.getToken(dataType.getDirToken());
-            String fname = FileUtil.join(dirname,
+            String fname= null;
+            if (dataType.getFileNamePrefix().contains("XMRG")) {
+                String cdate = MPEDateFormatter.format(displayManager.getCurrentEditDate(), ST3_FORMAT_STRING);
+                fname= FileUtil.join(dirname,
+                        dataType.getFileNamePrefix().toLowerCase() + cdate + "z");
+                //System.out.println(" in gageTable Datamanager.java fname=  "+fname  );
+            }else {
+                fname = FileUtil.join(dirname,
                     dataType.getFileNamePrefix() + sdf.format(displayManager.getCurrentEditDate()) + "z");
+
+            }
 
             Rectangle extent = dataManager.getHRAPExtent();
 
@@ -1158,7 +1177,7 @@ public class GageTableDataManager {
             // Needed to flip the grid
             int gridY = extent.height - (y - extent.y) - 1;
             short value = data[gridY][gridX];
-            
+
             // Any value < 0 is considered missing
             if ((value == -899.0) || (value == -999.0) || (value < 0)) {
                 returnValue = -999.0;

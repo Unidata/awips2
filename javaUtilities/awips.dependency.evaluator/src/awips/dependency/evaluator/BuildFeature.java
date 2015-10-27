@@ -34,6 +34,7 @@ import java.util.HashSet;
  * ------------ ---------- ----------- --------------------------
  * Sep 29, 2015 4759       bkowal      Initial creation
  * Oct 09, 2015 4759       bkowal      Build cycles now cause failure.
+ * Oct 20, 2015 4759       bkowal      Added {@link #eclipse}.
  * 
  * </pre>
  * 
@@ -48,6 +49,11 @@ public class BuildFeature {
     private String id;
 
     private final Path featurePath;
+
+    /*
+     * Indicates that this feature is provided by Eclipse.
+     */
+    private final boolean eclipse;
 
     /*
      * A {@link Set} of the {@link BuildFeature}s that are dependent on this
@@ -72,7 +78,12 @@ public class BuildFeature {
     private boolean topoMark = false;
 
     public BuildFeature(final Path featurePath) {
+        this(featurePath, false);
+    }
+
+    public BuildFeature(final Path featurePath, boolean eclipse) {
         this.featurePath = featurePath;
+        this.eclipse = eclipse;
     }
 
     public void addDependentFeature(BuildFeature buildFeature) {
@@ -156,6 +167,13 @@ public class BuildFeature {
      */
     public boolean isTopoMark() {
         return topoMark;
+    }
+
+    /**
+     * @return the eclipse
+     */
+    public boolean isEclipse() {
+        return eclipse;
     }
 
     /*

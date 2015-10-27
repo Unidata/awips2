@@ -17,6 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
+
 package com.raytheon.uf.viz.monitor.ffmp.ui.dialogs;
 
 import java.util.ArrayList;
@@ -53,6 +54,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  *                                     Initial creation
  * Dec 6, 2012            rferrel      Change to non-blocking dialog.
+ * Oct, 21 2015  4821     dhladky      Fixed bad ffgType subString and width.
  * 
  * </pre>
  * 
@@ -243,11 +245,11 @@ public class AttributesDlg extends CaveSWTDialog {
         addSeparator(attrComp);
 
         gd.horizontalIndent = 15;
-        gd.widthHint = 140;
+        gd.widthHint = 180;
 
         String fcolumnName = ffmpTableCfgData.getTableColumnAttr(
                 ffmpTableCfgData.getTableColumnKeys()[6]).getName();
-        String ffgType = fcolumnName.substring(0, columnName.indexOf(" "));
+        String ffgType = fcolumnName.substring(0, fcolumnName.indexOf("::"));
         ArrayList<String> guidTypes = productRun.getGuidanceTypes(prodXml);
 
         for (String name : guidTypes) {
