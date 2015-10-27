@@ -20,9 +20,7 @@
 
 package com.raytheon.viz.pointdata;
 
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.awt.image.IndexColorModel;
 import java.io.File;
 import java.text.ParseException;
 import java.text.ParsePosition;
@@ -35,21 +33,13 @@ import java.util.Formatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
 
-import org.apache.batik.bridge.BridgeContext;
-import org.apache.batik.bridge.GVTBuilder;
-import org.apache.batik.bridge.UserAgentAdapter;
-import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
-import org.apache.batik.gvt.GraphicsNode;
-import org.apache.batik.util.XMLResourceDescriptor;
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.referencing.GeodeticCalculator;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -61,9 +51,11 @@ import com.raytheon.uf.common.python.concurrent.PythonJobCoordinator;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
+import com.raytheon.uf.viz.core.point.svg.SVGImageFactory;
 import com.raytheon.viz.pointdata.lookup.IAbstractLookupTable;
 import com.raytheon.viz.pointdata.lookup.LookupUtils;
 import com.raytheon.viz.pointdata.python.CheckPlotValidityExecutor;
@@ -71,7 +63,6 @@ import com.raytheon.viz.pointdata.python.PlotPythonScript;
 import com.raytheon.viz.pointdata.python.PlotPythonScriptFactory;
 import com.raytheon.viz.pointdata.python.SampleTextExecutor;
 import com.raytheon.viz.pointdata.rsc.PlotResource;
-import com.raytheon.viz.pointdata.rsc.PlotResourceData;
 
 /**
  * A factory for generating plot images and sample messages by parsing the
@@ -94,13 +85,14 @@ import com.raytheon.viz.pointdata.rsc.PlotResourceData;
  * Jun 06, 2014  2061     bsteffen    Rename and add support for data formats in sampling.
  * Aug 07, 2014  3478     bclement    removed PointDataDescription.Type.Double
  * Dec 16, 2014 16193     kshrestha   Updated range limits
+ * Oct 27, 2015  4798     bsteffen    Extend SVGImageFactory
  * 
  * </pre>
  * 
  * @author BRock97
  * @version 1.0
  */
-public class PlotModelFactory {
+public class PlotModelFactory extends SVGImageFactory {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PlotModelFactory.class);
 
@@ -128,21 +120,11 @@ public class PlotModelFactory {
 
     private final SimpleDateFormat SAMPLE_DATE = new SimpleDateFormat("HHmm");
 
-    // Need to include attribute and code to allow for String2String lookups and
-    // String2Number lookups
-    // to support clouds and present weather
-
     private int width = 1;
 
     private LineStyle lineStyle = LineStyle.DEFAULT;
 
     private String currentStyleStr;
-
-    private Document document;
-
-    private final GVTBuilder builder;
-
-    private final BridgeContext bridgeContext;
 
     private int plotModelWidth;
 
@@ -158,8 +140,8 @@ public class PlotModelFactory {
 
     private final IMapDescriptor mapDescriptor;
 
-    private IndexColorModel tm;
-
+    private RGB color;
+    
     private final List<PlotModelElement> plotFields;
 
     private final List<PlotModelElement> sampleFields;
@@ -180,7 +162,7 @@ public class PlotModelFactory {
         TEXT, BARB, TABLE, AVAIL, RANGE, NULL, SAMPLE, ARROW
     }
 
-    public class PlotModelElement {
+    public static class PlotModelElement {
         DisplayMode mode = DisplayMode.TEXT;
 
         String format = null;
@@ -218,7 +200,7 @@ public class PlotModelFactory {
         }
     }
 
-    public class PlotWindElement {
+    public static class PlotWindElement {
         Node barbNode = null;
 
         Element barbElement = null;
@@ -236,29 +218,18 @@ public class PlotModelFactory {
         String gustY = null;
     }
 
-    public PlotModelFactory(IMapDescriptor mapDescriptor, String plotModelFile) {
-        byte full = (byte) 255;
-        byte zero = (byte) 0;
-        byte[] red = { 0, zero };
-        byte[] blue = { 0, full };
-        byte[] green = { 0, zero };
+    public PlotModelFactory(IMapDescriptor mapDescriptor, String plotModelFile)
+            throws VizException {
+        super(plotModelFile(plotModelFile));
         regenerateStyle();
         this.plotModelFile = plotModelFile;
         this.plotFields = new ArrayList<PlotModelElement>();
         this.sampleFields = new ArrayList<PlotModelElement>();
 
-        tm = new IndexColorModel(8, 2, red, blue, green, 0);
+        setColor(new RGB(0, 0, 255));
         this.gc = new GeodeticCalculator(mapDescriptor.getCRS());
         this.mapDescriptor = mapDescriptor;
-        String parser = XMLResourceDescriptor.getXMLParserClassName();
-        SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
-        try {
-            document = f.createDocument(PathManagerFactory.getPathManager()
-                    .getStaticFile(PlotResourceData.PLOT_DIR + plotModelFile)
-                    .toURI().toString());
-        } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM, "Error parsing svg file", e);
-        }
+
         this.svgRoot = document.getDocumentElement();
         this.originalPlotModelWidth = Integer.parseInt(svgRoot.getAttributeNS(
                 null, "width"));
@@ -276,171 +247,12 @@ public class PlotModelFactory {
             if (Node.ELEMENT_NODE == plotElements.item(i).getNodeType()) {
                 Element plotElement = (Element) plotElements.item(i);
                 if (plotElement.hasAttribute(DM_ATTRIBUTE)) {
-                    PlotModelElement thisElement = new PlotModelElement();
-                    thisElement.plotElement = plotElement;
-                    thisElement.plotNode = plotElement.getChildNodes().item(0);
-                    if (plotElement.getAttribute(DM_ATTRIBUTE).equals("text")) {
-                        thisElement.mode = DisplayMode.TEXT;
-                        plotElement.setAttribute("class", "text");
-                        displayedElementCount++;
-                    } else if (plotElement.getAttribute(DM_ATTRIBUTE).equals(
-                            "barb")) {
-                        thisElement.mode = DisplayMode.BARB;
-                        thisElement.winds = new PlotWindElement();
-                        NodeList windElements = plotElement.getChildNodes();
-                        for (int j = 0; j < windElements.getLength(); j++) {
-                            if (Node.ELEMENT_NODE == windElements.item(j)
-                                    .getNodeType()) {
-                                Element windElement = (Element) windElements
-                                        .item(j);
-                                if (windElement.getAttribute("class").matches(
-                                        "arrow")) {
-                                    thisElement.winds.arrowElement = windElement;
-                                    thisElement.winds.arrowNode = windElement
-                                            .getChildNodes().item(0);
-                                } else if (windElement.getAttribute("class")
-                                        .matches("barb")) {
-                                    thisElement.winds.barbElement = windElement;
-                                    thisElement.winds.barbNode = windElement
-                                            .getChildNodes().item(0);
-                                } else if (windElement.getAttribute("class")
-                                        .matches("text")) {
-                                    thisElement.winds.gustElement = windElement;
-                                    thisElement.winds.gustNode = windElement
-                                            .getChildNodes().item(0);
-                                    thisElement.winds.gustX = windElement
-                                            .getAttribute("x");
-                                    thisElement.winds.gustY = windElement
-                                            .getAttribute("y");
-                                }
-                            }
-                        }
-                        displayedElementCount++;
-                    } else if (plotElement.getAttribute(DM_ATTRIBUTE).equals(
-                            "arrowuv")) {
-                        thisElement.mode = DisplayMode.ARROW;
-                        thisElement.winds = new PlotWindElement();
-                        NodeList windElements = plotElement.getChildNodes();
-                        for (int j = 0; j < windElements.getLength(); j++) {
-                            if (Node.ELEMENT_NODE == windElements.item(j)
-                                    .getNodeType()) {
-                                Element windElement = (Element) windElements
-                                        .item(j);
-                                String attrClass = windElement
-                                        .getAttribute("class");
-                                if ("arrow".matches(attrClass)) {
-                                    thisElement.winds.arrowElement = windElement;
-                                    thisElement.winds.arrowNode = windElement
-                                            .getChildNodes().item(0);
-                                } else if ("arrow1".matches(attrClass)) {
-                                    thisElement.winds.arrowElement = windElement;
-                                    thisElement.winds.arrowNode = windElement
-                                            .getChildNodes().item(0);
-                                    thisElement.winds.arrowElement
-                                            .setAttribute("arrowtype",
-                                                    attrClass);
-                                } else if ("arrow2".matches(attrClass)) {
-                                    thisElement.winds.arrowElement = windElement;
-                                    thisElement.winds.arrowNode = windElement
-                                            .getChildNodes().item(0);
-                                    thisElement.winds.arrowElement
-                                            .setAttribute("arrowtype",
-                                                    attrClass);
-                                } else if ("text".matches(attrClass)) {
-                                    thisElement.winds.gustElement = windElement;
-                                    thisElement.winds.gustNode = windElement
-                                            .getChildNodes().item(0);
-                                    thisElement.winds.gustX = windElement
-                                            .getAttribute("x");
-                                    thisElement.winds.gustY = windElement
-                                            .getAttribute("y");
-                                }
-                            }
-                        }
-                        displayedElementCount++;
-                    } else if (plotElement.getAttribute(DM_ATTRIBUTE).equals(
-                            "table")
-                            || plotElement.getAttribute(DM_ATTRIBUTE).equals(
-                                    "recursive_translation")) {
-                        thisElement.mode = DisplayMode.TABLE;
-                        if (plotElement.hasAttribute(PFT_ATTRIBUTE)) {
-                            thisElement.ranking = S2N.readS2NFile(plotElement
-                                    .getAttribute(PFT_ATTRIBUTE));
-                        }
-                        if (plotElement.hasAttribute(PLT_ATTRIBUTE)) {
-                            File table = getTableFile(plotElement
-                                    .getAttribute(PLT_ATTRIBUTE));
-                            thisElement.lookup = LookupUtils
-                                    .buildLookupTable(table);
-                            thisElement.lookup.setMode(plotElement
-                                    .getAttribute(DM_ATTRIBUTE));
-                        }
-                        displayedElementCount++;
-                    } else if (plotElement.getAttribute(DM_ATTRIBUTE).equals(
-                            "arrow")) {
-                        plotElement.setAttribute("class", "text");
-                        thisElement.mode = DisplayMode.BARB;
-                        displayedElementCount++;
-                    } else if (plotElement.getAttribute(DM_ATTRIBUTE).equals(
-                            "available")) {
-                        thisElement.mode = DisplayMode.AVAIL;
-                        plotElement.setAttribute("class", "text");
-                        displayedElementCount++;
-                    } else if (plotElement.getAttribute(DM_ATTRIBUTE).equals(
-                            "range")) {
-                        thisElement.mode = DisplayMode.RANGE;
-                        if (plotElement.hasAttribute(PLT_ATTRIBUTE)) {
-                            File table = getTableFile(plotElement
-                                    .getAttribute(PLT_ATTRIBUTE));
-                            thisElement.lookup = LookupUtils
-                                    .buildLookupTable(table);
-                            thisElement.lookup.setMode(plotElement
-                                    .getAttribute(DM_ATTRIBUTE));
-                        }
-                        displayedElementCount++;
-                    } else if (plotElement.getAttribute(DM_ATTRIBUTE).equals(
-                            "null")) {
-                        thisElement.mode = DisplayMode.NULL;
-                    } else if (plotElement.getAttribute(DM_ATTRIBUTE).equals(
-                            "sample")) {
-                        thisElement.mode = DisplayMode.SAMPLE;
-                        if (plotElement.hasAttribute(PLT_ATTRIBUTE)) {
-                            File table = getTableFile(plotElement
-                                    .getAttribute(PLT_ATTRIBUTE));
-                            thisElement.lookup = LookupUtils
-                                    .buildLookupTable(table);
-                            thisElement.lookup.setMode(plotElement
-                                    .getAttribute(DM_ATTRIBUTE));
-                        }
-                    }
-                    thisElement.parameter = plotElement
-                            .getAttribute(P_ATTRIBUTE);
-                    if (plotElement.hasAttribute(FMT_ATTRIBUTE)) {
-                        thisElement.format = plotElement
-                                .getAttribute(FMT_ATTRIBUTE);
-                    }
-                    if (plotElement.hasAttribute(UNIT_ATTRIBUTE)) {
-                        thisElement.unit = plotElement
-                                .getAttribute(UNIT_ATTRIBUTE);
-                    }
-                    if (plotElement.hasAttribute(SYMBOL_ATTRIBUTE)) {
-                        thisElement.symbol = plotElement
-                                .getAttribute(SYMBOL_ATTRIBUTE);
-                    }
-                    if (plotElement.hasAttribute(TRIM_ATTRIBUTE)) {
-                        thisElement.trim = Integer.parseInt(plotElement
-                                .getAttribute(TRIM_ATTRIBUTE));
-                    }
-                    if (plotElement.hasAttribute(PLT_INDEX)) {
-                        thisElement.index = Integer.parseInt(plotElement
-                                .getAttribute(PLT_INDEX));
-                    }
-                    if (plotElement.hasAttribute(REQUIRED)) {
-                        thisElement.required = Boolean.parseBoolean(plotElement
-                                .getAttribute(REQUIRED));
-                    }
+                    PlotModelElement thisElement = parseElement(plotElement);
                     if (thisElement.mode != DisplayMode.SAMPLE) {
                         this.plotFields.add(thisElement);
+                        if (thisElement.mode != DisplayMode.NULL) {
+                            displayedElementCount += 1;
+                        }
                     } else {
                         this.sampleFields.add(thisElement);
                         thisElement.plotNode.setNodeValue("");
@@ -450,11 +262,13 @@ public class PlotModelFactory {
         }
 
         if (displayedElementCount <= 3) {
-            // Dont use image caching if more then 3 elements are used, with
-            // very few elements the hit rate is good enought to risk keeping
-            // the images in memory, but with more elements the hit rate drops
-            // and the cache size increases. 3 elements might not be the optimal
-            // way of detecting complexity but it is better than nothing.
+            /*
+             * Don't use image caching if more then 3 elements are used, with
+             * very few elements the hit rate is good enough to risk keeping the
+             * images in memory, but with more elements the hit rate drops and
+             * the cache size increases. 3 elements might not be the optimal way
+             * of detecting complexity but it is better than nothing.
+             */
             imageCache = new HashMap<String, BufferedImage>();
         }
         NodeList scriptNodes = document.getElementsByTagName("script");
@@ -483,51 +297,164 @@ public class PlotModelFactory {
                 python = PythonJobCoordinator.newInstance(pythonFactory);
             }
 
-            // remove the scriptNode in memory so time isn't wasted
-            // later attempting to render it
+            /*
+             * Remove the scriptNode in memory so time isn't wasted later
+             * attempting to render it
+             */
             scriptNode.getParentNode().removeChild(scriptNode);
         }
+    }
 
-        UserAgentAdapter userAgentAdapter = new UserAgentAdapter();
-        this.bridgeContext = new BridgeContext(userAgentAdapter);
-        this.builder = new GVTBuilder();
+    private static PlotModelElement parseElement(Element plotElement) {
+        String dmAttribute = plotElement.getAttribute(DM_ATTRIBUTE);
+        PlotModelElement thisElement = new PlotModelElement();
+        thisElement.plotElement = plotElement;
+        thisElement.plotNode = plotElement.getChildNodes().item(0);
+        if (dmAttribute.equals("text")) {
+            thisElement.mode = DisplayMode.TEXT;
+            plotElement.setAttribute("class", "text");
+        } else if (dmAttribute.equals("barb")) {
+            thisElement.mode = DisplayMode.BARB;
+            thisElement.winds = new PlotWindElement();
+            NodeList windElements = plotElement.getChildNodes();
+            for (int j = 0; j < windElements.getLength(); j++) {
+                if (Node.ELEMENT_NODE == windElements.item(j).getNodeType()) {
+                    Element windElement = (Element) windElements.item(j);
+                    String elementClass = windElement.getAttribute("class");
+                    if (elementClass.matches("arrow")) {
+                        thisElement.winds.arrowElement = windElement;
+                        thisElement.winds.arrowNode = windElement
+                                .getChildNodes().item(0);
+                    } else if (elementClass.matches("barb")) {
+                        thisElement.winds.barbElement = windElement;
+                        thisElement.winds.barbNode = windElement
+                                .getChildNodes().item(0);
+                    } else if (elementClass.matches("text")) {
+                        thisElement.winds.gustElement = windElement;
+                        thisElement.winds.gustNode = windElement
+                                .getChildNodes().item(0);
+                        thisElement.winds.gustX = windElement.getAttribute("x");
+                        thisElement.winds.gustY = windElement.getAttribute("y");
+                    }
+                }
+            }
+        } else if (dmAttribute.equals("arrowuv")) {
+            thisElement.mode = DisplayMode.ARROW;
+            thisElement.winds = new PlotWindElement();
+            NodeList windElements = plotElement.getChildNodes();
+            for (int j = 0; j < windElements.getLength(); j++) {
+                if (Node.ELEMENT_NODE == windElements.item(j).getNodeType()) {
+                    Element windElement = (Element) windElements.item(j);
+                    String attrClass = windElement.getAttribute("class");
+                    if ("arrow".matches(attrClass)) {
+                        thisElement.winds.arrowElement = windElement;
+                        thisElement.winds.arrowNode = windElement
+                                .getChildNodes().item(0);
+                    } else if ("arrow1".matches(attrClass)) {
+                        thisElement.winds.arrowElement = windElement;
+                        thisElement.winds.arrowNode = windElement
+                                .getChildNodes().item(0);
+                        thisElement.winds.arrowElement.setAttribute(
+                                "arrowtype", attrClass);
+                    } else if ("arrow2".matches(attrClass)) {
+                        thisElement.winds.arrowElement = windElement;
+                        thisElement.winds.arrowNode = windElement
+                                .getChildNodes().item(0);
+                        thisElement.winds.arrowElement.setAttribute(
+                                "arrowtype", attrClass);
+                    } else if ("text".matches(attrClass)) {
+                        thisElement.winds.gustElement = windElement;
+                        thisElement.winds.gustNode = windElement
+                                .getChildNodes().item(0);
+                        thisElement.winds.gustX = windElement.getAttribute("x");
+                        thisElement.winds.gustY = windElement.getAttribute("y");
+                    }
+                }
+            }
+        } else if (dmAttribute.equals("table")
+                || dmAttribute.equals("recursive_translation")) {
+            thisElement.mode = DisplayMode.TABLE;
+            if (plotElement.hasAttribute(PFT_ATTRIBUTE)) {
+                thisElement.ranking = S2N.readS2NFile(plotElement
+                        .getAttribute(PFT_ATTRIBUTE));
+            }
+            if (plotElement.hasAttribute(PLT_ATTRIBUTE)) {
+                File table = getTableFile(plotElement
+                        .getAttribute(PLT_ATTRIBUTE));
+                thisElement.lookup = LookupUtils.buildLookupTable(table);
+                thisElement.lookup.setMode(dmAttribute);
+            }
+        } else if (dmAttribute.equals("arrow")) {
+            plotElement.setAttribute("class", "text");
+            thisElement.mode = DisplayMode.BARB;
+        } else if (dmAttribute.equals("available")) {
+            thisElement.mode = DisplayMode.AVAIL;
+            plotElement.setAttribute("class", "text");
+        } else if (dmAttribute.equals("range")) {
+            thisElement.mode = DisplayMode.RANGE;
+            if (plotElement.hasAttribute(PLT_ATTRIBUTE)) {
+                File table = getTableFile(plotElement
+                        .getAttribute(PLT_ATTRIBUTE));
+                thisElement.lookup = LookupUtils.buildLookupTable(table);
+                thisElement.lookup.setMode(dmAttribute);
+            }
+        } else if (dmAttribute.equals("null")) {
+            thisElement.mode = DisplayMode.NULL;
+        } else if (dmAttribute.equals("sample")) {
+            thisElement.mode = DisplayMode.SAMPLE;
+            if (plotElement.hasAttribute(PLT_ATTRIBUTE)) {
+                File table = getTableFile(plotElement
+                        .getAttribute(PLT_ATTRIBUTE));
+                thisElement.lookup = LookupUtils.buildLookupTable(table);
+                thisElement.lookup.setMode(dmAttribute);
+            }
+        }
+        thisElement.parameter = plotElement.getAttribute(P_ATTRIBUTE);
+        if (plotElement.hasAttribute(FMT_ATTRIBUTE)) {
+            thisElement.format = plotElement.getAttribute(FMT_ATTRIBUTE);
+        }
+        if (plotElement.hasAttribute(UNIT_ATTRIBUTE)) {
+            thisElement.unit = plotElement.getAttribute(UNIT_ATTRIBUTE);
+        }
+        if (plotElement.hasAttribute(SYMBOL_ATTRIBUTE)) {
+            thisElement.symbol = plotElement.getAttribute(SYMBOL_ATTRIBUTE);
+        }
+        if (plotElement.hasAttribute(TRIM_ATTRIBUTE)) {
+            thisElement.trim = Integer.parseInt(plotElement
+                    .getAttribute(TRIM_ATTRIBUTE));
+        }
+        if (plotElement.hasAttribute(PLT_INDEX)) {
+            thisElement.index = Integer.parseInt(plotElement
+                    .getAttribute(PLT_INDEX));
+        }
+        if (plotElement.hasAttribute(REQUIRED)) {
+            thisElement.required = Boolean.parseBoolean(plotElement
+                    .getAttribute(REQUIRED));
+        }
+        return thisElement;
     }
 
     public void setColor(RGB color) {
         if (imageCache != null) {
             imageCache.clear();
         }
-        byte fullr = (byte) color.red;
-        byte fullg = (byte) color.green;
-        byte fullb = (byte) color.blue;
-        // String style = "stroke: rgb(" + color.red + "," + color.green + ","
-        // + color.blue + ");";
-        // this.svgRoot.setAttribute("style", style);
-        // System.out.println(style);
-        byte[] red = { 0, fullr };
-        byte[] blue = { 0, fullb };
-        byte[] green = { 0, fullg };
-        tm = new IndexColorModel(8, 2, red, green, blue, 0);
-        // System.out.println(style);
+        this.color = color;
     }
 
     public void setLineWidth(int width) {
-        if (imageCache != null) {
-            imageCache.clear();
-        }
         this.width = width;
         regenerateStyle();
     }
 
     public void setLineStyle(LineStyle style) {
-        if (imageCache != null) {
-            imageCache.clear();
-        }
         this.lineStyle = style;
         regenerateStyle();
     }
 
     private void regenerateStyle() {
+        if (imageCache != null) {
+            imageCache.clear();
+        }
         String strokeStart = "stroke-dasharray: ";
         switch (lineStyle) {
         case DASH_DOTTED: {
@@ -576,12 +503,14 @@ public class PlotModelFactory {
     }
 
     /**
-     * Takes the station data object and produces a buffered image.
+     * Takes the plot data object and produces a buffered image.
      * 
-     * @param station
-     *            The station name
      * @param stationData
-     *            A metar record for that station
+     *            The data
+     * @param latitude
+     *            the longitude the data will be displayed
+     * @param longitude
+     *            the latitude the data will be displayed
      * @return A buffered image representing the station data
      */
     public synchronized BufferedImage getStationPlot(PlotData stationData,
@@ -685,24 +614,9 @@ public class PlotModelFactory {
                 return imageCache.get(imageId.toString());
             }
 
-            BufferedImage bufferedImage = new BufferedImage(
-                    this.plotModelWidth, this.plotModelHeight,
-                    BufferedImage.TYPE_BYTE_INDEXED, tm);
+            BufferedImage bufferedImage = createSingleColorImage(color,
+                    plotModelHeight, plotModelWidth);
 
-            // long t0 = System.currentTimeMillis();
-            GraphicsNode graphicsNode = builder.build(this.bridgeContext,
-                    this.document);
-            Graphics2D g2d = null;
-            try {
-                g2d = bufferedImage.createGraphics();
-                graphicsNode.primitivePaint(g2d);
-            } finally {
-                if (g2d != null) {
-                    g2d.dispose();
-                }
-            }
-            // System.out.println("Time building and creating graphics: "
-            // + (System.currentTimeMillis() - t0));
             if (imageCache != null) {
                 imageCache.put(imageId.toString(), bufferedImage);
             }
@@ -865,8 +779,6 @@ public class PlotModelFactory {
         }
 
         if (isValidValue(cWindSpeed)) {
-            // Element eWindSpeed =
-            // (Element)element.plotElement.getChildNodes().item(0)
             if (element.winds.barbElement != null) {
                 if (cWindSpeed == -9999.0 && plotMissingData) {
                     element.winds.barbElement.removeAttribute("transform");
@@ -1067,13 +979,15 @@ public class PlotModelFactory {
                 if (element.format != null) {
                     if (element.format.equals("time")) {
                         Date d = new Date(new Double(displayValue).longValue());
-                        SAMPLE_DATE.setTimeZone(TimeZone.getTimeZone("UTC"));
-                        sValue = SAMPLE_DATE.format(d);
+                        synchronized (SAMPLE_DATE) {
+                            SAMPLE_DATE.setTimeZone(TimeUtil.GMT_TIME_ZONE);
+                            sValue = SAMPLE_DATE.format(d);
+                        }
                     } else if (element.format.startsWith("time:")) {
                         Date d = new Date(new Double(displayValue).longValue());
                         SimpleDateFormat sampleData = new SimpleDateFormat(
                                 element.format.substring(5));
-                        sampleData.setTimeZone(TimeZone.getTimeZone("UTC"));
+                        sampleData.setTimeZone(TimeUtil.GMT_TIME_ZONE);
                         sValue = sampleData.format(d);
                     } else {
                         StringBuilder sb = new StringBuilder();
@@ -1097,8 +1011,8 @@ public class PlotModelFactory {
 
         if (element.lookup != null && sValue != null) {
             String lu = null;
-            if (!sValue.equals("?")){
-               lu = element.lookup.lookup(sValue);
+            if (!sValue.equals("?")) {
+                lu = element.lookup.lookup(sValue);
             }
             if (lu != null) {
                 sValue = lu.trim();
@@ -1122,36 +1036,36 @@ public class PlotModelFactory {
         case LONG:
             Number value = ob.getNumber(element.parameter);
             if (value != null && value.doubleValue() != -9999.0) {
-                    double displayValue = 0.0;
-                    if (element.unit != null) {
-                        if (element.converter == null) {
-                            try {
-                                Unit<?> unit = UnitFormat.getUCUMInstance()
-                                        .parseProductUnit(element.unit,
-                                                new ParsePosition(0));
-                                element.converter = ob.getUnit(
-                                        element.parameter).getConverterTo(unit);
-                            } catch (ParseException e) {
-                                throw new VizException("Unable parse units ", e);
-                            }
+                double displayValue = 0.0;
+                if (element.unit != null) {
+                    if (element.converter == null) {
+                        try {
+                            Unit<?> unit = UnitFormat.getUCUMInstance()
+                                    .parseProductUnit(element.unit,
+                                            new ParsePosition(0));
+                            element.converter = ob.getUnit(element.parameter)
+                                    .getConverterTo(unit);
+                        } catch (ParseException e) {
+                            throw new VizException("Unable parse units ", e);
                         }
-                        displayValue = element.converter.convert(value
-                                .doubleValue());
+                    }
+                    displayValue = element.converter.convert(value
+                            .doubleValue());
+                } else {
+                    displayValue = value.doubleValue();
+                }
+
+                if (isValidValue(displayValue)) {
+                    if (element.format != null) {
+                        StringBuilder sb = new StringBuilder();
+                        Formatter testing = new Formatter(sb);
+                        testing.format(element.format, displayValue);
+                        sValue = sb.toString();
+                        testing.close();
                     } else {
-                        displayValue = value.doubleValue();
+                        sValue = Double.toString(displayValue);
                     }
-                    
-                    if (isValidValue(displayValue)){
-                       if (element.format != null) {
-                          StringBuilder sb = new StringBuilder();
-                          Formatter testing = new Formatter(sb);
-                          testing.format(element.format, displayValue);
-                          sValue = sb.toString();
-                          testing.close();
-                        } else {
-                            sValue = Double.toString(displayValue);
-                        }
-                    }
+                }
             }
             break;
         case STRING:
@@ -1258,7 +1172,7 @@ public class PlotModelFactory {
         this.plotMissingData = b;
     }
 
-    private File getTableFile(String fileName) {
+    private static File getTableFile(String fileName) {
         File rval = PathManagerFactory.getPathManager().getStaticFile(
                 PLOT_MODEL_DIR + IPathManager.SEPARATOR + fileName);
         return rval;

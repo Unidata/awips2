@@ -69,6 +69,7 @@ import com.raytheon.viz.redbook.rsc.RedbookFrame.RedbookStatus;
  * Mar 13, 2014 2907        njensen     split edex.redbook plugin into common
  *                                      and edex redbook plugins
  * Jun 26, 2015 4512        mapeters    Updated for RedbookWMOMap API changes
+ * Oct 27, 2015 4798        bsteffen    Throw VizException for missing svg.
  * 
  * </pre>
  * 
@@ -87,7 +88,7 @@ public class RedbookResource extends
 
     private IFont font;
 
-    private WxSymbols wxSymbols = new WxSymbols();
+    private WxSymbols wxSymbols;
 
     private String humanReadableName;
 
@@ -96,11 +97,12 @@ public class RedbookResource extends
     private boolean magnificationChanged = false;
 
     protected RedbookResource(RedbookResourceData resourceData,
-            LoadProperties loadProperties) {
+            LoadProperties loadProperties) throws VizException {
         super(resourceData, loadProperties);
         this.dataTimes = new ArrayList<DataTime>();
         resourceData.addChangeListener(this);
         this.redbookFrames = new HashMap<DataTime, RedbookFrame>();
+        wxSymbols = new WxSymbols();
     }
 
     /*

@@ -28,8 +28,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.apache.batik.util.ParsedURL;
-
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
@@ -41,7 +39,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.viz.pointdata.LocalizationParsedURLHandler;
 import com.raytheon.viz.pointdata.rsc.retrieve.AbstractPlotInfoRetriever;
 import com.raytheon.viz.pointdata.rsc.retrieve.PointDataPlotInfoRetriever;
 
@@ -61,6 +58,8 @@ import com.raytheon.viz.pointdata.rsc.retrieve.PointDataPlotInfoRetriever;
  * Sep 05, 2013  2316     bsteffen    Unify pirep and ncpirep.
  * Jun 06, 2014  2061     bsteffen    Remove old PlotResource
  * Sep 16, 2014  2707     bclement    lsr no longer uses dataURI
+ * Oct 27, 2015  4798     bsteffen    Move SVG localization url handler
+ *                                    registration.
  * 
  * </pre>
  * 
@@ -181,8 +180,6 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         pluginProps.put("airep", new PluginPlotProperties());
         pluginProps.put("acars", new PluginPlotProperties());
         pluginProps.put("lsr", new PluginPlotProperties());
-
-        ParsedURL.registerHandler(new LocalizationParsedURLHandler());
     }
 
     public PlotResourceData() {

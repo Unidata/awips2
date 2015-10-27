@@ -91,6 +91,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Aug 11, 2014 3504       mapeters    Replaced deprecated IODataPreparer
  *                                     instances with IRenderedImageCallback.
  * Jun 26, 2015 4512       mapeters    Updated for RedbookWMOMap API changes.
+ * Oct 27, 2015 4798       bsteffen    Handle VizException for missing svg.
+ * 
  * 
  * </pre>
  * 
@@ -250,7 +252,7 @@ public class RedbookUpperAirResource extends
         this.graphicsTarget = target;
     }
 
-    protected PlotModelFactory getPlotModelFactory() {
+    protected PlotModelFactory getPlotModelFactory() throws VizException {
         if (plotModelFactory == null) {
             plotModelFactory = new PlotModelFactory(getDescriptor(),
                     "redbookuaDesign.svg");
@@ -391,7 +393,13 @@ public class RedbookUpperAirResource extends
 
             synchronized (job) {
                 plotSettingsChanged = false;
-                pmf = getPlotModelFactory();
+                try {
+                    pmf = getPlotModelFactory();
+                } catch (VizException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
+                    return;
+                }
                 int actualPlotWidth = pmf.getDefinedPlotModelWidth();
                 Double magnification = getCapability(
                         MagnificationCapability.class).getMagnification();
