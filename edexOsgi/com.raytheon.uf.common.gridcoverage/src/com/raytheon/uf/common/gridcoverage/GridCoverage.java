@@ -41,7 +41,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.hibernate.annotations.Type;
 import org.opengis.metadata.spatial.PixelOrientation;

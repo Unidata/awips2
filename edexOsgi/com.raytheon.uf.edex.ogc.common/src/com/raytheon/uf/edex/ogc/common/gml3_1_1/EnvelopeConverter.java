@@ -28,7 +28,7 @@ import net.opengis.gml.v_3_1_1.CoordinatesType;
 import net.opengis.gml.v_3_1_1.DirectPositionType;
 import net.opengis.gml.v_3_1_1.EnvelopeType;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.raytheon.uf.edex.ogc.common.OgcException;
 import com.raytheon.uf.edex.ogc.common.OgcException.Code;
@@ -111,8 +111,7 @@ public class EnvelopeConverter {
      * @return
      * @throws Exception
      */
-    public Coordinate[] getCoordinates(EnvelopeType env)
-            throws OgcException {
+    public Coordinate[] getCoordinates(EnvelopeType env) throws OgcException {
         int dims = getDims(env);
         if (env.isSetLowerCorner() && env.isSetUpperCorner()) {
             return translate(env.getLowerCorner(), env.getUpperCorner(), dims);
@@ -128,7 +127,7 @@ public class EnvelopeConverter {
         }
         throw new OgcException(Code.InvalidFormat,
                 "Unsupported envelope format");
-	}
+    }
 
     /**
      * Convert direct positions to JTS bounding box. Output will only include
@@ -142,13 +141,13 @@ public class EnvelopeConverter {
      */
     protected Coordinate[] translate(DirectPositionType lower,
             DirectPositionType upper, int dims) throws OgcException {
-		List<Double> lowers = lower.getValue();
-		List<Double> uppers = upper.getValue();
+        List<Double> lowers = lower.getValue();
+        List<Double> uppers = upper.getValue();
         if (lowers == null || uppers == null || lowers.size() < dims
                 || uppers.size() < dims) {
             throw new OgcException(Code.InvalidFormat,
                     "Unsupported envelope format");
-		}
+        }
         Coordinate l;
         Coordinate u;
         if (dims == 2) {
@@ -162,7 +161,7 @@ public class EnvelopeConverter {
                     "Unsupported envelope format");
         }
         return new Coordinate[] { l, u };
-	}
+    }
 
     /**
      * Convert list of direct positions to JTS coordinates. Output will only
@@ -204,8 +203,7 @@ public class EnvelopeConverter {
      * @throws Exception
      */
     protected Coordinate[] handleCoordinates(CoordinatesType coordinates,
-            int dims)
-            throws OgcException {
+            int dims) throws OgcException {
         try {
             List<Double[]> coords = CoordinateUtil.parseCoordinates(coordinates
                     .getValue());
@@ -223,13 +221,13 @@ public class EnvelopeConverter {
      * @param doubles
      * @return
      */
-	protected DirectPositionType createPos(String[] doubles) {
-		Double[] rval = new Double[doubles.length];
-		for (int i = 0; i < doubles.length; ++i) {
-			rval[i] = Double.parseDouble(doubles[i]);
-		}
-		return createPos(rval);
-	}
+    protected DirectPositionType createPos(String[] doubles) {
+        Double[] rval = new Double[doubles.length];
+        for (int i = 0; i < doubles.length; ++i) {
+            rval[i] = Double.parseDouble(doubles[i]);
+        }
+        return createPos(rval);
+    }
 
     /**
      * Convert coordtype to direct position
@@ -239,18 +237,18 @@ public class EnvelopeConverter {
      * @throws Exception
      */
     protected DirectPositionType createPos(CoordType coord) throws OgcException {
-		Double[] rval;
-		if (coord.isSetZ()) {
-			rval = new Double[] { coord.getX().doubleValue(),
-					coord.getY().doubleValue(), coord.getZ().doubleValue() };
-		} else if (coord.isSetY()) {
-			rval = new Double[] { coord.getX().doubleValue(),
-					coord.getY().doubleValue() };
-		} else {
-			rval = new Double[] { coord.getX().doubleValue() };
-		}
-		return createPos(rval);
-	}
+        Double[] rval;
+        if (coord.isSetZ()) {
+            rval = new Double[] { coord.getX().doubleValue(),
+                    coord.getY().doubleValue(), coord.getZ().doubleValue() };
+        } else if (coord.isSetY()) {
+            rval = new Double[] { coord.getX().doubleValue(),
+                    coord.getY().doubleValue() };
+        } else {
+            rval = new Double[] { coord.getX().doubleValue() };
+        }
+        return createPos(rval);
+    }
 
     /**
      * Create direct position type from double values in strings
@@ -258,10 +256,10 @@ public class EnvelopeConverter {
      * @param doubles
      * @return
      */
-	protected DirectPositionType createPos(Double... coords) {
-		DirectPositionType rval = new DirectPositionType();
-		rval.setValue(Arrays.asList(coords));
-		return rval;
-	}
+    protected DirectPositionType createPos(Double... coords) {
+        DirectPositionType rval = new DirectPositionType();
+        rval.setValue(Arrays.asList(coords));
+        return rval;
+    }
 
 }

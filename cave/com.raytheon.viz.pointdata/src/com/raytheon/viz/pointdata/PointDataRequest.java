@@ -22,7 +22,7 @@ package com.raytheon.viz.pointdata;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
@@ -241,7 +241,6 @@ public class PointDataRequest {
             rcMap.put(PointDataServerRequest.REQUEST_MODE_KEY,
                     new RequestConstraint(
                             PointDataServerRequest.REQUEST_MODE_2D));
-
 
             PointDataServerRequest request = new PointDataServerRequest(rcMap);
 

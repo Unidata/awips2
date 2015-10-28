@@ -25,7 +25,7 @@ import javax.measure.quantity.Dimensionless;
 import javax.measure.unit.DerivedUnit;
 import javax.measure.unit.Unit;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import com.raytheon.uf.common.dataplugin.satellite.units.goes.convert.CloudPixelToPercentConverter;
 
@@ -45,26 +45,26 @@ import com.raytheon.uf.common.dataplugin.satellite.units.goes.convert.CloudPixel
  */
 public class SounderCloudAmountPixel extends DerivedUnit<Dimensionless> {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@Override
-	public boolean equals(Object anObject) {
-		return (anObject instanceof SounderCloudAmountPixel);
-	}
+    @Override
+    public boolean equals(Object anObject) {
+        return (anObject instanceof SounderCloudAmountPixel);
+    }
 
-	@Override
-	public Unit<Dimensionless> getStandardUnit() {
-		return Unit.ONE;
-	}
+    @Override
+    public Unit<Dimensionless> getStandardUnit() {
+        return Unit.ONE;
+    }
 
-	@Override
-	public int hashCode() {
-		return HashCodeBuilder.reflectionHashCode(this);
-	}
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
 
-	@Override
-	public UnitConverter toStandardUnit() {
-		return new CloudPixelToPercentConverter();
-	}
+    @Override
+    public UnitConverter toStandardUnit() {
+        return new CloudPixelToPercentConverter();
+    }
 
 }

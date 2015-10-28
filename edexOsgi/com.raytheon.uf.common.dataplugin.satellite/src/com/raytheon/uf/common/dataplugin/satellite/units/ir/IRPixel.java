@@ -26,7 +26,7 @@ import javax.measure.unit.DerivedUnit;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * Represents a pixel value on a satellite IR image
@@ -43,26 +43,26 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  */
 public class IRPixel extends DerivedUnit<Temperature> {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@Override
-	public boolean equals(Object anObject) {
-		return (anObject instanceof IRPixel);
-	}
+    @Override
+    public boolean equals(Object anObject) {
+        return (anObject instanceof IRPixel);
+    }
 
-	@Override
-	public Unit<Temperature> getStandardUnit() {
-		return SI.KELVIN;
-	}
+    @Override
+    public Unit<Temperature> getStandardUnit() {
+        return SI.KELVIN;
+    }
 
-	@Override
-	public int hashCode() {
-		return HashCodeBuilder.reflectionHashCode(this);
-	}
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
 
-	@Override
-	public UnitConverter toStandardUnit() {
-		return new IRPixelToTempConverter();
-	}
+    @Override
+    public UnitConverter toStandardUnit() {
+        return new IRPixelToTempConverter();
+    }
 
 }

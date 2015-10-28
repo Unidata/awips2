@@ -23,14 +23,14 @@ import javax.measure.converter.ConversionException;
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.SI;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class DerivedTempToWVPixelConverter extends UnitConverter {
 
     private static final long serialVersionUID = 1L;
-    
+
     private static UnitConverter kelvinToCelsius = SI.KELVIN
-        .getConverterTo(SI.CELSIUS);
+            .getConverterTo(SI.CELSIUS);
 
     /*
      * (non-Javadoc)
@@ -40,15 +40,15 @@ public class DerivedTempToWVPixelConverter extends UnitConverter {
     @Override
     public double convert(double aTemp) throws ConversionException {
         aTemp = kelvinToCelsius.convert(aTemp);
-        
+
         double result = 145 - aTemp;
-        
+
         if (result < 0) {
             result = 0;
         } else if (result > 255) {
             result = 255;
         }
-        
+
         return result;
     }
 

@@ -26,7 +26,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
@@ -126,6 +126,7 @@ public class AfosToAwipsDao extends CoreDao {
             /**
              * @see org.hibernate.jdbc.Work#execute(java.sql.Connection)
              */
+            @Override
             public void execute(Connection c) throws SQLException {
                 PreparedStatement ps = null;
                 rval = new AfosWmoIdDataContainer();
@@ -138,8 +139,10 @@ public class AfosToAwipsDao extends CoreDao {
 
                     while (rs.next()) {
                         AfosToAwips id = new AfosToAwips();
-                        // make sure that the afosid is 9 characters space-padded long 
-						String afosid = String.format("%-9s", rs.getString(1).trim());
+                        // make sure that the afosid is 9 characters
+                        // space-padded long
+                        String afosid = String.format("%-9s", rs.getString(1)
+                                .trim());
                         id.setAfosid(afosid);
                         id.setWmottaaii(ttaaii);
                         id.setWmocccc(cccc);
@@ -208,6 +211,7 @@ public class AfosToAwipsDao extends CoreDao {
             /**
              * @see org.hibernate.jdbc.Work#execute(java.sql.Connection)
              */
+            @Override
             public void execute(Connection c) throws SQLException {
                 PreparedStatement ps = null;
                 rval = new AfosWmoIdDataContainer();
@@ -306,6 +310,7 @@ public class AfosToAwipsDao extends CoreDao {
              * 
              * @see org.hibernate.jdbc.Work#execute(java.sql.Connection)
              */
+            @Override
             public void execute(Connection c) throws SQLException {
                 PreparedStatement ps = null;
                 String awipsId = "%" + nnn + xxx;

@@ -29,5 +29,4 @@ Require-Bundle: com.raytheon.uf.edex.core;bundle-version="1.12.1174",
  com.raytheon.uf.common.python;bundle-version="1.12.1174",
  com.raytheon.uf.common.util;bundle-version="1.12.1174",
  org.apache.commons.configuration;bundle-version="1.6.0",
- org.apache.commons.lang;bundle-version="2.3.0",
  org.apache.commons.pool2;bundle-version="2.4.2"

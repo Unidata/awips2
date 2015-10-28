@@ -29,7 +29,7 @@ import net.opengis.gml.v_3_2_1.TimeInstantType;
 import net.opengis.gml.v_3_2_1.TimePeriodType;
 import net.opengis.gml.v_3_2_1.TimePositionType;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Junction;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -84,13 +84,14 @@ public abstract class AbstractQueryFilterVisitor implements IFilter2Visitor {
      */
     protected Operand getBinaryProps(ExpressionProcessor left,
             ExpressionProcessor right, VisitorBag bag) throws Exception {
-        
+
         OpField field = getRef(left, bag);
-        //If the field is explicitly ignored in the filter, return null so it is not processed further
-        if(field.value == null) {
+        // If the field is explicitly ignored in the filter, return null so it
+        // is not processed further
+        if (field.value == null) {
             return null;
         }
- 
+
         Object value = right.accept(exprVisitor, bag);
 
         if (!field.sql) {
@@ -161,8 +162,8 @@ public abstract class AbstractQueryFilterVisitor implements IFilter2Visitor {
             Junction junc) throws Exception {
         Iterator<Filter2Processor> i = filters.iterator();
         while (i.hasNext()) {
-            Criterion crit = (Criterion)i.next().accept(this, obj);
-            if(crit != null) {
+            Criterion crit = (Criterion) i.next().accept(this, obj);
+            if (crit != null) {
                 junc.add(crit);
             }
         }

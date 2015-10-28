@@ -25,8 +25,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
-
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Contains layer metadata used to populate capability and description OGC
@@ -48,87 +47,87 @@ import org.apache.commons.lang.StringUtils;
  */
 public class OgcLayer {
 
-	protected OgcLayer parent;
+    protected OgcLayer parent;
 
-	protected List<OgcLayer> children;
+    protected List<OgcLayer> children;
 
-	protected String name;
+    protected String name;
 
-	protected String title;
+    protected String title;
 
-	protected List<String> keywords;
+    protected List<String> keywords;
 
-	protected String abs;
+    protected String abs;
 
-	protected List<OgcStyle> styles;
+    protected List<OgcStyle> styles;
 
-	protected OgcGeoBoundingBox geoBoundingBox;
+    protected OgcGeoBoundingBox geoBoundingBox;
 
-	protected List<OgcBoundingBox> boundingBox;
+    protected List<OgcBoundingBox> boundingBox;
 
-	protected List<String> crs;
+    protected List<String> crs;
 
-	protected double minScaleDenom = Double.NaN;
+    protected double minScaleDenom = Double.NaN;
 
-	protected double maxScaleDenom = Double.NaN;
+    protected double maxScaleDenom = Double.NaN;
 
-	protected boolean opaque;
+    protected boolean opaque;
 
-	protected int sizeRecord = 0;
+    protected int sizeRecord = 0;
 
-	protected List<OgcDimension> dimensions;
+    protected List<OgcDimension> dimensions;
 
-	public static String keySeparator = "/";
+    public static String keySeparator = "/";
 
-	public void addCRS(String crs) {
-		this.crs = addToList(this.crs, crs);
-	}
+    public void addCRS(String crs) {
+        this.crs = addToList(this.crs, crs);
+    }
 
-	protected <T> List<T> addToList(List<T> l, T item) {
-		if (l == null) {
-			l = new ArrayList<T>();
-		}
-		l.add(item);
-		return l;
-	}
+    protected <T> List<T> addToList(List<T> l, T item) {
+        if (l == null) {
+            l = new ArrayList<T>();
+        }
+        l.add(item);
+        return l;
+    }
 
-	public void addBoundingBox(OgcBoundingBox bbox) {
-		this.boundingBox = addToList(boundingBox, bbox);
-	}
+    public void addBoundingBox(OgcBoundingBox bbox) {
+        this.boundingBox = addToList(boundingBox, bbox);
+    }
 
-	public void addStyle(OgcStyle style) {
-		this.styles = addToList(styles, style);
-	}
+    public void addStyle(OgcStyle style) {
+        this.styles = addToList(styles, style);
+    }
 
-	public void addChildLayer(OgcLayer child) {
-		this.children = addToList(children, child);
-	}
+    public void addChildLayer(OgcLayer child) {
+        this.children = addToList(children, child);
+    }
 
-	public void addDimension(OgcDimension dimention) {
-		this.dimensions = addToList(dimensions, dimention);
-	}
+    public void addDimension(OgcDimension dimention) {
+        this.dimensions = addToList(dimensions, dimention);
+    }
 
-	public void addKeyword(String keyword) {
-		this.keywords = addToList(keywords, keyword);
-	}
+    public void addKeyword(String keyword) {
+        this.keywords = addToList(keywords, keyword);
+    }
 
-	public String getKey() {
-		return getKey(name);
-	}
+    public String getKey() {
+        return getKey(name);
+    }
 
-	public String[] separateKey() {
-		return separateKey(name);
-	}
+    public String[] separateKey() {
+        return separateKey(name);
+    }
 
-	/**
-	 * @return the unique key for the source of the layer
-	 */
-	public static String getKey(String layerName) {
-		if (layerName == null) {
-			return null;
-		}
-		return separateKey(layerName)[0];
-	}
+    /**
+     * @return the unique key for the source of the layer
+     */
+    public static String getKey(String layerName) {
+        if (layerName == null) {
+            return null;
+        }
+        return separateKey(layerName)[0];
+    }
 
     public static String decodeLayerName(String layerName) {
         if (layerName == null) {
@@ -141,171 +140,171 @@ public class OgcLayer {
         }
     }
 
-	public static String[] separateKey(String layerName) {
+    public static String[] separateKey(String layerName) {
         String lname = decodeLayerName(layerName);
         if (lname == null) {
             return null;
         }
         lname = StringUtils.strip(lname, OgcLayer.keySeparator);
-		return lname.split(OgcLayer.keySeparator, 2);
-	}
+        return lname.split(OgcLayer.keySeparator, 2);
+    }
 
-	public String getFullTitle() {
-		return getKey() + keySeparator + title;
-	}
+    public String getFullTitle() {
+        return getKey() + keySeparator + title;
+    }
 
-	public static String createName(String key, String name) {
-		try {
-			return URLEncoder.encode(key + keySeparator + name, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
-		}
-	}
+    public static String createName(String key, String name) {
+        try {
+            return URLEncoder.encode(key + keySeparator + name, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	/**
-	 * @return the dimentions
-	 */
-	public List<OgcDimension> getDimensions() {
-		return dimensions;
-	}
+    /**
+     * @return the dimentions
+     */
+    public List<OgcDimension> getDimensions() {
+        return dimensions;
+    }
 
-	/**
-	 * @param dimensions
-	 *            the dimentions to set
-	 */
-	public void setDimensions(List<OgcDimension> dimensions) {
-		this.dimensions = dimensions;
-	}
+    /**
+     * @param dimensions
+     *            the dimentions to set
+     */
+    public void setDimensions(List<OgcDimension> dimensions) {
+        this.dimensions = dimensions;
+    }
 
-	public OgcLayer getParent() {
-		return parent;
-	}
+    public OgcLayer getParent() {
+        return parent;
+    }
 
-	public void setParent(OgcLayer parent) {
-		this.parent = parent;
-	}
+    public void setParent(OgcLayer parent) {
+        this.parent = parent;
+    }
 
-	public List<OgcLayer> getChildren() {
-		return children;
-	}
+    public List<OgcLayer> getChildren() {
+        return children;
+    }
 
-	public void setChildren(List<OgcLayer> children) {
-		this.children = children;
-	}
+    public void setChildren(List<OgcLayer> children) {
+        this.children = children;
+    }
 
-	public List<OgcStyle> getStyles() {
-		return styles;
-	}
+    public List<OgcStyle> getStyles() {
+        return styles;
+    }
 
-	public void setStyles(List<OgcStyle> styles) {
-		this.styles = styles;
-	}
+    public void setStyles(List<OgcStyle> styles) {
+        this.styles = styles;
+    }
 
-	/**
-	 * @return the geoBoundingBox
-	 */
-	public OgcGeoBoundingBox getGeoBoundingBox() {
-		return geoBoundingBox;
-	}
+    /**
+     * @return the geoBoundingBox
+     */
+    public OgcGeoBoundingBox getGeoBoundingBox() {
+        return geoBoundingBox;
+    }
 
-	/**
-	 * @param geoBoundingBox
-	 *            the geoBoundingBox to set
-	 */
-	public void setGeoBoundingBox(OgcGeoBoundingBox geoBoundingBox) {
-		this.geoBoundingBox = geoBoundingBox;
-	}
+    /**
+     * @param geoBoundingBox
+     *            the geoBoundingBox to set
+     */
+    public void setGeoBoundingBox(OgcGeoBoundingBox geoBoundingBox) {
+        this.geoBoundingBox = geoBoundingBox;
+    }
 
-	public List<String> getCrs() {
-		return crs;
-	}
+    public List<String> getCrs() {
+        return crs;
+    }
 
-	public void setCrs(List<String> crs) {
-		this.crs = crs;
-	}
+    public void setCrs(List<String> crs) {
+        this.crs = crs;
+    }
 
-	/**
-	 * @return the boundingBox
-	 */
-	public List<OgcBoundingBox> getBoundingBox() {
-		return boundingBox;
-	}
+    /**
+     * @return the boundingBox
+     */
+    public List<OgcBoundingBox> getBoundingBox() {
+        return boundingBox;
+    }
 
-	/**
-	 * @param boundingBox
-	 *            the boundingBox to set
-	 */
-	public void setBoundingBox(List<OgcBoundingBox> boundingBox) {
-		this.boundingBox = boundingBox;
-	}
+    /**
+     * @param boundingBox
+     *            the boundingBox to set
+     */
+    public void setBoundingBox(List<OgcBoundingBox> boundingBox) {
+        this.boundingBox = boundingBox;
+    }
 
-	public double getMinScaleDenom() {
-		return minScaleDenom;
-	}
+    public double getMinScaleDenom() {
+        return minScaleDenom;
+    }
 
-	public void setMinScaleDenom(double minScaleDenom) {
-		this.minScaleDenom = minScaleDenom;
-	}
+    public void setMinScaleDenom(double minScaleDenom) {
+        this.minScaleDenom = minScaleDenom;
+    }
 
-	public double getMaxScaleDenom() {
-		return maxScaleDenom;
-	}
+    public double getMaxScaleDenom() {
+        return maxScaleDenom;
+    }
 
-	public void setMaxScaleDenom(double maxScaleDenom) {
-		this.maxScaleDenom = maxScaleDenom;
-	}
+    public void setMaxScaleDenom(double maxScaleDenom) {
+        this.maxScaleDenom = maxScaleDenom;
+    }
 
-	public boolean isOpaque() {
-		return opaque;
-	}
+    public boolean isOpaque() {
+        return opaque;
+    }
 
-	public void setOpaque(boolean opaque) {
-		this.opaque = opaque;
-	}
+    public void setOpaque(boolean opaque) {
+        this.opaque = opaque;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	/**
-	 * @param key
-	 *            a key that is used in all layers from the layer's source
-	 * @param name
-	 */
-	public void setName(String key, String name) {
-		this.name = createName(key, name);
-	}
+    /**
+     * @param key
+     *            a key that is used in all layers from the layer's source
+     * @param name
+     */
+    public void setName(String key, String name) {
+        this.name = createName(key, name);
+    }
 
-	public String getTitle() {
-		return title;
-	}
+    public String getTitle() {
+        return title;
+    }
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-	public List<String> getKeywords() {
-		return keywords;
-	}
+    public List<String> getKeywords() {
+        return keywords;
+    }
 
-	public void setKeywords(List<String> keywords) {
-		this.keywords = keywords;
-	}
+    public void setKeywords(List<String> keywords) {
+        this.keywords = keywords;
+    }
 
-	public String getAbs() {
-		return abs;
-	}
+    public String getAbs() {
+        return abs;
+    }
 
-	public void setAbs(String abs) {
-		this.abs = abs;
-	}
+    public void setAbs(String abs) {
+        this.abs = abs;
+    }
 
-	public int getSizeRecord() {
-		return sizeRecord;
-	}
+    public int getSizeRecord() {
+        return sizeRecord;
+    }
 
-	public void setSizeRecord(int sizeRecord) {
-		this.sizeRecord = sizeRecord;
-	}
+    public void setSizeRecord(int sizeRecord) {
+        this.sizeRecord = sizeRecord;
+    }
 
 }

@@ -35,7 +35,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import net.opengis.gml.v_3_1_1.ObjectFactory;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.w3c.dom.Node;
 
 import com.raytheon.uf.common.serialization.MarshalOptions;
@@ -73,12 +73,12 @@ public class WfsRegistryImpl implements IWfsRegistry {
 
     protected final Map<String, IWfsSource> byKey = new HashMap<String, IWfsSource>();
 
-	protected final Map<QualifiedName, IWfsSource> byFeature = new HashMap<QualifiedName, IWfsSource>();
+    protected final Map<QualifiedName, IWfsSource> byFeature = new HashMap<QualifiedName, IWfsSource>();
 
-	protected final Map<QualifiedName, IWfsSource> byAlias = new HashMap<QualifiedName, IWfsSource>();
-	
-	protected Class<?>[] jaxbClasses = new Class<?>[] { ObjectFactory.class,
-			net.opengis.wfs.v_1_1_0.ObjectFactory.class,
+    protected final Map<QualifiedName, IWfsSource> byAlias = new HashMap<QualifiedName, IWfsSource>();
+
+    protected Class<?>[] jaxbClasses = new Class<?>[] { ObjectFactory.class,
+            net.opengis.wfs.v_1_1_0.ObjectFactory.class,
             net.opengis.filter.v_1_1_0.ObjectFactory.class,
             org.w3.xmlschema.ObjectFactory.class, Unique.class,
             net.opengis.wfs.v_2_0_0.ObjectFactory.class,
@@ -96,13 +96,13 @@ public class WfsRegistryImpl implements IWfsRegistry {
 
     protected volatile OgcJaxbManager jaxbManager;
 
-	protected final IUFStatusHandler log = UFStatus.getHandler(this.getClass());
+    protected final IUFStatusHandler log = UFStatus.getHandler(this.getClass());
 
     protected volatile long currentVersion = 0;
 
-	protected volatile long jaxbContextVersion = 0;
+    protected volatile long jaxbContextVersion = 0;
 
-	protected String prefix = "wfs";
+    protected String prefix = "wfs";
 
     protected final ReadWriteLock lock = new ReentrantReadWriteLock();
 
@@ -112,14 +112,14 @@ public class WfsRegistryImpl implements IWfsRegistry {
 
     protected String path;
 
-	static {
-		NS_MAP.put(OgcNamespace.EDEX, OgcPrefix.EDEX);
-		NS_MAP.put(OgcNamespace.GML, OgcPrefix.GML);
-		NS_MAP.put(OgcNamespace.OGC, OgcPrefix.OGC);
-		NS_MAP.put(OgcNamespace.OWS, OgcPrefix.OWS);
-		NS_MAP.put(OgcNamespace.WFS, OgcPrefix.WFS);
-		NS_MAP.put(OgcNamespace.XSI, OgcPrefix.XSI);
-		NS_MAP.put(OgcNamespace.XLINK, OgcPrefix.XLINK);
+    static {
+        NS_MAP.put(OgcNamespace.EDEX, OgcPrefix.EDEX);
+        NS_MAP.put(OgcNamespace.GML, OgcPrefix.GML);
+        NS_MAP.put(OgcNamespace.OGC, OgcPrefix.OGC);
+        NS_MAP.put(OgcNamespace.OWS, OgcPrefix.OWS);
+        NS_MAP.put(OgcNamespace.WFS, OgcPrefix.WFS);
+        NS_MAP.put(OgcNamespace.XSI, OgcPrefix.XSI);
+        NS_MAP.put(OgcNamespace.XLINK, OgcPrefix.XLINK);
         NS_MAP.put(OgcNamespace.SMIL, OgcPrefix.SMIL);
         NS_MAP.put(OgcNamespace.OWS110, OgcPrefix.OWS + "11");
         NS_MAP.put(OgcNamespace.WFS20, OgcPrefix.WFS + "2");
@@ -135,12 +135,12 @@ public class WfsRegistryImpl implements IWfsRegistry {
         NS_MAP.put(OgcNamespace.WSA, OgcPrefix.WSA);
         NS_MAP.put(OgcNamespace.OWSNT, OgcPrefix.OWSNT);
         NS_MAP.put(OgcNamespace.NAWX15, OgcPrefix.NAWX);
-	}
+    }
 
     public WfsRegistryImpl(String port, String path) {
         this.port = port;
         this.path = path;
-	}
+    }
 
     /*
      * (non-Javadoc)
@@ -149,23 +149,23 @@ public class WfsRegistryImpl implements IWfsRegistry {
      * com.raytheon.uf.edex.wfs.reg.WfsRegistry#register(com.raytheon.uf.edex
      * .wfs.reg.WfsSource)
      */
-	@Override
+    @Override
     public IWfsRegistry register(final IWfsSource source)
-			throws RegistryException {
+            throws RegistryException {
         Lock write = lock.writeLock();
         write.lock();
         try {
             addByKey(source);
             addByFeature(source);
             addByAlias(source);
-            jaxbClasses = (Class<?>[]) ArrayUtils.addAll(jaxbClasses,
+            jaxbClasses = ArrayUtils.addAll(jaxbClasses,
                     source.getJaxbClasses());
             currentVersion++;
         } finally {
             write.unlock();
         }
-		return this;
-	}
+        return this;
+    }
 
     /**
      * @return
@@ -189,17 +189,17 @@ public class WfsRegistryImpl implements IWfsRegistry {
                 write.unlock();
             }
         }
-		return jaxbManager;
-	}
+        return jaxbManager;
+    }
 
     /**
      * @param xml
      * @return
      * @throws JAXBException
      */
-	public Object unmarshal(String xml) throws JAXBException {
+    public Object unmarshal(String xml) throws JAXBException {
         return getManager().unmarshalFromXml(xml);
-	}
+    }
 
     public Object unmarshal(Node node) throws JAXBException {
         return getManager().unmarshal(node);
@@ -221,9 +221,9 @@ public class WfsRegistryImpl implements IWfsRegistry {
      * @return
      * @throws JAXBException
      */
-	public String marshal(Object obj) throws JAXBException {
+    public String marshal(Object obj) throws JAXBException {
         return getManager().marshalToXml(obj, MarshalOptions.UNFORMATTED);
-	}
+    }
 
     public String marshal(Object obj, boolean fragment) throws JAXBException {
         MarshalOptions options = new MarshalOptions(false, fragment);
@@ -235,7 +235,8 @@ public class WfsRegistryImpl implements IWfsRegistry {
         return getManager().marshalToNode(obj);
     }
 
-    public String marshal(Object obj, MarshalOptions options) throws JAXBException {
+    public String marshal(Object obj, MarshalOptions options)
+            throws JAXBException {
         return getManager().marshalToXml(obj, options);
     }
 
@@ -256,14 +257,14 @@ public class WfsRegistryImpl implements IWfsRegistry {
      * @param source
      * @throws RegistryException
      */
-	protected void addByKey(IWfsSource source) throws RegistryException {
-		String key = source.getKey();
-		if (byKey.containsKey(key)) {
-			throw new RegistryException("WFS Source already exists with key: "
-					+ key);
-		}
-		byKey.put(source.getKey(), source);
-	}
+    protected void addByKey(IWfsSource source) throws RegistryException {
+        String key = source.getKey();
+        if (byKey.containsKey(key)) {
+            throw new RegistryException("WFS Source already exists with key: "
+                    + key);
+        }
+        byKey.put(source.getKey(), source);
+    }
 
     /**
      * Catalog source by provided feature types
@@ -271,13 +272,13 @@ public class WfsRegistryImpl implements IWfsRegistry {
      * @param source
      * @throws RegistryException
      */
-	protected void addByFeature(IWfsSource source) throws RegistryException {
-		for (WfsFeatureType f : source.listFeatureTypes()) {
-			QualifiedName feature = f.getName();
-			if (byFeature.containsKey(feature)) {
-				throw new RegistryException(
-						"Already providing a feature with name: " + feature);
-			}
+    protected void addByFeature(IWfsSource source) throws RegistryException {
+        for (WfsFeatureType f : source.listFeatureTypes()) {
+            QualifiedName feature = f.getName();
+            if (byFeature.containsKey(feature)) {
+                throw new RegistryException(
+                        "Already providing a feature with name: " + feature);
+            }
             String prefix = NS_MAP.get(feature.getNamespace());
             if (prefix == null) {
                 prefix = (feature.getPrefix() != null
@@ -286,11 +287,11 @@ public class WfsRegistryImpl implements IWfsRegistry {
                 NS_MAP.put(feature.getNamespace(), prefix);
             }
 
-			byFeature.put(f.getName(), source);
-		}
-	}
-	
-	protected void addByAlias(IWfsSource source) throws RegistryException {
+            byFeature.put(f.getName(), source);
+        }
+    }
+
+    protected void addByAlias(IWfsSource source) throws RegistryException {
         for (WfsFeatureType f : source.getAliases()) {
             QualifiedName feature = f.getName();
             if (byAlias.containsKey(feature)) {
@@ -314,17 +315,17 @@ public class WfsRegistryImpl implements IWfsRegistry {
      * 
      * @param source
      */
-	protected void removeAll(IWfsSource source) {
-		IWfsSource removed = byKey.remove(source.getKey());
-		if (removed != null) {
-			for (WfsFeatureType f : removed.listFeatureTypes()) {
-				byFeature.remove(f.getName());
-			}
-			for (WfsFeatureType f : removed.getAliases()) {
+    protected void removeAll(IWfsSource source) {
+        IWfsSource removed = byKey.remove(source.getKey());
+        if (removed != null) {
+            for (WfsFeatureType f : removed.listFeatureTypes()) {
+                byFeature.remove(f.getName());
+            }
+            for (WfsFeatureType f : removed.getAliases()) {
                 byAlias.remove(f.getName());
             }
-		}
-	}
+        }
+    }
 
     /*
      * (non-Javadoc)
@@ -333,8 +334,8 @@ public class WfsRegistryImpl implements IWfsRegistry {
      * com.raytheon.uf.edex.wfs.reg.WfsRegistry#unregister(com.raytheon.uf.edex
      * .wfs.reg.WfsSource)
      */
-	@Override
-	public synchronized IWfsRegistry unregister(IWfsSource source) {
+    @Override
+    public synchronized IWfsRegistry unregister(IWfsSource source) {
         Lock write = lock.writeLock();
         write.lock();
         try {
@@ -343,7 +344,7 @@ public class WfsRegistryImpl implements IWfsRegistry {
             write.unlock();
         }
         return this;
-	}
+    }
 
     /**
      * Look up source by feature type
@@ -352,28 +353,29 @@ public class WfsRegistryImpl implements IWfsRegistry {
      * @return
      * @throws WfsException
      */
-	public IWfsSource getSource(QualifiedName feature) throws WfsException {
+    public IWfsSource getSource(QualifiedName feature) throws WfsException {
         Lock read = lock.readLock();
         read.lock();
         try {
             IWfsSource source = byFeature.get(feature);
-            if(source == null) {
-                //If a standard feature is not found see if it is an alias
+            if (source == null) {
+                // If a standard feature is not found see if it is an alias
                 source = byAlias.get(feature);
             }
             return source;
         } finally {
             read.unlock();
         }
-	}
+    }
 
     /**
-     * Get a list of all available feature types, no aliases should be advertised
+     * Get a list of all available feature types, no aliases should be
+     * advertised
      * 
      * @return
      */
-	public List<WfsFeatureType> getFeatures() {
-		List<WfsFeatureType> rval = new LinkedList<WfsFeatureType>();
+    public List<WfsFeatureType> getFeatures() {
+        List<WfsFeatureType> rval = new LinkedList<WfsFeatureType>();
         Lock read = lock.readLock();
         read.lock();
         try {
@@ -384,22 +386,22 @@ public class WfsRegistryImpl implements IWfsRegistry {
             read.unlock();
         }
         return rval;
-	}
+    }
 
-	/**
-	 * @return the prefix
-	 */
-	public String getPrefix() {
-		return prefix;
-	}
+    /**
+     * @return the prefix
+     */
+    public String getPrefix() {
+        return prefix;
+    }
 
-	/**
-	 * @param prefix
-	 *            the prefix to set
-	 */
-	public void setPrefix(String prefix) {
-		this.prefix = prefix;
-	}
+    /**
+     * @param prefix
+     *            the prefix to set
+     */
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
 
     /*
      * (non-Javadoc)

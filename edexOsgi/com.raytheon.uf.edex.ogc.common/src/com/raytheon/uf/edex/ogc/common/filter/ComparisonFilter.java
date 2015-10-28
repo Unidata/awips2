@@ -12,7 +12,7 @@ package com.raytheon.uf.edex.ogc.common.filter;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.edex.ogc.common.util.ConvertService;
@@ -34,13 +34,13 @@ import com.raytheon.uf.edex.ogc.common.util.ConvertService;
  * @version 1.0
  */
 public class ComparisonFilter extends AbstractPdoFilter {
-    
+
     public static enum CompOp {
         EQ, LT, LTE, GT, GTE, NEQ, NULL
     };
 
     protected String field;
-    
+
     protected CompOp op;
 
     protected Object value;
@@ -212,26 +212,34 @@ public class ComparisonFilter extends AbstractPdoFilter {
      */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         ComparisonFilter other = (ComparisonFilter) obj;
         if (field == null) {
-            if (other.field != null)
+            if (other.field != null) {
                 return false;
-        } else if (!field.equals(other.field))
+            }
+        } else if (!field.equals(other.field)) {
             return false;
-        if (op != other.op)
+        }
+        if (op != other.op) {
             return false;
+        }
         if (value == null) {
-            if (other.value != null)
+            if (other.value != null) {
                 return false;
-        } else if (!value.equals(other.value))
+            }
+        } else if (!value.equals(other.value)) {
             return false;
+        }
         return true;
     }
-    
+
 }

@@ -54,7 +54,7 @@ import net.opengis.gml.v_3_2_1.PointPropertyType;
 import net.opengis.gml.v_3_2_1.PointType;
 import net.opengis.gml.v_3_2_1.PolygonType;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.geotools.geometry.jts.JTS;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -92,7 +92,7 @@ public class GeometryConverter {
     protected final GeometryFactory factory = new GeometryFactory();
 
     protected final ObjectFactory gmlFactory = new ObjectFactory();
-    
+
     private static final String DIGIT_STR = "Ee-.0123456789";
 
     private static final Set<Character> DIGIT_SET;

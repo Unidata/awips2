@@ -2,12 +2,12 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Common
 Bundle-SymbolicName: com.raytheon.uf.edex.ogc.common
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: net.opengis;bundle-version="1.0.2",
  org.geotools;bundle-version="2.6.4",
- org.apache.commons.lang;bundle-version="2.3.0",
+ org.apache.commons.lang3;bundle-version="3.4.0",
  org.apache.camel;bundle-version="1.0.0",
  javax.measure;bundle-version="1.0.0",
  javax.persistence;bundle-version="1.0.0",

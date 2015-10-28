@@ -26,9 +26,9 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.serialization.ISerializableObject;
@@ -171,27 +171,32 @@ public class StdTextProductId extends PersistableDataObject implements
         this.dataCrc = dataCrc;
     }
 
+    @Override
     public String toString() {
-        return new ToStringBuilder(this).append("wmoid", getWmoid()).append(
-                "site", getSite()).append("cccid", getCccid()).append("nnnid",
-                getNnnid()).append("xxxid", getXxxid()).append("hdrtime",
-                getHdrtime()).append("dataCrc", getDataCrc()).toString();
+        return new ToStringBuilder(this).append("wmoid", getWmoid())
+                .append("site", getSite()).append("cccid", getCccid())
+                .append("nnnid", getNnnid()).append("xxxid", getXxxid())
+                .append("hdrtime", getHdrtime())
+                .append("dataCrc", getDataCrc()).toString();
     }
 
+    @Override
     public boolean equals(Object other) {
-        if (!(other instanceof StdTextProductId))
+        if (!(other instanceof StdTextProductId)) {
             return false;
+        }
         StdTextProductId castOther = (StdTextProductId) other;
         return new EqualsBuilder()
-                .append(this.getWmoid(), castOther.getWmoid()).append(
-                        this.getSite(), castOther.getSite()).append(
-                        this.getCccid(), castOther.getCccid()).append(
-                        this.getNnnid(), castOther.getNnnid()).append(
-                        this.getXxxid(), castOther.getXxxid()).append(
-                        this.getHdrtime(), castOther.getHdrtime()).append(
-                        this.getDataCrc(), castOther.getDataCrc()).isEquals();
+                .append(this.getWmoid(), castOther.getWmoid())
+                .append(this.getSite(), castOther.getSite())
+                .append(this.getCccid(), castOther.getCccid())
+                .append(this.getNnnid(), castOther.getNnnid())
+                .append(this.getXxxid(), castOther.getXxxid())
+                .append(this.getHdrtime(), castOther.getHdrtime())
+                .append(this.getDataCrc(), castOther.getDataCrc()).isEquals();
     }
 
+    @Override
     public int hashCode() {
         return new HashCodeBuilder().append(getWmoid()).append(getSite())
                 .append(getCccid()).append(getNnnid()).append(getXxxid())

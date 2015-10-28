@@ -24,7 +24,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Set;
 
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateUtils;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -180,7 +180,7 @@ public abstract class LayerCollector<D extends SimpleDimension, L extends Simple
     }
 
     public static Date roundUpToMinute(Date d) {
-        Date rval = DateUtils.add(d, Calendar.MINUTE, 1);
+        Date rval = DateUtils.addMinutes(d, 1);
         return truncateToMinute(rval);
     }
 

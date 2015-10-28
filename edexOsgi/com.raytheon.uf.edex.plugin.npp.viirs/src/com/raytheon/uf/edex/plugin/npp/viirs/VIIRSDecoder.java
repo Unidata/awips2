@@ -25,7 +25,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import ucar.ma2.Array;
 import ucar.nc2.Attribute;
@@ -134,8 +134,7 @@ public class VIIRSDecoder extends AbstractNPPDecoder {
             LocalizationFile mappingFile = PathManagerFactory.getPathManager()
                     .getStaticLocalizationFile(VIIRS_MAPPING_FILE);
             in = mappingFile.openInputStream();
-            mapping = (VIIRSHeaderMapping) manager
-                    .unmarshalFromInputStream(in);
+            mapping = (VIIRSHeaderMapping) manager.unmarshalFromInputStream(in);
         } catch (Exception e) {
             throw new RuntimeException(
                     "Error deserializing VIIRS header mapping file", e);
@@ -247,15 +246,15 @@ public class VIIRSDecoder extends AbstractNPPDecoder {
                                     missingValues[i] = Float
                                             .parseFloat(split[i]);
                                 }
-                            } else if(attr.getDataType().isNumeric()){
-                                if(attr.isArray()){
+                            } else if (attr.getDataType().isNumeric()) {
+                                if (attr.isArray()) {
                                     missingValues = new float[attr.getLength()];
                                     for (int i = 0; i < missingValues.length; i += 1) {
                                         missingValues[i] = attr
                                                 .getNumericValue(i)
                                                 .floatValue();
                                     }
-                                }else{
+                                } else {
                                     missingValues = new float[] { attr
                                             .getNumericValue().floatValue() };
                                 }

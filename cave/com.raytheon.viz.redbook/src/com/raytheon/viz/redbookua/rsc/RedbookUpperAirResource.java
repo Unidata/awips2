@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -135,8 +135,9 @@ public class RedbookUpperAirResource extends
      */
     @Override
     protected void disposeInternal() {
-        for (UAFrame frame : this.frames.values())
+        for (UAFrame frame : this.frames.values()) {
             frame.dispose();
+        }
 
         if (font != null) {
             font.dispose();
@@ -181,8 +182,9 @@ public class RedbookUpperAirResource extends
                 return;
             }
             RedbookWMOMap.Info info = map.getValue(wmo.getConstraintValue());
-            if (info != null && info.name != null)
+            if (info != null && info.name != null) {
                 this.humanReadableName = info.name;
+            }
         }
     }
 
@@ -230,8 +232,9 @@ public class RedbookUpperAirResource extends
     public void remove(DataTime dataTime) {
         dataTimes.remove(dataTime);
         UAFrame frame = frames.remove(dataTime);
-        if (frame != null)
+        if (frame != null) {
             frame.dispose();
+        }
     }
 
     /*
@@ -274,17 +277,19 @@ public class RedbookUpperAirResource extends
         UAFrame frame = frames.get(displayedDataTime);
         if (frame != null) {
 
-            if (frame.isReadyToPaint())
+            if (frame.isReadyToPaint()) {
                 frame.paint(target, paintProps);
-            else
+            } else {
                 job.upadte();
+            }
         }
     }
 
     private void invalidateAll() {
         synchronized (job) {
-            for (UAFrame frame : frames.values())
+            for (UAFrame frame : frames.values()) {
                 frame.invalidate();
+            }
         }
     }
 
@@ -378,8 +383,9 @@ public class RedbookUpperAirResource extends
         }
 
         public void init(IGraphicsTarget target) {
-            if (pointData == null)
+            if (pointData == null) {
                 retrieveAndDecodeData();
+            }
 
             PlotModelFactory pmf;
 
@@ -426,20 +432,22 @@ public class RedbookUpperAirResource extends
             }
 
             synchronized (job) {
-                if (!plotSettingsChanged)
+                if (!plotSettingsChanged) {
                     valid = true;
+                }
             }
         }
 
         public void dispose() {
             synchronized (this) {
-                if (images != null)
+                if (images != null) {
                     for (int i = 0; i < images.length; ++i) {
                         if (images[i] != null) {
                             images[i].dispose();
                             images[i] = null;
                         }
                     }
+                }
                 valid = false;
                 redbookRecord = null;
                 pointData = null;
@@ -448,8 +456,9 @@ public class RedbookUpperAirResource extends
 
         public void paint(IGraphicsTarget target, PaintProperties paintProps)
                 throws VizException {
-            if (pointData == null || images == null)
+            if (pointData == null || images == null) {
                 return;
+            }
 
             IExtent pe = paintProps.getView().getExtent();
 
@@ -470,24 +479,27 @@ public class RedbookUpperAirResource extends
 
             int threshold;
 
-            if (netZoom <= 0.8)
+            if (netZoom <= 0.8) {
                 threshold = 0;
-            else if (netZoom <= 1.5)
+            } else if (netZoom <= 1.5) {
                 threshold = 1;
-            else if (netZoom <= 2.5)
+            } else if (netZoom <= 2.5) {
                 threshold = 2;
-            else
+            } else {
                 threshold = 3;
+            }
 
             for (int i = 0; i < pointData.getCurrentSz(); ++i) {
-                if (images[i] == null)
+                if (images[i] == null) {
                     continue;
+                }
 
                 PointDataView pdv = pointData.readRandom(i);
 
                 int zoomLevel = pdv.getInt(RedbookUpperAirDecoder.P_ZOOM_LEVEL);
-                if (zoomLevel > threshold)
+                if (zoomLevel > threshold) {
                     continue;
+                }
 
                 double[] worldCoord = new double[] {
                         pdv.getFloat(RedbookUpperAirDecoder.P_LONGITUDE),
@@ -512,8 +524,9 @@ public class RedbookUpperAirResource extends
                         stationPixelLocation[1] + scaleValue, 0 };
 
                 if (ul[0] > pe.getMaxX() || ul[1] > pe.getMaxY()
-                        || lr[0] < pe.getMinX() || lr[1] < pe.getMinY())
+                        || lr[0] < pe.getMinX() || lr[1] < pe.getMinY()) {
                     continue;
+                }
 
                 PixelCoverage pc = new PixelCoverage(new Coordinate(ul[0],
                         ul[1], ul[2]), new Coordinate(ur[0], ur[1], ur[2]),

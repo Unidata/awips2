@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.HDF5Util;
@@ -114,8 +114,9 @@ public class RedbookResource extends
             font.dispose();
             font = null;
         }
-        for (RedbookFrame frame : this.redbookFrames.values())
+        for (RedbookFrame frame : this.redbookFrames.values()) {
             frame.dispose();
+        }
     }
 
     /*
@@ -205,8 +206,9 @@ public class RedbookResource extends
     @Override
     public void remove(DataTime dataTime) {
         RedbookFrame frame = this.redbookFrames.remove(dataTime);
-        if (frame != null)
+        if (frame != null) {
             frame.dispose();
+        }
     }
 
     /*
@@ -219,8 +221,9 @@ public class RedbookResource extends
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         for (RedbookFrame frame : this.redbookFrames.values()) {
-            if (!frame.hasInited())
+            if (!frame.hasInited()) {
                 frame.init(target);
+            }
         }
     }
 

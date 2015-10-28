@@ -33,7 +33,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -1048,8 +1048,9 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
                 IRenderableDisplay paneDisplay = pane.getRenderableDisplay();
                 IDescriptor paneDescriptor = paneDisplay != null ? paneDisplay
                         .getDescriptor() : null;
-                if (paneDescriptor == descriptor)
+                if (paneDescriptor == descriptor) {
                     return true;
+                }
             }
         }
         return false;
