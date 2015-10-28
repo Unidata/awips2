@@ -49,7 +49,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.ui.PlatformUI;
@@ -101,6 +100,7 @@ import com.raytheon.uf.viz.alertviz.ui.audio.IAudioAction;
  * 31 May 2011  8058       cjeanbap    Kill sound based on TextMsgBox id.
  * 26 Aug 2013  #2293      lvenable    Fixed color memory leaks.
  * 02 Jun 2015  4473       mschenke    Remember dialog position
+ * 28 Oct 2015  5054       randerso    Fix lots of multimonitor display issues.
  * 
  * </pre>
  * 
@@ -150,9 +150,9 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
     private Label resizeLabel;
 
     /**
-     * Location of the dialog on the screen.
+     * Mouse down location
      */
-    private Point origin;
+    private Point mouseDownPt;
 
     /**
      * Show dialog flag.
@@ -170,24 +170,9 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
     private boolean resizeDialog = false;
 
     /**
-     * Dialog location.
-     */
-    private Point dialogLoc;
-
-    /**
      * ArrayList of TextMsgControlComp objects.
      */
     private ArrayList<TextMsgControlComp> txtMsgCompArray;
-
-    /**
-     * Starting X position.
-     */
-    private int startXpos = -1;
-
-    /**
-     * Screen width.
-     */
-    private int screenWidth = 0;
 
     /**
      * Text composite.
@@ -283,7 +268,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
         Shell shell1 = new Shell(parentShell, SWT.NO_TRIM);
         shell = new Shell(shell1, SWT.ON_TOP);
-        shell.setLocation(getDialogPosition());
+        shell.setBounds(restoreDialogPosition());
 
         shell.addDisposeListener(new DisposeListener() {
             @Override
@@ -306,6 +291,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
         shell.pack();
         shell.open();
 
+        // force bar location to be within the display.
         Point shellLoc = shell.getLocation();
         Point shellSize = shell.getSize();
         Display d = shell.getDisplay();
@@ -337,7 +323,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
      * Dispose of all the message timers.
      */
     public void dispose() {
-        setDialogPosition(dialogLoc);
+        saveDialogPosition(shell.getBounds());
 
         // Stop all of the message timers.
         for (int i = 0; i < txtMsgCompArray.size(); i++) {
@@ -374,8 +360,6 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
      * Initialize the components on the display.
      */
     private void initializeComponents() {
-        screenWidth = display.getPrimaryMonitor().getBounds().width;
-
         TrayConfiguration.TrayMode tm = configData.getGlobalConfiguration()
                 .getMode();
         boolean monitorOnly = (TrayConfiguration.TrayMode.MO.equals(tm) ? true
@@ -401,9 +385,6 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
         gl.verticalSpacing = 0;
         mainComp.setLayout(gl);
         mainComp.setLayoutData(gd);
-
-        dialogLoc = shell.getLocation();
-        origin = dialogLoc;
 
         moveLabel = new Label(mainComp, SWT.NONE);
         moveLabel.setImage(new Image(display, loadHandleImage()));
@@ -547,31 +528,24 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
      */
     @Override
     public void mouseMove(MouseEvent e) {
-        if ((Label) e.getSource() == moveLabel) {
-            if (origin != null && moveDialog == true) {
-                dialogLoc = display.map(shell, null, e.x, e.y);
-                shell.setLocation(dialogLoc.x - origin.x, dialogLoc.y
-                        - origin.y);
-            }
-        } else if ((Label) e.getSource() == resizeLabel) {
-            if (resizeDialog == true) {
-                int newWidth = e.x - startXpos + shell.getSize().x;
-
-                if (newWidth < 300) {
-                    return;
+        if (mouseDownPt != null) {
+            if ((Label) e.getSource() == moveLabel) {
+                if (moveDialog == true) {
+                    Point dialogLoc = shell.getLocation();
+                    dialogLoc.x = dialogLoc.x + (e.x - mouseDownPt.x);
+                    dialogLoc.y = dialogLoc.y + (e.y - mouseDownPt.y);
+                    shell.setLocation(dialogLoc);
                 }
+            } else if ((Label) e.getSource() == resizeLabel) {
+                if (resizeDialog == true) {
+                    int newWidth = shell.getSize().x + (e.x - mouseDownPt.x);
 
-                int shellLocationXCoord = shell.getLocation().x;
+                    if (newWidth < 300) {
+                        return;
+                    }
 
-                if (shellLocationXCoord > screenWidth) {
-                    shellLocationXCoord = shellLocationXCoord - screenWidth;
+                    shell.setSize(newWidth, shell.getSize().y);
                 }
-
-                if (newWidth >= (screenWidth - shellLocationXCoord)) {
-                    return;
-                }
-
-                shell.setSize(newWidth, shell.getSize().y);
             }
         }
     }
@@ -585,13 +559,12 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
     @Override
     public void mouseDown(MouseEvent e) {
         if (e.button != SWT.BUTTON3) {
-            origin = new Point(e.x, e.y);
+            mouseDownPt = new Point(e.x, e.y);
             if ((Label) e.getSource() == moveLabel) {
                 moveDialog = true;
 
             } else if ((Label) e.getSource() == resizeLabel) {
                 resizeDialog = true;
-                startXpos = e.x;
             }
         }
     }
@@ -605,14 +578,12 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
     @Override
     public void mouseUp(MouseEvent e) {
         if (e.button != SWT.BUTTON3) {
+            mouseDownPt = null;
             if ((Label) e.getSource() == moveLabel) {
                 moveDialog = false;
 
-                configData.getGlobalConfiguration().setPosition(
-                        shell.getBounds());
             } else if ((Label) e.getSource() == resizeLabel) {
                 resizeDialog = false;
-                startXpos = -1;
             }
         }
     }
@@ -636,10 +607,6 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
      */
     public void showDialog(boolean showDialogFlag) {
         showDialog = showDialogFlag;
-
-        // if (showDialog == true) {
-        // shell.setLocation(dialogLoc.x - origin.x, dialogLoc.y - origin.y);
-        // }
 
         shell.setVisible(showDialog);
     }
@@ -715,7 +682,6 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
                     }
                 }
             }
-            setDialogLocation();
             shell.update();
             alertAudioMgr = null;
             alertAudioMgr = new AlertAudioMgr(display,
@@ -983,13 +949,6 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
     }
 
     /**
-     * Save the dialog location information.
-     */
-    public void saveDialogBounds() {
-        configData.getGlobalConfiguration().setPosition(shell.getBounds());
-    }
-
-    /**
      * Is the message dlg enabled
      * 
      * @return
@@ -1227,42 +1186,23 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
         return map;
     }
 
-    public Rectangle getCurrentLocation() {
-        Rectangle position = new Rectangle(dialogLoc.x, dialogLoc.y,
-                parentShell.getBounds().width, parentShell.getBounds().height);
-        return position;
-    }
-
-    private void setDialogLocation() {
-        // get any monitors height; should be in an utility class also used in
-        // TabControlDlg.
-        Monitor any = (display.getMonitors())[0];
-        Rectangle monSize = any.getBounds();
-        int monY = monSize.height;
-
-        Rectangle rect = shell.getBounds();
-
-        if (shell.getBounds().y < 0) {
-            shell.setLocation(rect.x, rect.y + 100);
-        }
-
-        if (shell.getBounds().y > (monY - 100)) {
-            shell.setLocation(rect.x, rect.y - 100);
-        }
-    }
-
     public AlertAudioMgr getAlertAudioManager() {
         return alertAudioMgr;
     }
 
-    public static Point getDialogPosition() {
-        return new Point(dialogPrefs.getInt(P_ALERT_MSG_DLG_POSITION + ".x"),
-                dialogPrefs.getInt(P_ALERT_MSG_DLG_POSITION + ".y"));
+    public static Rectangle restoreDialogPosition() {
+        return new Rectangle(
+                dialogPrefs.getInt(P_ALERT_MSG_DLG_POSITION + ".x"),
+                dialogPrefs.getInt(P_ALERT_MSG_DLG_POSITION + ".y"),
+                dialogPrefs.getInt(P_ALERT_MSG_DLG_POSITION + ".width"),
+                dialogPrefs.getInt(P_ALERT_MSG_DLG_POSITION + ".height"));
     }
 
-    public static void setDialogPosition(Point p) {
-        dialogPrefs.setValue(P_ALERT_MSG_DLG_POSITION + ".x", p.x);
-        dialogPrefs.setValue(P_ALERT_MSG_DLG_POSITION + ".y", p.y);
+    public static void saveDialogPosition(Rectangle r) {
+        dialogPrefs.setValue(P_ALERT_MSG_DLG_POSITION + ".x", r.x);
+        dialogPrefs.setValue(P_ALERT_MSG_DLG_POSITION + ".y", r.y);
+        dialogPrefs.setValue(P_ALERT_MSG_DLG_POSITION + ".width", r.width);
+        dialogPrefs.setValue(P_ALERT_MSG_DLG_POSITION + ".height", r.height);
         try {
             dialogPrefs.save();
         } catch (IOException e) {
