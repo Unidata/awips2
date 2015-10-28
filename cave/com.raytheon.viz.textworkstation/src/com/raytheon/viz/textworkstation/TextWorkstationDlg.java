@@ -32,12 +32,15 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.jms.notification.INotificationObserver;
@@ -93,6 +96,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 30Jan2013    DR 14736    D. Friedman Display local time.
  * 24Jun2013	DR 15733	XHuang		Display MAX_BUTTON_CNT (8 button).
  * 25July2013   DR 15733    Greg Hull   Make dflt and max number of Text Buttons configurable.
+ * 28Oct2015    5054        randerso    Make TextWorkstationDlg appear in upper left corner of 
+ *                                      monitor where parent shell is located
  * 
  * </pre>
  * 
@@ -157,7 +162,7 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
      *            - CAVE.DO_NOT_BLOCK or CAVE.NONE
      */
     public TextWorkstationDlg(Shell parent) {
-        super(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE,
+        super(parent, SWT.DIALOG_TRIM | SWT.MIN /* | SWT.RESIZE */,
                 CAVE.PERSPECTIVE_INDEPENDENT | CAVE.INDEPENDENT_SHELL
                         | CAVE.DO_NOT_BLOCK);
 
@@ -204,28 +209,15 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         fontAwipsLabel = new Font(shell.getDisplay(), "Helvetica", 24,
                 SWT.ITALIC);
 
-        INIT_BUTTON_CNT = TextEditorCfg.getTextEditorCfg().getDefaultNumEditors();
+        INIT_BUTTON_CNT = TextEditorCfg.getTextEditorCfg()
+                .getDefaultNumEditors();
         MAX_BUTTON_CNT = TextEditorCfg.getTextEditorCfg().getMaxNumEditors();
-        
+
         // Initialize all of the controls and layouts
-        initializeComponents();
-    }
-
-    @Override
-    protected void opened() {
-        if (productToDisplay != null) {
-            wgDlg.showWarngenProduct(productToDisplay, notify);
-        }
-
-        // Display the first Text Editor
-        showTextEditor(0);
-    }
-
-    private void initializeComponents() {
         sdfUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
         String localTZName = System.getenv("FXA_LOCAL_TZ");
-        sdfLocal.setTimeZone(localTZName != null ?
-                TimeZone.getTimeZone(localTZName) : TimeZone.getDefault());
+        sdfLocal.setTimeZone(localTZName != null ? TimeZone
+                .getTimeZone(localTZName) : TimeZone.getDefault());
 
         createMenus();
         new Label(shell, SWT.NONE).setText("host: "
@@ -240,6 +232,40 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         // Opens the alarm queue invisibly, to duplicate A1 functionality.
         alarmDlg = CurrentAlarmQueue.getInstance(shell);
         alarmDlg.openInvisible();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
+     */
+    @Override
+    protected void preOpened() {
+        super.preOpened();
+
+        // set location to upper left corner of monitor containing parent shell
+        Point parentLoc = getParent().getShell().getLocation();
+
+        Point loc = new Point(0, 0);
+        for (Monitor monitor : getDisplay().getMonitors()) {
+            Rectangle bounds = monitor.getBounds();
+            if (bounds.contains(parentLoc)) {
+                loc.x = bounds.x;
+                loc.y = bounds.y;
+                break;
+            }
+        }
+        shell.setLocation(loc);
+    }
+
+    @Override
+    protected void opened() {
+        if (productToDisplay != null) {
+            wgDlg.showWarngenProduct(productToDisplay, notify);
+        }
+
+        // Display the first Text Editor
+        showTextEditor(0);
     }
 
     private void createMenus() {
@@ -268,6 +294,7 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         MenuItem selectUserIdMenuItem = new MenuItem(fileMenu, SWT.NONE);
         selectUserIdMenuItem.setText("Select User ID...");
         selectUserIdMenuItem.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 if (userIdDlg == null || userIdDlg.isDisposed()) {
                     userIdDlg = new SelectUserIdDlg(shell);
@@ -300,6 +327,7 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         MenuItem exitMenuItem = new MenuItem(fileMenu, SWT.NONE);
         exitMenuItem.setText("Exit");
         exitMenuItem.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 getShell().close();
             }
@@ -323,6 +351,7 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         MenuItem hideAllMenuItem = new MenuItem(windowsMenu, SWT.NONE);
         hideAllMenuItem.setText("Hide All");
         hideAllMenuItem.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 hideAllTextEditors();
             }
@@ -334,6 +363,7 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         MenuItem showAllMenuItem = new MenuItem(windowsMenu, SWT.NONE);
         showAllMenuItem.setText("Show All");
         showAllMenuItem.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 showAllTextEditors();
             }
@@ -350,6 +380,7 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         newWindowMenuItem = new MenuItem(windowsMenu, SWT.NONE);
         newWindowMenuItem.setText("New Window");
         newWindowMenuItem.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 addNewWindowButton();
             }
@@ -360,6 +391,7 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         MenuItem evaluationLogItem = new MenuItem(evalSubMenu, SWT.NONE);
         evaluationLogItem.setText("Evaluation Log");
         evaluationLogItem.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 notImplementedYet("Evaluation Log");
             }
@@ -368,6 +400,7 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         MenuItem endOfShiftItem = new MenuItem(evalSubMenu, SWT.NONE);
         endOfShiftItem.setText("End of Shift");
         endOfShiftItem.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 notImplementedYet("End of Shift");
             }
@@ -376,6 +409,7 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         MenuItem questionnaireItem = new MenuItem(evalSubMenu, SWT.NONE);
         questionnaireItem.setText("Questionnaire");
         questionnaireItem.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 notImplementedYet("Questionnaire");
             }
@@ -419,6 +453,7 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         AlarmAlertNotificationObserver.getInstance();
 
         alertAlarmBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 if (alarmDlg == null) {
                     AlarmAlertNotificationObserver.getInstance();
@@ -441,7 +476,7 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         textBtnArray = new ArrayList<Button>();
         textEditorArray = new ArrayList<TextEditorDialog>();
 
-        for (int x = 1; x <= INIT_BUTTON_CNT; ++x) {	
+        for (int x = 1; x <= INIT_BUTTON_CNT; ++x) {
             createButtonAndTextEditor(x);
         }
     }
@@ -467,6 +502,7 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         textBtn.setText(btnTitle);
         textBtn.setLayoutData(gd);
         textBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 showTextEditor(textBtnArray.indexOf(event.getSource()));
             }
@@ -528,8 +564,10 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         timer = new Timer();
 
         updateTimeTask = new TimerTask() {
+            @Override
             public void run() {
                 getDisplay().syncExec(new Runnable() {
+                    @Override
                     public void run() {
                         updateTimeLabels();
                     }

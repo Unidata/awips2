@@ -31,7 +31,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.viz.alertviz.config.TrayConfiguration.TrayMode;
 
 /**
@@ -49,6 +48,7 @@ import com.raytheon.uf.viz.alertviz.config.TrayConfiguration.TrayMode;
  * May 3, 2011  9067       cjeanbap    Add isMonitorLayoutChanged() method.
  * Apr 27 2012  13744	   Xiaochuan   Update isMonitorLayoutChanged() to compare
  * 									   source size in Previous and current.
+ * Oct 28, 2005 5054       randerso    removed bar position as it was written but never read
  * 
  * </pre>
  * 
@@ -57,7 +57,7 @@ import com.raytheon.uf.viz.alertviz.config.TrayConfiguration.TrayMode;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement(name = "alertConfiguration")
-public class Configuration implements ISerializableObject {
+public class Configuration {
 
     @XmlAttribute
     private String name;
@@ -127,7 +127,7 @@ public class Configuration implements ISerializableObject {
      * Look up a source
      * 
      * @param componentName
-     * @return
+     * @return the source
      */
     public Source lookupSource(String componentName) {
         return this.sourceMap.get(componentName);
@@ -137,7 +137,7 @@ public class Configuration implements ISerializableObject {
      * Look up a category
      * 
      * @param componentName
-     * @return
+     * @return the category
      */
     public Category lookupCategory(String componentName) {
         return this.categoryMap.get(componentName);
@@ -148,7 +148,7 @@ public class Configuration implements ISerializableObject {
      * 
      * This is usually used by serialization, not end users.
      * 
-     * @param collection
+     * @param sources
      */
     @XmlElement(name = "source")
     public void setSourceCollection(Source[] sources) {
@@ -163,7 +163,7 @@ public class Configuration implements ISerializableObject {
      * 
      * This is usually used by serialization, not end users.
      * 
-     * @return
+     * @return the source collection
      */
     public Source[] getSourceCollection() {
         return sourceMap.values().toArray(new Source[sourceMap.size()]);
@@ -174,7 +174,7 @@ public class Configuration implements ISerializableObject {
      * 
      * This is usually used by serialization, not end users.
      * 
-     * @param collection
+     * @param categories
      */
     @XmlElement(name = "category")
     public void setCategoryCollection(Category[] categories) {
@@ -189,20 +189,27 @@ public class Configuration implements ISerializableObject {
      * 
      * This is usually used by serialization, not end users.
      * 
-     * @return
+     * @return the category collection
      */
     public Category[] getCategoryCollection() {
         return categoryMap.values().toArray(new Category[categoryMap.size()]);
     }
 
+    /**
+     * @return the name
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * @param name
+     */
     public void setName(String name) {
         this.name = name;
     }
 
+    @Override
     public Configuration clone() {
         Configuration newConfig = new Configuration();
         newConfig.name = name;
@@ -225,6 +232,7 @@ public class Configuration implements ISerializableObject {
         return newConfig;
     }
 
+    @Override
     public String toString() {
         String rval = getName() + ":\n";
         rval += "\tTrayConfig:\n";
@@ -232,8 +240,7 @@ public class Configuration implements ISerializableObject {
                 + globalConfiguration.getAudioDuration() + " blinkDuration="
                 + globalConfiguration.getBlinkDuration() + " logLength="
                 + globalConfiguration.getLogLength() + "\n";
-        rval += "\t\t" + "mode=" + globalConfiguration.getMode() + " position="
-                + globalConfiguration.getPosition() + "\n";
+        rval += "\t\t" + "mode=" + globalConfiguration.getMode() + "\n";
         rval += "\t\t" + "categoryShown="
                 + globalConfiguration.isCategoryShown() + " expandedPopup="
                 + globalConfiguration.isExpandedPopup() + " priorityShown="
@@ -404,78 +411,80 @@ public class Configuration implements ISerializableObject {
         }
         return result;
     }
-    
+
     /**
-     * Determine if a Monitor was added/omitted (enable/disabled) and/or if the Layout of the
-     * Alert Message Dialog was changed. 
+     * Determine if a Monitor was added/omitted (enable/disabled) and/or if the
+     * Layout of the Alert Message Dialog was changed.
      * 
-     * @param configData the current save Configuration Data.
-     * @return boolean, true if either Monitor and/or Layout was changed otherwise false.
+     * @param configData
+     *            the current save Configuration Data.
+     * @return boolean, true if either Monitor and/or Layout was changed
+     *         otherwise false.
      */
-	public boolean isMonitorLayoutChanged(Configuration configData) {
-		boolean modified = false;
+    public boolean isMonitorLayoutChanged(Configuration configData) {
+        boolean modified = false;
 
-		TrayMode prevLayoutMode = configData.getGlobalConfiguration().getMode();
-		if (!prevLayoutMode.equals(this.getGlobalConfiguration().getMode())) {
-			modified = true;
-		}
+        TrayMode prevLayoutMode = configData.getGlobalConfiguration().getMode();
+        if (!prevLayoutMode.equals(this.getGlobalConfiguration().getMode())) {
+            modified = true;
+        }
 
-		Map<String, Category> prevCategoryMap = configData.getCategories();
-		for (Iterator<String> categories = this.getCategories().keySet()
-				.iterator(); categories.hasNext() && !modified;) {
-			String categoryName = categories.next();
-			Category prevCategory = prevCategoryMap.get(categoryName);
-			Category newCategory = this.getCategories().get(categoryName);
-			if (prevCategory != null && newCategory == null) {
-				modified = true;
-			} else if (prevCategory == null && newCategory != null) {
-				modified = true;
-			} else if (prevCategory != null && newCategory != null) {
-				if (prevCategory.getTextBox() != newCategory.getTextBox()) {
-					modified = true;
-				}
-			}
-		}
+        Map<String, Category> prevCategoryMap = configData.getCategories();
+        for (Iterator<String> categories = this.getCategories().keySet()
+                .iterator(); categories.hasNext() && !modified;) {
+            String categoryName = categories.next();
+            Category prevCategory = prevCategoryMap.get(categoryName);
+            Category newCategory = this.getCategories().get(categoryName);
+            if (prevCategory != null && newCategory == null) {
+                modified = true;
+            } else if (prevCategory == null && newCategory != null) {
+                modified = true;
+            } else if (prevCategory != null && newCategory != null) {
+                if (prevCategory.getTextBox() != newCategory.getTextBox()) {
+                    modified = true;
+                }
+            }
+        }
 
-		Map<String, Source> prevSources = configData.getSources();
+        Map<String, Source> prevSources = configData.getSources();
 
-		if (prevSources.size() != this.getSources().size()) {
-			modified = true;
-		} else {
-			for (Iterator<String> sources = this.getSources().keySet()
-					.iterator(); sources.hasNext() && !modified;) {
-				String sourceName = sources.next();
-				Source prevSource = prevSources.get(sourceName);
-				Source newSource = this.getSources().get(sourceName);
-				if (prevSource == null) {
-					modified = true;
-				} else if (prevSource != null && newSource != null) {
-					MonitorMetadata newMonitorMetadata = newSource
-							.getConfigurationMonitor().getMonitorMetadata();
-					MonitorMetadata prevMonitorMetadata = prevSource
-							.getConfigurationMonitor().getMonitorMetadata();
+        if (prevSources.size() != this.getSources().size()) {
+            modified = true;
+        } else {
+            for (Iterator<String> sources = this.getSources().keySet()
+                    .iterator(); sources.hasNext() && !modified;) {
+                String sourceName = sources.next();
+                Source prevSource = prevSources.get(sourceName);
+                Source newSource = this.getSources().get(sourceName);
+                if (prevSource == null) {
+                    modified = true;
+                } else if (prevSource != null && newSource != null) {
+                    MonitorMetadata newMonitorMetadata = newSource
+                            .getConfigurationMonitor().getMonitorMetadata();
+                    MonitorMetadata prevMonitorMetadata = prevSource
+                            .getConfigurationMonitor().getMonitorMetadata();
 
-					if (newMonitorMetadata != null
-							&& prevMonitorMetadata == null) {
-						modified = true;
-					} else if ((newMonitorMetadata.getOmit())
-							&& (prevMonitorMetadata.getOmit() == false)) {
-						modified = true;
-					}
-					if ((newMonitorMetadata.getOmit() == false)
-							&& (prevMonitorMetadata.getOmit() == true)) {
-						modified = true;
-					} else if (newMonitorMetadata.getImageFile() != null
-							&& prevMonitorMetadata.getImageFile() == null) {
-						modified = true;
-					} else if (newMonitorMetadata.getImageFile() == null
-							&& prevMonitorMetadata.getImageFile() != null) {
-						modified = true;
-					}
-				}
-			}
-		}
+                    if (newMonitorMetadata != null
+                            && prevMonitorMetadata == null) {
+                        modified = true;
+                    } else if ((newMonitorMetadata.getOmit())
+                            && (prevMonitorMetadata.getOmit() == false)) {
+                        modified = true;
+                    }
+                    if ((newMonitorMetadata.getOmit() == false)
+                            && (prevMonitorMetadata.getOmit() == true)) {
+                        modified = true;
+                    } else if (newMonitorMetadata.getImageFile() != null
+                            && prevMonitorMetadata.getImageFile() == null) {
+                        modified = true;
+                    } else if (newMonitorMetadata.getImageFile() == null
+                            && prevMonitorMetadata.getImageFile() != null) {
+                        modified = true;
+                    }
+                }
+            }
+        }
 
-		return modified;
-	}
+        return modified;
+    }
 }

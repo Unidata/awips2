@@ -100,6 +100,7 @@ import com.raytheon.uf.viz.alertviz.ui.dialogs.ConfigurationFileDlg.Function;
  * 07 Feb 2013	 15490	   Xiaochuan   Past this object to LayoutControlsComp.
  * 26 Aug 2013   #2293     lvenable    Fixed color memory leak and cleaned up some code.
  * 23 Oct 2013   2303      bgonzale    Old patch to fix tool tip layout.
+ * 28 Oct 2005   5054      randerso    Removed bar position as it was written but never read
  * 
  * </pre>
  * 
@@ -396,6 +397,7 @@ public class AlertVisConfigDlg extends Dialog implements
         layoutControls = new LayoutControlsComp(layoutGroup, configData, this,
                 this);
         layoutGroup.addMouseTrackListener(new MouseTrackAdapter() {
+            @Override
             public void mouseHover(MouseEvent e) {
                 mttLayout.open();
             }
@@ -418,6 +420,7 @@ public class AlertVisConfigDlg extends Dialog implements
         mttCommonSetting = new MonitorToolTip(commonSettingsGroup, true);
 
         commonSettingsGroup.addMouseTrackListener(new MouseTrackAdapter() {
+            @Override
             public void mouseHover(MouseEvent e) {
                 mttCommonSetting.open();
             }
@@ -632,6 +635,7 @@ public class AlertVisConfigDlg extends Dialog implements
         mttSource = new MonitorToolTip(sourcesLbl, false);
 
         sourcesLbl.addMouseTrackListener(new MouseTrackAdapter() {
+            @Override
             public void mouseHover(MouseEvent e) {
                 mttSource.open();
             }
@@ -686,6 +690,7 @@ public class AlertVisConfigDlg extends Dialog implements
         sourcesList.setMenu(popupMenuSourceList);
 
         popupMenuSourceList.addListener(SWT.Show, new Listener() {
+            @Override
             public void handleEvent(Event event) {
                 MenuItem[] menuItems = popupMenuSourceList.getItems();
 
@@ -864,6 +869,7 @@ public class AlertVisConfigDlg extends Dialog implements
         mttPriorities = new MonitorToolTip(priorityLbl, false);
 
         priorityLbl.addMouseTrackListener(new MouseTrackAdapter() {
+            @Override
             public void mouseHover(MouseEvent e) {
                 mttPriorities.open();
             }
@@ -1251,17 +1257,15 @@ public class AlertVisConfigDlg extends Dialog implements
         gConfig.setMode(layoutControls.getSelectedLayoutTrayMode()); // Mandatory
                                                                      // to be
                                                                      // HERE!
-        if (alertMsgDlg != null) {
-            gConfig.setPosition(alertMsgDlg.getCurrentLocation());
-        }
     }
 
     /**
      * Populate the priority controls.
      */
     private void populatePriorityControls() {
-        if (priorityControls == null)
+        if (priorityControls == null) {
             return;
+        }
 
         int index = sourcesList.getSelectionIndex();
 

@@ -106,6 +106,7 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
@@ -356,8 +357,10 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  *                                       simulated time.
  * Sep 30, 2015   4860      skorolev    Corrected misspelling.
  * 07Oct2015   RM 18132     D. Friedman Exlucde certain phensigs from automatic ETN incrementing.
- * 11Dec2015   RM14752   mgamazaychikov Fix problems with wrapping in the impact section.
+ * Oct 28, 2015 5054        randerso    Make Text Editor windows appear on same monitor as the parent.
+ *                                      Removed hard coded offset for window placement.
  * Nov 05, 2015 5039        rferrel     Prevent wrapping text to a component name line and clean up of streams.
+ * 11Dec2015   RM14752   mgamazaychikov Fix problems with wrapping in the impact section.
  * 
  * </pre>
  * 
@@ -1590,7 +1593,17 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         createMenus();
 
         // Initialize all of the controls and layouts
-        initializeComponents();
+        createTopButtonRow();
+
+        Label sepLbl = new Label(shell, SWT.SEPARATOR | SWT.HORIZONTAL);
+        sepLbl.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+        createTextRow();
+        createHeaderTextField();
+        createEditorControlButtons();
+        createTextAreaEditor();
+        createScriptRunnerControlBar();
+        createStatusBar();
 
         // initialize scripting controls
         setScriptControls(false);
@@ -3041,23 +3054,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
     public void setDefaultFont(int fontSize, String fontName) {
         dftFont = new Font(getDisplay(), fontName, fontSize, SWT.NORMAL);
-    }
-
-    /**
-     * Initialize the components and put them on the display.
-     */
-    private void initializeComponents() {
-        createTopButtonRow();
-
-        Label sepLbl = new Label(shell, SWT.SEPARATOR | SWT.HORIZONTAL);
-        sepLbl.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-        createTextRow();
-        createHeaderTextField();
-        createEditorControlButtons();
-        createTextAreaEditor();
-        createScriptRunnerControlBar();
-        createStatusBar();
     }
 
     /**
@@ -7717,20 +7713,35 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     protected void preOpened() {
         // Shell shell = ted.getShell();
         if (textWorkstationFlag) {
-            Rectangle rect = getShell().getDisplay().getClientArea();
-            int x = rect.width / 4;
 
-            // account for dual monitor
-            if (rect.width > (rect.height * 2)) {
-                x /= 2;
+            // get bounds of monitor containing parent shell
+            Point parentLoc = getParent().getShell().getLocation();
+            Rectangle rect = null;
+            for (Monitor monitor : getShell().getDisplay().getMonitors()) {
+                rect = monitor.getBounds();
+                if (rect.contains(parentLoc)) {
+                    break;
+                }
             }
+            int x = rect.x + rect.width / 4;
+            int y = rect.y;
 
             int index = getText().indexOf(" ");
             int editorIndex = new Integer(getText().substring(index + 1))
                     .intValue();
 
-            int offset = (editorIndex - 1) * 25;
-            getShell().setLocation(x + offset, (rect.height / 4) + offset);
+            Rectangle bounds = getShell().getBounds();
+            Rectangle clientArea = getShell().getClientArea();
+
+            /*
+             * NOTE: this offset includes the height of the title bar and the
+             * menu. There appears to be no way to get just the title bar in
+             * Eclipse 3.8 We may be able to do this in Eclipse 4
+             */
+            int xOffset = (editorIndex - 1) * (bounds.width - clientArea.width);
+            int yOffset = (editorIndex - 1)
+                    * (bounds.height - clientArea.height);
+            getShell().setLocation(x + xOffset, y + yOffset);
         }
 
         inEditMode = false;

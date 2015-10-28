@@ -21,6 +21,7 @@ package com.raytheon.viz.gfe;
 
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -43,6 +44,8 @@ import com.raytheon.viz.gfe.dialogs.GFEConfigDialog;
  * Oct 30, 2012 1298       rferrel     Must be a blocking dialog.
  * Dec 09, 2013 #2367      dgilling    Remove shutdown of ProcedureJob and
  *                                     SmartToolJob.
+ * Oct 28, 2015 #5054      randerso    Make GfeConfigDlg parented by workbench window if
+ *                                     workbench is running.
  * 
  * </pre>
  * 
@@ -115,8 +118,15 @@ public class Activator extends AbstractUIPlugin implements BundleActivator {
             if (pythonPrefs == null) {
                 if (cfgDlg == null || cfgDlg.getShell() == null
                         || cfgDlg.isDisposed()) {
-                    cfgDlg = new GFEConfigDialog(
-                            new Shell(Display.getDefault()));
+                    Shell shell = null;
+                    if (PlatformUI.isWorkbenchRunning()) {
+                        shell = PlatformUI.getWorkbench()
+                                .getActiveWorkbenchWindow().getShell();
+                    } else {
+                        shell = new Shell(Display.getDefault());
+                    }
+
+                    cfgDlg = new GFEConfigDialog(shell);
                     // Must keep as a blocking dialog for eclipse plugins to
                     // work properly.
                     cfgDlg.setBlockOnOpen(true);
