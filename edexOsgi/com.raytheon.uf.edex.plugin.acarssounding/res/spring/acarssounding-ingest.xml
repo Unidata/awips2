@@ -5,7 +5,7 @@
 
     <bean id="acarsAirports" class="com.raytheon.uf.edex.plugin.acarssounding.tools.AirportsBean" depends-on="acarsSoundingPluginName" >
     </bean>
-    
+
     <bean id="acarsPersistObs" class="com.raytheon.uf.edex.plugin.acarssounding.ACARSPersistObs" depends-on="acarsRegistered, acarsAirports" >
         <constructor-arg ref="acarsAirports" />
     </bean>
@@ -21,16 +21,15 @@
     <camelContext id="acarsSoundingSrv-camel" 
                   xmlns="http://camel.apache.org/schema/spring" 
                   errorHandlerRef="errorHandler">
-        <endpoint id="acarsSoundingEndpoint"/>
-        
+
         <endpoint id="scheduledSoundingCron" uri="clusteredquartz://acars/createSounding/?cron=${acarssounding.cron}"/>        
-                
+
         <!-- Schedule sounding creation -->
         <route id="scheduledSounding">
             <!-- Set the minutes explicitly -->
             <!-- Deployed time slots -->
             <from uri="scheduledSoundingCron" />
-            
+
             <!-- Development time slots 
             <from uri="clusteredquartz://acars/createSounding/?cron=00+0,5,10,15,20,25,30,35,40,45,50,55+*+*+*+?" />
            -->
@@ -53,7 +52,7 @@
               </doTry>
            </split>
         </route>
-        
+
         <route id="acarsSoundingProcessing">
            <from uri="jms-durable:queue:acarssounding" />
            <doTry>
@@ -68,7 +67,7 @@
            </doTry>
         </route>
 
-		<route id="acarsSoundingRoute">
+        <route id="acarsSoundingRoute">
             <from uri="direct-vm:acarsSounding"/>
             <bean ref="acarsPersistObs" method="process" />
         </route>
