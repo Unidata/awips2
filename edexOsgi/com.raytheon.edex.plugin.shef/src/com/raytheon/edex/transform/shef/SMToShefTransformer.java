@@ -22,15 +22,17 @@ package com.raytheon.edex.transform.shef;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TimeZone;
 
 import javax.xml.transform.TransformerException;
 
 import com.raytheon.edex.esb.Headers;
+import com.raytheon.edex.transform.shef.obs.ObsToSHEFOptions;
 import com.raytheon.edex.transform.shef.obs.SHEF_Obs_Codes;
 import com.raytheon.edex.transform.shef.obs.SHEF_SM_Codes;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
-import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.common.wmo.WMOTimeParser;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
@@ -51,6 +53,8 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
  * Jul 01, 2015 16903      lbousaidi   fixed WMO header in ingest log and product_id inserted
  *                                     into ihfs database
+ * Oct 28, 2015 4783       bkowal      Allow {@link SynopticToShefRun}s to override the
+ *                                     default configuration.
  * </pre>
  * 
  * @author jkorman
@@ -61,13 +65,22 @@ public class SMToShefTransformer extends AbstractShefTransformer<ObsCommon> {
 
     private static final String WMO_HEADER_FMT = CRCRLF
             + "SRXX99 %4s %2$td%2$tH%2$tM";
-    
+
     private static final int DT_SIZE = 6;
+
     private static final int CCC_SIZE = 6;
-    
+
+    private static final int MAX_LIST = 500;
+
+    private static Map<Integer, SynopticToShefRun> matchMap = new HashMap<>();
+
+    private final ObsToSHEFOptions defaultOptions;
+
+    private HashMap<String, ObsToSHEFOptions> optionsCacheMap = new HashMap<>();
+
     private static final DateFormat dateFormat = new SimpleDateFormat("ddHHmm");
     static {
-        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));        
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
     /**
@@ -75,6 +88,7 @@ public class SMToShefTransformer extends AbstractShefTransformer<ObsCommon> {
      */
     public SMToShefTransformer(String cmdLine) {
         super(cmdLine, WMO_HEADER_FMT);
+        this.defaultOptions = this.options;
     }
 
     /**
@@ -90,48 +104,81 @@ public class SMToShefTransformer extends AbstractShefTransformer<ObsCommon> {
     public byte[] transformReport(ObsCommon report, Headers headers)
             throws TransformerException {
 
+        ObsToSHEFOptions tmpOptions = null;
+        SynopticToShefRun run = matchMap.get(report.getId());
+        if (run == null) {
+            tmpOptions = this.defaultOptions;
+        } else {
+            final String optionsKey = run.getConfigFileName();
+            tmpOptions = this.optionsCacheMap.get(optionsKey);
+            if (tmpOptions == null) {
+                if (this.optionsCacheMap.size() > MAX_LIST) {
+                    this.optionsCacheMap.clear();
+                }
+                /*
+                 * {@link #metar2ShefOptions} contain the parameters that were
+                 * used when constructing the default {@link ObsToSHEFOptions}
+                 * options.
+                 */
+                if (run.getConfigFileName() == null) {
+                    tmpOptions = new ObsToSHEFOptions(this.metar2ShefOptions,
+                            true);
+                } else {
+                    tmpOptions = new ObsToSHEFOptions(run.getConfigFileName(),
+                            this.metar2ShefOptions, true);
+                }
+                this.optionsCacheMap.put(optionsKey, tmpOptions);
+            }
+            matchMap.remove(report.getId());
+        }
+        this.options = tmpOptions;
+        logger.info("Synoptic to SHEF for " + report.getStationId()
+                + " use config file: " + options.getCfgFileName());
+
         // Transformed Synoptic PluginDataObject to SHEF
-        byte[] result = null;        
+        byte[] result = null;
         try {
             // Currently returns false, so nothing is encoded at this time.
             if (encodeThisStation(report)) {
-                //get the id and use the alias to change digits to letters.
-            	String stnId = report.getStationId();
-            	
-            	if (options.isOptCheckAliasId()) {
-            		stnId = options.checkAlias(stnId);
+                // get the id and use the alias to change digits to letters.
+                String stnId = report.getStationId();
+
+                if (options.isOptCheckAliasId()) {
+                    stnId = options.checkAlias(stnId);
                 }
-            	// make header for ingest log file printout
-            	String YYGGgg = report.getWmoHeader().substring(12, 12 + DT_SIZE);
-            	String ccc    = report.getWmoHeader().substring(6, 6 + CCC_SIZE);
-            	
-            	StringBuilder sb = makeSynHeader(openWMOMessage(200),stnId ,headers , YYGGgg);
-            	String fileName = makeSynHeader(new StringBuilder(20),stnId,headers, YYGGgg)
-            			.toString().trim().replace(' ', '_');
-                
-            	startMessageLine(sb);
-            	
-            	if (ccc != null) {
-            		if (ccc.length() > 3) {
-            			ccc = ccc.substring(ccc.length() - 4).trim();
+                // make header for ingest log file printout
+                String YYGGgg = report.getWmoHeader().substring(12,
+                        12 + DT_SIZE);
+                String ccc = report.getWmoHeader().substring(6, 6 + CCC_SIZE);
+
+                StringBuilder sb = makeSynHeader(openWMOMessage(200), stnId,
+                        headers, YYGGgg);
+                String fileName = makeSynHeader(new StringBuilder(20), stnId,
+                        headers, YYGGgg).toString().trim().replace(' ', '_');
+
+                startMessageLine(sb);
+
+                if (ccc != null) {
+                    if (ccc.length() > 3) {
+                        ccc = ccc.substring(ccc.length() - 4).trim();
                     }
-            	}     
-            	
-            	sb.append(ccc);
-            	sb.append(METAR_2_SHEF_NNN);
-            	if (stnId.length() == 4) {
-            		sb.append(stnId.substring(1));
-            	} else if (stnId.length() == 3) {
-                   sb.append(stnId);
                 }
-            	
-            	startMessageLine(sb);
-            	startMessageLine(sb).append(
-            			": SHEF derived data created by SMToShefTransformer");
-            	startMessageLine(sb).append(": TRACEID = ");
-            	
-            	report.getWmoHeader();
-            	sb.append(report.getWmoHeader());
+
+                sb.append(ccc);
+                sb.append(METAR_2_SHEF_NNN);
+                if (stnId.length() == 4) {
+                    sb.append(stnId.substring(1));
+                } else if (stnId.length() == 3) {
+                    sb.append(stnId);
+                }
+
+                startMessageLine(sb);
+                startMessageLine(sb).append(
+                        ": SHEF derived data created by SMToShefTransformer");
+                startMessageLine(sb).append(": TRACEID = ");
+
+                report.getWmoHeader();
+                sb.append(report.getWmoHeader());
 
                 String shef = closeWMOMessage(encodeShef(sb, report, headers))
                         .toString();
@@ -256,4 +303,11 @@ public class SMToShefTransformer extends AbstractShefTransformer<ObsCommon> {
         return encode;
     }
 
+    public static void setMatchMap(
+            final Map<Integer, SynopticToShefRun> reportMatchMap) {
+        if (matchMap.size() > MAX_LIST) {
+            matchMap.clear();
+        }
+        matchMap.putAll(reportMatchMap);
+    }
 }
