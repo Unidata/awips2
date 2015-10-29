@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.monitor.ffmp;
+package com.raytheon.uf.common.dataplugin.ffmp.collections;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,6 +34,7 @@ import java.util.concurrent.ConcurrentMap;
  * ------------ ---------- ----------- --------------------------
  * Feb 18, 2013            njensen     Initial creation
  * Feb 28, 2013  1729      dhladky     Sped up, synch blocks were hanging it.
+ * Oct 26, 2015  5056      dhladky     Moved to common area for data cache.
  * 
  * </pre>
  * 

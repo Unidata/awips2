@@ -25,6 +25,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 08/22/10      3437       D. Hladky   Initial release
  * 01/17/13      1478        D. Hladky  Removed un-needed XML attributes
  * Aug 08, 2015 4722        dhladky     Dynamic serialize imp not needed.
+ * Oct 26, 2015  5056       dhladky     Simplified Guidance interpolator.
  * 
  * </pre>
  * 
@@ -326,18 +327,19 @@ public class FFMPGuidanceBasin extends FFMPBasin {
     /**
      * Interpolate between guidance sources
      * 
-     * @param source1
-     * @param source2
-     * @param ratioOffset
+     * @param interpolation
+     * @param expiration
      * @return
      */
-    public Float getInterpolatedValue(String source1, String source2,
-            double ratioOffset, FFMPGuidanceInterpolation interpolation,
+    public Float getInterpolatedValue(FFMPGuidanceInterpolation interpolation,
             long expiration) {
 
         float value1 = 0.0f;
         float value2 = 0.0f;
 
+        String source1 = interpolation.getSource1();
+        String source2 = interpolation.getSource2();
+        double ratioOffset = interpolation.getInterpolationOffset();
         // interpolate from zero to first guidance
         if (source1.equals(source2)) {
             if ((ratioOffset == Double.NaN) || (ratioOffset == 0.0)) {
