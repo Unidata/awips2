@@ -23,6 +23,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -76,36 +77,41 @@ public class MetarToShefTransformer extends
 
     private static final String SENS_TYPE_AUTO = " AUTO";
 
-    private static final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    private static final DateFormat dateFormat = new SimpleDateFormat(
+            "yyyy/MM/dd HH:mm:ss");
     static {
-        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));        
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
-    
-    private static final int P1_MIN  = 50;
-    private static final int P2_MAX  =  5;
+    private static final int P1_MIN = 50;
+
+    private static final int P2_MAX = 5;
 
     /*
-     * Max list for optionsList and matchList to prevent memory leak. 
-     * (500 or any big number should be fine)
+     * Max list for optionsList and matchList to prevent memory leak. (500 or
+     * any big number should be fine)
      */
     private static final int MAX_LIST = 500;
 
     /*
-     * MetarToShefRun list which has metar.cfg file and options to used by conversion 
+     * MetarToShefRun list which has metar.cfg file and options to used by
+     * conversion
      */
-    private static HashMap<String,MetarToShefRun> mtsrList = new HashMap<String,MetarToShefRun>();
-    
+    private static HashMap<Integer, MetarToShefRun> mtsrList = new HashMap<>();
+
     /*
-     * List of metar.cfg files + options. 
+     * List of metar.cfg files + options.
      */
-    private HashMap<String,ObsToSHEFOptions> optionsList = new  HashMap<String,ObsToSHEFOptions>();
-    private ObsToSHEFOptions defaultOptions =null;
-    
+    private HashMap<String, ObsToSHEFOptions> optionsList = new HashMap<String, ObsToSHEFOptions>();
+
+    private ObsToSHEFOptions defaultOptions = null;
+
     /**
      * Construct an instance of this transformer.
-     * @param cmdLine Command line options that may be used if these
-     * options are not present in the Apps_defaults.
+     * 
+     * @param cmdLine
+     *            Command line options that may be used if these options are not
+     *            present in the Apps_defaults.
      */
     public MetarToShefTransformer(String cmdLine) {
         super(cmdLine, WMO_HEADER_FMT);
@@ -113,11 +119,16 @@ public class MetarToShefTransformer extends
     }
 
     /**
-     * Attempt to transform a single metar observation into SHEF encoded observations.
-     * @param report A metar report to encode.
-     * @param The system headers associated with the original metar message.
+     * Attempt to transform a single metar observation into SHEF encoded
+     * observations.
+     * 
+     * @param report
+     *            A metar report to encode.
+     * @param The
+     *            system headers associated with the original metar message.
      * @return The encoded SHEF report as a byte array. May return an empty
-     * array if the report should not have been encoded or some error occured.
+     *         array if the report should not have been encoded or some error
+     *         occured.
      * @throws TransformerException
      */
     @Override
@@ -155,7 +166,8 @@ public class MetarToShefTransformer extends
                 place = 2;
                 StringBuilder sb = makeWMOHeader(openWMOMessage(200), stnId,
                         headers, hdr);
-                String fileName = makeWMOHeader(new StringBuilder(20), stnId, headers, hdr).toString().trim().replace(' ', '_');
+                String fileName = makeWMOHeader(new StringBuilder(20), stnId,
+                        headers, hdr).toString().trim().replace(' ', '_');
                 place = 3;
 
                 startMessageLine(sb);
@@ -177,7 +189,7 @@ public class MetarToShefTransformer extends
                     sb.append(":  Observation time = ");
                     sb.append(report.getDataTime());
                     sb.append(" System time= ");
-                    synchronized(dateFormat) {
+                    synchronized (dateFormat) {
                         sb.append(dateFormat.format(nowCalendar.getTime()));
                     }
                 }
@@ -242,7 +254,7 @@ public class MetarToShefTransformer extends
             place = 1;
             if (options.isOptStripICAO()) {
                 lineHdr.append(stnId.substring(1));
-            } else {  // Only for ALASKA region
+            } else { // Only for ALASKA region
                 lineHdr.append(stnId);
             }
 
@@ -263,10 +275,10 @@ public class MetarToShefTransformer extends
             lineHdr.append(": ");
 
             c = report.getTimeObs();
-            if(METAR.equals(report.getReportType())) {
+            if (METAR.equals(report.getReportType())) {
                 c = checkTimeRounding(c, options, report);
             }
-            
+
             place = 2;
             if (options.isOptCentury()) {
                 lineHdr.append(String.format(SHEF_OBS_DATEY2K_FMT, c));
@@ -294,7 +306,7 @@ public class MetarToShefTransformer extends
                 }
             }
             buffer = writeObs(buffer, rptText.toString());
-            
+
             // Now grab the remarks. This is all we need in the formatter
             // section.
             place = 4;
@@ -303,8 +315,8 @@ public class MetarToShefTransformer extends
             String reportText = null;
             if (m.find()) {
                 reportText = rptText.substring(m.start());
-                if(Utilities.isAutoASOS(reportText)) {
-                    options.setGeneralProperty(Utilities.IS_ASOS,"T");
+                if (Utilities.isAutoASOS(reportText)) {
+                    options.setGeneralProperty(Utilities.IS_ASOS, "T");
                 }
             } else {
                 reportText = "";
@@ -329,16 +341,17 @@ public class MetarToShefTransformer extends
         return buffer;
     }
 
-    private static Calendar checkTimeRounding(Calendar c, ObsToSHEFOptions options, MetarRecord wxReport) {
-        if(c != null) {
-            if(options != null) {
-                if(options.isOptRoundObsTime()) {
-                    
+    private static Calendar checkTimeRounding(Calendar c,
+            ObsToSHEFOptions options, MetarRecord wxReport) {
+        if (c != null) {
+            if (options != null) {
+                if (options.isOptRoundObsTime()) {
+
                     String id = wxReport.getStationId();
                     Integer durTime = null;
                     Integer pcReset = options.getPCReset(id);
                     // !null means that a reset is defined for this station.
-                    if(pcReset == null) {
+                    if (pcReset == null) {
                         if (options.isOptStripICAO()) {
                             // Try again with 3 character identifier.
                             pcReset = options.getPCReset(id.substring(1));
@@ -349,31 +362,31 @@ public class MetarToShefTransformer extends
                         // Get the tolerance value
                         Integer tol = options.getOptPCT();
 
-                        int obMinute = wxReport.getTimeObs().get(Calendar.MINUTE);
+                        int obMinute = wxReport.getTimeObs().get(
+                                Calendar.MINUTE);
                         durTime = (obMinute + 60 - pcReset) % 60;
-                        
-                        if((durTime <= tol) || (Math.abs(durTime - 60) <= tol)) {
+
+                        if ((durTime <= tol) || (Math.abs(durTime - 60) <= tol)) {
                             durTime = 60;
                         }
                     }
                     // if null then the station does not have pcreset applied.
-                    if(durTime == null) {
+                    if (durTime == null) {
                         int min = c.get(Calendar.MINUTE);
                         int deltaHour = 0;
-                        if(min >= 30) {
+                        if (min >= 30) {
                             deltaHour = 1;
                         }
                         min = 0;
-                        c.set(Calendar.MINUTE,min);
-                        c.add(Calendar.HOUR_OF_DAY,deltaHour);
+                        c.set(Calendar.MINUTE, min);
+                        c.add(Calendar.HOUR_OF_DAY, deltaHour);
                     }
                 }
             }
         }
         return c;
     }
-    
-    
+
     /**
      * Should this reports data be encoded?
      * 
@@ -385,32 +398,35 @@ public class MetarToShefTransformer extends
     @Override
     protected boolean encodeThisStation(MetarRecord report) {
         boolean encodeOk = true;
-        
+
         int mnTime = report.getTimeObs().get(Calendar.MINUTE);
-        
-        if(options.isOptSpeci()) {
-            if((mnTime > P2_MAX) && (mnTime < P1_MIN)) {
+
+        if (options.isOptSpeci()) {
+            if ((mnTime > P2_MAX) && (mnTime < P1_MIN)) {
                 encodeOk = report.getPrecip1Hour() >= 0;
             }
             encodeOk &= "METAR".equals(report.getReportType());
         }
-        
+
         String s = report.getStationId();
         return (encodeOk & options.checkName(s));
     }
 
     /**
      * Reformats observation text into a SHEF comment.
-     * @param sb Buffer to receive the formatted data.
-     * @param obs The observation to format.
+     * 
+     * @param sb
+     *            Buffer to receive the formatted data.
+     * @param obs
+     *            The observation to format.
      * @return The formatted data.
      */
     public static StringBuilder writeObs(StringBuilder sb, String obs) {
         boolean startLine = true;
         int count = 0;
         String indent = "";
-        for(int i = 0;i < obs.length();i++) {
-            if(startLine) {
+        for (int i = 0; i < obs.length(); i++) {
+            if (startLine) {
                 startMessageLine(sb);
                 sb.append(":");
                 sb.append(indent);
@@ -418,14 +434,14 @@ public class MetarToShefTransformer extends
             }
             char c = obs.charAt(i);
             count++;
-            if((c == '\r') || (c == '\n')) {
+            if ((c == '\r') || (c == '\n')) {
                 c = ' ';
             }
-            if(c != ' ') {
+            if (c != ' ') {
                 sb.append(c);
             } else {
                 // we have a space
-                if(count >= 65) {
+                if (count >= 65) {
                     startLine = true;
                     count = 4;
                     indent = "   ";
@@ -438,39 +454,46 @@ public class MetarToShefTransformer extends
     }
 
     public final byte[] transformMetar(MetarRecord report, Headers headers)
-    throws TransformerException {
-    	ObsToSHEFOptions tmpOptions=null;
-    	MetarToShefRun mtsr = mtsrList.get(report.getDataURI());
-    	if (mtsr==null) {
-    		tmpOptions = defaultOptions;
-    	} else {
-    	    tmpOptions = optionsList.get(mtsr.getConfigFileName()+mtsr.getMetarToShefOptions());
-    	    if (tmpOptions==null) {
-    		    //just to prevent t memory leak
-    		    if (optionsList.size()>MAX_LIST) {
-    			    optionsList.clear();
-    		    }
-    		    tmpOptions = new ObsToSHEFOptions(mtsr.getConfigFileName(),mtsr.getMetarToShefOptions(),true);
-    		    optionsList.put(mtsr.getConfigFileName()+mtsr.getMetarToShefOptions(), tmpOptions);
-    	    }
-    	    mtsrList.remove(report.getDataURI());
-    	}
-    	options=tmpOptions;
-		logger.info("Metar to SHEF for "+report.getStationId()+" use config file: "+options.getCfgFileName()+" with options:"+mtsr.getMetarToShefOptions());
-    	configureArchiveDir();
+            throws TransformerException {
+        ObsToSHEFOptions tmpOptions = null;
+        MetarToShefRun mtsr = mtsrList.get(report.getId());
+        if (mtsr == null) {
+            tmpOptions = defaultOptions;
+        } else {
+            tmpOptions = optionsList.get(mtsr.getConfigFileName()
+                    + mtsr.getMetarToShefOptions());
+            if (tmpOptions == null) {
+                // just to prevent t memory leak
+                if (optionsList.size() > MAX_LIST) {
+                    optionsList.clear();
+                }
+                tmpOptions = new ObsToSHEFOptions(mtsr.getConfigFileName(),
+                        mtsr.getMetarToShefOptions(), true);
+                optionsList
+                        .put(mtsr.getConfigFileName()
+                                + mtsr.getMetarToShefOptions(), tmpOptions);
+            }
+            mtsrList.remove(report.getId());
+        }
+        options = tmpOptions;
+        logger.info("Metar to SHEF for " + report.getStationId()
+                + " use config file: " + options.getCfgFileName()
+                + " with options:" + mtsr.getMetarToShefOptions());
+        configureArchiveDir();
 
-    	return transformReport(report, headers);
+        return transformReport(report, headers);
     }
 
     /*
      * set matchList
      */
-    public static void setMatchList (HashMap<String,MetarToShefRun> matchLst) {
-    	//should add to the list and remove after use. clear if reach certain big number
-    	if (mtsrList.size()>MAX_LIST) {
-    		mtsrList.clear();
-    	}
-    	
-    	mtsrList.putAll(matchLst);
+    public static void setMatchList(Map<Integer, MetarToShefRun> matchLst) {
+        // should add to the list and remove after use. clear if reach certain
+        // big number
+        if (mtsrList.size() > MAX_LIST) {
+            mtsrList.clear();
+        }
+
+        mtsrList.putAll(matchLst);
     }
 }
