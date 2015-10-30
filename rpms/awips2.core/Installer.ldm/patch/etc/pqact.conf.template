@@ -44,6 +44,7 @@
 #20150827            4687 skorolev    Add pattern for ECMWF station-based MOS text bulletins
 #20150930            4930 rferrel     Corrected patterns for intlsigmets.
 #20151008            4958 dgilling    Add pattern for NationalBlend
+#20151030        DR 17683 jwatson     Add pattern for Day 8-11 Alaska 3km gridded MOS    
 
 #***************************************************************
 # AWIPS 1 PATTERN GRAPHIC	^[PQ].*				/redbook/Raw
@@ -245,6 +246,14 @@ NGRID	^([LM][ABCDFGH]U...) (KWBN) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#
 
 NGRID	^(Y.UZ9[0-9]) (KWB.) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/grib2/(\3:yyyy)(\3:mm)\3/\4/GMOS/GRID184/\1_\2_\3\4\5_(seq).grib2.%Y%m%d%H
+
+# DR 17683
+# Day 8-11 3km Alaska Gridded MOS
+# Pattern added by Josh Watson
+# The noaaportIngester does not yet read a grib2 SBN file with more than one message.
+
+NGRID	^(L[BCDEFGHR]RZ96) (KWBQ) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/grib2/(\3:yyyy)(\3:mm)\3/\4/GMOS/GRID255/\1_\2_\3\4\5_(seq).grib2.%Y%m%d%H
 
 # DR 17426
 # 2.5km Hawaii GMOS
