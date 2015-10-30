@@ -59,6 +59,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------	----------	-----------	--------------------------
  * Sep 4, 2008				lvenable	Initial creation
  * Apr 19,2013  1790        rferrel     Make dialog non-blocking.
+ * Feb 08, 2016 14232       amoore      Expand locarea area column to 500 characters.
  * 
  * </pre>
  * 
@@ -66,6 +67,11 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class DescriptionDlg extends CaveSWTDialog {
+    /**
+     * Maximum characters of affected area.
+     */
+    private static final int MAX_AFFECTED_AREA_SIZE = 500;
+
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(DescriptionDlg.class);
 
@@ -441,7 +447,7 @@ public class DescriptionDlg extends CaveSWTDialog {
         currentAreaText = affectedAreaTF.getText();
         ModifyListener listenerA = new ModifyListener() {
             public void modifyText(ModifyEvent e) {
-                if (affectedAreaTF.getText().length() > 80) {
+                if (affectedAreaTF.getText().length() > MAX_AFFECTED_AREA_SIZE) {
                     affectedAreaTF.setText(currentAreaText);
                     shell.getDisplay().beep();
                 } else {
