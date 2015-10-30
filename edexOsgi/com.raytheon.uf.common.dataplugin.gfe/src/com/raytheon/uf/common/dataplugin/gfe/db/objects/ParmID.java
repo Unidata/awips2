@@ -62,6 +62,7 @@ import com.raytheon.uf.common.util.StringUtil;
  * 03/28/13     1949       rjpeter     Normalized database structure.
  * 06/20/13     2127       rjpeter     Removed unused bidirectional relationships, and
  *                                     Added OnDelete and Immutable annotations.
+ * 10/30/15     5019       dgilling    Increase length of parm level column.
  * </pre>
  * 
  * @author bphillip
@@ -101,7 +102,7 @@ public class ParmID implements Comparable<ParmID> {
     private String parmName;
 
     /** The level at which this parm applies */
-    @Column(length = 8)
+    @Column(length = 16)
     @DataURI(position = 2)
     private String parmLevel;
 
