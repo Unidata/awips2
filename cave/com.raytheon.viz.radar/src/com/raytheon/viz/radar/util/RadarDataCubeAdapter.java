@@ -57,12 +57,13 @@ import com.raytheon.viz.radar.frame.RadarDataTime;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Oct 8, 2009             bsteffen    Initial creation
- * Nov 21, 2009 #3576      rjpeter     Refactored use of DerivParamDesc.
- * May 13, 2015  4461      bsteffen    Generate radar times from time queries.
  * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- ----------------------------------------
+ * Oct 08, 2009           bsteffen  Initial creation
+ * Nov 21, 2009  3576     rjpeter   Refactored use of DerivParamDesc.
+ * May 13, 2015  4461     bsteffen  Generate radar times from time queries.
+ * Nov 02, 2015  5071     bsteffen  Fix NPE when time query of Unit Status
  * 
  * </pre>
  * 
@@ -145,10 +146,18 @@ public class RadarDataCubeAdapter extends PointDataCubeAdapter {
                 Number level = (Number) map.get(LEVEL_FIELD);
                 radarTime.setLevelValue(level.doubleValue());
                 Number elevation = (Number) map.get(ELEVATION_FIELD);
-                radarTime.setElevationNumber(elevation.intValue());
-                Number volume = (Number) map.get(VOLUME_FIELD);
-                radarTime.setVolumeScanNumber(volume.intValue());
-                time = radarTime;
+                if (elevation == null) {
+                    /*
+                     * Certain products such as Unit Status do not apply to a
+                     * particular elevation.
+                     */
+                    time.setLevelValue(level.doubleValue());
+                } else {
+                    radarTime.setElevationNumber(elevation.intValue());
+                    Number volume = (Number) map.get(VOLUME_FIELD);
+                    radarTime.setVolumeScanNumber(volume.intValue());
+                    time = radarTime;
+                }
             }
             // Best res requests need this because they span a time period
             if (time.getRefTime().before(
