@@ -21,6 +21,8 @@ package com.raytheon.uf.viz.monitor.data;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.raytheon.uf.common.geospatial.ISpatialQuery;
 import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
@@ -30,6 +32,8 @@ import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
 import com.raytheon.uf.common.monitor.xml.AreaIdXML;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig.CellType;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig.ObsHistType;
@@ -52,6 +56,7 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
  * Feb 28, 2013  14410      zhao       Modified getCellTypeForBlizWarn
  * May 23, 2014  3086       skorolev   Corrected ObsHistType. Cleaned code.
  * Sep 18, 2015  3873       skorolev   Added coordinates in the hover text for a newly added zones.Corrected code for Fog and SNOW table data.
+ * Oct 22, 2015  3873       dhladky    Cached off the zone/station hover texts.
  * 
  * </pre>
  * 
@@ -61,15 +66,38 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
 
 public final class TableUtil {
 
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(TableUtil.class);
+    
     /** Conversion coefficient of nautical miles to statute miles. */
     public static final float milesPerNauticalMile = 1.15078f;
 
-    /**
-     * Constructor
-     */
-    private TableUtil() {
-    }
+    /** Singleton instance of this class */
+    private static TableUtil tableUtil = new TableUtil();
+    /** Hover text lookup map **/
+    public Map<String, String> zoneHoverTextMap = null;
+    /** station text lookup map **/
+    public Map<String, String> stationHoverTextMap = null;
 
+
+    /**
+     * Actual initialization if necessary
+     * 
+     * @return
+     */
+    public static synchronized TableUtil getInstance() {
+        if (tableUtil == null) {
+            tableUtil = new TableUtil();
+        }
+
+        return tableUtil;
+    }
+    
+    private TableUtil() {
+        zoneHoverTextMap = new ConcurrentHashMap<String, String>();
+        stationHoverTextMap = new ConcurrentHashMap<String, String>();
+    }
+    
     /**
      * Returns the nominal time for a caller-specified time (to be consistent
      * with D2D, here "Nominal time" is defined as the hour of an one-hour
@@ -976,42 +1004,50 @@ public final class TableUtil {
     private static String getZoneHoverText(AreaIdXML zoneXML) {
 
         String zone = zoneXML.getAreaId();
-        ISpatialQuery sq = null;
-        String sql = null;
-        String hoverText = zone.substring(0, 2) + ", ";
+        String hoverText = tableUtil.zoneHoverTextMap.get(zone);
+        
+        if (hoverText == null) {
+        
+            ISpatialQuery sq = null;
+            String sql = null;
+            hoverText = zone.substring(0, 2) + ", ";
 
-        try {
-            if (MonitorAreaUtils.isMarineZone(zone)) {
-                sql = "select name from mapdata.marinezones where id = '"
-                        + zone + "'";
-            } else if (zone.charAt(2) == 'Z') { // forecast zone
-                String state_zone = zone.substring(0, 2) + zone.substring(3);
-                sql = "select name from mapdata.zone where state_zone = '"
-                        + state_zone + "'";
-            } else { // County
-                String state = zone.substring(0, 2);
-                String fipsLike = "%" + zone.substring(3);
-                sql = "select countyname from mapdata.county where state = '"
-                        + state + "' and fips like '" + fipsLike + "'";
-            }
+            try {
+                if (MonitorAreaUtils.isMarineZone(zone)) {
+                    sql = "select name from mapdata.marinezones where id = '"
+                            + zone + "'";
+                } else if (zone.charAt(2) == 'Z') { // forecast zone
+                    String state_zone = zone.substring(0, 2)
+                            + zone.substring(3);
+                    sql = "select name from mapdata.zone where state_zone = '"
+                            + state_zone + "'";
+                } else { // County
+                    String state = zone.substring(0, 2);
+                    String fipsLike = "%" + zone.substring(3);
+                    sql = "select countyname from mapdata.county where state = '"
+                            + state + "' and fips like '" + fipsLike + "'";
+                }
 
-            sq = SpatialQueryFactory.create();
-            Object[] results = sq.dbRequest(sql, "maps");
-            if (results.length > 0) {
-                if (results[0] instanceof Object[]) {
-                    Object[] res = (Object[]) results[0];
-                    hoverText += (String) res[0];
+                sq = SpatialQueryFactory.create();
+                Object[] results = sq.dbRequest(sql, "maps");
+                if (results.length > 0) {
+                    if (results[0] instanceof Object[]) {
+                        Object[] res = (Object[]) results[0];
+                        hoverText += (String) res[0];
+                    } else {
+                        hoverText += (String) results[0].toString();
+                    }
                 } else {
-                    hoverText += (String) results[0].toString();
+                    if (zoneXML.getCLat() != null) {
+                        hoverText += "(" + zoneXML.getCLat() + ", "
+                                + zoneXML.getCLon() + ")";
+                    }
                 }
-            } else {
-                if (zoneXML.getCLat() != null) {
-                    hoverText += "(" + zoneXML.getCLat() + ", "
-                            + zoneXML.getCLon() + ")";
-                }
+            } catch (Exception e) {
+                statusHandler.error("Unable to query Zone Hover Text: sql: "+sql, e);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+            
+            tableUtil.zoneHoverTextMap.put(zone, hoverText);
         }
 
         return hoverText;
@@ -1025,41 +1061,50 @@ public final class TableUtil {
      */
     private static String getStationHoverText(String stnId) {
 
-        String sql = "select catalogtype, name from common_obs_spatial where ( catalogtype=1 or catalogtype=33 or catalogtype = 32 or catalogtype=1000) and stationid = '"
-                + stnId + "'";
-
-        String hoverText = null;
-        ISpatialQuery sq = null;
-        Integer stnType = null;
-        String stnName = null;
-        try {
-            sq = SpatialQueryFactory.create();
-            Object[] results = sq.dbRequest(sql, "metadata");
-            if (results.length > 0) {
-                if (results[0] instanceof Object[]) {
-                    Object[] res = (Object[]) results[0];
-                    stnType = (Integer) res[0];
-                    stnName = (String) res[1];
+        
+        String hoverText = tableUtil.stationHoverTextMap.get(stnId);
+        
+        if (hoverText == null) {
+  
+            String sql = "select catalogtype, name from common_obs_spatial where ( catalogtype=1 or catalogtype=33 or catalogtype = 32 or catalogtype=1000) and stationid = '"
+                    + stnId + "'";
+            
+            ISpatialQuery sq = null;
+            Integer stnType = null;
+            String stnName = null;
+            try {
+                sq = SpatialQueryFactory.create();
+                Object[] results = sq.dbRequest(sql, "metadata");
+                if (results.length > 0) {
+                    if (results[0] instanceof Object[]) {
+                        Object[] res = (Object[]) results[0];
+                        stnType = (Integer) res[0];
+                        stnName = (String) res[1];
+                    } else {
+                        stnType = (Integer) results[0];
+                        stnName = (String) results[1];
+                    }
+                    if (stnType.intValue() == 1) {
+                        hoverText = stnId + "#METAR -- " + stnName;
+                    } else if (stnType.intValue() == 33
+                            || stnType.intValue() == 32) {
+                        hoverText = stnId + "#MARITIME -- " + stnName;
+                    } else if (stnType.intValue() == 1000) {
+                        hoverText = stnId + "#MESONET -- " + stnName;
+                    }
                 } else {
-                    stnType = (Integer) results[0];
-                    stnName = (String) results[1];
-                }
-                if (stnType.intValue() == 1) {
-                    hoverText = stnId + "#METAR -- " + stnName;
-                } else if (stnType.intValue() == 33 || stnType.intValue() == 32) {
-                    hoverText = stnId + "#MARITIME -- " + stnName;
-                } else if (stnType.intValue() == 1000) {
-                    hoverText = stnId + "#MESONET -- " + stnName;
-                }
-            } else {
                     hoverText = stnId;
+                }
+
+            } catch (Exception e) {
+                statusHandler.error("Unable to query Station Hover Text: sql: "+sql, e);
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+            tableUtil.stationHoverTextMap.put(stnId, hoverText);
         }
-
+        
         return hoverText;
+
     }
 
     /**
