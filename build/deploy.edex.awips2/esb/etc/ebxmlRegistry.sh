@@ -30,6 +30,7 @@ export EDEX_DEBUG_PORT=5012
 export EDEX_JMX_PORT=1620
 export LOG_CONF=logback-ebxmlRegistry.xml
 export MGMT_PORT=9605
+export HTTP_PORT=9588
 
 export METADATA_POOL_MAX=20
 export METADATA_POOL_TIMEOUT=60
