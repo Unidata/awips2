@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<bundle>
+    <displayList>
+        <displays xsi:type="d2DMapRenderableDisplay"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <descriptor xsi:type="mapDescriptor">
+                <resource>
+                    <loadProperties loadWithoutData="true">
+                        <capabilities>
+                            <capability xsi:type="outlineCapability"
+                                lineStyle="SOLID" outlineOn="true"
+                                outlineWidth="1" />
+                            <capability xsi:type="colorableCapability"
+                                colorAsString="#00FFFF" />
+                        </capabilities>
+                    </loadProperties>
+                    <properties isSystemResource="false"
+                        isBlinking="false" isMapLayer="false" isHoverOn="false"
+                        isVisible="true" />
+                    <resourceData xsi:type="wwaResourceData"
+                        isUpdatingOnMetadataOnly="false" retrieveData="false"
+                        isRequeryNecessaryOnTimeMatch="true"
+                        name="Western Region Marine Warnings">
+                        <metadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="warning"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="act">
+                                <constraint constraintValue="NEW,CON,CAN,EXP"
+                                    constraintType="IN" />
+                            </mapping>
+                            <mapping key="pil">
+                                <constraint constraintValue="MWS,SMW"
+                                    constraintType="IN" />
+                            </mapping>
+                            <mapping key="phensig">
+                                <constraint constraintValue="MA.W"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="officeid">
+                                <constraint constraintValue="${WRsites}"
+                                    constraintType="IN" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+            </descriptor>
+        </displays>
+    </displayList>
+</bundle>

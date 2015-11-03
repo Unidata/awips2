@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <bundle>
     <displayList>
         <displays xsi:type="d2DMapRenderableDisplay"
@@ -16,22 +16,23 @@
                     </loadProperties>
                     <properties isSystemResource="false"
                         isBlinking="false" isMapLayer="false" isHoverOn="false"
-                        isVisible="true" />
+                        isVisible="false" />
                     <resourceData xsi:type="wwaResourceData"
                         isUpdatingOnMetadataOnly="false" retrieveData="false"
                         isRequeryNecessaryOnTimeMatch="true"
-                        name="Local CWA Flood Warnings" hideSampling="true">
+                        name="Western Region Convective Warnings"
+                        hideSampling="true">
                         <metadataMap>
                             <mapping key="act">
-                                <constraint constraintValue="NEW,CON,CAN,EXT,EXP"
+                                <constraint constraintValue="NEW,CON,CAN,EXP"
                                     constraintType="IN" />
                             </mapping>
                             <mapping key="pil">
-                                <constraint constraintValue="FFW,FLW,FFS,FLS"
+                                <constraint constraintValue="SVR,TOR,EWW,SVS,EWS"
                                     constraintType="IN" />
                             </mapping>
                             <mapping key="phensig">
-                                <constraint constraintValue="FF.W,FA.W,FA.Y,FL.Y"
+                                <constraint constraintValue="TO.W,SV.W,EW.W"
                                     constraintType="IN" />
                             </mapping>
                             <mapping key="pluginName">
@@ -39,8 +40,8 @@
                                     constraintType="EQUALS" />
                             </mapping>
                             <mapping key="officeid">
-                                <constraint constraintValue="${site}"
-                                    constraintType="EQUALS" />
+                                <constraint constraintValue="${WRsites}"
+                                    constraintType="IN" />
                             </mapping>
                         </metadataMap>
                     </resourceData>
@@ -52,7 +53,7 @@
                                 lineStyle="SOLID" outlineOn="true"
                                 outlineWidth="1" />
                             <capability xsi:type="colorableCapability"
-                                colorAsString="#00ff7f" />
+                                colorAsString="#ffff00" />
                         </capabilities>
                     </loadProperties>
                     <properties isSystemResource="false"
@@ -61,18 +62,18 @@
                     <resourceData xsi:type="wwaResourceData"
                         isUpdatingOnMetadataOnly="false" retrieveData="false"
                         isRequeryNecessaryOnTimeMatch="true"
-                        name="Local Flash Flood Warnings">
+                        name="Western Region SVR Warnings">
                         <metadataMap>
                             <mapping key="act">
-                                <constraint constraintValue="NEW,CON,CAN,EXT,EXP"
+                                <constraint constraintValue="NEW,CON,CAN,EXP"
                                     constraintType="IN" />
                             </mapping>
                             <mapping key="pil">
-                                <constraint constraintValue="FFW,FFS"
+                                <constraint constraintValue="SVR,SVS"
                                     constraintType="IN" />
                             </mapping>
                             <mapping key="phensig">
-                                <constraint constraintValue="FF.W"
+                                <constraint constraintValue="SV.W"
                                     constraintType="EQUALS" />
                             </mapping>
                             <mapping key="pluginName">
@@ -80,8 +81,8 @@
                                     constraintType="EQUALS" />
                             </mapping>
                             <mapping key="officeid">
-                                <constraint constraintValue="${site}"
-                                    constraintType="EQUALS" />
+                                <constraint constraintValue="${WRsites}"
+                                    constraintType="IN" />
                             </mapping>
                         </metadataMap>
                     </resourceData>
@@ -93,7 +94,7 @@
                                 lineStyle="SOLID" outlineOn="true"
                                 outlineWidth="1" />
                             <capability xsi:type="colorableCapability"
-                                colorAsString="#3cb371" />
+                                colorAsString="#ff0000" />
                         </capabilities>
                     </loadProperties>
                     <properties isSystemResource="false"
@@ -102,18 +103,18 @@
                     <resourceData xsi:type="wwaResourceData"
                         isUpdatingOnMetadataOnly="false" retrieveData="false"
                         isRequeryNecessaryOnTimeMatch="true"
-                        name="Local Flood Warnings">
+                        name="Western Region TOR Warnings">
                         <metadataMap>
                             <mapping key="act">
-                                <constraint constraintValue="NEW,CON,CAN,EXT,EXP"
+                                <constraint constraintValue="NEW,CON,CAN,EXP"
                                     constraintType="IN" />
                             </mapping>
                             <mapping key="pil">
-                                <constraint constraintValue="FLW,FLS"
+                                <constraint constraintValue="TOR,SVS"
                                     constraintType="IN" />
                             </mapping>
                             <mapping key="phensig">
-                                <constraint constraintValue="FA.W"
+                                <constraint constraintValue="TO.W"
                                     constraintType="EQUALS" />
                             </mapping>
                             <mapping key="pluginName">
@@ -121,8 +122,8 @@
                                     constraintType="EQUALS" />
                             </mapping>
                             <mapping key="officeid">
-                                <constraint constraintValue="${site}"
-                                    constraintType="EQUALS" />
+                                <constraint constraintValue="${WRsites}"
+                                    constraintType="IN" />
                             </mapping>
                         </metadataMap>
                     </resourceData>
@@ -134,7 +135,7 @@
                                 lineStyle="SOLID" outlineOn="true"
                                 outlineWidth="1" />
                             <capability xsi:type="colorableCapability"
-                                colorAsString="#89f0b7" />
+                                colorAsString="#ee82ee" />
                         </capabilities>
                     </loadProperties>
                     <properties isSystemResource="false"
@@ -143,18 +144,18 @@
                     <resourceData xsi:type="wwaResourceData"
                         isUpdatingOnMetadataOnly="false" retrieveData="false"
                         isRequeryNecessaryOnTimeMatch="true"
-                        name="Local River Flood Warnings">
+                        name="Western Region EWW Warnings">
                         <metadataMap>
                             <mapping key="act">
-                                <constraint constraintValue="NEW,CON,CAN,EXT,EXP"
+                                <constraint constraintValue="NEW,CON,CAN,EXP"
                                     constraintType="IN" />
                             </mapping>
                             <mapping key="pil">
-                                <constraint constraintValue="FLW,FLS"
+                                <constraint constraintValue="EWW,EWS,SVS"
                                     constraintType="IN" />
                             </mapping>
                             <mapping key="phensig">
-                                <constraint constraintValue="FL.W"
+                                <constraint constraintValue="EW.W"
                                     constraintType="EQUALS" />
                             </mapping>
                             <mapping key="pluginName">
@@ -162,49 +163,8 @@
                                     constraintType="EQUALS" />
                             </mapping>
                             <mapping key="officeid">
-                                <constraint constraintValue="${site}"
-                                    constraintType="EQUALS" />
-                            </mapping>
-                        </metadataMap>
-                    </resourceData>
-                </resource>
-                <resource>
-                    <loadProperties loadWithoutData="true">
-                        <capabilities>
-                            <capability xsi:type="outlineCapability"
-                                lineStyle="DASHED" outlineOn="true"
-                                outlineWidth="1" />
-                            <capability xsi:type="colorableCapability"
-                                colorAsString="#8fbc8f" />
-                        </capabilities>
-                    </loadProperties>
-                    <properties isSystemResource="false"
-                        isBlinking="false" isMapLayer="false" isHoverOn="false"
-                        isVisible="true" />
-                    <resourceData xsi:type="wwaResourceData"
-                        isUpdatingOnMetadataOnly="false" retrieveData="false"
-                        isRequeryNecessaryOnTimeMatch="true"
-                        name="Local Flood Advisories">
-                        <metadataMap>
-                            <mapping key="act">
-                                <constraint constraintValue="NEW,CON,CAN,EXT,EXP"
+                                <constraint constraintValue="${WRsites}"
                                     constraintType="IN" />
-                            </mapping>
-                            <mapping key="pil">
-                                <constraint constraintValue="FLS"
-                                    constraintType="EQUALS" />
-                            </mapping>
-                            <mapping key="phensig">
-                                <constraint constraintValue="FA.Y,FL.Y"
-                                    constraintType="IN" />
-                            </mapping>
-                            <mapping key="pluginName">
-                                <constraint constraintValue="warning"
-                                    constraintType="EQUALS" />
-                            </mapping>
-                            <mapping key="officeid">
-                                <constraint constraintValue="${site}"
-                                    constraintType="EQUALS" />
                             </mapping>
                         </metadataMap>
                     </resourceData>
