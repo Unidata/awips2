@@ -132,4 +132,8 @@
          id="gov.noaa.nws.sr.oun.edex.mping.feature"
          version="0.0.0"/>
 
+   <includes
+         id="gov.nasa.msfc.sport.edex.glmdecoder.feature"
+         version="0.0.0"/>
+
 </feature>
