@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pointDataDescription>
+    <parameter name="projectName" numDims="1" type="STRING" />
+    <parameter name="reqOfficial" numDims="1" type="STRING" />
+    <parameter name="emPhone" numDims="1" type="STRING" />
+    <parameter name="timeZone" numDims="1" type="STRING" />
+    <parameter name="state" numDims="1" type="STRING" />
+    <parameter name="bottomElevation" numDims="1" type="INT" />
+    <parameter name="topElevation" numDims="1" type="INT" />
+    <parameter name="sizeAcres" numDims="1" type="INT" />
+    <parameter name="stqSymbol" numDims="1" type="STRING" />
+</pointDataDescription>

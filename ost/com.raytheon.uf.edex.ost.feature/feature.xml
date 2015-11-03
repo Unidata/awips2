@@ -29,5 +29,17 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+   <plugin
+         id="gov.noaa.nws.ost.edex.plugin.stq"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+   <plugin
+         id="gov.noaa.nws.ost.dataplugin.stq"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
 
 </feature>
