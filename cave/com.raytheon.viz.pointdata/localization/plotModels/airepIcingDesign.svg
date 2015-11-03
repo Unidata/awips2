@@ -56,6 +56,32 @@ class AirepPlotDelegate(PlotDelegate):
                 sampleString += turbType
         return sampleString
 
+    def isValid(self, rec):
+        # DCS10257
+        # need icing or hazard
+        # only show non-severe / no severity
+        if rec.isValidParameter("iceInten"):
+            iceInten = rec.getString("iceInten")
+        else:
+            iceInten = ""
+        if rec.isValidParameter("iceType"):
+            iceType = rec.getString("iceType")
+        else:
+            iceType = ""
+        if rec.isValidParameter("flightHazard"):
+            flightHazard = rec.getInt("flightHazard")
+        else:
+            flightHazard = -1
+        if (iceInten == "") and (iceType == "") and (flightHazard == -1):
+            # no icing or hazard data
+            return False
+        elif (iceInten == "SEV") or (iceInten == "EXTRM") or (flightHazard == 8) or (flightHazard == 9):
+            # incorrect severity/hazard level (from AIREPWeather)
+            return False
+        else:
+            # low or no severity, and has some icing data
+            return True
+
 plotDelegate = AirepPlotDelegate()
 
 </script>
@@ -83,6 +109,7 @@ plotDelegate = AirepPlotDelegate()
 <symbol overflow="visible" id="plotData" class="info">
   <text id="sampleParams1" plotMode="sample" plotParam="stationId,longitude,latitude,timeObs,flightLevel"> </text> 
   <text id="sampleParams2" plotMode="sample" plotParam="temperature,windDir,windSpeed,turbInten,turbFreq,turbType"> </text> 
+  <text id="validityParams" plotMode="null" class="text" plotParam="iceType,iceInten" x="0" y="0" visibility="hidden">0</text>
   <text id="iceInensity" plotMode="table" class="weather" plotLookupTable="airep_icing_intens_trans.txt" plotParam="flightHazard" x="0" y="0">0</text>
   <text id="fltLvlText" plotMode="text" plotParam="flightLevel" plotFormat="%3.0f" plotUnit="hft" style="text-anchor: end;" x="-15px" y="0px">75</text>
 </symbol>

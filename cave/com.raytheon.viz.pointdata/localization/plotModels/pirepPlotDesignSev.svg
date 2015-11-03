@@ -94,19 +94,19 @@ class PirepPlotDelegate(PlotDelegate):
             obsText = rec.getString("obsText")
             if "UUA" in obsText:
                 # urgent message
-                return False
+                return True
         if rec.isValidParameter("turbInten"):
             turbInten = rec.getString("turbInten")
             if (turbInten == "SEV") or (turbInten == "EXTRM"):
                 # high severity turbulence
-                return False
+                return True
         if rec.isValidParameter("iceInten"):
             iceInten = rec.getString("iceInten")
             if (iceInten == "SEV") or (iceInten == "EXTRM"):
                 # high severity turbulence, high severity icing
-                return False
+                return True
         # low or no severity, non-urgent data
-        return True
+        return False
 
 plotDelegate = PirepPlotDelegate()
 
