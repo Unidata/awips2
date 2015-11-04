@@ -1,5 +1,3 @@
-package com.raytheon.edex.transform.shef;
-
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
@@ -19,8 +17,8 @@ package com.raytheon.edex.transform.shef;
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
+package com.raytheon.edex.transform.shef;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,36 +31,28 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.edex.decodertools.core.filterimpl.AbstractFilterElement;
 
 /**
- * MetarToShefRun is for the metarToShefRun tag in Metar2ShefFilter tag
+ * Used to group {@link AbstractFilterElement}s with a single configuration
+ * file. Multiple {@link SynopticToShefRun}s can be processed by the system.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date       Ticket# Engineer Description
- * ---------- ------- -------- --------------------------
- * 1/10/2013  15497   wkwock   Initial creation
- * 10/28/2015  4783   bkowal   Removed ISerializableObject.
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Oct 28, 2015 4783       bkowal      Initial creation
  * 
  * </pre>
  * 
- * @author wkwock
+ * @author bkowal
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class MetarToShefRun {
-    public static final String INCLUDE_TYPE = "INCLUDE";
-
-    public static final String EXCLUDE_TYPE = "EXCLUDE";
-
+public class SynopticToShefRun {
     @XmlElement
     @DynamicSerializeElement
     private String configFileName;
-
-    @XmlElement
-    @DynamicSerializeElement
-    private String metarToShefOptions;
 
     @XmlElement
     @DynamicSerializeElement
@@ -72,81 +62,51 @@ public class MetarToShefRun {
     @DynamicSerializeElement
     private String filterName;
 
-    /**
-     * 
-     * @param filterFile
-     */
-    void createFilter(File filterFile) {
+    public SynopticToShefRun() {
     }
 
     /**
-     * 
-     * @return
+     * @return the configFileName
      */
     public String getConfigFileName() {
         return configFileName;
     }
 
     /**
-     * 
-     * @param name
+     * @param configFileName
+     *            the configFileName to set
      */
-    public void setConfigFileName(String name) {
-        configFileName = name;
+    public void setConfigFileName(String configFileName) {
+        this.configFileName = configFileName;
     }
 
     /**
-     * 
-     * @return
-     */
-    public String getMetarToShefOptions() {
-        return metarToShefOptions;
-    }
-
-    /**
-     * 
-     * @param name
-     */
-    public void setMetarToShefOptions(String name) {
-        metarToShefOptions = name;
-    }
-
-    /**
-     * 
-     */
-    public void addFilterElement(AbstractFilterElement element) {
-        filterElements.add(element);
-    }
-
-    /**
-     * 
-     * @return
+     * @return the filterElements
      */
     public List<AbstractFilterElement> getFilterElements() {
         return filterElements;
     }
 
     /**
-     * 
-     * @param elements
+     * @param filterElements
+     *            the filterElements to set
      */
-    public void setFilterElements(List<AbstractFilterElement> elements) {
-        filterElements = elements;
+    public void setFilterElements(List<AbstractFilterElement> filterElements) {
+        this.filterElements = filterElements;
     }
 
     /**
-     * 
-     * @return
+     * @return the filterName
      */
     public String getFilterName() {
         return filterName;
     }
 
     /**
-     * 
-     * @param name
+     * @param filterName
+     *            the filterName to set
      */
-    public void setFilterName(String name) {
-        filterName = name;
+    public void setFilterName(String filterName) {
+        this.filterName = filterName;
     }
 }

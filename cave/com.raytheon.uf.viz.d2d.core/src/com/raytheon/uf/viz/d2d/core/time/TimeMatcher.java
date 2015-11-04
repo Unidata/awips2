@@ -46,14 +46,17 @@ import com.raytheon.uf.common.time.DataTimeComparator;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 19, 2007            chammack    Initial Creation.
- * May 31, 2013 15908      dhuffman    Removed a null from a method call to
- *                                     cease a null pointer exception.
- * May  5, 2014 DR 17201   D. Friedman Make same-radar time matching work more like A1.
- * Aug 08, 2013 2245       bsteffen    Make all DataTime comparisons consistent.
- * Jul 18, 2014 ASM #15049 D. Friedman Fix LAPS problem introduced by DR 17201
+ * 
+ * Date          Ticket#  Engineer   Description
+ * ------------- -------- ---------- -------------------------------------------
+ * Jun 19, 2007           chammack   Initial Creation.
+ * May 31, 2013  15908    dhuffman   Removed a null from a method call to cease
+ *                                   a null pointer exception.
+ * May 05, 2014  17201    dfriedman  Make same-radar time matching work more
+ *                                   like A1.
+ * Aug 08, 2013  2245     bsteffen   Make all DataTime comparisons consistent.
+ * Jul 18, 2014  15049    dfriedman  Fix LAPS problem introduced by DR 17201
+ * Nov 03, 2015  4857     bsteffen   Set radar on radar volume scan interval
  * 
  * </pre>
  * 
@@ -69,11 +72,8 @@ public class TimeMatcher {
     // 2 minutes in milliseconds
     private static final long TWO_MINUTES_MS = 2 * ONE_MINUTE_MS;
 
-    // 5 minutes in milliseconds
-    private static final long FIVE_MINUTES_MS = 5 * ONE_MINUTE_MS;;
-
     // 11 minutes in milliseconds
-    private static final long ELEVEN_MINUTES_MS = 11 * ONE_MINUTE_MS;;
+    private static final long ELEVEN_MINUTES_MS = 11 * ONE_MINUTE_MS;
 
     // 1 hour in milliseconds
     private static final long ONE_HOUR_MS = 60 * ONE_MINUTE_MS;
@@ -104,7 +104,7 @@ public class TimeMatcher {
     private static long autoIntervals[] = { 300, 900, 1800, 3600, 10800, 21600,
             43200, 86400 };
 
-    private boolean radarOnRadarYes = false;
+    private long radarOnRadarVolumeScanInterval = -1;
 
     // Package access
     TimeMatcher() {
@@ -247,8 +247,9 @@ public class TimeMatcher {
             if (haveForecasts) {
                 haveForecasts = haveFcst;
             }
-            if (radarOnRadarYes) {
-                return new IntrinsicReturnVal(haveForecasts, FIVE_MINUTES_MS);
+            if (isRadarOnRadar()) {
+                return new IntrinsicReturnVal(haveForecasts,
+                        radarOnRadarVolumeScanInterval);
             }
             return new IntrinsicReturnVal(haveForecasts, ONE_DAY_MS);
         }
@@ -307,7 +308,7 @@ public class TimeMatcher {
             return new IntrinsicReturnVal(haveForecasts, ONE_DAY_MS);
         }
         if (dt2 < 0x7FFFFFFF && dt <= TWO_MINUTES_MS && dt2 > 50 * dt
-                && !radarOnRadarYes) {
+                && !isRadarOnRadar()) {
             dt = dt2;
         } else {
             nn = 0;
@@ -318,7 +319,7 @@ public class TimeMatcher {
         if (haveForecasts) {
             haveForecasts = haveFcst;
         }
-        if (haveFcst || radarOnRadarYes) {
+        if (haveFcst || isRadarOnRadar()) {
             return new IntrinsicReturnVal(haveForecasts, dt);
         }
 
@@ -376,8 +377,9 @@ public class TimeMatcher {
             if (haveForecasts) {
                 haveForecasts = haveFcst;
             }
-            if (radarOnRadarYes) {
-                return new IntrinsicReturnVal(haveForecasts, FIVE_MINUTES_MS);
+            if (isRadarOnRadar()) {
+                return new IntrinsicReturnVal(haveForecasts,
+                        radarOnRadarVolumeScanInterval);
             }
             return new IntrinsicReturnVal(haveForecasts, ONE_DAY_MS);
         }
@@ -423,7 +425,7 @@ public class TimeMatcher {
             return new IntrinsicReturnVal(haveForecasts, ONE_DAY_MS);
         }
         if (dt2 < 0x7FFFFFFF && dt <= TWO_MINUTES_MS && dt2 > 50 * dt
-                && !radarOnRadarYes) {
+                && !isRadarOnRadar()) {
             dt = dt2;
         } else {
             nn = 0;
@@ -434,7 +436,7 @@ public class TimeMatcher {
         if (haveForecasts) {
             haveForecasts = haveFcst;
         }
-        if (haveFcst || radarOnRadarYes) {
+        if (haveFcst || isRadarOnRadar()) {
             return new IntrinsicReturnVal(haveForecasts, dt);
         }
 
@@ -665,7 +667,7 @@ public class TimeMatcher {
         // A1 TimeMatchFunctions.C ~ line 952
         if (dt > ONE_MINUTE_MS && dt <= ELEVEN_MINUTES_MS
                 && dtf > ONE_MINUTE_MS && dtf <= ELEVEN_MINUTES_MS
-                && radarOnRadarYes) {
+                && isRadarOnRadar()) {
             if (dtf<dt) {
                 dt = dtf;
             }
@@ -673,18 +675,13 @@ public class TimeMatcher {
             dt = dtf;
         }
 
-        /* A1 TimeMatchingFunctions.C ~ line 960
-         *  For 88D radar, dt is usually 300 seconds or larger
-         *  For TDWR radar, dt is usually 180 seconds or less
-         *  To allow 3 minutes overlay for TDWR products, dt is set to 300 seconds
-         */
-        if (radarOnRadarYes && dt < FIVE_MINUTES_MS) {
-            dt = FIVE_MINUTES_MS;
+        if (isRadarOnRadar()) {
+            dt = radarOnRadarVolumeScanInterval;
         }
 
         if (tolerance > 99) {
             dt = 0x7FFFFFl * 1000l;
-        } else {
+        } else if (!isRadarOnRadar()) {
             dt = (int) (dt * tolerance);
         }
         if (dt == 0) {
@@ -719,7 +716,8 @@ public class TimeMatcher {
             vf = (frameTimes)[f].getMatchValid() + deltaTime;
             v1 = vf - dt; // first usable valid time
             v2 = vf + dt; // last usable valid time
-            if (!radarOnRadarYes && !dataFcsts && !frameFcsts && vf > latest.getTime()) {
+            if (!isRadarOnRadar() && !dataFcsts && !frameFcsts
+                    && vf > latest.getTime()) {
                 // if we are dealing with live data(without forecast times) then
                 // we want to allow extra time on the latest frame. For example
                 // LAPS data arrives hourly, and radar arrives every 6 minutes,
@@ -1688,12 +1686,13 @@ public class TimeMatcher {
         }
         return intervals;
     }
-
-    public boolean isRadarOnRadar() {
-        return radarOnRadarYes;
+    
+    protected boolean isRadarOnRadar() {
+        return radarOnRadarVolumeScanInterval > 0;
     }
 
-    public void setRadarOnRadar(boolean radarOnRadar) {
-        this.radarOnRadarYes = radarOnRadar;
+
+    public void setRadarOnRadar(long volumeScanInterval) {
+        this.radarOnRadarVolumeScanInterval = volumeScanInterval;
     }
 }
