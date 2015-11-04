@@ -60,6 +60,7 @@ import com.raytheon.uf.common.wmo.WMOTimeParser;
  * Jun 09, 2014 3226       bclement    added encryption support
  * Jun 10, 2014 3226       bclement    added filter support
  * Jun 19, 2014 3226       bclement    added validator callback
+ * Jul 07, 2015 4581       skorolev    Corrected decodeStrikes to avoid BufferUnderflowException.
  * 
  * </pre>
  * 
@@ -109,6 +110,8 @@ public class TotalLightningDecoder {
             return validFlashPacket(data, COMBINATION_PACKET_HEADER_SIZE);
         }
     };
+
+    private static final int SHORT_SIZE = 2;
 
     /**
      * Parse total lightning data into BinLightningRecords
@@ -186,7 +189,6 @@ public class TotalLightningDecoder {
                 + ", WMO Header: " + wmoHdr, e);
     }
 
-
     /**
      * @param wmoHdr
      * @param fileName
@@ -196,8 +198,7 @@ public class TotalLightningDecoder {
      * @throws DecoderException
      */
     private PluginDataObject[] decodeInternal(WMOHeader wmoHdr,
-            String fileName, byte[] pdata)
-            throws DecoderException {
+            String fileName, byte[] pdata) throws DecoderException {
         if (!validFlashPacket(pdata, COMBINATION_PACKET_HEADER_SIZE)) {
             /* assume data is encrypted if we can't understand it */
             pdata = decrypt(wmoHdr, fileName, pdata);
@@ -211,7 +212,6 @@ public class TotalLightningDecoder {
             return new PluginDataObject[0];
         }
     }
-
 
     /**
      * @param wmoHdr
@@ -248,16 +248,22 @@ public class TotalLightningDecoder {
         ChecksumByteBuffer buff = new ChecksumByteBuffer(pdata);
         while (buff.position() < buff.size()) {
             int startingPostion = buff.position();
-            int totalBytes = UnsignedNumbers.ushortToInt(buff.getShort());
-            if (totalBytes > (buff.size() - startingPostion)) {
-                if (validFlashPacket(pdata, buff.position())) {
-                    log.error("Truncated total lightning packet in file: "
-                            + fileName);
-                } else {
-                    int extra = buff.size() - startingPostion;
-                    log.warn("Extra data at end of lightning packets: " + extra
-                            + " bytes");
+            int totalBytes = 0;
+            if ((buff.size() - startingPostion) >= SHORT_SIZE) {
+                totalBytes = UnsignedNumbers.ushortToInt(buff.getShort());
+                if (totalBytes > (buff.size() - startingPostion)) {
+                    if (validFlashPacket(pdata, buff.position())) {
+                        log.error("Truncated total lightning packet in file: "
+                                + fileName);
+                    } else {
+                        int extra = buff.size() - startingPostion;
+                        log.warn("Extra data at end of lightning packets: "
+                                + extra + " bytes");
+                    }
+                    break;
                 }
+            } else {
+                log.warn("Extra data at end of lightning packets: 1 byte");
                 break;
             }
             /* start flash packet */
@@ -364,8 +370,8 @@ public class TotalLightningDecoder {
 
         boolean rval = mungedSum == expected;
         if (!rval) {
-            log.debug("Checksum failed: expected " + expected
-                    + " got " + mungedSum);
+            log.debug("Checksum failed: expected " + expected + " got "
+                    + mungedSum);
         }
         if (total) {
             buff.resetAllSums();

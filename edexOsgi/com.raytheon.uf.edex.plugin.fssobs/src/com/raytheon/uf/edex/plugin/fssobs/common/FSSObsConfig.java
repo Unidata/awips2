@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import com.raytheon.edex.urifilter.URIGenerateMessage;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.fssobs.FSSObsRecord;
+import com.raytheon.uf.common.monitor.data.ObConst;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -44,6 +45,7 @@ import com.raytheon.uf.edex.plugin.fssobs.FSSObsUtils;
  * Nov 19, 2010            skorolev    Initial creation
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Sep 04, 2014 3220       skorolev    Removed cwa and monitorUse from data set.
+ * Sep 18, 2015 3873       skorolev    Removed identical constant definitions.
  * 
  * </pre>
  * 
@@ -106,19 +108,19 @@ public class FSSObsConfig {
                         e);
             }
         }
-        if (tableRow.getRelativeHumidity() == FSSObsUtils.MISSING) {
+        if (tableRow.getRelativeHumidity() == ObConst.MISSING) {
             Float RH = FSSObsUtils.getRH(tableRow.getDewpoint(),
                     tableRow.getTemperature());
             tableRow.setRelativeHumidity(RH);
         }
         float[] snowData = FSSObsUtils.getSnowData(tableRow);
-        if ((tableRow.getTemperature() != FSSObsUtils.MISSING)
-                && (tableRow.getDewpoint() != FSSObsUtils.MISSING)) {
+        if ((tableRow.getTemperature() != ObConst.MISSING)
+                && (tableRow.getDewpoint() != ObConst.MISSING)) {
             // TODO to check if this is correct. calcdpd() in Meteolib
             tableRow.setDewpointDepr(tableRow.getTemperature()
                     - tableRow.getDewpoint());
         } else {
-            tableRow.setDewpointDepr(FSSObsUtils.MISSING);
+            tableRow.setDewpointDepr(ObConst.MISSING);
         }
         tableRow.setSnincrHourly(snowData[0]);
         tableRow.setSnincrTotal(snowData[1]);

@@ -23,6 +23,7 @@ import com.raytheon.uf.viz.monitor.data.ObReport;
  *                         skorolev     Initial creation
  * May 15, 2012 14510      zhao         Modified generateObReport()
  * Jan 06, 2014  2653      skorolev     Included SNOW data into ObReport.
+ * Sep 20, 2015  3873      skorolev     Added IsStationary and getReportType.
  * 
  * 
  * </pre>
@@ -46,10 +47,10 @@ public class GenerateFSSObReport {
     public static ObReport generateObReport(PluginDataObject report) {
         // Generate the observation report.
         ObReport obReport = new ObReport();
-        FSSObsRecord metar = (FSSObsRecord) report;
+        FSSObsRecord fssData = (FSSObsRecord) report;
         try {
-            obReport.setObservationTime(metar.getTimeObs().getTime());
-            obReport.setRefHour(metar.getRefHour().getTime());
+            obReport.setObservationTime(fssData.getTimeObs().getTime());
+            obReport.setRefHour(fssData.getRefHour().getTime());
         } catch (Exception e) {
             statusHandler
                     .error("Warning: missing obsTime or refHour at getTimeObs() when processing obs data; "
@@ -57,61 +58,80 @@ public class GenerateFSSObReport {
                             + "; trying to set obsTime and refHour from dataURI");
             obReport.setTimesFromFssobDataURI(report.getDataURI());
         }
-        obReport.setPlatformId(metar.getPlatformId());
-        obReport.setStationary(true);
-        obReport.setLatitude((float) metar.getLatitude());
-        obReport.setLongitude((float) metar.getLongitude());
+        obReport.setPlatformId(fssData.getPlatformId());
+        obReport.setStationary(fssData.getIsStationary());
+        obReport.setLatitude((float) fssData.getLatitude());
+        obReport.setLongitude((float) fssData.getLongitude());
         // Table data:
-        obReport.setCeiling(metar.getCeiling());
-        obReport.setWindDir(metar.getWindDir());
-        obReport.setWindSpeed(metar.getWindSpeed());
-        obReport.setMaxWindSpeed(metar.getMaxWindSpeed());
-        obReport.setWindGust(metar.getWindGust());
-        obReport.setRelativeHumidity(metar.getRelativeHumidity());
+        obReport.setCeiling(fssData.getCeiling());
+        obReport.setWindDir(fssData.getWindDir());
+        obReport.setWindSpeed(fssData.getWindSpeed());
+        obReport.setMaxWindSpeed(fssData.getMaxWindSpeed());
+        obReport.setWindGust(fssData.getWindGust());
+        obReport.setRelativeHumidity(fssData.getRelativeHumidity());
         try {
-            obReport.setVisibility(metar.getVisibility());
+            obReport.setVisibility(fssData.getVisibility());
         } catch (Exception e) {
             obReport.setVisibility(0);
         }
-        obReport.setDewpoint(metar.getDewpoint());
-        obReport.setTemperature(metar.getTemperature());
-        obReport.setDewpointDepr(metar.getDewpointDepr());
+        obReport.setDewpoint(fssData.getDewpoint());
+        obReport.setTemperature(fssData.getTemperature());
+        obReport.setDewpointDepr(fssData.getDewpointDepr());
 
-        obReport.setPresentWx(getPrWX(metar.getPresWeather()));
+        obReport.setPresentWx(getPrWX(fssData.getPresWeather()));
 
         obReport.setHighResWaveHeight(ObConst.MISSING);
-        obReport.setWaveSteepness(metar.getWaveSteepness());
+        obReport.setWaveSteepness(fssData.getWaveSteepness());
 
-        obReport.setSeaLevelPress(metar.getSeaLevelPress());
-        obReport.setWavePeriod(metar.getWavePeriod());
-        obReport.setWindGust(metar.getWindGust());
-        obReport.setPSwellHeight(metar.getPrimarySwellWaveHeight().floatValue());
-        obReport.setPSwellPeriod(metar.getPrimarySwellWavePeriod());
-        obReport.setPSwellDir(metar.getPrimarySwellWaveDir().floatValue());
-        obReport.setSSwellHeight(metar.getSecondarySwellWaveHeight()
+        obReport.setSeaLevelPress(fssData.getSeaLevelPress());
+        obReport.setWavePeriod(fssData.getWavePeriod());
+        obReport.setWindGust(fssData.getWindGust());
+        obReport.setPSwellHeight(fssData.getPrimarySwellWaveHeight()
                 .floatValue());
-        obReport.setSSwellPeriod(metar.getSecondarySwellWavePeriod());
-        obReport.setSSwellDir(metar.getSecondarySwellWaveDir().floatValue());
-        obReport.setPressure(metar.getPressureAltimeter());
-        obReport.setPressureChange(metar.getPressChange3Hour());
+        obReport.setPSwellPeriod(fssData.getPrimarySwellWavePeriod());
+        obReport.setPSwellDir(fssData.getPrimarySwellWaveDir().floatValue());
+        obReport.setSSwellHeight(fssData.getSecondarySwellWaveHeight()
+                .floatValue());
+        obReport.setSSwellPeriod(fssData.getSecondarySwellWavePeriod());
+        obReport.setSSwellDir(fssData.getSecondarySwellWaveDir().floatValue());
+        obReport.setPressure(fssData.getPressureAltimeter());
+        obReport.setPressureChange(fssData.getPressChange3Hour());
         try {
-            obReport.setPressChangeChar(Short.parseShort(metar
+            obReport.setPressChangeChar(Short.parseShort(fssData
                     .getPressChangeChar()));
         } catch (NumberFormatException e) {
             obReport.setPressChangeChar((short) 0);
         }
 
-        obReport.setHourlyPrecip(metar.getHourlyPrecip());
+        obReport.setHourlyPrecip(fssData.getHourlyPrecip());
 
-        obReport.setRawMessage(metar.getRawMessage());
-        obReport.setReportType(ReportType.METAR);
-        obReport.setSnincrHourly(metar.getSnincrHourly());
-        obReport.setSnincrTotal(metar.getSnincrTotal());
-        obReport.setFrostbiteTime(metar.getFrostbiteTime());
-        obReport.setWindChill(metar.getWindChill());
-        obReport.setSnowDepth(metar.getSnowDepth());
-        obReport.setSeaSurfaceTemp(metar.getSeaSurfaceTemp());
+        obReport.setRawMessage(fssData.getRawMessage());
+        ReportType reportType = getReportType(fssData.getReportType());
+        obReport.setReportType(reportType);
+        obReport.setSnincrHourly(fssData.getSnincrHourly());
+        obReport.setSnincrTotal(fssData.getSnincrTotal());
+        obReport.setFrostbiteTime(fssData.getFrostbiteTime());
+        obReport.setWindChill(fssData.getWindChill());
+        obReport.setSnowDepth(fssData.getSnowDepth());
+        obReport.setSeaSurfaceTemp(fssData.getSeaSurfaceTemp());
         return obReport;
+    }
+
+    private static ReportType getReportType(String reportType) {
+        if (reportType == null) {
+            reportType = "";
+        }
+        switch (reportType) {
+        case "1003":
+        case "1004":
+        case "1005":
+        case "1006":
+        case "1007":
+            return ReportType.MARITIME;
+            // TODO:MESONET
+        default:
+            return ReportType.METAR;
+        }
     }
 
     /**

@@ -67,7 +67,8 @@
 #    05/12/2015          #17144    bhunder        Added RTMA model
 #    05/29/2015          17496     ryu            Changed parm definitions for Wave1-10 and Period1-10.
 #
-#    05/29/2015          #17144    bhunder        Added weather Params for URMA25 and OCONUS RTMA 
+#    05/29/2015          #17144    bhunder        Added weather Params for URMA25 and OCONUS RTMA
+#    10/07/2015          #4958     dgilling       Added support for NationalBlend D2D data.  
 ####################################################################################################
 
 #----------------------------------------------------------------------------
@@ -1351,6 +1352,7 @@ elif SID in CONUS_EAST_SITES:
                  ('FFG-TAR', 'FFGTAR'),
                  ('FFG-TIR', 'FFGTIR'),
                  ('FFG-TUA', 'FFGTUA'),
+                 'NationalBlend',
                ]
 
 else:   #######DCS3501 WEST_CONUS
@@ -1430,6 +1432,7 @@ else:   #######DCS3501 WEST_CONUS
                  ('FFG-TAR', 'FFGTAR'),
                  ('FFG-TIR', 'FFGTIR'),
                  ('FFG-TUA', 'FFGTUA'),
+                 'NationalBlend',
                ]
 
 if SID in GreatLake_SITES:
