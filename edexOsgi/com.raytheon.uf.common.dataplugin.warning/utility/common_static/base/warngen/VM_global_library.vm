@@ -36,6 +36,7 @@
 #####    Bookie/Friedman   10-22-2015  Fixed WarnGen Java code and areaFormat macro to now properly
 #####                                  use the 'fe_area' shapefile field for portions of state. This fixes
 #####                                  several DRs related to unique part-of-state codes, watch boxes, etc..
+#####    Bookbinder        10-30-2015  Added several additional fe_area codes and cleaned up watch logic.
 ##############################################################################################################
 #*
 Mile Marker Test Code                                     
@@ -267,7 +268,7 @@ ${currTime}##
 #end
 #end
 #if(!${watch.marineArea})
-#areaFormat(${watch.partOfState} true false true "AS IS" ${watch.stateabbr})${watch.state}##
+#areaFormat(${watch.partOfState} true false true "AS IS")${watch.state}##
 #else
 #formatMarineArea(${watch.marineArea})
 #end
@@ -326,7 +327,7 @@ ${currTime}##
 #end
 #end
 #if(!${watch.marineArea})
-#areaFormat(${watch.partOfState} true false true "AS IS" ${watch.stateabbr})${watch.state}##
+#areaFormat(${watch.partOfState} true false true "AS IS")${watch.state}##
 #else
 #formatMarineArea(${watch.marineArea})
 #end
@@ -512,6 +513,18 @@ south##
 #end
 #if((${dir} == "WE") || (${dir} == "we"))
 #set($afPhrase = "${afPhrase}west")
+#end
+#if((${dir} == "WS") || (${dir} == "ws"))
+#set($afPhrase = "${afPhrase}southwest")
+#end
+#if((${dir} == "ES") || (${dir} == "es"))
+#set($afPhrase = "${afPhrase}southeast")
+#end
+#if((${dir} == "WN") || (${dir} == "wn"))
+#set($afPhrase = "${afPhrase}northwest")
+#end
+#if((${dir} == "EN") || (${dir} == "en"))
+#set($afPhrase = "${afPhrase}northeast")
 #end
 ### Central Codes
 #if((${dir} == "NC") || (${dir} == "nc"))
