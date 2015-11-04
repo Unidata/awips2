@@ -1,6 +1,9 @@
 package com.raytheon.viz.textworkstation;
 
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.serialization.SerializationUtil;
@@ -36,11 +39,11 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEDialogComponent;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 28, 2011            mschenke     Initial creation
+ * Apr 28, 2011            mschenke    Initial creation
  * Oct 02, 2012 1229       rferrel     Make a blocking dialog.
- * Oct 17, 2012 1229       rferrel     Changes for non-blocking
- *                                      TextWorkstationDlg.
+ * Oct 17, 2012 1229       rferrel     Changes for non-blocking TextWorkstationDlg.
  * Sep 09, 2014 3580       mapeters    Removed {@link SerializationUtil} usage.
+ * Oct 28, 2015 5054       randerso    Make TextWorkstationDlg appear on current monitor.
  * 
  * </pre>
  * 
@@ -59,8 +62,20 @@ public class TextWorkstationComponent extends AbstractCAVEDialogComponent {
      */
     @Override
     protected void startInternal(String componentName) throws Exception {
-        TextWorkstationDlg textWorkstationDlg = new TextWorkstationDlg(
-                new Shell(Display.getCurrent()));
+        Display display = Display.getCurrent();
+        Shell shell = new Shell(display);
+
+        Point cursor = display.getCursorLocation();
+        for (Monitor monitor : display.getMonitors()) {
+            Rectangle bounds = monitor.getBounds();
+            if (bounds.contains(cursor)) {
+                shell.setLocation(bounds.x, bounds.y);
+                shell.setSize(bounds.width, bounds.height);
+                break;
+            }
+        }
+
+        TextWorkstationDlg textWorkstationDlg = new TextWorkstationDlg(shell);
         textWorkstationDlg.open();
         blockUntilClosed(textWorkstationDlg);
     }

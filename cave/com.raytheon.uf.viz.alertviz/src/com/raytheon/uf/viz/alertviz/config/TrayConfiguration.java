@@ -23,10 +23,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
-import org.eclipse.swt.graphics.Rectangle;
-
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * Global configuration items for alertviz
  * 
@@ -35,13 +31,14 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 18, 2008 1433       chammack    Initial creation
+ * Oct 28, 2005 5054       randerso    removed bar position as it was written but never read
  * </pre>
  * 
  * @author chammack
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class TrayConfiguration implements ISerializableObject {
+public class TrayConfiguration {
 
     /**
      * The mode of the display:
@@ -110,21 +107,6 @@ public class TrayConfiguration implements ISerializableObject {
     private int logLength;
 
     /**
-     * The position of the bar
-     */
-    @XmlAttribute
-    private int xPosition;
-
-    @XmlAttribute
-    private int yPosition;
-
-    @XmlAttribute
-    private int width;
-
-    @XmlAttribute
-    private int height;
-
-    /**
      * @return the mode
      */
     public TrayMode getMode() {
@@ -152,28 +134,6 @@ public class TrayConfiguration implements ISerializableObject {
      */
     public void setPriorityShown(boolean priorityShown) {
         this.priorityShown = priorityShown;
-    }
-
-    /**
-     * @return the position
-     */
-    public Rectangle getPosition() {
-        Rectangle position = null;
-        if (xPosition >= 0 && yPosition >= 0 && width >= 1 && height >= 1) {
-            position = new Rectangle(xPosition, yPosition, width, height);
-        }
-        return position;
-    }
-
-    /**
-     * @param position
-     *            the position to set
-     */
-    public void setPosition(Rectangle position) {
-        this.xPosition = position.x;
-        this.yPosition = position.y;
-        this.width = position.width;
-        this.height = position.height;
     }
 
     /**
@@ -259,59 +219,24 @@ public class TrayConfiguration implements ISerializableObject {
     }
 
     /**
-     * @param messageLogLength
+     * @param logLength
      *            the messageLogLength to set
      */
     public void setLogLength(int logLength) {
         this.logLength = logLength;
     }
 
-    public int getXPosition() {
-        return xPosition;
-    }
-
-    public void setXPosition(int position) {
-        xPosition = position;
-    }
-
-    public int getYPosition() {
-        return yPosition;
-    }
-
-    public void setYPosition(int position) {
-        yPosition = position;
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public void setWidth(int width) {
-        this.width = width;
-    }
-
-    public int getHeight() {
-        return height;
-    }
-
-    public void setHeight(int height) {
-        this.height = height;
-    }
-
+    @Override
     public TrayConfiguration clone() {
         TrayConfiguration newConfig = new TrayConfiguration();
         newConfig.audioDuration = audioDuration;
         newConfig.blinkDuration = blinkDuration;
         newConfig.categoryShown = categoryShown;
         newConfig.expandedPopup = expandedPopup;
-        newConfig.height = height;
         newConfig.logLength = logLength;
         newConfig.mode = mode;
         newConfig.priorityShown = priorityShown;
         newConfig.sourceKeyShown = sourceKeyShown;
-        newConfig.width = width;
-        newConfig.xPosition = xPosition;
-        newConfig.yPosition = yPosition;
         return newConfig;
     }
 

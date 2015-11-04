@@ -106,6 +106,7 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
@@ -356,6 +357,8 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  *                                       simulated time.
  * Sep 30, 2015   4860      skorolev    Corrected misspelling.
  * 07Oct2015   RM 18132     D. Friedman Exlucde certain phensigs from automatic ETN incrementing.
+ * Oct 28, 2015 5054        randerso    Make Text Editor windows appear on same monitor as the parent.
+ *                                      Removed hard coded offset for window placement.
  * 
  * </pre>
  * 
@@ -394,6 +397,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private static final List<String> defaultNoETNIncrementPhenSigs = Arrays
             .asList("HU.A", "HU.S", "HU.W", "TR.A", "TR.W", "SS.A", "SS.W",
                     "TY.A", "TY.W");
+
     /**
      * Path of ETN rules localization file
      */
@@ -1581,7 +1585,17 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         createMenus();
 
         // Initialize all of the controls and layouts
-        initializeComponents();
+        createTopButtonRow();
+
+        Label sepLbl = new Label(shell, SWT.SEPARATOR | SWT.HORIZONTAL);
+        sepLbl.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+        createTextRow();
+        createHeaderTextField();
+        createEditorControlButtons();
+        createTextAreaEditor();
+        createScriptRunnerControlBar();
+        createStatusBar();
 
         // initialize scripting controls
         setScriptControls(false);
@@ -3032,23 +3046,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
     public void setDefaultFont(int fontSize, String fontName) {
         dftFont = new Font(getDisplay(), fontName, fontSize, SWT.NORMAL);
-    }
-
-    /**
-     * Initialize the components and put them on the display.
-     */
-    private void initializeComponents() {
-        createTopButtonRow();
-
-        Label sepLbl = new Label(shell, SWT.SEPARATOR | SWT.HORIZONTAL);
-        sepLbl.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-        createTextRow();
-        createHeaderTextField();
-        createEditorControlButtons();
-        createTextAreaEditor();
-        createScriptRunnerControlBar();
-        createStatusBar();
     }
 
     /**
@@ -5103,11 +5100,13 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                      * saveEditedProduct, does not actually save anything.
                      */
                     if (shouldSetETNtoNextValue(prod)) {
-                        statusHandler.handle(Priority.INFO, "Will increment ETN for this product.");
+                        statusHandler.handle(Priority.INFO,
+                                "Will increment ETN for this product.");
                         prod.setProduct(VtecUtil.getVtec(
                                 removeSoftReturns(prod.getProduct()), true));
                     } else {
-                        statusHandler.handle(Priority.INFO, "Will NOT increment ETN for this product.");
+                        statusHandler.handle(Priority.INFO,
+                                "Will NOT increment ETN for this product.");
                     }
                     /*
                      * This silly bit of code updates the ETN of a VTEC in the
@@ -5140,13 +5139,15 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             try {
                 if (!resend) {
                     if (shouldSetETNtoNextValue(prod)) {
-                        statusHandler.handle(Priority.INFO, "Will increment ETN for this product.");
+                        statusHandler.handle(Priority.INFO,
+                                "Will increment ETN for this product.");
                         body = VtecUtil
                                 .getVtec(removeSoftReturns(MixedCaseProductSupport
                                         .conditionalToUpper(prod.getNnnid(),
                                                 textEditor.getText())));
                     } else {
-                        statusHandler.handle(Priority.INFO, "Will NOT increment ETN for this product.");
+                        statusHandler.handle(Priority.INFO,
+                                "Will NOT increment ETN for this product.");
                     }
                 }
                 updateTextEditor(body);
@@ -5194,7 +5195,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         LocalizationFile lf = PathManagerFactory.getPathManager()
                 .getStaticLocalizationFile(ETN_RULES_FILE);
         if (lf == null) {
-            throw new Exception("ETN rules file (" + ETN_RULES_FILE + ") not found.");
+            throw new Exception("ETN rules file (" + ETN_RULES_FILE
+                    + ") not found.");
         }
         return JAXB.unmarshal(lf.getFile(), EtnRules.class);
     }
@@ -5204,9 +5206,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         try {
             excludedPhenSigs = getETNRules().getExcludePhenSigs();
         } catch (Exception e) {
-            statusHandler.handle(Priority.WARN,
-                    "Error loading ETN assignment rules.  Will use default rules.",
-                    e);
+            statusHandler
+                    .handle(Priority.WARN,
+                            "Error loading ETN assignment rules.  Will use default rules.",
+                            e);
             excludedPhenSigs = defaultNoETNIncrementPhenSigs;
         }
         boolean result = true;
@@ -7723,20 +7726,35 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     protected void preOpened() {
         // Shell shell = ted.getShell();
         if (textWorkstationFlag) {
-            Rectangle rect = getShell().getDisplay().getClientArea();
-            int x = rect.width / 4;
 
-            // account for dual monitor
-            if (rect.width > (rect.height * 2)) {
-                x /= 2;
+            // get bounds of monitor containing parent shell
+            Point parentLoc = getParent().getShell().getLocation();
+            Rectangle rect = null;
+            for (Monitor monitor : getShell().getDisplay().getMonitors()) {
+                rect = monitor.getBounds();
+                if (rect.contains(parentLoc)) {
+                    break;
+                }
             }
+            int x = rect.x + rect.width / 4;
+            int y = rect.y;
 
             int index = getText().indexOf(" ");
             int editorIndex = new Integer(getText().substring(index + 1))
                     .intValue();
 
-            int offset = (editorIndex - 1) * 25;
-            getShell().setLocation(x + offset, (rect.height / 4) + offset);
+            Rectangle bounds = getShell().getBounds();
+            Rectangle clientArea = getShell().getClientArea();
+
+            /*
+             * NOTE: this offset includes the height of the title bar and the
+             * menu. There appears to be no way to get just the title bar in
+             * Eclipse 3.8 We may be able to do this in Eclipse 4
+             */
+            int xOffset = (editorIndex - 1) * (bounds.width - clientArea.width);
+            int yOffset = (editorIndex - 1)
+                    * (bounds.height - clientArea.height);
+            getShell().setLocation(x + xOffset, y + yOffset);
         }
 
         inEditMode = false;

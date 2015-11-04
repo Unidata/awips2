@@ -29,7 +29,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
@@ -96,6 +95,8 @@ import com.raytheon.uf.viz.core.VizApp;
  * 18 Mar 2015  4234       njensen     Remove reference to non-working python
  * 03 Jun 2015  4473       njensen     Updated for new AlertvizJob API
  * 29 Jun 2015  4311       randerso    Reworking AlertViz dialogs to be resizable.
+ * 28 Oct 2015  5054       randerso    Call AlertVisualization.dispose() on restart so all the
+ *                                     other dispose methods are called.
  * 
  * </pre>
  * 
@@ -220,8 +221,6 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
      * Is this running as a standalone application
      */
     protected final boolean runningStandalone;
-
-    private Rectangle prevLocation = null;
 
     private ConfigContext configContext;
 
@@ -797,6 +796,9 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
         }
     }
 
+    /**
+     * @return the exit status
+     */
     public Integer getExitStatus() {
         return exitStatus;
     }
@@ -838,7 +840,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
             // such as Integer(1) the executable attempts to bring
             // up an error screen before exiting with the error code.
             exitStatus = IApplication.EXIT_RELAUNCH;
-            display.dispose();
+            this.dispose();
         }
     }
 

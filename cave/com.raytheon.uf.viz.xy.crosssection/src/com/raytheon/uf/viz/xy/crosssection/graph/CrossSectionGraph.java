@@ -36,8 +36,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.style.level.Level.LevelType;
-import com.raytheon.uf.common.topo.TopoException;
-import com.raytheon.uf.common.topo.TopoQuery;
+import com.raytheon.uf.common.topo.CachedTopoQuery;
 import com.raytheon.uf.common.wxmath.Hgt2Pres;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -74,13 +73,14 @@ import com.vividsolutions.jts.geom.Point;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jul 3, 2010             bsteffen    Initial creation
- * Feb 15, 2013 1638       mschenke    Got rid of viz/edex topo classes 
- *                                     and moved into common
- * Aug 13, 2013 2262       dgilling    Use new wxmath hgt2pres method.
- * Jun 14, 2014 3242       njensen     Null safety checks
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------
+ * Jul 03, 2010           bsteffen  Initial creation
+ * Feb 15, 2013  1638     mschenke  Got rid of viz/edex topo classes 
+ *                                  and moved into common
+ * Aug 13, 2013  2262     dgilling  Use new wxmath hgt2pres method.
+ * Jun 14, 2014  3242     njensen   Null safety checks
+ * Oct 27, 2015  5051     bsteffen  Use cached topo
  * 
  * </pre>
  * 
@@ -422,15 +422,9 @@ public class CrossSectionGraph extends AbstractGraph {
         case PRESSURE:
             Coordinate[] lineData;
             lineData = GeoUtil.splitLine(numPoints, line.getCoordinates());
+            
+            heights = CachedTopoQuery.getInstance().getHeight(lineData);
 
-            try {
-                heights = TopoQuery.getInstance().getHeight(lineData);
-            } catch (TopoException e) {
-                statusHandler
-                        .error("Error occured requesting Topo data, topo will be unavailable.",
-                                e);
-                return new double[numPoints];
-            }
             if (csDesc.getHeightScale().getHeightType() == LevelType.PRESSURE) {
                 for (int i = 0; i < heights.length; i++) {
                     heights[i] = Hgt2Pres.hgt2pres((float) heights[i]);

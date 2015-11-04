@@ -46,6 +46,7 @@ import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -53,8 +54,10 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -82,8 +85,10 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * SOFTWARE HISTORY
  * Date         Ticket//    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 30, 2009            randerso     Initial creation
+ * Apr 30, 2009            randerso    Initial creation
  * Oct 30, 2012 1298       rferrel     Code cleanup for non-blocking dialog.
+ * Oct 28, 2015 5054       randerso    Place GfeConfigDialog on current monitor if 
+ *                                     parent shell is not visible.
  * 
  * </pre>
  * 
@@ -172,6 +177,29 @@ public class GFEConfigDialog extends CaveJFACEDialog {
     protected void configureShell(Shell newShell) {
         super.configureShell(newShell);
         newShell.setText("GFE Startup");
+    }
+
+    @Override
+    protected Point getInitialLocation(Point initialSize) {
+        Point loc = super.getInitialLocation(initialSize);
+
+        if (!getParentShell().isVisible()) {
+            // center on current monitor
+            Display display = getShell().getDisplay();
+            Monitor[] monitors = display.getMonitors();
+
+            Point cursor = display.getCursorLocation();
+            for (Monitor m : monitors) {
+                Rectangle b = m.getBounds();
+                if (b.contains(cursor)) {
+                    loc.x = b.x + (b.width - initialSize.x) / 2;
+                    loc.y = b.y + (b.height - initialSize.y) / 2;
+                    break;
+                }
+            }
+        }
+
+        return loc;
     }
 
     /*

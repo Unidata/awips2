@@ -33,6 +33,35 @@ for site_dir in `ls -1 ${_localization_directory}`; do
       fi
    fi
 done
+_localization_directory=/awips2/edex/data/utility/common_static/site
+for site_dir in `ls -1 ${_localization_directory}`; do
+   site_loc_dir=${_localization_directory}/${site_dir}
+   
+   if [ -d ${site_loc_dir}/fog ]; then
+      echo "Removing: ${site_loc_dir}/fog"
+      rm -rf ${site_loc_dir}/fog
+      if [ $? -ne 0 ]; then
+         echo "Update Failed!"
+         exit 1
+      fi
+   fi
+   if [ -d ${site_loc_dir}/safeseas ]; then
+      echo "Removing: ${site_loc_dir}/safeseas"
+      rm -rf ${site_loc_dir}/safeseas
+      if [ $? -ne 0 ]; then
+         echo "Update Failed!"
+         exit 1
+      fi
+   fi
+   if [ -d ${site_loc_dir}/snow ]; then
+      echo "Removing: ${site_loc_dir}/snow"
+      rm -rf ${site_loc_dir}/snow
+      if [ $? -ne 0 ]; then
+         echo "Update Failed!"
+         exit 1
+      fi
+   fi
+done
 
 echo "Update Completed Successfully."
 exit 0

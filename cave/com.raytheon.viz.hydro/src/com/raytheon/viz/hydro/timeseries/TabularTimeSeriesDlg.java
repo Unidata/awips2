@@ -94,6 +94,7 @@ import com.raytheon.viz.hydrocommon.texteditor.TextEditorDlg;
 import com.raytheon.viz.hydrocommon.util.DbUtils;
 import com.raytheon.viz.hydrocommon.util.HydroQC;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
 
 /**
  * This class displays the Tabular Time Series dialog for Hydroview.
@@ -131,6 +132,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Jul 16, 2013 2088       rferrel     Changes for non-blocking TextEditorDlg.
  * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
  * Oct 13, 2015 4933       rferrel     Refactored to use selected variables.
+ * Oct 27, 2015 4900       mduff       Don't transmit SHEF files if in DRT.
  * </pre>
  * 
  * @author lvenable
@@ -2650,8 +2652,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
         /* Find the flood stg/flow if a river station */
         java.util.List<Object[]> floodList = null;
         try {
-            floodList = (java.util.List<Object[]>) dataManager
-                    .getFloodStage(lid);
+            floodList = dataManager.getFloodStage(lid);
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to get Flood Stage List: ", e);
@@ -2962,6 +2963,13 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
      * Broadcast the SHEF product.
      */
     private void sendProduct() {
+        // Check for DTR and don't transmit if in DRT
+        if (!SimulatedTimeOperations.isTransmitAllowed()) {
+            SimulatedTimeOperations.displayFeatureLevelWarning(this.shell,
+                    "Transmission of SHEF products");
+            return;
+        }
+
         if (sendConfirmation()) {
             // check shef issue configuration
             ShefIssueMgr sim = ShefIssueMgr.getInstance();

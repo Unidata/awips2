@@ -59,6 +59,7 @@ import com.raytheon.uf.common.time.TimeRange;
  *                                      debugger when trying to display the grid
  * Oct 29, 2013 2476       njensen      Updated getNumpy() and added getKeyList()
  * Apr 23, 2015 4259       njensen      Updated for new JEP API
+ * Nov 03, 2015 5061       randerso     Fixed null pointer in equals()
  * 
  * </pre>
  * 
@@ -230,6 +231,8 @@ public class WeatherGridSlice extends AbstractGridSlice {
             if (rhsGrid == null) {
                 return true;
             }
+            return false;
+        } else if (rhsGrid == null) {
             return false;
         }
 
