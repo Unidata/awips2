@@ -51,6 +51,7 @@
 	<field key="Cig" displayTypes="IMAGE"/>
 	<field key="SLDP" displayTypes="IMAGE"/>
 	<field key="TPFI" displayTypes="IMAGE"/>
+	<field key="CAT" displayTypes="IMAGE"/>
 	<field key="TIPD" displayTypes="IMAGE"/>
 	<field key="ICI" displayTypes="IMAGE"/>
 	<field key="ICIP" displayTypes="IMAGE"/>
