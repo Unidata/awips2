@@ -1,0 +1,540 @@
+# Release OB9.11
+#
+#  productButtonInfo.txt
+#
+#  This table describes product buttons. A product button, when 
+#  pressed, loads a depict key that matches the current scale.
+#
+#  Each product button key must be unique. List it in the first column.
+#
+#  Each product button maps to a depict key indexed by scale. It is
+#  assumed by default that the user is providing a list of depict keys
+#  for each scale, starting with scale 0. If all that is provided is
+#  plain depict keys, the last key provided will be repeated if fewer
+#  keys are provided than there are scales.  Exception: A tag "^1" means
+#  to keep adding keys until all scales are filled, incrementing by one
+#  for each scale. Similarly, "v1" means the same, but decrement.
+#
+#  The user may change this default interpretation of key lists by
+#  providing fields that begin with a less than (<) or greater than (>)
+#  symbol. Numbers that follow these symbols are assumed to be distances
+#  in km if they contain a decimal point or are larger than twice the
+#  number of scales; otherwise they are assumed to be scale indices. A
+#  scale index of -1 means the last scale, -2 the second to last, etc.
+#  A < precedes the minimum distance or the first scale index to
+#  associate with a depict key. A > precedes the maximum distance or the
+#  last scale index to use.
+#
+#  A key that immediately follows one or more distances is assigned to
+#  all scales having sizes between the maximum and minimum distances.
+#  These default to 1e37 and 0, respectively, so it is meaningful to
+#  just provide one distance. This leaves the scale index set to the
+#  next scale after the last one assigned in this manner. A key that
+#  immediately follows one or more scale indices will be assigned to
+#  that range of scale indices. The last scale index defaults to 0 and
+#  the first scale index defaults to whichever scale would normally be
+#  assigned next. A key will always at a minimum be assigned to the first
+#  scale index.
+#
+#  Mixing scale indices and distances between depict keys is not
+#  recommended as the result is not well defined.
+#
+#  For example, if there are 5 scales, and a product button has depict
+#  keys (101, 101, 101), then we assume that the fourth and fifth
+#  scales are also 101.  If a product button has depict keys (101,
+#  105, 109), then we assume the fourth and fifth are 0 and 0.
+#
+#  Also, if a product button should be disabled at a certain scale,
+#  list a zero for the depict key.
+#
+#  List the button label in the third column. List the toggle menu
+#  label (which currently isn't used) in the fourth column. (Labels for
+#  plots and history list are found in depictInfo.)
+#
+#  Finally, put a `y', `Y', or a `1' in the fifth column if this is a
+#  static entry.  A static entry is one that appears with no green
+#  time in the menus.  Nonstatic entries have green times that get
+#  registered for auto-updates with the notification server.
+#
+#
+# ProdBtn |  Sequence of depict keys, one    |    Button                  |                           |
+#   Key   |  for each scale key              |    label                   |      toggle menu label    | static
+  100     |          120                     |Station Plot                |METAR Plot                 | 0
+  230     | <7000,   230                     |15 min Plot                 |15 min METAR Plot          | 0
+  231     | <14000,  231                     |1hr Precip                  |METAR 1Hr Pcp              | 0
+  233     | <14000,  233                     |3hr Precip                  |METAR 3Hr Pcp              | 0
+  234     | <14000,  234                     |24hr Precip                 |METAR 24H Pcp              | 0
+  236     | <14000,  236                     |6hr Precip                  |METAR 6Hr Pcp              | 0
+  220     | <14000,  220                     |Ceil/Vis Plot (AGL)         |Ceiling and Vis Plot (AGL) | 0
+ 27006    | <14000,  27006                   |Ceil/Vis Plot (MSL)         |Ceiling and Vis Plot (MSL) | 0
+  221     | <14000,  221                     |24hr Chg                    |METAR 24H Change Plot      | 0
+120120    | 120120                           |Temperature                 |Metar Temp Analysis        | 0
+120124    | 120124                           |Temp Image                  |Metar Temp Image           | 0
+120121    | 120121                           |Dewpoint                    |Metar Dewp Analysis        | 0
+120122    | 120122                           |Wind                        |Metar Wind Analysis        | 0
+  27051   |          27051                   |Station Plot                |Synoptic Plot              | 0
+  27052   |          27052                   |6hr Precip                  |Synoptic 6Hr Pcp           | 0
+  27053   |          27053                   |24hr Precip                 |Synoptic 24H Pcp           | 0
+  27054   |          27054                   |Snow Cover                  |Synoptic Snow              | 0
+//222     |          222                     |Maritime Plot               |Maritime Plot              | 0
+  222     |          222                     |Fixed Buoys                 |Fixed Buoys                | 0
+  224     |          224                     |Moving Maritime             |Moving Maritime            | 0
+  27604   | 27604                            |Fixed Sea State             |Fixed Sea State            | 0
+  27605   | 27605                            |Moving Sea State            |Moving Sea State           | 0
+  27606   | 27606                            |Maritime Clouds/Vis         |Maritime CV plot           | 0
+  27607   | 27607                            |MAROB                       |MAROB                      | 0
+  27608   | 27608                            |MAROB Sea State             |MAROB Sea State            | 0
+  27609   | 27609                            |MAROB Clouds/Vis            |MAROB CV plot              | 0
+  223     | <14000,  223                     |WindCh/HeatIdx              |WindChill/HeatIndex plot   | 0
+  138     | <2500,   138                     |15 min stn plot + QC        |15 min Local Data Plot/QC  | 0
+  139     | <2500,   139                     |15 min stn plot             |15 min Local Data Plot     | 0
+  140     | <2500,   140                     |5 min stn plot              |5 min Local Data Plot      | 0
+  141     | <2500,   141                     |1 min stn plot              |1 min Local Data Plot      | 0
+  237     | <2500,   237                     |30 min stn plot + QC        |30 min Local Data Plot/QC  | 0
+  238     | <2500,   238                     |30 min stn plot             |30 min Local Data Plot     | 0
+  239     | <2500,   239                     |WindCh/HeatIdx              |WindChill/HeatIdx Plot     | 0
+  251     | <2500,   251                     |15 min Precip               |LDAD 15m Prcp              | 0
+  252     | <2500,   252                     |30 min Precip               |LDAD 30m Prcp              | 0
+  253     | <2500,   253                     |1 hr Precip                 |LDAD 1hr Prcp              | 0
+  254     | <2500,   254                     |3 hr Precip                 |LDAD 3hr Prcp              | 0
+  255     | <2500,   255                     |5 min Precip                |LDAD 5m Prcp               | 0
+  27999   | <2500,   27999                   |Surface Plot                |M/M/L Plot                 | 0
+  200     | <14000,  200                     |NOWrad                      |NOWrad                     | 0
+  22222   |   22222                          |Popup SkewT                 |Popup SkewT                | 1
+ 1000     |   1000                           |Dist Scale                  |Dist Scale                 | 1
+ 1001     | <14000, 1001,  <3000, 1103,      |State/County                |State/County               | 1
+ 1003     | <14000, 1003                     |METARs                      |METARs                     | 1
+ 1004     | <3000,  1004                     |Zones                       |Zones                      | 1
+ 1005     | >1200,  1005                     |Lat/Lon Ocean               |Lat/Lon Ocean              | 1
+ 1008     | <14000, 1008                     |NAM                         |Model Sndg Locs            | 1
+ 1009     | <14000, 1009                     |GOES                        |GOES Sndg Locs             | 1
+ 1010     | <2500,  1010                     |LDAD precip                 |LDAD precip                | 1
+ 1011     | <2500,  1011                     |LDAD stns                   |LDAD                       | 1
+ 1012     | <7000,  1012                     |NPN Profilers               |NPN Profilers              | 1
+ 1013     | >750,   1013                     |RAOBs                       |RAOBs                      | 1
+ 1014     | <7000,  1014                     |CAP Profilers               |CAP Profilers              | 1
+ 1016     | <3000,  1016                     |Cities                      |Cities                     | 1
+ 1017     | <3000,  1017                     |County Names                |County Names               | 1
+ 1019     | 1019                             |Synoptic Sites              |Synoptic Sites             | 1
+ 1020     | 1020                             |ACARS Airports              |ACARS Airports             | 1
+ 1022     | <14000, 1022                     |GFS                         |GFS Model Sndg Locs        | 1
+ 1030     | <6000, 1030                      |Airport Locations           |Airport Locations          | 1
+ 1031     | <6000, 1031                      |ARTCC areas                 |ARTCC areas                | 1
+ 1032     | <6000, 1032                      |Fixes/Intersections         |Fixes/Intersections        | 1
+ 1033     | <6000, 1033                      |High Altitude Routes        |High Altitude Routes       | 1
+ 1034     | <6000, 1034                      |Low Altitude Routes         |Low Altitude Routes        | 1
+ 1035     | <6000, 1035                      |Special Use Airways         |Special Use Airways        | 1
+ 1036     | <14000, 1036                     |Volcano Locations           |Volcano Locations          | 1
+ 1037     | <6000, 1037                      |VOR Locations               |VOR Locations              | 1
+ 1042     | <14000, 1042                     |Interstates                 |Interstates                | 1
+ 1056     | <14000, 1056                     |Fine-scale Rivers           |Fine-scale Rivers          | 1
+ 1057     | <14000, 1057                     |Coarse-scale Rivers         |Coarse-scale Rivers        | 1
+ 1058     | <14000, 1058                     |River Fcst Grp Boundaries   |River Fcst Grp Boundaries  | 1
+ 1059     | <2000, 1059                      |River Flow Directions       |River Flow Directions      | 1
+ 1061     | <1200,  1061                     |Fire Wx zones               |Fire Wx zones              | 1
+ 1062     | <1200,  1062                     |Fire Wx stns                |Fire Wx stns               | 1
+ 1065     | <14000, 1065                     |TWEB routes                 |TWEBs                      | 1
+ 1072     | <1200, 1072                      |Range rings                 |Range rings                | 1
+ 1082     |   1082                           |88Ds                        |88Ds                       | 1
+ 1083     | <3000,  1083                     |Counties                    |Counties                   | 1
+ 1084     | <14000, 1084                     |CWAs                        |CWAs                       | 1
+ 1085     | <1200,  1085                     |Wrng Locs                   |Wrng Locs                  | 1
+ 1086     | <14000, 1086                     |Fixed Buoys                 |Fixed Buoys                | 1
+ 1087     | <14000, 1087                     |RFC boundaries              |RFC boundaries             | 1
+ 1088     | <3000,  1088                     |Lakes                       |Lakes                      | 1
+ 1101     |   1101                           |States                      |States                     | 1
+ 1110     | <3000,  1110                     |Coastal Zones               |Coastal Zones              | 1
+ 1113     | <3000,  1113                     |Marine Locations            |Marine Sites               | 1
+ 1120     | <3000,  1120                     |Offshore Zones              |Offshore Zones             | 1
+ 1130     | <3000,  1130                     |High Seas Zones             |High Seas Zones            | 1
+ 1133     | <1500,  1133                     |WarnGen Basins              |WarnGen basins             | 1
+ 1252     | <3000,  1252                     |Drainage basins             |drainage basins            | 1
+ 1280     | <1200,  1280                     |Spotters                    |Spotters                   | 1
+ 27961    | <3000, 27961                     |Spotters Readout            |Spotters Readout           | 1
+ 27962    | <3000, 27962                     |Office                      |Office Lsr Plot            | 0
+ 1300     |         1300                     |Time Zones                  |Time Zones                 | 1
+ 1311     |   1311                           |Map 1                       |User Shp File Map 1        | 1
+ 1312     |   1312                           |Map 2                       |User Shp File Map 2        | 1
+ 1313     |   1313                           |Map 3                       |User Shp File Map 3        | 1
+ 1314     |   1314                           |Map 4                       |User Shp File Map 4        | 1
+ 1315     |   1315                           |Map 5                       |User Shp File Map 5        | 1
+ 1440     |   1440, ^1                       |HiRes Topo Image            |HiRes Topo Image           | 1
+ 1480     |   <1200, 1480                    |Cities                      |Warngen Cities Table       | 1
+ 1481     |   <1200, 1481                    |Counties                    |Warngen Counties Table     | 1
+ 1482     |   <1200, 1482                    |Zones                       |Warngen Zones Table        | 1
+ 1483     |   <1200, 1483                    |CWAs                        |Warngen CWAs Table         | 1
+ 1487     |   <1200, 1487                    |Marine Zones                |Warngen Marine Zones       | 1
+ 2150     |   >700, 2150                     |150hPa                      |150mb RAOB Plot            | 0
+ 2200     |   >700, 2200                     |200hPa                      |200mb RAOB Plot            | 0
+ 2250     |   >700, 2250                     |250hPa                      |250mb RAOB Plot            | 0
+ 2300     |   >700, 2300                     |300hPa                      |300mb RAOB Plot            | 0
+ 2400     |   >700, 2400                     |400hPa                      |400mb RAOB Plot            | 0
+ 2500     |   >700, 2500                     |500hPa                      |500mb RAOB Plot            | 0
+ 2700     |   >700, 2700                     |700hPa                      |700mb RAOB Plot            | 0
+ 2850     |   >700, 2850                     |850hPa                      |850mb RAOB Plot            | 0
+ 2925     |   >700, 2925                     |925hPa                      |925mb RAOB Plot            | 0
+ 3000     |   <14000, >700, 3000             |Surface                     |Sfc Profiler Plot          | 0
+ 3001     |   <14000, >700, 3001             | 500m AGL                   | 500m AGL Profiler Plot    | 0
+ 3002     |   <14000, >700, 3002             | 750m AGL                   | 750m AGL Profiler Plot    | 0
+ 3003     |   <14000, >700, 3003             |1000m AGL                   |1000m AGL Profiler Plot    | 0
+ 3004     |   <14000, >700, 3004             |1250m AGL                   |1250m AGL Profiler Plot    | 0
+ 3005     |   <14000, >700, 3005             |1500m AGL                   |1500m AGL Profiler Plot    | 0
+ 3150     |   <14000, >700, 3150             |150hPa                      |150mb Profiler Plot        | 0
+ 3200     |   <14000, >700, 3200             |200hPa                      |200mb Profiler Plot        | 0
+ 3250     |   <14000, >700, 3250             |250hPa                      |250mb Profiler Plot        | 0
+ 3300     |   <14000, >700, 3300             |300hPa                      |300mb Profiler Plot        | 0
+ 3400     |   <14000, >700, 3400             |400hPa                      |400mb Profiler Plot        | 0
+ 3500     |   <14000, >700, 3500             |500hPa                      |500mb Profiler Plot        | 0
+ 3700     |   <14000, >700, 3700             |700hPa                      |700mb Profiler Plot        | 0
+ 3850     |   <14000, >700, 3850             |850hPa                      |850mb Profiler Plot        | 0
+ 3925     |   <14000, >700, 3925             |925hPa                      |925mb Profiler Plot        | 0
+ 3998     |   <14000, >700, 3998             |NPN perspective             |NPN Profiler Perspective   | 0
+ 27113    | <14000, 27113                    |100m AGL                    |100 m AGL VWP plot         | 0       
+ 27123    | <14000, 27123                    |250m AGL                    |250 m AGL VWP plot         | 0       
+ 27133    | <14000, 27133                    |500m AGL                    |500 m AGL VWP plot         | 0 
+ 27136    | <14000, 27136                    |750m AGL                    |750 m AGL VWP plot         | 0       
+ 27143    | <14000, 27143                    |1000m AGL                   |1 km AGL VWP plot          | 0       
+ 27146    | <14000, 27146                    |1250m AGL                   |1250 m AGL VWP plot        | 0       
+ 27156    | <14000, 27156                    |1500m AGL                   |1500 m AGL VWP plot        | 0       
+ 27153    | <14000, 27153                    |2km AGL                     |2 km AGL VWP plot          | 0       
+ 27163    | <14000, 27163                    |3km AGL                     |3 km AGL VWP plot          | 0       
+ 27173    | <14000, 27173                    |4km AGL                     |4 km AGL VWP plot          | 0       
+ 27183    | <14000, 27183                    |5km AGL                     |5 km AGL VWP plot          | 0       
+ 27115    | <14000, 27115                    |6km AGL                     |6 km AGL VWP plot          | 0       
+ 27125    | <14000, 27125                    |7km AGL                     |7 km AGL VWP plot          | 0       
+ 27135    | <14000, 27135                    |8km AGL                     |8 km AGL VWP plot          | 0       
+ 27145    | <14000, 27145                    |9km AGL                     |9 km AGL VWP plot          | 0       
+ 27155    | <14000, 27155                    |10km AGL                    |10 km AGL VWP plot         | 0       
+ 27165    | <14000, 27165                    |11km AGL                    |11 km AGL VWP plot         | 0       
+ 27175    | <14000, 27175                    |12km AGL                    |12 km AGL VWP plot         | 0       
+ 27185    | <14000, 27185                    |13km AGL                    |13 km AGL VWP plot         | 0       
+ 27116    | <14000, 27116                    |14km AGL                    |14 km AGL VWP plot         | 0       
+ 27126    | <14000, 27126                    |15km AGL                    |15 km AGL VWP plot         | 0       
+ 27114    | <14000, 27114                    |925hPa                      |925 mb VWP plot            | 0       
+ 27124    | <14000, 27124                    |850hPa                      |850 mb VWP plot            | 0       
+ 27134    | <14000, 27134                    |700hPa                      |700 mb VWP plot            | 0       
+ 27144    | <14000, 27144                    |500hPa                      |500 mb VWP plot            | 0       
+ 27154    | <14000, 27154                    |400hPa                      |400 mb VWP plot            | 0       
+ 27164    | <14000, 27164                    |300hPa                      |300 mb VWP plot            | 0       
+ 27174    | <14000, 27174                    |250hPa                      |250 mb VWP plot            | 0       
+ 27184    | <14000, 27184                    |200hPa                      |200 mb VWP plot            | 0       
+ 27198    | <14000, 27198                    |VWP perspective             |VWP perspective plot       | 0       
+ 4200     |   >700, 4200                     |200hPa                      |200mb Plot                 | 0
+ 4250     |   >700, 4250                     |250hPa                      |250mb Plot                 | 0
+ 4300     |   >700, 4300                     |300hPa                      |300mb Plot                 | 0
+ 4500     |   >700, 4500                     |500hPa                      |500mb Plot                 | 0
+ 4700     |   >700, 4700                     |700hPa                      |700mb Plot                 | 0
+ 4850     |   >700, 4850                     |850hPa                      |850mb Plot                 | 0
+ 25699    | 0, 25699          |NCWF     |NCWF               | 0
+ 10601    |   <9000, 10601    | Surface | NAM Sndg Sfc Plot | 0
+ 10602    |   <9000, 10602    | Surface | GFS Sndg Sfc Plot | 0
+ 10603    |   <9000, 10603    | Ceiling/Visibility  | NAM Sndg Ceiling and Vis Plot | 0
+ 10604    |   <9000, 10604    | Cloud Layers | GFS Sndg Ceiling Plot | 0
+ 10611    |   <9000, 10611    | Sounding Availability | NAM Sndg Avail | 0
+ 10612    |   <9000, 10612    | Sounding Availability | GFS Sndg Avail | 0
+ 10615    |   <9000, 10615    | GOES Sounding Availability | GOES Sndg Avail | 0
+ 10616    |   <9000, 10616    | POES Sounding Availability | POES Sndg Avail | 0
+ 10621    |   <9000, 10621    | 1-Hr Precip Amt | NAM Sndg Prcp Plot | 0
+ 10622    |   <9000, 10622    | 3-Hr Precip Amt | GFS Sndg Prcp Plot | 0
+ 27871    |   27871                 |Low Level     |Pirep 000-180 | 0
+ 27872    |   27872                 |Mid Level     |Pirep 180-260 | 0
+ 27873    |   27873                 |Hi Level      |Pirep 260-500 | 0
+ 27874    |   27874                 |Low Level     |Pirep Icing 000-180 | 0
+ 27875    |   27875                 |Mid Level     |Pirep Icing 180-260 | 0
+ 27876    |   27876                 |Hi Level      |Pirep Icing 260-500 | 0
+ 27877    |   27877                 |Low Level     |Pirep Turb 000-180 | 0
+ 27878    |   27878                 |Mid Level     |Pirep Turb 180-260 | 0
+ 27879    |   27879                 |Hi Level      |Pirep Turb 260-500 | 0
+ 27881    |   27881                          |000-050 hft   |MDCRS 000-050  | 0
+ 27882    |   27882                          |050-100 hft   |MDCRS 050-100  | 0
+ 27883    |   27883                          |100-150 hft   |MDCRS 100-150  | 0
+ 27884    |   27884                          |150-200 hft   |MDCRS 150-200  | 0
+ 27885    |   27885                          |200-250 hft   |MDCRS 200-250  | 0
+ 27886    |   27886                          |250-300 hft   |MDCRS 250-300  | 0
+ 27887    |   27887                          |300-350 hft   |MDCRS 300-350  | 0
+ 27888    |   27888                          |350-400 hft   |MDCRS 350-400  | 0
+ 27889    |   27889                          |400-450 hft   |MDCRS 400-450  | 0
+ 27890    |   27890                          |450-500 hft   |MDCRS 450-500  | 0
+ 27891    |   27891                          |All Levels    |MDCRS All      | 0
+ 27893    |   27893                          |1Hr Prof Avail    |MDCRS 1Hr Avail  | 0
+ 27894    |   27894                          |6Hr Prof Avail    |MDCRS 6Hr Avail  | 0
+ 62000    | 0, 62000                         |2 Hour Combined   |2 Hour Combined  | 0
+ 62009    | 0, 62009                         |2 Hour            |2 Hour           | 0
+ 62010    | 0, 62010                         |4 Hour Combined   |4 Hour Combined  | 0
+ 62019    | 0, 62019                         |4 Hour            |4 Hour           | 0
+ 62020    | 0, 62020                         |6 Hour Combined   |6 Hour Combined  | 0
+ 62029    | 0, 62029                         |6 Hour            |6 Hour           | 0
+ 62030    | 0, 62030                         |8 Hour Combined   |8 Hour Combined  | 0
+ 62039    | 0, 62039                         |8 Hour            |8 Hour           | 0
+ 6001     | 0, 6001                          |SIGMET            |Volcanic Ash     | 0
+ 6002     | 0, 6002                          |SIGMET            |Tropical Cyclone | 0
+ 6003     | 0, 6003                          |SIGMET            |Icing            | 0
+ 6004     | 0, 6004                          |SIGMET            |Turbulence       | 0
+ 6005     | 0, 6005                          |AIRMET            |Icing            | 0
+ 6007     | 0, 6007                          |AIRMET            |Turbulence AIRMET| 0
+ 6013     | 0, 6013                          |IFR               |IFR AIRMET       | 0
+ 6015     | 0, 6015                          |Mtn Obscn         |Mtn Obscn AIRMET | 0
+ 6179     | 0, 6179                          |Convective SIGMET |Convective SIGMET| 0
+ 6111     |   <14000,   6111                 |SPC Watches                 |SPC Watches                | 0
+ 6120     |   <1200,   61210                 |Local CWA Warnings          |Local Warnings             | 0
+ 61200    |   <3000,   61220                 |Local & Regional Warnings   |Loc/Reg Warnings           | 0
+ 6310     |   <1200,   61410                 |Local CWA Flood Warnings    |Local Flood Warnings       | 0
+ 61281    |   <3000,   61420                 |Local & Regional Flood Warnings |Loc/Reg Flood Warnings | 0
+ 61300    |   <1200,   61300                 |All Local Warnings          |All Local Warnings         | 0
+ 61310    |   <3000,   61310                 |All Regional Warnings       |All Regional Warnings      | 0
+ 65000    | 0, 65000                         |Center Weather Advisories   |Center Weather Advisories  | 0
+ 65001    | 65001                            |AK Center Weather Advisories|AK Center Weather Advisories | 0
+ 65300    | 65300                            |Volcanic Ash Advisories     |Volcanic Ash Advisories    | 0
+ 6770     |   <3000,   6770                  |Marine Warnings             |SMW Warnings               | 0
+ 6150     |   <3000,   6150                  |County FFG                  |County FFG                 | 0
+ 6170     |   <3000,   6170                  |Zone FFG                    |Zone FFG                   | 0
+ 6905     |   <1000,   6905                  |Coop Precip                 |Coop Precip                | 0
+ 6400     |   <14000,  6400                  |Svr Wx Plot                 |Svr Wx Plot                | 0
+ 6431     |   6431                           |Atlantic                    |AT Hur Tracks              | 0
+ 6436     |   6436                           |E Pacific                   |EP Hur Tracks              | 0
+ 6441     |   6441                           |W Pacific                   |WP Hur Tracks              | 0
+ 6600     |   <14000,  6600                  |Local                       |Local Lsr Plot             | 0
+ 6625     |   <14000,  6625                  |Region                      |Region Lsr Plot            | 0
+ 643100   |643100                     |AT1                          |AT1 TCM 1hr step   |0
+ 643200   |643200                     |AT2                          |AT2 TCM 1hr step   |0
+ 643300   |643300                     |AT3                          |AT3 TCM 1hr step   |0
+ 643400   |643400                     |AT4                          |AT4 TCM 1hr step   |0
+ 643500   |643500                     |AT5                          |AT5 TCM 1hr step   |0
+ 643600   |643600                     |EP1                          |EP1 TCM 1hr step   |0
+ 643700   |643700                     |EP2                          |EP2 TCM 1hr step   |0
+ 643800   |643800                     |EP3                          |EP3 TCM 1hr step   |0
+ 643900   |643900                     |EP4                          |EP4 TCM 1hr step   |0
+ 644000   |644000                     |EP5                          |EP5 TCM 1hr step   |0
+ 644100   |644100                     |CP1                          |CP1 TCM 1hr step   |0
+ 644200   |644200                     |CP2                          |CP2 TCM 1hr step   |0
+ 644300   |644300                     |CP3                          |CP3 TCM 1hr step   |0
+ 644400   |644400                     |CP4                          |CP4 TCM 1hr step   |0
+ 644500   |644500                     |CP5                          |CP5 TCM 1hr step   |0
+ 644600   |644600                     |WP1                          |WP1 TCP 1hr step   |0
+ 644700   |644700                     |WP2                          |WP2 TCP 1hr step   |0
+ 644800   |644800                     |WP3                          |WP3 TCP 1hr step   |0
+ 644900   |644900                     |WP4                          |WP4 TCP 1hr step   |0
+ 645000   |645000                     |WP5                          |WP5 TCP 1hr step   |0
+// 6451     |6451                       |BAMD model                  |BAMD model         |0
+// 6461     |6461                       |BAMM model                  |BAMM model         |0
+// 6471     |6471                       |AE90 model                  |AE90 model         |0
+// 6481     |6481                       |LBAR model                  |LBAR model         |0
+ 6487     |6487                       |CHGHUR guidance             |CHGHUR guidance    |0
+ 6501     |6501                       |CHGQLM guidance             |CHGQLM guidance    |0
+ 6515     |6515                       |Atlantic                    |Atlantic Hur Pos Upd |0
+ 6520     |6520                       |E Pacific                   |E Pacific Hur Pos Upd |0
+ 6523     |6523                       |W Pacific                   |W Pacific Hur Pos Upd |0
+ 6525     |6525                       |C Pacific                   |C Pacific Hur Pos Upd |0
+ 8005     |   8005                           |5min Lgtng Plot             |5 Minute Lightning Plot    | 0
+ 8015     |   8015                           |15min Lgtng Plot            |15 Minute Lightning Plot   | 0
+ 8018     |   8018                           |15min Pos/Neg Lgtng Plot    |15 Minute Pos/Neg Lightning Plot| 0
+ 8060     |   8060                           |1hr Lgtng Plot              |1 Hour Lightning Plot      | 0
+ 8100     |   8100                           |1min Lgtng Seq              |1 Min Lightning Seq        | 0
+ 8505     |   8505                           |5min Txt Lgtng Plt          |5 Minute Txt Lightning Plot  | 0
+ 8515     |   8515                           |15min Txt Lgtng Plt         |15 Minute Txt Lightning Plot | 0
+ 8518     |   8518                           |15min Pos/Neg Txt Lgtng Plt |15 Minute Pos/Neg Text Lightning Plot| 0
+ 8560     |   8560                           |1hr Txt Lgtng Plt           |1 Hour Txt Lightning Plot  | 0
+ 8600     |   8600                           |1min Txt Lgtng Seq          |1 Min Txt Lightning Seq    | 0
+10020     |  10020                           |High Level                  |High Level                 | 0
+10030     |  10030                           |Medium Level                |Medium Level               | 0
+11002     |  11002                           |McCook NE (RWDN1)           |RWDN1 Prof                 | 0
+11003     |  11003                           |Lathrop MO (LTHM7)          |LTHM7 Prof                 | 0
+11004     |  11004                           |Tucumcari NM (TCUN5)        |TCUN5 Prof                 | 0
+11005     |  11005                           |Haskell OK (HKLO2)          |HKLO2 Prof                 | 0
+11006     |  11006                           |Winfield LA (WNFL1)         |WNFL1 Prof                 | 0
+11007     |  11007                           |Vandenberg CA (VBGC1)       |VBGC1 Prof                 | 0
+11008     |  11008                           |Platteville CO (PLTC2)      |PLTC2 Prof                 | 0
+11009     |  11009                           |Neligh NE (NLGN1)           |NLGN1 Prof                 | 0
+11010     |  11010                           |Blue River WI (BLRW3)       |BLRW3 Prof                 | 0
+11011     |  11011                           |Haviland KS (HVLK1)         |HVLK1 Prof                 | 0
+11012     |  11012                           |Hillsboro KS (HBRK1)        |HBRK1 Prof                 | 0
+11013     |  11013                           |Bloomfield MO (BLMM7)       |BLMM7 Prof                 | 0
+11014     |  11014                           |DeQueen AR (DQUA4)          |DQUA4 Prof                 | 0
+11015     |  11015                           |Jayton TX (JTNT2)           |JTNT2 Prof                 | 0
+11016     |  11016                           |Medicine Bow WY (MBWW4)     |MBWW4 Prof                 | 0
+11017     |  11017                           |Wood Lake MN (WDLM5)        |WDLM5 Prof                 | 0
+11018     |  11018                           |Fairbury NE (FBYN1)         |FBYN1 Prof                 | 0
+11019     |  11019                           |Granada CO (GDAC2)          |GDAC2 Prof                 | 0
+11020     |  11020                           |Lamont OK (LMNO2)           |LMNO2 Prof                 | 0
+11021     |  11021                           |Purcell OK (PRCO2)          |PRCO2 Prof                 | 0
+11022     |  11022                           |White Sands NM (WSMN5)      |WSMN5 Prof                 | 0
+11023     |  11023                           |Conway MO (CNWM7)           |CNWM7 Prof                 | 0
+11024     |  11024                           |Merriman NE (MRRN1)         |MRRN1 Prof                 | 0
+11025     |  11025                           |Slater IA (SLAI4)           |SLAI4 Prof                 | 0
+11026     |  11026                           |Winchester IL (WNCI2)       |WNCI2 Prof                 | 0
+11027     |  11027                           |Aztec NM (AZCN5)            |AZCN5 Prof                 | 0
+11028     |  11028                           |Vici OK (VCIO2)             |VCIO2 Prof                 | 0
+11029     |  11029                           |Neodesha KS (NDSK1)         |NDSK1 Prof                 | 0
+11030     |  11030                           |Palestine TX (PATT2)        |PATT2 Prof                 | 0
+11031     |  11031                           |Okolona MS (OKOM6)          |OKOM6 Prof                 | 0
+11035     |  11035                           |Central AK (CENA2)          |CENA2 Prof                 | 0
+11036     |  11036                           |Glennallen AK (GNAA2)       |GNAA2 Prof                 | 0
+11037     |  11037                           |Talkeetna AK (TLKA2)        |TLKA2 Prof                 | 0
+11038     |  11038                           |Wolcott IN  (WLCI3)         |WLCI3 Prof                 | 0
+11039     |  11039                           |Syracuse NY (SYCN6)         |SYCN6 Prof                 | 0
+11040     |  11040                           |Ledbetter TX (LDBT2)        |LDBT2 Prof                 | 0
+11102     |  11102                           |Buster Jangle Yankee NV (BJYNV)        |BJYNV Prof      | 0
+11103     |  11103                           |Beaumont KS (BMTKS)                    |BMTKS Prof      | 0
+11104     |  11104                           |Concord NH (CCDNH)                     |CCDNH Prof      | 0
+11105     |  11105                           |Chowchilla CA (CCLCA)                  |CCLCA Prof      | 0
+11106     |  11106                           |Chico CA (CCOCA)                       |CCOCA Prof      | 0
+11107     |  11107                           |Charlotte NC (CHANC)                   |CHANC Prof      | 0
+11108     |  11108                           |Cleburne TX (CLETX)                    |CLETX Prof      | 0
+11109     |  11109                           |North Douglas AK (DGNAK)               |DGNAK Prof      | 0
+11110     |  11110                           |South Douglas AK (DGSAK)               |DGSAK Prof      | 0
+11111     |  11111                           |Tower Grid UT (DGWUT)                  |DGWUT Prof      | 0
+11112     |  11112                           |Ellington Fld TX (EFDTX)               |EFDTX Prof      | 0
+11113     |  11113                           |El Paso TX (EPSTX)                     |EPSTX Prof      | 0
+11114     |  11114                           |Cape Canaveral-False Cape FL (FCPFL)   |FCPFL Prof      | 0
+11115     |  11115                           |CMO AZ (FHHAZ)                         |FHHAZ Prof      | 0
+11116     |  11116                           |Ft Meade MD (FMEMD)                    |FMEMD Prof      | 0
+11117     |  11117                           |Ft Huachuca AZ (FTHAZ)                 |FTHAZ Prof      | 0
+11118     |  11118                           |Grass Valley CA (GVYCA)                |GVYCA Prof      | 0
+11119     |  11119                           |Gray ME (GYXME)                        |GYXME Prof      | 0
+11120     |  11120                           |Horizontal Grid UT (HGDUT)             |HGDUT Prof      | 0
+11121     |  11121                           |Hazmat Spill Center NV (HSCNV)         |HSCNV Prof      | 0
+11122     |  11122                           |Cape Canaveral-50 MHz (KSCFL)          |KSCFL Prof      | 0
+11123     |  11123                           |Los Angeles CA (LAXCA)                 |LAXCA Prof      | 0
+11124     |  11124                           |Lost Hills CA (LHSCA)                  |LHSCA Prof      | 0
+11125     |  11125                           |Lemon Creek AK (LMCAK)                 |LMCAK Prof      | 0
+11126     |  11126                           |Livermore CA (LVRCA)                   |LVRCA Prof      | 0
+11127     |  11127                           |Midway Site NM (MDWNM)                 |MDWNM Prof      | 0
+11128     |  11128                           |Cape Canaveral-Merritt (MIDFL)         |MIDFL Prof      | 0
+11129     |  11129                           |Cape Canaveral-Mosquito Lagoon (MLNFL) |MLNFL Prof      | 0
+11130     |  11130                           |Miramar CA (MMRCA)                     |MMRCA Prof      | 0
+11131     |  11131                           |Moreno Valley CA (MOVCA)               |MOVCA Prof      | 0
+11132     |  11132                           |Monterey CA (NPSCA)                    |NPSCA Prof      | 0
+11133     |  11133                           |Norman OK (NRMOK)                      |NRMOK Prof      | 0
+11134     |  11134                           |NW30 NM (NWTNM)                        |NWTNM Prof      | 0
+11135     |  11135                           |Ontario CA (ONTCA)                     |ONTCA Prof      | 0
+11136     |  11136                           |Oxford KS (OXFKS)                      |OXFKS Prof      | 0
+11137     |  11137                           |Pease NH (PSENH)                       |PSENH Prof      | 0
+11138     |  11138                           |Point Loma CA (PTLCA)                  |PTLCA Prof      | 0
+11139     |  11139                           |Plymouth MA (PYMMA)                    |PYMMA Prof      | 0
+11140     |  11140                           |Raleigh NC (RALNC)                     |RALNC Prof      | 0
+11141     |  11141                           |Richmond VA (RCHVA)                    |RCHVA Prof      | 0
+11142     |  11142                           |Cape Canaveral-TI-CO (RCOFL)           |RCOFL Prof      | 0
+11143     |  11143                           |New Brunswick NJ (RUTNJ)               |RUTNJ Prof      | 0
+11144     |  11144                           |Sacramento CA (SACCA)                  |SACCA Prof      | 0
+11145     |  11145                           |Schenectady NY (SCHNY)                 |SCHNY Prof      | 0
+11146     |  11146                           |Cape Canaveral-South Cape (SCPFL)      |SCPFL Prof      | 0
+11147     |  11147                           |Seattle WA (SEAWA)                     |SEAWA Prof      | 0
+11148     |  11148                           |Simi Valley CA (SIMCA)                 |SIMCA Prof      | 0
+11149     |  11149                           |San Nicholas CA (SNICA)                |SNICA Prof      | 0
+11150     |  11150                           |Stow MA (STWMA)                        |STWMA Prof      | 0
+11151     |  11151                           |Tulag NM (TLGNM)                       |TLGNM Prof      | 0
+11152     |  11152                           |Visalia CA (VISCA)                     |VISCA Prof      | 0
+11153     |  11153                           |Whitewater KS (WHWKS)                  |WHWKS Prof      | 0
+11154     |  11154                           |Yuma AZ (YUMAZ)                        |YUMAZ Prof      | 0
+11901     |  11901                           |Lemon Creek AK (LMNA2)      |LMNA2 Prof                 | 0
+11902     |  11902                           |North Douglas Is AK (NDIA2) |NDIA2 Prof                 | 0
+11903     |  11903                           |South Douglas Is AK (SDIA2) |SDIA2 Prof                 | 0
+12000     |  12000                           |WarnGen                     |WarnGen                    | 1
+12002     |  12002                           |Baselines                   |Interactive Baselines      | 1
+12003     |  12003                           |Points                      |Interactive Points         | 1
+12004     |  12004                           |Home                        |Home Location              | 1
+12005     |  12005                           |Distance Bearing            |Distance Bearing           | 1
+12006     |  12006                           |Distance Speed              |Distance Speed             | 1
+112006    |  112006                          |Feature Following Zoom      |Feature Zoom               | 1
+12007     |  12007                           |AlertArea1Editor            |Alert Area 1 Editor        | 1
+12008     |  12008                           |AlertArea2Editor            |Alert Area 2 Editor        | 1
+// >100k for auto radar menus
+112009    |  12020                           |VR - Shear                  |VR - Shear                 | 1
+//12021     |  12021                           |VR - Shear 2                |VR - Shear 2               | 1
+//12022     |  12022                           |VR - Shear 3                |VR - Shear 3               | 1
+//12023     |  12023                           |VR - Shear 4                |VR - Shear 4               | 1
+12010     |  12010                           |Laps Tool                   |Laps Tool Editable         | 1
+12014     |  12014                           |Az/Ran Overlay              |Az/Ran Overlay Editable    | 1
+12015     |  12015                           |Home/88D                    |Home/88D Editable          | 1
+12016     |  12016                           |Solidfill                   |Solidfill                  | 1
+12019     |  12019                           |Range Rings                 |Range Rings                | 1
+// >100k for auto radar menus
+112035    |  12035                           |Estimated Actual Velocity   |EAV                        | 1
+100101    | <1200, 2181357608                |Temperature                 |Laps Temp                  | 0
+100102    | <1200, 2181357656                |Rel Humidity                |Laps Rel Hum               | 0
+100103    | <1200, 2181357592                |MSL Pressure                |Laps MSLP                  | 0
+100104    | <1200, 2182103040                |1500m Pressure              |Laps 1500m Pres            | 0
+100105    | <1200, 2181357624                |Dewpoint                    |Laps Td                    | 0
+100106    | <1200, 2181357616                |Pot Temp                    |Laps Theta                 | 0
+100107    | <1200, 2181357632                |Equiv Pot Temp              |Laps Theta E               | 0
+100108    | <1200, 2181357712                |Lifted Index                |Laps LI                    | 0
+100109    | <1200, 2181357664                |Precip Water                |Laps Prec H2O              | 0
+100110    | <1200, 2181357680                |1hr Precip                  |Laps 1hr Precip            | 0
+100111    | <1200, 2181357960                |Storm Total Precip          |Laps Stm Total Prec        | 0
+100112    | <1200, 2181357651                |Wind                        |Laps Wind                  | 0
+100113    | <1200, 2181358112                |CAPE                        |LAPS CAPE                  | 0
+100114    | <1200, 2181358120                |CIN                         |LAPS CIN                   | 0
+100115    | <1200, 2181357816                |Moisture Advection          |LAPS q Advect              | 0
+100116    | <1200, 2181357824                |Moisture Flux Div           |LAPS q flux Div            | 0
+100117    | <1200, 2181357832                |Theta-E Convergence         |LAPS Th-e Conv             | 0
+100118    | <1200, 2181357808                |Temp Advection              |LAPS T Advect              | 0
+100119    | <1200, 2181358152                |Helicity                    |LAPS Helicity              | 0
+100120    | <1200, 2181357792                |Computed LI                 |LAPS Computed LI           | 0
+100121    | <1200, 2181358104                |CSSI                        |LAPS CSSI                  | 0
+100122    | <1200, 2181357928                |Relative Vorticity          |LAPS Rel Vort              | 0
+100123    | <1200, 2181358033                |Precip Type                 |LAPS precip type           | 0
+100124    | <1200, 2181358160                |1hr Snow                    |LAPS 1hr snow              | 0
+100125    | <1200, 2181358168                |Storm Total Snow            |LAPS storm total snow      | 0
+100126    | <1200, 2181358176                |Snow Cover                  |LAPS snow cover            | 0
+100127    | <1200, 2181358048                |Cloud Cover                 |LAPS cloud cover           | 0
+2474960040 |  <2500, 2474960040 |72hr Mosaic |RFC QPF Mosaic | 0
+2474960048 |  <2500, 2474960048 |24hr AKRFC QPF |AKRFC QPF | 0
+2474960056 |  <2500, 2474960056 |24hr SERFC QPF |SERFC QPF | 0
+2474960064 |  <2500, 2474960064 |24hr WGRFC QPF |WGRFC QPF | 0
+2474960072 |  <2500, 2474960072 |24hr MBRFC QPF |MBRFC QPF | 0
+2474960080 |  <2500, 2474960080 |24hr NCRFC QPF |NCRFC QPF | 0
+2474960088 |  <2500, 2474960088 |24hr LMRFC QPF |LMRFC QPF | 0
+2474960096 |  <2500, 2474960096 |24hr NWRFC QPF |NWRFC QPF | 0
+2474960104 |  <2500, 2474960104 |24hr MARFC QPF |MARFC QPF | 0
+2474960112 |  <2500, 2474960112 |24hr CNRFC QPF |CNRFC QPF | 0
+2474960120 |  <2500, 2474960120 |24hr CBRFC QPF |CBRFC QPF | 0
+2474960128 |  <2500, 2474960128 |24hr NERFC QPF |NERFC QPF | 0
+2474960136 |  <2500, 2474960136 |24hr OHRFC QPF |OHRFC QPF | 0
+2474960144 |  <2500, 2474960144 |24hr ABRFC QPF |ABRFC QPF | 0
+2567234728 |  0, 0, 2567234728, 2567234728, 2567234728, 2567234728 |HPC QPF 6hr (Grid) |HPC QPF 6hr (Grid)   | 0
+3028613848 | 3028613848 | Prob. Temp above normal   | Prob of Temperature Above Normal | 0
+3028613864 | 3028613864 | Prob. Temp near normal    | Prob of Temperature Near Normal  | 0
+3028613856 | 3028613856 | Prob. Temp below normal   | Prob of Temperature Below Normal | 0
+3028613896 | 3028613896 | Prob. Precip above normal | Prob of Precip Above Normal      | 0
+3028613912 | 3028613912 | Prob. Precip near normal  | Prob of Precip Near Normal       | 0
+3028613904 | 3028613904 | Prob. Precip below normal | Prob of Precip Below Normal      | 0
+3028613944 | 3028613944 | Temp Probabilities        | Temperature Probabilities        | 0
+3028613952 | 3028613952 | Precip Probabilities      | Precip Probabilities             | 0
+3028613960 | 3028613960 | Temp Prob Img             | Temperature Probabilities Image  | 0
+3028613968 | 3028613968 | Precip Prob Img           | Precip Probabilities Image       | 0
+3154436210 | <2500, 3154436210 |1hr WFO Local MPE     | 1hr WFO Local MPE     | 0
+3196379250 | <2500, 3196379250 |1hr RFC Local Mosaic  | 1hr RFC Local Mosaic  | 0
+3196379818 | <2500, 3196379818 |6hr RFC Local Mosaic  | 6hr RFC Local Mosaic  | 0
+3196379826 | <2500, 3196379826 |24hr RFC Local Mosaic | 24hr RFC Local Mosaic | 0
+3213163450 | <2500, 3297050538 |Upper Zone Tension Water Content (%)|Upper zone tension water content (%)|0
+3221552066 | <2500, 3297050546 |Upper Zone Free Water Content (%)   |Upper zone free water content (%)|0
+3229940682 | <2500, 3297050554 |Lower Zone Tension Water Content (%) |Lower zone tension water content (%) |0
+3238329298 | <2500, 3297050562 |Lower Zone Primary Free Water Content (%) |Lower zone primary free water content (%) |0
+3246717914 | <2500, 3297050570 |Lower Zone Secondary Free Water Content (%) |Lower zone secondary free water content (%) |0
+3255106530 | <2500, 3297050578 |Additional Impervious Area Water Content (%) |Additional impervious area water content (%) |0
+3263495146 | <2500, 3297050586 |Hillslope Water Depth (in) |Hillslope water depth (in) |0
+3271883765 | <2500, 3297050618 |Channel Routed Flow [Combo] (cfs)|Channel routed flow [Combo] (cfs) |0
+3271883762 | <2500, 3297050594 |Channel Routed Flow [Low] (cfs) |Channel routed flow [Low] (cfs) |0
+3271883763 | <2500, 3297050602 |Channel Routed Flow [Mid] (cfs) |Channel routed flow [Mid] (cfs) |0
+3271883764 | <2500, 3297050610 |Channel Routed Flow [Hi] (cfs)  |Channel routed flow [Hi] (cfs) |0
+3313819760 | 0,0,3313819760 |1-3 Day HPC QPF (6-Hourly Grid) |1-3 Day HPC QPF (6-Hourly Grid) | 0
+3313821000 | 0,0,3313821000 |4-5 Day HPC QPF (Grid) |4-5 Day HPC QPF (Grid)  | 0
+3313821592 | 0,0,3313821592 |1-5 Day HPC Total QPF (Grid) |4-5 Day HPC Total QPF (Grid)  | 0
+3313821600 | 0,0,3313821600 |1-3 Day Excessive Rainfall (Grid) |1-3 Day Excessive Rainfall (Grid) | 0
+3599034472 | 3599034472 | Prob. Temp above normal | 6-10 day CPCoutlook-CONUS  | 0
+3599034480 | 3599034480 | Prob. Temp below normal | 6-10 day CPCoutlook-CONUS  | 0
+3599034488 | 3599034488 | Prob. Precip above normal | 6-10 day CPCoutlook-CONUS | 0
+3599034496 | 3599034496 | Prob. Precip below normal | 6-10 day CPCoutlook-CONUS | 0
+3607423048 | 3607423048 | Prob. Temp above normal | 8-14 day CPCoutlook-CONUS  | 0
+3607423056 | 3607423056 | Prob. Temp below normal | 8-14 day CPCoutlook-CONUS  | 0
+3607423064 | 3607423064 | Prob. Precip above normal | 8-14 day CPCoutlook-CONUS | 0
+3607423072 | 3607423072 | Prob. Precip below normal | 8-14 day CPCoutlook-CONUS | 0
+#include "familyProductButtons.txt"
+#include "redbookProductButtons.txt"
+#include "satProductButtons.txt"
+#include "radarProductButtons.txt"
+#include "tdlProductButtons.txt"
+#include "imgProductButtons.txt"
+#include "raobProductButtons.txt"
+#include "msasProductButtons.txt"
+#include "localProductButtons.txt"
