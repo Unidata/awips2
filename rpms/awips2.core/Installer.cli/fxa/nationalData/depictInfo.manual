@@ -1,0 +1,735 @@
+// Release OB9.11
+//
+// depictInfo.manual
+//
+// REVISION HISTORY:
+//    NAME         DATE    CHANGES
+//   -----------------------------------------------------------------------------
+//   H.D. Tran   02-28-00  DCS_974 - Adding key 12016 for new extension solidfill.
+//   F.Curnow    09-07-00  DR6237  - Remove key 12016 Solidfill (per J.Wakefield)
+//   F.Curnow    08-31-01          - Add precip plots for model BUFR data (per JW)
+//   F.Curnow    02-22-02  FSL     - Chg Synoptic map to 1019; add notif delay field
+//   F.Curnow    03-12-02          - Chg GOES BUFR datakeys (per J.Wakefield)
+//   F.Curnow    06-10-02  TDL     - Fix +/- lightning problem
+//   F.Curnow    07-24-02  FSL     - Add POES (per V.Shea)
+//   F.Curnow    09-03-02  FSL     - Add profiler LDBT2
+//   F.Curnow    09-23-02  FSL     - Changes to labels 
+//   F.Curnow    10-18-02  FSL     - Add AK profilers
+//   F.Curnow    10-23-02  OST     - Add sat new imager (per B.Gockel)
+//   F.Curnow    12-11-02  FSL     - Add HD winds
+//   F.Curnow    12-16-02  FSL     - Add new 400mb plot; changed keys/param following
+//   F.Curnow    01-07-03  FSL     - Replace and add to HD winds
+//   F.Curnow    01-30-03  FSL     - Add text-based lightning data for Alaska
+//   F.Curnow    07-02-03  FSL     - Add Eta/AVN sounding ceiling/vis plot
+//   F.Curnow    08-12-03  FSL     - Add Scatterometer Winds
+//   F.Curnow    08-14-03  FSL     - Add non-NPN profilers
+//   F.Curnow    08-29-03  FSL     - Edit CAP entries
+//   F.Curnow    10-01-03  FSL     - Add 10m to Scatterometer Winds labels
+//   F.Curnow    10-17-03  FSL     - Add to 10630 entry "| 300"
+//   F.Curnow    11-24-03  FSL     - Replace 10650-10697 entries
+//   F.Curnow    06-14-04  OST     - Add "coastal" marine zones; add keys for Offshore and High Seas
+//   F.Curnow    06-14-04  FSL     - Add IR 3.9u Winds Plot
+//   F.Curnow    08-27-04  FSL     - Replace IR 3.9u Winds entries 10700-10704 with new 10700
+//   F.Curnow    01-27-05  OST     - Add MAROB entries
+//   F.Curnow    05-02-05  OST     - Add SSM/I Winds
+//   F.Curnow    05-18-05  OST     - Chg Eta to NAM sounding; AVN to GFS
+//   F.Curnow    05-24-05  OST     - Replace SSM/I single depictable with multi-load
+//   F.Curnow    07-25-05  OST     - Chg SSM/I winds keys and descriptions
+//   F.Curnow    02-17-06  GSD4    - Add 12019 range rings
+//   F.Curnow    05-11-06  Q.Lin   - Add Rivers (1056-1059)
+//   F.Curnow    05-25-06  Q.Ni    - Add GFS and NAM Soundings
+//   F.Curnow    07-06-06  OST     - Chg line 392 (key 10638) (K) to (C)
+//   F.Curnow    01-23-07  GSD4    - Change entry 1072 Range Rings
+//   F.Curnow    04-03-07  GSD4    - Change 1072 entry "5" to "0", etc.
+//   F.Curnow    04-23-07  GSD4    - Add 1133 WarnGen Basins, 12035-12039 EAVs
+//   F.Curnow    05-15-07  GSD4    - Add Local Data QC & LDAD QC Plots; Radar Popup SkewT
+//   F.Curnow    07-26-07  Rayth   - Add graphical aviation products
+//   F.Curnow    10-05-07  Rayth   - Del 6009-6012 LLWS and STGSFCWND AIRMETS
+//   F.Curnow    11-06-07  Rayth   - Changes to Aviation User Interface
+//   F.Curnow    11-14-07  GSD4    - Chg 6015 MNT OBS AIRMET to Mtn Obscn AIRMET,
+//                                   Del 6006,6008,6014,6016
+//   F.Curnow    11-15-07  Rayth   - Add 1030-1036, chg 10630, add 10701-10708 Scat Winds
+//   F.Curnow    12-05-07  Rayth   - Add SIGWX
+//   F.Curnow    01-08-08  Rayth   - Chg 1030-1037 (Aviation)
+//   F.Curnow    01-10-08  Rayth   - Del 65000-65300; Chg 10011-11101 (Aviation)
+//   F.Curnow    01-14-08  GSD4    - Chg "notFreq" value for METAR keys 120 and 230;
+//                                   updated header comments and field descriptions
+//   F.Curnow    03-10-08  GSD4    - chg "notFreq" to "notInfo"; add 112006;
+//                                   del "include natMosaicDepictInfo.txt"
+//   F.Curnow    05-22-08  Rayth   - Add 10640-10647 Satellite Winds Plot;
+//                                   Add 10820-10850 IR,WV,Vis Winds Plot;
+//                                   Add 10801-10809 Satellite Winds Plot
+//   F.Curnow    06-17-08  Rayth   - Add "GOES" to keys 10640-10647,10651-10658,10661-10668,
+//                                   10671-10678,10681-10686,10691-10700
+//   F.Curnow    06-17-08  Rayth   - Add "MTSAT" to keys 10821-10829, 10831-10839, 10841-10809
+//   F.Curnow    12-03-08  Rayth   - Clarify layer boundaries for GOES and MTSAT winds 
+//   F.Curnow    02-15-13  Rayth   - Add 8-hour CCFP product for AWC
+// -------------------------------------------------------------------------------
+//
+// This file, depictInfo.manual, contains information about depict keys which
+// are maintained manually. The file depictInfo.txt, which is what is read in by
+// fxa and IGC_Process at start-up time, brings this file in by way of an
+// in-line include mechanism.  depictInfo.txt also brings in radar keys, grid
+// keys, and text keys by the same mechanism.
+//
+// Each line in the file contains the information for one depict key.
+// This documentation describes how to interpret both manually generated and
+// automatically generated gridded data keys. The information for each key
+// consists of at least 12 entries delimited by vertical bars.
+//
+// Here is a model of the information for a single key:
+//
+// key|type|dataKeys|depictor|maps|isGraphic|longName|shortName|depth|isMap|isPlanView|colorInfo|extraInfo|notInfo
+//
+// Here is a description of each entry:
+//
+// key - The key number, which is an unsigned four byte integer. See table which
+//       follows that talks about reserved ranges for certain types of keys.
+// type - The depictable type...one of the values in the enumeration
+//        DEPICT_TYPE in DM_depictableInfo.  Gridded time section entries have
+//        an additional comma-delimited item here which is a flag to the IGC to
+//        go into single frame mode.
+// dataKeys - List of data keys for this depictable, separated by commas.
+// depictor - One of the files that ends in .sup or .thermo from geoData.
+//            This describes the projection and area on which the depictable is
+//            based. If empty, just uses default for the scale. This is what
+//            controls implicit clear for `vertical scale' products.
+// maps - List of depictable keys to use as map backgrounds.  A map background
+//        key of zero means to use the defaults for the scale.
+// isGraphic - A 0 means an image depictable, a 1 means a graphic depictable,
+//             and a 2 means an image depictable that is really a multi-colored
+//             graphic.
+// longName - The long form of the description of the depictable. This name is
+//            used to label displayed products.
+// shortName - The short form of the description of the depictable. If blank
+//             becomes the long form. This name is used in the history list.
+// depth - The depth of the depictable. Currently, always use 8 for an image
+//         and 1 for a graphic.
+// isMap - A 1 means a map background depictable, a 0 means a data display
+//         depictable.
+// isPlanView - A 1 means a plan view depictable, a 0 means a non plan view
+//              depictable. Used by the IGC to determine how to build the zoom
+//              menu.
+// colorInfo  - If this depictable is an image, then this is a color table key.
+//              It is an index into the netCDF file colorMaps.nc, which contains
+//              color tables.  The file colorMaps.mark is a commented version of
+//              an ncdump of colorMaps.nc, and can be used to tell which index
+//              goes with each color table. See file gridDataKeys.txt for the
+//              descriptions. It is possible to add an optional default image
+//              brightness parameter, in percent, delimited by a comma. Default
+//              is 50 for gridded images, 80 for others.
+//              If this depictable is a graphic, then this is a text string
+//              representing the color that the IGC will use to display the
+//              graphics and legend.  The string should contain one of the color
+//              names in /usr/X11/lib/rgb.txt or it can contain the actual red,
+//              green, blue values in the following format: #RRGGBB, where R, G,
+//              and B are hex digits - either upper or lower case.
+// extraInfo  - An optional field, a series of comma-delimited text strings.  It
+//              is up to the depictable to interpret this information.
+// notInfo - Another optional field containing up to 3 comma-delimited
+//           subfields. The first is how long (in seconds) that the
+//           notificationServer should wait between receiving a data
+//           notification for this depictable and delivering this notification
+//           to all interested client processes of this depictable. If this
+//           value is omitted, a reasonable default will be used depending on
+//           the depictable. Currently, all radar products have a default of 0,
+//           grids 120, and all other products have a default of 10 seconds. The
+//           second item is an alternate depict key on which to register for
+//           notifications. The third item is a file on which to listen for FAC
+//           activity to drive notifications.
+//
+// The following is list of general depictable types, the range of keys they
+// typically use, and whether this is by convention or is enforced in the
+// software.
+//
+// satellite             101-135,800-999                         convention
+// Nowrad                200                                     convention
+// Map backgrounds       1000-1999                               convention
+// Topo images           1400-1459                               enforced
+// Raob plots            2000-2999                               convention
+// Profiler plots        3000-3999                               convention
+// Upper air plots       4000-4999                               convention
+// Redbook               5000-5999                               convention
+// Text Based            6000-6999                               convention
+// lightning             8000-8999                               convention
+// Skewt's               9000-9999                               convention
+// Profiler Time Hgts    11000-11999                             convention
+// Extensions            12000-12999                             convention
+// Product maker         15000-15999                             enforced
+// Radar mosaics         22000-22200                             convention
+// Grib Images           25000-25999                             convention
+// Volume Br Diff        80000-89999                             enforced
+// Four panel sat        400100-400200                           convention
+// Radar                 0x40000000-0x7FFFFFFF                   enforced
+// Grids                 0x80000000-0xFFFFFFFF                   enforced
+//
+//
+  27961 |72 |61,27961  | |0|1 |Spotters Readout             |Spotters Readout     |1 |0 |1 |  |
+  27962 |72 |62,27962  | |0|1 |Decoded Local Storm Reports  |LSR Plot     |1 |0 |1 |  |
+  1   |5 |      | |      |1 |RESERVED, DO NOT USE! |RESERVED       |1 |1 |1 |
+  120 |72 |82,27001,1003  | |0,1003|1 |METAR                   |METAR Plot       |1 |0 |1 |  | |120
+  230 |72 |82,27002,1003  | |0,1003|1 |15 min METAR            |15 min METAR Plot|1 |0 |1 |  | |60
+  220 |72 |82,27004,1003  | |0,1003|1 |Ceiling (agl) and Visibility  |C/V Plot         |1 |0 |1 | | |900
+  27006 |72 |82,27006,1003  | |0,1003|1 |Ceiling (msl) and Visibility  |C/V Plot         |1 |0 |1 | | |900
+  221 |72 |82,27003,1003  | |0,1003|1 |METAR 24H Change  |METAR 24H Chg         |1 |0 |1 |  | |900
+  223 |72 |82,27005,1003  | |0,1003|1 |WindChill/HeatIndex plot |WindChill/HeatIndex  |1 |0 |1 | | |900
+  231 |72 |82,27011,1003  | |0     |1 |METAR 1Hr Precip  |METAR 1Hr Pcp         |1 |0 |1 | |  |900
+  233 |72 |82,27013,1003  | |0     |1 |METAR 3Hr Precip  |METAR 3Hr Pcp         |1 |0 |1 | |  |1200
+  236 |72 |82,27016,1003  | |0     |1 |METAR 6Hr Precip  |METAR 6Hr Pcp         |1 |0 |1 | |  |1500
+  234 |72 |82,27024,1003  | |0     |1 |METAR 24Hr Precip |METAR 24Hr Pcp        |1 |0 |1 | |  |1800
+27051 |72 |73,27051,1019  | |0,1019|1 |Synoptic Data Plot|Synoptic Plot       |1 |0 |1 |  | |1800
+27052 |72 |73,27052,1019  | |0     |1 |Synoptic 6hr Precip Plot|Syn 6hr Prec Plot       |1 |0 |1 |  | |1800
+27053 |72 |73,27053,1019  | |0     |1 |Synoptic 24hr Precip Plot|Syn 24hr Prec Plot       |1 |0 |1 |  | |1800
+27054 |72 |73,27054,1019  | |0     |1 |Synoptic Snow Cover Plot|Synoptic Snow Plot       |1 |0 |1 |  | |1800
+//222 |72 |84,27601,1086  | |0,1086|1 |Maritime Plot   |Maritime Plot       |1 |0 |1 | | |1200
+//224 |72 |84,27601,1086  | |0,1086|1 |Maritime Plot   |Maritime Plot       |1 |0 |1 | | |1200
+  222 |72 |84,27602,1086  | |0,1086|1 |Fixed Buoys          |Fixed Buoy Plot               |1 |0 |1 | | |1200
+  224 |72 |84,27603       | |0     |1 |Moving Buoys/Ships   |Moving Buoys/Ships Plot       |1 |0 |1 | | |1200
+27604 |72 |84,27604,1086  | |0,1086|1 |Fixed Buoys Sea State|Fixed Sea State               |1 |0 |1 | | |1200
+27605 |72 |84,27605       | |0     |1 |Moving Buoys/Ships Sea State  |Moving Sea State       |1 |0 |1 | | |1200
+27606 |72 |84,27606       | |0     |1 |Maritime Clouds and Visibility  |Maritime CV plot       |1 |0 |1 | | |1200
+27607 |72 |84,27607       | |0     |1 |MAROB Station Plot   |MAROB Station Plot       |1 |0 |1 | | |1200
+27608 |72 |84,27608       | |0     |1 |MAROB Sea State  |MAROB Sea State       |1 |0 |1 | | |1200
+27609 |72 |84,27609       | |0     |1 |MAROB Clouds and Visibility  |MAROB CV plot       |1 |0 |1 | | |1200
+  138 |0 |             | |      |  |15 min Local Data QC Plot | | | | | |
+  147 |72|91,27301,1011| |0,1011|1 |15 min LDAD QC Plot--All Stns |Local Data QC Plot       |1 |0 |1 |  | | 300
+  148 |72|91,27302,1011| |0,1011|1 |15 min LDAD QC Plot--Suspects |Local Data QC Plot       |1 |0 |1 |  | | 300
+  139 |72|87,27201,1011| |0,1011|1 |15 min Local Data Plot      |15 min Local Data Plot       |1 |0 |1 |  |  | 300
+  140 |72|87,27204,1011| |0,1011|1 |5 min Local Data Plot   |5 min Local Data Plot|1 |0 |1 |  |  | 300
+  141 |72|87,27205,1011| |0,1011|1 |1 min Local Data Plot   |1 min Local Data Plot|1 |0 |1 |  |  | 30
+  237 |0 |             | |      |  |30 min Local Data QC Plot | | | | | |
+  238 |72|87,27202,1011| |0,1011|1 |30 min Local Data Plot  |30 min Local Data Plot|1 |0 |1 |  |  | 600
+  240 |72|91,27303,1011| |0,1011|1 |30 min LDAD QC Plot--All Stns |Local Data QC Plot       |1 |0 |1 |  | | 600
+  241 |72|91,27304,1011| |0,1011|1 |30 min LDAD QC Plot--Suspects |Local Data QC Plot       |1 |0 |1 |  | | 600
+  239 |72|87,27203,1011| |0,1011|1 |Local WindChill/HeatIdx Plot |Local WindChill/HeatIdx Plot  |1 |0 |1 |  |  | 600
+  251 |72|89,27215,1010| |0|1 |Local Data Precip        |Local Prcp            |1 |0 |1 |  |   |300
+  252 |72|89,27230,1010| |0|1 |Local Data 30 min Precip |Local 30m Prcp        |1 |0 |1 |  |   |600
+  253 |72|89,27211,1010| |0|1 |Local Data 1 hour Precip |Local 1h Prcp         |1 |0 |1 |  |   |900
+  254 |72|89,27213,1010| |0|1 |Local Data 3 hour Precip |Local 3h Prcp         |1 |0 |1 |  |   |1200
+  255 |72|89,27210,1010| |0|1 |Local Data 5 min Precip  |Local 5m Prcp         |1 |0 |1 |  |   |300
+27999 |72 |82,27001,1003,84,27602,1086,87,27202,1011 | |0|1 |METAR/Maritime/LDAD  |M/M/L Plot  |1 |0 |1 |  |removeType,2 |900
+  200 |2 |200 | |0     |0 |Nowrad Radar (dBZ)      |US Nowrad           |8 |0 |1 |20
+22222 |2 |    | |0     |1 |Radar Popup SkewT       |Radar Popup SkewT   |1 |0 |1 |
+ 1000 |5 |    | |      |1 |Distance Scale          |Dist Scale       |1 |1 |1 |
+ 1001 |5 |1101,1102| | |1 |State/County Boundaries |States/Counties     |1 |1 |1 |
+ 1002 |5 |1002| |      |1 |County Boundaries       |Counties         |1 |1 |1 |
+ 1003 |5 |1003| |      |1 |METAR Station Locations |METAR Stations   |1 |1 |1 |
+ 1004 |5 |1004,1015| | |1 |Forecast Zones          |Zones            |1 |1 |1 |
+ 1005 |5 |1005,1305| |      |1 |Lat/Lon 10 over Ocean   |Lat/Lon Ocean    |1 |1 |1 |
+ 1006 |5 |1006| |      |1 |ARTCC hi-level sectors  |ARTCC            |1 |1 |1 |
+ 1007 |5 |1007| |      |1 |Null Map                |Null             |1 |1 |1 |
+ 1008 |5 |1008| |      |1 |Model Sounding Locations |Model Sndg Locs  |1 |1 |1 |
+ 1009 |5 |1009| |      |1 |GOES Sounding Locations  |GOES Sndg Locs   |1 |1 |1 |
+ 1010 |5 |1010| |      |1 |LDAD PrecipStation Locs |Ldad Prcp Stns   |1 |1 |1 |
+ 1011 |5 |1011| |      |1 |LDAD Station Locs       |LDAD Stns        |1 |1 |1 |
+ 1012 |5 |1012| |      |1 |Profiler Station Locs   |Profiler Stns    |1 |1 |1 |
+ 1013 |5 |1013| |      |1 |RAOB Station Locs       |RAOB Stations    |1 |1 |1 |
+ 1014 |5 |1014| |      |1 |Profiler Persp Bkgd     |Profiler Persp   |1 |1 |1 |
+ 1016 |5 |1016| |      |1 |Cities                  |Cities           |1 |1 |1 |
+ 1017 |5 |1017| |      |1 |County Names            |County Names        |1 |1 |1 |
+ 1019 |5 |1019| |      |1 |Synoptic Station Locations |Synoptic Stations   |1 |1 |1 |
+ 1020 |5 |1020| |      |1 |ACARS Airport Locations |ACARS Airports   |1 |1 |1 |
+ 1021 |5 |1021| |      |1 |POES Sounding Locations |POES Sndg Locs   |1 |1 |1 |
+ 1022 |5 |1022| |      |1 |GFS Model Sounding Locations |GFS Model Sndg Locs  |1 |1 |1 |
+ 1030 |5 |1030| |      |1 |Airport Locations       |Airports         |1 |1 |1 |
+ 1031 |5 |1031| |      |1 |ARTCC hi-level sectors  |ARTCC            |1 |1 |1 |
+ 1032 |5 |1032| |      |1 |Fixes/Intersections     |Fixes/Intersections |1 |1 |1 |
+ 1033 |5 |1033| |      |1 |High Altitude Routes    |High Altitude Routes|1 |1 |1 |
+ 1034 |5 |1034| |      |1 |Low Altitude Routes     |Low Altitude Routes |1 |1 |1 |
+ 1035 |5 |1035| |      |1 |Special Use Airways     |Special Use Airways |1 |1 |1 |
+ 1036 |5 |1036| |      |1 |Volcano Locations       |Volcanoes        |1 |1 |1 |
+ 1037 |5 |1037| |      |1 |VOR Locations           |VORs             |1 |1 |1 |
+ 1040 |5 |1040,1045| | |1 |Roads                   |Roads               |1 |1 |1 |
+ 1041 |5 |1041,1046| | |1 |Highways                |Highways            |1 |1 |1 |
+ 1042 |5 |1042|      | |1 |Interstate Highways     |Interstate Highways |1 |1 |1 |
+ 1050 |5 |1050,1055| | |1 |Major Rivers            |Major Rivers        |1 |1 |1 |
+ 1051 |5 |1051| |      |1 |Rivers                  |Rivers              |1 |1 |1 |
+ 1052 |5 |1052| |      |1 |River Drainage Basins   |Drainage Basins     |1 |1 |1 |
+ 1053 |5 |1053| |      |1 |Drainage Basin Names    |Drainage Basin Names|1 |1 |1 |
+ 1056 |5 |1056| |      |1 |Fine-scale Rivers       |Fine-scale Rivers   |1 |1 |1 |
+ 1057 |5 |1057| |      |1 |Coarse-scale Rivers     |Coarse-scale Rivers |1 |1 |1 |
+ 1058 |5 |1058| |      |1 |River Forecast Group Boundaries|River Forecast Group Boundaries|1 |1 |1 |
+ 1059 |5 |1059| |      |1 |River Flow Directions   |River Flow Directions|1 |1 |1 |
+ 1061 |5 |1061,1063| | |1 |Fire Wx Zones           |Fire Wx Zones       |1 |1 |1 |
+ 1062 |5 |1062     | | |1 |Fire Wx Stations        |Fire Wx Stations    |1 |1 |1 |
+ 1065 |5 |1065,1066| | |1 |TWEB Routes             |TWEB Routes         |1 |1 |1 |
+ 1068 |49|    | |      |1 |Range Rings             |Range Rings         |1 |1 |1 | |0
+ 1069 |49|    | |      |1 |Range Rings             |Range Rings         |1 |1 |1 | |1
+ 1070 |49|    | |      |1 |Range Rings             |Range Rings         |1 |1 |1 | |2
+ 1071 |49|    | |      |1 |Range Rings             |Range Rings         |1 |1 |1 | |3
+ 1072 |0 |    | |      |1 |Range Rings             |Range Rings         |1 |1 |1 |
+ 1080 |5 |1080| |      |1 |VWP Persp Bkgd          |VWP Persp           |1 |1 |1 |
+ 1082 |5 |1082| |      |1 |WSR-88D Station Locs    |88D Stns         |1 |1 |1 |
+ 1083 |5 |1083| |      |1 |County Boundaries       |Reg Counties     |1 |1 |1 |
+ 1084 |5 |1084,1018| | |1 |County Warning Areas    |CWAs             |1 |1 |1 |
+ 1085 |5 |1085| |      |1 |Warning Locations       |Wrng Locs        |1 |1 |1 |
+ 1086 |5 |1086| |      |1 |Fixed Buoy Locations    |Fixed Buoys      |1 |1 |1 |
+ 1087 |5 |1087| |      |1 |RFC boundaries          |RFC boundaries   |1 |1 |1 |
+ 1088 |5 |1088| |      |1 |Lakes                   |Lakes            |1 |1 |1 |
+ 1098 |5 |1098| |      |1 |Test Bcx                |Test             |1 |1 |1 |
+ 1099 |5 |1099| |      |1 |Test Map                |Test             |1 |1 |1 |
+ 1101 |5 |1001| |      |1 |State Boundaries        |States           |1 |1 |1 |
+ 1103 |5 |1101,1103| | |1 |State/County Boundaries |Reg States/Counties |1 |1 |1 |
+ 1110 |5 |1110,1111| | |1 |Coastal Marine Forecast Zones   |Coastal Zones        |1 |1 |1 |
+ 1113 |5 |1113| |      |1 |Marine Locations        |Marine Sites        |1 |1 |1 |
+ 1120 |5 |1120,1121| | |1 |Offshore Marine Forecast Zones    |Offshore Zones     |1 |1 |1 |
+ 1130 |5 |1130,1131| | |1 |High Seas Marine Forecast Zones   |High Seas Zones    |1 |1 |1 | 
+ 1133 |5 |1133     | | |1 |WarnGen Basin Boundaries          |WarnGen basins     |1 |1 |1 |
+ 1201 |5 |1201| |      |1 |Boroughs                |Boroughs            |1 |1 |1 |
+ 1202 |5 |1202| |      |1 |European boundaries     |Europe              |1 |1 |1 |
+ 1252 |5 |1252| |      |1 |River Drainage Basins   |Drainage Basins     |1 |1 |1 |
+ 1256 |5 |1256| |      |1 |coop precip sites       |coop precip sites   |1 |1 |1 |
+ 1280 |5 |1280| |         |1 |Spotters                 |Spotters              |1 |1 |1 |
+ 1300 |5 |1300| |         |1 |Time Zones               |Time Zones          |1 |1 |1 |
+ 1301 |5 |1301| |         |1 |Interstates              |Interstates           |1 |1 |1 |
+ 1302 |5 |1302| |         |1 |Shp File 88Ds            |Shp File 88Ds         |1 |1 |1 |
+ 1311 |5 |1311| |         |1 |User Shape File Map 1    |Shp File 1            |1 |1 |1 |
+ 1312 |5 |1312| |         |1 |User Shape File Map 2    |Shp File 2            |1 |1 |1 |
+ 1313 |5 |1313| |         |1 |User Shape File Map 3    |Shp File 3            |1 |1 |1 |
+ 1314 |5 |1314| |         |1 |User Shape File Map 4    |Shp File 4            |1 |1 |1 |
+ 1315 |5 |1315| |         |1 |User Shape File Map 5    |Shp File 5            |1 |1 |1 |
+ 1439 |2 |1439| |0        |0 |Test Static Image           | Static Image    |8 |0 |1 |11,100
+ 1480 |2 |1480| |0        |0 |Warning Cities     |Warning Cities Image   |8 |0 |1 |29,100
+ 1481 |2 |1481| |0        |0 |Counties           |Counties Image   |8 |0 |1 |29,100
+ 1482 |2 |1482| |0        |0 |Zones              |Zones Image   |8 |0 |1 |29,100
+ 1483 |2 |1483| |0        |0 |CWAs               |CWAs Image   |8 |0 |1 |29,100
+ 1487 |2 |1487| |0        |0 |Marine Zones       |Marine Zones |8 |0 |1 |29,100
+// 1485 |2 |1485| |0        |0 |Counties E/W       |Counties Image E/W  |8 |0 |1 |29,100
+// 1486 |2 |1486| |0        |0 |Counties N/S       |Counties Image N/S  |8 |0 |1 |29,100
+ 1775 |37| | | |1 |Variable vs Height background |VrtGph bkgd       |1 |1 |0 |
+ 1776 |22| | | |1 |Cross section background|Xsect bkgd       |1 |1 |0 |
+ 1777 |22|1| | |1 |Cross section background|Xsect bkgd       |1 |1 |0 |
+ 1778 |37| | | |1 |Time section background |Tsect bkgd       |1 |1 |0 |
+ 1779 |61| | | |1 |Time series background  |Tser bkgd        |1 |1 |0 |
+ 2925 |72 |9000,27501,1013  | |0,1013|1 |raob 925                |raob Plot       |1 |0 |1 |  |levelMB,925
+ 2850 |72 |9000,27501,1013  | |0,1013|1 |raob 850                |raob Plot       |1 |0 |1 |  |levelMB,850
+ 2700 |72 |9000,27501,1013  | |0,1013|1 |raob 700                |raob Plot       |1 |0 |1 |  |levelMB,700
+ 2500 |72 |9000,27502,1013  | |0,1013|1 |raob 500                |raob Plot       |1 |0 |1 |  |levelMB,500
+ 2400 |72 |9000,27502,1013  | |0,1013|1 |raob 400                |raob Plot       |1 |0 |1 |  |levelMB,400
+ 2300 |72 |9000,27502,1013  | |0,1013|1 |raob 300                |raob Plot       |1 |0 |1 |  |levelMB,300
+ 2250 |72 |9000,27502,1013  | |0,1013|1 |raob 250                |raob Plot       |1 |0 |1 |  |levelMB,250
+ 2200 |72 |9000,27502,1013  | |0,1013|1 |raob 200                |raob Plot       |1 |0 |1 |  |levelMB,200
+ 2150 |72 |9000,27502,1013  | |0,1013|1 |raob 150                |raob Plot       |1 |0 |1 |  |levelMB,150
+  3000 |72 |11001,27101,1012  | |0,1012|1 |Sfc Profiler           |Sfc Prof Plot       |1 |0 |1 |  |
+  3001 |72 |11001,27103,1012  | |0,1012|1 |500m AGL Profiler      |Gate1 Prof Plot       |1 |0 |1 |  |levelIdx,0
+  3002 |72 |11001,27103,1012  | |0,1012|1 |750m AGL Profiler      |Gate2 Prof Plot       |1 |0 |1 |  |levelIdx,1
+  3003 |72 |11001,27103,1012  | |0,1012|1 |1000m AGL Profiler     |Gate3 Prof Plot       |1 |0 |1 |  |levelIdx,2
+  3004 |72 |11001,27103,1012  | |0,1012|1 |1250m AGL Profiler     |Gate4 Prof Plot       |1 |0 |1 |  |levelIdx,3
+  3005 |72 |11001,27103,1012  | |0,1012|1 |1500m AGL Profiler     |Gate5 Prof Plot       |1 |0 |1 |  |levelIdx,4
+  3925 |72 |11001,27104,1012  | |0,1012|1 |925mb Profiler         |925mb Prof Plot       |1 |0 |1 |  |levelMB,925
+  3850 |72 |11001,27104,1012  | |0,1012|1 |850mb Profiler         |850mb Prof Plot       |1 |0 |1 |  |levelMB,850
+  3700 |72 |11001,27104,1012  | |0,1012|1 |700mb Profiler         |700mb Prof Plot       |1 |0 |1 |  |levelMB,700
+  3500 |72 |11001,27104,1012  | |0,1012|1 |500mb Profiler         |500mb Prof Plot       |1 |0 |1 |  |levelMB,500
+  3400 |72 |11001,27104,1012  | |0,1012|1 |400mb Profiler         |400mb Prof Plot       |1 |0 |1 |  |levelMB,400
+  3300 |72 |11001,27104,1012  | |0,1012|1 |300mb Profiler         |300mb Prof Plot       |1 |0 |1 |  |levelMB,300
+  3250 |72 |11001,27104,1012  | |0,1012|1 |250mb Profiler         |250mb Prof Plot       |1 |0 |1 |  |levelMB,250
+  3200 |72 |11001,27104,1012  | |0,1012|1 |200mb Profiler         |200mb Prof Plot       |1 |0 |1 |  |levelMB,200
+  3150 |72 |11001,27104,1012  | |0,1012|1 |150mb Profiler         |150mb Prof Plot       |1 |0 |1 |  |levelMB,150
+  3998 |72 |11001,27109,1012  |perspective |0,1014|2 |Profiler Perspective  |Prof Persp  |8 |0 |1 |18,100
+ 27113 |72 |75,27113,1082  | |0,1082|1 |100m AGL VWP   |100m VWP Plot        |1 |0 |1 |  |levelAGL,100
+ 27123 |72 |75,27113,1082  | |0,1082|1 |250m AGL VWP   |250m VWP Plot        |1 |0 |1 |  |levelAGL,250
+ 27133 |72 |75,27113,1082  | |0,1082|1 |500m AGL VWP   |500m VWP Plot        |1 |0 |1 |  |levelAGL,500
+ 27136 |72 |75,27113,1082  | |0,1082|1 |750m AGL VWP   |750m VWP Plot        |1 |0 |1 |  |levelAGL,750
+ 27143 |72 |75,27113,1082  | |0,1082|1 |1000m AGL VWP  |1km VWP Plot         |1 |0 |1 |  |levelAGL,1000
+ 27146 |72 |75,27113,1082  | |0,1082|1 |1250m AGL VWP  |1250m VWP Plot        |1 |0 |1 |  |levelAGL,1250
+ 27156 |72 |75,27113,1082  | |0,1082|1 |1500m AGL VWP  |1500m VWP Plot        |1 |0 |1 |  |levelAGL,1500
+ 27153 |72 |75,27113,1082  | |0,1082|1 |2km AGL VWP    |2km VWP Plot         |1 |0 |1 |  |levelAGL,2000
+ 27163 |72 |75,27113,1082  | |0,1082|1 |3km AGL VWP    |3km VWP Plot         |1 |0 |1 |  |levelAGL,3000
+ 27173 |72 |75,27113,1082  | |0,1082|1 |4km AGL VWP    |4km VWP Plot         |1 |0 |1 |  |levelAGL,4000
+ 27183 |72 |75,27113,1082  | |0,1082|1 |5km AGL VWP    |5km VWP Plot         |1 |0 |1 |  |levelAGL,5000
+ 27115 |72 |75,27113,1082  | |0,1082|1 |6km AGL VWP    |6km VWP Plot         |1 |0 |1 |  |levelAGL,5000
+ 27125 |72 |75,27113,1082  | |0,1082|1 |7km AGL VWP    |7km VWP Plot         |1 |0 |1 |  |levelAGL,7000
+ 27135 |72 |75,27113,1082  | |0,1082|1 |8km AGL VWP    |8km VWP Plot         |1 |0 |1 |  |levelAGL,8000
+ 27145 |72 |75,27113,1082  | |0,1082|1 |9km AGL VWP    |9km VWP Plot         |1 |0 |1 |  |levelAGL,9000
+ 27155 |72 |75,27113,1082  | |0,1082|1 |10km AGL VWP   |10km VWP Plot        |1 |0 |1 |  |levelAGL,10000
+ 27165 |72 |75,27113,1082  | |0,1082|1 |11km AGL VWP   |11km VWP Plot        |1 |0 |1 |  |levelAGL,11000
+ 27175 |72 |75,27113,1082  | |0,1082|1 |12km AGL VWP   |12km VWP Plot        |1 |0 |1 |  |levelAGL,12000
+ 27185 |72 |75,27113,1082  | |0,1082|1 |13km AGL VWP   |13km VWP Plot        |1 |0 |1 |  |levelAGL,13000
+ 27116 |72 |75,27113,1082  | |0,1082|1 |14km AGL VWP   |14km VWP Plot        |1 |0 |1 |  |levelAGL,14000
+ 27126 |72 |75,27113,1082  | |0,1082|1 |15km AGL VWP   |15km VWP Plot        |1 |0 |1 |  |levelAGL,15000
+ 27114 |72 |75,27114,1082  | |0,1082|1 |925mb VWP      |925 VWP Plot         |1 |0 |1 |  |levelMB,925
+ 27124 |72 |75,27114,1082  | |0,1082|1 |850mb VWP      |850 VWP Plot         |1 |0 |1 |  |levelMB,850
+ 27134 |72 |75,27114,1082  | |0,1082|1 |700mb VWP      |700 VWP Plot         |1 |0 |1 |  |levelMB,700
+ 27144 |72 |75,27114,1082  | |0,1082|1 |500mb VWP      |500 VWP Plot         |1 |0 |1 |  |levelMB,500
+ 27154 |72 |75,27114,1082  | |0,1082|1 |400mb VWP      |400 VWP Plot         |1 |0 |1 |  |levelMB,400
+ 27164 |72 |75,27114,1082  | |0,1082|1 |300mb VWP      |300 VWP Plot         |1 |0 |1 |  |levelMB,300
+ 27174 |72 |75,27114,1082  | |0,1082|1 |250mb VWP      |250 VWP Plot         |1 |0 |1 |  |levelMB,250
+ 27184 |72 |75,27114,1082  | |0,1082|1 |200mb VWP      |200 VWP Plot         |1 |0 |1 |  |levelMB,200
+ 27198 |72 |75,27198,1082  |perspective |0,1080|2 |VWP Perspective |VWP Persp |8 |0 |1 |18,100
+ 4200 |18|5148| |0,1013 |1 |200mb UA plot       |200mb UA Plot       |1 |0 |1 |
+ 4250 |18|5149| |0,1013 |1 |250mb UA plot       |250mb UA Plot       |1 |0 |1 |
+ 4300 |18|5150| |0,1013 |1 |300mb UA plot       |300mb UA Plot       |1 |0 |1 |
+ 4500 |18|5151| |0,1013 |1 |500mb UA plot       |500mb UA Plot       |1 |0 |1 |
+ 4700 |18|5152| |0,1013 |1 |700mb UA plot       |700mb UA Plot       |1 |0 |1 |
+ 4850 |18|5153| |0,1013 |1 |850mb UA plot       |850mb UA Plot       |1 |0 |1 |
+ 6000 |95|6000 | |0 |1 | Convective SIGMET               | Convective SIGMET                 |1 |0 |1 | |CONVECTIVE
+ 6001 |95|6001 | |0 |1 | Volcanic Ash SIGMET             | Volcanic Ash SIGMET               |1 |0 |1 | |SIGMET
+ 6002 |95|6002 | |0 |1 | Tropical Cyclone SIGMET         | Tropical Cyclone SIGMET           |1 |0 |1 | |SIGMET
+ 6003 |95|6003 | |0 |1 | Icing SIGMET                    | Icing SIGMET                      |1 |0 |1 |#FFFFFF |SIGMET
+ 6004 |95|6004 | |0 |1 | Turbulence SIGMET               | Turbulence SIGMET                 |1 |0 |1 |#FF3333 |SIGMET
+ 6005 |95|6005 | |0 |1 | Icing AIRMET                    | Icing AIRMET                      |1 |0 |1 |#0033FF |AIRMETICING
+ 6007 |95|6006 | |0 |1 | Turbulence AIRMET               | Turbulence AIRMET                 |1 |0 |1 |#33CC00 |AIRMETTURBULENCE
+ 6013 |95|6007 | |0 |1 | IFR AIRMET                      | IFR AIRMET                        |1 |0 |1 |#66FFFF |AIRMETIFR
+ 6015 |95|6007 | |0 |1 | Mtn Obscn AIRMET                | Mtn Obscn AIRMET                  |1 |0 |1 |#FF00CC |AIRMETMNTOBS
+ 6179 |0 |6179 | | 0 |1 |C-SIGMET |C-SIGMET     |1 |0 |1 | | |
+ 6180 |79|72 | |0 |1 | C-SIGMET Nowcast                | C-SIGMET Nowcast                  |1 |0 |1 |#DC0000|
+ 6181 |80|72 | |0 |1 | C-SIGMET OUTLOOK                | C-SIGMET OUTLOOK                  |1 |0 |1 |#FF6600|
+ 6182 |81|72 | |0 |1 | C-SIGMET Text                   | C-SIGMET Text                     |1 |0 |1 |#FFFFFF|
+ 6183 |82|72 | |0 |1 | 1h C-SIGMET Fcst                | 1h C-SIGMET Fcst                  |1 |0 |1 |#FFFF66|
+   9997 |72 |9000, 27501       | |0|1 |raob Notification Stub    |  |1 |0 |1 |  |  |300
+  25699 |0  | 25699   | | 0 |1 |NCWF |NCWF     |1 |0 |1 | | |
+  10010 |77 |60 | |0|1 |NCWF One-Hour Extrapolation Polygons |NCWF Extrapolation Polygons  |1 |0 |1 |#0033FF|EXTRAPOLATION
+  10011 |77 |60 | |0|1 |NCWF Previous Performance Polygons   |NCWF Previous Performance Polygons |1 |0 |1 |#FF33CC|PERFORMANCE
+  10012 |78 |60 | |0|1 |NCWF Storm Tops and Movement |NCWF Storm Tops and Movement |1 |0 |1 |#FFFFFF |
+  10020 |0  | 10100   | | 0 |1 |High Level SIGWX             |High SIGWX  |1 |0 |1 | | |
+  10021 |83 | 10100   | | 0 |1 |High Level SIGWX Clouds      |High SIGWX Cld  |1 |0 |1 |#DC0000|cz|
+  10022 |83 | 10100   | | 0 |1 |High Level SIGWX CAT         |High SIGWX CAT  |1 |0 |1 |#F0F000|az|
+  10023 |83 | 10100   | | 0 |1 |High Level SIGWX Jet Streams |High SIGWX Jets |1 |0 |1 |#00CC00|jz|
+  10024 |83 | 10100   | | 0 |1 |High Level SIGWX Trop Heights|High SIGWX Hgts |1 |0 |1 |#FFFFFF|h|
+  10029 |83 | 10100   | | 0 |1 |High Level SIGWX             |High SIGWX |1 |0 |1 | | |
+  10030 |0  | 10101   | | 0 |1 |Medium Level SIGWX             |Med SIGWX   |1 |0 |1 | | |
+  10031 |83 | 10101   | | 0 |1 |Medium Level SIGWX Clouds      |Med SIGWX Cld  |1 |0 |1 |#DC0000|cz|
+  10032 |83 | 10101   | | 0 |1 |Medium Level SIGWX CAT         |Med SIGWX CAT  |1 |0 |1 |#F0F000|az|
+  10033 |83 | 10101   | | 0 |1 |Medium Level SIGWX Jet Streams |Med SIGWX Jets |1 |0 |1 |#00CC00|jz|
+  10034 |83 | 10101   | | 0 |1 |Medium Level SIGWX Trop Heights|Med SIGWX Hgts |1 |0 |1 |#FFFFFF|h|
+  10039 |83 | 10101   | | 0 |1 |Medium Level SIGWX             |Med SIGWX   |1 |0 |1 | | |
+  10040 |83 | 10102   | | 0 |1 |SIGWX VTS          |SIGWX VTS   |1 |0 |1 |#FF2626|vsoz|
+  10049 |83 | 10102   | | 0 |1 |SIGWX VTS          |SIGWX VTS   |1 |0 |1 | | |
+  11001 |72 |11001,27103       | |0|1 |NPN Profiler Notification Stub|  |1 |0 |1 |  |  |60
+  11101 |72 |11101,27103       | |0|1 |CAP Profiler Notification Stub|  |1 |0 |1 |  |  |60
+  10001 |72 |10001,10610       | |0|1 |Eta BUFR Notification Stub|  |1 |0 |1 |  |  |300
+  10002 |72 |10002,10609       | |0|1 |GFS BUFR Notification Stub|  |1 |0 |1 |  |  |300
+  10005 |72 |10005,10611       | |0|1 |GOES BUFR Notification Stub|  |1 |0 |1 |  |  |300
+  10006 |72 |10006,10611       | |0|1 |POES BUFR Notification Stub|  |1 |0 |1 |  |  |300
+  10601 |72 |10001,10600,1008  | |0,1008|1 |NAM Sounding Sfc Plot    |NAM Sndg Sfc Plot   |1 |0 |1 |  |  |60
+  10602 |72 |10002,10601,1022  | |0,1022|1 |GFS Sounding Sfc Plot    |GFS Sndg Sfc Plot   |1 |0 |1 |  |  |60
+  10603 |72 |10001,10605,1008  | |0,1008|1 |NAM Sounding Ceiling/Vis Plot    |NAM Sndg C/V Plot   |1 |0 |1 | |  |60
+  10604 |72 |10002,10606,1022  | |0,1022|1 |GFS Sounding Cloud Layers Plot |GFS Sndg C Plot  |1 |0 |1 | |  |60
+  10611 |72 |10001,10610,1008 | |0 |1 |NAM Sounding Availability     |NAM Sndg Avail      |1 |0 |1 |  |  |60
+  10612 |72 |10002,10609,1022 | |0 |1 |GFS Sounding Availability     |GFS Sndg Avail      |1 |0 |1 |  |  |60
+  10615 |72 |10005,10611,1009 | |0 |1 |GOES Sounding Availability    |GOES Sndg Avail     |1 |0 |1 |  |  |60
+  10616 |72 |10006,10611,1021 | |0 |1 |POES Sounding Availability    |POES Sndg Avail     |1 |0 |1 |  |  |60
+  10621 |72 |10001,10620,1008 | |0 |1 |NAM Sounding 1-Hr Precip Amt (in)|NAM Sndg Prcp Plot  |1 |0 |1 |  |  |60
+  10622 |72 |10002,10623,1022 | |0 |1 |GFS Sounding 3-Hr Precip Amt (in)|GFS Sndg Prcp Plot  |1 |0 |1 |  |  |60
+  10630 |0  |                 | |0 |1 |QuikSCAT Scatterometer Winds Bundle|Scat Winds - 10m |1 |0 |1 | | | 300
+  10701 |72 |10008,10627      | |0 |1 |QuikSCAT Scatterometer Winds 10m missing|Scat Winds - 10m|1 |0 |1 |#808080|min_spd_kts,-1.1,max_spd_kts,0 | 300
+  10702 |72 |10008,10627      | |0 |1 |QuikSCAT Scatterometer Winds 10m s < 34 kts|Scat Winds - 10m|1 |0 |1 |#00ff00|min_spd_kts,0,max_spd_kts,34 | 300
+  10703 |72 |10008,10627      | |0 |1 |QuikSCAT Scatterometer Winds 10m 34 <= s < 48|Scat Winds - 10m|1 |0 |1 |#ffff00|min_spd_kts,34,max_spd_kts,48 | 300
+  10704 |72 |10008,10627      | |0 |1 |QuikSCAT Scatterometer Winds 10m s >= 48 kts|Scat Winds - 10m|1 |0 |1 |#ff0000|min_spd_kts,48,max_spd_kts,999 | 300
+  10631 |0 |                  | |0 |1 |ASCAT Scatterometer Winds Bundle|Scat Winds - 10m |1 |0 |1 | | | 300
+  10705 |72 |10010,10628      | |0 |1 |ASCAT Scatterometer Winds 10m missing|Scat Winds - 10m|1 |0 |1 |#808080|min_spd_kts,-1.1,max_spd_kts,0 | 300
+  10706 |72 |10010,10628      | |0 |1 |ASCAT Scatterometer Winds 10m s < 34 kts|Scat Winds - 10m|1 |0 |1 |#00ff00|min_spd_kts,0,max_spd_kts,34 | 300
+  10707 |72 |10010,10628      | |0 |1 |ASCAT Scatterometer Winds 10m 34 <= s < 48|Scat Winds - 10m|1 |0 |1 |#ffff00|min_spd_kts,34,max_spd_kts,48 | 300
+  10708 |72 |10010,10628      | |0 |1 |ASCAT Scatterometer Winds 10m s >= 48 kts|Scat Winds - 10m|1 |0 |1 |#ff0000|min_spd_kts,48,max_spd_kts,999 | 300
+  62000 |96 | 62000   | | 0 |1 |2 Hour CCFP |2 Hour CCFP   |1 |0 |1 | |,,am|
+  62001 |96 | 62000   | | 0 |1 |2 Hour CCFP Solid Coverage |2 Hour CCFP Solid   |1 |0 |1 |#EE0000 |1,0,am|
+  62003 |96 | 62000   | | 0 |1 |2 Hour CCFP Medium Coverage|2 Hour CCFP Medium  |1 |0 |1 |#FF8000 |2,0,am|
+  62005 |96 | 62000   | | 0 |1 |2 Hour CCFP Sparse Coverage|2 Hour CCFP Sparse  |1 |0 |1 |#FFFF00 |3,0,am|
+  62007 |96 | 62000   | | 0 |1 |2 Hour CCFP Line           |2 Hour CCFP Line    |1 |0 |1 |#FF40FF |4  |
+  62009 |0  | 62000   | | 0 |1 |2 Hour CCFP |2 Hour CCFP     |1 |0 |1 | | |
+  62010 |96 | 62001   | | 0 |1 |4 Hour CCFP |4 Hour CCFP   |1 |0 |1 | |,,am|
+  62011 |96 | 62001   | | 0 |1 |4 Hour CCFP Solid Coverage |4 Hour CCFP Solid   |1 |0 |1 |#EE0000 |1,0,am|
+  62013 |96 | 62001   | | 0 |1 |4 Hour CCFP Medium Coverage|4 Hour CCFP Medium  |1 |0 |1 |#FF8000 |2,0,am|
+  62015 |96 | 62001   | | 0 |1 |4 Hour CCFP Sparse Coverage|4 Hour CCFP Sparse  |1 |0 |1 |#FFFF00 |3,0,am|
+  62017 |96 | 62001   | | 0 |1 |4 Hour CCFP Line           |4 Hour CCFP Line    |1 |0 |1 |#FF40FF |4  |
+  62019 |0  | 62001   | | 0 |1 |4 Hour CCFP |4 Hour CCFP     |1 |0 |1 | | |
+  62020 |96 | 62002   | | 0 |1 |6 Hour CCFP |6 Hour CCFP   |1 |0 |1 | |,,am|
+  62021 |96 | 62002   | | 0 |1 |6 Hour CCFP Solid Coverage |6 Hour CCFP High    |1 |0 |1 |#EE0000 |1,0,am|
+  62023 |96 | 62002   | | 0 |1 |6 Hour CCFP Medium Coverage|6 Hour CCFP Medium  |1 |0 |1 |#FF8000 |2,0,am|
+  62025 |96 | 62002   | | 0 |1 |6 Hour CCFP Sparse Coverage|6 Hour CCFP Sparse  |1 |0 |1 |#FFFF00 |3,0,am|
+  62027 |96 | 62002   | | 0 |1 |6 Hour CCFP Line           |6 Hour CCFP Line    |1 |0 |1 |#FF40FF |4  |
+  62029 |0  | 62002   | | 0 |1 |6 Hour CCFP |6 Hour CCFP     |1 |0 |1 | | |
+  62030 |96 | 62003   | | 0 |1 |8 Hour CCFP |8 Hour CCFP   |1 |0 |1 | |,,am|
+  62031 |96 | 62003   | | 0 |1 |8 Hour CCFP Solid Coverage |8 Hour CCFP Solid   |1 |0 |1 |#EE0000 |1,0,am|
+  62033 |96 | 62003   | | 0 |1 |8 Hour CCFP Medium Coverage|8 Hour CCFP Medium  |1 |0 |1 |#FF8000 |2,0,am|
+  62035 |96 | 62003   | | 0 |1 |8 Hour CCFP Sparse Coverage|8 Hour CCFP Sparse  |1 |0 |1 |#FFFF00 |3,0,am|
+  62037 |96 | 62003   | | 0 |1 |8 Hour CCFP Line           |8 Hour CCFP Line    |1 |0 |1 |#FF40FF |4  |
+  62039 |0  | 62003   | | 0 |1 |8 Hour CCFP |8 Hour CCFP     |1 |0 |1 | | |
+  27871 |72 |78,27871       | |0     |1 |Pirep 000-180 hft   |Pirep 000-180  |1 |0 |1 | |bottom,0,top,180 |1200
+  27872 |72 |78,27871       | |0     |1 |Pirep 180-260 hft   |Pirep 180-260  |1 |0 |1 | |bottom,180,top,260, |1200
+  27873 |72 |78,27871       | |0     |1 |Pirep 260-500 hft   |Pirep 260-500  |1 |0 |1 | |bottom,260,top,500 |1200
+  27874 |72 |78,27874       | |0     |1 |Pirep Icing 000-180 hft   |Pirep Icing 000-180  |1 |0 |1 | |bottom,0,top,180 |1200
+  27875 |72 |78,27874       | |0     |1 |Pirep Icing 180-260 hft   |Pirep Icing 180-260  |1 |0 |1 | |bottom,180,top,260 |1200
+  27876 |72 |78,27874       | |0     |1 |Pirep Icing 260-500 hft   |Pirep Icing 260-500  |1 |0 |1 | |bottom,260,top,500 |1200
+  27877 |72 |78,27877       | |0     |1 |Pirep Turb 000-180 hft   |Pirep Turb 000-180  |1 |0 |1 | |bottom,0,top,180 |1200
+  27878 |72 |78,27877       | |0     |1 |Pirep Turb 180-260 hft   |Pirep Turb 180-260  |1 |0 |1 | |bottom,180,top,260 |1200
+  27879 |72 |78,27877       | |0     |1 |Pirep Turb 260-500 hft   |Pirep Turb 260-500  |1 |0 |1 | |bottom,260,top,500 |1200
+  27881 |72 |79,27881       | |0     |1 |MDCRS 000-050 hft   |MDCRS 000-050  |1 |0 |1 | |bottom,0,top,50 |1200
+  27882 |72 |79,27881       | |0     |1 |MDCRS 050-100 hft   |MDCRS 050-100  |1 |0 |1 | |bottom,50,top,100 |1200
+  27883 |72 |79,27881       | |0     |1 |MDCRS 100-150 hft   |MDCRS 100-150  |1 |0 |1 | |bottom,100,top,150 |1200
+  27884 |72 |79,27881       | |0     |1 |MDCRS 150-200 hft   |MDCRS 150-200  |1 |0 |1 | |bottom,150,top,200 |1200
+  27885 |72 |79,27881       | |0     |1 |MDCRS 200-250 hft   |MDCRS 200-250  |1 |0 |1 | |bottom,200,top,250 |1200
+  27886 |72 |79,27881       | |0     |1 |MDCRS 250-300 hft   |MDCRS 250-300  |1 |0 |1 | |bottom,250,top,300 |1200
+  27887 |72 |79,27881       | |0     |1 |MDCRS 300-350 hft   |MDCRS 300-350  |1 |0 |1 | |bottom,300,top,350 |1200
+  27888 |72 |79,27881       | |0     |1 |MDCRS 350-400 hft   |MDCRS 350-400  |1 |0 |1 | |bottom,350,top,400 |1200
+  27889 |72 |79,27881       | |0     |1 |MDCRS 400-450 hft   |MDCRS 400-450  |1 |0 |1 | |bottom,400,top,450 |1200
+  27890 |72 |79,27881       | |0     |1 |MDCRS 450-500 hft   |MDCRS 450-500  |1 |0 |1 | |bottom,450,top,500 |1200
+  27891 |72 |79,27881       | |0     |1 |MDCRS All Levels    |MDCRS All      |1 |0 |1 | |bottom,-999,top,999 |1200
+  27892 |72 |77,27892       | |0     |1 |MDCRS VB Notify Stub|MDCRS Not Stub      |1 |0 |1 | |  |1200
+  27893 |72 |77,27893       | |0     |1 |MDCRS Profiles 1hr Availability |MDCRS 1hr Avail      |1 |0 |1 | |  |1800
+  27894 |72 |77,27894       | |0     |1 |MDCRS Profiles 6hr Availability |MDCRS 6hr Avail      |1 |0 |1 | |  |1800
+ 8001 |35|97  | |0 |1 |1 Minute Lightning Plot      |1 Min Lgtg Plot     |1 |0 |1 |#ffffcc  |-1,0|60
+ 8005 |35|97  | |0 |1 |5 Minute Lightning Plot      |5 Min Lgtg Plot     |1 |0 |1 |  |-5,0 | 100
+ 8015 |35|97  | |0 |1 |15 Minute Lightning Plot     |15 Min Lgtg Plot    |1 |0 |1 |  |-15,0 | 300
+ 8016 |35|97  | |0 |1 |15 Minute Positive Lightning Plot     |15 Min Pos Lgtg Plot    |1 |0 |1 |  |-15,0 | 300
+ 8017 |35|97  | |0 |1 |15 Minute Negative Lightning Plot     |15 Min Neg Lgtg Plot    |1 |0 |1 |  |-15,0 | 300
+ 8018 |0 |    | |0 |1 |15 Minute Pos/Neg Lightning Plot     |15 Min Pos/Neg Lgtg Plot    |1 |0 |1 |  |-15,0 | 300
+ 8060 |35|97  | |0 |1 |1 Hour Lightning Plot        |1 Hr Lgtg Plot      |1 |0 |1 |  |-60,0 | 900
+ 8100 |0 |    | |0 |1 |1 Minute Lightning Seq       |1 Min Lgtg Seq      |1 |0 |1 |
+ 8101 |35|97  | |0 |1 |1 Minute Old Lightning       |1 Min Old Lgtg      |1 |0 |1 |#ffff00  |-2,-1 | 60
+ 8102 |35|97  | |0 |1 |2 Minute Old Lightning       |2 Min Old Lgtg      |1 |0 |1 |#ffdd00  |-3,-2 | 75
+ 8103 |35|97  | |0 |1 |3 Minute Old Lightning       |3 Min Old Lgtg      |1 |0 |1 |#ffaa00  |-4,-3 | 90
+ 8104 |35|97  | |0 |1 |4 Minute Old Lightning       |4 Min Old Lgtg      |1 |0 |1 |#ff6600  |-5,-4 | 120
+ 8105 |35|97  | |0 |1 |5 Minute Old Lightning       |5 Min Old Lgtg      |1 |0 |1 |#dd0000  |-6,-5 | 150
+ 8501 |35|99  | |0 |1 |1 Minute Txt Lightning Plot      |1 Min Txt Lgtg Plt   |1 |0 |1 |#ffffcc  |-1,0|60
+ 8505 |35|99  | |0 |1 |5 Minute Txt Lightning Plot      |5 Min Txt Lgtg Plt   |1 |0 |1 |  |-5,0 | 100
+ 8515 |35|99  | |0 |1 |15 Minute Txt Lightning Plot     |15 Min Txt Lgtg Plt   |1 |0 |1 |  |-15,0 | 300
+ 8516 |35|99  | |0 |1 |15 Minute Positive Txt Lightning Plot  |15 Min Pos Txt Lgtg Plt    |1 |0 |1 |  |-15,0 | 300
+ 8517 |35|99  | |0 |1 |15 Minute Negative Txt Lightning Plot  |15 Min Neg Txt Lgtg Plt    |1 |0 |1 |  |-15,0 | 300
+ 8518 |0 |    | |0 |1 |15 Minute Pos/Neg Txt Lightning Plot   |15 Min Pos/Neg Txt Lgtg Plt    |1 |0 |1 |  |-15,0 | 300
+ 8560 |35|99  | |0 |1 |1 Hour Txt Lightning Plot    |1 Hr Txt Lgtg Plt   |1 |0 |1 |  |-60,0 | 900
+ 8600 |0 |    | |0 |1 |1 Minute Txt Lightning Seq   |1 Min Txt Lgtg Seq  |1 |0 |1 |
+ 8601 |35|99  | |0 |1 |1 Minute Old Txt Lightning   |1 Min Old Txt Lgtg  |1 |0 |1 |#ffff00  |-2,-1 | 60
+ 8602 |35|99  | |0 |1 |2 Minute Old Txt Lightning   |2 Min Old Txt Lgtg  |1 |0 |1 |#ffdd00  |-3,-2 | 75
+ 8603 |35|99  | |0 |1 |3 Minute Old Txt Lightning   |3 Min Old Txt Lgtg  |1 |0 |1 |#ffaa00  |-4,-3 | 90
+ 8604 |35|99  | |0 |1 |4 Minute Old Txt Lightning   |4 Min Old Txt Lgtg  |1 |0 |1 |#ff6600  |-5,-4 | 120
+ 8605 |35|99  | |0 |1 |5 Minute Old Txt Lightning   |5 Min Old Txt Lgtg  |1 |0 |1 |#dd0000  |-6,-5 | 150
+10632 | 0 |                 | |0 |1 |SSM/I Winds Bundle|SSM/I Winds|1 |0 |1 | | | 300
+10633 |72 |10009,10631      | |0 |1 |SSM/I Winds missing|SSM/I Winds|1 |0 |1 |#808080|min_spd_kts,-1.1,max_spd_kts,-0.9 | 300
+10634 |72 |10009,10631      | |0 |1 |SSM/I Winds s < 34 kts|SSM/I Winds|1 |0 |1 |#00ff00|min_spd_kts,0,max_spd_kts,34 | 300
+10635 |72 |10009,10631      | |0 |1 |SSM/I Winds 34 <= s < 48|SSM/I Winds|1 |0 |1 |#ffff00|min_spd_kts,34,max_spd_kts,48 | 300
+10636 |72 |10009,10631      | |0 |1 |SSM/I Winds s >= 48 kts|SSM/I Winds|1 |0 |1 |#ff0000|min_spd_kts,48,max_spd_kts,999 | 300
+10637 |72 |10009,10636      | |0 |1 |SSM/I Precipitable Water (kg/(m**2))|SSM/I Precipitable Water|1 |0 |1 | | | 300
+10638 |72 |10009,10637      | |0 |1 |SSM/I Sea Temperature (C)|SSM/I Sea Temperature|1 |0 |1 | | | 300
+10639 |72 |10009,10638      | |0 |1 |SSM/I Vert. Integ. Water (kg/(m**2))|SSM/I Vert. Integ. Water|1 |0 |1 | | | 300
+10640 |72 |10007,10625      | |0 |1 |GOES 226mb-100mb Satellite Winds Plot        |226mb-100mb Sat Winds |1 |0 |1 | |minMB,100,maxMB,226
+10641 |72 |10007,10625      | |0 |1 |GOES 275mb-227mb Satellite Winds Plot        |275mb-227mb Sat Winds |1 |0 |1 | |minMB,227,maxMB,275
+10642 |72 |10007,10625      | |0 |1 |GOES 350mb-276mb Satellite Winds Plot        |350mb-276mb Sat Winds |1 |0 |1 | |minMB,276,maxMB,350
+10643 |72 |10007,10625      | |0 |1 |GOES 450mb-351mb Satellite Winds Plot        |450mb-351mb Sat Winds |1 |0 |1 | |minMB,351,maxMB,450
+10644 |72 |10007,10625      | |0 |1 |GOES 600mb-451mb Satellite Winds Plot        |600mb-451mb Sat Winds |1 |0 |1 | |minMB,451,maxMB,600
+10645 |72 |10007,10625      | |0 |1 |GOES 775mb-601mb Satellite Winds Plot        |775mb-601mb Sat Winds |1 |0 |1 | |minMB,601,maxMB,775
+10646 |72 |10007,10625      | |0 |1 |GOES 900mb-776mb Satellite Winds Plot        |900mb-776mb Sat Winds |1 |0 |1 | |minMB,776,maxMB,900
+10647 |72 |10007,10625      | |0 |1 |GOES 1050mb-901mb Satellite Winds Plot       |1050mb-901mb Sat Winds |1 |0 |1 | |minMB,901,maxMB,1050
+10650 |0  |10007,10626 | |0 |1 |IR Winds Plot                      |IR Winds              |1 |0 |1 | |minFreq,2.80364e+13,maxFreq,2.80384e+13
+10651 |72 |10007,10626 | |0 |1 |GOES 226mb-100mb IR Winds Plot          |226mb-100mb IR Winds  |1 |0 |1 | |minFreq,2.80364e+13,maxFreq,2.80384e+13,minMB,100,maxMB,226
+10652 |72 |10007,10626 | |0 |1 |GOES 275mb-227mb IR Winds Plot          |275mb-227mb IR Winds  |1 |0 |1 | |minFreq,2.80364e+13,maxFreq,2.80384e+13,minMB,227,maxMB,275
+10653 |72 |10007,10626 | |0 |1 |GOES 350mb-276mb IR Winds Plot          |350mb-276mb IR Winds  |1 |0 |1 | |minFreq,2.80364e+13,maxFreq,2.80384e+13,minMB,276,maxMB,350
+10654 |72 |10007,10626 | |0 |1 |GOES 450mb-351mb IR Winds Plot          |450mb-351mb IR Winds  |1 |0 |1 | |minFreq,2.80364e+13,maxFreq,2.80384e+13,minMB,351,maxMB,450
+10655 |72 |10007,10626 | |0 |1 |GOES 600mb-451mb IR Winds Plot          |600mb-451mb IR Winds  |1 |0 |1 | |minFreq,2.80364e+13,maxFreq,2.80384e+13,minMB,451,maxMB,600
+10656 |72 |10007,10626 | |0 |1 |GOES 775mb-601mb IR Winds Plot          |775mb-601mb IR Winds  |1 |0 |1 | |minFreq,2.80364e+13,maxFreq,2.80384e+13,minMB,601,maxMB,775
+10657 |72 |10007,10626 | |0 |1 |GOES 900mb-776mb IR Winds Plot          |900mb-776mb IR Winds  |1 |0 |1 | |minFreq,2.80364e+13,maxFreq,2.80384e+13,minMB,776,maxMB,900
+10658 |72 |10007,10626 | |0 |1 |GOES 1050mb-875mb IR Winds Plot         |1050mb-875mb IR Winds |1 |0 |1 | |minFreq,2.80364e+13,maxFreq,2.80384e+13,minMB,875,maxMB,1050
+10660 |0  |10007,10626 | |0 |1 |Water Vapor Winds Plot             |WV Winds              |1 |0 |1 | |minFreq,4.41166e+13,maxFreq,4.41186e+13
+10661 |72 |10007,10626 | |0 |1 |GOES 226mb-100mb Water Vapor Winds Plot |226mb-100mb WV Winds  |1 |0 |1 | |minFreq,4.41166e+13,maxFreq,4.41186e+13,minMB,100,maxMB,226
+10662 |72 |10007,10626 | |0 |1 |GOES 275mb-227mb Water Vapor Winds Plot |275mb-227mb WV Winds  |1 |0 |1 | |minFreq,4.41166e+13,maxFreq,4.41186e+13,minMB,227,maxMB,275
+10663 |72 |10007,10626 | |0 |1 |GOES 350mb-276mb Water Vapor Winds Plot |350mb-276mb WV Winds  |1 |0 |1 | |minFreq,4.41166e+13,maxFreq,4.41186e+13,minMB,276,maxMB,350
+10664 |72 |10007,10626 | |0 |1 |GOES 450mb-351mb Water Vapor Winds Plot |450mb-351mb WV Winds  |1 |0 |1 | |minFreq,4.41166e+13,maxFreq,4.41186e+13,minMB,351,maxMB,450
+10665 |72 |10007,10626 | |0 |1 |GOES 600mb-451mb Water Vapor Winds Plot |600mb-451mb WV Winds  |1 |0 |1 | |minFreq,4.41166e+13,maxFreq,4.41186e+13,minMB,451,maxMB,600
+10666 |72 |10007,10626 | |0 |1 |GOES 775mb-601mb Water Vapor Winds Plot |775mb-601mb WV Winds  |1 |0 |1 | |minFreq,4.41166e+13,maxFreq,4.41186e+13,minMB,601,maxMB,775
+10667 |72 |10007,10626 | |0 |1 |GOES 900mb-776mb Water Vapor Winds Plot |900mb-776mb WV Winds  |1 |0 |1 | |minFreq,4.41166e+13,maxFreq,4.41186e+13,minMB,776,maxMB,900
+10668 |72 |10007,10626 | |0 |1 |GOES 1050mb-875mb Water Vapor Winds Plot|1050mb-875mb WV Winds |1 |0 |1 | |minFreq,4.41166e+13,maxFreq,4.41186e+13,minMB,875,maxMB,1050
+10670 |0  |10007,10626 | |0 |1 |Visible Winds Plot                 |Vis Winds             |1 |0 |1 | |minFreq,4.61528e+14,maxFreq,4.61558e+14
+10671 |72 |10007,10626 | |0 |1 |GOES 226mb-100mb Visible Winds Plot     |226mb-100mb Vis Winds |1 |0 |1 | |minFreq,4.61528e+14,maxFreq,4.61558e+14,minMB,100,maxMB,226
+10672 |72 |10007,10626 | |0 |1 |GOES 275mb-227mb Visible Winds Plot     |275mb-227mb Vis Winds |1 |0 |1 | |minFreq,4.61528e+14,maxFreq,4.61558e+14,minMB,227,maxMB,275
+10673 |72 |10007,10626 | |0 |1 |GOES 350mb-276mb Visible Winds Plot     |350mb-276mb Vis Winds |1 |0 |1 | |minFreq,4.61528e+14,maxFreq,4.61558e+14,minMB,276,maxMB,350
+10674 |72 |10007,10626 | |0 |1 |GOES 450mb-351mb Visible Winds Plot     |450mb-351mb Vis Winds |1 |0 |1 | |minFreq,4.61528e+14,maxFreq,4.61558e+14,minMB,351,maxMB,450
+10675 |72 |10007,10626 | |0 |1 |GOES 600mb-451mb Visible Winds Plot     |600mb-451mb Vis Winds |1 |0 |1 | |minFreq,4.61528e+14,maxFreq,4.61558e+14,minMB,451,maxMB,600
+10676 |72 |10007,10626 | |0 |1 |GOES 775mb-601mb Visible Winds Plot     |775mb-601mb Vis Winds |1 |0 |1 | |minFreq,4.61528e+14,maxFreq,4.61558e+14,minMB,601,maxMB,775
+10677 |72 |10007,10626 | |0 |1 |GOES 900mb-776mb Visible Winds Plot     |900mb-776mb Vis Winds |1 |0 |1 | |minFreq,4.61528e+14,maxFreq,4.61558e+14,minMB,776,maxMB,900
+10678 |72 |10007,10626 | |0 |1 |GOES 1050mb-875mb Visible Winds Plot    |1050mb-875mb Vis Winds|1 |0 |1 | |minFreq,4.61528e+14,axnFreq,4.61558e+14,minMB,875,maxMB,1050
+10680 |0  |10007,10626 | |0 |1 |Water Vapor 7.0 micron Plot             |WV 7.0 Winds             |1 |0 |1 | |minFreq,4.28561e+13,maxFreq,4.28581e+13
+10681 |72 |10007,10626 | |0 |1 |GOES 326mb-100mb Water Vapor 7.0u Winds Plot |326mb-100mb WV 7.0 Winds |1 |0 |1 | |minFreq,4.28561e+13,maxFreq,4.28581e+13,minMB,100,maxMB,326
+10682 |72 |10007,10626 | |0 |1 |GOES 375mb-327mb Water Vapor 7.0u Winds Plot |375mb-327mb WV 7.0 Winds |1 |0 |1 | |minFreq,4.28561e+13,maxFreq,4.28581e+13,minMB,327,maxMB,375
+10683 |72 |10007,10626 | |0 |1 |GOES 425mb-376mb Water Vapor 7.0u Winds Plot |425mb-376mb WV 7.0 Winds |1 |0 |1 | |minFreq,4.28561e+13,maxFreq,4.28581e+13,minMB,376,maxMB,425
+10684 |72 |10007,10626 | |0 |1 |GOES 475mb-426mb Water Vapor 7.0u Winds Plot |475mb-426mb WV 7.0 Winds |1 |0 |1 | |minFreq,4.28561e+13,maxFreq,4.28581e+13,minMB,426,maxMB,475
+10685 |72 |10007,10626 | |0 |1 |GOES 525mb-476mb Water Vapor 7.0u Winds Plot |525mb-476mb WV 7.0 Winds |1 |0 |1 | |minFreq,4.28561e+13,maxFreq,4.28581e+13,minMB,476,maxMB,525
+10686 |72 |10007,10626 | |0 |1 |GOES 1050mb-526mb Water Vapor 7.0u Winds Plot|1050mb-526mb WV 7.0 Winds|1 |0 |1 | |minFreq,4.28561e+13,maxFreq,4.28581e+13,minMB,526,maxMB,1050
+10690 |0  |10007,10626 | |0 |1 |Water Vapor 7.4 micron Plot             |WV 7.4 Winds             |1 |0 |1 | |minFreq,4.05395e+13,maxFreq,4.05415e+13
+10691 |72 |10007,10626 | |0 |1 |GOES 376mb-100mb Water Vapor 7.4u Winds Plot |376mb-100mb WV 7.4 Winds |1 |0 |1 | |minFreq,4.05395e+13,maxFreq,4.05415e+13,minMB,100,maxMB,376
+10692 |72 |10007,10626 | |0 |1 |GOES 425mb-377mb Water Vapor 7.4u Winds Plot |425mb-377mb WV 7.4 Winds |1 |0 |1 | |minFreq,4.05395e+13,maxFreq,4.05415e+13,minMB,377,maxMB,425
+10693 |72 |10007,10626 | |0 |1 |GOES 475mb-426mb Water Vapor 7.4u Winds Plot |475mb-426mb WV 7.4 Winds |1 |0 |1 | |minFreq,4.05395e+13,maxFreq,4.05415e+13,minMB,426,maxMB,475
+10694 |72 |10007,10626 | |0 |1 |GOES 525mb-476mb Water Vapor 7.4u Winds Plot |525mb-476mb WV 7.4 Winds |1 |0 |1 | |minFreq,4.05395e+13,maxFreq,4.05415e+13,minMB,476,maxMB,525
+10695 |72 |10007,10626 | |0 |1 |GOES 575mb-526mb Water Vapor 7.4u Winds Plot |575mb-526mb WV 7.4 Winds |1 |0 |1 | |minFreq,4.05395e+13,maxFreq,4.05415e+13,minMB,526,maxMB,575
+10696 |72 |10007,10626 | |0 |1 |GOES 625mb-576mb Water Vapor 7.4u Winds Plot |625mb-576mb WV 7.4 Winds |1 |0 |1 | |minFreq,4.05395e+13,maxFreq,4.05415e+13,minMB,576,maxMB,625
+10697 |72 |10007,10626 | |0 |1 |GOES 1050mb-626mb Water Vapor 7.4u Winds Plot|1050mb-626mb WV 7.4 Winds|1 |0 |1 | |minFreq,4.05395e+13,maxFreq,4.05415e+13,minMB,626,maxMB,1050
+10700 |72 |10007,10626 | |0 |1 |GOES IR 3.9u Winds Plot                      |IR 3.9u Winds            |1 |0 |1 | |minFreq,7.68599e+13,maxFreq,7.68799e+13
+10820 |0  |10013,10626 | |0 |1 |IR Winds Plot                      |IR Winds              |1 |0 |1 | |minFreq,2.80364e+13,maxFreq,2.80384e+13
+10821 |72 |10013,10626 | |0 |1 |MTSAT 226mb-100mb IR Winds Plot	   |226mb-100mb IR Winds  |1 |0 |1 | |minFreq,2.80364e+13,maxFreq,2.80384e+13,minMB,100,maxMB,226
+10822 |72 |10013,10626 | |0 |1 |MTSAT 275mb-227mb IR Winds Plot	   |275mb-227mb IR Winds  |1 |0 |1 | |minFreq,2.80364e+13,maxFreq,2.80384e+13,minMB,227,maxMB,275
+10823 |72 |10013,10626 | |0 |1 |MTSAT 350mb-276mb IR Winds Plot	   |350mb-276mb IR Winds  |1 |0 |1 | |minFreq,2.80364e+13,maxFreq,2.80384e+13,minMB,276,maxMB,350
+10825 |72 |10013,10626 | |0 |1 |MTSAT 450mb-351mb IR Winds Plot	   |450mb-351mb IR Winds  |1 |0 |1 | |minFreq,2.80364e+13,maxFreq,2.80384e+13,minMB,351,maxMB,450
+10826 |72 |10013,10626 | |0 |1 |MTSAT 600mb-451mb IR Winds Plot	   |600mb-451mb IR Winds  |1 |0 |1 | |minFreq,2.80364e+13,maxFreq,2.80384e+13,minMB,451,maxMB,600
+10827 |72 |10013,10626 | |0 |1 |MTSAT 775mb-601mb IR Winds Plot	   |775mb-601mb IR Winds  |1 |0 |1 | |minFreq,2.80364e+13,maxFreq,2.80384e+13,minMB,601,maxMB,775
+10828 |72 |10013,10626 | |0 |1 |MTSAT 900mb-776mb IR Winds Plot	   |900mb-776mb IR Winds  |1 |0 |1 | |minFreq,2.80364e+13,maxFreq,2.80384e+13,minMB,776,maxMB,900
+10829 |72 |10013,10626 | |0 |1 |MTSAT 1050mb-875mb IR Winds Plot   |1050mb-875mb IR Winds |1 |0 |1 | |minFreq,2.80364e+13,maxFreq,2.80384e+13,minMB,875,maxMB,1050
+10830 |0  |10013,10626 | |0 |1 |Water Vapor Winds Plot             |WV Winds              |1 |0 |1 | |minFreq,4.41166e+13,maxFreq,4.41186e+13
+10831 |72 |10013,10626 | |0 |1 |MTSAT 226mb-100mb Water Vapor Winds Plot |226mb-100mb WV Winds  |1 |0 |1 | |minFreq,4.41166e+13,maxFreq,4.41186e+13,minMB,100,maxMB,226
+10832 |72 |10013,10626 | |0 |1 |MTSAT 275mb-227mb Water Vapor Winds Plot |275mb-227mb WV Winds  |1 |0 |1 | |minFreq,4.41166e+13,maxFreq,4.41186e+13,minMB,227,maxMB,275
+10833 |72 |10013,10626 | |0 |1 |MTSAT 350mb-276mb Water Vapor Winds Plot |350mb-276mb WV Winds  |1 |0 |1 | |minFreq,4.41166e+13,maxFreq,4.41186e+13,minMB,276,maxMB,350
+10835 |72 |10013,10626 | |0 |1 |MTSAT 450mb-351mb Water Vapor Winds Plot |450mb-351mb WV Winds  |1 |0 |1 | |minFreq,4.41166e+13,maxFreq,4.41186e+13,minMB,351,maxMB,450
+10836 |72 |10013,10626 | |0 |1 |MTSAT 600mb-451mb Water Vapor Winds Plot |600mb-451mb WV Winds  |1 |0 |1 | |minFreq,4.41166e+13,maxFreq,4.41186e+13,minMB,451,maxMB,600
+10837 |72 |10013,10626 | |0 |1 |MTSAT 775mb-601mb Water Vapor Winds Plot |775mb-601mb WV Winds  |1 |0 |1 | |minFreq,4.41166e+13,maxFreq,4.41186e+13,minMB,601,maxMB,775
+10838 |72 |10013,10626 | |0 |1 |MTSAT 900mb-776mb Water Vapor Winds Plot |900mb-776mb WV Winds  |1 |0 |1 | |minFreq,4.41166e+13,maxFreq,4.41186e+13,minMB,776,maxMB,900
+10839 |72 |10013,10626 | |0 |1 |MTSAT 1050mb-875mb Water Vapor Winds Plot|1050mb-875mb WV Winds |1 |0 |1 | |minFreq,4.41166e+13,maxFreq,4.41186e+13,minMB,875,maxMB,1050
+10840 |0  |10013,10626 | |0 |1 |Visible Winds Plot                 |Vis Winds             |1 |0 |1 | |minFreq,4.61528e+14,maxFreq,4.61558e+14
+10841 |72 |10013,10626 | |0 |1 |MTSAT 226mb-100mb Visible Winds Plot     |226mb-100mb Vis Winds |1 |0 |1 | |minFreq,4.61528e+14,maxFreq,4.61558e+14,minMB,100,maxMB,226
+10842 |72 |10013,10626 | |0 |1 |MTSAT 275mb-227mb Visible Winds Plot     |275mb-227mb Vis Winds |1 |0 |1 | |minFreq,4.61528e+14,maxFreq,4.61558e+14,minMB,227,maxMB,275
+10843 |72 |10013,10626 | |0 |1 |MTSAT 350mb-276mb Visible Winds Plot     |350mb-276mb Vis Winds |1 |0 |1 | |minFreq,4.61528e+14,maxFreq,4.61558e+14,minMB,276,maxMB,350
+10845 |72 |10013,10626 | |0 |1 |MTSAT 450mb-351mb Visible Winds Plot     |450mb-351mb Vis Winds |1 |0 |1 | |minFreq,4.61528e+14,maxFreq,4.61558e+14,minMB,351,maxMB,450
+10846 |72 |10013,10626 | |0 |1 |MTSAT 600mb-451mb Visible Winds Plot     |600mb-451mb Vis Winds |1 |0 |1 | |minFreq,4.61528e+14,maxFreq,4.61558e+14,minMB,451,maxMB,600
+10847 |72 |10013,10626 | |0 |1 |MTSAT 775mb-601mb Visible Winds Plot     |775mb-601mb Vis Winds |1 |0 |1 | |minFreq,4.61528e+14,maxFreq,4.61558e+14,minMB,601,maxMB,775
+10848 |72 |10013,10626 | |0 |1 |MTSAT 900mb-776mb Visible Winds Plot     |900mb-776mb Vis Winds |1 |0 |1 | |minFreq,4.61528e+14,maxFreq,4.61558e+14,minMB,776,maxMB,900
+10849 |72 |10013,10626 | |0 |1 |MTSAT 1050mb-875mb Visible Winds Plot    |1050mb-875mb Vis Winds|1 |0 |1 | |minFreq,4.61528e+14,axnFreq,4.61558e+14,minMB,875,maxMB,1050
+10850 |72 |10013,10626 | |0 |1 |MTSAT IR 3.9u Winds Plot                      |IR 3.9u Winds            |1 |0 |1 | |minFreq,7.68599e+13,maxFreq,7.68799e+13
+10801 |72 |10013,10625 | |0 |1 |MTSAT 226mb-100mb Satellite Winds Plot	     |226mb-100mb Sat Winds |1 |0 |1 | |minMB,100,maxMB,226
+10802 |72 |10013,10625 | |0 |1 |MTSAT 275mb-227mb Satellite Winds Plot	     |275mb-227mb Sat Winds |1 |0 |1 | |minMB,227,maxMB,275
+10803 |72 |10013,10625 | |0 |1 |MTSAT 350mb-276mb Satellite Winds Plot	     |350mb-276mb Sat Winds |1 |0 |1 | |minMB,276,maxMB,350
+10804 |72 |10013,10625 | |0 |1 |MTSAT 450mb-351mb Satellite Winds Plot	     |450mb-351mb Sat Winds |1 |0 |1 | |minMB,351,maxMB,450
+10806 |72 |10013,10625 | |0 |1 |MTSAT 600mb-451mb Satellite Winds Plot	     |600mb-451mb Sat Winds |1 |0 |1 | |minMB,451,maxMB,600
+10807 |72 |10013,10625 | |0 |1 |MTSAT 775mb-601mb Satellite Winds Plot	     |775mb-601mb Sat Winds |1 |0 |1 | |minMB,601,maxMB,775
+10808 |72 |10013,10625 | |0 |1 |MTSAT 900mb-776mb Satellite Winds Plot	     |900mb-776mb Sat Winds |1 |0 |1 | |minMB,776,maxMB,900
+10809 |72 |10013,10625 | |0 |1 |MTSAT 1050mb-901mb Satellite Winds Plot      |1050mb-901mb Sat Winds |1 |0 |1 | |minMB,901,maxMB,1050
+11000  |65|     |profTH   |     |1 |Profiler Background  |Profiler Bkgd    |1 |1 |0 | white
+11002  |17|11002,27108|profTH   |11000|2 |McCook NE (kts)      |RWDN1            |8 |0 |0 | 18,100
+11003  |17|11003,27108|profTH   |11000|2 |Lathrop MO (kts)     |LTHM7            |8 |0 |0 | 18,100
+11004  |17|11004,27108|profTH   |11000|2 |Tucumcari NM (kts)   |TCUN5            |8 |0 |0 | 18,100
+11005  |17|11005,27108|profTH   |11000|2 |Haskell OK (kts)     |HKLO2            |8 |0 |0 | 18,100
+11006  |17|11006,27108|profTH   |11000|2 |Winfield LA (kts)    |WNFL1            |8 |0 |0 | 18,100
+11007  |17|11007,27108|profTH   |11000|2 |Vandenberg CA (kts)  |VBGC1            |8 |0 |0 | 18,100
+11008  |17|11008,27108|profTH   |11000|2 |Platteville CO (kts) |PLTC2            |8 |0 |0 | 18,100
+11009  |17|11009,27108|profTH   |11000|2 |Neligh NE (kts)      |NLGN1            |8 |0 |0 | 18,100
+11010  |17|11010,27108|profTH   |11000|2 |Blue River WI (kts)  |BLRW3            |8 |0 |0 | 18,100
+11011  |17|11011,27108|profTH   |11000|2 |Haviland KS (kts)    |HVLK1            |8 |0 |0 | 18,100
+11012  |17|11012,27108|profTH   |11000|2 |Hillsboro KS (kts)   |HBRK1            |8 |0 |0 | 18,100
+11013  |17|11013,27108|profTH   |11000|2 |Bloomfield MO (kts)  |BLMM7            |8 |0 |0 | 18,100
+11014  |17|11014,27108|profTH   |11000|2 |DeQueen AR (kts)     |DQUA4            |8 |0 |0 | 18,100
+11015  |17|11015,27108|profTH   |11000|2 |Jayton TX (kts)      |JTNT2            |8 |0 |0 | 18,100
+11016  |17|11016,27108|profTH   |11000|2 |Medicine Bow WY (kts)|MBWW4            |8 |0 |0 | 18,100
+11017  |17|11017,27108|profTH   |11000|2 |Wood Lake MN (kts)   |WDLM5            |8 |0 |0 | 18,100
+11018  |17|11018,27108|profTH   |11000|2 |Fairbury NE (kts)    |FBYN1            |8 |0 |0 | 18,100
+11019  |17|11019,27108|profTH   |11000|2 |Granada CO (kts)     |GDAC2            |8 |0 |0 | 18,100
+11020  |17|11020,27108|profTH   |11000|2 |Lamont OK (kts)      |LMNO2            |8 |0 |0 | 18,100
+11021  |17|11021,27108|profTH   |11000|2 |Purcell OK (kts)     |PRCO2            |8 |0 |0 | 18,100
+11022  |17|11022,27108|profTH   |11000|2 |White Sands NM (kts) |WSMN5            |8 |0 |0 | 18,100
+11023  |17|11023,27108|profTH   |11000|2 |Conway MO (kts)      |CNWM7            |8 |0 |0 | 18,100
+11024  |17|11024,27108|profTH   |11000|2 |Merriman NE (kts)    |MRRN1            |8 |0 |0 | 18,100
+11025  |17|11025,27108|profTH   |11000|2 |Slater IA (kts)      |SLAI4            |8 |0 |0 | 18,100
+11026  |17|11026,27108|profTH   |11000|2 |Winchester IL (kts)  |WNCI2            |8 |0 |0 | 18,100
+11027  |17|11027,27108|profTH   |11000|2 |Aztec NM (kts)       |AZCN5            |8 |0 |0 | 18,100
+11028  |17|11028,27108|profTH   |11000|2 |Vici OK (kts)        |VCIO2            |8 |0 |0 | 18,100
+11029  |17|11029,27108|profTH   |11000|2 |Neodesha KS (kts)    |NDSK1            |8 |0 |0 | 18,100
+11030  |17|11030,27108|profTH   |11000|2 |Palestine TX (kts)   |PATT2            |8 |0 |0 | 18,100
+11031  |17|11031,27108|profTH   |11000|2 |Okolona MS (kts)     |OKOM6            |8 |0 |0 | 18,100
+11035  |17|11035,27108|profTH   |11000|2 |Central AK   (kts)   |CENA2            |8 |0 |0 | 18,100
+11036  |17|11036,27108|profTH   |11000|2 |Glennallen AK (kts)  |GNAA2            |8 |0 |0 | 18,100
+11037  |17|11037,27108|profTH   |11000|2 |Talkeetna AK (kts)   |TLKA2            |8 |0 |0 | 18,100
+11038  |17|11038,27108|profTH   |11000|2 |Wolcott IN (kts)     |WLCI3            |8 |0 |0 | 18,100
+11039  |17|11039,27108|profTH   |11000|2 |Syracuse NY (kts)    |SYCN6            |8 |0 |0 | 18,100
+11040  |17|11040,27108|profTH   |11000|2 |Ledbetter TX (kts)   |LDBT2            |8 |0 |0 | 18,100
+11102  |17|11102,27108|profTH   |11000|2 |Buster Jangle Yankee NV (kts) |BJYNV   |8 |0 |0 | 18,100
+11103  |17|11103,27108|profTH   |11000|2 |Beaumont KS (kts)             |BMTKS   |8 |0 |0 | 18,100
+11104  |17|11104,27108|profTH   |11000|2 |Concord NH (kts)              |CCDNH   |8 |0 |0 | 18,100
+11105  |17|11105,27108|profTH   |11000|2 |Chowchilla CA (kts)           |CCLCA   |8 |0 |0 | 18,100
+11106  |17|11106,27108|profTH   |11000|2 |Chico CA (kts)                |CCOCA   |8 |0 |0 | 18,100
+11107  |17|11107,27108|profTH   |11000|2 |Charlotte NC (kts)            |CHANC   |8 |0 |0 | 18,100
+11108  |17|11108,27108|profTH   |11000|2 |Cleburne TX (kts)             |CLETX   |8 |0 |0 | 18,100
+11109  |17|11109,27108|profTH   |11000|2 |North Douglas AK (kts)        |DGNAK   |8 |0 |0 | 18,100
+11110  |17|11110,27108|profTH   |11000|2 |South Douglas AK (kts)        |DGSAK   |8 |0 |0 | 18,100
+11111  |17|11111,27108|profTH   |11000|2 |Tower Grid UT (kts)           |DGWUT   |8 |0 |0 | 18,100
+11112  |17|11112,27108|profTH   |11000|2 |Ellington Fld TX (kts)        |EFDTX   |8 |0 |0 | 18,100
+11113  |17|11113,27108|profTH   |11000|2 |El Paso TX (kts)              |EPSTX   |8 |0 |0 | 18,100
+11114  |17|11114,27108|profTH   |11000|2 |Cape Canaveral (False Cape) FL (kts)      |FCPFL |8 |0 |0 | 18,100
+11115  |17|11115,27108|profTH   |11000|2 |CMO AZ (kts)                  |FHHAZ   |8 |0 |0 | 18,100
+11116  |17|11116,27108|profTH   |11000|2 |Ft Meade MD (kts)             |FMEMD   |8 |0 |0 | 18,100
+11117  |17|11117,27108|profTH   |11000|2 |Ft Huachuca AZ (kts)          |FTHAZ   |8 |0 |0 | 18,100
+11118  |17|11118,27108|profTH   |11000|2 |Grass Valley CA (kts)         |GVYCA   |8 |0 |0 | 18,100
+11119  |17|11119,27108|profTH   |11000|2 |Gray ME (kts)                 |GYXME   |8 |0 |0 | 18,100
+11120  |17|11120,27108|profTH   |11000|2 |Horizontal Grid UT (kts)      |HGDUT   |8 |0 |0 | 18,100
+11121  |17|11121,27108|profTH   |11000|2 |Hazmat Spill Center AZ (kts)  |HSCNV   |8 |0 |0 | 18,100
+11122  |17|11122,27108|profTH   |11000|2 |Cape Canaveral (50 MHz) FL (kts)          |KSCFL |8 |0 |0 | 18,100
+11123  |17|11123,27108|profTH   |11000|2 |Los Angeles CA (kts)          |LAXCA   |8 |0 |0 | 18,100
+11124  |17|11124,27108|profTH   |11000|2 |Lost Hills CA (kts)           |LHSCA   |8 |0 |0 | 18,100
+11125  |17|11125,27108|profTH   |11000|2 |Lemon Creek AK (kts)          |LMCAK   |8 |0 |0 | 18,100
+11126  |17|11126,27108|profTH   |11000|2 |Livermore CA (kts)            |LVRCA   |8 |0 |0 | 18,100
+11127  |17|11127,27108|profTH   |11000|2 |Midway Site NM (kts)          |MDWNM   |8 |0 |0 | 18,100
+11128  |17|11128,27108|profTH   |11000|2 |Cape Canaveral (Merritt) FL (kts)         |MIDFL |8 |0 |0 | 18,100
+11129  |17|11129,27108|profTH   |11000|2 |Cape Canaveral (Mosquito Lagoon) FL (kts) |MLNFL |8 |0 |0 | 18,100
+11130  |17|11130,27108|profTH   |11000|2 |Miramar CA (kts)              |MMRCA   |8 |0 |0 | 18,100
+11131  |17|11131,27108|profTH   |11000|2 |Moreno Valley CA (kts)        |MOVCA   |8 |0 |0 | 18,100
+11132  |17|11132,27108|profTH   |11000|2 |Monterey CA (kts)             |NPSCA   |8 |0 |0 | 18,100
+11133  |17|11133,27108|profTH   |11000|2 |Norman OK (kts)               |NRMOK   |8 |0 |0 | 18,100
+11134  |17|11134,27108|profTH   |11000|2 |NW30 NM (kts)                 |NWTNM   |8 |0 |0 | 18,100
+11135  |17|11135,27108|profTH   |11000|2 |Ontario CA (kts)              |ONTCA   |8 |0 |0 | 18,100
+11136  |17|11136,27108|profTH   |11000|2 |Oxford KS (kts)               |OXFKS   |8 |0 |0 | 18,100
+11137  |17|11137,27108|profTH   |11000|2 |Pease NH (kts)                |PSENH   |8 |0 |0 | 18,100
+11138  |17|11138,27108|profTH   |11000|2 |Point Loma CA (kts)           |PTLCA   |8 |0 |0 | 18,100
+11139  |17|11139,27108|profTH   |11000|2 |Plymouth MA (kts)             |PYMMA   |8 |0 |0 | 18,100
+11140  |17|11140,27108|profTH   |11000|2 |Raleigh NC (kts)              |RALNC   |8 |0 |0 | 18,100
+11141  |17|11141,27108|profTH   |11000|2 |Richmond VA (kts)             |RCHVA   |8 |0 |0 | 18,100
+11142  |17|11142,27108|profTH   |11000|2 |Cape Canaveral (TI-CO) FL (kts)           |RCOFL |8 |0 |0 | 18,100
+11143  |17|11143,27108|profTH   |11000|2 |New Brunswick NJ (kts)        |RUTNJ   |8 |0 |0 | 18,100
+11144  |17|11144,27108|profTH   |11000|2 |Sacramento CA (kts)           |SACCA   |8 |0 |0 | 18,100
+11145  |17|11145,27108|profTH   |11000|2 |Schenectady NY (kts)          |SCHNY   |8 |0 |0 | 18,100
+11146  |17|11146,27108|profTH   |11000|2 |Cape Canaveral (South Cape) FL (kts)      |SCPFL |8 |0 |0 | 18,100
+11147  |17|11147,27108|profTH   |11000|2 |Seattle WA (kts)              |SEAWA   |8 |0 |0 | 18,100
+11148  |17|11148,27108|profTH   |11000|2 |Simi Valley CA (kts)          |SIMCA   |8 |0 |0 | 18,100
+11149  |17|11149,27108|profTH   |11000|2 |San Nicolas CA (kts)          |SNICA   |8 |0 |0 | 18,100
+11150  |17|11150,27108|profTH   |11000|2 |Stow MA (kts)                 |STWMA   |8 |0 |0 | 18,100
+11151  |17|11151,27108|profTH   |11000|2 |Tulag NM (kts)                |TLGNM   |8 |0 |0 | 18,100
+11152  |17|11152,27108|profTH   |11000|2 |Visalia CA (kts)              |VISCA   |8 |0 |0 | 18,100
+11153  |17|11153,27108|profTH   |11000|2 |Whitewater KS (kts)           |WHWKS   |8 |0 |0 | 18,100
+11154  |17|11154,27108|profTH   |11000|2 |Yuma AZ (kts)                 |YUMAZ   |8 |0 |0 | 18,100
+11901  |17|11901,27108|profTH   |11000|2 |Lemon Creek AK (kts) |LMNA2            |8 |0 |0 | 18,100
+11902  |17|11902,27108|profTH   |11000|2 |North Douglas Is AK (kts)|NDIA2        |8 |0 |0 | 18,100
+11903  |17|11903,27108|profTH   |11000|2 |South Douglas Is AK (kts)|SDIA2        |8 |0 |0 | 18,100
+12000  |12|     |         |  0  |1 |Interactive WarnGen  |WarnGen          |1 |0 |1 | white
+12001  |12|     |skewt    |9000 |1 |Interactive Skew-T   |Skew-T           |1 |0 |0 |
+12002  |46|     |         |  0  |1 |Interactive Baselines|Baselines        |1 |0 |1 |
+12003  |46|     |         |  0  |1 |Interactive Points   |Points           |1 |0 |1 |
+12004  |46|     |         |  0  |1 |Home Location        |Home             |1 |0 |1 |
+12005  |46|     |         |  0  |1 |Distance Bearing     |DistanceBearing  |1 |0 |1 |
+12006  |12|     |         |  0  |1 |Distance Speed       |DistanceSpeed    |1 |0 |1 |
+112006 |5 |112006|        |  0  |1 |Feature Following Zoom |Feature Zoom   |1 |0 |1 | | |,,distanceSpeed.txt
+12007  |46|     |         |  0  |1 |Alert Area #1 Editor |AlertArea1Editor |1 |0 |1 |
+12008  |46|     |         |  0  |1 |Alert Area #2 Editor |AlertArea2Editor |1 |0 |1 |
+12019  |46|     |         |  0  |1 |Range Rings          |RangeRings       |1 |0 |1 |
+12020  |0 |     |         |  0  |1 |VR - Shear           |VR - Shear       |1 |0 |1 |
+12009  |12|     |         |  0  |1 |VR - Shear           |VR - Shear       |1 |0 |1 |
+12021  |12|     |         |  0  |1 |VR - Shear           |VR - Shear       |1 |0 |1 |
+12022  |12|     |         |  0  |1 |VR - Shear           |VR - Shear       |1 |0 |1 |
+12023  |12|     |         |  0  |1 |VR - Shear           |VR - Shear       |1 |0 |1 |
+12010  |46|     |      |0,1084  |1 |Laps Relocator       |LapsTool         |1 |0 |1 |
+12014  |46|     |         |  0  |1 |Az/Ran Overlay       |AzRanOverlay     |1 |0 |1 |
+12015  |46|     |      |0,1082  |1 |Home Location        |Home             |1 |0 |1 |
+12035  |0 |     |         |  0  |1 |Estimated Act Vel    |EAV              |1 |0 |1 |
+12036  |12|     |         |  0  |1 |Estimated Act Vel    |EAV              |1 |0 |1 |
+12037  |12|     |         |  0  |1 |Estimated Act Vel    |EAV              |1 |0 |1 |
+12038  |12|     |         |  0  |1 |Estimated Act Vel    |EAV              |1 |0 |1 |
+12039  |12|     |         |  0  |1 |Estimated Act Vel    |EAV              |1 |0 |1 |
+400100 |0 | | | | |NH four panel sat| |  |  |  |
+400110 |0 | | | | |NA four panel sat| |  |  |  |
+400120 |0 | | | | |conus four panel sat| |  |  |  |
+400130 |0 | | | | |state/wfo four panel sat| |  |  |  |
+400140 |0 | | | | |NH four panel sat new imager| |  |  |  |
+400150 |0 | | | | |NA four panel sat new imager| |  |  |  |
+400160 |0 | | | | |conus four panel sat new imager| |  |  |  |
+400170 |0 | | | | |state/wfo four panel sat new imager| |  |  |  |
+55001 |66|55001| |0     |1 |DGM Test           |DGM Test    |1 |0 |1 |
+55002 |66|55002| |0     |1 |DGM Test           |DGM Test    |1 |0 |1 |
+55005 |66|55005| |0     |1 |DGM Test           |DGM Test    |1 |0 |1 |
+55011 |66|55011| |0     |1 |DGM Test           |DGM Test    |1 |0 |1 |
+55012 |66|55012| |0     |1 |DGM Test           |DGM Test    |1 |0 |1 |
+55015 |66|55015| |0     |1 |DGM Test           |DGM Test    |1 |0 |1 |
+60000 |66|60000| |0     |1 |Text DGM Workhorse |Text DGM Workhorse |1 |0 |1 |
+  120120 |3 |82,120120,1003  | |0|1 |METAR Temp Cont (F)    |METAR T       |1 |0 |1 |  |p,150,150,Tf |900
+  120124 |10|82,120120,1003  | |0|0 |METAR Temp Img (F)     |METAR T       |8 |0 |1 |29|p,150,150,Tf |900
+  120121 |3 |82,120120,1003  | |0|1 |METAR Dewpt Cont (F)   |METAR Td      |1 |0 |1 |  |p,150,150,Tdf |900
+  120122 |4 |82,120120,1003  | |0|1 |METAR Wind (kts)       |METAR Wind    |1 |0 |1 |  |p,150,150,uW,vW |900
+#include "redbookDepictKeys.txt"
+#include "textDepictKeys.txt"
+#include "topoDepictKeys.txt"
+#include "tdlDepictKeys.txt"
+#include "raobDepictKeys.txt"
+#include "imgDepictKeys.txt"
+#include "msasDepictKeys.txt"
+#include "localDepictKeys.txt"
