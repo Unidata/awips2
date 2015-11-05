@@ -30,6 +30,13 @@ service edex_camel stop
 service qpidd stop
 service httpd-pypies stop
 service edex_postgres stop
+service edex_ldm stop
+
+# check that /awips2/data_store exists, if not, create it
+if [ ! -d /awips2/data_store ]; then
+  mkdir -p /awips2/data_store
+fi
+chown -R awips:fxalpha /awips2/data_store
 
 echo ''
 echo "Running 'yum groupinstall awips2-server'"
