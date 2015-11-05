@@ -38,4 +38,4 @@ mv $TMPFILE $LOGFILE
 #
 echo "Sending file:$FILENAME  product_ID:$PRODUCT_ID to $MHS_SITE_ID via distributeProduct" >> $LOGFILE
 SUBJECT="$FILENAME $PRODUCT_ID Hydro_Model_Data"
-/awips/fxa/bin/distributeProduct -c HYDRO_MODEL_DATA -s "$SUBJECT" -a $MHS_SITE_ID $PRODUCT_ID $FILEPATH
+/awips2/fxa/bin/distributeProduct -c HYDRO_MODEL_DATA -s "$SUBJECT" -a $MHS_SITE_ID $PRODUCT_ID $FILEPATH

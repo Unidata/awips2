@@ -241,7 +241,7 @@ SUBJECT="$PRODUCT_ID $PACKED_TIME $WFO_SOURCE"
 print Using distributeProduct with subject $SUBJECT
 echo  Using distributeProduct with subject $SUBJECT >> $LOGNAME
 
-/awips/fxa/bin/distributeProduct -c RIVPROD_BACKUP -a $WFO_DESTINATION -s "$SUBJECT" $PRODUCT_ID $MHS_FILE >> $LOGNAME 2>>$LOGNAME
+/awips2/fxa/bin/distributeProduct -c RIVPROD_BACKUP -a $WFO_DESTINATION -s "$SUBJECT" $PRODUCT_ID $MHS_FILE >> $LOGNAME 2>>$LOGNAME
 RETURN_STATUS=$?
 
 if [ $RETURN_STATUS -eq 0 ]

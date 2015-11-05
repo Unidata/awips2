@@ -31,7 +31,7 @@ no_gui=$1
 # Set up the environment for generating and sending the F6 forms.
 # FXA_HOME needs to be defined before we can proceed.
 #
-FXA_HOME=/awips/fxa
+FXA_HOME=/awips2/fxa
 . $FXA_HOME/readenv.sh
 
 #

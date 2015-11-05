@@ -17,7 +17,7 @@
 # code set to the id of the sending office.  GRIB files created in the
 # standard qpe_grib directory have the sub center code set to 0.
 #
-# export FXA_HOME=/awips/fxa
+# export FXA_HOME=/awips2/fxa
 
 # Set up the AWIPS environment.
 # . $FXA_HOME/readenv.sh
