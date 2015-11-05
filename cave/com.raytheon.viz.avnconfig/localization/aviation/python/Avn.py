@@ -255,7 +255,7 @@ IFR = 'ifr'
 MVFR = 'mvfr'
 VFR = 'vfr'
 
-_TextDB = os.environ.get('FXA_HOME','/awips/fxa') + '/bin/textdb'
+_TextDB = os.environ.get('FXA_HOME','/awips2/fxa') + '/bin/textdb'
 TAFWorkPIL = os.environ.get('DEFAULT_CCC','XXX') +'WRKTAF'
 
 PLUGIN_NAME = 'com.raytheon.viz.aviation'

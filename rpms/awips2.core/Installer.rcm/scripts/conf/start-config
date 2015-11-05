@@ -21,7 +21,7 @@ awips2_fxa=/awips2/fxa
 #configuration_provider=com.raytheon.rcm.config.awips1.Awips1ConfigProvider
 
 # Root directory containing AWIPS 1 configuration files.  It should contain 
-# "awips/fxa/data/", "data/fxa/", etc.  This can be "/" for the actual root 
+# "awips2/fxa/data/", "data/fxa/", etc.  This can be "/" for the actual root 
 # directory.
 #awips1_root=/
 

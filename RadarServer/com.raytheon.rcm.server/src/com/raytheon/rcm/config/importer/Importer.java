@@ -91,7 +91,7 @@ public class Importer {
         String fxaLocalSite = System.getenv("FXA_LOCAL_SITE");
         if (fxaLocalSite == null) {
             File f = new File(awips1Root
-                    + "/awips/fxa/data/localizationDataSets");
+                    + "/awips2/fxa/data/localizationDataSets");
             File[] lcns = f.listFiles();
             if (lcns != null) {
                 for (File lcn : lcns) {

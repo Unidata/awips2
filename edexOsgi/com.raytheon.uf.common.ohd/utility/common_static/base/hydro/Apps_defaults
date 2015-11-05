@@ -1880,7 +1880,7 @@ hdb_map_projection   : FLAT       # The initial map projection used by HDB.
 # ====================== DHM Token =======================
 dhm_data_dir               : $(ofs_files)/$(ofs_level)/dhmdata	 # DHM data dir
 dhm_d2d_data_dir           : /data/fxa/Grid/LOCAL/netCDF/DHM  # d2d data dir
-dhm_d2d_notify_bin_dir     : /awips/fxa/bin              # d2d notify bin dir
+dhm_d2d_notify_bin_dir     : /awips2/fxa/bin              # d2d notify bin dir
 rdhm_input_dir             :  $(geo_data)
 dhm_rain_plus_melt_data_dir:  $(geo_data)
 
