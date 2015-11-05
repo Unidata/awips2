@@ -81,7 +81,7 @@ public class Awips1ConfigProvider implements ConfigurationProvider {
 		resourceRoot = System.getProperty(propBase + ".resourceRoot", "/");
 		fxaHome = getEnv("FXA_HOME");
 		if (fxaHome == null)
-			fxaHome = "/awips/fxa";
+			fxaHome = "/awips2/fxa";
 		fxaLocnRoot = getEnv("FXA_LOCALIZATION_ROOT");
 		if (fxaLocnRoot == null)
 			fxaLocnRoot = fxaHome + "/data/localizationDataSets";
