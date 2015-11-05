@@ -1,0 +1,126 @@
+//
+// This file `redbookLegends.txt', contains the default set of parameters for
+// testing whether plottable strings in a redbook graphic should be considered
+// legend or part of the graphic.  This file can be overridden, and one can
+// override the parameters for one particular graphic.  For example, the
+// data key for the Radar Summary, key 5013, shows `PAWO82KWBC.' as the
+// file prefix.  Thus, one can override these parameters for the Radar Summary
+// by supplying the file `PAWO82KWBC.redbookLegends.txt'.  On site, one
+// would provide this in customFiles/ and run it through the -tables
+// localization task.  As part of a release, it can be placed in
+// nationalData/ or as a LLL- file.
+//
+// As of April 2002, this contains the exact same set of parameters that
+// the code will generate by default if this file is not found.
+// If in the future some developer feels the need to tweak these test
+// beyond just changing the test parameters, one can find the code for
+// these tests in D-2D/src/redbook/gisleg.f.
+//
+// In one of these files, one can override one or all of the parameters.
+// The lines that are blank or all `//' style comments are ignored.
+// Each meaningful line in the file is a keyword, followed by a space,
+// followed by the value one wants to use for the parameter in question.
+//
+// The ascii character counts refered to generally do not include leading
+// or trailing spaces.  Where this refers to plain text, it means text that
+// has no weather characters and is not an ascii representation of a
+// decimal number.  All tests against the ascii strings in the redbook
+// text blocks are case insensitive.
+// 
+// Normally, the rules in this file are used to determine the legend/graphic
+// status of each string on an individual basis.  It is possible to override
+// this behavior within the graphic.  Any redbook text block that contains
+// the string ==+ with no cursor moves or font shifts will place the code
+// in a state such that all strings that follow will be treated as legend.
+// Any redbook text block that contains the string ==- with no cursor 
+// moves or font shifts will place the code in a state such that all 
+// strings that follow will be treated as being part of the graphic.
+// Similarly, a string of === will place the code back in the state
+// where these heuristic rules are applied.
+
+// The first test is not done by default; it is done only if one of the 
+// commented out keywords that follow is present and followed by a string.
+// Having both keywords present is not meaningful.  The first means if the
+// ascii text is equal to this string, then the text is legend text.  The
+// second means if the ascii text is equal to this string, then the text is
+// graphic text. 
+// EEQ_LEG
+// EEQ_GPH
+
+// This test is just like the previous one except the test is done against
+// the leading text in the ascii text rather than the whole string.
+// BEG_LEG
+// BEG_GPH
+
+// This test is just like the previous tw except the test is done for
+// whether the text exists anywhere in the ascii text.
+// IDX_LEG
+// IDX_GPH
+
+// For the next test, if the text represents an ascii number and its
+// length is >= NUNC, then this is graphical text.
+NUNC 6
+
+// The next series of test are non-modifiable hardwired tests against 
+// the ascii text being exactly equal to certain strings.  If the ascii
+// text is exactly equal to 'NWS', 'SOILS', or 'A POINT', the text will be
+// treated as legend.  If it is equal to 'SEE TEXT', it will be part of
+// the graphic.
+
+// The next test assumes that very short strings should be part of the
+// graphic.  Any string whose total number of printable characters is
+// <= MNNC is considered to be graphic text.
+MNNC 3
+
+// If there are no weather characters and a colon exists and its position
+// is >= COLN, then this is legend text.
+COLN 3
+
+// The next test is a non-modifiable hardwired test against the string
+// 'CRITICAL FIRE'.  If present anywhere in the ascii text, then this
+// text is treated as part of the graphic.
+
+// If the number of ascii characters is >= MXNC then this is legend.
+// Also, if this is -1, then all text is considered as graphical.
+MXNC 25
+
+// The next series of test are non-modifiable hardwired tests against 
+// the ascii text containing certain strings.  If the ascii
+// text contains 'NOAA', '(FT)', 'ANALY', 'NOWCAST', or 'FORECAST'the 
+// text will be treated as legend.
+
+// if the % of leading cursor moves versus ascii characters is >= T0CP
+// then this will be graphic text.
+T0CP 50
+
+// If a string contains a standard three character abreviation for either
+// a month or day of the week that is delineated by non-alphabetic 
+// characters and it is at least TMLG characters long, then this 
+// is legend text.
+TMLG 8
+
+// The next series of test are non-modifiable hardwired tests against 
+// the ascii text beginning with certain strings.  If the ascii
+// text begins with 'ISSUED', 'VALID', or 'THRU', the text will be
+// treated as legend.
+
+// The next test involves the next two parameters and is only invoked if
+// the string in question is over the area where graphical items have
+// been found (lines or graphic text).  If invoked, this test decides the
+// issue.  When invoked, this can be legend text only if the string 
+// is plain text.  To be legend text in this case, 
+// these following tests involving parameters must also pass.
+// number of alphabetic characters must be >= GNC and 
+GNC 8
+// the % of leading cursor moves versus ascii characters must be < GCP
+GCP 15
+
+// These next two parameters go together for one test.
+// if number of internal spaces is > T2NS  and
+T2NS 0
+// number of alphabetic characters > T2NA then this is legend text
+T2NC 5
+
+// The final test is not parameterized.  If there are no internal spaces and
+// there were character set shifts, then this will be graphic text.
+// Otherwise this is legend text.
