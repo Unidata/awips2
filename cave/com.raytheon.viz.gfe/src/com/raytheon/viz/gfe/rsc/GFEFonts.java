@@ -34,7 +34,7 @@ import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEPreference;
 
 /**
- * TODO Add Description
+ * Get appropriate SWT or GL font based on GFE preferences
  * 
  * <pre>
  * 
@@ -42,11 +42,12 @@ import com.raytheon.viz.gfe.GFEPreference;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 14, 2010            randerso     Initial creation
- * Apr 27, 2011 #9250      bkowal       getStyle and getName are now used to
- *                                      get the style and name associated with
- *                                      a FontData object.
- * Nov 20, 2013 #2488      randerso     Changed to use DejaVu fonts
+ * Oct 14, 2010            randerso    Initial creation
+ * Apr 27, 2011 #9250      bkowal      getStyle and getName are now used to
+ *                                     get the style and name associated with
+ *                                     a FontData object.
+ * Nov 20, 2013 #2488      randerso    Changed to use DejaVu fonts
+ * Nov 05, 2015 #5070      randerso    Remove scale factor for GLFonts (was adjusting for DPI)
  * 
  * </pre>
  * 
@@ -151,8 +152,7 @@ public class GFEFonts {
             style = new IFont.Style[0];
         }
 
-        IFont font = target.initializeFont(fd.getName(), fd.height * 1.2f,
-                style);
+        IFont font = target.initializeFont(fd.getName(), fd.height, style);
         font.setSmoothing(false);
         font.setScaleFont(false);
         return font;

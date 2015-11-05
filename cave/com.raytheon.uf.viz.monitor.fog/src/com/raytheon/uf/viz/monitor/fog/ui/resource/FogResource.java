@@ -75,6 +75,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *    16Jun2012    14386       zhao       Fixed a bug causing auto update to fail; 
  *                                        also modified to keep only latest Fog record for each frame.
  *    29Jul2014    3465        mapeters   Updated deprecated drawString() calls.
+ *    05Nov2015    5070        randerso   Adjust font sizes for dpi scaling
+ * 
  * </pre>
  * 
  * @author dhladky
@@ -112,7 +114,7 @@ public class FogResource extends
     private static float[] fogLabelValues = new float[] { 60.0f, 110.0f, 220.0f };
 
     private GriddedImageDisplay gridDisplay = null;
-    
+
     private Date refHour;
 
     /* The font used */
@@ -142,8 +144,7 @@ public class FogResource extends
         if (record == null) {
             return "No Fog Data Available";
         }
-        return "Fog Threat Level "
-                + record.getDataTime().getLegendString();
+        return "Fog Threat Level " + record.getDataTime().getLegendString();
     }
 
     @Override
@@ -167,20 +168,27 @@ public class FogResource extends
         if (!resourceData.dataObjectMap.containsKey(rh)) {
             try {
                 record = resourceData.populateRecord(pdo);
-                resourceData.dataObjectMap.put(record.getRefHour().getTime(), record);
-                resourceData.gridImageMap.put(record.getRefHour().getTime(), null);
+                resourceData.dataObjectMap.put(record.getRefHour().getTime(),
+                        record);
+                resourceData.gridImageMap.put(record.getRefHour().getTime(),
+                        null);
             } catch (VizException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
             }
-        } else if ( resourceData.dataObjectMap.containsKey(rh) ) {
-        	try {
-        		record = resourceData.populateRecord(pdo);
-        		resourceData.dataObjectMap.remove(record.getRefHour().getTime());
-                resourceData.dataObjectMap.put(record.getRefHour().getTime(), record);
+        } else if (resourceData.dataObjectMap.containsKey(rh)) {
+            try {
+                record = resourceData.populateRecord(pdo);
+                resourceData.dataObjectMap
+                        .remove(record.getRefHour().getTime());
+                resourceData.dataObjectMap.put(record.getRefHour().getTime(),
+                        record);
                 resourceData.gridImageMap.remove(record.getRefHour().getTime());
-                resourceData.gridImageMap.put(record.getRefHour().getTime(), null);
-        	} catch (VizException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+                resourceData.gridImageMap.put(record.getRefHour().getTime(),
+                        null);
+            } catch (VizException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
             }
         }
     }
@@ -206,7 +214,7 @@ public class FogResource extends
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         if (this.font == null) {
-            this.font = target.initializeFont("Dialog", 11, null);
+            this.font = target.initializeFont("Dialog", 9, null);
         }
     }
 
@@ -224,8 +232,11 @@ public class FogResource extends
         }
         this.record = resourceData.dataObjectMap.get(refHour);
         if (record != null) {
-            if(record.getThreats()== null) needsUpdate=true;
-            if (resourceData.gridImageMap.get(refHour) != null && needsUpdate==false) {
+            if (record.getThreats() == null) {
+                needsUpdate = true;
+            }
+            if (resourceData.gridImageMap.get(refHour) != null
+                    && needsUpdate == false) {
                 gridDisplay = resourceData.gridImageMap.get(refHour);
             } else {
                 if (needsUpdate) {
@@ -235,7 +246,7 @@ public class FogResource extends
                 gridDisplay = new GriddedImageDisplay(FloatBuffer.wrap(record
                         .getThreats()), descriptor, record.getGridGeometry());
                 resourceData.gridImageMap.put(refHour, gridDisplay);
-                needsUpdate=false;
+                needsUpdate = false;
             }
         }
         if (!refHour.equals(previousDataTime)) {
@@ -309,21 +320,21 @@ public class FogResource extends
             } catch (org.opengis.referencing.operation.TransformException e) {
                 e.printStackTrace();
             }
-            int select = (int) ((record.getNx() * (int) coor.y) + (int) coor.x);
+            int select = (record.getNx() * (int) coor.y) + (int) coor.x;
 
             if (select < record.getNx() * record.getNy() && select > 0
                     && coor.x > 0 && coor.x < record.getNx()) {
                 inspect = "VIS value: "
-                        + record.getVisArray()[(int) (record.getNx() * (int) coor.y)
+                        + record.getVisArray()[record.getNx() * (int) coor.y
                                 + (int) coor.x]
                         + "\n"
                         + " IR 3.9 value: "
-                        + record.getIR_3_9Array()[(int) (record.getNx() * (int) coor.y)
+                        + record.getIR_3_9Array()[record.getNx() * (int) coor.y
                                 + (int) coor.x]
                         + "\n"
                         + " IR 10.7 value: "
-                        + record.getIR_10_7Array()[(int) (record.getNx() * (int) coor.y)
-                                + (int) coor.x] + "\n";
+                        + record.getIR_10_7Array()[record.getNx()
+                                * (int) coor.y + (int) coor.x] + "\n";
             } else {
                 inspect = "NO DATA";
             }
@@ -416,15 +427,15 @@ public class FogResource extends
         monitor.closeDialog();
 
     }
-    
+
     @Override
     public void project(CoordinateReferenceSystem crs) throws VizException {
-            if (record != null) {
-                record.setGridGeometry2D(null);
-                resourceData.resetGridImgMap();
-                needsUpdate = false;
-                issueRefresh();
-            }
+        if (record != null) {
+            record.setGridGeometry2D(null);
+            resourceData.resetGridImgMap();
+            needsUpdate = false;
+            issueRefresh();
+        }
     }
 
 }

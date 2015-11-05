@@ -91,6 +91,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Aug 11, 2014 3504       mapeters    Replaced deprecated IODataPreparer
  *                                     instances with IRenderedImageCallback.
  * Jun 26, 2015 4512       mapeters    Updated for RedbookWMOMap API changes.
+ * Nov 05, 2015 5070       randerso    Adjust font sizes for dpi scaling
  * 
  * </pre>
  * 
@@ -243,7 +244,7 @@ public class RedbookUpperAirResource extends
      */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        this.font = target.initializeFont("Monospace", 10, null);
+        this.font = target.initializeFont("Monospace", 8, null);
         this.graphicsTarget = target;
     }
 

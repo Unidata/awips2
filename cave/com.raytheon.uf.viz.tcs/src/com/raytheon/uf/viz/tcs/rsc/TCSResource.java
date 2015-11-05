@@ -80,6 +80,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Oct 22, 2010            jsanchez     Initial creation
  * Jul 29, 2014 #3465      mapeters     Updated deprecated drawString() calls.
  * Sep 17, 2014 3632       bclement     fixed index out of bounds
+ * Nov 05, 2015 5070       randerso     Adjust font sizes for dpi scaling
  * 
  * </pre>
  * 
@@ -123,7 +124,7 @@ public class TCSResource extends
         if (font != null) {
             font.dispose();
         }
-        this.font = target.initializeFont("Monospace", 11,
+        this.font = target.initializeFont("Monospace", 9,
                 new Style[] { Style.ITALIC });
         this.symbolLoader = new SymbolLoader();
     }
@@ -142,7 +143,7 @@ public class TCSResource extends
         color = getCapability(ColorableCapability.class).getColor();
         font.setMagnification(getCapability(MagnificationCapability.class)
                 .getMagnification().floatValue());
-        
+
         double screenToWorldRatio = paintProps.getCanvasBounds().width
                 / paintProps.getView().getExtent().getWidth();
         double scale = (PLOT_WIDTH / 2.0) / screenToWorldRatio;

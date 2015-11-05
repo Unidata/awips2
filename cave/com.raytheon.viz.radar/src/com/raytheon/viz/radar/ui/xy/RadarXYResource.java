@@ -85,6 +85,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                    hdf5.
  * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
  * Jul 23, 2014  3429     mapeters    Updated deprecated drawLine() calls.
+ * Nov 05, 2015 5070      randerso    Adjust font sizes for dpi scaling
+ * 
  * </pre>
  * 
  * @author askripsk
@@ -145,7 +147,7 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
         if (this.font == null) {
             // Anything larger than 10 leads to text overlap, to go larger we
             // will need to place the text smarter
-            this.font = target.initializeFont(Font.MONOSPACED, 10,
+            this.font = target.initializeFont(Font.MONOSPACED, 8,
                     new Style[] { Style.BOLD });
         }
         if (paintProps.getDataTime() == null) {
@@ -221,7 +223,8 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
                 .getMagnification().floatValue();
 
         // Paint unlinked lines
-        DrawableLine[] lines = new DrawableLine[this.unlinkedLines.size() + this.linkedLines.size()];
+        DrawableLine[] lines = new DrawableLine[this.unlinkedLines.size()
+                + this.linkedLines.size()];
         int i = 0;
         for (UnlinkedVector currVec : this.unlinkedLines) {
             lines[i] = new DrawableLine();
@@ -280,8 +283,7 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
             plotLoc.y -= 2;
             plotLoc.x *= SCALAR;
             plotLoc.y *= SCALAR;
-            renderables[index].paintBarb(plotLoc,
-                    point.getWindBarbSpd(),
+            renderables[index].paintBarb(plotLoc, point.getWindBarbSpd(),
                     Math.toRadians(point.getWindBarbDir()));
         }
         for (VectorGraphicsRenderable renderable : renderables) {

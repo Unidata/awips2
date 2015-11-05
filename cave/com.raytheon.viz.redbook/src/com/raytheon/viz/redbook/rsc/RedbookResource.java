@@ -69,6 +69,7 @@ import com.raytheon.viz.redbook.rsc.RedbookFrame.RedbookStatus;
  * Mar 13, 2014 2907        njensen     split edex.redbook plugin into common
  *                                      and edex redbook plugins
  * Jun 26, 2015 4512        mapeters    Updated for RedbookWMOMap API changes
+ * Nov 05, 2015 5070        randerso    Adjust font sizes for dpi scaling
  * 
  * </pre>
  * 
@@ -249,7 +250,7 @@ public class RedbookResource extends
                     font = null;
                 }
                 font = target.initializeFont(target.getDefaultFont()
-                        .getFontName(), (float) (10 * magnification), null);
+                        .getFontName(), (float) (8 * magnification), null);
                 magnificationChanged = false;
             }
 

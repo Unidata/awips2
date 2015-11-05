@@ -78,8 +78,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 28, 2009 2675       mpduff     Initial creation
- * Aug 13, 2009 2675       mpduff     TIM Changes added
+ * Jul 28, 2009 2675       mpduff      Initial creation
+ * Aug 13, 2009 2675       mpduff      TIM Changes added
+ * Nov 05, 2015 5070       randerso    Adjust font sizes for dpi scaling
  * 
  * </pre>
  * 
@@ -96,13 +97,12 @@ public class DPAResource extends
     private static final String RADAR_IGNORED = "Radar Data Ignored";
 
     private static final String ALL_ZERO = "Radar Data All Zero";
-    
+
     /** Radar types */
     public static enum SingleSiteRadarType {
-        RAW_SP_RADAR("Raw SP Radar"),
-        RAW_DP_RADAR("Raw DP Radar"), 
-        MEAN_FIELD_BIAS_CORRECTED_SP_RADAR("Mean Field Bias Corrected SP Radar"),
-        RADAR_COVERAGE_MAP("Radar Coverage Map");
+        RAW_SP_RADAR("Raw SP Radar"), RAW_DP_RADAR("Raw DP Radar"), MEAN_FIELD_BIAS_CORRECTED_SP_RADAR(
+                "Mean Field Bias Corrected SP Radar"), RADAR_COVERAGE_MAP(
+                "Radar Coverage Map");
 
         private String text;
 
@@ -112,7 +112,7 @@ public class DPAResource extends
     }
 
     private DPAFile dpaFile;
-    
+
     /** The HRAP subgrid */
     private HRAPSubGrid subGrid;
 
@@ -150,15 +150,15 @@ public class DPAResource extends
     private DrawableString mainString;
 
     private DrawableString ignoredStr;
-    
+
     private DrawableString allZeroStr;
-    
+
     private int available = 0;
 
-    //private SingleSiteRadarType radarType = SingleSiteRadarType.RAW_SP_RADAR;
-    
+    // private SingleSiteRadarType radarType = SingleSiteRadarType.RAW_SP_RADAR;
+
     private SingleSiteRadarType radarType;
-    
+
     private boolean ignored = false;
 
     private Date lastDate = null;
@@ -190,7 +190,7 @@ public class DPAResource extends
         getCapability(ColorableCapability.class).setColor(
                 RGBColors.getRGBColor("Yellow"));
     }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -226,9 +226,9 @@ public class DPAResource extends
 
         return dpaFile.getFile().getAbsolutePath();
     }
-    
-//-------------------------------------------------------------------
-    
+
+    // -------------------------------------------------------------------
+
     /*
      * (non-Javadoc)
      * 
@@ -284,146 +284,131 @@ public class DPAResource extends
         parameters.setDataMin(0);
 
         UnitConverter cvt = parameters.getDataToImageConverter();
-        
-        try
-        {
-        	buf = FloatBuffer.allocate(17161);
-        	Date dtg = MPEDisplayManager.getCurrent().getCurrentEditDate();
 
-        	// available = radar availability flag read from
-        	//   RWRadarResult or DAARadarResult table
-        	// = 0 -- field available (some values > 0.0)
-        	// = 1 -- field not available
-        	// = 2 -- field available (all values = 0.0)
+        try {
+            buf = FloatBuffer.allocate(17161);
+            Date dtg = MPEDisplayManager.getCurrent().getCurrentEditDate();
 
-        	available = 0;
-        	if (radarType == SingleSiteRadarType.RAW_DP_RADAR)
-        	{
-        		available = RadarDataManager.getInstance()
-        				.getAvailableRadarDP(radId, dtg);
-        	}
-        	else
-        	{
-        		available = RadarDataManager.getInstance()
-        				.getAvailableRadarSP(radId, dtg);
+            // available = radar availability flag read from
+            // RWRadarResult or DAARadarResult table
+            // = 0 -- field available (some values > 0.0)
+            // = 1 -- field not available
+            // = 2 -- field available (all values = 0.0)
 
-        		// check for special case of ignored radar
-        		// this behavior is different than A1
-        		ignored = RadarDataManager.getInstance()
-        				.getIgnoreRadarSP(radId, dtg);
-        		if(ignored) available = 0;
-        	}
+            available = 0;
+            if (radarType == SingleSiteRadarType.RAW_DP_RADAR) {
+                available = RadarDataManager.getInstance().getAvailableRadarDP(
+                        radId, dtg);
+            } else {
+                available = RadarDataManager.getInstance().getAvailableRadarSP(
+                        radId, dtg);
 
-        	if (available == 0)
-        	{
-        		
-        		dpaFile.load();
-                if (radarType == SingleSiteRadarType.RAW_SP_RADAR)
-                {
-                	System.out.println("DPAResource: Reading SP Radar Data ");
+                // check for special case of ignored radar
+                // this behavior is different than A1
+                ignored = RadarDataManager.getInstance().getIgnoreRadarSP(
+                        radId, dtg);
+                if (ignored) {
+                    available = 0;
+                }
+            }
+
+            if (available == 0) {
+
+                dpaFile.load();
+                if (radarType == SingleSiteRadarType.RAW_SP_RADAR) {
+                    System.out.println("DPAResource: Reading SP Radar Data ");
                     data = dpaFile.getStage1i();
-                }
-                else if (radarType == SingleSiteRadarType.RAW_DP_RADAR)
-                {
-                	System.out.println("DPAResource: Reading DP Radar Data ");
-                	 data = dpaFile.getStage1i();
-                }
-                else if (radarType == SingleSiteRadarType.MEAN_FIELD_BIAS_CORRECTED_SP_RADAR)
-                {
-                	System.out.println("DPAResource: Reading MFB Corrected SP Radar Data ");
+                } else if (radarType == SingleSiteRadarType.RAW_DP_RADAR) {
+                    System.out.println("DPAResource: Reading DP Radar Data ");
+                    data = dpaFile.getStage1i();
+                } else if (radarType == SingleSiteRadarType.MEAN_FIELD_BIAS_CORRECTED_SP_RADAR) {
+                    System.out
+                            .println("DPAResource: Reading MFB Corrected SP Radar Data ");
                     data = dpaFile.getStage1u();
-                } 
-                else
-                {
+                } else {
                     data = dpaFile.getZeroData();
                 }
-                
-        		for (int i = 0; i < 131; i++) {
-        			for (int j = 0; j < 131; j++) {
-        				float f = -9999;
-        				if (data[i][j] != -9999) {
-        					f = (float) Math.floor(cvt.convert(data[i][j]));
-        				}
 
-        				int dx = i - 66;
-        				int dy = j - 66;
-        				double dist = Math.sqrt(dx * dx + dy * dy);
+                for (int i = 0; i < 131; i++) {
+                    for (int j = 0; j < 131; j++) {
+                        float f = -9999;
+                        if (data[i][j] != -9999) {
+                            f = (float) Math.floor(cvt.convert(data[i][j]));
+                        }
 
-        				// If grid cell outside radius then set missing
-        				if (dist > ngrd) {
-        					f = -9999;
-        				}
-        				buf.put(f);
-        			}
-        		}
-        		buf.rewind();
-        		missingData = false;
-        	}
-        	else if (available == 2)
-        	{
-        		for (int i = 0; i < 131; i++) {
-        			for (int j = 0; j < 131; j++) {
-        				buf.put(0.0f);
-        			}
-        		}
-        		buf.rewind();
-        		missingData = false;
-        	}
-        	else
-        	{
-        		for (int i = 0; i < 131; i++) {
-        			for (int j = 0; j < 131; j++) {
-        				buf.put(-1f);
-        			}
-        		}
-        		buf.rewind();
-        		missingData = true;
-        	}
+                        int dx = i - 66;
+                        int dy = j - 66;
+                        double dist = Math.sqrt(dx * dx + dy * dy);
 
-        	/* Retrieve the Latitude/Longitude of the radars */
-        	Coordinate latLon;
-        	List<MPERadarLoc> radarList = MPEDataManager.getInstance()
-        			.getRadars();
-        	for (MPERadarLoc radarLoc : radarList) {
-        		if (radarLoc.getId().equalsIgnoreCase(radId)) {
-        			latLon = radarLoc.getLatLon();
-        			if (latLon == null) {
-        				continue;
-        			}
-        			if ((latLon.x == 0.) || (latLon.y == 0.)) {
-        				continue;
-        			}
+                        // If grid cell outside radius then set missing
+                        if (dist > ngrd) {
+                            f = -9999;
+                        }
+                        buf.put(f);
+                    }
+                }
+                buf.rewind();
+                missingData = false;
+            } else if (available == 2) {
+                for (int i = 0; i < 131; i++) {
+                    for (int j = 0; j < 131; j++) {
+                        buf.put(0.0f);
+                    }
+                }
+                buf.rewind();
+                missingData = false;
+            } else {
+                for (int i = 0; i < 131; i++) {
+                    for (int j = 0; j < 131; j++) {
+                        buf.put(-1f);
+                    }
+                }
+                buf.rewind();
+                missingData = true;
+            }
 
-        			/* calculate HRAP coordinates from lat,lon */
-        			Coordinate hp = new Coordinate(0, 0);
-        			hp = HRAP.getInstance().latLonToGridCoordinate(latLon,
-        					PixelOrientation.UPPER_LEFT);
-        			int minx = (int) hp.x - 65;
-        			int miny = (int) hp.y - 65;
+            /* Retrieve the Latitude/Longitude of the radars */
+            Coordinate latLon;
+            List<MPERadarLoc> radarList = MPEDataManager.getInstance()
+                    .getRadars();
+            for (MPERadarLoc radarLoc : radarList) {
+                if (radarLoc.getId().equalsIgnoreCase(radId)) {
+                    latLon = radarLoc.getLatLon();
+                    if (latLon == null) {
+                        continue;
+                    }
+                    if ((latLon.x == 0.) || (latLon.y == 0.)) {
+                        continue;
+                    }
 
-        			extent = new Rectangle(minx, miny, 131, 131);
-        			break;
-        		}
-        	}
+                    /* calculate HRAP coordinates from lat,lon */
+                    Coordinate hp = new Coordinate(0, 0);
+                    hp = HRAP.getInstance().latLonToGridCoordinate(latLon,
+                            PixelOrientation.UPPER_LEFT);
+                    int minx = (int) hp.x - 65;
+                    int miny = (int) hp.y - 65;
 
-        	if ((extent.x == 0) && (extent.y == 0)) {
-        		Rectangle coord = HRAPCoordinates.getHRAPCoordinates();
-        		if ((extent.width == coord.width)
-        				&& (extent.height == coord.height)) {
-        			extent = coord;
-        		} else {
-        			dpaFile = null;
-        			return;
-        		}
-        	}
-        	subGrid = new HRAPSubGrid(extent);
+                    extent = new Rectangle(minx, miny, 131, 131);
+                    break;
+                }
+            }
 
-        	gridGeometry = MapUtil.getGridGeometry(subGrid);
+            if ((extent.x == 0) && (extent.y == 0)) {
+                Rectangle coord = HRAPCoordinates.getHRAPCoordinates();
+                if ((extent.width == coord.width)
+                        && (extent.height == coord.height)) {
+                    extent = coord;
+                } else {
+                    dpaFile = null;
+                    return;
+                }
+            }
+            subGrid = new HRAPSubGrid(extent);
 
-        	project(gridGeometry.getCoordinateReferenceSystem());   
-        }
-        catch (Exception e)
-        {
+            gridGeometry = MapUtil.getGridGeometry(subGrid);
+
+            project(gridGeometry.getCoordinateReferenceSystem());
+        } catch (Exception e) {
             dpaFile = null;
             e.printStackTrace();
         }
@@ -433,26 +418,25 @@ public class DPAResource extends
         ignoredStr = new DrawableString(RADAR_IGNORED,
                 RGBColors.getRGBColor("Red"));
         allZeroStr = new DrawableString(ALL_ZERO,
-                 RGBColors.getRGBColor("Green"));
+                RGBColors.getRGBColor("Green"));
 
         if (missingData
                 && (radarType == SingleSiteRadarType.MEAN_FIELD_BIAS_CORRECTED_SP_RADAR
-                || radarType == SingleSiteRadarType.RAW_SP_RADAR
-                || radarType == SingleSiteRadarType.RAW_DP_RADAR))
-        {
+                        || radarType == SingleSiteRadarType.RAW_SP_RADAR || radarType == SingleSiteRadarType.RAW_DP_RADAR)) {
             missingString = new DrawableString(MISSING_DATA, getCapability(
                     ColorableCapability.class).getColor());
         }
 
-        ignoredStr.font = allZeroStr.font = mainString.font = target.initializeFont("Dialog", 12, null);
+        ignoredStr.font = allZeroStr.font = mainString.font = target
+                .initializeFont("Dialog", 10, null);
 
         if (missingString != null) {
             missingString.font = mainString.font;
         }
-        
+
     }
 
-//---------------------------------------------------------------
+    // ---------------------------------------------------------------
     /*
      * (non-Javadoc)
      * 
@@ -503,19 +487,17 @@ public class DPAResource extends
         Date date = MPEDisplayManager.getCurrent().getCurrentEditDate();
         if (date.equals(lastDate) == false) {
             // Check for ignored Radar
-        	if (radarType.equals(SingleSiteRadarType.RAW_SP_RADAR) || 
-        			radarType.equals(SingleSiteRadarType.MEAN_FIELD_BIAS_CORRECTED_SP_RADAR))
-        	{
-        		ignored = RadarDataManager.getInstance()
-        				.getIgnoreRadarSP(radId, date);
-        		lastDate = date;
-        	}
-        	else if (radarType.equals(SingleSiteRadarType.RAW_DP_RADAR))
-        	{
-        		ignored = RadarDataManager.getInstance()
-        				.getIgnoreRadarDP(radId, date);
-        		lastDate = date;
-        	}
+            if (radarType.equals(SingleSiteRadarType.RAW_SP_RADAR)
+                    || radarType
+                            .equals(SingleSiteRadarType.MEAN_FIELD_BIAS_CORRECTED_SP_RADAR)) {
+                ignored = RadarDataManager.getInstance().getIgnoreRadarSP(
+                        radId, date);
+                lastDate = date;
+            } else if (radarType.equals(SingleSiteRadarType.RAW_DP_RADAR)) {
+                ignored = RadarDataManager.getInstance().getIgnoreRadarDP(
+                        radId, date);
+                lastDate = date;
+            }
         }
 
         if (missingString != null) {
@@ -530,18 +512,17 @@ public class DPAResource extends
                     screenExtent.getMaxY() - 25, 0.0);
             target.drawStrings(ignoredStr);
         }
-        
-        else if (ignored && (radarType == SingleSiteRadarType.RAW_DP_RADAR))
-        {
-        	 ignoredStr.setCoordinates(screenExtent.getMinX() + 50,
-                     screenExtent.getMaxY() - 25, 0.0);
-             target.drawStrings(ignoredStr);
+
+        else if (ignored && (radarType == SingleSiteRadarType.RAW_DP_RADAR)) {
+            ignoredStr.setCoordinates(screenExtent.getMinX() + 50,
+                    screenExtent.getMaxY() - 25, 0.0);
+            target.drawStrings(ignoredStr);
         }
-        if (available == 2 && (radarType == SingleSiteRadarType.RAW_DP_RADAR || radarType == SingleSiteRadarType.RAW_SP_RADAR))
-        {
-       	     allZeroStr.setCoordinates(screenExtent.getMinX() + 600,
-                  screenExtent.getMaxY() - 25, 0.0);
-             target.drawStrings(allZeroStr);
+        if (available == 2
+                && (radarType == SingleSiteRadarType.RAW_DP_RADAR || radarType == SingleSiteRadarType.RAW_SP_RADAR)) {
+            allZeroStr.setCoordinates(screenExtent.getMinX() + 600,
+                    screenExtent.getMaxY() - 25, 0.0);
+            target.drawStrings(allZeroStr);
         }
     }
 

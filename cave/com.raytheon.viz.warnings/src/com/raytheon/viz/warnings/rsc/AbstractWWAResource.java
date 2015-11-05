@@ -69,26 +69,27 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 3, 2011            jsanchez     Initial creation
- * Aug 5, 2011            njensen       Refactored maps
- * Aug 22, 2011  10631   njensen  Major refactor
+ * May 3, 2011             jsanchez    Initial creation
+ * Aug 5, 2011             njensen     Refactored maps
+ * Aug 22, 2011  10631     njensen     Major refactor
  * May 31, 2012 DR14992  mgamazaychikov Changed the order of strings in the
  *                                      String array returned from getText method
  * Jun 04, 2012 DR14992  mgamazaychikov Reversed the previous changes
- * Sep 26, 2012          jsanchez       Refactored AbstractWarningResource and AbstractWatchesResource into this class.
- * Apr 11, 2013   1877   jsanchez       Updated conditions for matching a frame.
- * Apr 18, 2013   1877   jsanchez       Had the child classes set the comparator. Fixed a null pointer.
- *                                      Remove frameAltered condition in matchesFrame. It prevented entries from being displayed.
- *                                      Check if geometry is null when inspecting.
- * Jul 22, 2013   2176   jsanchez       Updated the wire frame and text for EMERGENCY warnings.
- * Sep  4, 2013   2176   jsanchez       Made the polygon line width thicker and made regular text not bold.
- * Nov 11, 2013   2439   rferrel        Changes to prevent getting future warning when in DRT mode.
- * Dec  3, 2013   2576   jsanchez       Increased the font size of EMER.
- * Mar 10, 2014   2832   njensen        Moved duplicated subclass's disposeInternal() logic here
- * Aug 14, 2014   3523   mapeters       Updated deprecated {@link DrawableString#textStyle} 
- *                                      assignments.
- * Dec 5, 2014   DR14944 jgerth         Only set outline width when there is no existing capability
- * Oct 16, 2015   4971   bsteffen       Do not reverse order of text.
+ * Sep 26, 2012            jsanchez    Refactored AbstractWarningResource and AbstractWatchesResource into this class.
+ * Apr 11, 2013   1877     jsanchez    Updated conditions for matching a frame.
+ * Apr 18, 2013   1877     jsanchez    Had the child classes set the comparator. Fixed a null pointer.
+ *                                     Remove frameAltered condition in matchesFrame. It prevented entries from being displayed.
+ *                                     Check if geometry is null when inspecting.
+ * Jul 22, 2013   2176     jsanchez    Updated the wire frame and text for EMERGENCY warnings.
+ * Sep  4, 2013   2176     jsanchez    Made the polygon line width thicker and made regular text not bold.
+ * Nov 11, 2013   2439     rferrel     Changes to prevent getting future warning when in DRT mode.
+ * Dec  3, 2013   2576     jsanchez    Increased the font size of EMER.
+ * Mar 10, 2014   2832     njensen     Moved duplicated subclass's disposeInternal() logic here
+ * Aug 14, 2014   3523     mapeters    Updated deprecated {@link DrawableString#textStyle} 
+ *                                     assignments.
+ * Dec 5, 2014   DR14944   jgerth      Only set outline width when there is no existing capability
+ * Oct 16, 2015   4971     bsteffen    Do not reverse order of text.
+ * Nov 05, 2015   5070     randerso    Adjust font sizes for dpi scaling
  * 
  * </pre>
  * 
@@ -211,8 +212,9 @@ public abstract class AbstractWWAResource extends
         FramesInfo framesInfo = this.descriptor.getFramesInfo();
         int frameIdx = framesInfo.getFrameIndex();
         DataTime[] frameTimes = framesInfo.getFrameTimes();
-        if (frameIdx < 0 || frameIdx >= frameTimes.length)
+        if (frameIdx < 0 || frameIdx >= frameTimes.length) {
             return "NO DATA";
+        }
         DataTime time = frameTimes[frameIdx];
 
         TimeRange framePeriod = null;
@@ -359,8 +361,9 @@ public abstract class AbstractWWAResource extends
                             || (current.record.getIssueTime().equals(
                                     entry.record.getIssueTime()) && current.record
                                     .getInsertTime().before(
-                                            entry.record.getInsertTime())))
+                                            entry.record.getInsertTime()))) {
                         candidates.put(key, entry);
+                    }
                 }
             }
             for (WarningEntry entry : candidates.values()) {
@@ -413,10 +416,10 @@ public abstract class AbstractWWAResource extends
                     String[] textToPrint = getText(record, mapWidth);
                     if (warningsFont == null) {
                         warningsFont = target.initializeFont(target
-                                .getDefaultFont().getFontName(), 11,
+                                .getDefaultFont().getFontName(), 9,
                                 new IFont.Style[0]);
                         emergencyFont = target.getDefaultFont().deriveWithSize(
-                                14);
+                                12);
                     }
 
                     DrawableString params = new DrawableString(textToPrint,

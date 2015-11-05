@@ -70,6 +70,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                     graphResource in paintUnits() to prevent
  *                                     ConcurrentModification in a single thread.
  * Jul 21, 2015 4220       mapeters    Reset zoomHandler when constructing this graph
+ * Nov 05, 2015 5070       randerso    Adjust font sizes for dpi scaling
  * 
  * </pre>
  * 
@@ -191,7 +192,7 @@ public class VarHeightGraph extends AbstractGraph {
     protected void paintTitles(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
         if (titleFont == null) {
-            titleFont = target.initializeFont((String) null, 11.0f,
+            titleFont = target.initializeFont((String) null, 9,
                     new IFont.Style[] { IFont.Style.BOLD });
         }
 
@@ -216,7 +217,7 @@ public class VarHeightGraph extends AbstractGraph {
     protected void paintUnits(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
         if (unitsFont == null) {
-            unitsFont = target.initializeFont((String) null, 10.0f,
+            unitsFont = target.initializeFont((String) null, 8,
                     new IFont.Style[] {});
         }
         paintHeightUnits(target, paintProps);

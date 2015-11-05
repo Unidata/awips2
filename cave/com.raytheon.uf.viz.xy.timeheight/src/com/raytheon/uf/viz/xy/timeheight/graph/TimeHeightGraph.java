@@ -52,8 +52,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 03, 2010            bsteffen     Initial creation
- * Jun 18, 2014 3242       njensen      Null safety checks
+ * Jul 03, 2010            bsteffen    Initial creation
+ * Jun 18, 2014 3242       njensen     Null safety checks
+ * Nov 05, 2015 5070       randerso    Adjust font sizes for dpi scaling
  * 
  * </pre>
  * 
@@ -167,7 +168,7 @@ public class TimeHeightGraph extends AbstractGraph {
     protected void paintTitles(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
         if (titleFont == null) {
-            titleFont = target.initializeFont((String) null, 11.0f,
+            titleFont = target.initializeFont((String) null, 9,
                     new IFont.Style[] { IFont.Style.BOLD });
         }
 
@@ -191,7 +192,7 @@ public class TimeHeightGraph extends AbstractGraph {
     protected void paintUnits(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
         if (unitsFont == null) {
-            unitsFont = target.initializeFont((String) null, 10.0f,
+            unitsFont = target.initializeFont((String) null, 8,
                     new IFont.Style[] {});
         }
 

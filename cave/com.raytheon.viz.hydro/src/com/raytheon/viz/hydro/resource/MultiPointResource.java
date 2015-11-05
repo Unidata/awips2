@@ -136,6 +136,7 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * Jun 26, 2015 17386       xwei        Fixed : HydroView crashes in when Refresh Data after loading saved display files
  * Jul 06, 2015 4215        mpduff      Correct the fact that user's cannot click and view time series.
  * Oct 05, 2015 17978       lbousaidi   Enable TimeStep GUI to display multiple values and Parameter Codes for a given lid
+ * Nov 05, 2015 5070        randerso    Adjust font sizes for dpi scaling
  * 
  * </pre>
  * 
@@ -193,23 +194,30 @@ public class MultiPointResource extends
          */
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
+            if (this == obj) {
                 return true;
-            if (obj == null)
+            }
+            if (obj == null) {
                 return false;
-            if (getClass() != obj.getClass())
+            }
+            if (getClass() != obj.getClass()) {
                 return false;
+            }
             HydroImageMakerCallback other = (HydroImageMakerCallback) obj;
             if (color == null) {
-                if (other.color != null)
+                if (other.color != null) {
                     return false;
-            } else if (!color.equals(other.color))
+                }
+            } else if (!color.equals(other.color)) {
                 return false;
+            }
             if (dispClass == null) {
-                if (other.dispClass != null)
+                if (other.dispClass != null) {
                     return false;
-            } else if (!dispClass.equals(other.dispClass))
+                }
+            } else if (!dispClass.equals(other.dispClass)) {
                 return false;
+            }
             return true;
         }
 
@@ -224,7 +232,7 @@ public class MultiPointResource extends
     private final Map<String, GageDataTimeStep> dataMapTimeStep = new HashMap<String, GageDataTimeStep>();
 
     private STRtree strTree = new STRtree();
-    
+
     private STRtree strTreeTimeStep = new STRtree();
 
     private IFont font;
@@ -325,7 +333,7 @@ public class MultiPointResource extends
             container.registerMouseHandler(inputManager);
         }
 
-        fontSize = 10;
+        fontSize = 8;
         font = target.initializeFont("Dialog", fontSize, null);
         font.setSmoothing(false);
 
@@ -339,10 +347,10 @@ public class MultiPointResource extends
             for (GageData gage : data) {
                 /* Get the point color for this location */
                 if ((gage.getLid() != null) && gage.isUse()) {
-                    if ( pcOptions.getQueryMode() == 1 ){
-                    	addPointTimeStep(gage);	
-                    }else{
-                    	addPoint(gage);
+                    if (pcOptions.getQueryMode() == 1) {
+                        addPointTimeStep(gage);
+                    } else {
+                        addPoint(gage);
                     }
                 }
             }
@@ -354,28 +362,29 @@ public class MultiPointResource extends
      * 
      * @param gage
      *            GageData object
-     */                                                    
-     private synchronized void addPointTimeStep(GageData gage) {
+     */
+    private synchronized void addPointTimeStep(GageData gage) {
         String lid = gage.getLid();
-                
-        if ( !dataMapTimeStep.containsKey(lid) ) {
-            
-        	Coordinate xy = new Coordinate(gage.getLon(), gage.getLat());
+
+        if (!dataMapTimeStep.containsKey(lid)) {
+
+            Coordinate xy = new Coordinate(gage.getLon(), gage.getLat());
             gage.setCoordinate(xy);
 
             /* Create a small envelope around the point */
-            PixelExtent pe = getPixelExtent( gage, getShiftWidth(gage), getShiftHeight(gage) );
-            Envelope newEnv = descriptor.pixelToWorld( pe );
+            PixelExtent pe = getPixelExtent(gage, getShiftWidth(gage),
+                    getShiftHeight(gage));
+            Envelope newEnv = descriptor.pixelToWorld(pe);
 
-            GageDataTimeStep newGageTS = new GageDataTimeStep( gage );
-            
+            GageDataTimeStep newGageTS = new GageDataTimeStep(gage);
+
             strTree.insert(newEnv, newGageTS);
-            dataMapTimeStep.put(lid, newGageTS);         
-            
-        } else{
-        	dataMapTimeStep.get(lid).Update(gage);
+            dataMapTimeStep.put(lid, newGageTS);
+
+        } else {
+            dataMapTimeStep.get(lid).Update(gage);
         }
-        
+
     }
 
     private synchronized void addPoint(GageData gage) {
@@ -456,7 +465,6 @@ public class MultiPointResource extends
         return new PixelExtent(coors);
     }
 
-    
     /**
      * Draws the plot information for TimeStep
      * 
@@ -471,89 +479,90 @@ public class MultiPointResource extends
      * @param target
      *            the graphics target
      * @throws VizException
-     */                                               
-    private Collection<DrawableString> drawPlotInfoTimeStep(GageDataTimeStep gageTimeStep,
-            double shiftWidth, double shiftHeight, PaintProperties paintProps,
+     */
+    private Collection<DrawableString> drawPlotInfoTimeStep(
+            GageDataTimeStep gageTimeStep, double shiftWidth,
+            double shiftHeight, PaintProperties paintProps,
             IGraphicsTarget target) throws VizException {
         List<DrawableString> strings = new ArrayList<DrawableString>();
         Coordinate c = gageTimeStep.getCoordinate();
 
-        
-        
         /* Logic for determining how the data values are displayed. */
         boolean showValue1 = pdcManager.isValue();
-        
 
         double[] centerpixels = descriptor
                 .worldToPixel(new double[] { c.x, c.y });
 
         if (showValue1) {
-        	
-        	String [] valueStrings;
-        	
-        	if ( pcOptions.getElementType() == 1 ){
-        		valueStrings = gageTimeStep.getRainValue( pcOptions.getPrecipPeFilter() ).split("\n");  
-        	}else{
-        		valueStrings = gageTimeStep.getOtherValue().split("\n");
-        	}
-        	
-        	int strSize = valueStrings.length;
-        	
-        	RGB[] strColor = new RGB[strSize];
-        	
-        	if ( strSize > 0){
-                for (int i=0; i<strSize; i++){
-                    if (valueStrings[i]!=""){
-                        if ( valueStrings[i].equalsIgnoreCase("M") ){
+
+            String[] valueStrings;
+
+            if (pcOptions.getElementType() == 1) {
+                valueStrings = gageTimeStep.getRainValue(
+                        pcOptions.getPrecipPeFilter()).split("\n");
+            } else {
+                valueStrings = gageTimeStep.getOtherValue().split("\n");
+            }
+
+            int strSize = valueStrings.length;
+
+            RGB[] strColor = new RGB[strSize];
+
+            if (strSize > 0) {
+                for (int i = 0; i < strSize; i++) {
+                    if (valueStrings[i] != "") {
+                        if (valueStrings[i].equalsIgnoreCase("M")) {
                             strColor[i] = RGBColors.getRGBColor("White");
-                        }else{
-                            strColor[i] = getValueLabelColorTimeStep( gageTimeStep.getLid(), Double.parseDouble( valueStrings[i] ) );
+                        } else {
+                            strColor[i] = getValueLabelColorTimeStep(
+                                    gageTimeStep.getLid(),
+                                    Double.parseDouble(valueStrings[i]));
                         }
                     }
                 }
             }
-            
+
             Coordinate valueCoor = new Coordinate(
                     (centerpixels[0] + shiftWidth) - getScaleWidth(),
                     (centerpixels[1] + shiftHeight) - getScaleHeight() / 2);
-            
+
             /*
-             * If in timestep mode and icon drawing off, draw a circle
-             * matching the color of the text
+             * If in timestep mode and icon drawing off, draw a circle matching
+             * the color of the text
              */
             if (pcOptions.getIcon() == 0) {
-                    Coordinate cd = gageTimeStep.getCoordinate();
-                    centerpixels = descriptor.worldToPixel(new double[] { cd.x,
-                            cd.y });
-                    Coordinate[] coors = new Coordinate[4];
-                    coors[0] = new Coordinate((centerpixels[0] + shiftWidth)
-                            - getScaleWidth(), (centerpixels[1] + shiftHeight)
-                            - getScaleHeight());
-                    coors[1] = new Coordinate((centerpixels[0] + shiftWidth)
-                            + getScaleWidth(), (centerpixels[1] + shiftHeight)
-                            - getScaleHeight());
-                    coors[2] = new Coordinate((centerpixels[0] + shiftWidth)
-                            + getScaleWidth(), (centerpixels[1] + shiftHeight)
-                            + getScaleHeight());
-                    coors[3] = new Coordinate((centerpixels[0] + shiftWidth)
-                            - getScaleWidth(), (centerpixels[1] + shiftHeight)
-                            + getScaleHeight());
+                Coordinate cd = gageTimeStep.getCoordinate();
+                centerpixels = descriptor.worldToPixel(new double[] { cd.x,
+                        cd.y });
+                Coordinate[] coors = new Coordinate[4];
+                coors[0] = new Coordinate((centerpixels[0] + shiftWidth)
+                        - getScaleWidth(), (centerpixels[1] + shiftHeight)
+                        - getScaleHeight());
+                coors[1] = new Coordinate((centerpixels[0] + shiftWidth)
+                        + getScaleWidth(), (centerpixels[1] + shiftHeight)
+                        - getScaleHeight());
+                coors[2] = new Coordinate((centerpixels[0] + shiftWidth)
+                        + getScaleWidth(), (centerpixels[1] + shiftHeight)
+                        + getScaleHeight());
+                coors[3] = new Coordinate((centerpixels[0] + shiftWidth)
+                        - getScaleWidth(), (centerpixels[1] + shiftHeight)
+                        + getScaleHeight());
 
-                    PixelExtent pe = new PixelExtent(coors);
-                    pe.scale(.07);
+                PixelExtent pe = new PixelExtent(coors);
+                pe.scale(.07);
 
-                    target.drawShadedRect(pe, RGBColors.getRGBColor("White"), 1, null);
-            }            
-            
+                target.drawShadedRect(pe, RGBColors.getRGBColor("White"), 1,
+                        null);
+            }
+
             DrawableString string = new DrawableString(valueStrings, strColor);
-            
+
             string.font = font;
             string.horizontalAlignment = HorizontalAlignment.RIGHT;
 
-            
             string.setCoordinates(valueCoor.x, valueCoor.y);
             strings.add(string);
-            
+
         }
 
         if (pdcManager.isTime()) {
@@ -569,7 +578,6 @@ public class MultiPointResource extends
             string.font = font;
             string.setCoordinates(dateCoor1.x, dateCoor1.y);
             strings.add(string);
-           
 
             string = new DrawableString(sdf2.format(gageTimeStep.getValidtime()
                     .getTime()), LABEL_COLOR);
@@ -604,16 +612,16 @@ public class MultiPointResource extends
         }
 
         if (pdcManager.isPE()) {
-        	
-        	String pe = "";
-        	if ( pcOptions.getElementType() == 1 ){
-        		
-        		 pe = gageTimeStep.getRainParam(pcOptions.getPrecipPeFilter());
-        	}else{
-        		
-        		 pe = gageTimeStep.getOtherParam();
-        	}
-        	
+
+            String pe = "";
+            if (pcOptions.getElementType() == 1) {
+
+                pe = gageTimeStep.getRainParam(pcOptions.getPrecipPeFilter());
+            } else {
+
+                pe = gageTimeStep.getOtherParam();
+            }
+
             Coordinate peCoor = new Coordinate(centerpixels[0] + shiftWidth
                     + getScaleWidth(), centerpixels[1] + shiftHeight
                     - getScaleHeight() / 2);
@@ -621,8 +629,7 @@ public class MultiPointResource extends
             string.font = font;
             string.setCoordinates(peCoor.x, peCoor.y);
             strings.add(string);
-            
-            
+
         }
 
         if (pdcManager.isElevation()) {
@@ -631,41 +638,43 @@ public class MultiPointResource extends
                     + getScaleWidth(), centerpixels[1] + shiftHeight
                     - getScaleHeight() / 2);
 
-            DrawableString string = new DrawableString(df.format(gageTimeStep.getElevation()), LABEL_COLOR);
+            DrawableString string = new DrawableString(df.format(gageTimeStep
+                    .getElevation()), LABEL_COLOR);
             string.font = font;
             string.setCoordinates(elCoor.x, elCoor.y);
             strings.add(string);
         }
         return strings;
     }
-    
-   
+
     /**
-     * Gets the color for value label in TimeStep mode 
+     * Gets the color for value label in TimeStep mode
      * 
-     * @param plid   lid string
-     *
-     * @param pValue value
-     *
+     * @param plid
+     *            lid string
+     * 
+     * @param pValue
+     *            value
+     * 
      * @throws VizException
-     */                                                            
-    private RGB getValueLabelColorTimeStep( String pLid, double pValue ){
-    	
-    	RGB textColor = RGBColors.getRGBColor("White");
-        
+     */
+    private RGB getValueLabelColorTimeStep(String pLid, double pValue) {
+
+        RGB textColor = RGBColors.getRGBColor("White");
+
         if ((pcOptions.getTsDataElement() == HydroConstants.TimeStepDataElement.STAGE_POOL_TSDE
-                    .getElementType())
-                    || (pcOptions.getTsDataElement() == HydroConstants.TimeStepDataElement.FLOW_STORAGE_TSDE
-                            .getElementType())) {
-                textColor = getRiverValueColorForTimeStepMode( pLid, pValue );
+                .getElementType())
+                || (pcOptions.getTsDataElement() == HydroConstants.TimeStepDataElement.FLOW_STORAGE_TSDE
+                        .getElementType())) {
+            textColor = getRiverValueColorForTimeStepMode(pLid, pValue);
         } else {
-                // textColor = new RGB(255, 255, 255);
-                textColor = determineValueColor( pValue );
+            // textColor = new RGB(255, 255, 255);
+            textColor = determineValueColor(pValue);
         }
 
         return textColor;
     }
-    
+
     /**
      * Draws the plot information
      * 
@@ -690,7 +699,6 @@ public class MultiPointResource extends
         int floodLevel = pcOptions.getFloodLevel();
         int deriveStageFlow = pcOptions.getDeriveStageFlow();
 
-        
         String valueLabel = null;
         String formatStr = null;
 
@@ -706,7 +714,7 @@ public class MultiPointResource extends
                     && (pcOptions.getElementType() == HydroConstants.AdHocDataElementType.RIVER_AD_HOC_TYPE
                             .getAdHocDataElementType())) {
                 showValue2 = true;
-                
+
             }
         }
 
@@ -726,7 +734,7 @@ public class MultiPointResource extends
                     (centerpixels[1] + shiftHeight) - getScaleHeight() / 2);
 
             textColor = RGBColors.getRGBColor("white");
-            
+
             DrawableString string = new DrawableString(valueLabel, textColor);
             string.font = font;
             string.horizontalAlignment = HorizontalAlignment.RIGHT;
@@ -980,16 +988,15 @@ public class MultiPointResource extends
         pdcManager.setColorUseName(colorUseName);
         pdcManager.setMultiPointResource(this);
         setScaleValues(paintProps);
-        
+
         resetDataMap();
-        
-                                                           
-        if ( pcOptions.getQueryMode() == 1 ){                          
-        	paintInternalHelperTimeStep( target, paintProps );	       
-        }else{                                                         
-        	paintInternalHelper( target, paintProps );                 
-        }                                                              
-        
+
+        if (pcOptions.getQueryMode() == 1) {
+            paintInternalHelperTimeStep(target, paintProps);
+        } else {
+            paintInternalHelper(target, paintProps);
+        }
+
         GageData currentData = manager.getCurrentData();
         if (currentData != null) {
             List<GageData> siteList = pdcManager.getObsReportList();
@@ -1004,7 +1011,7 @@ public class MultiPointResource extends
         }
 
     }
- 
+
     /**
      * Paint method called to display this resource in TimeStep mode.
      * 
@@ -1013,69 +1020,73 @@ public class MultiPointResource extends
      * @param paintProps
      *            The Paint Properties
      * @throws VizException
-     */                                                          
-    private void paintInternalHelperTimeStep(IGraphicsTarget target, PaintProperties paintProps) throws VizException {
-    	
-    	List<GageData> data = pdcManager.getObsReportList();
-    	
-    	if (data == null) {
-    		return;
-    	}
-    	
-    	for (GageData gage : data) {
-    		/* Get the point color for this location */
-    		if ((gage.getLid() != null) && gage.isUse()) {
-    	
-    			addPointTimeStep(gage);
-    			
-    		}
-    		
-    	}
-    	
-    	IExtent extent = paintProps.getView().getExtent();
-    	     
-    	List<PointImage> images = new ArrayList<PointImage>( dataMapTimeStep.size() );
-    	List<DrawableString> strings = new ArrayList<DrawableString>( dataMapTimeStep.size() * 3 );
-    	
-    	Iterator<Entry<String, GageDataTimeStep>> it = dataMapTimeStep.entrySet().iterator();
-    	Map.Entry<String, GageDataTimeStep> gageTS = null;
-    	while ( it.hasNext() ) {
-    			gageTS = it.next();
-    		
-    			Coordinate c = gageTS.getValue().getCoordinate();
-    			double[] pixel = descriptor.worldToPixel(new double[] { c.x, c.y });
-    			
-    			if (pixel != null && extent.contains(pixel)) {
-    				double shiftHeightValue = getShiftHeight(gageTS.getValue());
-    				double shiftWidthValue = getShiftWidth(gageTS.getValue());
-    				/* Draw the icons */
-    				if (pcOptions.getIcon() == 1) {
-    					RGB color = null;
-    					if (pcOptions.getRiverStatus() == 1) {
-    						color = gageTS.getValue().getColor();
-    					} else {
-    						color = RGBColors.getRGBColor(colorSet.get(0)
-                            .getColorname().getColorName());
-    					}    
-    					PointImage image = new PointImage( 
-    								getIcon(target, gageTS.getValue(), color), pixel[0], pixel[1] 
-    							);
-    				    					
-    					image.setSiteId(gageTS.getValue().getLid());
-    					images.add(image);
-    				}
-    				strings.addAll( drawPlotInfoTimeStep( gageTS.getValue(), shiftWidthValue, shiftHeightValue, paintProps, target ) );
-    			}
-    		
-    	}
+     */
+    private void paintInternalHelperTimeStep(IGraphicsTarget target,
+            PaintProperties paintProps) throws VizException {
 
-    	if (images.size() > 0) {
-    		target.getExtension(IPointImageExtension.class)
-            .drawPointImages(paintProps, images);
-    	}
-    	if (strings.size() > 0) {
-    		target.drawStrings(strings);
-    	}
+        List<GageData> data = pdcManager.getObsReportList();
+
+        if (data == null) {
+            return;
+        }
+
+        for (GageData gage : data) {
+            /* Get the point color for this location */
+            if ((gage.getLid() != null) && gage.isUse()) {
+
+                addPointTimeStep(gage);
+
+            }
+
+        }
+
+        IExtent extent = paintProps.getView().getExtent();
+
+        List<PointImage> images = new ArrayList<PointImage>(
+                dataMapTimeStep.size());
+        List<DrawableString> strings = new ArrayList<DrawableString>(
+                dataMapTimeStep.size() * 3);
+
+        Iterator<Entry<String, GageDataTimeStep>> it = dataMapTimeStep
+                .entrySet().iterator();
+        Map.Entry<String, GageDataTimeStep> gageTS = null;
+        while (it.hasNext()) {
+            gageTS = it.next();
+
+            Coordinate c = gageTS.getValue().getCoordinate();
+            double[] pixel = descriptor.worldToPixel(new double[] { c.x, c.y });
+
+            if (pixel != null && extent.contains(pixel)) {
+                double shiftHeightValue = getShiftHeight(gageTS.getValue());
+                double shiftWidthValue = getShiftWidth(gageTS.getValue());
+                /* Draw the icons */
+                if (pcOptions.getIcon() == 1) {
+                    RGB color = null;
+                    if (pcOptions.getRiverStatus() == 1) {
+                        color = gageTS.getValue().getColor();
+                    } else {
+                        color = RGBColors.getRGBColor(colorSet.get(0)
+                                .getColorname().getColorName());
+                    }
+                    PointImage image = new PointImage(getIcon(target,
+                            gageTS.getValue(), color), pixel[0], pixel[1]);
+
+                    image.setSiteId(gageTS.getValue().getLid());
+                    images.add(image);
+                }
+                strings.addAll(drawPlotInfoTimeStep(gageTS.getValue(),
+                        shiftWidthValue, shiftHeightValue, paintProps, target));
+            }
+
+        }
+
+        if (images.size() > 0) {
+            target.getExtension(IPointImageExtension.class).drawPointImages(
+                    paintProps, images);
+        }
+        if (strings.size() > 0) {
+            target.drawStrings(strings);
+        }
     }
 
     /**
@@ -1087,58 +1098,62 @@ public class MultiPointResource extends
      *            The Paint Properties
      * @throws VizException
      */
-    private void paintInternalHelper(IGraphicsTarget target, PaintProperties paintProps) throws VizException {
-    	
-    	List<GageData> data = pdcManager.getObsReportList();
-    	
-    	if (data == null) {
-    		return;
-    	}
-    	
-    	IExtent extent = paintProps.getView().getExtent();
-    	     
-    	List<PointImage> images = new ArrayList<PointImage>( data.size() );
-    	List<DrawableString> strings = new ArrayList<DrawableString>( data.size() * 3 );
-    	for (GageData gage : data) {
-    		/* Get the point color for this location */
-    		if ((gage.getLid() != null) && gage.isUse()) {
-    	
-    			addPoint(gage);
-        
-    			Coordinate c = gage.getCoordinate();
-    			double[] pixel = descriptor.worldToPixel(new double[] { c.x, c.y });
-    			
-    			if (pixel != null && extent.contains(pixel)) {
-    				double shiftHeightValue = getShiftHeight(gage);
-    				double shiftWidthValue = getShiftWidth(gage);
-    				/* Draw the icons */
-    				if (pcOptions.getIcon() == 1) {
-    					RGB color = null;
-    					if (pcOptions.getRiverStatus() == 1) {
-    						color = gage.getColor();
-    					} else {
-    						color = RGBColors.getRGBColor(colorSet.get(0)
-                            .getColorname().getColorName());
-    					}
-    					PointImage image = new PointImage(getIcon(target,
-                        gage, color), pixel[0], pixel[1]);
-    					image.setSiteId(gage.getLid());
-    					images.add(image);
-    				}
-    				strings.addAll( drawPlotInfo(gage, shiftWidthValue, shiftHeightValue, paintProps, target) );
-    			}
-    		}
-    	}
+    private void paintInternalHelper(IGraphicsTarget target,
+            PaintProperties paintProps) throws VizException {
 
-    	if (images.size() > 0) {
-    		target.getExtension(IPointImageExtension.class)
-            .drawPointImages(paintProps, images);
-    	}
-    	if (strings.size() > 0) {
-    		target.drawStrings(strings);
-    	}
+        List<GageData> data = pdcManager.getObsReportList();
+
+        if (data == null) {
+            return;
+        }
+
+        IExtent extent = paintProps.getView().getExtent();
+
+        List<PointImage> images = new ArrayList<PointImage>(data.size());
+        List<DrawableString> strings = new ArrayList<DrawableString>(
+                data.size() * 3);
+        for (GageData gage : data) {
+            /* Get the point color for this location */
+            if ((gage.getLid() != null) && gage.isUse()) {
+
+                addPoint(gage);
+
+                Coordinate c = gage.getCoordinate();
+                double[] pixel = descriptor.worldToPixel(new double[] { c.x,
+                        c.y });
+
+                if (pixel != null && extent.contains(pixel)) {
+                    double shiftHeightValue = getShiftHeight(gage);
+                    double shiftWidthValue = getShiftWidth(gage);
+                    /* Draw the icons */
+                    if (pcOptions.getIcon() == 1) {
+                        RGB color = null;
+                        if (pcOptions.getRiverStatus() == 1) {
+                            color = gage.getColor();
+                        } else {
+                            color = RGBColors.getRGBColor(colorSet.get(0)
+                                    .getColorname().getColorName());
+                        }
+                        PointImage image = new PointImage(getIcon(target, gage,
+                                color), pixel[0], pixel[1]);
+                        image.setSiteId(gage.getLid());
+                        images.add(image);
+                    }
+                    strings.addAll(drawPlotInfo(gage, shiftWidthValue,
+                            shiftHeightValue, paintProps, target));
+                }
+            }
+        }
+
+        if (images.size() > 0) {
+            target.getExtension(IPointImageExtension.class).drawPointImages(
+                    paintProps, images);
+        }
+        if (strings.size() > 0) {
+            target.drawStrings(strings);
+        }
     }
-    
+
     /**
      * Set the selected coordinate
      * 
@@ -1229,9 +1244,8 @@ public class MultiPointResource extends
         }
         return null;
     }
-  
 
-    private RGB getRiverValueColorForTimeStepMode( String pLid, double pValue ) {
+    private RGB getRiverValueColorForTimeStepMode(String pLid, double pValue) {
         RGB color = null;
         String threatIndex = ThreatIndex.THREAT_MISSING_DATA.getThreatIndex();
 
@@ -1260,12 +1274,12 @@ public class MultiPointResource extends
         }
 
         // determine the threat level
-        if (( pValue ) != PDCConstants.MISSING_VALUE) {
+        if ((pValue) != PDCConstants.MISSING_VALUE) {
             threatIndex = ThreatIndex.THREAT_MISSING_STAGE.getThreatIndex();
 
             if ((actionLevel != PDCConstants.MISSING_VALUE)
                     && (actionLevel != 0)) {
-                if ( pValue >= actionLevel) {
+                if (pValue >= actionLevel) {
                     threatIndex = ThreatIndex.THREAT_ACTION.getThreatIndex();
                 } else {
                     threatIndex = ThreatIndex.THREAT_NONE.getThreatIndex();
@@ -1273,7 +1287,7 @@ public class MultiPointResource extends
             }
 
             if ((floodLevel != PDCConstants.MISSING_VALUE) && (floodLevel != 0)) {
-                if ( pValue >= floodLevel) {
+                if (pValue >= floodLevel) {
                     threatIndex = ThreatIndex.THREAT_FLOOD.getThreatIndex();
                 } else if (actionLevel == PDCConstants.MISSING_VALUE) {
                     threatIndex = ThreatIndex.THREAT_NONE.getThreatIndex();
@@ -1492,19 +1506,19 @@ public class MultiPointResource extends
 
     /**
      * Clear the data map.
-     */  
+     */
     public void resetDataMap() {
-    	
-    	if (pcOptions.getQueryMode() == 1){
-    		
-    		dataMapTimeStep.clear();
+
+        if (pcOptions.getQueryMode() == 1) {
+
+            dataMapTimeStep.clear();
             strTreeTimeStep = new STRtree();
-    	}else{
-    		
-    		dataMap.clear();
-    		strTree = new STRtree();
-    	}
-    	
+        } else {
+
+            dataMap.clear();
+            strTree = new STRtree();
+        }
+
     }
 
     private class TimeSeriesLaunchAction extends AbstractRightClickAction {

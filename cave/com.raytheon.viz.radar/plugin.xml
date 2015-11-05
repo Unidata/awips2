@@ -177,7 +177,7 @@
       <fontDefinition
             id="com.raytheon.viz.radar.rsc.graphic.RadarGraphicsPage"
             label="Radar Graphics Font"
-            value="Monospaced-regular-12">
+            value="Monospace-regular-10">
       </fontDefinition>
    </extension>
    <extension

@@ -81,6 +81,8 @@ import com.vividsolutions.jts.geom.Point;
  *  07-21-14    #3412       mapeters    Updated deprecated drawCircle call.
  *  07-29-14    #3465       mapeters    Updated deprecated drawString() calls.
  *  08-13-14    #3467       mapeters    ringDialog notifies this of changes.
+ *  05-11-2015  #5070       randerso    Adjust font sizes for dpi scaling
+ * 
  * </pre>
  * 
  * @author ebabin
@@ -126,6 +128,7 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
         // add magnification capability
         getCapabilities().addCapability(new MagnificationCapability());
         moveElementAction = new AbstractRightClickAction() {
+            @Override
             public void run() {
                 makeSelectedLive();
             }
@@ -144,16 +147,16 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
     }
 
     @Override
-	protected void initInternal(IGraphicsTarget target) throws VizException {
-		super.initInternal(target);
-		resourceData.addChangeListener(this);
-		resetRings();
-		displayDialog();
-		// initialize font for magnification capability
-		labelFont = target.initializeFont(
-				target.getDefaultFont().getFontName(), 12.0f,
-				new Style[] { Style.BOLD });
-	}
+    protected void initInternal(IGraphicsTarget target) throws VizException {
+        super.initInternal(target);
+        resourceData.addChangeListener(this);
+        resetRings();
+        displayDialog();
+        // initialize font for magnification capability
+        labelFont = target.initializeFont(
+                target.getDefaultFont().getFontName(), 10,
+                new Style[] { Style.BOLD });
+    }
 
     private void resetRings() {
         setObjects(dataManager.getRangeRings());
@@ -186,10 +189,11 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
         });
     }
 
+    @Override
     protected void paint(IGraphicsTarget target, PaintProperties paintProps,
             RangeRing ring, SelectionStatus status) throws VizException {
-    	// set font for  magnification capability
-    	labelFont.setMagnification(getCapability(MagnificationCapability.class)
+        // set font for magnification capability
+        labelFont.setMagnification(getCapability(MagnificationCapability.class)
                 .getMagnification().floatValue());
         if (ring.isVisible()) {
             RGB color = getCapability(ColorableCapability.class).getColor();
@@ -268,6 +272,7 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
         return ring;
     }
 
+    @Override
     public String getDefaultName() {
         return DEFAULT_NAME;
     }
@@ -296,6 +301,7 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
         issueRefresh();
     }
 
+    @Override
     protected boolean isClicked(IDisplayPaneContainer container,
             Coordinate mouseLoc, RangeRing ring) {
 
@@ -314,10 +320,12 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
 
     }
 
+    @Override
     protected RangeRing makeLive(RangeRing object) {
         return object.clone();
     }
 
+    @Override
     protected RangeRing move(Coordinate lastClickedCoordinate,
             Coordinate clickLoc, RangeRing ring) {
         ring.setCenterCoordinate(clickLoc);

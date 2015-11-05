@@ -71,6 +71,7 @@ import com.raytheon.viz.grid.rsc.general.D2DGridResource;
  * May 5, 2014    3026     mpduff      Initial creation
  * Dec 16, 2014   3026     mpduff      Change location of text
  * Feb 13, 2015   4121     mpduff      Change label caching.
+ * Nov 05, 2015   5070     randerso    Adjust font sizes for dpi scaling
  * 
  * </pre>
  * 
@@ -164,7 +165,7 @@ public class HpeLabelResource extends
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         if (font == null) {
-            font = target.initializeFont("Dialog", 11, null);
+            font = target.initializeFont("Dialog", 9, null);
         }
         font.setMagnification(getCapability(MagnificationCapability.class)
                 .getMagnification().floatValue());
