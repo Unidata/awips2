@@ -66,5 +66,5 @@ print "file empty or not found:  $ifpsenvfile \n";
 # Figure out which platform we are on and run that binary.
 #system("umask 000; /usr/bin/ddd /awips/adapt/climate/bin/`uname -s`/recordClimate");
 system("umask 000; /awips/adapt/climate/bin/`uname -s`/recordClimate");
-#system ("/awips/fxa/data/recordClimate > /dev/null 2>&1 &");
+#system ("/awips2/fxa/data/recordClimate > /dev/null 2>&1 &");
 

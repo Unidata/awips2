@@ -18,7 +18,7 @@
 #############################################################################
 
 # operations - set environmental files for Informix
-export FXA_HOME=/awips/fxa
+export FXA_HOME=/awips2/fxa
 . $FXA_HOME/readenv.sh
 
 

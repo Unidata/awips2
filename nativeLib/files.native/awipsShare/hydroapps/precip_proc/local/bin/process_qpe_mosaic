@@ -34,7 +34,7 @@ DURATION_LIST=1,6,24
 # Export the value of FXA_HOME here.  This allows read_env.sh to be
 # sourced before set_hydro_env.  This prevents set_hydro_env environment
 # and token settings from being overwritten by read_env.sh.
-export FXA_HOME=/awips/fxa
+export FXA_HOME=/awips2/fxa
  
 # Set up the AWIPS environment.
 . $FXA_HOME/readenv.sh
