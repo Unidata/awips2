@@ -69,6 +69,7 @@
 #
 #    05/29/2015          #17144    bhunder        Added weather Params for URMA25 and OCONUS RTMA
 #    10/07/2015          #4958     dgilling       Added support for NationalBlend D2D data.  
+#    11/05/2015          #18182    ryu            Change D2DDBVERSIONS value for HPCERP to 24 
 ####################################################################################################
 
 #----------------------------------------------------------------------------
@@ -1147,7 +1148,7 @@ D2DDBVERSIONS = {
       "MSAS": 6,
       "LAPS": 6,
       "Satellite": 6,
-      "HPCERP": 5,
+      "HPCERP": 24,
       "TPCProb": 30,
       "TPCStormSurge": 1,
       "CRMTopo": 1,
