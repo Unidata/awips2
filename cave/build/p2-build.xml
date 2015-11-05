@@ -10,7 +10,7 @@
 	<property name="build.ws"
 		value="gtk" />
 	<property name="build.arch"
-		value="x86_64" />
+		value="x86" />
 	<property name="workspace.dir" value="${basedir}/../" />
 	
 	<property name="pde.build.script"

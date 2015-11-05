@@ -148,7 +148,7 @@
 
 apps_dir           : $(SHARE_DIR)/hydroapps   # Hydrologic applications directory
 
-data_archive_root  : /data_store  # root directory of the data archive
+data_archive_root  : /awips2/data_store  # root directory of the data archive
 
 mcp3_icp_iface     :  $(HOME)/mcp3_ntrfc
 #mcp3_icp_iface    :  /tmp/$(LOGNAME)/mcp3_ntrfc
