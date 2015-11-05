@@ -15,10 +15,10 @@ done
 . ${env_file}
 cd ${prev_dir}
 
-export FXA_HOME=/awips/fxa
+export FXA_HOME=/awips2/fxa
 . $FXA_HOME/readenv.sh
 
-DPBIN=/awips/fxa/bin;export DPBIN
+DPBIN=/awips2/fxa/bin;export DPBIN
 FFGGRIB=`get_apps_defaults ffg_grib_out`;export FFGGRIB
 FFGA2AID='KcccFFGBIN'
 #  where ccc is your old AFOS id, i.e. MKC

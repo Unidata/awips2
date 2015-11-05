@@ -153,9 +153,9 @@ do
 #
    echo "Sending file: $i product ID $PRODUCT_ID to distributeProduct" >> \
         $transmit_qpe_log
-   echo "/awips/fxa/bin/distributeProduct -a DEFAULTNCF -e $i $PRODUCT_ID dummy" >> \
+   echo "/awips2/fxa/bin/distributeProduct -a DEFAULTNCF -e $i $PRODUCT_ID dummy" >> \
         $transmit_qpe_log
-   /awips/fxa/bin/distributeProduct -a DEFAULTNCF -e $i $PRODUCT_ID dummy >> \
+   /awips2/fxa/bin/distributeProduct -a DEFAULTNCF -e $i $PRODUCT_ID dummy >> \
         $transmit_qpe_log 2>&1
 
    if [[ $? -eq 0 ]]

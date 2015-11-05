@@ -102,7 +102,7 @@ cat $FILENAME | /bin/tr -d '\015' > $COPYNAME
 #
 AFOSID=`$WHFS_BIN_DIR/awips2afos.ksh $PRODUCTID`
 echo Writing $COPYNAME to textdb as $AFOSID  >> $LOGFILE
-/awips/fxa/bin/textdb -w $AFOSID  < $COPYNAME >> $LOGFILE  2>&1
+/awips2/fxa/bin/textdb -w $AFOSID  < $COPYNAME >> $LOGFILE  2>&1
 #
 #
 # copy the file into the RFC archive directory if archiving is enabled
