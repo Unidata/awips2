@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.monitor.ffmp;
+package com.raytheon.uf.common.dataplugin.ffmp.collections;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
 
@@ -41,6 +42,7 @@ import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
  * Feb 18, 2013            njensen     Initial creation
  * Feb 28, 2013  1729      dhladky     Sped up, synch blocks were hanging it.
  * Jul 15, 2013  2184      dhladky     Removed all HUC's but ALL
+ * Oct 26, 2015  5056      dhladky     Moved to common area for data cache.
  * 
  * </pre>
  * 
@@ -50,7 +52,7 @@ import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
 
 public class FFMPSourceData {
 
-    private FFMPRecord ffmpData;
+    private AtomicReference<FFMPRecord> ffmpData = new AtomicReference<FFMPRecord>();
 
     /** earliest available date queried **/
     private Date previousUriQueryDate;
@@ -73,21 +75,32 @@ public class FFMPSourceData {
     }
 
     /**
-     * Gets the FFMPRecord. Possibly null.
+     * Gets the FFMPRecord from the AtomicReference
      * 
      * @return
      */
     public FFMPRecord getRecord() {
-        return ffmpData;
-    }
 
+        return ffmpData.get();
+    }
+    
     /**
-     * Sets the FFMPRecord.
+     * Gets the FFMPRecord and sets it if null.
      * 
-     * @param record
+     * @return
      */
-    public void setRecord(FFMPRecord record) {
-        ffmpData = record;
+    public FFMPRecord getRecord(String uri) {
+        
+        FFMPRecord record = ffmpData.get();
+
+        if (record == null) {
+            record = new FFMPRecord(uri);
+            if (!ffmpData.compareAndSet(null, record)) {
+                record = ffmpData.get();
+            }
+        }
+
+        return record;
     }
 
     /**

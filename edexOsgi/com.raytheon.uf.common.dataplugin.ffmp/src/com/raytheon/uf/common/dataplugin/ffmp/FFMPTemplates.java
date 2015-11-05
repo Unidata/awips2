@@ -2187,7 +2187,7 @@ public class FFMPTemplates {
     }
 
     /**
-     * Get the ares for a list of pfafs
+     * Get the areas for a list of pfafs
      * 
      * @param pfafs
      * @return
