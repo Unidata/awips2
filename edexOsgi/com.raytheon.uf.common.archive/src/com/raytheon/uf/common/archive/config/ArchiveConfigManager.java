@@ -783,7 +783,7 @@ public class ArchiveConfigManager {
                          * the platform, specifically since its regex extra
                          * handling would need to be added to handle \ if it was
                          * ever used. Also window clients aren't going to mount
-                         * /data_store and /archive which is all the servers
+                         * /awips2/data_store and /archive which is all the servers
                          * knows/exports.
                          */
                         builder.append("/");

@@ -71,6 +71,10 @@ fi
 if [ $? -ne 0 ]; then
    exit 1
 fi
+/bin/mkdir -p %{_build_root}/var/spool/cron/
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 
 _ldm_destination=%{_build_root}/awips2/ldm
 _ldm_destination_source=${_ldm_destination}/SOURCES
@@ -135,6 +139,14 @@ fi
 if [ $? -ne 0 ]; then
    exit 1
 fi
+/bin/cp init.d/* %{_build_root}/etc/init.d
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+/bin/cp cron/* %{_build_root}/var/spool/cron/
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 
 %pre
 # Preserve the user etc directory before upgrading
@@ -172,7 +184,7 @@ cd ${_ldm_root_dir}/src
 if [ $? -ne 0 ]; then
    exit 1
 fi
-./configure --disable-max-size --with-noaaport --disable-root-actions --prefix=${_ldm_root_dir} CFLAGS='-g -O0' > configure.log 2>&1
+./configure --disable-max-size --disable-root-actions --prefix=${_ldm_root_dir} CFLAGS='-g -O0' > configure.log 2>&1
 if [ $? -ne 0 ]; then
    echo "FATAL: ldm configure has failed!"
    exit 1
@@ -272,10 +284,14 @@ fi
 sed -i 's/EDEX_HOSTNAME/'${_myHost}'/' ${_ldm_dir}/etc/ldmd.conf
 #sed -i 's/<size>500M<\/size>/<size>1500M<\/size>/' ${_ldm_dir}/etc/registry.xml
 
-ln -s /awips2/ldm/var/logs /awips2/ldm/logs
-ln -s /awips2/ldm/var/data /awips2/ldm/data
+if [ ! -h /awips2/ldm/logs ]; then
+  ln -s /awips2/ldm/var/logs /awips2/ldm/
+fi
+if [ ! -h /awips2/ldm/data ]; then
+  ln -s /awips2/ldm/var/data /awips2/ldm/
+fi
 if getent passwd awips &>/dev/null; then
-  /bin/chown -R awips:fxalpha ${_ldm_dir}
+  /bin/chown -R awips:fxalpha ${_ldm_dir} /awips2/data_store
   cd /awips2/ldm/src/
   make install_setuids
 else
@@ -299,5 +315,7 @@ rm -rf ${RPM_BUILD_ROOT}
 /awips2/ldm/SOURCES/*
 %attr(755,root,root) /etc/profile.d/awipsLDM.csh
 %attr(755,root,root) /etc/profile.d/awipsLDM.sh
+%attr(755,root,root) /etc/init.d/edex_ldm
+%attr(600,awips,fxalpha) /var/spool/cron/awips
 %attr(755,root,root) /etc/ld.so.conf.d/awips2-ldm.conf
 %attr(755,root,root) /etc/logrotate.d/ldm.log

@@ -113,11 +113,11 @@ edex_status() { # report back edex server on/off status
 		echo ' EDEXrequest :: running :: pid '$edex_request_pid''
 	fi
 
-	ldmd_ps=`ps aux | grep ldmd | head -1 | awk '{ print $15 }'`
+	ldmd_ps=`ps aux | grep ldmd | grep -v "grep ldmd" | head -1 | awk '{ print $2 }'`
         if [ -z $ldmd_ps ]; then
                 echo ' ldmadmin    :: not running'
         else
-                ldmd_pid=`ps aux | grep ldmd | head -1 | awk '{ print $2 }'`
+                ldmd_pid=`ps aux | grep ldmd | grep -v "grep ldmd" | head -1 | awk '{ print $2 }'`
                 echo ' ldmadmin    :: running :: pid '$ldmd_pid''
         fi
 
@@ -176,7 +176,7 @@ edex_log() { # display todays log, default to ingest
                 exit;
         fi
 	# EDEX ingest log (default)
-	LOG_FILE=${LOG_PATH}edex-ingest-${YMD}.log
+	LOG_FILE=${LOG_PATH}/edex-ingest-${YMD}.log
 	if [ "${args[1]}" == 'ingest' ]; then
 		tail_log
 		exit;
@@ -348,15 +348,15 @@ edex_purge() {
                 echo ' EDEX purge has been reset'
                 exit;
         else
-		purgeCheck=`su awips -c 'psql metadata -c "select plugin from purgejobs where failedcount = 3;"'`
+		purgeCheck=`su - awips -c 'psql metadata -c "select plugin from purgejobs where failedcount = 3;"'`
                 if [[ ${#purgeCheck} > 26 ]]; then
-                    su awips -c 'psql metadata -c "select plugin from purgejobs where failedcount = 3;"'
+                    su - awips -c 'psql metadata -c "select plugin from purgejobs where failedcount = 3;"'
                 fi
                 exit;
         fi
 }
 edex_purge_reset() {
-        su awips -c 'psql metadata -c "update purgejobs set failedcount = 0;"' >& /dev/null
+        su - awips -c 'psql metadata -c "update purgejobs set failedcount = 0;"' >& /dev/null
 }
 
 edex_options() { # print out options for this programs

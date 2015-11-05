@@ -518,15 +518,14 @@ if [ "${1}" = "-cave" ]; then
 fi
 
 if [ "${1}" = "-other" ]; then
-   buildRPM "awips2-cli"
+   #buildRPM "awips2-cli"
    #buildRPM "awips2-yajsw"
-   #buildRPM "awips2-hydroapps-shared" # disabled - removed from repo comps.xml
+   buildRPM "awips2-hydroapps-shared" # disabled - removed from repo comps.xml
    #buildRPM "awips2-tools"
    #buildRPM "awips2-pypies"
    #buildRPM "awips2-adapt-native"
    #buildRPM "awips2-aviation-shared"
    ##buildRPM "awips2-edex-environment"
-   #buildRPM "awips2-cli"
    #buildRPM "awips2-data.gfe"
    #buildRPM "awips2-data.hdf5-topo"
    #buildRPM "awips2-gfesuite-client"
