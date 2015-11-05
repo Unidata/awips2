@@ -60,6 +60,7 @@ import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
+import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -319,7 +320,8 @@ public class ZoneSelectorResource extends DbMapResource {
                                 Point point = poly.getInteriorPoint();
                                 if (point.getCoordinate() != null) {
                                     LabelNode node = new LabelNode(zoneName,
-                                            point, req.target, req.rsc.font);
+                                            point, req.target,
+                                            req.rsc.getFont(req.target));
                                     newLabels.add(node);
                                 }
                             }
@@ -699,13 +701,17 @@ public class ZoneSelectorResource extends DbMapResource {
     }
 
     @Override
+    protected IFont getFont(IGraphicsTarget target) {
+        if (font == null) {
+            this.font = GFEFonts.getFont(target, 2);
+        }
+        return font;
+    }
+
+    @Override
     protected void paintInternal(IGraphicsTarget aTarget,
             PaintProperties paintProps) throws VizException {
         this.target = aTarget;
-
-        if (font == null) {
-            font = GFEFonts.getFont(aTarget, 2);
-        }
 
         PixelExtent screenExtent = (PixelExtent) paintProps.getView()
                 .getExtent();
@@ -814,7 +820,7 @@ public class ZoneSelectorResource extends DbMapResource {
                                 RGBColors.getRGBColor("white"));
                         ds.setCoordinates(node.getLocation()[0],
                                 node.getLocation()[1]);
-                        ds.font = font;
+                        ds.font = getFont(target);
                         ds.horizontalAlignment = HorizontalAlignment.CENTER;
                         ds.verticallAlignment = VerticalAlignment.MIDDLE;
                         ds.addTextStyle(TextStyle.DROP_SHADOW);

@@ -56,6 +56,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * 24 Jul 2013  #2143      skorolev    Changes for non-blocking dialogs.
  * 15 Aug 2013   2143      mpduff      Remove resize.
+ * 05 Nov 2015  #5070      randerso    Changed to use system font name (not AWT)
+ * 
  * </pre>
  * 
  * @author
@@ -240,7 +242,7 @@ public class StormCellIdDisplayDlg extends CaveSWTDialog implements
     protected void initializeComponents(Shell shell) {
         // Initialize all of the controls and layouts
         scanCfg = SCANConfig.getInstance();
-        lrgLabelFont = new Font(getDisplay(), "Monospaced", 12, SWT.BOLD);
+        lrgLabelFont = new Font(getDisplay(), "Monospace", 12, SWT.BOLD);
         smLabelFont = new Font(getDisplay(), "Sans", 10, SWT.BOLD);
         attrUnitMap = scanCfg.getClutterAttributes(ScanTables.CELL);
 

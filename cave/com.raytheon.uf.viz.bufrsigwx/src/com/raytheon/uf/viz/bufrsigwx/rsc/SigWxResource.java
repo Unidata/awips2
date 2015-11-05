@@ -56,6 +56,7 @@ import com.raytheon.viz.pointdata.PointDataRequest;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 28, 2009 3099       bsteffen     Initial creation
+ * Nov 05, 2015 5070       randerso     Adjust font sizes for dpi scaling
  * 
  * </pre>
  * 
@@ -155,7 +156,7 @@ public abstract class SigWxResource extends
         if (font != null) {
             font.dispose();
         }
-        this.font = target.initializeFont("Monospace", 10,
+        this.font = target.initializeFont("Monospace", 8,
                 new Style[] { Style.BOLD });
     }
 

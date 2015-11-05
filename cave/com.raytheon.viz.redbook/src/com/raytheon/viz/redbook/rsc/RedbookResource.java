@@ -70,6 +70,7 @@ import com.raytheon.viz.redbook.rsc.RedbookFrame.RedbookStatus;
  *                                      and edex redbook plugins
  * Jun 26, 2015 4512        mapeters    Updated for RedbookWMOMap API changes
  * Oct 27, 2015 4798        bsteffen    Throw VizException for missing svg.
+ * Nov 05, 2015 5070        randerso    Adjust font sizes for dpi scaling
  * 
  * </pre>
  * 
@@ -254,7 +255,7 @@ public class RedbookResource extends
                     font = null;
                 }
                 font = target.initializeFont(target.getDefaultFont()
-                        .getFontName(), (float) (10 * magnification), null);
+                        .getFontName(), (float) (8 * magnification), null);
                 magnificationChanged = false;
             }
 

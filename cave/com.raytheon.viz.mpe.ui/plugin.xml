@@ -1890,7 +1890,7 @@
 	        categoryId="com.raytheon.viz.mpe.ui.theme.legend"
 	        id="com.raytheon.viz.mpe.ui.rsc.MPELegendResource.miniscule"
 	        label="Miniscule"
-	        value="Monospace-bold-10">
+	        value="Monospace-bold-8">
 	        <description>
 	            This is the definition for the "Miniscule" font for the MPE Legend. 
 	            This font definition will be used when the "Miniscule" option is selected.
@@ -1900,7 +1900,7 @@
 	        categoryId="com.raytheon.viz.mpe.ui.theme.legend"
 	        id="com.raytheon.viz.mpe.ui.rsc.MPELegendResource.verysmall"
 	        label="Very Small"
-	        value="Monospace-bold-11">
+	        value="Monospace-bold-9">
 	        <description>
 	            This is the definition for the "Very Small" font for the MPE Legend. 
 	            This font definition will be used when the "Very Small" option is selected.
@@ -1910,7 +1910,7 @@
 	        categoryId="com.raytheon.viz.mpe.ui.theme.legend"
 	        id="com.raytheon.viz.mpe.ui.rsc.MPELegendResource.small"
 	        label="Small"
-	        value="Monospace-bold-12">
+	        value="Monospace-bold-10">
 	        <description>
 	            This is the definition for the "Small" font for the MPE Legend. 
 	            This font definition will be used when the "Small" option is selected.
@@ -1920,7 +1920,7 @@
 	        categoryId="com.raytheon.viz.mpe.ui.theme.legend"
 	        id="com.raytheon.viz.mpe.ui.rsc.MPELegendResource.normal"
 	        label="Normal"
-	        value="Monospace-bold-14">
+	        value="Monospace-bold-12">
 	        <description>
 	            This is the definition for the "Normal" font for the MPE Legend. 
 	            This font definition will be used when the "Normal" option is selected.
@@ -1930,7 +1930,7 @@
 	        categoryId="com.raytheon.viz.mpe.ui.theme.legend"
 	        id="com.raytheon.viz.mpe.ui.rsc.MPELegendResource.large"
 	        label="Large"
-	        value="Monospace-bold-17">
+	        value="Monospace-bold-14">
 	        <description>
 	            This is the definition for the "Large" font for the MPE Legend. 
 	            This font definition will be used when the "Large" option is selected.
@@ -1940,7 +1940,7 @@
 	        categoryId="com.raytheon.viz.mpe.ui.theme.legend"
 	        id="com.raytheon.viz.mpe.ui.rsc.MPELegendResource.verylarge"
 	        label="Very Large"
-	        value="Monospace-bold-22">
+	        value="Monospace-bold-18">
 	        <description>
 	            This is the definition for the "Very Large" font for the MPE Legend. 
 	            This font definition will be used when the "Very Large" option is selected.
@@ -1952,7 +1952,7 @@
 	        categoryId="com.raytheon.viz.mpe.ui.theme.gage"
 	        id="com.raytheon.viz.mpe.ui.rsc.MPEGageResource.miniscule"
 	        label="Miniscule"
-	        value="Dialog-bold-7">
+	        value="Dialog-bold-6">
 	        <description>
 	            This is the definition for the "Miniscule" font for the Gage Plots. 
 	            This font definition will be used when the "Miniscule" option is selected.
@@ -1962,7 +1962,7 @@
 	        categoryId="com.raytheon.viz.mpe.ui.theme.gage"
 	        id="com.raytheon.viz.mpe.ui.rsc.MPEGageResource.verysmall"
 	        label="Very Small"
-	        value="Dialog-bold-8">
+	        value="Dialog-bold-7">
 	        <description>
 	            This is the definition for the "Very Small" font for the Gage Plots. 
 	            This font definition will be used when the "Very Small" option is selected.
@@ -1972,7 +1972,7 @@
 	        categoryId="com.raytheon.viz.mpe.ui.theme.gage"
 	        id="com.raytheon.viz.mpe.ui.rsc.MPEGageResource.small"
 	        label="Small"
-	        value="Dialog-bold-9">
+	        value="Dialog-bold-8">
 	        <description>
 	            This is the definition for the "Small" font for the Gage Plots. 
 	            This font definition will be used when the "Small" option is selected.
@@ -1982,7 +1982,7 @@
 	        categoryId="com.raytheon.viz.mpe.ui.theme.gage"
 	        id="com.raytheon.viz.mpe.ui.rsc.MPEGageResource.normal"
 	        label="Normal"
-	        value="Dialog-bold-10">
+	        value="Dialog-bold-9">
 	        <description>
 	            This is the definition for the "Normal" font for the Gage Plots. 
 	            This font definition will be used when the "Normal" option is selected.
@@ -1992,7 +1992,7 @@
 	        categoryId="com.raytheon.viz.mpe.ui.theme.gage"
 	        id="com.raytheon.viz.mpe.ui.rsc.MPEGageResource.large"
 	        label="Large"
-	        value="Dialog-bold-12">
+	        value="Dialog-bold-10">
 	        <description>
 	            This is the definition for the "Large" font for the Gage Plots. 
 	            This font definition will be used when the "Large" option is selected.
@@ -2002,7 +2002,7 @@
 	        categoryId="com.raytheon.viz.mpe.ui.theme.gage"
 	        id="com.raytheon.viz.mpe.ui.rsc.MPEGageResource.verylarge"
 	        label="Very Large"
-	        value="Dialog-bold-16">
+	        value="Dialog-bold-14">
 	        <description>
 	            This is the definition for the "Very Large" font for the Gage Plots. 
 	            This font definition will be used when the "Very Large" option is selected.
@@ -2014,7 +2014,7 @@
 	        categoryId="com.raytheon.viz.mpe.ui.theme.default"
 	        id="com.raytheon.viz.mpe.ui.defaultFont.miniscule"
 	        label="Miniscule"
-	        value="Monospace-regular-7">
+	        value="Monospace-regular-6">
 	        <description>
 	            This is the default definition for the "Miniscule" font. 
 	            This font definition will be used when the "Miniscule" option is selected.
@@ -2024,7 +2024,7 @@
 	        categoryId="com.raytheon.viz.mpe.ui.theme.default"
 	        id="com.raytheon.viz.mpe.ui.defaultFont.verysmall"
 	        label="Very Small"
-	        value="Monospace-regular-8">
+	        value="Monospace-regular-7">
 	        <description>
 	            This is the default definition for the "Very Small" font. 
 	            This font definition will be used when the "Very Small" option is selected.
@@ -2034,7 +2034,7 @@
 	        categoryId="com.raytheon.viz.mpe.ui.theme.default"
 	        id="com.raytheon.viz.mpe.ui.defaultFont.small"
 	        label="Small"
-	        value="Monospace-regular-9">
+	        value="Monospace-regular-8">
 	        <description>
 	            This is the default definition for the "Small" font. 
 	            This font definition will be used when the "Small" option is selected.
@@ -2044,7 +2044,7 @@
 	        categoryId="com.raytheon.viz.mpe.ui.theme.default"
 	        id="com.raytheon.viz.mpe.ui.defaultFont.normal"
 	        label="Normal"
-	        value="Monospace-regular-10">
+	        value="Monospace-regular-9">
 	        <description>
 	            This is the default definition for the "Normal" font. 
 	            This font definition will be used when the "Normal" option is selected.
@@ -2054,7 +2054,7 @@
 	        categoryId="com.raytheon.viz.mpe.ui.theme.default"
 	        id="com.raytheon.viz.mpe.ui.defaultFont.large"
 	        label="Large"
-	        value="Monospace-regular-12">
+	        value="Monospace-regular-10">
 	        <description>
 	            This is the default definition for the "Large" font. 
 	            This font definition will be used when the "Large" option is selected.
@@ -2064,7 +2064,7 @@
 	        categoryId="com.raytheon.viz.mpe.ui.theme.default"
 	        id="com.raytheon.viz.mpe.ui.defaultFont.verylarge"
 	        label="Very Large"
-	        value="Monospace-regular-16">
+	        value="Monospace-regular-14">
 	        <description>
 	            This is the default definition for the "Very Large" font. 
 	            This font definition will be used when the "Very Large" option is selected.
