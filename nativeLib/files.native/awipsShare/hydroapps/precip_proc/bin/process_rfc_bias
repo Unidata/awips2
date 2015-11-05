@@ -35,7 +35,7 @@
 RUN_FROM_DIR=`dirname $0`
 
 # Set up the WHFS runtime environment
-export FXA_HOME=/awips/fxa
+export FXA_HOME=/awips2/fxa
 . $FXA_HOME/readenv.sh
 . $RUN_FROM_DIR/../../set_hydro_env
 export RFC_BIAS_INPUT_DIR=$(get_apps_defaults rfc_bias_input_dir)

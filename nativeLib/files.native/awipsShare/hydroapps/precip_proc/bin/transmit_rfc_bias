@@ -110,7 +110,7 @@ echo "Sending file:$FILENAME product_ID:$PRODUCT_ID to '$RECIPIENTS' via "\
      "distributeProduct" >> $transmit_log
 echo "distributeProduct -c RADAR_PRECIP_BIAS -s\"$SUBJECT\" "\
      "-a\"$RECIPIENTS\" -e $FILEPATH $PRODUCT_ID dummy" >> $transmit_log
-/awips/fxa/bin/distributeProduct -c RADAR_PRECIP_BIAS -s "$SUBJECT" -a \
+/awips2/fxa/bin/distributeProduct -c RADAR_PRECIP_BIAS -s "$SUBJECT" -a \
                                     "$RECIPIENTS" -e $FILEPATH $PRODUCT_ID \
                                     dummy >> $transmit_log 2>&1
 

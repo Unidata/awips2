@@ -49,7 +49,7 @@ echo "----" >> $LOGFILE
 echo Processing file: $FILENAME at $Dte >> $LOGFILE
 echo Subject: $SUBJECT    Msgtype: $MSGTYPE >> $LOGFILE
 #
-export FXA_HOME=/awips/fxa
+export FXA_HOME=/awips2/fxa
 . $FXA_HOME/readenv.sh
 #
 #
@@ -74,7 +74,7 @@ NEWFILENAME=$WHFS_PRODUCT_DIR/$PRODUCTID.remote
 # issue the product as appropriate
 #
 echo Sending product $NEWFILENAME to transferNWR as pending. >> $LOGFILE
-/awips/fxa/bin/transferNWR -d $NEWFILENAME
+/awips2/fxa/bin/transferNWR -d $NEWFILENAME
 RETURN_STATUS=$? 
 
 if [ $RETURN_STATUS -eq 0 ]
