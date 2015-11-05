@@ -356,6 +356,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  *                                       simulated time.
  * Sep 30, 2015   4860      skorolev    Corrected misspelling.
  * 07Oct2015   RM 18132     D. Friedman Exlucde certain phensigs from automatic ETN incrementing.
+ * Nov 4, 2015 5039         rferrel     Prevent wrapping on a component name line at the start of a paragraph.
  * 
  * </pre>
  * 
@@ -394,6 +395,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private static final List<String> defaultNoETNIncrementPhenSigs = Arrays
             .asList("HU.A", "HU.S", "HU.W", "TR.A", "TR.W", "SS.A", "SS.W",
                     "TY.A", "TY.W");
+
     /**
      * Path of ETN rules localization file
      */
@@ -523,6 +525,23 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      */
     private static final Pattern UGC_FIRST_LINE_PATTERN = Pattern
             .compile("^[A-Z][A-Z0-9][CZ]\\d{3}[->].*-\\s*$");
+
+    /**
+     * A pattern to determine if a line is a component name line. This pattern
+     * works for lines such as:
+     * 
+     * <pre>
+     * .SYNOPSIS...
+     * .LBF WATCHES/WARNINGS/ADVISORIES...
+     * .AVIATION...(FOR THE 12Z TAFS THROUGH 12Z THURSDAY MORNING)
+     * .SHORT TERM...(TODAY AND TONIGHT)
+     * </pre>
+     * 
+     * Will need to make the logic smarter if "word" between the . and ... or
+     * text between the () should be editable.
+     */
+    private static final Pattern COMPONENT_NAME_PATTERN = Pattern
+            .compile("^\\.[A-Za-z0-9][^.]*\\.{3}(\\([^()]*\\)){0,1}$");
 
     /**
      * The directory to place saved sessions.
@@ -4235,10 +4254,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         setCurrentHeaderAndBody();
 
         // Mark the uneditable warning text
-        if (markUneditableText(textEditor)) {
-            // Add listener to monitor attempt to edit locked text
-            textEditor.addVerifyListener(TextEditorDialog.this);
-        }
+        markUneditableText(textEditor);
+        // Add listener to monitor attempt to edit locked text
+        textEditor.addVerifyListener(TextEditorDialog.this);
 
         // Set the menu buttons to reflect the edit mode.
         editorButtonMenuStates(inEditMode);
@@ -4381,10 +4399,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         // Eliminate the lockable text listener since the application is no
         // longer in edit mode for the warning product that was being edited.
-        if (markedTextUndeditable) {
-            textEditor.removeVerifyListener(TextEditorDialog.this);
-            markedTextUndeditable = false;
-        }
+        textEditor.removeVerifyListener(TextEditorDialog.this);
+        markedTextUndeditable = false;
 
         // Setting focus back to a button, which was the last window control bar
         // button pressed, seems to allow SWT to then allow listeners on text
@@ -5103,11 +5119,13 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                      * saveEditedProduct, does not actually save anything.
                      */
                     if (shouldSetETNtoNextValue(prod)) {
-                        statusHandler.handle(Priority.INFO, "Will increment ETN for this product.");
+                        statusHandler.handle(Priority.INFO,
+                                "Will increment ETN for this product.");
                         prod.setProduct(VtecUtil.getVtec(
                                 removeSoftReturns(prod.getProduct()), true));
                     } else {
-                        statusHandler.handle(Priority.INFO, "Will NOT increment ETN for this product.");
+                        statusHandler.handle(Priority.INFO,
+                                "Will NOT increment ETN for this product.");
                     }
                     /*
                      * This silly bit of code updates the ETN of a VTEC in the
@@ -5140,13 +5158,15 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             try {
                 if (!resend) {
                     if (shouldSetETNtoNextValue(prod)) {
-                        statusHandler.handle(Priority.INFO, "Will increment ETN for this product.");
+                        statusHandler.handle(Priority.INFO,
+                                "Will increment ETN for this product.");
                         body = VtecUtil
                                 .getVtec(removeSoftReturns(MixedCaseProductSupport
                                         .conditionalToUpper(prod.getNnnid(),
                                                 textEditor.getText())));
                     } else {
-                        statusHandler.handle(Priority.INFO, "Will NOT increment ETN for this product.");
+                        statusHandler.handle(Priority.INFO,
+                                "Will NOT increment ETN for this product.");
                     }
                 }
                 updateTextEditor(body);
@@ -5194,7 +5214,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         LocalizationFile lf = PathManagerFactory.getPathManager()
                 .getStaticLocalizationFile(ETN_RULES_FILE);
         if (lf == null) {
-            throw new Exception("ETN rules file (" + ETN_RULES_FILE + ") not found.");
+            throw new Exception("ETN rules file (" + ETN_RULES_FILE
+                    + ") not found.");
         }
         return JAXB.unmarshal(lf.getFile(), EtnRules.class);
     }
@@ -5204,9 +5225,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         try {
             excludedPhenSigs = getETNRules().getExcludePhenSigs();
         } catch (Exception e) {
-            statusHandler.handle(Priority.WARN,
-                    "Error loading ETN assignment rules.  Will use default rules.",
-                    e);
+            statusHandler
+                    .handle(Priority.WARN,
+                            "Error loading ETN assignment rules.  Will use default rules.",
+                            e);
             excludedPhenSigs = defaultNoETNIncrementPhenSigs;
         }
         boolean result = true;
@@ -5717,40 +5739,51 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         // Enforces uneditability of lockable text in warning products
         int length = event.end - event.start;
         try {
-            if (length == 0) {
-                if ((event.start != 0)
-                        && (event.start != textEditor.getCharCount())) {
-                    int ranges[] = textEditor.getRanges(event.start - 1,
-                            length + 2);
-                    for (int i = 0; i < ranges.length; i += 2) {
-                        int rangeStart = ranges[i];
-                        int rangeEnd = rangeStart + ranges[i + 1];
-                        if ((event.start > rangeStart)
-                                && (event.start < rangeEnd)) {
-                            event.doit = false;
-                            /*
-                             * DR15704 - this needs to be set so the rewrap is
-                             * not called when locked text gets editted.
-                             */
-                            userKeyPressed = false;
-                            break;
+            if (markedTextUndeditable) {
+                if (length == 0) {
+                    if ((event.start != 0)
+                            && (event.start != textEditor.getCharCount())) {
+                        int ranges[] = textEditor.getRanges(event.start - 1,
+                                length + 2);
+                        for (int i = 0; i < ranges.length; i += 2) {
+                            int rangeStart = ranges[i];
+                            int rangeEnd = rangeStart + ranges[i + 1];
+                            if ((event.start > rangeStart)
+                                    && (event.start < rangeEnd)) {
+                                event.doit = false;
+                                /*
+                                 * DR15704 - this needs to be set so the rewrap
+                                 * is not called when locked text gets editted.
+                                 */
+                                userKeyPressed = false;
+                                break;
+                            }
                         }
                     }
+                } else {
+                    int ranges[] = textEditor.getRanges(event.start, length);
+                    if (inEditMode && (ranges != null) && (ranges.length != 0)) {
+                        event.doit = false;
+                        /*
+                         * DR15704 - this needs to be set so the rewrap is not
+                         * called when locked text gets editted.
+                         */
+                        userKeyPressed = false;
+                    }
                 }
-            } else {
-                int ranges[] = textEditor.getRanges(event.start, length);
-                if (inEditMode && (ranges != null) && (ranges.length != 0)) {
+            }
+
+            if (event.doit) {
+                int lineIndex = textEditor.getLineAtOffset(event.start);
+                String line = textEditor.getLine(lineIndex);
+                Matcher m = COMPONENT_NAME_PATTERN.matcher(line);
+                if (m.find() && isStartOfParagraph(textEditor, lineIndex)) {
                     event.doit = false;
-                    /*
-                     * DR15704 - this needs to be set so the rewrap is not
-                     * called when locked text gets editted.
-                     */
-                    userKeyPressed = false;
                 }
             }
         } catch (IllegalArgumentException e) {
-            // TODO Auto-generated catch block
-            // e.printStackTrace();
+            statusHandler.handle(Priority.WARN, "Problem verifying text edit ",
+                    e);
         }
     }
 
@@ -8549,6 +8582,21 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         }
 
         return lineText;
+    }
+
+    /**
+     * Determine if line previouis to lineIndex is a blank line.
+     * 
+     * @param st
+     * @param lineIndex
+     * @return true if lineIndex is the first line of a parapraph.
+     */
+    private boolean isStartOfParagraph(StyledText st, int lineIndex) {
+        boolean result = false;
+        if (lineIndex > 0) {
+            result = st.getLine(lineIndex - 1).trim().isEmpty();
+        }
+        return result;
     }
 
     /**
