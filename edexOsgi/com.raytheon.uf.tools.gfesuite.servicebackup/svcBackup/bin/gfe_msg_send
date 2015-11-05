@@ -8,7 +8,7 @@ export PROJECT=/awips/ops
 export CO_MQR_SERVER_HOST=mhs
 export SHLIB_PATH=/awips/ops/sharedlib
 
-FXA_HOME=/awips/fxa
+FXA_HOME=/awips2/fxa
 export FXA_HOME
 
 FXA_DATA=/data/fxa

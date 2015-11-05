@@ -47,7 +47,7 @@ while test "$#" -gt 0; do
 done
 
 # Set FSI environment if needed
-if test -z "$FXA_HOME"; then export FXA_HOME=/awips/fxa ; fi	
+if test -z "$FXA_HOME"; then export FXA_HOME=/awips2/fxa ; fi	
 
 if test -z "$WDSS2"; then export WDSS2=${FXA_HOME}/fsi ; fi
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${WDSS2}/lib
