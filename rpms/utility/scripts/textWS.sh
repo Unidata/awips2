@@ -25,8 +25,8 @@ done
 CAVE_DIR=/awips2/cave
 $CAVE_DIR/cave.sh -component textws &
 
-FXA_HOME=/awips/fxa
-. /awips/fxa/readenv.sh
+FXA_HOME=/awips2/fxa
+. /awips2/fxa/readenv.sh
 #If WFO, launch legacy A1 hmMonitor
 if [ "$SITE_TYPE" = "wfo" ]; then
    $FXA_HOME/bin/hmMonitor.tcl --forTextWS &

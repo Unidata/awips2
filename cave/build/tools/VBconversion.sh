@@ -13,7 +13,7 @@
 # Usage: VBconversion.sh > outputfile
 # Expected Inputs: browserFieldMenu.txt and testGridKeyServer_v.txt
 #   (testGridKeyServer_v.txt contains the A1 output of
-#    /awips/fxa/bin/testGridKeyServer v)
+#    /awips2/fxa/bin/testGridKeyServer v)
 #
 # KNOWN ISSUES:
 # 1) This script is inefficient...it may take a minute to finish.
