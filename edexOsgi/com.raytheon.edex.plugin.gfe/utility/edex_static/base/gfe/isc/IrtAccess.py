@@ -577,12 +577,10 @@ class IrtAccess():
     
             # server search list in priority.  The px3 entries are used for
             # dual domain for AFC.
-            #hp = [('dx4','98000000'),('px3', '98000000'), ('dx4','98000001'),
-            #  ('px3', '98000001')]
-	    # 2015-09-07 mjames@ucar
-            hp = [('localhost','98000000'),('localhost','98000001')]
+	    # 2015-11-06 mjames@ucar
+            hp = [('localhost','9583')]
     
-            # choose one server from this domain, find first dx4, 98000000
+            # choose one server from this domain, find first dx4, 9583
             # try to use one with the same mhsidDest as the site, which
             # would be the primary operational GFE. Note that the px3 entries
             # are for AFC.
@@ -599,7 +597,7 @@ class IrtAccess():
                         found = True
                         break
     
-            # find first dx4, 98000000, but perhaps a different mhsid
+            # find first dx4, 9583, but perhaps a different mhsid
             # this is probably not the primary operational GFE
             for matchServer, matchPort in hp:
                 if found:

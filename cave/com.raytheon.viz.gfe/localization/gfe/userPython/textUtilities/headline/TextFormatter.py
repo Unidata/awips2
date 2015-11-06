@@ -957,7 +957,7 @@ Usage: python TextFormatter.py
              [-S server controlled output file -- default None]
              [-A append text to given file name]
              [-h host -- default orca.fsl.noaa.gov]
-             [-p port -- default 98000000]
+             [-p port -- default 9583]
              [-l language -- english, french, spanish: default english]
              [-z displaced real time -- format YYYYMMDD_HHMM]
              [-T] Generates a "TEST" product.
