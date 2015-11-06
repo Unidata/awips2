@@ -25,6 +25,7 @@
 # ChangeLog                                                             #
 # 07/2011 M.James/Unidata       Created                                 #
 # 10/2015 M.James/Unidata       Log files fixed; purge check added      #
+# 11/2015 M.James/Unidata       Added CAVE useri count as "edex users"  #
 #-----------------------------------------------------------------------#
 
 # directories definitions
@@ -40,7 +41,7 @@ EDEX_ENV_FILE=${EDEX_PATH}/bin/setup.env
 LDMD_CONF=${AWIPS_HOME}/ldm/etc/ldmd.conf
 
 # valid options
-options=( 'status' 'start' 'stop' 'log' 'setup' 'purge')
+options=( 'status' 'start' 'stop' 'log' 'setup' 'purge' 'users')
 nopts=${options[@]}
 
 # find interface for routeable IPs
@@ -359,9 +360,20 @@ edex_purge_reset() {
         su - awips -c 'psql metadata -c "update purgejobs set failedcount = 0;"' >& /dev/null
 }
 
+edex_users(){
+        if [ "${args[1]}" != '' ]; then
+                YMD=${args[1]}
+        fi
+        userList=$(cat ${LOG_PATH}/edex-request-thriftSrv-${YMD}.log |grep ":CAVE:"|cut -d "[" -f 3| cut -d ":" -f 1|sort | uniq)
+        echo ""
+        echo " -- EDEX Users ${YMD} --"
+        echo "$userList"
+        echo ""
+}
+
 edex_options() { # print out options for this programs
 	echo ''
-	echo '     edex (status|start|stop|setup|log|purge)'
+	echo '     edex (status|start|stop|setup|log|purge|users)'
 	echo ''
 }
 
