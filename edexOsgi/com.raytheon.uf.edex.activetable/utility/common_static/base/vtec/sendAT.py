@@ -194,9 +194,9 @@ def execute_send_at(myServerHost, myServerPort, myServerProtocol,
         else:
             servers = []
             for mhss in mhsSites:
-                for port in xrange(98000000, 98000002):
+                for port in xrange(9583, 9583):
                     for site in sites:
-                        for host in ['dx4f','px3']:
+                        for host in ['localhost']:
                             destServer = {'mhsid': mhss, 'host': host,
                               'port': port, 'protocol': "20070723", 
                               'site': site}

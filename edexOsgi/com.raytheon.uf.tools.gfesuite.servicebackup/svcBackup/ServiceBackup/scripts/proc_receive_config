@@ -238,7 +238,7 @@ sed -i "s/$FAILED_MHSID/$BACKUP_MHSID/" ${failed_config}
 sed -i "s/$FAILED_SERVER/$BACKUP_SERVER/" ${failed_config}
 sed -i "s/$FAILED_LOGDIR/$BACKUP_LOGDIR/" ${failed_config}
 sed -i "s/$FAILED_PRDDIR/$BACKUP_PRDDIR/" ${failed_config}
-sed -i "s/98000000/$SVCBU_FAILED_SITE_PORT/" ${failed_config}
+sed -i "s/9583/$SVCBU_FAILED_SITE_PORT/" ${failed_config}
 
 cd ${SVCBU_HOME}
 rm -rf *
