@@ -22,9 +22,9 @@
 import os, socket
 
 
-GFESUITE_HOME = os.environ['EDEX_HOME']+"/../GFESuite"
+GFESUITE_HOME = "/awips2/GFESuite"
 GFESUITE_SERVER = "localhost"
-GFESUITE_PORT   = '98000000'
+GFESUITE_PORT   = '9583'
 GFESUITE_SITEID = 'TBW'
 GFESUITE_PRDDIR = GFESUITE_HOME+"/products"
 GFESUITE_MHSID  = 'TBW' 

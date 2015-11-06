@@ -240,8 +240,8 @@ mpe_display_maps   : statesCounties
 
 #  database selection tokens
 server_name        : ONLINE        # Informix database server name
-db_name            : hd_ob92lwx    # IHFS database name
-damcat_db_name     : dc_ob5xxx     # Dam Catalog database name
+db_name            : hd_ob92oax    # IHFS database name
+damcat_db_name     : dc_ob7oax     # Dam Catalog database name
 hdb_db_name        : ob81_histdata # Historical database. 
 pghost             : localhost     # The machine PostGres is running on
 pguser             : awips         # The user allowed to access PostGres

@@ -113,7 +113,7 @@ def serverBoxText(server):
     #returns text based on the server dictionary that should be placed
     #into the dialog
     hostport = None
-    if server['port'] == "98000000":
+    if server['port'] == "9583":
         hostport = server['host'] + "-primary"
     elif server['port'] == "98000001":
         hostport = server['host'] + "-svcbu"
@@ -127,10 +127,6 @@ def serverBoxText(server):
 def sortServers(a, b):
 # sort function for the list of servers.  Sorts in priority order for
 # most likely to have the data.  Order is:
-# dx4 or px3 98000000 site==mhsid
-# dx4 or px3 98000001 site==mhsid
-# dx4 or px3 98000000 site!=mhsid
-# dx4 or px3 98000001 site!=mhsid
 # all others in random order.
     sameSiteA = (a['mhsid'] == a['site'])
     sameSiteB = (b['mhsid'] == b['site'])
@@ -140,8 +136,8 @@ def sortServers(a, b):
         return 1
     #both are same sites, check for host next
     else:
-        regPortA = (a['port'] == "98000000")
-        regPortB = (b['port'] == "98000000")
+        regPortA = (a['port'] == "9583")
+        regPortB = (b['port'] == "9583")
         if regPortA and not regPortB:
             return -1
         elif not regPortA and regPortB:
