@@ -55,6 +55,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * Jun 07, 2013 1981       mpduff      TafQueueRequest is now protected.
  * May 08, 2014 3091       rferrel     Added CHECK_AUTHORIZED.
  * May 28, 2014 3211       njensen     Use IAuthorizer instead of IRoleStorage
+ * Nov 06, 2015 5108       rferrel     Get list of TAFs based on state and xmittime.
  * </pre>
  * 
  * @author rferrel
@@ -102,10 +103,18 @@ public class TafQueueRequestHandler extends
                 ((ServerResponse<String>) response).setPayload(log);
                 break;
             case GET_TAFS:
-                response = new ServerResponse<String>();
                 idList = (List<String>) request.getArgument();
-                List<TafQueueRecord> records = dao.getRecordsById(idList);
-                makeTafs(records, response);
+                List<TafQueueRecord> records = null;
+                if (idList != null) {
+                    response = new ServerResponse<String>();
+                    records = dao.getRecordsById(idList);
+                    makeTafs(records, response);
+                } else {
+                    response = new ServerResponse<List<String>>();
+                    records = dao.getRecordsByXmittime(request.getXmitTime(),
+                            request.getState());
+                    makeList(response, records);
+                }
                 break;
             case REMOVE_SELECTED:
                 response = new ServerResponse<List<String>>();
@@ -172,10 +181,19 @@ public class TafQueueRequestHandler extends
      * @param state
      * @throws DataAccessLayerException
      */
-    @SuppressWarnings("unchecked")
     private void makeList(TafQueueRecord.TafQueueState state, TafQueueDao dao,
             ServerResponse<?> response) throws DataAccessLayerException {
         List<TafQueueRecord> records = dao.getRecordsByState(state);
+        makeList(response, records);
+    }
+
+    /*
+     * Convert list of records into a list of strings in the format
+     * "record_id,record_info" and place in response's payload.
+     */
+    @SuppressWarnings("unchecked")
+    private void makeList(ServerResponse<?> response,
+            List<TafQueueRecord> records) {
         List<String> recordsList = new ArrayList<String>();
         StringBuilder sb = new StringBuilder();
         for (TafQueueRecord record : records) {
