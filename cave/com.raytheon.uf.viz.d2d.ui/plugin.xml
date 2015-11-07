@@ -229,33 +229,6 @@
                    name="afterLayoutGroup"
                    visible="true">
              </separator>
-             <dynamic class="com.raytheon.viz.ui.actions.ToggleToolbarContributionItem" id="com.raytheon.uf.viz.d2d.ui.actions.ToggleToolbarContributionItem"/>
-             <command
-                   commandId="com.raytheon.uf.viz.d2d.ui.actions.changeD2DLayout"
-                   label="Full Layout">
-                <parameter
-                      name="sideViews"
-                      value="4">
-                </parameter>
-                <visibleWhen>
-                   <reference
-                         definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
-                   </reference>
-                </visibleWhen>
-             </command>
-             <command
-                   commandId="com.raytheon.uf.viz.d2d.ui.actions.changeD2DLayout"
-                   label="Default Pane Layout">
-                <parameter
-                      name="sideViews"
-                      value="0">
-                </parameter>
-                <visibleWhen>
-                   <reference
-                         definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
-                   </reference>
-                </visibleWhen>
-             </command>
           </menu>
           <menu
                 id="options"
