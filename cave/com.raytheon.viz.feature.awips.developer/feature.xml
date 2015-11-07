@@ -78,6 +78,10 @@
          version="0.0.0"/>
 
    <includes
+         id="com.raytheon.viz.gfe.feature"
+         version="0.0.0"/>
+
+   <includes
          id="com.raytheon.uf.viz.displays.feature"
          version="0.0.0"/>
 
@@ -148,11 +152,28 @@
    <includes
          id="com.raytheon.uf.viz.acarssounding.feature"
          version="0.0.0"/>
+	<!--
+   <includes
+         id="com.raytheon.viz.avnfps.feature"
+         version="0.0.0"/>
+		 -->
 
    <includes
          id="com.raytheon.uf.viz.dat.feature"
          version="0.0.0"/>
 
+   <includes
+         id="com.raytheon.uf.viz.d2d.gfe.feature"
+         version="0.0.0"/>
+	<!--
+   <includes
+         id="com.raytheon.uf.viz.collaboration.feature"
+         version="0.0.0"/>
+		 
+	<includes
+         id="com.raytheon.uf.viz.useradmin.feature"
+         version="0.0.0"/>
+	-->
    <includes
          id="com.raytheon.uf.viz.gisdatastore.feature"
          version="0.0.0"/>
@@ -168,10 +189,11 @@
    <includes
          id="com.raytheon.uf.viz.aviation.advisory.feature"
          version="0.0.0"/>
-
+<!--
    <includes
          id="com.raytheon.uf.viz.datadelivery.feature"
          version="0.0.0"/>
+		 -->
 
    <includes
          id="edu.wisc.ssec.cimss.viz.convectprob.feature"
