@@ -1903,13 +1903,6 @@
        name="GFE"
        point="com.raytheon.uf.viz.localization.localizationpath">
     <path
-          extensionFilter=".py"
-          localizationType="COMMON_STATIC"
-          name="Base Python"
-          recursive="true"
-          value="python">
-    </path>
-    <path
           application="GFE"
           extensionFilter=".py"
           localizationAdapter="com.raytheon.viz.gfe.config.ConfigAdapter"
@@ -2005,13 +1998,6 @@
           name="Weather Element Groups"
           recursive="true"
           value="gfe/weGroups">
-    </path>
-    <path
-          extensionFilter=".py"
-          localizationType="COMMON_STATIC"
-          name="VTEC"
-          recursive="true"
-          value="vtec">
     </path>
  </extension>
  
