@@ -100,6 +100,7 @@ import com.vividsolutions.jts.io.ParseException;
  * Sep 15, 2014 3220      skorolev     Added refreshZoneTableData method.
  * Nov 03, 2014 3741      skorolev     Updated zoom procedures.
  * Sep 25, 2015 3873      skorolev     Added center definition for moving platforms.
+ * Nov 09, 2015 3841      dhladky      Update all tables when zones/stations are updated.
  * 
  * </pre>
  * 
@@ -490,10 +491,7 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
     public void updateTableDlg(ObHourReports obHrData) {
         nominalTime = obHrData.getNominalTime();
         updateZoneTable(nominalTime);
-        if (!selectedZone.equals("")
-                && obHrData.getHourReports().containsKey(selectedZone)) {
-            updateStationTable(nominalTime);
-        }
+        updateStationTable(nominalTime);
         updateNominalTimeLabel(nominalTime);
     }
 
