@@ -37,6 +37,7 @@ requires: openmotif
 requires: libMrm.so.4
 requires: libXp.so.6
 requires: libg2c.so.0
+requires: libstdc++
 
 %description
 %{_component_desc}
