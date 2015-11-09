@@ -519,8 +519,10 @@ fi
 
 if [ "${1}" = "-other" ]; then
    buildRPM "awips2-cli"
+   buildRPM "awips2-hydroapps-shared"
+   buildRPM "awips2-gfesuite-client"
+   buildRPM "awips2-gfesuite-server"
    #buildRPM "awips2-yajsw"
-   #buildRPM "awips2-hydroapps-shared" # disabled - removed from repo comps.xml
    #buildRPM "awips2-tools"
    #buildRPM "awips2-pypies"
    #buildRPM "awips2-adapt-native"
@@ -528,35 +530,15 @@ if [ "${1}" = "-other" ]; then
    ##buildRPM "awips2-edex-environment"
    #buildRPM "awips2-data.gfe"
    #buildRPM "awips2-data.hdf5-topo"
-   #buildRPM "awips2-gfesuite-client"
-   #buildRPM "awips2-gfesuite-server"
    #buildRPM "awips2-groovy"
 fi
 
 if [ "${1}" = "-viz" ]; then
-   #buildRPM "awips2"
-   #buildRPM "awips2-common-base"
-   #buildRPM "awips2-python-numpy"
-   #buildRPM "awips2-ant"
-   #buildRPM "awips2-python-dynamicserialize"
-   #buildRPM "awips2-python"
-   #buildRPM "awips2-adapt-native"
-   #unpackHttpdPypies
-   #if [ $? -ne 0 ]; then
-   #   exit 1
-   #fi
-   #buildRPM "awips2-httpd-pypies"
-   #buildRPM "awips2-hydroapps-shared"
-   #buildRPM "awips2-rcm"
-   #buildRPM "awips2-gfesuite-client"
-   #buildRPM "awips2-gfesuite-server"
-   #buildRPM "awips2-tools"
-   #buildRPM "awips2-cli"
    buildCAVE
    if [ $? -ne 0 ]; then
       exit 1
    fi
-   buildRPM "awips2-alertviz"
+   #buildRPM "awips2-alertviz"
    exit 0
 fi
 
