@@ -179,5 +179,5 @@ class Procedure (SmartScript.SmartScript):
                 f.close()
                 os.chmod('/tmp/nwps/inp_args',0o666)               
                              
-                os.system('cp -r /tmp/nwps/inp_args /awips2/GFESuite/nwps/var/')                   
+                os.system('scp -rp /tmp/nwps/inp_args px2f:/awips2/GFESuite/nwps/var/')                   
                 shutil.rmtree('/tmp/nwps')

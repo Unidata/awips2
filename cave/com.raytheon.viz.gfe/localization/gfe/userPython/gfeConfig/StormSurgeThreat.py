@@ -10,7 +10,7 @@
 
 from gfeConfig import *
 
-HideConfigFile = 0
+HideConfigFile = 1
 
 #------------------------------------------------------------------------
 # GIF/PNG Graphic Product Generation (ifpIMAGE program)

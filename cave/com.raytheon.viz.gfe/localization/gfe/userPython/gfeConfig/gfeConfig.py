@@ -46,7 +46,7 @@ no  = False
 # The gfe configuration file can be hidden in the Start Up Dialog by
 # using the HideConfigFile keyword and setting it to 1, or by commenting
 # out the following line.
-# HideConfigFile = 0
+# HideConfigFile = 1
 
 #------------------------------------------------------------------------
 # Mutable Parameter and Viewable Database Configurations
@@ -1689,7 +1689,7 @@ Scripts = [
       "-d {productDB} ",
 
     "Make and Send HTI:" +
-     "xterm -e /awips2/GFESuite/hti/bin/make_hti.sh {site}",
+     "xterm -e ssh px2f /awips2/GFESuite/hti/bin/make_hti.sh {site}",
 
     "Official Grids to LDAD: " +
     "ifpAG -h {host} -r {port} -o - -d {productDB} | gzip -9 > " +
