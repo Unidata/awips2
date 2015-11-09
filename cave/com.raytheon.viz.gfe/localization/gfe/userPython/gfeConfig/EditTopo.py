@@ -37,7 +37,7 @@
 from gfeConfig import *
 
 # Hide this configuration file from users
-HideConfigFile = 0
+HideConfigFile = 1
 
 # Auto-load the group containing the geo weight weather elements
 DefaultGroup = "EditTopo"

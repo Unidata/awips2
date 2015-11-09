@@ -187,7 +187,7 @@ public class TextFormatter extends AbstractGfeTask {
     @Override
     public String getCommand() {
         /*
-         * runIFPText -t "ZFP_OAX" -h localhost -p 9583 -d
+         * runIFPText -t "ZFP_OAX" -h localhost -p 98000000 -d
          * OAX_GRID__Official_00000000_0000 -u "fxa" -S -V
          * "{('Product Issuance','productIssuance'): 'Morning', (Issued By, 'issuedBy'): None}"
          * -a active
