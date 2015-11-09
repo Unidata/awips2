@@ -37,7 +37,9 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.core.mode.CAVEMode;
+import com.raytheon.viz.texteditor.alarmalert.util.AlarmBeepJob;
 import com.raytheon.viz.texteditor.util.VtecObject;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.dialogs.SWTMessageBox;
 
 /**
@@ -54,6 +56,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * Dec 20, 2010 7210       cjeanbap    Added non-blocking dialog.
  * Apr 25, 2014 DR 16668   D. Friedman Handle partial cancellations
  * Apr 28, 2015 4027       randerso    Expunged Calendar from ActiveTableRecord
+ * Nov 03, 2015 5086       rferrel     Generate sound while displaying warning expire message.
  * </pre>
  * 
  * @author jsanchez
@@ -95,6 +98,8 @@ public class NotifyExpirationTask extends TimerTask {
     @Override
     public void run() {
         if (!isCanceled()) {
+            final AlarmBeepJob abj = new AlarmBeepJob("expire", 0);
+            abj.schedule();
             parentShell.getDisplay().asyncExec(new Runnable() {
                 @Override
                 public void run() {
@@ -102,6 +107,13 @@ public class NotifyExpirationTask extends TimerTask {
                             NotifyExpirationTask.this.parentShell,
                             "Watch/Warning Expires Soon", message, SWT.OK,
                             SWT.MODELESS, true);
+                    mb.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            abj.cancel();
+                        }
+                    });
                     mb.open();
                 }
             });

@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.raytheon.uf.common.dataplugin.HDF5Util;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.dataplugin.binlightning.LightningConstants;
@@ -65,12 +66,15 @@ import com.raytheon.uf.viz.core.cache.CacheObject.IObjectRetrieverAndDisposer;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jul 09, 2014 3333       bclement     moved from LightningResource
- * Jul 22, 2014 3214       bclement     fixed typos in populatePulseData() and updateAndGet()
- * Sep 11, 2014 3608       bclement     index records by group and dataset name for better error handling
- * Sep 25, 2015 4605       bsteffen     repeat binning
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Jul 09, 2014  3333     bclement  moved from LightningResource
+ * Jul 22, 2014  3214     bclement  fixed typos in populatePulseData() and
+ *                                  updateAndGet()
+ * Sep 11, 2014  3608     bclement  index records by group and dataset name for
+ *                                  better error handling
+ * Sep 25, 2015  4605     bsteffen  repeat binning
+ * Nov 05, 2015  5090     bsteffen  Use constants for datatime start/end
  * 
  * </pre>
  * 
@@ -149,9 +153,9 @@ public class LightningFrameRetriever implements
                 DbQueryRequest request = new DbQueryRequest();
                 request.setEntityClass(BinLightningRecord.class);
                 request.addConstraint(LightningConstants.SOURCE, sourceRC);
-                request.addConstraint("dataTime.validPeriod.start",
+                request.addConstraint(PluginDataObject.STARTTIME_ID,
                         startRC);
-                request.addConstraint("dataTime.validPeriod.end", endRC);
+                request.addConstraint(PluginDataObject.ENDTIME_ID, endRC);
                 try {
                     DbQueryResponse response = (DbQueryResponse) RequestRouter
                             .route(request);

@@ -356,6 +356,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  *                                       simulated time.
  * Sep 30, 2015   4860      skorolev    Corrected misspelling.
  * 07Oct2015   RM 18132     D. Friedman Exlucde certain phensigs from automatic ETN incrementing.
+ * Nov 05, 2015 5039        rferrel     Prevent wrapping text to a component name line and clean up of streams.
  * 
  * </pre>
  * 
@@ -394,6 +395,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private static final List<String> defaultNoETNIncrementPhenSigs = Arrays
             .asList("HU.A", "HU.S", "HU.W", "TR.A", "TR.W", "SS.A", "SS.W",
                     "TY.A", "TY.W");
+
     /**
      * Path of ETN rules localization file
      */
@@ -523,6 +525,12 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      */
     private static final Pattern UGC_FIRST_LINE_PATTERN = Pattern
             .compile("^[A-Z][A-Z0-9][CZ]\\d{3}[->].*-\\s*$");
+
+    /**
+     * Pattern used to determine if a line is a component name line.
+     */
+    private static final Pattern COMPONENT_NAME_PATTERN = Pattern
+            .compile("^\\.[A-Za-z0-9][^.]*\\.{3}");
 
     /**
      * The directory to place saved sessions.
@@ -4762,20 +4770,20 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 File file = new File(fn);
                 if (file.exists() && (file.length() <= 50000)
                         && isTextFile(file)) {
-                    FileInputStream in = new FileInputStream(file);
-                    byte[] bytes = new byte[(int) file.length()];
-                    int offset = 0;
-                    int numRead = 0;
-                    while ((offset < bytes.length)
-                            && ((numRead = in.read(bytes, offset, bytes.length
-                                    - offset)) >= 0)) {
-                        offset += numRead;
+                    try (FileInputStream in = new FileInputStream(file)) {
+                        byte[] bytes = new byte[(int) file.length()];
+                        int offset = 0;
+                        int numRead = 0;
+                        while ((offset < bytes.length)
+                                && ((numRead = in.read(bytes, offset,
+                                        bytes.length - offset)) >= 0)) {
+                            offset += numRead;
+                        }
+                        attachedFile = bytes;
+                        attachedFilename = fn.substring(fn
+                                .lastIndexOf(File.separator) + 1);
+                        statusBarLabel.setText("Attachment: " + fn);
                     }
-                    in.close();
-                    attachedFile = bytes;
-                    attachedFilename = fn.substring(fn
-                            .lastIndexOf(File.separator) + 1);
-                    statusBarLabel.setText("Attachment: " + fn);
                 } else {
                     StringBuilder sb = new StringBuilder();
                     if (!file.exists()) {
@@ -4810,8 +4818,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         dlg.setFilterExtensions(FILTER_EXTS);
         String fn = dlg.open();
         if (fn != null) {
-            try {
-                BufferedWriter out = new BufferedWriter(new FileWriter(fn));
+            try (BufferedWriter out = new BufferedWriter(new FileWriter(fn))) {
                 StringBuilder s = new StringBuilder();
                 if (inEditMode) {
                     s.append(removeSoftReturns(headerTF.getText()));
@@ -4824,7 +4831,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     s.replace(ddhhmmIndex, ddhhmmIndex + 6, "000000");
                 }
                 out.append(s);
-                out.close();
             } catch (IOException e1) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Error retrieving metatdata", e1);
@@ -5103,11 +5109,13 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                      * saveEditedProduct, does not actually save anything.
                      */
                     if (shouldSetETNtoNextValue(prod)) {
-                        statusHandler.handle(Priority.INFO, "Will increment ETN for this product.");
+                        statusHandler.handle(Priority.INFO,
+                                "Will increment ETN for this product.");
                         prod.setProduct(VtecUtil.getVtec(
                                 removeSoftReturns(prod.getProduct()), true));
                     } else {
-                        statusHandler.handle(Priority.INFO, "Will NOT increment ETN for this product.");
+                        statusHandler.handle(Priority.INFO,
+                                "Will NOT increment ETN for this product.");
                     }
                     /*
                      * This silly bit of code updates the ETN of a VTEC in the
@@ -5140,13 +5148,15 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             try {
                 if (!resend) {
                     if (shouldSetETNtoNextValue(prod)) {
-                        statusHandler.handle(Priority.INFO, "Will increment ETN for this product.");
+                        statusHandler.handle(Priority.INFO,
+                                "Will increment ETN for this product.");
                         body = VtecUtil
                                 .getVtec(removeSoftReturns(MixedCaseProductSupport
                                         .conditionalToUpper(prod.getNnnid(),
                                                 textEditor.getText())));
                     } else {
-                        statusHandler.handle(Priority.INFO, "Will NOT increment ETN for this product.");
+                        statusHandler.handle(Priority.INFO,
+                                "Will NOT increment ETN for this product.");
                     }
                 }
                 updateTextEditor(body);
@@ -5194,9 +5204,12 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         LocalizationFile lf = PathManagerFactory.getPathManager()
                 .getStaticLocalizationFile(ETN_RULES_FILE);
         if (lf == null) {
-            throw new Exception("ETN rules file (" + ETN_RULES_FILE + ") not found.");
+            throw new Exception("ETN rules file (" + ETN_RULES_FILE
+                    + ") not found.");
         }
-        return JAXB.unmarshal(lf.getFile(), EtnRules.class);
+        try (InputStream stream = lf.openInputStream()) {
+            return JAXB.unmarshal(stream, EtnRules.class);
+        }
     }
 
     private boolean shouldSetETNtoNextValue(StdTextProduct prod) {
@@ -5204,9 +5217,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         try {
             excludedPhenSigs = getETNRules().getExcludePhenSigs();
         } catch (Exception e) {
-            statusHandler.handle(Priority.WARN,
-                    "Error loading ETN assignment rules.  Will use default rules.",
-                    e);
+            statusHandler
+                    .handle(Priority.WARN,
+                            "Error loading ETN assignment rules.  Will use default rules.",
+                            e);
             excludedPhenSigs = defaultNoETNIncrementPhenSigs;
         }
         boolean result = true;
@@ -5749,8 +5763,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 }
             }
         } catch (IllegalArgumentException e) {
-            // TODO Auto-generated catch block
-            // e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, "Problem verifying text. ",
+                    e);
         }
     }
 
@@ -7394,8 +7408,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     + "_"
                     + AUTOSAVE_DATE_FORMAT.format(TimeUtil.newGmtCalendar()
                             .getTime()) + ".txt";
-            BufferedOutputStream bufStream = null;
-
             try {
                 // delete and write new file, rename didn't always work
                 // rename would end up writing a new file every time and
@@ -7411,10 +7423,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                             .warn("Auto save failed.  See server for details...");
                 } else {
                     synchronized (this) {
-                        bufStream = new BufferedOutputStream(
-                                new FileOutputStream(file));
-                        getJaxbManager().marshalToStream(stdTextProduct,
-                                bufStream);
+                        try (BufferedOutputStream bufStream = new BufferedOutputStream(
+                                new FileOutputStream(file))) {
+                            getJaxbManager().marshalToStream(stdTextProduct,
+                                    bufStream);
+                        }
                     }
                 }
 
@@ -7423,15 +7436,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM, "Auto save failed to "
                         + filename, e);
-            } finally {
-                if (bufStream != null) {
-                    try {
-                        bufStream.close();
-                    } catch (IOException e) {
-                        statusHandler.handle(Priority.VERBOSE,
-                                "Failed to close file stream", e);
-                    }
-                }
             }
         }
 
@@ -7439,30 +7443,19 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             StdTextProduct rval = null;
 
             if (file != null) {
-                BufferedInputStream bufStream = null;
+                synchronized (this) {
+                    try (BufferedInputStream bufStream = new BufferedInputStream(
+                            new FileInputStream(file))) {
 
-                try {
-                    synchronized (this) {
-                        bufStream = new BufferedInputStream(
-                                new FileInputStream(file));
-                    }
-
-                    rval = (StdTextProduct) getJaxbManager()
-                            .unmarshalFromInputStream(bufStream);
-                } catch (Exception e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Retrieval of product failed:" + file.getName(), e);
-                } finally {
-                    if (bufStream != null) {
-                        try {
-                            bufStream.close();
-                        } catch (IOException e) {
-                            statusHandler.handle(Priority.VERBOSE,
-                                    "Failed to close file stream", e);
-                        }
+                        rval = (StdTextProduct) getJaxbManager()
+                                .unmarshalFromInputStream(bufStream);
+                    } catch (Exception e) {
+                        statusHandler
+                                .handle(Priority.PROBLEM,
+                                        "Retrieval of product failed:"
+                                                + file.getName(), e);
                     }
                 }
-
             }
 
             return rval;
@@ -8426,8 +8419,24 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             rval = true;
         } else if (isSaoMetarFlag && (lineText.startsWith(" ") == false)) {
             rval = true;
+        } else if (isComponentNameLine(line - 1)) {
+            rval = true;
         }
         return rval;
+    }
+
+    /**
+     * @param lineNumber
+     * @return true when line number is a component name line
+     */
+    private boolean isComponentNameLine(int lineNumber) {
+        boolean result = false;
+        if ((lineNumber > 0)
+                && textEditor.getLine(lineNumber - 1).trim().isEmpty()) {
+            result = COMPONENT_NAME_PATTERN.matcher(
+                    textEditor.getLine(lineNumber)).find();
+        }
+        return result;
     }
 
     /**
@@ -8581,11 +8590,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * @throws IOException
      */
     private byte[] getBytesFromFile(File file) throws IOException {
-        InputStream is = null;
         byte[] bytes = null;
 
-        try {
-            is = new FileInputStream(file);
+        try (InputStream is = new FileInputStream(file)) {
 
             // Get the size of the file
             long length = file.length();
@@ -8614,11 +8621,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         } catch (Exception ex) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error opening input stream.", ex);
-        } finally {
-            // Close the input stream and return bytes
-            if (is != null) {
-                is.close();
-            }
         }
 
         return bytes;

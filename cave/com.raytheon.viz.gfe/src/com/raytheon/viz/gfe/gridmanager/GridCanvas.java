@@ -115,6 +115,8 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  *                                     Stepping is enabled. Cleaned up deprecated warnings.
  * 06/20/2013    #2111    dgilling     Prevent NullPointerException in mouse handler's
  *                                     displayContextMenu() method.
+ * 11/03/2015    #4961    randerso     Make topo grids visible in the grid manager when 
+ *                                     mutable dbType is EditTopo
  * 
  * </pre>
  * 
@@ -702,7 +704,9 @@ public class GridCanvas extends Canvas implements IMessageClient {
 
         if (additions != null) {
             for (Parm parm : additions) {
-                if (!parm.getGridInfo().isTimeIndependentParm()) {
+                if (!parm.getGridInfo().isTimeIndependentParm()
+                        || dataMgr.getParmManager().getMutableDatabase()
+                                .getDbType().equals("EditTopo")) {
                     GridBar gridBar = new GridBar(this, parm, gridManager);
                     gridBarList.add(gridBar);
                 }

@@ -51,6 +51,8 @@ import com.raytheon.uf.common.dataplugin.gfe.weather.WxDefinition;
  *                                     Cloned ParmStorageInfo when requested so we have
  *                                     a unique instance per database.
  * 01/13/2015   #3955      randerso    Fixed NullPointerException when extraWEPrecision is null
+ * 10/30/20115  #5019      dgilling    Fix creation of ParmID when parm name 
+ *                                     specifies name and level together.
  * 
  * </pre>
  * 
@@ -210,8 +212,7 @@ public class GridDbConfig {
         if (pos != -1) {
             parmID = new ParmID(config.parmName.substring(0, pos),
                     new DatabaseID(databaseID),
-                    config.parmName.substring(config.parmName.length() - pos
-                            - 1));
+                    config.parmName.substring(pos + 1));
         } else {
             parmID = new ParmID(config.parmName, new DatabaseID(databaseID));
         }

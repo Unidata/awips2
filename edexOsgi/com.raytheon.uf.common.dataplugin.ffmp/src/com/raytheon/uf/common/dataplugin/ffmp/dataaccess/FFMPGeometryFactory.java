@@ -38,17 +38,21 @@ import com.raytheon.uf.common.dataaccess.util.DatabaseQueryUtil.QUERY_MODE;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasin;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasinData;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPGuidanceBasin;
+import com.raytheon.uf.common.dataplugin.ffmp.FFMPGuidanceInterpolation;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
-import com.raytheon.uf.common.dataplugin.ffmp.FFMPTemplates;
-import com.raytheon.uf.common.dataplugin.ffmp.FFMPTemplates.MODE;
 import com.raytheon.uf.common.dataplugin.ffmp.HucLevelGeometriesFactory;
+import com.raytheon.uf.common.dataplugin.ffmp.collections.FFMPDataCache;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
+import com.raytheon.uf.common.monitor.config.FFFGDataMgr;
 import com.raytheon.uf.common.monitor.config.FFMPRunConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.SOURCE_TYPE;
 import com.raytheon.uf.common.monitor.xml.DomainXML;
+import com.raytheon.uf.common.monitor.xml.ProductRunXML;
+import com.raytheon.uf.common.monitor.xml.ProductXML;
 import com.raytheon.uf.common.monitor.xml.SourceXML;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -80,6 +84,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Feb 27, 2015 4180       mapeters    Overrode getAvailableParameters().
  * Jun 15, 2015 4560       ccody       Added support for configurable rate/accumulation calculation for getGeometryData
  * Jul 16, 2015 4658       dhladky     Expiration times fixed.
+ * Oct 26, 2015 5056       dhladky     Re-wrote to take advantage of FFMP common data cache, fix general bugs.
  * 
  * </pre>
  * 
@@ -108,10 +113,11 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
 
     /** source name constant */
     public static final String SOURCE_NAME = "sourceName";
-
-    /** FFMP Templates object */
-    private FFMPTemplates templates;
-
+    
+    /** accumulation hours, needed for FFG interpolator */
+    public static final String ACCUM_HRS = "accumHrs";
+   
+    
     /**
      * Constructor.
      */
@@ -125,21 +131,26 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
     protected IGeometryData[] getGeometryData(IDataRequest request,
             DbQueryResponse dbQueryResponse) {
         List<Map<String, Object>> results = dbQueryResponse.getResults();
-        Map<Long, DefaultGeometryData> cache = new HashMap<Long, DefaultGeometryData>();
-        FFMPRecord record = null;
+        String siteKey = (String) request.getIdentifiers().get(SITE_KEY);
+        String cwa = (String) request.getIdentifiers().get(WFO);
+        String sourceName = null;
         Date start = new Date(Long.MAX_VALUE);
         Date end = new Date(0);
+        FFMPDataCache cache = getCache(cwa);
 
+        // Ensures that all records have been added to the cache before calculations
         for (Map<String, Object> map : results) {
             for (Map.Entry<String, Object> es : map.entrySet()) {
                 FFMPRecord rec = (FFMPRecord) es.getValue();
-                /*
-                 * Adding all of the basin data to a single record so that we
-                 * can get the accumulated values from that record
-                 */
-                if (record == null) {
-                    record = rec;
+                if (sourceName == null) {
+                    sourceName = rec.getSourceName();
                 }
+                try {
+                    cache.populateFFMPRecord(siteKey, rec, rec.getSourceName());
+                } catch (Exception e) {
+                    statusHandler.handle(Priority.PROBLEM, "Unable to populate FFMPRecord: "+rec.getDataURI(), e);
+                }
+                
                 // building a time range of the earliest FFMP time (based on
                 // each record) to the latest FFMP time (based on each record)
                 if (start.after(rec.getDataTime().getRefTime())) {
@@ -148,43 +159,30 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
                 if (end.before(rec.getDataTime().getRefTime())) {
                     end = rec.getDataTime().getRefTime();
                 }
-
-                try {
-                    rec.retrieveMapFromDataStore(templates);
-                } catch (Exception e) {
-                    throw new DataRetrievalException(
-                            "Failed to retrieve the IDataRecord for PluginDataObject: "
-                                    + rec.toString(), e);
-                }
-
-                /*
-                 * loop over each pfaf id in the current record (rec) we are
-                 * iterating. Add that basin data to the record that we are
-                 * keeping around (record) to use to get the accumulated value.
-                 */
-                for (Long pfaf : rec.getBasinData().getPfafIds()) {
-                    // setValue is a misnomer here, it is actually an add
-                    record.getBasinData()
-                            .get(pfaf)
-                            .setValue(rec.getDataTime().getRefTime(),
-                                    rec.getBasinData().get(pfaf).getValue());
-                }
-
             }
         }
+
+        // Time window for FFMP slides +- the 1/2 QPE expiration time.
+        int expirationTime = FFMPSourceConfigurationManager.getInstance()
+                .getSource(sourceName).getExpirationMinutes(siteKey);
+        start = new Date(start.getTime()
+                - (TimeUtil.MILLIS_PER_MINUTE * (expirationTime/2)));
         /*
          * now that we have all the basin data in a single record (record), we
          * can use the methods on the FFMPRecord class to get the accumulated
          * value in the case of a non-guidance basin
          */
+        Map<Long, DefaultGeometryData> result = null;
+        
+
         try {
-            cache = makeGeometryData(record, request, cache, start, end);
+            result = makeGeometryData(sourceName, request, start, end);
         } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Unable to create the geoemtry data from the records.", e);
+            throw new DataRetrievalException("Unable to create Geometry Data: sourceName: "+sourceName, e);
         }
-        return cache.values().toArray(
-                new DefaultGeometryData[cache.values().size()]);
+        
+        return result.values().toArray(
+                new DefaultGeometryData[result.values().size()]);
     }
 
     /**
@@ -194,15 +192,16 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
     protected Map<String, RequestConstraint> buildConstraintsFromRequest(
             IDataRequest request) {
         Map<String, RequestConstraint> map = new HashMap<String, RequestConstraint>();
-        Map<String, Object> identifiers = request.getIdentifiers();
-        String siteKey = (String) identifiers.get(SITE_KEY);
         for (Map.Entry<String, Object> entry : request.getIdentifiers()
                 .entrySet()) {
             String key = entry.getKey();
-            String value = (String) entry.getValue();
-            if (!key.equals(HUC)) {
-                RequestConstraint rc = new RequestConstraint(value);
-                map.put(key, rc);
+            // exclude this parameter
+            if (!key.equals(ACCUM_HRS)) {
+                String value = (String) entry.getValue();
+                if (!key.equals(HUC)) {
+                    RequestConstraint rc = new RequestConstraint(value);
+                    map.put(key, rc);
+                }
             }
         }
 
@@ -211,74 +210,81 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
         parameterConstraint.setConstraintType(ConstraintType.IN);
         map.put(SOURCE_NAME, parameterConstraint);
 
-        String domain = (String) request.getIdentifiers().get(WFO);
-        DomainXML domainXml = FFMPRunConfigurationManager.getInstance()
-                .getDomain(domain);
-
-        templates = FFMPTemplates.getInstance(domainXml, siteKey, MODE.EDEX);
-
         return map;
     }
 
     /**
      * Create the IGeometryData objects.
      * 
-     * @param rec
-     *            The FFMPRecord
-     * @param cache
-     * @param huc
-     *            The HUC level
-     * @param siteKey
-     *            The siteKey
-     * @param cwa
-     *            The CWA
-     * @param dataKey
-     *            The dataKey
+     * @param sourceName
+     * @param request
+     * @param start
+     * @param end
+     * @return
      * @throws Exception
      */
-    private Map<Long, DefaultGeometryData> makeGeometryData(FFMPRecord rec,
-            IDataRequest request, Map<Long, DefaultGeometryData> cache,
-            Date start, Date end) throws Exception {
+    private Map<Long, DefaultGeometryData> makeGeometryData(String sourceName,
+            IDataRequest request, Date start, Date end) throws Exception {
+
+        Map<Long, DefaultGeometryData> result = new HashMap<Long, DefaultGeometryData>();
         String huc = (String) request.getIdentifiers().get(HUC);
         String dataKey = (String) request.getIdentifiers().get(DATA_KEY);
         String siteKey = (String) request.getIdentifiers().get(SITE_KEY);
         String cwa = (String) request.getIdentifiers().get(WFO);
+        Number accumulationTime = (Number) request.getIdentifiers().get(ACCUM_HRS);
+        FFMPDataCache cache = getCache(cwa);
 
         if (dataKey == null) {
             dataKey = siteKey;
         }
 
-        FFMPBasinData basinData = rec.getBasinData();
+        FFMPGuidanceInterpolation interpolation = null;
+        FFMPBasinData basinData = null;
+        SourceXML source = FFMPSourceConfigurationManager.getInstance()
+                .getSource(sourceName);
+        if (source.getSourceType().equals(SOURCE_TYPE.GUIDANCE.getSourceType())) {
+            basinData = cache.getSourceData(siteKey, source.getDisplayName())
+                    .getRecord().getBasinData();
+            interpolation = getGuidanceInterpolation(
+                    accumulationTime.doubleValue(), sourceName, cwa, siteKey);
+        } else {
+            basinData = cache.getSourceData(siteKey, sourceName).getRecord()
+                    .getBasinData();
+        }
 
         Map<Long, FFMPBasin> basinDataMap = basinData.getBasins();
 
-        HucLevelGeometriesFactory geomFactory = HucLevelGeometriesFactory
-                .getInstance();
-        Map<Long, Geometry> geomMap = geomFactory.getGeometries(templates,
-                siteKey, cwa, huc);
-
-        FFMPSourceConfigurationManager srcConfigMan = FFMPSourceConfigurationManager
-                .getInstance();
-        SourceXML sourceXml = srcConfigMan.getSource(rec.getSourceName());
-        String rateOrAccum = sourceXml.getRateOrAccum(siteKey);
-        boolean isRate = false;
+        String rateOrAccum = null;
+        if (source.getSourceType().equals(SOURCE_TYPE.QPE.getSourceType())) {
+            rateOrAccum = source.getRateOrAccum(siteKey);
+        }
+        
+        boolean isRate = true;
+        /** 
+         * This is a misnomer that has caused loads of confusion.
+         * In actuality when the FFMPBasin accumulates it checks that the
+         * Type is NOT a rate and in fact should be accumulating. RATE == false.
+         * So in effect, values that FFMP stores as RATE==true are actually
+         * NOT rates when accumulated.  So if, it is stored as RATE, it
+         * must use FALSE when processing the accumulation.
+         */
         if ((rateOrAccum != null) && (rateOrAccum.isEmpty() == false)
-                && (rateOrAccum.compareToIgnoreCase("RATE") == 0)) {
-            isRate = true;
+               && (rateOrAccum.compareToIgnoreCase("RATE") == 0)) {
+            isRate = false;
         }
         DefaultGeometryData data = null;
 
-        String[] locationNames = request.getLocationNames();
+        HucLevelGeometriesFactory geomFactory = HucLevelGeometriesFactory
+                .getInstance();
+        Map<Long, Geometry> geomMap = geomFactory.getGeometries(getCache(cwa).getTemplates(siteKey),
+                siteKey, cwa, huc);
 
-        List<Long> pfafList = null;
-        if (locationNames != null && locationNames.length > 0) {
-            pfafList = convertLocations(locationNames);
-        }
+        List<Long> pfafList = getAvailableLocationPfafs(request);
 
         for (Long pfaf : geomMap.keySet()) {
             if (pfafList == null || pfafList.contains(pfaf)) {
-                if (cache.containsKey(pfaf)) {
-                    data = cache.get(pfaf);
+                if (result.containsKey(pfaf)) {
+                    data = result.get(pfaf);
                 } else {
                     data = new DefaultGeometryData();
                     Map<String, Object> attrs = new HashMap<String, Object>();
@@ -291,7 +297,7 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
                     data.setGeometry(geomMap.get(pfaf));
                     data.setDataTime(new DataTime(start.getTime(),
                             new TimeRange(start, end)));
-                    cache.put(pfaf, data);
+                    result.put(pfaf, data);
                 }
 
                 FFMPBasin basin = basinDataMap.get(pfaf);
@@ -301,18 +307,41 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
                     continue;
                 }
 
+                /**
+                 * Guidance Basins will use interpolation, need this to
+                 * perfectly match FFMP table.
+                 */
                 if (basin instanceof FFMPGuidanceBasin) {
-                    value = ((FFMPGuidanceBasin) basin).getValue(
-                            rec.getSourceName(),
-                            sourceXml.getExpirationMinutes(rec.getSiteKey())
-                                    * TimeUtil.MILLIS_PER_MINUTE);
+
+                    if (interpolation.isInterpolate()) {
+                        // Interpolating between sources
+                        value = ((FFMPGuidanceBasin) basin)
+                                .getInterpolatedValue(interpolation,
+                                        source.getExpirationMinutes(siteKey)
+                                                * TimeUtil.MILLIS_PER_MINUTE);
+                    } else {
+                        value = ((FFMPGuidanceBasin) basin).getValue(
+                                interpolation.getStandardSource(),
+                                interpolation,
+                                source.getExpirationMinutes(siteKey)
+                                        * TimeUtil.MILLIS_PER_MINUTE);
+                    }
+
+                    // Will allow for any forcing to take precedence
+                    FFFGDataMgr dman = FFFGDataMgr.getInstance();
+                    if (dman.isExpired() == false) {
+                        value = dman.adjustValue(value, sourceName,
+                                basin.getPfaf(),
+                                ((FFMPGuidanceBasin) basin).getCountyFips());
+                    }
+
                 } else {
                     value = basin.getAccumValue(start, end,
-                            sourceXml.getExpirationMinutes(rec.getSiteKey())
+                            source.getExpirationMinutes(siteKey)
                                     * TimeUtil.MILLIS_PER_MINUTE, isRate);
                 }
-                String parameter = rec.getSourceName();
-                String unitStr = sourceXml.getUnit();
+                String parameter = sourceName;
+                String unitStr = source.getUnit();
 
                 Unit<?> unit = null;
                 if (unitStr.equals(SourceXML.UNIT_TXT)) {
@@ -327,47 +356,37 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
             }
         }
 
-        return cache;
+        return result;
     }
 
-    /**
-     * Convert list of PFAF strings to list of PFAF longs
-     * 
-     * @param locationNames
-     * @return
-     */
-    private List<Long> convertLocations(String[] locationNames) {
-        List<Long> pfafList = new ArrayList<Long>();
-        for (String s : locationNames) {
-            try {
-                pfafList.add(Long.parseLong(s));
-            } catch (NumberFormatException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error parsing pfaf id: " + s, e);
-            }
-        }
-
-        return pfafList;
-    }
-
+   
     /**
      * {@inheritDoc}
      */
     @Override
     public String[] getAvailableLocationNames(IDataRequest request) {
-        List<String> pfafList = new ArrayList<String>();
-        String domain = (String) request.getIdentifiers().get("wfo");
-        String sql = "select pfaf_id from mapdata.ffmp_basins where cwa = '"
-                + domain + "';";
-
-        List<Object[]> results = DatabaseQueryUtil.executeDatabaseQuery(
-                QUERY_MODE.MODE_SQLQUERY, sql, "metadata", PLUGIN_NAME);
-
-        for (Object[] oa : results) {
-            pfafList.add((String) oa[0]);
+        // Changed this to query the active Templates, not the DB.
+        List<Long> pfafs = getAvailableLocationPfafs(request);
+        
+        List<String> pfafList = new ArrayList<String>(pfafs.size());
+        for (Long pfaf : pfafs) { 
+            pfafList.add(String.valueOf(pfaf)); 
         }
 
         return pfafList.toArray(new String[0]);
+    }
+    
+    /**
+     * Gets the available location Pfafs.
+     * @param request
+     * @return
+     */
+    private List<Long> getAvailableLocationPfafs(IDataRequest request) {
+        String siteKey = (String) request.getIdentifiers().get(SITE_KEY);
+        String wfo = (String) request.getIdentifiers().get(WFO);
+        FFMPDataCache cache = getCache(wfo);
+        List<DomainXML> domains = cache.getTemplates(siteKey).getDomains();
+        return cache.getTemplates(siteKey).getHucKeyList(siteKey, FFMPRecord.ALL, domains);
     }
 
     @Override
@@ -410,6 +429,47 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
 
     @Override
     public String[] getOptionalIdentifiers() {
-        return new String[] { DATA_KEY };
+        return new String[] { DATA_KEY, ACCUM_HRS };
     }
+
+    /**
+     * Get the FFG Object need to interpolate between sources
+     * 
+     * @param accumulationTime
+     * @param sourceName
+     * @param wfo
+     * @param siteKey
+     * @return
+     */
+    private FFMPGuidanceInterpolation getGuidanceInterpolation(
+            Double accumulationTime, String sourceName, String wfo,
+            String siteKey) {
+
+        FFMPSourceConfigurationManager sourceConfig = FFMPSourceConfigurationManager
+                .getInstance();
+        SourceXML source = sourceConfig.getSource(sourceName);
+        String primarySourceName = sourceConfig.getPrimarySource(source);
+        ProductXML product = sourceConfig.getProduct(primarySourceName);
+        ProductRunXML productRun = FFMPRunConfigurationManager.getInstance()
+                .getRunner(wfo).getProduct(siteKey);
+
+        FFMPGuidanceInterpolation interpolator = new FFMPGuidanceInterpolation(
+                sourceConfig, product, productRun, primarySourceName,
+                source.getDisplayName(), siteKey);
+        interpolator.setInterpolationSources(accumulationTime);
+
+        return interpolator;
+    }
+
+
+
+    /**
+     * The soft reference wrapped cache, if no longer needed, 
+     * It will just fade away.
+     */
+    private FFMPDataCache getCache(String wfo) {
+
+        return FFMPDataCache.getInstance(wfo);
+    }
+
 }

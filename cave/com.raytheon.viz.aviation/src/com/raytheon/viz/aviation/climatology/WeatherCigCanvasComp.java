@@ -42,6 +42,7 @@ import com.raytheon.viz.aviation.xml.WxPlotCfg;
  * ------------ ---------- ----------- --------------------------
  * 25 JUN 2008  1119        lvenable    Initial creation
  * 18 Nov 2010  6701        rferrel     Use PlotViewerCfg class name.
+ * 03 Nov 2016  5060        rferrel     No longer scale {@link #top}.
  * 
  * </pre>
  * 
@@ -91,8 +92,14 @@ public class WeatherCigCanvasComp extends WeatherCanvasComp {
 
     private WeatherPlotDataManager dataMgr;
 
+    /**
+     * Max value displayed on the plot.
+     */
     private double top;
 
+    /**
+     * Minimum value displayed on the plot.
+     */
     private double bottom;
 
     /**
@@ -107,8 +114,6 @@ public class WeatherCigCanvasComp extends WeatherCanvasComp {
             WxPlotCfg wxPlotCfg) {
         super(parent, "CEILING", currentTime, wxPlotCfg);
         dataMgr = WeatherPlotDataManager.getInstance();
-
-        // this.parent = parent;
     }
 
     /**
@@ -118,14 +123,16 @@ public class WeatherCigCanvasComp extends WeatherCanvasComp {
      *            Graphics context.
      */
     @Override
-    public void drawCanvasData(GC gc) {// need to check for changes in labels
-                                       // for graph and reset them if
-        // necessary
+    public void drawCanvasData(GC gc) {
+        /*
+         * need to check for changes in labels for graph and reset them if
+         * necessary
+         */
         WxPlotCfg config = dataMgr.getWxPlotCfg();
-        top = config.getCeilingTop() / 100;
-        bottom = config.getCeilingBottom() / 100;
-        String ceilingTop = String.format("%03.0f", top);
-        String ceilingBottom = String.format("%03.0f", bottom);
+        top = config.getCeilingTop();
+        bottom = config.getCeilingBottom();
+        String ceilingTop = String.format("%03.0f", top / 100);
+        String ceilingBottom = String.format("%03.0f", bottom / 100);
 
         int fontHeight = gc.getFontMetrics().getHeight();
         int halfFontHeight = fontHeight / 2;
