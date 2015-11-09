@@ -88,6 +88,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * May 09, 2014   3145     mpduff      Dispose the ScanDrawer font
  * Aug 14, 2014 3523       mapeters    Updated deprecated {@link DrawableString#textStyle} 
  *                                     assignments.
+ * Nov 05, 2015 5070       randerso    Adjust font sizes for dpi scaling
+ * 
  * </pre>
  * 
  * @author dhladky
@@ -183,8 +185,9 @@ public class ScanResource extends
                     try {
                         scan = (ScanRecord) pdo;
                         if (scan.getIcao().equals(resourceData.icao)
-                                && scan.getType().equals(getTable().name()))
+                                && scan.getType().equals(getTable().name())) {
                             addRecord(scan);
+                        }
                     } catch (Exception e) {
                         statusHandler.handle(Priority.PROBLEM,
                                 "Error updating SCAN resource", e);
@@ -308,7 +311,7 @@ public class ScanResource extends
 
                 if (getScanDrawer().font == null) {
                     getScanDrawer().setFont(
-                            target.initializeFont("Dialog", 11, null));
+                            target.initializeFont("Dialog", 9, null));
                 }
 
                 if (getScan().getTableKeys(getTable(), resourceData.icao,
@@ -418,9 +421,8 @@ public class ScanResource extends
                 .getMagnification().floatValue();
 
         DrawableString[] strings = new DrawableString[4];
-        strings[0] = new DrawableString(
-                getScanDrawer().sdc.getAttrName(), getCapability(
-                        ColorableCapability.class).getColor());
+        strings[0] = new DrawableString(getScanDrawer().sdc.getAttrName(),
+                getCapability(ColorableCapability.class).getColor());
         strings[0].basics.x = pixel[0];
         strings[0].basics.y = pixel[1];
 

@@ -72,6 +72,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Nov 23, 2009  3268     jsanchez    Initial creation
  * Jun 06, 2014  2061     bsteffen    Remove unneccessary imports
  * Jul 29, 2014  3465     mapeters    Updated deprecated drawString() calls.
+ * Nov 05, 2015  5070     randerso    Adjust font sizes for dpi scaling
  * 
  * </pre>
  * 
@@ -80,7 +81,8 @@ import com.vividsolutions.jts.geom.Polygon;
  */
 public class VAAResource extends
         AbstractVizResource<VAAResourceData, MapDescriptor> {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(VAAResource.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(VAAResource.class);
 
     protected DataTime displayedDataTime;
 
@@ -345,7 +347,7 @@ public class VAAResource extends
         int mag = getCapability(MagnificationCapability.class)
                 .getMagnification().intValue();
         this.plotWidth = actualPlotWidth * mag;
-        this.font = target.initializeFont("Monospace", 11,
+        this.font = target.initializeFont("Monospace", 9,
                 new Style[] { Style.ITALIC });
         this.symbolLoader = new SymbolLoader();
     }

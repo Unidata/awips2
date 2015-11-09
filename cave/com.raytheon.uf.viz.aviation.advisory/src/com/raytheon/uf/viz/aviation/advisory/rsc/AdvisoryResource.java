@@ -75,6 +75,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Jun 13, 2011 9758      cjeanbap     Set colorString of AdvisoryResourceData.
  * Aug 14, 2014 3523      mapeters     Updated deprecated {@link DrawableString#textStyle} 
  *                                     assignments.
+ * Nov 05, 2015 5070      randerso     Adjust font sizes for dpi scaling
  * </pre>
  * 
  * @author bsteffen
@@ -187,7 +188,7 @@ public class AdvisoryResource extends
         if (font != null) {
             font.dispose();
         }
-        this.font = target.initializeFont("Monospace", 10, new Style[] {});
+        this.font = target.initializeFont("Monospace", 8, new Style[] {});
     }
 
     @Override

@@ -36,12 +36,10 @@ import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.PointStyle;
-import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.maps.rsc.StyledMapResource;
-import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability;
@@ -56,13 +54,14 @@ import com.raytheon.viz.pointdata.StaticPlotInfoPV.SPIEntry;
  * 
  * <pre>
  * 
- *    SOFTWARE HISTORY
- *   
- *    Date          Ticket#     Engineer    Description
- *    ------------  ----------  ----------- --------------------------
- *    1/10/08       562         bphillip    Initial Creation.
- *    8/04/14       3489        mapeters    Updated deprecated getStringBounds() calls.
- *    08/21/2014   #3459        randerso    Restructured Map resource class hierarchy
+ * SOFTWARE HISTORY
+ * 
+ * Date          Ticket#     Engineer    Description
+ * ------------  ----------  ----------- --------------------------
+ * 1/10/08       562         bphillip    Initial Creation.
+ * 8/04/14       3489        mapeters    Updated deprecated getStringBounds() calls.
+ * 08/21/2014   #3459        randerso    Restructured Map resource class hierarchy
+ * Nov 05, 2015 #5070        randerso    Moved label font management up to AbstractMapResource
  * 
  * </pre>
  * 
@@ -70,8 +69,7 @@ import com.raytheon.viz.pointdata.StaticPlotInfoPV.SPIEntry;
  * 
  */
 public class SPIResource extends
-        StyledMapResource<SPIResourceData, MapDescriptor> implements
-        IResourceDataChanged {
+        StyledMapResource<SPIResourceData, MapDescriptor> {
 
     /** The line color */
     private static final RGB DEFAULT_COLOR = new RGB(155, 155, 155);
@@ -81,8 +79,6 @@ public class SPIResource extends
     HashMap<String, SPIEntry> entries;
 
     private int pixelSizeHint = 90;
-
-    private IFont font;
 
     public int getPixelSizeHint() {
         return pixelSizeHint;
@@ -102,7 +98,6 @@ public class SPIResource extends
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         super.initInternal(target);
-        resourceData.addChangeListener(this);
         getCapability(LabelableCapability.class).setAvailableLabelFields(
                 "Label");
         getCapability(LabelableCapability.class).setLabelField("Label");
@@ -129,17 +124,12 @@ public class SPIResource extends
 
         }
         project(this.descriptor.getCRS());
-
-        font = target.initializeFont(target.getDefaultFont().getFontName(), 10,
-                null);
-        float magnification = getCapability(MagnificationCapability.class)
-                .getMagnification().floatValue();
-        font.setMagnification(magnification);
     }
 
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
+
         int displayWidth = (int) (this.descriptor.getMapWidth() * paintProps
                 .getZoomLevel());
 
@@ -150,7 +140,7 @@ public class SPIResource extends
                 / paintProps.getView().getExtent().getWidth();
 
         DrawableString n = new DrawableString("N");
-        n.font = font;
+        n.font = getFont(target);
         Rectangle2D charSize = target.getStringsBounds(n);
         double charWidth = charSize.getWidth();
         double charHeight = charSize.getHeight();
@@ -196,7 +186,7 @@ public class SPIResource extends
                 points.add(entry.pixel);
                 if (isLabeled && (magnification > 0.0)) {
                     DrawableString string = new DrawableString(key, color);
-                    string.font = font;
+                    string.font = getFont(target);
                     string.setCoordinates(entry.pixel[0] + offsetX,
                             entry.pixel[1] + offsetY, 0.0);
                     string.horizontalAlignment = align;
@@ -219,30 +209,4 @@ public class SPIResource extends
         }
     }
 
-    @Override
-    protected void disposeInternal() {
-        resourceData.removeChangeListener(this);
-        font.dispose();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.IResourceDataChanged#resourceChanged(com
-     * .raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType,
-     * java.lang.Object)
-     */
-    @Override
-    public void resourceChanged(ChangeType type, Object object) {
-        if (type == ChangeType.CAPABILITY) {
-            if (object instanceof MagnificationCapability) {
-                if (font != null) {
-                    font.setMagnification(((MagnificationCapability) object)
-                            .getMagnification().floatValue());
-                }
-            }
-        }
-        this.issueRefresh();
-    }
 }

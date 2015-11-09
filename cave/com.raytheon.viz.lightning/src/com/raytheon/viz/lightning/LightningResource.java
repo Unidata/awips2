@@ -95,6 +95,7 @@ import com.raytheon.viz.lightning.cache.LightningFrameRetriever;
  * Jul 01, 2015  4597       bclement    reworked resource name using DisplayType
  * Sep 10, 2015  4856       njensen     synchronize in remove(DataTime)
  * Sep 25, 2015  4605       bsteffen    repeat binning
+ * Nov 05, 2015  5070       randerso    Adjust font sizes for dpi scaling
  * 
  * </pre>
  * 
@@ -153,7 +154,7 @@ public class LightningResource extends
 
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        font = target.initializeFont(Font.MONOSPACED, 11,
+        font = target.initializeFont(Font.MONOSPACED, 9,
                 new Style[] { Style.BOLD });
 
         VizApp.runSync(new Runnable() {
@@ -248,8 +249,9 @@ public class LightningResource extends
         int cloudCount = 0;
         int pulseCount = 0;
 
-        if (magnification == 0.0)
+        if (magnification == 0.0) {
             magnification = (float) 0.01;
+        }
 
         /*
          * we only want strikes that are visible so we have to filter any

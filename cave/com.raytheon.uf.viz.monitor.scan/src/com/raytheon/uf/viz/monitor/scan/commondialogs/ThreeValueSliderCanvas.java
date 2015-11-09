@@ -41,6 +41,22 @@ import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 
+/**
+ * Three Value Slider Canvas
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Nov 05, 2015 #5070      randerso    Changed to use system font name (not AWT)
+ * 
+ * </pre>
+ * 
+ * @author randerso
+ * @version 1.0
+ */
 public class ThreeValueSliderCanvas {
     private final Composite parentComp;
 
@@ -202,7 +218,7 @@ public class ThreeValueSliderCanvas {
         midLblRect = new Rectangle(0, 0, 0, 0);
         lowerLblRect = new Rectangle(0, 0, 0, 0);
 
-        labelFont = new Font(display, "Monospaced", 10, SWT.BOLD);
+        labelFont = new Font(display, "Monospace", 10, SWT.BOLD);
         mousePt = new Point(0, 0);
         upperRegion = new Region(display);
         midRegion = new Region(display);
@@ -222,6 +238,7 @@ public class ThreeValueSliderCanvas {
 
         canvas.setLayoutData(gd);
         canvas.addPaintListener(new PaintListener() {
+            @Override
             public void paintControl(PaintEvent e) {
                 drawCanvas(e.gc);
             }

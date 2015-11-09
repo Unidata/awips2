@@ -96,6 +96,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 07, 2013 2070       bsteffen    Add geospatial constraints to metar
  *                                     precip requests.
  * Mar 11, 2014 #2718      randerso    Changes for GeoTools 10.5
+ * Nov 05, 2015 5070       randerso    Adjust font sizes for dpi scaling
  * 
  * </pre>
  * 
@@ -190,7 +191,7 @@ public class MetarPrecipResource extends
         Double density = getCapability(DensityCapability.class).getDensity();
 
         if (font == null) {
-            font = target.initializeFont(Font.DIALOG, 10,
+            font = target.initializeFont(Font.DIALOG, 8,
                     new Style[] { Style.BOLD });
             font.setMagnification(magnification.floatValue());
         }

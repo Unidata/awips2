@@ -45,14 +45,12 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IView;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.datastructure.WireframeCache;
-import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.maps.rsc.StyledMapResource;
-import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability;
@@ -65,20 +63,21 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * <pre>
  * 
- *    SOFTWARE HISTORY
- *   
- *    Date          Ticket#     Engineer    Description
- *    ------------	----------	-----------	--------------------------
- *    7/1/06                    chammack    Initial Creation.
- *    1/10/08       562         bphillip    Modified to handle .bcx files
- *    02/11/09                  njensen     Refactored to new rsc architecture
- *    07/31/12      DR 14935    D. Friedman Handle little-endian files
- *    Jul 28, 2014  3397        bclement    switched to non deprecated version of createWireframeShape()
- *                                          now closes on FileInputStream instead of FileChannel in initInternal()
- *    Jul 29, 2014  3465        mapeters    Updated deprecated drawString() calls.
- *    Aug 04, 2014  3489        mapeters    Updated deprecated getStringBounds() calls.
- *    Aug 13, 2014  3492        mapeters    Updated deprecated createWireframeShape() calls.
- *    Aug 21, 2014 #3459        randerso    Restructured Map resource class hierarchy
+ * SOFTWARE HISTORY
+ * 
+ * Date          Ticket#     Engineer    Description
+ * ------------	----------	-----------	--------------------------
+ * 7/1/06                    chammack    Initial Creation.
+ * 1/10/08       562         bphillip    Modified to handle .bcx files
+ * 02/11/09                  njensen     Refactored to new rsc architecture
+ * 07/31/12      DR 14935    D. Friedman Handle little-endian files
+ * Jul 28, 2014  3397        bclement    switched to non deprecated version of createWireframeShape()
+ *                                       now closes on FileInputStream instead of FileChannel in initInternal()
+ * Jul 29, 2014  3465        mapeters    Updated deprecated drawString() calls.
+ * Aug 04, 2014  3489        mapeters    Updated deprecated getStringBounds() calls.
+ * Aug 13, 2014  3492        mapeters    Updated deprecated createWireframeShape() calls.
+ * Aug 21, 2014 #3459        randerso    Restructured Map resource class hierarchy
+ * Nov 05, 2015 #5070        randerso    Moved label font management up to AbstractMapResource
  * 
  * </pre>
  * 
@@ -86,8 +85,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  */
 public class BCDResource extends
-        StyledMapResource<BCDResourceData, MapDescriptor> implements
-        IResourceDataChanged {
+        StyledMapResource<BCDResourceData, MapDescriptor> {
 
     /** The wireframe object */
     private IWireframeShape wireframeShape;
@@ -102,8 +100,6 @@ public class BCDResource extends
     private boolean isBCX = false;
 
     private int maxLen = 0;
-
-    private IFont font;
 
     private ArrayList<BcxLabel> labels;
 
@@ -139,16 +135,14 @@ public class BCDResource extends
      */
     @Override
     protected void disposeInternal() {
+        super.disposeInternal();
+
         WireframeCache.getInstance().unregisterWireframe(
                 resourceData.getFilename(), gridGeometry);
 
         wireframeShape = null; // drop the reference
 
         lastTarget = null;
-        resourceData.removeChangeListener(this);
-        if (font != null) {
-            font.dispose();
-        }
     }
 
     /*
@@ -307,6 +301,7 @@ public class BCDResource extends
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
+
         if (ready && isBCX) {
             int displayWidth = (int) (descriptor.getMapWidth() * paintProps
                     .getZoomLevel());
@@ -319,13 +314,8 @@ public class BCDResource extends
             double density = getCapability(DensityCapability.class)
                     .getDensity();
 
-            if (font == null) {
-                font = target.initializeFont(target.getDefaultFont()
-                        .getFontName(), (float) (10 * magnification), null);
-            }
-
             DrawableString stringN = new DrawableString("N");
-            stringN.font = font;
+            stringN.font = getFont(target);
             Rectangle2D charSize = target.getStringsBounds(stringN);
             double charWidth = charSize.getWidth();
 
@@ -348,7 +338,7 @@ public class BCDResource extends
 
                 if (view.isVisible(p.pixel) && (p.distance >= minSepDist)) {
                     DrawableString string = new DrawableString(p.label, color);
-                    string.font = font;
+                    string.font = getFont(target);
                     string.setCoordinates(p.pixel[0], p.pixel[1]);
                     string.horizontalAlignment = HorizontalAlignment.CENTER;
                     strings.add(string);
@@ -371,25 +361,5 @@ public class BCDResource extends
                 resourceData.getFilename(), gridGeometry);
 
         this.initInternal(this.lastTarget);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.IResourceDataChanged#resourceChanged(com
-     * .raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType,
-     * java.lang.Object)
-     */
-    @Override
-    public void resourceChanged(ChangeType type, Object object) {
-        if (type == ChangeType.CAPABILITY) {
-            if (object instanceof MagnificationCapability) {
-                if (font != null) {
-                    font.dispose();
-                    font = null;
-                }
-            }
-        }
     }
 }
