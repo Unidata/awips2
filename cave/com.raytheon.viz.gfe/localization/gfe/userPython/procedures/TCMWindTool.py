@@ -678,7 +678,7 @@ class Procedure (SmartScript.SmartScript):
 
         # if your path does not include FXA_HOME/bin,
         # this line may work instead of the above line.
-#        cmd = "/awips2/fxa/bin/textdb -r " + productID
+#        cmd = "/awips/fxa/bin/textdb -r " + productID
 
         (stdout, stdin, stderr) = popen2.popen3(cmd)
         
