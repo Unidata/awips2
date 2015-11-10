@@ -1,22 +1,25 @@
-#####################################################
-## MARINE WEATHER STATEMENT STANDALONE             ##
-## CREATED BY PHIL KURIMSKI - WFO DTX              ##
-## VERSION AWIPS II 1.5 -- MAR  2 2012  OB12.2.1-4 ##
-## Added coding for dense fog in Version 1.5       ##
-##  Evan Bookbinder 4-25-2012  for OB 12.3.1 (MND) ##
-## Phil Kurimski   -- SEP 10 2012  OB12.9.1-12     ##
-## Phil Kurimski   -- FEB 07 2013  OB13.2.1-5      ##
-## Phil Kurimski   -- SEP 17 2013  OB13.5.2-4      ##
-## Evan Bookbinder -- SEP 18 2013  Implemented config.vm
-## Mike Rega 5/23/14 DR 17380 svr wx watch logic OB14.3.1
-## UPDATED PHIL KURIMSKI -- MAR 23 2015 Mixed Case ##
-#####################################################
+#############################################################
+## MARINE WEATHER STATEMENT STANDALONE                     ##
+## CREATED BY PHIL KURIMSKI - WFO GRB                      ##
+## VERSION AWIPS II 1.5 -- MAR  2 2012  OB12.2.1-4         ##
+## Added coding for dense fog in Version 1.5               ##
+##  Evan Bookbinder 4-25-2012  for OB 12.3.1 (MND)         ##
+## Phil Kurimski   -- SEP 10 2012  OB12.9.1-12             ##
+## Phil Kurimski   -- FEB 07 2013  OB13.2.1-5              ##
+## Phil Kurimski   -- SEP 17 2013  OB13.5.2-4              ##
+## Evan Bookbinder -- SEP 18 2013  Implemented config.vm   ## 
+## Mike Rega 5/23/14 DR 17380 svr wx watch logic OB14.3.1  ##
+## UPDATED PHIL KURIMSKI -- MAR 23 2015 Mixed Case         ##
+## Evan Bookbinder -- 10/19/15 - Line of storms grammar    ##
+## Phil Kurimski   -- OCT 20 2015 - changed wind to 30 kts ##
+#############################################################
 #parse("config.vm")
+#####################################################
 ## Set the visibility variable to be used for dense fog
 ## This variable can be changed by the local office and will
 ## set the visibility in the 3rd bullet and dense fog CTA
 #####################################################
-#set($visibility = "1 MILE")
+#set($visibility = "1 mile")
 #####################################################
 ## Set null variables used in the template
 #####################################################
@@ -94,12 +97,12 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #######################################################################
 ## Section to create line wording based on track type.
 #######################################################################
-#set($stormline = "${headerType}")
+#set($stormline = "a ${headerType}")
 #set($pathheader = "The ${headerType}")
 #set($specialEvent = "This ${eventType}")
 #set($reportType2 = "The ${eventType} was")
 #if(${stormType} == "line")
-  #set($stormline = "line of ${headerType}s")
+  #set($stormline = "${headerType}s")
   #set($pathheader = "${headerType}s")
   #set($specialEvent = "These ${eventType}s")
   #set($headerType = "A ${headerType}s")
@@ -109,7 +112,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ## Corrective coding to prevent the use of "Line of Fronts" in the Product
 #######################################################################
 #if(${eventType} == "front")
-  #set($stormline = "${eventType}")
+  #set($stormline = "a front")
   #set($pathheader = "The ${eventType}")
   #set($specialEvent = "This ${eventType}")
   #set($reportType2 = "The ${eventType} was")
@@ -118,7 +121,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ## Corrective coding to prevent the use of "Line of Dense Fog" in the Product
 #######################################################################
 #if(${eventType} == "dense fog")
-  #set($stormline = "${eventType}")
+  #set($stormline = "dense fog")
   #set($pathheader = "The ${eventType}")
   #set($specialEvent = "This ${eventType}")
   #set($reportType2 = "The ${eventType} was")
@@ -126,7 +129,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${eventType} == "cloud")
   #set($pathheader = "The strong winds")
 #end
-#set($threatType = "winds up to 33 knots")
+#set($threatType = "winds to around 30 knots")
   #set($headerType1 = "...STRONG WINDS EXPECTED...")
 #if(${list.contains(${bullets}, "approachHead")})
   #set($headerType1 = "...${stormline} APPROACHING THE WATERS...")
@@ -200,7 +203,7 @@ The areas affected include...
 ## Note you start out with the largest combination first then whittle it down until you only have
 ## one zone left. You can do this as many times as you wish for as many combinations as you have.
 ## Make sure you comment out the ${area.name}... line above to use the marine zone combination
-## If you have any questions contact: Phil Kurimski - WFO DTX
+## If you have any questions contact: Phil Kurimski - WFO GRB
 ###################################################################################################
 #set($zonecombo = "")
 #if(($fipsstring.contains("AMZ154")) && ($fipsstring.contains("AMZ156")) && ($fipsstring.contains("AMZ152")))
@@ -227,40 +230,40 @@ $zonecombo
 #set($report = "!** YOU DIDN'T SELECT A REPORTER **! ${threatType}")
 #if(${list.contains(${bullets}, "doppler")})
   #set($capable = "capable of ")
-  #set($report = "Doppler radar indicated a ${stormline}, ${capable}producing ${threatType}${hailType}.")
+  #set($report = "Doppler radar indicated ${stormline}, ${capable}producing ${threatType}${hailType}.")
 #if(${list.contains(${bullets}, "fog")})
   #set($capable = "capable of ")
   #set($report = "Doppler radar indicated an area of ${stormline}, ${capable}reducing visibilities to below ${visibility}.")
 #end
 #end
 #if(${list.contains(${bullets}, "marineSpotter")})
-  #set($report = "marine weather spotters reported a ${stormline}, ${capable}producing ${threatType}${hailType}.") 
+  #set($report = "marine weather spotters reported ${stormline}, ${capable}producing ${threatType}${hailType}.") 
 #if(${list.contains(${bullets}, "fog")})
   #set($report = "marine weather spotters reported an area of ${stormline}, ${capable}reducing visibilities to below ${visibility}.")
 #end
 #end
 #if(${list.contains(${bullets}, "mariner")})
-  #set($report = "a mariner reported a ${stormline}, ${capable}producing ${threatType}${hailType}.") 
+  #set($report = "a mariner reported ${stormline}, ${capable}producing ${threatType}${hailType}.") 
 #if(${list.contains(${bullets}, "fog")})
   #set($report = "a mariner reported an area of ${stormline}, ${capable}reducing visibilities to below ${visibility}.")
 #end
 #end
 #if(${list.contains(${bullets}, "public")})
-  #set($report = "the public reported a ${stormline}, ${capable}producing ${threatType}${hailType}.") 
+  #set($report = "the public reported ${stormline}, ${capable}producing ${threatType}${hailType}.") 
 #if(${list.contains(${bullets}, "fog")})
   #set($report = "the public reported an area of ${stormline}, ${capable}reducing visibilities to below ${visibility}.")
 #end
 #end
 #if(${list.contains(${bullets}, "satellite")})
   #set($capable = "capable of ")
-  #set($report = "satellite imagery indicated a ${stormline}, ${capable}producing ${threatType}${hailType}.")
+  #set($report = "satellite imagery indicated ${stormline}, ${capable}producing ${threatType}${hailType}.")
 #if(${list.contains(${bullets}, "fog")})
   #set($capable = "capable of ")
   #set($report = "satellite imagery indicated an area of ${stormline}, ${capable}reducing visibilities to below ${visibility}.")
 #end
 #end
 #if(${list.contains(${bullets}, "pilot")})
-  #set($report = "a pilot reported a ${stormline}, ${capable}producing ${threatType}${hailType}.") 
+  #set($report = "a pilot reported ${stormline}, ${capable}producing ${threatType}${hailType}.") 
 #if(${list.contains(${bullets}, "fog")})
   #set($report = "a pilot reported an area of ${stormline}, ${capable}reducing visibilities to below ${visibility}.")
 #end
@@ -331,28 +334,28 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 
 #if(${list.contains(${bullets}, "genericCTA")})
 #if(${stormType} == "line")
-Mariners can expect gusty winds up to 33 knots...locally higher waves...and lightning strikes. Boaters should seek safe harbor immediately until these storms pass.
+Mariners can expect gusty winds to around 30 knots...locally higher waves...and lightning strikes. Boaters should seek safe harbor immediately until these storms pass.
 
 #else
-Mariners can expect gusty winds up to 33 knots...locally higher waves...and lightning strikes. Boaters should seek safe harbor immediately until this storm passes.
+Mariners can expect gusty winds to around 30 knots...locally higher waves...and lightning strikes. Boaters should seek safe harbor immediately until this storm passes.
 
 #end
 #end
 #if(${list.contains(${bullets}, "heavyRainCTA")})
 #if(${stormType} == "line")
-Mariners can expect gusty winds up to 33 knots...locally higher waves...lightning strikes...and heavy downpours. Boaters should seek safe harbor immediately until these storms pass.
+Mariners can expect gusty winds to around 30 knots...locally higher waves...lightning strikes...and heavy downpours. Boaters should seek safe harbor immediately until these storms pass.
 
 #else
-Mariners can expect gusty winds up to 33 knots...locally higher waves...lightning strikes...and heavy downpours. Boaters should seek safe harbor immediately until this storm passes.
+Mariners can expect gusty winds to around 30 knots...locally higher waves...lightning strikes...and heavy downpours. Boaters should seek safe harbor immediately until this storm passes.
 
 #end
 #end
 #if(${list.contains(${bullets}, "possibleSmwCTA")})
 #if(${stormType} == "line")
-This ${stormline} will likely produce winds up to 33 knots...and could pose a serious hazard for boaters. A special marine warning may eventually be required when these storms reach the nearshore waters. Boaters should consider heading for shore before these storms arrive.
+This ${stormline} will likely produce winds to around 30 knots...and could pose a serious hazard for boaters. A special marine warning may eventually be required when these storms reach the nearshore waters. Boaters should consider heading for shore before these storms arrive.
 
 #else
-This ${stormline} will likely produce winds up to 33 knots...and could pose a serious hazard for boaters. A special marine warning may eventually be required when this storm reaches the nearshore waters. Boaters should consider heading for shore before the storm arrives.
+This ${stormline} will likely produce winds to around 30 knots...and could pose a serious hazard for boaters. A special marine warning may eventually be required when this storm reaches the nearshore waters. Boaters should consider heading for shore before the storm arrives.
 
 #end
 #end

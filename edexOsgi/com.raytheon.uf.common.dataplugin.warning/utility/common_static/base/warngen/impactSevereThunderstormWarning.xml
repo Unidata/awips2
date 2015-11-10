@@ -9,6 +9,7 @@
                                 Added new areaSource object     
      Phil Kurimski   09-19-2013 added geospatialConfig.xml      
      Evan Bookbinder  2-18-2014 corrected supercell CTA typo & added DSS Events
+     Evan Bookbinder  6-15-2015 corrected grapefruit and softball hail sizes     
 -->
 <warngenConfig>
 
@@ -114,8 +115,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="tennisBallHail" bulletText="Tennis ball hail (2 1/2&quot;)" bulletGroup="toggle3" parseString="2.50IN"/>
   <bullet bulletName="baseballHail" bulletText="Baseball size hail (2 3/4&quot;)" bulletGroup="toggle3" parseString="2.75IN"/>
   <bullet bulletName="threeinchHail" bulletText="Three inch hail (3&quot;)" bulletGroup="toggle3" parseString="3.00IN"/>
-  <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4&quot;)" bulletGroup="toggle3" parseString="4.00IN"/>
-  <bullet bulletName="softballHail" bulletText="Softball size hail (4 1/4&quot;)" bulletGroup="toggle3" parseString="4.25IN"/>
+  <bullet bulletName="softballHail" bulletText="Softball size hail (4&quot;)" bulletGroup="toggle3" parseString="4.00IN"/>
+  <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4 1/2&quot;)" bulletGroup="toggle3" parseString="4.50IN"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******** TORNADO TAG ********" bulletType="title"/>
   <bullet bulletName="svrTorTag" bulletText="SELECT FOR TORNADO...POSSIBLE TAG" parseString="TORNADO...POSSIBLE"/>
@@ -178,8 +179,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="tennisBallHail" bulletText="Tennis ball hail (2 1/2&quot;)" bulletGroup="toggle3" parseString="2.50IN"/>
   <bullet bulletName="baseballHail" bulletText="Baseball size hail (2 3/4&quot;)" bulletGroup="toggle3" parseString="2.75IN"/>
   <bullet bulletName="threeinchHail" bulletText="Three inch hail (3&quot;)" bulletGroup="toggle3" parseString="3.00IN"/>
-  <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4&quot;)" bulletGroup="toggle3" parseString="4.00IN"/>
-  <bullet bulletName="softballHail" bulletText="Softball size hail (4 1/4&quot;)" bulletGroup="toggle3" parseString="4.25IN"/>
+  <bullet bulletName="softballHail" bulletText="Softball size hail (4&quot;)" bulletGroup="toggle3" parseString="4.00IN"/>
+  <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4 1/2&quot;)" bulletGroup="toggle3" parseString="4.50IN"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******** TORNADO TAG ********" bulletType="title"/>
   <bullet bulletName="svrTorTag" bulletText="SELECT FOR TORNADO...POSSIBLE TAG" parseString="TORNADO...POSSIBLE"/>
