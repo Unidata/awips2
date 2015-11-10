@@ -73,4 +73,11 @@ for feature in `cat ${_output}`; do
    fi
 done
 
+# Relocate localization files.
+/bin/bash /awips2/cave/relocateLocalization.sh
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
 echo "INFO: Upgrades Finished."
+exit 0
