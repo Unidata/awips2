@@ -51,7 +51,7 @@ VariableList = [("DEFAULT: Typical. Should only be changed in coordination with 
                 ("Grid Smoothing?", "Yes", "radio", ["Yes","No"]),
                 ("Make grids from \nPHISH, ISC, or Manually?", "PHISH", "radio", ["PHISH", "ISC", "Manually Replace", "Manually Add"]),
                 ("Manual Inundation settings:", "", "label"),
-                ("Inundation Height:", 1.0, "scale", [0.0, 10.0], 0.5),                
+                ("Inundation Height:", 1.0, "scale", [0.0, 2.0], 1.0),
                 ("Start Hour for Inundation Timing", 0, "scale", [0.0, 72.0], 6.0),
                 ("End Hour for Inundation Timing", 6, "scale", [0.0, 78.0], 6.0),
                 ]
@@ -59,7 +59,7 @@ VariableList = [("DEFAULT: Typical. Should only be changed in coordination with 
 class Procedure (SmartScript.SmartScript):
     def __init__(self, dbss):
         SmartScript.SmartScript.__init__(self, dbss)
-       
+
     def getWEInventory(self, modelName, WEName, level):
         allTimes = TimeRange.allTimes().toJavaObj()
         gridInfo = self.getGridInfo(modelName, WEName, level, allTimes)
@@ -72,11 +72,11 @@ class Procedure (SmartScript.SmartScript):
             trList.append(tr)
 
         return trList
-    
+
     def baseGuidanceTime(self):
         startTime = int((self._gmtime().unixTime() - (2 * 3600)) / (6 * 3600)) * (6 * 3600)
 #         print "BASETIME IS: ", startTime
-        
+
         return startTime
 
 
@@ -171,22 +171,22 @@ class Procedure (SmartScript.SmartScript):
         for tr in trList:
             grid = self.getGrids(dbName, weName, level, tr, mode="Max")
 
-        
+
         surgeVal = grid.copy()
         mask = surgeVal > -100
         grid = np.where(mask,surgeVal*3.28, -80.0)
 
         return grid  # convert meters to feet 
-    
+
     def makePhishGrid(self, pctStr, level, smoothThreatGrid, mutableID):
-        
+
         siteID = self.getSiteID()
         dbName = siteID + "_D2D_TPCSurgeProb"
-        
+
         weName = "Surge" + pctStr + "Pctincr"
         #print "Attempting to retrieve: ", weName, level
         trList = self.getWEInventory(dbName, weName, level)
-        
+
         if len(trList) == 0:
             self.statusBarMsg("No grids available for model:" + dbName, "S")
             return None
@@ -202,7 +202,7 @@ class Procedure (SmartScript.SmartScript):
                 n = n + 1   
             end = tr.startTime().unixTime()
             tr6 = TimeRange.TimeRange(AbsTime.AbsTime(start),
-                                      AbsTime.AbsTime(end))           
+                                      AbsTime.AbsTime(end))
             phishGrid = self.getGrids(dbName, weName, level, tr)
 #
 # For consistency we need to add smoothing here too as we do in execute.
@@ -212,11 +212,11 @@ class Procedure (SmartScript.SmartScript):
                 continue       
             
             if smoothThreatGrid is "Yes":
-                phishGrid = np.where(np.greater(phishGrid, 0.0), self.smoothGrid(phishGrid,3), phishGrid)        
-            
+                phishGrid = np.where(np.greater(phishGrid, 0.0), self.smoothGrid(phishGrid,3), phishGrid)
+
             grid = np.where(phishGrid>-100,phishGrid*3.28, -80.0)
             self.createGrid(mutableID, "InundationTiming", "SCALAR", grid, tr6, precision=1)
-  
+
         return
 
 #**************************************************************************************
@@ -549,18 +549,18 @@ class Procedure (SmartScript.SmartScript):
                                         surgePctGridNAVD + navdtomhhw, -80.0)# MHHW Grid
             surgeDiffMLLWMHHW = np.where(np.greater(surgePctGridMLLW,-80.0) & np.greater(surgePctGridMHHW, -80.0), \
                                          surgePctGridMLLW-surgePctGridMHHW, -80.0)# Diff Grid Between MLLW and MHHW   
-           
+
             self.makePhishGrid(pctStr, "FHAG0", smoothThreatGrid, mutableID) 
-        
+
         elif makeOption == "ISC":
-            
+
             elementList = ["InundationMax","InundationTiming", "SurgeHtPlusTideMSL","SurgeHtPlusTideMLLW",
                            "SurgeHtPlusTideNAVD","SurgeHtPlusTideMHHW"]
             surgePctGrid,surgePctGridMSL,surgePctGridMLLW,surgePctGridMHHW,surgePctGridNAVD = self.copyISCGridstoFcst(elementList)
             if surgePctGrid is None or surgePctGridMSL is None or surgePctGridMLLW is None or \
                surgePctGridMHHW is None or surgePctGridNAVD is None:
                 return
-        
+
         elif makeOption == "Manually Replace" or makeOption == "Manually Add":
             
             inundationHeight = float(varDict["Inundation Height:"])
@@ -576,14 +576,14 @@ class Procedure (SmartScript.SmartScript):
             if not modifyMask.any():
                 self.statusBarMsg("Please define an area that intersects the StormSurgeEditArea to assign the inundation values.", "S")
                 return              # Calculate the intersection of the SSEditArea and selected editAre
-            
+
             if inunStartHour >= inunEndHour:
                 self.statusBarMsg("Please define the end hour after the start hour.", "S")
                 return
 
             print "Making timing grids"
             surgePctGrid = np.zeros(self.getGridShape())
-                            
+
             # make the InundationMax grid
             surgePctGrid[modifyMask] = inundationHeight           
             # Make the timing grids
