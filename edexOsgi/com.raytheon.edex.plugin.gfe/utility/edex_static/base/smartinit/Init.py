@@ -1064,7 +1064,7 @@ class Forecaster(GridUtilities):
         try:
             rval = apply(mthd, tuple(gargs))
         
-            if type(rval) is not ndarray:
+            if type(rval) is not ndarray and rval is not None:
                 if type(rval) is not tuple:
                     jrval = rval
                     rval = rval.getNDArray()

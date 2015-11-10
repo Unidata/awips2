@@ -24,7 +24,8 @@
     <contribute xsi:type="menuItem" menuText="Visibility" key="Vis" indentText="false" />
     <contribute xsi:type="menuItem" menuText="Visibility Anl Uncertainty" key="Viserranl" indentText="false" />
     <contribute xsi:type="menuItem" menuText="Turbulence" key="TURB" indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Turbulence Index" key="TPFI" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Composite Clear Air Turbulence - GTG" key="TPFI" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Clear Air Turbulence - GTG" key="CAT" indentText="false" />
     <contribute xsi:type="menuItem" menuText="Icing Probability" key="ICPRB" indentText="false" />
     <contribute xsi:type="menuItem" menuText="Icing Potential" key="ICNG" indentText="false" />
     <contribute xsi:type="menuItem" menuText="Icing Severity" key="ICSEV" indentText="false" />

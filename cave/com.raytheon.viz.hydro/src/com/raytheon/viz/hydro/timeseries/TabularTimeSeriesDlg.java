@@ -130,6 +130,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Jun 07, 2013 1981       mpduff      Set user's id on the OUPRequest as it is now protected.
  * Jul 16, 2013 2088       rferrel     Changes for non-blocking TextEditorDlg.
  * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
+ * Nov 06, 2015 17846      lbousaidi   change the query so that after QC, the quality_code  
+ *                                     is reset from Bad to Good.
  * </pre>
  * 
  * @author lvenable
@@ -1872,10 +1874,6 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
             basistime = parts[5] + " " + parts[6];
         }
 
-        String sql = "update " + tablename + " set value = "
-                + HydroConstants.MISSING_VALUE
-                + ", revision= 1, shef_qual_code = 'M' " + ", postingtime= '"
-                + HydroConstants.DATE_FORMAT.format(postTime) + "'  ";
 
         DataRecord dr = new DataRecord();
         int[] selectionIndices = bottomListControl.getSelectionIndices();
@@ -1910,6 +1908,11 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                     td.getQualityCode()));
 
             dr.setRevision((short) 1);
+
+            String sql = "update " + tablename + " set value = "
+                    + HydroConstants.MISSING_VALUE + ", revision= 1, shef_qual_code = 'M' , quality_code= '"
+                    + dr.getQualityCode() + "' " + ", postingtime= '"
+                    + HydroConstants.DATE_FORMAT.format(postTime) + "'  ";
 
             /* code to update an observation to MISSING */
             if (ts.toUpperCase().startsWith("R")
