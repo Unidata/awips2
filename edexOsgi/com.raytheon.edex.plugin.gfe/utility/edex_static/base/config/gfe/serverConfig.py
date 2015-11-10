@@ -1490,7 +1490,7 @@ elif SID == "SJU":
                ("East CONUS/Imager 11 micron IR", "ir11East"),
                ("East CONUS/Imager 13 micron (IR)", "ir13East"),
                ("East CONUS/Imager 3.9 micron IR", "ir39East"),
-               ("East CONUS/Imager 6.7-6.5 micron WV", "waterVaporEast")]
+               ("East CONUS/Imager 6.7-6.5 micron IR (WV)", "waterVaporEast")]
 
 # Guam OCONUS
 elif SID == "GUM":
@@ -1502,12 +1502,12 @@ else:
                ("West CONUS/Imager 11 micron IR", "ir11West"),
                ("West CONUS/Imager 13 micron (IR)", "ir13West"),
                ("West CONUS/Imager 3.9 micron IR", "ir39West"),
-               ("West CONUS/Imager 6.7-6.5 micron WV", "waterVaporWest"),
+               ("West CONUS/Imager 6.7-6.5 micron IR (WV)", "waterVaporWest"),
                ("East CONUS/Imager Visible", "visibleEast"),
                ("East CONUS/Imager 11 micron IR", "ir11East"),
                ("East CONUS/Imager 13 micron (IR)", "ir13East"),
                ("East CONUS/Imager 3.9 micron IR", "ir39East"),
-               ("East CONUS/Imager 6.7-6.5 micron WV", "waterVaporEast")]
+               ("East CONUS/Imager 6.7-6.5 micron IR (WV)", "waterVaporEast")]
 
 #---------------------------------------------------------------------------
 #

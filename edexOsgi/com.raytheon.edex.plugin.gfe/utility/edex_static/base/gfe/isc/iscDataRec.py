@@ -111,17 +111,17 @@ def execIscDataRec(MSGID,SUBJECT,FILES):
                 logProblem("Malformed XML received")
                 return
         
-        #no XML destination information. Default to 9583
+        #no XML destination information. Default to dx4f,px3 98000000, 98000001
         else:
             # create a xml element tree to replace the missing one.  This will
             # occur when OB8.2 sites send ISC data to OB8.3 sites, and also when
-            # active table exchanges occur.  We default to 9583 
-            # since that is where the primary and svcbu servers are located.
+            # active table exchanges occur.  We default to 98000000 and 98000001
+            # on dx4 since that is where the primary and svcbu servers are located.
             # This will cause log errors until everyone is on OB8.3.
             iscE = Element('isc')
             destinationsE = SubElement(iscE, 'destinations')
-            for x in xrange(9583, 9583):
-                for shost in ['localhost']:
+            for x in xrange(98000000, 98000002):
+                for shost in ['dx4f','px3f']:
                     addressE = SubElement(destinationsE, 'address')
                     serverE = SubElement(addressE, 'server')
                     serverE.text = shost
