@@ -113,10 +113,12 @@ def serverBoxText(server):
     #returns text based on the server dictionary that should be placed
     #into the dialog
     hostport = None
-    if server['port'] == "9583":
-        hostport = server['host'] + "-primary"
-    elif server['port'] == "98000001":
-        hostport = server['host'] + "-svcbu"
+    if server['host'][0:3] in ['dx4', 'px3'] and server['port'] in \
+      ['98000000', '98000001']:
+        if server['port'] == "98000000":
+            hostport = server['host'] + "-primary"
+        elif server['port'] == "98000001":
+            hostport = server['host'] + "-svcbu"
 
     if hostport is None:
         hostport = server['host'] + "/" + server['port']
@@ -127,6 +129,10 @@ def serverBoxText(server):
 def sortServers(a, b):
 # sort function for the list of servers.  Sorts in priority order for
 # most likely to have the data.  Order is:
+# dx4 or px3 98000000 site==mhsid
+# dx4 or px3 98000001 site==mhsid
+# dx4 or px3 98000000 site!=mhsid
+# dx4 or px3 98000001 site!=mhsid
 # all others in random order.
     sameSiteA = (a['mhsid'] == a['site'])
     sameSiteB = (b['mhsid'] == b['site'])
@@ -136,13 +142,21 @@ def sortServers(a, b):
         return 1
     #both are same sites, check for host next
     else:
-        regPortA = (a['port'] == "9583")
-        regPortB = (b['port'] == "9583")
-        if regPortA and not regPortB:
+        regHostA = (a['host'][0:3] in ['dx4', 'px3'])
+        regHostB = (b['host'][0:3] in ['dx4', 'px3'])
+        if regHostA and not regHostB:
             return -1
-        elif not regPortA and regPortB:
+        elif not regHostA and regHostB:
             return 1
-        return 1   #must be non-standard, put at end of list
+        # same host, but not preferred host
+        else:
+            regPortA = (a['port'] == "98000000")
+            regPortB = (b['port'] == "98000000")
+            if regPortA and not regPortB:
+                return -1
+            elif not regPortA and regPortB:
+                return 1
+            return 1   #must be non-standard, put at end of list
 
 def createDomainDict(xml):
         irt = IrtAccess.IrtAccess("")

@@ -228,10 +228,10 @@ public class MapManager {
             }
 
             // configure the text products
-//            Configurator configurator = new Configurator(_config.getSiteID()
-//                    .get(0));
-//            statusHandler.info("Configuring text products....");
-//            configurator.execute();
+            Configurator configurator = new Configurator(_config.getSiteID()
+                    .get(0));
+            statusHandler.info("Configuring text products....");
+            configurator.execute();
 
             if (needUpdate) {
                 // need the attributes from the edit area step to be able to do
