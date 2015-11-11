@@ -20,19 +20,16 @@
 
 package com.raytheon.edex.plugin.gfe.isc;
 
-import java.io.File;
-import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import jep.JepException;
 
-import com.raytheon.edex.plugin.gfe.config.GridDbConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
-import com.raytheon.edex.plugin.gfe.server.IFPServer;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.localization.IPathManager;
@@ -45,7 +42,6 @@ import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.common.util.FileUtil;
 
 /**
  * Class for interfacing with the IRT server
@@ -63,6 +59,8 @@ import com.raytheon.uf.common.util.FileUtil;
  * Oct 16, 2013 2475       dgilling     Move logic previously in IrtServer.py
  *                                      into this class to avoid Jep memory leak.
  * Mar 11, 2015 4128       dgilling     Refactored to match refactored IRTManager.
+ * Nov 11, 2015 5110       dgilling     Improved logging, moved verification of
+ *                                      ISC sites and parms to IFPServer.
  * 
  * </pre>
  * 
@@ -144,52 +142,30 @@ public final class GfeIRT implements Runnable {
         this.gridBoundBox.add(domain.getExtent().y);
 
         this.parmsWanted = config.requestedISCparms();
-        if (this.parmsWanted.isEmpty()) {
-            List<DatabaseID> dbs = IFPServer.getActiveServer(this.siteID)
-                    .getGridParmMgr().getDbInventory().getPayload();
-            for (DatabaseID dbId : dbs) {
-                if ((dbId.getModelName().equals("ISC"))
-                        && (dbId.getDbType().equals(""))
-                        && (dbId.getSiteId().equals(this.siteID))) {
-                    GridDbConfig gdc = config.gridDbConfig(dbId);
-                    this.parmsWanted = gdc.parmAndLevelList();
-                }
-            }
-            config.setRequestedISCparms(this.parmsWanted);
-        }
-        statusHandler.info("ParmsWanted: " + this.parmsWanted);
-
         this.iscWfosWanted = config.requestedISCsites();
-        if (this.iscWfosWanted.isEmpty()) {
-            List<String> knownSites = config.allSites();
 
-            IPathManager pathMgr = PathManagerFactory.getPathManager();
-            LocalizationContext commonStaticConfig = pathMgr.getContext(
-                    LocalizationType.COMMON_STATIC,
-                    LocalizationLevel.CONFIGURED);
-            commonStaticConfig.setContextName(this.siteID);
-            File editAreaDir = pathMgr.getFile(commonStaticConfig,
-                    "gfe/editAreas");
-
-            FilenameFilter filter = new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String name) {
-                    return name.trim().matches("ISC_\\p{Alnum}{3}\\.xml");
-                }
-            };
-            List<File> editAreas = FileUtil.listFiles(editAreaDir, filter,
-                    false);
-
-            this.iscWfosWanted = new ArrayList<String>();
-            for (File f : editAreas) {
-                String name = f.getName().replace("ISC_", "")
-                        .replace(".xml", "");
-                if (knownSites.contains(name)) {
-                    iscWfosWanted.add(name);
-                }
-            }
-            config.setRequestedISCsites(this.iscWfosWanted);
+        // log the information
+        StringBuilder o = new StringBuilder(
+                "IRT (ISC Routing Table) Registration Information");
+        Map<String, String> addresses = config.iscRoutingTableAddress();
+        SortedSet<String> sorted = new TreeSet<>(addresses.keySet());
+        for (String key : sorted) {
+            String value = addresses.get(key);
+            o.append("\nIRTAddress:      ").append(key).append(' ')
+                    .append(value);
         }
+        o.append("\nRequestISC flag: ").append(config.requestISC());
+        o.append("\nMHS id:          ").append(mhsID);
+        o.append("\nServerHost:      ").append(serverHost);
+        o.append("\nServerPort:      ").append(serverPort);
+        o.append("\nServerProtocol:  ").append(serverProtocol);
+        o.append("\nSite:            ").append(siteID);
+        o.append("\nGridDims:        ").append(gridDims);
+        o.append("\nGridProj:        ").append(gridProj);
+        o.append("\nGridBoundBox:    ").append(gridBoundBox);
+        o.append("\nParmsWanted:     ").append(parmsWanted);
+        o.append("\nISCwfosWanted:   ").append(iscWfosWanted);
+        statusHandler.info(o.toString());
     }
 
     @Override
