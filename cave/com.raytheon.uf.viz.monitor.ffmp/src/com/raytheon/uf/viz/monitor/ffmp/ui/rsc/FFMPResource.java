@@ -201,6 +201,7 @@ import com.vividsolutions.jts.geom.Point;
  * Dec 16, 2014   3026      mpduff      Change location of text.
  * Feb 13, 2015   4121      mpduff      Change label caching.
  * Sep 28, 2015   4756      dhladky     Multiple guidance sources.
+ * Oct 26, 2015  5056       dhladky     Simplified Guidance Interpolation.
  * Nov 05, 2015 5070        randerso    Adjust font sizes for dpi scaling
  * 
  * </pre>
@@ -3419,10 +3420,6 @@ public class FFMPResource extends
 
                         if (guidanceInterpolator.isInterpolate()) {
                             guidancev = guidBasin.getInterpolatedValue(
-                                    guidanceInterpolator.getSource1(),
-                                    guidanceInterpolator.getSource2(),
-                                    guidanceInterpolator
-                                            .getInterpolationOffset(),
                                     guidanceInterpolator,
                                     getGuidSourceExpiration(ffgGraphType));
                         } else {
@@ -3837,10 +3834,7 @@ public class FFMPResource extends
                 // interpolating
                 if (interp.isInterpolate()) {
                     // Interpolating between sources
-                    String source1 = interp.getSource1();
-                    String source2 = interp.getSource2();
-                    dvalue = basin.getInterpolatedValue(source1, source2,
-                            interp.getInterpolationOffset(), interp,
+                    dvalue = basin.getInterpolatedValue(interp,
                             sourceExpiration);
                 } else {
                     dvalue = basin.getValue(interp.getStandardSource(), interp,

@@ -52,6 +52,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Jul 31, 2013 2242        bsteffen    Optimize FFMP NavigableMap memory.
  * Aug 08, 2015 4722        dhladky     Dynamic serialize imp not needed.
  * Oct 10, 2015 4756        dhladky     Prevent null values from being inserted.
+ * Oct 26, 2015 5056        dhladky     Better debugging info.
  * 
  * </pre>
  * 
@@ -445,6 +446,7 @@ public class FFMPBasin implements Cloneable {
         buff.append("PFAF ID: " + pfaf + "\n");
         buff.append("Aggregated : " + aggregated + "\n");
         for (Date date : values.keySet()) {
+            buff.append("Date : " + date + "\n");
             buff.append("Value : " + values.get(date) + "\n");
         }
         return buff.toString();

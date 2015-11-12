@@ -43,6 +43,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPResourceData;
  * ------------ ---------- ----------- --------------------------
  * Jun 04, 2013 2075       njensen     Initial creation
  * Jun 07, 2013 2075       njensen     Added progress monitoring
+ * Oct 26, 2015 5056       dhladky     Removed println.
  * 
  * </pre>
  * 
@@ -128,8 +129,8 @@ public class BackgroundLoadJob extends AbstractLoadJob {
             }
 
             smonitor.done();
-            System.out.println(this.getName() + " took: "
-                    + (System.currentTimeMillis() - t0));
+            statusHandler.debug(this.getName() + " took: "
+                    + (System.currentTimeMillis() - t0) + " ms");
 
         } catch (Exception e) {
             statusHandler.error("Couldn't complete " + this.getName(), e);

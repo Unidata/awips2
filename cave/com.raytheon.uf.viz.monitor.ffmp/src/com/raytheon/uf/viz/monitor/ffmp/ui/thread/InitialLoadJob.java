@@ -57,6 +57,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPResourceData;
  * ------------ ---------- ----------- --------------------------
  * Jun 04, 2013 2075       njensen     Initial creation
  * Jun 07, 2013 2075       njensen     Added progress monitoring
+ * Oct 26, 2015 5056       dhladky     Removed println.
  * 
  * </pre>
  * 
@@ -154,8 +155,8 @@ public class InitialLoadJob extends AbstractLoadJob {
         smonitor.subTask("Processing Guidance...");
         doGuidance(startTime, smonitor.newChild(200));
 
-        System.out.println("Initial Load Job took: "
-                + (System.currentTimeMillis() - t0));
+        statusHandler.debug(this.getName() + " took: "
+                + (System.currentTimeMillis() - t0) + " ms");
         return Status.OK_STATUS;
     }
 

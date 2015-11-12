@@ -59,6 +59,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Jul 31, 2013  2242       bsteffen    Optimize FFMP NavigableMap memory.
  * Aug 08, 2015  4722       dhladky     Dynamic serialize imp not needed.
  * Aug 31, 2015  4780       dhladky     Corrected guidance basin mosaic averaging logic.
+ * Oct 26, 2015  5056       dhladky     Simplified guidance interpolator.
  * 
  * 
  * </pre>
@@ -430,11 +431,8 @@ public class FFMPBasinData {
                 FFMPGuidanceBasin fgb = (FFMPGuidanceBasin) basin;
                 if (forcedPfafs.contains(pfaf)) {
                     if (interpolation.isInterpolate()) {
-                        value = fgb.getInterpolatedValue(
-                                interpolation.getSource1(),
-                                interpolation.getSource2(),
-                                interpolation.getInterpolationOffset(),
-                                interpolation, expiration);
+                        value = fgb.getInterpolatedValue(interpolation,
+                                expiration);
                     } else {
                         value = fgb.getValue(interpolation.getStandardSource(),
                                 interpolation, expiration);
@@ -449,11 +447,8 @@ public class FFMPBasinData {
                     if (interpolation.isInterpolate()) {
                         float nvalue;
                         if (new Float(guidance).isNaN()) {
-                            nvalue = fgb.getInterpolatedValue(
-                                    interpolation.getSource1(),
-                                    interpolation.getSource2(),
-                                    interpolation.getInterpolationOffset(),
-                                    interpolation, expiration);
+                            nvalue = fgb.getInterpolatedValue(interpolation,
+                                    expiration);
                         } else {
                             nvalue = guidance;
                         }
@@ -506,11 +501,8 @@ public class FFMPBasinData {
                 FFMPGuidanceBasin fgb = (FFMPGuidanceBasin) basin;
                 fgb.setCountyFips(parentPfaf);
                 if (interpolation.isInterpolate()) {
-                    float nvalue = fgb.getInterpolatedValue(
-                            interpolation.getSource1(),
-                            interpolation.getSource2(),
-                            interpolation.getInterpolationOffset(),
-                            interpolation, expiration);
+                    float nvalue = fgb.getInterpolatedValue(interpolation,
+                            expiration);
                     // ignore missing values
                     if (nvalue < -999) {
                         continue;
@@ -586,11 +578,8 @@ public class FFMPBasinData {
             if (basin != null) {
                 FFMPGuidanceBasin fgb = (FFMPGuidanceBasin) basin;
                 if (interpolation.isInterpolate()) {
-                    values.add(fgb.getInterpolatedValue(
-                            interpolation.getSource1(),
-                            interpolation.getSource2(),
-                            interpolation.getInterpolationOffset(),
-                            interpolation, expiration));
+                    values.add(fgb.getInterpolatedValue(interpolation,
+                            expiration));
                 } else {
                     values.add(fgb.getValue(interpolation.getStandardSource(),
                             interpolation, expiration));

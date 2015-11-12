@@ -1,17 +1,12 @@
 package com.raytheon.uf.viz.monitor.ffmp;
 
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.Set;
 import java.util.SortedMap;
@@ -25,7 +20,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
-import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPAggregateRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasin;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasinData;
@@ -33,22 +27,16 @@ import com.raytheon.uf.common.dataplugin.ffmp.FFMPGuidanceBasin;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord.FIELDS;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPTemplates;
-import com.raytheon.uf.common.dataplugin.ffmp.FFMPTemplates.MODE;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPVirtualGageBasin;
+import com.raytheon.uf.common.dataplugin.ffmp.collections.FFMPDataCache;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
-import com.raytheon.uf.common.dataquery.requests.DbQueryRequest.OrderMode;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
-import com.raytheon.uf.common.datastorage.DataStoreFactory;
-import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.monitor.config.FFFGDataMgr;
 import com.raytheon.uf.common.monitor.config.FFMPRunConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
-import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.GUIDANCE_TYPE;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.SOURCE_TYPE;
-import com.raytheon.uf.common.monitor.xml.DomainXML;
-import com.raytheon.uf.common.monitor.xml.FFMPRunXML;
 import com.raytheon.uf.common.monitor.xml.ProductRunXML;
 import com.raytheon.uf.common.monitor.xml.ProductXML;
 import com.raytheon.uf.common.monitor.xml.SourceXML;
@@ -60,6 +48,7 @@ import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.monitor.IMonitor;
 import com.raytheon.uf.viz.monitor.ResourceMonitor;
@@ -104,6 +93,7 @@ import com.raytheon.uf.viz.monitor.listeners.IMonitorListener;
  * Jul 16, 2013 2197        njensen     Use FFMPBasinData.hasAnyBasins() for efficiency
  * Nov 10, 2014 3026        dhladky     HPE BIAS displays.
  * Sep 21, 2015 4756        dhladky     Allow loading of ARCHIVE type Guidance.
+ * Oct 26, 2015 5056        dhladky     Pulled cache portions to common FFMPDataCache class.
  * 
  * </pre>
  * 
@@ -119,25 +109,11 @@ public class FFMPMonitor extends ResourceMonitor {
     /** Array of scan listeners **/
     private List<IFFMPResourceListener> resourceListeners = new ArrayList<IFFMPResourceListener>();
 
+    /** Splash screen for FFMP **/
     private FFMPSplash ffmpSplash;
 
+    /** WFO this monitor is monitoring **/
     private String wfo = null;
-
-    private Object uriRequestLock = new Object();
-
-    /** Pattern for dates in radar */
-    private static ThreadLocal<SimpleDateFormat> datePattern = new ThreadLocal<SimpleDateFormat>() {
-
-        @Override
-        protected SimpleDateFormat initialValue() {
-            SimpleDateFormat datef = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            datef.setTimeZone(TimeZone.getTimeZone("Zulu"));
-            return datef;
-        }
-
-    };
-
-    private FFMPSiteDataContainer siteDataMap = new FFMPSiteDataContainer();
 
     /** config manager **/
     private FFMPSourceConfigurationManager fscm = null;
@@ -149,12 +125,11 @@ public class FFMPMonitor extends ResourceMonitor {
 
     private FFMPTimeWindow qpeWindow = null;
 
-    /** The infamous templates, now volatile! **/
-    private volatile FFMPTemplates templates = null;
-
     private FFMPRunConfigurationManager frcm = null;
 
     private FFFGDataMgr fffg = null;
+
+    private FFMPDataCache cache = null;
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(FFMPMonitor.class);
@@ -182,7 +157,7 @@ public class FFMPMonitor extends ResourceMonitor {
         }
 
         // clear all remaining data
-        siteDataMap.clear();
+        getCache().clear();
 
         // kill this monitor
         monitor = null;
@@ -291,9 +266,23 @@ public class FFMPMonitor extends ResourceMonitor {
         }
         return ffmpConfig;
     }
+    
+    /**
+     * Get an instance of the common FFMPDataCache
+     * @return
+     */
+    public FFMPDataCache getCache() {
+        if (cache == null) {
+            if (wfo == null) {
+                setWfo(LocalizationManager.getInstance().getCurrentSite());
+            }
+            cache = FFMPDataCache.getInstance(getWfo());
+        }
+        return cache;
+    }
 
     /**
-     * gets the URI's by field type and site
+     * Gets the URI's by field type and site
      * 
      * @param siteKey
      * @param pfield
@@ -302,54 +291,27 @@ public class FFMPMonitor extends ResourceMonitor {
      */
 
     protected List<String> getLoadedUris(String siteKey, String source) {
-        FFMPSiteData siteData = siteDataMap.get(siteKey);
-        FFMPSourceData sourceData = siteData.getSourceData(source);
-        return sourceData.getLoadedUris();
+        return getCache().getLoadedUris(siteKey, source);
     }
 
     /**
-     * populate a new FFMPRecord
+     * Populate FFMPRecord
      * 
-     * @param sourceName
-     * @param icao
-     * @param refTime
-     * @return
-     * @throws VizException
+     * @param siteKey
+     * @param dataKey
+     * @param source
+     * @param ptime
+     * @param retrieveNew
      */
     public void populateFFMPRecord(String siteKey, String dataKey,
             String source, Date ptime, boolean retrieveNew) {
-        if (source != null) {
-
-            boolean dupOverride = false;
-            if (getSourceConfig().getSource(source).getSourceType()
-                    .equals(SOURCE_TYPE.GUIDANCE.getSourceType())) {
-                dupOverride = true;
-            }
-
-            SortedMap<Date, List<String>> urisByDate = getAvailableUris(
-                    siteKey, dataKey, source, ptime, retrieveNew);
-
-            if (urisByDate != null) {
-                for (List<String> uris : urisByDate.values()) {
-                    for (String uri : uris) {
-                        if (uri != null) {
-                            if (dupOverride
-                                    || !getLoadedUris(siteKey, source)
-                                            .contains(uri)) {
-                                try {
-                                    populateFFMPRecord(siteKey, new FFMPRecord(
-                                            uri), source);
-
-                                } catch (Exception e) {
-                                    statusHandler.handle(Priority.PROBLEM,
-                                            "FFMP Can't retrieve FFMP URI, "
-                                                    + uri, e);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+        try {
+            getCache().populateFFMPRecord(siteKey, dataKey, source, ptime,
+                    retrieveNew);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Failed to populate FFMPRecord: siteKey: " + siteKey
+                            + " dataKey: " + dataKey + " source: " + source, e);
         }
     }
 
@@ -364,20 +326,20 @@ public class FFMPMonitor extends ResourceMonitor {
      */
     public FFMPRecord populateFFMPRecord(String uri, String siteKey,
             String source) throws Exception {
-
-        try {
-            populateFFMPRecord(siteKey, new FFMPRecord(uri), source);
-        } catch (VizException e) {
-            statusHandler.handle(Priority.INFO,
-                    "FFMP Can't retrieve FFMP URI, " + uri, e);
-        }
-
-        SourceXML sourceXml = fscm.getSource(source);
-        if (sourceXml.getSourceType().equals(
-                SOURCE_TYPE.GUIDANCE.getSourceType())) {
-            source = sourceXml.getDisplayName();
-        }
-        return siteDataMap.get(siteKey).getSourceData(source).getRecord();
+        return getCache().populateFFMPRecord(uri, siteKey, source);
+    }
+    
+    /**
+     * populate a new FFMPRecord
+     * 
+     * @param siteKey
+     * @param precord
+     * @param sourceName
+     * @throws Exception 
+     */
+    public void populateFFMPRecord(String siteKey, FFMPRecord precord,
+            String sourceName) throws Exception {
+        getCache().populateFFMPRecord(siteKey, precord, sourceName);
     }
 
     /**
@@ -390,51 +352,7 @@ public class FFMPMonitor extends ResourceMonitor {
      */
     public void insertFFMPData(FFMPAggregateRecord data,
             NavigableMap<Date, List<String>> uris, String siteKey, String source) {
-
-        // get record from cache
-        FFMPSourceData sourceData = siteDataMap.get(siteKey).getSourceData(
-                source);
-        FFMPRecord curRecord = sourceData.getRecord();
-
-        if (curRecord == null) {
-            // add all of the uris
-            for (Entry<Date, List<String>> duris : uris.entrySet()) {
-                if (data.getTimes().contains(duris.getKey().getTime())) {
-                    for (String uri : duris.getValue()) {
-                        if (curRecord == null) {
-                            curRecord = new FFMPRecord(uri);
-                            sourceData.setRecord(curRecord);
-                        }
-                        sourceData.addLoadedUri(uri);
-                    }
-                }
-            }
-        }
-
-        if (curRecord != null) {
-
-            FFMPBasinData basinData = data.getBasins();
-            basinData.populate(data.getTimes());
-            curRecord.populate(basinData);
-
-        }
-    }
-
-    /**
-     * Try and get the loading off of the GUI thread
-     * 
-     * @param isProductLoad
-     * @param siteKey
-     * @param ffmpRec
-     * @param source
-     * 
-     * @throws Exception
-     */
-    public void populateFFMPRecord(String siteKey, FFMPRecord ffmpRec,
-            String source) throws Exception {
-
-        FFMPLoadRecord flr = new FFMPLoadRecord(siteKey, ffmpRec, source);
-        flr.run();
+        getCache().insertFFMPData(data, uris, siteKey, source);
     }
 
     /**
@@ -449,34 +367,11 @@ public class FFMPMonitor extends ResourceMonitor {
      */
     public void populateFFMPBasin(String dataUri, String siteKey,
             String source, String phuc, FFMPBasin basin) throws VizException {
-
-        if (dataUri != null) {
-            List<String> uris = getLoadedUris(siteKey, source);
-            if (!uris.contains(dataUri)) {
-                try {
-                    SourceXML sourceXML = fscm.getSource(source);
-                    FFMPRecord ffmpRec = populateFFMPRecord(dataUri, siteKey,
-                            source);
-                    File loc = HDF5Util.findHDF5Location(ffmpRec);
-                    IDataStore dataStore = DataStoreFactory.getDataStore(loc);
-
-                    if (sourceXML.getSourceType().equals(
-                            SOURCE_TYPE.GAGE.getSourceType())
-                            && phuc.equals(FFMPRecord.ALL)) {
-                        ffmpRec.retrieveVirtualBasinFromDataStore(loc, dataUri,
-                                getTemplates(siteKey), ffmpRec.getDataTime()
-                                        .getRefTime(), basin);
-                    } else {
-                        ffmpRec.retrieveBasinFromDataStore(dataStore, dataUri,
-                                getTemplates(siteKey), phuc, ffmpRec
-                                        .getDataTime().getRefTime(), ffmpRec
-                                        .getSourceName(), basin);
-                    }
-                } catch (Throwable e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "FFMP Can't retrieve FFMP URI, " + dataUri, e);
-                }
-            }
+        try {
+            getCache().populateFFMPBasin(dataUri, siteKey, source, phuc, basin);
+        } catch (Exception e) {
+            throw new VizException("Unable to populate FFMP Basin: "
+                    + basin.getPfaf() + " uri: " + dataUri);
         }
     }
 
@@ -495,7 +390,8 @@ public class FFMPMonitor extends ResourceMonitor {
         ConcurrentNavigableMap<Date, List<String>> uris = null;
 
         try {
-            uris = getAvailableUris(siteKey, dataKey, sourceName, time, false);
+            uris = getCache().getAvailableUris(siteKey, dataKey, sourceName,
+                    time, false);
         } catch (Exception e) {
             statusHandler.handle(Priority.WARN,
                     "FFMP Can't find availble URI list for, " + sourceName, e);
@@ -512,210 +408,21 @@ public class FFMPMonitor extends ResourceMonitor {
      */
     public void preloadAvailableUris(String siteKey, String dataKey,
             Set<String> sourceNames, Date time) {
-        synchronized (uriRequestLock) {
-            DbQueryRequest request = new DbQueryRequest();
-            request.setEntityClass(FFMPRecord.class);
-            request.addRequestField("dataURI");
-            request.setOrderByField("dataTime.refTime", OrderMode.DESC);
-
-            request.addConstraint("wfo", new RequestConstraint(getWfo()));
-            request.addConstraint("siteKey", new RequestConstraint(siteKey));
-            request.addConstraint("dataTime.refTime", new RequestConstraint(
-                    datePattern.get().format(time),
-                    ConstraintType.GREATER_THAN_EQUALS));
-
-            RequestConstraint sourceRC = new RequestConstraint(null,
-                    ConstraintType.IN);
-            sourceRC.setConstraintValueList(sourceNames);
-            request.addConstraint("sourceName", sourceRC);
-            try {
-                handleURIRequest(request, siteKey, dataKey, time);
-                FFMPSiteData siteData = siteDataMap.get(siteKey);
-                for (String sourceName : sourceNames) {
-                    // This is done to ensure that the previous query time is
-                    // updated, even for sources with no data.
-                    FFMPSourceData sourceData = siteData
-                            .getSourceData(sourceName);
-                    Date oldPrevTime = sourceData.getPreviousUriQueryDate();
-                    if (oldPrevTime == null || time.before(oldPrevTime)) {
-                        sourceData.setPreviousUriQueryDate(time);
-                    }
-                }
-            } catch (VizException e) {
-                statusHandler
-                        .handle(Priority.PROBLEM,
-                                "FFMP Can't find availble URI list for, "
-                                        + sourceNames, e);
-            }
+        try {
+            getCache()
+                    .preloadAvailableUris(siteKey, dataKey, sourceNames, time);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error pre-loading URI's, siteKey: " + siteKey
+                            + " dataKey: " + dataKey + " sourceName(s): "
+                            + sourceNames.toString(), e);
         }
-    }
-
-    /**
-     * handle a pre assembled database query for uris. The request is sent to
-     * edex and the response is parsed to populated the uris in the siteDataMap.
-     * 
-     */
-    private void handleURIRequest(DbQueryRequest request, String siteKey,
-            String dataKey, Date time) throws VizException {
-        FFMPSiteData siteData = siteDataMap.get(siteKey);
-
-        DbQueryResponse dbResponse = (DbQueryResponse) ThriftClient
-                .sendRequest(request);
-        Map<String, List<FFMPRecord>> recordsBySource = new HashMap<String, List<FFMPRecord>>();
-
-        for (String datauri : dbResponse.getFieldObjects("dataURI",
-                String.class)) {
-            FFMPRecord record = new FFMPRecord(datauri);
-            List<FFMPRecord> records = recordsBySource.get(record
-                    .getSourceName());
-            if (records == null) {
-                records = new ArrayList<FFMPRecord>();
-                recordsBySource.put(record.getSourceName(), records);
-            }
-            records.add(record);
-        }
-        for (Entry<String, List<FFMPRecord>> entry : recordsBySource.entrySet()) {
-            String sourceName = entry.getKey();
-            SourceXML sourceXml = getSourceConfig().getSource(sourceName);
-            boolean isMosiac = sourceXml.isMosaic();
-            FFMPSourceData sourceData = siteData.getSourceData(sourceName);
-            Map<Date, List<String>> sortedUris = sourceData.getAvailableUris();
-
-            List<String> list = new LinkedList<String>();
-            Date prevRefTime = null;
-            for (FFMPRecord rec : entry.getValue()) {
-                if (!isMosiac && !rec.getDataKey().equals(dataKey)) {
-                    continue;
-                }
-                Date curRefTime = rec.getDataTime().getRefTime();
-                if ((prevRefTime != null) && !prevRefTime.equals(curRefTime)) {
-                    sortedUris.put(prevRefTime, list);
-                    list = new LinkedList<String>();
-                }
-                prevRefTime = curRefTime;
-                list.add(rec.getDataURI());
-            }
-
-            if (prevRefTime != null) {
-                sortedUris.put(prevRefTime, list);
-            }
-
-            Date prevTime = time;
-            if (sourceXml.getSourceType().equals(
-                    SOURCE_TYPE.GUIDANCE.getSourceType())) {
-                long timeOffset = sourceXml.getExpirationMinutes(siteKey)
-                        * TimeUtil.MILLIS_PER_MINUTE;
-                prevTime = new Date(time.getTime() - timeOffset);
-            }
-            Date oldPrevTime = sourceData.getPreviousUriQueryDate();
-            if (oldPrevTime == null || prevTime.before(oldPrevTime)) {
-                sourceData.setPreviousUriQueryDate(prevTime);
-            }
-        }
-
-    }
-
-    /**
-     * Gets the available uris back to a given time
-     * 
-     * @param date
-     * @return
-     */
-    public ConcurrentNavigableMap<Date, List<String>> getAvailableUris(
-            String siteKey, String dataKey, String sourceName, Date time,
-            boolean retrieveNew) {
-        synchronized (uriRequestLock) {
-            ConcurrentNavigableMap<Date, List<String>> sortedUris = siteDataMap
-                    .get(siteKey).getSourceData(sourceName).getAvailableUris();
-            Date previousQueryTime = siteDataMap.get(siteKey)
-                    .getSourceData(sourceName).getPreviousUriQueryDate();
-            Date earliestTime = time;
-
-            SourceXML source = getSourceConfig().getSource(sourceName);
-            boolean isTimeConstraint = true;
-
-            if (source.getSourceType().equals(
-                    SOURCE_TYPE.GUIDANCE.getSourceType())) {
-                // Always look back for guidance types because of long
-                // expiration
-                // times, prevents mosaic brittleness from occurring.
-                retrieveNew = true;
-
-                if (source.getGuidanceType() != null && source.getGuidanceType().equals(
-                        GUIDANCE_TYPE.ARCHIVE.getGuidanceType())) {
-                    isTimeConstraint = false;
-                } else {
-                    long timeOffset = source.getExpirationMinutes(siteKey)
-                            * TimeUtil.MILLIS_PER_MINUTE;
-                    earliestTime = new Date(time.getTime() - timeOffset);
-                }
-            }
-
-            if (retrieveNew
-                    || (time != null && (previousQueryTime == null || time
-                            .before(previousQueryTime)))) {
-                DbQueryRequest request = new DbQueryRequest();
-                request.setEntityClass(FFMPRecord.class);
-                request.addRequestField("dataURI");
-                request.setOrderByField("dataTime.refTime", OrderMode.DESC);
-
-                request.addConstraint("wfo", new RequestConstraint(getWfo()));
-                request.addConstraint("sourceName", new RequestConstraint(
-                        sourceName));
-                request.addConstraint("siteKey", new RequestConstraint(siteKey));
-                if (!source.isMosaic()) {
-                    request.addConstraint("dataKey", new RequestConstraint(
-                            dataKey));
-
-                }
-
-                // ARCHIVE sources don't have a time constraint
-                if (isTimeConstraint) {
-                    String earliestTimeString = datePattern.get().format(
-                            earliestTime);
-
-                    if (!retrieveNew && (previousQueryTime != null)) {
-                        String latestTimeString = datePattern.get().format(
-                                previousQueryTime);
-                        RequestConstraint timeRC = new RequestConstraint(null,
-                                ConstraintType.BETWEEN);
-                        timeRC.setBetweenValueList(new String[] {
-                                earliestTimeString, latestTimeString });
-                        request.addConstraint("dataTime.refTime", timeRC);
-                    } else {
-                        request.addConstraint("dataTime.refTime",
-                                new RequestConstraint(earliestTimeString,
-                                        ConstraintType.GREATER_THAN_EQUALS));
-                    }
-                }
-
-                try {
-                    handleURIRequest(request, siteKey, dataKey, time);
-                } catch (VizException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "FFMP Can't find availble URI list for, "
-                                    + sourceName, e);
-                }
-            }
-
-            if (time != null) {
-                if (source.getSourceType().equals(
-                        SOURCE_TYPE.GUIDANCE.getSourceType())) {
-                    return sortedUris;
-                } else {
-                    return sortedUris.tailMap(time, true);
-                }
-            }
-        }
-
-        return null;
     }
 
     /**
      * Request a record
      * 
      * @param retrieveNew
-     * 
      * @param refTime
      * @param field
      * @param huc
@@ -725,7 +432,7 @@ public class FFMPMonitor extends ResourceMonitor {
     public FFMPRecord getFFMPData(ProductXML product, String siteKey,
             String dataKey, String sourceName, Date ptime, boolean retrieveNew) {
 
-        FFMPRecord record = siteDataMap.get(siteKey).getSourceData(sourceName)
+        FFMPRecord record = getCache().getSourceData(siteKey, sourceName)
                 .getRecord();
 
         if ((record != null) && (record.getBasinData().hasAnyBasins())) {
@@ -748,8 +455,7 @@ public class FFMPMonitor extends ResourceMonitor {
                             .getFFMPConfigData().getGuidSrc();
                     for (SourceXML source : productRun.getGuidanceSources(
                             product, guidSrc)) {
-                        if (siteDataMap.get(siteKey)
-                                .getSourceData(source.getSourceName())
+                        if (getCache().getSourceData(siteKey, sourceName)
                                 .hasLoadedAnyUris()) {
                             continue;
                         } else {
@@ -759,15 +465,14 @@ public class FFMPMonitor extends ResourceMonitor {
                     }
                 } else {
                     // FFG is the primary if
-                    if (!siteDataMap.get(siteKey).getSourceData(sourceName)
+                    if (!getCache().getSourceData(siteKey, sourceName)
                             .hasLoadedAnyUris()) {
                         populateFFMPRecord(siteKey, dataKey, sourceName, ptime,
                                 retrieveNew);
                     }
                 }
 
-                record = siteDataMap.get(siteKey).getSourceData(sourceName)
-                        .getRecord();
+                record = getCache().getSourceData(siteKey, sourceName).getRecord();
 
             } else {
                 populateFFMPRecord(siteKey, dataKey, sourceName, ptime,
@@ -803,13 +508,11 @@ public class FFMPMonitor extends ResourceMonitor {
                         } else {
                             populateFFMPRecord(siteKey, dataKey, sourceName,
                                     ptime, retrieveNew);
-
                         }
                     }
                 } else {
                     populateFFMPRecord(siteKey, dataKey, sourceName, ptime,
                             retrieveNew);
-
                 }
             } else {
                 // special case where FFG is the primary source
@@ -825,11 +528,9 @@ public class FFMPMonitor extends ResourceMonitor {
                     populateFFMPRecord(siteKey, dataKey, sourceName, ptime,
                             retrieveNew);
                 }
-
             }
 
-            record = siteDataMap.get(siteKey).getSourceData(sourceName)
-                    .getRecord();
+            record = getCache().getSourceData(siteKey, sourceName).getRecord();
         }
 
         return record;
@@ -1018,12 +719,7 @@ public class FFMPMonitor extends ResourceMonitor {
             int val = siteCount.get(res.getSiteKey());
 
             if ((val == 1) && (siteCount.size() > 1)) {
-
-                FFMPSiteData siteData = siteDataMap
-                        .removeSite(res.getSiteKey());
-                if (siteData != null) {
-                    siteData.clear();
-                }
+                getCache().removeSite(res.getSiteKey());
             }
         }
 
@@ -1121,8 +817,7 @@ public class FFMPMonitor extends ResourceMonitor {
      * @return
      */
     public FFMPRecord getRateRecord(ProductXML product, String siteKey,
-            String dataKey, String sourceName, Date date, 
-            boolean retrieveNew) {
+            String dataKey, String sourceName, Date date, boolean retrieveNew) {
 
         // comparisons done with table display
         if (product != null) {
@@ -1244,8 +939,8 @@ public class FFMPMonitor extends ResourceMonitor {
      * @param retrieveNew
      * @return
      */
-    public LinkedHashMap<String, FFMPRecord> getGuidanceRecords(ProductXML product,
-            String siteKey, Date date, boolean retrieveNew) {
+    public LinkedHashMap<String, FFMPRecord> getGuidanceRecords(
+            ProductXML product, String siteKey, Date date, boolean retrieveNew) {
 
         LinkedHashMap<String, FFMPRecord> guidRecs = new LinkedHashMap<String, FFMPRecord>();
         ProductRunXML productRun = FFMPRunConfigurationManager.getInstance()
@@ -1276,9 +971,9 @@ public class FFMPMonitor extends ResourceMonitor {
      * @return
      * @throws VizException
      */
-    public FFMPBasin getGraphGuidanceBasin(ProductXML product, String guidSrc, String siteKey,
-            String dataKey, String sourceName, Date date, String phuc, Long pfaf)
-            throws VizException {
+    public FFMPBasin getGraphGuidanceBasin(ProductXML product, String guidSrc,
+            String siteKey, String dataKey, String sourceName, Date date,
+            String phuc, Long pfaf) throws VizException {
 
         if (product != null) {
             SourceXML source = product.getGuidanceSourcesByType(guidSrc).get(0);
@@ -1298,8 +993,7 @@ public class FFMPMonitor extends ResourceMonitor {
      * @return
      */
     public FFMPRecord getVirtualRecord(ProductXML product, String siteKey,
-            String dataKey, String sourceName, Date date, 
-            boolean retrieveNew) {
+            String dataKey, String sourceName, Date date, boolean retrieveNew) {
         // comparisons done with table display
         // field doesn't matter here
 
@@ -1325,7 +1019,7 @@ public class FFMPMonitor extends ResourceMonitor {
             Long pfaf) throws VizException {
         FFMPBasin basin = null;
         // check for already loaded records
-        FFMPRecord record = siteDataMap.get(siteKey).getSourceData(sourceName)
+        FFMPRecord record = getCache().getSourceData(siteKey, sourceName)
                 .getRecord();
         if (record != null) {
             FFMPBasinData basinData = record.getBasinData();
@@ -1369,15 +1063,23 @@ public class FFMPMonitor extends ResourceMonitor {
                             POINT_RETRIVAL: for (List<String> uris : availableUris
                                     .values()) {
                                 for (String uri : uris) {
-                                    if (!siteDataMap
-                                            .get(siteKey)
-                                            .getSourceData(
-                                                    source.getSourceName())
+                                    if (!getCache()
+                                            .getSourceData(siteKey, sourceName)
                                             .getLoadedUris().contains(uri)) {
                                         // populate point only
-                                        populateFFMPBasin(uri, siteKey,
-                                                source.getSourceName(), phuc,
-                                                fgb);
+                                        try {
+                                            getCache().populateFFMPBasin(uri,
+                                                    siteKey,
+                                                    source.getSourceName(),
+                                                    phuc, fgb);
+                                        } catch (Exception e) {
+                                            statusHandler
+                                                    .handle(Priority.PROBLEM,
+                                                            "Unable to populate Guidance Basin: "
+                                                                    + fgb.getPfaf()
+                                                                    + " uri: "
+                                                                    + uri, e);
+                                        }
                                     } else {
                                         break POINT_RETRIVAL;
                                     }
@@ -1397,8 +1099,7 @@ public class FFMPMonitor extends ResourceMonitor {
                         POINT_RETRIVAL: for (List<String> uris : availableUris
                                 .values()) {
                             for (String uri : uris) {
-                                if (!siteDataMap.get(siteKey)
-                                        .getSourceData(sourceName)
+                                if (!getCache().getSourceData(siteKey, sourceName)
                                         .getLoadedUris().contains(uri)) {
                                     // populate point only
                                     populateFFMPBasin(uri, siteKey, sourceName,
@@ -1419,7 +1120,7 @@ public class FFMPMonitor extends ResourceMonitor {
             if ((availableUris != null) && (availableUris.size() > 0)) {
                 POINT_RETRIVAL: for (List<String> uris : availableUris.values()) {
                     for (String uri : uris) {
-                        if (!siteDataMap.get(siteKey).getSourceData(sourceName)
+                        if (!cache.getSourceData(siteKey, sourceName)
                                 .getLoadedUris().contains(uri)) {
                             // populate point only
                             populateFFMPBasin(uri, siteKey, sourceName, phuc,
@@ -1493,150 +1194,7 @@ public class FFMPMonitor extends ResourceMonitor {
      */
     public void purgeFFMPData(ProductXML product, String source,
             String siteKey, Date date) {
-        PurgeFFMPData pfd = new PurgeFFMPData(product, source, siteKey, date);
-        pfd.purge();
-    }
-
-    /**
-     * Purge old data from the cache
-     * 
-     * @author dhladky
-     * 
-     */
-    private class PurgeFFMPData implements Runnable {
-
-        final ProductXML fproduct;
-
-        final String fsource;
-
-        final String fsiteKey;
-
-        final Date fdate;
-
-        public PurgeFFMPData(ProductXML product, String source, String siteKey,
-                Date date) {
-
-            this.fproduct = product;
-            this.fsource = source;
-            this.fsiteKey = siteKey;
-            this.fdate = date;
-        }
-
-        @Override
-        public void run() {
-            try {
-                purge();
-            } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Unable to purge Data from FFMP cache, ", e);
-            }
-        }
-
-        public void purge() {
-
-            ArrayList<String> purgeSources = new ArrayList<String>();
-
-            if (fproduct != null) {
-
-                ProductRunXML productRun = getRunConfig().getProduct(fsiteKey);
-
-                // guidance
-                for (String type : productRun.getGuidanceTypes(fproduct)) {
-                    for (SourceXML guidSource : productRun.getGuidanceSources(
-                            fproduct, type)) {
-                        // Don't purge archive guidance!
-                        if (guidSource != null
-                                && guidSource.getGuidanceType() != null
-                                && !guidSource.getGuidanceType()
-                                        .equals(GUIDANCE_TYPE.ARCHIVE
-                                                .getGuidanceType())) {
-                            purgeSources.add(guidSource.getSourceName());
-                        }
-                    }
-                }
-
-                // qpf
-                for (String type : productRun.getQpfTypes(fproduct)) {
-                    for (SourceXML qpfSource : productRun.getQpfSources(
-                            fproduct, type)) {
-                        if (qpfSource != null) {
-                            purgeSources.add(qpfSource.getSourceName());
-                        }
-                    }
-                }
-                // qpe, etc
-                for (String sourceName : fproduct.getSources()) {
-                    if (!purgeSources.contains(sourceName)) {
-                        purgeSources.add(sourceName);
-                    }
-                }
-
-                for (String sourceName : purgeSources) {
-
-                    SourceXML source = fscm.getSource(sourceName);
-
-                    if (source != null) {
-                        if (source.getSourceType().equals(
-                                SOURCE_TYPE.GUIDANCE.getSourceType())) {
-                            sourceName = SOURCE_TYPE.GUIDANCE.getSourceType();
-                        }
-
-                        if (siteDataMap != null) {
-                            if (siteDataMap.containsSite(fsiteKey)) {
-                                FFMPRecord record = siteDataMap.get(fsiteKey)
-                                        .getSourceData(sourceName).getRecord();
-                                if (record != null) {
-                                    record.purgeData(fdate);
-                                }
-                            }
-                        }
-                    }
-                }
-
-            } else {
-                if (siteDataMap != null) {
-                    if (siteDataMap.containsSite(fsiteKey)) {
-                        FFMPRecord record = siteDataMap.get(fsiteKey)
-                                .getSourceData(fsource).getRecord();
-                        if (record != null) {
-                            record.purgeData(fdate);
-                        }
-                    }
-                }
-            }
-
-            FFMPSiteData siteData = siteDataMap.get(fsiteKey);
-            for (String sourceEntry : siteData.getSources()) {
-                ConcurrentNavigableMap<Date, List<String>> oldUris = siteData
-                        .getSourceData(sourceEntry).getAvailableUris()
-                        .headMap(fdate);
-                for (List<String> uris : oldUris.headMap(fdate).values()) {
-                    for (String uri : uris) {
-
-                        if (fproduct != null) {
-
-                            for (String sourceName : purgeSources) {
-
-                                if (siteData.getSourceData(sourceName)
-                                        .hasLoadedAnyUris()) {
-                                    FFMPSourceData sourceData = siteData
-                                            .getSourceData(sourceName);
-
-                                    sourceData.removeLoadedUri(uri);
-                                }
-                            }
-                        } else {
-                            FFMPSourceData sourceData = siteData
-                                    .getSourceData(fsource);
-
-                            sourceData.removeLoadedUri(uri);
-                        }
-                    }
-                }
-
-                oldUris.clear();
-            }
-        }
+        getCache().purgeFFMPData(product, source, siteKey, date);
     }
 
     /**
@@ -1650,22 +1208,10 @@ public class FFMPMonitor extends ResourceMonitor {
      */
     public void processUri(String uri, String siteKey, String sourceName,
             Date barrierTime) {
-        if (uri != null) {
-            try {
-                FFMPRecord record = populateFFMPRecord(uri, siteKey, sourceName);
-                if (record != null) {
-                    record.getBasinData().loadNow();
-                    SourceXML source = getSourceConfig().getSource(sourceName);
-                    if (source != null) {
-                        record.setExpiration(source
-                                .getExpirationMinutes(siteKey));
-                        record.setRate(source.isRate());
-                    }
-                }
-            } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "FFMP Can't retrieve FFMP URI, " + uri, e);
-            }
+        try {
+            getCache().processUri(uri, siteKey, sourceName, barrierTime);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM, "FFMP Data Cache can't process URI: "+uri, e);
         }
     }
 
@@ -1687,7 +1233,6 @@ public class FFMPMonitor extends ResourceMonitor {
     @Override
     protected void nullifyMonitor(String icao) {
         // TODO Auto-generated method stub
-
     }
 
     /**
@@ -1696,37 +1241,7 @@ public class FFMPMonitor extends ResourceMonitor {
      * @return
      */
     public FFMPTemplates getTemplates(String siteKey) {
-        if (templates == null) {
-            long t0 = System.currentTimeMillis();
-            synchronized (this) {
-                if (templates == null) {
-                    FFMPRunXML runner = getRunConfig().getRunner(wfo);
-                    this.templates = FFMPTemplates.getInstance(
-                            runner.getPrimaryDomain(), siteKey, MODE.CAVE);
-
-                    // backup domains
-                    if (runner.getBackupDomains() != null) {
-                        for (DomainXML backup : runner.getBackupDomains()) {
-                            templates.addDomain(siteKey, backup);
-                        }
-                    } else {
-                        templates.done = true;
-                    }
-                }
-            }
-            statusHandler.info("Time spent initializing templates: "
-                    + (System.currentTimeMillis() - t0));
-        }
-
-        if (!templates.isSiteLoaded(siteKey)) {
-            FFMPRunXML runner = getRunConfig().getRunner(wfo);
-
-            for (DomainXML domain : runner.getDomains()) {
-                templates.addDomain(siteKey, domain);
-            }
-        }
-
-        return templates;
+        return getCache().getTemplates(siteKey);
     }
 
     /**
@@ -2131,101 +1646,10 @@ public class FFMPMonitor extends ResourceMonitor {
      * @return
      */
     public Date getPreviousQueryTime(String siteKey, String sourceName) {
-        return siteDataMap.get(siteKey).getSourceData(sourceName)
+        return cache.getSourceData(siteKey, sourceName)
                 .getPreviousUriQueryDate();
     }
 
-    /**
-     * class used to thread data loads
-     * 
-     * @author dhladky
-     * 
-     */
-    private class FFMPLoadRecord implements Runnable {
-
-        final FFMPRecord fffmpRec;
-
-        final String fsource;
-
-        final String fsiteKey;
-
-        public FFMPLoadRecord(String siteKey, FFMPRecord ffmpRec, String source)
-                throws Exception {
-            this.fffmpRec = ffmpRec;
-            this.fsource = source;
-            this.fsiteKey = siteKey;
-        }
-
-        public void run() {
-            try {
-                load();
-            } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM, "FFMP load FFMPData, "
-                        + fsource, e);
-            }
-        }
-
-        public void load() {
-
-            if (fffmpRec != null) {
-
-                List<String> uris = getLoadedUris(fsiteKey, fsource);
-                String dataUri = fffmpRec.getDataURI();
-                if (!uris.contains(dataUri)) {
-                    Date refTime = fffmpRec.getDataTime().getRefTime();
-                    File loc = HDF5Util.findHDF5Location(fffmpRec);
-
-                    FFMPSiteData siteData = siteDataMap.get(fsiteKey);
-                    String mySource = fsource;
-                    boolean isGageSource = false;
-                    SourceXML source = fscm.getSource(fsource);
-
-                    if (source.getSourceType().equals(
-                            SOURCE_TYPE.GUIDANCE.getSourceType())) {
-                        mySource = source.getDisplayName();
-                    } else if (source.getSourceType().equals(
-                            SOURCE_TYPE.GAGE.getSourceType())) {
-                        isGageSource = true;
-                    }
-
-                    FFMPSourceData sourceData = siteData
-                            .getSourceData(mySource);
-                    FFMPRecord curRecord = sourceData.getRecord();
-                    if (curRecord == null) {
-                        // ensure the record can only be set once
-                        synchronized (siteDataMap) {
-                            siteData = siteDataMap.get(fsiteKey);
-                            sourceData = siteData.getSourceData(mySource);
-                            curRecord = sourceData.getRecord();
-                            if (curRecord == null) {
-                                curRecord = new FFMPRecord(dataUri);
-                                sourceData.setRecord(curRecord);
-                            }
-                        }
-                    }
-
-                    try {
-
-                        if (isGageSource) {
-                            curRecord.retrieveVirtualMapFromDataStore(loc,
-                                    dataUri, getTemplates(fsiteKey), refTime,
-                                    fffmpRec.getSourceName());
-                        } else {
-                            curRecord.retrieveMapFromDataStore(loc, dataUri,
-                                    getTemplates(fffmpRec.getSiteKey()),
-                                    refTime, fffmpRec.getSourceName());
-                        }
-                    } catch (Exception e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                "FFMP Can't retrieve FFMP URI, " + dataUri, e);
-                    }
-                    
-                    sourceData.addLoadedUri(dataUri);
-                }
-            }
-        }
-    }
-    
     /**
      * 
      * Set and lookup metaData ID used by HPE for text bias string on D2D.
@@ -2237,14 +1661,14 @@ public class FFMPMonitor extends ResourceMonitor {
      * @param sourceName
      * @return
      */
-    public String getProductID(Date date, String wfo, String siteKey, String dataKey, String sourceName) {
+    public String getProductID(Date date, String wfo, String siteKey,
+            String dataKey, String sourceName) {
 
         DbQueryRequest request = new DbQueryRequest();
         request.setEntityClass(FFMPRecord.class);
         request.addRequestField("metaData");
         request.addConstraint("dataTime.refTime", new RequestConstraint(
-                datePattern.get().format(date),
-                ConstraintType.EQUALS));
+                TimeUtil.formatToSqlTimestamp(date), ConstraintType.EQUALS));
         request.addConstraint("wfo", new RequestConstraint(wfo));
         request.addConstraint("siteKey", new RequestConstraint(siteKey));
         request.addConstraint("dataKey", new RequestConstraint(dataKey));
@@ -2260,7 +1684,7 @@ public class FFMPMonitor extends ResourceMonitor {
                             + " , dataKey: " + dataKey + ", sourceName: "
                             + sourceName, e);
         }
-        
+
         if (dbResponse.getFieldObjects("metaData", String.class).length > 1) {
             statusHandler
                     .warn("There SHOULD only be one unique response for this query! date: "
