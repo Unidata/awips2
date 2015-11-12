@@ -6,5 +6,5 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: com.raytheon.wes2bridge.common;bundle-version="1.0.0",
- org.apache.commons.lang;bundle-version="2.3.0",
- org.codehaus.jackson;bundle-version="1.7.3"
+ org.codehaus.jackson,
+ org.apache.commons.lang3
