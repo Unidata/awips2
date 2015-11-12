@@ -240,6 +240,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 04/24/2015  ASM #17394  D. Friedman Fix geometries that become invalid in local coordinate space.
  * 05/07/2015  ASM #17438  D. Friedman Clean up debug and performance logging.
  * 05/08/2015  ASM #17310  D. Friedman Log input polygon when output of AreaHatcher is invalid.
+ * 11/09/2015  DR 14905    Qinglu Lin  Added lastSelectedBackupSite and its accessors, and updated constructor.
  * </pre>
  * 
  * @author mschenke
@@ -252,6 +253,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     private static final IPerformanceStatusHandler perfLog = PerformanceStatus
             .getHandler("WG:");
+
+    static String lastSelectedBackupSite;
 
     String uniqueFip = null;
 
@@ -814,6 +817,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
             statusHandler.handle(Priority.SIGNIFICANT,
                     "Error loading config.xml", e);
         }
+
+        setBackupSite(WarngenLayer.getLastSelectedBackupSite());
+
         // Load default template
         String defaultTemplate = dialogConfig.getDefaultTemplate();
         if (defaultTemplate.equals("")) {
@@ -1536,7 +1542,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
     }
 
     public void setBackupSite(String site) {
-        if (site.equalsIgnoreCase("none")) {
+        if (site == null || site.equalsIgnoreCase("none")) {
             backupSite = null;
         } else {
             backupSite = site;
@@ -3844,4 +3850,15 @@ public class WarngenLayer extends AbstractStormTrackResource {
         return backupOfficeLoc;
     }
 
+    public String getBackupSite() {
+        return backupSite;
+    }
+
+    public static String getLastSelectedBackupSite() {
+        return lastSelectedBackupSite;
+    }
+
+    public static void setLastSelectedBackupSite(String backupSite) {
+        lastSelectedBackupSite = backupSite;
+    }
 }
