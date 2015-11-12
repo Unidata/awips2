@@ -33,6 +33,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -63,6 +64,8 @@ import com.raytheon.viz.avnconfig.AvnConfigConstants.RuleType;
  * Aug 07, 2014 3502       bclement     changes to StringUtil.split()
  * Jun 02, 2015 17533      yteng       changes to getRules() to retrieve 
  *                                     all rules
+ * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
+ * 
  * </pre>
  * 
  * @author avarani
@@ -255,7 +258,7 @@ public class AvnConfiguration {
      */
     public void setRules(String site, DataSource source,
             ArrayList<MethodData> data) throws ConfigurationException,
-            IOException, LocalizationOpFailedException {
+            IOException, LocalizationException {
         String filepath = "aviation/config/tafs/" + site + "/"
                 + source.getFilename();
         IPathManager pm = PathManagerFactory.getPathManager();
@@ -355,13 +358,13 @@ public class AvnConfiguration {
             HierarchicalINIConfiguration config = new HierarchicalINIConfiguration(
                     file);
             config.setDelimiterParsingDisabled(true);
-            
+
             String[] activeRules = config.getStringArray("rules.active");
-            if (activeRules == null || activeRules.length == 0)  {
+            if (activeRules == null || activeRules.length == 0) {
                 throw new ConfigurationException(file.getName()
                         + ", no list of active rules");
             }
-            
+
             for (String activeRule : activeRules) {
                 if (activeRule.trim().equals("")) {
                     continue;

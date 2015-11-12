@@ -60,6 +60,7 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -67,7 +68,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -83,12 +84,13 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket//    Engineer    Description
+ * Date         Ticket     Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 30, 2009            randerso    Initial creation
  * Oct 30, 2012 1298       rferrel     Code cleanup for non-blocking dialog.
  * Oct 28, 2015 5054       randerso    Place GfeConfigDialog on current monitor if 
  *                                     parent shell is not visible.
+ * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
  * 
  * </pre>
  * 
@@ -330,7 +332,7 @@ public class GFEConfigDialog extends CaveJFACEDialog {
     private Image nextImage() {
         int imageNumber = randomSplash();
         String imageName = "SSa" + imageNumber + ".gif";
-        ImageDescriptor id = Activator.imageDescriptorFromPlugin(
+        ImageDescriptor id = AbstractUIPlugin.imageDescriptorFromPlugin(
                 Activator.PLUGIN_ID, FileUtil.join("images", imageName));
         return id.createImage();
     }
@@ -431,7 +433,7 @@ public class GFEConfigDialog extends CaveJFACEDialog {
 
         try {
             lf.save();
-        } catch (LocalizationOpFailedException e) {
+        } catch (LocalizationException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error saving config file selection", e);
         }

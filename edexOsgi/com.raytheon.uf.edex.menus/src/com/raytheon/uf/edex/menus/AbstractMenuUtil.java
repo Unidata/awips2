@@ -33,7 +33,6 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.menus.MenuSerialization;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -50,7 +49,8 @@ import com.raytheon.uf.common.status.UFStatus;
  * ------------ ---------- ----------- --------------------------
  * Nov 08, 2012            mschenke    Initial javadoc creation
  * Mar 11, 2014    2858    mpduff      javadoc updates
- * Oct 15, 2015    4897    bkowal      Made {@link #pm} protected.
+ * Oct 15, 2015    4897    bkowal      Made PathManager pm protected.
+ * Nov 12, 2015    4834    njensen     Changed LocalizationOpFailedException to LocalizationException
  * 
  * </pre>
  * 
@@ -118,9 +118,7 @@ public abstract class AbstractMenuUtil {
 
             marshaller.marshal(object, pm.getFile(caveConfigured, path));
             file.save();
-        } catch (JAXBException e) {
-            statusHandler.error("Unable to process the menu: " + path, e);
-        } catch (LocalizationOpFailedException e) {
+        } catch (JAXBException | LocalizationException e) {
             statusHandler.error("Unable to process the menu: " + path, e);
         }
     }

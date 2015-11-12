@@ -36,7 +36,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.viz.core.mode.CAVEMode;
@@ -49,6 +49,7 @@ import com.raytheon.viz.core.mode.CAVEMode;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 11 Feb 2010  4132       ryu         Initial creation
+ * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
  * 
  * </pre>
  * 
@@ -169,7 +170,7 @@ public class ProductFileUtil {
     }
 
     static public void writeFile(String text, LocalizationFile localizationFile)
-            throws IOException, LocalizationOpFailedException {
+            throws IOException, LocalizationException {
         File file = localizationFile.getFile();
         writeFile(text, file);
 

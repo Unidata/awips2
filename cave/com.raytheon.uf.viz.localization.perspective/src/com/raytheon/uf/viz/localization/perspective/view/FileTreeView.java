@@ -94,7 +94,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.LocalizationNotificationObserver;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -142,7 +142,7 @@ import com.raytheon.uf.viz.localization.service.ILocalizationService;
  * Aug 24, 2015  4393      njensen     Updates for observer changes
  * Oct 13, 2015  4410      bsteffen    Allow localization perspective to mix
  *                                     files for multiple Localization Types.
- * 
+ * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
  * 
  * </pre>
  * 
@@ -1574,7 +1574,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
                                     .isSystemLevel() == false) {
                                 input.getLocalizationFile().save();
                             }
-                        } catch (LocalizationOpFailedException e) {
+                        } catch (LocalizationException e) {
                             statusHandler.handle(
                                     Priority.PROBLEM,
                                     "Error saving file: "

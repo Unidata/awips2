@@ -58,6 +58,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
@@ -78,6 +79,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 11 OCT 2012  1229       rferrel     Changes for non-blocking FindReplaceDlg.
  * 15 OCT 2012  1229       rferrel     Made dialog non-blocking.
  * 15 OCT 2012  1229       rferrel     Changes for non-blocking HelpUsageDlg.
+ * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
  * 
  * </pre>
  * 
@@ -787,7 +789,7 @@ public class TextEditorSetupDlg extends CaveSWTDialog {
                 msgStatusComp.setMessageText(
                         "An error occured while saving file " + fn, new RGB(
                                 255, 0, 0));
-            } catch (LocalizationOpFailedException e) {
+            } catch (LocalizationException e) {
                 msgStatusComp.setMessageText(
                         "An error occured while saving file " + fn, new RGB(
                                 255, 0, 0));

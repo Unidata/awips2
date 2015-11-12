@@ -49,8 +49,9 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.python.PyUtil;
+import com.raytheon.uf.common.python.PythonIncludePathUtil;
 import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -80,6 +81,8 @@ import com.raytheon.uf.edex.activetable.ActiveTablePyIncludeUtil;
  *                                     Added call to nwrwavestcv.csh
  *                                     Added support for sending TCVAdvisory files to 
  *                                     VTEC partners
+ * Nov 12, 2015   4834     njensen     Changed LocalizationOpFailedException to LocalizationException
+ * 
  * </pre>
  * 
  * @author njensen
@@ -282,7 +285,7 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
         try {
             transmittedFile.save();
             transmittedFileSaved = true;
-        } catch (LocalizationOpFailedException e) {
+        } catch (LocalizationException e) {
             statusHandler.error("Failed to save advisory "
                     + transmittedFilename);
         }
@@ -290,7 +293,7 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
         if (transmittedFileSaved) {
             try {
                 pendingFile.delete();
-            } catch (LocalizationOpFailedException e) {
+            } catch (LocalizationException e) {
                 statusHandler.error("Unable to delete " + pendingFile, e);
             }
 
@@ -351,7 +354,7 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
                                         practiceMode);
                         try {
                             advisoryFile.delete();
-                        } catch (LocalizationOpFailedException e) {
+                        } catch (LocalizationException e) {
                             statusHandler.error("Unable to delete "
                                     + advisoryFile, e);
                         }
@@ -378,7 +381,7 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
                 .getPath();
 
         String pythonIncludePath = PyUtil.buildJepIncludePath(
-                ActiveTablePyIncludeUtil.getCommonPythonIncludePath(),
+                PythonIncludePathUtil.getCommonPythonIncludePath(),
                 ActiveTablePyIncludeUtil.getCommonGfeIncludePath(),
                 ActiveTablePyIncludeUtil.getVtecIncludePath(siteId),
                 ActiveTablePyIncludeUtil.getGfeConfigIncludePath(siteId),

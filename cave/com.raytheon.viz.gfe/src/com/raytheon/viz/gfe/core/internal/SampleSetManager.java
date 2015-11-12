@@ -46,7 +46,6 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -65,9 +64,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Apr 14, 2008	879			rbell	    Initial creation
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Apr 14, 2008 879         rbell       Initial creation
  * 11Jun2008    #1193       ebabin      Updates for toggling lat/lon for sample set.
  * Apr 9, 2009  1288        rjpeter     Added ISampleSetChangedListener handling.
  * Aug 6, 2013  1561        njensen     Use pm.listFiles() instead of pm.listStaticFiles()
@@ -75,6 +74,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Sep 08, 2104 #3592       randerso    Changed to use new pm listStaticFiles().
  *                                      Reworked inventory to use a map to better handle
  *                                      files at multiple localization levels
+ * Nov 12, 2015 4834        njensen     Changed LocalizationOpFailedException to LocalizationException
+ * 
  * </pre>
  * 
  * @author rbell
@@ -426,7 +427,7 @@ public class SampleSetManager implements ISampleSetManager,
             SampleData.getJAXBManager().marshalToXmlFile(sd,
                     file.getFile().getPath());
             file.save();
-        } catch (LocalizationOpFailedException e) {
+        } catch (LocalizationException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error saving to localization server", e);
         } catch (SerializationException e) {

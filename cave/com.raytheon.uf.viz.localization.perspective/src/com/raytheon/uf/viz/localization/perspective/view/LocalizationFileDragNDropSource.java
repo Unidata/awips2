@@ -46,7 +46,6 @@ import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.localization.msgs.ListResponseEntry;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -69,7 +68,7 @@ import com.raytheon.uf.viz.localization.perspective.view.actions.ImportFileActio
  * Jul 1, 2011             mschenke    Initial creation
  * Oct 13, 2015 4410       bsteffen    Allow localization perspective to mix
  *                                     files for multiple Localization Types.
- * 
+ * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
  * 
  * </pre>
  * 
@@ -120,7 +119,7 @@ public class LocalizationFileDragNDropSource extends ViewerDropAdapter
         if (toDelete != null) {
             try {
                 toDelete.delete();
-            } catch (LocalizationOpFailedException e) {
+            } catch (LocalizationException e) {
                 UFStatus.getHandler().handle(Priority.PROBLEM,
                         "Error deleting old file", e);
             }

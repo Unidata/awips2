@@ -89,6 +89,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Dec 05, 2012 #1364      rferrel     Replace File.Separator with IPathManager.SEPARATOR
  *                                      to work correctly on all platforms.
  * Oct 20, 2014 #3418      dlovely     Fixed a possible NPE in loadPoint.
+ * Nov 12, 2015  4834      njensen     Changed LocalizationOpFailedException to LocalizationException
  * 
  * </pre>
  * 
@@ -454,7 +455,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
                 if (!d2dDir.isDirectory()) {
                     try {
                         d2dDir.delete();
-                    } catch (LocalizationOpFailedException e) {
+                    } catch (LocalizationException e) {
                         statusHandler.handle(Priority.PROBLEM,
                                 "Unable to create group: " + D2D_POINTS_GROUP);
                         return points;
@@ -960,7 +961,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
             put(key, point);
             childrenKeyMap.get(newParentKey).add(key);
         } else {
-            Point newGroup = new GroupNode((Point) point);
+            Point newGroup = new GroupNode(point);
             String newGroupKey = newParentKey + IPathManager.SEPARATOR
                     + point.getName();
             newGroup.setGroup(newGroupKey);
@@ -1364,7 +1365,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
                         deleteKey);
                 try {
                     lFile.delete();
-                } catch (LocalizationOpFailedException e) {
+                } catch (LocalizationException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             e.getLocalizedMessage(), e);
                 }
@@ -1505,9 +1506,6 @@ public class PointsDataManager implements ILocalizationFileObserver {
      * ADDED if file was successfully created.
      * 
      * @param point
-     * @return returns true if point was successfully added, false otherwise,
-     *         for example when a duplicate point name exists and forceOverwrite
-     *         was false
      */
     private void storePoint(Point point) {
         LocalizationFile dir = getGroupDir(point);
@@ -1522,7 +1520,6 @@ public class PointsDataManager implements ILocalizationFileObserver {
      * DELETE if file removal is successful.
      * 
      * @param point
-     * @return
      */
     public void deletePoint(final Point point) {
         IPointNode parentNode = getParent(point);
@@ -1592,7 +1589,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
             if (!lFile.delete()) {
                 statusHandler.error("Unable to remove file: " + lFile);
             }
-        } catch (LocalizationOpFailedException e1) {
+        } catch (LocalizationException e1) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error deleting locatization file from server: " + lFile);
         }

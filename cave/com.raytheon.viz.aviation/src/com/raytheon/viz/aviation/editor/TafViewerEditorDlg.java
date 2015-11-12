@@ -96,7 +96,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -247,6 +247,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * Sep 28, 2015 4898        rferrel     Disable sending of TAF when CAVE not in real time.
  * Oct 05, 2015 4855        skorolev    Fixed an unhandled event loop exception in createErrorStyleRange.
  * Oct 16, 2015 4645        skorolev    Added updateWordWrap.
+ * Nov 12, 2015 4834        njensen     Changed LocalizationOpFailedException to LocalizationException
  * 
  * </pre>
  * 
@@ -2430,7 +2431,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                 e.printStackTrace();
                 setMessageStatusError("An IOException occured while saving file "
                         + filepath);
-            } catch (LocalizationOpFailedException e) {
+            } catch (LocalizationException e) {
                 e.printStackTrace();
                 setMessageStatusError("A LocalizationOpFailedException occured while saving file "
                         + filepath);

@@ -44,7 +44,6 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -66,7 +65,8 @@ import com.raytheon.viz.gfe.core.IWEGroupManager;
  * ------------ ----------  ----------- --------------------------
  * Jun 05, 2008             chammack    Initial creation
  * Sep 30, 2013  2361       njensen     Use JAXBManager for XML
- * Aug 13, 2015  4749       njensen     Implemented dispose()     
+ * Aug 13, 2015  4749       njensen     Implemented dispose()
+ * Nov 12, 2015  4834       njensen     Changed LocalizationOpFailedException to LocalizationException
  * 
  * </pre>
  * 
@@ -365,7 +365,7 @@ public class WEGroupManager implements IWEGroupManager,
             file.delete();
             inventory.get(context.getLocalizationLevel()).remove(object);
             return true;
-        } catch (LocalizationOpFailedException e) {
+        } catch (LocalizationException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error deleting from localization server", e);
         }
@@ -386,7 +386,7 @@ public class WEGroupManager implements IWEGroupManager,
         try {
             jaxb.marshalToXmlFile(objectToSave, file.getFile().getPath());
             file.save();
-        } catch (LocalizationOpFailedException e) {
+        } catch (LocalizationException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error saving to localization server", e);
         } catch (SerializationException e) {

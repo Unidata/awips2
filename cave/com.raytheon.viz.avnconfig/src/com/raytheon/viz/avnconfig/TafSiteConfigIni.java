@@ -66,7 +66,8 @@ import com.raytheon.viz.avnconfig.AvnConfigConstants.triggerType;
  * Apr 08, 2011 8856       rferrel     Can now make a new station's templates
  * May 24, 2011 9060       rferrel     Limit downloading of localization files.
  * Aug 09, 2013 2033       mschenke    Switched File.separator to IPathManager.SEPARATOR
- * May 19, 2015 17417      yteng       Get all sites from product 
+ * May 19, 2015 17417      yteng       Get all sites from product
+ * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
  * 
  * </pre>
  * 
@@ -452,7 +453,7 @@ public class TafSiteConfigIni implements ITafSiteConfig {
      */
     @Override
     public void deleteProduct(String product) throws ConfigurationException,
-            LocalizationOpFailedException {
+            LocalizationException {
 
         HierarchicalINIConfiguration config = configMaps.get(product);
 
@@ -486,10 +487,8 @@ public class TafSiteConfigIni implements ITafSiteConfig {
         File file = lFile.getFile();
         if (file != null && file.exists()) {
             char[] c = new char[(int) file.length()];
-            FileReader reader = new FileReader(file);
-            try {
+            try (FileReader reader = new FileReader(file)) {
                 reader.read(c);
-                reader.close();
             } catch (IOException ex) {
                 throw new ConfigurationException(ex.getMessage());
             }

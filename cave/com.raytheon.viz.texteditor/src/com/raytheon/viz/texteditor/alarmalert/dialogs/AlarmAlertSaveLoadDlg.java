@@ -38,7 +38,7 @@ import org.eclipse.swt.widgets.Text;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -53,13 +53,12 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 17, 2009            mnash     Initial creation
- * ======================================
- * AWIPS2 DR Work
- * 07/25/2012          953 jkorman     Modified file "search" to return LocalizationFile
- * instead of File so references are deleted in all locations.
- * 09/20/2012   1196       rferrel   Setup fileName now in return value for
- *                                    use with close callback.
+ * Sep 17, 2009            mnash       Initial creation
+ * 07/25/2012   953        jkorman     Modified file "search" to return LocalizationFile
+ *                                     instead of File so references are deleted in all locations.
+ * 09/20/2012   1196       rferrel     Setup fileName now in return value for
+ *                                     use with close callback.
+ * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
  * 
  * </pre>
  * 
@@ -189,6 +188,7 @@ public class AlarmAlertSaveLoadDlg extends CaveSWTDialog {
 
         // loads the
         loadButton.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 // Set the filename to be returned through getFileName()
                 if (lists.getSelectionCount() > 0) {
@@ -203,6 +203,7 @@ public class AlarmAlertSaveLoadDlg extends CaveSWTDialog {
 
         // delete the file from the display list and from the file system
         deleteButton.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 int num = lists.getSelectionIndex();
                 LocalizationFile f = fileList.get(num);
@@ -213,7 +214,7 @@ public class AlarmAlertSaveLoadDlg extends CaveSWTDialog {
                                         .getFile().getPath());
                         statusHandler.handle(Priority.PROBLEM, msg);
                     }
-                } catch (LocalizationOpFailedException e) {
+                } catch (LocalizationException e) {
                     String msg = String.format(
                             "ALARM/ALERT:Failed deleting file %s", f.getFile()
                                     .getPath());
@@ -225,6 +226,7 @@ public class AlarmAlertSaveLoadDlg extends CaveSWTDialog {
 
         // close the display without doing anything else
         cancelButton.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 shell.close();
             }
@@ -287,6 +289,7 @@ public class AlarmAlertSaveLoadDlg extends CaveSWTDialog {
 
         // get the file name
         saveButton.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 // Set the filename to be returned through getFileName()
                 fileName = textBox.getText();
@@ -297,12 +300,14 @@ public class AlarmAlertSaveLoadDlg extends CaveSWTDialog {
 
         // close the display without doing anything else
         cancelButton.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 shell.close();
             }
         });
 
         lists.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 textBox.setText(lists.getSelection()[0]);
             }

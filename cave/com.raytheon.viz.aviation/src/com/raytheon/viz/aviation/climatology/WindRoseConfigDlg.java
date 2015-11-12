@@ -48,6 +48,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
@@ -62,6 +63,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 28 FEB 2008  938        lvenable    Initial creation 
  * 18 JUN 2008  1119       lvenable    Updated dialog to reflect user changes.
  * 04 OCT 2012  1229       rferrel     Made non-blocking.
+ * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
  * 
  * </pre>
  * 
@@ -574,13 +576,7 @@ public class WindRoseConfigDlg extends CaveSWTDialog {
 
                 try {
                     updateData();
-                } catch (ConfigurationException e) {
-                    // TODO Auto-generated catch block
-                    System.err.println(e.getStackTrace());
-                } catch (LocalizationOpFailedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (IOException e) {
+                } catch (Exception e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
@@ -605,13 +601,7 @@ public class WindRoseConfigDlg extends CaveSWTDialog {
 
                 try {
                     updateData();
-                } catch (ConfigurationException e) {
-                    // TODO Auto-generated catch block
-                    System.err.println(e.getStackTrace());
-                } catch (LocalizationOpFailedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (IOException e) {
+                } catch (Exception e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
@@ -692,10 +682,9 @@ public class WindRoseConfigDlg extends CaveSWTDialog {
      * @throws IOException
      * @throws ConfigurationException
      * @throws LocalizationOpFailedException
-     * @throws LocalizationCommunicationException
      */
     private void updateData() throws IOException, ConfigurationException,
-            LocalizationOpFailedException {
+            LocalizationException {
         windRoseConfigData.setCalmRgb(calmColor.getRGB());
         windRoseConfigData.setVariableRgb(variableColor.getRGB());
         windRoseConfigData.setVar1Rgb(windSpeed1Color.getRGB());

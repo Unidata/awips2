@@ -40,7 +40,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -58,14 +58,16 @@ import com.raytheon.uf.viz.alertviz.config.Source;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 7, 2010            mschenke     Initial creation
+ * Apr 07, 2010            mschenke    Initial creation
  * Mar 16, 2011 6531       rferrel     Start up loads host dependent
  *                                     configuration file.
- * Aug 28 2012  13528     Xiaochuan    Using setNewConfiguration() to 
+ * Aug 28, 2012 13528      Xiaochuan   Using setNewConfiguration() to 
  *                                     re-set configuration data and
  *                                     run notifyListeners().
- * Apr 07 2015  4346       rferrel     Created {@link #retrieveBaseConfiguration()}.
+ * Apr 07, 2015 4346       rferrel     Created {@link #retrieveBaseConfiguration}.
  * May 20, 2015 4346       rjpeter     Updated to also load from common_static.
+ * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
+ * 
  * </pre>
  * 
  * @author mschenke
@@ -262,7 +264,7 @@ public class ConfigurationManager {
     /**
      * Delete the configuration passed in
      * 
-     * @param name
+     * @param context
      */
     public void deleteConfiguration(ConfigContext context) {
         if (context.isBaseOrConfiguredLevel() || isDefaultConfig(context)) {
@@ -596,9 +598,7 @@ public class ConfigurationManager {
             }
             serializeToFile(customConfiguration, customFile);
             locFile.save();
-        } catch (SerializationException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        } catch (LocalizationOpFailedException e) {
+        } catch (SerializationException | LocalizationException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
     }

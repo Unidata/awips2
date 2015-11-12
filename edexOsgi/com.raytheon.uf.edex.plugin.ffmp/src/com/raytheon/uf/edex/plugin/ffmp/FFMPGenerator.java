@@ -65,7 +65,6 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.monitor.config.FFMPRunConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.DATA_TYPE;
@@ -142,6 +141,8 @@ import com.raytheon.uf.edex.plugin.ffmp.common.FFTIRatioDiff;
  * Aug 08, 2015 4722       dhladky     Generalized the processing of FFMP data types.
  * Sep 09, 2015 4756       dhladky     Further generalization of FFG processing.
  * Sep 21, 2015 4756       dhladky     Allow ARCHIVE types to not be purged out.
+ * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
+ * 
  * </pre>
  * 
  * @author dhladky
@@ -157,8 +158,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
     /**
      * Public constructor for FFMPGenerator
      * 
-     * @param name
-     * @param compositeProductType
+     * @param executor
      */
     public FFMPGenerator(Executor executor) {
 
@@ -397,7 +397,8 @@ public class FFMPGenerator extends CompositeProductGenerator implements
             DomainXML domain = runner.getPrimaryDomain();
             try {
                 tmp.add(new FFMPURIFilter(getSiteString(runner) + ":"
-                        + getGuidanceComparedString(runner) + ":" + domain.getCwa()));
+                        + getGuidanceComparedString(runner) + ":"
+                        + domain.getCwa()));
 
                 statusHandler.handle(Priority.INFO, "Created FFMP Filter.."
                         + " primary Domain: " + domain.getCwa());
@@ -560,7 +561,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
     /**
      * Set list of CWA's
      * 
-     * @param cwas
+     * @param domains
      */
     public void setDomains(ArrayList<DomainXML> domains) {
         this.domains = domains;
@@ -619,7 +620,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
             // process all of the dataKeys for this source
             for (String dataKey : dataHash.keySet()) {
-                
+
                 ArrayList<String> sites = new ArrayList<String>();
 
                 // is it a mosaic?
@@ -695,12 +696,13 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
                 // Go over all of the sites, if mosaic source, can be many.
                 for (String siteKey : sites) {
-                    
-                    // No dataKey hash?, dataKey comes from primary source (siteKey)
+
+                    // No dataKey hash?, dataKey comes from primary source
+                    // (siteKey)
                     if (dataKey == null) {
                         dataKey = siteKey;
                     }
-                    
+
                     FFMPRecord ffmpRec = new FFMPRecord();
                     ffmpRec.setSourceName(ffmpProduct.getSourceName());
                     ffmpRec.setDataKey(dataKey);
@@ -709,7 +711,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                     FFMPProcessor ffmp = new FFMPProcessor(config, generator,
                             ffmpRec, template);
                     ffmpRec = ffmp.processFFMP(ffmpProduct);
-   
+
                     if (ffmpRec != null) {
 
                         persistRecord(ffmpRec);
@@ -812,7 +814,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
         /**
          * 
          * @param domain
-         * @return
          */
         public void createUnifiedGeometries(DomainXML domain) {
             ArrayList<String> hucsToGen = new ArrayList<String>();
@@ -895,7 +896,8 @@ public class FFMPGenerator extends CompositeProductGenerator implements
     }
 
     /**
-     * Gets the string buffer for the Guidance sources you wish to compare in FFMP
+     * Gets the string buffer for the Guidance sources you wish to compare in
+     * FFMP
      * 
      * @param run
      * @return
@@ -918,7 +920,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                 }
                 break;
             }
-            // TODO:  Implement other types when available
+            // TODO: Implement other types when available
         }
         return buf.toString();
     }
@@ -970,14 +972,10 @@ public class FFMPGenerator extends CompositeProductGenerator implements
             statusHandler.handle(Priority.INFO, "Wrote FFMP source Bin File: "
                     + sourceList.getSourceId());
 
-        } catch (SerializationException se) {
-            se.printStackTrace();
-        } catch (FileNotFoundException fnfe) {
-            fnfe.printStackTrace();
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        } catch (LocalizationOpFailedException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            statusHandler.error(
+                    "Error writing FFMP source bin file for source "
+                            + sourceList.getSourceId(), e);
         }
     }
 
@@ -1056,8 +1054,8 @@ public class FFMPGenerator extends CompositeProductGenerator implements
     }
 
     /**
-     * Do pull strategy on FFG data, currently works with
-     * Gridded FFG sources only.  (There are only gridded sources so far)
+     * Do pull strategy on FFG data, currently works with Gridded FFG sources
+     * only. (There are only gridded sources so far)
      * 
      * @param filter
      * @return
@@ -1117,7 +1115,9 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                                 uriComps[3], uriComps[7], plugin));
                     }
                 } catch (Exception e) {
-                    statusHandler.error("Problem with extracting guidance source URI's. source: "+guidSource, e);
+                    statusHandler.error(
+                            "Problem with extracting guidance source URI's. source: "
+                                    + guidSource, e);
                 }
             }
         }
@@ -1146,10 +1146,10 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                                 filter.getSources().put(matchKey, dataUri);
                             }
                         } catch (Exception e) {
-                            statusHandler.handle(
-                                    Priority.ERROR,
-                                    "Unable to locate new FFG file. "
-                                            + dataUri, e);
+                            statusHandler
+                                    .handle(Priority.ERROR,
+                                            "Unable to locate new FFG file. "
+                                                    + dataUri, e);
                         }
                     }
                 }
@@ -1162,7 +1162,8 @@ public class FFMPGenerator extends CompositeProductGenerator implements
     /**
      * get the FFMP data container for this source
      * 
-     * @param sourceName
+     * @param siteSourceKey
+     * @param backDate
      * 
      * @return
      */
@@ -1293,8 +1294,9 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                  */
                 if (source.getGuidanceType().equals(
                         GUIDANCE_TYPE.ARCHIVE.getGuidanceType())) {
-                    /** ARCHIVE types have the refTime of when it was loaded.
-                     * This will have it look back 1 day previous to the reftime 
+                    /**
+                     * ARCHIVE types have the refTime of when it was loaded.
+                     * This will have it look back 1 day previous to the reftime
                      * and purge anything older than that.
                      */
                     backDate = new Date(
@@ -1435,9 +1437,9 @@ public class FFMPGenerator extends CompositeProductGenerator implements
      * load existing container
      * 
      * @param sourceSiteDataKey
-     * @param hucs
      * @param siteKey
      * @param wfo
+     * @param backDate
      * @return
      */
     public FFMPDataContainer loadFFMPDataContainer(String sourceSiteDataKey,
@@ -1549,8 +1551,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
         /**
          * The actual work gets done here
          */
-        public void write() throws Exception {
-
+        public void write() {
             try {
 
                 FFMPAggregateRecord aggRecord = null;
@@ -1702,7 +1703,8 @@ public class FFMPGenerator extends CompositeProductGenerator implements
     /**
      * Write your FFTI Data files
      * 
-     * @param sourceList
+     * @param ffti
+     * @param fftiName
      */
     public void writeFFTIFile(FFTIData ffti, String fftiName) {
 
@@ -1721,21 +1723,15 @@ public class FFMPGenerator extends CompositeProductGenerator implements
             statusHandler.handle(Priority.DEBUG, "Wrote FFMP FFTI file: "
                     + fftiName);
 
-        } catch (SerializationException se) {
-            se.printStackTrace();
-        } catch (FileNotFoundException fnfe) {
-            fnfe.printStackTrace();
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        } catch (LocalizationOpFailedException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            statusHandler.error("Error writing FFTI file " + fftiName, e);
         }
     }
 
     /**
      * Read out your FFTI Files
      * 
-     * @param sourceId
+     * @param fftiName
      * @return
      */
     public FFTIData readFFTIData(String fftiName) {
@@ -2066,7 +2062,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
      * surge being sent to pypies.
      * 
      * @param record
-     * @return
      */
     private synchronized void persistRecord(FFMPRecord record) {
 

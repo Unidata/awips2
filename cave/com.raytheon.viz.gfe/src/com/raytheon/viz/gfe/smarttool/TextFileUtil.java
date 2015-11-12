@@ -34,7 +34,6 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.python.PythonFileFilter;
 import com.raytheon.viz.gfe.GFEOperationFailedException;
 
@@ -48,6 +47,7 @@ import com.raytheon.viz.gfe.GFEOperationFailedException;
  * ------------ ---------- ----------- --------------------------
  * Apr 28, 2009            njensen     Initial creation
  * Apr 20, 2015   4027     randerso    Changes to support GFE formatter auto tests
+ * Nov 12, 2015   4834     njensen     Changed LocalizationOpFailedException to LocalizationException
  * 
  * </pre>
  * 
@@ -124,8 +124,7 @@ public class TextFileUtil {
     }
 
     public static void makeWritableCopy(String source, String fileType,
-            String dest, boolean deleteFlag) throws IOException,
-            GFEOperationFailedException {
+            String dest, boolean deleteFlag) throws GFEOperationFailedException {
         LocalizationFile srcLf = getTextFile(source, fileType);
         if ((srcLf.getContext().getLocalizationLevel() == LocalizationLevel.BASE)
                 || (srcLf.getContext().getLocalizationLevel() == LocalizationLevel.CONFIGURED)
@@ -181,7 +180,7 @@ public class TextFileUtil {
     }
 
     public static void deleteTextFile(LocalizationFile lf)
-            throws LocalizationOpFailedException, IOException {
+            throws LocalizationException, IOException {
         if (lf.getContext().getLocalizationLevel()
                 .equals(LocalizationLevel.USER)
                 && lf.getContext().getContextName().equals("GFETEST")) {

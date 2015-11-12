@@ -50,7 +50,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.site.SiteMap;
@@ -84,7 +84,8 @@ import com.raytheon.viz.ui.statusline.StatusStore;
  * 28Nov2012    1353       rferrel     Sort the list of filter names for dialog display.
  * 10Apr2014    15769      ryu         Modified default config and GUI items to match A1.
  *                                     Default config changed to hard coding instead of reading
- *                                     from config file. 
+ *                                     from config file.
+ * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
  * </pre>
  * 
  * @author lvenable
@@ -106,8 +107,8 @@ public final class GhgConfigData {
     /**
      * The VTEC Action Names
      */
-    public static final String[] vtecActionNames = { "CAN", "CON", 
-            "EXA", "EXB", "EXP", "EXT", "NEW", "UPG"};
+    public static final String[] vtecActionNames = { "CAN", "CON", "EXA",
+            "EXB", "EXP", "EXT", "NEW", "UPG" };
 
     /**
      * The VTEC Afos Product (PIL) Names
@@ -340,6 +341,7 @@ public final class GhgConfigData {
                 // Fonts are system resources. We have to dispose of them
                 // properly.
                 display.addListener(SWT.Dispose, new Listener() {
+                    @Override
                     public void handleEvent(Event e) {
                         Font font = fontMap.get(e.display);
                         font.dispose();
@@ -387,11 +389,11 @@ public final class GhgConfigData {
      */
     private void init() {
         loadDefault();
-        
+
         defaultFilter = currentFilter.clone();
         defaultAlerts = currentAlerts.clone();
         defaultColumns = new ArrayList<DataEnum>(visibleColumns);
-        
+
         // Get the VTECTable
         initializePython();
     }
@@ -769,10 +771,7 @@ public final class GhgConfigData {
             StatusStore.updateStatus(StatusConstants.SUBCATEGORY_GHG,
                     "Saved configuration", StatusMessage.Importance.REGULAR);
 
-        } catch (JAXBException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error saving GHG Monitor configuration", e);
-        } catch (LocalizationOpFailedException e) {
+        } catch (JAXBException | LocalizationException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error saving GHG Monitor configuration", e);
         }
@@ -798,14 +797,11 @@ public final class GhgConfigData {
         GhgAlertsConfigData alerts = new GhgAlertsConfigData();
         alerts.setLocal(true);
         alerts.setTest(true);
-        alerts.addAlert(new GhgAlertData(true, true, 30,
-                AlertsEnum.AlertLvl1));
-        alerts.addAlert(new GhgAlertData(true, true, 10,
-                AlertsEnum.AlertLvl2));
-        alerts.addAlert(new GhgAlertData(true, true, 0,
-                AlertsEnum.ExpiredAlert));
-        alerts.setActions(new String[] { "NEW", "CON", "COR", "EXT",
-                "EXA", "EXB" });
+        alerts.addAlert(new GhgAlertData(true, true, 30, AlertsEnum.AlertLvl1));
+        alerts.addAlert(new GhgAlertData(true, true, 10, AlertsEnum.AlertLvl2));
+        alerts.addAlert(new GhgAlertData(true, true, 0, AlertsEnum.ExpiredAlert));
+        alerts.setActions(new String[] { "NEW", "CON", "COR", "EXT", "EXA",
+                "EXB" });
         alerts.setPhenSigs(new String[] {});
         alerts.setPils(new String[] {});
         currentAlerts = alerts;
@@ -844,16 +840,16 @@ public final class GhgConfigData {
         visibleColumns = new ArrayList<DataEnum>(DataEnum.values().length);
         // The initial columns visible. These need to match the ones set up by
         // GhgMonitorDlg.
-        visibleColumns.addAll(Arrays.asList(DataEnum.ACTION, DataEnum.ETN,
-                DataEnum.PHEN_SIG, DataEnum.START, DataEnum.END,
-                DataEnum.PURGE, DataEnum.ISSUE_TIME, DataEnum.PIL,
-                DataEnum.WFO));
+        visibleColumns.addAll(Arrays
+                .asList(DataEnum.ACTION, DataEnum.ETN, DataEnum.PHEN_SIG,
+                        DataEnum.START, DataEnum.END, DataEnum.PURGE,
+                        DataEnum.ISSUE_TIME, DataEnum.PIL, DataEnum.WFO));
         sortColumn = DataEnum.PURGE;
-        
+
         descending = false;
         identifyTestEvents = true;
-        
-        //loadFrom(DEFAULT_PATH, true);
+
+        // loadFrom(DEFAULT_PATH, true);
     }
 
     public void load(boolean reportMissing) {

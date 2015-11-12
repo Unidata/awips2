@@ -47,8 +47,8 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.python.PyUtil;
+import com.raytheon.uf.common.python.PythonIncludePathUtil;
 import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
@@ -78,6 +78,7 @@ import com.raytheon.viz.gfe.textformatter.CombinationsFileUtil.ComboData.Entry;
  * Sep 08, 2014     #3592  randerso    Changed to use only list site level files as all 
  *                                     combo files are saved to the site level
  * Oct 07, 2015     #4695  dgilling    Code cleanup to remove compile warnings.
+ * Nov 12, 2015      4834  njensen     Changed LocalizationOpFailedException to LocalizationException
  * 
  * </pre>
  * 
@@ -178,8 +179,7 @@ public class CombinationsFileUtil {
         }
     }
 
-    public static void deleteComboData(String id)
-            throws LocalizationOpFailedException {
+    public static void deleteComboData(String id) throws LocalizationException {
         LocalizationFile lf = idToFile(id);
         lf.delete();
     }
@@ -268,10 +268,11 @@ public class CombinationsFileUtil {
         HashMap<String, Object> map = new HashMap<String, Object>();
         map.put("comboName", comboName);
         for (int retryCount = 0; retryCount < MAX_TRIES; retryCount++) {
-            try (PythonScript python = new PythonScript(scriptPath,
+            try (PythonScript python = new PythonScript(
+                    scriptPath,
                     PyUtil.buildJepIncludePath(
                             GfePyIncludeUtil.getCombinationsIncludePath(),
-                            GfePyIncludeUtil.getCommonPythonIncludePath()),
+                            PythonIncludePathUtil.getCommonPythonIncludePath()),
                     CombinationsFileUtil.class.getClassLoader())) {
                 Object com = python.execute("getCombinations", map);
                 combos = (List<List<String>>) com;

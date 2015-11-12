@@ -26,7 +26,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -36,22 +36,21 @@ import com.raytheon.viz.ui.dialogs.localization.VizLocalizationFileListDlg;
 import com.raytheon.viz.ui.dialogs.localization.VizLocalizationFileListDlg.Mode;
 
 /**
- * DeleteAWIPSProcedure
- * 
  * Delete an AWIPS procedure
  * 
  * <pre>
  * 
- *    SOFTWARE HISTORY
- *   
- *    Date         Ticket#     Engineer    Description
- *    ------------ ----------  ----------- --------------------------
- *    Sep 13, 2007             chammack    Initial Creation.
- *    Jul 8, 2008  #1183       chammack    Migrate to new localization
- *    Oct 16, 2012 #1229       rferrel     Changes for non-blocking VizLocalizationFileListDlg.
- *    Jun 02, 2015 #4401       bkowal      Updated to use {@link VizLocalizationFileListDlg}.
- *    Jun 30, 2015 #4401       bkowal      Specify the localization type when constructing a
- *                                         {@link VizLocalizationFileListDlg}.
+ * SOFTWARE HISTORY
+ *
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Sep 13, 2007             chammack    Initial Creation.
+ * Jul 8, 2008  #1183       chammack    Migrate to new localization
+ * Oct 16, 2012 #1229       rferrel     Changes for non-blocking VizLocalizationFileListDlg.
+ * Jun 02, 2015 #4401       bkowal      Updated to use {@link VizLocalizationFileListDlg}.
+ * Jun 30, 2015 #4401       bkowal      Specify the localization type when constructing a
+ *                                      {@link VizLocalizationFileListDlg}.
+ * Nov 12, 2015  4834       njensen     Changed LocalizationOpFailedException to LocalizationException
  * 
  * </pre>
  * 
@@ -87,7 +86,7 @@ public class DeleteAWIPSProcedure extends AbstractHandler {
                         LocalizationFile selectedFile = (LocalizationFile) returnValue;
                         try {
                             selectedFile.delete();
-                        } catch (LocalizationOpFailedException e) {
+                        } catch (LocalizationException e) {
                             statusHandler.handle(
                                     Priority.PROBLEM,
                                     "Error deleting procedure: "

@@ -100,6 +100,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * Feb 24, 2015 3978       njensen     Changed to use abstract InputStream
  * Jun 29, 2015 4583       rferrel     Log detail error message when archive configuration is invalid.
  * Aug 18, 2015 3806       njensen     Use SaveableOutputStream to save
+ * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
  * 
  * </pre>
  * 
@@ -923,8 +924,7 @@ public class ArchiveConfigManager {
      * @param fileName
      * @throws LocalizationOpFailedException
      */
-    public void deleteSelection(String fileName)
-            throws LocalizationOpFailedException {
+    public void deleteSelection(String fileName) throws LocalizationException {
         LocalizationContext siteContext = pathMgr.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
         LocalizationFile lFile = pathMgr.getLocalizationFile(siteContext,

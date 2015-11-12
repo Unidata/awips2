@@ -35,7 +35,6 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -57,6 +56,7 @@ import com.raytheon.uf.viz.localization.service.ILocalizationService;
  * Nov 3, 2010             mschenke    Initial creation
  * Oct 13, 2015 4410       bsteffen    Allow localization perspective to mix
  *                                     files for multiple Localization Types.
+ * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
  * 
  * </pre>
  * 
@@ -138,7 +138,7 @@ public class CopyToAction extends AbstractToAction {
                 if (altFile.exists()) {
                     try {
                         altFile.delete();
-                    } catch (LocalizationOpFailedException e) {
+                    } catch (LocalizationException e) {
                         statusHandler.handle(Priority.PROBLEM,
                                 "Unable to delete existing " + type.name()
                                         + " " + level + " file.", e);

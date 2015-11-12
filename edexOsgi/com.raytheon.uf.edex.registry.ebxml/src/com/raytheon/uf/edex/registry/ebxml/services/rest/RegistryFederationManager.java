@@ -76,7 +76,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.registry.constants.ActionTypes;
 import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.common.registry.constants.DeletionScope;
@@ -174,6 +174,8 @@ import com.raytheon.uf.edex.security.SecurityConfiguration;
  * 5/11/2015    4448        bphillip    Separated EBXML Registry from Data Delivery
  * 5/29/2015    4448        bphillip    Added default user to registry on startup
  * 10/20/2015   4992        dhladky     Improve error handling.
+ * Nov 12, 2015 4834        njensen     Changed LocalizationOpFailedException to LocalizationException
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -204,19 +206,18 @@ public class RegistryFederationManager implements IRegistryFederationManager,
 
     /** The mode that EDEX was started in */
     public static final boolean centralRegistry;
-    
+
     /** registry user property **/
     public static final String EDEX_SECURITY_AUTH_USER = "edex.security.auth.user";
-    
+
     /** registry user password **/
     public static final String EDEX_SECURITY_AUTH_PASSWORD = "edex.security.auth.password";
-    
+
     /** Local (client) level adminstrator user **/
     public static final String REGISTRY_LOCAL_ADMIN = "RegistryLocalAdministrator";
-    
+
     /** Registry adminstrator (central) **/
     public static final String REGISTRY_ADMIN = "RegistryAdministrator";
-    
 
     static {
         try {
@@ -341,7 +342,7 @@ public class RegistryFederationManager implements IRegistryFederationManager,
                                 "Unable to locate federation configuration file: "
                                         + FEDERATION_CONFIG_FILE);
                     } else {
-                        federationProperties = (FederationProperties) jaxbManager
+                        federationProperties = jaxbManager
                                 .unmarshalFromXmlFile(
                                         FederationProperties.class,
                                         federationPropertiesFile);
@@ -391,6 +392,7 @@ public class RegistryFederationManager implements IRegistryFederationManager,
             }
 
             Runtime.getRuntime().addShutdownHook(new Thread() {
+                @Override
                 public void run() {
                     txTemplate.execute(new TransactionCallbackWithoutResult() {
 
@@ -415,14 +417,17 @@ public class RegistryFederationManager implements IRegistryFederationManager,
                      * The registry super user initially gets the default
                      * password which *must* be changed immediately
                      */
-                    statusHandler
-                            .info(REGISTRY_ADMIN+" Not present in Central Registry! Adding user: "+REGISTRY_ADMIN);
+                    statusHandler.info(REGISTRY_ADMIN
+                            + " Not present in Central Registry! Adding user: "
+                            + REGISTRY_ADMIN);
 
                     registryUsers.addUser(RegistryUtil.registryUser,
                             "password", REGISTRY_ADMIN);
                 } else {
                     statusHandler
-                            .info(REGISTRY_ADMIN+ " present in Central Registry: "+REGISTRY_ADMIN);
+                            .info(REGISTRY_ADMIN
+                                    + " present in Central Registry: "
+                                    + REGISTRY_ADMIN);
                 }
 
             } else if (!centralRegistry) {
@@ -450,8 +455,8 @@ public class RegistryFederationManager implements IRegistryFederationManager,
                 }
             }
         } catch (MsgRegistryException e) {
-            throw new EbxmlRegistryException(
-                    "Error Checking registry user! ", e);
+            throw new EbxmlRegistryException("Error Checking registry user! ",
+                    e);
         }
 
         initialized.set(true);
@@ -648,12 +653,13 @@ public class RegistryFederationManager implements IRegistryFederationManager,
 
     }
 
+    @Override
     @Transactional
     @GET
     @Path("updateRegistryEvents/{registryId}/{time}")
-    public void updateRegistryEvents(@PathParam("registryId")
-    String registryId, @PathParam("time")
-    String time) {
+    public void updateRegistryEvents(
+            @PathParam("registryId") String registryId,
+            @PathParam("time") String time) {
         for (ReplicationEvent event : replicationEventDao
                 .getEventsBeforeTime(time)) {
             event.addReplicatedTo(registryId);
@@ -664,17 +670,17 @@ public class RegistryFederationManager implements IRegistryFederationManager,
     /**
      * Synchronizes this registry's data with the registry at the specified URL
      * 
-     * @param remoteRegistryUrl
-     *            The URL of the registry to sync with
+     * @param registryId
      * @throws EbxmlRegistryException
      *             If the thread executor fails to shut down properly
      * @throws MsgRegistryException
      */
+    @Override
     @Transactional
     @GET
     @Path("synchronizeWithRegistry/{registryId}")
-    public void synchronizeWithRegistry(@PathParam("registryId")
-    String registryId) throws Exception {
+    public void synchronizeWithRegistry(
+            @PathParam("registryId") String registryId) throws Exception {
 
         if (SYNC_IN_PROGRESS.compareAndSet(false, true)) {
             try {
@@ -833,6 +839,7 @@ public class RegistryFederationManager implements IRegistryFederationManager,
         }
     }
 
+    @Override
     @GET
     @Path("isFederated")
     @Transactional
@@ -840,18 +847,21 @@ public class RegistryFederationManager implements IRegistryFederationManager,
         return System.getProperty("ebxml.registry.federation.enabled");
     }
 
+    @Override
     @GET
     @Path("clusterId")
     public String clusterId() {
         return RegistryIdUtil.getId();
     }
 
+    @Override
     @GET
     @Path("siteId")
     public String siteId() {
         return EDEXUtil.getEdexSite();
     }
 
+    @Override
     @GET
     @Path("getObjectTypesReplicated")
     public String getObjectTypesReplicated() {
@@ -859,6 +869,7 @@ public class RegistryFederationManager implements IRegistryFederationManager,
                 .toArray());
     }
 
+    @Override
     @GET
     @Path("getFederationMembers")
     @Transactional
@@ -878,6 +889,7 @@ public class RegistryFederationManager implements IRegistryFederationManager,
         return builder.toString();
     }
 
+    @Override
     @GET
     @Path("getReplicatingTo")
     @Transactional
@@ -886,6 +898,7 @@ public class RegistryFederationManager implements IRegistryFederationManager,
                 .getRegistryReplicationServers().toArray());
     }
 
+    @Override
     @GET
     @Path("getReplicatingFrom")
     @Transactional
@@ -910,11 +923,12 @@ public class RegistryFederationManager implements IRegistryFederationManager,
         return RegistryQueryUtil.formatArrayString(registrySet.toArray());
     }
 
+    @Override
     @GET
     @Path("subscribeToRegistry/{registryId}")
     @Transactional
-    public void subscribeToRegistry(@PathParam("registryId")
-    String registryId) throws Exception {
+    public void subscribeToRegistry(@PathParam("registryId") String registryId)
+            throws Exception {
         statusHandler.info("Establishing replication with [" + registryId
                 + "]...");
         RegistryType remoteRegistry = getRegistry(registryId);
@@ -923,11 +937,12 @@ public class RegistryFederationManager implements IRegistryFederationManager,
         statusHandler.info("Established replication with [" + registryId + "]");
     }
 
+    @Override
     @GET
     @Path("unsubscribeFromRegistry/{registryId}")
     @Transactional
-    public void unsubscribeFromRegistry(@PathParam("registryId")
-    String registryId) throws Exception {
+    public void unsubscribeFromRegistry(
+            @PathParam("registryId") String registryId) throws Exception {
         statusHandler.info("Disconnecting replication with [" + registryId
                 + "]...");
         RegistryType remoteRegistry = getRegistry(registryId);
@@ -937,21 +952,23 @@ public class RegistryFederationManager implements IRegistryFederationManager,
                 .info("Disconnected replication with [" + registryId + "]");
     }
 
+    @Override
     @GET
     @Path("addReplicationServer/{registryId}")
     @Transactional
-    public void addReplicationServer(@PathParam("registryId")
-    String registryId) throws Exception {
+    public void addReplicationServer(@PathParam("registryId") String registryId)
+            throws Exception {
         getRegistry(registryId);
         servers.addReplicationServer(registryId);
         saveNotificationServers();
     }
 
+    @Override
     @GET
     @Path("removeReplicationServer/{registryId}")
     @Transactional
-    public void removeReplicationServer(@PathParam("registryId")
-    String registryId) throws Exception {
+    public void removeReplicationServer(
+            @PathParam("registryId") String registryId) throws Exception {
         getRegistry(registryId);
         servers.removeReplicationServer(registryId);
         saveNotificationServers();
@@ -988,12 +1005,10 @@ public class RegistryFederationManager implements IRegistryFederationManager,
 
         try {
             jaxbManager.marshalToXmlFile(servers, file.getAbsolutePath());
-
             lf.save();
-
         } catch (SerializationException e) {
             statusHandler.error("Unable to update replication server file!", e);
-        } catch (LocalizationOpFailedException e) {
+        } catch (LocalizationException e) {
             statusHandler.handle(Priority.ERROR, e.getLocalizedMessage(), e);
         }
     }

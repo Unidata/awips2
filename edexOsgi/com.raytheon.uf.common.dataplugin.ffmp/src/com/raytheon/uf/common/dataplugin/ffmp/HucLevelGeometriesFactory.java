@@ -40,6 +40,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -70,6 +71,7 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  *                                     loading them.
  * Apr 25, 2013 1954       bsteffen    Undo last commit to avoid invalid geoms.
  * Jul 03, 2013 2152       rjpeter     Use streams for serialization
+ * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
  * 
  * </pre>
  * 
@@ -213,7 +215,7 @@ public class HucLevelGeometriesFactory {
 
     protected synchronized Map<Long, Geometry> generateSimplifiedGeometry(
             FFMPTemplates template, String dataKey, String cwa,
-            Collection<Long> pfafs) throws Exception {
+            Collection<Long> pfafs) {
         Map<Long, Geometry> rawGeometries = template.getRawGeometries(dataKey,
                 cwa);
         Map<Long, Geometry> simplifiedGeometries = new HashMap<Long, Geometry>(
@@ -422,8 +424,7 @@ public class HucLevelGeometriesFactory {
     }
 
     public synchronized Envelope getEnvelope(FFMPTemplates template,
-            String dataKey, String cwa, String huc, Long pfafId)
-            throws Exception {
+            String dataKey, String cwa, String huc, Long pfafId) {
         return getEnvelopes(template, dataKey, cwa, huc).get(pfafId);
     }
 
@@ -492,7 +493,7 @@ public class HucLevelGeometriesFactory {
                     if (deleteFile) {
                         try {
                             f.delete();
-                        } catch (LocalizationOpFailedException lope) {
+                        } catch (LocalizationException lope) {
                             statusHandler.handle(Priority.WARN,
                                     "Can't delete file.");
                         }
