@@ -90,7 +90,7 @@
 					menuText=" ABI Water Vapor " id="abiWVLine"/>
 	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
 	                	menuText="CONUSLAMB" id="CONUSLAMBSector">
-		        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+		        <substitute key="element" value="Imager 6.7-6.5 micron WV"/>
 		        <substitute key="sector" value="CONUSLAMB"/>
 		        <substitute key="entity" value="GOESR-PG"/>
 		        <substitute key="colormap" value="Sat/WV/RAMSDIS WV"/>

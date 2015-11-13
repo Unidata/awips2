@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <menuTemplate>
-    <contribute xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="subMenu" menuText="Marine Guidance" id="ncepHydro.mpc.marineGuidance">
+    <contribute xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="subMenu" menuText="OPC Marine Guidance" id="ncepHydro.mpc.marineGuidance">
         <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Tropical Sfc Analysis" timeQuery="true" id="tropicalSfcAnalysis">
             <substitute value="PYNA98" key="wmo"/>
         </contribute>

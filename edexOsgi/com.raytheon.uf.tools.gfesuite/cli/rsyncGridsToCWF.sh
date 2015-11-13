@@ -128,10 +128,10 @@
 #            supposed to stop. Instead it kept trying. vtm                     #
 # 06/19/08:  Changed the directory on AWIPS where the netcdf file is created.  #
 #            Now using a drive local to machine for performance reasons.       #
-#            New directory is now /awips/fxa/netcdf. This directory will be    #
+#            New directory is now /awips2/fxa/netcdf. This directory will be    #
 #            created by the script if it doesn't exist. vtm                    #
 # 06/19/08:  Changed script to remove AWIPS netcdf and log files sooner. vtm   #
-# 07/10/08:  Made the /awips/fxa/netcdf configurable for by DX and LX machines.#
+# 07/10/08:  Made the /awips2/fxa/netcdf configurable for by DX and LX machines.#
 #            vtm                                                               #
 # 07/11/08:  Pointed most all of script feedback to a log file that can be     #
 #            found in the /awips/GFESuite/primary/data/logfiles/yyyymmdd/      #

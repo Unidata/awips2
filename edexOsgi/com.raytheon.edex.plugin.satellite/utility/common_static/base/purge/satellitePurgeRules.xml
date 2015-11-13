@@ -12,7 +12,7 @@
 	</rule>
 	<rule>
 		<keyValue>Alaska National</keyValue>
-		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<keyValue>Imager 6.7-6.5 micron WV</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
@@ -57,7 +57,7 @@
 	</rule>
 	<rule>
 		<keyValue>Alaska Regional</keyValue>
-		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<keyValue>Imager 6.7-6.5 micron WV</keyValue>
 		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
@@ -87,7 +87,7 @@
 	</rule>
 	<rule>
 		<keyValue>East CONUS</keyValue>
-		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<keyValue>Imager 6.7-6.5 micron WV</keyValue>
 		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
@@ -148,7 +148,7 @@
 	</rule>
 	<rule>
 		<keyValue>Hawaii National</keyValue>
-		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<keyValue>Imager 6.7-6.5 micron WV</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
@@ -228,7 +228,7 @@
 	</rule>
 	<rule>
 		<keyValue>Hawaii Regional</keyValue>
-		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<keyValue>Imager 6.7-6.5 micron WV</keyValue>
 		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
@@ -243,7 +243,7 @@
 	</rule>
 	<rule>
 		<keyValue>NH Composite - Meteosat-GOES E-GOES W-GMS</keyValue>
-		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<keyValue>Imager 6.7-6.5 micron WV</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
@@ -258,7 +258,7 @@
 	</rule>
 	<rule>
 		<keyValue>Northern Hemisphere Composite</keyValue>
-		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<keyValue>Imager 6.7-6.5 micron WV</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
@@ -273,7 +273,7 @@
 	</rule>
 	<rule>
 		<keyValue>Puerto Rico National</keyValue>
-		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<keyValue>Imager 6.7-6.5 micron WV</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
@@ -358,7 +358,7 @@
 	</rule>
 	<rule>
 		<keyValue>Puerto Rico Regional</keyValue>
-		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<keyValue>Imager 6.7-6.5 micron WV</keyValue>
 		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
@@ -383,7 +383,7 @@
 	</rule>
 	<rule>
 		<keyValue>Supernational</keyValue>
-		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<keyValue>Imager 6.7-6.5 micron WV</keyValue>
 		<versionsToKeep>32</versionsToKeep>
 	</rule>
 	<rule>
@@ -438,7 +438,7 @@
 	</rule>
 	<rule>
 		<keyValue>Supernational</keyValue>
-		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<keyValue>Imager 6.7-6.5 micron WV</keyValue>
 		<versionsToKeep>32</versionsToKeep>
 	</rule>
 	<rule>
@@ -514,7 +514,7 @@
 	</rule>
 	<rule>
 		<keyValue>West CONUS</keyValue>
-		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<keyValue>Imager 6.7-6.5 micron WV</keyValue>
 		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
@@ -649,12 +649,12 @@
 	</rule>
 	<rule>
 		<keyValue>Arctic</keyValue>
-		<keyValue>Imager 3.5-4.0 micro IR (Fog)</keyValue>
+		<keyValue>Imager 3.5-4.0 micron IR</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
 		<keyValue>Arctic</keyValue>
-		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<keyValue>Imager 6.7-6.5 micron WV</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
@@ -669,12 +669,12 @@
 	</rule>
 	<rule>
 		<keyValue>Antarctic</keyValue>
-		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<keyValue>Imager 6.7-6.5 micron WV</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
 		<keyValue>Global</keyValue>
-		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<keyValue>Imager 6.7-6.5 micron WV</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
@@ -684,7 +684,7 @@
 	</rule>
 	<rule>
 		<keyValue>Mollweide</keyValue>
-		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<keyValue>Imager 6.7-6.5 micron WV</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>

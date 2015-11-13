@@ -1,0 +1,247 @@
+// This file, redbookPurgeInfo.txt, contains default purging information
+// for redbook graphics keys.
+// Format information for the individual entries can be found in the header
+// section of purgeInfo.txt
+//
+// First is a dummy key for generic Redbook purging - 2 days for 'rogue' files
+// and 2 versions. This will catch anything we forget to include below.
+5000 | 5001,5999 |  | 2- | 2
+//
+//  Now on with the show...
+5013 | | | 2- |48 // PAWO82 Radar Summary
+5014 | | | 2- |48 // PAWO83 Radar Legend
+5015 | | | 2- | 2 // PAW883 redbook graphic
+5021 | | | 2- | 2 // PDKI59 redbook graphic
+5046 | | | 2- | 4 // PEI745 day 1 excessive rainfall
+5047 | | | 2- | 4 // PEIC43 6-12HR QPF
+5048 | | | 2- | 2 // PEIC61 12hr inst prcp
+5049 | | | 2- | 4 // PEID44 12-18HR QPF
+5050 | | | 2- | 2 // PEIE41 24hr qpf over 24hr
+5051 | | | 2- | 2 // PEIE62 24hr inst prcp
+5052 | | | 2- | 2 // PEIG63 36hr clds/precip
+5053 | | | 2- | 2 // PEII42 48hr qpf over 24hr
+5054 | | | 2- | 2 // PEII64 48hr clds/precip
+5055 | | | 2- | 2 // PEIO46 5 dy total precip
+5056 | | | 2- |14 // PEWA31 Daily Precipitation
+5057 | | | 2- | 2 // PEWA32 Snow Cover Plot
+5058 | | | 2- | 2 // PEWA33 pcp h20 plot
+5059 | | | 2- | 2 // PEWA34 pcp h20 anal
+5062 | | | 2- | 4 // PGIC42 Wx Depiction
+5063 | | | 2- | 4 // PGIE43 Wx Depiction
+5064 | | | 2- |24 // PGWA31 Wx Depiction plot
+5065 | | | 2- |24 // PGWA32 Wx Depiction analysis
+5066 | | | 2- |24 // PGWA39 Wx Depiction plot
+5067 | | | 2- | 4 // PJMB44 tstm prob\ 2-6hr
+5068 | | | 2- | 4 // PJMB45 svr wx prob\ 2-6hr
+5069 | | | 2- | 4 // PGWE46 day 1 conv outlook
+5072 | | | 2- | 4 // PGWI47 day 2 conv outlook
+5101 | | | 2- | 2 // PHZO50 120 ukmo 500 hgt
+5102 | | | 2- | 2 // PLQI51 redbook graphic
+5104 | | | 2- | 2 // PNWA68 redbook graphic
+5107 | | | 2- | 2 // POWA31 redbook graphic
+5108 | | | 2- | 2 // PPHK01 day 3 frnt/pres
+5109 | | | 2- | 2 // PPHM01 day 4 frnt/pres
+5110 | | | 2- | 2 // PPHO01 day 5 frnt/pres
+5111 | | | 2- | 4 // PPIC01 12hr frnt/pres
+5112 | | | 2- | 4 // PPIE01 24hr frnt/pres
+5113 | | | 2- | 4 // PPIG01 36hr frnt/pres
+5114 | | | 2- | 4 // PPII01 48hr frnt/pres
+5115 | | | 2- | 8 // PPAA89 mslp anal
+5118 | | | 2- | 2 // PPZO50 ukmo 120 mslp
+5134 | | | 2- | 2 // PRWA51 sfc-500 rh plot
+5136 | | | 2- | 2 // PTIC94 12hr frz lvl anal
+5137 | | | 2- | 2 // PTIE94 24hr frz lvl anal
+5138 | | | 2- | 2 // PTIO52 5dy max temp anom
+5139 | | | 2- | 2 // PTIO53 5dy min temp anom
+5140 | | | 2- | 3 // PTWA31 Max Temperatures
+5141 | | | 2- | 3 // PTWA32 Min Temperatures
+5142 | | | 2- | 2 // PTWA94 freezing level plot
+5145 | | | 2- | 2 // PTWA93 freezing level analysis
+5146 | | | 2- | 2 // PXVA01 redbook graphic
+5147 | | | 2- | 2 // PXWA50 lifted-K plot
+5148 | | | 2- | 2 // PYMA20 200mb plot
+5149 | | | 2- | 2 // PYMA25 250mb plot
+5150 | | | 2- | 2 // PYMA30 300mb plot
+5151 | | | 2- | 2 // PYMA50 500mb plot
+5152 | | | 2- | 2 // PYMA70 700mb plot
+5153 | | | 2- | 2 // PYMA85 850mb plot
+5154 | | | 2- | 4 // PYWA31 sfc geo wind
+5155 | | | 2- | 4 // PYWA32 sfc geo rel vort
+5159 | | | 2- | 2 // PYWK43 day 3 temp/pop
+5160 | | | 2- | 2 // PYWK62 redbook graphic
+5161 | | | 2- | 2 // PYWM44 day 4 temp/pop
+5162 | | | 2- | 2 // PYWO45 day 5 temp/pop
+5163 | | | 2- | 2 // PZKY51 redbook graphic
+5164 | | | 2- | 2 // PEIY47 6-10 day Total Pcp
+5169 | | | 2- | 2 // PTIY51 6-10 day Temp Anomaly
+5172 | | | 2- | 2 // PHBV50 6-10 day mean 500 Height
+5200 | | | 2- | 4 // PEIB40 0-6HR QPF
+5201 | | | 2- | 4 // PEIE40 18-24HR QPF
+5202 | | | 2- | 4 // PEIF40 24-30HR QPF
+5204 | | | 2- | 8 // PYAA98 frontal analysis
+5215 | | | 2- | 2 // PHZM50 96 ukmo 500 hgt
+5216 | | | 2- | 2 // PHZQ50 144 ukmo 500 hgt
+5227 | | | 2- | 2 // PPZM50 ukmo  96 mslp
+5238 | | | 2- | 2 // PPKK01 gfs  72hr MSLP
+5239 | | | 2- | 2 // PPKM01 gfs  96hr MSLP
+5240 | | | 2- | 2 // PPKO01 gfs 120hr MSLP
+5241 | | | 2- | 2 // PPKQ01 gfs 144hr MSLP
+5243 | | | 2- | 4 // PYBA98 NA frontal analysis
+5244 | | | 2- | 4 // PPBA89 NA mslp anal
+5245 | | | 2- | 8 // PWIA98 WATL wind/wave anal
+5246 | | | 2- | 2 // PWIE98 WATL wind/wave 24hr
+5247 | | | 2- | 2 // PTNT98 8-14 Day Maximum Heat Index Outlook
+5248 | | | 2- | 8 // PWIA97 EPAC wind/wave anal
+5249 | | | 2- | 2 // PWIE97 EPAC wind/wave 24hr
+5288 | | | 2- | 2 // PPZQ50 ukmo 144 mslp
+5289 | | | 2- | 4 // PEIY50 3-10 Day Threats Assessment: Precip FCST
+5290 | | | 2- | 4 // PTIY98 3-10 Day Threats Assessment: Temp/Wind FCST
+5291 | | | 2- | 4 // PYIY88 3-10 Day Threats Assessment: Soil/Wildfire FCST
+5293 | | | 2- | 4 // PEIK98 Day 3 QPF - Time Proj 60-72Hrs
+5298 | | | 2- | 2 // PTAS90 6-10 Day FCST - Heat Index >=85F for 3+ Days
+5299 | | | 2- | 2 // PTAS95 6-10 Day FCST - Heat Index >=90F for 2+ Days
+5300 | | | 2- | 2 // PTAS00 6-10 Day FCST - Heat Index >=95F for 1+ Day
+5301 | | | 2- | 2 // PTAT90 8-14 Day FCST - Heat Index >=85F for 3+ Days
+5302 | | | 2- | 2 // PTAT95 8-14 Day FCST - Heat Index >=90F for 2+ Days
+5303 | | | 2- | 2 // PTAT00 8-14 Day FCST - Heat Index >=95F for 1+ Day
+5304 | | | 2- | 4 // PEBF98 6Hr QPF - Time Proj 30-36Hrs
+5305 | | | 2- | 4 // PEBG98 6Hr QPF - Time Proj 36-42Hrs
+5306 | | | 2- | 4 // PEBH98 6Hr QPF - Time Proj 42-48Hrs
+5307 | | | 2- | 4 // PEBI88 6Hr QPF - Time Proj 48-54Hrs
+5308 | | | 2- | 4 // PEBI98 6Hr QPF - Time Proj 54-60Hrs
+5309 | | | 2- | 4 // PEBJ88 6Hr QPF - Time Proj 60-66Hrs
+5310 | | | 2- | 4 // PEBJ98 6Hr QPF - Time Proj 66-72Hrs
+5311 | | | 2- | 4 // PEBK98 6Hr QPF - Time Proj 72-78Hrs
+5312 | | | 2- | 4 // PYNA98 Tropical Surface Analysis
+5313 | | | 2- | 2 // PWAA85 Atlantic 850MB StreamLines and Wind Analysis
+5314 | | | 2- | 2 // PWAA20 Atlantic 200MB StreamLines and Wind Analysis
+5315 | | | 2- | 2 // PWAA00 Atlantic Deep Layer Mean Circulation 1000-100MB
+5316 | | | 2- | 2 // PWAA65 Atlantic 850-200MB Wind Shear/Wind Analysis
+5317 | | | 2- | 2 // PWBA88 Eastern Pacific Winds/Seas Analysis
+5318 | | | 2- | 2 // PWDA00 Pacific Deep Layer Mean Circulation 1000-100MB
+5319 | | | 2- | 2 // PWDA65 Pacific 850-200MB Wind Shear/Wind Analysis
+5320 | | | 2- | 2 // PWEA88 Caribbean Wind/Seas (ft) 00Hr FCST
+5321 | | | 2- | 2 // PWEC88 Caribbean Wind/Seas (ft) 12Hr FCST
+5322 | | | 2- | 2 // PWEE88 Caribbean Wind/Seas (ft) 24Hr FCST
+5323 | | | 2- | 2 // PWEG88 Caribbean Wind/Seas (ft) 36Hr FCST
+5324 | | | 2- | 4 // PYAA89 Northern Atlantic Hemispheric Surface Analysis
+5325 | | | 2- | 2 // PJAA88 Northern Atlantic Sig Wave Analysis
+5326 | | | 2- | 2 // PJAI88 48Hr North Atlantic Sig Wave/Winds FCST
+5327 | | | 2- | 2 // PPAE89 24Hr Western Atlantic Fronts/Pressure FCST
+5328 | | | 2- | 2 // PPAI89 48Hr North Atlantic Fronts/Pressure/Winds FCST
+5329 | | | 2- | 2 // PPAM89 96Hr North Atlantic Fronts/Pressure/Winds FCST
+5330 | | | 2- | 4 // PYBA89 Northern Pacific Hemispheric Surface Analysis
+5331 | | | 2- | 2 // PJBA88 North Pacific Sig Wave Analysis
+5332 | | | 2- | 2 // PJBI88 48Hr North Pacific Sig Wave/Winds/FCST
+5333 | | | 2- | 2 // PPBE89 24Hr Eastern Pacific Fronts/Pressure FCST
+5334 | | | 2- | 2 // PPBI89 48Hr North Pacific Fronts/Pressure/Winds FCST
+5335 | | | 2- | 2 // PPBM89 96Hr North Pacific Fronts/Pressure/Winds FCST
+5336 | | | 2- | 2 // PGNE88 24Hr Marine Dense Fog FCST
+5337 | | | 2- | 2 // PGNE98 24Hr Marine Freezing Spray FCST
+5338 | | | 2- | 2 // PPTG98 Day 6 Frontal Position FCST
+5339 | | | 2- | 2 // PPTR98 Day 7 Frontal Position FCST
+5340 | | | 2- | 2 // PYWQ46 Day 6 Temp and POP FCST
+5341 | | | 2- | 2 // PYWS98 Day 7 Temp and POP FCST
+5342 | | | 2- | 2 // PEIV98 30 Day Precip Anom
+5343 | | | 2- | 1 // PEIW01 0.5 Mo (15-105 day) Precip Outlook
+5344 | | | 2- | 1 // PEIW02 1.5 Mo (45-135 day) Precip Outlook
+5345 | | | 2- | 1 // PEIW03 2.5 Mo (75-165 day) Precip Outlook
+5346 | | | 2- | 1 // PEIW04 3.5 Mo (105-195 day) Precip Outlook
+5347 | | | 2- | 1 // PEIW05 4.5 Mo (135-225 day) Precip Outlook
+5348 | | | 2- | 1 // PEIW06 5.5 Mo (165-255 day) Precip Outlook
+5349 | | | 2- | 1 // PEIW07 6.5 Mo (195-285 day) Precip Outlook
+5350 | | | 2- | 1 // PEIW08 7.5 Mo (225-315 day) Precip Outlook
+5351 | | | 2- | 1 // PEIW09 8.5 Mo (255-345 day) Precip Outlook
+5352 | | | 2- | 1 // PEIW10 9.5 Mo (285-375 day) Precip Outlook
+5353 | | | 2- | 1 // PEIW11 10.5 Mo (315-405 day) Precip Outlook
+5354 | | | 2- | 1 // PEIW12 11.5 Mo (345-435 day) Precip Outlook
+5355 | | | 2- | 1 // PEIW13 12.5 Mo (375-465 day) Precip Outlook
+5356 | | | 2- | 2 // PTIV98 30 Day Temp Anom
+5357 | | | 2- | 1 // PTIW01 0.5 Mo (15-105 day) Temp Outlook
+5358 | | | 2- | 1 // PTIW02 1.5 Mo (45-135 day) Temp Outlook
+5359 | | | 2- | 1 // PTIW03 2.5 Mo (75-165 day) Temp Outlook
+5360 | | | 2- | 1 // PTIW04 3.5 Mo (105-195 day) Temp Outlook
+5361 | | | 2- | 1 // PTIW05 4.5 Mo (135-225 day) Temp Outlook
+5362 | | | 2- | 1 // PTIW06 5.5 Mo (165-255 day) Temp Outlook
+5363 | | | 2- | 1 // PTIW07 6.5 Mo (195-285 day) Temp Outlook
+5364 | | | 2- | 1 // PTIW08 7.5 Mo (225-315 day) Temp Outlook
+5365 | | | 2- | 1 // PTIW09 8.5 Mo (255-345 day) Temp Outlook
+5366 | | | 2- | 1 // PTIW10 9.5 Mo (285-375 day) Temp Outlook
+5367 | | | 2- | 1 // PTIW11 10.5 Mo (315-405 day) Temp Outlook
+5368 | | | 2- | 1 // PTIW12 11.5 Mo (345-435 day) Temp Outlook
+5369 | | | 2- | 1 // PTIW13 12.5 Mo (375-465 day) Temp Outlook
+5370 | | | 2- | 2 // PMWE98 Day 1 Fire Wx Outlook
+5371 | | | 2- | 2 // PMWI98 Day 2 Fire Wx Outlook
+5372 | | | 2- | 2 // PETT00 8-14 day precip prob
+5373 | | | 2- | 2 // PTTU98 8-14 day temp prob
+5374 | | | 2- | 2 // PHTT50 8-14 day mean 500 ht
+5375 | | | 2- | 2 // PHTT51 8-14 day mean 500 ht anomaly
+5376 | | | 2- | 4 // PENE00 Day 1 Hail outlook
+5377 | | | 2- | 4 // PWNE00 Day 1 Wind outlook
+5378 | | | 2- | 4 // PGNE00 Day 1 Tornado outlook
+5379 | | | 2- | 4 // PGNI00 Day 2 Combined Severe Outlook
+5380 | | | 2- | 2 // PHNT50 6-10 day 500 Hgt Anomaly
+5381 | | | 2- | 9 // PTNK98 Day 3 Heat Index Probability
+5382 | | | 2- | 9 // PTNQ98 Day 6 Heat Index Probability
+5383 | | | 2- | 2 // PTNR98 6-10 Day Maximum Heat Index Outlook
+5384 | | | 2- | 4 // PZNK00 Day 3 Combined Severe Outlook
+5385 | | | 2- | 4 // PGWK48 Day 3 Convective Outlook
+5386 | | | 2- | 9 // PTNM98 Day 4 Heat Index Probability
+5387 | | | 2- | 9 // PTNO98 Day 5 Heat Index Probability
+5388 | | | 2- | 9 // PTNS98 Day 7 Heat Index Probability
+5389 | | | 2- | 4 // PENJ88 Sig River Flood Outlook
+5390 | | | 2- |100// PGNA00 Active Mesoscale Disc Summary
+5391 | | | 2- | 4 // PSBB04 Day 1 Prob 4+" Snow
+5392 | | | 2- | 4 // PSBB08 Day 1 Prob 8+" Snow
+5393 | | | 2- | 4 // PSBB12 Day 1 Prob 12+" Snow
+5394 | | | 2- | 4 // PSBB25 Day 1 Prob .25+" Ice
+5395 | | | 2- | 6 // PSBC04 Day 2 Prob 4+" Snow
+5396 | | | 2- | 6 // PSBC08 Day 2 Prob 8+" Snow
+5397 | | | 2- | 6 // PSBC12 Day 2 Prob 12+" Snow
+5398 | | | 2- | 6 // PSBC25 Day 2 Prob .25+" Ice
+5399 | | | 2- | 6 // PSBD04 Day 3 Prob 4+" Snow
+5400 | | | 2- | 6 // PSBD08 Day 3 Prob 8+" Snow
+5401 | | | 2- | 6 // PSBD12 Day 3 Prob 12+" Snow
+5402 | | | 2- | 6 // PSBD25 Day 3 Prob .25+" Ice
+5403 | | | 2- | 6 // PSAO72 3-Day Sig Winter Low Tracks
+5404 | | | 2- | 1 // PENV01 0.5 Mo (15-105 day) 50% POE Precip Outlook
+5405 | | | 2- | 1 // PENV02 1.5 Mo (45-135 day) 50% POE Precip Outlook
+5406 | | | 2- | 1 // PENV03 2.5 Mo (75-165 day) 50% POE Precip Outlook
+5407 | | | 2- | 1 // PENV04 3.5 Mo (105-195 day) 50% POE Precip Outlook
+5408 | | | 2- | 1 // PENV05 4.5 Mo (135-225 day) 50% POE Precip Outlook
+5409 | | | 2- | 1 // PENV06 5.5 Mo (165-255 day) 50% POE Precip Outlook
+5410 | | | 2- | 1 // PENV07 6.5 Mo (195-285 day) 50% POE Precip Outlook
+5411 | | | 2- | 1 // PENV08 7.5 Mo (225-315 day) 50% POE Precip Outlook
+5412 | | | 2- | 1 // PENV09 8.5 Mo (255-345 day) 50% POE Precip Outlook
+5413 | | | 2- | 1 // PENV10 9.5 Mo (285-375 day) 50% POE Precip Outlook
+5414 | | | 2- | 1 // PENV11 10.5 Mo (315-405 day) 50% POE Precip Outlook
+5415 | | | 2- | 1 // PENV12 11.5 Mo (345-435 day) 50% POE Precip Outlook
+5416 | | | 2- | 1 // PENV13 12.5 Mo (375-465 day) 50% POE Precip Outlook
+5417 | | | 2- | 1 // PTNV01 0.5 Mo (15-105 day) 50% POE Temp Outlook
+5418 | | | 2- | 1 // PTNV02 1.5 Mo (45-135 day) 50% POE Temp Outlook
+5419 | | | 2- | 1 // PTNV03 2.5 Mo (75-165 day) 50% POE Temp Outlook
+5420 | | | 2- | 1 // PTNV04 3.5 Mo (105-195 day) 50% POE Temp Outlook
+5421 | | | 2- | 1 // PTNV05 4.5 Mo (135-225 day) 50% POE Temp Outlook
+5422 | | | 2- | 1 // PTNV06 5.5 Mo (165-255 day) 50% POE Temp Outlook
+5423 | | | 2- | 1 // PTNV07 6.5 Mo (195-285 day) 50% POE Temp Outlook
+5424 | | | 2- | 1 // PTNV08 7.5 Mo (225-315 day) 50% POE Temp Outlook
+5425 | | | 2- | 1 // PTNV09 8.5 Mo (255-345 day) 50% POE Temp Outlook
+5426 | | | 2- | 1 // PTNV10 9.5 Mo (285-375 day) 50% POE Temp Outlook
+5427 | | | 2- | 1 // PTNV11 10.5 Mo (315-405 day) 50% POE Temp Outlook
+5428 | | | 2- | 1 // PTNV12 11.5 Mo (345-435 day) 50% POE Temp Outlook
+5429 | | | 2- | 1 // PTNV13 12.5 Mo (375-465 day) 50% POE Temp Outlook
+# 5430 | | | 2- | 4 // PGNM98 Day 4-8 Composite Severe Outlook
+5431 | | | 2- | 2 // PGNO98 Day 3-8 Composite Fire Wx Outlook
+5432 | | | 2- | 4 // PEIY97 3-7 Day Precip Hazards Outlook
+5433 | | | 2- | 4 // PEIY96 8-14 Day Precip Hazards Outlook
+5434 | | | 2- | 4 // PTIY97 3-7 Day Temp/Wind Hazards Outlook
+5435 | | | 2- | 4 // PTIY96 8-14 Day Temp/Wind Hazards Outlook
+5436 | | | 2- | 4 // PYIY97 3-7 Day Soil/Wildfire Hazards Outlook
+5437 | | | 2- | 4 // PYIY96 8-14 Day Soil/Wildfire Hazards Outlook
+5438 | | | 2- | 100 // PENA01 Mesoscale Precipitation Discussion
+5439 | | | 2- | 2 // PEIS46 7 Day Total Precip
+5440 | | | 2- | 4 // PGNW49 Day 4 Severe Outlook
+5441 | | | 2- | 4 // PGNW50 Day 5 Severe Outlook
+5442 | | | 2- | 4 // PGNW51 Day 6 Severe Outlook
+5443 | | | 2- | 4 // PGNW52 Day 7 Severe Outlook
+5444 | | | 2- | 4 // PGNW53 Day 8 Severe Outlook

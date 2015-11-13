@@ -1,11 +1,11 @@
 if $?LD_LIBRARY_PATH then
-   setenv LD_LIBRARY_PATH /usr/local/ldm/lib:$LD_LIBRARY_PATH
+   setenv LD_LIBRARY_PATH /awips2/ldm/lib:$LD_LIBRARY_PATH
 else
-   setenv LD_LIBRARY_PATH /usr/local/ldm/lib
+   setenv LD_LIBRARY_PATH /awips2/ldm/lib
 endif
-
+setenv LDMHOME /awips2/ldm
 if $?PATH then
-   setenv PATH /usr/local/ldm/bin:$PATH
+   setenv PATH /awips2/ldm/bin:/awips2/ldm/decoders:/awips2/ldm/util:$PATH
 else
-   setenv PATH /usr/local/ldm/bin
+   setenv PATH /awips2/ldm/bin:/awips2/ldm/decoders:/awips2/ldm/util
 endif

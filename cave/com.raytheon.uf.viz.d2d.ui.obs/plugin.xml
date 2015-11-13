@@ -32,19 +32,22 @@
                 </separator>
                 <separator name="EndOfInitial" visible="true">
                 </separator>
-                <command commandId="com.raytheon.viz.ui.actions.titleAction"
-                    label="------ METAR ------">
-                </command>
                 <separator name="METAR" visible="false">
                 </separator>
                 <separator name="EndOfMetar" visible="true">
                 </separator>
-                <command commandId="com.raytheon.viz.ui.actions.titleAction"
-                    label="------ Synoptic ------">
-                </command>
                 <separator name="SYNOPTIC" visible="false">
                 </separator>
                 <separator name="EndOfSynoptic" visible="true">
+                </separator>
+               	<separator name="MOS" visible="false">
+                </separator>
+				<separator name="EndOfMos" visible="true">
+                </separator>
+                
+                <separator
+                      name="WATCHWARN"
+                      visible="false">
                 </separator>
                 <command
                       commandId="com.raytheon.viz.ui.actions.titleAction"
@@ -53,13 +56,6 @@
                 <separator
                       name="USPLNPLACEHOLDER"
                       visible="false">
-                </separator>
-                <command commandId="com.raytheon.viz.ui.actions.titleAction"
-                    label="------ Local data ------">
-                </command>
-                <separator name="LocalData" visible="false">
-                </separator>
-                <separator name="EndOfLocalData" visible="true">
                 </separator>
                 <command commandId="com.raytheon.viz.ui.actions.titleAction"
                     label="------ Maritime ------" id="MARITIME">

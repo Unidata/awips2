@@ -62,7 +62,7 @@
 //	workstation display stating what the mode is.
 //  2.  The application program view.  Whenever the
 //      workstation is in test mode, the
-//	/awips/fxa/bin/getTestMode executable will return an
+//	/awips2/fxa/bin/getTestMode executable will return an
 //	exit value characteristic of the mode.  Please see
 //	the header comment in getTestMode.C for details.
 //
@@ -73,7 +73,7 @@
 //  It is the persistent tmb background processes, one
 //  running on the text workstation and one on the graphics
 //  workstation, that maintain the workstation mode.  The
-//  /awips/fxa/bin/getTestMode executable interrogates both
+//  /awips2/fxa/bin/getTestMode executable interrogates both
 //  of the processes to determine the workstation mode.  So
 //  tmb and getTestMode work together to maintain the
 //  application program view of the mode.
@@ -118,7 +118,7 @@
 //  tmcp and go back to operational mode.
 //
 //  When the workstation is in panic mode,
-//  /awips/fxa/bin/getTestMode returns a value that is not
+//  /awips2/fxa/bin/getTestMode returns a value that is not
 //  correct for test, practice, or operational mode.  When
 //  an application program gets that value it means that
 //  there is no way of determining what mode the user

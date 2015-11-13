@@ -8,7 +8,7 @@
 # 
 # Last Modified: 01/31/2002
 #
-export FILENAME=/awips/fxa/data/afos2awips.txt
+export FILENAME=/awips2/fxa/data/afos2awips.txt
 
 if [[ $1 = "" ]]
 then

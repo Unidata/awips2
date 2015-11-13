@@ -91,7 +91,7 @@ public class Importer {
         String fxaLocalSite = System.getenv("FXA_LOCAL_SITE");
         if (fxaLocalSite == null) {
             File f = new File(awips1Root
-                    + "/awips/fxa/data/localizationDataSets");
+                    + "/awips2/fxa/data/localizationDataSets");
             File[] lcns = f.listFiles();
             if (lcns != null) {
                 for (File lcn : lcns) {
@@ -147,7 +147,7 @@ public class Importer {
         // Create a fallback configuration if the if necessary.
         if (ec == null) {
             ec = new EndpointConfig();
-            ec.setArchiveRoot("/data_store/radar");
+            ec.setArchiveRoot("/awips2/data_store/radar");
             ec.setConnectionURL("amqp://guest:guest@/edex?brokerlist='tcp://edex-server:5672'");
         }
         doc.endpointConfig = ec;

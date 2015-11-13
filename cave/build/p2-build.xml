@@ -10,7 +10,7 @@
 	<property name="build.ws"
 		value="gtk" />
 	<property name="build.arch"
-		value="x86_64" />
+		value="x86" />
 	<property name="workspace.dir" value="${basedir}/../" />
 	
 	<property name="pde.build.script"
@@ -328,10 +328,6 @@
         <antcall target="p2.build.repo">
             <param name="feature"
                     value="com.raytheon.uf.viz.acarssounding.feature" />
-        </antcall>
-        <antcall target="p2.build.repo">
-            <param name="feature"
-                    value="com.raytheon.viz.avnfps.feature" />
         </antcall>
         <antcall target="p2.build.repo">
             <param name="feature"

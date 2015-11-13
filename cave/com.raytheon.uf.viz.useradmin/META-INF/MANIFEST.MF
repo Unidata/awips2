@@ -14,4 +14,3 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.plugin.nwsauth;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Import-Package: com.raytheon.uf.common.plugin.nwsauth.xml
