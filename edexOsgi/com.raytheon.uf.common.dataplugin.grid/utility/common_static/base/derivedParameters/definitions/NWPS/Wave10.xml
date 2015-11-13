@@ -19,8 +19,8 @@
         further_licensing_information.
     -->
 <DerivedParameter name="Wave10" abbreviation="Wave10" unit="ft" xmlns:ns2="group">
-    <Method name="Vector" level="Surface">
-    	<Field abbreviation="SWELL" level="OSEQD-10" unit="ft"/>
+    <Method name="Vector" levels="Surface">
+        <Field abbreviation="SWELL" level="OSEQD-10" unit="ft"/>
         <Field abbreviation="SWDIR" level="OSEQD-10" unit="deg"/>
         <ConstantField value="1"/>
     </Method>
