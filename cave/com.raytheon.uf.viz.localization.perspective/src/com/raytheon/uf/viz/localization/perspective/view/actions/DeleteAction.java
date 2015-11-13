@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorReference;
@@ -42,6 +42,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.localization.perspective.editor.LocalizationEditorInput;
+import com.raytheon.viz.ui.dialogs.SWTMessageBox;
 
 /**
  * Deletes the selected localization file
@@ -55,6 +56,7 @@ import com.raytheon.uf.viz.localization.perspective.editor.LocalizationEditorInp
  * Nov 3, 2010            mschenke     Initial creation
  * Feb 18, 2015 4132      mapeters     Fixed issue with deleting overrides.
  * Jun 29, 2015 946       rferrel      Do not allow delete of a protected level file.
+ * Nov 13, 2015 4946      mapeters     Use SWTMessageBox instead of MessageDialog.
  * 
  * </pre>
  * 
@@ -92,24 +94,30 @@ public class DeleteAction extends Action {
 
     @Override
     public void run() {
-        String listOfFiles = "";
+        StringBuilder listOfFiles = new StringBuilder();
         for (int i = 0; i < toDelete.length; ++i) {
-            listOfFiles += LocalizationUtil.extractName(toDelete[i].getName())
-                    + "\n";
+            listOfFiles.append(LocalizationUtil.extractName(toDelete[i]
+                    .getName()));
+            listOfFiles.append("\n");
         }
 
         Shell shell = page.getWorkbenchWindow().getShell();
 
         if (prompt) {
-            boolean choice = MessageDialog.openConfirm(
-                    shell,
-                    "Delete Confirmation",
-                    listOfFiles
-                            + String.format(
-                                    "\n\nAre you sure you want to delete %s?",
-                                    toDelete.length > 1 ? "these items"
-                                            : "this file"));
-            if (!choice) {
+            StringBuilder msg = new StringBuilder();
+            msg.append("Are you sure you want to delete ");
+            if (toDelete.length > 1) {
+                msg.append("these " + toDelete.length + " items");
+            } else {
+                msg.append("this file");
+            }
+            msg.append("?\n\n").append(listOfFiles);
+
+            SWTMessageBox messageDialog = new SWTMessageBox(shell,
+                    "Delete Confirmation", msg.toString(), SWT.OK | SWT.CANCEL
+                            | SWT.ICON_QUESTION, SWT.PRIMARY_MODAL, false, true);
+
+            if ((int) messageDialog.open() != SWT.OK) {
                 return;
             }
         }
