@@ -112,7 +112,7 @@ if [ $? -ne 0 ]; then
 fi
 
 _QPID_VERSION="0.32"
-_POSTGRESQL_VERSION="9.3.9"
+_POSTGRESQL_VERSION="9.3.10"
 RPM_PROJECT="%{_baseline_workspace}/rpms"
 POSTGRES_INITD="%{_baseline_workspace}/foss/postgresql-${_POSTGRESQL_VERSION}/scripts/init.d/edex_postgres"
 QPID_INITD="%{_baseline_workspace}/foss/qpid-java-broker-${_QPID_VERSION}/src/patch/qpid-java-broker-${_QPID_VERSION}/wrapper/qpidd"

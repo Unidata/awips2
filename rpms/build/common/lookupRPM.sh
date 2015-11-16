@@ -252,7 +252,7 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-postgres" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/postgresql-9.3.9"
+      export RPM_SPECIFICATION="${installer_dir}/postgresql-9.3.10"
       return 0
    fi
    if [ "${1}" = "awips2-pgadmin3" ]; then
