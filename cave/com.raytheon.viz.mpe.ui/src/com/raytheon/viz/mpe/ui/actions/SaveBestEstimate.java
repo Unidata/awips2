@@ -24,6 +24,7 @@
  * ------------ ---------- ----------- --------------------------
  * Jan 7, 2015  16954      cgobs      Fix for cv_use issue - using getFieldName() in certain parts.
  * Feb 4, 2015  17094      cgobs      Fix for fieldType being too long for mapx_field_type column in RWResult table.
+ * Nov 05, 2015 15045      snaples    Added resourceChanged call at end of save method to read in any edits.
  * </pre>
  **/
 package com.raytheon.viz.mpe.ui.actions;
@@ -49,6 +50,7 @@ import com.raytheon.uf.common.mpe.util.XmrgFile.XmrgHeader;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.viz.hydrocommon.whfslib.IHFSDbGenerated;
 import com.raytheon.viz.mpe.MPEDateFormatter;
 import com.raytheon.viz.mpe.core.MPEDataManager;
@@ -298,6 +300,7 @@ public class SaveBestEstimate {
             }
         }
         MPEDisplayManager.getCurrent().setSavedData(true);
+        MPEDisplayManager.getCurrent().getDisplayedFieldResource().resourceChanged(ChangeType.DATA_UPDATE, editDate);
     }
 
     private static void mpegui_save_image(BufferedImage bi, String format,
