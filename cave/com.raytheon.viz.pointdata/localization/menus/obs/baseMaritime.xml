@@ -57,16 +57,6 @@
 	        <substitute key="reportType" value="1007"/>
 	    </contribute>	
 		<contribute xsi:type="subMenu" menuText="Scatterometer Winds">
-			<!-- 
-			<contribute xsi:type="bundleItem" file="bundles/Scatterometer_quikscat.xml" 
-	               menuText="QuikSCAT Winds 12.5 km" id="QuikSCAT">
-		        <substitute key="legend" value="QUIKSCAT"/>
-		        <substitute key="svg" value="quikScatPlotDesign.svg"/>
-		        <substitute key="plugin" value="bufrquikscat"/>
-		        <substitute key="posOffset" value="0"/>
-		        <substitute key="negOffset" value="5400"/>
-		    </contribute>
-		    -->
 		    <contribute xsi:type="bundleItem" file="bundles/Scatterometer.xml" 
 	               menuText="ASCAT Winds 25 km" id="ASCATWinds">
 		        <substitute key="legend" value="ASCAT"/>
