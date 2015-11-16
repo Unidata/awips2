@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<bundle>
+    <displayList>
+        <displays xsi:type="d2DMapRenderableDisplay"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <descriptor xsi:type="mapDescriptor">
+                <resource>
+                    <loadProperties loadWithoutData="true">
+                        <capabilities>
+                        </capabilities>
+                    </loadProperties>
+                    <properties isSystemResource="false"
+                        isBlinking="false" isMapLayer="false" isHoverOn="false"
+                        isVisible="true" />
+                    <resourceData xsi:type="plotResourceData"
+                        plotSource="${title}" plotModelFile="lsr.svg"
+                        isUpdatingOnMetadataOnly="true" retrieveData="false"
+                        isRequeryNecessaryOnTimeMatch="true">
+                        <binOffset posOffset="150" negOffset="150"
+                            virtualOffset="0" />
+                        <metadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="lsr"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="officeid">
+                                <constraint constraintValue="${ALLsites}"
+                                    constraintType="IN" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+            </descriptor>
+        </displays>
+    </displayList>
+</bundle>
