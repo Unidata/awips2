@@ -49,18 +49,21 @@ import com.raytheon.viz.pointdata.PointDataRequest;
  * sets. It is important to note that derived parameters for point data is much
  * different than grid. The primary difference is that while grid is combining
  * multiple records that represent different parameters, point data is combining
- * multiple paramters within a single record. As a result point data does not
+ * multiple parameters within a single record. As a result point data does not
  * use the time and space matching functions of derived parameters since they
  * are guaranteed to match for all parameters within a record.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 1, 2009             brockwoo    Initial creation
- * Nov 21, 2009 #3576      rjpeter     Refactored use of DerivParamDesc.
- * Sep 09, 2014  3356      njensen     Remove CommunicationException
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- ----------------------------------
+ * Jun 01, 2009  2149     brockwoo  Initial creation
+ * Nov 21, 2009  3576     rjpeter   Refactored use of DerivParamDesc.
+ * Sep 09, 2014  3356     njensen   Remove CommunicationException
+ * Nov 16, 2015  5119     bsteffen  Remove bufquikscat
+ * 
  * </pre>
  * 
  * @author brockwoo
@@ -74,11 +77,11 @@ public class PointDataCubeAdapter extends DefaultDataCubeAdapter {
     public static String PLUGIN_NAME = PointDataInventory.PLUGIN_NAME;
 
     private static String[] supportedPlugins = { "obs", "madis",
-            "modelsounding", "bufrssmi", "bufrquikscat", "lsr", "sfcobs",
-            "goessounding", "bufrascat", "poessounding", "profiler", "bufrua",
-            "ldadmesonet", "ldadhydro", "qc", "fssobs", "bufrmosAVN",
-            "bufrmosETA", "bufrmosGFS", "bufrmosHPC", "bufrmosLAMP",
-            "bufrmosMRF", "bufrmosNGM", "airep", "pirep", "nctaf" };
+            "modelsounding", "bufrssmi", "lsr", "sfcobs", "goessounding",
+            "bufrascat", "poessounding", "profiler", "bufrua", "ldadmesonet",
+            "ldadhydro", "qc", "fssobs", "bufrmosAVN", "bufrmosETA",
+            "bufrmosGFS", "bufrmosHPC", "bufrmosLAMP", "bufrmosMRF",
+            "bufrmosNGM", "airep", "pirep", "nctaf" };
 
     protected AbstractPointDataInventory inventory;
 
@@ -86,12 +89,6 @@ public class PointDataCubeAdapter extends DefaultDataCubeAdapter {
         super(PLUGIN_NAME);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.datastructure.IDataCubeAdapter#getInventory()
-     */
     @Override
     public Object getInventory() {
         if (inventory == null) {
@@ -100,13 +97,6 @@ public class PointDataCubeAdapter extends DefaultDataCubeAdapter {
         return this.inventory;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.datastructure.IDataCubeAdapter#getPoints(java
-     * .lang.String[], java.util.Map)
-     */
     @Override
     public PointDataContainer getPoints(String plugin, String[] parameters,
             Map<String, RequestConstraint> queryParams)
@@ -231,25 +221,11 @@ public class PointDataCubeAdapter extends DefaultDataCubeAdapter {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.datastructure.IDataCubeAdapter#getSupportedPlugin
-     * ()
-     */
     @Override
     public String[] getSupportedPlugins() {
         return supportedPlugins;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.datastructure.IDataCubeAdapter#initInventory
-     * (java.util.Map)
-     */
     @Override
     public void initInventory() {
         if (inventory == null) {

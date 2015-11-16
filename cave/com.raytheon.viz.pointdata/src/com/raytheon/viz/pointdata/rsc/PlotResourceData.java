@@ -48,18 +48,20 @@ import com.raytheon.viz.pointdata.rsc.retrieve.PointDataPlotInfoRetriever;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date          Ticket#  Engineer    Description
- * ------------- -------- ----------- --------------------------
- * Feb 17, 2009           njensen     Initial creation
- * Jun 29, 2009  2538     jsanchez    Implemented Metars.
- * May 14, 2013  1869     bsteffen    Get plots working without dataURI
- * Aug 09, 2013  2033     mschenke    Switched File.separator to 
- *                                    IPathManager.SEPARATOR
- * Sep 05, 2013  2316     bsteffen    Unify pirep and ncpirep.
- * Jun 06, 2014  2061     bsteffen    Remove old PlotResource
- * Sep 16, 2014  2707     bclement    lsr no longer uses dataURI
- * Oct 27, 2015  4798     bsteffen    Move SVG localization url handler
- *                                    registration.
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Feb 17, 2009  1960     njensen   Initial creation
+ * Jun 29, 2009  2538     jsanchez  Implemented Metars.
+ * May 14, 2013  1869     bsteffen  Get plots working without dataURI
+ * Aug 09, 2013  2033     mschenke  Switched File.separator to
+ *                                  IPathManager.SEPARATOR
+ * Sep 05, 2013  2316     bsteffen  Unify pirep and ncpirep.
+ * Jun 06, 2014  2061     bsteffen  Remove old PlotResource
+ * Sep 16, 2014  2707     bclement  lsr no longer uses dataURI
+ * Oct 27, 2015  4798     bsteffen  Move SVG localization url handler
+ *                                  registration.
+ * Nov 16, 2015  5119     bsteffen  Remove bufquikscat
  * 
  * </pre>
  * 
@@ -142,7 +144,6 @@ public class PlotResourceData extends AbstractRequestableResourceData {
          * In the future if stationId can be set to anything that is even a
          * little unique we can get rid of this
          */
-        pluginProps.put("bufrquikscat", new PluginPlotProperties(false));
         pluginProps.put("radar", new PluginPlotProperties(false));
         pluginProps.put("tcg", new PluginPlotProperties(false));
         pluginProps.put("svrwx", new PluginPlotProperties(false));
@@ -189,13 +190,6 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData#
-     * constructResource(com.raytheon.uf.viz.core.comm.LoadProperties,
-     * com.raytheon.edex.db.objects.PluginDataObject[])
-     */
     @Override
     protected AbstractVizResource<?, ?> constructResource(
             LoadProperties loadProperties, PluginDataObject[] objects) {
@@ -339,12 +333,6 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         this.defaultPeriod = defaultPeriod;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData#
-     * getAvailableTimes()
-     */
     @Override
     public DataTime[] getAvailableTimes() throws VizException {
         Map<String, RequestConstraint> map = null;
