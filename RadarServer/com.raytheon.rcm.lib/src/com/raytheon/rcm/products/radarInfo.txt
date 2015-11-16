@@ -60,6 +60,7 @@
 25 | 16 | 0 | 0.25 |  60 | V   | Velocity (V)                  | Radial  | y |   |   |   | V |   |   |   |   | 1 |     |
 26 | 16 | 0 | 0.50 | 115 | V   | Velocity (V)                  | Radial  | y |   |   |   | V |   |   |   |   | 1 |     |
 27 | 16 | 0 | 1.00 | 230 | V   | Velocity (V)                  | Radial  | y |   |   |   | V |   |   |   |   | 1 |     |
+184|256 | 0 | 0.15 |  90 | SW  | Spectrum Width (SW)           | Radial  | y |   |   |   |   |   |   |   |   | 2 |     | y
 185|  8 | 0 | 0.15 |  90 | SW  | Spectrum Width (SW)           | Radial  | y |   |   |   |   |   |   |   |   | 2 |     |
 28 |  8 | 0 | 0.25 |  60 | SW  | Spectrum Width (SW)           | Radial  | y |   |   |   |   |   |   |   |   | 2 |     |
 29 |  8 | 0 | 0.50 | 115 | SW  | Spectrum Width (SW)           | Radial  | y |   |   |   |   |   |   |   |   | 2 |     |

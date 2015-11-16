@@ -47,6 +47,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 2, 2009            bsteffen     Initial creation
+ * Jul 7, 2015  10352     byin         Display symbols for turb/icing
+ *                                     and hazard types for IFR/MTOS
+ * 
  * 
  * </pre>
  * 
@@ -56,13 +59,27 @@ import com.vividsolutions.jts.geom.Coordinate;
 @XmlAccessorType(XmlAccessType.NONE)
 public class AirmetDataAdapter extends AbstractAdvisoryDataAdapter {
 
-    private static final String LABEL_FORMAT = "%d%s";
-
     private static final String INSPECT_FORMAT = "Valid UNTIL %02d%02d%02d\n%s";
 
     private static final String REPORT_INDICATOR = "AIRMET";
 
     private static final String SEGMENT_SEPERATOR = "\n.  \n";
+
+    private static final String TURBULENCE_TYPE = "TURBULENCE";
+
+    private static final String ICING_TYPE = "ICING";
+
+    private static final String IFR_TYPE = "INSTRUMENT FLIGHT RULES";
+
+    private static final String MTN_TYPE = "MOUNTAIN OBSCURATION";
+
+    private static final String IFR_LABEL = "IFR";
+
+    private static final String MTN_LABEL = "MTOS";
+
+    protected static final char TURBULENCE_SYMBOL = '\u007b';
+
+    protected static final char ICING_SYMBOL = '\u007e';
 
     private static final float LINE_WIDTH = 1.5f;
 
@@ -111,7 +128,6 @@ public class AirmetDataAdapter extends AbstractAdvisoryDataAdapter {
             coords[loc.getIndex() - 1] = new Coordinate(loc.getLongitude(),
                     loc.getLatitude());
         }
-        int updateNumber = parent.getUpdateNumber();
         String sequenceId = report.getSequenceID();
         if (sequenceId == null) {
             sequenceId = "";
@@ -134,11 +150,30 @@ public class AirmetDataAdapter extends AbstractAdvisoryDataAdapter {
         } else {
             segment = "";
         }
-        String label = String.format(LABEL_FORMAT, updateNumber, sequenceId);
+
         String inspectString = String.format(INSPECT_FORMAT, day, hour, min,
                 segment);
+        String hazType = report.getHazardType();
+        
+        String label;
+
+        if (hazType.equalsIgnoreCase(IFR_TYPE)) {
+            label = IFR_LABEL;
+        } else if (hazType.equalsIgnoreCase(MTN_TYPE)) {
+            label = MTN_LABEL;
+        } else {
+            label = "";
+        }
+
         AdvisoryRecord aRecord = new AdvisoryRecord(coords, label,
                 inspectString);
+
+        if (hazType.equalsIgnoreCase(ICING_TYPE)) {
+            aRecord.setLabelSymbolId(ICING_SYMBOL);
+        } else if (hazType.equalsIgnoreCase(TURBULENCE_TYPE)) {
+            aRecord.setLabelSymbolId(TURBULENCE_SYMBOL);
+        }
+
         return aRecord;
     }
 

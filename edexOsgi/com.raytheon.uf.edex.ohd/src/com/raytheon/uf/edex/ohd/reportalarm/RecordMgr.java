@@ -46,7 +46,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * Feb 13, 2014  #2783     dgilling     Refactored to support running as part
  *                                      of an EDEX service.
  * Jan 07, 2015 3692       bclement     AlertalarmRecord is no longer a singleton
- * 
+ * Jul 02, 2015  16579     wkwock       Add hsa filter
  * 
  * </pre>
  * 
@@ -65,6 +65,8 @@ class RecordMgr {
     static final int AA_CHCK = 104;
 
     static final int PEFILTER = 105;
+
+    static final int HSAFILTER = 106;
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(RecordMgr.class);
@@ -98,6 +100,7 @@ class RecordMgr {
                 .append(whereSubClauseFor(AA_CAT, opt))
                 .append(whereSubClauseFor(AA_CHCK, opt))
                 .append(whereSubClauseFor(PEFILTER, opt))
+                .append(whereSubClauseFor(HSAFILTER,opt))
                 .append(" AND (aav.ts NOT LIKE 'F%' OR aav.validtime >= current_timestamp) ")
                 .append(" ORDER BY aav.lid ASC, aav.pe, aav.ts, aav.aa_check, aav.validtime DESC ");
 
@@ -132,6 +135,8 @@ class RecordMgr {
             return aaCheckSubClause(options.getFilter());
         case PEFILTER:
             return peFilterSubClause(options.getPEfilter());
+        case HSAFILTER:
+            return hsaFilterSubClause(options.getHsa());
         default:
             return null;
         }
@@ -147,6 +152,10 @@ class RecordMgr {
         return pe == null ? "" : " AND pe = " + pe;
     }
 
+    private static String hsaFilterSubClause (String hsa) {
+        return hsa == null ? "" : " AND hsa = '" + hsa + "'";
+    }
+    
     private static String modeSubClause(ReportMode mode) {
         if (mode == ReportMode.UNREPORTED) {
             return " AND action_time IS NULL ";
