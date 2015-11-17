@@ -73,6 +73,7 @@
 #    10/07/2015          #4958     dgilling       Added support for NationalBlend D2D data.
 #    10/13/2015          #4961     randerso       Updated NewTerrain/BaseTerrain database definitions
 #    10/30/2015          #17940    jendrowski     Responded to Code Review.  Mostly syntactical changes.
+#    1/28/2016           #13910    amoore         Wave model data should be available in 3-hrly timesteps 
 ####################################################################################################
 
 #----------------------------------------------------------------------------
@@ -2917,8 +2918,12 @@ nwpsCG1_MODEL = [([SwanSwell, Period, WaveHeight, WindWaveHeight, Wind], TC3NG)]
 nwpsTrkngCG0_MODEL = [([Wave1, Wave2, Wave3, Wave4, Wave5, Wave6, Wave7, Wave8, Wave9, Wave10, Period1, Period2, Period3, Period4, Period5, Period6,Period7, Period8, Period9, Period10 ], TC3NG)]
 
 # Global Wave Watch III, WNAWAVE, AKWAVE Model database parameter groupings
+# 6-hour resolution
 WAVEPARMS = [([WindWaveHeight, WaveHeight, SurfHeight, Wind], TC6),
             ([Swell, Swell2, Period, Period2], TC6)]
+# 3-hour resolution
+WAVEPARMS3 = [([WindWaveHeight, WaveHeight, SurfHeight, Wind], TC3),
+            ([Swell, Swell2, Period, Period2], TC3)]
 
 # GLWM Model database parameter groupings
 GLWMPARMS = [([SigWaveHgt, WindWaveHgt, WindWaveDir, WindWavePeriod], TC1)]
@@ -3038,23 +3043,23 @@ DATABASES = [
              (GWW, WAVEPARMS),
              (WNAWAVE, WAVEPARMS),
              (AKWAVE, WAVEPARMS),
-             (AKwave10, WAVEPARMS),
-             (AKwave4, WAVEPARMS),
-             (EPwave10, WAVEPARMS),
+             (AKwave10, WAVEPARMS3),
+             (AKwave4, WAVEPARMS3),
+             (EPwave10, WAVEPARMS3),
              (ESTOFS, ESTOFSPARMS),
              (ETSS, ETSSPARMS),
              (nwpsCG1, nwpsCG1_MODEL),
              (nwpsTrkngCG0, nwpsTrkngCG0_MODEL),
-             (GlobalWave, WAVEPARMS),
+             (GlobalWave, WAVEPARMS3),
              (GLWM, GLWMPARMS),
              (HIRESWarw, STD3_MODEL),
              (HIRESWnmm, STD3_MODEL),
              (HRRR, HRRRPARMS),
 #DR20634             (SPC, SPCPARMS),
-             (WCwave10, WAVEPARMS),
-             (WCwave4, WAVEPARMS),
-             (WNAwave10, WAVEPARMS),
-             (WNAwave4, WAVEPARMS),
+             (WCwave10, WAVEPARMS3),
+             (WCwave4, WAVEPARMS3),
+             (WNAwave10, WAVEPARMS3),
+             (WNAwave4, WAVEPARMS3),
              (HPCGrid, MOS_MODEL),
              (HPCQPF, HPCQPF_MODEL),
              (RFCQPF, RFCQPF_MODEL),
