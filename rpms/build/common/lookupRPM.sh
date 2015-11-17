@@ -232,7 +232,7 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-ant" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.ant"
+      export RPM_SPECIFICATION="${installer_dir}/ant-1.9.6"
       return 0
    fi
    if [ "${1}" = "awips2-httpd-pypies" ]; then
