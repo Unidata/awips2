@@ -21,7 +21,7 @@
 package com.raytheon.viz.gfe.actions;
 
 /**
- * TODO Add Description
+ * Action handler to clear practice active table.
  * 
  * <pre>
  *
@@ -30,6 +30,7 @@ package com.raytheon.viz.gfe.actions;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 23, 2010            wkwock     Initial creation
+ * Nov 17, 2015  #5129     dgilling   Support new IFPClient.
  *
  * </pre>
  *
@@ -40,40 +41,38 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
+import com.raytheon.uf.common.activetable.ActiveTableMode;
+import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.gfe.Activator;
-import com.raytheon.viz.gfe.constants.StatusConstants;
 import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 
 public class ClearPracticeVTECTable extends AbstractHandler {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(ClearPracticeVTECTable.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ClearPracticeVTECTable.class);
 
-	@Override
-	public Object execute(ExecutionEvent event) throws ExecutionException {
+    @Override
+    public Object execute(ExecutionEvent event) throws ExecutionException {
+        DataManager dm = DataManagerUIFactory.getCurrentInstance();
+        if (dm != null) {
+            ServerResponse<?> sr = dm.getClient().clearVTECTable(
+                    ActiveTableMode.PRACTICE);
+            if (!sr.isOkay()) {
+                statusHandler
+                        .error(String.format(
+                                "Failed to clear practice VTEC table: %s",
+                                sr.message()));
+            } else {
+                statusHandler.handle(Priority.SIGNIFICANT,
+                        "Practice VTEC table has been cleared.");
+            }
+        } else {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Failed to clear practice VTEC table");
+        }
 
-		try {
-			DataManager dm = DataManager.getCurrentInstance();
-			if (dm != null) {
-				dm.getClient().clearPracticeTable(dm.getSiteID());
-
-				statusHandler.handle(Priority.SIGNIFICANT,
-						"Practice VTEC table has been cleared.");
-			} else {
-				statusHandler.handle(Priority.PROBLEM,
-						"Failed to clear practice VTEC table");
-			}
-
-		} catch (VizException e) {
-			statusHandler.handle(
-							Priority.PROBLEM,
-							"Unexpected exception while attempting to clear practice VTEC table",
-							e);
-		}
-
-		return null;
-	}
-
+        return null;
+    }
 }

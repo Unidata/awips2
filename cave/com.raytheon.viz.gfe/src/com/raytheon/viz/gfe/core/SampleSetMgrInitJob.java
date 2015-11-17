@@ -37,6 +37,7 @@ import com.raytheon.viz.gfe.core.internal.SampleSetManager;
  * ------------ ---------- ----------- --------------------------
  * Jan 25, 2011            njensen     Initial creation
  * Sep 09, 2014  #3592     randerso    Removed unused DataManager parameter to SampleSetManager constructor
+ * Nov 19, 2014  #5129     dgilling    Pass IFPClient into constructor.
  * 
  * </pre>
  * 
@@ -61,7 +62,7 @@ public class SampleSetMgrInitJob extends Job {
      */
     @Override
     protected IStatus run(IProgressMonitor monitor) {
-        dataMgr.sampleSetManager = new SampleSetManager();
+        dataMgr.sampleSetManager = new SampleSetManager(dataMgr.getClient());
         dataMgr.getInitStatus().setSampleSetMgrDone(true);
 
         return Status.OK_STATUS;

@@ -11,6 +11,9 @@ import pprint
 from AbsTime import *
 from StartupDialog import IFPDialog as Dialog
 from LockingFile import File
+
+from com.raytheon.viz.core.mode import CAVEMode
+
 AWIPS_ENVIRON = "AWIPS2"
 
 class TextProduct(GenericHazards.TextProduct):
@@ -437,8 +440,7 @@ class TextProduct(GenericHazards.TextProduct):
         return ['CAN', 'UPG']
     
     def _setVTECActiveTable(self, argDict):
-        dataMgr = argDict["dataMgr"]
-        gfeMode = dataMgr.getOpMode().name()
+        gfeMode = CAVEMode.getMode().name()
         
         self.debug_print("*" *100, 1)
         self.debug_print("gfeMode = '%s'" % (gfeMode), 1)
@@ -1130,8 +1132,7 @@ FORECASTER STEWART"""
             return None
         
     def _getAdvisoryPath(self):
-        dataMgr = self._argDict["dataMgr"]
-        gfeMode = dataMgr.getOpMode().name()
+        gfeMode = CAVEMode.getMode().name()
         if gfeMode == "PRACTICE":
             return os.path.join("gfe", "tcvAdvisories", "practice")
         else:

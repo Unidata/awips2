@@ -20,12 +20,12 @@
 import ProcessVariableList, types
 
 class VarDictGroker:
-    def __init__(self, module, definition, name, issuedBy=None, parent=None):
+    def __init__(self, module, definition, name, issuedBy=None, dataMgr=None):
         self._module = module
         self._definition = definition
         self._name = name
         self._issuedBy = issuedBy
-        self._parent = parent
+        self._dataMgr = dataMgr
 
     def getVarDict(self):
         # Create and display the User Dialog for this product.
@@ -52,7 +52,7 @@ class VarDictGroker:
             print "processVariableList is not None"
             co = processVariableList.im_func.func_code
             if co.co_argcount > 2:
-                argValues = [self._definition, self._parent]
+                argValues = [self._definition, self._dataMgr]
             else:
                 argValues = [self._definition]
 
@@ -103,7 +103,7 @@ class VarDictGroker:
                 # Display User Dialog
                 print "ProcessVariableList.ProcessVariableList"
                 processVarList = ProcessVariableList.ProcessVariableList(
-                                                                         self._name, varList, varDict={}, parent=self._parent)                
+                                                                         self._name, varList, varDict={}, dataMgr=self._dataMgr)                
                 self._selectionStatus = processVarList.status()
                 if not self._selectionStatus == "OK":
                     return None   # User Cancelled

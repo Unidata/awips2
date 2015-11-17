@@ -27,23 +27,25 @@ import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.slice.ScalarGridSlice;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.viz.gfe.GFEServerException;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.ITopoManager;
 
 /**
  * GFETopoMgr manages the set of topography data sets available from the
  * ifpServer.
- * 
+ * <p>
  * All parms now use the same topo data, since the assumption is that all parms
  * in a database have the same exact GridLocation.
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Jul  2, 2008		#1160	randerso	Initial creation
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Jul 02, 2008     #1160   randerso    Initial creation
  * Nov 20, 2013     #2331   randerso    Re-implemented to better match A1 design
+ * Nov 18, 2015     #5129   dgilling    Updates for new IFPClient.
  * 
  * </pre>
  * 
@@ -85,19 +87,14 @@ public class GFETopoManager implements ITopoManager {
         if (compositeTopo == null) {
             GridLocation gloc = dataManager.getParmManager()
                     .compositeGridLocation();
-            try {
-                ServerResponse<ScalarGridSlice> sr = this.dataManager
-                        .getClient().getTopoData(gloc);
-                if (!sr.isOkay()) {
-                    statusHandler
-                            .error("Error getting topography data from IFPServer: "
-                                    + sr.message());
-                }
-                compositeTopo = sr.getPayload();
-            } catch (GFEServerException e) {
-                statusHandler.error(
-                        "Error getting topography data from IFPServer: ", e);
+            ServerResponse<ScalarGridSlice> sr = dataManager.getClient()
+                    .getTopoData(gloc);
+            if (!sr.isOkay()) {
+                statusHandler
+                        .error("Error getting topography data from IFPServer: "
+                                + sr.message());
             }
+            compositeTopo = sr.getPayload();
         }
         return compositeTopo;
     }

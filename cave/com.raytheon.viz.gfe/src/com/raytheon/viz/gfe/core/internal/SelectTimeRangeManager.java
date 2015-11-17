@@ -45,8 +45,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.viz.gfe.GFEServerException;
-import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.ISelectTimeRangeManager;
 import com.raytheon.viz.gfe.core.msgs.SelectTimeRangesChangedMsg;
 
@@ -59,10 +57,11 @@ import com.raytheon.viz.gfe.core.msgs.SelectTimeRangesChangedMsg;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 3, 2009       #3135 randerso    Initial creation
- * Aug 1, 2012       #965  dgilling    Change location of SelectTimeRange.
- * Aug 6, 2013       #1561 njensen     Use pm.listFiles() instead of pm.listStaticFiles()
- * Sep 8, 2104       #3592 randerso    Changed to use new pm listStaticFiles()
+ * Dec 03, 2009      #3135 randerso    Initial creation
+ * Aug 01, 2012      #965  dgilling    Change location of SelectTimeRange.
+ * Aug 06, 2013      #1561 njensen     Use pm.listFiles() instead of pm.listStaticFiles()
+ * Sep 08, 2014      #3592 randerso    Changed to use new pm listStaticFiles()
+ * Nov 18, 2015      #5129 dgilling    Support new IFPClient.
  * 
  * </pre>
  * 
@@ -89,16 +88,9 @@ public class SelectTimeRangeManager implements ISelectTimeRangeManager,
 
     private LocalizationFile selectTRDir;
 
-    public SelectTimeRangeManager(DataManager dataManager) {
+    public SelectTimeRangeManager(TimeZone timeZone) {
         // Find the referenced time zone
-        timeZone = TimeZone.getTimeZone("GMT");
-        try {
-            timeZone = TimeZone.getTimeZone(dataManager.getClient()
-                    .getDBGridLocation().getTimeZone());
-        } catch (GFEServerException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Unable to retrieve GFE time zone, using GMT", e);
-        }
+        this.timeZone = timeZone;
 
         this.pathManager = PathManagerFactory.getPathManager();
         selectTRDir = pathManager.getLocalizationFile(pathManager.getContext(
@@ -286,5 +278,10 @@ public class SelectTimeRangeManager implements ISelectTimeRangeManager,
         String rangeName = FileUtil.unmangle(file.getName().replace(FILE_EXT,
                 ""));
         return rangeName;
+    }
+
+    @Override
+    public TimeZone getTimeZone() {
+        return timeZone;
     }
 }

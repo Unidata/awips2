@@ -46,7 +46,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.gfe.GFEServerException;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.IReferenceSetManager;
 import com.raytheon.viz.ghg.monitor.data.GhgConfigData;
@@ -157,7 +156,7 @@ public class GhgFilterDlg extends CaveSWTDialog {
      */
     private Button incPastEventsChk;
 
-    //private Button incOrgPilEvents;
+    // private Button incOrgPilEvents;
 
     private GhgDataFilter filter = null;
 
@@ -239,7 +238,7 @@ public class GhgFilterDlg extends CaveSWTDialog {
         filter.includeAlerts = incAlertsChk.getSelection();
         filter.includeMapSelections = incMapSelectionsChk.getSelection();
         filter.includePastEvents = incPastEventsChk.getSelection();
-        //filter.includeOrgPilEvents = incOrgPilEvents.getSelection();
+        // filter.includeOrgPilEvents = incOrgPilEvents.getSelection();
 
         filter.name = "<Custom>";
 
@@ -270,7 +269,7 @@ public class GhgFilterDlg extends CaveSWTDialog {
         incAlertsChk.setSelection(filter.includeAlerts);
         incMapSelectionsChk.setSelection(filter.includeMapSelections);
         incPastEventsChk.setSelection(filter.includePastEvents);
-        //incOrgPilEvents.setSelection(filter.includeOrgPilEvents);
+        // incOrgPilEvents.setSelection(filter.includeOrgPilEvents);
     }
 
     /**
@@ -572,26 +571,23 @@ public class GhgFilterDlg extends CaveSWTDialog {
             }
         });
 
-        //incOrgPilEvents = new Button(filterOverrideGroup, SWT.CHECK);
-        //incOrgPilEvents.setText("Include OrgPil Events");
-        //incOrgPilEvents.setSelection(filter.includeOrgPilEvents);
-        //incOrgPilEvents.addSelectionListener(new SelectionAdapter() {
+        // incOrgPilEvents = new Button(filterOverrideGroup, SWT.CHECK);
+        // incOrgPilEvents.setText("Include OrgPil Events");
+        // incOrgPilEvents.setSelection(filter.includeOrgPilEvents);
+        // incOrgPilEvents.addSelectionListener(new SelectionAdapter() {
 
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-             * .swt.events.SelectionEvent)
-             */
         /*
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                filter.includeOrgPilEvents = incOrgPilEvents.getSelection();
-                updateDisplay();
-            }
-        });
-        */
+         * (non-Javadoc)
+         * 
+         * @see
+         * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
+         * .swt.events.SelectionEvent)
+         */
+        /*
+         * @Override public void widgetSelected(SelectionEvent e) {
+         * filter.includeOrgPilEvents = incOrgPilEvents.getSelection();
+         * updateDisplay(); } });
+         */
     }
 
     /**
@@ -667,9 +663,7 @@ public class GhgFilterDlg extends CaveSWTDialog {
             // Sort the lists
             Collections.sort(wfoList);
             Collections.sort(geoIdList);
-        } catch (GFEServerException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        } catch (VizException e) {
+        } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
     }

@@ -38,7 +38,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.core.grid;bundle-version="1.15.0",
  com.raytheon.uf.common.dataaccess;bundle-version="1.15.0",
  com.raytheon.uf.viz.core.point;bundle-version="1.15.0",
- org.apache.commons.lang3;bundle-version="3.4.0"
+ org.apache.commons.lang3;bundle-version="3.4.0",
+ com.raytheon.uf.common.gfe.ifpclient;bundle-version="1.15.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.gfe,
  com.raytheon.viz.gfe.constants,
