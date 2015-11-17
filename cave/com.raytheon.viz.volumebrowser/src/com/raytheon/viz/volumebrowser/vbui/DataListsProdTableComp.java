@@ -89,6 +89,12 @@ import com.raytheon.viz.volumebrowser.xml.VbSourceList;
  * Oct 03, 2014  2618     mapeters    Updated pointChangeListener's pointChanged() 
  *                                    implementation to fully remove deleted points,
  *                                    added createUniqueKey(String, String, String).
+ * Nov 18, 2015  4894     kbisanz     Call setActiveDataSelection(...)
+ *                                    before calling
+ *                                    splitToMultipleBars(...) to set data
+ *                                    selection correctly and prevent menu
+ *                                    items from being referenced on
+ *                                    multiple menus.
  * 
  * </pre>
  * 
@@ -914,14 +920,22 @@ public class DataListsProdTableComp extends Composite implements
         int planesWidth = planeControl.toolbar.computeSize(-1, -1).x;
         int totalWidth = sourcesWidth + fieldsWidth + planesWidth;
         int screenWidth = getDisplay().getPrimaryMonitor().getBounds().width;
-        // If the total width of the toolbars is bigger than 80% of the monitor
+        // If the total width of the toolbars is bigger than X% of the monitor
         // make multiple rows.
         if (screenWidth * 0.90 < totalWidth) {
             // Divide by 70% of screen Width to allow some fudge factor when
             // laying it all out.
             int numBars = totalWidth / (int) (screenWidth * 0.7) + 1;
+
+            // The current value of the active data selection is unknown, so set
+            // it explicitly to the desired value.
+            setActiveDataSelection(DataSelection.SOURCES);
             sourceControl.toolbar.splitToMultipleBars(numBars);
+
+            setActiveDataSelection(DataSelection.FIELDS);
             fieldControl.toolbar.splitToMultipleBars(numBars);
+
+            setActiveDataSelection(DataSelection.PLANES);
             planeControl.toolbar.splitToMultipleBars(numBars);
         }
 
