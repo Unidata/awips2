@@ -21,6 +21,7 @@ package com.raytheon.viz.pointdata.rsc;
 
 import java.awt.Font;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -75,6 +76,8 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
+import com.raytheon.viz.pointdata.rsc.progdisc.GenericProgressiveDisclosure;
+import com.raytheon.viz.pointdata.rsc.progdisc.GenericProgressiveDisclosure.PlotItem;
 import com.raytheon.viz.pointdata.util.MetarPrecipDataContainer;
 import com.raytheon.viz.pointdata.util.MetarPrecipDataContainer.PrecipData;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -90,13 +93,14 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug 19, 2011            bsteffen    Initial creation
- * Jun 07, 2013 2070       bsteffen    Add geospatial constraints to metar
- *                                     precip requests.
- * Mar 11, 2014 #2718      randerso    Changes for GeoTools 10.5
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Aug 19, 2011  7725     bsteffen  Initial creation
+ * Jun 07, 2013  2070     bsteffen  Add geospatial constraints to metar precip
+ *                                  requests.
+ * Mar 11, 2014  2718     randerso  Changes for GeoTools 10.5
  * Nov 05, 2015 5070       randerso    Adjust font sizes for dpi scaling
+ * Nov 13, 2015  4903     bsteffen  Extract progressive disclosure
  * 
  * </pre>
  * 
@@ -110,15 +114,19 @@ public class MetarPrecipResource extends
 
     private static final int PLOT_PIXEL_SIZE = 30;
 
-    private class RenderablePrecipData extends PrecipData {
+    private class RenderablePrecipData extends PrecipData implements PlotItem {
 
-        Double distValue = 0.0;
+        public final DrawableString string;
 
-        DrawableString string = null;
-
-        public RenderablePrecipData(PrecipData data) {
+        public RenderablePrecipData(PrecipData data, DrawableString string) {
             super(data.getTimeObs(), data.getStationName(),
                     data.getPrecipAmt(), data.getLatLon().x, data.getLatLon().y);
+            this.string = string;
+        }
+
+        @Override
+        public Coordinate getLocation() {
+            return new Coordinate(string.basics.x, string.basics.y);
         }
 
     }
@@ -150,7 +158,7 @@ public class MetarPrecipResource extends
 
     private boolean reproject = false;
 
-    private Map<DataTime, List<RenderablePrecipData>> data = new HashMap<DataTime, List<RenderablePrecipData>>();
+    private Map<DataTime, GenericProgressiveDisclosure<RenderablePrecipData>> data = new HashMap<>();
 
     private IFont font = null;
 
@@ -176,19 +184,27 @@ public class MetarPrecipResource extends
         if (time == null) {
             return;
         }
-        List<RenderablePrecipData> precips = getPrecipData(time);
-        if (precips == null) {
+        GenericProgressiveDisclosure<RenderablePrecipData> disclosure = null;
+        synchronized (data) {
+            disclosure = data.get(time);
+        }
+        if (disclosure == null) {
             dataProcessJob.schedule();
             return;
         }
-        if (precips.isEmpty()) {
-            return;
-        }
-
-        RGB color = getCapability(ColorableCapability.class).getColor();
+        IExtent extent = paintProps.getView().getExtent();
         Double magnification = getCapability(MagnificationCapability.class)
                 .getMagnification();
         Double density = getCapability(DensityCapability.class).getDensity();
+        double threshold = (PLOT_PIXEL_SIZE * magnification) / density;
+        threshold = (threshold * extent.getWidth())
+                / paintProps.getCanvasBounds().width;
+        Collection<RenderablePrecipData> precips = disclosure.runDisclosure(
+                extent, threshold);
+        if (precips.isEmpty()) {
+            return;
+        }
+        RGB color = getCapability(ColorableCapability.class).getColor();
 
         if (font == null) {
             font = target.initializeFont(Font.DIALOG, 8,
@@ -198,37 +214,23 @@ public class MetarPrecipResource extends
 
         List<DrawableString> strings = new ArrayList<DrawableString>();
 
-        IExtent extent = paintProps.getView().getExtent();
-
-        double threshold = (PLOT_PIXEL_SIZE * magnification) / density;
-        threshold = (threshold * extent.getWidth())
-                / paintProps.getCanvasBounds().width;
-
         for (RenderablePrecipData data : precips) {
-            if (!extent.contains(new double[] { data.string.basics.x,
-                    data.string.basics.y })) {
-                continue;
-            }
-            if (data.distValue >= threshold) {
-                // This is easier then changing it when the capability changes.
-                data.string.font = this.font;
-                data.string.setText(data.string.getText(), color);
-                strings.add(data.string);
-            }
+            // This is easier then changing it when the capability changes.
+            data.string.font = this.font;
+            data.string.setText(data.string.getText(), color);
+            strings.add(data.string);
         }
 
         target.drawStrings(strings);
     }
 
     private List<RenderablePrecipData> getPrecipData(DataTime time) {
-        List<RenderablePrecipData> currData = null;
+        GenericProgressiveDisclosure<RenderablePrecipData> currData = null;
         synchronized (data) {
             currData = data.get(time);
         }
         if (currData != null) {
-            synchronized (currData) {
-                return new ArrayList<RenderablePrecipData>(currData);
-            }
+            return currData.getAll();
         }
         return null;
     }
@@ -336,7 +338,9 @@ public class MetarPrecipResource extends
             GridEnvelope2D envelope = GridGeometry2D.wrap(
                     descriptor.getGridGeometry()).getGridRange2D();
             synchronized (data) {
-                for (List<RenderablePrecipData> dataList : data.values()) {
+                for (GenericProgressiveDisclosure<RenderablePrecipData> disclosure : data
+                        .values()) {
+                    List<RenderablePrecipData> dataList = disclosure.getAll();
                     Iterator<RenderablePrecipData> it = dataList.iterator();
                     while (it.hasNext()) {
                         RenderablePrecipData precip = it.next();
@@ -425,22 +429,20 @@ public class MetarPrecipResource extends
         rcMap.put("location.stationId", rc);
         MetarPrecipDataContainer container = new MetarPrecipDataContainer(
                 resourceData.getDuration(), rcMap);
-        for (Entry<DataTime, List<RenderablePrecipData>> entry : data
+        for (Entry<DataTime, GenericProgressiveDisclosure<RenderablePrecipData>> entry : data
                 .entrySet()) {
             DataTime time = entry.getKey();
             if (time.getMatchValid() < earliestTime) {
                 // No need to reprocess times after the earliest update.
                 continue;
             }
-            synchronized (entry.getValue()) {
-                Iterator<RenderablePrecipData> iter = entry.getValue()
-                        .iterator();
-                while (iter.hasNext()) {
-                    if (newStations.contains(iter.next().getStationName())) {
-                        iter.remove();
-                    }
+            GenericProgressiveDisclosure<RenderablePrecipData> newValue = new GenericProgressiveDisclosure<>();
+            for (RenderablePrecipData data : entry.getValue().getAll()) {
+                if (!newStations.contains(data.getStationName())) {
+                    newValue.add(data);
                 }
             }
+            entry.setValue(newValue);
             addData(time, container.getBasePrecipData(time));
             addData(time, container.getDerivedPrecipData(time));
             if (monitor.isCanceled()) {
@@ -523,10 +525,9 @@ public class MetarPrecipResource extends
     private void addData(DataTime time, List<PrecipData> precips) {
         if (precips.isEmpty()) {
             if (!dataTimes.contains(time)) {
+                GenericProgressiveDisclosure<RenderablePrecipData> disclosure = new GenericProgressiveDisclosure<RenderablePrecipData>();
                 synchronized (data) {
-                    List<RenderablePrecipData> newPrecips = Collections
-                            .emptyList();
-                    data.put(time, newPrecips);
+                    data.put(time, disclosure);
                 }
                 dataTimes.add(time);
             }
@@ -544,8 +545,7 @@ public class MetarPrecipResource extends
 
         });
 
-        List<RenderablePrecipData> newPrecips = new ArrayList<RenderablePrecipData>(
-                precips.size());
+        GenericProgressiveDisclosure<RenderablePrecipData> newPrecips = new GenericProgressiveDisclosure<RenderablePrecipData>();
 
         RGB color = getCapability(ColorableCapability.class).getColor();
 
@@ -558,32 +558,19 @@ public class MetarPrecipResource extends
             if (precip instanceof RenderablePrecipData) {
                 data = (RenderablePrecipData) precip;
             } else {
-                data = new RenderablePrecipData(precip);
                 double[] px = descriptor.worldToPixel(new double[] {
                         precip.getLatLon().x, precip.getLatLon().y });
                 if (!envelope.contains(px[0], px[1])) {
                     continue;
                 }
-                data.string = new DrawableString(formatPrecip(precips.get(i)
-                        .getPrecipAmt()), color);
-                data.string.setCoordinates(px[0], px[1], px[2]);
-                data.string.verticallAlignment = VerticalAlignment.MIDDLE;
-                data.string.horizontalAlignment = HorizontalAlignment.CENTER;
+                DrawableString string = new DrawableString(formatPrecip(precips
+                        .get(i).getPrecipAmt()), color);
+                string.setCoordinates(px[0], px[1], px[2]);
+                string.verticallAlignment = VerticalAlignment.MIDDLE;
+                string.horizontalAlignment = HorizontalAlignment.CENTER;
+                data = new RenderablePrecipData(precip, string);
             }
-            double bestDist = Double.MAX_VALUE;
-            for (RenderablePrecipData exist : newPrecips) {
-                double xDist = exist.string.basics.x - data.string.basics.x;
-                double yDist = exist.string.basics.y - data.string.basics.y;
-                double dist = Math.hypot(xDist, yDist);
-                if (dist < bestDist) {
-                    bestDist = dist;
-                }
-            }
-            data.distValue = bestDist;
-            // this checks removes duplicates
-            if (bestDist > 0) {
-                newPrecips.add(data);
-            }
+            newPrecips.add(data);
         }
         synchronized (data) {
             data.put(time, newPrecips);
