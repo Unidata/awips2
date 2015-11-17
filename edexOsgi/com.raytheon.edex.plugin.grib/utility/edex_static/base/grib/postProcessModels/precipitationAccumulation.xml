@@ -18,6 +18,7 @@
     <accumulation>
         <model>GFS215|GFS217|GFS20-.*</model>
         <create forecastPeriodHours="3" accumulationParam="TP3hr" minuendParam="TP6hr" subtrahendParam="TP3hr" />
+        <create forecastPeriodHours="3" accumulationParam="CP3hr" minuendParam="CP6hr" subtrahendParam="CP3hr" />
     </accumulation>
 
     <accumulation>
