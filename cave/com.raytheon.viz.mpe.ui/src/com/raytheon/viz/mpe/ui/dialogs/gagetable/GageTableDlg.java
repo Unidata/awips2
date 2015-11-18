@@ -106,6 +106,7 @@ import com.raytheon.viz.mpe.ui.dialogs.gagetable.xml.GageTableSortType;
  * Jan 28, 2014 16994      snaples    Updated populateGridCombo to get correct filename prefix for matching up selection.
  * Feb 02, 2014  16201     snaples    Added saved data flag support
  * Apr 16, 2014  3025      mpduff     Fix sort method.
+ * Nov 18, 2015 18093      snaples    Fixed GridComboListener to trigger table update when changing compare column.
  * 
  * </pre>
  * 
@@ -144,7 +145,7 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
     /**
      * The grid selection combo box.
      */
-    private final JComboBox gridCombo = new JComboBox();
+    private final JComboBox<String> gridCombo = new JComboBox<String>();
 
     private final GridComboListener gridComboListener = new GridComboListener();
 
@@ -219,6 +220,9 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
         hrFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
         dateFormat = new SimpleDateFormat("MMM dd, yyyy");
         dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        AppsDefaults appsDefaults = AppsDefaults.getInstance();
+
+        selectedGrid = appsDefaults.getToken("mpe_selected_grid_gagediff");
 
         // Get a list of non-data column names
         for (String colName : GageTableConstants.BASE_COLUMNS) {
@@ -239,9 +243,6 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
         displayManager = MPEDisplayManager.getCurrent();
         currentDate = displayManager.getCurrentEditDate();
 
-        AppsDefaults appsDefaults = AppsDefaults.getInstance();
-
-        selectedGrid = appsDefaults.getToken("mpe_selected_grid_gagediff");
         dataManager.setSelectedGrid(selectedGrid);
 
         columnData = dataManager.getColumnDataList();
@@ -1022,8 +1023,11 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
                     }
                 }
             }
+            // setting the selected index ensures that when we refresh the combo box it displays the correct field
+            dataManager.setSelectedGridIndex(gridComboSelection);
+            tableModel.refreshTable();
             sortAllRowsBy(tableModel, sortColumnIndex, ascending);
-
+            gridCombo.setSelectedIndex(dataManager.getSelectedGridIndex());
         }
     }
 
