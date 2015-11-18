@@ -87,12 +87,13 @@ import org.eclipse.ui.part.ViewPart;
 
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
 import com.raytheon.uf.common.localization.FileUpdatedMessage.FileChangeType;
+import com.raytheon.uf.common.localization.ILocalizationFile;
+import com.raytheon.uf.common.localization.ILocalizationPathObserver;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.LocalizationNotificationObserver;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -143,6 +144,7 @@ import com.raytheon.uf.viz.localization.service.ILocalizationService;
  * Oct 13, 2015  4410      bsteffen    Allow localization perspective to mix
  *                                     files for multiple Localization Types.
  * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Nov 18, 2015 4834       njensen     Updated to register file observing on PathManager
  * 
  * </pre>
  * 
@@ -151,7 +153,8 @@ import com.raytheon.uf.viz.localization.service.ILocalizationService;
  */
 
 public class FileTreeView extends ViewPart implements IPartListener2,
-        ILocalizationService, IResourceChangeListener {
+        ILocalizationService, IResourceChangeListener,
+        ILocalizationPathObserver {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(FileTreeView.class);
 
@@ -313,8 +316,9 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         waitCursor = display.getSystemCursor(SWT.CURSOR_WAIT);
 
         site.getPage().addPartListener(this);
-        ((LocalizationNotificationObserver) PathManagerFactory.getPathManager()
-                .getObserver()).addGlobalFileChangeObserver(this);
+
+        PathManagerFactory.getPathManager().addLocalizationPathObserver(
+                IPathManager.SEPARATOR, this);
 
         ResourcesPlugin.getWorkspace().addResourceChangeListener(this,
                 IResourceChangeEvent.POST_CHANGE);
@@ -341,9 +345,8 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         }
 
         getSite().getPage().removePartListener(this);
-        ((LocalizationNotificationObserver) PathManagerFactory.getPathManager()
-                .getObserver()).removeGlobalFileChangeObserver(this);
-
+        PathManagerFactory.getPathManager()
+                .removeLocalizationPathObserver(this);
         ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
     }
 
@@ -1610,7 +1613,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         if (file != null) {
             if (((file.exists() == false) && ((type == FileChangeType.ADDED) || (type == FileChangeType.UPDATED)))
                     || (file.exists() && (type == FileChangeType.DELETED))) {
-                System.out.println("Got weird state in update for " + file
+                System.err.println("Got weird state in update for " + file
                         + ": exists=" + file.exists() + ", changeType="
                         + message.getChangeType());
             }
@@ -1783,5 +1786,31 @@ public class FileTreeView extends ViewPart implements IPartListener2,
      */
     public boolean isShown(LocalizationLevel level) {
         return showSet.contains(level);
+    }
+
+    @Override
+    public void fileChanged(ILocalizationFile file) {
+        /*
+         * TODO rewrite this whole method to not use fileUpdated() and correctly
+         * refresh/update nodes as necessary
+         */
+        FileChangeType t = null;
+        if (ILocalizationFile.NON_EXISTENT_CHECKSUM.equals(file.getCheckSum())) {
+            t = FileChangeType.DELETED;
+        } else {
+            /*
+             * TODO We don't have the previous checksum available here so we
+             * can't easily identify this change as an add vs update. We need to
+             * handle this cleanly somehow.
+             * 
+             * Temporary fix: Go with ADDED
+             */
+            t = FileChangeType.ADDED;
+        }
+
+        FileUpdatedMessage fum = new FileUpdatedMessage(file.getContext(),
+                file.getName(), t, file.getTimeStamp().getTime(),
+                file.getCheckSum());
+        fileUpdated(fum);
     }
 }
