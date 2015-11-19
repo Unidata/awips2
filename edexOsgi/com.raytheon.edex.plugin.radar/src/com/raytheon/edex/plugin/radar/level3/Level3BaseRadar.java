@@ -756,21 +756,18 @@ public class Level3BaseRadar {
             byte[] msg = new byte[120];
             InputStream byt;
             if (uncompressedSize + msg.length != theRawRadarByteArray.length) {
-                InputStream ins = null;
                 try {
                     theRadarData.reset();
                     theRadarData.readFully(msg);
-                    ins = new BZip2InputStream(theRadarData, false);
-                    uncompressed = new byte[uncompressedSize];
-                    ins.read(uncompressed);
+                    try (DataInputStream di = new DataInputStream(
+                            new BZip2InputStream(theRadarData, false))) {
+                        uncompressed = new byte[uncompressedSize];
+                        di.readFully(uncompressed);
+                    }
                 } catch (IOException e) {
                     theHandler.handle(Priority.ERROR,
                             "Error decompressing product: ", e);
                     return;
-                } finally {
-                    if (ins != null) {
-                        ins.close();
-                    }
                 }
                 theRawRadarByteArray = new byte[120 + uncompressed.length];
                 System.arraycopy(msg, 0, theRawRadarByteArray, 0, 120);
