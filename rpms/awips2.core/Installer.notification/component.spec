@@ -25,12 +25,14 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Bryan Kowal
 
 AutoReq: no
-requires: boost >= 1.33.1
-requires: awips2-qpid-lib
-provides: awips2-notification
+Requires: boost >= 1.33.1
+Requires: awips2-qpid-lib
+Provides: awips2-notification
+
+BuildRequires: awips2-java
+BuildRequires: awips2-qpid-lib
 
 %description
 AWIPS II Notification Distribution - the AWIPS II Notification application.

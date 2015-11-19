@@ -17,14 +17,12 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Bryan Kowal
 
 AutoReq: no
 Requires: awips2-qpid-lib
-requires: awips2-python
-requires: awips2-python
-provides: awips2-ldm
-provides: awips2-base-component
+Requires: awips2-python
+Provides: awips2-ldm
+Provides: awips2-base-component
 
 %description
 AWIPS II LDM Distribution - Contains AWIPS II LDM.

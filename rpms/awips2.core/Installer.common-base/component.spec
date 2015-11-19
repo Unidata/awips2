@@ -18,13 +18,15 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Bryan Kowal
 
 AutoReq: no
-provides: awips2-common-base
-requires: awips2-base
-requires: netcdf = 4.1.2
-requires: netcdf-devel = 4.1.2
+Provides: awips2-common-base
+Requires: awips2-base
+Requires: netcdf = 4.1.2
+Requires: netcdf-devel = 4.1.2
+
+BuildRequires: awips2-ant
+BuildRequires: awips2-java
 
 %description
 AWIPS II Common Base - Contains common plugins utilized by both EDEX and CAVE.

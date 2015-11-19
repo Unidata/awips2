@@ -1,71 +1,5 @@
 #!/bin/bash
 
-function buildJava()
-{
-   pushd . > /dev/null 2>&1
-
-   cd ${WORKSPACE}/installers/RPMs/java-1.7
-   /bin/bash build.sh
-   if [ $? -ne 0 ]; then
-      return 1
-   fi
-
-   popd > /dev/null 2>&1
-}
-
-function buildQPID()
-{
-   # Arguments:
-   #   ${1} == optionally -ade
-
-   pushd . > /dev/null 2>&1
-
-   # ensure that the destination rpm directories exist
-   if [ ! -d ${AWIPSII_TOP_DIR}/RPMS/noarch ]; then
-      mkdir -p ${AWIPSII_TOP_DIR}/RPMS/noarch
-      if [ $? -ne 0 ]; then
-         exit 1
-      fi
-   fi
-
-   # ensure that the destination rpm directories exist
-   if [ ! -d ${AWIPSII_TOP_DIR}/RPMS/x86_64 ]; then
-      mkdir -p ${AWIPSII_TOP_DIR}/RPMS/x86_64
-      if [ $? -ne 0 ]; then
-         exit 1
-      fi
-   fi
-   
-   cd ${WORKSPACE}/installers/RPMs/qpid-lib-0.32
-   if [ $? -ne 0 ]; then
-      echo "ERROR: Failed to build the qpid rpms."
-      return 1
-   fi
-
-   /bin/bash build.sh
-   if [ $? -ne 0 ]; then
-      echo "ERROR: Failed to build the qpid rpms."
-      return 1
-   fi
-
-   #build 0.32
-   export AWIPS_II_TOP_DIR
-   cd ${WORKSPACE}/installers/RPMs/qpid-java-broker-0.32
-   if [ $? -ne 0 ]; then
-      echo "ERROR: Failed to build Qpid Broker v0.32."
-      return 1
-   fi
-   /bin/bash build.sh
-   if [ $? -ne 0 ]; then
-      echo "ERROR: Failed to build Qpid Broker v0.32."
-      return 1
-   fi
-
-   popd > /dev/null 2>&1
-
-   return 0
-}
-
 function buildEDEX()
 {
    cd ${WORKSPACE}/rpms/awips2.edex/deploy.builder
@@ -147,7 +81,7 @@ function buildLocalizationRPMs()
 
       echo "Building localization rpm for site: ${site}."
 
-      rpmbuild -ba \
+      rpmbuild -bb \
          --define '_topdir %(echo ${AWIPSII_TOP_DIR})' \
          --define '_component_version %(echo ${AWIPSII_VERSION})' \
          --define '_component_release %(echo ${AWIPSII_RELEASE})' \
