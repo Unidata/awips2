@@ -90,7 +90,7 @@ function buildCAVERPM()
    fi
 
    # Build The RPM.
-   rpmbuild -ba --target=${TARGET_BUILD_ARCH} \
+   rpmbuild -bb --target=${TARGET_BUILD_ARCH} \
       --define '_topdir %(echo ${AWIPSII_TOP_DIR})' \
       --define '_component_version %(echo ${AWIPSII_VERSION})' \
       --define '_component_release %(echo ${AWIPSII_RELEASE})' \

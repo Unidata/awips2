@@ -15,11 +15,13 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Bryan Kowal
 
 AutoReq: no
-provides: awips2-rcm
-requires: awips2-java
+Provides: awips2-rcm
+Requires: awips2-java
+
+BuildRequires: awips2-ant
+BuildRequires: awips2-java
 
 %description
 AWIPS II Radar Server Installation - Sets Up AWIPS II Radar Server.

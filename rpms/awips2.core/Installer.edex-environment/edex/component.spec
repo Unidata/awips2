@@ -13,18 +13,20 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Bryan Kowal
 
 AutoReq: no
-provides: awips2-edex-environment
-requires: awips2-edex-base
-requires: awips2-postgresql
-requires: awips2-qpid-java-broker
-requires: awips2-qpid-java-client
-requires: awips2-qpid-java-common
-requires: awips2-python
-requires: awips2-java
-requires: awips2-psql
+Provides: awips2-edex-environment
+Requires: awips2-edex-base
+Requires: awips2-postgresql
+Requires: awips2-qpid-java-broker
+Requires: awips2-qpid-java-client
+Requires: awips2-qpid-java-common
+Requires: awips2-python
+Requires: awips2-java
+Requires: awips2-psql
+
+BuildRequires: awips2-ant
+BuildRequires: awips2-java
 
 %description
 The edex environment version of awips2-edex consists of
@@ -111,11 +113,9 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-_QPID_VERSION="0.32"
-_POSTGRESQL_VERSION="9.3.10"
 RPM_PROJECT="%{_baseline_workspace}/rpms"
-POSTGRES_INITD="%{_baseline_workspace}/foss/postgresql-${_POSTGRESQL_VERSION}/scripts/init.d/edex_postgres"
-QPID_INITD="%{_baseline_workspace}/foss/qpid-java-broker-${_QPID_VERSION}/src/patch/qpid-java-broker-${_QPID_VERSION}/wrapper/qpidd"
+POSTGRES_INITD="%{_baseline_workspace}/installers/RPMs/postgresql/scripts/init.d/edex_postgres"
+QPID_INITD="%{_baseline_workspace}/installers/RPMs/qpid-java-broker/scripts/init.d/qpidd"
 EDEX_INITD="${RPM_PROJECT}/awips2.edex/Installer.edex/scripts/init.d/edex_camel"
 HTTPD_PYPIES_INITD="${RPM_PROJECT}/awips2.core/Installer.httpd-pypies/configuration/etc/init.d/httpd-pypies"
 
