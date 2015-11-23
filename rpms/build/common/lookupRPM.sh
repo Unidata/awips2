@@ -87,10 +87,6 @@ function lookupRPM()
       export RPM_SPECIFICATION="${installer_dir}/jep/"
       return 0
    fi
-   if [ "${1}" = "awips2-python-pil" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.pil"
-      return 0
-   fi
    if [ "${1}" = "awips2-python-pmw" ]; then
       export RPM_SPECIFICATION="${python_site__dir}/Installer.pmw"
       return 0
