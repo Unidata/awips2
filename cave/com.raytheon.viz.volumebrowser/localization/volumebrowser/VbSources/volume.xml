@@ -99,4 +99,6 @@
     <vbSource key="NCOM-HAWAII" category="Volume/NCOM" views="PLANVIEW TIMESERIES" />
     <vbSource key="NCOM-SOCAL" category="Volume/NCOM" views="PLANVIEW TIMESERIES" />
     <vbSource key="NCOM-USEAST" category="Volume/NCOM" views="PLANVIEW TIMESERIES" />
+    <vbSource key="GEFS" name="GEFS" category="Ensemble" views="PLANVIEW TIMESERIES" />
+    <vbSource key="SREF212" name="SREF" category="Ensemble" views="PLANVIEW TIMESERIES"/>
 </vbSourceList>
