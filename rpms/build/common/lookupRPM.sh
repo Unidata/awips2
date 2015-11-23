@@ -127,10 +127,6 @@ function lookupRPM()
       export RPM_SPECIFICATION="${python_site__dir}/Installer.werkzeug"
       return 0
    fi
-   if [ "${1}" = "awips2-python-pygtk" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.pygtk"
-      return 0
-   fi
    if [ "${1}" = "awips2-python-pycairo" ]; then
       export RPM_SPECIFICATION="${python_site__dir}/Installer.pycairo"
       return 0
