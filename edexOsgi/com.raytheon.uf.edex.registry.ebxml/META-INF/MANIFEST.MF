@@ -60,6 +60,4 @@ Export-Package: com.raytheon.uf.edex.registry.ebxml,
  com.raytheon.uf.edex.registry.ebxml.web.security,
  com.raytheon.uf.edex.registry.events
 Import-Package: javax.servlet,
- javax.servlet.http,
- org.eclipse.jetty.io.nio,
- org.eclipse.jetty.util.security
+ javax.servlet.http
