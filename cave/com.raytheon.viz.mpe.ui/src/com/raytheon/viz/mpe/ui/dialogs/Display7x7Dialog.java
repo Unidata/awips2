@@ -68,13 +68,15 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 02, 2008            randerso    Initial creation
- * May 01, 2013  15920     lbousaidi   gages get updated after clicking on 
- *                                     Regenerate Hour Fields without closing 7x7 Gui.
- * Jun 05, 2013  15961     lbousaidi    added routines for set Bad/set not bad buttons
- *                                     to reflect the state of the gages.                                   
- * Jul 02, 2013   2160     mpduff      Changed to not call deprecated resource.getData() method.
- * Feb 2, 2014  16201      snaples      Added saved data flag support
+ * Sep 02, 2008             randerso    Initial creation
+ * May 01, 2013  15920      lbousaidi   gages get updated after clicking on 
+ *                                      Regenerate Hour Fields without closing 7x7 Gui.
+ * Jun 05, 2013  15961      lbousaidi   added routines for set Bad/set not bad buttons
+ *                                      to reflect the state of the gages.                                   
+ * Jul 02, 2013   2160      mpduff      Changed to not call deprecated resource.getData() method.
+ * Feb 2, 2014   16201      snaples     Added saved data flag support
+ * Oct 30, 2015  18106      snaples     Changed order of populateGrid and modified updateGageData to
+ *                                      fix issue with gage data not being in sync with grid data.
  * 
  * </pre>
  * 
@@ -163,7 +165,9 @@ public class Display7x7Dialog extends CaveSWTDialog {
         super(parentShell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Display 7 X 7 Gage Editing Utility");
         mgr = MPEDisplayManager.getCurrent();
+        selectedGage = null;
         selectedGage = data;
+        gData = null;
         gData = MPEDataManager.getInstance().getEditedGage(selectedGage);
         ArrayList<String> bg = MPEDataManager.getInstance().readBadGageList();
         if (bg.size() > 0) {
@@ -183,7 +187,6 @@ public class Display7x7Dialog extends CaveSWTDialog {
     @Override
     protected void initializeComponents(Shell shell) {
         font = new Font(shell.getDisplay(), "Courier", 10, SWT.NORMAL);
-
         undoEn = false;
 
         if (gData != null) {
@@ -205,13 +208,13 @@ public class Display7x7Dialog extends CaveSWTDialog {
         extent = new Rectangle(xOrig, yOrig, ht, width);
 
         populateGrid();
-
         createProductListComp();
         createGageGridComp();
         createGageComp();
         create7x7GridComp();
         createScaleComp();
         createButtonBar();
+        updateGageData(selectedGage);
     }
 
     @Override
@@ -709,6 +712,7 @@ public class Display7x7Dialog extends CaveSWTDialog {
         }
         gridComp.addPaintListener(new PaintListener() {
 
+            @SuppressWarnings("deprecation")
             @Override
             public void paintControl(PaintEvent e) {
                 cvt = parameters.getDataToDisplayConverter();
@@ -823,7 +827,9 @@ public class Display7x7Dialog extends CaveSWTDialog {
     }
 
     public void updateGageData(MPEGageData data) {
+        selectedGage = null;
         selectedGage = data;
+        gData = null;
         gData = MPEDataManager.getInstance().getEditedGage(selectedGage);
 
         if (gData != null) {

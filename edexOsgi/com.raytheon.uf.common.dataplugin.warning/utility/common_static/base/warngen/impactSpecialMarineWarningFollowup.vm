@@ -1,17 +1,17 @@
-#####################################################
-## SPECIAL MARINE WARNING FOLLOWUP                 ##
-## FOR CR IMPACT BASED WARNING INITIATIVE          ## 
-## CREATED BY PHIL KURIMSKI - WFO DTX              ##
-##        UPDATED KURIMSKI SEP 17 2013 OB13.5.2-4  ##
-##        UPDATED BOOKBINDER 9-18-2013 Implemented config.vm
-##         PHIL KURIMSKI -- JUN 26 2014 OB14.2.2-9 ##
-##                          ADDED DSS EVENTS       ##
-## UPDATED PHIL KURIMSKI -- FEB 18 2015 Implemented##
-##                          updated CTAs           ##
-## MIKE REGA - 2-26-2015 removed wind/hail/spout   ##
-##             tags in CAN and EXP                 ##
-## UPDATED PHIL KURIMSKI -- MAR 23 2015 Mixed Case ##
-#####################################################
+########################################################################
+## SPECIAL MARINE WARNING FOLLOWUP                                    ##
+## FOR CR IMPACT BASED WARNING INITIATIVE                             ## 
+## CREATED BY PHIL KURIMSKI - WFO GRB                                 ##
+## MODIFIED BY: KURIMSKI SEP 17 2013 OB13.5.2-4                       ##
+##              BOOKBINDER 9-18-2013 Implemented config.vm            ##  
+##              KURIMSKI -- JUN 26 2014 OB14.2.2-9 ADDED DSS EVENTS   ##
+##              KURIMSKI -- FEB 18 2015 Implemented updated CTAs      ##
+##              MIKE REGA - 2-26-2015 removed wind/hail/spout tags    ##
+##                                    in CAN and EXP                  ##               
+## UPDATED PHIL KURIMSKI -- MAR 23 2015 Mixed Case                    ##
+##              BOOKBINDER - 9/4/2015 Fixed line of storms grammar    ##
+##              Kurimski -- Oct 22 2015 Fixed CAN/EXP section combo   ##
+########################################################################
 #parse("config.vm")
 ############################################
 ## Set null variables used in the template
@@ -127,6 +127,16 @@ ${area.name}...
 #######################################################################
 ## End of code for raw marine zone output from the shapefiles
 #######################################################################
+## The following code will create a string of marine zone fips codes
+## which will be important in combining marine zones
+## This has to be done again since the CAN/CON section uses cancelareas
+#######################################################################
+## Set the fipsstring variable to null for marine zone combinations
+#######################################################################
+#set($fipsstring = "")
+#foreach (${area} in ${areas})
+#set($fipsstring = $fipsstring + $area.fips + "-")
+#end
 #######################################################################
 ## Parse in the marineCombo.vm file which contains marine zone combinations
 ## Uncomment the parse command if you are combining your marine zones
@@ -488,7 +498,7 @@ ${area.name}...
 #set($specialEvent = "This ${eventType}")
 #set($reportType2 = "The ${eventType} was")
 #if(${stormType} == "line")
-	#set($stormline = "a line of ${eventType}s")
+	#set($stormline = "${eventType}s")
 	#set($pathheader = "${eventType}s")
 	#set($specialEvent = "These ${eventType}s")
 	#set($reportType2 = "The ${eventType}s were")
@@ -702,7 +712,7 @@ Frequent lightning is occurring with this storm. If caught on the open water sta
 #end
 #end
 #if(${list.contains(${bullets}, "reportCTA")})
-Report severe weather to the National Weather Service office.
+Report severe weather to the Coast Guard or the National Weather Service.
 
 #end
 #if(${ctaSelected} == "YES")

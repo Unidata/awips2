@@ -207,9 +207,9 @@ HDS	^(YAW[BCDGJM][0-9][0-9]) KKCI (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#
 	FILE	-overwrite -log -close -edex	/data_store/\5/(\2:yyyy)(\2:mm)\2/\3/\6/GRID\7/\9Z_\(10)_\(11)-\1_KKCI_\2\3\4_(seq).\5.%Y%m%d%H
 
 # AWIPS1:	GRID    ^YVW[ABCDGJM][0-9][0-9].*KKCI   /Grid/SBN/Raw
-# YVWA41 KKCI 012200 /mRUC2 !grib/ncep/RUC2/#255/201102012200/F000/TURB/7010 m above MSL/
+# YVWA41 KKCI 012200 /mRUC2 !grib/ncep/RUC2/#255/201102012200F000/CAT/7010 m above MSL/
 
-HDS	^(YVW[ABCDGJM][0-9][0-9]) KKCI (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
+ANY	^(YVW[ABCDGJMPS][0-9][0-9]) KKCI (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
 	FILE	-overwrite -log -close -edex	/data_store/\5/(\2:yyyy)(\2:mm)\2/\3/\6/GRID\7/\9Z_\(10)_\(11)-\1_KKCI_\2\3\4_(seq).\5.%Y%m%d%H
 
 # AWIPS1:	GRID    ^[LM].[ABDHMNRSTU].*KWB.*       /Grid/SBN/rawGrib2
@@ -397,7 +397,7 @@ ANY	^(ZDIA98) (....) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9
 HRS	^(YA)([WX])(A..) (KKCI) (..)(..)(..).*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})
 	FILE	-overwrite -log -close -edex	/data_store/\8/(\5:yyyy)(\5:mm)\5/\6/\9/GRID\(10)/\(12)Z_\(13)-\1\2\3_\4_\5\6\7_(seq).\8.%Y%m%d%H
 
-HRS	^(ZV)(W)([ADGJM]..) (KKCI) (..)(..)(..).*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})
+ANY	^(ZV)(W)([ABCDGJMPS]..) (KKCI) (..)(..)(..).*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})
 	FILE	-overwrite -log -close -edex	/data_store/\8/(\5:yyyy)(\5:mm)\5/\6/\9/GRID\(10)/\(12)Z_\(13)-\1\2\3_\4_\5\6\7_(seq).\8.%Y%m%d%H
 #
 # Addition for 3KM Alaska RTMA

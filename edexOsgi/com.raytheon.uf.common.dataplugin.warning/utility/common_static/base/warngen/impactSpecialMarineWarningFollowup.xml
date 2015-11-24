@@ -191,7 +191,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="nonThunderstormCTA" bulletText="Non thunderstorm winds - mariners can expect gusty winds.." parseString="MARINERS CAN EXPECT GUSTY WINDS AND INCREASING WAVES"/>
   <bullet bulletName="waterspoutCTA" bulletText="Waterspout CTA" parseString="CREATE LOCALLY HAZARDOUS SEAS. SEEK SAFE HARBOR IMMEDIATELY"/>
   <bullet bulletName="lightningCTA" bulletText="Frequent lightning CTA" parseString="FREQUENT LIGHTNING IS OCCURRING WITH"/>
-  <bullet bulletName="reportCTA" bulletText="Report severe wx" parseString="REPORT SEVERE WEATHER TO THE NATIONAL WEATHER SERVICE"/>
+  <bullet bulletName="reportCTA" bulletText="Report severe wx" parseString="REPORT SEVERE WEATHER TO THE"/>
  </bullets>
 </bulletActionGroup>
 <bulletActionGroup action="COR" phen="MA" sig="W">
@@ -250,7 +250,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="nonThunderstormCTA" bulletText="Non thunderstorm winds - mariners can expect gusty winds.." parseString="MARINERS CAN EXPECT GUSTY WINDS AND INCREASING WAVES"/>
   <bullet bulletName="waterspoutCTA" bulletText="Waterspout CTA" parseString="CREATE LOCALLY HAZARDOUS SEAS. SEEK SAFE HARBOR IMMEDIATELY"/>
   <bullet bulletName="lightningCTA" bulletText="Frequent lightning CTA" parseString="FREQUENT LIGHTNING IS OCCURRING WITH"/>
-  <bullet bulletName="reportCTA" bulletText="Report severe wx" parseString="REPORT SEVERE WEATHER TO THE NATIONAL WEATHER SERVICE"/>
+  <bullet bulletName="reportCTA" bulletText="Report severe wx" parseString="REPORT SEVERE WEATHER TO THE"/>
  </bullets>
 </bulletActionGroup>
 </bulletActionGroups>

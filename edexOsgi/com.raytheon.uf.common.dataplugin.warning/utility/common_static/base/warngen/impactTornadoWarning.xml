@@ -16,6 +16,8 @@
      Evan Bookbinder 10-24-2014 Fixed parse strings for Base TOR option for COR
                                 Fixed parseString for SqLn embedded TOR for COR
      Tomalak 3-24-2015 Converted Upper to Mixed Case for Impacts                           
+     Evan Bookbinder 6-15-2015  Fixed incorrect softball and grapefruit hail sizes
+     Phil Kurimski   10-20-2015 Added waterspout option to basis
 -->
 
 <warngenConfig>
@@ -96,6 +98,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="lawEnforcement" bulletText="Law enforcement reported a tornado" bulletGroup="group1" parseString="SOURCE...LAW ENFORCEMENT"/>
   <bullet bulletName="emergencyManagement" bulletText="Emergency management reported a tornado" bulletGroup="group1" parseString="SOURCE...EMERGENCY MANAGEMENT"/>
   <bullet bulletName="public" bulletText="Public reported a tornado" bulletGroup="group1" parseString="SOURCE...PUBLIC"/>
+  <bullet bulletName="waterspout" bulletText="Waterspout moving onshore" bulletGroup="group1" parseString="waterspout"/>
   <bullet bulletName="spotterFunnelCloud" bulletText="Spotters reported a funnel cloud" bulletGroup="group1" parseString="&quot;SOURCE...WEATHER SPOTTERS&quot;,&quot;FUNNEL CLOUD&quot;"/>
 <!-- HAIL THREATS FOR TESTBED OFFICES UNCOMMENT IF NEEDED -->
   <bullet bulletText="" bulletType="title"/>
@@ -123,9 +126,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="tennisBallHail" bulletText="Tennis ball hail (2 1/2&quot;)" bulletGroup="group2" parseString="2.50IN"/>
   <bullet bulletName="baseballHail" bulletText="Baseball size hail (2 3/4&quot;)" bulletGroup="group2" parseString="2.75IN"/>
   <bullet bulletName="threeinchHail" bulletText="Three inch hail (3&quot;)" bulletGroup="group2" parseString="3.00IN"/>
-  <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4&quot;)" bulletGroup="group2" parseString="4.00IN"/>
-  <bullet bulletName="softballHail" bulletText="Softball size hail (4 1/4&quot;)" bulletGroup="group2" parseString="4.25IN"/>
-  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletName="softballHail" bulletText="Softball size hail (4&quot;)" bulletGroup="group2" parseString="4.00IN"/>  
+  <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4 1/2&quot;)" bulletGroup="group2" parseString="4.50IN"/>  <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="****** ADDITIONAL REPORTS *******" bulletType="title"/>
   <bullet bulletName="extraReportTornado" bulletText="Select to include additional tornado/damage information..."/>  
   <bullet bulletText="" bulletType="title"/>
@@ -168,6 +170,7 @@ do not have mobile homes. If you wish to switch defaults or provide a single opt
   <bullet bulletName="lawEnforcement" bulletText="Law enforcement reported a tornado" bulletGroup="group1" parseString="SOURCE...LAW ENFORCEMENT"/>
   <bullet bulletName="emergencyManagement" bulletText="Emergency management reported a tornado" bulletGroup="group1" parseString="SOURCE...EMERGENCY MANAGEMENT"/>
   <bullet bulletName="public" bulletText="Public reported a tornado" bulletGroup="group1" parseString="SOURCE...PUBLIC"/>
+  <bullet bulletName="waterspout" bulletText="Waterspout moving onshore" bulletGroup="group1" parseString="waterspout"/>
   <bullet bulletName="spotterFunnelCloud" bulletText="Spotters reported a funnel cloud" bulletGroup="group1" parseString="&quot;SOURCE...WEATHER SPOTTERS&quot;,&quot;FUNNEL CLOUD&quot;"/>
   <bullet bulletText="" bulletType="title"/>
   <!-- Use the following title for Hail Threats -->
@@ -194,8 +197,8 @@ do not have mobile homes. If you wish to switch defaults or provide a single opt
   <bullet bulletName="tennisBallHail" bulletText="Tennis ball hail (2 1/2&quot;)" bulletGroup="group2" parseString="2.50IN"/>
   <bullet bulletName="baseballHail" bulletText="Baseball size hail (2 3/4&quot;)" bulletGroup="group2" parseString="2.75IN"/>
   <bullet bulletName="threeinchHail" bulletText="Three inch hail (3&quot;)" bulletGroup="group2" parseString="3.00IN"/>
-  <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4&quot;)" bulletGroup="group2" parseString="4.00IN"/>
-  <bullet bulletName="softballHail" bulletText="Softball size hail (4 1/4&quot;)" bulletGroup="group2" parseString="4.25IN"/>
+  <bullet bulletName="softballHail" bulletText="Softball size hail (4&quot;)" bulletGroup="group2" parseString="4.00IN"/>  
+  <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4 1/2&quot;)" bulletGroup="group2" parseString="4.50IN"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="****** ADDITIONAL REPORTS *******" bulletType="title"/>
   <bullet bulletName="extraReportTornado" bulletText="Select to include additional tornado/damage information..."/>  

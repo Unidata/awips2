@@ -83,6 +83,7 @@ import com.raytheon.viz.mpe.ui.rsc.MPEFieldResourceData.MPEFieldFrame;
  *                                      properly when mapping to screen.	
  * Mar 10, 2014 17059      snaples      Added case for Prism data for unit conversion correction.
  * Mar 19, 2014 17109      snaples      Removed code that added an hour to SATPRE, the base file reference time has been adjusted.
+ * Nov 05, 2015 18095      lbousaidi    Fixed hour substitued for satellite field precip when drawing polygon.
  * 												 
  * </pre>
  * 
@@ -182,8 +183,18 @@ public class MPEFieldResource extends
                 subData = dataMap.get(edit.getSubDrawSource());
                 if (subData == null) {
                     try {
-                        XmrgFile subFile = MPEDisplayManager.getXmrgFile(
-                                edit.getSubDrawSource(), frame.getDate());
+                    Date date=frame.getDate(); 
+                    //SATPRE MPE file time stamp is the start time of the hour 
+                    //i.e. a 12z -13z product has a time stamp of 12z.  
+                    Calendar cal = Calendar.getInstance();
+                    cal.setTime(date);
+                    if (edit.getSubDrawSource().name().contains("satPre")) {
+                         cal.add(Calendar.HOUR, - 1);
+                    }
+
+                    XmrgFile subFile = MPEDisplayManager.getXmrgFile(
+                            edit.getSubDrawSource(), cal.getTime());
+
                         subFile.load();
                         subData = subFile.getData();
                         dataMap.put(edit.getSubDrawSource(), subData);
@@ -330,15 +341,14 @@ public class MPEFieldResource extends
             timeToLoad.setTime(currTime.getRefTime());
             timeToLoad.add(Calendar.HOUR, -i);
 
-                    	
             if (displayField==DisplayFieldData.satPre) {
             	 //SATPRE MPE file time stamp is the start time of the hour 
             	 //i.e. a 12z -13z product has a time stamp of 12z.             	
             	 timeToLoad.add(Calendar.HOUR, -1);             	 
             }
-            	 
-           
-            
+
+
+
             if (displayField.isAComparisonField() )
             {
             	ComparisonFields comparisonFields = displayField.getComparisonFields();

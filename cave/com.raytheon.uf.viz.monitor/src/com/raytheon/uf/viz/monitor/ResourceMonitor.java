@@ -22,8 +22,8 @@ package com.raytheon.uf.viz.monitor;
 
 import java.util.Collection;
 
+import com.raytheon.uf.common.jms.notification.NotificationMessage;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
-import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.monitor.events.IMonitorConfigurationEvent;
 import com.raytheon.uf.viz.monitor.events.IMonitorThresholdEvent;
 
@@ -36,7 +36,8 @@ import com.raytheon.uf.viz.monitor.events.IMonitorThresholdEvent;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 9, 2010            dhladky     Initial creation
+ * Apr  9, 2010            dhladky     Initial creation
+ * Sep 20, 2015 3873       skorolev    Replaced deprecated NotificationMessage.
  * 
  * </pre>
  * 
