@@ -28,26 +28,28 @@ import com.raytheon.uf.common.dataplugin.tcs.Radius;
 import com.raytheon.uf.common.dataplugin.tcs.TropicalCycloneSummary;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
- * TODO Add Description
+ * Static Utility methods that are useful for parsing and displaying
+ * {@link TropicalCycloneSummary}s.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Oct 30, 2010            jsanchez     Initial creation
- * Jul 23, 2014 3410       bclement    location changed to floats
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- -------------------------------------------
+ * Oct 30, 2010           jsanchez  Initial creation
+ * Jul 23, 2014  3410     bclement  location changed to floats
+ * Nov 24, 2015  5149     bsteffen  Handle case of forecast spanning midnight.
  * 
  * </pre>
  * 
  * @author jsanchez
  * @version 1.0
  */
-
-public class Util implements TCSConstants {
+public class TcsUtil implements TCSConstants {
     private static final Pattern tcmWindRadius = Pattern
             .compile(".*((\\d{2}) KT...|12 FT SEAS.)\\W{0,}\\s{0,}(\\d{1,3})NE\\s{1,}(\\d{1,3})SE\\s{1,}(\\d{1,3})SW\\s{1,}(\\d{1,3})NW.");
 
@@ -59,16 +61,6 @@ public class Util implements TCSConstants {
 
     public static TropicalCycloneSummary interplateStorm(PointDataView pdv,
             DataTime dataTime) {
-        TropicalCycloneSummary tcs = null;
-
-        float t1 = 0.0f, t2 = 0.0f, tf = 0.0f, dt = 0.0f, tc = 0.0f;
-
-        Calendar calendar = dataTime.getRefTimeAsCalendar();
-        int day = dataTime.getValidTime().get(Calendar.DAY_OF_MONTH);
-        int hour = dataTime.getValidTime().get(Calendar.HOUR_OF_DAY);
-
-        boolean tropical = true;
-        int wind = 0;
         float lat = 29.0f; // This came from TCMplotter.C
         float lon = -89.6f; // This came from TCMplotter.C
         String dTime = "Dissipated";
@@ -92,52 +84,46 @@ public class Util implements TCSConstants {
                     isTropical[size - 1].intValue() == 1 ? true : false);
         }
 
-        // Searching two storms with the time, s1 and s2 in the list.
-        // The time is between s1.time and s2.time. We need not do the
-        // interplattion
-        // if time == s1.time or time == s2.time.
-
-        // Convert the given forecast time to hours.
-        tf = dataTime.getValidTime().get(Calendar.HOUR_OF_DAY);
-
-        t1 = Integer.parseInt(displayTime[0].split("\\.")[1]);
-
-        // fore cast time is 0
-        if (dataTime.getValidTime().getTimeInMillis() == dataTime.getRefTime()
-                .getTime()) {
-            tcs = new TropicalCycloneSummary(name, pressure,
-                    longitude[0].floatValue(), latitude[0].floatValue(),
-                    displayTime[0], windSpeed[0].intValue(),
+        if (dataTime.getFcstTime() == 0) {
+            TropicalCycloneSummary tcs = new TropicalCycloneSummary(name,
+                    pressure, longitude[0].floatValue(),
+                    latitude[0].floatValue(), displayTime[0],
+                    windSpeed[0].intValue(),
                     isTropical[0].intValue() == 1 ? true : false);
             tcs.setRadiusList(loadRadiusList(pdv, 0));
             return tcs;
         }
 
+        /*
+         * Search for an index i such that the validTime falls between the time
+         * for displayTime[i - 1] and displayTime[i].
+         */
         int i = 1;
+        /*
+         * tc is a weight value(between 0 and 1) for the distance from i. So as
+         * validTime moves further from displayTime[i](and closer to
+         * displayTime[i - 1]) tc will get larger.
+         */
+        float tc = 0.0f;
+        Calendar refTime = dataTime.getRefTimeAsCalendar();
+        Calendar validTime = dataTime.getValidTime();
+        Calendar prevTime = parseTime(refTime, displayTime[0]);
         while (i < size) {
-
-            dt = Integer.parseInt(displayTime[i - 1].split("\\.")[1]);
-            t2 = Integer.parseInt(displayTime[i].split("\\.")[1]);
-
-            dt = t2 - dt; // dt is the delta between dt and t2
-            if (dt <= 0) {
-                dt += 24;
-            }
-
-            t2 = t1 + dt;
-
-            tc = Math.abs(t2 - tf);
-
-            if (tc < 0.01) {
-                tcs = new TropicalCycloneSummary(name, 0,
-                        longitude[i].floatValue(), latitude[i].floatValue(),
+            Calendar nextTime = parseTime(refTime, displayTime[i]);
+            if (nextTime.equals(validTime)) {
+                TropicalCycloneSummary tcs = new TropicalCycloneSummary(name,
+                        0, longitude[i].floatValue(), latitude[i].floatValue(),
                         displayTime[i], windSpeed[i].intValue(),
                         isTropical[i].intValue() == 1 ? true : false);
                 tcs.setRadiusList(loadRadiusList(pdv, i));
                 return tcs;
-            } else if (t2 < tf) {
-                t1 = t2; // shifting the base or t1 time
+            } else if (nextTime.before(validTime)) {
+                prevTime = nextTime;
             } else {
+                long t2 = nextTime.getTimeInMillis();
+                long t1 = prevTime.getTimeInMillis();
+                long tf = validTime.getTimeInMillis();
+                tc = (float) ((t2 - tf) / (double) (t2 - t1));
                 break;
             }
             i++;
@@ -155,32 +141,11 @@ public class Util implements TCSConstants {
                     isTropical[size - 1].intValue() == 1 ? true : false);
         }
 
-        tc = (t2 - tf) / (t2 - t1);
-        if (tc > 1 && t2 == 24) {
-            tc = -tf / (t2 - t1);
-        }
-        // Create the "dd.hh" string of the given time
-        dt = tf - t1;
+        Number isTrop = tc <= 0.5 ? isTropical[i] : isTropical[i - 1];
+        boolean tropical = (isTrop.intValue() == 1);
 
-        int isTrop = (dt / 2.0 + t1) >= tf ? isTropical[i].intValue()
-                : isTropical[i - 1].intValue();
-        tropical = isTrop == 1 ? true : false;
-
-        t1 = Integer.parseInt(displayTime[i - 1].split("\\.")[1]);
-        day = Integer.parseInt(displayTime[i - 1].split("\\.")[0]);
-        hour = (int) (t1 + dt + 0.5);
-        if (hour > 24) {
-            hour = hour - 24;
-            calendar.set(Calendar.DAY_OF_MONTH,
-                    Integer.parseInt(displayTime[i].split("\\.")[0]));
-            calendar.set(Calendar.HOUR_OF_DAY,
-                    Integer.parseInt(displayTime[i].split("\\.")[1]));
-            day++;
-        }
-
-        dTime = day + "." + (hour < 10 ? "0" + hour : hour);
-
-        // Interplating with the t1, t2 and tm.
+        dTime = String.format("%d.%02d", validTime.get(Calendar.DAY_OF_MONTH),
+                validTime.get(Calendar.HOUR_OF_DAY));
 
         // Location
         lat = latitude[i].floatValue() - tc
@@ -189,7 +154,7 @@ public class Util implements TCSConstants {
                 * (longitude[i].floatValue() - longitude[i - 1].floatValue());
 
         // Wind speed
-        wind = (int) (windSpeed[i].intValue() - tc
+        int wind = (int) (windSpeed[i].intValue() - tc
                 * (windSpeed[i].intValue() - windSpeed[i - 1].intValue()) + 0.6);
 
         // Loading the radius
@@ -201,7 +166,7 @@ public class Util implements TCSConstants {
 
         // Wind radius, we use longer one of the _list[i-1].radiusList(t1) and
         // _list[i].radiusList(t2) to loop. The distance is "0" if a wind radius
-        // is not exsiting in another list. How about it is "-1"?, we will
+        // is not existing in another list. How about it is "-1"?, we will
         // consider
         // it latter.
         int j = 0, rx1, rx2;
@@ -273,10 +238,24 @@ public class Util implements TCSConstants {
                 j++;
             }
         }
-        tcs = new TropicalCycloneSummary(name, 0, lon, lat, dTime, wind,
-                tropical);
+        TropicalCycloneSummary tcs = new TropicalCycloneSummary(name, 0, lon,
+                lat, dTime, wind, tropical);
         tcs.setRadiusList(radiusList);
         return tcs;
+    }
+
+    private static Calendar parseTime(Calendar refTime, String displayTime) {
+        String[] halves = displayTime.split("\\.");
+        int year = refTime.get(Calendar.YEAR);
+        int month = refTime.get(Calendar.MONTH);
+        int day = Integer.parseInt(halves[0]);
+        int hour = Integer.parseInt(halves[1]);
+        Calendar c = TimeUtil.newGmtCalendar(year, month, day);
+        c.set(Calendar.HOUR_OF_DAY, hour);
+        if (c.before(refTime)) {
+            c.add(Calendar.MONTH, 1);
+        }
+        return c;
     }
 
     private static ArrayList<Radius> loadRadiusList(PointDataView pdv, int index) {
