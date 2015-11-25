@@ -173,6 +173,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Sep 22, 2015 4859        dgilling    Prevent product generation in DRT mode.
  *  Nov  9, 2015 DR 14905    Qinglu Lin  Updated backupSiteSelected(), disposed(), initializeComponents(), populateBackupGroup(), and
  *                                       createProductTypeGroup, and moved existing code to newly created setBackupCboColors() and setBackupSite().
+ *  Nov 25, 2015 DR 17464    Qinglu Lin  Updated changeTemplate().
  * </pre>
  * 
  * @author chammack
@@ -1732,20 +1733,11 @@ public class WarngenDialog extends CaveSWTDialog implements
         boolean isDifferentAreaSources = !warngenLayer.getConfiguration()
                 .getHatchedAreaSource().getAreaSource()
                 .equalsIgnoreCase(lastAreaSource);
-        boolean snapHatchedAreaToPolygon = isDifferentAreaSources;
         boolean preservedSelection = !isDifferentAreaSources;
-        if (isDifferentAreaSources
-                || !warngenLayer.getConfiguration().getHatchedAreaSource()
-                        .getAreaSource().toLowerCase().equals("marinezones")) {
-            // If template has a different hatched area source from the previous
-            // template, then the warned area would be based on the polygon and
-            // not preserved.
-            try {
-                warngenLayer.updateWarnedAreas(snapHatchedAreaToPolygon,
-                        preservedSelection);
-            } catch (VizException e1) {
-                statusHandler.handle(Priority.PROBLEM, "WarnGen Error", e1);
-            }
+        try {
+            warngenLayer.updateWarnedAreas(preservedSelection);
+        } catch (VizException e1) {
+            statusHandler.handle(Priority.PROBLEM, "WarnGen Error", e1);
         }
         // Properly sets the "Create Text" button.
         setInstructions();
