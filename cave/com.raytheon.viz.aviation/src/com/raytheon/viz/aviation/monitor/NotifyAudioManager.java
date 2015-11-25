@@ -24,6 +24,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.raytheon.viz.aviation.resource.ResourceConfigMgr;
+import com.raytheon.viz.aviation.resource.ResourceConfigMgr.ResourceTag;
+
 import sun.audio.AudioData;
 import sun.audio.AudioDataStream;
 import sun.audio.AudioPlayer;
@@ -35,9 +38,10 @@ import sun.audio.AudioStream;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
+ * Date         Ticket#   Engineer    Description
+ * ------------ --------- ----------- --------------------------
  * Dec 2, 2009            avarani     Initial creation
+ * Oct 20,2015  17445     yteng       Set alert interval
  * 
  * </pre>
  * 
@@ -46,6 +50,9 @@ import sun.audio.AudioStream;
  */
 
 public class NotifyAudioManager {
+
+    private static long lastAlertTime = 0;
+
     private static NotifyAudioManager nam;
 
     private String filename;
@@ -69,15 +76,27 @@ public class NotifyAudioManager {
     }
 
     public void playFile(String filename) throws IOException {
-        if (!filename.equals(this.filename)) {
-            File soundFile = new File(filename);
-            InputStream in = new FileInputStream(soundFile);
-            AudioStream as = new AudioStream(in);
-            AudioData data = as.getData();
-            ads = new AudioDataStream(data);
-        }
 
-        AudioPlayer.player.stop(ads);
-        AudioPlayer.player.start(ads);
+        ResourceConfigMgr configMgr = ResourceConfigMgr.getInstance();
+        int alertIntervalMinutes = configMgr.getResourceAsInt(ResourceTag.AlertIntervalMinutes);
+
+        long currentTime = System.currentTimeMillis();
+        if (currentTime >= (lastAlertTime + alertIntervalMinutes*60*1000)) {
+            lastAlertTime = currentTime; 
+
+            if (!filename.equals(this.filename)) {
+                File soundFile = new File(filename);
+                InputStream in = new FileInputStream(soundFile);
+                AudioStream as = new AudioStream(in);
+                AudioData data = as.getData();
+                ads = new AudioDataStream(data);
+            }
+            AudioPlayer.player.stop(ads);
+            AudioPlayer.player.start(ads);
+        }
+    }
+
+    public static void resetAlertTime() {
+        lastAlertTime = 0;
     }
 }

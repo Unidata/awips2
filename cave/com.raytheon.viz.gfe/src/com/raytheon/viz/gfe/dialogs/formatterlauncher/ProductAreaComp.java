@@ -75,6 +75,8 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeProhibitedOpException;
  * 24 AUG 2015  4749       dgilling    Ensure TextProductFinishListener callbacks execute on UI thread,
  *                                     override dispose to aid perspective shutdown.
  * 15 SEP 2015  4858       dgilling    Handle exception from runFormatterScript. 
+ * 03 NOV 2015 14813       ryu         Fix missing VTEC code in generated product. VTEC mode is set 
+ *                                     based on the pil of the product rather than the disply name.
  *
  * </pre>
  * 
@@ -392,24 +394,11 @@ public class ProductAreaComp extends Composite implements
                             if (formattingCbo.isVisible()) {
                                 vtecMode = formattingCbo.getText();
                             } else {
-                                // TODO: part of fix for SS RM DR #14813
-                                // String pil = (String) textProductMgr
-                                // .getDefinitionValue(productName, "pil");
-                                // if (pil != null) {
-                                // pil = pil.substring(0, 3);
-                                // vtecMode = textProductMgr
-                                // .getVtecMessageType(pil);
-                                // }
-
-                                int hazIndex = productName.indexOf("Hazard_");
-                                if (hazIndex > -1) {
-                                    String category = productName.substring(
-                                            hazIndex + 7, hazIndex + 10);
-                                    vtecMode = textProductMgr
-                                            .getVtecMessageType(category);
-                                    if (vtecMode == null) {
-                                        vtecMode = "";
-                                    }
+                                String pil = (String) textProductMgr
+                                        .getDefinitionValue(productName, "pil");
+                                if (pil != null) {
+                                    pil = pil.substring(0, 3);
+                                    vtecMode = textProductMgr.getVtecMessageType(pil);
                                 }
                             }
 

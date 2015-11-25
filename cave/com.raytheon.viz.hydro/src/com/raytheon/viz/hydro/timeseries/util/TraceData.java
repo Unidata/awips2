@@ -38,6 +38,7 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * 							pop up menu
  * Apr 05, 2011 8732        jpiatt  Added product_id.
  * June,1, 2011 9499        djingtao change setDur()
+ * 22 Oct  2015 13736       xwei         Added getZoomIndexOffset() method
  * 
  * </pre>
  * 
@@ -606,4 +607,24 @@ public class TraceData implements Serializable {
 	public void setProductTime(Date productTime) {
 		this.productTime = productTime;
 	}
+	
+	/**
+	 * @return zoom index offset
+	 */
+	public int getZoomIndexOffset() {
+		
+		if (this.zoomedTsData != null && this.zoomedTsData.length > 0 ){
+			for (int i = 0; i < this.tsData.length; i++) {
+				if ( tsData[i].getX().equals(zoomedTsData[0].getX()) && 
+				     tsData[i].getY() == zoomedTsData[0].getY() 
+				     ){
+					return i;					
+				}
+			}
+			
+		}
+		
+		return 0;
+	}
+	
 }

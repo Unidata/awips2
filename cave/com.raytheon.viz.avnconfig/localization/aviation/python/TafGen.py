@@ -31,6 +31,11 @@
 #    Change Document History:
 #       %PIRC%
 #
+#
+#    Date          Ticket#       Engineer       Description
+#    ----------    ----------    -----------    --------------------------
+#    10/28/2015    15464         zhao           Modified mkTempo & mkProb30 to handle case of "TS"+"SKC"
+#
 import sys,os,copy,cPickle,math,ConfigParser,time,logging
 import AvnLib, AvnParser, Avn
 
@@ -325,10 +330,11 @@ class LampProjection(Projection):
                 visStr = self.vis['str']
             if 'TS' in tmpStr:
             #make sure cig is below threshold
-                cig = int(skyStr[3:])
-                if cig > self.grpTaf['cbhight']:
-                    cig = self.grpTaf['cbhight']
-                skyStr = "%s%03d%s" %('BKN',cig,'CB')
+                if skyStr != 'SKC':
+                    cig = int(skyStr[3:])
+                    if cig > self.grpTaf['cbhight']:
+                        cig = self.grpTaf['cbhight']
+                    skyStr = "%s%03d%s" %('BKN',cig,'CB')
             return {'wxStr':fixPcp(tmpStr),'visStr':visStr,\
                         'skyStr':skyStr}
 
@@ -360,10 +366,11 @@ class LampProjection(Projection):
                     visStr = self.vis['str']
                 if 'TS' in tmpStr:
                 #make sure cig is below threshold
-                    cig = int(skyStr[3:])
-                    if cig > self.grpTaf['cbhight']:
-                        cig = self.grpTaf['cbhight']
-                    skyStr = "%s%03d%s" %('BKN',cig,'CB')
+                    if skyStr != 'SKC':
+                        cig = int(skyStr[3:])
+                        if cig > self.grpTaf['cbhight']:
+                            cig = self.grpTaf['cbhight']
+                        skyStr = "%s%03d%s" %('BKN',cig,'CB')
                 return {'wxStr':fixPcp(tmpStr),'visStr':visStr,\
                             'skyStr':skyStr}
 

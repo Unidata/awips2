@@ -59,6 +59,7 @@ import com.raytheon.viz.aviation.resource.ResourceConfigMgr.ResourceTag;
  * 30 Aug 2013  #2164      bkowal       Add default case statement for MSFT Windows
  *                                      Java. Replaced platform-dependent code with
  *                                      code that is not platform-dependent.
+ * Oct 20, 2015 17445      yteng        Add audio alert interval.
  * 
  * </pre>
  * 
@@ -526,6 +527,9 @@ public class ResourceDataManager {
         resourceMap.put(ResourceTag.NotifyPlay, notifyPlay);
         String playFile = resourceCB.getResourceAsString(ResourceTag.PlayFile);
         resourceMap.put(ResourceTag.PlayFile, playFile);
+        int alertIntervalMinutes = resourceCB
+                .getResourceAsInt(ResourceTag.TextEditorInsWidth);
+        resourceMap.put(ResourceTag.AlertIntervalMinutes, alertIntervalMinutes);
         boolean blink = resourceCB.getResourceAsBoolean(ResourceTag.Blink);
         resourceMap.put(ResourceTag.Blink, Boolean.valueOf(blink));
         String disalowSend = resourceCB
