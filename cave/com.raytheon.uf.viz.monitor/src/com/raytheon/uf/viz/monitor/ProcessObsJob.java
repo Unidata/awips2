@@ -19,11 +19,9 @@
  **/
 package com.raytheon.uf.viz.monitor;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TimeZone;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -68,9 +66,8 @@ public class ProcessObsJob extends Job {
     /** how many hours do FSSObs go back we wish to load here **/
     public static final int HOUR_BACK = 24;
     
-    
     private ObsMonitor obsMonitor;
-    
+
     public ProcessObsJob(ObsMonitor obsMonitor) {
         super("Obs Load Process");
         this.setSystem(false);
@@ -79,22 +76,23 @@ public class ProcessObsJob extends Job {
     }
 
     public IStatus run(IProgressMonitor monitor) {
-        
+
         try {
-        
+
             long backTime = TimeUtil.newCalendar().getTimeInMillis();
-            Date time = new Date(backTime - (HOUR_BACK * TimeUtil.MILLIS_PER_HOUR));
-                
+            Date time = new Date(backTime
+                    - (HOUR_BACK * TimeUtil.MILLIS_PER_HOUR));
+
             Map<String, RequestConstraint> vals = new HashMap<String, RequestConstraint>();
-            vals.put("dataTime.refTime", new RequestConstraint(
-                    TimeUtil.formatToSqlTimestamp(time),
-                    ConstraintType.GREATER_THAN_EQUALS));
+            vals.put("dataTime.refTime",
+                    new RequestConstraint(TimeUtil.formatToSqlTimestamp(time),
+                            ConstraintType.GREATER_THAN_EQUALS));
 
             long startPoint = System.currentTimeMillis();
             FSSObsRecord[] recs = obsMonitor.requestFSSObs(vals);
             long endPoint = System.currentTimeMillis();
-            SubMonitor smonitor = SubMonitor.convert(monitor, "Loading "+recs.length+" observations...",
-                    recs.length);
+            SubMonitor smonitor = SubMonitor.convert(monitor, "Loading "
+                    + recs.length + " observations...", recs.length);
             smonitor.beginTask(null, recs.length);
             statusHandler.info("Point Data Request, took: "
                     + (endPoint - startPoint) + " ms");
@@ -107,13 +105,15 @@ public class ProcessObsJob extends Job {
                     long start = System.currentTimeMillis();
                     doOb(rec, smonitor.newChild(PROGRESS_FACTOR));
                     long end = System.currentTimeMillis();
-                    statusHandler.info("Processed "
- + rec.getIdentifier()
+                    statusHandler.info("Processed " + rec.getIdentifier()
                             + " in " + (end - start) + " ms");
                 }
             }
 
             statusHandler.info("Processed " + recs.length + " FSSObs records.");
+            // fire event to trigger re-paint
+            obsMonitor.fireMonitorEvent();
+
         } catch (DataCubeException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "No data in database at startup.");
@@ -122,7 +122,7 @@ public class ProcessObsJob extends Job {
 
         return Status.OK_STATUS;
     }
-    
+
     /**
      * Processes the Ob
      * 
