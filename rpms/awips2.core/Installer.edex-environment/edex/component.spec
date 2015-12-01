@@ -51,17 +51,6 @@ if [ $? -ne 0 ]; then
 fi
 
 %build
-# build the edex-environment utilities
-pushd . > /dev/null 2>&1
-# Run the pde build.
-cd %{_baseline_workspace}/build.wes2bridge.utility
-/awips2/ant/bin/ant -f build.xml \
-   -Declipse.dir=%{_uframe_eclipse}
-if [ $? -ne 0 ]; then
-   echo "ERROR: The pde build of the wes2bridge utilities has failed."
-   exit 1
-fi
-popd > /dev/null 2>&1
 
 %install
 mkdir -p %{_build_root}%{_installation_directory}/edex-environment/scripts
@@ -88,11 +77,19 @@ mkdir -p %{_build_root}/usr/local/edex-environment
 #	%{_build_root}%{_installation_directory}/edex
 
 # "install" the wes2bridge utilities
+cd %{_baseline_workspace}/com.raytheon.wes2bridge.common
+/awips2/ant/bin/ant -f build.xml \
+   -Ddestination.directory=%{_build_root}%{_installation_directory}/edex-environment/macro/utilities \
+   -Declipse.directory=%{_uframe_eclipse} \
+   -Dbaseline.dir=%{_baseline_workspace}
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 cd %{_baseline_workspace}/com.raytheon.wes2bridge.configuration
 /awips2/ant/bin/ant -f build.xml \
    -Ddestination.directory=%{_build_root}%{_installation_directory}/edex-environment/macro/utilities \
    -Declipse.directory=%{_uframe_eclipse} \
-   -Drpm.build=true
+   -Dbaseline.dir=%{_baseline_workspace}
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -100,7 +97,7 @@ cd %{_baseline_workspace}/com.raytheon.wes2bridge.datalink
 /awips2/ant/bin/ant -f build.xml \
    -Ddestination.directory=%{_build_root}%{_installation_directory}/edex-environment/macro/utilities \
    -Declipse.directory=%{_uframe_eclipse} \
-   -Drpm.build=true
+   -Dbaseline.dir=%{_baseline_workspace}
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -108,7 +105,7 @@ cd %{_baseline_workspace}/com.raytheon.wes2bridge.manager
 /awips2/ant/bin/ant -f build.xml \
    -Ddestination.directory=%{_build_root}%{_installation_directory}/edex-environment/macro/utilities \
    -Declipse.directory=%{_uframe_eclipse} \
-   -Drpm.build=true
+   -Dbaseline.dir=%{_baseline_workspace}
 if [ $? -ne 0 ]; then
    exit 1
 fi

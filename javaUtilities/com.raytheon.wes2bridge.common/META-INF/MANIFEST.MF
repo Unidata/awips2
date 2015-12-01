@@ -4,7 +4,6 @@ Bundle-Name: Wes2Bridge Utility Common
 Bundle-SymbolicName: com.raytheon.wes2bridge.common
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: org.apache.commons.lang;bundle-version="2.3.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: com.raytheon.wes2bridge.common.configuration,
  com.raytheon.wes2bridge.configuration.jaxb
