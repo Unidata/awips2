@@ -62,7 +62,6 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -922,7 +921,7 @@ public class ArchiveConfigManager {
      * Delete the selection localized site configuration file.
      * 
      * @param fileName
-     * @throws LocalizationOpFailedException
+     * @throws LocalizationException
      */
     public void deleteSelection(String fileName) throws LocalizationException {
         LocalizationContext siteContext = pathMgr.getContext(

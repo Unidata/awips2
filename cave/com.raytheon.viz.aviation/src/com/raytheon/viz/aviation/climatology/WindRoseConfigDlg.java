@@ -49,7 +49,6 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
@@ -681,7 +680,7 @@ public class WindRoseConfigDlg extends CaveSWTDialog {
      * 
      * @throws IOException
      * @throws ConfigurationException
-     * @throws LocalizationOpFailedException
+     * @throws LocalizationException
      */
     private void updateData() throws IOException, ConfigurationException,
             LocalizationException {

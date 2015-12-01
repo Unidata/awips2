@@ -43,7 +43,6 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.viz.avnconfig.AvnConfigConstants.triggerType;
 
@@ -878,14 +877,9 @@ public class TafSiteConfigIni implements ITafSiteConfig {
         return lFile;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.avnconfig.ITafSiteConfig#getIdsSiteList()
-     */
     @Override
     public ArrayList<String> getIdsSiteList() throws IOException,
-            ConfigurationException, LocalizationOpFailedException {
+            ConfigurationException, LocalizationException {
         HierarchicalINIConfiguration config = getIdsConfig();
         ArrayList<String> siteList = new ArrayList<String>();
         for (Object site : config.getSections()) {
@@ -895,15 +889,9 @@ public class TafSiteConfigIni implements ITafSiteConfig {
         return siteList;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.avnconfig.ITafSiteConfig#getIdsPil(java.lang.String)
-     */
     @Override
     public String getIdsPil(String site) throws IOException,
-            ConfigurationException, LocalizationOpFailedException {
+            ConfigurationException, LocalizationException {
         HierarchicalINIConfiguration config = getIdsConfig();
         String pil = config.getProperty(site + ".pil").toString();
         return pil;
