@@ -53,7 +53,7 @@ import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.pointdata.spatial.ObStation;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -83,6 +83,7 @@ import com.vividsolutions.jts.geom.Point;
  * 15 Oct 2012  1229       rferrel     Changes for non-blocking TextEditorSetupDlg.
  * 15 OCT 2012  1229       rferrel     Changes for non-blocking HelpUsageDlg.
  * 11 Sep 2013  2277       mschenke    Got rid of ScriptCreator references
+ * Nov 30, 2015 4834       njensen     Remove LocalizationOpFailedException
  * 
  * </pre>
  * 
@@ -451,7 +452,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
                     } catch (ConfigurationException e) {
                         msgStatusComp.setMessageText("Error saving data for "
                                 + siteIdTF.getText(), new RGB(255, 0, 0));
-                    } catch (LocalizationOpFailedException e) {
+                    } catch (LocalizationException e) {
                         msgStatusComp.setMessageText("Error saving data for "
                                 + siteIdTF.getText(), new RGB(255, 0, 0));
                     } catch (IOException e) {
@@ -962,12 +963,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
                     } catch (FileNotFoundException e) {
                         msgStatusComp.setMessageText(e.getMessage(), new RGB(
                                 255, 0, 0));
-                    } catch (ConfigurationException e) {
-                        msgStatusComp.setMessageText(
-                                "Error creating templates for "
-                                        + siteIdTF.getText(),
-                                new RGB(255, 0, 0));
-                    } catch (LocalizationOpFailedException e) {
+                    } catch (ConfigurationException | LocalizationException e) {
                         msgStatusComp.setMessageText(
                                 "Error creating templates for "
                                         + siteIdTF.getText(),

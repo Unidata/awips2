@@ -59,7 +59,6 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
@@ -505,12 +504,7 @@ public class TextEditorSetupDlg extends CaveSWTDialog {
                     } catch (FileNotFoundException e) {
                         msgStatusComp.setMessageText(e.getMessage(), new RGB(
                                 255, 0, 0));
-                    } catch (ConfigurationException e) {
-                        msgStatusComp
-                                .setMessageText(
-                                        "An error occured when saving the TAF template.",
-                                        new RGB(255, 0, 0));
-                    } catch (LocalizationOpFailedException e) {
+                    } catch (ConfigurationException | LocalizationException e) {
                         msgStatusComp
                                 .setMessageText(
                                         "An error occured when saving the TAF template.",

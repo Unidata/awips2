@@ -48,7 +48,6 @@ import com.raytheon.uf.common.dataplugin.text.AfosWmoIdDataContainer;
 import com.raytheon.uf.common.dataplugin.text.db.AfosToAwips;
 import com.raytheon.uf.common.dataplugin.text.request.GetPartialAfosIdRequest;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -459,11 +458,7 @@ public class TafProductConfigDlg extends CaveSWTDialog {
                     } catch (FileNotFoundException e) {
                         msgStatusComp.setMessageText(e.getMessage(), new RGB(
                                 255, 0, 0));
-                    } catch (ConfigurationException e) {
-                        msgStatusComp.setMessageText(
-                                "An error occured while saving product "
-                                        + product + ".", new RGB(255, 0, 0));
-                    } catch (LocalizationOpFailedException e) {
+                    } catch (ConfigurationException | LocalizationException e) {
                         msgStatusComp.setMessageText(
                                 "An error occured while saving product "
                                         + product + ".", new RGB(255, 0, 0));
@@ -607,12 +602,8 @@ public class TafProductConfigDlg extends CaveSWTDialog {
                 productsList.add(product);
             }
 
-        } catch (IOException ex) {
-            // TODO handle this
-            ex.printStackTrace();
         } catch (Exception ex) {
-            // TODO handle this
-            ex.printStackTrace();
+            statusHandler.error(ex.getLocalizedMessage(), ex);
         }
     }
 
