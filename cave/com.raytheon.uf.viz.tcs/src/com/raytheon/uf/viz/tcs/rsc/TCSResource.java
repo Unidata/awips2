@@ -38,7 +38,7 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.tcs.Radius;
 import com.raytheon.uf.common.dataplugin.tcs.TropicalCycloneSummary;
 import com.raytheon.uf.common.dataplugin.tcs.util.TCSConstants;
-import com.raytheon.uf.common.dataplugin.tcs.util.Util;
+import com.raytheon.uf.common.dataplugin.tcs.util.TcsUtil;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
@@ -69,18 +69,19 @@ import com.raytheon.viz.pointdata.PointDataRequest;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * Tropical Cyclone summary resource
+ * Resource for displaying data from a {@link TropicalCycloneSummary}.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Oct 22, 2010            jsanchez     Initial creation
- * Jul 29, 2014 #3465      mapeters     Updated deprecated drawString() calls.
- * Sep 17, 2014 3632       bclement     fixed index out of bounds
- * Nov 05, 2015 5070       randerso     Adjust font sizes for dpi scaling
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- ---------------------------------------
+ * Oct 22, 2010           jsanchez  Initial creation
+ * Jul 29, 2014  3465     mapeters  Updated deprecated drawString() calls.
+ * Sep 17, 2014  3632     bclement  fixed index out of bounds
+ * Nov 05, 2015  5070     randerso  Adjust font sizes for dpi scaling
+ * Nov 30, 2015  5149     bsteffen  Rename TcsUtil, update class javadoc
  * 
  * </pre>
  * 
@@ -177,7 +178,7 @@ public class TCSResource extends
             PaintProperties paintProps, PointDataView pdv, double scale)
             throws VizException {
 
-        TropicalCycloneSummary storm = Util.interplateStorm(pdv,
+        TropicalCycloneSummary storm = TcsUtil.interplateStorm(pdv,
                 paintProps.getDataTime());
         displayOneStorm(target, paintProps, (float) storm.getLongitude(),
                 (float) storm.getLatitude(), storm.getPressure(),
@@ -299,14 +300,12 @@ public class TCSResource extends
 
         if (paintProps.getZoomLevel() * descriptor.getMapWidth() / 1000 < ZOOM_LEVEL) {
             drawLegends(target, paintProps, scale);
-            drawRadius(target, name, descriptor.pixelToWorld(loc), scale,
-                    radiusList);
+            drawRadius(target, descriptor.pixelToWorld(loc), radiusList);
         }
     }
 
-    private void drawRadius(IGraphicsTarget target, String name,
-            double[] latLon, double scale, ArrayList<Radius> radiusList)
-            throws VizException {
+    private void drawRadius(IGraphicsTarget target, double[] latLon,
+            ArrayList<Radius> radiusList) throws VizException {
         Coordinate[] coordinates = null;
 
         // Draw the XX KT... lines.
