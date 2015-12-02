@@ -107,9 +107,10 @@ import com.raytheon.viz.mpe.ui.dialogs.gagetable.xml.GageTableSortType;
  * Feb 02, 2014  16201     snaples    Added saved data flag support
  * Apr 16, 2014  3025      mpduff     Fix sort method.
  * Nov 18, 2015 18093      snaples    Fixed GridComboListener to trigger table update when changing compare column.
- * 
+ * Dec 02, 2015 18094      lbousaidi  added the sorting method for multi column sorting.
+ *
  * </pre>
- * 
+ *
  * @author mpduff
  * @version 1.0
  */
@@ -1341,10 +1342,26 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
      */
     private GageTableSortSettings setSortColumns(
             GageTableSortSettings settings, int index, boolean ascending) {
-        settings.setSortCol4Index(settings.getSortCol3Index());
-        settings.setSortCol3Index(settings.getSortCol2Index());
-        settings.setSortCol2Index(settings.getSortCol1Index());
-        settings.setSortCol1Index(index);
+
+        int aPos = getSortClickPosition(  settings,  index );
+        if ( 4 == aPos || 0 == aPos ){
+
+                settings.setSortCol4Index(settings.getSortCol3Index());
+                settings.setSortCol3Index(settings.getSortCol2Index());
+                settings.setSortCol2Index(settings.getSortCol1Index());
+                settings.setSortCol1Index(index);
+        }else if ( 3 == aPos ){
+
+                settings.setSortCol3Index(settings.getSortCol2Index());
+                settings.setSortCol2Index(settings.getSortCol1Index());
+                settings.setSortCol1Index(index);
+
+        }else if ( 2 == aPos ){
+
+                settings.setSortCol2Index(settings.getSortCol1Index());
+                settings.setSortCol1Index(index);
+
+        }
 
         settings.setAscending4(settings.getAscending3());
         settings.setAscending3(settings.getAscending2());
@@ -1387,6 +1404,38 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
         GageTableUpdateEvent event = new GageTableUpdateEvent(this, true);
         GageTableProductManager.getInstance().fireUpdateEvent(event);
     }
+
+    /**
+     * Get click position for sorting
+     *
+     * @param settings
+     *            The GageTableColumnSettings
+     * @param index
+     *            The selected column index
+     * @return
+     *
+     *
+     **/
+    private int getSortClickPosition( GageTableSortSettings settings, int index ){
+
+        if ( index == settings.getSortCol1Index() ){
+                return 1;
+        }
+
+        if ( index == settings.getSortCol2Index() ){
+                return 2;
+        }
+
+        if ( index == settings.getSortCol3Index() ){
+                return 3;
+        }
+
+        if ( index == settings.getSortCol4Index() ){
+                return 4;
+        }
+        return 0;
+    }
+
 
     /*
      * (non-Javadoc)
