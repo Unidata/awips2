@@ -25,6 +25,7 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
+Packager: %{_build_site}
 
 AutoReq: no
 Requires: boost >= 1.33.1

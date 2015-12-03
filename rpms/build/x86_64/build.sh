@@ -26,6 +26,7 @@ function buildRPMExec()
       --define '_uframe_eclipse %(echo ${UFRAME_ECLIPSE})' \
       --define '_awipscm_share %(echo ${AWIPSCM_SHARE})' \
       --define '_build_root %(echo ${AWIPSII_BUILD_ROOT})' \
+      --define '_build_site %(echo ${AWIPSII_BUILD_SITE})' \
       --define '_component_version %(echo ${AWIPSII_VERSION})' \
       --define '_component_release %(echo ${AWIPSII_RELEASE})' \
       --define '_component_build_date %(echo ${COMPONENT_BUILD_DATE})' \
@@ -122,6 +123,7 @@ if [ "${1}" = "-rh6" ]; then
    if [ $? -ne 0 ]; then
       exit 1
    fi
+   buildRPM "awips2-alertviz"
    buildEDEX
    if [ $? -ne 0 ]; then
       exit 1
@@ -169,7 +171,6 @@ if [ "${1}" = "-rh6" ]; then
    buildRPM "awips2-qpid-java"
    buildRPM "awips2-qpid-java-broker"
    buildRPM "awips2-ldm"
-   buildRPM "awips2-alertviz"
    buildRPM "awips2-database-server-configuration"
    buildRPM "awips2-database-standalone-configuration"
    buildRPM "awips2-database"
@@ -198,7 +199,7 @@ fi
 
 if [ "${1}" = "-ade" ]; then
    buildRPM "awips2-eclipse"
-   buildJava
+   buildRPM "awips2-java"
    buildRPM "awips2-ant"
    buildRPM "awips2-python"
    buildRPM "awips2-python-cherrypy"
