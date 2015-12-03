@@ -93,6 +93,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 26, 2015 4512       mapeters    Updated for RedbookWMOMap API changes.
  * Oct 27, 2015 4798       bsteffen    Handle VizException for missing svg.
  * Nov 05, 2015 5070       randerso    Adjust font sizes for dpi scaling
+ * Dec 03, 2015 5143       kbisanz     Remove unneeded setting of DataTime
+ *                                     utility flag in getName() to prevent
+ *                                     NPE in case of no data.
  * 
  * 
  * </pre>
@@ -154,13 +157,6 @@ public class RedbookUpperAirResource extends
      */
     @Override
     public String getName() {
-        DataTime[] times = descriptor.getTimeMatchingMap().get(this);
-        for (int i = 0; i < times.length; i++) {
-            if (times[i] != null) {
-                times[i] = times[i].clone();
-                times[i].getUtilityFlags().remove(DataTime.FLAG.FCST_USED);
-            }
-        }
         if (this.humanReadableName == null) {
             buildHumanReadableName();
         }
