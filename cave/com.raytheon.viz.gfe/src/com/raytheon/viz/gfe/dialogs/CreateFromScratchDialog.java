@@ -31,9 +31,10 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.viz.gfe.GFEOperationFailedException;
 import com.raytheon.viz.gfe.GFEPreference;
-import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.core.parm.Parm.CreateFromScratchMode;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
@@ -45,8 +46,11 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 	Feb 26, 2008					Eric Babin Initial Creation
+ * Feb 26, 2008            Eric Babin  Initial Creation
  * Oct 24, 2012 1287       rferrel     Changes for non-blocking dialog.
+ * Nov 30, 2015 5133       kbisanz     In durationScaleChanged(), ensure
+ *                                     intervalScale is valid before
+ *                                     accessing it.
  * 
  * </pre>
  * 
@@ -116,7 +120,7 @@ public class CreateFromScratchDialog extends CaveJFACEDialog {
 
             intervalScale = new Scale(top, SWT.HORIZONTAL);
             intervalScale.setMinimum(quantum);
-            intervalScale.setMaximum(24);
+            intervalScale.setMaximum(TimeUtil.HOURS_PER_DAY);
             intervalScale.setIncrement(quantum);
             intervalScale.setPageIncrement(quantum);
             intervalScale.setSelection(this.createInterval);
@@ -145,7 +149,7 @@ public class CreateFromScratchDialog extends CaveJFACEDialog {
 
             durationScale = new Scale(top, SWT.HORIZONTAL);
             durationScale.setMinimum(quantum);
-            durationScale.setMaximum(24);
+            durationScale.setMaximum(TimeUtil.HOURS_PER_DAY);
             durationScale.setSelection(this.createDuration);
             data = new GridData(200, SWT.DEFAULT);
             durationScale.setLayoutData(data);
@@ -174,17 +178,19 @@ public class CreateFromScratchDialog extends CaveJFACEDialog {
     }
 
     private void durationScaleChanged() {
-        if (durationScale.getSelection() >= intervalScale.getSelection()) {
+        if (displayInterval
+                && durationScale.getSelection() >= intervalScale.getSelection()) {
             durationScale.setSelection(intervalScale.getSelection());
         }
         durationLabel.setText(Integer.toString(durationScale.getSelection()));
     }
 
     private void commonTC() {
-        Parm[] parms = DataManager.getCurrentInstance().getParmManager()
-                .getSelectedParms();
+        Parm[] parms = DataManagerUIFactory.getCurrentInstance()
+                .getParmManager().getSelectedParms();
 
-        int minRepeatInterval = 24 * 3600;
+        int minRepeatInterval = TimeUtil.HOURS_PER_DAY
+                * TimeUtil.SECONDS_PER_HOUR;
         this.displayInterval = true;
         this.displayDuration = true;
         int compositeRepeat = 0;
@@ -218,13 +224,14 @@ public class CreateFromScratchDialog extends CaveJFACEDialog {
         // lets the user select intervals up to 100 hours, but the dialog
         // ignores them and uses 24 hours.
         // It's better to not show the slider at all in this case.
-        if (minRepeatInterval >= 24 * 3600) {
+        if (minRepeatInterval >= TimeUtil.HOURS_PER_DAY
+                * TimeUtil.SECONDS_PER_HOUR) {
             displayInterval = false;
         }
 
-        this.quantum = minRepeatInterval / 3600;
-        this.createDuration = compositeDuration / 3600;
-        this.createInterval = compositeRepeat / 3600;
+        this.quantum = minRepeatInterval / TimeUtil.SECONDS_PER_HOUR;
+        this.createDuration = compositeDuration / TimeUtil.SECONDS_PER_HOUR;
+        this.createInterval = compositeRepeat / TimeUtil.SECONDS_PER_HOUR;
 
         int configInterval = GFEPreference
                 .getIntPreference("CreateScratchDefaultInterval");
@@ -233,7 +240,7 @@ public class CreateFromScratchDialog extends CaveJFACEDialog {
 
         // Sanity check config values.
         configInterval = Math.max(0, configInterval);
-        configInterval = Math.min(configInterval, 24);
+        configInterval = Math.min(configInterval, TimeUtil.HOURS_PER_DAY);
 
         configDuration = Math.max(0, configDuration);
         configDuration = Math.min(configDuration, configInterval);
@@ -273,11 +280,12 @@ public class CreateFromScratchDialog extends CaveJFACEDialog {
                 createDuration = durationScale.getSelection();
             }
 
-            DataManager
+            DataManagerUIFactory
                     .getCurrentInstance()
                     .getParmOp()
-                    .createFromScratchSelected(mode, createInterval * 3600,
-                            createDuration * 3600);
+                    .createFromScratchSelected(mode,
+                            createInterval * TimeUtil.SECONDS_PER_HOUR,
+                            createDuration * TimeUtil.SECONDS_PER_HOUR);
 
         } catch (GFEOperationFailedException e) {
             e.printStackTrace();
