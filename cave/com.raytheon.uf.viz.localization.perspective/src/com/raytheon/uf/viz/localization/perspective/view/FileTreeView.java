@@ -145,6 +145,7 @@ import com.raytheon.uf.viz.localization.service.ILocalizationService;
  *                                     files for multiple Localization Types.
  * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
  * Nov 18, 2015 4834       njensen     Updated to register file observing on PathManager
+ * Dec 03, 2015 4834       njensen     Updated for ILocalizationFile changes
  * 
  * </pre>
  * 
@@ -1809,7 +1810,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         }
 
         FileUpdatedMessage fum = new FileUpdatedMessage(file.getContext(),
-                file.getName(), t, file.getTimeStamp().getTime(),
+                file.getPath(), t, file.getTimeStamp().getTime(),
                 file.getCheckSum());
         fileUpdated(fum);
     }
