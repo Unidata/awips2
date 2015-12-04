@@ -31,8 +31,13 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
+import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig.CellType;
 import com.raytheon.uf.viz.monitor.filename.DefaultFilenameMgr;
@@ -53,6 +58,7 @@ import com.raytheon.uf.viz.monitor.xml.ThresholdsXML;
  * Mar 22, 2010 #4282      zhao         obtain zone IDs from monitoring-area-config-manager
  * Feb 16, 2011 #7346      zhao         added getDirectionalThresholdValueCellType(...)
  * Apr 28, 2014  3086      skorolev     Updated getAreaConfigMgr method.
+ * Sep 18, 2015  3873      skorolev     Added getCfgMgr().
  * 
  * </pre>
  * 
@@ -61,25 +67,28 @@ import com.raytheon.uf.viz.monitor.xml.ThresholdsXML;
  */
 public abstract class AbstractThresholdMgr {
 
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(AbstractThresholdMgr.class);
+
     /**
      * Monitor Area Configuration Manager.
      */
-    protected FSSObsMonitorConfigurationManager areaConfigMgr;
+    public FSSObsMonitorConfigurationManager areaConfigMgr;
 
     /**
-     * Default file name for the FOG display thresholds.
+     * Default file name for the display thresholds.
      */
     private String defDisplayThreshName = "Unknown";
 
     /**
-     * Default file name for the FOG monitor thresholds.
+     * Default file name for the monitor thresholds.
      */
     private String defMonitorThreshName = "Unknown";
 
     /**
      * Application name that will be the starting path for the XML data.
      */
-    private final String appName;
+    private final AppName appName;
 
     /**
      * Full path and file name for the current FOG display file.
@@ -117,10 +126,8 @@ public abstract class AbstractThresholdMgr {
     /** current site **/
     protected String site;
 
-    /*
-     * TODO : remove this when debugging is complete
-     */
-    public ThresholdsXML threshXmlCopy;
+    /** threshold usage **/
+    protected DataUsageKey dataUsageKey;
 
     /**
      * Constructor.
@@ -129,12 +136,12 @@ public abstract class AbstractThresholdMgr {
      * @param defMonitorThreshName
      */
     public AbstractThresholdMgr(String defDisplayThreshName,
-            String defMonitorThreshName, String appName) {
+            String defMonitorThreshName, AppName appName) {
         this.defDisplayThreshName = defDisplayThreshName;
         this.defMonitorThreshName = defMonitorThreshName;
         this.appName = appName;
         this.site = LocalizationManager.getInstance().getCurrentSite();
-        this.areaConfigMgr = getMonitorAreaConfigInstance();
+        this.areaConfigMgr = getCfgMgr();
     }
 
     /**
@@ -148,7 +155,7 @@ public abstract class AbstractThresholdMgr {
         defaultFileNameMgr.readXmlConfig();
 
         /*
-         * Setup the Fog display threshold manager
+         * Setup the display threshold manager
          */
         if (defaultFileNameMgr.getDefaultThresholdFilename() != null
                 && defaultFileNameMgr.getDefaultThresholdFilename().length() > 0) {
@@ -175,7 +182,7 @@ public abstract class AbstractThresholdMgr {
         }
 
         /*
-         * Setup the Fog monitor threshold manager
+         * Setup the monitor threshold manager
          */
         currFullMonitorXmlFileName = getMonitorThresholdPath()
                 + defMonitorThreshName;
@@ -201,7 +208,7 @@ public abstract class AbstractThresholdMgr {
         LocalizationFile locFile = pm.getLocalizationFile(context,
                 pathAndFileName);
 
-        System.out.println("--- validate path = "
+        statusHandler.handle(Priority.DEBUG, "--- validate path = "
                 + locFile.getFile().getAbsolutePath());
 
         return locFile.getFile().exists();
@@ -235,7 +242,6 @@ public abstract class AbstractThresholdMgr {
                 return monitorThreshMgr.getYellowValue(areaID, key);
             }
         }
-
         return 0;
     }
 
@@ -284,30 +290,24 @@ public abstract class AbstractThresholdMgr {
         if (hasArea(areaID, dataUsage) == false) {
             return CellType.NotMonitored;
         }
-
         if (Double.isNaN(value) == true) {
             return CellType.NotMonitored;
         }
-
         if (value == ObConst.MISSING) {
             return CellType.NotAvailable;
         }
-
         double red = Double.NaN;
         double yellow = Double.NaN;
 
         if (dataUsage == DataUsageKey.DISPLAY) {
             red = displayThreshMgr.getRedValue(areaID, key);
             yellow = displayThreshMgr.getYellowValue(areaID, key);
-
             return calcCellType(key, red, yellow, value);
         } else if (dataUsage == DataUsageKey.MONITOR) {
             red = monitorThreshMgr.getRedValue(areaID, key);
             yellow = monitorThreshMgr.getYellowValue(areaID, key);
-
             return calcCellType(key, red, yellow, value);
         }
-
         return CellType.NotMonitored;
     }
 
@@ -328,11 +328,9 @@ public abstract class AbstractThresholdMgr {
         if (hasArea(areaID, dataUsage) == false) {
             return CellType.NotMonitored;
         }
-
         if (Double.isNaN(value) == true) {
             return CellType.NotMonitored;
         }
-
         if (value == ObConst.MISSING) {
             return CellType.NotAvailable;
         }
@@ -357,7 +355,6 @@ public abstract class AbstractThresholdMgr {
             return calcDirectionalCellType(redFrom, redTo, yellowFrom,
                     yellowTo, value);
         }
-
         return CellType.NotMonitored;
     }
 
@@ -379,25 +376,21 @@ public abstract class AbstractThresholdMgr {
                 return CellType.R;
             }
         }
-
         if (redFrom > redTo) {
             if (value > redFrom || value < redTo) {
                 return CellType.R;
             }
         }
-
         if (yellowFrom < yellowTo) {
             if (value > yellowFrom && value < yellowTo) {
                 return CellType.Y;
             }
         }
-
         if (yellowFrom > yellowTo) {
             if (value > yellowFrom || value < yellowTo) {
                 return CellType.Y;
             }
         }
-
         return CellType.G;
     }
 
@@ -427,7 +420,6 @@ public abstract class AbstractThresholdMgr {
                 } else if (value <= yellow) {
                     return CellType.Y;
                 }
-
                 return CellType.G;
             } else {
                 if (value < yellow) {
@@ -435,7 +427,6 @@ public abstract class AbstractThresholdMgr {
                 } else if (value <= red) {
                     return CellType.Y;
                 }
-
                 return CellType.R;
             }
         } else if (redIsHigher == true) {
@@ -444,7 +435,6 @@ public abstract class AbstractThresholdMgr {
             } else if (value < red) {
                 return CellType.Y;
             }
-
             return CellType.R;
         } else if (redIsHigher == false) {
             if (value <= red) {
@@ -452,10 +442,8 @@ public abstract class AbstractThresholdMgr {
             } else if (value <= yellow) {
                 return CellType.Y;
             }
-
             return CellType.G;
         }
-
         return CellType.NotMonitored;
     }
 
@@ -472,11 +460,9 @@ public abstract class AbstractThresholdMgr {
                     + defDisplayThreshName;
             return;
         }
-
         if (fileName.endsWith(".xml") == false) {
             fileName.concat(".xml");
         }
-
         if (fileName.compareTo(defDisplayThreshName) == 0) {
             defaultFileNameMgr.setDefaultThresholdFilename("");
         } else {
@@ -495,9 +481,7 @@ public abstract class AbstractThresholdMgr {
             loadDefaultDisplayThreshold();
             return;
         }
-
         currFullDisplayXmlFileName = getDisplayThresholdPath() + fileName;
-
         displayThreshMgr.setFullPathFileName(currFullDisplayXmlFileName);
         displayThreshMgr.readThresholdXml();
     }
@@ -511,23 +495,18 @@ public abstract class AbstractThresholdMgr {
         if (filename == null || filename.trim().length() == 0) {
             currFullDisplayXmlFileName = getDisplayThresholdPath()
                     + defDisplayThreshName;
-
             List<String> areaIDs = null;
-
             try {
                 areaIDs = areaConfigMgr.getAreaList();
             } catch (Exception e) {
                 e.printStackTrace();
                 return;
             }
-
             // Sort the area IDs
             Collections.sort(areaIDs);
-
             ArrayList<String> threshKeys = getThresholdKeys(DataUsageKey.DISPLAY);
-
-            System.out.println("---- " + currFullDisplayXmlFileName);
-
+            statusHandler.handle(Priority.DEBUG, "---- "
+                    + currFullDisplayXmlFileName);
             displayThreshMgr.createConfigFromDefaults(
                     currFullDisplayXmlFileName, areaIDs, threshKeys);
         } else {
@@ -543,21 +522,16 @@ public abstract class AbstractThresholdMgr {
     public void loadDefaultMonitorThreshold() {
         currFullMonitorXmlFileName = getMonitorThresholdPath()
                 + defMonitorThreshName;
-
         List<String> areaIDs = null;
-
         try {
             areaIDs = areaConfigMgr.getAreaList();
         } catch (Exception e) {
             e.printStackTrace();
             return;
         }
-
         // Sort the area IDs
         Collections.sort(areaIDs);
-
         ArrayList<String> threshKeys = getThresholdKeys(DataUsageKey.MONITOR);
-
         monitorThreshMgr.createConfigFromDefaults(currFullMonitorXmlFileName,
                 areaIDs, threshKeys);
     }
@@ -572,9 +546,7 @@ public abstract class AbstractThresholdMgr {
         if (newFileName.trim().compareTo(defDisplayThreshName) == 0) {
             return;
         }
-
         currFullDisplayXmlFileName = getDisplayThresholdPath() + newFileName;
-
         displayThreshMgr.setFullPathFileName(currFullDisplayXmlFileName);
         displayThreshMgr.saveThresholdXml();
     }
@@ -601,7 +573,6 @@ public abstract class AbstractThresholdMgr {
         if (usageKey == DataUsageKey.DISPLAY) {
             return defDisplayThreshName;
         }
-
         // Return the Monitor threshold file name as the default.
         return defMonitorThreshName;
     }
@@ -616,61 +587,60 @@ public abstract class AbstractThresholdMgr {
         return defaultFileNameMgr.getDefaultThresholdFilename();
     }
 
+    /**
+     * Gets Thresholds XML Data
+     * 
+     * @param usageKey
+     * @return
+     */
     public ThresholdsXML getThresholdsXmlData(DataUsageKey usageKey) {
         if (usageKey == DataUsageKey.DISPLAY) {
             return displayThreshMgr.getThresholdXML();
         }
-
         return monitorThreshMgr.getThresholdXML();
     }
 
     /**
-     * Get the path where the display thresholds XML files are contained.
+     * Gets the path where the display thresholds XML files are contained.
      * 
      * @return File path.
      */
     public String getDisplayThresholdPath() {
         String fs = String.valueOf(File.separatorChar);
         StringBuilder sb = new StringBuilder();
-
-        sb.append(appName).append(fs);
+        sb.append(appName.name().toLowerCase()).append(fs);
         sb.append("threshold").append(fs);
         sb.append("display").append(fs);
-
         return sb.toString();
     }
 
     /**
-     * Get the path where the monitor thresholds XML files are contained.
+     * Gets the path where the monitor thresholds XML files are contained.
      * 
      * @return File path.
      */
     public String getMonitorThresholdPath() {
         String fs = String.valueOf(File.separatorChar);
         StringBuilder sb = new StringBuilder();
-
-        sb.append(appName).append(fs);
+        sb.append(appName.name().toLowerCase()).append(fs);
         sb.append("threshold").append(fs);
         sb.append("monitor").append(fs);
-
         return sb.toString();
     }
 
     /**
-     * Get the path where the XML file containing the user selected default file
-     * is located.
+     * Gets the path where the XML file containing the user selected default
+     * file is located.
      * 
      * @return The path of the user selected default file XML.
      */
     public String getDefaultThresholdFilePath() {
         String fs = String.valueOf(File.separatorChar);
         StringBuilder sb = new StringBuilder();
-
-        sb.append(appName).append(fs);
+        sb.append(appName.name().toLowerCase()).append(fs);
         sb.append("threshold").append(fs);
         sb.append("display").append(fs);
         sb.append("defaultThresh").append(fs);
-
         return sb.toString();
     }
 
@@ -686,7 +656,6 @@ public abstract class AbstractThresholdMgr {
         } else if (dataUsageKey == DataUsageKey.MONITOR) {
             return monitorThreshMgr.getThresholdsXmlCopy();
         }
-
         return null;
     }
 
@@ -698,7 +667,6 @@ public abstract class AbstractThresholdMgr {
      */
     public boolean deleteFile(LocalizationFile fileName) {
         boolean deletedUserSelectedDefault = false;
-
         String fileNameStr = fileName.getFile().getName();
 
         /*
@@ -712,7 +680,6 @@ public abstract class AbstractThresholdMgr {
             loadDefaultDisplayThreshold();
             deletedUserSelectedDefault = true;
         }
-
         /*
          * Delete the file.
          */
@@ -721,7 +688,6 @@ public abstract class AbstractThresholdMgr {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return deletedUserSelectedDefault;
     }
 
@@ -736,7 +702,6 @@ public abstract class AbstractThresholdMgr {
         if (dataUsageKey == DataUsageKey.DISPLAY) {
             return displayThreshMgr.getThresholdXML().hasAreaId(areaID);
         }
-
         return monitorThreshMgr.getThresholdXML().hasAreaId(areaID);
     }
 
@@ -764,34 +729,17 @@ public abstract class AbstractThresholdMgr {
         ArrayList<AreaXML> areasArray = displayXML.getAreas();
 
         for (AreaXML area : areasArray) {
-            System.out.println("--- " + area.getAreaId());
+            statusHandler.handle(Priority.DEBUG, "--- " + area.getAreaId());
 
             ArrayList<AreaThresholdXML> atXmlArray = area.getAreaThresholds();
 
             for (AreaThresholdXML atXml : atXmlArray) {
-                System.out.println("******    " + atXml.getKey());
-                System.out.println("     R    " + atXml.getRed());
-                System.out.println("     Y    " + atXml.getYellow());
-            }
-        }
-    }
-
-    public void printDisplayThresholdsXMLCopy() {
-        if (threshXmlCopy == null) {
-            threshXmlCopy = displayThreshMgr.getThresholdsXmlCopy();
-        }
-
-        ArrayList<AreaXML> areasArray = threshXmlCopy.getAreas();
-
-        for (AreaXML area : areasArray) {
-            System.out.println("--- " + area.getAreaId());
-
-            ArrayList<AreaThresholdXML> atXmlArray = area.getAreaThresholds();
-
-            for (AreaThresholdXML atXml : atXmlArray) {
-                System.out.println("******    " + atXml.getKey());
-                System.out.println("     R    " + atXml.getRed());
-                System.out.println("     Y    " + atXml.getYellow());
+                statusHandler.handle(Priority.DEBUG,
+                        "******    " + atXml.getKey());
+                statusHandler.handle(Priority.DEBUG,
+                        "     R    " + atXml.getRed());
+                statusHandler.handle(Priority.DEBUG,
+                        "     Y    " + atXml.getYellow());
             }
         }
     }
@@ -801,6 +749,37 @@ public abstract class AbstractThresholdMgr {
      * 
      * @return manager
      */
-    protected abstract FSSObsMonitorConfigurationManager getMonitorAreaConfigInstance();
+    public FSSObsMonitorConfigurationManager getCfgMgr() {
+        FSSObsMonitorConfigurationManager mgr = null;
+        switch (this.appName) {
+        case FOG:
+            mgr = FSSObsMonitorConfigurationManager.getInstance(MonName.fog);
+            break;
+        case SAFESEAS:
+            mgr = FSSObsMonitorConfigurationManager.getInstance(MonName.ss);
+            break;
+        case SNOW:
+            mgr = FSSObsMonitorConfigurationManager.getInstance(MonName.snow);
+            break;
+        default:
+            statusHandler.error("Unable to handle unknown appName: "
+                    + this.appName);
+            break;
+        }
+        return mgr;
+    }
 
+    /**
+     * @return
+     */
+    public DataUsageKey getDataUsageKey() {
+        return dataUsageKey;
+    }
+
+    /**
+     * @param dataUsageKey
+     */
+    public void setDataUsageKey(DataUsageKey dataUsageKey) {
+        this.dataUsageKey = dataUsageKey;
+    }
 }

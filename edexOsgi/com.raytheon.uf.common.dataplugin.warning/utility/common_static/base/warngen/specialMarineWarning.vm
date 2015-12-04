@@ -256,7 +256,7 @@ THIS IS A TEST MESSAGE. ##
 #set($specialEvent = "This ${eventType}")
 #set($reportType2 = "The ${eventType} was")
 #if(${stormType} == "line")
-	#set($stormline = "a line of ${eventType}s")
+	#set($stormline = "${eventType}s")
 	#set($secondStorm = "These ${eventType2}s were")
 	#set($pathheader = "${eventType}S")
 	#set($specialEvent = "these ${eventType}s")
@@ -431,7 +431,7 @@ Frequent lightning is occurring with this storm. If caught on the open water sta
 
 #end
 #if(${list.contains(${bullets}, "reportCTA")})
-Report severe weather to the coast guard or nearest law enforcement agency. They will relay your report to the National Weather Service office.
+Report severe weather to the Coast Guard or nearest law enforcement agency. They will relay your report to the National Weather Service office.
 
 #end
 #if(${ctaSelected} == "YES")

@@ -4403,19 +4403,38 @@
 			<parameter>TPFI</parameter>
 		</paramLevelMatches>
 		<imageStyle>
-			<interpolate>false</interpolate>
             <displayUnits>*1</displayUnits>
 			<range scale="LINEAR">
-				<minValue>0</minValue>  <!--  AWIPS I GribImgDecoder scaling -->
+				<minValue>0</minValue>
 				<maxValue>1</maxValue>
 			</range>
-			<defaultColormap>Grid/aviation_turbulence_index</defaultColormap>
+			<defaultColormap>Grid/clear_air_turb</defaultColormap>
             <dataMapping>
             	<entry pixelValue="0.0" operator="&gt;" label="NO DATA" />
-                <entry pixelValue="0.098" operator="&gt;" displayValue='0.125'  label="Light" />
-                <entry pixelValue="0.294" operator="&gt;" displayValue='0.375'  label="Moderate" />
-                <entry pixelValue="0.490" operator="&gt;" displayValue='0.625'  label="Severe" />
-                <entry pixelValue="0.784" operator="&gt;" displayValue='0.875'  label="Extreme" />
+                <entry pixelValue="0.17" operator="&gt;" displayValue='0.170'  label="Light" />
+                <entry pixelValue="0.42" operator="&gt;" displayValue='0.239'  label="Moderate" />
+                <entry pixelValue="0.70" operator="&gt;" displayValue='0.539'  label="Severe" />
+                <entry pixelValue="0.96" operator="&gt;" displayValue='0.959'  label="Extreme" />
+            </dataMapping>
+		</imageStyle>
+	</styleRule>
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>CAT</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+            <displayUnits label=" ">%</displayUnits>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>1</maxValue>
+			</range>
+			<defaultColormap>Grid/clear_air_turb</defaultColormap>
+            <dataMapping>
+                <entry pixelValue="0.0" operator="&gt;" label="NO DATA" />
+                <entry pixelValue="0.17" operator="&gt;" displayValue='0.170'  label="Light" />
+                <entry pixelValue="0.42" operator="&gt;" displayValue='0.239'  label="Moderate" />
+                <entry pixelValue="0.70" operator="&gt;" displayValue='0.539'  label="Severe" />
+                <entry pixelValue="0.96" operator="&gt;" displayValue='0.959'  label="Extreme" />
             </dataMapping>
 		</imageStyle>
 	</styleRule>

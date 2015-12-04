@@ -24,15 +24,23 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.viz.monitor.ProcessObsJob;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig.CellType;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig.ObsHistType;
 import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
@@ -50,10 +58,11 @@ import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
  * Dec. 1, 2009  3424       zhao       Initial creation.
  * Dec 24, 2009  3424       zhao       added getTrendDataSet() that returns ObTrendDataSet object
  * Jan 25, 2010  4281, 3888, 3877 wkwock/zhao added getHistTableData method
- * Oct.31, 2012  1297       skorolev    Clean code.
- * Jan. 29, 2013 15654      zhao       add Wind Chill calculation for SNOW 
- * Sep 04, 2014  3220       skorolev   Updated getStationTableData method.
- *
+ * Oct 31, 2012  1297      skorolev    Clean code.
+ * Jan 29, 2013 15654      zhao        add Wind Chill calculation for SNOW 
+ * Sep 04, 2014  3220      skorolev    Updated getStationTableData method.
+ * Sep 25, 2015  3873      skorolev    Added multiHrsTabData. Corrected getEmptyZoneTableData().
+ * 
  * </pre>
  * 
  * @author zhao
@@ -61,6 +70,8 @@ import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
  */
 
 public class ObMultiHrsReports {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ObMultiHrsReports.class);
 
     /**
      * Thresholds manager
@@ -75,20 +86,21 @@ public class ObMultiHrsReports {
     /**
      * application name (snow, fog, safeseas, etc)
      */
-    private CommonConfig.AppName appName;
+    private final CommonConfig.AppName appName;
 
     /**
-     * key is nominal time, value is ObHourReports object
+     * FSSObs records cache. Key is nominal time, value is ObHourReports object
      */
-    private SortedMap<Date, ObHourReports> multiHrsReports;
+    private SortedMap<Date, ObHourReports> multiHrsReports = new TreeMap<Date, ObHourReports>();
 
     /**
-     * The maximum number of most recent hours within which observation reports
-     * are to be archived. TODO: move MAX_FRAMES to a configuration file?
+     * Monitor Table data cache. Key is nominal time, value is TableData
      */
-    private final int MAX_FRAMES = 64;
+    private ConcurrentHashMap<Date, TableData> multiHrsTabData = new ConcurrentHashMap<Date, TableData>();
 
-    private int maxFrames = MAX_FRAMES;
+    private final int maxFrames = ObConst.MAX_FRAMES;
+
+    private FSSObsMonitorConfigurationManager cfgMgr = null;
 
     /**
      * Constructor
@@ -97,28 +109,16 @@ public class ObMultiHrsReports {
      */
     public ObMultiHrsReports(CommonConfig.AppName appName) {
         this.appName = appName;
-        multiHrsReports = new TreeMap<Date, ObHourReports>();
-        if (appName.equals(AppName.FOG) || appName.equals(AppName.SAFESEAS)) {
-            initFogAlgCellType();
-        }
-    }
 
-    /**
-     * Add an array of ObReport objects to the ObMultiHrsReports object (Don't
-     * use! VK)
-     * 
-     * @param result
-     */
-    public void addReports(ObReport[] results) {
-        for (ObReport report : results) {
-            /**
-             * DR #8723: if wind speed is zero, wind direction should be N/A,
-             * not 0
-             */
-            if (report.getWindSpeed() < 0.0001) { // zero wind speed
-                report.setWindDir(ObConst.MISSING);
+        if (appName.equals(AppName.FOG) || appName.equals(AppName.SAFESEAS)) {
+            if (appName.equals(AppName.FOG)) {
+                cfgMgr = FSSObsMonitorConfigurationManager
+                        .getInstance(MonName.fog);
+            } else if (appName.equals(AppName.SAFESEAS)) {
+                cfgMgr = FSSObsMonitorConfigurationManager
+                        .getInstance(MonName.ss);
             }
-            addReport(report);
+            initFogAlgCellType();
         }
     }
 
@@ -129,8 +129,6 @@ public class ObMultiHrsReports {
      * @return returns multiHrsReports
      */
     public void addReport(ObReport report) {
-        // Date nominalTime = TableUtil
-        // .getNominalTime(report.getObservationTime());
         Date nominalTime = report.getRefHour();
         /**
          * DR #8723: if wind speed is zero, wind direction should be N/A, not 0
@@ -151,50 +149,56 @@ public class ObMultiHrsReports {
         /**
          * DR15654: set Wind Chill for SNOW
          */
-        if ( appName == AppName.SNOW ) {
-            if ( report.getTemperature() != ObConst.MISSING && report.getWindSpeed() != ObConst.MISSING ) {
-            	report.setWindChill(calcWindChill( report.getTemperature(), report.getWindSpeed() ));
+        if (appName == AppName.SNOW) {
+            if (report.getTemperature() != ObConst.MISSING
+                    && report.getWindSpeed() != ObConst.MISSING) {
+                report.setWindChill(calcWindChill(report.getTemperature(),
+                        report.getWindSpeed()));
             }
-        	
         }
-        
-        if (multiHrsReports.containsKey(nominalTime)) {
-            multiHrsReports.get(nominalTime).addReport(report);
+        ObHourReports obHourReports;
+        // new nominal time; create a new ObHourReports object
+        if (multiHrsReports.isEmpty()
+                || !multiHrsReports.containsKey(nominalTime)) {
+            obHourReports = new ObHourReports(nominalTime, appName,
+                    thresholdMgr);
         } else {
-            // new nominal time; create a new ObHourReports object
+            // the map is full; delete the oldest entry
             if (multiHrsReports.size() >= maxFrames) {
-                // the map is full; delete the oldest entry
                 multiHrsReports.remove(multiHrsReports.firstKey());
             }
-            ObHourReports obHourReports = new ObHourReports(nominalTime,
-                    appName, thresholdMgr);
-            obHourReports.addReport(report);
-            multiHrsReports.put(nominalTime, obHourReports);
+            // update multiHrsReports with new data
+            obHourReports = multiHrsReports.get(nominalTime);
         }
+        obHourReports.addReport(report);
+        // update data cache
+        multiHrsReports.put(nominalTime, obHourReports);
+        TableData tblData = obHourReports.getZoneTableData();
+        multiHrsTabData.put(nominalTime, tblData);
     }
 
-	/**
-	 * DR 15654:
-	 * Wind Chill calculation formula based on 
-	 * http://www.nws.noaa.gov/om/windchill/
-	 * as of Jan. 29, 2013
-	 * 
-	 * @param temperature in degree F
-	 * @param windSpeed in knots
-	 * @return wind chill in degree F
-	 */
-	private float calcWindChill(float temp, float windSpd) {
-		if ( temp > 50.0 || windSpd < 3.0 ) {
-			return ObConst.MISSING;
-		}
-		/**
-		 *  1 knots = 1.15078 mph
-		 */
-		float spd = (float) Math.pow(1.15078*windSpd, 0.16);
-		return 35.74f + 0.6215f*temp - 35.75f*spd + 0.4275f*temp*spd;
-	}
+    /**
+     * DR 15654: Wind Chill calculation formula based on
+     * http://www.nws.noaa.gov/om/windchill/ as of Jan. 29, 2013
+     * 
+     * @param temp
+     *            in degree F
+     * @param windSpd
+     *            in knots
+     * @return wind chill in degree F
+     */
+    private float calcWindChill(float temp, float windSpd) {
+        if (temp > 50.0 || windSpd < 3.0) {
+            return ObConst.MISSING;
+        }
+        /**
+         * 1 knots = 1.15078 mph
+         */
+        float spd = (float) Math.pow(1.15078 * windSpd, 0.16);
+        return 35.74f + 0.6215f * temp - 35.75f * spd + 0.4275f * temp * spd;
+    }
 
-	/**
+    /**
      * Returns a zone TableData object of the latest nominal time. If no data
      * available (the map is empty), returns an empty zone TableData object
      * (table cells filled with "N/A").
@@ -211,26 +215,31 @@ public class ObMultiHrsReports {
     /**
      * Returns a zone TableData object for a caller-specified nominal-time. If
      * no data available, returns an empty/default zone TableData object (table
-     * cells filled with "N/A").
+     * cells filled with "N/A"). Updates multiHrsTabData table cache.
      * 
      * @param nominalTime
      * @return
      */
     public TableData getZoneTableData(Date nominalTime) {
+        TableData tabData = null;
         if (nominalTime == null || !multiHrsReports.containsKey(nominalTime)) {
             return getEmptyZoneTableData();
         }
         if (appName == AppName.FOG) {
-            return this.getObHourReports(nominalTime).getFogZoneTableData(
+            tabData = this.getObHourReports(nominalTime).getFogZoneTableData(
                     fogAlgCellType);
-        }
-        if (appName == AppName.SAFESEAS) {
-            return this.getObHourReports(nominalTime).getSSZoneTableData(
+        } else if (appName == AppName.SAFESEAS) {
+            tabData = this.getObHourReports(nominalTime).getSSZoneTableData(
                     fogAlgCellType);
-        }
 
-        return this.getObHourReports(nominalTime).getZoneTableData();
-        // return multiHrsReports.get(nominalTime).getZoneTableData();
+        } else {
+            tabData = this.getObHourReports(nominalTime).getZoneTableData();
+        }
+        // update table data cache
+        if (multiHrsTabData.replace(nominalTime, tabData) == null) {
+            multiHrsTabData.put(nominalTime, tabData);
+        }
+        return tabData;
     }
 
     /**
@@ -239,19 +248,27 @@ public class ObMultiHrsReports {
      * @return
      */
     public TableData getEmptyZoneTableData() {
-        Date nominalTime = TableUtil.getNominalTime(SimulatedTime
-                .getSystemTime().getTime());
+        long currentTime = SimulatedTime.getSystemTime().getMillis();
+        Date nominalTime = new Date(currentTime
+                - (ProcessObsJob.HOUR_BACK * TimeUtil.MILLIS_PER_HOUR));
+
         ObHourReports hourReports = new ObHourReports(nominalTime, appName,
                 thresholdMgr);
+        TableData tabData = null;
         if (appName == AppName.FOG) {
-            return hourReports.getFogZoneTableData(fogAlgCellType);
+            tabData = hourReports.getFogZoneTableData(fogAlgCellType);
+        } else {
+            tabData = hourReports.getZoneTableData();
         }
-        return hourReports.getZoneTableData();
+        return tabData;
     }
 
     /**
      * Returns the station TableData object for the latest nominal time. If no
      * data available, an empty/default station TableData object is returned
+     * 
+     * @param zone
+     * @return
      */
     public TableData getStationTableData(String zone) {
         if (multiHrsReports.isEmpty()) {
@@ -264,9 +281,13 @@ public class ObMultiHrsReports {
      * Returns a station TableData object for a caller-specified nominal-time
      * and zone ID. If no data available, an empty/default station TableData
      * object is returned.
+     * 
+     * @param nominalTime
+     * @param zone
+     * @return
      */
     public TableData getStationTableData(Date nominalTime, String zone) {
-        if(zone.equals("")){
+        if (zone.equals("")) {
             return this.getEmptyZoneTableData();
         }
         if (nominalTime == null) {
@@ -296,6 +317,7 @@ public class ObMultiHrsReports {
      * @param zone
      * @param Station
      * @param varName
+     * @param productName
      * @return ObTrendDataSet object, or null if no data available
      */
     public ObTrendDataSet getTrendDataSet(String zone, String station,
@@ -304,81 +326,45 @@ public class ObMultiHrsReports {
         if (multiHrsReports.isEmpty()) {
             return null;
         }
-
-        // Trend plot for the past 24 hours.
-        // Instead of using present time as the latest time,
-        // here we use the latest nominal time as the latest time
-        // and get data within 24 hours before the latest nominal time
-        // [probably present time should be used as the latest time for trending
-        // plots-- fix this later]
-
-        Date latestNominalTime = multiHrsReports.lastKey();
-
-        // determine trending start nominal time
-        Date startNominalTime = multiHrsReports.firstKey();
-
-        // startNominalTime must be within 24 hours before latestNominalTime
-        long diff = (latestNominalTime.getTime() - startNominalTime.getTime())
-                / (60 * 60 * 60); // difference in hour between the two dates
-        if (diff > 24) {
-            // find the startNominalTime
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(latestNominalTime);
-            cal.add(Calendar.DAY_OF_YEAR, -1);
-            Date expectedStartNominalTime = cal.getTime(); // expected, but may
-                                                           // not exist in
-                                                           // multiHrsReports
-            if (multiHrsReports.containsKey(expectedStartNominalTime)) {
-                startNominalTime = expectedStartNominalTime;
-            } else {
-                // this iterator is ordered since multiHrsReports is a sorted
-                // map
-                Iterator<Date> iterator = multiHrsReports.keySet().iterator();
-
-                while (iterator.hasNext()) {
-                    Date nominalTime = iterator.next();
-                    if (nominalTime.compareTo(expectedStartNominalTime) >= 0) {
-                        startNominalTime = nominalTime;
-                        break;
-                    }
-                }
-            }
-        }
-
         // get data
         ObTrendDataSet trendData = new ObTrendDataSet(zone, varName,
                 productName, appName, thresholdMgr);
-        // trendData.setThresholdMgr(thresholdMgr);
+
         Iterator<Date> nominalTimeIterator = multiHrsReports.keySet()
                 .iterator();
+        Date start = findStartNominalTime();
         while (nominalTimeIterator.hasNext()) {
             Date nominalTime = nominalTimeIterator.next();
-            if (nominalTime.compareTo(startNominalTime) >= 0) {
-                Set<Date> obsTimes = this.getObHourReports(nominalTime)
+            if (nominalTime.compareTo(start) >= 0) {
+                ObStnHourReports stnHrRpts = this.getObHourReports(nominalTime)
                         .getObZoneHourReports(zone)
-                        .getObStnHourReports(station).getObsTimes();
-                if (obsTimes != null) {
-                    for (Date obsTime : obsTimes) {
-                        trendData.addDataPoint(obsTime,
-                                new Float(this.getObHourReports(nominalTime)
-                                        .getObZoneHourReports(zone)
-                                        .getObStnHourReports(station)
-                                        .getObReport(obsTime).get(varName)));
+                        .getObStnHourReports(station);
+                if (stnHrRpts != null) {
+                    Set<Date> obsTimes = stnHrRpts.getObsTimes();
+                    if (obsTimes != null) {
+                        for (Date obsTime : obsTimes) {
+                            trendData.addDataPoint(obsTime, new Float(stnHrRpts
+                                    .getObReport(obsTime).get(varName)));
+                        }
+                    } else {
+                        continue;
                     }
                 }
             }
         }
-
         return trendData;
     }
 
     /**
+     * Gets History Table Data
      * 
+     * @param zone
+     *            : current zone
      * @param station
-     *            station ID
+     *            : station ID
      * @param obsType
-     *            ObsHistType
-     * @return TableData object for obs history table
+     *            : ObsHistType
+     * @return
      */
     public TableData getHistTableData(String zone, String station,
             ObsHistType obsType) {
@@ -387,37 +373,69 @@ public class ObMultiHrsReports {
         if (multiHrsReports.isEmpty()) {
             return tblData;
         }
+        ArrayList<TableRowData> tblRows = new ArrayList<TableRowData>();
+        Iterator<Date> nominalTimeIterator = multiHrsReports.keySet()
+                .iterator();
+        Date start = findStartNominalTime();
+        while (nominalTimeIterator.hasNext()) {
+            Date nominalTime = nominalTimeIterator.next();
+            if (nominalTime.compareTo(start) >= 0) {
+                ObStnHourReports stnHrRpts = this.getObHourReports(nominalTime)
+                        .getObZoneHourReports(zone)
+                        .getObStnHourReports(station);
+                if (stnHrRpts != null) {
+                    Set<Date> obsTimes = stnHrRpts.getObsTimes();
+                    if (obsTimes != null) {
+                        for (Date obsTime : obsTimes) {
+                            ObReport report = stnHrRpts.getObReport(obsTime);
+                            tblRows.add(TableUtil.getHistTableRowData(appName,
+                                    obsType, report));
+                        }
+                    } else {
+                        continue;
+                    }
+                }
+            }
+        }
 
+        /**
+         * sort first column descending in obs time
+         */
+        ArrayList<TableRowData> tblRows2 = new ArrayList<TableRowData>();
+        for (int i = 0; i < tblRows.size(); i++) {
+            tblRows2.add(tblRows.get(tblRows.size() - 1 - i));
+        }
+        tblData.setTableRows(tblRows2);
+        return tblData;
+    }
+
+    private Date findStartNominalTime() {
         // Trend plot for the past 24 hours.
         // Instead of using present time as the latest time,
         // here we use the latest nominal time as the latest time
         // and get data within 24 hours before the latest nominal time
         // [probably present time should be used as the latest time for trending
         // plots-- fix this later]
-
         Date latestNominalTime = multiHrsReports.lastKey();
-
         // determine trending start nominal time
         Date startNominalTime = multiHrsReports.firstKey();
-
         // startNominalTime must be within 24 hours before latestNominalTime
         long diff = (latestNominalTime.getTime() - startNominalTime.getTime())
-                / (60 * 60 * 60); // difference in hour between the two dates
+                / TimeUtil.MILLIS_PER_HOUR;
+        // difference in hours between the two dates
         if (diff > 24) {
             // find the startNominalTime
             Calendar cal = Calendar.getInstance();
             cal.setTime(latestNominalTime);
             cal.add(Calendar.DAY_OF_YEAR, -1);
-            Date expectedStartNominalTime = cal.getTime(); // expected, but may
-                                                           // not exist in
-                                                           // multiHrsReports
+            // expected, but may not exist in multiHrsReports
+            Date expectedStartNominalTime = cal.getTime();
             if (multiHrsReports.containsKey(expectedStartNominalTime)) {
                 startNominalTime = expectedStartNominalTime;
             } else {
                 // this iterator is ordered since multiHrsReports is a sorted
                 // map
                 Iterator<Date> iterator = multiHrsReports.keySet().iterator();
-
                 while (iterator.hasNext()) {
                     Date nominalTime = iterator.next();
                     if (nominalTime.compareTo(expectedStartNominalTime) >= 0) {
@@ -427,81 +445,50 @@ public class ObMultiHrsReports {
                 }
             }
         }
-
-        // get data
-        ArrayList<TableRowData> tblRows = new ArrayList<TableRowData>();
-        Iterator<Date> nominalTimeIterator = multiHrsReports.keySet()
-                .iterator();
-        while (nominalTimeIterator.hasNext()) {
-            Date nominalTime = nominalTimeIterator.next();
-            if (nominalTime.compareTo(startNominalTime) >= 0) {
-                Set<Date> obsTimes = this.getObHourReports(nominalTime)
-                        .getObZoneHourReports(zone)
-                        .getObStnHourReports(station).getObsTimes();
-                if (obsTimes != null) {
-                    for (Date obsTime : obsTimes) {
-                        ObReport report = getObHourReports(nominalTime)
-                                .getObZoneHourReports(zone)
-                                .getObStnHourReports(station)
-                                .getObReport(obsTime);
-
-                        tblRows.add(TableUtil.getHistTableRowData(appName,
-                                obsType, report));
-                    }
-                }
-            }
-        }
-
-        /**
-         * sort first column descending in obs time
-         */
-
-        ArrayList<TableRowData> tblRows2 = new ArrayList<TableRowData>();
-        for (int i = 0; i < tblRows.size(); i++) {
-            tblRows2.add(tblRows.get(tblRows.size() - 1 - i));
-        }
-
-        tblData.setTableRows(tblRows2);
-
-        return tblData;
+        return startNominalTime;
     }
 
     /**
-     * Returns a SortedMap object <nominal time, ObHourReports object>
+     * Gets table cache
      * 
-     * @return multiHrsReports
+     * @return
+     */
+    public ConcurrentHashMap<Date, TableData> getMultiHrsTabData() {
+        return multiHrsTabData;
+    }
+
+    /**
+     * Sets table cache
+     * 
+     * @param multiHrsTabData
+     */
+    public void setMultiHrsTabData(
+            ConcurrentHashMap<Date, TableData> multiHrsTabData) {
+        this.multiHrsTabData = multiHrsTabData;
+    }
+
+    /**
+     * Gets data cache
+     * 
+     * @return SortedMap object <nominal time, ObHourReports object>
      */
     public SortedMap<Date, ObHourReports> getMultiHrsReports() {
         return multiHrsReports;
     }
 
     /**
-     * Returns a SortedMap object (key is nominal time, value is zone TableData
-     * object)
+     * Sets data cache
      * 
-     * @return
+     * @param multiHrsReports
      */
-    public SortedMap<Date, TableData> getMultiHrsTableData() {
-        SortedMap<Date, TableData> multiHrsTblData = new TreeMap<Date, TableData>();
-        if (appName == AppName.FOG) {
-            for (Date nominalTime : multiHrsReports.keySet()) {
-                multiHrsTblData.put(
-                        nominalTime,
-                        multiHrsReports.get(nominalTime).getFogZoneTableData(
-                                fogAlgCellType));
-            }
-            return multiHrsTblData;
-        }
-        for (Date nominalTime : multiHrsReports.keySet()) {
-            multiHrsTblData.put(nominalTime, multiHrsReports.get(nominalTime)
-                    .getZoneTableData());
-        }
-        return multiHrsTblData;
+    public void setMultiHrsReports(
+            SortedMap<Date, ObHourReports> multiHrsReports) {
+        this.multiHrsReports = multiHrsReports;
     }
 
     /**
-     * Returns the latest nominal time if the map is not empty; otherwise,
-     * returns the nominal time of the present date-time
+     * Gets the Latest NominalTime Returns the latest nominal time if the map is
+     * not empty; otherwise, returns the nominal time of the present date-time
      * 
      * @return
      */
@@ -517,31 +504,39 @@ public class ObMultiHrsReports {
     }
 
     /**
-     * Returns a set of nominal times
+     * Gets Nominal Times
      * 
-     * @return
+     * @return a set of nominal times
      */
     public Set<Date> getNominalTimes() {
         return multiHrsReports.keySet();
     }
 
     /**
-     * Returns the ObHourReports object of the latest nominal time. If no data
-     * available, returns an empty ObHourReports object.
+     * Gets ObHourReports Returns the ObHourReports object of the latest nominal
+     * time. If no data available, returns an empty ObHourReports object.
      * 
      * @return
      */
     public ObHourReports getObHourReports() {
         if (multiHrsReports.isEmpty()) {
-            return new ObHourReports(TableUtil.getNominalTime(SimulatedTime
-                    .getSystemTime().getTime()), appName, thresholdMgr);
+            ObHourReports obHrsReps = new ObHourReports(
+                    TableUtil.getNominalTime(SimulatedTime.getSystemTime()
+                            .getTime()), appName, thresholdMgr);
+            // Save table data cache.
+            Date refTm = obHrsReps.getNominalTime();
+            TableData tabData = obHrsReps.getZoneTableData();
+            multiHrsTabData.clear();
+            multiHrsTabData.put(refTm, tabData);
+            return obHrsReps;
         }
         return multiHrsReports.get(multiHrsReports.lastKey());
     }
 
     /**
-     * Returns an ObHourReports object of a caller-specified nominal time. If no
-     * data available, returns an empty ObHourReports object.
+     * Gets ObHourReports Returns an ObHourReports object of a caller-specified
+     * nominal time. If no data available, returns an empty ObHourReports
+     * object.
      * 
      * @param nominalTime
      * @return
@@ -574,6 +569,7 @@ public class ObMultiHrsReports {
     }
 
     /**
+     * Gets Threshold Manager
      * 
      * @return the threshold manager
      */
@@ -591,6 +587,7 @@ public class ObMultiHrsReports {
     }
 
     /**
+     * Gets map of types for ALG cell
      * 
      * @return fogAlgCellType
      */
@@ -603,11 +600,20 @@ public class ObMultiHrsReports {
      */
     private void initFogAlgCellType() {
         fogAlgCellType = new HashMap<String, CellType>();
-        Set<String> zones = MonitoringArea.getPlatformMap().keySet();
+        List<String> zones = cfgMgr.getAreaList();
         Iterator<String> itr = zones.iterator();
         while (itr.hasNext()) {
             fogAlgCellType.put(itr.next(), CellType.NotAvailable);
         }
         setFogAlgCellType(fogAlgCellType);
+    }
+
+    /**
+     * Updates table cache
+     */
+    public void updateTableCache() {
+        for (Date time : multiHrsReports.keySet()) {
+            getZoneTableData(time);
+        }
     }
 }

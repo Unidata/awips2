@@ -51,6 +51,8 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * 11/19/2008   1662      grichard     Updated loadPeRaw.
  * 11/24/2008   1662      grichard     Added utility methods for raw precip.
  * 09/26/2012   15385     lbousaidi    fixed duplicate entries in gage table.
+ * 11/04/2015   5100      bkowal       Fixes to handle records that spanned
+ *                                     hour 24 to hour 1.
  * </pre>
  * 
  * @author grichard
@@ -189,8 +191,8 @@ public final class PrecipUtil {
      */
     public static final String SUM_PC_REPORTS = "sum_pc_reports";
 
-    static {       
-    	sdf = new SimpleDateFormat("yyyy-MM-dd");
+    static {
+        sdf = new SimpleDateFormat("yyyy-MM-dd");
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
@@ -1181,9 +1183,20 @@ public final class PrecipUtil {
          */
         value_found = false;
         start_value = (short) MISSING_PRECIP;
+        /*
+         * Adjust for records returned that span more than one day. Simplest fix
+         * without doing a significant rewrite of the algorithm. Not completely
+         * optimal; however, this ensures that start->end is processed every
+         * time.
+         */
+        if (start_hour == end_hour && start_hour == 1) {
+            start_hour = 24;
+            ++pStartPCIdx;
+            pEndPCIdx += 2;
+        }
 
         while ((pStartPCIdx < hourlyPCList.size())
-                && ((pStartPCIdx != pEndPCIdx) || (start_hour < end_hour))) {
+                && ((pStartPCIdx != pEndPCIdx) || (start_hour < end_hour) || (start_hour == 24 && end_hour == 1))) {
             Hourlypc pStartPC = hourlyPCList.get(pStartPCIdx);
             start_value = get_hour_slot_value(pStartPC, start_hour);
 
@@ -1554,17 +1567,18 @@ public final class PrecipUtil {
         Calendar pTm = null;
         pTm = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         pTm.setTime(query_begin_time);
-        if (pTm.get(Calendar.HOUR_OF_DAY) == 0) {
+        if (pTm.get(Calendar.HOUR_OF_DAY) == 0
+                || pTm.get(Calendar.HOUR_OF_DAY) == 1) {
             pTm.add(Calendar.DAY_OF_MONTH, -1);
         }
         /* Need to convert the query begin and end times into dates. */
-        String beginstr = sdf.format(pTm.getTime());  
-        
-        pTm.setTime(query_end_time);        
+        String beginstr = sdf.format(pTm.getTime());
+
+        pTm.setTime(query_end_time);
         if (pTm.get(Calendar.HOUR_OF_DAY) == 0) {
             pTm.add(Calendar.DAY_OF_MONTH, -1);
         }
-        
+
         String endstr = sdf.format(pTm.getTime());
 
         /* consider according to whether type-source specified. */
@@ -1581,12 +1595,11 @@ public final class PrecipUtil {
             where.append(" AND ");
         }
 
-        
         where.append("id.obsdate between '");
         where.append(beginstr);
         where.append("' AND '");
         where.append(endstr);
-        where.append("' ORDER BY id.lid ASC, id.ts ASC, id.obsdate ASC");       
+        where.append("' ORDER BY id.lid ASC, id.ts ASC, id.obsdate ASC");
         return where.toString();
     }
 
@@ -1721,7 +1734,7 @@ public final class PrecipUtil {
             break;
 
         case 24:
-
+        case 0:
             precip_value = pHourlyPP.getHour24();
             break;
 

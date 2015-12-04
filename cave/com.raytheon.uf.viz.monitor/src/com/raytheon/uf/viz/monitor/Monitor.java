@@ -24,10 +24,10 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import com.raytheon.uf.common.jms.notification.NotificationMessage;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
-import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.monitor.events.IMonitorEvent;
 import com.raytheon.uf.viz.monitor.listeners.IMonitorConfigurationListener;
 import com.raytheon.uf.viz.monitor.listeners.IMonitorListener;
@@ -46,7 +46,9 @@ import com.raytheon.viz.alerts.observers.ProductAlertObserver;
  * 2/27/2009    2047       grichard    Use 'foreach' in 'arrived' methods.
  * 3/2/2009     2047       grichard    Added stationId resolution method.
  * 3/5/2009     2047       grichard    Made plugin and station names arrays.
- * Dec 18, 2009 3424       zhao        Made addMinitorListener public
+ * Dec 18, 2009 3424       zhao        Made addMinitorListener public.
+ * Sep 20, 2015 3873       skorolev    Replaced deprecated NotificationMessage.
+ * 
  * </pre>
  * 
  * @author dhladky
@@ -199,7 +201,6 @@ public abstract class Monitor implements IMonitor, IMonitorThresholdListener,
 
         final Monitor fmonitor = this;
         final String ftype = type;
-        // System.out.println("Listener class: "+type);
 
         VizApp.runAsync(new Runnable() {
             public void run() {

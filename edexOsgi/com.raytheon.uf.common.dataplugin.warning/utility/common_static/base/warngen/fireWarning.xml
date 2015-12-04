@@ -6,6 +6,7 @@
               Evan Bookbinder 09-12-2012 added new areaSource object
               Phil Kurimski   09-19-2013 added geospatialConfig.xml
               Mike Dangelo    06-25-2014 disabled autoLockText and added example requesting agency bullets
+              Dave Tomalak    10-23-2015 added Forecast Zones to default maps
  -->
 <warngenConfig>
 
@@ -33,6 +34,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  	The various menu items are also the different maps
  	that can be loaded with each template. -->
  <maps>
+  <map>Forecast Zones</map>
   <map>County Names</map>
   <map>County Warning Areas</map>
  </maps>

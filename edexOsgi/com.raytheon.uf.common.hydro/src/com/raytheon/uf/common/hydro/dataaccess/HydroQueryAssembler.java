@@ -44,6 +44,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  *                                     single request.
  * Mar 05, 2015 4217       mapeters    Available times are sorted in DataAccessLayer.
  * May 12, 2015 4409       mapeters    Fix spacing in assembleGetData().
+ * Oct 23, 2015 5013       mapeters    Alias automatically retrieved columns in assembleGetData().
  * 
  * </pre>
  * 
@@ -58,6 +59,10 @@ public class HydroQueryAssembler {
     private static final String TIME_COL = "producttime";
 
     private static final String LID_COL = "lid";
+
+    private static final String TIME_COL_ALIAS = "timeColumn" + TIME_COL;
+
+    private static final String LID_COL_ALIAS = "locationColumn" + LID_COL;
 
     /**
      * Don't allow instantiation
@@ -107,11 +112,13 @@ public class HydroQueryAssembler {
     private static CharSequence assembleGetData(IDataRequest request,
             CharSequence timeConstraint) {
         StringBuilder sb = new StringBuilder();
-        // this method assembles a sql string such as:
-        // select d.lid, d.productttime, d.value, l.lat, l.lon from height d,
-        // location l where d.lid = 'ABRN1' and d.lid = l.lid;
-        // It is requesting the lat/lons of the location every time which
-        // could potentially be improved in efficiency.
+        /*
+         * this method assembles a sql string such as: select d.lid as
+         * locationColumnlid, d.producttime as timeColumnproducttime, d.value,
+         * l.lat, l.lon from height d, location l where d.lid = 'ABRN1' and
+         * d.lid = l.lid; It is requesting the lat/lons of the location every
+         * time which could potentially be improved in efficiency.
+         */
 
         // select
         sb.append(buildSelectParams(request));
@@ -123,10 +130,13 @@ public class HydroQueryAssembler {
         CharSequence where = buildWhere(request, timeConstraint);
         if (where.length() > 0) {
             sb.append(where);
-            sb.append(" and d.lid = l.lid");
+            sb.append(" and ");
         } else {
-            sb.append(" where d.lid = l.lid");
+            sb.append(" where ");
         }
+        sb.append("d.lid = l.lid");
+
+        // order by
         sb.append(buildOrderByTime());
         sb.append(";");
 
@@ -163,8 +173,9 @@ public class HydroQueryAssembler {
     }
 
     /**
-     * Assembles a select statement of a query, such as
-     * "select d.lid, d.producttime, l.lat, l.lon, d.value"
+     * Assembles a select statement of a query, such as "select d.lid as
+     * locationColumnlid, d.producttime as timeColumnproducttime, l.lat, l.lon,
+     * d.value"
      * 
      * @param request
      *            the request to form a select statement on
@@ -174,10 +185,10 @@ public class HydroQueryAssembler {
         StringBuilder sb = new StringBuilder();
         // always want the location name and time even if they didn't request it
         // so that returned objects will have that information
-        sb.append("select d.");
-        sb.append(LID_COL);
-        sb.append(", d.");
-        sb.append(TIME_COL);
+        sb.append("select d.").append(LID_COL).append(" as ")
+                .append(LID_COL_ALIAS);
+        sb.append(", d.").append(TIME_COL).append(" as ")
+                .append(TIME_COL_ALIAS);
         // request lat and lon for the returned geometry objects
         sb.append(", l.lat, l.lon");
 

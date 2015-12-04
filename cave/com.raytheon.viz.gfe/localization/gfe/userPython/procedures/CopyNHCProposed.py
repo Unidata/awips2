@@ -1,9 +1,3 @@
-#--------------------------------------------------------------------------
-# SVN: $Revision$ - $Date$
-#
-#     Converted with gfePorter R3342 on Oct 01, 2013 18:43 GMT
-#     Not tested. Remove these 2 lines when ported and tested.
-#
 # ----------------------------------------------------------------------------
 # This software is in the public domain, furnished "as is", without technical
 # support, and with no warranty, express or implied, as to its usefulness for
@@ -11,8 +5,7 @@
 #
 # CopyNHCProposed
 #
-# Author: T LeFebvre/P. Santos
-# Last Modified: Sept 18, 2014
+# Author:
 # ----------------------------------------------------------------------------
 
 # The MenuItems list defines the GFE menu item(s) under which the
@@ -32,76 +25,37 @@ ToolList = []
 ##  cover all the variables necessary for the tools.
 
 import SmartScript
-from numpy import *
-import TimeRange
-import AbsTime
 import time, re
+
+try:
+    from Numeric import *
+except:
+    from numpy import *
+
+import GridManipulation
 
 ## For documentation on the available commands,
 ##   see the SmartScript Utility, which can be viewed from
 ##   the Edit Actions Dialog Utilities window
-Supported_elements=["ProposedSS"]
-VariableList = [("Choose Hazards:" , ["ProposedSS"], "check", Supported_elements),
-                # ["ProposedSS"]),
+VariableList = [("Choose Hazards:" , "", "check",
+                # ["ProposedSS", "ProposedWW1", "ProposedWW2"]),
+                 ["ProposedSS"]),
                 ]
 
-class Procedure (SmartScript.SmartScript):
+class Procedure (GridManipulation.GridManipulation, SmartScript.SmartScript):
     def __init__(self, dbss):
+        GridManipulation.GridManipulation.__init__(self)
         SmartScript.SmartScript.__init__(self, dbss)
-
-    # Makes a timeRange based on the specified start and end times.
-    # If no times are specified, returns the largest timeRange possible.
-    # This method will work in either an AWIPS I or AWIPS II environment.
-    def makeTimeRange(self, start=0, end=0):            
-        
-        try:  # AWIPS 1 code
-            import TimeRange
-            import AbsTime
-            import AFPS
-            if start == 0 and end == 0:
-                return TimeRange.TimeRange.allTimes()
-            
-            startTime = AbsTime.AbsTime(start)
-            endTime = AbsTime.AbsTime(end)
-    
-            tr = TimeRange.TimeRange(startTime, endTime)
-
-        except:   # AWIPS 2 code
-            import TimeRange, AbsTime
-            if start == 0 and end == 0:
-                return TimeRange.allTimes()
-            
-            startTime = AbsTime.AbsTime(start)
-            endTime = AbsTime.AbsTime(end)
-    
-            tr = TimeRange.TimeRange(startTime, endTime)
-
-        return tr
 
     def makeNewTimeRange(self, hours):
 
         startTime = int(time.time() / 3600) * 3600
         endTime = startTime + hours * 3600
 
-        timeRange = self.makeTimeRange(startTime, endTime)
+        timeRange = self.GM_makeTimeRange(startTime, endTime)
 
         return timeRange
-
-    def getWEInventory(self, modelName, WEName, timeRange=None):
-
-        if timeRange is None:
-            timeRange = self.makeTimeRange()
-
-        gridInfo = self.getGridInfo(modelName, WEName, "SFC", timeRange)
-        trList = []
-        for g in gridInfo:
-            start = g.gridTime().startTime().unixTime()
-            end = g.gridTime().endTime().unixTime()
-            tr = self.makeTimeRange(start, end)
-            trList.append(tr)
-
-        return trList
-    
+   
     def execute(self, varDict):
 
         #  Assign a timeRange from now to 48 hours from now
@@ -115,8 +69,8 @@ class Procedure (SmartScript.SmartScript):
             self.statusBarMsg("You must choose at least one hazard.", "U")
             return 
 
+        #weNames = ["ProposedSS", "ProposedWW1", "ProposedWW2"]
         weNames = ["ProposedSS"]
-        #weNames = ["ProposedSS"]
 
         # Remove any pre-existing grids first
         for weName in weNames:
@@ -124,7 +78,7 @@ class Procedure (SmartScript.SmartScript):
             if weName not in hazardsToCopy:
                 continue
 
-            trList = self.getWEInventory("Fcst", weName)
+            trList = self.GM_getWEInventory(weName)
             for delTR in trList:
                 self.deleteGrid("Fcst", weName, "SFC", delTR)
             
@@ -135,7 +89,7 @@ class Procedure (SmartScript.SmartScript):
                 continue
             
             iscWeName = weName + "nc"
-            trList = self.getWEInventory("ISC", iscWeName, timeRange)
+            trList = self.GM_getWEInventory(iscWeName, "ISC", timeRange)
 
             if len(trList) == 0:
                 continue
@@ -147,3 +101,4 @@ class Procedure (SmartScript.SmartScript):
             self.createGrid("Fcst", weName, "DISCRETE", (iscGrid, iscKeys),
                             timeRange, discreteKeys=iscKeys, discreteOverlap=0,
                             discreteAuxDataLength=0, defaultColorTable="StormSurgeHazards")
+

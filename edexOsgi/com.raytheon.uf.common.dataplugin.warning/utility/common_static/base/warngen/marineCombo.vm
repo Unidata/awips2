@@ -1,0 +1,149 @@
+################################################################################
+## The following code is an example of how to combine marine zones for the
+## Detroit/Pontiac WFO (KDTX). This office has continuous marine zones as well
+## as super marine zone combinations where the same areas are covered for the
+## nearshore and open water areas. Sites will have a longer or shorter file
+## based on the number of marine zones in their cwa. 
+## The following is code on how to handle this complex situation.
+################################################################################
+## This coding was updated on 11 SEP 2012 in OB12.9.1-12 to correct for a line 
+## feed issue that was occurring with the original code and to change the name
+## of the file from marinecombo.vm to marineCombo.vm to come in line with the
+## standard naming convention of the templates.
+#################################################################################
+## This coding was updated on 25 MAR 2015 in OB14.4.1-19 to fix a bug when a 
+## CANCON was selected and the zones would accumulate in this file.  To fix
+## this error just set your initial variables to null.
+#################################################################################
+## If you have any questions contact: Phil Kurimski - WFO GRB
+#################################################################################
+## Set all variables to null in case you have a CANCON segment
+#################################################################################
+#*
+#set ($saginawbay = "")
+#set ($huronnearshore = "")
+#set ($huronopenwater = "")
+#set ($supercombo = "")
+#set ($clairriver = "")
+#set ($lakeclair = "")
+#set ($detroitriver = "")
+#set ($lakeerie = "")
+#################################################################################
+## First we will combine the Inner and Outer Saginaw Bay zones
+#################################################################################
+#if(($fipsstring.contains('LHZ421'))&&($fipsstring.contains('LHZ422')))
+#set ($saginawbay = '  Inner and Outer Saginaw Bay...')
+#elseif($fipsstring.contains('LHZ421'))
+#set ($saginawbay = '  Outer Saginaw Bay...')
+#elseif($fipsstring.contains('LHZ422'))
+#set ($saginawbay = '  Inner Saginaw Bay...')
+#end
+################################################################################
+## Next we will look for any continuous Nearshore zones along Lake Huron
+################################################################################
+#if(($fipsstring.contains('LHZ441'))&&($fipsstring.contains('LHZ442'))&&($fipsstring.contains('LHZ443')))
+#set ($huronnearshore = '  Nearshore waters from Port Austin to Port Huron MI...')
+#elseif(($fipsstring.contains('LHZ441'))&&($fipsstring.contains('LHZ442')))
+#set ($huronnearshore = '  Nearshore waters from Port Austin to Port Sanilac MI...')
+#elseif(($fipsstring.contains('LHZ442'))&&($fipsstring.contains('LHZ443')))
+#set ($huronnearshore = '  Nearshore waters from Harbor Beach to Port Huron MI...')
+#elseif($fipsstring.contains('LHZ441'))
+#set ($huronnearshore = '  Nearshore waters from Port Austin to Harbor Beach MI...')
+#elseif($fipsstring.contains('LHZ442'))
+#set ($huronnearshore = '  Nearshore waters from Harbor Beach to Port Sanilac MI...')
+#elseif($fipsstring.contains('LHZ443'))
+#set ($huronnearshore = '  Nearshore waters from Port Sanilac to Port Huron MI...')
+#end
+################################################################################
+## Next we will look for any continuous Open Water zones along Lake Huron
+################################################################################
+#if(($fipsstring.contains('LHZ462'))&&($fipsstring.contains('LHZ463'))&&($fipsstring.contains('LHZ464')))
+#set ($huronopenwater = '  Open waters from Port Austin to Port Huron MI...')
+#elseif(($fipsstring.contains('LHZ462'))&&($fipsstring.contains('LHZ463')))
+#set ($huronopenwater = '  Open waters from Port Austin to Port Sanilac MI...')
+#elseif(($fipsstring.contains('LHZ463'))&&($fipsstring.contains('LHZ464')))
+#set ($huronopenwater = '  Open waters from Harbor Beach to Port Huron MI...')
+#elseif($fipsstring.contains('LHZ462'))
+#set ($huronopenwater = '  Open waters from Port Austin to Harbor Beach MI...')
+#elseif($fipsstring.contains('LHZ463'))
+#set ($huronopenwater = '  Open waters from Harbor Beach to Port Sanilac MI...')
+#elseif($fipsstring.contains('LHZ464'))
+#set ($huronopenwater = '  Open waters from Port Sanilac to Port Huron MI...')
+#end
+#########################################################################################
+## Now we will look for Super Combos where the Nearshore and Open Water Zones duplicate
+#########################################################################################
+#set ($supertest = 'NO')
+#if(($huronopenwater.contains('Port Austin to Port Huron'))&&($huronnearshore.contains('Port Austin to Port Huron')))
+#set ($supercombo = '  Nearshore and open waters from Port Austin to Port Huron MI...')
+#set ($supertest = 'YES')
+#elseif(($huronopenwater.contains('Port Austin to Port Sanilac'))&&($huronnearshore.contains('Port Austin to Port Sanilac')))
+#set ($supercombo = '  Nearshore and open waters from Port Austin to Port Sanilac MI...')
+#set ($supertest = 'YES')
+#elseif(($huronopenwater.contains('Harbor Beach to Port Huron'))&&($huronnearshore.contains('Harbor Beach to Port Huron')))
+#set ($supercombo = '  Nearshore and open waters from Harbor Beach to Port Huron MI...')
+#set ($supertest = 'YES')
+#elseif(($huronopenwater.contains('Port Austin to Harbor Beach'))&&($huronnearshore.contains('Port Austin to Harbor Beach')))
+#set ($supercombo = '  Nearshore and open waters from Port Austin to Harbor Beach MI...')
+#set ($supertest = 'YES')
+#elseif(($huronopenwater.contains('Harbor Beach to Port Sanilac'))&&($huronnearshore.contains('Harbor Beach to Port Sanilac')))
+#set ($supercombo = '  Nearshore and open waters from Harbor Beach to Port Sanilac MI...')
+#set ($supertest = 'YES')
+#elseif(($huronopenwater.contains('Port Sanilac to Port Huron'))&&($huronnearshore.contains('Port Sanilac to Port Huron')))
+#set ($supercombo = '  Nearshore and open waters from Port Sanilac to Port Huron MI...')
+#set ($supertest = 'YES')
+#end
+###################################################################################
+## Finally we will look for non-continuous marine zones in the fipsstring variable
+###################################################################################
+#if($fipsstring.contains('LCZ422'))
+#set ($clairriver = '  St. Clair River...')
+#end
+#if($fipsstring.contains('LCZ460'))
+#set ($lakeclair = '  Lake St. Clair...')
+#end
+#if($fipsstring.contains('LCZ423'))
+#set ($detroitriver = '  Detroit River...')
+#end
+#if($fipsstring.contains('LEZ444'))
+#set ($lakeerie = '  Michigan waters of Lake Erie...')
+#end
+######################################################################################
+## Now we will code up all the zones one after another using the above variables.
+## If the variable is assigned the zone will print out...the test below for the
+## variable ensures nothing is returned if the variable is empty...making the
+## declaration of a null variable unnecessary.
+######################################################################################
+#if(${saginawbay})${saginawbay}
+#end
+######################################################################################
+## This section will check for overlapping Nearshore and Open Water zones using 
+## the supertest variable. If they exist use the supercombo variable.
+######################################################################################
+#if(${supertest} == 'YES')
+#if(${supercombo})${supercombo}
+#end
+######################################################################################
+## This section will use the regular Nearshore and Open Water zones 
+## if these zones do not overlap.
+######################################################################################
+#else
+#if(${huronnearshore})${huronnearshore}
+#end
+#if(${huronopenwater})${huronopenwater}
+#end
+#end
+######################################################################################
+## End of the supercombination section
+######################################################################################
+## Code up the rest of the zones below
+######################################################################################
+#if(${clairriver})${clairriver}
+#end
+#if(${lakeclair})${lakeclair}
+#end
+#if(${detroitriver})${detroitriver}
+#end
+#if(${lakeerie})${lakeerie}
+#end
+*#

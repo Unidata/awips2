@@ -1,20 +1,24 @@
-#################################################################
-## SEVERE WEATHER STATEMENT TEMPLATE                           ##
-## CREATED BY EVAN BOOKBINDER - WFO EAX                        ##
-## RECENT HISTORY:
-##         Mike Dangelo 9-13-2012 minor tweaks to ${variables} ##
-##         Mike Dangelo 2-5-2013 NWS Mets Detected options     ##
-##         PHIL KURIMSKI 2-6-2013  Tor emergency preamble      ## 
-##         EVAN BOOKBINDER 9-16-2013  CTA WORDING FIX          ##
-##         PHIL KURIMSKI   9-17-2013  Tor emergency headline   ##
-##         EVAN BOOKBINDER 9-18-2013  Implemented config.vm    ##
-##         MIKE DANGELO 1-22-2104  Tweaked default CTA wording to fix parseString problems and torEmerCTA to use new verbage ##
-##         Removed preAmbleTOR (not used) -mmd 1/23/2014, preAmble for other tor-sighted/confirmed bullets retained
-##         Mike Rega 4/24/2014 fixed MND blank line in CAN     ##
-##         Mike Dangelo 6/24/2014 fixed wording for plural storm references ##
-##         Evan Bookbinder 9/5/2014 fixed law enforcement CTA  ##
-##         Mike Dangelo   26 Mar 20125  Mixed Case edits       ##
-#################################################################
+################################################################################
+## SEVERE WEATHER STATEMENT TEMPLATE                                          ##
+## CREATED BY EVAN BOOKBINDER - WFO PBZ                                       ##
+## RECENT HISTORY:                                                            ## 
+##         Mike Dangelo 9-13-2012 minor tweaks to ${variables}                ##
+##         Mike Dangelo 2-5-2013 NWS Mets Detected options                    ##
+##         PHIL KURIMSKI 2-6-2013  Tor emergency preamble                     ## 
+##         EVAN BOOKBINDER 9-16-2013  CTA WORDING FIX                         ##
+##         PHIL KURIMSKI   9-17-2013  Tor emergency headline                  ##
+##         EVAN BOOKBINDER 9-18-2013  Implemented config.vm                   ##
+##         MIKE DANGELO 1-22-2104  Tweaked default CTA wording to fix         ##
+##                 parseString problems and torEmerCTA to use new verbiage    ##
+##                 Removed preAmbleTOR (not used)                             ##
+##                 preAmble for other tor-sighted/confirmed bullets retained  ##
+##         Mike Rega 4/24/2014 fixed MND blank line in CAN                    ##
+##         Mike Dangelo 6/24/2014 fixed wording for plural storm references   ##
+##         Evan Bookbinder 9/5/2014 fixed law enforcement CTA                 ##
+##         Mike Dangelo   26 Mar 2015  Mixed Case edits                       ##
+##         Evan Bookbinder 9/4/2015 fixed line of storms grammar as well as   ## 
+##                         softball/grapefruit hail sizes  (& MMD 10/20/15)   ##
+################################################################################
  ##
 ###################################################################
 ## Set null variables for wind/hail tags used in the template    ##
@@ -22,7 +26,7 @@
 #parse("config.vm")
 #set($windhailTag = "")
 #set($TORhailTag = "")
-#set($preAmble = "Take cover now! ")
+#set($preAmble = "TAKE COVER NOW! ")
 ############################################
 ## CREATE INITIAL SET OF VARIABLES        ##
 ############################################
@@ -30,22 +34,22 @@
 #if(${phenomena}=="SV")
   #set($eventType = "SEVERE THUNDERSTORM")
     #if(${stormType} == "line")
-      #set($reportType1 = "line of severe thunderstorms")
+      #set($reportType1 = "severe thunderstorms")
       #set($reportType2 = "These storms were")
       #set($pathcastLead = "These severe storms")
     #else
-      #set($reportType1 = "severe thunderstorm")
+      #set($reportType1 = "a severe thunderstorm")
       #set($reportType2 = "This storm was")
       #set($pathcastLead = "This severe storm")
     #end
 #elseif(${phenomena}=="TO")
   #set($eventType = "TORNADO")
     #if(${stormType} == "line")
-      #set($reportType1 = "line of tornado producing storms")
+      #set($reportType1 = "tornado producing storms")
       #set($reportType2 = "these tornado producing storms were")
       #set($pathcastLead = "These tornadic storms")
     #else
-      #set($reportType1 = "tornado")
+      #set($reportType1 = "a tornado")
       #set($reportType2 = "this tornadic storm was")
       #set($pathcastLead = "This tornado")
     #end
@@ -75,7 +79,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ${ugclinecan}
 /${productClass}.CAN.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire},${timeFormat.ymdthmz})}/
 #foreach (${area} in ${cancelareas})
-#capitalize(${area.name} "ALL")
+#capitalize(${area.name} "FIRST")
 #if(${includeStateAbbreviation}==true)
  ${area.stateabbr}##
 #end
@@ -85,7 +89,7 @@ ${ugclinecan}
 ${ugclinecan}
 /${productClass}.COR.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire},${timeFormat.ymdthmz})}/
 #foreach (${area} in ${cancelareas})
-#capitalize(${area.name} "ALL")
+#capitalize(${area.name} "FIRST")
 #if(${includeStateAbbreviation}==true)
  ${area.stateabbr}##
 #end
@@ -95,7 +99,7 @@ ${ugclinecan}
 ${ugcline}
 /${productClass}.${action}.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire},${timeFormat.ymdthmz})}/
 #foreach (${area} in ${areas}) 
-#capitalize(${area.name} "ALL")
+#capitalize(${area.name} "FIRST")
 #if(${includeStateAbbreviation}==true)
  ${area.stateabbr}##
 #end
@@ -167,7 +171,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${list.contains(${bullets}, "weakened")})
   #if(${stormType} == "line")
     #if(${phenomena}=="SV")
-      #set($expcanPhrase = "The storms which prompted the warning have weakened below severe limits, and no longer poses an immediate threat to life or property. Therefore the warning ${expcanBODYTag}.")
+      #set($expcanPhrase = "The storms which prompted the warning have weakened below severe limits, and no longer pose an immediate threat to life or property. Therefore the warning ${expcanBODYTag}.")
     #else
       #set($expcanPhrase = "The storms which prompted the warning have weakened below severe limits, and no longer appear to be capable of producing a tornado. Therefore the warning ${expcanBODYTag}.")
     #end
@@ -216,9 +220,9 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ########################################
 ### SET INITIAL VARIABLES ####
 #if(${stormType} == "line")
-  #set($stormTypePhrase = "These thunderstorms")
+  #set($stormTypePhrase = "these thunderstorms")
 #else
-  #set($stormTypePhrase = "This thunderstorm")
+  #set($stormTypePhrase = "this thunderstorm")
 #end
 #set($addhailcheck = 0)
 #set($addwindcheck = 0)
@@ -321,7 +325,7 @@ $$
 ${ugcline}
 /${productClass}.CON.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz})}/
 #foreach (${area} in ${areas}) 
-#capitalize(${area.name} "ALL")
+#capitalize(${area.name} "FIRST")
 #if(${includeStateAbbreviation}==true)
  ${area.stateabbr}##
 #end
@@ -341,7 +345,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ${ugcline}
 /${productClass}.COR.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz})}/
 #foreach (${area} in ${areas}) 
-#capitalize(${area.name} "ALL")
+#capitalize(${area.name} "FIRST")
 #if(${includeStateAbbreviation}==true)
  ${area.stateabbr}##
 #end
@@ -374,7 +378,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ####### new mets detected code
 #if(${list.contains(${bullets}, "meteorologistsTOR")})
   #if(${stormType} == "line")
-    #set($reportType = "National Weather Service meteorologists detected a line of severe thunderstorms capable of producing a tornado")
+    #set($reportType = "National Weather Service meteorologists detected severe thunderstorms capable of producing a tornado")
     #set($reportType2 = "These dangerous storms were")
     #set($pathcastLead = "These dangerous storms") 
   #else
@@ -388,7 +392,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
   #set($pathcastLead = "These dangerous storms") 
 #elseif(${list.contains(${bullets}, "meteorologistsLargeTOR")})
   #if(${stormType} == "line")
-    #set($reportType = "National Weather Service meteorologists detected a line of severe thunderstorms capable of producing a large and extremely dangerous tornado")
+    #set($reportType = "National Weather Service meteorologists detected severe thunderstorms capable of producing a large and extremely dangerous tornado")
     #set($reportType2 = "These dangerous storms were")
     #set($pathcastLead = "These dangerous storms") 
   #else
@@ -400,7 +404,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ####### end of new mets detected code
 #if(${list.contains(${bullets}, "dopplerTOR")})
   #if(${stormType} == "line")
-    #set($reportType = "Doppler radar indicated a line of severe thunderstorms capable of producing tornadoes")
+    #set($reportType = "Doppler radar indicated severe thunderstorms capable of producing tornadoes")
     #set($reportType2 = "These dangerous storms were")
     #set($pathcastLead = "These dangerous storms") 
   #else
@@ -419,22 +423,22 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
   #else
     #set($reportType2 = "This tornado")
   #end
-  #set($preAmble = "To repeat, a tornado has been observed. To protect your life, take cover now! ")
+  #set($preAmble = "To repeat, a tornado has been observed. To protect your life, TAKE COVER NOW! ")
 #elseif(${list.contains(${bullets}, "confirmedLargeTOR")})
  #set($reportType = "National Weather Service Doppler radar and storm spotters were tracking a large and extremely dangerous tornado")
- #set($preAmble = "To repeat, a large, extremely dangerous and potentially deadly tornado is on the ground. To protect your life, take cover now! ")
+ #set($preAmble = "To repeat, a large, extremely dangerous and potentially deadly tornado is on the ground. To protect your life, TAKE COVER NOW! ")
 #elseif(${list.contains(${bullets}, "spotterTOR")})
- #set($reportType = "trained weather spotters reported a ${reportType1}")
- #set($preAmble = "To repeat, a tornado has been sighted. To protect your life, take cover now! ")
+ #set($reportType = "trained weather spotters reported ${reportType1}")
+ #set($preAmble = "To repeat, a tornado has been sighted. To protect your life, TAKE COVER NOW! ")
 #elseif(${list.contains(${bullets}, "lawEnforcementTOR")})
- #set($reportType = "local law enforcement reported a ${reportType1}")
- #set($preAmble = "To repeat, a tornado has been sighted. To protect your life, take cover now! ")
+ #set($reportType = "local law enforcement reported ${reportType1}")
+ #set($preAmble = "To repeat, a tornado has been sighted. To protect your life, TAKE COVER NOW! ")
 #elseif(${list.contains(${bullets}, "emergencyManagementTOR")})
- #set($reportType = "emergency management reported a ${reportType1}")
- #set($preAmble = "To repeat, a tornado has been sighted. To protect your life, take cover now! ")
+ #set($reportType = "emergency management reported ${reportType1}")
+ #set($preAmble = "To repeat, a tornado has been sighted. To protect your life, TAKE COVER NOW! ")
 #elseif(${list.contains(${bullets}, "publicTOR")})
- #set($reportType = "the public reported a ${reportType1}")
- #set($preAmble = "To repeat, a tornado has been sighted. To protect your life, take cover now! ")
+ #set($reportType = "the public reported ${reportType1}")
+ #set($preAmble = "To repeat, a tornado has been sighted. To protect your life, TAKE COVER NOW! ")
 #elseif(${list.contains(${bullets}, "spotterFunnelCloud")})
  #set($reportType = "trained weather spotters reported a funnel cloud")
   #if(${stormType} == "line")
@@ -445,22 +449,22 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
     #set($pathcastLead = "This dangerous storm") 
   #end
 #elseif(${list.contains(${bullets}, "meteorologistsSVR")})
- #set($reportType = "National Weather Service meteorologists were tracking a ${reportType1}")
+ #set($reportType = "National Weather Service meteorologists were tracking ${reportType1}")
  #set($reportAuthSVR = "producing")
 #elseif(${list.contains(${bullets}, "dopplerSVR")})
- #set($reportType = "Doppler radar indicated a ${reportType1}")
+ #set($reportType = "Doppler radar indicated ${reportType1}")
  #set($reportAuthSVR = "capable of producing")
 #elseif(${list.contains(${bullets}, "trainedSpottersSVR")})
- #set($reportType = "trained weather spotters reported a ${reportType1}")
+ #set($reportType = "trained weather spotters reported ${reportType1}")
  #set($reportAuthSVR = "producing")
 #elseif(${list.contains(${bullets}, "lawEnforcementSVR")})
- #set($reportType = "local law enforcement reported a ${reportType1}")
+ #set($reportType = "local law enforcement reported ${reportType1}")
  #set($reportAuthSVR = "producing")
 #elseif(${list.contains(${bullets}, "emergencyManagementSVR")})
- #set($reportType = "emergency management reported a ${reportType1}")
+ #set($reportType = "emergency management reported ${reportType1}")
  #set($reportAuthSVR = "producing")
 #elseif(${list.contains(${bullets}, "publicSVR")})
- #set($reportType = "the public reported a ${reportType1}")
+ #set($reportType = "the public reported ${reportType1}")
  #set($reportAuthSVR = "producing")
 #end
 ###################################################
@@ -571,15 +575,15 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
   #set($hailThreat = "softball size") 
   #set($hailLead = "large destructive hail up to ") 
   #set($hailTrail = "")
-  #set($hailSize = 4.25)
-  #set($hailTag = "4.25IN")
+  #set($hailSize = 4.00)
+  #set($hailTag = "4.00IN")
 #end
 #if(${list.contains(${bullets}, "grapefruitHail")})
   #set($hailThreat = "grapefruit size") 
   #set($hailLead = "large destructive hail up to ") 
   #set($hailTrail = "")
-  #set($hailSize = 4.00)
-  #set($hailTag = "4.00IN")
+  #set($hailSize = 4.50)
+  #set($hailTag = "4.50IN")
 #end
 ##################################################################
 ######### CREATE SVR TSTM WIND AND HAIL SENTENCE/TAG##############
@@ -652,7 +656,7 @@ ${reportType2} located ##
 ### TORNADO EMERGENCY PER NWS 10-511 DIRECTIVE GOES WITH 3RD BULLET #
 #####################################################################
 #if(${list.contains($bullets, "torEmergency")})
-This is a TORNADO EMERGENCY for !** EDIT LOCATION(S) **!. Take cover now!
+This is a TORNADO EMERGENCY for !** EDIT LOCATION(S) **!. TAKE COVER NOW!
 
 #end
 #############################################
@@ -742,7 +746,7 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 #end
 #if(${list.contains(${bullets}, "torEmergencyCTA")} || ${list.contains(${bullets}, "torEmergency")})
 #if(${list.contains(${bullets}, "torEmergency")})
-To repeat, a large, extremely dangerous, and potentially deadly tornado is on the ground. To protect your life, take cover now! Move to an interior room on the lowest floor of a sturdy building. Avoid windows. If in a mobile home, a vehicle or outdoors, move to the closest substantial shelter and protect yourself from flying debris.
+To repeat, a large, extremely dangerous, and potentially deadly tornado is on the ground. To protect your life, TAKE COVER NOW! Move to an interior room on the lowest floor of a sturdy building. Avoid windows. If in a mobile home, a vehicle or outdoors, move to the closest substantial shelter and protect yourself from flying debris.
 
 #else
 !** YOU SELECTED THE TORNADO EMERGENCY CTA WITHOUT SELECTING THE TORNADO EMERGENCY HEADER. PLEASE CLOSE THIS WINDOW AND RE-GENERATE THIS WARNING **!
@@ -762,11 +766,11 @@ Motorists should not take shelter under highway overpasses. If you cannot safely
 
 #end
 #if(${list.contains(${bullets}, "rainWrappedCTA")})
-Heavy rainfall may obscure this tornado. Do not wait to see or hear the tornado. Take cover now!
+Heavy rainfall may obscure this tornado. Do not wait to see or hear the tornado. TAKE COVER NOW!
 
 #end
 #if(${list.contains(${bullets}, "nighttimeCTA")})
-Tornadoes are extremely difficult to see and confirm at night. Do not wait to see or hear the tornado. Take cover now!
+Tornadoes are extremely difficult to see and confirm at night. Do not wait to see or hear the tornado. TAKE COVER NOW!
 
 #end
 #if(${list.contains(${bullets}, "largeTORCTA")})

@@ -5,7 +5,8 @@
                               Added new areaSource object
    Evan Bookbinder 03-1-2013  Fixed group Settings   
    Evan Bookbinder 06-07-2013 Fixed CTAs  
-   Phil Kurimski   09-19-2013 added geospatialConfig.xml                
+   Phil Kurimski   09-19-2013 added geospatialConfig.xml   
+   Mike Dangelo    10-22-2015 mixed case tweaks             
 -->
 <warngenConfig>
 
@@ -95,7 +96,6 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="*********** Pathcast Section **********" bulletType="title"/>
   <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/>
   <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;"/>
-  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>
   </bullets>
 </bulletActionGroup>
  <bulletActionGroup action="COR" phen="EW" sig="W">

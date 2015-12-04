@@ -5,6 +5,7 @@
      Mike Dangelo 1/23/2014 added blankStatement bullet
      Mike Rega 5/23/14 DR 17380 svr wx watch logic OB14.3.1
      Mike Dangelo 6/24/2014 removed unnecessary example bullets
+     Phil Kurimski 10-20-2015 added campers CTA
 -->
 <warngenConfig>
 
@@ -112,6 +113,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="torrentialRainfallCTA" bulletText="Torrential rainfall" parseString="TORRENTIAL RAINFALL IS ALSO OCCURRING"/>
   <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
   <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET OUT OF THE WATER AND MOVE INDOORS"/>
+  <bullet bulletName="camperCTA" bulletText="Campground - Campers seek shelter" parseString="PERSONS IN CAMPGROUNDS"/>
   <bullet bulletName="includeTorWatches" bulletText="Include Tornado Watches" parseString=""/>
   <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" parseString=""/> 
   <bullet bulletText="******** WINTER WX CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
@@ -163,6 +165,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="torrentialRainfallCTA" bulletText="Torrential rainfall" parseString="TORRENTIAL RAINFALL IS ALSO OCCURRING"/>
   <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
   <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET OUT OF THE WATER AND MOVE INDOORS"/>
+  <bullet bulletName="camperCTA" bulletText="Campground - Campers seek shelter" parseString="PERSONS IN CAMPGROUNDS"/>
   <bullet bulletName="includeTorWatches" bulletText="Include Tornado Watches" parseString=""/>
   <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" parseString=""/>
   <bullet bulletText="******** WINTER WX CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>

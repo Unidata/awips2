@@ -15,6 +15,8 @@
                  Mike Dangelo 1/23/2014 added IC and advType group to bottom of bullets (for info only, they are locked anyway, no need to have it at the top)
                  Phil Kurimski   06-24-2014 Put types of warnings and IC back at the top (forecasters rely on this when choosing a con statement
                                             to determine what warning they are following up!)
+                 Mike Dangelo    10-20-2015 Standard CTAs
+                 Phil/Dave       10-20-2015  Added Canned statement for CAN
 -->
 <warngenConfig>
 
@@ -75,6 +77,20 @@ Must be paired with proper vm code (also commented out in arealFloodAdvisoryFoll
  <durations>
   <duration>30</duration>
  </durations>
+ 
+ <!-- UNCOMMENT IF YOU HAVE YOUR RIVER DRAINAGE BASINS SETUP 
+ <pointSource variable="riverdrainages">
+ 	<pointSource>ffmp_basins</pointSource>
+    <geometryDecimationTolerance>0.064</geometryDecimationTolerance>
+ 	<pointField>streamname</pointField>
+ 	<filter>
+ 		<mapping key="cwa">
+ 			<constraint constraintValue="$warngenCWAFilter" constraintType="EQUALS" />
+ 		</mapping>
+ 	</filter>
+ 	<withinPolygon>true</withinPolygon>
+ </pointSource>
+--> 
  
 <lockedGroupsOnFollowup>ic,advType,optType</lockedGroupsOnFollowup>
 <bulletActionGroups>
@@ -173,14 +189,18 @@ Must be paired with proper vm code (also commented out in arealFloodAdvisoryFoll
   <bullet bulletName="specificPlace" bulletText="Specify location" parseString="FLOODING IS OCCURING"/>
   <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
   <bullet bulletText="****** CALL TO ACTIONS (choose 1 or more) ******" bulletType="title"/>
-  <bullet bulletName="dontdrownCTA" bulletText="Turn around...dont drown" parseString="MOST FLOOD DEATHS OCCUR IN AUTOMOBILES"/>
-  <bullet bulletName="urbanCTA" bulletText="Urban flooding" parseString="URBAN AREAS, HIGHWAYS, STREETS AND UNDERPASSES"/>
-  <bullet bulletName="ruralCTA" bulletText="Rural flooding/small streams" parseString="FLOODING OF SMALL CREEKS AND STREAMS, AS WELL AS FARM AND COUNTRY ROADS"/>
-  <bullet bulletName="donotdriveCTA" bulletText="Do not drive into water" parseString="DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY"/>
-  <bullet bulletName="lowspotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
-  <bullet bulletName="powerCTA" bulletText="Power of flood waters/vehicles" parseString="DO NOT UNDERESTIMATE THE POWER OF FLOOD WATERS"/>
-  <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to local law enforcement" parseString="HAVE THE NEAREST LAW ENFORCEMENT AGENCY RELAY YOUR REPORT"/>
-  <bullet bulletName="advisoryMeansCTA" bulletText="A flood advisory means" parseString="A FLOOD ADVISORY MEANS RIVER OR STREAM FLOWS"/>
+  <bullet bulletName="TADD_CTA" bulletText="Turn around, don't drown" parseString="TURN AROUND, DON'T DROWN"/>
+  <bullet bulletName="childSafetyCTA" bulletText="Child Safety" parseString="KEEP CHILDREN AWAY"/>
+  <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding" parseString="AT NIGHT WHEN IT IS HARDER TO RECOGNIZE"/>
+  <bullet bulletName="urbanCTA" bulletText="Urban areas" parseString="URBAN AREAS, HIGHWAYS, STREETS AND UNDERPASSES"/>
+  <bullet bulletName="ruralCTA" bulletText="Rural areas" parseString="COUNTRY ROADS, FARMLAND, AND OTHER LOW LYING SPOTS"/>
+  <bullet bulletName="stayAwayCTA" bulletText="Stay away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
+  <bullet bulletName="lowSpotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
+  <bullet bulletName="arroyosCTA" bulletText="Arroyos" parseString="ARROYOS"/>
+  <bullet bulletName="burnAreasCTA" bulletText="Burn Areas" parseString="RECENTLY BURNED AREAS"/>
+  <bullet bulletName="camperSafetyCTA" bulletText="Camper/Hiker Safety" parseString="CAMPERS AND HIKERS"/>
+  <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to law enforcement" parseString="REPORT FLOODING TO YOUR LOCAL LAW ENFORCEMENT"/>
+  <bullet bulletName="advisoryMeansCTA" bulletText="A Flood Advisory means" parseString="A FLOOD ADVISORY MEANS"/>
   </bullets>
 </bulletActionGroup>
 <bulletActionGroup action="COR" phen="FA" sig="Y">
@@ -226,14 +246,18 @@ Must be paired with proper vm code (also commented out in arealFloodAdvisoryFoll
   <bullet bulletName="specificPlace" bulletText="Specify location" parseString="FLOODING IS OCCURING"/>
   <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
   <bullet bulletText="****** CALL TO ACTIONS (choose 1 or more) ******" bulletType="title"/>
-  <bullet bulletName="dontdrownCTA" bulletText="Turn around...dont drown" parseString="MOST FLOOD DEATHS OCCUR IN AUTOMOBILES"/>
-  <bullet bulletName="urbanCTA" bulletText="Urban flooding" parseString="URBAN AREAS, HIGHWAYS, STREETS AND UNDERPASSES"/>
-  <bullet bulletName="ruralCTA" bulletText="Rural flooding/small streams" parseString="FLOODING OF SMALL CREEKS AND STREAMS, AS WELL AS FARM AND COUNTRY ROADS"/>
-  <bullet bulletName="donotdriveCTA" bulletText="Do not drive into water" parseString="DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY"/>
-  <bullet bulletName="lowspotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
-  <bullet bulletName="powerCTA" bulletText="Power of flood waters/vehicles" parseString="DO NOT UNDERESTIMATE THE POWER OF FLOOD WATERS"/>
-  <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to local law enforcement" parseString="HAVE THE NEAREST LAW ENFORCEMENT AGENCY RELAY YOUR REPORT"/>
-  <bullet bulletName="advisoryMeansCTA" bulletText="A flood advisory means" parseString="A FLOOD ADVISORY MEANS RIVER OR STREAM FLOWS"/>
+  <bullet bulletName="TADD_CTA" bulletText="Turn around, don't drown" parseString="TURN AROUND, DON'T DROWN"/>
+  <bullet bulletName="childSafetyCTA" bulletText="Child Safety" parseString="KEEP CHILDREN AWAY"/>
+  <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding" parseString="AT NIGHT WHEN IT IS HARDER TO RECOGNIZE"/>
+  <bullet bulletName="urbanCTA" bulletText="Urban areas" parseString="URBAN AREAS, HIGHWAYS, STREETS AND UNDERPASSES"/>
+  <bullet bulletName="ruralCTA" bulletText="Rural areas" parseString="COUNTRY ROADS, FARMLAND, AND OTHER LOW LYING SPOTS"/>
+  <bullet bulletName="stayAwayCTA" bulletText="Stay away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
+  <bullet bulletName="lowSpotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
+  <bullet bulletName="arroyosCTA" bulletText="Arroyos" parseString="ARROYOS"/>
+  <bullet bulletName="burnAreasCTA" bulletText="Burn Areas" parseString="RECENTLY BURNED AREAS"/>
+  <bullet bulletName="camperSafetyCTA" bulletText="Camper/Hiker Safety" parseString="CAMPERS AND HIKERS"/>
+  <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to law enforcement" parseString="REPORT FLOODING TO YOUR LOCAL LAW ENFORCEMENT"/>
+  <bullet bulletName="advisoryMeansCTA" bulletText="A Flood Advisory means" parseString="A FLOOD ADVISORY MEANS"/>
   <bullet bulletText="*********** OPTIONAL SPECIFIC TYPE (locked) *********** " bulletType="title"/>
   <bullet bulletName="rapidRises" bulletText="Rapid river rises" bulletGroup="optType" parseString="FOR RAPID RISES" showString="FOR RAPID RISES"/>
   <bullet bulletName="poorDrainage" bulletText="Minor flooding for poor drainage" bulletGroup="optType" parseString="MINOR FLOODING IN POOR DRAINAGE AREAS" showString="MINOR FLOODING IN POOR DRAINAGE AREAS"/>
@@ -241,15 +265,4 @@ Must be paired with proper vm code (also commented out in arealFloodAdvisoryFoll
 </bulletActionGroup>
 </bulletActionGroups>
  
- <pointSource variable="riverdrainages">
- 	<pointSource>ffmp_basins</pointSource>
-    <geometryDecimationTolerance>0.064</geometryDecimationTolerance>
- 	<pointField>streamname</pointField>
- 	<filter>
- 		<mapping key="cwa">
- 			<constraint constraintValue="$warngenCWAFilter" constraintType="EQUALS" />
- 		</mapping>
- 	</filter>
- 	<withinPolygon>true</withinPolygon>
- </pointSource>
 </warngenConfig>
