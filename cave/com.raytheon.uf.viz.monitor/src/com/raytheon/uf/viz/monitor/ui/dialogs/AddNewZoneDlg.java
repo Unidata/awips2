@@ -22,13 +22,14 @@ package com.raytheon.uf.viz.monitor.ui.dialogs;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -50,6 +51,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Apr 23, 2014 3054      skorolev     Deleted unnecessary parameter in addArea method.
  * Apr 28, 2014 3086      skorolev     Removed local getAreaConfigMgr method.
  * Feb 10, 2015 3886      skorolev     Added fixed width for dialog.
+ * Aug 17, 2015 3841      skorolev     Corrected handleAddNewAction method.
+ * Nov 12, 2015 3841      dhladky      Augmented Slav's fix for moving platforms.
+ * Dec 02, 2015 3873      dhladky      Pulled 3841 to 16.1.1.
  * 
  * </pre>
  * 
@@ -59,7 +63,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 public class AddNewZoneDlg extends CaveSWTDialog {
 
     /** Application name. */
-    private AppName appName;
+    private final AppName appName;
 
     /** Marine zone radio button. */
     private Button marineZoneRdo;
@@ -77,7 +81,25 @@ public class AddNewZoneDlg extends CaveSWTDialog {
     private Text centroidLonTF;
 
     /** Monitoring Area Configuration Dialog. */
-    private MonitoringAreaConfigDlg macDlg;
+    private final MonitoringAreaConfigDlg macDlg;
+    
+    /** County constant char */
+    private static final char C = 'C';
+    
+    /** Zone constant char */
+    private static final char Z = 'Z';
+    
+    /** Upper Latitude Boundary **/
+    public static double upLatBound = 90.0;
+    
+    /** Lower Latitude Boundary **/
+    public static double lowLatBound = -90.0;
+    
+    /** Upper Longitude Boundary **/
+    public static double upLonBound = 180.0;
+    
+    /** Lower Longitude Boundary **/
+    public static double lowLonBound = -180.0;
 
     /**
      * Constructor.
@@ -144,13 +166,15 @@ public class AddNewZoneDlg extends CaveSWTDialog {
         /*
          * Add the radio controls.
          */
-        Composite radioComp = new Composite(topComp, SWT.NONE);
-        radioComp.setLayout(new GridLayout(1, false));
-        marineZoneRdo = new Button(radioComp, SWT.RADIO);
-        marineZoneRdo.setText("Marine Zone");
-        marineZoneRdo.setSelection(true);
-        countyRdo = new Button(radioComp, SWT.RADIO);
-        countyRdo.setText("County");
+        if (!appName.equals(AppName.SNOW)) {
+            Composite radioComp = new Composite(topComp, SWT.NONE);
+            radioComp.setLayout(new GridLayout(1, false));
+            marineZoneRdo = new Button(radioComp, SWT.RADIO);
+            marineZoneRdo.setText("Marine Zone");
+            marineZoneRdo.setSelection(true);
+            countyRdo = new Button(radioComp, SWT.RADIO);
+            countyRdo.setText("County");
+        }
     }
 
     /**
@@ -179,11 +203,21 @@ public class AddNewZoneDlg extends CaveSWTDialog {
         GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
         gd.widthHint = 200;
         Label idLbl = new Label(textComp, SWT.RIGHT);
-        idLbl.setText("Id (e.g. AMZ080):");
+        if (appName.equals(AppName.SNOW)) {
+            idLbl.setText("Id (e.g. AMC080):");
+        } else {
+            idLbl.setText("Id (e.g. AMZ080):");
+        }
         idLbl.setLayoutData(gd);
 
         idTF = new Text(textComp, SWT.BORDER);
         idTF.setLayoutData(new GridData(120, SWT.DEFAULT));
+        idTF.addVerifyListener(new VerifyListener() {
+            @Override
+            public void verifyText(VerifyEvent e) {
+                e.text = e.text.toUpperCase();
+            }
+        });
 
         gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
         Label centroidLatLbl = new Label(textComp, SWT.RIGHT);
@@ -236,9 +270,12 @@ public class AddNewZoneDlg extends CaveSWTDialog {
         addBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
+                String areaId = idTF.getText();
                 String latString = centroidLatTF.getText();
                 String lonString = centroidLonTF.getText();
-                handleAddNewAction(latString, lonString);
+                if (macDlg.formIsValid(areaId, latString, lonString)) {
+                    handleAddNewAction(areaId, latString, lonString);
+                }
             }
         });
 
@@ -261,58 +298,43 @@ public class AddNewZoneDlg extends CaveSWTDialog {
      * @param latString
      * @param lonString
      */
-    private void handleAddNewAction(String latString, String lonString) {
-        String areaId = idTF.getText();
-        if (areaId.equals("") || areaId.length() != 6
-                || (areaId.charAt(2) != 'C' && areaId.charAt(2) != 'Z')) {
-            displayInputErrorMsg("Invalid Area ID = '" + areaId
-                    + "' entered. Please enter a correctly formatted Area ID.");
+    private void handleAddNewAction(String areaId, String latString,
+            String lonString) throws NumberFormatException {
+
+        ZoneType type = ZoneType.REGULAR;
+        char charAt = idTF.getText().charAt(2);
+        if (!appName.equals(AppName.SNOW)) {
+            if (marineZoneRdo.getSelection()) {
+                type = ZoneType.MARITIME;
+            }
+            // correct zone type
+            if (marineZoneRdo.getSelection() && charAt != Z) {
+                String z = idTF.getText().substring(2).replace(charAt, Z);
+                idTF.setText(idTF.getText().substring(0, 2) + z);
+            }
+            if (countyRdo.getSelection() && charAt != C) {
+                String c = idTF.getText().substring(2).replace(charAt, C);
+                idTF.setText(idTF.getText().substring(0, 2) + c);
+            }
+        } else if (appName.equals(AppName.SNOW) && charAt != C) {
+            String c = idTF.getText().substring(2).replace(charAt, C);
+            idTF.setText(idTF.getText().substring(0, 2) + c);
+        }
+        double lat = Double.parseDouble(latString.trim());
+        double lon = Double.parseDouble(lonString.trim());
+        if (lat > upLatBound || lat < lowLatBound || lon > upLonBound || lon < lowLonBound) {
+            macDlg.latLonErrorMsg(latString, lonString);
             return;
         }
+        areaId = idTF.getText();
         if (macDlg.isExistingZone(areaId)) {
-            displayInputErrorMsg("The Area ID, "
+            macDlg.displayInputErrorMsg("The Area ID, "
                     + areaId
                     + ", is already in your Monitoring Area or among your Additional Zones.");
             return;
-        }
-        if (latString == null || latString.isEmpty() || lonString == null
-                || lonString.isEmpty()) {
-            macDlg.latLonErrorMsg(latString, lonString);
-            return;
         } else {
-            try {
-                double lat = Double.parseDouble(latString.trim());
-                double lon = Double.parseDouble(lonString.trim());
-                ZoneType type = ZoneType.REGULAR;
-                if (appName != AppName.SNOW) {
-                    if (marineZoneRdo.getSelection()) {
-                        type = ZoneType.MARITIME;
-                    }
-                }
-                if (lat > 90.0 || lat < -90.0 || lon > 180.0 || lon < -180.0) {
-                    macDlg.latLonErrorMsg(latString, lonString);
-                    return;
-                }
-                macDlg.configMgr.addArea(areaId, lat, lon, type);
-                macDlg.addNewZoneAction(areaId, centroidLatTF.getText(),
-                        centroidLonTF.getText());
-            } catch (NumberFormatException e) {
-                macDlg.latLonErrorMsg(latString, lonString);
-                return;
-            }
+            macDlg.configMgr.addNewArea(areaId, lat, lon, type);
+            macDlg.addZoneToMA(areaId);
         }
-    }
-
-    /**
-     * Displays Input Error Message
-     * 
-     * @param msg
-     */
-    private void displayInputErrorMsg(String msg) {
-        MessageBox messageBox = new MessageBox(shell, SWT.ICON_INFORMATION
-                | SWT.OK);
-        messageBox.setText("Invalid input");
-        messageBox.setMessage(msg);
-        messageBox.open();
     }
 }

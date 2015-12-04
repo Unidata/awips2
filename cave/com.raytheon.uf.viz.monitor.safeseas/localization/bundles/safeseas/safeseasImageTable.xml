@@ -197,12 +197,9 @@
                                 <constraint constraintValue="fssobs"
                                     constraintType="EQUALS" />
                             </mapping>
+                            
                             <mapping key="reportType">
                                 <constraint constraintValue="1006,1003"
-                                    constraintType="IN" />
-                            </mapping>
-                            <mapping key="location.stationId">
-                                <constraint constraintValue="${stations}"
                                     constraintType="IN" />
                             </mapping>
                             
@@ -227,7 +224,6 @@
                         isRequeryNecessaryOnTimeMatch="true"
                         isTopOfTheHour="false">
                         <metadataMap>
-
                             <mapping key="pluginName">
                                 <constraint constraintValue="fssobs"
                                     constraintType="EQUALS" />
@@ -240,7 +236,6 @@
                                 <constraint constraintValue="${stations}"
                                     constraintType="IN" />
                             </mapping>
-                            
                         </metadataMap>
                     </resourceData>
                 </resource>
@@ -271,10 +266,6 @@
                             <mapping key="reportType">
                                 <constraint constraintValue="1007"
                                     constraintType="EQUALS" />
-                            </mapping>
-                            <mapping key="location.stationId">
-                                <constraint constraintValue="${stations}"
-                                    constraintType="IN" />
                             </mapping>
                             
                         </metadataMap>

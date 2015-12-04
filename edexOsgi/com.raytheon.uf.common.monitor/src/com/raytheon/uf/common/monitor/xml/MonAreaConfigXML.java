@@ -20,6 +20,8 @@
 package com.raytheon.uf.common.monitor.xml;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -37,6 +39,8 @@ import javax.xml.bind.annotation.XmlRootElement;
  * ------------ ---------- ----------- --------------------------
  * Dec 21, 2009            lvenable     Initial creation
  * May 15, 2014 3086       skorolev     Changed type for timeWindow element.
+ * Sep 03, 2015 3841       skorolev     Added containsArea method.
+ * 
  * 
  * </pre>
  * 
@@ -48,7 +52,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class MonAreaConfigXML {
 
     @XmlElements({ @XmlElement(name = "AreaID", type = AreaIdXML.class) })
-    private ArrayList<AreaIdXML> areaIds = new ArrayList<AreaIdXML>();
+    private List<AreaIdXML> areaIds = new ArrayList<AreaIdXML>();
 
     /**
      * Time period in minutes during which stations are monitoring.
@@ -71,11 +75,11 @@ public class MonAreaConfigXML {
     public MonAreaConfigXML() {
     }
 
-    public ArrayList<AreaIdXML> getAreaIds() {
+    public List<AreaIdXML> getAreaIds() {
         return areaIds;
     }
 
-    public void setAreaIds(ArrayList<AreaIdXML> areaIds) {
+    public void setAreaIds(List<AreaIdXML> areaIds) {
         this.areaIds = areaIds;
     }
 
@@ -129,5 +133,22 @@ public class MonAreaConfigXML {
      */
     public void addAreaId(AreaIdXML areaXml) {
         areaIds.add(areaXml);
+    }
+
+    /**
+     * Returns true if areaXML exist for area ID.
+     * 
+     * @param area
+     *            area ID
+     * @return areaXML
+     */
+    public boolean containsArea(String areaId) {
+        Iterator<AreaIdXML> itr = getAreaIds().iterator();
+        while (itr.hasNext()) {
+            if (itr.next().getAreaId().equals(areaId)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
