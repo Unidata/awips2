@@ -20,7 +20,9 @@
 package com.raytheon.uf.viz.drawables.triangulated.generic;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
+import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.IView;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
 import com.raytheon.uf.viz.core.drawables.IColormappedImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -30,6 +32,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.drawables.triangulated.ITriangleLocationCallback;
 import com.raytheon.uf.viz.drawables.triangulated.ITriangulatedImage;
 import com.raytheon.uf.viz.drawables.triangulated.ITriangulatedImageExtension;
+import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * Generic implementation of {@link ITriangulatedImageExtension} that uses a
@@ -42,8 +45,9 @@ import com.raytheon.uf.viz.drawables.triangulated.ITriangulatedImageExtension;
  * SOFTWARE HISTORY
  * 
  * Date          Ticket#  Engineer  Description
- * ------------- -------- --------- --------------------------
+ * ------------- -------- --------- ----------------------------
  * Aug 18, 2015  4709     bsteffen  Initial creation
+ * Dec 04, 2015  5146     bsteffen  Limit the size of the image
  * 
  * </pre>
  * 
@@ -61,10 +65,23 @@ public class GenericTriangulatedImageExtension extends
         IColormappedImageExtension imageExtension = target
                 .getExtension(IColormappedImageExtension.class);
         TriangleFlattener flattener = new TriangleFlattener(dataCallback,
-                locationCallback);
+                locationCallback, getViewArea());
         IColormappedImage image = imageExtension.initializeRaster(flattener,
                 colorMapParameters);
         return new GenericTriangulatedImage(image, flattener);
+    }
+
+    private Envelope getViewArea() {
+        /*
+         * Use the extent area multiplied by the zoom level to determine the
+         * full view size when zoomed out.
+         */
+        IView view = target.getView();
+        IExtent extent = view.getExtent();
+        double zoom = view.getZoom();
+        double width = extent.getWidth() / zoom;
+        double height = extent.getHeight() / zoom;
+        return new Envelope(0, width, 0, height);
     }
 
     @Override

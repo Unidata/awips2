@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.viz.gl.triangulated;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -79,8 +80,9 @@ import com.vividsolutions.jts.geom.Triangle;
  * SOFTWARE HISTORY
  * 
  * Date          Ticket#  Engineer  Description
- * ------------- -------- --------- --------------------------
+ * ------------- -------- --------- ---------------------------------
  * Aug 24, 2015  4709     bsteffen  Initial creation
+ * Dec 04, 2015  5146     bsteffen  Rewind attrib buffer before use.
  * 
  * </pre>
  * 
@@ -243,8 +245,10 @@ public class GLTriangulatedImage implements ITriangulatedImage {
             vertexBuffer.rewind();
             gl.glVertexPointer(2, GL.GL_FLOAT, 0, vertexBuffer);
 
+            Buffer attribBufferData = attribBuffer.getData();
+            attribBufferData.rewind();
             program.setVertexAttributeData("attrib_value",
-                    attribBuffer.getTextureType(), attribBuffer.getData());
+                    attribBuffer.getTextureType(), attribBufferData);
 
             indexBuffer.rewind();
             gl.glDrawElements(GL.GL_TRIANGLES, indexBuffer.capacity(),
