@@ -1,7 +1,7 @@
-#------------------------------------------------------------------------
+#------------------------------------------------------------------------ 
 # Domain File
 # Original Author(s): Roberto Padilla-Hernandez,Douglas Gaer
-# Alex Gibbs, Pablo Santos,Tony Freeman
+# Alex Gibbs, Pablo Santos,Tony Freeman  
 # File Creation Date: 06/01/2012
 # Date Last Modified: 02/01/13
 #
@@ -9,15 +9,15 @@
 #
 # Support Team:
 #
-# Contributors:
+# Contributors: 
 #
-# -----------------------------------------------------------------------
-# ---------------------- Description and Details ------------------------
-# -----------------------------------------------------------------------
+# ----------------------------------------------------------------------- 
+# ---------------------- Description and Details ------------------------ 
+# ----------------------------------------------------------------------- 
 #
 # File used to setup a geographical domain for SWAN and WW3
 #
-# -----------------------------------------------------------
+# ----------------------------------------------------------- 
 #========================================================================
 #                                    LIX                                =
 #  GEOGRAPHICAL DOMAIN, GEOGRAPHICAL RESOLUTION AND OUTPUT TIME STEP    =
@@ -46,30 +46,31 @@ export TSTEP="3"
 #                                                                         =
 #========================================================================
 #
-# TO DO: Update the domains below to reflect the area/s that you are
+# TO DO: Update the domains below to reflect the area/s that you are 
 #        interested in (must reside inside of you outer domain defined
 #        above). Also, remember to remove or comment out the remaining
 #        example nests below that were configured for another area. Once
 #        your nests are configured, just toggle the NESTGRIDS to '1'
-#        (Default configuration is off or '0') and you will have control
+#        (Default configuration is off or '0') and you will have control 
 #        from the GFE GUI to activate your nests during your runs.
 #
-# STATIONARY VS NONSTATIONARY MODE:
-#
+# STATIONARY VS NONSTATIONARY MODE: 
+# 
 # STATN=STA for STATIONARY RUNS, STATN=NON for NON-STATIONARY RUNS.
-# The default value is NONstationary for CG1 (outer grid) and STAtionary
+# The default value is NONstationary for CG1 (outer grid) and STAtionary 
 # for the nested grids. Change this only if you know what you are doing.
-# You can choose STA or NON for a particular nested grid. In general,
-# if your domain that you define as a nest below is >= 100 km^2, then
+# You can choose STA or NON for a particular nested grid. In general, 
+# if your domain that you define as a nest below is >= 100 km^2, then 
 # set STATN=NON. For the very small domains or nests (<= 100 km^2)
-# set STATN=STA.
-#
+# set STATN=STA.  
+# 
 # ACTIVATE NEST/S: default is on for LIX
 #
 # NESTGRIDS="0" ... turns off nest options
 # NESTGRIDS="1" ... turns on nest options
-#
-export NESTGRIDS="0"
+# 
+export NESTGRIDS="1"
+export NESTINCG1="YES"
 #
 # NEST 1
 export NELATN1="30.40"
@@ -78,11 +79,11 @@ export SWLATN1="29.3"
 export SWLONN1="-90.6"
 export RESN1="1.25"
 export TSTEPN1="3"
-export STATN1="STA"
+export STATN1="NON"
 #
 #
 #========================================================================
-#                    SPECTRA OUTPUT LOCATIONS
+#                    SPECTRA OUTPUT LOCATIONS     
 #                                                                       =
 # NOTE TO USER: the lat/lon points specified can be changed for any     =
 # arbitrary point of interest within your outer domain defined above.   =
@@ -95,7 +96,7 @@ export STATN1="STA"
 # Spectra points defined as space delimited list of:
 #   "name1:lat1:lon1 name2:lat2:lon2 name3:lat3:lon3 name4:lat4:lon4 ...."
 #
-export SPECPOINTS="42040:29.212:-88.207"
+export SPECPOINTS="42040:29.212:-88.207 BPass:29.014:-90.206 ChRim:29.658:-88.799 BrRim:29.149:-89.536 SWPass:28.856:-89.456"
 #
 #========================================================================
 #                    WAVE TRACKING (and WAVE PARTITION) ON/OFF          =
@@ -106,12 +107,12 @@ export SPECPOINTS="42040:29.212:-88.207"
 #
 export WVTRCK="ON"
 #
-# IF WAVE TRACKING IS REQUIRED EXACTLY OVER THE COMPUTATIONAL GRID AND SAME SPATIAL
-# RESOLUTION: SET WVTONCG="1"
-# IF USER WANTS TO CHANGE ANYONE OF THE PARAMETERS THEN WVTONCG="0" AND USER MUST GIVE
+# IF WAVE TRACKING IS REQUIRED EXACTLY OVER THE COMPUTATIONAL GRID AND SAME SPATIAL 
+# RESOLUTION: SET WVTONCG="1"  
+# IF USER WANTS TO CHANGE ANYONE OF THE PARAMETERS THEN WVTONCG="0" AND USER MUST GIVE 
 # ALL INFORMATION FOR THE DOMAIN OR SUBDOMAIN AND GEOGRAPHICAL RESOLUTION.
 # BE CAREFULL, IF THERE IS ANY SPECTRAL OUTPUT LOCATIONS OUT OF THE NEW (REDUCED) DOMAIN
-# FOR WAVE TRACKING NWPS WILL ABORT.
+# FOR WAVE TRACKING NWPS WILL ABORT. 
 # (This will be changed in a new version, the user can get 1d-spectra but not g-h plots).
 #
 export WVTONCG="0"
@@ -119,9 +120,9 @@ export NELATWT="30.60"
 export NELONWT="-87.40"
 export SWLATWT="27.50"
 export SWLONWT="-91.80"
-export GEORESWT="3.5"
+export GEORESWT="4.0"
 #
-# PARAMETERS FOR TRACKING ALGORITHM for WVTONCG=0 or =1 THIS IS ALWAYS READ
+# PARAMETERS FOR TRACKING ALGORITHM for WVTONCG=0 or =1 THIS IS ALWAYS READ 
 # *CAUTION* CHANGE THEM ONLY IF YOU KNOW WHAT YOU ARE DOING
 # RECOMENDED VALUES WVTRKPA="10. 1. 0.25 0.1 10. 1."
 #               dirKnob, perKnob, hsKnob, wetPts, dirTimeKnob, tpTimeKnob
@@ -136,9 +137,9 @@ export WVTRKPA="10. 1. 0.25 0.1 10. 1."
 #========================================================================
 #                    BOUNDARY CONDITIONS (SEE SWAN MANUAL)              =
 #========================================================================
-# IF BOUNDARY CONDITIONS WILL BE USED then BOUNDCOND=1, Otherwise =0;
-# Setting up BOUNDCOND here to zero will permanently disable BCs.
-# If you leave it as 1 the user will still have the option to disable
+# IF BOUNDARY CONDITIONS WILL BE USED then BOUNDCOND=1, Otherwise =0; 
+# Setting up BOUNDCOND here to zero will permanently disable BCs. 
+# If you leave it as 1 the user will still have the option to disable 
 # them from the interactive Run_NWPS GUI.
 #
 export BOUNCOND="1"
@@ -151,7 +152,7 @@ export WAVECPS="multi_1.LIX54.spec.swan,multi_1.LIX63.spec.swan"
 # THE FOLLOWING LINES MUST BE COMMENTED. IF YOU ADD BOUNDARY COMMAND LINES FOR YOUR
 # DOMAIN, ADD THEM WITH THE "#" AS A FIRST CHARACTER, IF YOU DECIDE NOT TO USE BOUNARY
 # CONDITIONS (BOUNCOND="0") THEY WILL REMAIN AS A COMMENTED LINES. IF YOU DECIDE TO USE
-# BOUNDARY CONDITIONS (BOUNCOND="1") NWPS WILL INCLUDE THE INFORMATION IN THE ACTUAL
+# BOUNDARY CONDITIONS (BOUNCOND="1") NWPS WILL INCLUDE THE INFORMATION IN THE ACTUAL 
 # INPUT FILES WITH NOT COMMENT CHARACTER
 #
 #$BOUNDARY COMMAND LINES

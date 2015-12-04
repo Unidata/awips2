@@ -3,7 +3,7 @@
 # Original Author(s): Roberto Padilla-Hernandez,Douglas Gaer
 # Alex Gibbs, Pablo Santos,Tony Freeman  
 # File Creation Date: 06/01/2012
-# Date Last Modified: 11/08/14 by alex.gibbs@onaa.gov
+# Date Last Modified: 02/01/13
 #
 # Version control: 1.33
 #
@@ -38,7 +38,7 @@ export TSTEP="3"
 #                                                                       =
 #========================================================================
 # NESTGRIDS: Number of nested grids, if = 0, nested grids and 
-# location numbers below will be ignore regardless of input specifications
+# location numbers below will be ignore regardless of input specifications.
 #
 # STATN=STA for STATIONARY RUNS, STAT=NON for NON-STATIONARY RUNS
 # The default values is NONstationary for CG1 and STAtionary for the
@@ -46,14 +46,15 @@ export TSTEP="3"
 # You can choose STA or NON for a particular nested grid.
 #  
 export NESTGRIDS="0"
-# CHS Nest
-export NELATN1=""
-export NELONN1=""
-export SWLATN1=""
-export SWLONN1=""
-export RESN1=".1"
+export NESTINCG1="YES"
+#
+export NELATN1="27.02"
+export NELONN1="-79.94"
+export SWLATN1="26.90"
+export SWLONN1="-80.10"
+export RESN1=".5"
 export TSTEPN1="3"
-export STATN1="NON"
+export STATN1="STA"
 #
 #========================================================================
 #                    SPECTRA OUTPUT LOCATIONS                           =
@@ -72,7 +73,7 @@ export SPECPOINTS="41008:31.4:-80.869 41112:30.79:-81.293 41004:32.501:-79.099 4
 #
 export WVTRCK="ON"
 #
-# IF WAVE TRACKING IS REQUIRED EXACTLY OVER THE COMPUTATIONAL GRID AND SAME SPATIAL 
+#IF WAVE TRACKING IS REQUIRED EXACTLY OVER THE COMPUTATIONAL GRID AND SAME SPATIAL 
 # RESOLUTION: SET WVTONCG="1"  
 # IF USER WANTS TO CHANGE ANYONE OF THE PARAMETERS THEN WVTONCG="0" AND USER MUST GIVE 
 # ALL INFORMATION FOR THE DOMAIN OR SUBDOMAIN AND GEOGRAPHICAL RESOLUTION.
@@ -84,7 +85,7 @@ export NELATWT="33.58"
 export NELONWT="-78.10"
 export SWLATWT="30.67"
 export SWLONWT="-81.70"
-export GEORESWT="3.5"
+export GEORESWT="4.0"
 #
 # PARAMETERS FOR TRACKING ALGORITHM for WVTONCG=0 or =1 THIS IS ALWAYS READ 
 # *CAUTION* CHANGE THEM ONLY IF YOU KNOW WHAT YOU ARE DOING
@@ -109,9 +110,9 @@ export WVTRKPA="10. 1. 0.25 0.1 10. 1."
 export BOUNCOND="1"
 export FTPPAT1="multi_1"
 export FTPPAT1B="multi_1"
-export FTPPAT2="NW-CHS"
+export FTPPAT2="CHS"
 export NFTPATTEMPTS="3"
-export WAVECPS="multi_1.NW-CHS55.spec.swan,multi_1.NW-CHS59.spec.swan"
+export WAVECPS="multi_1.CHS55.spec.swan,multi_1.CHS59.spec.swan"
 #
 # THE FOLLOWING LINES MUST BE COMMENTED. IF YOU ADD BOUNDARY COMMAND LINES FOR YOUR
 # DOMAIN, ADD THEM WITH THE "#" AS A FIRST CHARACTER, IF YOU DECIDE NOT TO USE BOUNARY
@@ -136,48 +137,4 @@ export WAVECPS="multi_1.NW-CHS55.spec.swan,multi_1.NW-CHS59.spec.swan"
 # 0.40 'multi_1.CHS60.spec.swan'    1 &
 # 0.80 'multi_1.CHS59.spec.swan.cp' 1
 #$END BOUNSEG
-#
-#========================================================================
-#                    RIP CURRENT PROGRAM (SEE NWPS MANUAL)              =
-#========================================================================
-# IF RIP CURRENT PROGRAM WILL BE RUN, then RIPCONT=1, Otherwise =0;
-# Setting up RIPCONT here to zero will permanently disable RIP program.
-#
-export RIPPROG="0"
-export RIPDOMAIN="CG2"
-export RIPCONT="5m"
-#
-#___________________________________________________________________________
-# RAY Section: Define a pair of rays to drop data out along critical contours
-#              for rip current program.
-#
-# Example: for data output every 2km along a 5m bathy contour
-#
-# RAY 'rayname' xp yp xq yq int xp yp xq yq
-#
-# RAY 'ray1' 282.85 34.628 282.85 34.62 2000 283.00 34.655 283.00 34.62
-#
-# ISOLINE '5mcont' 'ray1' BOTtom 10
-# TABLE '5mcont' HEAD '5mtable' HSIGN TPS PDIR OUTPUT 20110825.1200 3.0 HR
-#_____________________________________________________________________________
-#
-# THE FOLLOWING LINES MUST BE COMMENTED. IF YOU ADD RIP COMMAND LINES FOR YOUR
-# DOMAIN, ADD THEM WITH THE "#" AS A FIRST CHARACTER, IF YOU DECIDE NOT TO USE RIP
-# CURRENTS (RIPCONT="0") THEY WILL REMAIN AS A COMMENTED LINES. IF YOU DECIDE TO USE
-# BOUNDARY CONDITIONS (BOUNCOND="1") NWPS WILL INCLUDE THE INFORMATION IN THE ACTUAL
-# INPUT FILES WITH NOT COMMENT CHARACTER
-# POIN '5mcont' 279.887  25.8725 
-#
-#$RIP LINES
-#$ Ray for 5m and 20m contour data.
-#$
-#RAY 'ray1' 288.80 41.95 289.68 41.95 100 288.80 43.15 289.68 43.15
-#ISOLINE '5mcont' 'ray1' BOTtom 5
-#TABLE '5mcont' HEAD '5m_contour_CG2' TIME XP YP HSIGN TPS DIR DSPR VEL WATL WIND OUTPUT 20141030.0000 1.0 HR
-#$
-#RAY 'ray2' 288.80 41.95 289.68 41.95 100 288.80 43.15 289.68 43.15
-#ISOLINE '20mcont' 'ray1' BOTtom 20
-#TABLE '20mcont' HEAD '20m_contour_CG2' TIME XP YP HSIGN TPS DIR DSPR VEL WATL WIND OUTPUT 20141030.0000 1.0 HR
-#$
-#$END RIP
 #
