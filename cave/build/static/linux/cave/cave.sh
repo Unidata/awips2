@@ -93,7 +93,7 @@ if [ $? -ne 0 ]; then
 fi
 export apps_dir=${HYDRO_APPS_DIR} 
 
-SWITCHES=()
+SWITCHES=($SWITCHES)
 TESTCHECK="$TMCP_HOME/bin/getTestMode"
 if [ -x ${TESTCHECK} ]; then
     echo "Calling getTestMode()"
