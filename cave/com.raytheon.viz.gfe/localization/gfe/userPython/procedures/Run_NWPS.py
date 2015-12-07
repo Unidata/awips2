@@ -113,15 +113,15 @@ class Procedure (SmartScript.SmartScript):
                                     ("Waterlevels:", "ESTOFS", "radio", ["ESTOFS","PSURGE", "No"]),
                                     ("If PSURGE\n% Exceedance Hgt:", "10", "radio", ["10", "20", "30", "40", "50"]),
                     ]
-                
+
                     varDict = {}
                     processVarList = ProcessVariableList.ProcessVariableList("Run_NWPS_Tom", variableList, varDict, None)
                     status = processVarList.status()
                     if status != "OK":
                         return
-                         
-                    fcst_length = processVarList.varDict()["How Long Do You Want To Run NWPS:"]  
-                    fcstlength = str(fcst_length)              
+
+                    fcst_length = processVarList.varDict()["How Long Do You Want To Run NWPS:"]
+                    fcstlength = str(fcst_length)
                     wind="ForecastWindGrids"
                     modelstarttime = processVarList.varDict()["Model Start Time:"]
                     wheretorun = processVarList.varDict()["Local, NCEP, or Both:"]
@@ -135,9 +135,9 @@ class Procedure (SmartScript.SmartScript):
                     hotstart = processVarList.varDict()["Hotstart:"]
                     waterlevels = processVarList.varDict()["Waterlevels:"]
                     excd = processVarList.varDict()["If PSURGE\n% Exceedance Hgt:"]
-                    cron = None
+                    cron = False
                     # end interactive GUI portion
-                
+
                 else: 
 
 # This part of if else statement assumes procedure is being run from command 
@@ -161,14 +161,14 @@ class Procedure (SmartScript.SmartScript):
                     gstream = varDict['gstream']
                     tstep = varDict['tstep']
                     hotstart = varDict['hotstart']
-                    waterlevels = varDict['waterlevels']   
-                    excd = varDict['excd']   
-                                                                                                                                    
+                    waterlevels = varDict['waterlevels']
+                    excd = varDict['excd']
+
                 modelTR = self.getModelTimeRange("Fcst", "Wind")
                 startHour = modelTR[1]
                 endHour = modelTR[2]
                 timeRange = modelTR[0]
-    
+
                 if (modelstarttime == buttonList[0]):
                     starttime=timeList[0]  
                 elif (modelstarttime == buttonList[1]):
@@ -185,21 +185,21 @@ class Procedure (SmartScript.SmartScript):
                     starttime=timeList[6]
                 else:
                     starttime=startHour # Model start Hour if all others empty
-                       
+  
                 if (startHour > starttime):
                     starttime = startHour
-                       
+
                 timeRange1 = TimeRange.TimeRange(AbsTime.AbsTime(starttime - 7*24*3600), AbsTime.AbsTime(starttime + 8*24*3600))
                 timeRange2 = TimeRange.TimeRange(AbsTime.AbsTime(starttime), AbsTime.AbsTime(starttime + 8*24*3600))             
-                                  
+
                 self.deleteCmd(['NWPSwind'], timeRange1)
                 databaseID = self.findDatabase("Fcst")
                 self.copyToCmd([('Wind', 'NWPSwind')], databaseID, timeRange2) 
                 self.fragmentCmd(['NWPSwind'], timeRange2)                
                 self.saveElements(["NWPSwind"])
-                   
+
                 inp_args = fcstlength + ":" + wna + ":" + nest + ":" + gstream + ":" + wind + ":" + web + ":" + plot + ":" + tstep + ":" + hotstart + ":" + waterlevels + ":" + model + ":" + excd + ":" + wheretorun
-                                   
+
                 try:
                     os.stat('/tmp/nwps/'+GFEDomainname)
                 except:
