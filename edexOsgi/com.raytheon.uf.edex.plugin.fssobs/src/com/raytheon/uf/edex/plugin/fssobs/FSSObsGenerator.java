@@ -29,6 +29,7 @@ import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.edex.urifilter.URIFilter;
 import com.raytheon.edex.urifilter.URIGenerateMessage;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.fssobs.FSSObsRecord;
 import com.raytheon.uf.common.geospatial.SpatialException;
 import com.raytheon.uf.common.monitor.MonitorAreaUtils;
@@ -37,6 +38,7 @@ import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.M
 import com.raytheon.uf.common.monitor.data.ObConst;
 import com.raytheon.uf.common.monitor.events.MonitorConfigEvent;
 import com.raytheon.uf.common.monitor.events.MonitorConfigListener;
+import com.raytheon.uf.common.monitor.xml.AreaIdXML;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -61,6 +63,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Sep 04, 2014 3220       skorolev     Replaced 3 URI filters with one.
  * Sep 18, 2015 3873       skorolev     Added moving platforms testing.
  * Oct 19, 2015 3841       skorolev     Corrected isNearZone.
+ * Nov 12, 2015 3841       dhladky      Augmented Slav's moving platform fix.
  * 
  * </pre>
  * 
@@ -88,6 +91,9 @@ public class FSSObsGenerator extends CompositeProductGenerator implements
 
     public FSSObsMonitorConfigurationManager snowmcm = null;
 
+    /** Zone constant char */
+    private static final char Z = 'Z';
+
     /**
      * Public construction
      */
@@ -111,7 +117,7 @@ public class FSSObsGenerator extends CompositeProductGenerator implements
             fss_config = new FSSObsConfig(genMessage, this);
             this.setPluginDao(new FSSObsDAO(productType));
         } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+            statusHandler.handle(Priority.PROBLEM, "Couldn't read FSSObs configuration information.", e);
         }
         List<FSSObsRecord> fssRecs = new ArrayList<FSSObsRecord>();
         for (String uri : genMessage.getUris()) {
@@ -126,7 +132,9 @@ public class FSSObsGenerator extends CompositeProductGenerator implements
                     }
                 } catch (SpatialException e) {
                     statusHandler.handle(Priority.PROBLEM,
-                            e.getLocalizedMessage(), e);
+                            "URI: "+uri+" could not be checked for Location information.", e);
+                    // If the location info is bad.  we don't want it.
+                    continue;
                 }
             }
 
@@ -146,42 +154,72 @@ public class FSSObsGenerator extends CompositeProductGenerator implements
     }
 
     /**
-     * Test distance between moving platform and zone centroud.
+     * Checks if ship is near monitoring zones and should be included in FSSObs
+     * data.
      * 
      * @param uri
-     * @return
+     *            sfcobs URI
+     * @return true if ship is in vicinity of zone
      * @throws SpatialException
      */
     private boolean isNearZone(String uri) throws SpatialException {
         boolean retVal = false;
-        Set<String> marineZone = new HashSet<String>();
-        for (String z : getSSConfig().getAreaList()) {
-            if (z.charAt(2) == 'Z') {
-                marineZone.add(z);
-            }
-        }
-        for (String z : getFogConfig().getAreaList()) {
-            if (z.charAt(2) == 'Z') {
-                marineZone.add(z);
-            }
-        }
+        String[] items = uri.split(DataURI.SEPARATOR);
+        double latShip = Double.parseDouble(items[6]);
+        double lonShip = Double.parseDouble(items[7]);
+
         double ssShipDist = getSSConfig().getShipDistance();
+        if (ssShipDist != 0.0) {
+            // check SAFSEAS zones
+            retVal = checkMarineZones(getSSConfig(), ssShipDist, latShip,
+                    lonShip);
+        }
         double fogShipDist = getFogConfig().getShipDistance();
-        // take the biggest distance
-        double configDist = ssShipDist > fogShipDist ? ssShipDist : fogShipDist;
-        if (configDist != 0.0) {
-            String[] items = uri.split("/");
-            double latShip = Double.parseDouble(items[6]);
-            double lonShip = Double.parseDouble(items[7]);
-            for (String zone : marineZone) {
-                Coordinate coor = MonitorAreaUtils.getZoneCenter(zone);
-                // zone should have center coordinates.
-                if (coor != null) {
-                    double shipTozone = distance(latShip, lonShip, coor.y,
-                            coor.x);
-                    if (shipTozone < configDist) {
-                        retVal = true;
+        if (fogShipDist != 0.0) {
+            // check Fog zones
+            retVal = checkMarineZones(getFogConfig(), fogShipDist, latShip,
+                    lonShip);
+        }
+        return retVal;
+    }
+
+    /**
+     * 
+     * Test distance between moving platform and marine zone centroid.
+     * 
+     * @param cfg
+     *            configuration manager
+     * @param configDist
+     *            configuration distance
+     * @param lat
+     *            ship latitude
+     * @param lon
+     *            ship longitude
+     * @return true if distance less configDist
+     */
+    private boolean checkMarineZones(FSSObsMonitorConfigurationManager cfg,
+            double configDist, double lat, double lon) {
+        boolean retVal = false;
+        for (String zone : cfg.getAreaList()) {
+            if (zone.charAt(2) == Z) {
+                // initial distance
+                double shipTozone = configDist;
+                try {
+                    Coordinate coor = MonitorAreaUtils.getZoneCenter(zone);
+                    // zone should have center coordinates.
+                    if (coor != null) {
+                        shipTozone = distance(lat, lon, coor.y, coor.x);
+                    } else {
+                        // newly added zone
+                        AreaIdXML ssXML = cfg.getAreaXml(zone);
+                        shipTozone = distance(lat, lon, ssXML.getCLat(),
+                                ssXML.getCLon());
                     }
+                } catch (SpatialException e) {
+                    statusHandler.handle(Priority.PROBLEM, "Couldn't find marine zone within distance. lon: "+lon+" lat: "+lat+" dist: "+configDist, e);
+                }
+                if (shipTozone < configDist) {
+                    retVal = true;
                 }
             }
         }
