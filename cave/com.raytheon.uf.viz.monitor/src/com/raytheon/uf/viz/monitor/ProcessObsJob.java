@@ -64,7 +64,7 @@ public class ProcessObsJob extends Job {
     protected static final int PROGRESS_FACTOR = 1;
     
     /** how many hours do FSSObs go back we wish to load here **/
-    public static final int HOUR_BACK = 24;
+    public static final int HOUR_BACK = 12;
     
     private ObsMonitor obsMonitor;
 
