@@ -31,37 +31,38 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 
 /**
- * TODO Add Description
+ * All of the state information needed to display and manipulate a storm track.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 07-14-2010   #6558      bkowal      Added a variable that will be used
- *                                     to indicate when the user manually
- *                                     moves the drag-me point. A new method
- *                                     has been created to calculate the pivot
- *                                     indexes.
- * 10-27-2010   #6964      bkowal      Added a public class member for the LineStyle.
- * 11/29/2012   15571      Qinglu Lin  Added compuateCurrentStormCenter();
- * 15Mar2013	15693	mgamazaychikov Added magnification.
- * 06-24-2013   DR 16317   D. Friedman Handle "motionless" track.
- * 04-24-2014   DR 16356   Qinglu Lin  Added newWarnGen, oneStormAngle, justSwitchedToLOS, 
- *                                     justSwitchedToOS, and trackType.
- * 06-24-2014   DR 17436   Qinglu Lin  Assigned "unknown" to trackType. 
+ * 
+ * Date          Ticket#  Engineer   Description
+ * ------------- -------- ---------- -------------------------------------------
+ * Jul 14, 2010  6558     bkowal     Added a variable that will be used to
+ *                                   indicate when the user manually moves the
+ *                                   drag-me point. A new method has been
+ *                                   created to calculate the pivot indexes.
+ * Oct 27, 2010  6964     bkowal     Added a public class member for the
+ *                                   LineStyle.
+ * Nov 29, 2012  15571    qlin       Added compuateCurrentStormCenter();
+ * Mar 15, 2013  15693    mgamazay   Added magnification.
+ * Jun 24, 2013  16317    dfriedman  Handle "motionless" track.
+ * Apr 24, 2014  16356    qlin       Added newWarnGen, oneStormAngle,
+ *                                   justSwitchedToLOS, justSwitchedToOS, and
+ *                                   trackType.
+ * Jun 24, 2014  17436    qlin       Assigned "unknown" to trackType.
+ * Dec 02, 2015  5150     bsteffen   Add option to use constant end time.
  * 
  * </pre>
  * 
  * @author mschenke
- * @version 1.0
  */
-
 public class StormTrackState {
 
     public enum Mode {
         DRAG_ME, TRACK, NONE
-    };
+    }
 
     public enum DisplayType {
         POINT("me"), POLY("line"), CIRCULAR("me");
@@ -208,6 +209,12 @@ public class StormTrackState {
     public boolean justSwitchedToLOS = false;
 
     public boolean justSwitchedToOS = false;
+
+    /*
+     * When true the end time will be adjusted on the display to be offset from
+     * the current time instead of the last frame.
+     */
+    public boolean liveOffsetEndTime = true;
 
     public static String trackType = "unknown";
 
