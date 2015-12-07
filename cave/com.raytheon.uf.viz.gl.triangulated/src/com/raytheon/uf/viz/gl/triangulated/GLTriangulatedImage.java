@@ -203,6 +203,9 @@ public class GLTriangulatedImage implements ITriangulatedImage {
             gl.glPolygonMode(GL.GL_BACK, GL.GL_FILL);
             gl.glPolygonMode(GL.GL_FRONT, GL.GL_FILL);
 
+            gl.glEnable(GL.GL_BLEND);
+            gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+
             GLTextureObject cmapTexture = target
                     .getColorMapTexture(colorMapParameters);
 
@@ -259,6 +262,8 @@ public class GLTriangulatedImage implements ITriangulatedImage {
 
             gl.glActiveTexture(GL.GL_TEXTURE1);
             gl.glBindTexture(GL.GL_TEXTURE_1D, 0);
+
+            gl.glDisable(GL.GL_BLEND);
         } finally {
             target.popGLState();
         }
