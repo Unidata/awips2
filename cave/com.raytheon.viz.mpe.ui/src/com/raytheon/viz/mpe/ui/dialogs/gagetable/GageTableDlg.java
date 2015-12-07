@@ -108,6 +108,7 @@ import com.raytheon.viz.mpe.ui.dialogs.gagetable.xml.GageTableSortType;
  * Apr 16, 2014  3025      mpduff     Fix sort method.
  * Nov 18, 2015 18093      snaples    Fixed GridComboListener to trigger table update when changing compare column.
  * Dec 02, 2015 18094      lbousaidi  added the sorting method for multi column sorting.
+ * Dec 07, 2015 18137      lbousaidi  fixed sorting after editing gages.
  *
  * </pre>
  *
@@ -1277,9 +1278,6 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
                             rowData);
                     dataChanged = true;
                 }
-                // Update the grid combobox
-                gridCombo.removeAllItems();
-                populateGridCombo();
 
             } else {
                 Enumeration<TableColumn> colEnum = table.getColumnModel()
