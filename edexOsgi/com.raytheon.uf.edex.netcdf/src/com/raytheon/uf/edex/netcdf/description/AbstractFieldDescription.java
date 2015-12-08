@@ -40,6 +40,7 @@ import com.raytheon.uf.edex.netcdf.description.exception.InvalidDescriptionExcep
  * Aug 26, 2015 4699       nabowle     Initial creation
  * Sep 09, 2015 4696       nabowle     Add retrieval at different indices and
  *                                     getLength().
+ * Dec 08, 2015 5059       nabowle     Add isNumeric() and isPresent().
  *
  * </pre>
  *
@@ -94,5 +95,26 @@ public abstract class AbstractFieldDescription {
      * Get the total number of elements for a field.
      */
     public abstract long getLength(NetcdfFile file);
+
+    /**
+     * Indicates if the described field is numeric.
+     * 
+     * @throws InvalidDescriptionException
+     *             if this description is incorrectly configured, or if
+     *             isPresent() would return false
+     */
+    public abstract boolean isNumeric(NetcdfFile file)
+            throws InvalidDescriptionException;
+
+    /**
+     * Indicates if the described field is present in the file. This should
+     * indicate if at least one of the getString or getNumber methods will
+     * return a value.
+     *
+     * @throws InvalidDescriptionException
+     *             if this description is incorrectly configured.
+     */
+    public abstract boolean isPresent(NetcdfFile file)
+            throws InvalidDescriptionException;
 
 }
