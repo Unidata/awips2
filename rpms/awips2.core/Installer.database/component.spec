@@ -20,13 +20,13 @@ Vendor: Raytheon
 Packager: %{_build_site}
 
 AutoReq: no
-provides: awips2-database
-provides: awips2-static-user
-requires: awips2-postgresql
-requires: awips2-psql
-requires: awips2-database-configuration
-requires: netcdf = 4.1.2
-requires: netcdf-devel = 4.1.2
+Provides: awips2-database
+Provides: awips2-static-user
+Requires: awips2-postgresql
+Requires: awips2-psql
+Requires: awips2-database-configuration
+Requires: netcdf = 4.1.2
+Requires: netcdf-devel = 4.1.2
 
 
 %description

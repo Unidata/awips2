@@ -15,8 +15,8 @@ Vendor: Raytheon
 Packager: %{_build_site}
 
 AutoReq: no
-provides: awips2-adapt-native
-requires: awips2-edex-base
+Provides: awips2-adapt-native
+Requires: awips2-edex-base
 
 # The two python native libraries are now included directly in the python
 # distribution that is built.

@@ -15,8 +15,8 @@ Vendor: Raytheon
 Packager: %{_build_site}
 
 AutoReq: no
-provides: awips2-aviation-shared
-requires: awips2-edex-base
+Provides: awips2-aviation-shared
+Requires: awips2-edex-base
 
 %description
 AWIPS II Aviation Distribution - includes *-ish files required by AvnFPS.
