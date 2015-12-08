@@ -37,6 +37,7 @@
 #####                                  use the 'fe_area' shapefile field for portions of state. This fixes
 #####                                  several DRs related to unique part-of-state codes, watch boxes, etc..
 #####    Bookbinder        10-30-2015  Added several additional fe_area codes and cleaned up watch logic.
+#####    Evan Bookbinder   12-01-2015  Fixed single column output
 ##############################################################################################################
 #*
 Mile Marker Test Code                                     
@@ -1702,11 +1703,11 @@ ${bulletLead}
 ##STRAIGHT LIST
 #if($columns == 0)
 #if($numMajorPoints == 1)
-#capitalize(${strOutput}, 'FIRST')##
+#capitalize(${strOutput}, 'FIRST')
 #else
 #if($count != $numMajorPoints)
 #if(${count} == 1)
-#capitalize(${strOutput}, 'FIRST')##
+#capitalize(${strOutput}, 'FIRST')
 #else
 ${strOutput}##
 #end
@@ -1718,12 +1719,14 @@ and ${strOutput}##
 ##ONE PER LINE
 #elseif($columns == 1)
 #if($count != $numMajorPoints && $numMajorPoints != 1)
-#capitalize(${strOutput}, 'FIRST')...
+#capitalize(${strOutput}, 'FIRST')
+
 #elseif ($numMajorPoints == 1)
-#capitalize(${strOutput}, 'FIRST').
+#capitalize(${strOutput}, 'FIRST')
+
 
 #else
-and ${strOutput}.
+and ${strOutput}
 
 #end
 ##MULTIPLE COLUMNS
