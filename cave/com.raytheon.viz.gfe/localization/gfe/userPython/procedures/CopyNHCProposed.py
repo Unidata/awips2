@@ -5,7 +5,8 @@
 #
 # CopyNHCProposed
 #
-# Author:
+# Author: T LeFebvre/P. Santos
+# Last Modified: Dec 10, 2015 for 16.1.2
 # ----------------------------------------------------------------------------
 
 # The MenuItems list defines the GFE menu item(s) under which the
@@ -25,37 +26,62 @@ ToolList = []
 ##  cover all the variables necessary for the tools.
 
 import SmartScript
+from numpy import *
+import TimeRange
+import AbsTime
 import time, re
-
-try:
-    from Numeric import *
-except:
-    from numpy import *
-
-import GridManipulation
 
 ## For documentation on the available commands,
 ##   see the SmartScript Utility, which can be viewed from
 ##   the Edit Actions Dialog Utilities window
-VariableList = [("Choose Hazards:" , "", "check",
-                # ["ProposedSS", "ProposedWW1", "ProposedWW2"]),
-                 ["ProposedSS"]),
+Supported_elements=["ProposedSS"]
+VariableList = [("Choose Hazards:" , ["ProposedSS"], "check", Supported_elements),
+                # ["ProposedSS"]),
                 ]
 
-class Procedure (GridManipulation.GridManipulation, SmartScript.SmartScript):
+class Procedure (SmartScript.SmartScript):
     def __init__(self, dbss):
-        GridManipulation.GridManipulation.__init__(self)
         SmartScript.SmartScript.__init__(self, dbss)
+
+    # Makes a timeRange based on the specified start and end times.
+    # If no times are specified, returns the largest timeRange possible.
+    # This method will work in either an AWIPS I or AWIPS II environment.
+    def makeTimeRange(self, start=0, end=0):            
+        
+        if start == 0 and end == 0:
+            return TimeRange.allTimes()
+            
+        startTime = AbsTime.AbsTime(start)
+        endTime = AbsTime.AbsTime(end)
+    
+        tr = TimeRange.TimeRange(startTime, endTime)
+
+        return tr
 
     def makeNewTimeRange(self, hours):
 
         startTime = int(time.time() / 3600) * 3600
         endTime = startTime + hours * 3600
 
-        timeRange = self.GM_makeTimeRange(startTime, endTime)
+        timeRange = self.makeTimeRange(startTime, endTime)
 
         return timeRange
-   
+
+    def getWEInventory(self, modelName, WEName, timeRange=None):
+
+        if timeRange is None:
+            timeRange = self.makeTimeRange()
+
+        gridInfo = self.getGridInfo(modelName, WEName, "SFC", timeRange)
+        trList = []
+        for g in gridInfo:
+            start = g.gridTime().startTime().unixTime()
+            end = g.gridTime().endTime().unixTime()
+            tr = self.makeTimeRange(start, end)
+            trList.append(tr)
+
+        return trList
+    
     def execute(self, varDict):
 
         #  Assign a timeRange from now to 48 hours from now
@@ -69,7 +95,6 @@ class Procedure (GridManipulation.GridManipulation, SmartScript.SmartScript):
             self.statusBarMsg("You must choose at least one hazard.", "U")
             return 
 
-        #weNames = ["ProposedSS", "ProposedWW1", "ProposedWW2"]
         weNames = ["ProposedSS"]
 
         # Remove any pre-existing grids first
@@ -78,7 +103,7 @@ class Procedure (GridManipulation.GridManipulation, SmartScript.SmartScript):
             if weName not in hazardsToCopy:
                 continue
 
-            trList = self.GM_getWEInventory(weName)
+            trList = self.getWEInventory("Fcst", weName)
             for delTR in trList:
                 self.deleteGrid("Fcst", weName, "SFC", delTR)
             
@@ -89,16 +114,21 @@ class Procedure (GridManipulation.GridManipulation, SmartScript.SmartScript):
                 continue
             
             iscWeName = weName + "nc"
-            trList = self.GM_getWEInventory(iscWeName, "ISC", timeRange)
+            trList = self.getWEInventory("ISC", iscWeName, timeRange)
 
             if len(trList) == 0:
                 continue
 
             gridTR = trList[-1]  # only interested in the latest grid
-            
+           
             iscGrid, iscKeys = self.getGrids("ISC", iscWeName, "SFC", gridTR)
+            
+            start = gridTR.endTime().unixTime() - (48 * 3600)
+            end = gridTR.endTime().unixTime()
+            createTR = self.makeTimeRange(start, end)
 
             self.createGrid("Fcst", weName, "DISCRETE", (iscGrid, iscKeys),
-                            timeRange, discreteKeys=iscKeys, discreteOverlap=0,
+                            createTR, discreteKeys=iscKeys, discreteOverlap=0,
+                            #trList, discreteKeys=iscKeys, discreteOverlap=0,
                             discreteAuxDataLength=0, defaultColorTable="StormSurgeHazards")
-
+                            
