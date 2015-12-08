@@ -99,6 +99,7 @@ function buildCAVERPM()
       --define '_build_bits %(echo ${CAVE_BUILD_BITS})' \
       --define '_component_name %(echo ${RPM_NAME})' \
       --define '_uframe_eclipse %(echo ${UFRAME_ECLIPSE})' \
+      --define '_build_site %(echo ${AWIPSII_BUILD_SITE})' \
       --buildroot ${AWIPSII_BUILD_ROOT} ${COMPONENT_SPECS}
    # If We Are Unable To Build An RPM, Fail The Build:
    if [ $? -ne 0 ]; then

@@ -1,5 +1,5 @@
-*** Installer.edex-component/component.spec	2015-08-25 15:19:06.962255321 -0500
---- Installer.edex-datadelivery/component.spec	2015-09-15 15:57:16.669506673 -0500
+*** Installer.edex-component/component.spec	2015-12-01 15:13:59.047022621 -0600
+--- Installer.edex-datadelivery/component.spec	2015-12-01 15:13:59.048022609 -0600
 ***************
 *** 6,13 ****
   %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
@@ -22,7 +22,7 @@
 ***************
 *** 18,24 ****
   Vendor: Raytheon
-  Packager: Bryan Kowal
+  Packager: %{_build_site}
   
 ! provides: awips2-%{_component_name}
   requires: awips2
@@ -30,7 +30,7 @@
   requires: awips2-python
 --- 18,24 ----
   Vendor: Raytheon
-  Packager: Bryan Kowal
+  Packager: %{_build_site}
   
 ! provides: awips2-edex-datadelivery
   requires: awips2

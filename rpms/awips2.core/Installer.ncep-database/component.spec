@@ -15,7 +15,7 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: NCEP/NCO/SIB CWA
-Packager: J. Zeng / B. Kowal
+Packager: %{_build_site}
 
 AutoReq: no
 provides: awips2-ncep-database

@@ -107,12 +107,13 @@ function buildRPM()
 
    if [ ! "${COMPONENT_NAME}" = "edex-binlightning" ] ||
       [ ${LIGHTNING} = true ]; then
-      rpmbuild -ba --target=${TARGET_BUILD_ARCH} \
+      rpmbuild -bb --target=${TARGET_BUILD_ARCH} \
          --define '_topdir %(echo ${AWIPSII_TOP_DIR})' \
          --define '_baseline_workspace %(echo ${WORKSPACE})' \
          --define '_uframe_eclipse %(echo ${UFRAME_ECLIPSE})' \
          --define '_awipscm_share %(echo ${AWIPSCM_SHARE})' \
          --define '_build_root %(echo ${AWIPSII_BUILD_ROOT})' \
+         --define '_build_site %(echo ${AWIPSII_BUILD_SITE})' \
          --define '_component_version %(echo ${AWIPSII_VERSION})' \
          --define '_component_release %(echo ${AWIPSII_RELEASE})' \
          --define '_component_name %(echo ${COMPONENT_NAME})' \

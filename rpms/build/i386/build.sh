@@ -10,12 +10,13 @@ function buildRPM()
       exit 1
    fi
 
-   /usr/bin/rpmbuild -ba \
+   /usr/bin/rpmbuild -bb \
       --define '_topdir %(echo ${AWIPSII_TOP_DIR})' \
       --define '_baseline_workspace %(echo ${WORKSPACE})' \
       --define '_uframe_eclipse %(echo ${UFRAME_ECLIPSE})' \
       --define '_awipscm_share %(echo ${AWIPSCM_SHARE})' \
       --define '_build_root %(echo ${AWIPSII_BUILD_ROOT})' \
+      --define '_build_site %(echo ${AWIPSII_BUILD_SITE})' \
       --define '_component_version %(echo ${AWIPSII_VERSION})' \
       --define '_component_release %(echo ${AWIPSII_RELEASE})' \
       --define '_component_build_date %(echo ${COMPONENT_BUILD_DATE})' \

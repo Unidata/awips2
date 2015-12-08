@@ -89,6 +89,7 @@ function buildLocalizationRPMs()
          --define '_baseline_workspace %(echo ${WORKSPACE})' \
          --define '_localization_directory %(echo ${LOCALIZATION_DIRECTORY})' \
          --define '_localization_site %(echo ${site})' \
+         --define '_build_site %(echo ${AWIPSII_BUILD_SITE})' \
          --buildroot ${AWIPSII_BUILD_ROOT} \
          ${localization_SPECIFICATION}
       RC=$?
