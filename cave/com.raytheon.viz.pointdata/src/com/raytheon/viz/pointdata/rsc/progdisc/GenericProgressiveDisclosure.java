@@ -235,7 +235,6 @@ public class GenericProgressiveDisclosure<T extends PlotItem> {
             if (items.size() < staticToDynamicThreshold) {
                 double distance = getMinDistance(items, info);
                 info.setDistance(distance);
-                staticCount += 1;
             } else if (checkDuplicate) {
                 for (ItemInfo<T> itemToCheck : items) {
                     if (itemToCheck.getItem().getLocation()
@@ -245,9 +244,11 @@ public class GenericProgressiveDisclosure<T extends PlotItem> {
                     }
                 }
             }
-            if (!info.hasDistance() || info.getDistance() > 0) {
+            if (!info.hasDistance()) {
                 items.add(info);
-
+            } else if (info.getDistance() > 0) {
+                staticCount += 1;
+                items.add(info);
             }
         }
         waitingTasks.decrementAndGet();
