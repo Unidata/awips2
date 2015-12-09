@@ -95,6 +95,7 @@ import com.vividsolutions.jts.precision.SimpleGeometryPrecisionReducer;
  * 05/07/2015  DR 17438   D. Friedman  Clean up debug and performance logging.
  * 05/08/2015  DR 17310   D. Friedman  Prevent reducePoints from generating invalid polygons.
  * 09/22/2015  DR 18033   Qinglu Lin   Updated removeOverlaidLinesegments(), removed one computeSlope().
+ * 12/09/2015  DR 18209   D. Friedman  Support cwaStretch.
  * </pre>
  * 
  * @author mschenke
@@ -135,7 +136,8 @@ public class PolygonUtil {
     }
 
     public Polygon hatchWarningArea(Polygon origPolygon,
-            Geometry origWarningArea, Polygon oldWarningPolygon)
+            Geometry origWarningArea, Polygon oldWarningPolygon,
+            boolean cwaStretch)
             throws VizException {
         float[][] contourAreaData = toFloatData(origWarningArea);
 
@@ -167,7 +169,7 @@ public class PolygonUtil {
                          * that are used to generate origWarningArea.
                          */
                         Geometry comparableIntersection = layer
-                                .buildIdealArea(origPolygon);
+                                .buildIdealArea(origPolygon, cwaStretch);
                         float[][] interAreaData = toFloatData(comparableIntersection);
                         if (areasEqual(interAreaData, contourAreaData)) {
                             return polygonIntersection;

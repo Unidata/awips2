@@ -170,6 +170,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *  May  7, 2015 ASM #17438  D. Friedman Clean up debug and performance logging.
  *  Jun 05, 2015 DR 17428    D. Friedman Fixed duration-related user interface issues.  Added duration logging.
  *  Sep 22, 2015 4859        dgilling    Prevent product generation in DRT mode.
+ *  Dec  9, 2015 DR 18209    D. Friedman Support cwaStretch dam break polygons.
  * </pre>
  * 
  * @author chammack
@@ -1569,9 +1570,9 @@ public class WarngenDialog extends CaveSWTDialog implements
                 } else {
                     coordinates.add(coordinates.get(0));
                     PolygonUtil.truncate(coordinates, 2);
+                    setPolygonLocked(lockPolygon);
                     warngenLayer.createDamThreatArea(coordinates
                             .toArray(new Coordinate[coordinates.size()]));
-                    setPolygonLocked(lockPolygon);
                     warngenLayer.issueRefresh();
                     damBreakInstruct = null;
                 }
@@ -1892,9 +1893,16 @@ public class WarngenDialog extends CaveSWTDialog implements
             } else {
                 bulletListManager.recreateBulletsFromFollowup(
                         warngenLayer.getConfiguration(), action, oldWarning);
-                if (bulletListManager.isDamNameSeletcted()
-                        && (action != WarningAction.NEW)) {
+                if (bulletListManager.isDamNameSeletcted()) {
                     setPolygonLocked(true);
+                    /* Need to set the warning area again now that the dam bullets
+                     * are set up so that cwaStretch=true dam polygons will work.
+                     */
+                    try {
+                        warngenLayer.resetWarningPolygonAndAreaFromRecord(oldWarning);
+                    } catch (VizException e) {
+                        statusHandler.error("Error updating the warning area for selected dam", e);
+                    }
                 }
             }
             refreshBulletList();
@@ -2715,5 +2723,10 @@ public class WarngenDialog extends CaveSWTDialog implements
                 }
             }
         });
+    }
+
+    public boolean isCwaStretchDamBulletSelected() {
+        DamInfoBullet bullet = bulletListManager.getSelectedDamInfoBullet();
+        return bullet !=  null && bullet.isCwaStretch();
     }
 }
