@@ -26,8 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.uengine.runners.IMicroEngine;
 import com.raytheon.edex.uengine.runners.MicroEngine;
@@ -69,6 +69,7 @@ import com.raytheon.uf.edex.plugin.text.subscription.runners.SubscribeQueryRunne
  * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
  * May 22, 2014 2536       bclement    moved from autobldsrv to edex.plugin.text
  * Sep 05, 2014 2926       bclement    get query results directly, removed decodeResponse()
+ * Dec 09, 2015 5166       kbisanz     Update logging to use SLF4J.
  * 
  * </pre>
  * 
@@ -77,7 +78,8 @@ import com.raytheon.uf.edex.plugin.text.subscription.runners.SubscribeQueryRunne
  */
 
 public class ScriptRunner {
-    private transient Log logger = LogFactory.getLog("FailedTriggerLog");
+    private transient Logger logger = LoggerFactory
+            .getLogger("FailedTriggerLog");
 
     private String type = null;
 
@@ -181,8 +183,7 @@ public class ScriptRunner {
                     for (PluginDataObject pdo : pdos) {
                         try {
                             String prodID = ReflectionUtil.getter(String.class,
-                                    pdo,
-                                    "productId");
+                                    pdo, "productId");
                             if (logger.isDebugEnabled()) {
                                 logger.debug("Processing trigger: " + prodID
                                         + ", class = "
@@ -257,7 +258,8 @@ public class ScriptRunner {
         } else {
             String path = record.getFilepath();
             String args = record.getArguments();
-            if (StringUtil.isEmptyString(path) && StringUtil.isEmptyString(args)) {
+            if (StringUtil.isEmptyString(path)
+                    && StringUtil.isEmptyString(args)) {
                 logger.warn("Unable to execute script for " + record.toString());
                 return;
             }

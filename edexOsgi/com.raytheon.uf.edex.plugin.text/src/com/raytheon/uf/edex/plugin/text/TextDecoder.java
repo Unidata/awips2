@@ -37,8 +37,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
@@ -81,6 +81,7 @@ import com.raytheon.uf.edex.plugin.text.impl.separator.WMOMessageSeparator;
  * Mar 14, 2014 2652        skorolev    Changed logging for skipped headers.
  * May 12, 2014 2536        bclement    added createTextRecord(), removed deprecated code
  * Jul 10, 2014 2914        garmendariz Remove EnvProperties
+ * Dec 09, 2015 5166        kbisanz     Update logging to use SLF4J.
  * </pre>
  * 
  * @author
@@ -100,7 +101,7 @@ public class TextDecoder extends AbstractDecoder {
     private static String badTxtDir = EDEXUtil.getEdexData() + File.separator
             + "badTxt";
 
-    private final Log logger = LogFactory.getLog(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private String pluginName;
 

@@ -24,8 +24,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.site.SiteUtil;
@@ -75,6 +75,7 @@ import com.raytheon.uf.edex.plugin.text.impl.WMOReportData;
  * May 15, 2014 2536        bclement    moved asciiToHex() hexToAscii() and getProperty() to PropConverter
  * May 20, 2014 2536        bclement    moved from edex.textdb to edex.plugin.text
  * Jul 10, 2014 2914        garmendariz Remove EnvProperties
+ * Dec 09, 2015 5166        kbisanz     Update logging to use SLF4J.
  * </pre>
  * 
  * @author jkorman
@@ -83,7 +84,7 @@ import com.raytheon.uf.edex.plugin.text.impl.WMOReportData;
 
 public class TextDB {
 
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     private String siteName = SiteUtil.getSite();
 
@@ -249,7 +250,10 @@ public class TextDB {
             dao.persist(info);
             success = true;
         } catch (Exception e) {
-            logger.error(e);
+            String msg = "Error persisting versions to keep: ccc=" + ccc
+                    + ", nnn=" + nnn + ", xxx=" + xxx + ", versions="
+                    + versions;
+            logger.error(msg, e);
         }
         return success;
     }
@@ -271,7 +275,9 @@ public class TextDB {
                 rval = Integer.toString(info.getVersionstokeep());
             }
         } catch (Exception e) {
-            logger.error(e);
+            String msg = "Error retrieving versions: ccc=" + ccc + ", nnn="
+                    + nnn + ", xxx=" + xxx;
+            logger.error(msg, e);
         }
 
         return rval;
@@ -296,7 +302,9 @@ public class TextDB {
             }
             success = true;
         } catch (Exception e) {
-            logger.error(e);
+            String msg = "Error deleting versions: ccc=" + ccc + ", nnn=" + nnn
+                    + ", xxx=" + xxx;
+            logger.error(msg, e);
         }
         return success;
     }
@@ -314,7 +322,10 @@ public class TextDB {
         try {
             success = dao.addState(stateInfo);
         } catch (Exception e) {
-            logger.error(e);
+            String msg = "Error adding mapping for state: stateInfo="
+                    + stateInfo;
+
+            logger.error(msg, e);
         }
         return success;
     }
@@ -344,7 +355,9 @@ public class TextDB {
         try {
             success = dao.removeState(stateInfo);
         } catch (Exception e) {
-            logger.error(e);
+            String msg = "Error removing mapping for state: stateInfo="
+                    + stateInfo;
+            logger.error(msg, e);
         }
         return success;
     }
@@ -374,7 +387,8 @@ public class TextDB {
         try {
             stateList = dao.queryState(state);
         } catch (Exception e) {
-            logger.error(e);
+            String msg = "Error retrieving mappings for state: state=" + state;
+            logger.error(msg, e);
         }
 
         return stateList;
@@ -393,7 +407,8 @@ public class TextDB {
         try {
             success = dao.addEntry(watchWarn);
         } catch (Exception e) {
-            logger.error(e);
+            String msg = "Error adding watch/warning: watchWarn=" + watchWarn;
+            logger.error(msg, e);
         }
         return success;
     }
@@ -429,7 +444,9 @@ public class TextDB {
         try {
             results = dao.queryWatchWarn(productId);
         } catch (Exception e) {
-            logger.error(e);
+            String msg = "Error querying for watch/warning: productId="
+                    + productId;
+            logger.error(msg, e);
         }
         if (results != null) {
             for (String s : results) {
@@ -453,7 +470,8 @@ public class TextDB {
         try {
             results = dao.queryAllWatchWarn();
         } catch (Exception e) {
-            logger.error(e);
+            String msg = "Error querying all watches/warnings";
+            logger.error(msg, e);
         }
         return results;
     }
@@ -471,7 +489,8 @@ public class TextDB {
         try {
             success = dao.deleteEntry(watchWarn);
         } catch (Exception e) {
-            logger.error(e);
+            String msg = "Error deleting watch/warning: watchWarn=" + watchWarn;
+            logger.error(msg, e);
         }
         return success;
     }
@@ -523,7 +542,9 @@ public class TextDB {
         try {
             times = dao.getLatestTimes(afosId);
         } catch (Exception e) {
-            logger.error(e);
+            String msg = "Error getting latest times: afosId=" + afosId
+                    + ", operationalMode=" + operationalMode;
+            logger.error(msg, e);
         }
 
         return times;
@@ -546,7 +567,9 @@ public class TextDB {
         try {
             latestTime = dao.getLatestTime(afosId);
         } catch (Exception e) {
-            logger.error(e);
+            String msg = "Error getting latest time: afosId=" + afosId
+                    + ", operationalMode=" + operationalMode;
+            logger.error(msg, e);
         }
 
         return latestTime;
@@ -631,7 +654,10 @@ public class TextDB {
         try {
             times = dao.getAllTimes(ccc, nnn, xxx);
         } catch (Exception e) {
-            logger.error(e);
+            String msg = "Error retrieving all times: ccc=" + ccc + ", nnn="
+                    + nnn + ", xxx=" + xxx + ", operationalMode="
+                    + operationalMode;
+            logger.error(msg, e);
         }
 
         return times;
@@ -656,7 +682,17 @@ public class TextDB {
             products = dao
                     .getSameMinuteProducts(wmoId, siteId, hdrTime, afosId);
         } catch (Exception e) {
-            logger.error(e);
+            String msg = "Error getting products within the same minute: wmoId="
+                    + wmoId
+                    + ", siteId="
+                    + siteId
+                    + ", hdrTime="
+                    + hdrTime
+                    + ", afosId="
+                    + afosId
+                    + ", operationalMode="
+                    + operationalMode;
+            logger.error(msg, e);
         }
 
         return products;
@@ -826,7 +862,8 @@ public class TextDB {
                     .getTimeZone("GMT")));
             success = dao.write(textProduct);
         } catch (Exception e) {
-            logger.error(e);
+            String msg = "Error writing product: textProduct=" + textProduct;
+            logger.error(msg, e);
         }
 
         if (logger.isDebugEnabled()) {

@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.edex.plugin.text.dbsrv.impl;
 
-
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -30,8 +29,8 @@ import java.util.List;
 
 import javax.xml.bind.JAXBException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
 import com.raytheon.uf.common.dataplugin.text.dbsrv.ICommandExecutor;
@@ -74,6 +73,8 @@ import com.raytheon.uf.edex.plugin.text.db.TextDB;
  * May 15, 2014 2536       bclement    moved from uf.edex.textdbsrv, added marshalToStream()
  * Jul 15, 2014 3373       bclement    jaxb manager api changes
  * Aug 22, 2014 2926       bclement    compatibility changes with new textdb service
+ * Dec 09, 2015 5166       kbisanz     Update logging to use SLF4J.
+ *
  * 
  * </pre>
  * 
@@ -96,7 +97,7 @@ public class TextViewAdapter implements ICommandExecutor {
 
     private static final String UNKNOWN_SITE = "Unable to locate site from National Category list!";
 
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     private TextDB textDB;
 
@@ -149,16 +150,15 @@ public class TextViewAdapter implements ICommandExecutor {
             }
             case DELETE: {
                 Property[] props = new Property[] { new Property(
-                        CommandExecutor.STDERR,
-                        "ERROR:Command tag = [" + opTag.name()
-                                + "] not implemented"), };
+                        CommandExecutor.STDERR, "ERROR:Command tag = ["
+                                + opTag.name() + "] not implemented"), };
                 sHeader.setProperties(props);
                 break;
             }
             default: {
                 Property[] props = new Property[] { new Property(
-                        CommandExecutor.STDERR,
-                        "ERROR:Invalid command tag = [" + op + "]"), };
+                        CommandExecutor.STDERR, "ERROR:Invalid command tag = ["
+                                + op + "]"), };
                 sHeader.setProperties(props);
                 break;
             }
@@ -199,8 +199,7 @@ public class TextViewAdapter implements ICommandExecutor {
             d.setTime(insertTime);
             AlarmAlertUtil.sendProductAlarmAlert(prodId, d, operationalMode);
             Property[] props = new Property[] { new Property(
-                    CommandExecutor.STDERR,
-                    "NORMAL:Saved " + prodId), };
+                    CommandExecutor.STDERR, "NORMAL:Saved " + prodId), };
             msgHeader.setProperties(props);
         } else {
             Property[] props = new Property[] { new Property(
@@ -264,7 +263,7 @@ public class TextViewAdapter implements ICommandExecutor {
                         operationalMode);
                 // sort the list first...
                 Collections.sort(times);
-                
+
                 Property[] msgProps = new Property[times.size()];
                 int pIndex = 0;
                 for (Long t : times) {
@@ -413,8 +412,7 @@ public class TextViewAdapter implements ICommandExecutor {
                             header.append(nnnId);
                             header.append(xxxId);
                             prodList.add(new Property(CommandExecutor.STDOUT,
-                                    header
-                                    .toString()));
+                                    header.toString()));
                         }
                     }
                 } catch (SerializationException e) {

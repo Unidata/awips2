@@ -27,13 +27,13 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.jdbc.Work;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.text.AfosWmoIdDataContainer;
 import com.raytheon.uf.common.dataplugin.text.db.AfosToAwips;
@@ -54,6 +54,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * Aug 28, 2009 2924         rjpeter    Initial creation
  * Nov 16, 2009 3336         njensen  Added lookupAfosId(String, String, String)
  * 02apr2013    15564   mgamazaychikov Ensured afosid to be 9 characters space-padded long
+ * Dec 09, 2015 5166         kbisanz    Update logging to use SLF4J.
  * 
  * </pre>
  * 
@@ -70,7 +71,7 @@ public class AfosToAwipsDao extends CoreDao {
 
     private final static int MAX_FIELD_LENGTH = 3;
 
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     public AfosToAwipsDao() {
         super(DaoConfig.forClass("fxa", AfosToAwips.class));

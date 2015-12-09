@@ -23,8 +23,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
@@ -47,6 +47,7 @@ import com.raytheon.uf.edex.plugin.text.fax.FaxSender;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 15, 2010            bfarmer     Initial creation
+ * Dec 09, 2015 5166       kbisanz     Update logging to use SLF4J.
  * 
  * </pre>
  * 
@@ -58,7 +59,7 @@ public class AutoFaxManager {
 
     AutoFaxDao faxdao;
 
-    private transient Log logger = LogFactory.getLog(getClass());
+    private transient Logger logger = LoggerFactory.getLogger(getClass());
 
     AutoFaxManager() {
         try {
