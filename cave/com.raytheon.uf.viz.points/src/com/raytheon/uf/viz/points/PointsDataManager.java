@@ -89,6 +89,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                      to work correctly on all platforms.
  * Oct 20, 2014 #3418      dlovely     Fixed a possible NPE in loadPoint.
  * Nov 12, 2015  4834      njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Dec 09, 2015  4834      njensen     updates for API changes to LocalizationFile
  * 
  * </pre>
  * 
@@ -1113,13 +1114,6 @@ public class PointsDataManager implements ILocalizationFileObserver {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.localization.ILocalizationFileObserver#fileUpdated
-     * (com.raytheon.uf.common.localization.FileUpdatedMessage)
-     */
     @Override
     public void fileUpdated(FileUpdatedMessage message) {
         String fileName = new File(message.getFileName()).getName();
@@ -1585,9 +1579,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
             lFile = pathMgr.getLocalizationFile(userCtx, name);
         }
         try {
-            if (!lFile.delete()) {
-                statusHandler.error("Unable to remove file: " + lFile);
-            }
+            lFile.delete();
         } catch (LocalizationException e1) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error deleting locatization file from server: " + lFile);

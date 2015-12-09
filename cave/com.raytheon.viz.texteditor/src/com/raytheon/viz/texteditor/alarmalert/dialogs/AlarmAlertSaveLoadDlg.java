@@ -59,6 +59,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 09/20/2012   1196       rferrel     Setup fileName now in return value for
  *                                     use with close callback.
  * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Dec 09, 2015 4834       njensen     updates for API changes to LocalizationFile
  * 
  * </pre>
  * 
@@ -208,16 +209,10 @@ public class AlarmAlertSaveLoadDlg extends CaveSWTDialog {
                 int num = lists.getSelectionIndex();
                 LocalizationFile f = fileList.get(num);
                 try {
-                    if (!f.delete()) {
-                        String msg = String.format(
-                                "ALARM/ALERT:Failed deleting file %s", f
-                                        .getFile().getPath());
-                        statusHandler.handle(Priority.PROBLEM, msg);
-                    }
+                    f.delete();
                 } catch (LocalizationException e) {
                     String msg = String.format(
-                            "ALARM/ALERT:Failed deleting file %s", f.getFile()
-                                    .getPath());
+                            "ALARM/ALERT: Failed deleting file %s", f.getPath());
                     statusHandler.handle(Priority.PROBLEM, msg, e);
                 }
                 lists.remove(num);
