@@ -137,6 +137,8 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  *                                     ingested while deactivated gets recognized
  * 10/27/2014   #3766      randerso    Fixed return type and javadoc for createNewDb
  * 03/05/2015   #4169      randerso    Fix error handling in getDatabase
+ * 11/17/2015   #5129      dgilling    Ensure ServerResponse payload is always
+ *                                     populated when calling getGridHistory.
  * 
  * </pre>
  * 
@@ -300,11 +302,17 @@ public class GridParmManager {
     public ServerResponse<Map<TimeRange, List<GridDataHistory>>> getGridHistory(
             ParmID parmId, List<TimeRange> trs) {
         ServerResponse<Map<TimeRange, List<GridDataHistory>>> sr = new ServerResponse<Map<TimeRange, List<GridDataHistory>>>();
+        Map<TimeRange, List<GridDataHistory>> history = Collections.emptyMap();
 
         try {
             GridParm gp = gridParm(parmId);
             if (gp.isValid()) {
-                sr = gp.getGridHistory(trs);
+                ServerResponse<Map<TimeRange, List<GridDataHistory>>> ssr = gp
+                        .getGridHistory(trs);
+                sr.addMessages(ssr);
+                if (ssr.getPayload() != null) {
+                    history = ssr.getPayload();
+                }
             } else {
                 sr.addMessage("Unknown Parm: " + parmId
                         + " in getGridInventory()");
@@ -315,6 +323,7 @@ public class GridParmManager {
                     + " in getGridInventory()", e);
         }
 
+        sr.setPayload(history);
         return sr;
     }
 

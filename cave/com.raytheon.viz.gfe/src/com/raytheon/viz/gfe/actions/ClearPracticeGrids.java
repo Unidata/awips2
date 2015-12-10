@@ -30,17 +30,16 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable.LockMode;
-import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerMsg;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.LockRequest;
+import com.raytheon.uf.common.gfe.ifpclient.IFPClient;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.viz.gfe.GFEServerException;
 import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.core.IParmManager;
-import com.raytheon.viz.gfe.core.internal.IFPClient;
 import com.raytheon.viz.gfe.core.parm.Parm;
 
 /**
@@ -53,6 +52,7 @@ import com.raytheon.viz.gfe.core.parm.Parm;
  * ------------ ---------- ----------- --------------------------
  * Apr 10, 2010     #4475  randerso     Initial creation
  * May 02, 2013      1949  rjpeter      Change ServerResponse return type.
+ * Nov 18, 2015      5129  dgilling     Support new IFPClient.
  * </pre>
  * 
  * @author randerso
@@ -64,7 +64,7 @@ public class ClearPracticeGrids extends AbstractHandler {
 
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        DataManager dataManager = DataManager.getCurrentInstance();
+        DataManager dataManager = DataManagerUIFactory.getCurrentInstance();
         if (dataManager == null) {
             return null;
         }
@@ -74,56 +74,41 @@ public class ClearPracticeGrids extends AbstractHandler {
         String s = dataManager.getSiteID() + "_GRID_Prac_Fcst_00000000_0000";
         DatabaseID dbid = new DatabaseID(s);
 
-        try {
-            // for each parmId in the database
-            ParmID[] parmList = pm.getAvailableParms(dbid);
-            for (ParmID parmID : parmList) {
-                // if the parm exists
-                Parm parm = pm.getParm(parmID);
-                if (parm != null) {
+        // for each parmId in the database
+        ParmID[] parmList = pm.getAvailableParms(dbid);
+        for (ParmID parmID : parmList) {
+            // if the parm exists
+            Parm parm = pm.getParm(parmID);
+            if (parm != null) {
 
-                    TimeRange tr = parm.getInventorySpan();
-                    if (tr.getDuration() > 0) {
-                        // break any locks held by others
-                        List<TimeRange> locks = parm.getLockTable()
-                                .lockedByOther();
-                        if (locks.size() > 0) {
-                            ArrayList<LockRequest> lreq = new ArrayList<LockRequest>();
-                            for (TimeRange lock : locks) {
-                                lreq.add(new LockRequest(parmID, lock,
-                                        LockMode.BREAK_LOCK));
-                            }
-                            ServerResponse<List<LockTable>> sr = client
-                                    .requestLockChange(lreq);
-                            if (!sr.isOkay()) {
-                                List<ServerMsg> messages = sr.getMessages();
-                                StringBuilder msg = new StringBuilder(
-                                        "Error attempting to remove locks.");
-                                for (ServerMsg serverMsg : messages) {
-                                    msg.append("\n").append(
-                                            serverMsg.getMessage());
-                                }
-                                statusHandler.handle(Priority.PROBLEM,
-                                        msg.toString());
-                            }
+                TimeRange tr = parm.getInventorySpan();
+                if (tr.getDuration() > 0) {
+                    // break any locks held by others
+                    List<TimeRange> locks = parm.getLockTable().lockedByOther();
+                    if (!locks.isEmpty()) {
+                        List<LockRequest> lreq = new ArrayList<LockRequest>();
+                        for (TimeRange lock : locks) {
+                            lreq.add(new LockRequest(parmID, lock,
+                                    LockMode.BREAK_LOCK));
                         }
-
-                        // delete all grids
-                        parm.deleteTR(tr);
-                        parm.saveParameter(tr);
+                        ServerResponse<List<LockTable>> sr = client
+                                .requestLockChange(lreq);
+                        if (!sr.isOkay()) {
+                            statusHandler.error(String.format(
+                                    "Error attempting to remove locks: %s",
+                                    sr.message()));
+                        }
                     }
+
+                    // delete all grids
+                    parm.deleteTR(tr);
+                    parm.saveParameter(tr);
                 }
             }
-
-            statusHandler.handle(Priority.SIGNIFICANT,
-                    "Prac_Fcst database has been cleared.");
-
-        } catch (GFEServerException e) {
-            statusHandler
-                    .handle(Priority.PROBLEM,
-                            "Unexpected exception while attempting to clear practice grids",
-                            e);
         }
+
+        statusHandler.handle(Priority.SIGNIFICANT,
+                "Prac_Fcst database has been cleared.");
 
         return null;
     }

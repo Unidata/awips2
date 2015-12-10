@@ -26,6 +26,9 @@ import JUtil, VarDictGroker
 import RedirectLogging
 import UFStatusHandler
 
+from com.raytheon.uf.viz.core import VizApp
+from com.raytheon.uf.common.gfe.ifpclient import PyFPClient
+
 #
 # Runs the text formatter to generate text products
 #   
@@ -45,6 +48,7 @@ import UFStatusHandler
 #                                                mixed case is not enabled for the product.
 #                                                Cleaned up file writing code
 #    07/29/2015      #4263         dgilling      Support updated TextProductManager.
+#    11/30/2015      #5129         dgilling      Support new IFPClient.
 # 
 #
 
@@ -75,6 +79,9 @@ except:
     logger = logging.getLogger()
     logger.exception("Exception occurred")
 
+## TODO: Remove use of DataManager in this code. Will need to coordinate with
+## the field developers to ensure local site overrides aren't relying on having
+## access to it.
 def executeFromJava(databaseID, site, username, dataMgr, forecastList, logFile, cmdLineVarDict=None,
                     drtTime=None, vtecMode=None, vtecActiveTable="active", testMode=0 ):
     if type(forecastList) is not list:
@@ -202,7 +209,7 @@ def runFormatter(databaseID, site, forecastList, cmdLineVarDict, vtecMode,
         testMode = 0
 
     # Create an ifpClient
-    ifpClient = dataMgr.getClient()
+    ifpClient = PyFPClient(VizApp.getWsId(), site)
     
     global GridLoc
     GridLoc = ifpClient.getDBGridLocation()
@@ -215,7 +222,7 @@ def runFormatter(databaseID, site, forecastList, cmdLineVarDict, vtecMode,
 
     import Analysis
 
-    site = str(ifpClient.getSiteID().get(0))
+    site = str(ifpClient.getSiteID()[0])
 
     # Create dictionary of arguments
     argDict = {
@@ -263,7 +270,7 @@ def runFormatter(databaseID, site, forecastList, cmdLineVarDict, vtecMode,
     time.tzset()
 
     # Create the formatter
-    formatter = TextFormatter.TextFormatter(dataMgr)
+    formatter = TextFormatter.TextFormatter(dataMgr, ifpClient)
 
     # For each Forecast Type,
     #   Create generate forecast
@@ -492,11 +499,14 @@ def ppDef(definition):
         return s
     else:
         return "<Definition not dictionary>\n" + `definition`
-    
-def getVarDict(paths, dspName, dataMgr, issuedBy, dataSource):
+
+## TODO: Investigate if the dependency on DataManager can be removed here.
+## At the moment this passes through to ValuesDialog for building special
+## widgets in the DialogAreaComposite.    
+def getVarDict(paths, dspName, dataMgr, ifpClient, issuedBy, dataSource):
     importModules(paths)
     
-    tz = str(dataMgr.getClient().getSiteTimeZone())
+    tz = str(ifpClient.getSiteTimeZone())
     os.environ['TZ'] = tz
     time.tzset()
     productDef = displayNameDict[dspName][1]

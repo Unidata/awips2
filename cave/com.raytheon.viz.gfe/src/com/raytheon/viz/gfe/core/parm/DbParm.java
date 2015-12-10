@@ -33,9 +33,9 @@ import org.eclipse.core.runtime.Status;
 
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable;
@@ -43,6 +43,7 @@ import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable.LockMode;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable.LockStatus;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerMsg;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
+import com.raytheon.uf.common.dataplugin.gfe.server.request.GetGridRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.LockRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.SaveGridRequest;
 import com.raytheon.uf.common.dataplugin.gfe.slice.DiscreteGridSlice;
@@ -61,7 +62,6 @@ import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEOperationFailedException;
-import com.raytheon.viz.gfe.GFEServerException;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.GfeClientConfig;
 import com.raytheon.viz.gfe.core.griddata.AbstractGridData;
@@ -85,6 +85,7 @@ import com.raytheon.viz.gfe.core.griddata.IGridData;
  * 04/23/13     #1949      rjpeter     Added logging of number of records.
  * 06/26/13     #2044      randerso    Fixed error message priority
  * 04/03/2014   #2737      randerso    Moved clientSendStatus from SaveGridRequest to SaveGFEGridRequest
+ * 11/17/2015   #5129      dgilling    Support new IFPClient.
  * </pre>
  * 
  * @author chammack
@@ -99,8 +100,9 @@ public class DbParm extends Parm {
             .getHandler("GFE:");
 
     public DbParm(ParmID parmID, GridParmInfo gridInfo, boolean mutable,
-            boolean displayable, DataManager dataMgr) throws GFEServerException {
+            boolean displayable, DataManager dataMgr, LockTable lt) {
         super(parmID, gridInfo, mutable, displayable, dataMgr);
+        this.lockTable = lt;
 
         TimeRange tr = TimeRange.allTimes();
         try {
@@ -120,12 +122,6 @@ public class DbParm extends Parm {
                         "Unable to retrieve gridded data for " + parmID
                                 + " during loading");
             }
-        }
-
-        if ((this.dataManager != null)
-                && (this.dataManager.getClient() != null)) {
-            this.lockTable = this.dataManager.getClient().getLockTable(
-                    this.getParmID());
         }
     }
 
@@ -156,18 +152,17 @@ public class DbParm extends Parm {
     // ---------------------------------------------------------------------------
     private IGridData[] getGridsFromDb(final TimeRange timeRange,
             boolean populate) throws GFEOperationFailedException {
-
-        List<TimeRange> invTR;
-        try {
-            invTR = this.dataManager.getClient().getGridInventory(getParmID());
-        } catch (GFEServerException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Unable to retrieve gridded data [inventory] for "
-                            + getParmID(), e);
+        ServerResponse<List<TimeRange>> sr = dataManager.getClient()
+                .getGridInventory(getParmID());
+        if (!sr.isOkay()) {
+            statusHandler.error(String.format(
+                    "Unable to retrieve gridded data [inventory] for %s: %s",
+                    getParmID(), sr.message()));
             return new IGridData[0]; // empty sequence
         }
 
         // now filter out those grids which are not of interest
+        List<TimeRange> invTR = sr.getPayload();
         List<TimeRange> desiredTR = new ArrayList<TimeRange>();
         for (TimeRange tr : invTR) {
             if (tr.overlaps(timeRange)) {
@@ -195,47 +190,41 @@ public class DbParm extends Parm {
     // Makes a request for the data grids, converts the data slices into
     // GridData*.
     // ---------------------------------------------------------------------------
-    @SuppressWarnings("unchecked")
     private IGridData[] getGridsFromDb(List<TimeRange> gridTimes,
             boolean populate, Map<TimeRange, List<GridDataHistory>> histories) {
         // success = true;
         List<IGridSlice> dataSlices = null;
         // want populated
         if (populate) {
-            if (gridTimes.size() == 0) {
+            if (gridTimes.isEmpty()) {
                 return new IGridData[0]; // nothing to do
             }
 
-            try {
-                dataSlices = this.dataManager.getClient().getGridData(
-                        getParmID(), gridTimes);
-            } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Unable to retrieve gridded data [get data] for "
-                                + getParmID(), e);
+            GetGridRequest ggr = new GetGridRequest(getParmID(), gridTimes);
+            ServerResponse<List<IGridSlice>> sr = dataManager.getClient()
+                    .getGridData(ggr);
+            if (!sr.isOkay()) {
+                statusHandler
+                        .error(String
+                                .format("Unable to retrieve gridded data [get data] for %s: %s",
+                                        getParmID(), sr.message()));
                 // success = false;
                 return new IGridData[0]; // empty sequence
             }
 
+            dataSlices = sr.getPayload();
+
             // want empty shell
         } else {
             if (histories == null) {
-                try {
-                    ServerResponse<?> sr = this.dataManager.getClient()
-                            .getGridHistory(getParmID(), gridTimes);
-                    histories = (Map<TimeRange, List<GridDataHistory>>) sr
-                            .getPayload();
-                    if (!sr.isOkay() || (histories.size() != gridTimes.size())) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                "Unable to retrieve gridded data [history] for "
-                                        + getParmID() + sr);
-                        // success = false;
-                        return new IGridData[0]; // empty sequence
-                    }
-                } catch (Exception e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Unable to retrieve gridded data [history] for "
-                                    + getParmID(), e);
+                ServerResponse<Map<TimeRange, List<GridDataHistory>>> sr = dataManager
+                        .getClient().getGridHistory(getParmID(), gridTimes);
+                histories = sr.getPayload();
+                if ((!sr.isOkay()) || (histories.size() != gridTimes.size())) {
+                    statusHandler
+                            .error(String
+                                    .format("Unable to retrieve gridded data [history] for %s: %s",
+                                            getParmID(), sr.message()));
                     // success = false;
                     return new IGridData[0]; // empty sequence
                 }
@@ -481,46 +470,42 @@ public class DbParm extends Parm {
 
     @Override
     protected boolean requestLock(List<LockRequest> lreq) {
-
         if (ignoreLocks()) {
             return true;
         }
 
         ITimer timer = TimeUtil.getTimer();
         timer.start();
-        ServerResponse<List<LockTable>> sr;
-        try {
-            sr = this.dataManager.getClient().requestLockChange(lreq);
-        } catch (GFEServerException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error requesting lock change", e);
-            return false;
-        }
+        ServerResponse<List<LockTable>> sr = this.dataManager.getClient()
+                .requestLockChange(lreq);
         timer.stop();
         perfLog.logDuration("Server lock change for " + this.getParmID() + " "
                 + lreq.size() + " time ranges", timer.getElapsedTime());
 
-        timer.reset();
-        timer.start();
-        List<LockTable> lockTableList = sr.getPayload();
-        for (LockTable lt : lockTableList) {
-            // it is for our parm
-            if (lt.getParmId().equals(this.getParmID())) {
-                lockTableArrived(lt); // treat as a notification
-            }
-            // it is for another parm
-            else {
-                Parm otherParm = this.dataManager.getParmManager().getParm(
-                        lt.getParmId());
-                if (otherParm != null) {
-                    otherParm.lockTableArrived(lt);
+        if (sr.isOkay()) {
+            timer.reset();
+            timer.start();
+            List<LockTable> lockTableList = sr.getPayload();
+            for (LockTable lt : lockTableList) {
+                // it is for our parm
+                if (lt.getParmId().equals(getParmID())) {
+                    lockTableArrived(lt); // treat as a notification
+                }
+                // it is for another parm
+                else {
+                    Parm otherParm = dataManager.getParmManager().getParm(
+                            lt.getParmId());
+                    if (otherParm != null) {
+                        otherParm.lockTableArrived(lt);
+                    }
                 }
             }
-        }
-        timer.stop();
-        perfLog.logDuration("Processing lock tables", timer.getElapsedTime());
-        for (ServerMsg msg : sr.getMessages()) {
-            statusHandler.error(msg.getMessage());
+            timer.stop();
+            perfLog.logDuration("Processing lock tables",
+                    timer.getElapsedTime());
+        } else {
+            statusHandler.error(String.format(
+                    "Failed to process lock request: %s", sr.message()));
         }
 
         return sr.isOkay();
@@ -699,16 +684,9 @@ public class DbParm extends Parm {
 
     private boolean doSave(List<SaveGridRequest> sgr) {
         boolean success = true;
-        ServerResponse<?> sr = null;
-        try {
-            sr = dataManager.getClient().saveGrids(sgr);
-        } catch (GFEServerException e) {
-            statusHandler
-                    .handle(Priority.PROBLEM,
-                            "Save data request not granted for " + getParmID()
-                                    + ". \n", e);
-            return false;
-        }
+
+        ServerResponse<?> sr = dataManager.getClient().saveGridData(sgr,
+                dataManager.clientISCSendStatus());
         if (!sr.isOkay()) {
             StringBuilder sb = new StringBuilder();
             sb.append("Save data request not granted for ");

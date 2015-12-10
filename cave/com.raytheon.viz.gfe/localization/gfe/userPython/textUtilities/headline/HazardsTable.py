@@ -41,6 +41,7 @@
 #    05/07/2015      4027          randerso       Fixed error handling, 
 #                                                 added NOTE about false postives for duplicate ETNs
 #    10/16/2015      17771         dgilling       Remove __sitesIgnoreNatlEtn.
+#    12/07/2015      5129          dgilling       Support new IFPClient.
 #
 
 
@@ -931,7 +932,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         #the server.   Returns None on failure.
 
         try:
-            table = self.__ifpClient.getVTECActiveTable(self.__dataMgr.getSiteID(), self.__activeTableMode)
+            table = self.__ifpClient.getVTECActiveTable(self.__activeTableMode)
             table = ActiveTableVtec.transformActiveTableToPython(table)
             return table
 
@@ -1061,7 +1062,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                 sampreqs.add(SamplerRequest(pid, ea, tr.toJavaObj()))
 
         # Perform sampling
-        hs = HistoSampler(self.__ifpClient, sampreqs)
+        hs = HistoSampler(self.__ifpClient.getJavaClient(), sampreqs)
         #parmHistos = hs.getParmHisto_SeqOf()
         parmHistos = hs.getParmHisto()
 

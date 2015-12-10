@@ -252,30 +252,11 @@ class setupTextEA:
 
     def __saveEA(self, name, grid):
         #save edit area from a grid
-        #domain = self.__client.domain
-        #size = domain[1]
-        #size = AFPS.CC2Dint(size[0], size[1])
-        #origin = domain[2][0]
-        #extent = domain[2][1]
-        #area = AFPS.CD2Dfloat(AFPS.CC2Dfloat(origin[0],origin[1]), 
-        #  AFPS.CC2Dfloat(extent[0],extent[1]))
-        #gloc = AFPS.GridLocation(domain[0], size, area)
-        gloc = self.__dataMgr.getClient().getDBGridLocation()
+        gloc = self.__dataMgr.getParmManager().compositeGridLocation()
         id = ReferenceID(name)
         # convert grid to polygons
         grid2d = Grid2DBit.createBitGrid(gloc.getNx().intValue(), gloc.getNy().intValue(), grid)
         refdata = ReferenceData(gloc, id, grid2d)
-        #refdata.convertToLatLon()
-        #polygons = refdata.polygons()
-        
-        # convert polygons to required format for saveEditArea ifpc library
-        #ea = []
-        #for p in polygons:
-        #    points = []
-        #    pts = p.points()
-        #    for pt in pts:
-        #        points.append((pt.x, pt.y))
-        #    ea.append((p.include(), points))
      
         # save the edit area
         self.__dataMgr.getRefManager().saveRefSet(refdata)

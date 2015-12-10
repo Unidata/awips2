@@ -344,8 +344,11 @@ class SmartScript(BaseTool.BaseTool):
     def vtecActiveTable(self):
         #returns the VTEC active table (or specified table)
         import ActiveTableVtec
-        entries = self.__dataMgr.getClient().getVTECActiveTable(self.__dataMgr.getSiteID())
-        return ActiveTableVtec.transformActiveTableToPython(entries)
+        entries = self.__dataMgr.getActiveTable()
+        try:
+            return ActiveTableVtec.transformActiveTableToPython(entries)
+        except:
+            raise TypeError("SmartScript vtecActiveTable: could not convert to python objects.")
 
 
     def gfeOperatingMode(self):

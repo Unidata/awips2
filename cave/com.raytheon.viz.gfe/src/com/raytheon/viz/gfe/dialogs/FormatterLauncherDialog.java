@@ -56,7 +56,6 @@ import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
-import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.textproduct.ProductDefinition;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -66,7 +65,6 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEPreference;
-import com.raytheon.viz.gfe.GFEServerException;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData;
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.IProductTab;
@@ -101,6 +99,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Feb 12, 2014 2801       randerso    Added prompting if formatter is run against non-normal database
  * Jul 29, 2015 4263       dgilling    Support changes to TextProductManager.
  * Aug 24, 2015 4749       dgilling    Reorganize dialog close and dispose.
+ * Nov 18, 2015 5129       dgilling    Support new IFPClient.
  * 
  * </pre>
  * 
@@ -1092,17 +1091,7 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
      * @return The Official Data source
      */
     private DatabaseID getOfficialDataSource() {
-        DatabaseID source = null;
-        try {
-            ServerResponse<java.util.List<DatabaseID>> sr = dataMgr.getClient()
-                    .getOfficialDBName();
-            source = sr.getPayload().get(0);
-        } catch (GFEServerException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Unable to determine official db", e);
-        }
-
-        return source;
+        return dataMgr.getParmManager().getProductDB();
     }
 
     /**

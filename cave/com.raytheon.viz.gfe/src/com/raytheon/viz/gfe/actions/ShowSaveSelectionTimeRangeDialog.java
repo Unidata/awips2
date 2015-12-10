@@ -38,6 +38,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Nov 11, 2008 1213       wdougherty  Use SelectTimeRangeContainer
  * Oct 25, 2012 1287       rferrel     Code changes for non-blocking SaveDeleteSelectTRDialog.
  * Aug 27, 2015 4749       njensen     Now extends GfeShowDialogHandler
+ * Dec 02, 2015 5129       dgilling    Support modified dialog constructor.
  * 
  * </pre>
  * 
@@ -47,6 +48,7 @@ public class ShowSaveSelectionTimeRangeDialog extends GfeShowDialogHandler {
     @Override
     protected CaveJFACEDialog createDialog(Shell shell, DataManager dm,
             ExecutionEvent event) {
-        return new SaveDeleteSelectTRDialog(shell, dm, "Save");
+        return new SaveDeleteSelectTRDialog(shell,
+                dm.getSelectTimeRangeManager(), "Save");
     }
 }

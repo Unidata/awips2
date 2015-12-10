@@ -553,7 +553,7 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             self.__sampler = argDict["ifpClient"].sampleRequest(self.__samplerRequests)
         else:
             self.progressMessage(.3, 80, "Sampling Data -- please wait...")                        
-            self.__sampler = HistoSampler(argDict["ifpClient"], self.__samplerRequests)
+            self.__sampler = HistoSampler(argDict["ifpClient"].getJavaClient(), self.__samplerRequests)
         print "Time to Sample Data", time.time()-time1
         #if error is not None:
         #    return error

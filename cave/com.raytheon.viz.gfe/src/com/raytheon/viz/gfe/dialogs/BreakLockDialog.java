@@ -21,6 +21,7 @@ package com.raytheon.viz.gfe.dialogs;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -40,10 +41,10 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.Lock;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable;
+import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.viz.gfe.GFEServerException;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.UIFormat;
 import com.raytheon.viz.gfe.core.UIFormat.FilterType;
@@ -61,6 +62,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Feb 20, 2008            ebabin       Initial Creation
  * Jun 30, 2008            ebabin       Updates for status of break lock.
  * Sep 20, 2012  #1190     dgilling     Use new WsId.getHostName() method.
+ * Nov 17, 2015  #5129     dgilling     Support new IFPClient.
  * 
  * </pre>
  * 
@@ -106,8 +108,8 @@ public class BreakLockDialog extends CaveJFACEDialog {
         super(parent);
         this.dataManager = dataManager;
 
-        this.uiFormat = new UIFormat(DataManager.getCurrentInstance()
-                .getParmManager(), FilterType.MUTABLE, FilterType.MUTABLE);
+        this.uiFormat = new UIFormat(this.dataManager.getParmManager(),
+                FilterType.MUTABLE, FilterType.MUTABLE);
 
         this.setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE);
         try {
@@ -118,19 +120,21 @@ public class BreakLockDialog extends CaveJFACEDialog {
         }
     }
 
-    protected void initLockData() throws GFEServerException {
+    protected void initLockData() {
         List<LockTable> lockTables = dataManager.getParmOp()
                 .mutableDbLockTable();
 
+        ServerResponse<List<String>> sr = dataManager.getClient()
+                .getClientList();
         List<String> clients;
-        try {
-            clients = dataManager.getClient().getClients();
-        } catch (GFEServerException e) {
+        if (!sr.isOkay()) {
             statusHandler
-                    .handle(Priority.PROBLEM,
-                            "Unable to retrieve client info. All locks will appear as orphans",
-                            e);
-            clients = new ArrayList<String>();
+                    .error(String
+                            .format("Unable to retrieve client info: %s. All locks will appear as orphans",
+                                    sr.message()));
+            clients = Collections.emptyList();
+        } else {
+            clients = sr.getPayload();
         }
 
         this.clientLocks = new ArrayList<Lock>();
@@ -245,15 +249,10 @@ public class BreakLockDialog extends CaveJFACEDialog {
     }
 
     private void breakLocks(Object[] locks) {
-
-        DataManager dm = DataManager.getCurrentInstance();
-        if (dm == null) {
-            return;
-        }
-
         for (Object obj : locks) {
             Lock lock = (Lock) obj;
-            dm.getParmOp().breakLock(lock.getParmId(), lock.getTimeRange());
+            dataManager.getParmOp().breakLock(lock.getParmId(),
+                    lock.getTimeRange());
         }
     }
 

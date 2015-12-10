@@ -42,6 +42,7 @@ import com.raytheon.viz.gfe.core.msgs.IReferenceSetInvChangedListener;
  * 02/14/2013        #1506  mnash       Move away from using QueryScript on the UI thread
  * 02/26/2013        #1708  randerso    Remove evaluateRefSet from public interface
  * Aug 13, 2015   4749      njensen     Extends DisposableManager
+ * Nov 18, 2015   5129      dgilling    Remove UI-related arguments from deleteRefSet.
  * 
  * </pre>
  * 
@@ -151,11 +152,9 @@ public interface IReferenceSetManager extends DisposableManager {
      * works, returns true.
      * 
      * @param refID
-     * @param withVerification
      * @return true if successful
      */
-    public abstract boolean deleteRefSet(final ReferenceID refID,
-            boolean withVerification);
+    public abstract boolean deleteRefSet(final ReferenceID refID);
 
     /**
      * Undo for Reference Sets. Uses _prevRefSet

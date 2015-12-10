@@ -64,6 +64,7 @@ import com.raytheon.viz.gfe.tasks.AbstractGfeTask;
  * Aug 20, 2015  #4749     dgilling    Add cleanUp.
  * Aug 26, 2015  #4804     dgilling    Support ability to run TextFormatters 
  *                                     from SmartScript.
+ * Dec 08, 2015  #5129     dgilling    Pass IFPClient to getVarDict.
  * 
  * </pre>
  * 
@@ -289,6 +290,7 @@ public class TextFormatter extends AbstractGfeTask {
         map.put("dspName",
                 dataManager.getTextProductMgr().getDisplayName(productName));
         map.put("dataMgr", dataManager);
+        map.put("ifpClient", dataManager.getClient().getPythonClient());
         map.put("issuedBy", issuedBy);
         map.put("dataSource", new DatabaseID(dbId).getModelName());
 

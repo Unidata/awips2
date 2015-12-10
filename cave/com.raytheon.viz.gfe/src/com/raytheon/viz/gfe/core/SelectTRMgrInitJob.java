@@ -19,11 +19,16 @@
  **/
 package com.raytheon.viz.gfe.core;
 
+import java.util.TimeZone;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
+import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.viz.gfe.core.internal.SelectTimeRangeManager;
 
 /**
@@ -36,6 +41,7 @@ import com.raytheon.viz.gfe.core.internal.SelectTimeRangeManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 25, 2011            njensen     Initial creation
+ * Dec 02, 2015  #5129     dgilling    Support modified constructor.
  * 
  * </pre>
  * 
@@ -45,6 +51,9 @@ import com.raytheon.viz.gfe.core.internal.SelectTimeRangeManager;
 
 public class SelectTRMgrInitJob extends Job {
 
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(getClass());
+
     private DataManager dataMgr;
 
     public SelectTRMgrInitJob(DataManager dm) {
@@ -52,15 +61,19 @@ public class SelectTRMgrInitJob extends Job {
         this.dataMgr = dm;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime.
-     * IProgressMonitor)
-     */
     @Override
     protected IStatus run(IProgressMonitor monitor) {
-        dataMgr.selectTimeRangeManager = new SelectTimeRangeManager(dataMgr);
+        ServerResponse<String> sr = dataMgr.getClient().getSiteTimeZone(
+                dataMgr.getSiteID());
+        TimeZone tz;
+        if (sr.isOkay()) {
+            tz = TimeZone.getTimeZone(sr.getPayload());
+        } else {
+            statusHandler.error("Unable to retrieve GFE time zone, using GMT");
+            tz = TimeZone.getTimeZone("GMT");
+        }
+
+        dataMgr.selectTimeRangeManager = new SelectTimeRangeManager(tz);
         dataMgr.getInitStatus().setSelectTRMgrDone(true);
 
         return Status.OK_STATUS;

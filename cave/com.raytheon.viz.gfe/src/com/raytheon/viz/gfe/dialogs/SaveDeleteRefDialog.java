@@ -44,11 +44,19 @@ import org.eclipse.swt.widgets.Text;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData.RefType;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.viz.gfe.core.IReferenceSetManager;
+import com.raytheon.viz.gfe.core.IReferenceSetManager.RefSetMode;
+import com.raytheon.viz.gfe.core.internal.ReferenceSetManager;
+import com.raytheon.viz.gfe.ui.AccessMgr;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.raytheon.viz.ui.widgets.ToggleSelectList;
 
@@ -62,6 +70,7 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  * ------------ ---------- ----------- --------------------------
  * Sep 10, 2010            randerso     Initial creation
  * Oct 24, 2012 1287       rferrel     Code clean up part of non-blocking dialog.
+ * Nov 18, 2015 5129       dgilling    Code cleanup to support ReferenceSetManager changes.
  * 
  * </pre>
  * 
@@ -328,17 +337,37 @@ public class SaveDeleteRefDialog extends CaveJFACEDialog {
     }
 
     private boolean deleteRef() {
-        // Note: Area will be deleted from all groups by
-        // UIReferenceSetMgr which processes deletions for
-        // incoming ReferenceSetInventoryChanged messages
+        /*
+         * Note: Area will be deleted from all groups by UIReferenceSetMgr which
+         * processes deletions for incoming ReferenceSetInventoryChanged
+         * messages
+         */
 
-        ReferenceID id = new ReferenceID(this.identifier.getText());
-        if (id.isValid() && !this.protectedSets.contains(id.getName())
-                && this.sets.contains(id.getName())) {
-            // Check to see if deleting active reference set
-            // If so, clear the active reference set
+        ReferenceID id = new ReferenceID(identifier.getText());
+        if ((id.isValid()) && (!protectedSets.contains(id.getName()))
+                && (sets.contains(id.getName()))) {
+            IPathManager pm = PathManagerFactory.getPathManager();
+            LocalizationContext ctx = pm.getContext(
+                    LocalizationType.COMMON_STATIC, LocalizationLevel.USER);
+            LocalizationFile lf = pm.getLocalizationFile(ctx,
+                    ReferenceSetManager.EDIT_AREAS_DIR + IPathManager.SEPARATOR
+                            + id.getName() + ".xml");
+            boolean verify = AccessMgr.verifyDelete(lf.getName(), lf
+                    .getContext().getLocalizationType(), false);
+            if (!verify) {
+                return false;
+            }
+            /*
+             * Check to see if deleting active reference set. If so, clear the
+             * active reference set
+             */
+            ReferenceID activeId = refSetMgr.getActiveRefSet().getId();
+            if (id.equals(activeId)) {
+                refSetMgr.incomingRefSet(refSetMgr.emptyRefSet(),
+                        RefSetMode.REPLACE);
+            }
             // LogStream.logUse("Delete", this.lbox.name())
-            return this.refSetMgr.deleteRefSet(id, true);
+            return refSetMgr.deleteRefSet(id);
 
         } else {
             String message = "Edit Area " + id.getName()

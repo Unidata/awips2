@@ -69,6 +69,8 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  *                                     site managed by IFPServer
  * 10/07/2014   #3684      randerso    Restructured IFPServer start up
  * 03/03/15      629    mgamazaychikov Add getAllLocks method.
+ * 12/09/2015   #5129      dgilling    Ensure payload is always populated in
+ *                                     getLockTables.
  * </pre>
  * 
  * @author bphillip
@@ -113,10 +115,13 @@ public class LockManager {
      */
     public ServerResponse<List<LockTable>> getLockTables(
             List<LockTableRequest> request, WsId requestor) {
+        List<LockTable> emptyTable = Collections.emptyList();
+
         ServerResponse<List<LockTable>> sr = new ServerResponse<List<LockTable>>();
 
-        if (request.size() == 0) {
+        if (request.isEmpty()) {
             sr.addMessage("No Lock Table Requests");
+            sr.setPayload(emptyTable);
             return sr;
         }
 
@@ -138,7 +143,7 @@ public class LockManager {
                 }
             }
 
-            List<LockTable> payLoad = null;
+            List<LockTable> payLoad = emptyTable;
 
             if (!parmIds.isEmpty()) {
                 Map<ParmID, LockTable> lockMap = dao.getLocks(parmIds,
@@ -161,7 +166,7 @@ public class LockManager {
         } catch (Exception e) {
             statusHandler.error("Error getting lock tables for " + parmIds, e);
             sr.addMessage("Error getting lock tables for " + parmIds);
-            sr.setPayload(new ArrayList<LockTable>(0));
+            sr.setPayload(emptyTable);
         }
 
         return sr;

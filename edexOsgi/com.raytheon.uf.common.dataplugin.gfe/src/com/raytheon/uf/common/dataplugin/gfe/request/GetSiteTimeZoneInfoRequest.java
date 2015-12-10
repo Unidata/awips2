@@ -19,10 +19,14 @@
  **/
 package com.raytheon.uf.common.dataplugin.gfe.request;
 
+import java.util.List;
+
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * Request to retrieve the configured time zone for the specified 3-character
+ * site identifiers.
  * 
  * <pre>
  * 
@@ -31,6 +35,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 19, 2011            dgilling     Initial creation
+ * Nov 17, 2015  #5129     dgilling     Accept multiple site IDs to better match A1.
  * 
  * </pre>
  * 
@@ -41,4 +46,21 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 @DynamicSerialize
 public class GetSiteTimeZoneInfoRequest extends AbstractGfeRequest {
 
+    @DynamicSerializeElement
+    private List<String> requestedSiteIDs;
+
+    public GetSiteTimeZoneInfoRequest() {
+    }
+
+    public GetSiteTimeZoneInfoRequest(List<String> siteIDs) {
+        this.requestedSiteIDs = siteIDs;
+    }
+
+    public List<String> getRequestedSiteIDs() {
+        return requestedSiteIDs;
+    }
+
+    public void setRequestedSiteIDs(List<String> requestedSiteIDs) {
+        this.requestedSiteIDs = requestedSiteIDs;
+    }
 }

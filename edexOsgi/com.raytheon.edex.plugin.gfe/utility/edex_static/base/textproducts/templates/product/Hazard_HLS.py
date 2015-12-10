@@ -39,6 +39,10 @@ import string, time, re, os, glob, types, copy, LogStream
 import ModuleAccessor, SampleAnalysis
 from math import *
 import AbsTime, DatabaseID, StartupDialog
+from com.raytheon.uf.viz.core import VizApp
+from com.raytheon.uf.common.gfe.ifpclient import PyFPClient
+
+
 DEG_TO_RAD = 0.017453292
 
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData, ReferenceID
@@ -6061,7 +6065,7 @@ NNNN
         dataMgr = parent
         argDict['dataMgr'] = dataMgr
         argDict["databaseID"] = self._getDbId(dataMgr, definition['database'])
-        argDict["ifpClient"] = dataMgr.getClient()
+        argDict["ifpClient"] = PyFPClient(VizApp.getWsId(), dataMgr.getSiteID())
         import VTECMessageType
         vtecMode = VTECMessageType.getVTECMessageType(self._pil)
         argDict["vtecMode"] = vtecMode

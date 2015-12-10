@@ -36,27 +36,25 @@ import org.geotools.referencing.GeodeticCalculator;
 
 import com.raytheon.uf.common.dataplugin.gfe.sample.SampleData;
 import com.raytheon.uf.common.dataplugin.gfe.sample.SampleId;
+import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
+import com.raytheon.uf.common.gfe.ifpclient.IFPClient;
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
 import com.raytheon.uf.common.localization.ILocalizationFileObserver;
 import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEException;
 import com.raytheon.viz.gfe.core.ISampleSetManager;
 import com.raytheon.viz.gfe.core.msgs.ISampleSetChangedListener;
 import com.raytheon.viz.gfe.edittool.GridID;
-import com.raytheon.viz.gfe.ui.AccessMgr;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -75,6 +73,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                      Reworked inventory to use a map to better handle
  *                                      files at multiple localization levels
  * Nov 12, 2015 4834        njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Nov 19, 2015 5129        dgilling    Support new IFPClient.
  * 
  * </pre>
  * 
@@ -87,10 +86,12 @@ public class SampleSetManager implements ISampleSetManager,
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SampleSetManager.class);
 
-    private static final String SAMPLE_SETS_DIR = FileUtil.join("gfe",
-            "sampleSets");
+    public static final String SAMPLE_SETS_DIR = "gfe" + IPathManager.SEPARATOR
+            + "sampleSets";
 
     private static final String MARKER_NAME = "ISC_Marker_Set";
+
+    private final IFPClient ifpClient;
 
     private SampleId loadedSet;
 
@@ -113,10 +114,8 @@ public class SampleSetManager implements ISampleSetManager,
      * 
      * Gets the initial sample inventory.
      */
-    public SampleSetManager() {
+    public SampleSetManager(IFPClient ifpClient) {
         this.loadedSet = new SampleId();
-
-        this.inventory = new TreeMap<String, SampleId>();
 
         this.locations = new ArrayList<Coordinate>();
 
@@ -124,23 +123,24 @@ public class SampleSetManager implements ISampleSetManager,
 
         this.sampleSetChangedListeners = new HashSet<ISampleSetChangedListener>();
 
-        this.pathManager = PathManagerFactory.getPathManager();
+        this.ifpClient = ifpClient;
 
-        this.sampleSetDir = pathManager.getLocalizationFile(pathManager
-                .getContext(LocalizationType.COMMON_STATIC,
-                        LocalizationLevel.BASE), SAMPLE_SETS_DIR);
-
-        // initialize the inventory
-        LocalizationFile[] files = pathManager.listStaticFiles(
-                LocalizationType.COMMON_STATIC, SAMPLE_SETS_DIR,
-                new String[] { ".xml" }, true, true);
-
-        for (LocalizationFile lf : files) {
-            String name = LocalizationUtil.extractName(lf.getName()).replace(
-                    ".xml", "");
-            this.inventory.put(name, new SampleId(name, false, lf.getContext()
-                    .getLocalizationLevel()));
+        this.inventory = new TreeMap<String, SampleId>();
+        ServerResponse<List<SampleId>> sr = this.ifpClient.getSampleInventory();
+        if (sr.isOkay()) {
+            for (SampleId id : sr.getPayload()) {
+                this.inventory.put(id.getName(), id);
+            }
+        } else {
+            statusHandler.error(String.format(
+                    "Unable to get sample inventory from IFPServer: %s",
+                    sr.message()));
         }
+
+        this.pathManager = PathManagerFactory.getPathManager();
+        this.sampleSetDir = this.pathManager.getLocalizationFile(
+                this.pathManager.getContext(LocalizationType.COMMON_STATIC,
+                        LocalizationLevel.BASE), SAMPLE_SETS_DIR);
         this.sampleSetDir.addFileUpdatedObserver(this);
 
         // load default sample points
@@ -228,17 +228,15 @@ public class SampleSetManager implements ISampleSetManager,
     @Override
     public void loadSampleSet(final SampleId sampleId,
             SampleSetLoadMode loadMode) {
-        File f = this.pathManager.getStaticFile(FileUtil.join(SAMPLE_SETS_DIR,
-                sampleId.getName() + ".xml"));
-
-        SampleData sampleData = null;
-        try {
-            sampleData = SampleData.getJAXBManager().unmarshalFromXmlFile(
-                    f.getPath());
-            sampleData.setSampleId(sampleId);
-        } catch (Exception e) {
-            statusHandler.error("Unable to load sampledata: " + f);
+        ServerResponse<SampleData> sr = ifpClient.getSampleData(sampleId);
+        if (!sr.isOkay()) {
+            statusHandler
+                    .error(String
+                            .format("Failure to get sample data from from IFPServer for [%s]: %s",
+                                    sampleId.getName(), sr.message()));
+            return;
         }
+        SampleData sampleData = sr.getPayload();
 
         // set the loadedSet flag appropriately
         if ((loadMode == SampleSetLoadMode.REPLACE)
@@ -414,25 +412,13 @@ public class SampleSetManager implements ISampleSetManager,
     @Override
     public boolean saveSampleSet(final List<Coordinate> sampleLocations,
             final SampleId sampleId) {
-
         SampleData sd = new SampleData(sampleId, sampleLocations);
 
-        LocalizationContext lc = this.pathManager.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.USER);
-
-        LocalizationFile file = this.pathManager.getLocalizationFile(lc,
-                FileUtil.join(SAMPLE_SETS_DIR, sampleId.getName() + ".xml"));
-
-        try {
-            SampleData.getJAXBManager().marshalToXmlFile(sd,
-                    file.getFile().getPath());
-            file.save();
-        } catch (LocalizationException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error saving to localization server", e);
-        } catch (SerializationException e) {
-            statusHandler.handle(Priority.PROBLEM, "Error serializing to file",
-                    e);
+        ServerResponse<?> sr = ifpClient.saveSampleData(Arrays.asList(sd));
+        if (!sr.isOkay()) {
+            statusHandler.error(String.format(
+                    "Failure to save sample data to IFPServer for [%s]: %s",
+                    sampleId.getName(), sr.message()));
         }
 
         return true;
@@ -460,25 +446,17 @@ public class SampleSetManager implements ISampleSetManager,
      */
     @Override
     public boolean deleteSampleSet(final SampleId sampleId) {
-
-        LocalizationContext ctx = this.pathManager.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.USER);
-        LocalizationFile lf = this.pathManager.getLocalizationFile(ctx,
-                FileUtil.join(SAMPLE_SETS_DIR, sampleId.getName() + ".xml"));
-
-        if ((lf != null)
-                && (AccessMgr.verifyDelete(lf.getName(),
-                        LocalizationType.COMMON_STATIC, false))) {
-            try {
-                lf.delete();
-                return true;
-            } catch (LocalizationException e) {
-                statusHandler.handle(Priority.PROBLEM, "Unable to sample set "
-                        + sampleId.getName() + " from server.", e);
-            }
+        ServerResponse<?> sr = ifpClient.deleteSampleData(Arrays
+                .asList(sampleId));
+        if (!sr.isOkay()) {
+            statusHandler.error(String.format(
+                    "Failure to delete sample set [%s]: %s",
+                    sampleId.getName(), sr.message()));
+        } else if (sampleId.getName().equals(loadedSet.getName())) {
+            loadedSet = new SampleId();
         }
 
-        return false;
+        return true;
     }
 
     /*
