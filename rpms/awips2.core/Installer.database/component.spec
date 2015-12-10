@@ -176,7 +176,7 @@ function init_db()
       mv /awips2/data/postgresql.conf /awips2/
    fi
    
-   su ${AWIPS_DEFAULT_USER} -c \
+   su - ${AWIPS_DEFAULT_USER} -c \
       "${POSTGRESQL_INSTALL}/bin/initdb --auth=trust --locale=en_US.UTF-8 --pgdata=${AWIPS2_DATA_DIRECTORY} --lc-collate=en_US.UTF-8 --lc-ctype=en_US.UTF-8"
    RC=$?   
       
@@ -190,7 +190,7 @@ function init_db()
 function control_pg_ctl()
 {
    # $1 == pg_ctl command
-   su ${AWIPS_DEFAULT_USER} -c \
+   su - ${AWIPS_DEFAULT_USER} -c \
       "${POSTGRESQL_INSTALL}/bin/pg_ctl ${1} -D ${AWIPS2_DATA_DIRECTORY} -o \"-p ${AWIPS_DEFAULT_PORT}\" -w"
    
 }
@@ -207,7 +207,7 @@ function execute_initial_sql_script()
       ${1}
 
    # $1 == script to execute
-   su ${AWIPS_DEFAULT_USER} -c \
+   su - ${AWIPS_DEFAULT_USER} -c \
       "${PSQL_INSTALL}/bin/psql -d postgres -U ${AWIPS_DEFAULT_USER} -q -p ${AWIPS_DEFAULT_PORT} -f ${1}" \
       > ${SQL_LOG} 2>&1
 }
@@ -235,7 +235,7 @@ function execute_psql_sql_script()
    # $1 == script to execute
    # $2 == database
    
-   su ${AWIPS_DEFAULT_USER} -c \
+   su - ${AWIPS_DEFAULT_USER} -c \
       "${PSQL_INSTALL}/bin/psql -d ${2} -U ${AWIPS_DEFAULT_USER} -q -p ${AWIPS_DEFAULT_PORT} -f ${1}" \
       >> ${SQL_LOG} 2>&1
 }
@@ -278,7 +278,7 @@ execute_psql_sql_script ${SQL_SHARE_DIR}/fxatext.sql metadata
 execute_psql_sql_script ${SQL_SHARE_DIR}/createEventsSchema.sql metadata
 
 update_createHMDB
-su ${AWIPS_DEFAULT_USER} -c \
+su - ${AWIPS_DEFAULT_USER} -c \
    "${SQL_SHARE_DIR}/createHMDB.sh ${PSQL_INSTALL} ${AWIPS_DEFAULT_PORT} ${AWIPS_DEFAULT_USER} ${SQL_SHARE_DIR} ${SQL_LOG}"
    
 update_createEbxml
