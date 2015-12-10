@@ -33,3 +33,4 @@ export EDEX_DEBUG_PORT=5005
 export EDEX_JMX_PORT=1616
 export LOG_CONF=logback-request.xml
 export MGMT_PORT=9601
+export HTTP_PORT=9581
