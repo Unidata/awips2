@@ -18,6 +18,7 @@
 ##         Mike Dangelo   26 Mar 2015  Mixed Case edits                       ##
 ##         Evan Bookbinder 9/4/2015 fixed line of storms grammar as well as   ## 
 ##                         softball/grapefruit hail sizes  (& MMD 10/20/15)   ##
+##         Evan Bookbinder 12/7/2015 fixed typo in 'law enforcement'          ##
 ################################################################################
  ##
 ###################################################################
@@ -778,7 +779,7 @@ A large and extremely dangerous tornado is on the ground. Take immediate tornado
 
 #end
 #if(${list.contains(${bullets}, "lawEnforcementTORCTA")})
-If a tornado or other severe weather is spotted report it to the National Weather Service or your nearest law enforecement agency who will relay your report. This act may save the lives of others in the path of dangerous weather. 
+If a tornado or other severe weather is spotted report it to the National Weather Service or your nearest law enforcement agency who will relay your report. This act may save the lives of others in the path of dangerous weather. 
 
 #end
 #if(${list.contains(${bullets}, "squallCTA")} && ${stormType} == "line")
