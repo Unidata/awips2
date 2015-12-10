@@ -33,6 +33,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Nov 15, 2011            jsanchez     Initial creation
  * Sep 26, 2012 1193       rferrel      Convert to extend CaveSWTDialog
  *                                       and made non-blocking.
+ * Dec 10, 2015 DR 17908   Qinglu Lin   Added getEndTime().
  * 
  * </pre>
  * 
@@ -428,4 +429,7 @@ public class ValidPeriodDialog extends CaveSWTDialog {
         timer.schedule(updateTimeTask, 60000, 60000);
     }
 
+    public Calendar getEndTime() {
+        return endTime;
+    }
 }
