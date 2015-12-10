@@ -28,6 +28,8 @@ package com.raytheon.viz.hydrocommon.data;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 14, 2015  17978     lbousaidi   Initial Creation  
+ * 
+ * Dec 05, 2015 18357       xwei        Fixed error in opening Timeseries for Timesteps
  * </pre>
  * 
  * @author lbousaidi
@@ -74,6 +76,10 @@ public class GageDataTimeStep extends GageData {
     	setValue( gage.getValue() );
     	setThreatIndex( gage.getThreatIndex() );
     	
+    	setPe( gage.getPe() );                    
+    	setTs( gage.getTs() );                   
+    	setExtremum( gage.getExtremum() );       
+ 
     	setP( gage );
     	setV( gage );
     	return;
