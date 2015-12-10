@@ -22,15 +22,13 @@
 export MAX_MEM=1536 # in Meg
 
 if [ $HIGH_MEM == "on" ]; then
-    export MAX_MEM=2048
+    export MAX_MEM=2560
 fi
 
 export MAX_PERM_SIZE=192m
-export EDEX_DEBUG_PORT=5012
-export EDEX_JMX_PORT=1620
-export LOG_CONF=logback-ebxmlRegistry.xml
-export MGMT_PORT=9605
-export HTTP_PORT=9588
+export EDEX_DEBUG_PORT=5013
+export LOG_CONF=logback-registry.xml
+export MGMT_PORT=9606
 
 export METADATA_POOL_MAX=20
 export METADATA_POOL_TIMEOUT=60
