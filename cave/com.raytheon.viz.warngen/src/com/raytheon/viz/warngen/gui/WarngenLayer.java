@@ -240,6 +240,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 04/24/2015  ASM #17394  D. Friedman Fix geometries that become invalid in local coordinate space.
  * 05/07/2015  ASM #17438  D. Friedman Clean up debug and performance logging.
  * 05/08/2015  ASM #17310  D. Friedman Log input polygon when output of AreaHatcher is invalid.
+ * 12/09/2015  ASM #18209  D. Friedman Support cwaStretch dam break polygons.
  * </pre>
  * 
  * @author mschenke
@@ -280,6 +281,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         GeospatialData[] features;
 
+        GeospatialData[] cwaStretchFeatures; // contains all from 'features'
+
         MathTransform latLonToLocal;
 
         MathTransform localToLatLon;
@@ -289,6 +292,11 @@ public class WarngenLayer extends AbstractStormTrackResource {
         int nx, ny;
 
         GeneralGridGeometry localGridGeometry;
+
+        GeospatialData[] getFeatures(boolean cwaStretch) {
+            return cwaStretch && cwaStretchFeatures != null ?
+                    cwaStretchFeatures : features;
+        }
     }
 
     private static class GeospatialDataAccessor {
@@ -318,11 +326,11 @@ public class WarngenLayer extends AbstractStormTrackResource {
          *            polygon to intersect with in lat/lon space
          * @return the warning area in screen projection
          */
-        private Geometry buildArea(Polygon polygon) {
+        private Geometry buildArea(Polygon polygon, boolean cwaStretch) {
             polygon = latLonToLocal(polygon);
             Geometry area = null;
             if (polygon != null) {
-                for (GeospatialData r : geoData.features) {
+                for (GeospatialData r : geoData.getFeatures(cwaStretch)) {
                     PreparedGeometry prepGeom = (PreparedGeometry) r.attributes
                             .get(GeospatialDataList.LOCAL_PREP_GEOM);
                     try {
@@ -473,6 +481,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         private Polygon oldWarningPolygon;
 
+        private boolean cwaStretch;
+
         public AreaHatcher(PolygonUtil polygonUtil) {
             super("Hatching Warning Area");
             setSystem(true);
@@ -509,7 +519,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                             warningPolygon,
                             removeCounties(warningArea,
                                     state.getFipsOutsidePolygon()),
-                            oldWarningPolygon);
+                            oldWarningPolygon,
+                            cwaStretch);
                     if (hatched != null) {
                         // DR 15559
                         Coordinate[] coords = hatched.getCoordinates();
@@ -583,7 +594,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         }
                         outputHatchedWarningArea = createWarnedArea(
                                 latLonToLocal(outputHatchedArea),
-                                latLonToLocal(warningArea));
+                                latLonToLocal(warningArea),
+                                cwaStretch);
                         if (! outputHatchedArea.isValid()) {
                             statusHandler.debug(String.format("Input %s redrawn to invalid %s",
                                     inputWarningPolygon, outputHatchedArea));
@@ -615,6 +627,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 this.warningPolygon = warningPolygon;
                 this.warningArea = warningArea;
                 this.oldWarningPolygon = oldWarningPolygon;
+                this.cwaStretch = isCwaStretch();
 
                 this.hatchedArea = null;
                 this.hatchedWarningArea = null;
@@ -1362,11 +1375,21 @@ public class WarngenLayer extends AbstractStormTrackResource {
             GeospatialDataSet dataSet, GeospatialMetadata gmd, String currKey,
             long tq0) throws FactoryException, MismatchedDimensionException,
             TransformException {
-        gData.features = GeospatialFactory.getGeoSpatialList(dataSet, gmd);
+        GeospatialData[][] gdSets = GeospatialFactory.getGeoSpatialList(dataSet, gmd);
+        GeospatialData[] allFeatures;
+        gData.features = gdSets[0];
+        allFeatures = gData.features;
+
+        GeospatialData[] stretchFeatures = gdSets[1];
+        if (stretchFeatures != null) {
+            allFeatures = Arrays.copyOf(gData.features, gData.features.length + stretchFeatures.length);
+            System.arraycopy(stretchFeatures, 0, allFeatures, gData.features.length, stretchFeatures.length);
+            gData.cwaStretchFeatures = allFeatures;
+        }
 
         // set the CountyUserData
-        List<Geometry> geoms = new ArrayList<Geometry>(gData.features.length);
-        for (GeospatialData gd : gData.features) {
+        List<Geometry> geoms = new ArrayList<Geometry>(allFeatures.length);
+        for (GeospatialData gd : allFeatures) {
             geoms.add(gd.geometry);
             CountyUserData cud = new CountyUserData(gd,
                     String.valueOf(gd.attributes.get(WarngenLayer.GID)));
@@ -1381,7 +1404,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 .constructStereographic(MapUtil.AWIPS_EARTH_RADIUS,
                         MapUtil.AWIPS_EARTH_RADIUS, c.y, c.x));
         gData.localToLatLon = gData.latLonToLocal.inverse();
-        for (GeospatialData gd : gData.features) {
+        for (GeospatialData gd : allFeatures) {
             Geometry local = JTS.transform(gd.geometry, gData.latLonToLocal);
             if (! local.isValid()) {
                 TopologyException topologyException = null;
@@ -1502,8 +1525,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
         GeospatialDataList geoDataList = getGeodataList(areaSource,
                 localizedSite);
         if (geoDataList != null) {
-            return Arrays.copyOf(geoDataList.features,
-                    geoDataList.features.length);
+            GeospatialData[] features = geoDataList.getFeatures(isCwaStretch());
+            return Arrays.copyOf(features, features.length);
         }
         return new GeospatialData[0];
     }
@@ -1725,7 +1748,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
             throws Exception {
         Set<String> ugcs = new HashSet<String>();
         GeospatialDataAccessor gda = getGeospatialDataAcessor(type);
-        for (String fips : gda.getAllFipsInArea(gda.buildArea(polygon))) {
+        for (String fips : gda.getAllFipsInArea(gda.buildArea(polygon, isCwaStretch()))) {
             ugcs.add(FipsUtil.getUgcFromFips(fips));
         }
         return ugcs;
@@ -1735,7 +1758,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
         // TODO: zig
         GeospatialDataAccessor gda = getGeospatialDataAcessor(type);
         Set<String> ugcs = new HashSet<String>();
-        for (GeospatialData r : gda.geoData.features) {
+        for (GeospatialData r : gda.geoData.getFeatures(isCwaStretch())) {
             ugcs.add(FipsUtil.getUgcFromFips(gda.getFips(r)));
         }
         return ugcs;
@@ -1875,7 +1898,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
         if (includeAllEntries && !idsOutsidePolygon.isEmpty()) {
             if (geoData != null) {
                 fipsOutsidePolygon = new HashSet<String>();
-                for (GeospatialData f : geoData.features) {
+                for (GeospatialData f : getActiveFeatures()) {
                     CountyUserData data = (CountyUserData) f.geometry
                             .getUserData();
                     String fips = String.valueOf(data.entry.attributes
@@ -1916,7 +1939,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
      * @return
      */
     private Geometry getArea(Polygon polygon, Map<String, String[]> countyMap) {
-        return getArea(geoAccessor.buildArea(polygon), countyMap, true);
+        return getArea(geoAccessor.buildArea(polygon, isCwaStretch()), countyMap, true);
     }
 
     /**
@@ -1973,7 +1996,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 latLonToLocal((snapHatchedAreaToPolygon || (warningArea == null)) ? warningPolygon
                         : warningArea), preservedSelection
                         && (warningArea != null) ? latLonToLocal(warningArea)
-                        : null);
+                        : null,
+                        isCwaStretch());
         updateWarnedAreaState(newWarningArea, snapHatchedAreaToPolygon);
 
         perfLog.logDuration("Determining hatchedArea",
@@ -1991,7 +2015,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
      * @return
      */
     private Geometry createWarnedArea(Geometry hatchedArea,
-            Geometry preservedSelection) {
+            Geometry preservedSelection, boolean cwaStretch) {
         Geometry oldWarningPolygon = latLonToLocal(state.getOldWarningPolygon());
         Geometry oldWarningArea = latLonToLocal(state.getOldWarningArea());
         Geometry newHatchedArea = null;
@@ -2034,7 +2058,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
 
         // Loop through each of our counties returned from the query
-        for (GeospatialData f : geoData.features) {
+        for (GeospatialData f : geoData.getFeatures(cwaStretch)) {
             // get the geometry of the county and make sure it intersects
             // with our hatched area
             PreparedGeometry prepGeom = (PreparedGeometry) f.attributes
@@ -2871,6 +2895,15 @@ public class WarngenLayer extends AbstractStormTrackResource {
         updateWarnedAreas(true, true);
     }
 
+    public void resetWarningPolygonAndAreaFromRecord(
+            AbstractWarningRecord record) throws VizException {
+        setOldWarningPolygon(record);
+        state.setWarningPolygon(getPolygon());
+        state.setWarningArea(getWarningAreaFromPolygon(
+                state.getWarningPolygon(), record));
+        updateWarnedAreas(true, true);
+    }
+
     private DataTime recordFrameTime(AbstractWarningRecord warnRecord) {
         Calendar frameTime;
         String rawMessage = warnRecord.getRawmessage();
@@ -3243,7 +3276,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
             GeometryFactory gf = new GeometryFactory();
             Point point = gf.createPoint(coord);
             // potentially adding or removing a county, figure out county
-            for (GeospatialData f : geoData.features) {
+            for (GeospatialData f : getActiveFeatures()) {
                 Geometry geom = f.geometry;
                 if (f.prepGeom.contains(point)) {
                     Geometry newWarningArea;
@@ -3326,7 +3359,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
         boolean useFallback = getConfiguration().getHatchedAreaSource()
                 .isInclusionFallback();
 
-        for (GeospatialData f : geoData.features) {
+        for (GeospatialData f : getActiveFeatures()) {
             String gid = GeometryUtil.getPrefix(f.geometry.getUserData());
             Geometry warningAreaForFeature = getWarningAreaForGids(
                     Arrays.asList(gid), warningArea);
@@ -3365,7 +3398,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     private Collection<GeospatialData> getDataWithFips(String fips) {
         List<GeospatialData> data = new ArrayList<GeospatialData>();
-        for (GeospatialData d : geoData.features) {
+        for (GeospatialData d : getActiveFeatures()) {
             if (fips.equals(getFips(d))) {
                 data.add(d);
             }
@@ -3405,7 +3438,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
         String gid;
         geomArea.clear();
         geomCentroid.clear();
-        for (GeospatialData f : geoData.features) {
+        for (GeospatialData f : geoData.getFeatures(true)) {
             Geometry geom = f.getGeometry();
             gid = ((CountyUserData) geom.getUserData()).gid;
             geomArea.put(gid, geom.getArea());
@@ -3480,7 +3513,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
             populatePt = new Coordinate(centroid.getX(), centroid.getY());
             populatePtGeom = PolygonUtil.createPolygonByPoints(gf,
                     populatePt, shift);
-            for (GeospatialData gd : geoData.features) {
+            for (GeospatialData gd : getActiveFeatures()) {
                 geomN = gd.getGeometry();
                 CountyUserData cud = (CountyUserData) geomN.getUserData();
                 prefixN = cud.gid;
@@ -3709,7 +3742,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
         while (iter.hasNext()) {
             prefix = iter.next();
             double size = 0.0d;
-            for (GeospatialData f : geoData.features) {
+            for (GeospatialData f : getActiveFeatures()) {
                 fips = getFips(f);
                 Geometry geom = f.geometry;
                 if (prefix.equals(GeometryUtil.getPrefix(geom.getUserData()))) {
@@ -3749,12 +3782,12 @@ public class WarngenLayer extends AbstractStormTrackResource {
      * @param inputArea
      * @return
      */
-    public Geometry buildIdealArea(Geometry inputArea) {
+    public Geometry buildIdealArea(Geometry inputArea, boolean stretch) {
         Geometry localHatchedArea = latLonToLocal(inputArea);
         Geometry oldWarningArea = latLonToLocal(state.getOldWarningArea());
         Geometry newHatchedArea = null;
 
-        for (GeospatialData f : geoData.features) {
+        for (GeospatialData f : geoData.getFeatures(stretch)) {
             // get the geometry of the county and make sure it intersects
             // with our hatched area
             PreparedGeometry prepGeom = (PreparedGeometry) f.attributes
@@ -3842,6 +3875,15 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     public String getBackupOfficeLoc() {
         return backupOfficeLoc;
+    }
+
+    private GeospatialData[] getActiveFeatures() {
+        return geoData.getFeatures(isCwaStretch());
+    }
+
+    private boolean isCwaStretch() {
+        return dialog != null && dialog.isCwaStretchDamBulletSelected() &&
+                ! isBoxEditable();
     }
 
 }
