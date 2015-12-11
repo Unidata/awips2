@@ -91,7 +91,6 @@ import com.raytheon.viz.gfe.textformatter.TextFmtParserUtil;
  *                                     editing of framing codes.
  * 07/02/2015  13753       lshi        Update times for products in Product Editor
  * 08/06/2015  13753       lshi        use isSystemTextChange instead of isUpdateTime
- * 11/19/2015   5141       randerso    Changed upper() to also replace commas with ellipses
  * 12/04/2015  13753       lshi        revert 13753
  *
  *
@@ -1024,13 +1023,11 @@ public class StyledTextComp extends Composite {
 
     protected void upper() {
         String text = textEditorST.getText();
-        if (isUpperCase(text) && !text.contains(",")) {
+        if (isUpperCase(text)) {
             return;
         }
-        text = text.toUpperCase();
-        text = text.replaceAll(", {0,1}", "...");
         int topIdx = textEditorST.getTopIndex();
-        setProductText(text);
+        setProductText(textEditorST.getText().toUpperCase());
         textEditorST.setTopIndex(topIdx);
     }
 
