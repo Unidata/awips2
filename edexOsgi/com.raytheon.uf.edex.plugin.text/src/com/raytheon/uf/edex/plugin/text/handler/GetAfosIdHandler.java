@@ -19,8 +19,8 @@
  **/
 package com.raytheon.uf.edex.plugin.text.handler;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.text.AfosWmoIdDataContainer;
 import com.raytheon.uf.common.dataplugin.text.request.GetAfosIdRequest;
@@ -36,6 +36,7 @@ import com.raytheon.uf.edex.plugin.text.dao.AfosToAwipsDao;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 24, 2009 2924       rjpeter     Initial creation
+ * Dec 09, 2015 5166       kbisanz     Update logging to use SLF4J.
  * 
  * </pre>
  * 
@@ -45,7 +46,8 @@ import com.raytheon.uf.edex.plugin.text.dao.AfosToAwipsDao;
 
 public class GetAfosIdHandler implements IRequestHandler<GetAfosIdRequest> {
 
-    protected final transient Log logger = LogFactory.getLog(getClass());
+    protected final transient Logger logger = LoggerFactory
+            .getLogger(getClass());
 
     @Override
     public AfosWmoIdDataContainer handleRequest(GetAfosIdRequest request)

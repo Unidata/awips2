@@ -19,12 +19,11 @@
  **/
 package com.raytheon.uf.edex.plugin.text.dbsrv.impl;
 
-
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.text.db.WatchWarn;
 import com.raytheon.uf.common.dataplugin.text.dbsrv.ICommandExecutor;
@@ -50,6 +49,7 @@ import com.raytheon.uf.edex.plugin.text.db.TextDB;
  * Sep 14,2010  3944       cjenabap    Added sendTextToQueue()
  * May 15, 2014 2536       bclement    moved from uf.edex.textdbsrv
  * Aug 22, 2014 2926       bclement    compatibility changes with new textdb service
+ * Dec 09, 2015 5166       kbisanz     Update logging to use SLF4J.
  * </pre>
  * 
  * @author jkorman
@@ -58,11 +58,11 @@ import com.raytheon.uf.edex.plugin.text.db.TextDB;
 public class WarnTableAdapter implements ICommandExecutor {
 
     private TextDB textDB;
-    
+
     private static final String WATCH_WARN_QUEUE = "ldadWatchWarnDirect";
 
-    private Log logger = LogFactory.getLog(getClass());
-    
+    private Logger logger = LoggerFactory.getLogger(getClass());
+
     /**
      * 
      */
@@ -102,8 +102,10 @@ public class WarnTableAdapter implements ICommandExecutor {
             switch (opTag) {
 
             case PUT: {
-                String productId = sHeader.getProperty(WarnTableTags.PRODID.name());
-                String script = sHeader.getProperty(WarnTableTags.SCRIPT.name());
+                String productId = sHeader.getProperty(WarnTableTags.PRODID
+                        .name());
+                String script = sHeader
+                        .getProperty(WarnTableTags.SCRIPT.name());
 
                 addWatchWarn(sHeader, productId, script);
                 sendTextToQueue(productId, WATCH_WARN_QUEUE);
@@ -111,24 +113,29 @@ public class WarnTableAdapter implements ICommandExecutor {
             }
 
             case GET: {
-                String productId = sHeader.getProperty(WarnTableTags.PRODID.name());
+                String productId = sHeader.getProperty(WarnTableTags.PRODID
+                        .name());
                 if (productId != null) {
                     getWatchWarn(sHeader, productId);
                 }
                 break;
             }
             case DELETE: {
-                String productId = sHeader.getProperty(WarnTableTags.PRODID.name());
-                String script = sHeader.getProperty(WarnTableTags.SCRIPT.name());
+                String productId = sHeader.getProperty(WarnTableTags.PRODID
+                        .name());
+                String script = sHeader
+                        .getProperty(WarnTableTags.SCRIPT.name());
 
                 if ((productId != null) && (script != null)) {
                     deleteWatchWarn(sHeader, productId, script);
                 } else {
-                    Collection<WatchWarn> watchWarns = textDB.queryAllWatchWarn();
+                    Collection<WatchWarn> watchWarns = textDB
+                            .queryAllWatchWarn();
                     Property[] tempProps = new Property[watchWarns.size()];
                     int i = 0;
-                    for (WatchWarn ww: watchWarns) {
-                        deleteWatchWarn(sHeader, ww.getProductid(), ww.getScript());                                                 
+                    for (WatchWarn ww : watchWarns) {
+                        deleteWatchWarn(sHeader, ww.getProductid(),
+                                ww.getScript());
                         tempProps[i++] = sHeader.getProperties()[0];
                     }
                     sHeader.setProperties(tempProps);
@@ -218,7 +225,7 @@ public class WarnTableAdapter implements ICommandExecutor {
         }
         header.setProperties(props);
     }
-    
+
     /**
      * Sends an asynchronous message to the specified queue.
      * 

@@ -19,8 +19,8 @@
  **/
 package com.raytheon.uf.edex.plugin.text.handler;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.text.db.AutoFaxRecord;
@@ -38,6 +38,7 @@ import com.raytheon.uf.edex.plugin.text.fax.AutoFaxDao;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 28, 2010            bfarmer     Initial creation
+ * Dec 09, 2015 5166       kbisanz     Update logging to use SLF4J.
  * 
  * </pre>
  * 
@@ -46,7 +47,7 @@ import com.raytheon.uf.edex.plugin.text.fax.AutoFaxDao;
  */
 
 public class AutoFaxRequestHandler implements IRequestHandler<AutoFaxRequest> {
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     public Object handleRequest(AutoFaxRequest request) {
         AutoFaxRecord req = new AutoFaxRecord(request.getAfosPil(),

@@ -24,8 +24,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.dataplugin.text.alarms.AlarmAlertProduct;
@@ -41,11 +41,12 @@ import com.raytheon.uf.edex.core.EdexException;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 29, 2009            mnash     Initial creation
+ * Sep 29, 2009            mnash       Initial creation
  * 15Feb2010    4426       MW Fegan    Added over-ride of sendProductAlarmAlert(...)
  * 08Jul2010    2187       cjeanbap    Added Operational mode functionality.
  * 23May2012    14952      rferrel     Added reference time.
  * May 20, 2014 2536       bclement    moved from edex.textdb to edex.plugin.text
+ * Dec 09, 2015 5166       kbisanz     Update logging to use SLF4J.
  * 
  * </pre>
  * 
@@ -55,7 +56,7 @@ import com.raytheon.uf.edex.core.EdexException;
 
 public class AlarmAlertUtil {
 
-    private static Log logger = LogFactory.getLog(Util.class);
+    private static Logger logger = LoggerFactory.getLogger(Util.class);
 
     private static final String alarmEndpoint = "alarmAlertNotify";
 

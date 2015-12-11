@@ -19,8 +19,8 @@
  **/
 package com.raytheon.uf.edex.plugin.text.subscription.runners;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.message.Message;
 import com.raytheon.uf.common.util.StringUtil;
@@ -64,6 +64,7 @@ import com.raytheon.uf.edex.plugin.text.subscription.util.SubscribeAction;
  *                                      removed duplicate SubscribeAction enum
  * Aug 22, 2014 2926       bclement    improved error handling for unknown operation
  * Sep 05, 2014 2926       bclement    removed Class.forName() call
+ * Dec 09, 2015 5166       kbisanz     Update logging to use SLF4J.
  * 
  * </pre>
  * 
@@ -76,18 +77,20 @@ public class SubscribeRunner {
      * the logger
      */
     @SuppressWarnings("unused")
-    private final Log logger = LogFactory.getLog(getClass());
-    
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     /*
      * The factory instance.
      */
     private static SubscribeRunner instance = null;
+
     /**
      * Constructor.
      */
     private SubscribeRunner() {
         super();
     }
+
     /**
      * 
      * @return
@@ -98,36 +101,47 @@ public class SubscribeRunner {
         }
         return instance;
     }
+
     /**
-     * Factory method for obtaining an {@link ISubscribeRunner} instance for the specified
-     * operation. The {@link ISubscribeRunner} instance must be initialized via the 
-     * {@link ISubscribeRunner#initialize(Message) initialize(Message)} method.
+     * Factory method for obtaining an {@link ISubscribeRunner} instance for the
+     * specified operation. The {@link ISubscribeRunner} instance must be
+     * initialized via the {@link ISubscribeRunner#initialize(Message)
+     * initialize(Message)} method.
      * 
-     * @param oper the operation for the instance to execute
+     * @param oper
+     *            the operation for the instance to execute
      * 
      * @return the requested class instance
      * 
-     * @throws EdexException if any error occurs in creating the class instance
+     * @throws EdexException
+     *             if any error occurs in creating the class instance
      */
-    public static ISubscribeRunner getInstance(String oper) throws EdexException {
+    public static ISubscribeRunner getInstance(String oper)
+            throws EdexException {
         return getInstance(oper, null);
     }
+
     /**
-     * Factory method for obtaining an {@link ISubscribeRunner} instance for the specified
-     * operation to process the specified message. If <code>message</code> is <code>null</code>,
-     * the {@link ISubscribeRunner} instance must be initialized via the 
+     * Factory method for obtaining an {@link ISubscribeRunner} instance for the
+     * specified operation to process the specified message. If
+     * <code>message</code> is <code>null</code>, the {@link ISubscribeRunner}
+     * instance must be initialized via the
      * {@link ISubscribeRunner#initialize(Message) initialize(Message)} method.
      * 
-     * @param message the message to process
+     * @param message
+     *            the message to process
      * 
      * @return the requested class instance
      * 
-     * @throws EdexException if any error occurs in creating the class instance
+     * @throws EdexException
+     *             if any error occurs in creating the class instance
      */
-    public static ISubscribeRunner getInstance(String oper, Message message) throws EdexException {
+    public static ISubscribeRunner getInstance(String oper, Message message)
+            throws EdexException {
         ISubscribeRunner retVal = null;
         if (StringUtil.isEmptyString(oper)) {
-            throw new EdexException("Unable to initialize ISubscribeRunner instance; null or empty operation specified - unable to continue");
+            throw new EdexException(
+                    "Unable to initialize ISubscribeRunner instance; null or empty operation specified - unable to continue");
         }
         SubscribeAction action = SubscribeAction.translate(oper);
         if (action == null) {
@@ -137,16 +151,20 @@ public class SubscribeRunner {
         }
         Class<? extends ISubscribeRunner> aClass = action.getRunner();
         if (aClass == null) {
-            throw new EdexException("Unable to initialize ISubscribeRunner instance; invalid operation [" + oper + "] specified - unable to continue");
+            throw new EdexException(
+                    "Unable to initialize ISubscribeRunner instance; invalid operation ["
+                            + oper + "] specified - unable to continue");
         }
-        
+
         try {
-            retVal = (ISubscribeRunner)aClass.newInstance();
+            retVal = (ISubscribeRunner) aClass.newInstance();
             if (message != null) {
                 retVal.initialize(message);
             }
         } catch (Exception e) {
-            throw new EdexException("Unable to initialize ISubscribeRunner instance; invalid operation [" + oper + "] specified - unable to continue",e);
+            throw new EdexException(
+                    "Unable to initialize ISubscribeRunner instance; invalid operation ["
+                            + oper + "] specified - unable to continue", e);
         }
         return retVal;
     }

@@ -22,8 +22,8 @@ package com.raytheon.uf.edex.plugin.text.subscription.runners;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.message.Message;
 import com.raytheon.uf.common.message.Property;
@@ -66,6 +66,7 @@ import com.raytheon.uf.common.message.Property;
  * ------------ ---------- ----------- --------------------------
  * 14Nov2008    1709       MW Fegan    Initial creation
  * May 22, 2014 2536       bclement    moved from autobldsrv to edex.plugin.text
+ * Dec 09, 2015 5166       kbisanz     Update logging to use SLF4J.
  * 
  * </pre>
  * 
@@ -77,29 +78,32 @@ public abstract class ASubscribeRunner implements ISubscribeRunner {
     /**
      * the logger
      */
-    protected final Log logger = LogFactory.getLog(getClass());
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     protected Message message = null;
-    
+
     protected List<Property> results = null;
+
     /**
-     * Constructor. Does not initialize the message to process. Must
-     * be followed by a call to {@link #initialize(message)}.
+     * Constructor. Does not initialize the message to process. Must be followed
+     * by a call to {@link #initialize(message)}.
      */
     protected ASubscribeRunner() {
         this(null);
     }
+
     /**
      * Constructor. This version combines object construction and
      * initialization.
      * 
-     * @param message the message object to process
+     * @param message
+     *            the message object to process
      */
     protected ASubscribeRunner(Message message) {
         super();
         this.initialize(message);
     }
-    
+
     @Override
     public abstract boolean execute();
 
@@ -108,10 +112,10 @@ public abstract class ASubscribeRunner implements ISubscribeRunner {
         this.results = new ArrayList<Property>();
         this.message = message;
     }
+
     @Override
     public List<Property> getResults() {
         return this.results;
     }
-
 
 }

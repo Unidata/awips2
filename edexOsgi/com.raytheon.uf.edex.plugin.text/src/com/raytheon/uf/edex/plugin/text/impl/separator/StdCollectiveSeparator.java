@@ -25,8 +25,8 @@ import java.nio.charset.Charset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.site.SiteMap;
@@ -53,13 +53,14 @@ import com.raytheon.uf.edex.plugin.text.impl.WMOReportData;
  * Apr 01, 2014 2915       dgilling    Support re-factored TextDBStaticData.
  * May 14, 2014 2536       bclement    moved WMO Header to common
  * Dec 03, 2014 ASM #16859 D. Friedman Use CharBuffer instead of StringBuilder.
+ * Dec 09, 2015 5166       kbisanz     Update logging to use SLF4J.
  * </pre>
  * 
  * @author jkorman
  * @version 1.0
  */
 public class StdCollectiveSeparator extends WMOMessageSeparator {
-    private final Log logger = LogFactory.getLog(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final Pattern P_TAF = Pattern
             .compile("(TAF +AMD)|(TAF +COR)|(TAF...[\r\n])|(TAF ?)");
