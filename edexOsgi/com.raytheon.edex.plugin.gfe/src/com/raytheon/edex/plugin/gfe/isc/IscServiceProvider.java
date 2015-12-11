@@ -24,11 +24,12 @@ import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.edex.core.IContextStateProcessor;
 
 /**
@@ -165,10 +166,10 @@ public final class IscServiceProvider implements IContextStateProcessor {
         statusHandler.info("Checking ISC configuration for site " + siteID);
 
         String irtAddress = config.iscRoutingTableAddress().get("ANCF");
-        if ((!config.iscRoutingTableAddress().containsKey("ANCF"))
-                || (!config.iscRoutingTableAddress().containsKey("BNCF"))
-                || (StringUtil.isEmptyString(irtAddress))
-                || (!config.requestISC())) {
+        if ((config.iscRoutingTableAddress().containsKey("ANCF"))
+                && (config.iscRoutingTableAddress().containsKey("BNCF"))
+                && (StringUtils.isNotBlank(irtAddress))
+                && (config.requestISC())) {
             if (activeInstance) {
                 statusHandler.info("Enabling ISC for site " + siteID);
 
