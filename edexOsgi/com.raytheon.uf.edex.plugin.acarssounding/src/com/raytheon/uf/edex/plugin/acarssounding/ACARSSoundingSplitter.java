@@ -35,8 +35,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.acars.ACARSRecord;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -61,6 +61,7 @@ import com.raytheon.uf.edex.plugin.acarssounding.tools.ACARSSoundingTools;
  * Sep 23, 2010            jkorman     Initial creation
  * May 14, 2014 2536       bclement    removed TimeTools usage
  * Aug 18, 2014 3530       bclement    removed rest of TimeTools usage
+ * Dec 10, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -70,20 +71,21 @@ import com.raytheon.uf.edex.plugin.acarssounding.tools.ACARSSoundingTools;
 
 public class ACARSSoundingSplitter implements Iterator<Object> {
 
-    private Log logger = LogFactory.getLog(getClass());
-    
+    private Logger logger = LoggerFactory.getLogger(getClass());
+
     // Cutoff time for cleaning files
     private static final int FILE_CLEANUP_CUTOFF = 7;
-    
+
     public static final String CREATE_PROCESS_BEAN = "TRUE";
 
     public static final int BASE_DIR_NULL = 1;
+
     public static final int DATA_DIR_NULL = 2;
-    
+
     public static final int NO_BASE_DIR = 3;
+
     public static final int NO_DATA_DIR = 4;
-    
-    
+
     private File baseDir = null;
 
     private File dataDir = null;
@@ -95,9 +97,9 @@ public class ACARSSoundingSplitter implements Iterator<Object> {
     private List<ACARSAircraftInfo> acftInfo = null;
 
     private boolean failSafe = false;
-    
+
     private int failReason = 0;
-    
+
     /**
      * 
      */
@@ -110,7 +112,7 @@ public class ACARSSoundingSplitter implements Iterator<Object> {
      * 
      */
     private ACARSSoundingSplitter(String process, boolean failSafe) {
-        if(failSafe) {
+        if (failSafe) {
             iterator = new Iterator<ACARSAircraftInfo>() {
 
                 @Override
@@ -129,7 +131,7 @@ public class ACARSSoundingSplitter implements Iterator<Object> {
             };
         } else {
             cleanUpAcftObs();
-            
+
             if (CREATE_PROCESS_BEAN.equals(process)) {
                 logger.info("Creating process bean");
 
@@ -195,12 +197,13 @@ public class ACARSSoundingSplitter implements Iterator<Object> {
 
     /**
      * Get the failure reason.
+     * 
      * @return
      */
     public int getFailReason() {
         return failReason;
     }
-    
+
     /**
      * 
      */
@@ -315,7 +318,8 @@ public class ACARSSoundingSplitter implements Iterator<Object> {
                         // We've combined and sorted all the data, so overwrite
                         // the
                         // existing file.
-                        writer = new FileWriter(out, ACARSSoundingTools.NO_APPEND);
+                        writer = new FileWriter(out,
+                                ACARSSoundingTools.NO_APPEND);
 
                         long startObs = Long.MAX_VALUE;
                         long stopObs = Long.MIN_VALUE;
@@ -388,14 +392,14 @@ public class ACARSSoundingSplitter implements Iterator<Object> {
         final String END_FMT = "ACARS aircraft info cleanup [complete] deleted [%6d] files";
 
         int tries = 3;
-        while ((dataDir == null)&&(tries > 0)) {
+        while ((dataDir == null) && (tries > 0)) {
             setupFiles();
-            if(dataDir == null) {
+            if (dataDir == null) {
                 ACARSSoundingTools.delay(10000L);
                 tries--;
             }
         }
-        if(tries > 0) {
+        if (tries > 0) {
             int deletedFiles = 0;
             if (dataDir.exists() && dataDir.isDirectory()) {
                 File[] files = ACARSSoundingTools.getDataFiles(dataDir);
@@ -406,23 +410,29 @@ public class ACARSSoundingSplitter implements Iterator<Object> {
                         if (f.isFile()) {
                             String fName = f.getName();
                             if (fName.endsWith(".acft")) {
-                                List<String> newList = processFile(f);;
+                                List<String> newList = processFile(f);
                                 if (newList.size() > 0) {
                                     ACARSSoundingTools.writeAircraftData(f,
                                             newList, logger);
                                 } else {
-                                    logger.info("Deleting empty tailnumber file " + fName);
+                                    logger.info("Deleting empty tailnumber file "
+                                            + fName);
                                     // come here to delete the tailnumberfile
-                                    deleted = ACARSSoundingTools.deleteFile(f, logger, "Attempt to delete %s failed");
+                                    deleted = ACARSSoundingTools.deleteFile(f,
+                                            logger,
+                                            "Attempt to delete %s failed");
                                 }
                             } else {
                                 // a garbage file got into the directory
                                 // remove it.
-                                deleted = ACARSSoundingTools.deleteFile(f, logger, "Attempt to delete ill-formed file %s failed");
+                                deleted = ACARSSoundingTools
+                                        .deleteFile(f, logger,
+                                                "Attempt to delete ill-formed file %s failed");
                             }
                         }
                     } catch (Throwable t) {
-                        deleted = ACARSSoundingTools.deleteFile(f, logger, "Attempt to delete %s failed");
+                        deleted = ACARSSoundingTools.deleteFile(f, logger,
+                                "Attempt to delete %s failed");
                     }
                     if (deleted) {
                         deletedFiles++;
@@ -432,15 +442,16 @@ public class ACARSSoundingSplitter implements Iterator<Object> {
             }
         }
     }
-    
+
     /**
-     * Age out any old data. 
+     * Age out any old data.
+     * 
      * @param obs
      * @return
      */
     private List<String> processFile(File tailNumberFile) {
         long cTime = ACARSSoundingTools.getCutoffTime(FILE_CLEANUP_CUTOFF);
-        
+
         Set<String> uris = new HashSet<String>();
         ArrayList<String> newList = new ArrayList<String>();
         BufferedReader bf = null;
@@ -454,13 +465,13 @@ public class ACARSSoundingSplitter implements Iterator<Object> {
                         s = ACARSSoundingTools.removeTrailingSpace(s);
                         if (uris.contains(s)) {
                             if (logger.isDebugEnabled()) {
-                                logger.debug("Removing duplicate ["
-                                        + s + "]");
+                                logger.debug("Removing duplicate [" + s + "]");
                             }
                         } else {
                             uris.add(s);
                             if (s.length() > ACARSSoundingTools.OBS_TIME_SIZE) {
-                                long oTime = ACARSSoundingTools.parseLong(s.substring(0,20), 0);
+                                long oTime = ACARSSoundingTools.parseLong(
+                                        s.substring(0, 20), 0);
                                 if (oTime > 0) {
                                     if (logger.isDebugEnabled()) {
                                         logger.debug("Ill-formed datauri entry ["
@@ -470,8 +481,8 @@ public class ACARSSoundingSplitter implements Iterator<Object> {
                                         newList.add(s);
                                     } else {
                                         if (logger.isDebugEnabled()) {
-                                            logger.debug("Aging out datauri [" + s
-                                                    + "]");
+                                            logger.debug("Aging out datauri ["
+                                                    + s + "]");
                                         }
                                     }
                                 }
@@ -479,7 +490,7 @@ public class ACARSSoundingSplitter implements Iterator<Object> {
                         }
                     }
                 } catch (Exception e) {
-                    logger.error("Exception in processList",e);
+                    logger.error("Exception in processList", e);
                     // nothing else. The URI will go away.
                 }
             }
@@ -505,7 +516,8 @@ public class ACARSSoundingSplitter implements Iterator<Object> {
     private void setupFiles() {
         failSafe = true;
         try {
-            PathManager pathMgr = (PathManager) PathManagerFactory.getPathManager();
+            PathManager pathMgr = (PathManager) PathManagerFactory
+                    .getPathManager();
 
             LocalizationContext ctx = pathMgr.getContext(
                     LocalizationType.EDEX_STATIC, LocalizationLevel.BASE);
@@ -516,16 +528,16 @@ public class ACARSSoundingSplitter implements Iterator<Object> {
             dataDir = pathMgr.getFile(ctx, ACARSSoundingTools.BASE_PATH
                     + ACARSSoundingTools.DATA_PATH);
 
-            if(baseDir != null) {
+            if (baseDir != null) {
                 if (!baseDir.exists()) {
                     baseDir.mkdirs();
                 }
-                if(baseDir.exists()) {
-                    if(dataDir != null) {
+                if (baseDir.exists()) {
+                    if (dataDir != null) {
                         if (!dataDir.exists()) {
                             dataDir.mkdirs();
                         }
-                        if(dataDir.exists()) {
+                        if (dataDir.exists()) {
                             // Ok, resources exist
                             failSafe = false;
                         } else {
@@ -541,7 +553,7 @@ public class ACARSSoundingSplitter implements Iterator<Object> {
                 failReason = BASE_DIR_NULL;
             }
         } catch (Exception e) {
-            logger.error("Attempting to setup files",e);
+            logger.error("Attempting to setup files", e);
         }
     }
 
@@ -571,7 +583,7 @@ public class ACARSSoundingSplitter implements Iterator<Object> {
      * @param logger
      *            Logger to receive possible error messages.
      */
-    private static void deleteFile(File file, Log logger) {
+    private static void deleteFile(File file, Logger logger) {
         if ((file != null) && (file.exists())) {
             if (file.isFile()) {
                 // Now that we've processed out this file, see if it
@@ -603,8 +615,9 @@ public class ACARSSoundingSplitter implements Iterator<Object> {
      * @return
      */
     public ACARSSoundingSplitter getSeparator() {
-        ACARSSoundingSplitter splitter = new ACARSSoundingSplitter(CREATE_PROCESS_BEAN, failSafe); 
-        
+        ACARSSoundingSplitter splitter = new ACARSSoundingSplitter(
+                CREATE_PROCESS_BEAN, failSafe);
+
         return splitter;
     }
 
