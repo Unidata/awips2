@@ -17,7 +17,7 @@ Vendor: Raytheon
 Packager: %{_build_site}
 
 AutoReq: no
-provides: awips2-data.gfe
+Provides: awips2-data.gfe
 
 %description
 AWIPS II gfe Distribution - Contains the AWIP II gfe netcdf files.

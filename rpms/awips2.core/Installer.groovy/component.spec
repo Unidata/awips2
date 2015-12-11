@@ -16,8 +16,8 @@ Vendor: Raytheon
 Packager: %{_build_site}
 
 AutoReq: no
-provides: awips2-groovy
-requires: awips2-java
+Provides: awips2-groovy
+Requires: awips2-java
 
 %description
 AWIPS II Groovy Distribution - Contains Groovy %{_groovy_version}.

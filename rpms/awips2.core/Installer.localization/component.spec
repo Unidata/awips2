@@ -15,7 +15,7 @@ Vendor: Raytheon
 Packager: %{_build_site}
 
 AutoReq: no
-provides: %{_component_name}
+Provides: %{_component_name}
 
 %description
 AWIPS II Site Localization.

@@ -17,8 +17,8 @@ Vendor: Raytheon
 Packager: %{_build_site}
 
 AutoReq: no
-provides: awips2-maps-database
-requires: awips2-database
+Provides: awips2-maps-database
+Requires: awips2-database
 
 %description
 AWIPS II Maps Database - includes the

@@ -18,10 +18,10 @@ Vendor: NCEP/NCO/SIB CWA
 Packager: %{_build_site}
 
 AutoReq: no
-provides: awips2-ncep-database
-requires: awips2-database
-requires: awips2-postgresql
-requires: awips2-psql
+Provides: awips2-ncep-database
+Requires: awips2-database
+Requires: awips2-postgresql
+Requires: awips2-psql
 
 %description
 AWIPS II NCEP Database Installation - This rpm creates the ncep database and tables.
