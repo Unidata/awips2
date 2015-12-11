@@ -87,6 +87,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 18, 2015  14298,17388     ptilles    Updated to fix problem with mpe_dqc_6hr_24hr_ste_bad token and problem
  *                                            with changing a 6hr value in 24hr mode
  * Sep 11, 2015  17986     snaples     Updated q45bnames array to correct order issue, with Screened and Questionable being reversed.
+ * Dec 10, 2015  18391     snaples     Updated changeCustomFile to not remove grid when EditStations Apply is clicked.
  *                  
  * </pre>
  * 
@@ -1380,9 +1381,6 @@ public class EditPrecipStationsDialog extends AbstractMPEDialog implements
         bv.restore_bad_values(pcpn_day, precipStationList, max_stations);
 
         if (k == 1 || k == 3) grids_flag = 1;
-
-        OtherPrecipOptions op = new OtherPrecipOptions();
-        op.send_expose();
         return;
     }
 
