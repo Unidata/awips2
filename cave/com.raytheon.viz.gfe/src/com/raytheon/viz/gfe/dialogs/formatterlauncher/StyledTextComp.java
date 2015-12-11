@@ -91,6 +91,8 @@ import com.raytheon.viz.gfe.textformatter.TextFmtParserUtil;
  *                                     editing of framing codes.
  * 07/02/2015  13753       lshi        Update times for products in Product Editor
  * 08/06/2015  13753       lshi        use isSystemTextChange instead of isUpdateTime
+ * 12/04/2015  13753       lshi        revert 13753
+ *
  *
  * </pre>
  *
@@ -98,7 +100,6 @@ import com.raytheon.viz.gfe.textformatter.TextFmtParserUtil;
  * @version 1.0
  *
  */
-
 public class StyledTextComp extends Composite {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(StyledTextComp.class);
@@ -305,7 +306,7 @@ public class StyledTextComp extends Composite {
                 updateTextStyle(event);
                 checkAutoWrap(event);
 
-                if (corMode && !updatingForCor && !isSystemTextChange()) {
+                if (corMode && !updatingForCor) {
                     updatingForCor = true;
                     try {
                         makeCorrections();
@@ -338,9 +339,11 @@ public class StyledTextComp extends Composite {
      */
     public void setProductText(String text) {
         newProduct = true;
+        textEditorST.setText(EMPTY);
+        textEditorST.setStyleRange(null);
+
         try {
             parseProductText(text);
-            textEditorST.setStyleRange(null);
             textEditorST.setText(text);
             lockText();
             findFramingCodes();
@@ -348,7 +351,6 @@ public class StyledTextComp extends Composite {
             newProduct = false;
         } catch (JepException e) {
             statusHandler.error(PRODUCT_PARSE_ERROR, e);
-            textEditorST.setText(EMPTY);
         }
     }
 

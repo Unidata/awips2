@@ -167,13 +167,14 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * 01/28/2015  #4018       randerso    Code cleanup.
  * 02/04/2014  17039       ryu         Removed menu item related to the HighlighFramingCodes feature.
  * 04/20/2015   4027       randerso    Renamed ProductStateEnum with an initial capital
- *                                     Expunged Calendar from ActiveTableRecord
+ *                                     Expunged Calendar from ActiveTableReco
  * 07/02/2015  13753       lshi        Update times for products in Product Editor
  * 07/22/2015  13753       lshi        Keeps issue time unchanged
  * 08/06/2015  13753       lshi        removed updateTime flag, undo the change of updateIssueExpireTimes, etc.
  * 08/10/2015   4721       randerso    Changed getNNNid() to use the productID field (not textdbPil)
  * 09/15/2015   4858       dgilling    Disable store/transmit in DRT mode.
  * 10/26/2015  18244       lshi        fixed NullPointerException (pds, updateIssueExpireTimes)
+ * 12/04/2015  13753       lshi        Revert 13753
  * </pre>
  *
  * @author lvenable
@@ -1205,7 +1206,9 @@ public class ProductEditorComp extends Composite implements
         Date tt = GMT.getTime();
 
         tweakVTEC(tt);
+
         updateIssueExpireTimes(tt);
+
         return true;
     }
 
@@ -1711,7 +1714,6 @@ public class ProductEditorComp extends Composite implements
         textComp.startUpdate();
         textComp.patchMND(txt, true);
         textComp.updatePType(val);
-
         textComp.endUpdate();
     }
 
@@ -1954,7 +1956,7 @@ public class ProductEditorComp extends Composite implements
         this.expireDate = cal.getTime();
         dateTimeLbl.setText(expireLabelFmt.format(expireDate));
 
-        if (!dead) {
+        if (!dead && !editorCorrectionMode) { // && !spellDialog) {
             changeTimes();
         }
     }
@@ -1971,29 +1973,28 @@ public class ProductEditorComp extends Composite implements
         // I know this time string has been replaced. If the lengths of the
         // before and after strings are different, a reParse() will be made,
         // else it will continue on.
-
         if (textComp != null) {
-            // Update Issue time
             try {
                 textComp.startUpdate();
                 ProductDataStruct pds = textComp.getProductDataStruct();
+
                 if (pds != null) {
-                    if (!textComp.isCorMode()) {
-                        TextIndexPoints pit = pds.getPIT();
-                        if (pit != null) {
-                            String time = purgeTimeFmt.format(now);
-                            textComp.replaceText(pit, time);
-                        }
+                    TextIndexPoints pit = pds.getPIT();
+                    if (pit != null) {
+                        String time = purgeTimeFmt.format(now);
+                        textComp.replaceText(pit, time);
                     }
 
-                    // Update MND time
                     TextIndexPoints tip = pds.getMndMap().get("nwstime");
                     if (tip != null) {
                         SimpleDateFormat fmt = new SimpleDateFormat(
                                 longLocalFmtStr);
                         fmt.setTimeZone(localTimeZone);
                         String issueTime = fmt.format(now).toUpperCase();
-                        textComp.replaceText(tip, issueTime);
+
+                        if (tip != null) {
+                            textComp.replaceText(tip, issueTime);
+                        }
                     }
                 }
             } finally {
@@ -2006,8 +2007,6 @@ public class ProductEditorComp extends Composite implements
             // StyledTextComp to re-evaluate whether a reParse() is needed and
             // ask it for the segment information each time through the loop (in
             // case we're at one of the 4 transition points).
-
-            // Update segments' time
             try {
                 ProductDataStruct pds = textComp.getProductDataStruct();
 
@@ -2177,8 +2176,6 @@ public class ProductEditorComp extends Composite implements
      */
     private void loadPrevious() {
         String initialValue;
-        textComp.setCorMode(true);
-
         if (!testVTEC) {
             initialValue = "cccnnnxxx";
         } else {
@@ -2223,10 +2220,9 @@ public class ProductEditorComp extends Composite implements
         }
         parseIDs();
         revive();
-
         // Enter res mode
         setPTypeCategory(PTypeCategory.PE);
-
+        textComp.setCorMode(true);
     }
 
     /**
@@ -3072,5 +3068,4 @@ public class ProductEditorComp extends Composite implements
         callToActionsMI.setMenu(callToActionsSubMenu);
         createCallToActionsMenu(callToActionsSubMenu);
     }
-
 }
