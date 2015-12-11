@@ -21,52 +21,57 @@ package com.raytheon.edex.uengine.runners;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.uengine.exception.MicroEngineException;
 import com.raytheon.uf.common.message.response.AbstractResponseMessage;
 
 /**
- * Base class for &mu;Engine script runners. Provides default implementations
- * of IMicroEngine's {@link #setScript(String)}, {@link #executeScript(String)},
+ * Base class for &mu;Engine script runners. Provides default implementations of
+ * IMicroEngine's {@link #setScript(String)}, {@link #executeScript(String)},
  * and {@link #getResult()} methods. It also provides the script and results
- * fields and the logger instance. As implemented here, {@link #setScript(String)}
- * and {@link #getResult()} are Bean style accessors; {@link #executeScript(String)}
- * and {@link #initialize(String)} call the appropriate methods. {@link #initialize()}
- * and {@link #release()} provide safe, no-op implementations. All other methods
- * are abstract and must be implemented.
+ * fields and the logger instance. As implemented here,
+ * {@link #setScript(String)} and {@link #getResult()} are Bean style accessors;
+ * {@link #executeScript(String)} and {@link #initialize(String)} call the
+ * appropriate methods. {@link #initialize()} and {@link #release()} provide
+ * safe, no-op implementations. All other methods are abstract and must be
+ * implemented.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 12Nov2008    1709       MW Fegan    Initial Creation.
  * 25May2011    8686       cjeanbap    Add getter/setter for Triggers.
+ * 12Dec2015    5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
- *
+ * 
  * @author mfegan
- * @version 1.0	
+ * @version 1.0
  */
 
 public abstract class AMicroEngine implements IMicroEngine {
     /**
      * Logger instance for system logging.
      */
-    protected transient Log logger = LogFactory.getLog(getClass());
+    protected transient Logger logger = LoggerFactory.getLogger(getClass());
+
     /**
      * The script to run.
      */
     protected String script = null;
+
     /**
      * Holds the results from running the &mu;Engine script.
      */
     protected List<AbstractResponseMessage> result = null;
-    
+
     protected String trigger = null;
+
     /**
      * Constructor.
      */
@@ -74,21 +79,27 @@ public abstract class AMicroEngine implements IMicroEngine {
         super();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.raytheon.edex.uengine.runners.IMicroEngine#execute()
      */
     @Override
     public abstract void execute() throws MicroEngineException;
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.raytheon.edex.uengine.runners.IMicroEngine#initialize()
      */
     @Override
     public void initialize() throws MicroEngineException {
         // the default is to do no initialization
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.raytheon.edex.uengine.runners.IMicroEngine#release()
      */
     @Override
@@ -96,8 +107,12 @@ public abstract class AMicroEngine implements IMicroEngine {
         // the default is to not release any resources
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.edex.uengine.runners.IMicroEngine#executeScript(java.lang.String)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.edex.uengine.runners.IMicroEngine#executeScript(java.lang
+     * .String)
      */
     @Override
     public List<AbstractResponseMessage> executeScript(String script)
@@ -112,7 +127,9 @@ public abstract class AMicroEngine implements IMicroEngine {
         }
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.raytheon.edex.uengine.runners.IMicroEngine#getResult()
      */
     @Override
@@ -122,7 +139,10 @@ public abstract class AMicroEngine implements IMicroEngine {
 
     /*
      * (non-Javadoc)
-     * @see com.raytheon.edex.uengine.runners.IMicroEngine#initialize(java.lang.String)
+     * 
+     * @see
+     * com.raytheon.edex.uengine.runners.IMicroEngine#initialize(java.lang.String
+     * )
      */
     @Override
     public void initialize(String script) throws MicroEngineException {
@@ -130,8 +150,12 @@ public abstract class AMicroEngine implements IMicroEngine {
         initialize();
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.edex.uengine.runners.IMicroEngine#setScript(java.lang.String)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.edex.uengine.runners.IMicroEngine#setScript(java.lang.String
+     * )
      */
     @Override
     public void setScript(String script) {
@@ -141,7 +165,7 @@ public abstract class AMicroEngine implements IMicroEngine {
     public void setTrigger(String trigger) {
         this.trigger = trigger;
     }
-    
+
     public String getTrigger() {
         return this.trigger;
     }
