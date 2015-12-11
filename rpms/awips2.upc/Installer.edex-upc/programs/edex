@@ -4,16 +4,17 @@
 #                                                                       #
 # edex [status]                                                         #
 #       'edex' defaults to 'edex status', notifying the user whether    #
-#       edex services are on, and which ones.                      #
+#       edex services are on, and which ones.                      	#
 #                                                                       #
 # edex start/stop                                                       #
 #       Controls stopping / starting all edex standalone services:      #
 #               edex_postgres                                           #
 #               edex_camel                                              #
-#               httpd_pypies                                            #
-#               qpid                                                    #
+#               httpd-pypies                                            #
+#               qpidd                                                   #
+#               edex_ldm                                                #
 #                                                                       #
-# edex log [ingest|request|gribingest|datingest]                        #
+# edex log [ingest|request|grib|text|satellite|radar|ldm]               #
 #       Monitors the current day's requested log. Defaults to ingest.   #
 #                                                                       #
 #									#
