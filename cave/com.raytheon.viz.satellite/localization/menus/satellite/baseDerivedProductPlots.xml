@@ -221,23 +221,23 @@
 		<contribute xsi:type="titleItem" 
 				titleText="------ SSM/I Data ------" id="SSMIDataLine"/>
 		<contribute xsi:type="bundleItem" file="bundles/SSMIWindPlot.xml" 
-               menuText="SSM/I Wind Speeds" id="SSMIDataLine">
+               menuText="SSM/I Wind Speeds" id="SSMIWindSpeeds">
 	        <substitute key="svg" value="ssmiWindPlotDesign.svg"/>
 	    </contribute>
 		<contribute xsi:type="bundleItem" file="bundles/SSMIPlot.xml" 
-               menuText="SSM/I Precip. Water" id="SSMIDataLine">
+               menuText="SSM/I Precip. Water" id="SSMIPrecipWater">
 	        <substitute key="svg" value="ssmiPWPlotDesign.svg"/>
 	        <substitute key="legend" value="SSM/I Precipitable Water (kg/m**2)"/>
 	        <substitute key="offset" value="1800"/>
 	    </contribute>
 		<contribute xsi:type="bundleItem" file="bundles/SSMIPlot.xml" 
-               menuText="SSM/I Sea Temperature" id="SSMIDataLine">
+               menuText="SSM/I Sea Temperature" id="SSMISeaTemp">
 	        <substitute key="svg" value="ssmiSTPlotDesign.svg"/>
 	        <substitute key="legend" value="SSM/I Sea Temperature (C)"/>
 	        <substitute key="offset" value="1800"/>
 	    </contribute>
 		<contribute xsi:type="bundleItem" file="bundles/SSMIPlot.xml" 
-               menuText="SSM/I VIL" id="SSMIDataLine">
+               menuText="SSM/I VIL" id="SSMIVIL">
 	        <substitute key="svg" value="ssmiVILPlotDesign.svg"/>
 	        <substitute key="legend" value="SSM/I Vert. Integ. Water (kg/(m**2))"/>
 	        <substitute key="offset" value="1800"/>
