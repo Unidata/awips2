@@ -22,8 +22,8 @@ package com.raytheon.uf.edex.bufrtools;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -47,6 +47,7 @@ import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
  * ------------ ---------- ----------- --------------------------
  * Jun 19, 2009       2519 jkorman     Initial creation
  * May 14, 2014 2536       bclement    moved WMO Header to common
+ * Dec 14, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -57,7 +58,7 @@ import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
 public abstract class AbstractBUFRDecoder implements IDescriptorFactorySelector {
 
     /** The logger */
-    protected Log logger = LogFactory.getLog(getClass());
+    protected Logger logger = LoggerFactory.getLogger(getClass());
 
     protected String pluginName;
 
