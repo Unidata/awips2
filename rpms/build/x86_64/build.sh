@@ -162,10 +162,6 @@ if [ "${1}" = "-rh6" ]; then
    buildRPM "awips2-tools"
    buildRPM "awips2-postgresql"
    buildRPM "awips2-pgadmin3"
-   unpackHttpdPypies
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
    buildRPM "awips2-httpd-pypies"
    buildRPM "awips2-qpid-lib"
    buildRPM "awips2-qpid-java"

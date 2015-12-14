@@ -235,7 +235,7 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-httpd-pypies" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.httpd-pypies"
+      export RPM_SPECIFICATION="${installer_dir}/httpd-pypies"
       return 0
    fi
    if [ "${1}" = "awips2-java" ]; then
