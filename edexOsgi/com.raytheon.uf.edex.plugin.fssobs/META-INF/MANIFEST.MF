@@ -25,4 +25,4 @@ Import-Package: com.raytheon.uf.common.monitor.config,
  com.raytheon.uf.edex.pointdata,
  javax.measure.converter,
  javax.measure.unit,
- org.apache.commons.logging
+ org.slf4j

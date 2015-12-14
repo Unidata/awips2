@@ -20,7 +20,7 @@ Import-Package: com.raytheon.edex.urifilter,
  com.raytheon.uf.common.time,
  com.raytheon.uf.common.util.registry,
  com.raytheon.uf.edex.plugin.scan.common,
- org.apache.commons.logging
+ org.slf4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.edex.plugin.vil,

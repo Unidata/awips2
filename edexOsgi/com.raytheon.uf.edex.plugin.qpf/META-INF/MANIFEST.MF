@@ -23,7 +23,7 @@ Import-Package: com.raytheon.edex.urifilter,
  com.raytheon.uf.common.dataplugin.grid,
  com.raytheon.uf.edex.core,
  com.raytheon.uf.edex.plugin.scan.common,
- org.apache.commons.logging
+ org.slf4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: com.raytheon.uf.edex.plugin.qpf,
  com.raytheon.uf.edex.plugin.qpf.common
