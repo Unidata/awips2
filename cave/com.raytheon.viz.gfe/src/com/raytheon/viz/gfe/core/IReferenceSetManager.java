@@ -26,10 +26,12 @@ import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
 import com.raytheon.uf.common.dataplugin.gfe.reference.GroupID;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
+import com.raytheon.uf.common.python.concurrent.PythonJobCoordinator;
 import com.raytheon.viz.gfe.core.msgs.IEditAreaGroupInvChangedListener;
 import com.raytheon.viz.gfe.core.msgs.IReferenceSetChangedListener;
 import com.raytheon.viz.gfe.core.msgs.IReferenceSetIDChangedListener;
 import com.raytheon.viz.gfe.core.msgs.IReferenceSetInvChangedListener;
+import com.raytheon.viz.gfe.query.QueryScript;
 
 /**
  * Public interface for ReferenceSetManager
@@ -43,6 +45,7 @@ import com.raytheon.viz.gfe.core.msgs.IReferenceSetInvChangedListener;
  * 02/26/2013        #1708  randerso    Remove evaluateRefSet from public interface
  * Aug 13, 2015   4749      njensen     Extends DisposableManager
  * Nov 18, 2015   5129      dgilling    Remove UI-related arguments from deleteRefSet.
+ * Dec 16, 2015   4816      dgilling    Add getPythonThreadPool.
  * 
  * </pre>
  * 
@@ -341,4 +344,14 @@ public interface IReferenceSetManager extends DisposableManager {
      * @return true is query will recurse
      */
     public boolean willRecurse(String name, String query);
+
+    /**
+     * Returns a reference to the {@link PythonJobCoordinator} so other classes
+     * can evaluate query-based edit areas using this
+     * {@code IReferenceSetManager}'s thread pool.
+     * 
+     * @return {@code PythonJobCoordinator} for evaluating query-based edit
+     *         areas.
+     */
+    public PythonJobCoordinator<QueryScript> getPythonThreadPool();
 }

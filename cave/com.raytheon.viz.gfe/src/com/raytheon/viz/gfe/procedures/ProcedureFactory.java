@@ -26,7 +26,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonIncludePathUtil;
-import com.raytheon.uf.common.python.concurrent.AbstractPythonScriptFactory;
+import com.raytheon.uf.common.python.concurrent.PythonInterpreterFactory;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.viz.gfe.core.DataManager;
 
@@ -41,21 +41,22 @@ import com.raytheon.viz.gfe.core.DataManager;
  * Feb 25, 2010  4108     ryu         Add user/site directories to include path
  * May 20, 2015  4509     njensen     Added time and dataaccess to include path
  * Jul 27, 2015  #4263    dgilling    Refactor and make abstract.
+ * Dec 14, 2015  4816     dgilling    Support refactored PythonJobCoordinator API.
  * 
  * </pre>
+ * 
+ * `1
  * 
  * @author njensen
  * @version 1.0
  */
 
-public abstract class ProcedureFactory<C extends ProcedureController> extends
-        AbstractPythonScriptFactory<C> {
+public abstract class ProcedureFactory<C extends ProcedureController>
+        implements PythonInterpreterFactory<C> {
 
     protected final DataManager dataMgr;
 
-    public ProcedureFactory(String name, int numThreads,
-            final DataManager dataMgr) {
-        super(name, numThreads);
+    public ProcedureFactory(final DataManager dataMgr) {
         this.dataMgr = dataMgr;
     }
 

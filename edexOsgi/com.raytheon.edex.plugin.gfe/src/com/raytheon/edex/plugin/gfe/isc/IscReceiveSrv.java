@@ -148,7 +148,7 @@ public class IscReceiveSrv {
             IscScriptExecutor executor = new IscScriptExecutor(METHOD_NAME,
                     siteArgs.getKey(), args);
             try {
-                threadPool.submitAsyncJob(executor, jobListener);
+                threadPool.submitJobWithCallback(executor, jobListener);
             } catch (Exception e) {
                 statusHandler
                         .handle(Priority.PROBLEM,

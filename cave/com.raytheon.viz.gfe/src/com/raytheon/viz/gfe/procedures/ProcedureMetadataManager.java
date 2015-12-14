@@ -53,6 +53,7 @@ import com.raytheon.viz.gfe.smartscript.FieldDefinition;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 24, 2015  #4263     dgilling     Initial creation
+ * Dec 14, 2015  #4816     dgilling     Support refactored PythonJobCoordinator API.
  * 
  * </pre>
  * 
@@ -65,6 +66,10 @@ public final class ProcedureMetadataManager implements
 
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(getClass());
+
+    private static final String THREAD_POOL_NAME = "procedure-metadata";
+
+    private static final int NUM_POOL_THREADS = 1;
 
     private final PythonJobCoordinator<ProcedureMetadataController> jobCoordinator;
 
@@ -79,7 +84,8 @@ public final class ProcedureMetadataManager implements
     public ProcedureMetadataManager(final DataManager dataMgr) {
         ProcedureMetadataScriptFactory scriptFactory = new ProcedureMetadataScriptFactory(
                 dataMgr);
-        this.jobCoordinator = PythonJobCoordinator.newInstance(scriptFactory);
+        this.jobCoordinator = new PythonJobCoordinator<>(NUM_POOL_THREADS,
+                THREAD_POOL_NAME, scriptFactory);
 
         this.metadata = new HashMap<>();
         this.accessLock = new Object();
@@ -109,7 +115,7 @@ public final class ProcedureMetadataManager implements
             }
         };
         try {
-            jobCoordinator.submitAsyncJob(executor, listener);
+            jobCoordinator.submitJobWithCallback(executor, listener);
         } catch (Exception e1) {
             statusHandler.error("Error initializing procedure metadata.", e1);
         }
@@ -199,7 +205,7 @@ public final class ProcedureMetadataManager implements
             }
         };
         try {
-            jobCoordinator.submitAsyncJob(executor, listener);
+            jobCoordinator.submitJobWithCallback(executor, listener);
         } catch (Exception e1) {
             statusHandler.error("Error updating procedure metadata.", e1);
         }

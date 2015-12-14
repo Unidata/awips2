@@ -33,6 +33,7 @@ import com.raytheon.viz.gfe.core.DataManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 22, 2015  #4263     dgilling     Initial creation
+ * Dec 14, 2015  #4816     dgilling     Support refactored PythonJobCoordinator API.
  * 
  * </pre>
  * 
@@ -43,21 +44,10 @@ import com.raytheon.viz.gfe.core.DataManager;
 public final class SmartToolMetadataScriptFactory extends
         SmartToolFactory<SmartToolMetadataController> {
 
-    private static final String SCRIPT_EXECUTOR_NAME = "smart-tool-metadata";
-
-    private static final int EXECUTOR_NUM_THREADS = 1;
-
     public SmartToolMetadataScriptFactory(final DataManager dataMgr) {
-        super(SCRIPT_EXECUTOR_NAME, EXECUTOR_NUM_THREADS, dataMgr);
+        super(dataMgr);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.python.concurrent.AbstractPythonScriptFactory#
-     * createPythonScript()
-     */
     @Override
     public SmartToolMetadataController createPythonScript() throws JepException {
         return new SmartToolMetadataController(getScriptPath(),

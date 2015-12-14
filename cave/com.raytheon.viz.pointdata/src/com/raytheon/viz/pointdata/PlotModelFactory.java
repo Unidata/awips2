@@ -86,6 +86,7 @@ import com.raytheon.viz.pointdata.rsc.PlotResource;
  * Aug 07, 2014  3478     bclement    removed PointDataDescription.Type.Double
  * Dec 16, 2014 16193     kshrestha   Updated range limits
  * Oct 27, 2015  4798     bsteffen    Extend SVGImageFactory
+ * Dec 14, 2015  4816     dgilling    Support refactored PythonJobCoordinator API.
  * 
  * </pre>
  * 
@@ -93,6 +94,7 @@ import com.raytheon.viz.pointdata.rsc.PlotResource;
  * @version 1.0
  */
 public class PlotModelFactory extends SVGImageFactory {
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PlotModelFactory.class);
 
@@ -120,6 +122,8 @@ public class PlotModelFactory extends SVGImageFactory {
 
     private final SimpleDateFormat SAMPLE_DATE = new SimpleDateFormat("HHmm");
 
+    private static final int NUM_POOL_THREADS = 1;
+
     private int width = 1;
 
     private LineStyle lineStyle = LineStyle.DEFAULT;
@@ -141,7 +145,7 @@ public class PlotModelFactory extends SVGImageFactory {
     private final IMapDescriptor mapDescriptor;
 
     private RGB color;
-    
+
     private final List<PlotModelElement> plotFields;
 
     private final List<PlotModelElement> sampleFields;
@@ -294,7 +298,8 @@ public class PlotModelFactory extends SVGImageFactory {
             if (scriptText.length() > 0) {
                 PlotPythonScriptFactory pythonFactory = new PlotPythonScriptFactory(
                         plotModelFile, scriptText, plotDelegateName);
-                python = PythonJobCoordinator.newInstance(pythonFactory);
+                python = new PythonJobCoordinator<>(NUM_POOL_THREADS,
+                        plotModelFile, pythonFactory);
             }
 
             /*
@@ -536,7 +541,7 @@ public class PlotModelFactory extends SVGImageFactory {
                 CheckPlotValidityExecutor task = new CheckPlotValidityExecutor(
                         stationData);
                 try {
-                    result = python.submitSyncJob(task);
+                    result = python.submitJob(task).get();
                 } catch (Exception e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Error checking if plot is valid for plot model "
@@ -638,7 +643,7 @@ public class PlotModelFactory extends SVGImageFactory {
                 String result = null;
                 SampleTextExecutor task = new SampleTextExecutor(stationData);
                 try {
-                    result = python.submitSyncJob(task);
+                    result = python.submitJob(task).get();
                 } catch (Exception e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Error getting sample text for plot model "
@@ -1077,8 +1082,9 @@ public class PlotModelFactory extends SVGImageFactory {
         if (element.lookup != null && sValue != null) {
             String lu = null;
             lu = element.lookup.lookup(sValue);
-            if (!lu.equals(""))
+            if (!lu.equals("")) {
                 sValue = lu;
+            }
         }
         if (sValue != null) {
             element.plotNode.setNodeValue(sValue.substring(element.trim));
