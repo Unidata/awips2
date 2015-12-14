@@ -42,6 +42,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.localization.perspective.editor.LocalizationEditorInput;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.dialogs.SWTMessageBox;
 
 /**
@@ -97,7 +98,7 @@ public class DeleteAction extends Action {
         StringBuilder listOfFiles = new StringBuilder();
         for (int i = 0; i < toDelete.length; ++i) {
             listOfFiles.append(LocalizationUtil.extractName(toDelete[i]
-                    .getName()));
+                    .getPath()));
             listOfFiles.append("\n");
         }
 
@@ -117,10 +118,26 @@ public class DeleteAction extends Action {
                     "Delete Confirmation", msg.toString(), SWT.OK | SWT.CANCEL
                             | SWT.ICON_QUESTION, SWT.PRIMARY_MODAL, false, true);
 
-            if ((int) messageDialog.open() != SWT.OK) {
-                return;
-            }
+            messageDialog.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof Integer) {
+                        if ((int) returnValue == SWT.OK) {
+                            deleteFiles();
+                        }
+                    }
+                }
+            });
+
+            messageDialog.open();
         }
+    }
+
+    /**
+     * Delete the selected files and all associated file extension variations.
+     */
+    private void deleteFiles() {
         List<IEditorReference> toClose = new ArrayList<IEditorReference>();
         // check for open editors and close them
         for (IEditorReference ref : page.getEditorReferences()) {
@@ -172,7 +189,7 @@ public class DeleteAction extends Action {
     private void deleteFile(LocalizationFile file) throws Exception {
         if (file.isDirectory() == false) {
             // Check for file extension
-            String name = LocalizationUtil.extractName(file.getName());
+            String name = LocalizationUtil.extractName(file.getPath());
             String[] parts = name.split("[.]");
 
             if (parts.length > 1) {
@@ -182,8 +199,8 @@ public class DeleteAction extends Action {
 
                 if (associated != null) {
                     String[] extensions = associated.split(",");
-                    String path = file.getName().substring(0,
-                            file.getName().lastIndexOf(name));
+                    String path = file.getPath().substring(0,
+                            file.getPath().lastIndexOf(name));
 
                     String prefix = "";
                     for (int i = 0; i < parts.length - 1; ++i) {
