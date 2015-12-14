@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
@@ -56,6 +56,7 @@ import com.raytheon.uf.edex.plugin.bufrmos.decoder.BufrMOSDataAdapter;
  * Apr 08, 2008 1039       jkorman     Added traceId for tracing data.
  * Dec 08, 2008            chammack    Camel Refactor
  * May 14, 2013 1869       bsteffen    Remove DataURI column from bufrmos.
+ * Dec 14, 2015 5166       kbisanz     Update logging to use SLF4J
  * </pre>
  * 
  * @author jkorman
@@ -67,7 +68,7 @@ public class BufrMosDecoder extends AbstractDecoder {
     public static final String PLUGIN_NAME = "bufrmos";
 
     /** The logger */
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
      * Empty constructor required by DecoderFactory.

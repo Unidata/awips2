@@ -22,8 +22,8 @@ package com.raytheon.uf.edex.plugin.bufrmos;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
@@ -37,7 +37,8 @@ import com.raytheon.uf.common.serialization.SerializationException;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 13, 2009            chammack     Initial creation
+ * Apr 13, 2009            chammack    Initial creation
+ * Dec 14, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -47,7 +48,7 @@ import com.raytheon.uf.common.serialization.SerializationException;
 
 public class MOSPointDataState {
 
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     private Map<String, PointDataContainer> pointData;
 

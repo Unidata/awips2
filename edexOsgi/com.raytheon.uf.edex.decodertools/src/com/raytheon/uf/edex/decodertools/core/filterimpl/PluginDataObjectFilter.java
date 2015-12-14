@@ -27,8 +27,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
@@ -52,11 +52,12 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Jul 16, 2009           jkorman     Initial creation
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
  * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
- * Jul 23, 2014 3410      bclement    location changed to floats
+ * Jul 23, 2014  3410     bclement    location changed to floats
  * Sep 09, 2014  3548     mapeters    Improved constructor's error messages.
  * Sep 11, 2014  3548     mapeters    Replaced use of SerializationUtil
  *                                    with JAXBManager.
  * Sep 18, 2014  3627     mapeters    Removed unused getInputStream().
+ * Dec 14, 2015  5166     kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -74,7 +75,7 @@ public class PluginDataObjectFilter extends AbstractObsFilter {
 
     public static final String FILTERS_DIR = "plugin-filters";
 
-    private final Log logger = LogFactory.getLog(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private String filterConfigFile = null;
 
@@ -125,7 +126,7 @@ public class PluginDataObjectFilter extends AbstractObsFilter {
         }
         logger.info("Filter name = " + getFilterName());
         for (AbstractFilterElement element : getFilterElements()) {
-            logger.info(element);
+            logger.info("" + element);
         }
     }
 
