@@ -168,6 +168,5 @@
 	    	<substitute key="label" value="925mb"/>
 		</contribute>
 	</contribute>
-	<contribute xsi:type="placeholder" menuText="VWP perspective"/>
 	<contribute xsi:type="separator" id="MySeparatorId2"/>
 </menuTemplate>

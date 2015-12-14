@@ -39,7 +39,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 
@@ -98,6 +97,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 25July2013   DR 15733    Greg Hull   Make dflt and max number of Text Buttons configurable.
  * 28Oct2015    5054        randerso    Make TextWorkstationDlg appear in upper left corner of 
  *                                      monitor where parent shell is located
+ * Dec 14, 2015 4834        njensen     Remove dead menu items
  * 
  * </pre>
  * 
@@ -150,16 +150,11 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
 
     private long initStartTime;
 
-    /** Select user ID dialog */
-    private SelectUserIdDlg userIdDlg;
-
     /**
      * Create dialog specifying NONE for blocking and DO_NOT_BLOCK for
      * non-blocking dialog.
      * 
      * @param parent
-     * @param block
-     *            - CAVE.DO_NOT_BLOCK or CAVE.NONE
      */
     public TextWorkstationDlg(Shell parent) {
         super(parent, SWT.DIALOG_TRIM | SWT.MIN /* | SWT.RESIZE */,
@@ -291,39 +286,6 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         // --------------------------------------------------
         // Create Select User ID menu item
         // --------------------------------------------------
-        MenuItem selectUserIdMenuItem = new MenuItem(fileMenu, SWT.NONE);
-        selectUserIdMenuItem.setText("Select User ID...");
-        selectUserIdMenuItem.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                if (userIdDlg == null || userIdDlg.isDisposed()) {
-                    userIdDlg = new SelectUserIdDlg(shell);
-                    userIdDlg.open();
-                } else {
-                    userIdDlg.bringToTop();
-                }
-            }
-        });
-
-        // --------------------------------------------------
-        // Create Evaluation sub menu item
-        // --------------------------------------------------
-        MenuItem evaluationMenuItem = new MenuItem(fileMenu, SWT.CASCADE);
-        evaluationMenuItem.setText("Select");
-
-        Menu selectSubMenu = new Menu(shell, SWT.DROP_DOWN);
-        evaluationMenuItem.setMenu(selectSubMenu);
-
-        createEvaluationSubMenu(selectSubMenu);
-
-        // -------------------------------
-        // Add a menu separator.
-        // -------------------------------
-        new MenuItem(fileMenu, SWT.SEPARATOR);
-
-        // --------------------------------------------------
-        // Create Select User ID menu item
-        // --------------------------------------------------
         MenuItem exitMenuItem = new MenuItem(fileMenu, SWT.NONE);
         exitMenuItem.setText("Exit");
         exitMenuItem.addSelectionListener(new SelectionAdapter() {
@@ -383,35 +345,6 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
             @Override
             public void widgetSelected(SelectionEvent event) {
                 addNewWindowButton();
-            }
-        });
-    }
-
-    private void createEvaluationSubMenu(Menu evalSubMenu) {
-        MenuItem evaluationLogItem = new MenuItem(evalSubMenu, SWT.NONE);
-        evaluationLogItem.setText("Evaluation Log");
-        evaluationLogItem.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                notImplementedYet("Evaluation Log");
-            }
-        });
-
-        MenuItem endOfShiftItem = new MenuItem(evalSubMenu, SWT.NONE);
-        endOfShiftItem.setText("End of Shift");
-        endOfShiftItem.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                notImplementedYet("End of Shift");
-            }
-        });
-
-        MenuItem questionnaireItem = new MenuItem(evalSubMenu, SWT.NONE);
-        questionnaireItem.setText("Questionnaire");
-        questionnaireItem.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                notImplementedYet("Questionnaire");
             }
         });
     }
@@ -596,17 +529,6 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         // token).toString())" as newText.
         textBtnArray.get(teID).setText(newText);
 
-    }
-
-    // TODO - remove this when needed...
-    // this is a convenience method to show a dialog
-    // when functionality has not been implemented...
-    //
-    private void notImplementedYet(String information) {
-        MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-        mb.setText("Notice");
-        mb.setMessage("Functionality not implemented yet:\n\n" + information);
-        mb.open();
     }
 
     @Override
