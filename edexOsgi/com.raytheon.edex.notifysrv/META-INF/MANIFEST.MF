@@ -11,4 +11,4 @@ Require-Bundle: com.raytheon.uf.edex.core;bundle-version="1.12.1174",
  org.apache.commons.configuration;bundle-version="1.6.0"
 Import-Package: com.raytheon.edex.subscription,
  com.raytheon.uf.common.util,
- org.apache.commons.logging
+ org.slf4j

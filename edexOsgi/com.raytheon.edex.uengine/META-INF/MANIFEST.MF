@@ -16,7 +16,7 @@ Import-Package: com.raytheon.edex.exception,
  com.raytheon.edex.msg,
  com.raytheon.edex.util,
  com.raytheon.edex.utility,
- org.apache.commons.logging
+ org.slf4j
 Require-Bundle: com.raytheon.uf.edex.core;bundle-version="1.12.1174",
  com.raytheon.uf.edex.database;bundle-version="1.0.0",
  com.raytheon.uf.common.dataquery;bundle-version="1.0.0",
