@@ -20,8 +20,8 @@
 
 package com.raytheon.edex.plugin.gfe.server.handler;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
@@ -37,8 +37,9 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 05/08/08     #1086      dfitch      Initial Creation
+ * 05/08/08     1086       dfitch      Initial Creation
  * 09/22/09     3058       rjpeter     Converted to IRequestHandler
+ * 12/15/15     5166       kbisanz     Update logging to use SLF4J
  * </pre>
  * 
  * @author dfitch
@@ -46,7 +47,8 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  */
 public class GetWXDefinitionHandler implements
         IRequestHandler<GetWXDefinitionRequest> {
-    protected final transient Log logger = LogFactory.getLog(getClass());
+    protected final transient Logger logger = LoggerFactory
+            .getLogger(getClass());
 
     @Override
     public ServerResponse<WxDefinition> handleRequest(

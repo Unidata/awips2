@@ -25,8 +25,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
 import com.raytheon.edex.plugin.gfe.exception.GfeMissingConfigurationException;
@@ -50,11 +50,12 @@ import com.raytheon.uf.common.util.FileUtil;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 9, 2009            njensen     Initial creation
- * Dec 11, 2012 14360     ryu         Throw specific exception for missing configuration.
- * Feb 20, 2014 #2824     randerso    Fixed import of localVTECPartners to use siteID
- *                                    Added common python path for LogStream
- * Jul 09, 2014 #3146     randerso    Improved exception handling
+ * Jul 9, 2009             njensen     Initial creation
+ * Dec 11, 2012 14360      ryu         Throw specific exception for missing configuration.
+ * Feb 20, 2014 #2824      randerso    Fixed import of localVTECPartners to use siteID
+ *                                     Added common python path for LogStream
+ * Jul 09, 2014 #3146      randerso    Improved exception handling
+ * Dec 15, 2015 #5166      kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -64,8 +65,8 @@ import com.raytheon.uf.common.util.FileUtil;
 
 public class IFPServerConfigManager {
 
-    private static final Log logger = LogFactory
-            .getLog(IFPServerConfigManager.class);
+    private static final Logger logger = LoggerFactory
+            .getLogger(IFPServerConfigManager.class);
 
     private static final String CONFIG_PATH = FileUtil.join("config", "gfe");
 
