@@ -20,8 +20,8 @@
 
 package com.raytheon.edex.plugin.obs;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
@@ -56,6 +56,7 @@ import com.raytheon.uf.common.wmo.WMOHeader;
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * Oct 23, 2013 2361        njensen     Removed dead mesowest code
  * May 14, 2014 2536        bclement    moved WMO Header to common
+ * Dec 15, 2015 5166        kbisanz     Update logging to use SLF4J
  * </pre>
  * 
  * @author bphillip
@@ -63,7 +64,7 @@ import com.raytheon.uf.common.wmo.WMOHeader;
  */
 public class ObsDecoder extends AbstractDecoder {
     /** The logger */
-    private final Log logger = LogFactory.getLog(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final IPerformanceStatusHandler perfLog = PerformanceStatus
             .getHandler("Obs:");

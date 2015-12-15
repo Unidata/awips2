@@ -27,4 +27,4 @@ Export-Package: com.raytheon.edex.plugin.grib,
  com.raytheon.edex.plugin.grib.util,
  com.raytheon.edex.util.grib
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: org.apache.commons.logging
+Import-Package: org.slf4j
