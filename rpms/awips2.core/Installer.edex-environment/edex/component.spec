@@ -115,7 +115,7 @@ RPM_PROJECT="%{_baseline_workspace}/rpms"
 POSTGRES_INITD="%{_baseline_workspace}/installers/RPMs/postgresql/scripts/init.d/edex_postgres"
 QPID_INITD="%{_baseline_workspace}/installers/RPMs/qpid-java-broker/scripts/init.d/qpidd"
 EDEX_INITD="${RPM_PROJECT}/awips2.edex/Installer.edex/scripts/init.d/edex_camel"
-HTTPD_PYPIES_INITD="${RPM_PROJECT}/awips2.core/Installer.httpd-pypies/configuration/etc/init.d/httpd-pypies"
+HTTPD_PYPIES_INITD="%{_baseline_workspace}/installers/RPMs/httpd-pypies/configuration/etc/init.d/httpd-pypies"
 
 # Copy the startup scripts.
 cp ${POSTGRES_INITD} \
