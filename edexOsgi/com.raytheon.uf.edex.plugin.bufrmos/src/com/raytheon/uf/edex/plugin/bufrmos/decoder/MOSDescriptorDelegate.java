@@ -22,13 +22,12 @@ package com.raytheon.uf.edex.plugin.bufrmos.decoder;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.edex.bufrtools.descriptors.DescriptorFactory;
 import com.raytheon.uf.edex.bufrtools.descriptors.IDescriptorFactoryDelegate;
 import com.raytheon.uf.edex.bufrtools.descriptors.IDescriptorFactorySelector;
-
 
 /**
  * 
@@ -40,6 +39,7 @@ import com.raytheon.uf.edex.bufrtools.descriptors.IDescriptorFactorySelector;
  * ------------ ---------- ----------- --------------------------
  *                         jkorman     Initial creation.
  * Sep 16, 2014 #3628      mapeters    Replaced static imports.
+ * Dec 14, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -48,7 +48,8 @@ import com.raytheon.uf.edex.bufrtools.descriptors.IDescriptorFactorySelector;
  */
 
 public class MOSDescriptorDelegate implements IDescriptorFactoryDelegate {
-    private static Log logger = LogFactory.getLog(MOSDescriptorDelegate.class);
+    private static Logger logger = LoggerFactory
+            .getLogger(MOSDescriptorDelegate.class);
 
     IDescriptorFactorySelector factorySelector = null;
 
@@ -64,8 +65,7 @@ public class MOSDescriptorDelegate implements IDescriptorFactoryDelegate {
         factories.put(BUFRMOSStaticData.MODEL_HPC,
                 createFactory("HPCBufrTableB", "HPCBufrTableD"));
         factories.put(BUFRMOSStaticData.MODEL_LAMP,
-                createFactory("LAMPBufrTableB",
-                "LAMPBufrTableD"));
+                createFactory("LAMPBufrTableB", "LAMPBufrTableD"));
         factories.put(BUFRMOSStaticData.MODEL_MRF,
                 createFactory("MRFBufrTableB", "MRFBufrTableD"));
         factories.put(BUFRMOSStaticData.MODEL_NGM,
