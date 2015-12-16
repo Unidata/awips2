@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ucar.ma2.Array;
 import ucar.nc2.Attribute;
@@ -64,6 +66,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  *                                     instead of using WMO header
  * May 01, 2013 1962       bsteffen    Allow Viirs Decoder to accept numeric
  *                                     missing values.
+ * Dec 16, 2015 5166       kbisanz     Update logging to use SLF4J
+ *                                     by adding private logger
  * 
  * </pre>
  * 
@@ -72,6 +76,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  */
 
 public class VIIRSDecoder extends AbstractNPPDecoder {
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final GeometryFactory gf = new GeometryFactory();
 
