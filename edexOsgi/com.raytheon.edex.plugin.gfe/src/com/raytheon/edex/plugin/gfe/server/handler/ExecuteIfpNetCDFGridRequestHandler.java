@@ -21,6 +21,7 @@ package com.raytheon.edex.plugin.gfe.server.handler;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Future;
 
 import com.raytheon.edex.plugin.gfe.isc.IscScript;
 import com.raytheon.edex.plugin.gfe.isc.IscScriptExecutor;
@@ -107,8 +108,9 @@ public class ExecuteIfpNetCDFGridRequestHandler implements
         args.put("siteIdOverride", request.getSiteIdOverride());
         IscScriptExecutor executor = new IscScriptExecutor(METHOD_NAME,
                 request.getSiteID(), args);
-        String retVal = threadPool.submitSyncJob(executor);
+        Future<String> task = threadPool.submitJob(executor);
 
+        String retVal = task.get();
         if (retVal != null) {
             sr.addMessage(retVal);
             return sr;

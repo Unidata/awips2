@@ -33,6 +33,7 @@ import com.raytheon.viz.gfe.core.DataManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 25, 2015  #4263     dgilling     Initial creation
+ * Dec 14, 2015  #4816     dgilling     Support refactored PythonJobCoordinator API.
  * 
  * </pre>
  * 
@@ -43,17 +44,8 @@ import com.raytheon.viz.gfe.core.DataManager;
 public final class ProcedureRunnerScriptFactory extends
         ProcedureFactory<ProcedureRunnerController> {
 
-    /*
-     * These constants that are passed to the super constructor only matter if
-     * procedure execution gets hooked into our python concurrent execution
-     * framework. Since it isn't we use dummy values for now...
-     */
-    private static final String SCRIPT_EXECUTOR_NAME = "procedure-runner";
-
-    private static final int EXECUTOR_NUM_THREADS = 0;
-
     public ProcedureRunnerScriptFactory(final DataManager dataMgr) {
-        super(SCRIPT_EXECUTOR_NAME, EXECUTOR_NUM_THREADS, dataMgr);
+        super(dataMgr);
     }
 
     /*

@@ -63,8 +63,8 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.python.concurrent.AbstractPythonScriptFactory;
 import com.raytheon.uf.common.python.concurrent.IPythonExecutor;
+import com.raytheon.uf.common.python.concurrent.PythonInterpreterFactory;
 import com.raytheon.uf.common.python.concurrent.IPythonJobListener;
 import com.raytheon.uf.common.python.concurrent.PythonJobCoordinator;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -115,6 +115,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * Aug 27, 2015       4947  njensen     Fixed removeReferenceSetIDChangedListener()
  * Nov 18, 2015       5129  dgilling    Use new IFPClient for get/save/delete 
  *                                      of reference data.
+ * Dec 14, 2015       4816  dgilling    Support refactored PythonJobCoordinator API.
  * 
  * </pre>
  * 
@@ -123,8 +124,13 @@ import com.vividsolutions.jts.geom.Envelope;
  */
 public class ReferenceSetManager implements IReferenceSetManager,
         IMessageClient, ISpatialEditorTimeChangedListener {
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ReferenceSetManager.class);
+
+    private static final String QUERY_THREAD_POOL_NAME = "gfequeryscript";
+
+    private static final int NUM_QUERY_THREADS = 1;
 
     public static final String EDIT_AREAS_DIR = FileUtil.join("gfe",
             "editAreas");
@@ -541,9 +547,10 @@ public class ReferenceSetManager implements IReferenceSetManager,
     @SuppressWarnings("unchecked")
     public ReferenceSetManager(DataManager dataManager) {
         // ready the PythonJobCoordinator
-        AbstractPythonScriptFactory<QueryScript> factory = new QueryScriptFactory(
+        PythonInterpreterFactory<QueryScript> factory = new QueryScriptFactory(
                 dataManager);
-        coordinator = PythonJobCoordinator.newInstance(factory);
+        coordinator = new PythonJobCoordinator<>(NUM_QUERY_THREADS,
+                QUERY_THREAD_POOL_NAME, factory);
 
         // MessageClient("ReferenceSetMgr", msgHandler);
         this.dataManager = dataManager;
@@ -1646,7 +1653,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
         IPythonExecutor<QueryScript, ReferenceData> executor = new QueryScriptExecutor(
                 "evaluate", argMap);
         try {
-            coordinator.submitAsyncJob(executor, listener);
+            coordinator.submitJobWithCallback(executor, listener);
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR,
                     "Unable to submit job to ExecutorService", e);
@@ -1669,7 +1676,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
         IPythonExecutor<QueryScript, ReferenceData> executor = new QueryScriptExecutor(
                 "evaluate", argMap);
         try {
-            ea = coordinator.submitSyncJob(executor);
+            ea = coordinator.submitJob(executor).get();
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR, "Failed to evaluate query: "
                     + query, e);
@@ -1687,7 +1694,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
                 argMap);
         int result = 0;
         try {
-            result = coordinator.submitSyncJob(executor);
+            result = coordinator.submitJob(executor).get();
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR,
                     "Unable to submit job to ExecutorService", e);
@@ -1786,5 +1793,10 @@ public class ReferenceSetManager implements IReferenceSetManager,
             }
         };
         evaluateActiveRefSet(listener);
+    }
+
+    @Override
+    public PythonJobCoordinator<QueryScript> getPythonThreadPool() {
+        return coordinator;
     }
 }
