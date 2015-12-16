@@ -31,7 +31,7 @@
 	</model>
 
 	<model>
-		<name>ETSS-AK</name>
+		<name>ETSS-${REGION}</name>
 		<center>7</center>
 		<subcenter>14</subcenter>
 		<grid>1023</grid>

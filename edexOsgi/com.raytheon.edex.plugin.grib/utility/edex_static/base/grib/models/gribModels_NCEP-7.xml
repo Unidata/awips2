@@ -89,10 +89,20 @@
     </model>
 
     <model>
-        <name>MRF21</name>
+        <name>MRF${COVERAGE}</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>21</grid>
+        <grids>
+            <id>21</id>
+            <id>22</id>
+            <id>23</id>
+            <id>24</id>
+            <id>25</id>
+            <id>26</id>
+            <id>203</id>
+            <id>204</id>
+            <id>205</id>
+        </grids>
         <process>
             <id>78</id>
             <id>80</id>
@@ -102,83 +112,42 @@
     </model>
 
     <model>
-        <name>MRF22</name>
+        <name>GFS${COVERAGE}</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>22</grid>
-        <process>
-            <id>78</id>
-            <id>80</id>
-            <id>82</id>
-            <id>94</id>
-        </process>
-    </model>
-
-    <model>
-        <name>MRF23</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>23</grid>
-        <process>
-            <id>78</id>
-            <id>80</id>
-            <id>82</id>
-            <id>94</id>
-        </process>
-    </model>
-
-    <model>
-        <name>MRF24</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>24</grid>
-        <process>
-            <id>78</id>
-            <id>80</id>
-            <id>82</id>
-            <id>94</id>
-        </process>
-    </model>
-
-    <model>
-        <name>MRF25</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>25</grid>
-        <process>
-            <id>78</id>
-            <id>80</id>
-            <id>82</id>
-            <id>94</id>
-        </process>
-    </model>
-
-    <model>
-        <name>MRF26</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>26</grid>
-        <process>
-            <id>78</id>
-            <id>80</id>
-            <id>82</id>
-            <id>94</id>
-        </process>
-    </model>
-
-    <model>
-        <name>GFS201</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>201</grid>
+        <grids>
+            <id>201</id>
+            <id>215</id> <!-- conus 20KM -->
+            <id>217</id> <!-- ak 20KM -->
+        </grids>
         <process>
             <id>96</id>
             <id>81</id>
         </process>
     </model>
+    
+    <model>
+        <name>GFS${COVERAGE}</name>
+        <center>7</center>
+        <subcenter>0</subcenter>
+        <grids>
+            <id>213</id>
+            <id>212</id>
+            <id>160</id>
+            <id>254</id>
+            <id>161</id>
+            <id>199</id>
+            <id>230</id>
+        </grids>
+        <process>
+            <id>96</id>
+            <id>81</id>
+            <id>77</id>
+        </process>
+    </model>
 
     <model>
-        <name>mrfNH</name>
+        <name>mrf${REGION}</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>201</grid>
@@ -191,10 +160,28 @@
     </model>
 
     <model>
-        <name>GFS213</name>
+        <name>NGM${COVERAGE}</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>213</grid>
+        <grids>
+            <id>213</id>
+            <id>202</id>
+            <id>207</id>
+        </grids>
+        <process>
+            <id>39</id>
+        </process>
+    </model>
+
+    <model>
+        <name>AVN${COVERAGE}</name>
+        <center>7</center>
+        <subcenter>0</subcenter>
+        <grids>
+            <id>211</id>
+            <id>203</id>
+            <id>225</id>
+        </grids>
         <process>
             <id>77</id>
             <id>81</id>
@@ -203,79 +190,40 @@
     </model>
 
     <model>
-        <name>NGM213</name>
+        <name>AVN${COVERAGE}</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>213</grid>
-        <process>
+        <grids>
+            <id>37</id>
+            <id>38</id>
             <id>39</id>
-        </process>
-    </model>
-
-    <model>
-        <name>NGM202</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>202</grid>
+            <id>40</id>
+            <id>41</id>
+            <id>42</id>
+            <id>43</id>
+            <id>44</id>
+        </grids>
         <process>
-            <id>39</id>
-        </process>
-    </model>
-
-
-    <model>
-        <name>AVN211</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>211</grid>
-        <process>
+            <id>96</id>
             <id>77</id>
             <id>81</id>
-            <id>96</id>
+            <id>94</id>
         </process>
     </model>
-
+    
     <model>
-        <name>mesoEta212</name>
+        <name>mesoEta${COVERAGE}</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>212</grid>
+        <grids>
+            <id>212</id>
+            <id>215</id>
+            <id>216</id>
+            <id>217</id>
+            <id>237</id>
+        </grids>
         <process>
             <id>84</id>
-        </process>
-    </model>
-
-    <model>
-        <name>mesoEta215</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>215</grid>
-        <process>
-            <id>84</id>
-        </process>
-    </model>
-
-    <!-- conus 20KM -->
-    <model>
-        <name>GFS215</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>215</grid>
-        <process>
-            <id>81</id>
-            <id>96</id>
-        </process>
-    </model>
-
-    <!-- ak 20KM -->
-    <model>
-        <name>GFS217</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>217</grid>
-        <process>
-            <id>81</id>
-            <id>96</id>
         </process>
     </model>
 
@@ -318,21 +266,10 @@
         <name>WAFS</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>45</grid>
-        <process>
-            <id>80</id>
-            <id>81</id>
-            <id>82</id>
-            <id>94</id>
-            <id>96</id>
-        </process>
-    </model>
-
-    <model>
-        <name>WAFS</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>289145001</grid>
+        <grids>
+            <id>45</id>
+            <id>289145001</id>
+        </grids>
         <process>
             <id>80</id>
             <id>81</id>
@@ -353,71 +290,14 @@
     </model>
 
     <model>
-        <name>AVN203</name>
+        <name>ETA${COVERAGE}</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>203</grid>
-        <process>
-            <id>77</id>
-            <id>81</id>
-            <id>96</id>
-        </process>
-    </model>
-
-    <model>
-        <name>MRF203</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>203</grid>
-        <process>
-            <id>78</id>
-            <id>80</id>
-            <id>82</id>
-            <id>94</id>
-        </process>
-    </model>
-
-    <model>
-        <name>MRF204</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>204</grid>
-        <process>
-            <id>78</id>
-            <id>80</id>
-            <id>82</id>
-            <id>94</id>
-        </process>
-    </model>
-
-    <model>
-        <name>MRF205</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>205</grid>
-        <process>
-            <id>78</id>
-            <id>80</id>
-            <id>82</id>
-            <id>94</id>
-        </process>
-    </model>
-
-    <model>
-        <name>NGM207</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>207</grid>
-        <process>
-            <id>39</id>
-        </process>
-    </model>
-
-    <model>
-        <name>ETA207</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>207</grid>
+        <grids>
+            <id>207</id>
+            <id>218</id>
+            <id>242</id>
+        </grids>
         <process>
             <id>84</id>
         </process>
@@ -437,124 +317,13 @@
     </model>
 
     <model>
-        <name>AVN37</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>37</grid>
-        <process>
-            <id>96</id>
-            <id>77</id>
-            <id>81</id>
-            <id>94</id>
-        </process>
-    </model>
-
-    <model>
-        <name>AVN38</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>38</grid>
-        <process>
-            <id>96</id>
-            <id>77</id>
-            <id>81</id>
-            <id>94</id>
-        </process>
-    </model>
-
-    <model>
-        <name>AVN39</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>39</grid>
-        <process>
-            <id>96</id>
-            <id>77</id>
-            <id>81</id>
-            <id>94</id>
-        </process>
-    </model>
-
-    <model>
-        <name>AVN40</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>40</grid>
-        <process>
-            <id>96</id>
-            <id>77</id>
-            <id>81</id>
-            <id>94</id>
-        </process>
-    </model>
-
-    <model>
-        <name>AVN41</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>41</grid>
-        <process>
-            <id>96</id>
-            <id>77</id>
-            <id>81</id>
-            <id>94</id>
-        </process>
-    </model>
-
-    <model>
-        <name>AVN42</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>42</grid>
-        <process>
-            <id>96</id>
-            <id>77</id>
-            <id>81</id>
-            <id>94</id>
-        </process>
-    </model>
-
-    <model>
-        <name>AVN43</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>43</grid>
-        <process>
-            <id>96</id>
-            <id>77</id>
-            <id>81</id>
-            <id>94</id>
-        </process>
-    </model>
-
-    <model>
-        <name>AVN44</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>44</grid>
-        <process>
-            <id>96</id>
-            <id>77</id>
-            <id>81</id>
-            <id>94</id>
-        </process>
-    </model>
-
-    <model>
         <name>gww</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>3</grid>
-        <process>
-            <id>10</id>
-        </process>
-    </model>
-
-    <model>
-        <name>gww</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>361181001</grid>
+        <grids>
+            <id>3</id>
+            <id>361181001</id>
+        </grids>
         <process>
             <id>10</id>
         </process>
@@ -581,16 +350,6 @@
     </model>
 
     <model>
-        <name>GWW233</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>233</grid>
-        <process>
-            <id>10</id>
-        </process>
-    </model>
-
-    <model>
         <name>gww4</name>
         <center>7</center>
         <subcenter>0</subcenter>
@@ -611,40 +370,16 @@
     </model>
 
     <model>
-        <name>GWW21</name>
+        <name>GWW${COVERAGE}</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>21</grid>
-        <process>
-            <id>10</id>
-        </process>
-    </model>
-
-    <model>
-        <name>GWW22</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>22</grid>
-        <process>
-            <id>10</id>
-        </process>
-    </model>
-
-    <model>
-        <name>GWW23</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>23</grid>
-        <process>
-            <id>10</id>
-        </process>
-    </model>
-
-    <model>
-        <name>GWW24</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>24</grid>
+        <grids>
+            <id>21</id>
+            <id>22</id>
+            <id>23</id>
+            <id>24</id>
+            <id>233</id>
+        </grids>
         <process>
             <id>10</id>
         </process>
@@ -661,30 +396,14 @@
     </model>
 
     <model>
-        <name>SeaIce220</name>
+        <name>SeaIce${COVERAGE}</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>220</grid>
-        <process>
-            <id>120</id>
-        </process>
-    </model>
-
-    <model>
-        <name>SeaIce173</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>173</grid>
-        <process>
-            <id>120</id>
-        </process>
-    </model>
-
-    <model>
-        <name>SeaIce235</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>235</grid>
+        <grids>
+            <id>220</id>
+            <id>173</id>
+            <id>235</id>
+        </grids>
         <process>
             <id>120</id>
         </process>
@@ -751,10 +470,13 @@
     </model>
 
     <model>
-        <name>RUC236</name>
+        <name>RUC${COVERAGE}</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>236</grid>
+        <grids>
+            <id>236</id>
+            <id>130</id>
+        </grids>
         <process>
             <id>105</id>
         </process>
@@ -771,19 +493,7 @@
     </model>
 
     <model>
-        <name>AVN225</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>225</grid>
-        <process>
-            <id>96</id>
-            <id>77</id>
-            <id>81</id>
-        </process>
-    </model>
-
-    <model>
-        <name>AKWAVE239</name>
+        <name>${REGION}WAVE${COVERAGE}</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>239</grid>
@@ -793,7 +503,7 @@
     </model>
 
     <model>
-        <name>WNAWAVE238</name>
+        <name>${REGION}WAVE${COVERAGE}</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>238</grid>
@@ -813,46 +523,6 @@
     </model>
 
     <model>
-        <name>mesoEta216</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>216</grid>
-        <process>
-            <id>84</id>
-        </process>
-    </model>
-
-    <model>
-        <name>mesoEta217</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>217</grid>
-        <process>
-            <id>84</id>
-        </process>
-    </model>
-
-    <model>
-        <name>ETA218</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>218</grid>
-        <process>
-            <id>84</id>
-        </process>
-    </model>
-
-    <model>
-        <name>ETA242</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>242</grid>
-        <process>
-            <id>84</id>
-        </process>
-    </model>
-
-    <model>
         <name>NAM227</name>
         <center>7</center>
         <subcenter>0</subcenter>
@@ -864,27 +534,20 @@
     </model>
 
     <model>
-        <name>namNestHI</name>
+        <name>namNest${REGION}</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>406</grid>
+        <grids>
+            <id>406</id>
+            <id>196</id>
+        </grids>
         <process>
             <id>84</id>
         </process>
     </model>
 
     <model>
-        <name>namNestHI</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>196</grid>
-        <process>
-            <id>84</id>
-        </process>
-    </model>
-
-    <model>
-        <name>NAMAK</name>
+        <name>NAM${REGION}</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>198</grid>
@@ -894,7 +557,7 @@
     </model>
 
     <model>
-        <name>namPR</name>
+        <name>nam${REGION}</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>407</grid>
@@ -954,30 +617,14 @@
     </model>
 
     <model>
-        <name>HurWind226</name>
+        <name>HurWind${COVERAGE}</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>226</grid>
-        <process>
-            <id>30</id>
-        </process>
-    </model>
-
-    <model>
-        <name>HurWind175</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>175</grid>
-        <process>
-            <id>30</id>
-        </process>
-    </model>
-
-    <model>
-        <name>HurWind250</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>250</grid>
+        <grids>
+            <id>226</id>
+            <id>175</id>
+            <id>250</id>
+        </grids>
         <process>
             <id>30</id>
         </process>
@@ -994,7 +641,7 @@
     </model>
 
     <model>
-        <name>AK-NICICE</name>
+        <name>${REGION}-NICICE</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>242</grid>
@@ -1004,104 +651,15 @@
     </model>
 
     <model>
-        <name>DGEX185</name>
+        <name>DGEX${COVERAGE}</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>185</grid>
+        <grids>
+            <id>185</id>
+            <id>186</id>
+        </grids>
         <process>
             <id>115</id>
-        </process>
-    </model>
-
-    <model>
-        <name>DGEX186</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>186</grid>
-        <process>
-            <id>115</id>
-        </process>
-    </model>
-
-    <model>
-        <name>GFS212</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>212</grid>
-        <process>
-            <id>96</id>
-            <id>81</id>
-            <id>77</id>
-        </process>
-    </model>
-
-    <model>
-        <name>GFS160</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>160</grid>
-        <process>
-            <id>96</id>
-            <id>81</id>
-            <id>77</id>
-        </process>
-    </model>
-
-    <model>
-        <name>GFS254</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>254</grid>
-        <process>
-            <id>96</id>
-            <id>81</id>
-            <id>77</id>
-        </process>
-    </model>
-
-    <model>
-        <name>GFS161</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>161</grid>
-        <process>
-            <id>96</id>
-            <id>81</id>
-            <id>77</id>
-        </process>
-    </model>
-
-    <model>
-        <name>GFS199</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>199</grid>
-        <process>
-            <id>96</id>
-            <id>81</id>
-            <id>77</id>
-        </process>
-    </model>
-
-    <model>
-        <name>GFS230</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>230</grid>
-        <process>
-            <id>96</id>
-            <id>77</id>
-            <id>81</id>
-        </process>
-    </model>
-
-    <model>
-        <name>RUC130</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>130</grid>
-        <process>
-            <id>105</id>
         </process>
     </model>
 
@@ -1136,7 +694,7 @@
     </model>
 
     <model>
-        <name>AK-RTMA</name>
+        <name>${REGION}-RTMA</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>198</grid>
@@ -1206,139 +764,58 @@
     </model>
 
     <model>
-        <name>AKwave10</name>
+        <name>${REGION}wave10</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>15</grid>
+        <grids>
+            <id>15</id>
+            <id>14</id>
+            <id>13</id>
+            <id>12</id>
+        </grids>
         <process>
             <id>11</id>
         </process>
     </model>
 
     <model>
-        <name>AKwave10-2</name>
+        <name>${REGION}wave10-2</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>15</grid>
+        <grids>
+            <id>15</id>
+            <id>14</id>
+            <id>13</id>
+            <id>12</id>
+        </grids>
         <process>
             <id>255</id>
         </process>
     </model>
 
     <model>
-        <name>AKwave4</name>
+        <name>${REGION}wave4</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>16</grid>
+        <grids>
+            <id>16</id>
+            <id>17</id>
+            <id>18</id>
+        </grids>
         <process>
             <id>11</id>
         </process>
     </model>
 
     <model>
-        <name>AKwave4-2</name>
+        <name>${REGION}wave4-2</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>16</grid>
-        <process>
-            <id>255</id>
-        </process>
-    </model>
-
-    <model>
-        <name>EPwave10</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>14</grid>
-        <process>
-            <id>11</id>
-        </process>
-    </model>
-
-    <model>
-        <name>EPwave10-2</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>14</grid>
-        <process>
-            <id>255</id>
-        </process>
-    </model>
-
-    <model>
-        <name>WCwave10</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>13</grid>
-        <process>
-            <id>11</id>
-        </process>
-    </model>
-
-    <model>
-        <name>WCwave10-2</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>13</grid>
-        <process>
-            <id>255</id>
-        </process>
-    </model>
-
-    <model>
-        <name>WCwave4</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>17</grid>
-        <process>
-            <id>11</id>
-        </process>
-    </model>
-    <model>
-        <name>WCwave4-2</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>17</grid>
-        <process>
-            <id>255</id>
-        </process>
-    </model>
-
-    <model>
-        <name>WNAwave10</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>12</grid>
-        <process>
-            <id>11</id>
-        </process>
-    </model>
-
-    <model>
-        <name>WNAwave10-2</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>12</grid>
-        <process>
-            <id>255</id>
-        </process>
-    </model>
-
-    <model>
-        <name>WNAwave4</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>18</grid>
-        <process>
-            <id>11</id>
-        </process>
-    </model>
-
-    <model>
-        <name>WNAwave4-2</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>18</grid>
+        <grids>
+            <id>16</id>
+            <id>17</id>
+            <id>18</id>
+        </grids>
         <process>
             <id>255</id>
         </process>
@@ -1356,177 +833,54 @@
     </model>
 
     <model>
-        <name>AK-NamDNG5</name>
+        <name>${REGION}-NamDNG5</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>198</grid>
+        <grids>
+            <id>198</id>
+            <id>196</id>
+            <id>195</id>
+        </grids>
         <process>
             <id>89</id>
         </process>
     </model>
 
     <model>
-        <name>HI-NamDNG5</name>
+        <name>HiResW-ARW-${REGION}</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>196</grid>
-        <process>
-            <id>89</id>
-        </process>
-    </model>
-
-    <model>
-        <name>PR-NamDNG5</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>195</grid>
-        <process>
-            <id>89</id>
-        </process>
-    </model>
-
-    <model>
-        <name>HiResW-ARW-East</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>255001</grid>
+        <grids>
+            <id>255001</id>
+            <id>255002</id>
+            <id>255003</id>
+            <id>255004</id>
+            <id>255005</id>
+            <id>255006</id>
+            <id>14731025001</id>
+        </grids>
         <process>
             <id>116</id>
         </process>
     </model>
 
     <model>
-        <name>HiResW-ARW-West</name>
+        <name>HiResW-NMM-${REGION}</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>255002</grid>
-        <process>
-            <id>116</id>
-        </process>
-    </model>
-
-    <model>
-        <name>HiResW-ARW-AK</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>255003</grid>
-        <process>
-            <id>116</id>
-        </process>
-    </model>
-
-    <model>
-        <name>HiResW-ARW-SJU</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>255004</grid>
-        <process>
-            <id>116</id>
-        </process>
-    </model>
-
-    <model>
-        <name>HiResW-ARW-HI</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>255005</grid>
-        <process>
-            <id>116</id>
-        </process>
-    </model>
-
-
-    <model>
-        <name>HiResW-ARW-GU</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>255006</grid>
-        <process>
-            <id>116</id>
-        </process>
-    </model>
-
-    <model>
-        <name>HiResW-ARW-US</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>14731025001</grid>
-        <process>
-            <id>116</id>
-        </process>
-    </model>
-
-    <model>
-        <name>HiResW-NMM-East</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>255001</grid>
+        <grids>
+            <id>255001</id>
+            <id>255002</id>
+            <id>255003</id>
+            <id>255004</id>
+            <id>255005</id>
+            <id>255006</id>
+            <id>14731025001</id>
+        </grids>
         <process>
             <id>112</id>
         </process>
     </model>
-
-
-    <model>
-        <name>HiResW-NMM-West</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>255002</grid>
-        <process>
-            <id>112</id>
-        </process>
-    </model>
-
-    <model>
-        <name>HiResW-NMM-AK</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>255003</grid>
-        <process>
-            <id>112</id>
-        </process>
-    </model>
-
-    <model>
-        <name>HiResW-NMM-SJU</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>255004</grid>
-        <process>
-            <id>112</id>
-        </process>
-    </model>
-
-    <model>
-        <name>HiResW-NMM-HI</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>255005</grid>
-        <process>
-            <id>112</id>
-        </process>
-    </model>
-
-    <model>
-        <name>HiResW-NMM-GU</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>255006</grid>
-        <process>
-            <id>112</id>
-        </process>
-    </model>
-
-    <model>
-        <name>HiResW-NMM-US</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>14731025001</grid>
-        <process>
-            <id>112</id>
-        </process>
-    </model>
-
 
     <model>
         <name>GRLKwave</name>
@@ -1669,16 +1023,6 @@
     </model>
 
     <model>
-        <name>mesoEta237</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>237</grid>
-        <process>
-            <id>84</id>
-        </process>
-    </model>
-
-    <model>
         <name>GFS0.5</name>
         <center>7</center>
         <subcenter>0</subcenter>
@@ -1728,7 +1072,10 @@
         <name>gfs</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>228</grid>
+        <grids>
+            <id>228</id>
+            <id>145073001</id>
+        </grids>
         <process>
             <id>96</id>
             <id>77</id>
@@ -1783,18 +1130,6 @@
         <name>gfs</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>145073001</grid>
-        <process>
-            <id>96</id>
-            <id>77</id>
-            <id>81</id>
-        </process>
-    </model>
-
-    <model>
-        <name>gfs</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
         <grid>375</grid>
         <process>
             <id>96</id>
@@ -1806,27 +1141,11 @@
         <name>gdas</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>3</grid>
-        <process>
-            <id>82</id>
-        </process>
-    </model>
-
-    <model>
-        <name>gdas</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>361181001</grid>
-        <process>
-            <id>82</id>
-        </process>
-    </model>
-
-    <model>
-        <name>gdas</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>372</grid>
+        <grids>
+            <id>3</id>
+            <id>361181001</id>
+            <id>372</id>
+        </grids>
         <process>
             <id>82</id>
         </process>
@@ -1896,17 +1215,10 @@
         <name>lfm</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>5</grid>
-        <process>
-            <id>84</id>
-        </process>
-    </model>
-
-    <model>
-        <name>lfm</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>6</grid>
+        <grids>
+            <id>5</id>
+            <id>6</id>
+        </grids>
         <process>
             <id>84</id>
         </process>
@@ -1999,17 +1311,10 @@
         <name>nww3</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>233</grid>
-        <process>
-            <id>88</id>
-        </process>
-    </model>
-
-    <model>
-        <name>nww3</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>289157001</grid>
+        <grids>
+            <id>233</id>
+            <id>289157001</id>
+        </grids>
         <process>
             <id>88</id>
         </process>
@@ -2019,17 +1324,10 @@
         <name>RTGSST</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>235</grid>
-        <process>
-            <id>44</id>
-        </process>
-    </model>
-
-    <model>
-        <name>RTGSST</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>721360001</grid>
+        <grids>
+            <id>235</id>
+            <id>721360001</id>
+        </grids>        
         <process>
             <id>44</id>
         </process>
@@ -2039,17 +1337,10 @@
         <name>RTGSSTHR</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>173</grid>
-        <process>
-            <id>44</id>
-        </process>
-    </model>
-
-    <model>
-        <name>RTGSSTHR</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>4321216001</grid>
+        <grids>
+            <id>173</id>
+            <id>4321216001</id>
+        </grids>          
         <process>
             <id>44</id>
         </process>
@@ -2077,20 +1368,13 @@
     </model>
 
     <model>
-        <name>AQM196</name>
+        <name>AQM${COVERAGE}</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>196</grid>
-        <process>
-            <id>211</id>
-        </process>
-    </model>
-
-    <model>
-        <name>AQM227</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>227</grid>
+        <grids>
+            <id>196</id>
+            <id>227</id>
+        </grids>
         <process>
             <id>211</id>
         </process>
@@ -2100,27 +1384,11 @@
         <name>wave30mAO</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>720051001</grid>
-        <process>
-            <id>11</id>
-        </process>
-    </model>
-
-    <model>
-        <name>wave30mAO</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>721051001</grid>
-        <process>
-            <id>11</id>
-        </process>
-    </model>
-
-    <model>
-        <name>wave30mAO</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>722051001</grid>
+        <grids>
+            <id>720051001</id>
+            <id>721051001</id>
+            <id>722051001</id>
+        </grids>
         <process>
             <id>11</id>
         </process>
@@ -2141,17 +1409,10 @@
         <name>wave30mGlobal</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>721311001</grid>
-        <process>
-            <id>11</id>
-        </process>
-    </model>
-
-    <model>
-        <name>wave30mGlobal</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>721336001</grid>
+        <grids>
+            <id>721311001</id>
+            <id>721336001</id>
+        </grids>        
         <process>
             <id>11</id>
         </process>
@@ -2276,10 +1537,19 @@
     </model>
 
     <model>
-        <name>ENSEMBLE37</name>
+        <name>ENSEMBLE${COVERAGE}</name>
         <center>7</center>
         <subcenter>2</subcenter>
-        <grid>37</grid>
+        <grids>
+            <id>37</id>
+            <id>38</id>
+            <id>39</id>
+            <id>40</id>
+            <id>41</id>
+            <id>42</id>
+            <id>43</id>
+            <id>44</id>            
+        </grids>
         <process>
             <id>80</id>
             <id>81</id>
@@ -2290,108 +1560,30 @@
     </model>
 
     <model>
-        <name>ENSEMBLE38</name>
-        <center>7</center>
-        <subcenter>2</subcenter>
-        <grid>38</grid>
-        <process>
-            <id>80</id>
-            <id>81</id>
-            <id>82</id>
-            <id>94</id>
-            <id>96</id>
-        </process>
-    </model>
-
-    <model>
-        <name>ENSEMBLE39</name>
-        <center>7</center>
-        <subcenter>2</subcenter>
-        <grid>39</grid>
-        <process>
-            <id>80</id>
-            <id>81</id>
-            <id>82</id>
-            <id>94</id>
-            <id>96</id>
-        </process>
-    </model>
-
-    <model>
-        <name>ENSEMBLE40</name>
-        <center>7</center>
-        <subcenter>2</subcenter>
-        <grid>40</grid>
-        <process>
-            <id>80</id>
-            <id>81</id>
-            <id>82</id>
-            <id>94</id>
-            <id>96</id>
-        </process>
-    </model>
-
-    <model>
-        <name>ENSEMBLE41</name>
-        <center>7</center>
-        <subcenter>2</subcenter>
-        <grid>41</grid>
-        <process>
-            <id>80</id>
-            <id>81</id>
-            <id>82</id>
-            <id>94</id>
-            <id>96</id>
-        </process>
-    </model>
-
-    <model>
-        <name>ENSEMBLE42</name>
-        <center>7</center>
-        <subcenter>2</subcenter>
-        <grid>42</grid>
-        <process>
-            <id>80</id>
-            <id>81</id>
-            <id>82</id>
-            <id>94</id>
-            <id>96</id>
-        </process>
-    </model>
-
-    <model>
-        <name>ENSEMBLE43</name>
-        <center>7</center>
-        <subcenter>2</subcenter>
-        <grid>43</grid>
-        <process>
-            <id>80</id>
-            <id>81</id>
-            <id>82</id>
-            <id>94</id>
-            <id>96</id>
-        </process>
-    </model>
-
-    <model>
-        <name>ENSEMBLE44</name>
-        <center>7</center>
-        <subcenter>2</subcenter>
-        <grid>44</grid>
-        <process>
-            <id>80</id>
-            <id>81</id>
-            <id>82</id>
-            <id>94</id>
-            <id>96</id>
-        </process>
-    </model>
-
-    <model>
-        <name>SREF132</name>
+        <name>SREF${COVERAGE}</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grid>132</grid>
+        <grids>
+            <id>132</id>
+            <id>212</id>
+        </grids>
+        <process>
+            <id>111</id>
+            <id>112</id>
+            <id>113</id>
+            <id>116</id>
+        </process>
+    </model>
+
+
+    <model>
+        <name>SREF${COVERAGE}</name>
+        <center>7</center>
+        <subcenter>2</subcenter>
+        <grids>
+            <id>132</id>
+            <id>212</id>
+        </grids>
         <process>
             <id>111</id>
             <id>112</id>
@@ -2401,59 +1593,13 @@
     </model>
 
     <model>
-        <name>SREF132</name>
+        <name>SREF${COVERAGE}</name>
         <center>7</center>
         <subcenter>2</subcenter>
-        <grid>132</grid>
-        <process>
-            <id>111</id>
-            <id>112</id>
-            <id>113</id>
-            <id>116</id>
-        </process>
-    </model>
-
-    <model>
-        <name>SREF212</name>
-        <center>7</center>
-        <subcenter>2</subcenter>
-        <grid>212</grid>
-        <process>
-            <id>111</id>
-            <id>112</id>
-            <id>113</id>
-            <id>116</id>
-        </process>
-    </model>
-
-    <model>
-        <name>SREF212</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>212</grid>
-        <process>
-            <id>111</id>
-            <id>112</id>
-            <id>113</id>
-            <id>116</id>
-        </process>
-    </model>
-
-    <model>
-        <name>SREF216</name>
-        <center>7</center>
-        <subcenter>2</subcenter>
-        <grid>216</grid>
-        <process>
-            <id>113</id>
-        </process>
-    </model>
-
-    <model>
-        <name>SREF243</name>
-        <center>7</center>
-        <subcenter>2</subcenter>
-        <grid>243</grid>
+        <grids>
+            <id>216</id>
+            <id>242</id>
+        </grids>
         <process>
             <id>113</id>
         </process>
@@ -2470,20 +1616,13 @@
     </model>
 
     <model>
-        <name>naefsUS</name>
+        <name>naefs${REGION}</name>
         <center>7</center>
         <subcenter>2</subcenter>
-        <grid>197</grid>
-        <process>
-            <id>114</id>
-        </process>
-    </model>
-
-    <model>
-        <name>naefsAK</name>
-        <center>7</center>
-        <subcenter>2</subcenter>
-        <grid>198</grid>
+        <grids>
+            <id>197</id>
+            <id>198</id>
+        </grids>
         <process>
             <id>114</id>
         </process>
@@ -2536,7 +1675,7 @@
     </model>
 
     <model>
-        <name>GFSGuide-361091001</name>
+        <name>GFSGuide-${COVERAGE}</name>
         <center>7</center>
         <subcenter>4</subcenter>
         <grid>361091001</grid>
@@ -2568,40 +1707,15 @@
     </model>
 
     <model>
-        <name>AK-RTMA</name>
+        <name>${REGION}-RTMA</name>
         <center>7</center>
         <subcenter>4</subcenter>
-        <grid>198</grid>
-        <process>
-            <id>109</id>
-        </process>
-    </model>
-
-    <model>
-        <name>HI-RTMA</name>
-        <center>7</center>
-        <subcenter>4</subcenter>
-        <grid>196</grid>
-        <process>
-            <id>109</id>
-        </process>
-    </model>
-
-    <model>
-        <name>PR-RTMA</name>
-        <center>7</center>
-        <subcenter>4</subcenter>
-        <grid>195</grid>
-        <process>
-            <id>109</id>
-        </process>
-    </model>
-
-    <model>
-        <name>Guam-RTMA</name>
-        <center>7</center>
-        <subcenter>4</subcenter>
-        <grid>199</grid>
+        <grids>
+            <id>198</id>
+            <id>196</id>
+            <id>195</id>
+            <id>199</id>
+        </grids>
         <process>
             <id>109</id>
         </process>
@@ -2638,7 +1752,7 @@
     </model>
 
     <model>
-        <name>ccpaUS</name>
+        <name>ccpa${REGION}</name>
         <center>7</center>
         <subcenter>4</subcenter>
         <grid>240</grid>
@@ -2651,27 +1765,11 @@
         <name>ccpaP5</name>
         <center>7</center>
         <subcenter>4</subcenter>
-        <grid>720361001</grid>
-        <process>
-            <id>184</id>
-        </process>
-    </model>
-
-    <model>
-        <name>ccpaP5</name>
-        <center>7</center>
-        <subcenter>4</subcenter>
-        <grid>721361001</grid>
-        <process>
-            <id>184</id>
-        </process>
-    </model>
-
-    <model>
-        <name>ccpaP5</name>
-        <center>7</center>
-        <subcenter>4</subcenter>
-        <grid>722361001</grid>
+        <grids>
+            <id>720361001</id>
+            <id>721361001</id>
+            <id>722361001</id>
+        </grids>        
         <process>
             <id>184</id>
         </process>
@@ -2688,146 +1786,27 @@
     </model>
 
     <model>
-        <name>SeaSfcAnalysis21</name>
+        <name>SeaSfcAnalysis${COVERAGE}</name>
         <center>7</center>
         <subcenter>4</subcenter>
-        <grid>21</grid>
-        <process>
+        <grids>
+            <id>21</id>
+            <id>22</id>
+            <id>23</id>
+            <id>24</id>
+            <id>37</id>
+            <id>38</id>
+            <id>39</id>
+            <id>40</id>
+            <id>41</id>
+            <id>42</id>
+            <id>43</id>
             <id>44</id>
-        </process>
-    </model>
-
-    <model>
-        <name>SeaSfcAnalysis22</name>
-        <center>7</center>
-        <subcenter>4</subcenter>
-        <grid>22</grid>
-        <process>
-            <id>44</id>
-        </process>
-    </model>
-    <model>
-        <name>SeaSfcAnalysis23</name>
-        <center>7</center>
-        <subcenter>4</subcenter>
-        <grid>23</grid>
-        <process>
-            <id>44</id>
-        </process>
-    </model>
-    <model>
-        <name>SeaSfcAnalysis24</name>
-        <center>7</center>
-        <subcenter>4</subcenter>
-        <grid>24</grid>
-        <process>
-            <id>44</id>
-        </process>
-    </model>
-    <model>
-        <name>SeaSfcAnalysis37</name>
-        <center>7</center>
-        <subcenter>4</subcenter>
-        <grid>37</grid>
-        <process>
-            <id>44</id>
-        </process>
-    </model>
-    <model>
-        <name>SeaSfcAnalysis38</name>
-        <center>7</center>
-        <subcenter>4</subcenter>
-        <grid>38</grid>
-        <process>
-            <id>44</id>
-        </process>
-    </model>
-    <model>
-        <name>SeaSfcAnalysis39</name>
-        <center>7</center>
-        <subcenter>4</subcenter>
-        <grid>39</grid>
-        <process>
-            <id>44</id>
-        </process>
-    </model>
-    <model>
-        <name>SeaSfcAnalysis40</name>
-        <center>7</center>
-        <subcenter>4</subcenter>
-        <grid>40</grid>
-        <process>
-            <id>44</id>
-        </process>
-    </model>
-    <model>
-        <name>SeaSfcAnalysis41</name>
-        <center>7</center>
-        <subcenter>4</subcenter>
-        <grid>41</grid>
-        <process>
-            <id>44</id>
-        </process>
-    </model>
-    <model>
-        <name>SeaSfcAnalysis42</name>
-        <center>7</center>
-        <subcenter>4</subcenter>
-        <grid>42</grid>
-        <process>
-            <id>44</id>
-        </process>
-    </model>
-    <model>
-        <name>SeaSfcAnalysis43</name>
-        <center>7</center>
-        <subcenter>4</subcenter>
-        <grid>43</grid>
-        <process>
-            <id>44</id>
-        </process>
-    </model>
-    <model>
-        <name>SeaSfcAnalysis44</name>
-        <center>7</center>
-        <subcenter>4</subcenter>
-        <grid>44</grid>
-        <process>
-            <id>44</id>
-        </process>
-    </model>
-    <model>
-        <name>SeaSfcAnalysis61</name>
-        <center>7</center>
-        <subcenter>4</subcenter>
-        <grid>61</grid>
-        <process>
-            <id>44</id>
-        </process>
-    </model>
-    <model>
-        <name>SeaSfcAnalysis62</name>
-        <center>7</center>
-        <subcenter>4</subcenter>
-        <grid>62</grid>
-        <process>
-            <id>44</id>
-        </process>
-    </model>
-    <model>
-        <name>SeaSfcAnalysis63</name>
-        <center>7</center>
-        <subcenter>4</subcenter>
-        <grid>63</grid>
-        <process>
-            <id>44</id>
-        </process>
-    </model>
-    <model>
-        <name>SeaSfcAnalysis64</name>
-        <center>7</center>
-        <subcenter>4</subcenter>
-        <grid>64</grid>
+            <id>61</id>
+            <id>62</id>
+            <id>63</id>
+            <id>64</id>
+        </grids>          
         <process>
             <id>44</id>
         </process>
@@ -2837,17 +1816,10 @@
         <name>ccpa</name>
         <center>7</center>
         <subcenter>4</subcenter>
-        <grid>3</grid>
-        <process>
-            <id>184</id>
-        </process>
-    </model>
-
-    <model>
-        <name>ccpa</name>
-        <center>7</center>
-        <subcenter>4</subcenter>
-        <grid>361181001</grid>
+        <grids>
+            <id>3</id>
+            <id>361181001</id>
+        </grids>
         <process>
             <id>184</id>
         </process>
@@ -2884,7 +1856,7 @@
     </model>
 
     <model>
-        <name>estofsPR</name>
+        <name>estofs${REGION}</name>
         <center>7</center>
         <subcenter>4</subcenter>
         <grid>339227001</grid>
@@ -2895,30 +1867,14 @@
     </model>
 
     <model>
-        <name>estofsHI</name>
+        <name>estofs${REGION}</name>
         <center>7</center>
         <subcenter>4</subcenter>
-        <grid>321225001</grid>
-        <process>
-            <id>17</id>
-        </process>
-    </model>
-
-    <model>
-        <name>estofsAK</name>
-        <center>7</center>
-        <subcenter>4</subcenter>
-        <grid>825553001</grid>
-        <process>
-            <id>17</id>
-        </process>
-    </model>
-
-    <model>
-        <name>estofsEP</name>
-        <center>7</center>
-        <subcenter>4</subcenter>
-        <grid>184</grid>
+        <grids>
+           <id>321225001</id>
+           <id>825553001</id>
+           <id>184</id>
+        </grids>
         <process>
             <id>17</id>
         </process>
@@ -2957,7 +1913,7 @@
     </model>
 
     <model>
-        <name>HPCGuide-AK</name>
+        <name>HPCGuide-${REGION}</name>
         <center>7</center>
         <subcenter>5</subcenter>
         <grid>198</grid>
@@ -3009,20 +1965,13 @@
     <!-- SUBCENTER 6: MARINE PREDICTION CENTER -->
 
     <model>
-        <name>OPCWave180</name>
+        <name>OPCWave${COVERAGE}</name>
         <center>7</center>
         <subcenter>6</subcenter>
-        <grid>180</grid>
-        <process>
-            <id>30</id>
-        </process>
-    </model>
-
-    <model>
-        <name>OPCWave181</name>
-        <center>7</center>
-        <subcenter>6</subcenter>
-        <grid>181</grid>
+        <grids>
+            <id>180</id>
+            <id>181</id>
+        </grids>
         <process>
             <id>30</id>
         </process>
@@ -3053,7 +2002,7 @@
     </model>
 
     <model>
-        <name>CPCoutlook-Short-AK</name>
+        <name>CPCoutlook-Short-${REGION}</name>
         <center>7</center>
         <subcenter>7</subcenter>
         <grid>198</grid>
@@ -3063,7 +2012,7 @@
     </model>
 
     <model>
-        <name>CPCoutlook-Medium-AK</name>
+        <name>CPCoutlook-Medium-${REGION}</name>
         <center>7</center>
         <subcenter>7</subcenter>
         <grid>198</grid>
@@ -3178,7 +2127,7 @@
     </model>
 
     <model>
-        <name>TPCWindProb-721181001</name>
+        <name>TPCWindProb-${COVERAGE}</name>
         <center>7</center>
         <subcenter>10</subcenter>
         <grid>721181001</grid>
@@ -3188,7 +2137,7 @@
     </model>
 
     <model>
-        <name>OPCWave182</name>
+        <name>OPCWave${COVERAGE}</name>
         <center>7</center>
         <subcenter>10</subcenter>
         <grid>182</grid>
@@ -3215,32 +2164,25 @@
     </model>
 
     <model>
-        <name>MOSGuide-AK</name>
+        <name>MOSGuide-${REGION}</name>
         <center>7</center>
         <subcenter>14</subcenter>
-        <grid>1023</grid>
+        <grids>
+            <id>1023</id>
+            <id>625561001</id>
+        </grids>
         <process>
             <id>96</id>
         </process>
     </model>
 
     <model>
-        <name>AK-RTMA3</name>
+        <name>${REGION}-RTMA3</name>
         <center>7</center>
         <subcenter>4</subcenter>
         <grid>1023</grid>
         <process>
             <id>109</id>
-        </process>
-    </model>
-
-    <model>
-        <name>MOSGuide-HI</name>
-        <center>7</center>
-        <subcenter>14</subcenter>
-        <grid>625561001</grid>
-        <process>
-            <id>96</id>
         </process>
     </model>
 
@@ -3276,7 +2218,7 @@
     </model>
 
     <model>
-        <name>TPCSurgeProb197</name>
+        <name>TPCSurgeProb${COVERAGE}</name>
         <center>7</center>
         <subcenter>14</subcenter>
         <grid>197</grid>
@@ -3286,7 +2228,7 @@
     </model>
 
     <model>
-        <name>TPCSurgeProb-AK</name>
+        <name>TPCSurgeProb-${REGION}</name>
         <center>7</center>
         <subcenter>14</subcenter>
         <grid>198</grid>
@@ -3329,7 +2271,7 @@
     </model>
 
     <model>
-        <name>EKDMOS-AK</name>
+        <name>EKDMOS-${REGION}</name>
         <center>7</center>
         <subcenter>14</subcenter>
         <grid>1023</grid>

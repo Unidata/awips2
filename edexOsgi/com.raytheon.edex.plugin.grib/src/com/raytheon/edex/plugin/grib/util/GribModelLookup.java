@@ -19,9 +19,15 @@
  **/
 package com.raytheon.edex.plugin.grib.util;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
 
 import javax.xml.bind.JAXB;
 
@@ -31,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import com.raytheon.edex.plugin.grib.spatial.GribSpatialCache;
 import com.raytheon.uf.common.dataplugin.grid.mapping.DatasetIdMapper;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.gridcoverage.exception.GridCoverageException;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationFile;
@@ -59,7 +66,9 @@ import com.raytheon.uf.common.util.mapping.MultipleMappingException;
  * Jul 02, 2014  3230     rferrel     Recursively get model files in initModelList.
  * Jul 30, 2014  3455     bsteffen    Allow model matching with no grid defined.
  * Dec 15, 2015  5166     kbisanz     Update logging to use SLF4J
- * 
+ * Dec 16, 2015  5182     tjensen     Added functionality for file name regex 
+ *                                    matching and support for meta characters in 
+ *                                    model names.
  * 
  * </pre>
  * 
@@ -83,6 +92,8 @@ public class GribModelLookup {
      */
     private final Map<String, GridModel> models;
 
+    private List<GridModel> regexModels;
+
     /** A map of the models. The key is the title of the model */
     private final Map<String, GridModel> modelsByName;
 
@@ -96,6 +107,7 @@ public class GribModelLookup {
     private GribModelLookup() {
         models = new HashMap<String, GridModel>();
         modelsByName = new HashMap<String, GridModel>();
+        regexModels = new ArrayList<GridModel>();
         initModelList();
     }
 
@@ -115,14 +127,22 @@ public class GribModelLookup {
      *            this method expects the byte to be resolved to a string by
      *            looking up the type id in the grib tables(4.3). grib1 does not
      *            include a value for process type so null is acceptable.
+     * @param filePath
+     *            the path to the the grib file.
      * @return The grid model if one is find or null if no such model is defined
      *         in the localization files..
      */
     public GridModel getModel(int center, int subcenter, GridCoverage grid,
-            int process, String processType) {
-        /* Match all fields */
-        GridModel model = getModelSimple(center, subcenter, grid, process,
-                processType);
+            int process, String processType, String filePath) {
+
+        /* Check for regex matching */
+        GridModel model = getModelRegex(center, subcenter, grid, process,
+                processType, filePath);
+        if (model == null) {
+            /* Match all fields */
+            model = getModelSimple(center, subcenter, grid, process,
+                    processType);
+        }
         if (model == null && processType != null) {
             /* Match with no processType specified */
             model = getModelSimple(center, subcenter, grid, process, null);
@@ -158,8 +178,51 @@ public class GribModelLookup {
         return null;
     }
 
-    public GridModel getModelByName(String name) {
-        return modelsByName.get(name);
+    private GridModel getModelRegex(int center, int subcenter,
+            GridCoverage grid, int process, String processType, String filePath) {
+        Path path = Paths.get(filePath);
+        String fileName = path.getFileName().toString();
+        for (GridModel model : regexModels) {
+            Matcher m = model.getNamePattern().matcher(fileName);
+            if (m.matches()) {
+                /* If pattern matches, compare other fields if available */
+                if (!(model.getAllGrids().isEmpty()) && grid != null) {
+                    boolean gridMatch = !Collections.disjoint(model
+                            .getAllGrids(), GribSpatialCache.getInstance()
+                            .getGribCoverageNames(grid));
+                    if (!gridMatch) {
+                        continue;
+                    }
+                }
+                if (model.getProcess() != null && !model.getProcess().isEmpty()) {
+                    boolean pidMatch = false;
+                    for (int pid : model.getProcess()) {
+                        if (pid == process) {
+                            pidMatch = true;
+                            break;
+                        }
+                    }
+                    if (!pidMatch) {
+                        continue;
+                    }
+                }
+                if (model.getCenter() != null && center != model.getCenter()) {
+                    continue;
+                }
+                if (model.getSubCenter() != null
+                        && subcenter != Integer.parseInt(model.getSubCenter())) {
+                    continue;
+                }
+                if (model.getProcessType() != null
+                        && model.getProcessType().equals(processType) == false) {
+                    continue;
+                }
+
+                return model;
+
+            }
+        }
+        return null;
     }
 
     public Set<String> getModelNames() {
@@ -167,9 +230,9 @@ public class GribModelLookup {
     }
 
     public String getModelName(int center, int subcenter, GridCoverage grid,
-            int process, String processType) {
+            int process, String processType, String filePath) {
         GridModel model = getModel(center, subcenter, grid, process,
-                processType);
+                processType, filePath);
         if (model == null || model.getName() == null) {
             String cenSubProc = "GribModel:" + String.valueOf(center) + ":"
                     + String.valueOf(subcenter) + ":" + String.valueOf(process);
@@ -202,7 +265,13 @@ public class GribModelLookup {
                 return e.getArbitraryMapping();
             }
         } else {
-            return model.getName();
+            String retval = model.getName();
+            try {
+                retval = model.getTransformedName(grid, filePath);
+            } catch (GridCoverageException e) {
+                statusHandler.handle(Priority.WARN, e.getLocalizedMessage(), e);
+            }
+            return retval;
         }
     }
 
@@ -246,18 +315,28 @@ public class GribModelLookup {
 
     private void addModels(GridModelSet modelSet) {
         for (GridModel model : modelSet.getModels()) {
-            int subCenter = Integer.parseInt(model.getSubCenter());
+
+            String validNameError = model.checkValidName();
+            if (!("".equals(validNameError))) {
+                logger.error(validNameError);
+            }
+
             modelsByName.put(model.getName(), model);
-            for (int process : model.getProcess()) {
-                if (model.getAllGrids().isEmpty()) {
-                    String key = toKey(model.getCenter(), subCenter, null,
-                            process, model.getProcessType());
-                    models.put(key, model);
-                }
-                for (String grid : model.getAllGrids()) {
-                    String key = toKey(model.getCenter(), subCenter, grid,
-                            process, model.getProcessType());
-                    models.put(key, model);
+            if (model.getFileNameRegex() != null) {
+                regexModels.add(model);
+            } else {
+                int subCenter = Integer.parseInt(model.getSubCenter());
+                for (int process : model.getProcess()) {
+                    if (model.getAllGrids().isEmpty()) {
+                        String key = toKey(model.getCenter(), subCenter, null,
+                                process, model.getProcessType());
+                        models.put(key, model);
+                    }
+                    for (String grid : model.getAllGrids()) {
+                        String key = toKey(model.getCenter(), subCenter, grid,
+                                process, model.getProcessType());
+                        models.put(key, model);
+                    }
                 }
             }
         }
