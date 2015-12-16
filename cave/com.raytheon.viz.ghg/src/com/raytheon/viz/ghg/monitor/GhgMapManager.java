@@ -48,6 +48,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * May 11, 2010            mpduff     Initial creation
  * Aug 27, 2013  #2301     dgilling   Fix mouse handler registration so they
  *                                    can't trigger events until map is loaded.
+ * Dec 16, 2015  #5184     dgilling   Remove viz.gfe dependencies.
  * 
  * </pre>
  * 
@@ -84,7 +85,7 @@ public class GhgMapManager extends PaneManager implements
                     GhgMonitorZoneSelectionEvent evt = new GhgMonitorZoneSelectionEvent(
                             this);
                     evt.setHighlightedZones(selectedZones);
-                    GhgDisplayManager.getInstance().fireMapChangeEvent(evt);
+                    displayMgr.fireMapChangeEvent(evt);
 
                     // Set color to map selection color
                     getZoneResource().getResourceData().setSelectionColor(
@@ -111,14 +112,18 @@ public class GhgMapManager extends PaneManager implements
     /** The drag detector */
     private GhgDragDetector dragDetector;
 
+    private final GhgDisplayManager displayMgr;
+
     /**
      * Constructor
+     * 
+     * @param displayMgr
      */
-    GhgMapManager(Composite parent) {
+    GhgMapManager(Composite parent, GhgDisplayManager displayMgr) {
         selectedZones = new String[0];
         loopProperties = new LoopProperties();
-        GhgDisplayManager.getInstance().addGhgMonitorTableSelectionListener(
-                this);
+        this.displayMgr = displayMgr;
+        this.displayMgr.addGhgMonitorTableSelectionListener(this);
     }
 
     /**
@@ -162,8 +167,7 @@ public class GhgMapManager extends PaneManager implements
     @Override
     public void dispose() {
         super.dispose();
-        GhgDisplayManager.getInstance().removeGhgMonitorTableSelectionListener(
-                this);
+        displayMgr.removeGhgMonitorTableSelectionListener(this);
     }
 
     /*

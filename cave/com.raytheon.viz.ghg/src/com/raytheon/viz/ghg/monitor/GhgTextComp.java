@@ -37,8 +37,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
-import com.raytheon.viz.ghg.monitor.data.GhgData;
 import com.raytheon.viz.ghg.monitor.data.GhgConfigData.DataEnum;
+import com.raytheon.viz.ghg.monitor.data.GhgData;
 import com.raytheon.viz.ghg.monitor.event.GhgMonitorTableSelectionEvent;
 import com.raytheon.viz.ghg.monitor.listener.GhgMonitorTableSelectionListener;
 
@@ -50,6 +50,7 @@ import com.raytheon.viz.ghg.monitor.listener.GhgMonitorTableSelectionListener;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 25 MAR 2008  N/A        lvenable    Initial creation
+ * Dec 16, 2015 #5184      dgilling    Remove viz.gfe dependencies.
  * 
  * </pre>
  * 
@@ -57,10 +58,13 @@ import com.raytheon.viz.ghg.monitor.listener.GhgMonitorTableSelectionListener;
  * @version 1.0
  * 
  */
-public class GhgTextComp extends Composite implements GhgMonitorTableSelectionListener {
+public class GhgTextComp extends Composite implements
+        GhgMonitorTableSelectionListener {
     private static final int PIL_INDEX = DataEnum.PIL.ordinal();
 
     private static final int ISSUE_INDEX = DataEnum.ISSUE_TIME.ordinal();
+
+    private final GhgDisplayManager displayMgr;
 
     /**
      * Parent composite.
@@ -86,7 +90,7 @@ public class GhgTextComp extends Composite implements GhgMonitorTableSelectionLi
      * Editor background color in header sections
      */
     private Color headerColor;
-    
+
     /**
      * List of GhgData objects
      */
@@ -97,12 +101,14 @@ public class GhgTextComp extends Composite implements GhgMonitorTableSelectionLi
      * 
      * @param parent
      *            Parent composite.
+     * @param displayMgr
      */
-    public GhgTextComp(Composite parent) {
+    public GhgTextComp(Composite parent, GhgDisplayManager displayMgr) {
         super(parent, SWT.NONE);
 
         this.parent = parent;
-        GhgDisplayManager.getInstance().addGhgMonitorTableSelectionListener(this);
+        this.displayMgr = displayMgr;
+        this.displayMgr.addGhgMonitorTableSelectionListener(this);
 
         init();
     }
@@ -127,14 +133,15 @@ public class GhgTextComp extends Composite implements GhgMonitorTableSelectionLi
         this.pack();
 
         addDisposeListener(new DisposeListener() {
+            @Override
             public void widgetDisposed(DisposeEvent arg0) {
                 disposeItems();
             }
         });
     }
-    
+
     private void disposeItems() {
-        GhgDisplayManager.getInstance().removeGhgMonitorTableSelectionListener(this);
+        displayMgr.removeGhgMonitorTableSelectionListener(this);
         editorFont.dispose();
         editorColor.dispose();
         headerColor.dispose();
@@ -175,11 +182,11 @@ public class GhgTextComp extends Composite implements GhgMonitorTableSelectionLi
      */
     public void refresh() {
         styledText.setText("");
-        
+
         if (dataList != null) {
             // combine text where adjacent records are compatible
             List<GhgData> combined = new ArrayList<GhgData>(dataList);
-    
+
             for (GhgData data : combined) {
                 showGhgText(data);
             }
@@ -203,24 +210,25 @@ public class GhgTextComp extends Composite implements GhgMonitorTableSelectionLi
             styledText.setStyleRange(range);
             styledText.append(overviewText);
             styledText.append("\n");
-            
+
         }
-        
+
         // Segment text
         int start = styledText.getCharCount();
         int startLine = styledText.getLineCount() - 1;
         String segHdr = String.format(
-                  "Segment Text:   Pil: %s    IssueTime: %s\n",
-                  dataCellNames[PIL_INDEX], dataCellNames[ISSUE_INDEX]);
+                "Segment Text:   Pil: %s    IssueTime: %s\n",
+                dataCellNames[PIL_INDEX], dataCellNames[ISSUE_INDEX]);
         styledText.append(segHdr);
-        
+
         styledText.append("[");
         String sep = "";
 
         // Get a sorted list of geoIds
-        SortedSet<String> sortedSet= new TreeSet<String>(data.getSegmentTextMap().keySet());
+        SortedSet<String> sortedSet = new TreeSet<String>(data
+                .getSegmentTextMap().keySet());
         String geoId = null;
-        
+
         Iterator<String> iter = sortedSet.iterator();
         while (iter.hasNext()) {
             geoId = iter.next();
@@ -231,19 +239,23 @@ public class GhgTextComp extends Composite implements GhgMonitorTableSelectionLi
         int lineLen = styledText.getLineCount() - startLine - 1;
         int len = styledText.getCharCount() - start;
         styledText.setLineBackground(startLine, lineLen, headerColor);
-        StyleRange range = new StyleRange(start, len, editorColor,
-                headerColor);
+        StyleRange range = new StyleRange(start, len, editorColor, headerColor);
         styledText.setStyleRange(range);
-        
+
         String segText = data.getSegmentText(geoId);
         if (segText != null) {
             styledText.append(segText);
         }
-        styledText.append("\n");        
+        styledText.append("\n");
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.viz.ghg.monitor.listener.GhgMonitorTableSelectionListener#notifyUpdate(com.raytheon.viz.ghg.monitor.event.GhgMonitorTableSelectionEvent)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ghg.monitor.listener.GhgMonitorTableSelectionListener
+     * #notifyUpdate
+     * (com.raytheon.viz.ghg.monitor.event.GhgMonitorTableSelectionEvent)
      */
     @Override
     public void notifyUpdate(GhgMonitorTableSelectionEvent evt) {

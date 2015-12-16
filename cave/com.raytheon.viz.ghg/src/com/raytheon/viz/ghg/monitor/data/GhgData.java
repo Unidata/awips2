@@ -31,11 +31,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.raytheon.uf.common.activetable.ActiveTableRecord;
-import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteDefinition;
-import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
 import com.raytheon.uf.common.time.SimulatedTime;
-import com.raytheon.uf.viz.core.localization.LocalizationManager;
-import com.raytheon.viz.gfe.GFEServerException;
 import com.raytheon.viz.ghg.monitor.data.GhgConfigData.AlertsEnum;
 import com.raytheon.viz.ghg.monitor.data.GhgConfigData.SelectionEnum;
 
@@ -49,6 +45,7 @@ import com.raytheon.viz.ghg.monitor.data.GhgConfigData.SelectionEnum;
  * 25 MAR 2008  N/A        lvenable    Initial creation
  * 30 JUL 2010  6721       mpduff      WFO now from officeid column.
  * 28 APR 2015  4027       randerso    Expunged Calendar from ActiveTableRecord
+ * 05 JAN 2016  5184       dgilling    Refactor constructor.
  * 
  * </pre>
  * 
@@ -184,48 +181,15 @@ public class GhgData implements Comparable<GhgData> {
     SimpleDateFormat dateFormatter = new SimpleDateFormat("HH:mm'Z' dd-MMM-yy");
 
     /**
-     * Get a hazard description for a phen.sig value. This code was essentially
-     * copied from MakeHazardDialog.
-     * 
-     * @param phenSig
-     *            The phensig whose description is needed.
-     * 
-     * @return the description for the phensig.
-     * @throws GFEServerException
-     */
-    public static String getHazardDescription(String phenSig)
-            throws GFEServerException {
-        String siteId = LocalizationManager.getInstance().getSite();
-        DiscreteDefinition discreteDef = DiscreteKey.discreteDefinition(siteId);
-
-        String sdesc = discreteDef.keyDesc("Hazards_SFC", phenSig);
-
-        if (sdesc.isEmpty()) {
-            if ("CF.S".equals(phenSig)) {
-                sdesc = "COASTAL FLOOD STATEMENT";
-            } else if ("LS.S".equals(phenSig)) {
-                sdesc = "LAKESHORE FLOOD STATEMENT";
-            } else if ("MA.S".equals(phenSig)) {
-                sdesc = "MARINE WEATHER STATEMENT";
-            } else if ("HU.S".equals(phenSig)) {
-                sdesc = "HURRICANE LOCAL STATEMENT";
-            } else {
-                sdesc = "UNKNOWN PHENOMENON.SIGNIFICANCE";
-            }
-        }
-
-        return sdesc;
-    }
-
-    /**
      * Constructor. Uses the warning to create the data record.
      * 
      * @param warning
      *            the warning to convert
-     * @throws GFEServerException
+     * @param hazardDesc
+     *            Headline-like description of the warning
      * 
      */
-    public GhgData(ActiveTableRecord warning) throws GFEServerException {
+    public GhgData(ActiveTableRecord warning, String hazardDesc) {
         Date now = SimulatedTime.getSystemTime().getTime();
         if (warning != null) {
             action = warning.getAct();
@@ -233,7 +197,7 @@ public class GhgData implements Comparable<GhgData> {
             etn = warning.getEtn();
             phen = warning.getPhen();
             sig = warning.getSig();
-            hazard = getHazardDescription(getPhenSig());
+            hazard = hazardDesc;
             try {
                 startDate = warning.getStartTime();
             } catch (Exception e) {

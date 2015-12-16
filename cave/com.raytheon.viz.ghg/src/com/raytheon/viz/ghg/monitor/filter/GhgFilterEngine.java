@@ -20,12 +20,10 @@
 package com.raytheon.viz.ghg.monitor.filter;
 
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.List;
 
-import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.time.SimulatedTime;
-import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.viz.ghg.monitor.data.GhgAlertCheckData;
 import com.raytheon.viz.ghg.monitor.data.GhgAlertData;
 import com.raytheon.viz.ghg.monitor.data.GhgAlertsConfigData;
@@ -41,10 +39,12 @@ import com.raytheon.viz.ghg.monitor.data.GhgDataFilter;
  * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 26May2010               mpduff      Initial creation.
- * 11Apr2014    15769      ryu         Promote delta minutes if within a few seconds.
+ * May 26, 2010            mpduff      Initial creation.
+ * Apr 11, 2014  15769     ryu         Promote delta minutes if within a few seconds.
+ * Jan 05, 2016  #5184     dgilling    Re-factor to remove statics.
  * 
  * </pre>
  * 
@@ -53,8 +53,16 @@ import com.raytheon.viz.ghg.monitor.data.GhgDataFilter;
  */
 
 public class GhgFilterEngine {
-    /** Milliseconds per minute */
-    private static final int MILLIS_PER_MINUTE = 60 * 1000;
+
+    private final String siteID;
+
+    /**
+     * @param siteID
+     *            4-character site identifier.
+     */
+    public GhgFilterEngine(String siteID) {
+        this.siteID = siteID;
+    }
 
     /**
      * Compare this record to the filter and see if it should be included or
@@ -64,7 +72,7 @@ public class GhgFilterEngine {
      *            The GhgData object to check
      * @return true if included, false if filtered out
      */
-    public static boolean filterCheck(GhgData gd) {
+    public boolean filterCheck(GhgData gd) {
         boolean include = true;
 
         GhgConfigData config = GhgConfigData.getInstance();
@@ -75,7 +83,7 @@ public class GhgFilterEngine {
         // settings
         boolean includeAlerts = filter.includeAlerts;
         if (includeAlerts
-                && (GhgFilterEngine.alertCheck(gd).getAlertType() != AlertsEnum.NoAlerts)) {
+                && (alertCheck(gd).getAlertType() != AlertsEnum.NoAlerts)) {
             return true;
         }
 
@@ -154,14 +162,12 @@ public class GhgFilterEngine {
         return include;
     }
 
-    public static GhgAlertCheckData alertCheck(GhgData gd) {
-        String wfo = DataManager.getCurrentInstance().getSiteID();
-        wfo = SiteMap.getInstance().getSite4LetterId(wfo);
+    public GhgAlertCheckData alertCheck(GhgData gd) {
         GhgConfigData config = GhgConfigData.getInstance();
         GhgAlertsConfigData alertFilter = config.getAlerts();
 
         // Alerts for my WFO
-        if (alertFilter.isLocal() && !gd.getWfo().equals(wfo)) {
+        if (alertFilter.isLocal() && !gd.getWfo().equals(siteID)) {
             return new GhgAlertCheckData(AlertsEnum.NoAlerts);
         }
 
@@ -216,10 +222,10 @@ public class GhgFilterEngine {
 
         // minutes until purge time
         int margin = 4999; // promote the deltas if within 5 seconds
-        int deltaP = (int) ((gd.getPurgeDate().getTime() - now + margin) / MILLIS_PER_MINUTE);
+        int deltaP = (int) ((gd.getPurgeDate().getTime() - now + margin) / TimeUtil.MILLIS_PER_MINUTE);
 
         // minutes until end time
-        int deltaE = (int) ((gd.getEndDate().getTime() - now + margin) / MILLIS_PER_MINUTE);
+        int deltaE = (int) ((gd.getEndDate().getTime() - now + margin) / TimeUtil.MILLIS_PER_MINUTE);
 
         long earlierT = Math.min(gd.getPurgeDate().getTime(), gd.getEndDate()
                 .getTime());
@@ -233,7 +239,7 @@ public class GhgFilterEngine {
         GhgAlertData expiredAlert = config.getAlerts().getAlert(
                 AlertsEnum.ExpiredAlert);
         int tval = expiredAlert.getTime();
-        long triggerTime = earlierT - (tval * MILLIS_PER_MINUTE);
+        long triggerTime = earlierT - (tval * TimeUtil.MILLIS_PER_MINUTE);
 
         if (expiredAlert.isEnabled() && (now >= triggerTime)) {
             return new GhgAlertCheckData(AlertsEnum.ExpiredAlert, deltaP,
@@ -243,7 +249,7 @@ public class GhgFilterEngine {
         // time limit for non-Expired alerts
         GhgAlertData alert2 = config.getAlerts().getAlert(AlertsEnum.AlertLvl2);
         tval = alert2.getTime();
-        triggerTime = earlierT - (tval * MILLIS_PER_MINUTE);
+        triggerTime = earlierT - (tval * TimeUtil.MILLIS_PER_MINUTE);
 
         if (alert2.isEnabled() && (now >= triggerTime)) {
             return new GhgAlertCheckData(AlertsEnum.AlertLvl2, deltaP, deltaE);
@@ -251,7 +257,7 @@ public class GhgFilterEngine {
 
         GhgAlertData alert1 = config.getAlerts().getAlert(AlertsEnum.AlertLvl1);
         tval = alert1.getTime();
-        triggerTime = earlierT - (tval * MILLIS_PER_MINUTE);
+        triggerTime = earlierT - (tval * TimeUtil.MILLIS_PER_MINUTE);
 
         if (alert1.isEnabled() && (now >= triggerTime)) {
             return new GhgAlertCheckData(AlertsEnum.AlertLvl1, deltaP, deltaE);

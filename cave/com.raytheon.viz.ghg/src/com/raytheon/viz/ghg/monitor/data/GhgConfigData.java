@@ -59,8 +59,8 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.gfe.constants.StatusConstants;
-import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
+import com.raytheon.viz.ghg.constants.StatusConstants;
 import com.raytheon.viz.ghg.monitor.GhgDisplayManager;
 import com.raytheon.viz.ghg.monitor.config.GhgConfigXml;
 import com.raytheon.viz.ui.statusline.StatusMessage;
@@ -86,6 +86,7 @@ import com.raytheon.viz.ui.statusline.StatusStore;
  *                                     Default config changed to hard coding instead of reading
  *                                     from config file.
  * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Dec 16, 2015 #5184      dgilling    Remove viz.gfe dependencies.
  * </pre>
  * 
  * @author lvenable
@@ -203,6 +204,8 @@ public final class GhgConfigData {
     private boolean descending;
 
     private boolean identifyTestEvents;
+
+    private final GhgDisplayManager displayMgr;
 
     /**
      * Alerts enumeration. Contains the available alerts. {@code display}
@@ -364,23 +367,40 @@ public final class GhgConfigData {
 
     /**
      * Private constructor.
+     * 
+     * @param displayMgr
      */
-    private GhgConfigData() {
+    private GhgConfigData(GhgDisplayManager displayMgr) {
+        this.displayMgr = displayMgr;
         init();
     }
 
     /**
-     * Get an instance of the GHG configuration data.
+     * Constructs an instance of the GHG configuration data. Used to build the
+     * initial instance and should only ever be called from the top-level GHG
+     * Monitor dialog.
+     * 
+     * @return An instance of the GHG configuration data.
+     */
+    public static synchronized GhgConfigData buildInstance(
+            GhgDisplayManager displayMgr) {
+        // If the GHG configuration data has not been created
+        // then create a new instance.
+        if (classInstance == null) {
+            classInstance = new GhgConfigData(displayMgr);
+        }
+
+        return classInstance;
+    }
+
+    /**
+     * Returns the instance of the GHG configuration data. Should be used to
+     * retrieve the config data instance by all other parts of the GHG Monitor
+     * code.
      * 
      * @return An instance of the GHG configuration data.
      */
     public static synchronized GhgConfigData getInstance() {
-        // If the GHG configuration data has not been created
-        // then create a new instance.
-        if (classInstance == null) {
-            classInstance = new GhgConfigData();
-        }
-
         return classInstance;
     }
 
@@ -602,7 +622,7 @@ public final class GhgConfigData {
      */
     public void setCurrentFilter(GhgDataFilter filter) {
         currentFilter = filter;
-        GhgDisplayManager.getInstance().setFilterChanged(true);
+        displayMgr.setFilterChanged(true);
     }
 
     /**
@@ -768,7 +788,7 @@ public final class GhgConfigData {
             Marshaller marshaller = ctx.createMarshaller();
             marshaller.marshal(config, configFile);
             localizationFile.save();
-            StatusStore.updateStatus(StatusConstants.SUBCATEGORY_GHG,
+            StatusStore.updateStatus(StatusConstants.CATEGORY_GHG,
                     "Saved configuration", StatusMessage.Importance.REGULAR);
 
         } catch (JAXBException | LocalizationException e) {
@@ -807,7 +827,7 @@ public final class GhgConfigData {
         currentAlerts = alerts;
 
         final String siteId = SiteMap.getInstance().getSite4LetterId(
-                DataManager.getCurrentInstance().getSiteID());
+                LocalizationManager.getInstance().getSite());
 
         /* generate some hardcoded default filter data */
         currentFilter = new GhgDataFilter() {

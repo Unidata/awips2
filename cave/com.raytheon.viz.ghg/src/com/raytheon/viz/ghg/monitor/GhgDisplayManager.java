@@ -20,19 +20,19 @@
 package com.raytheon.viz.ghg.monitor;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.activetable.ActiveTableRecord;
+import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteDefinition;
+import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
+import com.raytheon.uf.common.gfe.ifpclient.IFPClient;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.gfe.core.DataManager;
-import com.raytheon.viz.ghg.Activator;
-import com.raytheon.viz.ghg.constants.StatusConstants;
+import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.ghg.monitor.constants.GhgMenuConstants;
 import com.raytheon.viz.ghg.monitor.data.GhgConfigData.DataEnum;
-import com.raytheon.viz.ghg.monitor.data.GhgConfigData;
 import com.raytheon.viz.ghg.monitor.data.GhgData;
 import com.raytheon.viz.ghg.monitor.event.GhgMonitorFilterChangeEvent;
 import com.raytheon.viz.ghg.monitor.event.GhgMonitorTableSelectionEvent;
@@ -50,7 +50,8 @@ import com.raytheon.viz.ghg.monitor.listener.GhgMonitorZoneSelectionListener;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 10, 2010            mpduff     Initial creation
- * Apr 9, 2014  15769      ryu        Moved attribute identifyTestData to configuration, as in A1.
+ * Apr 09, 2014  15769     ryu        Moved attribute identifyTestData to configuration, as in A1.
+ * Dec 16, 2015  #5184     dgilling   Remove viz.gfe dependencies.
  * 
  * </pre>
  * 
@@ -59,11 +60,12 @@ import com.raytheon.viz.ghg.monitor.listener.GhgMonitorZoneSelectionListener;
  */
 
 public class GhgDisplayManager {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(GhgDisplayManager.class);
-    /**
-     * Single instance of this class type.
-     */
-    private static GhgDisplayManager instance = null;
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(GhgDisplayManager.class);
+
+    private final IFPClient ifpClient;
+
+    private final DiscreteDefinition dDef;
 
     /**
      * Zoom level of the map.
@@ -110,21 +112,9 @@ public class GhgDisplayManager {
     /**
      * Private constructor for this singleton.
      */
-    private GhgDisplayManager() {
-
-    }
-
-    /**
-     * Get the singleton instance of this class.
-     * 
-     * @return The one instance of this class
-     */
-    public static synchronized GhgDisplayManager getInstance() {
-        if (instance == null) {
-            instance = new GhgDisplayManager();
-        }
-
-        return instance;
+    public GhgDisplayManager(IFPClient ifpClient, DiscreteDefinition dDef) {
+        this.ifpClient = ifpClient;
+        this.dDef = dDef;
     }
 
     /**
@@ -134,19 +124,23 @@ public class GhgDisplayManager {
      * @return List<GhgData> list of GhgData objects
      */
     public List<GhgData> getTableData() {
-        List<ActiveTableRecord> activeTableList = null;
+        CAVEMode opMode = CAVEMode.getMode();
+        ActiveTableMode tableName = (opMode == CAVEMode.PRACTICE) ? ActiveTableMode.PRACTICE
+                : ActiveTableMode.OPERATIONAL;
+        ServerResponse<List<ActiveTableRecord>> sr = ifpClient
+                .getVTECActiveTable(tableName);
+        if (!sr.isOkay()) {
+            statusHandler.error(String.format("Error getting ActiveTable: %s",
+                    sr.message()));
+            return Collections.emptyList();
+        }
 
+        List<ActiveTableRecord> activeTableList = sr.getPayload();
         dataList.clear();
-        try {
-            activeTableList = DataManager.getCurrentInstance().getActiveTable();
-            for (ActiveTableRecord rec : activeTableList) {
-                GhgData data = new GhgData(rec);
-                dataList.add(data);
-            }
-        } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error getting ActiveTable", e);
-            return new ArrayList<GhgData>();
+        for (ActiveTableRecord rec : activeTableList) {
+            GhgData data = new GhgData(rec, dDef.getHazardDescription(
+                    "Hazards_SFC", rec.getPhensig()));
+            dataList.add(data);
         }
 
         return new ArrayList<GhgData>(dataList);

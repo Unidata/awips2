@@ -44,11 +44,8 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.maps.display.PlainMapRenderableDisplay;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.rsc.ZoneDbResourceData;
 import com.raytheon.viz.gfe.rsc.zones.ZoneDbResource;
-import com.raytheon.viz.ghg.Activator;
-import com.raytheon.viz.ghg.constants.StatusConstants;
 import com.raytheon.viz.ghg.monitor.constants.GhgMenuConstants;
 import com.raytheon.viz.ghg.monitor.data.GhgConfigData;
 import com.raytheon.viz.ui.panes.VizDisplayPane;
@@ -63,6 +60,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * ------------ ---------- ----------- --------------------------
  * 30May2008    1157       MW Fegan    Initial Creation.
  * 17Nov2008               wdougherty  Extra refresh() in paint handler removed.
+ * Dec 16, 2015  #5184     dgilling    Remove viz.gfe dependencies.
  * 
  * </pre>
  * 
@@ -71,7 +69,13 @@ import com.vividsolutions.jts.geom.Envelope;
  */
 
 public class GhgMapComp extends Composite implements IMenuSelectionClient {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(GhgMapComp.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(GhgMapComp.class);
+
+    private final GhgDisplayManager displayMgr;
+
+    private final GridLocation gloc;
+
     /**
      * The zoom level.
      */
@@ -91,8 +95,11 @@ public class GhgMapComp extends Composite implements IMenuSelectionClient {
      * @param parent
      *            parent of this component.
      */
-    public GhgMapComp(Composite parent) {
+    public GhgMapComp(Composite parent, GhgDisplayManager displayMgr,
+            GridLocation gloc) {
         super(parent, SWT.NONE);
+        this.displayMgr = displayMgr;
+        this.gloc = gloc;
         init();
     }
 
@@ -110,13 +117,13 @@ public class GhgMapComp extends Composite implements IMenuSelectionClient {
         try {
             initializeComponents();
         } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    e.getLocalizedMessage(), e);
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
 
         this.pack();
 
         addDisposeListener(new DisposeListener() {
+            @Override
             public void widgetDisposed(DisposeEvent e) {
 
             }
@@ -133,8 +140,6 @@ public class GhgMapComp extends Composite implements IMenuSelectionClient {
     private void initializeComponents() throws TransformException,
             FactoryException, VizException {
         // First thing, give the zone resource a bounding geometry.
-        GridLocation gloc = DataManager.getCurrentInstance().getParmManager()
-                .compositeGridLocation();
         Envelope env = MapUtil.getBoundingEnvelope(gloc);
 
         // Create a plain map renderable display
@@ -178,7 +183,7 @@ public class GhgMapComp extends Composite implements IMenuSelectionClient {
         zoneDbResource.setGHGType();
 
         // Create the map manager
-        mapManager = new GhgMapManager(this);
+        mapManager = new GhgMapManager(this, displayMgr);
         mapManager.createComponent(this);
 
         // Add the zone resource to the display
@@ -231,7 +236,7 @@ public class GhgMapComp extends Composite implements IMenuSelectionClient {
             break;
         case ZOOM_MAP:
             zoomLevel = ((GhgMenuConstants.ZoomLevel) data).getZoomLevel();
-            GhgDisplayManager.getInstance().setZoomLevel(zoomLevel);
+            displayMgr.setZoomLevel(zoomLevel);
         }
     }
 
@@ -239,7 +244,7 @@ public class GhgMapComp extends Composite implements IMenuSelectionClient {
      * Update the selected zoom.
      */
     public void updateZoom() {
-        double zLev = GhgDisplayManager.getInstance().getZoomLevel();
+        double zLev = displayMgr.getZoomLevel();
         for (IDisplayPane dspPane : mapManager.getDisplayPanes()) {
             // Reset the zoom
             dspPane.setZoomLevel(1.0f);
@@ -253,8 +258,7 @@ public class GhgMapComp extends Composite implements IMenuSelectionClient {
     }
 
     public void updateZone() {
-        GhgMenuConstants.ShowMap zoneType = GhgDisplayManager.getInstance()
-                .getZoneDisplay();
+        GhgMenuConstants.ShowMap zoneType = displayMgr.getZoneDisplay();
         ZoneDbResourceData zdrd = zoneDbResource.getResourceData();
 
         switch (zoneType) {
@@ -290,8 +294,7 @@ public class GhgMapComp extends Composite implements IMenuSelectionClient {
     }
 
     public void updateLabels() {
-        zoneDbResource.setLabelZones(GhgDisplayManager.getInstance()
-                .isShowLabels());
+        zoneDbResource.setLabelZones(displayMgr.isShowLabels());
         zoneDbResource.setDirty(true);
     }
 

@@ -68,6 +68,7 @@ import com.raytheon.viz.ghg.monitor.listener.GhgMonitorZoneSelectionListener;
  * 19Jun2008    1157       MW Fegan    Added banner popup for alerts.
  * 27Mar2009    1881       wldougher   Enhance performance
  * 27Aug2013    2301       dgilling    Fix Image loading for icons.
+ * Dec 16, 2015 #5184      dgilling    Remove viz.gfe dependencies.
  * 
  * </pre>
  * 
@@ -133,6 +134,8 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn,
      */
     private TableColumn lastSelectedColumn;
 
+    private final GhgDisplayManager displayMgr;
+
     /**
      * Constructor.
      * 
@@ -141,12 +144,14 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn,
      * @param columnsMap
      *            Map of the visible/hidden table columns.
      */
-    public GhgTableComp(Composite parent, Map<String, Boolean> columnsMap) {
+    public GhgTableComp(Composite parent, GhgDisplayManager displayMgr,
+            Map<String, Boolean> columnsMap) {
         super(parent, SWT.NONE);
 
         this.columnsMap = columnsMap;
-        GhgDisplayManager.getInstance()
-                .addGhgMonitorZoneSelectionListener(this);
+
+        this.displayMgr = displayMgr;
+        this.displayMgr.addGhgMonitorZoneSelectionListener(this);
 
         init();
     }
@@ -195,8 +200,7 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn,
         upImage.dispose();
         downImage.dispose();
         ghgTable.dispose();
-        GhgDisplayManager.getInstance().removeGhgMonitorZoneSelectionListener(
-                this);
+        displayMgr.removeGhgMonitorZoneSelectionListener(this);
 
         for (GhgTableRowData row : ghgTableRowArray) {
             if (row != null) {
@@ -583,7 +587,7 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn,
                 evt.setGhgData(dataList);
                 evt.setSelectionColor(GhgConfigData.getInstance()
                         .getMonitorSelectionsColors().getBackgroundRgb());
-                GhgDisplayManager.getInstance().fireTableSelectionEvent(evt);
+                displayMgr.fireTableSelectionEvent(evt);
             } else {
                 row.setSelected(false);
             }
@@ -650,7 +654,7 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn,
         evt.setGhgData(dataList);
         evt.setSelectionColor(GhgConfigData.getInstance()
                 .getMonitorSelectionsColors().getBackgroundRgb());
-        GhgDisplayManager.getInstance().fireTableSelectionEvent(evt);
+        displayMgr.fireTableSelectionEvent(evt);
 
     }
 
@@ -709,7 +713,7 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn,
             String[] geoIdArray = geoIds.split(",");
             evt.setHighlightedZones(geoIdArray);
             evt.setGhgData(dataList);
-            GhgDisplayManager.getInstance().fireTableSelectionEvent(evt);
+            displayMgr.fireTableSelectionEvent(evt);
         }
 
         sortTableData(lastSelectedColumn);
