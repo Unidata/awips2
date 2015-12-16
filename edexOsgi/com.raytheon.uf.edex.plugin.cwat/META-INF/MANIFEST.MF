@@ -30,4 +30,4 @@ Import-Package: com.raytheon.edex.urifilter,
  com.raytheon.uf.common.util,
  com.raytheon.uf.edex.core,
  com.raytheon.uf.edex.plugin.scan.common,
- org.apache.commons.logging
+ org.slf4j

@@ -25,4 +25,4 @@ Export-Package: com.raytheon.uf.edex.plugin.scan,
 Import-Package: com.raytheon.uf.edex.menus,
  javax.measure.converter,
  javax.measure.unit,
- org.apache.commons.logging
+ org.slf4j

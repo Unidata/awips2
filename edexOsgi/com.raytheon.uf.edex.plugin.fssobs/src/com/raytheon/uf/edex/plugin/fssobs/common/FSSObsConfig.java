@@ -19,8 +19,8 @@
  **/
 package com.raytheon.uf.edex.plugin.fssobs.common;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.urifilter.URIGenerateMessage;
 import com.raytheon.uf.common.dataplugin.PluginException;
@@ -46,6 +46,7 @@ import com.raytheon.uf.edex.plugin.fssobs.FSSObsUtils;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Sep 04, 2014 3220       skorolev    Removed cwa and monitorUse from data set.
  * Sep 18, 2015 3873       skorolev    Removed identical constant definitions.
+ * Dec 14, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -68,7 +69,8 @@ public class FSSObsConfig {
     private FSSObsRecord tableRow;
 
     /** The logger */
-    protected transient final Log logger = LogFactory.getLog(getClass());
+    protected transient final Logger logger = LoggerFactory
+            .getLogger(getClass());
 
     public FSSObsConfig(URIGenerateMessage genMessage, FSSObsGenerator generator)
             throws Exception {
