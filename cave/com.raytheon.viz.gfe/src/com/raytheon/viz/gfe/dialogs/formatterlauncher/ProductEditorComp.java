@@ -174,6 +174,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * 08/10/2015   4721       randerso    Changed getNNNid() to use the productID field (not textdbPil)
  * 09/15/2015   4858       dgilling    Disable store/transmit in DRT mode.
  * 10/26/2015  18244       lshi        fixed NullPointerException (pds, updateIssueExpireTimes)
+ * 12/14/2015  18367       ryu         Disable finalization of ETN when product is stored to text database.
  * 12/16/2015  18410       lshi        For corrected products, both WMO time and MND time should
  *                                     match the current time
  * </pre>
@@ -1149,7 +1150,8 @@ public class ProductEditorComp extends Composite implements
             // prevent the launching of another dialog until the modal dialog is
             // closed.
             StoreTransmitDlg storeDlg = new StoreTransmitDlg(parent.getShell(),
-                    showStore, this, transmissionCB, pid, !textComp.isCorMode());
+                    showStore, this, transmissionCB, pid, 
+                    !textComp.isCorMode() && (action == Action.TRANSMIT));
             storeDlg.open();
         }
     }
