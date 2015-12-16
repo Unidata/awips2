@@ -32,8 +32,8 @@ import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
@@ -51,14 +51,15 @@ import com.raytheon.uf.common.wmo.WMOHeader;
  * 
  * SOFTWARE HISTORY
  * 
- * Date       	Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * July2006		3 &amp; 14		Phillippe	Initial Creation
- * 14Nov2006	71			Rockwood	Implemented filter for NIL observations	
- * 20080418           1093  jkorman     Added filter for Alaskan &quot;Airways&quot;
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Jul ??, 2006 3 &amp; 14  Phillippe   Initial Creation
+ * Nov 14, 2006 71          Rockwood    Implemented filter for NIL observations   
+ * Apr 14, 2008 1093        jkorman     Added filter for Alaskan &quot;Airways&quot;
  *                                      observations.
- * May 14, 2014 2536       bclement    moved WMO Header to common, removed unused HEADERREGEX
- * Oct 02, 2014 3693       mapeters    Changed pattern String constants to Pattern constants.
+ * May 14, 2014 2536        bclement    moved WMO Header to common, removed unused HEADERREGEX
+ * Oct 02, 2014 3693        mapeters    Changed pattern String constants to Pattern constants.
+ * Dec 15, 2015 5166        kbisanz     Update logging to use SLF4J
  * </pre>
  * 
  * @author bphillip
@@ -73,7 +74,7 @@ import com.raytheon.uf.common.wmo.WMOHeader;
  */
 public class MetarSeparator extends AbstractRecordSeparator {
 
-    private final Log theLogger = LogFactory.getLog(getClass());
+    private final Logger theLogger = LoggerFactory.getLogger(getClass());
 
     /** Regex used for separating multi-record files */
     private static final Pattern ICAODATEPAIR = Pattern
@@ -112,12 +113,13 @@ public class MetarSeparator extends AbstractRecordSeparator {
 
     /**
      * Get the WMO Header found within this data.
+     * 
      * @return The message WMO Header.
      */
     public WMOHeader getWMOHeader() {
         return header;
     }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -171,16 +173,16 @@ public class MetarSeparator extends AbstractRecordSeparator {
         try {
             // Extracts the header
             WMOHeader wmoHeader = new WMOHeader(message.getBytes());
-            if(wmoHeader.isValid()) {
+            if (wmoHeader.isValid()) {
                 header = wmoHeader;
             }
-            
-//            Pattern pattern = Pattern.compile(HEADERREGEX);
-//            Matcher matcher = pattern.matcher(message);
-//
-//            if (matcher.find()) {
-//                header = matcher.group();
-//            }
+
+            // Pattern pattern = Pattern.compile(HEADERREGEX);
+            // Matcher matcher = pattern.matcher(message);
+            //
+            // if (matcher.find()) {
+            // header = matcher.group();
+            // }
             // Determines the type
             Matcher matcher = METARTYPE.matcher(message);
 
@@ -249,7 +251,8 @@ public class MetarSeparator extends AbstractRecordSeparator {
                 // Check for NIL observations and, if found, throw out
                 matcher = NILREGEX.matcher(observation);
                 if (!matcher.find()) {
-                    String record = header.getWmoHeader() + "\n" + type + " " + observation;
+                    String record = header.getWmoHeader() + "\n" + type + " "
+                            + observation;
                     records.add(record);
                 }
             }

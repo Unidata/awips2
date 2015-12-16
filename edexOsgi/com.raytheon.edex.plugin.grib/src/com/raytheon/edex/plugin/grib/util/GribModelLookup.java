@@ -25,8 +25,8 @@ import java.util.Set;
 
 import javax.xml.bind.JAXB;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.plugin.grib.spatial.GribSpatialCache;
 import com.raytheon.uf.common.dataplugin.grid.mapping.DatasetIdMapper;
@@ -58,6 +58,7 @@ import com.raytheon.uf.common.util.mapping.MultipleMappingException;
  * Apr 25, 2014  2874     bsteffen    Add processType
  * Jul 02, 2014  3230     rferrel     Recursively get model files in initModelList.
  * Jul 30, 2014  3455     bsteffen    Allow model matching with no grid defined.
+ * Dec 15, 2015  5166     kbisanz     Update logging to use SLF4J
  * 
  * 
  * </pre>
@@ -70,7 +71,7 @@ public class GribModelLookup {
             .getHandler(GribModelLookup.class);
 
     /** The logger */
-    protected transient Log logger = LogFactory.getLog(getClass());
+    protected transient Logger logger = LoggerFactory.getLogger(getClass());
 
     /** The singleton instance of GribModelLookup **/
     private static GribModelLookup instance;
