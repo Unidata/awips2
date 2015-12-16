@@ -21,8 +21,8 @@ package com.raytheon.edex.plugin.shef.util;
 
 import java.util.Date;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.plugin.shef.data.ShefData;
 import com.raytheon.edex.plugin.shef.data.ShefRecord;
@@ -38,8 +38,9 @@ import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 05/02/2008	387        M. Duff     Initial Creation.
+ * 05/02/2008   387        M. Duff     Initial Creation.
  * 10/16/2008   1548       jelkins     Integrated ParameterCode Types
+ * 12/16/2015   5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -49,13 +50,14 @@ import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
 
 public class PrecipitationUtils {
 
-    private static final Log log = LogFactory.getLog(PrecipitationUtils.class);
+    private static final Logger log = LoggerFactory
+            .getLogger(PrecipitationUtils.class);
 
     /**
      * Returns the precipitation index.
      * 
-     * @param pe -
-     *            the physical element
+     * @param pe
+     *            - the physical element
      * @return the index (0, 1, 2, or 3)
      */
     public static int getPrecipitationIndex(PhysicalElement pe) {
@@ -94,8 +96,8 @@ public class PrecipitationUtils {
 
         PrecipRecordStorage.getStorage().incrementRecordCount();
 
-        if(log.isDebugEnabled()) {
-            
+        if (log.isDebugEnabled()) {
+
             PrecipRecord record = new PrecipRecord(shefData);
             record.setProductId(productId);
             record.setProductTime(productTime);
