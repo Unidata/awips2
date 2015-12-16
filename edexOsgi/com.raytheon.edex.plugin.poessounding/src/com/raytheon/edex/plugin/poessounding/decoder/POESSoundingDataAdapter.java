@@ -25,8 +25,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.plugin.poessounding.dao.POESSoundingDAO;
 import com.raytheon.uf.common.dataplugin.poessounding.POESSounding;
@@ -61,6 +61,7 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  *                                     correct file.
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
  * Jul 23, 2014 3410       bclement    location changed to floats
+ * Dec 15, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -69,8 +70,8 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  */
 public class POESSoundingDataAdapter {
 
-    private static Log logger = LogFactory
-            .getLog(POESSoundingDataAdapter.class);
+    private static Logger logger = LoggerFactory
+            .getLogger(POESSoundingDataAdapter.class);
 
     private static final String SPI_FILE = "poesBufr.spi";
 
@@ -154,10 +155,10 @@ public class POESSoundingDataAdapter {
             int index = 10;
 
             IBUFRDataPacket dp = dataList.get(index++);
-            
-            Double lat = getDouble(dp,null); // (Double) dp.getValue();
+
+            Double lat = getDouble(dp, null); // (Double) dp.getValue();
             dp = dataList.get(index++);
-            Double lon = getDouble(dp,null); // (Double) dp.getValue();
+            Double lon = getDouble(dp, null); // (Double) dp.getValue();
 
             // If we have lat/lon data, set it into the obs object. Otherwise
             // no need to go further, set the obs object to null and quit!
@@ -175,7 +176,8 @@ public class POESSoundingDataAdapter {
                         obsData.setLocation(location);
 
                         dp = dataList.get(SNDG_HGT);
-                        Double elev = getDouble(dp,-9999.0); // (Double) dp.getValue();
+                        Double elev = getDouble(dp, -9999.0); // (Double)
+                                                              // dp.getValue();
                         location.setElevation(elev.intValue());
 
                         index = 0;
@@ -290,13 +292,13 @@ public class POESSoundingDataAdapter {
      */
     private static Double getDouble(IBUFRDataPacket packet, Double defaultValue) {
         Double retValue = defaultValue;
-        if(packet != null) {
+        if (packet != null) {
             Object o = packet.getValue();
-            if(o instanceof Double) {
+            if (o instanceof Double) {
                 retValue = ((Double) o).doubleValue();
-            } else if(o instanceof Long) {
+            } else if (o instanceof Long) {
                 retValue = ((Long) o).doubleValue();
-            } 
+            }
         }
         return retValue;
     }
