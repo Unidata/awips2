@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bufrascat Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.bufrascat
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: com.raytheon.uf.common.dataplugin.bufrascat,
  com.raytheon.uf.edex.decodertools,
  com.raytheon.uf.common.pointdata,
@@ -23,4 +23,4 @@ Import-Package: com.raytheon.uf.common.datastorage,
  com.raytheon.uf.edex.bufrtools.descriptors,
  com.raytheon.uf.edex.bufrtools.packets,
  com.raytheon.uf.edex.core,
- org.apache.commons.logging
+ org.slf4j

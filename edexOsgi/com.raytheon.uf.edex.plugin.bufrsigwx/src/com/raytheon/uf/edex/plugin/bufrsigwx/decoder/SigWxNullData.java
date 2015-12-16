@@ -22,8 +22,8 @@ package com.raytheon.uf.edex.plugin.bufrsigwx.decoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.bufrsigwx.SigWxData;
 import com.raytheon.uf.common.dataplugin.bufrsigwx.common.SigWxType;
@@ -35,30 +35,32 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 14, 2009            jkorman     Initial creation
- *
+ * Dec 14, 2015 5166       kbisanz     Update logging to use SLF4J
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0 
+ * @version 1.0
  */
 
 public class SigWxNullData extends SigWxDataAdapter {
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     SigWxType wxType;
-    
+
     /**
      * 
      * @param container
      */
-    public SigWxNullData(PointDataDescription pdd, PointDataPluginDao<SigWxData> dao, String pluginName) {
-        super(pdd,dao,pluginName);
+    public SigWxNullData(PointDataDescription pdd,
+            PointDataPluginDao<SigWxData> dao, String pluginName) {
+        super(pdd, dao, pluginName);
     }
 
     /**
@@ -69,9 +71,9 @@ public class SigWxNullData extends SigWxDataAdapter {
      * @param index
      */
     List<SigWxData> getSigWxData(SigWxData sigWx, List<IBUFRDataPacket> dataList) {
-        
+
         logger.info("Unknown data " + sigWx.getTraceId());
-        
+
         return new ArrayList<SigWxData>();
     }
 
@@ -82,7 +84,7 @@ public class SigWxNullData extends SigWxDataAdapter {
     SigWxType getType() {
         return wxType;
     }
-    
+
     /**
      * @see com.raytheon.uf.edex.plugin.bufrsigwx.decoder.SigWxDataAdapter#getType()
      */
@@ -90,5 +92,5 @@ public class SigWxNullData extends SigWxDataAdapter {
     void setType(SigWxType type) {
         wxType = type;
     }
-    
+
 }
