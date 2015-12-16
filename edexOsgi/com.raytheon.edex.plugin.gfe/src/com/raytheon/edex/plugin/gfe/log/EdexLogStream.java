@@ -19,17 +19,18 @@
  **/
 package com.raytheon.edex.plugin.gfe.log;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Used by python code where old GFE called into static LogStream
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * May 14, 2008				njensen	    Initial creation
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * May 14, 2008            njensen     Initial creation
+ * Dec 15, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -39,7 +40,8 @@ import org.apache.commons.logging.LogFactory;
 
 public class EdexLogStream {
 
-    private static final Log logger = LogFactory.getLog(EdexLogStream.class);
+    private static final Logger logger = LoggerFactory
+            .getLogger(EdexLogStream.class);
 
     public static void logEvent(String message) {
         if (logger.isInfoEnabled()) {

@@ -29,8 +29,8 @@ import java.util.Map;
 
 import jep.JepException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.utility.ProtectedFiles;
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
@@ -74,8 +74,9 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * Oct 20, 2014 #3685       randerso    Added code to generate SiteCFG.py from GIS database
  *                                      Cleaned up how protected file updates are returned
  * Jan 23, 2015 #4027       randerso    Fixed python include path
- * Apr 27, 2015  4259       njensen     Updated for new JEP API
- * Jul 13, 2015  4500       rjpeter     Removed SqlQueryTask.
+ * Apr 27, 2015 4259        njensen     Updated for new JEP API
+ * Jul 13, 2015 4500        rjpeter     Removed SqlQueryTask.
+ * Dec 15, 2015 5166        kbisanz     Update logging to use SLF4J
  * </pre>
  * 
  * @author jelkins
@@ -96,7 +97,7 @@ public class Configurator {
 
     private String pythonDirectory;
 
-    private transient Log log = LogFactory.getLog(getClass());
+    private transient Logger log = LoggerFactory.getLogger(getClass());
 
     /**
      * The Protected Files list.

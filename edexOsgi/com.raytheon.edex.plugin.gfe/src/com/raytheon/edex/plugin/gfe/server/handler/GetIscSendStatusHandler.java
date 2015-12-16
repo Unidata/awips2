@@ -19,8 +19,8 @@
  **/
 package com.raytheon.edex.plugin.gfe.server.handler;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.edex.plugin.gfe.server.IFPServer;
@@ -38,8 +38,9 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 21, 2011      #4686 randerso     Initial creation
- * Jun 13, 2013     #2044  randerso     Refactored to use IFPServer
+ * Jan 21, 2011 4686       randerso    Initial creation
+ * Jun 13, 2013 2044       randerso    Refactored to use IFPServer
+ * Dec 15, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -49,7 +50,8 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 
 public class GetIscSendStatusHandler extends BaseGfeRequestHandler implements
         IRequestHandler<GetIscSendStatusRequest> {
-    protected final transient Log logger = LogFactory.getLog(getClass());
+    protected final transient Logger logger = LoggerFactory
+            .getLogger(getClass());
 
     /*
      * (non-Javadoc)
