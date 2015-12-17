@@ -19,8 +19,8 @@
  **/
 package com.raytheon.edex.plugin.sfcobs.decoder.metar;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
@@ -36,7 +36,8 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20070928            391 jkorman     Initial Coding.
+ * 20070928     391        jkorman     Initial Coding.
+ * Dec 17, 2015 5166       kbisanz     Update logging to use SLF4J
  * </pre>
  * 
  * @author jkorman
@@ -45,7 +46,7 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 public class METARDecoder extends AbstractSfcObsDecoder {
 
     /** The logger */
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
      * Construct the decoder.

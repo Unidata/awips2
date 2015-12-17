@@ -21,8 +21,8 @@ package com.raytheon.edex.plugin.sfcobs.decoder.synoptic;
 
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
@@ -41,10 +41,11 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20070928            391 jkorman     Initial Coding.
+ * 20070928     391        jkorman     Initial Coding.
  * Jul 23, 2014 3410       bclement    location changed to floats
  * Sep 30, 2014 3629       mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement()} 
  *                                     calls, added ELEV_PATTERN.
+ * Dec 17, 2015 5166       kbisanz     Update logging to use SLF4J
  * </pre>
  * 
  * @author jkorman
@@ -56,7 +57,7 @@ public class MobileSynopticDecoder extends AbstractSynopticDecoder {
             .compile("[/0-9]{4}[1-8]");
 
     // The logger
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     private Float mobileLatitude = null;
 
