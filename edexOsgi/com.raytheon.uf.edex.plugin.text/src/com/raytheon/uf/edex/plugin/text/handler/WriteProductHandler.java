@@ -20,7 +20,9 @@
 package com.raytheon.uf.edex.plugin.text.handler;
 
 import java.util.Date;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.text.request.WriteProductRequest;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
@@ -40,12 +42,13 @@ import com.raytheon.uf.edex.plugin.text.dbsrv.impl.AlarmAlertUtil;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 2, 2010            njensen     Initial creation
- * 01Jun2010               cjeanbap    Added operational mode functionality.
+ * Feb 02, 2010            njensen     Initial creation
+ * Jun 01, 2010            cjeanbap    Added operational mode functionality.
  * Jul 02, 2010 4687       cjeanbap    Added watch warn queue.
  * May 23, 2012 14952      rferrel     Alarm Alerts date now set to the
  *                                      products reference/create time.
  * May 20, 2014 2536       bclement    moved from edex.textdb to edex.plugin.text
+ * Dec 17, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -60,8 +63,8 @@ public class WriteProductHandler implements
 
     private static final String WATCH_WARN_QUEUE = "ldadWatchWarnDirect";
 
-    private static Logger logger = Logger.getLogger(WriteProductHandler.class
-            .toString());
+    private static Logger logger = LoggerFactory
+            .getLogger(WriteProductHandler.class.toString());
 
     @Override
     public Object handleRequest(WriteProductRequest request) throws Exception {
