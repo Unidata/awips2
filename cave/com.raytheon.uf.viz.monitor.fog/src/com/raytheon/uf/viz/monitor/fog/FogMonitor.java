@@ -88,6 +88,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Sep 23, 2014 3356       njensen     Remove unnecessary import
  * Mar 09, 2014 3888       dhladky     Stopped processing when dialogs are null or disposed.
  * Sep 18, 2015 3873       skorolev    Removed common definitions. Replaced deprecated NotificationMessage.
+ * Dec 17, 2015 3873       dhladky     Abstracted handling of dialogTime and Zone dialog events.
  * 
  * 
  * </pre>
@@ -117,8 +118,6 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
 
     /** data holder for FOG ALG data **/
     private SortedMap<Date, Map<String, FOG_THREAT>> algorithmData = null;
-
-    private Date dialogTime = null;
 
     /** list of coordinates for each zone **/
     private Map<String, Geometry> zoneGeometries = null;
@@ -512,26 +511,6 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
      */
     public void removeFogResourceListener(IFogResourceListener ifru) {
         fogResources.remove(ifru);
-    }
-
-    /**
-     * FogResource sets the Drawtime
-     * 
-     * @param drawTime
-     */
-    @Override
-    public void updateDialogTime(Date dialogTime) {
-        this.dialogTime = dialogTime;
-        fireMonitorEvent(zoneDialog.getClass().getName());
-    }
-
-    /**
-     * The date for the dialog to stay in step with
-     * 
-     * @return
-     */
-    public Date getDialogDate() {
-        return dialogTime;
     }
 
     /*
