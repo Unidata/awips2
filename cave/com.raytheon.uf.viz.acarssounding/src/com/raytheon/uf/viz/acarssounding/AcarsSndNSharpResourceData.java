@@ -63,6 +63,7 @@ import com.raytheon.uf.viz.d2d.nsharp.rsc.D2DNSharpResourceData;
  * ------------ ---------- ----------- --------------------------
  * Aug 15, 2013            bsteffen     Initial creation
  * Jul 23, 2014 3410       bclement     preparePointInfo() calls unpackResultLocation()
+ * Dec 17, 2015 5215       dgilling     Set point name to stationId.
  * 
  * </pre>
  * 
@@ -78,21 +79,27 @@ public class AcarsSndNSharpResourceData extends D2DNSharpResourceData {
 
     private static final String LATITUDE = "location.latitude";
 
+    private static final String STATION_ID = "location.stationId";
+
     public AcarsSndNSharpResourceData() {
         super("MDCRS");
     }
 
     @Override
     protected void preparePointInfo() throws VizException {
-        if (coordinate == null) {
+        if ((coordinate == null) || (pointName == null)) {
             DbQueryRequest request = new DbQueryRequest();
             request.setConstraints(getMetadataMap());
-            request.addFields(new String[] { LONGITUDE, LATITUDE });
+            request.addFields(new String[] { STATION_ID, LONGITUDE, LATITUDE });
             request.setDistinct(true);
             DbQueryResponse response = (DbQueryResponse) ThriftClient
                     .sendRequest(request);
 
             for (Map<String, Object> result : response.getResults()) {
+                if (pointName == null) {
+                    pointName = (String) result.get(STATION_ID);
+                }
+
                 if (coordinate == null) {
                     coordinate = unpackResultLocation(result, LONGITUDE,
                             LATITUDE);
@@ -111,7 +118,8 @@ public class AcarsSndNSharpResourceData extends D2DNSharpResourceData {
         request.addConstraint("dataTime", new RequestConstraint(new DataTime(
                 stnInfo.getReftime()).toString()));
         try {
-            DbQueryResponse response = (DbQueryResponse) ThriftClient.sendRequest(request);
+            DbQueryResponse response = (DbQueryResponse) ThriftClient
+                    .sendRequest(request);
             ACARSSoundingRecord[] records = response
                     .getEntityObjects(ACARSSoundingRecord.class);
             if (records.length > 0) {
@@ -127,7 +135,8 @@ public class AcarsSndNSharpResourceData extends D2DNSharpResourceData {
                         builder.addTemperature(layer.getTemp(), SI.KELVIN);
                     }
                     if (layer.getWindDirection() != null) {
-                        builder.addWindDirection(layer.getWindDirection(), NonSI.DEGREE_ANGLE);
+                        builder.addWindDirection(layer.getWindDirection(),
+                                NonSI.DEGREE_ANGLE);
                     }
                     if (layer.getWindSpeed() != null) {
                         builder.addWindSpeed(layer.getWindSpeed(),
@@ -153,7 +162,7 @@ public class AcarsSndNSharpResourceData extends D2DNSharpResourceData {
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
-        
+
         return null;
     }
 }
