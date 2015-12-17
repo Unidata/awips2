@@ -56,11 +56,6 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-BUILD_ARCH="%{_build_arch}"
-if [ "${BUILD_ARCH}" = "i386" ]; then
-   BUILD_ARCH="x86"
-fi
-
 # remove any .gitignore files
 # currently, the ebxml webapp includes a .gitignore file
 /usr/bin/find ${RPM_BUILD_ROOT}/awips2/edex -name .gitignore -exec rm -f {} \;
@@ -114,11 +109,6 @@ if [ ! -f /etc/init.d/edexServiceList-datadelivery ]; then
    if [ $? -ne 0 ]; then
       exit 1
    fi
-fi
-MACHINE_BIT=`uname -i`
-if [ "${MACHINE_BIT}" = "i386" ]
-then
-    rm -Rf /awips2/edex/lib/lib64
 fi
 
 # We need to create a link to the python shared library if it does not exist.

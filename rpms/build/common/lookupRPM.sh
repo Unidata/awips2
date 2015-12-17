@@ -23,6 +23,7 @@ function lookupRPM()
 
    awips2_ade_dir="${rpms_dir}/awips2.ade"
    awips2_cave_dir="${rpms_dir}/awips2.cave"
+   awips2_edex_dir="${rpms_dir}/awips2.edex"
    awips2_core_dir="${rpms_dir}/awips2.core"
    python_site__dir="${rpms_dir}/python.site-packages"
 
@@ -286,6 +287,10 @@ function lookupRPM()
    fi
    if [ "${1}" = "awips2-edex-environment" ]; then
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.edex-environment/edex"
+      return 0
+   fi
+   if [ "${1}" = "awips2-edex-shapefiles" ]; then
+      export RPM_SPECIFICATION="${awips2_edex_dir}/Installer.edex-shapefiles"
       return 0
    fi
 

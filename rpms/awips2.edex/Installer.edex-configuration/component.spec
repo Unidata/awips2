@@ -66,11 +66,6 @@ popd > /dev/null
 
 DEPLOY_SCRIPT="deploy.edex.awips2/deploy/deploy-esb.xml"
 
-BUILD_ARCH="%{_build_arch}"
-if [ "${BUILD_ARCH}" = "i386" ]; then
-   BUILD_ARCH="x86"
-fi
-
 # use deploy-install to deploy edex.
 pushd . > /dev/null
 cd %{_baseline_workspace}
@@ -79,9 +74,7 @@ cd %{_baseline_workspace}
    -Desb.overwrite=true \
    -Desb.directory=%{_baseline_workspace}/deploy.edex.awips2/esb \
    -Dedex.root.directory=${RPM_BUILD_ROOT}/awips2/edex \
-   -Dbasedir=%{_baseline_workspace}/deploy.edex.awips2 \
-   -Dbasedirectories=%{_baseline_workspace} \
-   -Darchitecture=${BUILD_ARCH}
+   -Dbasedir=%{_baseline_workspace}/deploy.edex.awips2
 if [ $? -ne 0 ]; then
    exit 1
 fi
