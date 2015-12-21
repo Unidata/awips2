@@ -96,6 +96,7 @@ import com.vividsolutions.jts.precision.SimpleGeometryPrecisionReducer;
  * 05/08/2015  DR 17310   D. Friedman  Prevent reducePoints from generating invalid polygons.
  * 09/22/2015  DR 18033   Qinglu Lin   Updated removeOverlaidLinesegments(), removed one computeSlope().
  * 12/09/2015  DR 18209   D. Friedman  Support cwaStretch.
+ * 12/21/2015  DCS 17942  D. Friedman  Support extension area.  Work around glitch in contour adjustment.
  * </pre>
  * 
  * @author mschenke
@@ -136,10 +137,12 @@ public class PolygonUtil {
     }
 
     public Polygon hatchWarningArea(Polygon origPolygon,
-            Geometry origWarningArea, Polygon oldWarningPolygon,
-            boolean cwaStretch)
+            Geometry origWarningArea, Geometry extensionArea,
+            Polygon oldWarningPolygon, boolean cwaStretch)
             throws VizException {
         float[][] contourAreaData = toFloatData(origWarningArea);
+        if (extensionArea != null)
+            toFloatData(extensionArea, contourAreaData);
 
         /*
          * If we have an oldWarningPolygon, we can take a shortcut and see if
@@ -226,7 +229,7 @@ public class PolygonUtil {
         boolean showContour = false;
         if (contour != null && !showContour) {
             rval = awips1PointReduction(contour, origPolygon, origWarningArea,
-                    config, oldWarningPolygon);
+                    extensionArea, config, oldWarningPolygon, contourAreaData);
             if (rval == null) {
                 return (Polygon) origPolygon.clone();
             }
@@ -247,14 +250,38 @@ public class PolygonUtil {
      * @return null if the original warningPolygon should be used
      */
     private Polygon awips1PointReduction(Coordinate[] longest,
-            Polygon warningPolygon, Geometry warningArea, FortConConfig config,
-            Polygon oldWarningPolygon) throws VizException {
+            Polygon warningPolygon, Geometry warningArea,
+            Geometry extensionArea, FortConConfig config,
+            Polygon oldWarningPolygon, float[][] warningAreaData)
+            throws VizException {
+        if (extensionArea != null) {
+            /*
+             * Attempt to avoid a glitch in the code below in which it chooses
+             * an inappropriate side of the polygon on which to project an
+             * unmatched contour point. The glitch is likely to occur when a
+             * polygon point is outside the contour space, so clip the polygon
+             * to it.
+             */
+            Polygon wpc = WarngenLayer.convertGeom(warningPolygon, latLonToContour);
+            GeometryFactory gf = new GeometryFactory();
+            Coordinate[] coords = new Coordinate[5];
+            coords[0] = new Coordinate(0, 0);
+            coords[1] = new Coordinate(nx, 0);
+            coords[2] = new Coordinate(nx, ny);
+            coords[3] = new Coordinate(0, ny);
+            coords[4] = new Coordinate(0, 0);
+            Polygon clip = gf.createPolygon(gf.createLinearRing(coords), null);
+            Geometry g = clip.intersection(wpc);
+            if (g instanceof Polygon) {
+                warningPolygon = WarngenLayer.convertGeom((Polygon) g, contourToLatLon);
+            }
+        }
         Coordinate[] vertices = warningPolygon.getCoordinates();
         vertices = Arrays.copyOf(vertices, vertices.length - 1);
 
         // Extract data
         float[][] contourPolyData = toFloatData(warningPolygon);
-        float[][] currentPolyData = toFloatData(warningArea);
+        float[][] currentPolyData = warningAreaData;
 
         // If same area is hatched, just use the current polygon.
         if (areasEqual(contourPolyData, currentPolyData)) {
@@ -1176,7 +1203,13 @@ public class PolygonUtil {
         }
     }
 
-    private float[][] toFloatData(Geometry warningArea) throws VizException {
+    public float[][] toFloatData(Geometry warningArea) throws VizException {
+        float[][] contourAreaData = new float[nx][ny];
+        toFloatData(warningArea, contourAreaData);
+        return contourAreaData;
+    }
+
+    public void  toFloatData(Geometry warningArea, float[][] contourAreaData) throws VizException {
         Geometry contoured = layer.convertGeom(warningArea, latLonToContour);
         List<Geometry> geomList = new ArrayList<Geometry>(
                 contoured.getNumGeometries());
@@ -1190,7 +1223,6 @@ public class PolygonUtil {
         GeometryFactory gf = warningArea.getFactory();
         Point point = gf.createPoint(new Coordinate(0, 0));
         CoordinateSequence pointCS = point.getCoordinateSequence();
-        float[][] contourAreaData = new float[nx][ny];
 
         for (PreparedGeometry geom : prepped) {
             Envelope env = geom.getGeometry().getEnvelopeInternal();
@@ -1198,13 +1230,14 @@ public class PolygonUtil {
             int startY = (int) env.getMinY();
             int width = (int) env.getMaxX();
             int height = (int) env.getMaxY();
-            if (startX < 0 || width > nx || startY < 0 || height > ny) {
-                continue;
-            }
+
             startX = Math.max(0, startX - 1);
             startY = Math.max(0, startY - 1);
             width = Math.min(nx, width + 1);
             height = Math.min(ny, height + 1);
+            if (width < 0 || startX >= nx || height < 0 || startY >= ny) {
+                continue;
+            }
 
             for (int x = startX; x < width; ++x) {
                 for (int y = startY; y < height; ++y) {
@@ -1217,7 +1250,6 @@ public class PolygonUtil {
                 }
             }
         }
-        return contourAreaData;
     }
 
     /**
