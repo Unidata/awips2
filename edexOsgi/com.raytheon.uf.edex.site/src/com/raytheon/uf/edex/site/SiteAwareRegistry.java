@@ -28,6 +28,9 @@ import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -63,6 +66,7 @@ import com.raytheon.uf.edex.site.SiteActivationMessage.Action;
  * Dec 11, 2012  14360     ryu         No printing stack trace on activation exception
  * Mar 10, 2014  2721      randerso    Fix error when activeSites.txt contains blank lines.
  * Jul 10, 2014  2914      garmendariz Remove EnvProperties
+ * Dec 21, 2015  4262      dgilling    Execute startup ISiteActivationListeners asynchronously.
  * 
  * </pre>
  * 
@@ -76,6 +80,9 @@ public class SiteAwareRegistry {
     public static final String ACTIVE_SITES = "config/activeSites.txt";
 
     private static SiteAwareRegistry instance = new SiteAwareRegistry();
+
+    private final ExecutorService activationThreadPool = Executors
+            .newCachedThreadPool();
 
     private Set<String> activeSites = new CopyOnWriteArraySet<String>();
 
@@ -104,23 +111,52 @@ public class SiteAwareRegistry {
      * @param sa
      *            the listener to register / add to the list
      */
-    public Object register(ISiteActivationListener sa) throws RegistryException {
+    public Object register(final ISiteActivationListener sa)
+            throws RegistryException {
         if (!activationListeners.add(sa)) {
             throw new RegistryException(
                     "SiteAwareRegistry Exception - duplicate site "
                             + sa.toString());
         }
+
+        final CountDownLatch activationComplete = new CountDownLatch(
+                activeSites.size());
+
         // inform of the current active sites
-        for (String siteID : activeSites) {
-            try {
-                sa.activateSite(siteID);
-            } catch (Exception e) {
-                // Stack trace is not printed per requirement for DR14360
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage());
-            }
+        for (final String siteID : activeSites) {
+            Runnable activateSiteTask = new Runnable() {
+
+                @Override
+                public void run() {
+                    try {
+                        sa.activateSite(siteID);
+                    } catch (Exception e) {
+                        // Stack trace is not printed per requirement for
+                        // DR14360
+                        statusHandler.error(e.getLocalizedMessage());
+                    } finally {
+                        activationComplete.countDown();
+                    }
+                }
+            };
+            activationThreadPool.submit(activateSiteTask);
         }
 
-        sa.registered();
+        Runnable siteActivationCompleteTask = new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    activationComplete.await();
+                } catch (InterruptedException e) {
+                    statusHandler.error(e.getLocalizedMessage());
+                } finally {
+                    sa.registered();
+                }
+            }
+        };
+        activationThreadPool.submit(siteActivationCompleteTask);
+
         return this;
     }
 

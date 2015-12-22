@@ -8,7 +8,12 @@
         <constructor-arg ref="iscProvider" />
     </bean>
     
-    <bean id="gfeSitesActiveRequest" factory-bean="siteAwareRegistry" factory-method="register">
+    <bean id="gfeSitesActiveRequest" factory-bean="siteAwareRegistry" factory-method="register"
+        depends-on="gfeActivationAsyncRequest">
+        <constructor-arg ref="gfeSiteActivation"/>
+    </bean>
+    
+    <bean id="gfeActivationAsyncRequest" factory-bean="contextManager" factory-method="registerAsyncStartupBean">
         <constructor-arg ref="gfeSiteActivation"/>
     </bean>
 
