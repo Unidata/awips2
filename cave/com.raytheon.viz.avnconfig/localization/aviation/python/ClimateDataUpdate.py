@@ -466,7 +466,7 @@ required NCDC data.
                             shape = f_col.descr._v_colObjects[col].shape[0] - 1
                             #datum = datum + [self.__get_msng(f_col.type)]*(f_col.shape[0]-len(datum))
 			    datum = datum + [self.__get_msng(f_col.type)] * (f_col.descr._v_colObjects[col].shape[0] - len(datum))
-                            if len(numpy.array(datum)) != len(row[col]): 
+                            if len(numpy.array(datum)) != len(row[col]):
                                 continue
 			    row[col] = numpy.array(datum).astype(f_col.type) 
 		    except Exception, e:
