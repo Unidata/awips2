@@ -73,6 +73,7 @@
 #    10/07/2015          #4958     dgilling       Added support for NationalBlend D2D data.
 #    10/13/2015          #4961     randerso       Updated NewTerrain/BaseTerrain database definitions
 #    10/30/2015          #17940    jendrowski     Responded to Code Review.  Mostly syntactical changes.
+#    12/22/2015          #14152    jwatson        Added Sky, Wind to GFSLAMPGrid parms
 ####################################################################################################
 
 #----------------------------------------------------------------------------
@@ -3009,7 +3010,7 @@ ENPwave_parms = [([WindWaveHeight, WaveHeight, SurfHeight, Wind], TC6),
             ([Swell, Swell2, Period, Period2], TC6)]
 
 # GFSLAMPGrid
-GFSLAMPGridPARMS=[([Temp, Td, Vis, CigHgt],TC1)]
+GFSLAMPGridPARMS=[([Temp, Td, Vis, CigHgt, Sky, Wind],TC1)]
 
 #---------------------------------------------------------------------------
 # Databases for a site.
