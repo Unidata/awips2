@@ -57,6 +57,7 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * 12 Aug 2014  3049       bkowal      Close the BufferedReader when finished.
  * 21 May 2015  4501       skorolev    Changed a way of database connection. Got rid of Vector.
  * 17 Sep 2015  4886       skorolev    Corrected updateRejecteddata.
+ * 17 Dec 2015  18407      xwei        Fixed: XDAT in Hydro Perspective allows user only to view 4 days instead of 30 days
  * 
  * </pre>
  * 
@@ -171,7 +172,7 @@ public class XdatDB {
                     for (Object[] obj : rs) {
                         hours.add((Integer) obj[0]);
                     }
-                    if (hours != null && hours.size() > 1) {
+                    if (hours != null && hours.size() >= 1) {
                         numHours = hours.get(0);
                     }
                     if (numHours > maxNumHours) {

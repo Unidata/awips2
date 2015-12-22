@@ -356,6 +356,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * 07Oct2015   RM 18132     D. Friedman Exlucde certain phensigs from automatic ETN incrementing.
  * 19Nov2015   5141         randerso    Replace commas with ellipses if product not enabled for 
  *                                      mixed case transmission
+ * 10Dec2015   5206         randerso    Replace commas with ellipses only in WarnGen products
  * 
  * </pre>
  * 
@@ -386,6 +387,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      */
     private static List<String> gfePils = Arrays.asList("WSW", "NPW", "HLS",
             "CFW", "WCN", "FFA", "MWW", "RFW");
+
+    private static final List<String> warngenPils = Arrays.asList("AWW", "EWW",
+            "FFS", "FFW", "FLS", "FLW", "FRW", "MWS", "NOW", "SMW", "SPS",
+            "SVR", "SVS", "TOR");
 
     /**
      * Default list of VTEC phenomena significance codes for which the ETN
@@ -4235,9 +4240,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         // section
         setCurrentHeaderAndBody();
 
-        // if product is not enabled for mixed case transmission,
-        // replace all commas with ellipses
-        if (!MixedCaseProductSupport.isMixedCase(product.getNnnid())) {
+        // if product a WarnGen product and is not enabled for mixed case
+        // transmission, replace all commas with ellipses
+        if (warngenPils.contains(product.getNnnid())
+                && !MixedCaseProductSupport.isMixedCase(product.getNnnid())) {
             textEditor.setText(textEditor.getText()
                     .replaceAll(", {0,1}", "..."));
         }
@@ -7112,9 +7118,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         textEditor.append(textProduct);
 
-        // if product is not enabled for mixed case transmission,
-        // replace all commas with ellipses
-        if (!MixedCaseProductSupport.isMixedCase(product.getNnnid())) {
+        // if product a WarnGen product and is not enabled for mixed case
+        // transmission, replace all commas with ellipses
+        if (warngenPils.contains(product.getNnnid())
+                && !MixedCaseProductSupport.isMixedCase(product.getNnnid())) {
             textEditor.setText(textEditor.getText()
                     .replaceAll(", {0,1}", "..."));
         }
