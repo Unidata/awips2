@@ -291,11 +291,6 @@
                       definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
                 </reference>
              </visibleWhen>
-             <command
-                   commandId="com.raytheon.viz.ui.showHistoryList"
-                   label="History List..."
-                   style="push">
-             </command>
              <separator
                    name="tools.start"
                    visible="false">
@@ -897,10 +892,6 @@
                class="com.raytheon.uf.viz.d2d.ui.actions.ImageCombinationAction"
                commandId="com.raytheon.uf.viz.d2d.ui.actions.imageCombination">
          </handler>
-         <handler
-	         class="com.raytheon.uf.viz.d2d.ui.actions.ShowHistoryList"
-	         commandId="com.raytheon.viz.ui.showHistoryList">
-   		 </handler>
 	     <handler
 	           class="com.raytheon.uf.viz.d2d.ui.actions.AddAWIPSProcedure"
 	           commandId="com.raytheon.viz.ui.newAWIPSProcedure">
@@ -984,12 +975,6 @@
    <extension
          id="com.raytheon.viz.ui.bindings"
          point="org.eclipse.ui.bindings">
-      <key
-      		contextId="com.raytheon.uf.viz.d2d.ui"
-            commandId="com.raytheon.viz.ui.showHistoryList"
-            schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="M1+H">
-      </key>
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
             commandId="com.raytheon.uf.viz.d2d.ui.actions.changeLegendMode"
@@ -1424,12 +1409,6 @@
             categoryId="com.raytheon.uf.viz.d2d.ui"
             description="Toggle the image combination option"
             name="Image Combination">
-      </command>
-      <command
-            id="com.raytheon.viz.ui.showHistoryList"
-            categoryId="com.raytheon.uf.viz.d2d.ui"
-            description="Show the d2d history list"
-            name="Show History List">
       </command>
       <command
             id="com.raytheon.viz.ui.openAWIPSProcedure"
