@@ -64,7 +64,7 @@
 	<alias base="ENSEMBLE">GFSensemble</alias>
 	<alias base="ETA207">NAM95</alias>
 	<alias base="ETA212">NAMWX</alias>
-	<alias base="ETA218">NAM12</alias>
+	<alias base="ETA218">NAM-12km</alias>
 	<alias base="ETA242">AK-NAM12</alias>
 	<alias base="EtaBufr">NAM Bufr</alias>
 	<alias base="ETA">NAM80</alias>
@@ -72,7 +72,7 @@
 	<alias base="GFS161">SJU-GFS</alias>
 	<alias base="GFS199">Guam-GFSDNG</alias>
 	<alias base="GFS201">GFS360</alias>
-	<alias base="GFS212">GFS40</alias>
+	<alias base="GFS212">GFS-40km</alias>
     <alias base="GFS229">GFS1degGbl</alias>
 	<alias base="GFS213">GFS90</alias>
 	<alias base="GFS254">PR-GFS</alias>
@@ -85,8 +85,8 @@
 	<alias base="HurWind226">TPC-HurWind</alias>
 	<alias base="HurWind250">HawHurWind</alias>
 	<alias base="MANSPE">SPE</alias>
-	<alias base="mesoEta212">NAM40</alias>
-	<alias base="mesoEta215">NAM20</alias>
+	<alias base="mesoEta212">NAM-40km</alias>
+	<alias base="mesoEta215">NAM-20km</alias>
 	<alias base="mesoEta216">AK-NAM40</alias>
 	<alias base="mesoEta217">AK-NAM20</alias>
 	<alias base="mesoEta237">PR-NAM12</alias>

@@ -253,7 +253,7 @@
 	</model>
 
 	<model>
-		<name>mesoEta215</name>
+		<name>NAM-20km</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>215</grid>
