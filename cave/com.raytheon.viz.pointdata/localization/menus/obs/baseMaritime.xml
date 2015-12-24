@@ -44,37 +44,35 @@
 	        <substitute key="posOffset" value="0"/>
 	        <substitute key="negOffset" value="5400"/>
 	    </contribute>
-		<contribute xsi:type="subMenu" menuText="Other Maritime Plots">
-			<contribute xsi:type="bundleItem" file="bundles/SeaStatePlot.xml" 
-	               menuText="Fixed Sea State" id="FixedSeaState">
-		        <substitute key="svg" value="seaStateDesign.svg"/>
-		        <substitute key="legend" value="Fixed Buoys Sea State"/>
-		        <substitute key="reportType" value="1004,1005"/>
-		    </contribute>
-			<contribute xsi:type="bundleItem" file="bundles/SeaStatePlot.xml" 
-	               menuText="Moving Sea State" id="MovingSeaState">
-		        <substitute key="svg" value="seaStateDesign.svg"/>
-		        <substitute key="legend" value="Moving Buoys/Ships Sea State"/>
-		        <substitute key="reportType" value="1003,1006"/>
-		    </contribute>
-			<contribute xsi:type="bundleItem" file="bundles/SeaStatePlot.xml" 
-	               menuText="MAROB Sea State" id="MAROBSeaState">
-		        <substitute key="svg" value="seaStateDesign.svg"/>
-		        <substitute key="legend" value="MAROB Sea State"/>
-		        <substitute key="reportType" value="1007"/>
-		    </contribute>
-			<contribute xsi:type="bundleItem" file="bundles/MaritimePlot.xml" 
-	               menuText="Maritime Clouds/Vis" id="MaritimeCloudVis">
-		        <substitute key="svg" value="maritimeCvDesign.svg"/>
-		        <substitute key="legend" value="Maritime Clouds and Visibility"/>
-		        <substitute key="reportType" value="1003"/>
-		    </contribute>
-			<contribute xsi:type="bundleItem" file="bundles/MaritimePlot.xml" 
-	               menuText="MAROB Clouds/Vis" id="MarobCloudsVis">
-		        <substitute key="svg" value="maritimeCvDesign.svg"/>
-		        <substitute key="legend" value="MAROB Clouds and Visibility"/>
-		        <substitute key="reportType" value="1007"/>
-		    </contribute>	
+	    <contribute xsi:type="bundleItem" file="bundles/SeaStatePlot.xml" 
+	           menuText="Fixed Sea State" id="FixedSeaState">
+	        <substitute key="svg" value="seaStateDesign.svg"/>
+	        <substitute key="legend" value="Fixed Buoys Sea State"/>
+	        <substitute key="reportType" value="1004,1005"/>
 	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SeaStatePlot.xml" 
+	           menuText="Moving Sea State" id="MovingSeaState">
+	        <substitute key="svg" value="seaStateDesign.svg"/>
+	        <substitute key="legend" value="Moving Buoys/Ships Sea State"/>
+	        <substitute key="reportType" value="1003,1006"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SeaStatePlot.xml" 
+	           menuText="MAROB Sea State" id="MAROBSeaState">
+	        <substitute key="svg" value="seaStateDesign.svg"/>
+	        <substitute key="legend" value="MAROB Sea State"/>
+	        <substitute key="reportType" value="1007"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/MaritimePlot.xml" 
+	           menuText="Maritime Clouds/Vis" id="MaritimeCloudVis">
+	        <substitute key="svg" value="maritimeCvDesign.svg"/>
+	        <substitute key="legend" value="Maritime Clouds and Visibility"/>
+	        <substitute key="reportType" value="1003"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/MaritimePlot.xml" 
+	           menuText="MAROB Clouds/Vis" id="MarobCloudsVis">
+	        <substitute key="svg" value="maritimeCvDesign.svg"/>
+	        <substitute key="legend" value="MAROB Clouds and Visibility"/>
+	        <substitute key="reportType" value="1007"/>
+	    </contribute>	
 	</contribute>
 </menuTemplate>
