@@ -48,7 +48,7 @@
     <alias base="NGM202">ngm202</alias>
     <alias base="AVN211">avn211</alias>
     <alias base="mesoEta212">mesoEta212</alias>
-    <alias base="mesoEta215">mesoEta215</alias>
+    <alias base="NAM-20km">NAM-20km</alias>
     <alias base="ETA212">eta212</alias>
     <alias base="AVN203">avn203</alias>
     <alias base="MRF203">mrf203</alias>
