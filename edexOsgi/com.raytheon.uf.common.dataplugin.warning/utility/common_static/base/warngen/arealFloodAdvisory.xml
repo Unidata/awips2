@@ -17,6 +17,7 @@
                                             to determine what warning they are following up!)  
                                             Fixed Gauge reports source selection
                  Mike Dangelo    10-20-2015 Standard CTAs
+                 Evan Bookbinder 12-7-2015 Fixed ambiguity with arroyo CTA and product type parse strings, and added satellite source
                  
 -->
                  
@@ -120,7 +121,7 @@ Must be paired with proper vm code (which are commented out in arealFloodAdvisor
   <bullet bulletName="general" bulletText="General (minor flooding)" bulletGroup="advType" bulletDefault="true" parseString="&quot;-ARROYO&quot;,&quot;-SMALL STREAM FLOOD ADVISORY&quot;,&quot;FLOOD ADVISORY&quot;"/>
   <bullet bulletName="small" bulletText="Small stream" bulletGroup="advType" parseString="&quot;-URBAN AND&quot;,&quot;-ARROYO&quot;,&quot;SMALL STREAM FLOOD ADVISORY&quot;"/>
   <bullet bulletName="uss" bulletText="Urban and small stream" bulletGroup="advType" parseString="URBAN AND SMALL STREAM FLOOD ADVISORY"/>
-  <bullet bulletName="arroyo" bulletText="Arroyo and small stream" bulletGroup="advType" parseString="ARROYO"/>
+  <bullet bulletName="arroyo" bulletText="Arroyo and small stream" bulletGroup="advType" parseString="ARROYO AND SMALL STREAM"/>
   <bullet bulletName="hydrologic" bulletText="Hydrologic" bulletGroup="advType" parseString="HYDROLOGIC ADVISORY"/> 
   <bullet bulletText="*********** PRIMARY CAUSE *********** " bulletType="title"/>
   <bullet bulletName="ER" bulletText="Excessive rain (default)" bulletDefault="true" bulletGroup="ic" parseString=".ER."/>
@@ -165,7 +166,7 @@ Must be paired with proper vm code (which are commented out in arealFloodAdvisor
   <bullet bulletName="ruralCTA" bulletText="Rural areas" parseString="COUNTRY ROADS, FARMLAND, AND OTHER LOW LYING SPOTS"/>
   <bullet bulletName="stayAwayCTA" bulletText="Stay away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
   <bullet bulletName="lowSpotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
-  <bullet bulletName="arroyosCTA" bulletText="Arroyos" parseString="ARROYOS"/>
+  <bullet bulletName="arroyosCTA" bulletText="Arroyos" parseString="ARROYOS, STREAMS"/>
   <bullet bulletName="burnAreasCTA" bulletText="Burn Areas" parseString="RECENTLY BURNED AREAS"/>
   <bullet bulletName="camperSafetyCTA" bulletText="Camper/Hiker Safety" parseString="CAMPERS AND HIKERS"/>
   <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to law enforcement" parseString="REPORT FLOODING TO YOUR LOCAL LAW ENFORCEMENT"/>
@@ -178,7 +179,7 @@ Must be paired with proper vm code (which are commented out in arealFloodAdvisor
   <bullet bulletName="general" bulletText="general (minor flooding)" bulletGroup="advType" parseString="&quot;-ARROYO&quot;,&quot;-SMALL STREAM FLOOD ADVISORY&quot;,&quot;FLOOD ADVISORY&quot;" showString="&quot;-ARROYO&quot;,&quot;-SMALL STREAM FLOOD ADVISORY&quot;,&quot;FLOOD ADVISORY&quot;"/>
   <bullet bulletName="small" bulletText="small stream" bulletGroup="advType" parseString="&quot;-URBAN AND&quot;,&quot;-ARROYO&quot;,&quot;SMALL STREAM FLOOD ADVISORY&quot;" showString="&quot;-URBAN AND&quot;,&quot;-ARROYO&quot;,&quot;SMALL STREAM FLOOD ADVISORY&quot;"/>
   <bullet bulletName="uss" bulletText="urban and small stream" bulletGroup="advType" parseString="URBAN AND SMALL STREAM FLOOD ADVISORY" showString="URBAN AND SMALL STREAM FLOOD ADVISORY"/>
-  <bullet bulletName="arroyo" bulletText="arroyo and small stream" bulletGroup="advType" parseString="ARROYO" showString="ARROYO"/>
+  <bullet bulletName="arroyo" bulletText="arroyo and small stream" bulletGroup="advType" parseString="ARROYO" showString="ARROYO AND SMALL STREAM"/>
   <bullet bulletName="hydrologic" bulletText="hydrologic" bulletGroup="advType" parseString="HYDROLOGIC ADVISORY" showString="HYDROLOGIC ADVISORY"/> 
   <bullet bulletText="***** PRIMARY CAUSE (locked) *****" bulletType="title"/>
   <bullet bulletName="ER" bulletText="Excessive rain" bulletGroup="ic" parseString=".ER." showString=".ER."/>
@@ -197,6 +198,7 @@ Must be paired with proper vm code (which are commented out in arealFloodAdvisor
   <bullet bulletName="public" bulletText="Public reported" bulletGroup="advSource" parseString="THE PUBLIC REPORTED"/>
   <bullet bulletName="lawEnforcement" bulletText="Local law enforcement reported" bulletGroup="advSource" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
   <bullet bulletName="emergencyManagement" bulletText="Emergency management reported" bulletGroup="advSource" parseString="EMERGENCY MANAGEMENT REPORTED"/>
+  <bullet bulletName="satelliteEstimates" bulletText="Satellite Estimates" bulletGroup="advSource" parseString="SATELLITE ESTIMATES"/>
   <bullet bulletName="onlyGauge" bulletText="Gauge reports" bulletGroup="advSource" parseString="GAUGE REPORTS"/>
   <bullet bulletText="*********** EVENT (choose one) *********** " bulletType="title"/>
   <bullet bulletName="thunder" bulletText="Thunderstorm(s)" bulletGroup="advEvent" bulletDefault="true" parseString="&quot;THUNDERSTORM&quot;,&quot;-CAUSING&quot;,&quot;-RAPID RIVER RISES&quot;,&quot;-MINOR FLOODING OF POOR DRAINAGE&quot;"/>
@@ -223,7 +225,7 @@ Must be paired with proper vm code (which are commented out in arealFloodAdvisor
   <bullet bulletName="ruralCTA" bulletText="Rural areas" parseString="COUNTRY ROADS, FARMLAND, AND OTHER LOW LYING SPOTS"/>
   <bullet bulletName="stayAwayCTA" bulletText="Stay away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
   <bullet bulletName="lowSpotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
-  <bullet bulletName="arroyosCTA" bulletText="Arroyos" parseString="ARROYOS"/>
+  <bullet bulletName="arroyosCTA" bulletText="Arroyos" parseString="ARROYOS, STREAMS"/>
   <bullet bulletName="burnAreasCTA" bulletText="Burn Areas" parseString="RECENTLY BURNED AREAS"/>
   <bullet bulletName="camperSafetyCTA" bulletText="Camper/Hiker Safety" parseString="CAMPERS AND HIKERS"/>
   <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to law enforcement" parseString="REPORT FLOODING TO YOUR LOCAL LAW ENFORCEMENT"/>
@@ -236,7 +238,7 @@ Must be paired with proper vm code (which are commented out in arealFloodAdvisor
   <bullet bulletName="general" bulletText="general (minor flooding)" bulletGroup="advType" parseString="&quot;-ARROYO&quot;,&quot;-SMALL STREAM FLOOD ADVISORY&quot;,&quot;FLOOD ADVISORY&quot;" showString="&quot;-ARROYO&quot;,&quot;-SMALL STREAM FLOOD ADVISORY&quot;,&quot;FLOOD ADVISORY&quot;"/>
   <bullet bulletName="small" bulletText="small stream" bulletGroup="advType" parseString="&quot;-URBAN AND&quot;,&quot;-ARROYO&quot;,&quot;SMALL STREAM FLOOD ADVISORY&quot;" showString="&quot;-URBAN AND&quot;,&quot;-ARROYO&quot;,&quot;SMALL STREAM FLOOD ADVISORY&quot;"/>
   <bullet bulletName="uss" bulletText="urban and small stream" bulletGroup="advType" parseString="URBAN AND SMALL STREAM FLOOD ADVISORY" showString="URBAN AND SMALL STREAM FLOOD ADVISORY"/>
-  <bullet bulletName="arroyo" bulletText="arroyo and small stream" bulletGroup="advType" parseString="ARROYO" showString="ARROYO"/>
+  <bullet bulletName="arroyo" bulletText="arroyo and small stream" bulletGroup="advType" parseString="ARROYO" showString="ARROYO AND SMALL STREAM"/>
   <bullet bulletName="hydrologic" bulletText="hydrologic" bulletGroup="advType" parseString="HYDROLOGIC ADVISORY" showString="HYDROLOGIC ADVISORY"/> 
   <bullet bulletText="***** PRIMARY CAUSE (locked) *****" bulletType="title"/>
   <bullet bulletName="ER" bulletText="Excessive rain" bulletGroup="ic" parseString=".ER." showString=".ER."/>
@@ -255,6 +257,7 @@ Must be paired with proper vm code (which are commented out in arealFloodAdvisor
   <bullet bulletName="public" bulletText="Public reported" bulletGroup="advSource" parseString="THE PUBLIC REPORTED"/>
   <bullet bulletName="lawEnforcement" bulletText="Local law enforcement reported" bulletGroup="advSource" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
   <bullet bulletName="emergencyManagement" bulletText="Emergency management reported" bulletGroup="advSource" parseString="EMERGENCY MANAGEMENT REPORTED"/>
+  <bullet bulletName="satelliteEstimates" bulletText="Satellite Estimates" bulletGroup="advSource" parseString="SATELLITE ESTIMATES"/>
   <bullet bulletName="onlyGauge" bulletText="Gauge reports" bulletGroup="advSource" parseString="GAUGE REPORTS"/>
   <bullet bulletText="*********** EVENT (choose one) *********** " bulletType="title"/>
   <bullet bulletName="thunder" bulletText="Thunderstorm(s)" bulletGroup="advEvent" bulletDefault="true" parseString="&quot;THUNDERSTORM&quot;,&quot;-CAUSING&quot;,&quot;-RAPID RIVER RISES&quot;,&quot;-MINOR FLOODING OF POOR DRAINAGE&quot;"/>
@@ -281,7 +284,7 @@ Must be paired with proper vm code (which are commented out in arealFloodAdvisor
   <bullet bulletName="ruralCTA" bulletText="Rural areas" parseString="COUNTRY ROADS, FARMLAND, AND OTHER LOW LYING SPOTS"/>
   <bullet bulletName="stayAwayCTA" bulletText="Stay away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
   <bullet bulletName="lowSpotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
-  <bullet bulletName="arroyosCTA" bulletText="Arroyos" parseString="ARROYOS"/>
+  <bullet bulletName="arroyosCTA" bulletText="Arroyos" parseString="ARROYOS, STREAMS"/>
   <bullet bulletName="burnAreasCTA" bulletText="Burn Areas" parseString="RECENTLY BURNED AREAS"/>
   <bullet bulletName="camperSafetyCTA" bulletText="Camper/Hiker Safety" parseString="CAMPERS AND HIKERS"/>
   <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to law enforcement" parseString="REPORT FLOODING TO YOUR LOCAL LAW ENFORCEMENT"/>

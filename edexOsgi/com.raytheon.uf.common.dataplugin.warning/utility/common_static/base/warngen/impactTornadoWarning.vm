@@ -1,9 +1,9 @@
 #############################################################################
 ## IMPACT-BASED TORNADO WARNING TEMPLATE                             	   ##
-## CREATED BY PHIL KURIMSKI - WFO GRB                   				   ##
-## UPDATED -- 2-04-2012 OB13.2.1-5 impact stmts         				   ##
-## UPDATED -- Bookbinder 2/22/13 2013 IBW Changes      					   ##
-## UPDATED -- Kurimski 5/20/13 Addl IBW Changes         				   ##
+## CREATED BY PHIL KURIMSKI - WFO GRB                                      ##
+## UPDATED -- 2-04-2012 OB13.2.1-5 impact stmts                            ##
+## UPDATED -- Bookbinder 2/22/13 2013 IBW Changes                          ##
+## UPDATED -- Kurimski 5/20/13 Addl IBW Changes                            ##
 ## UPDATED -- Kurimski 9/17/13 Tor Emer Headline                           ##
 ## UPDATED -- Bookbinder 9/18/2013 implement config.vm                     ## 
 ## UPDATED -- Dangelo 1/24/2014 added logic to keep defaultCTAs from being ##
@@ -15,6 +15,7 @@
 ## UPDATED -- Bookbinder 6/15/15 Fixed softball and grapefruit hail sizes  ##
 ## UPDATED -- Phil Kurimski 10-20-2015 Added waterspout option to basis    ##
 ##            Bookbinder 10-20-2015 Fixed extraSource var for tornado info ##
+##            Bookbinder 12-07-15 fixed lowercase preAmble on lne 283      ##
 #############################################################################
 ## NOTE: Impact Statements for IBW templates are contained in impactStatements.vm
 ################################################################
@@ -280,7 +281,7 @@ This is a test message. ##
     #set($pathcastLead = "The tornado")
     #set($moveLead = " Doppler radar showed this tornado moving")
   #end 
-  #set($preAmble = "to repeat, a large, extremely dangerous and potentially deadly tornado is on the ground. to protect your life, ")
+  #set($preAmble = "To repeat, a large, extremely dangerous and potentially deadly tornado is on the ground. to protect your life, ")
 #end
 *#
 #if(${list.contains(${bullets}, "spotter")})
