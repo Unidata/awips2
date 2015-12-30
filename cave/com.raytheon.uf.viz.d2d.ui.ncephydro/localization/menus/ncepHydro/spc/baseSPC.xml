@@ -21,11 +21,15 @@
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	
     <contribute xsi:type="bundleItem" file="bundles/ncepHydro/ConvectiveWatchPlot.xml"
-             menuText="Convective Watches" id="convectiveWatches">
+             menuText="SPC Convective Watches" id="convectiveWatches">
     </contribute>
  	<contribute xsi:type="bundleItem" file="bundles/ncepHydro/SvrWxPlot.xml" 
-               menuText="Svr Wx Plot" id="spcWxPlot">
+               menuText="SPC Svr Wx Plot" id="spcWxPlot">
 	</contribute>
-	
 	<contribute xsi:type="subinclude" fileName="menus/ncepHydro/spc/hazardMenus.xml"/>
+	<contribute xsi:type="bundleItem" file="bundles/hydro/zeroToThreeHourRadarQPF.xml"
+		menuText="0-3hr Prob CG Lightning" id="probCGLightning">
+		<substitute key="param" value="PVORT3hr"/>
+		<substitute key="customLegend" value="3hr. CG Lightning Probability"/>
+	</contribute>
 </menuTemplate>

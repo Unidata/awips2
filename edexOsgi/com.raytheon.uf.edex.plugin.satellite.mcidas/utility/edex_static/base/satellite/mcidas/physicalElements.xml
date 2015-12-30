@@ -42,5 +42,53 @@
 		<entry><key ss="85" band="5"/><value name="Imager 3.5-4.0 micro IR (Fog)" /></entry>
 		<!-- Not documented, but this is what is actually being received. -->
 		<entry><key ss="85" band="6"/><value name="Imager 3.5-4.0 micro IR (Fog)" /></entry>
+		
+		<!-- GOES13 -->
+		<entry><key ss="180" band="1"/><value name="Imager Visible" /></entry>
+		<entry><key ss="180" band="2"/><value name="Imager 3.5-4.0 micron IR" units="IRPixel" /></entry>
+		<entry><key ss="180" band="3"/><value name="Imager 6.7-6.5 micron WV" units="IRPixel" /></entry>
+		<entry><key ss="180" band="4"/><value name="Imager 11 micron IR" /></entry>
+		<entry><key ss="180" band="5"/><value name="Imager 12 micron IR" /></entry>
+		<entry><key ss="180" band="6"/><value name="Imager 13 micron IR" /></entry>
+		
+		<!-- GOES15 -->
+		<entry><key ss="184" band="1"/><value name="Imager Visible" /></entry>
+		<entry><key ss="184" band="2"/><value name="Imager 3.5-4.0 micron IR" units="IRPixel" /></entry>
+		<entry><key ss="184" band="3"/><value name="Imager 6.7-6.5 micron WV" units="IRPixel" /></entry>
+		<entry><key ss="184" band="4"/><value name="Imager 11 micron IR" /></entry>
+		<entry><key ss="184" band="5"/><value name="Imager 12 micron IR" /></entry>
+		<entry><key ss="184" band="6"/><value name="Imager 13 micron IR" /></entry>
+		
+		<!-- Arctic -->
+		<entry><key ss="401" band="1"/><value name="Imager Visible" /></entry>
+		<entry><key ss="401" band="2"/><value name="Imager 3.5-4.0 micron IR" units="IRPixel" /> /></entry>
+		<entry><key ss="401" band="3"/><value name="Imager 6.7-6.5 micron WV" units="IRPixel" /></entry>
+		<entry><key ss="401" band="4"/><value name="Imager 11 micron IR" /></entry>
+		<entry><key ss="401" band="5"/><value name="Imager 12 micron IR" /></entry>
+		
+		<!-- Antarctic -->
+		<entry><key ss="72" band="1"/><value name="Imager Visible" /></entry>
+		<entry><key ss="72" band="3"/><value name="Imager 6.7-6.5 micron WV" units="IRPixel" /></entry>
+		<entry><key ss="72" band="4"/><value name="Imager 11 micron IR" /></entry>
+
+		<!-- SOUNDER -->
+		<entry><key ss="185" band="1"/><value name="Imager Visible" /></entry>
+		<entry><key ss="185" band="2"/><value name="Imager 11 micron IR" units="IRPixel" /></entry>
+		<entry><key ss="185" band="3"/><value name="Imager 12 micron IR" units="IRPixel" /></entry>
+		<entry><key ss="185" band="4"/><value name="Imager 6.7-6.5 micron WV" /></entry>
+		<entry><key ss="185" band="5"/><value name="Imager 3.5-4.0 micron IR" /></entry>
+		<entry><key ss="185" band="6"/><value name="Imager 3.5-4.0 micron IR" /></entry>
+		
+		<!-- UNIWISC GOES Sounder -->
+		<entry><key ss="71" band="27"/><value name="Gridded Cloud Top Pressure or Height" /></entry>
+		<entry><key ss="185" band="27"/><value name="Gridded Cloud Top Pressure or Height" /></entry>
+		<entry><key ss="185" band="28"/><value name="Sounder Based Derived Precipitable Water (PW)" /></entry>
+		<entry><key ss="185" band="29"/><value name="Sounder Based Derived Lifted Index (LI)" /></entry>
+		<entry><key ss="185" band="30"/><value name="CAPE" /></entry>
+		<entry><key ss="185" band="31"/><value name="Sounder Based Total Column Ozone" /></entry>
+		<entry><key ss="10" band="31"/><value name="Sounder Based Derived Surface Skin Temp (SFC Skin)" /></entry>
+
+
+		
 	</map>
 </physicalElements>

@@ -21,7 +21,9 @@ Require-Bundle: org.eclipse.ui,
 Export-Package: com.raytheon.uf.viz.alertviz,
  com.raytheon.uf.viz.alertviz.config
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: com.raytheon.uf.common.time,
+Import-Package: com.raytheon.uf.common.python,
+ com.raytheon.uf.common.time,
+ jep,
  org.apache.log4j
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: ch.qos.logback

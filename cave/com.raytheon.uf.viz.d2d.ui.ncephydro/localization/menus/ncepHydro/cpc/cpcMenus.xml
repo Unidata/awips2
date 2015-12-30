@@ -19,7 +19,7 @@
         further_licensing_information.
     -->
 <menuTemplate>
-    <contribute xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="subMenu" menuText="Hazard Charts" id="ncepHydro.cpc.hazardCharts">
+    <contribute xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="subMenu" menuText="CPC Hazard Charts" id="ncepHydro.cpc.hazardCharts">
         <contribute xsi:type="titleItem" titleText="------ 3-7 Day Hazards Outlook ------" id="threeTo7DayHazardsOutlook"/>
         <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="3-7 day Precipitation Fcst" timeQuery="true" id="threeTo7DayPrecipFcst">
             <substitute value="PEIY97" key="wmo"/>

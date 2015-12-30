@@ -20,6 +20,10 @@
 
 package com.raytheon.uf.viz.d2d.ui.map.actions;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -30,19 +34,20 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
+import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
 import com.raytheon.uf.viz.core.maps.actions.NewMapEditor;
 import com.raytheon.uf.viz.core.maps.display.VizMapEditor;
-import com.raytheon.uf.viz.core.status.StatusConstants;
-import com.raytheon.uf.viz.d2d.ui.Activator;
+import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.viz.ui.EditorUtil;
-import com.raytheon.viz.ui.HistoryList;
 import com.raytheon.viz.ui.editor.AbstractEditor;
-import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 
 /**
- * Action to reset a map to its initial state
+ * Action to reset a map to its initial state.  What this *should*
+ * do is remove all non-map resources....
  * 
  * <pre>
  * 
@@ -56,6 +61,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  *  Jul 10, 2008             chammack    Properly clear the resource list on the old 
  *                                       descriptor to facilitate better cleanup
  * Oct 21, 2008   #1450      randerso    Fixed to support multipane editors
+ * May 24, 2015              mjames@ucar Moved UnloadAllProductsAction here to replace map reload
  * 
  * </pre>
  * 
@@ -68,22 +74,30 @@ public class ClearAction extends AbstractHandler {
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        IEditorPart part = EditorUtil.getActiveEditor();
-        if (part == null) {
-            new NewMapEditor().execute(null);
-            return null;
-        }
-        try {
-            if (part instanceof IDisplayPaneContainer) {
-                HistoryList.getInstance().refreshLatestBundle();
-                clear(part);
-                HistoryList.getInstance().addBundle();
-            } else {
-                clear(part);
+        IDisplayPaneContainer cont = EditorUtil.getActiveVizContainer();
+
+    	IDisplayPane[] panes = cont.getDisplayPanes();
+
+        for (IDisplayPane displayPane : panes) {
+            IDescriptor desc = displayPane.getDescriptor();
+            ResourceList rl = desc.getResourceList();
+
+            Iterator<ResourcePair> iterator = rl.iterator();
+            List<AbstractVizResource<?, ?>> rscsToRemove = new ArrayList<AbstractVizResource<?, ?>>();
+
+            while (iterator.hasNext()) {
+                ResourcePair rp = iterator.next();
+                if (!rp.getProperties().isMapLayer()
+                        && !rp.getProperties().isSystemResource()) {
+                    rscsToRemove.add(rp.getResource());
+                }
             }
-        } catch (VizException e) {
-            throw new ExecutionException("Error during clear", e);
+
+            for (AbstractVizResource<?, ?> rsc : rscsToRemove) {
+                rl.removeRsc(rsc);
+            }
         }
+        cont.refresh();
 
         return null;
     }

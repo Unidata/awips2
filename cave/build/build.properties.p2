@@ -14,7 +14,7 @@ skipFetch=true
 skipMaps=true
 baseos=linux
 basews=gtk
-basearch=x86
+basearch=x86_64
 
 logExtension=.log
 javacDebugInfo=false

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <!-- The following toolbar Submenu, Baumgardt VB Supplemental Package, 
+        is new. -->
+    <contribute xsi:type="toolbarSubMenu" menuText="Baumgardt VB Supplemental Package">
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/fields/planview-timeseries/other/baumgardt.xml" />
+    </contribute>
+    <!-- End Baumgardt Submenu -->
+    <contribute xsi:type="menuItem" menuText="Cloud Cover"
+        key="CCP" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Cloud Decks"
+        key="clDecks" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Cloud Type"
+        key="CTyp" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Cloud Liquid"
+        key="CW" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Cloud Ice" key="CIce"
+        indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Cloud Condensate"
+        key="ClCond" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Precip Type"
+        key="PTyp" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Precip Conc"
+        key="HyC" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Rain Conc" key="RAIN"
+        indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Snow Conc" key="SNOW"
+        indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Ice Conc" key="PICE"
+        indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Icing Pot" key="IP"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Turb Kin Energy"
+        key="TKE" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Peak Power"
+        key="pkPwr" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Vert Var" key="w2"
+        indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Horz Var" key="uv2"
+        indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Storm Rel Flow RM"
+        key="SRMr" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Stm Rel Flow Mag RM"
+        key="SRMrM" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Storm Rel Flow LM"
+        key="SRMl" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Stm Rel Flow Mag LM"
+        key="SRMlM" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Turbulence Index"
+        key="TPFI" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Icing Probability"
+        key="ICIP" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Icing Potential"
+        key="TIPD" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Icing Severity"
+        key="ICI" indentText="true" />
+    <contribute xsi:type="menuItem"
+        menuText="Supercooled Large Droplet (SLD) Probability" key="SLDP"
+        indentText="true" />
+</menuTemplate>

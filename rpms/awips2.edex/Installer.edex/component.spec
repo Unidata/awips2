@@ -10,8 +10,8 @@ BuildRoot: %{_build_root}
 URL: N/A
 License: N/A
 Distribution: N/A
-Vendor: Raytheon
-Packager: Bryan Kowal
+Vendor: Unidata
+Packager: Michael James
 
 provides: awips2-edex
 provides: awips2-base-component
@@ -76,11 +76,6 @@ cp -v ${EDEX_BASE}/scripts/init.d/* \
 if [ $? -ne 0 ]; then
    exit 1
 fi
-# rename the script to prevent naming conflicts during installation
-pushd . > /dev/null 2>&1
-cd %{_build_root}/etc/init.d
-mv edexServiceList edexServiceList-edex
-popd > /dev/null 2>&1
 
 # copy versions.sh.
 UTILITY="${INSTALLER_RPM}/utility"
@@ -102,19 +97,6 @@ fi
 %pre
 
 %post
-# replace the service list script with the edex service list script
-if [ ! -f /etc/init.d/edexServiceList-datadelivery ]; then
-   if [ -f /etc/init.d/edexServiceList ]; then
-      mv /etc/init.d/edexServiceList /etc/init.d/edexServiceList.orig
-      if [ $? -ne 0 ]; then
-         exit 1
-      fi
-   fi
-   cp /etc/init.d/edexServiceList-edex /etc/init.d/edexServiceList
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-fi
 MACHINE_BIT=`uname -i`
 if [ "${MACHINE_BIT}" = "i386" ]
 then
@@ -161,6 +143,9 @@ if [ -d $UTILITY ] && [ -f $UTIL_FILENAME ]; then
    rm -f $UTIL_FILENAME
 fi
 
+
+chmod 775 /awips2/edex/data/manual
+chmod 775 /awips2/edex/logs
 
 %preun
 if [ "${1}" = "1" ]; then

@@ -7,7 +7,7 @@
                     <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
                         <resourceType>PLAN_VIEW</resourceType>
                         <capabilities>
-                            <capability xsi:type="densityCapability" density="0.33"/>
+                            <capability xsi:type="densityCapability" density="0.0"/>
                         </capabilities>
                     </loadProperties>
                     <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
@@ -38,7 +38,7 @@
                     <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
                         <resourceType>PLAN_VIEW</resourceType>
                         <capabilities>
-                            <capability xsi:type="densityCapability" density="0.33"/>
+                            <capability xsi:type="densityCapability" density="0.0"/>
                         </capabilities>
                     </loadProperties>
                     <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
@@ -69,7 +69,7 @@
                     <loadProperties xsi:type="gridLoadProperties" displayType="BARB" loadWithoutData="false">
                         <resourceType>PLAN_VIEW</resourceType>
                         <capabilities>
-                            <capability xsi:type="densityCapability" density="0.33"/>
+                            <capability xsi:type="densityCapability" density="0.0"/>
                         </capabilities>
                     </loadProperties>
                     <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
@@ -100,7 +100,7 @@
                     <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
                         <resourceType>PLAN_VIEW</resourceType>
                         <capabilities>
-                            <capability xsi:type="densityCapability" density="0.33"/>
+                            <capability xsi:type="densityCapability" density="0.0"/>
                         </capabilities>
                     </loadProperties>
                     <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
@@ -131,7 +131,7 @@
                     <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
                         <resourceType>PLAN_VIEW</resourceType>
                         <capabilities>
-                            <capability xsi:type="densityCapability" density="0.33"/>
+                            <capability xsi:type="densityCapability" density="0.0"/>
                         </capabilities>
                     </loadProperties>
                     <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
@@ -162,7 +162,7 @@
                     <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
                         <resourceType>PLAN_VIEW</resourceType>
                         <capabilities>
-                            <capability xsi:type="densityCapability" density="0.33"/>
+                            <capability xsi:type="densityCapability" density="0.0"/>
                         </capabilities>
                     </loadProperties>
                     <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">

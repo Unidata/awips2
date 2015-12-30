@@ -26,6 +26,7 @@ function lookupRPM()
    awips2_core_dir="${rpms_dir}/awips2.core"
    awips2_edex_dir="${rpms_dir}/awips2.edex"
    awips2_qpid_dir="${rpms_dir}/awips2.qpid"
+   awips2_upc_dir="${rpms_dir}/awips2.upc"
    python_site__dir="${rpms_dir}/python.site-packages"
 
    installer_dir="${rpms_dir}/../installers/RPMs"
@@ -89,6 +90,20 @@ function lookupRPM()
       export RPM_SPECIFICATION="${installer_dir}/scipy-0.15.0/"
       return 0
    fi
+   if [ "${1}" = "awips2-python-pyparsing" ]; then
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.pyparsing"
+      return 0
+   fi
+   if [ "${1}" = "awips2-python-metpy" ]; then
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.metpy"
+      return 0
+   fi
+   if [ "${1}" = "awips2-python-pint" ]; then
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.pint"
+      return 0
+   fi
+
+
    if [ "${1}" = "awips2-python-tables" ]; then
       export RPM_SPECIFICATION="${installer_dir}/tables-2.1.2/"
       return 0
@@ -224,7 +239,11 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-ldm" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.ldm"
+      export RPM_SPECIFICATION="${awips2_upc_dir}/Installer.ldm"
+      return 0
+   fi
+   if [ "${1}" = "awips2-edex-upc" ]; then
+      export RPM_SPECIFICATION="${awips2_upc_dir}/Installer.edex-upc"
       return 0
    fi
    if [ "${1}" = "awips2-postgres" ]; then

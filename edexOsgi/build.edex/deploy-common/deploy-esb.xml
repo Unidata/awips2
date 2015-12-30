@@ -1,0 +1,126 @@
+<project name="deploy.esb" default="main">	
+	<import file="deploy-web.xml" />
+	
+	<target name="main">		
+		<!-- on a developer machine, the following directories should
+		     already exist. -->
+		<mkdir dir="${edex.root.directory}/lib" />
+		<mkdir dir="${edex.root.directory}/bin" />
+		<mkdir dir="${edex.root.directory}/conf" />
+		
+		<antcall target="cleanup" />
+		
+		<!-- Determine if any Work Assignments have been specified. -->
+		<condition property="wa.enabled">
+			<not><equals arg1="${wa.to.deploy}" arg2="" /></not>
+		</condition>
+		
+		<antcall target="deploy.esb" />
+		<if>
+			<equals arg1="${deploy.data}" arg2="true" />
+			<then>
+				<antcall target="deploy.esb-data" />
+			</then>
+		</if>
+		
+		<if>
+			<isset property="wa.enabled" />
+			<then>
+				<for list="${wa.to.deploy}" param="wa"
+				delimiter="${path.separator}">
+					<sequential>
+						<basename property="wa.name" file="@{wa}" />
+						<var name="wa.base.directory"
+							value="@{wa}/edex/deploy.edex-${wa.name}" /> 
+						<if>
+							<available file="${wa.base.directory}/esb" 
+								type="dir" />	
+							<then>
+								<copy todir="${edex.root.directory}"
+								overwrite="${esb.overwrite}" failonerror="true">
+									<fileset dir="${wa.base.directory}/esb">
+										<include name="**/*" />
+									</fileset>
+								</copy>
+							</then>
+						</if>
+					</sequential>
+				</for>
+			</then>
+		</if>
+	</target>
+	
+	<target name="cleanup">		
+		<!-- delete all files under ${esbDir}/lib/ -->
+        <echo message="Cleaning target directory: ${edex.root.directory}/lib/" />
+        <delete includeemptydirs="true">
+            <fileset dir="${edex.root.directory}/lib/">
+                <include name="**" />
+                <exclude name="native/**" />
+            </fileset>
+        </delete>
+
+        <!-- delete the shell scripts from ${esbDir}/bin/ -->
+        <echo message="Cleaning target directory: ${edex.root.directory}/bin/" />
+        <delete includeemptydirs="true">
+            <fileset dir="${edex.root.directory}/bin/">
+                <include name="*.sh"/>
+        		<include name="yajsw/**" />
+            </fileset>
+        </delete>
+
+        <echo message="Cleaning target directory: ${edex.root.directory}/conf" />
+        <delete>
+            <fileset dir="${edex.root.directory}/conf">
+                <include name="**" />
+                <exclude name="**/site/**"/>
+            </fileset>
+        </delete>
+	</target>
+	
+	<target name="deploy.esb">
+		<copy todir="${edex.root.directory}"
+		overwrite="${esb.overwrite}">
+			<fileset dir="${esb.directory}">
+				<exclude name="data/**" />
+				<exclude name="svcBackup/**" />
+				<exclude name="**/bin/setup.env" />
+				<exclude name="**/bin/linux-x86-32/**" />
+				<exclude name="**/bin/linux-x86-64/**" />
+				<exclude name="**/lib/lib_illusion/**" />
+			</fileset>
+		</copy>
+		
+		<!-- copy the correct 'libpython.so' based on architecture. -->
+                <if>
+                   <available
+                           file="${esb.directory}/lib/lib_illusion/${architecture}"
+                           type="dir" />
+                   <then>
+		      <mkdir dir="${edex.root.directory}/lib/lib_illusion" />
+		      <copy todir="${edex.root.directory}/lib/lib_illusion">
+			      <fileset dir="${esb.directory}/lib/lib_illusion/${architecture}">
+				      <include name="*.so" />
+			      </fileset>
+		      </copy>
+                   </then>
+                </if>
+		
+		<!-- set executable permissions - start.sh. -->
+		<chmod file="${edex.root.directory}/bin/start.sh" perm="ugo+rx" />
+	</target>
+
+	<target name="deploy.esb-data">
+		<copy todir="${edex.root.directory}"
+		overwrite="${esb.overwrite}">
+			<fileset dir="${esb.directory}" includes="data/**" />
+		</copy>
+		
+		<!-- update directory permissions. -->
+		<chmod dir="${edex.root.directory}/data" perm="775" 
+			includes="**/*" type="both" />
+	</target>
+	
+	<taskdef resource="net/sf/antcontrib/antlib.xml" 
+		classpath="${basedir}/lib/ant/ant-contrib-1.0b3.jar" />
+</project>

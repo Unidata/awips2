@@ -1,0 +1,84 @@
+<configuration debug="false" scan="true">
+   <!-- general application log --> 
+   <appender name="console" class="ch.qos.logback.core.ConsoleAppender"> 
+      <param name="Threshold" value="INFO" /> 
+      <encoder> 
+         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
+      </encoder>
+   </appender>
+
+   <!-- hibernate log -->
+   <appender name="HibernateLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-hibernate-%d{yyyyMMdd}.log</fileNamePattern>
+         <maxHistory>30</maxHistory>
+      </rollingPolicy> 
+
+      <encoder> 
+         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
+      </encoder>
+   </appender>
+
+   <logger name="com.raytheon">
+      <level value="INFO"/>
+   </logger>
+
+   <!-- used by c3p0 -->
+   <logger name="com.mchange">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="com.tc">
+      <level value="WARN"/>
+   </logger>
+   <logger name="mx4j">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="org.apache">
+      <level value="INFO"/>
+   </logger>
+   <logger name="org.apache.activemq.spring">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.apache.camel.impl.converter.DefaultTypeConverter">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="org.apache.camel.core.xml">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.apache.qpid">
+      <level value="INFO"/>
+   </logger>
+   <logger name="org.apache.qpid.client.BasicMessageProducer_0_10">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.apache.xbean.spring">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.quartz">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="org.springframework">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="org.hibernate" additivity="false">
+      <level value="ERROR"/>
+      <appender-ref ref="HibernateLog" />
+   </logger>
+   <logger name="org.geotools">
+      <level value="WARN"/>
+   </logger>
+   
+   <!--  <logger name="com.raytheon.uf.edex.datadelivery.provideragent" additivity="false">
+   		<level value="INFO"/>
+   		<appender-ref ref="ProviderAgent"/>
+   </logger>-->
+
+   <!-- default logging --> 
+   <root> 
+      <level value="INFO"/>
+      <appender-ref ref="console"/>
+      <!--
+      <appender-ref ref="ThreadBasedLog"/>
+       --> 
+    </root> 
+</configuration> 

@@ -1,74 +1,81 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-    <!--
-        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
-        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
-        
-        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
-        This_software_product_contains_export-restricted_data_whose
-        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
-        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
-        an_export_license_or_other_authorization.
-        
-        Contractor_Name:________Raytheon_Company
-        Contractor_Address:_____6825_Pine_Street,_Suite_340
-        ________________________Mail_Stop_B8
-        ________________________Omaha,_NE_68106
-        ________________________402.291.0100
-        
-        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
-        further_licensing_information.
-    -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="satBundleItem" file="bundles/DefaultCompositeSatellite.xml" 
-                menuText="IR Window" id="irWindow">
-        <substitute key="timeMatchMode" value="${blendedTimeMatchMode;ALL_IMAGES}"/>
-        <substitute key="element" value="Imager 11 micron IR"/>
-        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-    </contribute>
-    <contribute xsi:type="satBundleItem" file="bundles/DefaultCompositeSatellite.xml" 
-                menuText="Water Vapor" id="waterVapor">
-        <substitute key="timeMatchMode" value="${blendedTimeMatchMode;ALL_IMAGES}"/>
-        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
-        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
-    </contribute>
-    <contribute xsi:type="satBundleItem" file="bundles/DefaultCompositeSatellite.xml" 
-                menuText="Visible" id="visible">
-        <substitute key="timeMatchMode" value="${blendedTimeMatchMode;ALL_IMAGES}"/>
-        <substitute key="element" value="Imager Visible"/>      
-        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
-    </contribute>
-    <contribute xsi:type="satBundleItem" file="bundles/DefaultCONUSSatellite.xml" 
-                menuText="3.9u" id="3.9u">
-        <substitute key="element" value="Imager 3.9 micron IR"/>
-        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-    </contribute>
-    <contribute xsi:type="satBundleItem" file="bundles/DefaultCONUSSatellite.xml" 
-                menuText="13u" id="13u">
-        <substitute key="element" value="Imager 13 micron (IR)"/>
-        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-    </contribute>
-    <contribute xsi:type="satBundleItem" file="bundles/DerivedCONUSSatellite.xml" 
-                menuText="11u-3.9u" id="11-3.9u">
-        <substitute key="element" value="satDif11u3_9uIR"/>
-        <substitute key="colormap" value="Sat/VIS/CA (Low Light Vis)"/>
-    </contribute>
-    <contribute xsi:type="satBundleItem" file="bundles/DerivedCONUSSatellite.xml"
-                menuText="11u-13u" id="11u-13u">
-        <substitute key="timeMatchMode" value="${blendedTimeMatchMode;ALL_IMAGES}"/>
-        <substitute key="element" value="satDif11u13uIR"/>
-        <substitute key="colormap" value="Grid/gridded data"/>
-    </contribute> 
-    <contribute xsi:type="satBundleItem" file="bundles/DerivedCompositeSatellite.xml"
-                menuText="WV/IR" id="WV/IR">
-        <substitute key="timeMatchMode" value="${blendedTimeMatchMode;ALL_IMAGES}"/>
-        <substitute key="element" value="satDivWVIR"/>
-        <substitute key="colormap" value="Sat/IR/IR WV"/>
-    </contribute> 
-	<contribute xsi:type="satBundleItem" file="bundles/DefaultSatelliteFourPanel.xml" 
-                menuText="4 panel (GOES M-Q)" id="4_panel_(GOES_M-Q)"> 
-		<substitute key="element0" value="Imager 11 micron IR"/>
-		<substitute key="element1" value="Imager 13 micron (IR)"/>
-		<substitute key="element2" value="Imager Visible"/>
-		<substitute key="element3" value="Imager 6.7-6.5 micron IR (WV)"/>
+	<contribute xsi:type="subMenu" menuText="Regional Imagery">
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Puerto Rico IR" id="irWindow">
+	        <substitute key="element" value="Imager 11 micron IR"/>
+	        <substitute key="sector" value="Puerto Rico Regional"/>
+	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="Puerto Rico Visible" id="visible">
+	        <substitute key="element" value="Imager Visible"/>
+	        <substitute key="sector" value="Puerto Rico Regional"/>
+	        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+	    </contribute>
+		
+		<contribute xsi:type="separator" id="MySeparatorId"/>
+
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		    menuText="Hawaii IR" id="irWindow">
+			<substitute key="element" value="Imager 11 micron IR"/>
+			<substitute key="sector" value="Hawaii Regional"/>
+			<substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		        menuText="Hawaii Visible" id="visible">
+			<substitute key="element" value="Imager Visible"/>
+			<substitute key="sector" value="Hawaii Regional"/>
+			<substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		</contribute>
+		
+		<contribute xsi:type="separator" id="MySeparatorId"/>
+		
+		
+	    <contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
+	        menuText="Arctic IR" id="Arctic-3.9">
+	        <substitute key="element" value="Imager 3.5-4.0 micron IR"/>
+	        <substitute key="entity" value="COMP" /> 
+	        <substitute key="sector" value="Arctic" />     
+	        <substitute key="colormap" value="Sat/IR/Fog"/>
+	    </contribute>
+		<contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
+	        menuText="Arctic Visible" id="Arctic-Vis">
+	        <substitute key="element" value="Imager Visible"/>
+	        <substitute key="entity" value="COMP" /> 
+	        <substitute key="sector" value="Arctic" />     
+	        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+	    </contribute>
+	    <contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
+	        menuText="Arctic WV" id="Arctic-WV">
+	        <substitute key="element" value="Imager 6.7-6.5 micron WV"/>
+	        <substitute key="entity" value="COMP" /> 
+	        <substitute key="sector" value="Arctic" />     
+	        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
+	    </contribute>
+		
+		<contribute xsi:type="separator" id="MySeparatorId"/>
+		
+	    <contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
+	        menuText="Antarctica IR" id="Arctic-IR1">
+	        <substitute key="element" value="Imager 3.5-4.0 micron IR"/>
+	        <substitute key="entity" value="COMP" /> 
+	        <substitute key="sector" value="Antarctic" />     
+	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+	    </contribute>
+		<contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
+	        menuText="Antarctica Visible" id="Arctic-Vis">
+	        <substitute key="element" value="Imager Visible"/>
+	        <substitute key="entity" value="COMP" /> 
+	        <substitute key="sector" value="Antarctic" />     
+	        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+	    </contribute>
+	    <contribute xsi:type="satBundleItem" file="bundles/DefaultSatellite.xml" 
+	        menuText="Antarctica WV" id="Arctic-WV">
+	        <substitute key="element" value="Imager 6.7-6.5 micron WV"/>
+	        <substitute key="entity" value="COMP" /> 
+	        <substitute key="sector" value="Antarctica" />     
+	        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
+	    </contribute>
 	</contribute>
 </menuTemplate>

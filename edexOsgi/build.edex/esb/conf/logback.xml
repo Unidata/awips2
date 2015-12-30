@@ -1,0 +1,167 @@
+<configuration debug="false" scan="true">
+   <!-- general application log --> 
+   <appender name="console" class="ch.qos.logback.core.ConsoleAppender">       
+      <encoder> 
+         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
+      </encoder> 
+   </appender>
+
+   <appender name="asyncConsole" class="ch.qos.logback.classic.AsyncAppender">            
+      <appender-ref ref="console" />
+   </appender> 
+   
+   <!-- hibernate log -->
+   <appender name="HibernateLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-hibernate-%d{yyyyMMdd}.log</fileNamePattern>
+         <maxHistory>30</maxHistory>
+      </rollingPolicy> 
+
+      <encoder> 
+         <pattern>%-5p %d [%t] %c{0}: %m%n %nopex</pattern> 
+      </encoder> 
+   </appender>
+
+   <!-- ProductSrvRequest log --> 
+   <appender name="ProductSrvRequestLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+         <fileNamePattern>${edex.home}/logs/edex-request-productSrvRequest-%d{yyyyMMdd}.log</fileNamePattern>
+         <maxHistory>30</maxHistory>
+      </rollingPolicy> 
+
+      <encoder> 
+         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
+      </encoder>
+   </appender>    
+   
+   <appender name="ProductSrvRequestLogAsync" class="ch.qos.logback.classic.AsyncAppender">            
+      <appender-ref ref="ProductSrvRequestLog" />
+   </appender> 
+
+   <!-- TextDBSrvRequest log --> 
+   <appender name="TextDBSrvRequestLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+         <fileNamePattern>${edex.home}/logs/edex-request-textdbSrvRequest-%d{yyyyMMdd}.log</fileNamePattern>
+         <maxHistory>30</maxHistory>
+      </rollingPolicy> 
+
+      <encoder> 
+         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
+      </encoder>
+   </appender>    
+   
+   <appender name="TextDBSrvRequestLogAsync" class="ch.qos.logback.classic.AsyncAppender">            
+      <appender-ref ref="TextDBSrvRequestLog" />
+   </appender> 
+
+   <!-- ThriftSrv (RemoteRequestRouteWrapper) request log --> 
+   <appender name="ThriftSrvRequestLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+         <fileNamePattern>${edex.home}/logs/edex-request-thriftSrv-%d{yyyyMMdd}.log</fileNamePattern>
+         <maxHistory>30</maxHistory>
+      </rollingPolicy> 
+      <encoder> 
+         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
+      </encoder>
+   </appender>
+
+   <appender name="ThriftSrvRequestLogAsync" class="ch.qos.logback.classic.AsyncAppender">            
+      <appender-ref ref="ThriftSrvRequestLog" />
+   </appender> 
+
+   <!-- Performance log --> 
+   <appender name="PerformanceLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-performance-%d{yyyyMMdd}.log</fileNamePattern>
+         <maxHistory>30</maxHistory>
+      </rollingPolicy> 
+      <encoder> 
+         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
+      </encoder>
+   </appender>
+
+   <appender name="PerformanceLogAsync" class="ch.qos.logback.classic.AsyncAppender">            
+      <appender-ref ref="PerformanceLog" />
+   </appender> 
+
+   <logger name="ProductSrvRequestLogger" additivity="false">
+   		<level value="DEBUG"/>
+   		<appender-ref ref="ProductSrvRequestLogAsync"/>
+   </logger>    
+
+   <logger name="TextDBSrvRequestLogger" additivity="false">
+   		<level value="DEBUG"/>
+   		<appender-ref ref="TextDBSrvRequestLogAsync"/>
+   </logger>    
+
+   <logger name="ThriftSrvRequestLogger" additivity="false">
+      <level value="Info"/>
+      <appender-ref ref="ThriftSrvRequestLogAsync" />
+   </logger>
+
+   <logger name="PerformanceLogger" additivity="false">
+      <level value="DEBUG"/>
+      <appender-ref ref="PerformanceLogAsync" />
+   </logger>
+
+   <logger name="com.raytheon">
+      <level value="INFO"/>
+   </logger>
+   <logger name="com.raytheon.edex.services.ArchiveSrv">
+      <level value="WARN"/>
+   </logger>
+   <logger name="com.raytheon.edex.services.NotifySrv">
+      <level value="WARN"/>
+   </logger>
+
+   <!-- used by c3p0 -->
+   <logger name="com.mchange">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="com.tc">
+      <level value="WARN"/>
+   </logger>
+   <logger name="mx4j">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="org.apache">
+      <level value="INFO"/>
+   </logger>
+   <logger name="org.apache.activemq.spring">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.apache.camel.impl.converter.DefaultTypeConverter">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="org.apache.camel.core.xml">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.apache.qpid">
+      <level value="INFO"/>
+   </logger>
+   <logger name="org.apache.qpid.client.BasicMessageProducer_0_10">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.apache.xbean.spring">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.quartz">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="org.springframework">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="org.hibernate" additivity="false">
+      <level value="ERROR"/>
+      <appender-ref ref="HibernateLog" />
+   </logger>
+   <logger name="org.geotools">
+      <level value="WARN"/>
+   </logger>
+
+   <!-- default logging --> 
+   <root> 
+      <level value="INFO"/> 
+      <appender-ref ref="asyncConsole"/> 
+    </root> 
+</configuration>

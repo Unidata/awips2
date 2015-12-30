@@ -44,24 +44,23 @@
 	<contribute xsi:type="bundleItem" file="bundles/tools/DistanceScale.xml"
 		menuText="Distance Scale" id="distanceScaleTool" timeQuery="false" />
 	
-    <contribute xsi:type="bundleItem" file="bundles/tools/EstimatedActualVelocity.xml"
-        menuText="Estimated Actual Velocity" id="estimatedActualVelocityTool" timeQuery="false" />
- 
 	<contribute xsi:type="bundleItem" file="bundles/tools/FeatureFollowingZoom.xml"
 		menuText="Feature Following Zoom" id="featureFollowingZoomTool" timeQuery="false" />
+
+    <contribute xsi:type="bundleItem" file="bundles/tools/EstimatedActualVelocity.xml"
+		menuText="Estimated Actual Velocity" id="estimatedActualVelocityTool" timeQuery="false" />
 		
 	<contribute xsi:type="command"
 		commandId="com.raytheon.viz.ui.viz.radarapps.fsi.startFSI"
-		menuText="4-D Storm Investigator (FSI)" />    	
+		menuText="4-D Storm Investigator (FSI)" />
+    
+	<contribute xsi:type="command"
+		commandId="com.raytheon.viz.awipstools.timeofarrival"
+		menuText="Time Of Arrival / Lead Time" />
     
     <contribute xsi:type="bundleItem" file="bundles/tools/Home.xml"
 		menuText="Home" id="homeTool" timeQuery="false" />
     
-    <contribute xsi:type="command"
-		commandId="com.raytheon.viz.awipstools.lapstools"
-		menuText="LAPS tools..." id="lapsTools" />
-    
-    <!-- TODO move into points plugin somehow -->
     <contribute xsi:type="bundleItem" file="bundles/tools/Points.xml"
 		menuText="Points" id="pointsTool" timeQuery="false" />
     
@@ -83,10 +82,6 @@
     <contribute xsi:type="command"
 		commandId="com.raytheon.viz.texteditor.opentexteditor"
 		menuText="Text Window..." />
-  
-    <contribute xsi:type="command"
-        commandId="com.raytheon.viz.awipstools.timeofarrival"
-        menuText="Time Of Arrival / Lead Time" />
     
     <contribute xsi:type="command"
 		commandId="com.raytheon.viz.awipstools.unitscalculator"

@@ -24,26 +24,72 @@
 			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 			<descriptor xsi:type="mapDescriptor" currentAnimationMode="Temporal">
 				<resource>
-                    <loadProperties>
-						<capabilities>
-						</capabilities>
-					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false"
-						isMapLayer="false" isHoverOn="false"
-						isVisible="true" />
-					<resourceData xsi:type="plotResourceData" plotSource="${legend}"
-						plotModelFile="${svg}" spiFile="basemaps/MTR.spi"
-						retrieveData="false" isUpdatingOnMetadataOnly="false"
-						isRequeryNecessaryOnTimeMatch="true" isTopOfTheHour="true">
-						<binOffset posOffset="${posOffset}" negOffset="${negOffset}" virtualOffset="0"/>
-						<metadataMap>
-							<mapping key="reportType">
-								<constraint constraintValue="METAR" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="pluginName">
-								<constraint constraintValue="obs" constraintType="EQUALS" />
-							</mapping>
-						</metadataMap>
+	                <loadProperties loadWithoutData="true">
+                        <capabilities>
+                        </capabilities>
+	                    <resourceType>PLAIN_VIEW</resourceType>
+                    </loadProperties>
+					<resourceData xsi:type="plotBlendedResourceData">	
+						<resource>
+		               		<loadProperties loadWithoutData="true">
+		                   		<capabilities>
+		                   		</capabilities>
+		               		</loadProperties>
+							<properties isSystemResource="false" isBlinking="false"
+								isMapLayer="false" isHoverOn="false"
+								isVisible="true" />
+							<resourceData xsi:type="plotResourceData" plotSource="${legend}"
+								plotModelFile="${svg}" spiFile="basemaps/MTR.spi"
+								retrieveData="false" isUpdatingOnMetadataOnly="false"
+								isRequeryNecessaryOnTimeMatch="true" isTopOfTheHour="true">
+								<binOffset posOffset="${posOffset}" negOffset="${negOffset}" virtualOffset="0"/>
+										<metadataMap>
+											<mapping key="reportType">
+												<constraint constraintValue="METAR" constraintType="EQUALS" />
+											</mapping>
+											<mapping key="pluginName">
+												<constraint constraintValue="obs" constraintType="EQUALS" />
+											</mapping>
+										</metadataMap>
+							</resourceData>
+						</resource>
+						<resource>
+		               		<loadProperties loadWithoutData="true"/>
+							<properties isSystemResource="false" isBlinking="false"
+								isMapLayer="false" isHoverOn="false"
+								isVisible="true" />
+							<resourceData xsi:type="plotResourceData" plotSource="METAR/Maritime"
+								plotModelFile="maritimeDesign.svg"
+								isUpdatingOnMetadataOnly="true" retrieveData="false"
+								isRequeryNecessaryOnTimeMatch="true">
+								<binOffset posOffset="1800" negOffset="1800" virtualOffset="0"/>
+								<metadataMap>
+									<mapping key="reportType">
+										<constraint constraintValue="1003,1005,1007" constraintType="IN" />
+									</mapping>
+									<mapping key="pluginName">
+										<constraint constraintValue="sfcobs" constraintType="EQUALS" />
+									</mapping>
+								</metadataMap>
+							</resourceData>
+						</resource>
+						<resource>
+		               		<loadProperties loadWithoutData="true"/>
+							<properties isSystemResource="false" isBlinking="false"
+								isMapLayer="false" isHoverOn="false"
+								isVisible="true" />
+							<resourceData xsi:type="plotResourceData" plotSource="METAR/Maritime"
+								plotModelFile="ldadMesoDesign.svg"
+								isUpdatingOnMetadataOnly="true" retrieveData="false"
+								isRequeryNecessaryOnTimeMatch="true">
+								<binOffset posOffset="1800" negOffset="1800" virtualOffset="0"/>
+									<metadataMap>
+										<mapping key="pluginName">
+											<constraint constraintValue="ldadmesonet" constraintType="EQUALS" />
+										</mapping>
+									</metadataMap>
+							</resourceData>
+						</resource>
 					</resourceData>
 				</resource>
 			</descriptor>

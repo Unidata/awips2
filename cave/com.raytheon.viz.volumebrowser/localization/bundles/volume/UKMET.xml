@@ -44,7 +44,7 @@
                         </capabilities>
                         <resourceType>PLAN_VIEW</resourceType>
                     </loadProperties>
-                    <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+                    <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
                         <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
                     </properties>
                     <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
@@ -72,26 +72,56 @@
                     </resourceData>
                 </resource>
                 <resource>
-					<loadProperties xsi:type="gridLoadProperties"	displayType="CONTOUR">
-					<capabilities>
-                            <capability xsi:type="displayTypeCapability" displayType="IMAGE"/>
-                            <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="1.0" contrast="1.0"/>      
-                     </capabilities>
-					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false"
-						isMapLayer="false" isHoverOn="false" 
-						isVisible="true" />
-					<resourceData xsi:type="gridResourceData"
-						isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-						<metadataMap>
-							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="AV" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="info.datasetId">
-								<constraint constraintValue="UKMET-NorthernHemisphere" constraintType="EQUALS" />
-							</mapping>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+                        <capabilities>
+                            <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+                        </capabilities>
+                        <resourceType>PLAN_VIEW</resourceType>
+                    </loadProperties>
+                    <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+                        <metadataMap>
+                            <mapping key="info.parameter.abbreviation">
+                                <constraint constraintValue="msl-P" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.datasetId">
+                                <constraint constraintValue="UKMET-NorthernHemisphere" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="grid" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+                                <constraint constraintValue="SFC" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.level.levelonevalue">
+                                <constraint constraintValue="0.0" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+                        <capabilities>
+                            <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+                        </capabilities>
+                        <resourceType>PLAN_VIEW</resourceType>
+                    </loadProperties>
+                    <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+                        <metadataMap>
+                            <mapping key="info.parameter.abbreviation">
+                                <constraint constraintValue="dZ" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.datasetId">
+                                <constraint constraintValue="UKMET-NorthernHemisphere" constraintType="EQUALS"/>
+                            </mapping>
                             <mapping key="info.level.leveltwovalue">
-                                <constraint constraintValue="-999999" constraintType="EQUALS"/>
+                                <constraint constraintValue="500.0" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="pluginName">
                                 <constraint constraintValue="grid" constraintType="EQUALS"/>
@@ -100,11 +130,12 @@
                                 <constraint constraintValue="MB" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.level.levelonevalue">
-                                <constraint constraintValue="500" constraintType="EQUALS"/>
+                                <constraint constraintValue="1000.0" constraintType="EQUALS"/>
                             </mapping>
-						</metadataMap>
-					</resourceData>
-				</resource>
+                        </metadataMap>
+                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
                 <resource>
                     <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
                         <capabilities>
@@ -168,6 +199,37 @@
                             </mapping>
                             <mapping key="info.level.levelonevalue">
                                 <constraint constraintValue="1000.0" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+                        <capabilities>
+                            <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+                        </capabilities>
+                        <resourceType>PLAN_VIEW</resourceType>
+                    </loadProperties>
+                    <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+                        <metadataMap>
+                            <mapping key="info.parameter.abbreviation">
+                                <constraint constraintValue="${TP}" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.datasetId">
+                                <constraint constraintValue="UKMET-NorthernHemisphere" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="grid" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+                                <constraint constraintValue="SFC" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.level.levelonevalue">
+                                <constraint constraintValue="0.0" constraintType="EQUALS"/>
                             </mapping>
                         </metadataMap>
                         <alertParser xsi:type="dataCubeAlertMessageParser"/>
